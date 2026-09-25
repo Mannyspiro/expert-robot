@@ -21,6 +21,7 @@ add_library(expert_robot_core STATIC
     cpp/src/text_generation.cpp
     cpp/src/model_server.cpp
     cpp/src/model_lemma_decomposer.cpp
+    cpp/src/model_formalization_proposer.cpp
     cpp/src/swarm/task.cpp
     cpp/src/swarm/agent.cpp
     cpp/src/swarm/supervisor.cpp
@@ -136,3 +137,9 @@ add_executable(research_episode_ledger_smoke
 )
 target_link_libraries(research_episode_ledger_smoke PRIVATE expert_robot_core SQLite::SQLite3)
 add_test(NAME research_episode_ledger_smoke COMMAND research_episode_ledger_smoke)
+
+add_executable(model_formalization_smoke
+    tests/model_formalization_smoke.cpp
+)
+target_link_libraries(model_formalization_smoke PRIVATE expert_robot_core)
+add_test(NAME model_formalization_smoke COMMAND model_formalization_smoke)
