@@ -1,0 +1,78 @@
+name: Formal Qualification
+
+on:
+  pull_request:
+    paths:
+      - "formal/**"
+      - ".github/workflows/formal-qualification.yml"
+  push:
+    branches: ["main"]
+    paths:
+      - "formal/**"
+      - ".github/workflows/formal-qualification.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: formal-qualification-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lean-qualification:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Project proof-escape audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import pathlib
+          import re
+          import sys
+
+          root = pathlib.Path("formal/MathAI")
+          forbidden = [
+              ("sorry", re.compile(r"(?<![A-Za-z0-9_])sorry(?![A-Za-z0-9_])")),
+              ("admit", re.compile(r"(?<![A-Za-z0-9_])admit(?![A-Za-z0-9_])")),
+              ("native_decide", re.compile(r"(?<![A-Za-z0-9_])native_decide(?![A-Za-z0-9_])")),
+              ("axiom declaration", re.compile(r"(?m)^\s*axiom\s+")),
+              ("unsafe declaration", re.compile(r"(?m)^\s*unsafe\s+")),
+          ]
+
+          failures = []
+          for path in sorted(root.rglob("*.lean")):
+              text = path.read_text(encoding="utf-8")
+              for label, pattern in forbidden:
+                  if pattern.search(text):
+                      failures.append(f"{path}: forbidden {label}")
+
+          if failures:
+              print("\n".join(failures), file=sys.stderr)
+              sys.exit(1)
+
+          print("Project Lean source audit passed.")
+          PY
+
+      - name: Build pinned Lean package
+        uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: "formal"
+          build-args: "--wfail"
+
+      - name: Direct audited-root replay
+        working-directory: formal
+        env:
+          LEAN_ABORT_ON_PANIC: "1"
+        run: lake env lean MathAI.lean
+
+      - name: Registered theorem axiom report
+        working-directory: formal
+        env:
+          LEAN_ABORT_ON_PANIC: "1"
+        run: lake env lean MathAI/Audit.lean
