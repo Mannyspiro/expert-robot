@@ -105,6 +105,42 @@ private:
     std::vector<std::string> prompts_;
 };
 
+class ServerLikeConcurrencyBackend final : public expert_robot::ITextGenerationBackend {
+public:
+    expert_robot::TextGenerationResult generate(
+        const expert_robot::TextGenerationRequest&) override {
+        const int now = active_.fetch_add(1) + 1;
+        int observed = max_active_.load();
+        while (now > observed &&
+               !max_active_.compare_exchange_weak(observed, now)) {}
+
+        std::this_thread::sleep_for(
+            std::chrono::milliseconds(30));
+
+        active_.fetch_sub(1);
+
+        return {
+            .ok = true,
+            .exit_code = 0,
+            .timed_out = false,
+            .output = "server-shared candidate",
+            .diagnostics = ""
+        };
+    }
+
+    [[nodiscard]] bool supports_concurrent_requests() const noexcept override {
+        return true;
+    }
+
+    int max_active() const noexcept {
+        return max_active_.load();
+    }
+
+private:
+    std::atomic<int> active_{0};
+    std::atomic<int> max_active_{0};
+};
+
 class ConcurrencyBackend final : public expert_robot::ITextGenerationBackend {
 public:
     expert_robot::TextGenerationResult generate(
@@ -209,6 +245,20 @@ int main() {
     server_backend_config.server_base =
         "http://127.0.0.1:18081";
     validate_llama_cli_config(server_backend_config);
+    LlamaCliBackend server_client(
+        server_backend_config);
+    assert(
+        server_client.supports_concurrent_requests());
+
+    LlamaCliConfig direct_backend_config;
+    direct_backend_config.model_path =
+        "models/math/test.gguf";
+    validate_llama_cli_config(
+        direct_backend_config);
+    LlamaCliBackend direct_client(
+        direct_backend_config);
+    assert(
+        !direct_client.supports_concurrent_requests());
 
     bool remote_backend_rejected = false;
     try {
@@ -270,6 +320,46 @@ int main() {
         });
     assert(serialized_results.size() == 4);
     assert(concurrency_backend.max_active() == 1);
+
+    ServerLikeConcurrencyBackend server_like_backend;
+    SwarmSupervisor concurrent_server_swarm(
+        {
+            {AgentRole::Mathematician, &server_like_backend}
+        },
+        SwarmLimits{
+            .max_parallel_agents = 4,
+            .max_total_tasks = 8,
+            .max_depth = 3,
+            .max_children_per_parent = 6,
+            .serialize_shared_backend = true
+        });
+
+    const auto concurrent_results =
+        concurrent_server_swarm.run_batch({
+            {
+                .task_id = "server-a",
+                .role = AgentRole::Mathematician,
+                .goal = "g"
+            },
+            {
+                .task_id = "server-b",
+                .role = AgentRole::Analogist,
+                .goal = "g"
+            },
+            {
+                .task_id = "server-c",
+                .role = AgentRole::Skeptic,
+                .goal = "g"
+            },
+            {
+                .task_id = "server-d",
+                .role = AgentRole::GeometrySpecialist,
+                .goal = "g"
+            }
+        });
+
+    assert(concurrent_results.size() == 4);
+    assert(server_like_backend.max_active() >= 2);
 
     const auto aggregated =
         aggregate_results(serialized_results);
