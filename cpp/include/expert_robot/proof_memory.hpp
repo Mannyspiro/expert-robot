@@ -54,7 +54,8 @@ public:
     MemoryGuidedProofSearch(
         std::vector<std::string> base_strategies,
         ILeanRunner& runner,
-        ProofMemory& memory);
+        ProofMemory& memory,
+        bool record_results = true);
 
     [[nodiscard]] SearchResult search(const SearchProblem& problem) override;
 
@@ -62,6 +63,7 @@ private:
     std::vector<std::string> base_strategies_;
     ILeanRunner& runner_;
     ProofMemory& memory_;
+    bool record_results_{true};
 };
 
 } // namespace expert_robot
