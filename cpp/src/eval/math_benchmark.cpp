@@ -513,6 +513,8 @@ BenchmarkRun MathBenchmarkRunner::run(
         }
     }
 
+    }
+
     for (auto& [key, summary] :
          summaries) {
         (void)key;
