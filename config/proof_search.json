@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "strategies": [
+    "simp",
+    "norm_num",
+    "norm_num [MathAI.Geometry.pointOnPlane, MathAI.Geometry.dot, MathAI.Geometry.pointVec]",
+    "norm_num [MathAI.Geometry.pointOnLine, MathAI.Geometry.cross, MathAI.Geometry.vecBetween, MathAI.Geometry.zeroVec]",
+    "norm_num [MathAI.Geometry.pointOnSphere, MathAI.Geometry.squaredDistance]",
+    "norm_num [MathAI.Geometry.orthogonal, MathAI.Geometry.dot]",
+    "ring",
+    "ring_nf",
+    "linarith",
+    "nlinarith",
+    "omega",
+    "positivity",
+    "aesop"
+  ],
+  "timeout_seconds": 20
+}
