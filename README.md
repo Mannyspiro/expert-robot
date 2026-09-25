@@ -11,7 +11,7 @@ Expert Robot is a local, modular AI research system designed around a thin Pytho
   - generation lifecycle
   - promotion/rejection decisions from measured results
 - **C++**: everything performance-critical and trusted
-  - artificial interoception + software neuromodulation
+  - artificial interoception + software neuromodulation + personality executive
   - model adapters / inference backends
   - tool execution
   - sandbox interfaces
@@ -60,8 +60,10 @@ expert-robot/
 ├── cpp/
 │   ├── include/expert_robot/
 │   │   ├── cognition/
+│   │   │   ├── controller.hpp
 │   │   │   ├── interoception.hpp
-│   │   │   └── neuromodulation.hpp
+│   │   │   ├── neuromodulation.hpp
+│   │   │   └── personality.hpp
 │   │   ├── protocol.hpp
 │   │   └── runtime.hpp
 │   └── src/
@@ -89,11 +91,21 @@ runtime / proof / theorem-graph telemetry
                   v
        software neuromodulators
                   |
-                  v
-    executive search-allocation biases
-                  |
-                  v
-      math / code / research agents
+                  +--------------------+
+                  |                    |
+                  v                    v
+        transient affect        logical assessment
+                  |                    |
+                  +---------+----------+
+                            |
+                            v
+                 personality executive
+                            |
+                            v
+                   cognitive action
+                            |
+                            v
+              math / code / research agents
                   |
                   v
                  Lean
@@ -104,12 +116,23 @@ surprise, uncertainty, route repetition, and verified progress. Software
 neuromodulators turn those measurements into exploration, persistence,
 attention, strategy-switch, and compute-conservation biases.
 
+The initial personality is deliberately **high-openness + high-skepticism**:
+creative enough to search distant representations while demanding external
+evidence. It can select actions such as continue, explore, decompose, seek a
+counterexample, generalize, compress, switch representation, intensify
+verification, or conserve compute.
+
+The integrated `CognitionController` performs the entire deterministic step:
+
+`sensors + logic -> interoception -> neuromodulation -> personality -> action`
+
 These cognition modules may change **how the system searches**, but cannot
 change **what counts as verified**. Lean qualification and authority boundaries
 remain fixed.
 
-See `docs/artificial-interoception.md` and
-`docs/software-neuromodulators.md`.
+See `docs/artificial-interoception.md`,
+`docs/software-neuromodulators.md`, and
+`docs/personality-executive.md`.
 
 ## IPC
 
