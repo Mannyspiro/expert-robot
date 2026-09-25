@@ -109,5 +109,26 @@ int main() {
     assert(loaded.edges().size() == 1);
     std::filesystem::remove(graph_path);
 
+    graph.sync_formal_registry(
+        "formal/theorem_registry.json");
+
+    assert(graph.nodes().size() == 4);
+    assert(
+        graph.get(
+            "MathAI.Trust.add_zero_verified").status ==
+        "verified");
+    assert(
+        graph.get(
+            "MathAI.Trust.square_nonnegative").status ==
+        "verified");
+    assert(
+        graph.get(
+            "MathAI.Geometry.origin_on_xy_plane").status ==
+        "verified");
+    assert(
+        graph.get(
+            "MathAI.Geometry.unit_x_on_unit_sphere").status ==
+        "verified");
+
     return 0;
 }
