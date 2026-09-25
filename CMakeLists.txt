@@ -39,6 +39,7 @@ add_library(expert_robot_core STATIC
     cpp/src/research/episode_ledger.cpp
     cpp/src/research/candidate_verifier.cpp
     cpp/src/research/knowledge_consolidator.cpp
+    cpp/src/research/engine.cpp
     cpp/src/cognition/neuromodulation.cpp
     cpp/src/cognition/interoception.cpp
     cpp/src/cognition/personality.cpp
@@ -157,3 +158,9 @@ add_executable(knowledge_consolidator_smoke
 )
 target_link_libraries(knowledge_consolidator_smoke PRIVATE expert_robot_core)
 add_test(NAME knowledge_consolidator_smoke COMMAND knowledge_consolidator_smoke)
+
+add_executable(math_research_engine_smoke
+    tests/math_research_engine_smoke.cpp
+)
+target_link_libraries(math_research_engine_smoke PRIVATE expert_robot_core)
+add_test(NAME math_research_engine_smoke COMMAND math_research_engine_smoke)
