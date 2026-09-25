@@ -53,6 +53,15 @@ public:
         std::string_view skill_id,
         const SkillOutcome& outcome);
 
+    void record_generation(
+        std::string_view skill_id,
+        bool skeptic_passed,
+        bool shortlisted);
+
+    void record_downstream(
+        std::string_view skill_id,
+        bool verified);
+
     [[nodiscard]] SkillStats stats(
         std::string_view skill_id) const;
 
