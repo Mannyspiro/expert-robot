@@ -4,9 +4,11 @@
 #include "expert_robot/sha256.hpp"
 
 #include <algorithm>
+#include <set>
 #include <sstream>
 #include <stdexcept>
 #include <unordered_set>
+#include <utility>
 
 namespace expert_robot {
 namespace {
@@ -37,7 +39,89 @@ std::string canonical_binders(const std::vector<Binder>& binders) {
     return out.str();
 }
 
+
+std::set<std::string> top_level_keys(const std::string& json) {
+    std::set<std::string> keys;
+    std::size_t i = 0;
+    while (i < json.size() &&
+           std::isspace(static_cast<unsigned char>(json[i]))) {
+        ++i;
+    }
+    if (i >= json.size() || json[i] != '{') {
+        throw std::invalid_argument("JSON value must be an object");
+    }
+
+    int depth = 0;
+    bool in_string = false;
+    bool escaped = false;
+
+    for (; i < json.size(); ++i) {
+        const char ch = json[i];
+
+        if (in_string) {
+            if (escaped) escaped = false;
+            else if (ch == '\\') escaped = true;
+            else if (ch == '"') in_string = false;
+            continue;
+        }
+
+        if (ch == '{' || ch == '[') {
+            ++depth;
+            continue;
+        }
+        if (ch == '}' || ch == ']') {
+            --depth;
+            continue;
+        }
+
+        if (ch == '"' && depth == 1) {
+            std::string key;
+            bool key_escaped = false;
+            std::size_t j = i + 1U;
+            for (; j < json.size(); ++j) {
+                const char kj = json[j];
+                if (key_escaped) {
+                    key.push_back(kj);
+                    key_escaped = false;
+                } else if (kj == '\\') {
+                    key_escaped = true;
+                } else if (kj == '"') {
+                    break;
+                } else {
+                    key.push_back(kj);
+                }
+            }
+            if (j >= json.size()) {
+                throw std::invalid_argument("unterminated JSON object key");
+            }
+            std::size_t k = j + 1U;
+            while (k < json.size() &&
+                   std::isspace(static_cast<unsigned char>(json[k]))) {
+                ++k;
+            }
+            if (k < json.size() && json[k] == ':') {
+                keys.insert(std::move(key));
+            }
+            i = j;
+        }
+    }
+
+    return keys;
+}
+
 FormalizationProposal proposal_from_json_object(const std::string& object) {
+    static const std::set<std::string> allowed = {
+        "name", "namespace", "binders", "proposition",
+        "imports", "domain", "rationale"
+    };
+    const auto keys = top_level_keys(object);
+    for (const auto& key : keys) {
+        if (!allowed.contains(key)) {
+            throw std::invalid_argument(
+                "unknown proposal field in decomposition: " + key);
+        }
+    }
+
     FormalizationProposal proposal;
     proposal.name = json_util::string_field(object, "name");
     proposal.name_space =
@@ -353,16 +437,16 @@ std::vector<FormalizationProposal> parse_decomposition_json(
     }
 
     const std::string json(text);
+    const auto keys = top_level_keys(json);
+    if (keys != std::set<std::string>{"lemmas"}) {
+        throw std::invalid_argument(
+            "decomposition must be an object containing only lemmas");
+    }
+
     const auto lemmas = json_util::object_array(json, "lemmas");
     if (lemmas.size() > max_children) {
         throw std::invalid_argument(
             "decomposition exceeds max_children");
-    }
-
-    // Require the top-level object to actually contain the lemmas key.
-    if (json.find("\"lemmas\"") == std::string::npos) {
-        throw std::invalid_argument(
-            "decomposition must contain a lemmas array");
     }
 
     std::vector<FormalizationProposal> proposals;
