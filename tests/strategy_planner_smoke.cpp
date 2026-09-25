@@ -368,6 +368,176 @@ int main() {
         geometry_a->evidence_confidence ==
         0.0);
 
+    // Context-specific evidence can reverse ordering within the same domain
+    // without changing the broad domain prior.
+    const auto context_db =
+        std::filesystem::temp_directory_path() /
+        "expert-robot-context-strategy.sqlite3";
+    std::filesystem::remove(context_db);
+
+    RouteOutcomeLedger context_memory(
+        context_db);
+
+    const ResearchStrategyContext reframe_context{
+        .domain = "algebra",
+        .theorem_graph_coverage = 0.90,
+        .uncertainty = 0.20,
+        .route_repetition = 0.20,
+        .consecutive_failures = 2,
+        .decomposition_value = 0.45,
+        .counterexample_value = 0.10,
+        .abstraction_value = 0.25,
+        .compression_value = 0.30,
+        .representation_switch_value = 0.95
+    };
+
+    const ResearchStrategyContext imagine_context{
+        .domain = "algebra",
+        .theorem_graph_coverage = 0.10,
+        .uncertainty = 0.90,
+        .route_repetition = 0.90,
+        .consecutive_failures = 8,
+        .decomposition_value = 0.55,
+        .counterexample_value = 0.20,
+        .abstraction_value = 0.85,
+        .compression_value = 0.30,
+        .representation_switch_value = 0.25
+    };
+
+    const std::string reframe_key =
+        research_strategy_context_key(
+            reframe_context);
+    const std::string imagine_key =
+        research_strategy_context_key(
+            imagine_context);
+
+    assert(reframe_key != imagine_key);
+    assert(
+        reframe_key.find("graph=high") !=
+        std::string::npos);
+    assert(
+        reframe_key.find("need=reframe") !=
+        std::string::npos);
+    assert(
+        imagine_key.find("uncertainty=high") !=
+        std::string::npos);
+    assert(
+        imagine_key.find("failures=stuck") !=
+        std::string::npos);
+
+    for (int i = 0; i < 6; ++i) {
+        context_memory.record_strategy_context(
+            ResearchStrategyContextOutcome{
+                .strategy_id =
+                    research_strategy_id(signature_a),
+                .signature = signature_a,
+                .context_key = reframe_key,
+                .verified_progress = true,
+                .target_verified = true,
+                .dead_end_escaped = true,
+                .resource_cost = 0.20
+            });
+        context_memory.record_strategy_context(
+            ResearchStrategyContextOutcome{
+                .strategy_id =
+                    research_strategy_id(signature_b),
+                .signature = signature_b,
+                .context_key = reframe_key,
+                .verified_progress = false,
+                .target_verified = false,
+                .dead_end_escaped = false,
+                .resource_cost = 0.80
+            });
+
+        context_memory.record_strategy_context(
+            ResearchStrategyContextOutcome{
+                .strategy_id =
+                    research_strategy_id(signature_a),
+                .signature = signature_a,
+                .context_key = imagine_key,
+                .verified_progress = false,
+                .target_verified = false,
+                .dead_end_escaped = false,
+                .resource_cost = 0.80
+            });
+        context_memory.record_strategy_context(
+            ResearchStrategyContextOutcome{
+                .strategy_id =
+                    research_strategy_id(signature_b),
+                .signature = signature_b,
+                .context_key = imagine_key,
+                .verified_progress = true,
+                .target_verified = true,
+                .dead_end_escaped = true,
+                .resource_cost = 0.20
+            });
+    }
+
+    ResearchStrategyPlanner contextual_planner(
+        ResearchStrategyPlannerConfig{},
+        &context_memory);
+
+    const auto reframe_plans =
+        contextual_planner.plan(
+            {seq_a_new, seq_b_new},
+            "algebra",
+            &reframe_context);
+    const auto imagine_plans =
+        contextual_planner.plan(
+            {seq_a_new, seq_b_new},
+            "algebra",
+            &imagine_context);
+    const auto no_context_plans =
+        contextual_planner.plan(
+            {seq_a_new, seq_b_new},
+            "algebra");
+
+    const auto* reframe_a =
+        find_signature(
+            reframe_plans,
+            signature_a);
+    const auto* reframe_b =
+        find_signature(
+            reframe_plans,
+            signature_b);
+    const auto* imagine_a =
+        find_signature(
+            imagine_plans,
+            signature_a);
+    const auto* imagine_b =
+        find_signature(
+            imagine_plans,
+            signature_b);
+    const auto* no_context_a =
+        find_signature(
+            no_context_plans,
+            signature_a);
+    const auto* no_context_b =
+        find_signature(
+            no_context_plans,
+            signature_b);
+
+    assert(reframe_a != nullptr);
+    assert(reframe_b != nullptr);
+    assert(imagine_a != nullptr);
+    assert(imagine_b != nullptr);
+    assert(no_context_a != nullptr);
+    assert(no_context_b != nullptr);
+
+    assert(reframe_a->context_adjustment > 0.0);
+    assert(reframe_b->context_adjustment < 0.0);
+    assert(reframe_a->final_score > reframe_b->final_score);
+
+    assert(imagine_a->context_adjustment < 0.0);
+    assert(imagine_b->context_adjustment > 0.0);
+    assert(imagine_b->final_score > imagine_a->final_score);
+
+    assert(no_context_a->context_adjustment == 0.0);
+    assert(no_context_b->context_adjustment == 0.0);
+    assert(no_context_b->base_score > no_context_a->base_score);
+
+    std::filesystem::remove(context_db);
+
     // Two theorem-specific sequences with the same move signature collapse to
     // one strategy and retain the stronger exemplar.
     const auto seq_a_weaker =
