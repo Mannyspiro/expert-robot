@@ -2,6 +2,7 @@
 
 #include "expert_robot/cognition/controller.hpp"
 #include "expert_robot/imagination/archive.hpp"
+#include "expert_robot/imagination/memory.hpp"
 #include "expert_robot/knowledge_graph.hpp"
 #include "expert_robot/skills/math_skill.hpp"
 #include "expert_robot/swarm/supervisor.hpp"
@@ -55,7 +56,8 @@ public:
         ImaginationConfig config = {},
         const KnowledgeGraph* theorem_graph = nullptr,
         skills::MathSkillCatalog skill_catalog =
-            skills::MathSkillCatalog::builtins());
+            skills::MathSkillCatalog::builtins(),
+        ImaginationMemory* memory = nullptr);
 
     [[nodiscard]] ImaginationRun run(
         const ImaginationRequest& request);
@@ -78,6 +80,7 @@ private:
     const KnowledgeGraph* theorem_graph_{nullptr};
     QualityDiversityArchive archive_;
     skills::MathSkillCatalog skills_;
+    ImaginationMemory* memory_{nullptr};
 };
 
 } // namespace expert_robot::imagination
