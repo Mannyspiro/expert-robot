@@ -108,3 +108,9 @@ add_executable(growth_governance_smoke
 )
 target_link_libraries(growth_governance_smoke PRIVATE expert_robot_core)
 add_test(NAME growth_governance_smoke COMMAND growth_governance_smoke)
+
+add_executable(math_eval_smoke
+    tests/math_eval_smoke.cpp
+)
+target_link_libraries(math_eval_smoke PRIVATE expert_robot_core)
+add_test(NAME math_eval_smoke COMMAND math_eval_smoke)
