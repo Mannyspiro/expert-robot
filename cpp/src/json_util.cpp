@@ -1,6 +1,7 @@
 #include "expert_robot/json_util.hpp"
 
 #include <cctype>
+#include <cstdint>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
@@ -94,6 +95,70 @@ std::string escape(std::string_view value) {
                 } else {
                     out << static_cast<char>(ch);
                 }
+        }
+    }
+    return out.str();
+}
+
+
+std::string escape_ascii(std::string_view value) {
+    std::ostringstream out;
+    const char* hex = "0123456789abcdef";
+
+    for (std::size_t i = 0; i < value.size();) {
+        const unsigned char first = static_cast<unsigned char>(value[i]);
+        if (first < 0x80U) {
+            const char ch = static_cast<char>(first);
+            switch (ch) {
+                case '"': out << "\\\""; break;
+                case '\\': out << "\\\\"; break;
+                case '\b': out << "\\b"; break;
+                case '\f': out << "\\f"; break;
+                case '\n': out << "\\n"; break;
+                case '\r': out << "\\r"; break;
+                case '\t': out << "\\t"; break;
+                default:
+                    if (first < 0x20U) {
+                        out << "\\u00" << hex[(first >> 4U) & 0xfU] << hex[first & 0xfU];
+                    } else {
+                        out << ch;
+                    }
+            }
+            ++i;
+            continue;
+        }
+
+        std::uint32_t cp = 0;
+        std::size_t length = 0;
+        if ((first & 0xe0U) == 0xc0U) { cp = first & 0x1fU; length = 2; }
+        else if ((first & 0xf0U) == 0xe0U) { cp = first & 0x0fU; length = 3; }
+        else if ((first & 0xf8U) == 0xf0U) { cp = first & 0x07U; length = 4; }
+        else { cp = 0xfffdU; length = 1; }
+
+        if (i + length > value.size()) { cp = 0xfffdU; length = 1; }
+        else if (length > 1) {
+            for (std::size_t j = 1; j < length; ++j) {
+                const unsigned char cont = static_cast<unsigned char>(value[i + j]);
+                if ((cont & 0xc0U) != 0x80U) { cp = 0xfffdU; length = 1; break; }
+                cp = (cp << 6U) | (cont & 0x3fU);
+            }
+        }
+        i += length;
+
+        auto emit_u16 = [&](std::uint16_t unit) {
+            out << "\\u"
+                << hex[(unit >> 12U) & 0xfU]
+                << hex[(unit >> 8U) & 0xfU]
+                << hex[(unit >> 4U) & 0xfU]
+                << hex[unit & 0xfU];
+        };
+
+        if (cp <= 0xffffU) {
+            emit_u16(static_cast<std::uint16_t>(cp));
+        } else {
+            cp -= 0x10000U;
+            emit_u16(static_cast<std::uint16_t>(0xd800U + (cp >> 10U)));
+            emit_u16(static_cast<std::uint16_t>(0xdc00U + (cp & 0x3ffU)));
         }
     }
     return out.str();
