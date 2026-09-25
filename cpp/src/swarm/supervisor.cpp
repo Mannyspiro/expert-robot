@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <future>
+#include <memory>
+#include <mutex>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -105,6 +107,20 @@ std::vector<AgentResult> SwarmSupervisor::run_batch(
     std::vector<AgentResult> results;
     results.reserve(tasks.size());
 
+    // Logical roles that share one backend pointer also share one execution
+    // lane. This prevents multiple simultaneous copies of the same local GGUF
+    // from consuming RAM/VRAM while still allowing distinct model backends to
+    // execute in parallel.
+    std::unordered_map<
+        ITextGenerationBackend*,
+        std::shared_ptr<std::mutex>> backend_locks;
+    for (const auto& task : tasks) {
+        auto* backend = &backend_for(task.role);
+        backend_locks.try_emplace(
+            backend,
+            std::make_shared<std::mutex>());
+    }
+
     // Execute in bounded waves. Each backend invocation may spawn a local
     // llama-cli subprocess; wave size therefore bounds concurrent model
     // subprocesses and model-memory pressure.
@@ -120,11 +136,14 @@ std::vector<AgentResult> SwarmSupervisor::run_batch(
             const AgentTask task = tasks[i];
             ITextGenerationBackend* backend =
                 &backend_for(task.role);
+            const auto backend_lock =
+                backend_locks.at(backend);
 
             futures.push_back(
                 std::async(
                     std::launch::async,
-                    [task, backend]() {
+                    [task, backend, backend_lock]() {
+                        std::scoped_lock lock(*backend_lock);
                         ModelAgent agent(
                             task.role,
                             *backend);
