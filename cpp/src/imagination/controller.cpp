@@ -360,6 +360,7 @@ void validate_imagination_config(
     const ImaginationConfig& c) {
     if (c.normal_lens_budget == 0U ||
         c.breakthrough_lens_budget == 0U ||
+        c.minimum_lens_budget == 0U ||
         c.skeptic_budget == 0U ||
         c.max_expensive_candidates == 0U ||
         c.archive_capacity_per_lens == 0U) {
@@ -368,9 +369,13 @@ void validate_imagination_config(
     }
 
     if (c.normal_lens_budget >
-        static_cast<std::size_t>(ImaginationLens::Count) ||
+            static_cast<std::size_t>(ImaginationLens::Count) ||
         c.breakthrough_lens_budget >
-        static_cast<std::size_t>(ImaginationLens::Count)) {
+            static_cast<std::size_t>(ImaginationLens::Count) ||
+        c.minimum_lens_budget >
+            c.normal_lens_budget ||
+        c.minimum_lens_budget >
+            c.breakthrough_lens_budget) {
         throw std::invalid_argument(
             "imagination lens budget exceeds available lens count");
     }
@@ -450,6 +455,51 @@ double ImaginationController::imagination_drive(
     }
 
     return clamp01(drive);
+}
+
+std::size_t
+ImaginationController::effective_lens_budget(
+    const ImaginationRequest& request) const {
+    const std::size_t base =
+        request.cognition.decision.breakthrough_mode
+            ? config_.breakthrough_lens_budget
+            : config_.normal_lens_budget;
+
+    if (request.cognition.decision.action ==
+        cognition::CognitiveAction::ConserveCompute) {
+        return config_.minimum_lens_budget;
+    }
+
+    const double pressure =
+        clamp01(
+            std::max(
+                request.cognition.
+                    interoception.state.
+                    resource_pressure,
+                request.cognition.
+                    affect.compute_conservation));
+
+    // Preserve full fan-out at <=25% pressure. From there, taper smoothly
+    // toward the configured floor by 90% pressure.
+    const double scale =
+        clamp01(
+            (0.90 - pressure) /
+            0.65);
+
+    const std::size_t span =
+        base - config_.minimum_lens_budget;
+
+    const auto scaled_span =
+        static_cast<std::size_t>(
+            std::llround(
+                static_cast<double>(span) *
+                scale));
+
+    return std::clamp(
+        config_.minimum_lens_budget +
+            scaled_span,
+        config_.minimum_lens_budget,
+        base);
 }
 
 std::vector<ImaginationLens>
@@ -623,9 +673,7 @@ ImaginationRun ImaginationController::run(
     }
 
     const std::size_t lens_budget =
-        request.cognition.decision.breakthrough_mode
-            ? config_.breakthrough_lens_budget
-            : config_.normal_lens_budget;
+        effective_lens_budget(request);
 
     run.selected_lenses =
         choose_lenses(request, lens_budget);
