@@ -11,6 +11,8 @@
 
 namespace expert_robot::research {
 
+class RouteOutcomeLedger;
+
 enum class ProofRouteKind {
     ReuseVerifiedTheorem,
     FollowTheoremPath,
@@ -53,6 +55,11 @@ struct RoutePlannerConfig {
     double expected_success_weight{0.24};
     double diversity_weight{0.10};
     double cost_penalty_weight{0.16};
+
+    // Bounded empirical prior. It influences route ordering only after enough
+    // domain-specific outcomes exist and can never exceed this contribution.
+    double route_experience_weight{0.12};
+    long long minimum_experience_attempts{3};
 };
 
 struct RoutePlanningRequest {
@@ -75,7 +82,8 @@ class ProofRoutePlanner {
 public:
     ProofRoutePlanner(
         const KnowledgeGraph& graph,
-        RoutePlannerConfig config = {});
+        RoutePlannerConfig config = {},
+        const RouteOutcomeLedger* route_memory = nullptr);
 
     [[nodiscard]] std::vector<ProofRoute> plan(
         const RoutePlanningRequest& request) const;
@@ -95,6 +103,7 @@ private:
 
     const KnowledgeGraph& graph_;
     RoutePlannerConfig config_;
+    const RouteOutcomeLedger* route_memory_{nullptr};
 };
 
 } // namespace expert_robot::research
