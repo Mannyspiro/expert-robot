@@ -321,6 +321,9 @@ LemmaFactoryNode RecursiveLemmaFactory::solve_impl(
             .depth = depth,
             .status = "proven",
             .initial_result = std::move(initial),
+            .children = {},
+            .retry_result = std::nullopt,
+            .note = "",
         };
     }
 
@@ -391,6 +394,7 @@ LemmaFactoryNode RecursiveLemmaFactory::solve_impl(
         .initial_result = std::move(initial),
         .children = std::move(child_nodes),
         .retry_result = std::move(retry),
+        .note = "",
     };
 }
 
