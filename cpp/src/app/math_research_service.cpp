@@ -22,6 +22,11 @@ MathResearchServiceConfig prepare_config(
     std::filesystem::create_directories(
         config.state_dir);
 
+    if (!config.research_engine.features.theorem_graph) {
+        config.theorem_registry.clear();
+        config.theorem_graph_path.clear();
+    }
+
     if (!config.theorem_graph_path.empty() &&
         !config.theorem_graph_path.
             parent_path().empty()) {
@@ -140,10 +145,14 @@ MathResearchService::MathResearchService(
       route_planner_(
           graph_,
           config_.route_planner,
-          &route_memory_),
+          config_.research_engine.features.route_memory
+              ? &route_memory_
+              : nullptr),
       strategy_planner_(
           config_.strategy_planner,
-          &route_memory_),
+          config_.research_engine.features.strategy_memory
+              ? &route_memory_
+              : nullptr),
       engine_(
           searcher_,
           cognition_,
@@ -153,10 +162,16 @@ MathResearchService::MathResearchService(
           consolidator_,
           episode_ledger_,
           config_.research_engine,
-          &route_planner_,
-          &route_memory_,
+          config_.research_engine.features.route_planning
+              ? &route_planner_
+              : nullptr,
+          config_.research_engine.features.route_memory
+              ? &route_memory_
+              : nullptr,
           &skill_ledger_,
-          &strategy_planner_) {
+          config_.research_engine.features.strategy_planning
+              ? &strategy_planner_
+              : nullptr) {
     if (!config_.theorem_registry.empty() &&
         std::filesystem::exists(
             config_.theorem_registry)) {
