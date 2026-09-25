@@ -101,3 +101,9 @@ add_executable(hybrid_math_engine_smoke
 )
 target_link_libraries(hybrid_math_engine_smoke PRIVATE expert_robot_core)
 add_test(NAME hybrid_math_engine_smoke COMMAND hybrid_math_engine_smoke)
+
+add_executable(growth_governance_smoke
+    tests/growth_governance_smoke.cpp
+)
+target_link_libraries(growth_governance_smoke PRIVATE expert_robot_core)
+add_test(NAME growth_governance_smoke COMMAND growth_governance_smoke)
