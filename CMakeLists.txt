@@ -34,6 +34,7 @@ add_library(expert_robot_core STATIC
     cpp/src/skills/experimental_skill_store.cpp
     cpp/src/skills/model_skill_proposer.cpp
     cpp/src/eval/math_eval.cpp
+    cpp/src/research/state_machine.cpp
     cpp/src/cognition/neuromodulation.cpp
     cpp/src/cognition/interoception.cpp
     cpp/src/cognition/personality.cpp
@@ -122,3 +123,9 @@ add_executable(skill_growth_smoke
 )
 target_link_libraries(skill_growth_smoke PRIVATE expert_robot_core)
 add_test(NAME skill_growth_smoke COMMAND skill_growth_smoke)
+
+add_executable(research_state_machine_smoke
+    tests/research_state_machine_smoke.cpp
+)
+target_link_libraries(research_state_machine_smoke PRIVATE expert_robot_core)
+add_test(NAME research_state_machine_smoke COMMAND research_state_machine_smoke)
