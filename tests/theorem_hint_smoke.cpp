@@ -12,9 +12,9 @@ public:
     expert_robot::LeanRunResult run(
         std::string_view source) override {
         if (source.find(
-                "exact MathAI.Helper") !=
+                "simp [MathAI.Helper]") !=
             std::string_view::npos) {
-            return {0, "accepted theorem reuse"};
+            return {0, "accepted theorem rewrite"};
         }
         return {1, "base tactic failed"};
     }
@@ -50,11 +50,15 @@ int main() {
     const auto hints =
         lean_hint_tactics_for_route(route);
     assert(hints.size() == 3);
-    assert(hints[0] == "exact MathAI.Helper");
-    assert(hints[1] == "simpa using MathAI.Helper");
+    assert(
+        hints[0] ==
+        "simp [MathAI.Helper]");
+    assert(
+        hints[1] ==
+        "rw [MathAI.Helper] <;> aesop");
     assert(
         hints[2] ==
-        "apply MathAI.Helper <;> aesop");
+        "simpa [MathAI.Helper]");
 
     const auto action =
         executable_action_for_route(route.kind);
@@ -78,11 +82,11 @@ int main() {
     assert(result.attempts.size() == 1);
     assert(
         result.attempts[0].tactic ==
-        "exact MathAI.Helper");
+        "simp [MathAI.Helper]");
     assert(result.tactic.has_value());
     assert(
         *result.tactic ==
-        "exact MathAI.Helper");
+        "simp [MathAI.Helper]");
 
     // Without the route hint, the base tactic fails.
     SearchProblem unhinted = problem;
