@@ -158,6 +158,10 @@ LlamaCliBackend::config() const noexcept {
     return config_;
 }
 
+bool LlamaCliBackend::supports_concurrent_requests() const noexcept {
+    return !config_.server_base.empty();
+}
+
 TextGenerationResult LlamaCliBackend::generate(
     const TextGenerationRequest& request) {
     if (request.user_prompt.empty()) {
