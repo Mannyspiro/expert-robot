@@ -135,7 +135,9 @@ MathSkillCatalog MathSkillCatalog::builtins() {
             R::Mathematician,
             "Search for an operator, spectrum, eigenproblem, quadratic form, "
             "energy, resolvent, or variational principle that encodes the "
-            "target."
+            "target.",
+            true,
+            SkillStage::Qualified
         },
         {
             "math.topology.reframe",
