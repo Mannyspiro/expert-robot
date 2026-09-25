@@ -53,7 +53,10 @@ void validate_research_strategy_planner_config(
     for (const double value : {
              c.experience_weight,
              c.exploration_weight,
-             c.evidence_half_saturation_attempts}) {
+             c.evidence_half_saturation_attempts,
+             c.soft_retirement_verified_rate_ceiling,
+             c.soft_retirement_cost_floor,
+             c.soft_retirement_penalty}) {
         if (!std::isfinite(value) ||
             value < 0.0) {
             throw std::invalid_argument(
@@ -61,9 +64,15 @@ void validate_research_strategy_planner_config(
         }
     }
 
-    if (c.minimum_experience_attempts < 0) {
+    if (c.minimum_experience_attempts < 0 ||
+        c.soft_retirement_min_attempts < 0) {
         throw std::invalid_argument(
             "strategy planner minimum experience must be nonnegative");
+    }
+    if (c.soft_retirement_verified_rate_ceiling > 1.0 ||
+        c.soft_retirement_cost_floor > 1.0) {
+        throw std::invalid_argument(
+            "strategy retirement rate/cost thresholds must be within [0,1]");
     }
     if (c.evidence_half_saturation_attempts <= 0.0) {
         throw std::invalid_argument(
@@ -219,6 +228,8 @@ ResearchStrategyPlanner::plan(
                 sequence.final_score,
             .evidence_confidence = 0.0,
             .experience_adjustment = 0.0,
+            .soft_retired = false,
+            .soft_retirement_penalty = 0.0,
             .exploration_bonus = 0.0,
             .final_score =
                 sequence.final_score,
@@ -287,6 +298,19 @@ ResearchStrategyPlanner::plan(
                     strategy.evidence_confidence *
                     (signed_success -
                      0.25 * normalized_cost);
+
+                if (experience.attempts >=
+                        config_.soft_retirement_min_attempts &&
+                    experience.smoothed_verified_rate() <=
+                        config_.
+                            soft_retirement_verified_rate_ceiling &&
+                    normalized_cost >=
+                        config_.soft_retirement_cost_floor) {
+                    strategy.soft_retired = true;
+                    strategy.soft_retirement_penalty =
+                        config_.soft_retirement_penalty *
+                        strategy.evidence_confidence;
+                }
             }
         }
 
@@ -300,7 +324,8 @@ ResearchStrategyPlanner::plan(
             clamp01(
                 strategy.base_score +
                 strategy.experience_adjustment +
-                strategy.exploration_bonus);
+                strategy.exploration_bonus -
+                strategy.soft_retirement_penalty);
 
         result.push_back(
             std::move(strategy));
