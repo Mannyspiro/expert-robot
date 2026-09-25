@@ -428,8 +428,14 @@ BenchmarkRun MathBenchmarkRunner::run(
 
     for (const auto& variant :
          suite.variants()) {
-        for (const auto& benchmark_case :
-             suite.cases()) {
+        // Training always precedes holdout. Executors may freeze learned
+        // state at this boundary and must never need to infer split order from
+        // JSON case ordering.
+        for (const auto split :
+             {BenchmarkSplit::Train,
+              BenchmarkSplit::Holdout}) {
+            for (const auto& benchmark_case :
+                 suite.cases_for_split(split)) {
             const auto outcome =
                 executor.run(
                     variant,
