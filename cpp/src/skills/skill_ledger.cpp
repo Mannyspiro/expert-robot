@@ -304,6 +304,50 @@ void SkillLedger::record(
         "record skill outcome");
 }
 
+void SkillLedger::record_generation(
+    std::string_view skill_id,
+    bool skeptic_passed,
+    bool shortlisted) {
+    record(
+        skill_id,
+        SkillOutcome{
+            .skeptic_passed = skeptic_passed,
+            .shortlisted = shortlisted,
+            .downstream_verified = false,
+            .downstream_failed = false,
+        });
+}
+
+void SkillLedger::record_downstream(
+    std::string_view skill_id,
+    bool verified) {
+    if (skill_id.empty()) {
+        throw std::invalid_argument(
+            "skill ledger skill_id must be non-empty");
+    }
+
+    Statement stmt(
+        db_,
+        verified
+            ? "UPDATE skill_outcomes SET "
+              "downstream_verified=downstream_verified+1,"
+              "updated_at=CURRENT_TIMESTAMP WHERE skill_id=?;"
+            : "UPDATE skill_outcomes SET "
+              "downstream_failed=downstream_failed+1,"
+              "updated_at=CURRENT_TIMESTAMP WHERE skill_id=?;");
+
+    bind_text(
+        db_,
+        stmt.get(),
+        1,
+        skill_id);
+
+    check(
+        sqlite3_step(stmt.get()),
+        db_,
+        "record downstream skill outcome");
+}
+
 SkillStats SkillLedger::stats(
     std::string_view skill_id) const {
     Statement stmt(
