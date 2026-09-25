@@ -40,6 +40,7 @@ add_library(expert_robot_core STATIC
     cpp/src/research/candidate_verifier.cpp
     cpp/src/research/knowledge_consolidator.cpp
     cpp/src/research/route_planner.cpp
+    cpp/src/research/route_memory.cpp
     cpp/src/research/engine.cpp
     cpp/src/growth/generation_lineage.cpp
     cpp/src/growth/ablation_evidence.cpp
@@ -185,3 +186,9 @@ add_executable(ablation_evidence_smoke
 )
 target_link_libraries(ablation_evidence_smoke PRIVATE expert_robot_core SQLite::SQLite3)
 add_test(NAME ablation_evidence_smoke COMMAND ablation_evidence_smoke)
+
+add_executable(route_memory_smoke
+    tests/route_memory_smoke.cpp
+)
+target_link_libraries(route_memory_smoke PRIVATE expert_robot_core SQLite::SQLite3)
+add_test(NAME route_memory_smoke COMMAND route_memory_smoke)
