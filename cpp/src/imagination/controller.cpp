@@ -523,6 +523,10 @@ ImaginationRun ImaginationController::run(
             .novelty_score = novelty,
             .relevance_score = relevance,
             .quality_diversity_score = qd_score,
+            .skeptic_valid = false,
+            .skeptic_keep = false,
+            .skeptic_risk = 100,
+            .skeptic_critique = "",
         };
 
         batch_texts.push_back(text);
