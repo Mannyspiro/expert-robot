@@ -1,0 +1,79 @@
+name: Math Architecture Benchmark
+
+on:
+  workflow_dispatch:
+    inputs:
+      runner:
+        description: Avrea runner size
+        required: true
+        type: choice
+        default: avrea-ubuntu-latest-8-vcpu
+        options:
+          - avrea-ubuntu-latest-8-vcpu
+          - avrea-ubuntu-latest-32-vcpu
+
+permissions:
+  contents: read
+
+concurrency:
+  group: math-benchmark-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  benchmark:
+    runs-on: ${{ inputs.runner }}
+    timeout-minutes: 35
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build pinned Lean package
+        uses: leanprover/lean-action@v1
+        env:
+          LEAN_NUM_THREADS: "1"
+        with:
+          lake-package-directory: "formal"
+          auto-config: "false"
+          build: "true"
+          test: "false"
+          lint: "false"
+          build-args: "--wfail"
+          use-mathlib-cache: "true"
+          leanchecker: "false"
+          axiom-audit: "false"
+
+      - name: Configure C++
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build benchmark
+        run: |
+          cmake --build build \
+            --target expert_robot_math_benchmark \
+            --parallel "$(nproc)"
+
+      - name: Run paired train/holdout benchmark
+        run: |
+          ./build/expert_robot_math_benchmark \
+            config/benchmarks/core_math_holdout.json \
+            build/math-benchmark-state \
+            build/math-benchmark-results.json \
+            "github-${{ github.run_id }}"
+
+      - name: Show benchmark summary
+        if: always()
+        run: |
+          if [ -f build/math-benchmark-results.json ]; then
+            cat build/math-benchmark-results.json
+          fi
+
+      - name: Upload benchmark evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: math-benchmark-${{ github.run_id }}
+          path: |
+            build/math-benchmark-results.json
+            build/math-benchmark-state/math_eval.sqlite3
+          if-no-files-found: warn
+          retention-days: 30
