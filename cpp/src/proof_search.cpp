@@ -1,8 +1,10 @@
 #include "expert_robot/proof_search.hpp"
 #include "expert_robot/json_util.hpp"
 
+#include <array>
 #include <atomic>
 #include <chrono>
+#include <algorithm>
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
@@ -25,6 +27,31 @@ std::string trim(std::string value) {
     const auto last = value.find_last_not_of(" \t\r\n");
     return value.substr(first, last - first + 1U);
 }
+
+bool safe_tactic_fragment(std::string_view tactic) {
+    if (tactic.empty() ||
+        tactic.find('\n') != std::string_view::npos ||
+        tactic.find('\r') != std::string_view::npos ||
+        tactic.find('#') != std::string_view::npos) {
+        return false;
+    }
+
+    const std::array<std::string_view, 5> forbidden = {
+        "sorry",
+        "admit",
+        "axiom",
+        "unsafe",
+        "set_option",
+    };
+
+    for (const auto token : forbidden) {
+        if (tactic.find(token) != std::string_view::npos) {
+            return false;
+        }
+    }
+    return true;
+}
+
 
 std::string read_text(const std::filesystem::path& path) {
     std::ifstream in(path, std::ios::binary);
@@ -164,7 +191,38 @@ SearchResult DeterministicProofSearch::search(const SearchProblem& problem) {
     SearchResult result;
     result.problem = problem;
 
-    for (const auto& tactic : strategies_) {
+    std::vector<std::string> tactics;
+    tactics.reserve(
+        problem.preferred_strategies.size() +
+        strategies_.size());
+
+    auto append_unique_safe =
+        [&](std::string tactic) {
+            tactic = trim(std::move(tactic));
+            if (tactic.empty()) return;
+            if (!safe_tactic_fragment(tactic)) {
+                throw std::invalid_argument(
+                    "preferred proof tactic contains a forbidden fragment");
+            }
+            if (std::find(
+                    tactics.begin(),
+                    tactics.end(),
+                    tactic) == tactics.end()) {
+                tactics.push_back(
+                    std::move(tactic));
+            }
+        };
+
+    for (const auto& tactic :
+         problem.preferred_strategies) {
+        append_unique_safe(tactic);
+    }
+    for (const auto& tactic :
+         strategies_) {
+        append_unique_safe(tactic);
+    }
+
+    for (const auto& tactic : tactics) {
         auto run = runner_.run(render(problem, tactic));
         const bool success = run.exit_code == 0;
         result.attempts.push_back(SearchAttempt{
