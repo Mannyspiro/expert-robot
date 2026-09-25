@@ -4,9 +4,11 @@
 #include <algorithm>
 #include <cctype>
 #include <fstream>
+#include <deque>
 #include <sstream>
 #include <stdexcept>
 #include <tuple>
+#include <unordered_set>
 
 namespace expert_robot {
 namespace {
@@ -205,6 +207,80 @@ std::vector<TheoremEdge> KnowledgeGraph::related(
             relation_norm.empty() || edge.relation == relation_norm;
         if (touches && relation_matches) result.push_back(edge);
     }
+    return result;
+}
+
+std::vector<TheoremPath> KnowledgeGraph::bounded_paths(
+    std::string_view start,
+    std::size_t max_depth,
+    std::size_t max_paths) const {
+    if (start.empty()) {
+        throw std::invalid_argument("bounded_paths start must be non-empty");
+    }
+    if (max_paths == 0U || max_depth == 0U) {
+        return {};
+    }
+
+    (void)get(start);
+
+    struct QueueItem {
+        TheoremPath path;
+        std::unordered_set<std::string> visited;
+    };
+
+    std::deque<QueueItem> queue;
+    queue.push_back(QueueItem{
+        .path = TheoremPath{
+            .nodes = {std::string(start)},
+            .relations = {},
+        },
+        .visited = {std::string(start)},
+    });
+
+    std::vector<TheoremPath> result;
+
+    while (!queue.empty() && result.size() < max_paths) {
+        auto current = std::move(queue.front());
+        queue.pop_front();
+
+        if (current.path.depth() >= max_depth) {
+            continue;
+        }
+
+        const std::string& node =
+            current.path.nodes.back();
+        const auto adjacent = related(node);
+
+        for (const auto& edge : adjacent) {
+            const std::string next =
+                edge.source == node
+                    ? edge.target
+                    : edge.source;
+
+            if (current.visited.contains(next)) {
+                continue;
+            }
+
+            auto next_path = current.path;
+            next_path.nodes.push_back(next);
+            next_path.relations.push_back(edge.relation);
+
+            result.push_back(next_path);
+            if (result.size() >= max_paths) {
+                break;
+            }
+
+            if (next_path.depth() < max_depth) {
+                auto visited = current.visited;
+                visited.insert(next);
+                queue.push_back(QueueItem{
+                    .path = std::move(next_path),
+                    .visited = std::move(visited),
+                });
+            }
+        }
+    }
+
     return result;
 }
 
