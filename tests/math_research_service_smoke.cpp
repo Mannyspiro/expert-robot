@@ -199,6 +199,15 @@ int main() {
         backend,
         config);
 
+    assert(
+        service.graph().get(
+            "MathAI.Trust.add_zero_verified").status ==
+        "verified");
+    assert(
+        service.graph().get(
+            "MathAI.Geometry.origin_on_xy_plane").status ==
+        "verified");
+
     FormalizationProposal target{
         .name = "service_parent",
         .name_space = "MathAI.Generated",
