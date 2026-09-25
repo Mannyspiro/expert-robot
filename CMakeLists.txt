@@ -18,6 +18,16 @@ add_library(expert_robot_core STATIC
     cpp/src/knowledge_graph.cpp
     cpp/src/formalizer.cpp
     cpp/src/lemma_factory.cpp
+    cpp/src/text_generation.cpp
+    cpp/src/model_lemma_decomposer.cpp
+    cpp/src/swarm/task.cpp
+    cpp/src/swarm/agent.cpp
+    cpp/src/swarm/supervisor.cpp
+    cpp/src/swarm/aggregator.cpp
+    cpp/src/imagination/idea.cpp
+    cpp/src/imagination/archive.cpp
+    cpp/src/imagination/controller.cpp
+    cpp/src/skills/math_skill.cpp
     cpp/src/cognition/neuromodulation.cpp
     cpp/src/cognition/interoception.cpp
     cpp/src/cognition/personality.cpp
@@ -82,3 +92,9 @@ add_executable(lemma_factory_smoke
 )
 target_link_libraries(lemma_factory_smoke PRIVATE expert_robot_core)
 add_test(NAME lemma_factory_smoke COMMAND lemma_factory_smoke)
+
+add_executable(hybrid_math_engine_smoke
+    tests/hybrid_math_engine_smoke.cpp
+)
+target_link_libraries(hybrid_math_engine_smoke PRIVATE expert_robot_core)
+add_test(NAME hybrid_math_engine_smoke COMMAND hybrid_math_engine_smoke)
