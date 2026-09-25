@@ -44,6 +44,24 @@ int main() {
     assert(t.to == ResearchPhase::VerifyCandidate);
     assert(t.action == ResearchAction::VerifyCandidate);
 
+    ResearchObservation helper_verified;
+    helper_verified.verified_candidate_lemmas = 1;
+    helper_verified.usage_delta.proof_attempts = 2;
+    t = machine.step(helper_verified);
+    assert(t.to == ResearchPhase::RetryParent);
+    assert(t.action == ResearchAction::RetryParentProof);
+
+    ResearchObservation retry_failed_after_helper;
+    retry_failed_after_helper.parent_retry_failed = true;
+    t = machine.step(retry_failed_after_helper);
+    assert(t.to == ResearchPhase::Imagine);
+
+    ResearchObservation imagined_again;
+    imagined_again.imagination_complete = true;
+    imagined_again.shortlisted_candidates = 1;
+    t = machine.step(imagined_again);
+    assert(t.to == ResearchPhase::VerifyCandidate);
+
     ResearchObservation candidate_failed;
     candidate_failed.candidate_verification_failed = true;
     candidate_failed.usage_delta.proof_attempts = 2;
