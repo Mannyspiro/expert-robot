@@ -49,6 +49,8 @@ struct ResearchOutcome {
 
     std::optional<imagination::ImaginationRun> last_imagination;
     std::vector<ProofRoute> planned_routes;
+    std::vector<ProofRouteSequence> planned_sequences;
+    std::optional<ProofRouteSequence> dispatched_sequence;
     std::optional<ProofRoute> dispatched_route;
 
     std::string episode_root_hash;
