@@ -333,7 +333,7 @@ ResearchOutcome MathResearchEngine::run(
                 << "\ndescription="
                 << top.description;
 
-            episode_ledger_.append(
+            (void)episode_ledger_.append(
                 problem.episode_id,
                 "route_plan_top",
                 payload.str());
