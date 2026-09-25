@@ -81,23 +81,33 @@ void validate_research_strategy_planner_config(
 }
 
 std::string research_strategy_signature(
-    const ProofRouteSequence& sequence) {
-    if (sequence.steps.empty()) {
+    const std::vector<ProofRouteKind>& steps) {
+    if (steps.empty()) {
         throw std::invalid_argument(
             "research strategy requires at least one route step");
     }
 
     std::ostringstream out;
     for (std::size_t i = 0U;
-         i < sequence.steps.size();
+         i < steps.size();
          ++i) {
         if (i > 0U) {
             out << " -> ";
         }
         out << proof_route_kind_name(
-            sequence.steps[i].kind);
+            steps[i]);
     }
     return out.str();
+}
+
+std::string research_strategy_signature(
+    const ProofRouteSequence& sequence) {
+    std::vector<ProofRouteKind> steps;
+    steps.reserve(sequence.steps.size());
+    for (const auto& route : sequence.steps) {
+        steps.push_back(route.kind);
+    }
+    return research_strategy_signature(steps);
 }
 
 std::string research_strategy_id(
