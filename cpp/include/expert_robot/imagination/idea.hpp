@@ -31,6 +31,7 @@ struct IdeaCandidate {
     ImaginationLens lens{ImaginationLens::Analogy};
     swarm::AgentRole source_role{swarm::AgentRole::Mathematician};
     std::string text;
+    std::string skill_id;
 
     double novelty_score{0.0};
     double relevance_score{0.0};
