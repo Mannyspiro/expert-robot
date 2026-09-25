@@ -1,6 +1,7 @@
 #include "expert_robot/research/route_planner.hpp"
 
 #include "expert_robot/sha256.hpp"
+#include "expert_robot/research/route_memory.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -95,12 +96,18 @@ void validate_route_planner_config(
              c.information_gain_weight,
              c.expected_success_weight,
              c.diversity_weight,
-             c.cost_penalty_weight}) {
+             c.cost_penalty_weight,
+             c.route_experience_weight}) {
         if (!std::isfinite(value) ||
             value < 0.0) {
             throw std::invalid_argument(
                 "route planner weights must be finite and nonnegative");
         }
+    }
+
+    if (c.minimum_experience_attempts < 0) {
+        throw std::invalid_argument(
+            "minimum_experience_attempts must be nonnegative");
     }
 }
 
@@ -127,9 +134,11 @@ std::string_view proof_route_kind_name(
 
 ProofRoutePlanner::ProofRoutePlanner(
     const KnowledgeGraph& graph,
-    RoutePlannerConfig config)
+    RoutePlannerConfig config,
+    const RouteOutcomeLedger* route_memory)
     : graph_(graph),
-      config_(config) {
+      config_(config),
+      route_memory_(route_memory) {
     validate_route_planner_config(config_);
 }
 
@@ -551,6 +560,49 @@ ProofRoutePlanner::plan(
             unique.push_back(
                 std::move(route));
         }
+    }
+
+    for (auto& route : unique) {
+        double score = score_route(route);
+
+        if (route_memory_ != nullptr &&
+            !request.target_domain.empty()) {
+            const auto experience =
+                route_memory_->experience(
+                    route.kind,
+                    request.target_domain);
+
+            if (experience.attempts >=
+                config_.minimum_experience_attempts) {
+                const double success_prior =
+                    clamp01(
+                        0.65 *
+                            experience.
+                                smoothed_verified_rate() +
+                        0.35 *
+                            experience.
+                                smoothed_target_rate());
+
+                const double normalized_cost =
+                    clamp01(
+                        experience.
+                            average_resource_cost());
+
+                const double signed_success =
+                    2.0 * success_prior - 1.0;
+
+                const double adjustment =
+                    config_.route_experience_weight *
+                    (signed_success -
+                     0.25 * normalized_cost);
+
+                score =
+                    clamp01(
+                        score + adjustment);
+            }
+        }
+
+        route.final_score = score;
     }
 
     std::stable_sort(
