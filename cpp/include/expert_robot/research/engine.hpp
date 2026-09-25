@@ -10,6 +10,7 @@
 #include "expert_robot/research/route_memory.hpp"
 #include "expert_robot/research/route_planner.hpp"
 #include "expert_robot/research/state_machine.hpp"
+#include "expert_robot/skills/skill_ledger.hpp"
 
 #include <cstddef>
 #include <optional>
@@ -65,7 +66,8 @@ public:
         ResearchEpisodeLedger& episode_ledger,
         MathResearchEngineConfig config = {},
         ProofRoutePlanner* route_planner = nullptr,
-        RouteOutcomeLedger* route_memory = nullptr);
+        RouteOutcomeLedger* route_memory = nullptr,
+        skills::SkillLedger* skill_ledger = nullptr);
 
     [[nodiscard]] ResearchOutcome run(
         ResearchProblem problem);
@@ -81,6 +83,7 @@ private:
     MathResearchEngineConfig config_;
     ProofRoutePlanner* route_planner_{nullptr};
     RouteOutcomeLedger* route_memory_{nullptr};
+    skills::SkillLedger* skill_ledger_{nullptr};
 };
 
 } // namespace expert_robot::research
