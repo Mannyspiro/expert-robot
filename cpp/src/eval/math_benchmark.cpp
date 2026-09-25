@@ -30,9 +30,12 @@ void validate_case(
     if (c.case_id.empty() ||
         c.family.empty() ||
         c.domain.empty() ||
-        c.target.empty()) {
+        c.declaration_name.empty() ||
+        c.name_space.empty() ||
+        c.proposition.empty() ||
+        c.imports.empty()) {
         throw std::invalid_argument(
-            "benchmark case identifiers/domain/target must be non-empty");
+            "benchmark case identifiers/domain/formal target must be non-empty");
     }
 }
 
@@ -253,6 +256,24 @@ MathBenchmarkSuite MathBenchmarkSuite::load_json(
          json_util::object_array(
              json,
              "cases")) {
+        std::vector<BenchmarkBinder> binders;
+        for (const auto& binder :
+             json_util::object_array(
+                 object,
+                 "binders")) {
+            binders.push_back(
+                BenchmarkBinder{
+                    .name =
+                        json_util::string_field(
+                            binder,
+                            "name"),
+                    .type =
+                        json_util::string_field(
+                            binder,
+                            "type"),
+                });
+        }
+
         cases.push_back(
             BenchmarkCase{
                 .case_id =
@@ -267,10 +288,29 @@ MathBenchmarkSuite MathBenchmarkSuite::load_json(
                     json_util::string_field(
                         object,
                         "domain"),
-                .target =
+                .focus_theorem =
                     json_util::string_field(
                         object,
-                        "target"),
+                        "focus_theorem"),
+                .declaration_name =
+                    json_util::string_field(
+                        object,
+                        "declaration_name"),
+                .name_space =
+                    json_util::string_field(
+                        object,
+                        "namespace",
+                        "MathAI.Benchmark"),
+                .binders =
+                    std::move(binders),
+                .proposition =
+                    json_util::string_field(
+                        object,
+                        "proposition"),
+                .imports =
+                    json_util::string_array_field(
+                        object,
+                        "imports"),
                 .split =
                     parse_split(
                         json_util::string_field(
