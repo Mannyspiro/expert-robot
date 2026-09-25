@@ -5,6 +5,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <initializer_list>
 #include <map>
 #include <sstream>
 #include <stdexcept>
