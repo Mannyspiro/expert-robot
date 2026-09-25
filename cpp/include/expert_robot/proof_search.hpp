@@ -13,6 +13,11 @@ struct SearchProblem {
     std::string candidate_name{"MathAI_Search_Candidate"};
     std::vector<std::string> imports{"MathAI"};
     std::vector<std::string> context_declarations;
+
+    // Trusted controller-supplied tactics tried before the configured base
+    // strategy list. They are still compiled by Lean and cannot establish
+    // proof truth on their own.
+    std::vector<std::string> preferred_strategies;
 };
 
 struct SearchAttempt {
