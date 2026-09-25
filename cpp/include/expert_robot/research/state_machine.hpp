@@ -62,6 +62,7 @@ struct ResearchObservation {
     bool decomposition_complete{false};
     std::size_t proven_child_lemmas{0};
 
+    std::size_t verified_candidate_lemmas{0};
     bool candidate_verification_failed{false};
     bool parent_retry_failed{false};
 
