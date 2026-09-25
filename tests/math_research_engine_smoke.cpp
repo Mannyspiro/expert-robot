@@ -261,12 +261,17 @@ int main() {
     const auto episode_db =
         std::filesystem::temp_directory_path() /
         "expert-robot-research-engine-episode.sqlite3";
+    const auto route_db =
+        std::filesystem::temp_directory_path() /
+        "expert-robot-research-engine-routes.sqlite3";
     const auto graph_file =
         std::filesystem::temp_directory_path() /
         "expert-robot-research-engine-graph.json";
 
     std::filesystem::remove(
         episode_db);
+    std::filesystem::remove(
+        route_db);
     std::filesystem::remove(
         graph_file);
 
@@ -278,8 +283,13 @@ int main() {
         &episode_ledger,
         graph_file);
 
+    RouteOutcomeLedger route_memory(
+        route_db);
+
     ProofRoutePlanner route_planner(
-        graph);
+        graph,
+        RoutePlannerConfig{},
+        &route_memory);
 
     MathResearchEngine engine(
         searcher,
@@ -300,7 +310,8 @@ int main() {
                 },
             .max_dispatch_steps = 32
         },
-        &route_planner);
+        &route_planner,
+        &route_memory);
 
     cognition::InteroceptiveSensors sensors;
     sensors.cpu_load = 0.20;
@@ -362,6 +373,15 @@ int main() {
     assert(!outcome.final_state.exhausted);
     assert(!outcome.episode_root_hash.empty());
     assert(!outcome.planned_routes.empty());
+    assert(outcome.dispatched_route.has_value());
+
+    const auto route_experience =
+        route_memory.experience(
+            outcome.dispatched_route->kind,
+            target.domain);
+    assert(route_experience.attempts == 1);
+    assert(route_experience.verified_progresses == 1);
+    assert(route_experience.target_verifications == 1);
 
     const auto& target_node =
         graph.get(
@@ -395,6 +415,8 @@ int main() {
     bool saw_decompose = false;
     bool saw_complete = false;
     bool saw_route_plan = false;
+    bool saw_route_dispatch = false;
+    bool saw_route_outcome = false;
 
     for (const auto& event :
          episode_ledger.events(
@@ -402,6 +424,14 @@ int main() {
         if (event.event_type ==
             "route_plan_top") {
             saw_route_plan = true;
+        }
+        if (event.event_type ==
+            "route_dispatched") {
+            saw_route_dispatch = true;
+        }
+        if (event.event_type ==
+            "route_outcome") {
+            saw_route_outcome = true;
         }
     }
 
@@ -420,9 +450,13 @@ int main() {
     assert(saw_decompose);
     assert(saw_complete);
     assert(saw_route_plan);
+    assert(saw_route_dispatch);
+    assert(saw_route_outcome);
 
     std::filesystem::remove(
         graph_file);
+    std::filesystem::remove(
+        route_db);
     std::filesystem::remove(
         episode_db);
 
