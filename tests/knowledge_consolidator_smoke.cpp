@@ -4,15 +4,17 @@
 #include <filesystem>
 #include <optional>
 #include <stdexcept>
+#include <string>
 
 namespace {
 
 expert_robot::research::CandidateVerification
-proven_candidate() {
+proven_candidate(
+    std::string name = "verified_helper") {
     using namespace expert_robot;
 
     FormalizationProposal proposal{
-        .name = "verified_helper",
+        .name = std::move(name),
         .name_space = "MathAI.Generated",
         .binders = {
             {"x", "ℝ"}
@@ -40,16 +42,20 @@ proven_candidate() {
             .output = "accepted"
         });
 
+    const std::string declaration =
+        "theorem " +
+        proposal.qualified_name() +
+        " (x : ℝ) : x = x := by\n  rfl";
+
     FormalizationResult formal{
         .proposal = proposal,
         .search = search,
         .lean_source =
-            "import MathAI\n"
-            "theorem MathAI.Generated.verified_helper "
-            "(x : ℝ) : x = x := by\n  rfl\n",
+            "import MathAI\n" +
+            declaration +
+            "\n",
         .lean_declaration =
-            "theorem MathAI.Generated.verified_helper "
-            "(x : ℝ) : x = x := by\n  rfl",
+            declaration,
         .trusted = false
     };
 
@@ -73,7 +79,7 @@ int main() {
             .name = "MathAI.Target",
             .source = "Target.lean",
             .status = "verified",
-            .statement = "(x : ℝ) : x = x",
+            .statement = "(x : ℝ) : x + 0 = x",
             .domain = "algebra",
             .tags = {"target"}
         }
@@ -113,6 +119,10 @@ int main() {
         "MathAI.Generated.verified_helper");
     assert(result.node_created);
     assert(!result.node_upgraded);
+    assert(!result.deduplicated);
+    assert(
+        result.canonical_theorem_name ==
+        "MathAI.Generated.verified_helper");
     assert(result.linked_to_target);
     assert(!result.episode_event_hash.empty());
 
@@ -192,6 +202,48 @@ int main() {
             "episode-verified");
     assert(second_episode_check.valid);
     assert(second_episode_check.event_count == 2);
+
+    const auto nodes_before_duplicate =
+        graph.nodes().size();
+
+    const auto duplicate_candidate =
+        proven_candidate(
+            "verified_helper_alias");
+
+    const auto duplicate =
+        consolidator.consolidate(
+            "episode-duplicate",
+            "MathAI.Target",
+            duplicate_candidate);
+
+    assert(duplicate.deduplicated);
+    assert(!duplicate.node_created);
+    assert(!duplicate.node_upgraded);
+    assert(
+        duplicate.theorem_name ==
+        "MathAI.Generated.verified_helper_alias");
+    assert(
+        duplicate.canonical_theorem_name ==
+        "MathAI.Generated.verified_helper");
+    assert(
+        graph.nodes().size() ==
+        nodes_before_duplicate);
+
+    bool alias_absent = false;
+    try {
+        (void)graph.get(
+            "MathAI.Generated.verified_helper_alias");
+    } catch (const std::out_of_range&) {
+        alias_absent = true;
+    }
+    assert(alias_absent);
+
+    const auto duplicate_episode_check =
+        ledger.verify(
+            "episode-duplicate");
+    assert(duplicate_episode_check.valid);
+    assert(
+        duplicate_episode_check.event_count == 1);
 
     std::filesystem::remove(
         graph_json);
