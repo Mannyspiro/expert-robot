@@ -1,10 +1,6 @@
 name: Formal Qualification
 
 on:
-  pull_request:
-    paths:
-      - "formal/**"
-      - ".github/workflows/formal-qualification.yml"
   push:
     branches: ["main", "feat/**"]
     paths:
