@@ -49,14 +49,14 @@ private:
     void initialize();
 };
 
-class MemoryGuidedProofSearch {
+class MemoryGuidedProofSearch final : public IProofSearcher {
 public:
     MemoryGuidedProofSearch(
         std::vector<std::string> base_strategies,
         ILeanRunner& runner,
         ProofMemory& memory);
 
-    [[nodiscard]] SearchResult search(const SearchProblem& problem);
+    [[nodiscard]] SearchResult search(const SearchProblem& problem) override;
 
 private:
     std::vector<std::string> base_strategies_;
