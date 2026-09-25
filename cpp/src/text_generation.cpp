@@ -110,9 +110,15 @@ void validate_llama_cli_config(
         throw std::invalid_argument(
             "llama-cli executable path must be non-empty");
     }
-    if (c.model_path.empty()) {
+    if (c.model_path.empty() && c.server_base.empty()) {
         throw std::invalid_argument(
-            "math model path must be non-empty");
+            "either model_path or local server_base must be configured");
+    }
+    if (!c.server_base.empty() &&
+        !c.server_base.starts_with("http://127.0.0.1:") &&
+        !c.server_base.starts_with("http://localhost:")) {
+        throw std::invalid_argument(
+            "server_base must be a loopback HTTP endpoint");
     }
     if (c.max_tokens <= 0) {
         throw std::invalid_argument(
@@ -198,9 +204,21 @@ TextGenerationResult LlamaCliBackend::generate(
 
         std::vector<std::string> args = {
             config_.executable.string(),
-            "-m",
-            std::filesystem::absolute(
-                config_.model_path).string(),
+        };
+
+        if (!config_.server_base.empty()) {
+            args.push_back("--server-base");
+            args.push_back(config_.server_base);
+        } else {
+            args.push_back("-m");
+            args.push_back(
+                std::filesystem::absolute(
+                    config_.model_path).string());
+        }
+
+        args.insert(
+            args.end(),
+            {
             "-f",
             std::filesystem::absolute(
                 prompt_file).string(),
@@ -225,7 +243,8 @@ TextGenerationResult LlamaCliBackend::generate(
             "-o",
             std::filesystem::absolute(
                 output_file).string(),
-        };
+            }
+        );
 
         if (!config_.chat_template.empty()) {
             args.push_back("--chat-template");
