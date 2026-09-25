@@ -5,6 +5,7 @@
 #include "expert_robot/imagination/memory.hpp"
 #include "expert_robot/knowledge_graph.hpp"
 #include "expert_robot/skills/math_skill.hpp"
+#include "expert_robot/skills/skill_ledger.hpp"
 #include "expert_robot/swarm/supervisor.hpp"
 
 #include <cstddef>
@@ -23,6 +24,9 @@ struct ImaginationConfig {
     double minimum_imagination_drive{0.18};
     int maximum_skeptic_risk{65};
     bool enable_synthesis{true};
+
+    std::size_t theorem_graph_max_depth{3};
+    std::size_t theorem_graph_max_paths{12};
 };
 
 struct ImaginationRequest {
@@ -61,7 +65,8 @@ public:
         const KnowledgeGraph* theorem_graph = nullptr,
         skills::MathSkillCatalog skill_catalog =
             skills::MathSkillCatalog::builtins(),
-        ImaginationMemory* memory = nullptr);
+        ImaginationMemory* memory = nullptr,
+        skills::SkillLedger* skill_ledger = nullptr);
 
     [[nodiscard]] ImaginationRun run(
         const ImaginationRequest& request);
@@ -85,6 +90,7 @@ private:
     QualityDiversityArchive archive_;
     skills::MathSkillCatalog skills_;
     ImaginationMemory* memory_{nullptr};
+    skills::SkillLedger* skill_ledger_{nullptr};
 };
 
 } // namespace expert_robot::imagination
