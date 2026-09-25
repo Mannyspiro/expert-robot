@@ -7,6 +7,7 @@
 #include "expert_robot/research/candidate_verifier.hpp"
 #include "expert_robot/research/episode_ledger.hpp"
 #include "expert_robot/research/knowledge_consolidator.hpp"
+#include "expert_robot/research/route_planner.hpp"
 #include "expert_robot/research/state_machine.hpp"
 
 #include <cstddef>
@@ -45,6 +46,7 @@ struct ResearchOutcome {
     std::vector<ConsolidationResult> consolidations;
 
     std::optional<imagination::ImaginationRun> last_imagination;
+    std::vector<ProofRoute> planned_routes;
 
     std::string episode_root_hash;
 };
@@ -59,7 +61,8 @@ public:
         CandidateVerifier& candidate_verifier,
         VerifiedKnowledgeConsolidator& consolidator,
         ResearchEpisodeLedger& episode_ledger,
-        MathResearchEngineConfig config = {});
+        MathResearchEngineConfig config = {},
+        ProofRoutePlanner* route_planner = nullptr);
 
     [[nodiscard]] ResearchOutcome run(
         ResearchProblem problem);
@@ -73,6 +76,7 @@ private:
     VerifiedKnowledgeConsolidator& consolidator_;
     ResearchEpisodeLedger& episode_ledger_;
     MathResearchEngineConfig config_;
+    ProofRoutePlanner* route_planner_{nullptr};
 };
 
 } // namespace expert_robot::research
