@@ -1279,6 +1279,11 @@ ResearchOutcome MathResearchEngine::run(
                 strategy_steps_attempted ==
                     strategy.exemplar_sequence.steps.size();
 
+            outcome.dispatched_strategy_steps_attempted =
+                strategy_steps_attempted;
+            outcome.dispatched_strategy_complete =
+                strategy_completed;
+
             if (strategy_completed) {
                 route_memory_->record_strategy(
                     ResearchStrategyOutcome{
