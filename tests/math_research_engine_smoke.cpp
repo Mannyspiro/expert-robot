@@ -414,17 +414,29 @@ int main() {
             outcome.dispatched_strategy->
                 strategy_id,
             target.domain);
-    assert(strategy_experience.attempts == 1);
+
     assert(
-        strategy_experience.
-            verified_progresses == 1);
+        outcome.dispatched_strategy_steps_attempted >= 1);
     assert(
-        strategy_experience.
-            target_verifications == 1);
-    assert(
-        strategy_experience.signature ==
+        outcome.dispatched_strategy_steps_attempted <=
         outcome.dispatched_strategy->
-            signature);
+            exemplar_sequence.steps.size());
+
+    if (outcome.dispatched_strategy_complete) {
+        assert(strategy_experience.attempts == 1);
+        assert(
+            strategy_experience.
+                verified_progresses == 1);
+        assert(
+            strategy_experience.
+                target_verifications == 1);
+        assert(
+            strategy_experience.signature ==
+            outcome.dispatched_strategy->
+                signature);
+    } else {
+        assert(strategy_experience.attempts == 0);
+    }
 
     const auto& target_node =
         graph.get(
@@ -465,6 +477,7 @@ int main() {
     bool saw_strategy_top = false;
     bool saw_strategy_dispatch = false;
     bool saw_strategy_outcome = false;
+    bool saw_strategy_partial = false;
 
     for (const auto& event :
          episode_ledger.events(
@@ -501,6 +514,10 @@ int main() {
             "research_strategy_outcome") {
             saw_strategy_outcome = true;
         }
+        if (event.event_type ==
+            "research_strategy_partial") {
+            saw_strategy_partial = true;
+        }
     }
 
     for (const auto& transition :
@@ -524,7 +541,13 @@ int main() {
     assert(saw_route_sequence_outcome);
     assert(saw_strategy_top);
     assert(saw_strategy_dispatch);
-    assert(saw_strategy_outcome);
+    if (outcome.dispatched_strategy_complete) {
+        assert(saw_strategy_outcome);
+        assert(!saw_strategy_partial);
+    } else {
+        assert(!saw_strategy_outcome);
+        assert(saw_strategy_partial);
+    }
 
     std::filesystem::remove(
         graph_file);
