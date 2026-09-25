@@ -83,3 +83,34 @@ Evidence is retained for 14 days.
 - The previously exposed private key must remain revoked.
 - The current secret should contain only the newly rotated key.
 - This workflow grants no promotion authority.
+
+
+## Runner-repository bridge
+
+The same SSH key can also be used as a GitHub deploy key for the repository
+that owns additional Actions runners.
+
+The workflow defaults to:
+
+```text
+git@github.com:morganaspim/Cace-app.git
+```
+
+and exposes this as the `runner_repo_ssh` workflow input.
+
+When `discover_runner_repo = true`, the GitHub dispatcher:
+
+1. loads the private key into a local `ssh-agent`,
+2. connects to Railway with SSH agent forwarding (`ssh -A`),
+3. performs a read-only `git ls-remote` against the runner repository,
+4. shallow-clones it temporarily on Railway,
+5. prints only workflow filenames and referenced `runs-on:` labels,
+6. deletes the temporary clone.
+
+The private key itself is never copied onto Railway for this discovery path.
+
+This does **not** automatically register those runners to Expert Robot. GitHub
+self-hosted runners remain scoped according to the repository/organization
+where they were registered. The discovery step tells us what runner labels and
+existing workflows are available so a later bridge can hand off work through
+that repository without weakening the authority model.
