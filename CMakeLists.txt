@@ -35,6 +35,7 @@ add_library(expert_robot_core STATIC
     cpp/src/skills/skill_ledger.cpp
     cpp/src/skills/experimental_skill_store.cpp
     cpp/src/skills/model_skill_proposer.cpp
+    cpp/src/skills/promotion_packet.cpp
     cpp/src/eval/math_eval.cpp
     cpp/src/research/state_machine.cpp
     cpp/src/research/episode_ledger.cpp
@@ -216,3 +217,9 @@ add_executable(skill_feedback_smoke
 )
 target_link_libraries(skill_feedback_smoke PRIVATE expert_robot_core SQLite::SQLite3)
 add_test(NAME skill_feedback_smoke COMMAND skill_feedback_smoke)
+
+add_executable(skill_promotion_packet_smoke
+    tests/skill_promotion_packet_smoke.cpp
+)
+target_link_libraries(skill_promotion_packet_smoke PRIVATE expert_robot_core SQLite::SQLite3)
+add_test(NAME skill_promotion_packet_smoke COMMAND skill_promotion_packet_smoke)
