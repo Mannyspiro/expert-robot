@@ -636,6 +636,62 @@ ImaginationRun ImaginationController::run(
     if (run.shortlisted.empty()) {
         run.note =
             "no candidate passed the independent skeptic gate";
+        return run;
+    }
+
+    if (config_.enable_synthesis) {
+        std::ostringstream synthesis_goal;
+        synthesis_goal
+            << "Synthesize the shortlisted mathematical research ideas below.\n"
+            << "Do not declare any idea true or proven. Preserve meaningful "
+            << "disagreements instead of forcing consensus. Produce a compact "
+            << "plan containing: (1) complementary mechanisms, (2) conflicts, "
+            << "(3) cheapest discriminating experiments or Lean lemmas, and "
+            << "(4) an ordered verification plan.\n\n"
+            << "Original goal:\n"
+            << request.goal
+            << "\n\n";
+
+        for (std::size_t i = 0;
+             i < run.shortlisted.size();
+             ++i) {
+            const auto& idea =
+                run.shortlisted[i];
+
+            synthesis_goal
+                << "Candidate " << i + 1U
+                << " [" << lens_name(idea.lens) << "]\n"
+                << idea.text << "\n"
+                << "Skeptic risk: "
+                << idea.skeptic_risk << "/100\n"
+                << "Skeptic critique: "
+                << idea.skeptic_critique
+                << "\n\n";
+        }
+
+        const auto synthesis_results =
+            swarm_.run_batch({
+                swarm::AgentTask{
+                    .task_id =
+                        request.request_id +
+                        ":synthesis",
+                    .role =
+                        swarm::AgentRole::Synthesizer,
+                    .goal =
+                        synthesis_goal.str(),
+                    .context = context,
+                    .parent_task_id =
+                        request.request_id,
+                    .depth = 1,
+                }
+            });
+
+        if (!synthesis_results.empty() &&
+            synthesis_results.front().ok) {
+            run.synthesis_ok = true;
+            run.synthesis =
+                synthesis_results.front().output;
+        }
     }
 
     return run;
