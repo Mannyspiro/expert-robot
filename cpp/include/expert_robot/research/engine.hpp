@@ -1,0 +1,78 @@
+#pragma once
+
+#include "expert_robot/cognition/controller.hpp"
+#include "expert_robot/formalizer.hpp"
+#include "expert_robot/imagination/controller.hpp"
+#include "expert_robot/lemma_factory.hpp"
+#include "expert_robot/research/candidate_verifier.hpp"
+#include "expert_robot/research/episode_ledger.hpp"
+#include "expert_robot/research/knowledge_consolidator.hpp"
+#include "expert_robot/research/state_machine.hpp"
+
+#include <cstddef>
+#include <optional>
+#include <string>
+#include <vector>
+
+namespace expert_robot::research {
+
+struct ResearchProblem {
+    std::string episode_id;
+    FormalizationProposal target;
+
+    std::string focus_theorem;
+    std::vector<std::string> context;
+
+    cognition::InteroceptiveSensors sensors;
+    cognition::LogicalAssessment logic;
+
+    bool evaluation_mode{false};
+    std::vector<skills::MathSkill> experimental_skills;
+};
+
+struct MathResearchEngineConfig {
+    ResearchBudget budget;
+    std::size_t max_dispatch_steps{64};
+};
+
+struct ResearchOutcome {
+    bool target_verified{false};
+    ResearchState final_state;
+
+    std::optional<FormalizationResult> target_result;
+    std::vector<std::string> helper_declarations;
+    std::vector<CandidateVerification> candidate_verifications;
+    std::vector<ConsolidationResult> consolidations;
+
+    std::optional<imagination::ImaginationRun> last_imagination;
+
+    std::string episode_root_hash;
+};
+
+class MathResearchEngine {
+public:
+    MathResearchEngine(
+        IProofSearcher& searcher,
+        cognition::CognitionController& cognition,
+        imagination::ImaginationController& imagination,
+        RecursiveLemmaFactory& lemma_factory,
+        CandidateVerifier& candidate_verifier,
+        VerifiedKnowledgeConsolidator& consolidator,
+        ResearchEpisodeLedger& episode_ledger,
+        MathResearchEngineConfig config = {});
+
+    [[nodiscard]] ResearchOutcome run(
+        ResearchProblem problem);
+
+private:
+    IProofSearcher& searcher_;
+    cognition::CognitionController& cognition_;
+    imagination::ImaginationController& imagination_;
+    RecursiveLemmaFactory& lemma_factory_;
+    CandidateVerifier& candidate_verifier_;
+    VerifiedKnowledgeConsolidator& consolidator_;
+    ResearchEpisodeLedger& episode_ledger_;
+    MathResearchEngineConfig config_;
+};
+
+} // namespace expert_robot::research
