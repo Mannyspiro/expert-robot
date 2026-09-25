@@ -213,6 +213,58 @@ CandidateVerification target_candidate(
     };
 }
 
+void validate_feature_flags(
+    const ResearchFeatureFlags& f) {
+    if (f.imagination != f.decomposition) {
+        throw std::invalid_argument(
+            "imagination and decomposition must be enabled/disabled together in the current ablation model");
+    }
+    if (f.sequence_memory && !f.route_memory) {
+        throw std::invalid_argument(
+            "sequence_memory requires route_memory");
+    }
+    if (f.strategy_memory &&
+        (!f.strategy_planning ||
+         !f.sequence_memory ||
+         !f.route_memory)) {
+        throw std::invalid_argument(
+            "strategy_memory requires strategy_planning, sequence_memory, and route_memory");
+    }
+    if (f.strategy_planning &&
+        !f.sequence_memory) {
+        throw std::invalid_argument(
+            "strategy_planning requires sequence_memory");
+    }
+}
+
+cognition::CognitiveAction ablation_safe_action(
+    cognition::CognitiveAction action,
+    const ResearchFeatureFlags& f) {
+    if (f.imagination && f.decomposition) {
+        return action;
+    }
+
+    switch (action) {
+        case cognition::CognitiveAction::DecomposeProblem:
+        case cognition::CognitiveAction::SeekCounterexample:
+        case cognition::CognitiveAction::ExploreNovelRoute:
+        case cognition::CognitiveAction::AbstractGeneralize:
+        case cognition::CognitiveAction::SwitchRepresentation:
+        case cognition::CognitiveAction::CompressSimplify:
+        case cognition::CognitiveAction::ConserveCompute:
+            return cognition::CognitiveAction::ContinueCurrentRoute;
+
+        case cognition::CognitiveAction::IntensifyVerification:
+        case cognition::CognitiveAction::ContinueCurrentRoute:
+            return action;
+
+        case cognition::CognitiveAction::Count:
+            break;
+    }
+
+    return cognition::CognitiveAction::ContinueCurrentRoute;
+}
+
 bool research_action_seen(
     const ResearchState& state,
     ResearchAction action) {
@@ -290,6 +342,8 @@ MathResearchEngine::MathResearchEngine(
       strategy_planner_(strategy_planner) {
     validate_research_budget(
         config_.budget);
+    validate_feature_flags(
+        config_.features);
 
     if (config_.max_dispatch_steps == 0U) {
         throw std::invalid_argument(
@@ -362,7 +416,8 @@ ResearchOutcome MathResearchEngine::run(
         const imagination::ImaginationRun* imagined,
         bool select_for_dispatch)
         -> std::optional<cognition::CognitiveAction> {
-        if (route_planner_ == nullptr ||
+        if (!config_.features.route_planning ||
+            route_planner_ == nullptr ||
             !latest_cognition) {
             return std::nullopt;
         }
@@ -382,13 +437,17 @@ ResearchOutcome MathResearchEngine::run(
                     .imagination = imagined,
                 });
 
-        outcome.planned_sequences =
-            route_planner_->compose(
-                outcome.planned_routes,
-                problem.target.domain);
+        outcome.planned_sequences.clear();
+        if (config_.features.sequence_memory) {
+            outcome.planned_sequences =
+                route_planner_->compose(
+                    outcome.planned_routes,
+                    problem.target.domain);
+        }
 
         outcome.planned_strategies.clear();
-        if (strategy_planner_ != nullptr) {
+        if (config_.features.strategy_planning &&
+            strategy_planner_ != nullptr) {
             outcome.planned_strategies =
                 strategy_planner_->plan(
                     outcome.planned_sequences,
@@ -720,7 +779,9 @@ ResearchOutcome MathResearchEngine::run(
                 // theorem-graph knowledge before broad exploration. Only
                 // relation-aware routes that produce safe Lean hints can enter
                 // the preferred strategy list.
-                if (route_planner_ != nullptr) {
+                if (config_.features.theorem_graph &&
+                    config_.features.route_planning &&
+                    route_planner_ != nullptr) {
                     const auto known_routes =
                         route_planner_->plan(
                             RoutePlanningRequest{
@@ -838,9 +899,11 @@ ResearchOutcome MathResearchEngine::run(
                             true);
 
                     observation.cognitive_action =
-                        route_action.value_or(
-                            latest_cognition->
-                                decision.action);
+                        ablation_safe_action(
+                            route_action.value_or(
+                                latest_cognition->
+                                    decision.action),
+                            config_.features);
 
                     std::ostringstream payload;
                     payload
@@ -1227,7 +1290,8 @@ ResearchOutcome MathResearchEngine::run(
             "research engine exceeded dispatch-step guard before terminal state");
     }
 
-    if (route_memory_ != nullptr) {
+    if (config_.features.route_memory &&
+        route_memory_ != nullptr) {
         const auto& usage =
             outcome.final_state.usage;
         const auto& budget =
@@ -1298,7 +1362,8 @@ ResearchOutcome MathResearchEngine::run(
                 });
         }
 
-        if (outcome.dispatched_sequence.has_value()) {
+        if (config_.features.sequence_memory &&
+            outcome.dispatched_sequence.has_value()) {
             route_memory_->record_sequence(
                 RouteSequenceOutcome{
                     .sequence_id =
@@ -1320,7 +1385,8 @@ ResearchOutcome MathResearchEngine::run(
         bool strategy_completed = false;
         std::size_t strategy_steps_attempted = 0U;
 
-        if (outcome.dispatched_strategy.has_value()) {
+        if (config_.features.strategy_memory &&
+            outcome.dispatched_strategy.has_value()) {
             const auto& strategy =
                 *outcome.dispatched_strategy;
 
@@ -1448,7 +1514,8 @@ ResearchOutcome MathResearchEngine::run(
                 strategy_payload.str());
         }
 
-        if (outcome.target_verified) {
+        if (config_.features.strategy_memory &&
+            outcome.target_verified) {
             const auto discovered =
                 discover_research_strategy(
                     outcome.final_state,
