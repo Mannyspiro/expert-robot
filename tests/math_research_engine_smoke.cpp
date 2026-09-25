@@ -373,7 +373,12 @@ int main() {
     assert(!outcome.final_state.exhausted);
     assert(!outcome.episode_root_hash.empty());
     assert(!outcome.planned_routes.empty());
+    assert(!outcome.planned_sequences.empty());
+    assert(outcome.dispatched_sequence.has_value());
     assert(outcome.dispatched_route.has_value());
+    assert(
+        !outcome.dispatched_sequence->
+            sequence_id.empty());
 
     const auto route_experience =
         route_memory.experience(
@@ -415,6 +420,7 @@ int main() {
     bool saw_decompose = false;
     bool saw_complete = false;
     bool saw_route_plan = false;
+    bool saw_route_sequence = false;
     bool saw_route_dispatch = false;
     bool saw_route_outcome = false;
 
@@ -424,6 +430,10 @@ int main() {
         if (event.event_type ==
             "route_plan_top") {
             saw_route_plan = true;
+        }
+        if (event.event_type ==
+            "route_sequence_top") {
+            saw_route_sequence = true;
         }
         if (event.event_type ==
             "route_dispatched") {
@@ -450,6 +460,7 @@ int main() {
     assert(saw_decompose);
     assert(saw_complete);
     assert(saw_route_plan);
+    assert(saw_route_sequence);
     assert(saw_route_dispatch);
     assert(saw_route_outcome);
 
