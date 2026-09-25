@@ -373,6 +373,9 @@ int main() {
     assert(!run.archive_elites.empty());
     assert(!run.shortlisted.empty());
     assert(run.shortlisted.size() <= 3);
+    assert(run.synthesis_ok);
+    assert(!run.synthesis.empty());
+    assert(backend.saw("Synthesize the shortlisted mathematical research ideas below."));
     assert(backend.saw("Reusable math skill:"));
     assert(backend.saw("theorem_graph:"));
     assert(backend.saw("Critique this candidate mathematical idea independently."));
