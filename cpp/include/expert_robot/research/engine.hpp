@@ -34,9 +34,21 @@ struct ResearchProblem {
     std::vector<skills::MathSkill> experimental_skills;
 };
 
+struct ResearchFeatureFlags {
+    bool theorem_graph{true};
+    bool route_planning{true};
+    bool imagination{true};
+    bool decomposition{true};
+    bool route_memory{true};
+    bool sequence_memory{true};
+    bool strategy_planning{true};
+    bool strategy_memory{true};
+};
+
 struct MathResearchEngineConfig {
     ResearchBudget budget;
     std::size_t max_dispatch_steps{64};
+    ResearchFeatureFlags features;
 };
 
 struct ResearchOutcome {
