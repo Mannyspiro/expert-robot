@@ -52,3 +52,33 @@ kernel-visible axiom dependencies for review.
 
 #check MathAI.Geometry.squaredDistance_eq_radius_of_pointOnSphere
 #print axioms MathAI.Geometry.squaredDistance_eq_radius_of_pointOnSphere
+
+#check MathAI.Geometry.cross_zero_left
+#print axioms MathAI.Geometry.cross_zero_left
+
+#check MathAI.Geometry.cross_zero_right
+#print axioms MathAI.Geometry.cross_zero_right
+
+#check MathAI.Geometry.cross_self
+#print axioms MathAI.Geometry.cross_self
+
+#check MathAI.Geometry.vecBetween_self
+#print axioms MathAI.Geometry.vecBetween_self
+
+#check MathAI.Geometry.parallel_zero_left
+#print axioms MathAI.Geometry.parallel_zero_left
+
+#check MathAI.Geometry.parallel_zero_right
+#print axioms MathAI.Geometry.parallel_zero_right
+
+#check MathAI.Geometry.parallel_self
+#print axioms MathAI.Geometry.parallel_self
+
+#check MathAI.Geometry.dot_self_nonnegative
+#print axioms MathAI.Geometry.dot_self_nonnegative
+
+#check MathAI.Geometry.validPlane_of_pointOnPlane
+#print axioms MathAI.Geometry.validPlane_of_pointOnPlane
+
+#check MathAI.Geometry.validLine_of_pointOnLine
+#print axioms MathAI.Geometry.validLine_of_pointOnLine
