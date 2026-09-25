@@ -16,10 +16,13 @@ add_library(expert_robot_core STATIC
     cpp/src/proof_search.cpp
     cpp/src/proof_memory.cpp
     cpp/src/knowledge_graph.cpp
+    cpp/src/formalizer.cpp
+    cpp/src/lemma_factory.cpp
     cpp/src/cognition/neuromodulation.cpp
     cpp/src/cognition/interoception.cpp
     cpp/src/cognition/personality.cpp
     cpp/src/cognition/controller.cpp
+    cpp/src/cognition/lemma_factory_bridge.cpp
 )
 
 target_include_directories(expert_robot_core PUBLIC cpp/include)
@@ -73,3 +76,9 @@ add_executable(cognition_controller_smoke
 )
 target_link_libraries(cognition_controller_smoke PRIVATE expert_robot_core)
 add_test(NAME cognition_controller_smoke COMMAND cognition_controller_smoke)
+
+add_executable(lemma_factory_smoke
+    tests/lemma_factory_smoke.cpp
+)
+target_link_libraries(lemma_factory_smoke PRIVATE expert_robot_core)
+add_test(NAME lemma_factory_smoke COMMAND lemma_factory_smoke)
