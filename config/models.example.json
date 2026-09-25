@@ -1,0 +1,24 @@
+{
+  "models": {
+    "controller": {
+      "model_id": "Qwen/Qwen3.5-4B",
+      "local_path": "models/controller",
+      "backend": "llama.cpp"
+    },
+    "coder": {
+      "model_id": "Qwen/Qwen3-Coder-30B-A3B-Instruct",
+      "local_path": "models/coder",
+      "backend": "llama.cpp"
+    },
+    "learner": {
+      "model_id": "Qwen/Qwen3-30B-A3B-Base",
+      "local_path": "models/learner",
+      "backend": "llama.cpp"
+    },
+    "math": {
+      "model_id": "Qwen/Qwen2.5-Math-7B-Instruct",
+      "local_path": "models/math",
+      "backend": "llama.cpp"
+    }
+  }
+}
