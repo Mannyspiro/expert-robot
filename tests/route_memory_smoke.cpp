@@ -329,6 +329,50 @@ int main() {
         memory.all_strategy_context_experience();
     assert(all_context.size() == 2);
 
+    for (int i = 0; i < 4; ++i) {
+        memory.record_strategy_step(
+            ResearchStrategyStepOutcome{
+                .strategy_id = strategy_id,
+                .signature = signature,
+                .domain = "algebra",
+                .context_key =
+                    "domain=algebra|graph=high|uncertainty=low|repetition=low|failures=some|need=reframe",
+                .step_index = 1,
+                .kind =
+                    ProofRouteKind::RecursiveDecomposition,
+                .route_id = "decompose-step",
+                .verified_progress = true,
+                .target_verified = i >= 2,
+                .dead_end_escaped = true,
+                .resource_cost = 0.25,
+                .proof_attempts = 2,
+                .model_calls = 0,
+                .generated_ideas = 0,
+                .generated_lemmas = 1
+            });
+    }
+
+    const auto step_experience =
+        memory.strategy_step_experience(
+            strategy_id,
+            1,
+            "algebra");
+
+    assert(step_experience.attempts == 4);
+    assert(
+        step_experience.verified_progresses == 4);
+    assert(
+        step_experience.target_verifications == 2);
+    assert(
+        step_experience.total_proof_attempts == 8);
+    assert(
+        step_experience.total_generated_lemmas == 4);
+    assert(
+        step_experience.average_resource_cost() > 0.0);
+    assert(
+        memory.all_strategy_step_experience().
+            size() == 1);
+
     bool invalid_rejected = false;
     try {
         memory.record(
