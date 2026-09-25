@@ -31,6 +31,8 @@ add_library(expert_robot_core STATIC
     cpp/src/imagination/controller.cpp
     cpp/src/skills/math_skill.cpp
     cpp/src/skills/skill_ledger.cpp
+    cpp/src/skills/experimental_skill_store.cpp
+    cpp/src/skills/model_skill_proposer.cpp
     cpp/src/eval/math_eval.cpp
     cpp/src/cognition/neuromodulation.cpp
     cpp/src/cognition/interoception.cpp
@@ -114,3 +116,9 @@ add_executable(math_eval_smoke
 )
 target_link_libraries(math_eval_smoke PRIVATE expert_robot_core)
 add_test(NAME math_eval_smoke COMMAND math_eval_smoke)
+
+add_executable(skill_growth_smoke
+    tests/skill_growth_smoke.cpp
+)
+target_link_libraries(skill_growth_smoke PRIVATE expert_robot_core)
+add_test(NAME skill_growth_smoke COMMAND skill_growth_smoke)
