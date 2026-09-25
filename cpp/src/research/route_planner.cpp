@@ -327,6 +327,7 @@ lean_hint_tactics_for_route(
     return {
         "exact " + theorem,
         "simpa using " + theorem,
+        "apply " + theorem + " <;> aesop",
     };
 }
 
