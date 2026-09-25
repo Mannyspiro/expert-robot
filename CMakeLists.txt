@@ -10,6 +10,7 @@ find_package(Threads REQUIRED)
 
 add_library(expert_robot_core STATIC
     cpp/src/runtime.cpp
+    cpp/src/app/math_research_service.cpp
     cpp/src/capabilities.cpp
     cpp/src/sha256.cpp
     cpp/src/json_util.cpp
@@ -198,3 +199,9 @@ add_executable(theorem_hint_smoke
 )
 target_link_libraries(theorem_hint_smoke PRIVATE expert_robot_core)
 add_test(NAME theorem_hint_smoke COMMAND theorem_hint_smoke)
+
+add_executable(math_research_service_smoke
+    tests/math_research_service_smoke.cpp
+)
+target_link_libraries(math_research_service_smoke PRIVATE expert_robot_core SQLite::SQLite3)
+add_test(NAME math_research_service_smoke COMMAND math_research_service_smoke)
