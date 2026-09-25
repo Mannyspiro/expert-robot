@@ -16,6 +16,8 @@ add_library(expert_robot_core STATIC
     cpp/src/proof_search.cpp
     cpp/src/proof_memory.cpp
     cpp/src/knowledge_graph.cpp
+    cpp/src/cognition/neuromodulation.cpp
+    cpp/src/cognition/interoception.cpp
 )
 
 target_include_directories(expert_robot_core PUBLIC cpp/include)
@@ -45,3 +47,15 @@ add_executable(math_core_smoke
 )
 target_link_libraries(math_core_smoke PRIVATE expert_robot_core)
 add_test(NAME math_core_smoke COMMAND math_core_smoke)
+
+add_executable(neuromodulation_smoke
+    tests/neuromodulation_smoke.cpp
+)
+target_link_libraries(neuromodulation_smoke PRIVATE expert_robot_core)
+add_test(NAME neuromodulation_smoke COMMAND neuromodulation_smoke)
+
+add_executable(interoception_smoke
+    tests/interoception_smoke.cpp
+)
+target_link_libraries(interoception_smoke PRIVATE expert_robot_core)
+add_test(NAME interoception_smoke COMMAND interoception_smoke)
