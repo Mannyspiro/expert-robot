@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "source_repository": "Mannyspiro/refactored-fishstick",
+  "source_branch": "owner-collar-frozen-runtime",
+  "source_commit": "77224183e78a262a34b2c1c311b1d1fbc7c59b4e",
+  "source_tree": "616b3f5e545abb073988a5ddf1e58a7546719274",
+  "source_pr": 53,
+  "source_status": "unmerged_draft",
+  "reuse_policy": {
+    "lean_artifacts": "copied verbatim with provenance",
+    "runtime_python": "reference only; operational logic is ported to C++",
+    "owner_identity_state": "not copied",
+    "model_weights": "not copied",
+    "model_locks": "not copied unless independently selected for Expert Robot"
+  },
+  "imported_paths": [
+    "math_ai/MathAI.lean",
+    "math_ai/MathAI/Trust/Seed.lean",
+    "math_ai/MathAI/Geometry/Exact.lean",
+    "math_ai/lakefile.toml",
+    "math_ai/lean-toolchain",
+    "sandbox/base-policy.json"
+  ],
+  "ported_concepts": [
+    "math_ai/src/math_ai/capabilities.py -> cpp/include/expert_robot/capabilities.hpp + cpp/src/capabilities.cpp"
+  ]
+}
