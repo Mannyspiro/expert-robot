@@ -333,7 +333,8 @@ ResearchOutcome MathResearchEngine::run(
 
         outcome.planned_sequences =
             route_planner_->compose(
-                outcome.planned_routes);
+                outcome.planned_routes,
+                problem.target.domain);
 
         if (!outcome.planned_sequences.empty()) {
             const auto& sequence =
@@ -1069,6 +1070,25 @@ ResearchOutcome MathResearchEngine::run(
                     resource_cost,
             });
 
+        if (outcome.dispatched_sequence.has_value()) {
+            route_memory_->record_sequence(
+                RouteSequenceOutcome{
+                    .sequence_id =
+                        outcome.dispatched_sequence->
+                            sequence_id,
+                    .domain =
+                        problem.target.domain,
+                    .verified_progress =
+                        verified_progress,
+                    .target_verified =
+                        outcome.target_verified,
+                    .dead_end_escaped =
+                        verified_progress,
+                    .resource_cost =
+                        resource_cost,
+                });
+        }
+
         std::ostringstream payload;
         payload
             << "route_id="
@@ -1089,6 +1109,29 @@ ResearchOutcome MathResearchEngine::run(
             problem.episode_id,
             "route_outcome",
             payload.str());
+
+        if (outcome.dispatched_sequence.has_value()) {
+            std::ostringstream sequence_payload;
+            sequence_payload
+                << "sequence_id="
+                << outcome.dispatched_sequence->
+                    sequence_id
+                << "\nverified_progress="
+                << (verified_progress
+                        ? "true"
+                        : "false")
+                << "\ntarget_verified="
+                << (outcome.target_verified
+                        ? "true"
+                        : "false")
+                << "\nresource_cost="
+                << resource_cost;
+
+            (void)episode_ledger_.append(
+                problem.episode_id,
+                "route_sequence_outcome",
+                sequence_payload.str());
+        }
     }
 
     const auto verification =
