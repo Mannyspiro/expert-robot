@@ -63,7 +63,27 @@ VerifiedKnowledgeConsolidator::consolidate(
 
     bool created = false;
     bool upgraded = false;
+    bool deduplicated = false;
+    std::string canonical_theorem_name =
+        theorem_name;
 
+    for (const auto& existing :
+         graph_.nodes()) {
+        if (existing.name == theorem_name ||
+            existing.status != "verified" ||
+            existing.statement.empty()) {
+            continue;
+        }
+
+        if (existing.statement == statement) {
+            deduplicated = true;
+            canonical_theorem_name =
+                existing.name;
+            break;
+        }
+    }
+
+    if (!deduplicated) {
     try {
         const auto& existing =
             graph_.get(
@@ -121,10 +141,12 @@ VerifiedKnowledgeConsolidator::consolidate(
             });
         created = true;
     }
+    }
 
     bool linked = false;
     if (!target_theorem.empty() &&
-        target_theorem != theorem_name) {
+        target_theorem !=
+            canonical_theorem_name) {
         try {
             (void)graph_.get(
                 target_theorem);
@@ -136,7 +158,7 @@ VerifiedKnowledgeConsolidator::consolidate(
                             target_theorem),
                     .relation = "USES",
                     .target =
-                        theorem_name,
+                        canonical_theorem_name,
                 });
             linked = true;
         } catch (const std::out_of_range&) {
@@ -160,6 +182,11 @@ VerifiedKnowledgeConsolidator::consolidate(
         std::ostringstream payload;
         payload
             << "theorem=" << theorem_name << "\n"
+            << "canonical_theorem="
+            << canonical_theorem_name << "\n"
+            << "deduplicated="
+            << (deduplicated ? "true" : "false")
+            << "\n"
             << "target=" << target_theorem << "\n"
             << "statement_sha256="
             << sha256_hex(statement) << "\n"
@@ -188,6 +215,10 @@ VerifiedKnowledgeConsolidator::consolidate(
     return ConsolidationResult{
         .theorem_name =
             theorem_name,
+        .canonical_theorem_name =
+            canonical_theorem_name,
+        .deduplicated =
+            deduplicated,
         .node_created =
             created,
         .node_upgraded =
