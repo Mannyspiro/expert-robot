@@ -48,6 +48,7 @@ add_library(expert_robot_core STATIC
     cpp/src/research/strategy_planner.cpp
     cpp/src/research/strategy_discovery.cpp
     cpp/src/research/strategy_ablation.cpp
+    cpp/src/research/strategy_qualification.cpp
     cpp/src/research/engine.cpp
     cpp/src/growth/generation_lineage.cpp
     cpp/src/growth/ablation_evidence.cpp
@@ -290,3 +291,9 @@ add_executable(strategy_ablation_smoke
 )
 target_link_libraries(strategy_ablation_smoke PRIVATE expert_robot_core)
 add_test(NAME strategy_ablation_smoke COMMAND strategy_ablation_smoke)
+
+add_executable(strategy_qualification_smoke
+    tests/strategy_qualification_smoke.cpp
+)
+target_link_libraries(strategy_qualification_smoke PRIVATE expert_robot_core)
+add_test(NAME strategy_qualification_smoke COMMAND strategy_qualification_smoke)
