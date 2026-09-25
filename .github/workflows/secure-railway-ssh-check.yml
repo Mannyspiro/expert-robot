@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   validate:
-    runs-on: avrea-ubuntu-latest-8-vcpu
+    runs-on: ubuntu-latest
     timeout-minutes: 10
 
     steps:
@@ -67,13 +67,17 @@ jobs:
           # Railway identifies the anonymous/free VM by the SSH key. This
           # command intentionally avoids an interactive shell and only verifies
           # that the key is accepted by the SSH endpoint.
+          # Railway prints provisioning metadata (including a claim URL) on
+          # first contact. Filter that metadata so it never lands in Actions
+          # logs; pipefail preserves the real SSH exit status.
           ssh \
             -i "$key_file" \
             -o BatchMode=yes \
             -o StrictHostKeyChecking=accept-new \
             -o ConnectTimeout=20 \
             railway.new \
-            'printf "railway ssh key accepted\n"'
+            'printf "railway ssh key accepted\n"' \
+            2>&1 | awk '!/"human_claim_url":/'
 
       - name: Remove temporary key material
         if: always()
