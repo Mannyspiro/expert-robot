@@ -113,7 +113,7 @@ int main() {
     graph.sync_formal_registry(
         "formal/theorem_registry.json");
 
-    assert(graph.nodes().size() == 15);
+    assert(graph.nodes().size() == 25);
     assert(
         graph.get(
             "MathAI.Trust.add_zero_verified").status ==
@@ -164,6 +164,19 @@ int main() {
     assert(
         zero_left_uses.front().target ==
         "MathAI.Geometry.dot_zero_left");
+
+    const auto parallel_self_uses =
+        graph.related(
+            "MathAI.Geometry.parallel_self",
+            "USES");
+    assert(parallel_self_uses.size() == 1);
+    assert(
+        parallel_self_uses.front().target ==
+        "MathAI.Geometry.cross_self");
+    assert(
+        graph.get(
+            "MathAI.Geometry.dot_self_nonnegative").status ==
+        "verified");
 
     return 0;
 }
