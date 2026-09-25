@@ -57,6 +57,3 @@ jobs:
           wait "$smoke_pid"
           wait "$orchestrator_pid"
 
-      - name: ccache stats
-        if: always()
-        run: ccache --show-stats || true
