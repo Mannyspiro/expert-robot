@@ -3,10 +3,14 @@ name: CI
 on:
   push:
     branches: ["main"]
+    paths-ignore:
+      - "formal/**"
+      - ".github/workflows/formal-qualification.yml"
   pull_request:
+    paths-ignore:
+      - "formal/**"
+      - ".github/workflows/formal-qualification.yml"
 
-# A new commit supersedes an older CI run for the same PR/branch. This avoids
-# burning runner cores on commits that can no longer become the PR head.
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -24,8 +28,6 @@ jobs:
         run: |
           set -euo pipefail
           detected="$(nproc 2>/dev/null || getconf _NPROCESSORS_ONLN || echo 2)"
-          # Keep a hard ceiling so an unexpectedly huge machine cannot create
-          # pathological memory pressure. A 32-vCPU runner uses all 32.
           if [ "$detected" -gt 32 ]; then detected=32; fi
           if [ "$detected" -lt 1 ]; then detected=1; fi
           echo "jobs=$detected" >> "$GITHUB_OUTPUT"
@@ -52,6 +54,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+
           python3 tests/smoke.py ./build/expert_robot_runtime &
           smoke_pid=$!
 

@@ -22,7 +22,7 @@ concurrency:
 jobs:
   lean-qualification:
     runs-on: avrea-ubuntu-latest-8-vcpu
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     steps:
       - uses: actions/checkout@v4
@@ -59,11 +59,24 @@ jobs:
           print("Project Lean source audit passed.")
           PY
 
-      - name: Build pinned Lean package
+      - name: Build and independently check pinned Lean package
         uses: leanprover/lean-action@v1
+        env:
+          # Mathlib-dependent leanchecker jobs can be memory-heavy.
+          LEAN_NUM_THREADS: "1"
         with:
           lake-package-directory: "formal"
+          auto-config: "false"
+          build: "true"
+          test: "false"
+          lint: "false"
           build-args: "--wfail"
+          use-mathlib-cache: "true"
+          leanchecker: "true"
+          leanchecker-args: "MathAI"
+          axiom-audit: "true"
+          axiom-audit-root: "MathAI"
+          axiom-audit-allow: "propext,Classical.choice,Quot.sound"
 
       - name: Direct audited-root replay
         working-directory: formal
@@ -76,3 +89,10 @@ jobs:
         env:
           LEAN_ABORT_ON_PANIC: "1"
         run: lake env lean MathAI/Audit.lean
+
+      - name: Manifest immutability check
+        working-directory: formal
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code -- lake-manifest.json
