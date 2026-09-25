@@ -388,6 +388,19 @@ int main() {
     assert(route_experience.verified_progresses == 1);
     assert(route_experience.target_verifications == 1);
 
+    const auto sequence_experience =
+        route_memory.sequence_experience(
+            outcome.dispatched_sequence->
+                sequence_id,
+            target.domain);
+    assert(sequence_experience.attempts == 1);
+    assert(
+        sequence_experience.
+            verified_progresses == 1);
+    assert(
+        sequence_experience.
+            target_verifications == 1);
+
     const auto& target_node =
         graph.get(
             target.qualified_name());
@@ -423,6 +436,7 @@ int main() {
     bool saw_route_sequence = false;
     bool saw_route_dispatch = false;
     bool saw_route_outcome = false;
+    bool saw_route_sequence_outcome = false;
 
     for (const auto& event :
          episode_ledger.events(
@@ -442,6 +456,10 @@ int main() {
         if (event.event_type ==
             "route_outcome") {
             saw_route_outcome = true;
+        }
+        if (event.event_type ==
+            "route_sequence_outcome") {
+            saw_route_sequence_outcome = true;
         }
     }
 
@@ -463,6 +481,7 @@ int main() {
     assert(saw_route_sequence);
     assert(saw_route_dispatch);
     assert(saw_route_outcome);
+    assert(saw_route_sequence_outcome);
 
     std::filesystem::remove(
         graph_file);
