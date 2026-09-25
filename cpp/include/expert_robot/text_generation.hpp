@@ -32,7 +32,7 @@ struct LlamaCliConfig {
     std::filesystem::path model_path;
     std::filesystem::path json_schema_path;
 
-    std::string chat_template{"chatml"};
+    std::string chat_template;
 
     int max_tokens{1024};
     double temperature{0.15};
