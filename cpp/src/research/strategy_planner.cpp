@@ -4,6 +4,7 @@
 #include "expert_robot/sha256.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <initializer_list>
 #include <map>
@@ -16,6 +17,79 @@ namespace {
 
 double clamp01(double value) {
     return std::clamp(value, 0.0, 1.0);
+}
+
+std::string_view bucket(double value) {
+    const double v = clamp01(value);
+    if (v < 0.34) return "low";
+    if (v < 0.67) return "mid";
+    return "high";
+}
+
+std::string_view failure_bucket(long long failures) {
+    if (failures <= 0) return "fresh";
+    if (failures <= 3) return "some";
+    return "stuck";
+}
+
+std::string_view dominant_need(
+    const ResearchStrategyContext& c) {
+    struct Need {
+        std::string_view name;
+        double value;
+    };
+
+    const std::array<Need, 5> needs{{
+        {"decompose", c.decomposition_value},
+        {"counterexample", c.counterexample_value},
+        {"abstract", c.abstraction_value},
+        {"compress", c.compression_value},
+        {"reframe", c.representation_switch_value},
+    }};
+
+    const auto best =
+        std::max_element(
+            needs.begin(),
+            needs.end(),
+            [](const Need& a, const Need& b) {
+                return a.value < b.value;
+            });
+
+    if (best == needs.end() ||
+        best->value < 0.34) {
+        return "general";
+    }
+
+    return best->name;
+}
+
+void validate_strategy_context(
+    const ResearchStrategyContext& c) {
+    if (c.domain.empty()) {
+        throw std::invalid_argument(
+            "strategy context domain must be non-empty");
+    }
+    if (c.consecutive_failures < 0) {
+        throw std::invalid_argument(
+            "strategy context consecutive_failures must be nonnegative");
+    }
+
+    for (const double value : {
+             c.theorem_graph_coverage,
+             c.uncertainty,
+             c.route_repetition,
+             c.decomposition_value,
+             c.counterexample_value,
+             c.abstraction_value,
+             c.compression_value,
+             c.representation_switch_value}) {
+        if (!std::isfinite(value) ||
+            value < 0.0 ||
+            value > 1.0) {
+            throw std::invalid_argument(
+                "strategy context rates must be in [0,1]");
+        }
+    }
 }
 
 bool same_steps(
@@ -52,8 +126,10 @@ void validate_research_strategy_planner_config(
 
     for (const double value : {
              c.experience_weight,
+             c.context_experience_weight,
              c.exploration_weight,
              c.evidence_half_saturation_attempts,
+             c.context_half_saturation_attempts,
              c.soft_retirement_verified_rate_ceiling,
              c.soft_retirement_cost_floor,
              c.soft_retirement_penalty}) {
@@ -65,6 +141,7 @@ void validate_research_strategy_planner_config(
     }
 
     if (c.minimum_experience_attempts < 0 ||
+        c.minimum_context_attempts < 0 ||
         c.soft_retirement_min_attempts < 0) {
         throw std::invalid_argument(
             "strategy planner minimum experience must be nonnegative");
@@ -74,10 +151,27 @@ void validate_research_strategy_planner_config(
         throw std::invalid_argument(
             "strategy retirement rate/cost thresholds must be within [0,1]");
     }
-    if (c.evidence_half_saturation_attempts <= 0.0) {
+    if (c.evidence_half_saturation_attempts <= 0.0 ||
+        c.context_half_saturation_attempts <= 0.0) {
         throw std::invalid_argument(
-            "strategy evidence half-saturation must be positive");
+            "strategy evidence half-saturation values must be positive");
     }
+}
+
+std::string research_strategy_context_key(
+    const ResearchStrategyContext& context) {
+    validate_strategy_context(context);
+
+    std::ostringstream out;
+    out
+        << "domain=" << context.domain
+        << "|graph=" << bucket(context.theorem_graph_coverage)
+        << "|uncertainty=" << bucket(context.uncertainty)
+        << "|repetition=" << bucket(context.route_repetition)
+        << "|failures=" << failure_bucket(context.consecutive_failures)
+        << "|need=" << dominant_need(context);
+
+    return out.str();
 }
 
 std::string research_strategy_signature(
@@ -202,7 +296,8 @@ ResearchStrategyPlanner::ResearchStrategyPlanner(
 std::vector<ResearchStrategyPlan>
 ResearchStrategyPlanner::plan(
     const std::vector<ProofRouteSequence>& sequences,
-    std::string_view target_domain) const {
+    std::string_view target_domain,
+    const ResearchStrategyContext* context) const {
     std::map<std::string, ResearchStrategyPlan>
         collapsed;
 
@@ -238,6 +333,9 @@ ResearchStrategyPlanner::plan(
                 sequence.final_score,
             .evidence_confidence = 0.0,
             .experience_adjustment = 0.0,
+            .context_key = "",
+            .context_evidence_confidence = 0.0,
+            .context_adjustment = 0.0,
             .soft_retired = false,
             .soft_retirement_penalty = 0.0,
             .exploration_bonus = 0.0,
@@ -324,6 +422,54 @@ ResearchStrategyPlanner::plan(
             }
         }
 
+        if (memory_ != nullptr &&
+            context != nullptr) {
+            validate_strategy_context(*context);
+
+            strategy.context_key =
+                research_strategy_context_key(
+                    *context);
+
+            const auto contextual =
+                memory_->strategy_context_experience(
+                    strategy.strategy_id,
+                    strategy.context_key);
+
+            if (contextual.attempts >=
+                config_.minimum_context_attempts) {
+                const double success_prior =
+                    clamp01(
+                        0.65 *
+                            contextual.
+                                smoothed_verified_rate() +
+                        0.35 *
+                            contextual.
+                                smoothed_target_rate());
+
+                const double normalized_cost =
+                    clamp01(
+                        contextual.
+                            average_resource_cost());
+
+                const double signed_success =
+                    2.0 * success_prior - 1.0;
+
+                strategy.context_evidence_confidence =
+                    static_cast<double>(
+                        contextual.attempts) /
+                    (static_cast<double>(
+                         contextual.attempts) +
+                     config_.
+                         context_half_saturation_attempts);
+
+                strategy.context_adjustment =
+                    config_.context_experience_weight *
+                    strategy.context_evidence_confidence *
+                    (signed_success -
+                     0.25 * normalized_cost);
+            }
+        }
+
         strategy.exploration_bonus =
             config_.exploration_weight /
             std::sqrt(
@@ -334,6 +480,7 @@ ResearchStrategyPlanner::plan(
             clamp01(
                 strategy.base_score +
                 strategy.experience_adjustment +
+                strategy.context_adjustment +
                 strategy.exploration_bonus -
                 strategy.soft_retirement_penalty);
 
