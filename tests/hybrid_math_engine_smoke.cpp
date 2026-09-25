@@ -9,6 +9,7 @@
 #include <atomic>
 #include <cassert>
 #include <chrono>
+#include <filesystem>
 #include <mutex>
 #include <string>
 #include <thread>
@@ -312,6 +313,13 @@ int main() {
         .target = "MathAI.Related"
     });
 
+    const auto imagination_db =
+        std::filesystem::temp_directory_path() /
+        "expert-robot-hybrid-imagination.sqlite3";
+    std::filesystem::remove(imagination_db);
+    ImaginationMemory imagination_memory(
+        imagination_db);
+
     ImaginationController imagination(
         swarm,
         ImaginationConfig{
@@ -324,7 +332,8 @@ int main() {
             .maximum_skeptic_risk = 65
         },
         &graph,
-        skill_catalog);
+        skill_catalog,
+        &imagination_memory);
 
     CognitionCycle cycle;
     cycle.interoception.state.resource_pressure = 0.10;
@@ -367,6 +376,25 @@ int main() {
     assert(backend.saw("Reusable math skill:"));
     assert(backend.saw("theorem_graph:"));
     assert(backend.saw("Critique this candidate mathematical idea independently."));
+    assert(
+        imagination_memory.count() >=
+        static_cast<long long>(run.generated.size()));
+
+    ImaginationController restored_imagination(
+        swarm,
+        ImaginationConfig{
+            .normal_lens_budget = 4,
+            .breakthrough_lens_budget = 8,
+            .skeptic_budget = 4,
+            .max_expensive_candidates = 3,
+            .archive_capacity_per_lens = 2,
+            .minimum_imagination_drive = 0.18,
+            .maximum_skeptic_risk = 65
+        },
+        &graph,
+        skill_catalog,
+        &imagination_memory);
+    assert(restored_imagination.archive().size() > 0);
 
     for (const auto& idea : run.generated) {
         assert(idea.novelty_score >= 0.0 &&
@@ -392,5 +420,6 @@ int main() {
         "MathAI.Generated.generated_helper");
     assert(helpers[0].proposition == "x = x");
 
+    std::filesystem::remove(imagination_db);
     return 0;
 }
