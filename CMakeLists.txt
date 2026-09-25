@@ -37,6 +37,7 @@ add_library(expert_robot_core STATIC
     cpp/src/eval/math_eval.cpp
     cpp/src/research/state_machine.cpp
     cpp/src/research/episode_ledger.cpp
+    cpp/src/research/candidate_verifier.cpp
     cpp/src/cognition/neuromodulation.cpp
     cpp/src/cognition/interoception.cpp
     cpp/src/cognition/personality.cpp
@@ -143,3 +144,9 @@ add_executable(model_formalization_smoke
 )
 target_link_libraries(model_formalization_smoke PRIVATE expert_robot_core)
 add_test(NAME model_formalization_smoke COMMAND model_formalization_smoke)
+
+add_executable(candidate_verifier_smoke
+    tests/candidate_verifier_smoke.cpp
+)
+target_link_libraries(candidate_verifier_smoke PRIVATE expert_robot_core)
+add_test(NAME candidate_verifier_smoke COMMAND candidate_verifier_smoke)
