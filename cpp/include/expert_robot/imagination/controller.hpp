@@ -38,6 +38,11 @@ struct ImaginationRequest {
     cognition::PersonalityProfile personality;
     cognition::CognitionCycle cognition;
     cognition::LogicalAssessment logic;
+
+    // Experimental skills are permitted only in explicit ablation/evaluation
+    // requests. Production requests must leave this empty.
+    bool evaluation_mode{false};
+    std::vector<skills::MathSkill> experimental_skills;
 };
 
 struct ImaginationRun {
