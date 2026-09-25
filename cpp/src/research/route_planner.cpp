@@ -246,7 +246,8 @@ void validate_route_planner_config(
              c.diversity_weight,
              c.cost_penalty_weight,
              c.route_experience_weight,
-             c.sequence_synergy_weight}) {
+             c.sequence_synergy_weight,
+             c.sequence_experience_weight}) {
         if (!std::isfinite(value) ||
             value < 0.0) {
             throw std::invalid_argument(
@@ -254,9 +255,10 @@ void validate_route_planner_config(
         }
     }
 
-    if (c.minimum_experience_attempts < 0) {
+    if (c.minimum_experience_attempts < 0 ||
+        c.minimum_sequence_experience_attempts < 0) {
         throw std::invalid_argument(
-            "minimum_experience_attempts must be nonnegative");
+            "route experience minimum attempts must be nonnegative");
     }
 }
 
@@ -834,7 +836,8 @@ ProofRoutePlanner::plan(
 
 std::vector<ProofRouteSequence>
 ProofRoutePlanner::compose(
-    const std::vector<ProofRoute>& routes) const {
+    const std::vector<ProofRoute>& routes,
+    std::string_view target_domain) const {
     std::vector<ProofRoute> usable;
     usable.reserve(routes.size());
 
@@ -935,6 +938,47 @@ ProofRoutePlanner::compose(
                         usable[k]
                     });
                 }
+            }
+        }
+    }
+
+    if (route_memory_ != nullptr &&
+        !target_domain.empty()) {
+        for (auto& sequence : sequences) {
+            const auto experience =
+                route_memory_->sequence_experience(
+                    sequence.sequence_id,
+                    target_domain);
+
+            if (experience.attempts >=
+                config_.minimum_sequence_experience_attempts) {
+                const double success_prior =
+                    clamp01(
+                        0.65 *
+                            experience.
+                                smoothed_verified_rate() +
+                        0.35 *
+                            experience.
+                                smoothed_target_rate());
+
+                const double normalized_cost =
+                    clamp01(
+                        experience.
+                            average_resource_cost());
+
+                const double signed_success =
+                    2.0 * success_prior - 1.0;
+
+                const double adjustment =
+                    config_.
+                        sequence_experience_weight *
+                    (signed_success -
+                     0.25 * normalized_cost);
+
+                sequence.final_score =
+                    clamp01(
+                        sequence.final_score +
+                        adjustment);
             }
         }
     }
