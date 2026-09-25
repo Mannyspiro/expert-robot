@@ -101,13 +101,14 @@ and exposes this as the `runner_repo_ssh` workflow input.
 When `discover_runner_repo = true`, the GitHub dispatcher:
 
 1. loads the private key into a local `ssh-agent`,
-2. connects to Railway with SSH agent forwarding (`ssh -A`),
-3. performs a read-only `git ls-remote` against the runner repository,
-4. shallow-clones it temporarily on Railway,
-5. prints only workflow filenames and referenced `runs-on:` labels,
-6. deletes the temporary clone.
+2. performs a read-only `git ls-remote` against the runner repository,
+3. shallow-clones it into the GitHub runner's temporary directory,
+4. prints only workflow filenames and referenced `runs-on:` labels,
+5. deletes the temporary clone.
 
-The private key itself is never copied onto Railway for this discovery path.
+Railway's anonymous SSH relay does not expose forwarded SSH agents, so runner
+repository discovery deliberately stays on the GitHub dispatcher. The private
+key is never copied onto Railway.
 
 This does **not** automatically register those runners to Expert Robot. GitHub
 self-hosted runners remain scoped according to the repository/organization
