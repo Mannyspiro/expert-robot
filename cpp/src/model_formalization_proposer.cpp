@@ -2,11 +2,12 @@
 
 #include "expert_robot/json_util.hpp"
 
-#include <regex>
+#include <cctype>
 #include <set>
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <utility>
 
 namespace expert_robot {
 namespace {
@@ -20,9 +21,6 @@ const std::set<std::string> kAllowedKeys = {
     "domain",
     "rationale",
 };
-
-const std::regex kObjectKey(
-    R"REGEX("([^"]+)"\s*:)REGEX");
 
 void reject_unknown_top_level_keys(
     const std::string& json) {
