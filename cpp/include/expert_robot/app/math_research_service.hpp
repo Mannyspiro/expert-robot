@@ -12,6 +12,7 @@
 #include "expert_robot/research/knowledge_consolidator.hpp"
 #include "expert_robot/research/route_memory.hpp"
 #include "expert_robot/research/route_planner.hpp"
+#include "expert_robot/research/strategy_planner.hpp"
 #include "expert_robot/skills/skill_ledger.hpp"
 #include "expert_robot/swarm/supervisor.hpp"
 
@@ -38,6 +39,7 @@ struct MathResearchServiceConfig {
     LemmaFactoryConfig lemma_factory;
     research::CandidateVerifierConfig candidate_verifier;
     research::RoutePlannerConfig route_planner;
+    research::ResearchStrategyPlannerConfig strategy_planner;
     research::MathResearchEngineConfig research_engine;
 };
 
@@ -90,6 +92,7 @@ private:
 
     research::VerifiedKnowledgeConsolidator consolidator_;
     research::ProofRoutePlanner route_planner_;
+    research::ResearchStrategyPlanner strategy_planner_;
     research::MathResearchEngine engine_;
 };
 
