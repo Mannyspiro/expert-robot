@@ -4,22 +4,22 @@
     {
       "name": "MathAI.Trust.add_zero_verified",
       "source": "MathAI/Trust/Seed.lean",
-      "status": "candidate"
+      "status": "verified"
     },
     {
       "name": "MathAI.Trust.square_nonnegative",
       "source": "MathAI/Trust/Seed.lean",
-      "status": "candidate"
+      "status": "verified"
     },
     {
       "name": "MathAI.Geometry.origin_on_xy_plane",
       "source": "MathAI/Geometry/Exact.lean",
-      "status": "candidate"
+      "status": "verified"
     },
     {
       "name": "MathAI.Geometry.unit_x_on_unit_sphere",
       "source": "MathAI/Geometry/Exact.lean",
-      "status": "candidate"
+      "status": "verified"
     }
   ]
 }
