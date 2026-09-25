@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cmath>
 #include <map>
+#include <set>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -161,6 +162,62 @@ SkepticVerdict parse_skeptic_verdict(
         .risk = risk,
         .critique = std::move(critique),
     };
+}
+
+std::vector<skills::MathSkill> skills_for_lens(
+    const skills::MathSkillCatalog& catalog,
+    const ImaginationRequest& request,
+    ImaginationLens lens) {
+    auto result =
+        catalog.qualified_for_lens(lens);
+
+    if (!request.experimental_skills.empty() &&
+        !request.evaluation_mode) {
+        throw std::invalid_argument(
+            "experimental skills require evaluation_mode");
+    }
+
+    std::set<std::string> ids;
+    for (const auto& skill : result) {
+        ids.insert(skill.skill_id);
+    }
+
+    for (const auto& skill :
+         request.experimental_skills) {
+        if (skill.stage !=
+            skills::SkillStage::Experimental) {
+            throw std::invalid_argument(
+                "evaluation overlay accepts only experimental skills");
+        }
+        if (!skill.requires_lean_verification) {
+            throw std::invalid_argument(
+                "experimental math skill must preserve Lean verification");
+        }
+        if (skill.skill_id.empty() ||
+            skill.title.empty() ||
+            skill.procedure.empty()) {
+            throw std::invalid_argument(
+                "experimental skill overlay fields must be non-empty");
+        }
+        if (!skill.skill_id.starts_with(
+                "math.experimental.")) {
+            throw std::invalid_argument(
+                "experimental overlay skill ID must use math.experimental.*");
+        }
+
+        if (skill.lens != lens) {
+            continue;
+        }
+
+        if (!ids.insert(skill.skill_id).second) {
+            throw std::invalid_argument(
+                "duplicate skill ID in imagination evaluation overlay");
+        }
+
+        result.push_back(skill);
+    }
+
+    return result;
 }
 
 bool candidate_better(
@@ -427,6 +484,17 @@ ImaginationRun ImaginationController::run(
             "imagination goal must be non-empty");
     }
 
+    if (request.experimental_skills.size() > 8U) {
+        throw std::invalid_argument(
+            "experimental skill overlay exceeds evaluation limit");
+    }
+
+    if (!request.experimental_skills.empty() &&
+        !request.evaluation_mode) {
+        throw std::invalid_argument(
+            "experimental skills are forbidden outside evaluation mode");
+    }
+
     const double drive =
         imagination_drive(request);
 
@@ -466,10 +534,17 @@ ImaginationRun ImaginationController::run(
             << lens_instruction(lens);
 
         const auto matching_skills =
-            skills_.qualified_for_lens(lens);
+            skills_for_lens(
+                skills_,
+                request,
+                lens);
         for (const auto& skill : matching_skills) {
             goal
-                << "\n\nReusable math skill: "
+                << "\n\n"
+                << (skill.stage ==
+                            skills::SkillStage::Experimental
+                        ? "EXPERIMENTAL SKILL UNDER ABLATION: "
+                        : "Reusable math skill: ")
                 << skill.skill_id
                 << " — " << skill.title
                 << "\nProcedure: "
@@ -664,7 +739,9 @@ ImaginationRun ImaginationController::run(
                     });
 
             for (const auto& skill :
-                 skills_.qualified_for_lens(
+                 skills_for_lens(
+                     skills_,
+                     request,
                      idea.lens)) {
                 skill_ledger_->record_generation(
                     skill.skill_id,
