@@ -1,0 +1,68 @@
+#pragma once
+
+#include "expert_robot/research/route_planner.hpp"
+
+#include <filesystem>
+#include <string>
+#include <string_view>
+#include <vector>
+
+struct sqlite3;
+
+namespace expert_robot::research {
+
+struct RouteOutcome {
+    std::string route_id;
+    ProofRouteKind kind{ProofRouteKind::ReuseVerifiedTheorem};
+    std::string domain;
+
+    bool verified_progress{false};
+    bool target_verified{false};
+    bool dead_end_escaped{false};
+
+    double resource_cost{0.0};
+};
+
+struct RouteExperience {
+    ProofRouteKind kind{ProofRouteKind::ReuseVerifiedTheorem};
+    std::string domain;
+
+    long long attempts{0};
+    long long verified_progresses{0};
+    long long target_verifications{0};
+    long long dead_end_escapes{0};
+
+    double total_resource_cost{0.0};
+
+    [[nodiscard]] double smoothed_verified_rate() const noexcept;
+    [[nodiscard]] double smoothed_target_rate() const noexcept;
+    [[nodiscard]] double average_resource_cost() const noexcept;
+};
+
+class RouteOutcomeLedger {
+public:
+    explicit RouteOutcomeLedger(
+        std::filesystem::path path);
+    ~RouteOutcomeLedger();
+
+    RouteOutcomeLedger(
+        const RouteOutcomeLedger&) = delete;
+    RouteOutcomeLedger& operator=(
+        const RouteOutcomeLedger&) = delete;
+
+    void record(const RouteOutcome& outcome);
+
+    [[nodiscard]] RouteExperience experience(
+        ProofRouteKind kind,
+        std::string_view domain) const;
+
+    [[nodiscard]] std::vector<RouteExperience> all_experience() const;
+
+private:
+    void initialize();
+
+    std::filesystem::path path_;
+    sqlite3* db_{nullptr};
+};
+
+} // namespace expert_robot::research
