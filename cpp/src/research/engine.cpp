@@ -551,6 +551,68 @@ ResearchOutcome MathResearchEngine::run(
                     "research engine returned unexpectedly to intake");
 
             case ResearchPhase::RetrieveKnown: {
+                // The cheapest first attempt should use already-verified
+                // theorem-graph knowledge before broad exploration. Only
+                // relation-aware routes that produce safe Lean hints can enter
+                // the preferred strategy list.
+                if (route_planner_ != nullptr) {
+                    const auto known_routes =
+                        route_planner_->plan(
+                            RoutePlanningRequest{
+                                .target_name =
+                                    problem.focus_theorem.empty()
+                                        ? target_name
+                                        : problem.focus_theorem,
+                                .target_domain =
+                                    problem.target.domain,
+                                .cognitive_action =
+                                    cognition::CognitiveAction::
+                                        ContinueCurrentRoute,
+                                .logic = problem.logic,
+                                .imagination = nullptr,
+                            });
+
+                    if (outcome.planned_routes.empty()) {
+                        outcome.planned_routes =
+                            known_routes;
+                    }
+
+                    for (const auto& route :
+                         known_routes) {
+                        const auto hints =
+                            lean_hint_tactics_for_route(
+                                route);
+                        if (hints.empty()) {
+                            continue;
+                        }
+
+                        pending_preferred_strategies =
+                            hints;
+                        attempted_route_ids.insert(
+                            route.route_id);
+                        outcome.dispatched_route =
+                            route;
+
+                        std::ostringstream payload;
+                        payload
+                            << "route_id="
+                            << route.route_id
+                            << "\nkind="
+                            << proof_route_kind_name(
+                                route.kind)
+                            << "\nhints="
+                            << hints.size()
+                            << "\nscore="
+                            << route.final_score;
+
+                        (void)episode_ledger_.append(
+                            problem.episode_id,
+                            "retrieval_route_hint",
+                            payload.str());
+                        break;
+                    }
+                }
+
                 ResearchObservation observation;
                 observation.retrieval_complete = true;
                 observation.resource_pressure =
