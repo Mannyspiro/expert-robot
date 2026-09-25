@@ -222,11 +222,13 @@ void validate_imagination_config(
 ImaginationController::ImaginationController(
     swarm::SwarmSupervisor& swarm,
     ImaginationConfig config,
-    const KnowledgeGraph* theorem_graph)
+    const KnowledgeGraph* theorem_graph,
+    skills::MathSkillCatalog skill_catalog)
     : swarm_(swarm),
       config_(config),
       theorem_graph_(theorem_graph),
-      archive_(config.archive_capacity_per_lens) {
+      archive_(config.archive_capacity_per_lens),
+      skills_(std::move(skill_catalog)) {
     validate_imagination_config(config_);
 }
 
@@ -431,7 +433,20 @@ ImaginationRun ImaginationController::run(
             << "\n\nImagination lens: "
             << lens_name(lens)
             << "\n"
-            << lens_instruction(lens)
+            << lens_instruction(lens);
+
+        const auto matching_skills =
+            skills_.for_lens(lens);
+        for (const auto& skill : matching_skills) {
+            goal
+                << "\n\nReusable math skill: "
+                << skill.skill_id
+                << " — " << skill.title
+                << "\nProcedure: "
+                << skill.procedure;
+        }
+
+        goal
             << "\n\nGenerate exactly ONE distinct candidate idea. "
             << "Do not rank ideas. Do not claim it is proven. "
             << "State the mechanism, why it might help, and the cheapest "
