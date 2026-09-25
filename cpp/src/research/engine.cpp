@@ -1070,7 +1070,8 @@ ResearchOutcome MathResearchEngine::run(
                                 search.attempts.size();
                     }
 
-                    if (skill_ledger_ != nullptr &&
+                    if (config_.learning_writes &&
+                        skill_ledger_ != nullptr &&
                         outcome.last_imagination) {
                         const auto idea =
                             std::find_if(
@@ -1107,15 +1108,17 @@ ResearchOutcome MathResearchEngine::run(
                         *candidate.formalization->
                             lean_declaration);
 
-                    outcome.consolidations.push_back(
-                        consolidator_.consolidate(
-                            problem.episode_id,
-                            problem.focus_theorem.
-                                    empty()
-                                ? target_name
-                                : problem.
-                                      focus_theorem,
-                            candidate));
+                    if (config_.learning_writes) {
+                        outcome.consolidations.push_back(
+                            consolidator_.consolidate(
+                                problem.episode_id,
+                                problem.focus_theorem.
+                                        empty()
+                                    ? target_name
+                                    : problem.
+                                          focus_theorem,
+                                candidate));
+                    }
                 }
 
                 update_helper_success_sensors(
@@ -1175,15 +1178,17 @@ ResearchOutcome MathResearchEngine::run(
                     outcome.candidate_verifications.
                         push_back(candidate);
 
-                    outcome.consolidations.push_back(
-                        consolidator_.consolidate(
-                            problem.episode_id,
-                            problem.focus_theorem.
-                                    empty()
-                                ? target_name
-                                : problem.
-                                      focus_theorem,
-                            candidate));
+                    if (config_.learning_writes) {
+                        outcome.consolidations.push_back(
+                            consolidator_.consolidate(
+                                problem.episode_id,
+                                problem.focus_theorem.
+                                        empty()
+                                    ? target_name
+                                    : problem.
+                                          focus_theorem,
+                                candidate));
+                    }
                 }
 
                 ResearchObservation observation;
@@ -1280,21 +1285,23 @@ ResearchOutcome MathResearchEngine::run(
                         problem.target,
                         *outcome.target_result);
 
-                outcome.consolidations.push_back(
-                    consolidator_.consolidate(
-                        problem.episode_id,
-                        problem.focus_theorem,
-                        target_verified));
-
-                // Now that the target exists in the theorem graph, repeat
-                // helper consolidation only to establish missing USES links.
-                for (const auto& helper :
-                     verified_helpers) {
+                if (config_.learning_writes) {
                     outcome.consolidations.push_back(
                         consolidator_.consolidate(
                             problem.episode_id,
-                            target_name,
-                            helper));
+                            problem.focus_theorem,
+                            target_verified));
+
+                    // Now that the target exists in the theorem graph, repeat
+                    // helper consolidation only to establish missing USES links.
+                    for (const auto& helper :
+                         verified_helpers) {
+                        outcome.consolidations.push_back(
+                            consolidator_.consolidate(
+                                problem.episode_id,
+                                target_name,
+                                helper));
+                    }
                 }
 
                 outcome.target_verified =
@@ -1376,7 +1383,8 @@ ResearchOutcome MathResearchEngine::run(
             outcome.target_verified ||
             helper_verified;
 
-        if (outcome.dispatched_route.has_value()) {
+        if (config_.learning_writes &&
+            outcome.dispatched_route.has_value()) {
             route_memory_->record(
                 RouteOutcome{
                     .route_id =
@@ -1398,7 +1406,8 @@ ResearchOutcome MathResearchEngine::run(
                 });
         }
 
-        if (config_.features.sequence_memory &&
+        if (config_.learning_writes &&
+            config_.features.sequence_memory &&
             outcome.dispatched_sequence.has_value()) {
             route_memory_->record_sequence(
                 RouteSequenceOutcome{
@@ -1446,7 +1455,8 @@ ResearchOutcome MathResearchEngine::run(
             outcome.dispatched_strategy_complete =
                 strategy_completed;
 
-            if (strategy_completed) {
+            if (config_.learning_writes &&
+                strategy_completed) {
                 route_memory_->record_strategy(
                     ResearchStrategyOutcome{
                         .strategy_id =
@@ -1573,7 +1583,8 @@ ResearchOutcome MathResearchEngine::run(
                 strategy_payload.str());
         }
 
-        if (config_.features.strategy_memory &&
+        if (config_.learning_writes &&
+            config_.features.strategy_memory &&
             outcome.target_verified) {
             const auto discovered =
                 discover_research_strategy(
