@@ -4,6 +4,7 @@
 #include "expert_robot/sha256.hpp"
 
 #include <cassert>
+#include <chrono>
 #include <filesystem>
 #include <string>
 
