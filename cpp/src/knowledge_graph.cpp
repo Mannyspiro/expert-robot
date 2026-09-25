@@ -290,22 +290,63 @@ void KnowledgeGraph::sync_formal_registry(const std::filesystem::path& path) {
         throw std::invalid_argument("unsupported theorem registry schema_version");
     }
 
-    for (const auto& object : json_util::object_array(json, "theorems")) {
-        const std::string name = json_util::string_field(object, "name");
-        const std::string source = json_util::string_field(object, "source");
-        const std::string status = json_util::string_field(object, "status", "candidate");
+    const auto theorem_objects =
+        json_util::object_array(json, "theorems");
+
+    // First materialize every node so declared dependency edges can be
+    // validated against a complete registry in the second pass.
+    for (const auto& object : theorem_objects) {
+        const std::string name =
+            json_util::string_field(object, "name");
+        const std::string source =
+            json_util::string_field(object, "source");
+        const std::string status =
+            json_util::string_field(
+                object,
+                "status",
+                "candidate");
+
+        const std::string registry_statement =
+            json_util::string_field(
+                object,
+                "statement");
+        const std::string registry_domain =
+            json_util::string_field(
+                object,
+                "domain");
+        const auto registry_tags =
+            json_util::string_array_field(
+                object,
+                "tags");
 
         std::string statement;
         std::string domain = "unknown";
         std::vector<std::string> tags;
-        const auto it = std::find_if(nodes_.begin(), nodes_.end(), [&](const TheoremNode& node) {
-            return node.name == name;
-        });
+
+        const auto it =
+            std::find_if(
+                nodes_.begin(),
+                nodes_.end(),
+                [&](const TheoremNode& node) {
+                    return node.name == name;
+                });
+
         if (it != nodes_.end()) {
             statement = it->statement;
             domain = it->domain;
             tags = it->tags;
         }
+
+        if (!registry_statement.empty()) {
+            statement = registry_statement;
+        }
+        if (!registry_domain.empty()) {
+            domain = registry_domain;
+        }
+        if (!registry_tags.empty()) {
+            tags = registry_tags;
+        }
+
         upsert_node(TheoremNode{
             .name = name,
             .source = source,
@@ -314,6 +355,26 @@ void KnowledgeGraph::sync_formal_registry(const std::filesystem::path& path) {
             .domain = domain,
             .tags = std::move(tags),
         });
+    }
+
+    // Explicit registry dependencies become verified theorem-graph USES edges.
+    // No dependency is inferred from names, tags, or prose.
+    for (const auto& object : theorem_objects) {
+        const std::string name =
+            json_util::string_field(
+                object,
+                "name");
+
+        for (const auto& dependency :
+             json_util::string_array_field(
+                 object,
+                 "uses")) {
+            add_edge(TheoremEdge{
+                .source = name,
+                .relation = "USES",
+                .target = dependency,
+            });
+        }
     }
 }
 
