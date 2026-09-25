@@ -181,6 +181,11 @@ add_executable(route_planner_smoke
 )
 target_link_libraries(route_planner_smoke PRIVATE expert_robot_core)
 add_test(NAME route_planner_smoke COMMAND route_planner_smoke)
+set_tests_properties(
+    route_planner_smoke
+    PROPERTIES
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+)
 
 add_executable(generation_lineage_smoke
     tests/generation_lineage_smoke.cpp
