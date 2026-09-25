@@ -1,0 +1,107 @@
+{
+  "schema_version": 1,
+  "variants": [
+    {
+      "variant_id": "proof_search",
+      "enabled_layers": ["proof_search"]
+    },
+    {
+      "variant_id": "theorem_graph",
+      "enabled_layers": ["proof_search", "theorem_graph"]
+    },
+    {
+      "variant_id": "route_memory",
+      "enabled_layers": ["proof_search", "theorem_graph", "route_memory"]
+    },
+    {
+      "variant_id": "sequence_memory",
+      "enabled_layers": ["proof_search", "theorem_graph", "route_memory", "sequence_memory"]
+    },
+    {
+      "variant_id": "strategy_memory",
+      "enabled_layers": ["proof_search", "theorem_graph", "route_memory", "sequence_memory", "strategy_memory"]
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "train-algebra-add-zero",
+      "family": "algebra_identity",
+      "domain": "algebra",
+      "target": "MathAI.Trust.add_zero_verified",
+      "split": "train",
+      "tags": ["lean_verified", "identity"]
+    },
+    {
+      "case_id": "train-algebra-square-nonnegative",
+      "family": "ordered_square",
+      "domain": "algebra",
+      "target": "MathAI.Trust.square_nonnegative",
+      "split": "train",
+      "tags": ["lean_verified", "order"]
+    },
+    {
+      "case_id": "train-geometry-dot-comm",
+      "family": "dot_product_symmetry",
+      "domain": "geometry",
+      "target": "MathAI.Geometry.dot_comm",
+      "split": "train",
+      "tags": ["lean_verified", "symmetry"]
+    },
+    {
+      "case_id": "train-geometry-distance-self",
+      "family": "distance_reflexive",
+      "domain": "geometry",
+      "target": "MathAI.Geometry.squaredDistance_self",
+      "split": "train",
+      "tags": ["lean_verified", "distance"]
+    },
+    {
+      "case_id": "train-geometry-sphere-validity",
+      "family": "sphere_validity",
+      "domain": "geometry",
+      "target": "MathAI.Geometry.validSphere_of_pointOnSphere",
+      "split": "train",
+      "tags": ["lean_verified", "sphere"]
+    },
+    {
+      "case_id": "holdout-geometry-orthogonal-symm",
+      "family": "orthogonality_symmetry",
+      "domain": "geometry",
+      "target": "MathAI.Geometry.orthogonal_symm",
+      "split": "holdout",
+      "tags": ["lean_verified", "orthogonality"]
+    },
+    {
+      "case_id": "holdout-geometry-distance-symm",
+      "family": "distance_symmetry",
+      "domain": "geometry",
+      "target": "MathAI.Geometry.squaredDistance_symm",
+      "split": "holdout",
+      "tags": ["lean_verified", "distance"]
+    },
+    {
+      "case_id": "holdout-geometry-distance-nonnegative",
+      "family": "distance_order",
+      "domain": "geometry",
+      "target": "MathAI.Geometry.squaredDistance_nonnegative",
+      "split": "holdout",
+      "tags": ["lean_verified", "order"]
+    },
+    {
+      "case_id": "holdout-geometry-zero-orthogonal-left",
+      "family": "zero_orthogonality",
+      "domain": "geometry",
+      "target": "MathAI.Geometry.zero_orthogonal_left",
+      "split": "holdout",
+      "tags": ["lean_verified", "zero"]
+    },
+    {
+      "case_id": "holdout-geometry-sphere-radius",
+      "family": "sphere_distance_extraction",
+      "domain": "geometry",
+      "target": "MathAI.Geometry.squaredDistance_eq_radius_of_pointOnSphere",
+      "split": "holdout",
+      "tags": ["lean_verified", "sphere", "distance"]
+    }
+  ]
+}
