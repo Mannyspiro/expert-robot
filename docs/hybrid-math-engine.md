@@ -213,11 +213,18 @@ Expert Robot currently separates memories by purpose:
 
 - SQLite proof memory: exact formal goals and tactic outcomes
 - theorem graph: mathematical relationships
-- QD imagination archive: diverse idea families
+- SQLite QD imagination memory: diverse idea families across sessions
 - cognition state: transient internal state, resettable by episode
 
-Future work should persist the QD archive and benchmark whether old ideas
-actually help new theorem families before using them as long-term memory.
+The QD archive is persisted through SQLite. A new imagination controller seeds
+its per-lens archive from prior stored ideas before computing novelty.
+
+Persistence does not imply trust: old ideas influence novelty and retrieval,
+but still pass the current skeptic/verification path before consuming expensive
+proof work.
+
+A benchmark should still determine when old idea memory helps or hurts transfer
+between theorem families.
 
 ## Eval-driven growth
 
