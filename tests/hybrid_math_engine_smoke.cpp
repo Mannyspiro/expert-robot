@@ -512,6 +512,65 @@ int main() {
                idea.quality_diversity_score <= 1.0);
     }
 
+    ImaginationController pressure_imagination(
+        swarm,
+        ImaginationConfig{
+            .normal_lens_budget = 4,
+            .breakthrough_lens_budget = 8,
+            .minimum_lens_budget = 1,
+            .skeptic_budget = 4,
+            .max_expensive_candidates = 2,
+            .archive_capacity_per_lens = 1,
+            .minimum_imagination_drive = 0.0,
+            .maximum_skeptic_risk = 65,
+            .enable_synthesis = false
+        },
+        nullptr,
+        skill_catalog,
+        nullptr,
+        nullptr);
+
+    auto pressured_cycle = cycle;
+    pressured_cycle.interoception.state.resource_pressure = 0.85;
+    pressured_cycle.affect.compute_conservation = 0.85;
+    pressured_cycle.decision.action =
+        CognitiveAction::ExploreNovelRoute;
+    pressured_cycle.decision.breakthrough_mode = false;
+
+    const auto pressured_run =
+        pressure_imagination.run(
+            ImaginationRequest{
+                .request_id = "pressure-budget",
+                .goal = "Explore under high resource pressure.",
+                .context = {},
+                .focus_theorem = "",
+                .personality =
+                    math_researcher_personality(),
+                .cognition = pressured_cycle,
+                .logic = logic
+            });
+
+    assert(pressured_run.selected_lenses.size() == 1);
+
+    auto conserve_cycle = cycle;
+    conserve_cycle.decision.action =
+        CognitiveAction::ConserveCompute;
+
+    const auto conserve_run =
+        pressure_imagination.run(
+            ImaginationRequest{
+                .request_id = "conserve-budget",
+                .goal = "Use minimum exploration budget.",
+                .context = {},
+                .focus_theorem = "",
+                .personality =
+                    math_researcher_personality(),
+                .cognition = conserve_cycle,
+                .logic = logic
+            });
+
+    assert(conserve_run.selected_lenses.size() == 1);
+
     // Skill selection learns from downstream evidence without changing
     // verification authority. Two qualified skills compete in the same lens.
     expert_robot::skills::MathSkill good_skill{
