@@ -1259,6 +1259,28 @@ ResearchOutcome MathResearchEngine::run(
                 });
         }
 
+        if (outcome.dispatched_strategy.has_value()) {
+            route_memory_->record_strategy(
+                ResearchStrategyOutcome{
+                    .strategy_id =
+                        outcome.dispatched_strategy->
+                            strategy_id,
+                    .signature =
+                        outcome.dispatched_strategy->
+                            signature,
+                    .domain =
+                        problem.target.domain,
+                    .verified_progress =
+                        verified_progress,
+                    .target_verified =
+                        outcome.target_verified,
+                    .dead_end_escaped =
+                        verified_progress,
+                    .resource_cost =
+                        resource_cost,
+                });
+        }
+
         std::ostringstream payload;
         payload
             << "route_id="
@@ -1301,6 +1323,32 @@ ResearchOutcome MathResearchEngine::run(
                 problem.episode_id,
                 "route_sequence_outcome",
                 sequence_payload.str());
+        }
+
+        if (outcome.dispatched_strategy.has_value()) {
+            std::ostringstream strategy_payload;
+            strategy_payload
+                << "strategy_id="
+                << outcome.dispatched_strategy->
+                    strategy_id
+                << "\nsignature="
+                << outcome.dispatched_strategy->
+                    signature
+                << "\nverified_progress="
+                << (verified_progress
+                        ? "true"
+                        : "false")
+                << "\ntarget_verified="
+                << (outcome.target_verified
+                        ? "true"
+                        : "false")
+                << "\nresource_cost="
+                << resource_cost;
+
+            (void)episode_ledger_.append(
+                problem.episode_id,
+                "research_strategy_outcome",
+                strategy_payload.str());
         }
     }
 
