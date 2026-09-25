@@ -35,6 +35,7 @@ add_library(expert_robot_core STATIC
     cpp/src/skills/model_skill_proposer.cpp
     cpp/src/eval/math_eval.cpp
     cpp/src/research/state_machine.cpp
+    cpp/src/research/episode_ledger.cpp
     cpp/src/cognition/neuromodulation.cpp
     cpp/src/cognition/interoception.cpp
     cpp/src/cognition/personality.cpp
@@ -129,3 +130,9 @@ add_executable(research_state_machine_smoke
 )
 target_link_libraries(research_state_machine_smoke PRIVATE expert_robot_core)
 add_test(NAME research_state_machine_smoke COMMAND research_state_machine_smoke)
+
+add_executable(research_episode_ledger_smoke
+    tests/research_episode_ledger_smoke.cpp
+)
+target_link_libraries(research_episode_ledger_smoke PRIVATE expert_robot_core SQLite::SQLite3)
+add_test(NAME research_episode_ledger_smoke COMMAND research_episode_ledger_smoke)
