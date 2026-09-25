@@ -51,6 +51,9 @@ jobs:
         run: |
           ctest             --test-dir build             --parallel "${CTEST_PARALLEL_LEVEL}"             --output-on-failure
 
+      - name: Compute policy guardrails
+        run: python3 tests/compute_policy_smoke.py
+
       - name: Independent smoke tests
         shell: bash
         run: |
