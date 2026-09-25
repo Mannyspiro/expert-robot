@@ -224,7 +224,8 @@ MathResearchEngine::MathResearchEngine(
     ResearchEpisodeLedger& episode_ledger,
     MathResearchEngineConfig config,
     ProofRoutePlanner* route_planner,
-    RouteOutcomeLedger* route_memory)
+    RouteOutcomeLedger* route_memory,
+    skills::SkillLedger* skill_ledger)
     : searcher_(searcher),
       cognition_(cognition),
       imagination_(imagination),
@@ -234,7 +235,8 @@ MathResearchEngine::MathResearchEngine(
       episode_ledger_(episode_ledger),
       config_(config),
       route_planner_(route_planner),
-      route_memory_(route_memory) {
+      route_memory_(route_memory),
+      skill_ledger_(skill_ledger) {
     validate_research_budget(
         config_.budget);
 
@@ -642,6 +644,30 @@ ResearchOutcome MathResearchEngine::run(
                         attempts +=
                             candidate.formalization->
                                 search.attempts.size();
+                    }
+
+                    if (skill_ledger_ != nullptr &&
+                        outcome.last_imagination) {
+                        const auto idea =
+                            std::find_if(
+                                outcome.last_imagination->
+                                    shortlisted.begin(),
+                                outcome.last_imagination->
+                                    shortlisted.end(),
+                                [&](const imagination::
+                                        IdeaCandidate& item) {
+                                    return item.idea_id ==
+                                           candidate.idea_id;
+                                });
+
+                        if (idea !=
+                                outcome.last_imagination->
+                                    shortlisted.end() &&
+                            !idea->skill_id.empty()) {
+                            skill_ledger_->record_downstream(
+                                idea->skill_id,
+                                candidate.proven());
+                        }
                     }
 
                     if (!candidate.proven()) {
