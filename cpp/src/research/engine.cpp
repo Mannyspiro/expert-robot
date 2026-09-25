@@ -222,7 +222,8 @@ MathResearchEngine::MathResearchEngine(
     VerifiedKnowledgeConsolidator& consolidator,
     ResearchEpisodeLedger& episode_ledger,
     MathResearchEngineConfig config,
-    ProofRoutePlanner* route_planner)
+    ProofRoutePlanner* route_planner,
+    RouteOutcomeLedger* route_memory)
     : searcher_(searcher),
       cognition_(cognition),
       imagination_(imagination),
@@ -231,7 +232,8 @@ MathResearchEngine::MathResearchEngine(
       consolidator_(consolidator),
       episode_ledger_(episode_ledger),
       config_(config),
-      route_planner_(route_planner) {
+      route_planner_(route_planner),
+      route_memory_(route_memory) {
     validate_research_budget(
         config_.budget);
 
@@ -299,10 +301,12 @@ ResearchOutcome MathResearchEngine::run(
         latest_cognition;
 
     auto refresh_route_plan = [&](
-        const imagination::ImaginationRun* imagined) {
+        const imagination::ImaginationRun* imagined,
+        bool select_for_dispatch)
+        -> std::optional<cognition::CognitiveAction> {
         if (route_planner_ == nullptr ||
             !latest_cognition) {
-            return;
+            return std::nullopt;
         }
 
         outcome.planned_routes =
@@ -338,6 +342,42 @@ ResearchOutcome MathResearchEngine::run(
                 "route_plan_top",
                 payload.str());
         }
+
+        if (!select_for_dispatch) {
+            return std::nullopt;
+        }
+
+        for (const auto& route :
+             outcome.planned_routes) {
+            const auto action =
+                executable_action_for_route(
+                    route.kind);
+            if (!action.has_value()) {
+                continue;
+            }
+
+            outcome.dispatched_route = route;
+
+            std::ostringstream payload;
+            payload
+                << "route_id=" << route.route_id
+                << "\nkind="
+                << proof_route_kind_name(route.kind)
+                << "\naction="
+                << cognition::cognitive_action_name(
+                    *action)
+                << "\nscore="
+                << route.final_score;
+
+            (void)episode_ledger_.append(
+                problem.episode_id,
+                "route_dispatched",
+                payload.str());
+
+            return action;
+        }
+
+        return std::nullopt;
     };
 
     for (std::size_t dispatch = 0;
@@ -405,23 +445,28 @@ ResearchOutcome MathResearchEngine::run(
 
                     observation.direct_proof_failed =
                         true;
-                    observation.cognitive_action =
-                        latest_cognition->
-                            decision.action;
                     observation.resource_pressure =
                         latest_cognition->
                             interoception.state.
                             resource_pressure;
 
-                    refresh_route_plan(nullptr);
+                    const auto route_action =
+                        refresh_route_plan(
+                            nullptr,
+                            true);
+
+                    observation.cognitive_action =
+                        route_action.value_or(
+                            latest_cognition->
+                                decision.action);
 
                     std::ostringstream payload;
                     payload
                         << "action="
                         << cognition::
                             cognitive_action_name(
-                                latest_cognition->
-                                    decision.action)
+                                observation.
+                                    cognitive_action)
                         << "\n"
                         << "breakthrough="
                         << (latest_cognition->
@@ -488,8 +533,9 @@ ResearchOutcome MathResearchEngine::run(
                 outcome.last_imagination =
                     imagined;
 
-                refresh_route_plan(
-                    &*outcome.last_imagination);
+                (void)refresh_route_plan(
+                    &*outcome.last_imagination,
+                    false);
 
                 ResearchObservation observation;
                 observation.imagination_complete =
@@ -773,6 +819,98 @@ ResearchOutcome MathResearchEngine::run(
         !outcome.final_state.exhausted) {
         throw std::runtime_error(
             "research engine exceeded dispatch-step guard before terminal state");
+    }
+
+    if (route_memory_ != nullptr &&
+        outcome.dispatched_route.has_value()) {
+        const auto& usage =
+            outcome.final_state.usage;
+        const auto& budget =
+            config_.budget;
+
+        const auto ratio = [](
+            std::size_t used,
+            std::size_t maximum) {
+            if (maximum == 0U) return 1.0;
+            return std::min(
+                1.0,
+                static_cast<double>(used) /
+                    static_cast<double>(maximum));
+        };
+
+        const double resource_cost =
+            0.25 * (
+                ratio(
+                    usage.model_calls,
+                    budget.max_model_calls) +
+                ratio(
+                    usage.proof_attempts,
+                    budget.max_proof_attempts) +
+                ratio(
+                    usage.generated_ideas,
+                    budget.max_generated_ideas) +
+                ratio(
+                    usage.generated_lemmas,
+                    budget.max_generated_lemmas));
+
+        bool helper_verified =
+            !outcome.helper_declarations.empty();
+
+        if (!helper_verified) {
+            for (const auto& candidate :
+                 outcome.candidate_verifications) {
+                if (candidate.formalization.has_value() &&
+                    candidate.formalization->proven()) {
+                    helper_verified = true;
+                    break;
+                }
+            }
+        }
+
+        const bool verified_progress =
+            outcome.target_verified ||
+            helper_verified;
+
+        route_memory_->record(
+            RouteOutcome{
+                .route_id =
+                    outcome.dispatched_route->
+                        route_id,
+                .kind =
+                    outcome.dispatched_route->
+                        kind,
+                .domain =
+                    problem.target.domain,
+                .verified_progress =
+                    verified_progress,
+                .target_verified =
+                    outcome.target_verified,
+                .dead_end_escaped =
+                    verified_progress,
+                .resource_cost =
+                    resource_cost,
+            });
+
+        std::ostringstream payload;
+        payload
+            << "route_id="
+            << outcome.dispatched_route->
+                route_id
+            << "\nverified_progress="
+            << (verified_progress
+                    ? "true"
+                    : "false")
+            << "\ntarget_verified="
+            << (outcome.target_verified
+                    ? "true"
+                    : "false")
+            << "\nresource_cost="
+            << resource_cost;
+
+        (void)episode_ledger_.append(
+            problem.episode_id,
+            "route_outcome",
+            payload.str());
     }
 
     const auto verification =
