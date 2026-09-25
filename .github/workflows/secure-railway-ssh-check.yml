@@ -1,0 +1,83 @@
+name: Secure Railway SSH Check
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_connection:
+        description: "Also test SSH connectivity to railway.new"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: secure-railway-ssh-check
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Require configured secret
+        shell: bash
+        env:
+          RAILWAY_SSH_PRIVATE_KEY: ${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${RAILWAY_SSH_PRIVATE_KEY:-}" ]; then
+            echo "::error::Repository secret RAILWAY_SSH_PRIVATE_KEY is not configured."
+            exit 1
+          fi
+
+      - name: Validate SSH private key without exposing it
+        id: key
+        shell: bash
+        env:
+          RAILWAY_SSH_PRIVATE_KEY: ${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          umask 077
+          key_file="$RUNNER_TEMP/railway_key"
+          printf '%s\n' "$RAILWAY_SSH_PRIVATE_KEY" > "$key_file"
+          chmod 600 "$key_file"
+
+          if ! ssh-keygen -y -f "$key_file" > "$RUNNER_TEMP/railway_key.pub"; then
+            echo "::error::RAILWAY_SSH_PRIVATE_KEY is not a valid OpenSSH private key."
+            rm -f "$key_file" "$RUNNER_TEMP/railway_key.pub"
+            exit 1
+          fi
+
+          fingerprint="$(ssh-keygen -lf "$RUNNER_TEMP/railway_key.pub" | awk '{print $2}')"
+          echo "Validated SSH key fingerprint: $fingerprint"
+          echo "key_file=$key_file" >> "$GITHUB_OUTPUT"
+
+      - name: Test railway.new SSH handshake
+        if: ${{ inputs.test_connection }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          key_file="${{ steps.key.outputs.key_file }}"
+
+          # Railway identifies the anonymous/free VM by the SSH key. This
+          # command intentionally avoids an interactive shell and only verifies
+          # that the key is accepted by the SSH endpoint.
+          ssh \
+            -i "$key_file" \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=accept-new \
+            -o ConnectTimeout=20 \
+            railway.new \
+            'printf "railway ssh key accepted\n"'
+
+      - name: Remove temporary key material
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f "$RUNNER_TEMP/railway_key" "$RUNNER_TEMP/railway_key.pub"
