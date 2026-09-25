@@ -34,6 +34,22 @@ int main() {
             .statement = "geometric bridge",
             .domain = "geometry",
             .tags = {"lean_verified"}
+        },
+        {
+            .name = "MathAI.Counter",
+            .source = "Counter.lean",
+            .status = "verified",
+            .statement = "verified contradictory fact",
+            .domain = "analysis",
+            .tags = {"lean_verified"}
+        },
+        {
+            .name = "MathAI.Analogy",
+            .source = "Analogy.lean",
+            .status = "verified",
+            .statement = "verified analogous theorem",
+            .domain = "topology",
+            .tags = {"lean_verified"}
         }
     });
 
@@ -46,6 +62,16 @@ int main() {
         .source = "MathAI.Helper",
         .relation = "GEOMETRIC_FORM_OF",
         .target = "MathAI.GeometryBridge"
+    });
+    graph.add_edge({
+        .source = "MathAI.Target",
+        .relation = "CONTRADICTS",
+        .target = "MathAI.Counter"
+    });
+    graph.add_edge({
+        .source = "MathAI.Target",
+        .relation = "ANALOGOUS_TO",
+        .target = "MathAI.Analogy"
     });
 
     IdeaCandidate idea{
@@ -119,6 +145,26 @@ int main() {
         ProofRouteKind::RecursiveDecomposition));
     assert(has_kind(
         ProofRouteKind::ImaginationCandidate));
+    assert(has_kind(
+        ProofRouteKind::CounterexampleSearch));
+
+    const auto analogy_route =
+        std::find_if(
+            routes.begin(),
+            routes.end(),
+            [](const ProofRoute& route) {
+                return
+                    !route.theorem_path.empty() &&
+                    route.theorem_path.back() ==
+                        "MathAI.Analogy";
+            });
+    assert(analogy_route != routes.end());
+    assert(
+        analogy_route->kind ==
+        ProofRouteKind::FollowTheoremPath);
+    assert(
+        lean_hint_tactics_for_route(
+            *analogy_route).empty());
 
     bool saw_multihop = false;
     for (const auto& route : routes) {
@@ -247,7 +293,7 @@ int main() {
     assert(dependency_hints.size() == 3);
     assert(
         dependency_hints.front() ==
-        "exact MathAI.Geometry.dot_comm");
+        "simp [MathAI.Geometry.dot_comm]");
 
     assert(
         proof_route_kind_name(
