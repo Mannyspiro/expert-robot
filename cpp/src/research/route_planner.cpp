@@ -79,13 +79,161 @@ bool better_route(
     return a.route_id < b.route_id;
 }
 
+bool dispatchable_route(
+    const ProofRoute& route) {
+    return
+        !lean_hint_tactics_for_route(route).empty() ||
+        executable_action_for_route(
+            route.kind).has_value();
+}
+
+double route_transition_synergy(
+    ProofRouteKind from,
+    ProofRouteKind to) {
+    if (from == to) return 0.0;
+
+    using K = ProofRouteKind;
+
+    if (from == K::CounterexampleSearch &&
+        to == K::RepresentationSwitch) {
+        return 0.95;
+    }
+    if (from == K::CounterexampleSearch &&
+        to == K::RecursiveDecomposition) {
+        return 0.80;
+    }
+    if (from == K::RepresentationSwitch &&
+        to == K::ImaginationCandidate) {
+        return 0.90;
+    }
+    if (from == K::RepresentationSwitch &&
+        to == K::RecursiveDecomposition) {
+        return 1.00;
+    }
+    if (from == K::RepresentationSwitch &&
+        to == K::IntensifyVerification) {
+        return 0.70;
+    }
+    if (from == K::ImaginationCandidate &&
+        to == K::RecursiveDecomposition) {
+        return 1.00;
+    }
+    if (from == K::ImaginationCandidate &&
+        to == K::IntensifyVerification) {
+        return 0.85;
+    }
+    if (from == K::RecursiveDecomposition &&
+        to == K::IntensifyVerification) {
+        return 0.95;
+    }
+    if (from == K::RecursiveDecomposition &&
+        to == K::ImaginationCandidate) {
+        return 0.55;
+    }
+    if (from == K::ReuseVerifiedTheorem &&
+        to == K::IntensifyVerification) {
+        return 0.90;
+    }
+    if (from == K::ReuseVerifiedTheorem &&
+        to == K::RecursiveDecomposition) {
+        return 0.60;
+    }
+    if (from == K::IntensifyVerification &&
+        to == K::RecursiveDecomposition) {
+        return 0.45;
+    }
+
+    return 0.0;
+}
+
+bool better_sequence(
+    const ProofRouteSequence& a,
+    const ProofRouteSequence& b) {
+    if (a.final_score != b.final_score) {
+        return a.final_score > b.final_score;
+    }
+    if (a.synergy_score != b.synergy_score) {
+        return a.synergy_score > b.synergy_score;
+    }
+    if (a.average_route_score !=
+        b.average_route_score) {
+        return a.average_route_score >
+               b.average_route_score;
+    }
+    return a.sequence_id < b.sequence_id;
+}
+
+ProofRouteSequence make_sequence(
+    std::vector<ProofRoute> steps,
+    double synergy_weight) {
+    if (steps.empty()) {
+        throw std::invalid_argument(
+            "route sequence requires at least one step");
+    }
+
+    double route_sum = 0.0;
+    for (const auto& step : steps) {
+        route_sum += step.final_score;
+    }
+
+    double synergy_sum = 0.0;
+    std::size_t transitions = 0U;
+    for (std::size_t i = 1U;
+         i < steps.size();
+         ++i) {
+        synergy_sum +=
+            route_transition_synergy(
+                steps[i - 1U].kind,
+                steps[i].kind);
+        ++transitions;
+    }
+
+    const double average =
+        route_sum /
+        static_cast<double>(
+            steps.size());
+
+    const double synergy =
+        transitions > 0U
+            ? synergy_sum /
+                static_cast<double>(
+                    transitions)
+            : 0.0;
+
+    std::ostringstream canonical;
+    for (const auto& step : steps) {
+        canonical
+            << step.route_id
+            << "\n";
+    }
+
+    return ProofRouteSequence{
+        .sequence_id =
+            sha256_hex(
+                canonical.str()),
+        .steps =
+            std::move(steps),
+        .average_route_score =
+            average,
+        .synergy_score =
+            synergy,
+        .final_score =
+            clamp01(
+                average +
+                synergy_weight *
+                    synergy),
+    };
+}
+
 } // namespace
 
 void validate_route_planner_config(
     const RoutePlannerConfig& c) {
     if (c.max_graph_depth == 0U ||
         c.max_graph_routes == 0U ||
-        c.max_output_routes == 0U) {
+        c.max_output_routes == 0U ||
+        c.max_sequence_length == 0U ||
+        c.max_route_sequences == 0U) {
         throw std::invalid_argument(
             "route planner limits must be positive");
     }
@@ -97,7 +245,8 @@ void validate_route_planner_config(
              c.expected_success_weight,
              c.diversity_weight,
              c.cost_penalty_weight,
-             c.route_experience_weight}) {
+             c.route_experience_weight,
+             c.sequence_synergy_weight}) {
         if (!std::isfinite(value) ||
             value < 0.0) {
             throw std::invalid_argument(
@@ -680,6 +829,127 @@ ProofRoutePlanner::plan(
     }
 
     return unique;
+}
+
+std::vector<ProofRouteSequence>
+ProofRoutePlanner::compose(
+    const std::vector<ProofRoute>& routes) const {
+    std::vector<ProofRoute> usable;
+    usable.reserve(routes.size());
+
+    for (const auto& route : routes) {
+        if (dispatchable_route(route)) {
+            usable.push_back(route);
+        }
+    }
+
+    if (usable.empty()) {
+        return {};
+    }
+
+    std::vector<ProofRouteSequence> sequences;
+    std::unordered_set<std::string> seen;
+
+    auto add_sequence = [&](
+        std::vector<ProofRoute> steps) {
+        auto sequence =
+            make_sequence(
+                std::move(steps),
+                config_.sequence_synergy_weight);
+
+        if (seen.insert(
+                sequence.sequence_id).second) {
+            sequences.push_back(
+                std::move(sequence));
+        }
+    };
+
+    for (const auto& route : usable) {
+        add_sequence({route});
+    }
+
+    if (config_.max_sequence_length >= 2U) {
+        for (std::size_t i = 0U;
+             i < usable.size();
+             ++i) {
+            for (std::size_t j = 0U;
+                 j < usable.size();
+                 ++j) {
+                if (i == j) continue;
+
+                const double synergy =
+                    route_transition_synergy(
+                        usable[i].kind,
+                        usable[j].kind);
+
+                if (synergy <= 0.0) {
+                    continue;
+                }
+
+                add_sequence({
+                    usable[i],
+                    usable[j]
+                });
+            }
+        }
+    }
+
+    if (config_.max_sequence_length >= 3U) {
+        for (std::size_t i = 0U;
+             i < usable.size();
+             ++i) {
+            for (std::size_t j = 0U;
+                 j < usable.size();
+                 ++j) {
+                if (i == j) continue;
+
+                const double first =
+                    route_transition_synergy(
+                        usable[i].kind,
+                        usable[j].kind);
+
+                if (first <= 0.0) {
+                    continue;
+                }
+
+                for (std::size_t k = 0U;
+                     k < usable.size();
+                     ++k) {
+                    if (k == i || k == j) {
+                        continue;
+                    }
+
+                    const double second =
+                        route_transition_synergy(
+                            usable[j].kind,
+                            usable[k].kind);
+
+                    if (second <= 0.0) {
+                        continue;
+                    }
+
+                    add_sequence({
+                        usable[i],
+                        usable[j],
+                        usable[k]
+                    });
+                }
+            }
+        }
+    }
+
+    std::stable_sort(
+        sequences.begin(),
+        sequences.end(),
+        better_sequence);
+
+    if (sequences.size() >
+        config_.max_route_sequences) {
+        sequences.resize(
+            config_.max_route_sequences);
+    }
+
+    return sequences;
 }
 
 } // namespace expert_robot::research
