@@ -288,8 +288,31 @@ int main() {
     assert(experience.verified_progresses == 1);
     assert(experience.target_verifications == 1);
 
+    assert(outcome.strategy_step_outcomes.size() == 1);
+    const auto& step =
+        outcome.strategy_step_outcomes.front();
+    assert(step.step_index == 0);
+    assert(step.verified_progress);
+    assert(step.target_verified);
+    assert(step.proof_attempts >= 1);
+
+    const auto step_experience =
+        memory.strategy_step_experience(
+            outcome.dispatched_strategy->
+                strategy_id,
+            0,
+            target.domain);
+    assert(step_experience.attempts == 1);
+    assert(
+        step_experience.verified_progresses == 1);
+    assert(
+        step_experience.target_verifications == 1);
+    assert(
+        step_experience.total_proof_attempts >= 1);
+
     bool saw_outcome = false;
     bool saw_partial = false;
+    bool saw_step_outcome = false;
 
     for (const auto& event :
          ledger.events(
@@ -302,10 +325,15 @@ int main() {
             "research_strategy_partial") {
             saw_partial = true;
         }
+        if (event.event_type ==
+            "research_strategy_step_outcome") {
+            saw_step_outcome = true;
+        }
     }
 
     assert(saw_outcome);
     assert(!saw_partial);
+    assert(saw_step_outcome);
     assert(backend.calls == 0);
 
     std::filesystem::remove_all(root);
