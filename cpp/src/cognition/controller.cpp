@@ -1,6 +1,7 @@
 #include "expert_robot/cognition/controller.hpp"
 
 #include <stdexcept>
+#include <utility>
 
 namespace expert_robot::cognition {
 
