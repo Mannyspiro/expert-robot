@@ -29,10 +29,33 @@ struct ResearchStrategyPlannerConfig {
     double soft_retirement_cost_floor{0.50};
     double soft_retirement_penalty{0.18};
 
+    // Context-specific evidence is deliberately weaker than the broad domain
+    // prior until repeated matching proof states accumulate.
+    double context_experience_weight{0.10};
+    long long minimum_context_attempts{3};
+    double context_half_saturation_attempts{4.0};
+
     // Small optimism bonus keeps untried methods from being permanently
     // starved by early successful strategies.
     double exploration_weight{0.03};
 };
+
+struct ResearchStrategyContext {
+    std::string domain;
+    double theorem_graph_coverage{0.0};
+    double uncertainty{0.0};
+    double route_repetition{0.0};
+    long long consecutive_failures{0};
+
+    double decomposition_value{0.0};
+    double counterexample_value{0.0};
+    double abstraction_value{0.0};
+    double compression_value{0.0};
+    double representation_switch_value{0.0};
+};
+
+[[nodiscard]] std::string research_strategy_context_key(
+    const ResearchStrategyContext& context);
 
 struct ResearchStrategyPlan {
     std::string strategy_id;
@@ -45,6 +68,9 @@ struct ResearchStrategyPlan {
     double base_score{0.0};
     double evidence_confidence{0.0};
     double experience_adjustment{0.0};
+    std::string context_key;
+    double context_evidence_confidence{0.0};
+    double context_adjustment{0.0};
     bool soft_retired{false};
     double soft_retirement_penalty{0.0};
     double exploration_bonus{0.0};
@@ -74,7 +100,8 @@ public:
 
     [[nodiscard]] std::vector<ResearchStrategyPlan> plan(
         const std::vector<ProofRouteSequence>& sequences,
-        std::string_view target_domain) const;
+        std::string_view target_domain,
+        const ResearchStrategyContext* context = nullptr) const;
 
 private:
     ResearchStrategyPlannerConfig config_;
