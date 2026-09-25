@@ -225,7 +225,8 @@ MathResearchEngine::MathResearchEngine(
     MathResearchEngineConfig config,
     ProofRoutePlanner* route_planner,
     RouteOutcomeLedger* route_memory,
-    skills::SkillLedger* skill_ledger)
+    skills::SkillLedger* skill_ledger,
+    ResearchStrategyPlanner* strategy_planner)
     : searcher_(searcher),
       cognition_(cognition),
       imagination_(imagination),
@@ -236,7 +237,8 @@ MathResearchEngine::MathResearchEngine(
       config_(config),
       route_planner_(route_planner),
       route_memory_(route_memory),
-      skill_ledger_(skill_ledger) {
+      skill_ledger_(skill_ledger),
+      strategy_planner_(strategy_planner) {
     validate_research_budget(
         config_.budget);
 
@@ -335,6 +337,43 @@ ResearchOutcome MathResearchEngine::run(
             route_planner_->compose(
                 outcome.planned_routes,
                 problem.target.domain);
+
+        outcome.planned_strategies.clear();
+        if (strategy_planner_ != nullptr) {
+            outcome.planned_strategies =
+                strategy_planner_->plan(
+                    outcome.planned_sequences,
+                    problem.target.domain);
+
+            if (!outcome.planned_strategies.empty()) {
+                const auto& strategy =
+                    outcome.planned_strategies.front();
+
+                std::ostringstream payload;
+                payload
+                    << "strategy_id="
+                    << strategy.strategy_id
+                    << "\nsignature="
+                    << strategy.signature
+                    << "\ntitle="
+                    << strategy.title
+                    << "\nscore="
+                    << strategy.final_score
+                    << "\nbase_score="
+                    << strategy.base_score
+                    << "\nexperience_adjustment="
+                    << strategy.experience_adjustment
+                    << "\nexploration_bonus="
+                    << strategy.exploration_bonus
+                    << "\nsequence_id="
+                    << strategy.exemplar_sequence.sequence_id;
+
+                (void)episode_ledger_.append(
+                    problem.episode_id,
+                    "research_strategy_top",
+                    payload.str());
+            }
+        }
 
         if (!outcome.planned_sequences.empty()) {
             const auto& sequence =
