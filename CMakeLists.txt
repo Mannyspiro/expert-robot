@@ -297,3 +297,8 @@ add_executable(strategy_qualification_smoke
 )
 target_link_libraries(strategy_qualification_smoke PRIVATE expert_robot_core)
 add_test(NAME strategy_qualification_smoke COMMAND strategy_qualification_smoke)
+
+add_executable(expert_robot_math_benchmark
+    cpp/src/math_benchmark_main.cpp
+)
+target_link_libraries(expert_robot_math_benchmark PRIVATE expert_robot_core SQLite::SQLite3)
