@@ -158,6 +158,21 @@ void validate_strategy_outcome(
     }
 }
 
+void validate_strategy_context_outcome(
+    const ResearchStrategyContextOutcome& outcome) {
+    if (outcome.strategy_id.empty() ||
+        outcome.signature.empty() ||
+        outcome.context_key.empty()) {
+        throw std::invalid_argument(
+            "research strategy context outcome identifiers must be non-empty");
+    }
+    if (!std::isfinite(outcome.resource_cost) ||
+        outcome.resource_cost < 0.0) {
+        throw std::invalid_argument(
+            "research strategy context resource_cost must be finite and nonnegative");
+    }
+}
+
 RouteExperience read_experience(
     sqlite3_stmt* stmt) {
     return RouteExperience{
@@ -253,6 +268,39 @@ ResearchStrategyExperience read_strategy_experience(
     };
 }
 
+ResearchStrategyContextExperience
+read_strategy_context_experience(
+    sqlite3_stmt* stmt) {
+    return ResearchStrategyContextExperience{
+        .strategy_id =
+            column_text(stmt, 0),
+        .signature =
+            column_text(stmt, 1),
+        .context_key =
+            column_text(stmt, 2),
+        .attempts =
+            sqlite3_column_int64(
+                stmt,
+                3),
+        .verified_progresses =
+            sqlite3_column_int64(
+                stmt,
+                4),
+        .target_verifications =
+            sqlite3_column_int64(
+                stmt,
+                5),
+        .dead_end_escapes =
+            sqlite3_column_int64(
+                stmt,
+                6),
+        .total_resource_cost =
+            sqlite3_column_double(
+                stmt,
+                7),
+    };
+}
+
 } // namespace
 
 double RouteExperience::smoothed_verified_rate() const noexcept {
@@ -307,6 +355,25 @@ double ResearchStrategyExperience::smoothed_target_rate() const noexcept {
 }
 
 double ResearchStrategyExperience::average_resource_cost() const noexcept {
+    return attempts > 0
+        ? total_resource_cost /
+              static_cast<double>(attempts)
+        : 0.0;
+}
+
+double ResearchStrategyContextExperience::smoothed_verified_rate() const noexcept {
+    return
+        (static_cast<double>(verified_progresses) + 1.0) /
+        (static_cast<double>(attempts) + 2.0);
+}
+
+double ResearchStrategyContextExperience::smoothed_target_rate() const noexcept {
+    return
+        (static_cast<double>(target_verifications) + 1.0) /
+        (static_cast<double>(attempts) + 2.0);
+}
+
+double ResearchStrategyContextExperience::average_resource_cost() const noexcept {
     return attempts > 0
         ? total_resource_cost /
               static_cast<double>(attempts)
@@ -392,6 +459,21 @@ void RouteOutcomeLedger::initialize() {
 
         CREATE INDEX IF NOT EXISTS idx_research_strategy_outcomes_id_domain
             ON research_strategy_outcomes(strategy_id, domain);
+
+        CREATE TABLE IF NOT EXISTS research_strategy_context_outcomes (
+            sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+            strategy_id TEXT NOT NULL,
+            signature TEXT NOT NULL,
+            context_key TEXT NOT NULL,
+            verified_progress INTEGER NOT NULL,
+            target_verified INTEGER NOT NULL,
+            dead_end_escaped INTEGER NOT NULL,
+            resource_cost REAL NOT NULL,
+            recorded_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_research_strategy_context
+            ON research_strategy_context_outcomes(strategy_id, context_key);
         )SQL");
 
     Statement query(
@@ -613,6 +695,62 @@ void RouteOutcomeLedger::record_strategy(
         sqlite3_step(insert.get()),
         db_,
         "insert research strategy outcome");
+}
+
+void RouteOutcomeLedger::record_strategy_context(
+    const ResearchStrategyContextOutcome& outcome) {
+    validate_strategy_context_outcome(outcome);
+
+    Statement insert(
+        db_,
+        R"SQL(
+        INSERT INTO research_strategy_context_outcomes(
+            strategy_id,
+            signature,
+            context_key,
+            verified_progress,
+            target_verified,
+            dead_end_escaped,
+            resource_cost
+        ) VALUES (?, ?, ?, ?, ?, ?, ?);
+        )SQL");
+
+    bind_text(db_, insert.get(), 1, outcome.strategy_id);
+    bind_text(db_, insert.get(), 2, outcome.signature);
+    bind_text(db_, insert.get(), 3, outcome.context_key);
+    check_sql(
+        sqlite3_bind_int(
+            insert.get(),
+            4,
+            outcome.verified_progress ? 1 : 0),
+        db_,
+        "bind strategy context verified progress");
+    check_sql(
+        sqlite3_bind_int(
+            insert.get(),
+            5,
+            outcome.target_verified ? 1 : 0),
+        db_,
+        "bind strategy context target verified");
+    check_sql(
+        sqlite3_bind_int(
+            insert.get(),
+            6,
+            outcome.dead_end_escaped ? 1 : 0),
+        db_,
+        "bind strategy context dead end escape");
+    check_sql(
+        sqlite3_bind_double(
+            insert.get(),
+            7,
+            outcome.resource_cost),
+        db_,
+        "bind strategy context resource cost");
+
+    check_sql(
+        sqlite3_step(insert.get()),
+        db_,
+        "insert research strategy context outcome");
 }
 
 RouteExperience RouteOutcomeLedger::experience(
@@ -886,6 +1024,101 @@ RouteOutcomeLedger::all_strategy_experience() const {
 
         result.push_back(
             read_strategy_experience(
+                query.get()));
+    }
+
+    return result;
+}
+
+ResearchStrategyContextExperience
+RouteOutcomeLedger::strategy_context_experience(
+    std::string_view strategy_id,
+    std::string_view context_key) const {
+    if (strategy_id.empty() ||
+        context_key.empty()) {
+        throw std::invalid_argument(
+            "strategy context experience id/key must be non-empty");
+    }
+
+    Statement query(
+        db_,
+        R"SQL(
+        SELECT
+            strategy_id,
+            MIN(signature),
+            context_key,
+            COUNT(*),
+            SUM(verified_progress),
+            SUM(target_verified),
+            SUM(dead_end_escaped),
+            COALESCE(SUM(resource_cost), 0.0)
+        FROM research_strategy_context_outcomes
+        WHERE strategy_id = ? AND context_key = ?
+        GROUP BY strategy_id, context_key;
+        )SQL");
+
+    bind_text(
+        db_,
+        query.get(),
+        1,
+        std::string(strategy_id));
+    bind_text(
+        db_,
+        query.get(),
+        2,
+        std::string(context_key));
+
+    const int rc =
+        sqlite3_step(query.get());
+    check_sql(
+        rc,
+        db_,
+        "read strategy context experience");
+
+    if (rc == SQLITE_DONE) {
+        return ResearchStrategyContextExperience{
+            .strategy_id =
+                std::string(strategy_id),
+            .context_key =
+                std::string(context_key),
+        };
+    }
+
+    return read_strategy_context_experience(
+        query.get());
+}
+
+std::vector<ResearchStrategyContextExperience>
+RouteOutcomeLedger::all_strategy_context_experience() const {
+    Statement query(
+        db_,
+        R"SQL(
+        SELECT
+            strategy_id,
+            MIN(signature),
+            context_key,
+            COUNT(*),
+            SUM(verified_progress),
+            SUM(target_verified),
+            SUM(dead_end_escaped),
+            COALESCE(SUM(resource_cost), 0.0)
+        FROM research_strategy_context_outcomes
+        GROUP BY strategy_id, context_key
+        ORDER BY context_key, strategy_id;
+        )SQL");
+
+    std::vector<ResearchStrategyContextExperience> result;
+    while (true) {
+        const int rc =
+            sqlite3_step(query.get());
+        check_sql(
+            rc,
+            db_,
+            "list strategy context experience");
+        if (rc == SQLITE_DONE) break;
+
+        result.push_back(
+            read_strategy_context_experience(
                 query.get()));
     }
 
