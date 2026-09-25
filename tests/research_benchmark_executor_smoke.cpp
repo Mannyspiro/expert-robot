@@ -1,5 +1,7 @@
 #include "expert_robot/eval/math_benchmark.hpp"
 #include "expert_robot/eval/research_benchmark_executor.hpp"
+#include "expert_robot/proof_memory.hpp"
+#include "expert_robot/research/route_memory.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -321,6 +323,111 @@ int main() {
 
     assert(model.calls == 0);
     assert(lean.calls > 0);
+
+    // Holdout cases must all start from the exact same frozen training state.
+    // They may read learned proof/route/strategy evidence but must not write
+    // any of their own outcomes back into those stores.
+    const auto frozen_state =
+        root / "strategy_memory" / "frozen_train";
+    const auto holdout_three =
+        root / "strategy_memory" / "holdout" / "case-3";
+    const auto holdout_four =
+        root / "strategy_memory" / "holdout" / "case-4";
+
+    for (const auto& state :
+         {frozen_state,
+          holdout_three,
+          holdout_four}) {
+        assert(
+            std::filesystem::exists(
+                state / "proof_memory.sqlite3"));
+        assert(
+            std::filesystem::exists(
+                state / "route_memory.sqlite3"));
+    }
+
+    ProofMemory frozen_proof(
+        frozen_state / "proof_memory.sqlite3");
+    ProofMemory holdout_three_proof(
+        holdout_three / "proof_memory.sqlite3");
+    ProofMemory holdout_four_proof(
+        holdout_four / "proof_memory.sqlite3");
+
+    const auto frozen_proof_summary =
+        frozen_proof.summary();
+    const auto holdout_three_summary =
+        holdout_three_proof.summary();
+    const auto holdout_four_summary =
+        holdout_four_proof.summary();
+
+    assert(
+        frozen_proof_summary.attempts ==
+        holdout_three_summary.attempts);
+    assert(
+        frozen_proof_summary.attempts ==
+        holdout_four_summary.attempts);
+    assert(
+        frozen_proof_summary.successful_attempts ==
+        holdout_three_summary.successful_attempts);
+    assert(
+        frozen_proof_summary.successful_attempts ==
+        holdout_four_summary.successful_attempts);
+
+    research::RouteOutcomeLedger frozen_routes(
+        frozen_state / "route_memory.sqlite3");
+    research::RouteOutcomeLedger holdout_three_routes(
+        holdout_three / "route_memory.sqlite3");
+    research::RouteOutcomeLedger holdout_four_routes(
+        holdout_four / "route_memory.sqlite3");
+
+    const auto route_attempts =
+        [](const research::RouteOutcomeLedger& ledger) {
+            long long total = 0;
+            for (const auto& experience :
+                 ledger.all_experience()) {
+                total += experience.attempts;
+            }
+            return total;
+        };
+
+    const auto strategy_attempts =
+        [](const research::RouteOutcomeLedger& ledger) {
+            long long total = 0;
+            for (const auto& experience :
+                 ledger.all_strategy_experience()) {
+                total += experience.attempts;
+            }
+            return total;
+        };
+
+    const auto step_attempts =
+        [](const research::RouteOutcomeLedger& ledger) {
+            long long total = 0;
+            for (const auto& experience :
+                 ledger.all_strategy_step_experience()) {
+                total += experience.attempts;
+            }
+            return total;
+        };
+
+    assert(
+        route_attempts(frozen_routes) ==
+        route_attempts(holdout_three_routes));
+    assert(
+        route_attempts(frozen_routes) ==
+        route_attempts(holdout_four_routes));
+    assert(
+        strategy_attempts(frozen_routes) ==
+        strategy_attempts(holdout_three_routes));
+    assert(
+        strategy_attempts(frozen_routes) ==
+        strategy_attempts(holdout_four_routes));
+    assert(
+        step_attempts(frozen_routes) ==
+        step_attempts(holdout_three_routes));
+    assert(
+        step_attempts(frozen_routes) ==
+        step_attempts(holdout_four_routes));
 
     std::filesystem::remove_all(root);
     return 0;
