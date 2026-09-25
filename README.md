@@ -72,9 +72,21 @@ expert-robot/
 │   │   ├── imagination/
 │   │   │   ├── archive.hpp
 │   │   │   ├── controller.hpp
-│   │   │   └── idea.hpp
+│   │   │   ├── idea.hpp
+│   │   │   └── memory.hpp
+│   │   ├── research/
+│   │   │   ├── candidate_verifier.hpp
+│   │   │   ├── engine.hpp
+│   │   │   ├── episode_ledger.hpp
+│   │   │   ├── knowledge_consolidator.hpp
+│   │   │   └── state_machine.hpp
 │   │   ├── skills/
-│   │   │   └── math_skill.hpp
+│   │   │   ├── experimental_skill_store.hpp
+│   │   │   ├── math_skill.hpp
+│   │   │   ├── model_skill_proposer.hpp
+│   │   │   └── skill_ledger.hpp
+│   │   ├── eval/
+│   │   │   └── math_eval.hpp
 │   │   ├── swarm/
 │   │   │   ├── agent.hpp
 │   │   │   ├── aggregator.hpp
@@ -82,6 +94,7 @@ expert-robot/
 │   │   │   └── task.hpp
 │   │   ├── formalizer.hpp
 │   │   ├── lemma_factory.hpp
+│   │   ├── model_formalization_proposer.hpp
 │   │   ├── model_lemma_decomposer.hpp
 │   │   ├── model_server.hpp
 │   │   ├── text_generation.hpp
@@ -223,6 +236,41 @@ C++ enforces budgets/contracts, and Lean decides formal proof acceptance.
 
 See `docs/hybrid-math-engine.md`.
 
+## Verified research episodes
+
+The C++ `MathResearchEngine` now runs a bounded formal-mathematics episode:
+
+```
+formal target
+  -> retrieve
+  -> direct proof
+  -> cognition
+  -> imagination and/or recursive lemmas
+  -> skeptic-approved idea formalization
+  -> helper verification
+  -> parent retry
+  -> target verification
+  -> theorem-graph consolidation
+  -> hash-chained episode lineage
+```
+
+Helper lemmas do **not** complete the episode. Only target-level proof
+verification can move the research state to consolidation/completion.
+
+The engine also includes:
+
+- bounded multi-hop theorem-graph inspiration,
+- experimental-vs-qualified skill stages,
+- model-proposed skills isolated in an experimental store,
+- evaluation-only experimental-skill overlays,
+- per-skill outcome telemetry,
+- baseline-vs-candidate math ablations,
+- strict informal-to-formal theorem-statement proposals,
+- verified theorem-graph persistence, and
+- tamper-detecting SHA-256 event chains.
+
+See `docs/research-engine.md`.
+
 ## IPC
 
 Python and C++ communicate over newline-delimited JSON on stdin/stdout.
@@ -241,4 +289,8 @@ cmake --build build -j
 python3 python/orchestrator.py --runtime ./build/expert_robot_runtime
 ```
 
-The first milestone is a working controller -> C++ runtime request/response loop. Model backends are added behind C++ interfaces after that boundary is proven.
+The runtime/controller boundary, local model interfaces, verified proof loop,
+cognition stack, swarm, skill governance, recursive lemma search, and bounded
+research engine are now implemented behind C++ interfaces. The next milestones
+are benchmark corpus expansion, real local-model qualification runs, and
+measured promotion of only the capabilities that improve Lean-verified results.
