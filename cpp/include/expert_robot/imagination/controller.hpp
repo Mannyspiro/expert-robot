@@ -22,6 +22,7 @@ struct ImaginationConfig {
 
     double minimum_imagination_drive{0.18};
     int maximum_skeptic_risk{65};
+    bool enable_synthesis{true};
 };
 
 struct ImaginationRequest {
@@ -42,6 +43,9 @@ struct ImaginationRun {
     std::vector<IdeaCandidate> generated;
     std::vector<IdeaCandidate> archive_elites;
     std::vector<IdeaCandidate> shortlisted;
+
+    bool synthesis_ok{false};
+    std::string synthesis;
 
     bool skipped{false};
     std::string note;
