@@ -26,8 +26,7 @@ ProofRouteKind graph_route_kind(
         return ProofRouteKind::FollowTheoremPath;
     }
 
-    if (relation == "USES" ||
-        relation == "REQUIRES") {
+    if (relation == "USES") {
         return ProofRouteKind::ReuseVerifiedTheorem;
     }
 
@@ -375,10 +374,15 @@ lean_hint_tactics_for_route(
         return {};
     }
 
+    if (route.supporting_relations.empty() ||
+        route.supporting_relations.back() != "USES") {
+        return {};
+    }
+
     return {
-        "exact " + theorem,
-        "simpa using " + theorem,
-        "apply " + theorem + " <;> aesop",
+        "simp [" + theorem + "]",
+        "rw [" + theorem + "] <;> aesop",
+        "simpa [" + theorem + "]",
     };
 }
 
