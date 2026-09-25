@@ -195,14 +195,24 @@ int main() {
                     .case_id = "train-a",
                     .family = "same-family",
                     .domain = "algebra",
-                    .target = "A",
+                    .focus_theorem = "",
+                    .declaration_name = "train_a",
+                    .name_space = "MathAI.Benchmark",
+                    .binders = {},
+                    .proposition = "True",
+                    .imports = {"MathAI"},
                     .split = BenchmarkSplit::Train
                 },
                 BenchmarkCase{
                     .case_id = "holdout-b",
                     .family = "same-family",
                     .domain = "algebra",
-                    .target = "B",
+                    .focus_theorem = "",
+                    .declaration_name = "holdout_b",
+                    .name_space = "MathAI.Benchmark",
+                    .binders = {},
+                    .proposition = "True",
+                    .imports = {"MathAI"},
                     .split = BenchmarkSplit::Holdout
                 }
             },
@@ -226,7 +236,12 @@ int main() {
                     .case_id = "train-only",
                     .family = "train-only-family",
                     .domain = "geometry",
-                    .target = "T",
+                    .focus_theorem = "",
+                    .declaration_name = "train_only",
+                    .name_space = "MathAI.Benchmark",
+                    .binders = {},
+                    .proposition = "True",
+                    .imports = {"MathAI"},
                     .split = BenchmarkSplit::Train
                 }
             },
