@@ -49,14 +49,14 @@ Inside the VM:
 git clone https://github.com/Mannyspiro/expert-robot.git
 cd expert-robot
 git checkout feat/reuse-refactored-fishstick
-./scripts/railway-preflight.sh --bootstrap
+bash ./scripts/railway-preflight.sh --bootstrap
 ```
 
 The wrapper deliberately uses one build worker. The underlying preflight can
 also be run directly:
 
 ```bash
-ER_PREFLIGHT_MODE=cheap ER_PREFLIGHT_JOBS=1 ./scripts/preflight.sh
+ER_PREFLIGHT_MODE=cheap ER_PREFLIGHT_JOBS=1 bash ./scripts/preflight.sh
 ```
 
 Modes:
