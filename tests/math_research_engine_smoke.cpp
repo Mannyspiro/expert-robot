@@ -278,6 +278,9 @@ int main() {
         &episode_ledger,
         graph_file);
 
+    ProofRoutePlanner route_planner(
+        graph);
+
     MathResearchEngine engine(
         searcher,
         cognition,
@@ -296,7 +299,8 @@ int main() {
                     .max_generated_lemmas = 32
                 },
             .max_dispatch_steps = 32
-        });
+        },
+        &route_planner);
 
     cognition::InteroceptiveSensors sensors;
     sensors.cpu_load = 0.20;
@@ -357,6 +361,7 @@ int main() {
     assert(outcome.final_state.completed);
     assert(!outcome.final_state.exhausted);
     assert(!outcome.episode_root_hash.empty());
+    assert(!outcome.planned_routes.empty());
 
     const auto& target_node =
         graph.get(
@@ -389,6 +394,16 @@ int main() {
 
     bool saw_decompose = false;
     bool saw_complete = false;
+    bool saw_route_plan = false;
+
+    for (const auto& event :
+         episode_ledger.events(
+             "engine-episode-001")) {
+        if (event.event_type ==
+            "route_plan_top") {
+            saw_route_plan = true;
+        }
+    }
 
     for (const auto& transition :
          outcome.final_state.history) {
@@ -404,6 +419,7 @@ int main() {
 
     assert(saw_decompose);
     assert(saw_complete);
+    assert(saw_route_plan);
 
     std::filesystem::remove(
         graph_file);
