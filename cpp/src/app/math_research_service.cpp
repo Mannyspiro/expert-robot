@@ -12,6 +12,28 @@ std::filesystem::path state_path(
     return config.state_dir / filename;
 }
 
+MathResearchServiceConfig prepare_config(
+    MathResearchServiceConfig config) {
+    if (config.state_dir.empty()) {
+        throw std::invalid_argument(
+            "math research state_dir must be non-empty");
+    }
+
+    std::filesystem::create_directories(
+        config.state_dir);
+
+    if (!config.theorem_graph_path.empty() &&
+        !config.theorem_graph_path.
+            parent_path().empty()) {
+        std::filesystem::create_directories(
+            config.theorem_graph_path.
+                parent_path());
+    }
+
+    return config;
+}
+
+
 KnowledgeGraph load_graph(
     const MathResearchServiceConfig& config) {
     if (!config.theorem_graph_path.empty() &&
@@ -42,7 +64,9 @@ MathResearchService::MathResearchService(
     ITextGenerationBackend& lemma_json_backend,
     ITextGenerationBackend& formalization_json_backend,
     MathResearchServiceConfig config)
-    : config_(std::move(config)),
+    : config_(
+          prepare_config(
+              std::move(config))),
       lean_runner_(lean_runner),
       freeform_math_backend_(freeform_math_backend),
       lemma_json_backend_(lemma_json_backend),
@@ -128,14 +152,6 @@ MathResearchService::MathResearchService(
           config_.research_engine,
           &route_planner_,
           &route_memory_) {
-    if (config_.state_dir.empty()) {
-        throw std::invalid_argument(
-            "math research state_dir must be non-empty");
-    }
-
-    std::filesystem::create_directories(
-        config_.state_dir);
-
     if (!config_.theorem_registry.empty() &&
         std::filesystem::exists(
             config_.theorem_registry)) {
