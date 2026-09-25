@@ -18,6 +18,21 @@ const expert_robot::research::ProofRoute* find_kind(
     return nullptr;
 }
 
+const expert_robot::research::ProofRouteSequence*
+find_sequence(
+    const std::vector<expert_robot::research::ProofRouteSequence>& sequences,
+    expert_robot::research::ProofRouteKind first,
+    expert_robot::research::ProofRouteKind second) {
+    for (const auto& sequence : sequences) {
+        if (sequence.steps.size() >= 2 &&
+            sequence.steps[0].kind == first &&
+            sequence.steps[1].kind == second) {
+            return &sequence;
+        }
+    }
+    return nullptr;
+}
+
 } // namespace
 
 int main() {
@@ -164,6 +179,82 @@ int main() {
         learned_switch->final_score <
         base_switch->final_score);
 
+    const auto baseline_sequences =
+        baseline_planner.compose(
+            baseline,
+            "algebra");
+
+    const auto* baseline_switch_decompose =
+        find_sequence(
+            baseline_sequences,
+            ProofRouteKind::RepresentationSwitch,
+            ProofRouteKind::RecursiveDecomposition);
+
+    assert(
+        baseline_switch_decompose != nullptr);
+
+    for (int i = 0; i < 4; ++i) {
+        memory.record_sequence(
+            RouteSequenceOutcome{
+                .sequence_id =
+                    baseline_switch_decompose->
+                        sequence_id,
+                .domain = "algebra",
+                .verified_progress = true,
+                .target_verified = true,
+                .dead_end_escaped = true,
+                .resource_cost = 0.25
+            });
+    }
+
+    const auto learned_sequences =
+        learned_planner.compose(
+            baseline,
+            "algebra");
+
+    const auto* learned_switch_decompose =
+        find_sequence(
+            learned_sequences,
+            ProofRouteKind::RepresentationSwitch,
+            ProofRouteKind::RecursiveDecomposition);
+
+    assert(
+        learned_switch_decompose != nullptr);
+    assert(
+        learned_switch_decompose->final_score >
+        baseline_switch_decompose->final_score);
+
+    const auto sequence_experience =
+        memory.sequence_experience(
+            baseline_switch_decompose->
+                sequence_id,
+            "algebra");
+
+    assert(sequence_experience.attempts == 4);
+    assert(
+        sequence_experience.
+            target_verifications == 4);
+    assert(
+        sequence_experience.
+            smoothed_verified_rate() > 0.5);
+
+    const auto geometry_sequences =
+        learned_planner.compose(
+            baseline,
+            "geometry");
+
+    const auto* geometry_switch_decompose =
+        find_sequence(
+            geometry_sequences,
+            ProofRouteKind::RepresentationSwitch,
+            ProofRouteKind::RecursiveDecomposition);
+
+    assert(
+        geometry_switch_decompose != nullptr);
+    assert(
+        geometry_switch_decompose->final_score ==
+        baseline_switch_decompose->final_score);
+
     // A different mathematical domain has no experience and therefore retains
     // the original route scores.
     auto geometry_request = request;
@@ -197,6 +288,19 @@ int main() {
         invalid_rejected = true;
     }
     assert(invalid_rejected);
+
+    bool invalid_sequence_rejected = false;
+    try {
+        memory.record_sequence(
+            RouteSequenceOutcome{
+                .sequence_id = "bad-sequence",
+                .domain = "algebra",
+                .resource_cost = -1.0
+            });
+    } catch (const std::invalid_argument&) {
+        invalid_sequence_rejected = true;
+    }
+    assert(invalid_sequence_rejected);
 
     std::filesystem::remove(db);
     return 0;
