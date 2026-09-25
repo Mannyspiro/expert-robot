@@ -396,12 +396,25 @@ int main() {
             .statement = "related invariant",
             .domain = "geometry",
             .tags = {"geometry"}
+        },
+        {
+            .name = "MathAI.Speculative",
+            .source = "Speculative.lean",
+            .status = "candidate",
+            .statement = "unverified speculative bridge",
+            .domain = "topology",
+            .tags = {"candidate"}
         }
     });
     graph.add_edge({
         .source = "MathAI.Target",
         .relation = "ANALOGOUS_TO",
         .target = "MathAI.Related"
+    });
+    graph.add_edge({
+        .source = "MathAI.Target",
+        .relation = "ANALOGOUS_TO",
+        .target = "MathAI.Speculative"
     });
 
     const auto imagination_db =
@@ -475,7 +488,18 @@ int main() {
     assert(!run.synthesis.empty());
     assert(backend.saw("Synthesize the shortlisted mathematical research ideas below."));
     assert(backend.saw("Selected reusable math skill:"));
-    assert(backend.saw("theorem_graph:"));
+    assert(
+        backend.saw(
+            "verified_theorem_graph_path:"));
+    assert(
+        backend.saw(
+            "trust=verified"));
+    assert(
+        backend.saw(
+            "unverified_theorem_graph_path:"));
+    assert(
+        backend.saw(
+            "trust=unverified_candidate; inspiration_only=true"));
     assert(backend.saw("Critique this candidate mathematical idea independently."));
     assert(
         imagination_memory.count() >=
