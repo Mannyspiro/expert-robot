@@ -48,6 +48,11 @@ struct ResearchFeatureFlags {
 struct MathResearchEngineConfig {
     ResearchBudget budget;
     std::size_t max_dispatch_steps{64};
+
+    // When false, research may read learned state but must not mutate any
+    // persistent learning store. Evaluation telemetry remains permitted.
+    bool learning_writes{true};
+
     ResearchFeatureFlags features;
 };
 
