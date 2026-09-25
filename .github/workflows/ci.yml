@@ -36,6 +36,9 @@ jobs:
           lscpu || true
           free -h || true
 
+      - name: Shell preflight syntax
+        run: bash -n scripts/*.sh
+
       - name: Configure
         run: |
           cmake -S . -B build             -G Ninja             -DCMAKE_BUILD_TYPE=Release
