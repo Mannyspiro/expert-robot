@@ -151,7 +151,8 @@ MathResearchService::MathResearchService(
           episode_ledger_,
           config_.research_engine,
           &route_planner_,
-          &route_memory_) {
+          &route_memory_,
+          &skill_ledger_) {
     if (!config_.theorem_registry.empty() &&
         std::filesystem::exists(
             config_.theorem_registry)) {
