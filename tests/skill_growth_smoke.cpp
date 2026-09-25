@@ -1,11 +1,16 @@
+#include "expert_robot/imagination/controller.hpp"
 #include "expert_robot/skills/experimental_skill_store.hpp"
+#include "expert_robot/swarm/supervisor.hpp"
 #include "expert_robot/skills/model_skill_proposer.hpp"
 #include "expert_robot/skills/skill_ledger.hpp"
 
 #include <cassert>
 #include <filesystem>
+#include <mutex>
 #include <stdexcept>
 #include <string>
+#include <string_view>
+#include <vector>
 
 namespace {
 
@@ -77,6 +82,68 @@ public:
 
 private:
     Mode mode_;
+};
+
+class TrialBackend final : public expert_robot::ITextGenerationBackend {
+public:
+    expert_robot::TextGenerationResult generate(
+        const expert_robot::TextGenerationRequest& request) override {
+        {
+            std::scoped_lock lock(mu_);
+            prompts_.push_back(request.user_prompt);
+        }
+
+        if (request.user_prompt.find(
+                "Critique this candidate mathematical idea independently.") !=
+            std::string::npos) {
+            return {
+                .ok = true,
+                .exit_code = 0,
+                .timed_out = false,
+                .output =
+                    "DECISION=KEEP\nRISK=20\nCRITIQUE=useful evaluation candidate",
+                .diagnostics = ""
+            };
+        }
+
+        if (request.user_prompt.find(
+                "Synthesize the shortlisted mathematical research ideas below.") !=
+            std::string::npos) {
+            return {
+                .ok = true,
+                .exit_code = 0,
+                .timed_out = false,
+                .output =
+                    "Verify the experimental mechanism against the baseline and Lean.",
+                .diagnostics = ""
+            };
+        }
+
+        return {
+            .ok = true,
+            .exit_code = 0,
+            .timed_out = false,
+            .output =
+                "Use the requested lens to produce a distinct candidate mechanism.",
+            .diagnostics = ""
+        };
+    }
+
+    [[nodiscard]] bool saw(
+        std::string_view needle) const {
+        std::scoped_lock lock(mu_);
+        for (const auto& prompt : prompts_) {
+            if (prompt.find(needle) !=
+                std::string::npos) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+private:
+    mutable std::mutex mu_;
+    std::vector<std::string> prompts_;
 };
 
 } // namespace
@@ -214,6 +281,131 @@ int main() {
         none_proposer.propose(context);
     assert(!no_skill.proposed);
     assert(!no_skill.skill.has_value());
+
+    const auto trial_ledger_db =
+        std::filesystem::temp_directory_path() /
+        "expert-robot-experimental-trial-ledger.sqlite3";
+    std::filesystem::remove(trial_ledger_db);
+
+    {
+        TrialBackend trial_backend;
+        swarm::SwarmSupervisor trial_swarm(
+            {
+                {
+                    swarm::AgentRole::Mathematician,
+                    &trial_backend
+                }
+            },
+            swarm::SwarmLimits{
+                .max_parallel_agents = 4,
+                .max_total_tasks = 32,
+                .max_depth = 3,
+                .max_children_per_parent = 16,
+                .serialize_shared_backend = true
+            });
+
+        SkillLedger trial_ledger(
+            trial_ledger_db);
+
+        imagination::ImaginationController trial_controller(
+            trial_swarm,
+            imagination::ImaginationConfig{
+                .normal_lens_budget =
+                    static_cast<std::size_t>(
+                        imagination::ImaginationLens::Count),
+                .breakthrough_lens_budget =
+                    static_cast<std::size_t>(
+                        imagination::ImaginationLens::Count),
+                .skeptic_budget =
+                    static_cast<std::size_t>(
+                        imagination::ImaginationLens::Count),
+                .max_expensive_candidates = 3,
+                .archive_capacity_per_lens = 2,
+                .minimum_imagination_drive = 0.0,
+                .maximum_skeptic_risk = 65,
+                .enable_synthesis = true,
+                .theorem_graph_max_depth = 3,
+                .theorem_graph_max_paths = 12
+            },
+            nullptr,
+            MathSkillCatalog::builtins(),
+            nullptr,
+            &trial_ledger);
+
+        cognition::CognitionCycle cycle;
+        cycle.interoception.state.resource_pressure = 0.1;
+        cycle.interoception.state.stagnation = 0.8;
+        cycle.interoception.state.novelty = 0.8;
+        cycle.interoception.state.uncertainty = 0.4;
+        cycle.interoception.state.route_repetition = 0.5;
+        cycle.affect.exploration_drive = 0.9;
+        cycle.affect.persistence_drive = 0.6;
+        cycle.affect.attention_allocation = 0.6;
+        cycle.affect.strategy_switch_pressure = 0.7;
+        cycle.affect.compute_conservation = 0.1;
+        cycle.decision.action =
+            cognition::CognitiveAction::ExploreNovelRoute;
+
+        cognition::LogicalAssessment logic;
+        logic.expected_information_gain = 0.9;
+        logic.expected_success = 0.3;
+        logic.current_route_progress = 0.1;
+        logic.branch_cost = 0.2;
+
+        imagination::ImaginationRequest production_request{
+            .request_id = "production-must-reject",
+            .goal = "Find a proof route.",
+            .context = {},
+            .focus_theorem = "",
+            .personality =
+                cognition::math_researcher_personality(),
+            .cognition = cycle,
+            .logic = logic,
+            .evaluation_mode = false,
+            .experimental_skills = {
+                *proposal.skill
+            }
+        };
+
+        bool production_rejected = false;
+        try {
+            (void)trial_controller.run(
+                production_request);
+        } catch (const std::invalid_argument&) {
+            production_rejected = true;
+        }
+        assert(production_rejected);
+
+        auto evaluation_request =
+            production_request;
+        evaluation_request.request_id =
+            "explicit-evaluation";
+        evaluation_request.evaluation_mode =
+            true;
+
+        const auto trial =
+            trial_controller.run(
+                evaluation_request);
+
+        assert(!trial.skipped);
+        assert(
+            trial_backend.saw(
+                "EXPERIMENTAL SKILL UNDER ABLATION: "
+                "math.experimental.symmetry_breaking"));
+
+        const auto trial_stats =
+            trial_ledger.stats(
+                proposal.skill->skill_id);
+        assert(trial_stats.attempts >= 1);
+
+        // Evaluation use still does not change the skill stage.
+        assert(
+            proposal.skill->stage ==
+            SkillStage::Experimental);
+    }
+
+    std::filesystem::remove(
+        trial_ledger_db);
 
     bool qualified_store_rejected = false;
     try {
