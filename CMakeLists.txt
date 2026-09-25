@@ -19,6 +19,7 @@ add_library(expert_robot_core STATIC
     cpp/src/formalizer.cpp
     cpp/src/lemma_factory.cpp
     cpp/src/text_generation.cpp
+    cpp/src/model_server.cpp
     cpp/src/model_lemma_decomposer.cpp
     cpp/src/swarm/task.cpp
     cpp/src/swarm/agent.cpp
