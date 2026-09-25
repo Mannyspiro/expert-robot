@@ -18,6 +18,10 @@ struct ResearchStrategyPlannerConfig {
     double experience_weight{0.14};
     long long minimum_experience_attempts{3};
 
+    // Number of completed executions at which empirical evidence reaches
+    // roughly half of its maximum influence.
+    double evidence_half_saturation_attempts{6.0};
+
     // Small optimism bonus keeps untried methods from being permanently
     // starved by early successful strategies.
     double exploration_weight{0.03};
@@ -32,6 +36,7 @@ struct ResearchStrategyPlan {
     ProofRouteSequence exemplar_sequence;
 
     double base_score{0.0};
+    double evidence_confidence{0.0};
     double experience_adjustment{0.0};
     double exploration_bonus{0.0};
     double final_score{0.0};
