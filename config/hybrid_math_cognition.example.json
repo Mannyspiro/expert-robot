@@ -23,7 +23,8 @@
     "archive_capacity_per_lens": 2,
     "minimum_imagination_drive": 0.18,
     "maximum_skeptic_risk": 65,
-    "memory_path": "state/imagination.sqlite3"
+    "memory_path": "state/imagination.sqlite3",
+    "enable_synthesis": true
   },
   "swarm": {
     "max_parallel_agents": 4,
