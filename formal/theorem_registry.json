@@ -215,6 +215,152 @@
         "lean_verified"
       ],
       "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.cross_zero_left",
+      "source": "MathAI/Geometry/VectorDerived.lean",
+      "status": "verified",
+      "statement": "The cross product of the zero vector with any exact rational vector is the zero vector.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "cross_product",
+        "zero",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.cross_zero_right",
+      "source": "MathAI/Geometry/VectorDerived.lean",
+      "status": "verified",
+      "statement": "The cross product of any exact rational vector with the zero vector is the zero vector.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "cross_product",
+        "zero",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.cross_self",
+      "source": "MathAI/Geometry/VectorDerived.lean",
+      "status": "verified",
+      "statement": "The cross product of an exact rational vector with itself is the zero vector.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "cross_product",
+        "self",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.vecBetween_self",
+      "source": "MathAI/Geometry/VectorDerived.lean",
+      "status": "verified",
+      "statement": "The exact rational displacement from a point to itself is the zero vector.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "displacement",
+        "zero",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.parallel_zero_left",
+      "source": "MathAI/Geometry/VectorDerived.lean",
+      "status": "verified",
+      "statement": "The zero vector is parallel to every exact rational vector under the kernel predicate.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "parallel",
+        "zero",
+        "lean_verified"
+      ],
+      "uses": [
+        "MathAI.Geometry.cross_zero_left"
+      ]
+    },
+    {
+      "name": "MathAI.Geometry.parallel_zero_right",
+      "source": "MathAI/Geometry/VectorDerived.lean",
+      "status": "verified",
+      "statement": "Every exact rational vector is parallel to the zero vector under the kernel predicate.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "parallel",
+        "zero",
+        "lean_verified"
+      ],
+      "uses": [
+        "MathAI.Geometry.cross_zero_right"
+      ]
+    },
+    {
+      "name": "MathAI.Geometry.parallel_self",
+      "source": "MathAI/Geometry/VectorDerived.lean",
+      "status": "verified",
+      "statement": "Every exact rational vector is parallel to itself under the kernel predicate.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "parallel",
+        "self",
+        "lean_verified"
+      ],
+      "uses": [
+        "MathAI.Geometry.cross_self"
+      ]
+    },
+    {
+      "name": "MathAI.Geometry.dot_self_nonnegative",
+      "source": "MathAI/Geometry/VectorDerived.lean",
+      "status": "verified",
+      "statement": "The exact rational dot product of a vector with itself is nonnegative.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "dot_product",
+        "nonnegative",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.validPlane_of_pointOnPlane",
+      "source": "MathAI/Geometry/VectorDerived.lean",
+      "status": "verified",
+      "statement": "A point-on-plane proof entails validity of the exact rational plane.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "plane",
+        "validity",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.validLine_of_pointOnLine",
+      "source": "MathAI/Geometry/VectorDerived.lean",
+      "status": "verified",
+      "statement": "A point-on-line proof entails validity of the exact rational line.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "line",
+        "validity",
+        "lean_verified"
+      ],
+      "uses": []
     }
   ]
 }
