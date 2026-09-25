@@ -83,6 +83,10 @@ void validate_route_planner_config(const RoutePlannerConfig& config);
 executable_action_for_route(
     ProofRouteKind kind);
 
+[[nodiscard]] std::vector<std::string>
+lean_hint_tactics_for_route(
+    const ProofRoute& route);
+
 class ProofRoutePlanner {
 public:
     ProofRoutePlanner(
