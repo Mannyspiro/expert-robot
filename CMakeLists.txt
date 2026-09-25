@@ -18,6 +18,7 @@ add_library(expert_robot_core STATIC
     cpp/src/knowledge_graph.cpp
     cpp/src/cognition/neuromodulation.cpp
     cpp/src/cognition/interoception.cpp
+    cpp/src/cognition/personality.cpp
 )
 
 target_include_directories(expert_robot_core PUBLIC cpp/include)
@@ -59,3 +60,9 @@ add_executable(interoception_smoke
 )
 target_link_libraries(interoception_smoke PRIVATE expert_robot_core)
 add_test(NAME interoception_smoke COMMAND interoception_smoke)
+
+add_executable(personality_smoke
+    tests/personality_smoke.cpp
+)
+target_link_libraries(personality_smoke PRIVATE expert_robot_core)
+add_test(NAME personality_smoke COMMAND personality_smoke)
