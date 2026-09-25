@@ -289,6 +289,13 @@ ResearchTransition ResearchStateMachine::step(
                 "decomposition produced no proven child lemmas; broaden search");
 
         case ResearchPhase::VerifyCandidate:
+            if (o.verified_candidate_lemmas > 0U) {
+                return transition(
+                    ResearchPhase::RetryParent,
+                    ResearchAction::RetryParentProof,
+                    "Lean-verified helper candidates are available for parent retry");
+            }
+
             if (!o.candidate_verification_failed) {
                 return transition(
                     ResearchPhase::VerifyCandidate,
@@ -299,7 +306,7 @@ ResearchTransition ResearchStateMachine::step(
             return transition(
                 ResearchPhase::Decompose,
                 ResearchAction::RunLemmaFactory,
-                "candidate failed Lean verification; extract smaller obligations");
+                "candidate helpers failed Lean verification; extract smaller obligations");
 
         case ResearchPhase::RetryParent:
             if (!o.parent_retry_failed) {
