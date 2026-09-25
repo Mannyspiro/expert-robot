@@ -2,6 +2,7 @@
 #include "expert_robot/model_lemma_decomposer.hpp"
 #include "expert_robot/model_server.hpp"
 #include "expert_robot/skills/math_skill.hpp"
+#include "expert_robot/skills/skill_ledger.hpp"
 #include "expert_robot/swarm/aggregator.hpp"
 #include "expert_robot/swarm/supervisor.hpp"
 
@@ -316,9 +317,15 @@ int main() {
     const auto imagination_db =
         std::filesystem::temp_directory_path() /
         "expert-robot-hybrid-imagination.sqlite3";
+    const auto skill_db =
+        std::filesystem::temp_directory_path() /
+        "expert-robot-hybrid-skills.sqlite3";
     std::filesystem::remove(imagination_db);
+    std::filesystem::remove(skill_db);
     ImaginationMemory imagination_memory(
         imagination_db);
+    expert_robot::skills::SkillLedger skill_ledger(
+        skill_db);
 
     ImaginationController imagination(
         swarm,
@@ -333,7 +340,8 @@ int main() {
         },
         &graph,
         skill_catalog,
-        &imagination_memory);
+        &imagination_memory,
+        &skill_ledger);
 
     CognitionCycle cycle;
     cycle.interoception.state.resource_pressure = 0.10;
@@ -376,12 +384,19 @@ int main() {
     assert(run.synthesis_ok);
     assert(!run.synthesis.empty());
     assert(backend.saw("Synthesize the shortlisted mathematical research ideas below."));
-    assert(backend.saw("Reusable math skill:"));
+    assert(backend.saw("Selected reusable math skill:"));
     assert(backend.saw("theorem_graph:"));
     assert(backend.saw("Critique this candidate mathematical idea independently."));
     assert(
         imagination_memory.count() >=
         static_cast<long long>(run.generated.size()));
+
+    for (const auto& idea : run.generated) {
+        assert(!idea.skill_id.empty());
+        const auto stats =
+            skill_ledger.stats(idea.skill_id);
+        assert(stats.attempts >= 1);
+    }
 
     ImaginationController restored_imagination(
         swarm,
@@ -396,7 +411,8 @@ int main() {
         },
         &graph,
         skill_catalog,
-        &imagination_memory);
+        &imagination_memory,
+        &skill_ledger);
     assert(restored_imagination.archive().size() > 0);
 
     for (const auto& idea : run.generated) {
@@ -405,6 +421,95 @@ int main() {
         assert(idea.quality_diversity_score >= 0.0 &&
                idea.quality_diversity_score <= 1.0);
     }
+
+    // Skill selection learns from downstream evidence without changing
+    // verification authority. Two qualified skills compete in the same lens.
+    expert_robot::skills::MathSkill good_skill{
+        .skill_id = "math.test.simplify.good",
+        .title = "Good simplifier",
+        .lens = ImaginationLens::Simplification,
+        .preferred_role = AgentRole::Mathematician,
+        .procedure = "Use the empirically successful simplification route.",
+        .requires_lean_verification = true,
+        .stage = expert_robot::skills::SkillStage::Qualified
+    };
+    expert_robot::skills::MathSkill weak_skill{
+        .skill_id = "math.test.simplify.weak",
+        .title = "Weak simplifier",
+        .lens = ImaginationLens::Simplification,
+        .preferred_role = AgentRole::Mathematician,
+        .procedure = "Use the historically weak simplification route.",
+        .requires_lean_verification = true,
+        .stage = expert_robot::skills::SkillStage::Qualified
+    };
+
+    for (int i = 0; i < 4; ++i) {
+        skill_ledger.record_generation(
+            good_skill.skill_id,
+            true,
+            true);
+        skill_ledger.record_downstream(
+            good_skill.skill_id,
+            true);
+
+        skill_ledger.record_generation(
+            weak_skill.skill_id,
+            true,
+            true);
+        skill_ledger.record_downstream(
+            weak_skill.skill_id,
+            false);
+    }
+
+    expert_robot::skills::MathSkillCatalog adaptive_catalog(
+        {good_skill, weak_skill});
+
+    auto adaptive_cycle = cycle;
+    adaptive_cycle.decision.action =
+        CognitiveAction::CompressSimplify;
+    adaptive_cycle.decision.breakthrough_mode =
+        false;
+
+    ImaginationController adaptive_imagination(
+        swarm,
+        ImaginationConfig{
+            .normal_lens_budget = 1,
+            .breakthrough_lens_budget = 1,
+            .skeptic_budget = 1,
+            .max_expensive_candidates = 1,
+            .archive_capacity_per_lens = 1,
+            .minimum_imagination_drive = 0.0,
+            .maximum_skeptic_risk = 65,
+            .enable_synthesis = false
+        },
+        nullptr,
+        adaptive_catalog,
+        nullptr,
+        &skill_ledger);
+
+    const auto adaptive_run =
+        adaptive_imagination.run(
+            ImaginationRequest{
+                .request_id = "adaptive-skill-1",
+                .goal = "Simplify a stalled proof route.",
+                .context = {},
+                .focus_theorem = "",
+                .personality =
+                    math_researcher_personality(),
+                .cognition = adaptive_cycle,
+                .logic = logic
+            });
+
+    assert(adaptive_run.generated.size() == 1);
+    assert(
+        adaptive_run.generated.front().lens ==
+        ImaginationLens::Simplification);
+    assert(
+        adaptive_run.generated.front().skill_id ==
+        good_skill.skill_id);
+    assert(
+        backend.saw(
+            "math.test.simplify.good"));
 
     ModelLemmaDecomposer model_decomposer(
         backend,
@@ -424,5 +529,6 @@ int main() {
     assert(helpers[0].proposition == "x = x");
 
     std::filesystem::remove(imagination_db);
+    std::filesystem::remove(skill_db);
     return 0;
 }
