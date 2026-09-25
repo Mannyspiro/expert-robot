@@ -406,14 +406,16 @@ ImaginationController::ImaginationController(
     const KnowledgeGraph* theorem_graph,
     skills::MathSkillCatalog skill_catalog,
     ImaginationMemory* memory,
-    skills::SkillLedger* skill_ledger)
+    skills::SkillLedger* skill_ledger,
+    bool persist_learning)
     : swarm_(swarm),
       config_(config),
       theorem_graph_(theorem_graph),
       archive_(config.archive_capacity_per_lens),
       skills_(std::move(skill_catalog)),
       memory_(memory),
-      skill_ledger_(skill_ledger) {
+      skill_ledger_(skill_ledger),
+      persist_learning_(persist_learning) {
     validate_imagination_config(config_);
 
     if (memory_ != nullptr) {
@@ -866,7 +868,8 @@ ImaginationRun ImaginationController::run(
 
         batch_texts.push_back(text);
         archive_.insert(idea);
-        if (memory_ != nullptr) {
+        if (persist_learning_ &&
+            memory_ != nullptr) {
             memory_->upsert(idea);
         }
         run.generated.push_back(std::move(idea));
@@ -939,7 +942,8 @@ ImaginationRun ImaginationController::run(
         idea.skeptic_critique = verdict.critique;
 
         archive_.insert(idea);
-        if (memory_ != nullptr) {
+        if (persist_learning_ &&
+            memory_ != nullptr) {
             memory_->upsert(idea);
         }
     }
@@ -965,7 +969,8 @@ ImaginationRun ImaginationController::run(
             config_.max_expensive_candidates);
     }
 
-    if (skill_ledger_ != nullptr) {
+    if (persist_learning_ &&
+        skill_ledger_ != nullptr) {
         for (const auto& idea : run.generated) {
             const bool shortlisted =
                 std::any_of(
