@@ -42,6 +42,7 @@ add_library(expert_robot_core STATIC
     cpp/src/research/route_planner.cpp
     cpp/src/research/engine.cpp
     cpp/src/growth/generation_lineage.cpp
+    cpp/src/growth/ablation_evidence.cpp
     cpp/src/cognition/neuromodulation.cpp
     cpp/src/cognition/interoception.cpp
     cpp/src/cognition/personality.cpp
@@ -178,3 +179,9 @@ add_executable(generation_lineage_smoke
 )
 target_link_libraries(generation_lineage_smoke PRIVATE expert_robot_core SQLite::SQLite3)
 add_test(NAME generation_lineage_smoke COMMAND generation_lineage_smoke)
+
+add_executable(ablation_evidence_smoke
+    tests/ablation_evidence_smoke.cpp
+)
+target_link_libraries(ablation_evidence_smoke PRIVATE expert_robot_core SQLite::SQLite3)
+add_test(NAME ablation_evidence_smoke COMMAND ablation_evidence_smoke)
