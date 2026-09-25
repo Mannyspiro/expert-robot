@@ -409,6 +409,8 @@ ResearchOutcome MathResearchEngine::run(
                     << strategy.final_score
                     << "\nbase_score="
                     << strategy.base_score
+                    << "\nevidence_confidence="
+                    << strategy.evidence_confidence
                     << "\nexperience_adjustment="
                     << strategy.experience_adjustment
                     << "\nexploration_bonus="
