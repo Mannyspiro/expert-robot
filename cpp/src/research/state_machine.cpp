@@ -168,7 +168,15 @@ ResearchTransition ResearchStateMachine::step(
         return transition(
             ResearchPhase::Consolidate,
             ResearchAction::ConsolidateVerifiedKnowledge,
-            "Lean accepted a candidate; consolidate verified knowledge");
+            "Lean accepted the target; consolidate verified knowledge");
+    }
+
+    if (state_.phase == ResearchPhase::Consolidate &&
+        state_.any_lean_verified) {
+        return transition(
+            ResearchPhase::Complete,
+            ResearchAction::StopComplete,
+            "verified target knowledge consolidated");
     }
 
     if (budget_exhausted()) {
