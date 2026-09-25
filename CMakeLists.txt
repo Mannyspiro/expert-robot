@@ -80,6 +80,11 @@ add_executable(math_core_smoke
 )
 target_link_libraries(math_core_smoke PRIVATE expert_robot_core)
 add_test(NAME math_core_smoke COMMAND math_core_smoke)
+set_tests_properties(
+    math_core_smoke
+    PROPERTIES
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+)
 
 add_executable(neuromodulation_smoke
     tests/neuromodulation_smoke.cpp
