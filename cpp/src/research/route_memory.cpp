@@ -88,7 +88,7 @@ void bind_text(
             value.c_str(),
             static_cast<int>(value.size()),
             SQLITE_TRANSIENT),
-        db_,
+        db,
         "bind route memory text");
 }
 
