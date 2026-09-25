@@ -6,7 +6,7 @@ on:
       - "formal/**"
       - ".github/workflows/formal-qualification.yml"
   push:
-    branches: ["main"]
+    branches: ["main", "feat/**"]
     paths:
       - "formal/**"
       - ".github/workflows/formal-qualification.yml"
