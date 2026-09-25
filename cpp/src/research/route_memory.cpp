@@ -10,7 +10,7 @@
 namespace expert_robot::research {
 namespace {
 
-constexpr int kSchemaVersion = 1;
+constexpr int kSchemaVersion = 2;
 
 void check_sql(
     int code,
@@ -173,6 +173,32 @@ void validate_strategy_context_outcome(
     }
 }
 
+void validate_strategy_step_outcome(
+    const ResearchStrategyStepOutcome& outcome) {
+    if (outcome.strategy_id.empty() ||
+        outcome.signature.empty() ||
+        outcome.domain.empty() ||
+        outcome.route_id.empty()) {
+        throw std::invalid_argument(
+            "research strategy step outcome identifiers must be non-empty");
+    }
+    if (!std::isfinite(outcome.resource_cost) ||
+        outcome.resource_cost < 0.0) {
+        throw std::invalid_argument(
+            "research strategy step resource_cost must be finite and nonnegative");
+    }
+    for (const auto value : {
+             outcome.proof_attempts,
+             outcome.model_calls,
+             outcome.generated_ideas,
+             outcome.generated_lemmas}) {
+        if (value < 0) {
+            throw std::invalid_argument(
+                "research strategy step counters must be nonnegative");
+        }
+    }
+}
+
 RouteExperience read_experience(
     sqlite3_stmt* stmt) {
     return RouteExperience{
@@ -301,6 +327,65 @@ read_strategy_context_experience(
     };
 }
 
+ResearchStrategyStepExperience
+read_strategy_step_experience(
+    sqlite3_stmt* stmt) {
+    return ResearchStrategyStepExperience{
+        .strategy_id =
+            column_text(stmt, 0),
+        .signature =
+            column_text(stmt, 1),
+        .domain =
+            column_text(stmt, 2),
+        .step_index =
+            static_cast<std::size_t>(
+                sqlite3_column_int64(
+                    stmt,
+                    3)),
+        .kind =
+            static_cast<ProofRouteKind>(
+                sqlite3_column_int(
+                    stmt,
+                    4)),
+        .attempts =
+            sqlite3_column_int64(
+                stmt,
+                5),
+        .verified_progresses =
+            sqlite3_column_int64(
+                stmt,
+                6),
+        .target_verifications =
+            sqlite3_column_int64(
+                stmt,
+                7),
+        .dead_end_escapes =
+            sqlite3_column_int64(
+                stmt,
+                8),
+        .total_resource_cost =
+            sqlite3_column_double(
+                stmt,
+                9),
+        .total_proof_attempts =
+            sqlite3_column_int64(
+                stmt,
+                10),
+        .total_model_calls =
+            sqlite3_column_int64(
+                stmt,
+                11),
+        .total_generated_ideas =
+            sqlite3_column_int64(
+                stmt,
+                12),
+        .total_generated_lemmas =
+            sqlite3_column_int64(
+                stmt,
+                13),
+    };
+}
+
 } // namespace
 
 double RouteExperience::smoothed_verified_rate() const noexcept {
@@ -374,6 +459,25 @@ double ResearchStrategyContextExperience::smoothed_target_rate() const noexcept 
 }
 
 double ResearchStrategyContextExperience::average_resource_cost() const noexcept {
+    return attempts > 0
+        ? total_resource_cost /
+              static_cast<double>(attempts)
+        : 0.0;
+}
+
+double ResearchStrategyStepExperience::smoothed_verified_rate() const noexcept {
+    return
+        (static_cast<double>(verified_progresses) + 1.0) /
+        (static_cast<double>(attempts) + 2.0);
+}
+
+double ResearchStrategyStepExperience::smoothed_target_rate() const noexcept {
+    return
+        (static_cast<double>(target_verifications) + 1.0) /
+        (static_cast<double>(attempts) + 2.0);
+}
+
+double ResearchStrategyStepExperience::average_resource_cost() const noexcept {
     return attempts > 0
         ? total_resource_cost /
               static_cast<double>(attempts)
@@ -474,6 +578,30 @@ void RouteOutcomeLedger::initialize() {
 
         CREATE INDEX IF NOT EXISTS idx_research_strategy_context
             ON research_strategy_context_outcomes(strategy_id, context_key);
+
+        CREATE TABLE IF NOT EXISTS research_strategy_step_outcomes (
+            sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+            strategy_id TEXT NOT NULL,
+            signature TEXT NOT NULL,
+            domain TEXT NOT NULL,
+            context_key TEXT NOT NULL,
+            step_index INTEGER NOT NULL,
+            route_kind INTEGER NOT NULL,
+            route_id TEXT NOT NULL,
+            verified_progress INTEGER NOT NULL,
+            target_verified INTEGER NOT NULL,
+            dead_end_escaped INTEGER NOT NULL,
+            resource_cost REAL NOT NULL,
+            proof_attempts INTEGER NOT NULL,
+            model_calls INTEGER NOT NULL,
+            generated_ideas INTEGER NOT NULL,
+            generated_lemmas INTEGER NOT NULL,
+            recorded_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_research_strategy_step
+            ON research_strategy_step_outcomes(
+                strategy_id, step_index, domain);
         )SQL");
 
     Statement query(
@@ -492,16 +620,30 @@ void RouteOutcomeLedger::initialize() {
         Statement insert(
             db_,
             "INSERT INTO route_memory_metadata(key,value) "
-            "VALUES('schema_version','1');");
+            "VALUES('schema_version','2');");
         check_sql(
             sqlite3_step(insert.get()),
             db_,
             "insert route memory schema");
-    } else if (
-        column_text(query.get(), 0) !=
-        std::to_string(kSchemaVersion)) {
-        throw std::runtime_error(
-            "unsupported route memory schema");
+    } else {
+        const auto version =
+            column_text(query.get(), 0);
+
+        if (version == "1") {
+            Statement migrate(
+                db_,
+                "UPDATE route_memory_metadata "
+                "SET value='2' WHERE key='schema_version';");
+            check_sql(
+                sqlite3_step(migrate.get()),
+                db_,
+                "migrate route memory schema to v2");
+        } else if (
+            version !=
+            std::to_string(kSchemaVersion)) {
+            throw std::runtime_error(
+                "unsupported route memory schema");
+        }
     }
 }
 
@@ -751,6 +893,115 @@ void RouteOutcomeLedger::record_strategy_context(
         sqlite3_step(insert.get()),
         db_,
         "insert research strategy context outcome");
+}
+
+void RouteOutcomeLedger::record_strategy_step(
+    const ResearchStrategyStepOutcome& outcome) {
+    validate_strategy_step_outcome(outcome);
+
+    Statement insert(
+        db_,
+        R"SQL(
+        INSERT INTO research_strategy_step_outcomes(
+            strategy_id,
+            signature,
+            domain,
+            context_key,
+            step_index,
+            route_kind,
+            route_id,
+            verified_progress,
+            target_verified,
+            dead_end_escaped,
+            resource_cost,
+            proof_attempts,
+            model_calls,
+            generated_ideas,
+            generated_lemmas
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+        )SQL");
+
+    bind_text(db_, insert.get(), 1, outcome.strategy_id);
+    bind_text(db_, insert.get(), 2, outcome.signature);
+    bind_text(db_, insert.get(), 3, outcome.domain);
+    bind_text(db_, insert.get(), 4, outcome.context_key);
+    check_sql(
+        sqlite3_bind_int64(
+            insert.get(),
+            5,
+            static_cast<sqlite3_int64>(
+                outcome.step_index)),
+        db_,
+        "bind strategy step index");
+    check_sql(
+        sqlite3_bind_int(
+            insert.get(),
+            6,
+            static_cast<int>(outcome.kind)),
+        db_,
+        "bind strategy step route kind");
+    bind_text(db_, insert.get(), 7, outcome.route_id);
+    check_sql(
+        sqlite3_bind_int(
+            insert.get(),
+            8,
+            outcome.verified_progress ? 1 : 0),
+        db_,
+        "bind strategy step verified progress");
+    check_sql(
+        sqlite3_bind_int(
+            insert.get(),
+            9,
+            outcome.target_verified ? 1 : 0),
+        db_,
+        "bind strategy step target verified");
+    check_sql(
+        sqlite3_bind_int(
+            insert.get(),
+            10,
+            outcome.dead_end_escaped ? 1 : 0),
+        db_,
+        "bind strategy step dead end escape");
+    check_sql(
+        sqlite3_bind_double(
+            insert.get(),
+            11,
+            outcome.resource_cost),
+        db_,
+        "bind strategy step resource cost");
+    check_sql(
+        sqlite3_bind_int64(
+            insert.get(),
+            12,
+            outcome.proof_attempts),
+        db_,
+        "bind strategy step proof attempts");
+    check_sql(
+        sqlite3_bind_int64(
+            insert.get(),
+            13,
+            outcome.model_calls),
+        db_,
+        "bind strategy step model calls");
+    check_sql(
+        sqlite3_bind_int64(
+            insert.get(),
+            14,
+            outcome.generated_ideas),
+        db_,
+        "bind strategy step generated ideas");
+    check_sql(
+        sqlite3_bind_int64(
+            insert.get(),
+            15,
+            outcome.generated_lemmas),
+        db_,
+        "bind strategy step generated lemmas");
+
+    check_sql(
+        sqlite3_step(insert.get()),
+        db_,
+        "insert research strategy step outcome");
 }
 
 RouteExperience RouteOutcomeLedger::experience(
@@ -1119,6 +1370,124 @@ RouteOutcomeLedger::all_strategy_context_experience() const {
 
         result.push_back(
             read_strategy_context_experience(
+                query.get()));
+    }
+
+    return result;
+}
+
+ResearchStrategyStepExperience
+RouteOutcomeLedger::strategy_step_experience(
+    std::string_view strategy_id,
+    std::size_t step_index,
+    std::string_view domain) const {
+    if (strategy_id.empty() ||
+        domain.empty()) {
+        throw std::invalid_argument(
+            "strategy step experience id/domain must be non-empty");
+    }
+
+    Statement query(
+        db_,
+        R"SQL(
+        SELECT
+            strategy_id,
+            MIN(signature),
+            domain,
+            step_index,
+            MIN(route_kind),
+            COUNT(*),
+            SUM(verified_progress),
+            SUM(target_verified),
+            SUM(dead_end_escaped),
+            COALESCE(SUM(resource_cost), 0.0),
+            COALESCE(SUM(proof_attempts), 0),
+            COALESCE(SUM(model_calls), 0),
+            COALESCE(SUM(generated_ideas), 0),
+            COALESCE(SUM(generated_lemmas), 0)
+        FROM research_strategy_step_outcomes
+        WHERE strategy_id = ? AND step_index = ? AND domain = ?
+        GROUP BY strategy_id, domain, step_index;
+        )SQL");
+
+    bind_text(
+        db_,
+        query.get(),
+        1,
+        std::string(strategy_id));
+    check_sql(
+        sqlite3_bind_int64(
+            query.get(),
+            2,
+            static_cast<sqlite3_int64>(
+                step_index)),
+        db_,
+        "bind strategy step query index");
+    bind_text(
+        db_,
+        query.get(),
+        3,
+        std::string(domain));
+
+    const int rc =
+        sqlite3_step(query.get());
+    check_sql(
+        rc,
+        db_,
+        "read research strategy step experience");
+
+    if (rc == SQLITE_DONE) {
+        return ResearchStrategyStepExperience{
+            .strategy_id =
+                std::string(strategy_id),
+            .domain =
+                std::string(domain),
+            .step_index =
+                step_index,
+        };
+    }
+
+    return read_strategy_step_experience(
+        query.get());
+}
+
+std::vector<ResearchStrategyStepExperience>
+RouteOutcomeLedger::all_strategy_step_experience() const {
+    Statement query(
+        db_,
+        R"SQL(
+        SELECT
+            strategy_id,
+            MIN(signature),
+            domain,
+            step_index,
+            MIN(route_kind),
+            COUNT(*),
+            SUM(verified_progress),
+            SUM(target_verified),
+            SUM(dead_end_escaped),
+            COALESCE(SUM(resource_cost), 0.0),
+            COALESCE(SUM(proof_attempts), 0),
+            COALESCE(SUM(model_calls), 0),
+            COALESCE(SUM(generated_ideas), 0),
+            COALESCE(SUM(generated_lemmas), 0)
+        FROM research_strategy_step_outcomes
+        GROUP BY strategy_id, domain, step_index
+        ORDER BY domain, strategy_id, step_index;
+        )SQL");
+
+    std::vector<ResearchStrategyStepExperience> result;
+    while (true) {
+        const int rc =
+            sqlite3_step(query.get());
+        check_sql(
+            rc,
+            db_,
+            "list research strategy step experience");
+        if (rc == SQLITE_DONE) break;
+
+        result.push_back(
+            read_strategy_step_experience(
                 query.get()));
     }
 
