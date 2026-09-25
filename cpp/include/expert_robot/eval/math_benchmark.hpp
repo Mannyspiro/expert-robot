@@ -17,11 +17,27 @@ enum class BenchmarkSplit {
 [[nodiscard]] std::string_view benchmark_split_name(
     BenchmarkSplit split);
 
+struct BenchmarkBinder {
+    std::string name;
+    std::string type;
+};
+
 struct BenchmarkCase {
     std::string case_id;
     std::string family;
     std::string domain;
-    std::string target;
+
+    // focus_theorem is optional routing context. The executable target below
+    // remains fully specified so a graph-disabled variant never needs registry
+    // lookup to know what proposition it is proving.
+    std::string focus_theorem;
+
+    std::string declaration_name;
+    std::string name_space{"MathAI.Benchmark"};
+    std::vector<BenchmarkBinder> binders;
+    std::string proposition;
+    std::vector<std::string> imports{"MathAI"};
+
     BenchmarkSplit split{BenchmarkSplit::Train};
     std::vector<std::string> tags;
 };
