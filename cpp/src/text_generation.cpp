@@ -214,6 +214,7 @@ TextGenerationResult LlamaCliBackend::generate(
             args.push_back(
                 std::filesystem::absolute(
                     config_.model_path).string());
+            args.push_back("--offline");
         }
 
         args.insert(
@@ -237,7 +238,6 @@ TextGenerationResult LlamaCliBackend::generate(
             "--simple-io",
             "--no-display-prompt",
             "--no-show-timings",
-            "--offline",
             "-co",
             "off",
             "-o",
