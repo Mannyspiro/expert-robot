@@ -217,6 +217,12 @@ void validate_imagination_config(
         throw std::invalid_argument(
             "maximum_skeptic_risk must be in [0,100]");
     }
+
+    if (c.theorem_graph_max_depth == 0U ||
+        c.theorem_graph_max_paths == 0U) {
+        throw std::invalid_argument(
+            "theorem graph imagination budgets must be positive");
+    }
 }
 
 ImaginationController::ImaginationController(
@@ -224,13 +230,15 @@ ImaginationController::ImaginationController(
     ImaginationConfig config,
     const KnowledgeGraph* theorem_graph,
     skills::MathSkillCatalog skill_catalog,
-    ImaginationMemory* memory)
+    ImaginationMemory* memory,
+    skills::SkillLedger* skill_ledger)
     : swarm_(swarm),
       config_(config),
       theorem_graph_(theorem_graph),
       archive_(config.archive_capacity_per_lens),
       skills_(std::move(skill_catalog)),
-      memory_(memory) {
+      memory_(memory),
+      skill_ledger_(skill_ledger) {
     validate_imagination_config(config_);
 
     if (memory_ != nullptr) {
@@ -356,35 +364,49 @@ ImaginationController::augmented_context(
     if (theorem_graph_ != nullptr &&
         !request.focus_theorem.empty()) {
         try {
-            const auto related =
-                theorem_graph_->related(
-                    request.focus_theorem);
+            const auto paths =
+                theorem_graph_->bounded_paths(
+                    request.focus_theorem,
+                    config_.theorem_graph_max_depth,
+                    config_.theorem_graph_max_paths);
 
-            std::size_t added = 0;
-            for (const auto& edge : related) {
-                if (added >= 12U) break;
+            for (const auto& path : paths) {
+                if (path.nodes.size() < 2U) continue;
 
-                const std::string other =
-                    edge.source == request.focus_theorem
-                        ? edge.target
-                        : edge.source;
+                std::ostringstream path_text;
+                path_text << "theorem_graph_path: ";
+                for (std::size_t i = 0;
+                     i < path.relations.size();
+                     ++i) {
+                    if (i > 0U) path_text << " -> ";
+                    path_text
+                        << path.nodes[i]
+                        << " -[" << path.relations[i] << "]-> ";
+                }
+                path_text << path.nodes.back();
 
-                std::string statement;
                 try {
-                    statement =
-                        theorem_graph_->get(other).statement;
+                    const auto& terminal =
+                        theorem_graph_->get(
+                            path.nodes.back());
+                    if (!terminal.statement.empty()) {
+                        path_text
+                            << " :: "
+                            << terminal.statement;
+                    }
+                    if (!terminal.domain.empty()) {
+                        path_text
+                            << " [domain="
+                            << terminal.domain
+                            << "]";
+                    }
                 } catch (...) {
-                    statement.clear();
+                    // A path remains useful even if the terminal statement
+                    // cannot be retrieved.
                 }
 
                 context.push_back(
-                    "theorem_graph: " +
-                    std::string(edge.relation) +
-                    " " + other +
-                    (statement.empty()
-                         ? std::string{}
-                         : " :: " + statement));
-                ++added;
+                    path_text.str());
             }
         } catch (...) {
             // Missing graph context is not a fatal imagination error.
@@ -444,7 +466,7 @@ ImaginationRun ImaginationController::run(
             << lens_instruction(lens);
 
         const auto matching_skills =
-            skills_.for_lens(lens);
+            skills_.qualified_for_lens(lens);
         for (const auto& skill : matching_skills) {
             goal
                 << "\n\nReusable math skill: "
@@ -628,6 +650,29 @@ ImaginationRun ImaginationController::run(
         config_.max_expensive_candidates) {
         run.shortlisted.resize(
             config_.max_expensive_candidates);
+    }
+
+    if (skill_ledger_ != nullptr) {
+        for (const auto& idea : run.generated) {
+            const bool shortlisted =
+                std::any_of(
+                    run.shortlisted.begin(),
+                    run.shortlisted.end(),
+                    [&](const IdeaCandidate& candidate) {
+                        return candidate.idea_id ==
+                               idea.idea_id;
+                    });
+
+            for (const auto& skill :
+                 skills_.qualified_for_lens(
+                     idea.lens)) {
+                skill_ledger_->record_generation(
+                    skill.skill_id,
+                    idea.skeptic_valid &&
+                        idea.skeptic_keep,
+                    shortlisted);
+            }
+        }
     }
 
     run.archive_elites =
