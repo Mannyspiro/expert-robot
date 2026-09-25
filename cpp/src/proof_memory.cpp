@@ -255,8 +255,12 @@ ProofMemorySummary ProofMemory::summary() const {
 MemoryGuidedProofSearch::MemoryGuidedProofSearch(
     std::vector<std::string> base_strategies,
     ILeanRunner& runner,
-    ProofMemory& memory)
-    : base_strategies_(std::move(base_strategies)), runner_(runner), memory_(memory) {
+    ProofMemory& memory,
+    bool record_results)
+    : base_strategies_(std::move(base_strategies)),
+      runner_(runner),
+      memory_(memory),
+      record_results_(record_results) {
     if (base_strategies_.empty()) {
         throw std::invalid_argument("base_strategies must be non-empty");
     }
@@ -266,7 +270,9 @@ SearchResult MemoryGuidedProofSearch::search(const SearchProblem& problem) {
     const auto ordered = memory_.order_strategies(problem, base_strategies_);
     DeterministicProofSearch search(ordered, runner_);
     auto result = search.search(problem);
-    memory_.record_result(result);
+    if (record_results_) {
+        memory_.record_result(result);
+    }
     return result;
 }
 
