@@ -212,6 +212,54 @@ CandidateVerification target_candidate(
     };
 }
 
+bool research_action_seen(
+    const ResearchState& state,
+    ResearchAction action) {
+    return std::any_of(
+        state.history.begin(),
+        state.history.end(),
+        [&](const ResearchTransition& transition) {
+            return transition.action == action;
+        });
+}
+
+bool strategy_step_executed(
+    const ProofRoute& step,
+    const std::unordered_set<std::string>& attempted_route_ids,
+    const ResearchState& state) {
+    if (attempted_route_ids.contains(
+            step.route_id)) {
+        return true;
+    }
+
+    switch (step.kind) {
+        case ProofRouteKind::RecursiveDecomposition:
+            return research_action_seen(
+                state,
+                ResearchAction::RunLemmaFactory);
+
+        case ProofRouteKind::ImaginationCandidate:
+            return research_action_seen(
+                state,
+                ResearchAction::RunImagination);
+
+        case ProofRouteKind::IntensifyVerification:
+            // A parent retry after new verified information is the natural
+            // state-machine realization of "verify harder".
+            return research_action_seen(
+                state,
+                ResearchAction::RetryParentProof);
+
+        case ProofRouteKind::RepresentationSwitch:
+        case ProofRouteKind::CounterexampleSearch:
+        case ProofRouteKind::ReuseVerifiedTheorem:
+        case ProofRouteKind::FollowTheoremPath:
+            return false;
+    }
+
+    return false;
+}
+
 } // namespace
 
 MathResearchEngine::MathResearchEngine(
@@ -1268,8 +1316,10 @@ ResearchOutcome MathResearchEngine::run(
 
             for (const auto& step :
                  strategy.exemplar_sequence.steps) {
-                if (attempted_route_ids.contains(
-                        step.route_id)) {
+                if (strategy_step_executed(
+                        step,
+                        attempted_route_ids,
+                        outcome.final_state)) {
                     ++strategy_steps_attempted;
                 }
             }
