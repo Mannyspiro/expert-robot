@@ -114,14 +114,6 @@ void validate_llama_cli_config(
         throw std::invalid_argument(
             "math model path must be non-empty");
     }
-    if (c.json_schema_path.empty()) {
-        throw std::invalid_argument(
-            "JSON schema path must be non-empty");
-    }
-    if (c.chat_template.empty()) {
-        throw std::invalid_argument(
-            "chat template must be non-empty");
-    }
     if (c.max_tokens <= 0) {
         throw std::invalid_argument(
             "max_tokens must be positive");
@@ -216,8 +208,6 @@ TextGenerationResult LlamaCliBackend::generate(
             std::filesystem::absolute(
                 system_file).string(),
             "-st",
-            "--chat-template",
-            config_.chat_template,
             "-n",
             std::to_string(config_.max_tokens),
             "--temp",
@@ -229,15 +219,25 @@ TextGenerationResult LlamaCliBackend::generate(
             "--simple-io",
             "--no-display-prompt",
             "--no-show-timings",
+            "--offline",
             "-co",
             "off",
-            "-jf",
-            std::filesystem::absolute(
-                config_.json_schema_path).string(),
             "-o",
             std::filesystem::absolute(
                 output_file).string(),
         };
+
+        if (!config_.chat_template.empty()) {
+            args.push_back("--chat-template");
+            args.push_back(config_.chat_template);
+        }
+
+        if (!config_.json_schema_path.empty()) {
+            args.push_back("-jf");
+            args.push_back(
+                std::filesystem::absolute(
+                    config_.json_schema_path).string());
+        }
 
         std::vector<char*> argv;
         argv.reserve(args.size() + 1U);
