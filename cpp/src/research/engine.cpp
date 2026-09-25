@@ -7,6 +7,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <unordered_set>
 #include <utility>
 
 namespace expert_robot::research {
@@ -299,6 +300,10 @@ ResearchOutcome MathResearchEngine::run(
 
     std::optional<cognition::CognitionCycle>
         latest_cognition;
+    std::vector<std::string>
+        pending_preferred_strategies;
+    std::unordered_set<std::string>
+        attempted_route_ids;
 
     auto refresh_route_plan = [&](
         const imagination::ImaginationRun* imagined,
@@ -349,6 +354,51 @@ ResearchOutcome MathResearchEngine::run(
 
         for (const auto& route :
              outcome.planned_routes) {
+            if (attempted_route_ids.contains(
+                    route.route_id)) {
+                continue;
+            }
+
+            const auto hints =
+                lean_hint_tactics_for_route(
+                    route);
+
+            if (!hints.empty()) {
+                attempted_route_ids.insert(
+                    route.route_id);
+                pending_preferred_strategies =
+                    hints;
+                outcome.dispatched_route =
+                    route;
+
+                std::ostringstream payload;
+                payload
+                    << "route_id="
+                    << route.route_id
+                    << "\nkind="
+                    << proof_route_kind_name(
+                        route.kind)
+                    << "\naction="
+                    << cognition::
+                        cognitive_action_name(
+                            cognition::
+                                CognitiveAction::
+                                    ContinueCurrentRoute)
+                    << "\nhints="
+                    << hints.size()
+                    << "\nscore="
+                    << route.final_score;
+
+                (void)episode_ledger_.append(
+                    problem.episode_id,
+                    "route_dispatched",
+                    payload.str());
+
+                return cognition::
+                    CognitiveAction::
+                        ContinueCurrentRoute;
+            }
+
             const auto action =
                 executable_action_for_route(
                     route.kind);
@@ -356,6 +406,8 @@ ResearchOutcome MathResearchEngine::run(
                 continue;
             }
 
+            attempted_route_ids.insert(
+                route.route_id);
             outcome.dispatched_route = route;
 
             std::ostringstream payload;
@@ -421,7 +473,10 @@ ResearchOutcome MathResearchEngine::run(
                     formalize(
                         problem.target,
                         searcher_,
-                        helper_context);
+                        helper_context,
+                        pending_preferred_strategies);
+
+                pending_preferred_strategies.clear();
 
                 ResearchObservation observation;
                 observation.usage_delta.proof_attempts =
