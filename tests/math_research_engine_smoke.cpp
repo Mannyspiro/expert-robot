@@ -416,27 +416,25 @@ int main() {
             target.domain);
 
     assert(
-        outcome.dispatched_strategy_steps_attempted >= 1);
+        outcome.dispatched_strategy->
+            exemplar_sequence.steps.size() >= 2);
     assert(
-        outcome.dispatched_strategy_steps_attempted <=
+        outcome.dispatched_strategy_steps_attempted ==
         outcome.dispatched_strategy->
             exemplar_sequence.steps.size());
+    assert(outcome.dispatched_strategy_complete);
 
-    if (outcome.dispatched_strategy_complete) {
-        assert(strategy_experience.attempts == 1);
-        assert(
-            strategy_experience.
-                verified_progresses == 1);
-        assert(
-            strategy_experience.
-                target_verifications == 1);
-        assert(
-            strategy_experience.signature ==
-            outcome.dispatched_strategy->
-                signature);
-    } else {
-        assert(strategy_experience.attempts == 0);
-    }
+    assert(strategy_experience.attempts == 1);
+    assert(
+        strategy_experience.
+            verified_progresses == 1);
+    assert(
+        strategy_experience.
+            target_verifications == 1);
+    assert(
+        strategy_experience.signature ==
+        outcome.dispatched_strategy->
+            signature);
 
     const auto& target_node =
         graph.get(
@@ -541,13 +539,8 @@ int main() {
     assert(saw_route_sequence_outcome);
     assert(saw_strategy_top);
     assert(saw_strategy_dispatch);
-    if (outcome.dispatched_strategy_complete) {
-        assert(saw_strategy_outcome);
-        assert(!saw_strategy_partial);
-    } else {
-        assert(!saw_strategy_outcome);
-        assert(saw_strategy_partial);
-    }
+    assert(saw_strategy_outcome);
+    assert(!saw_strategy_partial);
 
     std::filesystem::remove(
         graph_file);
