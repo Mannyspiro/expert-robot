@@ -44,6 +44,7 @@ add_library(expert_robot_core STATIC
     cpp/src/research/route_planner.cpp
     cpp/src/research/route_memory.cpp
     cpp/src/research/strategy_planner.cpp
+    cpp/src/research/strategy_discovery.cpp
     cpp/src/research/engine.cpp
     cpp/src/growth/generation_lineage.cpp
     cpp/src/growth/ablation_evidence.cpp
@@ -252,3 +253,9 @@ add_executable(strategy_engine_complete_smoke
 )
 target_link_libraries(strategy_engine_complete_smoke PRIVATE expert_robot_core SQLite::SQLite3)
 add_test(NAME strategy_engine_complete_smoke COMMAND strategy_engine_complete_smoke)
+
+add_executable(strategy_discovery_smoke
+    tests/strategy_discovery_smoke.cpp
+)
+target_link_libraries(strategy_discovery_smoke PRIVATE expert_robot_core)
+add_test(NAME strategy_discovery_smoke COMMAND strategy_discovery_smoke)
