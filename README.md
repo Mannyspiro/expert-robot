@@ -12,6 +12,7 @@ Expert Robot is a local, modular AI research system designed around a thin Pytho
   - promotion/rejection decisions from measured results
 - **C++**: everything performance-critical and trusted
   - artificial interoception + software neuromodulation + personality executive
+  - recursive Lean lemma decomposition and retry
   - model adapters / inference backends
   - tool execution
   - sandbox interfaces
@@ -62,8 +63,11 @@ expert-robot/
 │   │   ├── cognition/
 │   │   │   ├── controller.hpp
 │   │   │   ├── interoception.hpp
+│   │   │   ├── lemma_factory_bridge.hpp
 │   │   │   ├── neuromodulation.hpp
 │   │   │   └── personality.hpp
+│   │   ├── formalizer.hpp
+│   │   ├── lemma_factory.hpp
 │   │   ├── protocol.hpp
 │   │   └── runtime.hpp
 │   └── src/
@@ -104,11 +108,23 @@ runtime / proof / theorem-graph telemetry
                             v
                    cognitive action
                             |
+             +--------------+--------------+
+             |                             |
+             v                             v
+       ordinary search             DECOMPOSE_PROBLEM
+             |                             |
+             |                             v
+             |                   recursive lemma factory
+             |                             |
+             |                     proven child lemmas
+             |                             |
+             +--------------+--------------+
+                            |
                             v
               math / code / research agents
-                  |
-                  v
-                 Lean
+                            |
+                            v
+                           Lean
 ```
 
 Interoception measures resource pressure, proof/search stagnation, novelty,
@@ -126,13 +142,18 @@ The integrated `CognitionController` performs the entire deterministic step:
 
 `sensors + logic -> interoception -> neuromodulation -> personality -> action`
 
+When the personality executive selects `DECOMPOSE_PROBLEM`,
+`CognitionLemmaBridge` invokes the bounded recursive lemma factory. The factory
+tries smaller helper lemmas, accepts only Lean-proven child declarations into
+the retry context, and then retries the parent theorem.
+
 These cognition modules may change **how the system searches**, but cannot
 change **what counts as verified**. Lean qualification and authority boundaries
 remain fixed.
 
 See `docs/artificial-interoception.md`,
-`docs/software-neuromodulators.md`, and
-`docs/personality-executive.md`.
+`docs/software-neuromodulators.md`, `docs/personality-executive.md`, and
+`docs/recursive-lemma-factory.md`.
 
 ## IPC
 
