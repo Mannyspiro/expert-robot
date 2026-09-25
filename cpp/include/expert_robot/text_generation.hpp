@@ -25,6 +25,13 @@ public:
 
     [[nodiscard]] virtual TextGenerationResult generate(
         const TextGenerationRequest& request) = 0;
+
+    // Direct model-loading backends are serialized by default. Backends backed
+    // by a persistent model server may override this so the supervisor can
+    // issue concurrent requests and let the server batch/queue them safely.
+    [[nodiscard]] virtual bool supports_concurrent_requests() const noexcept {
+        return false;
+    }
 };
 
 struct LlamaCliConfig {
@@ -70,6 +77,8 @@ public:
 
     [[nodiscard]] TextGenerationResult generate(
         const TextGenerationRequest& request) override;
+
+    [[nodiscard]] bool supports_concurrent_requests() const noexcept override;
 
 private:
     LlamaCliConfig config_;
