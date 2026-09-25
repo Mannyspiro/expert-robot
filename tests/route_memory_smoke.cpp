@@ -274,6 +274,61 @@ int main() {
         geometry_decomp->final_score ==
         base_decomp->final_score);
 
+    const std::string strategy_id =
+        "strategy-context-probe";
+    const std::string signature =
+        "representation_switch -> recursive_decomposition";
+
+    for (int i = 0; i < 4; ++i) {
+        memory.record_strategy_context(
+            ResearchStrategyContextOutcome{
+                .strategy_id = strategy_id,
+                .signature = signature,
+                .context_key =
+                    "domain=algebra|graph=high|uncertainty=low|repetition=low|failures=some|need=reframe",
+                .verified_progress = true,
+                .target_verified = true,
+                .dead_end_escaped = true,
+                .resource_cost = 0.20
+            });
+
+        memory.record_strategy_context(
+            ResearchStrategyContextOutcome{
+                .strategy_id = strategy_id,
+                .signature = signature,
+                .context_key =
+                    "domain=algebra|graph=low|uncertainty=high|repetition=high|failures=stuck|need=decompose",
+                .verified_progress = false,
+                .target_verified = false,
+                .dead_end_escaped = false,
+                .resource_cost = 0.80
+            });
+    }
+
+    const auto good_context =
+        memory.strategy_context_experience(
+            strategy_id,
+            "domain=algebra|graph=high|uncertainty=low|repetition=low|failures=some|need=reframe");
+    const auto bad_context =
+        memory.strategy_context_experience(
+            strategy_id,
+            "domain=algebra|graph=low|uncertainty=high|repetition=high|failures=stuck|need=decompose");
+
+    assert(good_context.attempts == 4);
+    assert(bad_context.attempts == 4);
+    assert(good_context.target_verifications == 4);
+    assert(bad_context.target_verifications == 0);
+    assert(
+        good_context.smoothed_verified_rate() >
+        bad_context.smoothed_verified_rate());
+    assert(
+        good_context.average_resource_cost() <
+        bad_context.average_resource_cost());
+
+    const auto all_context =
+        memory.all_strategy_context_experience();
+    assert(all_context.size() == 2);
+
     bool invalid_rejected = false;
     try {
         memory.record(
@@ -301,6 +356,20 @@ int main() {
         invalid_sequence_rejected = true;
     }
     assert(invalid_sequence_rejected);
+
+    bool invalid_context_rejected = false;
+    try {
+        memory.record_strategy_context(
+            ResearchStrategyContextOutcome{
+                .strategy_id = "bad-context",
+                .signature = "x",
+                .context_key = "",
+                .resource_cost = 0.0
+            });
+    } catch (const std::invalid_argument&) {
+        invalid_context_rejected = true;
+    }
+    assert(invalid_context_rejected);
 
     std::filesystem::remove(db);
     return 0;
