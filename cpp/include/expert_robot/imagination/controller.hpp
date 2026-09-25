@@ -3,6 +3,7 @@
 #include "expert_robot/cognition/controller.hpp"
 #include "expert_robot/imagination/archive.hpp"
 #include "expert_robot/knowledge_graph.hpp"
+#include "expert_robot/skills/math_skill.hpp"
 #include "expert_robot/swarm/supervisor.hpp"
 
 #include <cstddef>
@@ -52,7 +53,9 @@ public:
     ImaginationController(
         swarm::SwarmSupervisor& swarm,
         ImaginationConfig config = {},
-        const KnowledgeGraph* theorem_graph = nullptr);
+        const KnowledgeGraph* theorem_graph = nullptr,
+        skills::MathSkillCatalog skill_catalog =
+            skills::MathSkillCatalog::builtins());
 
     [[nodiscard]] ImaginationRun run(
         const ImaginationRequest& request);
@@ -74,6 +77,7 @@ private:
     ImaginationConfig config_;
     const KnowledgeGraph* theorem_graph_{nullptr};
     QualityDiversityArchive archive_;
+    skills::MathSkillCatalog skills_;
 };
 
 } // namespace expert_robot::imagination
