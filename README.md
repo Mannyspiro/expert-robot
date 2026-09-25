@@ -271,6 +271,38 @@ The engine also includes:
 
 See `docs/research-engine.md`.
 
+## Compute ladder and cheap preflight
+
+Expert Robot uses a fail-fast compute ladder so expensive qualification runners
+are reserved for work that already passed cheaper checks:
+
+```text
+L0 local/static
+ -> L1 railway.new free VM
+ -> L2 Railway sandbox/checkpoint/fork
+ -> L3 Avrea 8-vCPU CI
+ -> L4 Avrea 32-vCPU manual qualification
+ -> Lean evidence + repository CI + authority/promotion gate
+```
+
+Railway preflight can reject a candidate, but a pass never grants qualification
+or authority. The machine-readable contract is
+`config/compute_policy.json` and CI enforces its authority boundaries with
+`tests/compute_policy_smoke.py`.
+
+On a Railway free VM:
+
+```bash
+ssh railway.new
+git clone https://github.com/Mannyspiro/expert-robot.git
+cd expert-robot
+git checkout feat/reuse-refactored-fishstick
+bash ./scripts/railway-preflight.sh --bootstrap
+```
+
+The 2 GB worker defaults to one build job and sequential focused tests. See
+`docs/railway-free-worker.md` for the operating model.
+
 ## IPC
 
 Python and C++ communicate over newline-delimited JSON on stdin/stdout.
