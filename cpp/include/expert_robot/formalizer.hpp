@@ -54,6 +54,7 @@ void validate_formalization_proposal(FormalizationProposal& proposal);
 [[nodiscard]] FormalizationResult formalize(
     FormalizationProposal proposal,
     IProofSearcher& searcher,
-    const std::vector<std::string>& context_declarations = {});
+    const std::vector<std::string>& context_declarations = {},
+    const std::vector<std::string>& preferred_strategies = {});
 
 } // namespace expert_robot
