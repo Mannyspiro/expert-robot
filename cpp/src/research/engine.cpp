@@ -438,6 +438,184 @@ ResearchOutcome MathResearchEngine::run(
     std::unordered_set<std::string>
         attempted_route_ids;
 
+    struct PendingStrategyStep {
+        ResearchStrategyPlan strategy;
+        ProofRoute route;
+        std::size_t step_index{0};
+        ResearchUsage usage_before;
+        std::size_t verified_helpers_before{0};
+        bool target_proven_before{false};
+    };
+
+    std::optional<PendingStrategyStep>
+        pending_strategy_step;
+
+    const auto target_proven_now = [&]() {
+        return
+            outcome.target_verified ||
+            (outcome.target_result.has_value() &&
+             outcome.target_result->proven());
+    };
+
+    const auto settle_pending_strategy_step = [&]() {
+        if (!pending_strategy_step.has_value()) {
+            return;
+        }
+
+        const auto pending =
+            *pending_strategy_step;
+        const auto& after =
+            machine.state().usage;
+        const auto& before =
+            pending.usage_before;
+
+        const auto delta = [](
+            std::size_t newer,
+            std::size_t older) {
+            return newer >= older
+                ? newer - older
+                : 0U;
+        };
+
+        const auto proof_attempts =
+            delta(
+                after.proof_attempts,
+                before.proof_attempts);
+        const auto model_calls =
+            delta(
+                after.model_calls,
+                before.model_calls);
+        const auto generated_ideas =
+            delta(
+                after.generated_ideas,
+                before.generated_ideas);
+        const auto generated_lemmas =
+            delta(
+                after.generated_lemmas,
+                before.generated_lemmas);
+
+        const auto ratio = [](
+            std::size_t used,
+            std::size_t maximum) {
+            if (maximum == 0U) return 1.0;
+            return std::min(
+                1.0,
+                static_cast<double>(used) /
+                    static_cast<double>(maximum));
+        };
+
+        const double resource_cost =
+            0.25 * (
+                ratio(
+                    model_calls,
+                    config_.budget.max_model_calls) +
+                ratio(
+                    proof_attempts,
+                    config_.budget.max_proof_attempts) +
+                ratio(
+                    generated_ideas,
+                    config_.budget.max_generated_ideas) +
+                ratio(
+                    generated_lemmas,
+                    config_.budget.max_generated_lemmas));
+
+        const bool target_after =
+            target_proven_now();
+        const bool target_gain =
+            target_after &&
+            !pending.target_proven_before;
+        const bool helper_gain =
+            verified_helpers.size() >
+            pending.verified_helpers_before;
+        const bool verified_progress =
+            target_gain ||
+            helper_gain;
+
+        ResearchStrategyStepOutcome step{
+            .strategy_id =
+                pending.strategy.strategy_id,
+            .signature =
+                pending.strategy.signature,
+            .domain =
+                problem.target.domain,
+            .context_key =
+                pending.strategy.context_key,
+            .step_index =
+                pending.step_index,
+            .kind =
+                pending.route.kind,
+            .route_id =
+                pending.route.route_id,
+            .verified_progress =
+                verified_progress,
+            .target_verified =
+                target_gain,
+            .dead_end_escaped =
+                verified_progress,
+            .resource_cost =
+                resource_cost,
+            .proof_attempts =
+                static_cast<long long>(
+                    proof_attempts),
+            .model_calls =
+                static_cast<long long>(
+                    model_calls),
+            .generated_ideas =
+                static_cast<long long>(
+                    generated_ideas),
+            .generated_lemmas =
+                static_cast<long long>(
+                    generated_lemmas),
+        };
+
+        outcome.strategy_step_outcomes.
+            push_back(step);
+
+        if (config_.learning_writes &&
+            config_.features.strategy_memory &&
+            route_memory_ != nullptr) {
+            route_memory_->record_strategy_step(
+                step);
+        }
+
+        std::ostringstream payload;
+        payload
+            << "strategy_id="
+            << step.strategy_id
+            << "\nstep_index="
+            << step.step_index
+            << "\nroute_id="
+            << step.route_id
+            << "\nkind="
+            << proof_route_kind_name(
+                step.kind)
+            << "\nverified_progress="
+            << (step.verified_progress
+                    ? "true"
+                    : "false")
+            << "\ntarget_verified="
+            << (step.target_verified
+                    ? "true"
+                    : "false")
+            << "\nproof_attempts="
+            << step.proof_attempts
+            << "\nmodel_calls="
+            << step.model_calls
+            << "\ngenerated_ideas="
+            << step.generated_ideas
+            << "\ngenerated_lemmas="
+            << step.generated_lemmas
+            << "\nresource_cost="
+            << step.resource_cost;
+
+        (void)episode_ledger_.append(
+            problem.episode_id,
+            "research_strategy_step_outcome",
+            payload.str());
+
+        pending_strategy_step.reset();
+    };
+
     auto refresh_route_plan = [&](
         const imagination::ImaginationRun* imagined,
         bool select_for_dispatch)
@@ -446,6 +624,10 @@ ResearchOutcome MathResearchEngine::run(
             route_planner_ == nullptr ||
             !latest_cognition) {
             return std::nullopt;
+        }
+
+        if (select_for_dispatch) {
+            settle_pending_strategy_step();
         }
 
         outcome.planned_routes =
@@ -679,6 +861,33 @@ ResearchOutcome MathResearchEngine::run(
                     if (candidate.strategy != nullptr) {
                         outcome.dispatched_strategy =
                             *candidate.strategy;
+
+                        const auto& steps =
+                            candidate.strategy->
+                                exemplar_sequence.steps;
+                        for (std::size_t i = 0U;
+                             i < steps.size();
+                             ++i) {
+                            if (steps[i].route_id ==
+                                route.route_id) {
+                                pending_strategy_step =
+                                    PendingStrategyStep{
+                                        .strategy =
+                                            *candidate.strategy,
+                                        .route =
+                                            route,
+                                        .step_index =
+                                            i,
+                                        .usage_before =
+                                            machine.state().usage,
+                                        .verified_helpers_before =
+                                            verified_helpers.size(),
+                                        .target_proven_before =
+                                            target_proven_now(),
+                                    };
+                                break;
+                            }
+                        }
                     } else {
                         outcome.dispatched_strategy.reset();
                     }
@@ -1326,6 +1535,8 @@ ResearchOutcome MathResearchEngine::run(
 
     outcome.final_state =
         machine.state();
+
+    settle_pending_strategy_step();
 
     if (!outcome.final_state.completed &&
         !outcome.final_state.exhausted) {
