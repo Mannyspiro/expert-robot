@@ -346,8 +346,11 @@ ProofRoutePlanner::policy_routes(
             ProofRoute{
                 .kind =
                     ProofRouteKind::RecursiveDecomposition,
+                .route_id = "",
                 .description =
                     "Decompose the target into smaller Lean-verifiable helper lemmas and retry the parent.",
+                .theorem_path = {},
+                .supporting_relations = {},
                 .evidence_score = 0.65,
                 .novelty_score = 0.35,
                 .information_gain_score =
@@ -375,8 +378,11 @@ ProofRoutePlanner::policy_routes(
             ProofRoute{
                 .kind =
                     ProofRouteKind::RepresentationSwitch,
+                .route_id = "",
                 .description =
                     "Translate the target into a different mathematical representation and search for a simpler invariant.",
+                .theorem_path = {},
+                .supporting_relations = {},
                 .evidence_score = 0.45,
                 .novelty_score = 0.80,
                 .information_gain_score =
@@ -406,8 +412,11 @@ ProofRoutePlanner::policy_routes(
             ProofRoute{
                 .kind =
                     ProofRouteKind::CounterexampleSearch,
+                .route_id = "",
                 .description =
                     "Try to falsify the target or isolate missing hypotheses before spending more proof compute.",
+                .theorem_path = {},
+                .supporting_relations = {},
                 .evidence_score =
                     clamp01(
                         0.45 +
@@ -438,8 +447,11 @@ ProofRoutePlanner::policy_routes(
             ProofRoute{
                 .kind =
                     ProofRouteKind::IntensifyVerification,
+                .route_id = "",
                 .description =
                     "Spend compute on direct formal checking, assumption auditing, and proof replay before branching further.",
+                .theorem_path = {},
+                .supporting_relations = {},
                 .evidence_score =
                     clamp01(
                         0.60 +
