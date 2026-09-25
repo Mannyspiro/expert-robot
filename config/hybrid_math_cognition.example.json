@@ -22,7 +22,8 @@
     "max_expensive_candidates": 3,
     "archive_capacity_per_lens": 2,
     "minimum_imagination_drive": 0.18,
-    "maximum_skeptic_risk": 65
+    "maximum_skeptic_risk": 65,
+    "memory_path": "state/imagination.sqlite3"
   },
   "swarm": {
     "max_parallel_agents": 4,
