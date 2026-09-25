@@ -194,8 +194,14 @@ batching/parallel decoding.
 
 Only loopback endpoints are accepted by Expert Robot.
 
-Shared one-shot backends can also be serialized so multiple logical agents do
-not accidentally load duplicate copies of the same GGUF concurrently.
+Shared direct-model backends are serialized by default so multiple logical
+agents do not accidentally load duplicate copies of the same GGUF concurrently.
+
+Backends connected to a persistent loopback `llama-server` explicitly advertise
+concurrent-request support. The swarm supervisor then permits concurrent logical
+agents against that one resident model, still bounded by
+`max_parallel_agents`, so llama.cpp can batch/queue work without duplicating
+model weights.
 
 ## Structured lemma generation
 
