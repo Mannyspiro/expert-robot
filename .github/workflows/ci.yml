@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   build-and-smoke:
-    runs-on: ubuntu-latest
+    runs-on: avrea-ubuntu-latest-8-vcpu
 
     steps:
       - uses: actions/checkout@v4
@@ -47,6 +47,10 @@ jobs:
           CTEST_PARALLEL_LEVEL: ${{ steps.cores.outputs.jobs }}
         run: |
           ctest             --test-dir build             --parallel "${CTEST_PARALLEL_LEVEL}"             --output-on-failure
+
+      - name: ccache stats
+        if: always()
+        run: ccache --show-stats || true
 
       - name: Independent smoke tests
         shell: bash
