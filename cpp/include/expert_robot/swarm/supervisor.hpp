@@ -19,6 +19,7 @@ struct SwarmLimits {
     std::size_t max_total_tasks{16};
     std::size_t max_depth{3};
     std::size_t max_children_per_parent{6};
+    bool serialize_shared_backend{true};
 };
 
 void validate_swarm_limits(const SwarmLimits& limits);
