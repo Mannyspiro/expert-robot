@@ -39,6 +39,33 @@ struct RouteExperience {
     [[nodiscard]] double average_resource_cost() const noexcept;
 };
 
+struct RouteSequenceOutcome {
+    std::string sequence_id;
+    std::string domain;
+
+    bool verified_progress{false};
+    bool target_verified{false};
+    bool dead_end_escaped{false};
+
+    double resource_cost{0.0};
+};
+
+struct RouteSequenceExperience {
+    std::string sequence_id;
+    std::string domain;
+
+    long long attempts{0};
+    long long verified_progresses{0};
+    long long target_verifications{0};
+    long long dead_end_escapes{0};
+
+    double total_resource_cost{0.0};
+
+    [[nodiscard]] double smoothed_verified_rate() const noexcept;
+    [[nodiscard]] double smoothed_target_rate() const noexcept;
+    [[nodiscard]] double average_resource_cost() const noexcept;
+};
+
 class RouteOutcomeLedger {
 public:
     explicit RouteOutcomeLedger(
@@ -51,12 +78,20 @@ public:
         const RouteOutcomeLedger&) = delete;
 
     void record(const RouteOutcome& outcome);
+    void record_sequence(const RouteSequenceOutcome& outcome);
 
     [[nodiscard]] RouteExperience experience(
         ProofRouteKind kind,
         std::string_view domain) const;
 
     [[nodiscard]] std::vector<RouteExperience> all_experience() const;
+
+    [[nodiscard]] RouteSequenceExperience sequence_experience(
+        std::string_view sequence_id,
+        std::string_view domain) const;
+
+    [[nodiscard]] std::vector<RouteSequenceExperience>
+    all_sequence_experience() const;
 
 private:
     void initialize();
