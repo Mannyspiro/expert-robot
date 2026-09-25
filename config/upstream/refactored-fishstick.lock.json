@@ -27,6 +27,8 @@
     "math_ai/src/math_ai/capabilities.py -> cpp/include/expert_robot/capabilities.hpp + cpp/src/capabilities.cpp",
     "math_ai/src/math_ai/proof_search.py -> cpp/include/expert_robot/proof_search.hpp + cpp/src/proof_search.cpp",
     "math_ai/src/math_ai/proof_memory.py -> cpp/include/expert_robot/proof_memory.hpp + cpp/src/proof_memory.cpp",
-    "math_ai/src/math_ai/knowledge.py -> cpp/include/expert_robot/knowledge_graph.hpp + cpp/src/knowledge_graph.cpp"
+    "math_ai/src/math_ai/knowledge.py -> cpp/include/expert_robot/knowledge_graph.hpp + cpp/src/knowledge_graph.cpp",
+    "math_ai/src/math_ai/formalizer.py -> cpp/include/expert_robot/formalizer.hpp + cpp/src/formalizer.cpp",
+    "math_ai/src/math_ai/lemma_factory.py -> cpp/include/expert_robot/lemma_factory.hpp + cpp/src/lemma_factory.cpp"
   ]
 }
