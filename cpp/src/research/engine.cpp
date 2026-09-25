@@ -1,6 +1,7 @@
 #include "expert_robot/research/engine.hpp"
 
 #include "expert_robot/sha256.hpp"
+#include "expert_robot/research/strategy_discovery.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -1442,6 +1443,56 @@ ResearchOutcome MathResearchEngine::run(
                     ? "research_strategy_outcome"
                     : "research_strategy_partial",
                 strategy_payload.str());
+        }
+
+        if (outcome.target_verified) {
+            const auto discovered =
+                discover_research_strategy(
+                    outcome.final_state,
+                    3);
+
+            if (discovered.has_value()) {
+                const bool already_credited =
+                    outcome.dispatched_strategy.has_value() &&
+                    strategy_completed &&
+                    outcome.dispatched_strategy->
+                        strategy_id ==
+                        discovered->strategy_id;
+
+                if (!already_credited) {
+                    route_memory_->record_strategy(
+                        ResearchStrategyOutcome{
+                            .strategy_id =
+                                discovered->strategy_id,
+                            .signature =
+                                discovered->signature,
+                            .domain =
+                                problem.target.domain,
+                            .verified_progress = true,
+                            .target_verified = true,
+                            .dead_end_escaped = true,
+                            .resource_cost =
+                                resource_cost,
+                        });
+
+                    std::ostringstream discovered_payload;
+                    discovered_payload
+                        << "strategy_id="
+                        << discovered->strategy_id
+                        << "\nsignature="
+                        << discovered->signature
+                        << "\ntitle="
+                        << discovered->title
+                        << "\nsource=observed_successful_trajectory"
+                        << "\nresource_cost="
+                        << resource_cost;
+
+                    (void)episode_ledger_.append(
+                        problem.episode_id,
+                        "research_strategy_discovered",
+                        discovered_payload.str());
+                }
+            }
         }
     }
 
