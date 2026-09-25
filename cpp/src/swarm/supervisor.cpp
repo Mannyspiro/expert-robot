@@ -143,7 +143,9 @@ std::vector<AgentResult> SwarmSupervisor::run_batch(
                 std::async(
                     std::launch::async,
                     [task, backend, backend_lock,
-                     serialize = limits_.serialize_shared_backend]() {
+                     serialize =
+                         limits_.serialize_shared_backend &&
+                         !backend->supports_concurrent_requests()]() {
                         if (serialize) {
                             std::scoped_lock lock(*backend_lock);
                             ModelAgent agent(
