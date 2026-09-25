@@ -32,6 +32,10 @@ struct LlamaCliConfig {
     std::filesystem::path model_path;
     std::filesystem::path json_schema_path;
 
+    // Optional persistent local llama-server. When set, llama-cli connects to
+    // this endpoint and does not reload model weights for every agent call.
+    // Only loopback HTTP endpoints are accepted.
+    std::string server_base;
     std::string chat_template;
 
     int max_tokens{1024};
