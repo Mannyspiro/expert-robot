@@ -10,6 +10,7 @@
 #include "expert_robot/research/route_memory.hpp"
 #include "expert_robot/research/route_planner.hpp"
 #include "expert_robot/research/state_machine.hpp"
+#include "expert_robot/research/strategy_planner.hpp"
 #include "expert_robot/skills/skill_ledger.hpp"
 
 #include <cstddef>
@@ -50,6 +51,8 @@ struct ResearchOutcome {
     std::optional<imagination::ImaginationRun> last_imagination;
     std::vector<ProofRoute> planned_routes;
     std::vector<ProofRouteSequence> planned_sequences;
+    std::vector<ResearchStrategyPlan> planned_strategies;
+    std::optional<ResearchStrategyPlan> dispatched_strategy;
     std::optional<ProofRouteSequence> dispatched_sequence;
     std::optional<ProofRoute> dispatched_route;
 
@@ -69,7 +72,8 @@ public:
         MathResearchEngineConfig config = {},
         ProofRoutePlanner* route_planner = nullptr,
         RouteOutcomeLedger* route_memory = nullptr,
-        skills::SkillLedger* skill_ledger = nullptr);
+        skills::SkillLedger* skill_ledger = nullptr,
+        ResearchStrategyPlanner* strategy_planner = nullptr);
 
     [[nodiscard]] ResearchOutcome run(
         ResearchProblem problem);
@@ -86,6 +90,7 @@ private:
     ProofRoutePlanner* route_planner_{nullptr};
     RouteOutcomeLedger* route_memory_{nullptr};
     skills::SkillLedger* skill_ledger_{nullptr};
+    ResearchStrategyPlanner* strategy_planner_{nullptr};
 };
 
 } // namespace expert_robot::research
