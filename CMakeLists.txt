@@ -192,3 +192,9 @@ add_executable(route_memory_smoke
 )
 target_link_libraries(route_memory_smoke PRIVATE expert_robot_core SQLite::SQLite3)
 add_test(NAME route_memory_smoke COMMAND route_memory_smoke)
+
+add_executable(theorem_hint_smoke
+    tests/theorem_hint_smoke.cpp
+)
+target_link_libraries(theorem_hint_smoke PRIVATE expert_robot_core)
+add_test(NAME theorem_hint_smoke COMMAND theorem_hint_smoke)
