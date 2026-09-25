@@ -50,6 +50,9 @@ struct RoutePlannerConfig {
     std::size_t max_imagination_routes{3};
     std::size_t max_output_routes{8};
 
+    std::size_t max_sequence_length{3};
+    std::size_t max_route_sequences{6};
+
     double evidence_weight{0.24};
     double novelty_weight{0.16};
     double information_gain_weight{0.18};
@@ -61,6 +64,16 @@ struct RoutePlannerConfig {
     // domain-specific outcomes exist and can never exceed this contribution.
     double route_experience_weight{0.12};
     long long minimum_experience_attempts{3};
+
+    double sequence_synergy_weight{0.16};
+};
+
+struct ProofRouteSequence {
+    std::string sequence_id;
+    std::vector<ProofRoute> steps;
+    double average_route_score{0.0};
+    double synergy_score{0.0};
+    double final_score{0.0};
 };
 
 struct RoutePlanningRequest {
@@ -96,6 +109,9 @@ public:
 
     [[nodiscard]] std::vector<ProofRoute> plan(
         const RoutePlanningRequest& request) const;
+
+    [[nodiscard]] std::vector<ProofRouteSequence> compose(
+        const std::vector<ProofRoute>& routes) const;
 
 private:
     [[nodiscard]] std::vector<ProofRoute> graph_routes(
