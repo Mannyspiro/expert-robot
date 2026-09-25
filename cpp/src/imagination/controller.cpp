@@ -223,13 +223,21 @@ ImaginationController::ImaginationController(
     swarm::SwarmSupervisor& swarm,
     ImaginationConfig config,
     const KnowledgeGraph* theorem_graph,
-    skills::MathSkillCatalog skill_catalog)
+    skills::MathSkillCatalog skill_catalog,
+    ImaginationMemory* memory)
     : swarm_(swarm),
       config_(config),
       theorem_graph_(theorem_graph),
       archive_(config.archive_capacity_per_lens),
-      skills_(std::move(skill_catalog)) {
+      skills_(std::move(skill_catalog)),
+      memory_(memory) {
     validate_imagination_config(config_);
+
+    if (memory_ != nullptr) {
+        for (auto idea : memory_->all()) {
+            archive_.insert(std::move(idea));
+        }
+    }
 }
 
 const QualityDiversityArchive&
@@ -519,6 +527,9 @@ ImaginationRun ImaginationController::run(
 
         batch_texts.push_back(text);
         archive_.insert(idea);
+        if (memory_ != nullptr) {
+            memory_->upsert(idea);
+        }
         run.generated.push_back(std::move(idea));
     }
 
@@ -589,6 +600,9 @@ ImaginationRun ImaginationController::run(
         idea.skeptic_critique = verdict.critique;
 
         archive_.insert(idea);
+        if (memory_ != nullptr) {
+            memory_->upsert(idea);
+        }
     }
 
     for (const auto& idea : run.generated) {
