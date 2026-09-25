@@ -210,3 +210,9 @@ set_tests_properties(
     PROPERTIES
         WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
 )
+
+add_executable(skill_feedback_smoke
+    tests/skill_feedback_smoke.cpp
+)
+target_link_libraries(skill_feedback_smoke PRIVATE expert_robot_core SQLite::SQLite3)
+add_test(NAME skill_feedback_smoke COMMAND skill_feedback_smoke)
