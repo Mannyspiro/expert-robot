@@ -584,17 +584,70 @@ ImaginationController::augmented_context(
     if (theorem_graph_ != nullptr &&
         !request.focus_theorem.empty()) {
         try {
-            const auto paths =
+            auto paths =
                 theorem_graph_->bounded_paths(
                     request.focus_theorem,
                     config_.theorem_graph_max_depth,
                     config_.theorem_graph_max_paths);
 
+            const auto terminal_verified =
+                [&](const TheoremPath& path) {
+                    if (path.nodes.empty()) return false;
+                    try {
+                        return theorem_graph_->
+                            get(path.nodes.back()).status ==
+                            "verified";
+                    } catch (...) {
+                        return false;
+                    }
+                };
+
+            std::stable_sort(
+                paths.begin(),
+                paths.end(),
+                [&](const TheoremPath& a,
+                    const TheoremPath& b) {
+                    const bool a_verified =
+                        terminal_verified(a);
+                    const bool b_verified =
+                        terminal_verified(b);
+
+                    if (a_verified != b_verified) {
+                        return a_verified > b_verified;
+                    }
+                    if (a.depth() != b.depth()) {
+                        return a.depth() < b.depth();
+                    }
+                    return a.nodes < b.nodes;
+                });
+
             for (const auto& path : paths) {
                 if (path.nodes.size() < 2U) continue;
 
+                bool verified = false;
+                std::string statement;
+                std::string domain = "unknown";
+
+                try {
+                    const auto& terminal =
+                        theorem_graph_->get(
+                            path.nodes.back());
+                    verified =
+                        terminal.status == "verified";
+                    statement =
+                        terminal.statement;
+                    domain =
+                        terminal.domain;
+                } catch (...) {
+                    verified = false;
+                }
+
                 std::ostringstream path_text;
-                path_text << "theorem_graph_path: ";
+                path_text
+                    << (verified
+                            ? "verified_theorem_graph_path: "
+                            : "unverified_theorem_graph_path: ");
+
                 for (std::size_t i = 0;
                      i < path.relations.size();
                      ++i) {
@@ -603,27 +656,26 @@ ImaginationController::augmented_context(
                         << path.nodes[i]
                         << " -[" << path.relations[i] << "]-> ";
                 }
+
                 path_text << path.nodes.back();
 
-                try {
-                    const auto& terminal =
-                        theorem_graph_->get(
-                            path.nodes.back());
-                    if (!terminal.statement.empty()) {
-                        path_text
-                            << " :: "
-                            << terminal.statement;
-                    }
-                    if (!terminal.domain.empty()) {
-                        path_text
-                            << " [domain="
-                            << terminal.domain
-                            << "]";
-                    }
-                } catch (...) {
-                    // A path remains useful even if the terminal statement
-                    // cannot be retrieved.
+                if (!statement.empty()) {
+                    path_text
+                        << " :: "
+                        << statement;
                 }
+
+                path_text
+                    << " [domain="
+                    << domain
+                    << "; trust="
+                    << (verified
+                            ? "verified"
+                            : "unverified_candidate")
+                    << (verified
+                            ? ""
+                            : "; inspiration_only=true")
+                    << "]";
 
                 context.push_back(
                     path_text.str());
