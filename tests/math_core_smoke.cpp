@@ -3,6 +3,7 @@
 #include "expert_robot/proof_search.hpp"
 #include "expert_robot/sha256.hpp"
 
+#include <algorithm>
 #include <cassert>
 #include <chrono>
 #include <filesystem>
@@ -112,7 +113,7 @@ int main() {
     graph.sync_formal_registry(
         "formal/theorem_registry.json");
 
-    assert(graph.nodes().size() == 4);
+    assert(graph.nodes().size() == 15);
     assert(
         graph.get(
             "MathAI.Trust.add_zero_verified").status ==
@@ -129,6 +130,40 @@ int main() {
         graph.get(
             "MathAI.Geometry.unit_x_on_unit_sphere").status ==
         "verified");
+
+    const auto& dot_comm =
+        graph.get(
+            "MathAI.Geometry.dot_comm");
+    assert(dot_comm.status == "verified");
+    assert(dot_comm.domain == "geometry");
+    assert(
+        dot_comm.statement.find(
+            "dot product is symmetric") !=
+        std::string::npos);
+    assert(
+        std::find(
+            dot_comm.tags.begin(),
+            dot_comm.tags.end(),
+            "lean_verified") !=
+        dot_comm.tags.end());
+
+    const auto orthogonal_uses =
+        graph.related(
+            "MathAI.Geometry.orthogonal_symm",
+            "USES");
+    assert(orthogonal_uses.size() == 1);
+    assert(
+        orthogonal_uses.front().target ==
+        "MathAI.Geometry.dot_comm");
+
+    const auto zero_left_uses =
+        graph.related(
+            "MathAI.Geometry.zero_orthogonal_left",
+            "USES");
+    assert(zero_left_uses.size() == 1);
+    assert(
+        zero_left_uses.front().target ==
+        "MathAI.Geometry.dot_zero_left");
 
     return 0;
 }
