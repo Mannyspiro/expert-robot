@@ -1227,8 +1227,7 @@ ResearchOutcome MathResearchEngine::run(
             "research engine exceeded dispatch-step guard before terminal state");
     }
 
-    if (route_memory_ != nullptr &&
-        outcome.dispatched_route.has_value()) {
+    if (route_memory_ != nullptr) {
         const auto& usage =
             outcome.final_state.usage;
         const auto& budget =
@@ -1277,25 +1276,27 @@ ResearchOutcome MathResearchEngine::run(
             outcome.target_verified ||
             helper_verified;
 
-        route_memory_->record(
-            RouteOutcome{
-                .route_id =
-                    outcome.dispatched_route->
-                        route_id,
-                .kind =
-                    outcome.dispatched_route->
-                        kind,
-                .domain =
-                    problem.target.domain,
-                .verified_progress =
-                    verified_progress,
-                .target_verified =
-                    outcome.target_verified,
-                .dead_end_escaped =
-                    verified_progress,
-                .resource_cost =
-                    resource_cost,
-            });
+        if (outcome.dispatched_route.has_value()) {
+            route_memory_->record(
+                RouteOutcome{
+                    .route_id =
+                        outcome.dispatched_route->
+                            route_id,
+                    .kind =
+                        outcome.dispatched_route->
+                            kind,
+                    .domain =
+                        problem.target.domain,
+                    .verified_progress =
+                        verified_progress,
+                    .target_verified =
+                        outcome.target_verified,
+                    .dead_end_escaped =
+                        verified_progress,
+                    .resource_cost =
+                        resource_cost,
+                });
+        }
 
         if (outcome.dispatched_sequence.has_value()) {
             route_memory_->record_sequence(
@@ -1364,26 +1365,28 @@ ResearchOutcome MathResearchEngine::run(
             }
         }
 
-        std::ostringstream payload;
-        payload
-            << "route_id="
-            << outcome.dispatched_route->
-                route_id
-            << "\nverified_progress="
-            << (verified_progress
-                    ? "true"
-                    : "false")
-            << "\ntarget_verified="
-            << (outcome.target_verified
-                    ? "true"
-                    : "false")
-            << "\nresource_cost="
-            << resource_cost;
+        if (outcome.dispatched_route.has_value()) {
+            std::ostringstream payload;
+            payload
+                << "route_id="
+                << outcome.dispatched_route->
+                    route_id
+                << "\nverified_progress="
+                << (verified_progress
+                        ? "true"
+                        : "false")
+                << "\ntarget_verified="
+                << (outcome.target_verified
+                        ? "true"
+                        : "false")
+                << "\nresource_cost="
+                << resource_cost;
 
-        (void)episode_ledger_.append(
-            problem.episode_id,
-            "route_outcome",
-            payload.str());
+            (void)episode_ledger_.append(
+                problem.episode_id,
+                "route_outcome",
+                payload.str());
+        }
 
         if (outcome.dispatched_sequence.has_value()) {
             std::ostringstream sequence_payload;
