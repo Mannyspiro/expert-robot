@@ -432,21 +432,49 @@ ResearchOutcome MathResearchEngine::run(
             return std::nullopt;
         }
 
-        std::vector<const ProofRoute*>
+        struct DispatchCandidate {
+            const ProofRoute* route{nullptr};
+            const ProofRouteSequence* sequence{nullptr};
+            const ResearchStrategyPlan* strategy{nullptr};
+        };
+
+        std::vector<DispatchCandidate>
             dispatch_candidates;
         std::unordered_set<std::string>
             queued_route_ids;
 
-        if (!outcome.planned_sequences.empty()) {
-            const auto& top_sequence =
-                outcome.planned_sequences.front();
+        if (!outcome.planned_strategies.empty()) {
+            const auto& strategy =
+                outcome.planned_strategies.front();
+            const auto& sequence =
+                strategy.exemplar_sequence;
 
             for (const auto& route :
-                 top_sequence.steps) {
+                 sequence.steps) {
                 if (queued_route_ids.insert(
                         route.route_id).second) {
                     dispatch_candidates.push_back(
-                        &route);
+                        DispatchCandidate{
+                            .route = &route,
+                            .sequence = &sequence,
+                            .strategy = &strategy,
+                        });
+                }
+            }
+        } else if (!outcome.planned_sequences.empty()) {
+            const auto& sequence =
+                outcome.planned_sequences.front();
+
+            for (const auto& route :
+                 sequence.steps) {
+                if (queued_route_ids.insert(
+                        route.route_id).second) {
+                    dispatch_candidates.push_back(
+                        DispatchCandidate{
+                            .route = &route,
+                            .sequence = &sequence,
+                            .strategy = nullptr,
+                        });
                 }
             }
         }
@@ -456,18 +484,22 @@ ResearchOutcome MathResearchEngine::run(
             if (queued_route_ids.insert(
                     route.route_id).second) {
                 dispatch_candidates.push_back(
-                    &route);
+                    DispatchCandidate{
+                        .route = &route,
+                        .sequence = nullptr,
+                        .strategy = nullptr,
+                    });
             }
         }
 
-        for (const auto* route_ptr :
+        for (const auto& candidate :
              dispatch_candidates) {
-            if (route_ptr == nullptr) {
+            if (candidate.route == nullptr) {
                 continue;
             }
 
             const auto& route =
-                *route_ptr;
+                *candidate.route;
 
             if (attempted_route_ids.contains(
                     route.route_id)) {
@@ -478,18 +510,32 @@ ResearchOutcome MathResearchEngine::run(
                 lean_hint_tactics_for_route(
                     route);
 
+            const auto remember_dispatch =
+                [&]() {
+                    attempted_route_ids.insert(
+                        route.route_id);
+                    outcome.dispatched_route =
+                        route;
+
+                    if (candidate.sequence != nullptr) {
+                        outcome.dispatched_sequence =
+                            *candidate.sequence;
+                    } else {
+                        outcome.dispatched_sequence.reset();
+                    }
+
+                    if (candidate.strategy != nullptr) {
+                        outcome.dispatched_strategy =
+                            *candidate.strategy;
+                    } else {
+                        outcome.dispatched_strategy.reset();
+                    }
+                };
+
             if (!hints.empty()) {
-                attempted_route_ids.insert(
-                    route.route_id);
+                remember_dispatch();
                 pending_preferred_strategies =
                     hints;
-                outcome.dispatched_route =
-                    route;
-
-                if (!outcome.planned_sequences.empty()) {
-                    outcome.dispatched_sequence =
-                        outcome.planned_sequences.front();
-                }
 
                 std::ostringstream payload;
                 payload
@@ -516,6 +562,21 @@ ResearchOutcome MathResearchEngine::run(
                             sequence_id;
                 }
 
+                if (outcome.dispatched_strategy) {
+                    payload
+                        << "\nstrategy_id="
+                        << outcome.dispatched_strategy->
+                            strategy_id
+                        << "\nstrategy_signature="
+                        << outcome.dispatched_strategy->
+                            signature;
+
+                    (void)episode_ledger_.append(
+                        problem.episode_id,
+                        "research_strategy_dispatched",
+                        payload.str());
+                }
+
                 (void)episode_ledger_.append(
                     problem.episode_id,
                     "route_dispatched",
@@ -533,14 +594,7 @@ ResearchOutcome MathResearchEngine::run(
                 continue;
             }
 
-            attempted_route_ids.insert(
-                route.route_id);
-            outcome.dispatched_route = route;
-
-            if (!outcome.planned_sequences.empty()) {
-                outcome.dispatched_sequence =
-                    outcome.planned_sequences.front();
-            }
+            remember_dispatch();
 
             std::ostringstream payload;
             payload
@@ -558,6 +612,21 @@ ResearchOutcome MathResearchEngine::run(
                     << "\nsequence_id="
                     << outcome.dispatched_sequence->
                         sequence_id;
+            }
+
+            if (outcome.dispatched_strategy) {
+                payload
+                    << "\nstrategy_id="
+                    << outcome.dispatched_strategy->
+                        strategy_id
+                    << "\nstrategy_signature="
+                    << outcome.dispatched_strategy->
+                        signature;
+
+                (void)episode_ledger_.append(
+                    problem.episode_id,
+                    "research_strategy_dispatched",
+                    payload.str());
             }
 
             (void)episode_ledger_.append(
