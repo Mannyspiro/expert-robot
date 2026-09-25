@@ -36,7 +36,7 @@ std::string canonical_string_array(const std::vector<std::string>& values) {
     out << "[";
     for (std::size_t i = 0; i < values.size(); ++i) {
         if (i) out << ",";
-        out << "\"" << json_util::escape(values[i]) << "\"";
+        out << "\"" << json_util::escape_ascii(values[i]) << "\"";
     }
     out << "]";
     return out.str();
@@ -78,7 +78,7 @@ std::string goal_fingerprint(const SearchProblem& problem) {
     canonical
         << "{\"context_declarations\":" << canonical_string_array(problem.context_declarations)
         << ",\"imports\":" << canonical_string_array(problem.imports)
-        << ",\"statement\":\"" << json_util::escape(problem.statement) << "\"}";
+        << ",\"statement\":\"" << json_util::escape_ascii(problem.statement) << "\"}";
     return sha256_hex(canonical.str());
 }
 
