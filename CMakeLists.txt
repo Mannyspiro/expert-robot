@@ -205,3 +205,8 @@ add_executable(math_research_service_smoke
 )
 target_link_libraries(math_research_service_smoke PRIVATE expert_robot_core SQLite::SQLite3)
 add_test(NAME math_research_service_smoke COMMAND math_research_service_smoke)
+set_tests_properties(
+    math_research_service_smoke
+    PROPERTIES
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+)
