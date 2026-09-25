@@ -1,7 +1,9 @@
 #include "expert_robot/model_server.hpp"
 
 #include <chrono>
+#include <cstdint>
 #include <fstream>
+#include <iterator>
 #include <stdexcept>
 #include <string>
 #include <thread>
