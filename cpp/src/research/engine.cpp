@@ -413,6 +413,12 @@ ResearchOutcome MathResearchEngine::run(
                     << strategy.evidence_confidence
                     << "\nexperience_adjustment="
                     << strategy.experience_adjustment
+                    << "\nsoft_retired="
+                    << (strategy.soft_retired
+                            ? "true"
+                            : "false")
+                    << "\nsoft_retirement_penalty="
+                    << strategy.soft_retirement_penalty
                     << "\nexploration_bonus="
                     << strategy.exploration_bonus
                     << "\nsequence_id="
