@@ -48,10 +48,6 @@ jobs:
         run: |
           ctest             --test-dir build             --parallel "${CTEST_PARALLEL_LEVEL}"             --output-on-failure
 
-      - name: ccache stats
-        if: always()
-        run: ccache --show-stats || true
-
       - name: Independent smoke tests
         shell: bash
         run: |
