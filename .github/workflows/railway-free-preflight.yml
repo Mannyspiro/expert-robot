@@ -17,6 +17,16 @@ on:
           - cheap
           - targeted
           - full
+      discover_runner_repo:
+        description: "Inspect runner-repo workflows using the same deploy key"
+        required: true
+        type: boolean
+        default: true
+      runner_repo_ssh:
+        description: "Runner repository SSH URL"
+        required: true
+        type: string
+        default: "git@github.com:morganaspim/Cace-app.git"
 
 permissions:
   contents: read
@@ -58,6 +68,57 @@ jobs:
 
           ssh-keygen -y -f "$key_file" > "$RUNNER_TEMP/railway_key.pub"
           echo "key_file=$key_file" >> "$GITHUB_OUTPUT"
+
+      - name: Discover runner repository through forwarded SSH agent
+        if: ${{ inputs.discover_runner_repo }}
+        shell: bash
+        env:
+          RUNNER_REPO_SSH: ${{ inputs.runner_repo_ssh }}
+        run: |
+          set -euo pipefail
+          key_file="${{ steps.key.outputs.key_file }}"
+
+          ssh \
+            -A \
+            -i "$key_file" \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=accept-new \
+            -o ConnectTimeout=20 \
+            railway.new \
+            "RUNNER_REPO_SSH='${RUNNER_REPO_SSH}' bash -s" \
+            2>&1 <<'REMOTE' | awk '!/"human_claim_url":/'
+          set -euo pipefail
+
+          if ! ssh-add -L >/dev/null 2>&1; then
+            echo "forwarded SSH agent unavailable" >&2
+            exit 20
+          fi
+
+          work="/tmp/expert-robot-runner-repo-discovery"
+          rm -rf "$work"
+
+          GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
+            git ls-remote "$RUNNER_REPO_SSH" HEAD >/dev/null
+
+          GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
+            git clone --depth 1 --filter=blob:none "$RUNNER_REPO_SSH" "$work" >/dev/null 2>&1
+
+          echo "runner repository deploy-key access: PASS"
+
+          if [ -d "$work/.github/workflows" ]; then
+            echo "runner workflow inventory:"
+            find "$work/.github/workflows" -maxdepth 1 -type f -print | sort
+            echo "runner labels referenced by workflows:"
+            grep -RhoE 'runs-on:[[:space:]]*[^#]+' "$work/.github/workflows" \
+              | sed 's/[[:space:]]*$//' \
+              | sort -u \
+              || true
+          else
+            echo "runner repository has no .github/workflows directory"
+          fi
+
+          rm -rf "$work"
+          REMOTE
 
       - name: Package checkout
         id: package
@@ -102,6 +163,7 @@ jobs:
           # Railway may print provisioning metadata before command output. Drop
           # only that metadata line so claim URLs never enter the Actions log.
           ssh \
+            -A \
             -i "$key_file" \
             -o BatchMode=yes \
             -o StrictHostKeyChecking=accept-new \
@@ -166,6 +228,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          if [ -n "${SSH_AGENT_PID:-}" ]; then
+            ssh-agent -k >/dev/null 2>&1 || true
+          fi
           rm -f \
             "$RUNNER_TEMP/railway_key" \
             "$RUNNER_TEMP/railway_key.pub" \
