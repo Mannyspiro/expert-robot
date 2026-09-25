@@ -70,6 +70,8 @@ struct ResearchOutcome {
     std::vector<ProofRouteSequence> planned_sequences;
     std::vector<ResearchStrategyPlan> planned_strategies;
     std::optional<ResearchStrategyPlan> dispatched_strategy;
+    std::vector<ResearchStrategyStepOutcome>
+        strategy_step_outcomes;
     std::size_t dispatched_strategy_steps_attempted{0};
     bool dispatched_strategy_complete{false};
     std::optional<ProofRouteSequence> dispatched_sequence;
