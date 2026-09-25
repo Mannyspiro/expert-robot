@@ -12,6 +12,8 @@ namespace expert_robot::research {
 
 struct ConsolidationResult {
     std::string theorem_name;
+    std::string canonical_theorem_name;
+    bool deduplicated{false};
     bool node_created{false};
     bool node_upgraded{false};
     bool linked_to_target{false};
