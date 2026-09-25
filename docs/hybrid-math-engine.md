@@ -85,6 +85,10 @@ independent skeptic agents
         v
 bounded shortlist
         |
+        v
+convergent synthesizer
+(preserves disagreements)
+        |
         +-------------------+
         |                   |
         v                   v
@@ -120,6 +124,10 @@ still means only "worth testing", never "true".
 
 Only a small shortlist reaches expensive downstream work. The default cap is
 three candidates per imagination cycle.
+
+After the skeptic gate, an optional synthesizer receives only the finalists.
+It must preserve substantive disagreements and produce a verification plan
+rather than selecting a "truth" winner.
 
 ## Cognition-driven budgets
 
