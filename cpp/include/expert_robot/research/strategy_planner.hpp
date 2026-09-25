@@ -22,6 +22,13 @@ struct ResearchStrategyPlannerConfig {
     // roughly half of its maximum influence.
     double evidence_half_saturation_attempts{6.0};
 
+    // Soft retirement suppresses persistently poor, expensive methods without
+    // deleting them. Improved future evidence can automatically restore them.
+    long long soft_retirement_min_attempts{8};
+    double soft_retirement_verified_rate_ceiling{0.25};
+    double soft_retirement_cost_floor{0.50};
+    double soft_retirement_penalty{0.18};
+
     // Small optimism bonus keeps untried methods from being permanently
     // starved by early successful strategies.
     double exploration_weight{0.03};
@@ -38,6 +45,8 @@ struct ResearchStrategyPlan {
     double base_score{0.0};
     double evidence_confidence{0.0};
     double experience_adjustment{0.0};
+    bool soft_retired{false};
+    double soft_retirement_penalty{0.0};
     double exploration_bonus{0.0};
     double final_score{0.0};
 };
