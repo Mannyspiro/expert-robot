@@ -19,6 +19,55 @@ double clamp01(double value) {
     return std::clamp(value, 0.0, 1.0);
 }
 
+ProofRouteKind graph_route_kind(
+    std::string_view relation,
+    bool terminal_verified) {
+    if (!terminal_verified) {
+        return ProofRouteKind::FollowTheoremPath;
+    }
+
+    if (relation == "USES" ||
+        relation == "REQUIRES") {
+        return ProofRouteKind::ReuseVerifiedTheorem;
+    }
+
+    if (relation == "GEOMETRIC_FORM_OF" ||
+        relation == "ALGEBRAIC_FORM_OF") {
+        return ProofRouteKind::RepresentationSwitch;
+    }
+
+    if (relation == "CONTRADICTS") {
+        return ProofRouteKind::CounterexampleSearch;
+    }
+
+    // IMPLIES / GENERALIZES / SPECIALIZES require direction-aware logical
+    // interpretation before they can safely become executable proof hints.
+    // ANALOGOUS_TO is inspiration, not proof evidence.
+    return ProofRouteKind::FollowTheoremPath;
+}
+
+bool route_kind_requires_model(
+    ProofRouteKind kind) {
+    switch (kind) {
+        case ProofRouteKind::RepresentationSwitch:
+        case ProofRouteKind::CounterexampleSearch:
+        case ProofRouteKind::ImaginationCandidate:
+        case ProofRouteKind::RecursiveDecomposition:
+            return true;
+        case ProofRouteKind::ReuseVerifiedTheorem:
+        case ProofRouteKind::FollowTheoremPath:
+        case ProofRouteKind::IntensifyVerification:
+            return false;
+    }
+    return false;
+}
+
+bool route_kind_requires_lean(
+    ProofRouteKind kind) {
+    return kind !=
+        ProofRouteKind::CounterexampleSearch;
+}
+
 double relation_strength(std::string_view relation) {
     if (relation == "IMPLIES" ||
         relation == "USES" ||
@@ -443,10 +492,13 @@ ProofRoutePlanner::graph_routes(
                     << child.path.size() - 1U
                     << " graph hop(s).";
 
+                const auto kind =
+                    graph_route_kind(
+                        edge.relation,
+                        verified);
+
                 ProofRoute route{
-                    .kind = verified
-                        ? ProofRouteKind::ReuseVerifiedTheorem
-                        : ProofRouteKind::FollowTheoremPath,
+                    .kind = kind,
                     .route_id = {},
                     .description = description.str(),
                     .theorem_path = child.path,
@@ -481,8 +533,12 @@ ProofRoutePlanner::graph_routes(
                         path_diversity(
                             child.relations),
                     .final_score = 0.0,
-                    .requires_model = false,
-                    .requires_lean = true,
+                    .requires_model =
+                        route_kind_requires_model(
+                            kind),
+                    .requires_lean =
+                        route_kind_requires_lean(
+                            kind),
                 };
 
                 std::ostringstream payload;
