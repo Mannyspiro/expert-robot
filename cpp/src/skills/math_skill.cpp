@@ -7,6 +7,15 @@
 
 namespace expert_robot::skills {
 
+std::string_view skill_stage_name(SkillStage stage) {
+    switch (stage) {
+        case SkillStage::Experimental: return "experimental";
+        case SkillStage::Qualified: return "qualified";
+        case SkillStage::Deprecated: return "deprecated";
+    }
+    return "unknown";
+}
+
 MathSkillCatalog::MathSkillCatalog(
     std::vector<MathSkill> skills)
     : skills_(std::move(skills)) {
@@ -39,7 +48,9 @@ MathSkillCatalog MathSkillCatalog::builtins() {
             R::Analogist,
             "Identify a structurally similar theorem in another domain; "
             "separate surface vocabulary from invariant structure; transfer "
-            "only the mechanism; list the exact hypothesis correspondence."
+            "only the mechanism; list the exact hypothesis correspondence.",
+            true,
+            SkillStage::Qualified
         },
         {
             "math.geometry.reframe",
@@ -48,7 +59,9 @@ MathSkillCatalog MathSkillCatalog::builtins() {
             R::GeometrySpecialist,
             "Translate the target into exact geometric objects, incidence, "
             "orientation, metric, flow, or coordinate-free relations; state "
-            "what algebraic facts must remain invariant under the translation."
+            "what algebraic facts must remain invariant under the translation.",
+            true,
+            SkillStage::Qualified
         },
         {
             "math.algebra.reframe",
@@ -57,7 +70,9 @@ MathSkillCatalog MathSkillCatalog::builtins() {
             R::Mathematician,
             "Search for factorization, operator identities, conserved "
             "quantities, modules, rings, fields, or canonical algebraic "
-            "normal forms that expose the target."
+            "normal forms that expose the target.",
+            true,
+            SkillStage::Qualified
         },
         {
             "math.duality.search",
@@ -65,7 +80,9 @@ MathSkillCatalog MathSkillCatalog::builtins() {
             L::Duality,
             R::Mathematician,
             "Construct a dual, adjoint, complement, primal-dual, or inverse "
-            "problem; identify which quantity becomes simpler in the dual view."
+            "problem; identify which quantity becomes simpler in the dual view.",
+            true,
+            SkillStage::Qualified
         },
         {
             "math.inversion.challenge",
@@ -74,7 +91,9 @@ MathSkillCatalog MathSkillCatalog::builtins() {
             R::Skeptic,
             "Reverse the implication or assume the negation; propagate the "
             "consequences until a concrete obstruction, contradiction, or "
-            "alternative structure appears."
+            "alternative structure appears.",
+            true,
+            SkillStage::Qualified
         },
         {
             "math.generalize.strengthen",
@@ -83,7 +102,9 @@ MathSkillCatalog MathSkillCatalog::builtins() {
             R::Mathematician,
             "Search for a stronger theorem with cleaner invariants whose "
             "specialization yields the target; explicitly record the added "
-            "generality and proof burden."
+            "generality and proof burden.",
+            true,
+            SkillStage::Qualified
         },
         {
             "math.simplify.toy_model",
@@ -92,7 +113,9 @@ MathSkillCatalog MathSkillCatalog::builtins() {
             R::Mathematician,
             "Reduce to the smallest nontrivial instance, solve or characterize "
             "that instance, identify the indispensable mechanism, then state "
-            "what is required to lift it."
+            "what is required to lift it.",
+            true,
+            SkillStage::Qualified
         },
         {
             "math.boundary.probe",
@@ -101,7 +124,9 @@ MathSkillCatalog MathSkillCatalog::builtins() {
             R::Skeptic,
             "Probe equality, zero, singular, degenerate, extremal, low- and "
             "high-dimensional cases; use failures to discover missing "
-            "hypotheses or sharper statements."
+            "hypotheses or sharper statements.",
+            true,
+            SkillStage::Qualified
         },
         {
             "math.spectral.reframe",
@@ -119,7 +144,9 @@ MathSkillCatalog MathSkillCatalog::builtins() {
             R::Mathematician,
             "Search for continuity, compactness, homotopy, homology, "
             "cohomology, winding, index, or obstruction structure that is "
-            "stable under deformation."
+            "stable under deformation.",
+            true,
+            SkillStage::Qualified
         },
         {
             "math.counterfactual.assumptions",
@@ -128,7 +155,9 @@ MathSkillCatalog MathSkillCatalog::builtins() {
             R::Skeptic,
             "Remove, weaken, reverse, or complexify one assumption at a time; "
             "record precisely what survives, what fails, and any resulting "
-            "counterexample."
+            "counterexample.",
+            true,
+            SkillStage::Qualified
         },
         {
             "math.construct.witness",
@@ -136,7 +165,9 @@ MathSkillCatalog MathSkillCatalog::builtins() {
             L::Construction,
             R::Mathematician,
             "Build a canonical witness, normal form, recurrence, algorithm, "
-            "or explicit object whose properties can be checked independently."
+            "or explicit object whose properties can be checked independently.",
+            true,
+            SkillStage::Qualified
         },
         {
             "math.lemma.high_leverage",
@@ -145,7 +176,9 @@ MathSkillCatalog MathSkillCatalog::builtins() {
             R::LemmaProposer,
             "Identify one smaller statement that removes the dominant proof "
             "obstacle; keep the statement stronger than a tautology but cheaper "
-            "than the parent; make it suitable for Lean formalization."
+            "than the parent; make it suitable for Lean formalization.",
+            true,
+            SkillStage::Qualified
         },
     });
 }
@@ -171,6 +204,18 @@ std::vector<MathSkill> MathSkillCatalog::for_lens(
     std::vector<MathSkill> result;
     for (const auto& skill : skills_) {
         if (skill.lens == lens) {
+            result.push_back(skill);
+        }
+    }
+    return result;
+}
+
+std::vector<MathSkill> MathSkillCatalog::qualified_for_lens(
+    imagination::ImaginationLens lens) const {
+    std::vector<MathSkill> result;
+    for (const auto& skill : skills_) {
+        if (skill.lens == lens &&
+            skill.stage == SkillStage::Qualified) {
             result.push_back(skill);
         }
     }
