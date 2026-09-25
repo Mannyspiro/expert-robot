@@ -4,6 +4,7 @@
 #include "expert_robot/sha256.hpp"
 
 #include <algorithm>
+#include <cctype>
 #include <set>
 #include <sstream>
 #include <stdexcept>
