@@ -132,6 +132,34 @@ std::string_view proof_route_kind_name(
     return "unknown";
 }
 
+std::optional<cognition::CognitiveAction>
+executable_action_for_route(
+    ProofRouteKind kind) {
+    using A = cognition::CognitiveAction;
+
+    switch (kind) {
+        case ProofRouteKind::RecursiveDecomposition:
+            return A::DecomposeProblem;
+        case ProofRouteKind::RepresentationSwitch:
+            return A::SwitchRepresentation;
+        case ProofRouteKind::CounterexampleSearch:
+            return A::SeekCounterexample;
+        case ProofRouteKind::ImaginationCandidate:
+            return A::ExploreNovelRoute;
+        case ProofRouteKind::IntensifyVerification:
+            return A::IntensifyVerification;
+
+        // The theorem-graph routes are informative but do not yet have a
+        // dedicated Lean theorem-hint executor, so they must not control
+        // dispatch yet.
+        case ProofRouteKind::ReuseVerifiedTheorem:
+        case ProofRouteKind::FollowTheoremPath:
+            return std::nullopt;
+    }
+    return std::nullopt;
+}
+
+
 ProofRoutePlanner::ProofRoutePlanner(
     const KnowledgeGraph& graph,
     RoutePlannerConfig config,
