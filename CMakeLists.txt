@@ -30,6 +30,7 @@ add_library(expert_robot_core STATIC
     cpp/src/imagination/memory.cpp
     cpp/src/imagination/controller.cpp
     cpp/src/skills/math_skill.cpp
+    cpp/src/skills/skill_ledger.cpp
     cpp/src/cognition/neuromodulation.cpp
     cpp/src/cognition/interoception.cpp
     cpp/src/cognition/personality.cpp
