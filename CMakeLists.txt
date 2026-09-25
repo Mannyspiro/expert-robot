@@ -37,6 +37,7 @@ add_library(expert_robot_core STATIC
     cpp/src/skills/model_skill_proposer.cpp
     cpp/src/skills/promotion_packet.cpp
     cpp/src/eval/math_eval.cpp
+    cpp/src/eval/math_benchmark.cpp
     cpp/src/research/state_machine.cpp
     cpp/src/research/episode_ledger.cpp
     cpp/src/research/candidate_verifier.cpp
@@ -259,3 +260,14 @@ add_executable(strategy_discovery_smoke
 )
 target_link_libraries(strategy_discovery_smoke PRIVATE expert_robot_core)
 add_test(NAME strategy_discovery_smoke COMMAND strategy_discovery_smoke)
+
+add_executable(math_benchmark_smoke
+    tests/math_benchmark_smoke.cpp
+)
+target_link_libraries(math_benchmark_smoke PRIVATE expert_robot_core SQLite::SQLite3)
+add_test(NAME math_benchmark_smoke COMMAND math_benchmark_smoke)
+set_tests_properties(
+    math_benchmark_smoke
+    PROPERTIES
+        WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+)
