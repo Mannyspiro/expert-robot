@@ -221,7 +221,8 @@ MathResearchEngine::MathResearchEngine(
     CandidateVerifier& candidate_verifier,
     VerifiedKnowledgeConsolidator& consolidator,
     ResearchEpisodeLedger& episode_ledger,
-    MathResearchEngineConfig config)
+    MathResearchEngineConfig config,
+    ProofRoutePlanner* route_planner)
     : searcher_(searcher),
       cognition_(cognition),
       imagination_(imagination),
@@ -229,7 +230,8 @@ MathResearchEngine::MathResearchEngine(
       candidate_verifier_(candidate_verifier),
       consolidator_(consolidator),
       episode_ledger_(episode_ledger),
-      config_(config) {
+      config_(config),
+      route_planner_(route_planner) {
     validate_research_budget(
         config_.budget);
 
@@ -295,6 +297,48 @@ ResearchOutcome MathResearchEngine::run(
 
     std::optional<cognition::CognitionCycle>
         latest_cognition;
+
+    auto refresh_route_plan = [&](
+        const imagination::ImaginationRun* imagined) {
+        if (route_planner_ == nullptr ||
+            !latest_cognition) {
+            return;
+        }
+
+        outcome.planned_routes =
+            route_planner_->plan(
+                RoutePlanningRequest{
+                    .target_name =
+                        problem.focus_theorem.empty()
+                            ? target_name
+                            : problem.focus_theorem,
+                    .target_domain =
+                        problem.target.domain,
+                    .cognitive_action =
+                        latest_cognition->decision.action,
+                    .logic = problem.logic,
+                    .imagination = imagined,
+                });
+
+        if (!outcome.planned_routes.empty()) {
+            const auto& top =
+                outcome.planned_routes.front();
+
+            std::ostringstream payload;
+            payload
+                << "route_id=" << top.route_id
+                << "\nkind="
+                << proof_route_kind_name(top.kind)
+                << "\nscore=" << top.final_score
+                << "\ndescription="
+                << top.description;
+
+            episode_ledger_.append(
+                problem.episode_id,
+                "route_plan_top",
+                payload.str());
+        }
+    };
 
     for (std::size_t dispatch = 0;
          dispatch < config_.max_dispatch_steps;
@@ -369,6 +413,8 @@ ResearchOutcome MathResearchEngine::run(
                             interoception.state.
                             resource_pressure;
 
+                    refresh_route_plan(nullptr);
+
                     std::ostringstream payload;
                     payload
                         << "action="
@@ -441,6 +487,9 @@ ResearchOutcome MathResearchEngine::run(
 
                 outcome.last_imagination =
                     imagined;
+
+                refresh_route_plan(
+                    &*outcome.last_imagination);
 
                 ResearchObservation observation;
                 observation.imagination_complete =
