@@ -5,6 +5,7 @@
 #include "expert_robot/knowledge_graph.hpp"
 
 #include <cstddef>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -76,6 +77,10 @@ struct RoutePlanningRequest {
 void validate_route_planner_config(const RoutePlannerConfig& config);
 
 [[nodiscard]] std::string_view proof_route_kind_name(
+    ProofRouteKind kind);
+
+[[nodiscard]] std::optional<cognition::CognitiveAction>
+executable_action_for_route(
     ProofRouteKind kind);
 
 class ProofRoutePlanner {
