@@ -19,6 +19,7 @@ add_library(expert_robot_core STATIC
     cpp/src/cognition/neuromodulation.cpp
     cpp/src/cognition/interoception.cpp
     cpp/src/cognition/personality.cpp
+    cpp/src/cognition/controller.cpp
 )
 
 target_include_directories(expert_robot_core PUBLIC cpp/include)
@@ -66,3 +67,9 @@ add_executable(personality_smoke
 )
 target_link_libraries(personality_smoke PRIVATE expert_robot_core)
 add_test(NAME personality_smoke COMMAND personality_smoke)
+
+add_executable(cognition_controller_smoke
+    tests/cognition_controller_smoke.cpp
+)
+target_link_libraries(cognition_controller_smoke PRIVATE expert_robot_core)
+add_test(NAME cognition_controller_smoke COMMAND cognition_controller_smoke)
