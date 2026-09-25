@@ -135,7 +135,8 @@ std::string render_declaration(
 FormalizationResult formalize(
     FormalizationProposal proposal,
     IProofSearcher& searcher,
-    const std::vector<std::string>& context_declarations) {
+    const std::vector<std::string>& context_declarations,
+    const std::vector<std::string>& preferred_strategies) {
     validate_formalization_proposal(proposal);
 
     SearchProblem problem;
@@ -143,6 +144,8 @@ FormalizationResult formalize(
     problem.candidate_name = "MathAI_Formalization_Candidate";
     problem.imports = proposal.imports;
     problem.context_declarations = context_declarations;
+    problem.preferred_strategies =
+        preferred_strategies;
 
     auto search = searcher.search(problem);
     if (!search.success || !search.proof.has_value()) {
