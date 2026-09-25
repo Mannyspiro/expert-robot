@@ -87,7 +87,8 @@ MathResearchService::MathResearchService(
       searcher_(
           proof_config_.strategies,
           lean_runner_,
-          proof_memory_),
+          proof_memory_,
+          config_.research_engine.learning_writes),
       graph_(
           load_graph(config_)),
       skill_ledger_(
@@ -116,7 +117,8 @@ MathResearchService::MathResearchService(
           &graph_,
           skills::MathSkillCatalog::builtins(),
           &imagination_memory_,
-          &skill_ledger_),
+          &skill_ledger_,
+          config_.research_engine.learning_writes),
       lemma_decomposer_(
           lemma_json_backend_,
           ModelLemmaDecomposerConfig{
