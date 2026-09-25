@@ -245,6 +245,47 @@ int main() {
     assert(
         learned_b->experience_adjustment <
         0.0);
+    assert(
+        learned_a->evidence_confidence > 0.0);
+    assert(
+        learned_a->evidence_confidence < 1.0);
+
+    const double early_confidence =
+        learned_a->evidence_confidence;
+    const double early_adjustment =
+        learned_a->experience_adjustment;
+
+    for (int i = 0; i < 15; ++i) {
+        memory.record_strategy(
+            ResearchStrategyOutcome{
+                .strategy_id =
+                    learned_a->strategy_id,
+                .signature =
+                    learned_a->signature,
+                .domain = "algebra",
+                .verified_progress = true,
+                .target_verified = true,
+                .dead_end_escaped = true,
+                .resource_cost = 0.20
+            });
+    }
+
+    const auto mature =
+        learned.plan(
+            {seq_a_new, seq_b_new},
+            "algebra");
+    const auto* mature_a =
+        find_signature(
+            mature,
+            signature_a);
+
+    assert(mature_a != nullptr);
+    assert(
+        mature_a->evidence_confidence >
+        early_confidence);
+    assert(
+        mature_a->experience_adjustment >
+        early_adjustment);
 
     // Strategy evidence must remain domain-specific.
     const auto geometry =
@@ -259,6 +300,9 @@ int main() {
     assert(geometry_a != nullptr);
     assert(
         geometry_a->experience_adjustment ==
+        0.0);
+    assert(
+        geometry_a->evidence_confidence ==
         0.0);
 
     // Two theorem-specific sequences with the same move signature collapse to
