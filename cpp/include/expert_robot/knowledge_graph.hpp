@@ -28,6 +28,17 @@ struct TheoremEdge {
     bool operator<(const TheoremEdge& other) const noexcept;
 };
 
+struct TheoremPath {
+    std::vector<std::string> nodes;
+    std::vector<std::string> relations;
+
+    [[nodiscard]] std::size_t depth() const noexcept {
+        return relations.size();
+    }
+
+    bool operator==(const TheoremPath&) const = default;
+};
+
 [[nodiscard]] bool valid_theorem_relation(std::string_view relation);
 void validate_theorem_node(TheoremNode& node);
 void validate_theorem_edge(TheoremEdge& edge);
@@ -49,6 +60,11 @@ public:
     [[nodiscard]] std::vector<TheoremEdge> related(
         std::string_view name,
         std::string_view relation = {}) const;
+
+    [[nodiscard]] std::vector<TheoremPath> bounded_paths(
+        std::string_view start,
+        std::size_t max_depth = 3,
+        std::size_t max_paths = 12) const;
 
     void sync_formal_registry(const std::filesystem::path& path);
     void save(const std::filesystem::path& path) const;
