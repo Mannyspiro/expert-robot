@@ -287,6 +287,69 @@ int main() {
         mature_a->experience_adjustment >
         early_adjustment);
 
+    // Persistent poor/high-cost performance causes reversible soft retirement.
+    for (int i = 0; i < 5; ++i) {
+        memory.record_strategy(
+            ResearchStrategyOutcome{
+                .strategy_id =
+                    learned_b->strategy_id,
+                .signature =
+                    learned_b->signature,
+                .domain = "algebra",
+                .verified_progress = false,
+                .target_verified = false,
+                .dead_end_escaped = false,
+                .resource_cost = 0.80
+            });
+    }
+
+    const auto retired =
+        learned.plan(
+            {seq_a_new, seq_b_new},
+            "algebra");
+    const auto* retired_b =
+        find_signature(
+            retired,
+            signature_b);
+
+    assert(retired_b != nullptr);
+    assert(retired_b->soft_retired);
+    assert(
+        retired_b->soft_retirement_penalty >
+        0.0);
+
+    // Soft retirement never deletes the method and clears automatically when
+    // substantial later verified evidence reverses the historical result.
+    for (int i = 0; i < 30; ++i) {
+        memory.record_strategy(
+            ResearchStrategyOutcome{
+                .strategy_id =
+                    learned_b->strategy_id,
+                .signature =
+                    learned_b->signature,
+                .domain = "algebra",
+                .verified_progress = true,
+                .target_verified = true,
+                .dead_end_escaped = true,
+                .resource_cost = 0.20
+            });
+    }
+
+    const auto recovered =
+        learned.plan(
+            {seq_a_new, seq_b_new},
+            "algebra");
+    const auto* recovered_b =
+        find_signature(
+            recovered,
+            signature_b);
+
+    assert(recovered_b != nullptr);
+    assert(!recovered_b->soft_retired);
+    assert(
+        recovered_b->soft_retirement_penalty ==
+        0.0);
+
     // Strategy evidence must remain domain-specific.
     const auto geometry =
         learned.plan(
