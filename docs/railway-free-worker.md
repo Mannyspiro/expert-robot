@@ -78,15 +78,34 @@ nor promotion authority.
 ## Checkpoints and forks
 
 For account-backed Railway Sandboxes, prepare dependencies once, checkpoint the
-disk, and fork isolated workers from that checkpoint:
+disk, and boot isolated workers from that checkpoint:
 
 ```text
 bootstrap
   -> checkpoint CACE/Expert-Robot toolchain
-  -> fork candidate worker
+  -> isolated checkpoint worker
   -> preflight
-  -> keep evidence / discard worker
+  -> keep failed worker for debugging / destroy passing worker
 ```
+
+The repository includes a helper around Railway's sandbox CLI:
+
+```bash
+# Run from a machine where the Railway CLI is authenticated and linked.
+bash scripts/railway-sandbox-lane.sh prepare
+
+# Later: boot from the checkpoint, refresh the branch, and run cheap preflight.
+bash scripts/railway-sandbox-lane.sh verify
+
+# If verification fails, the sandbox stays alive:
+bash scripts/railway-sandbox-lane.sh shell
+
+# Manual cleanup:
+bash scripts/railway-sandbox-lane.sh destroy
+```
+
+Equivalent Make targets are `make sandbox-prepare` and
+`make sandbox-verify`.
 
 This is useful for repeated experiments because each candidate starts from the
 same filesystem state. GitHub remains canonical; useful source changes and
