@@ -143,6 +143,48 @@ int main() {
             routes[i].final_score);
     }
 
+    const auto sequences =
+        planner.compose(routes);
+
+    assert(!sequences.empty());
+    assert(sequences.size() <= 6);
+
+    bool saw_switch_then_decompose = false;
+    for (const auto& sequence : sequences) {
+        assert(!sequence.sequence_id.empty());
+        assert(!sequence.steps.empty());
+        assert(sequence.steps.size() <= 3);
+        assert(sequence.average_route_score >= 0.0);
+        assert(sequence.average_route_score <= 1.0);
+        assert(sequence.synergy_score >= 0.0);
+        assert(sequence.synergy_score <= 1.0);
+        assert(sequence.final_score >= 0.0);
+        assert(sequence.final_score <= 1.0);
+
+        if (sequence.steps.size() >= 2 &&
+            sequence.steps[0].kind ==
+                ProofRouteKind::RepresentationSwitch &&
+            sequence.steps[1].kind ==
+                ProofRouteKind::RecursiveDecomposition) {
+            saw_switch_then_decompose = true;
+            assert(sequence.synergy_score > 0.0);
+        }
+    }
+
+    assert(saw_switch_then_decompose);
+
+    for (std::size_t i = 1; i < sequences.size(); ++i) {
+        assert(
+            sequences[i - 1].final_score >=
+            sequences[i].final_score);
+    }
+
+    const auto sequences_again =
+        planner.compose(routes);
+    assert(
+        sequences.front().sequence_id ==
+        sequences_again.front().sequence_id);
+
     assert(
         proof_route_kind_name(
             ProofRouteKind::FollowTheoremPath) ==
