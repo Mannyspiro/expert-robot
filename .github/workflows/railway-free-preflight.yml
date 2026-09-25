@@ -67,6 +67,12 @@ jobs:
           chmod 600 "$key_file"
 
           ssh-keygen -y -f "$key_file" > "$RUNNER_TEMP/railway_key.pub"
+
+          eval "$(ssh-agent -s)"
+          ssh-add "$key_file"
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
+
           echo "key_file=$key_file" >> "$GITHUB_OUTPUT"
 
       - name: Discover runner repository through forwarded SSH agent
