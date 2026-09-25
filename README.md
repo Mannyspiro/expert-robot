@@ -11,6 +11,7 @@ Expert Robot is a local, modular AI research system designed around a thin Pytho
   - generation lifecycle
   - promotion/rejection decisions from measured results
 - **C++**: everything performance-critical and trusted
+  - artificial interoception + software neuromodulation
   - model adapters / inference backends
   - tool execution
   - sandbox interfaces
@@ -58,6 +59,9 @@ expert-robot/
 │   └── models.example.json
 ├── cpp/
 │   ├── include/expert_robot/
+│   │   ├── cognition/
+│   │   │   ├── interoception.hpp
+│   │   │   └── neuromodulation.hpp
 │   │   ├── protocol.hpp
 │   │   └── runtime.hpp
 │   └── src/
@@ -68,6 +72,44 @@ expert-robot/
 └── tests/
     └── smoke.py
 ```
+
+## Cognition control loop
+
+Expert Robot now has an objective internal-state loop:
+
+```
+runtime / proof / theorem-graph telemetry
+                  |
+                  v
+       artificial interoception
+                  |
+                  v
+      normalized cognitive signals
+                  |
+                  v
+       software neuromodulators
+                  |
+                  v
+    executive search-allocation biases
+                  |
+                  v
+      math / code / research agents
+                  |
+                  v
+                 Lean
+```
+
+Interoception measures resource pressure, proof/search stagnation, novelty,
+surprise, uncertainty, route repetition, and verified progress. Software
+neuromodulators turn those measurements into exploration, persistence,
+attention, strategy-switch, and compute-conservation biases.
+
+These cognition modules may change **how the system searches**, but cannot
+change **what counts as verified**. Lean qualification and authority boundaries
+remain fixed.
+
+See `docs/artificial-interoception.md` and
+`docs/software-neuromodulators.md`.
 
 ## IPC
 
