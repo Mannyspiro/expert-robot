@@ -59,12 +59,18 @@ struct ProofSearchConfig {
 
 [[nodiscard]] ProofSearchConfig load_proof_search_config(const std::filesystem::path& path);
 
-class DeterministicProofSearch {
+class IProofSearcher {
+public:
+    virtual ~IProofSearcher() = default;
+    [[nodiscard]] virtual SearchResult search(const SearchProblem& problem) = 0;
+};
+
+class DeterministicProofSearch final : public IProofSearcher {
 public:
     DeterministicProofSearch(std::vector<std::string> strategies, ILeanRunner& runner);
 
     [[nodiscard]] static std::string render(const SearchProblem& problem, std::string_view tactic);
-    [[nodiscard]] SearchResult search(const SearchProblem& problem);
+    [[nodiscard]] SearchResult search(const SearchProblem& problem) override;
 
 private:
     std::vector<std::string> strategies_;
