@@ -72,16 +72,22 @@ accepts them and the local qualification path passes.
 4. Sandbox deny-by-default policy adapted to Expert Robot paths.
 5. Capability registry semantics ported from Python to C++.
 
+## Completed C++ math-core ports
+
+- deterministic Lean proof search with a real `lake env lean` subprocess runner
+- SQLite proof success/failure memory
+- Python-compatible exact-goal SHA-256 fingerprints
+- theorem/lemma knowledge graph with typed relations, deterministic persistence, and formal-registry synchronization
+
+The proof-memory rule remains deliberately narrow: history may reorder the fixed tactic list for the exact same formal goal; it does not create new tactics or establish trust.
+
 ## Next ports
 
 The next high-value ports should be:
 
-1. deterministic Lean proof search
-2. SQLite proof memory
-3. theorem/lemma knowledge graph
-4. recursive lemma factory
-5. research state machine
-6. specialist routing
-7. benchmark-driven capability growth
-8. novelty/reuse engine
-9. immutable RSI candidate lineage
+1. recursive lemma factory
+2. research state machine
+3. specialist routing
+4. benchmark-driven capability growth
+5. novelty/reuse engine
+6. immutable RSI candidate lineage
