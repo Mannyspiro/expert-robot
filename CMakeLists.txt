@@ -27,6 +27,7 @@ add_library(expert_robot_core STATIC
     cpp/src/swarm/aggregator.cpp
     cpp/src/imagination/idea.cpp
     cpp/src/imagination/archive.cpp
+    cpp/src/imagination/memory.cpp
     cpp/src/imagination/controller.cpp
     cpp/src/skills/math_skill.cpp
     cpp/src/cognition/neuromodulation.cpp
