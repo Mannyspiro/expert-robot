@@ -120,6 +120,23 @@ void validate_outcome(
     }
 }
 
+void validate_sequence_outcome(
+    const RouteSequenceOutcome& outcome) {
+    if (outcome.sequence_id.empty()) {
+        throw std::invalid_argument(
+            "route sequence outcome sequence_id must be non-empty");
+    }
+    if (outcome.domain.empty()) {
+        throw std::invalid_argument(
+            "route sequence outcome domain must be non-empty");
+    }
+    if (!std::isfinite(outcome.resource_cost) ||
+        outcome.resource_cost < 0.0) {
+        throw std::invalid_argument(
+            "route sequence outcome resource_cost must be finite and nonnegative");
+    }
+}
+
 RouteExperience read_experience(
     sqlite3_stmt* stmt) {
     return RouteExperience{
@@ -128,6 +145,36 @@ RouteExperience read_experience(
                 sqlite3_column_int(
                     stmt,
                     0)),
+        .domain =
+            column_text(stmt, 1),
+        .attempts =
+            sqlite3_column_int64(
+                stmt,
+                2),
+        .verified_progresses =
+            sqlite3_column_int64(
+                stmt,
+                3),
+        .target_verifications =
+            sqlite3_column_int64(
+                stmt,
+                4),
+        .dead_end_escapes =
+            sqlite3_column_int64(
+                stmt,
+                5),
+        .total_resource_cost =
+            sqlite3_column_double(
+                stmt,
+                6),
+    };
+}
+
+RouteSequenceExperience read_sequence_experience(
+    sqlite3_stmt* stmt) {
+    return RouteSequenceExperience{
+        .sequence_id =
+            column_text(stmt, 0),
         .domain =
             column_text(stmt, 1),
         .attempts =
@@ -169,6 +216,25 @@ double RouteExperience::smoothed_target_rate() const noexcept {
 }
 
 double RouteExperience::average_resource_cost() const noexcept {
+    return attempts > 0
+        ? total_resource_cost /
+              static_cast<double>(attempts)
+        : 0.0;
+}
+
+double RouteSequenceExperience::smoothed_verified_rate() const noexcept {
+    return
+        (static_cast<double>(verified_progresses) + 1.0) /
+        (static_cast<double>(attempts) + 2.0);
+}
+
+double RouteSequenceExperience::smoothed_target_rate() const noexcept {
+    return
+        (static_cast<double>(target_verifications) + 1.0) /
+        (static_cast<double>(attempts) + 2.0);
+}
+
+double RouteSequenceExperience::average_resource_cost() const noexcept {
     return attempts > 0
         ? total_resource_cost /
               static_cast<double>(attempts)
@@ -225,6 +291,20 @@ void RouteOutcomeLedger::initialize() {
 
         CREATE INDEX IF NOT EXISTS idx_route_outcomes_kind_domain
             ON route_outcomes(kind, domain);
+
+        CREATE TABLE IF NOT EXISTS route_sequence_outcomes (
+            sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+            sequence_id TEXT NOT NULL,
+            domain TEXT NOT NULL,
+            verified_progress INTEGER NOT NULL,
+            target_verified INTEGER NOT NULL,
+            dead_end_escaped INTEGER NOT NULL,
+            resource_cost REAL NOT NULL,
+            recorded_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_route_sequence_outcomes_id_domain
+            ON route_sequence_outcomes(sequence_id, domain);
         )SQL");
 
     Statement query(
@@ -318,6 +398,68 @@ void RouteOutcomeLedger::record(
         "insert route outcome");
 }
 
+void RouteOutcomeLedger::record_sequence(
+    const RouteSequenceOutcome& outcome) {
+    validate_sequence_outcome(outcome);
+
+    Statement insert(
+        db_,
+        R"SQL(
+        INSERT INTO route_sequence_outcomes(
+            sequence_id,
+            domain,
+            verified_progress,
+            target_verified,
+            dead_end_escaped,
+            resource_cost
+        ) VALUES (?, ?, ?, ?, ?, ?);
+        )SQL");
+
+    bind_text(
+        db_,
+        insert.get(),
+        1,
+        outcome.sequence_id);
+    bind_text(
+        db_,
+        insert.get(),
+        2,
+        outcome.domain);
+    check_sql(
+        sqlite3_bind_int(
+            insert.get(),
+            3,
+            outcome.verified_progress ? 1 : 0),
+        db_,
+        "bind sequence verified progress");
+    check_sql(
+        sqlite3_bind_int(
+            insert.get(),
+            4,
+            outcome.target_verified ? 1 : 0),
+        db_,
+        "bind sequence target verified");
+    check_sql(
+        sqlite3_bind_int(
+            insert.get(),
+            5,
+            outcome.dead_end_escaped ? 1 : 0),
+        db_,
+        "bind sequence dead end escape");
+    check_sql(
+        sqlite3_bind_double(
+            insert.get(),
+            6,
+            outcome.resource_cost),
+        db_,
+        "bind sequence resource cost");
+
+    check_sql(
+        sqlite3_step(insert.get()),
+        db_,
+        "insert route sequence outcome");
+}
+
 RouteExperience RouteOutcomeLedger::experience(
     ProofRouteKind kind,
     std::string_view domain) const {
@@ -404,6 +546,99 @@ RouteOutcomeLedger::all_experience() const {
             read_experience(
                 query.get()));
     }
+    return result;
+}
+
+RouteSequenceExperience
+RouteOutcomeLedger::sequence_experience(
+    std::string_view sequence_id,
+    std::string_view domain) const {
+    if (sequence_id.empty() ||
+        domain.empty()) {
+        throw std::invalid_argument(
+            "route sequence experience id/domain must be non-empty");
+    }
+
+    Statement query(
+        db_,
+        R"SQL(
+        SELECT
+            sequence_id,
+            domain,
+            COUNT(*),
+            SUM(verified_progress),
+            SUM(target_verified),
+            SUM(dead_end_escaped),
+            COALESCE(SUM(resource_cost), 0.0)
+        FROM route_sequence_outcomes
+        WHERE sequence_id = ? AND domain = ?
+        GROUP BY sequence_id, domain;
+        )SQL");
+
+    bind_text(
+        db_,
+        query.get(),
+        1,
+        std::string(sequence_id));
+    bind_text(
+        db_,
+        query.get(),
+        2,
+        std::string(domain));
+
+    const int rc =
+        sqlite3_step(query.get());
+    check_sql(
+        rc,
+        db_,
+        "read route sequence experience");
+
+    if (rc == SQLITE_DONE) {
+        return RouteSequenceExperience{
+            .sequence_id =
+                std::string(sequence_id),
+            .domain =
+                std::string(domain),
+        };
+    }
+
+    return read_sequence_experience(
+        query.get());
+}
+
+std::vector<RouteSequenceExperience>
+RouteOutcomeLedger::all_sequence_experience() const {
+    Statement query(
+        db_,
+        R"SQL(
+        SELECT
+            sequence_id,
+            domain,
+            COUNT(*),
+            SUM(verified_progress),
+            SUM(target_verified),
+            SUM(dead_end_escaped),
+            COALESCE(SUM(resource_cost), 0.0)
+        FROM route_sequence_outcomes
+        GROUP BY sequence_id, domain
+        ORDER BY domain, sequence_id;
+        )SQL");
+
+    std::vector<RouteSequenceExperience> result;
+    while (true) {
+        const int rc =
+            sqlite3_step(query.get());
+        check_sql(
+            rc,
+            db_,
+            "list route sequence experience");
+        if (rc == SQLITE_DONE) break;
+
+        result.push_back(
+            read_sequence_experience(
+                query.get()));
+    }
+
     return result;
 }
 
