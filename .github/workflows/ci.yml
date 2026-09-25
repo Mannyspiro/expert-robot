@@ -5,23 +5,58 @@ on:
     branches: ["main"]
   pull_request:
 
+# A new commit supersedes an older CI run for the same PR/branch. This avoids
+# burning runner cores on commits that can no longer become the PR head.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-and-smoke:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
+      - name: Detect parallelism
+        id: cores
+        shell: bash
+        run: |
+          set -euo pipefail
+          detected="$(nproc 2>/dev/null || getconf _NPROCESSORS_ONLN || echo 2)"
+          # Keep a hard ceiling so an unexpectedly huge machine cannot create
+          # pathological memory pressure. A 32-vCPU runner uses all 32.
+          if [ "$detected" -gt 32 ]; then detected=32; fi
+          if [ "$detected" -lt 1 ]; then detected=1; fi
+          echo "jobs=$detected" >> "$GITHUB_OUTPUT"
+          echo "Detected $detected build/test workers"
+          lscpu || true
+          free -h || true
+
       - name: Configure
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+        run: |
+          cmake -S . -B build             -G Ninja             -DCMAKE_BUILD_TYPE=Release
 
       - name: Build
-        run: cmake --build build --parallel
+        env:
+          CMAKE_BUILD_PARALLEL_LEVEL: ${{ steps.cores.outputs.jobs }}
+        run: cmake --build build --parallel "${CMAKE_BUILD_PARALLEL_LEVEL}"
 
       - name: C++ tests
-        run: ctest --test-dir build --output-on-failure
+        env:
+          CTEST_PARALLEL_LEVEL: ${{ steps.cores.outputs.jobs }}
+        run: |
+          ctest             --test-dir build             --parallel "${CTEST_PARALLEL_LEVEL}"             --output-on-failure
 
-      - name: C++ runtime smoke test
-        run: python3 tests/smoke.py ./build/expert_robot_runtime
+      - name: Independent smoke tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tests/smoke.py ./build/expert_robot_runtime &
+          smoke_pid=$!
 
-      - name: Python orchestrator smoke test
-        run: python3 python/orchestrator.py --runtime ./build/expert_robot_runtime --role math --task "health check"
+          python3 python/orchestrator.py             --runtime ./build/expert_robot_runtime             --role math             --task "health check" &
+          orchestrator_pid=$!
+
+          wait "$smoke_pid"
+          wait "$orchestrator_pid"
