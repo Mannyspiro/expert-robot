@@ -13,6 +13,9 @@ Expert Robot is a local, modular AI research system designed around a thin Pytho
 - **C++**: everything performance-critical and trusted
   - artificial interoception + software neuromodulation + personality executive
   - recursive Lean lemma decomposition and retry
+  - bounded agent swarm + reusable math skills
+  - quality-diversity imagination + independent skeptic gate
+  - persistent local model-server supervision
   - model adapters / inference backends
   - tool execution
   - sandbox interfaces
@@ -66,8 +69,22 @@ expert-robot/
 │   │   │   ├── lemma_factory_bridge.hpp
 │   │   │   ├── neuromodulation.hpp
 │   │   │   └── personality.hpp
+│   │   ├── imagination/
+│   │   │   ├── archive.hpp
+│   │   │   ├── controller.hpp
+│   │   │   └── idea.hpp
+│   │   ├── skills/
+│   │   │   └── math_skill.hpp
+│   │   ├── swarm/
+│   │   │   ├── agent.hpp
+│   │   │   ├── aggregator.hpp
+│   │   │   ├── supervisor.hpp
+│   │   │   └── task.hpp
 │   │   ├── formalizer.hpp
 │   │   ├── lemma_factory.hpp
+│   │   ├── model_lemma_decomposer.hpp
+│   │   ├── model_server.hpp
+│   │   ├── text_generation.hpp
 │   │   ├── protocol.hpp
 │   │   └── runtime.hpp
 │   └── src/
@@ -154,6 +171,57 @@ remain fixed.
 See `docs/artificial-interoception.md`,
 `docs/software-neuromodulators.md`, `docs/personality-executive.md`, and
 `docs/recursive-lemma-factory.md`.
+
+## Hybrid mathematical research engine
+
+The cognition system now controls a bounded research swarm instead of routing
+every hard problem to a single prompt.
+
+```
+personality + interoception + neuromodulation
+                    |
+                    v
+             imagination drive
+                    |
+                    v
+        complementary math skills/lenses
+                    |
+                    v
+            divergent agent swarm
+                    |
+                    v
+       novelty + quality-diversity archive
+                    |
+                    v
+          independent skeptic gate
+                    |
+              <= 3 candidates
+                    |
+          +---------+----------+
+          |                    |
+          v                    v
+   experiment/graph     recursive lemma factory
+                               |
+                               v
+                              Lean
+```
+
+Agents and skills are deliberately separate. An **agent** is a specialist
+worker; a **skill** is a reusable mathematical procedure that can be applied by
+a worker. The initial catalog includes analogy transfer, geometry/algebra
+reframing, duality, contradiction, generalization, toy-model reduction,
+boundary probing, spectral/topological reframing, counterfactual analysis,
+explicit construction, and high-leverage lemma generation.
+
+For efficient local inference, Expert Robot can launch one persistent,
+loopback-only `llama-server` for Qwen Math. Lightweight agent subprocesses
+reuse those resident weights. Direct GGUF-per-call mode remains available for
+testing.
+
+The local model is still untrusted: imagination proposes, the skeptic filters,
+C++ enforces budgets/contracts, and Lean decides formal proof acceptance.
+
+See `docs/hybrid-math-engine.md`.
 
 ## IPC
 
