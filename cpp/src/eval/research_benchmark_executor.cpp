@@ -181,12 +181,18 @@ ResearchBenchmarkExecutor::ResearchBenchmarkExecutor(
 }
 
 app::MathResearchService&
-ResearchBenchmarkExecutor::service_for(
+ResearchBenchmarkExecutor::training_service_for(
     const BenchmarkVariantProfile& variant) {
+    if (frozen_variants_.contains(
+            variant.variant_id)) {
+        throw std::logic_error(
+            "training case encountered after benchmark state was frozen");
+    }
+
     const auto found =
-        services_.find(
+        training_services_.find(
             variant.variant_id);
-    if (found != services_.end()) {
+    if (found != training_services_.end()) {
         return *found->second;
     }
 
@@ -195,7 +201,8 @@ ResearchBenchmarkExecutor::service_for(
 
     service_config.state_dir =
         config_.state_root /
-        variant.variant_id;
+        variant.variant_id /
+        "train";
 
     service_config.theorem_graph_path =
         service_config.state_dir /
@@ -204,6 +211,8 @@ ResearchBenchmarkExecutor::service_for(
     service_config.research_engine.features =
         benchmark_feature_flags(
             variant);
+    service_config.research_engine.learning_writes =
+        true;
 
     auto service =
         std::make_unique<
@@ -217,11 +226,113 @@ ResearchBenchmarkExecutor::service_for(
     auto* raw =
         service.get();
 
-    services_.emplace(
+    training_services_.emplace(
         variant.variant_id,
         std::move(service));
 
     return *raw;
+}
+
+void ResearchBenchmarkExecutor::freeze_training_state(
+    const BenchmarkVariantProfile& variant) {
+    if (frozen_variants_.contains(
+            variant.variant_id)) {
+        return;
+    }
+
+    const auto found =
+        training_services_.find(
+            variant.variant_id);
+    if (found ==
+        training_services_.end()) {
+        throw std::logic_error(
+            "holdout evaluation requires completed training state");
+    }
+
+    // Close SQLite-backed stores before copying the training snapshot.
+    training_services_.erase(found);
+
+    const auto variant_root =
+        config_.state_root /
+        variant.variant_id;
+    const auto train_dir =
+        variant_root /
+        "train";
+    const auto frozen_dir =
+        variant_root /
+        "frozen_train";
+
+    if (!std::filesystem::exists(
+            train_dir)) {
+        throw std::runtime_error(
+            "training state directory is missing at freeze boundary");
+    }
+
+    std::filesystem::remove_all(
+        frozen_dir);
+    std::filesystem::copy(
+        train_dir,
+        frozen_dir,
+        std::filesystem::copy_options::recursive |
+            std::filesystem::copy_options::overwrite_existing);
+
+    frozen_variants_.insert(
+        variant.variant_id);
+}
+
+std::unique_ptr<app::MathResearchService>
+ResearchBenchmarkExecutor::holdout_service_for(
+    const BenchmarkVariantProfile& variant,
+    long long case_index) {
+    freeze_training_state(
+        variant);
+
+    const auto variant_root =
+        config_.state_root /
+        variant.variant_id;
+    const auto frozen_dir =
+        variant_root /
+        "frozen_train";
+    const auto case_dir =
+        variant_root /
+        "holdout" /
+        ("case-" +
+         std::to_string(case_index));
+
+    std::filesystem::remove_all(
+        case_dir);
+    std::filesystem::create_directories(
+        case_dir.parent_path());
+    std::filesystem::copy(
+        frozen_dir,
+        case_dir,
+        std::filesystem::copy_options::recursive |
+            std::filesystem::copy_options::overwrite_existing);
+
+    auto service_config =
+        config_.service;
+    service_config.state_dir =
+        case_dir;
+    service_config.theorem_graph_path =
+        case_dir /
+        "theorem_graph.json";
+    service_config.research_engine.features =
+        benchmark_feature_flags(
+            variant);
+
+    // Holdout cases can consume learned state, but no result may feed back
+    // into proof memory, imagination memory, skill evidence, theorem-graph
+    // consolidation, or route/sequence/strategy memory.
+    service_config.research_engine.learning_writes =
+        false;
+
+    return std::make_unique<
+        app::MathResearchService>(
+            lean_runner_,
+            freeform_math_backend_,
+            lemma_json_backend_,
+            formalization_json_backend_,
+            service_config);
 }
 
 research::ResearchProblem
@@ -314,12 +425,27 @@ BenchmarkCaseResult
 ResearchBenchmarkExecutor::run(
     const BenchmarkVariantProfile& variant,
     const BenchmarkCase& benchmark_case) {
-    auto& service =
-        service_for(variant);
-
     const long long index =
         ++case_counters_[
             variant.variant_id];
+
+    std::unique_ptr<app::MathResearchService>
+        holdout_service;
+    app::MathResearchService* service = nullptr;
+
+    if (benchmark_case.split ==
+        BenchmarkSplit::Train) {
+        service =
+            &training_service_for(
+                variant);
+    } else {
+        holdout_service =
+            holdout_service_for(
+                variant,
+                index);
+        service =
+            holdout_service.get();
+    }
 
     const std::string episode_id =
         "benchmark:" +
@@ -333,7 +459,7 @@ ResearchBenchmarkExecutor::run(
         std::chrono::steady_clock::now();
 
     const auto outcome =
-        service.run(
+        service->run(
             problem_for(
                 benchmark_case,
                 episode_id));
