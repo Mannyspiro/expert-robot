@@ -331,6 +331,44 @@ ResearchOutcome MathResearchEngine::run(
                     .imagination = imagined,
                 });
 
+        outcome.planned_sequences =
+            route_planner_->compose(
+                outcome.planned_routes);
+
+        if (!outcome.planned_sequences.empty()) {
+            const auto& sequence =
+                outcome.planned_sequences.front();
+
+            std::ostringstream payload;
+            payload
+                << "sequence_id="
+                << sequence.sequence_id
+                << "\nscore="
+                << sequence.final_score
+                << "\nsynergy="
+                << sequence.synergy_score
+                << "\nsteps="
+                << sequence.steps.size();
+
+            for (std::size_t i = 0U;
+                 i < sequence.steps.size();
+                 ++i) {
+                payload
+                    << "\nstep_"
+                    << i
+                    << "="
+                    << proof_route_kind_name(
+                        sequence.steps[i].kind)
+                    << ":"
+                    << sequence.steps[i].route_id;
+            }
+
+            (void)episode_ledger_.append(
+                problem.episode_id,
+                "route_sequence_top",
+                payload.str());
+        }
+
         if (!outcome.planned_routes.empty()) {
             const auto& top =
                 outcome.planned_routes.front();
@@ -354,8 +392,43 @@ ResearchOutcome MathResearchEngine::run(
             return std::nullopt;
         }
 
+        std::vector<const ProofRoute*>
+            dispatch_candidates;
+        std::unordered_set<std::string>
+            queued_route_ids;
+
+        if (!outcome.planned_sequences.empty()) {
+            const auto& top_sequence =
+                outcome.planned_sequences.front();
+
+            for (const auto& route :
+                 top_sequence.steps) {
+                if (queued_route_ids.insert(
+                        route.route_id).second) {
+                    dispatch_candidates.push_back(
+                        &route);
+                }
+            }
+        }
+
         for (const auto& route :
              outcome.planned_routes) {
+            if (queued_route_ids.insert(
+                    route.route_id).second) {
+                dispatch_candidates.push_back(
+                    &route);
+            }
+        }
+
+        for (const auto* route_ptr :
+             dispatch_candidates) {
+            if (route_ptr == nullptr) {
+                continue;
+            }
+
+            const auto& route =
+                *route_ptr;
+
             if (attempted_route_ids.contains(
                     route.route_id)) {
                 continue;
@@ -372,6 +445,11 @@ ResearchOutcome MathResearchEngine::run(
                     hints;
                 outcome.dispatched_route =
                     route;
+
+                if (!outcome.planned_sequences.empty()) {
+                    outcome.dispatched_sequence =
+                        outcome.planned_sequences.front();
+                }
 
                 std::ostringstream payload;
                 payload
@@ -390,6 +468,13 @@ ResearchOutcome MathResearchEngine::run(
                     << hints.size()
                     << "\nscore="
                     << route.final_score;
+
+                if (outcome.dispatched_sequence) {
+                    payload
+                        << "\nsequence_id="
+                        << outcome.dispatched_sequence->
+                            sequence_id;
+                }
 
                 (void)episode_ledger_.append(
                     problem.episode_id,
@@ -412,6 +497,11 @@ ResearchOutcome MathResearchEngine::run(
                 route.route_id);
             outcome.dispatched_route = route;
 
+            if (!outcome.planned_sequences.empty()) {
+                outcome.dispatched_sequence =
+                    outcome.planned_sequences.front();
+            }
+
             std::ostringstream payload;
             payload
                 << "route_id=" << route.route_id
@@ -422,6 +512,13 @@ ResearchOutcome MathResearchEngine::run(
                     *action)
                 << "\nscore="
                 << route.final_score;
+
+            if (outcome.dispatched_sequence) {
+                payload
+                    << "\nsequence_id="
+                    << outcome.dispatched_sequence->
+                        sequence_id;
+            }
 
             (void)episode_ledger_.append(
                 problem.episode_id,
