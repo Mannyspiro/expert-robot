@@ -185,6 +185,70 @@ int main() {
         sequences.front().sequence_id ==
         sequences_again.front().sequence_id);
 
+    KnowledgeGraph formal_graph;
+    formal_graph.sync_formal_registry(
+        "formal/theorem_registry.json");
+
+    ProofRoutePlanner formal_planner(
+        formal_graph,
+        RoutePlannerConfig{
+            .max_graph_depth = 2,
+            .max_graph_routes = 8,
+            .max_imagination_routes = 1,
+            .max_output_routes = 8
+        });
+
+    LogicalAssessment formal_logic;
+    formal_logic.evidence_strength = 0.8;
+    formal_logic.expected_success = 0.6;
+    formal_logic.expected_information_gain = 0.4;
+    formal_logic.contradiction_risk = 0.1;
+    formal_logic.decomposition_value = 0.1;
+    formal_logic.counterexample_value = 0.1;
+    formal_logic.abstraction_value = 0.2;
+    formal_logic.compression_value = 0.2;
+    formal_logic.representation_switch_value = 0.1;
+    formal_logic.current_route_progress = 0.2;
+    formal_logic.branch_cost = 0.1;
+
+    const auto formal_routes =
+        formal_planner.plan(
+            RoutePlanningRequest{
+                .target_name =
+                    "MathAI.Geometry.orthogonal_symm",
+                .target_domain = "geometry",
+                .cognitive_action =
+                    CognitiveAction::ContinueCurrentRoute,
+                .logic = formal_logic,
+                .imagination = nullptr
+            });
+
+    const auto dependency_route =
+        std::find_if(
+            formal_routes.begin(),
+            formal_routes.end(),
+            [](const ProofRoute& route) {
+                return
+                    route.kind ==
+                        ProofRouteKind::ReuseVerifiedTheorem &&
+                    route.theorem_path.size() == 2 &&
+                    route.theorem_path.back() ==
+                        "MathAI.Geometry.dot_comm";
+            });
+
+    assert(
+        dependency_route !=
+        formal_routes.end());
+
+    const auto dependency_hints =
+        lean_hint_tactics_for_route(
+            *dependency_route);
+
+    assert(dependency_hints.size() == 3);
+    assert(
+        dependency_hints.front() ==
+        "exact MathAI.Geometry.dot_comm");
+
     assert(
         proof_route_kind_name(
             ProofRouteKind::FollowTheoremPath) ==
