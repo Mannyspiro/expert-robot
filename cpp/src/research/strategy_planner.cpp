@@ -52,7 +52,8 @@ void validate_research_strategy_planner_config(
 
     for (const double value : {
              c.experience_weight,
-             c.exploration_weight}) {
+             c.exploration_weight,
+             c.evidence_half_saturation_attempts}) {
         if (!std::isfinite(value) ||
             value < 0.0) {
             throw std::invalid_argument(
@@ -63,6 +64,10 @@ void validate_research_strategy_planner_config(
     if (c.minimum_experience_attempts < 0) {
         throw std::invalid_argument(
             "strategy planner minimum experience must be nonnegative");
+    }
+    if (c.evidence_half_saturation_attempts <= 0.0) {
+        throw std::invalid_argument(
+            "strategy evidence half-saturation must be positive");
     }
 }
 
@@ -212,6 +217,7 @@ ResearchStrategyPlanner::plan(
             .exemplar_sequence = sequence,
             .base_score =
                 sequence.final_score,
+            .evidence_confidence = 0.0,
             .experience_adjustment = 0.0,
             .exploration_bonus = 0.0,
             .final_score =
@@ -268,8 +274,17 @@ ResearchStrategyPlanner::plan(
                 const double signed_success =
                     2.0 * success_prior - 1.0;
 
+                strategy.evidence_confidence =
+                    static_cast<double>(
+                        experience.attempts) /
+                    (static_cast<double>(
+                         experience.attempts) +
+                     config_.
+                         evidence_half_saturation_attempts);
+
                 strategy.experience_adjustment =
                     config_.experience_weight *
+                    strategy.evidence_confidence *
                     (signed_success -
                      0.25 * normalized_cost);
             }
