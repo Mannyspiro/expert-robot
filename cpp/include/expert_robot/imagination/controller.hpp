@@ -17,6 +17,7 @@ namespace expert_robot::imagination {
 struct ImaginationConfig {
     std::size_t normal_lens_budget{4};
     std::size_t breakthrough_lens_budget{8};
+    std::size_t minimum_lens_budget{1};
     std::size_t skeptic_budget{6};
     std::size_t max_expensive_candidates{3};
     std::size_t archive_capacity_per_lens{2};
@@ -80,6 +81,9 @@ public:
 
 private:
     [[nodiscard]] double imagination_drive(
+        const ImaginationRequest& request) const;
+
+    [[nodiscard]] std::size_t effective_lens_budget(
         const ImaginationRequest& request) const;
 
     [[nodiscard]] std::vector<ImaginationLens> choose_lenses(
