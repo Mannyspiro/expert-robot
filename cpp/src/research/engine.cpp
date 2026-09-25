@@ -1259,26 +1259,45 @@ ResearchOutcome MathResearchEngine::run(
                 });
         }
 
+        bool strategy_completed = false;
+        std::size_t strategy_steps_attempted = 0U;
+
         if (outcome.dispatched_strategy.has_value()) {
-            route_memory_->record_strategy(
-                ResearchStrategyOutcome{
-                    .strategy_id =
-                        outcome.dispatched_strategy->
-                            strategy_id,
-                    .signature =
-                        outcome.dispatched_strategy->
-                            signature,
-                    .domain =
-                        problem.target.domain,
-                    .verified_progress =
-                        verified_progress,
-                    .target_verified =
-                        outcome.target_verified,
-                    .dead_end_escaped =
-                        verified_progress,
-                    .resource_cost =
-                        resource_cost,
-                });
+            const auto& strategy =
+                *outcome.dispatched_strategy;
+
+            for (const auto& step :
+                 strategy.exemplar_sequence.steps) {
+                if (attempted_route_ids.contains(
+                        step.route_id)) {
+                    ++strategy_steps_attempted;
+                }
+            }
+
+            strategy_completed =
+                !strategy.exemplar_sequence.steps.empty() &&
+                strategy_steps_attempted ==
+                    strategy.exemplar_sequence.steps.size();
+
+            if (strategy_completed) {
+                route_memory_->record_strategy(
+                    ResearchStrategyOutcome{
+                        .strategy_id =
+                            strategy.strategy_id,
+                        .signature =
+                            strategy.signature,
+                        .domain =
+                            problem.target.domain,
+                        .verified_progress =
+                            verified_progress,
+                        .target_verified =
+                            outcome.target_verified,
+                        .dead_end_escaped =
+                            verified_progress,
+                        .resource_cost =
+                            resource_cost,
+                    });
+            }
         }
 
         std::ostringstream payload;
@@ -1334,6 +1353,15 @@ ResearchOutcome MathResearchEngine::run(
                 << "\nsignature="
                 << outcome.dispatched_strategy->
                     signature
+                << "\nsteps_attempted="
+                << strategy_steps_attempted
+                << "\nsteps_planned="
+                << outcome.dispatched_strategy->
+                    exemplar_sequence.steps.size()
+                << "\ncomplete="
+                << (strategy_completed
+                        ? "true"
+                        : "false")
                 << "\nverified_progress="
                 << (verified_progress
                         ? "true"
@@ -1347,7 +1375,9 @@ ResearchOutcome MathResearchEngine::run(
 
             (void)episode_ledger_.append(
                 problem.episode_id,
-                "research_strategy_outcome",
+                strategy_completed
+                    ? "research_strategy_outcome"
+                    : "research_strategy_partial",
                 strategy_payload.str());
         }
     }
