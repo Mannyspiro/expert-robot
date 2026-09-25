@@ -291,6 +291,10 @@ int main() {
         RoutePlannerConfig{},
         &route_memory);
 
+    ResearchStrategyPlanner strategy_planner(
+        ResearchStrategyPlannerConfig{},
+        &route_memory);
+
     MathResearchEngine engine(
         searcher,
         cognition,
@@ -311,7 +315,9 @@ int main() {
             .max_dispatch_steps = 32
         },
         &route_planner,
-        &route_memory);
+        &route_memory,
+        nullptr,
+        &strategy_planner);
 
     cognition::InteroceptiveSensors sensors;
     sensors.cpu_load = 0.20;
@@ -374,6 +380,8 @@ int main() {
     assert(!outcome.episode_root_hash.empty());
     assert(!outcome.planned_routes.empty());
     assert(!outcome.planned_sequences.empty());
+    assert(!outcome.planned_strategies.empty());
+    assert(outcome.dispatched_strategy.has_value());
     assert(outcome.dispatched_sequence.has_value());
     assert(outcome.dispatched_route.has_value());
     assert(
@@ -400,6 +408,23 @@ int main() {
     assert(
         sequence_experience.
             target_verifications == 1);
+
+    const auto strategy_experience =
+        route_memory.strategy_experience(
+            outcome.dispatched_strategy->
+                strategy_id,
+            target.domain);
+    assert(strategy_experience.attempts == 1);
+    assert(
+        strategy_experience.
+            verified_progresses == 1);
+    assert(
+        strategy_experience.
+            target_verifications == 1);
+    assert(
+        strategy_experience.signature ==
+        outcome.dispatched_strategy->
+            signature);
 
     const auto& target_node =
         graph.get(
@@ -437,6 +462,9 @@ int main() {
     bool saw_route_dispatch = false;
     bool saw_route_outcome = false;
     bool saw_route_sequence_outcome = false;
+    bool saw_strategy_top = false;
+    bool saw_strategy_dispatch = false;
+    bool saw_strategy_outcome = false;
 
     for (const auto& event :
          episode_ledger.events(
@@ -461,6 +489,18 @@ int main() {
             "route_sequence_outcome") {
             saw_route_sequence_outcome = true;
         }
+        if (event.event_type ==
+            "research_strategy_top") {
+            saw_strategy_top = true;
+        }
+        if (event.event_type ==
+            "research_strategy_dispatched") {
+            saw_strategy_dispatch = true;
+        }
+        if (event.event_type ==
+            "research_strategy_outcome") {
+            saw_strategy_outcome = true;
+        }
     }
 
     for (const auto& transition :
@@ -482,6 +522,9 @@ int main() {
     assert(saw_route_dispatch);
     assert(saw_route_outcome);
     assert(saw_route_sequence_outcome);
+    assert(saw_strategy_top);
+    assert(saw_strategy_dispatch);
+    assert(saw_strategy_outcome);
 
     std::filesystem::remove(
         graph_file);
