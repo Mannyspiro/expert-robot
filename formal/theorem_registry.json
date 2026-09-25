@@ -4,22 +4,217 @@
     {
       "name": "MathAI.Trust.add_zero_verified",
       "source": "MathAI/Trust/Seed.lean",
-      "status": "verified"
+      "status": "verified",
+      "statement": "For every natural number n, n + 0 = n.",
+      "domain": "algebra",
+      "tags": [
+        "seed",
+        "arithmetic",
+        "lean_verified"
+      ],
+      "uses": []
     },
     {
       "name": "MathAI.Trust.square_nonnegative",
       "source": "MathAI/Trust/Seed.lean",
-      "status": "verified"
+      "status": "verified",
+      "statement": "For every real x, 0 ≤ x^2.",
+      "domain": "algebra",
+      "tags": [
+        "seed",
+        "order",
+        "square",
+        "lean_verified"
+      ],
+      "uses": []
     },
     {
       "name": "MathAI.Geometry.origin_on_xy_plane",
       "source": "MathAI/Geometry/Exact.lean",
-      "status": "verified"
+      "status": "verified",
+      "statement": "The origin lies on the exact rational xy-plane with normal (0,0,1) and offset 0.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "plane",
+        "example",
+        "lean_verified"
+      ],
+      "uses": []
     },
     {
       "name": "MathAI.Geometry.unit_x_on_unit_sphere",
       "source": "MathAI/Geometry/Exact.lean",
-      "status": "verified"
+      "status": "verified",
+      "statement": "The point (1,0,0) lies on the exact rational unit sphere centered at the origin.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "sphere",
+        "example",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.dot_comm",
+      "source": "MathAI/Geometry/Derived.lean",
+      "status": "verified",
+      "statement": "The exact rational 3D dot product is symmetric.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "dot_product",
+        "symmetry",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.dot_zero_left",
+      "source": "MathAI/Geometry/Derived.lean",
+      "status": "verified",
+      "statement": "The dot product of the zero vector with any exact rational vector is zero.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "dot_product",
+        "zero",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.dot_zero_right",
+      "source": "MathAI/Geometry/Derived.lean",
+      "status": "verified",
+      "statement": "The dot product of any exact rational vector with the zero vector is zero.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "dot_product",
+        "zero",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.orthogonal_symm",
+      "source": "MathAI/Geometry/Derived.lean",
+      "status": "verified",
+      "statement": "Exact rational vector orthogonality is symmetric.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "orthogonality",
+        "symmetry",
+        "lean_verified"
+      ],
+      "uses": [
+        "MathAI.Geometry.dot_comm"
+      ]
+    },
+    {
+      "name": "MathAI.Geometry.zero_orthogonal_left",
+      "source": "MathAI/Geometry/Derived.lean",
+      "status": "verified",
+      "statement": "The zero vector is orthogonal to every exact rational vector.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "orthogonality",
+        "zero",
+        "lean_verified"
+      ],
+      "uses": [
+        "MathAI.Geometry.dot_zero_left"
+      ]
+    },
+    {
+      "name": "MathAI.Geometry.zero_orthogonal_right",
+      "source": "MathAI/Geometry/Derived.lean",
+      "status": "verified",
+      "statement": "Every exact rational vector is orthogonal to the zero vector.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "orthogonality",
+        "zero",
+        "lean_verified"
+      ],
+      "uses": [
+        "MathAI.Geometry.dot_zero_right"
+      ]
+    },
+    {
+      "name": "MathAI.Geometry.squaredDistance_self",
+      "source": "MathAI/Geometry/Derived.lean",
+      "status": "verified",
+      "statement": "The squared distance from an exact rational point to itself is zero.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "distance",
+        "zero",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.squaredDistance_symm",
+      "source": "MathAI/Geometry/Derived.lean",
+      "status": "verified",
+      "statement": "Exact rational squared distance is symmetric.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "distance",
+        "symmetry",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.squaredDistance_nonnegative",
+      "source": "MathAI/Geometry/Derived.lean",
+      "status": "verified",
+      "statement": "Exact rational squared distance is nonnegative.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "distance",
+        "nonnegative",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.validSphere_of_pointOnSphere",
+      "source": "MathAI/Geometry/Derived.lean",
+      "status": "verified",
+      "statement": "A point-on-sphere proof entails validity of the exact rational sphere.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "sphere",
+        "validity",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.squaredDistance_eq_radius_of_pointOnSphere",
+      "source": "MathAI/Geometry/Derived.lean",
+      "status": "verified",
+      "statement": "A point-on-sphere proof entails that squared distance to the center equals the sphere radius squared.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "sphere",
+        "distance",
+        "lean_verified"
+      ],
+      "uses": []
     }
   ]
 }
