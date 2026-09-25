@@ -188,6 +188,32 @@ ResearchUsage imagination_usage(
     };
 }
 
+ResearchStrategyContext strategy_context_for(
+    const ResearchProblem& problem) {
+    return ResearchStrategyContext{
+        .domain = problem.target.domain,
+        .theorem_graph_coverage =
+            problem.sensors.theorem_graph_coverage,
+        .uncertainty =
+            problem.sensors.uncertainty,
+        .route_repetition =
+            problem.sensors.route_repetition,
+        .consecutive_failures =
+            static_cast<long long>(
+                problem.sensors.consecutive_failures),
+        .decomposition_value =
+            problem.logic.decomposition_value,
+        .counterexample_value =
+            problem.logic.counterexample_value,
+        .abstraction_value =
+            problem.logic.abstraction_value,
+        .compression_value =
+            problem.logic.compression_value,
+        .representation_switch_value =
+            problem.logic.representation_switch_value,
+    };
+}
+
 void append_transition(
     ResearchEpisodeLedger& ledger,
     const std::string& episode_id,
@@ -448,10 +474,14 @@ ResearchOutcome MathResearchEngine::run(
         outcome.planned_strategies.clear();
         if (config_.features.strategy_planning &&
             strategy_planner_ != nullptr) {
+            const auto strategy_context =
+                strategy_context_for(problem);
+
             outcome.planned_strategies =
                 strategy_planner_->plan(
                     outcome.planned_sequences,
-                    problem.target.domain);
+                    problem.target.domain,
+                    &strategy_context);
 
             if (!outcome.planned_strategies.empty()) {
                 const auto& strategy =
@@ -473,6 +503,12 @@ ResearchOutcome MathResearchEngine::run(
                     << strategy.evidence_confidence
                     << "\nexperience_adjustment="
                     << strategy.experience_adjustment
+                    << "\ncontext_key="
+                    << strategy.context_key
+                    << "\ncontext_evidence_confidence="
+                    << strategy.context_evidence_confidence
+                    << "\ncontext_adjustment="
+                    << strategy.context_adjustment
                     << "\nsoft_retired="
                     << (strategy.soft_retired
                             ? "true"
@@ -1428,6 +1464,26 @@ ResearchOutcome MathResearchEngine::run(
                         .resource_cost =
                             resource_cost,
                     });
+
+                if (!strategy.context_key.empty()) {
+                    route_memory_->record_strategy_context(
+                        ResearchStrategyContextOutcome{
+                            .strategy_id =
+                                strategy.strategy_id,
+                            .signature =
+                                strategy.signature,
+                            .context_key =
+                                strategy.context_key,
+                            .verified_progress =
+                                verified_progress,
+                            .target_verified =
+                                outcome.target_verified,
+                            .dead_end_escaped =
+                                verified_progress,
+                            .resource_cost =
+                                resource_cost,
+                        });
+                }
             }
         }
 
@@ -1486,6 +1542,9 @@ ResearchOutcome MathResearchEngine::run(
                 << "\nsignature="
                 << outcome.dispatched_strategy->
                     signature
+                << "\ncontext_key="
+                << outcome.dispatched_strategy->
+                    context_key
                 << "\nsteps_attempted="
                 << strategy_steps_attempted
                 << "\nsteps_planned="
