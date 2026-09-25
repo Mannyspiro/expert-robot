@@ -75,32 +75,16 @@ jobs:
 
           echo "key_file=$key_file" >> "$GITHUB_OUTPUT"
 
-      - name: Discover runner repository through forwarded SSH agent
+      - name: Discover runner repository with deploy key
         if: ${{ inputs.discover_runner_repo }}
+        continue-on-error: true
         shell: bash
         env:
           RUNNER_REPO_SSH: ${{ inputs.runner_repo_ssh }}
         run: |
           set -euo pipefail
-          key_file="${{ steps.key.outputs.key_file }}"
 
-          ssh \
-            -A \
-            -i "$key_file" \
-            -o BatchMode=yes \
-            -o StrictHostKeyChecking=accept-new \
-            -o ConnectTimeout=20 \
-            railway.new \
-            "RUNNER_REPO_SSH='${RUNNER_REPO_SSH}' bash -s" \
-            2>&1 <<'REMOTE' | awk '!/"human_claim_url":/'
-          set -euo pipefail
-
-          if ! ssh-add -L >/dev/null 2>&1; then
-            echo "forwarded SSH agent unavailable" >&2
-            exit 20
-          fi
-
-          work="/tmp/expert-robot-runner-repo-discovery"
+          work="$RUNNER_TEMP/expert-robot-runner-repo-discovery"
           rm -rf "$work"
 
           GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
@@ -124,7 +108,6 @@ jobs:
           fi
 
           rm -rf "$work"
-          REMOTE
 
       - name: Package checkout
         id: package
@@ -169,7 +152,6 @@ jobs:
           # Railway may print provisioning metadata before command output. Drop
           # only that metadata line so claim URLs never enter the Actions log.
           ssh \
-            -A \
             -i "$key_file" \
             -o BatchMode=yes \
             -o StrictHostKeyChecking=accept-new \
