@@ -2,10 +2,11 @@ name: CI
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "feat/**"]
     paths-ignore:
       - "formal/**"
       - ".github/workflows/formal-qualification.yml"
+  workflow_dispatch:
   pull_request:
     paths-ignore:
       - "formal/**"
