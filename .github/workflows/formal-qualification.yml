@@ -59,6 +59,50 @@ jobs:
           print("Project Lean source audit passed.")
           PY
 
+      - name: Verified registry audit binding
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          import pathlib
+          import sys
+
+          formal = pathlib.Path("formal")
+          registry_path = formal / "theorem_registry.json"
+          audit_path = formal / "MathAI" / "Audit.lean"
+
+          registry = json.loads(registry_path.read_text(encoding="utf-8"))
+          audit = audit_path.read_text(encoding="utf-8")
+
+          failures = []
+          for theorem in registry.get("theorems", []):
+              if theorem.get("status") != "verified":
+                  continue
+
+              name = theorem.get("name", "")
+              source = theorem.get("source", "")
+
+              if not name or not source:
+                  failures.append("verified theorem missing name/source")
+                  continue
+
+              if not (formal / source).is_file():
+                  failures.append(f"{name}: registered source does not exist: {source}")
+
+              if f"#check {name}" not in audit:
+                  failures.append(f"{name}: missing exact #check in MathAI/Audit.lean")
+
+              if f"#print axioms {name}" not in audit:
+                  failures.append(f"{name}: missing exact #print axioms in MathAI/Audit.lean")
+
+          if failures:
+              print("\n".join(failures), file=sys.stderr)
+              sys.exit(1)
+
+          print("Verified theorem registry is explicitly bound to the Lean axiom audit.")
+          PY
+
       - name: Build and independently check pinned Lean package
         uses: leanprover/lean-action@v1
         env:
