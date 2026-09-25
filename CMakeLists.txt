@@ -43,6 +43,7 @@ add_library(expert_robot_core STATIC
     cpp/src/research/knowledge_consolidator.cpp
     cpp/src/research/route_planner.cpp
     cpp/src/research/route_memory.cpp
+    cpp/src/research/strategy_planner.cpp
     cpp/src/research/engine.cpp
     cpp/src/growth/generation_lineage.cpp
     cpp/src/growth/ablation_evidence.cpp
@@ -239,3 +240,9 @@ add_executable(retrieval_hint_engine_smoke
 )
 target_link_libraries(retrieval_hint_engine_smoke PRIVATE expert_robot_core SQLite::SQLite3)
 add_test(NAME retrieval_hint_engine_smoke COMMAND retrieval_hint_engine_smoke)
+
+add_executable(strategy_planner_smoke
+    tests/strategy_planner_smoke.cpp
+)
+target_link_libraries(strategy_planner_smoke PRIVATE expert_robot_core SQLite::SQLite3)
+add_test(NAME strategy_planner_smoke COMMAND strategy_planner_smoke)
