@@ -72,7 +72,8 @@ public:
         skills::MathSkillCatalog skill_catalog =
             skills::MathSkillCatalog::builtins(),
         ImaginationMemory* memory = nullptr,
-        skills::SkillLedger* skill_ledger = nullptr);
+        skills::SkillLedger* skill_ledger = nullptr,
+        bool persist_learning = true);
 
     [[nodiscard]] ImaginationRun run(
         const ImaginationRequest& request);
@@ -100,6 +101,7 @@ private:
     skills::MathSkillCatalog skills_;
     ImaginationMemory* memory_{nullptr};
     skills::SkillLedger* skill_ledger_{nullptr};
+    bool persist_learning_{true};
 };
 
 } // namespace expert_robot::imagination
