@@ -55,6 +55,9 @@ void validate_research_strategy_planner_config(
     const ResearchStrategyPlannerConfig& config);
 
 [[nodiscard]] std::string research_strategy_signature(
+    const std::vector<ProofRouteKind>& steps);
+
+[[nodiscard]] std::string research_strategy_signature(
     const ProofRouteSequence& sequence);
 
 [[nodiscard]] std::string research_strategy_id(
