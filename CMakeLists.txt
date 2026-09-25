@@ -47,6 +47,7 @@ add_library(expert_robot_core STATIC
     cpp/src/research/route_memory.cpp
     cpp/src/research/strategy_planner.cpp
     cpp/src/research/strategy_discovery.cpp
+    cpp/src/research/strategy_ablation.cpp
     cpp/src/research/engine.cpp
     cpp/src/growth/generation_lineage.cpp
     cpp/src/growth/ablation_evidence.cpp
@@ -283,3 +284,9 @@ set_tests_properties(
     PROPERTIES
         WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
 )
+
+add_executable(strategy_ablation_smoke
+    tests/strategy_ablation_smoke.cpp
+)
+target_link_libraries(strategy_ablation_smoke PRIVATE expert_robot_core)
+add_test(NAME strategy_ablation_smoke COMMAND strategy_ablation_smoke)
