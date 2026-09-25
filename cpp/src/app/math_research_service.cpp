@@ -141,6 +141,9 @@ MathResearchService::MathResearchService(
           graph_,
           config_.route_planner,
           &route_memory_),
+      strategy_planner_(
+          config_.strategy_planner,
+          &route_memory_),
       engine_(
           searcher_,
           cognition_,
@@ -152,7 +155,8 @@ MathResearchService::MathResearchService(
           config_.research_engine,
           &route_planner_,
           &route_memory_,
-          &skill_ledger_) {
+          &skill_ledger_,
+          &strategy_planner_) {
     if (!config_.theorem_registry.empty() &&
         std::filesystem::exists(
             config_.theorem_registry)) {
