@@ -1,5 +1,6 @@
 #include "expert_robot/imagination/controller.hpp"
 #include "expert_robot/model_lemma_decomposer.hpp"
+#include "expert_robot/model_server.hpp"
 #include "expert_robot/skills/math_skill.hpp"
 #include "expert_robot/swarm/aggregator.hpp"
 #include "expert_robot/swarm/supervisor.hpp"
@@ -176,6 +177,46 @@ int main() {
     using namespace expert_robot::swarm;
     using namespace expert_robot::imagination;
     using namespace expert_robot::cognition;
+
+    LlamaServerConfig server_config{
+        .executable = "llama-server",
+        .model_path = "models/math/test.gguf",
+        .host = "127.0.0.1",
+        .port = 18081,
+        .parallel_slots = 2,
+        .context_size = 8192,
+        .startup_timeout_seconds = 30,
+        .offline = true
+    };
+    validate_llama_server_config(server_config);
+    LlamaServerProcess server(server_config);
+    assert(!server.running());
+    assert(server.server_base() == "http://127.0.0.1:18081");
+
+    bool remote_rejected = false;
+    try {
+        auto invalid = server_config;
+        invalid.host = "0.0.0.0";
+        validate_llama_server_config(invalid);
+    } catch (const std::invalid_argument&) {
+        remote_rejected = true;
+    }
+    assert(remote_rejected);
+
+    LlamaCliConfig server_backend_config;
+    server_backend_config.server_base =
+        "http://127.0.0.1:18081";
+    validate_llama_cli_config(server_backend_config);
+
+    bool remote_backend_rejected = false;
+    try {
+        auto invalid_backend = server_backend_config;
+        invalid_backend.server_base = "http://example.com:8080";
+        validate_llama_cli_config(invalid_backend);
+    } catch (const std::invalid_argument&) {
+        remote_backend_rejected = true;
+    }
+    assert(remote_backend_rejected);
 
     const auto skill_catalog =
         expert_robot::skills::MathSkillCatalog::builtins();
