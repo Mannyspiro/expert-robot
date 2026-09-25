@@ -142,8 +142,15 @@ std::vector<AgentResult> SwarmSupervisor::run_batch(
             futures.push_back(
                 std::async(
                     std::launch::async,
-                    [task, backend, backend_lock]() {
-                        std::scoped_lock lock(*backend_lock);
+                    [task, backend, backend_lock,
+                     serialize = limits_.serialize_shared_backend]() {
+                        if (serialize) {
+                            std::scoped_lock lock(*backend_lock);
+                            ModelAgent agent(
+                                task.role,
+                                *backend);
+                            return agent.run(task);
+                        }
                         ModelAgent agent(
                             task.role,
                             *backend);
