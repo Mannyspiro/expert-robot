@@ -159,6 +159,29 @@ executable_action_for_route(
     return std::nullopt;
 }
 
+std::vector<std::string>
+lean_hint_tactics_for_route(
+    const ProofRoute& route) {
+    if (route.kind !=
+            ProofRouteKind::ReuseVerifiedTheorem ||
+        route.theorem_path.size() < 2U) {
+        return {};
+    }
+
+    const std::string& theorem =
+        route.theorem_path.back();
+
+    if (theorem.empty()) {
+        return {};
+    }
+
+    return {
+        "exact " + theorem,
+        "simpa using " + theorem,
+    };
+}
+
+
 
 ProofRoutePlanner::ProofRoutePlanner(
     const KnowledgeGraph& graph,
