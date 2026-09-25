@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cmath>
 #include <map>
+#include <optional>
 #include <set>
 #include <sstream>
 #include <stdexcept>
@@ -218,6 +219,118 @@ std::vector<skills::MathSkill> skills_for_lens(
     }
 
     return result;
+}
+
+double smoothed_rate(
+    long long successes,
+    long long trials) {
+    if (successes < 0 || trials < 0 ||
+        successes > trials) {
+        return 0.0;
+    }
+    return static_cast<double>(successes + 1) /
+           static_cast<double>(trials + 2);
+}
+
+double skill_evidence_score(
+    const skills::MathSkill& skill,
+    const skills::SkillLedger* ledger) {
+    const double stage_prior =
+        skill.stage == skills::SkillStage::Qualified
+            ? 0.50
+            : 0.20;
+
+    if (ledger == nullptr) {
+        return stage_prior;
+    }
+
+    const auto stats =
+        ledger->stats(skill.skill_id);
+
+    const long long resolved =
+        stats.downstream_verified +
+        stats.downstream_failed;
+
+    const double verified =
+        smoothed_rate(
+            stats.downstream_verified,
+            resolved);
+    const double shortlisted =
+        smoothed_rate(
+            stats.shortlisted,
+            stats.attempts);
+    const double skeptic =
+        smoothed_rate(
+            stats.skeptic_passes,
+            stats.attempts);
+
+    // New/rarely tried skills keep a small exploration bonus, but evidence
+    // dominates once real downstream outcomes accumulate.
+    const double exploration =
+        1.0 / std::sqrt(
+            static_cast<double>(
+                stats.attempts + 1));
+
+    return clamp01(
+        stage_prior +
+        0.25 * verified +
+        0.10 * shortlisted +
+        0.05 * skeptic +
+        0.10 * exploration);
+}
+
+std::optional<skills::MathSkill>
+select_skill_for_lens(
+    const skills::MathSkillCatalog& catalog,
+    const ImaginationRequest& request,
+    ImaginationLens lens,
+    const skills::SkillLedger* ledger) {
+    auto candidates =
+        skills_for_lens(
+            catalog,
+            request,
+            lens);
+
+    if (request.evaluation_mode) {
+        std::vector<skills::MathSkill>
+            experimental;
+        for (const auto& skill : candidates) {
+            if (skill.stage ==
+                skills::SkillStage::Experimental) {
+                experimental.push_back(skill);
+            }
+        }
+
+        // Ablation means isolate the experimental procedure instead of
+        // blending it with a qualified baseline in the same prompt.
+        if (!experimental.empty()) {
+            candidates =
+                std::move(experimental);
+        }
+    }
+
+    if (candidates.empty()) {
+        return std::nullopt;
+    }
+
+    std::stable_sort(
+        candidates.begin(),
+        candidates.end(),
+        [&](const skills::MathSkill& a,
+            const skills::MathSkill& b) {
+            const double sa =
+                skill_evidence_score(
+                    a,
+                    ledger);
+            const double sb =
+                skill_evidence_score(
+                    b,
+                    ledger);
+            if (sa != sb) return sa > sb;
+            return a.skill_id < b.skill_id;
+        });
+
+    return candidates.front();
 }
 
 bool candidate_better(
@@ -523,6 +636,11 @@ ImaginationRun ImaginationController::run(
     std::vector<swarm::AgentTask> tasks;
     tasks.reserve(run.selected_lenses.size());
 
+    std::vector<std::string>
+        selected_skill_ids;
+    selected_skill_ids.reserve(
+        run.selected_lenses.size());
+
     for (const auto lens : run.selected_lenses) {
         std::ostringstream goal;
         goal
@@ -533,22 +651,38 @@ ImaginationRun ImaginationController::run(
             << "\n"
             << lens_instruction(lens);
 
-        const auto matching_skills =
-            skills_for_lens(
+        const auto selected_skill =
+            select_skill_for_lens(
                 skills_,
                 request,
-                lens);
-        for (const auto& skill : matching_skills) {
+                lens,
+                skill_ledger_);
+
+        auto role =
+            role_for_lens(lens);
+
+        if (selected_skill.has_value()) {
+            const auto& skill =
+                *selected_skill;
+
+            role =
+                skill.preferred_role;
+
+            selected_skill_ids.push_back(
+                skill.skill_id);
+
             goal
                 << "\n\n"
                 << (skill.stage ==
                             skills::SkillStage::Experimental
                         ? "EXPERIMENTAL SKILL UNDER ABLATION: "
-                        : "Reusable math skill: ")
+                        : "Selected reusable math skill: ")
                 << skill.skill_id
                 << " — " << skill.title
                 << "\nProcedure: "
                 << skill.procedure;
+        } else {
+            selected_skill_ids.emplace_back();
         }
 
         goal
@@ -563,7 +697,7 @@ ImaginationRun ImaginationController::run(
                     request.request_id +
                     ":imagine:" +
                     std::string(lens_name(lens)),
-                .role = role_for_lens(lens),
+                .role = role,
                 .goal = goal.str(),
                 .context = context,
                 .parent_task_id = request.request_id,
@@ -617,6 +751,10 @@ ImaginationRun ImaginationController::run(
             .lens = lens,
             .source_role = result.role,
             .text = text,
+            .skill_id =
+                i < selected_skill_ids.size()
+                    ? selected_skill_ids[i]
+                    : std::string{},
             .novelty_score = novelty,
             .relevance_score = relevance,
             .quality_diversity_score = qd_score,
@@ -738,13 +876,9 @@ ImaginationRun ImaginationController::run(
                                idea.idea_id;
                     });
 
-            for (const auto& skill :
-                 skills_for_lens(
-                     skills_,
-                     request,
-                     idea.lens)) {
+            if (!idea.skill_id.empty()) {
                 skill_ledger_->record_generation(
-                    skill.skill_id,
+                    idea.skill_id,
                     idea.skeptic_valid &&
                         idea.skeptic_keep,
                     shortlisted);
