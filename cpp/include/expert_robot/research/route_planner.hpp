@@ -66,6 +66,8 @@ struct RoutePlannerConfig {
     long long minimum_experience_attempts{3};
 
     double sequence_synergy_weight{0.16};
+    double sequence_experience_weight{0.12};
+    long long minimum_sequence_experience_attempts{3};
 };
 
 struct ProofRouteSequence {
@@ -111,7 +113,8 @@ public:
         const RoutePlanningRequest& request) const;
 
     [[nodiscard]] std::vector<ProofRouteSequence> compose(
-        const std::vector<ProofRoute>& routes) const;
+        const std::vector<ProofRoute>& routes,
+        std::string_view target_domain = {}) const;
 
 private:
     [[nodiscard]] std::vector<ProofRoute> graph_routes(
