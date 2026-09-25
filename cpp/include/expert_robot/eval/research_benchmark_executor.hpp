@@ -7,6 +7,7 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace expert_robot::eval {
 
@@ -35,8 +36,16 @@ public:
         const BenchmarkCase& benchmark_case) override;
 
 private:
-    [[nodiscard]] app::MathResearchService& service_for(
+    [[nodiscard]] app::MathResearchService& training_service_for(
         const BenchmarkVariantProfile& variant);
+
+    void freeze_training_state(
+        const BenchmarkVariantProfile& variant);
+
+    [[nodiscard]] std::unique_ptr<app::MathResearchService>
+    holdout_service_for(
+        const BenchmarkVariantProfile& variant,
+        long long case_index);
 
     [[nodiscard]] research::ResearchProblem problem_for(
         const BenchmarkCase& benchmark_case,
@@ -51,7 +60,9 @@ private:
     std::unordered_map<
         std::string,
         std::unique_ptr<app::MathResearchService>>
-        services_;
+        training_services_;
+    std::unordered_set<std::string>
+        frozen_variants_;
     std::unordered_map<std::string, long long>
         case_counters_;
 };
