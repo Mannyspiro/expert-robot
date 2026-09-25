@@ -89,6 +89,21 @@ void collect_proven_child_candidates(
     }
 }
 
+double conservative_resource_pressure(
+    const cognition::InteroceptiveSensors& sensors) {
+    return std::clamp(
+        std::max({
+            sensors.cpu_load,
+            sensors.gpu_load,
+            sensors.ram_pressure,
+            sensors.vram_pressure,
+            sensors.context_utilization,
+            sensors.work_queue_pressure
+        }),
+        0.0,
+        1.0);
+}
+
 void update_failure_sensors(
     cognition::InteroceptiveSensors& sensors,
     std::size_t attempts,
@@ -303,7 +318,8 @@ ResearchOutcome MathResearchEngine::run(
                 ResearchObservation observation;
                 observation.retrieval_complete = true;
                 observation.resource_pressure =
-                    problem.sensors.resource_pressure;
+                    conservative_resource_pressure(
+                        problem.sensors);
 
                 transition =
                     machine.step(
@@ -516,7 +532,8 @@ ResearchOutcome MathResearchEngine::run(
                 observation.usage_delta.proof_attempts =
                     attempts;
                 observation.resource_pressure =
-                    problem.sensors.resource_pressure;
+                    conservative_resource_pressure(
+                        problem.sensors);
 
                 transition =
                     machine.step(
@@ -578,7 +595,8 @@ ResearchOutcome MathResearchEngine::run(
                         ? tree.node_count() - 1U
                         : 0U;
                 observation.resource_pressure =
-                    problem.sensors.resource_pressure;
+                    conservative_resource_pressure(
+                        problem.sensors);
 
                 if (tree.proven()) {
                     outcome.target_result =
@@ -621,7 +639,8 @@ ResearchOutcome MathResearchEngine::run(
                 observation.usage_delta.proof_attempts =
                     proof_attempts(retry);
                 observation.resource_pressure =
-                    problem.sensors.resource_pressure;
+                    conservative_resource_pressure(
+                        problem.sensors);
 
                 if (retry.proven()) {
                     outcome.target_result =
