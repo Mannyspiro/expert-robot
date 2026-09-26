@@ -221,6 +221,16 @@ int main() {
                 },
                 "MathAI.Geometry.squaredDistance p p = 0"),
             make_case(
+                "validation-dot-zero-left",
+                "dot-zero-left-validation",
+                BenchmarkSplit::Validation,
+                "MathAI.Geometry.dot_zero_left",
+                "validation_dot_zero_left",
+                {
+                    {"a", "MathAI.Geometry.Vec3"}
+                },
+                "MathAI.Geometry.dot MathAI.Geometry.zeroVec a = 0"),
+            make_case(
                 "holdout-zero-orthogonal",
                 "zero-orthogonality-holdout",
                 BenchmarkSplit::Holdout,
@@ -290,6 +300,11 @@ int main() {
             run,
             "proof_search",
             BenchmarkSplit::Train);
+    const auto* baseline_validation =
+        summary(
+            run,
+            "proof_search",
+            BenchmarkSplit::Validation);
     const auto* baseline_holdout =
         summary(
             run,
@@ -300,6 +315,11 @@ int main() {
             run,
             "theorem_graph",
             BenchmarkSplit::Train);
+    const auto* graph_validation =
+        summary(
+            run,
+            "theorem_graph",
+            BenchmarkSplit::Validation);
     const auto* graph_holdout =
         summary(
             run,
@@ -307,18 +327,23 @@ int main() {
             BenchmarkSplit::Holdout);
 
     assert(baseline_train != nullptr);
+    assert(baseline_validation != nullptr);
     assert(baseline_holdout != nullptr);
     assert(graph_train != nullptr);
+    assert(graph_validation != nullptr);
     assert(graph_holdout != nullptr);
 
     assert(baseline_train->verified == 0);
+    assert(baseline_validation->verified == 0);
     assert(baseline_holdout->verified == 0);
 
     // Only cases with explicit safe USES dependencies can pass the fake Lean
     // runner, proving graph retrieval is both enabled and relation-aware.
     assert(graph_train->verified == 1);
+    assert(graph_validation->verified == 1);
     assert(graph_holdout->verified == 1);
     assert(graph_train->zero_model_verified == 1);
+    assert(graph_validation->zero_model_verified == 1);
     assert(graph_holdout->zero_model_verified == 1);
 
     assert(model.calls == 0);
@@ -329,15 +354,18 @@ int main() {
     // any of their own outcomes back into those stores.
     const auto frozen_state =
         root / "strategy_memory" / "frozen_train";
-    const auto holdout_three =
-        root / "strategy_memory" / "holdout" / "case-3";
+    const auto validation_three =
+        root / "strategy_memory" / "validation" / "case-3";
     const auto holdout_four =
         root / "strategy_memory" / "holdout" / "case-4";
+    const auto holdout_five =
+        root / "strategy_memory" / "holdout" / "case-5";
 
     for (const auto& state :
          {frozen_state,
-          holdout_three,
-          holdout_four}) {
+          validation_three,
+          holdout_four,
+          holdout_five}) {
         assert(
             std::filesystem::exists(
                 state / "proof_memory.sqlite3"));
@@ -348,37 +376,49 @@ int main() {
 
     ProofMemory frozen_proof(
         frozen_state / "proof_memory.sqlite3");
-    ProofMemory holdout_three_proof(
-        holdout_three / "proof_memory.sqlite3");
+    ProofMemory validation_three_proof(
+        validation_three / "proof_memory.sqlite3");
     ProofMemory holdout_four_proof(
         holdout_four / "proof_memory.sqlite3");
+    ProofMemory holdout_five_proof(
+        holdout_five / "proof_memory.sqlite3");
 
     const auto frozen_proof_summary =
         frozen_proof.summary();
-    const auto holdout_three_summary =
-        holdout_three_proof.summary();
+    const auto validation_three_summary =
+        validation_three_proof.summary();
     const auto holdout_four_summary =
         holdout_four_proof.summary();
+    const auto holdout_five_summary =
+        holdout_five_proof.summary();
 
     assert(
         frozen_proof_summary.attempts ==
-        holdout_three_summary.attempts);
+        validation_three_summary.attempts);
     assert(
         frozen_proof_summary.attempts ==
         holdout_four_summary.attempts);
     assert(
+        frozen_proof_summary.attempts ==
+        holdout_five_summary.attempts);
+    assert(
         frozen_proof_summary.successful_attempts ==
-        holdout_three_summary.successful_attempts);
+        validation_three_summary.successful_attempts);
     assert(
         frozen_proof_summary.successful_attempts ==
         holdout_four_summary.successful_attempts);
+    assert(
+        frozen_proof_summary.successful_attempts ==
+        holdout_five_summary.successful_attempts);
 
     research::RouteOutcomeLedger frozen_routes(
         frozen_state / "route_memory.sqlite3");
-    research::RouteOutcomeLedger holdout_three_routes(
-        holdout_three / "route_memory.sqlite3");
+    research::RouteOutcomeLedger validation_three_routes(
+        validation_three / "route_memory.sqlite3");
     research::RouteOutcomeLedger holdout_four_routes(
         holdout_four / "route_memory.sqlite3");
+    research::RouteOutcomeLedger holdout_five_routes(
+        holdout_five / "route_memory.sqlite3");
 
     const auto route_attempts =
         [](const research::RouteOutcomeLedger& ledger) {
@@ -412,22 +452,31 @@ int main() {
 
     assert(
         route_attempts(frozen_routes) ==
-        route_attempts(holdout_three_routes));
+        route_attempts(validation_three_routes));
     assert(
         route_attempts(frozen_routes) ==
         route_attempts(holdout_four_routes));
     assert(
+        route_attempts(frozen_routes) ==
+        route_attempts(holdout_five_routes));
+    assert(
         strategy_attempts(frozen_routes) ==
-        strategy_attempts(holdout_three_routes));
+        strategy_attempts(validation_three_routes));
     assert(
         strategy_attempts(frozen_routes) ==
         strategy_attempts(holdout_four_routes));
     assert(
+        strategy_attempts(frozen_routes) ==
+        strategy_attempts(holdout_five_routes));
+    assert(
         step_attempts(frozen_routes) ==
-        step_attempts(holdout_three_routes));
+        step_attempts(validation_three_routes));
     assert(
         step_attempts(frozen_routes) ==
         step_attempts(holdout_four_routes));
+    assert(
+        step_attempts(frozen_routes) ==
+        step_attempts(holdout_five_routes));
 
     std::filesystem::remove_all(root);
     return 0;
