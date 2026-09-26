@@ -78,6 +78,52 @@ std::string render_json(
         out += "\n";
     }
 
+    out += "  ],\n";
+    out += "  \"records\": [\n";
+
+    for (std::size_t i = 0;
+         i < run.records.size();
+         ++i) {
+        const auto& r =
+            run.records[i];
+
+        out += "    {";
+        out += "\"variant\":\"" +
+               escape(r.variant) + "\",";
+        out += "\"case_id\":\"" +
+               escape(r.case_id) + "\",";
+        out += "\"domain\":\"" +
+               escape(r.domain) + "\",";
+        out += "\"verified\":" +
+               std::string(
+                   r.verified ? "true" : "false") + ",";
+        out += "\"dead_end_escaped\":" +
+               std::string(
+                   r.dead_end_escaped ? "true" : "false") + ",";
+        out += "\"wall_time_ms\":" +
+               std::to_string(r.wall_time_ms) + ",";
+        out += "\"model_calls\":" +
+               std::to_string(r.model_calls) + ",";
+        out += "\"proof_attempts\":" +
+               std::to_string(r.proof_attempts) + ",";
+        out += "\"lemmas_generated\":" +
+               std::to_string(r.lemmas_generated) + ",";
+        out += "\"ideas_generated\":" +
+               std::to_string(r.ideas_generated) + ",";
+        out += "\"duplicate_candidates\":" +
+               std::to_string(
+                   r.duplicate_candidates) + ",";
+        out += "\"resource_cost\":" +
+               std::to_string(r.resource_cost);
+        out += "}";
+
+        if (i + 1U <
+            run.records.size()) {
+            out += ",";
+        }
+        out += "\n";
+    }
+
     out += "  ]\n";
     out += "}\n";
     return out;
