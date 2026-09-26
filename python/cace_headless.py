@@ -7,6 +7,7 @@ import ipaddress
 import json
 from pathlib import Path
 import sys
+import time
 from typing import Any, Mapping, Sequence
 from urllib.error import HTTPError, URLError
 from urllib.parse import unquote, urlsplit, urlunsplit
@@ -225,6 +226,86 @@ class CACEHeadlessClient:
             raise HeadlessClientError("CACE run status must be an object")
         return result
 
+    def wait_run(
+        self,
+        job_id: str,
+        *,
+        timeout_seconds: float = 10.0,
+        poll_interval: float = 0.05,
+    ) -> dict[str, Any]:
+        if timeout_seconds <= 0:
+            raise HeadlessClientError("run wait timeout must be positive")
+        if poll_interval <= 0:
+            raise HeadlessClientError("run poll interval must be positive")
+        deadline = time.monotonic() + timeout_seconds
+        while True:
+            current = self.run_status(job_id)
+            status = str(current.get("status", ""))
+            if status in {"completed", "cancelled", "failed"}:
+                return current
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise HeadlessClientError(f"CACE run {job_id!r} did not reach a terminal state")
+            time.sleep(min(poll_interval, remaining))
+
+    def empty_smoke_run(self, *, seed: int = 7) -> dict[str, Any]:
+        started = self.start_run({
+            "experiment": {
+                "schema_version": 2,
+                "graph_schema_version": 1,
+                "name": "Headless Empty Smoke",
+                "nodes": [],
+                "edges": [],
+                "groups": [],
+                "metadata": {
+                    "surface": "expert-robot-headless",
+                    "proof_effect": "none",
+                },
+            },
+            "seed": int(seed),
+            "target_node_ids": [],
+            "gpu_enabled": False,
+        })
+        job_id = started.get("job_id")
+        if not isinstance(job_id, str) or not job_id:
+            raise HeadlessClientError("CACE smoke run did not return a job id")
+        terminal = self.wait_run(job_id)
+        if terminal.get("status") != "completed":
+            raise HeadlessClientError(
+                f"CACE empty smoke run ended with status {terminal.get('status')!r}"
+            )
+        report = terminal.get("result")
+        if not isinstance(report, dict) or report.get("completed") is not True:
+            raise HeadlessClientError("CACE empty smoke run did not return a completed report")
+        if int(report.get("seed", seed)) != int(seed):
+            raise HeadlessClientError("CACE empty smoke run seed mismatch")
+        return {
+            "schema_version": 1,
+            "ok": True,
+            "proof_effect": "none",
+            "job": terminal,
+        }
+
+    def e2e_smoke(self, prompt: str = "Identify yourself as the untrusted local CACE research assistant.") -> dict[str, Any]:
+        health = self.health()
+        if not health.get("ok"):
+            raise HeadlessClientError("CACE/LLM health check failed")
+        assistant = self.chat(
+            [{"role": "user", "content": prompt}],
+            temperature=0.0,
+            max_tokens=96,
+        )
+        if not assistant.get("untrusted") or assistant.get("can_promote") is not False:
+            raise HeadlessClientError("local assistant trust flags are invalid")
+        run = self.empty_smoke_run(seed=7)
+        return {
+            "schema_version": 1,
+            "ok": True,
+            "assistant": assistant,
+            "run": run,
+            "authority_expanded": False,
+        }
+
     def chat(
         self,
         messages: Sequence[Mapping[str, str]],
@@ -341,6 +422,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     status = sub.add_parser("run-status")
     status.add_argument("job_id")
 
+    sub.add_parser("smoke-run")
+    e2e = sub.add_parser("e2e-smoke")
+    e2e.add_argument(
+        "--prompt",
+        default="Identify yourself as the untrusted local CACE research assistant.",
+    )
+
     args = parser.parse_args(argv)
     client = CACEHeadlessClient(HeadlessConfig.load(args.config), timeout=args.timeout)
 
@@ -365,6 +453,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         result = client.start_run(json.loads(Path(args.payload_json).read_text(encoding="utf-8")))
     elif args.command == "run-status":
         result = client.run_status(args.job_id)
+    elif args.command == "smoke-run":
+        result = client.empty_smoke_run()
+    elif args.command == "e2e-smoke":
+        result = client.e2e_smoke(args.prompt)
     else:
         raise AssertionError(args.command)
 

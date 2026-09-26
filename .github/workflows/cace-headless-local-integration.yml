@@ -49,6 +49,7 @@ jobs:
           rm -rf "$tmp"
           mkdir -p "$tmp/config" "$tmp/scripts" "$tmp/tests"
           cp integration/cace/config/headless_local_llm.json "$tmp/config/"
+          cp integration/cace/config/model_provision_policy.json "$tmp/config/"
           cp integration/cace/scripts/run_cace_headless_local.sh "$tmp/scripts/"
           cp integration/cace/tests/test_headless_local_llm_contract.py "$tmp/tests/"
           python3 "$tmp/tests/test_headless_local_llm_contract.py"

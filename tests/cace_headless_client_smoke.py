@@ -58,7 +58,15 @@ def main() -> int:
         if url.endswith("/api/runs") and method == "POST":
             return {"job_id": "job-1", "status": "queued"}
         if url.endswith("/api/runs/job-1"):
-            return {"job_id": "job-1", "status": "completed"}
+            return {
+                "job_id": "job-1",
+                "status": "completed",
+                "result": {
+                    "completed": True,
+                    "seed": 7,
+                    "experiment": "Headless Empty Smoke",
+                },
+            }
         if url.endswith("/v1/models"):
             return {"data": [{"id": "Qwen/Qwen3.5-4B"}]}
         if url.endswith("/v1/chat/completions"):
@@ -92,6 +100,11 @@ def main() -> int:
         assert client.start_run({"experiment": {"nodes": [], "edges": []}})["status"] == "queued"
         assert client.run_status("job-1")["status"] == "completed"
 
+        smoke = client.empty_smoke_run(seed=7)
+        assert smoke["ok"] is True
+        assert smoke["proof_effect"] == "none"
+        assert smoke["job"]["result"]["completed"] is True
+
         reply = client.chat([{"role": "user", "content": "hello"}])
         assert reply["untrusted"] is True
         assert reply["can_promote"] is False
@@ -104,6 +117,12 @@ def main() -> int:
             if url.endswith("/v1/chat/completions") and method == "POST"
         ]
         assert any("available_module_count" in p["messages"][-1]["content"] for p in chat_payloads)
+
+        e2e = client.e2e_smoke("Say one sentence.")
+        assert e2e["ok"] is True
+        assert e2e["assistant"]["untrusted"] is True
+        assert e2e["run"]["proof_effect"] == "none"
+        assert e2e["authority_expanded"] is False
 
         expect_error(lambda: client.run_status("../escape"), "invalid CACE job id")
     finally:
