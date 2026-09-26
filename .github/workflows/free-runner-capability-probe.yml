@@ -69,17 +69,6 @@ jobs:
           runner_commit="$(git rev-parse HEAD)"
           printf '%s\n' "$runner_commit" > "$evidence/runner-repo-commit.txt"
 
-          echo "=== locked CACE regression branch probe state ==="
-          if GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' git fetch -q origin executor/cace-regression-locked:refs/remotes/origin/cace-regression-locked; then
-            locked_commit="$(git rev-parse refs/remotes/origin/cace-regression-locked)"
-            printf '%s\n' "$locked_commit" > "$evidence/locked-regression-commit.txt"
-            git ls-tree -r --name-only refs/remotes/origin/cace-regression-locked > "$evidence/locked-regression-files.txt"
-            grep -E '^bridge/(runtime-probe-request\.json|runtime-probe-original-workflow\.yml|local-runtime-probe-result\.json)$' "$evidence/locked-regression-files.txt" > "$evidence/locked-runtime-probe-files.txt" || true
-            cat "$evidence/locked-runtime-probe-files.txt"
-            if git show refs/remotes/origin/cace-regression-locked:bridge/local-runtime-probe-result.json > "$evidence/locked-runtime-probe-result.json" 2>/dev/null; then
-              echo "locked runtime result present"
-            fi
-          fi
           echo "=== external workflow inventory ==="
           if [ -d .github/workflows ]; then
             find .github/workflows -maxdepth 1 -type f -print | sort \
