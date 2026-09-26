@@ -23,7 +23,7 @@ concurrency:
 
 jobs:
   validate-and-stage:
-    runs-on: avrea-ubuntu-latest-1-vcpu
+    runs-on: ubuntu-latest
     timeout-minutes: 15
 
     steps:
