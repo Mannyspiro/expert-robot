@@ -4,6 +4,7 @@
 #include "expert_robot/proof_search.hpp"
 #include "expert_robot/text_generation.hpp"
 
+#include <algorithm>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -106,10 +107,44 @@ int main(int argc, char** argv) {
                 ? argv[4]
                 : "manual-real-lean";
 
-        const auto suite =
+        const auto loaded_suite =
             expert_robot::eval::
                 MathBenchmarkSuite::load_json(
                     suite_path);
+
+        const std::string variant_filter =
+            argc > 5
+                ? argv[5]
+                : "";
+
+        const auto suite =
+            [&]() {
+                if (variant_filter.empty()) {
+                    return loaded_suite;
+                }
+
+                const auto found =
+                    std::find_if(
+                        loaded_suite.variants().begin(),
+                        loaded_suite.variants().end(),
+                        [&](const auto& variant) {
+                            return
+                                variant.variant_id ==
+                                variant_filter;
+                        });
+
+                if (found ==
+                    loaded_suite.variants().end()) {
+                    throw std::invalid_argument(
+                        "unknown benchmark variant filter: " +
+                        variant_filter);
+                }
+
+                return expert_robot::eval::
+                    MathBenchmarkSuite(
+                        loaded_suite.cases(),
+                        {*found});
+            }();
 
         expert_robot::LeanSubprocessRunner lean(
             "formal",
