@@ -424,7 +424,10 @@ ResearchBenchmarkExecutor::problem_for(
         .target =
             std::move(target),
         .focus_theorem =
-            benchmark_case.focus_theorem,
+            benchmark_case.knowledge_mode ==
+                    BenchmarkKnowledgeMode::KnownTheoremRetrieval
+                ? benchmark_case.focus_theorem
+                : std::string{},
         .context = {},
         .sensors =
             sensors,

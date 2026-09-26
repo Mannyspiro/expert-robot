@@ -15,8 +15,16 @@ enum class BenchmarkSplit {
     Holdout
 };
 
+enum class BenchmarkKnowledgeMode {
+    KnownTheoremRetrieval,
+    BlindGeneralization
+};
+
 [[nodiscard]] std::string_view benchmark_split_name(
     BenchmarkSplit split);
+
+[[nodiscard]] std::string_view benchmark_knowledge_mode_name(
+    BenchmarkKnowledgeMode mode);
 
 struct BenchmarkBinder {
     std::string name;
@@ -41,6 +49,9 @@ struct BenchmarkCase {
 
     BenchmarkSplit split{BenchmarkSplit::Train};
     std::vector<std::string> tags;
+    BenchmarkKnowledgeMode knowledge_mode{
+        BenchmarkKnowledgeMode::BlindGeneralization
+    };
 };
 
 struct BenchmarkVariantProfile {

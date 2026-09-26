@@ -66,18 +66,28 @@ expert_robot::eval::BenchmarkCase make_case(
     std::string name,
     std::vector<expert_robot::eval::BenchmarkBinder> binders,
     std::string proposition) {
+    const bool training =
+        split == expert_robot::eval::BenchmarkSplit::Train;
+
     return expert_robot::eval::BenchmarkCase{
         .case_id = std::move(id),
         .family = std::move(family),
         .domain = "geometry",
-        .focus_theorem = std::move(focus),
+        .focus_theorem =
+            training ? std::move(focus) : std::string{},
         .declaration_name = std::move(name),
         .name_space = "MathAI.Benchmark",
         .binders = std::move(binders),
         .proposition = std::move(proposition),
         .imports = {"MathAI"},
         .split = split,
-        .tags = {"lean_verified"}
+        .tags = {"lean_verified"},
+        .knowledge_mode =
+            training
+                ? expert_robot::eval::BenchmarkKnowledgeMode::
+                      KnownTheoremRetrieval
+                : expert_robot::eval::BenchmarkKnowledgeMode::
+                      BlindGeneralization
     };
 }
 
@@ -337,14 +347,14 @@ int main() {
     assert(baseline_validation->verified == 0);
     assert(baseline_holdout->verified == 0);
 
-    // Only cases with explicit safe USES dependencies can pass the fake Lean
-    // runner, proving graph retrieval is both enabled and relation-aware.
+    // Only training may use explicit known-theorem retrieval. Validation and
+    // holdout are theorem-blind, so graph identity cannot make them pass.
     assert(graph_train->verified == 1);
-    assert(graph_validation->verified == 1);
-    assert(graph_holdout->verified == 1);
+    assert(graph_validation->verified == 0);
+    assert(graph_holdout->verified == 0);
     assert(graph_train->zero_model_verified == 1);
-    assert(graph_validation->zero_model_verified == 1);
-    assert(graph_holdout->zero_model_verified == 1);
+    assert(graph_validation->zero_model_verified == 0);
+    assert(graph_holdout->zero_model_verified == 0);
 
     assert(model.calls == 0);
     assert(lean.calls > 0);

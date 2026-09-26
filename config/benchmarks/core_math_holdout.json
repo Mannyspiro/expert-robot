@@ -64,7 +64,8 @@
       "proposition": "n + 0 = n",
       "imports": [
         "MathAI"
-      ]
+      ],
+      "knowledge_mode": "known_theorem_retrieval"
     },
     {
       "case_id": "train-algebra-square-nonnegative",
@@ -87,7 +88,8 @@
       "proposition": "0 ≤ x ^ 2",
       "imports": [
         "MathAI"
-      ]
+      ],
+      "knowledge_mode": "known_theorem_retrieval"
     },
     {
       "case_id": "train-geometry-dot-comm",
@@ -114,7 +116,8 @@
       "proposition": "MathAI.Geometry.dot a b = MathAI.Geometry.dot b a",
       "imports": [
         "MathAI"
-      ]
+      ],
+      "knowledge_mode": "known_theorem_retrieval"
     },
     {
       "case_id": "train-geometry-distance-self",
@@ -137,7 +140,8 @@
       "proposition": "MathAI.Geometry.squaredDistance p p = 0",
       "imports": [
         "MathAI"
-      ]
+      ],
+      "knowledge_mode": "known_theorem_retrieval"
     },
     {
       "case_id": "train-geometry-sphere-validity",
@@ -168,7 +172,8 @@
       "proposition": "MathAI.Geometry.validSphere sphere",
       "imports": [
         "MathAI"
-      ]
+      ],
+      "knowledge_mode": "known_theorem_retrieval"
     },
     {
       "case_id": "validation-geometry-dot-zero-right",
@@ -180,7 +185,7 @@
         "zero",
         "validation"
       ],
-      "focus_theorem": "MathAI.Geometry.dot_zero_right",
+      "focus_theorem": "",
       "declaration_name": "bench_validation_dot_zero_right",
       "namespace": "MathAI.Benchmark",
       "binders": [
@@ -192,7 +197,8 @@
       "proposition": "MathAI.Geometry.dot a MathAI.Geometry.zeroVec = 0",
       "imports": [
         "MathAI"
-      ]
+      ],
+      "knowledge_mode": "blind_generalization"
     },
     {
       "case_id": "validation-geometry-cross-self",
@@ -204,7 +210,7 @@
         "cross",
         "validation"
       ],
-      "focus_theorem": "MathAI.Geometry.cross_self",
+      "focus_theorem": "",
       "declaration_name": "bench_validation_cross_self",
       "namespace": "MathAI.Benchmark",
       "binders": [
@@ -216,7 +222,8 @@
       "proposition": "MathAI.Geometry.cross a a = MathAI.Geometry.zeroVec",
       "imports": [
         "MathAI"
-      ]
+      ],
+      "knowledge_mode": "blind_generalization"
     },
     {
       "case_id": "holdout-geometry-orthogonal-symm",
@@ -227,7 +234,7 @@
         "lean_verified",
         "orthogonality"
       ],
-      "focus_theorem": "MathAI.Geometry.orthogonal_symm",
+      "focus_theorem": "",
       "declaration_name": "bench_orthogonal_symm",
       "namespace": "MathAI.Benchmark",
       "binders": [
@@ -243,7 +250,8 @@
       "proposition": "MathAI.Geometry.orthogonal a b ↔ MathAI.Geometry.orthogonal b a",
       "imports": [
         "MathAI"
-      ]
+      ],
+      "knowledge_mode": "blind_generalization"
     },
     {
       "case_id": "holdout-geometry-distance-symm",
@@ -254,7 +262,7 @@
         "lean_verified",
         "distance"
       ],
-      "focus_theorem": "MathAI.Geometry.squaredDistance_symm",
+      "focus_theorem": "",
       "declaration_name": "bench_squared_distance_symm",
       "namespace": "MathAI.Benchmark",
       "binders": [
@@ -270,7 +278,8 @@
       "proposition": "MathAI.Geometry.squaredDistance a b = MathAI.Geometry.squaredDistance b a",
       "imports": [
         "MathAI"
-      ]
+      ],
+      "knowledge_mode": "blind_generalization"
     },
     {
       "case_id": "holdout-geometry-distance-nonnegative",
@@ -281,7 +290,7 @@
         "lean_verified",
         "order"
       ],
-      "focus_theorem": "MathAI.Geometry.squaredDistance_nonnegative",
+      "focus_theorem": "",
       "declaration_name": "bench_squared_distance_nonnegative",
       "namespace": "MathAI.Benchmark",
       "binders": [
@@ -297,7 +306,8 @@
       "proposition": "0 ≤ MathAI.Geometry.squaredDistance a b",
       "imports": [
         "MathAI"
-      ]
+      ],
+      "knowledge_mode": "blind_generalization"
     },
     {
       "case_id": "holdout-geometry-zero-orthogonal-left",
@@ -308,7 +318,7 @@
         "lean_verified",
         "zero"
       ],
-      "focus_theorem": "MathAI.Geometry.zero_orthogonal_left",
+      "focus_theorem": "",
       "declaration_name": "bench_zero_orthogonal_left",
       "namespace": "MathAI.Benchmark",
       "binders": [
@@ -320,7 +330,8 @@
       "proposition": "MathAI.Geometry.orthogonal MathAI.Geometry.zeroVec a",
       "imports": [
         "MathAI"
-      ]
+      ],
+      "knowledge_mode": "blind_generalization"
     },
     {
       "case_id": "holdout-geometry-sphere-radius",
@@ -332,7 +343,7 @@
         "sphere",
         "distance"
       ],
-      "focus_theorem": "MathAI.Geometry.squaredDistance_eq_radius_of_pointOnSphere",
+      "focus_theorem": "",
       "declaration_name": "bench_sphere_radius",
       "namespace": "MathAI.Benchmark",
       "binders": [
@@ -352,7 +363,8 @@
       "proposition": "MathAI.Geometry.squaredDistance sphere.center p = sphere.radiusSquared",
       "imports": [
         "MathAI"
-      ]
+      ],
+      "knowledge_mode": "blind_generalization"
     }
   ]
 }

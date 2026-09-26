@@ -28,6 +28,18 @@ BenchmarkSplit parse_split(
         "benchmark split must be train, validation, or holdout");
 }
 
+BenchmarkKnowledgeMode parse_knowledge_mode(
+    std::string_view mode) {
+    if (mode == "known_theorem_retrieval") {
+        return BenchmarkKnowledgeMode::KnownTheoremRetrieval;
+    }
+    if (mode == "blind_generalization") {
+        return BenchmarkKnowledgeMode::BlindGeneralization;
+    }
+    throw std::invalid_argument(
+        "benchmark knowledge_mode must be known_theorem_retrieval or blind_generalization");
+}
+
 void validate_case(
     const BenchmarkCase& c) {
     if (c.case_id.empty() ||
@@ -39,6 +51,27 @@ void validate_case(
         c.imports.empty()) {
         throw std::invalid_argument(
             "benchmark case identifiers/domain/formal target must be non-empty");
+    }
+
+    if (c.knowledge_mode ==
+            BenchmarkKnowledgeMode::KnownTheoremRetrieval &&
+        c.focus_theorem.empty()) {
+        throw std::invalid_argument(
+            "known theorem retrieval requires focus_theorem");
+    }
+
+    if (c.knowledge_mode ==
+            BenchmarkKnowledgeMode::BlindGeneralization &&
+        !c.focus_theorem.empty()) {
+        throw std::invalid_argument(
+            "blind generalization forbids focus_theorem");
+    }
+
+    if (c.split != BenchmarkSplit::Train &&
+        c.knowledge_mode !=
+            BenchmarkKnowledgeMode::BlindGeneralization) {
+        throw std::invalid_argument(
+            "validation and holdout must use blind generalization");
     }
 }
 
@@ -161,6 +194,17 @@ std::string_view benchmark_split_name(
             return "validation";
         case BenchmarkSplit::Holdout:
             return "holdout";
+    }
+    return "unknown";
+}
+
+std::string_view benchmark_knowledge_mode_name(
+    BenchmarkKnowledgeMode mode) {
+    switch (mode) {
+        case BenchmarkKnowledgeMode::KnownTheoremRetrieval:
+            return "known_theorem_retrieval";
+        case BenchmarkKnowledgeMode::BlindGeneralization:
+            return "blind_generalization";
     }
     return "unknown";
 }
@@ -331,6 +375,11 @@ MathBenchmarkSuite MathBenchmarkSuite::load_json(
                     json_util::string_array_field(
                         object,
                         "tags"),
+                .knowledge_mode =
+                    parse_knowledge_mode(
+                        json_util::string_field(
+                            object,
+                            "knowledge_mode")),
             });
     }
 
