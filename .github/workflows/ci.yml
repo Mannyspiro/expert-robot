@@ -36,7 +36,7 @@ jobs:
   classify:
     runs-on: ubuntu-latest
     outputs:
-      heavy_required: \${{ steps.classify.outputs.heavy_required }}
+      heavy_required: ${{ steps.classify.outputs.heavy_required }}
     steps:
       - uses: actions/checkout@v4
         with:
