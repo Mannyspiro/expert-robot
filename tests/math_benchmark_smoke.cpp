@@ -120,6 +120,81 @@ int main() {
         suite.cases_for_split(
             BenchmarkSplit::Holdout).size() == 5);
 
+    for (const auto& benchmark_case : suite.cases()) {
+        if (benchmark_case.split == BenchmarkSplit::Train) {
+            assert(
+                benchmark_case.knowledge_mode ==
+                BenchmarkKnowledgeMode::KnownTheoremRetrieval);
+            assert(!benchmark_case.focus_theorem.empty());
+        } else {
+            assert(
+                benchmark_case.knowledge_mode ==
+                BenchmarkKnowledgeMode::BlindGeneralization);
+            assert(benchmark_case.focus_theorem.empty());
+        }
+    }
+
+    bool evaluation_identity_leak_rejected = false;
+    try {
+        (void)MathBenchmarkSuite(
+            {
+                BenchmarkCase{
+                    .case_id = "train-known",
+                    .family = "train-known-family",
+                    .domain = "geometry",
+                    .focus_theorem = "MathAI.Geometry.dot_comm",
+                    .declaration_name = "train_known",
+                    .name_space = "MathAI.Benchmark",
+                    .binders = {},
+                    .proposition = "True",
+                    .imports = {"MathAI"},
+                    .split = BenchmarkSplit::Train,
+                    .tags = {},
+                    .knowledge_mode =
+                        BenchmarkKnowledgeMode::KnownTheoremRetrieval
+                },
+                BenchmarkCase{
+                    .case_id = "validation-leak",
+                    .family = "validation-leak-family",
+                    .domain = "geometry",
+                    .focus_theorem = "MathAI.Geometry.cross_self",
+                    .declaration_name = "validation_leak",
+                    .name_space = "MathAI.Benchmark",
+                    .binders = {},
+                    .proposition = "True",
+                    .imports = {"MathAI"},
+                    .split = BenchmarkSplit::Validation,
+                    .tags = {},
+                    .knowledge_mode =
+                        BenchmarkKnowledgeMode::KnownTheoremRetrieval
+                },
+                BenchmarkCase{
+                    .case_id = "holdout-blind",
+                    .family = "holdout-blind-family",
+                    .domain = "geometry",
+                    .focus_theorem = "",
+                    .declaration_name = "holdout_blind",
+                    .name_space = "MathAI.Benchmark",
+                    .binders = {},
+                    .proposition = "True",
+                    .imports = {"MathAI"},
+                    .split = BenchmarkSplit::Holdout,
+                    .tags = {},
+                    .knowledge_mode =
+                        BenchmarkKnowledgeMode::BlindGeneralization
+                }
+            },
+            {
+                BenchmarkVariantProfile{
+                    .variant_id = "baseline",
+                    .enabled_layers = {"proof_search"}
+                }
+            });
+    } catch (const std::invalid_argument&) {
+        evaluation_identity_leak_rejected = true;
+    }
+    assert(evaluation_identity_leak_rejected);
+
     const auto db =
         std::filesystem::temp_directory_path() /
         "expert-robot-benchmark-smoke.sqlite3";
