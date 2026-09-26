@@ -11,6 +11,7 @@ namespace expert_robot::eval {
 
 enum class BenchmarkSplit {
     Train,
+    Validation,
     Holdout
 };
 
