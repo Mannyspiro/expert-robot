@@ -63,6 +63,9 @@ jobs:
       - name: Formal dependency lock
         run: python3 tests/formal_dependency_lock_smoke.py
 
+      - name: CACE return bridge guardrails
+        run: python3 tests/cace_return_bridge_smoke.py
+
       - name: Independent smoke tests
         shell: bash
         run: |
