@@ -29,10 +29,10 @@ jobs:
         id: key
         shell: bash
         env:
-          RAILWAY_SSH_PRIVATE_KEY: \${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}
+          RAILWAY_SSH_PRIVATE_KEY: ${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}
         run: |
           set -euo pipefail
-          test -n "\${RAILWAY_SSH_PRIVATE_KEY:-}"
+          test -n "${RAILWAY_SSH_PRIVATE_KEY:-}"
           umask 077
           key_file="$RUNNER_TEMP/cace_repo_key"
           printf '%s\n' "$RAILWAY_SSH_PRIVATE_KEY" > "$key_file"
@@ -44,7 +44,7 @@ jobs:
         id: arm
         shell: bash
         env:
-          KEY_FILE: \${{ steps.key.outputs.key_file }}
+          KEY_FILE: ${{ steps.key.outputs.key_file }}
           CACE_BRANCH: executor/cace-regression-locked
         run: |
           set -euo pipefail
@@ -116,7 +116,7 @@ jobs:
               steps:
                 - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
                   with:
-                    ref: \${{ github.sha }}
+                    ref: ${{ github.sha }}
                     fetch-depth: 0
                     clean: true
                     persist-credentials: false
@@ -279,8 +279,8 @@ jobs:
                 - name: Upload read-only runtime observation
                   uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
                   with:
-                    name: cace-runtime-probe-\${{ github.run_id }}
-                    path: \${{ runner.temp }}/cace-runtime-probe/result.json
+                    name: cace-runtime-probe-${{ github.run_id }}
+                    path: ${{ runner.temp }}/cace-runtime-probe/result.json
                     if-no-files-found: error
                     retention-days: 1
 
@@ -301,7 +301,7 @@ jobs:
 
                 - uses: actions/download-artifact@v4
                   with:
-                    name: cace-runtime-probe-\${{ github.run_id }}
+                    name: cace-runtime-probe-${{ github.run_id }}
                     path: "$RUNNER_TEMP/probe"
 
                 - name: Publish observation and restore canonical workflow
@@ -354,9 +354,9 @@ jobs:
       - name: Await observation and verify workflow restoration
         shell: bash
         env:
-          KEY_FILE: \${{ steps.key.outputs.key_file }}
+          KEY_FILE: ${{ steps.key.outputs.key_file }}
           CACE_BRANCH: executor/cace-regression-locked
-          REQUEST_ID: \${{ steps.arm.outputs.request_id }}
+          REQUEST_ID: ${{ steps.arm.outputs.request_id }}
         run: |
           set -euo pipefail
           poll="$RUNNER_TEMP/cace-runtime-poll"
