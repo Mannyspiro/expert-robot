@@ -9,91 +9,54 @@ permissions:
   contents: read
   pull-requests: write
 
-concurrency:
-  group: cace-return-pr-${{ github.ref_name }}
-  cancel-in-progress: false
-
 jobs:
   open-pr:
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
     steps:
-      - name: Check out returned branch
+      - name: Check out return branch
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
           persist-credentials: false
 
-      - name: Validate return envelope
+      - name: Validate return evidence
         id: validate
         shell: bash
         run: |
           set -euo pipefail
+          python3 scripts/validate_cace_return.py .cace-return.json "$GITHUB_REF_NAME" > "$RUNNER_TEMP/validated.json"
 
-          envelope=".cace-return.json"
-          test -f "$envelope"
+          base_branch="$(python3 -c 'import json,os; print(json.load(open(os.environ["RUNNER_TEMP"] + "/validated.json"))["base_branch"])')"
+          request_id="$(python3 -c 'import json,os; print(json.load(open(os.environ["RUNNER_TEMP"] + "/validated.json"))["request_id"])')"
+          source_sha="$(python3 -c 'import json,os; print(json.load(open(os.environ["RUNNER_TEMP"] + "/validated.json"))["source_sha"])')"
+          evidence_dir=".cace/evidence/$request_id"
 
-          python3 - "$envelope" "$GITHUB_REF_NAME" <<'PY'
-          import json
-          import re
-          import sys
+          git fetch origin "$base_branch"
 
-          path, branch = sys.argv[1], sys.argv[2]
-          payload = json.load(open(path, encoding="utf-8"))
-
-          required = {
-              "schema_version",
-              "request_id",
-              "status",
-              "expert_robot_commit",
-              "base_branch",
-              "source_branch",
-              "evidence_dir",
-              "authority",
-              "promotion_authority",
-          }
-          missing = sorted(required - payload.keys())
-          if missing:
-              raise SystemExit("missing return fields: " + ", ".join(missing))
-
-          if payload["schema_version"] != 1:
-              raise SystemExit("unsupported return schema")
-          if payload["status"] != "pass":
-              raise SystemExit("only passed qualification may open a return PR")
-          if payload["authority"] != "qualification-only":
-              raise SystemExit("invalid return authority")
-          if payload["promotion_authority"] is not False:
-              raise SystemExit("external return may never carry promotion authority")
-          if not branch.startswith("cace-return/"):
-              raise SystemExit("unexpected branch namespace")
-          if payload["source_branch"] != payload["base_branch"]:
-              raise SystemExit("return base/source branch mismatch")
-          if not re.fullmatch(r"[0-9a-f]{40}", payload["expert_robot_commit"]):
-              raise SystemExit("invalid source commit")
-          if not re.fullmatch(r"[A-Za-z0-9._/-]+", payload["base_branch"]):
-              raise SystemExit("invalid base branch")
-          if not payload["evidence_dir"].startswith(".cace/evidence/"):
-              raise SystemExit("invalid evidence directory")
-
-          print("CACE return envelope: PASS")
-          PY
-
-          base_branch="$(
-            python3 -c 'import json; print(json.load(open(".cace-return.json"))["base_branch"])'
-          )"
-          request_id="$(
-            python3 -c 'import json; print(json.load(open(".cace-return.json"))["request_id"])'
-          )"
-          source_sha="$(
-            python3 -c 'import json; print(json.load(open(".cace-return.json"))["expert_robot_commit"])'
-          )"
-
-          git fetch origin "$base_branch" --depth=1
           if ! git merge-base --is-ancestor "$source_sha" "origin/$base_branch"; then
-            echo "::error::Returned evidence does not target an ancestor of the declared base branch."
+            echo "::error::Return source is not an ancestor of the declared base branch."
             exit 1
           fi
+
+          git diff --name-only "origin/$base_branch...HEAD" > "$RUNNER_TEMP/changed.txt"
+          while IFS= read -r path; do
+            [ -z "$path" ] && continue
+            case "$path" in
+              .cace-return.json)
+                ;;
+              "$evidence_dir"/*)
+                ;;
+              *)
+                echo "::error::Non-evidence change on CACE return branch: $path"
+                exit 1
+                ;;
+            esac
+          done < "$RUNNER_TEMP/changed.txt"
+
+          test -f "$evidence_dir/request.json"
+          test -f "$evidence_dir/result.json"
 
           echo "base_branch=$base_branch" >> "$GITHUB_OUTPUT"
           echo "request_id=$request_id" >> "$GITHUB_OUTPUT"
@@ -109,27 +72,10 @@ jobs:
         run: |
           set -euo pipefail
 
-          existing="$(
-            gh pr list \
-              --repo "$GITHUB_REPOSITORY" \
-              --head "$GITHUB_REF_NAME" \
-              --state open \
-              --json number \
-              --jq '.[0].number // empty'
-          )"
-
+          existing="$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$GITHUB_REF_NAME" --state open --json number --jq '.[0].number // empty')"
           if [ -n "$existing" ]; then
             echo "CACE return PR already exists: #$existing"
             exit 0
           fi
 
-          gh pr create \
-            --repo "$GITHUB_REPOSITORY" \
-            --base "$BASE_BRANCH" \
-            --head "$GITHUB_REF_NAME" \
-            --title "CACE qualification evidence: $REQUEST_ID" \
-            --body "Automated return from the free CACE ARM64 qualification lane.
-
-Source commit: `$SOURCE_SHA`
-
-Authority: qualification evidence only. This PR does not imply promotion, merge approval, or authority expansion."
+          gh pr create             --repo "$GITHUB_REPOSITORY"             --base "$BASE_BRANCH"             --head "$GITHUB_REF_NAME"             --title "CACE qualification evidence: $REQUEST_ID"             --body "Automated return from the free CACE ARM64 qualification lane. Source commit: $SOURCE_SHA. Authority: qualification evidence only; no promotion or merge authority."
