@@ -92,6 +92,16 @@
         "Permit executable reuse only from theorem to prerequisite, never prerequisite to dependent."
       ],
       "guard": "tests/route_planner_smoke.cpp"
+    },
+    {
+      "id": "benchmark-answer-identity-leak",
+      "discovered_by": "blind-generalization-benchmark",
+      "symptom": "A validation or holdout theorem name/case ID is embedded in the base proof-search strategy list, making evaluation measure answer lookup rather than generalization.",
+      "prevention": [
+        "Base proof-search tactics may reference reusable definitions but not validation/holdout case IDs.",
+        "Base proof-search tactics may not name the validation/holdout answer theorems."
+      ],
+      "guard": "tests/known_failure_regression_smoke.py"
     }
   ]
 }

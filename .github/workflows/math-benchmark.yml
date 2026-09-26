@@ -16,6 +16,7 @@ on:
       - "tests/route_memory_smoke.cpp"
       - "tests/research_benchmark_executor_smoke.cpp"
       - "config/benchmarks/**"
+      - "config/proof_search.json"
       - "formal/MathAI/**"
       - "formal/MathAI.lean"
       - "formal/lean-toolchain"
