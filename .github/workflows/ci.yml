@@ -69,6 +69,9 @@ jobs:
       - name: CACE tool broker guardrails
         run: python3 tests/cace_tool_broker_smoke.py
 
+      - name: CACE tool routing guardrails
+        run: python3 tests/cace_tool_routing_smoke.py
+
       - name: Independent smoke tests
         shell: bash
         run: |

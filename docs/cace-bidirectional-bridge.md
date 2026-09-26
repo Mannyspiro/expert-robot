@@ -90,3 +90,22 @@ that capability may grow without expanding authority.
 - **Avrea** is used for general C++/benchmark qualification only when cheaper
   static/CACE checks justify escalation. Capability discovery uses the smallest
   available 1-vCPU lane and does not use cache.
+
+
+### Deterministic capability routing
+
+`scripts/plan_cace_tool_requests.py` converts a candidate's changed paths into
+a bounded verifier plan without model calls or network access:
+
+- one Lean-only change → exact-pin CACE Lean preflight;
+- multiple/mixed formal changes → bounded CACE batch Lean preflight;
+- Python changes → non-authoritative CACE regression checks;
+- collaboration contract changes → CACE collaboration validation;
+- C++/model/runtime changes → Avrea remains required because CACE OCI is not
+  treated as a C++ build lane;
+- docs-only or unrelated configuration changes → no CACE request is created.
+
+Mixed formal/C++ candidates may use CACE for the formal evidence first while
+still requiring Avrea repository qualification afterward. The planner never
+dispatches automatically and every generated CACE request is validatable by
+the broker contract.
