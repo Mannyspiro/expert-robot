@@ -3,12 +3,24 @@ from __future__ import annotations
 
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[3]
-SCRIPT = ROOT / "integration" / "cace" / "scripts" / "recover_cace_runner.sh"
+HERE = Path(__file__).resolve()
+
+
+def locate_script() -> Path:
+    candidates: list[Path] = []
+    for ancestor in HERE.parents:
+        candidates.append(ancestor / "scripts" / "recover_cace_runner.sh")
+        candidates.append(
+            ancestor / "integration" / "cace" / "scripts" / "recover_cace_runner.sh"
+        )
+    for candidate in candidates:
+        if candidate.is_file():
+            return candidate
+    raise FileNotFoundError("recover_cace_runner.sh not found from test location")
 
 
 def main() -> int:
-    text = SCRIPT.read_text(encoding="utf-8")
+    text = locate_script().read_text(encoding="utf-8")
 
     assert "mode=status" in text
     assert '--repair' in text
