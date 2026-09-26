@@ -3,7 +3,7 @@ name: Free Runner Capability Probe
 on:
   push:
     branches:
-      - "feat/reuse-refactored-fishstick"
+      - "feat/cace-tool-broker-v1"
     paths:
       - ".github/workflows/free-runner-capability-probe.yml"
       - "config/compute_policy.json"
@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   probe:
-    runs-on: avrea-ubuntu-latest-8-vcpu
+    runs-on: avrea-ubuntu-latest-1-vcpu
     timeout-minutes: 10
 
     steps:
@@ -180,7 +180,7 @@ jobs:
           name: free-runner-capability-${{ github.run_id }}
           path: ${{ runner.temp }}/free-runner-capability/
           if-no-files-found: warn
-          retention-days: 14
+          retention-days: 1
 
       - name: Remove key material
         if: always()
