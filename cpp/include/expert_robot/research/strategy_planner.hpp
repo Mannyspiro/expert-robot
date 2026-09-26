@@ -35,6 +35,14 @@ struct ResearchStrategyPlannerConfig {
     long long minimum_context_attempts{3};
     double context_half_saturation_attempts{4.0};
 
+    // Step-level execution evidence is intentionally weak and delayed.
+    // It only influences ranking after repeated observations of the same
+    // strategy step in the same domain.
+    double step_experience_weight{0.04};
+    long long minimum_step_attempts{6};
+    double step_half_saturation_attempts{8.0};
+    double max_abs_step_adjustment{0.04};
+
     // Small optimism bonus keeps untried methods from being permanently
     // starved by early successful strategies.
     double exploration_weight{0.03};
@@ -71,6 +79,9 @@ struct ResearchStrategyPlan {
     std::string context_key;
     double context_evidence_confidence{0.0};
     double context_adjustment{0.0};
+    std::size_t step_evidence_steps{0};
+    double step_evidence_confidence{0.0};
+    double step_adjustment{0.0};
     bool soft_retired{false};
     double soft_retirement_penalty{0.0};
     double exploration_bonus{0.0};
