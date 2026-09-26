@@ -18,11 +18,14 @@ BenchmarkSplit parse_split(
     if (split == "train") {
         return BenchmarkSplit::Train;
     }
+    if (split == "validation") {
+        return BenchmarkSplit::Validation;
+    }
     if (split == "holdout") {
         return BenchmarkSplit::Holdout;
     }
     throw std::invalid_argument(
-        "benchmark split must be train or holdout");
+        "benchmark split must be train, validation, or holdout");
 }
 
 void validate_case(
@@ -154,6 +157,8 @@ std::string_view benchmark_split_name(
     switch (split) {
         case BenchmarkSplit::Train:
             return "train";
+        case BenchmarkSplit::Validation:
+            return "validation";
         case BenchmarkSplit::Holdout:
             return "holdout";
     }
@@ -187,6 +192,7 @@ MathBenchmarkSuite::MathBenchmarkSuite(
     std::map<std::string, BenchmarkSplit>
         family_split;
     bool saw_train = false;
+    bool saw_validation = false;
     bool saw_holdout = false;
 
     for (const auto& c : cases_) {
@@ -207,21 +213,26 @@ MathBenchmarkSuite::MathBenchmarkSuite(
         if (!inserted &&
             it->second != c.split) {
             throw std::invalid_argument(
-                "benchmark family leaks across train/holdout: " +
+                "benchmark family leaks across benchmark splits: " +
                 c.family);
         }
 
         saw_train =
             saw_train ||
             c.split == BenchmarkSplit::Train;
+        saw_validation =
+            saw_validation ||
+            c.split == BenchmarkSplit::Validation;
         saw_holdout =
             saw_holdout ||
             c.split == BenchmarkSplit::Holdout;
     }
 
-    if (!saw_train || !saw_holdout) {
+    if (!saw_train ||
+        !saw_validation ||
+        !saw_holdout) {
         throw std::invalid_argument(
-            "benchmark suite requires both train and holdout cases");
+            "benchmark suite requires train, validation, and holdout cases");
     }
 
     std::set<std::string> variant_ids;
@@ -428,11 +439,12 @@ BenchmarkRun MathBenchmarkRunner::run(
 
     for (const auto& variant :
          suite.variants()) {
-        // Training always precedes holdout. Executors may freeze learned
-        // state at this boundary and must never need to infer split order from
-        // JSON case ordering.
+        // Training always precedes both evaluation splits. Executors freeze
+        // learned state at this boundary; validation and holdout consume
+        // independent clones of that same frozen state.
         for (const auto split :
              {BenchmarkSplit::Train,
+              BenchmarkSplit::Validation,
               BenchmarkSplit::Holdout}) {
             for (const auto& benchmark_case :
                  suite.cases_for_split(split)) {
