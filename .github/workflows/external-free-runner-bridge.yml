@@ -411,7 +411,7 @@ jobs:
                   uses: actions/download-artifact@v4
                   with:
                     name: expert-robot-bridge-result-${{ github.run_id }}
-                    path: "$RUNNER_TEMP/expert-robot-bridge-result"
+                    path: "${{ runner.temp }}/expert-robot-bridge-result"
 
                 - name: Validate result envelope
                   id: result
@@ -463,14 +463,14 @@ jobs:
                     git push origin "HEAD:$GITHUB_REF_NAME"
 
                 - name: Prepare Expert Robot reverse deploy key
-                  if: ${{ steps.result.outputs.status == 'pass' }}
+                  if: __ER_IF_RESULT_PASS__
                   id: reverse-key
                   shell: bash
                   env:
-                    EXPERT_ROBOT_SSH_PRIVATE_KEY: ${{ secrets.EXPERT_ROBOT_SSH_PRIVATE_KEY }}
-                    EXPERT_ROBOT_DEPLOY_KEY: ${{ secrets.EXPERT_ROBOT_DEPLOY_KEY }}
-                    CACE_TO_EXPERT_ROBOT_SSH_KEY: ${{ secrets.CACE_TO_EXPERT_ROBOT_SSH_KEY }}
-                    EXPERT_ROBOT_DEPLOY_PRIVATE_KEY: ${{ secrets.EXPERT_ROBOT_DEPLOY_PRIVATE_KEY }}
+                    EXPERT_ROBOT_SSH_PRIVATE_KEY: __ER_SECRET_SSH_PRIVATE_KEY__
+                    EXPERT_ROBOT_DEPLOY_KEY: __ER_SECRET_DEPLOY_KEY__
+                    CACE_TO_EXPERT_ROBOT_SSH_KEY: __ER_SECRET_CACE_TO_ER__
+                    EXPERT_ROBOT_DEPLOY_PRIVATE_KEY: __ER_SECRET_DEPLOY_PRIVATE__
                   run: |
                     set -euo pipefail
 
@@ -494,12 +494,12 @@ jobs:
                     echo "key_file=$key_file" >> "$GITHUB_OUTPUT"
 
                 - name: Return passed evidence to Expert Robot
-                  if: ${{ steps.result.outputs.status == 'pass' }}
+                  if: __ER_IF_RESULT_PASS__
                   shell: bash
                   env:
-                    KEY_FILE: ${{ steps.reverse-key.outputs.key_file }}
-                    REQUEST_ID: ${{ steps.result.outputs.request_id }}
-                    SOURCE_SHA: ${{ steps.result.outputs.source_sha }}
+                    KEY_FILE: __ER_REVERSE_KEY_FILE__
+                    REQUEST_ID: __ER_RESULT_REQUEST_ID__
+                    SOURCE_SHA: __ER_RESULT_SOURCE_SHA__
                     EXPERT_ROBOT_REPO_SSH: git@github.com:Mannyspiro/expert-robot.git
                   run: |
                     set -euo pipefail
@@ -564,6 +564,38 @@ jobs:
                     set -euo pipefail
                     rm -f "$RUNNER_TEMP/expert_robot_reverse_key" "$RUNNER_TEMP/expert_robot_reverse_key.pub"
           BRIDGE_YAML
+
+          python3 - .github/workflows/expert-robot-bridge.yml <<'PY'
+          import pathlib
+          import sys
+
+          path = pathlib.Path(sys.argv[1])
+          text = path.read_text(encoding="utf-8")
+          dollar = chr(36)
+          replacements = {
+              "__ER_IF_RESULT_PASS__":
+                  dollar + "{{ steps.result.outputs.status == 'pass' }}",
+              "__ER_SECRET_SSH_PRIVATE_KEY__":
+                  dollar + "{{ secrets.EXPERT_ROBOT_SSH_PRIVATE_KEY }}",
+              "__ER_SECRET_DEPLOY_KEY__":
+                  dollar + "{{ secrets.EXPERT_ROBOT_DEPLOY_KEY }}",
+              "__ER_SECRET_CACE_TO_ER__":
+                  dollar + "{{ secrets.CACE_TO_EXPERT_ROBOT_SSH_KEY }}",
+              "__ER_SECRET_DEPLOY_PRIVATE__":
+                  dollar + "{{ secrets.EXPERT_ROBOT_DEPLOY_PRIVATE_KEY }}",
+              "__ER_REVERSE_KEY_FILE__":
+                  dollar + "{{ steps.reverse-key.outputs.key_file }}",
+              "__ER_RESULT_REQUEST_ID__":
+                  dollar + "{{ steps.result.outputs.request_id }}",
+              "__ER_RESULT_SOURCE_SHA__":
+                  dollar + "{{ steps.result.outputs.source_sha }}",
+          }
+          for needle, value in replacements.items():
+              if needle not in text:
+                  raise SystemExit(f"missing generated-workflow placeholder: {needle}")
+              text = text.replace(needle, value)
+          path.write_text(text, encoding="utf-8")
+          PY
 
           git config user.name "expert-robot-dispatcher"
           git config user.email "noreply@github.com"
