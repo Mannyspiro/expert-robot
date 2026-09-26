@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "feat/cace-tool-broker-v1"
+      - "feat/cace-headless-local-llm"
     paths:
       - ".github/workflows/free-runner-capability-probe.yml"
       - "config/compute_policy.json"
