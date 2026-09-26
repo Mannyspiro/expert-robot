@@ -127,9 +127,12 @@ void validate_research_strategy_planner_config(
     for (const double value : {
              c.experience_weight,
              c.context_experience_weight,
+             c.step_experience_weight,
+             c.max_abs_step_adjustment,
              c.exploration_weight,
              c.evidence_half_saturation_attempts,
              c.context_half_saturation_attempts,
+             c.step_half_saturation_attempts,
              c.soft_retirement_verified_rate_ceiling,
              c.soft_retirement_cost_floor,
              c.soft_retirement_penalty}) {
@@ -142,6 +145,7 @@ void validate_research_strategy_planner_config(
 
     if (c.minimum_experience_attempts < 0 ||
         c.minimum_context_attempts < 0 ||
+        c.minimum_step_attempts < 0 ||
         c.soft_retirement_min_attempts < 0) {
         throw std::invalid_argument(
             "strategy planner minimum experience must be nonnegative");
@@ -152,9 +156,15 @@ void validate_research_strategy_planner_config(
             "strategy retirement rate/cost thresholds must be within [0,1]");
     }
     if (c.evidence_half_saturation_attempts <= 0.0 ||
-        c.context_half_saturation_attempts <= 0.0) {
+        c.context_half_saturation_attempts <= 0.0 ||
+        c.step_half_saturation_attempts <= 0.0) {
         throw std::invalid_argument(
             "strategy evidence half-saturation values must be positive");
+    }
+    if (c.step_experience_weight > 0.10 ||
+        c.max_abs_step_adjustment > 0.10) {
+        throw std::invalid_argument(
+            "step evidence influence must remain bounded at or below 0.10");
     }
 }
 
@@ -336,6 +346,9 @@ ResearchStrategyPlanner::plan(
             .context_key = "",
             .context_evidence_confidence = 0.0,
             .context_adjustment = 0.0,
+            .step_evidence_steps = 0U,
+            .step_evidence_confidence = 0.0,
+            .step_adjustment = 0.0,
             .soft_retired = false,
             .soft_retirement_penalty = 0.0,
             .exploration_bonus = 0.0,
@@ -470,6 +483,96 @@ ResearchStrategyPlanner::plan(
             }
         }
 
+        if (memory_ != nullptr &&
+            !target_domain.empty() &&
+            !strategy.steps.empty()) {
+            double confidence_sum = 0.0;
+            double weighted_signal_sum = 0.0;
+            std::size_t eligible_steps = 0U;
+
+            for (std::size_t step_index = 0U;
+                 step_index < strategy.steps.size();
+                 ++step_index) {
+                const auto step =
+                    memory_->strategy_step_experience(
+                        strategy.strategy_id,
+                        step_index,
+                        target_domain);
+
+                if (step.attempts <
+                    config_.minimum_step_attempts) {
+                    continue;
+                }
+
+                // Strategy IDs should make this invariant true already, but
+                // refuse mismatched historical rows rather than learning from
+                // potentially stale/corrupt evidence.
+                if (step.kind !=
+                    strategy.steps[step_index]) {
+                    continue;
+                }
+
+                const double success_prior =
+                    clamp01(
+                        0.65 *
+                            step.smoothed_verified_rate() +
+                        0.35 *
+                            step.smoothed_target_rate());
+
+                const double normalized_cost =
+                    clamp01(
+                        step.average_resource_cost());
+
+                const double confidence =
+                    static_cast<double>(
+                        step.attempts) /
+                    (static_cast<double>(
+                         step.attempts) +
+                     config_.
+                         step_half_saturation_attempts);
+
+                const double signed_success =
+                    2.0 * success_prior - 1.0;
+
+                const double signal =
+                    signed_success -
+                    0.25 * normalized_cost;
+
+                confidence_sum += confidence;
+                weighted_signal_sum +=
+                    confidence * signal;
+                ++eligible_steps;
+            }
+
+            if (eligible_steps > 0U &&
+                confidence_sum > 0.0) {
+                strategy.step_evidence_steps =
+                    eligible_steps;
+                strategy.step_evidence_confidence =
+                    confidence_sum /
+                    static_cast<double>(
+                        eligible_steps);
+
+                const double mean_signal =
+                    weighted_signal_sum /
+                    confidence_sum;
+
+                const double raw_adjustment =
+                    config_.step_experience_weight *
+                    strategy.
+                        step_evidence_confidence *
+                    mean_signal;
+
+                strategy.step_adjustment =
+                    std::clamp(
+                        raw_adjustment,
+                        -config_.
+                            max_abs_step_adjustment,
+                        config_.
+                            max_abs_step_adjustment);
+            }
+        }
+
         strategy.exploration_bonus =
             config_.exploration_weight /
             std::sqrt(
@@ -481,6 +584,7 @@ ResearchStrategyPlanner::plan(
                 strategy.base_score +
                 strategy.experience_adjustment +
                 strategy.context_adjustment +
+                strategy.step_adjustment +
                 strategy.exploration_bonus -
                 strategy.soft_retirement_penalty);
 
