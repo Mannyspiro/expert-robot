@@ -1,4 +1,4 @@
-name: CACE Local Runtime Discovery
+name: CACE Runner Recovery Discovery
 
 on:
   push:
@@ -12,21 +12,20 @@ permissions:
   contents: read
 
 concurrency:
-  group: cace-local-runtime-discovery
+  group: cace-runner-recovery-discovery
   cancel-in-progress: true
 
 jobs:
-  dispatch-and-collect:
+  discover:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
 
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
 
-      - name: Prepare CACE deploy key
-        id: key
+      - name: Prepare read-only CACE deploy-key session
         shell: bash
         env:
           RAILWAY_SSH_PRIVATE_KEY: ${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}
@@ -42,387 +41,118 @@ jobs:
           ssh-add "$key_file"
           echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
           echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
-          echo "key_file=$key_file" >> "$GITHUB_OUTPUT"
 
-      - name: Arm registered CACE runner lane with probe-only workflow
-        id: arm
+      - name: Discover runner recovery surfaces
         shell: bash
-        env:
-          KEY_FILE: ${{ steps.key.outputs.key_file }}
-          CACE_BRANCH: executor/cace-regression-locked
         run: |
           set -euo pipefail
-          work="$RUNNER_TEMP/cace-runtime-discovery"
-          rm -rf "$work"
+          work="$RUNNER_TEMP/cace-runner-recovery"
+          out="$RUNNER_TEMP/cace-runner-recovery-evidence"
+          rm -rf "$work" "$out"
+          mkdir -p "$out/selected-source"
 
-          GIT_SSH_COMMAND="ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new" \
-            git clone git@github.com:morganaspim/Cace-app.git "$work"
+          GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
+            git clone --depth 1 git@github.com:morganaspim/Cace-app.git "$work"
 
           cd "$work"
-          git fetch origin "$CACE_BRANCH"
-          git checkout -B "$CACE_BRANCH" "origin/$CACE_BRANCH"
+          git rev-parse HEAD | tee "$out/cace-default-commit.txt"
+          GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
+            git ls-remote --heads origin \
+            | sed 's#refs/heads/##' \
+            | sort \
+            > "$out/remote-branches.txt"
 
-          workflow=".github/workflows/cace-python-regression.yml"
-          test -f "$workflow"
+          {
+            git ls-files \
+              | grep -Ei '(^|/)(oci|oracle|runner|runners|infra|infrastructure|deploy|deployment|provision|scripts|systemd|cloud-init|ansible|terraform)(/|$)|(^|/).*(oci|oracle|runner|self-hosted|systemd|cloud-init|recover|restart|provision).*$' \
+              || true
+          } | sort -u > "$out/candidate-files.txt"
 
-          if [ -e bridge/runtime-probe-request.json ] || [ -e bridge/runtime-probe-original-workflow.yml ]; then
-            echo "::error::A previous runtime-probe transaction is still present on the locked CACE branch."
-            exit 2
-          fi
+          git grep -InEi \
+            'self-hosted|cace-oci|oracle|oci|actions[ -]runner|runsvc|run\.sh|svc\.sh|systemctl|systemd|cloud-init|restart.*runner|runner.*restart|provision.*runner|runner.*provision' \
+            -- \
+            ':!*.env*' \
+            ':!*secret*' \
+            ':!*credential*' \
+            ':!*private*key*' \
+            ':!*.pem' \
+            ':!node_modules/**' \
+            2>/dev/null \
+            | head -n 1500 \
+            > "$out/content-matches.txt" \
+            || true
 
-          request_id="runtime-discovery-$GITHUB_RUN_ID"
-          base_sha="$(git rev-parse HEAD)"
-          original_sha256="$(sha256sum "$workflow" | awk '{print $1}')"
+          python3 - "$work" "$out" <<'PY'
+          from __future__ import annotations
 
-          mkdir -p bridge
-          cp "$workflow" bridge/runtime-probe-original-workflow.yml
+          import json
+          import pathlib
+          import shutil
+          import sys
 
-          python3 - "$request_id" "$base_sha" "$original_sha256" > bridge/runtime-probe-request.json <<'PY'
-          import json, sys
-          request_id, base_sha, original_sha256 = sys.argv[1:4]
-          print(json.dumps({
+          root = pathlib.Path(sys.argv[1]).resolve()
+          out = pathlib.Path(sys.argv[2]).resolve()
+          selected = out / "selected-source"
+          selected.mkdir(parents=True, exist_ok=True)
+
+          candidate_path = out / "candidate-files.txt"
+          candidates = candidate_path.read_text(encoding="utf-8").splitlines() if candidate_path.exists() else []
+
+          allowed_suffixes = {
+              ".md", ".txt", ".sh", ".py", ".json", ".yaml", ".yml",
+              ".toml", ".service", ".conf", ".tf", ".tfvars.example"
+          }
+          copied = []
+          for raw in candidates:
+              rel = pathlib.PurePosixPath(raw)
+              lowered = raw.lower()
+              if any(token in lowered for token in ("secret", "credential", "private_key", "private-key")):
+                  continue
+              src = root / rel
+              try:
+                  if not src.is_file() or src.stat().st_size > 300_000:
+                      continue
+              except OSError:
+                  continue
+              suffix = src.suffix.lower()
+              if suffix not in allowed_suffixes and src.name not in {
+                  "Dockerfile", "Makefile", "Procfile"
+              }:
+                  continue
+              dst = selected / rel
+              dst.parent.mkdir(parents=True, exist_ok=True)
+              shutil.copy2(src, dst)
+              copied.append(raw)
+              if len(copied) >= 120:
+                  break
+
+          payload = {
               "schema_version": 1,
-              "request_id": request_id,
-              "base_sha": base_sha,
-              "original_workflow_sha256": original_sha256,
+              "repository": "morganaspim/Cace-app",
+              "commit": (out / "cace-default-commit.txt").read_text().strip(),
+              "candidate_file_count": len(candidates),
+              "selected_file_count": len(copied),
+              "selected_files": copied,
+              "remote_mutated": False,
+              "network_action": "git-read-only",
               "authority": "observation-only",
-              "promotion_authority": False,
-              "network_probe": False,
-              "download_allowed": False,
-              "workflow_restore_required": True,
-          }, indent=2))
+          }
+          (out / "summary.json").write_text(
+              json.dumps(payload, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps(payload, indent=2))
           PY
 
-          cat > "$workflow" <<'YAML'
-          name: CACE Python regression
+      - name: Upload recovery evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: cace-runner-recovery-${{ github.run_id }}
+          path: ${{ runner.temp }}/cace-runner-recovery-evidence/
+          if-no-files-found: error
+          retention-days: 1
 
-          on:
-            push:
-              branches: [executor/cace-regression-locked]
-              paths:
-                - '.github/workflows/cace-python-regression.yml'
-
-          permissions:
-            contents: read
-            actions: read
-
-          concurrency:
-            group: cace-canonical-qualification-oci
-            cancel-in-progress: false
-
-          jobs:
-            runtime_probe:
-              runs-on: [self-hosted, cace, oci, aarch64]
-              timeout-minutes: 8
-              permissions:
-                contents: read
-
-              steps:
-                - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-                  with:
-                    ref: ${{ github.sha }}
-                    fetch-depth: 0
-                    clean: true
-                    persist-credentials: false
-
-                - name: Validate probe transaction
-                  shell: bash
-                  run: |
-                    set -euo pipefail
-                    python3 - <<'PY'
-                    import hashlib, json, pathlib, subprocess
-                    request = json.loads(pathlib.Path("bridge/runtime-probe-request.json").read_text())
-                    assert request["schema_version"] == 1
-                    assert request["authority"] == "observation-only"
-                    assert request["promotion_authority"] is False
-                    assert request["network_probe"] is False
-                    assert request["download_allowed"] is False
-                    assert request["workflow_restore_required"] is True
-                    original = pathlib.Path("bridge/runtime-probe-original-workflow.yml").read_bytes()
-                    assert hashlib.sha256(original).hexdigest() == request["original_workflow_sha256"]
-                    parent = subprocess.check_output(
-                        ["git", "rev-parse", "HEAD^"], text=True
-                    ).strip()
-                    assert parent == request["base_sha"]
-                    PY
-
-                - name: Inspect local model and runtime inventory
-                  shell: bash
-                  run: |
-                    set -euo pipefail
-                    out="$RUNNER_TEMP/cace-runtime-probe"
-                    mkdir -p "$out"
-                    python3 - "$out/result.json" <<'PY'
-                    import json
-                    import os
-                    import pathlib
-                    import platform
-                    import shutil
-                    import subprocess
-                    import time
-
-                    request = json.loads(
-                        pathlib.Path("bridge/runtime-probe-request.json").read_text()
-                    )
-                    roots = []
-                    for raw in (
-                        "/var/lib/cace-cache",
-                        "/opt",
-                        "/srv",
-                        os.environ.get("HOME", ""),
-                        "/mnt",
-                        "/models",
-                        "/workspace",
-                    ):
-                        if not raw:
-                            continue
-                        path = pathlib.Path(raw)
-                        if path.exists() and path not in roots:
-                            roots.append(path)
-
-                    llama_candidates = []
-                    gguf_candidates = []
-                    max_results = 64
-
-                    def add_unique(bucket, item):
-                        if item not in bucket and len(bucket) < max_results:
-                            bucket.append(item)
-
-                    direct = shutil.which("llama-server")
-                    if direct:
-                        add_unique(llama_candidates, direct)
-
-                    for root in roots:
-                        root_depth = len(root.parts)
-                        try:
-                            walker = os.walk(root, topdown=True, followlinks=False)
-                            for current, dirs, files in walker:
-                                cur = pathlib.Path(current)
-                                depth = len(cur.parts) - root_depth
-                                if depth >= 5:
-                                    dirs[:] = []
-                                dirs[:] = [
-                                    d for d in dirs
-                                    if d not in {
-                                        ".git", "node_modules", "__pycache__",
-                                        "pip", "npm", "cache", ".cache"
-                                    }
-                                ]
-                                for name in files:
-                                    p = cur / name
-                                    lname = name.lower()
-                                    if name == "llama-server":
-                                        add_unique(llama_candidates, str(p))
-                                    elif lname.endswith(".gguf"):
-                                        try:
-                                            st = p.stat()
-                                        except OSError:
-                                            continue
-                                        add_unique(gguf_candidates, {
-                                            "path": str(p),
-                                            "name": name,
-                                            "size_bytes": st.st_size,
-                                        })
-                        except OSError:
-                            continue
-
-                    llama = None
-                    if llama_candidates:
-                        path = llama_candidates[0]
-                        executable = os.access(path, os.X_OK)
-                        version_output = ""
-                        if executable:
-                            try:
-                                result = subprocess.run(
-                                    [path, "--version"],
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.STDOUT,
-                                    text=True,
-                                    timeout=15,
-                                    check=False,
-                                )
-                                version_output = (result.stdout or "").strip()[-2000:]
-                            except Exception as exc:
-                                version_output = f"version probe failed: {exc}"
-                        llama = {
-                            "path": path,
-                            "executable": executable,
-                            "version_output": version_output,
-                        }
-
-                    disk = shutil.disk_usage("/")
-                    payload = {
-                        "schema_version": 1,
-                        "request_id": request["request_id"],
-                        "status": "observed",
-                        "authority": "observation-only",
-                        "promotion_authority": False,
-                        "network_probe_performed": False,
-                        "download_performed": False,
-                        "machine": platform.node(),
-                        "architecture": platform.machine(),
-                        "python_version": platform.python_version(),
-                        "llama_server": llama,
-                        "llama_server_candidates": llama_candidates,
-                        "gguf_candidates": gguf_candidates,
-                        "disk_free_bytes": disk.free,
-                        "observed_unix": int(time.time()),
-                    }
-                    pathlib.Path(os.environ["RUNNER_TEMP"]).joinpath(
-                        "cace-runtime-probe", "result.json"
-                    ).write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
-                    print(json.dumps({
-                        "request_id": payload["request_id"],
-                        "architecture": payload["architecture"],
-                        "llama_server_found": llama is not None,
-                        "gguf_count": len(gguf_candidates),
-                        "disk_free_bytes": payload["disk_free_bytes"],
-                    }, indent=2))
-                    PY
-
-                - name: Upload read-only runtime observation
-                  uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
-                  with:
-                    name: cace-runtime-probe-${{ github.run_id }}
-                    path: ${{ runner.temp }}/cace-runtime-probe/result.json
-                    if-no-files-found: error
-                    retention-days: 1
-
-            publish_restore:
-              needs: runtime_probe
-              runs-on: ubuntu-latest
-              timeout-minutes: 5
-              permissions:
-                actions: read
-                contents: write
-
-              steps:
-                - uses: actions/checkout@v4
-                  with:
-                    ref: executor/cace-regression-locked
-                    fetch-depth: 0
-                    persist-credentials: true
-
-                - uses: actions/download-artifact@v4
-                  with:
-                    name: cace-runtime-probe-${{ github.run_id }}
-                    path: "$RUNNER_TEMP/probe"
-
-                - name: Publish observation and restore canonical workflow
-                  shell: bash
-                  run: |
-                    set -euo pipefail
-                    test -f "$RUNNER_TEMP/probe/result.json"
-                    test -f bridge/runtime-probe-request.json
-                    test -f bridge/runtime-probe-original-workflow.yml
-
-                    python3 - "$RUNNER_TEMP/probe/result.json" <<'PY'
-                    import hashlib, json, pathlib, sys
-                    request = json.loads(pathlib.Path("bridge/runtime-probe-request.json").read_text())
-                    result = json.loads(pathlib.Path(sys.argv[1]).read_text())
-                    assert result["schema_version"] == 1
-                    assert result["request_id"] == request["request_id"]
-                    assert result["status"] == "observed"
-                    assert result["authority"] == "observation-only"
-                    assert result["promotion_authority"] is False
-                    assert result["network_probe_performed"] is False
-                    assert result["download_performed"] is False
-                    original = pathlib.Path("bridge/runtime-probe-original-workflow.yml").read_bytes()
-                    assert hashlib.sha256(original).hexdigest() == request["original_workflow_sha256"]
-                    PY
-
-                    cp "$RUNNER_TEMP/probe/result.json" bridge/local-runtime-probe-result.json
-                    cp bridge/runtime-probe-original-workflow.yml .github/workflows/cace-python-regression.yml
-                    rm -f bridge/runtime-probe-original-workflow.yml bridge/runtime-probe-request.json
-
-                    git config user.name "cace-runtime-probe-publisher"
-                    git config user.email "noreply@github.com"
-                    git add -A
-                    git commit -m "Record CACE runtime observation and restore regression workflow [skip ci]"
-                    git push origin HEAD:executor/cace-regression-locked
-          YAML
-
-          git config user.name "expert-robot-runtime-probe"
-          git config user.email "noreply@github.com"
-          git add "$workflow" bridge/runtime-probe-request.json bridge/runtime-probe-original-workflow.yml
-          git commit -m "Temporary CACE runtime inventory probe"
-
-          probe_sha="$(git rev-parse HEAD)"
-          GIT_SSH_COMMAND="ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new" \
-            git push origin "HEAD:$CACE_BRANCH"
-
-          echo "request_id=$request_id" >> "$GITHUB_OUTPUT"
-          echo "base_sha=$base_sha" >> "$GITHUB_OUTPUT"
-          echo "probe_sha=$probe_sha" >> "$GITHUB_OUTPUT"
-
-      - name: Await observation and verify workflow restoration
-        shell: bash
-        env:
-          KEY_FILE: ${{ steps.key.outputs.key_file }}
-          CACE_BRANCH: executor/cace-regression-locked
-          REQUEST_ID: ${{ steps.arm.outputs.request_id }}
-        run: |
-          set -euo pipefail
-          poll="$RUNNER_TEMP/cace-runtime-poll"
-          rm -rf "$poll"
-          git init -q "$poll"
-          git -C "$poll" remote add origin git@github.com:morganaspim/Cace-app.git
-
-          found=false
-          for attempt in $(seq 1 120); do
-            GIT_SSH_COMMAND="ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new" \
-              git -C "$poll" fetch -q --force origin "$CACE_BRANCH:refs/remotes/origin/cace"
-
-            if git -C "$poll" show refs/remotes/origin/cace:bridge/local-runtime-probe-result.json > "$RUNNER_TEMP/result.json" 2>/dev/null; then
-              got="$(python3 -c 'import json,os; print(json.load(open(os.environ["RUNNER_TEMP"] + "/result.json"))["request_id"])')"
-              if [ "$got" = "$REQUEST_ID" ]; then
-                if git -C "$poll" show refs/remotes/origin/cace:bridge/runtime-probe-request.json >/dev/null 2>&1; then
-                  echo "::error::Probe result exists but transaction request was not cleaned up."
-                  exit 3
-                fi
-                found=true
-                break
-              fi
-            fi
-            sleep 5
-          done
-
-          if [ "$found" != true ]; then
-            echo "::warning::CACE runner did not publish an observation; performing emergency workflow restoration."
-            rm -rf "$RUNNER_TEMP/emergency-restore"
-            GIT_SSH_COMMAND="ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new" \
-              git clone git@github.com:morganaspim/Cace-app.git "$RUNNER_TEMP/emergency-restore"
-            cd "$RUNNER_TEMP/emergency-restore"
-            git fetch origin "$CACE_BRANCH"
-            git checkout -B "$CACE_BRANCH" "origin/$CACE_BRANCH"
-            if [ -f bridge/runtime-probe-original-workflow.yml ]; then
-              cp bridge/runtime-probe-original-workflow.yml .github/workflows/cace-python-regression.yml
-              rm -f bridge/runtime-probe-original-workflow.yml bridge/runtime-probe-request.json
-              git config user.name "expert-robot-runtime-probe"
-              git config user.email "noreply@github.com"
-              git add -A
-              git commit -m "Restore CACE regression workflow after probe timeout [skip ci]"
-              GIT_SSH_COMMAND="ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new" \
-                git push origin "HEAD:$CACE_BRANCH"
-            fi
-            echo "::error::CACE self-hosted runner produced no runtime observation."
-            exit 2
-          fi
-
-          python3 - "$RUNNER_TEMP/result.json" <<'PY'
-          import json, sys
-          p = json.load(open(sys.argv[1], encoding="utf-8"))
-          print(json.dumps({
-              "request_id": p["request_id"],
-              "architecture": p["architecture"],
-              "python_version": p["python_version"],
-              "llama_server": p["llama_server"],
-              "gguf_candidates": p["gguf_candidates"],
-              "disk_free_bytes": p["disk_free_bytes"],
-          }, indent=2))
-          PY
-
-      - name: Remove key material
+      - name: Remove deploy key
         if: always()
         shell: bash
         run: |
