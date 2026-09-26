@@ -411,7 +411,7 @@ jobs:
                   uses: actions/download-artifact@v4
                   with:
                     name: expert-robot-bridge-result-${{ github.run_id }}
-                    path: "${{ runner.temp }}/expert-robot-bridge-result"
+                    path: "__ER_CACE_RUNNER_TEMP__/expert-robot-bridge-result"
 
                 - name: Validate result envelope
                   id: result
@@ -448,7 +448,7 @@ jobs:
 
                     result="$RUNNER_TEMP/expert-robot-bridge-result/result.json"
                     log="$RUNNER_TEMP/expert-robot-bridge-result/result.log"
-                    expected="${{ steps.result.outputs.request_id }}"
+                    expected="__ER_RESULT_REQUEST_ID__"
 
                     mkdir -p bridge
                     cp "$result" bridge/result.json
@@ -589,6 +589,8 @@ jobs:
                   dollar + "{{ steps.result.outputs.request_id }}",
               "__ER_RESULT_SOURCE_SHA__":
                   dollar + "{{ steps.result.outputs.source_sha }}",
+              "__ER_CACE_RUNNER_TEMP__":
+                  dollar + "{{ runner.temp }}",
           }
           for needle, value in replacements.items():
               if needle not in text:
