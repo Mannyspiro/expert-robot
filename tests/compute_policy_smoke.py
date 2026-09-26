@@ -50,6 +50,15 @@ assert external["authority"] == "qualification-only"
 assert external["install_or_dispatch_requires_capability_probe"] is True
 assert set(external["discovered_labels"]) == {"self-hosted", "cace", "oci", "aarch64"}
 
+base44 = selection["external_integrations"]["base44"]
+assert base44["status"] == "discovery-only"
+assert base44["monetary_cost"] == "unverified"
+assert base44["can_qualify"] is False
+assert base44["can_promote"] is False
+assert "deploy" in base44["prohibited_actions"]
+assert "enable billing" in base44["prohibited_actions"]
+assert "create paid resources" in base44["prohibited_actions"]
+
 promotion = policy["promotion"]
 required = set(promotion["required_evidence"])
 assert "lean_verified" in required
