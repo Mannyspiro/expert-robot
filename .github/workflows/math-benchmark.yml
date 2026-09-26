@@ -35,12 +35,25 @@ concurrency:
   group: math-benchmark-${{ github.ref_name }}
   cancel-in-progress: true
 
+
 jobs:
   benchmark:
-    # Pull requests always use the normal free 8-vCPU qualification
-    # lane. The 32-vCPU runner remains an explicit manual choice.
+    name: benchmark-${{ matrix.variant }}
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        variant:
+          - proof_search
+          - theorem_graph
+          - route_memory
+          - sequence_memory
+          - strategy_memory
+
+    # Feature/PR automation uses the normal free 8-vCPU lane. The 32-vCPU
+    # runner remains an explicit manual choice for genuinely heavy runs.
     runs-on: ${{ inputs.runner || 'avrea-ubuntu-latest-8-vcpu' }}
-    timeout-minutes: 35
+    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@v4
@@ -61,8 +74,7 @@ jobs:
           axiom-audit: "false"
 
       - name: Configure C++
-        run: |
-          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 
       - name: Build benchmark
         run: |
@@ -70,28 +82,122 @@ jobs:
             --target expert_robot_math_benchmark \
             --parallel "$(nproc)"
 
-      - name: Run paired train/holdout benchmark
+      - name: Run isolated train validation holdout benchmark
+        shell: bash
         run: |
+          set -euo pipefail
+          variant="${{ matrix.variant }}"
+
           ./build/expert_robot_math_benchmark \
             config/benchmarks/core_math_holdout.json \
-            build/math-benchmark-state \
-            build/math-benchmark-results.json \
-            "github-${{ github.run_id }}"
+            "build/math-benchmark-state-${variant}" \
+            "build/math-benchmark-results-${variant}.json" \
+            "github-${{ github.run_id }}-${variant}" \
+            "${variant}"
 
-      - name: Show benchmark summary
+      - name: Show variant summary
         if: always()
+        shell: bash
         run: |
-          if [ -f build/math-benchmark-results.json ]; then
-            cat build/math-benchmark-results.json
+          file="build/math-benchmark-results-${{ matrix.variant }}.json"
+          if [ -f "$file" ]; then
+            cat "$file"
           fi
 
-      - name: Upload benchmark evidence
+      - name: Upload variant evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: math-benchmark-${{ github.run_id }}
+          name: math-benchmark-part-${{ matrix.variant }}-${{ github.run_id }}
           path: |
-            build/math-benchmark-results.json
-            build/math-benchmark-state/math_eval.sqlite3
+            build/math-benchmark-results-${{ matrix.variant }}.json
+            build/math-benchmark-state-${{ matrix.variant }}/math_eval.sqlite3
           if-no-files-found: warn
           retention-days: 30
+
+  aggregate:
+    name: aggregate-benchmark
+    if: always()
+    needs: benchmark
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Download variant evidence
+        uses: actions/download-artifact@v4
+        with:
+          pattern: math-benchmark-part-*-${{ github.run_id }}
+          path: build/parts
+          merge-multiple: true
+
+      - name: Merge benchmark summaries
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import glob
+          import json
+          import pathlib
+
+          paths = sorted(glob.glob("build/parts/math-benchmark-results-*.json"))
+          expected = {
+              "proof_search",
+              "theorem_graph",
+              "route_memory",
+              "sequence_memory",
+              "strategy_memory",
+          }
+          summaries = []
+          seen = set()
+
+          for path in paths:
+              payload = json.load(open(path, encoding="utf-8"))
+              for summary in payload.get("summaries", []):
+                  seen.add(summary["variant"])
+                  summaries.append(summary)
+
+          missing = sorted(expected - seen)
+          if missing:
+              raise SystemExit(
+                  "missing benchmark variants: " + ", ".join(missing)
+              )
+
+          summaries.sort(
+              key=lambda item: (
+                  item["variant"],
+                  item["split"],
+                  item["domain"],
+              )
+          )
+
+          output = {
+              "schema_version": 1,
+              "run_id": "github-${{ github.run_id }}",
+              "execution": "parallel-independent-variants",
+              "variants": sorted(expected),
+              "summaries": summaries,
+          }
+
+          target = pathlib.Path("build/math-benchmark-results.json")
+          target.parent.mkdir(parents=True, exist_ok=True)
+          target.write_text(
+              json.dumps(output, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps(output, indent=2))
+          PY
+
+      - name: Upload combined benchmark evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: math-benchmark-${{ github.run_id }}
+          path: build/math-benchmark-results.json
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Require all variant jobs to pass
+        if: ${{ needs.benchmark.result != 'success' }}
+        shell: bash
+        run: |
+          echo "::error::At least one independent benchmark variant failed."
+          exit 1
