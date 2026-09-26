@@ -11,7 +11,7 @@ assert registry["schema_version"] == 1
 classes = registry["classes"]
 ids = [item["id"] for item in classes]
 assert len(ids) == len(set(ids))
-assert len(ids) >= 7
+assert len(ids) >= 10
 allowed_guards = {
     "tests/known_failure_regression_smoke.py",
     "tests/formal_dependency_lock_smoke.py",
@@ -83,6 +83,28 @@ assert "unsafe archive path" in external
 assert "unsafe archive member type" in external
 assert '("run_cmd", re.compile' in external
 assert "cmake --build" not in external
+
+proof_search = json.loads(
+    (ROOT / "config" / "proof_search.json").read_text(encoding="utf-8")
+)
+proof_search_text = "\n".join(proof_search["strategies"])
+for forbidden in (
+    "validation-geometry-dot-zero-right",
+    "validation-geometry-cross-self",
+    "holdout-geometry-orthogonal-symm",
+    "holdout-geometry-distance-symm",
+    "holdout-geometry-distance-nonnegative",
+    "holdout-geometry-zero-orthogonal-left",
+    "holdout-geometry-sphere-radius",
+    "MathAI.Geometry.dot_zero_right",
+    "MathAI.Geometry.cross_self",
+    "MathAI.Geometry.orthogonal_symm",
+    "MathAI.Geometry.squaredDistance_symm",
+    "MathAI.Geometry.squaredDistance_nonnegative",
+    "MathAI.Geometry.zero_orthogonal_left",
+    "MathAI.Geometry.squaredDistance_eq_radius_of_pointOnSphere",
+):
+    assert forbidden not in proof_search_text
 
 route_planner = (
     ROOT / "cpp" / "src" / "research" / "route_planner.cpp"
