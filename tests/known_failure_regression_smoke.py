@@ -66,6 +66,16 @@ external = (
 ).read_text(encoding="utf-8")
 assert '"qualification_lane": "formal-static-arm64"' in external
 assert '"cxx_required": False' in external
-assert "cmake/ninja unavailable; expected on formal-only OCI lane" in external
+assert '"self_hosted_contents_write": False' in external
+assert "runs-on: [self-hosted, cace, oci, aarch64]" in external
+assert "persist-credentials: false" in external
+assert "publish-result:" in external
+assert "name: Upload read-only runner evidence" in external
+assert "contents: read" in external
+assert "contents: write" in external
+assert "unsafe archive path" in external
+assert "unsafe archive member type" in external
+assert '("run_cmd", re.compile' in external
+assert "cmake --build" not in external
 
 print("known failure regression guardrails: PASS")
