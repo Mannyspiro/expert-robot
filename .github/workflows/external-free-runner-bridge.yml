@@ -6,7 +6,17 @@ on:
       - "feat/reuse-refactored-fishstick"
     paths:
       - ".github/workflows/external-free-runner-bridge.yml"
+      - ".github/workflows/cace-return-pr.yml"
       - "config/external_runner_bridge_request.json"
+      - "config/compute_policy.json"
+      - "config/known_failure_classes.json"
+      - "config/formal_dependency_lock.json"
+      - "tests/compute_policy_smoke.py"
+      - "tests/known_failure_regression_smoke.py"
+      - "tests/formal_dependency_lock_smoke.py"
+      - "tests/cace_return_bridge_smoke.py"
+      - "scripts/preflight.sh"
+      - "formal/**"
   workflow_dispatch:
 
 permissions:
