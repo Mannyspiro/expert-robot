@@ -1,0 +1,225 @@
+name: Railway Free Preflight
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Git ref to test"
+        required: true
+        type: string
+        default: "feat/reuse-refactored-fishstick"
+      mode:
+        description: "Preflight depth"
+        required: true
+        type: choice
+        default: cheap
+        options:
+          - cheap
+          - targeted
+          - full
+      discover_runner_repo:
+        description: "Inspect runner-repo workflows using the same deploy key"
+        required: true
+        type: boolean
+        default: true
+      runner_repo_ssh:
+        description: "Runner repository SSH URL"
+        required: true
+        type: string
+        default: "git@github.com:morganaspim/Cace-app.git"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: railway-free-preflight-${{ inputs.ref }}
+  cancel-in-progress: true
+
+jobs:
+  dispatch-to-railway:
+    # This runner only packages/relays the checkout. Build/test compute runs on
+    # Railway, so this lane does not consume an Avrea runner.
+    runs-on: ubuntu-latest
+    timeout-minutes: 65
+
+    steps:
+      - name: Check out requested ref
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          fetch-depth: 2
+
+      - name: Prepare Railway SSH identity
+        id: key
+        shell: bash
+        env:
+          RAILWAY_SSH_PRIVATE_KEY: ${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${RAILWAY_SSH_PRIVATE_KEY:-}" ]; then
+            echo "::error::Repository secret RAILWAY_SSH_PRIVATE_KEY is not configured."
+            exit 1
+          fi
+
+          umask 077
+          key_file="$RUNNER_TEMP/railway_key"
+          printf '%s\n' "$RAILWAY_SSH_PRIVATE_KEY" > "$key_file"
+          chmod 600 "$key_file"
+
+          ssh-keygen -y -f "$key_file" > "$RUNNER_TEMP/railway_key.pub"
+
+          eval "$(ssh-agent -s)"
+          ssh-add "$key_file"
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
+
+          echo "key_file=$key_file" >> "$GITHUB_OUTPUT"
+
+      - name: Discover runner repository with deploy key
+        if: ${{ inputs.discover_runner_repo }}
+        continue-on-error: true
+        shell: bash
+        env:
+          RUNNER_REPO_SSH: ${{ inputs.runner_repo_ssh }}
+        run: |
+          set -euo pipefail
+
+          work="$RUNNER_TEMP/expert-robot-runner-repo-discovery"
+          rm -rf "$work"
+
+          GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
+            git ls-remote "$RUNNER_REPO_SSH" HEAD >/dev/null
+
+          GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
+            git clone --depth 1 --filter=blob:none "$RUNNER_REPO_SSH" "$work" >/dev/null 2>&1
+
+          echo "runner repository deploy-key access: PASS"
+
+          if [ -d "$work/.github/workflows" ]; then
+            echo "runner workflow inventory:"
+            find "$work/.github/workflows" -maxdepth 1 -type f -print | sort
+            echo "runner labels referenced by workflows:"
+            grep -RhoE 'runs-on:[[:space:]]*[^#]+' "$work/.github/workflows" \
+              | sed 's/[[:space:]]*$//' \
+              | sort -u \
+              || true
+          else
+            echo "runner repository has no .github/workflows directory"
+          fi
+
+          rm -rf "$work"
+
+      - name: Package checkout
+        id: package
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/expert-robot-${GITHUB_RUN_ID}.tar.gz"
+
+          # Keep the shallow .git metadata so preflight can identify recently
+          # changed Lean files without granting the Railway VM GitHub creds.
+          tar \
+            --exclude='./build' \
+            --exclude='./build-*' \
+            --exclude='./formal/.lake' \
+            -czf "$archive" .
+
+          echo "archive=$archive" >> "$GITHUB_OUTPUT"
+
+      - name: Upload source bundle to Railway VM
+        shell: bash
+        run: |
+          set -euo pipefail
+          key_file="${{ steps.key.outputs.key_file }}"
+          archive="${{ steps.package.outputs.archive }}"
+
+          scp \
+            -i "$key_file" \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=accept-new \
+            -o ConnectTimeout=20 \
+            "$archive" \
+            railway.new:/tmp/expert-robot-${GITHUB_RUN_ID}.tar.gz
+
+      - name: Run preflight on Railway
+        shell: bash
+        env:
+          PREFLIGHT_MODE: ${{ inputs.mode }}
+        run: |
+          set -euo pipefail
+          key_file="${{ steps.key.outputs.key_file }}"
+
+          # Railway may print provisioning metadata before command output. Drop
+          # only that metadata line so claim URLs never enter the Actions log.
+          ssh \
+            -i "$key_file" \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=accept-new \
+            -o ConnectTimeout=20 \
+            railway.new \
+            "GITHUB_RUN_ID='${GITHUB_RUN_ID}' PREFLIGHT_MODE='${PREFLIGHT_MODE}' bash -s" \
+            2>&1 <<'REMOTE' | awk '!/"human_claim_url":/'
+          set -euo pipefail
+
+          archive="/tmp/expert-robot-${GITHUB_RUN_ID}.tar.gz"
+          workspace="/app/expert-robot"
+          cache="/app/.expert-robot-cache"
+
+          mkdir -p "$cache"
+          rm -rf "$workspace"
+          mkdir -p "$workspace"
+          tar -xzf "$archive" -C "$workspace"
+          rm -f "$archive"
+
+          cd "$workspace"
+
+          bash ./scripts/bootstrap-railway-worker.sh
+
+          # Persist the CMake build directory outside the replaced source tree.
+          # CMake will invalidate stale objects when source inputs change.
+          export ER_BUILD_DIR="$cache/build-preflight"
+          export ER_PREFLIGHT_JOBS=1
+          export ER_PREFLIGHT_MODE="$PREFLIGHT_MODE"
+          export ER_BASE_REF="HEAD~1"
+
+          bash ./scripts/railway-preflight.sh
+          REMOTE
+
+      - name: Download preflight evidence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          key_file="${{ steps.key.outputs.key_file }}"
+          mkdir -p "$RUNNER_TEMP/railway-evidence"
+
+          scp \
+            -i "$key_file" \
+            -o BatchMode=yes \
+            -o StrictHostKeyChecking=accept-new \
+            -o ConnectTimeout=20 \
+            railway.new:/app/.expert-robot-cache/build-preflight/preflight-summary.json \
+            "$RUNNER_TEMP/railway-evidence/preflight-summary.json" \
+            || true
+
+      - name: Upload Railway evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: railway-preflight-${{ github.run_id }}
+          path: ${{ runner.temp }}/railway-evidence/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Remove temporary key material
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "${SSH_AGENT_PID:-}" ]; then
+            ssh-agent -k >/dev/null 2>&1 || true
+          fi
+          rm -f \
+            "$RUNNER_TEMP/railway_key" \
+            "$RUNNER_TEMP/railway_key.pub" \
+            "$RUNNER_TEMP"/expert-robot-*.tar.gz
