@@ -151,6 +151,7 @@ jobs:
           path: ${{ runner.temp }}/cace-runner-recovery-evidence/
           if-no-files-found: error
           retention-days: 1
+          include-hidden-files: true
 
       - name: Remove deploy key
         if: always()
