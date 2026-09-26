@@ -249,6 +249,9 @@ int main() {
         learned_a->evidence_confidence > 0.0);
     assert(
         learned_a->evidence_confidence < 1.0);
+    assert(learned_a->step_evidence_steps == 0U);
+    assert(learned_a->step_evidence_confidence == 0.0);
+    assert(learned_a->step_adjustment == 0.0);
 
     const double early_confidence =
         learned_a->evidence_confidence;
@@ -367,6 +370,130 @@ int main() {
     assert(
         geometry_a->evidence_confidence ==
         0.0);
+
+    // Step evidence remains inert while sparse, then contributes only a
+    // small bounded domain-specific adjustment after repeated observations.
+    const auto step_db =
+        std::filesystem::temp_directory_path() /
+        "expert-robot-step-strategy.sqlite3";
+    std::filesystem::remove(step_db);
+
+    RouteOutcomeLedger step_memory(step_db);
+    ResearchStrategyPlanner step_planner(
+        ResearchStrategyPlannerConfig{},
+        &step_memory);
+
+    const auto record_step_pair =
+        [&]() {
+            step_memory.record_strategy_step(
+                ResearchStrategyStepOutcome{
+                    .strategy_id =
+                        research_strategy_id(signature_a),
+                    .signature = signature_a,
+                    .domain = "algebra",
+                    .context_key = "",
+                    .step_index = 0U,
+                    .kind =
+                        ProofRouteKind::RepresentationSwitch,
+                    .route_id = "step-switch-good",
+                    .verified_progress = true,
+                    .target_verified = true,
+                    .dead_end_escaped = true,
+                    .resource_cost = 0.20,
+                    .proof_attempts = 1,
+                    .model_calls = 0,
+                    .generated_ideas = 0,
+                    .generated_lemmas = 0
+                });
+
+            step_memory.record_strategy_step(
+                ResearchStrategyStepOutcome{
+                    .strategy_id =
+                        research_strategy_id(signature_b),
+                    .signature = signature_b,
+                    .domain = "algebra",
+                    .context_key = "",
+                    .step_index = 0U,
+                    .kind =
+                        ProofRouteKind::ImaginationCandidate,
+                    .route_id = "step-imagine-poor",
+                    .verified_progress = false,
+                    .target_verified = false,
+                    .dead_end_escaped = false,
+                    .resource_cost = 0.80,
+                    .proof_attempts = 1,
+                    .model_calls = 1,
+                    .generated_ideas = 1,
+                    .generated_lemmas = 0
+                });
+        };
+
+    for (int i = 0; i < 5; ++i) {
+        record_step_pair();
+    }
+
+    const auto sparse_steps =
+        step_planner.plan(
+            {seq_a_new, seq_b_new},
+            "algebra");
+    const auto* sparse_step_a =
+        find_signature(
+            sparse_steps,
+            signature_a);
+    const auto* sparse_step_b =
+        find_signature(
+            sparse_steps,
+            signature_b);
+
+    assert(sparse_step_a != nullptr);
+    assert(sparse_step_b != nullptr);
+    assert(sparse_step_a->step_adjustment == 0.0);
+    assert(sparse_step_b->step_adjustment == 0.0);
+    assert(sparse_step_a->step_evidence_steps == 0U);
+    assert(sparse_step_b->step_evidence_steps == 0U);
+
+    for (int i = 0; i < 3; ++i) {
+        record_step_pair();
+    }
+
+    const auto mature_steps =
+        step_planner.plan(
+            {seq_a_new, seq_b_new},
+            "algebra");
+    const auto* mature_step_a =
+        find_signature(
+            mature_steps,
+            signature_a);
+    const auto* mature_step_b =
+        find_signature(
+            mature_steps,
+            signature_b);
+
+    assert(mature_step_a != nullptr);
+    assert(mature_step_b != nullptr);
+    assert(mature_step_a->step_evidence_steps == 1U);
+    assert(mature_step_b->step_evidence_steps == 1U);
+    assert(mature_step_a->step_evidence_confidence > 0.0);
+    assert(mature_step_a->step_evidence_confidence < 1.0);
+    assert(mature_step_a->step_adjustment > 0.0);
+    assert(mature_step_b->step_adjustment < 0.0);
+    assert(mature_step_a->step_adjustment <= 0.04);
+    assert(mature_step_b->step_adjustment >= -0.04);
+    assert(mature_step_a->final_score > mature_step_b->final_score);
+
+    const auto step_geometry =
+        step_planner.plan(
+            {seq_a_new, seq_b_new},
+            "geometry");
+    const auto* step_geometry_a =
+        find_signature(
+            step_geometry,
+            signature_a);
+    assert(step_geometry_a != nullptr);
+    assert(step_geometry_a->step_adjustment == 0.0);
+    assert(step_geometry_a->step_evidence_steps == 0U);
+
+    std::filesystem::remove(step_db);
 
     // Context-specific evidence can reverse ordering within the same domain
     // without changing the broad domain prior.
