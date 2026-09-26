@@ -79,14 +79,19 @@ std::string packet_hash(
         << "strategy_id=" << packet.strategy_id << "\n"
         << "signature=" << packet.signature << "\n"
         << "experience_hash=" << packet.experience_hash << "\n"
+        << "validation_hash=" << packet.validation_hash << "\n"
         << "holdout_hash=" << packet.holdout_hash << "\n"
         << "step_credit_hash=" << packet.step_credit_hash << "\n"
         << "experience_sufficient="
         << packet.experience_sufficient << "\n"
+        << "validation_sufficient="
+        << packet.validation_sufficient << "\n"
         << "holdout_sufficient="
         << packet.holdout_sufficient << "\n"
         << "step_evidence_sufficient="
         << packet.step_evidence_sufficient << "\n"
+        << "ready_for_holdout_confirmation="
+        << packet.ready_for_holdout_confirmation << "\n"
         << "ready_for_external_review="
         << packet.ready_for_external_review << "\n"
         << "requires_explicit_promotion="
@@ -120,7 +125,7 @@ StrategyQualificationPacket
 build_strategy_qualification_packet(
     const ResearchStrategyPlan& strategy,
     const ResearchStrategyExperience& experience,
-    const eval::AblationResult& holdout_ablation,
+    const eval::AblationResult& validation_ablation,
     std::vector<StrategyStepCredit> step_credits,
     const StrategyQualificationPolicy& policy) {
     validate_strategy_qualification_policy(
@@ -157,8 +162,10 @@ build_strategy_qualification_packet(
         strategy.title;
     packet.experience =
         experience;
+    packet.validation_ablation =
+        validation_ablation;
     packet.holdout_ablation =
-        holdout_ablation;
+        std::nullopt;
     packet.step_credits =
         std::move(step_credits);
 
@@ -170,11 +177,13 @@ build_strategy_qualification_packet(
         experience.average_resource_cost() <=
             policy.maximum_average_resource_cost;
 
-    packet.holdout_sufficient =
-        holdout_ablation.enough_cases &&
-        holdout_ablation.verification_ok &&
-        (!policy.require_holdout_keep ||
-         holdout_ablation.recommend_keep);
+    packet.validation_sufficient =
+        validation_ablation.enough_cases &&
+        validation_ablation.verification_ok &&
+        (!policy.require_validation_keep ||
+         validation_ablation.recommend_keep);
+
+    packet.holdout_sufficient = false;
 
     if (strategy.steps.size() <= 1U) {
         packet.step_evidence_sufficient = true;
@@ -207,37 +216,86 @@ build_strategy_qualification_packet(
             all_match;
     }
 
-    packet.ready_for_external_review =
+    packet.ready_for_holdout_confirmation =
         packet.experience_sufficient &&
-        packet.holdout_sufficient &&
+        packet.validation_sufficient &&
         packet.step_evidence_sufficient;
+    packet.ready_for_external_review = false;
 
     packet.requires_explicit_promotion = true;
 
     if (!packet.experience_sufficient) {
         packet.rationale =
             "completed strategy history has not reached reliability/cost thresholds";
-    } else if (!packet.holdout_sufficient) {
+    } else if (!packet.validation_sufficient) {
         packet.rationale =
-            "holdout ablation does not support qualification";
+            "validation ablation does not support holdout confirmation";
     } else if (!packet.step_evidence_sufficient) {
         packet.rationale =
             "step ablation evidence is incomplete or indicates removable strategy steps";
     } else {
         packet.rationale =
-            "strategy evidence is review-ready; explicit external promotion remains required";
+            "validation-qualified; holdout confirmation is now permitted";
     }
 
     packet.experience_hash =
         experience_hash(
             strategy,
             experience);
-    packet.holdout_hash =
+    packet.validation_hash =
         growth::ablation_evidence_hash(
-            holdout_ablation);
+            validation_ablation);
+    packet.holdout_hash.clear();
     packet.step_credit_hash =
         step_credit_hash(
             packet.step_credits);
+    packet.packet_hash =
+        packet_hash(packet);
+
+    return packet;
+}
+
+StrategyQualificationPacket
+confirm_strategy_holdout(
+    StrategyQualificationPacket packet,
+    const eval::AblationResult& holdout_ablation,
+    const StrategyQualificationPolicy& policy) {
+    validate_strategy_qualification_policy(
+        policy);
+
+    if (!packet.ready_for_holdout_confirmation) {
+        throw std::logic_error(
+            "holdout confirmation is forbidden before validation qualification");
+    }
+    if (packet.holdout_ablation.has_value()) {
+        throw std::logic_error(
+            "holdout confirmation may only be bound once");
+    }
+
+    packet.holdout_ablation =
+        holdout_ablation;
+    packet.holdout_sufficient =
+        holdout_ablation.enough_cases &&
+        holdout_ablation.verification_ok &&
+        (!policy.require_holdout_keep ||
+         holdout_ablation.recommend_keep);
+
+    packet.holdout_hash =
+        growth::ablation_evidence_hash(
+            holdout_ablation);
+
+    packet.ready_for_external_review =
+        packet.ready_for_holdout_confirmation &&
+        packet.holdout_sufficient;
+
+    if (!packet.holdout_sufficient) {
+        packet.rationale =
+            "holdout confirmation failed; validation evidence is not sufficient for review";
+    } else {
+        packet.rationale =
+            "strategy evidence is review-ready; explicit external promotion remains required";
+    }
+
     packet.packet_hash =
         packet_hash(packet);
 
