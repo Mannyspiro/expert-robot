@@ -481,7 +481,7 @@ BenchmarkRun MathBenchmarkRunner::run(
             run.records.push_back(
                 record);
 
-            for (const std::string domain :
+            for (const std::string& domain :
                  {std::string("all"),
                   benchmark_case.domain}) {
                 SummaryKey key{
