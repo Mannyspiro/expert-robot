@@ -1,0 +1,376 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+from dataclasses import dataclass
+import ipaddress
+import json
+from pathlib import Path
+import sys
+from typing import Any, Mapping, Sequence
+from urllib.error import HTTPError, URLError
+from urllib.parse import unquote, urlsplit, urlunsplit
+from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
+
+
+class HeadlessClientError(RuntimeError):
+    pass
+
+
+class _NoRedirectHandler(HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+_OPENER = build_opener(ProxyHandler({}), _NoRedirectHandler())
+
+
+def _validate_loopback_base_url(value: str) -> str:
+    candidate = value.strip()
+    if not candidate:
+        raise HeadlessClientError("base URL cannot be empty")
+    if "\\" in candidate or any(ord(ch) < 32 or ord(ch) == 127 for ch in candidate):
+        raise HeadlessClientError("base URL contains unsafe characters")
+
+    parsed = urlsplit(candidate)
+    if parsed.scheme.lower() not in {"http", "https"}:
+        raise HeadlessClientError("base URL must use http or https")
+    if parsed.hostname is None or not parsed.netloc:
+        raise HeadlessClientError("base URL must include a host")
+    if parsed.username is not None or parsed.password is not None:
+        raise HeadlessClientError("base URL must not contain credentials")
+    if parsed.query or parsed.fragment:
+        raise HeadlessClientError("base URL must not contain query or fragment")
+
+    try:
+        port = parsed.port
+    except ValueError as exc:
+        raise HeadlessClientError("base URL contains an invalid port") from exc
+
+    host = parsed.hostname
+    if host.lower() == "localhost":
+        normalized_host = "localhost"
+    else:
+        try:
+            addr = ipaddress.ip_address(host)
+        except ValueError as exc:
+            raise HeadlessClientError("base URL host must be localhost or literal loopback IP") from exc
+        if not addr.is_loopback:
+            raise HeadlessClientError("base URL host must be loopback")
+        normalized_host = f"[{addr.compressed}]" if addr.version == 6 else addr.compressed
+
+    path = parsed.path or ""
+    if path and not path.startswith("/"):
+        raise HeadlessClientError("base URL path must be absolute")
+    if "\\" in path:
+        raise HeadlessClientError("base URL path must not contain backslashes")
+    for segment in path.split("/"):
+        decoded = segment
+        for _ in range(2):
+            decoded = unquote(decoded)
+            if decoded in {".", ".."} or "/" in decoded or "\\" in decoded:
+                raise HeadlessClientError("base URL contains ambiguous path traversal")
+    path = path.rstrip("/")
+    netloc = normalized_host + (f":{port}" if port is not None else "")
+    return urlunsplit((parsed.scheme.lower(), netloc, path, "", ""))
+
+
+def _json_request(
+    url: str,
+    *,
+    method: str = "GET",
+    payload: Mapping[str, Any] | None = None,
+    timeout: float = 30.0,
+) -> Any:
+    # Validate the full URL again so callers cannot escape a loopback base by
+    # passing an absolute remote path.
+    safe_url = _validate_loopback_base_url(url)
+    headers = {"Accept": "application/json"}
+    body = None
+    if payload is not None:
+        body = json.dumps(payload).encode("utf-8")
+        headers["Content-Type"] = "application/json"
+    req = Request(safe_url, data=body, headers=headers, method=method)
+    try:
+        with _OPENER.open(req, timeout=timeout) as response:
+            raw = response.read()
+    except (HTTPError, URLError, TimeoutError, OSError) as exc:
+        raise HeadlessClientError(f"local request failed for {safe_url}: {exc}") from exc
+    try:
+        return json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise HeadlessClientError(f"local endpoint returned invalid JSON: {safe_url}") from exc
+
+
+@dataclass(frozen=True)
+class HeadlessConfig:
+    cace_base_url: str
+    llm_base_url: str
+    model_id: str
+    max_tokens_default: int = 2048
+    temperature_default: float = 0.1
+
+    @classmethod
+    def load(cls, path: str | Path) -> "HeadlessConfig":
+        raw = json.loads(Path(path).read_text(encoding="utf-8"))
+        if raw.get("schema_version") != 1:
+            raise HeadlessClientError("unsupported CACE headless config schema")
+        cace = raw.get("cace_api")
+        llm = raw.get("local_llm")
+        if not isinstance(cace, dict) or not isinstance(llm, dict):
+            raise HeadlessClientError("headless config missing cace_api/local_llm")
+        return cls(
+            cace_base_url=_validate_loopback_base_url(str(cace["base_url"])),
+            llm_base_url=_validate_loopback_base_url(str(llm["base_url"])),
+            model_id=str(llm["model_id"]),
+            max_tokens_default=int(llm.get("max_tokens_default", 2048)),
+            temperature_default=float(llm.get("temperature_default", 0.1)),
+        )
+
+
+class CACEHeadlessClient:
+    """Loopback-only CACE + local-LLM client.
+
+    LLM text is always untrusted. Deterministic CACE execution is exposed
+    separately so natural-language generation cannot manufacture verification.
+    """
+
+    def __init__(self, config: HeadlessConfig, *, timeout: float = 30.0) -> None:
+        self.config = config
+        self.timeout = timeout
+
+    def _cace(self, path: str, *, method: str = "GET", payload: Mapping[str, Any] | None = None) -> Any:
+        if not path.startswith("/"):
+            raise HeadlessClientError("CACE path must be absolute")
+        return _json_request(
+            self.config.cace_base_url + path,
+            method=method,
+            payload=payload,
+            timeout=self.timeout,
+        )
+
+    def _llm(self, path: str, *, method: str = "GET", payload: Mapping[str, Any] | None = None) -> Any:
+        if not path.startswith("/"):
+            raise HeadlessClientError("LLM path must be absolute")
+        return _json_request(
+            self.config.llm_base_url + path,
+            method=method,
+            payload=payload,
+            timeout=self.timeout,
+        )
+
+    def health(self) -> dict[str, Any]:
+        cace = self._cace("/api/health")
+        models = self._llm("/models")
+        model_ids = tuple(
+            str(item.get("id"))
+            for item in models.get("data", [])
+            if isinstance(item, dict) and item.get("id")
+        ) if isinstance(models, dict) else ()
+        return {
+            "schema_version": 1,
+            "ok": bool(isinstance(cace, dict) and cace.get("status") == "ok" and model_ids),
+            "cace": cace,
+            "llm_models": model_ids,
+            "configured_model": self.config.model_id,
+            "network_policy": "loopback-only",
+            "llm_output_trust": "untrusted",
+        }
+
+    def modules(self) -> dict[str, Any]:
+        result = self._cace("/api/modules")
+        if not isinstance(result, dict):
+            raise HeadlessClientError("CACE modules response must be an object")
+        return result
+
+    def claims(self) -> dict[str, Any]:
+        result = self._cace("/api/claims")
+        if not isinstance(result, dict):
+            raise HeadlessClientError("CACE claims response must be an object")
+        return result
+
+    def validate_connection(
+        self,
+        *,
+        source_module_id: str,
+        source_port: str,
+        target_module_id: str,
+        target_port: str,
+    ) -> dict[str, Any]:
+        result = self._cace(
+            "/api/connections/validate",
+            method="POST",
+            payload={
+                "source_module_id": source_module_id,
+                "source_port": source_port,
+                "target_module_id": target_module_id,
+                "target_port": target_port,
+            },
+        )
+        if not isinstance(result, dict):
+            raise HeadlessClientError("connection validation response must be an object")
+        return result
+
+    def start_run(self, payload: Mapping[str, Any]) -> dict[str, Any]:
+        result = self._cace("/api/runs", method="POST", payload=payload)
+        if not isinstance(result, dict):
+            raise HeadlessClientError("CACE run response must be an object")
+        return result
+
+    def run_status(self, job_id: str) -> dict[str, Any]:
+        if not job_id or "/" in job_id or "\\" in job_id:
+            raise HeadlessClientError("invalid CACE job id")
+        result = self._cace(f"/api/runs/{job_id}")
+        if not isinstance(result, dict):
+            raise HeadlessClientError("CACE run status must be an object")
+        return result
+
+    def chat(
+        self,
+        messages: Sequence[Mapping[str, str]],
+        *,
+        temperature: float | None = None,
+        max_tokens: int | None = None,
+    ) -> dict[str, Any]:
+        if not messages:
+            raise HeadlessClientError("chat requires at least one message")
+        temp = self.config.temperature_default if temperature is None else float(temperature)
+        tokens = self.config.max_tokens_default if max_tokens is None else int(max_tokens)
+        if not 0.0 <= temp <= 2.0:
+            raise HeadlessClientError("temperature must be between 0 and 2")
+        if tokens < 1:
+            raise HeadlessClientError("max_tokens must be positive")
+
+        system = {
+            "role": "system",
+            "content": (
+                "You are the local CACE research assistant used by Expert Robot. "
+                "You may reason, propose experiments, and explain CACE capabilities. "
+                "Your text is untrusted and never constitutes PASS, VERIFIED, FORMAL, "
+                "claim promotion, or promotion authority. Deterministic/formal CACE "
+                "tools must independently establish those results."
+            ),
+        }
+        outbound = [system] + [
+            {"role": str(m["role"]), "content": str(m["content"])}
+            for m in messages
+        ]
+        raw = self._llm(
+            "/chat/completions",
+            method="POST",
+            payload={
+                "model": self.config.model_id,
+                "messages": outbound,
+                "temperature": temp,
+                "max_tokens": tokens,
+                "stream": False,
+            },
+        )
+        try:
+            content = raw["choices"][0]["message"]["content"]
+        except (KeyError, IndexError, TypeError) as exc:
+            raise HeadlessClientError("local LLM response missing choices[0].message.content") from exc
+        return {
+            "schema_version": 1,
+            "text": str(content),
+            "model": str(raw.get("model") or self.config.model_id),
+            "usage": raw.get("usage") if isinstance(raw.get("usage"), dict) else {},
+            "untrusted": True,
+            "can_promote": False,
+            "can_mark_verified": False,
+        }
+
+    def research_turn(self, prompt: str) -> dict[str, Any]:
+        """Give the LLM current CACE surface context without auto-executing tools."""
+        if not prompt.strip():
+            raise HeadlessClientError("research prompt must be non-empty")
+        modules = self.modules()
+        claims = self.claims()
+        module_rows = modules.get("modules", []) if isinstance(modules, dict) else []
+        claim_rows = claims.get("claims", []) if isinstance(claims, dict) else []
+        context = {
+            "available_module_count": len(module_rows) if isinstance(module_rows, list) else 0,
+            "claim_count": len(claim_rows) if isinstance(claim_rows, list) else 0,
+            "tool_execution_policy": (
+                "Propose typed CACE actions only. Do not claim they executed. "
+                "Expert Robot must execute and verify them separately."
+            ),
+        }
+        return self.chat([
+            {
+                "role": "user",
+                "content": (
+                    "Current CACE context:\n"
+                    + json.dumps(context, sort_keys=True)
+                    + "\n\nResearch request:\n"
+                    + prompt
+                ),
+            }
+        ])
+
+
+def _default_config_path() -> Path:
+    return Path(__file__).resolve().parents[1] / "config" / "cace_headless_local.json"
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Expert Robot local CACE headless client")
+    parser.add_argument("--config", default=str(_default_config_path()))
+    parser.add_argument("--timeout", type=float, default=30.0)
+    sub = parser.add_subparsers(dest="command", required=True)
+
+    sub.add_parser("health")
+    sub.add_parser("modules")
+    sub.add_parser("claims")
+
+    chat = sub.add_parser("chat")
+    chat.add_argument("prompt")
+
+    turn = sub.add_parser("research-turn")
+    turn.add_argument("prompt")
+
+    validate = sub.add_parser("validate-connection")
+    validate.add_argument("source_module_id")
+    validate.add_argument("source_port")
+    validate.add_argument("target_module_id")
+    validate.add_argument("target_port")
+
+    run = sub.add_parser("run")
+    run.add_argument("payload_json")
+
+    status = sub.add_parser("run-status")
+    status.add_argument("job_id")
+
+    args = parser.parse_args(argv)
+    client = CACEHeadlessClient(HeadlessConfig.load(args.config), timeout=args.timeout)
+
+    if args.command == "health":
+        result = client.health()
+    elif args.command == "modules":
+        result = client.modules()
+    elif args.command == "claims":
+        result = client.claims()
+    elif args.command == "chat":
+        result = client.chat([{"role": "user", "content": args.prompt}])
+    elif args.command == "research-turn":
+        result = client.research_turn(args.prompt)
+    elif args.command == "validate-connection":
+        result = client.validate_connection(
+            source_module_id=args.source_module_id,
+            source_port=args.source_port,
+            target_module_id=args.target_module_id,
+            target_port=args.target_port,
+        )
+    elif args.command == "run":
+        result = client.start_run(json.loads(Path(args.payload_json).read_text(encoding="utf-8")))
+    elif args.command == "run-status":
+        result = client.run_status(args.job_id)
+    else:
+        raise AssertionError(args.command)
+
+    print(json.dumps(result, indent=2, sort_keys=True))
+    return 0 if not isinstance(result, dict) or result.get("ok", True) else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
