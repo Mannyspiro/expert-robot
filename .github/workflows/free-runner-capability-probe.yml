@@ -85,6 +85,18 @@ jobs:
               .github/workflows \
               | tee "$evidence/workflow-routing.txt" \
               || true
+
+            mkdir -p "$evidence/workflow-snapshots"
+            for workflow in \
+              .github/workflows/cace-exact-pin-lean-preflight.yml \
+              .github/workflows/cace-batch-exact-pin-lean-preflight.yml \
+              .github/workflows/cace-formal-v336-theorem-metadata.yml; do
+              if [ -f "$workflow" ]; then
+                cp "$workflow" "$evidence/workflow-snapshots/"
+                echo "=== snapshot: $workflow ==="
+                sed -n '1,260p' "$workflow"
+              fi
+            done
           fi
 
           git config user.name "expert-robot-capability-probe"
