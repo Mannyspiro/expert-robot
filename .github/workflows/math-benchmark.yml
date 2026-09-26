@@ -1,7 +1,8 @@
 name: Math Architecture Benchmark
 
 on:
-  pull_request:
+  push:
+    branches: ["feat/**"]
     paths:
       - "cpp/include/expert_robot/research/strategy_planner.hpp"
       - "cpp/src/research/strategy_planner.cpp"
