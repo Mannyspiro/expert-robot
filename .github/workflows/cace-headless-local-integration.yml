@@ -136,7 +136,7 @@ jobs:
 
           cace_commit="$(git rev-parse HEAD)"
           GIT_SSH_COMMAND="ssh -i $KEY_FILE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new" \
-            git push --force-with-lease origin "HEAD:$CACE_BRANCH"
+            git push origin "HEAD:$CACE_BRANCH"
 
           echo "cace_commit=$cace_commit" >> "$GITHUB_OUTPUT"
           echo "CACE staged branch: $CACE_BRANCH @ $cace_commit"
