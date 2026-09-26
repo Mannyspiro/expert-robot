@@ -43,7 +43,11 @@ theorem parallel_self (a : Vec3) :
 theorem dot_self_nonnegative (a : Vec3) :
     0 ≤ dot a a := by
   unfold dot
-  positivity
+  nlinarith [
+    sq_nonneg a.x,
+    sq_nonneg a.y,
+    sq_nonneg a.z
+  ]
 
 theorem validPlane_of_pointOnPlane
     (p : Point3) (plane : Plane3)
