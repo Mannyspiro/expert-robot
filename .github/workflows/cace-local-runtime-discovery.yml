@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   dispatch-and-collect:
-    runs-on: avrea-ubuntu-latest-1-vcpu
+    runs-on: ubuntu-latest
     timeout-minutes: 12
 
     steps:
