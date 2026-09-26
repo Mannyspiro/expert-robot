@@ -1235,6 +1235,7 @@ RouteOutcomeLedger::strategy_experience(
         return ResearchStrategyExperience{
             .strategy_id =
                 std::string(strategy_id),
+            .signature = {},
             .domain =
                 std::string(domain),
         };
@@ -1330,6 +1331,7 @@ RouteOutcomeLedger::strategy_context_experience(
         return ResearchStrategyContextExperience{
             .strategy_id =
                 std::string(strategy_id),
+            .signature = {},
             .context_key =
                 std::string(context_key),
         };
@@ -1440,6 +1442,7 @@ RouteOutcomeLedger::strategy_step_experience(
         return ResearchStrategyStepExperience{
             .strategy_id =
                 std::string(strategy_id),
+            .signature = {},
             .domain =
                 std::string(domain),
             .step_index =
