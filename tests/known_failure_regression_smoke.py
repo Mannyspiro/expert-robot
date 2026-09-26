@@ -11,17 +11,19 @@ assert registry["schema_version"] == 1
 classes = registry["classes"]
 ids = [item["id"] for item in classes]
 assert len(ids) == len(set(ids))
-assert len(ids) >= 12
+assert len(ids) >= 13
 for required_id in (
     "cace-tool-stale-pin-or-capability-drift",
     "cace-tool-result-binding-or-integrity-drift",
     "cace-tool-authority-or-cost-escalation",
+    "cace-verifier-evidence-becomes-promotion-signal",
 ):
     assert required_id in ids
 allowed_guards = {
     "tests/known_failure_regression_smoke.py",
     "tests/formal_dependency_lock_smoke.py",
     "tests/cace_tool_broker_smoke.py",
+    "tests/cace_evidence_smoke.cpp",
 }
 for item in classes:
     assert item["prevention"]
