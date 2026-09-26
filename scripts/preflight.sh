@@ -37,6 +37,7 @@ say "authority: preflight may reject a candidate; a pass never promotes it"
 python3 tests/compute_policy_smoke.py
 python3 tests/known_failure_regression_smoke.py
 python3 tests/formal_dependency_lock_smoke.py
+python3 tests/cace_return_bridge_smoke.py
 
 cmake -S . -B "$BUILD_DIR" -G Ninja -DCMAKE_BUILD_TYPE=Release
 
