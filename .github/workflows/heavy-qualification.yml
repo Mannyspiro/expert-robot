@@ -9,8 +9,9 @@ concurrency:
 
 jobs:
   full-qualification:
-    # Manual only: 32 vCPUs / 128 GB on Avrea. Free minutes are charged
-    # proportionally to the 2-vCPU baseline, so use this for genuinely heavy runs.
+    # Manual only: 32 vCPUs / 128 GB on Avrea. This runner is available at
+    # zero monetary cost here; reserve it for genuinely heavy work to conserve
+    # the free runner quota and avoid unnecessary churn.
     runs-on: avrea-ubuntu-latest-32-vcpu
 
     steps:
