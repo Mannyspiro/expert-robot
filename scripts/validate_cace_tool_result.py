@@ -289,7 +289,9 @@ def main() -> int:
         fail("result_sha256 does not match canonical result payload")
 
     status_pass = result["status"] == "pass"
-    qualification_evidence = bool(status_pass and capability["can_qualify"])
+    qualification_capability = bool(capability["can_qualify"])
+    qualification_evidence = bool(status_pass and qualification_capability)
+    gate_id = f"cace::{capability_id}" if qualification_capability else None
     normalized = {
         "schema_version": 1,
         "request_id": request["request_id"],
@@ -300,7 +302,12 @@ def main() -> int:
         "evidence_sha256": evidence_sha,
         "result_sha256": supplied_result_sha,
         "eligible_for_evaluation": status_pass,
+        "eligible_for_lineage": True,
+        "qualification_capability": qualification_capability,
         "qualification_evidence": qualification_evidence,
+        "gate_id": gate_id,
+        "required_for_promotion": qualification_capability,
+        "gate_passed": status_pass if qualification_capability else None,
         "promotion_authority": False,
         "automatic_promotion": False,
         "evaluation_evidence_hash": canonical_sha256(
