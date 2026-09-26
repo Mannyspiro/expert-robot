@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "policy": "External Lean material is quarantined until license, source commit, toolchain, axiom footprint, and local replay are verified. External success never grants promotion authority.",
+  "sources": [
+    {
+      "id": "axiom-imo2026",
+      "repository": "AxiomMath/IMO2026",
+      "source_commit": "c5a6a089d06d3619afe7ff45c5ccab9e2a30d5d2",
+      "published": "2026-07-17",
+      "license": "MIT",
+      "classification": "import_candidate",
+      "lean_toolchain": "v4.31.0",
+      "mathlib": "v4.31.0",
+      "material": "six IMO 2026 formal statements and verified autonomous Lean solutions",
+      "trust_notes": [
+        "solution files report sorry_count 0",
+        "formalization metadata lists propext, Classical.choice, Quot.sound for main results",
+        "must replay under its native pin before any migration to Expert Robot Lean 4.34.0"
+      ],
+      "allowed_use": [
+        "quarantined proof corpus",
+        "proof-pattern mining",
+        "lemma decomposition analysis",
+        "blind benchmark generation after answer stripping"
+      ]
+    },
+    {
+      "id": "openprover-2026",
+      "repository": "Kripner/openprover",
+      "source_commit": "e200251b34349ab6c34548d30319abde86cb6bc6",
+      "published": "2026-07-13",
+      "license": "MIT",
+      "classification": "reference_only",
+      "material": "open-source Planner/Worker/Verifier Lean 4 theorem-proving system",
+      "trust_notes": [
+        "system architecture rather than a canonical proof corpus",
+        "Lean attempts are verified through lake env lean"
+      ],
+      "allowed_use": [
+        "planner-worker-verifier architecture comparison",
+        "proof-search orchestration ideas",
+        "interactive proof-state workflow inspiration"
+      ]
+    },
+    {
+      "id": "discover-and-prove-acl2026",
+      "repository": "liuchengwucn/discover-and-prove",
+      "source_commit": "6dd99de41d837426f67967cea5b667143414afc9",
+      "published": "2026-06-29",
+      "license": "MIT-code-mixed-datasets",
+      "classification": "benchmark_candidate",
+      "lean_toolchain": "4.15.0-via-kimina",
+      "material": "Hard Mode Lean proving framework plus MiniF2F-Hard/FIMO-Hard benchmark tooling",
+      "trust_notes": [
+        "code is MIT",
+        "datasets retain upstream licenses and must be checked individually",
+        "toolchain is older than Expert Robot and should remain isolated"
+      ],
+      "allowed_use": [
+        "hard-mode benchmark design",
+        "answer-leak regression tests",
+        "discovery/proving module comparison"
+      ]
+    },
+    {
+      "id": "machlib-2026-09",
+      "repository": "agent-maestro/machlib",
+      "published": "2026-09-15",
+      "license": "CC-BY-4.0",
+      "classification": "reference_only",
+      "material": "Lean 4 machine-checked compiled-numerics corpus with explicit axiom ledger",
+      "trust_notes": [
+        "Mathlib-free foundational layer uses its own axiomatized reals",
+        "169 trusted axioms reported on 2026-09-15, with witnesses/mappings/standard/float-bridge categories",
+        "must not merge theorem facts into Expert Robot registry until foundational interpretation is mapped"
+      ],
+      "allowed_use": [
+        "axiom-ledger architecture",
+        "proof-obligation accounting",
+        "hardware/numerics verification design",
+        "separate-corpus novelty analysis"
+      ]
+    }
+  ]
+}
