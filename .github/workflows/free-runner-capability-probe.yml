@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   probe:
-    runs-on: avrea-ubuntu-latest-1-vcpu
+    runs-on: ubuntu-latest
     timeout-minutes: 10
 
     steps:
@@ -90,7 +90,8 @@ jobs:
             for workflow in \
               .github/workflows/cace-exact-pin-lean-preflight.yml \
               .github/workflows/cace-batch-exact-pin-lean-preflight.yml \
-              .github/workflows/cace-formal-v336-theorem-metadata.yml; do
+              .github/workflows/cace-formal-v336-theorem-metadata.yml \
+              .github/workflows/cace-python-regression.yml; do
               if [ -f "$workflow" ]; then
                 cp "$workflow" "$evidence/workflow-snapshots/"
                 echo "=== snapshot: $workflow ==="
