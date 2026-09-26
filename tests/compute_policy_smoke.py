@@ -30,6 +30,26 @@ assert preflight["failure_blocks_escalation"] is True
 assert preflight["pass_implies_promotion"] is False
 assert preflight["railway_is_qualification_authority"] is False
 
+
+cost = policy["cost_policy"]
+assert cost["monetary_budget"] == "zero_spend"
+assert cost["existing_github_runners_are_free"] is True
+assert cost["avrea_runners_allowed"] is True
+assert cost["external_self_hosted_runners_allowed"] is True
+assert cost["paid_railway_resources_allowed"] is False
+assert cost["paid_cloud_expansion_allowed"] is False
+
+selection = policy["selection_policy"]
+assert selection["default_preflight"] == "L1"
+assert selection["default_qualification"] == "L3"
+assert selection["heavy_lane"] == "L4"
+external = selection["external_runner_repo"]
+assert external["repository"] == "morganaspim/Cace-app"
+assert external["monetary_cost"] == "free"
+assert external["authority"] == "qualification-only"
+assert external["install_or_dispatch_requires_capability_probe"] is True
+assert set(external["discovered_labels"]) == {"self-hosted", "cace", "oci", "aarch64"}
+
 promotion = policy["promotion"]
 required = set(promotion["required_evidence"])
 assert "lean_verified" in required
