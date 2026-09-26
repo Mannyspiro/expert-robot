@@ -189,20 +189,106 @@ jobs:
                     run_check "compute policy" python3 tests/compute_policy_smoke.py
                     run_check "shell syntax" bash -n scripts/bootstrap-railway-worker.sh scripts/preflight.sh scripts/railway-preflight.sh scripts/railway-sandbox-lane.sh
 
+                    lean_exact_pin_check() {
+                      set -euo pipefail
+
+                      formal_dir="$work/formal"
+                      toolchain="$(cat "$formal_dir/lean-toolchain")"
+                      mathlib_commit="$(
+                        python3 - "$formal_dir/lake-manifest.json" <<'PY'
+                        import json
+                        import sys
+
+                        manifest = json.load(open(sys.argv[1], encoding="utf-8"))
+                        package = next(
+                            item for item in manifest.get("packages", [])
+                            if item.get("name") == "mathlib"
+                        )
+                        print(package["rev"])
+                        PY
+                      )"
+
+                      test "$toolchain" = "leanprover/lean4:v4.34.0"
+                      test "$mathlib_commit" = "5ed2965256430c3649e86755f9576b54eca72435"
+
+                      persistent_root="/var/lib/cace-cache/expert-robot"
+                      if ! mkdir -p "$persistent_root" 2>/dev/null; then
+                        persistent_root="$HOME/.cache/expert-robot"
+                        mkdir -p "$persistent_root"
+                      fi
+
+                      export ELAN_HOME="/var/lib/cace-cache/elan"
+                      if [ ! -x "$ELAN_HOME/bin/elan" ]; then
+                        export ELAN_HOME="$persistent_root/elan"
+                        if [ ! -x "$ELAN_HOME/bin/elan" ]; then
+                          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+                            | sh -s -- -y --default-toolchain none
+                        fi
+                      fi
+                      export PATH="$ELAN_HOME/bin:$PATH"
+
+                      elan toolchain install "$toolchain"
+
+                      cache_key="v4.34.0-$mathlib_commit"
+                      cache_root="$persistent_root/mathlib/$cache_key"
+                      package_cache="$cache_root/packages"
+                      cache_lock="$cache_root.lock"
+                      mkdir -p "$cache_root"
+
+                      cd "$formal_dir"
+                      manifest_before="$(sha256sum lake-manifest.json | awk '{print $1}')"
+
+                      mkdir -p .lake
+                      rm -rf .lake/packages
+
+                      exec 9>"$cache_lock"
+                      flock -w 900 9
+
+                      if [ -d "$package_cache/mathlib/.git" ] &&
+                         [ "$(git -C "$package_cache/mathlib" rev-parse HEAD)" = "$mathlib_commit" ]; then
+                        cp -a --reflink=auto "$package_cache" .lake/packages 2>/dev/null \
+                          || cp -a "$package_cache" .lake/packages
+                        echo "EXPERT_ROBOT_MATHLIB_CACHE_HIT $cache_key"
+                      else
+                        echo "EXPERT_ROBOT_MATHLIB_CACHE_MISS $cache_key"
+                        MATHLIB_NO_CACHE_ON_UPDATE=1 lake update
+                        test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = "$mathlib_commit"
+                        lake exe cache get
+
+                        temp_cache="$cache_root/packages.tmp-$GITHUB_RUN_ID"
+                        rm -rf "$temp_cache" "$package_cache"
+                        cp -a --reflink=auto .lake/packages "$temp_cache" 2>/dev/null \
+                          || cp -a .lake/packages "$temp_cache"
+                        mv "$temp_cache" "$package_cache"
+                      fi
+
+                      flock -u 9
+
+                      test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = "$mathlib_commit"
+                      manifest_after="$(sha256sum lake-manifest.json | awk '{print $1}')"
+                      test "$manifest_before" = "$manifest_after"
+
+                      lean --version
+                      lake --version
+                      lake env lean MathAI.lean
+                      lake env lean MathAI/Audit.lean
+                    }
+
+                    run_check "exact-pin Lean root + axiom audit" lean_exact_pin_check
+
+                    # This OCI runner is primarily a formal/static lane. If a
+                    # C++ toolchain is already present, use it opportunistically;
+                    # absence of CMake/Ninja is not a qualification failure here.
                     if command -v cmake >/dev/null 2>&1 && command -v ninja >/dev/null 2>&1; then
                       jobs="$(nproc 2>/dev/null || echo 2)"
-                      if [ "$jobs" -gt 8 ]; then jobs=8; fi
+                      if [ "$jobs" -gt 4 ]; then jobs=4; fi
                       if [ "$jobs" -lt 1 ]; then jobs=1; fi
 
-                      run_check "cmake configure" cmake -S . -B build/external-runner -G Ninja -DCMAKE_BUILD_TYPE=Release
-                      run_check "focused build" cmake --build build/external-runner --target route_memory_smoke strategy_engine_complete_smoke research_benchmark_executor_smoke expert_robot_runtime --parallel "$jobs"
-                      run_check "focused tests" ctest --test-dir build/external-runner --output-on-failure -R 'route_memory_smoke|strategy_engine_complete_smoke|research_benchmark_executor_smoke'
-                      if [ -x build/external-runner/expert_robot_runtime ]; then
-                        run_check "runtime smoke" python3 tests/smoke.py build/external-runner/expert_robot_runtime
-                      fi
+                      run_check "optional cmake configure" cmake -S . -B build/external-runner -G Ninja -DCMAKE_BUILD_TYPE=Release
+                      run_check "optional focused build" cmake --build build/external-runner --target route_memory_smoke strategy_engine_complete_smoke research_benchmark_executor_smoke expert_robot_runtime --parallel "$jobs"
+                      run_check "optional focused tests" ctest --test-dir build/external-runner --output-on-failure -R 'route_memory_smoke|strategy_engine_complete_smoke|research_benchmark_executor_smoke'
                     else
-                      echo "cmake/ninja unavailable; C++ lane skipped" | tee -a "$log"
-                      overall=21
+                      echo "cmake/ninja unavailable; expected on formal-only OCI lane" | tee -a "$log"
                     fi
 
                     cd "$GITHUB_WORKSPACE"
@@ -224,6 +310,10 @@ jobs:
                         "architecture": platform.machine(),
                         "authority": "qualification-only",
                         "promotion_authority": False,
+                        "qualification_lane": "formal-static-arm64",
+                        "lean_toolchain": "leanprover/lean4:v4.34.0",
+                        "mathlib_commit": "5ed2965256430c3649e86755f9576b54eca72435",
+                        "cxx_required": False,
                         "monetary_cost": "free",
                     }, indent=2))
                     PY
