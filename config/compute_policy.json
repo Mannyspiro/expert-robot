@@ -107,6 +107,25 @@
       "monetary_cost": "free",
       "authority": "qualification-only",
       "install_or_dispatch_requires_capability_probe": true
+    },
+    "external_integrations": {
+      "base44": {
+        "status": "discovery-only",
+        "monetary_cost": "unverified",
+        "can_qualify": false,
+        "can_promote": false,
+        "allowed_actions": [
+          "inventory tracked integration markers",
+          "inventory referenced secret names"
+        ],
+        "prohibited_actions": [
+          "deploy",
+          "invoke Base44 APIs",
+          "enable billing",
+          "create paid resources",
+          "change Base44 configuration"
+        ]
+      }
     }
   }
 }
