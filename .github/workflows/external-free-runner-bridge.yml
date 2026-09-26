@@ -66,7 +66,7 @@ jobs:
             --exclude='./build' \
             --exclude='./build-*' \
             --exclude='./formal/.lake' \
-            --exclude='./.git/objects/pack' \
+            --exclude='./.git' \
             -czf "$archive" .
 
           size_bytes="$(stat -c %s "$archive")"
@@ -133,9 +133,6 @@ jobs:
                 - "bridge/expert-robot-source.tar.gz"
                 - ".github/workflows/expert-robot-bridge.yml"
 
-          permissions:
-            contents: write
-
           concurrency:
             group: expert-robot-free-runner-bridge
             cancel-in-progress: true
@@ -144,11 +141,15 @@ jobs:
             qualify:
               runs-on: [self-hosted, cace, oci, aarch64]
               timeout-minutes: 25
+              permissions:
+                contents: read
 
               steps:
                 - uses: actions/checkout@v4
+                  with:
+                    persist-credentials: false
 
-                - name: Run bounded Expert Robot checks
+                - name: Validate and run bounded Expert Robot formal checks
                   shell: bash
                   run: |
                     set -u
@@ -163,6 +164,13 @@ jobs:
 
                     overall=0
 
+                    record_failure() {
+                      code="$1"
+                      if [ "$overall" -eq 0 ]; then
+                        overall="$code"
+                      fi
+                    }
+
                     run_check() {
                       name="$1"
                       shift
@@ -170,7 +178,7 @@ jobs:
                       "$@" 2>&1 | tee -a "$log"
                       rc=${PIPESTATUS[0]}
                       if [ "$rc" -ne 0 ]; then
-                        overall="$rc"
+                        record_failure "$rc"
                       fi
                       echo "exit_code=$rc" | tee -a "$log"
                       return 0
@@ -183,12 +191,68 @@ jobs:
                     nproc | tee -a "$log" || true
                     free -h | tee -a "$log" || true
 
-                    tar -xzf bridge/expert-robot-source.tar.gz -C "$work"
-                    cd "$work"
+                    # Reject path traversal, links, devices, and other archive
+                    # members that could escape the temporary extraction root.
+                    python3 - bridge/expert-robot-source.tar.gz <<'PY' | tee -a "$log"
+                    import pathlib
+                    import sys
+                    import tarfile
 
-                    run_check "compute policy" python3 tests/compute_policy_smoke.py
-                    run_check "known failure regression guardrails" python3 tests/known_failure_regression_smoke.py
-                    run_check "shell syntax" bash -n scripts/bootstrap-railway-worker.sh scripts/preflight.sh scripts/railway-preflight.sh scripts/railway-sandbox-lane.sh
+                    archive = pathlib.Path(sys.argv[1])
+                    with tarfile.open(archive, "r:gz") as tf:
+                        for member in tf.getmembers():
+                            path = pathlib.PurePosixPath(member.name)
+                            if path.is_absolute() or ".." in path.parts:
+                                raise SystemExit(f"unsafe archive path: {member.name}")
+                            if member.issym() or member.islnk() or member.isdev() or member.isfifo():
+                                raise SystemExit(f"unsafe archive member type: {member.name}")
+                    print("archive safety: PASS")
+                    PY
+                    if [ "${PIPESTATUS[0]}" -ne 0 ]; then
+                      record_failure 40
+                    else
+                      tar -xzf bridge/expert-robot-source.tar.gz -C "$work"
+                    fi
+
+                    if [ "$overall" -eq 0 ]; then
+                      cd "$work"
+
+                      # Reject proof escapes and compile-time command seams before
+                      # invoking Lean on the self-hosted machine.
+                      python3 - <<'PY' 2>&1 | tee -a "$log"
+                      import pathlib
+                      import re
+
+                      root = pathlib.Path("formal/MathAI")
+                      forbidden = [
+                          ("sorry", re.compile(r"(?<![A-Za-z0-9_])sorry(?![A-Za-z0-9_])")),
+                          ("admit", re.compile(r"(?<![A-Za-z0-9_])admit(?![A-Za-z0-9_])")),
+                          ("axiom declaration", re.compile(r"(?m)^\s*axiom\s+")),
+                          ("unsafe declaration", re.compile(r"(?m)^\s*unsafe\s+")),
+                          ("run_cmd", re.compile(r"(?<![A-Za-z0-9_])run_cmd(?![A-Za-z0-9_])")),
+                      ]
+                      failures = []
+                      for path in sorted(root.rglob("*.lean")):
+                          text = path.read_text(encoding="utf-8")
+                          for label, pattern in forbidden:
+                              if pattern.search(text):
+                                  failures.append(f"{path}: forbidden {label}")
+                      if failures:
+                          raise SystemExit("\n".join(failures))
+                      if pathlib.Path("formal/lakefile.lean").exists():
+                          raise SystemExit("executable formal/lakefile.lean is forbidden in external runner lane")
+                      print("formal source safety: PASS")
+                      PY
+                      if [ "${PIPESTATUS[0]}" -ne 0 ]; then
+                        record_failure 41
+                      fi
+                    fi
+
+                    if [ "$overall" -eq 0 ]; then
+                      run_check "compute policy" python3 tests/compute_policy_smoke.py
+                      run_check "known failure regression guardrails" python3 tests/known_failure_regression_smoke.py
+                      run_check "shell syntax" bash -n scripts/bootstrap-railway-worker.sh scripts/preflight.sh scripts/railway-preflight.sh scripts/railway-sandbox-lane.sh
+                    fi
 
                     lean_exact_pin_check() {
                       set -euo pipefail
@@ -211,6 +275,7 @@ jobs:
 
                       test "$toolchain" = "leanprover/lean4:v4.34.0"
                       test "$mathlib_commit" = "5ed2965256430c3649e86755f9576b54eca72435"
+                      grep -F 'rev = "v4.34.0"' "$formal_dir/lakefile.toml" >/dev/null
 
                       persistent_root="/var/lib/cace-cache/expert-robot"
                       if ! mkdir -p "$persistent_root" 2>/dev/null; then
@@ -275,21 +340,8 @@ jobs:
                       lake env lean MathAI/Audit.lean
                     }
 
-                    run_check "exact-pin Lean root + axiom audit" lean_exact_pin_check
-
-                    # This OCI runner is primarily a formal/static lane. If a
-                    # C++ toolchain is already present, use it opportunistically;
-                    # absence of CMake/Ninja is not a qualification failure here.
-                    if command -v cmake >/dev/null 2>&1 && command -v ninja >/dev/null 2>&1; then
-                      jobs="$(nproc 2>/dev/null || echo 2)"
-                      if [ "$jobs" -gt 4 ]; then jobs=4; fi
-                      if [ "$jobs" -lt 1 ]; then jobs=1; fi
-
-                      run_check "optional cmake configure" cmake -S . -B build/external-runner -G Ninja -DCMAKE_BUILD_TYPE=Release
-                      run_check "optional focused build" cmake --build build/external-runner --target route_memory_smoke strategy_engine_complete_smoke research_benchmark_executor_smoke expert_robot_runtime --parallel "$jobs"
-                      run_check "optional focused tests" ctest --test-dir build/external-runner --output-on-failure -R 'route_memory_smoke|strategy_engine_complete_smoke|research_benchmark_executor_smoke'
-                    else
-                      echo "cmake/ninja unavailable; expected on formal-only OCI lane" | tee -a "$log"
+                    if [ "$overall" -eq 0 ]; then
+                      run_check "exact-pin Lean root + axiom audit" lean_exact_pin_check
                     fi
 
                     cd "$GITHUB_WORKSPACE"
@@ -301,7 +353,7 @@ jobs:
 
                     rc = int(sys.argv[3])
                     print(json.dumps({
-                        "schema_version": 1,
+                        "schema_version": 2,
                         "request_id": sys.argv[1],
                         "expert_robot_commit": sys.argv[2],
                         "status": "pass" if rc == 0 else "fail",
@@ -315,17 +367,73 @@ jobs:
                         "lean_toolchain": "leanprover/lean4:v4.34.0",
                         "mathlib_commit": "5ed2965256430c3649e86755f9576b54eca72435",
                         "cxx_required": False,
+                        "self_hosted_contents_write": False,
                         "monetary_cost": "free",
                     }, indent=2))
                     PY
 
-                    git config user.name "expert-robot-free-runner"
+                - name: Upload read-only runner evidence
+                  if: always()
+                  uses: actions/upload-artifact@v4
+                  with:
+                    name: expert-robot-bridge-result-${{ github.run_id }}
+                    path: |
+                      bridge/result.json
+                      bridge/result.log
+                    if-no-files-found: error
+                    retention-days: 1
+
+                - name: Enforce qualification result
+                  if: always()
+                  shell: bash
+                  run: |
+                    set -euo pipefail
+                    test -f bridge/result.json
+                    status="$(python3 -c 'import json; print(json.load(open("bridge/result.json"))["status"])')"
+                    test "$status" = "pass"
+
+            publish-result:
+              if: always()
+              needs: qualify
+              runs-on: ubuntu-latest
+              timeout-minutes: 5
+              permissions:
+                contents: write
+                actions: read
+
+              steps:
+                - uses: actions/checkout@v4
+
+                - name: Download qualification evidence
+                  uses: actions/download-artifact@v4
+                  with:
+                    name: expert-robot-bridge-result-${{ github.run_id }}
+                    path: "$RUNNER_TEMP/expert-robot-bridge-result"
+
+                - name: Validate and publish result
+                  shell: bash
+                  run: |
+                    set -euo pipefail
+
+                    expected="$(python3 -c 'import json; print(json.load(open("bridge/request.json"))["request_id"])')"
+                    result="$RUNNER_TEMP/expert-robot-bridge-result/result.json"
+                    log="$RUNNER_TEMP/expert-robot-bridge-result/result.log"
+
+                    test -f "$result"
+                    got="$(python3 -c 'import json; print(json.load(open("'"$result"'"))["request_id"])')"
+                    test "$got" = "$expected"
+
+                    mkdir -p bridge
+                    cp "$result" bridge/result.json
+                    if [ -f "$log" ]; then
+                      cp "$log" bridge/result.log
+                    fi
+
+                    git config user.name "expert-robot-result-publisher"
                     git config user.email "noreply@github.com"
                     git add bridge/result.json bridge/result.log
-                    git commit -m "Expert Robot runner result: $request_id" || true
+                    git commit -m "Expert Robot runner result: $expected" || true
                     git push origin "HEAD:$GITHUB_REF_NAME"
-
-                    exit "$overall"
           BRIDGE_YAML
 
           git config user.name "expert-robot-dispatcher"
