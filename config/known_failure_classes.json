@@ -70,6 +70,18 @@
         "use Avrea for C++/benchmarks"
       ],
       "guard": "tests/known_failure_regression_smoke.py"
+    },
+    {
+      "id": "external-runner-write-authority-exposure",
+      "discovered_by": "external-free-runner-bridge-hardening",
+      "symptom": "self-hosted qualification job executes candidate code while holding repository write authority",
+      "prevention": [
+        "self-hosted qualification job has contents: read only",
+        "checkout uses persist-credentials: false",
+        "result is uploaded as an artifact",
+        "separate GitHub-hosted publisher job holds contents: write and never executes candidate code"
+      ],
+      "guard": "tests/known_failure_regression_smoke.py"
     }
   ]
 }
