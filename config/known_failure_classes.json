@@ -126,6 +126,17 @@
         "require monetary_cost free and preserve the existing external promotion boundary"
       ],
       "guard": "tests/cace_tool_broker_smoke.py"
+    },
+    {
+      "id": "cace-headless-branch-rewrite",
+      "discovered_by": "cace-headless-local-integration",
+      "symptom": "CACE staging recreates the integration branch from main or force-pushes it, risking loss of newer probe/evidence commits.",
+      "prevention": [
+        "advance the existing remote CACE integration branch when it exists",
+        "use fast-forward push only for CACE headless staging",
+        "never force-push the shared CACE integration branch"
+      ],
+      "guard": "tests/known_failure_regression_smoke.py"
     }
   ]
 }
