@@ -12,6 +12,10 @@ on:
       - "tests/route_memory_smoke.cpp"
       - "tests/research_benchmark_executor_smoke.cpp"
       - "config/benchmarks/**"
+      - "formal/MathAI/**"
+      - "formal/MathAI.lean"
+      - "formal/lean-toolchain"
+      - "formal/lake-manifest.json"
       - ".github/workflows/math-benchmark.yml"
   workflow_dispatch:
     inputs:
