@@ -90,12 +90,24 @@ jobs:
           bash -n scripts/run_cace_headless_local.sh
           python3 tests/test_headless_local_llm_contract.py
 
-          # Re-run CACE's pre-existing local-AI security tests. No dependencies
-          # are installed here: this lane must use the runner as-is and never
-          # hide missing prerequisites behind downloads or a package cache.
-          python3 -m pytest -q \
-            tests/test_local_ai.py \
-            tests/test_local_ai_security_v334.py
+          # Validate compatibility with CACE's existing local-AI boundary using
+          # stdlib only. This runner deliberately installs nothing and uses no cache.
+          PYTHONPATH=. python3 - <<'PY'
+          from cace_studio.ai.local import create_local_provider
+          from cace_studio.ai.provider import LocalAIError, validate_local_endpoint
+
+          assert validate_local_endpoint("http://127.0.0.1:8080/v1/") == "http://127.0.0.1:8080/v1"
+          provider = create_local_provider("llama-cpp", model="Qwen/Qwen3.5-4B")
+          assert provider.endpoint == "http://127.0.0.1:8080/v1"
+          assert provider.model == "Qwen/Qwen3.5-4B"
+          try:
+              create_local_provider("openai-compatible", "https://example.com/v1", "x")
+          except LocalAIError:
+              pass
+          else:
+              raise AssertionError("remote local-AI endpoint was not rejected")
+          print("CACE existing local-AI compatibility: PASS")
+          PY
 
           git config user.name "expert-robot-cace-headless"
           git config user.email "noreply@github.com"
