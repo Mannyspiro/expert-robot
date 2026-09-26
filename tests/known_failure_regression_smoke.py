@@ -12,9 +12,14 @@ classes = registry["classes"]
 ids = [item["id"] for item in classes]
 assert len(ids) == len(set(ids))
 assert len(ids) >= 7
+allowed_guards = {
+    "tests/known_failure_regression_smoke.py",
+    "tests/formal_dependency_lock_smoke.py",
+}
 for item in classes:
     assert item["prevention"]
-    assert item["guard"] == "tests/known_failure_regression_smoke.py"
+    assert item["guard"] in allowed_guards
+    assert (ROOT / item["guard"]).exists()
 
 cmake = (ROOT / "CMakeLists.txt").read_text(encoding="utf-8")
 assert "-Werror=missing-field-initializers" in cmake
