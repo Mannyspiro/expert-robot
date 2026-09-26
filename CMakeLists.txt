@@ -66,6 +66,20 @@ if(MSVC)
   target_compile_options(expert_robot_core PRIVATE /W4 /permissive-)
 else()
   target_compile_options(expert_robot_core PRIVATE -Wall -Wextra -Wpedantic -Wconversion -Wshadow)
+
+  # Bug-sweep guardrails: Railway exposed these warning classes in real code.
+  # Promote them to errors when the compiler supports them so the same defect
+  # class cannot silently return.
+  include(CheckCXXCompilerFlag)
+  foreach(flag IN ITEMS
+      "-Werror=missing-field-initializers"
+      "-Werror=range-loop-construct")
+    string(MAKE_C_IDENTIFIER "EXPERT_ROBOT_${flag}" flag_var)
+    check_cxx_compiler_flag("${flag}" "${flag_var}")
+    if(${flag_var})
+      target_compile_options(expert_robot_core PRIVATE "${flag}")
+    endif()
+  endforeach()
 endif()
 
 add_executable(expert_robot_runtime
