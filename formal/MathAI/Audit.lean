@@ -82,3 +82,12 @@ kernel-visible axiom dependencies for review.
 
 #check MathAI.Geometry.validLine_of_pointOnLine
 #print axioms MathAI.Geometry.validLine_of_pointOnLine
+
+#check MathAI.Geometry.squaredDistance_eq_dot_vecBetween
+#print axioms MathAI.Geometry.squaredDistance_eq_dot_vecBetween
+
+#check MathAI.Geometry.cross_orthogonal_left
+#print axioms MathAI.Geometry.cross_orthogonal_left
+
+#check MathAI.Geometry.cross_orthogonal_right
+#print axioms MathAI.Geometry.cross_orthogonal_right
