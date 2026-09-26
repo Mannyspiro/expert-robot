@@ -68,6 +68,62 @@ jobs:
           }
           JSON
 
+          cat > bridge/actions-marker-request.json <<JSON
+          {
+            "schema_version": 1,
+            "request_id": "$request_id",
+            "purpose": "confirm-feature-branch-actions-trigger"
+          }
+          JSON
+
+          cat > .github/workflows/expert-robot-actions-marker.yml <<'YAML'
+          name: Expert Robot Actions Marker
+
+          on:
+            push:
+              branches:
+                - "expert-robot/headless-local-llm"
+              paths:
+                - "bridge/actions-marker-request.json"
+                - ".github/workflows/expert-robot-actions-marker.yml"
+
+          permissions:
+            contents: write
+
+          jobs:
+            mark:
+              runs-on: ubuntu-latest
+              timeout-minutes: 3
+              steps:
+                - uses: actions/checkout@v4
+                  with:
+                    ref: expert-robot/headless-local-llm
+                    persist-credentials: true
+
+                - name: Publish branch-actions marker
+                  shell: bash
+                  run: |
+                    set -euo pipefail
+                    request_id="$(python3 -c 'import json; print(json.load(open("bridge/actions-marker-request.json"))["request_id"])')"
+                    python3 - "$request_id" > bridge/actions-marker-result.json <<'PY'
+                    import json, sys
+                    print(json.dumps({
+                        "schema_version": 1,
+                        "request_id": sys.argv[1],
+                        "status": "actions-triggered",
+                        "runner": "github-hosted",
+                    }, indent=2))
+                    PY
+                    git config user.name "cace-actions-marker"
+                    git config user.email "noreply@github.com"
+                    git add bridge/actions-marker-result.json
+                    if git diff --cached --quiet; then
+                      exit 0
+                    fi
+                    git commit -m "Confirm CACE branch Actions trigger"
+                    git push origin HEAD:expert-robot/headless-local-llm
+          YAML
+
           cat > .github/workflows/expert-robot-local-runtime-probe.yml <<'YAML'
           name: Expert Robot Local Runtime Probe
 
@@ -281,7 +337,11 @@ jobs:
 
           git config user.name "expert-robot-runtime-probe"
           git config user.email "noreply@github.com"
-          git add bridge/local-runtime-probe-request.json .github/workflows/expert-robot-local-runtime-probe.yml
+          git add \
+            bridge/local-runtime-probe-request.json \
+            bridge/actions-marker-request.json \
+            .github/workflows/expert-robot-local-runtime-probe.yml \
+            .github/workflows/expert-robot-actions-marker.yml
           git commit -m "Probe local CACE model/runtime inventory"
           GIT_SSH_COMMAND="ssh -i $KEY_FILE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new" \
             git push origin HEAD:"$CACE_BRANCH"
@@ -302,9 +362,18 @@ jobs:
           git -C "$poll" remote add origin git@github.com:morganaspim/Cace-app.git
 
           found=false
-          for attempt in $(seq 1 48); do
+          actions_ok=false
+          for attempt in $(seq 1 36); do
             GIT_SSH_COMMAND="ssh -i $KEY_FILE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new" \
               git -C "$poll" fetch -q --force origin "$CACE_BRANCH:refs/remotes/origin/cace"
+
+            if git -C "$poll" show refs/remotes/origin/cace:bridge/actions-marker-result.json > "$RUNNER_TEMP/actions-marker.json" 2>/dev/null; then
+              marker_id="$(python3 -c 'import json,os; print(json.load(open(os.environ["RUNNER_TEMP"] + "/actions-marker.json"))["request_id"])')"
+              if [ "$marker_id" = "$REQUEST_ID" ]; then
+                actions_ok=true
+              fi
+            fi
+
             if git -C "$poll" show refs/remotes/origin/cace:bridge/local-runtime-probe-result.json > "$RUNNER_TEMP/result.json" 2>/dev/null; then
               got="$(python3 -c 'import json,os; print(json.load(open(os.environ["RUNNER_TEMP"] + "/result.json"))["request_id"])')"
               if [ "$got" = "$REQUEST_ID" ]; then
@@ -312,12 +381,21 @@ jobs:
                 break
               fi
             fi
+
+            if [ "$actions_ok" = true ] && [ "$attempt" -ge 24 ]; then
+              echo "::error::CACE branch Actions trigger is healthy, but the self-hosted CACE runner produced no runtime observation within 2 minutes."
+              exit 2
+            fi
             sleep 5
           done
 
           if [ "$found" != true ]; then
-            echo "::error::Timed out waiting for CACE local runtime observation."
-            exit 1
+            if [ "$actions_ok" = true ]; then
+              echo "::error::CACE branch Actions triggered, but no self-hosted runtime result was published."
+              exit 2
+            fi
+            echo "::error::CACE feature-branch Actions did not publish even the GitHub-hosted marker."
+            exit 3
           fi
 
           python3 - "$RUNNER_TEMP/result.json" <<'PY'
