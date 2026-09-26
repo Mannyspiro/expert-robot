@@ -39,6 +39,26 @@ structure Sphere3 where
   radiusSquared : ℚ
 deriving DecidableEq, Repr
 
+@[ext] theorem Vec3.ext_coords
+    (a b : Vec3)
+    (hx : a.x = b.x)
+    (hy : a.y = b.y)
+    (hz : a.z = b.z) :
+    a = b := by
+  cases a
+  cases b
+  simp_all
+
+@[ext] theorem Point3.ext_coords
+    (a b : Point3)
+    (hx : a.x = b.x)
+    (hy : a.y = b.y)
+    (hz : a.z = b.z) :
+    a = b := by
+  cases a
+  cases b
+  simp_all
+
 def pointVec (p : Point3) : Vec3 :=
   ⟨p.x, p.y, p.z⟩
 
