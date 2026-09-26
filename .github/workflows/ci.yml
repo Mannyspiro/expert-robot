@@ -23,6 +23,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Restore C++ compiler cache
+        id: ccache-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.cache/ccache
+          key: ccache-v1-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
+          restore-keys: |
+            ccache-v1-${{ runner.os }}-${{ runner.arch }}-
+
+      - name: Prepare ccache
+        shell: bash
+        run: |
+          set -euo pipefail
+          if command -v ccache >/dev/null 2>&1; then
+            mkdir -p "$HOME/.cache/ccache"
+            ccache --set-config=max_size=2G
+            ccache --zero-stats
+            echo "EXPERT_ROBOT_CCACHE=1" >> "$GITHUB_ENV"
+          else
+            echo "ccache unavailable; continuing without compiler cache"
+            echo "EXPERT_ROBOT_CCACHE=0" >> "$GITHUB_ENV"
+          fi
+
       - name: Detect parallelism
         id: cores
         shell: bash
@@ -40,8 +63,14 @@ jobs:
         run: bash -n scripts/*.sh
 
       - name: Configure
+        shell: bash
         run: |
-          cmake -S . -B build             -G Ninja             -DCMAKE_BUILD_TYPE=Release
+          set -euo pipefail
+          args=(-S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release)
+          if [ "${EXPERT_ROBOT_CCACHE:-0}" = "1" ]; then
+            args+=(-DCMAKE_CXX_COMPILER_LAUNCHER=ccache)
+          fi
+          cmake "${args[@]}"
 
       - name: Build
         env:
@@ -66,6 +95,12 @@ jobs:
       - name: CACE return bridge guardrails
         run: python3 tests/cace_return_bridge_smoke.py
 
+      - name: Collar policy guardrails
+        run: python3 tests/collar_policy_smoke.py
+
+      - name: Collar encrypted-core smoke
+        run: bash tests/collar_vault_smoke.sh
+
       - name: Independent smoke tests
         shell: bash
         run: |
@@ -79,3 +114,18 @@ jobs:
 
           wait "$smoke_pid"
           wait "$orchestrator_pid"
+
+      - name: Show ccache stats
+        if: always()
+        shell: bash
+        run: |
+          if [ "${EXPERT_ROBOT_CCACHE:-0}" = "1" ]; then
+            ccache --show-stats || true
+          fi
+
+      - name: Save C++ compiler cache
+        if: ${{ success() && github.event_name != 'pull_request' && env.EXPERT_ROBOT_CCACHE == '1' }}
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.cache/ccache
+          key: ccache-v1-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
