@@ -12,7 +12,7 @@ from typing import Any
 
 SHA40 = re.compile(r"^[0-9a-f]{40}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
-SAFE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$")
+SAFE_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-\\-]{0,127}$")
 SAFE_BRANCH = re.compile(r"^[A-Za-z0-9._/-]+$")
 INVARIANT = "Capability grows, authority never expands."
 
