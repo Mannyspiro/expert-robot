@@ -35,6 +35,7 @@ say "mode=$MODE cpu=$cpu memory_mb=$mem_mb build_jobs=$jobs"
 say "authority: preflight may reject a candidate; a pass never promotes it"
 
 python3 tests/compute_policy_smoke.py
+python3 tests/known_failure_regression_smoke.py
 
 cmake -S . -B "$BUILD_DIR" -G Ninja -DCMAKE_BUILD_TYPE=Release
 
