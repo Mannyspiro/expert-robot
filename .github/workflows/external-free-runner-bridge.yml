@@ -187,6 +187,7 @@ jobs:
                     cd "$work"
 
                     run_check "compute policy" python3 tests/compute_policy_smoke.py
+                    run_check "known failure regression guardrails" python3 tests/known_failure_regression_smoke.py
                     run_check "shell syntax" bash -n scripts/bootstrap-railway-worker.sh scripts/preflight.sh scripts/railway-preflight.sh scripts/railway-sandbox-lane.sh
 
                     lean_exact_pin_check() {
