@@ -8,6 +8,7 @@ on:
       - "cpp/src/research/strategy_planner.cpp"
       - "cpp/src/research/route_memory.cpp"
       - "cpp/src/eval/research_benchmark_executor.cpp"
+      - "cpp/src/math_benchmark_main.cpp"
       - "tests/strategy_planner_smoke.cpp"
       - "tests/route_memory_smoke.cpp"
       - "tests/research_benchmark_executor_smoke.cpp"
@@ -148,6 +149,7 @@ jobs:
               "strategy_memory",
           }
           summaries = []
+          records = []
           seen = set()
 
           for path in paths:
@@ -155,6 +157,7 @@ jobs:
               for summary in payload.get("summaries", []):
                   seen.add(summary["variant"])
                   summaries.append(summary)
+              records.extend(payload.get("records", []))
 
           missing = sorted(expected - seen)
           if missing:
@@ -169,6 +172,17 @@ jobs:
                   item["domain"],
               )
           )
+          records.sort(
+              key=lambda item: (
+                  item["variant"],
+                  item["case_id"],
+              )
+          )
+
+          failures = [
+              item for item in records
+              if not item.get("verified", False)
+          ]
 
           output = {
               "schema_version": 1,
@@ -176,6 +190,8 @@ jobs:
               "execution": "parallel-independent-variants",
               "variants": sorted(expected),
               "summaries": summaries,
+              "records": records,
+              "failure_map": failures,
           }
 
           target = pathlib.Path("build/math-benchmark-results.json")
