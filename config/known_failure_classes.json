@@ -82,6 +82,16 @@
         "separate GitHub-hosted publisher job holds contents: write and never executes candidate code"
       ],
       "guard": "tests/known_failure_regression_smoke.py"
+    },
+    {
+      "id": "theorem-graph-reverse-dependency-leak",
+      "discovered_by": "parallel-math-benchmark",
+      "symptom": "A theorem that USES the current target is traversed backward and offered as proof evidence for its own prerequisite.",
+      "prevention": [
+        "Treat USES and REQUIRES as directional proof-dependency edges.",
+        "Permit executable reuse only from theorem to prerequisite, never prerequisite to dependent."
+      ],
+      "guard": "tests/route_planner_smoke.cpp"
     }
   ]
 }

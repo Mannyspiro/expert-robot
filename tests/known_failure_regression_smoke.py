@@ -12,9 +12,15 @@ classes = registry["classes"]
 ids = [item["id"] for item in classes]
 assert len(ids) == len(set(ids))
 assert len(ids) >= 7
+allowed_guards = {
+    "tests/known_failure_regression_smoke.py",
+    "tests/formal_dependency_lock_smoke.py",
+    "tests/route_planner_smoke.cpp",
+}
 for item in classes:
     assert item["prevention"]
-    assert item["guard"] == "tests/known_failure_regression_smoke.py"
+    assert item["guard"] in allowed_guards
+    assert (ROOT / item["guard"]).exists()
 
 cmake = (ROOT / "CMakeLists.txt").read_text(encoding="utf-8")
 assert "-Werror=missing-field-initializers" in cmake
@@ -77,5 +83,18 @@ assert "unsafe archive path" in external
 assert "unsafe archive member type" in external
 assert '("run_cmd", re.compile' in external
 assert "cmake --build" not in external
+
+route_planner = (
+    ROOT / "cpp" / "src" / "research" / "route_planner.cpp"
+).read_text(encoding="utf-8")
+route_planner_test = (
+    ROOT / "tests" / "route_planner_smoke.cpp"
+).read_text(encoding="utf-8")
+assert "directionally_traversable" in route_planner
+assert 'edge.relation == "USES"' in route_planner
+assert 'edge.relation == "REQUIRES"' in route_planner
+assert "edge.source == current" in route_planner
+assert "MathAI.Dependent" in route_planner_test
+assert "reverse_dependency == routes.end()" in route_planner_test
 
 print("known failure regression guardrails: PASS")

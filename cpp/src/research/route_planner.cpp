@@ -67,6 +67,21 @@ bool route_kind_requires_lean(
         ProofRouteKind::CounterexampleSearch;
 }
 
+bool directionally_traversable(
+    const TheoremEdge& edge,
+    std::string_view current) {
+    // Proof dependencies are directional. If A USES/REQUIRES B, B may help
+    // prove A, but A must never be offered as evidence for B.
+    if (edge.relation == "USES" ||
+        edge.relation == "REQUIRES") {
+        return edge.source == current;
+    }
+
+    return
+        edge.source == current ||
+        edge.target == current;
+}
+
 double relation_strength(std::string_view relation) {
     if (relation == "IMPLIES" ||
         relation == "USES" ||
@@ -455,6 +470,12 @@ ProofRoutePlanner::graph_routes(
             graph_.related(current.theorem);
 
         for (const auto& edge : edges) {
+            if (!directionally_traversable(
+                    edge,
+                    current.theorem)) {
+                continue;
+            }
+
             const std::string next =
                 edge.source == current.theorem
                     ? edge.target

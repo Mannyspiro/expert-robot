@@ -50,6 +50,14 @@ int main() {
             .statement = "verified analogous theorem",
             .domain = "topology",
             .tags = {"lean_verified"}
+        },
+        {
+            .name = "MathAI.Dependent",
+            .source = "Dependent.lean",
+            .status = "verified",
+            .statement = "verified theorem that depends on the target",
+            .domain = "analysis",
+            .tags = {"lean_verified"}
         }
     });
 
@@ -72,6 +80,11 @@ int main() {
         .source = "MathAI.Target",
         .relation = "ANALOGOUS_TO",
         .target = "MathAI.Analogy"
+    });
+    graph.add_edge({
+        .source = "MathAI.Dependent",
+        .relation = "USES",
+        .target = "MathAI.Target"
     });
 
     IdeaCandidate idea{
@@ -165,6 +178,20 @@ int main() {
     assert(
         lean_hint_tactics_for_route(
             *analogy_route).empty());
+
+    // A verified theorem that depends on the current target cannot be used in
+    // reverse as proof evidence for that target.
+    const auto reverse_dependency =
+        std::find_if(
+            routes.begin(),
+            routes.end(),
+            [](const ProofRoute& route) {
+                return
+                    !route.theorem_path.empty() &&
+                    route.theorem_path.back() ==
+                        "MathAI.Dependent";
+            });
+    assert(reverse_dependency == routes.end());
 
     bool saw_multihop = false;
     for (const auto& route : routes) {

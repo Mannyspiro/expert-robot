@@ -2,11 +2,14 @@ name: Math Architecture Benchmark
 
 on:
   push:
-    branches: ["feat/**"]
+    branches: ["feat/**", "fix/**"]
     paths:
       - "cpp/include/expert_robot/research/strategy_planner.hpp"
       - "cpp/src/research/strategy_planner.cpp"
       - "cpp/src/research/route_memory.cpp"
+      - "cpp/src/research/route_planner.cpp"
+      - "cpp/include/expert_robot/research/route_planner.hpp"
+      - "tests/route_planner_smoke.cpp"
       - "cpp/src/eval/research_benchmark_executor.cpp"
       - "cpp/src/math_benchmark_main.cpp"
       - "tests/strategy_planner_smoke.cpp"
