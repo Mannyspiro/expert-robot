@@ -76,5 +76,37 @@
     ],
     "human_or_policy_gate_required": true,
     "railway_preflight_is_advisory_only": true
+  },
+  "cost_policy": {
+    "monetary_budget": "zero_spend",
+    "existing_github_runners_are_free": true,
+    "avrea_runners_allowed": true,
+    "external_self_hosted_runners_allowed": true,
+    "paid_railway_resources_allowed": false,
+    "paid_cloud_expansion_allowed": false,
+    "rule": "Use existing free runners when justified; never opt into a paid Railway or cloud resource."
+  },
+  "selection_policy": {
+    "default_preflight": "L1",
+    "default_qualification": "L3",
+    "heavy_lane": "L4",
+    "heavy_lane_when": [
+      "manual full qualification requested",
+      "full benchmark or ablation requested",
+      "large Lean replay or compile workload is explicitly justified",
+      "L3 passes but additional parallel evidence is materially useful"
+    ],
+    "external_runner_repo": {
+      "repository": "morganaspim/Cace-app",
+      "discovered_labels": [
+        "self-hosted",
+        "cace",
+        "oci",
+        "aarch64"
+      ],
+      "monetary_cost": "free",
+      "authority": "qualification-only",
+      "install_or_dispatch_requires_capability_probe": true
+    }
   }
 }
