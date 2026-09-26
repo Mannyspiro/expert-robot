@@ -1,0 +1,315 @@
+name: External Free Runner Bridge
+
+on:
+  push:
+    branches:
+      - "feat/reuse-refactored-fishstick"
+    paths:
+      - ".github/workflows/external-free-runner-bridge.yml"
+      - "config/external_runner_bridge_request.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: external-free-runner-bridge-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  dispatch:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out Expert Robot
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+
+      - name: Prepare deploy key
+        id: key
+        shell: bash
+        env:
+          RAILWAY_SSH_PRIVATE_KEY: ${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "$RAILWAY_SSH_PRIVATE_KEY" ]; then
+            echo "::error::RAILWAY_SSH_PRIVATE_KEY is not configured."
+            exit 1
+          fi
+
+          umask 077
+          key_file="$RUNNER_TEMP/cace_bridge_key"
+          printf '%s\n' "$RAILWAY_SSH_PRIVATE_KEY" > "$key_file"
+          chmod 600 "$key_file"
+
+          ssh-keygen -y -f "$key_file" > "$RUNNER_TEMP/cace_bridge_key.pub"
+          eval "$(ssh-agent -s)"
+          ssh-add "$key_file"
+
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
+          echo "key_file=$key_file" >> "$GITHUB_OUTPUT"
+
+      - name: Package current Expert Robot source
+        id: package
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          request_id="expert-robot-$GITHUB_RUN_ID-$GITHUB_SHA"
+          archive="$RUNNER_TEMP/expert-robot-source.tar.gz"
+
+          tar \
+            --exclude='./build' \
+            --exclude='./build-*' \
+            --exclude='./formal/.lake' \
+            --exclude='./.git/objects/pack' \
+            -czf "$archive" .
+
+          size_bytes="$(stat -c %s "$archive")"
+          max_bytes=$((25 * 1024 * 1024))
+          if [ "$size_bytes" -gt "$max_bytes" ]; then
+            echo "::error::Bridge archive is $size_bytes bytes; refusing to push more than $max_bytes bytes."
+            exit 1
+          fi
+
+          sha256sum "$archive"
+          echo "request_id=$request_id" >> "$GITHUB_OUTPUT"
+          echo "archive=$archive" >> "$GITHUB_OUTPUT"
+          echo "size_bytes=$size_bytes" >> "$GITHUB_OUTPUT"
+
+      - name: Install request on isolated Cace-app bridge branch
+        id: install
+        shell: bash
+        env:
+          RUNNER_REPO_SSH: git@github.com:morganaspim/Cace-app.git
+          BRIDGE_BRANCH: executor/expert-robot-bridge
+          REQUEST_ID: ${{ steps.package.outputs.request_id }}
+          ARCHIVE: ${{ steps.package.outputs.archive }}
+        run: |
+          set -euo pipefail
+
+          work="$RUNNER_TEMP/cace-app-bridge"
+          rm -rf "$work"
+
+          GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
+            git clone "$RUNNER_REPO_SSH" "$work"
+
+          cd "$work"
+          default_ref="$(git symbolic-ref --short refs/remotes/origin/HEAD)"
+          git checkout -B "$BRIDGE_BRANCH" "$default_ref"
+
+          mkdir -p bridge .github/workflows
+          rm -f bridge/expert-robot-source.tar.gz bridge/result.json bridge/result.log
+
+          cp "$ARCHIVE" bridge/expert-robot-source.tar.gz
+
+          python3 - "$REQUEST_ID" "$GITHUB_SHA" "${{ steps.package.outputs.size_bytes }}" > bridge/request.json <<'PY'
+          import json
+          import sys
+
+          print(json.dumps({
+              "schema_version": 1,
+              "request_id": sys.argv[1],
+              "expert_robot_commit": sys.argv[2],
+              "archive_size_bytes": int(sys.argv[3]),
+              "requested_lane": "cace-oci-aarch64",
+              "authority": "qualification-only",
+              "monetary_cost": "free",
+          }, indent=2))
+          PY
+
+          cat > .github/workflows/expert-robot-bridge.yml <<'BRIDGE_YAML'
+          name: Expert Robot Free Runner Bridge
+
+          on:
+            push:
+              branches: ["executor/expert-robot-bridge"]
+              paths:
+                - "bridge/request.json"
+                - "bridge/expert-robot-source.tar.gz"
+                - ".github/workflows/expert-robot-bridge.yml"
+
+          permissions:
+            contents: write
+
+          concurrency:
+            group: expert-robot-free-runner-bridge
+            cancel-in-progress: true
+
+          jobs:
+            qualify:
+              runs-on: [self-hosted, cace, oci, aarch64]
+              timeout-minutes: 25
+
+              steps:
+                - uses: actions/checkout@v4
+
+                - name: Run bounded Expert Robot checks
+                  shell: bash
+                  run: |
+                    set -u
+
+                    request_id="$(python3 -c 'import json; print(json.load(open("bridge/request.json"))["request_id"])')"
+                    source_sha="$(python3 -c 'import json; print(json.load(open("bridge/request.json"))["expert_robot_commit"])')"
+                    work="$RUNNER_TEMP/expert-robot-$GITHUB_RUN_ID"
+                    log="$GITHUB_WORKSPACE/bridge/result.log"
+                    rm -rf "$work"
+                    mkdir -p "$work"
+                    : > "$log"
+
+                    overall=0
+
+                    run_check() {
+                      name="$1"
+                      shift
+                      echo "=== $name ===" | tee -a "$log"
+                      "$@" 2>&1 | tee -a "$log"
+                      rc=${PIPESTATUS[0]}
+                      if [ "$rc" -ne 0 ]; then
+                        overall="$rc"
+                      fi
+                      echo "exit_code=$rc" | tee -a "$log"
+                      return 0
+                    }
+
+                    echo "request_id=$request_id" | tee -a "$log"
+                    echo "expert_robot_commit=$source_sha" | tee -a "$log"
+                    echo "runner=$(hostname)" | tee -a "$log"
+                    uname -a | tee -a "$log" || true
+                    nproc | tee -a "$log" || true
+                    free -h | tee -a "$log" || true
+
+                    tar -xzf bridge/expert-robot-source.tar.gz -C "$work"
+                    cd "$work"
+
+                    run_check "compute policy" python3 tests/compute_policy_smoke.py
+                    run_check "shell syntax" bash -n scripts/bootstrap-railway-worker.sh scripts/preflight.sh scripts/railway-preflight.sh scripts/railway-sandbox-lane.sh
+
+                    if command -v cmake >/dev/null 2>&1 && command -v ninja >/dev/null 2>&1; then
+                      jobs="$(nproc 2>/dev/null || echo 2)"
+                      if [ "$jobs" -gt 8 ]; then jobs=8; fi
+                      if [ "$jobs" -lt 1 ]; then jobs=1; fi
+
+                      run_check "cmake configure" cmake -S . -B build/external-runner -G Ninja -DCMAKE_BUILD_TYPE=Release
+                      run_check "focused build" cmake --build build/external-runner --target route_memory_smoke strategy_engine_complete_smoke research_benchmark_executor_smoke expert_robot_runtime --parallel "$jobs"
+                      run_check "focused tests" ctest --test-dir build/external-runner --output-on-failure -R 'route_memory_smoke|strategy_engine_complete_smoke|research_benchmark_executor_smoke'
+                      if [ -x build/external-runner/expert_robot_runtime ]; then
+                        run_check "runtime smoke" python3 tests/smoke.py build/external-runner/expert_robot_runtime
+                      fi
+                    else
+                      echo "cmake/ninja unavailable; C++ lane skipped" | tee -a "$log"
+                      overall=21
+                    fi
+
+                    cd "$GITHUB_WORKSPACE"
+
+                    python3 - "$request_id" "$source_sha" "$overall" > bridge/result.json <<'PY'
+                    import json
+                    import platform
+                    import sys
+
+                    rc = int(sys.argv[3])
+                    print(json.dumps({
+                        "schema_version": 1,
+                        "request_id": sys.argv[1],
+                        "expert_robot_commit": sys.argv[2],
+                        "status": "pass" if rc == 0 else "fail",
+                        "exit_code": rc,
+                        "runner_labels": ["self-hosted", "cace", "oci", "aarch64"],
+                        "machine": platform.node(),
+                        "architecture": platform.machine(),
+                        "authority": "qualification-only",
+                        "promotion_authority": False,
+                        "monetary_cost": "free",
+                    }, indent=2))
+                    PY
+
+                    git config user.name "expert-robot-free-runner"
+                    git config user.email "noreply@github.com"
+                    git add bridge/result.json bridge/result.log
+                    git commit -m "Expert Robot runner result: $request_id" || true
+                    git push origin "HEAD:$GITHUB_REF_NAME"
+
+                    exit "$overall"
+          BRIDGE_YAML
+
+          git config user.name "expert-robot-dispatcher"
+          git config user.email "noreply@github.com"
+          git add bridge/request.json bridge/expert-robot-source.tar.gz .github/workflows/expert-robot-bridge.yml
+          git commit -m "Dispatch Expert Robot request: $REQUEST_ID"
+
+          GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
+            git push --force-with-lease origin "HEAD:$BRIDGE_BRANCH"
+
+          echo "bridge_branch=$BRIDGE_BRANCH" >> "$GITHUB_OUTPUT"
+
+      - name: Await external free-runner evidence
+        id: await
+        shell: bash
+        env:
+          RUNNER_REPO_SSH: git@github.com:morganaspim/Cace-app.git
+          BRIDGE_BRANCH: ${{ steps.install.outputs.bridge_branch }}
+          REQUEST_ID: ${{ steps.package.outputs.request_id }}
+        run: |
+          set -euo pipefail
+
+          poll="$RUNNER_TEMP/cace-result-poll"
+          evidence="$RUNNER_TEMP/external-free-runner-evidence"
+          rm -rf "$poll" "$evidence"
+          mkdir -p "$poll" "$evidence"
+
+          git -C "$poll" init -q
+          git -C "$poll" remote add origin "$RUNNER_REPO_SSH"
+
+          found=false
+          for attempt in $(seq 1 120); do
+            GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
+              git -C "$poll" fetch -q --force origin "$BRIDGE_BRANCH:refs/remotes/origin/bridge"
+
+            if git -C "$poll" show refs/remotes/origin/bridge:bridge/result.json > "$evidence/result.json" 2>/dev/null; then
+              got="$(python3 -c 'import json; print(json.load(open("'"$evidence"'/result.json"))["request_id"])')"
+              if [ "$got" = "$REQUEST_ID" ]; then
+                git -C "$poll" show refs/remotes/origin/bridge:bridge/result.log > "$evidence/result.log" 2>/dev/null || true
+                found=true
+                break
+              fi
+            fi
+
+            sleep 10
+          done
+
+          if [ "$found" != true ]; then
+            echo "::error::Timed out waiting for the free CACE runner result."
+            exit 1
+          fi
+
+          cat "$evidence/result.json"
+          status="$(python3 -c 'import json; print(json.load(open("'"$evidence"'/result.json"))["status"])')"
+          if [ "$status" != "pass" ]; then
+            echo "::error::External free runner reported failure."
+            if [ -f "$evidence/result.log" ]; then tail -n 200 "$evidence/result.log"; fi
+            exit 1
+          fi
+
+      - name: Upload external runner evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: external-free-runner-${{ github.run_id }}
+          path: ${{ runner.temp }}/external-free-runner-evidence/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Remove key material
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "$SSH_AGENT_PID" ]; then
+            ssh-agent -k >/dev/null 2>&1 || true
+          fi
+          rm -f "$RUNNER_TEMP/cace_bridge_key" "$RUNNER_TEMP/cace_bridge_key.pub"
