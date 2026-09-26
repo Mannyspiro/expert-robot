@@ -108,13 +108,22 @@ if [[ "$mode" == repair ]]; then
 #!/usr/bin/env bash
 set -uo pipefail
 telemetry=/var/lib/cace-cache/telemetry
-runner_root=/opt/actions-runner
+runner_root=""
+for candidate in /opt/actions-runner /home/morganaspi/actions-runner /home/github-runner/actions-runner; do
+  if [[ -s "$candidate/.service" ]]; then
+    runner_root="$candidate"
+    break
+  fi
+done
 mkdir -p "$telemetry"
 while true; do
   ts="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   printf '%s\n' "$ts" > "$telemetry/heartbeat.tmp" &&
     mv "$telemetry/heartbeat.tmp" "$telemetry/heartbeat"
-  service="$(cat "$runner_root/.service" 2>/dev/null || true)"
+  service=""
+  if [[ -n "$runner_root" ]]; then
+    service="$(cat "$runner_root/.service" 2>/dev/null || true)"
+  fi
   if [[ -n "$service" ]] &&
       systemctl list-unit-files "$service" --no-legend 2>/dev/null | grep -q "$service"; then
     if ! systemctl is-active --quiet "$service"; then
