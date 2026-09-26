@@ -16,6 +16,7 @@ for required_id in (
     "cace-tool-stale-pin-or-capability-drift",
     "cace-tool-result-binding-or-integrity-drift",
     "cace-tool-authority-or-cost-escalation",
+    "cace-headless-branch-rewrite",
 ):
     assert required_id in ids
 allowed_guards = {
@@ -89,5 +90,13 @@ assert "unsafe archive path" in external
 assert "unsafe archive member type" in external
 assert '("run_cmd", re.compile' in external
 assert "cmake --build" not in external
+
+headless = (
+    ROOT / ".github" / "workflows" / "cace-headless-local-integration.yml"
+).read_text(encoding="utf-8")
+assert 'refs/remotes/origin/$CACE_BRANCH' in headless
+assert 'git checkout -B "$CACE_BRANCH" "origin/$CACE_BRANCH"' in headless
+assert 'git push origin "HEAD:$CACE_BRANCH"' in headless
+assert "--force" not in headless
 
 print("known failure regression guardrails: PASS")
