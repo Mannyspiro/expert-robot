@@ -52,6 +52,7 @@ add_library(expert_robot_core STATIC
     cpp/src/research/engine.cpp
     cpp/src/growth/generation_lineage.cpp
     cpp/src/growth/ablation_evidence.cpp
+    cpp/src/growth/cace_evidence.cpp
     cpp/src/cognition/neuromodulation.cpp
     cpp/src/cognition/interoception.cpp
     cpp/src/cognition/personality.cpp
@@ -218,6 +219,12 @@ add_executable(ablation_evidence_smoke
 )
 target_link_libraries(ablation_evidence_smoke PRIVATE expert_robot_core SQLite::SQLite3)
 add_test(NAME ablation_evidence_smoke COMMAND ablation_evidence_smoke)
+
+add_executable(cace_evidence_smoke
+    tests/cace_evidence_smoke.cpp
+)
+target_link_libraries(cace_evidence_smoke PRIVATE expert_robot_core SQLite::SQLite3)
+add_test(NAME cace_evidence_smoke COMMAND cace_evidence_smoke)
 
 add_executable(route_memory_smoke
     tests/route_memory_smoke.cpp
