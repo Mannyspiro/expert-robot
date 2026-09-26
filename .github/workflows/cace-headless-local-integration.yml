@@ -8,7 +8,9 @@ on:
       - ".github/workflows/cace-headless-local-integration.yml"
       - "config/cace_headless_local.json"
       - "python/cace_headless.py"
+      - "python/orchestrator.py"
       - "tests/cace_headless_client_smoke.py"
+      - "tests/orchestrator_cace_headless_smoke.py"
       - "integration/cace/**"
   workflow_dispatch:
 
@@ -31,7 +33,11 @@ jobs:
           persist-credentials: false
 
       - name: Expert Robot headless client smoke
-        run: python3 tests/cace_headless_client_smoke.py
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tests/cace_headless_client_smoke.py
+          python3 tests/orchestrator_cace_headless_smoke.py
 
       - name: CACE payload contract smoke
         shell: bash
