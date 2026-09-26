@@ -126,6 +126,17 @@
         "require monetary_cost free and preserve the existing external promotion boundary"
       ],
       "guard": "tests/cace_tool_broker_smoke.py"
+    },
+    {
+      "id": "cace-verifier-evidence-becomes-promotion-signal",
+      "discovered_by": "cace-generation-evidence",
+      "symptom": "A passing external CACE verifier result is accidentally treated as a keep recommendation or promotion approval.",
+      "prevention": [
+        "record CACE results as non-recommending generation evaluations",
+        "force recommend_keep false for CACE evidence",
+        "keep hidden ablation evidence and external promotion approval as independent gates"
+      ],
+      "guard": "tests/cace_evidence_smoke.cpp"
     }
   ]
 }
