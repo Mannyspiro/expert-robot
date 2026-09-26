@@ -371,6 +371,7 @@ ImaginationMemory::all() const {
                 .source_role =
                     static_cast<swarm::AgentRole>(role),
                 .text = text_col(3),
+                .skill_id = {},
                 .novelty_score =
                     sqlite3_column_double(
                         stmt.get(),
