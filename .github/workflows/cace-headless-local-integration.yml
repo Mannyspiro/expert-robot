@@ -44,6 +44,9 @@ jobs:
         run: |
           set -euo pipefail
           bash -n integration/cace/scripts/run_cace_headless_local.sh
+          bash -n integration/cace/scripts/recover_cace_runner.sh
+          python3 -m py_compile integration/cace/scripts/provision_qwen35_4b_q4km.py
+          python3 integration/cace/tests/test_runner_recovery_contract.py
 
           tmp="$RUNNER_TEMP/cace-payload-contract"
           rm -rf "$tmp"
@@ -95,12 +98,18 @@ jobs:
           cp "$GITHUB_WORKSPACE/integration/cace/config/headless_local_llm.json" config/headless_local_llm.json
           cp "$GITHUB_WORKSPACE/integration/cace/config/model_provision_policy.json" config/model_provision_policy.json
           cp "$GITHUB_WORKSPACE/integration/cace/scripts/run_cace_headless_local.sh" scripts/run_cace_headless_local.sh
+          cp "$GITHUB_WORKSPACE/integration/cace/scripts/recover_cace_runner.sh" scripts/recover_cace_runner.sh
+          cp "$GITHUB_WORKSPACE/integration/cace/scripts/provision_qwen35_4b_q4km.py" scripts/provision_qwen35_4b_q4km.py
           cp "$GITHUB_WORKSPACE/integration/cace/docs/HEADLESS_LOCAL_LLM.md" docs/HEADLESS_LOCAL_LLM.md
           cp "$GITHUB_WORKSPACE/integration/cace/tests/test_headless_local_llm_contract.py" tests/test_headless_local_llm_contract.py
-          chmod +x scripts/run_cace_headless_local.sh
+          cp "$GITHUB_WORKSPACE/integration/cace/tests/test_runner_recovery_contract.py" tests/test_runner_recovery_contract.py
+          chmod +x scripts/run_cace_headless_local.sh scripts/recover_cace_runner.sh scripts/provision_qwen35_4b_q4km.py
 
           bash -n scripts/run_cace_headless_local.sh
+          bash -n scripts/recover_cace_runner.sh
+          python3 -m py_compile scripts/provision_qwen35_4b_q4km.py
           python3 tests/test_headless_local_llm_contract.py
+          python3 tests/test_runner_recovery_contract.py
 
           # Validate compatibility with CACE's existing local-AI boundary using
           # stdlib only. This runner deliberately installs nothing and uses no cache.
@@ -126,8 +135,11 @@ jobs:
           git add config/headless_local_llm.json \
                   config/model_provision_policy.json \
                   scripts/run_cace_headless_local.sh \
+                  scripts/recover_cace_runner.sh \
+                  scripts/provision_qwen35_4b_q4km.py \
                   docs/HEADLESS_LOCAL_LLM.md \
-                  tests/test_headless_local_llm_contract.py
+                  tests/test_headless_local_llm_contract.py \
+                  tests/test_runner_recovery_contract.py
 
           if git diff --cached --quiet; then
             echo "CACE headless branch already matches staged payload."
