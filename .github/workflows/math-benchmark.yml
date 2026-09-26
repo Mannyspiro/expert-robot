@@ -1,6 +1,17 @@
 name: Math Architecture Benchmark
 
 on:
+  pull_request:
+    paths:
+      - "cpp/include/expert_robot/research/strategy_planner.hpp"
+      - "cpp/src/research/strategy_planner.cpp"
+      - "cpp/src/research/route_memory.cpp"
+      - "cpp/src/eval/research_benchmark_executor.cpp"
+      - "tests/strategy_planner_smoke.cpp"
+      - "tests/route_memory_smoke.cpp"
+      - "tests/research_benchmark_executor_smoke.cpp"
+      - "config/benchmarks/**"
+      - ".github/workflows/math-benchmark.yml"
   workflow_dispatch:
     inputs:
       runner:
@@ -21,7 +32,9 @@ concurrency:
 
 jobs:
   benchmark:
-    runs-on: ${{ inputs.runner }}
+    # Pull requests always use the normal free 8-vCPU qualification
+    # lane. The 32-vCPU runner remains an explicit manual choice.
+    runs-on: ${{ inputs.runner || 'avrea-ubuntu-latest-8-vcpu' }}
     timeout-minutes: 35
 
     steps:
