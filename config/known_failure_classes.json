@@ -137,6 +137,17 @@
         "keep hidden ablation evidence and external promotion approval as independent gates"
       ],
       "guard": "tests/cace_evidence_smoke.cpp"
+    },
+    {
+      "id": "cace-wrong-verifier-or-compute-lane-routing",
+      "discovered_by": "cace-tool-routing",
+      "symptom": "A candidate is sent to a verifier lane that cannot check it, or expensive Avrea work is used when a bounded CACE capability is sufficient.",
+      "prevention": [
+        "route only through the CACE capability allowlist",
+        "keep C++/model/runtime changes on Avrea rather than the ARM64 formal CACE lane",
+        "use deterministic path-based routing and validate every emitted CACE request against the broker contract"
+      ],
+      "guard": "tests/cace_tool_routing_smoke.py"
     }
   ]
 }
