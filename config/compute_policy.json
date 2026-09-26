@@ -110,20 +110,25 @@
     },
     "external_integrations": {
       "base44": {
-        "status": "discovery-only",
-        "monetary_cost": "unverified",
+        "status": "telemetry-only",
+        "monetary_cost": "zero-spend-only",
+        "canonical": false,
         "can_qualify": false,
         "can_promote": false,
         "allowed_actions": [
-          "inventory tracked integration markers",
-          "inventory referenced secret names"
+          "read and write non-authoritative CI telemetry",
+          "read and write non-authoritative benchmark telemetry",
+          "index qualification evidence metadata",
+          "host optional read-only dashboards within free-tier limits"
         ],
         "prohibited_actions": [
-          "deploy",
-          "invoke Base44 APIs",
-          "enable billing",
-          "create paid resources",
-          "change Base44 configuration"
+          "store canonical proofs or proof-memory state",
+          "store credentials, deploy keys, or private key material",
+          "store model weights",
+          "grant qualification authority",
+          "grant promotion authority",
+          "use paid Builder sandbox or paid resources",
+          "enable billing or purchase credits"
         ]
       }
     }
