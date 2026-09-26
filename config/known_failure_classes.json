@@ -93,6 +93,39 @@
         "allow only reviewed Lean/Mathlib upstream repository prefixes"
       ],
       "guard": "tests/formal_dependency_lock_smoke.py"
+    },
+    {
+      "id": "cace-tool-stale-pin-or-capability-drift",
+      "discovered_by": "cace-tool-broker-v1",
+      "symptom": "Expert Robot dispatches work to an unpinned CACE commit, unknown capability, or mismatched execution lane.",
+      "prevention": [
+        "pin the exact Cace-app commit from a successful capability probe",
+        "dispatch only allowlisted capability IDs and lanes",
+        "reject request budgets above per-capability maxima"
+      ],
+      "guard": "tests/cace_tool_broker_smoke.py"
+    },
+    {
+      "id": "cace-tool-result-binding-or-integrity-drift",
+      "discovered_by": "cace-tool-broker-v1",
+      "symptom": "Returned CACE evidence does not bind exactly to the original request/source/CACE commit or its canonical result hash.",
+      "prevention": [
+        "require exact request/source/CACE/capability bindings",
+        "require SHA-256 evidence and canonical result digests",
+        "reject runtime usage above the admitted request budget"
+      ],
+      "guard": "tests/cace_tool_broker_smoke.py"
+    },
+    {
+      "id": "cace-tool-authority-or-cost-escalation",
+      "discovered_by": "cace-tool-broker-v1",
+      "symptom": "External CACE results attempt to carry promotion authority, automatic promotion, or non-free resource status.",
+      "prevention": [
+        "fix CACE authority to qualification-only",
+        "force promotion_authority false and automatic promotion false",
+        "require monetary_cost free and preserve the existing external promotion boundary"
+      ],
+      "guard": "tests/cace_tool_broker_smoke.py"
     }
   ]
 }
