@@ -49,6 +49,13 @@ assert external["monetary_cost"] == "free"
 assert external["authority"] == "qualification-only"
 assert external["install_or_dispatch_requires_capability_probe"] is True
 assert set(external["discovered_labels"]) == {"self-hosted", "cace", "oci", "aarch64"}
+assert external["broker_policy"] == "config/cace_tool_broker.json"
+assert external["pinned_commit"] == "0e7aa229d3bb57174e281b883ee8af5445f15f75"
+assert external["capability_probe_runner"] == "avrea-ubuntu-latest-1-vcpu"
+assert external["capability_probe_cache"] is False
+assert external["capability_probe_artifact_retention_days"] == 1
+assert external["result_is_evidence_only"] is True
+assert external["promotion_authority"] is False
 
 base44 = selection["external_integrations"]["base44"]
 assert base44["status"] == "telemetry-only"
