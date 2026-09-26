@@ -38,6 +38,10 @@ jobs:
           printf '%s\n' "$RAILWAY_SSH_PRIVATE_KEY" > "$key_file"
           chmod 600 "$key_file"
           ssh-keygen -y -f "$key_file" > "$RUNNER_TEMP/cace_repo_key.pub"
+          eval "$(ssh-agent -s)"
+          ssh-add "$key_file"
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
           echo "key_file=$key_file" >> "$GITHUB_OUTPUT"
 
       - name: Arm registered CACE runner lane with probe-only workflow
@@ -51,7 +55,7 @@ jobs:
           work="$RUNNER_TEMP/cace-runtime-discovery"
           rm -rf "$work"
 
-          GIT_SSH_COMMAND="ssh -i $KEY_FILE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new" \
+          GIT_SSH_COMMAND="ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new" \
             git clone git@github.com:morganaspim/Cace-app.git "$work"
 
           cd "$work"
@@ -344,7 +348,7 @@ jobs:
           git commit -m "Temporary CACE runtime inventory probe"
 
           probe_sha="$(git rev-parse HEAD)"
-          GIT_SSH_COMMAND="ssh -i $KEY_FILE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new" \
+          GIT_SSH_COMMAND="ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new" \
             git push origin "HEAD:$CACE_BRANCH"
 
           echo "request_id=$request_id" >> "$GITHUB_OUTPUT"
@@ -366,7 +370,7 @@ jobs:
 
           found=false
           for attempt in $(seq 1 120); do
-            GIT_SSH_COMMAND="ssh -i $KEY_FILE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new" \
+            GIT_SSH_COMMAND="ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new" \
               git -C "$poll" fetch -q --force origin "$CACE_BRANCH:refs/remotes/origin/cace"
 
             if git -C "$poll" show refs/remotes/origin/cace:bridge/local-runtime-probe-result.json > "$RUNNER_TEMP/result.json" 2>/dev/null; then
@@ -386,7 +390,7 @@ jobs:
           if [ "$found" != true ]; then
             echo "::warning::CACE runner did not publish an observation; performing emergency workflow restoration."
             rm -rf "$RUNNER_TEMP/emergency-restore"
-            GIT_SSH_COMMAND="ssh -i $KEY_FILE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new" \
+            GIT_SSH_COMMAND="ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new" \
               git clone git@github.com:morganaspim/Cace-app.git "$RUNNER_TEMP/emergency-restore"
             cd "$RUNNER_TEMP/emergency-restore"
             git fetch origin "$CACE_BRANCH"
@@ -398,7 +402,7 @@ jobs:
               git config user.email "noreply@github.com"
               git add -A
               git commit -m "Restore CACE regression workflow after probe timeout [skip ci]"
-              GIT_SSH_COMMAND="ssh -i $KEY_FILE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new" \
+              GIT_SSH_COMMAND="ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new" \
                 git push origin "HEAD:$CACE_BRANCH"
             fi
             echo "::error::CACE self-hosted runner produced no runtime observation."
@@ -421,4 +425,9 @@ jobs:
       - name: Remove key material
         if: always()
         shell: bash
-        run: rm -f "$RUNNER_TEMP/cace_repo_key" "$RUNNER_TEMP/cace_repo_key.pub"
+        run: |
+          set -euo pipefail
+          if [ -n "${SSH_AGENT_PID:-}" ]; then
+            ssh-agent -k >/dev/null 2>&1 || true
+          fi
+          rm -f "$RUNNER_TEMP/cace_repo_key" "$RUNNER_TEMP/cace_repo_key.pub"
