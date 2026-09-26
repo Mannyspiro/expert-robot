@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "invariant": "Same known failure class should fail fast before expensive qualification.",
+  "classes": [
+    {
+      "id": "cpp-missing-field-initializer",
+      "discovered_by": "railway-free-preflight",
+      "symptom": "-Wmissing-field-initializers on aggregate persistence/experience records",
+      "prevention": [
+        "explicitly initialize newly added aggregate fields",
+        "CMake promotes supported missing-field initializer warnings to errors"
+      ],
+      "guard": "tests/known_failure_regression_smoke.py"
+    },
+    {
+      "id": "cpp-range-loop-copy",
+      "discovered_by": "railway-free-preflight",
+      "symptom": "-Wrange-loop-construct copies std::string values in hot/evaluation loops",
+      "prevention": [
+        "bind stable loop values by const reference",
+        "CMake promotes supported range-loop warnings to errors"
+      ],
+      "guard": "tests/known_failure_regression_smoke.py"
+    },
+    {
+      "id": "lean-vec3-ext-missing",
+      "discovered_by": "math-architecture-benchmark",
+      "symptom": "Lean ext tactic cannot prove Vec3 coordinate equality",
+      "prevention": [
+        "register Vec3.ext_coords with @[ext]",
+        "keep exact geometry extensionality in the foundational Exact module"
+      ],
+      "guard": "tests/known_failure_regression_smoke.py"
+    },
+    {
+      "id": "lean-brittle-positivity-dot-self",
+      "discovered_by": "math-architecture-benchmark",
+      "symptom": "positivity fails to establish nonnegativity of dot a a after unfolding",
+      "prevention": [
+        "use explicit sq_nonneg hypotheses and nlinarith"
+      ],
+      "guard": "tests/known_failure_regression_smoke.py"
+    },
+    {
+      "id": "railway-ssh-agent-forwarding-assumption",
+      "discovered_by": "railway-free-preflight",
+      "symptom": "ssh -A railway.new does not expose forwarded agent inside Railway relay",
+      "prevention": [
+        "perform deploy-key Git operations on dispatcher",
+        "send Railway source bundles without GitHub credentials"
+      ],
+      "guard": "tests/known_failure_regression_smoke.py"
+    },
+    {
+      "id": "railway-claim-url-log-leak",
+      "discovered_by": "secure-railway-ssh-check",
+      "symptom": "Railway provisioning JSON can emit a one-time human_claim_url into Actions logs",
+      "prevention": [
+        "filter human_claim_url lines in Railway SSH workflow output"
+      ],
+      "guard": "tests/known_failure_regression_smoke.py"
+    },
+    {
+      "id": "external-runner-wrong-capability-assumption",
+      "discovered_by": "external-free-runner-bridge",
+      "symptom": "CACE OCI runner lacks CMake/Ninja but has persistent Lean infrastructure",
+      "prevention": [
+        "treat CACE OCI as formal/static ARM64 lane",
+        "make C++ optional on that runner",
+        "use Avrea for C++/benchmarks"
+      ],
+      "guard": "tests/known_failure_regression_smoke.py"
+    }
+  ]
+}
