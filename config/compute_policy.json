@@ -106,7 +106,14 @@
       ],
       "monetary_cost": "free",
       "authority": "qualification-only",
-      "install_or_dispatch_requires_capability_probe": true
+      "install_or_dispatch_requires_capability_probe": true,
+      "broker_policy": "config/cace_tool_broker.json",
+      "pinned_commit": "0e7aa229d3bb57174e281b883ee8af5445f15f75",
+      "capability_probe_runner": "avrea-ubuntu-latest-1-vcpu",
+      "capability_probe_cache": false,
+      "capability_probe_artifact_retention_days": 1,
+      "result_is_evidence_only": true,
+      "promotion_authority": false
     },
     "external_integrations": {
       "base44": {
