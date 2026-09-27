@@ -5,6 +5,7 @@
 #include <sqlite3.h>
 
 #include <cmath>
+#include <map>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -122,6 +123,23 @@ void validate_hash(
             throw std::invalid_argument(
                 std::string(label) +
                 " must be lowercase SHA-256 hex");
+        }
+    }
+}
+
+void validate_identifier(
+    const std::string& value,
+    const char* label) {
+    if (value.empty() || value.size() > 256U) {
+        throw std::invalid_argument(
+            std::string(label) +
+            " must be non-empty and at most 256 characters");
+    }
+    for (const unsigned char ch : value) {
+        if (ch < 0x20U || ch == 0x7fU) {
+            throw std::invalid_argument(
+                std::string(label) +
+                " must not contain control characters");
         }
     }
 }
@@ -258,6 +276,22 @@ void GenerationLineageStore::initialize() {
             FOREIGN KEY(generation_id)
                 REFERENCES generations(generation_id)
         );
+
+        CREATE TABLE IF NOT EXISTS verification_gate_evidence (
+            sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+            generation_id TEXT NOT NULL,
+            gate_id TEXT NOT NULL,
+            evaluator TEXT NOT NULL,
+            evidence_hash TEXT NOT NULL,
+            passed INTEGER NOT NULL,
+            required_for_promotion INTEGER NOT NULL,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(generation_id)
+                REFERENCES generations(generation_id)
+        );
+
+        CREATE INDEX IF NOT EXISTS verification_gate_generation_gate
+        ON verification_gate_evidence(generation_id, gate_id, sequence);
 
         CREATE TABLE IF NOT EXISTS promotion_decisions (
             sequence INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -463,6 +497,63 @@ GenerationLineageStore::record_evaluation(
     evaluation.sequence =
         sqlite3_last_insert_rowid(db_);
     return evaluation;
+}
+
+VerificationGateRecord
+GenerationLineageStore::record_verification_gate(
+    VerificationGateRecord gate) {
+    (void)generation(gate.generation_id);
+
+    validate_identifier(
+        gate.gate_id,
+        "verification gate_id");
+    validate_identifier(
+        gate.evaluator,
+        "verification gate evaluator");
+    validate_hash(
+        gate.evidence_hash,
+        "verification gate evidence_hash");
+
+    Statement insert(
+        db_,
+        R"SQL(
+        INSERT INTO verification_gate_evidence(
+            generation_id,
+            gate_id,
+            evaluator,
+            evidence_hash,
+            passed,
+            required_for_promotion
+        ) VALUES (?, ?, ?, ?, ?, ?);
+        )SQL");
+
+    bind_text(db_, insert.get(), 1, gate.generation_id);
+    bind_text(db_, insert.get(), 2, gate.gate_id);
+    bind_text(db_, insert.get(), 3, gate.evaluator);
+    bind_text(db_, insert.get(), 4, gate.evidence_hash);
+    check_sql(
+        sqlite3_bind_int(
+            insert.get(),
+            5,
+            gate.passed ? 1 : 0),
+        db_,
+        "bind verification gate passed");
+    check_sql(
+        sqlite3_bind_int(
+            insert.get(),
+            6,
+            gate.required_for_promotion ? 1 : 0),
+        db_,
+        "bind verification gate required");
+
+    check_sql(
+        sqlite3_step(insert.get()),
+        db_,
+        "insert verification gate");
+
+    gate.sequence =
+        sqlite3_last_insert_rowid(db_);
+    return gate;
 }
 
 PromotionDecision
@@ -678,6 +769,76 @@ GenerationLineageStore::evaluations(
     return result;
 }
 
+std::vector<VerificationGateRecord>
+GenerationLineageStore::verification_gates(
+    std::string_view generation_id) const {
+    Statement query(
+        db_,
+        R"SQL(
+        SELECT
+            sequence,
+            generation_id,
+            gate_id,
+            evaluator,
+            evidence_hash,
+            passed,
+            required_for_promotion
+        FROM verification_gate_evidence
+        WHERE generation_id = ?
+        ORDER BY sequence;
+        )SQL");
+
+    bind_text(
+        db_,
+        query.get(),
+        1,
+        std::string(generation_id));
+
+    std::vector<VerificationGateRecord> result;
+    while (true) {
+        const int rc =
+            sqlite3_step(query.get());
+        check_sql(
+            rc,
+            db_,
+            "list verification gates");
+        if (rc == SQLITE_DONE) break;
+
+        result.push_back(
+            VerificationGateRecord{
+                .sequence =
+                    sqlite3_column_int64(
+                        query.get(),
+                        0),
+                .generation_id =
+                    column_text(
+                        query.get(),
+                        1),
+                .gate_id =
+                    column_text(
+                        query.get(),
+                        2),
+                .evaluator =
+                    column_text(
+                        query.get(),
+                        3),
+                .evidence_hash =
+                    column_text(
+                        query.get(),
+                        4),
+                .passed =
+                    sqlite3_column_int(
+                        query.get(),
+                        5) != 0,
+                .required_for_promotion =
+                    sqlite3_column_int(
+                        query.get(),
+                        6) != 0,
+            });
+    }
+    return result;
+}
+
 std::vector<PromotionDecision>
 GenerationLineageStore::promotion_decisions(
     std::string_view generation_id) const {
@@ -762,6 +923,32 @@ GenerationLineageStore::readiness(
             result.diversity_ok =
                 result.diversity_ok ||
                 evaluation.diversity_ok;
+        }
+    }
+
+    struct GateState {
+        bool required_ever{false};
+        VerificationGateRecord latest;
+    };
+    std::map<std::string, GateState> gates;
+
+    for (const auto& gate :
+         verification_gates(generation_id)) {
+        auto& state = gates[gate.gate_id];
+        state.required_ever =
+            state.required_ever ||
+            gate.required_for_promotion;
+        state.latest = gate;
+    }
+
+    for (const auto& [gate_id, state] : gates) {
+        (void)gate_id;
+        if (!state.required_ever) {
+            continue;
+        }
+        result.has_required_gate_evidence = true;
+        if (!state.latest.passed) {
+            result.blocking_gate_failure = true;
         }
     }
 
