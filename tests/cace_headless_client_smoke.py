@@ -105,6 +105,14 @@ def main() -> int:
             == "0aa3b2e00724f647bb629fe7e4765e41fa245e3b"
         )
 
+        repository_config = ch.HeadlessConfig.load(
+            ROOT / "config" / "cace_headless_local.json"
+        )
+        assert (
+            repository_config.cace_revision
+            == "0aa3b2e00724f647bb629fe7e4765e41fa245e3b"
+        )
+
         drift_cases = [
             ("network_policy", "public", "network policy"),
             ("trust_role", "trusted", "trust role"),
@@ -132,11 +140,11 @@ def main() -> int:
         )
 
         payload = copy.deepcopy(PINNED_CONFIG)
-        payload["cace_runtime"]["revision"] = "2" * 40
+        payload["cace_runtime"]["revision"] = "not-a-commit"
         path = write_config(tmp, payload)
         expect_error(
             lambda: ch.HeadlessConfig.load(path),
-            "CACE runtime revision drift",
+            "lowercase 40-character git SHA",
         )
 
         payload = copy.deepcopy(PINNED_CONFIG)
