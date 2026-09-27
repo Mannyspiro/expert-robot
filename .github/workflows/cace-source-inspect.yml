@@ -1,0 +1,79 @@
+name: Bounded pinned CACE source inspection
+on:
+  push:
+    branches: [diagnostic/cace-pinned-source-20260927]
+    paths: [.github/workflows/cace-source-inspect.yml]
+permissions:
+  contents: write
+jobs:
+  inspect:
+    if: github.repository == 'Mannyspiro/expert-robot'
+    runs-on: avrea-ubuntu-latest-1-vcpu
+    timeout-minutes: 2
+    steps:
+      - name: Read pinned source without executing CACE code
+        shell: bash
+        env:
+          CACE_KEY: ${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import base64, json, os, pathlib, subprocess, tempfile, urllib.request
+          pin = '0aa3b2e00724f647bb629fe7e4765e41fa245e3b'
+          repository = 'Mannyspiro/expert-robot'
+          assert os.environ['GITHUB_REPOSITORY'] == repository
+          branch = os.environ['GITHUB_REF_NAME']
+          assert branch == 'diagnostic/cace-pinned-source-20260927'
+          def api(path, body=None):
+              req = urllib.request.Request('https://api.github.com/repos/' + repository + '/' + path,
+                  data=None if body is None else json.dumps(body).encode(),
+                  headers={'Authorization': 'Bearer ' + os.environ['GH_TOKEN'],
+                           'Content-Type':'application/json','Accept':'application/vnd.github+json'},
+                  method='GET' if body is None else 'PUT')
+              with urllib.request.urlopen(req, timeout=15) as response:
+                  return json.load(response)
+          with tempfile.TemporaryDirectory() as temporary:
+              root = pathlib.Path(temporary)
+              key = root / 'key'
+              key.write_text(os.environ.pop('CACE_KEY'))
+              key.chmod(0o600)
+              with urllib.request.urlopen('https://api.github.com/meta', timeout=10) as response:
+                  keys = json.load(response)['ssh_keys']
+              known = root / 'known_hosts'
+              known.write_text(''.join('github.com ' + item + '\n' for item in keys))
+              env = dict(os.environ)
+              env.pop('GH_TOKEN', None)
+              env['GIT_SSH_COMMAND'] = f'ssh -i {key} -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile={known} -o ConnectTimeout=10'
+              def git(*args):
+                  result = subprocess.run(['git', '-c', 'core.hooksPath=/dev/null', *args],
+                      cwd=root, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                      text=True, timeout=35)
+                  if result.returncode:
+                      raise RuntimeError('CACE git operation failed: ' + args[0])
+                  return result.stdout
+              git('init', '--quiet')
+              git('remote', 'add', 'origin', 'git@github.com:morganaspim/Cace-app.git')
+              git('fetch', '--quiet', '--depth=1', 'origin', pin)
+              assert git('rev-parse', 'FETCH_HEAD').strip() == pin
+              paths = git('ls-tree', '-r', '--name-only', pin).splitlines()
+              files = {}
+              for path in ['AGENTS.md', 'api/AGENTS.md', 'api/index.py', 'requirements.txt', 'pyproject.toml']:
+                  if path in paths:
+                      size = int(git('cat-file', '-s', pin + ':' + path))
+                      if size <= 100000:
+                          files[path] = git('show', pin + ':' + path)
+              report = {'schema_version':1,'cace_commit':pin,'remote_mutated':False,
+                        'source_executed':False,'formal_verified':False,'promotion_authority':False,
+                        'run_id':os.environ['GITHUB_RUN_ID'],
+                        'paths':[p for p in paths if p.endswith(('.py','.toml','.txt','.json'))][:10000],
+                        'files':files}
+              encoded = json.dumps(report, indent=2).encode()
+              assert len(encoded) <= 1000000
+          ref = api('git/ref/heads/' + branch)
+          assert ref['object']['sha'] == os.environ['GITHUB_SHA'], 'branch moved; refusing stale publication'
+          api('contents/evidence/cace-pinned-source-inspection.json', {
+              'message':'Record read-only CACE source inspection [skip ci]',
+              'branch':branch, 'content':base64.b64encode(encoded).decode()})
+          print('Pinned source inspection recorded; no candidate code executed.')
+          PY
