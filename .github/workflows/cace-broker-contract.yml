@@ -1,0 +1,60 @@
+name: CACE Broker Contract
+
+on:
+  push:
+    branches:
+      - "fix/cace-cross-repo-capability-semantics"
+      - "feat/reuse-refactored-fishstick"
+    paths:
+      - ".github/workflows/cace-broker-contract.yml"
+      - ".github/workflows/external-free-runner-bridge.yml"
+      - ".github/workflows/cace-return-pr.yml"
+      - "config/cace_tool_broker.json"
+      - "config/compute_policy.json"
+      - "config/known_failure_classes.json"
+      - "scripts/plan_cace_tool_requests.py"
+      - "scripts/validate_cace_tool_result.py"
+      - "scripts/validate_cace_return.py"
+      - "tests/cace_tool_broker_smoke.py"
+      - "tests/cace_tool_routing_smoke.py"
+      - "tests/cace_return_bridge_smoke.py"
+      - "tests/known_failure_regression_smoke.py"
+  pull_request:
+    paths:
+      - ".github/workflows/cace-broker-contract.yml"
+      - ".github/workflows/external-free-runner-bridge.yml"
+      - ".github/workflows/cace-return-pr.yml"
+      - "config/cace_tool_broker.json"
+      - "config/compute_policy.json"
+      - "config/known_failure_classes.json"
+      - "scripts/plan_cace_tool_requests.py"
+      - "scripts/validate_cace_tool_result.py"
+      - "scripts/validate_cace_return.py"
+      - "tests/cace_tool_broker_smoke.py"
+      - "tests/cace_tool_routing_smoke.py"
+      - "tests/cace_return_bridge_smoke.py"
+      - "tests/known_failure_regression_smoke.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cace-broker-contract-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Broker and routing semantics
+        run: |
+          set -euo pipefail
+          python3 tests/cace_tool_broker_smoke.py
+          python3 tests/cace_tool_routing_smoke.py
+          python3 tests/cace_return_bridge_smoke.py
+          python3 tests/known_failure_regression_smoke.py
