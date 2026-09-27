@@ -6,19 +6,21 @@
   "llm_endpoint": "http://127.0.0.1:8080/v1",
   "cace_api_endpoint": "http://127.0.0.1:8765",
   "model": {
-    "repo_id": "Qwen/Qwen3.5-4B",
-    "revision": "a7b0d22b993d71000cf2eadfb37222a67cee521e",
+    "repo_id": "Qwen/Qwen2.5-1.5B-Instruct",
+    "revision": "91cad51170dc346986eccefdc2dd33a9da36ead9",
     "quantization": "Q4_K_M",
-    "architecture": "Qwen3_5ForConditionalGeneration",
+    "architecture": "Qwen2ForCausalLM",
     "frozen_base": true,
-    "weights_in_git": false
+    "weights_in_git": false,
+    "artifact_repository": "Qwen/Qwen2.5-1.5B-Instruct-GGUF",
+    "artifact_sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e"
   },
   "llama_cpp": {
-    "tag": "v0.4.1",
-    "commit": "b29c606e28a01b1bc8c1351026a0fa6e616bf6c4",
+    "tag": "b11146",
+    "commit": "7fe450e19305b828c199d602c23a8337aaa1f03b",
     "host": "127.0.0.1",
     "port": 8080,
-    "alias": "Qwen/Qwen3.5-4B"
+    "alias": "Qwen/Qwen2.5-1.5B-Instruct"
   },
   "headless_cace": {
     "host": "127.0.0.1",

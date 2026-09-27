@@ -24,8 +24,8 @@ PINNED_CONFIG = {
     "local_llm": {
         "provider": "llama-cpp",
         "base_url": "http://127.0.0.1:8080/v1",
-        "model_id": "Qwen/Qwen3.5-4B",
-        "repo_revision": "a7b0d22b993d71000cf2eadfb37222a67cee521e",
+        "model_id": "Qwen/Qwen2.5-1.5B-Instruct",
+        "repo_revision": "91cad51170dc346986eccefdc2dd33a9da36ead9",
         "quantization": "Q4_K_M",
         "frozen_base": True,
         "max_tokens_default": 2048,
@@ -33,8 +33,8 @@ PINNED_CONFIG = {
     },
     "runtime": {
         "repository": "ggml-org/llama.cpp",
-        "tag": "v0.4.1",
-        "commit": "b29c606e28a01b1bc8c1351026a0fa6e616bf6c4",
+        "tag": "b11146",
+        "commit": "7fe450e19305b828c199d602c23a8337aaa1f03b",
     },
     "cace_runtime": {
         "repository": "morganaspim/Cace-app",
@@ -99,7 +99,7 @@ def main() -> int:
         tmp = Path(tmp_raw)
         config_path = write_config(tmp, PINNED_CONFIG)
         config = ch.HeadlessConfig.load(config_path)
-        assert config.model_id == "Qwen/Qwen3.5-4B"
+        assert config.model_id == "Qwen/Qwen2.5-1.5B-Instruct"
         assert (
             config.cace_revision
             == "0aa3b2e00724f647bb629fe7e4765e41fa245e3b"
@@ -161,8 +161,8 @@ def main() -> int:
         )
 
     calls = []
-    served_models = ["Qwen/Qwen3.5-4B"]
-    response_model = ["Qwen/Qwen3.5-4B"]
+    served_models = ["Qwen/Qwen2.5-1.5B-Instruct"]
+    response_model = ["Qwen/Qwen2.5-1.5B-Instruct"]
     original = ch._json_request
 
     def fake(url, *, method="GET", payload=None, timeout=30.0):
@@ -194,7 +194,7 @@ def main() -> int:
             return {"data": [{"id": item} for item in served_models]}
         if url.endswith("/v1/chat/completions"):
             assert method == "POST"
-            assert payload["model"] == "Qwen/Qwen3.5-4B"
+            assert payload["model"] == "Qwen/Qwen2.5-1.5B-Instruct"
             assert payload["messages"][0]["role"] == "system"
             assert "never constitutes PASS" in payload["messages"][0]["content"]
             assert "cannot execute CACE tools" in payload["messages"][0]["content"]
@@ -222,7 +222,7 @@ def main() -> int:
 
         served_models[:] = ["some-other-local-model"]
         assert client.health()["ok"] is False
-        served_models[:] = ["Qwen/Qwen3.5-4B"]
+        served_models[:] = ["Qwen/Qwen2.5-1.5B-Instruct"]
 
         assert client.modules()["modules"]
         assert client.claims()["claims"]
@@ -275,7 +275,7 @@ def main() -> int:
             ),
             "does not match pinned model",
         )
-        response_model[0] = "Qwen/Qwen3.5-4B"
+        response_model[0] = "Qwen/Qwen2.5-1.5B-Instruct"
 
         turn = client.research_turn(
             "Find a useful next experiment."

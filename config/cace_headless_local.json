@@ -12,17 +12,19 @@
   "local_llm": {
     "provider": "llama-cpp",
     "base_url": "http://127.0.0.1:8080/v1",
-    "model_id": "Qwen/Qwen3.5-4B",
-    "repo_revision": "a7b0d22b993d71000cf2eadfb37222a67cee521e",
+    "model_id": "Qwen/Qwen2.5-1.5B-Instruct",
+    "repo_revision": "91cad51170dc346986eccefdc2dd33a9da36ead9",
     "quantization": "Q4_K_M",
     "frozen_base": true,
-    "max_tokens_default": 2048,
-    "temperature_default": 0.1
+    "max_tokens_default": 256,
+    "temperature_default": 0.1,
+    "artifact_repository": "Qwen/Qwen2.5-1.5B-Instruct-GGUF",
+    "artifact_sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e"
   },
   "runtime": {
     "repository": "ggml-org/llama.cpp",
-    "tag": "v0.4.1",
-    "commit": "b29c606e28a01b1bc8c1351026a0fa6e616bf6c4"
+    "tag": "b11146",
+    "commit": "7fe450e19305b828c199d602c23a8337aaa1f03b"
   },
   "authority": {
     "client_can_execute_typed_cace_calls": true,
