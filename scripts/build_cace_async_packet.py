@@ -65,6 +65,10 @@ def validate_transport_policy(
         fail("async executor template drift")
     if transport.get("result_contract") != "cace-tool-broker-v1":
         fail("async result contract drift")
+    if transport.get("trusted_dispatch_ref") != "feat/reuse-refactored-fishstick":
+        fail("async trusted dispatch ref drift")
+    if transport.get("require_candidate_parent_equals_dispatch_head") is not True:
+        fail("async candidate-parent admission drift")
 
     allowed = transport.get("allowed_capabilities")
     if allowed != ["cace.external.expert_robot_formal_static"]:
@@ -103,11 +107,12 @@ def validate_transport_policy(
 
 
 def main() -> int:
-    if len(sys.argv) != 6:
+    if len(sys.argv) not in {7, 8}:
         fail(
             "usage: build_cace_async_packet.py "
             "<broker-policy.json> <transport-policy.json> "
-            "<request.json> <generation-id> <source-archive.tar.gz>"
+            "<request.json> <generation-id> <source-archive.tar.gz> "
+            "<trusted-base-commit> [attempt]"
         )
 
     broker_policy = broker.load(sys.argv[1])
@@ -115,6 +120,8 @@ def main() -> int:
     request = broker.load(sys.argv[3])
     generation_id = sys.argv[4]
     archive = Path(sys.argv[5])
+    trusted_base_commit = sys.argv[6]
+    attempt = int(sys.argv[7]) if len(sys.argv) == 8 else 1
 
     capabilities = broker.validate_policy(broker_policy)
     validated = broker.validate_request(
@@ -126,6 +133,9 @@ def main() -> int:
 
     if not SAFE_GENERATION_ID.fullmatch(generation_id):
         fail("invalid generation_id for async transport")
+    broker.require_sha40(trusted_base_commit, "trusted base commit")
+    if attempt < 1 or attempt > transport["max_attempts"]:
+        fail("async attempt is outside allowed retry range")
 
     capability = validated["capability"]
     capability_id = capability["capability_id"]
@@ -152,20 +162,30 @@ def main() -> int:
 
     request_sha = broker.canonical_sha256(request)
     suffix = request_sha[:12]
-    transport_id = f"async-{request_id}-{suffix}"
+    transport_id = f"async-{request_id}-{suffix}-a{attempt}"
     if len(transport_id) > 128 or not SAFE_TRANSPORT_ID.fullmatch(transport_id):
         fail("derived transport_id is invalid")
 
     request_branch = (
-        transport["request_branch_prefix"] + request_id + "-" + suffix
+        transport["request_branch_prefix"]
+        + request_id
+        + "-"
+        + suffix
+        + f"-a{attempt}"
     )
-    return_branch = transport["return_branch_prefix"] + request_id
+    return_branch = (
+        transport["return_branch_prefix"]
+        + request_id
+        + f"-a{attempt}"
+    )
 
     packet = {
         "schema_version": 1,
         "transport_id": transport_id,
         "generation_id": generation_id,
         "gate_id": f"cace::{capability_id}",
+        "trusted_dispatch_ref": transport["trusted_dispatch_ref"],
+        "trusted_base_commit": trusted_base_commit,
         "request": request,
         "request_sha256": request_sha,
         "source_archive_sha256": archive_sha,
@@ -176,7 +196,7 @@ def main() -> int:
         "return_branch": return_branch,
         "executor_template": transport["executor_template"],
         "result_contract": transport["result_contract"],
-        "attempt": 1,
+        "attempt": attempt,
         "max_attempts": transport["max_attempts"],
         "response_deadline_seconds": transport["response_deadline_seconds"],
         "authority": "qualification-only",
