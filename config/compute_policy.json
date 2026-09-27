@@ -138,6 +138,24 @@
           "enable billing or purchase credits"
         ]
       }
+    },
+    "local_headless_reasoner": {
+      "role": "untrusted-informal-reasoner",
+      "network_policy": "loopback-only",
+      "config": "config/cace_headless_local.json",
+      "cace_repository": "morganaspim/Cace-app",
+      "cace_branch": "expert-robot/headless-local-llm",
+      "cace_revision": "0aa3b2e00724f647bb629fe7e4765e41fa245e3b",
+      "model": "Qwen/Qwen3.5-4B",
+      "model_revision": "a7b0d22b993d71000cf2eadfb37222a67cee521e",
+      "llama_cpp_commit": "b29c606e28a01b1bc8c1351026a0fa6e616bf6c4",
+      "requires_runtime_admission": true,
+      "model_can_execute_tools": false,
+      "model_can_mark_verified": false,
+      "deterministic_cace_execution_separate": true,
+      "runtime_artifact_hashes_required": true,
+      "can_qualify": false,
+      "can_promote": false
     }
   }
 }
