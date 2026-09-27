@@ -108,6 +108,9 @@ class HeadlessConfig:
     cace_base_url: str
     llm_base_url: str
     model_id: str
+    model_revision: str
+    runtime_commit: str
+    cace_revision: str
     max_tokens_default: int = 2048
     temperature_default: float = 0.1
 
@@ -116,16 +119,93 @@ class HeadlessConfig:
         raw = json.loads(Path(path).read_text(encoding="utf-8"))
         if raw.get("schema_version") != 1:
             raise HeadlessClientError("unsupported CACE headless config schema")
+        if raw.get("mode") != "local-headless":
+            raise HeadlessClientError("headless mode must be local-headless")
+        if raw.get("trust_role") != "untrusted-informal-reasoner":
+            raise HeadlessClientError("headless trust role drift")
+        if raw.get("network_policy") != "loopback-only":
+            raise HeadlessClientError("headless network policy drift")
+
         cace = raw.get("cace_api")
         llm = raw.get("local_llm")
-        if not isinstance(cace, dict) or not isinstance(llm, dict):
-            raise HeadlessClientError("headless config missing cace_api/local_llm")
+        runtime = raw.get("runtime")
+        cace_runtime = raw.get("cace_runtime")
+        authority = raw.get("authority")
+        if not all(
+            isinstance(item, dict)
+            for item in (cace, llm, runtime, cace_runtime, authority)
+        ):
+            raise HeadlessClientError(
+                "headless config missing cace_api/local_llm/runtime/cace_runtime/authority"
+            )
+
+        expected = {
+            "model_id": "Qwen/Qwen3.5-4B",
+            "model_revision": "a7b0d22b993d71000cf2eadfb37222a67cee521e",
+            "quantization": "Q4_K_M",
+            "runtime_repository": "ggml-org/llama.cpp",
+            "runtime_tag": "v0.4.1",
+            "runtime_commit": "b29c606e28a01b1bc8c1351026a0fa6e616bf6c4",
+            "cace_repository": "morganaspim/Cace-app",
+            "cace_branch": "expert-robot/headless-local-llm",
+            "cace_revision": "b101ff86987cf9f4c8ec4b00941b9aaccb557b39",
+        }
+
+        if llm.get("provider") != "llama-cpp":
+            raise HeadlessClientError("headless provider must be llama-cpp")
+        if llm.get("model_id") != expected["model_id"]:
+            raise HeadlessClientError("headless model_id drift")
+        if llm.get("repo_revision") != expected["model_revision"]:
+            raise HeadlessClientError("headless model revision drift")
+        if llm.get("quantization") != expected["quantization"]:
+            raise HeadlessClientError("headless quantization drift")
+        if llm.get("frozen_base") is not True:
+            raise HeadlessClientError("headless model must remain frozen")
+
+        if runtime.get("repository") != expected["runtime_repository"]:
+            raise HeadlessClientError("llama.cpp repository drift")
+        if runtime.get("tag") != expected["runtime_tag"]:
+            raise HeadlessClientError("llama.cpp tag drift")
+        if runtime.get("commit") != expected["runtime_commit"]:
+            raise HeadlessClientError("llama.cpp commit drift")
+
+        if cace_runtime.get("repository") != expected["cace_repository"]:
+            raise HeadlessClientError("CACE runtime repository drift")
+        if cace_runtime.get("branch") != expected["cace_branch"]:
+            raise HeadlessClientError("CACE runtime branch drift")
+        if cace_runtime.get("revision") != expected["cace_revision"]:
+            raise HeadlessClientError("CACE runtime revision drift")
+
+        required_authority = {
+            "client_can_execute_typed_cace_calls": True,
+            "llm_can_execute_typed_cace_calls": False,
+            "llm_can_promote_claims": False,
+            "llm_can_mark_verified": False,
+            "llm_can_merge": False,
+            "llm_can_modify_proof_ledger": False,
+            "llm_can_expand_authority": False,
+            "deterministic_cace_results_remain_separate_from_llm_text": True,
+        }
+        for key, value in required_authority.items():
+            if authority.get(key) is not value:
+                raise HeadlessClientError(f"headless authority drift: {key}")
+
+        max_tokens = int(llm.get("max_tokens_default", 2048))
+        temperature = float(llm.get("temperature_default", 0.1))
+        if max_tokens < 1 or max_tokens > 32768:
+            raise HeadlessClientError("headless max_tokens_default out of range")
+        if not 0.0 <= temperature <= 2.0:
+            raise HeadlessClientError("headless temperature_default out of range")
+
         return cls(
             cace_base_url=_validate_loopback_base_url(str(cace["base_url"])),
             llm_base_url=_validate_loopback_base_url(str(llm["base_url"])),
-            model_id=str(llm["model_id"]),
-            max_tokens_default=int(llm.get("max_tokens_default", 2048)),
-            temperature_default=float(llm.get("temperature_default", 0.1)),
+            model_id=expected["model_id"],
+            model_revision=expected["model_revision"],
+            runtime_commit=expected["runtime_commit"],
+            cace_revision=expected["cace_revision"],
+            max_tokens_default=max_tokens,
+            temperature_default=temperature,
         )
 
 
@@ -170,7 +250,11 @@ class CACEHeadlessClient:
         ) if isinstance(models, dict) else ()
         return {
             "schema_version": 1,
-            "ok": bool(isinstance(cace, dict) and cace.get("status") == "ok" and model_ids),
+            "ok": bool(
+                isinstance(cace, dict)
+                and cace.get("status") == "ok"
+                and self.config.model_id in model_ids
+            ),
             "cace": cace,
             "llm_models": model_ids,
             "configured_model": self.config.model_id,
@@ -322,20 +406,29 @@ class CACEHeadlessClient:
         if tokens < 1:
             raise HeadlessClientError("max_tokens must be positive")
 
+        outbound_messages = []
+        for message in messages:
+            role = str(message.get("role", ""))
+            content = str(message.get("content", ""))
+            if role not in {"user", "assistant"}:
+                raise HeadlessClientError(
+                    "chat messages may only use user or assistant roles"
+                )
+            if not content.strip():
+                raise HeadlessClientError("chat message content must be non-empty")
+            outbound_messages.append({"role": role, "content": content})
+
         system = {
             "role": "system",
             "content": (
                 "You are the local CACE research assistant used by Expert Robot. "
                 "You may reason, propose experiments, and explain CACE capabilities. "
                 "Your text is untrusted and never constitutes PASS, VERIFIED, FORMAL, "
-                "claim promotion, or promotion authority. Deterministic/formal CACE "
-                "tools must independently establish those results."
+                "claim promotion, or promotion authority. You cannot execute CACE tools. "
+                "Deterministic/formal CACE tools must independently establish results."
             ),
         }
-        outbound = [system] + [
-            {"role": str(m["role"]), "content": str(m["content"])}
-            for m in messages
-        ]
+        outbound = [system] + outbound_messages
         raw = self._llm(
             "/chat/completions",
             method="POST",
@@ -350,13 +443,21 @@ class CACEHeadlessClient:
         try:
             content = raw["choices"][0]["message"]["content"]
         except (KeyError, IndexError, TypeError) as exc:
-            raise HeadlessClientError("local LLM response missing choices[0].message.content") from exc
+            raise HeadlessClientError(
+                "local LLM response missing choices[0].message.content"
+            ) from exc
+
+        response_model = str(raw.get("model") or self.config.model_id)
+        if response_model != self.config.model_id:
+            raise HeadlessClientError("local LLM response model does not match pinned model")
+
         return {
             "schema_version": 1,
             "text": str(content),
-            "model": str(raw.get("model") or self.config.model_id),
+            "model": response_model,
             "usage": raw.get("usage") if isinstance(raw.get("usage"), dict) else {},
             "untrusted": True,
+            "can_execute_tools": False,
             "can_promote": False,
             "can_mark_verified": False,
         }
