@@ -109,3 +109,23 @@ Mixed formal/C++ candidates may use CACE for the formal evidence first while
 still requiring Avrea repository qualification afterward. The planner never
 dispatches automatically and every generated CACE request is validatable by
 the broker contract.
+
+
+### Required verification gates
+
+When the deterministic planner selects a CACE capability marked
+`can_qualify: true`, the admitted request is recorded in generation lineage as
+a required gate **before** external execution begins. The initial gate state is
+failing and is hash-bound to the admitted request.
+
+This gives promotion a fail-closed lifecycle:
+
+1. required request admitted → gate blocks promotion;
+2. no result / timeout → gate remains blocking;
+3. failed broker-validated result → gate remains blocking;
+4. passing broker-validated result → latest gate state passes;
+5. later failed recheck → latest gate state blocks again.
+
+CACE gate evidence never sets `recommend_keep`, efficiency, diversity, or
+external approval. Those remain independent hidden/ablation and authority
+boundaries.
