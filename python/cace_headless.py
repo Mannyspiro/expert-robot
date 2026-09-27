@@ -148,7 +148,6 @@ class HeadlessConfig:
             "runtime_commit": "b29c606e28a01b1bc8c1351026a0fa6e616bf6c4",
             "cace_repository": "morganaspim/Cace-app",
             "cace_branch": "expert-robot/headless-local-llm",
-            "cace_revision": "b101ff86987cf9f4c8ec4b00941b9aaccb557b39",
         }
 
         if llm.get("provider") != "llama-cpp":
@@ -173,8 +172,13 @@ class HeadlessConfig:
             raise HeadlessClientError("CACE runtime repository drift")
         if cace_runtime.get("branch") != expected["cace_branch"]:
             raise HeadlessClientError("CACE runtime branch drift")
-        if cace_runtime.get("revision") != expected["cace_revision"]:
-            raise HeadlessClientError("CACE runtime revision drift")
+        cace_revision = str(cace_runtime.get("revision", ""))
+        if len(cace_revision) != 40 or any(
+            ch not in "0123456789abcdef" for ch in cace_revision
+        ):
+            raise HeadlessClientError(
+                "CACE runtime revision must be lowercase 40-character git SHA"
+            )
 
         required_authority = {
             "client_can_execute_typed_cace_calls": True,
@@ -203,7 +207,7 @@ class HeadlessConfig:
             model_id=expected["model_id"],
             model_revision=expected["model_revision"],
             runtime_commit=expected["runtime_commit"],
-            cace_revision=expected["cace_revision"],
+            cace_revision=cace_revision,
             max_tokens_default=max_tokens,
             temperature_default=temperature,
         )
