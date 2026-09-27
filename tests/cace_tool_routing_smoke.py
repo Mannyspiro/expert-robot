@@ -126,6 +126,18 @@ assert any(
     for reason in python_plan["reasons"]
 )
 
+# Lean build/dependency infrastructure is never executed in the async CACE
+# source-bundle lane.
+formal_infra = plan("formal/lakefile.toml")
+assert formal_infra["cace_requests"] == []
+assert formal_infra["requires_avrea"] is True
+assert formal_infra["avrea_paths"] == ["formal/lakefile.toml"]
+assert any(
+    "Lean build/dependency infrastructure changes require repository qualification"
+    in reason
+    for reason in formal_infra["reasons"]
+)
+
 # C++/model/runtime work still requires Avrea.
 cpp_plan = plan("cpp/src/runtime.cpp", "CMakeLists.txt")
 assert cpp_plan["cace_requests"] == []
