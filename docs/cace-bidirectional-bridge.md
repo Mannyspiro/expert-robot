@@ -56,9 +56,9 @@ wall-time/Lean-check budget. A returned result must bind the same identifiers
 and provide an evidence digest plus the canonical result digest.
 
 `scripts/validate_cace_tool_result.py` fails closed when any of those bindings
-drift. A passing result is evidence only. Capabilities explicitly marked
-`can_qualify: false` may contribute empirical evaluation evidence but cannot
-be mislabeled formal qualification.
+drift. A passing result is evidence only. The Expert Robot broker currently
+admits only source-bundle capabilities whose declared source and workflow
+repository are Expert Robot; CACE-native capabilities remain discovery-only.
 
 ### RSI integration
 
@@ -94,21 +94,35 @@ that capability may grow without expanding authority.
 
 ### Deterministic capability routing
 
-`scripts/plan_cace_tool_requests.py` converts a candidate's changed paths into
-a bounded verifier plan without model calls or network access:
+`scripts/plan_cace_tool_requests.py` converts an **Expert Robot** candidate's
+changed paths into a bounded verifier plan without model calls or network
+access.
 
-- one Lean-only change → exact-pin CACE Lean preflight;
-- multiple/mixed formal changes → bounded CACE batch Lean preflight;
-- Python changes → non-authoritative CACE regression checks;
-- collaboration contract changes → CACE collaboration validation;
-- C++/model/runtime changes → Avrea remains required because CACE OCI is not
-  treated as a C++ build lane;
-- docs-only or unrelated configuration changes → no CACE request is created.
+Repository identity is part of the capability contract. CACE-native workflows
+such as CACE's exact-pin Lean preflight, Python regression, and collaboration
+validation execute **Cace-app source** and are therefore discovery-only from
+this broker; they are not evidence about an Expert Robot candidate.
 
-Mixed formal/C++ candidates may use CACE for the formal evidence first while
-still requiring Avrea repository qualification afterward. The planner never
-dispatches automatically and every generated CACE request is validatable by
-the broker contract.
+Current routing is:
+
+- Expert Robot formal/Lean changes → the pinned
+  `cace.external.expert_robot_formal_static` source-bundle qualification lane;
+- Expert Robot Python changes → no CACE-native Python request; ordinary
+  repository CI remains required;
+- Expert Robot collaboration/config changes → no CACE-native collaboration
+  request; ordinary repository CI remains required;
+- C++/model/runtime changes → Avrea remains required because the CACE OCI lane
+  is not treated as a C++ build lane;
+- docs-only or unrelated configuration changes → no external verifier request.
+
+Every CACE request binds the executor kind, workflow repository, workflow path,
+Expert Robot source commit, exact reviewed CACE commit, and compute budget.
+The source-bundle bridge itself is created from the exact reviewed CACE commit,
+not CACE's moving default HEAD.
+
+Mixed formal/C++ candidates may use CACE for legitimate formal evidence first
+while still requiring Avrea repository qualification afterward. The planner
+never dispatches automatically.
 
 
 ### Required verification gates
