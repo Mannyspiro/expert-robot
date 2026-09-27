@@ -110,6 +110,9 @@ def make_request(
         "cace_repository": policy["cace"]["repository"],
         "cace_commit": policy["cace"]["pinned_commit"],
         "capability_id": capability["capability_id"],
+        "executor_kind": capability["executor_kind"],
+        "workflow_repository": capability["workflow_repository"],
+        "workflow": capability["workflow"],
         "input_sha256": input_sha256,
         "requested_lane": capability["lane"],
         "authority": defaults["authority"],
@@ -149,18 +152,6 @@ def main() -> int:
         for path in changed_paths
         if path.endswith(".lean") or path.startswith("formal/")
     ]
-    python_paths = [
-        path
-        for path in changed_paths
-        if path.endswith(".py") or path.startswith("python/")
-    ]
-    collaboration_paths = [
-        path
-        for path in changed_paths
-        if path.startswith("collaboration/")
-        or path.startswith("config/collaboration")
-    ]
-
     avrea_paths = [
         path
         for path in changed_paths
@@ -175,24 +166,12 @@ def main() -> int:
     reasons: list[str] = []
 
     if lean_paths:
-        single_lean_only = (
-            len(lean_paths) == 1
-            and len(changed_paths) == 1
-            and lean_paths[0].endswith(".lean")
-        )
-        capability_id = (
-            "cace.formal.exact_pin_lean_preflight"
-            if single_lean_only
-            else "cace.formal.batch_exact_pin_lean_preflight"
-        )
+        capability_id = "cace.external.expert_robot_formal_static"
         capability = by_id.get(capability_id)
         if capability is None:
             fail(f"required capability missing from allowlist: {capability_id}")
-        budget = bounded_budget(
-            capability,
-            wall_seconds=600 if single_lean_only else 1200,
-            lean_checks=4 if single_lean_only else 20,
-        )
+        if capability.get("executor_kind") != "expert-robot-source-bundle":
+            fail("formal Expert Robot source requires source-bundle executor")
         requests.append(
             make_request(
                 policy,
@@ -200,60 +179,36 @@ def main() -> int:
                 source_commit,
                 source_branch,
                 input_sha256,
-                budget,
+                bounded_budget(
+                    capability,
+                    wall_seconds=1200,
+                    lean_checks=40,
+                ),
                 lean_paths,
             )
         )
         reasons.append(
-            "formal changes routed to exact-pin CACE Lean qualification"
+            "Expert Robot formal changes routed to the pinned CACE "
+            "source-bundle qualification lane"
         )
 
-    if python_paths:
-        capability_id = "cace.regression.python"
-        capability = by_id.get(capability_id)
-        if capability is None:
-            fail(f"required capability missing from allowlist: {capability_id}")
-        requests.append(
-            make_request(
-                policy,
-                capability,
-                source_commit,
-                source_branch,
-                input_sha256,
-                bounded_budget(
-                    capability,
-                    wall_seconds=300,
-                    lean_checks=0,
-                ),
-                python_paths,
-            )
-        )
+    if any(
+        path.endswith(".py") or path.startswith("python/")
+        for path in changed_paths
+    ):
         reasons.append(
-            "Python changes routed to non-authoritative CACE regression checks"
+            "Expert Robot Python changes are not routed to CACE-native Python "
+            "regression; normal repository CI remains required"
         )
 
-    if collaboration_paths:
-        capability_id = "cace.collaboration.validation"
-        capability = by_id.get(capability_id)
-        if capability is None:
-            fail(f"required capability missing from allowlist: {capability_id}")
-        requests.append(
-            make_request(
-                policy,
-                capability,
-                source_commit,
-                source_branch,
-                input_sha256,
-                bounded_budget(
-                    capability,
-                    wall_seconds=300,
-                    lean_checks=0,
-                ),
-                collaboration_paths,
-            )
-        )
+    if any(
+        path.startswith("collaboration/")
+        or path.startswith("config/collaboration")
+        for path in changed_paths
+    ):
         reasons.append(
-            "collaboration changes routed to CACE collaboration validation"
+            "Expert Robot collaboration changes are not routed to CACE-native "
+            "collaboration validation; normal repository CI remains required"
         )
 
     requires_avrea = bool(avrea_paths)

@@ -11,7 +11,7 @@ assert registry["schema_version"] == 1
 classes = registry["classes"]
 ids = [item["id"] for item in classes]
 assert len(ids) == len(set(ids))
-assert len(ids) >= 18
+assert len(ids) >= 19
 for required_id in (
     "cace-tool-stale-pin-or-capability-drift",
     "cace-tool-result-binding-or-integrity-drift",
@@ -22,6 +22,7 @@ for required_id in (
     "cace-headless-wrong-model-or-config-drift",
     "cace-headless-runtime-bytes-unverified",
     "cace-headless-publisher-secret-exec-boundary",
+    "cace-cross-repository-capability-confusion",
 ):
     assert required_id in ids
 allowed_guards = {

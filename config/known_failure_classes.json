@@ -192,6 +192,18 @@
         "publisher may clone, copy fixed paths, commit, and non-force push but may not execute the payload"
       ],
       "guard": "tests/cace_headless_stage_smoke.py"
+    },
+    {
+      "id": "cace-cross-repository-capability-confusion",
+      "discovered_by": "cace-cross-repo-capability-audit",
+      "symptom": "An Expert Robot candidate is routed to a CACE-native workflow that actually validates Cace-app source, producing irrelevant evidence that appears to satisfy an Expert Robot gate.",
+      "prevention": [
+        "Expert Robot broker capabilities must consume Expert Robot source explicitly",
+        "CACE-native workflows remain discovery-only in the Expert Robot broker",
+        "bind executor kind, workflow repository, and workflow path into every request",
+        "start the external source-bundle bridge from the exact reviewed CACE commit rather than moving default HEAD"
+      ],
+      "guard": "tests/cace_tool_routing_smoke.py"
     }
   ]
 }

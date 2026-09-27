@@ -93,6 +93,14 @@ def validate_policy(policy: dict[str, Any]) -> dict[str, dict[str, Any]]:
     if not isinstance(capabilities, list) or not capabilities:
         fail("broker requires a non-empty capability allowlist")
 
+    native = policy.get("native_cace_capabilities")
+    if not isinstance(native, dict):
+        fail("broker policy requires native_cace_capabilities discovery metadata")
+    if native.get("status") != "discovery-only":
+        fail("native CACE capabilities must remain discovery-only")
+    if native.get("repository") != cace.get("repository"):
+        fail("native CACE discovery repository drift")
+
     by_id: dict[str, dict[str, Any]] = {}
     for item in capabilities:
         if not isinstance(item, dict):
@@ -106,6 +114,12 @@ def validate_policy(policy: dict[str, Any]) -> dict[str, dict[str, Any]]:
             fail(f"{capability_id}: CACE capability may not promote")
         if item.get("lane") != "cace-oci-aarch64":
             fail(f"{capability_id}: unexpected execution lane")
+        if item.get("executor_kind") != "expert-robot-source-bundle":
+            fail(f"{capability_id}: native CACE workflows are not Expert Robot source verifiers")
+        if item.get("source_repository") != policy.get("source_repository"):
+            fail(f"{capability_id}: capability source repository mismatch")
+        if item.get("workflow_repository") != policy.get("source_repository"):
+            fail(f"{capability_id}: workflow repository must be Expert Robot")
         if not str(item.get("workflow", "")).startswith(".github/workflows/"):
             fail(f"{capability_id}: workflow must be repository-scoped")
         for key in ("max_wall_seconds", "max_lean_checks"):
@@ -162,6 +176,9 @@ def main() -> int:
             "cace_repository",
             "cace_commit",
             "capability_id",
+            "executor_kind",
+            "workflow_repository",
+            "workflow",
             "input_sha256",
             "requested_lane",
             "authority",
@@ -193,6 +210,12 @@ def main() -> int:
         fail("unknown or unapproved CACE capability")
     if request["requested_lane"] != capability["lane"]:
         fail("requested lane does not match capability contract")
+    if request["executor_kind"] != capability["executor_kind"]:
+        fail("request executor kind does not match capability contract")
+    if request["workflow_repository"] != capability["workflow_repository"]:
+        fail("request workflow repository does not match capability contract")
+    if request["workflow"] != capability["workflow"]:
+        fail("request workflow does not match capability contract")
 
     if request["authority"] != "qualification-only":
         fail("request authority escalation")
