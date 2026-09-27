@@ -25,11 +25,18 @@
     "commit": "b29c606e28a01b1bc8c1351026a0fa6e616bf6c4"
   },
   "authority": {
-    "can_execute_typed_cace_calls": true,
+    "client_can_execute_typed_cace_calls": true,
+    "llm_can_execute_typed_cace_calls": false,
     "llm_can_promote_claims": false,
     "llm_can_mark_verified": false,
     "llm_can_merge": false,
+    "llm_can_modify_proof_ledger": false,
     "llm_can_expand_authority": false,
     "deterministic_cace_results_remain_separate_from_llm_text": true
+  },
+  "cace_runtime": {
+    "repository": "morganaspim/Cace-app",
+    "branch": "expert-robot/headless-local-llm",
+    "revision": "b101ff86987cf9f4c8ec4b00941b9aaccb557b39"
   }
 }
