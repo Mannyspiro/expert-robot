@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "authority_invariant": "Capability grows, authority never expands.",
+  "broker_policy": "config/cace_tool_broker.json",
+  "allowed_capabilities": [
+    "cace.external.expert_robot_formal_static"
+  ],
+  "cace_repository": "morganaspim/Cace-app",
+  "cace_base_commit": "0e7aa229d3bb57174e281b883ee8af5445f15f75",
+  "request_branch_prefix": "executor/expert-robot-request/",
+  "return_branch_prefix": "cace-return/",
+  "executor_template": "integration/cace/workflows/expert-robot-async-request.yml",
+  "result_contract": "cace-tool-broker-v1",
+  "source_archive_max_bytes": 26214400,
+  "max_attempts": 3,
+  "response_deadline_seconds": 1800,
+  "request_artifact_retention_days": 1,
+  "zero_spend_only": true,
+  "force_push_forbidden": true,
+  "automatic_merge": false,
+  "automatic_promotion": false,
+  "dispatcher_secret_job_executes_candidate": false
+}
