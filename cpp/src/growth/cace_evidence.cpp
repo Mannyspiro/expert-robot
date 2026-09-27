@@ -48,6 +48,13 @@ bool safe_identifier(
         });
 }
 
+std::string cace_gate_id(
+    std::string_view capability_id) {
+    return
+        "cace::" +
+        std::string(capability_id);
+}
+
 } // namespace
 
 void validate_cace_evaluation_evidence(
@@ -96,13 +103,57 @@ void validate_cace_evaluation_evidence(
         throw std::invalid_argument(
             "CACE compute counters must be nonnegative");
     }
-    if (e.qualification_evidence && !e.passed) {
+
+    const bool expected_qualification_evidence =
+        e.passed &&
+        e.qualification_capability;
+    if (e.qualification_evidence !=
+        expected_qualification_evidence) {
         throw std::invalid_argument(
-            "failed CACE result cannot be qualification evidence");
+            "CACE qualification evidence semantics drift");
     }
 }
 
-EvaluationRecord record_cace_evaluation_evidence(
+VerificationGateRecord record_cace_verification_requirement(
+    GenerationLineageStore& store,
+    std::string_view generation_id,
+    std::string_view capability_id,
+    std::string_view request_evidence_hash) {
+    if (generation_id.empty()) {
+        throw std::invalid_argument(
+            "generation_id must be non-empty");
+    }
+
+    const std::string capability(capability_id);
+    const std::string request_hash(request_evidence_hash);
+
+    if (!safe_identifier(capability)) {
+        throw std::invalid_argument(
+            "CACE capability_id must be a safe identifier");
+    }
+    if (!is_lower_hex(request_hash, 64U)) {
+        throw std::invalid_argument(
+            "CACE request evidence hash must be lowercase SHA-256");
+    }
+
+    (void)store.generation(generation_id);
+
+    return store.record_verification_gate(
+        VerificationGateRecord{
+            .generation_id =
+                std::string(generation_id),
+            .gate_id =
+                cace_gate_id(capability),
+            .evaluator =
+                "cace_tool_planner",
+            .evidence_hash =
+                request_hash,
+            .passed = false,
+            .required_for_promotion = true,
+        });
+}
+
+CaceEvidenceReceipt record_cace_evaluation_evidence(
     GenerationLineageStore& store,
     std::string_view generation_id,
     const CaceEvaluationEvidence& evidence) {
@@ -113,29 +164,55 @@ EvaluationRecord record_cace_evaluation_evidence(
 
     validate_cace_evaluation_evidence(evidence);
 
-    // Confirm the referenced generation exists before recording evidence.
     (void)store.generation(generation_id);
 
     const bool verified =
         evidence.passed &&
-        evidence.qualification_evidence;
+        evidence.qualification_capability;
 
-    return store.record_evaluation(
-        EvaluationRecord{
-            .generation_id =
-                std::string(generation_id),
-            .evaluator =
-                "cace_tool_broker:" +
-                evidence.capability_id,
-            .evidence_hash =
-                evidence.evaluation_evidence_hash,
-            .recommend_keep = false,
-            .verification_ok = verified,
-            .efficiency_ok = false,
-            .diversity_ok = false,
-            .verified_rate_delta = 0.0,
-            .cost_per_verified_ratio = 0.0
-        });
+    auto evaluation =
+        store.record_evaluation(
+            EvaluationRecord{
+                .generation_id =
+                    std::string(generation_id),
+                .evaluator =
+                    "cace_tool_broker:" +
+                    evidence.capability_id,
+                .evidence_hash =
+                    evidence.evaluation_evidence_hash,
+                .recommend_keep = false,
+                .verification_ok = verified,
+                .efficiency_ok = false,
+                .diversity_ok = false,
+                .verified_rate_delta = 0.0,
+                .cost_per_verified_ratio = 0.0
+            });
+
+    std::optional<VerificationGateRecord> gate;
+    if (evidence.qualification_capability) {
+        gate =
+            store.record_verification_gate(
+                VerificationGateRecord{
+                    .generation_id =
+                        std::string(generation_id),
+                    .gate_id =
+                        cace_gate_id(
+                            evidence.capability_id),
+                    .evaluator =
+                        "cace_tool_broker:" +
+                        evidence.capability_id,
+                    .evidence_hash =
+                        evidence.evaluation_evidence_hash,
+                    .passed =
+                        evidence.passed,
+                    .required_for_promotion = true,
+                });
+    }
+
+    return CaceEvidenceReceipt{
+        .evaluation = std::move(evaluation),
+        .verification_gate = std::move(gate),
+    };
 }
 
 } // namespace expert_robot::growth

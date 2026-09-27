@@ -148,6 +148,17 @@
         "use deterministic path-based routing and validate every emitted CACE request against the broker contract"
       ],
       "guard": "tests/cace_tool_routing_smoke.py"
+    },
+    {
+      "id": "cace-required-verification-evidence-missing",
+      "discovered_by": "required-verification-gates",
+      "symptom": "A generation has an admitted required CACE verification request but can still become promotable before any passing evidence is returned.",
+      "prevention": [
+        "record the admitted CACE request as a required failing gate before execution",
+        "treat the latest result for each required gate as authoritative gate state",
+        "block promotion while a required gate is missing or failed without treating verifier evidence as a keep recommendation"
+      ],
+      "guard": "tests/cace_evidence_smoke.cpp"
     }
   ]
 }

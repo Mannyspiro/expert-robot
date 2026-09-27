@@ -11,13 +11,14 @@ assert registry["schema_version"] == 1
 classes = registry["classes"]
 ids = [item["id"] for item in classes]
 assert len(ids) == len(set(ids))
-assert len(ids) >= 14
+assert len(ids) >= 15
 for required_id in (
     "cace-tool-stale-pin-or-capability-drift",
     "cace-tool-result-binding-or-integrity-drift",
     "cace-tool-authority-or-cost-escalation",
     "cace-verifier-evidence-becomes-promotion-signal",
     "cace-wrong-verifier-or-compute-lane-routing",
+    "cace-required-verification-evidence-missing",
 ):
     assert required_id in ids
 allowed_guards = {
