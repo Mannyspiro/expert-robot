@@ -176,6 +176,9 @@ def main() -> int:
             "cace_repository",
             "cace_commit",
             "capability_id",
+            "executor_kind",
+            "workflow_repository",
+            "workflow",
             "input_sha256",
             "requested_lane",
             "authority",
@@ -207,6 +210,12 @@ def main() -> int:
         fail("unknown or unapproved CACE capability")
     if request["requested_lane"] != capability["lane"]:
         fail("requested lane does not match capability contract")
+    if request["executor_kind"] != capability["executor_kind"]:
+        fail("request executor kind does not match capability contract")
+    if request["workflow_repository"] != capability["workflow_repository"]:
+        fail("request workflow repository does not match capability contract")
+    if request["workflow"] != capability["workflow"]:
+        fail("request workflow does not match capability contract")
 
     if request["authority"] != "qualification-only":
         fail("request authority escalation")
