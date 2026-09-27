@@ -1,0 +1,707 @@
+name: Expert Robot Async CACE Qualification
+
+on:
+  push:
+    branches:
+      - "executor/expert-robot-request/**"
+    paths:
+      - "bridge/request.json"
+      - "bridge/packet.json"
+      - "bridge/expert-robot-source.tar.gz"
+      - "bridge/formal_dependency_lock.json"
+      - ".github/workflows/expert-robot-async-request.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: expert-robot-async-cace-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  qualify:
+    runs-on: [self-hosted, cace, oci, aarch64]
+    timeout-minutes: 30
+    permissions:
+      contents: read
+
+    steps:
+      - name: Check out exact request commit without credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 2
+          persist-credentials: false
+
+      - name: Run bounded sandboxed Expert Robot formal qualification
+        shell: bash
+        env:
+          CACE_PIN: 0e7aa229d3bb57174e281b883ee8af5445f15f75
+          ER_TOOLCHAIN: leanprover/lean4:v4.34.0
+          ER_MATHLIB_COMMIT: 5ed2965256430c3649e86755f9576b54eca72435
+        run: |
+          set -u
+
+          log="$GITHUB_WORKSPACE/bridge/result.log"
+          result="$GITHUB_WORKSPACE/bridge/result.json"
+          request="$GITHUB_WORKSPACE/bridge/request.json"
+          packet="$GITHUB_WORKSPACE/bridge/packet.json"
+          archive="$GITHUB_WORKSPACE/bridge/expert-robot-source.tar.gz"
+          trusted_lock="$GITHUB_WORKSPACE/bridge/formal_dependency_lock.json"
+          work="$RUNNER_TEMP/expert-robot-async-$GITHUB_RUN_ID"
+
+          rm -rf "$work"
+          mkdir -p "$work"
+          : > "$log"
+
+          overall=0
+          lean_checks=0
+          started="$(date +%s)"
+
+          record_failure() {
+            code="$1"
+            if [ "$overall" -eq 0 ]; then
+              overall="$code"
+            fi
+          }
+
+          run_logged() {
+            label="$1"
+            shift
+            echo "=== $label ===" | tee -a "$log"
+            "$@" 2>&1 | tee -a "$log"
+            rc=${PIPESTATUS[0]}
+            echo "exit_code=$rc" | tee -a "$log"
+            if [ "$rc" -ne 0 ]; then
+              record_failure "$rc"
+            fi
+            return 0
+          }
+
+          echo "request_ref=$GITHUB_REF_NAME" | tee -a "$log"
+          echo "request_commit=$GITHUB_SHA" | tee -a "$log"
+
+          # The request branch must be exactly one immutable commit on top of
+          # the reviewed CACE base commit.
+          parent="$(git rev-parse HEAD^)"
+          if [ "$parent" != "$CACE_PIN" ]; then
+            echo "request parent does not equal reviewed CACE pin" | tee -a "$log"
+            record_failure 40
+          fi
+
+          # Validate request/packet fields using workflow-owned code only.
+          python3 - "$request" "$packet" "$archive" "$GITHUB_REF_NAME" "$CACE_PIN" <<'PY'             2>&1 | tee -a "$log"
+          import hashlib
+          import json
+          import pathlib
+          import re
+          import sys
+
+          request_path, packet_path, archive_path, ref_name, cace_pin = sys.argv[1:]
+          request = json.load(open(request_path, encoding="utf-8"))
+          packet = json.load(open(packet_path, encoding="utf-8"))
+
+          def canonical(value):
+              return hashlib.sha256(
+                  json.dumps(
+                      value,
+                      sort_keys=True,
+                      separators=(",", ":"),
+                      ensure_ascii=False,
+                  ).encode("utf-8")
+              ).hexdigest()
+
+          required_request = {
+              "schema_version",
+              "request_id",
+              "source_repository",
+              "source_commit",
+              "source_branch",
+              "cace_repository",
+              "cace_commit",
+              "capability_id",
+              "executor_kind",
+              "workflow_repository",
+              "workflow",
+              "input_sha256",
+              "requested_lane",
+              "authority",
+              "promotion_authority",
+              "monetary_cost",
+              "budget",
+              "changed_paths",
+          }
+          missing = sorted(required_request - request.keys())
+          if missing:
+              raise SystemExit("request missing fields: " + ", ".join(missing))
+
+          if request["schema_version"] != 1:
+              raise SystemExit("unsupported request schema")
+          if request["source_repository"] != "Mannyspiro/expert-robot":
+              raise SystemExit("unexpected source repository")
+          if not re.fullmatch(r"[0-9a-f]{40}", request["source_commit"]):
+              raise SystemExit("invalid source commit")
+          if request["cace_repository"] != "morganaspim/Cace-app":
+              raise SystemExit("unexpected CACE repository")
+          if request["cace_commit"] != cace_pin:
+              raise SystemExit("request CACE pin mismatch")
+          if request["capability_id"] != "cace.external.expert_robot_formal_static":
+              raise SystemExit("unexpected capability")
+          if request["executor_kind"] != "expert-robot-source-bundle":
+              raise SystemExit("unexpected executor kind")
+          if request["workflow_repository"] != "Mannyspiro/expert-robot":
+              raise SystemExit("unexpected workflow repository")
+          if request["workflow"] != ".github/workflows/external-free-runner-bridge.yml":
+              raise SystemExit("unexpected workflow contract")
+          if request["requested_lane"] != "cace-oci-aarch64":
+              raise SystemExit("unexpected lane")
+          if request["authority"] != "qualification-only":
+              raise SystemExit("authority drift")
+          if request["promotion_authority"] is not False:
+              raise SystemExit("promotion authority forbidden")
+          if request["monetary_cost"] != "free":
+              raise SystemExit("non-free request forbidden")
+          budget = request["budget"]
+          if (
+              not isinstance(budget, dict)
+              or not isinstance(budget.get("wall_seconds"), int)
+              or not isinstance(budget.get("lean_checks"), int)
+              or budget["wall_seconds"] < 1
+              or budget["wall_seconds"] > 1500
+              or budget["lean_checks"] < 2
+              or budget["lean_checks"] > 40
+          ):
+              raise SystemExit("invalid request budget")
+          changed = request["changed_paths"]
+          if not isinstance(changed, list) or not changed:
+              raise SystemExit("formal request requires changed paths")
+          for path in changed:
+              if not re.fullmatch(r"formal/MathAI/[A-Za-z0-9_./-]+\.lean", str(path)):
+                  raise SystemExit("non-Lean-source path in formal request: " + str(path))
+
+          if packet.get("schema_version") != 1:
+              raise SystemExit("unsupported packet schema")
+          if packet.get("request") != request:
+              raise SystemExit("packet/request mismatch")
+          if packet.get("request_sha256") != canonical(request):
+              raise SystemExit("request hash mismatch")
+          packet_copy = dict(packet)
+          supplied_packet_hash = packet_copy.pop("packet_sha256", None)
+          if supplied_packet_hash != canonical(packet_copy):
+              raise SystemExit("packet hash mismatch")
+          if packet.get("cace_base_commit") != cace_pin:
+              raise SystemExit("packet CACE base mismatch")
+          if packet.get("request_branch") != ref_name:
+              raise SystemExit("request branch mismatch")
+          if packet.get("executor_template") != (
+              "integration/cace/workflows/expert-robot-async-request.yml"
+          ):
+              raise SystemExit("executor template mismatch")
+          if packet.get("result_contract") != "cace-tool-broker-v1":
+              raise SystemExit("result contract mismatch")
+          if packet.get("authority") != "qualification-only":
+              raise SystemExit("packet authority drift")
+          if packet.get("promotion_authority") is not False:
+              raise SystemExit("packet promotion authority forbidden")
+          if packet.get("monetary_cost") != "free":
+              raise SystemExit("packet non-free lane forbidden")
+          if packet.get("automatic_merge") is not False:
+              raise SystemExit("automatic merge forbidden")
+          if packet.get("automatic_promotion") is not False:
+              raise SystemExit("automatic promotion forbidden")
+          attempt = packet.get("attempt")
+          max_attempts = packet.get("max_attempts")
+          if not isinstance(attempt, int) or not isinstance(max_attempts, int):
+              raise SystemExit("invalid attempt metadata")
+          if attempt < 1 or max_attempts > 3 or attempt > max_attempts:
+              raise SystemExit("attempt outside transport bounds")
+
+          archive = pathlib.Path(archive_path)
+          if not archive.is_file():
+              raise SystemExit("source archive missing")
+          if archive.stat().st_size != packet.get("source_archive_size_bytes"):
+              raise SystemExit("source archive size mismatch")
+          digest = hashlib.sha256(archive.read_bytes()).hexdigest()
+          if digest != packet.get("source_archive_sha256"):
+              raise SystemExit("source archive packet hash mismatch")
+          if digest != request["input_sha256"]:
+              raise SystemExit("source archive request hash mismatch")
+
+          print("request and packet contract: PASS")
+          PY
+          if [ "${PIPESTATUS[0]}" -ne 0 ]; then
+            record_failure 41
+          fi
+
+          # Reject unsafe tar members before extraction.
+          if [ "$overall" -eq 0 ]; then
+            python3 - "$archive" <<'PY' 2>&1 | tee -a "$log"
+          import pathlib
+          import sys
+          import tarfile
+
+          with tarfile.open(sys.argv[1], "r:gz") as tf:
+              for member in tf.getmembers():
+                  path = pathlib.PurePosixPath(member.name)
+                  if path.is_absolute() or ".." in path.parts:
+                      raise SystemExit("unsafe archive path: " + member.name)
+                  if (
+                      member.issym()
+                      or member.islnk()
+                      or member.isdev()
+                      or member.isfifo()
+                  ):
+                      raise SystemExit("unsafe archive member: " + member.name)
+          print("archive safety: PASS")
+          PY
+            if [ "${PIPESTATUS[0]}" -ne 0 ]; then
+              record_failure 42
+            else
+              tar -xzf "$archive" -C "$work"
+            fi
+          fi
+
+          # Dependency/toolchain lock is supplied from the trusted dispatcher,
+          # not from candidate policy files.
+          if [ "$overall" -eq 0 ]; then
+            python3 - "$trusted_lock" "$work/formal/lake-manifest.json" "$work/formal/lean-toolchain" <<'PY'               2>&1 | tee -a "$log"
+          import json
+          import pathlib
+          import sys
+
+          lock_path, manifest_path, toolchain_path = map(pathlib.Path, sys.argv[1:])
+          lock = json.loads(lock_path.read_text(encoding="utf-8"))
+          manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+          toolchain = toolchain_path.read_text(encoding="utf-8").strip()
+
+          if lock.get("schema_version") != 1:
+              raise SystemExit("unsupported trusted dependency lock")
+          if toolchain != lock.get("lean_toolchain"):
+              raise SystemExit("candidate Lean toolchain drift")
+
+          fields = ("name", "type", "url", "rev", "inputRev")
+          expected = sorted(
+              tuple(item.get(field) for field in fields)
+              for item in lock.get("packages", [])
+          )
+          actual = sorted(
+              tuple(item.get(field) for field in fields)
+              for item in manifest.get("packages", [])
+          )
+          if actual != expected:
+              raise SystemExit("candidate formal dependency graph drift")
+
+          formal = manifest_path.parent
+          if (formal / "lakefile.lean").exists():
+              raise SystemExit("executable formal/lakefile.lean is forbidden")
+          if not (formal / "lakefile.toml").is_file():
+              raise SystemExit("formal/lakefile.toml is required")
+
+          print("formal dependency lock: PASS")
+          PY
+            if [ "${PIPESTATUS[0]}" -ne 0 ]; then
+              record_failure 43
+            fi
+          fi
+
+          # Reject common Lean proof/build escape seams before invoking Lean.
+          if [ "$overall" -eq 0 ]; then
+            python3 - "$work/formal/MathAI" <<'PY' 2>&1 | tee -a "$log"
+          import pathlib
+          import re
+          import sys
+
+          root = pathlib.Path(sys.argv[1])
+          if not root.is_dir():
+              raise SystemExit("formal/MathAI missing")
+
+          forbidden = [
+              ("sorry", re.compile(r"(?<![A-Za-z0-9_])sorry(?![A-Za-z0-9_])")),
+              ("admit", re.compile(r"(?<![A-Za-z0-9_])admit(?![A-Za-z0-9_])")),
+              ("axiom", re.compile(r"(?m)^\s*axiom\s+")),
+              ("unsafe", re.compile(r"(?m)^\s*unsafe\s+")),
+              ("run_cmd", re.compile(r"(?<![A-Za-z0-9_])run_cmd(?![A-Za-z0-9_])")),
+          ]
+          failures = []
+          for path in sorted(root.rglob("*.lean")):
+              text = path.read_text(encoding="utf-8")
+              for label, pattern in forbidden:
+                  if pattern.search(text):
+                      failures.append(f"{path}: forbidden {label}")
+          if failures:
+              raise SystemExit("\n".join(failures))
+          print("Lean source seam scan: PASS")
+          PY
+            if [ "${PIPESTATUS[0]}" -ne 0 ]; then
+              record_failure 44
+            fi
+          fi
+
+          # Restore only the exact previously-qualified dependency cache.
+          if [ "$overall" -eq 0 ]; then
+            elan_home=""
+            for candidate in               /var/lib/cace-cache/elan               "$HOME/.cache/expert-robot/elan"; do
+              if [ -x "$candidate/bin/elan" ]; then
+                elan_home="$candidate"
+                break
+              fi
+            done
+            if [ -z "$elan_home" ]; then
+              echo "pinned elan cache unavailable" | tee -a "$log"
+              record_failure 45
+            fi
+
+            package_cache=""
+            cache_key="v4.34.0-$ER_MATHLIB_COMMIT"
+            for candidate in               "/var/lib/cace-cache/expert-robot/mathlib/$cache_key/packages"               "$HOME/.cache/expert-robot/mathlib/$cache_key/packages"; do
+              if [ -d "$candidate/mathlib/.git" ] &&                  [ "$(git -C "$candidate/mathlib" rev-parse HEAD)" = "$ER_MATHLIB_COMMIT" ]; then
+                package_cache="$candidate"
+                break
+              fi
+            done
+            if [ -z "$package_cache" ]; then
+              echo "exact Expert Robot dependency cache unavailable" | tee -a "$log"
+              record_failure 46
+            fi
+
+            if ! command -v bwrap >/dev/null 2>&1; then
+              echo "bubblewrap is required for candidate Lean execution" | tee -a "$log"
+              record_failure 47
+            fi
+          fi
+
+          if [ "$overall" -eq 0 ]; then
+            mkdir -p "$work/formal/.lake" "$work/.sandbox-home"
+            rm -rf "$work/formal/.lake/packages"
+            cp -a --reflink=auto "$package_cache" "$work/formal/.lake/packages" 2>/dev/null               || cp -a "$package_cache" "$work/formal/.lake/packages"
+
+            toolchain="$(cat "$work/formal/lean-toolchain")"
+            if [ "$toolchain" != "$ER_TOOLCHAIN" ]; then
+              echo "Lean toolchain mismatch" | tee -a "$log"
+              record_failure 48
+            fi
+          fi
+
+          sandbox_lean() {
+            module="$1"
+            args=(
+              --die-with-parent
+              --unshare-net
+              --unshare-pid
+              --unshare-ipc
+              --unshare-uts
+              --clearenv
+              --proc /proc
+              --dev /dev
+              --tmpfs /tmp
+              --ro-bind /usr /usr
+              --ro-bind "$elan_home" "$elan_home"
+              --bind "$work" "$work"
+              --setenv HOME "$work/.sandbox-home"
+              --setenv ELAN_HOME "$elan_home"
+              --setenv PATH "$elan_home/bin:/usr/bin:/bin"
+              --setenv LANG C.UTF-8
+              --chdir "$work/formal"
+            )
+            for root in /bin /lib /lib64; do
+              if [ -e "$root" ]; then
+                args+=(--ro-bind "$root" "$root")
+              fi
+            done
+            if [ -f /etc/ld.so.cache ]; then
+              args+=(--ro-bind /etc/ld.so.cache /etc/ld.so.cache)
+            fi
+            timeout 600 bwrap "${args[@]}" "$elan_home/bin/lake" env lean "$module"
+          }
+
+          if [ "$overall" -eq 0 ]; then
+            lean_checks=$((lean_checks + 1))
+            run_logged "Lean audited root" sandbox_lean MathAI.lean
+          fi
+          if [ "$overall" -eq 0 ]; then
+            lean_checks=$((lean_checks + 1))
+            run_logged "Lean axiom audit" sandbox_lean MathAI/Audit.lean
+          fi
+
+          ended="$(date +%s)"
+          wall_seconds=$((ended - started))
+          if [ "$wall_seconds" -lt 0 ]; then wall_seconds=0; fi
+
+          # Keep returned textual evidence bounded.
+          if [ "$(stat -c %s "$log")" -gt 1048576 ]; then
+            tail -c 1048576 "$log" > "$log.tmp"
+            mv "$log.tmp" "$log"
+          fi
+
+          python3 - "$request" "$overall" "$GITHUB_RUN_ID" "$wall_seconds" "$lean_checks" "$log" > "$result" <<'PY'
+          import hashlib
+          import json
+          import sys
+
+          request_path, rc_raw, run_id, wall_raw, lean_raw, log_path = sys.argv[1:]
+          request = json.load(open(request_path, encoding="utf-8"))
+          rc = int(rc_raw)
+
+          with open(log_path, "rb") as handle:
+              evidence_sha = hashlib.sha256(handle.read()).hexdigest()
+
+          payload = {
+              "schema_version": 1,
+              "request_id": request["request_id"],
+              "source_repository": request["source_repository"],
+              "source_commit": request["source_commit"],
+              "cace_repository": request["cace_repository"],
+              "cace_commit": request["cace_commit"],
+              "capability_id": request["capability_id"],
+              "status": "pass" if rc == 0 else "fail",
+              "cace_run_id": f"cace-{run_id}",
+              "authority": "qualification-only",
+              "promotion_authority": False,
+              "monetary_cost": "free",
+              "compute": {
+                  "wall_seconds": int(wall_raw),
+                  "lean_checks": int(lean_raw),
+              },
+              "evidence_sha256": evidence_sha,
+          }
+          canonical = json.dumps(
+              payload,
+              sort_keys=True,
+              separators=(",", ":"),
+              ensure_ascii=False,
+          ).encode("utf-8")
+          payload["result_sha256"] = hashlib.sha256(canonical).hexdigest()
+          print(json.dumps(payload, indent=2, sort_keys=True))
+          PY
+
+          cat "$result"
+
+      - name: Upload read-only qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: expert-robot-async-result-${{ github.run_id }}
+          path: |
+            bridge/result.json
+            bridge/result.log
+          if-no-files-found: error
+          retention-days: 1
+
+  return-evidence:
+    if: always()
+    needs: qualify
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      actions: read
+
+    steps:
+      - name: Check out request envelope without credentials
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Download qualification evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: expert-robot-async-result-${{ github.run_id }}
+          path: ${{ runner.temp }}/expert-robot-async-result
+
+      - name: Validate returned broker result without executing candidate code
+        id: result
+        shell: bash
+        run: |
+          set -euo pipefail
+          request="bridge/request.json"
+          packet="bridge/packet.json"
+          result="$RUNNER_TEMP/expert-robot-async-result/result.json"
+          log="$RUNNER_TEMP/expert-robot-async-result/result.log"
+
+          test -f "$request"
+          test -f "$packet"
+          test -f "$result"
+          test -f "$log"
+          test "$(stat -c %s "$log")" -le 1048576
+
+          python3 - "$request" "$packet" "$result" <<'PY' > "$RUNNER_TEMP/validated-return.json"
+          import hashlib
+          import json
+          import sys
+
+          request = json.load(open(sys.argv[1], encoding="utf-8"))
+          packet = json.load(open(sys.argv[2], encoding="utf-8"))
+          result = json.load(open(sys.argv[3], encoding="utf-8"))
+
+          def canonical(value):
+              return hashlib.sha256(
+                  json.dumps(
+                      value,
+                      sort_keys=True,
+                      separators=(",", ":"),
+                      ensure_ascii=False,
+                  ).encode("utf-8")
+              ).hexdigest()
+
+          if packet.get("request") != request:
+              raise SystemExit("packet/request mismatch")
+          if packet.get("request_sha256") != canonical(request):
+              raise SystemExit("request hash mismatch")
+
+          for key in (
+              "request_id",
+              "source_repository",
+              "source_commit",
+              "cace_repository",
+              "cace_commit",
+              "capability_id",
+          ):
+              if result.get(key) != request.get(key):
+                  raise SystemExit("result binding mismatch: " + key)
+
+          if result.get("status") not in {"pass", "fail"}:
+              raise SystemExit("invalid result status")
+          if result.get("authority") != "qualification-only":
+              raise SystemExit("result authority drift")
+          if result.get("promotion_authority") is not False:
+              raise SystemExit("promotion authority forbidden")
+          if result.get("monetary_cost") != "free":
+              raise SystemExit("non-free result forbidden")
+
+          compute = result.get("compute")
+          budget = request.get("budget")
+          if not isinstance(compute, dict) or not isinstance(budget, dict):
+              raise SystemExit("missing compute/budget")
+          if compute.get("wall_seconds", -1) > budget.get("wall_seconds", -1):
+              raise SystemExit("wall budget exceeded")
+          if compute.get("lean_checks", -1) > budget.get("lean_checks", -1):
+              raise SystemExit("Lean budget exceeded")
+
+          supplied = result.get("result_sha256")
+          body = dict(result)
+          body.pop("result_sha256", None)
+          if supplied != canonical(body):
+              raise SystemExit("result hash mismatch")
+
+          print(
+              json.dumps(
+                  {
+                      "request_id": request["request_id"],
+                      "source_commit": request["source_commit"],
+                      "source_branch": request["source_branch"],
+                      "status": result["status"],
+                      "return_branch": packet["return_branch"],
+                  },
+                  sort_keys=True,
+              )
+          )
+          PY
+
+          echo "request_id=$(python3 -c 'import json,os; print(json.load(open(os.environ["RUNNER_TEMP"] + "/validated-return.json"))["request_id"])')" >> "$GITHUB_OUTPUT"
+          echo "source_commit=$(python3 -c 'import json,os; print(json.load(open(os.environ["RUNNER_TEMP"] + "/validated-return.json"))["source_commit"])')" >> "$GITHUB_OUTPUT"
+          echo "source_branch=$(python3 -c 'import json,os; print(json.load(open(os.environ["RUNNER_TEMP"] + "/validated-return.json"))["source_branch"])')" >> "$GITHUB_OUTPUT"
+          echo "status=$(python3 -c 'import json,os; print(json.load(open(os.environ["RUNNER_TEMP"] + "/validated-return.json"))["status"])')" >> "$GITHUB_OUTPUT"
+          echo "return_branch=$(python3 -c 'import json,os; print(json.load(open(os.environ["RUNNER_TEMP"] + "/validated-return.json"))["return_branch"])')" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare Expert Robot reverse deploy key
+        id: reverse-key
+        shell: bash
+        env:
+          EXPERT_ROBOT_SSH_PRIVATE_KEY: ${{ secrets.EXPERT_ROBOT_SSH_PRIVATE_KEY }}
+          EXPERT_ROBOT_DEPLOY_KEY: ${{ secrets.EXPERT_ROBOT_DEPLOY_KEY }}
+          CACE_TO_EXPERT_ROBOT_SSH_KEY: ${{ secrets.CACE_TO_EXPERT_ROBOT_SSH_KEY }}
+          EXPERT_ROBOT_DEPLOY_PRIVATE_KEY: ${{ secrets.EXPERT_ROBOT_DEPLOY_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+
+          key="${EXPERT_ROBOT_SSH_PRIVATE_KEY:-}"
+          if [ -z "$key" ]; then key="${EXPERT_ROBOT_DEPLOY_KEY:-}"; fi
+          if [ -z "$key" ]; then key="${CACE_TO_EXPERT_ROBOT_SSH_KEY:-}"; fi
+          if [ -z "$key" ]; then key="${EXPERT_ROBOT_DEPLOY_PRIVATE_KEY:-}"; fi
+          if [ -z "$key" ]; then
+            echo "::error::No supported Expert Robot reverse deploy key configured."
+            exit 1
+          fi
+
+          umask 077
+          key_file="$RUNNER_TEMP/expert_robot_reverse_key"
+          printf '%s\n' "$key" > "$key_file"
+          chmod 600 "$key_file"
+          ssh-keygen -y -f "$key_file" > "$RUNNER_TEMP/expert_robot_reverse_key.pub"
+          echo "key_file=$key_file" >> "$GITHUB_OUTPUT"
+
+      - name: Return immutable pass or fail evidence to Expert Robot
+        shell: bash
+        env:
+          KEY_FILE: ${{ steps.reverse-key.outputs.key_file }}
+          REQUEST_ID: ${{ steps.result.outputs.request_id }}
+          SOURCE_COMMIT: ${{ steps.result.outputs.source_commit }}
+          SOURCE_BRANCH: ${{ steps.result.outputs.source_branch }}
+          STATUS: ${{ steps.result.outputs.status }}
+          RETURN_BRANCH: ${{ steps.result.outputs.return_branch }}
+          EXPERT_ROBOT_REPO_SSH: git@github.com:Mannyspiro/expert-robot.git
+        run: |
+          set -euo pipefail
+
+          work="$RUNNER_TEMP/expert-robot-async-return"
+          evidence_dir=".cace/evidence/$REQUEST_ID"
+          rm -rf "$work"
+
+          if GIT_SSH_COMMAND="ssh -i $KEY_FILE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new"               git ls-remote --exit-code --heads "$EXPERT_ROBOT_REPO_SSH" "$RETURN_BRANCH" >/dev/null 2>&1; then
+            echo "::error::Immutable return branch already exists: $RETURN_BRANCH"
+            exit 1
+          fi
+
+          GIT_SSH_COMMAND="ssh -i $KEY_FILE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new"             git clone "$EXPERT_ROBOT_REPO_SSH" "$work"
+
+          cd "$work"
+          git fetch origin "$SOURCE_BRANCH"
+          git merge-base --is-ancestor "$SOURCE_COMMIT" "origin/$SOURCE_BRANCH"
+          git checkout -b "$RETURN_BRANCH" "origin/$SOURCE_BRANCH"
+
+          mkdir -p "$evidence_dir"
+          cp "$GITHUB_WORKSPACE/bridge/request.json" "$evidence_dir/request.json"
+          cp "$GITHUB_WORKSPACE/bridge/packet.json" "$evidence_dir/packet.json"
+          cp "$RUNNER_TEMP/expert-robot-async-result/result.json" "$evidence_dir/result.json"
+          cp "$RUNNER_TEMP/expert-robot-async-result/result.log" "$evidence_dir/result.log"
+
+          python3 - "$REQUEST_ID" "$STATUS" "$SOURCE_COMMIT" "$SOURCE_BRANCH" "$evidence_dir" > .cace-return.json <<'PY'
+          import json
+          import sys
+
+          request_id, status, source_commit, source_branch, evidence_dir = sys.argv[1:]
+          print(
+              json.dumps(
+                  {
+                      "schema_version": 1,
+                      "result_contract": "cace-tool-broker-v1",
+                      "request_id": request_id,
+                      "status": status,
+                      "expert_robot_commit": source_commit,
+                      "base_branch": source_branch,
+                      "source_branch": source_branch,
+                      "evidence_dir": evidence_dir,
+                      "authority": "qualification-only",
+                      "promotion_authority": False,
+                      "monetary_cost": "free",
+                  },
+                  indent=2,
+                  sort_keys=True,
+              )
+          )
+          PY
+
+          git config user.name "cace-expert-robot-async-return"
+          git config user.email "noreply@github.com"
+          git add .cace-return.json "$evidence_dir"
+          git commit -m "Return async CACE evidence [$STATUS]: $REQUEST_ID"
+
+          GIT_SSH_COMMAND="ssh -i $KEY_FILE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new"             git push origin "HEAD:$RETURN_BRANCH"
+
+      - name: Remove reverse deploy key
+        if: always()
+        shell: bash
+        run: |
+          rm -f "$RUNNER_TEMP/expert_robot_reverse_key" "$RUNNER_TEMP/expert_robot_reverse_key.pub"
