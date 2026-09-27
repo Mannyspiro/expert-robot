@@ -31,6 +31,8 @@ jobs:
           base_branch="$(python3 -c 'import json,os; print(json.load(open(os.environ["RUNNER_TEMP"] + "/validated.json"))["base_branch"])')"
           request_id="$(python3 -c 'import json,os; print(json.load(open(os.environ["RUNNER_TEMP"] + "/validated.json"))["request_id"])')"
           source_sha="$(python3 -c 'import json,os; print(json.load(open(os.environ["RUNNER_TEMP"] + "/validated.json"))["source_sha"])')"
+          status="$(python3 -c 'import json,os; print(json.load(open(os.environ["RUNNER_TEMP"] + "/validated.json"))["status"])')"
+          result_contract="$(python3 -c 'import json,os; print(json.load(open(os.environ["RUNNER_TEMP"] + "/validated.json"))["result_contract"])')"
           evidence_dir=".cace/evidence/$request_id"
 
           git fetch origin "$base_branch"
@@ -58,9 +60,22 @@ jobs:
           test -f "$evidence_dir/request.json"
           test -f "$evidence_dir/result.json"
 
+          if [ "$result_contract" = "cace-tool-broker-v1" ]; then
+            python3 scripts/validate_cace_tool_result.py               config/cace_tool_broker.json               "$evidence_dir/request.json"               "$evidence_dir/result.json"               > "$RUNNER_TEMP/validated-tool-result.json"
+
+            tool_status="$(python3 -c 'import json,os; print(json.load(open(os.environ["RUNNER_TEMP"] + "/validated-tool-result.json"))["status"])')"
+            tool_request_id="$(python3 -c 'import json,os; print(json.load(open(os.environ["RUNNER_TEMP"] + "/validated-tool-result.json"))["request_id"])')"
+            tool_source_sha="$(python3 -c 'import json,os; print(json.load(open(os.environ["RUNNER_TEMP"] + "/validated-tool-result.json"))["source_commit"])')"
+            test "$tool_status" = "$status"
+            test "$tool_request_id" = "$request_id"
+            test "$tool_source_sha" = "$source_sha"
+          fi
+
           echo "base_branch=$base_branch" >> "$GITHUB_OUTPUT"
           echo "request_id=$request_id" >> "$GITHUB_OUTPUT"
           echo "source_sha=$source_sha" >> "$GITHUB_OUTPUT"
+          echo "status=$status" >> "$GITHUB_OUTPUT"
+          echo "result_contract=$result_contract" >> "$GITHUB_OUTPUT"
 
       - name: Open return PR if absent
         shell: bash
@@ -69,6 +84,8 @@ jobs:
           BASE_BRANCH: ${{ steps.validate.outputs.base_branch }}
           REQUEST_ID: ${{ steps.validate.outputs.request_id }}
           SOURCE_SHA: ${{ steps.validate.outputs.source_sha }}
+          STATUS: ${{ steps.validate.outputs.status }}
+          RESULT_CONTRACT: ${{ steps.validate.outputs.result_contract }}
         run: |
           set -euo pipefail
 
@@ -78,4 +95,5 @@ jobs:
             exit 0
           fi
 
-          gh pr create             --repo "$GITHUB_REPOSITORY"             --base "$BASE_BRANCH"             --head "$GITHUB_REF_NAME"             --title "CACE qualification evidence: $REQUEST_ID"             --body "Automated return from the free CACE ARM64 qualification lane. Source commit: $SOURCE_SHA. Authority: qualification evidence only; no promotion or merge authority."
+          status_upper="$(printf '%s' "$STATUS" | tr '[:lower:]' '[:upper:]')"
+          gh pr create             --repo "$GITHUB_REPOSITORY"             --base "$BASE_BRANCH"             --head "$GITHUB_REF_NAME"             --title "CACE qualification evidence [$status_upper]: $REQUEST_ID"             --body "Automated return from the free CACE ARM64 qualification lane. Evidence status: $STATUS. Result contract: $RESULT_CONTRACT. Source commit: $SOURCE_SHA. Authority: qualification evidence only; no promotion or merge authority."
