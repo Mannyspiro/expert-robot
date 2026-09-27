@@ -121,7 +121,12 @@ run = invoke(request, result)
 assert run.returncode == 0, run.stderr
 normalized = json.loads(run.stdout)
 assert normalized["eligible_for_evaluation"] is True
+assert normalized["eligible_for_lineage"] is True
+assert normalized["qualification_capability"] is True
 assert normalized["qualification_evidence"] is True
+assert normalized["gate_id"] == "cace::cace.formal.exact_pin_lean_preflight"
+assert normalized["required_for_promotion"] is True
+assert normalized["gate_passed"] is True
 assert normalized["promotion_authority"] is False
 assert normalized["automatic_promotion"] is False
 assert len(normalized["evaluation_evidence_hash"]) == 64
@@ -135,7 +140,26 @@ run = invoke(request, result)
 assert run.returncode == 0, run.stderr
 normalized = json.loads(run.stdout)
 assert normalized["eligible_for_evaluation"] is True
+assert normalized["eligible_for_lineage"] is True
+assert normalized["qualification_capability"] is False
 assert normalized["qualification_evidence"] is False
+assert normalized["gate_id"] is None
+assert normalized["required_for_promotion"] is False
+assert normalized["gate_passed"] is None
+
+# A failed qualifying capability still emits required gate semantics so lineage
+# can record a blocking gate rather than dropping the result.
+request = request_for()
+result = result_for(request, status="fail")
+run = invoke(request, result)
+assert run.returncode == 0, run.stderr
+normalized = json.loads(run.stdout)
+assert normalized["eligible_for_evaluation"] is False
+assert normalized["eligible_for_lineage"] is True
+assert normalized["qualification_capability"] is True
+assert normalized["qualification_evidence"] is False
+assert normalized["required_for_promotion"] is True
+assert normalized["gate_passed"] is False
 
 # Exact CACE pinning.
 request = request_for()
