@@ -129,3 +129,40 @@ This gives promotion a fail-closed lifecycle:
 CACE gate evidence never sets `recommend_keep`, efficiency, diversity, or
 external approval. Those remain independent hidden/ablation and authority
 boundaries.
+
+
+### Local headless CACE reasoner
+
+Expert Robot may use a local CACE/Qwen process as an **untrusted informal
+reasoner** after the deterministic C++ runtime has admitted the task. This is a
+proposal/explanation surface, not a verifier.
+
+Pinned source/runtime contract:
+
+- CACE repository: `morganaspim/Cace-app`
+- CACE branch: `expert-robot/headless-local-llm`
+- CACE revision: `0aa3b2e00724f647bb629fe7e4765e41fa245e3b`
+- model: `Qwen/Qwen3.5-4B`
+- model revision: `a7b0d22b993d71000cf2eadfb37222a67cee521e`
+- quantization: `Q4_K_M`
+- llama.cpp commit: `b29c606e28a01b1bc8c1351026a0fa6e616bf6c4`
+
+Both CACE and llama.cpp bind only to loopback. Runtime downloads and external
+model APIs are forbidden. The launcher requires the actual GGUF and
+`llama-server` SHA-256 values and refuses startup if the bytes do not match
+the supplied hashes.
+
+The language model cannot execute typed CACE actions, mark claims verified,
+promote claims/generations, modify the proof ledger, merge code, or expand
+authority. Its text is always tagged untrusted. The deterministic CACE API and
+Tool Broker remain separate execution/verification boundaries.
+
+The staging path is also split by authority: a secret-free job executes all
+candidate/headless contract tests and emits a hash-manifested static payload;
+a separate publisher job receives the CACE deploy key but may only verify the
+artifact manifest, copy fixed paths, commit, and non-force push. It never
+executes the staged payload.
+
+Future headless-only contract changes use GitHub-hosted CI. Avrea remains for
+changes that affect the core C++ runtime, orchestrator admission, benchmarks,
+or repository-wide qualification.
