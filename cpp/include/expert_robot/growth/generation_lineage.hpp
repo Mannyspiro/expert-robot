@@ -42,6 +42,16 @@ struct EvaluationRecord {
     double cost_per_verified_ratio{0.0};
 };
 
+struct VerificationGateRecord {
+    long long sequence{0};
+    std::string generation_id;
+    std::string gate_id;
+    std::string evaluator;
+    std::string evidence_hash;
+    bool passed{false};
+    bool required_for_promotion{true};
+};
+
 struct PromotionDecision {
     long long sequence{0};
     std::string generation_id;
@@ -58,13 +68,17 @@ struct PromotionReadiness {
     bool diversity_ok{false};
     bool externally_approved{false};
 
+    bool has_required_gate_evidence{false};
+    bool blocking_gate_failure{false};
+
     [[nodiscard]] bool promotable() const noexcept {
         return
             has_positive_evaluation &&
             verification_ok &&
             efficiency_ok &&
             diversity_ok &&
-            externally_approved;
+            externally_approved &&
+            !blocking_gate_failure;
     }
 };
 
@@ -92,6 +106,9 @@ public:
     [[nodiscard]] EvaluationRecord record_evaluation(
         EvaluationRecord evaluation);
 
+    [[nodiscard]] VerificationGateRecord record_verification_gate(
+        VerificationGateRecord gate);
+
     /**
      * Records an external promotion/rejection decision.
      *
@@ -107,6 +124,9 @@ public:
     [[nodiscard]] std::vector<GenerationRecord> generations() const;
 
     [[nodiscard]] std::vector<EvaluationRecord> evaluations(
+        std::string_view generation_id) const;
+
+    [[nodiscard]] std::vector<VerificationGateRecord> verification_gates(
         std::string_view generation_id) const;
 
     [[nodiscard]] std::vector<PromotionDecision> promotion_decisions(
