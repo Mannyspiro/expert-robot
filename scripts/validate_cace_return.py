@@ -35,8 +35,17 @@ def main() -> int:
 
     if payload["schema_version"] != 1:
         fail("unsupported return schema")
-    if payload["status"] != "pass":
-        fail("only passed qualification may open a return PR")
+
+    result_contract = payload.get("result_contract", "legacy")
+    status = payload["status"]
+    if result_contract == "legacy":
+        if status != "pass":
+            fail("legacy return contract remains pass-only")
+    elif result_contract == "cace-tool-broker-v1":
+        if status not in {"pass", "fail"}:
+            fail("broker return status must be pass or fail")
+    else:
+        fail("unsupported return result contract")
     if payload["authority"] != "qualification-only":
         fail("invalid return authority")
     if payload["promotion_authority"] is not False:
@@ -73,6 +82,8 @@ def main() -> int:
         "source_sha": source_sha,
         "base_branch": base_branch,
         "evidence_dir": expected_evidence_dir,
+        "status": status,
+        "result_contract": result_contract,
     }
     print(json.dumps(normalized, sort_keys=True))
     return 0
