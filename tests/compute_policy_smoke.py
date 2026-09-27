@@ -57,6 +57,24 @@ assert external["capability_probe_artifact_retention_days"] == 1
 assert external["result_is_evidence_only"] is True
 assert external["promotion_authority"] is False
 
+headless = selection["local_headless_reasoner"]
+assert headless["role"] == "untrusted-informal-reasoner"
+assert headless["network_policy"] == "loopback-only"
+assert headless["config"] == "config/cace_headless_local.json"
+assert headless["cace_repository"] == "morganaspim/Cace-app"
+assert headless["cace_branch"] == "expert-robot/headless-local-llm"
+assert headless["cace_revision"] == "0aa3b2e00724f647bb629fe7e4765e41fa245e3b"
+assert headless["model"] == "Qwen/Qwen3.5-4B"
+assert headless["model_revision"] == "a7b0d22b993d71000cf2eadfb37222a67cee521e"
+assert headless["llama_cpp_commit"] == "b29c606e28a01b1bc8c1351026a0fa6e616bf6c4"
+assert headless["requires_runtime_admission"] is True
+assert headless["model_can_execute_tools"] is False
+assert headless["model_can_mark_verified"] is False
+assert headless["deterministic_cace_execution_separate"] is True
+assert headless["runtime_artifact_hashes_required"] is True
+assert headless["can_qualify"] is False
+assert headless["can_promote"] is False
+
 base44 = selection["external_integrations"]["base44"]
 assert base44["status"] == "telemetry-only"
 assert base44["monetary_cost"] == "zero-spend-only"
