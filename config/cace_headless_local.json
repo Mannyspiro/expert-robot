@@ -37,6 +37,6 @@
   "cace_runtime": {
     "repository": "morganaspim/Cace-app",
     "branch": "expert-robot/headless-local-llm",
-    "revision": "b101ff86987cf9f4c8ec4b00941b9aaccb557b39"
+    "revision": "0aa3b2e00724f647bb629fe7e4765e41fa245e3b"
   }
 }
