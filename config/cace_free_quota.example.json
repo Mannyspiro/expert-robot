@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "accounts": [
+    {
+      "owner": "Mannyspiro",
+      "checked_at": null,
+      "billing_cycle": null,
+      "free_linux_minutes_remaining": null,
+      "paid_overage_blocked": false,
+      "evidence": null
+    },
+    {
+      "owner": "morganaspim",
+      "checked_at": null,
+      "billing_cycle": null,
+      "free_linux_minutes_remaining": null,
+      "paid_overage_blocked": false,
+      "evidence": null
+    }
+  ]
+}

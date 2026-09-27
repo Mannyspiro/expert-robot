@@ -1,0 +1,92 @@
+name: Asynchronous CACE bridge
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Dispatch one capability probe, or collect once
+        type: choice
+        options: [dispatch, collect]
+        required: true
+      receipt_json:
+        description: Receipt from dispatch (required for collect or an idempotent dispatch retry)
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: expert-robot-cace-transport
+  cancel-in-progress: false
+  queue: max
+
+jobs:
+  transport:
+    # Nothing is allocated with the default/unset variable. This is an operator
+    # attestation about the platform budget, not a replacement for that budget.
+    if: github.repository == 'Mannyspiro/expert-robot' && vars.CACE_BRIDGE_ZERO_SPEND_ENFORCED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4, inspected 2026-09-26
+        with:
+          persist-credentials: false
+      - name: Validate free allowance before preparing credentials
+        env:
+          QUOTA_JSON: ${{ vars.CACE_BRIDGE_QUOTA_JSON }}
+          RECEIPT_JSON: ${{ inputs.receipt_json }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          root = Path(os.environ['RUNNER_TEMP'])
+          (root / 'quota.json').write_text(os.environ['QUOTA_JSON'])
+          if os.environ['RECEIPT_JSON']:
+              (root / 'receipt.json').write_text(os.environ['RECEIPT_JSON'])
+          PY
+          python3 python/cace_bridge.py check-quota --quota "$RUNNER_TEMP/quota.json" --owner Mannyspiro
+      - name: Dispatch or collect once, then release the runner
+        env:
+          RAILWAY_SSH_PRIVATE_KEY: ${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}
+          OPERATION: ${{ inputs.operation }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          export CACE_KEY_PATH="$RUNNER_TEMP/cace_bridge_key"
+          export CACE_KNOWN_HOSTS="$RUNNER_TEMP/cace_known_hosts"
+          trap 'rm -f "$CACE_KEY_PATH" "$CACE_KNOWN_HOSTS"' EXIT
+          test -n "$RAILWAY_SSH_PRIVATE_KEY"
+          printf '%s\n' "$RAILWAY_SSH_PRIVATE_KEY" > "$CACE_KEY_PATH"
+          unset RAILWAY_SSH_PRIVATE_KEY
+          ssh-keygen -y -f "$CACE_KEY_PATH" >/dev/null
+          # Obtain public host keys through GitHub's authenticated TLS endpoint.
+          curl --fail --silent --show-error --max-time 15 https://api.github.com/meta \
+            | python3 -c 'import json,sys; print("\n".join("github.com " + k for k in json.load(sys.stdin)["ssh_keys"]))' \
+            > "$CACE_KNOWN_HOSTS"
+          export GIT_SSH_COMMAND='ssh -i "$CACE_KEY_PATH" -o UserKnownHostsFile="$CACE_KNOWN_HOSTS" -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=10 -o ConnectionAttempts=1'
+          case "$OPERATION" in
+            dispatch)
+              python3 python/cace_bridge.py dispatch --source-sha "$GITHUB_SHA" \
+                --quota "$RUNNER_TEMP/quota.json" --receipt "$RUNNER_TEMP/receipt.json"
+              ;;
+            collect)
+              python3 python/cace_bridge.py collect --receipt "$RUNNER_TEMP/receipt.json" \
+                --output "$RUNNER_TEMP/result.json"
+              ;;
+            *) exit 1 ;;
+          esac
+      - name: Keep the receipt in the run summary without artifact storage
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          root = Path(os.environ['RUNNER_TEMP'])
+          receipt = root / 'receipt.json'
+          if receipt.is_file() and receipt.stat().st_size <= 8192:
+              with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as output:
+                  output.write('## CACE request receipt\n\n```json\n' + receipt.read_text() + '\n```\n')
+          PY
