@@ -140,8 +140,8 @@ class HeadlessConfig:
             )
 
         expected = {
-            "model_id": "Qwen/Qwen2.5-0.5B-Instruct",
-            "model_revision": "9217f5db79a29953eb74d5343926648285ec7e67",
+            "model_id": "Qwen/Qwen2.5-1.5B-Instruct",
+            "model_revision": "91cad51170dc346986eccefdc2dd33a9da36ead9",
             "quantization": "Q4_K_M",
             "runtime_repository": "ggml-org/llama.cpp",
             "runtime_tag": "b11146",

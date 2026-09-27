@@ -96,7 +96,7 @@ llama_args=(
   -m "$model"
   --host 127.0.0.1
   --port 8080
-  --alias Qwen/Qwen2.5-0.5B-Instruct
+  --alias Qwen/Qwen2.5-1.5B-Instruct
   -c "$ctx"
   -t "$threads"
 )

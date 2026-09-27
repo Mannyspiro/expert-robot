@@ -17,10 +17,10 @@ def main() -> int:
     assert payload["trust_role"] == "untrusted-informal-reasoner"
     assert payload["llm_endpoint"] == "http://127.0.0.1:8080/v1"
     assert payload["cace_api_endpoint"] == "http://127.0.0.1:8765"
-    assert payload["model"]["repo_id"] == "Qwen/Qwen2.5-0.5B-Instruct"
+    assert payload["model"]["repo_id"] == "Qwen/Qwen2.5-1.5B-Instruct"
     assert (
         payload["model"]["revision"]
-        == "9217f5db79a29953eb74d5343926648285ec7e67"
+        == "91cad51170dc346986eccefdc2dd33a9da36ead9"
     )
     assert (
         payload["llama_cpp"]["commit"]
@@ -28,10 +28,10 @@ def main() -> int:
     )
     provision = json.loads(PROVISION.read_text(encoding="utf-8"))
     assert provision["schema_version"] == 1
-    assert provision["source"]["repository"] == "Qwen/Qwen2.5-0.5B-Instruct-GGUF"
+    assert provision["source"]["repository"] == "Qwen/Qwen2.5-1.5B-Instruct-GGUF"
     assert (
         provision["source"]["revision"]
-        == "9217f5db79a29953eb74d5343926648285ec7e67"
+        == "91cad51170dc346986eccefdc2dd33a9da36ead9"
     )
     assert provision["source"]["license"] == "Apache-2.0"
     assert (
@@ -64,7 +64,7 @@ def main() -> int:
     assert "--host 127.0.0.1" in script
     assert "--port 8080" in script
     assert "--port 8765" in script
-    assert "--alias Qwen/Qwen2.5-0.5B-Instruct" in script
+    assert "--alias Qwen/Qwen2.5-1.5B-Instruct" in script
     assert "CACE_MODEL_GGUF is required" in script
     assert "CACE_MODEL_GGUF_SHA256 is required" in script
     assert "CACE_LLAMA_SERVER_SHA256 is required" in script

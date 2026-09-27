@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "observed_at": "2026-09-27T13:45:28.078085+00:00",
+  "scope": "local_cpu_development_smoke_only",
+  "model": "Qwen/Qwen2.5-1.5B-Instruct",
+  "artifact_lock": {
+    "schema_version": 1,
+    "platform": "linux-x86_64",
+    "model": {
+      "url": "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/91cad51170dc346986eccefdc2dd33a9da36ead9/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+      "filename": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+      "size": 1117320736,
+      "sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e"
+    },
+    "runtime": {
+      "url": "https://github.com/ggml-org/llama.cpp/releases/download/b11146/llama-b11146-bin-ubuntu-x64.tar.gz",
+      "filename": "llama-b11146-bin-ubuntu-x64.tar.gz",
+      "size": 16998357,
+      "sha256": "c150306eb16b5ab696f76a8bdf810c35fd98a24e82158742e6fa28f420ff8410",
+      "server_relative_path": "llama-b11146/llama-server",
+      "server_sha256": "22de090746c114569367998ec930b28f27f12e078e593ff21175a54b409d26fe"
+    }
+  },
+  "cases": [
+    {
+      "prompt": "Reply with only the integer result of 2 + 3.",
+      "expected": "5",
+      "response": {
+        "schema_version": 1,
+        "text": "5",
+        "model": "Qwen/Qwen2.5-1.5B-Instruct",
+        "usage": {
+          "completion_tokens": 2,
+          "prompt_tokens": 94,
+          "total_tokens": 96,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "untrusted": true,
+        "can_execute_tools": false,
+        "can_promote": false,
+        "can_mark_verified": false
+      },
+      "exact_match": true,
+      "elapsed_seconds": 0.65
+    },
+    {
+      "prompt": "Reply with only the next integer: 2, 4, 6, 8,",
+      "expected": "10",
+      "response": {
+        "schema_version": 1,
+        "text": "10",
+        "model": "Qwen/Qwen2.5-1.5B-Instruct",
+        "usage": {
+          "completion_tokens": 3,
+          "prompt_tokens": 100,
+          "total_tokens": 103,
+          "prompt_tokens_details": {
+            "cached_tokens": 80
+          }
+        },
+        "untrusted": true,
+        "can_execute_tools": false,
+        "can_promote": false,
+        "can_mark_verified": false
+      },
+      "exact_match": true,
+      "elapsed_seconds": 0.197
+    }
+  ],
+  "all_exact_matches": true,
+  "cace_api_verified": false,
+  "formal_verified": false,
+  "promotion_authority": false,
+  "hidden_evaluation": false
+}
