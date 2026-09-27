@@ -37,10 +37,5 @@
     "llm_may_execute_typed_cace_calls": false,
     "model_sha256_required_at_runtime": true,
     "llama_server_sha256_required_at_runtime": true
-  },
-  "cace_source": {
-    "repository": "morganaspim/Cace-app",
-    "branch": "expert-robot/headless-local-llm",
-    "revision": "b101ff86987cf9f4c8ec4b00941b9aaccb557b39"
   }
 }
