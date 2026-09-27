@@ -150,7 +150,12 @@ def main() -> int:
     lean_paths = [
         path
         for path in changed_paths
-        if path.endswith(".lean") or path.startswith("formal/")
+        if path.startswith("formal/MathAI/") and path.endswith(".lean")
+    ]
+    formal_infra_paths = [
+        path
+        for path in changed_paths
+        if path.startswith("formal/") and path not in lean_paths
     ]
     avrea_paths = [
         path
@@ -160,6 +165,7 @@ def main() -> int:
         or path.endswith((".cpp", ".cc", ".cxx", ".hpp", ".h"))
         or path.startswith("models/")
         or path.startswith("runtime/")
+        or path in formal_infra_paths
     ]
 
     requests: list[dict[str, Any]] = []
@@ -212,10 +218,16 @@ def main() -> int:
         )
 
     requires_avrea = bool(avrea_paths)
+    if formal_infra_paths:
+        reasons.append(
+            "Lean build/dependency infrastructure changes require repository "
+            "qualification and are not admitted to the CACE source-bundle lane"
+        )
+
     if requires_avrea:
         reasons.append(
-            "C++/model/runtime changes require Avrea repository qualification; "
-            "CACE OCI is not treated as a C++ build lane"
+            "C++/model/runtime or formal-infrastructure changes require Avrea "
+            "repository qualification; CACE OCI is not treated as a general build lane"
         )
 
     if not requests and not requires_avrea:
