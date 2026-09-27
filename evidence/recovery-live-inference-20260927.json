@@ -1,0 +1,127 @@
+{
+  "scope": "local_cpu_runtime_only",
+  "server_port": 18080,
+  "cace_api_verified": false,
+  "formal_verified": false,
+  "promotion_authority": false,
+  "model_artifact_sha256": "74a4da8c9fdbcd15bd1f6d01d621410d31c6fc00986f5eb687824e7b93d7a9db",
+  "runtime_release": "b11146",
+  "models": {
+    "models": [
+      {
+        "name": "Qwen/Qwen2.5-0.5B-Instruct",
+        "model": "Qwen/Qwen2.5-0.5B-Instruct",
+        "modified_at": "",
+        "size": "",
+        "digest": "",
+        "type": "model",
+        "description": "",
+        "tags": [
+          ""
+        ],
+        "capabilities": [
+          "completion"
+        ],
+        "parameters": "",
+        "details": {
+          "parent_model": "",
+          "format": "gguf",
+          "family": "",
+          "families": [
+            ""
+          ],
+          "parameter_size": "",
+          "quantization_level": ""
+        }
+      }
+    ],
+    "object": "list",
+    "data": [
+      {
+        "id": "Qwen/Qwen2.5-0.5B-Instruct",
+        "aliases": [
+          "Qwen/Qwen2.5-0.5B-Instruct"
+        ],
+        "tags": [],
+        "object": "model",
+        "created": 1790516521,
+        "owned_by": "llamacpp",
+        "meta": {
+          "vocab_type": 2,
+          "n_vocab": 151936,
+          "n_ctx": 2048,
+          "n_ctx_train": 32768,
+          "n_embd": 896,
+          "n_params": 630167424,
+          "size": 485452288,
+          "ftype": "Q4_K - Medium"
+        }
+      }
+    ]
+  },
+  "cases": [
+    {
+      "prompt": "Reply in one short sentence: what is 2 + 3?",
+      "response": {
+        "schema_version": 1,
+        "text": "2 + 3 equals 5.",
+        "model": "Qwen/Qwen2.5-0.5B-Instruct",
+        "usage": {
+          "completion_tokens": 9,
+          "prompt_tokens": 95,
+          "total_tokens": 104,
+          "prompt_tokens_details": {
+            "cached_tokens": 0
+          }
+        },
+        "untrusted": true,
+        "can_execute_tools": false,
+        "can_promote": false,
+        "can_mark_verified": false
+      },
+      "elapsed_seconds": 0.419
+    },
+    {
+      "prompt": "Reply with only the next integer: 2, 4, 6, 8,",
+      "response": {
+        "schema_version": 1,
+        "text": "4",
+        "model": "Qwen/Qwen2.5-0.5B-Instruct",
+        "usage": {
+          "completion_tokens": 2,
+          "prompt_tokens": 100,
+          "total_tokens": 102,
+          "prompt_tokens_details": {
+            "cached_tokens": 77
+          }
+        },
+        "untrusted": true,
+        "can_execute_tools": false,
+        "can_promote": false,
+        "can_mark_verified": false
+      },
+      "elapsed_seconds": 0.107
+    },
+    {
+      "prompt": "In one sentence, explain why a proposed mathematical proof needs independent verification.",
+      "response": {
+        "schema_version": 1,
+        "text": "A proposed mathematical proof requires independent verification to ensure its correctness and reliability, as it is a complex and potentially flawed system.",
+        "model": "Qwen/Qwen2.5-0.5B-Instruct",
+        "usage": {
+          "completion_tokens": 25,
+          "prompt_tokens": 95,
+          "total_tokens": 120,
+          "prompt_tokens_details": {
+            "cached_tokens": 76
+          }
+        },
+        "untrusted": true,
+        "can_execute_tools": false,
+        "can_promote": false,
+        "can_mark_verified": false
+      },
+      "elapsed_seconds": 0.443
+    }
+  ]
+}

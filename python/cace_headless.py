@@ -140,12 +140,12 @@ class HeadlessConfig:
             )
 
         expected = {
-            "model_id": "Qwen/Qwen3.5-4B",
-            "model_revision": "a7b0d22b993d71000cf2eadfb37222a67cee521e",
+            "model_id": "Qwen/Qwen2.5-0.5B-Instruct",
+            "model_revision": "9217f5db79a29953eb74d5343926648285ec7e67",
             "quantization": "Q4_K_M",
             "runtime_repository": "ggml-org/llama.cpp",
-            "runtime_tag": "v0.4.1",
-            "runtime_commit": "b29c606e28a01b1bc8c1351026a0fa6e616bf6c4",
+            "runtime_tag": "b11146",
+            "runtime_commit": "7fe450e19305b828c199d602c23a8337aaa1f03b",
             "cace_repository": "morganaspim/Cace-app",
             "cace_branch": "expert-robot/headless-local-llm",
         }

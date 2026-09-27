@@ -17,28 +17,28 @@ def main() -> int:
     assert payload["trust_role"] == "untrusted-informal-reasoner"
     assert payload["llm_endpoint"] == "http://127.0.0.1:8080/v1"
     assert payload["cace_api_endpoint"] == "http://127.0.0.1:8765"
-    assert payload["model"]["repo_id"] == "Qwen/Qwen3.5-4B"
+    assert payload["model"]["repo_id"] == "Qwen/Qwen2.5-0.5B-Instruct"
     assert (
         payload["model"]["revision"]
-        == "a7b0d22b993d71000cf2eadfb37222a67cee521e"
+        == "9217f5db79a29953eb74d5343926648285ec7e67"
     )
     assert (
         payload["llama_cpp"]["commit"]
-        == "b29c606e28a01b1bc8c1351026a0fa6e616bf6c4"
+        == "7fe450e19305b828c199d602c23a8337aaa1f03b"
     )
     provision = json.loads(PROVISION.read_text(encoding="utf-8"))
     assert provision["schema_version"] == 1
-    assert provision["source"]["repository"] == "Qwen/Qwen3.5-4B"
+    assert provision["source"]["repository"] == "Qwen/Qwen2.5-0.5B-Instruct-GGUF"
     assert (
         provision["source"]["revision"]
-        == "a7b0d22b993d71000cf2eadfb37222a67cee521e"
+        == "9217f5db79a29953eb74d5343926648285ec7e67"
     )
     assert provision["source"]["license"] == "Apache-2.0"
     assert (
-        provision["converter"]["commit"]
-        == "b29c606e28a01b1bc8c1351026a0fa6e616bf6c4"
+        provision["runtime"]["commit"]
+        == "7fe450e19305b828c199d602c23a8337aaa1f03b"
     )
-    assert provision["converter"]["target_quantization"] == "Q4_K_M"
+    assert provision["runtime"]["target_quantization"] == "Q4_K_M"
     assert (
         provision["artifact_policy"][
             "third_party_quantization_default_allowed"
@@ -64,7 +64,7 @@ def main() -> int:
     assert "--host 127.0.0.1" in script
     assert "--port 8080" in script
     assert "--port 8765" in script
-    assert "--alias Qwen/Qwen3.5-4B" in script
+    assert "--alias Qwen/Qwen2.5-0.5B-Instruct" in script
     assert "CACE_MODEL_GGUF is required" in script
     assert "CACE_MODEL_GGUF_SHA256 is required" in script
     assert "CACE_LLAMA_SERVER_SHA256 is required" in script
