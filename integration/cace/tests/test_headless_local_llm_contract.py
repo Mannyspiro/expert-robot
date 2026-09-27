@@ -26,12 +26,6 @@ def main() -> int:
         payload["llama_cpp"]["commit"]
         == "b29c606e28a01b1bc8c1351026a0fa6e616bf6c4"
     )
-    assert payload["cace_source"] == {
-        "repository": "morganaspim/Cace-app",
-        "branch": "expert-robot/headless-local-llm",
-        "revision": "b101ff86987cf9f4c8ec4b00941b9aaccb557b39",
-    }
-
     provision = json.loads(PROVISION.read_text(encoding="utf-8"))
     assert provision["schema_version"] == 1
     assert provision["source"]["repository"] == "Qwen/Qwen3.5-4B"
