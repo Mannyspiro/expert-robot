@@ -19,5 +19,7 @@
   "force_push_forbidden": true,
   "automatic_merge": false,
   "automatic_promotion": false,
-  "dispatcher_secret_job_executes_candidate": false
+  "dispatcher_secret_job_executes_candidate": false,
+  "trusted_dispatch_ref": "feat/reuse-refactored-fishstick",
+  "require_candidate_parent_equals_dispatch_head": true
 }
