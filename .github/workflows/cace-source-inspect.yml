@@ -36,7 +36,7 @@ jobs:
           with tempfile.TemporaryDirectory() as temporary:
               root = pathlib.Path(temporary)
               key = root / 'key'
-              key.write_text(os.environ.pop('CACE_KEY'))
+              key.write_text(os.environ.pop('CACE_KEY').rstrip() + '\n')
               key.chmod(0o600)
               with urllib.request.urlopen('https://api.github.com/meta', timeout=10) as response:
                   keys = json.load(response)['ssh_keys']
@@ -50,7 +50,9 @@ jobs:
                       cwd=root, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                       text=True, timeout=35)
                   if result.returncode:
-                      raise RuntimeError('CACE git operation failed: ' + args[0])
+                      categories = ['Permission denied', 'invalid format', 'not our ref', 'Host key verification failed', 'Repository not found', 'Connection refused']
+                      category = next((x for x in categories if x.lower() in result.stderr.lower()), 'unclassified')
+                      raise RuntimeError('CACE git operation failed: ' + args[0] + ': ' + category)
                   return result.stdout
               git('init', '--quiet')
               git('remote', 'add', 'origin', 'git@github.com:morganaspim/Cace-app.git')
