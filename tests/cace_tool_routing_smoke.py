@@ -14,6 +14,7 @@ POLICY = ROOT / "config" / "cace_tool_broker.json"
 SOURCE = "a" * 40
 INPUT = "b" * 64
 PIN = "0e7aa229d3bb57174e281b883ee8af5445f15f75"
+CAPABILITY = "cace.external.expert_robot_formal_static"
 
 
 def plan(*paths):
@@ -64,8 +65,8 @@ def validator_accepts(request):
     }
     result["result_sha256"] = canonical_sha(result)
 
-    with tempfile.TemporaryDirectory() as tmp:
-        tmp = Path(tmp)
+    with tempfile.TemporaryDirectory() as tmp_raw:
+        tmp = Path(tmp_raw)
         req = tmp / "request.json"
         res = tmp / "result.json"
         req.write_text(json.dumps(request), encoding="utf-8")
@@ -84,59 +85,72 @@ def validator_accepts(request):
         assert run.returncode == 0, run.stderr
 
 
-# One Lean file gets the cheapest exact-pin formal lane.
+# Expert Robot formal source uses the reviewed source-bundle bridge, never a
+# native Cace-app formal workflow.
 single = plan("formal/MathAI/Geometry/Exact.lean")
 assert single["cace_commit"] == PIN
 assert single["requires_avrea"] is False
 assert len(single["cace_requests"]) == 1
 request = single["cace_requests"][0]
-assert request["capability_id"] == "cace.formal.exact_pin_lean_preflight"
-assert request["budget"] == {"wall_seconds": 600, "lean_checks": 4}
+assert request["capability_id"] == CAPABILITY
+assert request["executor_kind"] == "expert-robot-source-bundle"
+assert request["workflow_repository"] == "Mannyspiro/expert-robot"
+assert request["workflow"] == ".github/workflows/external-free-runner-bridge.yml"
+assert request["budget"] == {"wall_seconds": 1200, "lean_checks": 40}
 assert request["promotion_authority"] is False
 assert request["monetary_cost"] == "free"
 validator_accepts(request)
 
-# More than one formal path moves to the bounded batch lane.
+# Multiple Expert Robot Lean paths use the same source-bundle qualification
+# contract because the external lane qualifies the submitted Expert Robot
+# source tree, not Cace-app's CACEFormal targets.
 batch = plan(
     "formal/MathAI/Geometry/Exact.lean",
     "formal/MathAI/Geometry/VectorDerived.lean",
 )
 assert len(batch["cace_requests"]) == 1
-request = batch["cace_requests"][0]
-assert request["capability_id"] == "cace.formal.batch_exact_pin_lean_preflight"
-assert request["budget"] == {"wall_seconds": 1200, "lean_checks": 20}
-validator_accepts(request)
+assert batch["cace_requests"][0]["capability_id"] == CAPABILITY
+assert batch["cace_requests"][0]["changed_paths"] == [
+    "formal/MathAI/Geometry/Exact.lean",
+    "formal/MathAI/Geometry/VectorDerived.lean",
+]
+validator_accepts(batch["cace_requests"][0])
 
-# Python-only changes use regression evidence, not formal qualification.
+# CACE-native Python regression operates on Cace-app source. It is therefore
+# not callable for Expert Robot Python changes.
 python_plan = plan("python/orchestrator.py")
+assert python_plan["cace_requests"] == []
 assert python_plan["requires_avrea"] is False
-assert len(python_plan["cace_requests"]) == 1
-request = python_plan["cace_requests"][0]
-assert request["capability_id"] == "cace.regression.python"
-assert request["budget"]["lean_checks"] == 0
-validator_accepts(request)
+assert any(
+    "not routed to CACE-native Python regression" in reason
+    for reason in python_plan["reasons"]
+)
 
-# C++ does not get misrouted onto a CACE runner known not to be a C++ lane.
+# C++/model/runtime work still requires Avrea.
 cpp_plan = plan("cpp/src/runtime.cpp", "CMakeLists.txt")
 assert cpp_plan["cace_requests"] == []
 assert cpp_plan["requires_avrea"] is True
-assert sorted(cpp_plan["avrea_paths"]) == ["CMakeLists.txt", "cpp/src/runtime.cpp"]
+assert sorted(cpp_plan["avrea_paths"]) == [
+    "CMakeLists.txt",
+    "cpp/src/runtime.cpp",
+]
 
-# Mixed formal/C++ uses CACE where it has merit but still requires Avrea.
+# Mixed formal/C++ gets the legitimate formal CACE evidence first while Avrea
+# remains required for repository qualification.
 mixed = plan("formal/MathAI/Geometry/Exact.lean", "cpp/src/runtime.cpp")
 assert mixed["requires_avrea"] is True
 assert len(mixed["cace_requests"]) == 1
-assert (
-    mixed["cace_requests"][0]["capability_id"]
-    == "cace.formal.batch_exact_pin_lean_preflight"
-)
+assert mixed["cace_requests"][0]["capability_id"] == CAPABILITY
 validator_accepts(mixed["cace_requests"][0])
 
-# Collaboration validation is independent and non-promoting.
+# CACE-native collaboration validation is also scoped to Cace-app source.
 collab = plan("collaboration/contracts/workspace.json")
-assert len(collab["cace_requests"]) == 1
-assert collab["cace_requests"][0]["capability_id"] == "cace.collaboration.validation"
-validator_accepts(collab["cace_requests"][0])
+assert collab["cace_requests"] == []
+assert collab["requires_avrea"] is False
+assert any(
+    "not routed to CACE-native collaboration validation" in reason
+    for reason in collab["reasons"]
+)
 
 # Docs-only changes do not consume external verifier compute.
 docs = plan("docs/research-engine.md")
@@ -146,7 +160,7 @@ assert docs["repository_ci_required"] is True
 assert docs["automatic_dispatch"] is False
 assert docs["automatic_promotion"] is False
 
-# Determinism: identical inputs produce exactly identical request envelopes.
+# Determinism.
 again = plan("formal/MathAI/Geometry/Exact.lean")
 assert single == again
 
@@ -167,7 +181,7 @@ run = subprocess.run(
 assert run.returncode != 0
 assert "unsafe changed path" in (run.stderr + run.stdout)
 
-# Invalid source identity is rejected before any capability selection.
+# Invalid source identity is rejected before capability selection.
 run = subprocess.run(
     [
         sys.executable,
