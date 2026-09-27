@@ -39,7 +39,7 @@ PINNED_CONFIG = {
     "cace_runtime": {
         "repository": "morganaspim/Cace-app",
         "branch": "expert-robot/headless-local-llm",
-        "revision": "b101ff86987cf9f4c8ec4b00941b9aaccb557b39",
+        "revision": "0aa3b2e00724f647bb629fe7e4765e41fa245e3b",
     },
     "authority": {
         "client_can_execute_typed_cace_calls": True,
@@ -102,7 +102,7 @@ def main() -> int:
         assert config.model_id == "Qwen/Qwen3.5-4B"
         assert (
             config.cace_revision
-            == "b101ff86987cf9f4c8ec4b00941b9aaccb557b39"
+            == "0aa3b2e00724f647bb629fe7e4765e41fa245e3b"
         )
 
         drift_cases = [
