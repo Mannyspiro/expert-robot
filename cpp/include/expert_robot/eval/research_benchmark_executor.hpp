@@ -43,8 +43,9 @@ private:
         const BenchmarkVariantProfile& variant);
 
     [[nodiscard]] std::unique_ptr<app::MathResearchService>
-    holdout_service_for(
+    evaluation_service_for(
         const BenchmarkVariantProfile& variant,
+        BenchmarkSplit split,
         long long case_index);
 
     [[nodiscard]] research::ResearchProblem problem_for(

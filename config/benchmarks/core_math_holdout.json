@@ -171,6 +171,54 @@
       ]
     },
     {
+      "case_id": "validation-geometry-dot-zero-right",
+      "family": "dot_zero_right_validation",
+      "domain": "geometry",
+      "split": "validation",
+      "tags": [
+        "lean_verified",
+        "zero",
+        "validation"
+      ],
+      "focus_theorem": "MathAI.Geometry.dot_zero_right",
+      "declaration_name": "bench_validation_dot_zero_right",
+      "namespace": "MathAI.Benchmark",
+      "binders": [
+        {
+          "name": "a",
+          "type": "MathAI.Geometry.Vec3"
+        }
+      ],
+      "proposition": "MathAI.Geometry.dot a MathAI.Geometry.zeroVec = 0",
+      "imports": [
+        "MathAI"
+      ]
+    },
+    {
+      "case_id": "validation-geometry-cross-self",
+      "family": "cross_self_validation",
+      "domain": "geometry",
+      "split": "validation",
+      "tags": [
+        "lean_verified",
+        "cross",
+        "validation"
+      ],
+      "focus_theorem": "MathAI.Geometry.cross_self",
+      "declaration_name": "bench_validation_cross_self",
+      "namespace": "MathAI.Benchmark",
+      "binders": [
+        {
+          "name": "a",
+          "type": "MathAI.Geometry.Vec3"
+        }
+      ],
+      "proposition": "MathAI.Geometry.cross a a = MathAI.Geometry.zeroVec",
+      "imports": [
+        "MathAI"
+      ]
+    },
+    {
       "case_id": "holdout-geometry-orthogonal-symm",
       "family": "orthogonality_symmetry",
       "domain": "geometry",

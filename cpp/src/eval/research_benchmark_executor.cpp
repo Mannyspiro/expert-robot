@@ -281,9 +281,15 @@ void ResearchBenchmarkExecutor::freeze_training_state(
 }
 
 std::unique_ptr<app::MathResearchService>
-ResearchBenchmarkExecutor::holdout_service_for(
+ResearchBenchmarkExecutor::evaluation_service_for(
     const BenchmarkVariantProfile& variant,
+    BenchmarkSplit split,
     long long case_index) {
+    if (split == BenchmarkSplit::Train) {
+        throw std::invalid_argument(
+            "evaluation service cannot be created for training split");
+    }
+
     freeze_training_state(
         variant);
 
@@ -295,7 +301,9 @@ ResearchBenchmarkExecutor::holdout_service_for(
         "frozen_train";
     const auto case_dir =
         variant_root /
-        "holdout" /
+        std::string(
+            benchmark_split_name(
+                split)) /
         ("case-" +
          std::to_string(case_index));
 
@@ -320,9 +328,9 @@ ResearchBenchmarkExecutor::holdout_service_for(
         benchmark_feature_flags(
             variant);
 
-    // Holdout cases can consume learned state, but no result may feed back
-    // into proof memory, imagination memory, skill evidence, theorem-graph
-    // consolidation, or route/sequence/strategy memory.
+    // Validation and holdout cases consume independent clones of the exact
+    // same frozen training state. Neither evaluation split may feed results
+    // back into proof/imagination/skill/theorem/route/strategy memory.
     service_config.research_engine.learning_writes =
         false;
 
@@ -380,11 +388,17 @@ ResearchBenchmarkExecutor::problem_for(
     sensors.recent_proof_success_rate = 0.0;
     sensors.verified_progress = 0.0;
     sensors.expected_verified_progress = 0.50;
-    sensors.theorem_novelty =
-        benchmark_case.split ==
-                BenchmarkSplit::Holdout
-            ? 0.80
-            : 0.40;
+    switch (benchmark_case.split) {
+        case BenchmarkSplit::Train:
+            sensors.theorem_novelty = 0.40;
+            break;
+        case BenchmarkSplit::Validation:
+            sensors.theorem_novelty = 0.65;
+            break;
+        case BenchmarkSplit::Holdout:
+            sensors.theorem_novelty = 0.80;
+            break;
+    }
     sensors.theorem_graph_coverage = 0.50;
     sensors.route_repetition = 0.0;
     sensors.uncertainty = 0.35;
@@ -430,7 +444,7 @@ ResearchBenchmarkExecutor::run(
             variant.variant_id];
 
     std::unique_ptr<app::MathResearchService>
-        holdout_service;
+        evaluation_service;
     app::MathResearchService* service = nullptr;
 
     if (benchmark_case.split ==
@@ -439,12 +453,13 @@ ResearchBenchmarkExecutor::run(
             &training_service_for(
                 variant);
     } else {
-        holdout_service =
-            holdout_service_for(
+        evaluation_service =
+            evaluation_service_for(
                 variant,
+                benchmark_case.split,
                 index);
         service =
-            holdout_service.get();
+            evaluation_service.get();
     }
 
     const std::string episode_id =

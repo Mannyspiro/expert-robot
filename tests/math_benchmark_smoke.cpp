@@ -17,9 +17,9 @@ public:
         const expert_robot::eval::BenchmarkCase& benchmark_case) override {
         using expert_robot::eval::BenchmarkCaseResult;
 
-        const bool holdout =
-            benchmark_case.split ==
-            expert_robot::eval::BenchmarkSplit::Holdout;
+        const bool evaluation =
+            benchmark_case.split !=
+            expert_robot::eval::BenchmarkSplit::Train;
 
         long long level = 0;
         if (variant.has_layer("proof_search")) ++level;
@@ -32,7 +32,7 @@ public:
         // training cases are intentionally easier; holdouts require
         // progressively deeper architecture.
         const bool verified =
-            holdout
+            evaluation
                 ? (level >= 2 &&
                    (level >= 4 ||
                     benchmark_case.case_id.find("symm") !=
@@ -108,11 +108,14 @@ int main() {
         MathBenchmarkSuite::load_json(
             "config/benchmarks/core_math_holdout.json");
 
-    assert(suite.cases().size() == 10);
+    assert(suite.cases().size() == 12);
     assert(suite.variants().size() == 5);
     assert(
         suite.cases_for_split(
             BenchmarkSplit::Train).size() == 5);
+    assert(
+        suite.cases_for_split(
+            BenchmarkSplit::Validation).size() == 2);
     assert(
         suite.cases_for_split(
             BenchmarkSplit::Holdout).size() == 5);
@@ -132,8 +135,18 @@ int main() {
             suite,
             executor);
 
-    assert(run.records.size() == 50);
+    assert(run.records.size() == 60);
 
+    const auto* baseline_validation =
+        find_summary(
+            run,
+            "proof_search",
+            BenchmarkSplit::Validation);
+    const auto* strategy_validation =
+        find_summary(
+            run,
+            "strategy_memory",
+            BenchmarkSplit::Validation);
     const auto* baseline_holdout =
         find_summary(
             run,
@@ -156,11 +169,15 @@ int main() {
             BenchmarkSplit::Holdout,
             "geometry");
 
+    assert(baseline_validation != nullptr);
+    assert(strategy_validation != nullptr);
     assert(baseline_holdout != nullptr);
     assert(graph_holdout != nullptr);
     assert(strategy_holdout != nullptr);
     assert(strategy_geometry != nullptr);
 
+    assert(baseline_validation->cases == 2);
+    assert(strategy_validation->cases == 2);
     assert(baseline_holdout->cases == 5);
     assert(strategy_holdout->cases == 5);
     assert(strategy_geometry->cases == 5);
@@ -180,6 +197,11 @@ int main() {
             strategy_holdout->
                 verified_rate() -
             1.0) < 1e-12);
+
+    const auto validation_persisted =
+        ledger.records(
+            "strategy_memory::validation");
+    assert(validation_persisted.size() == 2);
 
     const auto persisted =
         ledger.records(
@@ -227,7 +249,48 @@ int main() {
     }
     assert(leakage_rejected);
 
-    // Missing one split is also invalid; holdout evaluation is mandatory.
+    // A train+holdout suite without validation is invalid.
+    bool missing_validation_rejected = false;
+    try {
+        (void)MathBenchmarkSuite(
+            {
+                BenchmarkCase{
+                    .case_id = "train-validation-check",
+                    .family = "train-validation-family",
+                    .domain = "geometry",
+                    .focus_theorem = "",
+                    .declaration_name = "train_validation_check",
+                    .name_space = "MathAI.Benchmark",
+                    .binders = {},
+                    .proposition = "True",
+                    .imports = {"MathAI"},
+                    .split = BenchmarkSplit::Train
+                },
+                BenchmarkCase{
+                    .case_id = "holdout-validation-check",
+                    .family = "holdout-validation-family",
+                    .domain = "geometry",
+                    .focus_theorem = "",
+                    .declaration_name = "holdout_validation_check",
+                    .name_space = "MathAI.Benchmark",
+                    .binders = {},
+                    .proposition = "True",
+                    .imports = {"MathAI"},
+                    .split = BenchmarkSplit::Holdout
+                }
+            },
+            {
+                BenchmarkVariantProfile{
+                    .variant_id = "baseline",
+                    .enabled_layers = {"proof_search"}
+                }
+            });
+    } catch (const std::invalid_argument&) {
+        missing_validation_rejected = true;
+    }
+    assert(missing_validation_rejected);
+
+    // Missing one split is also invalid; all three phases are mandatory.
     bool missing_holdout_rejected = false;
     try {
         (void)MathBenchmarkSuite(
