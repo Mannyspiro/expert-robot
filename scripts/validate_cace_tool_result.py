@@ -153,17 +153,13 @@ def validate_policy(policy: dict[str, Any]) -> dict[str, dict[str, Any]]:
     return by_id
 
 
-def main() -> int:
-    if len(sys.argv) != 4:
-        fail(
-            "usage: validate_cace_tool_result.py "
-            "<broker-policy.json> <request.json> <result.json>"
-        )
-
-    policy = load(sys.argv[1])
-    request = load(sys.argv[2])
-    result = load(sys.argv[3])
-    capabilities = validate_policy(policy)
+def validate_request(
+    policy: dict[str, Any],
+    request: dict[str, Any],
+    capabilities: dict[str, dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    if capabilities is None:
+        capabilities = validate_policy(policy)
 
     require_fields(
         request,
@@ -238,6 +234,36 @@ def main() -> int:
         fail("wall time budget exceeds capability maximum")
     if lean_budget > capability["max_lean_checks"]:
         fail("Lean check budget exceeds capability maximum")
+
+    return {
+        "source_commit": source_commit,
+        "capability": capability,
+        "wall_budget": wall_budget,
+        "lean_budget": lean_budget,
+    }
+
+
+def main() -> int:
+    if len(sys.argv) != 4:
+        fail(
+            "usage: validate_cace_tool_result.py "
+            "<broker-policy.json> <request.json> <result.json>"
+        )
+
+    policy = load(sys.argv[1])
+    request = load(sys.argv[2])
+    result = load(sys.argv[3])
+    capabilities = validate_policy(policy)
+
+    validated_request = validate_request(
+        policy,
+        request,
+        capabilities,
+    )
+    source_commit = validated_request["source_commit"]
+    capability = validated_request["capability"]
+    wall_budget = validated_request["wall_budget"]
+    lean_budget = validated_request["lean_budget"]
 
     require_fields(
         result,
