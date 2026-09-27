@@ -1,0 +1,23 @@
+{
+  "cace": {
+    "endpoint": "http://127.0.0.1:8765/api/health",
+    "error_type": "URLError",
+    "status": "unavailable"
+  },
+  "expected_model": "Qwen/Qwen3.5-4B",
+  "formal_verified": false,
+  "inference": {
+    "status": "blocked_by_health"
+  },
+  "llm": {
+    "endpoint": "http://127.0.0.1:8080/v1/models",
+    "error_type": "URLError",
+    "status": "unavailable"
+  },
+  "model_bytes_attested": false,
+  "observed_at": "2026-09-27T13:29:18.397848+00:00",
+  "ok": false,
+  "promotion_authority": false,
+  "schema_version": 1,
+  "scope": "current_execution_host_only"
+}
