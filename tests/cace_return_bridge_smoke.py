@@ -33,6 +33,11 @@ assert 'git add .cace-return.json "$evidence_dir"' in publisher
 assert '"promotion_authority": False' in publisher
 assert '"monetary_cost": "free"' in publisher
 
+assert "CACE_PIN: 0e7aa229d3bb57174e281b883ee8af5445f15f75" in external
+assert 'git cat-file -e "$CACE_PIN^{commit}"' in external
+assert 'git checkout -B "$BRIDGE_BRANCH" "$CACE_PIN"' in external
+assert 'test "$(git rev-parse HEAD)" = "$CACE_PIN"' in external
+
 assert '- "cace-return/**"' in opener
 assert "contents: read" in opener
 assert "pull-requests: write" in opener
