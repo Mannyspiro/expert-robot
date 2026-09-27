@@ -1,0 +1,193 @@
+name: Free Runner Capability Probe
+
+on:
+  push:
+    branches:
+      - "feat/cace-tool-broker-v1"
+    paths:
+      - ".github/workflows/free-runner-capability-probe.yml"
+      - "config/compute_policy.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: free-runner-capability-probe-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  probe:
+    runs-on: avrea-ubuntu-latest-1-vcpu
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare deploy key
+        id: key
+        shell: bash
+        env:
+          RAILWAY_SSH_PRIVATE_KEY: ${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${RAILWAY_SSH_PRIVATE_KEY:-}" ]; then
+            echo "::error::RAILWAY_SSH_PRIVATE_KEY is not configured."
+            exit 1
+          fi
+
+          umask 077
+          key_file="$RUNNER_TEMP/runner_repo_key"
+          printf '%s\n' "$RAILWAY_SSH_PRIVATE_KEY" > "$key_file"
+          chmod 600 "$key_file"
+
+          ssh-keygen -y -f "$key_file" > "$RUNNER_TEMP/runner_repo_key.pub"
+          eval "$(ssh-agent -s)"
+          ssh-add "$key_file"
+
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
+          echo "key_file=$key_file" >> "$GITHUB_OUTPUT"
+
+      - name: Inspect external free-runner repository
+        id: inspect
+        shell: bash
+        env:
+          RUNNER_REPO_SSH: git@github.com:morganaspim/Cace-app.git
+        run: |
+          set -euo pipefail
+          work="$RUNNER_TEMP/cace-runner-repo"
+          evidence="$RUNNER_TEMP/free-runner-capability"
+          rm -rf "$work" "$evidence"
+          mkdir -p "$evidence"
+
+          GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
+            git clone --depth 1 "$RUNNER_REPO_SSH" "$work"
+
+          cd "$work"
+          runner_commit="$(git rev-parse HEAD)"
+          printf '%s\n' "$runner_commit" > "$evidence/runner-repo-commit.txt"
+
+          echo "=== external workflow inventory ==="
+          if [ -d .github/workflows ]; then
+            find .github/workflows -maxdepth 1 -type f -print | sort \
+              | tee "$evidence/workflows.txt"
+
+            echo "=== referenced runner labels ==="
+            grep -RhoE 'runs-on:[[:space:]]*[^#]+' .github/workflows \
+              | sed 's/[[:space:]]*$//' \
+              | sort -u \
+              | tee "$evidence/runs-on.txt" \
+              || true
+
+            echo "=== trigger and branch hints ==="
+            grep -RHnE '^(name:|on:|[[:space:]]+(push|pull_request|workflow_dispatch|workflow_call|repository_dispatch):|[[:space:]]+branches(-ignore)?:|[[:space:]]+paths(-ignore)?:|[[:space:]]+runs-on:)' \
+              .github/workflows \
+              | tee "$evidence/workflow-routing.txt" \
+              || true
+
+            mkdir -p "$evidence/workflow-snapshots"
+            for workflow in \
+              .github/workflows/cace-exact-pin-lean-preflight.yml \
+              .github/workflows/cace-batch-exact-pin-lean-preflight.yml \
+              .github/workflows/cace-formal-v336-theorem-metadata.yml; do
+              if [ -f "$workflow" ]; then
+                cp "$workflow" "$evidence/workflow-snapshots/"
+                echo "=== snapshot: $workflow ==="
+                sed -n '1,260p' "$workflow"
+              fi
+            done
+
+
+            echo "=== referenced secret names (values are never read) ==="
+            grep -RhoE 'secrets\.[A-Za-z_][A-Za-z0-9_]*' .github/workflows \
+              | sed 's/^secrets\.//' \
+              | sort -u \
+              | tee "$evidence/secret-names.txt" \
+              || true
+          fi
+
+          echo "=== tracked Base44 integration markers (filenames only) ==="
+          {
+            git ls-files \
+              | grep -Ei '(^|/)(base44|base-44|base_44)(/|$)|base44' \
+              || true
+
+            git grep -Iil -i 'base44' -- \
+              ':!*.env*' \
+              ':!*secret*' \
+              ':!*credential*' \
+              ':!*private*key*' \
+              ':!*.pem' \
+              2>/dev/null \
+              || true
+          } | sort -u | tee "$evidence/base44-files.txt"
+
+          git config user.name "expert-robot-capability-probe"
+          git config user.email "noreply@github.com"
+          git commit --allow-empty -m "expert robot dry-run capability probe" >/dev/null
+
+          probe_ref="refs/heads/expert-robot-capability-probe-${GITHUB_RUN_ID}"
+          if GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
+              git push --dry-run origin "HEAD:$probe_ref" \
+              >"$evidence/push-dry-run.txt" 2>&1; then
+            write_access=true
+            echo "deploy-key write dry-run: PASS"
+          else
+            write_access=false
+            echo "deploy-key write dry-run: READ-ONLY"
+            cat "$evidence/push-dry-run.txt"
+          fi
+
+          python3 - "$evidence" "$runner_commit" "$write_access" <<'PY'
+          import json
+          import pathlib
+          import sys
+
+          root = pathlib.Path(sys.argv[1])
+          commit = sys.argv[2]
+          write_access = sys.argv[3].lower() == "true"
+
+          def lines(name):
+              path = root / name
+              if not path.exists():
+                  return []
+              return [line for line in path.read_text(encoding="utf-8").splitlines() if line]
+
+          payload = {
+              "schema_version": 1,
+              "repository": "morganaspim/Cace-app",
+              "commit": commit,
+              "read_access": True,
+              "write_dry_run_passed": write_access,
+              "remote_mutated": False,
+              "workflows": lines("workflows.txt"),
+              "runs_on": lines("runs-on.txt"),
+              "referenced_secret_names": lines("secret-names.txt"),
+              "base44_tracked_markers": lines("base44-files.txt"),
+          }
+          (root / "capability.json").write_text(
+              json.dumps(payload, indent=2) + "\n",
+              encoding="utf-8",
+          )
+          print(json.dumps(payload, indent=2))
+          PY
+
+      - name: Upload capability evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: free-runner-capability-${{ github.run_id }}
+          path: ${{ runner.temp }}/free-runner-capability/
+          if-no-files-found: warn
+          retention-days: 1
+
+      - name: Remove key material
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "${SSH_AGENT_PID:-}" ]; then
+            ssh-agent -k >/dev/null 2>&1 || true
+          fi
+          rm -f "$RUNNER_TEMP/runner_repo_key" "$RUNNER_TEMP/runner_repo_key.pub"

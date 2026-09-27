@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "math_backend": {
+    "executable": "llama-cli",
+    "model_path": "",
+    "chat_template": "",
+    "max_tokens": 1024,
+    "temperature": 0.15,
+    "top_p": 0.9,
+    "seed": 1,
+    "timeout_seconds": 180,
+    "server_base": "http://127.0.0.1:8081"
+  },
+  "lemma_decomposition": {
+    "json_schema_path": "config/schemas/lemma_decomposition.schema.json",
+    "max_children": 6
+  },
+  "imagination": {
+    "normal_lens_budget": 4,
+    "breakthrough_lens_budget": 8,
+    "skeptic_budget": 6,
+    "max_expensive_candidates": 3,
+    "archive_capacity_per_lens": 2,
+    "minimum_imagination_drive": 0.18,
+    "maximum_skeptic_risk": 65,
+    "memory_path": "state/imagination.sqlite3",
+    "enable_synthesis": true
+  },
+  "swarm": {
+    "max_parallel_agents": 4,
+    "max_total_tasks": 16,
+    "max_depth": 3,
+    "max_children_per_parent": 6,
+    "serialize_shared_backend": true
+  },
+  "math_model_server": {
+    "executable": "llama-server",
+    "model_path": "models/math/qwen2.5-math-7b-instruct.gguf",
+    "host": "127.0.0.1",
+    "port": 8081,
+    "parallel_slots": 2,
+    "context_size": 8192,
+    "startup_timeout_seconds": 120,
+    "offline": true
+  }
+}

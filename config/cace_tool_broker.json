@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "authority_invariant": "Capability grows, authority never expands.",
+  "source_repository": "Mannyspiro/expert-robot",
+  "cace": {
+    "repository": "morganaspim/Cace-app",
+    "pinned_commit": "0e7aa229d3bb57174e281b883ee8af5445f15f75",
+    "pin_source": {
+      "probe_run_id": "36255325310",
+      "probe_commit": "f65808c1d973f95588c1ce76fe20c8132c87004e",
+      "artifact_sha256": "f950035062359cd10a1dbd4ee3a33c0ea7462488bdf1414bb9e392064cb2eb4c"
+    },
+    "remote_mutation_by_probe": false
+  },
+  "defaults": {
+    "authority": "qualification-only",
+    "promotion_authority": false,
+    "monetary_cost": "free",
+    "automatic_merge": false,
+    "automatic_promotion": false
+  },
+  "capabilities": [
+    {
+      "capability_id": "cace.external.expert_robot_formal_static",
+      "executor_kind": "expert-robot-source-bundle",
+      "workflow_repository": "Mannyspiro/expert-robot",
+      "workflow": ".github/workflows/external-free-runner-bridge.yml",
+      "lane": "cace-oci-aarch64",
+      "source_repository": "Mannyspiro/expert-robot",
+      "max_wall_seconds": 1500,
+      "max_lean_checks": 40,
+      "can_qualify": true,
+      "can_promote": false
+    }
+  ],
+  "result_policy": {
+    "exact_request_binding_required": true,
+    "exact_source_commit_binding_required": true,
+    "exact_cace_commit_binding_required": true,
+    "evidence_sha256_required": true,
+    "result_sha256_required": true,
+    "accepted_result_statuses": [
+      "pass",
+      "fail"
+    ],
+    "pass_is_evidence_only": true,
+    "promotion_requires_existing_external_boundary": true,
+    "base44_telemetry_authoritative": false,
+    "railway_relay_authoritative": false,
+    "vercel_observability_authoritative": false
+  },
+  "native_cace_capabilities": {
+    "status": "discovery-only",
+    "repository": "morganaspim/Cace-app",
+    "note": "CACE-native workflows execute Cace-app source and are not Expert Robot source-verification capabilities."
+  }
+}

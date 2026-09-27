@@ -1,0 +1,209 @@
+{
+  "schema_version": 1,
+  "invariant": "Same known failure class should fail fast before expensive qualification.",
+  "classes": [
+    {
+      "id": "cpp-missing-field-initializer",
+      "discovered_by": "railway-free-preflight",
+      "symptom": "-Wmissing-field-initializers on aggregate persistence/experience records",
+      "prevention": [
+        "explicitly initialize newly added aggregate fields",
+        "CMake promotes supported missing-field initializer warnings to errors"
+      ],
+      "guard": "tests/known_failure_regression_smoke.py"
+    },
+    {
+      "id": "cpp-range-loop-copy",
+      "discovered_by": "railway-free-preflight",
+      "symptom": "-Wrange-loop-construct copies std::string values in hot/evaluation loops",
+      "prevention": [
+        "bind stable loop values by const reference",
+        "CMake promotes supported range-loop warnings to errors"
+      ],
+      "guard": "tests/known_failure_regression_smoke.py"
+    },
+    {
+      "id": "lean-vec3-ext-missing",
+      "discovered_by": "math-architecture-benchmark",
+      "symptom": "Lean ext tactic cannot prove Vec3 coordinate equality",
+      "prevention": [
+        "register Vec3.ext_coords with @[ext]",
+        "keep exact geometry extensionality in the foundational Exact module"
+      ],
+      "guard": "tests/known_failure_regression_smoke.py"
+    },
+    {
+      "id": "lean-brittle-positivity-dot-self",
+      "discovered_by": "math-architecture-benchmark",
+      "symptom": "positivity fails to establish nonnegativity of dot a a after unfolding",
+      "prevention": [
+        "use explicit sq_nonneg hypotheses and nlinarith"
+      ],
+      "guard": "tests/known_failure_regression_smoke.py"
+    },
+    {
+      "id": "railway-ssh-agent-forwarding-assumption",
+      "discovered_by": "railway-free-preflight",
+      "symptom": "ssh -A railway.new does not expose forwarded agent inside Railway relay",
+      "prevention": [
+        "perform deploy-key Git operations on dispatcher",
+        "send Railway source bundles without GitHub credentials"
+      ],
+      "guard": "tests/known_failure_regression_smoke.py"
+    },
+    {
+      "id": "railway-claim-url-log-leak",
+      "discovered_by": "secure-railway-ssh-check",
+      "symptom": "Railway provisioning JSON can emit a one-time human_claim_url into Actions logs",
+      "prevention": [
+        "filter human_claim_url lines in Railway SSH workflow output"
+      ],
+      "guard": "tests/known_failure_regression_smoke.py"
+    },
+    {
+      "id": "external-runner-wrong-capability-assumption",
+      "discovered_by": "external-free-runner-bridge",
+      "symptom": "CACE OCI runner lacks CMake/Ninja but has persistent Lean infrastructure",
+      "prevention": [
+        "treat CACE OCI as formal/static ARM64 lane",
+        "make C++ optional on that runner",
+        "use Avrea for C++/benchmarks"
+      ],
+      "guard": "tests/known_failure_regression_smoke.py"
+    },
+    {
+      "id": "external-runner-write-authority-exposure",
+      "discovered_by": "external-free-runner-bridge-hardening",
+      "symptom": "self-hosted qualification job executes candidate code while holding repository write authority",
+      "prevention": [
+        "self-hosted qualification job has contents: read only",
+        "checkout uses persist-credentials: false",
+        "result is uploaded as an artifact",
+        "separate GitHub-hosted publisher job holds contents: write and never executes candidate code"
+      ],
+      "guard": "tests/known_failure_regression_smoke.py"
+    },
+    {
+      "id": "formal-dependency-drift",
+      "discovered_by": "external-runner-threat-model",
+      "symptom": "formal build keeps Mathlib pinned but silently adds or changes another Lake dependency",
+      "prevention": [
+        "lock the complete Lake package graph by name/type/url/rev/inputRev",
+        "reject executable lakefile.lean",
+        "allow only reviewed Lean/Mathlib upstream repository prefixes"
+      ],
+      "guard": "tests/formal_dependency_lock_smoke.py"
+    },
+    {
+      "id": "cace-tool-stale-pin-or-capability-drift",
+      "discovered_by": "cace-tool-broker-v1",
+      "symptom": "Expert Robot dispatches work to an unpinned CACE commit, unknown capability, or mismatched execution lane.",
+      "prevention": [
+        "pin the exact Cace-app commit from a successful capability probe",
+        "dispatch only allowlisted capability IDs and lanes",
+        "reject request budgets above per-capability maxima"
+      ],
+      "guard": "tests/cace_tool_broker_smoke.py"
+    },
+    {
+      "id": "cace-tool-result-binding-or-integrity-drift",
+      "discovered_by": "cace-tool-broker-v1",
+      "symptom": "Returned CACE evidence does not bind exactly to the original request/source/CACE commit or its canonical result hash.",
+      "prevention": [
+        "require exact request/source/CACE/capability bindings",
+        "require SHA-256 evidence and canonical result digests",
+        "reject runtime usage above the admitted request budget"
+      ],
+      "guard": "tests/cace_tool_broker_smoke.py"
+    },
+    {
+      "id": "cace-tool-authority-or-cost-escalation",
+      "discovered_by": "cace-tool-broker-v1",
+      "symptom": "External CACE results attempt to carry promotion authority, automatic promotion, or non-free resource status.",
+      "prevention": [
+        "fix CACE authority to qualification-only",
+        "force promotion_authority false and automatic promotion false",
+        "require monetary_cost free and preserve the existing external promotion boundary"
+      ],
+      "guard": "tests/cace_tool_broker_smoke.py"
+    },
+    {
+      "id": "cace-verifier-evidence-becomes-promotion-signal",
+      "discovered_by": "cace-generation-evidence",
+      "symptom": "A passing external CACE verifier result is accidentally treated as a keep recommendation or promotion approval.",
+      "prevention": [
+        "record CACE results as non-recommending generation evaluations",
+        "force recommend_keep false for CACE evidence",
+        "keep hidden ablation evidence and external promotion approval as independent gates"
+      ],
+      "guard": "tests/cace_evidence_smoke.cpp"
+    },
+    {
+      "id": "cace-wrong-verifier-or-compute-lane-routing",
+      "discovered_by": "cace-tool-routing",
+      "symptom": "A candidate is sent to a verifier lane that cannot check it, or expensive Avrea work is used when a bounded CACE capability is sufficient.",
+      "prevention": [
+        "route only through the CACE capability allowlist",
+        "keep C++/model/runtime changes on Avrea rather than the ARM64 formal CACE lane",
+        "use deterministic path-based routing and validate every emitted CACE request against the broker contract"
+      ],
+      "guard": "tests/cace_tool_routing_smoke.py"
+    },
+    {
+      "id": "cace-required-verification-evidence-missing",
+      "discovered_by": "required-verification-gates",
+      "symptom": "A generation has an admitted required CACE verification request but can still become promotable before any passing evidence is returned.",
+      "prevention": [
+        "record the admitted CACE request as a required failing gate before execution",
+        "treat the latest result for each required gate as authoritative gate state",
+        "block promotion while a required gate is missing or failed without treating verifier evidence as a keep recommendation"
+      ],
+      "guard": "tests/cace_evidence_smoke.cpp"
+    },
+    {
+      "id": "cace-headless-wrong-model-or-config-drift",
+      "discovered_by": "cace-headless-reasoner-v1",
+      "symptom": "Loopback services appear healthy while the served model, frozen revision, llama.cpp runtime, CACE source revision, trust role, or authority contract differs from the reviewed headless configuration.",
+      "prevention": [
+        "validate exact model, model revision, quantization, runtime commit, CACE source revision, trust role, and loopback policy before client startup",
+        "require the exact configured model to appear in the local model list and reject response-model drift",
+        "reject system/tool role injection into the untrusted local reasoner"
+      ],
+      "guard": "tests/cace_headless_client_smoke.py"
+    },
+    {
+      "id": "cace-headless-runtime-bytes-unverified",
+      "discovered_by": "cace-headless-reasoner-v1",
+      "symptom": "The logical model/runtime pins are correct but mutable or unexpected GGUF or llama-server bytes are executed locally.",
+      "prevention": [
+        "require caller-supplied SHA-256 for the pre-provisioned GGUF and llama-server binary",
+        "hash both artifacts immediately before startup and fail on mismatch",
+        "keep runtime downloads and external model APIs forbidden"
+      ],
+      "guard": "integration/cace/tests/test_headless_local_llm_contract.py"
+    },
+    {
+      "id": "cace-headless-publisher-secret-exec-boundary",
+      "discovered_by": "cace-headless-reasoner-v1",
+      "symptom": "Candidate or staged CACE payload code executes in the same job that holds the repository-scoped CACE deploy key.",
+      "prevention": [
+        "validate candidate and payload code in a secret-free GitHub-hosted job",
+        "pass only a hash-manifested static artifact into the publisher job",
+        "publisher may clone, copy fixed paths, commit, and non-force push but may not execute the payload"
+      ],
+      "guard": "tests/cace_headless_stage_smoke.py"
+    },
+    {
+      "id": "cace-cross-repository-capability-confusion",
+      "discovered_by": "cace-cross-repo-capability-audit",
+      "symptom": "An Expert Robot candidate is routed to a CACE-native workflow that actually validates Cace-app source, producing irrelevant evidence that appears to satisfy an Expert Robot gate.",
+      "prevention": [
+        "Expert Robot broker capabilities must consume Expert Robot source explicitly",
+        "CACE-native workflows remain discovery-only in the Expert Robot broker",
+        "bind executor kind, workflow repository, and workflow path into every request",
+        "start the external source-bundle bridge from the exact reviewed CACE commit rather than moving default HEAD"
+      ],
+      "guard": "tests/cace_tool_routing_smoke.py"
+    }
+  ]
+}
