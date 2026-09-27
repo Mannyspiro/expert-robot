@@ -13,6 +13,7 @@ TRANSPORT = ROOT / "config" / "cace_async_transport.json"
 PLANNER = ROOT / "scripts" / "plan_cace_tool_requests.py"
 BUILDER = ROOT / "scripts" / "build_cace_async_packet.py"
 SOURCE = "a" * 40
+BASE = "d" * 40
 
 
 def sha(data: bytes) -> str:
@@ -54,6 +55,8 @@ def build(
     *,
     transport_payload=None,
     generation_id="generation-async-001",
+    trusted_base=BASE,
+    attempt=1,
 ):
     request_path = tmp / "request.json"
     transport_path = tmp / "transport.json"
@@ -70,6 +73,8 @@ def build(
             str(request_path),
             generation_id,
             str(archive),
+            trusted_base,
+            str(attempt),
         ],
         text=True,
         capture_output=True,
@@ -89,6 +94,8 @@ with tempfile.TemporaryDirectory() as tmp_raw:
 
     assert packet["schema_version"] == 1
     assert packet["generation_id"] == "generation-async-001"
+    assert packet["trusted_dispatch_ref"] == "feat/reuse-refactored-fishstick"
+    assert packet["trusted_base_commit"] == BASE
     assert (
         packet["gate_id"]
         == "cace::cace.external.expert_robot_formal_static"
@@ -106,6 +113,8 @@ with tempfile.TemporaryDirectory() as tmp_raw:
     )
     assert packet["return_branch"] == f'cace-return/{request["request_id"]}'
     assert packet["attempt"] == 1
+    assert packet["request_branch"].endswith("-a1")
+    assert packet["return_branch"].endswith("-a1")
     assert packet["max_attempts"] == 3
     assert packet["response_deadline_seconds"] == 1800
     assert packet["authority"] == "qualification-only"
@@ -122,6 +131,21 @@ with tempfile.TemporaryDirectory() as tmp_raw:
     again = build(tmp, request, archive)
     assert again.returncode == 0, again.stderr
     assert json.loads(again.stdout) == packet
+
+
+    retry = build(tmp, request, archive, attempt=2)
+    assert retry.returncode == 0, retry.stderr
+    retry_packet = json.loads(retry.stdout)
+    assert retry_packet["attempt"] == 2
+    assert retry_packet["request_branch"] != packet["request_branch"]
+    assert retry_packet["return_branch"] != packet["return_branch"]
+    assert retry_packet["transport_id"] != packet["transport_id"]
+
+    rejected = build(tmp, request, archive, attempt=4)
+    assert rejected.returncode != 0
+    assert "outside allowed retry range" in (
+        rejected.stderr + rejected.stdout
+    )
 
     # Archive tampering after admission is rejected.
     archive.write_bytes(b"tampered")
