@@ -2,6 +2,7 @@
 
 #include "expert_robot/growth/generation_lineage.hpp"
 
+#include <optional>
 #include <string>
 #include <string_view>
 
@@ -19,6 +20,12 @@ struct CaceEvaluationEvidence {
     std::string evaluation_evidence_hash;
 
     bool passed{false};
+
+    // True when the selected capability is a formal qualification gate.
+    bool qualification_capability{false};
+
+    // Must equal passed && qualification_capability. Kept explicit so drift
+    // between the external validator and lineage adapter fails closed.
     bool qualification_evidence{false};
 
     std::string authority{"qualification-only"};
@@ -29,18 +36,36 @@ struct CaceEvaluationEvidence {
     long long lean_checks{0};
 };
 
+struct CaceEvidenceReceipt {
+    EvaluationRecord evaluation;
+    std::optional<VerificationGateRecord> verification_gate;
+};
+
 void validate_cace_evaluation_evidence(
     const CaceEvaluationEvidence& evidence);
 
 /**
+ * Record a planned required CACE gate before execution.
+ *
+ * The requirement is represented as the latest failing state for the gate,
+ * hash-bound to the admitted request/plan. Promotion therefore remains blocked
+ * until broker-validated evidence for the same capability records a pass.
+ */
+[[nodiscard]] VerificationGateRecord record_cace_verification_requirement(
+    GenerationLineageStore& store,
+    std::string_view generation_id,
+    std::string_view capability_id,
+    std::string_view request_evidence_hash);
+
+/**
  * Record broker-validated CACE evidence in generation lineage.
  *
- * The returned EvaluationRecord is deliberately non-recommending:
- * recommend_keep, efficiency_ok, and diversity_ok are always false.
- * Therefore CACE verification evidence cannot make a generation promotable
- * and cannot substitute for hidden ablation evidence or external approval.
+ * CACE evidence is deliberately non-recommending: recommend_keep,
+ * efficiency_ok, and diversity_ok remain false. A qualifying capability only
+ * updates its required verification gate. Hidden/ablation evaluation and the
+ * external promotion boundary remain independent.
  */
-[[nodiscard]] EvaluationRecord record_cace_evaluation_evidence(
+[[nodiscard]] CaceEvidenceReceipt record_cace_evaluation_evidence(
     GenerationLineageStore& store,
     std::string_view generation_id,
     const CaceEvaluationEvidence& evidence);
