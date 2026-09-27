@@ -1,0 +1,59 @@
+name: CACE Headless Contract
+
+on:
+  push:
+    branches:
+      - "feat/cace-headless-reasoner-v1"
+      - "feat/reuse-refactored-fishstick"
+    paths:
+      - ".github/workflows/cace-headless-contract.yml"
+      - ".github/workflows/cace-headless-stage.yml"
+      - "config/cace_headless_local.json"
+      - "python/cace_headless.py"
+      - "python/orchestrator.py"
+      - "tests/cace_headless_client_smoke.py"
+      - "tests/orchestrator_cace_headless_smoke.py"
+      - "tests/cace_headless_stage_smoke.py"
+      - "integration/cace/**"
+  pull_request:
+    paths:
+      - ".github/workflows/cace-headless-contract.yml"
+      - ".github/workflows/cace-headless-stage.yml"
+      - "config/cace_headless_local.json"
+      - "python/cace_headless.py"
+      - "python/orchestrator.py"
+      - "tests/cace_headless_client_smoke.py"
+      - "tests/orchestrator_cace_headless_smoke.py"
+      - "tests/cace_headless_stage_smoke.py"
+      - "integration/cace/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cace-headless-contract-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Python headless boundary
+        run: |
+          set -euo pipefail
+          python3 tests/cace_headless_client_smoke.py
+          python3 tests/orchestrator_cace_headless_smoke.py
+          python3 tests/cace_headless_stage_smoke.py
+
+      - name: CACE payload contract
+        run: |
+          set -euo pipefail
+          bash -n integration/cace/scripts/run_cace_headless_local.sh
+          python3 integration/cace/tests/test_headless_local_llm_contract.py

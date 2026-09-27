@@ -1,0 +1,159 @@
+name: CACE Headless Staging
+
+on:
+  push:
+    branches:
+      - "feat/cace-headless-reasoner-v1"
+      - "feat/reuse-refactored-fishstick"
+    paths:
+      - ".github/workflows/cace-headless-stage.yml"
+      - "integration/cace/config/headless_local_llm.json"
+      - "integration/cace/config/model_provision_policy.json"
+      - "integration/cace/scripts/run_cace_headless_local.sh"
+      - "integration/cace/docs/HEADLESS_LOCAL_LLM.md"
+      - "integration/cace/tests/test_headless_local_llm_contract.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cace-headless-stage
+  cancel-in-progress: true
+
+jobs:
+  validate-payload:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Check out Expert Robot without credentials
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Validate Expert Robot headless boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tests/cace_headless_client_smoke.py
+          python3 tests/orchestrator_cace_headless_smoke.py
+
+      - name: Validate static CACE payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash -n integration/cace/scripts/run_cace_headless_local.sh
+          python3 integration/cace/tests/test_headless_local_llm_contract.py
+
+      - name: Package fixed-path payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          payload="$RUNNER_TEMP/cace-headless-payload"
+          rm -rf "$payload"
+          mkdir -p "$payload/config" "$payload/scripts" "$payload/docs" "$payload/tests"
+
+          cp integration/cace/config/headless_local_llm.json             "$payload/config/headless_local_llm.json"
+          cp integration/cace/config/model_provision_policy.json             "$payload/config/model_provision_policy.json"
+          cp integration/cace/scripts/run_cace_headless_local.sh             "$payload/scripts/run_cace_headless_local.sh"
+          cp integration/cace/docs/HEADLESS_LOCAL_LLM.md             "$payload/docs/HEADLESS_LOCAL_LLM.md"
+          cp integration/cace/tests/test_headless_local_llm_contract.py             "$payload/tests/test_headless_local_llm_contract.py"
+
+          (
+            cd "$payload"
+            find config scripts docs tests -type f -print0               | sort -z               | xargs -0 sha256sum               > MANIFEST.sha256
+          )
+
+      - name: Upload validated payload
+        uses: actions/upload-artifact@v4
+        with:
+          name: cace-headless-payload-${{ github.run_id }}
+          path: ${{ runner.temp }}/cace-headless-payload/
+          if-no-files-found: error
+          retention-days: 1
+
+  stage-payload:
+    needs: validate-payload
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Download validated payload
+        uses: actions/download-artifact@v4
+        with:
+          name: cace-headless-payload-${{ github.run_id }}
+          path: ${{ runner.temp }}/cace-headless-payload
+
+      - name: Verify payload digest manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/cace-headless-payload"
+          sha256sum -c MANIFEST.sha256
+
+      - name: Prepare repository-scoped deploy key
+        id: key
+        shell: bash
+        env:
+          RAILWAY_SSH_PRIVATE_KEY: ${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "${RAILWAY_SSH_PRIVATE_KEY:-}"
+          umask 077
+          key_file="$RUNNER_TEMP/cace_repo_key"
+          printf '%s\n' "$RAILWAY_SSH_PRIVATE_KEY" > "$key_file"
+          chmod 600 "$key_file"
+          ssh-keygen -y -f "$key_file" > "$RUNNER_TEMP/cace_repo_key.pub"
+          echo "key_file=$key_file" >> "$GITHUB_OUTPUT"
+
+      - name: Stage fixed payload without executing it
+        shell: bash
+        env:
+          KEY_FILE: ${{ steps.key.outputs.key_file }}
+          CACE_BRANCH: expert-robot/headless-local-llm
+        run: |
+          set -euo pipefail
+
+          payload="$RUNNER_TEMP/cace-headless-payload"
+          work="$RUNNER_TEMP/cace-headless-repo"
+          rm -rf "$work"
+
+          GIT_SSH_COMMAND="ssh -i $KEY_FILE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new"             git clone git@github.com:morganaspim/Cace-app.git "$work"
+
+          cd "$work"
+          if git show-ref --verify --quiet "refs/remotes/origin/$CACE_BRANCH"; then
+            git checkout -B "$CACE_BRANCH" "origin/$CACE_BRANCH"
+          else
+            default_ref="$(git symbolic-ref --short refs/remotes/origin/HEAD)"
+            git checkout -B "$CACE_BRANCH" "$default_ref"
+          fi
+
+          mkdir -p config scripts docs tests
+          cp "$payload/config/headless_local_llm.json" config/headless_local_llm.json
+          cp "$payload/config/model_provision_policy.json" config/model_provision_policy.json
+          cp "$payload/scripts/run_cace_headless_local.sh" scripts/run_cace_headless_local.sh
+          cp "$payload/docs/HEADLESS_LOCAL_LLM.md" docs/HEADLESS_LOCAL_LLM.md
+          cp "$payload/tests/test_headless_local_llm_contract.py" tests/test_headless_local_llm_contract.py
+          chmod +x scripts/run_cace_headless_local.sh
+
+          git config user.name "expert-robot-cace-headless"
+          git config user.email "noreply@github.com"
+          git add             config/headless_local_llm.json             config/model_provision_policy.json             scripts/run_cace_headless_local.sh             docs/HEADLESS_LOCAL_LLM.md             tests/test_headless_local_llm_contract.py
+
+          if git diff --cached --quiet; then
+            echo "CACE headless branch already matches validated payload."
+          else
+            git commit -m "Harden loopback-only headless local LLM runtime"
+          fi
+
+          cace_commit="$(git rev-parse HEAD)"
+          GIT_SSH_COMMAND="ssh -i $KEY_FILE -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new"             git push origin "HEAD:$CACE_BRANCH"
+
+          echo "CACE staged branch: $CACE_BRANCH @ $cace_commit"
+
+      - name: Remove deploy key
+        if: always()
+        shell: bash
+        run: |
+          rm -f "$RUNNER_TEMP/cace_repo_key" "$RUNNER_TEMP/cace_repo_key.pub"

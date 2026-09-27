@@ -11,7 +11,7 @@ assert registry["schema_version"] == 1
 classes = registry["classes"]
 ids = [item["id"] for item in classes]
 assert len(ids) == len(set(ids))
-assert len(ids) >= 15
+assert len(ids) >= 18
 for required_id in (
     "cace-tool-stale-pin-or-capability-drift",
     "cace-tool-result-binding-or-integrity-drift",
@@ -19,6 +19,9 @@ for required_id in (
     "cace-verifier-evidence-becomes-promotion-signal",
     "cace-wrong-verifier-or-compute-lane-routing",
     "cace-required-verification-evidence-missing",
+    "cace-headless-wrong-model-or-config-drift",
+    "cace-headless-runtime-bytes-unverified",
+    "cace-headless-publisher-secret-exec-boundary",
 ):
     assert required_id in ids
 allowed_guards = {
@@ -27,6 +30,9 @@ allowed_guards = {
     "tests/cace_tool_broker_smoke.py",
     "tests/cace_evidence_smoke.cpp",
     "tests/cace_tool_routing_smoke.py",
+    "tests/cace_headless_client_smoke.py",
+    "integration/cace/tests/test_headless_local_llm_contract.py",
+    "tests/cace_headless_stage_smoke.py",
 }
 for item in classes:
     assert item["prevention"]

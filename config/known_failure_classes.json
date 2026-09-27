@@ -159,6 +159,39 @@
         "block promotion while a required gate is missing or failed without treating verifier evidence as a keep recommendation"
       ],
       "guard": "tests/cace_evidence_smoke.cpp"
+    },
+    {
+      "id": "cace-headless-wrong-model-or-config-drift",
+      "discovered_by": "cace-headless-reasoner-v1",
+      "symptom": "Loopback services appear healthy while the served model, frozen revision, llama.cpp runtime, CACE source revision, trust role, or authority contract differs from the reviewed headless configuration.",
+      "prevention": [
+        "validate exact model, model revision, quantization, runtime commit, CACE source revision, trust role, and loopback policy before client startup",
+        "require the exact configured model to appear in the local model list and reject response-model drift",
+        "reject system/tool role injection into the untrusted local reasoner"
+      ],
+      "guard": "tests/cace_headless_client_smoke.py"
+    },
+    {
+      "id": "cace-headless-runtime-bytes-unverified",
+      "discovered_by": "cace-headless-reasoner-v1",
+      "symptom": "The logical model/runtime pins are correct but mutable or unexpected GGUF or llama-server bytes are executed locally.",
+      "prevention": [
+        "require caller-supplied SHA-256 for the pre-provisioned GGUF and llama-server binary",
+        "hash both artifacts immediately before startup and fail on mismatch",
+        "keep runtime downloads and external model APIs forbidden"
+      ],
+      "guard": "integration/cace/tests/test_headless_local_llm_contract.py"
+    },
+    {
+      "id": "cace-headless-publisher-secret-exec-boundary",
+      "discovered_by": "cace-headless-reasoner-v1",
+      "symptom": "Candidate or staged CACE payload code executes in the same job that holds the repository-scoped CACE deploy key.",
+      "prevention": [
+        "validate candidate and payload code in a secret-free GitHub-hosted job",
+        "pass only a hash-manifested static artifact into the publisher job",
+        "publisher may clone, copy fixed paths, commit, and non-force push but may not execute the payload"
+      ],
+      "guard": "tests/cace_headless_stage_smoke.py"
     }
   ]
 }

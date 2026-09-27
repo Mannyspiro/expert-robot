@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "mode": "local-headless",
+  "trust_role": "untrusted-informal-reasoner",
+  "network_policy": "loopback-only",
+  "cace_api": {
+    "base_url": "http://127.0.0.1:8765",
+    "health_path": "/api/health",
+    "modules_path": "/api/modules",
+    "claims_path": "/api/claims"
+  },
+  "local_llm": {
+    "provider": "llama-cpp",
+    "base_url": "http://127.0.0.1:8080/v1",
+    "model_id": "Qwen/Qwen3.5-4B",
+    "repo_revision": "a7b0d22b993d71000cf2eadfb37222a67cee521e",
+    "quantization": "Q4_K_M",
+    "frozen_base": true,
+    "max_tokens_default": 2048,
+    "temperature_default": 0.1
+  },
+  "runtime": {
+    "repository": "ggml-org/llama.cpp",
+    "tag": "v0.4.1",
+    "commit": "b29c606e28a01b1bc8c1351026a0fa6e616bf6c4"
+  },
+  "authority": {
+    "client_can_execute_typed_cace_calls": true,
+    "llm_can_execute_typed_cace_calls": false,
+    "llm_can_promote_claims": false,
+    "llm_can_mark_verified": false,
+    "llm_can_merge": false,
+    "llm_can_modify_proof_ledger": false,
+    "llm_can_expand_authority": false,
+    "deterministic_cace_results_remain_separate_from_llm_text": true
+  },
+  "cace_runtime": {
+    "repository": "morganaspim/Cace-app",
+    "branch": "expert-robot/headless-local-llm",
+    "revision": "0aa3b2e00724f647bb629fe7e4765e41fa245e3b"
+  }
+}
