@@ -102,6 +102,17 @@
         "Base proof-search tactics may not name the validation/holdout answer theorems."
       ],
       "guard": "tests/known_failure_regression_smoke.py"
+    },
+    {
+      "id": "formal-dependency-drift",
+      "discovered_by": "external-runner-threat-model",
+      "symptom": "formal build keeps Mathlib pinned but silently adds or changes another Lake dependency",
+      "prevention": [
+        "lock the complete Lake package graph by name/type/url/rev/inputRev",
+        "reject executable lakefile.lean",
+        "allow only reviewed Lean/Mathlib upstream repository prefixes"
+      ],
+      "guard": "tests/formal_dependency_lock_smoke.py"
     }
   ]
 }
