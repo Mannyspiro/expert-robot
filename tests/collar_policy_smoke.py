@@ -12,6 +12,10 @@ assert policy["encryption"]["required"] is True
 assert policy["encryption"]["key_destruction_on_trip"] is True
 assert policy["encryption"]["plaintext_destruction_on_trip"] is True
 assert policy["sandbox"]["network_default"] == "none"
+assert policy["sandbox"]["outer_boundary_required"] is True
+assert policy["sandbox"]["container_image_digest_required"] is True
+assert policy["sandbox"]["supervisor_canary_required"] is True
+assert "one-use" in policy["encryption"]["generation_key"]
 assert policy["sandbox"]["run_as_root"] is False
 assert policy["sandbox"]["capabilities"] == "drop_all"
 assert policy["sandbox"]["read_only_root"] is True
