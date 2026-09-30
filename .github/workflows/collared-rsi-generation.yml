@@ -106,7 +106,7 @@ jobs:
             workspace="$RUNNER_TEMP/eval-$i"
             mkdir -p "$workspace"
             cp -a candidate "$workspace/candidate"
-            trusted/scripts/prepare_collared_generation.sh trusted "$sealed" "$key"
+            (cd trusted && scripts/prepare_collared_generation.sh . "$sealed" "$key")
             (
               cd trusted
               scripts/run_collared.sh --sealed "$sealed" --key-file "$key" \
@@ -115,7 +115,7 @@ jobs:
             )
             cp "$workspace/collar-evidence/result.json" "evidence/runs/result-$i.json"
             python3 - "$i" "$CANDIDATE_SHA" "$BASE_SHA" <<'PY'
-import json, pathlib, sys
+import json, os, pathlib, sys
 i, candidate_sha, base_sha = sys.argv[1:]
 p=pathlib.Path("evidence/run-records.json")
 rows=json.loads(p.read_text())
@@ -123,7 +123,7 @@ runtime=json.loads(pathlib.Path(f"evidence/runs/result-{i}.json").read_text())
 if runtime.get("tripped") or runtime.get("exit_code") != 0 or runtime.get("promotion_authority") is not False:
     raise SystemExit("collared evaluation did not satisfy fail-closed runtime contract")
 rows.append({
-    "run_id": f"${{GITHUB_RUN_ID}}-{i}",
+    "run_id": f"{os.environ['GITHUB_RUN_ID']}-{i}",
     "kind": "evaluation",
     "promoted_lineage": False,
     "candidate_sha": candidate_sha,
