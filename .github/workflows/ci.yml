@@ -96,7 +96,9 @@ jobs:
         run: python3 tests/cace_return_bridge_smoke.py
 
       - name: Collar policy guardrails
-        run: python3 tests/collar_policy_smoke.py
+        run: |
+          python3 tests/collar_policy_smoke.py
+          python3 tests/collar_runtime_contract_smoke.py
 
       - name: Collar encrypted-core smoke
         run: bash tests/collar_vault_smoke.sh
