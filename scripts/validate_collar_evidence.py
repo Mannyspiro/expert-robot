@@ -19,12 +19,26 @@ def main():
     payload=json.loads(raw)
     runtime=payload.get("runtime_result",{})
     budget=payload.get("generation_budget",{})
+    run_records=payload.get("run_records",[])
+    actual_runs=int(budget.get("actual_runs",0))
+    recommended_runs=int(budget.get("recommended_runs",0))
+    run_ids=[row.get("run_id") for row in run_records if isinstance(row,dict)]
+    real_evaluations=[
+        row for row in run_records
+        if isinstance(row,dict) and row.get("kind")=="evaluation"
+    ]
 
     checks={
         "candidate_sha_matches": payload.get("candidate_sha")==args.candidate_sha,
         "base_sha_matches": payload.get("parent_sha")==args.base_sha,
-        "generation_budget_estimated": budget.get("estimated") is True and int(budget.get("recommended_runs",0))>=1,
-        "actual_runs_bounded": 1 <= int(budget.get("actual_runs",0)) <= int(budget.get("recommended_runs",0)),
+        "generation_budget_estimated": budget.get("estimated") is True and recommended_runs>=1,
+        "actual_runs_bounded": 1 <= actual_runs <= recommended_runs,
+        "run_records_present": len(run_records)==actual_runs,
+        "run_ids_unique": len(run_ids)==actual_runs and len(set(run_ids))==actual_runs and all(run_ids),
+        "all_runs_are_real_evaluations": len(real_evaluations)==actual_runs,
+        "no_promoted_lineage_counted_as_run": all(
+            row.get("promoted_lineage") is not True for row in run_records if isinstance(row,dict)
+        ),
         "collar_not_tripped": runtime.get("tripped") is False,
         "no_promotion_authority": runtime.get("promotion_authority") is False,
         "image_digest_pinned": runtime.get("image_digest_pinned") is True,
@@ -42,6 +56,9 @@ def main():
         "parent_sha":args.base_sha,
         "source_run_id":payload.get("source_run_id"),
         "generation_budget_estimated":checks["generation_budget_estimated"],
+        "recommended_runs":recommended_runs,
+        "actual_runs":actual_runs,
+        "real_evaluation_count":len(real_evaluations),
         "collared_execution":not failed,
         "lineage_verified":checks["lineage_verified"],
         "core_integrity_verified":checks["core_integrity_verified"],
