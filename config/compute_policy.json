@@ -107,6 +107,30 @@
       "monetary_cost": "free",
       "authority": "qualification-only",
       "install_or_dispatch_requires_capability_probe": true
+    },
+    "external_integrations": {
+      "base44": {
+        "status": "telemetry-only",
+        "monetary_cost": "zero-spend-only",
+        "canonical": false,
+        "can_qualify": false,
+        "can_promote": false,
+        "allowed_actions": [
+          "read and write non-authoritative CI telemetry",
+          "read and write non-authoritative benchmark telemetry",
+          "index qualification evidence metadata",
+          "host optional read-only dashboards within free-tier limits"
+        ],
+        "prohibited_actions": [
+          "store canonical proofs or proof-memory state",
+          "store credentials, deploy keys, or private key material",
+          "store model weights",
+          "grant qualification authority",
+          "grant promotion authority",
+          "use paid Builder sandbox or paid resources",
+          "enable billing or purchase credits"
+        ]
+      }
     }
   }
 }
