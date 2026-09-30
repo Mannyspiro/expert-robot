@@ -75,6 +75,14 @@ jobs:
         run: |
           python3 trusted/scripts/validate_candidate_scope.py candidate             --base-sha "${{ steps.meta.outputs.base_sha }}"             --candidate-sha "${{ steps.meta.outputs.candidate_sha }}"             --policy trusted/config/auto_promotion_scope.json             --output candidate-scope.json
 
+      - name: Reject evaluation identity leakage
+        run: |
+          python3 trusted/scripts/validate_blind_candidate.py candidate \
+            --base-sha "${{ steps.meta.outputs.base_sha }}" \
+            --candidate-sha "${{ steps.meta.outputs.candidate_sha }}" \
+            --policy trusted/config/blind_evaluation_policy.json \
+            --output candidate-blind.json
+
       - name: Verify formal dependency graph is unchanged
         shell: bash
         run: |
@@ -123,6 +131,7 @@ jobs:
           path: |
             candidate-evidence/
             candidate-scope.json
+            candidate-blind.json
           if-no-files-found: error
           retention-days: 30
 
@@ -151,6 +160,14 @@ jobs:
       - name: Revalidate candidate scope on fresh runner
         run: |
           python3 trusted/scripts/validate_candidate_scope.py candidate             --base-sha "${{ needs.qualify.outputs.base_sha }}"             --candidate-sha "${{ needs.qualify.outputs.candidate_sha }}"             --policy trusted/config/auto_promotion_scope.json             --output trusted-scope.json
+
+      - name: Revalidate blind candidate on fresh runner
+        run: |
+          python3 trusted/scripts/validate_blind_candidate.py candidate \
+            --base-sha "${{ needs.qualify.outputs.base_sha }}" \
+            --candidate-sha "${{ needs.qualify.outputs.candidate_sha }}" \
+            --policy trusted/config/blind_evaluation_policy.json \
+            --output trusted-blind.json
 
       - name: Download raw benchmark evidence
         uses: actions/download-artifact@v4
@@ -270,5 +287,6 @@ jobs:
             benchmark-merit.json
             normalized-collar.json
             trusted-scope.json
+            trusted-blind.json
           if-no-files-found: error
           retention-days: 30
