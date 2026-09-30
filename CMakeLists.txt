@@ -87,6 +87,11 @@ add_executable(expert_robot_runtime
 )
 target_link_libraries(expert_robot_runtime PRIVATE expert_robot_core)
 
+add_executable(expert_robot_research
+    cpp/src/research_cli_main.cpp
+)
+target_link_libraries(expert_robot_research PRIVATE expert_robot_core)
+
 enable_testing()
 
 add_executable(capabilities_smoke
