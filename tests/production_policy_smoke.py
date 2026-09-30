@@ -19,7 +19,7 @@ def run(*args):
 ready = run(ROOT / "scripts" / "production_readiness.py")
 payload = json.loads(ready.stdout)
 assert payload["ready"] is True
-assert payload["max_parallel_vcpu"] == 24
+assert payload["max_parallel_vcpu"] == 16\nassert payload["worst_case_with_ci_vcpu"] == 24
 
 low_cost = json.loads(run(
     ROOT / "scripts" / "estimate_generation_budget.py",
