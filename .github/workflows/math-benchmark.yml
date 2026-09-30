@@ -45,7 +45,7 @@ jobs:
     name: benchmark-${{ matrix.variant }}
     strategy:
       fail-fast: false
-      max-parallel: 3
+      max-parallel: 2
       matrix:
         variant:
           - proof_search
@@ -55,7 +55,7 @@ jobs:
           - strategy_memory
 
     # Production policy caps aggregate benchmark compute below 30 vCPU:
-    # three concurrent 8-vCPU workers = 24 vCPU maximum.
+    # two concurrent 8-vCPU workers = 16 vCPU, leaving 8 vCPU for normal CI.
     runs-on: ${{ inputs.runner || 'avrea-ubuntu-latest-8-vcpu' }}
     timeout-minutes: 20
 
