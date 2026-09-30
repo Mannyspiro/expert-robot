@@ -18,6 +18,11 @@ passing={
     "source_run_id":123,
     "run_records":[],
     "generation_budget":{"estimated":True,"recommended_runs":5,"actual_runs":3},
+    "run_records":[
+        {"run_id":"eval-1","kind":"evaluation","promoted_lineage":False},
+        {"run_id":"eval-2","kind":"evaluation","promoted_lineage":False},
+        {"run_id":"eval-3","kind":"evaluation","promoted_lineage":False},
+    ],
     "lineage_verified":True,
     "core_integrity_verified":True,
     "authority_change":"same",
@@ -34,6 +39,16 @@ with tempfile.TemporaryDirectory() as td:
     p.write_text(json.dumps(passing))
     ok=subprocess.run([sys.executable,str(validator),str(p),"--candidate-sha",csha,"--base-sha",bsha],text=True,capture_output=True,check=True)
     assert '"collared_execution": true' in ok.stdout.lower()
+
+    promoted=dict(passing)
+    promoted["run_records"]=[dict(x) for x in passing["run_records"]]
+    promoted["run_records"][1]["kind"]="lineage"
+    promoted["run_records"][1]["promoted_lineage"]=True
+    p.write_text(json.dumps(promoted))
+    lineage=subprocess.run([sys.executable,str(validator),str(p),"--candidate-sha",csha,"--base-sha",bsha],text=True,capture_output=True)
+    assert lineage.returncode != 0
+    assert "all_runs_are_real_evaluations" in lineage.stdout
+    assert "no_promoted_lineage_counted_as_run" in lineage.stdout
 
     passing["runtime_result"]["tripped"]=True
     p.write_text(json.dumps(passing))
