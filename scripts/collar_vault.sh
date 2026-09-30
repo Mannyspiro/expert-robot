@@ -53,10 +53,11 @@ seal() {
   mkdir -p "$(dirname "$sealed")"
   local tmp
   tmp="$(mktemp "${sealed}.tmp.XXXXXX")"
-  trap 'rm -f "$tmp"' EXIT
+  trap 'if [ -n "${tmp:-}" ]; then rm -f -- "$tmp"; fi' EXIT
 
   tar -C "$src" -cf - . |
-    openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt       -pass env:ENC_KEY -out "$tmp"
+    openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt \
+      -pass fd:3 -out "$tmp" 3<<<"$ENC_KEY"
 
   local mac
   mac="$(openssl dgst -sha256 -mac HMAC -macopt "hexkey:$MAC_KEY" "$tmp" | awk '{print $NF}')"
@@ -87,7 +88,8 @@ unseal() {
     test -z "$(find "$dest" -mindepth 1 -maxdepth 1 -print -quit)"
   }
   mkdir -p "$dest"
-  openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000     -pass env:ENC_KEY -in "$sealed" |
+  openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 \
+    -pass fd:3 -in "$sealed" 3<<<"$ENC_KEY" |
     tar -C "$dest" -xf -
 }
 
