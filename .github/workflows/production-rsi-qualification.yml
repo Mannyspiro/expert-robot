@@ -81,7 +81,7 @@ jobs:
     name: release-benchmark-${{ matrix.variant }}
     strategy:
       fail-fast: false
-      max-parallel: 3
+      max-parallel: 2
       matrix:
         variant:
           - proof_search
