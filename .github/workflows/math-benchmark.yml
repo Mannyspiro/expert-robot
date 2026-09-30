@@ -2,7 +2,7 @@ name: Math Architecture Benchmark
 
 on:
   push:
-    branches: ["feat/**", "fix/**", "release/**"]
+    branches: ["feat/**", "fix/**"]
     paths:
       - "cpp/include/expert_robot/research/strategy_planner.hpp"
       - "cpp/src/research/strategy_planner.cpp"
@@ -36,9 +36,7 @@ permissions:
   contents: read
 
 concurrency:
-  # Shared across heavy Avrea workflows so repository-wide compute never
-  # exceeds the 24-vCPU benchmark ceiling.
-  group: expert-robot-avrea-heavy-${{ github.ref_name }}
+  group: expert-robot-avrea-heavy
   cancel-in-progress: false
 
 
