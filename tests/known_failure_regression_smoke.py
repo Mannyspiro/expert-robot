@@ -11,7 +11,8 @@ assert registry["schema_version"] == 1
 classes = registry["classes"]
 ids = [item["id"] for item in classes]
 assert len(ids) == len(set(ids))
-assert len(ids) >= 10
+assert "formal-dependency-drift" in ids
+assert len(ids) >= 11
 allowed_guards = {
     "tests/known_failure_regression_smoke.py",
     "tests/formal_dependency_lock_smoke.py",
