@@ -116,10 +116,16 @@ Response Runtime::handle(const Request& request) const {
         return response;
     }
 
-    response.ok = true;
-    response.result =
-        "runtime accepted task for role '" + request.role +
-        "'; model backend not connected yet";
+    if (request.role == "health") {
+        response.ok = true;
+        response.result = "runtime protocol healthy";
+        return response;
+    }
+
+    response.ok = false;
+    response.error =
+        "generic protocol runtime does not own model state; "
+        "use expert_robot_research for bounded offline math research";
     return response;
 }
 
