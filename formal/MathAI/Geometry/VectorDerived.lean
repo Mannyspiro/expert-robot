@@ -49,25 +49,6 @@ theorem dot_self_nonnegative (a : Vec3) :
     sq_nonneg a.z
   ]
 
-theorem squaredDistance_eq_dot_vecBetween
-    (a b : Point3) :
-    squaredDistance a b =
-        dot (vecBetween a b) (vecBetween a b) := by
-  unfold squaredDistance dot vecBetween
-  ring
-
-theorem cross_orthogonal_left
-    (a b : Vec3) :
-    orthogonal a (cross a b) := by
-  unfold orthogonal dot cross
-  ring
-
-theorem cross_orthogonal_right
-    (a b : Vec3) :
-    orthogonal b (cross a b) := by
-  unfold orthogonal dot cross
-  ring
-
 theorem validPlane_of_pointOnPlane
     (p : Point3) (plane : Plane3)
     (h : pointOnPlane p plane) :
