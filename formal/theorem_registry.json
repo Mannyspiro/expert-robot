@@ -361,51 +361,6 @@
         "lean_verified"
       ],
       "uses": []
-    },
-    {
-      "name": "MathAI.Geometry.squaredDistance_eq_dot_vecBetween",
-      "source": "MathAI/Geometry/VectorDerived.lean",
-      "status": "verified",
-      "statement": "Squared distance equals the self-dot product of the displacement vector between the two exact rational points.",
-      "domain": "geometry",
-      "tags": [
-        "exact_geometry",
-        "distance",
-        "dot_product",
-        "representation_bridge",
-        "lean_verified"
-      ],
-      "uses": []
-    },
-    {
-      "name": "MathAI.Geometry.cross_orthogonal_left",
-      "source": "MathAI/Geometry/VectorDerived.lean",
-      "status": "verified",
-      "statement": "The exact rational cross product of two vectors is orthogonal to its left input.",
-      "domain": "geometry",
-      "tags": [
-        "exact_geometry",
-        "cross_product",
-        "orthogonality",
-        "representation_bridge",
-        "lean_verified"
-      ],
-      "uses": []
-    },
-    {
-      "name": "MathAI.Geometry.cross_orthogonal_right",
-      "source": "MathAI/Geometry/VectorDerived.lean",
-      "status": "verified",
-      "statement": "The exact rational cross product of two vectors is orthogonal to its right input.",
-      "domain": "geometry",
-      "tags": [
-        "exact_geometry",
-        "cross_product",
-        "orthogonality",
-        "representation_bridge",
-        "lean_verified"
-      ],
-      "uses": []
     }
   ]
 }
