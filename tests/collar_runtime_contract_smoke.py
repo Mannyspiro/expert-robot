@@ -32,5 +32,5 @@ for needle in required:
 
 assert "docker.sock" not in text
 assert "--privileged" not in text
-assert "keygen "$KEY"" not in text
+assert 'keygen "$KEY"' not in text
 print("collar runtime contract: PASS")
