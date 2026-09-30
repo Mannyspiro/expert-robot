@@ -24,6 +24,7 @@ def main():
     compute = json.loads((ROOT / "config/compute_policy.json").read_text())
     math_wf = (ROOT / ".github/workflows/math-benchmark.yml").read_text()
     ci_wf = (ROOT / ".github/workflows/ci.yml").read_text()
+    production_wf = (ROOT / ".github/workflows/production-rsi-qualification.yml").read_text()
 
     required_files = [
         "config/formal_dependency_lock.json",
@@ -55,6 +56,11 @@ def main():
     require('branches: ["feat/**", "fix/**", "release/**"]' in math_wf,
             "release branches do not trigger benchmark", failures)
     require("runs-on: avrea-ubuntu-latest-8-vcpu" in ci_wf, "CI is not on Avrea", failures)
+    shared_group = "group: expert-robot-avrea-heavy-${{ github.ref_name }}"
+    require(shared_group in math_wf, "benchmark lacks shared Avrea concurrency group", failures)
+    require(shared_group in production_wf, "production qualification lacks shared Avrea concurrency group", failures)
+    require("cancel-in-progress: false" in math_wf, "benchmark may cancel serialized heavy work", failures)
+    require("cancel-in-progress: false" in production_wf, "production qualification may cancel serialized heavy work", failures)
 
     require(collar["rsi_start_allowed"] is True, "RSI start is disabled", failures)
     require(collar["user_passkey_required"] is False, "unexpected passkey dependency", failures)
