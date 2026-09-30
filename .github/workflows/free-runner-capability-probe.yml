@@ -97,7 +97,31 @@ jobs:
                 sed -n '1,260p' "$workflow"
               fi
             done
+
+
+            echo "=== referenced secret names (values are never read) ==="
+            grep -RhoE 'secrets\.[A-Za-z_][A-Za-z0-9_]*' .github/workflows \
+              | sed 's/^secrets\.//' \
+              | sort -u \
+              | tee "$evidence/secret-names.txt" \
+              || true
           fi
+
+          echo "=== tracked Base44 integration markers (filenames only) ==="
+          {
+            git ls-files \
+              | grep -Ei '(^|/)(base44|base-44|base_44)(/|$)|base44' \
+              || true
+
+            git grep -Iil -i 'base44' -- \
+              ':!*.env*' \
+              ':!*secret*' \
+              ':!*credential*' \
+              ':!*private*key*' \
+              ':!*.pem' \
+              2>/dev/null \
+              || true
+          } | sort -u | tee "$evidence/base44-files.txt"
 
           git config user.name "expert-robot-capability-probe"
           git config user.email "noreply@github.com"
@@ -139,6 +163,8 @@ jobs:
               "remote_mutated": False,
               "workflows": lines("workflows.txt"),
               "runs_on": lines("runs-on.txt"),
+              "referenced_secret_names": lines("secret-names.txt"),
+              "base44_tracked_markers": lines("base44-files.txt"),
           }
           (root / "capability.json").write_text(
               json.dumps(payload, indent=2) + "\n",
