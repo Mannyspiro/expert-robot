@@ -129,6 +129,9 @@ jobs:
     timeout-minutes: 5
 
     steps:
+      - name: Checkout merit evaluator
+        uses: actions/checkout@v4
+
       - name: Download variant evidence
         uses: actions/download-artifact@v4
         with:
@@ -208,11 +211,22 @@ jobs:
           print(json.dumps(output, indent=2))
           PY
 
+      - name: Compare against frozen G0 baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/compare_benchmark_to_baseline.py \
+            build/math-benchmark-results.json \
+            --baseline config/benchmarks/g0_baseline.json \
+            --output build/benchmark-merit.json
+
       - name: Upload combined benchmark evidence
         uses: actions/upload-artifact@v4
         with:
           name: math-benchmark-${{ github.run_id }}
-          path: build/math-benchmark-results.json
+          path: |
+            build/math-benchmark-results.json
+            build/benchmark-merit.json
           if-no-files-found: error
           retention-days: 30
 
