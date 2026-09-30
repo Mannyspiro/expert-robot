@@ -36,13 +36,15 @@ concurrency:
   group: math-benchmark-${{ github.ref_name }}
   cancel-in-progress: true
 
+# RSI calibration 2026-09-30: cap automated Avrea concurrency at 3 x 8 vCPU = 24 vCPU.
+
 
 jobs:
   benchmark:
     name: benchmark-${{ matrix.variant }}
     strategy:
       fail-fast: false
-      max-parallel: 5
+      max-parallel: 3
       matrix:
         variant:
           - proof_search
