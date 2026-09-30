@@ -36,6 +36,14 @@ def main():
         "run_records_present": len(run_records)==actual_runs,
         "run_ids_unique": len(run_ids)==actual_runs and len(set(run_ids))==actual_runs and all(run_ids),
         "all_runs_are_real_evaluations": len(real_evaluations)==actual_runs,
+        "all_runs_bound_to_candidate": all(
+            row.get("candidate_sha")==args.candidate_sha and row.get("base_sha")==args.base_sha
+            for row in real_evaluations
+        ),
+        "all_runs_collared_successfully": all(
+            row.get("collared_execution") is True and row.get("collar_tripped") is False
+            for row in real_evaluations
+        ),
         "no_promoted_lineage_counted_as_run": all(
             row.get("promoted_lineage") is not True for row in run_records if isinstance(row,dict)
         ),
