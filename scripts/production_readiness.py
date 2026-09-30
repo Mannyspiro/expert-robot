@@ -34,6 +34,11 @@ def main():
         "scripts/validate_cace_return.py",
         "scripts/estimate_generation_budget.py",
         "scripts/evaluate_promotion.py",
+        "scripts/compare_benchmark_to_baseline.py",
+        "scripts/prepare_collared_generation.sh",
+        "config/benchmarks/g0_baseline.json",
+        "tests/collar_runtime_contract_smoke.py",
+        "tests/benchmark_baseline_smoke.py",
         "tests/collar_policy_smoke.py",
         "tests/formal_dependency_lock_smoke.py",
         ".github/workflows/cace-return-pr.yml",
@@ -49,14 +54,20 @@ def main():
         failures,
     )
     require(hard["holdout_may_tune_search"] is False, "holdout may tune search", failures)
-    require("max-parallel: 3" in math_wf, "benchmark is not capped at 3 workers", failures)
+    require("max-parallel: 2" in math_wf, "standalone benchmark is not capped at 2 workers", failures)
     require("avrea-ubuntu-latest-32-vcpu" not in math_wf, "32-vCPU runner exceeds approved ceiling", failures)
     require("name: aggregate-benchmark" in math_wf and "runs-on: avrea-ubuntu-latest-8-vcpu" in math_wf,
             "benchmark aggregation is not on Avrea", failures)
-    require('branches: ["feat/**", "fix/**", "release/**"]' in math_wf,
-            "release branches do not trigger benchmark", failures)
+    require('branches: ["feat/**", "fix/**"]' in math_wf,
+            "standalone benchmark trigger drifted", failures)
+    require('branches: ["release/**"]' in production_wf,
+            "production release workflow trigger drifted", failures)
+    require("max-parallel: 2" in production_wf,
+            "release benchmark is not capped at 2 workers", failures)
+    require("release-benchmark-" in production_wf and "Require demonstrated merit" in production_wf,
+            "production release does not integrate benchmark merit gating", failures)
     require("runs-on: avrea-ubuntu-latest-8-vcpu" in ci_wf, "CI is not on Avrea", failures)
-    shared_group = "group: expert-robot-avrea-heavy-${{ github.ref_name }}"
+    shared_group = "group: expert-robot-avrea-heavy"
     require(shared_group in math_wf, "benchmark lacks shared Avrea concurrency group", failures)
     require(shared_group in production_wf, "production qualification lacks shared Avrea concurrency group", failures)
     require("cancel-in-progress: false" in math_wf, "benchmark may cancel serialized heavy work", failures)
@@ -92,6 +103,7 @@ def main():
         "failures": failures,
         "max_total_vcpu": hard["max_total_vcpu"],
         "max_parallel_vcpu": hard["worker_vcpu"] * hard["max_parallel_workers"],
+        "worst_case_with_ci_vcpu": hard.get("worst_case_with_ci_vcpu"),
         "automatic_promotion": collar["promotion"]["automatic"],
         "authority_invariant": collar["authority_invariant"],
     }
