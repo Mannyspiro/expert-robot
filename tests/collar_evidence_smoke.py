@@ -16,6 +16,7 @@ passing={
     "candidate_sha":csha,
     "parent_sha":bsha,
     "source_run_id":123,
+    "run_records":[],
     "generation_budget":{"estimated":True,"recommended_runs":5,"actual_runs":3},
     "lineage_verified":True,
     "core_integrity_verified":True,
