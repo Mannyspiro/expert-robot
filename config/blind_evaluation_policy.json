@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "invariant": "Validation and holdout identities are never exposed to proposal generation and never appear explicitly in auto-promoted candidate diffs.",
+  "hidden_identifiers": [
+    "validation-geometry-dot-zero-right",
+    "validation-geometry-cross-self",
+    "holdout-geometry-orthogonal-symm",
+    "holdout-geometry-distance-symm",
+    "holdout-geometry-distance-nonnegative",
+    "holdout-geometry-zero-orthogonal-left",
+    "holdout-geometry-sphere-radius",
+    "bench_validation_dot_zero_right",
+    "bench_validation_cross_self",
+    "bench_orthogonal_symm",
+    "bench_squared_distance_symm",
+    "bench_squared_distance_nonnegative",
+    "bench_zero_orthogonal_left",
+    "bench_sphere_radius",
+    "MathAI.Geometry.dot_zero_right",
+    "MathAI.Geometry.cross_self",
+    "MathAI.Geometry.orthogonal_symm",
+    "MathAI.Geometry.squaredDistance_symm",
+    "MathAI.Geometry.squaredDistance_nonnegative",
+    "MathAI.Geometry.zero_orthogonal_left",
+    "MathAI.Geometry.squaredDistance_eq_radius_of_pointOnSphere"
+  ],
+  "generation_include": [
+    "config/proof_search.json",
+    "cpp/include/expert_robot",
+    "cpp/src/research",
+    "cpp/src/proof_search.cpp",
+    "cpp/src/knowledge_graph.cpp",
+    "cpp/src/lemma_factory.cpp",
+    "formal/MathAI",
+    "formal/MathAI.lean",
+    "formal/theorem_registry.json"
+  ],
+  "generation_excluded_prefixes": [
+    ".github/",
+    "tests/",
+    "scripts/",
+    "config/benchmarks/",
+    "cpp/src/eval/",
+    "cpp/include/expert_robot/eval/",
+    "cpp/src/math_benchmark_main.cpp",
+    "config/collar_policy.json",
+    "config/experiment_policy.json",
+    "config/auto_promotion_scope.json"
+  ]
+}
