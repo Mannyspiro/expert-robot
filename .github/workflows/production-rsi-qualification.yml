@@ -37,6 +37,10 @@ jobs:
           python3 tests/collar_runtime_contract_smoke.py
           python3 tests/production_policy_smoke.py
           python3 tests/benchmark_baseline_smoke.py
+          python3 tests/candidate_scope_smoke.py
+          python3 tests/collar_evidence_smoke.py
+          python3 tests/blind_generation_view_smoke.py
+          python3 tests/blind_candidate_smoke.py
           bash tests/collar_vault_smoke.sh
           mkdir -p build
           python3 scripts/production_readiness.py --output build/production-readiness.json
