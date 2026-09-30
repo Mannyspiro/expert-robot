@@ -5,8 +5,11 @@
     "monetary_budget": "zero_spend",
     "max_total_vcpu": 30,
     "worker_vcpu": 8,
-    "max_parallel_workers": 3,
-    "holdout_may_tune_search": false
+    "max_parallel_workers": 2,
+    "holdout_may_tune_search": false,
+    "max_parallel_heavy_vcpu": 16,
+    "ci_overlap_vcpu": 8,
+    "worst_case_with_ci_vcpu": 24
   },
   "generation_budget": {
     "min_runs": 2,
