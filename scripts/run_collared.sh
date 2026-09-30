@@ -108,7 +108,10 @@ TRIP_REASON=""
 EXIT_CODE=125
 
 mkdir -p "$ROOT" "$PLAIN" "$WORKSPACE"
-chmod 700 "$ROOT" "$PLAIN" "$WORKSPACE"
+chmod 700 "$ROOT" "$PLAIN"
+# The workspace contains no trusted secrets. It must be traversable by the
+# fixed unprivileged container uid; writable paths are provisioned separately.
+chmod 0755 "$WORKSPACE"
 
 fstype="$(findmnt -T "$ROOT" -n -o FSTYPE || true)"
 [ "$fstype" = "tmpfs" ] || {
