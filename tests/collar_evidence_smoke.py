@@ -19,9 +19,9 @@ passing={
     "run_records":[],
     "generation_budget":{"estimated":True,"recommended_runs":5,"actual_runs":3},
     "run_records":[
-        {"run_id":"eval-1","kind":"evaluation","promoted_lineage":False},
-        {"run_id":"eval-2","kind":"evaluation","promoted_lineage":False},
-        {"run_id":"eval-3","kind":"evaluation","promoted_lineage":False},
+        {"run_id":"eval-1","kind":"evaluation","promoted_lineage":False,"candidate_sha":csha,"base_sha":bsha,"collared_execution":True,"collar_tripped":False},
+        {"run_id":"eval-2","kind":"evaluation","promoted_lineage":False,"candidate_sha":csha,"base_sha":bsha,"collared_execution":True,"collar_tripped":False},
+        {"run_id":"eval-3","kind":"evaluation","promoted_lineage":False,"candidate_sha":csha,"base_sha":bsha,"collared_execution":True,"collar_tripped":False},
     ],
     "lineage_verified":True,
     "core_integrity_verified":True,
