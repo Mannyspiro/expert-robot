@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "name": "fail-closed-collar-v1",
+  "authority_invariant": "Capability grows, authority never expands.",
+  "recovery_mode": "automatic_only",
+  "user_passkey_required": false,
+  "rsi_start_allowed": true,
+  "encryption": {
+    "required": true,
+    "at_rest": "AES-256 encrypt-then-MAC sealed core bundle",
+    "generation_key": "random ephemeral key material stored only outside sandbox",
+    "plaintext_location": "tmpfs only",
+    "key_destruction_on_trip": true,
+    "plaintext_destruction_on_trip": true
+  },
+  "sandbox": {
+    "outer_boundary": "dedicated VM or equivalent hardware-virtualized guest preferred",
+    "inner_boundary": "rootless/read-only container",
+    "network_default": "none",
+    "run_as_root": false,
+    "capabilities": "drop_all",
+    "no_new_privileges": true,
+    "host_socket_mounts": [],
+    "secret_mounts": [],
+    "read_only_root": true,
+    "tmpfs_only_writable_paths": [
+      "/tmp",
+      "/run/expert-robot"
+    ],
+    "pids_limit": 128,
+    "memory_limit_mb": 8192,
+    "cpu_limit": 8
+  },
+  "tripwires": [
+    "heartbeat_missing",
+    "sandbox_security_config_drift",
+    "network_namespace_changed",
+    "unexpected_host_mount",
+    "process_limit_exceeded",
+    "supervisor_canary_tamper",
+    "generation_requests_promotion_authority",
+    "core_integrity_mismatch"
+  ],
+  "trip_action": [
+    "freeze_generation",
+    "kill_generation_cgroup_or_container",
+    "destroy_ephemeral_key",
+    "destroy_plaintext_tmpfs",
+    "mark_generation_tainted",
+    "deny_promotion",
+    "emit_evidence"
+  ],
+  "promotion": {
+    "automatic": true,
+    "forbidden_after_trip": true,
+    "requires": [
+      "merit_demonstrated",
+      "qualification_passed",
+      "validation_improved",
+      "blind_holdout_non_regression",
+      "formal_verification_passed",
+      "rollback_verified",
+      "authority_contract_unchanged",
+      "core_integrity_verified",
+      "collar_not_tripped"
+    ]
+  },
+  "limitation": "A genuine escape that fully compromises the host/hypervisor can potentially subvert software-only monitoring. The authoritative key/state must therefore remain outside the guest boundary.",
+  "rsi_start_requires": [
+    "collared_execution",
+    "authority_contract_unchanged",
+    "rollback_path_verified",
+    "qualification_pipeline_available"
+  ],
+  "recursive_self_modification": {
+    "allowed": true,
+    "only_if_justified_by_measured_capability_gain": true,
+    "authority_change": "same_or_less",
+    "execution": "collared_only",
+    "promotion_requires_all_gates": true
+  }
+}
