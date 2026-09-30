@@ -8,13 +8,13 @@
   "encryption": {
     "required": true,
     "at_rest": "AES-256 encrypt-then-MAC sealed core bundle",
-    "generation_key": "random ephemeral key material stored only outside sandbox",
+    "generation_key": "fresh one-use random generation key provisioned by the external orchestrator on tmpfs; never mounted into the sandbox",
     "plaintext_location": "tmpfs only",
     "key_destruction_on_trip": true,
     "plaintext_destruction_on_trip": true
   },
   "sandbox": {
-    "outer_boundary": "dedicated VM or equivalent hardware-virtualized guest preferred",
+    "outer_boundary": "hardware-virtualized guest required",
     "inner_boundary": "rootless/read-only container",
     "network_default": "none",
     "run_as_root": false,
@@ -29,7 +29,12 @@
     ],
     "pids_limit": 128,
     "memory_limit_mb": 8192,
-    "cpu_limit": 8
+    "cpu_limit": 8,
+    "outer_boundary_required": true,
+    "container_image_digest_required": true,
+    "supervisor_heartbeat_timeout_seconds": 5,
+    "supervisor_canary_required": true,
+    "candidate_workspace_untrusted": true
   },
   "tripwires": [
     "heartbeat_missing",
