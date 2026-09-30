@@ -2,7 +2,7 @@ name: Math Architecture Benchmark
 
 on:
   push:
-    branches: ["feat/**", "fix/**"]
+    branches: ["feat/**", "fix/**", "release/**"]
     paths:
       - "cpp/include/expert_robot/research/strategy_planner.hpp"
       - "cpp/src/research/strategy_planner.cpp"
@@ -31,7 +31,6 @@ on:
         default: avrea-ubuntu-latest-8-vcpu
         options:
           - avrea-ubuntu-latest-8-vcpu
-          - avrea-ubuntu-latest-32-vcpu
 
 permissions:
   contents: read
@@ -46,7 +45,7 @@ jobs:
     name: benchmark-${{ matrix.variant }}
     strategy:
       fail-fast: false
-      max-parallel: 5
+      max-parallel: 3
       matrix:
         variant:
           - proof_search
@@ -55,8 +54,8 @@ jobs:
           - sequence_memory
           - strategy_memory
 
-    # Feature/PR automation uses the normal free 8-vCPU lane. The 32-vCPU
-    # runner remains an explicit manual choice for genuinely heavy runs.
+    # Production policy caps aggregate benchmark compute below 30 vCPU:
+    # three concurrent 8-vCPU workers = 24 vCPU maximum.
     runs-on: ${{ inputs.runner || 'avrea-ubuntu-latest-8-vcpu' }}
     timeout-minutes: 20
 
@@ -124,7 +123,7 @@ jobs:
     name: aggregate-benchmark
     if: always()
     needs: benchmark
-    runs-on: ubuntu-latest
+    runs-on: avrea-ubuntu-latest-8-vcpu
     timeout-minutes: 5
 
     steps:
