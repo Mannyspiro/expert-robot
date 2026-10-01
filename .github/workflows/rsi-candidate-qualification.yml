@@ -128,7 +128,7 @@ jobs:
             (
               cd candidate
               build/expert_robot_math_benchmark \
-                config/benchmarks/core_math_holdout.json \
+                ../trusted/config/benchmarks/core_math_holdout.json \
                 "build/candidate-state-$variant" \
                 "../candidate-evidence/math-benchmark-results-$variant.json" \
                 "candidate-${{ github.run_id }}-$variant" \
