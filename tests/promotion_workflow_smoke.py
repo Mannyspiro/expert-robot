@@ -29,6 +29,8 @@ assert "Download independent collar evidence" in qual
 assert "cd candidate" in qual
 assert "build/expert_robot_math_benchmark" in qual
 assert "../candidate-evidence/math-benchmark-results-$variant.json" in qual
+assert "../trusted/config/benchmarks/core_math_holdout.json" in qual
+assert "candidate/config/benchmarks/core_math_holdout.json" not in qual
 assert "--require-eligible" in qual
 
 assert 'workflows: ["RSI Candidate Qualification"]' in pub
