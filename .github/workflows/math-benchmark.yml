@@ -36,7 +36,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: expert-robot-avrea-heavy-v2
+  group: expert-robot-avrea-progression-calibration-v1
   cancel-in-progress: false
 
 
@@ -45,7 +45,7 @@ jobs:
     name: benchmark-${{ matrix.variant }}
     strategy:
       fail-fast: false
-      max-parallel: 1
+      max-parallel: 2
       matrix:
         variant:
           - proof_search
@@ -86,14 +86,14 @@ jobs:
             --target expert_robot_math_benchmark \
             --parallel "$(nproc)"
 
-      - name: Run isolated train validation holdout benchmark
+      - name: Run compact G2 progression-v2 calibration
         shell: bash
         run: |
           set -euo pipefail
           variant="${{ matrix.variant }}"
 
           ./build/expert_robot_math_benchmark \
-            config/benchmarks/core_math_holdout.json \
+            config/benchmarks/progression_math_v2.json \
             "build/math-benchmark-state-${variant}" \
             "build/math-benchmark-results-${variant}.json" \
             "github-${{ github.run_id }}-${variant}" \
