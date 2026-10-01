@@ -27,6 +27,8 @@ required = [
     "--user 65532:65532",
     "supervisor_canary_tamper",
     "unexpected_host_mount",
+    "tmpfs_mount_drift",
+    "tmpfs_config_ok",
     "generation key must remain outside candidate-writable workspace",
     "sealed core must remain outside candidate-writable workspace",
     'rm -rf -- "$EVIDENCE"',
@@ -43,26 +45,48 @@ assert 'keygen "$KEY"' not in text
 
 # Execute the exact embedded Python used to normalize Docker mount inspection.
 # bash -n cannot catch quoting errors inside python3 -c strings.
-mount_line = next(
-    line.strip()
-    for line in text.splitlines()
-    if line.strip().startswith('mounts="$(printf')
-)
-marker = "python3 -c '"
-assert marker in mount_line
-mount_code = mount_line.split(marker, 1)[1].rsplit("')\"", 1)[0]
+def embedded_code(prefix: str) -> str:
+    line = next(
+        line.strip()
+        for line in text.splitlines()
+        if line.strip().startswith(prefix)
+    )
+    marker = "python3 -c '"
+    assert marker in line
+    return line.split(marker, 1)[1].rsplit("')\"", 1)[0]
+
+
 fixture = [{
+    "HostConfig": {
+        "Tmpfs": {
+            "/tmp": "rw,noexec,nosuid,nodev,size=512m",
+            "/run/expert-robot": "rw,noexec,nosuid,nodev,size=64m",
+        }
+    },
     "Mounts": [
         {"Type": "bind", "Destination": "/work", "RW": True},
         {"Type": "bind", "Destination": "/opt/expert-robot/core", "RW": False},
-    ]
+        {"Type": "tmpfs", "Destination": "/tmp", "RW": True},
+        {"Type": "tmpfs", "Destination": "/run/expert-robot", "RW": True},
+    ],
 }]
-proc = subprocess.run(
-    [sys.executable, "-c", mount_code],
-    input=json.dumps(fixture),
-    text=True,
-    capture_output=True,
-    check=True,
+
+def run_embedded(prefix: str) -> str:
+    proc = subprocess.run(
+        [sys.executable, "-c", embedded_code(prefix)],
+        input=json.dumps(fixture),
+        text=True,
+        capture_output=True,
+        check=True,
+    )
+    return proc.stdout.strip()
+
+
+assert run_embedded('host_mounts="$(printf') == (
+    "bind:/opt/expert-robot/core:false|bind:/work:true"
 )
-assert proc.stdout.strip() == "bind:/opt/expert-robot/core:false|bind:/work:true"
+assert run_embedded('tmpfs_mounts="$(printf') == (
+    "/run/expert-robot:true|/tmp:true"
+)
+assert run_embedded('tmpfs_config_ok="$(printf') == "true"
 print("collar runtime contract: PASS")

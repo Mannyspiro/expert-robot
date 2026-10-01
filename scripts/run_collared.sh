@@ -197,7 +197,9 @@ while true; do
   pids="$(printf '%s' "$inspect" | python3 -c 'import json,sys; print(json.load(sys.stdin)[0]["HostConfig"].get("PidsLimit") or 0)')"
   memory="$(printf '%s' "$inspect" | python3 -c 'import json,sys; print(json.load(sys.stdin)[0]["HostConfig"].get("Memory") or 0)')"
   nanocpus="$(printf '%s' "$inspect" | python3 -c 'import json,sys; print(json.load(sys.stdin)[0]["HostConfig"].get("NanoCpus") or 0)')"
-  mounts="$(printf '%s' "$inspect" | python3 -c 'import json,sys; m=json.load(sys.stdin)[0].get("Mounts") or []; print("|".join(sorted("{}:{}:{}".format(x.get("Type"), x.get("Destination"), str(bool(x.get("RW"))).lower()) for x in m)))')"
+  host_mounts="$(printf '%s' "$inspect" | python3 -c 'import json,sys; m=json.load(sys.stdin)[0].get("Mounts") or []; print("|".join(sorted("{}:{}:{}".format(x.get("Type"), x.get("Destination"), str(bool(x.get("RW"))).lower()) for x in m if x.get("Type") != "tmpfs")))')"
+  tmpfs_mounts="$(printf '%s' "$inspect" | python3 -c 'import json,sys; m=json.load(sys.stdin)[0].get("Mounts") or []; print("|".join(sorted("{}:{}".format(x.get("Destination"), str(bool(x.get("RW"))).lower()) for x in m if x.get("Type") == "tmpfs")))')"
+  tmpfs_config_ok="$(printf '%s' "$inspect" | python3 -c 'import json,sys; t=json.load(sys.stdin)[0]["HostConfig"].get("Tmpfs") or {}; ok=set(t)=={"/tmp","/run/expert-robot"} and all({"rw","noexec","nosuid","nodev"}.issubset(set((v or "").split(","))) and any(part.startswith("size=") for part in (v or "").split(",")) for v in t.values()); print(str(ok).lower())')"
 
   if [ "$privileged" != "false" ]; then trip "privileged_drift"; break; fi
   if [ "$readonly" != "true" ]; then trip "readonly_root_drift"; break; fi
@@ -208,8 +210,16 @@ while true; do
   if [ "$pids" -ne 128 ]; then trip "process_limit_drift"; break; fi
   if [ "$memory" -ne 8589934592 ]; then trip "memory_limit_drift"; break; fi
   if [ "$nanocpus" -ne 8000000000 ]; then trip "cpu_limit_drift"; break; fi
-  if [ "$mounts" != "bind:/opt/expert-robot/core:false|bind:/work:true" ]; then
+  if [ "$host_mounts" != "bind:/opt/expert-robot/core:false|bind:/work:true" ]; then
     trip "unexpected_host_mount"
+    break
+  fi
+  if [ "$tmpfs_config_ok" != "true" ]; then
+    trip "tmpfs_mount_drift"
+    break
+  fi
+  if [ -n "$tmpfs_mounts" ] && [ "$tmpfs_mounts" != "/run/expert-robot:true|/tmp:true" ]; then
+    trip "tmpfs_mount_drift"
     break
   fi
 
