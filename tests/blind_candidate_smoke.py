@@ -37,4 +37,12 @@ with tempfile.TemporaryDirectory() as td:
     assert bad.returncode != 0
     assert "holdout-geometry-distance-symm" in bad.stdout
 
+    p.write_text('const char* leaked = "hard2-holdout-003";\n')
+    run("git","-C",str(repo),"add",".")
+    run("git","-C",str(repo),"commit","-m","hard-v2-leak")
+    hard_leak=run("git","-C",str(repo),"rev-parse","HEAD").stdout.strip()
+    bad=run(sys.executable,str(validator),str(repo),"--base-sha",base,"--candidate-sha",hard_leak,"--policy",str(policy),check=False)
+    assert bad.returncode != 0
+    assert "hard2-holdout-003" in bad.stdout
+
 print("blind candidate smoke: PASS")
