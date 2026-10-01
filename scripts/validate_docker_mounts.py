@@ -11,6 +11,9 @@ REQUIRED_TMPFS = {
     "/run/expert-robot": 64 * 1024 * 1024,
 }
 DOCKER_METADATA_BINDS = {"/etc/hosts", "/etc/hostname", "/etc/resolv.conf"}
+AVREA_READONLY_BINDS = {
+    "/etc/ssl/certs/avrea-ca.crt": "/opt/avrea/certs/avrea-ca.crt",
+}
 
 def fail(message):
     print(message, file=sys.stderr)
@@ -68,6 +71,10 @@ def main():
         elif dest in DOCKER_METADATA_BINDS:
             if typ != "bind":
                 fail(f"Docker metadata mount type mismatch at {dest}")
+        elif dest in AVREA_READONLY_BINDS:
+            expected_source = os.path.realpath(AVREA_READONLY_BINDS[dest])
+            if typ != "bind" or os.path.realpath(source) != expected_source or rw:
+                fail(f"Avrea CA bind mismatch at {dest}")
         else:
             fail(f"unexpected mount: type={typ!r} source={source!r} destination={dest!r} rw={rw!r}")
     missing = set(expected) - seen
