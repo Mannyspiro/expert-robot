@@ -20,7 +20,15 @@
     "nlinarith",
     "omega",
     "positivity",
-    "aesop"
+    "aesop",
+    "simp_all",
+    "intro <;> simp_all",
+    "constructor <;> simp_all",
+    "constructor <;> aesop",
+    "intro <;> aesop",
+    "ext <;> simp_all",
+    "rcases ‹_ ∧ _› with ⟨_, _⟩ <;> simp_all",
+    "by_contra h <;> simp_all"
   ],
   "timeout_seconds": 20
 }
