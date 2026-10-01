@@ -406,6 +406,42 @@
         "lean_verified"
       ],
       "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.dot_cross_left_zero",
+      "source": "MathAI/Geometry/VectorDerived.lean",
+      "status": "verified",
+      "statement": "The dot product of the left input with its cross product against any exact rational vector is zero.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "dot_product",
+        "cross_product",
+        "orthogonality",
+        "representation_bridge",
+        "lean_verified"
+      ],
+      "uses": [
+        "MathAI.Geometry.cross_orthogonal_left"
+      ]
+    },
+    {
+      "name": "MathAI.Geometry.dot_cross_right_zero",
+      "source": "MathAI/Geometry/VectorDerived.lean",
+      "status": "verified",
+      "statement": "The dot product of the right input with the cross product of the pair is zero.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "dot_product",
+        "cross_product",
+        "orthogonality",
+        "representation_bridge",
+        "lean_verified"
+      ],
+      "uses": [
+        "MathAI.Geometry.cross_orthogonal_right"
+      ]
     }
   ]
 }
