@@ -107,15 +107,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
-          python3 tests/smoke.py ./build/expert_robot_runtime &
-          smoke_pid=$!
-
-          python3 python/orchestrator.py             --runtime ./build/expert_robot_runtime             --role math             --task "health check" &
-          orchestrator_pid=$!
-
-          wait "$smoke_pid"
-          wait "$orchestrator_pid"
+          python3 tests/smoke.py ./build/expert_robot_runtime
+          python3 tests/research_cli_contract_smoke.py
 
       - name: Show ccache stats
         if: always()
