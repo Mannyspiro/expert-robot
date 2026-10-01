@@ -94,6 +94,7 @@ jobs:
           python3 tests/benchmark_baseline_smoke.py
           python3 tests/progression_benchmark_smoke.py
           python3 tests/progression_baseline_integrity_smoke.py
+          python3 tests/progression_freezer_smoke.py
 
       - name: Formal dependency lock
         run: python3 tests/formal_dependency_lock_smoke.py
