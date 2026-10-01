@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+import json
+import subprocess
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -35,4 +38,29 @@ for needle in required:
 assert "docker.sock" not in text
 assert "--privileged" not in text
 assert 'keygen "$KEY"' not in text
+
+# Execute the exact embedded Python used to normalize Docker mount inspection.
+# bash -n cannot catch quoting errors inside python3 -c strings.
+mount_line = next(
+    line.strip()
+    for line in text.splitlines()
+    if line.strip().startswith('mounts="$(printf')
+)
+marker = "python3 -c '"
+assert marker in mount_line
+mount_code = mount_line.split(marker, 1)[1].rsplit("')\"", 1)[0]
+fixture = [{
+    "Mounts": [
+        {"Type": "bind", "Destination": "/work", "RW": True},
+        {"Type": "bind", "Destination": "/opt/expert-robot/core", "RW": False},
+    ]
+}]
+proc = subprocess.run(
+    [sys.executable, "-c", mount_code],
+    input=json.dumps(fixture),
+    text=True,
+    capture_output=True,
+    check=True,
+)
+assert proc.stdout.strip() == "bind:/opt/expert-robot/core:false|bind:/work:true"
 print("collar runtime contract: PASS")
