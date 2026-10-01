@@ -38,6 +38,7 @@ def main():
         "scripts/evaluate_promotion.py",
         "scripts/compare_benchmark_to_baseline.py",
         "scripts/compare_progression_to_reference.py",
+        "scripts/freeze_progression_baseline.py",
         "scripts/prepare_collared_generation.sh",
         "config/benchmarks/g0_baseline.json",
         "config/benchmarks/progression_math_v2.json",
