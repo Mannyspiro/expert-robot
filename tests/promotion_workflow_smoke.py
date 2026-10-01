@@ -29,7 +29,10 @@ assert "Download independent collar evidence" in qual
 assert "cd candidate" in qual
 assert "build/expert_robot_math_benchmark" in qual
 assert "../candidate-evidence/math-benchmark-results-$variant.json" in qual
-assert "../trusted/config/benchmarks/core_math_holdout.json" in qual
+assert "../trusted/config/benchmarks/progression_math_v2.json" in qual
+assert "g2_progression_v2_baseline.json" in qual
+assert "compare_progression_to_reference.py" in qual
+assert "Verify trusted hidden hard-v2 witnesses against candidate" in qual
 assert "candidate/config/benchmarks/core_math_holdout.json" not in qual
 assert "--require-eligible" in qual
 
