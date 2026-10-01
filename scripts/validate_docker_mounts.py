@@ -69,7 +69,7 @@ def main():
             if typ != "bind":
                 fail(f"Docker metadata mount type mismatch at {dest}")
         else:
-            fail(f"unexpected mount: {typ!r} at {dest!r}")
+            fail(f"unexpected mount: type={typ!r} source={source!r} destination={dest!r} rw={rw!r}")
     missing = set(expected) - seen
     if missing:
         fail("missing required bind mounts: " + ", ".join(sorted(missing)))
