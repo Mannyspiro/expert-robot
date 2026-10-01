@@ -52,6 +52,7 @@ base_mounts = [
     {"Type": "bind", "Source": "/docker/hosts", "Destination": "/etc/hosts", "RW": True},
     {"Type": "bind", "Source": "/docker/hostname", "Destination": "/etc/hostname", "RW": True},
     {"Type": "bind", "Source": "/docker/resolv.conf", "Destination": "/etc/resolv.conf", "RW": True},
+    {"Type": "bind", "Source": "/opt/avrea/certs/avrea-ca.crt", "Destination": "/etc/ssl/certs/avrea-ca.crt", "RW": False},
 ]
 host_tmpfs = {
     "/tmp": "rw,noexec,nosuid,nodev,size=512m",
@@ -82,5 +83,17 @@ validate([
     for m in base_mounts
 ], expect_ok=False)
 validate(base_mounts, {"/tmp": host_tmpfs["/tmp"]}, expect_ok=False)
+validate([
+    dict(m, RW=True)
+    if m["Destination"] == "/etc/ssl/certs/avrea-ca.crt"
+    else m
+    for m in base_mounts
+], expect_ok=False)
+validate([
+    dict(m, Source="/wrong/avrea-ca.crt")
+    if m["Destination"] == "/etc/ssl/certs/avrea-ca.crt"
+    else m
+    for m in base_mounts
+], expect_ok=False)
 
 print("collar runtime contract: PASS")
