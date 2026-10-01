@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "authority_invariant": "Capability grows, authority never expands.",
+  "preflight": {
+    "failure_blocks_escalation": true,
+    "pass_implies_promotion": false,
+    "railway_is_qualification_authority": false
+  },
+  "levels": [
+    {
+      "id": "L0",
+      "name": "local_static",
+      "purpose": "Static reasoning, source inspection, formatting, and zero-cost checks.",
+      "can_qualify": false,
+      "can_promote": false
+    },
+    {
+      "id": "L1",
+      "name": "railway_free_vm",
+      "purpose": "Disposable fail-fast worker reached with ssh railway.new.",
+      "resources": {
+        "cpu": 2,
+        "memory_gb": 2,
+        "recommended_build_jobs": 1
+      },
+      "tasks": [
+        "changed-source compile",
+        "focused C++ smoke tests",
+        "changed Lean file checks",
+        "bug sweep",
+        "small benchmark probes"
+      ],
+      "can_qualify": false,
+      "can_promote": false
+    },
+    {
+      "id": "L2",
+      "name": "railway_sandbox",
+      "purpose": "Isolated checkpoint/fork experiments using the same cheap preflight contract.",
+      "resources": {
+        "default_cpu": 2,
+        "default_memory_gb": 2,
+        "recommended_build_jobs": 1
+      },
+      "tasks": [
+        "reproducible experiment fork",
+        "dependency checkpoint",
+        "isolated strategy experiment",
+        "candidate patch verification"
+      ],
+      "can_qualify": false,
+      "can_promote": false
+    },
+    {
+      "id": "L3",
+      "name": "avrea_ci_8",
+      "purpose": "Normal repository qualification and full smoke-test lane.",
+      "runner": "avrea-ubuntu-latest-8-vcpu",
+      "can_qualify": true,
+      "can_promote": false
+    },
+    {
+      "id": "L4",
+      "name": "avrea_manual_32",
+      "purpose": "Manual heavy qualification only when lower levels pass and parallel compute is justified.",
+      "runner": "avrea-ubuntu-latest-32-vcpu",
+      "can_qualify": true,
+      "can_promote": false
+    }
+  ],
+  "promotion": {
+    "required_evidence": [
+      "lean_verified",
+      "repository_ci_passed",
+      "authority_contract_unchanged"
+    ],
+    "human_or_policy_gate_required": true,
+    "railway_preflight_is_advisory_only": true
+  },
+  "cost_policy": {
+    "monetary_budget": "zero_spend",
+    "existing_github_runners_are_free": true,
+    "avrea_runners_allowed": true,
+    "external_self_hosted_runners_allowed": true,
+    "paid_railway_resources_allowed": false,
+    "paid_cloud_expansion_allowed": false,
+    "rule": "Use existing free runners when justified; never opt into a paid Railway or cloud resource."
+  },
+  "selection_policy": {
+    "default_preflight": "L1",
+    "default_qualification": "L3",
+    "heavy_lane": "L4",
+    "heavy_lane_when": [
+      "manual full qualification requested",
+      "full benchmark or ablation requested",
+      "large Lean replay or compile workload is explicitly justified",
+      "L3 passes but additional parallel evidence is materially useful"
+    ],
+    "external_runner_repo": {
+      "repository": "morganaspim/Cace-app",
+      "discovered_labels": [
+        "self-hosted",
+        "cace",
+        "oci",
+        "aarch64"
+      ],
+      "monetary_cost": "free",
+      "authority": "qualification-only",
+      "install_or_dispatch_requires_capability_probe": true
+    },
+    "external_integrations": {
+      "base44": {
+        "status": "telemetry-only",
+        "monetary_cost": "zero-spend-only",
+        "canonical": false,
+        "can_qualify": false,
+        "can_promote": false,
+        "allowed_actions": [
+          "read and write non-authoritative CI telemetry",
+          "read and write non-authoritative benchmark telemetry",
+          "index qualification evidence metadata",
+          "host optional read-only dashboards within free-tier limits"
+        ],
+        "prohibited_actions": [
+          "store canonical proofs or proof-memory state",
+          "store credentials, deploy keys, or private key material",
+          "store model weights",
+          "grant qualification authority",
+          "grant promotion authority",
+          "use paid Builder sandbox or paid resources",
+          "enable billing or purchase credits"
+        ]
+      }
+    }
+  }
+}

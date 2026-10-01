@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "objective": "maximize verified capability gain and information gain per unit compute under diminishing returns",
+  "hard_limits": {
+    "monetary_budget": "zero_spend",
+    "max_total_vcpu": 30,
+    "worker_vcpu": 8,
+    "max_parallel_workers": 2,
+    "holdout_may_tune_search": false,
+    "max_parallel_heavy_vcpu": 16,
+    "ci_overlap_vcpu": 8,
+    "worst_case_with_ci_vcpu": 24
+  },
+  "generation_budget": {
+    "min_runs": 2,
+    "max_runs": 30,
+    "default_expected_gain": 0.1,
+    "default_variance": 0.05,
+    "default_cost_per_run": 1,
+    "default_diminishing_rate": 0.2,
+    "information_weight": 0.35,
+    "cost_weight": 0.08,
+    "estimator": "scripts/estimate_generation_budget.py"
+  },
+  "promotion": {
+    "automatic": true,
+    "evaluator": "scripts/evaluate_promotion.py",
+    "required_gates": [
+      "generation_budget_estimated",
+      "collared_execution",
+      "merit_demonstrated",
+      "qualification_passed",
+      "validation_improved",
+      "blind_holdout_non_regression",
+      "formal_verification_passed",
+      "rollback_verified",
+      "lineage_verified",
+      "authority_same_or_less",
+      "core_integrity_verified",
+      "collar_not_tripped"
+    ]
+  }
+}

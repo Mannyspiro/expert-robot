@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "profile_id": "math_researcher_v1",
+  "immutable_during_episode": true,
+  "traits": {
+    "openness": 0.90,
+    "conscientiousness": 0.98,
+    "persistence": 0.90,
+    "skepticism": 0.98,
+    "novelty_seeking": 0.80,
+    "risk_tolerance": 0.55,
+    "abstraction_bias": 0.70,
+    "compression_drive": 0.85
+  },
+  "hard_invariants": {
+    "verification_rigor_multiplier": 1.0,
+    "authority_delta": 0.0
+  }
+}

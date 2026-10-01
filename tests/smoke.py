@@ -29,7 +29,11 @@ def main() -> int:
     proc.wait(timeout=5)
 
     assert response["id"] == "smoke-1"
-    assert response["ok"] is True
+    # The generic protocol runtime is deliberately model-stateless. Model-backed
+    # math research belongs to expert_robot_research, so fail closed here rather
+    # than pretending an unavailable model response is healthy.
+    assert response["ok"] is False
+    assert "use expert_robot_research" in response.get("error", "")
     return 0
 
 

@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "baseline_id": "g0-20260930",
+  "source_run_id": 36753942838,
+  "source_commit": "b6f330f3ab8ceaa58c33284600b1928d2f9710f7",
+  "purpose": "Frozen pre-G1/G2/G3 baseline for validation and overlapping blind-holdout comparison. Never used to tune holdout search.",
+  "variants": {
+    "proof_search": {
+      "train": {
+        "verified_rate": 0.6,
+        "average_proof_attempts": 8.4,
+        "average_resource_cost": 0.04375
+      },
+      "validation": {
+        "verified_rate": 0,
+        "average_proof_attempts": 13,
+        "average_resource_cost": 0.067708
+      },
+      "holdout": {
+        "verified_rate": 0,
+        "average_proof_attempts": 13,
+        "average_resource_cost": 0.067708
+      }
+    },
+    "theorem_graph": {
+      "train": {
+        "verified_rate": 0.6,
+        "average_proof_attempts": 9,
+        "average_resource_cost": 0.046875
+      },
+      "validation": {
+        "verified_rate": 0,
+        "average_proof_attempts": 13,
+        "average_resource_cost": 0.067708
+      },
+      "holdout": {
+        "verified_rate": 0,
+        "average_proof_attempts": 13,
+        "average_resource_cost": 0.067708
+      }
+    },
+    "route_memory": {
+      "train": {
+        "verified_rate": 0.6,
+        "average_proof_attempts": 9,
+        "average_resource_cost": 0.046875
+      },
+      "validation": {
+        "verified_rate": 0,
+        "average_proof_attempts": 13,
+        "average_resource_cost": 0.067708
+      },
+      "holdout": {
+        "verified_rate": 0,
+        "average_proof_attempts": 13,
+        "average_resource_cost": 0.067708
+      }
+    },
+    "sequence_memory": {
+      "train": {
+        "verified_rate": 0.6,
+        "average_proof_attempts": 9,
+        "average_resource_cost": 0.046875
+      },
+      "validation": {
+        "verified_rate": 0,
+        "average_proof_attempts": 13,
+        "average_resource_cost": 0.067708
+      },
+      "holdout": {
+        "verified_rate": 0,
+        "average_proof_attempts": 13,
+        "average_resource_cost": 0.067708
+      }
+    },
+    "strategy_memory": {
+      "train": {
+        "verified_rate": 0.6,
+        "average_proof_attempts": 9,
+        "average_resource_cost": 0.046875
+      },
+      "validation": {
+        "verified_rate": 0,
+        "average_proof_attempts": 13,
+        "average_resource_cost": 0.067708
+      },
+      "holdout": {
+        "verified_rate": 0,
+        "average_proof_attempts": 13,
+        "average_resource_cost": 0.067708
+      }
+    }
+  },
+  "evaluation_case_ids": {
+    "validation": [
+      "validation-geometry-dot-zero-right",
+      "validation-geometry-cross-self"
+    ],
+    "holdout_overlap": [
+      "holdout-geometry-orthogonal-symm",
+      "holdout-geometry-distance-symm",
+      "holdout-geometry-distance-nonnegative",
+      "holdout-geometry-zero-orthogonal-left",
+      "holdout-geometry-sphere-radius"
+    ]
+  },
+  "source_json_sha256": {
+    "proof_search": "4e02379f064249f6cc036252d6e0aca51513710494aaba5307cfecb1b118c02a",
+    "theorem_graph": "5e122d13ded8119fad37e13dbf9df910f8d31b910d72e8e63f97ba7bb86eb8bd",
+    "route_memory": "eedb3d380033ce6d2cc2326c61fa618e0dbbfc378aca7e8952aa8c5db63a7004",
+    "sequence_memory": "312a9669b16ea4803cec002e78dc94fc1d94353b632c7eb7198aac62117248a5",
+    "strategy_memory": "6d9df6d68439eb4766d404cd871524a6fd7f41b23cd3f67208a48c5b6fcc6cc2"
+  }
+}

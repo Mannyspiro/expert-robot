@@ -3,22 +3,124 @@ name: CI
 on:
   push:
     branches: ["main"]
+    paths-ignore:
+      - "formal/**"
+      - ".github/workflows/formal-qualification.yml"
+  workflow_dispatch:
   pull_request:
+    paths-ignore:
+      - "formal/**"
+      - ".github/workflows/formal-qualification.yml"
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
 
 jobs:
   build-and-smoke:
-    runs-on: ubuntu-latest
+    runs-on: avrea-ubuntu-latest-8-vcpu
+
     steps:
       - uses: actions/checkout@v4
 
+      - name: Restore C++ compiler cache
+        id: ccache-restore
+        uses: actions/cache/restore@v4
+        with:
+          path: ~/.cache/ccache
+          key: ccache-v1-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
+          restore-keys: |
+            ccache-v1-${{ runner.os }}-${{ runner.arch }}-
+
+      - name: Prepare ccache
+        shell: bash
+        run: |
+          set -euo pipefail
+          if command -v ccache >/dev/null 2>&1; then
+            mkdir -p "$HOME/.cache/ccache"
+            ccache --set-config=max_size=2G
+            ccache --zero-stats
+            echo "EXPERT_ROBOT_CCACHE=1" >> "$GITHUB_ENV"
+          else
+            echo "ccache unavailable; continuing without compiler cache"
+            echo "EXPERT_ROBOT_CCACHE=0" >> "$GITHUB_ENV"
+          fi
+
+      - name: Detect parallelism
+        id: cores
+        shell: bash
+        run: |
+          set -euo pipefail
+          detected="$(nproc 2>/dev/null || getconf _NPROCESSORS_ONLN || echo 2)"
+          if [ "$detected" -gt 32 ]; then detected=32; fi
+          if [ "$detected" -lt 1 ]; then detected=1; fi
+          echo "jobs=$detected" >> "$GITHUB_OUTPUT"
+          echo "Detected $detected build/test workers"
+          lscpu || true
+          free -h || true
+
+      - name: Shell preflight syntax
+        run: bash -n scripts/*.sh
+
       - name: Configure
-        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=(-S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release)
+          if [ "${EXPERT_ROBOT_CCACHE:-0}" = "1" ]; then
+            args+=(-DCMAKE_CXX_COMPILER_LAUNCHER=ccache)
+          fi
+          cmake "${args[@]}"
 
       - name: Build
-        run: cmake --build build --parallel
+        env:
+          CMAKE_BUILD_PARALLEL_LEVEL: ${{ steps.cores.outputs.jobs }}
+        run: cmake --build build --parallel "${CMAKE_BUILD_PARALLEL_LEVEL}"
 
-      - name: C++ runtime smoke test
-        run: python3 tests/smoke.py ./build/expert_robot_runtime
+      - name: C++ tests
+        env:
+          CTEST_PARALLEL_LEVEL: ${{ steps.cores.outputs.jobs }}
+        run: |
+          ctest             --test-dir build             --parallel "${CTEST_PARALLEL_LEVEL}"             --output-on-failure
 
-      - name: Python orchestrator smoke test
-        run: python3 python/orchestrator.py --runtime ./build/expert_robot_runtime --role math --task "health check"
+      - name: Compute policy guardrails
+        run: python3 tests/compute_policy_smoke.py
+
+      - name: Known failure regression guardrails
+        run: python3 tests/known_failure_regression_smoke.py
+
+      - name: Formal dependency lock
+        run: python3 tests/formal_dependency_lock_smoke.py
+
+      - name: CACE return bridge guardrails
+        run: python3 tests/cace_return_bridge_smoke.py
+
+      - name: Collar policy guardrails
+        run: |
+          python3 tests/collar_policy_smoke.py
+          python3 tests/collar_runtime_contract_smoke.py
+
+      - name: Collar encrypted-core smoke
+        run: bash tests/collar_vault_smoke.sh
+
+      - name: Independent smoke tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tests/smoke.py ./build/expert_robot_runtime
+          python3 tests/research_cli_contract_smoke.py
+
+      - name: Show ccache stats
+        if: always()
+        shell: bash
+        run: |
+          if [ "${EXPERT_ROBOT_CCACHE:-0}" = "1" ]; then
+            ccache --show-stats || true
+          fi
+
+      - name: Save C++ compiler cache
+        if: ${{ success() && github.event_name != 'pull_request' && env.EXPERT_ROBOT_CCACHE == '1' }}
+        uses: actions/cache/save@v4
+        with:
+          path: ~/.cache/ccache
+          key: ccache-v1-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}

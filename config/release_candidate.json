@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "release_candidate": "rsi-rc-20260930",
+  "base_main_sha": "6f747f90b6229adfe319d498e31d248ce084704f",
+  "calibrated_lineage_sha": "a1bf76f868aba74d9088be3114e6cd5969740179",
+  "lineage_relation": "strict_descendant",
+  "main_commits_missing_from_lineage": 0,
+  "collar_policy": "fail-closed-collar-v1",
+  "authority_invariant": "Capability grows, authority never expands.",
+  "promotion_authority_inside_candidate": false,
+  "qualification_required": true,
+  "automatic_promotion_before_all_gates": false,
+  "notes": "Release checkpoint only. Qualification evidence, blind holdout non-regression, formal verification, rollback, lineage/core integrity, authority non-expansion, and collar evidence remain mandatory."
+}
