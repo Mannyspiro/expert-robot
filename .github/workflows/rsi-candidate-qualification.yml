@@ -110,6 +110,15 @@ jobs:
           leanchecker: "false"
           axiom-audit: "false"
 
+      - name: Verify trusted hidden hard-v2 witnesses against candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          (
+            cd candidate/formal
+            lake env lean ../../trusted/tests/lean/hard_math_v2_witnesses.lean
+          )
+
       - name: Configure candidate C++
         run: cmake -S candidate -B candidate/build -G Ninja -DCMAKE_BUILD_TYPE=Release
 
@@ -128,7 +137,7 @@ jobs:
             (
               cd candidate
               build/expert_robot_math_benchmark \
-                ../trusted/config/benchmarks/core_math_holdout.json \
+                ../trusted/config/benchmarks/progression_math_v2.json \
                 "build/candidate-state-$variant" \
                 "../candidate-evidence/math-benchmark-results-$variant.json" \
                 "candidate-${{ github.run_id }}-$variant" \
@@ -231,9 +240,9 @@ jobs:
           pathlib.Path("candidate-results.json").write_text(json.dumps(out,indent=2)+"\n")
           PY
 
-      - name: Evaluate merit with trusted baseline policy
+      - name: Evaluate merit with frozen G2 progression policy
         run: |
-          python3 trusted/scripts/compare_benchmark_to_baseline.py             candidate-results.json             --baseline trusted/config/benchmarks/g0_baseline.json             --output benchmark-merit.json
+          python3 trusted/scripts/compare_progression_to_reference.py             candidate-results.json             --baseline trusted/config/benchmarks/g2_progression_v2_baseline.json             --output benchmark-merit.json
 
       - name: Build promotion evidence
         shell: bash
@@ -285,6 +294,7 @@ jobs:
               "validation_verified_rate_delta":merit["validation_verified_rate_delta"],
               "holdout_verified_rate_delta":merit["holdout_verified_rate_delta"],
               "collar_evidence_sha256":collar["evidence_sha256"],
+              "progression_baseline_id":merit["baseline_id"],
               "verdict":verdict,
           }
           canonical=json.dumps(decision,sort_keys=True,separators=(",",":")).encode()
