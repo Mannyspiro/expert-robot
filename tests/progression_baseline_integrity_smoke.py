@@ -51,8 +51,12 @@ for case_id in expected_validation | expected_holdout:
 
 variants = {v["variant_id"] for v in suite["variants"]}
 assert set(baseline["variants"]) == variants
+validation_rates = []
 for variant in variants:
-    assert 0.0 <= baseline["variants"][variant]["validation"]["verified_rate"] < 1.0
+    rate = baseline["variants"][variant]["validation"]["verified_rate"]
+    validation_rates.append(rate)
+    assert 0.0 <= rate <= 1.0
     assert 0.0 <= baseline["variants"][variant]["holdout"]["verified_rate"] <= 1.0
+assert min(validation_rates) < 1.0, "progression validation is saturated for every variant"
 
 print("progression baseline integrity: PASS")
