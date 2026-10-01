@@ -15,7 +15,8 @@ blind = json.loads((ROOT / "config/blind_evaluation_policy.json").read_text(enco
 
 assert suite["suite_id"] == "progression-math-v2"
 assert baseline["source_candidate_sha"] == "16f11bf67995c7ad054da9111c0f50dd79d5ba44"
-assert baseline["suite_sha256"] == hashlib.sha256(suite_bytes).hexdigest()
+git_blob = b"blob " + str(len(suite_bytes)).encode("ascii") + b"\0" + suite_bytes
+assert baseline["suite_git_blob_sha"] == hashlib.sha1(git_blob).hexdigest()
 
 expected_validation = {"hard2-validation-001", "hard2-validation-003"}
 expected_holdout = {"hard2-holdout-003", "hard2-holdout-006", "hard2-holdout-007"}
