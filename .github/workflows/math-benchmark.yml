@@ -36,7 +36,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: expert-robot-avrea-progression-calibration-v1
+  group: expert-robot-avrea-progression-route-retry-v1
   cancel-in-progress: true
 
 
@@ -45,14 +45,10 @@ jobs:
     name: benchmark-${{ matrix.variant }}
     strategy:
       fail-fast: false
-      max-parallel: 2
+      max-parallel: 1
       matrix:
         variant:
-          - proof_search
-          - theorem_graph
           - route_memory
-          - sequence_memory
-          - strategy_memory
 
     # Current policy keeps this lane at one 8-vCPU worker so a simultaneous
     # 8-vCPU CI job and 8-vCPU RSI promotion job remain at 24 vCPU total.
