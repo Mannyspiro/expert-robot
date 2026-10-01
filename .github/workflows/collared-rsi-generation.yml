@@ -150,7 +150,7 @@ jobs:
             (cd trusted && scripts/prepare_collared_generation.sh . "$sealed" "$key")
             (
               cd trusted
-              scripts/run_collared.sh --sealed "$sealed" --key-file "$key" \
+              bash scripts/run_collared.sh --sealed "$sealed" --key-file "$key" \
                 --image "$IMAGE" --workspace "$workspace" -- \
                 sh -lc 'cmake -S /work/candidate -B /work/build -G Ninja -DCMAKE_BUILD_TYPE=Release && cmake --build /work/build --parallel 8 && ctest --test-dir /work/build --output-on-failure'
             )
