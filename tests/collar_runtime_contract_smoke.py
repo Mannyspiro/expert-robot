@@ -9,6 +9,8 @@ required = [
     "/dev/shm/",
     "systemd-detect-virt",
     "@sha256:",
+    "docker image inspect",
+    "local container image id is missing or does not match requested sha256",
     "timeout 5s docker inspect",
     "--network none",
     "--read-only",

@@ -2,9 +2,19 @@
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
+collar=(ROOT/".github/workflows/collared-rsi-generation.yml").read_text()
 qual=(ROOT/".github/workflows/rsi-candidate-qualification.yml").read_text()
 pub=(ROOT/".github/workflows/auto-promote-qualified.yml").read_text()
 
+assert 'branches: ["candidate/**"]' in collar
+assert "Resolve trusted offline evaluation image" in collar
+assert "docker build --pull --no-cache" in collar
+assert "sha256:" in collar
+
+assert 'workflows: ["Collared RSI Generation"]' in qual
+assert "github.event.workflow_run.head_branch" in qual
+assert "github.event.workflow_run.id" in qual
+assert "needs.qualify.outputs.collar_evidence_run_id" in qual
 assert "contents: read" in qual
 assert "actions: read" in qual
 assert "contents: write" not in qual

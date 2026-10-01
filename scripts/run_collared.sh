@@ -52,9 +52,19 @@ for cmd in docker findmnt timeout sha256sum readlink systemd-detect-virt python3
 done
 
 case "$IMAGE" in
-  *@sha256:[0-9a-f][0-9a-f]*) ;;
+  *@sha256:[0-9a-f][0-9a-f]*)
+    ;;
+  sha256:[0-9a-f][0-9a-f]*)
+    # Locally built trusted images do not have a registry RepoDigest. Bind the
+    # run to Docker's content-addressed image ID and verify it before launch.
+    actual_image_id="$(docker image inspect --format '{{.Id}}' "$IMAGE" 2>/dev/null || true)"
+    [ -n "$actual_image_id" ] && [ "$actual_image_id" = "$IMAGE" ] || {
+      echo "local container image id is missing or does not match requested sha256" >&2
+      exit 43
+    }
+    ;;
   *)
-    echo "container image must be pinned by sha256 digest" >&2
+    echo "container image must be pinned by registry digest or local sha256 image id" >&2
     exit 43
     ;;
 esac
