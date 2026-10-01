@@ -46,6 +46,30 @@
   ],
   "cases": [
     {
+      "case_id": "train-algebra-add-zero",
+      "family": "algebra_identity",
+      "domain": "algebra",
+      "split": "train",
+      "tags": [
+        "lean_verified",
+        "identity"
+      ],
+      "focus_theorem": "MathAI.Trust.add_zero_verified",
+      "declaration_name": "bench_add_zero",
+      "namespace": "MathAI.Benchmark",
+      "binders": [
+        {
+          "name": "n",
+          "type": "Nat"
+        }
+      ],
+      "proposition": "n + 0 = n",
+      "imports": [
+        "MathAI"
+      ],
+      "knowledge_mode": "known_theorem_retrieval"
+    },
+    {
       "case_id": "validation-geometry-dot-zero-right",
       "family": "dot_zero_right_validation",
       "domain": "geometry",
