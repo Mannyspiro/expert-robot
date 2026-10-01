@@ -77,6 +77,12 @@ jobs:
           leanchecker: "false"
           axiom-audit: "false"
 
+      - name: Verify hidden hard-v2 benchmark witnesses
+        working-directory: formal
+        env:
+          LEAN_ABORT_ON_PANIC: "1"
+        run: lake env lean ../tests/lean/hard_math_v2_witnesses.lean
+
       - name: Configure C++
         run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 
@@ -86,14 +92,14 @@ jobs:
             --target expert_robot_math_benchmark \
             --parallel "$(nproc)"
 
-      - name: Run isolated train validation holdout benchmark
+      - name: Run post-G2 progression benchmark
         shell: bash
         run: |
           set -euo pipefail
           variant="${{ matrix.variant }}"
 
           ./build/expert_robot_math_benchmark \
-            config/benchmarks/core_math_holdout.json \
+            config/benchmarks/progression_math_v2.json \
             "build/math-benchmark-state-${variant}" \
             "build/math-benchmark-results-${variant}.json" \
             "github-${{ github.run_id }}-${variant}" \
@@ -209,13 +215,13 @@ jobs:
           print(json.dumps(output, indent=2))
           PY
 
-      - name: Compare against frozen G0 baseline
+      - name: Compare against frozen G2 progression baseline
         shell: bash
         run: |
           set -euo pipefail
-          python3 scripts/compare_benchmark_to_baseline.py \
+          python3 scripts/compare_progression_to_reference.py \
             build/math-benchmark-results.json \
-            --baseline config/benchmarks/g0_baseline.json \
+            --baseline config/benchmarks/g2_progression_v2_baseline.json \
             --output build/benchmark-merit.json
 
       - name: Upload combined benchmark evidence
