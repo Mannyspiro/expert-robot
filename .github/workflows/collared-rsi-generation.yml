@@ -117,24 +117,24 @@ jobs:
             )
             cp "$workspace/collar-evidence/result.json" "evidence/runs/result-$i.json"
             python3 - "$i" "$CANDIDATE_SHA" "$BASE_SHA" <<'PY'
-import json, os, pathlib, sys
-i, candidate_sha, base_sha = sys.argv[1:]
-p=pathlib.Path("evidence/run-records.json")
-rows=json.loads(p.read_text())
-runtime=json.loads(pathlib.Path(f"evidence/runs/result-{i}.json").read_text())
-if runtime.get("tripped") or runtime.get("exit_code") != 0 or runtime.get("promotion_authority") is not False:
-    raise SystemExit("collared evaluation did not satisfy fail-closed runtime contract")
-rows.append({
-    "run_id": f"{os.environ['GITHUB_RUN_ID']}-{i}",
-    "kind": "evaluation",
-    "promoted_lineage": False,
-    "candidate_sha": candidate_sha,
-    "base_sha": base_sha,
-    "collared_execution": True,
-    "collar_tripped": False,
-})
-p.write_text(json.dumps(rows,indent=2)+"\n")
-PY
+          import json, os, pathlib, sys
+          i, candidate_sha, base_sha = sys.argv[1:]
+          p=pathlib.Path("evidence/run-records.json")
+          rows=json.loads(p.read_text())
+          runtime=json.loads(pathlib.Path(f"evidence/runs/result-{i}.json").read_text())
+          if runtime.get("tripped") or runtime.get("exit_code") != 0 or runtime.get("promotion_authority") is not False:
+              raise SystemExit("collared evaluation did not satisfy fail-closed runtime contract")
+          rows.append({
+              "run_id": f"{os.environ['GITHUB_RUN_ID']}-{i}",
+              "kind": "evaluation",
+              "promoted_lineage": False,
+              "candidate_sha": candidate_sha,
+              "base_sha": base_sha,
+              "collared_execution": True,
+              "collar_tripped": False,
+          })
+          p.write_text(json.dumps(rows,indent=2)+"\n")
+          PY
           done
 
       - name: Assemble trusted collar evidence
@@ -145,31 +145,31 @@ PY
         run: |
           set -euo pipefail
           python3 - <<'PY'
-import json, os, pathlib
-budget=json.load(open("budget.json"))
-records=json.load(open("evidence/run-records.json"))
-runtime=json.load(open(f"evidence/runs/result-{len(records)}.json"))
-scope=json.load(open("scope.json"))
-payload={
-  "schema_version": 2,
-  "candidate_id": os.environ["CANDIDATE_SHA"],
-  "candidate_sha": os.environ["CANDIDATE_SHA"],
-  "parent_sha": os.environ["BASE_SHA"],
-  "source_run_id": int(os.environ["GITHUB_RUN_ID"]),
-  "generation_budget": {
-    "estimated": True,
-    "recommended_runs": budget["recommended_runs"],
-    "actual_runs": len(records),
-    "assumptions": budget["assumptions"],
-  },
-  "run_records": records,
-  "lineage_verified": True,
-  "core_integrity_verified": True,
-  "authority_change": scope["authority_change"],
-  "runtime_result": runtime,
-}
-pathlib.Path("evidence/collar-evidence.json").write_text(json.dumps(payload,indent=2)+"\n")
-PY
+          import json, os, pathlib
+          budget=json.load(open("budget.json"))
+          records=json.load(open("evidence/run-records.json"))
+          runtime=json.load(open(f"evidence/runs/result-{len(records)}.json"))
+          scope=json.load(open("scope.json"))
+          payload={
+            "schema_version": 2,
+            "candidate_id": os.environ["CANDIDATE_SHA"],
+            "candidate_sha": os.environ["CANDIDATE_SHA"],
+            "parent_sha": os.environ["BASE_SHA"],
+            "source_run_id": int(os.environ["GITHUB_RUN_ID"]),
+            "generation_budget": {
+              "estimated": True,
+              "recommended_runs": budget["recommended_runs"],
+              "actual_runs": len(records),
+              "assumptions": budget["assumptions"],
+            },
+            "run_records": records,
+            "lineage_verified": True,
+            "core_integrity_verified": True,
+            "authority_change": scope["authority_change"],
+            "runtime_result": runtime,
+          }
+          pathlib.Path("evidence/collar-evidence.json").write_text(json.dumps(payload,indent=2)+"\n")
+          PY
           python3 trusted/scripts/validate_collar_evidence.py evidence/collar-evidence.json \
             --candidate-sha "$CANDIDATE_SHA" --base-sha "$BASE_SHA" \
             --output evidence/normalized-collar.json
