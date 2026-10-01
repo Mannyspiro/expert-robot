@@ -125,7 +125,15 @@ jobs:
           set -euo pipefail
           mkdir -p candidate-evidence
           for variant in proof_search theorem_graph route_memory sequence_memory strategy_memory; do
-            candidate/build/expert_robot_math_benchmark               candidate/config/benchmarks/core_math_holdout.json               "candidate/build/candidate-state-$variant"               "candidate-evidence/math-benchmark-results-$variant.json"               "candidate-${{ github.run_id }}-$variant"               "$variant"
+            (
+              cd candidate
+              build/expert_robot_math_benchmark \
+                ../trusted/config/benchmarks/core_math_holdout.json \
+                "build/candidate-state-$variant" \
+                "../candidate-evidence/math-benchmark-results-$variant.json" \
+                "candidate-${{ github.run_id }}-$variant" \
+                "$variant"
+            )
           done
 
       - name: Upload raw candidate evidence
