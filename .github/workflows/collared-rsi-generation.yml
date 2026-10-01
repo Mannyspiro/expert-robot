@@ -35,7 +35,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: expert-robot-avrea-heavy
+  group: expert-robot-avrea-rsi-promotion-v2
   cancel-in-progress: false
 
 jobs:

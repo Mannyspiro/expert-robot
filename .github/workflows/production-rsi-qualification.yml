@@ -12,7 +12,7 @@ concurrency:
   # One repository-wide heavy lane prevents aggregate Avrea compute from
   # exceeding the approved ceiling. Newer releases may supersede only pending,
   # not running, work.
-  group: expert-robot-avrea-heavy
+  group: expert-robot-avrea-heavy-v2
   cancel-in-progress: false
 
 jobs:
@@ -87,7 +87,7 @@ jobs:
     name: release-benchmark-${{ matrix.variant }}
     strategy:
       fail-fast: false
-      max-parallel: 2
+      max-parallel: 1
       matrix:
         variant:
           - proof_search

@@ -16,8 +16,8 @@ assert "github.event.workflow_run.head_branch" in qual
 assert "github.event.workflow_run.id" in qual
 assert "needs.qualify.outputs.collar_evidence_run_id" in qual
 assert "qualify:\n    if:" in qual
-assert "qualify:\n    if:" in qual and "    concurrency:\n      group: expert-robot-avrea-heavy" in qual
-assert "decide:\n    needs: qualify\n    concurrency:\n      group: expert-robot-avrea-heavy" in qual
+assert "qualify:\n    if:" in qual and "    concurrency:\n      group: expert-robot-avrea-rsi-promotion-v2" in qual
+assert "decide:\n    needs: qualify\n    concurrency:\n      group: expert-robot-avrea-rsi-promotion-v2" in qual
 assert "contents: read" in qual
 assert "actions: read" in qual
 assert "contents: write" not in qual
