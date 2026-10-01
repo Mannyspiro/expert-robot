@@ -5,6 +5,7 @@ on:
     branches: ["main", "feat/**"]
     paths:
       - "formal/**"
+      - "tests/lean/**"
       - ".github/workflows/formal-qualification.yml"
   workflow_dispatch:
 
@@ -117,6 +118,12 @@ jobs:
           axiom-audit: "true"
           axiom-audit-root: "MathAI"
           axiom-audit-allow: "propext,Classical.choice,Quot.sound"
+
+      - name: Verify hidden hard-v2 benchmark witnesses
+        working-directory: formal
+        env:
+          LEAN_ABORT_ON_PANIC: "1"
+        run: lake env lean ../tests/lean/hard_math_v2_witnesses.lean
 
       - name: Direct audited-root replay
         working-directory: formal
