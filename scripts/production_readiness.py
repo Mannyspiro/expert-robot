@@ -37,10 +37,15 @@ def main():
         "scripts/estimate_generation_budget.py",
         "scripts/evaluate_promotion.py",
         "scripts/compare_benchmark_to_baseline.py",
+        "scripts/compare_progression_to_reference.py",
         "scripts/prepare_collared_generation.sh",
         "config/benchmarks/g0_baseline.json",
+        "config/benchmarks/progression_math_v2.json",
+        "config/benchmarks/g2_progression_v2_baseline.json",
         "tests/collar_runtime_contract_smoke.py",
         "tests/benchmark_baseline_smoke.py",
+        "tests/progression_benchmark_smoke.py",
+        "tests/lean/hard_math_v2_witnesses.lean",
         "config/auto_promotion_scope.json",
         "config/blind_evaluation_policy.json",
         "scripts/validate_candidate_scope.py",
@@ -92,6 +97,15 @@ def main():
     require(promotion_group in candidate_wf, "candidate qualification lacks current promotion concurrency group", failures)
     require("cancel-in-progress: false" in math_wf, "benchmark may cancel serialized heavy work", failures)
     require("cancel-in-progress: false" in production_wf, "production qualification may cancel serialized heavy work", failures)
+    for label, workflow in (
+        ("standalone benchmark", math_wf),
+        ("production qualification", production_wf),
+        ("candidate qualification", candidate_wf),
+    ):
+        require("progression_math_v2.json" in workflow,
+                f"{label} is not using the post-G2 progression suite", failures)
+        require("g2_progression_v2_baseline.json" in workflow,
+                f"{label} is not bound to the frozen G2 progression baseline", failures)
     require(hard["worker_vcpu"] * 3 <= hard["max_total_vcpu"],
             "CI + heavy + promotion lanes can exceed total vCPU ceiling", failures)
 
