@@ -1,6 +1,8 @@
 name: Collared RSI Generation
 
 on:
+  push:
+    branches: ["candidate/**"]
   workflow_dispatch:
     inputs:
       candidate_ref:
@@ -8,8 +10,9 @@ on:
         required: true
         type: string
       image:
-        description: "Offline evaluation image pinned as image@sha256:digest"
-        required: true
+        description: "Optional offline evaluation image pinned as image@sha256:digest; blank builds a trusted local image and pins its Docker image ID"
+        required: false
+        default: ""
         type: string
       expected_gain:
         required: true
@@ -39,6 +42,13 @@ jobs:
   evaluate:
     runs-on: avrea-ubuntu-latest-8-vcpu
     timeout-minutes: 45
+    env:
+      CANDIDATE_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.candidate_ref || github.ref_name }}
+      EXPECTED_GAIN: ${{ github.event_name == 'workflow_dispatch' && inputs.expected_gain || '0.10' }}
+      EXPECTED_VARIANCE: ${{ github.event_name == 'workflow_dispatch' && inputs.variance || '0.05' }}
+      COST_PER_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.cost_per_run || '1.0' }}
+      DIMINISHING_RATE: ${{ github.event_name == 'workflow_dispatch' && inputs.diminishing_rate || '0.20' }}
+      REQUESTED_IMAGE: ${{ github.event_name == 'workflow_dispatch' && inputs.image || '' }}
     steps:
       - name: Check out trusted base
         uses: actions/checkout@v4
@@ -50,16 +60,17 @@ jobs:
 
       - name: Validate candidate ref
         shell: bash
-        env:
-          CANDIDATE_REF: ${{ inputs.candidate_ref }}
         run: |
           set -euo pipefail
-          case "$CANDIDATE_REF" in candidate/*) ;; *) exit 2 ;; esac
+          case "$CANDIDATE_REF" in
+            candidate/*) ;;
+            *) echo "::error::Candidate ref must start with candidate/"; exit 2 ;;
+          esac
 
       - name: Check out candidate
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.candidate_ref }}
+          ref: ${{ env.CANDIDATE_REF }}
           path: candidate
           fetch-depth: 0
           persist-credentials: false
@@ -78,21 +89,49 @@ jobs:
           echo "base_sha=$base_sha" >> "$GITHUB_OUTPUT"
           echo "candidate_sha=$candidate_sha" >> "$GITHUB_OUTPUT"
 
+      - name: Resolve trusted offline evaluation image
+        id: image
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -n "$REQUESTED_IMAGE" ]; then
+            image="$REQUESTED_IMAGE"
+          else
+            context="$RUNNER_TEMP/expert-robot-collar-image"
+            rm -rf "$context"
+            mkdir -p "$context"
+            cat > "$context/Dockerfile" <<'EOF'
+          FROM ubuntu:24.04
+          RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+              ca-certificates cmake ninja-build g++ python3 git libsqlite3-dev \
+              && rm -rf /var/lib/apt/lists/*
+          EOF
+            tag="expert-robot-collar-eval:${GITHUB_SHA}"
+            docker build --pull --no-cache -t "$tag" "$context"
+            image="$(docker image inspect --format '{{.Id}}' "$tag")"
+          fi
+          case "$image" in
+            *@sha256:*|sha256:*) ;;
+            *) echo "::error::Evaluation image is not content-addressed"; exit 43 ;;
+          esac
+          echo "image=$image" >> "$GITHUB_OUTPUT"
+          echo "Using content-addressed offline evaluation image $image"
+
       - name: Estimate optimal evaluation count
         shell: bash
         run: |
           set -euo pipefail
           python3 trusted/scripts/estimate_generation_budget.py \
-            --expected-gain "${{ inputs.expected_gain }}" \
-            --variance "${{ inputs.variance }}" \
-            --cost-per-run "${{ inputs.cost_per_run }}" \
-            --diminishing-rate "${{ inputs.diminishing_rate }}" \
+            --expected-gain "$EXPECTED_GAIN" \
+            --variance "$EXPECTED_VARIANCE" \
+            --cost-per-run "$COST_PER_RUN" \
+            --diminishing-rate "$DIMINISHING_RATE" \
             --min-runs 2 --max-runs 30 > budget.json
 
       - name: Run independent collared evaluations
         shell: bash
         env:
-          IMAGE: ${{ inputs.image }}
+          IMAGE: ${{ steps.image.outputs.image }}
           CANDIDATE_SHA: ${{ steps.meta.outputs.candidate_sha }}
           BASE_SHA: ${{ steps.meta.outputs.base_sha }}
         run: |
