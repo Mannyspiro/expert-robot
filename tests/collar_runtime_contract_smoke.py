@@ -5,7 +5,9 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-text = (ROOT / "scripts" / "run_collared.sh").read_text(encoding="utf-8")
+RUNNER = ROOT / "scripts" / "run_collared.sh"
+text = RUNNER.read_text(encoding="utf-8")
+assert RUNNER.stat().st_mode & 0o111, "run_collared.sh must remain executable in git checkout"
 
 required = [
     "--key-file",
