@@ -11,6 +11,12 @@ REQUIRED_TMPFS = {
     "/run/expert-robot": 64 * 1024 * 1024,
 }
 DOCKER_METADATA_BINDS = {"/etc/hosts", "/etc/hostname", "/etc/resolv.conf"}
+RUNNER_METADATA_BINDS = {
+    "/etc/ssl/certs/avrea-ca.crt": {
+        "source": "/opt/avrea/certs/avrea-ca.crt",
+        "rw": False,
+    },
+}
 
 def fail(message):
     print(message, file=sys.stderr)
@@ -68,6 +74,14 @@ def main():
         elif dest in DOCKER_METADATA_BINDS:
             if typ != "bind":
                 fail(f"Docker metadata mount type mismatch at {dest}")
+        elif dest in RUNNER_METADATA_BINDS:
+            expected_runner = RUNNER_METADATA_BINDS[dest]
+            if typ != "bind":
+                fail(f"runner metadata mount type mismatch at {dest}")
+            if source != expected_runner["source"]:
+                fail(f"runner metadata source mismatch at {dest}")
+            if rw is not expected_runner["rw"]:
+                fail(f"runner metadata RW mismatch at {dest}")
         else:
             fail(f"unexpected mount: type={typ!r} source={source!r} destination={dest!r} rw={rw!r}")
     missing = set(expected) - seen
