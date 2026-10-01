@@ -13,8 +13,8 @@ on:
       - ".github/workflows/formal-qualification.yml"
 
 concurrency:
-  group: expert-robot-avrea-l3-v2
-  cancel-in-progress: false
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
 
 jobs:
   build-and-smoke:

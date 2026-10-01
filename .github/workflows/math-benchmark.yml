@@ -36,7 +36,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: expert-robot-avrea-l3-v2
+  group: expert-robot-avrea-heavy-v2
   cancel-in-progress: false
 
 
@@ -45,7 +45,7 @@ jobs:
     name: benchmark-${{ matrix.variant }}
     strategy:
       fail-fast: false
-      max-parallel: 2
+      max-parallel: 1
       matrix:
         variant:
           - proof_search
@@ -54,8 +54,8 @@ jobs:
           - sequence_memory
           - strategy_memory
 
-    # Production policy caps aggregate benchmark compute below 30 vCPU:
-    # two concurrent 8-vCPU workers = 16 vCPU, leaving 8 vCPU for normal CI.
+    # Current policy keeps this lane at one 8-vCPU worker so a simultaneous
+    # 8-vCPU CI job and 8-vCPU RSI promotion job remain at 24 vCPU total.
     runs-on: ${{ inputs.runner || 'avrea-ubuntu-latest-8-vcpu' }}
     timeout-minutes: 20
 

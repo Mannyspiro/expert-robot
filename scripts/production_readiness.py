@@ -71,7 +71,7 @@ def main():
         failures,
     )
     require(hard["holdout_may_tune_search"] is False, "holdout may tune search", failures)
-    require("max-parallel: 2" in math_wf, "standalone benchmark is not capped at 2 workers", failures)
+    require("max-parallel: 1" in math_wf, "standalone benchmark is not capped at 1 worker", failures)
     require("avrea-ubuntu-latest-32-vcpu" not in math_wf, "32-vCPU runner exceeds approved ceiling", failures)
     require("name: aggregate-benchmark" in math_wf and "runs-on: avrea-ubuntu-latest-8-vcpu" in math_wf,
             "benchmark aggregation is not on Avrea", failures)
@@ -79,20 +79,21 @@ def main():
             "standalone benchmark trigger drifted", failures)
     require('branches: ["release/**"]' in production_wf,
             "production release workflow trigger drifted", failures)
-    require("max-parallel: 2" in production_wf,
-            "release benchmark is not capped at 2 workers", failures)
+    require("max-parallel: 1" in production_wf,
+            "release benchmark is not capped at 1 worker", failures)
     require("release-benchmark-" in production_wf and "Require demonstrated merit" in production_wf,
             "production release does not integrate benchmark merit gating", failures)
     require("runs-on: avrea-ubuntu-latest-8-vcpu" in ci_wf, "CI is not on Avrea", failures)
-    shared_group = "group: expert-robot-avrea-l3-v2"
-    require(shared_group in ci_wf, "CI lacks shared Avrea L3 concurrency group", failures)
-    require(shared_group in math_wf, "benchmark lacks shared Avrea L3 concurrency group", failures)
-    require(shared_group in production_wf, "production qualification lacks shared Avrea L3 concurrency group", failures)
-    require(shared_group in collar_wf, "collared RSI generation lacks shared Avrea L3 concurrency group", failures)
-    require(shared_group in candidate_wf, "candidate qualification lacks shared Avrea L3 concurrency group", failures)
-    require("cancel-in-progress: false" in ci_wf, "CI may cancel serialized L3 work", failures)
+    heavy_group = "group: expert-robot-avrea-heavy-v2"
+    promotion_group = "group: expert-robot-avrea-rsi-promotion-v2"
+    require(heavy_group in math_wf, "benchmark lacks current heavy Avrea concurrency group", failures)
+    require(heavy_group in production_wf, "production qualification lacks current heavy Avrea concurrency group", failures)
+    require(promotion_group in collar_wf, "collared RSI generation lacks current promotion concurrency group", failures)
+    require(promotion_group in candidate_wf, "candidate qualification lacks current promotion concurrency group", failures)
     require("cancel-in-progress: false" in math_wf, "benchmark may cancel serialized heavy work", failures)
     require("cancel-in-progress: false" in production_wf, "production qualification may cancel serialized heavy work", failures)
+    require(hard["worker_vcpu"] * 3 <= hard["max_total_vcpu"],
+            "CI + heavy + promotion lanes can exceed total vCPU ceiling", failures)
 
     require(collar["rsi_start_allowed"] is True, "RSI start is disabled", failures)
     require(collar["user_passkey_required"] is False, "unexpected passkey dependency", failures)
