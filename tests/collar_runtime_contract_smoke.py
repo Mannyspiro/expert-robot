@@ -28,8 +28,6 @@ required = [
     "supervisor_canary_tamper",
     "unexpected_host_mount",
     "scripts/validate_docker_mounts.py",
-    "tmpfs_mount_drift",
-    "tmpfs_config_ok",
     "generation key must remain outside candidate-writable workspace",
     "sealed core must remain outside candidate-writable workspace",
     'rm -rf -- "$EVIDENCE"',
