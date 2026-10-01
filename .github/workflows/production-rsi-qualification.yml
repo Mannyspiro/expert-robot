@@ -39,6 +39,7 @@ jobs:
           python3 tests/benchmark_baseline_smoke.py
           python3 tests/progression_benchmark_smoke.py
           python3 tests/progression_baseline_integrity_smoke.py
+          python3 tests/progression_freezer_smoke.py
           python3 tests/candidate_scope_smoke.py
           python3 tests/collar_evidence_smoke.py
           python3 tests/blind_generation_view_smoke.py
