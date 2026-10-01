@@ -23,7 +23,7 @@ jobs:
   qualify:
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     concurrency:
-      group: expert-robot-avrea-heavy
+      group: expert-robot-avrea-l3-v2
       cancel-in-progress: false
     runs-on: avrea-ubuntu-latest-8-vcpu
     timeout-minutes: 45
@@ -142,7 +142,7 @@ jobs:
   decide:
     needs: qualify
     concurrency:
-      group: expert-robot-avrea-heavy
+      group: expert-robot-avrea-l3-v2
       cancel-in-progress: false
     runs-on: avrea-ubuntu-latest-8-vcpu
     timeout-minutes: 15

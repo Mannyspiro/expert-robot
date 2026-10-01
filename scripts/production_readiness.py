@@ -25,6 +25,8 @@ def main():
     math_wf = (ROOT / ".github/workflows/math-benchmark.yml").read_text()
     ci_wf = (ROOT / ".github/workflows/ci.yml").read_text()
     production_wf = (ROOT / ".github/workflows/production-rsi-qualification.yml").read_text()
+    collar_wf = (ROOT / ".github/workflows/collared-rsi-generation.yml").read_text()
+    candidate_wf = (ROOT / ".github/workflows/rsi-candidate-qualification.yml").read_text()
 
     required_files = [
         "config/formal_dependency_lock.json",
@@ -82,9 +84,13 @@ def main():
     require("release-benchmark-" in production_wf and "Require demonstrated merit" in production_wf,
             "production release does not integrate benchmark merit gating", failures)
     require("runs-on: avrea-ubuntu-latest-8-vcpu" in ci_wf, "CI is not on Avrea", failures)
-    shared_group = "group: expert-robot-avrea-heavy"
-    require(shared_group in math_wf, "benchmark lacks shared Avrea concurrency group", failures)
-    require(shared_group in production_wf, "production qualification lacks shared Avrea concurrency group", failures)
+    shared_group = "group: expert-robot-avrea-l3-v2"
+    require(shared_group in ci_wf, "CI lacks shared Avrea L3 concurrency group", failures)
+    require(shared_group in math_wf, "benchmark lacks shared Avrea L3 concurrency group", failures)
+    require(shared_group in production_wf, "production qualification lacks shared Avrea L3 concurrency group", failures)
+    require(shared_group in collar_wf, "collared RSI generation lacks shared Avrea L3 concurrency group", failures)
+    require(shared_group in candidate_wf, "candidate qualification lacks shared Avrea L3 concurrency group", failures)
+    require("cancel-in-progress: false" in ci_wf, "CI may cancel serialized L3 work", failures)
     require("cancel-in-progress: false" in math_wf, "benchmark may cancel serialized heavy work", failures)
     require("cancel-in-progress: false" in production_wf, "production qualification may cancel serialized heavy work", failures)
 
