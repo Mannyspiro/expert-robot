@@ -37,11 +37,12 @@ permissions:
 
 concurrency:
   group: expert-robot-avrea-heavy-v2
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 
 jobs:
   benchmark:
+    if: ${{ false }}
     name: benchmark-${{ matrix.variant }}
     strategy:
       fail-fast: false
@@ -120,6 +121,7 @@ jobs:
           retention-days: 30
 
   aggregate:
+    if: ${{ false }}
     name: aggregate-benchmark
     if: always()
     needs: benchmark
