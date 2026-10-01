@@ -68,6 +68,16 @@ theorem cross_orthogonal_right
   unfold orthogonal dot cross
   ring
 
+theorem dot_cross_left_zero
+    (a b : Vec3) :
+    dot a (cross a b) = 0 := by
+  simpa [orthogonal] using cross_orthogonal_left a b
+
+theorem dot_cross_right_zero
+    (a b : Vec3) :
+    dot b (cross a b) = 0 := by
+  simpa [orthogonal] using cross_orthogonal_right a b
+
 theorem validPlane_of_pointOnPlane
     (p : Point3) (plane : Plane3)
     (h : pointOnPlane p plane) :
