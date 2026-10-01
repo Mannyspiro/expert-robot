@@ -86,14 +86,14 @@ jobs:
             --target expert_robot_math_benchmark \
             --parallel "$(nproc)"
 
-      - name: Run isolated train validation holdout benchmark
+      - name: Run G2 hard-v2 calibration benchmark
         shell: bash
         run: |
           set -euo pipefail
           variant="${{ matrix.variant }}"
 
           ./build/expert_robot_math_benchmark \
-            config/benchmarks/core_math_holdout.json \
+            config/benchmarks/hard_math_holdout_v2.json \
             "build/math-benchmark-state-${variant}" \
             "build/math-benchmark-results-${variant}.json" \
             "github-${{ github.run_id }}-${variant}" \
