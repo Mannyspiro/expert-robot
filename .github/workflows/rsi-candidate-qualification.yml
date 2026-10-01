@@ -1,6 +1,9 @@
 name: RSI Candidate Qualification
 
 on:
+  workflow_run:
+    workflows: ["Collared RSI Generation"]
+    types: [completed]
   workflow_dispatch:
     inputs:
       candidate_ref:
@@ -22,18 +25,21 @@ concurrency:
 
 jobs:
   qualify:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     runs-on: avrea-ubuntu-latest-8-vcpu
     timeout-minutes: 45
+    env:
+      CANDIDATE_REF: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || inputs.candidate_ref }}
+      COLLAR_EVIDENCE_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.id || inputs.collar_evidence_run_id }}
     outputs:
       candidate_sha: ${{ steps.meta.outputs.candidate_sha }}
       base_sha: ${{ steps.meta.outputs.base_sha }}
       candidate_ref: ${{ steps.meta.outputs.candidate_ref }}
+      collar_evidence_run_id: ${{ steps.meta.outputs.collar_evidence_run_id }}
 
     steps:
       - name: Validate candidate ref
         shell: bash
-        env:
-          CANDIDATE_REF: ${{ inputs.candidate_ref }}
         run: |
           set -euo pipefail
           case "$CANDIDATE_REF" in
@@ -52,7 +58,7 @@ jobs:
       - name: Check out candidate
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.candidate_ref }}
+          ref: ${{ env.CANDIDATE_REF }}
           path: candidate
           fetch-depth: 0
           persist-credentials: false
@@ -60,8 +66,6 @@ jobs:
       - name: Bind candidate to current base
         id: meta
         shell: bash
-        env:
-          CANDIDATE_REF: ${{ inputs.candidate_ref }}
         run: |
           set -euo pipefail
           base_sha="$(git -C trusted rev-parse HEAD)"
@@ -70,6 +74,7 @@ jobs:
           echo "base_sha=$base_sha" >> "$GITHUB_OUTPUT"
           echo "candidate_sha=$candidate_sha" >> "$GITHUB_OUTPUT"
           echo "candidate_ref=$CANDIDATE_REF" >> "$GITHUB_OUTPUT"
+          echo "collar_evidence_run_id=$COLLAR_EVIDENCE_RUN_ID" >> "$GITHUB_OUTPUT"
 
       - name: Enforce automatic-promotion scope
         run: |
@@ -182,7 +187,7 @@ jobs:
           path: collar
           merge-multiple: true
           github-token: ${{ github.token }}
-          run-id: ${{ inputs.collar_evidence_run_id }}
+          run-id: ${{ needs.qualify.outputs.collar_evidence_run_id }}
 
       - name: Validate independent collar evidence
         shell: bash
