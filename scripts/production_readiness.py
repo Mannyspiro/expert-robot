@@ -47,6 +47,7 @@ def main():
         "tests/benchmark_baseline_smoke.py",
         "tests/progression_benchmark_smoke.py",
         "tests/progression_baseline_integrity_smoke.py",
+        "tests/progression_freezer_smoke.py",
         "tests/lean/hard_math_v2_witnesses.lean",
         "config/auto_promotion_scope.json",
         "config/blind_evaluation_policy.json",
