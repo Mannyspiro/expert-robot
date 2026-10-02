@@ -41,14 +41,15 @@ def main():
         "scripts/freeze_progression_baseline.py",
         "scripts/prepare_collared_generation.sh",
         "config/benchmarks/g0_baseline.json",
-        "config/benchmarks/progression_math_v2.json",
-        "config/benchmarks/g2_progression_v2_baseline.json",
+        "config/benchmarks/progression_math_v3.json",
+        "config/benchmarks/g3_progression_v3_baseline.json",
         "tests/collar_runtime_contract_smoke.py",
         "tests/benchmark_baseline_smoke.py",
         "tests/progression_benchmark_smoke.py",
         "tests/progression_baseline_integrity_smoke.py",
         "tests/progression_freezer_smoke.py",
         "tests/lean/hard_math_v2_witnesses.lean",
+        "tests/lean/hard_math_v3_witnesses.lean",
         "config/auto_promotion_scope.json",
         "config/blind_evaluation_policy.json",
         "scripts/validate_candidate_scope.py",
@@ -105,10 +106,10 @@ def main():
         ("production qualification", production_wf),
         ("candidate qualification", candidate_wf),
     ):
-        require("progression_math_v2.json" in workflow,
-                f"{label} is not using the post-G2 progression suite", failures)
-        require("g2_progression_v2_baseline.json" in workflow,
-                f"{label} is not bound to the frozen G2 progression baseline", failures)
+        require("progression_math_v3.json" in workflow,
+                f"{label} is not using the post-G3 progression suite", failures)
+        require("g3_progression_v3_baseline.json" in workflow,
+                f"{label} is not bound to the frozen G3 progression baseline", failures)
     require(hard["worker_vcpu"] * 3 <= hard["max_total_vcpu"],
             "CI + heavy + promotion lanes can exceed total vCPU ceiling", failures)
 
