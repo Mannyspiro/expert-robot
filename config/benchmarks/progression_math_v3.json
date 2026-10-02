@@ -392,7 +392,8 @@
       "tags": [
         "lean_verified",
         "hard_v3",
-        "composition"
+        "composition",
+        "progression"
       ],
       "focus_theorem": "",
       "declaration_name": "bench_hard3_validation_001",
@@ -426,7 +427,8 @@
         "lean_verified",
         "hard_v3",
         "composition",
-        "nested"
+        "nested",
+        "progression"
       ],
       "focus_theorem": "",
       "declaration_name": "bench_hard3_validation_002",
@@ -451,7 +453,8 @@
       "tags": [
         "lean_verified",
         "hard_v3",
-        "definition_normalization"
+        "definition_normalization",
+        "progression"
       ],
       "focus_theorem": "",
       "declaration_name": "bench_hard3_validation_003",
@@ -480,7 +483,8 @@
       "tags": [
         "lean_verified",
         "hard_v3",
-        "branching"
+        "branching",
+        "progression"
       ],
       "focus_theorem": "",
       "declaration_name": "bench_hard3_validation_004",
@@ -514,7 +518,8 @@
         "lean_verified",
         "hard_v3",
         "symmetry",
-        "cross"
+        "cross",
+        "progression"
       ],
       "focus_theorem": "",
       "declaration_name": "bench_hard3_holdout_001",
@@ -548,7 +553,8 @@
         "lean_verified",
         "hard_v3",
         "implication",
-        "composition"
+        "composition",
+        "progression"
       ],
       "focus_theorem": "",
       "declaration_name": "bench_hard3_holdout_002",
@@ -578,7 +584,8 @@
         "lean_verified",
         "hard_v3",
         "rewrite",
-        "cross"
+        "cross",
+        "progression"
       ],
       "focus_theorem": "",
       "declaration_name": "bench_hard3_holdout_003",
