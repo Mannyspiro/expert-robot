@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "locked_before_next_hidden_tier": true,
+  "source_qualified_sha": "0b4c9b29e50890785fbe36d4a849e297f480bcd1",
+  "source_visible_inputs": [
+    "config/proof_search.json",
+    "formal/theorem_registry.json",
+    "config/auto_promotion_scope.json"
+  ],
+  "invariant": "No hidden validation/holdout identity, proposition, outcome, or declaration may be used to select these edits.",
+  "generations": [
+    {
+      "generation": "G4",
+      "theme": "structured goal composition",
+      "add_strategies": [
+        "constructor <;> first | exact? | assumption | simp_all | aesop",
+        "intro <;> first | exact? | assumption | simp_all | aesop"
+      ]
+    },
+    {
+      "generation": "G5",
+      "theme": "generic symmetry and rewriting",
+      "add_strategies": [
+        "symm <;> first | exact? | assumption | simp_all | aesop",
+        "rw? <;> first | exact? | assumption | simp_all | aesop"
+      ]
+    },
+    {
+      "generation": "G6",
+      "theme": "generic extensionality and normalization",
+      "add_strategies": [
+        "ext <;> simp_all <;> try ring <;> try linarith <;> try aesop",
+        "simp_all <;> try ring_nf <;> try nlinarith <;> try aesop"
+      ]
+    },
+    {
+      "generation": "G7",
+      "theme": "contradiction and branching",
+      "add_strategies": [
+        "by_contra h <;> simp_all <;> try aesop <;> try linarith",
+        "first | left; first | exact? | assumption | simp_all | aesop | right; first | exact? | assumption | simp_all | aesop"
+      ]
+    },
+    {
+      "generation": "G8",
+      "theme": "recursive constructor search",
+      "add_strategies": [
+        "repeat' first | constructor | assumption | exact? | simp_all | aesop",
+        "first | constructor <;> solve_by_elim | solve_by_elim"
+      ]
+    },
+    {
+      "generation": "G9",
+      "theme": "visible-domain definition normalization",
+      "add_strategies": [
+        "simp_all [MathAI.Geometry.parallel, MathAI.Geometry.orthogonal, MathAI.Geometry.squaredDistance]",
+        "simp_all [MathAI.Geometry.pointOnLine, MathAI.Geometry.pointOnPlane, MathAI.Geometry.pointOnSphere] <;> try ring <;> try positivity <;> try aesop"
+      ]
+    },
+    {
+      "generation": "G10",
+      "theme": "combined bounded generic search",
+      "add_strategies": [
+        "first | exact? | apply? | solve_by_elim | constructor <;> solve_by_elim | symm <;> solve_by_elim | simp_all <;> aesop",
+        "first | intro <;> solve_by_elim | constructor <;> first | exact? | assumption | simp_all | aesop | ext <;> simp_all <;> try ring"
+      ]
+    }
+  ]
+}
