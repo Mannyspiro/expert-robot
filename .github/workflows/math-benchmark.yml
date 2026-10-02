@@ -37,11 +37,12 @@ permissions:
 
 concurrency:
   group: expert-robot-avrea-progression-v3-calibration-v1
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 
 jobs:
   benchmark:
+    if: ${{ false }}
     name: benchmark-${{ matrix.variant }}
     strategy:
       fail-fast: false
@@ -127,7 +128,7 @@ jobs:
 
   aggregate:
     name: aggregate-benchmark
-    if: always()
+    if: ${{ false }}
     needs: benchmark
     runs-on: avrea-ubuntu-latest-8-vcpu
     timeout-minutes: 5
