@@ -83,6 +83,12 @@ jobs:
           LEAN_ABORT_ON_PANIC: "1"
         run: lake env lean ../tests/lean/hard_math_v2_witnesses.lean
 
+      - name: Verify hidden hard-v3 benchmark witnesses
+        working-directory: formal
+        env:
+          LEAN_ABORT_ON_PANIC: "1"
+        run: lake env lean ../tests/lean/hard_math_v3_witnesses.lean
+
       - name: Configure C++
         run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 
@@ -92,14 +98,14 @@ jobs:
             --target expert_robot_math_benchmark \
             --parallel "$(nproc)"
 
-      - name: Run post-G2 progression benchmark
+      - name: Run post-G3 progression benchmark
         shell: bash
         run: |
           set -euo pipefail
           variant="${{ matrix.variant }}"
 
           ./build/expert_robot_math_benchmark \
-            config/benchmarks/progression_math_v2.json \
+            config/benchmarks/progression_math_v3.json \
             "build/math-benchmark-state-${variant}" \
             "build/math-benchmark-results-${variant}.json" \
             "github-${{ github.run_id }}-${variant}" \
@@ -215,13 +221,13 @@ jobs:
           print(json.dumps(output, indent=2))
           PY
 
-      - name: Compare against frozen G2 progression baseline
+      - name: Compare against frozen G3 progression baseline
         shell: bash
         run: |
           set -euo pipefail
           python3 scripts/compare_progression_to_reference.py \
             build/math-benchmark-results.json \
-            --baseline config/benchmarks/g2_progression_v2_baseline.json \
+            --baseline config/benchmarks/g3_progression_v3_baseline.json \
             --output build/benchmark-merit.json
 
       - name: Upload combined benchmark evidence
