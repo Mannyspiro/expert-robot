@@ -146,7 +146,7 @@ jobs:
             (
               cd candidate
               build/expert_robot_math_benchmark \
-                ../trusted/config/benchmarks/progression_math_v3.json \
+                ../trusted/config/benchmarks/current_progression_suite.json \
                 "build/candidate-state-$variant" \
                 "../candidate-evidence/math-benchmark-results-$variant.json" \
                 "candidate-${{ github.run_id }}-$variant" \
@@ -249,9 +249,9 @@ jobs:
           pathlib.Path("candidate-results.json").write_text(json.dumps(out,indent=2)+"\n")
           PY
 
-      - name: Evaluate merit with frozen G3 progression policy
+      - name: Evaluate merit with current frozen progression policy
         run: |
-          python3 trusted/scripts/compare_progression_to_reference.py             candidate-results.json             --baseline trusted/config/benchmarks/g3_progression_v3_baseline.json             --output benchmark-merit.json
+          python3 trusted/scripts/compare_progression_to_reference.py             candidate-results.json             --baseline trusted/config/benchmarks/current_progression_baseline.json             --output benchmark-merit.json
 
       - name: Build promotion evidence
         shell: bash
