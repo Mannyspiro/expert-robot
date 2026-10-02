@@ -125,6 +125,12 @@ jobs:
           LEAN_ABORT_ON_PANIC: "1"
         run: lake env lean ../tests/lean/hard_math_v2_witnesses.lean
 
+      - name: Verify hidden hard-v3 benchmark witnesses
+        working-directory: formal
+        env:
+          LEAN_ABORT_ON_PANIC: "1"
+        run: lake env lean ../tests/lean/hard_math_v3_witnesses.lean
+
       - name: Direct audited-root replay
         working-directory: formal
         env:
