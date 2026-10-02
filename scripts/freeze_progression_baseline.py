@@ -12,6 +12,11 @@ def git_blob_sha(data: bytes) -> str:
     return hashlib.sha1(payload).hexdigest()
 
 
+def is_progression_case(case):
+    tags=set(case.get("tags", []))
+    return "progression" in tags or any(tag.startswith("hard_v") for tag in tags)
+
+
 def main():
     p = argparse.ArgumentParser()
     p.add_argument("results", type=Path)
@@ -29,21 +34,16 @@ def main():
 
     progression_validation = sorted(
         c["case_id"] for c in suite["cases"]
-        if c["split"] == "validation" and (
-            "progression" in c.get("tags", []) or "hard_v2" in c.get("tags", [])
-        )
+        if c["split"] == "validation" and is_progression_case(c)
     )
     progression_holdout = sorted(
         c["case_id"] for c in suite["cases"]
-        if c["split"] == "holdout" and (
-            "progression" in c.get("tags", []) or "hard_v2" in c.get("tags", [])
-        )
+        if c["split"] == "holdout" and is_progression_case(c)
     )
     sentinels = sorted(
         c["case_id"] for c in suite["cases"]
         if c["split"] in {"validation", "holdout"}
-        and "progression" not in c.get("tags", [])
-        and "hard_v2" not in c.get("tags", [])
+        and not is_progression_case(c)
     )
     if not progression_validation or not progression_holdout or not sentinels:
         raise SystemExit("suite must contain progression validation, progression holdout, and sentinels")
