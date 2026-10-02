@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "predeclared_at_utc": "2026-10-02T22:37:58.151857+00:00",
+  "baseline_commit": "0b4c9b29",
+  "toolchain": "leanprover/lean4:v4.34.0",
+  "scored_split": "holdout",
+  "cases": 10,
+  "schema_filler_cases": 2,
+  "schema_filler_ids": [
+    "final_train_filler",
+    "final_other_filler"
+  ],
+  "suite": "/workspace/rsi-evaluation/final_suite.json",
+  "suite_sha256": "f467c80872ab4700498ecd560f4be1bcbdf59f54335dcb8ac1eb77784789af97",
+  "witness": "/workspace/rsi-evaluation/FinalWitnesses.lean",
+  "witness_sha256_preverification": "f420f5ea40daab8f129b7f356a2d26fffad5a33ce98a3018b4dd4dca2ae66f8d",
+  "witness_verified": false,
+  "independence": "Prepared before any candidate results; no benchmark, roadmap, config or candidate-diff access.",
+  "variants": [
+    {
+      "variant_id": "proof_search",
+      "enabled_layers": [
+        "proof_search"
+      ]
+    }
+  ],
+  "max_model_calls": 0,
+  "target_wall_time_ms_per_case": 20000,
+  "proof_attempt_ceiling_per_case": 24,
+  "family_names": [
+    "quartic_difference_factorization",
+    "nonnegative_scaling_monotonicity",
+    "coupled_linear_system",
+    "odd_pair_even_sum",
+    "existential_image_transfer",
+    "even_polynomial_function_symmetry",
+    "boolean_index_involution",
+    "finite_sum_uniform_shift",
+    "planar_linear_norm_multiplicativity",
+    "oriented_area_antisymmetry"
+  ],
+  "description_by_case": {
+    "h01": "A fourth-degree factorization with distinct algebraic structure.",
+    "h02": "Order preservation when multiplying symbolic reals by a nonnegative factor.",
+    "h03": "A coupled real linear system whose solution has two components.",
+    "h04": "Residue reasoning about the sum of two odd natural numbers.",
+    "h05": "Existential transport along a function using a quantified implication.",
+    "h06": "Equality of tuple-input functions under swapped coordinates and square symmetry.",
+    "h07": "Extensional involution of a Boolean index transformation.",
+    "h08": "Uniform shift of a finite sum equals cardinality times the shift.",
+    "h09": "Squared planar norm of a rotation-and-scaling coordinate transformation.",
+    "h10": "Signed coordinate area changes sign when its two input vectors are exchanged."
+  }
+}

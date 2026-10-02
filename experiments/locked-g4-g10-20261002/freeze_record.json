@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "before_candidate_results": true,
+  "suites": [
+    {
+      "suite": "/workspace/rsi-evaluation/validation_suite.json",
+      "sha256": "6df6d954d798d92d066dc1fc6ae7cfc80db5e73e02b34162e095859e700fad4b",
+      "scored_split": "validation",
+      "scored_cases": 12,
+      "schema_fillers": 2
+    },
+    {
+      "suite": "/workspace/rsi-evaluation/final_suite.json",
+      "sha256": "f467c80872ab4700498ecd560f4be1bcbdf59f54335dcb8ac1eb77784789af97",
+      "scored_split": "holdout",
+      "scored_cases": 10,
+      "schema_fillers": 2
+    }
+  ],
+  "bounded_budget": {
+    "wall_ms_per_case": 20000,
+    "proof_attempt_ceiling": 24,
+    "model_calls": 0
+  },
+  "forbidden_inputs_read": false
+}

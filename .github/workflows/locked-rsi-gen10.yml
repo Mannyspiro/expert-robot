@@ -1,0 +1,87 @@
+name: Locked RSI Through Gen10
+
+on:
+  push:
+    branches: ["experiment/locked-g4-g10-avrea-20261002"]
+    paths:
+      - "experiments/locked-g4-g10-20261002/**"
+      - "scripts/run_locked_rsi_sweep.py"
+      - "tests/locked_rsi_sweep_test.py"
+      - ".github/workflows/locked-rsi-gen10.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: expert-robot-avrea-locked-gen10
+  cancel-in-progress: false
+
+jobs:
+  evaluate:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 45
+    env:
+      LEAN_NUM_THREADS: "1"
+      INPUTS: experiments/locked-g4-g10-20261002
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Test sweep audit and restore behavior
+        run: python3 tests/locked_rsi_sweep_test.py
+
+      - name: Build pinned Lean package
+        uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: formal
+          auto-config: "false"
+          build: "true"
+          test: "false"
+          lint: "false"
+          build-args: "--wfail"
+          use-mathlib-cache: "true"
+          leanchecker: "false"
+          axiom-audit: "false"
+
+      - name: Verify independently prepared suite witnesses
+        working-directory: formal
+        run: |
+          set -euo pipefail
+          lake env lean "$GITHUB_WORKSPACE/$INPUTS/ValidationWitnesses.lean"
+          lake env lean "$GITHUB_WORKSPACE/$INPUTS/FinalWitnesses.lean"
+
+      - name: Build runtime and checks with C++ assertions enabled
+        run: |
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug
+          cmake --build build --parallel 4
+          ctest --test-dir build --parallel 1 --output-on-failure
+          python3 tests/smoke.py build/expert_robot_runtime
+
+      - name: Evaluate frozen G3 through G10 and final holdout
+        run: |
+          python3 scripts/run_locked_rsi_sweep.py \
+            --repo . \
+            --executable build/expert_robot_math_benchmark \
+            --roadmap "$INPUTS/roadmap.json" \
+            --baseline-config "$INPUTS/g3-proof-search.json" \
+            --candidate-manifest "$INPUTS/candidates.json" \
+            --validation-suite "$INPUTS/validation_suite.json" \
+            --holdout-suite "$INPUTS/final_suite.json" \
+            --output-dir build/locked-rsi-gen10 \
+            --repetitions 2 \
+            --timeout-seconds 900
+
+      - name: Upload measured evidence and partial failure records
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: locked-rsi-gen10-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            build/locked-rsi-gen10/
+            experiments/locked-g4-g10-20261002/
+          if-no-files-found: warn
+          retention-days: 30

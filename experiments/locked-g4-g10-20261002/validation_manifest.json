@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "predeclared_at_utc": "2026-10-02T22:37:58.150767+00:00",
+  "baseline_commit": "0b4c9b29",
+  "toolchain": "leanprover/lean4:v4.34.0",
+  "scored_split": "validation",
+  "cases": 12,
+  "schema_filler_cases": 2,
+  "schema_filler_ids": [
+    "validation_train_filler",
+    "validation_other_filler"
+  ],
+  "suite": "/workspace/rsi-evaluation/validation_suite.json",
+  "suite_sha256": "6df6d954d798d92d066dc1fc6ae7cfc80db5e73e02b34162e095859e700fad4b",
+  "witness": "/workspace/rsi-evaluation/ValidationWitnesses.lean",
+  "witness_sha256_preverification": "c562b2ca6ebb5f1e205dfaa393b225f239f8eb54d6e8eda36d30dec66664f088",
+  "witness_verified": false,
+  "independence": "Prepared before any candidate results; no benchmark, roadmap, config or candidate-diff access.",
+  "variants": [
+    {
+      "variant_id": "proof_search",
+      "enabled_layers": [
+        "proof_search"
+      ]
+    }
+  ],
+  "max_model_calls": 0,
+  "target_wall_time_ms_per_case": 20000,
+  "proof_attempt_ceiling_per_case": 24,
+  "family_names": [
+    "binomial_cubic",
+    "constraint_polynomial_conjunction",
+    "quadratic_majorization",
+    "ordered_translation_margin",
+    "reciprocal_decomposition",
+    "natural_affine_injectivity",
+    "implication_disjunction_chain",
+    "affine_function_extensionality",
+    "tuple_sum_difference_reconstruction",
+    "three_coordinate_permutation",
+    "distance_translation_invariance",
+    "parallelogram_coordinate_identity"
+  ],
+  "description_by_case": {
+    "v01": "Cubic binomial expansion with symbolic real inputs.",
+    "v02": "Two polynomial consequences of a linear constraint, requiring conjunction composition.",
+    "v03": "A quadratic upper bound obtained from a square nonnegativity certificate.",
+    "v04": "Strict comparison after symmetric translation by a nonnegative margin.",
+    "v05": "Rational identity with symbolic denominators and explicit nonzero assumptions.",
+    "v06": "Natural number cancellation inside an affine equation.",
+    "v07": "Implication composition across a disjunctive premise.",
+    "v08": "Extensional equality of affine real functions after composition normalization.",
+    "v09": "Reconstruction of a real tuple from sum and difference coordinates.",
+    "v10": "Extensional finite vector equality requiring coordinate cases and commutativity.",
+    "v11": "Squared coordinate distance is invariant under a common translation.",
+    "v12": "Two-dimensional parallelogram identity in coordinate form."
+  }
+}

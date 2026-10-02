@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "roadmap_sha": "9d4968631a7cac64c096c08629c4016656743b77",
+  "source_qualified_sha": "0b4c9b29e50890785fbe36d4a849e297f480bcd1",
+  "candidates": [
+    {
+      "generation": "G4",
+      "candidate_sha": "7aa3661b3c6b9b76dc6e1bb8e393ed42fd721a76",
+      "parent_sha": "0b4c9b29e50890785fbe36d4a849e297f480bcd1",
+      "branch": "staging/local-g4-20261002",
+      "config_sha256": "a119763917ba5b7eebc0cdc7bad8735ba3d3e7a6f9e5cad31baf691d1a886a25",
+      "theme": "structured goal composition",
+      "original_frozen_candidate_sha": "688c04badb98a6cd6bee7a00c5c1dd15de3e12fd"
+    },
+    {
+      "generation": "G5",
+      "candidate_sha": "7e990b7135623377637a003801a34ebdf9746119",
+      "parent_sha": "7aa3661b3c6b9b76dc6e1bb8e393ed42fd721a76",
+      "branch": "staging/local-g5-20261002",
+      "config_sha256": "d713b239fe590af76f7781c4a8d693a7521eb223ea94847db4a51e554b5fa5f2",
+      "theme": "generic symmetry and rewriting",
+      "original_frozen_candidate_sha": "979a0d79ff9b5686692deac8a18e2ecd13d8d09d"
+    },
+    {
+      "generation": "G6",
+      "candidate_sha": "3744c4fde453d871b76797218eb0c5d94ac95e74",
+      "parent_sha": "7e990b7135623377637a003801a34ebdf9746119",
+      "branch": "staging/local-g6-20261002",
+      "config_sha256": "a12fd5ee9fee17e02b5a0c2601b0e2247f7cc60e49234a9df2d7d93623663c57",
+      "theme": "generic extensionality and normalization",
+      "original_frozen_candidate_sha": "7ae7ae21a4d7867f9527032730941e88ab50f416"
+    },
+    {
+      "generation": "G7",
+      "candidate_sha": "830f12c5453cbfdb782c96e0e63764dcebdcbbce",
+      "parent_sha": "3744c4fde453d871b76797218eb0c5d94ac95e74",
+      "branch": "staging/local-g7-20261002",
+      "config_sha256": "b5f9a05dce21a952b7fa3ffb48adeb05ff235c5d3432d1037d06041c82084400",
+      "theme": "contradiction and branching",
+      "original_frozen_candidate_sha": "2ca9c1465b94bbd5131db971d467cf9cf6193654"
+    },
+    {
+      "generation": "G8",
+      "candidate_sha": "b15835250ce2577a8ec789f78744918d2b1c7ad8",
+      "parent_sha": "830f12c5453cbfdb782c96e0e63764dcebdcbbce",
+      "branch": "staging/local-g8-20261002",
+      "config_sha256": "694bdae4cd2965962ab6df227825425fcb0fe8056db5cd15b4a545dc8d9e576f",
+      "theme": "recursive constructor search",
+      "original_frozen_candidate_sha": "ceffea77a8947b11ccd1f61c5c49b0162fbfd67c"
+    },
+    {
+      "generation": "G9",
+      "candidate_sha": "8ce39b76a75cae507c073fe6f67f1cabe0e273fd",
+      "parent_sha": "b15835250ce2577a8ec789f78744918d2b1c7ad8",
+      "branch": "staging/local-g9-20261002",
+      "config_sha256": "83f09bddadc114a8e002883e21e7b7ddc1299296bd8fb771098955dd3ca642de",
+      "theme": "visible-domain definition normalization",
+      "original_frozen_candidate_sha": "168749afd8ad6c1aea468f24015cc942b9c1f781"
+    },
+    {
+      "generation": "G10",
+      "candidate_sha": "3888093899761e4fc4631a4791f4d42409e71b5c",
+      "parent_sha": "8ce39b76a75cae507c073fe6f67f1cabe0e273fd",
+      "branch": "staging/local-g10-20261002",
+      "config_sha256": "e52410cb0d6f2786d9dd21e0fc39741548984d60b685c0cbf33a246af1dadc43",
+      "theme": "combined bounded generic search",
+      "original_frozen_candidate_sha": "824693c6fcd00d3ce66f7dfdcdd545afbbe2f8f7"
+    }
+  ],
+  "publication_note": "Capability config bytes were frozen in original_frozen_candidate_sha before evaluation. Connected GitHub tools recreated commit metadata during publication; configuration hashes are unchanged."
+}

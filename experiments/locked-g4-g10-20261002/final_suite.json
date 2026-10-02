@@ -1,0 +1,440 @@
+{
+  "schema_version": 1,
+  "_independent_suite": {
+    "scored_split": "holdout",
+    "scored_case_count": 10,
+    "max_model_calls": 0,
+    "target_wall_time_ms_per_case": 20000,
+    "proof_attempt_ceiling_per_case": 24,
+    "schema_fillers_excluded": true
+  },
+  "variants": [
+    {
+      "variant_id": "proof_search",
+      "enabled_layers": [
+        "proof_search"
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "final_train_filler",
+      "family": "final_train_filler",
+      "domain": "schema_filler",
+      "focus_theorem": "",
+      "declaration_name": "final_train_filler",
+      "namespace": "BenchFinal",
+      "binders": [
+        {
+          "name": "n",
+          "type": "ℕ"
+        }
+      ],
+      "proposition": "n + 0 = n",
+      "imports": [
+        "Mathlib"
+      ],
+      "split": "train",
+      "tags": [
+        "schema_filler",
+        "excluded_from_scored_split"
+      ],
+      "knowledge_mode": "blind_generalization",
+      "_evaluation_role": "schema_filler"
+    },
+    {
+      "case_id": "final_other_filler",
+      "family": "final_other_filler",
+      "domain": "schema_filler",
+      "focus_theorem": "",
+      "declaration_name": "final_other_filler",
+      "namespace": "BenchFinal",
+      "binders": [
+        {
+          "name": "n",
+          "type": "ℕ"
+        }
+      ],
+      "proposition": "n + 0 = n",
+      "imports": [
+        "Mathlib"
+      ],
+      "split": "validation",
+      "tags": [
+        "schema_filler",
+        "excluded_from_scored_split"
+      ],
+      "knowledge_mode": "blind_generalization",
+      "_evaluation_role": "schema_filler"
+    },
+    {
+      "case_id": "h01",
+      "family": "quartic_difference_factorization",
+      "domain": "algebra",
+      "focus_theorem": "",
+      "declaration_name": "h01",
+      "namespace": "BenchFinal",
+      "binders": [
+        {
+          "name": "a",
+          "type": "ℝ"
+        },
+        {
+          "name": "b",
+          "type": "ℝ"
+        }
+      ],
+      "proposition": "a^4 - b^4 = (a - b) * (a + b) * (a^2 + b^2)",
+      "imports": [
+        "Mathlib"
+      ],
+      "split": "holdout",
+      "tags": [
+        "independent",
+        "local_symbolic",
+        "real_lean",
+        "predeclared"
+      ],
+      "knowledge_mode": "blind_generalization",
+      "_evaluation_role": "scored"
+    },
+    {
+      "case_id": "h02",
+      "family": "nonnegative_scaling_monotonicity",
+      "domain": "inequality",
+      "focus_theorem": "",
+      "declaration_name": "h02",
+      "namespace": "BenchFinal",
+      "binders": [
+        {
+          "name": "a",
+          "type": "ℝ"
+        },
+        {
+          "name": "b",
+          "type": "ℝ"
+        },
+        {
+          "name": "c",
+          "type": "ℝ"
+        },
+        {
+          "name": "hab",
+          "type": "a ≤ b"
+        },
+        {
+          "name": "hc",
+          "type": "0 ≤ c"
+        }
+      ],
+      "proposition": "a * c ≤ b * c",
+      "imports": [
+        "Mathlib"
+      ],
+      "split": "holdout",
+      "tags": [
+        "independent",
+        "local_symbolic",
+        "real_lean",
+        "predeclared"
+      ],
+      "knowledge_mode": "blind_generalization",
+      "_evaluation_role": "scored"
+    },
+    {
+      "case_id": "h03",
+      "family": "coupled_linear_system",
+      "domain": "arithmetic",
+      "focus_theorem": "",
+      "declaration_name": "h03",
+      "namespace": "BenchFinal",
+      "binders": [
+        {
+          "name": "x",
+          "type": "ℝ"
+        },
+        {
+          "name": "y",
+          "type": "ℝ"
+        },
+        {
+          "name": "h1",
+          "type": "x + 2 * y = 7"
+        },
+        {
+          "name": "h2",
+          "type": "2 * x - y = 4"
+        }
+      ],
+      "proposition": "x = 3 ∧ y = 2",
+      "imports": [
+        "Mathlib"
+      ],
+      "split": "holdout",
+      "tags": [
+        "independent",
+        "local_symbolic",
+        "real_lean",
+        "predeclared"
+      ],
+      "knowledge_mode": "blind_generalization",
+      "_evaluation_role": "scored"
+    },
+    {
+      "case_id": "h04",
+      "family": "odd_pair_even_sum",
+      "domain": "arithmetic",
+      "focus_theorem": "",
+      "declaration_name": "h04",
+      "namespace": "BenchFinal",
+      "binders": [
+        {
+          "name": "m",
+          "type": "ℕ"
+        },
+        {
+          "name": "n",
+          "type": "ℕ"
+        },
+        {
+          "name": "hm",
+          "type": "m % 2 = 1"
+        },
+        {
+          "name": "hn",
+          "type": "n % 2 = 1"
+        }
+      ],
+      "proposition": "(m + n) % 2 = 0",
+      "imports": [
+        "Mathlib"
+      ],
+      "split": "holdout",
+      "tags": [
+        "independent",
+        "local_symbolic",
+        "real_lean",
+        "predeclared"
+      ],
+      "knowledge_mode": "blind_generalization",
+      "_evaluation_role": "scored"
+    },
+    {
+      "case_id": "h05",
+      "family": "existential_image_transfer",
+      "domain": "logic",
+      "focus_theorem": "",
+      "declaration_name": "h05",
+      "namespace": "BenchFinal",
+      "binders": [
+        {
+          "name": "α",
+          "type": "Type"
+        },
+        {
+          "name": "β",
+          "type": "Type"
+        },
+        {
+          "name": "f",
+          "type": "α → β"
+        },
+        {
+          "name": "P",
+          "type": "α → Prop"
+        },
+        {
+          "name": "Q",
+          "type": "α → Prop"
+        },
+        {
+          "name": "R",
+          "type": "β → Prop"
+        },
+        {
+          "name": "hex",
+          "type": "∃ x, P x ∧ Q x"
+        },
+        {
+          "name": "hmap",
+          "type": "∀ x, Q x → R (f x)"
+        }
+      ],
+      "proposition": "∃ y, R y",
+      "imports": [
+        "Mathlib"
+      ],
+      "split": "holdout",
+      "tags": [
+        "independent",
+        "local_symbolic",
+        "real_lean",
+        "predeclared"
+      ],
+      "knowledge_mode": "blind_generalization",
+      "_evaluation_role": "scored"
+    },
+    {
+      "case_id": "h06",
+      "family": "even_polynomial_function_symmetry",
+      "domain": "functions",
+      "focus_theorem": "",
+      "declaration_name": "h06",
+      "namespace": "BenchFinal",
+      "binders": [],
+      "proposition": "(fun p : ℝ × ℝ => (p.1 - p.2)^2 + 1) = (fun p : ℝ × ℝ => (p.2 - p.1)^2 + 1)",
+      "imports": [
+        "Mathlib"
+      ],
+      "split": "holdout",
+      "tags": [
+        "independent",
+        "local_symbolic",
+        "real_lean",
+        "predeclared"
+      ],
+      "knowledge_mode": "blind_generalization",
+      "_evaluation_role": "scored"
+    },
+    {
+      "case_id": "h07",
+      "family": "boolean_index_involution",
+      "domain": "finite_constructs",
+      "focus_theorem": "",
+      "declaration_name": "h07",
+      "namespace": "BenchFinal",
+      "binders": [
+        {
+          "name": "f",
+          "type": "Bool → ℝ"
+        }
+      ],
+      "proposition": "(fun b : Bool => f (!(!b))) = f",
+      "imports": [
+        "Mathlib"
+      ],
+      "split": "holdout",
+      "tags": [
+        "independent",
+        "local_symbolic",
+        "real_lean",
+        "predeclared"
+      ],
+      "knowledge_mode": "blind_generalization",
+      "_evaluation_role": "scored"
+    },
+    {
+      "case_id": "h08",
+      "family": "finite_sum_uniform_shift",
+      "domain": "finite_constructs",
+      "focus_theorem": "",
+      "declaration_name": "h08",
+      "namespace": "BenchFinal",
+      "binders": [
+        {
+          "name": "s",
+          "type": "Finset ℕ"
+        },
+        {
+          "name": "f",
+          "type": "ℕ → ℝ"
+        },
+        {
+          "name": "c",
+          "type": "ℝ"
+        }
+      ],
+      "proposition": "s.sum (fun i => f i + c) = s.sum f + s.card * c",
+      "imports": [
+        "Mathlib"
+      ],
+      "split": "holdout",
+      "tags": [
+        "independent",
+        "local_symbolic",
+        "real_lean",
+        "predeclared"
+      ],
+      "knowledge_mode": "blind_generalization",
+      "_evaluation_role": "scored"
+    },
+    {
+      "case_id": "h09",
+      "family": "planar_linear_norm_multiplicativity",
+      "domain": "geometry",
+      "focus_theorem": "",
+      "declaration_name": "h09",
+      "namespace": "BenchFinal",
+      "binders": [
+        {
+          "name": "a",
+          "type": "ℝ"
+        },
+        {
+          "name": "b",
+          "type": "ℝ"
+        },
+        {
+          "name": "x",
+          "type": "ℝ"
+        },
+        {
+          "name": "y",
+          "type": "ℝ"
+        }
+      ],
+      "proposition": "(a * x - b * y)^2 + (b * x + a * y)^2 = (a^2 + b^2) * (x^2 + y^2)",
+      "imports": [
+        "Mathlib"
+      ],
+      "split": "holdout",
+      "tags": [
+        "independent",
+        "local_symbolic",
+        "real_lean",
+        "predeclared"
+      ],
+      "knowledge_mode": "blind_generalization",
+      "_evaluation_role": "scored"
+    },
+    {
+      "case_id": "h10",
+      "family": "oriented_area_antisymmetry",
+      "domain": "geometry",
+      "focus_theorem": "",
+      "declaration_name": "h10",
+      "namespace": "BenchFinal",
+      "binders": [
+        {
+          "name": "ax",
+          "type": "ℝ"
+        },
+        {
+          "name": "ay",
+          "type": "ℝ"
+        },
+        {
+          "name": "bx",
+          "type": "ℝ"
+        },
+        {
+          "name": "by",
+          "type": "ℝ"
+        }
+      ],
+      "proposition": "ax * by - ay * bx = -(bx * ay - by * ax)",
+      "imports": [
+        "Mathlib"
+      ],
+      "split": "holdout",
+      "tags": [
+        "independent",
+        "local_symbolic",
+        "real_lean",
+        "predeclared"
+      ],
+      "knowledge_mode": "blind_generalization",
+      "_evaluation_role": "scored"
+    }
+  ]
+}

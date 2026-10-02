@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "direct_chat_access": false,
+  "records": [
+    {
+      "id": "checkpoint-exact-source",
+      "source": "https://github.com/Mannyspiro/expert-robot/blob/adfcdb4e8ccea03274e6b88796156c55ae7ee7a1/docs/iteration-checkpoint.md",
+      "quote": "Demonstrate one complete bounded candidate cycle: proposal, exact source verification, generation evidence, required-gate handling, fresh hidden evaluation and external promotion decision.",
+      "application": "Freeze G3 and all seven capability-only candidate commits before evaluation; record source and input hashes. This experiment does not grant official qualification or promotion."
+    },
+    {
+      "id": "checkpoint-targeted-compute",
+      "source": "https://github.com/Mannyspiro/expert-robot/blob/adfcdb4e8ccea03274e6b88796156c55ae7ee7a1/docs/iteration-checkpoint.md",
+      "quote": "No five-variant reruns of an already saturated benchmark.",
+      "application": "Use one Avrea 8-vCPU job and the proof_search variant with newly prepared, separately frozen validation and final holdout suites."
+    },
+    {
+      "id": "checkpoint-proposal-origin",
+      "source": "https://github.com/Mannyspiro/expert-robot/blob/adfcdb4e8ccea03274e6b88796156c55ae7ee7a1/docs/iteration-checkpoint.md",
+      "quote": "Distinguish changes proposed by the system from changes supplied by the outside coding assistant.",
+      "application": "Label the sweep as external_locked_roadmap_evaluation; the changes are not autonomous model proposals or evidence of self-modified weights."
+    },
+    {
+      "id": "review-immutable-qualification",
+      "source": "https://github.com/Mannyspiro/expert-robot/pull/32#discussion_r4151089535",
+      "application": "Repair exact-source and run-id binding in a separate trusted-infrastructure branch."
+    },
+    {
+      "id": "review-witness-leakage",
+      "source": "https://github.com/Mannyspiro/expert-robot/pull/45#discussion_r4160108404",
+      "application": "Repair witness-identifier redaction and generation-view namespace handling separately from capability candidates."
+    },
+    {
+      "id": "review-cace-source-parent",
+      "source": "https://github.com/Mannyspiro/expert-robot/pull/28#discussion_r4148267333",
+      "application": "Return CACE evidence on the qualified source SHA and verify the exact evidence commit parent."
+    }
+  ]
+}
