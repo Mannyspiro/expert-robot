@@ -20,11 +20,7 @@
     "nlinarith",
     "omega",
     "positivity",
-    "aesop",
-    "exact?",
-    "apply?",
-    "solve_by_elim",
-    "first | exact? | assumption | simp_all | aesop"
+    "aesop"
   ],
   "timeout_seconds": 20
 }

@@ -36,8 +36,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: expert-robot-avrea-progression-v4-calibration-v1
-  cancel-in-progress: true
+  group: expert-robot-avrea-heavy-v2
+  cancel-in-progress: false
 
 
 jobs:
@@ -45,7 +45,7 @@ jobs:
     name: benchmark-${{ matrix.variant }}
     strategy:
       fail-fast: false
-      max-parallel: 2
+      max-parallel: 1
       matrix:
         variant:
           - proof_search
@@ -92,14 +92,14 @@ jobs:
             --target expert_robot_math_benchmark \
             --parallel "$(nproc)"
 
-      - name: Run G3 progression-v4 calibration
+      - name: Run post-G2 progression benchmark
         shell: bash
         run: |
           set -euo pipefail
           variant="${{ matrix.variant }}"
 
           ./build/expert_robot_math_benchmark \
-            config/benchmarks/progression_math_v4.json \
+            config/benchmarks/progression_math_v2.json \
             "build/math-benchmark-state-${variant}" \
             "build/math-benchmark-results-${variant}.json" \
             "github-${{ github.run_id }}-${variant}" \
@@ -215,11 +215,14 @@ jobs:
           print(json.dumps(output, indent=2))
           PY
 
-      - name: Skip comparator during G3 v4 calibration
+      - name: Compare against frozen G2 progression baseline
         shell: bash
         run: |
           set -euo pipefail
-          python3 -c 'import json,pathlib; p=pathlib.Path("build/benchmark-merit.json"); p.write_text(json.dumps({"calibration_only": True}, indent=2)+"\\n"); print(p.read_text())'
+          python3 scripts/compare_progression_to_reference.py \
+            build/math-benchmark-results.json \
+            --baseline config/benchmarks/g2_progression_v2_baseline.json \
+            --output build/benchmark-merit.json
 
       - name: Upload combined benchmark evidence
         uses: actions/upload-artifact@v4
