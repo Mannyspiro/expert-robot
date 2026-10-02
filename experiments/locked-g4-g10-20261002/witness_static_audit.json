@@ -15,7 +15,9 @@
       "axiom_audit": "/workspace/rsi-evaluation/ValidationAxiomAudit.lean",
       "axiom_audit_sha256": "36f0c645b629d93dd51cc9c3611ec7ec62b207d6a4216aeff23d90522e3585cb",
       "requires_kernel_compilation": true,
-      "proof_body_indentation_repaired": true
+      "proof_body_indentation_repaired": true,
+      "reserved_identifiers_checked": true,
+      "reserved_identifier_conflicts": []
     },
     {
       "suite": "final",
@@ -23,11 +25,13 @@
       "static_checks_passed": true,
       "no_sorry_or_native_decide_or_custom_axioms": true,
       "source_matches_predeclared_targets": true,
-      "witness_sha256": "a4affae06ccabe382ea2cd03c518c1399dd9692ab09d5de4493e76bfd6c56de4",
+      "witness_sha256": "16592f1b1e99a15625588c38557ba2ca16e83b09636cb9e837758b047c4df9f7",
       "axiom_audit": "/workspace/rsi-evaluation/FinalAxiomAudit.lean",
       "axiom_audit_sha256": "77904da42f98a2a7279542d346ac564d553064ace79d317d85ba103ad09163db",
       "requires_kernel_compilation": true,
-      "proof_body_indentation_repaired": true
+      "proof_body_indentation_repaired": true,
+      "reserved_identifiers_checked": true,
+      "reserved_identifier_conflicts": []
     }
   ]
 }

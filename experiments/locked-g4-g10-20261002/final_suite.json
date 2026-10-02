@@ -418,11 +418,11 @@
           "type": "ℝ"
         },
         {
-          "name": "by",
+          "name": "byCoord",
           "type": "ℝ"
         }
       ],
-      "proposition": "ax * by - ay * bx = -(bx * ay - by * ax)",
+      "proposition": "ax * byCoord - ay * bx = -(bx * ay - byCoord * ax)",
       "imports": [
         "Mathlib"
       ],

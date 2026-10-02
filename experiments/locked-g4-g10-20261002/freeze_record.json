@@ -11,7 +11,7 @@
     },
     {
       "suite": "/workspace/rsi-evaluation/final_suite.json",
-      "sha256": "f467c80872ab4700498ecd560f4be1bcbdf59f54335dcb8ac1eb77784789af97",
+      "sha256": "42598cb16f8c57cf0bcf9c3f26b772f6b28de3534dd2570caa7fbc8c1f88de7a",
       "scored_split": "holdout",
       "scored_cases": 10,
       "schema_fillers": 2
@@ -22,5 +22,6 @@
     "proof_attempt_ceiling": 24,
     "model_calls": 0
   },
-  "forbidden_inputs_read": false
+  "forbidden_inputs_read": false,
+  "preevaluation_syntax_repair_ledger": "/workspace/rsi-evaluation/preevaluation_syntax_repair.json"
 }

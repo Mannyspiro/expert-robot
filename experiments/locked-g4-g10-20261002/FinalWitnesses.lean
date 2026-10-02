@@ -49,8 +49,8 @@ theorem h09 (a : ℝ) (b : ℝ) (x : ℝ) (y : ℝ) :
     (a * x - b * y)^2 + (b * x + a * y)^2 = (a^2 + b^2) * (x^2 + y^2) := by
   ring
 
-theorem h10 (ax : ℝ) (ay : ℝ) (bx : ℝ) (by : ℝ) :
-    ax * by - ay * bx = -(bx * ay - by * ax) := by
+theorem h10 (ax : ℝ) (ay : ℝ) (bx : ℝ) (byCoord : ℝ) :
+    ax * byCoord - ay * bx = -(bx * ay - byCoord * ax) := by
   ring
 
 end BenchFinal
