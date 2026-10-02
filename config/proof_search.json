@@ -34,7 +34,9 @@
     "by_contra h <;> simp_all <;> try aesop <;> try linarith",
     "first | left; first | exact? | assumption | simp_all | aesop | right; first | exact? | assumption | simp_all | aesop",
     "repeat' first | constructor | assumption | exact? | simp_all | aesop",
-    "first | constructor <;> solve_by_elim | solve_by_elim"
+    "first | constructor <;> solve_by_elim | solve_by_elim",
+    "simp_all [MathAI.Geometry.parallel, MathAI.Geometry.orthogonal, MathAI.Geometry.squaredDistance]",
+    "simp_all [MathAI.Geometry.pointOnLine, MathAI.Geometry.pointOnPlane, MathAI.Geometry.pointOnSphere] <;> try ring <;> try positivity <;> try aesop"
   ],
   "timeout_seconds": 20
 }
