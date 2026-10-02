@@ -119,6 +119,15 @@ jobs:
             lake env lean ../../trusted/tests/lean/hard_math_v2_witnesses.lean
           )
 
+      - name: Verify trusted hidden hard-v3 witnesses against candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          (
+            cd candidate/formal
+            lake env lean ../../trusted/tests/lean/hard_math_v3_witnesses.lean
+          )
+
       - name: Configure candidate C++
         run: cmake -S candidate -B candidate/build -G Ninja -DCMAKE_BUILD_TYPE=Release
 
@@ -137,7 +146,7 @@ jobs:
             (
               cd candidate
               build/expert_robot_math_benchmark \
-                ../trusted/config/benchmarks/progression_math_v2.json \
+                ../trusted/config/benchmarks/progression_math_v3.json \
                 "build/candidate-state-$variant" \
                 "../candidate-evidence/math-benchmark-results-$variant.json" \
                 "candidate-${{ github.run_id }}-$variant" \
@@ -240,9 +249,9 @@ jobs:
           pathlib.Path("candidate-results.json").write_text(json.dumps(out,indent=2)+"\n")
           PY
 
-      - name: Evaluate merit with frozen G2 progression policy
+      - name: Evaluate merit with frozen G3 progression policy
         run: |
-          python3 trusted/scripts/compare_progression_to_reference.py             candidate-results.json             --baseline trusted/config/benchmarks/g2_progression_v2_baseline.json             --output benchmark-merit.json
+          python3 trusted/scripts/compare_progression_to_reference.py             candidate-results.json             --baseline trusted/config/benchmarks/g3_progression_v3_baseline.json             --output benchmark-merit.json
 
       - name: Build promotion evidence
         shell: bash
