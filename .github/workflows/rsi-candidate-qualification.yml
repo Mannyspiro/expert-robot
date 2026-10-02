@@ -103,6 +103,8 @@ jobs:
             --repository "$GITHUB_REPOSITORY" \
             --candidate-ref "$CANDIDATE_REF" \
             --source-run-id "$COLLAR_EVIDENCE_RUN_ID" \
+            --trusted-branch "${{ github.event.repository.default_branch }}" \
+            --trusted-sha "$(git -C trusted rev-parse HEAD)" \
             --event-name "$GITHUB_EVENT_NAME" \
             --event-source-sha "$TRIGGER_SOURCE_SHA" \
             --resolved-candidate-sha "$RESOLVED_CANDIDATE_SHA" \

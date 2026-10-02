@@ -22,6 +22,7 @@ run = {"id": 123, "path": ".github/workflows/collared-rsi-generation.yml",
        "head_branch": "candidate/test", "head_sha": source_sha}
 options = {"repository": "owner/expert-robot", "candidate_ref": "candidate/test",
            "source_run_id": 123, "event_name": "workflow_run",
+           "trusted_branch": "main", "trusted_sha": moved_sha,
            "event_source_sha": source_sha}
 
 
@@ -53,6 +54,16 @@ manual = run | {"event": "workflow_dispatch", "head_branch": "main", "head_sha":
 manual_options = options | {"event_name": "workflow_dispatch", "event_source_sha": "",
                             "resolved_candidate_sha": source_sha}
 assert module.resolve_source(evidence, manual, **manual_options)["candidate_sha"] == source_sha
+# Another branch can use the same workflow path and fabricate an artifact for a
+# scope-clean candidate. Neither a matching path nor candidate SHA makes it trusted.
+rejects(metadata=manual | {"head_branch": "untrusted/forged-collar-workflow", "head_sha": "f" * 40},
+        event_name="workflow_dispatch", event_source_sha="", resolved_candidate_sha=source_sha)
+rejects(metadata=manual | {"head_branch": "untrusted/forged-collar-workflow"},
+        event_name="workflow_dispatch", event_source_sha="", resolved_candidate_sha=source_sha)
+rejects(metadata=manual | {"head_sha": "f" * 40}, event_name="workflow_dispatch",
+        event_source_sha="", resolved_candidate_sha=source_sha)
+rejects(metadata=manual, event_name="workflow_dispatch", event_source_sha="",
+        resolved_candidate_sha=source_sha, trusted_sha="invalid")
 rejects(metadata=manual, event_name="workflow_dispatch", event_source_sha="",
         resolved_candidate_sha=moved_sha)
 rejects(metadata=manual, event_name="workflow_dispatch", event_source_sha="")
@@ -69,6 +80,7 @@ with tempfile.TemporaryDirectory() as directory:
                "--evidence", str(temp / "evidence.json"), "--workflow-run", str(temp / "run.json"),
                "--repository", options["repository"], "--candidate-ref", options["candidate_ref"],
                "--source-run-id", "123", "--event-name", "workflow_dispatch",
+               "--trusted-branch", "main", "--trusted-sha", moved_sha,
                "--resolved-candidate-sha", source_sha, "--output", str(temp / "source.json"),
                "--github-output", str(temp / "outputs")]
     subprocess.run(command, check=True, capture_output=True, text=True)
@@ -88,5 +100,7 @@ assert "env.CANDIDATE_REF" not in candidate_checkout
 assert workflow.index("Resolve immutable candidate source") < workflow.index("      - name: Check out candidate\n")
 assert workflow.index("validate_collar_evidence.py") < workflow.index("      - name: Check out candidate\n")
 assert "github.event.workflow_run.head_sha" in workflow
+assert '--trusted-sha "$(git -C trusted rev-parse HEAD)"' in workflow
+assert "--trusted-branch" in workflow
 assert "--source-run-id" in workflow.split("      - name: Validate independent collar evidence", 1)[1]
 print("RSI exact source binding smoke: PASS")

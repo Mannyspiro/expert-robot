@@ -13,7 +13,8 @@ from pathlib import Path
 
 
 def resolve_source(evidence, run, *, repository, candidate_ref, source_run_id,
-                   event_name, event_source_sha="", resolved_candidate_sha=""):
+                   trusted_branch, trusted_sha, event_name, event_source_sha="",
+                   resolved_candidate_sha=""):
     if not re.fullmatch(r"candidate/[A-Za-z0-9._/-]+", candidate_ref):
         raise ValueError("candidate ref must be a candidate/ branch")
     if type(run.get("id")) is not int or run["id"] != source_run_id:
@@ -31,6 +32,13 @@ def resolve_source(evidence, run, *, repository, candidate_ref, source_run_id,
         raise ValueError("collar artifact has an invalid candidate SHA")
     if run.get("event") not in {"push", "workflow_dispatch"}:
         raise ValueError("unsupported collar workflow event")
+    if not re.fullmatch(r"[0-9a-f]{40}", trusted_sha) or not trusted_branch:
+        raise ValueError("invalid trusted verifier source")
+    if run["event"] == "workflow_dispatch":
+        # A workflow path alone does not authenticate its implementation: another
+        # branch can replace that file and forge an artifact for a clean candidate.
+        if run.get("head_branch") != trusted_branch or run.get("head_sha") != trusted_sha:
+            raise ValueError("manual collar dispatcher does not match trusted verifier source")
     if run["event"] == "push":
         if source_sha != run.get("head_sha") or candidate_ref != run.get("head_branch"):
             raise ValueError("push collar artifact does not match its source commit/ref")
@@ -58,6 +66,8 @@ def main():
     parser.add_argument("--repository", required=True)
     parser.add_argument("--candidate-ref", required=True)
     parser.add_argument("--source-run-id", type=int, required=True)
+    parser.add_argument("--trusted-branch", required=True)
+    parser.add_argument("--trusted-sha", required=True)
     parser.add_argument("--event-name", required=True)
     parser.add_argument("--event-source-sha", default="")
     parser.add_argument("--resolved-candidate-sha", default="")
@@ -72,6 +82,7 @@ def main():
             json.loads(args.workflow_run.read_text(encoding="utf-8")),
             repository=args.repository, candidate_ref=args.candidate_ref,
             source_run_id=args.source_run_id, event_name=args.event_name,
+            trusted_branch=args.trusted_branch, trusted_sha=args.trusted_sha,
             event_source_sha=args.event_source_sha,
             resolved_candidate_sha=args.resolved_candidate_sha)
     except ValueError as error:

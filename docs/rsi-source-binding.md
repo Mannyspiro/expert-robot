@@ -12,7 +12,10 @@ rejects evidence accidentally collected from a moved branch after an older push.
 
 Manual collar dispatch may execute the trusted workflow on main while evaluating
 its `candidate_ref` input. Its workflow head SHA identifies the dispatcher, so
-manual qualification instead requires the requested candidate branch to resolve
+qualification requires that dispatcher to use the repository's default branch
+and the exact trusted verifier/base commit. A matching workflow path on another
+branch cannot authenticate a collar artifact. Manual qualification also requires
+the requested candidate branch to resolve
 to the artifact's candidate SHA before checking out that immutable SHA. A branch
 that has already moved fails qualification. A move after resolution cannot change
 the checked-out source. Such collar runs should use manual qualification with
