@@ -144,7 +144,7 @@ jobs:
         run: |
           set -euo pipefail
           variant="${{ matrix.variant }}"
-          ./build/expert_robot_math_benchmark             config/benchmarks/progression_math_v3.json             "build/math-benchmark-state-${variant}"             "build/math-benchmark-results-${variant}.json"             "release-${{ github.run_id }}-${variant}"             "${variant}"
+          ./build/expert_robot_math_benchmark             config/benchmarks/current_progression_suite.json             "build/math-benchmark-state-${variant}"             "build/math-benchmark-results-${variant}.json"             "release-${{ github.run_id }}-${variant}"             "${variant}"
 
       - name: Upload variant evidence
         if: always()
@@ -216,9 +216,9 @@ jobs:
           target.write_text(json.dumps(output, indent=2) + "\n", encoding="utf-8")
           PY
 
-      - name: Compare against frozen G3 progression baseline
+      - name: Compare against current frozen progression baseline
         run: |
-          python3 scripts/compare_progression_to_reference.py             build/math-benchmark-results.json             --baseline config/benchmarks/g3_progression_v3_baseline.json             --output build/benchmark-merit.json
+          python3 scripts/compare_progression_to_reference.py             build/math-benchmark-results.json             --baseline config/benchmarks/current_progression_baseline.json             --output build/benchmark-merit.json
 
       - name: Require benchmark workers
         if: ${{ needs.benchmark.result != 'success' }}
@@ -233,7 +233,7 @@ jobs:
           import json
           evidence = json.load(open("build/benchmark-merit.json", encoding="utf-8"))
           if not evidence.get("merit_demonstrated"):
-              raise SystemExit("release contains capability changes but no validation gain over frozen G3 progression baseline")
+              raise SystemExit("release contains capability changes but no validation gain over current frozen progression baseline")
           if not evidence.get("blind_holdout_non_regression"):
               raise SystemExit("release regresses the frozen blind-holdout overlap")
           print("release merit gate: PASS", evidence.get("selected_variant"))
