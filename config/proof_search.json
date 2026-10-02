@@ -28,7 +28,9 @@
     "constructor <;> first | exact? | assumption | simp_all | aesop",
     "intro <;> first | exact? | assumption | simp_all | aesop",
     "symm <;> first | exact? | assumption | simp_all | aesop",
-    "rw? <;> first | exact? | assumption | simp_all | aesop"
+    "rw? <;> first | exact? | assumption | simp_all | aesop",
+    "ext <;> simp_all <;> try ring <;> try linarith <;> try aesop",
+    "simp_all <;> try ring_nf <;> try nlinarith <;> try aesop"
   ],
   "timeout_seconds": 20
 }
