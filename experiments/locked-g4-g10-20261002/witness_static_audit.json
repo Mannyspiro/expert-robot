@@ -1,0 +1,33 @@
+{
+  "allowed_kernel_axioms": [
+    "propext",
+    "Classical.choice",
+    "Quot.sound"
+  ],
+  "reports": [
+    {
+      "suite": "validation",
+      "declarations_checked": 14,
+      "static_checks_passed": true,
+      "no_sorry_or_native_decide_or_custom_axioms": true,
+      "source_matches_predeclared_targets": true,
+      "witness_sha256": "440ace2aded4aa5cb4c61904b44a898d3c6b4a1553b6fec5aff605e7cdbba6c7",
+      "axiom_audit": "/workspace/rsi-evaluation/ValidationAxiomAudit.lean",
+      "axiom_audit_sha256": "36f0c645b629d93dd51cc9c3611ec7ec62b207d6a4216aeff23d90522e3585cb",
+      "requires_kernel_compilation": true,
+      "proof_body_indentation_repaired": true
+    },
+    {
+      "suite": "final",
+      "declarations_checked": 12,
+      "static_checks_passed": true,
+      "no_sorry_or_native_decide_or_custom_axioms": true,
+      "source_matches_predeclared_targets": true,
+      "witness_sha256": "a4affae06ccabe382ea2cd03c518c1399dd9692ab09d5de4493e76bfd6c56de4",
+      "axiom_audit": "/workspace/rsi-evaluation/FinalAxiomAudit.lean",
+      "axiom_audit_sha256": "77904da42f98a2a7279542d346ac564d553064ace79d317d85ba103ad09163db",
+      "requires_kernel_compilation": true,
+      "proof_body_indentation_repaired": true
+    }
+  ]
+}

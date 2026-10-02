@@ -29,17 +29,17 @@ theorem h04 (m : ℕ) (n : ℕ) (hm : m % 2 = 1) (hn : n % 2 = 1) :
 theorem h05 (α : Type) (β : Type) (f : α → β) (P : α → Prop) (Q : α → Prop) (R : β → Prop) (hex : ∃ x, P x ∧ Q x) (hmap : ∀ x, Q x → R (f x)) :
     ∃ y, R y := by
   rcases hex with ⟨x, hxP, hxQ⟩
-    exact ⟨f x, hmap x hxQ⟩
+  exact ⟨f x, hmap x hxQ⟩
 
 theorem h06 :
     (fun p : ℝ × ℝ => (p.1 - p.2)^2 + 1) = (fun p : ℝ × ℝ => (p.2 - p.1)^2 + 1) := by
   funext p
-    ring
+  ring
 
 theorem h07 (f : Bool → ℝ) :
     (fun b : Bool => f (!(!b))) = f := by
   funext b
-    cases b <;> rfl
+  cases b <;> rfl
 
 theorem h08 (s : Finset ℕ) (f : ℕ → ℝ) (c : ℝ) :
     s.sum (fun i => f i + c) = s.sum f + s.card * c := by

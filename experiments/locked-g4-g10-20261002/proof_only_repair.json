@@ -1,0 +1,20 @@
+{
+  "repairs": [
+    {
+      "suite": "validation",
+      "suite_sha256": "6df6d954d798d92d066dc1fc6ae7cfc80db5e73e02b34162e095859e700fad4b",
+      "witness_sha256": "440ace2aded4aa5cb4c61904b44a898d3c6b4a1553b6fec5aff605e7cdbba6c7",
+      "proof_body_whitespace_only": true,
+      "changed_proof_sequences": 5,
+      "kernel_verification_pending": true
+    },
+    {
+      "suite": "final",
+      "suite_sha256": "f467c80872ab4700498ecd560f4be1bcbdf59f54335dcb8ac1eb77784789af97",
+      "witness_sha256": "a4affae06ccabe382ea2cd03c518c1399dd9692ab09d5de4493e76bfd6c56de4",
+      "proof_body_whitespace_only": true,
+      "changed_proof_sequences": 3,
+      "kernel_verification_pending": true
+    }
+  ]
+}

@@ -17,9 +17,9 @@ theorem v01 (a : ℝ) (b : ℝ) :
 theorem v02 (a : ℝ) (b : ℝ) (z : ℝ) (h : a + b = z) :
     (a + b)^2 = z^2 ∧ a * z + b * z = z^2 := by
   constructor
-    · rw [h]
-    · rw [← h]
-      ring
+  · rw [h]
+  · rw [← h]
+    ring
 
 theorem v03 (a : ℝ) (b : ℝ) :
     (a + b)^2 ≤ 2 * (a^2 + b^2) := by
@@ -40,27 +40,27 @@ theorem v06 (m : ℕ) (n : ℕ) (h : 3 * m + 2 = 3 * n + 2) :
 theorem v07 (P : Prop) (Q : Prop) (R : Prop) (hPQ : P → Q) (hQR : Q → R) :
     (P ∨ Q) → R := by
   intro h
-    rcases h with hp | hq
-    · exact hQR (hPQ hp)
-    · exact hQR hq
+  rcases h with hp | hq
+  · exact hQR (hPQ hp)
+  · exact hQR hq
 
 theorem v08 :
     (fun x : ℝ => 3 * (x + 7) - 4) = (fun x : ℝ => 3 * x + 17) := by
   funext x
-    ring
+  ring
 
 theorem v09 (a : ℝ) (b : ℝ) :
     ((a + b, a - b).1 + (a + b, a - b).2, (a + b, a - b).1 - (a + b, a - b).2) = (2 * a, 2 * b) := by
   apply Prod.ext
-    · dsimp
-      ring
-    · dsimp
-      ring
+  · dsimp
+    ring
+  · dsimp
+    ring
 
 theorem v10 (a : ℝ) (b : ℝ) (c : ℝ) :
     (fun i : Fin 3 => ![a + b, b + c, c + a] i) = (fun i : Fin 3 => ![b + a, c + b, a + c] i) := by
   funext i
-    fin_cases i <;> simp [add_comm]
+  fin_cases i <;> simp [add_comm]
 
 theorem v11 (px : ℝ) (py : ℝ) (qx : ℝ) (qy : ℝ) (dx : ℝ) (dy : ℝ) :
     ((px + dx) - (qx + dx))^2 + ((py + dy) - (qy + dy))^2 = (px - qx)^2 + (py - qy)^2 := by
