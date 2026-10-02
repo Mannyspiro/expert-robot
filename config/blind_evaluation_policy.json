@@ -46,7 +46,19 @@
     "bench_hard2_holdout_005",
     "bench_hard2_holdout_006",
     "bench_hard2_holdout_007",
-    "bench_hard2_holdout_008"
+    "bench_hard2_holdout_008",
+    "MathAI.HardBenchmarkWitnesses.validation001",
+    "MathAI.HardBenchmarkWitnesses.validation002",
+    "MathAI.HardBenchmarkWitnesses.validation003",
+    "MathAI.HardBenchmarkWitnesses.validation004",
+    "MathAI.HardBenchmarkWitnesses.holdout001",
+    "MathAI.HardBenchmarkWitnesses.holdout002",
+    "MathAI.HardBenchmarkWitnesses.holdout003",
+    "MathAI.HardBenchmarkWitnesses.holdout004",
+    "MathAI.HardBenchmarkWitnesses.holdout005",
+    "MathAI.HardBenchmarkWitnesses.holdout006",
+    "MathAI.HardBenchmarkWitnesses.holdout007",
+    "MathAI.HardBenchmarkWitnesses.holdout008"
   ],
   "generation_include": [
     "config/proof_search.json",

@@ -23,9 +23,18 @@ The first configured value is used.
 
 The publisher creates only `cace-return/<request-id>` in `Mannyspiro/expert-robot`, containing `.cace-return.json`, bounded qualification evidence, and the original request envelope. It does not merge anything.
 
+It fetches and checks out the exact qualified source SHA before adding evidence.
+The return commit has exactly one parent equal to that SHA, even if the source
+branch advances while qualification runs. A missing source commit fails the
+return instead of falling back to a newer branch tip.
+
 ## PR creation
 
 Expert Robot's `CACE Return PR` workflow validates pass status, request schema, source SHA, source/base agreement, qualification-only authority, `promotion_authority == false`, and the evidence namespace. It then uses Expert Robot's own scoped `GITHUB_TOKEN` to create a PR.
+
+Validation rejects a return whose parent differs from the qualified source or
+has multiple parents, and inspects the complete diff from that source to the
+return commit. The declared base branch remains the PR destination.
 
 ## Base44
 

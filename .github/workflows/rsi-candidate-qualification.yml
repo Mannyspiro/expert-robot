@@ -30,6 +30,7 @@ jobs:
     env:
       CANDIDATE_REF: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || inputs.candidate_ref }}
       COLLAR_EVIDENCE_RUN_ID: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.id || inputs.collar_evidence_run_id }}
+      TRIGGER_SOURCE_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || '' }}
     outputs:
       candidate_sha: ${{ steps.meta.outputs.candidate_sha }}
       base_sha: ${{ steps.meta.outputs.base_sha }}
@@ -45,6 +46,8 @@ jobs:
             candidate/*) ;;
             *) echo "::error::Candidate ref must start with candidate/"; exit 2 ;;
           esac
+          git check-ref-format "refs/heads/$CANDIDATE_REF"
+          [[ "$COLLAR_EVIDENCE_RUN_ID" =~ ^[1-9][0-9]*$ ]]
 
       - name: Check out trusted verifier
         uses: actions/checkout@v4
@@ -54,10 +57,66 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Load trusted collar run metadata
+        id: source_run
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const runId = Number(process.env.COLLAR_EVIDENCE_RUN_ID);
+            if (!Number.isSafeInteger(runId) || runId < 1) {
+              throw new Error('Invalid collar evidence run id');
+            }
+            const {data: run} = await github.rest.actions.getWorkflowRun({
+              ...context.repo, run_id: runId,
+            });
+            fs.writeFileSync('collar-source-run.json', JSON.stringify(run));
+            if (process.env.GITHUB_EVENT_NAME === 'workflow_dispatch') {
+              const {data: branch} = await github.rest.repos.getBranch({
+                ...context.repo, branch: process.env.CANDIDATE_REF,
+              });
+              core.setOutput('resolved_candidate_sha', branch.commit.sha);
+            }
+
+      - name: Download collar evidence before candidate checkout
+        uses: actions/download-artifact@v4
+        with:
+          name: collar-generation-evidence-${{ env.COLLAR_EVIDENCE_RUN_ID }}
+          path: collar
+          github-token: ${{ github.token }}
+          run-id: ${{ env.COLLAR_EVIDENCE_RUN_ID }}
+
+      - name: Resolve immutable candidate source
+        id: source
+        shell: bash
+        env:
+          RESOLVED_CANDIDATE_SHA: ${{ steps.source_run.outputs.resolved_candidate_sha }}
+        run: |
+          set -euo pipefail
+          mapfile -t evidence < <(find collar -type f -name collar-evidence.json -print)
+          [ "${#evidence[@]}" -eq 1 ] || {
+            echo "::error::Expected exactly one collar-evidence.json"; exit 2;
+          }
+          python3 trusted/scripts/resolve_rsi_source.py \
+            --evidence "${evidence[0]}" \
+            --workflow-run collar-source-run.json \
+            --repository "$GITHUB_REPOSITORY" \
+            --candidate-ref "$CANDIDATE_REF" \
+            --source-run-id "$COLLAR_EVIDENCE_RUN_ID" \
+            --event-name "$GITHUB_EVENT_NAME" \
+            --event-source-sha "$TRIGGER_SOURCE_SHA" \
+            --resolved-candidate-sha "$RESOLVED_CANDIDATE_SHA" \
+            --output candidate-source.json --github-output "$GITHUB_OUTPUT"
+          candidate_sha="$(python3 -c 'import json; print(json.load(open("candidate-source.json"))["candidate_sha"])')"
+          python3 trusted/scripts/validate_collar_evidence.py "${evidence[0]}" \
+            --candidate-sha "$candidate_sha" --source-run-id "$COLLAR_EVIDENCE_RUN_ID" \
+            --base-sha "$(git -C trusted rev-parse HEAD)" \
+            --output precheckout-collar.json
+
       - name: Check out candidate
         uses: actions/checkout@v4
         with:
-          ref: ${{ env.CANDIDATE_REF }}
+          ref: ${{ steps.source.outputs.candidate_sha }}
           path: candidate
           fetch-depth: 0
           persist-credentials: false
@@ -69,6 +128,7 @@ jobs:
           set -euo pipefail
           base_sha="$(git -C trusted rev-parse HEAD)"
           candidate_sha="$(git -C candidate rev-parse HEAD)"
+          test "$candidate_sha" = "${{ steps.source.outputs.candidate_sha }}"
           git -C candidate merge-base --is-ancestor "$base_sha" "$candidate_sha"
           echo "base_sha=$base_sha" >> "$GITHUB_OUTPUT"
           echo "candidate_sha=$candidate_sha" >> "$GITHUB_OUTPUT"
@@ -202,9 +262,8 @@ jobs:
       - name: Download independent collar evidence
         uses: actions/download-artifact@v4
         with:
-          pattern: collar-generation-evidence-*
+          name: collar-generation-evidence-${{ needs.qualify.outputs.collar_evidence_run_id }}
           path: collar
-          merge-multiple: true
           github-token: ${{ github.token }}
           run-id: ${{ needs.qualify.outputs.collar_evidence_run_id }}
 
@@ -216,7 +275,7 @@ jobs:
           [ "${#evidence[@]}" -eq 1 ] || {
             echo "::error::Expected exactly one collar-evidence.json"; exit 2;
           }
-          python3 trusted/scripts/validate_collar_evidence.py "${evidence[0]}"             --candidate-sha "${{ needs.qualify.outputs.candidate_sha }}"             --base-sha "${{ needs.qualify.outputs.base_sha }}"             --output normalized-collar.json
+          python3 trusted/scripts/validate_collar_evidence.py "${evidence[0]}"             --candidate-sha "${{ needs.qualify.outputs.candidate_sha }}"             --source-run-id "${{ needs.qualify.outputs.collar_evidence_run_id }}"             --base-sha "${{ needs.qualify.outputs.base_sha }}"             --output normalized-collar.json
 
       - name: Merge raw benchmark results
         shell: bash

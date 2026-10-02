@@ -40,7 +40,7 @@ jobs:
             exit 1
           fi
 
-          git diff --name-only "origin/$base_branch...HEAD" > "$RUNNER_TEMP/changed.txt"
+          git diff --name-only "$source_sha" HEAD > "$RUNNER_TEMP/changed.txt"
           while IFS= read -r path; do
             [ -z "$path" ] && continue
             case "$path" in

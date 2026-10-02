@@ -37,22 +37,34 @@ passing={
 with tempfile.TemporaryDirectory() as td:
     p=Path(td)/"evidence.json"
     p.write_text(json.dumps(passing))
-    ok=subprocess.run([sys.executable,str(validator),str(p),"--candidate-sha",csha,"--base-sha",bsha],text=True,capture_output=True,check=True)
+    ok=subprocess.run([sys.executable,str(validator),str(p),"--candidate-sha",csha,"--base-sha",bsha,"--source-run-id","123"],text=True,capture_output=True,check=True)
     assert '"collared_execution": true' in ok.stdout.lower()
+
+    # Valid evidence from a different trusted run cannot be replayed here.
+    for wrong_id in (124, True, "123"):
+        p.write_text(json.dumps(dict(passing, source_run_id=wrong_id)))
+        replay=subprocess.run([sys.executable,str(validator),str(p),"--candidate-sha",csha,"--base-sha",bsha,"--source-run-id","123"],text=True,capture_output=True)
+        assert replay.returncode != 0
+        assert "source_run_id_matches" in json.loads(replay.stdout)["failed_checks"]
+
+    p.write_text(json.dumps(dict(passing, candidate_sha="c"*40)))
+    wrong_sha=subprocess.run([sys.executable,str(validator),str(p),"--candidate-sha",csha,"--base-sha",bsha,"--source-run-id","123"],text=True,capture_output=True)
+    assert wrong_sha.returncode != 0
+    assert "candidate_sha_matches" in json.loads(wrong_sha.stdout)["failed_checks"]
 
     promoted=dict(passing)
     promoted["run_records"]=[dict(x) for x in passing["run_records"]]
     promoted["run_records"][1]["kind"]="lineage"
     promoted["run_records"][1]["promoted_lineage"]=True
     p.write_text(json.dumps(promoted))
-    lineage=subprocess.run([sys.executable,str(validator),str(p),"--candidate-sha",csha,"--base-sha",bsha],text=True,capture_output=True)
+    lineage=subprocess.run([sys.executable,str(validator),str(p),"--candidate-sha",csha,"--base-sha",bsha,"--source-run-id","123"],text=True,capture_output=True)
     assert lineage.returncode != 0
     assert "all_runs_are_real_evaluations" in lineage.stdout
     assert "no_promoted_lineage_counted_as_run" in lineage.stdout
 
     passing["runtime_result"]["tripped"]=True
     p.write_text(json.dumps(passing))
-    bad=subprocess.run([sys.executable,str(validator),str(p),"--candidate-sha",csha,"--base-sha",bsha],text=True,capture_output=True)
+    bad=subprocess.run([sys.executable,str(validator),str(p),"--candidate-sha",csha,"--base-sha",bsha,"--source-run-id","123"],text=True,capture_output=True)
     assert bad.returncode != 0
     assert "collar_not_tripped" in bad.stdout
 

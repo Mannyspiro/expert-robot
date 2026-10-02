@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import subprocess
+import json
 import sys
 import tempfile
 from pathlib import Path
@@ -44,5 +45,20 @@ with tempfile.TemporaryDirectory() as td:
     bad=run(sys.executable,str(validator),str(repo),"--base-sha",base,"--candidate-sha",hard_leak,"--policy",str(policy),check=False)
     assert bad.returncode != 0
     assert "hard2-holdout-003" in bad.stdout
+
+    # The fully qualified trusted witnesses are identities too, not public tactics.
+    hidden_witnesses=[
+        symbol for symbol in json.loads(policy.read_text())["hidden_identifiers"]
+        if symbol.startswith("MathAI.HardBenchmarkWitnesses.")
+    ]
+    assert len(hidden_witnesses) == 12
+    for index,symbol in enumerate(hidden_witnesses):
+        p.write_text(f'const char* leaked = "{symbol}";\n')
+        run("git","-C",str(repo),"add",".")
+        run("git","-C",str(repo),"commit","-m",f"hidden-witness-{index}")
+        candidate=run("git","-C",str(repo),"rev-parse","HEAD").stdout.strip()
+        bad=run(sys.executable,str(validator),str(repo),"--base-sha",base,"--candidate-sha",candidate,"--policy",str(policy),check=False)
+        assert bad.returncode == 2, (symbol,bad.stdout,bad.stderr)
+        assert symbol in json.loads(bad.stdout)["leaked_identifiers"]
 
 print("blind candidate smoke: PASS")
