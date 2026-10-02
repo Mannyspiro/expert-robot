@@ -119,13 +119,13 @@ jobs:
             lake env lean ../../trusted/tests/lean/hard_math_v2_witnesses.lean
           )
 
-      - name: Verify trusted hidden hard-v3 witnesses against candidate
+      - name: Verify trusted hidden hard-v4 witnesses against candidate
         shell: bash
         run: |
           set -euo pipefail
           (
             cd candidate/formal
-            lake env lean ../../trusted/tests/lean/hard_math_v3_witnesses.lean
+            lake env lean ../../trusted/tests/lean/hard_math_v4_witnesses.lean
           )
 
       - name: Configure candidate C++
