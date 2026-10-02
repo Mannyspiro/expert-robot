@@ -60,7 +60,21 @@
     "bench_hard3_validation_004",
     "bench_hard3_holdout_001",
     "bench_hard3_holdout_002",
-    "bench_hard3_holdout_003"
+    "bench_hard3_holdout_003",
+    "hard4-validation-001",
+    "hard4-validation-002",
+    "hard4-validation-003",
+    "hard4-validation-004",
+    "hard4-holdout-001",
+    "hard4-holdout-002",
+    "hard4-holdout-003",
+    "bench_hard4_validation_001",
+    "bench_hard4_validation_002",
+    "bench_hard4_validation_003",
+    "bench_hard4_validation_004",
+    "bench_hard4_holdout_001",
+    "bench_hard4_holdout_002",
+    "bench_hard4_holdout_003"
   ],
   "generation_include": [
     "config/proof_search.json",
