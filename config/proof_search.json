@@ -36,7 +36,9 @@
     "repeat' first | constructor | assumption | exact? | simp_all | aesop",
     "first | constructor <;> solve_by_elim | solve_by_elim",
     "simp_all [MathAI.Geometry.parallel, MathAI.Geometry.orthogonal, MathAI.Geometry.squaredDistance]",
-    "simp_all [MathAI.Geometry.pointOnLine, MathAI.Geometry.pointOnPlane, MathAI.Geometry.pointOnSphere] <;> try ring <;> try positivity <;> try aesop"
+    "simp_all [MathAI.Geometry.pointOnLine, MathAI.Geometry.pointOnPlane, MathAI.Geometry.pointOnSphere] <;> try ring <;> try positivity <;> try aesop",
+    "first | exact? | apply? | solve_by_elim | constructor <;> solve_by_elim | symm <;> solve_by_elim | simp_all <;> aesop",
+    "first | intro <;> solve_by_elim | constructor <;> first | exact? | assumption | simp_all | aesop | ext <;> simp_all <;> try ring"
   ],
   "timeout_seconds": 20
 }
