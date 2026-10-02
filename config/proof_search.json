@@ -30,7 +30,9 @@
     "symm <;> first | exact? | assumption | simp_all | aesop",
     "rw? <;> first | exact? | assumption | simp_all | aesop",
     "ext <;> simp_all <;> try ring <;> try linarith <;> try aesop",
-    "simp_all <;> try ring_nf <;> try nlinarith <;> try aesop"
+    "simp_all <;> try ring_nf <;> try nlinarith <;> try aesop",
+    "by_contra h <;> simp_all <;> try aesop <;> try linarith",
+    "first | left; first | exact? | assumption | simp_all | aesop | right; first | exact? | assumption | simp_all | aesop"
   ],
   "timeout_seconds": 20
 }
