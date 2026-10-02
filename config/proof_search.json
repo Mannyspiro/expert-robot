@@ -24,7 +24,9 @@
     "exact?",
     "apply?",
     "solve_by_elim",
-    "first | exact? | assumption | simp_all | aesop"
+    "first | exact? | assumption | simp_all | aesop",
+    "constructor <;> first | exact? | assumption | simp_all | aesop",
+    "intro <;> first | exact? | assumption | simp_all | aesop"
   ],
   "timeout_seconds": 20
 }
