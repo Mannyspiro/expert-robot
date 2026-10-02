@@ -33,7 +33,7 @@ assert "../trusted/config/benchmarks/current_progression_suite.json" in qual
 assert "current_progression_baseline.json" in qual
 assert "compare_progression_to_reference.py" in qual
 assert "Verify trusted hidden hard-v2 witnesses against candidate" in qual
-assert "Verify trusted hidden hard-v3 witnesses against candidate" in qual
+assert "Verify trusted hidden hard-v4 witnesses against candidate" in qual
 assert "candidate/config/benchmarks/core_math_holdout.json" not in qual
 assert "--require-eligible" in qual
 
