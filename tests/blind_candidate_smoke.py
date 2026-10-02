@@ -53,4 +53,12 @@ with tempfile.TemporaryDirectory() as td:
     assert bad.returncode != 0
     assert "hard3-validation-001" in bad.stdout
 
+    p.write_text('const char* leaked = "hard4-validation-002";\n')
+    run("git","-C",str(repo),"add",".")
+    run("git","-C",str(repo),"commit","-m","hard-v4-leak")
+    hard4_leak=run("git","-C",str(repo),"rev-parse","HEAD").stdout.strip()
+    bad=run(sys.executable,str(validator),str(repo),"--base-sha",base,"--candidate-sha",hard4_leak,"--policy",str(policy),check=False)
+    assert bad.returncode != 0
+    assert "hard4-validation-002" in bad.stdout
+
 print("blind candidate smoke: PASS")
