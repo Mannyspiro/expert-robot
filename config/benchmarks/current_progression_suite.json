@@ -1,0 +1,606 @@
+{
+  "schema_version": 1,
+  "suite_id": "progression-math-v3",
+  "purpose": "Post-G3 hidden progression benchmark. G3-mastered cases are strict sentinels; hard-v3 validation/holdout cases measure new structured proof-search capability.",
+  "variants": [
+    {
+      "variant_id": "proof_search",
+      "enabled_layers": [
+        "proof_search"
+      ]
+    },
+    {
+      "variant_id": "theorem_graph",
+      "enabled_layers": [
+        "proof_search",
+        "theorem_graph"
+      ]
+    },
+    {
+      "variant_id": "route_memory",
+      "enabled_layers": [
+        "proof_search",
+        "theorem_graph",
+        "route_memory"
+      ]
+    },
+    {
+      "variant_id": "sequence_memory",
+      "enabled_layers": [
+        "proof_search",
+        "theorem_graph",
+        "route_memory",
+        "sequence_memory"
+      ]
+    },
+    {
+      "variant_id": "strategy_memory",
+      "enabled_layers": [
+        "proof_search",
+        "theorem_graph",
+        "route_memory",
+        "sequence_memory",
+        "strategy_memory"
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "train-algebra-add-zero",
+      "family": "algebra_identity",
+      "domain": "algebra",
+      "split": "train",
+      "tags": [
+        "lean_verified",
+        "identity",
+        "g3_sentinel"
+      ],
+      "focus_theorem": "MathAI.Trust.add_zero_verified",
+      "declaration_name": "bench_add_zero",
+      "namespace": "MathAI.Benchmark",
+      "binders": [
+        {
+          "name": "n",
+          "type": "Nat"
+        }
+      ],
+      "proposition": "n + 0 = n",
+      "imports": [
+        "MathAI"
+      ],
+      "knowledge_mode": "known_theorem_retrieval"
+    },
+    {
+      "case_id": "validation-geometry-dot-zero-right",
+      "family": "dot_zero_right_validation",
+      "domain": "geometry",
+      "split": "validation",
+      "tags": [
+        "lean_verified",
+        "zero",
+        "validation",
+        "g3_sentinel"
+      ],
+      "focus_theorem": "",
+      "declaration_name": "bench_validation_dot_zero_right",
+      "namespace": "MathAI.Benchmark",
+      "binders": [
+        {
+          "name": "a",
+          "type": "MathAI.Geometry.Vec3"
+        }
+      ],
+      "proposition": "MathAI.Geometry.dot a MathAI.Geometry.zeroVec = 0",
+      "imports": [
+        "MathAI"
+      ],
+      "knowledge_mode": "blind_generalization"
+    },
+    {
+      "case_id": "validation-geometry-cross-self",
+      "family": "cross_self_validation",
+      "domain": "geometry",
+      "split": "validation",
+      "tags": [
+        "lean_verified",
+        "cross",
+        "validation",
+        "g3_sentinel"
+      ],
+      "focus_theorem": "",
+      "declaration_name": "bench_validation_cross_self",
+      "namespace": "MathAI.Benchmark",
+      "binders": [
+        {
+          "name": "a",
+          "type": "MathAI.Geometry.Vec3"
+        }
+      ],
+      "proposition": "MathAI.Geometry.cross a a = MathAI.Geometry.zeroVec",
+      "imports": [
+        "MathAI"
+      ],
+      "knowledge_mode": "blind_generalization"
+    },
+    {
+      "case_id": "holdout-geometry-orthogonal-symm",
+      "family": "orthogonality_symmetry",
+      "domain": "geometry",
+      "split": "holdout",
+      "tags": [
+        "lean_verified",
+        "orthogonality",
+        "g3_sentinel"
+      ],
+      "focus_theorem": "",
+      "declaration_name": "bench_orthogonal_symm",
+      "namespace": "MathAI.Benchmark",
+      "binders": [
+        {
+          "name": "a",
+          "type": "MathAI.Geometry.Vec3"
+        },
+        {
+          "name": "b",
+          "type": "MathAI.Geometry.Vec3"
+        }
+      ],
+      "proposition": "MathAI.Geometry.orthogonal a b ↔ MathAI.Geometry.orthogonal b a",
+      "imports": [
+        "MathAI"
+      ],
+      "knowledge_mode": "blind_generalization"
+    },
+    {
+      "case_id": "holdout-geometry-distance-symm",
+      "family": "distance_symmetry",
+      "domain": "geometry",
+      "split": "holdout",
+      "tags": [
+        "lean_verified",
+        "distance",
+        "g3_sentinel"
+      ],
+      "focus_theorem": "",
+      "declaration_name": "bench_squared_distance_symm",
+      "namespace": "MathAI.Benchmark",
+      "binders": [
+        {
+          "name": "a",
+          "type": "MathAI.Geometry.Point3"
+        },
+        {
+          "name": "b",
+          "type": "MathAI.Geometry.Point3"
+        }
+      ],
+      "proposition": "MathAI.Geometry.squaredDistance a b = MathAI.Geometry.squaredDistance b a",
+      "imports": [
+        "MathAI"
+      ],
+      "knowledge_mode": "blind_generalization"
+    },
+    {
+      "case_id": "holdout-geometry-distance-nonnegative",
+      "family": "distance_order",
+      "domain": "geometry",
+      "split": "holdout",
+      "tags": [
+        "lean_verified",
+        "order",
+        "g3_sentinel"
+      ],
+      "focus_theorem": "",
+      "declaration_name": "bench_squared_distance_nonnegative",
+      "namespace": "MathAI.Benchmark",
+      "binders": [
+        {
+          "name": "a",
+          "type": "MathAI.Geometry.Point3"
+        },
+        {
+          "name": "b",
+          "type": "MathAI.Geometry.Point3"
+        }
+      ],
+      "proposition": "0 ≤ MathAI.Geometry.squaredDistance a b",
+      "imports": [
+        "MathAI"
+      ],
+      "knowledge_mode": "blind_generalization"
+    },
+    {
+      "case_id": "holdout-geometry-zero-orthogonal-left",
+      "family": "zero_orthogonality",
+      "domain": "geometry",
+      "split": "holdout",
+      "tags": [
+        "lean_verified",
+        "zero",
+        "g3_sentinel"
+      ],
+      "focus_theorem": "",
+      "declaration_name": "bench_zero_orthogonal_left",
+      "namespace": "MathAI.Benchmark",
+      "binders": [
+        {
+          "name": "a",
+          "type": "MathAI.Geometry.Vec3"
+        }
+      ],
+      "proposition": "MathAI.Geometry.orthogonal MathAI.Geometry.zeroVec a",
+      "imports": [
+        "MathAI"
+      ],
+      "knowledge_mode": "blind_generalization"
+    },
+    {
+      "case_id": "holdout-geometry-sphere-radius",
+      "family": "sphere_distance_extraction",
+      "domain": "geometry",
+      "split": "holdout",
+      "tags": [
+        "lean_verified",
+        "sphere",
+        "distance",
+        "g3_sentinel"
+      ],
+      "focus_theorem": "",
+      "declaration_name": "bench_sphere_radius",
+      "namespace": "MathAI.Benchmark",
+      "binders": [
+        {
+          "name": "p",
+          "type": "MathAI.Geometry.Point3"
+        },
+        {
+          "name": "sphere",
+          "type": "MathAI.Geometry.Sphere3"
+        },
+        {
+          "name": "h",
+          "type": "MathAI.Geometry.pointOnSphere p sphere"
+        }
+      ],
+      "proposition": "MathAI.Geometry.squaredDistance sphere.center p = sphere.radiusSquared",
+      "imports": [
+        "MathAI"
+      ],
+      "knowledge_mode": "blind_generalization"
+    },
+    {
+      "case_id": "hard2-validation-001",
+      "family": "compound_parallel_orthogonal",
+      "domain": "geometry",
+      "split": "validation",
+      "tags": [
+        "lean_verified",
+        "compound",
+        "g3_sentinel"
+      ],
+      "focus_theorem": "",
+      "declaration_name": "bench_hard2_validation_001",
+      "namespace": "MathAI.HardBenchmark",
+      "binders": [
+        {
+          "name": "a",
+          "type": "MathAI.Geometry.Vec3"
+        }
+      ],
+      "proposition": "MathAI.Geometry.parallel a a ∧ MathAI.Geometry.orthogonal MathAI.Geometry.zeroVec a",
+      "imports": [
+        "MathAI"
+      ],
+      "knowledge_mode": "blind_generalization"
+    },
+    {
+      "case_id": "hard2-validation-003",
+      "family": "distance_dot_bridge",
+      "domain": "geometry",
+      "split": "validation",
+      "tags": [
+        "lean_verified",
+        "representation_bridge",
+        "g3_sentinel"
+      ],
+      "focus_theorem": "",
+      "declaration_name": "bench_hard2_validation_003",
+      "namespace": "MathAI.HardBenchmark",
+      "binders": [
+        {
+          "name": "a",
+          "type": "MathAI.Geometry.Point3"
+        },
+        {
+          "name": "b",
+          "type": "MathAI.Geometry.Point3"
+        }
+      ],
+      "proposition": "MathAI.Geometry.squaredDistance a b = MathAI.Geometry.dot (MathAI.Geometry.vecBetween a b) (MathAI.Geometry.vecBetween a b)",
+      "imports": [
+        "MathAI"
+      ],
+      "knowledge_mode": "blind_generalization"
+    },
+    {
+      "case_id": "hard2-holdout-006",
+      "family": "cross_orthogonal_nonnegative_bundle",
+      "domain": "geometry",
+      "split": "holdout",
+      "tags": [
+        "lean_verified",
+        "compound",
+        "cross",
+        "order",
+        "g3_sentinel"
+      ],
+      "focus_theorem": "",
+      "declaration_name": "bench_hard2_holdout_006",
+      "namespace": "MathAI.HardBenchmark",
+      "binders": [
+        {
+          "name": "a",
+          "type": "MathAI.Geometry.Vec3"
+        },
+        {
+          "name": "b",
+          "type": "MathAI.Geometry.Vec3"
+        }
+      ],
+      "proposition": "MathAI.Geometry.orthogonal a (MathAI.Geometry.cross a b) ∧ MathAI.Geometry.orthogonal b (MathAI.Geometry.cross a b) ∧ 0 ≤ MathAI.Geometry.dot (MathAI.Geometry.cross a b) (MathAI.Geometry.cross a b)",
+      "imports": [
+        "MathAI"
+      ],
+      "knowledge_mode": "blind_generalization"
+    },
+    {
+      "case_id": "hard2-holdout-007",
+      "family": "distance_symmetry_nonnegative_bundle",
+      "domain": "geometry",
+      "split": "holdout",
+      "tags": [
+        "lean_verified",
+        "compound",
+        "distance",
+        "order",
+        "g3_sentinel"
+      ],
+      "focus_theorem": "",
+      "declaration_name": "bench_hard2_holdout_007",
+      "namespace": "MathAI.HardBenchmark",
+      "binders": [
+        {
+          "name": "a",
+          "type": "MathAI.Geometry.Point3"
+        },
+        {
+          "name": "b",
+          "type": "MathAI.Geometry.Point3"
+        }
+      ],
+      "proposition": "MathAI.Geometry.squaredDistance a b = MathAI.Geometry.squaredDistance b a ∧ 0 ≤ MathAI.Geometry.squaredDistance a b",
+      "imports": [
+        "MathAI"
+      ],
+      "knowledge_mode": "blind_generalization"
+    },
+    {
+      "case_id": "hard3-validation-001",
+      "family": "structured_theorem_composition",
+      "domain": "geometry",
+      "split": "validation",
+      "tags": [
+        "lean_verified",
+        "hard_v3",
+        "composition",
+        "progression"
+      ],
+      "focus_theorem": "",
+      "declaration_name": "bench_hard3_validation_001",
+      "namespace": "MathAI.HardBenchmarkV3",
+      "binders": [
+        {
+          "name": "a",
+          "type": "MathAI.Geometry.Vec3"
+        },
+        {
+          "name": "p",
+          "type": "MathAI.Geometry.Point3"
+        },
+        {
+          "name": "q",
+          "type": "MathAI.Geometry.Point3"
+        }
+      ],
+      "proposition": "MathAI.Geometry.parallel a a ∧ MathAI.Geometry.squaredDistance p q = MathAI.Geometry.dot (MathAI.Geometry.vecBetween p q) (MathAI.Geometry.vecBetween p q)",
+      "imports": [
+        "MathAI"
+      ],
+      "knowledge_mode": "blind_generalization"
+    },
+    {
+      "case_id": "hard3-validation-002",
+      "family": "recursive_conjunction_composition",
+      "domain": "geometry",
+      "split": "validation",
+      "tags": [
+        "lean_verified",
+        "hard_v3",
+        "composition",
+        "nested",
+        "progression"
+      ],
+      "focus_theorem": "",
+      "declaration_name": "bench_hard3_validation_002",
+      "namespace": "MathAI.HardBenchmarkV3",
+      "binders": [
+        {
+          "name": "a",
+          "type": "MathAI.Geometry.Vec3"
+        }
+      ],
+      "proposition": "MathAI.Geometry.parallel a a ∧ (MathAI.Geometry.orthogonal MathAI.Geometry.zeroVec a ∧ (0 ≤ MathAI.Geometry.dot a a ∧ MathAI.Geometry.dot a MathAI.Geometry.zeroVec = 0))",
+      "imports": [
+        "MathAI"
+      ],
+      "knowledge_mode": "blind_generalization"
+    },
+    {
+      "case_id": "hard3-validation-003",
+      "family": "definition_equivalence_parallel",
+      "domain": "geometry",
+      "split": "validation",
+      "tags": [
+        "lean_verified",
+        "hard_v3",
+        "definition_normalization",
+        "progression"
+      ],
+      "focus_theorem": "",
+      "declaration_name": "bench_hard3_validation_003",
+      "namespace": "MathAI.HardBenchmarkV3",
+      "binders": [
+        {
+          "name": "a",
+          "type": "MathAI.Geometry.Vec3"
+        },
+        {
+          "name": "b",
+          "type": "MathAI.Geometry.Vec3"
+        }
+      ],
+      "proposition": "MathAI.Geometry.parallel a b ↔ MathAI.Geometry.cross a b = MathAI.Geometry.zeroVec",
+      "imports": [
+        "MathAI"
+      ],
+      "knowledge_mode": "blind_generalization"
+    },
+    {
+      "case_id": "hard3-validation-004",
+      "family": "disjunctive_theorem_retrieval",
+      "domain": "geometry",
+      "split": "validation",
+      "tags": [
+        "lean_verified",
+        "hard_v3",
+        "branching",
+        "progression"
+      ],
+      "focus_theorem": "",
+      "declaration_name": "bench_hard3_validation_004",
+      "namespace": "MathAI.HardBenchmarkV3",
+      "binders": [
+        {
+          "name": "a",
+          "type": "MathAI.Geometry.Vec3"
+        },
+        {
+          "name": "p",
+          "type": "MathAI.Geometry.Point3"
+        },
+        {
+          "name": "q",
+          "type": "MathAI.Geometry.Point3"
+        }
+      ],
+      "proposition": "MathAI.Geometry.squaredDistance p q = MathAI.Geometry.dot (MathAI.Geometry.vecBetween p q) (MathAI.Geometry.vecBetween p q) ∨ MathAI.Geometry.parallel a a",
+      "imports": [
+        "MathAI"
+      ],
+      "knowledge_mode": "blind_generalization"
+    },
+    {
+      "case_id": "hard3-holdout-001",
+      "family": "parallel_symmetry",
+      "domain": "geometry",
+      "split": "holdout",
+      "tags": [
+        "lean_verified",
+        "hard_v3",
+        "symmetry",
+        "cross",
+        "progression"
+      ],
+      "focus_theorem": "",
+      "declaration_name": "bench_hard3_holdout_001",
+      "namespace": "MathAI.HardBenchmarkV3",
+      "binders": [
+        {
+          "name": "a",
+          "type": "MathAI.Geometry.Vec3"
+        },
+        {
+          "name": "b",
+          "type": "MathAI.Geometry.Vec3"
+        },
+        {
+          "name": "h",
+          "type": "MathAI.Geometry.parallel a b"
+        }
+      ],
+      "proposition": "MathAI.Geometry.parallel b a",
+      "imports": [
+        "MathAI"
+      ],
+      "knowledge_mode": "blind_generalization"
+    },
+    {
+      "case_id": "hard3-holdout-002",
+      "family": "implication_composition",
+      "domain": "geometry",
+      "split": "holdout",
+      "tags": [
+        "lean_verified",
+        "hard_v3",
+        "implication",
+        "composition",
+        "progression"
+      ],
+      "focus_theorem": "",
+      "declaration_name": "bench_hard3_holdout_002",
+      "namespace": "MathAI.HardBenchmarkV3",
+      "binders": [
+        {
+          "name": "p",
+          "type": "MathAI.Geometry.Point3"
+        },
+        {
+          "name": "sphere",
+          "type": "MathAI.Geometry.Sphere3"
+        }
+      ],
+      "proposition": "MathAI.Geometry.pointOnSphere p sphere → (MathAI.Geometry.validSphere sphere ∧ MathAI.Geometry.squaredDistance sphere.center p = sphere.radiusSquared)",
+      "imports": [
+        "MathAI"
+      ],
+      "knowledge_mode": "blind_generalization"
+    },
+    {
+      "case_id": "hard3-holdout-003",
+      "family": "zero_cross_rewrite_bridge",
+      "domain": "geometry",
+      "split": "holdout",
+      "tags": [
+        "lean_verified",
+        "hard_v3",
+        "rewrite",
+        "cross",
+        "progression"
+      ],
+      "focus_theorem": "",
+      "declaration_name": "bench_hard3_holdout_003",
+      "namespace": "MathAI.HardBenchmarkV3",
+      "binders": [
+        {
+          "name": "a",
+          "type": "MathAI.Geometry.Vec3"
+        }
+      ],
+      "proposition": "MathAI.Geometry.cross a MathAI.Geometry.zeroVec = MathAI.Geometry.cross MathAI.Geometry.zeroVec a",
+      "imports": [
+        "MathAI"
+      ],
+      "knowledge_mode": "blind_generalization"
+    }
+  ]
+}
