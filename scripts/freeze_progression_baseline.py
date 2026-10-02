@@ -29,15 +29,20 @@ def main():
 
     progression_validation = sorted(
         c["case_id"] for c in suite["cases"]
-        if c["split"] == "validation" and "hard_v2" in c.get("tags", [])
+        if c["split"] == "validation" and (
+            "progression" in c.get("tags", []) or "hard_v2" in c.get("tags", [])
+        )
     )
     progression_holdout = sorted(
         c["case_id"] for c in suite["cases"]
-        if c["split"] == "holdout" and "hard_v2" in c.get("tags", [])
+        if c["split"] == "holdout" and (
+            "progression" in c.get("tags", []) or "hard_v2" in c.get("tags", [])
+        )
     )
     sentinels = sorted(
         c["case_id"] for c in suite["cases"]
         if c["split"] in {"validation", "holdout"}
+        and "progression" not in c.get("tags", [])
         and "hard_v2" not in c.get("tags", [])
     )
     if not progression_validation or not progression_holdout or not sentinels:
