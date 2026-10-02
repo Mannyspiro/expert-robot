@@ -98,14 +98,14 @@ jobs:
             --target expert_robot_math_benchmark \
             --parallel "$(nproc)"
 
-      - name: Run post-G3 progression benchmark
+      - name: Run current progression benchmark
         shell: bash
         run: |
           set -euo pipefail
           variant="${{ matrix.variant }}"
 
           ./build/expert_robot_math_benchmark \
-            config/benchmarks/progression_math_v3.json \
+            config/benchmarks/current_progression_suite.json \
             "build/math-benchmark-state-${variant}" \
             "build/math-benchmark-results-${variant}.json" \
             "github-${{ github.run_id }}-${variant}" \
@@ -221,13 +221,13 @@ jobs:
           print(json.dumps(output, indent=2))
           PY
 
-      - name: Compare against frozen G3 progression baseline
+      - name: Compare against current frozen progression baseline
         shell: bash
         run: |
           set -euo pipefail
           python3 scripts/compare_progression_to_reference.py \
             build/math-benchmark-results.json \
-            --baseline config/benchmarks/g3_progression_v3_baseline.json \
+            --baseline config/benchmarks/current_progression_baseline.json \
             --output build/benchmark-merit.json
 
       - name: Upload combined benchmark evidence
