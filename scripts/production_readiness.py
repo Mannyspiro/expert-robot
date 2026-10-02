@@ -43,6 +43,8 @@ def main():
         "config/benchmarks/g0_baseline.json",
         "config/benchmarks/progression_math_v3.json",
         "config/benchmarks/g3_progression_v3_baseline.json",
+        "config/benchmarks/current_progression_suite.json",
+        "config/benchmarks/current_progression_baseline.json",
         "tests/collar_runtime_contract_smoke.py",
         "tests/benchmark_baseline_smoke.py",
         "tests/progression_benchmark_smoke.py",
@@ -107,10 +109,10 @@ def main():
         ("production qualification", production_wf),
         ("candidate qualification", candidate_wf),
     ):
-        require("progression_math_v3.json" in workflow,
-                f"{label} is not using the post-G3 progression suite", failures)
-        require("g3_progression_v3_baseline.json" in workflow,
-                f"{label} is not bound to the frozen G3 progression baseline", failures)
+        require("current_progression_suite.json" in workflow,
+                f"{label} is not using the current progression suite", failures)
+        require("current_progression_baseline.json" in workflow,
+                f"{label} is not bound to the current frozen progression baseline", failures)
     require(hard["worker_vcpu"] * 3 <= hard["max_total_vcpu"],
             "CI + heavy + promotion lanes can exceed total vCPU ceiling", failures)
 
