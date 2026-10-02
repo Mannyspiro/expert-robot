@@ -13,6 +13,11 @@ suite=json.loads(suite_bytes)
 baseline=json.loads(baseline_path.read_text(encoding="utf-8"))
 blind=json.loads(blind_path.read_text(encoding="utf-8"))
 
+
+def is_progression_case(case):
+    tags=set(case.get("tags", []))
+    return "progression" in tags or any(tag.startswith("hard_v") for tag in tags)
+
 assert suite["suite_id"]=="progression-math-v3"
 assert baseline["source_candidate_sha"]=="0b4c9b29e50890785fbe36d4a849e297f480bcd1"
 blob=b"blob "+str(len(suite_bytes)).encode("ascii")+b"\0"+suite_bytes
@@ -20,15 +25,15 @@ assert baseline["suite_git_blob_sha"]==hashlib.sha1(blob).hexdigest()
 
 progression_validation=sorted(
     c["case_id"] for c in suite["cases"]
-    if c["split"]=="validation" and "progression" in c.get("tags",[])
+    if c["split"]=="validation" and is_progression_case(c)
 )
 progression_holdout=sorted(
     c["case_id"] for c in suite["cases"]
-    if c["split"]=="holdout" and "progression" in c.get("tags",[])
+    if c["split"]=="holdout" and is_progression_case(c)
 )
 sentinels=sorted(
     c["case_id"] for c in suite["cases"]
-    if c["split"] in {"validation","holdout"} and "progression" not in c.get("tags",[])
+    if c["split"] in {"validation","holdout"} and not is_progression_case(c)
 )
 ids=baseline["evaluation_case_ids"]
 assert ids["progression_validation"]==progression_validation
