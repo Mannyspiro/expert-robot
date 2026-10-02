@@ -29,8 +29,8 @@ assert "Download independent collar evidence" in qual
 assert "cd candidate" in qual
 assert "build/expert_robot_math_benchmark" in qual
 assert "../candidate-evidence/math-benchmark-results-$variant.json" in qual
-assert "../trusted/config/benchmarks/progression_math_v3.json" in qual
-assert "g3_progression_v3_baseline.json" in qual
+assert "../trusted/config/benchmarks/current_progression_suite.json" in qual
+assert "current_progression_baseline.json" in qual
 assert "compare_progression_to_reference.py" in qual
 assert "Verify trusted hidden hard-v2 witnesses against candidate" in qual
 assert "Verify trusted hidden hard-v3 witnesses against candidate" in qual
