@@ -1,0 +1,57 @@
+# Heptameron-derived parameterized circle research template.
+# Names are represented by semantic slots here; witness-specific diplomatic
+# strings should be inserted only from verified page/text evidence.
+
+RITUAL 0.1
+ID heptameron-circle-template
+TITLE "Heptameron parameterized circle null experiment"
+TRADITION "Heptameron"
+
+WITNESS hept-edition kind=critical_edition provenance=direct weight=0.85 notes="Text-level protocol template; witness-specific diagram encoding remains separate."
+
+CLAIM P0_perceptual historical_only "A circle whose form and inscriptions vary with entity, place, time, day, hour, and celestial assignment is claimed to establish ritual protection/operation."
+PREDICT "No sensor channel should depend on semantic slot identity after known acoustic/visual/material effects are controlled."
+
+CIRCLE outer radius=2 center=0,0,0 normal=0,0,1
+CIRCLE middle radius=7/4 center=0,0,0 normal=0,0,1
+CIRCLE inner radius=3/2 center=0,0,0 normal=0,0,1
+TOPOLOGY "inner contained_by middle"
+TOPOLOGY "middle contained_by outer"
+ORIENTATION_SENSITIVE true
+
+SYMBOL day-angel kind=name role=timing text="<DAY_ANGEL>" position="middle@0deg" order=0 repeat=1 confidence=0.8 provenance=hept-edition
+SYMBOL hour-name kind=name role=timing text="<HOUR_NAME>" position="middle@90deg" order=1 repeat=1 confidence=0.8 provenance=hept-edition
+SYMBOL hour-seal kind=sigil role=identifier text="<HOUR_SEAL>" position="middle@180deg" order=2 repeat=1 confidence=0.8 provenance=hept-edition
+
+VOICE day-angel mode=live_voice repeat=1
+
+ORIENT manuscript_relative
+TIME_CONSTRAINT "day/hour assignment is experimental metadata and must be independently randomized in controls"
+
+STEP "construct three concentric boundaries"
+STEP "place witness-specific names/seal in declared order"
+STEP "run assigned acoustic condition"
+
+MEASURE acoustic instrument="calibrated measurement microphone" rate=96000 uncertainty="calibration plus room baseline"
+MEASURE magnetic instrument="3-axis magnetometer" rate=1000 uncertainty="pre/post baseline"
+MEASURE electric instrument="electric-field probe" rate=1000 uncertainty="instrument calibration"
+MEASURE optical instrument="fixed calibrated camera" rate=60 uncertainty="sensor and illumination drift"
+
+CONTROL "rotate entire diagram while preserving internal geometry"
+CONTROL "scramble symbol slots while preserving acoustic waveform class"
+CONTROL "preserve symbol order while randomizing day/hour metadata"
+CONTROL "silence"
+CONTROL "camera-only automated run"
+
+BLINDING double
+RANDOMIZE true
+PREREGISTER true
+HOLDOUT 0.2
+
+MODEL acoustic_wave
+MODEL maxwell_em
+MODEL optics
+MODEL sensor_noise
+
+UNKNOWN unmodeled-residual policy=residual_only "Reproducible residual outside declared certified bounds"
+END
