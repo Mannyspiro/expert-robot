@@ -1,0 +1,46 @@
+name: Circle Symmetry Benchmark
+
+on:
+  pull_request:
+    paths:
+      - "scripts/benchmark_circle_symmetry.py"
+      - "tests/circle_symmetry_benchmark_smoke.py"
+      - "formal/MathAI/Geometry/CircleDerived.lean"
+      - "formal/theorem_registry.json"
+      - ".github/workflows/circle-symmetry-benchmark.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: circle-symmetry-benchmark-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  benchmark:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Smoke correctness
+        run: python3 tests/circle_symmetry_benchmark_smoke.py
+
+      - name: Benchmark proof-backed canonicalization
+        run: |
+          mkdir -p benchmark-artifacts
+          python3 scripts/benchmark_circle_symmetry.py \
+            --points 250000 \
+            --repeats 5 \
+            --output benchmark-artifacts/circle-symmetry.json
+          cat benchmark-artifacts/circle-symmetry.json
+
+      - name: Upload benchmark evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: circle-symmetry-${{ github.run_id }}
+          path: benchmark-artifacts/circle-symmetry.json
+          if-no-files-found: error
+          retention-days: 30
