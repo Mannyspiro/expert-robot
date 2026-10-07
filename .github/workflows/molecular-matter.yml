@@ -1,0 +1,39 @@
+name: Molecular Matter Modeler Tests
+
+on:
+  pull_request:
+    paths:
+      - "scripts/generate_molecular_matter.py"
+      - "tests/molecular_matter_smoke.py"
+      - "config/schemas/research_matter_graph.schema.json"
+      - "docs/multiscale-matter-physics.md"
+      - ".github/workflows/molecular-matter.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  molecular-modeler:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned RDKit
+        run: python -m pip install --disable-pip-version-check --no-input rdkit==2026.3.6
+      - name: Validate molecular graph and conformer generator
+        run: python tests/molecular_matter_smoke.py
+      - name: Generate reproducible computational ethanol sample
+        run: |
+          mkdir -p molecule-artifacts
+          python scripts/generate_molecular_matter.py --smiles CCO --id ethanol-demo --conformers 3 --seed 1729 --matter-graph molecule-artifacts/ethanol.matter.json --metadata molecule-artifacts/ethanol.metadata.json --molblock molecule-artifacts/ethanol.mol
+      - name: Upload computational molecular prototype
+        uses: actions/upload-artifact@v4
+        with:
+          name: molecular-matter-${{ github.run_id }}
+          path: molecule-artifacts/
+          retention-days: 14
+          if-no-files-found: error
