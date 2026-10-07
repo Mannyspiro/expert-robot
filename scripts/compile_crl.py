@@ -173,6 +173,10 @@ def new_ir() -> dict[str, Any]:
             "notes": "Compiled from CRL; no physical efficacy is asserted.",
         },
         "unknown_channels": [],
+        "parameters": [],
+        "bindings": [],
+        "energy_inputs": [],
+        "processes": [],
     }
 
 
@@ -263,6 +267,35 @@ def parse(text: str, source_name: str = "<memory>") -> dict[str, Any]:
             if not pos:
                 raise CRLError(f"{ctx}: PREDICT requires observable text")
             ir["claim"]["predicted_observables"].append(" ".join(pos))
+
+        elif op == "PARAM":
+            if len(pos) != 1:
+                raise CRLError(f"{ctx}: PARAM requires parameter id")
+            values = None
+            if "values" in kw:
+                values = [atom(x) for x in kw["values"].split(",") if x != ""]
+            ir["parameters"].append({
+                "id": pos[0],
+                "kind": required(kw, "kind", ctx),
+                "semantic_role": required(kw, "role", ctx),
+                "values": values,
+                "minimum": atom(kw["min"]) if "min" in kw else None,
+                "maximum": atom(kw["max"]) if "max" in kw else None,
+                "units": kw.get("units"),
+                "provenance_ref": kw.get("provenance"),
+                "notes": kw.get("notes", ""),
+            })
+
+        elif op == "BIND":
+            if len(pos) != 1:
+                raise CRLError(f"{ctx}: BIND requires target path")
+            ir["bindings"].append({
+                "parameter": required(kw, "parameter", ctx),
+                "target": pos[0],
+                "mode": kw.get("mode", "direct"),
+                "transform": kw.get("transform"),
+                "notes": kw.get("notes", ""),
+            })
 
         elif op in {"POINT", "LINE", "CIRCLE", "SPHERE", "POLYGON", "GLYPH_PATH"}:
             if len(pos) != 1:
@@ -381,6 +414,43 @@ def parse(text: str, source_name: str = "<memory>") -> dict[str, Any]:
                 "relative_permeability": float(kw["permeability"]) if "permeability" in kw else None,
                 "optical_properties": None,
                 "chemical_hazards": [],
+            })
+
+        elif op == "ENERGY":
+            if len(pos) != 1:
+                raise CRLError(f"{ctx}: ENERGY requires source id")
+            profile = {}
+            for key, value in kw.items():
+                if key not in {"kind", "role", "measured", "source", "notes"}:
+                    profile[key] = atom(value)
+            ir["energy_inputs"].append({
+                "id": pos[0],
+                "kind": required(kw, "kind", ctx),
+                "role": required(kw, "role", ctx),
+                "profile": profile,
+                "measured": bool(atom(kw.get("measured", "true"))),
+                "source_ref": kw.get("source"),
+                "notes": kw.get("notes", ""),
+            })
+
+        elif op == "PROCESS":
+            if len(pos) != 1:
+                raise CRLError(f"{ctx}: PROCESS requires process id")
+            targets = required(kw, "targets", ctx).split(",")
+            params = {}
+            for key, value in kw.items():
+                if key not in {"kind", "targets", "energy", "order", "historical", "simulation_only", "notes"}:
+                    params[key] = atom(value)
+            ir["processes"].append({
+                "id": pos[0],
+                "kind": required(kw, "kind", ctx),
+                "targets": targets,
+                "parameters": params,
+                "energy_ref": kw.get("energy"),
+                "order_index": int(kw["order"]) if "order" in kw else None,
+                "historical_label": kw.get("historical"),
+                "simulation_only": bool(atom(kw.get("simulation_only", "true"))),
+                "notes": kw.get("notes", ""),
             })
 
         elif op == "ORIENT":
