@@ -1,0 +1,125 @@
+name: Sloane f120r Open Web Deep Probe
+
+on:
+  push:
+    branches: ["research/bl-facsimile-acquisition"]
+    paths: [".github/workflows/sloane-f120r-openweb-deep-probe.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Probe independent caches and repositories
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p probe
+          python3 - <<'PY'
+          import json, pathlib, ssl, urllib.parse, urllib.request, re, hashlib
+          root=pathlib.Path("probe")
+          ctx=ssl._create_unverified_context()
+          UA="Mozilla/5.0 manuscript provenance research"
+
+          def fetch(url, accept="*/*", timeout=90):
+              req=urllib.request.Request(url,headers={"User-Agent":UA,"Accept":accept})
+              with urllib.request.urlopen(req,context=ctx,timeout=timeout) as r:
+                  return r.read(),r.geturl(),r.headers.get("Content-Type","")
+
+          report={"queries":[],"jina":[],"archive":[],"wikimedia":[],"google_books":[]}
+
+          # Jina Reader can expose attachment/image URLs from public forum/blog pages.
+          jina_targets=[
+            "https://r.jina.ai/http://tarotforum.net/threads/a-15th-century-alchemical-image-which-includes-4-tdm-atouts-all-in-one.223881/",
+            "https://r.jina.ai/http://bibliomancer.blogspot.com/2011/04/alchemical-dragons.html",
+            "https://r.jina.ai/http://www.1010.co.uk/org/dissolutions.html",
+          ]
+          for i,u in enumerate(jina_targets):
+              rec={"url":u}
+              try:
+                  b,final,ct=fetch(u,"text/plain,text/markdown,*/*",120)
+                  txt=b.decode("utf-8","replace")
+                  fn=f"jina_{i}.txt"; (root/fn).write_text(txt,encoding="utf-8")
+                  rec.update({"status":"fetched","final":final,"bytes":len(b),"sha256":hashlib.sha256(b).hexdigest(),"file":fn})
+                  urls=re.findall(r'https?://[^\s)\]>"\']+',txt)
+                  rec["image_like_urls"]=[x for x in urls if re.search(r'\.(?:jpg|jpeg|png|webp|gif)(?:\?|$)',x,re.I) or "attachment" in x.lower()][:200]
+                  # contexts around Sloane and f.120.
+                  ctxs=[]
+                  for m in re.finditer(r'(?i)Sloane.{0,120}1171|1171.{0,120}Sloane|120r|120v|folio\s*120|f\.\s*120',txt):
+                      ctxs.append(re.sub(r'\s+',' ',txt[max(0,m.start()-500):m.end()+800]).strip())
+                  rec["contexts"]=ctxs[:40]
+              except Exception as e:
+                  rec.update({"status":"failed","error":repr(e)})
+              report["jina"].append(rec)
+
+          # Internet Archive advanced metadata search.
+          ia_queries=[
+            '"Sloane 1171"',
+            '"Sloane MS 1171"',
+            '"Collectanea de Lapide Philosophiae"',
+            '"Harley 2407" AND "Sloane 1171"',
+          ]
+          for q in ia_queries:
+              url="https://archive.org/advancedsearch.php?"+urllib.parse.urlencode({
+                  "q":q,"fl[]":["identifier","title","description","creator","date"],"rows":"100","page":"1","output":"json"
+              },doseq=True)
+              rec={"query":q,"url":url}
+              try:
+                  b,final,ct=fetch(url,"application/json,*/*")
+                  data=json.loads(b.decode("utf-8","replace"))
+                  docs=data.get("response",{}).get("docs",[])
+                  rec.update({"status":"fetched","numFound":data.get("response",{}).get("numFound"),"docs":docs})
+              except Exception as e: rec.update({"status":"failed","error":repr(e)})
+              report["archive"].append(rec)
+
+          # Wikimedia Commons API.
+          for q in ['"Sloane 1171"','"Sloane MS 1171"','"Collectanea de Lapide Philosophiae"','"Sloane 1171" alchemy']:
+              url="https://commons.wikimedia.org/w/api.php?"+urllib.parse.urlencode({
+                  "action":"query","generator":"search","gsrsearch":q,"gsrnamespace":"6","gsrlimit":"50",
+                  "prop":"imageinfo","iiprop":"url|extmetadata","format":"json","origin":"*"
+              })
+              rec={"query":q,"url":url}
+              try:
+                  b,_,_=fetch(url,"application/json,*/*")
+                  data=json.loads(b.decode("utf-8","replace"))
+                  pages=(data.get("query") or {}).get("pages") or {}
+                  rec.update({"status":"fetched","pages":pages})
+              except Exception as e: rec.update({"status":"failed","error":repr(e)})
+              report["wikimedia"].append(rec)
+
+          # Google Books public volumes endpoint, metadata/snippets only.
+          for q in ['"Sloane 1171"','"Sloane MS 1171"','"Harley 2407" "Sloane 1171"','"Collectanea de Lapide Philosophiae"']:
+              url="https://www.googleapis.com/books/v1/volumes?"+urllib.parse.urlencode({"q":q,"maxResults":"40","printType":"books"})
+              rec={"query":q,"url":url}
+              try:
+                  b,_,_=fetch(url,"application/json,*/*")
+                  data=json.loads(b.decode("utf-8","replace"))
+                  items=[]
+                  for it in data.get("items",[]):
+                      vi=it.get("volumeInfo",{})
+                      items.append({"id":it.get("id"),"title":vi.get("title"),"authors":vi.get("authors"),"description":vi.get("description"),"infoLink":vi.get("infoLink")})
+                  rec.update({"status":"fetched","totalItems":data.get("totalItems"),"items":items})
+              except Exception as e: rec.update({"status":"failed","error":repr(e)})
+              report["google_books"].append(rec)
+
+          (root/"report.json").write_text(json.dumps(report,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
+          print(json.dumps({
+              "jina":[{k:v for k,v in x.items() if k not in ("contexts","image_like_urls")} | {"image_like_urls":x.get("image_like_urls",[])[:20],"contexts":x.get("contexts",[])[:5]} for x in report["jina"]],
+              "archive":[{"query":x["query"],"status":x.get("status"),"numFound":x.get("numFound"),"docs":x.get("docs",[])[:10]} for x in report["archive"]],
+              "wikimedia":[{"query":x["query"],"status":x.get("status"),"count":len(x.get("pages",{}))} for x in report["wikimedia"]],
+              "google_books":[{"query":x["query"],"status":x.get("status"),"totalItems":x.get("totalItems"),"items":x.get("items",[])[:10]} for x in report["google_books"]]
+          },indent=2,ensure_ascii=False))
+          PY
+      - name: Upload deep probe
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sloane-f120r-openweb-deep-${{ github.run_id }}
+          path: probe/
+          if-no-files-found: error
+          retention-days: 14
