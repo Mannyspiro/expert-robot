@@ -15,6 +15,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: read
 
 concurrency:
@@ -24,11 +25,20 @@ concurrency:
 jobs:
   lean-qualification:
     runs-on: avrea-ubuntu-latest-8-vcpu
+    concurrency:
+      group: expert-robot-avrea-half-month-slot
+      cancel-in-progress: false
+      queue: max
     timeout-minutes: 25
 
     steps:
       - uses: actions/checkout@v4
 
+      - name: Enforce Avrea half-month budget
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AVREA_RUNNER_LABEL: avrea-ubuntu-latest-8-vcpu
+        run: python3 scripts/check_avrea_halfmonth_budget.py --reserve-minutes 25 --runner-label "$AVREA_RUNNER_LABEL"
       - name: Project proof-escape audit
         shell: bash
         run: |
