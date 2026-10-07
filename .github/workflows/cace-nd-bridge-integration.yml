@@ -34,6 +34,8 @@ jobs:
           ssh-add "$key_file" >/dev/null
           echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
           echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
+      - name: Install CACE runtime dependency
+        run: python3 -m pip install --disable-pip-version-check --no-input numpy
       - name: Clone pinned CACE and run bridge
         shell: bash
         run: |
