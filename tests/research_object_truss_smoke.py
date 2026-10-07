@@ -19,6 +19,9 @@ load=json.loads((ROOT/"config"/"examples"/"research_object_truss_load_case.json"
 out=truss.evaluate(demo,load)
 assert out["geometrically_feasible_count"]>0
 assert out["truss_solved_count"]>0
+assert out["physics_pareto_candidate_ids"]
+assert out["physically_qualified_candidate_count"]>0
+assert all(i in {x["candidate_id"] for x in out["ranked_truss_results"] if x["passes_declared_truss_limits"]} for i in out["physics_pareto_candidate_ids"])
 assert out["ranked_truss_results"]
 ring=next((x for x in out["ranked_truss_results"] if x["candidate_id"]=="ring"),None)
 assert ring is not None
