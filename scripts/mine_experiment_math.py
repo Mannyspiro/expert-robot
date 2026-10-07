@@ -230,10 +230,58 @@ def invariance(payload: dict, probe: dict) -> dict:
     return c
 
 
+def geometric_recurrence(payload: dict, probe: dict) -> dict:
+    order_name = probe["order"]
+    y_name = probe["y"]
+    tolerance = float(probe.get("tolerance", 1e-9))
+    rows = []
+    for i, sample in enumerate(payload["samples"]):
+        order = numeric(sample["inputs"][order_name], f"samples[{i}].inputs.{order_name}")
+        y = numeric(sample["outputs"][y_name], f"samples[{i}].outputs.{y_name}")
+        if y == 0:
+            raise ValueError("geometric_recurrence requires nonzero y values")
+        rows.append((order, y))
+    rows.sort()
+    if len(rows) < 3:
+        raise ValueError("geometric_recurrence requires at least 3 ordered samples")
+
+    ratios = [b[1] / a[1] for a, b in zip(rows, rows[1:])]
+    ratio = mean(ratios)
+    max_residual = max(abs(r - ratio) for r in ratios)
+    violations = sum(abs(r - ratio) > tolerance for r in ratios)
+    scale = max(1.0, abs(ratio))
+    fit = max(0.0, min(1.0, 1.0 - max_residual / scale))
+
+    c = _candidate_base(payload, probe, "recurrence")
+    c["informal_statement"] = (
+        f"Observed {y_name} approximately satisfies y_(n+1)=q*y_n "
+        f"with q≈{ratio:.12g} over ordered {order_name}."
+    )
+    c["empirical_support"].update({
+        "fit_score": fit,
+        "max_observed_residual": max_residual,
+        "counterexamples_found": violations,
+        "notes": f"successive ratios={ratios!r}",
+    })
+    c["formalization_target"].update({
+        "quantifiers": ["n : ℕ"],
+        "assumptions": [
+            "n and n+1 are valid refinement levels",
+            "the refinement operator satisfies the formally specified geometric assumptions",
+        ],
+        "conclusion": "measure (refine^(n+1) x) = q * measure (refine^n x) for an exact q",
+    })
+    c["proof_obligations"].append(
+        "replace fitted recurrence ratio q with an exact rational/algebraic candidate before proof search"
+    )
+    return c
+
+
 MINERS = {
     "monotonicity": monotonicity,
     "scaling_law": scaling_law,
     "invariance": invariance,
+    "geometric_recurrence": geometric_recurrence,
 }
 
 
