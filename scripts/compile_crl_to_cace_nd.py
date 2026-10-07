@@ -97,7 +97,7 @@ def build(ir, segments=64, source=1.0, theta=0.5):
     ]
 
     cert_nodes=[
-      {"id":"cert_assembly","module":"CertifiedPoissonAssembly","params":{"diffusion":[[1.0,0.0],[0.0,1.0]],"source_constant":source,"source_linear":[0.0,0.0]},"inputs":{"mesh":"mesh.mesh"}},
+      {"id":"cert_assembly","module":"CertifiedPoissonAssembly","params":{"diffusion":[[1.0,0.0],[0.0,1.0]],"source_constant":source,"source_linear":[0.0,0.0]},"inputs":{"mesh":"mesh.mesh","space":"space.space"}},
       {"id":"cert_solve","module":"LinearSolverND","params":{},"inputs":{"system":"cert_assembly.system"}},
       {"id":"interval_residual","module":"IntervalAlgebraicResidual","params":{},"inputs":{"system":"cert_assembly.system","solution":"cert_solve.solution"}},
       {"id":"energy_cert","module":"DiscreteEnergyErrorCertificate","params":{},"inputs":{"system":"cert_assembly.system","residual_certificate":"interval_residual.residual_certificate"}}
