@@ -1,0 +1,136 @@
+name: CACE Research Interface Probe
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/cace-research-interface-probe.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cace-research-interface-probe-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  probe:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare read-only deploy key
+        shell: bash
+        env:
+          CACE_REPO_KEY: ${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CACE_REPO_KEY:-}" ]; then
+            echo "::error::repository deploy key is not configured"
+            exit 1
+          fi
+          umask 077
+          key_file="$RUNNER_TEMP/cace_repo_key"
+          printf '%s\n' "$CACE_REPO_KEY" > "$key_file"
+          chmod 600 "$key_file"
+          eval "$(ssh-agent -s)"
+          ssh-add "$key_file" >/dev/null
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
+
+      - name: Clone and inventory CACE interfaces
+        shell: bash
+        env:
+          CACE_REPO_SSH: git@github.com:morganaspim/Cace-app.git
+        run: |
+          set -euo pipefail
+          work="$RUNNER_TEMP/cace-app"
+          out="$RUNNER_TEMP/cace-interface-probe"
+          rm -rf "$work" "$out"
+          mkdir -p "$out"
+          GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
+            git clone --depth 1 "$CACE_REPO_SSH" "$work"
+          cd "$work"
+          git rev-parse HEAD > "$out/commit.txt"
+          python3 - "$work" "$out" <<'PY'
+import json
+import pathlib
+import re
+import sys
+
+root = pathlib.Path(sys.argv[1])
+out = pathlib.Path(sys.argv[2])
+
+keywords = {
+    'mesh': 5, 'solver': 5, 'residual': 5, 'operator': 5,
+    'certificate': 5, 'interval': 4, 'geometry': 4, 'shape': 3,
+    'coordinate': 3, 'fem': 5, 'maxwell': 5, 'acoustic': 5,
+    'capabilit': 3, 'graph': 2, 'validate': 3, 'simulation': 4,
+    'pde': 5, 'flux': 4, 'error': 2, 'adaptive': 4, 'bound': 3,
+}
+extensions = {
+    '.py', '.cpp', '.cc', '.cxx', '.hpp', '.h', '.ts', '.tsx',
+    '.js', '.jsx', '.lean', '.rs', '.go', '.json', '.toml', '.yaml', '.yml'
+}
+decl = re.compile(
+    r'^\s*(?:export\s+)?(?:async\s+)?(?:class|def|function|interface|type|struct|enum|namespace|theorem|lemma|def|inductive|structure)\s+[^\s({:]+|^\s*(?:GET|POST|PUT|DELETE|PATCH)\s+/'
+)
+
+rows = []
+for path in root.rglob('*'):
+    if not path.is_file() or path.suffix.lower() not in extensions:
+        continue
+    rel = path.relative_to(root).as_posix()
+    if any(part in {'.git', 'node_modules', 'vendor', 'dist', 'build'} for part in path.parts):
+        continue
+    try:
+        if path.stat().st_size > 1_000_000:
+            continue
+        text = path.read_text(encoding='utf-8', errors='ignore')
+    except Exception:
+        continue
+    hay = (rel + '\n' + text[:20000]).lower()
+    score = sum(weight for key, weight in keywords.items() if key in hay)
+    if score <= 0:
+        continue
+    declarations = []
+    for idx, line in enumerate(text.splitlines(), start=1):
+        if decl.search(line) or '/api/' in line or 'api/' in line.lower():
+            declarations.append({'line': idx, 'text': line.strip()[:240]})
+        if len(declarations) >= 20:
+            break
+    rows.append({
+        'path': rel,
+        'score': score,
+        'size': path.stat().st_size,
+        'declarations': declarations,
+    })
+
+rows.sort(key=lambda r: (-r['score'], r['path']))
+payload = {
+    'schema_version': 1,
+    'repository': 'morganaspim/Cace-app',
+    'commit': (out / 'commit.txt').read_text().strip(),
+    'candidate_count': len(rows),
+    'candidates': rows[:100],
+    'remote_mutated': False,
+}
+(out / 'inventory.json').write_text(json.dumps(payload, indent=2) + '\n')
+print(json.dumps(payload, indent=2))
+PY
+
+      - name: Upload interface evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: cace-interface-probe-${{ github.run_id }}
+          path: ${{ runner.temp }}/cace-interface-probe/
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Remove key material
+        if: always()
+        shell: bash
+        run: |
+          if [ -n "${SSH_AGENT_PID:-}" ]; then ssh-agent -k >/dev/null 2>&1 || true; fi
+          rm -f "$RUNNER_TEMP/cace_repo_key"
