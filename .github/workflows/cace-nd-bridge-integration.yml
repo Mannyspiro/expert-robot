@@ -43,6 +43,13 @@ jobs:
           GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
             git clone git@github.com:morganaspim/Cace-app.git "$work"
           git -C "$work" checkout 0e7aa229d3bb57174e281b883ee8af5445f15f75
+          if [ -f "$work/requirements.txt" ]; then
+            python3 -m pip install -r "$work/requirements.txt"
+          elif [ -f "$work/pyproject.toml" ]; then
+            python3 -m pip install -e "$work"
+          else
+            python3 -m pip install "numpy>=1.26,<3"
+          fi
           python3 scripts/run_cace_nd_bridge_smoke.py \
             "$work" config/examples/portal_p2_boundary_null.crl -o "$out"
           cat "$out"
