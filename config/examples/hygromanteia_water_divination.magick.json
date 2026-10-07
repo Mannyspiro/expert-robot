@@ -292,5 +292,33 @@
     "independent_labs": 0,
     "known_physics_excluded": false,
     "notes": "Historical protocol encoded as a null-bench candidate; no anomalous physical effect is asserted."
-  }
+  },
+  "symbols": {
+    "tokens": [
+      {
+        "id": "invocation-token-sequence",
+        "kind": "phrase",
+        "text": "historical invocation token sequence",
+        "semantic_role": "instruction",
+        "language": null,
+        "diplomatic_form": null,
+        "normalized_form": null,
+        "position_ref": null,
+        "order_index": 0,
+        "repetitions": 1,
+        "confidence": 0.5,
+        "provenance_ref": "critical-edition-water-divination-v1",
+        "notes": "Lexical content remains separate from the measured acoustic waveform."
+      }
+    ],
+    "relations": []
+  },
+  "unknown_channels": [
+    {
+      "id": "unmodeled-residual",
+      "description": "Any reproducible residual not accounted for by declared known-physics models.",
+      "measurement_policy": "residual_only",
+      "notes": "This field is not itself an explanation and cannot be used to label a result anomalous without certified bound exceedance and replication."
+    }
+  ]
 }
