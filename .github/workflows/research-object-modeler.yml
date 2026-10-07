@@ -1,0 +1,33 @@
+name: Research Object Modeler Tests
+
+on:
+  pull_request:
+    paths:
+      - "scripts/generate_research_object_candidates.py"
+      - "scripts/research_object_routing.py"
+      - "tests/research_object_modeler_smoke.py"
+      - "tests/research_object_modeler_v2_smoke.py"
+      - "config/examples/research_object_demo.json"
+      - ".github/workflows/research-object-modeler.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  modeler-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test geometry and obstacle-detour modeler
+        run: |
+          python3 tests/research_object_modeler_smoke.py
+          python3 tests/research_object_modeler_v2_smoke.py
+          python3 scripts/generate_research_object_candidates.py config/examples/research_object_demo.json -o /tmp/cace-modeler.json
+      - name: Publish modeler candidate record
+        uses: actions/upload-artifact@v4
+        with:
+          name: research-object-modeler-${{ github.run_id }}
+          path: /tmp/cace-modeler.json
+          retention-days: 14
