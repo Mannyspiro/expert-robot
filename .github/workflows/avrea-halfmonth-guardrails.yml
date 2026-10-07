@@ -1,0 +1,26 @@
+name: Avrea Half-Month Budget Guardrails
+
+on:
+  pull_request:
+    paths:
+      - "config/avrea_half_month_budget.json"
+      - "config/compute_policy.json"
+      - "scripts/check_avrea_halfmonth_budget.py"
+      - "tests/avrea_halfmonth_budget_smoke.py"
+      - "tests/avrea_workflow_guardrails_smoke.py"
+      - ".github/workflows/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test budget arithmetic and caps
+        run: python3 tests/avrea_halfmonth_budget_smoke.py
+      - name: Confirm every Avrea job is guarded
+        run: python3 tests/avrea_workflow_guardrails_smoke.py
