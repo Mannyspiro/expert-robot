@@ -104,7 +104,8 @@
     "holdout_mutable_by_candidate": false,
     "browser_content_untrusted": true,
     "model_changes_require_existing_scope_validator": true,
-    "auto_promotion_requires_independent_existing_qualification": true
+    "auto_promotion_requires_independent_existing_qualification": true,
+    "external_cace_repository_requires_separate_qualification": true
   },
   "candidate_routes": [
     {
@@ -113,7 +114,8 @@
       "diversity_group": "numerics",
       "title": "Sparse operator & solver kernel improvement",
       "target_paths": [
-        "cpp/src/research/strategy_planner.cpp"
+        "cace_studio/modules/fem_nd.py",
+        "cace_studio/modules/fem_cert.py"
       ],
       "test_suites": [
         "normal CI",
@@ -128,8 +130,9 @@
       "information_value": 0.8,
       "estimated_credits_per_run": 28,
       "formal_required": true,
-      "cace_contract": "Sparse Operator → Solver → Residual → Certificate",
-      "failure_feedback": "residual inflation, matrix assembly variance, memory and timing"
+      "cace_contract": "CACE P1/simplex assembly → sparse solver → residual/error certificate",
+      "failure_feedback": "residual inflation, matrix assembly variance, memory and timing",
+      "target_repository": "morganaspim/Cace-app"
     },
     {
       "id": "geometry-adaptive-refinement",
@@ -152,8 +155,9 @@
       "information_value": 0.95,
       "estimated_credits_per_run": 22,
       "formal_required": true,
-      "cace_contract": "Mesh → Error Estimator → Adaptive Refinement",
-      "failure_feedback": "counterexample geometry, bound mismatch, exact theorem assumptions"
+      "cace_contract": "Expert Robot Lean theorem → CACE FEM ND refinement adapter (cross-repository proof obligation)",
+      "failure_feedback": "counterexample geometry, bound mismatch, exact theorem assumptions",
+      "target_repository": "Mannyspiro/expert-robot"
     },
     {
       "id": "lean-lemma-factory",
@@ -179,7 +183,8 @@
       "estimated_credits_per_run": 24,
       "formal_required": true,
       "cace_contract": "Lemma Proposer → Lean Verifier",
-      "failure_feedback": "kernel errors, timeouts, failed tactics, dependency boundaries"
+      "failure_feedback": "kernel errors, timeouts, failed tactics, dependency boundaries",
+      "target_repository": "Mannyspiro/expert-robot"
     },
     {
       "id": "modeler-topology",
@@ -203,7 +208,8 @@
       "estimated_credits_per_run": 16,
       "formal_required": false,
       "cace_contract": "Geometry → Material → Solver → Certification",
-      "failure_feedback": "constraint violations, FEA displacement, disconnected designs"
+      "failure_feedback": "constraint violations, FEA displacement, disconnected designs",
+      "target_repository": "Mannyspiro/expert-robot"
     },
     {
       "id": "quantum-basis-scheduler",
@@ -228,7 +234,8 @@
       "estimated_credits_per_run": 32,
       "formal_required": false,
       "cace_contract": "Quantum Jobs → Provenance → Error/Model Agreement",
-      "failure_feedback": "SCF convergence, energy drift, missing worker attestation"
+      "failure_feedback": "SCF convergence, energy drift, missing worker attestation",
+      "target_repository": "Mannyspiro/expert-robot"
     },
     {
       "id": "browser-visual-acquisition",
@@ -252,7 +259,8 @@
       "estimated_credits_per_run": 12,
       "formal_required": false,
       "cace_contract": "Source → Screenshot → Candidate Locus → Independent Review",
-      "failure_feedback": "misread glyphs, incorrect image source, injection rejection"
+      "failure_feedback": "misread glyphs, incorrect image source, injection rejection",
+      "target_repository": "Mannyspiro/expert-robot"
     },
     {
       "id": "material-phase-screen",
@@ -276,7 +284,8 @@
       "estimated_credits_per_run": 40,
       "formal_required": false,
       "cace_contract": "Matter Graph → Property Model → Error/Cross-check",
-      "failure_feedback": "phase instability, unsound stability inference, identity mismatch"
+      "failure_feedback": "phase instability, unsound stability inference, identity mismatch",
+      "target_repository": "Mannyspiro/expert-robot"
     },
     {
       "id": "rsi-strategy-routing",
@@ -301,7 +310,8 @@
       "estimated_credits_per_run": 20,
       "formal_required": true,
       "cace_contract": "Route Planner → Verifier → Learning Archive",
-      "failure_feedback": "regressed goal completion, loops, wasted compute, guardrail violation"
+      "failure_feedback": "regressed goal completion, loops, wasted compute, guardrail violation",
+      "target_repository": "Mannyspiro/expert-robot"
     }
   ],
   "evidence_rules": {
@@ -312,6 +322,7 @@
     "never_execute_from_planner": true,
     "never_promote_from_planner": true,
     "max_parallel_experiment_vcpu": 16,
-    "max_total_vcpu": 30
+    "max_total_vcpu": 30,
+    "cross_repo_promotions_not_authorized": true
   }
 }
