@@ -122,6 +122,9 @@ jobs:
       - name: Symmetry reduction qualification guardrails
         run: python3 tests/symmetry_reduction_contract_smoke.py
 
+      - name: CRL symmetry orbit reducer guardrails
+        run: python3 tests/crl_symmetry_orbit_reducer_smoke.py
+
       - name: Experiment-inspired mathematics guardrails
         run: python3 tests/experiment_math_miner_smoke.py
 
