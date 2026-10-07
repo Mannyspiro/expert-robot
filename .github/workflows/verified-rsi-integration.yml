@@ -6,6 +6,8 @@ on:
       - "config/verified_rsi_integration_catalog.json"
       - "scripts/plan_verified_rsi.py"
       - "tests/verified_rsi_planner_smoke.py"
+      - "scripts/collect_verified_rsi_signals.py"
+      - "tests/verified_rsi_signals_smoke.py"
       - "docs/verified-rsi-integration.md"
       - ".github/workflows/verified-rsi-integration.yml"
   workflow_dispatch:
@@ -23,7 +25,9 @@ jobs:
         with:
           python-version: '3.12'
       - name: Test independent RSI planning and authority invariants
-        run: python3 tests/verified_rsi_planner_smoke.py
+        run: |
+          python3 tests/verified_rsi_planner_smoke.py
+          python3 tests/verified_rsi_signals_smoke.py
       - name: Prepare zero-spend RSI experiment ranking
         run: |
           mkdir -p rsi-artifacts
