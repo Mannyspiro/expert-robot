@@ -24,6 +24,15 @@ assert math.isclose(result["nearest_periodic_distance_angstrom"],
 assert result["readiness"]["unit_cell_geometry_screened"]
 assert result["readiness"]["production_release"] is False
 assert result["evidence_ceiling"]=="periodic_crystallographic_geometry_only_not_material_stability"
+graph=crystal.to_matter_graph(result)
+assert graph["schema_version"]=="0.1"
+assert graph["verification"]["geometry_validity"] is True
+assert graph["verification"]["chemistry_validity"] is False
+assert graph["verification"]["wet_lab_instructions_allowed"] is False
+assert len(graph["nodes"])==3
+assert len(graph["edges"])==2
+assert graph["nodes"][0]["unit_cell"]["lattice_vectors_angstrom"]==result["lattice_vectors_angstrom"]
+assert all(e["relation"]=="contains" for e in graph["edges"])
 cif=crystal.cif_text(result)
 assert "data_cace_crystal" in cif
 assert "_atom_site_fract_z" in cif
