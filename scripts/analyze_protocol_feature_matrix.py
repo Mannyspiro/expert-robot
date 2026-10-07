@@ -149,12 +149,22 @@ def feature_report(payload: dict[str, Any]) -> list[dict[str, Any]]:
                 "state_scores": state_scores,
             })
 
-        # Research priority, not truth probability:
-        # conserved + broad independent coverage + function-discriminating.
-        priority = conservation * coverage * (0.5 + 0.5 * best_function_signal)
+        # Research priority, not truth probability.
+        #
+        # A genuine protocol parameter may be globally variable precisely
+        # because its state changes with function. Therefore global
+        # conservation and function discrimination are complementary signals,
+        # not multiplicative prerequisites. Coverage still scales the total
+        # because sparse independent evidence should remain low priority.
+        priority = coverage * (
+            0.35 * conservation +
+            0.65 * best_function_signal
+        )
 
         if coverage < 0.34:
             classification = "INSUFFICIENT_INDEPENDENT_COVERAGE"
+        elif best_function_signal >= 0.75:
+            classification = "CANDIDATE_FUNCTION_CONDITIONED_PROTOCOL_PARAMETER"
         elif conservation >= 0.75 and best_function_signal >= 0.25:
             classification = "CANDIDATE_PROTOCOL_PARAMETER"
         elif conservation < 0.35 and best_function_signal < 0.15:
