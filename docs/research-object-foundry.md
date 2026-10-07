@@ -222,3 +222,69 @@ runner credits. The tests cover the former false-positive box-intersection
 bug and forced obstacle-avoiding detours, including rejection of impossible
 preserve points. Keeping the smoke workflow separate prevents unnecessary
 heavy CACE/Lean builds during rapid geometry iteration.
+
+
+## Implemented modeler v0.3 — solid and mechanics prototypes
+
+**Voxel solidification (validated approximation).**
+Run:
+
+```sh
+python3 scripts/solidify_research_object.py \
+  config/examples/research_object_demo.json \
+  --candidate ring \
+  -o candidate-watertight.obj \
+  --report candidate-solid-validation.json
+```
+
+The new code replaces unjoined overlapping cylinder previews with a single
+union-of-voxels surface, triangulated from exposed cube faces with welded
+integer-grid vertices. It independently validates six-connected occupied cells,
+oppositely oriented two-sided manifold edges, connected cycles around each
+surface vertex, positive signed volume matching voxel occupancy, preserved
+mounting-point inclusion, expanded obstacle/keep-out exclusion, and design-box
+inclusion. It emits a watertight approximate solid with a deterministic hash and
+voxel-derived volume/mass estimate; pitch is explicitly recorded. This is still
+a *faceted voxel proxy*, not curved exact CAD or a fabrication certificate.
+Insufficient resolution, surface nonmanifold topology, disconnected solids,
+obstacle intrusion, missing preserved points, or exceeded resource ceilings
+fail closed.
+
+**Load-dependent 2D pin-jointed structural analysis.**
+Run:
+
+```sh
+python3 scripts/evaluate_research_object_truss.py \
+  config/examples/research_object_demo.json \
+  config/examples/research_object_truss_load_case.json \
+  -o candidate-truss-analysis.json
+```
+
+Explicitly defined pin supports, XY nodal loads, Young's modulus, and assumed
+minimum strut diameter feed a small-displacement, 2D, linear axial-bar FEM.
+The solver assembles symmetric axial stiffness, rejects singular mechanisms,
+checks force equilibrium, and reports nodal displacements, axial stress/forces,
+strain energy, compliance and residual. Declared stress/displacement limits
+are evaluated rather than guessed. Eligible candidates receive a
+mass–compliance–axial-stress Pareto shortlist; singular or failing designs
+remain visible as rejections.
+
+**Do not conflate the two representations.** The truss solver evaluates the
+*centerline graph*, not a tetrahedral FEM of the voxelized solid. It cannot
+certify bending, buckling, 3D stability, load-bearing joints, continuum stress,
+real strength, or manufacture. In particular, the example's supports and
+100 N load are illustrative assumptions, not a validated bracket duty cycle.
+
+The dedicated GitHub-hosted workflow tests both paths and uploads:
+
+- `cace-modeler.json`: graph candidates;
+- `cace-modeler-preview.obj`: old overlapping-cylinder preview;
+- `cace-modeler-watertight.obj` and `cace-modeler-solid-report.json`:
+  independently checked voxel approximation;
+- `cace-modeler-truss-report.json`: structural proxy and rejected candidates.
+
+**Next qualification:** connect explicitly loaded geometry to a conforming
+solid/beam FEM representation in CACE, verify stress and displacement against
+an independent reference solve, run mesh-convergence and certified bounds, then
+consider material/geometry optimization promotion. Do not label this work
+"CACE-certified structural design" until those gates pass.
