@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "dimension": 2,
+  "vertices": [
+    [
+      0,
+      0
+    ],
+    [
+      1,
+      0
+    ],
+    [
+      0,
+      1
+    ]
+  ],
+  "elements": [
+    [
+      0,
+      1,
+      2
+    ]
+  ],
+  "source": 1,
+  "theta": 0.5,
+  "levels": 2,
+  "residual_tolerance": 1e-8
+}
