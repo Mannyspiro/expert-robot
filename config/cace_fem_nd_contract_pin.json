@@ -38,7 +38,8 @@
     {
       "name": "PoissonAssemblyND",
       "inputs": [
-        "mesh"
+        "mesh",
+        "space"
       ],
       "params": [
         "source"
