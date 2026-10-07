@@ -97,3 +97,12 @@ kernel-visible axiom dependencies for review.
 
 #check MathAI.Geometry.pointOn_xyCircleAtOrigin_quarterTurnZ
 #print axioms MathAI.Geometry.pointOn_xyCircleAtOrigin_quarterTurnZ
+
+#check MathAI.Geometry.squaredDistance_left_midpoint
+#print axioms MathAI.Geometry.squaredDistance_left_midpoint
+
+#check MathAI.Geometry.squaredDistance_midpoint_midpoint_shared
+#print axioms MathAI.Geometry.squaredDistance_midpoint_midpoint_shared
+
+#check MathAI.Geometry.midpoint_comm
+#print axioms MathAI.Geometry.midpoint_comm
