@@ -177,6 +177,7 @@ def new_ir() -> dict[str, Any]:
         "bindings": [],
         "energy_inputs": [],
         "processes": [],
+        "historical_loci": [],
     }
 
 
@@ -251,6 +252,23 @@ def parse(text: str, source_name: str = "<memory>") -> dict[str, Any]:
                 "provenance_status": required(kw, "provenance", ctx),
                 "independence_weight": float(kw.get("weight", "1")),
                 "visual_features_imputed": False,
+                "notes": kw.get("notes", ""),
+            })
+
+        elif op == "LOCUS":
+            if len(pos) != 1:
+                raise CRLError(f"{ctx}: LOCUS requires locus id")
+            witness_refs = required(kw, "witnesses", ctx).split(",")
+            ir["historical_loci"].append({
+                "id": pos[0],
+                "feature_class": required(kw, "feature", ctx),
+                "channel": required(kw, "channel", ctx),
+                "witness_refs": witness_refs,
+                "observed_state": required(kw, "state", ctx),
+                "confidence": float(kw.get("confidence", "1")),
+                "independence_group": required(kw, "group", ctx),
+                "evidence_status": kw.get("status", "observed"),
+                "experimental_target": kw.get("target"),
                 "notes": kw.get("notes", ""),
             })
 
