@@ -108,6 +108,13 @@ jobs:
           python3 tests/crl_parameter_sweep_smoke.py
           python3 tests/historical_locus_priority_smoke.py
           python3 tests/occult_experiment_packet_smoke.py
+          python3 tests/alchemy_experiment_packet_smoke.py
+
+      - name: CRL route and portal guardrails
+        run: |
+          python3 tests/portal_evidence_policy_smoke.py
+          python3 tests/portal_p2_packet_smoke.py
+          python3 tests/crl_research_router_smoke.py
 
       - name: Experiment-inspired mathematics guardrails
         run: python3 tests/experiment_math_miner_smoke.py
