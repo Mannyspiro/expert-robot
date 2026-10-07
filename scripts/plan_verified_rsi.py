@@ -195,8 +195,12 @@ def plan(catalog, scope, generation_policy, remaining_credits=0,
             0.47 * expected + 0.33 * information
             - 0.12 * risk - 0.08 * (cost / 100)
         )
+        target_repo = route.get("target_repository")
+        if target_repo not in ("Mannyspiro/expert-robot", "morganaspim/Cace-app"):
+            raise ValueError("RSI target repository not independently qualified")
         analyzed.append({
             "route_id": route["id"], "domain": route["domain"],
+            "target_repository": target_repo,
             "title": route["title"],
             "diversity_group": route["diversity_group"],
             "expected_gain": expected, "variance": variance,
@@ -208,8 +212,13 @@ def plan(catalog, scope, generation_policy, remaining_credits=0,
             "feedback_digest_sha256": feedback_digest,
             "empirical_gain_verified": False,
             "license_reuse": "ideas_only_no_upstream_code_copied",
-            "auto_scope_paths_plausible": legal_auto_scope(
-                route["target_paths"], scope),
+            "auto_scope_paths_plausible": (
+                target_repo == "Mannyspiro/expert-robot"
+                and legal_auto_scope(route["target_paths"], scope)
+            ),
+            "external_repository_qualification_required": (
+                target_repo != "Mannyspiro/expert-robot"
+            ),
             "candidate_target_paths": route["target_paths"],
             "evaluation_suites": route["test_suites"],
             "formal_required": route["formal_required"],
