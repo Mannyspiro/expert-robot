@@ -40,18 +40,20 @@ def main():
         SimplexMeshND,P1SimplexSpaceND,SimplexQuadratureND,
         PoissonAssemblyND,LinearSolverND,AlgebraicResidualND,
         ResidualEstimatorND,AdaptiveRefinement2D,
+        ConvergenceStudyND,FEMNDCertificate,
     )
     from cace_studio.modules.fem_cert import (
         CertifiedPoissonAssembly,IntervalAlgebraicResidual,
-        DiscreteEnergyErrorCertificate,
+        DiscreteEnergyErrorCertificate,EstimatorReliabilityGate,
     )
 
     classes={c.__name__:c for c in [
         SimplexMeshND,P1SimplexSpaceND,SimplexQuadratureND,
         PoissonAssemblyND,LinearSolverND,AlgebraicResidualND,
         ResidualEstimatorND,AdaptiveRefinement2D,
+        ConvergenceStudyND,FEMNDCertificate,
         CertifiedPoissonAssembly,IntervalAlgebraicResidual,
-        DiscreteEnergyErrorCertificate,
+        DiscreteEnergyErrorCertificate,EstimatorReliabilityGate,
     ]}
 
     ir=bridge.crl.parse(args.crl.read_text(encoding="utf-8"),str(args.crl))
@@ -87,10 +89,14 @@ def main():
 
     residual=store["residual"]["residual_inf"]
     cert=store["energy_cert"]["algebraic_error_certificate"]
+    nd_cert=store["nd_certificate"]["certificate_summary"]
+    reliability=store["reliability_gate"]["reliability_status"]
     report["summary"]={
         "residual_inf":residual,
         "energy_certificate_certified":bool(cert.get("certified",False)),
         "energy_error_upper":cert.get("energy_error_upper"),
+        "nd_certificate":nd_cert,
+        "continuum_reliability_status":reliability,
         "mesh_vertices":len(store["mesh"]["mesh"]["vertices"]),
         "mesh_elements":len(store["mesh"]["mesh"]["elements"]),
         "refined_vertices":len(store["refine"]["refined_mesh"]["vertices"]),
