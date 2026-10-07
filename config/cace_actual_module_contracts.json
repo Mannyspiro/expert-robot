@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "source_repository": "morganaspim/Cace-app",
+  "source_commit": "0e7aa229d3bb57174e281b883ee8af5445f15f75",
+  "routes": {
+    "nd_poisson_adaptive": [
+      {"module":"SimplexMeshND","file":"cace_studio/modules/fem_nd.py","inputs":[],"params":["vertices","elements"],"output":"mesh"},
+      {"module":"P1SimplexSpaceND","file":"cace_studio/modules/fem_nd.py","inputs":["mesh"],"params":[],"output":"space"},
+      {"module":"SimplexQuadratureND","file":"cace_studio/modules/fem_nd.py","inputs":["mesh"],"params":[],"output":"quadrature"},
+      {"module":"PoissonAssemblyND","file":"cace_studio/modules/fem_nd.py","inputs":["mesh"],"params":["source"],"output":"system"},
+      {"module":"LinearSolverND","file":"cace_studio/modules/fem_nd.py","inputs":["system"],"params":[],"output":"solution"},
+      {"module":"AlgebraicResidualND","file":"cace_studio/modules/fem_nd.py","inputs":["solution","system"],"params":[],"output":"residual_inf"},
+      {"module":"ResidualEstimatorND","file":"cace_studio/modules/fem_nd.py","inputs":["mesh","solution"],"params":["source"],"output":"estimator"},
+      {"module":"AdaptiveRefinement2D","file":"cace_studio/modules/fem_nd.py","inputs":["estimator","mesh"],"params":["theta"],"outputs":["marked","marked_edges","refined_mesh"]}
+    ],
+    "certified_algebraic": [
+      {"module":"CertifiedPoissonAssembly","file":"cace_studio/modules/fem_cert.py","inputs":["mesh"],"params":["diffusion","source_constant","source_linear"],"outputs":["problem","system"]},
+      {"module":"LinearSolverND","file":"cace_studio/modules/fem_nd.py","inputs":["system"],"params":[],"output":"solution"},
+      {"module":"IntervalAlgebraicResidual","file":"cace_studio/modules/fem_cert.py","inputs":["solution","system"],"params":[],"output":"residual_certificate"},
+      {"module":"DiscreteEnergyErrorCertificate","file":"cace_studio/modules/fem_cert.py","inputs":["residual_certificate","system"],"params":[],"output":"algebraic_error_certificate"}
+    ]
+  },
+  "notes": [
+    "This manifest is bound to the probed CACE commit.",
+    "Continuum reliability and final adaptive certificates require additional theorem/shape/history inputs and are not silently fabricated."
+  ]
+}
