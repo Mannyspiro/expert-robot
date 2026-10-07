@@ -41,9 +41,11 @@ def segment_intersects_box(a,b,lo,hi,clearance=0.0):
     for i in range(3):
         d=b[i]-a[i]
         if abs(d)<1e-15:
+            # Parallel to a slab: outside one axis excludes the box,
+            # inside this axis imposes no additional t constraint.
             if a[i]<lo[i] or a[i]>hi[i]:
-                continue
-            return True
+                return False
+            continue
         inv=1.0/d
         ta=(lo[i]-a[i])*inv
         tb=(hi[i]-a[i])*inv
