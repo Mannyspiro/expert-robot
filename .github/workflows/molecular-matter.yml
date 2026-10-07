@@ -41,7 +41,7 @@ jobs:
           mkdir -p molecule-artifacts
           python scripts/generate_molecular_matter.py --smiles CCO --id ethanol-demo --conformers 3 --seed 1729 --matter-graph molecule-artifacts/ethanol.matter.json --metadata molecule-artifacts/ethanol.metadata.json --molblock molecule-artifacts/ethanol.mol
       - name: Export a geometric crystal CIF example
-        run: python scripts/validate_crystal_matter.py config/examples/crystal_cscl_unit_cell.json --report molecule-artifacts/cscl-unit-cell-report.json --cif molecule-artifacts/cscl-unit-cell.cif
+        run: python scripts/validate_crystal_matter.py config/examples/crystal_cscl_unit_cell.json --report molecule-artifacts/cscl-unit-cell-report.json --cif molecule-artifacts/cscl-unit-cell.cif --matter-graph molecule-artifacts/cscl-unit-cell.matter.json
       - name: Produce non-production readiness report
         run: python scripts/evaluate_matter_readiness.py config/examples/matter_readiness_computational_only.json -o molecule-artifacts/ethanol-readiness.json
       - name: Upload computational molecular prototype
