@@ -1,0 +1,59 @@
+{
+  "schema_version": "0.1",
+  "object_id": "demo-four-interface-bracket",
+  "purpose": "Generate lightweight candidate load paths connecting four preserved interfaces while avoiding a central optical keep-out.",
+  "design_space": {
+    "coordinate_frame": "Cartesian xyz meters",
+    "bounds": {"min":[-0.1,-0.1,-0.02],"max":[0.1,0.1,0.02]},
+    "representation": "parametric",
+    "symmetry_constraints": ["mirror_xy_candidate"]
+  },
+  "geometry_catalog": {
+    "points": [
+      {"id":"p0","xyz_m":[-0.08,-0.08,0]},
+      {"id":"p1","xyz_m":[0.08,-0.08,0]},
+      {"id":"p2","xyz_m":[0.08,0.08,0]},
+      {"id":"p3","xyz_m":[-0.08,0.08,0]}
+    ],
+    "obstacle_boxes": [
+      {"id":"central_optical_keepout","min_xyz_m":[-0.025,-0.025,-0.03],"max_xyz_m":[0.025,0.025,0.03]}
+    ]
+  },
+  "preserve_geometry": [
+    {"id":"i0","geometry_ref":"p0","role":"mount interface","must_remain_exact":true},
+    {"id":"i1","geometry_ref":"p1","role":"mount interface","must_remain_exact":true},
+    {"id":"i2","geometry_ref":"p2","role":"mount interface","must_remain_exact":true},
+    {"id":"i3","geometry_ref":"p3","role":"mount interface","must_remain_exact":true}
+  ],
+  "obstacle_geometry": [
+    {"id":"o0","geometry_ref":"central_optical_keepout","clearance_m":0.005,"reason":"preserve optical path"}
+  ],
+  "materials": [
+    {"id":"mat0","model":"isotropic metal placeholder","density_kg_m3":2700,"youngs_modulus_pa":69000000000,"poisson_ratio":0.33,"thermal_conductivity_w_mk":null,"electrical_conductivity_s_m":null,"relative_permittivity":null,"relative_permeability":null,"provenance":"demo placeholder"}
+  ],
+  "physics": ["linear_elasticity"],
+  "objectives": [
+    {"metric":"mass_proxy","direction":"minimize","target":null,"weight":1.0}
+  ],
+  "constraints": {
+    "physical":["all preserved interfaces connected"],
+    "manufacturing":["minimum strut diameter to be imposed in solidification stage"],
+    "safety":[],
+    "minimum_feature_m":0.003,
+    "maximum_mass_kg":1.0
+  },
+  "generation": {
+    "methods":["parameter_sweep","evolutionary_search","quality_diversity"],
+    "population_limit":64,
+    "novelty_archive":true,
+    "seed_policy":"deterministic initial topology families",
+    "mutation_budget":16
+  },
+  "verification": {
+    "cace_pipeline":["exact geometry","mesh","operator","solver","residual","a-posteriori error","certificate"],
+    "interval_bound_required":true,
+    "holdout_required":true,
+    "fabrication_simulation_required":true,
+    "formal_properties":["preserve connectivity","obstacle exclusion"]
+  }
+}
