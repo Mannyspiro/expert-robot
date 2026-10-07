@@ -257,7 +257,8 @@ jobs:
               "fdtw_manifest_id":manifest_id,
               "manifest_url":manifest_url,
               "manifest_fetch_errors":errors,
-              "status":"MANIFEST_FETCH_FAILED" if manifest is None else "MANIFEST_FETCHED",\n              "manifest_tls_verification":False,
+              "status":"MANIFEST_FETCH_FAILED" if manifest is None else "MANIFEST_FETCHED",
+              "manifest_tls_verification":False,
           }
 
           def label_text(v):
