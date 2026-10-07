@@ -23,8 +23,27 @@ jobs:
           set -euo pipefail
           mkdir -p pair
           python3 - <<'PY'
-          import hashlib, io, json, pathlib, re, ssl, urllib.parse, urllib.request
-          from PIL import Image
+          import hashlib, json, pathlib, re, ssl, urllib.parse, urllib.request
+
+          def jpeg_size(data):
+              if not data.startswith(b"\\xff\\xd8"):
+                  return (0,0)
+              i=2
+              while i+9 < len(data):
+                  if data[i] != 0xFF:
+                      i += 1; continue
+                  marker=data[i+1]
+                  i += 2
+                  if marker in (0xD8,0xD9): continue
+                  if i+2>len(data): break
+                  seg=int.from_bytes(data[i:i+2],"big")
+                  if seg<2 or i+seg>len(data): break
+                  if marker in (0xC0,0xC1,0xC2,0xC3,0xC5,0xC6,0xC7,0xC9,0xCA,0xCB,0xCD,0xCE,0xCF):
+                      h=int.from_bytes(data[i+3:i+5],"big")
+                      w=int.from_bytes(data[i+5:i+7],"big")
+                      return (w,h)
+                  i += seg
+              return (0,0)
           root=pathlib.Path("pair")
           ctx=ssl._create_unverified_context()
           def fetch(url, timeout=120):
@@ -76,9 +95,9 @@ jobs:
               try:
                   bb,final,ct=fetch(u)
                   if len(bb)<10000: raise ValueError("too small")
-                  im=Image.open(io.BytesIO(bb))
-                  rec={"url":u,"final":final,"bytes":len(bb),"width":im.width,"height":im.height,"sha256":hashlib.sha256(bb).hexdigest()}
-                  if best is None or im.width*im.height>best["width"]*best["height"]:
+                  w,h=jpeg_size(bb)
+                  rec={"url":u,"final":final,"bytes":len(bb),"width":w,"height":h,"sha256":hashlib.sha256(bb).hexdigest()}
+                  if best is None or w*h>best["width"]*best["height"]:
                       best=rec|{"payload":bb}
               except Exception as e: errs.append({"url":u,"error":repr(e)})
           if not best: raise SystemExit("no Harley image")
@@ -115,9 +134,9 @@ jobs:
               try:
                   bb,final,ct=fetch(u,120)
                   if len(bb)<5000: raise ValueError(f"too small {len(bb)}")
-                  im=Image.open(io.BytesIO(bb))
-                  rec={"wayback_url":u,"original":d["original"],"timestamp":d["timestamp"],"bytes":len(bb),"width":im.width,"height":im.height,"sha256":hashlib.sha256(bb).hexdigest(),"payload":bb}
-                  if sloane is None or im.width*im.height>sloane["width"]*sloane["height"]:
+                  w,h=jpeg_size(bb)
+                  rec={"wayback_url":u,"original":d["original"],"timestamp":d["timestamp"],"bytes":len(bb),"width":w,"height":h,"sha256":hashlib.sha256(bb).hexdigest(),"payload":bb}
+                  if sloane is None or w*h>sloane["width"]*sloane["height"]:
                       sloane=rec
               except Exception as e:
                   attempts.append({"url":u,"error":repr(e)})
