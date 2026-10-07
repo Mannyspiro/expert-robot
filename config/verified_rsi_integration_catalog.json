@@ -1,0 +1,317 @@
+{
+  "schema_version": 1,
+  "program": "verified-cross-domain-rsi",
+  "release_mode": "plan_only",
+  "objective": "maximize independently verified improvement and information gain per two-vCPU-equivalent minute while preserving authority",
+  "sources": [
+    {
+      "name": "OpenEvolve",
+      "repo": "https://github.com/algorithmicsuperintelligence/openevolve",
+      "license": "Apache-2.0",
+      "reuse": "ideas_only",
+      "ideas": [
+        "evaluator-driven programs",
+        "archive and diversity"
+      ]
+    },
+    {
+      "name": "Darwin Godel Machine",
+      "repo": "https://github.com/jennyzzt/dgm",
+      "license": "Apache-2.0",
+      "reuse": "ideas_only",
+      "ideas": [
+        "stepping-stone archive",
+        "agent self-improvement as testable code changes"
+      ]
+    },
+    {
+      "name": "GEPA",
+      "repo": "https://github.com/gepa-ai/gepa",
+      "license": "MIT",
+      "reuse": "ideas_only",
+      "ideas": [
+        "natural-language failure feedback",
+        "Pareto candidate selection"
+      ]
+    },
+    {
+      "name": "DSPy",
+      "repo": "https://github.com/stanfordnlp/dspy",
+      "license": "MIT",
+      "reuse": "ideas_only",
+      "ideas": [
+        "modular learnable prompting",
+        "held-out evaluation"
+      ]
+    },
+    {
+      "name": "SWE-agent",
+      "repo": "https://github.com/SWE-agent/SWE-agent",
+      "license": "MIT",
+      "reuse": "ideas_only",
+      "ideas": [
+        "test-result-based repair",
+        "replayable software evaluation"
+      ]
+    },
+    {
+      "name": "OpenHands core",
+      "repo": "https://github.com/OpenHands/openhands",
+      "license": "MIT(core), separately licensed subtrees",
+      "reuse": "ideas_only",
+      "ideas": [
+        "isolated agent workspaces",
+        "bounded tools"
+      ]
+    },
+    {
+      "name": "AlphaEvolve",
+      "repo": "https://deepmind.google/blog/alphaevolve-a-gemini-powered-coding-agent-for-designing-advanced-algorithms/",
+      "license": "not asserted open source",
+      "reuse": "concept_only",
+      "ideas": [
+        "evaluator-guided algorithm discovery"
+      ]
+    },
+    {
+      "name": "Autoresearch",
+      "repo": "https://github.com/karpathy/autoresearch",
+      "license": "do_not_import_license_metadata_ambiguous",
+      "reuse": "concept_only",
+      "ideas": [
+        "fixed evaluation budget",
+        "immutable evaluator"
+      ]
+    }
+  ],
+  "verified_evaluator_boundary": {
+    "trusted_policy_files": [
+      "config/experiment_policy.json",
+      "config/auto_promotion_scope.json",
+      "config/math_discovery_policy.json",
+      "config/avrea_half_month_budget.json"
+    ],
+    "never_candidate_writable": [
+      ".github/",
+      "scripts/",
+      "tests/",
+      "config/collar_policy.json",
+      "config/compute_policy.json",
+      "config/experiment_policy.json"
+    ],
+    "enforce_existing_promotion_gates": true,
+    "candidate_strategy": "data_only until separate collared runtime qualifies",
+    "holdout_mutable_by_candidate": false,
+    "browser_content_untrusted": true,
+    "model_changes_require_existing_scope_validator": true,
+    "auto_promotion_requires_independent_existing_qualification": true
+  },
+  "candidate_routes": [
+    {
+      "id": "solver-sparse-operator",
+      "domain": "cace",
+      "diversity_group": "numerics",
+      "title": "Sparse operator & solver kernel improvement",
+      "target_paths": [
+        "cpp/src/research/strategy_planner.cpp"
+      ],
+      "test_suites": [
+        "normal CI",
+        "CACE operator residual/certificate agreement",
+        "blind PDE meshes",
+        "memory and runtime regression"
+      ],
+      "model": "OpenEvolve",
+      "expected_gain_prior": 0.15,
+      "variance_prior": 0.05,
+      "risk": 0.2,
+      "information_value": 0.8,
+      "estimated_credits_per_run": 28,
+      "formal_required": true,
+      "cace_contract": "Sparse Operator → Solver → Residual → Certificate",
+      "failure_feedback": "residual inflation, matrix assembly variance, memory and timing"
+    },
+    {
+      "id": "geometry-adaptive-refinement",
+      "domain": "cace",
+      "diversity_group": "numerics",
+      "title": "Refinement forecasting with proved geometry",
+      "target_paths": [
+        "formal/MathAI/Geometry/Refinement.lean"
+      ],
+      "test_suites": [
+        "pinned Lean audit",
+        "CACE ND mesh refinement counterexamples",
+        "independent FEM error bound",
+        "held-out mesh quality"
+      ],
+      "model": "AlphaEvolve + OpenEvolve",
+      "expected_gain_prior": 0.12,
+      "variance_prior": 0.04,
+      "risk": 0.15,
+      "information_value": 0.95,
+      "estimated_credits_per_run": 22,
+      "formal_required": true,
+      "cace_contract": "Mesh → Error Estimator → Adaptive Refinement",
+      "failure_feedback": "counterexample geometry, bound mismatch, exact theorem assumptions"
+    },
+    {
+      "id": "lean-lemma-factory",
+      "domain": "expert_robot",
+      "diversity_group": "proof",
+      "title": "Recursive Lean proof-search improvements",
+      "target_paths": [
+        "cpp/src/lemma_factory.cpp",
+        "cpp/src/proof_search.cpp",
+        "config/proof_search.json"
+      ],
+      "test_suites": [
+        "pinned Lean proof replay",
+        "theorem-name-stripped tasks",
+        "hidden hard-v2",
+        "axiom report"
+      ],
+      "model": "DGM + GEPA",
+      "expected_gain_prior": 0.16,
+      "variance_prior": 0.08,
+      "risk": 0.25,
+      "information_value": 0.9,
+      "estimated_credits_per_run": 24,
+      "formal_required": true,
+      "cace_contract": "Lemma Proposer → Lean Verifier",
+      "failure_feedback": "kernel errors, timeouts, failed tactics, dependency boundaries"
+    },
+    {
+      "id": "modeler-topology",
+      "domain": "expert_robot",
+      "diversity_group": "matter",
+      "title": "Topology design optimization by structural constraints",
+      "target_paths": [
+        "scripts/generate_research_object_candidates.py"
+      ],
+      "test_suites": [
+        "geometric keep-out tests",
+        "2D structural FEM",
+        "independent CACE continuum solve",
+        "held-out loading profiles"
+      ],
+      "model": "OpenEvolve + GEPA",
+      "expected_gain_prior": 0.17,
+      "variance_prior": 0.09,
+      "risk": 0.35,
+      "information_value": 0.75,
+      "estimated_credits_per_run": 16,
+      "formal_required": false,
+      "cace_contract": "Geometry → Material → Solver → Certification",
+      "failure_feedback": "constraint violations, FEA displacement, disconnected designs"
+    },
+    {
+      "id": "quantum-basis-scheduler",
+      "domain": "cace",
+      "diversity_group": "quantum",
+      "title": "Parallel quantum task scheduling & cross-model agreement",
+      "target_paths": [
+        "scripts/cace_quantum_cluster.py"
+      ],
+      "test_suites": [
+        "identical input graph hashes",
+        "serial RHF replay",
+        "basis-limit convergence",
+        "blind molecules",
+        "energy consistency"
+      ],
+      "model": "AlphaEvolve + autoresearch concept",
+      "expected_gain_prior": 0.1,
+      "variance_prior": 0.06,
+      "risk": 0.3,
+      "information_value": 0.8,
+      "estimated_credits_per_run": 32,
+      "formal_required": false,
+      "cace_contract": "Quantum Jobs → Provenance → Error/Model Agreement",
+      "failure_feedback": "SCF convergence, energy drift, missing worker attestation"
+    },
+    {
+      "id": "browser-visual-acquisition",
+      "domain": "expert_robot",
+      "diversity_group": "evidence",
+      "title": "Research browser source matching and screenshot grounding",
+      "target_paths": [
+        "scripts/cace_browser_vision.py"
+      ],
+      "test_suites": [
+        "fixture with injection attempts",
+        "screenshot provenance",
+        "independent folio matching",
+        "privacy/network policy"
+      ],
+      "model": "GEPA + SWE-agent",
+      "expected_gain_prior": 0.11,
+      "variance_prior": 0.07,
+      "risk": 0.4,
+      "information_value": 0.95,
+      "estimated_credits_per_run": 12,
+      "formal_required": false,
+      "cace_contract": "Source → Screenshot → Candidate Locus → Independent Review",
+      "failure_feedback": "misread glyphs, incorrect image source, injection rejection"
+    },
+    {
+      "id": "material-phase-screen",
+      "domain": "cace",
+      "diversity_group": "matter",
+      "title": "Crystal/molecule cross-model property screening",
+      "target_paths": [
+        "scripts/validate_crystal_matter.py"
+      ],
+      "test_suites": [
+        "structure identity",
+        "basis/force-field agreement",
+        "stability benchmark",
+        "external synthesis evidence"
+      ],
+      "model": "GEPA + OpenEvolve",
+      "expected_gain_prior": 0.1,
+      "variance_prior": 0.09,
+      "risk": 0.45,
+      "information_value": 0.8,
+      "estimated_credits_per_run": 40,
+      "formal_required": false,
+      "cace_contract": "Matter Graph → Property Model → Error/Cross-check",
+      "failure_feedback": "phase instability, unsound stability inference, identity mismatch"
+    },
+    {
+      "id": "rsi-strategy-routing",
+      "domain": "expert_robot",
+      "diversity_group": "agent",
+      "title": "Agent route planner performance under fixed authority",
+      "target_paths": [
+        "cpp/src/research/strategy_planner.cpp",
+        "cpp/src/research/route_planner.cpp"
+      ],
+      "test_suites": [
+        "hard math benchmark",
+        "collared subprocess replay",
+        "blind task nonregression",
+        "route memory invariants"
+      ],
+      "model": "DGM + SWE-agent",
+      "expected_gain_prior": 0.13,
+      "variance_prior": 0.06,
+      "risk": 0.2,
+      "information_value": 0.75,
+      "estimated_credits_per_run": 20,
+      "formal_required": true,
+      "cace_contract": "Route Planner → Verifier → Learning Archive",
+      "failure_feedback": "regressed goal completion, loops, wasted compute, guardrail violation"
+    }
+  ],
+  "evidence_rules": {
+    "no_measured_gain_claim_from_priors": true,
+    "required_source_hash_sha256": true,
+    "sealed_holdout_before_search": true,
+    "source_feedback_is_untrusted": true,
+    "never_execute_from_planner": true,
+    "never_promote_from_planner": true,
+    "max_parallel_experiment_vcpu": 16,
+    "max_total_vcpu": 30
+  }
+}
