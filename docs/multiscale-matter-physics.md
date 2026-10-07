@@ -176,3 +176,27 @@ requires independent thermodynamics/electronic-structure solvers with
 convergence controls; reliable predictions for targeted properties; applicable
 safety and intellectual-property review; externally performed laboratory
 characterization; and reproducible process/QC qualification.
+
+### Bounded quantum electronic-structure baseline (PySCF)
+
+The separate `scripts/evaluate_molecular_quantum.py` route consumes the typed,
+RDKit-sanitized molecular Matter Graph and computes a **restricted Hartree-Fock
+closed-shell** reference using STO-3G and 6-31G basis sets. Its scope is limited
+to neutral, even-electron single molecules with 2–16 explicit atoms, supported
+elements and recorded Ångström units. A failing SCF, unsupported electronic
+state, unknown unit, or invalid input is rejected. Output records SCF
+convergence, total Hartree energies, basis-function counts, graph hash,
+basis sensitivity and PySCF version.
+
+```sh
+python3 scripts/evaluate_molecular_quantum.py water.matter.json \
+  -o water-rhf-baseline.json
+```
+
+The `Molecular Quantum Baseline` GitHub-hosted workflow pins PySCF 2.14.0
+(Apache-2.0) and RDKit 2026.3.6 (BSD-3-Clause), tests a computational
+water model and uploads its inputs and results. It is not a proof of
+basis-set convergence, correlated electron energetics, equilibrium geometry,
+vibrational stability, chemical yield, synthesis feasibility, or thermodynamic
+stability. Real production still requires rigorous cross-model verification
+and independent measurement; no wet-lab operations are performed here.
