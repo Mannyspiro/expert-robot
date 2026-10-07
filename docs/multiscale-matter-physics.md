@@ -116,3 +116,63 @@ policy.
 
 Public NASA workflows may inspire abstractions, but restricted or NOSA-licensed
 software is not copied into the core.
+
+## Implemented computational matter modeler (October 2026)
+
+The initial matter graph is now executable for **bounded organic small
+molecules** and **periodic crystal geometry**, using the same existing
+`research_matter_graph.schema.json` representation.
+
+### Molecular candidate route (RDKit 2026.3.6, BSD-3-Clause)
+
+```sh
+python3 scripts/generate_molecular_matter.py --smiles CCO --id ethanol-demo \
+  --conformers 3 --seed 1729 \
+  --matter-graph ethanol.matter.json \
+  --metadata ethanol.metadata.json --molblock ethanol.mol
+```
+
+The routine sanitizes SMILES, limits chemical scope to a single connected
+organic molecule with at most 48 heavy atoms, rejects unassigned stereocenters,
+radicals, unsupported atoms, embedding failures and force-field unavailability.
+It generates reproducible ETKDGv3 candidate conformers, selects the lowest
+successful MMFF94/UFF local minimization, screens gross nonbonded overlaps,
+and checks exported MolBlock graph consistency. Reported energies are
+**approximate force-field energies, not quantum-mechanical free energies,
+synthesizability, or evidence of a stable chemical species**. Positions are
+in ångströms and are recorded with units and model provenance.
+
+### Crystal/unit-cell candidate route (stdlib)
+
+```sh
+python3 scripts/validate_crystal_matter.py \
+  config/examples/crystal_cscl_unit_cell.json \
+  --report cscl.geometry.json --cif cscl.geometry.cif \
+  --matter-graph cscl.matter.json
+```
+
+Checks right-handed/nonsingular lattice, finite in-cell fractional positions,
+distinct periodically equivalent sites, and obvious short-distance clashes in
+a bounded neighbor-image search. Exports an explicit **P1** crystal CIF and
+typed Matter Graph with a crystal cell containing atomic sites. The program
+does not infer a crystallographic space group or validate electronic,
+thermodynamic, phononic, or defect stability. Large/skewed cells, periodic
+bonding and serious atomistic simulation remain unimplemented.
+
+### Evidence and production status
+
+`config/matter_manufacturing_readiness_policy.json` and
+`scripts/evaluate_matter_readiness.py` enforce the distinction between
+computational designs, qualified property calculations, characterized lab
+samples, and repeatable production. They **never** authorize physical
+production: external evidence is not authenticated in this application,
+even when it looks complete. The source files produce no synthetic route,
+laboratory instructions or real atoms.
+
+The independent `Molecular Matter Modeler Tests` workflow uses a
+GitHub-hosted runner (no Avrea credits) to run the molecule, crystal and
+readiness tests, and produces portable model data. Future qualification
+requires independent thermodynamics/electronic-structure solvers with
+convergence controls; reliable predictions for targeted properties; applicable
+safety and intellectual-property review; externally performed laboratory
+characterization; and reproducible process/QC qualification.
