@@ -1,0 +1,44 @@
+name: Molecular Quantum Baseline
+
+on:
+  pull_request:
+    paths:
+      - "scripts/evaluate_molecular_quantum.py"
+      - "scripts/generate_molecular_matter.py"
+      - "tests/molecular_quantum_smoke.py"
+      - ".github/workflows/molecular-quantum-baseline.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  water-quantum:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      OPENBLAS_NUM_THREADS: '1'
+      MKL_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      PYSCF_MAX_MEMORY: '384'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned commercial-permissive quantum dependencies
+        run: python -m pip install --disable-pip-version-check --no-input rdkit==2026.3.6 pyscf==2.14.0
+      - name: Test water electronic-structure baseline
+        run: python tests/molecular_quantum_smoke.py
+      - name: Generate water quantum baseline artifact
+        run: |
+          mkdir -p quantum-artifacts
+          python scripts/generate_molecular_matter.py --smiles O --id water-quantum --conformers 2 --seed 1729 --matter-graph quantum-artifacts/water.matter.json --metadata quantum-artifacts/water.metadata.json --molblock quantum-artifacts/water.mol
+          python scripts/evaluate_molecular_quantum.py quantum-artifacts/water.matter.json -o quantum-artifacts/water-rhf-baseline.json
+      - name: Upload non-production quantum evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: molecular-quantum-${{ github.run_id }}
+          path: quantum-artifacts/
+          retention-days: 14
+          if-no-files-found: error
