@@ -79,7 +79,7 @@ def mesh_concentric_disks(radii, segments):
         "max_radial_chord_error":chord_error
     }
 
-def build(ir, segments=64, source=1.0, theta=0.5):
+def build(ir, segments=64, source=1.0, theta=0.5, levels=2, residual_tolerance=1e-10):
     radii=concentric_xy_radii(ir)
     mesh=mesh_concentric_disks(radii,segments)
     vertices=mesh["vertices"]
@@ -93,14 +93,17 @@ def build(ir, segments=64, source=1.0, theta=0.5):
       {"id":"solve","module":"LinearSolverND","params":{},"inputs":{"system":"assembly.system"}},
       {"id":"residual","module":"AlgebraicResidualND","params":{},"inputs":{"system":"assembly.system","solution":"solve.solution"}},
       {"id":"estimator","module":"ResidualEstimatorND","params":{"source":source},"inputs":{"mesh":"mesh.mesh","solution":"solve.solution"}},
-      {"id":"refine","module":"AdaptiveRefinement2D","params":{"theta":theta},"inputs":{"mesh":"mesh.mesh","estimator":"estimator.estimator"}}
+      {"id":"refine","module":"AdaptiveRefinement2D","params":{"theta":theta},"inputs":{"mesh":"mesh.mesh","estimator":"estimator.estimator"}},
+      {"id":"history","module":"ConvergenceStudyND","params":{"levels":levels,"source":source},"inputs":{"mesh":"mesh.mesh"}},
+      {"id":"nd_certificate","module":"FEMNDCertificate","params":{"residual_tolerance":residual_tolerance},"inputs":{"mesh":"mesh.mesh","residual_inf":"residual.residual_inf","estimator":"estimator.estimator","refined_mesh":"refine.refined_mesh","history":"history.history"}}
     ]
 
     cert_nodes=[
       {"id":"cert_assembly","module":"CertifiedPoissonAssembly","params":{"diffusion":[[1.0,0.0],[0.0,1.0]],"source_constant":source,"source_linear":[0.0,0.0]},"inputs":{"mesh":"mesh.mesh","space":"space.space"}},
       {"id":"cert_solve","module":"LinearSolverND","params":{},"inputs":{"system":"cert_assembly.system"}},
       {"id":"interval_residual","module":"IntervalAlgebraicResidual","params":{},"inputs":{"system":"cert_assembly.system","solution":"cert_solve.solution"}},
-      {"id":"energy_cert","module":"DiscreteEnergyErrorCertificate","params":{},"inputs":{"system":"cert_assembly.system","residual_certificate":"interval_residual.residual_certificate"}}
+      {"id":"energy_cert","module":"DiscreteEnergyErrorCertificate","params":{},"inputs":{"system":"cert_assembly.system","residual_certificate":"interval_residual.residual_certificate"}},
+      {"id":"reliability_gate","module":"EstimatorReliabilityGate","params":{"theorem_id":""},"inputs":{"problem":"cert_assembly.problem","estimator":"estimator.estimator"}}
     ]
 
     return {
@@ -108,6 +111,12 @@ def build(ir, segments=64, source=1.0, theta=0.5):
       "experiment_id":ir["experiment_id"],
       "cace_source_commit":"0e7aa229d3bb57174e281b883ee8af5445f15f75",
       "mesh":mesh,
+      "geometry_interpretation":{
+        "source_geometry":"concentric ritual boundary curves",
+        "mesh_semantics":"filled-disk surrogate domain",
+        "warning":"The present PDE mesh treats nested circles as a filled 2D domain. It is not yet a thin-line/material-boundary physical model.",
+        "max_radial_chord_error":mesh["max_radial_chord_error"]
+      },
       "routes":{
         "nd_poisson_adaptive":{"nodes":nd_nodes},
         "certified_algebraic":{"nodes":[nd_nodes[0],*cert_nodes]}
@@ -115,7 +124,7 @@ def build(ir, segments=64, source=1.0, theta=0.5):
       "unresolved_certification":[
         "continuum reliability theorem binding",
         "shape certificate",
-        "adaptive history certificate"
+        "thin-boundary/material interpretation of ritual circle lines"
       ],
       "epistemic_status":"cace_execution_plan_not_solver_result"
     }
