@@ -162,3 +162,63 @@ A generated object may advance only if it passes:
 9. provenance and dependency-license audit.
 
 A visually interesting mesh is not a research result.
+
+
+## Implemented modeler v0.2 (October 2026)
+
+The initial research object generator is now an executable deterministic
+Python (stdlib-only) geometry front end:
+
+```sh
+python3 scripts/generate_research_object_candidates.py \
+  config/examples/research_object_demo.json \
+  -o research_candidates.json
+
+python3 scripts/export_research_object_obj.py \
+  config/examples/research_object_demo.json \
+  -o candidate-preview.obj
+```
+
+### What it currently implements
+
+- Preserved 3D mounting/interface points, bounded design space.
+- Axis-aligned 3D keep-out boxes, including user clearance plus **half the
+  assumed strut diameter** to protect the centerline's cylindrical envelope.
+- Correct segment-vs-AABB intersection, including parallel-to-slab cases.
+- Candidate complete graphs, nearest trees, perimeter loops, centroid stars,
+  obstacle-aware routed trees and obstacle-aware routed loops.
+- Shortest-path detours using geometric obstacle corners and a deterministic
+  visibility network; geometric validity of every selected centerline checked.
+- Connectivity, boundary-exclusion and obstacle-exclusion checks.
+- Length, graph-edge redundancy (bridge count) and cylindrical volume/mass
+  **proxies**; approximate Pareto frontier for material use vs redundancy.
+- A triangulated capped-cylinder OBJ **preview**, with separate overlapping
+  cylinders at junctions.
+
+### Not yet implemented
+
+The OBJ preview is **not watertight joined CAD**, and is not a manufacturable
+solid. A centerline/approximate-cylinder check does not replace solid boolean
+operations, junction stress analysis, geometric tolerances, collision checks
+for actual fabrication, FEA, or a certified load-dependent error bound.
+
+The next implementation milestones, in order, are:
+
+1. Solidification with exact or audited manifold geometry; verify joint and
+   design-boundary clearances on the solid, not only on centerlines.
+2. Supports, load cases, material parameter provenance, realistic beam/
+   elasticity solve, and meaningful stress/displacement/volume measurements.
+3. CACE adaptive mesh and certified error/bound route, with fail-closed
+   fallback when a continuum certificate is unavailable.
+4. Multiobjective search beyond seed families, holdout testing, ablation, and
+   novelty archive; only certified candidates advance into fabrication review.
+
+### Validation
+
+A separate lightweight GitHub-hosted workflow
+`.github/workflows/research-object-modeler.yml` runs regression tests
+and uploads both the JSON candidates and OBJ preview without consuming Avrea
+runner credits. The tests cover the former false-positive box-intersection
+bug and forced obstacle-avoiding detours, including rejection of impossible
+preserve points. Keeping the smoke workflow separate prevents unnecessary
+heavy CACE/Lean builds during rapid geometry iteration.
