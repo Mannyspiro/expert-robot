@@ -229,24 +229,31 @@ jobs:
 
           root=pathlib.Path("acquisition")
           manifest_id="18f7a473-2f92-47bc-b12f-25bf523da90c"
-          candidates=[
+          manifest_candidates=[
               f"https://ifilosofia.up.pt/proj/fdtw/iiif/fdtw/iiif/manifest/{manifest_id}",
               f"https://ifilosofia.up.pt/proj/fdtw/iiif/manifest/{manifest_id}",
               f"https://ifilosofia.up.pt/proj/fdtw/manifest/{manifest_id}",
           ]
+          insecure_ctx=ssl._create_unverified_context()
+
+          def fetch(url, accept="*/*", insecure=False):
+              req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0","Accept":accept})
+              kwargs={"timeout":120}
+              if insecure:
+                  kwargs["context"]=insecure_ctx
+              with urllib.request.urlopen(req,**kwargs) as r:
+                  return r.read(), r.headers.get("Content-Type","")
 
           manifest=None
           manifest_url=None
           errors=[]
-          for url in candidates:
+          for url in manifest_candidates:
               try:
-                  req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0","Accept":"application/json,application/ld+json,*/*"})
-                  with urllib.request.urlopen(req,timeout=120) as r:
-                      raw=r.read()
-                      ctype=r.headers.get("Content-Type","")
+                  raw,ctype=fetch(url,"application/json,application/ld+json,*/*",insecure=True)
                   obj=json.loads(raw.decode("utf-8"))
                   if isinstance(obj,dict):
-                      manifest=obj; manifest_url=url
+                      manifest=obj
+                      manifest_url=url
                       (root/"egerton845_f21r_manifest.json").write_bytes(raw)
                       break
               except Exception as e:
@@ -257,8 +264,9 @@ jobs:
               "fdtw_manifest_id":manifest_id,
               "manifest_url":manifest_url,
               "manifest_fetch_errors":errors,
-              "status":"MANIFEST_FETCH_FAILED" if manifest is None else "MANIFEST_FETCHED",
               "manifest_tls_verification":False,
+              "evidence_tier":"scholarly_aggregator_comparison_only",
+              "status":"MANIFEST_FETCH_FAILED" if manifest is None else "MANIFEST_FETCHED",
           }
 
           def label_text(v):
@@ -283,13 +291,11 @@ jobs:
               canvases=manifest.get("items") or ((manifest.get("sequences") or [{}])[0].get("canvases") or [])
               result["manifest_label"]=label_text(manifest.get("label"))
               result["canvas_count"]=len(canvases)
-              rows=[]
-              for i,c in enumerate(canvases):
-                  rows.append({"index":i,"label":label_text(c.get("label")),"id":c.get("id") or c.get("@id") or ""})
+              rows=[{"index":i,"label":label_text(x.get("label")),"id":x.get("id") or x.get("@id") or ""} for i,x in enumerate(canvases)]
               result["canvases"]=rows
 
-              exact=[(i,c,label_text(c.get("label"))) for i,c in enumerate(canvases)
-                     if re.search(r"(?i)(?:^|\b)(?:f(?:ol(?:io)?)?\.?\s*)?21\s*r(?:\b|$)",label_text(c.get("label")))]
+              exact=[(i,x,label_text(x.get("label"))) for i,x in enumerate(canvases)
+                     if re.search(r"(?i)(?:^|\\b)(?:f(?:ol(?:io)?)?\\.?\\s*)?21\\s*r(?:\\b|$)",label_text(x.get("label")))]
               if len(exact)==1:
                   i,canvas,lab=exact[0]
               elif len(canvases)==1:
@@ -319,23 +325,21 @@ jobs:
                           if fmt.startswith("image/") and not oid.endswith("/info.json"):
                               direct.append(oid)
                   services=list(dict.fromkeys(services))
-                  services.sort(key=lambda s:("thumb" in s.lower(),s))
                   direct=list(dict.fromkeys(direct))
                   result["image_services"]=services
                   result["direct_image_ids"]=direct
-                  image_candidates=[]
+
+                  urls=[]
                   for sid in services:
-                      image_candidates += [sid+"/full/max/0/default.jpg",sid+"/full/full/0/default.jpg",sid+"/full/3000,/0/default.jpg"]
-                  image_candidates += direct
-                  image_candidates=list(dict.fromkeys(image_candidates))
+                      urls += [sid+"/full/max/0/default.jpg",sid+"/full/full/0/default.jpg",sid+"/full/3000,/0/default.jpg"]
+                  urls += direct
+                  urls=list(dict.fromkeys(urls))
                   best=None
                   image_errors=[]
-                  for url in image_candidates:
+                  for url in urls:
                       try:
-                          req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0","Accept":"image/*"})
-                          with urllib.request.urlopen(req,timeout=120) as r:
-                              payload=r.read()
-                              ctype=r.headers.get("Content-Type","")
+                          insecure=("ifilosofia.up.pt" in url)
+                          payload,ctype=fetch(url,"image/*",insecure=insecure)
                           if len(payload)<10000 or not ctype.lower().startswith("image/"):
                               image_errors.append({"url":url,"error":f"unexpected {ctype} bytes={len(payload)}"})
                               continue
