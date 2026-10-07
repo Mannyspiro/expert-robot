@@ -6,7 +6,7 @@ input/param/output key references, and literal return keys.
 """
 
 from __future__ import annotations
-import argparse, ast, json
+import argparse, ast, json, subprocess
 from pathlib import Path
 
 TARGET_FILES = [
@@ -88,6 +88,13 @@ def analyze_class(node: ast.ClassDef):
     }
 
 def extract(root: Path):
+    try:
+        commit = subprocess.check_output(
+            ["git", "-C", str(root), "rev-parse", "HEAD"],
+            text=True,
+        ).strip()
+    except Exception:
+        commit = None
     files = []
     for rel in TARGET_FILES:
         path = root / rel
@@ -99,7 +106,13 @@ def extract(root: Path):
             if isinstance(node, ast.ClassDef) and node.name in INTEREST:
                 classes.append(analyze_class(node))
         files.append({"path": rel, "classes": classes})
-    return {"schema_version": 1, "files": files, "remote_mutated": False}
+    return {
+        "schema_version": 1,
+        "repository": "morganaspim/Cace-app",
+        "commit": commit,
+        "files": files,
+        "remote_mutated": False,
+    }
 
 def main():
     p = argparse.ArgumentParser()
