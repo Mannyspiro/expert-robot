@@ -1084,6 +1084,89 @@
           }
         }
       }
+    },
+    "historical_loci": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "feature_class",
+          "channel",
+          "witness_refs",
+          "observed_state",
+          "confidence",
+          "independence_group",
+          "evidence_status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "feature_class": {
+            "enum": [
+              "topology",
+              "geometry_metric",
+              "symbol_identity",
+              "symbol_order",
+              "material",
+              "orientation",
+              "timing",
+              "process",
+              "scribal_error",
+              "other"
+            ]
+          },
+          "channel": {
+            "enum": [
+              "visual",
+              "textual",
+              "codicological",
+              "material",
+              "combined"
+            ]
+          },
+          "witness_refs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          },
+          "observed_state": {
+            "type": "string"
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "independence_group": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence_status": {
+            "enum": [
+              "observed",
+              "inferred",
+              "disputed",
+              "missing",
+              "exclusion"
+            ]
+          },
+          "experimental_target": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
     }
   }
 }
