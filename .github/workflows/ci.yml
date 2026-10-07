@@ -105,6 +105,11 @@ jobs:
           python3 tests/avrea_halfmonth_budget_smoke.py
           python3 tests/avrea_workflow_guardrails_smoke.py
 
+      - name: Runner checkpoint and queue scope guardrails
+        run: |
+          python3 tests/research_ci_queue_smoke.py
+          python3 tests/research_checkpoint_smoke.py
+
       - name: Known failure regression guardrails
         run: python3 tests/known_failure_regression_smoke.py
 
@@ -219,4 +224,22 @@ jobs:
         with:
           path: ~/.cache/ccache
           key: ccache-v1-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
+
+      - name: Save research checkpoint on existing runner
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          VALIDATION_OUTCOME: ${{ job.status }}
+        run: |
+          python3 scripts/checkpoint_research_state.py --head-sha "$TARGET_HEAD_SHA" --state-dir runner-state --outcome "$VALIDATION_OUTCOME"
+
+      - name: Retain research checkpoint without a notes commit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: research-runner-state-${{ github.run_id }}
+          path: runner-state/
+          retention-days: 30
+          if-no-files-found: error
 

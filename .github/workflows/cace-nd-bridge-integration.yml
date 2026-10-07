@@ -15,6 +15,10 @@ permissions:
   actions: read
   contents: read
 
+concurrency:
+  group: nd-bridge-${{ github.event.pull_request.head.ref || github.ref_name }}
+  cancel-in-progress: true
+
 jobs:
   integration:
     runs-on: avrea-ubuntu-latest-8-vcpu
@@ -111,3 +115,4 @@ jobs:
         run: |
           if [ -n "${SSH_AGENT_PID:-}" ]; then ssh-agent -k >/dev/null 2>&1 || true; fi
           rm -f "$RUNNER_TEMP/cace_repo_key"
+
