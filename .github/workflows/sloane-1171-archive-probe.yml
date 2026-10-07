@@ -129,6 +129,48 @@ jobs:
           (root/"sloane1171_archive_audit.json").write_text(json.dumps(audit,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
           print(json.dumps(audit,indent=2,ensure_ascii=False))
           PY
+      - name: Probe neighboring legacy illustration IDs without inference
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, json, pathlib, re, ssl, urllib.request
+          root=pathlib.Path("sloane_probe")
+          ctx=ssl._create_unverified_context()
+          ts="20130821205635"
+          out={"policy":"Neighbor IDs are discovery candidates only. Promote only when archived BL metadata explicitly says Sloane 1171 and f.120/f.120r.","candidates":[]}
+
+          def fetch(url):
+              req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0 (research metadata audit)"})
+              with urllib.request.urlopen(req,timeout=60,context=ctx) as r:
+                  return r.read(),r.geturl(),r.headers.get("Content-Type","")
+
+          for illid in range(16254,16265):
+              orig=f"http://www.bl.uk/catalogues/illuminatedmanuscripts/ILLUMIN.ASP?Size=mid&IllID={illid}"
+              url=f"https://web.archive.org/web/{ts}id_/{orig}"
+              rec={"illid":illid,"wayback_url":url}
+              try:
+                  b,final,ctype=fetch(url)
+                  txt=b.decode("utf-8","replace")
+                  if txt.count("\ufffd")>20: txt=b.decode("latin-1","replace")
+                  fn=f"illid_{illid}.html"; (root/fn).write_bytes(b)
+                  plain=re.sub(r'<[^>]+>',' ',txt)
+                  plain=re.sub(r'\s+',' ',plain)
+                  contexts=[]
+                  for pat in [r'.{0,220}Sloane.{0,220}',r'.{0,220}1171.{0,220}',r'.{0,220}f\.\s*120(?:r|v)?\b.{0,220}',r'.{0,220}K1501\d+.{0,220}']:
+                      contexts += [x.strip() for x in re.findall(pat,txt,re.I|re.S)]
+                  imgs=sorted(set(re.findall(r'(?i)(?:src|href)\s*=\s*["\']([^"\']+\.(?:jpg|jpeg|png)(?:\?[^"\']*)?)',txt)))
+                  rec.update({"status":"fetched","final_url":final,"bytes":len(b),"sha256":hashlib.sha256(b).hexdigest(),"file":fn,
+                              "contexts":[re.sub(r'\s+',' ',x).strip() for x in contexts[:50]],"image_refs":imgs[:100],
+                              "explicit_sloane1171":bool(re.search(r'Sloane.{0,80}1171|1171.{0,80}Sloane',plain,re.I)),
+                              "explicit_f120":bool(re.search(r'f\.\s*120(?:r)?\b',plain,re.I)),
+                              "explicit_f120v":bool(re.search(r'f\.\s*120v\b',plain,re.I))})
+              except Exception as e:
+                  rec.update({"status":"failed","error":repr(e)})
+              out["candidates"].append(rec)
+          (root/"sloane1171_neighbor_illid_audit.json").write_text(json.dumps(out,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
+          print(json.dumps(out,indent=2,ensure_ascii=False))
+          PY
       - name: Upload audit
         if: always()
         uses: actions/upload-artifact@v4
