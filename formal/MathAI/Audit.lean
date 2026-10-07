@@ -91,3 +91,9 @@ kernel-visible axiom dependencies for review.
 
 #check MathAI.Geometry.cross_orthogonal_right
 #print axioms MathAI.Geometry.cross_orthogonal_right
+
+#check MathAI.Geometry.squaredDistance_origin_quarterTurnZ
+#print axioms MathAI.Geometry.squaredDistance_origin_quarterTurnZ
+
+#check MathAI.Geometry.pointOn_xyCircleAtOrigin_quarterTurnZ
+#print axioms MathAI.Geometry.pointOn_xyCircleAtOrigin_quarterTurnZ
