@@ -149,6 +149,59 @@ def validate(payload):
     return result
 
 
+def to_matter_graph(result):
+    """Lower screened periodic unit cell to existing CACE Matter Graph v0.1."""
+    nodes=[{
+        "id":"unit-cell",
+        "kind":"crystal_unit_cell",
+        "unit_cell":{
+            "lattice_vectors_angstrom":result["lattice_vectors_angstrom"],
+            "space_group_export_only":"P 1",
+            "cell_volume_angstrom3":result["cell_volume_angstrom3"],
+        },
+        "metadata":{
+            "geometry_screened":True,
+            "electronic_structure_verified":False,
+            "thermodynamic_stability_verified":False,
+        },
+    }]
+    edges=[]
+    for i,site in enumerate(result["sites"]):
+        nid=f"atom-{i}"
+        nodes.append({
+            "id":nid,
+            "kind":"atom",
+            "element":site["element"],
+            "position":[f"{x:.9f}" for x in site["cartesian_position_angstrom"]],
+            "metadata":{
+                "fractional_position":site["fractional_position"],
+                "position_unit":"angstrom",
+                "periodic_image":"reference_cell",
+            },
+        })
+        edges.append({"source":"unit-cell","target":nid,"relation":"contains"})
+    return {
+        "schema_version":"0.1",
+        "matter_id":result["crystal_id"],
+        "description":"P1 geometric periodic unit cell; no stability or synthesis claim",
+        "nodes":nodes,
+        "edges":edges,
+        "scales":["atomic","unit_cell"],
+        "verification":{
+            "chemistry_validity":False,
+            "geometry_validity":True,
+            "physics_models":[],
+            "provenance_required":True,
+            "formal_constraints":[
+                "finite nonsingular right-handed lattice",
+                "periodic site non-overlap within bounded 27-cell neighbor search",
+                "not electronic/phonon/thermodynamic certification",
+            ],
+            "wet_lab_instructions_allowed":False,
+        },
+    }
+
+
 def cif_text(result):
     a,b,c=result["cell_lengths_angstrom"]
     alpha,beta,gamma=result["cell_angles_degrees"]
@@ -183,6 +236,7 @@ def main():
     p.add_argument("input",type=Path)
     p.add_argument("--report",type=Path,required=True)
     p.add_argument("--cif",type=Path,required=True)
+    p.add_argument("--matter-graph",type=Path)
     args=p.parse_args()
     result=validate(json.loads(args.input.read_text(encoding="utf-8")))
     cif=cif_text(result)
@@ -190,6 +244,8 @@ def main():
     args.report.write_text(json.dumps(result,indent=2,sort_keys=True)+"\n",
                            encoding="utf-8")
     args.cif.write_text(cif,encoding="utf-8")
+    if args.matter_graph:
+        args.matter_graph.write_text(json.dumps(to_matter_graph(result),indent=2,sort_keys=True)+"\n",encoding="utf-8")
     print(json.dumps({k:v for k,v in result.items()
                       if k in ("crystal_id","formula_per_listed_unit_cell",
                                "cell_volume_angstrom3","evidence_ceiling",
