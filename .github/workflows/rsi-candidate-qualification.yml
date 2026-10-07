@@ -22,9 +22,6 @@ permissions:
 jobs:
   qualify:
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
-    concurrency:
-      group: expert-robot-avrea-rsi-promotion-v2
-      cancel-in-progress: false
     runs-on: avrea-ubuntu-latest-8-vcpu
     concurrency:
       group: expert-robot-avrea-half-month-slot
@@ -168,9 +165,6 @@ jobs:
 
   decide:
     needs: qualify
-    concurrency:
-      group: expert-robot-avrea-rsi-promotion-v2
-      cancel-in-progress: false
     runs-on: avrea-ubuntu-latest-8-vcpu
     concurrency:
       group: expert-robot-avrea-half-month-slot
