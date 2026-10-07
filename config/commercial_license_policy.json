@@ -72,6 +72,13 @@
       "role": "NASA integrated aero-thermodynamic analysis reference",
       "license": "NASA release/licensing restrictions",
       "status": "reference_only"
+    },
+    {
+      "name": "RDKit",
+      "role": "bounded cheminformatics sanitization, small-molecule conformer search, graph/MolBlock export",
+      "license": "BSD-3-Clause",
+      "status": "implemented_modeler_component_subject_to_transitive_dependency_audit",
+      "pinned_version": "2026.3.6"
     }
   ]
 }
