@@ -439,6 +439,51 @@
       "uses": [
         "MathAI.Geometry.squaredDistance_origin_quarterTurnZ"
       ]
+    },
+    {
+      "name": "MathAI.Geometry.squaredDistance_left_midpoint",
+      "source": "MathAI/Geometry/Refinement.lean",
+      "status": "verified",
+      "statement": "The squared distance from an endpoint to the exact midpoint of an edge is one quarter of the parent squared edge distance.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "midpoint",
+        "refinement",
+        "distance",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.squaredDistance_midpoint_midpoint_shared",
+      "source": "MathAI/Geometry/Refinement.lean",
+      "status": "verified",
+      "statement": "For two edges sharing a vertex, the squared distance between their exact midpoints is one quarter of the squared distance between the opposite endpoints.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "midpoint",
+        "triangle",
+        "refinement",
+        "distance",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.midpoint_comm",
+      "source": "MathAI/Geometry/Refinement.lean",
+      "status": "verified",
+      "statement": "Exact rational midpoint is symmetric in its endpoints.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "midpoint",
+        "symmetry",
+        "lean_verified"
+      ],
+      "uses": []
     }
   ]
 }
