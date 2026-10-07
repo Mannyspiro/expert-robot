@@ -1,0 +1,112 @@
+name: Nonmuseum Sloane f120r Probe
+
+on:
+  push:
+    branches: ["research/bl-facsimile-acquisition"]
+    paths: [".github/workflows/nonmuseum-sloane-f120r-probe.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch non-museum candidate pages and images
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p probe/images
+          python3 - <<'PY'
+          import json, re, ssl, pathlib, urllib.request, urllib.parse, hashlib, html
+          from urllib.parse import urljoin
+
+          out=pathlib.Path("probe")
+          ctx=ssl._create_unverified_context()
+          UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/129 Safari/537.36"
+
+          pages=[
+            ("tarotforum","https://tarotforum.net/threads/a-15th-century-alchemical-image-which-includes-4-tdm-atouts-all-in-one.223881/"),
+            ("tumgik","https://www.tumgik.com/tag/spiritus%20corpus%20anima"),
+            ("1010","https://www.1010.co.uk/org/dissolutions.html"),
+          ]
+
+          def fetch(url, accept="*/*", timeout=60):
+              req=urllib.request.Request(url,headers={"User-Agent":UA,"Accept":accept,"Accept-Language":"en-US,en;q=0.9"})
+              with urllib.request.urlopen(req,context=ctx,timeout=timeout) as r:
+                  return r.read(),r.geturl(),r.headers.get("Content-Type","")
+
+          report={"policy":"Non-contact web discovery. Candidate f.120r only if source context identifies Sloane 1171 AND imagery matches Harley f.16v locus; no recto/verso inference from image order.","pages":[],"images":[]}
+          image_urls=[]
+
+          for name,url in pages:
+              rec={"name":name,"url":url}
+              try:
+                  b,final,ctype=fetch(url,"text/html,*/*")
+                  txt=b.decode("utf-8","replace")
+                  (out/f"{name}.html").write_text(txt,encoding="utf-8")
+                  rec.update({"status":"fetched","final_url":final,"bytes":len(b),"content_type":ctype,"sha256":hashlib.sha256(b).hexdigest()})
+                  # Extract all likely image-bearing attrs, retaining nearby context.
+                  attrs=[]
+                  for m in re.finditer(r'''(?is)(?:src|data-src|data-url|data-original|href)\s*=\s*["']([^"']+)["']''',txt):
+                      raw=html.unescape(m.group(1))
+                      if re.search(r'\.(?:jpe?g|png|webp|gif)(?:\?|$)',raw,re.I) or "attachment" in raw.lower():
+                          absu=urljoin(final,raw)
+                          nearby=re.sub(r"<[^>]+>"," ",txt[max(0,m.start()-800):min(len(txt),m.end()+800)])
+                          nearby=re.sub(r"\s+"," ",html.unescape(nearby)).strip()
+                          attrs.append({"url":absu,"context":nearby[:1600]})
+                          image_urls.append((name,absu,nearby))
+                  rec["candidate_image_attrs"]=attrs
+                  # Search exact key contexts.
+                  for needle in ["from Sloane 1171 in BL","Sloane 1171","Spiritus","Corpus","Anima","Later copies"]:
+                      pos=txt.lower().find(needle.lower())
+                      if pos>=0:
+                          snip=re.sub(r"<[^>]+>"," ",txt[max(0,pos-1800):min(len(txt),pos+3500)])
+                          rec.setdefault("contexts",{})[needle]=re.sub(r"\s+"," ",html.unescape(snip)).strip()
+              except Exception as e:
+                  rec.update({"status":"failed","error":repr(e)})
+              report["pages"].append(rec)
+
+          # Deduplicate and fetch reasonably sized images.
+          seen=set()
+          idx=0
+          for source,u,nearby in image_urls:
+              if u in seen: continue
+              seen.add(u)
+              # Filter site chrome aggressively but preserve attachment/post-image URLs.
+              low=u.lower()
+              if any(x in low for x in ["avatar","emoji","smilie","logo","favicon","sprite","icon"]): continue
+              rec={"source":source,"url":u,"context":nearby[:1200]}
+              try:
+                  b,final,ctype=fetch(u,"image/*,*/*",90)
+                  rec.update({"status":"fetched","final_url":final,"bytes":len(b),"content_type":ctype,"sha256":hashlib.sha256(b).hexdigest()})
+                  if len(b)>=15000 and (("image" in ctype.lower()) or b[:2]==b"\xff\xd8" or b.startswith(b"\x89PNG") or b[:4]==b"RIFF"):
+                      ext=".jpg"
+                      if b.startswith(b"\x89PNG"): ext=".png"
+                      elif b[:4]==b"RIFF": ext=".webp"
+                      fn=f"images/{idx:03d}_{source}{ext}"
+                      (out/fn).write_bytes(b)
+                      rec["file"]=fn
+                      idx+=1
+              except Exception as e:
+                  rec.update({"status":"failed","error":repr(e)})
+              report["images"].append(rec)
+
+          (out/"report.json").write_text(json.dumps(report,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
+          print(json.dumps({
+              "pages":[{k:v for k,v in r.items() if k not in ("candidate_image_attrs","contexts")} for r in report["pages"]],
+              "downloaded_images":[r for r in report["images"] if r.get("file")],
+              "image_count":idx
+          },indent=2,ensure_ascii=False))
+          PY
+      - name: Upload probe
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nonmuseum-sloane-f120r-${{ github.run_id }}
+          path: probe/
+          if-no-files-found: error
+          retention-days: 14
