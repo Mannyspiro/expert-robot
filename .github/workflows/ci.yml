@@ -16,13 +16,26 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref_name }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  actions: read
+
 jobs:
   build-and-smoke:
     runs-on: avrea-ubuntu-latest-8-vcpu
+    concurrency:
+      group: expert-robot-avrea-half-month-slot
+      cancel-in-progress: false
+      queue: max
 
     steps:
       - uses: actions/checkout@v4
 
+      - name: Enforce Avrea half-month budget
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AVREA_RUNNER_LABEL: avrea-ubuntu-latest-8-vcpu
+        run: python3 scripts/check_avrea_halfmonth_budget.py --reserve-minutes 10 --runner-label "$AVREA_RUNNER_LABEL"
       - name: Restore C++ compiler cache
         id: ccache-restore
         uses: actions/cache/restore@v4
