@@ -20,12 +20,12 @@
   "monthly_max_minutes": 3000,
   "fail_closed_on_usage_error": true,
   "reserve_full_job_timeout": true,
-  "minute_basis": "conservative_job_wall_clock_minutes",
+  "minute_basis": "Avrea free-tier 2-vCPU-equivalent minutes (8 vCPU = 4x; 32 vCPU = 16x)",
   "runner_weights": {
-    "avrea-ubuntu-latest-8-vcpu": 1,
-    "avrea-ubuntu-latest-32-vcpu": 4
+    "avrea-ubuntu-latest-8-vcpu": 4,
+    "avrea-ubuntu-latest-32-vcpu": 16
   },
-  "accounting_scope": "GitHub Actions jobs in Mannyspiro/expert-robot only; external Avrea account usage must be reconciled separately",
+  "accounting_scope": "Conservative repository-level estimate based on GitHub Actions jobs; Avrea's organization-wide billing usage is authoritative and must be reconciled for other repos",
   "avrea_workflow_files": [
     "cace-contract-extract.yml",
     "cace-fem-nd-contract-verify.yml",
