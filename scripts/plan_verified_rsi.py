@@ -113,13 +113,13 @@ def pareto_front(rows):
     """Explore improvements across gain, information, cost and risk."""
     def dominates(a, b):
         good = (
-            a["estimated_gain"] >= b["estimated_gain"]
+            a["expected_gain"] >= b["expected_gain"]
             and a["information_value"] >= b["information_value"]
             and a["estimated_credits_per_run"] <= b["estimated_credits_per_run"]
             and a["risk"] <= b["risk"]
         )
         strict = (
-            a["estimated_gain"] > b["estimated_gain"]
+            a["expected_gain"] > b["expected_gain"]
             or a["information_value"] > b["information_value"]
             or a["estimated_credits_per_run"] < b["estimated_credits_per_run"]
             or a["risk"] < b["risk"]
