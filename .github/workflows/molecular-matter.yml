@@ -5,6 +5,9 @@ on:
     paths:
       - "scripts/generate_molecular_matter.py"
       - "tests/molecular_matter_smoke.py"
+      - "scripts/validate_crystal_matter.py"
+      - "tests/crystal_matter_smoke.py"
+      - "config/examples/crystal_cscl_unit_cell.json"
       - "config/schemas/research_matter_graph.schema.json"
       - "docs/multiscale-matter-physics.md"
       - ".github/workflows/molecular-matter.yml"
@@ -26,10 +29,14 @@ jobs:
         run: python -m pip install --disable-pip-version-check --no-input rdkit==2026.3.6
       - name: Validate molecular graph and conformer generator
         run: python tests/molecular_matter_smoke.py
+      - name: Validate periodic crystal unit cells
+        run: python tests/crystal_matter_smoke.py
       - name: Generate reproducible computational ethanol sample
         run: |
           mkdir -p molecule-artifacts
           python scripts/generate_molecular_matter.py --smiles CCO --id ethanol-demo --conformers 3 --seed 1729 --matter-graph molecule-artifacts/ethanol.matter.json --metadata molecule-artifacts/ethanol.metadata.json --molblock molecule-artifacts/ethanol.mol
+      - name: Export a geometric crystal CIF example
+        run: python scripts/validate_crystal_matter.py config/examples/crystal_cscl_unit_cell.json --report molecule-artifacts/cscl-unit-cell-report.json --cif molecule-artifacts/cscl-unit-cell.cif
       - name: Upload computational molecular prototype
         uses: actions/upload-artifact@v4
         with:
