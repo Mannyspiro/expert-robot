@@ -56,6 +56,15 @@ jobs:
             "$work" config/examples/portal_p2_boundary_null.crl -o "$out"
           cat "$out"
 
+      - name: Validate theorem-backed refinement forecast
+        shell: bash
+        run: |
+          set -euo pipefail
+          report="$RUNNER_TEMP/cace-nd-bridge.json"
+          forecast="$RUNNER_TEMP/cace-refinement-forecast-validation.json"
+          python3 scripts/validate_cace_refinement_forecast.py "$report" -o "$forecast"
+          cat "$forecast"
+
       - name: Mine experiment-inspired mathematics
         shell: bash
         run: |
@@ -78,6 +87,7 @@ jobs:
             ${{ runner.temp }}/cace-math-dataset.json
             ${{ runner.temp }}/cace-math-candidates.json
             ${{ runner.temp }}/cace-math-proof-queue.json
+            ${{ runner.temp }}/cace-refinement-forecast-validation.json
           retention-days: 14
       - name: Cleanup key
         if: always()
