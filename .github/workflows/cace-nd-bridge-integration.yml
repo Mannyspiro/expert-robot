@@ -55,11 +55,29 @@ jobs:
           python3 scripts/run_cace_nd_bridge_smoke.py \
             "$work" config/examples/portal_p2_boundary_null.crl -o "$out"
           cat "$out"
+
+      - name: Mine experiment-inspired mathematics
+        shell: bash
+        run: |
+          set -euo pipefail
+          report="$RUNNER_TEMP/cace-nd-bridge.json"
+          dataset="$RUNNER_TEMP/cace-math-dataset.json"
+          candidates="$RUNNER_TEMP/cace-math-candidates.json"
+          queue="$RUNNER_TEMP/cace-math-proof-queue.json"
+          python3 scripts/cace_history_to_math_dataset.py "$report" -o "$dataset"
+          python3 scripts/mine_experiment_math.py "$dataset" -o "$candidates"
+          python3 scripts/select_math_candidates.py "$candidates" > "$queue"
+          cat "$candidates"
+          cat "$queue"
       - name: Upload integration evidence
         uses: actions/upload-artifact@v4
         with:
           name: cace-nd-bridge-${{ github.run_id }}
-          path: ${{ runner.temp }}/cace-nd-bridge.json
+          path: |
+            ${{ runner.temp }}/cace-nd-bridge.json
+            ${{ runner.temp }}/cace-math-dataset.json
+            ${{ runner.temp }}/cace-math-candidates.json
+            ${{ runner.temp }}/cace-math-proof-queue.json
           retention-days: 14
       - name: Cleanup key
         if: always()
