@@ -122,6 +122,9 @@ jobs:
           python3 tests/portal_p2_packet_smoke.py
           python3 tests/crl_research_router_smoke.py
 
+      - name: CRL to CACE ND bridge guardrails
+        run: python3 tests/crl_to_cace_nd_smoke.py
+
       - name: Protocol feature-matrix guardrails
         run: python3 tests/protocol_feature_matrix_smoke.py
 
