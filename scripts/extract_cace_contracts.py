@@ -63,6 +63,25 @@ def const_key(node):
         return node.value
     return None
 
+
+def metadata_expression(node: ast.ClassDef):
+    for item in node.body:
+        if isinstance(item, (ast.Assign, ast.AnnAssign)):
+            targets = item.targets if isinstance(item, ast.Assign) else [item.target]
+            if any(isinstance(t, ast.Name) and t.id == "metadata" for t in targets):
+                value = item.value
+                try:
+                    expr = ast.unparse(value)
+                except Exception:
+                    expr = None
+                strings = [
+                    sub.value
+                    for sub in ast.walk(value)
+                    if isinstance(sub, ast.Constant) and isinstance(sub.value, str)
+                ]
+                return {"expression": expr, "string_literals": strings}
+    return None
+
 def analyze_class(node: ast.ClassDef):
     refs = {"inputs": set(), "params": set(), "outputs": set()}
     return_keys = set()
@@ -98,6 +117,7 @@ def analyze_class(node: ast.ClassDef):
         "param_keys": sorted(refs["params"]),
         "output_keys_referenced": sorted(refs["outputs"]),
         "literal_dict_keys": sorted(return_keys),
+        "metadata": metadata_expression(node),
     }
 
 def extract(root: Path):
