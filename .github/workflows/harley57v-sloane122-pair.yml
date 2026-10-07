@@ -1,0 +1,145 @@
+name: Harley57v Sloane122 Pair Acquisition
+
+on:
+  push:
+    branches:
+      - "research/bl-facsimile-acquisition"
+    paths:
+      - ".github/workflows/harley57v-sloane122-pair.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  acquire:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Acquire paired facsimiles
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p pair
+          python3 - <<'PY'
+          import hashlib, io, json, pathlib, re, ssl, urllib.parse, urllib.request
+          from PIL import Image
+          root=pathlib.Path("pair")
+          ctx=ssl._create_unverified_context()
+          def fetch(url, timeout=120):
+              req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0 manuscript research","Accept":"*/*"})
+              with urllib.request.urlopen(req,timeout=timeout,context=ctx) as r:
+                  return r.read(),r.geturl(),r.headers.get("Content-Type","")
+
+          # Harley 2407 f.57v from institutional IIIF
+          manifest_url="https://bl.digirati.io/iiif/ark:/81055/vdc_100057740056.0x000001"
+          b,_,_=fetch(manifest_url)
+          m=json.loads(b)
+          canv=m.get("items") or ((m.get("sequences") or [{}])[0].get("canvases") or [])
+          def lab(c):
+              x=c.get("label")
+              if isinstance(x,str): return x
+              if isinstance(x,dict):
+                  vals=[]
+                  for v in x.values():
+                      if isinstance(v,list): vals += [str(z) for z in v]
+                      elif isinstance(v,str): vals.append(v)
+                  return " ".join(vals)
+              return ""
+          exact=[(i,c,lab(c)) for i,c in enumerate(canv) if re.fullmatch(r"\s*f\.?\s*57v\s*",lab(c),re.I)]
+          if len(exact)!=1: raise SystemExit(f"Harley f.57v exact matches={len(exact)}")
+          idx,c,label=exact[0]
+          services=[]
+          def walk(o):
+              if isinstance(o,dict):
+                  yield o
+                  for v in o.values(): yield from walk(v)
+              elif isinstance(o,list):
+                  for v in o: yield from walk(v)
+          for o in walk(c):
+              oid=o.get("id") or o.get("@id")
+              typ=str(o.get("type") or o.get("@type") or "")
+              prof=str(o.get("profile") or "")
+              if oid and ("ImageService" in typ or "iiif.io/api/image" in prof):
+                  if oid not in [s["id"] for s in services]:
+                      services.append({"id":oid,"type":typ,"profile":prof})
+          candidates=[]
+          for s in services:
+              base=s["id"].rstrip("/")
+              if "dlcs.bl.digirati.io" in base:
+                  candidates += [base+"/full/max/0/default.jpg",base+"/full/4000,/0/default.jpg"]
+              else:
+                  candidates += [base+"/full/full/0/default.jpg",base+"/full/4000,/0/default.jpg"]
+          best=None; errs=[]
+          for u in candidates:
+              try:
+                  bb,final,ct=fetch(u)
+                  if len(bb)<10000: raise ValueError("too small")
+                  im=Image.open(io.BytesIO(bb))
+                  rec={"url":u,"final":final,"bytes":len(bb),"width":im.width,"height":im.height,"sha256":hashlib.sha256(bb).hexdigest()}
+                  if best is None or im.width*im.height>best["width"]*best["height"]:
+                      best=rec|{"payload":bb}
+              except Exception as e: errs.append({"url":u,"error":repr(e)})
+          if not best: raise SystemExit("no Harley image")
+          (root/"harley2407_f57v.jpg").write_bytes(best.pop("payload"))
+          harley={"folio":"f.57v","canvas_index":idx,"canvas_label":label,"canvas_id":c.get("id") or c.get("@id"),"canvas_width":c.get("width"),"canvas_height":c.get("height"),"services":services,"best":best,"errors":errs}
+          (root/"harley2407_f57v.json").write_text(json.dumps(harley,indent=2)+"\n")
+
+          # Sloane 1171 f.122: archived BL record explicitly maps IllID 16258 -> K150156.jpg -> f.122.
+          targets=[
+            "http://molcat1.bl.uk/IllImages/Kslides/K150/K150156.jpg",
+            "http://www.bl.uk/IllImages/Kslides/K150/K150156.jpg",
+            "https://www.bl.uk/IllImages/Kslides/K150/K150156.jpg",
+            "http://molcat1.bl.uk/IllImages/Kslides/thm/K150/K150156.jpg",
+            "http://www.bl.uk/IllImages/Kslides/thm/K150/K150156.jpg",
+          ]
+          snaps=[]
+          for target in targets:
+              q=urllib.parse.urlencode({"url":target,"output":"json","filter":"statuscode:200","fl":"timestamp,original,mimetype,statuscode,digest,length"})
+              cdx="https://web.archive.org/cdx/search/cdx?"+q
+              try:
+                  cb,_,_=fetch(cdx,90)
+                  arr=json.loads(cb.decode("utf-8","replace"))
+                  if isinstance(arr,list) and len(arr)>1:
+                      hdr=arr[0]
+                      for row in arr[1:]:
+                          d=dict(zip(hdr,row)); d["target"]=target; snaps.append(d)
+              except Exception:
+                  pass
+          # prefer full-size path over thumbnail and latest successful unique snapshots
+          snaps.sort(key=lambda d:(1 if "/thm/" not in d.get("original","") else 0,d.get("timestamp","")),reverse=True)
+          sloane=None; attempts=[]
+          for d in snaps[:80]:
+              u=f"https://web.archive.org/web/{d['timestamp']}id_/{d['original']}"
+              try:
+                  bb,final,ct=fetch(u,120)
+                  if len(bb)<5000: raise ValueError(f"too small {len(bb)}")
+                  im=Image.open(io.BytesIO(bb))
+                  rec={"wayback_url":u,"original":d["original"],"timestamp":d["timestamp"],"bytes":len(bb),"width":im.width,"height":im.height,"sha256":hashlib.sha256(bb).hexdigest(),"payload":bb}
+                  if sloane is None or im.width*im.height>sloane["width"]*sloane["height"]:
+                      sloane=rec
+              except Exception as e:
+                  attempts.append({"url":u,"error":repr(e)})
+          if not sloane: raise SystemExit("no archived Sloane f.122 image acquired")
+          (root/"sloane1171_f122.jpg").write_bytes(sloane.pop("payload"))
+          sloane_meta={
+             "shelfmark":"Sloane MS 1171",
+             "folio_label_from_archived_BL_record":"f. 122",
+             "legacy_illid":16258,
+             "legacy_filename":"K150156.jpg",
+             "provenance_rule":"Archived British Library record explicitly associates IllID 16258 / K150156.jpg with f. 122; no folio inferred from sequence.",
+             "best":sloane,
+             "attempts":attempts[:30]
+          }
+          (root/"sloane1171_f122.json").write_text(json.dumps(sloane_meta,indent=2)+"\n")
+          print(json.dumps({"harley":harley,"sloane":sloane_meta},indent=2))
+          PY
+      - name: Upload paired evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: harley57v-sloane122-pair-${{ github.run_id }}
+          path: pair/
+          if-no-files-found: error
+          retention-days: 14
