@@ -1,0 +1,87 @@
+name: Sloane 1171 Nonmuseum Candidate Fetch
+
+on:
+  push:
+    branches:
+      - "research/bl-facsimile-acquisition"
+    paths:
+      - ".github/workflows/sloane-nonmuseum-candidate.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fetch:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch independent Sloane 1171 candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p candidate
+          python3 - <<'PY'
+          import hashlib, json, pathlib, ssl, urllib.request
+          root=pathlib.Path("candidate")
+          ctx=ssl._create_unverified_context()
+          urls=[
+            "https://www.1010.co.uk/images/sloane1171.jpg",
+            "http://www.1010.co.uk/images/sloane1171.jpg",
+            "https://1010.co.uk/images/sloane1171.jpg",
+          ]
+          out={"source_page":"https://www.1010.co.uk/org/dissolutions.html",
+               "context":"Independent 2016 alchemy research page; identifies image as Sloane 1171 and describes a version of man and woman in flask.",
+               "attempts":[]}
+          for url in urls:
+            rec={"url":url}
+            try:
+              req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0","Accept":"image/*,*/*"})
+              with urllib.request.urlopen(req,timeout=90,context=ctx) as r:
+                b=r.read()
+                rec["final_url"]=r.geturl()
+                rec["content_type"]=r.headers.get("Content-Type","")
+              rec["bytes"]=len(b)
+              rec["sha256"]=hashlib.sha256(b).hexdigest()
+              if len(b)>10000 and (b[:2]==b"\xff\xd8" or b.startswith(b"\x89PNG") or "image/" in rec["content_type"]):
+                ext=".jpg" if b[:2]==b"\xff\xd8" else ".png"
+                fn="sloane1171_candidate"+ext
+                (root/fn).write_bytes(b)
+                rec["file"]=fn
+                rec["status"]="fetched"
+                out["selected"]=rec
+                break
+              rec["status"]="unexpected"
+            except Exception as e:
+              rec["status"]="failed"; rec["error"]=repr(e)
+            out["attempts"].append(rec)
+          # Wayback fallback
+          if "selected" not in out:
+            wb="https://web.archive.org/web/20161201000000id_/https://www.1010.co.uk/images/sloane1171.jpg"
+            rec={"url":wb}
+            try:
+              req=urllib.request.Request(wb,headers={"User-Agent":"Mozilla/5.0"})
+              with urllib.request.urlopen(req,timeout=120,context=ctx) as r:
+                b=r.read(); rec["final_url"]=r.geturl(); rec["content_type"]=r.headers.get("Content-Type","")
+              rec["bytes"]=len(b); rec["sha256"]=hashlib.sha256(b).hexdigest()
+              if len(b)>10000 and (b[:2]==b"\xff\xd8" or b.startswith(b"\x89PNG") or "image/" in rec["content_type"]):
+                ext=".jpg" if b[:2]==b"\xff\xd8" else ".png"
+                fn="sloane1171_candidate_wayback"+ext
+                (root/fn).write_bytes(b); rec["file"]=fn; rec["status"]="fetched"; out["selected"]=rec
+              else: rec["status"]="unexpected"
+            except Exception as e:
+              rec["status"]="failed"; rec["error"]=repr(e)
+            out["attempts"].append(rec)
+          out["result"]="CANDIDATE_FETCHED" if "selected" in out else "CANDIDATE_NOT_FETCHED"
+          (root/"audit.json").write_text(json.dumps(out,indent=2)+"\n")
+          print(json.dumps(out,indent=2))
+          PY
+      - name: Upload candidate
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sloane1171-nonmuseum-candidate-${{ github.run_id }}
+          path: candidate/
+          if-no-files-found: error
+          retention-days: 14
