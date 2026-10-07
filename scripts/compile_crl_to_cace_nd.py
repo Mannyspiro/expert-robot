@@ -79,7 +79,12 @@ def mesh_concentric_disks(radii, segments):
         "max_radial_chord_error":chord_error
     }
 
-def build(ir, segments=64, source=1.0, theta=0.5, levels=2, residual_tolerance=1e-10):
+def build(ir, segments=64, source=1.0, theta=0.5, levels=2, residual_tolerance=1e-10, mesh_semantics=None):
+    if mesh_semantics != "filled_disk_surrogate":
+        raise ValueError(
+            "CACE ND routing requires explicit mesh_semantics='filled_disk_surrogate'; "
+            "ritual circle curves are not automatically treated as bulk PDE domains"
+        )
     radii=concentric_xy_radii(ir)
     mesh=mesh_concentric_disks(radii,segments)
     vertices=mesh["vertices"]
@@ -135,10 +140,11 @@ def main():
     p.add_argument("--segments",type=int,default=64)
     p.add_argument("--source",type=float,default=1.0)
     p.add_argument("--theta",type=float,default=0.5)
+    p.add_argument("--mesh-semantics",choices=["filled_disk_surrogate"],required=True)
     p.add_argument("-o","--output",type=Path)
     args=p.parse_args()
     ir=crl.parse(args.input.read_text(encoding="utf-8"),str(args.input))
-    result=build(ir,args.segments,args.source,args.theta)
+    result=build(ir,args.segments,args.source,args.theta,mesh_semantics=args.mesh_semantics)
     rendered=json.dumps(result,indent=2,sort_keys=True)+"\n"
     if args.output:
         args.output.write_text(rendered,encoding="utf-8")
