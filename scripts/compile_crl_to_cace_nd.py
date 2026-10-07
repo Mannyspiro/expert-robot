@@ -89,7 +89,7 @@ def build(ir, segments=64, source=1.0, theta=0.5):
       {"id":"mesh","module":"SimplexMeshND","params":{"vertices":vertices,"elements":elements},"inputs":{}},
       {"id":"space","module":"P1SimplexSpaceND","params":{},"inputs":{"mesh":"mesh.mesh"}},
       {"id":"quadrature","module":"SimplexQuadratureND","params":{},"inputs":{"mesh":"mesh.mesh"}},
-      {"id":"assembly","module":"PoissonAssemblyND","params":{"source":source},"inputs":{"mesh":"mesh.mesh"}},
+      {"id":"assembly","module":"PoissonAssemblyND","params":{"source":source},"inputs":{"mesh":"mesh.mesh","space":"space.space"}},
       {"id":"solve","module":"LinearSolverND","params":{},"inputs":{"system":"assembly.system"}},
       {"id":"residual","module":"AlgebraicResidualND","params":{},"inputs":{"system":"assembly.system","solution":"solve.solution"}},
       {"id":"estimator","module":"ResidualEstimatorND","params":{"source":source},"inputs":{"mesh":"mesh.mesh","solution":"solve.solution"}},
