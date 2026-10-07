@@ -82,6 +82,42 @@ def metadata_expression(node: ast.ClassDef):
                 return {"expression": expr, "string_literals": strings}
     return None
 
+
+def relevant_class_assignments(node: ast.ClassDef):
+    rows = {}
+    for item in node.body:
+        targets = []
+        value = None
+        if isinstance(item, ast.Assign):
+            targets = item.targets
+            value = item.value
+        elif isinstance(item, ast.AnnAssign):
+            targets = [item.target]
+            value = item.value
+        if value is None:
+            continue
+        for target in targets:
+            if not isinstance(target, ast.Name):
+                continue
+            name = target.id
+            low = name.lower()
+            if not any(k in low for k in ("input", "output", "port", "param", "metadata")):
+                continue
+            try:
+                expression = ast.unparse(value)
+            except Exception:
+                expression = None
+            strings = [
+                sub.value
+                for sub in ast.walk(value)
+                if isinstance(sub, ast.Constant) and isinstance(sub.value, str)
+            ]
+            rows[name] = {
+                "expression": expression,
+                "string_literals": strings,
+            }
+    return rows
+
 def analyze_class(node: ast.ClassDef):
     refs = {"inputs": set(), "params": set(), "outputs": set()}
     return_keys = set()
@@ -118,6 +154,7 @@ def analyze_class(node: ast.ClassDef):
         "output_keys_referenced": sorted(refs["outputs"]),
         "literal_dict_keys": sorted(return_keys),
         "metadata": metadata_expression(node),
+        "class_assignments": relevant_class_assignments(node),
     }
 
 def extract(root: Path):
