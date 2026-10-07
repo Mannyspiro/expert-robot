@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "provider": "avrea",
+  "timezone": "America/Phoenix",
+  "periods": [
+    {
+      "id": "first_half",
+      "start_day": 1,
+      "end_day": 15,
+      "budget_minutes": 1500
+    },
+    {
+      "id": "second_half",
+      "start_day": 16,
+      "end_day": "last",
+      "budget_minutes": 1500
+    }
+  ],
+  "non_transferable": true,
+  "monthly_max_minutes": 3000,
+  "fail_closed_on_usage_error": true,
+  "reserve_full_job_timeout": true,
+  "minute_basis": "conservative_job_wall_clock_minutes",
+  "runner_weights": {
+    "avrea-ubuntu-latest-8-vcpu": 1,
+    "avrea-ubuntu-latest-32-vcpu": 4
+  },
+  "accounting_scope": "GitHub Actions jobs in Mannyspiro/expert-robot only; external Avrea account usage must be reconciled separately",
+  "avrea_workflow_files": [
+    "cace-contract-extract.yml",
+    "cace-fem-nd-contract-verify.yml",
+    "cace-nd-bridge-integration.yml",
+    "cace-refinement-counterexample.yml",
+    "cace-research-interface-probe.yml",
+    "ci.yml",
+    "circle-symmetry-benchmark.yml",
+    "collared-rsi-generation.yml",
+    "crl-symmetry-component-benchmark.yml",
+    "external-free-runner-bridge.yml",
+    "formal-qualification.yml",
+    "free-runner-capability-probe.yml",
+    "heavy-qualification.yml",
+    "math-benchmark.yml",
+    "production-rsi-qualification.yml",
+    "rsi-candidate-qualification.yml"
+  ],
+  "estimated_max_run_minutes": {
+    "cace-contract-extract.yml": 10,
+    "cace-fem-nd-contract-verify.yml": 10,
+    "cace-nd-bridge-integration.yml": 10,
+    "cace-refinement-counterexample.yml": 10,
+    "cace-research-interface-probe.yml": 10,
+    "ci.yml": 65,
+    "circle-symmetry-benchmark.yml": 10,
+    "collared-rsi-generation.yml": 45,
+    "crl-symmetry-component-benchmark.yml": 10,
+    "external-free-runner-bridge.yml": 30,
+    "formal-qualification.yml": 25,
+    "free-runner-capability-probe.yml": 10,
+    "heavy-qualification.yml": 180,
+    "math-benchmark.yml": 25,
+    "production-rsi-qualification.yml": 145,
+    "rsi-candidate-qualification.yml": 60
+  },
+  "calendar_boundary": "local midnight in America/Phoenix; days 1-15 and 16-last, inclusive"
+}
