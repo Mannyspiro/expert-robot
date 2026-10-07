@@ -13,6 +13,23 @@ the explicitly supplied 2-vCPU-equivalent Avrea credit allowance. Default
 available credit is **zero**; zero-spend CI creates a plan artifact without
 executing any candidate.
 
+The read-only adapter `scripts/collect_verified_rsi_signals.py` now accepts
+reports from the pinned CACE FEM bridge, structural modeler, quantum RHF
+worker cluster, or browser vision. It normalizes baseline observables and
+source hashes; **no matched parent/child baseline or measured capability
+gain is inferred**. Use:
+
+```sh
+python3 scripts/collect_verified_rsi_signals.py \
+  --kind cace_bridge --input cace-nd-bridge.json \
+  -o cace-rsi-baseline-signals.json
+```
+
+The catalog now records exact target repositories. An edit to
+`morganaspim/Cace-app` is **not** eligible for
+`Mannyspiro/expert-robot` automatic promotion; a separate CACE verifier,
+lineage and authorization process is mandatory.
+
 **Not implemented by this planner:** candidate code mutation, automatic
 experiment execution, remote CACE deployment, verified performance gains,
 model-weight updates, proof-signing or promotion. Those actions belong only
