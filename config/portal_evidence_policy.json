@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "policy_name": "portal_evidence_escalation",
+  "principle": "higher portal classes require new observables and stronger controls; no class may be inferred from a lower-class effect alone",
+  "classes": [
+    {
+      "class": "P0_perceptual",
+      "claim": "altered perception, imagery, or local display-like phenomenon",
+      "minimum_required": [
+        "preregistered perceptual or optical observable",
+        "blinded/randomized control",
+        "camera/sensor comparison where applicable"
+      ],
+      "allowed_next": ["P1_information"],
+      "cannot_establish": ["P2_field_energy","P3_matter_transport","P4_spacetime_connection"]
+    },
+    {
+      "class": "P1_information",
+      "claim": "information transfer unexplained by declared ordinary channels",
+      "minimum_required": [
+        "precommitted target information",
+        "chance/null model",
+        "leakage controls",
+        "independent replication"
+      ],
+      "allowed_next": ["P2_field_energy"],
+      "cannot_establish": ["P3_matter_transport","P4_spacetime_connection"]
+    },
+    {
+      "class": "P2_field_energy",
+      "claim": "localized field/energy anomaly beyond declared models and certified uncertainty",
+      "minimum_required": [
+        "calibrated multi-sensor measurement",
+        "certified known-physics residual bound",
+        "sensor substitution",
+        "shielding/isolation controls",
+        "independent replication"
+      ],
+      "allowed_next": ["P3_matter_transport"],
+      "cannot_establish": ["P3_matter_transport","P4_spacetime_connection"]
+    },
+    {
+      "class": "P3_matter_transport",
+      "claim": "matter appears at a nonlocal destination without ordinary transport path",
+      "minimum_required": [
+        "continuous source/destination metrology",
+        "mass accounting",
+        "tamper-resistant synchronized recording",
+        "chain-of-custody or equivalent object identity",
+        "ordinary transport/fraud/error exclusion",
+        "independent replication"
+      ],
+      "allowed_next": ["P4_spacetime_connection"],
+      "cannot_establish": ["P4_spacetime_connection"]
+    },
+    {
+      "class": "P4_spacetime_connection",
+      "claim": "traversable or information-bearing spacetime connection",
+      "minimum_required": [
+        "all P0-P3 gates where applicable",
+        "spacetime-specific quantitative prediction",
+        "independent relativistic/gravitational observable",
+        "alternative ordinary and exotic non-wormhole models tested",
+        "multiple independent replications"
+      ],
+      "allowed_next": [],
+      "cannot_establish": []
+    }
+  ],
+  "global_rules": [
+    "simulation resemblance to a wormhole model is not spacetime evidence",
+    "quantum-computational wormhole analogues are model analogues unless a physical spacetime observable is measured",
+    "single-lab anomaly never reaches P4",
+    "absence of known explanation is not evidence for a specific exotic mechanism"
+  ]
+}
