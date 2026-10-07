@@ -30,6 +30,8 @@ class CompileError(ValueError):
 
 
 def _fraction(value: Any, label: str) -> Fraction:
+    if isinstance(value, Fraction):
+        return value
     if isinstance(value, bool):
         raise CompileError(f"{label}: boolean is not a numeric coordinate")
     if isinstance(value, Decimal):
