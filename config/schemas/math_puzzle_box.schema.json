@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://expert-robot.local/schemas/math_puzzle_box.schema.json",
+  "title": "CACE Mathematical Puzzle Box",
+  "description": "A generated mathematical research object designed to conceal structure behind observable constraints so experiment/search systems can discover conjectures, counterexamples, invariants, reductions, or new proof targets.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version","box_id","family","domain","visible_problem",
+    "sealed_construction","probes","success_criteria","formalization"
+  ],
+  "properties": {
+    "schema_version": {"const":"0.1"},
+    "box_id": {"type":"string","minLength":1},
+    "family": {
+      "enum":[
+        "symmetry_orbit","boundary_mutation","duality",
+        "scaling_collapse","spectral_collision","discrete_continuum",
+        "metamaterial_cell","certification_gap","historical_geometry_control"
+      ]
+    },
+    "domain": {"type":"array","minItems":1,"items":{"type":"string"}},
+    "visible_problem": {
+      "type":"object",
+      "required":["objects","constraints","observables","question"],
+      "properties":{
+        "objects":{"type":"array","items":{"type":"object"}},
+        "constraints":{"type":"array","items":{"type":"string"}},
+        "observables":{"type":"array","items":{"type":"object"}},
+        "question":{"type":"string"}
+      }
+    },
+    "sealed_construction": {
+      "type":"object",
+      "required":["withhold_from_proposer","mechanism","witnesses"],
+      "properties":{
+        "withhold_from_proposer":{"const":true},
+        "mechanism":{"type":"string"},
+        "witnesses":{"type":"array","items":{"type":"object"}},
+        "counterexample_seed":{"type":["object","null"]}
+      }
+    },
+    "probes": {
+      "type":"array",
+      "items":{
+        "type":"object",
+        "required":["lens","instruction"],
+        "properties":{
+          "lens":{"enum":[
+            "symmetry","topology","spectral","scaling","duality",
+            "operator_factorization","counterexample","exact_geometry",
+            "homology","dimensionless","error_estimation"
+          ]},
+          "instruction":{"type":"string"}
+        }
+      }
+    },
+    "success_criteria": {
+      "type":"object",
+      "required":["discovery","proof","efficiency"],
+      "properties":{
+        "discovery":{"type":"array","items":{"type":"string"}},
+        "proof":{"type":"array","items":{"type":"string"}},
+        "efficiency":{"type":"array","items":{"type":"string"}}
+      }
+    },
+    "formalization": {
+      "type":"object",
+      "required":["lean_namespace","target_kind","status"],
+      "properties":{
+        "lean_namespace":{"type":"string"},
+        "target_kind":{"enum":["theorem","counterexample","equivalence","bound","classification"]},
+        "status":{"enum":["UNSEEN","CONJECTURED","FORMALIZED","PROVEN","REFUTED"]},
+        "theorem_ref":{"type":["string","null"]}
+      }
+    },
+    "provenance":{
+      "type":"object",
+      "properties":{
+        "generator":{"type":"string"},
+        "seed":{"type":["integer","null"]},
+        "source_family":{"type":["string","null"]}
+      }
+    }
+  }
+}
