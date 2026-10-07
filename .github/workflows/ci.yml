@@ -134,6 +134,11 @@ jobs:
       - name: CRL symmetry orbit reducer guardrails
         run: python3 tests/crl_symmetry_orbit_reducer_smoke.py
 
+      - name: Puzzle Box and research object modeler guardrails
+        run: |
+          python3 tests/math_puzzle_boxes_smoke.py
+          python3 tests/research_object_modeler_smoke.py
+
       - name: Experiment-inspired mathematics guardrails
         run: python3 tests/experiment_math_miner_smoke.py
 
