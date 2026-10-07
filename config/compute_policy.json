@@ -84,7 +84,23 @@
     "external_self_hosted_runners_allowed": true,
     "paid_railway_resources_allowed": false,
     "paid_cloud_expansion_allowed": false,
-    "rule": "Use existing free runners when justified; never opt into a paid Railway or cloud resource."
+    "rule": "Use existing free runners when justified; never opt into a paid Railway or cloud resource.",
+    "avrea_half_month_budget": {
+      "policy_file": "config/avrea_half_month_budget.json",
+      "first_half": {
+        "days": "1-15",
+        "minutes": 1500
+      },
+      "second_half": {
+        "days": "16-last",
+        "minutes": 1500
+      },
+      "timezone": "America/Phoenix",
+      "borrow_between_halves": false,
+      "fail_closed": true,
+      "gate_script": "scripts/check_avrea_halfmonth_budget.py",
+      "enforcement_scope": "Expert Robot GitHub Actions Avrea workflows; reconcile other Avrea-provider usage separately"
+    }
   },
   "selection_policy": {
     "default_preflight": "L1",
