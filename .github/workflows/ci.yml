@@ -110,6 +110,9 @@ jobs:
           python3 tests/occult_experiment_packet_smoke.py
           python3 tests/alchemy_experiment_packet_smoke.py
 
+      - name: CACE interface probe guardrails
+        run: python3 tests/cace_interface_probe_smoke.py
+
       - name: CRL route and portal guardrails
         run: |
           python3 tests/portal_evidence_policy_smoke.py
