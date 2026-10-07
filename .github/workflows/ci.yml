@@ -157,6 +157,21 @@ jobs:
         run: |
           python3 tests/math_puzzle_boxes_smoke.py
           python3 tests/research_object_modeler_smoke.py
+          python3 tests/research_object_modeler_v2_smoke.py
+          python3 tests/research_object_obj_export_smoke.py
+          python3 tests/research_object_solid_smoke.py
+          python3 tests/research_object_truss_smoke.py
+
+      - name: Matter readiness and quantum protocol guardrails
+        run: |
+          python3 tests/crystal_matter_smoke.py
+          python3 tests/matter_manufacturing_readiness_smoke.py
+          python3 tests/cace_quantum_cluster_smoke.py
+
+      - name: Verified RSI planning and baseline signal guardrails
+        run: |
+          python3 tests/verified_rsi_planner_smoke.py
+          python3 tests/verified_rsi_signals_smoke.py
 
       - name: Experiment-inspired mathematics guardrails
         run: python3 tests/experiment_math_miner_smoke.py
@@ -204,3 +219,4 @@ jobs:
         with:
           path: ~/.cache/ccache
           key: ccache-v1-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
+
