@@ -17,6 +17,7 @@ for name in ("heptameron_circle.crl", "clavicula_circle.crl"):
     assert ir["source"]["witnesses"]
     assert ir["geometry"]["primitives"]
     assert ir["symbols"]["tokens"]
+    assert ir["historical_loci"]
     assert ir["measurements"]
     assert ir["controls"]["randomization"] is True
     assert ir["controls"]["preregistered"] is True
