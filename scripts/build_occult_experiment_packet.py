@@ -34,6 +34,10 @@ geom = load_module(
     "compile_magick_geometry",
     ROOT / "scripts" / "compile_magick_geometry.py",
 )
+historical_locus_planner = load_module(
+    "prioritize_historical_loci",
+    ROOT / "scripts" / "prioritize_historical_loci.py",
+)
 
 
 MODEL_CHANNELS = {
@@ -242,6 +246,7 @@ def build(path: Path) -> dict[str, Any]:
         "magick_ir": ir,
         "exact_geometry": exact,
         "ablation_plan": ablation_plan(ir),
+        "historical_locus_priority": historical_locus_planner.prioritize(ir),
         "cace_request": cace_request(ir, exact),
         "epistemic_status": "experiment_design_not_evidence",
     }
