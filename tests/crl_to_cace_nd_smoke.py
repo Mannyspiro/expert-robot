@@ -16,15 +16,18 @@ assert packet["mesh"]["dimension"]==2
 assert len(packet["mesh"]["vertices"])>0
 assert len(packet["mesh"]["elements"])>0
 assert packet["mesh"]["max_radial_chord_error"]>0
+assert packet["geometry_interpretation"]["mesh_semantics"]=="filled-disk surrogate domain"
 mods=[x["module"] for x in packet["routes"]["nd_poisson_adaptive"]["nodes"]]
 assert mods==[
  "SimplexMeshND","P1SimplexSpaceND","SimplexQuadratureND","PoissonAssemblyND",
- "LinearSolverND","AlgebraicResidualND","ResidualEstimatorND","AdaptiveRefinement2D"
+ "LinearSolverND","AlgebraicResidualND","ResidualEstimatorND","AdaptiveRefinement2D",
+ "ConvergenceStudyND","FEMNDCertificate"
 ]
 cert=[x["module"] for x in packet["routes"]["certified_algebraic"]["nodes"]]
 assert "CertifiedPoissonAssembly" in cert
 assert "IntervalAlgebraicResidual" in cert
 assert "DiscreteEnergyErrorCertificate" in cert
+assert "EstimatorReliabilityGate" in cert
 assert packet["unresolved_certification"]
 
 print("CRL -> CACE ND bridge: PASS")
