@@ -38,12 +38,15 @@ def budget_window(now, policy):
     else:
         end = local.replace(month=local.month + 1, day=1, hour=0,
                             minute=0, second=0, microsecond=0)
+    selected = policy["periods"][0 if first else 1]
+    if int(selected["budget_minutes"]) != 1500 or not policy["non_transferable"]:
+        raise ValueError("unapproved Avrea period budget or transfer policy")
     return {
         "id": "first_half" if first else "second_half",
         "start": start.astimezone(timezone.utc),
         "end": end.astimezone(timezone.utc),
         "last_day": end_day,
-        "budget": 1500,
+        "budget": int(selected["budget_minutes"]),
     }
 
 
@@ -97,9 +100,12 @@ def charge_for_job(job, run, period, policy, current_run_id, current_job):
         if minutes is None:
             raise ValueError("unbudgeted active workflow " + basename)
     runner = (job.get("runner_name") or "").lower()
-    heavy = ("32-vcpu" in runner or
-             run.get("path", "").split("/")[-1].startswith("heavy-qualification"))
-    return minutes * (4 if heavy else 1)
+    labels = " ".join(str(x) for x in (job.get("labels") or [])).lower()
+    runner_details = runner + " " + labels
+    basename = run.get("path", "").split("/")[-1].split("@")[0]
+    heavy = ("32-vcpu" in runner_details or basename == "heavy-qualification.yml" or
+             (basename == "math-benchmark.yml" and "8-vcpu" not in runner_details))
+    return minutes * (16 if heavy else 4)
 
 
 def request_json(url, token):
