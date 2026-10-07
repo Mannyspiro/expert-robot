@@ -15,6 +15,7 @@ assert hept["epistemic_status"] == "experiment_design_not_evidence"
 assert hept["magick_ir"]["symbols"]["tokens"]
 assert hept["exact_geometry"]["exact_primitives"]
 assert hept["cace_request"]["kind"] == "cace_magick_request"
+assert hept["historical_locus_priority"]["effective_locus_count"] == 2
 assert any(x["id"] == "semantics-vs-waveform" for x in hept["ablation_plan"]["axes"])
 assert any(x["id"] == "orientation-reference" for x in hept["ablation_plan"]["axes"])
 assert hept["cace_request"]["requested_certificates"][-1] == "input_identity"
