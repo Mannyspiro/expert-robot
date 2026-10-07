@@ -7,6 +7,8 @@ on:
       - "scripts/research_object_routing.py"
       - "tests/research_object_modeler_smoke.py"
       - "tests/research_object_modeler_v2_smoke.py"
+      - "scripts/export_research_object_obj.py"
+      - "tests/research_object_obj_export_smoke.py"
       - "config/examples/research_object_demo.json"
       - ".github/workflows/research-object-modeler.yml"
   workflow_dispatch:
@@ -24,10 +26,14 @@ jobs:
         run: |
           python3 tests/research_object_modeler_smoke.py
           python3 tests/research_object_modeler_v2_smoke.py
+          python3 tests/research_object_obj_export_smoke.py
           python3 scripts/generate_research_object_candidates.py config/examples/research_object_demo.json -o /tmp/cace-modeler.json
+          python3 scripts/export_research_object_obj.py config/examples/research_object_demo.json -o /tmp/cace-modeler-preview.obj
       - name: Publish modeler candidate record
         uses: actions/upload-artifact@v4
         with:
           name: research-object-modeler-${{ github.run_id }}
-          path: /tmp/cace-modeler.json
+          path: |
+            /tmp/cace-modeler.json
+            /tmp/cace-modeler-preview.obj
           retention-days: 14
