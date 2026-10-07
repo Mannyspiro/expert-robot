@@ -39,20 +39,65 @@
       {
         "type": "circle",
         "id": "outer_circle",
-        "parameters": {"radius_m": 1.0, "center": [0, 0, 0]},
-        "uncertainty": {"radius_m": 0.01}
+        "parameters": {
+          "radius_m": 1,
+          "center": [
+            0,
+            0,
+            0
+          ],
+          "normal": [
+            0,
+            0,
+            1
+          ]
+        },
+        "uncertainty": {
+          "radius_m": 0.01
+        }
       },
       {
         "type": "polygon",
         "id": "inner_square",
-        "parameters": {"vertices": [[-0.5,-0.5,0],[0.5,-0.5,0],[0.5,0.5,0],[-0.5,0.5,0]]},
+        "parameters": {
+          "vertices": [
+            [
+              -0.5,
+              -0.5,
+              0
+            ],
+            [
+              0.5,
+              -0.5,
+              0
+            ],
+            [
+              0.5,
+              0.5,
+              0
+            ],
+            [
+              -0.5,
+              0.5,
+              0
+            ]
+          ]
+        },
         "uncertainty": null
       },
       {
         "type": "point",
         "id": "vessel_center",
-        "parameters": {"xyz_m": [0,0,0]},
-        "uncertainty": {"position_m": 0.005}
+        "parameters": {
+          "xyz_m": [
+            0,
+            0,
+            0
+          ]
+        },
+        "uncertainty": {
+          "position_m": 0.005
+        }
       }
     ],
     "topology": [
@@ -109,7 +154,9 @@
       "relative_permittivity": null,
       "relative_permeability": null,
       "optical_properties": null,
-      "chemical_hazards": ["pinch hazard; keep away from sensitive implants/electronics"]
+      "chemical_hazards": [
+        "pinch hazard; keep away from sensitive implants/electronics"
+      ]
     },
     {
       "id": "vine_wood",
@@ -148,7 +195,9 @@
     "relative_humidity": 0.4,
     "ambient_em": null,
     "ambient_acoustic": null,
-    "lighting": {"policy": "fixed calibrated illumination"}
+    "lighting": {
+      "policy": "fixed calibrated illumination"
+    }
   },
   "human_actions": [
     {
