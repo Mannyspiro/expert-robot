@@ -45,6 +45,10 @@ assert all(x["promotion_status"]=="NOT_AUTHORIZED" for x in plan["ranked_routes"
 assert next(x for x in plan["ranked_routes"] if x["route_id"]=="browser-visual-acquisition")[
     "auto_scope_paths_plausible"
 ] is False
+assert next(x for x in plan["ranked_routes"] if x["route_id"]=="solver-sparse-operator")["target_repository"]=="morganaspim/Cace-app"
+assert next(x for x in plan["ranked_routes"] if x["route_id"]=="solver-sparse-operator")["auto_scope_paths_plausible"] is False
+assert next(x for x in plan["ranked_routes"] if x["route_id"]=="solver-sparse-operator")["external_repository_qualification_required"] is True
+assert next(x for x in plan["ranked_routes"] if x["route_id"]=="lean-lemma-factory")["target_repository"]=="Mannyspiro/expert-robot"
 assert next(x for x in plan["ranked_routes"] if x["route_id"]=="lean-lemma-factory")[
     "auto_scope_paths_plausible"
 ] is True
