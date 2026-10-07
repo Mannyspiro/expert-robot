@@ -7,6 +7,11 @@ on:
       - "formal/**"
       - "tests/lean/**"
       - ".github/workflows/formal-qualification.yml"
+  pull_request:
+    paths:
+      - "formal/**"
+      - "tests/lean/**"
+      - ".github/workflows/formal-qualification.yml"
   workflow_dispatch:
 
 permissions:
