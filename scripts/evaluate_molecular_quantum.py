@@ -19,7 +19,7 @@ ATOMIC_NUMBER={"H":1,"C":6,"N":7,"O":8,"F":9,"P":15,"S":16,"Cl":17}
 BASIS=("sto-3g","6-31g")
 
 
-def baseline(matter_graph):
+def baseline(matter_graph, bases=BASIS):
     try:
         from pyscf import gto, scf, __version__ as pyscf_version
     except ImportError as exc:
@@ -58,8 +58,14 @@ def baseline(matter_graph):
     if electrons % 2:
         raise ValueError("open-shell systems need separate spin qualification")
 
+    if not isinstance(bases, (tuple, list)) or not bases:
+        raise ValueError("at least one basis is required")
+    if len(bases) > len(BASIS) or len(set(bases)) != len(bases) or any(
+        basis not in BASIS for basis in bases
+    ):
+        raise ValueError("basis selection must be a nonempty unique subset of the qualified set")
     values=[]
-    for basis in BASIS:
+    for basis in bases:
         mol=gto.M(
             atom=atoms,
             basis=basis,
@@ -84,7 +90,7 @@ def baseline(matter_graph):
             "basis_functions":int(mol.nao_nr()),
             "electrons":int(mol.nelectron),
         })
-    if not values[1]["basis_functions"] > values[0]["basis_functions"]:
+    if len(values) == 2 and not values[1]["basis_functions"] > values[0]["basis_functions"]:
         raise ValueError("basis function count unexpectedly did not increase")
     result={
         "schema_version":1,
@@ -94,7 +100,10 @@ def baseline(matter_graph):
         ).encode()).hexdigest(),
         "pyscf_version":str(pyscf_version),
         "scf_results":values,
-        "basis_energy_difference_hartree":values[1]["total_electronic_energy_hartree"]-values[0]["total_electronic_energy_hartree"],
+        "basis_energy_difference_hartree":(
+            values[1]["total_electronic_energy_hartree"]-values[0]["total_electronic_energy_hartree"]
+            if len(values)==2 else None
+        ),
         "energy_unit":"Hartree (total electronic plus nuclear-repulsion RHF energy)",
         "epistemic_status":"converged_closed_shell_hf_baseline_not_validated_thermochemistry",
         "readiness":{
