@@ -12,6 +12,12 @@ WITNESS hept-edition kind=critical_edition provenance=direct weight=0.85 notes="
 CLAIM P0_perceptual historical_only "A circle whose form and inscriptions vary with entity, place, time, day, hour, and celestial assignment is claimed to establish ritual protection/operation."
 PREDICT "No sensor channel should depend on semantic slot identity after known acoustic/visual/material effects are controlled."
 
+PARAM ritual-day kind=categorical role=timing values=Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday provenance=hept-edition
+PARAM ritual-hour kind=integer role=timing min=1 max=24 provenance=hept-edition
+BIND symbols.day-angel parameter=ritual-day mode=lookup transform=witness_defined_day_name
+BIND timing.day parameter=ritual-day mode=metadata_only
+BIND timing.hour parameter=ritual-hour mode=metadata_only
+
 CIRCLE outer radius=2 center=0,0,0 normal=0,0,1
 CIRCLE middle radius=7/4 center=0,0,0 normal=0,0,1
 CIRCLE inner radius=3/2 center=0,0,0 normal=0,0,1
@@ -24,6 +30,11 @@ SYMBOL hour-name kind=name role=timing text="<HOUR_NAME>" position="middle@90deg
 SYMBOL hour-seal kind=sigil role=identifier text="<HOUR_SEAL>" position="middle@180deg" order=2 repeat=1 confidence=0.8 provenance=hept-edition
 
 VOICE day-angel mode=live_voice repeat=1
+ENERGY spoken-wave kind=acoustic role="measured vocal excitation" measured=true
+
+PROCESS draw-boundaries kind=draw targets=outer,middle,inner order=0 simulation_only=false
+PROCESS place-symbols kind=place targets=day-angel,hour-name,hour-seal order=1 simulation_only=false
+PROCESS vocal-excitation kind=expose targets=outer energy=spoken-wave order=2 simulation_only=false
 
 ORIENT manuscript_relative
 TIME_CONSTRAINT "day/hour assignment is experimental metadata and must be independently randomized in controls"
