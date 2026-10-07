@@ -102,6 +102,9 @@ jobs:
       - name: Magick IR exact geometry guardrails
         run: python3 tests/magick_ir_geometry_smoke.py
 
+      - name: Experiment-inspired mathematics guardrails
+        run: python3 tests/experiment_math_miner_smoke.py
+
       - name: CACE return bridge guardrails
         run: python3 tests/cace_return_bridge_smoke.py
 
