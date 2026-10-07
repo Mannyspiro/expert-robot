@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "functions": ["protective_boundary","timed_invocation"],
+  "witnesses": [
+    {"id":"A1","independence_group":"A","weight":1.0,"claimed_functions":["protective_boundary"],"notes":"synthetic smoke fixture"},
+    {"id":"A2","independence_group":"A","weight":0.9,"claimed_functions":["protective_boundary"],"notes":"copied descendant; must not double count"},
+    {"id":"B1","independence_group":"B","weight":1.0,"claimed_functions":["protective_boundary"],"notes":"independent group"},
+    {"id":"C1","independence_group":"C","weight":1.0,"claimed_functions":["timed_invocation"],"notes":"independent group"},
+    {"id":"D1","independence_group":"D","weight":1.0,"claimed_functions":["timed_invocation"],"notes":"independent group"}
+  ],
+  "features": [
+    {"id":"nested-boundaries","class":"topology","description":"nested boundary count/topology","experimental_channel":"geometry"},
+    {"id":"decorative-flourish","class":"other","description":"visually variable flourish","experimental_channel":"optical"}
+  ],
+  "observations": [
+    {"witness":"A1","feature":"nested-boundaries","state":"three","confidence":1.0,"status":"observed","notes":""},
+    {"witness":"A2","feature":"nested-boundaries","state":"three","confidence":1.0,"status":"observed","notes":"correlated with A1"},
+    {"witness":"B1","feature":"nested-boundaries","state":"three","confidence":1.0,"status":"observed","notes":""},
+    {"witness":"C1","feature":"nested-boundaries","state":"one","confidence":1.0,"status":"observed","notes":""},
+    {"witness":"D1","feature":"nested-boundaries","state":"one","confidence":1.0,"status":"observed","notes":""},
+
+    {"witness":"A1","feature":"decorative-flourish","state":"red","confidence":1.0,"status":"observed","notes":""},
+    {"witness":"A2","feature":"decorative-flourish","state":"red","confidence":1.0,"status":"observed","notes":""},
+    {"witness":"B1","feature":"decorative-flourish","state":"blue","confidence":1.0,"status":"observed","notes":""},
+    {"witness":"C1","feature":"decorative-flourish","state":"green","confidence":1.0,"status":"observed","notes":""},
+    {"witness":"D1","feature":"decorative-flourish","state":"yellow","confidence":1.0,"status":"observed","notes":""}
+  ]
+}
