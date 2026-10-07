@@ -113,6 +113,9 @@ jobs:
       - name: CACE interface probe guardrails
         run: python3 tests/cace_interface_probe_smoke.py
 
+      - name: CACE FEM-ND adapter guardrails
+        run: python3 tests/cace_fem_nd_adapter_smoke.py
+
       - name: CRL route and portal guardrails
         run: |
           python3 tests/portal_evidence_policy_smoke.py
