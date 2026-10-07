@@ -1,0 +1,139 @@
+name: Sloane 1171 Archive Probe
+
+on:
+  push:
+    branches:
+      - "research/bl-facsimile-acquisition"
+    paths:
+      - ".github/workflows/sloane-1171-archive-probe.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Recover legacy BL Sloane 1171 metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p sloane_probe
+          python3 - <<'PY'
+          import hashlib, json, pathlib, re, ssl, urllib.parse, urllib.request
+          root=pathlib.Path("sloane_probe")
+          ctx=ssl._create_unverified_context()
+
+          legacy="http://www.bl.uk/catalogues/illuminatedmanuscripts/record.asp?MSID=1217&CollID=9&NStart=1171"
+          variants=[
+            legacy,
+            legacy.replace("http://","https://"),
+            "http://www.bl.uk/catalogues/illuminatedmanuscripts/record.asp?MSID=1217",
+            "https://www.bl.uk/catalogues/illuminatedmanuscripts/record.asp?MSID=1217",
+          ]
+
+          def fetch(url,timeout=90):
+              req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0 (research metadata audit)","Accept":"*/*"})
+              with urllib.request.urlopen(req,timeout=timeout,context=ctx) as r:
+                  return r.read(), r.geturl(), r.headers.get("Content-Type","")
+
+          audit={"target":"Sloane MS 1171 f.120r","legacy_msid":"1217","live":[],"cdx":[],"snapshots":[]}
+
+          for u in variants:
+              try:
+                  b,final,ctype=fetch(u)
+                  name=f"live_{len(audit['live'])}.bin"
+                  (root/name).write_bytes(b)
+                  audit["live"].append({"url":u,"final_url":final,"status":"fetched","content_type":ctype,"bytes":len(b),"sha256":hashlib.sha256(b).hexdigest(),"file":name})
+              except Exception as e:
+                  audit["live"].append({"url":u,"status":"failed","error":repr(e)})
+
+          # Query Wayback CDX for exact legacy record and queryless MSID routes.
+          cdx_targets=[
+              legacy,
+              "www.bl.uk/catalogues/illuminatedmanuscripts/record.asp?MSID=1217*",
+              "bl.uk/catalogues/illuminatedmanuscripts/record.asp?MSID=1217*",
+          ]
+          snapshots=[]
+          for target in cdx_targets:
+              params=urllib.parse.urlencode({
+                  "url":target,"output":"json","filter":"statuscode:200","collapse":"digest","fl":"timestamp,original,mimetype,statuscode,digest"
+              })
+              for scheme in ["https","http"]:
+                  cdx=f"{scheme}://web.archive.org/cdx/search/cdx?{params}"
+                  try:
+                      b,final,ctype=fetch(cdx)
+                      text=b.decode("utf-8","replace")
+                      audit["cdx"].append({"target":target,"url":cdx,"status":"fetched","bytes":len(b),"preview":text[:1000]})
+                      try:
+                          arr=json.loads(text)
+                          if isinstance(arr,list) and len(arr)>1:
+                              hdr=arr[0]
+                              for row in arr[1:]:
+                                  d=dict(zip(hdr,row))
+                                  if d not in snapshots: snapshots.append(d)
+                      except Exception as je:
+                          audit["cdx"][-1]["json_error"]=repr(je)
+                      break
+                  except Exception as e:
+                      audit["cdx"].append({"target":target,"url":cdx,"status":"failed","error":repr(e)})
+
+          # Prefer several distinct snapshots across time.
+          snapshots=sorted(snapshots,key=lambda x:x.get("timestamp",""))
+          if len(snapshots)>12:
+              picks=[]
+              idxs={0,len(snapshots)-1}
+              for k in range(1,11):
+                  idxs.add(round(k*(len(snapshots)-1)/11))
+              picks=[snapshots[i] for i in sorted(idxs)]
+          else:
+              picks=snapshots
+
+          urlpat=re.compile(r'https?://[^\s"\'<>]+',re.I)
+          imgpat=re.compile(r'(?i)(?:src|href)\s*=\s*["\']([^"\']+\.(?:jpg|jpeg|png|gif)(?:\?[^"\']*)?)')
+          for i,d in enumerate(picks):
+              ts=d.get("timestamp",""); orig=d.get("original","")
+              wb=f"https://web.archive.org/web/{ts}id_/{orig}"
+              rec={"timestamp":ts,"original":orig,"wayback_url":wb}
+              try:
+                  b,final,ctype=fetch(wb,120)
+                  fn=f"snapshot_{i}_{ts}.html"
+                  (root/fn).write_bytes(b)
+                  # old BL pages may be cp1252/latin-1
+                  txt=b.decode("utf-8","replace")
+                  if txt.count("\ufffd")>20:
+                      txt=b.decode("latin-1","replace")
+                  contexts=[]
+                  for pat in [r'.{0,250}120r.{0,250}',r'.{0,250}120v.{0,250}',r'.{0,250}122r.{0,250}',r'.{0,250}Image.{0,250}',r'.{0,250}illustration.{0,250}',r'.{0,250}flask.{0,250}']:
+                      contexts += [re.sub(r'\s+',' ',x).strip() for x in re.findall(pat,txt,re.I|re.S)]
+                  imgs=imgpat.findall(txt)
+                  urls=urlpat.findall(txt)
+                  interesting=[u for u in urls if re.search(r'illuminated|image|jpg|jpeg|png|MSID|1217',u,re.I)]
+                  rec.update({"status":"fetched","final_url":final,"content_type":ctype,"bytes":len(b),"sha256":hashlib.sha256(b).hexdigest(),"file":fn,
+                              "contexts":contexts[:100],"image_refs":imgs[:200],"interesting_urls":interesting[:200]})
+              except Exception as e:
+                  rec.update({"status":"failed","error":repr(e)})
+              audit["snapshots"].append(rec)
+
+          # Collect candidate image refs with their snapshot context. Do not assign folios here.
+          candidates=[]
+          for rec in audit["snapshots"]:
+              for ref in rec.get("image_refs",[]):
+                  if ref not in [c["ref"] for c in candidates]:
+                      candidates.append({"ref":ref,"source_snapshot":rec.get("wayback_url"),"folio_assignment":"UNRESOLVED"})
+          audit["candidate_image_refs"]=candidates
+          audit["acceptance_rule"]="Only promote an image to f.120r if the BL page/snapshot itself explicitly ties that image to folio 120r; never infer from order or iconography."
+          (root/"sloane1171_archive_audit.json").write_text(json.dumps(audit,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
+          print(json.dumps(audit,indent=2,ensure_ascii=False))
+          PY
+      - name: Upload audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sloane-1171-archive-probe-${{ github.run_id }}
+          path: sloane_probe/
+          if-no-files-found: error
+          retention-days: 14
