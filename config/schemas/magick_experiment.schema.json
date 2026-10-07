@@ -1,0 +1,252 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://expert-robot.local/schemas/magick_experiment.schema.json",
+  "title": "Magick Experimental Intermediate Representation",
+  "description": "Strict, evidence-aware representation of historical ritual instructions as testable physical/informational protocols. Historical claims are inputs, never proof of anomalous physics.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "experiment_id",
+    "title",
+    "source",
+    "claim",
+    "geometry",
+    "acoustics",
+    "materials",
+    "orientation",
+    "timing",
+    "environment",
+    "human_actions",
+    "measurements",
+    "controls",
+    "simulation",
+    "evidence"
+  ],
+  "properties": {
+    "schema_version": {"const": "0.1"},
+    "experiment_id": {"type": "string", "minLength": 1},
+    "title": {"type": "string", "minLength": 1},
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tradition", "witnesses", "transmission_policy"],
+      "properties": {
+        "tradition": {"type": "string"},
+        "witnesses": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "kind", "provenance_status", "independence_weight"],
+            "properties": {
+              "id": {"type": "string"},
+              "kind": {"enum": ["manuscript", "critical_edition", "catalogue", "secondary_source", "reconstruction"]},
+              "shelfmark": {"type": ["string", "null"]},
+              "folio": {"type": ["string", "null"]},
+              "date": {"type": ["string", "null"]},
+              "provenance_status": {"enum": ["direct", "catalogued", "derivative", "disputed", "missing"]},
+              "independence_weight": {"type": "number", "minimum": 0, "maximum": 1},
+              "visual_features_imputed": {"type": "boolean", "default": false},
+              "notes": {"type": "string"}
+            }
+          }
+        },
+        "transmission_policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["copied_observations_count_once", "locus_cap", "missing_pixels_policy"],
+          "properties": {
+            "copied_observations_count_once": {"const": true},
+            "locus_cap": {"type": "integer", "minimum": 1},
+            "missing_pixels_policy": {"const": "latent_no_reconstruction"}
+          }
+        }
+      }
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["historical_description", "portal_class", "evidence_ceiling"],
+      "properties": {
+        "historical_description": {"type": "string"},
+        "portal_class": {"enum": ["P0_perceptual", "P1_information", "P2_field_energy", "P3_matter_transport", "P4_spacetime_connection"]},
+        "evidence_ceiling": {"enum": ["historical_only", "ordinary_physics", "candidate_anomaly", "replicated_anomaly", "new_physics_candidate"]},
+        "predicted_observables": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "geometry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primitives", "topology", "coordinate_frame"],
+      "properties": {
+        "primitives": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {"enum": ["point", "line", "circle", "sphere", "polygon", "region", "glyph_path"]},
+              "id": {"type": "string"},
+              "parameters": {"type": "object"},
+              "uncertainty": {"type": ["object", "null"]}
+            }
+          }
+        },
+        "topology": {"type": "array", "items": {"type": "string"}},
+        "coordinate_frame": {"type": "string"},
+        "symmetry_group": {"type": ["string", "null"]},
+        "orientation_sensitive": {"type": "boolean"}
+      }
+    },
+    "acoustics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["utterances"],
+      "properties": {
+        "utterances": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["token", "mode"],
+            "properties": {
+              "token": {"type": "string"},
+              "mode": {"enum": ["live_voice", "recording", "synthetic", "silence", "spectral_control"]},
+              "phonetic_transcription": {"type": ["string", "null"]},
+              "waveform_ref": {"type": ["string", "null"]},
+              "target_spl_db": {"type": ["number", "null"]},
+              "fundamental_hz": {"type": ["number", "null"]},
+              "phase_policy": {"type": ["string", "null"]},
+              "repetitions": {"type": "integer", "minimum": 0}
+            }
+          }
+        }
+      }
+    },
+    "materials": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "material_class", "role"],
+        "properties": {
+          "id": {"type": "string"},
+          "material_class": {"type": "string"},
+          "role": {"type": "string"},
+          "composition": {"type": ["string", "null"]},
+          "conductivity_s_per_m": {"type": ["number", "null"]},
+          "relative_permittivity": {"type": ["number", "null"]},
+          "relative_permeability": {"type": ["number", "null"]},
+          "optical_properties": {"type": ["object", "null"]},
+          "chemical_hazards": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "orientation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reference"],
+      "properties": {
+        "reference": {"enum": ["laboratory", "magnetic_north", "true_north", "astronomical", "manuscript_relative"]},
+        "azimuth_deg": {"type": ["number", "null"], "minimum": 0, "exclusiveMaximum": 360},
+        "inclination_deg": {"type": ["number", "null"], "minimum": -90, "maximum": 90},
+        "astronomical_context": {"type": ["object", "null"]}
+      }
+    },
+    "timing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sequence"],
+      "properties": {
+        "sequence": {"type": "array", "items": {"type": "string"}},
+        "relative_timestamps_s": {"type": "array", "items": {"type": "number"}},
+        "historical_time_constraints": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "temperature_c": {"type": ["number", "null"]},
+        "pressure_pa": {"type": ["number", "null"]},
+        "relative_humidity": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "ambient_em": {"type": ["object", "null"]},
+        "ambient_acoustic": {"type": ["object", "null"]},
+        "lighting": {"type": ["object", "null"]}
+      }
+    },
+    "human_actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["action"],
+        "properties": {
+          "action": {"type": "string"},
+          "trajectory_ref": {"type": ["string", "null"]},
+          "body_state_measured": {"type": "boolean"},
+          "notes": {"type": "string"}
+        }
+      }
+    },
+    "measurements": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["channel", "instrument", "sample_rate_hz"],
+        "properties": {
+          "channel": {"enum": ["magnetic", "electric", "rf", "acoustic", "vibration", "optical", "thermal", "pressure", "chemical", "radiation", "video", "human_report"]},
+          "instrument": {"type": "string"},
+          "sample_rate_hz": {"type": "number", "exclusiveMinimum": 0},
+          "calibration_ref": {"type": ["string", "null"]},
+          "uncertainty_model": {"type": ["string", "null"]}
+        }
+      }
+    },
+    "controls": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ablations", "blinding", "randomization"],
+      "properties": {
+        "ablations": {"type": "array", "items": {"type": "string"}},
+        "blinding": {"enum": ["none", "single", "double", "automated"]},
+        "randomization": {"type": "boolean"},
+        "preregistered": {"type": "boolean"},
+        "holdout_fraction": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "simulation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["known_physics_models", "residual_policy"],
+      "properties": {
+        "known_physics_models": {"type": "array", "items": {"enum": ["acoustic_wave", "maxwell_em", "heat", "elastic_vibration", "optics", "fluid", "chemical", "sensor_noise"]}},
+        "cace_pipeline": {"type": "array", "items": {"type": "string"}},
+        "residual_policy": {
+          "type": "object",
+          "required": ["compare_observed_to_interval_bound", "anomaly_requires_bound_exceedance"],
+          "properties": {
+            "compare_observed_to_interval_bound": {"const": true},
+            "anomaly_requires_bound_exceedance": {"const": true},
+            "multiple_testing_correction": {"type": "string"}
+          }
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "replications", "independent_labs", "known_physics_excluded"],
+      "properties": {
+        "status": {"enum": ["UNTESTED", "ORDINARY", "INCONCLUSIVE", "ANOMALOUS_CANDIDATE", "REPLICATED_ANOMALY", "NEW_PHYSICS_CANDIDATE"]},
+        "replications": {"type": "integer", "minimum": 0},
+        "independent_labs": {"type": "integer", "minimum": 0},
+        "known_physics_excluded": {"type": "boolean"},
+        "notes": {"type": "string"}
+      }
+    }
+  }
+}
