@@ -1,0 +1,141 @@
+{
+  "schema_version": 1,
+  "repository": "morganaspim/Cace-app",
+  "commit": "0e7aa229d3bb57174e281b883ee8af5445f15f75",
+  "module": "cace_studio/modules/fem_nd.py",
+  "classes": [
+    {
+      "name": "SimplexMeshND",
+      "inputs": [],
+      "params": [
+        "elements",
+        "vertices"
+      ],
+      "outputs": [
+        "mesh"
+      ]
+    },
+    {
+      "name": "P1SimplexSpaceND",
+      "inputs": [
+        "mesh"
+      ],
+      "params": [],
+      "outputs": [
+        "space"
+      ]
+    },
+    {
+      "name": "SimplexQuadratureND",
+      "inputs": [
+        "mesh"
+      ],
+      "params": [],
+      "outputs": [
+        "quadrature"
+      ]
+    },
+    {
+      "name": "PoissonAssemblyND",
+      "inputs": [
+        "mesh"
+      ],
+      "params": [
+        "source"
+      ],
+      "outputs": [
+        "system"
+      ]
+    },
+    {
+      "name": "LinearSolverND",
+      "inputs": [
+        "system"
+      ],
+      "params": [],
+      "outputs": [
+        "solution"
+      ]
+    },
+    {
+      "name": "AlgebraicResidualND",
+      "inputs": [
+        "solution",
+        "system"
+      ],
+      "params": [],
+      "outputs": [
+        "residual_inf"
+      ]
+    },
+    {
+      "name": "ResidualEstimatorND",
+      "inputs": [
+        "mesh",
+        "solution"
+      ],
+      "params": [
+        "source"
+      ],
+      "outputs": [
+        "estimator"
+      ]
+    },
+    {
+      "name": "UniformRefinementND",
+      "inputs": [
+        "mesh"
+      ],
+      "params": [],
+      "outputs": [
+        "refined_mesh"
+      ]
+    },
+    {
+      "name": "ConvergenceStudyND",
+      "inputs": [
+        "mesh"
+      ],
+      "params": [
+        "levels",
+        "source"
+      ],
+      "outputs": [
+        "history"
+      ]
+    },
+    {
+      "name": "AdaptiveRefinement2D",
+      "inputs": [
+        "estimator",
+        "mesh"
+      ],
+      "params": [
+        "theta"
+      ],
+      "outputs": [
+        "marked",
+        "marked_edges",
+        "refined_mesh"
+      ]
+    },
+    {
+      "name": "FEMNDCertificate",
+      "inputs": [
+        "estimator",
+        "history",
+        "mesh",
+        "refined_mesh",
+        "residual_inf"
+      ],
+      "params": [
+        "residual_tolerance"
+      ],
+      "outputs": [
+        "certificate_summary"
+      ]
+    }
+  ],
+  "evidence_run": 37686432878,
+  "artifact_id": 11511805721
+}
