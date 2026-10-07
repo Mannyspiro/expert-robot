@@ -10,7 +10,7 @@ spec.loader.exec_module(module)
 
 crl_path=ROOT/"config"/"examples"/"portal_p2_boundary_null.crl"
 ir=module.crl.parse(crl_path.read_text(encoding="utf-8"),str(crl_path))
-packet=module.build(ir,segments=32,source=1.0,theta=0.5)
+packet=module.build(ir,segments=32,source=1.0,theta=0.5,mesh_semantics="filled_disk_surrogate")
 
 assert packet["mesh"]["dimension"]==2
 assert len(packet["mesh"]["vertices"])>0
@@ -31,3 +31,10 @@ assert "EstimatorReliabilityGate" in cert
 assert packet["unresolved_certification"]
 
 print("CRL -> CACE ND bridge: PASS")
+
+try:
+    module.build(ir,segments=32,source=1.0,theta=0.5)
+except ValueError as exc:
+    assert "explicit mesh_semantics" in str(exc)
+else:
+    raise AssertionError("bridge silently chose a physical interpretation")
