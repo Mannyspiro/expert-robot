@@ -105,6 +105,7 @@ jobs:
       - name: CACE Ritual Language guardrails
         run: |
           python3 tests/crl_compiler_smoke.py
+          python3 tests/crl_parameter_sweep_smoke.py
           python3 tests/occult_experiment_packet_smoke.py
 
       - name: Experiment-inspired mathematics guardrails
