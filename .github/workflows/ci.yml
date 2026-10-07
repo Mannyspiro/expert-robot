@@ -119,6 +119,9 @@ jobs:
       - name: Protocol feature-matrix guardrails
         run: python3 tests/protocol_feature_matrix_smoke.py
 
+      - name: Symmetry reduction qualification guardrails
+        run: python3 tests/symmetry_reduction_contract_smoke.py
+
       - name: Experiment-inspired mathematics guardrails
         run: python3 tests/experiment_math_miner_smoke.py
 
