@@ -99,6 +99,11 @@ jobs:
       - name: Compute policy guardrails
         run: python3 tests/compute_policy_smoke.py
 
+      - name: Avrea half-month accounting guardrails
+        run: |
+          python3 tests/avrea_halfmonth_budget_smoke.py
+          python3 tests/avrea_workflow_guardrails_smoke.py
+
       - name: Known failure regression guardrails
         run: python3 tests/known_failure_regression_smoke.py
 
