@@ -196,3 +196,46 @@ result patterns
 Thus even a null occult experiment can be useful if it reveals geometry,
 symmetry, acoustics, meshing, inference, or error-estimation mathematics that
 improves CACE.
+
+
+## Parameterized traditions
+
+CRL can represent a family of related historical protocols rather than cloning
+one file per day/hour/entity/material variant.
+
+```text
+PARAM ritual-day kind=categorical role=timing \
+  values=Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday
+PARAM ritual-hour kind=integer role=timing min=1 max=24
+
+BIND symbols.day-angel parameter=ritual-day mode=lookup \
+  transform=witness_defined_day_name
+BIND timing.hour parameter=ritual-hour mode=metadata_only
+```
+
+The bounded sweep planner uses baseline + one-factor-at-a-time by default:
+
+```text
+scripts/plan_crl_parameters.py config/examples/heptameron_circle.crl
+```
+
+It deliberately avoids a full Cartesian product until single parameters show
+information value.
+
+## Energy and transformation processes
+
+Physical energy input is never implicit.
+
+```text
+ENERGY spoken-wave kind=acoustic role="measured vocal excitation" measured=true
+PROCESS vocal-excitation kind=expose targets=outer energy=spoken-wave order=2
+```
+
+Process records can represent drawing/placing, heating/cooling, mixing,
+dissolution, filtration, distillation, calcination, exposure, waiting, and
+observation. This allows CRL to expand into alchemical/material experiments
+while retaining measured energy, sequence, provenance, controls, and CACE
+simulation.
+
+Potentially hazardous historical chemistry remains simulation-first until a
+separate safety review defines a physical bench protocol.
