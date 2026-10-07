@@ -79,6 +79,13 @@
       "license": "BSD-3-Clause",
       "status": "implemented_modeler_component_subject_to_transitive_dependency_audit",
       "pinned_version": "2026.3.6"
+    },
+    {
+      "name": "PySCF",
+      "role": "independent bounded Hartree-Fock electronic-structure baseline",
+      "license": "Apache-2.0",
+      "status": "implemented_quantum_baseline_subject_to_transitive_dependency_audit",
+      "pinned_version": "2.14.0"
     }
   ]
 }
