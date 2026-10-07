@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - ".github/workflows/cace-research-interface-probe.yml"
+      - "scripts/probe_cace_interfaces.py"
   workflow_dispatch:
 
 permissions:
@@ -51,74 +52,11 @@ jobs:
           mkdir -p "$out"
           GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
             git clone --depth 1 "$CACE_REPO_SSH" "$work"
-          cd "$work"
-          git rev-parse HEAD > "$out/commit.txt"
-          python3 - "$work" "$out" <<'PY'
-import json
-import pathlib
-import re
-import sys
-
-root = pathlib.Path(sys.argv[1])
-out = pathlib.Path(sys.argv[2])
-
-keywords = {
-    'mesh': 5, 'solver': 5, 'residual': 5, 'operator': 5,
-    'certificate': 5, 'interval': 4, 'geometry': 4, 'shape': 3,
-    'coordinate': 3, 'fem': 5, 'maxwell': 5, 'acoustic': 5,
-    'capabilit': 3, 'graph': 2, 'validate': 3, 'simulation': 4,
-    'pde': 5, 'flux': 4, 'error': 2, 'adaptive': 4, 'bound': 3,
-}
-extensions = {
-    '.py', '.cpp', '.cc', '.cxx', '.hpp', '.h', '.ts', '.tsx',
-    '.js', '.jsx', '.lean', '.rs', '.go', '.json', '.toml', '.yaml', '.yml'
-}
-decl = re.compile(
-    r'^\s*(?:export\s+)?(?:async\s+)?(?:class|def|function|interface|type|struct|enum|namespace|theorem|lemma|def|inductive|structure)\s+[^\s({:]+|^\s*(?:GET|POST|PUT|DELETE|PATCH)\s+/'
-)
-
-rows = []
-for path in root.rglob('*'):
-    if not path.is_file() or path.suffix.lower() not in extensions:
-        continue
-    rel = path.relative_to(root).as_posix()
-    if any(part in {'.git', 'node_modules', 'vendor', 'dist', 'build'} for part in path.parts):
-        continue
-    try:
-        if path.stat().st_size > 1_000_000:
-            continue
-        text = path.read_text(encoding='utf-8', errors='ignore')
-    except Exception:
-        continue
-    hay = (rel + '\n' + text[:20000]).lower()
-    score = sum(weight for key, weight in keywords.items() if key in hay)
-    if score <= 0:
-        continue
-    declarations = []
-    for idx, line in enumerate(text.splitlines(), start=1):
-        if decl.search(line) or '/api/' in line or 'api/' in line.lower():
-            declarations.append({'line': idx, 'text': line.strip()[:240]})
-        if len(declarations) >= 20:
-            break
-    rows.append({
-        'path': rel,
-        'score': score,
-        'size': path.stat().st_size,
-        'declarations': declarations,
-    })
-
-rows.sort(key=lambda r: (-r['score'], r['path']))
-payload = {
-    'schema_version': 1,
-    'repository': 'morganaspim/Cace-app',
-    'commit': (out / 'commit.txt').read_text().strip(),
-    'candidate_count': len(rows),
-    'candidates': rows[:100],
-    'remote_mutated': False,
-}
-(out / 'inventory.json').write_text(json.dumps(payload, indent=2) + '\n')
-print(json.dumps(payload, indent=2))
-PY
+          git -C "$work" rev-parse HEAD > "$out/commit.txt"
+          python3 "$GITHUB_WORKSPACE/scripts/probe_cace_interfaces.py" \
+            "$work" "$out" \
+            --repository morganaspim/Cace-app \
+            --commit-file "$out/commit.txt"
 
       - name: Upload interface evidence
         uses: actions/upload-artifact@v4
