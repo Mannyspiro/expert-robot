@@ -8,6 +8,8 @@ TRADITION "Clavicula / Key of Solomon"
 WITNESS clav-text kind=critical_edition provenance=direct weight=0.85 notes="Protocol-level template; individual manuscript diagrams must receive their own witness records."
 
 CLAIM P0_perceptual historical_only "Nested ritual boundaries, directional regions, an intentional entry/egress opening, and placed symbols/implements are claimed to define a protected operational space."
+LOCUS boundary-opening feature=topology channel=textual witnesses=clav-text state=intentional_entry_egress_opening confidence=0.9 group=clav-opening status=observed target=geometry.east-opening
+LOCUS cardinal-regions feature=orientation channel=textual witnesses=clav-text state=four_directional_regions confidence=0.9 group=clav-cardinals status=observed target=orientation
 PREDICT "Any physical effect attributable to the opening should scale with ordinary acoustic, airflow, optical, thermal, or field boundary changes."
 
 CIRCLE outer radius=2 center=0,0,0 normal=0,0,1
