@@ -1,0 +1,151 @@
+name: Harley f16v Acquisition
+
+on:
+  push:
+    branches:
+      - "research/bl-facsimile-acquisition"
+    paths:
+      - ".github/workflows/harley-f16v-acquisition.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  acquire:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Acquire exact Harley 2407 f.16v
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p acquisition
+          python3 - <<'PY'
+          import hashlib, json, pathlib, re, ssl, struct, urllib.request
+          root=pathlib.Path("acquisition")
+          manifest_url="https://bl.digirati.io/iiif/ark:/81055/vdc_100057740056.0x000001"
+
+          def fetch(url,accept="*/*",timeout=120):
+              req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0 (manuscript research)","Accept":accept})
+              with urllib.request.urlopen(req,timeout=timeout) as r:
+                  return r.read(),r.headers.get("Content-Type","")
+
+          raw,_=fetch(manifest_url,"application/json,application/ld+json,*/*")
+          manifest=json.loads(raw.decode("utf-8"))
+          (root/"harley2407_manifest.json").write_bytes(raw)
+
+          def text(v):
+              if v is None:return ""
+              if isinstance(v,str):return v
+              if isinstance(v,list):return " ".join(text(x) for x in v)
+              if isinstance(v,dict):
+                  vals=[]
+                  for x in v.values(): vals.extend(x if isinstance(x,list) else [x])
+                  return " ".join(text(x) for x in vals)
+              return str(v)
+
+          canvases=manifest.get("items") or ((manifest.get("sequences") or [{}])[0].get("canvases") or [])
+          exact=[]
+          for i,c in enumerate(canvases):
+              lab=text(c.get("label"))
+              if re.search(r"(?i)(?:^|\b)(?:f(?:ol(?:io)?)?\.?\s*)?16\s*v(?:\b|$)",lab):
+                  exact.append((i,c,lab))
+          if len(exact)!=1:
+              raise SystemExit(f"expected one f.16v canvas, got {len(exact)}")
+          idx,canvas,lab=exact[0]
+          (root/"harley2407_f16v_canvas.json").write_text(json.dumps(canvas,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
+
+          def walk(x):
+              if isinstance(x,dict):
+                  yield x
+                  for v in x.values(): yield from walk(v)
+              elif isinstance(x,list):
+                  for v in x: yield from walk(v)
+
+          services=[]
+          direct=[]
+          for obj in walk(canvas):
+              oid=obj.get("id") or obj.get("@id")
+              typ=str(obj.get("type") or obj.get("@type") or "")
+              prof=str(obj.get("profile") or "")
+              fmt=str(obj.get("format") or "")
+              if isinstance(oid,str):
+                  if "ImageService" in typ or "iiif.io/api/image" in prof:
+                      services.append({"id":oid.rstrip("/"),"type":typ,"profile":prof,"width":obj.get("width"),"height":obj.get("height")})
+                  if fmt.startswith("image/") and not oid.endswith("/info.json"):
+                      direct.append(oid)
+          dedup={s["id"]:s for s in services}
+          services=list(dedup.values())
+          services.sort(key=lambda s:(("thumb" in s["id"].lower()),-int(s.get("width") or 0)))
+          direct=list(dict.fromkeys(direct))
+
+          urls=[]
+          for s in services:
+              urls += [s["id"]+"/full/full/0/default.jpg",s["id"]+"/full/max/0/default.jpg",s["id"]+"/full/4000,/0/default.jpg"]
+          urls += direct
+          urls=list(dict.fromkeys(urls))
+
+          def jpeg_dims(b):
+              if b[:2]!=b"\xff\xd8": return None,None
+              i=2
+              sof={0xC0,0xC1,0xC2,0xC3,0xC5,0xC6,0xC7,0xC9,0xCA,0xCB,0xCD,0xCE,0xCF}
+              while i+4<len(b):
+                  if b[i]!=0xFF: i+=1; continue
+                  while i<len(b) and b[i]==0xFF:i+=1
+                  if i>=len(b):break
+                  m=b[i]; i+=1
+                  if m in {0xD8,0xD9,0x01} or 0xD0<=m<=0xD7:continue
+                  if i+2>len(b):break
+                  seg=int.from_bytes(b[i:i+2],"big")
+                  if m in sof and i+7<=len(b):
+                      h=int.from_bytes(b[i+3:i+5],"big"); w=int.from_bytes(b[i+5:i+7],"big")
+                      return w,h
+                  i+=seg
+              return None,None
+
+          best=None; errors=[]
+          for url in urls:
+              try:
+                  b,ctype=fetch(url,"image/*")
+                  if len(b)<10000 or not (ctype or "").lower().startswith("image/"):
+                      errors.append({"url":url,"error":f"unexpected {ctype} bytes={len(b)}"}); continue
+                  w,h=jpeg_dims(b)
+                  cand={"url":url,"payload":b,"ctype":ctype,"width":w,"height":h}
+                  if best is None or (w or 0)*(h or 0)>(best["width"] or 0)*(best["height"] or 0):
+                      best=cand
+              except Exception as e:
+                  errors.append({"url":url,"error":repr(e)})
+          if best is None: raise SystemExit("no image acquired")
+          out=root/"harley2407_f16v_full.jpg"
+          out.write_bytes(best["payload"])
+          result={
+              "shelfmark":"Harley MS 2407",
+              "folio":"f.16v",
+              "manifest":manifest_url,
+              "canvas_index":idx,
+              "canvas_label":lab,
+              "canvas_id":canvas.get("id") or canvas.get("@id"),
+              "canvas_width":canvas.get("width"),
+              "canvas_height":canvas.get("height"),
+              "image_services":services,
+              "image_url":best["url"],
+              "image_width":best["width"],
+              "image_height":best["height"],
+              "image_bytes":len(best["payload"]),
+              "sha256":hashlib.sha256(best["payload"]).hexdigest(),
+              "verification":"British Library IIIF manifest exact folio label; no OCR or folio inference",
+              "errors":errors,
+              "status":"ACQUIRED"
+          }
+          (root/"harley2407_f16v_acquisition.json").write_text(json.dumps(result,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
+          print(json.dumps(result,indent=2,ensure_ascii=False))
+          PY
+      - name: Upload f16v evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: harley-f16v-acquisition-${{ github.run_id }}
+          path: acquisition/
+          if-no-files-found: error
+          retention-days: 14
