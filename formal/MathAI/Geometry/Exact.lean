@@ -39,6 +39,13 @@ structure Sphere3 where
   radiusSquared : ℚ
 deriving DecidableEq, Repr
 
+/-- A Euclidean circle embedded in 3D by center, plane normal, and squared radius. -/
+structure Circle3 where
+  center : Point3
+  normal : Vec3
+  radiusSquared : ℚ
+deriving DecidableEq, Repr
+
 @[ext] theorem Vec3.ext_coords
     (a b : Vec3)
     (hx : a.x = b.x)
@@ -98,6 +105,17 @@ def squaredDistance (a b : Point3) : ℚ :=
 def pointOnSphere (p : Point3) (sphere : Sphere3) : Prop :=
   validSphere sphere ∧ squaredDistance sphere.center p = sphere.radiusSquared
 
+def validCircle (circle : Circle3) : Prop :=
+  circle.normal ≠ zeroVec ∧ 0 ≤ circle.radiusSquared
+
+def circlePlaneOffset (circle : Circle3) : ℚ :=
+  dot circle.normal (pointVec circle.center)
+
+def pointOnCircle (p : Point3) (circle : Circle3) : Prop :=
+  validCircle circle ∧
+    dot circle.normal (pointVec p) = circlePlaneOffset circle ∧
+    squaredDistance circle.center p = circle.radiusSquared
+
 def orthogonal (a b : Vec3) : Prop :=
   dot a b = 0
 
@@ -115,5 +133,14 @@ theorem unit_x_on_unit_sphere :
       (⟨1, 0, 0⟩ : Point3)
       (⟨⟨0, 0, 0⟩, 1⟩ : Sphere3) := by
   norm_num [pointOnSphere, validSphere, squaredDistance]
+
+theorem unit_x_on_unit_xy_circle :
+    pointOnCircle
+      (⟨1, 0, 0⟩ : Point3)
+      (⟨⟨0, 0, 0⟩, ⟨0, 0, 1⟩, 1⟩ : Circle3) := by
+  norm_num [
+    pointOnCircle, validCircle, circlePlaneOffset, zeroVec,
+    dot, pointVec, squaredDistance
+  ]
 
 end MathAI.Geometry
