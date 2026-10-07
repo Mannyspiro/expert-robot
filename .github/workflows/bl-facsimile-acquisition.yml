@@ -1,0 +1,234 @@
+name: BL Facsimile Acquisition
+
+on:
+  push:
+    branches:
+      - "research/bl-facsimile-acquisition"
+    paths:
+      - ".github/workflows/bl-facsimile-acquisition.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bl-facsimile-acquisition
+  cancel-in-progress: true
+
+jobs:
+  acquire:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch British Library source metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p acquisition
+          manifest='https://bl.digirati.io/iiif/ark:/81055/vdc_100057740056.0x000001'
+          sloane_catalog='https://searcharchives.bl.uk/catalog/040-002113521'
+          sloane_legacy='https://www.bl.uk/catalogues/illuminatedmanuscripts/record.asp?MSID=1217&CollID=9&NStart=1171'
+
+          curl -L --fail --retry 3 --connect-timeout 20 --max-time 120 \
+            -H 'Accept: application/ld+json, application/json;q=0.9, */*;q=0.1' \
+            "$manifest" -o acquisition/harley2407_manifest.json
+
+          curl -L --fail --retry 3 --connect-timeout 20 --max-time 120 \
+            "$sloane_catalog" -o acquisition/sloane1171_catalog.html || true
+
+          curl -L --fail --retry 3 --connect-timeout 20 --max-time 120 \
+            "$sloane_legacy" -o acquisition/sloane1171_legacy_record.html || true
+
+      - name: Resolve exact Harley f.56r canvas and image
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, json, pathlib, re, urllib.request
+
+          root = pathlib.Path("acquisition")
+          manifest_path = root / "harley2407_manifest.json"
+          data = json.loads(manifest_path.read_text(encoding="utf-8"))
+
+          def label_text(v):
+              if v is None:
+                  return ""
+              if isinstance(v, str):
+                  return v
+              if isinstance(v, list):
+                  return " ".join(label_text(x) for x in v)
+              if isinstance(v, dict):
+                  vals=[]
+                  for x in v.values():
+                      vals.extend(x if isinstance(x,list) else [x])
+                  return " ".join(label_text(x) for x in vals)
+              return str(v)
+
+          canvases = data.get("items") or ((data.get("sequences") or [{}])[0].get("canvases") or [])
+          rows=[]
+          for i,c in enumerate(canvases):
+              rows.append({
+                  "index": i,
+                  "label": label_text(c.get("label")),
+                  "id": c.get("id") or c.get("@id") or "",
+              })
+          (root/"harley2407_canvas_labels.json").write_text(json.dumps(rows,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
+
+          def folio_norm(s):
+              return re.sub(r"[^0-9a-z]","",s.lower()).replace("folio","").replace("fol","").lstrip("f")
+
+          exact=[]
+          for i,c in enumerate(canvases):
+              lab=label_text(c.get("label"))
+              n=folio_norm(lab)
+              if n == "56r" or re.search(r"(?i)(?:^|\b)(?:f(?:ol(?:io)?)?\.?\s*)?56\s*r(?:\b|$)", lab):
+                  exact.append((i,c,lab))
+
+          neighbor=[r for r in rows if re.search(r"(?i)\b(?:f(?:ol(?:io)?)?\.?\s*)?(?:55|56|57)\s*[rv]\b",r["label"])]
+          (root/"harley2407_neighbor_labels.json").write_text(json.dumps(neighbor,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
+
+          def walk(x):
+              if isinstance(x,dict):
+                  yield x
+                  for v in x.values():
+                      yield from walk(v)
+              elif isinstance(x,list):
+                  for v in x:
+                      yield from walk(v)
+
+          result={
+              "manifest":"https://bl.digirati.io/iiif/ark:/81055/vdc_100057740056.0x000001",
+              "canvas_count":len(canvases),
+              "exact_match_count":len(exact),
+              "exact_match":False,
+              "status":"NO_EXACT_F56R_LABEL",
+          }
+
+          if len(exact)==1:
+              idx,canvas,lab=exact[0]
+              result.update({
+                  "exact_match":True,
+                  "status":"EXACT_F56R_CANVAS_FOUND",
+                  "canvas_index":idx,
+                  "canvas_label":lab,
+                  "canvas_id":canvas.get("id") or canvas.get("@id") or "",
+              })
+              (root/"harley2407_f56r_canvas.json").write_text(json.dumps(canvas,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
+              services=[]
+              direct=[]
+              for obj in walk(canvas):
+                  oid=obj.get("id") or obj.get("@id")
+                  typ=str(obj.get("type") or obj.get("@type") or "")
+                  prof=str(obj.get("profile") or "")
+                  fmt=str(obj.get("format") or "")
+                  if isinstance(oid,str):
+                      if "ImageService" in typ or "iiif.io/api/image" in prof:
+                          services.append(oid.rstrip("/"))
+                      if fmt.startswith("image/") and not oid.endswith("/info.json"):
+                          direct.append(oid)
+              services=list(dict.fromkeys(services))
+              direct=list(dict.fromkeys(direct))
+              result["image_services"]=services
+              result["direct_image_ids"]=direct
+
+              candidates=[]
+              for s in services:
+                  candidates += [
+                      s+"/full/max/0/default.jpg",
+                      s+"/full/full/0/default.jpg",
+                      s+"/full/2000,/0/default.jpg",
+                  ]
+              candidates += direct
+              candidates=list(dict.fromkeys(candidates))
+              errors=[]
+              for url in candidates:
+                  try:
+                      req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0","Accept":"image/*"})
+                      with urllib.request.urlopen(req,timeout=90) as r:
+                          payload=r.read()
+                          ctype=r.headers.get("Content-Type","")
+                      if len(payload) < 10000 or not ctype.lower().startswith("image/"):
+                          errors.append({"url":url,"error":f"unexpected content {ctype} bytes={len(payload)}"})
+                          continue
+                      suffix=".jpg"
+                      if "png" in ctype.lower(): suffix=".png"
+                      out=root/("harley2407_f56r"+suffix)
+                      out.write_bytes(payload)
+                      result.update({
+                          "image_downloaded":True,
+                          "image_url":url,
+                          "image_content_type":ctype,
+                          "image_bytes":len(payload),
+                          "sha256":hashlib.sha256(payload).hexdigest(),
+                          "image_file":str(out),
+                      })
+                      break
+                  except Exception as e:
+                      errors.append({"url":url,"error":repr(e)})
+              result["download_attempts"]=errors
+              if not result.get("image_downloaded"):
+                  result["status"]="EXACT_CANVAS_FOUND_IMAGE_FETCH_FAILED"
+
+          (root/"harley2407_f56r_acquisition.json").write_text(json.dumps(result,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
+          print(json.dumps(result,indent=2,ensure_ascii=False))
+          PY
+
+      - name: Audit Sloane 1171 institutional/legacy metadata for exact folio
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, pathlib, re
+          root=pathlib.Path("acquisition")
+          records=[]
+          for name in ["sloane1171_catalog.html","sloane1171_legacy_record.html"]:
+              p=root/name
+              if not p.exists():
+                  continue
+              text=p.read_text(encoding="utf-8",errors="replace")
+              urls=sorted(set(re.findall(r'https?://[^\s"\'<>]+',text,re.I)))
+              relevant=[u for u in urls if re.search(r'iiif|manifest|digit|image|viewer|ark:',u,re.I)]
+              hits=[]
+              for pat in [r'.{0,180}120r.{0,180}',r'.{0,180}120v.{0,180}',r'.{0,180}man and woman.{0,180}',r'.{0,180}flask.{0,180}']:
+                  hits += re.findall(pat,text,re.I|re.S)
+              records.append({
+                  "file":name,
+                  "bytes":len(text.encode("utf-8")),
+                  "relevant_urls":relevant[:200],
+                  "folio_context_hits":[re.sub(r'\s+',' ',h).strip() for h in hits[:100]],
+              })
+          out={
+              "shelfmark":"Sloane MS 1171",
+              "target_folio":"120r",
+              "catalog_record":"040-002113521",
+              "legacy_msid":"1217",
+              "records":records,
+              "acceptance_rule":"Do not equate 120v or an unlabeled legacy illustration with 120r. Exact folio metadata required."
+          }
+          (root/"sloane1171_f120r_metadata_audit.json").write_text(json.dumps(out,indent=2,ensure_ascii=False)+"\n",encoding="utf-8")
+          print(json.dumps(out,indent=2,ensure_ascii=False))
+          PY
+
+      - name: Write integrity summary
+        shell: bash
+        run: |
+          set -euo pipefail
+          {
+            echo "runner=$(hostname)"
+            echo "run_id=$GITHUB_RUN_ID"
+            echo "commit=$GITHUB_SHA"
+            echo "utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            sha256sum acquisition/* 2>/dev/null || true
+          } | tee acquisition/integrity.txt
+
+      - name: Upload acquisition evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bl-facsimile-acquisition-${{ github.run_id }}
+          path: acquisition/
+          if-no-files-found: error
+          retention-days: 14
