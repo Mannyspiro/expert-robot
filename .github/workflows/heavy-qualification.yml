@@ -7,16 +7,30 @@ concurrency:
   group: heavy-qualification-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  actions: read
+
 jobs:
   full-qualification:
     # Manual only: 32 vCPUs / 128 GB on Avrea. This runner is available at
     # zero monetary cost here; reserve it for genuinely heavy work to conserve
     # the free runner quota and avoid unnecessary churn.
     runs-on: avrea-ubuntu-latest-32-vcpu
+    concurrency:
+      group: expert-robot-avrea-half-month-slot
+      cancel-in-progress: false
+      queue: max
+    timeout-minutes: 180
 
     steps:
       - uses: actions/checkout@v4
 
+      - name: Enforce Avrea half-month budget
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AVREA_RUNNER_LABEL: avrea-ubuntu-latest-32-vcpu
+        run: python3 scripts/check_avrea_halfmonth_budget.py --reserve-minutes 180 --runner-label "$AVREA_RUNNER_LABEL"
       - name: Detect hardware
         id: cores
         shell: bash
