@@ -225,7 +225,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 - <<'PY'
-          import hashlib, json, pathlib, re, urllib.request
+          import hashlib, json, pathlib, re, ssl, urllib.request
 
           root=pathlib.Path("acquisition")
           manifest_id="18f7a473-2f92-47bc-b12f-25bf523da90c"
@@ -257,7 +257,7 @@ jobs:
               "fdtw_manifest_id":manifest_id,
               "manifest_url":manifest_url,
               "manifest_fetch_errors":errors,
-              "status":"MANIFEST_FETCH_FAILED" if manifest is None else "MANIFEST_FETCHED",
+              "status":"MANIFEST_FETCH_FAILED" if manifest is None else "MANIFEST_FETCHED",\n              "manifest_tls_verification":False,
           }
 
           def label_text(v):
