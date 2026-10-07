@@ -142,6 +142,9 @@ jobs:
       - name: Experiment-inspired mathematics guardrails
         run: python3 tests/experiment_math_miner_smoke.py
 
+      - name: CACE history to math guardrails
+        run: python3 tests/cace_history_math_smoke.py
+
       - name: Math discovery promotion policy
         run: python3 tests/math_discovery_policy_smoke.py
 
