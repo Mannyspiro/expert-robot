@@ -36,7 +36,8 @@ assert budget.assess(0, 1501, policy, date(1))["allowed"] is False
 assert budget.assess(1490, 10, policy, date(16))["remaining_after_reservation"] == 0
 assert policy["non_transferable"] is True
 assert policy["monthly_max_minutes"] == 3000
-assert policy["runner_weights"]["avrea-ubuntu-latest-32-vcpu"] >= 4
+assert policy["runner_weights"]["avrea-ubuntu-latest-8-vcpu"] == 4
+assert policy["runner_weights"]["avrea-ubuntu-latest-32-vcpu"] == 16
 assert policy["fail_closed_on_usage_error"] is True
 
 # Count active jobs at the full reserved max; not just elapsed time.
@@ -44,7 +45,7 @@ period = budget.budget_window(date(14), policy)
 run = {"id": 12, "path": ".github/workflows/ci.yml"}
 active = {"name": "build-and-smoke", "status": "in_progress",
           "started_at": "2026-10-14T18:00:00Z", "completed_at": None}
-assert budget.charge_for_job(active, run, period, policy, "", "") == 65
+assert budget.charge_for_job(active, run, period, policy, "", "") == 260
 # A cancelled job that never started costs zero.
 cancelled = {"name": "build-and-smoke", "status": "completed",
              "conclusion": "cancelled", "started_at": None, "completed_at": None}
