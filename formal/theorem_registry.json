@@ -406,6 +406,39 @@
         "lean_verified"
       ],
       "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.squaredDistance_origin_quarterTurnZ",
+      "source": "MathAI/Geometry/CircleDerived.lean",
+      "status": "verified",
+      "statement": "A quarter-turn around the z-axis preserves exact rational squared distance from the origin.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "circle",
+        "rotation",
+        "symmetry",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.pointOn_xyCircleAtOrigin_quarterTurnZ",
+      "source": "MathAI/Geometry/CircleDerived.lean",
+      "status": "verified",
+      "statement": "A quarter-turn around the z-axis preserves membership in an exact rational circle centered at the origin in the xy-plane.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "circle",
+        "rotation",
+        "symmetry",
+        "invariance",
+        "lean_verified"
+      ],
+      "uses": [
+        "MathAI.Geometry.squaredDistance_origin_quarterTurnZ"
+      ]
     }
   ]
 }
