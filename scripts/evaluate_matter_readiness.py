@@ -46,8 +46,14 @@ def evaluate(proposal, policy):
             "missing":missing,
             "description":stage["description"]
         }
+    # An evidence envelope is not itself proof of independent authenticity.
+    # No trusted lab/manufacturing signing verifier is wired into this repo.
+    # Thus this component may report DOCUMENT COMPLETENESS only for external
+    # gates; real production-grade authorization always remains false.
     maximum="unqualified"
     for stage in policy["stages"]:
+        if any(name in external for name in stage["required_evidence"]):
+            break
         if gates[stage["id"]]["complete"]:
             maximum=stage["id"]
         else:
@@ -56,7 +62,9 @@ def evaluate(proposal, policy):
         "schema_version":1,
         "matter_id":proposal.get("matter_id"),
         "max_supported_stage":maximum,
-        "production_grade":gates["production_grade"]["complete"],
+        "production_evidence_document_complete":gates["production_grade"]["complete"],
+        "production_grade":False,
+        "external_evidence_authenticated":False,
         "physical_synthesis_executed":False,
         "gates":gates,
         "interpretation":"Document/evidence gate only; does not authenticate external evidence or constitute manufacturing certification."
