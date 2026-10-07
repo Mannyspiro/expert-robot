@@ -145,6 +145,11 @@ jobs:
       - name: CACE history to math guardrails
         run: python3 tests/cace_history_math_smoke.py
 
+      - name: CACE refinement forecast guardrails
+        run: |
+          python3 tests/cace_refinement_forecast_smoke.py
+          python3 tests/cace_refinement_forecast_validation_smoke.py
+
       - name: Math discovery promotion policy
         run: python3 tests/math_discovery_policy_smoke.py
 
