@@ -2,6 +2,7 @@
 """Tests for Avrea's independent 1,500-minute half-month budgets."""
 
 from datetime import datetime
+from unittest.mock import patch
 from zoneinfo import ZoneInfo
 import importlib.util
 import json
@@ -51,4 +52,76 @@ cancelled = {"name": "build-and-smoke", "status": "completed",
              "conclusion": "cancelled", "started_at": None, "completed_at": None}
 assert budget.charge_for_job(cancelled, run, period, policy, "", "") == 0
 
+# The shared Avrea lock means unassigned jobs cannot spend runner minutes.
+# GitHub may populate started_at with the scheduling time even without a runner.
+unassigned = {"id": 101, "name": "build-and-smoke", "status": "pending",
+              "started_at": "2026-10-14T18:00:00Z", "completed_at": None,
+              "runner_id": None, "runner_name": None, "steps": [],
+              "labels": ["avrea-ubuntu-latest-8-vcpu"]}
+for state in ("queued", "pending", "waiting", "requested"):
+    assert budget.charge_for_job(dict(unassigned, status=state), run, period,
+                                 policy, "", "") == 0
+
+# A rejected workflow that never acquired a runner also consumed no runtime.
+not_started = dict(unassigned, status="completed", conclusion="failure",
+                   completed_at="2026-10-14T18:00:00Z")
+assert budget.charge_for_job(not_started, run, period, policy, "", "") == 0
+for unknown in (
+    dict(not_started, completed_at="2026-10-14T18:01:00Z"),
+    dict(not_started, conclusion="success"),
+):
+    try:
+        budget.charge_for_job(unknown, run, period, policy, "", "")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("ambiguous unassigned completion bypassed the budget gate")
+
+# Runner assignment/step evidence remains conservative, even while queued.
+assigned = dict(unassigned, runner_id=7, runner_name="avrea-worker")
+assert budget.charge_for_job(assigned, run, period, policy, "", "") == 260
+running = dict(unassigned, status="in_progress")
+assert budget.charge_for_job(running, run, period, policy, "", "") == 260
+step_evidence = dict(unassigned, steps=[{"name": "Set up job"}])
+assert budget.charge_for_job(step_evidence, run, period, policy, "", "") == 260
+unknown_assignment = dict(unassigned)
+del unknown_assignment["runner_id"]
+assert budget.charge_for_job(unknown_assignment, run, period, policy, "", "") == 260
+
+completed = dict(assigned, status="completed", conclusion="success",
+                 completed_at="2026-10-14T18:01:01Z")
+assert budget.charge_for_job(completed, run, period, policy, "", "") == 8
+heavy = dict(completed, labels=["avrea-ubuntu-latest-32-vcpu"])
+assert budget.charge_for_job(heavy, run, period, policy, "", "") == 32
+
+# Unknown completed timing still blocks approval.
+try:
+    budget.charge_for_job(dict(completed, started_at=None), run, period,
+                         policy, "", "")
+except ValueError:
+    pass
+else:
+    raise AssertionError("unknown completed runner timing incorrectly accepted")
+
+# Account for prior rerun attempts as well as the latest attempt. Replay the
+# GitHub response contract rather than making a live/API-token request.
+first = dict(completed, id=201, run_attempt=1)
+second = dict(completed, id=202, run_attempt=2)
+attempt_run = dict(run, run_attempt=2, created_at="2026-09-25T00:00:00Z",
+                   updated_at="2026-10-14T18:01:01Z", status="completed")
+old_run = dict(run, id=99, status="completed", updated_at="2026-09-29T00:00:00Z")
+calls = []
+def fake_pages(url, token, key, **kwargs):
+    calls.append(url)
+    if key == "workflow_runs":
+        assert "created=" not in url, "current-period rerun of an old run was omitted"
+        return [attempt_run, old_run]
+    assert "/runs/99/" not in url, "completed prior-period run should not need job queries"
+    assert "filter=all" in url, "earlier rerun runtime was omitted"
+    return [first, second]
+with patch.object(budget, "list_pages", side_effect=fake_pages):
+    used, count = budget.usage_from_github(policy, date(14), "test/repo", "fixture", "", "")
+assert used == 16 and count == 1
+
 print("Avrea half-month budget: PASS")
+

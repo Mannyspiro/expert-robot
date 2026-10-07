@@ -2,8 +2,9 @@
 """Fail-closed Avrea half-month minute gate for Expert Robot GitHub Actions.
 
 Period boundaries: America/Phoenix, days 1-15 and 16-end, separate 1500-min caps.
-Completed jobs count rounded-up job wall-clock minutes. Active jobs reserve full
-workflow worst-case minutes. All jobs within Avrea-using workflow files count
+Completed jobs count rounded-up job wall-clock minutes. Assigned/active jobs
+reserve full workflow worst-case minutes; proven unassigned queue entries do not.
+All rerun attempts count. All jobs within Avrea-using workflow files count
 conservatively; non-Avrea jobs in mixed workflows may overcount (never undercount).
 This is repository-scoped accounting, NOT an Avrea-provider billing API.
 """
@@ -17,9 +18,8 @@ import math
 import os
 import sys
 import urllib.error
-import urllib.parse
 import urllib.request
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -77,13 +77,31 @@ def charge_for_job(job, run, period, policy, current_run_id, current_job):
         # Serial Avrea concurrency ensures no other Avrea job runs alongside it.
         if job.get("name") == current_job:
             return 0
+    state = job.get("status", "")
+    # A GitHub scheduling timestamp alone is not evidence of runner runtime.
+    # Require explicit, complete assignment metadata before treating a queue
+    # entry as unstarted; missing fields remain conservatively reserved.
+    unassigned = (
+        {"runner_id", "runner_name", "steps"}.issubset(job) and
+        job["runner_id"] in (None, 0) and
+        job["runner_name"] in (None, "") and job["steps"] == []
+    )
+    if unassigned and state in ("queued", "pending", "waiting", "requested"):
+        return 0
+    if unassigned and state == "completed":
+        if job.get("conclusion") in ("cancelled", "skipped", "failure", "startup_failure"):
+            started = parse_stamp(job.get("started_at"))
+            finished = parse_stamp(job.get("completed_at"))
+            if started is None or (finished is not None and started == finished):
+                return 0
+            raise ValueError("unassigned completed job has ambiguous execution timing")
+        raise ValueError("completed job lacks runner/step execution evidence")
     started = parse_stamp(job.get("started_at"))
     finished = parse_stamp(job.get("completed_at"))
     if finished and finished <= period["start"]:
         return 0
     if started and started >= period["end"]:
         return 0
-    state = job.get("status", "")
     if not started and state == "completed":
         # Unstarted cancelled/skipped jobs consumed no runner time.
         if job.get("conclusion") in ("cancelled", "skipped"):
@@ -133,13 +151,11 @@ def list_pages(url, token, key, max_pages=30):
 
 def usage_from_github(policy, now, repo, token, current_run_id, current_job):
     period = budget_window(now, policy)
-    # Include jobs started just before midnight that run into the new period.
-    lookback = period["start"] - timedelta(days=1)
-    since = lookback.strftime("%Y-%m-%dT%H:%M:%SZ")
-    until = min(now, period["end"]).strftime("%Y-%m-%dT%H:%M:%SZ")
-    query = urllib.parse.urlencode({"created": since + ".." + until})
     base = f"https://api.github.com/repos/{repo}/actions/runs"
-    runs = list_pages(base + "?" + query, token, "workflow_runs")
+    # A run created before this period can be rerun or leave the queue during
+    # it. Filtering by created_at silently omits that consumption. Scan bounded
+    # run metadata, then skip only completed runs last updated before the period.
+    runs = list_pages(base, token, "workflow_runs", max_pages=100)
     allowed_workflows = set(policy["avrea_workflow_files"])
     used = 0
     counted = 0
@@ -147,7 +163,12 @@ def usage_from_github(policy, now, repo, token, current_run_id, current_job):
         basename = run.get("path", "").split("/")[-1].split("@")[0]
         if basename not in allowed_workflows:
             continue
-        jobs_url = f"https://api.github.com/repos/{repo}/actions/runs/{run['id']}/jobs"
+        updated = parse_stamp(run.get("updated_at"))
+        if run.get("status") == "completed" and updated and updated <= period["start"]:
+            continue
+        # GitHub defaults to only the latest attempt, which would omit runtime
+        # already spent by earlier attempts after a workflow is rerun.
+        jobs_url = f"https://api.github.com/repos/{repo}/actions/runs/{run['id']}/jobs?filter=all"
         jobs = list_pages(jobs_url, token, "jobs", max_pages=10)
         counted += 1
         for job in jobs:
@@ -200,3 +221,4 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
+
