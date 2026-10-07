@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://expert-robot.local/schemas/symmetry_reduction_contract.schema.json",
+  "title": "CACE Symmetry Reduction Contract",
+  "description": "Fail-closed contract for applying a formally proved geometric symmetry as a runtime/domain reduction. Geometry proof alone is insufficient; all correctness-relevant channels must be invariant.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version","contract_id","transformation","theorem_refs",
+    "geometry_invariant","materials_invariant","sources_invariant",
+    "boundary_conditions_invariant","observables_invariant",
+    "orientation_metadata_invariant","symbolic_channel_invariant",
+    "applicability","benchmark_evidence","status"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "contract_id": {"type":"string","minLength":1},
+    "transformation": {
+      "type":"object",
+      "required":["name","orbit_size"],
+      "properties":{
+        "name":{"type":"string"},
+        "orbit_size":{"type":"integer","minimum":2},
+        "description":{"type":"string"}
+      }
+    },
+    "theorem_refs":{
+      "type":"array","minItems":1,
+      "items":{"type":"string","minLength":1}
+    },
+    "geometry_invariant":{"type":"boolean"},
+    "materials_invariant":{"type":"boolean"},
+    "sources_invariant":{"type":"boolean"},
+    "boundary_conditions_invariant":{"type":"boolean"},
+    "observables_invariant":{"type":"boolean"},
+    "orientation_metadata_invariant":{"type":"boolean"},
+    "symbolic_channel_invariant":{"type":"boolean"},
+    "applicability":{
+      "type":"object",
+      "required":["fail_closed","required_conditions"],
+      "properties":{
+        "fail_closed":{"const":true},
+        "required_conditions":{"type":"array","items":{"type":"string"}},
+        "known_breakers":{"type":"array","items":{"type":"string"}}
+      }
+    },
+    "benchmark_evidence":{
+      "type":"object",
+      "required":["level","exact_output_match","operation_reduction_ratio","median_speedup","run_id"],
+      "properties":{
+        "level":{"enum":["kernel","component","full_cace"]},
+        "exact_output_match":{"type":"boolean"},
+        "operation_reduction_ratio":{"type":"number","exclusiveMinimum":1},
+        "median_speedup":{"type":"number","exclusiveMinimum":0},
+        "run_id":{"type":"integer","minimum":1},
+        "artifact_id":{"type":["integer","null"],"minimum":1},
+        "notes":{"type":"string"}
+      }
+    },
+    "status":{
+      "enum":[
+        "PROVEN_GEOMETRY_ONLY",
+        "KERNEL_BENCHMARKED",
+        "COMPONENT_QUALIFIED",
+        "FULL_CACE_QUALIFIED",
+        "REJECTED"
+      ]
+    }
+  }
+}
