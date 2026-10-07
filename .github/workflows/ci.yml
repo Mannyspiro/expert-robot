@@ -23,6 +23,7 @@ permissions:
 jobs:
   build-and-smoke:
     runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 65
     concurrency:
       group: expert-robot-avrea-half-month-slot
       cancel-in-progress: false
