@@ -57,7 +57,7 @@ def main():
     ]}
 
     ir=bridge.crl.parse(args.crl.read_text(encoding="utf-8"),str(args.crl))
-    packet=bridge.build(ir,segments=32,source=1.0,theta=0.5)
+    packet=bridge.build(ir,segments=32,source=1.0,theta=0.5,mesh_semantics="filled_disk_surrogate")
     ctx={}
     store={}
     report={"schema_version":1,"experiment_id":ir["experiment_id"],"routes":{}}
