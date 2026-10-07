@@ -7,7 +7,7 @@
       {"module":"SimplexMeshND","file":"cace_studio/modules/fem_nd.py","inputs":[],"params":["vertices","elements"],"output":"mesh"},
       {"module":"P1SimplexSpaceND","file":"cace_studio/modules/fem_nd.py","inputs":["mesh"],"params":[],"output":"space"},
       {"module":"SimplexQuadratureND","file":"cace_studio/modules/fem_nd.py","inputs":["mesh"],"params":[],"output":"quadrature"},
-      {"module":"PoissonAssemblyND","file":"cace_studio/modules/fem_nd.py","inputs":["mesh"],"params":["source"],"output":"system"},
+      {"module":"PoissonAssemblyND","file":"cace_studio/modules/fem_nd.py","inputs":["mesh","space"],"params":["source"],"output":"system"},
       {"module":"LinearSolverND","file":"cace_studio/modules/fem_nd.py","inputs":["system"],"params":[],"output":"solution"},
       {"module":"AlgebraicResidualND","file":"cace_studio/modules/fem_nd.py","inputs":["solution","system"],"params":[],"output":"residual_inf"},
       {"module":"ResidualEstimatorND","file":"cace_studio/modules/fem_nd.py","inputs":["mesh","solution"],"params":["source"],"output":"estimator"},
