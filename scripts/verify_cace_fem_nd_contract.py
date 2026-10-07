@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import ast
 import importlib.util
 import json
 import subprocess
@@ -20,6 +21,24 @@ def load_extractor():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def declared_specs(actual: dict, assignment: str, constructor: str) -> list[str]:
+    entry = actual.get("class_assignments", {}).get(assignment)
+    if not entry or not entry.get("expression"):
+        return []
+    tree = ast.parse(entry["expression"], mode="eval")
+    names = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        fn = node.func.id if isinstance(node.func, ast.Name) else None
+        if fn != constructor or not node.args:
+            continue
+        first = node.args[0]
+        if isinstance(first, ast.Constant) and isinstance(first.value, str):
+            names.append(first.value)
+    return names
 
 
 def verify(cace_root: Path, pin: dict) -> dict:
@@ -42,9 +61,9 @@ def verify(cace_root: Path, pin: dict) -> dict:
             mismatches.append({"class": expected["name"], "reason": "missing"})
             continue
         checks = {
-            "inputs": actual["input_keys"],
-            "params": actual["param_keys"],
-            "outputs": actual["output_keys_referenced"],
+            "inputs": declared_specs(actual, "inputs", "PortSpec"),
+            "params": declared_specs(actual, "parameters", "ParameterSpec"),
+            "outputs": declared_specs(actual, "outputs", "PortSpec"),
         }
         for key, actual_values in checks.items():
             if sorted(actual_values) != sorted(expected[key]):
