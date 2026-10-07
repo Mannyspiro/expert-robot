@@ -203,6 +203,25 @@ def analyze(candidate, loadcase, material, diameter):
     }
 
 
+def truss_pareto_ids(rows):
+    """Non-dominated declared-limit-passing trusses by mass/compliance/stress."""
+    qualified = [r for r in rows if r["passes_declared_truss_limits"]
+                 and r.get("mass_proxy_kg") is not None]
+    metrics = ("mass_proxy_kg", "compliance_j", "max_abs_axial_stress_pa")
+    result = []
+    for row in qualified:
+        dominated = any(
+            all(other[k] <= row[k] + 1e-12 * max(1.0, abs(row[k]))
+                for k in metrics)
+            and any(other[k] < row[k] - 1e-12 * max(1.0, abs(row[k]))
+                    for k in metrics)
+            for other in qualified if other is not row
+        )
+        if not dominated:
+            result.append(row["candidate_id"])
+    return sorted(result)
+
+
 def evaluate(spec, loadcase):
     modeler=modeler_module()
     generated=modeler.generate(spec)
@@ -237,6 +256,8 @@ def evaluate(spec, loadcase):
         "truss_solved_count":len(results),
         "truss_rejected":failures,
         "ranked_truss_results":results,
+        "physics_pareto_candidate_ids":truss_pareto_ids(results),
+        "physically_qualified_candidate_count":sum(x["passes_declared_truss_limits"] for x in results),
         "evidence_ceiling":"simplified_pin_joint_2d_fem_not_full_3d_cace_certificate",
     }
 
