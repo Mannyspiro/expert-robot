@@ -66,6 +66,33 @@ for state in ("queued", "pending", "waiting", "requested"):
 not_started = dict(unassigned, status="completed", conclusion="failure",
                    completed_at="2026-10-14T18:00:00Z")
 assert budget.charge_for_job(not_started, run, period, policy, "", "") == 0
+
+# Live job 113033122335 was canceled after two hours in the shared queue.
+# Its synthetic start equals creation, with no assigned runner or executed steps.
+queue_cancelled = dict(unassigned, status="completed", conclusion="cancelled",
+                       runner_id=0, runner_name="", created_at="2026-10-14T18:00:00Z",
+                       completed_at="2026-10-14T20:02:30Z")
+assert budget.charge_for_job(queue_cancelled, run, period, policy, "", "") == 0
+assert budget.charge_for_job(dict(queue_cancelled, conclusion="skipped"), run,
+                             period, policy, "", "") == 0
+for ambiguous in (
+    dict(queue_cancelled, created_at=None),
+    dict(queue_cancelled, created_at="2026-10-14T17:59:59Z"),
+    dict(queue_cancelled, completed_at="2026-10-14T17:59:59Z"),
+    dict(queue_cancelled, conclusion="failure"),
+):
+    try:
+        budget.charge_for_job(ambiguous, run, period, policy, "", "")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("ambiguous cancellation bypassed the budget gate")
+
+# Cancellation after assignment or a setup step is still billable.
+assert budget.charge_for_job(dict(queue_cancelled, runner_id=7, runner_name="avrea-worker"),
+                             run, period, policy, "", "") == 492
+assert budget.charge_for_job(dict(queue_cancelled, steps=[{"name": "Set up job"}]),
+                             run, period, policy, "", "") == 492
 for unknown in (
     dict(not_started, completed_at="2026-10-14T18:01:00Z"),
     dict(not_started, conclusion="success"),
@@ -93,6 +120,18 @@ completed = dict(assigned, status="completed", conclusion="success",
 assert budget.charge_for_job(completed, run, period, policy, "", "") == 8
 heavy = dict(completed, labels=["avrea-ubuntu-latest-32-vcpu"])
 assert budget.charge_for_job(heavy, run, period, policy, "", "") == 32
+
+# Moving CI to GitHub must preserve older Avrea spending in the same workflow.
+assert "ci.yml" in policy["avrea_workflow_files"]
+assert "ci.yml" in policy["historical_avrea_workflow_files"]
+hosted = dict(completed, runner_id=1000001, runner_name="GitHub Actions 1000001",
+              labels=["ubuntu-latest"])
+assert budget.charge_for_job(hosted, run, period, policy, "", "") == 0
+assert budget.charge_for_job(dict(hosted, runner_name="unknown"), run, period,
+                             policy, "", "") == 8
+assert budget.charge_for_job(dict(hosted, labels=["ubuntu-latest", "avrea-ubuntu-latest-8-vcpu"]),
+                             run, period, policy, "", "") == 8
+assert budget.charge_for_job(completed, run, period, policy, "", "") == 8
 
 # Unknown completed timing still blocks approval.
 try:

@@ -19,6 +19,10 @@ permissions:
   contents: read
   actions: read
 
+concurrency:
+  group: expert-robot-avrea-rsi-promotion-v2
+  cancel-in-progress: false
+
 jobs:
   qualify:
     if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
@@ -329,3 +333,4 @@ jobs:
             trusted-blind.json
           if-no-files-found: error
           retention-days: 30
+

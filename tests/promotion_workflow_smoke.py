@@ -16,8 +16,12 @@ assert "github.event.workflow_run.head_branch" in qual
 assert "github.event.workflow_run.id" in qual
 assert "needs.qualify.outputs.collar_evidence_run_id" in qual
 assert "qualify:\n    if:" in qual
-assert "qualify:\n    if:" in qual and "    concurrency:\n      group: expert-robot-avrea-rsi-promotion-v2" in qual
-assert "decide:\n    needs: qualify\n    concurrency:\n      group: expert-robot-avrea-rsi-promotion-v2" in qual
+root = qual.split("jobs:", 1)[0]
+assert "concurrency:\n  group: expert-robot-avrea-rsi-promotion-v2\n  cancel-in-progress: false" in root
+qualify = qual.split("  qualify:", 1)[1].split("\n  decide:", 1)[0]
+decide = qual.split("\n  decide:", 1)[1]
+for job in (qualify, decide):
+    assert "    concurrency:\n      group: expert-robot-avrea-half-month-slot\n      cancel-in-progress: false" in job
 assert "contents: read" in qual
 assert "actions: read" in qual
 assert "contents: write" not in qual
@@ -46,3 +50,4 @@ assert "git/refs/heads/main" not in pub
 assert "main moved after qualification" in pub
 assert "candidate ref moved after qualification" in pub
 print("promotion workflow boundary smoke: PASS")
+

@@ -42,6 +42,8 @@ assert cost["paid_cloud_expansion_allowed"] is False
 selection = policy["selection_policy"]
 assert selection["default_preflight"] == "L1"
 assert selection["default_qualification"] == "L3"
+assert by_id["L3"]["fallback_runner"] == "ubuntu-latest"
+assert by_id["L3"]["can_promote"] is False
 assert selection["heavy_lane"] == "L4"
 external = selection["external_runner_repo"]
 assert external["repository"] == "morganaspim/Cace-app"
@@ -70,3 +72,4 @@ assert promotion["human_or_policy_gate_required"] is True
 assert promotion["railway_preflight_is_advisory_only"] is True
 
 print("compute policy guardrails: PASS")
+

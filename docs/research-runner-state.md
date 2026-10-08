@@ -21,6 +21,16 @@ generation. Its Actions-write permission is confined to this administrative
 job; it has no Contents-write permission or proof/promotion authority. The
 shared Avrea concurrency slot and half-month budget gate remain in place.
 
+Research validation now uses existing GitHub-hosted Ubuntu runners, serialized
+through `expert-robot-research-validation-slot`. This includes full C++ CI,
+the pinned Lean qualification job, CACE integration and symmetry checks. The
+L3 policy permits this free fallback with the same verifier and no promotion
+permission. Specialized Avrea/RSI lanes retain their original budget gates.
+Historical research workflow entries and timeout estimates stay in Avrea
+accounting; moving a workflow cannot erase its earlier spending. Only jobs
+positively identified as GitHub-hosted are excluded from Avrea charges.
+Full CI and formal qualification both retain source-bound checkpoints.
+
 To resume, inspect the latest completed checkpoint artifact for the intended
 source head. Verify its manifest hash and compare the recorded workflow links
 with live results, since another workflow may have finished after the snapshot.

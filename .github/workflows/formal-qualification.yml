@@ -24,9 +24,9 @@ concurrency:
 
 jobs:
   lean-qualification:
-    runs-on: avrea-ubuntu-latest-8-vcpu
+    runs-on: ubuntu-latest
     concurrency:
-      group: expert-robot-avrea-half-month-slot
+      group: expert-robot-research-validation-slot
       cancel-in-progress: false
       queue: max
     timeout-minutes: 25
@@ -34,11 +34,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Enforce Avrea half-month budget
-        env:
-          GH_TOKEN: ${{ github.token }}
-          AVREA_RUNNER_LABEL: avrea-ubuntu-latest-8-vcpu
-        run: python3 scripts/check_avrea_halfmonth_budget.py --reserve-minutes 25 --runner-label "$AVREA_RUNNER_LABEL"
       - name: Project proof-escape audit
         shell: bash
         run: |
@@ -158,3 +153,22 @@ jobs:
         run: |
           set -euo pipefail
           git diff --exit-code -- lake-manifest.json
+
+      - name: Save formal research checkpoint
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          VALIDATION_OUTCOME: ${{ job.status }}
+        run: |
+          python3 scripts/checkpoint_research_state.py --head-sha "$TARGET_HEAD_SHA" --state-dir runner-state --outcome "$VALIDATION_OUTCOME"
+
+      - name: Retain formal runner checkpoint
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: research-runner-state-${{ github.run_id }}
+          path: runner-state/
+          retention-days: 30
+          if-no-files-found: error
+

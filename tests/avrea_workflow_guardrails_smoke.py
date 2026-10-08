@@ -7,6 +7,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 policy = json.loads((ROOT / "config/avrea_half_month_budget.json").read_text())
 registered = set(policy["avrea_workflow_files"])
+historical = set(policy.get("historical_avrea_workflow_files", []))
 actual = set()
 failures = []
 
@@ -34,11 +35,19 @@ for path in sorted((ROOT / ".github" / "workflows").glob("*.yml")):
         if not re.search(r"(?m)^  actions: read\s*$", txt[:match.start()]):
             failures.append(f"{path.name}: missing Actions read permission")
 
-if actual != registered:
+if actual & historical:
+    failures.append(f"Historical-only workflows still use Avrea: {sorted(actual & historical)}")
+if actual | historical != registered:
     failures.append(
         f"Avrea workflows differ from metering allowlist: "
-        f"missing={sorted(actual-registered)} stale={sorted(registered-actual)}"
+        f"missing={sorted((actual|historical)-registered)} stale={sorted(registered-(actual|historical))}"
     )
+for name in historical:
+    path = ROOT / ".github" / "workflows" / name
+    if not path.is_file() or "runs-on: ubuntu-latest" not in path.read_text():
+        failures.append(f"{name}: historical Avrea lane has no existing hosted fallback")
+    if name not in policy["estimated_max_run_minutes"]:
+        failures.append(f"{name}: historical timeout removed from accounting")
 assert policy["periods"][0]["budget_minutes"] == 1500
 assert policy["periods"][1]["budget_minutes"] == 1500
 assert policy["non_transferable"] is True
@@ -46,4 +55,5 @@ assert policy["fail_closed_on_usage_error"] is True
 
 if failures:
     raise SystemExit("\n".join(failures))
-print(f"Avrea workflow half-month guardrails: PASS ({len(actual)} workflow files)")
+print(f"Avrea workflow half-month guardrails: PASS ({len(actual)} active, {len(historical)} historical workflow files)")
+

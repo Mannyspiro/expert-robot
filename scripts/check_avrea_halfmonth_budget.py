@@ -72,6 +72,14 @@ def parse_stamp(value):
 
 
 def charge_for_job(job, run, period, policy, current_run_id, current_job):
+    # These workflows retain their historical Avrea entries after migration.
+    # Exclude only positively identified GitHub-hosted jobs, never an unknown
+    # runner or an Avrea/self-hosted label that happens to resemble a host name.
+    labels = set(job.get("labels") or [])
+    if (labels and labels <= {"ubuntu-latest", "ubuntu-24.04", "ubuntu-22.04"} and
+        type(job.get("runner_id")) is int and job["runner_id"] > 0 and
+        (job.get("runner_name") or "").startswith("GitHub Actions ")):
+        return 0
     if str(run["id"]) == str(current_run_id) and job.get("status") == "in_progress":
         # The just-started job is charged by --reserve-minutes instead.
         # Serial Avrea concurrency ensures no other Avrea job runs alongside it.
@@ -94,6 +102,14 @@ def charge_for_job(job, run, period, policy, current_run_id, current_job):
             finished = parse_stamp(job.get("completed_at"))
             if started is None or (finished is not None and started == finished):
                 return 0
+            # Queue cancellation keeps the synthetic scheduling start. A live
+            # GitHub job can wait for hours with started_at == created_at while
+            # runner_id/name remain empty and no steps ever execute. Recognize
+            # only that exact cancelled/skipped lifecycle, not failed startup.
+            if job.get("conclusion") in ("cancelled", "skipped"):
+                created = parse_stamp(job.get("created_at"))
+                if created == started and finished is not None and finished >= started:
+                    return 0
             raise ValueError("unassigned completed job has ambiguous execution timing")
         raise ValueError("completed job lacks runner/step execution evidence")
     started = parse_stamp(job.get("started_at"))
@@ -172,7 +188,10 @@ def usage_from_github(policy, now, repo, token, current_run_id, current_job):
         jobs = list_pages(jobs_url, token, "jobs", max_pages=10)
         counted += 1
         for job in jobs:
-            used += charge_for_job(job, run, period, policy, current_run_id, current_job)
+            try:
+                used += charge_for_job(job, run, period, policy, current_run_id, current_job)
+            except ValueError as exc:
+                raise ValueError(f"run {run['id']} job {job.get('id', 'unknown')}: {exc}") from exc
     return used, counted
 
 

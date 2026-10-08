@@ -22,21 +22,16 @@ permissions:
 
 jobs:
   build-and-smoke:
-    runs-on: avrea-ubuntu-latest-8-vcpu
+    runs-on: ubuntu-latest
     timeout-minutes: 65
     concurrency:
-      group: expert-robot-avrea-half-month-slot
+      group: expert-robot-research-validation-slot
       cancel-in-progress: false
       queue: max
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Enforce Avrea half-month budget
-        env:
-          GH_TOKEN: ${{ github.token }}
-          AVREA_RUNNER_LABEL: avrea-ubuntu-latest-8-vcpu
-        run: python3 scripts/check_avrea_halfmonth_budget.py --reserve-minutes 65 --runner-label "$AVREA_RUNNER_LABEL"
       - name: Restore C++ compiler cache
         id: ccache-restore
         uses: actions/cache/restore@v4
@@ -109,6 +104,7 @@ jobs:
         run: |
           python3 tests/research_ci_queue_smoke.py
           python3 tests/research_checkpoint_smoke.py
+          python3 tests/research_runner_routing_smoke.py
 
       - name: Known failure regression guardrails
         run: python3 tests/known_failure_regression_smoke.py

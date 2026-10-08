@@ -24,3 +24,6 @@ jobs:
         run: python3 tests/avrea_halfmonth_budget_smoke.py
       - name: Confirm every Avrea job is guarded
         run: python3 tests/avrea_workflow_guardrails_smoke.py
+      - name: Confirm free research routing preserves verification gates
+        run: python3 tests/research_runner_routing_smoke.py
+
