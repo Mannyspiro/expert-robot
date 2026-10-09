@@ -10,7 +10,7 @@ Scope: Expert Robot PR #47, branch `research/magick-ir-v0-1`. This is an **intak
 - Upstream comparator instructions: https://github.com/openai/math/blob/main/lean/ComparatorChallenges/README.md
 - Upstream license: Apache-2.0, https://github.com/openai/math/blob/main/LICENSE. Individual third-party dependencies retain their own licenses.
 - Observed upstream Lean toolchain: `leanprover/lean4:v4.34.1`; observed Mathlib lock rev: `d13f23b723b8a846827a245b89c10fc7d3f11612`. Expert Robot handoff uses Lean/mathlib v4.34.0; do **not** replace its pins opportunistically.
-- Source inspection on 2026-10-09. Upstream is moving: the **upstream repository commit must be resolved and pinned** before reproducible compilation or copying any code; recorded blob SHAs below are file identities but not an entire dependency snapshot.
+- Upstream full commit pinned and source re-read: `openai/math@fd4aeeb2ee4fc729c18d98444fed42fd0529eeeb`; the referenced TreewidthL1 file has blob SHA `bc8b92a4b0aa73a24be359b4ef8f85448f544b22`. This locks provenance, but upstream Lean 4.34.1 compilation has not yet been independently reproduced.
 - OpenAI's README says some results are not formalized and some may contain issues. Independent checking and paper-to-statement fidelity are separate tasks.
 
 ## Ranked mathematically relevant candidates
@@ -45,11 +45,19 @@ The live PR #47 source-to-sink experiment already provides intentionally small o
 ## Acceptance states
 
 `found/source-inspected`: YES for the modules above.
-`upstream-full-commit-pinned`: NO.
+`upstream-full-commit-pinned`: YES (`fd4aeeb2ee4fc729c18d98444fed42fd0529eeeb`).
 `reproduced-in-upstream-environment`: NO.
-`cross-compiled-under-expert-robot-pin`: NO.
+`cross-compiled-under-expert-robot-pin`: PENDING CI for a restricted exact-rational analogue, not the identical upstream PiLp statement.
 `registered-and-qualified-as-project-theorem`: NO.
 `CACE-application-bridge-qualified`: NO.
 `security-or-molecular-certification`: NO.
 
 This document is a decision record and should not be treated as a green qualification artifact.
+
+## Implementation on research branch
+
+- `formal/MathAI/Graph/L1Append.lean`: small exact-rational L1 distance concatenation theorem, adapted from the upstream direct-sum lemma, with explicit statement-scope downgrade. This is **not** a claim that the original PiLp theorem was copied or imported.
+- `tests/lean/l1_append_witnesses.lean`: nonempty and empty-feature-channel symbolic replay.
+- `scripts/experiment_l1_product_graphs.py`: exact Fraction Cartesian products of positively weighted path graphs; independent Bellman-Ford distances, plus a deliberately wrong max-aggregation mutation control.
+- Both new lanes are wired to existing GitHub Actions workflows with artifact retention and existing Lean independent checker, axiom audit and manifest validation.
+- CI result and qualified status must be recorded only after exact-head workflow completion; the modeler numerical result does not attest an actual CACE backend call. An extension beyond product-of-path metrics needs a separate mapping theorem.
