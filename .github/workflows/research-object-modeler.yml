@@ -9,6 +9,8 @@ on:
       - "scripts/experiment_parser_differential.py"
       - "scripts/experiment_security_flow_mediation.py"
       - "scripts/experiment_l1_product_graphs.py"
+      - "scripts/check_openai_math_catalog.py"
+      - "docs/openai-math-catalog-2026-10-09.json"
       - "config/avrea_half_month_budget.json"
       - "tests/parser_differential_smoke.py"
       - "scripts/research_object_routing.py"
@@ -114,6 +116,7 @@ jobs:
           python3 tests/parser_differential_smoke.py
           python3 scripts/experiment_security_flow_mediation.py -o /tmp/cace-security-flow-mediation.json
           python3 scripts/experiment_l1_product_graphs.py -o /tmp/cace-l1-product-graphs.json
+          python3 scripts/check_openai_math_catalog.py --report /tmp/cace-openai-math-catalog-audit.json
           RESEARCH_HEAD_SHA=${{ github.event.pull_request.head.sha || github.sha }} python3 scripts/experiment_parser_differential.py -o /tmp/cace-parser-differential.json
           RESEARCH_HEAD_SHA=${{ github.event.pull_request.head.sha || github.sha }} python3 scripts/experiment_security_guard_cuts.py -o /tmp/cace-security-guard-cuts.json
           python3 tests/research_object_modeler_v2_smoke.py
@@ -138,6 +141,7 @@ jobs:
             /tmp/cace-parser-differential.json
             /tmp/cace-security-flow-mediation.json
             /tmp/cace-l1-product-graphs.json
+            /tmp/cace-openai-math-catalog-audit.json
             /tmp/cace-modeler-preview.obj
             /tmp/cace-modeler-watertight.obj
             /tmp/cace-modeler-solid-report.json
