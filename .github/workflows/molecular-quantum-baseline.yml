@@ -6,6 +6,7 @@ on:
       - "scripts/evaluate_molecular_quantum.py"
       - "scripts/generate_molecular_matter.py"
       - "tests/molecular_quantum_smoke.py"
+      - "scripts/experiment_molecular_symmetry.py"
       - ".github/workflows/molecular-quantum-baseline.yml"
   workflow_dispatch:
 
@@ -35,10 +36,16 @@ jobs:
           mkdir -p quantum-artifacts
           python scripts/generate_molecular_matter.py --smiles O --id water-quantum --conformers 2 --seed 1729 --matter-graph quantum-artifacts/water.matter.json --metadata quantum-artifacts/water.metadata.json --molblock quantum-artifacts/water.mol
           python scripts/evaluate_molecular_quantum.py quantum-artifacts/water.matter.json -o quantum-artifacts/water-rhf-baseline.json
+      - name: Run molecular symmetry discovery experiment
+        env:
+          RESEARCH_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python scripts/experiment_molecular_symmetry.py -o quantum-artifacts/molecular-symmetry-experiment.json
       - name: Upload non-production quantum evidence
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: molecular-quantum-${{ github.run_id }}
           path: quantum-artifacts/
-          retention-days: 14
+          retention-days: 30
           if-no-files-found: error
+
