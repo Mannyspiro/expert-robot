@@ -68,6 +68,12 @@ jobs:
             echo CACE_PRELOAD_FULL_MATHLIB_CACHE
             /usr/bin/timeout 900 lake exe cache get
           fi
+          if [[ "$*" == "1200 lake build "* ]]; then
+            /usr/bin/timeout "$@"
+            lake build CACEFormal.V330TheoremMetadata
+            lake env lean CACEFormal/V330TheoremMetadata.lean > "$(dirname "$PWD")/v330_lean_environment_metadata.raw.txt"
+            exit 0
+          fi
           exec /usr/bin/timeout "$@"
           SH
           chmod +x "$RUNNER_TEMP/cace-qualification-tools/timeout"
