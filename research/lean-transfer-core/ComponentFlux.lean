@@ -79,4 +79,31 @@ theorem walk_constant_flux_zero
 #check CoreTransfer.walk_constant_flux_zero
 #print axioms CoreTransfer.walk_constant_flux_zero
 
+/-- A weighted unit-transfer flux sum is zero for all integer flux
+values and all finite edge schedules **if and only if** the vertex weight
+factors through connected components. The converse is witnessed by
+a single-edge schedule with flux 1. -/
+theorem weightedFlux_zero_for_all_iff_factors
+    {n m : Nat}
+    (edge : Fin m → Fin n × Fin n)
+    (weight : Fin n → Int) :
+    (∀ rate : Fin m → Int, ∀ schedule : List (Fin m),
+       weightedFlux edge weight rate schedule = 0) ↔
+    (∃ f : Component edge → Int,
+       ∀ a, weight a = f (componentOf edge a)) := by
+  constructor
+  · intro hz
+    apply (edgewise_constant_iff_factors edge weight).1
+    intro e
+    have hs := hz (fun _ => (1 : Int)) [e]
+    have hsub : weight (edge e).2 - weight (edge e).1 = 0 := by
+      simpa [weightedFlux] using hs
+    exact (sub_eq_zero.mp hsub).symm
+  · intro hf rate schedule
+    apply weightedFlux_eq_zero_of_edgewise
+    exact (edgewise_constant_iff_factors edge weight).2 hf
+
+#check CoreTransfer.weightedFlux_zero_for_all_iff_factors
+#print axioms CoreTransfer.weightedFlux_zero_for_all_iff_factors
+
 end CoreTransfer
