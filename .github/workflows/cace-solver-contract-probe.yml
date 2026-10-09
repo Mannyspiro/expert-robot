@@ -1,0 +1,70 @@
+name: Pinned CACE FEM Solver Contract Probe
+
+on:
+  push:
+    branches: ["research/cace-solver-residual-qualification-20261009"]
+    paths:
+      - "scripts/probe_cace_solver_interface.py"
+      - ".github/workflows/cace-solver-contract-probe.yml"
+  pull_request:
+    paths:
+      - "scripts/probe_cace_solver_interface.py"
+      - ".github/workflows/cace-solver-contract-probe.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit-solver-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Load authorized read-only CACE access
+        env:
+          CACE_REPO_KEY: "${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}"
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${CACE_REPO_KEY:-}" || { echo "authorized CACE key missing"; exit 1; }
+          umask 077
+          printf '%s\n' "$CACE_REPO_KEY" > "$RUNNER_TEMP/cace_key"
+          chmod 600 "$RUNNER_TEMP/cace_key"
+          eval "$(ssh-agent -s)"
+          ssh-add "$RUNNER_TEMP/cace_key" >/dev/null
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
+      - name: Read exact prequalified CACE source without modifying remote
+        shell: bash
+        run: |
+          set -euo pipefail
+          GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
+            git clone --depth 1 git@github.com:morganaspim/Cace-app.git "$RUNNER_TEMP/cace-app"
+          if [ "$(git -C "$RUNNER_TEMP/cace-app" rev-parse HEAD)" != "66b22a71ff52b3110269f5994a5fd0716a2054c1" ]; then
+            GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
+              git -C "$RUNNER_TEMP/cace-app" fetch --depth 1 origin 66b22a71ff52b3110269f5994a5fd0716a2054c1
+            git -C "$RUNNER_TEMP/cace-app" checkout --detach 66b22a71ff52b3110269f5994a5fd0716a2054c1
+          fi
+          test "$(git -C "$RUNNER_TEMP/cace-app" rev-parse HEAD)" = "66b22a71ff52b3110269f5994a5fd0716a2054c1"
+      - name: Collect exact public API contracts for solver and residual
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/probe_cace_solver_interface.py --cace-repo "$RUNNER_TEMP/cace-app" -o "$RUNNER_TEMP/cace-solver-api.json"
+      - name: Preserve auditable API schema
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-cace-fem-solver-contract
+          path: ${{ runner.temp }}/cace-solver-api.json
+          retention-days: 14
+          if-no-files-found: warn
+      - name: Destroy temporary deploy-key material
+        if: always()
+        shell: bash
+        run: |
+          if [ -n "${SSH_AGENT_PID:-}" ]; then ssh-agent -k >/dev/null 2>&1 || true; fi
+          rm -f "$RUNNER_TEMP/cace_key"
