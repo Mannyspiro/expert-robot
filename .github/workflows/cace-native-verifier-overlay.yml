@@ -25,6 +25,12 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+      - name: Bind to the independently LeanChecker-verified rational conservation theorem
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object research/lean-transfer-core/RationalComponentFlux.lean)" = "c628ea03db86ac844676360db253ca127b6fcd0f"
+          echo "Lean rational flux theorem: pinned at verified commit b2a9a0ab86034863b082c5e8a72ba7e58afd718f"
       - name: Prepare temporary authorized read-only CACE checkout
         shell: bash
         env:
@@ -72,12 +78,12 @@ jobs:
           from pathlib import Path
           report=json.loads((Path(os.environ["RUNNER_TEMP"])/"cace-native-verifier-regression.json").read_text())
           assert report["verified_benchmark_meshes"]==8
-          assert report["native_adversarial_controls_rejected"]==15
+          assert report["native_adversarial_controls_rejected"]==16
           assert report["local_patched_runtime_exercised"] is True
           assert report["general_pde_reliability_bound_proven"] is False
           assert report["remote_cace_repository_modified"] is False
           assert report["authority_expanded"] is False
-          print("Hardening overlay: eight valid meshes and fifteen invalid native claims PASS")
+          print("Hardening overlay: eight valid meshes and sixteen invalid native claims PASS")
           PY
       - name: Archive exact reversible patch and evidence
         if: always()
