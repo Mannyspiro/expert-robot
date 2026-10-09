@@ -1,0 +1,27 @@
+[Unit]
+Description=Expert Robot OCI research observer (no GitHub Actions)
+Wants=network-online.target docker.service
+After=network-online.target docker.service
+ConditionPathIsDirectory=/srv/oci-research/expert-robot
+ConditionPathExists=/etc/oci-research/worker.env
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+EnvironmentFile=/etc/oci-research/worker.env
+WorkingDirectory=/srv/oci-research/expert-robot
+ExecStart=/usr/bin/python3 /opt/oci-research/worker.py --repo /srv/oci-research/expert-robot --origin ssh://git@127.0.0.1:2222/Mannyspiro/expert-robot.git --ref refs/heads/main --state /var/lib/oci-research
+TimeoutStartSec=380
+UMask=0077
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectHome=yes
+ProtectSystem=strict
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+ReadWritePaths=/srv/oci-research /var/lib/oci-research
+StandardOutput=journal
+StandardError=journal
