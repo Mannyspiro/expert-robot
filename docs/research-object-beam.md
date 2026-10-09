@@ -32,14 +32,26 @@ no promotion authority. It is neither a CACE continuum certificate nor a
 manufacturing qualification. Shear deformation, axial behavior, buckling,
 joints and 3D solid stresses are outside this experiment.
 
-The next bridge step is to reuse the pinned CACE algebraic solver and residual
-checker with an explicit beam-system adapter. The existing CACE ND route is
-scalar Poisson FEM and must not be relabeled as a beam certificate. Its runner
-now retains a bounded, read-only inspection of `LinearSolverND` and
-`AlgebraicResidualND` at the exact qualified source pin so the adapter can use
-the actual internal system contract rather than guessing it.
+`run_cace_beam_benchmark.py` reuses the actual pinned CACE `LinearSolverND` and
+`AlgebraicResidualND` modules with an explicit reduced beam-system adapter.
+It checks the source pin and module digest, round-trips the CSR encoding through
+CACE's decoder, checks clamp reconstruction, requires both CACE verification
+records to pass, and compares every solve with the independent stdlib backend.
+The existing Poisson assembly, estimator and continuum gates are not used for
+the beam. Both the analytic fields and convergence checks run on the actual
+CACE solution. Rotations are scaled to length times angle; equations then have
+consistent force units. A common scalar normalization keeps CACE's absolute
+algebraic residual tolerance well-scaled. The original beam equations also
+receive an independent normalized residual check.
+
+The existing CACE integration workflow retains the beam report and bounded
+source-contract inspection for 30 days. Its results still have no promotion
+authority or continuum error certificate. Next qualification work must address
+independent holdouts, model assumptions and certified error bounds before any
+design qualification.
 
 ```sh
 python3 tests/research_object_beam_smoke.py
 python3 scripts/evaluate_research_object_beam.py config/examples/research_object_beam.json -o /tmp/beam-report.json
+python3 scripts/run_cace_beam_benchmark.py /path/to/pinned/cace-app config/examples/research_object_beam.json -o /tmp/cace-beam-report.json
 ```

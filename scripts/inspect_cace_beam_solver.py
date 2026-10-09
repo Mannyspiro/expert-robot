@@ -15,13 +15,16 @@ def inspect(root):
         raise ValueError("CACE source does not match the qualified pin")
     source = (root / "cace_studio/modules/fem_nd.py").read_text()
     classes = {}
+    decoder = None
     for node in ast.parse(source).body:
         if isinstance(node, ast.ClassDef) and node.name in {"LinearSolverND", "AlgebraicResidualND"}:
             classes[node.name] = ast.get_source_segment(source, node)
+        if isinstance(node, ast.FunctionDef) and node.name == "_dense":
+            decoder = ast.get_source_segment(source, node)
     if set(classes) != {"LinearSolverND", "AlgebraicResidualND"} or sum(map(len, classes.values())) > 20000:
         raise ValueError("missing or oversized algebraic contract")
     return {"cace_commit": head, "module_sha256": hashlib.sha256(source.encode()).hexdigest(),
-            "promotion_authority": False, "classes": classes}
+            "promotion_authority": False, "classes": classes, "matrix_decoder": decoder}
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)

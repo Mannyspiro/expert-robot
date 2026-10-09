@@ -60,4 +60,15 @@ reject(lambda x: x["materials"][0].update(provenance=""))
 reject(lambda x: x["materials"][0].update(youngs_modulus_pa=0))
 reject(lambda x: x["constraints"].update(minimum_feature_m=.2))
 reject(lambda x: x["geometry_catalog"]["points"][1].update(xyz_m=[1, 0, .01]))
+
+# A backend cannot silently substitute wrong, missing or nonfinite DOFs.
+for backend in (lambda a,b: [0]*len(b), lambda a,b: [], lambda a,b: [float("nan")]*len(b)):
+    try:
+        beam.evaluate(example, backend)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("invalid backend accepted")
+bridged = beam.evaluate(example, lambda a,b: beam.solve_dense(a,b)[0])
+assert bridged["passed"]
 print("beam: analytic loads, interior convergence, reactions, rotation and rejection checks passed")

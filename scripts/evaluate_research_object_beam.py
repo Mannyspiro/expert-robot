@@ -36,7 +36,7 @@ def reference(x, length, ei, q, force, moment):
     return w, theta, curvature
 
 
-def solve(length, youngs, diameter, q, force, moment, elements):
+def solve(length, youngs, diameter, q, force, moment, elements, linear_solver=None):
     length = finite(length, "length", True)
     youngs = finite(youngs, "Young's modulus", True)
     diameter = finite(diameter, "diameter", True)
@@ -67,9 +67,23 @@ def solve(length, youngs, diameter, q, force, moment, elements):
                 matrix[a][b] += local[i][j]
     rhs[-2] += force
     rhs[-1] += moment/length
-    reduced, ratio = solve_dense([row[2:] for row in matrix[2:]], rhs[2:])
+    reduced_matrix, reduced_rhs = [row[2:] for row in matrix[2:]], rhs[2:]
+    reduced, ratio = solve_dense(reduced_matrix, reduced_rhs)
+    backend_delta = 0.0
+    if linear_solver is not None:
+        alternate = list(linear_solver(reduced_matrix, reduced_rhs))
+        if len(alternate) != len(reduced) or not all(math.isfinite(x) for x in alternate):
+            raise ValueError("backend returned invalid beam DOFs")
+        backend_delta = max(abs(a-b) for a, b in zip(alternate, reduced))
+        if backend_delta > 1e-6*max(map(abs, reduced)) + 1e-12:
+            raise ValueError("backend disagrees with independent stdlib solve")
+        reduced = alternate
+    if not all(math.isfinite(x) for x in reduced):
+        raise ValueError("nonfinite beam solution")
     u = [0.0, 0.0] + reduced
     residual = [sum(a*b for a, b in zip(row, u))-f for row, f in zip(matrix, rhs)]
+    if not all(math.isfinite(x) for x in residual):
+        raise ValueError("nonfinite beam residual")
     normalized = max(abs(residual[i]) / max(1.0, abs(rhs[i]),
                      sum(abs(a*b) for a, b in zip(matrix[i], u))) for i in range(2, ndof))
     if normalized > 1e-10:
@@ -119,6 +133,7 @@ def solve(length, youngs, diameter, q, force, moment, elements):
         "tip_displacement_m": u[-2], "tip_rotation_rad": u[-1]/length,
         "root_reaction_n": residual[0], "root_reaction_moment_nm": residual[1]*length,
         "normalized_free_dof_residual": normalized, "pivot_ratio": ratio,
+        "backend_max_dof_difference_m": backend_delta,
         "displacement_l2_error_m_sqrt_m": math.sqrt(werr),
         "curvature_l2_error_per_sqrt_m": math.sqrt(cerr),
         "relative_displacement_l2_error": math.sqrt(werr/wnorm) if wnorm else 0,
@@ -128,7 +143,7 @@ def solve(length, youngs, diameter, q, force, moment, elements):
     }
 
 
-def evaluate(spec):
+def evaluate(spec, linear_solver=None):
     cfg = spec["beam_benchmark"]
     meshes = cfg["mesh_elements"]
     if not isinstance(meshes, list) or not 3 <= len(meshes) <= 6 or any(
@@ -157,7 +172,7 @@ def evaluate(spec):
     length = math.dist(a, b)
     diameter = generated["assumed_minimum_strut_diameter_m"]
     youngs = finite(material["youngs_modulus_pa"], "Young's modulus", True)
-    rows = [solve(length, youngs, diameter, q, 0, 0, n) for n in meshes]
+    rows = [solve(length, youngs, diameter, q, 0, 0, n, linear_solver) for n in meshes]
     convergence = all(15.5 < a["displacement_l2_error_m_sqrt_m"]/b["displacement_l2_error_m_sqrt_m"] < 16.5
                       and 3.95 < a["curvature_l2_error_per_sqrt_m"]/b["curvature_l2_error_per_sqrt_m"] < 4.05
                       for a, b in zip(rows, rows[1:]))

@@ -6,6 +6,13 @@ on:
       - "scripts/compile_crl_to_cace_nd.py"
       - "scripts/run_cace_nd_bridge_smoke.py"
       - "scripts/inspect_cace_beam_solver.py"
+      - "scripts/run_cace_beam_benchmark.py"
+      - "scripts/evaluate_research_object_beam.py"
+      - "scripts/evaluate_research_object_truss.py"
+      - "scripts/generate_research_object_candidates.py"
+      - "scripts/research_object_routing.py"
+      - "tests/research_object_beam_smoke.py"
+      - "config/examples/research_object_beam.json"
       - "tests/crl_to_cace_nd_smoke.py"
       - "config/cace_actual_module_contracts.json"
       - "config/examples/portal_p2_boundary_null.crl"
@@ -72,6 +79,8 @@ jobs:
           fi
           python3 scripts/run_cace_nd_bridge_smoke.py \
             "$work" config/examples/portal_p2_boundary_null.crl -o "$out"
+          RESEARCH_HEAD_SHA=${{ github.event.pull_request.head.sha || github.sha }} python3 scripts/run_cace_beam_benchmark.py \
+            "$work" config/examples/research_object_beam.json -o "$RUNNER_TEMP/cace-beam-benchmark.json"
           cat "$out"
 
       - name: Validate theorem-backed refinement forecast
@@ -103,11 +112,12 @@ jobs:
           path: |
             ${{ runner.temp }}/cace-nd-bridge.json
             ${{ runner.temp }}/cace-beam-solver-contract.json
+            ${{ runner.temp }}/cace-beam-benchmark.json
             ${{ runner.temp }}/cace-math-dataset.json
             ${{ runner.temp }}/cace-math-candidates.json
             ${{ runner.temp }}/cace-math-proof-queue.json
             ${{ runner.temp }}/cace-refinement-forecast-validation.json
-          retention-days: 14
+          retention-days: 30
       - name: Cleanup key
         if: always()
         run: |
