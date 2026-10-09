@@ -1,0 +1,122 @@
+name: CACE Checked Interval Root Integration
+on:
+  push:
+    branches: ["feat/cace-proof-intake-20261009"]
+    paths: [".github/workflows/cace-proof-root-integration.yml", "proof-intake/ExternalIntervalTheoremMetadata.lean"]
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: cace-compatible-proof-preflight
+  cancel-in-progress: false
+jobs:
+  integrate:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify standalone gate and promote only the checked module into root
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CACE_REPO_KEY: ${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(gh api repos/Mannyspiro/expert-robot/actions/runs/37964075374 --jq .conclusion)" = success
+          umask 077
+          key="$RUNNER_TEMP/cace_root_key"
+          printf '%s\n' "$CACE_REPO_KEY" > "$key"
+          trap 'rm -f "$key"' EXIT
+          export GIT_SSH_COMMAND="ssh -i $key -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new"
+          work="$RUNNER_TEMP/cace-integrated"
+          git clone --branch proof/external-certified-intervals-20261009 git@github.com:morganaspim/Cace-app.git "$work"
+          test "$(git -C "$work" rev-parse HEAD)" = 6739fa312c0b75f05212af565b5a9514c2373114
+          git -C "$work" checkout -b proof/external-certified-intervals-integrated-20261009
+          cp proof-intake/ExternalIntervalTheoremMetadata.lean "$work/formal/cace_formal/CACEFormal/"
+          python3 - "$work" <<'PY'
+          import pathlib,json,sys
+          root=pathlib.Path(sys.argv[1]);formal=root/'formal/cace_formal'
+          name='CACEFormal.CertifiedIntervalBounds'
+          p=formal/'proof_guardrails.json'; cfg=json.loads(p.read_text())
+          cfg['quarantined_root_imports'].remove(name)
+          cfg['allowed_root_imports'].append(name)
+          p.write_text(json.dumps(cfg,indent=2)+'\n')
+          p=formal/'CACEFormal.lean';p.write_text(p.read_text()+'\nimport '+name+'\n')
+          lock={'schema_version':1,'lean_toolchain':'leanprover/lean4:v4.32.1','mathlib_commit':'520045ab14e26149ee970e2e617ca04b09bde5d6','leancert_commit':'8a0104b8a8472e3c4695791c0671d89a37ae404f','module':name,'standalone_source_commit':'6739fa312c0b75f05212af565b5a9514c2373114','standalone_run':37964075374,'canonical_runtime_claim_promoted':False}
+          (formal/'external_proof_intake.lock.json').write_text(json.dumps(lock,indent=2)+'\n')
+          p=root/'docs/proofs/EXTERNAL_CERTIFIED_INTERVAL_INTAKE.md'
+          p.write_text(p.read_text()+'\nStandalone gate passed on Avrea run 37964075374 at CACE source 6739fa312c0b75f05212af565b5a9514c2373114. All seven targets compiled and used only propext, Classical.choice, Quot.sound. This commit adds audited-root reachability and a Lean.Environment metadata exporter. Full-root qualification must still run at this new exact commit. No canonical runtime claim is promoted by this document.\n')
+          PY
+          cd "$work"
+          python3 scripts/cace_proof_guardrails.py validate
+          python3 scripts/cace_proof_guardrails.py classify-target --module CACEFormal.CertifiedIntervalBounds --compile-root true
+          python3 scripts/check_lean_source_sanity.py formal/cace_formal
+          git config user.name cace-proof-intake
+          git config user.email noreply@github.com
+          git add formal/cace_formal docs/proofs/EXTERNAL_CERTIFIED_INTERVAL_INTAKE.md
+          git commit -m "Integrate audited checked interval proof endpoints into CACE root"
+          git push origin HEAD:refs/heads/proof/external-certified-intervals-integrated-20261009
+          git rev-parse HEAD > "$RUNNER_TEMP/cace-integrated-source-sha.txt"
+          cat "$RUNNER_TEMP/cace-integrated-source-sha.txt"
+      - name: Compile audited root and exact endpoint metadata with immutable pins
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ELAN_HOME="$RUNNER_TEMP/cace-root-elan"
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o "$RUNNER_TEMP/elan-root-init.sh"
+          sh "$RUNNER_TEMP/elan-root-init.sh" -y --default-toolchain none
+          export PATH="$ELAN_HOME/bin:$PATH"
+          work="$RUNNER_TEMP/cace-integrated"
+          test "$(git -C "$work" rev-parse HEAD)" = "$(cat "$RUNNER_TEMP/cace-integrated-source-sha.txt")"
+          test -z "$(git -C "$work" status --porcelain --untracked-files=no)"
+          cd "$work"
+          python3 scripts/cace_proof_guardrails.py plan-hash --toolchain leanprover/lean4:v4.32.1 --mathlib-commit 520045ab14e26149ee970e2e617ca04b09bde5d6 --target CACEFormal/CertifiedIntervalBounds.lean --compile-root true > "$RUNNER_TEMP/cace-integrated-plan.json"
+          cd formal/cace_formal
+          elan toolchain install leanprover/lean4:v4.32.1
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = 520045ab14e26149ee970e2e617ca04b09bde5d6
+          test "$(git -C .lake/packages/LeanCert rev-parse HEAD)" = 8a0104b8a8472e3c4695791c0671d89a37ae404f
+          lake exe cache get
+          lake build +CACEFormal.GuardrailCanaries +CACEFormal.CertifiedIntervalBounds
+          lake build CACEFormal +CACEFormal.ExternalIntervalTheoremMetadata 2>&1 | tee "$RUNNER_TEMP/cace-integrated-root.log"
+          lake env lean CACEFormal/ExternalIntervalAxiomAudit.lean 2>&1 | tee "$RUNNER_TEMP/cace-integrated-audit.log"
+          python3 "$GITHUB_WORKSPACE/proof-intake/audit.py" "$RUNNER_TEMP/cace-integrated-audit.log"
+          lake env lean CACEFormal/ExternalIntervalTheoremMetadata.lean 2>&1 | tee "$RUNNER_TEMP/cace-integrated-metadata.log"
+          cd "$work"
+          python3 scripts/cace_proof_guardrails.py plan-hash --toolchain leanprover/lean4:v4.32.1 --mathlib-commit 520045ab14e26149ee970e2e617ca04b09bde5d6 --target CACEFormal/CertifiedIntervalBounds.lean --compile-root true > "$RUNNER_TEMP/cace-integrated-plan-recheck.json"
+          cmp "$RUNNER_TEMP/cace-integrated-plan.json" "$RUNNER_TEMP/cace-integrated-plan-recheck.json"
+          python3 - <<'PY'
+          import json,pathlib,os,hashlib,subprocess
+          tmp=pathlib.Path(os.environ['RUNNER_TEMP']);root=tmp/'cace-integrated'
+          rows=[]
+          for line in (tmp/'cace-integrated-metadata.log').read_text().splitlines():
+              if line.startswith('CACE_THEOREM_METADATA\t'): rows.append(json.loads(line.split('\t',1)[1]))
+          expected={'CACEFormal.CertifiedIntervalBounds.'+x for x in ['residual_component_bound','energy_error_bound','linear_residual_certificate','linear_residual_bound','invalid_linear_upper_rejected','exp_unit_certificate','exp_unit_bound']}
+          assert len(rows)==7 and {r['theorem'] for r in rows}==expected
+          sha=(tmp/'cace-integrated-source-sha.txt').read_text().strip()
+          assert subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD'],text=True).strip()==sha
+          assert not subprocess.check_output(['git','-C',str(root),'status','--porcelain','--untracked-files=no'],text=True).strip()
+          names=['cace-integrated-source-sha.txt','cace-integrated-plan.json','cace-integrated-plan-recheck.json','cace-integrated-root.log','cace-integrated-audit.log','cace-integrated-metadata.log']
+          files={n:hashlib.sha256((tmp/n).read_bytes()).hexdigest() for n in names}
+          manifest=hashlib.sha256((root/'formal/cace_formal/lake-manifest.json').read_bytes()).hexdigest()
+          (tmp/'cace-integrated-evidence.json').write_text(json.dumps({'source_commit':sha,'root_compiled':True,'endpoint_count':7,'endpoint_axiom_audit':'passed','runtime_claim_promoted':False,'evidence_scope':'exact-pin audited-root and seven imported endpoints; no global continuum or runtime promotion','workflow_run_id':int(os.environ['GITHUB_RUN_ID']),'file_sha256':files,'lake_manifest_sha256':manifest},indent=2))
+          print('CACE_CHECKED_INTERVAL_ROOT_INTEGRATION_OK',sha)
+          PY
+      - name: Upload content-addressed integration evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cace-checked-interval-integration-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/cace-integrated-source-sha.txt
+            ${{ runner.temp }}/cace-integrated-plan.json
+            ${{ runner.temp }}/cace-integrated-plan-recheck.json
+            ${{ runner.temp }}/cace-integrated-root.log
+            ${{ runner.temp }}/cace-integrated-audit.log
+            ${{ runner.temp }}/cace-integrated-metadata.log
+            ${{ runner.temp }}/cace-integrated-evidence.json
+            ${{ runner.temp }}/cace-integrated/formal/cace_formal/lake-manifest.json
+          if-no-files-found: warn
+          retention-days: 30
