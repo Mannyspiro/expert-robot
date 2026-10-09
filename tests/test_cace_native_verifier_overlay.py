@@ -24,6 +24,25 @@ def need_fail(cl,inputs,params,out,reason):
         raise AssertionError("native verifier accepted "+reason)
     return reason
 
+def tightly_bracket_energy(mesh,solution):
+    # Treat stored binary64 observations as exact rational values and
+    # enclose sqrt of their analytic Poisson energy error by integer sqrt.
+    import math
+    x=[F.from_float(float(v)) for v in mesh["vertices"]]
+    y=[F.from_float(float(v)) for v in solution["values"]]
+    h=[x[i+1]-x[i] for i in range(len(x)-1)]
+    d=[y[i]-x[i]*(1-x[i])/2 for i in range(len(x))]
+    error2=sum((step**3/12 for step in h),F(0))+sum(
+        ((d[i+1]-d[i])**2/h[i] for i in range(len(h))),F(0))
+    scale=10**12
+    k=math.isqrt((error2.numerator*scale*scale)//error2.denominator)
+    lo=0.0 if k==0 else math.nextafter(float(F(k,scale)),-math.inf)
+    hi=math.nextafter(float(F(k+1,scale)),math.inf)
+    assert (F.from_float(lo)**2<=error2<=F.from_float(hi)**2)
+    assert 0<=hi-lo<=1e-10
+    return [lo,hi]
+
+
 def run(root):
     import numpy as np
     sys.path.insert(0,str(root))
@@ -51,7 +70,7 @@ def run(root):
         assert state(AlgebraicResidual.verify(None,{"system":model,"solution":solution},{},residual,None))
         assert state(AposterioriEstimator1D.verify(None,{"mesh":mesh,"solution":solution},{},{"estimator":estimator},None))
         params={"residual_tolerance":1e-10}
-        inp={"residual_inf":residual["residual_inf"],"error_interval":[0.0,1.0],
+        inp={"residual_inf":residual["residual_inf"],"error_interval":tightly_bracket_energy(mesh,solution),
              "benchmark_model_id":SHARED_MODEL,"refined_mesh":mesh,
              "solution":solution,"system":model,"estimator":estimator}
         output=PipelineCertificate.execute(None,inp,params,None)
@@ -67,7 +86,7 @@ def run(root):
     res=AlgebraicResidual.execute(None,{"system":model,"solution":sol},{},None)
     eta=AposterioriEstimator1D.execute(None,{"mesh":mesh,"solution":sol},{},None)["estimator"]
     params={"residual_tolerance":1e-10}
-    source={"residual_inf":res["residual_inf"],"error_interval":[0.,1.],
+    source={"residual_inf":res["residual_inf"],"error_interval":tightly_bracket_energy(mesh,sol),
             "benchmark_model_id":SHARED_MODEL,
             "refined_mesh":mesh,"solution":sol,"system":model,"estimator":eta}
     cert=PipelineCertificate.execute(None,source,params,None)
@@ -111,6 +130,9 @@ def run(root):
     forged_output=copy.deepcopy(cert)
     forged_output["certificate_summary"]["benchmark_energy_error_interval"]=[0.,0.]
     rejected.append(need_fail(PipelineCertificate,source,params,forged_output,"altered certificate output"))
+    broken=copy.deepcopy(source);broken["error_interval"]=[0.,1.]
+    summary=PipelineCertificate.execute(None,broken,params,None)
+    rejected.append(need_fail(PipelineCertificate,broken,params,summary,"vacuously broad interval"))
     extreme_params={"residual_tolerance":1.}
     summary=PipelineCertificate.execute(None,source,extreme_params,None)
     rejected.append(need_fail(PipelineCertificate,source,extreme_params,summary,"oversized residual tolerance"))
