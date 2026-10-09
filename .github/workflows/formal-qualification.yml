@@ -123,6 +123,8 @@ jobs:
           lint: "false"
           build-args: "--wfail"
           use-mathlib-cache: "true"
+          # Avoid a second large .lake archive exhausting runner disk.
+          use-github-cache: "false"
           leanchecker: "true"
           leanchecker-args: "MathAI"
           axiom-audit: "true"
@@ -134,6 +136,12 @@ jobs:
         env:
           LEAN_ABORT_ON_PANIC: "1"
         run: lake env lean ../tests/lean/hard_math_v2_witnesses.lean
+
+      - name: Verify molecular curvature theorem witnesses
+        working-directory: formal
+        env:
+          LEAN_ABORT_ON_PANIC: "1"
+        run: lake env lean ../tests/lean/molecular_curvature_witnesses.lean
 
       - name: Direct audited-root replay
         working-directory: formal

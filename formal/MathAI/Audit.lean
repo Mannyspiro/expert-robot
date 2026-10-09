@@ -115,3 +115,9 @@ kernel-visible axiom dependencies for review.
 
 #check MathAI.Beam.coordinate_error_bound
 #print axioms MathAI.Beam.coordinate_error_bound
+
+#check MathAI.Molecular.energy_defect_bound
+#print axioms MathAI.Molecular.energy_defect_bound
+
+#check MathAI.Molecular.energy_endpoint_bound
+#print axioms MathAI.Molecular.energy_endpoint_bound

@@ -5,3 +5,4 @@ import MathAI.Geometry.VectorDerived
 import MathAI.Geometry.CircleDerived
 import MathAI.Geometry.Refinement
 import MathAI.Beam.Correction
+import MathAI.Molecular.Curvature

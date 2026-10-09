@@ -527,6 +527,34 @@
       "uses": [
         "MathAI.Beam.corrected_solution"
       ]
+    },
+    {
+      "name": "MathAI.Molecular.energy_defect_bound",
+      "source": "MathAI/Molecular/Curvature.lean",
+      "status": "verified",
+      "statement": "A positive-curvature scalar quadratic model implies defect at most residual squared divided by twice curvature.",
+      "domain": "algebra",
+      "tags": [
+        "molecular",
+        "conditional_curvature",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Molecular.energy_endpoint_bound",
+      "source": "MathAI/Molecular/Curvature.lean",
+      "status": "verified",
+      "statement": "A positive-curvature scalar quadratic model and a checked residual endpoint imply an energy-defect endpoint.",
+      "domain": "algebra",
+      "tags": [
+        "molecular",
+        "conditional_curvature",
+        "lean_verified"
+      ],
+      "uses": [
+        "MathAI.Molecular.energy_defect_bound"
+      ]
     }
   ]
 }
