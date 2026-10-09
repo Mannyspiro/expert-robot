@@ -41,7 +41,7 @@ theorem transfer_flux_pairing_zero_iff
 condition for every finite directed unit-transfer graph. -/
 theorem transfer_graph_total_mass_flux_zero
     {species reactions : ℕ}
-    (edge : Fin reactions → Fin species × Fin species)
+    (_edge : Fin reactions → Fin species × Fin species)
     (rate : Fin reactions → ℚ) :
     (∑ e : Fin reactions, ((1 : ℚ) - 1) * rate e) = 0 := by
   simp
