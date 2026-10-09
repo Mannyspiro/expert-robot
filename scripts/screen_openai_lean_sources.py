@@ -147,7 +147,7 @@ def main():
             if not all((x["source_download_ok"], x["comparator_download_ok"],
                         x["declared_identifier_visible"],
                         x["config_names_declaration"],
-                        x["axiom_allowlist_subset"])))
+                        x["axiom_allowlist_subset"]))
         ],
         "cases": cases,
         "bytes_downloaded": sum(x.get("bytes",0) for x in scans.values()),
