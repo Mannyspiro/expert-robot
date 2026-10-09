@@ -30,3 +30,15 @@
 ## Bounded recurring improvement principle
 
 Formal proofs justify possible implementation rewrites, not their authority. For each proposed optimization: attempt a counterexample; validate mathematical applicability; independent executable oracle; record measured runtime benefit or harm; preserve locked rollback and host authority. No self-modification of policy/verifier/collar, and no unattended promotion.
+
+## Automated upstream axiom gate (2026-10-09)
+
+The pinned single-target replay now requests `leanprover/lean-action@v1`'s
+independent `leanchecker` **and** its strict axiom audit for the selected
+upstream module, allowing only `propext`, `Classical.choice`, and
+`Quot.sound`. This enforces the same allowed primitive axioms used in
+this project's qualified MathAI workflow. The explicit
+`#print axioms <target>` output is still retained as human-readable
+provenance, but printing alone is not counted as an audit. A green workflow
+is evidence only for the **selected** build/check/audit; it does not qualify
+all 200 target claims, their paper fidelity, or any CACE runtime bridge.

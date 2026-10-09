@@ -94,6 +94,9 @@ jobs:
           use-github-cache: "false"
           leanchecker: "true"
           leanchecker-args: "${{ steps.target.outputs.module }}"
+          axiom-audit: "true"
+          axiom-audit-root: "${{ steps.target.outputs.module }}"
+          axiom-audit-allow: "propext,Classical.choice,Quot.sound"
       - name: Replay theorem declaration and emit axiom dependencies
         working-directory: upstream/lean
         env:
