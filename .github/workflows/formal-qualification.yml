@@ -2,7 +2,7 @@ name: Formal Qualification
 
 on:
   push:
-    branches: ["main", "feat/**"]
+    branches: ["main", "feat/**", "research/biochem-proof-staging-20261009"]
     paths:
       - "formal/**"
       - "tests/lean/**"
@@ -154,6 +154,12 @@ jobs:
         env:
           LEAN_ABORT_ON_PANIC: "1"
         run: lake env lean ../tests/lean/biochemistry_conservation_witnesses.lean
+
+      - name: Verify generalized stoichiometric conservation witnesses
+        working-directory: formal
+        env:
+          LEAN_ABORT_ON_PANIC: "1"
+        run: lake env lean ../tests/lean/general_stoichiometry_witnesses.lean
 
       - name: Direct audited-root replay
         working-directory: formal
