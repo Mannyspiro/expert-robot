@@ -42,7 +42,8 @@
     "heavy-qualification.yml",
     "math-benchmark.yml",
     "production-rsi-qualification.yml",
-    "rsi-candidate-qualification.yml"
+    "rsi-candidate-qualification.yml",
+    "research-object-modeler.yml"
   ],
   "estimated_max_run_minutes": {
     "cace-contract-extract.yml": 10,
@@ -60,14 +61,19 @@
     "heavy-qualification.yml": 180,
     "math-benchmark.yml": 25,
     "production-rsi-qualification.yml": 145,
-    "rsi-candidate-qualification.yml": 60
+    "rsi-candidate-qualification.yml": 60,
+    "research-object-modeler.yml": 5
   },
   "historical_avrea_workflow_files": [
-    "ci.yml", "formal-qualification.yml", "cace-contract-extract.yml",
-    "cace-fem-nd-contract-verify.yml", "cace-nd-bridge-integration.yml",
-    "cace-refinement-counterexample.yml", "cace-research-interface-probe.yml",
-    "circle-symmetry-benchmark.yml", "crl-symmetry-component-benchmark.yml"
+    "ci.yml",
+    "formal-qualification.yml",
+    "cace-contract-extract.yml",
+    "cace-fem-nd-contract-verify.yml",
+    "cace-nd-bridge-integration.yml",
+    "cace-refinement-counterexample.yml",
+    "cace-research-interface-probe.yml",
+    "circle-symmetry-benchmark.yml",
+    "crl-symmetry-component-benchmark.yml"
   ],
   "calendar_boundary": "local midnight in America/Phoenix; days 1-15 and 16-last, inclusive"
 }
-
