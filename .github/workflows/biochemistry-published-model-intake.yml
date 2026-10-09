@@ -1,0 +1,47 @@
+name: Published Biochemical Model Intake
+
+on:
+  pull_request:
+    paths:
+      - "scripts/intake_biomodels_carbon_metabolism.py"
+      - ".github/workflows/biochemistry-published-model-intake.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pinned-biomodels-metadata-and-sbml:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Download only pinned public CC0 BioModels source
+        uses: actions/checkout@v4
+        with:
+          repository: biomodels/BIOMD0000000051
+          ref: 92843fdc466e704445d491fb42b4142d4c70c3f6
+          path: bio-source
+          sparse-checkout: |
+            BIOMD0000000051/BIOMD0000000051.xml
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - name: Verify exact upstream repository commit and XML Git blob
+        run: |
+          set -euo pipefail
+          test "$(git -C bio-source rev-parse HEAD)" = "92843fdc466e704445d491fb42b4142d4c70c3f6"
+          test "$(git -C bio-source hash-object BIOMD0000000051/BIOMD0000000051.xml)" = "e447a9b0ba35ba0156b97c07caaad94631a448cf"
+      - name: Inspect independent libSBML consistency and provenance
+        run: |
+          python3 -m pip install --disable-pip-version-check --no-input --only-binary=:all: 'python-libsbml==5.21.2'
+          python3 scripts/intake_biomodels_carbon_metabolism.py --sbml bio-source/BIOMD0000000051/BIOMD0000000051.xml -o /tmp/biomodels-intake.json
+      - name: Preserve published model audit receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-biomodels-carbon-source-intake
+          path: /tmp/biomodels-intake.json
+          retention-days: 30
+          if-no-files-found: warn
