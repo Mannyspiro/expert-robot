@@ -707,6 +707,34 @@
         "unqualified"
       ],
       "uses": []
+    },
+    {
+      "name": "MathAI.Bio.transfer_weight_walk_iff_edgewise",
+      "source": "MathAI/Bio/TransferGraph.lean",
+      "status": "candidate",
+      "statement": "Vertex weights agree along every finite undirected transfer walk iff they agree on each unit-transfer edge.",
+      "domain": "biochemistry",
+      "tags": [
+        "graph_incidence",
+        "walk_connectivity",
+        "stoichiometric_invariants",
+        "unqualified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Bio.transfer_flux_zero_iff_walk_constant",
+      "source": "MathAI/Bio/TransferGraph.lean",
+      "status": "candidate",
+      "statement": "Weighted transfer flux cancels for all rational edge rates exactly when vertex weights are invariant under finite undirected reachability.",
+      "domain": "biochemistry",
+      "tags": [
+        "graph_incidence",
+        "walk_connectivity",
+        "stoichiometric_invariants",
+        "unqualified"
+      ],
+      "uses": []
     }
   ]
 }
