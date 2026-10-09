@@ -69,6 +69,8 @@ jobs:
           assert result["passed_meshed_cases"] == 8
           assert result["real_cace_mesh_shape_assembly_solver_residual_estimator_invoked"] is True
           assert result["externally_detected_fake_estimator"] is True
+          assert result["untrusted_zero_error_interval_native_summary_passed"] is True
+          assert result["reversed_error_interval_native_summary_passed"] is True
           assert result["externally_detected_changed_rhs"] is True
           assert result["corrupted_solution_rejected_by_cace_solver_tolerance_check"] is True
           assert result["general_pde_a_posteriori_bound_qualified"] is False
@@ -85,7 +87,7 @@ jobs:
           from pathlib import Path
           d=json.loads((Path(os.environ["RUNNER_TEMP"])/"cace-benchmark-verification.json").read_text())
           assert d["benchmark_consistency"] is True and d["meshes"]==8
-          assert d["adversarial_mutations_rejected"]==14
+          assert d["adversarial_mutations_rejected"]==16
           assert d["general_pde_error_certificate"] is False
           print("Independent strict benchmark evidence replay PASS")
           PY
