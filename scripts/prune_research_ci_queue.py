@@ -35,6 +35,21 @@ def check_head(pr, expected_sha):
         not re.fullmatch(r"[0-9a-f]{40}", expected_sha)):
         raise ValueError("PR scope/head changed; refusing CI cancellation")
 
+def superseded_head(pr, expected_sha):
+    """Only a valid newer SHA on the same open PR permits an audited no-op."""
+    current = pr.get("head", {}).get("sha")
+    return (
+        pr.get("number") == PR_NUMBER and pr.get("state") == "open"
+        and pr.get("head", {}).get("ref") == BRANCH
+        and pr.get("head", {}).get("repo", {}).get("full_name") == REPOSITORY
+        and pr.get("base", {}).get("repo", {}).get("full_name") == REPOSITORY
+        and isinstance(current, str)
+        and bool(re.fullmatch(r"[0-9a-f]{40}", current))
+        and bool(re.fullmatch(r"[0-9a-f]{40}", expected_sha))
+        and current != expected_sha
+    )
+
+
 def candidate(run, head, own_run_id):
     rid = run.get("id")
     return (
@@ -119,7 +134,17 @@ def main():
     token = os.environ.get("GH_TOKEN")
     if os.environ.get("GITHUB_REPOSITORY") != REPOSITORY or not token:
         raise ValueError("maintenance requires the scoped repository token")
-    check_head(api("pulls/47", token), args.head_sha)
+    live_pr = api("pulls/47", token)
+    if superseded_head(live_pr, args.head_sha):
+        # Stale jobs never cancel a run or change repository state.
+        report = {"schema_version": 1, "repository": REPOSITORY, "pr": PR_NUMBER,
+                  "preserved_head": args.head_sha, "observed_head": live_pr["head"]["sha"],
+                  "status": "superseded_noop", "applied": False, "runs": [],
+                  "cancel_requested_count": 0}
+        args.out.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+        print(json.dumps({"status": "superseded_noop", "cancel_requested_count": 0}))
+        return
+    check_head(live_pr, args.head_sha)
     own_id = os.environ.get("GITHUB_RUN_ID", "")
     records = [cancel_one(r, args.head_sha, own_id, token, args.apply)
                for r in list_runs(token) if candidate(r, args.head_sha, own_id)]

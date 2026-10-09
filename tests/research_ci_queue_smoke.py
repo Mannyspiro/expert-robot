@@ -39,6 +39,17 @@ missing = dict(job)
 del missing["runner_id"]
 assert not queue.unassigned([missing])
 queue.check_head(pr, head)
+newhead = copy.deepcopy(pr)
+newhead["head"]["sha"] = "c" * 40
+assert queue.superseded_head(newhead, head)
+assert not queue.superseded_head(pr, head)
+for altered in (
+    {"state": "closed"}, {"number": 48},
+    {"head": {"ref": "other", "sha": "c" * 40,
+              "repo": {"full_name": queue.REPOSITORY}}},
+    {"base": {"repo": {"full_name": "other/repo"}}},
+):
+    assert not queue.superseded_head(dict(newhead, **altered), head)
 for change in ({"state": "closed"}, {"number": 48}):
     try:
         queue.check_head(dict(pr, **change), head)
