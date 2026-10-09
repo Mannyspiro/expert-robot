@@ -1,0 +1,47 @@
+name: CACE Proof Import Policy
+on:
+  push:
+    branches: ["feat/cace-proof-intake-20261009"]
+    paths: [".github/workflows/cace-proof-policy.yml"]
+permissions:
+  contents: read
+concurrency:
+  group: cace-proof-intake
+  cancel-in-progress: false
+jobs:
+  qualify:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Inspect CACE formal project using existing deploy key
+        env:
+          CACE_REPO_KEY: ${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$CACE_REPO_KEY"
+          umask 077
+          key="$RUNNER_TEMP/cace_intake_key"
+          printf '%s\n' "$CACE_REPO_KEY" > "$key"
+          chmod 600 "$key"
+          trap 'rm -f "$key"' EXIT
+          export GIT_SSH_COMMAND="ssh -i $key -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new"
+          git clone --depth 1 git@github.com:morganaspim/Cace-app.git "$RUNNER_TEMP/cace-intake"
+          python3 - <<'PY'
+          import pathlib,os
+          root=pathlib.Path(os.environ['RUNNER_TEMP'])/'cace-intake'
+          names=['GEMINI.md','docs/AI_RIGOROUS_TOOL_CONTRIBUTION_PIPELINE.md','docs/PROOF_BACKED_MATH_TOOLBOX_ROADMAP.md','docs/proofs/SOURCE_TO_FORMAL_LINKAGE_SPEC.md','.github/workflows/cace-exact-pin-lean-preflight.yml','.github/workflows/cace-formal-v336-theorem-metadata.yml','scripts/qualify_v330_portable.sh']
+          for name in names:
+              p=root/name
+              if p.exists():
+                  print('BEGIN_CACE_FILE',name)
+                  print(p.read_text())
+                  print('END_CACE_FILE',name)
+          for parent in ['scripts','formal','docs/proofs']:
+              for p in sorted((root/parent).rglob('*')):
+                  if p.is_file() and any(x in p.name.lower() for x in ['guard','audit','quarant','plan','lock','contract','metadata','qualif','promot','preflight']):
+                      print('POLICY_PATH',p.relative_to(root))
+          PY
