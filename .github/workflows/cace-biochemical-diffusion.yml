@@ -1,0 +1,67 @@
+name: CACE Biochemical Diffusion Toy Probe
+
+on:
+  pull_request:
+    paths:
+      - "scripts/experiment_cace_bio_diffusion.py"
+      - ".github/workflows/cace-biochemical-diffusion.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  cace-sparse-operator-study:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: expert-robot-research-validation-slot
+      cancel-in-progress: false
+      queue: max
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Prepare read-only CACE deploy-key credentials
+        shell: bash
+        env:
+          CACE_REPO_KEY: "${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}"
+        run: |
+          set -euo pipefail
+          test -n "${CACE_REPO_KEY:-}" || { echo "missing authorized CACE deploy key"; exit 1; }
+          umask 077
+          printf '%s\n' "$CACE_REPO_KEY" > "$RUNNER_TEMP/cace_deploy_key"
+          chmod 600 "$RUNNER_TEMP/cace_deploy_key"
+          eval "$(ssh-agent -s)"
+          ssh-add "$RUNNER_TEMP/cace_deploy_key" >/dev/null
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
+      - name: Clone authorized CACE repository without mutating remote
+        shell: bash
+        run: |
+          set -euo pipefail
+          GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
+            git clone --depth 1 git@github.com:morganaspim/Cace-app.git "$RUNNER_TEMP/cace-app"
+          git -C "$RUNNER_TEMP/cace-app" rev-parse HEAD > "$RUNNER_TEMP/cace-bio-source-sha.txt"
+      - name: Run exact conservation oracle against CACE FEM sparse matrix utilities
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check --no-input 'numpy==2.0.2'
+          python3 scripts/experiment_cace_bio_diffusion.py --cace-repo "$RUNNER_TEMP/cace-app" -o "$RUNNER_TEMP/cace-bio-diffusion.json"
+      - name: Retain mathematical and pinned source evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cace-biochemistry-sparse-probe
+          path: |
+            ${{ runner.temp }}/cace-bio-source-sha.txt
+            ${{ runner.temp }}/cace-bio-diffusion.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Destroy deploy-key material
+        if: always()
+        shell: bash
+        run: |
+          if [ -n "${SSH_AGENT_PID:-}" ]; then ssh-agent -k >/dev/null 2>&1 || true; fi
+          rm -f "$RUNNER_TEMP/cace_deploy_key"
