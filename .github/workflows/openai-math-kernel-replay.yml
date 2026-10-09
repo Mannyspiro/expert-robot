@@ -1,0 +1,101 @@
+name: Pinned OpenAI Lean Kernel Replay
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/openai-math-kernel-replay.yml"
+      - "scripts/plan_openai_math_formal_verification.py"
+      - "docs/openai-math-catalog-2026-10-09.json"
+  workflow_dispatch:
+    inputs:
+      target_index:
+        description: "Zero-indexed proof target in deterministic priority order (0..199)"
+        required: true
+        type: number
+        default: 0
+
+permissions:
+  contents: read
+
+jobs:
+  upstream-kernel-first-target:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    concurrency:
+      group: expert-robot-research-validation-slot
+      cancel-in-progress: false
+      queue: max
+    env:
+      LEAN_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Select exact first target and its claimed theorem
+        id: target
+        env:
+          TARGET_INDEX: "${{ github.event.inputs.target_index || '0' }}"
+        run: |
+          python3 scripts/plan_openai_math_formal_verification.py --batch-size 1 -o /tmp/upstream-target-plan.json
+          python3 - <<'PY'
+          import json,os
+          plan=json.load(open('/tmp/upstream-target-plan.json',encoding='utf-8'))
+          ix=int(os.environ.get('TARGET_INDEX','0'))
+          if not 0<=ix<200:raise SystemExit('target index out of range')
+          selected=plan['batches'][ix]
+          modules=[s[:-5].replace('/','.') for s in selected['source_modules']]
+          theorem=selected['target_declarations'][0]
+          assert len(modules)==1 and len(theorem)<250
+          with open(os.environ['GITHUB_OUTPUT'],'a',encoding='utf-8') as output:
+              output.write('module='+modules[0]+'\n')
+              output.write('theorem='+theorem+'\n')
+          print('Pinned upstream',plan['upstream_sha'],'module',modules[0],'declaration',theorem)
+          PY
+      - name: Checkout immutable upstream mathematics repository
+        uses: actions/checkout@v4
+        with:
+          repository: openai/math
+          ref: fd4aeeb2ee4fc729c18d98444fed42fd0529eeeb
+          path: upstream
+          sparse-checkout: lean
+          persist-credentials: false
+      - name: Verify upstream full commit and dependency lock pin
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C upstream rev-parse HEAD)" = "fd4aeeb2ee4fc729c18d98444fed42fd0529eeeb"
+          test "$(cat upstream/lean/lean-toolchain)" = "leanprover/lean4:v4.34.1"
+          grep -q 'd13f23b723b8a846827a245b89c10fc7d3f11612' upstream/lean/lake-manifest.json
+      - name: Build and independently kernel-check selected upstream Lean module
+        uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: upstream/lean
+          auto-config: "false"
+          build: "true"
+          build-args: "${{ steps.target.outputs.module }}"
+          test: "false"
+          lint: "false"
+          use-mathlib-cache: "true"
+          use-github-cache: "false"
+          leanchecker: "true"
+          leanchecker-args: "${{ steps.target.outputs.module }}"
+      - name: Replay theorem declaration and emit axiom dependencies
+        working-directory: upstream/lean
+        env:
+          TARGET_MODULE: "${{ steps.target.outputs.module }}"
+          TARGET_THEOREM: "${{ steps.target.outputs.theorem }}"
+        run: |
+          set -euo pipefail
+          printf "import %s\n#check %s\n#print axioms %s\n" "$TARGET_MODULE" "$TARGET_THEOREM" "$TARGET_THEOREM" > /tmp/openai-specific-proof-audit.lean
+          lake env lean /tmp/openai-specific-proof-audit.lean | tee /tmp/openai-specific-proof-axioms.txt
+          git diff --exit-code -- lake-manifest.json
+      - name: Retain exact kernel replay plan and output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: upstream-openai-lean-first-replay
+          path: |
+            /tmp/upstream-target-plan.json
+            /tmp/openai-specific-proof-axioms.txt
+          retention-days: 30
+          if-no-files-found: warn
