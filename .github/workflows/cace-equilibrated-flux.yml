@@ -5,6 +5,7 @@ on:
     branches: ["research/cace-equilibrated-flux-20261009"]
     paths:
       - "scripts/experiment_equilibrated_flux_certificate.py"
+      - "scripts/verify_equilibrated_flux_independent.py"
       - "tests/verify_equilibrated_flux_symbolic.py"
       - ".github/workflows/cace-equilibrated-flux.yml"
   pull_request:
@@ -87,6 +88,25 @@ jobs:
           assert r["authority_expanded"] is False
           print("Source-bound exact equilibrated-flux certificate PASS")
           PY
+      - name: Independent midpoint-flux verifier and adversarial falsification
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/verify_equilibrated_flux_independent.py \
+            --source-evidence "$RUNNER_TEMP/cace-evidence/cace-solver-experiment.json" \
+            --certificate "$RUNNER_TEMP/cace-equilibrated-flux.json" \
+            | tee "$RUNNER_TEMP/cace-equilibrated-independent.json"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          d=json.loads((Path(os.environ["RUNNER_TEMP"])/"cace-equilibrated-independent.json").read_text())
+          assert d["exact_certificate_rows_replayed"]==160
+          assert d["independent_mutations_rejected"]==15
+          assert d["all_fluxes_continuous_and_divergence_correct"] is True
+          assert d["all_rational_majorants_independently_matched"] is True
+          assert d["general_pde_bound_qualified"] is False
+          print("Independent exact midpoint-flux certificate replay PASS")
+          PY
       - name: Preserve independent source, symbolic proof, and bounded receipts
         if: always()
         uses: actions/upload-artifact@v4
@@ -95,5 +115,6 @@ jobs:
           path: |
             ${{ runner.temp }}/hypercircle-symbolic.json
             ${{ runner.temp }}/cace-equilibrated-flux.json
+            ${{ runner.temp }}/cace-equilibrated-independent.json
           retention-days: 30
           if-no-files-found: warn
