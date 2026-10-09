@@ -33,7 +33,8 @@ jobs:
           from pathlib import Path
           import re
           for name,imports in [('TransferReachability.lean',['Init']),
-                               ('ComponentFactorization.lean',['TransferReachability'])]:
+                               ('ComponentFactorization.lean',['TransferReachability']),
+                               ('ComponentFlux.lean',['ComponentFactorization'])]:
               source=Path(name).read_text()
               assert re.findall(r'(?m)^import\s+(.+)',source)==imports
               for bad in [r'\bsorry\b',r'\badmit\b',r'\bunsafe\b',
@@ -53,7 +54,7 @@ jobs:
           use-mathlib-cache: "false"
           use-github-cache: "false"
           leanchecker: "true"
-          leanchecker-args: "TransferReachability ComponentFactorization"
+          leanchecker-args: "TransferReachability ComponentFactorization ComponentFlux"
       - name: Replay theorem declaration and axiom report directly
         working-directory: research/lean-transfer-core
         shell: bash
@@ -61,7 +62,8 @@ jobs:
           set -euo pipefail
           lake env lean TransferReachability.lean | tee "$RUNNER_TEMP/transfer-core-axioms.txt"
           lake env lean ComponentFactorization.lean | tee "$RUNNER_TEMP/component-factorization-axioms.txt"
-          test "$(git -C "$GITHUB_WORKSPACE" status --porcelain -- research/lean-transfer-core/lean-toolchain research/lean-transfer-core/lake-manifest.json research/lean-transfer-core/TransferReachability.lean research/lean-transfer-core/ComponentFactorization.lean)" = ""
+          lake env lean ComponentFlux.lean | tee "$RUNNER_TEMP/component-flux-axioms.txt"
+          test "$(git -C "$GITHUB_WORKSPACE" status --porcelain -- research/lean-transfer-core/lean-toolchain research/lean-transfer-core/lake-manifest.json research/lean-transfer-core/TransferReachability.lean research/lean-transfer-core/ComponentFactorization.lean research/lean-transfer-core/ComponentFlux.lean)" = ""
       - name: Preserve independent kernel evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -70,5 +72,6 @@ jobs:
           path: |
             ${{ runner.temp }}/transfer-core-axioms.txt
             ${{ runner.temp }}/component-factorization-axioms.txt
+            ${{ runner.temp }}/component-flux-axioms.txt
           retention-days: 30
           if-no-files-found: warn
