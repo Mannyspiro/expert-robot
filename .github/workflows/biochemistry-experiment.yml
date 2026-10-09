@@ -5,6 +5,7 @@ on:
     paths:
       - "scripts/experiment_biochemistry_stoichiometry.py"
       - "scripts/experiment_biochemistry_equilibrium.py"
+      - "scripts/experiment_crnt_deficiency.py"
       - "docs/biochemistry-research-program.md"
       - ".github/workflows/biochemistry-experiment.yml"
   workflow_dispatch:
@@ -24,6 +25,8 @@ jobs:
         run: python3 scripts/experiment_biochemistry_stoichiometry.py -o /tmp/biochemistry-stoichiometry.json
       - name: Test zero-interior-equilibrium claim and weakened-assumption counterexamples
         run: python3 scripts/experiment_biochemistry_equilibrium.py -o /tmp/biochemistry-equilibrium.json
+      - name: Test deficiency zero and weak reversibility preconditions independently
+        run: python3 scripts/experiment_crnt_deficiency.py -o /tmp/biochemistry-crnt-deficiency.json
       - name: Check experiment reports no physical or authority claims
         run: |
           python3 - <<'PY'
@@ -45,7 +48,12 @@ jobs:
           assert g["mathematical_generalization_proved_by_this_script"] is False
           assert g["empirical_biochemistry_claimed"] is False
           assert g["authority_expanded"] is False
-          print("Synthetic stoichiometry and equilibrium boundary claims PASS")
+          crnt=json.load(open("/tmp/biochemistry-crnt-deficiency.json",encoding="utf-8"))
+          assert crnt["closed_irreversible"]["deficiency"] == 0
+          assert crnt["closed_irreversible"]["weakly_reversible"] is False
+          assert crnt["reversible_catalysis_variant"]["weakly_reversible"] is True
+          assert crnt["cace_runtime_optimized"] is False
+          print("Exact CRNT structural precondition tests PASS")
           PY
       - name: Retain synthetic exact arithmetic result
         if: always()
@@ -55,4 +63,5 @@ jobs:
           path: |
             /tmp/biochemistry-stoichiometry.json
             /tmp/biochemistry-equilibrium.json
+            /tmp/biochemistry-crnt-deficiency.json
           retention-days: 30
