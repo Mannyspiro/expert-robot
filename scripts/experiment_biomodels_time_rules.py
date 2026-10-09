@@ -108,6 +108,19 @@ def experiment(path):
             max_error=max(max_error,relative)
             vals[name]=left
         rows.append({"time":t,"co_metabolites":vals})
+    # Third independent numeric reference is a fixture produced by a
+    # separate restricted MathML interpreter over the pinned source XML.
+    fixture_file=Path(__file__).resolve().parents[1] / "research" / "biomodels" / "time_rule_golden_values_v1.json"
+    golden=json.loads(fixture_file.read_text(encoding="utf-8"))
+    if (golden.get("source_git_blob")!=blob or
+        golden.get("time_points")!=list(POINTS) or
+        set(golden.get("values",{}))!=VARS):
+        raise ValueError("golden values not bound to exact source/time coordinates")
+    for index,row in enumerate(rows):
+        for name,expected in golden["values"].items():
+            current=row["co_metabolites"][name]
+            if abs(current-expected)>2e-7:
+                raise AssertionError("published co-metabolite golden value drift: "+name)
     # Fail-closed counterexamples: forbidden variable dependency, non-time
     # csymbol and unsupported operation are not silently interpreted.
     invalid=[
@@ -125,6 +138,7 @@ def experiment(path):
             "assignment_rules":len(VARS),"time_points":len(POINTS),
             "independently_compared_values":len(VARS)*len(POINTS),
             "max_relative_disagreement":max_error,
+            "third_parser_golden_samples_matched":len(VARS)*len(POINTS),
             "unsupported_mathml_negative_controls":len(invalid),
             "results":rows,
             "full_kinetic_ode_reproduced":False,
