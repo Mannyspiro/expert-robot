@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""OCI-only research scheduler. No GitHub Actions, no Docker socket in jobs.
+"""Plesk-server-only research scheduler. No GitHub Actions, no Docker socket in jobs.
 
 This trusted host-side wrapper fetches only an explicitly selected protected
 branch, creates a disposable detached worktree and runs one registered
@@ -118,7 +118,7 @@ def main():
     a.add_argument("--origin",required=True,
                    help="Exact ssh://git@127.0.0.1:2222/owner/expert-robot.git")
     a.add_argument("--ref",default="refs/heads/main")
-    a.add_argument("--state",type=Path,default=Path("/var/lib/oci-research"))
+    a.add_argument("--state",type=Path,default=Path("/var/lib/expert-robot/research"))
     a.add_argument("--image",default="docker.io/library/python:3.12-alpine")
     a.add_argument("--date",help="UTC YYYY-MM-DD, ordinarily omitted")
     ns=a.parse_args()
@@ -149,7 +149,7 @@ def main():
         run(["git","-c","core.hooksPath=/dev/null","-C",str(repo),
              "fetch","--no-tags","--depth","1","origin",branch],timeout=120)
         sha=require_sha(run(["git","-C",str(repo),"rev-parse","FETCH_HEAD"]))
-        with tempfile.TemporaryDirectory(prefix="oci-research-",
+        with tempfile.TemporaryDirectory(prefix="expert-robot-research-",
                                          dir=str(state)) as tmp:
             tmp=Path(tmp)
             checkout=tmp/"checkout"
@@ -182,7 +182,7 @@ def main():
                 evidence.mkdir(mode=0o700,exist_ok=True)
                 # Host manifests are independent of the container report.
                 manifest={
-                  "schema_version":1,"runner":"cace-oci-a1",
+                  "schema_version":1,"runner":"eloquent-rosalind",
                   "source_commit":sha,"source_ref":branch,"date_utc":day,
                   "experiment":"offline-autonomous-research-episode-v1",
                   "episode":receipt,"episode_file_sha256":payload_sha,

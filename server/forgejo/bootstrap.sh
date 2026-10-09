@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# On the OCI VM itself: sudo bash ./oci/forgejo/bootstrap.sh
+# On the designated Plesk server itself: sudo bash ./oci/forgejo/bootstrap.sh
 # Does not open cloud firewall ports or import private repositories.
 set -euo pipefail
 umask 077
@@ -10,7 +10,7 @@ fi
 command -v docker >/dev/null || { echo "Docker Engine missing; install from distribution packages" >&2; exit 1; }
 docker compose version >/dev/null || { echo "Docker Compose plugin missing" >&2; exit 1; }
 src="$(cd "$(dirname "$0")" && pwd)"
-dest="/opt/oci-forgejo"
+dest="/opt/expert-robot/forgejo"
 if [[ -L "$dest" ]]; then echo "Refusing symlinked install path" >&2; exit 1; fi
 install -d -m 0700 "$dest"
 install -d -m 0700 "$dest/data" "$dest/config"

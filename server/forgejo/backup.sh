@@ -3,8 +3,8 @@
 # Keep a second encrypted off-host backup before moving primary development.
 set -euo pipefail
 umask 077
-if [[ "$EUID" -ne 0 ]]; then echo "Run via sudo on OCI" >&2; exit 1; fi
-root=/opt/oci-forgejo
+if [[ "$EUID" -ne 0 ]]; then echo "Run via sudo on the designated Plesk server" >&2; exit 1; fi
+root=/opt/expert-robot/forgejo
 [[ -f "$root/compose.yaml" && -d "$root/data" ]] || { echo "Forgejo not installed" >&2; exit 1; }
 command -v docker >/dev/null
 command -v tar >/dev/null
