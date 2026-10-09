@@ -145,3 +145,9 @@ kernel-visible axiom dependencies for review.
 
 #check MathAI.Bio.weighted_conservation_single_reaction
 #print axioms MathAI.Bio.weighted_conservation_single_reaction
+
+#check MathAI.Bio.weighted_balance_with_boundary
+#print axioms MathAI.Bio.weighted_balance_with_boundary
+
+#check MathAI.Bio.weighted_balance_stoichiometric_matrix
+#print axioms MathAI.Bio.weighted_balance_stoichiometric_matrix
