@@ -1,0 +1,66 @@
+name: Exact General Stoichiometry Research
+
+on:
+  push:
+    branches: ["research/biochem-proof-staging-20261009"]
+    paths:
+      - "scripts/experiment_general_stoichiometry.py"
+      - ".github/workflows/biochemistry-general-stoichiometry.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-math-invariants:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Exact rational conservation and leakage counterexamples
+        run: python3 scripts/experiment_general_stoichiometry.py -o /tmp/general-stoichiometry.json
+      - name: Independent symbolic linear-algebra oracle
+        run: |
+          python3 -m pip install --disable-pip-version-check --no-input 'sympy==1.14.0'
+          python3 - <<'PY'
+          import importlib.util
+          import json
+          from sympy import Matrix, Rational
+          spec=importlib.util.spec_from_file_location("oracle","scripts/experiment_general_stoichiometry.py")
+          module=importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(module)
+          report=json.load(open("/tmp/general-stoichiometry.json",encoding="utf-8"))
+          assert report["exact_witness_steps"]==320
+          assert report["leak_counterexample_confirmed"] is True
+          assert report["independent_lean_kernel_verification"] is False
+          assert report["cace_runtime_invoked"] is False
+          for row in report["networks"]:
+              laws=Matrix([[Rational(x) for x in values] for values in row["left_nullspace_basis"]])
+              assert laws.rows==row["nullity"]
+              assert laws.cols==row["species"]
+              assert laws.rank()==row["nullity"]
+              assert row["nullity"]==row["species"]-row["rank"]
+          examples=[
+              [(-1,-1,1,0),(1,1,-1,0),(1,0,-1,1)],
+              [(-1,1,0),(0,-1,1)],
+              [(-1,1,0),(0,-1,1)],
+              [(-1,1),(1,-1)],
+              [(-1,1,0,0),(-1,0,1,0),(0,-1,0,1)],
+          ]
+          for sample,row in zip(examples,report["networks"]):
+              m=Matrix(sample)
+              assert m.rank()==row["rank"]
+              for law in row["left_nullspace_basis"]:
+                  assert m*Matrix([Rational(x) for x in law])==Matrix.zeros(len(sample),1)
+          print("SymPy independent nullspace/rank replay PASS")
+          PY
+      - name: Save exact evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: general-stoichiometry-exact-oracle
+          path: /tmp/general-stoichiometry.json
+          retention-days: 30
+          if-no-files-found: warn
