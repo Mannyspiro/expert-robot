@@ -106,3 +106,12 @@ kernel-visible axiom dependencies for review.
 
 #check MathAI.Geometry.midpoint_comm
 #print axioms MathAI.Geometry.midpoint_comm
+
+#check MathAI.Beam.corrected_solution
+#print axioms MathAI.Beam.corrected_solution
+
+#check MathAI.Beam.exact_error
+#print axioms MathAI.Beam.exact_error
+
+#check MathAI.Beam.coordinate_error_bound
+#print axioms MathAI.Beam.coordinate_error_bound

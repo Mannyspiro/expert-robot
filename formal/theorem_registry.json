@@ -484,6 +484,49 @@
         "lean_verified"
       ],
       "uses": []
+    },
+    {
+      "name": "MathAI.Beam.corrected_solution",
+      "source": "MathAI/Beam/Correction.lean",
+      "status": "verified",
+      "statement": "An exact residual correction produces an exact solution.",
+      "domain": "algebra",
+      "tags": [
+        "beam",
+        "exact_correction",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Beam.exact_error",
+      "source": "MathAI/Beam/Correction.lean",
+      "status": "verified",
+      "statement": "For an injective rational linear operator, the correction equals the exact solution error.",
+      "domain": "algebra",
+      "tags": [
+        "beam",
+        "exact_correction",
+        "lean_verified"
+      ],
+      "uses": [
+        "MathAI.Beam.corrected_solution"
+      ]
+    },
+    {
+      "name": "MathAI.Beam.coordinate_error_bound",
+      "source": "MathAI/Beam/Correction.lean",
+      "status": "verified",
+      "statement": "For an injective rational linear operator, checked coordinate bounds on a residual correction bound exact solution error.",
+      "domain": "algebra",
+      "tags": [
+        "beam",
+        "exact_correction",
+        "lean_verified"
+      ],
+      "uses": [
+        "MathAI.Beam.corrected_solution"
+      ]
     }
   ]
 }
