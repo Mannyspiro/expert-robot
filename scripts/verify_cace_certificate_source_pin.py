@@ -29,7 +29,7 @@ def pinned_verify(receipt,source_bytes,pinned_source_sha256):
     if not isinstance(pinned_source_sha256,str) or len(pinned_source_sha256)!=64 or any(
         ch not in '0123456789abcdef' for ch in pinned_source_sha256):
         raise ValueError('expected pinned lowercase SHA-256')
-    if not isinstance(source_bytes,bytes) or len(source_bytes)>200000:
+    if not isinstance(source_bytes,bytes) or len(source_bytes)>2000000:
         raise ValueError('unbounded source bytes')
     actual=hashlib.sha256(source_bytes).hexdigest()
     if actual!=pinned_source_sha256:
@@ -42,10 +42,18 @@ def pinned_verify(receipt,source_bytes,pinned_source_sha256):
         raise ValueError('source matrix shape')
     # Allow syntactically different but mathematically equal exact inputs,
     # e.g. -2/2 and -1; preserve explicit external file-byte pin.
+    def exact_rational(raw):
+        if (not isinstance(raw,str) or not raw or len(raw)>160 or
+            any(ch not in '0123456789-/' for ch in raw) or raw.count('/')>1):
+            raise ValueError('source must use exact rational strings')
+        q=Q(raw)
+        if max(q.numerator.bit_length(),q.denominator.bit_length())>256:
+            raise ValueError('source rational too large')
+        return str(q)
     normalized={
         'species':source['species'],
         'reactions':source['reactions'],
-        'stoichiometry':[[str(Q(v)) for v in row] for row in raw],
+        'stoichiometry':[[exact_rational(v) for v in row] for row in raw],
     }
     if normalized!={k:receipt[k] for k in ('species','reactions','stoichiometry')}:
         raise ValueError('receipt is for a different source model')
