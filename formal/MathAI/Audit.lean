@@ -148,3 +148,9 @@ kernel-visible axiom dependencies for review.
 
 #check MathAI.Bio.linear_conservation_change
 #print axioms MathAI.Bio.linear_conservation_change
+
+#check MathAI.Bio.transfer_flux_pairing_zero_iff
+#print axioms MathAI.Bio.transfer_flux_pairing_zero_iff
+
+#check MathAI.Bio.transfer_graph_total_mass_flux_zero
+#print axioms MathAI.Bio.transfer_graph_total_mass_flux_zero
