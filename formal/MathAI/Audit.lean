@@ -154,3 +154,10 @@ kernel-visible axiom dependencies for review.
 
 #check MathAI.Bio.transfer_graph_total_mass_flux_zero
 #print axioms MathAI.Bio.transfer_graph_total_mass_flux_zero
+
+#check MathAI.Bio.TransferWalk
+#check MathAI.Bio.transfer_weight_walk_iff_edgewise
+#print axioms MathAI.Bio.transfer_weight_walk_iff_edgewise
+
+#check MathAI.Bio.transfer_flux_zero_iff_walk_constant
+#print axioms MathAI.Bio.transfer_flux_zero_iff_walk_constant
