@@ -8,6 +8,7 @@ on:
       - "tests/security_guard_cuts_smoke.py"
       - "scripts/experiment_parser_differential.py"
       - "scripts/experiment_security_flow_mediation.py"
+      - "config/avrea_half_month_budget.json"
       - "tests/parser_differential_smoke.py"
       - "scripts/research_object_routing.py"
       - "tests/research_object_modeler_smoke.py"
@@ -33,8 +34,73 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
+  avrea-preflight:
+    if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'research/magick-ir-v0-1' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      allowed: ${{ steps.budget.outputs.allowed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Check current-period Avrea reservation before runner allocation
+        id: budget
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if python3 scripts/check_avrea_halfmonth_budget.py \
+               --reserve-minutes 5 \
+               --runner-label avrea-ubuntu-latest-8-vcpu \
+               > "$RUNNER_TEMP/avrea-security-preflight.json"; then
+            echo "allowed=true" >> "$GITHUB_OUTPUT"
+            echo "Approved by current-period repo quota estimate."
+          else
+            echo "allowed=false" >> "$GITHUB_OUTPUT"
+            echo "Avrea withheld: budget unavailable or insufficient."
+          fi
+      - name: Retain Avrea preflight record
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: avrea-security-preflight-${{ github.run_id }}
+          path: ${{ runner.temp }}/avrea-security-preflight.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  avrea-security:
+    needs: avrea-preflight
+    if: ${{ needs.avrea-preflight.outputs.allowed == 'true' }}
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    concurrency:
+      group: expert-robot-avrea-half-month-slot
+      cancel-in-progress: false
+      queue: max
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Enforce Avrea half-month budget
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AVREA_RUNNER_LABEL: avrea-ubuntu-latest-8-vcpu
+        run: python3 scripts/check_avrea_halfmonth_budget.py --reserve-minutes 5 --runner-label "$AVREA_RUNNER_LABEL"
+      - name: Execute bounded offline security-mediation experiment
+        run: python3 scripts/experiment_security_flow_mediation.py -o /tmp/cace-security-flow-avrea.json
+      - name: Retain Avrea experiment result
+        uses: actions/upload-artifact@v4
+        with:
+          name: avrea-security-mediation-${{ github.run_id }}
+          path: /tmp/cace-security-flow-avrea.json
+          if-no-files-found: error
+          retention-days: 30
+
   modeler-smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 5
