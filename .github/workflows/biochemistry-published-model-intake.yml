@@ -5,6 +5,7 @@ on:
     paths:
       - "scripts/intake_biomodels_carbon_metabolism.py"
       - "scripts/triage_biomodels_consistency.py"
+      - "scripts/test_biomodels_unit_hypothesis.py"
       - "tests/research_validation_frontier_smoke.py"
       - ".github/workflows/biochemistry-published-model-intake.yml"
   workflow_dispatch:
@@ -47,6 +48,14 @@ jobs:
           python3 scripts/triage_biomodels_consistency.py \
             --intake /tmp/biomodels-intake.json \
             -o /tmp/biomodels-triage.json
+      - name: Test vENO unit hypothesis in memory only
+        if: always()
+        run: |
+          set -euo pipefail
+          test -s bio-source/BIOMD0000000051/BIOMD0000000051.xml
+          python3 scripts/test_biomodels_unit_hypothesis.py \
+            --sbml bio-source/BIOMD0000000051/BIOMD0000000051.xml \
+            -o /tmp/biomodels-unit-hypothesis.json
       - name: Preserve published model audit receipt
         if: always()
         uses: actions/upload-artifact@v4
@@ -55,5 +64,6 @@ jobs:
           path: |
             /tmp/biomodels-intake.json
             /tmp/biomodels-triage.json
+            /tmp/biomodels-unit-hypothesis.json
           retention-days: 30
           if-no-files-found: warn
