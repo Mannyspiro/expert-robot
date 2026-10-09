@@ -60,6 +60,18 @@ jobs:
           print('Qualification Python requirements:',deps)
           PY
           export PIP_REQUIREMENT="$RUNNER_TEMP/cace-python-requirements.txt"
+          mkdir -p "$RUNNER_TEMP/cace-qualification-tools"
+          cat > "$RUNNER_TEMP/cace-qualification-tools/timeout" <<'SH'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          if [[ "$*" == *"lake env lean --run .lake/packages/mathlib/Cache/Main.lean get "* ]]; then
+            echo CACE_PRELOAD_FULL_MATHLIB_CACHE
+            /usr/bin/timeout 900 lake exe cache get
+          fi
+          exec /usr/bin/timeout "$@"
+          SH
+          chmod +x "$RUNNER_TEMP/cace-qualification-tools/timeout"
+          export PATH="$RUNNER_TEMP/cace-qualification-tools:$PATH"
           bash scripts/qualify_v330_portable.sh 2>&1 | tee "$RUNNER_TEMP/cace-qualification.log"
           git fetch origin
           default_ref="$(git symbolic-ref refs/remotes/origin/HEAD)"
