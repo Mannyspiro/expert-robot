@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "mode": "offline_artifact_only",
+  "repository": "Mannyspiro/expert-robot",
+  "fixed_route_ids": [
+    "reaction-conservation",
+    "crnt-assumption-search",
+    "enzyme-equilibrium-search",
+    "parser-contract-search"
+  ],
+  "max_experiments_per_episode": 1,
+  "max_artifact_bytes": 65536,
+  "avrea_credit_reservation": 0,
+  "network_access_authorized": false,
+  "candidate_writes_authorized": false,
+  "automatic_promotion_authorized": false
+}
