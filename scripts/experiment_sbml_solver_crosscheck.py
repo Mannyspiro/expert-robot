@@ -67,11 +67,14 @@ def load_model(path):
     for row in ((1,0,1,0),(0,1,1,1)):
         if not np.array_equal(np.array(row)@matrix,np.zeros(3)):
             raise ValueError("conservation relation invalid")
-    return reactions,rates,matrix
+    # Keep the owner SBMLDocument alive while borrowed SWIG reaction/AST views are used.
+    # Returning only child views can produce a native use-after-free/segfault.
+    return d,reactions,rates,matrix
 
 
 def experiment(path):
-    reactions,k,matrix=load_model(path)
+    document,reactions,k,matrix=load_model(path)
+    assert document.getModel() is not None
     def sbml_rhs(t,y):
         env=dict(zip(NAMES,y))
         env.update(k)
