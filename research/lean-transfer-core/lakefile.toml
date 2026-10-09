@@ -1,6 +1,9 @@
 name = "transfer_walk_core"
 version = "0.1.0"
-defaultTargets = ["TransferReachability"]
+defaultTargets = ["TransferReachability", "ComponentFactorization"]
 
 [[lean_lib]]
 name = "TransferReachability"
+
+[[lean_lib]]
+name = "ComponentFactorization"
