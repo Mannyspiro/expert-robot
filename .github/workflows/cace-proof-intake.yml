@@ -1,0 +1,111 @@
+name: CACE Proof Intake Qualification
+on:
+  push:
+    branches: ["feat/cace-proof-intake-20261009"]
+    paths: [".github/workflows/cace-proof-intake.yml"]
+permissions:
+  contents: read
+concurrency:
+  group: cace-proof-intake
+  cancel-in-progress: false
+jobs:
+  qualify:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Inspect CACE formal project using existing deploy key
+        env:
+          CACE_REPO_KEY: ${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$CACE_REPO_KEY"
+          umask 077
+          key="$RUNNER_TEMP/cace_intake_key"
+          printf '%s\n' "$CACE_REPO_KEY" > "$key"
+          chmod 600 "$key"
+          trap 'rm -f "$key"' EXIT
+          export GIT_SSH_COMMAND="ssh -i $key -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new"
+          git clone --depth 1 git@github.com:morganaspim/Cace-app.git "$RUNNER_TEMP/cace-intake"
+          python3 - <<'PY'
+          import pathlib, subprocess
+          root=pathlib.Path(__import__('os').environ['RUNNER_TEMP'])/'cace-intake'
+          print('CACE_HEAD', subprocess.check_output(['git','-C',str(root),'rev-parse','HEAD'],text=True).strip())
+          for p in sorted(root.rglob('lean-toolchain')):
+              if '.lake' in p.parts: continue
+              print('TOOLCHAIN',p.relative_to(root),p.read_text().strip())
+              for name in ['lakefile.toml','lakefile.lean','lake-manifest.json']:
+                  q=p.parent/name
+                  if q.exists(): print('FORMAL_CONFIG',q.relative_to(root),q.read_text()[:16000])
+          for p in sorted(root.rglob('AGENTS.md')):
+              print('REPO_INSTRUCTIONS',p.relative_to(root),p.read_text()[:16000])
+          for p in sorted(root.rglob('*.lean')):
+              if '.lake' in p.parts: continue
+              print('LEAN_FILE',p.relative_to(root))
+          PY
+      - name: Prepare standalone candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/leancert-intake"
+          cd "$RUNNER_TEMP/leancert-intake"
+          printf 'leanprover/lean4:v4.34.1\n' > lean-toolchain
+          cat > lakefile.toml <<'TOML'
+          name = "cace-leancert-qualification"
+          version = "0.1.0"
+          [[require]]
+          name = "LeanCert"
+          git = "https://github.com/alerad/leancert.git"
+          rev = "b772f2c376b1103f444a71fe910b146c0bc9b002"
+          TOML
+          cat > Main.lean <<'LEAN'
+          import LeanCert.Tactic
+          namespace CACEQualification
+          theorem toyResidualBound : ∀ x ∈ Set.Icc (0 : ℝ) 1,
+              Real.exp x * Real.cos x ≤ 3 := by
+            leancert (trust := kernel)
+          end CACEQualification
+          #print axioms CACEQualification.toyResidualBound
+          LEAN
+      - name: Build pinned candidate and audit transitive axioms
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ELAN_HOME="$RUNNER_TEMP/cace-intake-elan"
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o "$RUNNER_TEMP/elan-init.sh"
+          sh "$RUNNER_TEMP/elan-init.sh" -y --default-toolchain none
+          export PATH="$ELAN_HOME/bin:$PATH"
+          cd "$RUNNER_TEMP/leancert-intake"
+          elan toolchain install leanprover/lean4:v4.34.1
+          lake update
+          test "$(git -C .lake/packages/LeanCert rev-parse HEAD)" = b772f2c376b1103f444a71fe910b146c0bc9b002
+          lake exe cache get
+          lake build LeanCert.Tactic
+          lake env lean Main.lean 2>&1 | tee audit.log
+          python3 - <<'PY'
+          import pathlib,re,json
+          text=pathlib.Path('audit.log').read_text()
+          reports=re.findall(r"CACEQualification\.toyResidualBound['’]?\s+depends on axioms:\s*\[([^\]]*)\]",text,re.S)
+          assert len(reports)==1, 'missing or duplicated target audit'
+          axioms={x.strip() for x in reports[0].split(',') if x.strip()}
+          assert axioms <= {'propext','Classical.choice','Quot.sound'}, axioms
+          pathlib.Path('qualification.json').write_text(json.dumps({'status':'isolated-pass','cace_integrated':False,'axioms':sorted(axioms),'upstream_commit':'b772f2c376b1103f444a71fe910b146c0bc9b002'},indent=2))
+          print('ISOLATED_KERNEL_AUDIT_PASS',sorted(axioms))
+          PY
+      - name: Upload exact candidate evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cace-proof-intake-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/leancert-intake/Main.lean
+            ${{ runner.temp }}/leancert-intake/lean-toolchain
+            ${{ runner.temp }}/leancert-intake/lakefile.toml
+            ${{ runner.temp }}/leancert-intake/lake-manifest.json
+            ${{ runner.temp }}/leancert-intake/audit.log
+            ${{ runner.temp }}/leancert-intake/qualification.json
+          if-no-files-found: warn
+          retention-days: 14
