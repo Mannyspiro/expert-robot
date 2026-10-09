@@ -98,7 +98,11 @@ theorem weightedFlux_zero_for_all_iff_factors
     have hs := hz (fun _ => (1 : Int)) [e]
     have hsub : weight (edge e).2 - weight (edge e).1 = 0 := by
       simpa [weightedFlux] using hs
-    exact (sub_eq_zero.mp hsub).symm
+    have hsummed :=
+      congrArg (fun x : Int => x + weight (edge e).1) hsub
+    have hdst : weight (edge e).2 = weight (edge e).1 := by
+      simpa only [Int.sub_add_cancel, Int.zero_add] using hsummed
+    exact hdst.symm
   · intro hf rate schedule
     apply weightedFlux_eq_zero_of_edgewise
     exact (edgewise_constant_iff_factors edge weight).2 hf
