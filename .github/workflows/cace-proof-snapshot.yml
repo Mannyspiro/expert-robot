@@ -1,0 +1,31 @@
+name: CACE Proof Source Snapshot
+on:
+  push:
+    branches: ["feat/cace-proof-intake-20261009"]
+    paths: [".github/workflows/cace-proof-snapshot.yml"]
+permissions:
+  contents: read
+jobs:
+  snapshot:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 10
+    steps:
+      - name: Capture exact source for bounded local inspection
+        env:
+          CACE_REPO_KEY: ${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          key="$RUNNER_TEMP/cace_snapshot_key"
+          printf '%s\n' "$CACE_REPO_KEY" > "$key"
+          trap 'rm -f "$key"' EXIT
+          export GIT_SSH_COMMAND="ssh -i $key -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new"
+          git clone --depth 1 git@github.com:morganaspim/Cace-app.git "$RUNNER_TEMP/cace-snapshot"
+          git -C "$RUNNER_TEMP/cace-snapshot" rev-parse HEAD
+          git -C "$RUNNER_TEMP/cace-snapshot" archive --format=tar.gz HEAD > "$RUNNER_TEMP/cace-source.tar.gz"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cace-source-${{ github.run_id }}
+          path: ${{ runner.temp }}/cace-source.tar.gz
+          retention-days: 1
