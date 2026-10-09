@@ -1,0 +1,45 @@
+name: Biochemistry Conservation and Counterexamples
+
+on:
+  pull_request:
+    paths:
+      - "scripts/experiment_biochemistry_stoichiometry.py"
+      - "docs/biochemistry-research-program.md"
+      - ".github/workflows/biochemistry-experiment.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-biochemistry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Independently replay synthetic conservation experiment
+        run: python3 scripts/experiment_biochemistry_stoichiometry.py -o /tmp/biochemistry-stoichiometry.json
+      - name: Check experiment reports no physical or authority claims
+        run: |
+          python3 - <<'PY'
+          import json
+          d=json.load(open("/tmp/biochemistry-stoichiometry.json",encoding="utf-8"))
+          assert d["exact_euler_steps"] == 24
+          assert d["rank"] == 2 and d["left_nullity"] == 2
+          assert d["mutation_detected"] is True
+          for key in ("empirical_biochemical_parameters","quantified_runtime_speedup",
+                      "direct_cace_backend_executed","biological_prediction_verified",
+                      "promotion_or_authority_expanded"):
+              assert d[key] is False, key
+          assert d["network_operations"] == 0
+          print("Synthetic stoichiometry evidence and claim boundaries PASS")
+          PY
+      - name: Retain synthetic exact arithmetic result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: biochemistry-exact-arithmetic
+          path: /tmp/biochemistry-stoichiometry.json
+          retention-days: 30
