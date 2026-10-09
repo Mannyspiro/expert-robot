@@ -1,8 +1,6 @@
 name: CACE Compatible Proof Preflight
 on:
-  push:
-    branches: ["feat/cace-proof-intake-20261009"]
-    paths: [".github/workflows/cace-compatible-proof-preflight.yml", "proof-intake/**"]
+  workflow_dispatch:
 permissions:
   contents: read
 concurrency:
