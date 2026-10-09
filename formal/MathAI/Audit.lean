@@ -142,3 +142,6 @@ kernel-visible axiom dependencies for review.
 
 #check MathAI.Bio.product_flux_positive
 #print axioms MathAI.Bio.product_flux_positive
+
+#check MathAI.Bio.weighted_conservation_single_reaction
+#print axioms MathAI.Bio.weighted_conservation_single_reaction
