@@ -38,7 +38,8 @@ def inspect(path):
     for i in range(document.getNumErrors()):
         issue=document.getError(i)
         item={"id":issue.getErrorId(),"severity":issue.getSeverity(),
-              "message":issue.getMessage().strip()[:250]}
+              "line":issue.getLine(),"column":issue.getColumn(),
+              "message":issue.getMessage().strip()[:1500]}
         issues.append(item)
         if issue.getSeverity()>=libsbml.LIBSBML_SEV_ERROR:
             severe+=1
@@ -68,6 +69,12 @@ def inspect(path):
         "rules":model.getNumRules(),
         "function_definitions":model.getNumFunctionDefinitions(),
         "libsbml_issues":len(issues),"libsbml_severe_issues":severe,
+        "libsbml_issue_counts_by_id":{
+            str(code):sum(e["id"]==code for e in issues)
+            for code in sorted({e["id"] for e in issues})
+        },
+        "qualification_state":("quarantined_serious_consistency_findings"
+                               if severe else "passed_standards_intake_only"),
         "first_serious_validation_findings":first_errors,
         "curator_noted_paper_to_model_formula_adjustments":True,
         "kinetic_parameter_provenance_needs_review":True,

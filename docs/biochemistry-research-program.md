@@ -65,3 +65,27 @@ CACE FEM/PDE extensions (unqualified): diffusion-reaction mass balance with orie
 5. **Structure/sequence case:** use a benign reference protein with PDB experimental coordinates and explicit quality validation; investigate conformer sensitivity; no mechanism proof from AlphaFold confidence alone.
 
 Each iteration must output SHA-pinned sources, methods, assumptions, machine-readable witnesses, counterexamples, model limitations and verification status.
+
+## Published-model intake diagnostic (2026-10-09; fail-closed)
+
+The pinned CC0 source `biomodels/BIOMD0000000051@92843fdc466e704445d491fb42b4142d4c70c3f6`
+passed immutable commit and Git-blob checks. Independent `python-libsbml==5.21.2`
+reported an SBML Level 2 Version 1 model with 18 species and 48 kinetic-law
+reactions, but **40 consistency issues, including three severity-ERROR
+findings with libSBML code 10541**. Those three findings state that kinetic
+law formula units do not equal the required amount-per-time dimensions.
+Evidence: GitHub Actions run `38002448162`, artifact
+`pinned-biomodels-carbon-source-intake` (artifact ID `11650150126`).
+The reported issue messages were originally truncated; the upgraded intake
+stores up to 1500 characters per serious error, line/column locators and counts
+by libSBML issue ID. The new diagnostics require a fresh run.
+
+**Disposition:** model quarantined for dynamic simulation validation. Do not
+override or downgrade libSBML severity solely to obtain a green workflow.
+An old published SBML model can be historically useful while failing modern
+consistency checks. Before comparing trajectories or connecting CACE, locate
+the exact three kinetic laws and their unit-bearing symbols, establish
+whether the issue reflects model annotations or physically inconsistent units,
+compare the curator's intended simulation semantics, document any *separate*
+proposed corrected derivative under a new source digest, and independently
+cross-check outputs. No empirical claim or CACE qualification is inferred.
