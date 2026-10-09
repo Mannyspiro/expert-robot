@@ -15,7 +15,9 @@ import re
 
 COMMIT = "fd4aeeb2ee4fc729c18d98444fed42fd0529eeeb"
 IMPORT = re.compile(r"^\s*import\s+(.+)$")
-MOD = re.compile(r"^[A-Za-z_][A-Za-z0-9_.]*$")
+# Lean module identifiers can contain trailing/internal apostrophes (primes).
+# Constrain each dotted component separately; unknown syntax still fails closed.
+MOD = re.compile(r"^[A-Za-z_][A-Za-z0-9_']*(?:\.[A-Za-z_][A-Za-z0-9_']*)*$")
 MODULE_PREFIXES = ("OAI.", "ComparatorChallenges.")
 
 
