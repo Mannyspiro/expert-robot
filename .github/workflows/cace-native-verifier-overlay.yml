@@ -1,0 +1,139 @@
+name: CACE Fail-Closed Native Verification Overlay
+
+on:
+  push:
+    branches: ["research/cace-verification-hardening-20261009"]
+    paths:
+      - "scripts/patch_cace_fem_verification_overlay.py"
+      - "scripts/verify_quadratic_poisson_energy_identity.py"
+      - "tests/test_cace_native_verifier_overlay.py"
+      - ".github/workflows/cace-native-verifier-overlay.yml"
+  pull_request:
+    paths:
+      - "scripts/patch_cace_fem_verification_overlay.py"
+      - "tests/test_cace_native_verifier_overlay.py"
+      - ".github/workflows/cace-native-verifier-overlay.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-energy-identity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install independently pinned symbolic algebra
+        run: python3 -m pip install --disable-pip-version-check --no-input 'sympy==1.14.0'
+      - name: Verify the exact Poisson P1 energy identity and outward-rounded rational intervals
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/verify_quadratic_poisson_energy_identity.py | tee "$RUNNER_TEMP/poisson-identity.json"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          d=json.loads((Path(os.environ["RUNNER_TEMP"])/"poisson-identity.json").read_text())
+          assert d["symbolic_difference"]=="0"
+          assert d["exact_rational_interval_cases"]==18
+          assert d["intentional_wrong_identities_rejected"]==2
+          assert d["general_pde_reliability_proven"] is False
+          assert d["lean_kernel_proof_of_energy_identity"] is False
+          print("Independent symbolic error identity and exact interval brackets PASS")
+          PY
+      - name: Preserve independent symbolic algebra evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: poisson-p1-energy-identity
+          path: ${{ runner.temp }}/poisson-identity.json
+          retention-days: 30
+          if-no-files-found: warn
+
+  local-native-repair:
+    needs: exact-energy-identity
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Bind to the independently LeanChecker-verified rational conservation theorem
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object research/lean-transfer-core/RationalComponentFlux.lean)" = "c628ea03db86ac844676360db253ca127b6fcd0f"
+          echo "Lean rational flux theorem: pinned at verified commit b2a9a0ab86034863b082c5e8a72ba7e58afd718f"
+      - name: Prepare temporary authorized read-only CACE checkout
+        shell: bash
+        env:
+          CACE_REPO_KEY: "${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}"
+        run: |
+          set -euo pipefail
+          test -n "${CACE_REPO_KEY:-}" || { echo "authorized key unavailable"; exit 1; }
+          umask 077
+          printf '%s\n' "$CACE_REPO_KEY" > "$RUNNER_TEMP/cace_key"
+          chmod 600 "$RUNNER_TEMP/cace_key"
+          eval "$(ssh-agent -s)"
+          ssh-add "$RUNNER_TEMP/cace_key" >/dev/null
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
+      - name: Check out pinned CACE revision without remote writes
+        shell: bash
+        run: |
+          set -euo pipefail
+          GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
+            git clone --depth 1 git@github.com:morganaspim/Cace-app.git "$RUNNER_TEMP/cace-app"
+          if [ "$(git -C "$RUNNER_TEMP/cace-app" rev-parse HEAD)" != "66b22a71ff52b3110269f5994a5fd0716a2054c1" ]; then
+            GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
+              git -C "$RUNNER_TEMP/cace-app" fetch --depth 1 origin 66b22a71ff52b3110269f5994a5fd0716a2054c1
+            git -C "$RUNNER_TEMP/cace-app" checkout --detach 66b22a71ff52b3110269f5994a5fd0716a2054c1
+          fi
+          test "$(git -C "$RUNNER_TEMP/cace-app" rev-parse HEAD)" = "66b22a71ff52b3110269f5994a5fd0716a2054c1"
+          test "$(sha256sum "$RUNNER_TEMP/cace-app/cace_studio/modules/fem.py" | cut -d' ' -f1)" = "73742096c73386f83727841ac7eb6efacfebef11ce8ab24b3f4a03bf682a74c1"
+      - name: Apply minimal local-only verification overlay
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/patch_cace_fem_verification_overlay.py --cace-repo "$RUNNER_TEMP/cace-app"
+          git -C "$RUNNER_TEMP/cace-app" diff -- cace_studio/modules/fem.py > "$RUNNER_TEMP/cace-native-verifier-overlay.patch"
+          test -s "$RUNNER_TEMP/cace-native-verifier-overlay.patch"
+          git -C "$RUNNER_TEMP/cace-app" diff --check
+          test "$(git -C "$RUNNER_TEMP/cace-app" diff --name-only)" = "cace_studio/modules/fem.py"
+      - name: Execute real modified CACE verifiers with exact benchmark and attacks
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check --no-input 'numpy==2.0.2'
+          python3 tests/test_cace_native_verifier_overlay.py --cace-repo "$RUNNER_TEMP/cace-app" -o "$RUNNER_TEMP/cace-native-verifier-regression.json"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          report=json.loads((Path(os.environ["RUNNER_TEMP"])/"cace-native-verifier-regression.json").read_text())
+          assert report["verified_benchmark_meshes"]==8
+          assert report["native_adversarial_controls_rejected"]==16
+          assert report["local_patched_runtime_exercised"] is True
+          assert report["general_pde_reliability_bound_proven"] is False
+          assert report["remote_cace_repository_modified"] is False
+          assert report["authority_expanded"] is False
+          print("Hardening overlay: eight valid meshes and sixteen invalid native claims PASS")
+          PY
+      - name: Archive exact reversible patch and evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cace-native-verifier-research-overlay
+          path: |
+            ${{ runner.temp }}/cace-native-verifier-overlay.patch
+            ${{ runner.temp }}/cace-native-verifier-regression.json
+          retention-days: 30
+          if-no-files-found: warn
+      - name: Erase temporary credentials
+        if: always()
+        shell: bash
+        run: |
+          if [ -n "${SSH_AGENT_PID:-}" ]; then ssh-agent -k >/dev/null 2>&1 || true; fi
+          rm -f "$RUNNER_TEMP/cace_key"
