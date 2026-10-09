@@ -1,0 +1,36 @@
+# OCI ARM64 / private by default; SSH tunneling required to reach the interface.
+# Review upstream Forgejo LTS image digest and pin it before production.
+services:
+  forgejo:
+    image: codeberg.org/forgejo/forgejo:15.0.9-rootless
+    user: "1000:1000"
+    restart: unless-stopped
+    environment:
+      FORGEJO__server__ROOT_URL: "http://127.0.0.1:3000/"
+      FORGEJO__server__DOMAIN: "127.0.0.1"
+      FORGEJO__server__SSH_DOMAIN: "127.0.0.1"
+      FORGEJO__server__SSH_PORT: "2222"
+      FORGEJO__server__OFFLINE_MODE: "true"
+      FORGEJO__service__DISABLE_REGISTRATION: "true"
+      FORGEJO__service__REQUIRE_SIGNIN_VIEW: "true"
+      FORGEJO__repository__DEFAULT_PRIVATE: "private"
+      FORGEJO__actions__ENABLED: "false"
+      FORGEJO__security__REVERSE_PROXY_TRUSTED_PROXIES: "127.0.0.0/8,::1/128"
+    ports:
+      - "127.0.0.1:3000:3000"
+      - "127.0.0.1:2222:2222"
+    volumes:
+      - ./data:/var/lib/gitea
+      - ./config:/etc/gitea
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    pids_limit: 256
+    mem_limit: 1536m
+    healthcheck:
+      test: ["CMD", "/bin/sh", "-c", "wget -q -O /dev/null http://127.0.0.1:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 8
+      start_period: 60s
