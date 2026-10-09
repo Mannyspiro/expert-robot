@@ -5,9 +5,13 @@ on:
     branches: ["research/magick-ir-v0-1"]
     paths:
       - ".github/workflows/openai-math-kernel-replay.yml"
+      - "scripts/profile_openai_lean_closure.py"
+      - "tests/openai_math_lean_closure_smoke.py"
   pull_request:
     paths:
       - ".github/workflows/openai-math-kernel-replay.yml"
+      - "scripts/profile_openai_lean_closure.py"
+      - "tests/openai_math_lean_closure_smoke.py"
       - "scripts/plan_openai_math_formal_verification.py"
       - "docs/openai-math-catalog-2026-10-09.json"
   workflow_dispatch:
@@ -35,6 +39,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+      - name: Offline Lean import grammar regression
+        run: python3 tests/openai_math_lean_closure_smoke.py
       - name: Select exact first target and its claimed theorem
         id: target
         env:
