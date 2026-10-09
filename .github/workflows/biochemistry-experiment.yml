@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "scripts/experiment_biochemistry_stoichiometry.py"
+      - "scripts/experiment_biochemistry_equilibrium.py"
       - "docs/biochemistry-research-program.md"
       - ".github/workflows/biochemistry-experiment.yml"
   workflow_dispatch:
@@ -21,6 +22,8 @@ jobs:
           persist-credentials: false
       - name: Independently replay synthetic conservation experiment
         run: python3 scripts/experiment_biochemistry_stoichiometry.py -o /tmp/biochemistry-stoichiometry.json
+      - name: Test zero-interior-equilibrium claim and weakened-assumption counterexamples
+        run: python3 scripts/experiment_biochemistry_equilibrium.py -o /tmp/biochemistry-equilibrium.json
       - name: Check experiment reports no physical or authority claims
         run: |
           python3 - <<'PY'
@@ -34,12 +37,22 @@ jobs:
                       "promotion_or_authority_expanded"):
               assert d[key] is False, key
           assert d["network_operations"] == 0
-          print("Synthetic stoichiometry evidence and claim boundaries PASS")
+          g=json.load(open("/tmp/biochemistry-equilibrium.json",encoding="utf-8"))
+          assert g["positive_parameter_grid_evaluations"] == 6400
+          assert g["positive_parameter_grid_equilibria"] == 0
+          assert len(g["necessary_hypotheses_boundary_witnesses"]) == 4
+          assert g["dropped_equation_mutant_detected"] is True
+          assert g["mathematical_generalization_proved_by_this_script"] is False
+          assert g["empirical_biochemistry_claimed"] is False
+          assert g["authority_expanded"] is False
+          print("Synthetic stoichiometry and equilibrium boundary claims PASS")
           PY
       - name: Retain synthetic exact arithmetic result
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: biochemistry-exact-arithmetic
-          path: /tmp/biochemistry-stoichiometry.json
+          path: |
+            /tmp/biochemistry-stoichiometry.json
+            /tmp/biochemistry-equilibrium.json
           retention-days: 30
