@@ -30,7 +30,7 @@ jobs:
           evidence="$RUNNER_TEMP/root-evidence"
           gh run download 37964601101 --repo Mannyspiro/expert-robot --name cace-checked-interval-integration-37964601101 --dir "$evidence"
           python3 - "$evidence" <<'PY'
-          import pathlib,json,sys
+          import pathlib,json,sys,hashlib
           root=pathlib.Path(sys.argv[1])
           p=root/'cace-integrated-evidence.json'
           data=json.loads(p.read_text())
@@ -38,6 +38,9 @@ jobs:
           assert data['source_commit']=='66b22a71ff52b3110269f5994a5fd0716a2054c1'
           assert data['root_compiled'] is True
           assert data['endpoint_count']==7
+          assert data['endpoint_axiom_audit']=='passed'
+          for name,digest in data['file_sha256'].items():
+              assert hashlib.sha256((root/name).read_bytes()).hexdigest()==digest
           PY
           umask 077
           key="$RUNNER_TEMP/cace_landing_key"
@@ -49,6 +52,11 @@ jobs:
           cd "$work"
           test "$(git rev-parse HEAD)" = 66b22a71ff52b3110269f5994a5fd0716a2054c1
           export CACE_QUALIFICATION_OUTPUT="$RUNNER_TEMP/cace-qualification"
+          package_copy="$RUNNER_TEMP/cace-python-package"
+          mkdir -p "$package_copy"
+          git archive HEAD | tar -x -C "$package_copy"
+          printf '%s\n' "$package_copy" > "$RUNNER_TEMP/cace-python-requirements.txt"
+          export PIP_REQUIREMENT="$RUNNER_TEMP/cace-python-requirements.txt"
           bash scripts/qualify_v330_portable.sh 2>&1 | tee "$RUNNER_TEMP/cace-qualification.log"
           git fetch origin
           default_ref="$(git symbolic-ref refs/remotes/origin/HEAD)"
