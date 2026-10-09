@@ -75,6 +75,26 @@ def main():
         future = {pool.submit(download, path): path for path in files}
         for f in concurrent.futures.as_completed(future):
             scans[future[f]] = f.result()
+    # Some comparator solution modules are umbrella imports of the theorem's
+    # actual source. Inspect roots cheaply, without treating reachability or
+    # source presence as a kernel verification.
+    umbrellas = set()
+    for d in decls:
+        cfg = scans[d["comparator_config"]]
+        if not cfg["ok"]:
+            continue
+        try:
+            solution = json.loads(cfg["text"]).get("solution_module", "")
+            p = solution.replace(".", "/") + ".lean"
+            if p != d["module_file"] and PATH.fullmatch(p):
+                umbrellas.add(p)
+        except (ValueError, TypeError, AttributeError):
+            continue
+    umbrella_scans = {}
+    with concurrent.futures.ThreadPoolExecutor(max_workers=args.workers) as pool:
+        future = {pool.submit(download, path): path for path in sorted(umbrellas)}
+        for f in concurrent.futures.as_completed(future):
+            umbrella_scans[future[f]] = f.result()
     cases = []
     for d in decls:
         mod = scans[d["module_file"]]
@@ -112,6 +132,23 @@ def main():
                 row["config_solution_module_matches"] = (
                     parsed.get("solution_module") ==
                     d["module_file"][:-5].replace("/", "."))
+                row["mapping_state"] = "direct"
+                if not row["config_solution_module_matches"]:
+                    root_path = parsed.get("solution_module", "").replace(
+                        ".", "/") + ".lean"
+                    root = umbrella_scans.get(root_path)
+                    expected = d["module_file"][:-5].replace("/", ".")
+                    row["umbrella_retrieved"] = bool(root and root["ok"])
+                    if root and root["ok"]:
+                        imports = set(re.findall(
+                            r"(?m)^import\s+([A-Za-z0-9_.]+)\s*$",
+                            root["text"]))
+                        row["umbrella_blob_sha1"] = root["git_blob_sha1"]
+                        row["mapping_state"] = (
+                            "direct_import_seen" if expected in imports
+                            else "transitive_import_unresolved")
+                    else:
+                        row["mapping_state"] = "umbrella_unavailable"
             except (ValueError, TypeError):
                 row["config_parse_failure"] = True
         else:
@@ -132,6 +169,15 @@ def main():
             sum(v.get("config_solution_module_matches", False) for v in cases),
         "declarations_with_restricted_axiom_allowlist":
             sum(v["axiom_allowlist_subset"] for v in cases),
+        "umbrella_sources_retrieved": sum(
+            x["ok"] for x in umbrella_scans.values()),
+        "umbrella_sources_failed": sorted(
+            p for p, x in umbrella_scans.items() if not x["ok"]),
+        "indirections_with_direct_import_seen": sum(
+            v.get("mapping_state") == "direct_import_seen" for v in cases),
+        "indirections_requiring_transitive_import_or_kernel_check": [
+            v["declaration"] for v in cases if v.get("mapping_state") in
+            ("transitive_import_unresolved", "umbrella_unavailable")],
         "possible_source_escape_tokens":
             sum(v.get("source_has_proof_escape_token", False) for v in cases),
         "solution_module_mapping_differences": [
