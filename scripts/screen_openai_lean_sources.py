@@ -108,6 +108,7 @@ def main():
                     d["declaration"] in parsed.get("theorem_names", []))
                 row["axiom_allowlist_subset"] = (
                     set(parsed.get("permitted_axioms", [])) <= SAFE_AX)
+                row["config_solution_module"] = parsed.get("solution_module")
                 row["config_solution_module_matches"] = (
                     parsed.get("solution_module") ==
                     d["module_file"][:-5].replace("/", "."))
@@ -133,13 +134,20 @@ def main():
             sum(v["axiom_allowlist_subset"] for v in cases),
         "possible_source_escape_tokens":
             sum(v.get("source_has_proof_escape_token", False) for v in cases),
+        "solution_module_mapping_differences": [
+            {"declaration": x["declaration"],
+             "source_module": x["module_file"][:-5].replace("/", "."),
+             "comparator_solution_module": x.get("config_solution_module")}
+            for x in cases
+            if x["comparator_download_ok"] and
+            not x.get("config_solution_module_matches", False)
+        ],
         "failed_declarations": [
             x["declaration"] for x in cases
             if not all((x["source_download_ok"], x["comparator_download_ok"],
                         x["declared_identifier_visible"],
                         x["config_names_declaration"],
-                        x["axiom_allowlist_subset"],
-                        x.get("config_solution_module_matches", False)))
+                        x["axiom_allowlist_subset"])))
         ],
         "cases": cases,
         "bytes_downloaded": sum(x.get("bytes",0) for x in scans.values()),
@@ -152,7 +160,10 @@ def main():
     out = Path(args.output)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps({k: v for k, v in result.items() if k not in ("cases", "failed_declarations")}))
+    print(json.dumps({k: v for k, v in result.items()
+                      if k not in ("cases", "failed_declarations")}))
+    print(json.dumps({"mapping_differences":
+                      result["solution_module_mapping_differences"]}))
     # Incomplete screening must NOT become a green proof-qualification gate.
     if result["failed_file_paths"] or result["failed_declarations"]:
         raise SystemExit(2)
