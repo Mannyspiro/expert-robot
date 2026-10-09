@@ -121,3 +121,6 @@ kernel-visible axiom dependencies for review.
 
 #check MathAI.Molecular.energy_endpoint_bound
 #print axioms MathAI.Molecular.energy_endpoint_bound
+
+#check MathAI.Graph.l1Distance_append
+#print axioms MathAI.Graph.l1Distance_append
