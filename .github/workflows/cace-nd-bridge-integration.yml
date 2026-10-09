@@ -5,6 +5,7 @@ on:
     paths:
       - "scripts/compile_crl_to_cace_nd.py"
       - "scripts/run_cace_nd_bridge_smoke.py"
+      - "scripts/inspect_cace_beam_solver.py"
       - "tests/crl_to_cace_nd_smoke.py"
       - "config/cace_actual_module_contracts.json"
       - "config/examples/portal_p2_boundary_null.crl"
@@ -61,6 +62,7 @@ jobs:
           GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
             git clone git@github.com:morganaspim/Cace-app.git "$work"
           git -C "$work" checkout 0e7aa229d3bb57174e281b883ee8af5445f15f75
+          python3 scripts/inspect_cace_beam_solver.py "$work" -o "$RUNNER_TEMP/cace-beam-solver-contract.json"
           if [ -f "$work/requirements.txt" ]; then
             python3 -m pip install -r "$work/requirements.txt"
           elif [ -f "$work/pyproject.toml" ]; then
@@ -100,6 +102,7 @@ jobs:
           name: cace-nd-bridge-${{ github.run_id }}
           path: |
             ${{ runner.temp }}/cace-nd-bridge.json
+            ${{ runner.temp }}/cace-beam-solver-contract.json
             ${{ runner.temp }}/cace-math-dataset.json
             ${{ runner.temp }}/cace-math-candidates.json
             ${{ runner.temp }}/cace-math-proof-queue.json

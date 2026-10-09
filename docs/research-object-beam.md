@@ -1,0 +1,45 @@
+# Modeler-derived beam benchmark
+
+`evaluate_research_object_beam.py` selects the modeler's single-edge
+`complete_graph` candidate and models its circular centerline as a clamped-free
+Euler–Bernoulli beam. The illustrative fixture is 1 m long, 20 mm in diameter,
+with E = 200 GPa and a local transverse distributed load of -1 N/m.
+The root clamp and free tip are benchmark assumptions, not inferred mounting
+conditions. A rotated XY centerline uses the same local load convention.
+
+The solver uses cubic Hermite bending elements and consistent distributed loads.
+An independent closed-form cantilever field checks tip motion, support force and
+moment, and interior displacement and curvature. The five-point quadrature
+integrates squared field errors. Meshes of 1, 2, 4, 8 and 16 elements must reduce
+displacement L2 error by approximately 16 and curvature L2 error by approximately
+4 on each doubling. Tip-only agreement is insufficient: the tip can be exact
+on the first mesh while the interior field still has error.
+
+The Hermite formulation follows the [TU Delft Euler–Bernoulli derivation](https://teachbooks.tudelft.nl/computational-modelling/structural_linear/euler_bernouilli.html).
+Regression checks also use independent tip-force and tip-moment formulas,
+support equilibrium, rotation invariance and invalid-input rejection.
+
+The bounded experiment accepts 3–6 doubling meshes, at most 32 elements,
+L/d >= 10, finite material/load inputs and named material provenance. It rejects
+responses exceeding 1% of span or 0.05 rad rotation. These limits define the
+benchmark envelope; they do not establish the accuracy of a real beam model.
+Curvature-derived stress is an FE approximation and is reported separately
+from the analytic root stress. Material provenance is illustrative.
+
+The modeler workflow retains the report for 30 days with the input digest,
+topology digest, source head, execution SHA and producer run. The result has
+no promotion authority. It is neither a CACE continuum certificate nor a
+manufacturing qualification. Shear deformation, axial behavior, buckling,
+joints and 3D solid stresses are outside this experiment.
+
+The next bridge step is to reuse the pinned CACE algebraic solver and residual
+checker with an explicit beam-system adapter. The existing CACE ND route is
+scalar Poisson FEM and must not be relabeled as a beam certificate. Its runner
+now retains a bounded, read-only inspection of `LinearSolverND` and
+`AlgebraicResidualND` at the exact qualified source pin so the adapter can use
+the actual internal system contract rather than guessing it.
+
+```sh
+python3 tests/research_object_beam_smoke.py
+python3 scripts/evaluate_research_object_beam.py config/examples/research_object_beam.json -o /tmp/beam-report.json
+```

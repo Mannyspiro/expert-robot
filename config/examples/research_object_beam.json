@@ -1,0 +1,13 @@
+{
+  "schema_version": "0.1",
+  "object_id": "canonical-circular-cantilever",
+  "purpose": "Bounded beam FEM benchmark with an independent analytic reference.",
+  "design_space": {"coordinate_frame": "Cartesian xyz meters", "bounds": {"min": [-0.02,-0.02,-0.02], "max": [1.02,0.02,0.02]}, "representation": "parametric"},
+  "geometry_catalog": {"points": [{"id":"root","xyz_m":[0,0,0]}, {"id":"tip","xyz_m":[1,0,0]}], "obstacle_boxes": []},
+  "preserve_geometry": [{"id":"root-interface","geometry_ref":"root","must_remain_exact":true}, {"id":"tip-interface","geometry_ref":"tip","must_remain_exact":true}],
+  "obstacle_geometry": [],
+  "materials": [{"id":"benchmark","density_kg_m3":7850,"youngs_modulus_pa":200000000000,"provenance":"Illustrative homogeneous elastic benchmark; no measured strength or manufacturing qualification."}],
+  "physics": ["linear_elasticity"],
+  "constraints": {"minimum_feature_m":0.02,"maximum_mass_kg":10},
+  "beam_benchmark": {"material_id":"benchmark","root_point_id":"root","tip_point_id":"tip","uniform_transverse_load_n_m":-1,"mesh_elements":[1,2,4,8,16]}
+}

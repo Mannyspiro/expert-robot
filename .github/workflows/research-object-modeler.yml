@@ -15,6 +15,9 @@ on:
       - "tests/research_object_truss_smoke.py"
       - "config/examples/research_object_truss_load_case.json"
       - "config/examples/research_object_demo.json"
+      - "scripts/evaluate_research_object_beam.py"
+      - "tests/research_object_beam_smoke.py"
+      - "config/examples/research_object_beam.json"
       - ".github/workflows/research-object-modeler.yml"
   workflow_dispatch:
 
@@ -34,6 +37,8 @@ jobs:
           python3 tests/research_object_obj_export_smoke.py
           python3 tests/research_object_solid_smoke.py
           python3 tests/research_object_truss_smoke.py
+          python3 tests/research_object_beam_smoke.py
+          RESEARCH_HEAD_SHA=${{ github.event.pull_request.head.sha || github.sha }} python3 scripts/evaluate_research_object_beam.py config/examples/research_object_beam.json -o /tmp/cace-modeler-beam-report.json
           python3 scripts/generate_research_object_candidates.py config/examples/research_object_demo.json -o /tmp/cace-modeler.json
           python3 scripts/export_research_object_obj.py config/examples/research_object_demo.json -o /tmp/cace-modeler-preview.obj
           python3 scripts/solidify_research_object.py config/examples/research_object_demo.json --candidate ring -o /tmp/cace-modeler-watertight.obj --report /tmp/cace-modeler-solid-report.json
@@ -48,4 +53,6 @@ jobs:
             /tmp/cace-modeler-watertight.obj
             /tmp/cace-modeler-solid-report.json
             /tmp/cace-modeler-truss-report.json
-          retention-days: 14
+            /tmp/cace-modeler-beam-report.json
+          retention-days: 30
+
