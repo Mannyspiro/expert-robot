@@ -32,11 +32,13 @@ jobs:
           python3 - <<'PY'
           from pathlib import Path
           import re
-          source=Path("TransferReachability.lean").read_text()
-          assert re.findall(r'(?m)^import\s+(.+)',source)==['Init']
-          for bad in [r'\bsorry\b',r'\badmit\b',r'\bunsafe\b',
-                      r'\baxiom\s+[A-Za-z_]',r'\bnative_decide\b']:
-              assert not re.search(bad,source),bad
+          for name,imports in [('TransferReachability.lean',['Init']),
+                               ('ComponentFactorization.lean',['TransferReachability'])]:
+              source=Path(name).read_text()
+              assert re.findall(r'(?m)^import\s+(.+)',source)==imports
+              for bad in [r'\bsorry\b',r'\badmit\b',r'\bunsafe\b',
+                          r'\baxiom\s+[A-Za-z_]',r'\bnative_decide\b']:
+                  assert not re.search(bad,source),(name,bad)
           print("Standalone source scope and no-proof-escape check PASS")
           PY
       - name: Compile standalone pinned Lean proof
@@ -51,19 +53,22 @@ jobs:
           use-mathlib-cache: "false"
           use-github-cache: "false"
           leanchecker: "true"
-          leanchecker-args: "TransferReachability"
+          leanchecker-args: "TransferReachability ComponentFactorization"
       - name: Replay theorem declaration and axiom report directly
         working-directory: research/lean-transfer-core
         shell: bash
         run: |
           set -euo pipefail
           lake env lean TransferReachability.lean | tee "$RUNNER_TEMP/transfer-core-axioms.txt"
-          test "$(git -C "$GITHUB_WORKSPACE" status --porcelain -- research/lean-transfer-core/lean-toolchain research/lean-transfer-core/lake-manifest.json research/lean-transfer-core/TransferReachability.lean)" = ""
+          lake env lean ComponentFactorization.lean | tee "$RUNNER_TEMP/component-factorization-axioms.txt"
+          test "$(git -C "$GITHUB_WORKSPACE" status --porcelain -- research/lean-transfer-core/lean-toolchain research/lean-transfer-core/lake-manifest.json research/lean-transfer-core/TransferReachability.lean research/lean-transfer-core/ComponentFactorization.lean)" = ""
       - name: Preserve independent kernel evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: transfer-walk-standalone-lean-kernel
-          path: ${{ runner.temp }}/transfer-core-axioms.txt
+          path: |
+            ${{ runner.temp }}/transfer-core-axioms.txt
+            ${{ runner.temp }}/component-factorization-axioms.txt
           retention-days: 30
           if-no-files-found: warn
