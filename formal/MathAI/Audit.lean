@@ -127,3 +127,12 @@ kernel-visible axiom dependencies for review.
 
 #check MathAI.Graph.l1AppendReal_norm_sub
 #print axioms MathAI.Graph.l1AppendReal_norm_sub
+
+#check MathAI.Bio.total_enzyme_conserved
+#print axioms MathAI.Bio.total_enzyme_conserved
+
+#check MathAI.Bio.substrate_moiety_conserved
+#print axioms MathAI.Bio.substrate_moiety_conserved
+
+#check MathAI.Bio.reversible_flux_merged
+#print axioms MathAI.Bio.reversible_flux_merged
