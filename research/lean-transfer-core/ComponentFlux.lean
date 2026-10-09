@@ -32,7 +32,17 @@ theorem weightedFlux_eq_zero_of_edgewise
       (weight (edge e).2 - weight (edge e).1) * rate e = 0 := by
     rw [← h e]
     simp
-  simp [weightedFlux, each_zero]
+  induction schedule with
+  | nil => rfl
+  | cons e rest ih =>
+      calc
+        weightedFlux edge weight rate (e :: rest) =
+            (weight (edge e).2 - weight (edge e).1) * rate e +
+              weightedFlux edge weight rate rest := rfl
+        _ = weightedFlux edge weight rate rest := by
+          rw [each_zero e]
+          simp
+        _ = 0 := ih
 
 /-- Any integer observable factored through connected components
 annihilates arbitrary finite signed reaction/transfer fluxes. -/
