@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "scripts/experiment_sbml_stoichiometry_subset.py"
+      - "scripts/experiment_sbml_solver_crosscheck.py"
       - ".github/workflows/biochemistry-sbml-standards.yml"
   workflow_dispatch:
 
@@ -47,6 +48,20 @@ jobs:
           assert all(model.getReaction(i).isSetKineticLaw() for i in range(3))
           print("Independent libSBML Level3V2 validation PASS; synthetic parameters only")
           PY
+      - name: Independently compare libSBML kinetics and two numerical solvers
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check --no-input --only-binary=:all: 'scipy==1.18.1'
+          python3 scripts/experiment_sbml_solver_crosscheck.py --sbml /tmp/biochemistry-enzyme-l3v2.xml -o /tmp/biochemistry-solver-crosscheck.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open("/tmp/biochemistry-solver-crosscheck.json",encoding="utf-8"))
+          assert d["total_solution_samples"]==243
+          assert d["missing_product_mutant_detected"] is True
+          assert d["real_biomodel_reproduced"] is False
+          assert d["authority_expanded"] is False
+          print("Independent synthetic ODE cross-check PASS")
+          PY
       - name: Retain validated model and failure evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -55,5 +70,6 @@ jobs:
           path: |
             /tmp/biochemistry-enzyme-l3v2.xml
             /tmp/biochemistry-sbml-report.json
+            /tmp/biochemistry-solver-crosscheck.json
           retention-days: 30
           if-no-files-found: warn
