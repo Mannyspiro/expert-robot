@@ -38,9 +38,9 @@ TARGETS={
 EXPECTED_POWER_OCCURRENCES={"vDAHPS":4,"vPDH":2}
 
 def segment(xml,reaction):
-    pattern=r'<reaction id="'+re.escape(reaction)+r'"\\b[\\s\\S]*?</reaction>'
+    pattern=r'<reaction id="'+re.escape(reaction)+r'"\b[\s\S]*?</reaction>'
     # Full regex uses simple \b and DOTALL; do not match across neighboring reactions.
-    match=re.search(r'<reaction id="'+re.escape(reaction)+r'"\\b.*?</reaction>',
+    match=re.search(r'<reaction id="'+re.escape(reaction)+r'"\b.*?</reaction>',
                     xml,re.DOTALL)
     if match is None: raise ValueError("missing pinned reaction "+reaction)
     return match
@@ -80,13 +80,13 @@ def replace_kinetic(xml,reaction):
     raw=match.group(0)
     changed=raw
     for c in spec["constants"]:
-        patt=r'(<parameter id="'+re.escape(c)+r'"[^>]*\\bunits=")mM(")'
-        changed,n=re.subn(patt,r'\\g<1>dimensionless\\g<2>',changed)
+        patt=r'(<parameter id="'+re.escape(c)+r'"[^>]*\bunits=")mM(")'
+        changed,n=re.subn(patt,r'\g<1>dimensionless\g<2>',changed)
         if n!=1:raise ValueError("expected exactly one original mM constant "+c)
     count=0
     for species,exponent in spec["powers"]:
-        patt=(r'(<power\\s*/>\\s*)<ci>\\s*'+re.escape(species)+
-              r'\\s*</ci>(\\s*<ci>\\s*'+re.escape(exponent)+r'\\s*</ci>)')
+        patt=(r'(<power\s*/>\s*)<ci>\s*'+re.escape(species)+
+              r'\s*</ci>(\s*<ci>\s*'+re.escape(exponent)+r'\s*</ci>)')
         def patch(m):
             return (m.group(1)+"<apply><divide/><ci> "+species+
                     " </ci><ci> "+spec["reference"]+" </ci></apply>"+m.group(2))
@@ -186,7 +186,7 @@ def main():
     parser.add_argument("-o",type=Path,required=True)
     args=parser.parse_args()
     out=experiment(args.sbml)
-    args.o.write_text(json.dumps(out,indent=2)+"\\n",encoding="utf-8")
+    args.o.write_text(json.dumps(out,indent=2)+"\n",encoding="utf-8")
     print(json.dumps({"original_severe":out["original_severe"],
       "trials":[{"selection":x["selection"],
                  "severe":x["severe_issue_count"],
