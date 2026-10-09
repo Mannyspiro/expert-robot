@@ -1,0 +1,86 @@
+name: CACE Compatible Proof Preflight
+on:
+  push:
+    branches: ["feat/cace-proof-intake-20261009"]
+    paths: [".github/workflows/cace-compatible-proof-preflight.yml", "proof-intake/**"]
+permissions:
+  contents: read
+concurrency:
+  group: cace-compatible-proof-preflight
+  cancel-in-progress: false
+jobs:
+  preflight:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Create quarantined CACE import branch with pinned dependency
+        env:
+          CACE_REPO_KEY: ${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          key="$RUNNER_TEMP/cace_preflight_key"
+          printf '%s\n' "$CACE_REPO_KEY" > "$key"
+          trap 'rm -f "$key"' EXIT
+          export GIT_SSH_COMMAND="ssh -i $key -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new"
+          work="$RUNNER_TEMP/cace-compatible"
+          git clone git@github.com:morganaspim/Cace-app.git "$work"
+          test "$(git -C "$work" rev-parse HEAD)" = 0e7aa229d3bb57174e281b883ee8af5445f15f75
+          git -C "$work" checkout -b proof/external-certified-intervals-20261009
+          cp proof-intake/CertifiedIntervalBounds.lean "$work/formal/cace_formal/CACEFormal/"
+          cp proof-intake/ExternalIntervalAxiomAudit.lean "$work/formal/cace_formal/CACEFormal/"
+          cp proof-intake/SPEC.md "$work/docs/proofs/EXTERNAL_CERTIFIED_INTERVAL_INTAKE.md"
+          python3 - "$work" <<'PY'
+          import pathlib,json,sys
+          root=pathlib.Path(sys.argv[1])
+          lake=root/'formal/cace_formal/lakefile.lean'
+          lake.write_text(lake.read_text()+'\nrequire LeanCert from git\n  "https://github.com/alerad/leancert.git" @ "8a0104b8a8472e3c4695791c0671d89a37ae404f"\n')
+          cfg=root/'formal/cace_formal/proof_guardrails.json'
+          obj=json.loads(cfg.read_text())
+          obj['quarantined_root_imports'].append('CACEFormal.CertifiedIntervalBounds')
+          cfg.write_text(json.dumps(obj,indent=2)+'\n')
+          ledger=root/'docs/CHAT_IDEA_LEDGER.md'
+          ledger.write_text(ledger.read_text()+'\n\n## External checked interval proof intake — 2026-10-09\n\nG062 / A-B-I: reuse a pinned compatible LeanCert soundness layer for explicit residual and SPD energy enclosure hypotheses. Quarantine, kernel axiom audit, audited-root integration, and canonical qualification remain distinct gates. Runtime data needs an exact expression bridge. Latest LeanCert v4.34.1 smoke passed separately on Avrea run 37962666734; it does not qualify this compatible candidate.\n')
+          PY
+          cd "$work"
+          python3 scripts/cace_proof_guardrails.py validate
+          python3 scripts/cace_proof_guardrails.py classify-target --module CACEFormal.CertifiedIntervalBounds --compile-root false
+          python3 scripts/check_lean_source_sanity.py formal/cace_formal/CACEFormal/CertifiedIntervalBounds.lean
+          git config user.name cace-proof-intake
+          git config user.email noreply@github.com
+          git add formal/cace_formal/lakefile.lean formal/cace_formal/proof_guardrails.json formal/cace_formal/CACEFormal/CertifiedIntervalBounds.lean formal/cace_formal/CACEFormal/ExternalIntervalAxiomAudit.lean docs/proofs/EXTERNAL_CERTIFIED_INTERVAL_INTAKE.md docs/CHAT_IDEA_LEDGER.md
+          git commit -m "Quarantine compatible checked interval residual and energy proof imports"
+          git push origin HEAD:refs/heads/proof/external-certified-intervals-20261009
+          git rev-parse HEAD
+      - name: Build candidate under CACE exact pins and audit every target
+        shell: bash
+        run: |
+          set -euo pipefail
+          export ELAN_HOME="$RUNNER_TEMP/cace-compatible-elan"
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -o "$RUNNER_TEMP/elan-compatible-init.sh"
+          sh "$RUNNER_TEMP/elan-compatible-init.sh" -y --default-toolchain none
+          export PATH="$ELAN_HOME/bin:$PATH"
+          cd "$RUNNER_TEMP/cace-compatible/formal/cace_formal"
+          test "$(cat lean-toolchain)" = leanprover/lean4:v4.32.1
+          elan toolchain install leanprover/lean4:v4.32.1
+          lake update
+          test "$(git -C .lake/packages/mathlib rev-parse HEAD)" = 520045ab14e26149ee970e2e617ca04b09bde5d6
+          test "$(git -C .lake/packages/LeanCert rev-parse HEAD)" = 8a0104b8a8472e3c4695791c0671d89a37ae404f
+          lake exe cache get
+          lake build +CACEFormal.CertifiedIntervalBounds
+          lake env lean CACEFormal/ExternalIntervalAxiomAudit.lean 2>&1 | tee "$RUNNER_TEMP/cace-compatible-audit.log"
+          python3 "$GITHUB_WORKSPACE/proof-intake/audit.py" "$RUNNER_TEMP/cace-compatible-audit.log"
+      - name: Upload compatible proof evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cace-compatible-proof-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/cace-compatible-audit.log
+            ${{ runner.temp }}/cace-compatible/formal/cace_formal/lake-manifest.json
+          if-no-files-found: warn
+          retention-days: 14
