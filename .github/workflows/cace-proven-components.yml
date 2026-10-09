@@ -30,6 +30,7 @@ jobs:
           test "$(git hash-object research/lean-transfer-core/TransferReachability.lean)" = "7f0bdd74ed5130dfa5d91d76b0bca2a6da371e3b"
           test "$(git hash-object research/lean-transfer-core/ComponentFactorization.lean)" = "79c5ae1d524597b571c5a3e80a8f0b191e384e35"
           test "$(git hash-object research/lean-transfer-core/ComponentFlux.lean)" = "612d7720859c950797cee536187a9410cd002ebb"
+          test "$(git hash-object research/lean-transfer-core/RationalComponentFlux.lean)" = "c628ea03db86ac844676360db253ca127b6fcd0f"
       - name: Pin numeric oracle
         run: python3 -m pip install --disable-pip-version-check --no-input 'numpy==2.0.2'
       - name: Cross-check six graph networks with exact rational oracle
@@ -42,6 +43,7 @@ jobs:
           x=json.load(open("/tmp/cace-proven-math-only.json"))
           assert x["total_networks"]==6 and x["fraction_oracle_steps"]==288
           assert x["cace_csr_codec_executed"] is False
+          assert x["rational_lean_kernel_verified_source_commit"]=="b2a9a0ab86034863b082c5e8a72ba7e58afd718f"
           assert len(x["negative_controls_rejected"])==6
           assert not x["production_promoted"] and not x["authority_expanded"]
           assert all(r["exact_component_mass_residual"]=="0" for r in x["networks"])
@@ -105,6 +107,7 @@ jobs:
           assert x["total_networks"]==6 and x["fraction_oracle_steps"]==288
           assert x["cace_csr_codec_executed"] is True
           assert x["cace_source_commit_required"]=="66b22a71ff52b3110269f5994a5fd0716a2054c1"
+          assert x["rational_lean_theorem"]=="CoreTransfer.rationalFlux_zero_for_all_iff_factors"
           assert len(x["negative_controls_rejected"])==6
           assert all(r["csr_roundtrip_exact"] and r["numeric_matches_fraction_oracle"] for r in x["networks"])
           assert x["cace_backend_qualified"] is False
