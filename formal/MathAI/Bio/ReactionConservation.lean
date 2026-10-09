@@ -32,4 +32,27 @@ theorem reversible_flux_merged
     x - forward + reverse = x - (forward - reverse) := by
   ring
 
+
+/-- In a closed irreversible-binding/catalysis toy network, steady-state
+    complex balance and product balance cannot both hold when free enzyme,
+    substrate, binding rate and catalytic rate are strictly positive.
+    The unbinding rate and complex concentration need not be positive. -/
+theorem no_positive_enzyme_substrate_steady_state
+    (onRate offRate catRate e s es : ℚ)
+    (hon : 0 < onRate) (hcat : 0 < catRate)
+    (he : 0 < e) (hs : 0 < s)
+    (hcomplex : onRate * e * s - offRate * es - catRate * es = 0)
+    (hproduct : catRate * es = 0) : False := by
+  have hes : es = 0 :=
+    (mul_eq_zero.mp hproduct).resolve_left (ne_of_gt hcat)
+  subst es
+  have hzero : onRate * e * s = 0 := by simpa using hcomplex
+  exact (ne_of_gt (mul_pos (mul_pos hon he) hs)) hzero
+
+/-- Saturation or a closed-network steady-state cannot be assumed simply from
+    positive reaction rates: at positive complex abundance product flux grows. -/
+theorem product_flux_positive
+    (catRate es : ℚ) (hcat : 0 < catRate) (hes : 0 < es) :
+    0 < catRate * es := mul_pos hcat hes
+
 end MathAI.Bio
