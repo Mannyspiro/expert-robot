@@ -1,0 +1,87 @@
+name: CACE Exact Piecewise-Load 1D Flux Error Bound
+
+on:
+  push:
+    branches: ["research/cace-piecewise-flux-bound-20261009"]
+    paths:
+      - "scripts/experiment_cace_piecewise_flux_bound.py"
+      - ".github/workflows/cace-piecewise-flux-bound.yml"
+  pull_request:
+    paths:
+      - "scripts/experiment_cace_piecewise_flux_bound.py"
+      - ".github/workflows/cace-piecewise-flux-bound.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  genuine-cace-variable-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Prepare authorized CACE deploy key for read-only clone
+        shell: bash
+        env:
+          CACE_REPO_KEY: "${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}"
+        run: |
+          set -euo pipefail
+          test -n "${CACE_REPO_KEY:-}" || { echo "authorized key unavailable"; exit 1; }
+          umask 077
+          printf '%s\n' "$CACE_REPO_KEY" > "$RUNNER_TEMP/cace_key"
+          chmod 600 "$RUNNER_TEMP/cace_key"
+          eval "$(ssh-agent -s)"
+          ssh-add "$RUNNER_TEMP/cace_key" >/dev/null
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
+      - name: Clone immutable CACE source without remote writes
+        shell: bash
+        run: |
+          set -euo pipefail
+          GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
+            git clone --depth 1 git@github.com:morganaspim/Cace-app.git "$RUNNER_TEMP/cace-app"
+          if [ "$(git -C "$RUNNER_TEMP/cace-app" rev-parse HEAD)" != "66b22a71ff52b3110269f5994a5fd0716a2054c1" ]; then
+            GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
+              git -C "$RUNNER_TEMP/cace-app" fetch --depth 1 origin 66b22a71ff52b3110269f5994a5fd0716a2054c1
+            git -C "$RUNNER_TEMP/cace-app" checkout --detach 66b22a71ff52b3110269f5994a5fd0716a2054c1
+          fi
+          test "$(git -C "$RUNNER_TEMP/cace-app" rev-parse HEAD)" = "66b22a71ff52b3110269f5994a5fd0716a2054c1"
+          test "$(sha256sum "$RUNNER_TEMP/cace-app/cace_studio/modules/fem.py" | cut -d' ' -f1)" = "73742096c73386f83727841ac7eb6efacfebef11ce8ab24b3f4a03bf682a74c1"
+      - name: Independently reconstruct exact PDE flux and run real CACE solver
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check --no-input 'numpy==2.0.2'
+          python3 scripts/experiment_cace_piecewise_flux_bound.py --cace-repo "$RUNNER_TEMP/cace-app" -o "$RUNNER_TEMP/cace-piecewise-flux.json"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          r=json.loads((Path(os.environ["RUNNER_TEMP"])/"cace-piecewise-flux.json").read_text())
+          assert r["piecewise_source_cases"]==6
+          assert r["real_cace_linear_solver_executed"] is True
+          assert r["both_exact_energy_identities_agree"] is True
+          assert r["native_f1_estimator_underestimate_observed"] is True
+          assert r["narrow_outward_rational_intervals"] is True
+          assert r["general_multidimensional_a_posteriori_certified"] is False
+          assert r["remote_cace_repository_modified"] is False
+          assert r["authority_expanded"] is False
+          assert all(x["cace_solver_verified"] for x in r["cases"])
+          print("1D variable-load equilibrated flux and exact source-bound energy PASS")
+          PY
+      - name: Retain independent source and exact energy interval evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cace-1d-piecewise-flux-exact-bound
+          path: ${{ runner.temp }}/cace-piecewise-flux.json
+          retention-days: 30
+          if-no-files-found: warn
+      - name: Destroy credentials
+        if: always()
+        shell: bash
+        run: |
+          if [ -n "${SSH_AGENT_PID:-}" ]; then ssh-agent -k >/dev/null 2>&1 || true; fi
+          rm -f "$RUNNER_TEMP/cace_key"
