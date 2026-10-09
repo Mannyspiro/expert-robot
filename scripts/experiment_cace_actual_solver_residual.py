@@ -109,6 +109,12 @@ def run(cace_repo):
         eta=float(estimator["eta"])
         assert math.isfinite(eta) and eta>=exact_energy-1e-11
         trials.append({"mesh":name,"vertices":len(xs),"interior_dofs":len(A),
+                       "mesh_nodes_exact":[str(z) for z in xs],
+                       "cace_mesh_vertices":[float(z) for z in mesh["vertices"]],
+                       "cace_stiffness":Ad.tolist(),
+                       "cace_load_vector":[float(z) for z in model["rhs"]],
+                       "cace_solution_values":[float(z) for z in values],
+                       "cace_estimator_local":[float(z) for z in estimator["element_eta"]],
                        "energy_error_squared_exact":str(energy2),
                        "energy_error_known":exact_energy,
                        "estimated_eta":eta,
