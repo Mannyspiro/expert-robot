@@ -6,7 +6,9 @@ on:
     paths:
       - "scripts/generate_cace_conservation_certificate.py"
       - "scripts/verify_cace_conservation_certificate.py"
+      - "scripts/verify_cace_certificate_source_pin.py"
       - "tests/test_cace_conservation_certificate.py"
+      - "tests/test_cace_certificate_source_pin.py"
       - ".github/workflows/cace-stoichiometry-certificate.yml"
   pull_request:
     paths:
@@ -31,6 +33,8 @@ jobs:
         run: python3 -m pip install --disable-pip-version-check --no-input 'sympy==1.14.0'
       - name: Replay 97 exact receipts and 15 hostile mutations
         run: python3 tests/test_cace_conservation_certificate.py
+      - name: External source-pin mutation audit
+        run: python3 tests/test_cace_certificate_source_pin.py
       - name: Compare receipt against independent verifier
         run: |
           set -euo pipefail
@@ -46,6 +50,7 @@ jobs:
           PY
           python3 scripts/generate_cace_conservation_certificate.py --input /tmp/cace-conservation-input.json -o /tmp/cace-conservation-receipt.json
           python3 scripts/verify_cace_conservation_certificate.py /tmp/cace-conservation-receipt.json | tee /tmp/cace-conservation-validation.json
+          python3 scripts/verify_cace_certificate_source_pin.py /tmp/cace-conservation-receipt.json --source /tmp/cace-conservation-input.json --expected-source-sha256 cf135b36f8c67aaabed967b811a9f08b1b202d0acbb6ff6eb14bdf64e1d30c4a | tee /tmp/cace-trusted-source-receipt.json
           python3 - <<'PY'
           import json
           record=json.load(open("/tmp/cace-conservation-validation.json"))
@@ -63,5 +68,6 @@ jobs:
           path: |
             /tmp/cace-conservation-receipt.json
             /tmp/cace-conservation-validation.json
+            /tmp/cace-trusted-source-receipt.json
           retention-days: 30
           if-no-files-found: warn
