@@ -1,0 +1,41 @@
+name: CACE Proof Guardrail Context
+on:
+  push:
+    branches: ["feat/cace-proof-intake-20261009"]
+    paths: [".github/workflows/cace-proof-guardrail-context.yml"]
+permissions:
+  contents: read
+concurrency:
+  group: cace-proof-intake
+  cancel-in-progress: false
+jobs:
+  qualify:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Inspect CACE formal project using existing deploy key
+        env:
+          CACE_REPO_KEY: ${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$CACE_REPO_KEY"
+          umask 077
+          key="$RUNNER_TEMP/cace_intake_key"
+          printf '%s\n' "$CACE_REPO_KEY" > "$key"
+          chmod 600 "$key"
+          trap 'rm -f "$key"' EXIT
+          export GIT_SSH_COMMAND="ssh -i $key -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new"
+          git clone --depth 1 git@github.com:morganaspim/Cace-app.git "$RUNNER_TEMP/cace-intake"
+          python3 - <<'PY'
+          import pathlib,os
+          root=pathlib.Path(os.environ['RUNNER_TEMP'])/'cace-intake'
+          names=['formal/cace_formal/proof_guardrails.json','formal/cace_formal/TOOLCHAIN_LOCK.json','scripts/cace_proof_guardrails.py','formal/cace_formal/CACEFormal/V330AxiomAudit.lean','formal/cace_formal/CACEFormal/V330TheoremMetadata.lean','cace_studio/data/proof_contracts.json','scripts/audit_v330_axioms.py']
+          for name in names:
+              p=root/name
+              if p.exists():
+                  print('BEGIN_CACE_FILE',name);print(p.read_text());print('END_CACE_FILE',name)
+          PY
