@@ -55,6 +55,9 @@ def verify(report):
        "tampered_zero_estimator_accepted_by_cace_wellformed_check":True,
        "externally_detected_fake_estimator":True,
        "externally_detected_changed_rhs":True,
+       "untrusted_zero_error_interval_native_summary_passed":True,
+       "reversed_error_interval_native_summary_passed":True,
+       "independent_interval_validation_required":True,
        "general_pde_a_posteriori_bound_qualified":False,
        "production_promoted":False,
        "authority_expanded":False,
@@ -146,7 +149,9 @@ def mutation_tests(report):
       ("claimed_pde",lambda r:r.__setitem__("general_pde_a_posteriori_bound_qualified",True)),
       ("authority",lambda r:r.__setitem__("authority_expanded",True)),
       ("native_false",lambda r:r["meshes"][0].__setitem__("cace_verifiers_pass",False)),
-      ("nonfinite",lambda r:r["meshes"][0]["cace_solution_values"].__setitem__(0,float("nan")))
+      ("nonfinite",lambda r:r["meshes"][0]["cace_solution_values"].__setitem__(0,float("nan"))),
+      ("false_pipeline_interval",lambda r:r.__setitem__("untrusted_zero_error_interval_native_summary_passed",False)),
+      ("false_interval_order",lambda r:r.__setitem__("reversed_error_interval_native_summary_passed",False))
     ]
     for name,change in targets:
         bad=copy.deepcopy(report);change(bad)
