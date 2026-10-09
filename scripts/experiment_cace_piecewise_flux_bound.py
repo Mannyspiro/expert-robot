@@ -105,7 +105,7 @@ def run(cace_repo):
     for name,rational_nodes,f in fixtures():
         args={"vertices":",".join(map(str,map(float,rational_nodes)))}
         mesh=ArbitraryMesh1D.execute(None,{},args,None)["mesh"]
-        xs,h,A,b,u_exact,C=exact_oracle(mesh,f)
+        xs,h,A,b,u_exact,C=exact_oracle(mesh['vertices'],f)
         cace_sys=PoissonAssembly1D.execute(None,{"mesh":mesh},{},None)["system"]
         numeric_A=np.asarray(_dense_from_csr(cace_sys["matrix"]),float)
         assert numeric_A.shape==(len(A),len(A))
