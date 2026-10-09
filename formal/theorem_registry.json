@@ -681,6 +681,32 @@
         "unqualified"
       ],
       "uses": []
+    },
+    {
+      "name": "MathAI.Bio.transfer_flux_pairing_zero_iff",
+      "source": "MathAI/Bio/TransferGraph.lean",
+      "status": "candidate",
+      "statement": "An arbitrary rational directed transfer graph's weighted flux pairing vanishes for every flux iff its weights agree at both endpoints of each edge.",
+      "domain": "biochemistry",
+      "tags": [
+        "graph_incidence",
+        "stoichiometric_invariants",
+        "unqualified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Bio.transfer_graph_total_mass_flux_zero",
+      "source": "MathAI/Bio/TransferGraph.lean",
+      "status": "candidate",
+      "statement": "The unit vertex-weight total mass observable annihilates all directed unit-transfer edge fluxes.",
+      "domain": "biochemistry",
+      "tags": [
+        "graph_incidence",
+        "stoichiometric_invariants",
+        "unqualified"
+      ],
+      "uses": []
     }
   ]
 }

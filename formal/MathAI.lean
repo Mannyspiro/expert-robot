@@ -12,3 +12,5 @@ import MathAI.Graph.L1Append
 import MathAI.Bio.ReactionConservation
 
 import MathAI.Bio.LinearConservation
+
+import MathAI.Bio.TransferGraph
