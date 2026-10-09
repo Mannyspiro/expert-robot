@@ -5,6 +5,7 @@ on:
     branches: ["research/biochem-proof-staging-20261009"]
     paths:
       - "scripts/experiment_general_stoichiometry.py"
+      - "scripts/experiment_unimolecular_component_conservation.py"
       - ".github/workflows/biochemistry-general-stoichiometry.yml"
   workflow_dispatch:
 
@@ -56,11 +57,29 @@ jobs:
                   assert m*Matrix([Rational(x) for x in law])==Matrix.zeros(len(sample),1)
           print("SymPy independent nullspace/rank replay PASS")
           PY
+      - name: Check incidence-graph invariants against independent exact rank/nullspace
+        run: |
+          set -euo pipefail
+          python3 scripts/experiment_unimolecular_component_conservation.py -o /tmp/unimolecular-component-report.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open("/tmp/unimolecular-component-report.json",encoding="utf-8"))
+          assert d["cases"]==24 and d["total_directed_transfers"]>1000
+          assert len(d["negative_controls_rejected"])==6
+          assert all(r["stoichiometric_rank"]+r["components"]==r["species"]
+                     for r in d["case_results"])
+          assert d["lean_kernel_checked"] is False
+          assert d["actual_cace_backend_executed"] is False
+          assert d["authority_expanded"] is False
+          print("Exact component-nullspace oracle and strict model gate PASS")
+          PY
       - name: Save exact evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: general-stoichiometry-exact-oracle
-          path: /tmp/general-stoichiometry.json
+          path: |
+            /tmp/general-stoichiometry.json
+            /tmp/unimolecular-component-report.json
           retention-days: 30
           if-no-files-found: warn
