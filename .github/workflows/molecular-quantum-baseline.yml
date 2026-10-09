@@ -9,6 +9,8 @@ on:
       - "scripts/experiment_molecular_symmetry.py"
       - "scripts/experiment_molecular_approximation.py"
       - "scripts/experiment_molecular_one_shot.py"
+      - "scripts/experiment_molecular_stress.py"
+      - "tests/molecular_stress_smoke.py"
       - "tests/molecular_one_shot_smoke.py"
       - "tests/molecular_approximation_rule_smoke.py"
       - "scripts/molecular_symmetry_equivalence.py"
@@ -41,6 +43,8 @@ jobs:
         run: python tests/molecular_approximation_rule_smoke.py
       - name: Check one-shot residual diagnostic rejection cases
         run: python tests/molecular_one_shot_smoke.py
+      - name: Check stress failure classification and geometry evidence
+        run: python tests/molecular_stress_smoke.py
       - name: Test water electronic-structure baseline
         run: python tests/molecular_quantum_smoke.py
       - name: Generate water quantum baseline artifact
@@ -60,6 +64,10 @@ jobs:
         env:
           RESEARCH_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: python scripts/experiment_molecular_one_shot.py -o quantum-artifacts/molecular-one-shot.json
+      - name: Challenge frozen residual rule on new distorted molecules
+        env:
+          RESEARCH_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: python scripts/experiment_molecular_stress.py --calibration quantum-artifacts/molecular-one-shot.json -o quantum-artifacts/molecular-residual-stress.json
       - name: Upload non-production quantum evidence
         if: always()
         uses: actions/upload-artifact@v4
