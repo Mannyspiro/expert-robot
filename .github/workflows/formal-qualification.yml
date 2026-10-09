@@ -149,6 +149,12 @@ jobs:
           LEAN_ABORT_ON_PANIC: "1"
         run: lake env lean ../tests/lean/l1_append_witnesses.lean
 
+      - name: Verify biochemical conservation witnesses
+        working-directory: formal
+        env:
+          LEAN_ABORT_ON_PANIC: "1"
+        run: lake env lean ../tests/lean/biochemistry_conservation_witnesses.lean
+
       - name: Direct audited-root replay
         working-directory: formal
         env:
