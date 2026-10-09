@@ -2,7 +2,7 @@ name: Lean Core Transfer Walk Independent Check
 
 on:
   push:
-    branches: ["research/transfer-walk-core-kernel-20261009"]
+    branches: ["research/transfer-walk-core-kernel-20261009", "research/rational-component-flux-20261009"]
     paths:
       - "research/lean-transfer-core/**"
       - ".github/workflows/lean-transfer-core-proof.yml"
@@ -34,7 +34,8 @@ jobs:
           import re
           for name,imports in [('TransferReachability.lean',['Init']),
                                ('ComponentFactorization.lean',['TransferReachability']),
-                               ('ComponentFlux.lean',['ComponentFactorization'])]:
+                               ('ComponentFlux.lean',['ComponentFactorization']),
+                               ('RationalComponentFlux.lean',['ComponentFactorization'])]:
               source=Path(name).read_text()
               assert re.findall(r'(?m)^import\s+(.+)',source)==imports
               for bad in [r'\bsorry\b',r'\badmit\b',r'\bunsafe\b',
@@ -54,7 +55,7 @@ jobs:
           use-mathlib-cache: "false"
           use-github-cache: "false"
           leanchecker: "true"
-          leanchecker-args: "TransferReachability ComponentFactorization ComponentFlux"
+          leanchecker-args: "TransferReachability ComponentFactorization ComponentFlux RationalComponentFlux"
       - name: Replay theorem declaration and axiom report directly
         working-directory: research/lean-transfer-core
         shell: bash
@@ -63,7 +64,8 @@ jobs:
           lake env lean TransferReachability.lean | tee "$RUNNER_TEMP/transfer-core-axioms.txt"
           lake env lean ComponentFactorization.lean | tee "$RUNNER_TEMP/component-factorization-axioms.txt"
           lake env lean ComponentFlux.lean | tee "$RUNNER_TEMP/component-flux-axioms.txt"
-          test "$(git -C "$GITHUB_WORKSPACE" status --porcelain -- research/lean-transfer-core/lean-toolchain research/lean-transfer-core/lake-manifest.json research/lean-transfer-core/TransferReachability.lean research/lean-transfer-core/ComponentFactorization.lean research/lean-transfer-core/ComponentFlux.lean)" = ""
+          lake env lean RationalComponentFlux.lean | tee "$RUNNER_TEMP/rational-component-flux-axioms.txt"
+          test "$(git -C "$GITHUB_WORKSPACE" status --porcelain -- research/lean-transfer-core/lean-toolchain research/lean-transfer-core/lake-manifest.json research/lean-transfer-core/TransferReachability.lean research/lean-transfer-core/ComponentFactorization.lean research/lean-transfer-core/ComponentFlux.lean research/lean-transfer-core/RationalComponentFlux.lean)" = ""
       - name: Preserve independent kernel evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -73,5 +75,6 @@ jobs:
             ${{ runner.temp }}/transfer-core-axioms.txt
             ${{ runner.temp }}/component-factorization-axioms.txt
             ${{ runner.temp }}/component-flux-axioms.txt
+            ${{ runner.temp }}/rational-component-flux-axioms.txt
           retention-days: 30
           if-no-files-found: warn
