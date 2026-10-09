@@ -50,13 +50,15 @@ jobs:
           lint: "false"
           use-mathlib-cache: "false"
           use-github-cache: "false"
+          leanchecker: "true"
+          leanchecker-args: "TransferReachability"
       - name: Replay theorem declaration and axiom report directly
         working-directory: research/lean-transfer-core
         shell: bash
         run: |
           set -euo pipefail
           lake env lean TransferReachability.lean | tee "$RUNNER_TEMP/transfer-core-axioms.txt"
-          test "$(git status --porcelain -- research/lean-transfer-core)" = ""
+          test "$(git -C "$GITHUB_WORKSPACE" status --porcelain -- research/lean-transfer-core/lean-toolchain research/lean-transfer-core/lake-manifest.json research/lean-transfer-core/TransferReachability.lean)" = ""
       - name: Preserve independent kernel evidence
         if: always()
         uses: actions/upload-artifact@v4
