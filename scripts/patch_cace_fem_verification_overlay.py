@@ -135,8 +135,11 @@ PATCHES={
                 ((delta[i+1]-delta[i])**2/h[i] for i in range(len(h))),Q(0))
             lo0,hi0=inputs["error_interval"]
             lo=Q.from_float(float(lo0));hi=Q.from_float(float(hi0))
-            if lo<0 or hi<lo or lo*lo>energy2 or hi*hi<energy2:
-                raise ValueError("interval excludes exactly computed energy")
+            # A vacuously broad [0, huge] interval is not a useful
+            # quantitative certificate. Require a narrow rational bracket.
+            if (lo<0 or hi<lo or hi-lo>Q(1,10**10)
+                or lo*lo>energy2 or hi*hi<energy2):
+                raise ValueError("unqualified, reversed or overly broad error interval")
             s=outputs["certificate_summary"]
             if (s["residual_pass"] is not True
                 or abs(float(s["residual_inf"])-r_report)>1e-11
