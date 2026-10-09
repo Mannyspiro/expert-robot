@@ -1,0 +1,67 @@
+name: Lean Core Transfer Walk Independent Check
+
+on:
+  push:
+    branches: ["research/transfer-walk-core-kernel-20261009"]
+    paths:
+      - "research/lean-transfer-core/**"
+      - ".github/workflows/lean-transfer-core-proof.yml"
+  pull_request:
+    paths:
+      - "research/lean-transfer-core/**"
+      - ".github/workflows/lean-transfer-core-proof.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  standalone-lean-kernel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Reject proof escapes and undeclared dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd research/lean-transfer-core
+          test "$(cat lean-toolchain)" = "leanprover/lean4:v4.34.0"
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          source=Path("TransferReachability.lean").read_text()
+          assert re.findall(r'(?m)^import\s+(.+)',source)==['Init']
+          for bad in [r'\bsorry\b',r'\badmit\b',r'\bunsafe\b',
+                      r'\baxiom\s+[A-Za-z_]',r'\bnative_decide\b']:
+              assert not re.search(bad,source),bad
+          print("Standalone source scope and no-proof-escape check PASS")
+          PY
+      - name: Compile standalone pinned Lean proof
+        uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: research/lean-transfer-core
+          auto-config: "false"
+          build: "true"
+          build-args: "--wfail"
+          test: "false"
+          lint: "false"
+          use-mathlib-cache: "false"
+          use-github-cache: "false"
+      - name: Replay theorem declaration and axiom report directly
+        working-directory: research/lean-transfer-core
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake env lean TransferReachability.lean | tee "$RUNNER_TEMP/transfer-core-axioms.txt"
+          test "$(git status --porcelain -- research/lean-transfer-core)" = ""
+      - name: Preserve independent kernel evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: transfer-walk-standalone-lean-kernel
+          path: ${{ runner.temp }}/transfer-core-axioms.txt
+          retention-days: 30
+          if-no-files-found: warn
