@@ -31,7 +31,7 @@ theorem rationalFlux_zero_of_edgewise
   have each_zero (e : Fin m) :
       (weight (edge e).2 - weight (edge e).1) * rate e = 0 := by
     rw [← h e]
-    simp
+    rw [Rat.sub_self, Rat.zero_mul]
   induction schedule with
   | nil => rfl
   | cons e rest ih =>
@@ -41,7 +41,7 @@ theorem rationalFlux_zero_of_edgewise
               rationalWeightedFlux edge weight rate rest := rfl
         _ = rationalWeightedFlux edge weight rate rest := by
           rw [each_zero e]
-          simp
+          rw [Rat.zero_add]
         _ = 0 := ih
 
 /-- An observable annihilates *all* finite signed rational fluxes if and
@@ -60,7 +60,7 @@ theorem rationalFlux_zero_for_all_iff_factors
     intro e
     have hs := hz (fun _ => (1 : Rat)) [e]
     have hsub : weight (edge e).2 - weight (edge e).1 = 0 := by
-      simpa [rationalWeightedFlux] using hs
+      simpa [rationalWeightedFlux, Rat.mul_one, Rat.add_zero] using hs
     have hsummed :=
       congrArg (fun x : Rat => x + weight (edge e).1) hsub
     have hdst : weight (edge e).2 = weight (edge e).1 := by
