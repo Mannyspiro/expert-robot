@@ -1,6 +1,10 @@
 name: Pinned OpenAI Lean Kernel Replay
 
 on:
+  push:
+    branches: ["research/magick-ir-v0-1"]
+    paths:
+      - ".github/workflows/openai-math-kernel-replay.yml"
   pull_request:
     paths:
       - ".github/workflows/openai-math-kernel-replay.yml"
