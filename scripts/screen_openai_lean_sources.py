@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CATALOG = ROOT / "docs/openai-math-catalog-2026-10-09.json"
 HEAD = "fd4aeeb2ee4fc729c18d98444fed42fd0529eeeb"
 BASE = "https://raw.githubusercontent.com/openai/math/" + HEAD + "/lean/"
-PATH = re.compile(r"^(?:OAI|ComparatorChallenges)/[a-zA-Z0-9_./-]+\\.(?:lean|json)$")
+PATH = re.compile(r"^(?:OAI|ComparatorChallenges)/[a-zA-Z0-9_./-]+\.(?:lean|json)$")
 SAFE_AX = {"propext", "Classical.choice", "Quot.sound"}
 
 
@@ -42,7 +42,7 @@ def download(path):
                 raise ValueError("source too large for cheap scan")
             text = data.decode("utf-8")
             blobsha = hashlib.sha1(
-                ("blob " + str(len(data)) + "\\0").encode() + data
+                ("blob " + str(len(data)) + "\0").encode() + data
             ).hexdigest()
             return {"ok": True, "git_blob_sha1": blobsha, "bytes": len(data),
                     "text": text}
@@ -92,12 +92,12 @@ def main():
         if mod["ok"]:
             name = d["declaration"].rsplit(".", 1)[-1]
             row["declared_identifier_visible"] = bool(
-                re.search(r"\\b" + re.escape(name) + r"\\b", mod["text"]))
+                re.search(r"\b" + re.escape(name) + r"\b", mod["text"]))
             row["module_blob_sha1"] = mod["git_blob_sha1"]
             row["module_bytes"] = mod["bytes"]
             # These are merely *suspicion indicators*, not a sound source audit.
             row["source_has_proof_escape_token"] = bool(
-                re.search(r"\\b(sorry|admit|native_decide)\\b", mod["text"]))
+                re.search(r"\b(sorry|admit|native_decide)\b", mod["text"]))
         else:
             row["source_failure"] = mod["error"]
         if cfg["ok"]:
