@@ -6,6 +6,7 @@ on:
       - "scripts/intake_biomodels_carbon_metabolism.py"
       - "scripts/triage_biomodels_consistency.py"
       - "scripts/test_biomodels_unit_hypothesis.py"
+      - "scripts/test_biomodels_fractional_unit_hypotheses.py"
       - "tests/research_validation_frontier_smoke.py"
       - ".github/workflows/biochemistry-published-model-intake.yml"
   workflow_dispatch:
@@ -56,6 +57,14 @@ jobs:
           python3 scripts/test_biomodels_unit_hypothesis.py \
             --sbml bio-source/BIOMD0000000051/BIOMD0000000051.xml \
             -o /tmp/biomodels-unit-hypothesis.json
+      - name: Trial the two fractional-power unit normalization hypotheses
+        if: always()
+        run: |
+          set -euo pipefail
+          test -s bio-source/BIOMD0000000051/BIOMD0000000051.xml
+          python3 scripts/test_biomodels_fractional_unit_hypotheses.py \
+            --sbml bio-source/BIOMD0000000051/BIOMD0000000051.xml \
+            -o /tmp/biomodels-fractional-unit-hypotheses.json
       - name: Preserve published model audit receipt
         if: always()
         uses: actions/upload-artifact@v4
@@ -65,5 +74,6 @@ jobs:
             /tmp/biomodels-intake.json
             /tmp/biomodels-triage.json
             /tmp/biomodels-unit-hypothesis.json
+            /tmp/biomodels-fractional-unit-hypotheses.json
           retention-days: 30
           if-no-files-found: warn
