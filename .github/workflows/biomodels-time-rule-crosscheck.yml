@@ -1,0 +1,52 @@
+name: Published BioModels Time Rule Crosscheck
+
+on:
+  push:
+    branches: ["research/biomodels-offline-source-qualification-20261009"]
+    paths:
+      - "scripts/experiment_biomodels_time_rules.py"
+      - ".github/workflows/biomodels-time-rule-crosscheck.yml"
+  pull_request:
+    paths:
+      - "scripts/experiment_biomodels_time_rules.py"
+      - ".github/workflows/biomodels-time-rule-crosscheck.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  time-math:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install independent pinned SBML AST parser
+        run: python3 -m pip install --disable-pip-version-check --no-input --only-binary=:all: 'python-libsbml==5.21.2'
+      - name: Cross-check seven published co-metabolite expressions
+        run: |
+          set -euo pipefail
+          python3 scripts/experiment_biomodels_time_rules.py --sbml research/biomodels/BIOMD0000000051.xml -o /tmp/biomodels-time-rules.json
+          python3 - <<'PY'
+          import json
+          r=json.load(open("/tmp/biomodels-time-rules.json",encoding="utf-8"))
+          assert r["assignment_rules"]==7 and r["time_points"]==8
+          assert r["independently_compared_values"]==56
+          assert r["max_relative_disagreement"]<1e-9
+          assert r["unsupported_mathml_negative_controls"]==3
+          assert r["full_kinetic_ode_reproduced"] is False
+          assert r["lean_kernel_qualified"] is False
+          assert r["cace_runtime_invoked"] is False
+          assert r["authority_expanded"] is False
+          print("Independent published time-rule evaluation PASS")
+          PY
+      - name: Save actual expressions, outputs, source provenance
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: biomodels-0051-time-rules-evidence
+          path: /tmp/biomodels-time-rules.json
+          retention-days: 30
+          if-no-files-found: warn
