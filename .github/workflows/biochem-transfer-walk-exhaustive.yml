@@ -1,0 +1,50 @@
+name: Exhaustive Transfer Graph Conservation Tests
+
+on:
+  push:
+    branches: ["research/biochem-transfer-walk-proof-20261009"]
+    paths:
+      - "tests/test_transfer_walk_exhaustive.py"
+      - ".github/workflows/biochem-transfer-walk-exhaustive.yml"
+  pull_request:
+    paths:
+      - "tests/test_transfer_walk_exhaustive.py"
+      - ".github/workflows/biochem-transfer-walk-exhaustive.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exhaustive-graph-invariants:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install pinned exact-math oracle
+        run: python3 -m pip install --disable-pip-version-check --no-input 'sympy==1.14.0'
+      - name: Exhaustively evaluate graph incidence invariants
+        run: python3 tests/test_transfer_walk_exhaustive.py | tee /tmp/transfer-walk-exhaustive.json
+      - name: Preserve mathematical scope and count evidence
+        run: |
+          python3 - <<'PY'
+          import json
+          data=json.load(open('/tmp/transfer-walk-exhaustive.json',encoding='utf-8'))
+          assert data['graph_cases']==2160
+          assert data['weight_checks']==32294
+          assert data['transfer_edges']==6244
+          assert data['lean_kernel_checked'] is False
+          assert data['production_cace_qualified'] is False
+          assert data['authority_expanded'] is False
+          print('Finite graph exhaustive replay PASS')
+          PY
+      - name: Retain finite verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: transfer-graph-exhaustive-research
+          path: /tmp/transfer-walk-exhaustive.json
+          retention-days: 30
+          if-no-files-found: warn
