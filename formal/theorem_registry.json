@@ -627,6 +627,34 @@
         "unqualified"
       ],
       "uses": []
+    },
+    {
+      "name": "MathAI.Bio.no_positive_enzyme_substrate_steady_state",
+      "source": "MathAI/Bio/ReactionConservation.lean",
+      "status": "candidate",
+      "statement": "No closed-network steady state can satisfy zero complex and product derivative with positive free enzyme, substrate, binding rate and catalytic rate.",
+      "domain": "biochemistry",
+      "tags": [
+        "toy_enzyme",
+        "equilibrium",
+        "exact_rational",
+        "unqualified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Bio.product_flux_positive",
+      "source": "MathAI/Bio/ReactionConservation.lean",
+      "status": "candidate",
+      "statement": "Positive catalytic rate and positive enzyme-substrate complex yield positive product flux.",
+      "domain": "biochemistry",
+      "tags": [
+        "toy_enzyme",
+        "equilibrium",
+        "exact_rational",
+        "unqualified"
+      ],
+      "uses": []
     }
   ]
 }
