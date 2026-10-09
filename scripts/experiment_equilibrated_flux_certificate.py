@@ -160,7 +160,7 @@ def verify_receipt(evidence,receipt):
 def negative_tests(evidence,valid):
     tests=[
       ("changed_flux_slope",lambda r:r["certificates"][0]["flux_slope"].__setitem__(0,"0")),
-      ("jump_flux",lambda r:r["certificates"][1]["flux_left"].__setitem__(1,"2")),
+      ("jump_flux",lambda r:r["certificates"][20]["flux_left"].__setitem__(1,"2")),
       ("forged_upper",lambda r:r["certificates"][8].update(outward_upper_float=0.)),
       ("wrong_source_hash",lambda r:r.update(externally_pinned_cace_evidence_sha256="0"*64)),
       ("wrong_cace_rev",lambda r:r.update(cace_source_commit="unknown")),
