@@ -6,6 +6,8 @@ on:
       - "scripts/generate_research_object_candidates.py"
       - "scripts/experiment_security_guard_cuts.py"
       - "tests/security_guard_cuts_smoke.py"
+      - "scripts/experiment_parser_differential.py"
+      - "tests/parser_differential_smoke.py"
       - "scripts/research_object_routing.py"
       - "tests/research_object_modeler_smoke.py"
       - "tests/research_object_modeler_v2_smoke.py"
@@ -41,6 +43,8 @@ jobs:
         run: |
           python3 tests/research_object_modeler_smoke.py
           python3 tests/security_guard_cuts_smoke.py
+          python3 tests/parser_differential_smoke.py
+          RESEARCH_HEAD_SHA=${{ github.event.pull_request.head.sha || github.sha }} python3 scripts/experiment_parser_differential.py -o /tmp/cace-parser-differential.json
           RESEARCH_HEAD_SHA=${{ github.event.pull_request.head.sha || github.sha }} python3 scripts/experiment_security_guard_cuts.py -o /tmp/cace-security-guard-cuts.json
           python3 tests/research_object_modeler_v2_smoke.py
           python3 tests/research_object_obj_export_smoke.py
@@ -61,6 +65,7 @@ jobs:
           path: |
             /tmp/cace-modeler.json
             /tmp/cace-security-guard-cuts.json
+            /tmp/cace-parser-differential.json
             /tmp/cace-modeler-preview.obj
             /tmp/cace-modeler-watertight.obj
             /tmp/cace-modeler-solid-report.json
