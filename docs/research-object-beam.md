@@ -1,7 +1,7 @@
 # Modeler-derived beam benchmark
 
 `evaluate_research_object_beam.py` selects the modeler's single-edge
-`complete_graph` candidate and models its circular centerline as a clamped-free
+`complete_graph` candidate and models its straight centerline with a circular cross-section as a clamped-free
 Euler–Bernoulli beam. The illustrative fixture is 1 m long, 20 mm in diameter,
 with E = 200 GPa and a local transverse distributed load of -1 N/m.
 The root clamp and free tip are benchmark assumptions, not inferred mounting
@@ -46,9 +46,46 @@ receive an independent normalized residual check.
 
 The existing CACE integration workflow retains the beam report and bounded
 source-contract inspection for 30 days. Its results still have no promotion
-authority or continuum error certificate. Next qualification work must address
-independent holdouts, model assumptions and certified error bounds before any
-design qualification.
+authority or continuum error certificate.
+
+## Prespecified coverage and exact discrete solver-error witnesses
+
+The integration also runs six fixed cases with 18 additional solves: positive
+and negative distributed loads, a tip force, a tip moment, mixed-sign loads,
+and a zero-load control. They vary synthetic Young's modulus, span, diameter
+and XY orientation. Every centerline passes through the modeler geometry gate.
+Distributed-load cases check interior convergence; cubic/zero cases check field
+agreement. The report retains the case parameters and manifest SHA256. These
+are public, prespecified regression holdouts from the original baseline, not
+a statistically blind study or measured-material validation.
+
+Every CACE solve now receives an exact rational certificate for its original
+stored binary64 beam matrix, right-hand side and returned solution. The
+producer factors the stored matrix as L D L^T and solves for the exact
+correction delta. A separate checker reconstructs the entire matrix from that
+witness, checks positive diagonal entries, checks A delta = b - A u, and
+checks the squared energy error delta^T A delta. It never calls the factorizer
+or a linear solver. This proves the correction to the exact solution of that
+stored SPD system. Tests include a system whose tiny residual hides an error
+of one unit, plus tampered corrections, factors, endpoints and digests.
+
+Residual, maximum scaled DOF error and energy-norm upper endpoints are binary64
+numbers checked with exact rational inequalities. Square-root enclosure uses
+power-of-two scaling to handle underflow and overflow; `nextafter` only chooses
+a candidate endpoint, and exact arithmetic decides whether it encloses the
+bound. The certificate includes the exact witnesses and a SHA256 binding to
+the matrix, load and solution. Work is bounded to 32 free DOFs, 8192-bit
+rationals and a 1 MiB certificate. Baseline meshes and coverage meshes stay
+inside this bound.
+
+This certificate covers algebraic solver error relative to the stored matrix.
+It excludes coefficient/assembly rounding, continuum discretization error,
+material uncertainty, buckling, shear and manufacturing. Its checker is Python
+exact arithmetic, not a new Lean theorem. Next qualification work is a beam
+continuum error theorem and measured-model applicability before design
+qualification. [Python's Fraction documentation](https://docs.python.org/3/library/fractions.html)
+describes exact float conversion; [Stanford's factorization notes](https://ee263.stanford.edu/lectures/cholesky.pdf)
+describe positive-definite factorization.
 
 ```sh
 python3 tests/research_object_beam_smoke.py

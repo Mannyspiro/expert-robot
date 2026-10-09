@@ -17,6 +17,11 @@ on:
       - "config/examples/research_object_demo.json"
       - "scripts/evaluate_research_object_beam.py"
       - "tests/research_object_beam_smoke.py"
+      - "scripts/certify_beam_discrete.py"
+      - "scripts/run_beam_holdouts.py"
+      - "tests/beam_discrete_certificate_smoke.py"
+      - "tests/research_object_beam_holdouts_smoke.py"
+      - "config/examples/research_object_beam_holdouts.json"
       - "config/examples/research_object_beam.json"
       - ".github/workflows/research-object-modeler.yml"
   workflow_dispatch:
@@ -38,6 +43,8 @@ jobs:
           python3 tests/research_object_solid_smoke.py
           python3 tests/research_object_truss_smoke.py
           python3 tests/research_object_beam_smoke.py
+          python3 tests/beam_discrete_certificate_smoke.py
+          python3 tests/research_object_beam_holdouts_smoke.py
           RESEARCH_HEAD_SHA=${{ github.event.pull_request.head.sha || github.sha }} python3 scripts/evaluate_research_object_beam.py config/examples/research_object_beam.json -o /tmp/cace-modeler-beam-report.json
           python3 scripts/generate_research_object_candidates.py config/examples/research_object_demo.json -o /tmp/cace-modeler.json
           python3 scripts/export_research_object_obj.py config/examples/research_object_demo.json -o /tmp/cace-modeler-preview.obj

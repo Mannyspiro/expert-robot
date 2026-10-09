@@ -163,6 +163,8 @@ jobs:
           python3 tests/research_object_solid_smoke.py
           python3 tests/research_object_truss_smoke.py
           python3 tests/research_object_beam_smoke.py
+          python3 tests/beam_discrete_certificate_smoke.py
+          python3 tests/research_object_beam_holdouts_smoke.py
 
       - name: Matter readiness and quantum protocol guardrails
         run: |

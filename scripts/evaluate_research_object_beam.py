@@ -143,19 +143,9 @@ def solve(length, youngs, diameter, q, force, moment, elements, linear_solver=No
     }
 
 
-def evaluate(spec, linear_solver=None):
+def beam_geometry(spec):
+    """Shared modeler/material checks for baseline and load coverage."""
     cfg = spec["beam_benchmark"]
-    meshes = cfg["mesh_elements"]
-    if not isinstance(meshes, list) or not 3 <= len(meshes) <= 6 or any(
-        type(n) is not int or not 1 <= n <= 32 for n in meshes):
-        raise ValueError("require 3–6 bounded integer mesh sizes")
-    if any(b != 2*a for a, b in zip(meshes, meshes[1:])):
-        raise ValueError("convergence meshes must double")
-    # Nonzero uniform load produces a quartic reference: tip-only comparisons
-    # would misleadingly look exact even on a single cubic element.
-    q = finite(cfg["uniform_transverse_load_n_m"], "distributed load")
-    if q == 0:
-        raise ValueError("convergence benchmark needs a nonzero distributed load")
     material = next((m for m in spec["materials"] if m["id"] == cfg["material_id"]), None)
     if material is None or not isinstance(material.get("provenance"), str) or not material["provenance"].strip():
         raise ValueError("named material and provenance required")
@@ -172,6 +162,22 @@ def evaluate(spec, linear_solver=None):
     length = math.dist(a, b)
     diameter = generated["assumed_minimum_strut_diameter_m"]
     youngs = finite(material["youngs_modulus_pa"], "Young's modulus", True)
+    return candidate, length, diameter, youngs, material["provenance"]
+
+
+def evaluate(spec, linear_solver=None):
+    cfg = spec["beam_benchmark"]
+    meshes = cfg["mesh_elements"]
+    if not isinstance(meshes, list) or not 3 <= len(meshes) <= 6 or any(
+        type(n) is not int or not 1 <= n <= 32 for n in meshes):
+        raise ValueError("require 3–6 bounded integer mesh sizes")
+    if any(b != 2*a for a, b in zip(meshes, meshes[1:])):
+        raise ValueError("convergence meshes must double")
+    # A nonzero distributed load exposes interior errors hidden by exact tips.
+    q = finite(cfg["uniform_transverse_load_n_m"], "distributed load")
+    if q == 0:
+        raise ValueError("convergence benchmark needs a nonzero distributed load")
+    candidate, length, diameter, youngs, provenance = beam_geometry(spec)
     rows = [solve(length, youngs, diameter, q, 0, 0, n, linear_solver) for n in meshes]
     convergence = all(15.5 < a["displacement_l2_error_m_sqrt_m"]/b["displacement_l2_error_m_sqrt_m"] < 16.5
                       and 3.95 < a["curvature_l2_error_per_sqrt_m"]/b["curvature_l2_error_per_sqrt_m"] < 4.05
@@ -188,7 +194,7 @@ def evaluate(spec, linear_solver=None):
         "promotion_authority": False, "candidate_id": candidate["candidate_id"],
         "topology_sha256": candidate["topology_sha256"],
         "input_sha256": hashlib.sha256(json.dumps(spec, sort_keys=True, allow_nan=False).encode()).hexdigest(),
-        "length_m": length, "diameter_m": diameter, "material_provenance": material["provenance"],
+        "length_m": length, "diameter_m": diameter, "material_provenance": provenance,
         "load_frame": "local transverse (-dy/L, dx/L, 0); root clamped, tip free",
         "analytic_tip_displacement_m": tip_w, "analytic_tip_rotation_rad": tip_t,
         "analytic_root_bending_stress_pa": abs(q)*length**2/2 * diameter/2 / (math.pi*diameter**4/64),

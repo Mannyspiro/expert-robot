@@ -8,6 +8,8 @@ from pathlib import Path
 
 from evaluate_research_object_beam import evaluate
 from inspect_cace_beam_solver import inspect
+from certify_beam_discrete import certify
+from run_beam_holdouts import run_holdouts
 
 MODULE_SHA256 = "7d99e7f60353eccc4887754fed0df234247e691751b38551d25416a8c036de2b"
 
@@ -30,7 +32,7 @@ def verified(records):
     return [{"verifier": r.verifier, "state": r.state.value, "metrics": r.metrics} for r in records]
 
 
-def run(cace_root, spec):
+def run(cace_root, spec, holdouts):
     contract = inspect(cace_root)
     if contract["module_sha256"] != MODULE_SHA256:
         raise ValueError("CACE module differs from the inspected pinned source")
@@ -67,15 +69,29 @@ def run(cace_root, spec):
         residual_checks = verified(residual_module.verify(residual_inputs, {}, residual, {}))
         if not math.isfinite(residual["residual_inf"]) or residual["residual_inf"] > 1e-10:
             raise ValueError("CACE beam residual exceeds tolerance")
+        certificate = certify(matrix, rhs, solution["interior"])
         checks.append({"free_dofs": len(rhs), "normalization_scale": scale,
                        "scaled_cace_residual_inf": residual["residual_inf"],
+                       "discrete_error_certificate": certificate,
                        "solver_verification": solver_checks, "residual_verification": residual_checks})
         return solution["interior"]
 
     report = evaluate(spec, backend)
+    baseline_checks = checks[:]
+    coverage = run_holdouts(spec, holdouts, backend)
+    offset = len(baseline_checks)
+    for case in coverage["cases"]:
+        count = len(case["meshes"])
+        case["cace_mesh_checks"] = checks[offset:offset+count]
+        offset += count
+    if offset != len(checks):
+        raise ValueError("CACE coverage/mesh evidence mismatch")
+    report["holdouts"] = coverage
+    report["passed"] = report["passed"] and coverage["passed"]
     report["evidence_ceiling"] = "analytic_checked_beam_with_cace_algebraic_not_continuum_certificate"
     report["cace_algebraic"] = {"commit": contract["cace_commit"], "module_sha256": MODULE_SHA256,
-                                "csr_round_trip_checked": True, "mesh_checks": checks,
+                                "csr_round_trip_checked": True, "mesh_checks": baseline_checks,
+                                "discrete_error_certificates_checked": len(checks),
                                 "continuum_error_certified": False}
     return report
 
@@ -85,10 +101,13 @@ if __name__ == "__main__":
     parser.add_argument("cace_root", type=Path)
     parser.add_argument("spec", type=Path)
     parser.add_argument("-o", type=Path, required=True)
+    parser.add_argument("--holdouts", type=Path, default=Path(__file__).resolve().parents[1]/"config/examples/research_object_beam_holdouts.json")
     args = parser.parse_args()
-    report = run(args.cace_root.resolve(), json.loads(args.spec.read_text()))
+    report = run(args.cace_root.resolve(), json.loads(args.spec.read_text()), json.loads(args.holdouts.read_text()))
     args.o.write_text(json.dumps(report, indent=2, allow_nan=False) + "\n")
     print(json.dumps({"beam_cace_passed": report["passed"], "cace_commit": report["cace_algebraic"]["commit"],
+                      "holdout_cases_passed": sum(c["passed"] for c in report["holdouts"]["cases"]),
+                      "discrete_certificates_checked": report["cace_algebraic"]["discrete_error_certificates_checked"],
                       "mesh_elements": [m["elements"] for m in report["meshes"]]}))
     if not report["passed"]:
         raise SystemExit("CACE beam reference/convergence checks failed")

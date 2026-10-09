@@ -12,6 +12,11 @@ on:
       - "scripts/generate_research_object_candidates.py"
       - "scripts/research_object_routing.py"
       - "tests/research_object_beam_smoke.py"
+      - "scripts/certify_beam_discrete.py"
+      - "scripts/run_beam_holdouts.py"
+      - "tests/beam_discrete_certificate_smoke.py"
+      - "tests/research_object_beam_holdouts_smoke.py"
+      - "config/examples/research_object_beam_holdouts.json"
       - "config/examples/research_object_beam.json"
       - "tests/crl_to_cace_nd_smoke.py"
       - "config/cace_actual_module_contracts.json"
@@ -113,6 +118,7 @@ jobs:
             ${{ runner.temp }}/cace-nd-bridge.json
             ${{ runner.temp }}/cace-beam-solver-contract.json
             ${{ runner.temp }}/cace-beam-benchmark.json
+            config/examples/research_object_beam_holdouts.json
             ${{ runner.temp }}/cace-math-dataset.json
             ${{ runner.temp }}/cace-math-candidates.json
             ${{ runner.temp }}/cace-math-proof-queue.json
