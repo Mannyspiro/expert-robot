@@ -20,6 +20,7 @@ import random
 import sys
 
 PROOF_SHA="387b75d6052ea78d2bb791449102ae728399442d"
+RATIONAL_PROOF_SHA="b2a9a0ab86034863b082c5e8a72ba7e58afd718f"
 CACE_SHA="66b22a71ff52b3110269f5994a5fd0716a2054c1"
 PROOF_GIT_BLOBS={
     "research/lean-transfer-core/TransferReachability.lean":
@@ -180,6 +181,8 @@ def math_report(cace_repo=None):
         "experiment":"cace-proven-component-transport-v1",
         "lean_kernel_verified_source_commit":PROOF_SHA,
         "lean_theorem":"CoreTransfer.weightedFlux_zero_for_all_iff_factors",
+        "rational_lean_kernel_verified_source_commit":RATIONAL_PROOF_SHA,
+        "rational_lean_theorem":"CoreTransfer.rationalFlux_zero_for_all_iff_factors",
         "lean_proved_scope":"unit directed transfers with integer edge-flux pairing",
         "cace_source_commit_required":CACE_SHA if use_cace else None,
         "cace_csr_codec_executed":use_cace,
