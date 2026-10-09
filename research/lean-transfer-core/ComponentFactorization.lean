@@ -82,7 +82,10 @@ theorem edgewise_constant_unique_factor
     {n m : Nat} {α : Type}
     (edge : Fin m → Fin n × Fin n) (weight : Fin n → α)
     (hedge : ∀ e : Fin m, weight (edge e).1 = weight (edge e).2) :
-    ∃! f : Component edge → α, ∀ a, weight a = f (componentOf edge a) := by
+    ∃ f : Component edge → α,
+      (∀ a, weight a = f (componentOf edge a)) ∧
+      (∀ g : Component edge → α,
+        (∀ a, weight a = g (componentOf edge a)) → f = g) := by
   obtain ⟨f, hf⟩ := (edgewise_constant_iff_factors edge weight).1 hedge
   refine ⟨f, hf, ?_⟩
   intro g hg
