@@ -142,3 +142,9 @@ kernel-visible axiom dependencies for review.
 
 #check MathAI.Bio.product_flux_positive
 #print axioms MathAI.Bio.product_flux_positive
+
+#check MathAI.Bio.linear_conservation_update
+#print axioms MathAI.Bio.linear_conservation_update
+
+#check MathAI.Bio.linear_conservation_change
+#print axioms MathAI.Bio.linear_conservation_change

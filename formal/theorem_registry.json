@@ -655,6 +655,32 @@
         "unqualified"
       ],
       "uses": []
+    },
+    {
+      "name": "MathAI.Bio.linear_conservation_update",
+      "source": "MathAI/Bio/LinearConservation.lean",
+      "status": "candidate",
+      "statement": "General exact-rational linear invariant remains unchanged under every finite stoichiometric flux step when it annihilates the operator.",
+      "domain": "biochemistry",
+      "tags": [
+        "general_stoichiometry",
+        "exact_linear_invariant",
+        "unqualified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Bio.linear_conservation_change",
+      "source": "MathAI/Bio/LinearConservation.lean",
+      "status": "candidate",
+      "statement": "The exact change of any linear observable under a unit stoichiometric flux step equals its evaluation on the flux change.",
+      "domain": "biochemistry",
+      "tags": [
+        "general_stoichiometry",
+        "exact_linear_invariant",
+        "unqualified"
+      ],
+      "uses": []
     }
   ]
 }
