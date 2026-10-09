@@ -8,6 +8,8 @@ on:
       - "scripts/check_openai_math_corpus.py"
       - "scripts/check_openai_math_catalog.py"
       - "scripts/screen_openai_lean_sources.py"
+      - "scripts/plan_openai_math_formal_verification.py"
+      - "docs/openai-math-formal-verification-strategy.md"
       - ".github/workflows/openai-math-corpus-screen.yml"
   workflow_dispatch:
 
@@ -26,6 +28,8 @@ jobs:
         run: python3 scripts/check_openai_math_catalog.py --report /tmp/openai-math-catalog-audit.json
       - name: All 719 manuscript and 372 family coverage checks
         run: python3 scripts/check_openai_math_corpus.py -o /tmp/openai-math-corpus-coverage.json
+      - name: Enumerate all 200 formal targets in 50 bounded verification batches
+        run: python3 scripts/plan_openai_math_formal_verification.py --batch-size 4 -o /tmp/openai-math-formal-plan.json
       - name: Pinned source and comparator triage (no Lean builds)
         run: python3 scripts/screen_openai_lean_sources.py -o /tmp/openai-math-source-triage.json --workers 6
       - name: Preserve coverage and negative evidence
@@ -36,6 +40,7 @@ jobs:
           path: |
             /tmp/openai-math-catalog-audit.json
             /tmp/openai-math-corpus-coverage.json
+            /tmp/openai-math-formal-plan.json
             /tmp/openai-math-source-triage.json
           retention-days: 30
           if-no-files-found: warn
