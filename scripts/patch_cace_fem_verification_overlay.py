@@ -144,6 +144,13 @@ PATCHES={
                 or list(s["benchmark_energy_error_interval"])!=list(map(float,[lo0,hi0]))
                 or s["refined_vertices"]!=len(x)):
                 raise ValueError("summary does not bind source inputs")
+            # A finite/nonnegative reported eta alone is not acceptable:
+            # separately reconstruct local indicators from trusted mesh/solution.
+            erecord=AposterioriEstimator1D.verify(None,
+                {"mesh":inputs["refined_mesh"],"solution":inputs["solution"]},
+                {},{"estimator":inputs["estimator"]},None)
+            if len(erecord)!=1 or erecord[0].state!=VerificationState.PASS:
+                raise ValueError("estimator not independently reconstructed")
             eta=float(inputs["estimator"]["eta"])
             if not math.isfinite(eta) or eta<0 or abs(float(s["estimator"])-eta)>1e-11:
                 raise ValueError("estimator field inconsistent")
