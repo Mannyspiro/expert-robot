@@ -555,6 +555,21 @@
       "uses": [
         "MathAI.Molecular.energy_defect_bound"
       ]
+    },
+    {
+      "name": "MathAI.Graph.l1Distance_append",
+      "source": "MathAI/Graph/L1Append.lean",
+      "status": "verified",
+      "statement": "For exact rational finite feature channels, the L1 coordinate distance of appended vectors equals the sum of the two component L1 distances.",
+      "domain": "algebra",
+      "tags": [
+        "graph_metric",
+        "l1_distance",
+        "direct_sum",
+        "exact_rational",
+        "lean_verified"
+      ],
+      "uses": []
     }
   ]
 }
