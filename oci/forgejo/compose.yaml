@@ -3,7 +3,7 @@
 services:
   forgejo:
     image: codeberg.org/forgejo/forgejo:15.0.9-rootless
-    user: "1000:1000"
+    user: "10001:10001"
     restart: unless-stopped
     environment:
       FORGEJO__server__ROOT_URL: "http://127.0.0.1:3000/"
