@@ -66,7 +66,7 @@ def validate(catalog):
         source = item.get("module_file", "")
         comparator = item.get("comparator_config", "")
         require(isinstance(name, str) and bool(re.fullmatch(
-            r"[A-Za-z][A-Za-z0-9_]*(?:\\.[A-Za-z][A-Za-z0-9_]*)+", name)),
+            r"[A-Za-z][A-Za-z0-9_]*(?:\.[A-Za-z][A-Za-z0-9_]*)+", name)),
             "invalid qualified declaration")
         require(isinstance(source, str) and source.startswith("OAI/")
                 and source.endswith(".lean") and ".." not in source,
