@@ -92,9 +92,19 @@ def audit(index, formal):
     require(len(formal_paths) == 173, "duplicate formal source")
     require({k for k, p in manifest.items() if p["formal_catalogue_match"]}
             == formal_paths, "false or missing formal match")
-    require(index.get("unlisted_formalization_sources") ==
-            [p for p in formal_papers if p["source_pdf_path"][3:] not in
-             {x for x, row in manifest.items() if row["family_id"] is not None}],
+    linked_contents_paths = {
+        p for p, row in manifest.items() if row["family_id"] is not None
+    }
+    expected_unlisted = {
+        (p["title"], p["source_pdf_path"][3:])
+        for p in formal_papers
+        if p["source_pdf_path"][3:] not in linked_contents_paths
+    }
+    recorded_unlisted = {
+        (p["title"], p["pdf_path"])
+        for p in index.get("unlisted_formalization_sources", [])
+    }
+    require(expected_unlisted == recorded_unlisted,
             "outside-CONTENTS source mismatch")
     require(all(row.get("state") == "upstream_declared_not_imported"
                 for row in formal.get("declared_results", [])), "false import claim")
