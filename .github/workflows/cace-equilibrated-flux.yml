@@ -1,0 +1,99 @@
+name: CACE Equilibrated Flux Research Certificate
+
+on:
+  push:
+    branches: ["research/cace-equilibrated-flux-20261009"]
+    paths:
+      - "scripts/experiment_equilibrated_flux_certificate.py"
+      - "tests/verify_equilibrated_flux_symbolic.py"
+      - ".github/workflows/cace-equilibrated-flux.yml"
+  pull_request:
+    paths:
+      - "scripts/experiment_equilibrated_flux_certificate.py"
+      - "tests/verify_equilibrated_flux_symbolic.py"
+      - ".github/workflows/cace-equilibrated-flux.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  exact-hypercircle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install pinned symbolic oracle
+        run: python3 -m pip install --disable-pip-version-check --no-input 'sympy==1.14.0'
+      - name: Independently prove the polynomial flux integral and two-cell gap algebra
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tests/verify_equilibrated_flux_symbolic.py | tee "$RUNNER_TEMP/hypercircle-symbolic.json"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          d=json.loads((Path(os.environ["RUNNER_TEMP"])/"hypercircle-symbolic.json").read_text())
+          assert d["exact_single_cell_integration"] is True
+          assert d["independent_two_cell_hypercircle_gap_identity"]=="0"
+          assert d["non_equilibrated_flux_formula_rejected"] is True
+          assert d["lean_kernel_checked"] is False
+          assert d["general_pde_bound_qualified"] is False
+          print("Symbolic flux hypercircle algebra PASS")
+          PY
+      - name: Retrieve independently pinned CACE solver evidence from a successful historical run
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/cace-evidence"
+          gh run download 37999810762 --repo Mannyspiro/expert-robot \
+            --name pinned-cace-fem-solver-contract --dir "$RUNNER_TEMP/cace-evidence"
+          test "$(sha256sum "$RUNNER_TEMP/cace-evidence/cace-solver-experiment.json" | cut -d' ' -f1)" = "2ceee478a30e556685e81589f918764d7b4dd4d2830aa5357493a0a64cfd027f"
+      - name: Replay full CACE source evidence before creating a flux certificate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json,os,sys
+          from pathlib import Path
+          sys.path.insert(0,"scripts")
+          from verify_cace_solver_benchmark_evidence import verify
+          evidence=json.loads((Path(os.environ["RUNNER_TEMP"])/"cace-evidence/cace-solver-experiment.json").read_text())
+          assert verify(evidence)["benchmark_consistency"] is True
+          print("External pinned CACE FEM solution evidence PASS")
+          PY
+      - name: Compute 160 exact upper bounds, prove outward enclosure, and reject 18 false claims
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/experiment_equilibrated_flux_certificate.py \
+            --source-evidence "$RUNNER_TEMP/cace-evidence/cace-solver-experiment.json" \
+            --output "$RUNNER_TEMP/cace-equilibrated-flux.json"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          r=json.loads((Path(os.environ["RUNNER_TEMP"])/"cace-equilibrated-flux.json").read_text())
+          assert r["validated_exact_cases"]==160
+          assert r["negative_controls_rejected"]==18
+          assert r["real_cace_meshes"]==8 and r["forcing_profiles"]==4
+          assert r["forcing_profiles_cace_simulated"]==1
+          assert r["independent_continuous_hypercircle_proof_in_lean"] is False
+          assert r["full_general_pde_bound_qualified"] is False
+          assert r["authority_expanded"] is False
+          print("Source-bound exact equilibrated-flux certificate PASS")
+          PY
+      - name: Preserve independent source, symbolic proof, and bounded receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exact-1d-equilibrated-flux-evidence
+          path: |
+            ${{ runner.temp }}/hypercircle-symbolic.json
+            ${{ runner.temp }}/cace-equilibrated-flux.json
+          retention-days: 30
+          if-no-files-found: warn
