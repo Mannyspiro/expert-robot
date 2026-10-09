@@ -118,7 +118,7 @@ def certify(matrix, rhs, solution):
         delta[i] = bounded(z[i]-sum(lower[j][i]*delta[j] for j in range(i+1,n)))
     energy2 = bounded(sum(residual[i]*delta[i] for i in range(n)))
     certificate = {
-        "schema_version":"0.1", "scope":SCOPE, "dofs":n, "system_sha256":digest,
+        "schema_version":"0.2", "scope":SCOPE, "dofs":n, "system_sha256":digest,
         "promotion_authority":False, "continuum_error_certified":False,
         "lower":[[i,j,encode(lower[i][j])] for i in range(n) for j in range(i) if lower[i][j]],
         "diagonal":list(map(encode,diagonal)), "correction":list(map(encode,delta)),
@@ -126,6 +126,9 @@ def certify(matrix, rhs, solution):
         "scaled_dof_linf_error_upper_m":upper(max(map(abs,delta))),
         "energy_error_squared_j":encode(energy2), "energy_error_sqrt_j_upper":sqrt_upper(energy2),
         "checker":"exact LDL reconstruction, correction identity and rational endpoint inequalities",
+        "stored_binary64": {
+            "matrix":[[float(x).hex() for x in row] for row in matrix],
+            "rhs":[float(x).hex() for x in rhs], "solution":[float(x).hex() for x in solution]},
     }
     verify_certificate(matrix,rhs,solution,certificate)
     return certificate
@@ -136,10 +139,14 @@ def verify_certificate(matrix, rhs, solution, certificate):
     a, b, u, digest = inputs(matrix,rhs,solution)
     n = len(b)
     c = certificate
-    if c.get("scope") != SCOPE or c.get("schema_version") != "0.1" or c.get("dofs") != n or c.get("system_sha256") != digest:
+    if c.get("scope") != SCOPE or c.get("schema_version") != "0.2" or c.get("dofs") != n or c.get("system_sha256") != digest:
         raise ValueError("certificate binding mismatch")
     if c.get("promotion_authority") is not False or c.get("continuum_error_certified") is not False:
         raise ValueError("certificate scope/authority mismatch")
+    expected = {"matrix":[[float(x).hex() for x in row] for row in matrix],
+                "rhs":[float(x).hex() for x in rhs], "solution":[float(x).hex() for x in solution]}
+    if c.get("stored_binary64") != expected:
+        raise ValueError("saved system/input mismatch")
     if not isinstance(c.get("lower"),list) or len(c["lower"]) > n*(n-1)//2 or len(c.get("diagonal",[])) != n or len(c.get("correction",[])) != n:
         raise ValueError("invalid witness dimensions")
     if len(json.dumps(c)) > MAX_BYTES:
@@ -179,3 +186,75 @@ def verify_certificate(matrix, rhs, solution, certificate):
         if (rational**2 if squared else rational) < exact:
             raise ValueError("upper endpoint does not enclose exact error")
     return True
+
+
+def replay_certificate(certificate):
+    """Replay a self-contained saved witness without solving or factoring."""
+    stored = certificate.get("stored_binary64")
+    n = certificate.get("dofs")
+    if type(n) is not int or not 1 <= n <= MAX_DOFS or not isinstance(stored,dict):
+        raise ValueError("missing bounded stored system")
+    matrix, rhs, solution = stored.get("matrix"), stored.get("rhs"), stored.get("solution")
+    if not isinstance(matrix,list) or len(matrix) != n or any(not isinstance(row,list) or len(row) != n for row in matrix) or not isinstance(rhs,list) or len(rhs) != n or not isinstance(solution,list) or len(solution) != n:
+        raise ValueError("saved system dimensions mismatch")
+    def number(value):
+        if type(value) is not str or not 1 <= len(value) <= 32:
+            raise ValueError("bounded binary64 hex string required")
+        try:
+            x = float.fromhex(value)
+        except (ValueError,OverflowError) as exc:
+            raise ValueError("invalid saved binary64") from exc
+        if not math.isfinite(x) or x.hex() != value:
+            raise ValueError("finite canonical binary64 required")
+        return x
+    return verify_certificate([[number(x) for x in row] for row in matrix],
+                              list(map(number,rhs)),list(map(number,solution)),certificate)
+
+
+def replay_report(report):
+    """Check all baseline/coverage witnesses and their expected solve counts."""
+    baseline = report["cace_algebraic"]["mesh_checks"]
+    cases = report["holdouts"]["cases"]
+    if not isinstance(baseline,list) or not 3 <= len(baseline) <= 6 or not isinstance(cases,list) or not 1 <= len(cases) <= 8:
+        raise ValueError("bounded replay inventory required")
+    if any(not isinstance(c.get("meshes"),list) or not 3 <= len(c["meshes"]) <= 5 for c in cases):
+        raise ValueError("bounded coverage meshes required")
+    groups = [(report["meshes"],baseline)] + [(c["meshes"],c["cace_mesh_checks"]) for c in cases]
+    count = 0
+    for meshes,checks in groups:
+        if len(meshes) != len(checks):
+            raise ValueError("mesh/certificate count mismatch")
+        for mesh,check in zip(meshes,checks):
+            c = check["discrete_error_certificate"]
+            if type(mesh.get("elements")) is not int or not 1 <= mesh["elements"] <= 16 or mesh["free_dofs"] != 2*mesh["elements"]:
+                raise ValueError("beam mesh/DOF mapping mismatch")
+            if c["dofs"] != mesh["free_dofs"] or c["dofs"] != check["free_dofs"]:
+                raise ValueError("DOF/certificate mismatch")
+            replay_certificate(c)
+            count += 1
+    if not 1 <= count <= 46 or count != report["cace_algebraic"]["discrete_error_certificates_checked"]:
+        raise ValueError("report certificate inventory mismatch")
+    if report.get("promotion_authority") is not False or report["cace_algebraic"].get("continuum_error_certified") is not False:
+        raise ValueError("report scope mismatch")
+    return count
+
+
+if __name__ == "__main__":
+    import argparse
+    from pathlib import Path
+    parser = argparse.ArgumentParser(description="Replay saved beam discrete-error witnesses without CACE or a solver")
+    parser.add_argument("report",type=Path)
+    parser.add_argument("-o",type=Path,required=True)
+    args = parser.parse_args()
+    with args.report.open("rb") as stream:
+        data = stream.read(8*1048576+1)
+    if len(data) > 8*1048576:
+        raise SystemExit("report exceeds replay byte budget")
+    report = json.loads(data)
+    count = replay_report(report)
+    result = {"passed":True,"certificates_replayed":count,"scope":SCOPE,
+              "source_head_sha":report.get("source_head_sha"),"producer_run_id":report.get("producer_run_id"),
+              "report_sha256":hashlib.sha256(data).hexdigest(),
+              "promotion_authority":False,"continuum_error_certified":False}
+    args.o.write_text(json.dumps(result,indent=2)+"\n")
+    print(json.dumps(result))

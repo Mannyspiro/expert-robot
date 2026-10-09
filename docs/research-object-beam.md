@@ -74,7 +74,10 @@ numbers checked with exact rational inequalities. Square-root enclosure uses
 power-of-two scaling to handle underflow and overflow; `nextafter` only chooses
 a candidate endpoint, and exact arithmetic decides whether it encloses the
 bound. The certificate includes the exact witnesses and a SHA256 binding to
-the matrix, load and solution. Work is bounded to 32 free DOFs, 8192-bit
+the matrix, load and solution. The artifact also embeds those inputs as
+canonical binary64 hex strings. A standalone replay reads the saved report,
+checks every witness without factoring or solving, and retains its own report
+digest and source/run binding. Work is bounded to 32 free DOFs, 8192-bit
 rationals and a 1 MiB certificate. Baseline meshes and coverage meshes stay
 inside this bound.
 

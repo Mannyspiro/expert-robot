@@ -7,12 +7,22 @@ import sys
 from fractions import Fraction as F
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from certify_beam_discrete import certify, verify_certificate, sqrt_upper
+from certify_beam_discrete import certify, verify_certificate, sqrt_upper, replay_certificate
 
 a, b, u = [[2.,1.],[1.,2.]], [1.,0.], [.3,-.1]
 c = certify(a,b,u)
 assert verify_certificate(a,b,u,c)
 assert verify_certificate(a,b,u,json.loads(json.dumps(c)))
+assert replay_certificate(json.loads(json.dumps(c)))
+assert replay_certificate(certify([[2.]],[-0.],[-0.]))
+changed_input = copy.deepcopy(c)
+changed_input["stored_binary64"]["solution"][0] = (0.).hex()
+try:
+    replay_certificate(changed_input)
+except ValueError:
+    pass
+else:
+    raise AssertionError("changed saved solution accepted")
 exact = [F(2,3), F(-1,3)]
 errors = [x-F.from_float(y) for x,y in zip(exact,u)]
 assert F.from_float(c["scaled_dof_linf_error_upper_m"]) >= max(map(abs,errors))
@@ -39,6 +49,7 @@ for mutate in [lambda c:c["correction"].__setitem__(0,["0","1"]),
                lambda c:c.update(scaled_dof_linf_error_upper_m=0),
                lambda c:c.update(system_sha256="wrong"),
                lambda c:c["lower"].append([1,0,["1","2"]]),
+               lambda c:c["lower"][0].__setitem__(2,["1","3"]),
                lambda c:c.update(continuum_error_certified=True)]:
     bad = copy.deepcopy(c)
     mutate(bad)
