@@ -67,6 +67,7 @@ def run(cace_repo):
     from cace_studio.modules.fem import (
         ArbitraryMesh1D,P1ShapeFunctions,PoissonAssembly1D,
         LinearPDESolver,AlgebraicResidual,AposterioriEstimator1D,
+        PipelineCertificate,
         _dense_from_csr,
     )
     trials=[]
@@ -151,6 +152,22 @@ def run(cace_repo):
     assert verification_states(LinearPDESolver.verify(
         None,{"system":badmodel},{},{"solution":wrongsol},None))==["PASS"]
     assert abs(wrongsol["values"][1]-float(xs[1]*(1-xs[1])/2))>1e-4
+    # A pipeline-summary module cannot itself authenticate a supplied
+    # numerical interval. Deliberately pass fabricated and reversed bounds.
+    # Its PASS is not accepted as PDE error-bound qualification.
+    certificate_params={"residual_tolerance":1e-10}
+    false_inputs={"residual_inf":0.0,"error_interval":[0.0,0.0],
+                  "estimator":{"eta":0.0},"refined_mesh":mesh}
+    false_summary=PipelineCertificate.execute(None,false_inputs,certificate_params,None)
+    assert verification_states(PipelineCertificate.verify(
+        None,false_inputs,certificate_params,false_summary,None))==["PASS"]
+    assert math.sqrt(float(exact_oracle(xs)[-1]))>0.0
+    reversed_inputs={"residual_inf":0.0,"error_interval":[1.0,0.1],
+                     "estimator":{"eta":0.0},"refined_mesh":mesh}
+    reversed_summary=PipelineCertificate.execute(None,reversed_inputs,certificate_params,None)
+    assert verification_states(PipelineCertificate.verify(
+        None,reversed_inputs,certificate_params,reversed_summary,None))==["PASS"]
+    assert reversed_inputs["error_interval"][0]>reversed_inputs["error_interval"][1]
     errors={x["mesh"]:x["energy_error_known"] for x in trials}
     for n in (5,9,17):
         ratio=errors["uniform_"+str(n)]/errors["uniform_"+str(2*n-1)]
@@ -172,6 +189,9 @@ def run(cace_repo):
        "tampered_zero_estimator_accepted_by_cace_wellformed_check":True,
        "externally_detected_fake_estimator":True,
        "externally_detected_changed_rhs":True,
+       "untrusted_zero_error_interval_native_summary_passed":True,
+       "reversed_error_interval_native_summary_passed":True,
+       "independent_interval_validation_required":True,
        "general_pde_a_posteriori_bound_qualified":False,
        "proof_that_arbitrary_chemical_reaction_is_conservative":False,
        "published_biological_model_reproduced":False,
