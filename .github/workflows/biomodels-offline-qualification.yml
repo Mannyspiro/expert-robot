@@ -1,0 +1,60 @@
+name: Pinned Offline BioModels Qualification
+
+on:
+  push:
+    branches: ["research/biomodels-offline-source-qualification-20261009"]
+    paths:
+      - "research/biomodels/**"
+      - "scripts/qualify_offline_biomodels_0051.py"
+      - ".github/workflows/biomodels-offline-qualification.yml"
+  pull_request:
+    paths:
+      - "research/biomodels/**"
+      - "scripts/qualify_offline_biomodels_0051.py"
+      - ".github/workflows/biomodels-offline-qualification.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-intake:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify exact source bytes before any package interaction
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object research/biomodels/BIOMD0000000051.xml)" = "e447a9b0ba35ba0156b97c07caaad94631a448cf"
+      - name: Install pinned independent SBML validator
+        run: python3 -m pip install --disable-pip-version-check --no-input --only-binary=:all: 'python-libsbml==5.21.2'
+      - name: Qualify source structure, compartments, rules and libSBML findings
+        run: |
+          python3 scripts/qualify_offline_biomodels_0051.py --sbml research/biomodels/BIOMD0000000051.xml -o /tmp/biomodels-offline-qualification.json
+      - name: Enforce no false biological or CACE claims
+        run: |
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/biomodels-offline-qualification.json',encoding='utf-8'))
+          assert d['counts']=={'species':18,'reactions':48,'compartments':2,'parameters':142,'assignment_rules':7}
+          assert d['libsbml_severe_issue_count']==0
+          assert d['source_structure_ok'] is True
+          assert d['time_dependent_kinetics_reproduced'] is False
+          assert d['manuscript_figures_reproduced'] is False
+          assert d['cace_execution'] is False
+          assert d['lean_qualification'] is False
+          assert d['authority_expanded'] is False
+          print('BioModels offline source intake qualification PASS')
+          PY
+      - name: Retain exact evidence including failure diagnosis
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pinned-biomodels-0051-offline-qualification
+          path: /tmp/biomodels-offline-qualification.json
+          retention-days: 30
+          if-no-files-found: warn
