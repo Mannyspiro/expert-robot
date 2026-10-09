@@ -5,6 +5,7 @@ on:
     branches: ["research/cace-solver-residual-qualification-20261009"]
     paths:
       - "scripts/probe_cace_solver_interface.py"
+      - "scripts/experiment_cace_actual_solver_residual.py"
       - ".github/workflows/cace-solver-contract-probe.yml"
   pull_request:
     paths:
@@ -54,12 +55,33 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/probe_cace_solver_interface.py --cace-repo "$RUNNER_TEMP/cace-app" -o "$RUNNER_TEMP/cace-solver-api.json"
+      - name: Execute genuine pinned CACE FEM Poisson solver and verify independent analytic solution
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check --no-input 'numpy==2.0.2'
+          python3 scripts/experiment_cace_actual_solver_residual.py --cace-repo "$RUNNER_TEMP/cace-app" --output "$RUNNER_TEMP/cace-solver-experiment.json"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          result=json.loads((Path(os.environ["RUNNER_TEMP"])/"cace-solver-experiment.json").read_text())
+          assert result["passed_meshed_cases"] == 8
+          assert result["real_cace_mesh_shape_assembly_solver_residual_estimator_invoked"] is True
+          assert result["externally_detected_fake_estimator"] is True
+          assert result["externally_detected_changed_rhs"] is True
+          assert result["corrupted_solution_rejected_by_cace_solver_tolerance_check"] is True
+          assert result["general_pde_a_posteriori_bound_qualified"] is False
+          assert result["authority_expanded"] is False
+          print("Pinned real CACE FEM solver, residual, estimator and mutant gates PASS")
+          PY
       - name: Preserve auditable API schema
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: pinned-cace-fem-solver-contract
-          path: ${{ runner.temp }}/cace-solver-api.json
+          path: |
+            ${{ runner.temp }}/cace-solver-api.json
+            ${{ runner.temp }}/cace-solver-experiment.json
           retention-days: 14
           if-no-files-found: warn
       - name: Destroy temporary deploy-key material
