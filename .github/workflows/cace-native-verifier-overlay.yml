@@ -5,6 +5,7 @@ on:
     branches: ["research/cace-verification-hardening-20261009"]
     paths:
       - "scripts/patch_cace_fem_verification_overlay.py"
+      - "scripts/verify_quadratic_poisson_energy_identity.py"
       - "tests/test_cace_native_verifier_overlay.py"
       - ".github/workflows/cace-native-verifier-overlay.yml"
   pull_request:
@@ -18,7 +19,42 @@ permissions:
   contents: read
 
 jobs:
+  exact-energy-identity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Install independently pinned symbolic algebra
+        run: python3 -m pip install --disable-pip-version-check --no-input 'sympy==1.14.0'
+      - name: Verify the exact Poisson P1 energy identity and outward-rounded rational intervals
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/verify_quadratic_poisson_energy_identity.py | tee "$RUNNER_TEMP/poisson-identity.json"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          d=json.loads((Path(os.environ["RUNNER_TEMP"])/"poisson-identity.json").read_text())
+          assert d["symbolic_difference"]=="0"
+          assert d["exact_rational_interval_cases"]==18
+          assert d["intentional_wrong_identities_rejected"]==2
+          assert d["general_pde_reliability_proven"] is False
+          assert d["lean_kernel_proof_of_energy_identity"] is False
+          print("Independent symbolic error identity and exact interval brackets PASS")
+          PY
+      - name: Preserve independent symbolic algebra evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: poisson-p1-energy-identity
+          path: ${{ runner.temp }}/poisson-identity.json
+          retention-days: 30
+          if-no-files-found: warn
+
   local-native-repair:
+    needs: exact-energy-identity
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
