@@ -585,6 +585,48 @@
         "lean_verified"
       ],
       "uses": []
+    },
+    {
+      "name": "MathAI.Bio.total_enzyme_conserved",
+      "source": "MathAI/Bio/ReactionConservation.lean",
+      "status": "candidate",
+      "statement": "The total enzyme E+ES remains constant under arbitrary rational binding, unbinding and catalysis increments.",
+      "domain": "biochemistry",
+      "tags": [
+        "stoichiometry",
+        "conservation",
+        "exact_rational",
+        "unqualified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Bio.substrate_moiety_conserved",
+      "source": "MathAI/Bio/ReactionConservation.lean",
+      "status": "candidate",
+      "statement": "The substrate moiety S+ES+P remains constant for arbitrary rational increments of the toy model.",
+      "domain": "biochemistry",
+      "tags": [
+        "stoichiometry",
+        "conservation",
+        "exact_rational",
+        "unqualified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Bio.reversible_flux_merged",
+      "source": "MathAI/Bio/ReactionConservation.lean",
+      "status": "candidate",
+      "statement": "The signed net binding flux update equals separate binding/unbinding increments for rational scalar states.",
+      "domain": "biochemistry",
+      "tags": [
+        "stoichiometry",
+        "conservation",
+        "exact_rational",
+        "unqualified"
+      ],
+      "uses": []
     }
   ]
 }
