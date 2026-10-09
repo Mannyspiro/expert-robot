@@ -37,12 +37,13 @@ TARGETS={
 }
 EXPECTED_POWER_OCCURRENCES={"vDAHPS":4,"vPDH":2}
 
-def segment(xml,reaction):
-    pattern=r'<reaction id="'+re.escape(reaction)+r'"\b[\s\S]*?</reaction>'
-    # Full regex uses simple \b and DOTALL; do not match across neighboring reactions.
-    match=re.search(r'<reaction id="'+re.escape(reaction)+r'"\b.*?</reaction>',
-                    xml,re.DOTALL)
-    if match is None: raise ValueError("missing pinned reaction "+reaction)
+def segment(xml, reaction):
+    # After the closing identifier quote follows whitespace or '>', not a
+    # regex word boundary (which would incorrectly reject every real reaction).
+    pattern = r'<reaction id="' + re.escape(reaction) + r'"(?=\\s|>).*?</reaction>'
+    match = re.search(pattern, xml, re.DOTALL)
+    if match is None:
+        raise ValueError("missing pinned reaction " + reaction)
     return match
 
 def kinetic_xml(reaction_xml):
