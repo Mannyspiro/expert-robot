@@ -6,6 +6,9 @@ on:
       - "scripts/experiment_biochemistry_stoichiometry.py"
       - "scripts/experiment_biochemistry_equilibrium.py"
       - "scripts/experiment_crnt_deficiency.py"
+      - "research/biomodels/**"
+      - "scripts/qualify_offline_biomodels_0051.py"
+      - "scripts/experiment_biomodels_time_rules.py"
       - "docs/biochemistry-research-program.md"
       - ".github/workflows/biochemistry-experiment.yml"
   workflow_dispatch:
@@ -16,7 +19,7 @@ permissions:
 jobs:
   exact-biochemistry:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
@@ -55,6 +58,14 @@ jobs:
           assert crnt["cace_runtime_optimized"] is False
           print("Exact CRNT structural precondition tests PASS")
           PY
+      - name: Install independent pinned SBML validation backend
+        run: python3 -m pip install --disable-pip-version-check --no-input --only-binary=:all: 'python-libsbml==5.21.2'
+      - name: Replay all 56 published time-dependent assignment-rule values
+        run: |
+          python3 scripts/experiment_biomodels_time_rules.py --sbml research/biomodels/BIOMD0000000051.xml -o /tmp/biomodels-time-rules.json
+      - name: Check published SBML source consistency separately
+        run: |
+          python3 scripts/qualify_offline_biomodels_0051.py --sbml research/biomodels/BIOMD0000000051.xml -o /tmp/biomodels-offline-qualification.json
       - name: Retain synthetic exact arithmetic result
         if: always()
         uses: actions/upload-artifact@v4
@@ -64,4 +75,6 @@ jobs:
             /tmp/biochemistry-stoichiometry.json
             /tmp/biochemistry-equilibrium.json
             /tmp/biochemistry-crnt-deficiency.json
+            /tmp/biomodels-time-rules.json
+            /tmp/biomodels-offline-qualification.json
           retention-days: 30
