@@ -570,6 +570,21 @@
         "lean_verified"
       ],
       "uses": []
+    },
+    {
+      "name": "MathAI.Graph.l1AppendReal_norm_sub",
+      "source": "MathAI/Graph/L1Append.lean",
+      "status": "verified",
+      "statement": "Finite real PiLp L1 norm of appended feature-vector differences equals the sum of separate PiLp L1 norms.",
+      "domain": "algebra",
+      "tags": [
+        "upstream_openai_adapted",
+        "l1_norm",
+        "finite_dimension",
+        "direct_sum",
+        "lean_verified"
+      ],
+      "uses": []
     }
   ]
 }
