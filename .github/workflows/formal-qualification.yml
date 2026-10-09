@@ -143,6 +143,12 @@ jobs:
           LEAN_ABORT_ON_PANIC: "1"
         run: lake env lean ../tests/lean/molecular_curvature_witnesses.lean
 
+      - name: Verify exact L1 graph-feature witnesses
+        working-directory: formal
+        env:
+          LEAN_ABORT_ON_PANIC: "1"
+        run: lake env lean ../tests/lean/l1_append_witnesses.lean
+
       - name: Direct audited-root replay
         working-directory: formal
         env:
