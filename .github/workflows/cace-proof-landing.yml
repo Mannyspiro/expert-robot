@@ -1,0 +1,70 @@
+name: CACE Qualified Proof Landing
+on:
+  push:
+    branches: ["feat/cace-proof-intake-20261009"]
+    paths: [".github/workflows/cace-proof-landing.yml"]
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: cace-compatible-proof-preflight
+  cancel-in-progress: false
+jobs:
+  land:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify root evidence and qualify exact CACE commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CACE_REPO_KEY: ${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}
+          CACE_QUALIFICATION_SYSTEM: github-actions-avrea
+          CACE_QUALIFICATION_RUN_ID: ${{ github.run_id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(gh api repos/Mannyspiro/expert-robot/actions/runs/37964601101 --jq .conclusion)" = success
+          evidence="$RUNNER_TEMP/root-evidence"
+          gh run download 37964601101 --repo Mannyspiro/expert-robot --name cace-checked-interval-integration-37964601101 --dir "$evidence"
+          python3 - "$evidence" <<'PY'
+          import pathlib,json,sys
+          root=pathlib.Path(sys.argv[1])
+          p=root/'cace-integrated-evidence.json'
+          data=json.loads(p.read_text())
+          print(json.dumps(data,sort_keys=True))
+          assert data['source_commit']=='66b22a71ff52b3110269f5994a5fd0716a2054c1'
+          assert data['root_compiled'] is True
+          assert data['endpoint_count']==7
+          PY
+          umask 077
+          key="$RUNNER_TEMP/cace_landing_key"
+          printf '%s\n' "$CACE_REPO_KEY" > "$key"
+          trap 'rm -f "$key"' EXIT
+          export GIT_SSH_COMMAND="ssh -i $key -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=accept-new"
+          work="$RUNNER_TEMP/cace-landing"
+          git clone --branch proof/external-certified-intervals-integrated-20261009 git@github.com:morganaspim/Cace-app.git "$work"
+          cd "$work"
+          test "$(git rev-parse HEAD)" = 66b22a71ff52b3110269f5994a5fd0716a2054c1
+          export CACE_QUALIFICATION_OUTPUT="$RUNNER_TEMP/cace-qualification"
+          bash scripts/qualify_v330_portable.sh 2>&1 | tee "$RUNNER_TEMP/cace-qualification.log"
+          git fetch origin
+          default_ref="$(git symbolic-ref refs/remotes/origin/HEAD)"
+          default_branch="${default_ref#refs/remotes/origin/}"
+          test "$(git rev-parse "$default_ref")" = 0e7aa229d3bb57174e281b883ee8af5445f15f75
+          git merge-base --is-ancestor "$default_ref" HEAD
+          git push origin "HEAD:refs/heads/$default_branch"
+          test "$(git ls-remote origin "refs/heads/$default_branch" | cut -f1)" = 66b22a71ff52b3110269f5994a5fd0716a2054c1
+          printf 'CACE_PROOFS_LANDED %s %s\n' "$default_branch" "$(git rev-parse HEAD)"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cace-proof-landing-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/cace-qualification
+            ${{ runner.temp }}/cace-qualification.log
+            ${{ runner.temp }}/root-evidence
+          retention-days: 30
+          if-no-files-found: warn
