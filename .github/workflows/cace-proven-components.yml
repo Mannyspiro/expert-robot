@@ -1,0 +1,130 @@
+name: CACE Verified Graph Component Transport
+
+on:
+  push:
+    branches: ["research/cace-proven-components-20261009"]
+    paths:
+      - "scripts/experiment_cace_proven_components.py"
+      - ".github/workflows/cace-proven-components.yml"
+  pull_request:
+    paths:
+      - "scripts/experiment_cace_proven_components.py"
+      - ".github/workflows/cace-proven-components.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  exact-non-cace-oracle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Assert same source files as independently LeanChecker qualified run
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git hash-object research/lean-transfer-core/TransferReachability.lean)" = "7f0bdd74ed5130dfa5d91d76b0bca2a6da371e3b"
+          test "$(git hash-object research/lean-transfer-core/ComponentFactorization.lean)" = "79c5ae1d524597b571c5a3e80a8f0b191e384e35"
+          test "$(git hash-object research/lean-transfer-core/ComponentFlux.lean)" = "612d7720859c950797cee536187a9410cd002ebb"
+      - name: Pin numeric oracle
+        run: python3 -m pip install --disable-pip-version-check --no-input 'numpy==2.0.2'
+      - name: Cross-check six graph networks with exact rational oracle
+        run: python3 scripts/experiment_cace_proven_components.py --math-only -o /tmp/cace-proven-math-only.json
+      - name: Test arithmetic result without CACE
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          x=json.load(open("/tmp/cace-proven-math-only.json"))
+          assert x["total_networks"]==6 and x["fraction_oracle_steps"]==288
+          assert x["cace_csr_codec_executed"] is False
+          assert len(x["negative_controls_rejected"])==6
+          assert not x["production_promoted"] and not x["authority_expanded"]
+          assert all(r["exact_component_mass_residual"]=="0" for r in x["networks"])
+          print("Independent rational graph-transport precheck PASS")
+          PY
+      - name: Preserve oracle evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cace-proven-graph-math-oracle
+          path: /tmp/cace-proven-math-only.json
+          retention-days: 30
+          if-no-files-found: warn
+
+  actual-cace-csr:
+    needs: exact-non-cace-oracle
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Load read-only authorized CACE repository key
+        shell: bash
+        env:
+          CACE_REPO_KEY: "${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}"
+        run: |
+          set -euo pipefail
+          test -n "${CACE_REPO_KEY:-}" || { echo "authorized CACE key unavailable"; exit 1; }
+          umask 077
+          printf '%s\n' "$CACE_REPO_KEY" > "$RUNNER_TEMP/cace_read_only_key"
+          chmod 600 "$RUNNER_TEMP/cace_read_only_key"
+          eval "$(ssh-agent -s)"
+          ssh-add "$RUNNER_TEMP/cace_read_only_key" >/dev/null
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
+      - name: Checkout CACE interface at independently proven immutable commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
+            git clone --depth 1 git@github.com:morganaspim/Cace-app.git "$RUNNER_TEMP/cace-app"
+          if [ "$(git -C "$RUNNER_TEMP/cace-app" rev-parse HEAD)" != "66b22a71ff52b3110269f5994a5fd0716a2054c1" ]; then
+            GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
+              git -C "$RUNNER_TEMP/cace-app" fetch --depth 1 origin 66b22a71ff52b3110269f5994a5fd0716a2054c1
+            git -C "$RUNNER_TEMP/cace-app" checkout --detach 66b22a71ff52b3110269f5994a5fd0716a2054c1
+          fi
+          test "$(git -C "$RUNNER_TEMP/cace-app" rev-parse HEAD)" = "66b22a71ff52b3110269f5994a5fd0716a2054c1"
+          git -C "$RUNNER_TEMP/cace-app" rev-parse HEAD > "$RUNNER_TEMP/cace-proven-source-sha.txt"
+      - name: Run actual CACE sparse CSR codec with independent fraction oracle
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check --no-input 'numpy==2.0.2'
+          python3 scripts/experiment_cace_proven_components.py --cace-repo "$RUNNER_TEMP/cace-app" -o "$RUNNER_TEMP/cace-proven-csr.json"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ["RUNNER_TEMP"])/"cace-proven-csr.json"
+          x=json.loads(p.read_text())
+          assert x["total_networks"]==6 and x["fraction_oracle_steps"]==288
+          assert x["cace_csr_codec_executed"] is True
+          assert x["cace_source_commit_required"]=="66b22a71ff52b3110269f5994a5fd0716a2054c1"
+          assert len(x["negative_controls_rejected"])==6
+          assert all(r["csr_roundtrip_exact"] and r["numeric_matches_fraction_oracle"] for r in x["networks"])
+          assert x["cace_backend_qualified"] is False
+          assert x["pde_error_certificate"] is False
+          assert x["production_promoted"] is False and x["authority_expanded"] is False
+          print("Genuine CACE CSR, exact components, and falsification tests PASS")
+          PY
+      - name: Retain source SHA and actual CACE experiment
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: actual-cace-proven-component-transport
+          path: |
+            ${{ runner.temp }}/cace-proven-source-sha.txt
+            ${{ runner.temp }}/cace-proven-csr.json
+          retention-days: 30
+          if-no-files-found: warn
+      - name: Erase temporary deploy-key material
+        if: always()
+        shell: bash
+        run: |
+          if [ -n "${SSH_AGENT_PID:-}" ]; then ssh-agent -k >/dev/null 2>&1 || true; fi
+          rm -f "$RUNNER_TEMP/cace_read_only_key"
