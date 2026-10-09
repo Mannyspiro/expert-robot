@@ -52,12 +52,20 @@ def main():
     different=copy.deepcopy(clean);different['species'][0]='X'
     reject(receipt,raw(different),hashlib.sha256(raw(different)).hexdigest(),
            'swapped source identity with individually valid file hash')
+    # JSON floats and booleans are deliberately excluded: they are not
+    # typed exact-rational inputs even if numerical conversion seems equal.
+    floating=copy.deepcopy(clean);floating['stoichiometry'][0][0]=-1.0
+    reject(receipt,raw(floating),hashlib.sha256(raw(floating)).hexdigest(),
+           'untyped floating coefficient accepted as exact')
+    boolean=copy.deepcopy(clean);boolean['stoichiometry'][0][0]=True
+    reject(receipt,raw(boolean),hashlib.sha256(raw(boolean)).hexdigest(),
+           'boolean coefficient accepted as exact')
     # Canonical rational equivalence is allowed, but the exact external input
     # bytes are still pinned to their own digest.
     equivalent=copy.deepcopy(clean);equivalent['stoichiometry'][0][0]='-2/2'
     assert check(receipt,equivalent)['external_source_bound'] is True
     assert trusted!=hashlib.sha256(raw(equivalent)).hexdigest()
-    print(json.dumps({'bound_valid':2,'attacks_rejected':9,
+    print(json.dumps({'bound_valid':2,'attacks_rejected':11,
                       'external_source_pin_required':True,
                       'formal_kernel_checked':False,
                       'cace_runtime_checked':False,
