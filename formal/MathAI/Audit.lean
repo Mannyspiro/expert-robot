@@ -136,3 +136,9 @@ kernel-visible axiom dependencies for review.
 
 #check MathAI.Bio.reversible_flux_merged
 #print axioms MathAI.Bio.reversible_flux_merged
+
+#check MathAI.Bio.no_positive_enzyme_substrate_steady_state
+#print axioms MathAI.Bio.no_positive_enzyme_substrate_steady_state
+
+#check MathAI.Bio.product_flux_positive
+#print axioms MathAI.Bio.product_flux_positive
