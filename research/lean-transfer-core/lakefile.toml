@@ -1,0 +1,6 @@
+name = "transfer_walk_core"
+version = "0.1.0"
+defaultTargets = ["TransferReachability"]
+
+[[lean_lib]]
+name = "TransferReachability"
