@@ -4,24 +4,51 @@ on:
   pull_request:
     paths:
       - "scripts/experiment_cace_bio_diffusion.py"
+      - "scripts/experiment_cace_reaction_diffusion_oracle.py"
+      - "scripts/experiment_cace_chip_electrothermal.py"
+      - "tests/cace_chip_electrothermal_smoke.py"
+      - "scripts/experiment_cace_chip_refinement.py"
+      - "tests/cace_chip_refinement_smoke.py"
+      - "scripts/experiment_cace_chip_p1_manufactured.py"
+      - "tests/cace_chip_p1_manufactured_smoke.py"
+      - "scripts/experiment_cace_chip_square_material_p1.py"
+      - "tests/cace_chip_square_material_p1_smoke.py"
+      - "scripts/cace_variable_coefficient_p1.py"
+      - "tests/cace_variable_coefficient_p1_smoke.py"
+      - "config/cace_fem_nd_contract_pin.json"
       - ".github/workflows/cace-biochemical-diffusion.yml"
   workflow_dispatch:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   cace-sparse-operator-study:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
+    runs-on: avrea-ubuntu-latest-8-vcpu
     concurrency:
-      group: expert-robot-research-validation-slot
+      group: expert-robot-avrea-half-month-slot
       cancel-in-progress: false
       queue: max
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+      - name: Enforce Avrea half-month budget before credentials
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 scripts/check_avrea_halfmonth_budget.py \
+            --reserve-minutes 10 \
+            --runner-label avrea-ubuntu-latest-8-vcpu
+      - name: Test synthetic chip electrothermal physics before key access
+        run: |
+          python3 tests/cace_chip_electrothermal_smoke.py
+          python3 tests/cace_chip_refinement_smoke.py
+          python3 tests/cace_chip_p1_manufactured_smoke.py
+          python3 tests/cace_chip_square_material_p1_smoke.py
+          python3 tests/cace_variable_coefficient_p1_smoke.py
       - name: Prepare read-only CACE deploy-key credentials
         shell: bash
         env:
@@ -42,13 +69,48 @@ jobs:
           set -euo pipefail
           GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
             git clone --depth 1 git@github.com:morganaspim/Cace-app.git "$RUNNER_TEMP/cace-app"
-          git -C "$RUNNER_TEMP/cace-app" rev-parse HEAD > "$RUNNER_TEMP/cace-bio-source-sha.txt"
+          expected="$(python3 -c 'import json; print(json.load(open("config/cace_fem_nd_contract_pin.json"))["commit"])')"
+          git -C "$RUNNER_TEMP/cace-app" fetch --depth 1 origin "$expected"
+          git -C "$RUNNER_TEMP/cace-app" checkout --detach "$expected"
+          test "$(git -C "$RUNNER_TEMP/cace-app" rev-parse HEAD)" = "$expected"
+          printf '%s\n' "$expected" > "$RUNNER_TEMP/cace-bio-source-sha.txt"
+          python3 scripts/verify_cace_fem_nd_contract.py "$RUNNER_TEMP/cace-app"
       - name: Run exact conservation oracle against CACE FEM sparse matrix utilities
         shell: bash
         run: |
           set -euo pipefail
           python3 -m pip install --disable-pip-version-check --no-input 'numpy==2.0.2'
           python3 scripts/experiment_cace_bio_diffusion.py --cace-repo "$RUNNER_TEMP/cace-app" -o "$RUNNER_TEMP/cace-bio-diffusion.json"
+      - name: Couple synthetic reactions, boundary flux and actual CACE CSR codec
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha="$(cat "$RUNNER_TEMP/cace-bio-source-sha.txt")"
+          python3 scripts/experiment_cace_reaction_diffusion_oracle.py \
+            --cace-repo "$RUNNER_TEMP/cace-app" \
+            --cace-sha "$sha" \
+            -o "$RUNNER_TEMP/cace-reaction-diffusion.json"
+      - name: Check chip electrothermal operators with actual pinned CACE CSR codec
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/experiment_cace_chip_electrothermal.py \
+            --cace-repo "$RUNNER_TEMP/cace-app" \
+            --pin config/cace_fem_nd_contract_pin.json \
+            -o "$RUNNER_TEMP/cace-chip-electrothermal.json"
+      - name: Check refined chip sheets with pinned CACE sparse codec
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/experiment_cace_chip_refinement.py \
+            --cace-repo "$RUNNER_TEMP/cace-app" \
+            --pin config/cace_fem_nd_contract_pin.json \
+            -o "$RUNNER_TEMP/cace-chip-refinement.json"
+      - name: Run pinned CACE P1 manufactured Poisson convergence check
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/experiment_cace_chip_p1_manufactured.py             --cace-repo "$RUNNER_TEMP/cace-app"             --pin config/cace_fem_nd_contract_pin.json             -o "$RUNNER_TEMP/cace-chip-p1-manufactured.json"
       - name: Retain mathematical and pinned source evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -57,6 +119,10 @@ jobs:
           path: |
             ${{ runner.temp }}/cace-bio-source-sha.txt
             ${{ runner.temp }}/cace-bio-diffusion.json
+            ${{ runner.temp }}/cace-reaction-diffusion.json
+            ${{ runner.temp }}/cace-chip-electrothermal.json
+            ${{ runner.temp }}/cace-chip-refinement.json
+            ${{ runner.temp }}/cace-chip-p1-manufactured.json
           if-no-files-found: warn
           retention-days: 14
       - name: Destroy deploy-key material

@@ -1,0 +1,49 @@
+name: Evidence Frontier Validation
+
+on:
+  pull_request:
+    paths:
+      - "scripts/experiment_general_reaction_conservation.py"
+      - "scripts/audit_openai_lean_receipt.py"
+      - "scripts/triage_biomodels_consistency.py"
+      - "scripts/qualify_cace_holdout_evidence.py"
+      - "tests/research_validation_frontier_smoke.py"
+      - ".github/workflows/research-validation-frontier.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-evidence-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Offline mutation and fail-closed tests
+        run: python3 tests/research_validation_frontier_smoke.py
+      - name: Exact rational reaction-network witnesses
+        run: python3 scripts/experiment_general_reaction_conservation.py -o /tmp/general-conservation.json
+      - name: Independently check exact zero-residual and no-promotion flags
+        run: |
+          python3 - <<'PY'
+          import json
+          data=json.load(open('/tmp/general-conservation.json'))
+          assert [x["left_nullity"] for x in data["cases"]]==[2,1,2,1]
+          assert all(all(v["exact_residual"]=="0" for v in x["invariants"]) for x in data["cases"])
+          assert data["missing_reactant_mass_defect"]=="1/3"
+          assert data["open_boundary_accounted"] and data["mixed_unit_mutant_rejected"]
+          assert data["cace_backend_executed"] is False
+          assert data["runtime_speedup_measured"] is False
+          assert data["promotion_authorized"] is False
+          PY
+      - name: Store immutable test witness
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-frontier-exact-witness
+          path: /tmp/general-conservation.json
+          if-no-files-found: warn
+          retention-days: 30

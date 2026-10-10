@@ -67,6 +67,60 @@ not_started = dict(unassigned, status="completed", conclusion="failure",
                    completed_at="2026-10-14T18:00:00Z")
 assert budget.charge_for_job(not_started, run, period, policy, "", "") == 0
 
+# An explicitly GitHub-hosted job that never acquired a runner has no
+# Avrea runtime, even if GitHub's synthetic timing spans several seconds.
+github_startup_failure = dict(
+    not_started, labels=["ubuntu-latest"],
+    created_at="2026-10-14T18:00:00Z",
+    completed_at="2026-10-14T18:00:08Z")
+assert budget.charge_for_job(github_startup_failure, run, period, policy, "", "") == 0
+for labels in (["avrea-ubuntu-latest-8-vcpu"],
+               ["ubuntu-latest", "avrea-ubuntu-latest-8-vcpu"],
+               ["unknown"]):
+    try:
+        budget.charge_for_job(dict(github_startup_failure, labels=labels),
+                              run, period, policy, "", "")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("unassigned ambiguous/Avrea job bypassed budget gate")
+# A job with actual steps or runner assignment does not qualify as never-started.
+assert budget.charge_for_job(dict(github_startup_failure, runner_id=77,
+                                  runner_name="GitHub Actions 77"), run,
+                             period, policy, "", "") == 0
+assert budget.charge_for_job(dict(github_startup_failure, labels=["ubuntu-latest"],
+                                  steps=[{"name": "Set up job"}]), run,
+                             period, policy, "", "") == 4
+
+# GitHub's 2026-10-09 skipped Avrea job 114064134157 has no runner,
+# no steps, but its synthetic completion precedes start by one second.
+skewed_skip = dict(unassigned, status="completed", conclusion="skipped",
+                   created_at="2026-10-09T23:05:28Z",
+                   started_at="2026-10-09T23:05:28Z",
+                   completed_at="2026-10-09T23:05:27Z")
+assert budget.charge_for_job(skewed_skip, run, period, policy, "", "") == 0
+for changed in (
+    dict(skewed_skip, conclusion="failure"),
+    dict(skewed_skip, conclusion="cancelled"),
+):
+    try:
+        budget.charge_for_job(changed, run, period, policy, "", "")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("negative timing for a non-skipped job bypassed Avrea budget")
+# Runner or step assignment remains ambiguous and must fail closed.
+for assigned in (
+    dict(skewed_skip, runner_id=7, runner_name="avrea-worker"),
+    dict(skewed_skip, steps=[{"name": "Set up job"}]),
+):
+    try:
+        budget.charge_for_job(assigned, run, period, policy, "", "")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("assigned Avrea job with reversed timestamps was miscounted")
+
 # Live job 113033122335 was canceled after two hours in the shared queue.
 # Its synthetic start equals creation, with no assigned runner or executed steps.
 queue_cancelled = dict(unassigned, status="completed", conclusion="cancelled",

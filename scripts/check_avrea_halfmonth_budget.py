@@ -17,6 +17,8 @@ import json
 import math
 import os
 import sys
+import time
+from concurrent.futures import ThreadPoolExecutor
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
@@ -96,7 +98,21 @@ def charge_for_job(job, run, period, policy, current_run_id, current_job):
     )
     if unassigned and state in ("queued", "pending", "waiting", "requested"):
         return 0
+    # GitHub-hosted jobs that never received any runner and executed no steps
+    # cannot consume Avrea time, regardless of GitHub's synthetic timestamps.
+    # This exception NEVER applies to Avrea labels or unknown/mixed labels.
+    github_labels = {"ubuntu-latest", "ubuntu-24.04", "ubuntu-22.04"}
+    github_only = bool(labels) and labels <= github_labels
+    if unassigned and github_only and state == "completed" and job.get("conclusion") in (
+        "failure", "startup_failure", "cancelled", "skipped"
+    ):
+        return 0
     if unassigned and state == "completed":
+        # GitHub may report a skipped, never-assigned job with a completion
+        # timestamp preceding its synthetic start timestamp by a second.
+        # A skipped job with no runner and zero steps executes no workload.
+        if job.get("conclusion") == "skipped":
+            return 0
         if job.get("conclusion") in ("cancelled", "skipped", "failure", "startup_failure"):
             started = parse_stamp(job.get("started_at"))
             finished = parse_stamp(job.get("completed_at"))
@@ -114,6 +130,9 @@ def charge_for_job(job, run, period, policy, current_run_id, current_job):
         raise ValueError("completed job lacks runner/step execution evidence")
     started = parse_stamp(job.get("started_at"))
     finished = parse_stamp(job.get("completed_at"))
+    if started and finished and finished < started:
+        # Never turn contradictory assigned-run timing into zero billable time.
+        raise ValueError("assigned job completed before it started")
     if finished and finished <= period["start"]:
         return 0
     if started and started >= period["end"]:
@@ -142,36 +161,81 @@ def charge_for_job(job, run, period, policy, current_run_id, current_job):
     return minutes * (16 if heavy else 4)
 
 
-def request_json(url, token):
+def request_json(url, token, timeout=8):
     req = urllib.request.Request(url, headers={
         "Authorization": "Bearer " + token,
         "Accept": "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28",
         "User-Agent": "expert-robot-half-month-budget",
     })
-    with urllib.request.urlopen(req, timeout=30) as response:
+    with urllib.request.urlopen(req, timeout=timeout) as response:
         return json.load(response)
 
 
-def list_pages(url, token, key, max_pages=30):
-    out = []
-    for page in range(1, max_pages + 1):
-        sep = "&" if "?" in url else "?"
-        response = request_json(url + sep + "per_page=100&page=" + str(page), token)
-        batch = response[key]
-        out.extend(batch)
-        if len(batch) < 100:
-            return out
-    raise RuntimeError("usage enumeration exceeded pagination limit: refusing budget approval")
+def list_pages(url, token, key, max_pages=30, deadline=None):
+    """Bounded parallel enumeration with explicit total-count completeness.
 
+    Only returned data is counted; missing pages, HTTP errors and timeouts
+    block qualification. Parallel requests reduce Avrea runner idle time.
+    """
+    def fetch(page):
+        remaining = (deadline - time.monotonic()) if deadline is not None else 8
+        if remaining <= 0:
+            raise RuntimeError("Avrea usage scan exceeded 75-second hard deadline; fail closed")
+        sep = "&" if "?" in url else "?"
+        return request_json(url + sep + "per_page=100&page=" + str(page), token,
+                            timeout=min(8, max(0.1, remaining)))
+    first = fetch(1)
+    rows = first[key]
+    if type(rows) is not list:
+        raise ValueError("GitHub usage response missing page rows")
+    count = first.get("total_count")
+    if type(count) is not int or count < len(rows) or count < 0:
+        raise ValueError("GitHub usage response missing authoritative total_count")
+    expected_pages = (count + 99) // 100
+    if expected_pages > max_pages:
+        raise RuntimeError("usage enumeration exceeded pagination limit: refusing budget approval")
+    if expected_pages == 0 or expected_pages == 1:
+        if len(rows) != count:
+            raise ValueError("GitHub usage first page incomplete")
+        return rows
+    all_pages = {1: rows}
+    # Request no more than six pages simultaneously. As each batch completes,
+    # re-check the global deadline rather than extending it per page.
+    with ThreadPoolExecutor(max_workers=6) as pool:
+        for offset in range(2, expected_pages+1, 6):
+            if deadline is not None and time.monotonic() >= deadline:
+                raise RuntimeError("Avrea usage scan exceeded 75-second hard deadline; fail closed")
+            futures = {page:pool.submit(fetch,page) for page in
+                       range(offset,min(offset+6,expected_pages+1))}
+            for page, future in futures.items():
+                response = future.result()
+                batch = response[key]
+                if type(batch) is not list or len(batch) != (
+                    100 if page < expected_pages else count - 100*(expected_pages-1)
+                ):
+                    raise ValueError("GitHub usage response incomplete or inconsistent")
+                all_pages[page] = batch
+    out = [item for page in range(1,expected_pages+1)
+           for item in all_pages[page]]
+    if len(out) != count:
+        raise ValueError("GitHub usage enumeration count mismatch")
+    identifiers = [item.get("id") for item in out]
+    if any(i is None for i in identifiers) or len(set(identifiers)) != count:
+        raise ValueError("GitHub usage pages contain missing/duplicate identifiers")
+    return out
 
 def usage_from_github(policy, now, repo, token, current_run_id, current_job):
     period = budget_window(now, policy)
+    # Fail *quickly* if historical usage cannot be established. Never spend
+    # a 10-minute Avrea job timeout simply enumerating GitHub history.
+    deadline = time.monotonic() + 75
     base = f"https://api.github.com/repos/{repo}/actions/runs"
     # A run created before this period can be rerun or leave the queue during
     # it. Filtering by created_at silently omits that consumption. Scan bounded
     # run metadata, then skip only completed runs last updated before the period.
-    runs = list_pages(base, token, "workflow_runs", max_pages=100)
+    runs = list_pages(base, token, "workflow_runs", max_pages=100,
+                      deadline=deadline)
     allowed_workflows = set(policy["avrea_workflow_files"])
     used = 0
     counted = 0
@@ -185,7 +249,8 @@ def usage_from_github(policy, now, repo, token, current_run_id, current_job):
         # GitHub defaults to only the latest attempt, which would omit runtime
         # already spent by earlier attempts after a workflow is rerun.
         jobs_url = f"https://api.github.com/repos/{repo}/actions/runs/{run['id']}/jobs?filter=all"
-        jobs = list_pages(jobs_url, token, "jobs", max_pages=10)
+        jobs = list_pages(jobs_url, token, "jobs", max_pages=10,
+                          deadline=deadline)
         counted += 1
         for job in jobs:
             try:

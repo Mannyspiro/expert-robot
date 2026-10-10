@@ -4,6 +4,10 @@ on:
   pull_request:
     paths:
       - "scripts/intake_biomodels_carbon_metabolism.py"
+      - "scripts/triage_biomodels_consistency.py"
+      - "scripts/test_biomodels_unit_hypothesis.py"
+      - "scripts/test_biomodels_fractional_unit_hypotheses.py"
+      - "tests/research_validation_frontier_smoke.py"
       - ".github/workflows/biochemistry-published-model-intake.yml"
   workflow_dispatch:
 
@@ -37,11 +41,39 @@ jobs:
         run: |
           python3 -m pip install --disable-pip-version-check --no-input --only-binary=:all: 'python-libsbml==5.21.2'
           python3 scripts/intake_biomodels_carbon_metabolism.py --sbml bio-source/BIOMD0000000051/BIOMD0000000051.xml -o /tmp/biomodels-intake.json
+      - name: Preserve exact diagnostic triage even on quarantine
+        if: always()
+        run: |
+          set -euo pipefail
+          test -s /tmp/biomodels-intake.json
+          python3 scripts/triage_biomodels_consistency.py \
+            --intake /tmp/biomodels-intake.json \
+            -o /tmp/biomodels-triage.json
+      - name: Test vENO unit hypothesis in memory only
+        if: always()
+        run: |
+          set -euo pipefail
+          test -s bio-source/BIOMD0000000051/BIOMD0000000051.xml
+          python3 scripts/test_biomodels_unit_hypothesis.py \
+            --sbml bio-source/BIOMD0000000051/BIOMD0000000051.xml \
+            -o /tmp/biomodels-unit-hypothesis.json
+      - name: Trial the two fractional-power unit normalization hypotheses
+        if: always()
+        run: |
+          set -euo pipefail
+          test -s bio-source/BIOMD0000000051/BIOMD0000000051.xml
+          python3 scripts/test_biomodels_fractional_unit_hypotheses.py \
+            --sbml bio-source/BIOMD0000000051/BIOMD0000000051.xml \
+            -o /tmp/biomodels-fractional-unit-hypotheses.json
       - name: Preserve published model audit receipt
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: pinned-biomodels-carbon-source-intake
-          path: /tmp/biomodels-intake.json
+          path: |
+            /tmp/biomodels-intake.json
+            /tmp/biomodels-triage.json
+            /tmp/biomodels-unit-hypothesis.json
+            /tmp/biomodels-fractional-unit-hypotheses.json
           retention-days: 30
           if-no-files-found: warn

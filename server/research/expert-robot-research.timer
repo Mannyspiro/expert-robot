@@ -1,0 +1,13 @@
+[Unit]
+Description=Run one bounded Plesk server research observation daily
+
+[Timer]
+# Phoenix stays UTC-07:00 all year: 16:23 UTC = 09:23 Phoenix.
+OnCalendar=*-*-* 16:23:00 UTC
+Persistent=true
+RandomizedDelaySec=0
+AccuracySec=1min
+Unit=expert-robot-research.service
+
+[Install]
+WantedBy=timers.target
