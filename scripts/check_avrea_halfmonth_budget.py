@@ -17,6 +17,7 @@ import json
 import math
 import os
 import sys
+import time
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
@@ -159,22 +160,26 @@ def charge_for_job(job, run, period, policy, current_run_id, current_job):
     return minutes * (16 if heavy else 4)
 
 
-def request_json(url, token):
+def request_json(url, token, timeout=8):
     req = urllib.request.Request(url, headers={
         "Authorization": "Bearer " + token,
         "Accept": "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28",
         "User-Agent": "expert-robot-half-month-budget",
     })
-    with urllib.request.urlopen(req, timeout=30) as response:
+    with urllib.request.urlopen(req, timeout=timeout) as response:
         return json.load(response)
 
 
-def list_pages(url, token, key, max_pages=30):
+def list_pages(url, token, key, max_pages=30, deadline=None):
     out = []
     for page in range(1, max_pages + 1):
+        remaining = (deadline - time.monotonic()) if deadline is not None else 8
+        if remaining <= 0:
+            raise RuntimeError('Avrea usage scan exceeded 75-second hard deadline; fail closed')
         sep = "&" if "?" in url else "?"
-        response = request_json(url + sep + "per_page=100&page=" + str(page), token)
+        response = request_json(url + sep + "per_page=100&page=" + str(page), token,
+                                timeout=min(8, max(0.1, remaining)))
         batch = response[key]
         out.extend(batch)
         if len(batch) < 100:
@@ -184,11 +189,15 @@ def list_pages(url, token, key, max_pages=30):
 
 def usage_from_github(policy, now, repo, token, current_run_id, current_job):
     period = budget_window(now, policy)
+    # Fail *quickly* if historical usage cannot be established. Never spend
+    # a 10-minute Avrea job timeout simply enumerating GitHub history.
+    deadline = time.monotonic() + 75
     base = f"https://api.github.com/repos/{repo}/actions/runs"
     # A run created before this period can be rerun or leave the queue during
     # it. Filtering by created_at silently omits that consumption. Scan bounded
     # run metadata, then skip only completed runs last updated before the period.
-    runs = list_pages(base, token, "workflow_runs", max_pages=100)
+    runs = list_pages(base, token, "workflow_runs", max_pages=100,
+                      deadline=deadline)
     allowed_workflows = set(policy["avrea_workflow_files"])
     used = 0
     counted = 0
@@ -202,7 +211,8 @@ def usage_from_github(policy, now, repo, token, current_run_id, current_job):
         # GitHub defaults to only the latest attempt, which would omit runtime
         # already spent by earlier attempts after a workflow is rerun.
         jobs_url = f"https://api.github.com/repos/{repo}/actions/runs/{run['id']}/jobs?filter=all"
-        jobs = list_pages(jobs_url, token, "jobs", max_pages=10)
+        jobs = list_pages(jobs_url, token, "jobs", max_pages=10,
+                          deadline=deadline)
         counted += 1
         for job in jobs:
             try:
