@@ -196,6 +196,8 @@ def list_pages(url, token, key, max_pages=30, deadline=None):
     if expected_pages > max_pages:
         raise RuntimeError("usage enumeration exceeded pagination limit: refusing budget approval")
     if expected_pages == 0 or expected_pages == 1:
+        if len(rows) != count:
+            raise ValueError("GitHub usage first page incomplete")
         return rows
     all_pages = {1: rows}
     # Request no more than six pages simultaneously. As each batch completes,
@@ -218,6 +220,9 @@ def list_pages(url, token, key, max_pages=30, deadline=None):
            for item in all_pages[page]]
     if len(out) != count:
         raise ValueError("GitHub usage enumeration count mismatch")
+    identifiers = [item.get("id") for item in out]
+    if any(i is None for i in identifiers) or len(set(identifiers)) != count:
+        raise ValueError("GitHub usage pages contain missing/duplicate identifiers")
     return out
 
 def usage_from_github(policy, now, repo, token, current_run_id, current_job):
