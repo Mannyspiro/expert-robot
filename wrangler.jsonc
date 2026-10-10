@@ -9,7 +9,7 @@
     "bindings": [{"name":"MCP_OBJECT","class_name":"FjordMCP"}]
   },
   "migrations": [{"tag":"v1","new_sqlite_classes":["FjordMCP"]}],
-  "kv_namespaces": [{"binding":"OAUTH_KV","id":"REPLACE_WITH_CLOUDFLARE_FREE_KV_ID"}],
+  "kv_namespaces": [{"binding":"OAUTH_KV","id":"c2c1f61484a749469eb90df478707f50"}],
   "vars": {
     "FORGEJO_ORIGIN": "https://commons.fjord.host",
     "ALLOWED_FORGEJO_LOGIN": "morganaspiro",
