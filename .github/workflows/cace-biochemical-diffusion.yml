@@ -21,10 +21,6 @@ jobs:
       cancel-in-progress: false
       queue: max
     timeout-minutes: 10
-    concurrency:
-      group: expert-robot-research-validation-slot
-      cancel-in-progress: false
-      queue: max
     steps:
       - uses: actions/checkout@v4
         with:
