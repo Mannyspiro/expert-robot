@@ -31,7 +31,7 @@ for case in report['cases']:
     assert len(boundary)==4*(n-1)
     a,b,area=assemble(points,tris)
     assert abs(area-1)<1e-12
-    assert abs(sum(b)-sum(forcing(*p) for p in points)/(n*n))<0.6  # loose only sign/magnitude
+    assert abs(sum(b)-1.0)<1e-11  # Exact continuum integral of f over the unit square
     assert all(abs(sum(row))<1e-12 for row in a)  # Neumann operator before BC
     assert all(abs(a[i][j]-a[j][i])<1e-13 for i in range(len(points)) for j in range(len(points)))
     assert case['residual_inf']<1e-11
