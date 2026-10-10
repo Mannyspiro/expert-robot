@@ -18,6 +18,7 @@ import math
 import os
 import sys
 import time
+from concurrent.futures import ThreadPoolExecutor
 import urllib.error
 import urllib.request
 from datetime import datetime, timezone
@@ -172,20 +173,52 @@ def request_json(url, token, timeout=8):
 
 
 def list_pages(url, token, key, max_pages=30, deadline=None):
-    out = []
-    for page in range(1, max_pages + 1):
+    """Bounded parallel enumeration with explicit total-count completeness.
+
+    Only returned data is counted; missing pages, HTTP errors and timeouts
+    block qualification. Parallel requests reduce Avrea runner idle time.
+    """
+    def fetch(page):
         remaining = (deadline - time.monotonic()) if deadline is not None else 8
         if remaining <= 0:
-            raise RuntimeError('Avrea usage scan exceeded 75-second hard deadline; fail closed')
+            raise RuntimeError("Avrea usage scan exceeded 75-second hard deadline; fail closed")
         sep = "&" if "?" in url else "?"
-        response = request_json(url + sep + "per_page=100&page=" + str(page), token,
-                                timeout=min(8, max(0.1, remaining)))
-        batch = response[key]
-        out.extend(batch)
-        if len(batch) < 100:
-            return out
-    raise RuntimeError("usage enumeration exceeded pagination limit: refusing budget approval")
-
+        return request_json(url + sep + "per_page=100&page=" + str(page), token,
+                            timeout=min(8, max(0.1, remaining)))
+    first = fetch(1)
+    rows = first[key]
+    if type(rows) is not list:
+        raise ValueError("GitHub usage response missing page rows")
+    count = first.get("total_count")
+    if type(count) is not int or count < len(rows) or count < 0:
+        raise ValueError("GitHub usage response missing authoritative total_count")
+    expected_pages = (count + 99) // 100
+    if expected_pages > max_pages:
+        raise RuntimeError("usage enumeration exceeded pagination limit: refusing budget approval")
+    if expected_pages == 0 or expected_pages == 1:
+        return rows
+    all_pages = {1: rows}
+    # Request no more than six pages simultaneously. As each batch completes,
+    # re-check the global deadline rather than extending it per page.
+    with ThreadPoolExecutor(max_workers=6) as pool:
+        for offset in range(2, expected_pages+1, 6):
+            if deadline is not None and time.monotonic() >= deadline:
+                raise RuntimeError("Avrea usage scan exceeded 75-second hard deadline; fail closed")
+            futures = {page:pool.submit(fetch,page) for page in
+                       range(offset,min(offset+6,expected_pages+1))}
+            for page, future in futures.items():
+                response = future.result()
+                batch = response[key]
+                if type(batch) is not list or len(batch) != (
+                    100 if page < expected_pages else count - 100*(expected_pages-1)
+                ):
+                    raise ValueError("GitHub usage response incomplete or inconsistent")
+                all_pages[page] = batch
+    out = [item for page in range(1,expected_pages+1)
+           for item in all_pages[page]]
+    if len(out) != count:
+        raise ValueError("GitHub usage enumeration count mismatch")
+    return out
 
 def usage_from_github(policy, now, repo, token, current_run_id, current_job):
     period = budget_window(now, policy)
