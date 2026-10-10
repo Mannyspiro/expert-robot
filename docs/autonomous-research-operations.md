@@ -60,3 +60,35 @@ Ranked next work:
 
 The project completion estimate remains 22/100 and autonomous operations
 remains 0/5 *verified* points until scheduled execution is observed.
+
+
+## Independent offline receipt audit
+
+A separate verifier at `scripts/verify_autonomous_research_receipt.py` reads
+the policy, one saved receipt, an **independently supplied full source commit**,
+and the experiment module bytes from an exact checkout:
+
+```bash
+python3 scripts/verify_autonomous_research_receipt.py \
+  --root . \
+  --receipt autonomous-research-artifacts/research-episode.json \
+  --source-commit <independently-verified-git-commit-sha>
+python3 -m unittest discover -v -s tests -p 'test_receipt_verifier.py'
+```
+
+The verifier is no-execution/no-network. It checks exact schema and policy,
+source commit identity, experiment module SHA-256, next-route consistency,
+episode identity, bounded size, falsified authority flags, and fixed evidence
+summary shapes. The Python unittest suite provides six offline regression
+groups including altered source bytes, hashes, proof flags and symlink input
+rejection. The verifier is also a separate step in the proposed
+`autonomous-research-operations.yml` workflow. The tests ran locally against
+byte-identical committed sources; **GitHub-hosted CI remains unverified** because
+recent PR jobs failed before reporting execution steps.
+
+**What passing does *not* prove:** A SHA-256 digest without a trusted external
+attestor does not establish that the experiment ran. The verifier has no
+original producer output to independently recompute `result_sha256`, cannot
+prove the science, cannot perform a Lean kernel check or CACE certification, and
+cannot authorize RSI promotion. Treat a structurally consistent receipt as
+a well-formed *claim*, not trusted or independently measured scientific evidence.
