@@ -128,6 +128,9 @@ def charge_for_job(job, run, period, policy, current_run_id, current_job):
         raise ValueError("completed job lacks runner/step execution evidence")
     started = parse_stamp(job.get("started_at"))
     finished = parse_stamp(job.get("completed_at"))
+    if started and finished and finished < started:
+        # Never turn contradictory assigned-run timing into zero billable time.
+        raise ValueError("assigned job completed before it started")
     if finished and finished <= period["start"]:
         return 0
     if started and started >= period["end"]:
