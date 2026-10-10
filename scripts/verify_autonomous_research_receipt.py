@@ -11,6 +11,7 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import subprocess
 
 REPO = 'Mannyspiro/expert-robot'
 SHA40 = re.compile(r'[0-9a-f]{40}\Z')
@@ -62,6 +63,47 @@ def bounded_json(path: Path, limit: int):
 def require(condition, message):
     if not condition:
         raise ValueError(message)
+
+
+def verify_checkout(root: Path, expected_commit: str, module_name: str):
+    """Bind the read-only receipt inputs to a *local* exact Git tree.
+
+    This never fetches, pushes, checks out, or executes repository code. It
+    cannot authenticate the external identity of the supplied commit SHA.
+    """
+    require(isinstance(expected_commit, str) and SHA40.fullmatch(expected_commit) is not None,
+            'expected git commit format')
+    require(not root.is_symlink() and root.is_dir(), 'invalid checkout directory')
+    root = root.resolve()
+
+    def git_bytes(*args):
+        try:
+            result = subprocess.run(['git', '-C', str(root), *args],
+                                    check=True, capture_output=True, timeout=10)
+        except (subprocess.CalledProcessError, OSError, subprocess.TimeoutExpired) as exc:
+            raise ValueError('Git checkout verification failed') from exc
+        require(len(result.stdout) <= 65536, 'oversized Git response')
+        return result.stdout
+
+    try:
+        top = git_bytes('rev-parse', '--show-toplevel').decode('utf-8').strip()
+        actual = git_bytes('rev-parse', '--verify', 'HEAD').decode('ascii').strip()
+    except (ValueError, UnicodeDecodeError) as exc:
+        raise ValueError('cannot resolve exact Git HEAD') from exc
+    require(Path(top).resolve() == root, 'checkout root does not match Git worktree')
+    require(actual == expected_commit, 'checkout HEAD does not equal expected source commit')
+    # Check source files bytewise against the tree, not merely their claimed SHA.
+    paths = ('config/autonomous_research_policy.json',
+             'scripts/' + module_name + '.py',
+             'scripts/verify_autonomous_research_receipt.py')
+    for relative in paths:
+        local = root / relative
+        require(not local.is_symlink() and local.is_file(), 'unsafe checkout input: ' + relative)
+        data = local.read_bytes()
+        require(len(data) <= 65536, 'oversized checkout file: ' + relative)
+        require(data == git_bytes('show', 'HEAD:' + relative),
+                'checked-out source does not match committed bytes: ' + relative)
+    return True
 
 
 def audit(receipt, policy, expected_commit, root: Path):
@@ -160,7 +202,12 @@ def main():
     args = parser.parse_args()
     policy = bounded_json(args.root / 'config/autonomous_research_policy.json', 8192)
     receipt = bounded_json(args.receipt, 65536)
-    print(json.dumps(audit(receipt, policy, args.source_commit, args.root), sort_keys=True))
+    result = audit(receipt, policy, args.source_commit, args.root)
+    module = ROUTES[[r[0] for r in ROUTES].index(result['route'])][1]
+    verify_checkout(args.root, args.source_commit, module)
+    result['checkout_head_verified'] = True
+    result['receipt_source_bytes_match_committed_tree'] = True
+    print(json.dumps(result, sort_keys=True))
 
 
 if __name__ == '__main__':

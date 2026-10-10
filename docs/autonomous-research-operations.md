@@ -92,3 +92,26 @@ original producer output to independently recompute `result_sha256`, cannot
 prove the science, cannot perform a Lean kernel check or CACE certification, and
 cannot authorize RSI promotion. Treat a structurally consistent receipt as
 a well-formed *claim*, not trusted or independently measured scientific evidence.
+
+
+## Exact-Git-checkout source binding (2026-10-10)
+
+The offline verifier now checks local Git HEAD against the independently
+supplied 40-character source commit and verifies the policy file, producer
+module, and verifier file byte-for-byte against the committed Git tree. It
+uses local git rev-parse and git show operations, without network or writes.
+Edited source, incorrect HEAD, or a missing Git worktree fails closed.
+
+Eight standalone local regression tests passed, including mismatched HEAD,
+modified module or policy, and missing Git worktree. This only strengthens
+provenance consistency. It does not certify an experiment, a Lean theorem,
+a CACE numerical result, or autonomous RSI promotion.
+
+GitHub-hosted Actions failures currently occur before a runner is assigned:
+run 38030654840, job 114150708727, has an empty runner_name and steps list.
+This does NOT show an application test failure. Possible causes include the
+private-repository Actions quota, spending restrictions, Actions permission
+configuration, or a GitHub provisioning incident; none are verified yet.
+Review GitHub account billing/Actions usage and repository Actions settings
+without purchasing minutes or increasing any spending limit. Do not blindly
+rerun the blocked jobs until the provision issue is understood.

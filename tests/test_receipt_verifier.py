@@ -5,6 +5,7 @@ import datetime as dt
 import hashlib
 import importlib.util
 import json
+import subprocess
 from pathlib import Path
 import tempfile
 import unittest
@@ -110,6 +111,38 @@ class ReceiptVerification(unittest.TestCase):
         bad['candidate']['result_sha256'] = 'e'*64
         with self.assertRaisesRegex(ValueError, 'result hash disagreement'):
             verifier.audit(bad, POLICY, COMMIT, self.root)
+
+    def test_exact_git_checkout_and_mutation_gate(self):
+        # Minimal local repository; test never opens the network or calls the producer.
+        shutil_source = Path(__file__).resolve().parents[1] / 'scripts' / 'verify_autonomous_research_receipt.py'
+        (self.root / 'scripts/verify_autonomous_research_receipt.py').write_bytes(shutil_source.read_bytes())
+        subprocess.run(['git', '-C', str(self.root), 'init', '-q'], check=True)
+        subprocess.run(['git', '-C', str(self.root), 'config', 'user.name', 'Offline Test'], check=True)
+        subprocess.run(['git', '-C', str(self.root), 'config', 'user.email', 'offline@example.invalid'], check=True)
+        subprocess.run(['git', '-C', str(self.root), 'add', '--',
+                        'config/autonomous_research_policy.json',
+                        'scripts/verify_autonomous_research_receipt.py',
+                        'scripts/experiment_general_reaction_conservation.py'], check=True)
+        subprocess.run(['git', '-C', str(self.root), 'commit', '-q', '-m', 'offline-fixture'], check=True)
+        commit = subprocess.run(['git', '-C', str(self.root), 'rev-parse', 'HEAD'],
+                                check=True, capture_output=True, text=True).stdout.strip()
+        self.assertTrue(verifier.verify_checkout(
+            self.root, commit, 'experiment_general_reaction_conservation'))
+        with self.assertRaisesRegex(ValueError, 'HEAD does not equal expected'):
+            verifier.verify_checkout(self.root, 'f'*40, 'experiment_general_reaction_conservation')
+        mod = self.root / 'scripts/experiment_general_reaction_conservation.py'
+        mod.write_text('# edited after commit\n')
+        with self.assertRaisesRegex(ValueError, 'does not match committed bytes'):
+            verifier.verify_checkout(self.root, commit, 'experiment_general_reaction_conservation')
+        mod.write_text('# synthetic source for checksum fixture\n')
+        policy = self.root/'config/autonomous_research_policy.json'
+        policy.write_text('{}\n')
+        with self.assertRaisesRegex(ValueError, 'does not match committed bytes'):
+            verifier.verify_checkout(self.root, commit, 'experiment_general_reaction_conservation')
+
+    def test_requires_git_worktree_for_cli_provenance(self):
+        with self.assertRaises(ValueError):
+            verifier.verify_checkout(self.root, COMMIT, 'experiment_general_reaction_conservation')
 
     def test_input_file_bounds(self):
         p = self.root/'receipt.json'
