@@ -15,7 +15,7 @@ export function makeApiPath(
   if(kind === "contents") {
     if (!filepath || filepath.length > 300 || filepath.startsWith("/") ||
         filepath.includes("\\") || filepath.includes("%") || filepath.includes("?") ||
-        filepath.split("/").some(p=> !safePart(p))) throw new Error("invalid file path");
+        filepath.split("/").some(p=>!(/^[A-Za-z0-9._-]{1,100}$/.test(p)) || p==="." || p===".." || p.includes(".."))) throw new Error("invalid file path");
     return root+"/contents/"+filepath.split("/").map(encodeURIComponent).join("/");
   }
   throw new Error("unapproved operation");
