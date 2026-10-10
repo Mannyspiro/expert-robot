@@ -1,328 +1,74 @@
-# Expert Robot
+# Expert Robot — Cloudflare Free observer (toy-only)
 
-Expert Robot is a local, modular AI research system designed around a thin Python orchestration layer and a C++ runtime core.
+This is a **separate Cloudflare Worker**. Do not replace or rename the existing
+`cace-app` website Worker. No Fjord, Forgejo, deploy keys, paid products,
+external API, secret, or shell access are required for this program.
 
-## Architecture
+## What it really does
 
-- **Python**: orchestration only
-  - task routing
-  - process supervision
-  - experiment scheduling
-  - generation lifecycle
-  - promotion/rejection decisions from measured results
-- **C++**: everything performance-critical and trusted
-  - artificial interoception + software neuromodulation + personality executive
-  - recursive Lean lemma decomposition and retry
-  - bounded agent swarm + reusable math skills
-  - quality-diversity imagination + independent skeptic gate
-  - persistent local model-server supervision
-  - model adapters / inference backends
-  - tool execution
-  - sandbox interfaces
-  - benchmark runner
-  - verification hooks
-  - artifact/state storage
-  - telemetry
-  - policy enforcement
-  - model lifecycle helpers
+- A fixed daily 16:23 UTC Cron Trigger computes four small **synthetic**
+  reaction-conservation checks using BigInt exact rational arithmetic.
+  Expected left nullities: `[2,1,2,1]`; all residuals: exactly `0`.
+  Mutations check a missing-reactant mass defect of `1/3` and invalid mixed units.
+- Stores one immutable receipt **per UTC day** in a single SQLite-backed
+  Cloudflare Durable Object, which is supported on Workers Free.
+- `GET /health` reports the program's role; `GET /v1/receipts/latest` returns
+  the latest **public synthetic** receipt. No HTTP route can trigger an
+  experiment, modify receipts or update any repository.
+- An outage, duplicate date or inconsistent receipt fails closed.
+- Declares `lean_kernel_checked=false`, `cace_certificate=false`,
+  `production_promotion_authorized=false`, `authority_expanded=false`.
+  Does NOT run the Python experiment suite, CACE solver, Lean, models, RSI,
+  code changes, or independent validation of mathematical claims.
+- Does NOT claim the receipt is tied to the Git source SHA. This is a
+  fixed-JavaScript parity/regression observation, **not** independent proof.
 
-## Initial model roles
+## Validation completed before staging
 
-1. **Controller** — Qwen3.5-4B
-2. **Coder** — Qwen3-Coder-30B-A3B-Instruct
-3. **Learner** — Qwen3-30B-A3B-Base
-4. **Math specialist** — Qwen2.5-Math-7B-Instruct
+`npm test` on local Node 22 ran five checks successfully:
+determinism, exact numerical results, read-only routes, duplicate run,
+digest tamper detection, immutable-day conflicts, schedule rejection.
 
-Model weights are not committed to Git. Exact revisions and local paths belong in configuration.
+`npm install` for Wrangler timed out in the author's environment, so **a live
+Cloudflare runtime build or deployment is not yet verified**. These Node tests
+mock SQLite and Durable Objects; run `wrangler dev --test-scheduled` after
+dependency installation, and inspect the first daily receipt in production.
+No service should be considered operational solely from this source.
 
-## Core safety invariant
+## Free limits and stop conditions
 
-Capability may improve, but authority does not automatically expand.
+Cloudflare Workers Free currently documents 10 ms CPU per HTTP/Cron
+invocation, 100,000 requests/day and 5 Cron Triggers/account. SQLite Durable
+Objects on the Free tier have hard limits; operations fail rather than
+automatically charging paid overages. Verify your account is Workers **Free**;
+do not upgrade or enable paid products. CPU time must be assessed in
+Cloudflare, not assumed from local benchmarks.
 
-Candidate self-improvements must pass:
+Sources:
+https://developers.cloudflare.com/workers/platform/limits/
+https://developers.cloudflare.com/durable-objects/platform/pricing/
+https://developers.cloudflare.com/workers/ci-cd/builds/configuration/
 
-```
-propose
-  -> sandbox
-  -> test
-  -> benchmark
-  -> verify
-  -> compare with parent
-  -> retain or reject
-  -> human/policy promotion gate
-```
+## Mobile deployment (manual approval required)
 
-No candidate generation may silently gain filesystem, network, credential, process, or repository authority.
+The deploy-ready branch is `deploy/cloudflare-research-observer` in
+`Mannyspiro/expert-robot`. It has this Worker at the repository **root**,
+so Cloudflare doesn't need a root-directory override.
 
-## Repository layout
+1. In Cloudflare dashboard: Workers & Pages > Create application >
+   Import a repository > GitHub > `Mannyspiro/expert-robot`.
+2. Name the NEW Worker `expert-robot-observer` (keep `cace-app` untouched).
+   Select production branch `deploy/cloudflare-research-observer`.
+3. Set build command to `npm install && npm test`; deploy command
+   `npx wrangler deploy`. Cloudflare's free tier only.
+4. Review the pending deployment; ensure the runtime is Workers rather than
+   a static `web` asset build. Approve only if it shows the correct
+   `wrangler.jsonc`, `src/worker.mjs` and SQLite Durable Object migration.
+5. After deployment check `https://expert-robot-observer.<your-workers-subdomain>.workers.dev/health`
+   (the subdomain must be confirmed in dashboard, not guessed). After the
+   scheduled UTC run, inspect `/v1/receipts/latest`. A 404 before the
+   first completed scheduled run is expected.
 
-```
-expert-robot/
-├── CMakeLists.txt
-├── config/
-│   └── models.example.json
-├── cpp/
-│   ├── include/expert_robot/
-│   │   ├── cognition/
-│   │   │   ├── controller.hpp
-│   │   │   ├── interoception.hpp
-│   │   │   ├── lemma_factory_bridge.hpp
-│   │   │   ├── neuromodulation.hpp
-│   │   │   └── personality.hpp
-│   │   ├── imagination/
-│   │   │   ├── archive.hpp
-│   │   │   ├── controller.hpp
-│   │   │   ├── idea.hpp
-│   │   │   └── memory.hpp
-│   │   ├── research/
-│   │   │   ├── candidate_verifier.hpp
-│   │   │   ├── engine.hpp
-│   │   │   ├── episode_ledger.hpp
-│   │   │   ├── knowledge_consolidator.hpp
-│   │   │   └── state_machine.hpp
-│   │   ├── skills/
-│   │   │   ├── experimental_skill_store.hpp
-│   │   │   ├── math_skill.hpp
-│   │   │   ├── model_skill_proposer.hpp
-│   │   │   └── skill_ledger.hpp
-│   │   ├── eval/
-│   │   │   └── math_eval.hpp
-│   │   ├── swarm/
-│   │   │   ├── agent.hpp
-│   │   │   ├── aggregator.hpp
-│   │   │   ├── supervisor.hpp
-│   │   │   └── task.hpp
-│   │   ├── formalizer.hpp
-│   │   ├── lemma_factory.hpp
-│   │   ├── model_formalization_proposer.hpp
-│   │   ├── model_lemma_decomposer.hpp
-│   │   ├── model_server.hpp
-│   │   ├── text_generation.hpp
-│   │   ├── protocol.hpp
-│   │   └── runtime.hpp
-│   └── src/
-│       ├── main.cpp
-│       └── runtime.cpp
-├── python/
-│   └── orchestrator.py
-└── tests/
-    └── smoke.py
-```
-
-## Cognition control loop
-
-Expert Robot now has an objective internal-state loop:
-
-```
-runtime / proof / theorem-graph telemetry
-                  |
-                  v
-       artificial interoception
-                  |
-                  v
-      normalized cognitive signals
-                  |
-                  v
-       software neuromodulators
-                  |
-                  +--------------------+
-                  |                    |
-                  v                    v
-        transient affect        logical assessment
-                  |                    |
-                  +---------+----------+
-                            |
-                            v
-                 personality executive
-                            |
-                            v
-                   cognitive action
-                            |
-             +--------------+--------------+
-             |                             |
-             v                             v
-       ordinary search             DECOMPOSE_PROBLEM
-             |                             |
-             |                             v
-             |                   recursive lemma factory
-             |                             |
-             |                     proven child lemmas
-             |                             |
-             +--------------+--------------+
-                            |
-                            v
-              math / code / research agents
-                            |
-                            v
-                           Lean
-```
-
-Interoception measures resource pressure, proof/search stagnation, novelty,
-surprise, uncertainty, route repetition, and verified progress. Software
-neuromodulators turn those measurements into exploration, persistence,
-attention, strategy-switch, and compute-conservation biases.
-
-The initial personality is deliberately **high-openness + high-skepticism**:
-creative enough to search distant representations while demanding external
-evidence. It can select actions such as continue, explore, decompose, seek a
-counterexample, generalize, compress, switch representation, intensify
-verification, or conserve compute.
-
-The integrated `CognitionController` performs the entire deterministic step:
-
-`sensors + logic -> interoception -> neuromodulation -> personality -> action`
-
-When the personality executive selects `DECOMPOSE_PROBLEM`,
-`CognitionLemmaBridge` invokes the bounded recursive lemma factory. The factory
-tries smaller helper lemmas, accepts only Lean-proven child declarations into
-the retry context, and then retries the parent theorem.
-
-These cognition modules may change **how the system searches**, but cannot
-change **what counts as verified**. Lean qualification and authority boundaries
-remain fixed.
-
-See `docs/artificial-interoception.md`,
-`docs/software-neuromodulators.md`, `docs/personality-executive.md`, and
-`docs/recursive-lemma-factory.md`.
-
-## Hybrid mathematical research engine
-
-The cognition system now controls a bounded research swarm instead of routing
-every hard problem to a single prompt.
-
-```
-personality + interoception + neuromodulation
-                    |
-                    v
-             imagination drive
-                    |
-                    v
-        complementary math skills/lenses
-                    |
-                    v
-            divergent agent swarm
-                    |
-                    v
-       novelty + quality-diversity archive
-                    |
-                    v
-          independent skeptic gate
-                    |
-              <= 3 candidates
-                    |
-          +---------+----------+
-          |                    |
-          v                    v
-   experiment/graph     recursive lemma factory
-                               |
-                               v
-                              Lean
-```
-
-Agents and skills are deliberately separate. An **agent** is a specialist
-worker; a **skill** is a reusable mathematical procedure that can be applied by
-a worker. The initial catalog includes analogy transfer, geometry/algebra
-reframing, duality, contradiction, generalization, toy-model reduction,
-boundary probing, spectral/topological reframing, counterfactual analysis,
-explicit construction, and high-leverage lemma generation.
-
-For efficient local inference, Expert Robot can launch one persistent,
-loopback-only `llama-server` for Qwen Math. Lightweight agent subprocesses
-reuse those resident weights. Direct GGUF-per-call mode remains available for
-testing.
-
-The local model is still untrusted: imagination proposes, the skeptic filters,
-C++ enforces budgets/contracts, and Lean decides formal proof acceptance.
-
-See `docs/hybrid-math-engine.md`.
-
-## Verified research episodes
-
-The C++ `MathResearchEngine` now runs a bounded formal-mathematics episode:
-
-```
-formal target
-  -> retrieve
-  -> direct proof
-  -> cognition
-  -> imagination and/or recursive lemmas
-  -> skeptic-approved idea formalization
-  -> helper verification
-  -> parent retry
-  -> target verification
-  -> theorem-graph consolidation
-  -> hash-chained episode lineage
-```
-
-Helper lemmas do **not** complete the episode. Only target-level proof
-verification can move the research state to consolidation/completion.
-
-The engine also includes:
-
-- bounded multi-hop theorem-graph inspiration,
-- experimental-vs-qualified skill stages,
-- model-proposed skills isolated in an experimental store,
-- evaluation-only experimental-skill overlays,
-- per-skill outcome telemetry,
-- baseline-vs-candidate math ablations,
-- strict informal-to-formal theorem-statement proposals,
-- verified theorem-graph persistence, and
-- tamper-detecting SHA-256 event chains.
-
-See `docs/research-engine.md`.
-
-## Compute ladder and cheap preflight
-
-Expert Robot uses a fail-fast compute ladder so expensive qualification runners
-are reserved for work that already passed cheaper checks:
-
-```text
-L0 local/static
- -> L1 railway.new free VM
- -> L2 Railway sandbox/checkpoint/fork
- -> L3 Avrea 8-vCPU CI
- -> L4 Avrea 32-vCPU manual qualification
- -> Lean evidence + repository CI + authority/promotion gate
-```
-
-Railway preflight can reject a candidate, but a pass never grants qualification
-or authority. The machine-readable contract is
-`config/compute_policy.json` and CI enforces its authority boundaries with
-`tests/compute_policy_smoke.py`.
-
-On a Railway free VM:
-
-```bash
-ssh railway.new
-git clone https://github.com/Mannyspiro/expert-robot.git
-cd expert-robot
-git checkout feat/reuse-refactored-fishstick
-bash ./scripts/railway-preflight.sh --bootstrap
-```
-
-The 2 GB worker defaults to one build job and sequential focused tests. See
-`docs/railway-free-worker.md` for the operating model.
-
-## IPC
-
-Python and C++ communicate over newline-delimited JSON on stdin/stdout.
-
-This keeps:
-- the Python surface small,
-- the C++ runtime independently testable,
-- the model/tool boundary explicit,
-- future sandboxing straightforward.
-
-## Build
-
-```bash
-cmake -S . -B build
-cmake --build build -j
-python3 python/orchestrator.py --runtime ./build/expert_robot_runtime
-```
-
-The runtime/controller boundary, local model interfaces, verified proof loop,
-cognition stack, swarm, skill governance, recursive lemma search, and bounded
-research engine are now implemented behind C++ interfaces. The next milestones
-are benchmark corpus expansion, real local-model qualification runs, and
-measured promotion of only the capabilities that improve Lean-verified results.
+Source editing lives under `integrations/cloudflare-observer/` in the
+Expert Robot research branch. Keep production deployment changes reviewed;
+this branch is NOT on the mainline and does not auto-promote science or code.
