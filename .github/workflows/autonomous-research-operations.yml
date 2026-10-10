@@ -9,6 +9,8 @@ on:
     paths:
       - 'scripts/run_autonomous_research_cycle.py'
       - 'tests/autonomous_research_operations_smoke.py'
+      - 'scripts/verify_autonomous_research_receipt.py'
+      - 'tests/test_receipt_verifier.py'
       - 'config/autonomous_research_policy.json'
       - '.github/workflows/autonomous-research-operations.yml'
 
