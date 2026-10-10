@@ -42,21 +42,64 @@ def check_policy(x):
         raise ValueError("untrusted or expanded research policy")
 
 def check_previous(x,today,policy_sha):
+    """Validate low-trust prior routing evidence; this is NOT signed attestation."""
     if x is None:return None
-    if not isinstance(x,dict) or x.get("schema_version")!=1:
-        raise ValueError("invalid prior research receipt")
-    if x.get("repository")!=REPO or x.get("policy_sha256")!=policy_sha:
-        raise ValueError("prior repository/policy mismatch")
+    required={
+      "schema_version","experiment","repository","source_commit","date_utc",
+      "policy_sha256","episode_id","selected_route","prior_receipt_used",
+      "research_evidence","result_sha256","candidate","next_route_recommendation",
+      "conclusion","external_network_used","avrea_credits_reserved",
+      "scientific_truth_or_formal_verification_claimed","promotion_authorized",
+      "authority_expanded"}
+    if not isinstance(x,dict) or set(x)!=required or x.get("schema_version")!=1:
+        raise ValueError("missing or unexpected prior receipt fields")
+    if (x["repository"]!=REPO or x["policy_sha256"]!=policy_sha
+        or x["experiment"]!="offline-autonomous-research-episode-v1"):
+        raise ValueError("prior repository/policy/experiment mismatch")
     name=x.get("selected_route")
-    if name not in ROUTE_IDS or x.get("promotion_authorized") is not False:
-        raise ValueError("unapproved prior route/authority")
-    if not SHA64.fullmatch(str(x.get("result_sha256",""))) or not SHA40.fullmatch(
-       str(x.get("source_commit",""))):
+    if name not in ROUTE_IDS:
+        raise ValueError("unapproved prior route")
+    if (x["promotion_authorized"] is not False or
+        x["authority_expanded"] is not False or
+        x["external_network_used"] is not False or
+        x["scientific_truth_or_formal_verification_claimed"] is not False or
+        type(x["avrea_credits_reserved"]) is not int or
+        x["avrea_credits_reserved"]!=0 or
+        x["conclusion"]!="bounded_offline_experiment_only" or
+        type(x["prior_receipt_used"]) is not bool):
+        raise ValueError("prior receipt claims forbidden execution or authority")
+    if (not SHA64.fullmatch(str(x["result_sha256"]))
+        or not SHA40.fullmatch(str(x["source_commit"]))
+        or not SHA64.fullmatch(str(x["episode_id"]))):
         raise ValueError("missing prior provenance")
     try:last=dt.date.fromisoformat(x["date_utc"])
-    except (ValueError,KeyError,TypeError) as exc:raise ValueError("bad prior date") from exc
+    except (ValueError,KeyError,TypeError) as exc:
+        raise ValueError("bad prior date") from exc
     if last>=today or last<today-dt.timedelta(days=40):
         raise ValueError("prior receipt stale or nonmonotonic")
+    if x["episode_id"]!=digest([
+        x["source_commit"],x["date_utc"],name,policy_sha]):
+        raise ValueError("prior episode identity mismatch")
+    if x["next_route_recommendation"]!=ROUTE_IDS[
+        (ROUTE_IDS.index(name)+1)%len(ROUTE_IDS)]:
+        raise ValueError("prior route recommendation mismatch")
+    c=x["candidate"]
+    if not isinstance(c,dict) or set(c)!={
+        "question","module_sha256","result_sha256","status",
+        "lean_gate","cace_gate","promotion_authorized"}:
+        raise ValueError("invalid prior candidate")
+    if (c["question"]!=ROUTES[ROUTE_IDS.index(name)][3]
+        or c["result_sha256"]!=x["result_sha256"]
+        or not SHA64.fullmatch(str(c["module_sha256"]))
+        or c["status"]!="conjecture_or_counterexample_not_proof"
+        or c["lean_gate"]!="requires_exact_kernel_axiom_audit"
+        or c["cace_gate"]!="requires_independent_residual_certificate"
+        or c["promotion_authorized"] is not False):
+        raise ValueError("candidate provenance or qualification mismatch")
+    if not isinstance(x["research_evidence"],dict) or not x["research_evidence"]:
+        raise ValueError("empty or invalid prior research evidence")
+    if len(encode(x))>65536:
+        raise ValueError("oversized prior receipt")
     return name
 
 def select_route(day,previous):
