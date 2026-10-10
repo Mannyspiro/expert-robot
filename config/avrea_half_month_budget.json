@@ -27,6 +27,8 @@
   },
   "accounting_scope": "Conservative repository-level estimate based on GitHub Actions jobs; Avrea's organization-wide billing usage is authoritative and must be reconciled for other repos",
   "avrea_workflow_files": [
+    "avrea-offline-receipt-qualification.yml",
+    "cace-biochemical-diffusion.yml",
     "cace-contract-extract.yml",
     "cace-fem-nd-contract-verify.yml",
     "cace-nd-bridge-integration.yml",
@@ -42,8 +44,8 @@
     "heavy-qualification.yml",
     "math-benchmark.yml",
     "production-rsi-qualification.yml",
-    "rsi-candidate-qualification.yml",
-    "research-object-modeler.yml"
+    "research-object-modeler.yml",
+    "rsi-candidate-qualification.yml"
   ],
   "estimated_max_run_minutes": {
     "cace-contract-extract.yml": 10,
@@ -62,7 +64,9 @@
     "math-benchmark.yml": 25,
     "production-rsi-qualification.yml": 145,
     "rsi-candidate-qualification.yml": 60,
-    "research-object-modeler.yml": 5
+    "research-object-modeler.yml": 5,
+    "avrea-offline-receipt-qualification.yml": 5,
+    "cace-biochemical-diffusion.yml": 10
   },
   "historical_avrea_workflow_files": [
     "ci.yml",
