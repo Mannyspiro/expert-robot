@@ -74,3 +74,44 @@ Software is furnished to do so, subject to the following conditions:
 The above copyright notice and this permission notice shall be included
 in all copies or substantial portions of the Software.
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
+
+## Cloudflare Git-build settings (avoid accidentally deploying CACE)
+
+**Diagnosed October 9:** The successful deployment to
+`https://cace-app.morganaspiro.workers.dev` showed `pip install .`,
+`Framework: Static`, `Output Directory: web` and only three static files.
+That is the **CACE app**, not the Fjord MCP connector. Preserve it and
+create a **new Worker**.
+
+For **Workers & Pages → Create application → Import a repository**:
+
+| Setting | Exact value |
+| --- | --- |
+| Worker name | `fjord-commons-mcp` (not `cace-app`) |
+| Git provider | GitHub |
+| Repository | `Mannyspiro/expert-robot` (NOT `morganaspim/Cace-app`) |
+| Branch containing connector | `research/evidence-conservation-gates-20261009` |
+| Root directory | `integrations/fjord-cloudflare-mcp` |
+| Framework | Worker / none (do not select Static site or Python) |
+| Build command | `npm install && npm run check && npm test` |
+| Deploy command | `npx wrangler deploy` |
+| Expected entrypoint | `src/index.ts` via the committed `wrangler.jsonc` |
+| Expected Worker endpoint after authorization | `https://fjord-commons-mcp.<assigned-subdomain>.workers.dev/mcp` |
+
+Do **not** trigger the final deploy before:
+- Creating the Cloudflare **free** `OAUTH_KV` namespace and replacing the
+  literal `REPLACE_WITH_CLOUDFLARE_FREE_KV_ID` placeholder in the branch
+  configuration, with independent review.
+- Configuring your **new** Forgejo OAuth application callback and the three
+  Cloudflare runtime secrets, without pasting them into source or chat.
+- Confirming any type-check or test failures are repaired. The connector has
+  not been end-to-end validated on the deployment platform yet.
+
+Cloudflare Git integration uses the root directory to find each service's
+Wrangler configuration and execute its build/deploy commands. Workers' names
+must match their Wrangler `name`. The Cloudflare build logs will change from
+`pip install .` + `Framework: Static` to `npm install`, type checking, and a
+Worker bundle. See:
+https://developers.cloudflare.com/workers/ci-cd/builds/configuration/
+https://developers.cloudflare.com/workers/ci-cd/builds/advanced-setups/
+
