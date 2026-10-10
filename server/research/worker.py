@@ -67,9 +67,7 @@ def require_directory(path):
 
 def assert_remote(repository, expected_url):
     actual=run(["git","-C",str(repository),"remote","get-url","origin"])
-    if actual!=expected_url or not expected_url.startswith(
-       "ssh://git@127.0.0.1:2222/"
-    ) or not expected_url.endswith("/expert-robot.git"):
+    if actual!=expected_url or expected_url not in ("git@github.com:Mannyspiro/expert-robot.git", "ssh://git@github.com/Mannyspiro/expert-robot.git"):
         raise ValueError("origin not approved local private Forgejo SSH mirror")
 
 def validate_receipt(receipt,sha,utc_day):
@@ -116,24 +114,23 @@ def main():
     a.add_argument("--repo",required=True,type=Path,
                    help="Approved local checkout, pulled from private Forgejo")
     a.add_argument("--origin",required=True,
-                   help="Exact ssh://git@127.0.0.1:2222/owner/expert-robot.git")
+                   help="Exact allowlisted GitHub read-only SSH remote")
     a.add_argument("--ref",default="refs/heads/main")
     a.add_argument("--state",type=Path,default=Path("/var/lib/expert-robot/research"))
-    a.add_argument("--image",default="docker.io/library/python:3.12-alpine")
+    a.add_argument("--image",required=True,help="Trusted digest-pinned Python image")
     a.add_argument("--date",help="UTC YYYY-MM-DD, ordinarily omitted")
     ns=a.parse_args()
     if os.geteuid()!=0:
-        raise SystemExit("trusted OCI host worker must run as root for Docker; guest is nobody")
+        raise SystemExit("trusted host worker must run as root for Docker; guest is nobody")
     branch=approved_ref(ns.ref)
-    if not ns.image.startswith("docker.io/library/python:3.12-alpine"):
-        raise ValueError("refusing unknown execution image")
-    # Pin an OCI image digest before production qualification.
+    if not re.fullmatch(r"docker\.io/library/python@sha256:[0-9a-f]{64}",ns.image):
+        raise ValueError("refusing unpinned or unapproved execution image")
     repo=require_directory(ns.repo)
     state=ns.state
     if state.is_symlink():raise ValueError("state cannot be a symlink")
     state.mkdir(parents=True,exist_ok=True,mode=0o700)
     os.chmod(state,0o700)
-    lock=acquire_lock(state/"oci-worker.lock")
+    lock=acquire_lock(state/"research-worker.lock")
     try:
         today=dt.date.fromisoformat(ns.date) if ns.date else dt.datetime.now(dt.timezone.utc).date()
         day=today.isoformat()
