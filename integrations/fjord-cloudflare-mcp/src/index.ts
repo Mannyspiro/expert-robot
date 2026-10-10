@@ -14,7 +14,11 @@ export class FjordMCP extends McpAgent<Env,Record<string,never>,Props> {
       throw new Error("Repository owner not in trusted allowlist");
   };
   this.server.tool("list_repositories","List signed-in user's accessible repositories (read-only)",{},async()=>{
-    return respond(await fetchForgejo(this.props!.accessToken,makeApiPath("userRepos")));
+    const raw=await fetchForgejo(this.props!.accessToken,makeApiPath("userRepos"));
+    const repos=JSON.parse(raw) as Array<{owner?:{login?:string}}>;
+    if(!Array.isArray(repos))throw new Error("invalid Forgejo repository listing");
+    return respond(JSON.stringify(repos.filter(r=>r.owner?.login &&
+      authorizedOwner(r.owner.login,this.env.ALLOWED_REPO_OWNERS))));
   });
   this.server.tool("get_repository","Read repository metadata",{
     owner:z.string().min(1).max(100),repo:z.string().min(1).max(100)
