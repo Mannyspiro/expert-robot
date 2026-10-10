@@ -1,3 +1,4 @@
+// Deploy the isolated Fjord read-only bridge through Cloudflare Workers Builds.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "fjord-commons-mcp",
