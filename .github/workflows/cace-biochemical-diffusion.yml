@@ -13,6 +13,8 @@ on:
       - "tests/cace_chip_p1_manufactured_smoke.py"
       - "scripts/experiment_cace_chip_square_material_p1.py"
       - "tests/cace_chip_square_material_p1_smoke.py"
+      - "scripts/cace_variable_coefficient_p1.py"
+      - "tests/cace_variable_coefficient_p1_smoke.py"
       - "config/cace_fem_nd_contract_pin.json"
       - ".github/workflows/cace-biochemical-diffusion.yml"
   workflow_dispatch:
@@ -46,6 +48,7 @@ jobs:
           python3 tests/cace_chip_refinement_smoke.py
           python3 tests/cace_chip_p1_manufactured_smoke.py
           python3 tests/cace_chip_square_material_p1_smoke.py
+          python3 tests/cace_variable_coefficient_p1_smoke.py
       - name: Prepare read-only CACE deploy-key credentials
         shell: bash
         env:
