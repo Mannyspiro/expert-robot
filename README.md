@@ -1,328 +1,117 @@
-# Expert Robot
+# Free Fjord Commons → ChatGPT MCP Connector (deployment-ready source, not deployed)
 
-Expert Robot is a local, modular AI research system designed around a thin Python orchestration layer and a C++ runtime core.
+**Hosting:** Cloudflare Workers Free + Workers KV Free (no card required).
+**Source:** adapted from Cloudflare's MIT-licensed "remote-mcp-github-oauth" demo.
+**Forgejo host:** https://commons.fjord.host only.
+**Account login allowlist:** morganaspiro; **repository owner allowlist:** the signed-in account and previously supplied Commons namespace.
+**Tools:** five read-only operations, no push, merge, delete or write tools.
+**Credentials:** NO token is embedded in these files. OAuth browser login supplies Forgejo access.
+**Important:** Forgejo OAuth grant scopes have not been verified against this exact
+Fjord 15.0.8 instance. Restricting MCP tools to GET calls does not guarantee an
+upstream OAuth token has only read privileges. Review Forgejo consent scope before
+using with sensitive production repos.
 
-## Architecture
+## Setup (once, when the user is ready)
 
-- **Python**: orchestration only
-  - task routing
-  - process supervision
-  - experiment scheduling
-  - generation lifecycle
-  - promotion/rejection decisions from measured results
-- **C++**: everything performance-critical and trusted
-  - artificial interoception + software neuromodulation + personality executive
-  - recursive Lean lemma decomposition and retry
-  - bounded agent swarm + reusable math skills
-  - quality-diversity imagination + independent skeptic gate
-  - persistent local model-server supervision
-  - model adapters / inference backends
-  - tool execution
-  - sandbox interfaces
-  - benchmark runner
-  - verification hooks
-  - artifact/state storage
-  - telemetry
-  - policy enforcement
-  - model lifecycle helpers
+1. Sign up for [Cloudflare Workers Free](https://dash.cloudflare.com/sign-up/workers).
+   Do not add a payment method, enable a paid subscription, or choose paid AI.
+2. Deploy code under integrations/fjord-cloudflare-mcp using Cloudflare's Git
+   integration or Wrangler. Use the Cloudflare Worker subdomain (no domain purchase).
+3. Create free KV namespace OAUTH_KV and place its ID in wrangler.jsonc.
+4. In signed-in Fjord Forgejo, go to user Settings > Applications >
+   Manage OAuth2 Applications. Register a new application named
+   "Fjord Commons ChatGPT Read-Only" with callback
+   `https://fjord-commons-mcp.<your-cloudflare-subdomain>.workers.dev/callback`.
+   Verify OAuth application feature availability and exact read scopes first.
+5. Configure Cloudflare Worker SECRETS, not repository files or chat:
+   FORGEJO_CLIENT_ID, FORGEJO_CLIENT_SECRET, COOKIE_ENCRYPTION_KEY
+   (random 32+ bytes).
+6. Validate read-only OAuth flow with MCP Inspector using
+   `https://fjord-commons-mcp.<your-subdomain>.workers.dev/mcp`.
+   Verify only `morganaspiro` can authenticate; test rejected identities,
+   attempted owner escaping, and expired state.
+7. ChatGPT plugin connection requires an eligible supported MCP app surface.
+   The user's Plus account may not support registering an arbitrary remote
+   MCP app through developer mode; check Settings > Apps availability first.
+   If supported, create the private MCP app and approve the OAuth login.
+8. Only then call list_repositories and get_repository. Maintain GitHub as
+   source of truth until a private Fjord repo has been migrated and checked.
 
-## Initial model roles
+## Security and quotas
 
-1. **Controller** — Qwen3.5-4B
-2. **Coder** — Qwen3-Coder-30B-A3B-Instruct
-3. **Learner** — Qwen3-30B-A3B-Base
-4. **Math specialist** — Qwen2.5-Math-7B-Instruct
+- The previously pasted access token is **NOT USED** in this integration.
+- Source and upstream token credentials never appear in the repo or chat.
+- Fixed HTTPS origin; manual redirects; capped JSON payloads; read-only tools;
+  account and repository-owner allowlists; one-time OAuth state/CSRF protection.
+- 100,000 Workers requests/day free; 100,000 KV reads/day,
+  1,000 KV writes/day and 1GB storage free (limits change; verify current plan).
+- Cloudflare free usage caps cause operations to fail rather than silently
+  upgrading to paid cloud resources. No external training/paid APIs used.
+- This is an **initial adaptation** and has NOT passed a complete deployed
+  OAuth integration audit. Do not put it into production until you validate
+  consent scopes, callback redirects, actual dependencies, and identity limits.
 
-Model weights are not committed to Git. Exact revisions and local paths belong in configuration.
+## Reproducibility
 
-## Core safety invariant
+`npm install`
+`npm test`
+`npm run check`
+`npm run deploy` (requires Cloudflare sign-in; perform only after verification)
 
-Capability may improve, but authority does not automatically expand.
+Cloudflare upstream: https://github.com/cloudflare/ai/tree/main/demos/remote-mcp-github-oauth
+MIT copyright (c) 2025 Cloudflare, Inc. Notice included below.
 
-Candidate self-improvements must pass:
+## License/NOTICE
 
-```
-propose
-  -> sandbox
-  -> test
-  -> benchmark
-  -> verify
-  -> compare with parent
-  -> retain or reject
-  -> human/policy promotion gate
-```
+MIT License
+Copyright (c) 2025 Cloudflare, Inc.
+Permission is hereby granted, free of charge, to any person obtaining a
+copy of this software and associated documentation files (the "Software"),
+to deal in the Software without restriction, including without limitation
+the rights to use, copy, modify, merge, publish, distribute, sublicense,
+and/or sell copies of the Software, and to permit persons to whom the
+Software is furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included
+in all copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
 
-No candidate generation may silently gain filesystem, network, credential, process, or repository authority.
+## Cloudflare Git-build settings (avoid accidentally deploying CACE)
 
-## Repository layout
+**Diagnosed October 9:** The successful deployment to
+`https://cace-app.morganaspiro.workers.dev` showed `pip install .`,
+`Framework: Static`, `Output Directory: web` and only three static files.
+That is the **CACE app**, not the Fjord MCP connector. Preserve it and
+create a **new Worker**.
 
-```
-expert-robot/
-├── CMakeLists.txt
-├── config/
-│   └── models.example.json
-├── cpp/
-│   ├── include/expert_robot/
-│   │   ├── cognition/
-│   │   │   ├── controller.hpp
-│   │   │   ├── interoception.hpp
-│   │   │   ├── lemma_factory_bridge.hpp
-│   │   │   ├── neuromodulation.hpp
-│   │   │   └── personality.hpp
-│   │   ├── imagination/
-│   │   │   ├── archive.hpp
-│   │   │   ├── controller.hpp
-│   │   │   ├── idea.hpp
-│   │   │   └── memory.hpp
-│   │   ├── research/
-│   │   │   ├── candidate_verifier.hpp
-│   │   │   ├── engine.hpp
-│   │   │   ├── episode_ledger.hpp
-│   │   │   ├── knowledge_consolidator.hpp
-│   │   │   └── state_machine.hpp
-│   │   ├── skills/
-│   │   │   ├── experimental_skill_store.hpp
-│   │   │   ├── math_skill.hpp
-│   │   │   ├── model_skill_proposer.hpp
-│   │   │   └── skill_ledger.hpp
-│   │   ├── eval/
-│   │   │   └── math_eval.hpp
-│   │   ├── swarm/
-│   │   │   ├── agent.hpp
-│   │   │   ├── aggregator.hpp
-│   │   │   ├── supervisor.hpp
-│   │   │   └── task.hpp
-│   │   ├── formalizer.hpp
-│   │   ├── lemma_factory.hpp
-│   │   ├── model_formalization_proposer.hpp
-│   │   ├── model_lemma_decomposer.hpp
-│   │   ├── model_server.hpp
-│   │   ├── text_generation.hpp
-│   │   ├── protocol.hpp
-│   │   └── runtime.hpp
-│   └── src/
-│       ├── main.cpp
-│       └── runtime.cpp
-├── python/
-│   └── orchestrator.py
-└── tests/
-    └── smoke.py
-```
+For **Workers & Pages → Create application → Import a repository**:
 
-## Cognition control loop
+| Setting | Exact value |
+| --- | --- |
+| Worker name | `fjord-commons-mcp` (not `cace-app`) |
+| Git provider | GitHub |
+| Repository | `Mannyspiro/expert-robot` (NOT `morganaspim/Cace-app`) |
+| Branch containing connector | `research/evidence-conservation-gates-20261009` |
+| Root directory | `integrations/fjord-cloudflare-mcp` |
+| Framework | Worker / none (do not select Static site or Python) |
+| Build command | `npm install && npm run check && npm test` |
+| Deploy command | `npx wrangler deploy` |
+| Expected entrypoint | `src/index.ts` via the committed `wrangler.jsonc` |
+| Expected Worker endpoint after authorization | `https://fjord-commons-mcp.<assigned-subdomain>.workers.dev/mcp` |
 
-Expert Robot now has an objective internal-state loop:
+Do **not** trigger the final deploy before:
+- Creating the Cloudflare **free** `OAUTH_KV` namespace and replacing the
+  literal `REPLACE_WITH_CLOUDFLARE_FREE_KV_ID` placeholder in the branch
+  configuration, with independent review.
+- Configuring your **new** Forgejo OAuth application callback and the three
+  Cloudflare runtime secrets, without pasting them into source or chat.
+- Confirming any type-check or test failures are repaired. The connector has
+  not been end-to-end validated on the deployment platform yet.
 
-```
-runtime / proof / theorem-graph telemetry
-                  |
-                  v
-       artificial interoception
-                  |
-                  v
-      normalized cognitive signals
-                  |
-                  v
-       software neuromodulators
-                  |
-                  +--------------------+
-                  |                    |
-                  v                    v
-        transient affect        logical assessment
-                  |                    |
-                  +---------+----------+
-                            |
-                            v
-                 personality executive
-                            |
-                            v
-                   cognitive action
-                            |
-             +--------------+--------------+
-             |                             |
-             v                             v
-       ordinary search             DECOMPOSE_PROBLEM
-             |                             |
-             |                             v
-             |                   recursive lemma factory
-             |                             |
-             |                     proven child lemmas
-             |                             |
-             +--------------+--------------+
-                            |
-                            v
-              math / code / research agents
-                            |
-                            v
-                           Lean
-```
+Cloudflare Git integration uses the root directory to find each service's
+Wrangler configuration and execute its build/deploy commands. Workers' names
+must match their Wrangler `name`. The Cloudflare build logs will change from
+`pip install .` + `Framework: Static` to `npm install`, type checking, and a
+Worker bundle. See:
+https://developers.cloudflare.com/workers/ci-cd/builds/configuration/
+https://developers.cloudflare.com/workers/ci-cd/builds/advanced-setups/
 
-Interoception measures resource pressure, proof/search stagnation, novelty,
-surprise, uncertainty, route repetition, and verified progress. Software
-neuromodulators turn those measurements into exploration, persistence,
-attention, strategy-switch, and compute-conservation biases.
-
-The initial personality is deliberately **high-openness + high-skepticism**:
-creative enough to search distant representations while demanding external
-evidence. It can select actions such as continue, explore, decompose, seek a
-counterexample, generalize, compress, switch representation, intensify
-verification, or conserve compute.
-
-The integrated `CognitionController` performs the entire deterministic step:
-
-`sensors + logic -> interoception -> neuromodulation -> personality -> action`
-
-When the personality executive selects `DECOMPOSE_PROBLEM`,
-`CognitionLemmaBridge` invokes the bounded recursive lemma factory. The factory
-tries smaller helper lemmas, accepts only Lean-proven child declarations into
-the retry context, and then retries the parent theorem.
-
-These cognition modules may change **how the system searches**, but cannot
-change **what counts as verified**. Lean qualification and authority boundaries
-remain fixed.
-
-See `docs/artificial-interoception.md`,
-`docs/software-neuromodulators.md`, `docs/personality-executive.md`, and
-`docs/recursive-lemma-factory.md`.
-
-## Hybrid mathematical research engine
-
-The cognition system now controls a bounded research swarm instead of routing
-every hard problem to a single prompt.
-
-```
-personality + interoception + neuromodulation
-                    |
-                    v
-             imagination drive
-                    |
-                    v
-        complementary math skills/lenses
-                    |
-                    v
-            divergent agent swarm
-                    |
-                    v
-       novelty + quality-diversity archive
-                    |
-                    v
-          independent skeptic gate
-                    |
-              <= 3 candidates
-                    |
-          +---------+----------+
-          |                    |
-          v                    v
-   experiment/graph     recursive lemma factory
-                               |
-                               v
-                              Lean
-```
-
-Agents and skills are deliberately separate. An **agent** is a specialist
-worker; a **skill** is a reusable mathematical procedure that can be applied by
-a worker. The initial catalog includes analogy transfer, geometry/algebra
-reframing, duality, contradiction, generalization, toy-model reduction,
-boundary probing, spectral/topological reframing, counterfactual analysis,
-explicit construction, and high-leverage lemma generation.
-
-For efficient local inference, Expert Robot can launch one persistent,
-loopback-only `llama-server` for Qwen Math. Lightweight agent subprocesses
-reuse those resident weights. Direct GGUF-per-call mode remains available for
-testing.
-
-The local model is still untrusted: imagination proposes, the skeptic filters,
-C++ enforces budgets/contracts, and Lean decides formal proof acceptance.
-
-See `docs/hybrid-math-engine.md`.
-
-## Verified research episodes
-
-The C++ `MathResearchEngine` now runs a bounded formal-mathematics episode:
-
-```
-formal target
-  -> retrieve
-  -> direct proof
-  -> cognition
-  -> imagination and/or recursive lemmas
-  -> skeptic-approved idea formalization
-  -> helper verification
-  -> parent retry
-  -> target verification
-  -> theorem-graph consolidation
-  -> hash-chained episode lineage
-```
-
-Helper lemmas do **not** complete the episode. Only target-level proof
-verification can move the research state to consolidation/completion.
-
-The engine also includes:
-
-- bounded multi-hop theorem-graph inspiration,
-- experimental-vs-qualified skill stages,
-- model-proposed skills isolated in an experimental store,
-- evaluation-only experimental-skill overlays,
-- per-skill outcome telemetry,
-- baseline-vs-candidate math ablations,
-- strict informal-to-formal theorem-statement proposals,
-- verified theorem-graph persistence, and
-- tamper-detecting SHA-256 event chains.
-
-See `docs/research-engine.md`.
-
-## Compute ladder and cheap preflight
-
-Expert Robot uses a fail-fast compute ladder so expensive qualification runners
-are reserved for work that already passed cheaper checks:
-
-```text
-L0 local/static
- -> L1 railway.new free VM
- -> L2 Railway sandbox/checkpoint/fork
- -> L3 Avrea 8-vCPU CI
- -> L4 Avrea 32-vCPU manual qualification
- -> Lean evidence + repository CI + authority/promotion gate
-```
-
-Railway preflight can reject a candidate, but a pass never grants qualification
-or authority. The machine-readable contract is
-`config/compute_policy.json` and CI enforces its authority boundaries with
-`tests/compute_policy_smoke.py`.
-
-On a Railway free VM:
-
-```bash
-ssh railway.new
-git clone https://github.com/Mannyspiro/expert-robot.git
-cd expert-robot
-git checkout feat/reuse-refactored-fishstick
-bash ./scripts/railway-preflight.sh --bootstrap
-```
-
-The 2 GB worker defaults to one build job and sequential focused tests. See
-`docs/railway-free-worker.md` for the operating model.
-
-## IPC
-
-Python and C++ communicate over newline-delimited JSON on stdin/stdout.
-
-This keeps:
-- the Python surface small,
-- the C++ runtime independently testable,
-- the model/tool boundary explicit,
-- future sandboxing straightforward.
-
-## Build
-
-```bash
-cmake -S . -B build
-cmake --build build -j
-python3 python/orchestrator.py --runtime ./build/expert_robot_runtime
-```
-
-The runtime/controller boundary, local model interfaces, verified proof loop,
-cognition stack, swarm, skill governance, recursive lemma search, and bounded
-research engine are now implemented behind C++ interfaces. The next milestones
-are benchmark corpus expansion, real local-model qualification runs, and
-measured promotion of only the capabilities that improve Lean-verified results.
