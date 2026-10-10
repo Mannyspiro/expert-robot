@@ -46,6 +46,48 @@ rejected(lambda:ops.check_previous({**first,"repository":"other/repo"},dt.date(2
 rejected(lambda:ops.check_previous(first,dt.date(2026,10,11),ops.digest(policy)))
 rejected(lambda:ops.check_previous(first,dt.date(2026,12,1),ops.digest(policy)))
 
+
+# Low-trust previous-episode receipts are routing hints, never qualification.
+# Accept only an exact bounded schema, consistent hashes, and fixed authority.
+prior_gate_mutants=[
+ ("authority_expanded",True),("external_network_used",True),
+ ("scientific_truth_or_formal_verification_claimed",True),
+ ("avrea_credits_reserved",1),("avrea_credits_reserved",False),
+ ("conclusion","formally_verified"),("episode_id","0"*64),
+ ("experiment","unregistered"),("prior_receipt_used","false"),
+ ("next_route_recommendation","parser-contract-search"),
+ ("result_sha256","1"*64),("source_commit","a"*40),
+ ("research_evidence",{}),
+]
+for key,value in prior_gate_mutants:
+    rejected(lambda k=key,v=value:ops.check_previous(
+        {**first,k:v},dt.date(2026,10,12),ops.digest(policy)))
+bad=copy.deepcopy(first)
+bad["candidate"]["promotion_authorized"]=True
+rejected(lambda:ops.check_previous(bad,dt.date(2026,10,12),ops.digest(policy)))
+bad=copy.deepcopy(first)
+bad["candidate"]["lean_gate"]="pretend_verified"
+rejected(lambda:ops.check_previous(bad,dt.date(2026,10,12),ops.digest(policy)))
+bad=copy.deepcopy(first)
+bad["candidate"]["result_sha256"]="2"*64
+rejected(lambda:ops.check_previous(bad,dt.date(2026,10,12),ops.digest(policy)))
+bad=copy.deepcopy(first)
+bad["candidate"]["module_sha256"]="not-a-sha"
+rejected(lambda:ops.check_previous(bad,dt.date(2026,10,12),ops.digest(policy)))
+bad=copy.deepcopy(first)
+bad["candidate"]["cace_gate"]="already_certified"
+rejected(lambda:ops.check_previous(bad,dt.date(2026,10,12),ops.digest(policy)))
+rejected(lambda:ops.check_previous(
+    {**first,"new_untrusted_key":"extra"},dt.date(2026,10,12),ops.digest(policy)))
+rejected(lambda:ops.check_previous(
+    {k:v for k,v in first.items() if k!="authority_expanded"},
+    dt.date(2026,10,12),ops.digest(policy)))
+rejected(lambda:ops.check_previous(
+    {**first,"research_evidence":{"bomb":"X"*70000}},
+    dt.date(2026,10,12),ops.digest(policy)))
+# Even a self-consistent-looking forged proof flag cannot advance the route.
+assert first["scientific_truth_or_formal_verification_claimed"] is False
+
 # Synthetic producer fixtures validate the remaining three screening paths.
 fixtures=[
 ("crnt-assumption-search",{
