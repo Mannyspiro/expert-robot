@@ -43,6 +43,11 @@ jobs:
           fetch-depth: 2
           persist-credentials: false
 
+      - name: Enforce Avrea half-month budget
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AVREA_RUNNER_LABEL: avrea-ubuntu-latest-8-vcpu
+        run: python3 scripts/check_avrea_halfmonth_budget.py --reserve-minutes 30 --runner-label "$AVREA_RUNNER_LABEL"
       - name: Prepare deploy key
         id: key
         shell: bash
@@ -625,11 +630,6 @@ jobs:
 
           echo "bridge_branch=$BRIDGE_BRANCH" >> "$GITHUB_OUTPUT"
 
-      - name: Enforce Avrea half-month budget
-        env:
-          GH_TOKEN: ${{ github.token }}
-          AVREA_RUNNER_LABEL: avrea-ubuntu-latest-8-vcpu
-        run: python3 scripts/check_avrea_halfmonth_budget.py --reserve-minutes 30 --runner-label "$AVREA_RUNNER_LABEL"
       - name: Await external free-runner evidence
         id: await
         shell: bash
