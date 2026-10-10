@@ -106,6 +106,11 @@ def charge_for_job(job, run, period, policy, current_run_id, current_job):
     ):
         return 0
     if unassigned and state == "completed":
+        # GitHub may report a skipped, never-assigned job with a completion
+        # timestamp preceding its synthetic start timestamp by a second.
+        # A skipped job with no runner and zero steps executes no workload.
+        if job.get("conclusion") == "skipped":
+            return 0
         if job.get("conclusion") in ("cancelled", "skipped", "failure", "startup_failure"):
             started = parse_stamp(job.get("started_at"))
             finished = parse_stamp(job.get("completed_at"))
