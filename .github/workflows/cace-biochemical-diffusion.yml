@@ -11,10 +11,15 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 jobs:
   cace-sparse-operator-study:
-    runs-on: ubuntu-latest
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    concurrency:
+      group: expert-robot-avrea-half-month-slot
+      cancel-in-progress: false
+      queue: max
     timeout-minutes: 10
     concurrency:
       group: expert-robot-research-validation-slot
@@ -24,6 +29,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+      - name: Enforce Avrea half-month budget before credentials
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 scripts/check_avrea_halfmonth_budget.py \
+            --reserve-minutes 10 \
+            --runner-label avrea-ubuntu-latest-8-vcpu
       - name: Prepare read-only CACE deploy-key credentials
         shell: bash
         env:
