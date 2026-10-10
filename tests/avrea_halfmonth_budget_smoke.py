@@ -67,6 +67,31 @@ not_started = dict(unassigned, status="completed", conclusion="failure",
                    completed_at="2026-10-14T18:00:00Z")
 assert budget.charge_for_job(not_started, run, period, policy, "", "") == 0
 
+# An explicitly GitHub-hosted job that never acquired a runner has no
+# Avrea runtime, even if GitHub's synthetic timing spans several seconds.
+github_startup_failure = dict(
+    not_started, labels=["ubuntu-latest"],
+    created_at="2026-10-14T18:00:00Z",
+    completed_at="2026-10-14T18:00:08Z")
+assert budget.charge_for_job(github_startup_failure, run, period, policy, "", "") == 0
+for labels in (["avrea-ubuntu-latest-8-vcpu"],
+               ["ubuntu-latest", "avrea-ubuntu-latest-8-vcpu"],
+               ["unknown"]):
+    try:
+        budget.charge_for_job(dict(github_startup_failure, labels=labels),
+                              run, period, policy, "", "")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("unassigned ambiguous/Avrea job bypassed budget gate")
+# A job with actual steps or runner assignment does not qualify as never-started.
+assert budget.charge_for_job(dict(github_startup_failure, runner_id=77,
+                                  runner_name="GitHub Actions 77"), run,
+                             period, policy, "", "") == 0
+assert budget.charge_for_job(dict(github_startup_failure, labels=["ubuntu-latest"],
+                                  steps=[{"name": "Set up job"}]), run,
+                             period, policy, "", "") == 4
+
 # Live job 113033122335 was canceled after two hours in the shared queue.
 # Its synthetic start equals creation, with no assigned runner or executed steps.
 queue_cancelled = dict(unassigned, status="completed", conclusion="cancelled",
