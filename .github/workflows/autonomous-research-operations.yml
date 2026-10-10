@@ -11,6 +11,8 @@ on:
       - 'tests/autonomous_research_operations_smoke.py'
       - 'scripts/verify_autonomous_research_receipt.py'
       - 'tests/test_receipt_verifier.py'
+      - 'scripts/experiment_toy_cpu_noninterference.py'
+      - 'tests/toy_cpu_noninterference_smoke.py'
       - 'config/autonomous_research_policy.json'
       - '.github/workflows/autonomous-research-operations.yml'
 
@@ -35,6 +37,7 @@ jobs:
         run: |
           python3 tests/autonomous_research_operations_smoke.py
           python3 -m unittest discover -v -s tests -p 'test_receipt_verifier.py'
+          python3 tests/toy_cpu_noninterference_smoke.py
       - name: Run exactly one offline research episode
         env:
           SOURCE_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
