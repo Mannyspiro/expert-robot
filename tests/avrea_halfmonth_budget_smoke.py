@@ -109,11 +109,17 @@ for changed in (
         pass
     else:
         raise AssertionError("negative timing for a non-skipped job bypassed Avrea budget")
-# Runner or step assignment is billable even when mislabeled 'skipped'.
-assert budget.charge_for_job(dict(skewed_skip, runner_id=7, runner_name="avrea-worker"),
-                             run, period, policy, "", "") != 0
-assert budget.charge_for_job(dict(skewed_skip, steps=[{"name": "Set up job"}]),
-                             run, period, policy, "", "") != 0
+# Runner or step assignment remains ambiguous and must fail closed.
+for assigned in (
+    dict(skewed_skip, runner_id=7, runner_name="avrea-worker"),
+    dict(skewed_skip, steps=[{"name": "Set up job"}]),
+):
+    try:
+        budget.charge_for_job(assigned, run, period, policy, "", "")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("assigned Avrea job with reversed timestamps was miscounted")
 
 # Live job 113033122335 was canceled after two hours in the shared queue.
 # Its synthetic start equals creation, with no assigned runner or executed steps.
