@@ -94,6 +94,7 @@ def verify_checkout(root: Path, expected_commit: str, module_name: str):
     require(actual == expected_commit, 'checkout HEAD does not equal expected source commit')
     # Check source files bytewise against the tree, not merely their claimed SHA.
     paths = ('config/autonomous_research_policy.json',
+             'scripts/run_autonomous_research_cycle.py',
              'scripts/' + module_name + '.py',
              'scripts/verify_autonomous_research_receipt.py')
     for relative in paths:

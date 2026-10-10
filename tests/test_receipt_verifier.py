@@ -116,12 +116,14 @@ class ReceiptVerification(unittest.TestCase):
         # Minimal local repository; test never opens the network or calls the producer.
         shutil_source = Path(__file__).resolve().parents[1] / 'scripts' / 'verify_autonomous_research_receipt.py'
         (self.root / 'scripts/verify_autonomous_research_receipt.py').write_bytes(shutil_source.read_bytes())
+        (self.root / 'scripts/run_autonomous_research_cycle.py').write_text('# fixture driver\n')
         subprocess.run(['git', '-C', str(self.root), 'init', '-q'], check=True)
         subprocess.run(['git', '-C', str(self.root), 'config', 'user.name', 'Offline Test'], check=True)
         subprocess.run(['git', '-C', str(self.root), 'config', 'user.email', 'offline@example.invalid'], check=True)
         subprocess.run(['git', '-C', str(self.root), 'add', '--',
                         'config/autonomous_research_policy.json',
                         'scripts/verify_autonomous_research_receipt.py',
+                        'scripts/run_autonomous_research_cycle.py',
                         'scripts/experiment_general_reaction_conservation.py'], check=True)
         subprocess.run(['git', '-C', str(self.root), 'commit', '-q', '-m', 'offline-fixture'], check=True)
         commit = subprocess.run(['git', '-C', str(self.root), 'rev-parse', 'HEAD'],
@@ -135,6 +137,11 @@ class ReceiptVerification(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'does not match committed bytes'):
             verifier.verify_checkout(self.root, commit, 'experiment_general_reaction_conservation')
         mod.write_text('# synthetic source for checksum fixture\n')
+        driver = self.root / 'scripts/run_autonomous_research_cycle.py'
+        driver.write_text('# tampered driver\n')
+        with self.assertRaisesRegex(ValueError, 'does not match committed bytes'):
+            verifier.verify_checkout(self.root, commit, 'experiment_general_reaction_conservation')
+        driver.write_text('# fixture driver\n')
         policy = self.root/'config/autonomous_research_policy.json'
         policy.write_text('{}\n')
         with self.assertRaisesRegex(ValueError, 'does not match committed bytes'):

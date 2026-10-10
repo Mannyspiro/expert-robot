@@ -115,3 +115,8 @@ configuration, or a GitHub provisioning incident; none are verified yet.
 Review GitHub account billing/Actions usage and repository Actions settings
 without purchasing minutes or increasing any spending limit. Do not blindly
 rerun the blocked jobs until the provision issue is understood.
+
+The exact-tree check additionally includes the research-cycle driver script,
+so a modified orchestrator cannot be hidden behind an otherwise unchanged
+producer-module and policy hash. A mutated-driver negative control passes
+in the standalone offline test suite.
