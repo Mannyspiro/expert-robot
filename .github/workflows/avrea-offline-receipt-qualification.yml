@@ -8,6 +8,9 @@ on:
       - 'scripts/verify_autonomous_research_receipt.py'
       - 'tests/autonomous_research_operations_smoke.py'
       - 'tests/test_receipt_verifier.py'
+      - 'tests/cace_avrea_research_gate_smoke.py'
+      - '.github/workflows/cace-biochemical-diffusion.yml'
+      - '.github/workflows/external-free-runner-bridge.yml'
       - 'config/avrea_half_month_budget.json'
       - 'scripts/check_avrea_halfmonth_budget.py'
   workflow_dispatch:
@@ -45,6 +48,7 @@ jobs:
           set -euo pipefail
           test "$(git rev-parse HEAD)" = "$SOURCE_HEAD"
           python3 tests/autonomous_research_operations_smoke.py
+          python3 tests/cace_avrea_research_gate_smoke.py
           python3 -m unittest discover -v -s tests -p 'test_receipt_verifier.py'
           mkdir -p avrea-receipt-artifacts
           python3 scripts/run_autonomous_research_cycle.py \
