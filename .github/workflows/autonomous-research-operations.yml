@@ -30,7 +30,9 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
           persist-credentials: false
       - name: Enforce local research route and mutation gates
-        run: python3 tests/autonomous_research_operations_smoke.py
+        run: |
+          python3 tests/autonomous_research_operations_smoke.py
+          python3 -m unittest discover -v -s tests -p 'test_receipt_verifier.py'
       - name: Run exactly one offline research episode
         env:
           SOURCE_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
@@ -53,6 +55,14 @@ jobs:
           assert receipt['avrea_credits_reserved']==0
           assert path.stat().st_size<=65536
           PY
+      - name: Independently audit observation receipt against checked-out source
+        env:
+          SOURCE_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          python3 scripts/verify_autonomous_research_receipt.py \
+            --root . \
+            --receipt autonomous-research-artifacts/research-episode.json \
+            --source-commit "$SOURCE_HEAD"
       - name: Preserve source-bound observation receipt
         if: always()
         uses: actions/upload-artifact@v4
