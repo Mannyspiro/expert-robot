@@ -3,15 +3,15 @@ Description=Expert Robot Plesk server research observer (no GitHub Actions)
 Wants=network-online.target docker.service
 After=network-online.target docker.service
 ConditionPathIsDirectory=/opt/expert-robot/git/expert-robot
-ConditionPathExists=/etc/expert-robot-forge/worker.env
+ConditionPathExists=/etc/expert-robot-github/worker.env
 
 [Service]
 Type=oneshot
 User=root
 Group=root
-EnvironmentFile=/etc/expert-robot-forge/worker.env
+EnvironmentFile=/etc/expert-robot-github/worker.env
 WorkingDirectory=/opt/expert-robot/git/expert-robot
-ExecStart=/usr/bin/python3 /opt/expert-robot/worker/worker.py --repo /opt/expert-robot/git/expert-robot --origin ssh://git@127.0.0.1:2222/Mannyspiro/expert-robot.git --ref refs/heads/main --state /var/lib/expert-robot/research
+ExecStart=/usr/bin/python3 /opt/expert-robot/worker/worker.py --repo /opt/expert-robot/git/expert-robot --origin git@github.com:Mannyspiro/expert-robot.git --ref refs/heads/main --state /var/lib/expert-robot/research --image ${WORKER_IMAGE}
 TimeoutStartSec=380
 UMask=0077
 NoNewPrivileges=yes
