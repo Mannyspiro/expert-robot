@@ -9,6 +9,8 @@ on:
       - "tests/cace_chip_electrothermal_smoke.py"
       - "scripts/experiment_cace_chip_refinement.py"
       - "tests/cace_chip_refinement_smoke.py"
+      - "scripts/experiment_cace_chip_p1_manufactured.py"
+      - "tests/cace_chip_p1_manufactured_smoke.py"
       - "config/cace_fem_nd_contract_pin.json"
       - ".github/workflows/cace-biochemical-diffusion.yml"
   workflow_dispatch:
@@ -40,6 +42,7 @@ jobs:
         run: |
           python3 tests/cace_chip_electrothermal_smoke.py
           python3 tests/cace_chip_refinement_smoke.py
+          python3 tests/cace_chip_p1_manufactured_smoke.py
       - name: Prepare read-only CACE deploy-key credentials
         shell: bash
         env:
@@ -65,6 +68,7 @@ jobs:
           git -C "$RUNNER_TEMP/cace-app" checkout --detach "$expected"
           test "$(git -C "$RUNNER_TEMP/cace-app" rev-parse HEAD)" = "$expected"
           printf '%s\n' "$expected" > "$RUNNER_TEMP/cace-bio-source-sha.txt"
+          python3 scripts/verify_cace_fem_nd_contract.py "$RUNNER_TEMP/cace-app"
       - name: Run exact conservation oracle against CACE FEM sparse matrix utilities
         shell: bash
         run: |
@@ -96,6 +100,11 @@ jobs:
             --cace-repo "$RUNNER_TEMP/cace-app" \
             --pin config/cace_fem_nd_contract_pin.json \
             -o "$RUNNER_TEMP/cace-chip-refinement.json"
+      - name: Run pinned CACE P1 manufactured Poisson convergence check
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/experiment_cace_chip_p1_manufactured.py             --cace-repo "$RUNNER_TEMP/cace-app"             --pin config/cace_fem_nd_contract_pin.json             -o "$RUNNER_TEMP/cace-chip-p1-manufactured.json"
       - name: Retain mathematical and pinned source evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -107,6 +116,7 @@ jobs:
             ${{ runner.temp }}/cace-reaction-diffusion.json
             ${{ runner.temp }}/cace-chip-electrothermal.json
             ${{ runner.temp }}/cace-chip-refinement.json
+            ${{ runner.temp }}/cace-chip-p1-manufactured.json
           if-no-files-found: warn
           retention-days: 14
       - name: Destroy deploy-key material
