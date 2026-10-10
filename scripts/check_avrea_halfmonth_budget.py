@@ -96,6 +96,15 @@ def charge_for_job(job, run, period, policy, current_run_id, current_job):
     )
     if unassigned and state in ("queued", "pending", "waiting", "requested"):
         return 0
+    # GitHub-hosted jobs that never received any runner and executed no steps
+    # cannot consume Avrea time, regardless of GitHub's synthetic timestamps.
+    # This exception NEVER applies to Avrea labels or unknown/mixed labels.
+    github_labels = {"ubuntu-latest", "ubuntu-24.04", "ubuntu-22.04"}
+    github_only = bool(labels) and labels <= github_labels
+    if unassigned and github_only and state == "completed" and job.get("conclusion") in (
+        "failure", "startup_failure", "cancelled", "skipped"
+    ):
+        return 0
     if unassigned and state == "completed":
         if job.get("conclusion") in ("cancelled", "skipped", "failure", "startup_failure"):
             started = parse_stamp(job.get("started_at"))
