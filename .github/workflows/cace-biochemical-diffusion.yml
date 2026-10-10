@@ -7,6 +7,8 @@ on:
       - "scripts/experiment_cace_reaction_diffusion_oracle.py"
       - "scripts/experiment_cace_chip_electrothermal.py"
       - "tests/cace_chip_electrothermal_smoke.py"
+      - "scripts/experiment_cace_chip_refinement.py"
+      - "tests/cace_chip_refinement_smoke.py"
       - "config/cace_fem_nd_contract_pin.json"
       - ".github/workflows/cace-biochemical-diffusion.yml"
   workflow_dispatch:
@@ -35,7 +37,9 @@ jobs:
             --reserve-minutes 10 \
             --runner-label avrea-ubuntu-latest-8-vcpu
       - name: Test synthetic chip electrothermal physics before key access
-        run: python3 tests/cace_chip_electrothermal_smoke.py
+        run: |
+          python3 tests/cace_chip_electrothermal_smoke.py
+          python3 tests/cace_chip_refinement_smoke.py
       - name: Prepare read-only CACE deploy-key credentials
         shell: bash
         env:
@@ -84,6 +88,14 @@ jobs:
             --cace-repo "$RUNNER_TEMP/cace-app" \
             --pin config/cace_fem_nd_contract_pin.json \
             -o "$RUNNER_TEMP/cace-chip-electrothermal.json"
+      - name: Check refined chip sheets with pinned CACE sparse codec
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/experiment_cace_chip_refinement.py \
+            --cace-repo "$RUNNER_TEMP/cace-app" \
+            --pin config/cace_fem_nd_contract_pin.json \
+            -o "$RUNNER_TEMP/cace-chip-refinement.json"
       - name: Retain mathematical and pinned source evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -94,6 +106,7 @@ jobs:
             ${{ runner.temp }}/cace-bio-diffusion.json
             ${{ runner.temp }}/cace-reaction-diffusion.json
             ${{ runner.temp }}/cace-chip-electrothermal.json
+            ${{ runner.temp }}/cace-chip-refinement.json
           if-no-files-found: warn
           retention-days: 14
       - name: Destroy deploy-key material
