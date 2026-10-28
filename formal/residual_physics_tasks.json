@@ -63,8 +63,8 @@
     }
   ],
   "current_repo_scan": {
-    "result": "No task-specific formalization for the original physical claims has been confirmed. A separate workplan and dependency-free toy-baseline script now exist, but they are explicitly nonphysical smoke tests; all four original task statuses remain not_yet_formalized.",
-    "next_step": "Run the toy script and archive JSON evidence; then obtain/pin the actual scientific equations, model choices, inputs and datasets before formalizing or reproducing any physical result."
+    "result": "No task-specific formalization for the original physical claims has been confirmed. The repository now contains toy FRG, affine fixed-point, Gaussian-MCMC, Bell-pair entropy, and exact finite-dimensional Haar-random-state Page-curve baselines plus recorded local smoke-test outputs. These are method checks only; all four original physical task statuses remain not_yet_formalized.",
+    "next_step": "For each task, pin the exact literature target and its equations/settings/data; run an independent reproduction. The exact Page formula baseline is not a substitute for the specified lattice model. Run the repository scripts on the approved runner only after the active benchmark resolves."
   },
   "candidate_baselines": {
     "status": "toy_only_not_physical_results",
@@ -74,7 +74,8 @@
       "FRG scalar beta(g) = -g + g^2 with exact fixed points 0 and 1 and explicit-Euler convergence comparison",
       "Finite product-of-Bell-pairs entropy baseline with S = k log(2) for k pairs crossing the bipartition",
       "Two-dimensional affine fixed-point example with residual checks and exact eigenvalue formula",
-      "Seeded random-walk Metropolis sampler for a standard-normal toy target"
+      "Seeded random-walk Metropolis sampler for a standard-normal toy target",
+      "Exact finite-dimensional Haar-random-state Page entropy formula evaluated for all bipartitions of an 8-qubit system; not a dynamical lattice Page curve"
     ],
     "promotion_rule": "These baselines test methods and reproducibility only. They do not satisfy the original physics-task acceptance criteria and must not be promoted as physical findings.",
     "local_formula_checks": {
@@ -91,6 +92,15 @@
       "gaussian_mcmc_sample_mean": 0.0024683340931097014,
       "gaussian_mcmc_sample_variance": 0.9841430937883237,
       "note": "Calculated in an independent local check of the formulas/algorithm; the repository script still requires a runner execution for artifact-level qualification."
+    },
+    "page_curve_script": "research/residual_physics/page_curve_exact_baseline.py",
+    "page_curve_output": "research/residual_physics/page_curve_exact_baseline_20261028.json",
+    "references": {
+      "frg_methodology": "https://doi.org/10.1103/PhysRevD.111.096022",
+      "lattice_page_curve_candidate": "https://doi.org/10.1103/PhysRevD.110.014505",
+      "gravity_flow_methodology": "https://doi.org/10.1103/PhysRevD.106.106022",
+      "cosmology_public_data": "https://irsa.ipac.caltech.edu/data/Planck/release_3/ancillary-data/",
+      "cosmology_sampler_docs": "https://github.com/CobayaSampler/cobaya/blob/master/docs/likelihood_planck.rst"
     }
   }
 }
