@@ -19,6 +19,7 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: read
   contents: read
 
 concurrency:
@@ -28,6 +29,10 @@ concurrency:
 jobs:
   dispatch:
     runs-on: avrea-ubuntu-latest-8-vcpu
+    concurrency:
+      group: expert-robot-avrea-half-month-slot
+      cancel-in-progress: false
+      queue: max
     timeout-minutes: 30
 
     steps:
@@ -37,6 +42,11 @@ jobs:
           fetch-depth: 2
           persist-credentials: false
 
+      - name: Enforce Avrea half-month budget
+        env:
+          GH_TOKEN: ${{ github.token }}
+          AVREA_RUNNER_LABEL: avrea-ubuntu-latest-8-vcpu
+        run: python3 scripts/check_avrea_halfmonth_budget.py --reserve-minutes 30 --runner-label "$AVREA_RUNNER_LABEL"
       - name: Prepare deploy key
         id: key
         shell: bash
@@ -68,15 +78,14 @@ jobs:
         run: |
           set -euo pipefail
 
-          request_id="expert-robot-$GITHUB_RUN_ID-$GITHUB_SHA"
+          source_commit="$(git rev-parse --verify HEAD)"
+          test "$source_commit" = "$GITHUB_SHA"
+          request_id="expert-robot-$GITHUB_RUN_ID-$source_commit"
           archive="$RUNNER_TEMP/expert-robot-source.tar.gz"
 
-          tar \
-            --exclude='./build' \
-            --exclude='./build-*' \
-            --exclude='./formal/.lake' \
-            --exclude='./.git' \
-            -czf "$archive" .
+          # A tracked HEAD archive cannot accidentally include untracked .env
+          # files, SSH keys, temporary runner credentials or build outputs.
+          git archive --format=tar "$source_commit" | gzip -n -c > "$archive"
 
           size_bytes="$(stat -c %s "$archive")"
           max_bytes=$((25 * 1024 * 1024))
@@ -85,7 +94,9 @@ jobs:
             exit 1
           fi
 
-          sha256sum "$archive"
+          archive_sha256="$(sha256sum "$archive" | awk '{print $1}')"
+          echo "archive_sha256=$archive_sha256" >> "$GITHUB_OUTPUT"
+          echo "source_commit=$source_commit" >> "$GITHUB_OUTPUT"
           echo "request_id=$request_id" >> "$GITHUB_OUTPUT"
           echo "archive=$archive" >> "$GITHUB_OUTPUT"
           echo "size_bytes=$size_bytes" >> "$GITHUB_OUTPUT"
@@ -96,7 +107,6 @@ jobs:
         env:
           RUNNER_REPO_SSH: git@github.com:morganaspim/Cace-app.git
           BRIDGE_BRANCH: executor/expert-robot-bridge
-          CACE_PIN: 0e7aa229d3bb57174e281b883ee8af5445f15f75
           REQUEST_ID: ${{ steps.package.outputs.request_id }}
           ARCHIVE: ${{ steps.package.outputs.archive }}
         run: |
@@ -109,16 +119,15 @@ jobs:
             git clone "$RUNNER_REPO_SSH" "$work"
 
           cd "$work"
-          git cat-file -e "$CACE_PIN^{commit}"
-          git checkout -B "$BRIDGE_BRANCH" "$CACE_PIN"
-          test "$(git rev-parse HEAD)" = "$CACE_PIN"
+          default_ref="$(git symbolic-ref --short refs/remotes/origin/HEAD)"
+          git checkout -B "$BRIDGE_BRANCH" "$default_ref"
 
           mkdir -p bridge .github/workflows
           rm -f bridge/expert-robot-source.tar.gz bridge/result.json bridge/result.log
 
           cp "$ARCHIVE" bridge/expert-robot-source.tar.gz
 
-          python3 - "$REQUEST_ID" "$GITHUB_SHA" "${{ steps.package.outputs.size_bytes }}" "$GITHUB_REF_NAME" > bridge/request.json <<'PY'
+          python3 - "$REQUEST_ID" "${{ steps.package.outputs.source_commit }}" "${{ steps.package.outputs.size_bytes }}" "$GITHUB_REF_NAME" "${{ steps.package.outputs.archive_sha256 }}" > bridge/request.json <<'PY'
           import json
           import sys
 
@@ -127,6 +136,7 @@ jobs:
               "request_id": sys.argv[1],
               "expert_robot_commit": sys.argv[2],
               "archive_size_bytes": int(sys.argv[3]),
+              "archive_sha256": sys.argv[5],
               "source_branch": sys.argv[4],
               "return_repository": "Mannyspiro/expert-robot",
               "requested_lane": "cace-oci-aarch64",
@@ -207,11 +217,21 @@ jobs:
                     # Reject path traversal, links, devices, and other archive
                     # members that could escape the temporary extraction root.
                     python3 - bridge/expert-robot-source.tar.gz <<'PY' | tee -a "$log"
+                    import hashlib
+                    import json
                     import pathlib
+                    import re
                     import sys
                     import tarfile
 
                     archive = pathlib.Path(sys.argv[1])
+                    request = json.loads(pathlib.Path("bridge/request.json").read_text())
+                    if (request.get("schema_version") != 2 or
+                            not re.fullmatch(r"[0-9a-f]{40}", str(request.get("expert_robot_commit", ""))) or
+                            not re.fullmatch(r"[0-9a-f]{64}", str(request.get("archive_sha256", ""))) or
+                            request.get("archive_size_bytes") != archive.stat().st_size or
+                            hashlib.sha256(archive.read_bytes()).hexdigest() != request["archive_sha256"]):
+                        raise SystemExit("source archive or request integrity mismatch")
                     with tarfile.open(archive, "r:gz") as tf:
                         for member in tf.getmembers():
                             path = pathlib.PurePosixPath(member.name)
