@@ -361,6 +361,20 @@
         "lean_verified"
       ],
       "uses": []
+    },
+    {
+      "name": "MathAI.Research.affine_root_unique",
+      "source": "MathAI/Research/ResidualFoundations.lean",
+      "status": "verified",
+      "statement": "For a nonzero rational coefficient a, the affine equation a*x + b = 0 has at most one rational root.",
+      "domain": "algebra",
+      "tags": [
+        "exact_algebra",
+        "fixed_point_foundation",
+        "uniqueness",
+        "lean_verified"
+      ],
+      "uses": []
     }
   ]
 }
