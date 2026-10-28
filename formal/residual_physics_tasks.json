@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "title": "Residual physics research claims — Lean qualification ledger",
+  "created_utc": "2026-10-27",
+  "policy": {
+    "proof_standard": "A claim is verified only when its exact statement compiles in the pinned Lean environment and is included in the audited root; numerical evidence alone is not a Lean proof.",
+    "no_placeholders": "Do not mark a task verified from an assumed result, an unexecuted numerical calculation, sorry/admit, or an axiom added for the target claim.",
+    "qualification_only": true,
+    "authority_expansion": false
+  },
+  "environment": {
+    "repository": "Mannyspiro/expert-robot",
+    "branch": "feat/residual-lean-audit-20261027",
+    "lean_toolchain": "leanprover/lean4:v4.34.0",
+    "mathlib_revision": "5ed2965256430c3649e86755f9576b54eca72435",
+    "runner_lane": "avrea-ubuntu-latest-8-vcpu",
+    "railway_required": false
+  },
+  "tasks": [
+    {
+      "id": "frg-numerical-confirmation",
+      "label": "Numerical FRG confirmation",
+      "status": "not_yet_formalized",
+      "needed": [
+        "Pin the flow equation, regulator, truncation, boundary conditions, and parameter conventions.",
+        "Provide reproducible numerical solution data with convergence and precision checks.",
+        "Formalize only exact mathematical statements derivable from the specification; keep floating-point results as externally checked evidence unless their error bounds are proved."
+      ],
+      "acceptance": "A reproducible numerical artifact plus at least one nontrivial theorem about the specified discretization or certified bounds, compiled in Lean."
+    },
+    {
+      "id": "lattice-page-curve",
+      "label": "Lattice Page-curve evaluation",
+      "status": "not_yet_formalized",
+      "needed": [
+        "Pin the lattice model, state preparation, subsystem partition, entropy definition, and finite-size conventions.",
+        "Supply independently reproducible entropy data and finite-size/error analysis.",
+        "Encode exact finite-dimensional identities and any proven bounds in Lean without asserting a continuum limit absent a proof."
+      ],
+      "acceptance": "Exact finite-lattice theorem(s) compile in Lean and numerical results carry reproducible inputs and uncertainty analysis."
+    },
+    {
+      "id": "sm-shifted-fixed-point",
+      "label": "Standard-Model-shifted fixed-point coordinates",
+      "status": "not_yet_formalized",
+      "needed": [
+        "Pin beta functions, scheme, truncation, Standard Model parameter inputs, and coordinate normalization.",
+        "Reproduce the fixed-point solve and Jacobian/stability calculation independently.",
+        "Formalize algebraic identities or certified interval claims for the specified system."
+      ],
+      "acceptance": "Pinned equations and inputs, reproduced coordinates with uncertainty/stability checks, and compiled Lean theorems for exact or interval-certified claims."
+    },
+    {
+      "id": "cosmological-mcmc",
+      "label": "Cosmological MCMC",
+      "status": "not_yet_formalized",
+      "needed": [
+        "Pin likelihoods, priors, datasets/releases, nuisance parameters, sampler, seed policy, and convergence criteria.",
+        "Reproduce chains and diagnostics; do not treat sampled posterior estimates as deductive proofs.",
+        "Use Lean for exact likelihood/prior identities or proved sampler invariants where appropriate."
+      ],
+      "acceptance": "Reproducible chain artifacts and diagnostics plus clearly scoped Lean proofs of exact mathematical properties; posterior summaries remain empirical."
+    }
+  ],
+  "current_repo_scan": {
+    "result": "No task-specific formalization has been confirmed by this ledger commit. Existing formal package qualification is used to verify the current Lean project and theorem audit; this is not evidence that the four research claims themselves are proved.",
+    "next_step": "Inspect runner logs, then add task-specific definitions and theorems only after source equations, numerical artifacts, and assumptions are pinned."
+  }
+}
