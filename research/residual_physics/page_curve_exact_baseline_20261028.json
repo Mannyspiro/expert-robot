@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "scope": "exact finite-dimensional Haar-random-state Page curve; not a dynamical lattice Page curve",
+  "formula": "H_(m*n) - H_n - (m-1)/(2*n), m=min(dim_A,dim_B), n=max(dim_A,dim_B)",
+  "entropy_unit": "nats",
+  "total_qubits": 8,
+  "points": [
+    {
+      "total_qubits": 8,
+      "subsystem_qubits": 0,
+      "dim_A": 1,
+      "dim_B": 256,
+      "expected_entropy_nats": 0,
+      "max_entropy_nats": 0,
+      "deficit_from_max_nats": 0
+    },
+    {
+      "total_qubits": 8,
+      "subsystem_qubits": 1,
+      "dim_A": 2,
+      "dim_B": 128,
+      "expected_entropy_nats": 0.6872916202281072,
+      "max_entropy_nats": 0.6931471805599453,
+      "deficit_from_max_nats": 0.0058555603318380944
+    },
+    {
+      "total_qubits": 8,
+      "subsystem_qubits": 2,
+      "dim_A": 4,
+      "dim_B": 64,
+      "expected_entropy_nats": 1.3570165591115106,
+      "max_entropy_nats": 1.3862943611198906,
+      "deficit_from_max_nats": 0.029277802008379927
+    },
+    {
+      "total_qubits": 8,
+      "subsystem_qubits": 3,
+      "dim_A": 8,
+      "dim_B": 32,
+      "expected_entropy_nats": 1.9564747673807599,
+      "max_entropy_nats": 2.0794415416798357,
+      "deficit_from_max_nats": 0.12296677429907588
+    },
+    {
+      "total_qubits": 8,
+      "subsystem_qubits": 4,
+      "dim_A": 16,
+      "dim_B": 16,
+      "expected_entropy_nats": 2.2748659695882867,
+      "max_entropy_nats": 2.772588722239781,
+      "deficit_from_max_nats": 0.49772275265149446
+    },
+    {
+      "total_qubits": 8,
+      "subsystem_qubits": 5,
+      "dim_A": 32,
+      "dim_B": 8,
+      "expected_entropy_nats": 1.9564747673807599,
+      "max_entropy_nats": 2.0794415416798357,
+      "deficit_from_max_nats": 0.12296677429907588
+    },
+    {
+      "total_qubits": 8,
+      "subsystem_qubits": 6,
+      "dim_A": 64,
+      "dim_B": 4,
+      "expected_entropy_nats": 1.3570165591115106,
+      "max_entropy_nats": 1.3862943611198906,
+      "deficit_from_max_nats": 0.029277802008379927
+    },
+    {
+      "total_qubits": 8,
+      "subsystem_qubits": 7,
+      "dim_A": 128,
+      "dim_B": 2,
+      "expected_entropy_nats": 0.6872916202281072,
+      "max_entropy_nats": 0.6931471805599453,
+      "deficit_from_max_nats": 0.0058555603318380944
+    },
+    {
+      "total_qubits": 8,
+      "subsystem_qubits": 8,
+      "dim_A": 256,
+      "dim_B": 1,
+      "expected_entropy_nats": 0,
+      "max_entropy_nats": 0,
+      "deficit_from_max_nats": 0
+    }
+  ],
+  "checks": {
+    "left_right_symmetry_max_abs_error": 0,
+    "peak_subsystem_qubits": 4,
+    "peak_is_balanced_partition": true,
+    "endpoints_zero": true
+  },
+  "qualification": "Generated from formula values; repository script execution on Avrea still pending. Not physical lattice evidence."
+}
