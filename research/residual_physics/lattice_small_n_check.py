@@ -33,12 +33,13 @@ def build_hamiltonian(n_sites: int, g2a: float = 1.6, a: float = 1.0) -> np.ndar
     return H
 
 
-def entropy_of_pure_state(psi: np.ndarray, n_sites: int, n_a: int) -> tuple[float, float, float]:
-    dim_a, dim_b = 1 << n_a, 1 << (n_sites - n_a)
+def entropy_of_pure_state(psi: np.ndarray, n_sites: int, a_sites: list[int]) -> tuple[float, float, float]:
+    b_sites = [i for i in range(n_sites) if i not in set(a_sites)]
+    dim_a, dim_b = 1 << len(a_sites), 1 << len(b_sites)
     amplitudes = np.empty((dim_a, dim_b), dtype=np.complex128)
     for state, amp in enumerate(psi):
-        a_idx = state & (dim_a - 1)
-        b_idx = state >> n_a
+        a_idx = sum(((state >> site) & 1) << j for j, site in enumerate(a_sites))
+        b_idx = sum(((state >> site) & 1) << j for j, site in enumerate(b_sites))
         amplitudes[a_idx, b_idx] = amp
     rho_a = amplitudes @ amplitudes.conj().T
     rho_a = (rho_a + rho_a.conj().T) / 2
@@ -58,9 +59,10 @@ def run(n_sites: int = 4) -> dict:
     norm_errors = [abs(float(np.vdot(eigvecs[:, k], eigvecs[:, k]).real) - 1.0) for k in range(len(eigvals))]
     entropies, rho_trace_errors, rho_min_eigs = [], [], []
     cut = n_sites // 2
+    a_sites, b_sites = list(range(cut)), list(range(cut, n_sites))
     for idx in (0, len(eigvals)//2, len(eigvals)-1):
-        s_a, tr_a, min_a = entropy_of_pure_state(eigvecs[:, idx], n_sites, cut)
-        s_b, tr_b, min_b = entropy_of_pure_state(eigvecs[:, idx], n_sites, n_sites-cut)
+        s_a, tr_a, min_a = entropy_of_pure_state(eigvecs[:, idx], n_sites, a_sites)
+        s_b, tr_b, min_b = entropy_of_pure_state(eigvecs[:, idx], n_sites, b_sites)
         entropies.append({"eigenstate_index": idx, "energy": float(eigvals[idx]), "entropy_A_nats": s_a, "entropy_B_nats": s_b, "entropy_difference": abs(s_a-s_b)})
         rho_trace_errors.extend([tr_a, tr_b])
         rho_min_eigs.extend([min_a, min_b])
