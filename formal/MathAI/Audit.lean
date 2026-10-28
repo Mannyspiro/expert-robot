@@ -82,3 +82,6 @@ kernel-visible axiom dependencies for review.
 
 #check MathAI.Geometry.validLine_of_pointOnLine
 #print axioms MathAI.Geometry.validLine_of_pointOnLine
+
+#check MathAI.Research.affine_root_unique
+#print axioms MathAI.Research.affine_root_unique
