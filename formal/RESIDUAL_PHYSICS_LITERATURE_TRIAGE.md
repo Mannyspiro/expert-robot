@@ -52,3 +52,23 @@ No source has yet been identified that uniquely specifies the intended coupled b
 ## Evidence policy
 
 Each task must separately report: source equation/data provenance; independent code and environment; raw numerical output; convergence/residual checks; comparison with published values; and limits on physical interpretation. No promotion based only on toy tests or a plausible-looking curve.
+
+
+## Verified equation transcription: lattice Ising-limit target
+
+The source PDF was opened directly and the equation was checked against its rendered text at PDF page 2 (journal page 014505-2), Eq. (2). For the periodic Ising-limit chain with local truncation j_max = 1/2, the paper gives
+
+\[
+H=\sum_{i=0}^{N-1}\left(J\sigma_i^z\sigma_{i+1}^z-2J\sigma_i^z+h_x\nu_i\sigma_i^x\right),
+\qquad J=-\frac{3g^2}{16},\qquad h_x=(ag)^{-2},
+\]
+\[
+\nu_i=\left(\frac{1}{\sqrt{2}}\right)^{\sigma_{i-1}^z+\sigma_{i+1}^z},
+\qquad \sigma_N^z=\sigma_0^z.
+\]
+
+The PDF's extracted text had rendered the numerator 1 as an “i”; the source equation is the real positive base 1/sqrt(2), not the imaginary unit. This transcription is now resolved from the source page rather than guessed from the OCR string.
+
+Appendix A (PDF pages 6–7) confirms that for j_max = 1/2 and the no-winding sector, the Ising spin-site partition is the simplified entanglement calculation; it does not license extending results to j_max > 1/2. The paper's larger published benchmark uses a periodic N=17 chain in the k=0 sector at g^2 a=1.6 and reports a scarred state at excitation energy E-E0=24.419 with half-chain entropy 3.42 nats (PDF journal page 014505-5). That target is too large for a naive full 2^N dense diagonalization and requires the paper's momentum-sector construction to compare directly.
+
+**Bounded next reproduction:** implement a small-N periodic Ising-limit Hamiltonian first, with explicit unit convention, and verify Hermiticity, periodic neighbor indexing, eigenpair residuals, normalized eigenvectors, reduced-density trace/positivity, and S(A)=S(B). Treat small-N output as an implementation test only. A direct comparison to the paper's N=17/k=0 scar result requires translation-sector reduction and the source's precise basis conventions; do not claim it from a smaller full-spin-chain run.
