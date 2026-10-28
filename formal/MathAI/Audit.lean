@@ -85,3 +85,6 @@ kernel-visible axiom dependencies for review.
 
 #check MathAI.Research.affine_root_unique
 #print axioms MathAI.Research.affine_root_unique
+
+#check MathAI.Research.affine_root_exists
+#print axioms MathAI.Research.affine_root_exists
