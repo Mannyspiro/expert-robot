@@ -63,7 +63,34 @@
     }
   ],
   "current_repo_scan": {
-    "result": "No task-specific formalization has been confirmed by this ledger commit. Existing formal package qualification is used to verify the current Lean project and theorem audit; this is not evidence that the four research claims themselves are proved.",
-    "next_step": "Inspect runner logs, then add task-specific definitions and theorems only after source equations, numerical artifacts, and assumptions are pinned."
+    "result": "No task-specific formalization for the original physical claims has been confirmed. A separate workplan and dependency-free toy-baseline script now exist, but they are explicitly nonphysical smoke tests; all four original task statuses remain not_yet_formalized.",
+    "next_step": "Run the toy script and archive JSON evidence; then obtain/pin the actual scientific equations, model choices, inputs and datasets before formalizing or reproducing any physical result."
+  },
+  "candidate_baselines": {
+    "status": "toy_only_not_physical_results",
+    "workplan": "formal/RESIDUAL_PHYSICS_WORKPLAN.md",
+    "executable_smoke_checks": "research/residual_physics/toy_baselines.py",
+    "scope": [
+      "FRG scalar beta(g) = -g + g^2 with exact fixed points 0 and 1 and explicit-Euler convergence comparison",
+      "Finite product-of-Bell-pairs entropy baseline with S = k log(2) for k pairs crossing the bipartition",
+      "Two-dimensional affine fixed-point example with residual checks and exact eigenvalue formula",
+      "Seeded random-walk Metropolis sampler for a standard-normal toy target"
+    ],
+    "promotion_rule": "These baselines test methods and reproducibility only. They do not satisfy the original physics-task acceptance criteria and must not be promoted as physical findings.",
+    "local_formula_checks": {
+      "frg_euler_h_0_1_absolute_error": 0.0032913178468794713,
+      "frg_euler_h_0_05_absolute_error": 0.0016202083129420175,
+      "coarse_to_fine_error_ratio": 2.0314164669992394,
+      "affine_system_residual": [
+        0,
+        0
+      ],
+      "gaussian_mcmc_seed": 20261027,
+      "gaussian_mcmc_draws": 50000,
+      "gaussian_mcmc_warmup": 5000,
+      "gaussian_mcmc_sample_mean": 0.0024683340931097014,
+      "gaussian_mcmc_sample_variance": 0.9841430937883237,
+      "note": "Calculated in an independent local check of the formulas/algorithm; the repository script still requires a runner execution for artifact-level qualification."
+    }
   }
 }
