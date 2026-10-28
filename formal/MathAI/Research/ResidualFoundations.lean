@@ -25,4 +25,18 @@ theorem affine_root_unique
     linarith
   exact mul_left_cancel₀ ha hxy
 
+
+/--
+Every affine scalar equation over the rationals has a root when its
+linear coefficient is nonzero. Together with `affine_root_unique`, this
+gives existence and uniqueness for this generic scalar equation only.
+-/
+theorem affine_root_exists
+    (a b : ℚ)
+    (ha : a ≠ 0) :
+    ∃ x : ℚ, a * x + b = 0 := by
+  refine ⟨-b / a, ?_⟩
+  field_simp [ha]
+  <escape>ring</escape>
+
 end MathAI.Research
