@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "status": "pass",
+  "scope": "small-N Ising-limit Hamiltonian implementation checks only; not a reproduction of published SU(2) gauge-link Page curve",
+  "source_equation": "Ebner et al., PRD 110, 014505 (2024), Eq. (2)",
+  "parameters": {
+    "n_sites": 4,
+    "g2a": 1.6,
+    "lattice_spacing_a": 1,
+    "J": -0.3,
+    "h_x": 0.625,
+    "basis_order": "bit 0 => sigma_z=+1; bit 1 => sigma_z=-1",
+    "periodic_boundary": true
+  },
+  "hilbert_dimension": 16,
+  "checks": {
+    "hermitian": true,
+    "eigenpair_residuals_small": true,
+    "eigenvectors_normalized": true,
+    "reduced_density_trace_one": true,
+    "reduced_density_psd_with_roundoff": true,
+    "pure_state_entropy_partition_symmetry": true
+  },
+  "diagnostics": {
+    "max_abs_hermiticity_error": 0,
+    "max_eigenpair_residual": 3.850093601918033e-15,
+    "max_eigenvector_norm_error": 1.5543122344752192e-15,
+    "max_rho_trace_error": 1.5543122344752192e-15,
+    "minimum_rho_eigenvalue": 3.5457371162892106e-7
+  },
+  "sample_eigenstates": [
+    {
+      "eigenstate_index": 0,
+      "energy": -5.420279570246603,
+      "entropy_A_nats": 0.017098449268857348,
+      "entropy_B_nats": 0.017098449268857348,
+      "entropy_difference": 0
+    },
+    {
+      "eigenstate_index": 8,
+      "energy": 1.9201951701547103e-16,
+      "entropy_A_nats": 0.8520861233502393,
+      "entropy_B_nats": 0.8520861233502393,
+      "entropy_difference": 0
+    },
+    {
+      "eigenstate_index": 15,
+      "energy": 2.9911290868562777,
+      "entropy_A_nats": 0.19048554825325364,
+      "entropy_B_nats": 0.19048554825325364,
+      "entropy_difference": 0
+    }
+  ],
+  "promotion": false,
+  "limitations": [
+    "Spin-site bipartition is not automatically the paper's gauge-invariant link-cut partition.",
+    "Only small-N implementation sanity is checked; no N=17 benchmark or physical interpretation is claimed.",
+    "Floating-point eigensolver output is numerical evidence, not a Lean proof."
+  ]
+}
