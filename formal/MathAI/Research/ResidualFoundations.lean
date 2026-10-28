@@ -37,6 +37,6 @@ theorem affine_root_exists
     ∃ x : ℚ, a * x + b = 0 := by
   refine ⟨-b / a, ?_⟩
   field_simp [ha]
-  <escape>ring</escape>
+  ring
 
 end MathAI.Research
