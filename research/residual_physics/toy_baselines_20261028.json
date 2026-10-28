@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "generated_utc_date": "2026-10-28",
+  "source_script": "research/residual_physics/toy_baselines.py",
+  "execution_environment": "local Python standard library; not an Avrea/GitHub Actions run",
+  "scope": "toy baselines only; no physical research claim",
+  "frg_scalar_flow": {
+    "equation": "dg/dt = -g + g^2",
+    "coarse": {
+      "step": 0.1,
+      "steps": 10,
+      "g_numeric": 0.10594045472615646,
+      "g_exact": 0.10923177257303593,
+      "absolute_error": 0.0032913178468794713,
+      "fixed_points": [0.0, 1.0],
+      "beta_prime_at_fixed_points": [-1.0, 1.0]
+    },
+    "fine": {
+      "step": 0.05,
+      "steps": 20,
+      "g_numeric": 0.10761156426009391,
+      "g_exact": 0.10923177257303593,
+      "absolute_error": 0.0016202083129420175,
+      "fixed_points": [0.0, 1.0],
+      "beta_prime_at_fixed_points": [-1.0, 1.0]
+    },
+    "error_ratio_coarse_over_fine": 2.0314164669992394,
+    "interpretation": "The halved Euler step approximately halves the error, consistent with first-order convergence for this toy ODE."
+  },
+  "bell_pair_entropy": {
+    "model": "product of Bell pairs; k pairs cross the bipartition",
+    "values": [
+      {"crossing_bell_pairs": 0, "entropy_nats": 0.0},
+      {"crossing_bell_pairs": 1, "entropy_nats": 0.6931471805599453},
+      {"crossing_bell_pairs": 2, "entropy_nats": 1.3862943611198906},
+      {"crossing_bell_pairs": 3, "entropy_nats": 2.0794415416798357},
+      {"crossing_bell_pairs": 4, "entropy_nats": 2.772588722239781}
+    ],
+    "interpretation": "Exact product-state identity; this is not a dynamical lattice Page curve."
+  },
+  "affine_fixed_point": {
+    "matrix": [[2, 1], [1, 3]],
+    "offset": [1, -1],
+    "solution": [-0.8, 0.6],
+    "residual_float64": [0.0, -2.220446049250313e-16],
+    "eigenvalues": [1.381966011250105, 3.618033988749895],
+    "interpretation": "The exact rational solution is (-4/5, 3/5); residual is floating-point roundoff."
+  },
+  "gaussian_mcmc": {
+    "target": "standard_normal",
+    "seed": 20261027,
+    "draws": 50000,
+    "warmup": 5000,
+    "proposal_sd": 1.0,
+    "acceptance_rate_including_warmup": 0.7052363636363637,
+    "sample_mean": 0.0024683340931097014,
+    "sample_variance": 0.9841430937883237,
+    "analytic_mean": 0.0,
+    "analytic_variance": 1.0,
+    "warning": "Toy chain diagnostics are empirical; no real cosmological posterior is tested."
+  },
+  "qualification": {
+    "repository_script_runner_execution": "not yet performed",
+    "physical_tasks_status": "not_yet_formalized",
+    "promotion_authorized": false
+  }
+}
