@@ -121,5 +121,53 @@ class MerlinApiTests(unittest.TestCase):
                 _remote_model_endpoint()
 
 
+    def test_remote_sse_stream_is_forwarded_and_secret_is_not_returned(self):
+        import os
+        from unittest.mock import patch
+        from urllib.request import Request as UpstreamRequest
+        import python.merlin.app as merlin_app
+
+        chunks = [
+            b'data: {"choices":[{"delta":{"content":"hello"}}]}\n\n',
+            b'data: {"choices":[{"delta":{"content":" world"}}]}\n\n',
+            b'data: [DONE]\n\n',
+        ]
+        captured = {}
+
+        class FakeResponse:
+            headers = {"Content-Type": "text/event-stream"}
+            def __enter__(self):
+                return self
+            def __exit__(self, *args):
+                return False
+            def read(self, size=-1):
+                return chunks.pop(0) if chunks else b""
+
+        def fake_urlopen(request, timeout=0):
+            captured["authorization"] = request.get_header("Authorization")
+            captured["url"] = request.full_url
+            return FakeResponse()
+
+        payload = {"model": "test-model", "messages": [{"role": "user", "content": "say hello"}], "stream": True}
+        request = Request(self.base + "/api/chat", data=json.dumps(payload).encode(),
+                          headers={"Content-Type": "application/json"})
+        with patch.dict(os.environ, {
+            "MERLIN_REMOTE_MODEL_URL": "https://api.example.test/v1/chat/completions",
+            "MERLIN_REMOTE_API_KEY": "private-test-key",
+            "MERLIN_REMOTE_ALLOWED_HOSTS": "api.example.test",
+            "MERLIN_REMOTE_MODEL_QUALIFIED": "1",
+        }, clear=False), patch.object(merlin_app, "urlopen", side_effect=fake_urlopen):
+            with urlopen(request, timeout=5) as response:
+                streamed = response.read()
+                self.assertIn("text/event-stream", response.headers.get("Content-Type", ""))
+
+        self.assertIn(b'"hello"', streamed)
+        self.assertIn(b'" world"', streamed)
+        self.assertIn(b"[DONE]", streamed)
+        self.assertEqual(captured["authorization"], "Bearer private-test-key")
+        self.assertNotIn(b"private-test-key", streamed)
+        self.assertEqual(captured["url"], "https://api.example.test/v1/chat/completions")
+
+
 if __name__ == "__main__":
     unittest.main()
