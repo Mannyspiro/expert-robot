@@ -14,6 +14,13 @@ class BiochemistryTests(unittest.TestCase):
         self.assertAlmostEqual(hill_activation(1.0, 1.0, 2.0), 0.5)
         self.assertGreater(hill_activation(10.0, 1.0, 2.0), 0.99)
 
+    def test_hill_response_handles_tiny_concentration(self):
+        self.assertGreaterEqual(hill_activation(1e-200, 1.0, 4.0), 0.0)
+
+    def test_simulation_step_budget_is_enforced(self):
+        with self.assertRaisesRegex(ValueError, "step count"):
+            simulate_enzyme_reaction(1.0, 1.0, 1.0, 10.0, 1e-8)
+
     def test_reaction_conserves_substrate_plus_product(self):
         result = simulate_enzyme_reaction(2.0, 0.8, 0.4, 4.0, 0.02)
         self.assertLess(result["mass_balance_error"], 1e-12)
