@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-MODEL_FILE="${MODEL_FILE:-${ROOT}/models/hermes_coder/NousCoder-14B-Q4_K_M.gguf}"
+MODEL_FILE="${MODEL_FILE:-${ROOT}/models/hermes_coder/NousResearch_NousCoder-14B-Q4_K_M.gguf}"
 HOST="${HOST:-127.0.0.1}"
 PORT="${PORT:-8080}"
 CTX_SIZE="${CTX_SIZE:-65536}"
