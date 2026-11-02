@@ -1,0 +1,29 @@
+name: Merlin voice and model integration smoke
+
+on:
+  pull_request:
+    paths:
+      - "python/voice/**"
+      - "tests/voice/**"
+      - "scripts/models/**"
+      - "scripts/install_hermes_agent.sh"
+      - "config/merlin-integrations.example.json"
+      - "docs/merlin-hermes-voice.md"
+      - ".github/workflows/merlin-voice-smoke.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: merlin-voice-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contract-smoke:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Python and shell contract tests
+        run: |
+          python3 --version
+          bash -n scripts/install_hermes_agent.sh scripts/models/*.sh
+          python3 -m unittest discover -s tests/voice -v
