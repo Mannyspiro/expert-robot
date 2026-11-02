@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
-ROOT="$(cd "$(dirname "\${BASH_SOURCE[0]}")/.." && pwd)"
-DEST="\${HERMES_AGENT_DIR:-\${ROOT}/.tools/hermes-agent}"
-REF="\${HERMES_AGENT_REF:-main}"
-INSTALL_CLI="\${1:-}"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+DEST="${HERMES_AGENT_DIR:-${ROOT}/.tools/hermes-agent}"
+REF="${HERMES_AGENT_REF:-main}"
+INSTALL_CLI="${1:-}"
 if [[ -e "$DEST/.git" ]]; then
   echo "Hermes Agent source exists; updating to requested ref."
   git -C "$DEST" fetch --depth 1 origin "$REF"
