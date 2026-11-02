@@ -231,3 +231,23 @@ Performance roadmap:
 6. Keep Avrea/OCI for private work, code execution, simulation and explicitly authorized local fallback.
 
 Trust rule: never silently move private prompts to a different provider during fallback. Credentials stay in runtime secrets; prompts are not written to event logs. Connectivity is not model qualification.
+
+
+## Hybrid compressed intelligence research update — 2026-11-02
+
+Added docs/HYBRID_COMPRESSED_INTELLIGENCE_V1.md and engineering plan v19.
+
+Key decision: hybrid local + remote. Keep a small quantized local generalist resident; hot-swap specialist models at task boundaries; swap LoRA adapters, context packs, retrieval data and tools separately; use remote experts when local capability is inadequate. Do not stream model weights per request.
+
+Source shortlist:
+- llama.cpp: GGUF quantization, mmap/lazy loading, KV cache types and CPU/GPU offload.
+- llama-swap: model process hot-swapping across compatible local inference servers.
+- LLM Compressor: calibration-aware weight/activation/KV compression and sequential offload where supported.
+- NASA NPO-51334-1: NASA catalog marks this vision/spacecraft pose CNN software Open Source; it includes TensorFlow model compression and image augmentation. It is not a general LLM compressor.
+- Patent US12375101B1 is assigned to Atombeam Technologies Inc., not NASA. It describes distributed adaptive compression; not code and not a free patent license. No directly relevant NASA-owned patent verified in this research pass.
+
+License rule: no stripping attribution, copyright notices, license texts or NOTICE files. "Free of charge" is not identical to unrestricted release. Select only NASA Open Source/General Public Release entries whose actual terms allow the use. Patent publication does not grant rights to practice claims.
+
+Parrondo principle: treat A=fast local model, B=remote/specialist model, and adaptive switching/council as hypotheses. Measure on held-out tasks with equal budgets; hybrid only wins if net quality after latency, cost, privacy and error penalties beats fixed A and B. Verbose council debate belongs in a transcript; voice playback should start with the lead answer and queue optional council contributions.
+
+Status: architecture/design only. No new quantized model, NASA source, llama-swap or LLM Compressor has been downloaded or integrated. Hardware inventory and local-vs-remote benchmarks remain outstanding. The previous core Avrea CI and remote gateway tests passed; the separate NousCoder inference qualification was still running at the last checked status. The current gateway remains the production candidate until the hot-swap prototype passes its own gates.
