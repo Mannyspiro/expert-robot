@@ -1,11 +1,6 @@
 name: Merlin NousCoder model acquisition
 
 on:
-  pull_request:
-    paths:
-      - "scripts/models/download_nouscoder.sh"
-      - "config/merlin-integrations.example.json"
-      - ".github/workflows/merlin-nouscoder-download.yml"
   workflow_dispatch:
 
 concurrency:
