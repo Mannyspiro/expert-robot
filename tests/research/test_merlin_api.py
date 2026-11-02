@@ -82,6 +82,20 @@ class MerlinApiTests(unittest.TestCase):
             else:
                 os.environ["MERLIN_TTS_URL"] = previous
 
+    def test_biochemistry_and_evolution_routes(self):
+        simulation = self.post("/api/biology/mm/simulate", {
+            "substrate0": 2.0, "vmax": 0.8, "km": 0.4, "duration": 1.0, "dt": 0.05
+        })
+        self.assertLess(simulation["mass_balance_error"], 1e-12)
+        observations = [[s, 2.4 * s / (0.7 + s)] for s in [0.1, 0.2, 0.4, 0.8, 1.5, 3.0, 6.0]]
+        fit = self.post("/api/evolution/mm-fit", {
+            "observations": observations, "vmax_bounds": [1.0, 4.0],
+            "km_bounds": [0.1, 2.0], "population_size": 32,
+            "generations": 40, "seed": 17
+        })
+        self.assertLess(fit["rmse"], 0.03)
+        self.assertEqual(fit["evidence_class"], "HYPOTHESIS_ONLY")
+
     def test_events_store_metadata_not_request_text(self):
         self.post("/api/ideonomy/rank", {"ideas": []})
         with urlopen(self.base + "/api/events", timeout=5) as response:
