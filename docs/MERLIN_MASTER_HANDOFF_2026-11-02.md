@@ -48,7 +48,7 @@ Implemented in the separately delivered Merlin MVP package:
 
 Local tests: 3 Merlin tests and 10 preserved Research Miner v19 tests passed; Python compilation and browser JavaScript syntax checks passed. A local HTTP smoke verified status and the expected TTS-unavailable response when no TTS sidecar was running.
 
-### Expert Robot PR #66
+### Expert Robot PR #67
 
 Development branch: feat/merlin-hermes-kokoro-integration-20261102.
 
