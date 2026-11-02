@@ -2,6 +2,8 @@ import json
 import tempfile
 import threading
 import unittest
+from unittest.mock import patch
+from urllib.error import URLError
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError
 from http.server import ThreadingHTTPServer
@@ -73,8 +75,9 @@ class MerlinApiTests(unittest.TestCase):
         os.environ["MERLIN_TTS_URL"] = "http://127.0.0.1:1/v1/audio/speech"
         try:
             request = Request(self.base + "/api/speech", data=json.dumps({"input": "test"}).encode(), headers={"Content-Type": "application/json"})
-            with self.assertRaises(HTTPError) as caught:
-                urlopen(request, timeout=5)
+            with patch("python.merlin.app.urlopen", side_effect=URLError("test sidecar unavailable")):
+                with self.assertRaises(HTTPError) as caught:
+                    urlopen(request, timeout=5)
             self.assertEqual(caught.exception.code, 503)
         finally:
             if previous is None:
