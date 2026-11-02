@@ -4,7 +4,7 @@ This file records the initial licensing basis for optional model integrations. R
 
 | Component | Upstream | License reported upstream | Notes |
 |---|---|---|---|
-| Hermes Agent | https://github.com/NousResearch/hermes-agent | MIT | Source is installed separately under \`.tools/\`. |
+| Hermes Agent | https://github.com/NousResearch/hermes-agent | MIT | Source is installed separately under `.tools/`. |
 | NousCoder-14B weights | https://huggingface.co/NousResearch/NousCoder-14B | Apache-2.0 | Model card identifies Apache-2.0. |
 | NousCoder GGUF conversion | https://huggingface.co/bartowski/NousResearch_NousCoder-14B-GGUF | Apache-2.0 | Community conversion of NousResearch weights; Q4_K_M is ~9 GB. |
 | Kokoro ONNX runtime | https://github.com/thewh1teagle/kokoro-onnx | MIT | Optional Python dependency. |
