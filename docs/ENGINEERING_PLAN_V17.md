@@ -10,7 +10,7 @@ This plan is updated from observed requirements in the current request, prior pr
 
 Repository: Mannyspiro/expert-robot  
 Branch: feat/merlin-hermes-kokoro-integration-20261102  
-Draft PR: #66 — Add Hermes coding and local Kokoro voice integrations.
+Draft PR: #67 — Add Merlin, Hermes coding, Kokoro voice, engineering IR and network inference.
 
 ### Verified in this iteration
 
@@ -131,3 +131,30 @@ For every new requirement or failure append:
 observation → source/receipt → gap → smallest analogous subproblem → acceptance test → result → plan delta.
 
 A feature is not complete because a UI exists, a package downloads, a prompt returns text, or a test is merely listed in an old report. Only reproducible current-head evidence changes its status.
+
+
+## Inductive plan update v18 — network-native inference
+
+Observed requirement: Merlin must not depend on hosting all model weights locally. Treat model execution as a network service: weights stay on remote provider/worker hardware and Merlin streams generated output, audio chunks and artifacts over authenticated connections.
+
+### Implemented on the current feature branch
+- Added an OpenAI-compatible remote model route to `POST /api/chat`.
+- Requires HTTPS, exact hostname allowlisting, runtime-only bearer credentials and a separate remote qualification flag.
+- Supports incremental Server-Sent Events passthrough when the caller requests `stream: true`; retains non-stream JSON and separately gated local llama.cpp mode.
+- Added tests for HTTPS and allowlist rejection, plus example configuration and an operator guide.
+
+### Immediate next steps
+1. Run Avrea CI and fix any test/regression failures; verify the live stream with a fake SSE upstream test that proves chunks arrive before completion.
+2. Add request cancellation, deadlines, bounded concurrency and connection pooling using an async HTTP server/client; keep the current loopback server as a low-concurrency fallback.
+3. Add provider registry and task-role routing (general, reasoning, coding, research, vision, media) with model capability metadata, context limits, pricing and qualification receipts.
+4. Add telemetry for TTFT, tokens/sec, end-to-end latency, error rate and cost per successful task; do not record prompt bodies or secrets.
+5. Add council fan-out/fan-in: stream the lead voice first, then independent critiques; synthesize sequentially with Kokoro chunking and cancellation.
+6. Keep Avrea/OCI for private jobs, repository tests, simulations, indexing, local fallback and workloads where data must not leave the worker.
+
+### Architectural rules
+- Stream inference results, not weights per request.
+- Never claim fastest without comparative benchmarks on identical held-out tasks.
+- No silent provider fallback that changes where private prompts are sent.
+- Provider/model qualification is independent from network connectivity; reachability alone is not qualification.
+- Secrets stay in runtime secret storage; never commit keys.
+- Capability grows; authority never expands automatically.
