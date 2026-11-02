@@ -23,13 +23,13 @@ The source checkout is placed in `.tools/hermes-agent`. The Avrea acquisition wo
 git -C .tools/hermes-agent rev-parse HEAD
 ```
 
-The upstream project is MIT-licensed. Review its current install script and dependency changes before upgrading.
+The upstream project is MIT-licensed. The Avrea acquisition artifact recorded revision `5e7c2b254d414e4e25105231f818f385fee67469` on 2026-11-02. Review its current install script and dependency changes before upgrading.
 
 ## NousCoder-14B
 
 The official NousResearch NousCoder-14B model is Apache-2.0 and is a 15B-parameter BF16 checkpoint. This integration uses the community GGUF conversion from `bartowski/NousResearch_NousCoder-14B-GGUF`, also marked Apache-2.0.
 
-Default quantization: **Q4_K_M (~9 GB)**. The downloader verifies SHA-256 `9cc51afc755319db42a6324baf3395436cce5954dc87df95d3b9e7d625610624` against the published file metadata. This is intentionally not checked into Git. The download is opt-in:
+Default quantization: **Q4_K_M (9,001,754,752 bytes; about 9 GB)**. The Avrea acquisition artifact recorded this file and verified the published SHA-256. The downloader verifies SHA-256 `9cc51afc755319db42a6324baf3395436cce5954dc87df95d3b9e7d625610624` against the published file metadata. This is intentionally not checked into Git. The download is opt-in:
 
 ```bash
 scripts/models/download_nouscoder.sh
