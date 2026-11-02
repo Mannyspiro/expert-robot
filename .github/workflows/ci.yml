@@ -110,6 +110,11 @@ jobs:
       - name: Collar encrypted-core smoke
         run: bash tests/collar_vault_smoke.sh
 
+      - name: Hermes and voice integration contracts
+        run: |
+          bash -n scripts/install_hermes_agent.sh scripts/models/*.sh
+          python3 -m unittest discover -s tests/voice -v
+
       - name: Independent smoke tests
         shell: bash
         run: |
