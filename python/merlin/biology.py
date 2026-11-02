@@ -36,9 +36,12 @@ def hill_activation(concentration: float, half_response: float, hill_coefficient
         raise ValueError("hill_coefficient must be finite and positive")
     if concentration == 0:
         return 0.0
-    # Ratio form avoids unnecessary overflow for large concentrations.
-    ratio = (half_response / concentration) ** hill_coefficient
-    return 1.0 / (1.0 + ratio)
+    # Use the smaller ratio in either branch to avoid overflow.
+    if concentration >= half_response:
+        ratio = (half_response / concentration) ** hill_coefficient
+        return 1.0 / (1.0 + ratio)
+    ratio = (concentration / half_response) ** hill_coefficient
+    return ratio / (1.0 + ratio)
 
 
 def simulate_enzyme_reaction(
@@ -59,6 +62,8 @@ def simulate_enzyme_reaction(
     if duration == 0:
         return {"times": [0.0], "substrate": [substrate0], "product": [0.0], "mass_balance_error": 0.0}
     steps = max(1, ceil(duration / dt))
+    if steps > 1_000_000:
+        raise ValueError("simulation step count exceeds the one-million-step budget")
     step = duration / steps
 
     def derivative(s: float) -> float:
@@ -102,6 +107,8 @@ def fit_michaelis_menten(
     rows = [(float(s), float(v)) for s, v in observations]
     if len(rows) < 3:
         raise ValueError("at least three observations are required")
+    if len({s for s, _ in rows}) < 3:
+        raise ValueError("at least three distinct substrate concentrations are required")
     if any(not isfinite(s) or s < 0 or not isfinite(v) or v < 0 for s, v in rows):
         raise ValueError("observations must be finite and non-negative")
     for name, bounds in (("vmax_bounds", vmax_bounds), ("km_bounds", km_bounds)):
