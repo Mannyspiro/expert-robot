@@ -19,7 +19,8 @@
       "optional": true,
       "download_script": "scripts/models/download_nouscoder.sh",
       "launch_script": "scripts/models/run_nouscoder.sh",
-      "license": "Apache-2.0"
+      "license": "Apache-2.0",
+      "sha256": "9cc51afc755319db42a6324baf3395436cce5954dc87df95d3b9e7d625610624"
     },
     "voice": {
       "engine": "Kokoro-82M ONNX",
