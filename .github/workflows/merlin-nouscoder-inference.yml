@@ -1,4 +1,5 @@
 name: Merlin NousCoder local inference qualification
+# Require code output, not reasoning-only tokens, for the smoke gate.
 
 on:
   workflow_dispatch:
