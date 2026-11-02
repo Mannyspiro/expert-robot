@@ -1,0 +1,49 @@
+name: Merlin live Kokoro synthesis
+
+on:
+  pull_request:
+    paths:
+      - "python/voice/**"
+      - "tests/voice/**"
+      - "scripts/models/download_kokoro.sh"
+      - "scripts/models/run_kokoro.sh"
+      - "python/voice/requirements.txt"
+      - ".github/workflows/merlin-kokoro-live.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: merlin-kokoro-live-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  live-synthesis:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore Kokoro model cache
+        id: kokoro-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: models/voice/kokoro
+          key: kokoro-v1.0-voices-v1.0-${{ runner.os }}
+      - name: Install optional TTS runtime
+        run: python3 -m pip install --user -r python/voice/requirements.txt
+      - name: Download Kokoro assets when cache is cold
+        run: bash scripts/models/download_kokoro.sh
+      - name: Generate and validate a real council voice sample
+        run: python3 tests/voice/live_kokoro_smoke.py
+      - name: Save model cache
+        if: success() && steps.kokoro-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: models/voice/kokoro
+          key: kokoro-v1.0-voices-v1.0-${{ runner.os }}
+      - name: Publish generated voice sample
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-kokoro-council-voice
+          path: artifacts/kokoro-council-smoke.wav
+          if-no-files-found: error
+          retention-days: 7
