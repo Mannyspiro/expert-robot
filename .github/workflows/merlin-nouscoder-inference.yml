@@ -51,19 +51,20 @@ jobs:
           done
           if [ "$ready" -ne 1 ]; then cat /tmp/nouscoder-llama-server.log; echo 'llama-server readiness timeout' >&2; exit 6; fi
           curl --fail --silent --show-error --max-time 180 \
-            http://127.0.0.1:8080/completion \
+            http://127.0.0.1:8080/v1/chat/completions \
             -H 'Content-Type: application/json' \
-            -d '{"prompt":"<|im_start|>system\nYou are a precise coding assistant. Return only a short correct Python function.\n<|im_end|>\n<|im_start|>user\nWrite a Python function named clamp that accepts value, low, high and returns value clamped inclusively between low and high.\n<|im_end|>\n<|im_start|>assistant\n","temperature":0,"n_predict":160,"stop":["<|im_end|>"]}' \
+            -d '{"model":"NousResearch_NousCoder-14B-Q4_K_M.gguf","messages":[{"role":"system","content":"You are a precise coding assistant. Do not think aloud. Return only valid Python code, without Markdown."},{"role":"user","content":"Write a Python function named clamp(value, low, high) that returns value clamped inclusively between low and high."}],"temperature":0.6,"top_p":0.95,"max_tokens":160,"chat_template_kwargs":{"enable_thinking":false},"reasoning_format":"none"}' \
             > artifacts/nouscoder-inference.json
           python3 - <<'PY'
           import json
           with open('artifacts/nouscoder-inference.json', encoding='utf-8') as f:
               data=json.load(f)
-          text=data.get('content','')
-          if not isinstance(text, str) or len(text.strip()) < 8 or 'clamp' not in text.lower():
+          message=data['choices'][0]['message']
+          text=message.get('content','')
+          if not isinstance(text, str) or 'def clamp' not in text.lower() or 'return' not in text.lower():
               print(json.dumps(data, indent=2)[:4000])
-              raise SystemExit('Model returned no usable clamp implementation.')
-          print('PASS: NousCoder produced a non-empty clamp implementation.')
+              raise SystemExit('Model did not return a complete clamp implementation.')
+          print('PASS: NousCoder produced a complete clamp function.')
           print(text[:1200])
           PY
       - name: Publish server diagnostics on failure
