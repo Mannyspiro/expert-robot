@@ -117,9 +117,7 @@ jobs:
           python3 -m unittest discover -s tests/engineering -v
 
       - name: Merlin deterministic research and API contracts
-        run: |
-          python3 -m unittest discover -s tests/engineering -v
-          python3 -m unittest discover -s tests/research -v
+        run: python3 -m unittest discover -s tests/research -v
 
       - name: Independent smoke tests
         shell: bash
@@ -142,3 +140,78 @@ jobs:
         with:
           path: ~/.cache/ccache
           key: ccache-v1-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
+
+  merlin-nouscoder-inference:
+    needs: build-and-smoke
+    if: ${{ github.event_name == 'pull_request' && contains(github.event.pull_request.title, '[model-inference]') }}
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore verified NousCoder model cache
+        uses: actions/cache/restore@v4
+        with:
+          path: models/hermes_coder
+          key: nouscoder-14b-q4-k-m-v1-${{ runner.os }}
+          fail-on-cache-miss: true
+      - name: Verify model checksum
+        run: |
+          set -euo pipefail
+          model='models/hermes_coder/NousResearch_NousCoder-14B-Q4_K_M.gguf'
+          test -s "$model"
+          echo '9cc51afc755319db42a6324baf3395436cce5954dc87df95d3b9e7d625610624  ' "$model" | tr -d '\n' | sha256sum --check
+      - name: Build llama.cpp CPU server
+        run: |
+          set -euo pipefail
+          git clone --depth 1 https://github.com/ggml-org/llama.cpp.git /tmp/llama.cpp
+          cmake -S /tmp/llama.cpp -B /tmp/llama.cpp/build -DCMAKE_BUILD_TYPE=Release -DGGML_NATIVE=ON
+          cmake --build /tmp/llama.cpp/build --config Release --parallel 8 --target llama-server
+      - name: Run code-only NousCoder inference
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          /tmp/llama.cpp/build/bin/llama-server \
+            --model models/hermes_coder/NousResearch_NousCoder-14B-Q4_K_M.gguf \
+            --host 127.0.0.1 --port 8080 --ctx-size 65536 \
+            --threads 8 --threads-batch 8 --batch-size 512 --ubatch-size 128 \
+            --n-gpu-layers 0 > /tmp/nouscoder-llama-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for i in $(seq 1 180); do
+            if curl --fail --silent http://127.0.0.1:8080/health >/dev/null; then ready=1; break; fi
+            if ! kill -0 "$server_pid" 2>/dev/null; then cat /tmp/nouscoder-llama-server.log; exit 5; fi
+            sleep 2
+          done
+          if [ "$ready" -ne 1 ]; then cat /tmp/nouscoder-llama-server.log; exit 6; fi
+          curl --fail --silent --show-error --max-time 180 \
+            http://127.0.0.1:8080/v1/chat/completions \
+            -H 'Content-Type: application/json' \
+            -d '{"model":"NousResearch_NousCoder-14B-Q4_K_M.gguf","messages":[{"role":"system","content":"You are a precise coding assistant. Do not think aloud. Return only valid Python code, without Markdown."},{"role":"user","content":"Write a Python function named clamp(value, low, high) that returns value clamped inclusively between low and high."}],"temperature":0.6,"top_p":0.95,"max_tokens":160,"chat_template_kwargs":{"enable_thinking":false},"reasoning_format":"none"}' \
+            > artifacts/nouscoder-inference.json
+          python3 - <<'PY'
+          import json
+          with open('artifacts/nouscoder-inference.json', encoding='utf-8') as f:
+              data=json.load(f)
+          text=data['choices'][0]['message'].get('content','')
+          if not isinstance(text,str) or 'def clamp' not in text.lower() or 'return' not in text.lower():
+              print(json.dumps(data,indent=2)[:4000])
+              raise SystemExit('NousCoder did not return a complete clamp function.')
+          print('PASS: NousCoder produced a complete clamp function.')
+          print(text[:1200])
+          PY
+      - name: Publish NousCoder inference artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-nouscoder-code-smoke
+          path: artifacts/nouscoder-inference.json
+          retention-days: 7
+      - name: Publish NousCoder diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-nouscoder-diagnostics
+          path: /tmp/nouscoder-llama-server.log
+          if-no-files-found: ignore
+          retention-days: 3
