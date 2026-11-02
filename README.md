@@ -333,3 +333,5 @@ measured promotion of only the capabilities that improve Lean-verified results.
 Optional Hermes Agent, NousCoder-14B and local Kokoro TTS setup is documented in [docs/merlin-hermes-voice.md](docs/merlin-hermes-voice.md). Model weights remain outside Git under `models/`; no default coding role is changed. The Kokoro service is loopback-only by default and provides an OpenAI-compatible WAV endpoint for sequential council playback.
 
 Project continuity and outstanding research requirements are consolidated in [docs/MERLIN_MASTER_HANDOFF_2026-11-02.md](docs/MERLIN_MASTER_HANDOFF_2026-11-02.md).
+
+Typed geometry and wiring foundations are documented in [docs/merlin-geometry-netlist-ir.md](docs/merlin-geometry-netlist-ir.md).
