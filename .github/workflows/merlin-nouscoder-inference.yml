@@ -56,15 +56,45 @@ jobs:
           curl --fail --silent --show-error --max-time 180 \
             http://127.0.0.1:8080/v1/chat/completions \
             -H 'Content-Type: application/json' \
-            -d '{"model":"NousResearch_NousCoder-14B-Q4_K_M.gguf","messages":[{"role":"system","content":"You are a precise coding assistant. Do not think aloud. Return only valid Python code, without Markdown."},{"role":"user","content":"Write a Python function named clamp(value, low, high) that returns value clamped inclusively between low and high."}],"temperature":0,"top_p":0.95,"max_tokens":256,"chat_template_kwargs":{"enable_thinking":false},"reasoning_format":"none"}' \
+            -d '{"model":"NousResearch_NousCoder-14B-Q4_K_M.gguf","messages":[{"role":"system","content":"Return only one valid Python function. Do not explain."},{"role":"user","content":"Write clamp(value, low, high), inclusive. Return low if value is below low, high if above high, otherwise value."}],"temperature":0,"top_p":0.95,"max_tokens":256,"chat_template_kwargs":{"enable_thinking":false},"reasoning_format":"none"}' \
             > artifacts/nouscoder-inference.json
           python3 - <<'PY'
-          import ast, json, re
+          import ast, json
           with open('artifacts/nouscoder-inference.json', encoding='utf-8') as f:
-              data=json.load(f)
-          message=data['choices'][0]['message']
-          text=message.get('content') or message.get('reasoning_content') or ''
-          text=re.sub(r'^\s*```(?:python)?\s*|\s*```\s*          PY
+              data = json.load(f)
+          message = data['choices'][0]['message']
+          source = (message.get('content') or message.get('reasoning_content') or '').strip()
+          try:
+              module = ast.parse(source)
+          except SyntaxError as exc:
+              print(json.dumps(data, indent=2)[:4000])
+              raise SystemExit(f'Model output is not valid Python: {exc}')
+          if len(module.body) != 1 or not isinstance(module.body[0], ast.FunctionDef):
+              raise SystemExit('Output must contain exactly one top-level function.')
+          fn = module.body[0]
+          if fn.name != 'clamp' or [a.arg for a in fn.args.args] != ['value', 'low', 'high'] or fn.decorator_list:
+              raise SystemExit('Function signature does not match clamp(value, low, high).')
+          allowed = (ast.Module, ast.FunctionDef, ast.arguments, ast.arg, ast.Return, ast.If,
+                     ast.Compare, ast.Name, ast.Load, ast.Constant, ast.Lt, ast.Gt, ast.LtE,
+                     ast.GtE, ast.Eq, ast.NotEq, ast.BoolOp, ast.And, ast.Or, ast.Call,
+                     ast.keyword, ast.UnaryOp, ast.USub, ast.UAdd, ast.BinOp, ast.Add,
+                     ast.Sub, ast.Mult, ast.Div, ast.FloorDiv, ast.Mod, ast.Pow, ast.Expr, ast.Pass)
+          for node in ast.walk(module):
+              if not isinstance(node, allowed):
+                  raise SystemExit(f'Unsafe or unsupported syntax rejected: {type(node).__name__}')
+              if isinstance(node, ast.Call) and (not isinstance(node.func, ast.Name) or node.func.id not in {'min', 'max'}):
+                  raise SystemExit('Only min/max calls are allowed in this smoke test.')
+          namespace = {'__builtins__': {'min': min, 'max': max}}
+          exec(compile(module, '<nouscoder-smoke>', 'exec'), namespace, namespace)
+          clamp = namespace['clamp']
+          cases = [(-1, 0, 10, 0), (11, 0, 10, 10), (5, 0, 10, 5), (0, 0, 10, 0), (10, 0, 10, 10)]
+          for value, low, high, expected in cases:
+              actual = clamp(value, low, high)
+              if actual != expected:
+                  raise SystemExit(f'Incorrect clamp result for {(value, low, high)}: {actual} != {expected}')
+          print('PASS: NousCoder generated an AST-restricted clamp function; five execution tests passed.')
+          print(source[:1200])
+          PY
       - name: Publish server diagnostics on failure
         if: failure()
         uses: actions/upload-artifact@v4
