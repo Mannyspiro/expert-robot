@@ -18,6 +18,21 @@ jobs:
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
+      - name: Restore Hermes Agent source cache
+        id: hermes-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: .tools/hermes-agent
+          key: hermes-agent-main-v1-${{ runner.os }}
+      - name: Download Hermes Agent source into the repo workspace
+        run: bash scripts/install_hermes_agent.sh
+      - name: Save Hermes Agent source cache
+        if: success() && steps.hermes-cache.outputs.cache-hit != 'true'
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: .tools/hermes-agent
+          key: hermes-agent-main-v1-${{ runner.os }}
       - name: Restore optional NousCoder model cache
         id: model-cache
         uses: actions/cache/restore@v4
@@ -51,6 +66,7 @@ jobs:
           fi
           mkdir -p artifacts
           sha256sum "$model" > artifacts/nouscoder.sha256
+          git -C .tools/hermes-agent rev-parse HEAD > artifacts/hermes-agent-commit.txt
           python3 - "$model" "$bytes" > artifacts/nouscoder-manifest.json <<'PY'
           import json,sys
           print(json.dumps({
