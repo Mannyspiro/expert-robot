@@ -139,3 +139,10 @@ A feature is not complete because a UI exists, a package downloads, a prompt ret
 - Avrea CI passed the full C++ build/test and policy suites plus Hermes/voice, engineering, research and API contract tests on commit `862803e51572f75aaab34ff8f19904990678cc0e`.
 - NousCoder download and checksum are verified. The earlier llama.cpp text-generation smoke produced partial output only; it is not considered code qualification. The current manual workflow now AST-restricts generated code and executes five clamp cases. Run it from GitHub Actions before setting `MERLIN_MODEL_QUALIFIED=1`.
 - Kokoro synthesis is verified at 24 kHz mono WAV; subjective voice quality and full multi-seat browser playback still need human listening and UI verification.
+
+
+## Progress delta — biochemistry and evolution
+
+- Added `python/merlin/biology.py`: Michaelis-Menten rate law, Hill activation, closed single-substrate RK4 simulation with substrate/product mass-balance reporting, bounded simulation-step budget, and seeded evolutionary Vmax/Km fitting.
+- Exposed `/api/biology/mm/simulate` and `/api/evolution/mm-fit` in the loopback Merlin API. Outputs remain `HYPOTHESIS_ONLY`; independent reference-data validation is required.
+- Added unit and API tests for kinetics, conservation, resource caps, deterministic fitting and route behavior. The Avrea run containing the expanded suite is still in progress; do not mark these tests passed until its final result is green.
