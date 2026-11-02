@@ -1,11 +1,6 @@
 name: Merlin NousCoder local inference qualification
 
 on:
-  pull_request:
-    paths:
-      - "config/merlin-integrations.example.json"
-      - "scripts/models/run_nouscoder.sh"
-      - ".github/workflows/merlin-nouscoder-inference.yml"
   workflow_dispatch:
 
 concurrency:
