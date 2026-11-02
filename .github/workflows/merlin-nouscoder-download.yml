@@ -42,7 +42,7 @@ jobs:
       - name: Verify model file and write provenance manifest
         run: |
           set -euo pipefail
-          model='models/hermes_coder/NousCoder-14B-Q4_K_M.gguf'
+          model='models/hermes_coder/NousResearch_NousCoder-14B-Q4_K_M.gguf'
           test -s "$model"
           bytes="$(stat -c '%s' "$model")"
           if [ "$bytes" -lt 8000000000 ]; then
