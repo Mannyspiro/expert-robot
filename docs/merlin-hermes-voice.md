@@ -17,7 +17,7 @@ scripts/install_hermes_agent.sh
 scripts/install_hermes_agent.sh --install
 ```
 
-The source checkout is placed in `.tools/hermes-agent`. Record the exact upstream commit with:
+The source checkout is placed in `.tools/hermes-agent`. The Avrea acquisition workflow clones this source and records the exact upstream commit in its short-lived provenance artifact. Record the local revision with:
 
 ```bash
 git -C .tools/hermes-agent rev-parse HEAD
