@@ -11,6 +11,8 @@ The server binds only to 127.0.0.1. It uses Python's standard library and SQLite
 - GET /health
 - GET /api/capabilities
 - GET /api/events
+- POST /api/chat (loopback model proxy; disabled until MERLIN_MODEL_QUALIFIED=1)
+- POST /api/speech (loopback Kokoro proxy)
 - POST /api/ideonomy/rank
 - POST /api/analogy/validate
 - POST /api/rsi/qualify
