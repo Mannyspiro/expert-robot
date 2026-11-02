@@ -162,7 +162,7 @@ jobs:
           set -euo pipefail
           model='models/hermes_coder/NousResearch_NousCoder-14B-Q4_K_M.gguf'
           test -s "$model"
-          echo '9cc51afc755319db42a6324baf3395436cce5954dc87df95d3b9e7d625610624  ' "$model" | tr -d '\n' | sha256sum --check
+          printf '%s  %s\n' '9cc51afc755319db42a6324baf3395436cce5954dc87df95d3b9e7d625610624' "$model" | sha256sum --check
       - name: Save verified NousCoder cache
         if: success() && steps.nouscoder-cache.outputs.cache-hit != 'true'
         continue-on-error: true
