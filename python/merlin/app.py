@@ -24,6 +24,7 @@ from .research import (
 )
 from .engineering.geometry import GeometrySpec, Point3D, validate_geometry, bounding_box
 from .engineering.netlist import Component, Connection, Net, Netlist, validate_netlist
+from .biology import simulate_enzyme_reaction, fit_michaelis_menten
 
 MAX_BODY = 1_000_000
 MAX_PROXY_RESPONSE = 16_000_000
@@ -87,7 +88,8 @@ CAPABILITIES = [
     {"id": "agent.hermes", "status": "SOURCE_DOWNLOADED_NOT_CONNECTED", "path": ".tools/hermes-agent"},
     {"id": "media.image", "status": "NOT_CONFIGURED"},
     {"id": "media.video", "status": "NOT_CONFIGURED"},
-    {"id": "biology.biochemistry", "status": "NOT_CONFIGURED"},
+    {"id": "biology.biochemistry", "status": "AVAILABLE", "evidence": "unit-tested Michaelis-Menten/Hill kinetics and mass-balanced RK4 toy model"},
+    {"id": "evolution.parameter_fit", "status": "AVAILABLE", "evidence": "seeded bounded evolutionary fit with held-out validation still required"},
 ]
 
 
@@ -241,6 +243,23 @@ def make_handler(store: EventStore):
                     issues = [issue.__dict__ for issue in validate_netlist(_netlist(data))]
                     result = {"valid": not issues, "issues": issues}
                     summary = {"valid": result["valid"], "issues": len(issues)}
+                elif path == "/api/biology/mm/simulate":
+                    result = simulate_enzyme_reaction(
+                        data.get("substrate0", 1.0), data.get("vmax", 1.0),
+                        data.get("km", 1.0), data.get("duration", 1.0), data.get("dt", 0.01),
+                    )
+                    summary = {"points": len(result["times"]), "mass_balance_error": result["mass_balance_error"]}
+                elif path == "/api/evolution/mm-fit":
+                    result = fit_michaelis_menten(
+                        data.get("observations", []),
+                        tuple(data.get("vmax_bounds", (0.01, 10.0))),
+                        tuple(data.get("km_bounds", (0.01, 10.0))),
+                        int(data.get("population_size", 48)),
+                        int(data.get("generations", 80)),
+                        float(data.get("mutation_rate", 0.18)),
+                        int(data.get("seed", 0)),
+                    )
+                    summary = {"rmse": result["rmse"], "observations": result["observation_count"], "seed": result["seed"]}
                 else:
                     self._send(404, {"error": "not_found"})
                     return
