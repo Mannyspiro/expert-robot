@@ -1,0 +1,79 @@
+name: Merlin NousCoder local inference qualification
+
+on:
+  pull_request:
+    paths:
+      - "config/merlin-integrations.example.json"
+      - "scripts/models/run_nouscoder.sh"
+      - ".github/workflows/merlin-nouscoder-inference.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: nouscoder-inference-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  cpu-inference:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore verified NousCoder model cache
+        uses: actions/cache/restore@v4
+        with:
+          path: models/hermes_coder
+          key: nouscoder-14b-q4-k-m-v1-${{ runner.os }}
+          fail-on-cache-miss: true
+      - name: Confirm model checksum before inference
+        run: |
+          set -euo pipefail
+          model='models/hermes_coder/NousResearch_NousCoder-14B-Q4_K_M.gguf'
+          test -s "$model"
+          echo '9cc51afc755319db42a6324baf3395436cce5954dc87df95d3b9e7d625610624  '"$model" | sha256sum --check
+      - name: Build llama.cpp CPU server
+        run: |
+          set -euo pipefail
+          git clone --depth 1 https://github.com/ggml-org/llama.cpp.git /tmp/llama.cpp
+          cmake -S /tmp/llama.cpp -B /tmp/llama.cpp/build -DCMAKE_BUILD_TYPE=Release -DGGML_NATIVE=ON
+          cmake --build /tmp/llama.cpp/build --config Release --parallel 8 --target llama-server
+          test -x /tmp/llama.cpp/build/bin/llama-server
+      - name: Load model and run a real coding prompt
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          /tmp/llama.cpp/build/bin/llama-server \
+            --model models/hermes_coder/NousResearch_NousCoder-14B-Q4_K_M.gguf \
+            --host 127.0.0.1 --port 8080 --ctx-size 65536 \
+            --threads 8 --threads-batch 8 --batch-size 512 --ubatch-size 128 \
+            --n-gpu-layers 0 > /tmp/nouscoder-llama-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for i in $(seq 1 180); do
+            if curl --fail --silent http://127.0.0.1:8080/health >/dev/null; then ready=1; break; fi
+            if ! kill -0 "$server_pid" 2>/dev/null; then cat /tmp/nouscoder-llama-server.log; exit 5; fi
+            sleep 2
+          done
+          if [ "$ready" -ne 1 ]; then cat /tmp/nouscoder-llama-server.log; echo 'llama-server readiness timeout' >&2; exit 6; fi
+          curl --fail --silent --show-error --max-time 180 \
+            http://127.0.0.1:8080/v1/chat/completions \
+            -H 'Content-Type: application/json' \
+            -d '{"model":"NousResearch_NousCoder-14B-Q4_K_M.gguf","messages":[{"role":"system","content":"You are a precise coding assistant. Return a short correct Python function."},{"role":"user","content":"Write a Python function named clamp that accepts value, low, high and returns value clamped inclusively between low and high."}],"temperature":0,"max_tokens":120}' \
+            > artifacts/nouscoder-inference.json
+          python3 - <<'PY'
+          import json
+          with open('artifacts/nouscoder-inference.json', encoding='utf-8') as f:
+              data=json.load(f)
+          text=data['choices'][0]['message']['content']
+          if not isinstance(text, str) or len(text.strip()) < 8:
+              raise SystemExit('Model returned no usable coding response.')
+          print('PASS: NousCoder produced a non-empty coding response.')
+          print(text[:1200])
+          PY
+      - name: Publish inference qualification artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-nouscoder-inference-smoke
+          path: artifacts/nouscoder-inference.json
+          retention-days: 7
