@@ -1,0 +1,52 @@
+{
+  "integrations": {
+    "hermes_agent": {
+      "source": "https://github.com/NousResearch/hermes-agent",
+      "install_script": "scripts/install_hermes_agent.sh",
+      "checkout_path": ".tools/hermes-agent",
+      "install_mode": "source-only-by-default"
+    },
+    "coding_model": {
+      "name": "NousCoder-14B",
+      "source_model": "NousResearch/NousCoder-14B",
+      "gguf_model": "bartowski/NousResearch_NousCoder-14B-GGUF",
+      "quantization": "Q4_K_M",
+      "filename": "NousCoder-14B-Q4_K_M.gguf",
+      "local_path": "models/hermes_coder/NousCoder-14B-Q4_K_M.gguf",
+      "backend": "llama.cpp",
+      "endpoint": "http://127.0.0.1:8080/v1",
+      "context_size": 65536,
+      "optional": true,
+      "download_script": "scripts/models/download_nouscoder.sh",
+      "launch_script": "scripts/models/run_nouscoder.sh",
+      "license": "Apache-2.0"
+    },
+    "voice": {
+      "engine": "Kokoro-82M ONNX",
+      "model_url": "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/kokoro-v1.0.onnx",
+      "voices_url": "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.1/voices-v1.0.bin",
+      "local_path": "models/voice/kokoro",
+      "endpoint": "http://127.0.0.1:8880",
+      "speech_path": "/v1/audio/speech",
+      "health_path": "/health",
+      "default_voice": "af_heart",
+      "initial_languages": [
+        "en-us",
+        "en-gb"
+      ],
+      "format": "wav",
+      "optional": true,
+      "download_script": "scripts/models/download_kokoro.sh",
+      "launch_script": "scripts/models/run_kokoro.sh",
+      "weights_license": "Apache-2.0",
+      "runtime_license": "MIT"
+    }
+  },
+  "governance": {
+    "model_weights_committed_to_git": false,
+    "default_roles_changed": false,
+    "external_services_required": false,
+    "local_servers_bind_loopback_by_default": true,
+    "new_agent_authority": "none; use existing Expert Robot sandbox and tool broker"
+  }
+}
