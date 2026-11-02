@@ -337,3 +337,5 @@ Project continuity and outstanding research requirements are consolidated in [do
 Typed geometry and wiring foundations are documented in [docs/merlin-geometry-netlist-ir.md](docs/merlin-geometry-netlist-ir.md).
 
 Current inductive roadmap: [docs/ENGINEERING_PLAN_V17.md](docs/ENGINEERING_PLAN_V17.md).
+
+Run the loopback-only Merlin API using [docs/merlin-mvp-api.md](docs/merlin-mvp-api.md).
