@@ -335,3 +335,5 @@ Optional Hermes Agent, NousCoder-14B and local Kokoro TTS setup is documented in
 Project continuity and outstanding research requirements are consolidated in [docs/MERLIN_MASTER_HANDOFF_2026-11-02.md](docs/MERLIN_MASTER_HANDOFF_2026-11-02.md).
 
 Typed geometry and wiring foundations are documented in [docs/merlin-geometry-netlist-ir.md](docs/merlin-geometry-netlist-ir.md).
+
+Current inductive roadmap: [docs/ENGINEERING_PLAN_V17.md](docs/ENGINEERING_PLAN_V17.md).
