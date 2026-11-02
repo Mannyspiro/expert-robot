@@ -14,7 +14,9 @@ import os
 from pathlib import Path
 import sqlite3
 from typing import Any
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlsplit
+from urllib.request import Request, urlopen
+from urllib.error import URLError, HTTPError
 
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
@@ -24,6 +26,15 @@ from .engineering.geometry import GeometrySpec, Point3D, validate_geometry, boun
 from .engineering.netlist import Component, Connection, Net, Netlist, validate_netlist
 
 MAX_BODY = 1_000_000
+MAX_PROXY_RESPONSE = 16_000_000
+
+
+def _loopback_endpoint(env_name: str, default: str) -> str:
+    value = os.environ.get(env_name, default)
+    parsed = urlsplit(value)
+    if parsed.scheme != "http" or parsed.hostname not in {"127.0.0.1", "localhost", "::1"}:
+        raise ValueError(f"{env_name} must be an http loopback URL")
+    return value
 
 
 def _json_bytes(value: Any) -> bytes:
@@ -144,6 +155,14 @@ def make_handler(store: EventStore):
     class Handler(BaseHTTPRequestHandler):
         server_version = "MerlinMVP/0.3"
 
+        def _send_bytes(self, status: int, body: bytes, content_type: str) -> None:
+            self.send_response(status)
+            self.send_header("Content-Type", content_type)
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(body)
+
         def _send(self, status: int, payload: dict[str, Any]) -> None:
             body = _json_bytes(payload)
             self.send_response(status)
@@ -176,6 +195,35 @@ def make_handler(store: EventStore):
                 if not isinstance(data, dict):
                     raise ValueError("request body must be a JSON object")
 
+                if path == "/api/speech":
+                    endpoint = _loopback_endpoint("MERLIN_TTS_URL", "http://127.0.0.1:8880/v1/audio/speech")
+                    request = Request(endpoint, data=raw, headers={"Content-Type": "application/json"}, method="POST")
+                    with urlopen(request, timeout=60) as response:
+                        audio = response.read(MAX_PROXY_RESPONSE + 1)
+                        if len(audio) > MAX_PROXY_RESPONSE:
+                            self._send(502, {"error": "tts_response_too_large"})
+                            return
+                        content_type = response.headers.get("Content-Type", "audio/wav")
+                    store.append(path, data, {"bytes": len(audio), "content_type": content_type})
+                    self._send_bytes(200, audio, content_type)
+                    return
+                if path == "/api/chat":
+                    if os.environ.get("MERLIN_MODEL_QUALIFIED") != "1":
+                        self._send(503, {"error": "model_not_qualified", "detail": "NousCoder inference has not passed its code-execution qualification gate."})
+                        return
+                    endpoint = _loopback_endpoint("MERLIN_MODEL_URL", "http://127.0.0.1:8080/v1/chat/completions")
+                    request = Request(endpoint, data=raw, headers={"Content-Type": "application/json"}, method="POST")
+                    with urlopen(request, timeout=180) as response:
+                        body = response.read(MAX_PROXY_RESPONSE + 1)
+                        if len(body) > MAX_PROXY_RESPONSE:
+                            self._send(502, {"error": "model_response_too_large"})
+                            return
+                    model_result = json.loads(body.decode("utf-8"))
+                    choices = model_result.get("choices", [])
+                    summary = {"model": model_result.get("model"), "choices": len(choices)}
+                    store.append(path, data, summary)
+                    self._send_bytes(200, body, "application/json; charset=utf-8")
+                    return
                 if path == "/api/ideonomy/rank":
                     ideas = [_idea(row) for row in data.get("ideas", [])]
                     result = rank_ideas(ideas, int(data.get("limit", 8)))
@@ -201,6 +249,8 @@ def make_handler(store: EventStore):
                 self._send(200, result)
             except (ValueError, TypeError, KeyError, json.JSONDecodeError) as exc:
                 self._send(400, {"error": "invalid_request", "detail": str(exc)[:300]})
+            except (URLError, HTTPError, TimeoutError, OSError) as exc:
+                self._send(503, {"error": "local_adapter_unavailable", "detail": str(exc)[:200]})
             except Exception:
                 self._send(500, {"error": "internal_error"})
 
