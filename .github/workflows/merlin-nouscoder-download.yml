@@ -1,0 +1,77 @@
+name: Merlin NousCoder model acquisition
+
+on:
+  pull_request:
+    paths:
+      - "scripts/models/download_nouscoder.sh"
+      - "config/merlin-integrations.example.json"
+      - ".github/workflows/merlin-nouscoder-download.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: nouscoder-acquisition-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  download-model:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore optional NousCoder model cache
+        id: model-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: models/hermes_coder
+          key: nouscoder-14b-q4-k-m-v1-${{ runner.os }}
+      - name: Inspect runner capacity
+        run: |
+          set -euo pipefail
+          free -h
+          df -h .
+          python3 - <<'PY'
+          import shutil
+          free = shutil.disk_usage('.').free
+          print(f'Free disk: {free / (1024**3):.2f} GiB')
+          if free < 12 * (1024**3):
+              raise SystemExit('At least 12 GiB free disk is required for Q4_K_M download.')
+          PY
+      - name: Download NousCoder-14B Q4_K_M when cache is cold
+        if: steps.model-cache.outputs.cache-hit != 'true'
+        run: bash scripts/models/download_nouscoder.sh
+      - name: Verify model file and write provenance manifest
+        run: |
+          set -euo pipefail
+          model='models/hermes_coder/NousCoder-14B-Q4_K_M.gguf'
+          test -s "$model"
+          bytes="$(stat -c '%s' "$model")"
+          if [ "$bytes" -lt 8000000000 ]; then
+            echo "Unexpectedly small model file: $bytes bytes" >&2
+            exit 4
+          fi
+          mkdir -p artifacts
+          sha256sum "$model" > artifacts/nouscoder.sha256
+          python3 - "$model" "$bytes" > artifacts/nouscoder-manifest.json <<'PY'
+          import json,sys
+          print(json.dumps({
+            'model':'NousResearch/NousCoder-14B',
+            'quantized_repository':'bartowski/NousResearch_NousCoder-14B-GGUF',
+            'file':sys.argv[1], 'bytes':int(sys.argv[2]),
+            'quantization':'Q4_K_M', 'weights_license':'Apache-2.0',
+            'committed_to_git':False
+          },indent=2))
+          PY
+      - name: Save model cache for subsequent Avrea jobs
+        if: success() && steps.model-cache.outputs.cache-hit != 'true'
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: models/hermes_coder
+          key: nouscoder-14b-q4-k-m-v1-${{ runner.os }}
+      - name: Publish model provenance only
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-nouscoder-model-manifest
+          path: artifacts/
+          retention-days: 7
