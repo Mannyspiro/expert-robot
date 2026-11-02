@@ -38,6 +38,10 @@ class NetlistIRTests(unittest.TestCase):
         self.assertIn("rating.voltage_exceeded", codes)
         self.assertIn("rating.current_exceeded", codes)
 
+    def test_duplicate_connection_on_one_net_is_flagged(self):
+        spec = Netlist(components=(Component("x", ("a", "b")), Component("y", ("a",))), nets=(Net("n", (Connection("x", "a"), Connection("x", "a"))),))
+        self.assertIn("net.duplicate_connection", {i.code for i in validate_netlist(spec)})
+
     def test_pin_cannot_be_assigned_to_two_nets(self):
         spec = Netlist(
             components=(Component("x", ("a", "b")), Component("y", ("a", "b"))),
