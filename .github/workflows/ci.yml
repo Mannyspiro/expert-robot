@@ -116,6 +116,11 @@ jobs:
           python3 -m unittest discover -s tests/voice -v
           python3 -m unittest discover -s tests/engineering -v
 
+      - name: Merlin deterministic research and API contracts
+        run: |
+          python3 -m unittest discover -s tests/engineering -v
+          python3 -m unittest discover -s tests/research -v
+
       - name: Independent smoke tests
         shell: bash
         run: |
