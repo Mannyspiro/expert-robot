@@ -58,20 +58,27 @@ jobs:
           curl --fail --silent --show-error --max-time 180 \
             http://127.0.0.1:8080/v1/chat/completions \
             -H 'Content-Type: application/json' \
-            -d '{"model":"NousResearch_NousCoder-14B-Q4_K_M.gguf","messages":[{"role":"system","content":"You are a precise coding assistant. Return a short correct Python function."},{"role":"user","content":"Write a Python function named clamp that accepts value, low, high and returns value clamped inclusively between low and high."}],"temperature":0,"max_tokens":120}' \
+            -d '{"model":"NousResearch_NousCoder-14B-Q4_K_M.gguf","messages":[{"role":"system","content":"You are a precise coding assistant. Return a short correct Python function."},{"role":"user","content":"Write a Python function named clamp that accepts value, low, high and returns value clamped inclusively between low and high."}],"temperature":0,"max_tokens":256,"chat_template_kwargs":{"enable_thinking":false}}' \
             > artifacts/nouscoder-inference.json
           python3 - <<'PY'
           import json
           with open('artifacts/nouscoder-inference.json', encoding='utf-8') as f:
               data=json.load(f)
-          text=data['choices'][0]['message']['content']
+          message=data['choices'][0]['message']
+          text=message.get('content') or message.get('reasoning_content') or ''
           if not isinstance(text, str) or len(text.strip()) < 8:
-              raise SystemExit('Model returned no usable coding response.')
+              print(json.dumps(data, indent=2)[:5000])
+              raise SystemExit('Model returned no usable text in content or reasoning_content.')
           print('PASS: NousCoder produced a non-empty coding response.')
           print(text[:1200])
           PY
+      - name: Preserve inference diagnostics
+        if: always()
+        run: |
+          mkdir -p artifacts
+          cp /tmp/nouscoder-llama-server.log artifacts/llama-server.log 2>/dev/null || true
       - name: Publish inference qualification artifact
-        if: success()
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: merlin-nouscoder-inference-smoke
