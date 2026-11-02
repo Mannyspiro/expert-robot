@@ -1,5 +1,15 @@
 {
   "integrations": {
+    "network_model_gateway": {
+      "protocol": "OpenAI-compatible HTTPS",
+      "endpoint_env": "MERLIN_REMOTE_MODEL_URL",
+      "api_key_env": "MERLIN_REMOTE_API_KEY",
+      "allowed_hosts_env": "MERLIN_REMOTE_ALLOWED_HOSTS",
+      "qualification_env": "MERLIN_REMOTE_MODEL_QUALIFIED",
+      "streaming": "server-sent events",
+      "provider_selection": "task-role router; remote preferred when qualified",
+      "secrets_in_config_files": false
+    },
     "hermes_agent": {
       "source": "https://github.com/NousResearch/hermes-agent",
       "install_script": "scripts/install_hermes_agent.sh",
