@@ -131,3 +131,11 @@ For every new requirement or failure append:
 observation → source/receipt → gap → smallest analogous subproblem → acceptance test → result → plan delta.
 
 A feature is not complete because a UI exists, a package downloads, a prompt returns text, or a test is merely listed in an old report. Only reproducible current-head evidence changes its status.
+
+
+## Progress delta after v17 draft
+
+- The loopback-only Merlin MVP API 0.3 is implemented at `python/merlin/app.py`: health/capabilities, SQLite metadata event history, ideonomy ranking, analogy validation, RSI qualification, geometry/netlist validation, local Kokoro speech proxy and a NousCoder proxy that fails closed until the model is qualified.
+- Avrea CI passed the full C++ build/test and policy suites plus Hermes/voice, engineering, research and API contract tests on commit `862803e51572f75aaab34ff8f19904990678cc0e`.
+- NousCoder download and checksum are verified. The earlier llama.cpp text-generation smoke produced partial output only; it is not considered code qualification. The current manual workflow now AST-restricts generated code and executes five clamp cases. Run it from GitHub Actions before setting `MERLIN_MODEL_QUALIFIED=1`.
+- Kokoro synthesis is verified at 24 kHz mono WAV; subjective voice quality and full multi-seat browser playback still need human listening and UI verification.
