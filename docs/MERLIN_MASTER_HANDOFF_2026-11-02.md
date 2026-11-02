@@ -133,6 +133,8 @@ Other earlier research tracks include numerical FRG confirmation, lattice Page c
 
 ## Visual engineering and mathematical visualization
 
+**Implemented foundation in this branch:** typed geometry IR with unit conversion, face/topology checks, closed-solid manifold checks, bounding boxes and OpenSCAD export; typed wiring/netlist IR with pin identity, duplicate-net detection, supply-ground short checks and declared voltage/current rating preflight. Dedicated unit tests are added to Avrea CI. These are structural preflight tools, not production CAD, circuit simulation, DRC/LVS, or electrical safety qualification.
+
 Use one typed geometry/constraint representation for generated images, 3D CAD, technical drafting and wiring/netlist outputs:
 - dimensions, units, coordinate frames, materials, constraints, connection topology and revision hashes.
 - Export SVG, OpenSCAD/mesh and JSON where appropriate.
