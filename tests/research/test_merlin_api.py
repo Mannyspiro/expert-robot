@@ -57,6 +57,31 @@ class MerlinApiTests(unittest.TestCase):
         })
         self.assertEqual(payload["status"], "BLOCKED")
 
+    def test_model_route_fails_closed_until_qualified(self):
+        request = Request(self.base + "/api/chat", data=json.dumps({"messages": []}).encode(), headers={"Content-Type": "application/json"})
+        try:
+            urlopen(request, timeout=5)
+        except HTTPError as error:
+            self.assertEqual(error.code, 503)
+            self.assertEqual(json.loads(error.read())["error"], "model_not_qualified")
+        else:
+            self.fail("unqualified model route must return 503")
+
+    def test_speech_route_requires_local_sidecar(self):
+        import os
+        previous = os.environ.get("MERLIN_TTS_URL")
+        os.environ["MERLIN_TTS_URL"] = "http://127.0.0.1:1/v1/audio/speech"
+        try:
+            request = Request(self.base + "/api/speech", data=json.dumps({"input": "test"}).encode(), headers={"Content-Type": "application/json"})
+            with self.assertRaises(HTTPError) as caught:
+                urlopen(request, timeout=5)
+            self.assertEqual(caught.exception.code, 503)
+        finally:
+            if previous is None:
+                os.environ.pop("MERLIN_TTS_URL", None)
+            else:
+                os.environ["MERLIN_TTS_URL"] = previous
+
     def test_events_store_metadata_not_request_text(self):
         self.post("/api/ideonomy/rank", {"ideas": []})
         with urlopen(self.base + "/api/events", timeout=5) as response:
