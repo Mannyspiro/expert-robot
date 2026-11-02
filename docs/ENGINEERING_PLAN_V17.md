@@ -158,3 +158,46 @@ Observed requirement: Merlin must not depend on hosting all model weights locall
 - Provider/model qualification is independent from network connectivity; reachability alone is not qualification.
 - Secrets stay in runtime secret storage; never commit keys.
 - Capability grows; authority never expands automatically.
+
+
+## Inductive plan update v19 — hybrid compressed intelligence and hot-swap
+
+Observation: network inference solves the model-size ceiling but adds network dependency, privacy decisions and provider latency. New requirement is to compress local inference and swap weights/data/adapters dynamically, while preserving remote expert access.
+
+Source-backed research:
+- llama.cpp supports GGUF quantization, mmap/lazy tensor loading, selectable KV-cache precision and device offload.
+- llama-swap provides on-demand process/model switching across compatible OpenAI/Anthropic APIs and local multimodal backends; evaluate as a replaceable supervisor.
+- LLM Compressor provides PTQ/GPTQ/AWQ/SmoothQuant/AutoRound/rotation methods, activation and KV-cache quantization, and sequential offload, subject to compatible hardware/runtime.
+- NASA NPO-51334-1 is explicitly Open Source and includes image preprocessing, augmentation and TensorFlow model compression; relevant to vision pipeline experiments, not general LLM compression.
+- The adaptive distributed compression patent US12375101B1 found in this pass is assigned to Atombeam Technologies Inc., not NASA. It is a research lead, not free code or a blanket patent license. No directly relevant NASA-owned patent was verified in this pass.
+
+Architecture decision:
+1. Resident local quantized generalist for ordinary chat, routing and offline fallback.
+2. On-demand local specialists with model leases, idle unload, optional prewarm, and strict session/KV isolation.
+3. Optional LoRA adapters pinned to base-model/tokenizer hashes.
+4. Context, retrieval, tool packs and datasets hot-swapped independently of model weights.
+5. Qualified remote models for difficult tasks; do not silently move private data across providers.
+6. Council uses independent models/evidence paths; stream the lead answer first and preserve a verbose written debate transcript.
+
+Parrondo-inspired evaluation:
+- Compare local-fast A, remote/specialist B, adaptive switching, and council under equal task and resource budgets.
+- The hybrid only qualifies if held-out net utility exceeds each fixed policy after quality, latency, cost, privacy and unsupported-claim penalties.
+- Require ablations, confidence intervals and correlated-error analysis. Do not assume mixing strategies creates an improvement.
+
+Next execution:
+H1 inventory hardware/runner RAM, VRAM, disk, CPU and existing artifacts; establish local-vs-remote cold/warm benchmarks.
+H2 prototype one 1-4B-class GGUF generalist, compare Q4/Q5/Q8 with identical held-out tasks.
+H3 prototype llama-swap isolated behind Merlin adapter; add request leases, idle unload, prewarm and bounded concurrency.
+H4 add adapter manifests and per-task context packs with compatibility checks.
+H5 add task-role router and Parrondo evaluation.
+H6 implement verbose council transcript + streamed lead voice and optional full-debate playback.
+H7 connect RSI candidate generation to benchmark, independent verification, human approval, signed receipt and rollback.
+
+Acceptance gates:
+- Quantized local core retains required task quality and improves measured memory/latency.
+- A→B→A model switching produces no corrupted response, stale session state, cross-user KV reuse or unbounded memory.
+- Adapters incompatible with base model/tokenizer fail closed.
+- Hybrid policy beats fixed baselines on held-out tasks with confidence intervals and no privacy violations.
+- Council demonstrably improves quality over the best single model, with incremental latency/cost disclosed.
+
+Implementation note: this update records a plan and research shortlist only. No model weights, NASA source, llama-swap or LLM Compressor have been downloaded/integrated; no hardware inventory or benchmark has been run. Keep current gateway in place until prototype gates pass.
