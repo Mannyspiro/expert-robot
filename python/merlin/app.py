@@ -41,6 +41,19 @@ def _json_bytes(value: Any) -> bytes:
     return json.dumps(value, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
 
 
+def _remote_model_endpoint() -> tuple[str, str]:
+    """Return an explicitly allowlisted HTTPS OpenAI-compatible endpoint."""
+    endpoint = os.environ.get("MERLIN_REMOTE_MODEL_URL", "").strip()
+    api_key = os.environ.get("MERLIN_REMOTE_API_KEY", "").strip()
+    allowed = {host.strip().lower() for host in os.environ.get("MERLIN_REMOTE_ALLOWED_HOSTS", "").split(",") if host.strip()}
+    if not endpoint or not api_key or not allowed:
+        raise ValueError("remote model requires URL, API key, and explicit allowed-host list")
+    parsed = urlsplit(endpoint)
+    if parsed.scheme != "https" or not parsed.hostname or parsed.hostname.lower() not in allowed or parsed.username or parsed.password or parsed.fragment:
+        raise ValueError("remote model URL must use HTTPS and an explicitly allowlisted host")
+    return endpoint, api_key
+
+
 class EventStore:
     def __init__(self, path: str | Path):
         self.path = str(path)
@@ -83,6 +96,7 @@ CAPABILITIES = [
     {"id": "engineering.geometry.openscad", "status": "AVAILABLE", "evidence": "typed geometry exporter"},
     {"id": "engineering.netlist.validate", "status": "AVAILABLE", "evidence": "unit-tested structural/rating preflight"},
     {"id": "voice.kokoro", "status": "OPTIONAL_LOCAL_SERVICE", "endpoint": "http://127.0.0.1:8880"},
+    {"id": "model.remote_openai_compatible", "status": "CONFIGURED_AT_RUNTIME", "transport": "HTTPS + SSE", "credential_source": "MERLIN_REMOTE_API_KEY"},
     {"id": "model.nouscoder", "status": "NOT_QUALIFIED", "endpoint": "http://127.0.0.1:8080/v1"},
     {"id": "agent.hermes", "status": "SOURCE_DOWNLOADED_NOT_CONNECTED", "path": ".tools/hermes-agent"},
     {"id": "media.image", "status": "NOT_CONFIGURED"},
@@ -208,21 +222,58 @@ def make_handler(store: EventStore):
                     self._send_bytes(200, audio, content_type)
                     return
                 if path == "/api/chat":
-                    if os.environ.get("MERLIN_MODEL_QUALIFIED") != "1":
-                        self._send(503, {"error": "model_not_qualified", "detail": "NousCoder inference has not passed its code-execution qualification gate."})
-                        return
-                    endpoint = _loopback_endpoint("MERLIN_MODEL_URL", "http://127.0.0.1:8080/v1/chat/completions")
-                    request = Request(endpoint, data=raw, headers={"Content-Type": "application/json"}, method="POST")
+                    remote_url = os.environ.get("MERLIN_REMOTE_MODEL_URL", "").strip()
+                    if remote_url:
+                        if os.environ.get("MERLIN_REMOTE_MODEL_QUALIFIED") != "1":
+                            self._send(503, {"error": "remote_model_not_qualified"})
+                            return
+                        endpoint, api_key = _remote_model_endpoint()
+                    else:
+                        if os.environ.get("MERLIN_MODEL_QUALIFIED") != "1":
+                            self._send(503, {"error": "model_not_qualified", "detail": "No qualified remote provider or local model is configured."})
+                            return
+                        endpoint = _loopback_endpoint("MERLIN_MODEL_URL", "http://127.0.0.1:8080/v1/chat/completions")
+                        api_key = ""
+                    headers = {"Content-Type": "application/json", "Accept": "text/event-stream, application/json"}
+                    if api_key:
+                        headers["Authorization"] = "Bearer " + api_key
+                    request = Request(endpoint, data=raw, headers=headers, method="POST")
                     with urlopen(request, timeout=180) as response:
+                        content_type = response.headers.get("Content-Type", "application/json")
+                        wants_stream = bool(data.get("stream")) and "text/event-stream" in content_type.lower()
+                        if wants_stream:
+                            self.send_response(200)
+                            self.send_header("Content-Type", content_type)
+                            self.send_header("Cache-Control", "no-cache, no-transform")
+                            self.send_header("X-Accel-Buffering", "no")
+                            self.send_header("Connection", "close")
+                            self.end_headers()
+                            total = 0
+                            while True:
+                                chunk = response.read(8192)
+                                if not chunk:
+                                    break
+                                total += len(chunk)
+                                if total > 64000000:
+                                    raise ValueError("stream exceeded 64 MB safety limit")
+                                self.wfile.write(chunk)
+                                self.wfile.flush()
+                            store.append(path, data, {"streamed": True, "bytes": total, "provider_host": urlsplit(endpoint).hostname})
+                            return
                         body = response.read(MAX_PROXY_RESPONSE + 1)
                         if len(body) > MAX_PROXY_RESPONSE:
                             self._send(502, {"error": "model_response_too_large"})
                             return
-                    model_result = json.loads(body.decode("utf-8"))
-                    choices = model_result.get("choices", [])
-                    summary = {"model": model_result.get("model"), "choices": len(choices)}
+                    if "application/json" in content_type.lower():
+                        try:
+                            model_result = json.loads(body.decode("utf-8"))
+                            summary = {"model": model_result.get("model"), "choices": len(model_result.get("choices", [])), "provider_host": urlsplit(endpoint).hostname}
+                        except (ValueError, AttributeError):
+                            summary = {"bytes": len(body), "provider_host": urlsplit(endpoint).hostname}
+                    else:
+                        summary = {"bytes": len(body), "content_type": content_type, "provider_host": urlsplit(endpoint).hostname}
                     store.append(path, data, summary)
-                    self._send_bytes(200, body, "application/json; charset=utf-8")
+                    self._send_bytes(200, body, content_type)
                     return
                 if path == "/api/ideonomy/rank":
                     ideas = [_idea(row) for row in data.get("ideas", [])]
