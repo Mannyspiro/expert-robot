@@ -1,7 +1,7 @@
 name: Merlin NousCoder local inference qualification
 
 on:
-  push:
+  pull_request:
     paths:
       - ".github/workflows/merlin-nouscoder-inference.yml"
   workflow_dispatch:
