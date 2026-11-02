@@ -200,3 +200,34 @@ Problem reframing protocol:
 ## Operational rule
 
 At each iteration append: observed requirement → source/evidence → failure/gap → smallest testable subproblem → acceptance test → result → plan update. Never claim a feature is complete merely because its UI or installer exists.
+
+
+## Network-native streamed inference update — 2026-11-02
+
+New user requirement: make Merlin fast by networking to remote AI models rather than requiring model weights to run locally. The chosen design streams inference output over HTTPS; it does not stream/download model weights for each request.
+
+Implemented on this branch:
+- POST /api/chat can route to an OpenAI-compatible HTTPS endpoint using runtime-only MERLIN_REMOTE_MODEL_URL, MERLIN_REMOTE_API_KEY, and MERLIN_REMOTE_ALLOWED_HOSTS.
+- Remote route requires a separate MERLIN_REMOTE_MODEL_QUALIFIED=1 gate.
+- Exact hostname allowlisting and HTTPS validation are enforced.
+- stream: true passes through upstream SSE incrementally; non-stream JSON is preserved.
+- Local llama.cpp remains separate and gated by MERLIN_MODEL_QUALIFIED=1.
+- Added endpoint validation tests, mocked SSE passthrough test, example environment contract and docs/NETWORK_MODEL_STREAMING_V1.md.
+- Updated docs/ENGINEERING_PLAN_V17.md with inductive v18 requirements and docs/merlin-mvp-api.md.
+
+Not yet done:
+- Avrea CI for the newest stream implementation is pending; do not claim the new gateway tests have passed until its run is green.
+- No real provider credentials have been configured or used; remote inference has not been exercised against a paid or free external model endpoint.
+- No provider benchmark, multi-provider role router, production async connection pool, cancellation telemetry or council fan-out is implemented yet.
+- Do not set the remote qualification flag until the chosen provider/model is tested and its privacy/retention settings are reviewed.
+- The current Python standard-library HTTP server is a low-concurrency MVP, not the final high-throughput gateway.
+
+Performance roadmap:
+1. Verify SSE chunks arrive incrementally with Avrea CI.
+2. Build an async connection-pooled gateway with cancellation, bounded concurrency and deadlines.
+3. Add task-role/provider registry and explicit model selection.
+4. Measure TTFT, tokens/sec, end-to-end latency, error rate and cost per successful task on held-out tasks.
+5. Add council parallel review and streamed Kokoro audio playback.
+6. Keep Avrea/OCI for private work, code execution, simulation and explicitly authorized local fallback.
+
+Trust rule: never silently move private prompts to a different provider during fallback. Credentials stay in runtime secrets; prompts are not written to event logs. Connectivity is not model qualification.
