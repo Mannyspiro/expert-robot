@@ -64,13 +64,17 @@ jobs:
           model_files = []
           for root in ("models", ".cache/huggingface/hub", "/root/.cache/huggingface/hub"):
               p = Path(root)
-              if p.exists():
+              try:
+                  if not p.exists():
+                      continue
                   for f in p.rglob("*"):
-                      if f.is_file() and f.suffix.lower() in {".gguf", ".safetensors", ".bin", ".onnx", ".pt", ".pth"}:
-                          try:
+                      try:
+                          if f.is_file() and f.suffix.lower() in {".gguf", ".safetensors", ".bin", ".onnx", ".pt", ".pth"}:
                               model_files.append({"path": str(f), "bytes": f.stat().st_size})
-                          except OSError:
-                              pass
+                      except (OSError, PermissionError):
+                          continue
+              except (OSError, PermissionError):
+                  continue
 
           result = {
               "platform": platform.platform(),
