@@ -32,6 +32,10 @@ Core principle: **capability grows; authority never expands automatically.**
 
 ## Current implementation — 2026-11-02
 
+### Biochemistry and evolution increment
+
+Added unit-aware-parameter validation and deterministic Michaelis-Menten/Hill kinetics, a mass-balanced RK4 reaction simulator, and a seeded evolutionary optimizer for fitting Vmax/Km from observations. These are toy/research models only, not validated biology. API endpoints are available at `/api/biology/mm/simulate` and `/api/evolution/mm-fit`; expanded Avrea tests are still running.
+
 ### Merlin Workbench MVP 0.3
 
 A loopback-only Python standard-library API is now in the Expert Robot branch at `python/merlin/app.py`. It exposes health/capabilities, ideonomy ranking, analogy validation, RSI qualification, geometry validation, netlist validation, metadata-only SQLite event history, and loopback proxy routes for Kokoro speech and a local model. The model route fails closed until `MERLIN_MODEL_QUALIFIED=1`; raw prompt/request text is not written to the event ledger. Dedicated API tests are included in Avrea CI.
