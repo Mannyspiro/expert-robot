@@ -32,7 +32,11 @@ Core principle: **capability grows; authority never expands automatically.**
 
 ## Current implementation — 2026-11-02
 
-### Merlin Workbench MVP 0.2
+### Merlin Workbench MVP 0.3
+
+A loopback-only Python standard-library API is now in the Expert Robot branch at `python/merlin/app.py`. It exposes health/capabilities, ideonomy ranking, analogy validation, RSI qualification, geometry validation, netlist validation, metadata-only SQLite event history, and loopback proxy routes for Kokoro speech and a local model. The model route fails closed until `MERLIN_MODEL_QUALIFIED=1`; raw prompt/request text is not written to the event ledger. Dedicated API tests are included in Avrea CI.
+
+### Earlier Merlin Workbench MVP 0.2
 
 Implemented in the separately delivered Merlin MVP package:
 - Python standard-library HTTP server and SQLite persistence.
