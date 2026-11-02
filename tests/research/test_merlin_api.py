@@ -90,5 +90,36 @@ class MerlinApiTests(unittest.TestCase):
         self.assertNotIn("Mesh reduction", json.dumps(payload["events"]))
 
 
+    def test_remote_model_requires_https_and_explicit_host_allowlist(self):
+        import os
+        from unittest.mock import patch
+        from python.merlin.app import _remote_model_endpoint
+
+        with patch.dict(os.environ, {
+            "MERLIN_REMOTE_MODEL_URL": "https://api.example.test/v1/chat/completions",
+            "MERLIN_REMOTE_API_KEY": "test-secret",
+            "MERLIN_REMOTE_ALLOWED_HOSTS": "api.example.test",
+        }, clear=False):
+            self.assertEqual(_remote_model_endpoint(), (
+                "https://api.example.test/v1/chat/completions", "test-secret"
+            ))
+
+        with patch.dict(os.environ, {
+            "MERLIN_REMOTE_MODEL_URL": "http://api.example.test/v1/chat/completions",
+            "MERLIN_REMOTE_API_KEY": "test-secret",
+            "MERLIN_REMOTE_ALLOWED_HOSTS": "api.example.test",
+        }, clear=False):
+            with self.assertRaises(ValueError):
+                _remote_model_endpoint()
+
+        with patch.dict(os.environ, {
+            "MERLIN_REMOTE_MODEL_URL": "https://unapproved.example/v1/chat/completions",
+            "MERLIN_REMOTE_API_KEY": "test-secret",
+            "MERLIN_REMOTE_ALLOWED_HOSTS": "api.example.test",
+        }, clear=False):
+            with self.assertRaises(ValueError):
+                _remote_model_endpoint()
+
+
 if __name__ == "__main__":
     unittest.main()
