@@ -149,17 +149,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Restore verified NousCoder model cache
+        id: nouscoder-cache
         uses: actions/cache/restore@v4
         with:
           path: models/hermes_coder
           key: nouscoder-14b-q4-k-m-v1-${{ runner.os }}
-          fail-on-cache-miss: true
+      - name: Download NousCoder model on cache miss
+        if: steps.nouscoder-cache.outputs.cache-hit != 'true'
+        run: bash scripts/models/download_nouscoder.sh
       - name: Verify model checksum
         run: |
           set -euo pipefail
           model='models/hermes_coder/NousResearch_NousCoder-14B-Q4_K_M.gguf'
           test -s "$model"
           echo '9cc51afc755319db42a6324baf3395436cce5954dc87df95d3b9e7d625610624  ' "$model" | tr -d '\n' | sha256sum --check
+      - name: Save verified NousCoder cache
+        if: success() && steps.nouscoder-cache.outputs.cache-hit != 'true'
+        continue-on-error: true
+        uses: actions/cache/save@v4
+        with:
+          path: models/hermes_coder
+          key: nouscoder-14b-q4-k-m-v1-${{ runner.os }}
       - name: Build llama.cpp CPU server
         run: |
           set -euo pipefail
