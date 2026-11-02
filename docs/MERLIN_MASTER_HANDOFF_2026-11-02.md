@@ -62,9 +62,13 @@ Verified:
 - Existing policy, regression, benchmark, formal-dependency, CACE return bridge and collar checks passed on the tested PR merge ref.
 - Hermes/voice shell and Python contract step passed on the tested PR merge ref.
 
-Not yet qualified:
-- Hermes Agent source checkout in the latest acquisition workflow.
-- NousCoder-14B complete download, checksum, llama.cpp load and inference.
+Verified since the first handoff:
+- Hermes Agent source checkout completed on Avrea at revision `5e7c2b254d414e4e25105231f818f385fee67469`.
+- NousCoder-14B Q4_K_M download completed on Avrea: 9,001,754,752 bytes; SHA-256 matched the published digest; manifest artifact published.
+- Kokoro live synthesis completed successfully again on Avrea.
+
+Still not qualified:
+- NousCoder-14B real inference. The first llama.cpp CPU build succeeded, but the smoke response had empty `content`; a follow-up now disables Qwen3 thinking mode and preserves raw diagnostics.
 - NousCoder benchmark against existing Qwen3-Coder.
 - Full end-to-end council playback in multiple browsers.
 - OCI runner execution for this iteration.
@@ -130,6 +134,12 @@ Latest recorded UFT residuals:
 5. Formalize conditional theorems in Lean with explicit assumptions and axiom-dependency audit.
 
 Other earlier research tracks include numerical FRG confirmation, lattice Page curve, SM-shifted fixed-point coordinates, cosmological MCMC and Lean encoding. These remain open unless a later reproducible artifact proves otherwise.
+
+## Research intelligence and inductive engineering
+
+**Implemented in this branch:** deterministic evidence ledger with hashed-artifact promotion requirements; ideonomy ranking that rejects candidates without mechanisms, assumptions, constraints, observables and falsifiers; explicit analogy mapping that requires preserved invariants and boundary conditions; and a fail-closed RSI candidate gate. Dedicated unit tests run in Avrea CI. These are candidate-generation and governance primitives, not an autonomous scientific discovery engine.
+
+**Bundle intake finding:** the supplied Hermes Research Gates v16 package reports 541 passed / 2 skipped, while excluding nine inherited modules. An independent local collection attempt against the included `merlin_v11/MERLIN` source stopped at test collection because `merlin.vendor.cace_engine_v5` was missing. Therefore the package-level 541-pass claim is retained as a supplied report, not independently reproduced from the provided archive. Exact-head Lean qualification and live Hermes/browser verification remain open.
 
 ## Visual engineering and mathematical visualization
 
