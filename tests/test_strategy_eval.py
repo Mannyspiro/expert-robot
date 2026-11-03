@@ -21,6 +21,21 @@ class StrategyEvalTests(unittest.TestCase):
         self.assertEqual(result["pareto_frontier"], ["fast", "slower"])
         self.assertFalse(result["promotion_authorized"])
 
+    def test_nonfinite_metrics_rejected(self):
+        with self.assertRaises(ValueError):
+            run_paired_trials({"nan": lambda seed: {
+                "quality": .9, "latency_ms": float("nan"),
+                "peak_rss_bytes": 1, "resident_bytes": 1
+            }}, (1,), .8)
+
+    def test_duplicate_seeds_rejected(self):
+        with self.assertRaises(ValueError):
+            run_paired_trials({"x": lambda seed: {}}, (1, 1), .8)
+
+    def test_empty_strategy_set_rejected(self):
+        with self.assertRaises(ValueError):
+            run_paired_trials({}, (1,), .8)
+
     def test_empty_seed_set_rejected(self):
         with self.assertRaises(ValueError):
             run_paired_trials({"x": lambda seed: {}}, (), .9)
