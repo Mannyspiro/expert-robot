@@ -46,6 +46,23 @@ def _json_bytes(value: Any) -> bytes:
     return json.dumps(value, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
 
 
+def _append_component_event(store: EventStore, *, source: str, kind: str,
+                           component: str, task_id: str, payload: dict[str, Any],
+                           duration_ms: float | None = None,
+                           model_id: str | None = None,
+                           evidence_refs: list[str] | None = None) -> None:
+    event = normalize_event({
+        "source": source, "kind": kind, "run_id": sha256(_json_bytes({
+            "component": component, "task": task_id, "nonce": os.urandom(16).hex()
+        })).hexdigest(), "task_id": task_id, "payload": {"component": component, **payload},
+        "duration_ms": duration_ms, "model_id": model_id,
+        "evidence_refs": evidence_refs or [],
+    })
+    store.append("/api/telemetry/ingest",
+                 {"event_id": event["event_id"], "source": source},
+                 {"event": event})
+
+
 def _remote_model_endpoint() -> tuple[str, str]:
     """Return an explicitly allowlisted HTTPS OpenAI-compatible endpoint."""
     endpoint = os.environ.get("MERLIN_REMOTE_MODEL_URL", "").strip()
@@ -350,6 +367,11 @@ def make_handler(store: EventStore):
                             return
                         content_type = response.headers.get("Content-Type", "audio/wav")
                     store.append(path, data, {"bytes": len(audio), "content_type": content_type})
+                    _append_component_event(store, source="model_output", kind="model.inference",
+                        component="tts_adapter", task_id="speech",
+                        payload={"response_bytes": len(audio), "content_type": content_type},
+                        duration_ms=(perf_counter() - self._request_started) * 1000.0,
+                        model_id=os.environ.get("MERLIN_TTS_MODEL"))
                     self._send_bytes(200, audio, content_type)
                     return
                 if path == "/api/chat":
@@ -390,6 +412,12 @@ def make_handler(store: EventStore):
                                 self.wfile.write(chunk)
                                 self.wfile.flush()
                             store.append(path, data, {"streamed": True, "bytes": total, "provider_host": urlsplit(endpoint).hostname})
+                            _append_component_event(store, source="model_output", kind="model.inference",
+                                component="chat_adapter", task_id="chat",
+                                payload={"streamed": True, "response_bytes": total,
+                                         "provider_host": urlsplit(endpoint).hostname},
+                                duration_ms=(perf_counter() - self._request_started) * 1000.0,
+                                model_id=os.environ.get("MERLIN_MODEL_NAME"))
                             return
                         body = response.read(MAX_PROXY_RESPONSE + 1)
                         if len(body) > MAX_PROXY_RESPONSE:
@@ -404,6 +432,13 @@ def make_handler(store: EventStore):
                     else:
                         summary = {"bytes": len(body), "content_type": content_type, "provider_host": urlsplit(endpoint).hostname}
                     store.append(path, data, summary)
+                    _append_component_event(store, source="model_output", kind="model.inference",
+                        component="chat_adapter", task_id="chat",
+                        payload={"streamed": False, "response_bytes": len(body),
+                                 "provider_host": urlsplit(endpoint).hostname,
+                                 "model": summary.get("model")},
+                        duration_ms=(perf_counter() - self._request_started) * 1000.0,
+                        model_id=summary.get("model") or os.environ.get("MERLIN_MODEL_NAME"))
                     self._send_bytes(200, body, content_type)
                     return
                 if path == "/api/ideonomy/rank":
