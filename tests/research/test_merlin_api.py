@@ -71,6 +71,18 @@ class MerlinApiTests(unittest.TestCase):
         })
         self.assertEqual(payload["status"], "BLOCKED")
 
+    def test_council_run_fails_closed_until_local_model_qualified(self):
+        request = Request(self.base + "/api/council/run",
+                          data=json.dumps({"question": "Should we proceed?"}).encode(),
+                          headers={"Content-Type": "application/json"})
+        try:
+            urlopen(request, timeout=5)
+        except HTTPError as error:
+            self.assertEqual(error.code, 503)
+            self.assertEqual(json.loads(error.read())["error"], "council_model_unavailable")
+        else:
+            self.fail("council execution must fail closed until local model qualification")
+
     def test_model_route_fails_closed_until_qualified(self):
         request = Request(self.base + "/api/chat", data=json.dumps({"messages": []}).encode(), headers={"Content-Type": "application/json"})
         try:
