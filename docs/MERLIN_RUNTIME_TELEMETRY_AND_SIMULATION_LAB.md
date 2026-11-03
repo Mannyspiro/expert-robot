@@ -46,3 +46,21 @@ generation, confidence intervals, and held-out seeds.
 
 Nothing here authorizes automatic promotion, repository mutation, deployment,
 or expansion of agent authority. Capability grows, authority never expands.
+
+## Durable replay and graph
+
+Simulation actions are appended to the existing SQLite event ledger. On server
+startup, the simulation state is reconstructed by replaying those actions in
+order. GET /api/sim/replay returns the action log and reconstructed state.
+This is bounded to the latest 10,000 persisted actions; deployments with longer
+histories should introduce snapshots/checkpoints before increasing the limit.
+
+GET /api/telemetry/graph projects actual recorded identifiers into run, task,
+event and evidence levels. It draws only explicit containment and evidence
+reference edges; it does not infer causal relationships. The HUD displays live
+counts from this endpoint.
+
+Council inference emits metadata-only model_output telemetry, including model
+label, transcript digest and response counts; the transcript itself remains
+separate from the graph projection. RSI qualification emits verifier-labeled
+outcome metadata. Neither event grants authority.
