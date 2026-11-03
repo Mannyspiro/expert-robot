@@ -45,14 +45,16 @@ class CatalogTests(unittest.TestCase):
 
     def test_lru_respects_pinned_core(self):
         core = ModuleManifest(**{**self.manifest.__dict__, "module_id": "core",
-            "task_scope": ("general",), "estimated_bytes": 60, "pinned": True})
+            "task_scope": ("general",), "estimated_bytes": 40, "pinned": True})
         manager = BoundedModuleManager(self.root, self.base, 100, 100)
+        third = ModuleManifest(**{**self.manifest.__dict__, "module_id": "other-specialist"})
         manager.register(core)
         manager.register(self.manifest)
+        manager.register(third)
         manager.activate("core")
         manager.activate("math-specialist")
-        self.assertEqual(manager.resident_ids(), ("core", "math-specialist"))
-        manager.deactivate("math-specialist")
+        manager.activate("other-specialist")  # evicts least-recent unpinned module
+        self.assertEqual(manager.resident_ids(), ("core", "other-specialist"))
         with self.assertRaises(CatalogError):
             manager.deactivate("core")
 
