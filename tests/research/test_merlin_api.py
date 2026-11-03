@@ -113,6 +113,29 @@ class MerlinApiTests(unittest.TestCase):
         self.assertEqual(view["source_counts"]["simulation"], 1)
         self.assertTrue(view["simulation_is_not_runtime"])
 
+    def test_http_boundaries_emit_measured_runtime_telemetry(self):
+        with urlopen(self.base + "/health", timeout=5) as response:
+            self.assertEqual(response.status, 200)
+        rows = self.store.by_kind("/api/telemetry/ingest", 10000)
+        events = [row["summary"]["event"] for row in rows
+                  if row.get("summary", {}).get("event", {}).get("task_id") == "/health"]
+        self.assertTrue(events)
+        event = events[-1]
+        self.assertEqual(event["source"], "runtime")
+        self.assertEqual(event["payload"]["component"], "http_api")
+        self.assertEqual(event["payload"]["method"], "GET")
+        self.assertEqual(event["payload"]["status_code"], 200)
+        self.assertGreaterEqual(event["duration_ms"], 0)
+        self.assertGreater(event["payload"]["response_bytes"], 0)
+
+    def test_simulation_operator_events_remain_source_separated(self):
+        self.post("/api/sim/step", {"action": "advance"})
+        rows = self.store.by_kind("/api/telemetry/ingest", 10000)
+        events = [row["summary"]["event"] for row in rows
+                  if row.get("summary", {}).get("event", {}).get("source") == "simulation"]
+        self.assertTrue(any(e["kind"] == "operator.action" and
+                            e["payload"].get("simulation_only") is True for e in events))
+
     def test_simulation_replay_survives_server_restart(self):
         from http.server import ThreadingHTTPServer
         import threading
