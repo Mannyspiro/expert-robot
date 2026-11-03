@@ -1,14 +1,19 @@
-"""Paired, repeatable evaluation for single and hybrid execution strategies.
+"""Randomized paired strategy evaluation with a held-out confirmation set.
 
-The evaluator is supplied by the caller; this module does not assume that
-alternation is beneficial. All strategies receive the same deterministic seeds.
+Evaluators must use the supplied seed to control workload randomness. Order is
+randomized independently per seed to reduce systematic order effects. Results
+are descriptive evidence only; held-out data is never used to select candidates.
 """
 from __future__ import annotations
 
 from dataclasses import dataclass
-from math import isfinite
+from math import isfinite, sqrt
+from random import Random
 from statistics import mean, pstdev
 from typing import Callable, Iterable
+
+METRICS = ("quality", "latency_ms", "peak_rss_bytes", "resident_bytes",
+           "load_overhead_ms", "maintenance_cost", "failures")
 
 
 @dataclass(frozen=True)
@@ -24,52 +29,46 @@ class Trial:
     failures: int = 0
 
 
-def run_paired_trials(strategies: dict[str, Callable[[int], dict]],
-                      seeds: Iterable[int], quality_floor: float) -> dict:
-    """Run each strategy on identical seeds and return metrics + Pareto set."""
-    seed_list = tuple(seeds)
-    if not seed_list:
-        raise ValueError("at least one seed is required")
-    if len(set(seed_list)) != len(seed_list) or any(not isinstance(seed, int) or isinstance(seed, bool) for seed in seed_list):
-        raise ValueError("seeds must be unique integers")
-    if not strategies or any(not isinstance(name, str) or not name.strip() for name in strategies):
-        raise ValueError("at least one named strategy is required")
-    if not isfinite(quality_floor) or not 0.0 <= quality_floor <= 1.0:
-        raise ValueError("quality_floor must be within [0, 1]")
-    trials: list[Trial] = []
-    for name, evaluator in strategies.items():
-        for seed in seed_list:
-            result = evaluator(seed)
+def _validate_seeds(seeds: Iterable[int], label: str) -> tuple[int, ...]:
+    values = tuple(seeds)
+    if not values:
+        raise ValueError(f"at least one {label} seed is required")
+    if len(set(values)) != len(values) or any(not isinstance(s, int) or isinstance(s, bool) for s in values):
+        raise ValueError(f"{label} seeds must be unique integers")
+    return values
+
+
+def _run_set(strategies, seeds, quality_floor, order_seed):
+    names = tuple(strategies)
+    rng = Random(order_seed)
+    by_strategy = {name: [] for name in names}
+    order_log = []
+    for seed in seeds:
+        order = list(names)
+        rng.shuffle(order)
+        order_log.append({"seed": seed, "order": order})
+        for name in order:
+            result = strategies[name](seed)
             if not isinstance(result, dict):
                 raise ValueError(f"evaluator for {name} must return a metrics object")
             required = ("quality", "latency_ms", "peak_rss_bytes", "resident_bytes")
             if any(key not in result for key in required):
                 raise ValueError(f"evaluator for {name} omitted required metrics")
-            if isinstance(result.get("failures", 0), bool) or not isinstance(result.get("failures", 0), int):
+            failures = result.get("failures", 0)
+            if isinstance(failures, bool) or not isinstance(failures, int):
                 raise ValueError(f"failures for {name} must be an integer")
-            trial = Trial(
-                strategy=name, seed=seed,
-                quality=float(result["quality"]),
-                latency_ms=float(result["latency_ms"]),
-                peak_rss_bytes=int(result["peak_rss_bytes"]),
-                resident_bytes=int(result["resident_bytes"]),
-                load_overhead_ms=float(result.get("load_overhead_ms", 0.0)),
-                maintenance_cost=float(result.get("maintenance_cost", 0.0)),
-                failures=int(result.get("failures", 0)),
-            )
-            numeric_metrics = (trial.quality, trial.latency_ms, trial.peak_rss_bytes,
-                               trial.resident_bytes, trial.load_overhead_ms,
-                               trial.maintenance_cost, trial.failures)
-            if any(not isfinite(value) for value in numeric_metrics) or not 0.0 <= trial.quality <= 1.0 or min(
-                trial.latency_ms, trial.peak_rss_bytes, trial.resident_bytes,
-                trial.load_overhead_ms, trial.maintenance_cost, trial.failures
-            ) < 0 or not isinstance(trial.failures, int):
+            t = Trial(name, seed, float(result["quality"]), float(result["latency_ms"]),
+                      int(result["peak_rss_bytes"]), int(result["resident_bytes"]),
+                      float(result.get("load_overhead_ms", 0.0)),
+                      float(result.get("maintenance_cost", 0.0)), failures)
+            vals = (t.quality, t.latency_ms, t.peak_rss_bytes, t.resident_bytes,
+                    t.load_overhead_ms, t.maintenance_cost, t.failures)
+            if any(not isfinite(v) for v in vals) or not 0 <= t.quality <= 1 or min(vals[1:]) < 0:
                 raise ValueError(f"invalid metrics for {name}")
-            trials.append(trial)
+            by_strategy[name].append(t)
 
     summary = {}
-    for name in strategies:
-        rows = [t for t in trials if t.strategy == name]
+    for name, rows in by_strategy.items():
         summary[name] = {
             "n": len(rows),
             "quality_mean": mean(t.quality for t in rows),
@@ -84,32 +83,77 @@ def run_paired_trials(strategies: dict[str, Callable[[int], dict]],
             "eligible": min(t.quality for t in rows) >= quality_floor and sum(t.failures for t in rows) == 0,
         }
 
-    # All dimensions are minimized except quality. Pareto filtering only
-    # compares candidates that passed the hard quality/failure gate.
-    eligible = [name for name, row in summary.items() if row["eligible"]]
-    def vector(name: str) -> tuple[float, ...]:
-        r = summary[name]
-        return (-r["quality_mean"], r["latency_ms_mean"],
-                r["peak_rss_bytes_mean"], r["resident_bytes_mean"],
-                r["load_overhead_ms_mean"], r["maintenance_cost_mean"])
+    baseline = names[0]
+    paired = {}
+    for name in names[1:]:
+        a = {t.seed: t for t in by_strategy[baseline]}
+        b = {t.seed: t for t in by_strategy[name]}
+        paired[name] = {}
+        for metric in METRICS:
+            diffs = [getattr(b[s], metric) - getattr(a[s], metric) for s in seeds]
+            avg = mean(diffs)
+            se = pstdev(diffs) / sqrt(len(diffs)) if len(diffs) > 1 else None
+            paired[name][metric] = {
+                "mean_difference_vs_baseline": avg,
+                "sd_of_paired_differences": pstdev(diffs),
+                "approx_95pct_interval": [avg - 1.96 * se, avg + 1.96 * se] if se is not None else None,
+                "n_pairs": len(diffs),
+            }
 
+    eligible = [n for n, row in summary.items() if row["eligible"]]
+    def vector(name):
+        r = summary[name]
+        return (-r["quality_mean"], r["latency_ms_mean"], r["peak_rss_bytes_mean"],
+                r["resident_bytes_mean"], r["load_overhead_ms_mean"], r["maintenance_cost_mean"])
     frontier = []
     for candidate in eligible:
-        dominated = False
-        for other in eligible:
-            if other == candidate:
-                continue
-            a, b = vector(other), vector(candidate)
-            if all(x <= y for x, y in zip(a, b)) and any(x < y for x, y in zip(a, b)):
-                dominated = True
-                break
-        if not dominated:
+        if not any(other != candidate and
+                   all(x <= y for x, y in zip(vector(other), vector(candidate))) and
+                   any(x < y for x, y in zip(vector(other), vector(candidate)))
+                   for other in eligible):
             frontier.append(candidate)
+    return {"seed_set": list(seeds), "randomized_order": order_log, "baseline": baseline,
+            "summary": summary, "paired_differences": paired,
+            "pareto_frontier": sorted(frontier)}
+
+
+def run_paired_trials(strategies: dict[str, Callable[[int], dict]],
+                      seeds: Iterable[int], quality_floor: float,
+                      *, held_out_seeds: Iterable[int] = (), order_seed: int = 0) -> dict:
+    """Evaluate development seeds, then optionally untouched held-out seeds.
+
+    The first strategy in insertion order is the declared baseline. Development
+    results may guide selection. Held-out results are a separate confirmation
+    pass and must not be used to tune the selected candidate.
+    """
+    dev = _validate_seeds(seeds, "development")
+    held = tuple(held_out_seeds)
+    if held:
+        held = _validate_seeds(held, "held-out")
+        if set(dev) & set(held):
+            raise ValueError("development and held-out seeds must be disjoint")
+    if not strategies or any(not isinstance(n, str) or not n.strip() for n in strategies):
+        raise ValueError("at least one named strategy is required")
+    if len(strategies) < 1 or not callable(next(iter(strategies.values()))):
+        raise ValueError("strategies must map names to evaluators")
+    if not isfinite(quality_floor) or not 0 <= quality_floor <= 1:
+        raise ValueError("quality_floor must be within [0, 1]")
+    if isinstance(order_seed, bool) or not isinstance(order_seed, int):
+        raise ValueError("order_seed must be an integer")
+    if any(not callable(fn) for fn in strategies.values()):
+        raise ValueError("every strategy must be callable")
+    development = _run_set(strategies, dev, quality_floor, order_seed)
+    heldout = _run_set(strategies, held, quality_floor, order_seed ^ 0x5EED) if held else None
     return {
-        "seed_set": list(seed_list),
-        "quality_floor": quality_floor,
-        "summary": summary,
-        "pareto_frontier": sorted(frontier),
+        "development": development,
+        "held_out": heldout,
+        "protocol": {
+            "baseline": next(iter(strategies)),
+            "order_seed": order_seed,
+            "evaluator_seed_contract": "Each evaluator must use its seed to control workload randomness.",
+            "held_out_policy": "Held-out seeds are a confirmation set; do not use them for candidate selection or tuning.",
+            "interval_method": "normal-approximation 95% interval over paired differences; descriptive for small n",
+        },
         "promotion_authorized": False,
-        "note": "Evaluation ranks candidates; a separate verifier and approval step is required for promotion.",
+        "note": "Evaluation ranks candidates; independent verification and explicit approval are required for promotion.",
     }
