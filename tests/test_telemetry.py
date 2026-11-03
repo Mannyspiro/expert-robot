@@ -1,5 +1,5 @@
 import unittest
-from merlin.telemetry import normalize_event, telemetry_view
+from merlin.telemetry import loader_event_sink, normalize_event, telemetry_view
 
 class TelemetryTests(unittest.TestCase):
     def test_normalizes_source_labeled_event(self):
@@ -15,6 +15,24 @@ class TelemetryTests(unittest.TestCase):
             normalize_event({"source":"simulation_and_runtime","kind":"task.progress","run_id":"r"})
         with self.assertRaises(ValueError):
             normalize_event({"source":"runtime","kind":"resource.sample","run_id":"r","cpu_percent":120})
+
+
+    def test_loader_sink_normalizes_into_runtime_resource_stream(self):
+        class Store:
+            def __init__(self):
+                self.rows = []
+            def append(self, *args):
+                self.rows.append(args)
+        store = Store()
+        sink = loader_event_sink(store)
+        sink({"source":"runtime","kind":"resource.sample","run_id":"loader-run",
+              "task_id":"module-a","duration_ms":2.5,"memory_bytes":4096,
+              "payload":{"component":"module_loader","operation":"load",
+                         "artifact_bytes":1024,"outcome":"succeeded"}})
+        event = store.rows[0][2]["event"]
+        self.assertEqual(event["source"], "runtime")
+        self.assertEqual(event["kind"], "resource.sample")
+        self.assertEqual(event["payload"]["component"], "module_loader")
 
     def test_view_keeps_sources_separate(self):
         events = [normalize_event({"source":s,"kind":"task.progress","run_id":"r"})
