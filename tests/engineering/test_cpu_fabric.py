@@ -3,8 +3,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from merlin.cpu_fabric.catalog import BoundedModuleManager, CatalogError, ModuleManifest
-from merlin.cpu_fabric.strategy_eval import run_paired_trials
+from python.merlin.cpu_fabric.catalog import BoundedModuleManager, CatalogError, ModuleManifest
+from python.merlin.cpu_fabric.strategy_eval import run_paired_trials
 
 
 class CpuFabricRegressionTests(unittest.TestCase):
