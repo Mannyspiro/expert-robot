@@ -20,6 +20,7 @@ from urllib.error import URLError, HTTPError
 
 from .council import PERSONAS, build_deliberation_packets
 from .council_runtime import run_local_council
+from .simulation import MerlinSimulation
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
     validate_analogy,
@@ -91,6 +92,8 @@ class EventStore:
 
 
 CAPABILITIES = [
+    {"id": "simulation.world", "status": "AVAILABLE", "evidence": "deterministic bounded world state, actions, and event telemetry"},
+    {"id": "simulation.hud", "status": "AVAILABLE", "evidence": "responsive HUD renders live simulation API data"},
     {"id": "council.roles", "status": "AVAILABLE", "evidence": "deterministic simulated persona registry"},
     {"id": "council.deliberation.prepare", "status": "AVAILABLE", "evidence": "role-specific prompt packets and auditable self-map contract"},
     {"id": "council.deliberation.run_local", "status": "QUALIFICATION_GATED", "evidence": "six isolated local model openings; optional bounded cross-examination"},
@@ -171,6 +174,7 @@ def _netlist(data: dict[str, Any]) -> Netlist:
 
 
 def make_handler(store: EventStore):
+    simulation = MerlinSimulation()
     class Handler(BaseHTTPRequestHandler):
         server_version = "MerlinMVP/0.3"
 
@@ -193,8 +197,18 @@ def make_handler(store: EventStore):
 
         def do_GET(self) -> None:
             path = urlparse(self.path).path
-            if path == "/health":
-                self._send(200, {"ok": True, "service": "merlin", "version": "0.3"})
+            if path == "/hud":
+                hud_path = Path(__file__).resolve().parents[2] / "web" / "merlin_hud.html"
+                if not hud_path.is_file():
+                    self._send(404, {"error": "hud_not_found"})
+                    return
+                self._send_bytes(200, hud_path.read_bytes(), "text/html; charset=utf-8")
+            elif path == "/api/sim/state":
+                self._send(200, simulation.snapshot())
+            elif path == "/api/sim/events":
+                self._send(200, simulation.get_events())
+            elif path == "/health":
+                self._send(200, {"ok": True, "service": "merlin", "version": "0.4"})
             elif path == "/api/capabilities":
                 self._send(200, {"schema": "merlin-capabilities/1", "capabilities": CAPABILITIES})
             elif path == "/api/events":
@@ -220,6 +234,18 @@ def make_handler(store: EventStore):
                 if not isinstance(data, dict):
                     raise ValueError("request body must be a JSON object")
 
+                if path == "/api/sim/step":
+                    action = data.get("action", "")
+                    if not isinstance(action, str):
+                        raise ValueError("simulation action must be a string")
+                    result = simulation.step(action)
+                    store.append(path, {"action": action, "tick": result["state"]["tick"]},
+                                 {"simulation_only": True, "last_action": action,
+                                  "tick": result["state"]["tick"],
+                                  "progress": result["state"]["progress"],
+                                  "uncertainty": result["state"]["uncertainty"]})
+                    self._send(200, result)
+                    return
                 if path == "/api/council/prepare":
                     question = data.get("question", "")
                     context = data.get("context", "")
