@@ -74,7 +74,11 @@ def run_local_council(question: str, context: str = "", verbosity: str = "lively
         raise ValueError("rounds must be 1 or 2")
     if os.environ.get("MERLIN_MODEL_QUALIFIED") != "1":
         raise RuntimeError("local model is not qualified; council execution is disabled")
-    from urllib.parse import urlsplit\n    endpoint = os.environ.get("MERLIN_MODEL_URL", "http://127.0.0.1:8080/v1/chat/completions")\n    parsed = urlsplit(endpoint)\n    if parsed.scheme != "http" or parsed.hostname not in {"127.0.0.1", "localhost", "::1"}:\n        raise ValueError("council model endpoint must be loopback-only")
+    from urllib.parse import urlsplit
+    endpoint = os.environ.get("MERLIN_MODEL_URL", "http://127.0.0.1:8080/v1/chat/completions")
+    parsed = urlsplit(endpoint)
+    if parsed.scheme != "http" or parsed.hostname not in {"127.0.0.1", "localhost", "::1"}:
+        raise ValueError("council model endpoint must be loopback-only")
     model = os.environ.get("MERLIN_MODEL_NAME", "local-model").strip() or "local-model"
     packets = build_deliberation_packets(question, context, verbosity)
     openings = [_model_call(endpoint, model, packet) for packet in packets]
