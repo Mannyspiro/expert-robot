@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://merlin.local/schemas/model-module-manifest.v1.json",
+  "title": "Merlin Model Module Manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["module_id", "artifact_path", "artifact_sha256", "base_model_sha256", "module_type", "task_scope", "precision", "estimated_bytes", "min_ram_bytes", "quality_eval_id", "verifier_id", "rollback_ref", "approved"],
+  "properties": {
+    "module_id": {"type": "string", "minLength": 1},
+    "artifact_path": {"type": "string", "minLength": 1, "not": {"pattern": "(^/|(^|/)\\.\\.(/|$))"}},
+    "artifact_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "base_model_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "module_type": {"enum": ["adapter", "specialist_model", "quantized_variant", "tool_bundle"]},
+    "task_scope": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "precision": {"enum": ["fp32", "fp16", "bf16", "int8", "int4", "mixed"]},
+    "estimated_bytes": {"type": "integer", "minimum": 1},
+    "min_ram_bytes": {"type": "integer", "minimum": 0},
+    "quality_eval_id": {"type": "string", "minLength": 1},
+    "verifier_id": {"type": "string", "minLength": 1},
+    "rollback_ref": {"type": "string", "minLength": 1},
+    "approved": {"const": true},
+    "pinned": {"type": "boolean", "default": false}
+  }
+}
