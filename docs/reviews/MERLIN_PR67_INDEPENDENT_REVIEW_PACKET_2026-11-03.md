@@ -62,3 +62,6 @@ That run used Avrea 8-vCPU AMD EPYC 4585PX / 29 GiB RAM. C++ build and 33 CTest 
 
 ## Non-negotiable project invariant
 Capability grows, authority never expands. Evaluation and review are evidence only; no automatic promotion, deployment, merge, or authority expansion.
+
+## CI iteration update
+A CI attempt including the new engineering CPU-fabric tests initially failed at import time because the test used `merlin.*` while this repository's runner imports the package as `python.merlin.*`. Commit 55ccfaa9c769bfcce3afe5a1e8885f0f06a9b18e corrected the test imports. The corrected engineering test file must still be executed on Avrea before its result is considered verified.
