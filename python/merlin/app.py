@@ -416,6 +416,17 @@ def make_handler(store: EventStore):
                 elif path == "/api/rsi/qualify":
                     result = qualify_rsi_candidate(PromotionPacket(**data))
                     summary = {"status": result["status"], "failed_gates": result["failed_gates"]}
+                    verifier_event = normalize_event({
+                        "source": "verifier", "kind": "verification.completed",
+                        "run_id": sha256(_json_bytes(data)).hexdigest(),
+                        "task_id": "rsi-qualification",
+                        "payload": {"status": result["status"],
+                                    "failed_gates": result["failed_gates"],
+                                    "promotion_authorized": False},
+                    })
+                    store.append("/api/telemetry/ingest",
+                                 {"event_id": verifier_event["event_id"], "source": "verifier"},
+                                 {"event": verifier_event})
                 elif path == "/api/geometry/validate":
                     _spec, result = _geometry(data)
                     summary = {"valid": result["valid"], "issues": len(result["issues"])}
