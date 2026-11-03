@@ -16,7 +16,8 @@ import sqlite3
 from typing import Any
 from urllib.parse import urlparse, urlsplit
 from urllib.request import Request, urlopen
-from urllib.error import URLError, HTTPError\nfrom time import perf_counter
+from urllib.error import URLError, HTTPError
+from time import perf_counter
 
 from .council import PERSONAS, build_deliberation_packets
 from .council_runtime import run_local_council
@@ -217,7 +218,21 @@ def make_handler(store: EventStore):
     class Handler(BaseHTTPRequestHandler):
         server_version = "MerlinMVP/0.3"
 
+        def _record_boundary(self, status: int, response_bytes: int) -> None:
+            started = getattr(self, "_request_started", None)
+            if started is None:
+                return
+            try:
+                record_runtime_event(store, path=urlparse(self.path).path,
+                    method=self.command, status=status,
+                    duration_ms=(perf_counter() - started) * 1000.0,
+                    response_bytes=response_bytes)
+            except Exception:
+                # Observability must never change the underlying API result.
+                return
+
         def _send_bytes(self, status: int, body: bytes, content_type: str) -> None:
+            self._record_boundary(status, len(body))
             self.send_response(status)
             self.send_header("Content-Type", content_type)
             self.send_header("Content-Length", str(len(body)))
@@ -227,6 +242,7 @@ def make_handler(store: EventStore):
 
         def _send(self, status: int, payload: dict[str, Any]) -> None:
             body = _json_bytes(payload)
+            self._record_boundary(status, len(body))
             self.send_response(status)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.send_header("Content-Length", str(len(body)))
@@ -235,6 +251,7 @@ def make_handler(store: EventStore):
             self.wfile.write(body)
 
         def do_GET(self) -> None:
+            self._request_started = perf_counter()
             path = urlparse(self.path).path
             if path == "/hud":
                 hud_path = Path(__file__).resolve().parents[2] / "web" / "merlin_hud.html"
@@ -284,6 +301,7 @@ def make_handler(store: EventStore):
                 self._send(404, {"error": "not_found"})
 
         def do_POST(self) -> None:
+            self._request_started = perf_counter()
             path = urlparse(self.path).path
             try:
                 length = int(self.headers.get("Content-Length", "0"))
