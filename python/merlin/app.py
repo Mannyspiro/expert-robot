@@ -22,6 +22,7 @@ from .council import PERSONAS, build_deliberation_packets
 from .council_runtime import run_local_council
 from .simulation import MerlinSimulation
 from .telemetry import normalize_event, telemetry_view
+from .telemetry_graph import build_telemetry_graph
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
     validate_analogy,
@@ -244,6 +245,12 @@ def make_handler(store: EventStore):
                           and isinstance(row.get("summary"), dict)
                           and isinstance(row["summary"].get("event"), dict)]
                 self._send(200, telemetry_view(events))
+            elif path == "/api/telemetry/graph":
+                rows = store.by_kind("/api/telemetry/ingest", 10000)
+                events = [row["summary"]["event"] for row in rows
+                          if isinstance(row.get("summary"), dict)
+                          and isinstance(row["summary"].get("event"), dict)]
+                self._send(200, build_telemetry_graph(events))
             elif path == "/health":
                 self._send(200, {"ok": True, "service": "merlin", "version": "0.4"})
             elif path == "/api/capabilities":
