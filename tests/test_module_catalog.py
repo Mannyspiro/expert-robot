@@ -65,6 +65,51 @@ class CatalogTests(unittest.TestCase):
         with self.assertRaises(CatalogError):
             manager.activate("missing")
 
+
+    def test_loader_emits_measured_load_and_unload_events(self):
+        events = []
+        manager = BoundedModuleManager(
+            self.root, self.base, 100, 100, event_sink=events.append,
+            run_id="loader-test-run",
+        )
+        manager.register(self.manifest)
+        manager.activate("math-specialist")
+        manager.deactivate("math-specialist")
+        self.assertEqual([event["operation"] for event in events], ["load", "unload"])
+        self.assertTrue(all(event["source"] == "runtime" for event in events))
+        self.assertTrue(all(event["run_id"] == "loader-test-run" for event in events))
+        self.assertEqual(events[0]["artifact_bytes"], len(self.artifact.read_bytes()))
+        self.assertEqual(events[0]["outcome"], "succeeded")
+        self.assertEqual(events[1]["resident_module_bytes"], 0)
+        self.assertGreaterEqual(events[0]["duration_ms"], 0)
+        self.assertIn(events[0]["rss_measurement"],
+                      ("linux_proc_statm_current_rss", "unavailable"))
+
+    def test_failed_loader_emits_failure_without_residency(self):
+        events = []
+        def broken_loader(payload):
+            raise RuntimeError("synthetic loader failure")
+        manager = BoundedModuleManager(
+            self.root, self.base, 100, 100, loader=broken_loader,
+            event_sink=events.append,
+        )
+        manager.register(self.manifest)
+        with self.assertRaises(RuntimeError):
+            manager.activate("math-specialist")
+        self.assertEqual(manager.resident_ids(), ())
+        self.assertEqual(events[-1]["outcome"], "failed")
+        self.assertEqual(events[-1]["error_type"], "RuntimeError")
+
+    def test_telemetry_sink_failure_does_not_break_loader(self):
+        def broken_sink(event):
+            raise RuntimeError("telemetry unavailable")
+        manager = BoundedModuleManager(
+            self.root, self.base, 100, 100, event_sink=broken_sink,
+        )
+        manager.register(self.manifest)
+        manager.activate("math-specialist")
+        self.assertEqual(manager.resident_ids(), ("math-specialist",))
+
     def test_router_is_conservative(self):
         manager = BoundedModuleManager(self.root, self.base, 100, 100)
         manager.register(self.manifest)
