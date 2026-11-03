@@ -1,14 +1,14 @@
 """Verified, bounded model-module catalog and resident-set manager.
 
 Artifacts are opaque bytes. This module never imports or executes artifacts.
-Verification and loading use the same byte snapshot to avoid path-swap races.
+Verification and loading use one open descriptor and a bounded in-memory
+snapshot; transient artifact bytes have a separate cap from resident bytes.
 """
 from __future__ import annotations
 
 from collections import OrderedDict
 from dataclasses import dataclass
 from hashlib import sha256
-from typing import BinaryIO
 from pathlib import Path
 from threading import RLock
 from time import perf_counter
@@ -40,7 +40,8 @@ class CatalogError(ValueError):
 
 
 def _read_verified(manifest: ModuleManifest, root: Path,
-                   expected_base_sha256: str, available_ram_bytes: int) -> bytes:
+                   expected_base_sha256: str, available_ram_bytes: int,
+                   max_artifact_bytes: int) -> bytearray:
     if not manifest.approved:
         raise CatalogError("module is not approved")
     if manifest.base_model_sha256 != expected_base_sha256:
@@ -53,44 +54,76 @@ def _read_verified(manifest: ModuleManifest, root: Path,
         raise CatalogError("insufficient available RAM")
     if not manifest.module_id or not manifest.task_scope or not manifest.verifier_id or not manifest.quality_eval_id or not manifest.rollback_ref:
         raise CatalogError("manifest is missing required qualification metadata")
+    if max_artifact_bytes <= 0:
+        raise CatalogError("max_artifact_bytes must be positive")
     base = root.resolve()
     path = (base / manifest.artifact_path).resolve()
     if path != base and base not in path.parents:
         raise CatalogError("artifact path escapes approved root")
     if not path.is_file():
         raise CatalogError("artifact is not a regular file")
-    payload = path.read_bytes()
-    if sha256(payload).hexdigest() != manifest.artifact_sha256:
-        raise CatalogError("artifact SHA-256 mismatch")
-    return payload
+    try:
+        with path.open("rb") as stream:
+            size = os.fstat(stream.fileno()).st_size
+            if size > max_artifact_bytes:
+                raise CatalogError("artifact exceeds transient memory limit")
+            digest = sha256()
+            while True:
+                chunk = stream.read(1024 * 1024)
+                if not chunk:
+                    break
+                digest.update(chunk)
+            if digest.hexdigest() != manifest.artifact_sha256:
+                raise CatalogError("artifact SHA-256 mismatch")
+            stream.seek(0)
+            payload = bytearray()
+            while True:
+                chunk = stream.read(min(1024 * 1024, max_artifact_bytes + 1 - len(payload)))
+                if not chunk:
+                    break
+                payload.extend(chunk)
+                if len(payload) > max_artifact_bytes:
+                    raise CatalogError("artifact exceeds transient memory limit")
+            if len(payload) != size:
+                raise CatalogError("artifact changed while verified snapshot was read")
+            return payload
+    except OSError as exc:
+        raise CatalogError("artifact could not be read") from exc
 
 
 def verify_manifest(manifest: ModuleManifest, artifact_root: Path,
-                    expected_base_sha256: str, available_ram_bytes: int) -> Path:
+                    expected_base_sha256: str, available_ram_bytes: int,
+                    max_artifact_bytes: int = 64 * 1024 * 1024) -> Path:
     """Validate metadata and artifact, returning its resolved path for inspection."""
-    _read_verified(manifest, artifact_root, expected_base_sha256, available_ram_bytes,\n                   max_artifact_bytes=max(1, manifest.estimated_bytes))
+    _read_verified(manifest, artifact_root, expected_base_sha256,
+                   available_ram_bytes, max_artifact_bytes)
     return (artifact_root.resolve() / manifest.artifact_path).resolve()
 
 
 class BoundedModuleManager:
-    """LRU resident set; pinned modules cannot be evicted or deactivated.
+    """LRU resident set with a separate cap on transient artifact snapshots.
 
     loader(payload) returns an opaque runtime handle. unloader(handle) must
-    release runtime resources. Neither callback is permitted to execute catalog
-    artifact content as Python code.
+    release runtime resources. Neither callback may execute artifact content
+    as Python code. The loader receives a bytearray to avoid a second full-size
+    immutable bytes copy at this boundary.
     """
     def __init__(self, artifact_root: Path, base_model_sha256: str,
                  max_resident_bytes: int, available_ram_bytes: int,
-                 loader: Callable[[bytes], object] | None = None,
+                 loader: Callable[[bytearray], object] | None = None,
                  unloader: Callable[[object], None] | None = None,
                  event_sink: Callable[[dict], None] | None = None,
-                 run_id: str | None = None,\n                 max_artifact_bytes: int | None = None):
+                 run_id: str | None = None,
+                 max_artifact_bytes: int | None = None):
         if max_resident_bytes <= 0:
             raise ValueError("max_resident_bytes must be positive")
         self.root = Path(artifact_root)
         self.base_hash = base_model_sha256
         self.budget = max_resident_bytes
         self.available_ram = available_ram_bytes
+        self.max_artifact_bytes = max_artifact_bytes if max_artifact_bytes is not None else max_resident_bytes
+        if self.max_artifact_bytes <= 0:
+            raise ValueError("max_artifact_bytes must be positive")
         self.loader = loader or (lambda payload: payload)
         self.unloader = unloader or (lambda handle: None)
         self.event_sink = event_sink
@@ -104,11 +137,11 @@ class BoundedModuleManager:
         with self._lock:
             if manifest.module_id in self.catalog:
                 raise CatalogError("duplicate module_id")
-            _read_verified(manifest, self.root, self.base_hash, self.available_ram, self.max_artifact_bytes)
+            _read_verified(manifest, self.root, self.base_hash,
+                           self.available_ram, self.max_artifact_bytes)
             if manifest.estimated_bytes > self.budget:
                 raise CatalogError("module exceeds resident memory budget")
             self.catalog[manifest.module_id] = manifest
-
 
     @staticmethod
     def _rss_bytes() -> int | None:
@@ -136,6 +169,7 @@ class BoundedModuleManager:
                 "component": "module_loader", "operation": operation,
                 "artifact_bytes": artifact_bytes,
                 "resident_module_bytes": self.resident_bytes,
+                "transient_artifact_limit_bytes": self.max_artifact_bytes,
                 "rss_before_bytes": rss_before, "rss_after_bytes": rss_after,
                 "rss_delta_bytes": (rss_after - rss_before)
                     if rss_before is not None and rss_after is not None else None,
@@ -146,7 +180,6 @@ class BoundedModuleManager:
         try:
             self.event_sink(event)
         except Exception:
-            # Observability must never change loader correctness or availability.
             pass
 
     def _evict(self, module_id: str) -> None:
@@ -173,24 +206,27 @@ class BoundedModuleManager:
                 handle, size, pinned = self.resident.pop(module_id)
                 self.resident[module_id] = (handle, size, pinned)
                 return handle
-            payload = _read_verified(manifest, self.root, self.base_hash, self.available_ram)
             while self.resident_bytes + manifest.estimated_bytes > self.budget:
                 victim = next((k for k, (_, _, pin) in self.resident.items() if not pin), None)
                 if victim is None:
                     raise CatalogError("memory budget blocked by pinned modules")
                 self._evict(victim)
             started, rss_before = perf_counter(), self._rss_bytes()
+            payload = None
             try:
+                payload = _read_verified(manifest, self.root, self.base_hash,
+                                         self.available_ram, self.max_artifact_bytes)
                 handle = self.loader(payload)
             except Exception as exc:
                 self._emit(module_id, "load", started, rss_before,
-                           outcome="failed", artifact_bytes=manifest.estimated_bytes,
+                           outcome="failed",
+                           artifact_bytes=len(payload) if payload is not None else 0,
                            error_type=type(exc).__name__)
                 raise
             self.resident[module_id] = (handle, manifest.estimated_bytes, manifest.pinned)
             self.resident_bytes += manifest.estimated_bytes
             self._emit(module_id, "load", started, rss_before,
-                       outcome="succeeded", artifact_bytes=manifest.estimated_bytes)
+                       outcome="succeeded", artifact_bytes=len(payload))
             return handle
 
     def deactivate(self, module_id: str) -> None:
