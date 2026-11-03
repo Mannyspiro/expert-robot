@@ -289,6 +289,14 @@ class MerlinApiTests(unittest.TestCase):
         self.assertEqual(captured["authorization"], "Bearer private-test-key")
         self.assertNotIn(b"private-test-key", streamed)
         self.assertEqual(captured["url"], "https://api.example.test/v1/chat/completions")
+        rows = self.store.by_kind("/api/telemetry/ingest", 10000)
+        model_events = [row["summary"]["event"] for row in rows
+                        if row.get("summary", {}).get("event", {}).get("payload", {}).get("component") == "chat_adapter"]
+        self.assertTrue(model_events)
+        self.assertEqual(model_events[-1]["source"], "model_output")
+        self.assertTrue(model_events[-1]["payload"]["streamed"])
+        self.assertEqual(model_events[-1]["payload"]["response_bytes"], len(streamed))
+        self.assertGreaterEqual(model_events[-1]["duration_ms"], 0)
 
 
 if __name__ == "__main__":
