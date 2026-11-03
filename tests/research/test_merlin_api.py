@@ -83,6 +83,20 @@ class MerlinApiTests(unittest.TestCase):
         else:
             self.fail("council execution must fail closed until local model qualification")
 
+    def test_simulation_hud_and_control_api(self):
+        with urlopen(self.base + "/hud", timeout=5) as response:
+            self.assertIn("text/html", response.headers.get("Content-Type", ""))
+            self.assertIn(b"MERLIN", response.read())
+        with urlopen(self.base + "/api/sim/state", timeout=5) as response:
+            initial = json.loads(response.read())
+        self.assertTrue(initial["simulation_only"])
+        result = self.post("/api/sim/step", {"action": "advance"})
+        self.assertEqual(result["state"]["tick"], 1)
+        self.assertGreater(result["state"]["progress"], 0)
+        with urlopen(self.base + "/api/sim/events", timeout=5) as response:
+            events = json.loads(response.read())
+        self.assertGreaterEqual(len(events["events"]), 2)
+
     def test_model_route_fails_closed_until_qualified(self):
         request = Request(self.base + "/api/chat", data=json.dumps({"messages": []}).encode(), headers={"Content-Type": "application/json"})
         try:
