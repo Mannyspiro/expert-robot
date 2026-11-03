@@ -47,11 +47,15 @@ class StreamingGatewayTests(unittest.IsolatedAsyncioTestCase):
             yield b"a"
             yield b"bc"
         seen = []
+        timings = []
         gateway = AsyncStreamingGateway(max_concurrency=1)
         result = [chunk async for chunk in gateway.stream(
-            "r1", lambda: _ready(source()), on_chunk=seen.append)]
+            "r1", lambda: _ready(source()), on_chunk=seen.append,
+            on_timing=timings.append)]
         self.assertEqual(result, [b"a", b"bc"])
         self.assertEqual(seen, result)
+        self.assertEqual([row.index for row in timings], [0, 1])
+        self.assertTrue(all(row.elapsed_ms >= 0 and row.since_previous_ms >= 0 for row in timings))
 
     async def test_deadline_applies_to_stream_read(self):
         async def source():
