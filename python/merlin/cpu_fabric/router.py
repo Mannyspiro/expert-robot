@@ -1,12 +1,18 @@
 """Deterministic, conservative specialist activation policy."""
 from __future__ import annotations
 
+import math
+
 
 def choose_modules(task: str, confidence: float, catalog: dict,
                    remaining_budget_bytes: int, min_confidence: float = 0.80) -> dict:
     """Return an explicit route decision; unknown/low-confidence tasks stay core-only."""
+    if not math.isfinite(confidence) or not math.isfinite(min_confidence):
+        raise ValueError("confidence values must be finite")
     if not 0.0 <= confidence <= 1.0 or not 0.0 <= min_confidence <= 1.0:
         raise ValueError("confidence values must be within [0, 1]")
+    if remaining_budget_bytes < 0:
+        raise ValueError("remaining_budget_bytes must be nonnegative")
     if confidence < min_confidence:
         return {"route": "core_only", "modules": [], "reason": "router_confidence_below_threshold"}
     candidates = []
