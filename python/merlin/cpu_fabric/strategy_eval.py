@@ -6,6 +6,7 @@ alternation is beneficial. All strategies receive the same deterministic seeds.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from math import isfinite
 from statistics import mean, pstdev
 from typing import Callable, Iterable
 
@@ -29,12 +30,21 @@ def run_paired_trials(strategies: dict[str, Callable[[int], dict]],
     seed_list = tuple(seeds)
     if not seed_list:
         raise ValueError("at least one seed is required")
-    if not 0.0 <= quality_floor <= 1.0:
+    if len(set(seed_list)) != len(seed_list) or any(not isinstance(seed, int) or isinstance(seed, bool) for seed in seed_list):
+        raise ValueError("seeds must be unique integers")
+    if not strategies or any(not isinstance(name, str) or not name.strip() for name in strategies):
+        raise ValueError("at least one named strategy is required")
+    if not isfinite(quality_floor) or not 0.0 <= quality_floor <= 1.0:
         raise ValueError("quality_floor must be within [0, 1]")
     trials: list[Trial] = []
     for name, evaluator in strategies.items():
         for seed in seed_list:
             result = evaluator(seed)
+            if not isinstance(result, dict):
+                raise ValueError(f"evaluator for {name} must return a metrics object")
+            required = ("quality", "latency_ms", "peak_rss_bytes", "resident_bytes")
+            if any(key not in result for key in required):
+                raise ValueError(f"evaluator for {name} omitted required metrics")
             trial = Trial(
                 strategy=name, seed=seed,
                 quality=float(result["quality"]),
@@ -45,10 +55,13 @@ def run_paired_trials(strategies: dict[str, Callable[[int], dict]],
                 maintenance_cost=float(result.get("maintenance_cost", 0.0)),
                 failures=int(result.get("failures", 0)),
             )
-            if not 0.0 <= trial.quality <= 1.0 or min(
+            numeric_metrics = (trial.quality, trial.latency_ms, trial.peak_rss_bytes,
+                               trial.resident_bytes, trial.load_overhead_ms,
+                               trial.maintenance_cost, trial.failures)
+            if any(not isfinite(value) for value in numeric_metrics) or not 0.0 <= trial.quality <= 1.0 or min(
                 trial.latency_ms, trial.peak_rss_bytes, trial.resident_bytes,
                 trial.load_overhead_ms, trial.maintenance_cost, trial.failures
-            ) < 0:
+            ) < 0 or not isinstance(trial.failures, int):
                 raise ValueError(f"invalid metrics for {name}")
             trials.append(trial)
 
