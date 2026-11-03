@@ -18,6 +18,7 @@ from urllib.parse import urlparse, urlsplit
 from urllib.request import Request, urlopen
 from urllib.error import URLError, HTTPError
 
+from .council import PERSONAS, build_deliberation_packets
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
     validate_analogy,
@@ -194,6 +195,12 @@ def make_handler(store: EventStore):
                 self._send(200, {"schema": "merlin-capabilities/1", "capabilities": CAPABILITIES})
             elif path == "/api/events":
                 self._send(200, {"schema": "merlin-events/1", "events": store.recent()})
+            elif path == "/api/council/roles":
+                self._send(200, {"schema": "merlin-council-roles/1",
+                                 "roles": [{"id": p.persona_id, "title": p.title,
+                                            "temperament": p.temperament,
+                                            "priorities": list(p.primary_values)}
+                                           for p in PERSONAS]})
             else:
                 self._send(404, {"error": "not_found"})
 
@@ -209,6 +216,21 @@ def make_handler(store: EventStore):
                 if not isinstance(data, dict):
                     raise ValueError("request body must be a JSON object")
 
+                if path == "/api/council/prepare":
+                    question = data.get("question", "")
+                    context = data.get("context", "")
+                    verbosity = data.get("verbosity", "lively")
+                    if not isinstance(question, str) or not isinstance(context, str):
+                        raise ValueError("question and context must be strings")
+                    result = {
+                        "schema": "merlin-council-packets/1",
+                        "packets": build_deliberation_packets(question, context, verbosity),
+                        "promotion_authorized": False,
+                    }
+                    store.append(path, {"question": question, "verbosity": verbosity},
+                                 {"persona_count": len(PERSONAS), "verbosity": verbosity})
+                    self._send(200, result)
+                    return
                 if path == "/api/speech":
                     endpoint = _loopback_endpoint("MERLIN_TTS_URL", "http://127.0.0.1:8880/v1/audio/speech")
                     request = Request(endpoint, data=raw, headers={"Content-Type": "application/json"}, method="POST")
