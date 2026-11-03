@@ -75,6 +75,8 @@ def _read_verified(manifest: ModuleManifest, root: Path,
                 digest.update(chunk)
             if digest.hexdigest() != manifest.artifact_sha256:
                 raise CatalogError("artifact SHA-256 mismatch")
+            if not materialize:
+                return None
             stream.seek(0)
             payload = bytearray()
             while True:
@@ -96,7 +98,7 @@ def verify_manifest(manifest: ModuleManifest, artifact_root: Path,
                     max_artifact_bytes: int = 64 * 1024 * 1024) -> Path:
     """Validate metadata and artifact, returning its resolved path for inspection."""
     _read_verified(manifest, artifact_root, expected_base_sha256,
-                   available_ram_bytes, max_artifact_bytes)
+                   available_ram_bytes, max_artifact_bytes, materialize=False)
     return (artifact_root.resolve() / manifest.artifact_path).resolve()
 
 
@@ -138,7 +140,7 @@ class BoundedModuleManager:
             if manifest.module_id in self.catalog:
                 raise CatalogError("duplicate module_id")
             _read_verified(manifest, self.root, self.base_hash,
-                           self.available_ram, self.max_artifact_bytes)
+                           self.available_ram, self.max_artifact_bytes, materialize=False)
             if manifest.estimated_bytes > self.budget:
                 raise CatalogError("module exceeds resident memory budget")
             self.catalog[manifest.module_id] = manifest
