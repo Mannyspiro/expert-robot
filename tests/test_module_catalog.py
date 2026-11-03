@@ -33,6 +33,23 @@ class CatalogTests(unittest.TestCase):
         with self.assertRaises(CatalogError):
             verify_manifest(self.manifest, self.root, "b" * 64, 100)
 
+    def test_transient_artifact_limit_is_independent_of_resident_budget(self):
+        manager = BoundedModuleManager(
+            self.root, self.base, 100, 100, max_artifact_bytes=8,
+        )
+        with self.assertRaises(CatalogError):
+            manager.register(self.manifest)
+
+    def test_activation_uses_verified_bounded_snapshot(self):
+        seen = []
+        manager = BoundedModuleManager(
+            self.root, self.base, 100, 100, loader=lambda payload: seen.append(bytes(payload)) or "handle",
+            max_artifact_bytes=100,
+        )
+        manager.register(self.manifest)
+        self.assertEqual(manager.activate("math-specialist"), "handle")
+        self.assertEqual(seen, [self.artifact.read_bytes()])
+
     def test_tampered_artifact_rejected(self):
         self.artifact.write_bytes(b"changed")
         with self.assertRaises(CatalogError):
