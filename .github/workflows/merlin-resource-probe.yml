@@ -1,9 +1,6 @@
 name: Merlin runner resource probe
 
 on:
-  push:
-    branches:
-      - feat/merlin-hermes-kokoro-qualified-20261102
   workflow_dispatch:
 
 concurrency:
