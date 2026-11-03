@@ -1,6 +1,9 @@
 name: Merlin local model baseline
 
 on:
+  push:
+    branches:
+      - feat/merlin-hermes-kokoro-qualified-20261102
   workflow_dispatch:
     inputs:
       model:
