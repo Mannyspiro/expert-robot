@@ -32,6 +32,7 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_simulation.py' -v
           python3 -m unittest discover -s tests -p 'test_simulation_lab.py' -v
           python3 -m unittest discover -s tests -p 'test_telemetry.py' -v
+          python3 -m unittest discover -s tests -p 'test_telemetry_graph.py' -v
           python3 -m unittest discover -s tests/research -p 'test_merlin_api.py' -v
       - name: Run bounded benchmark
         env:
