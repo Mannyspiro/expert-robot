@@ -41,7 +41,7 @@ class CatalogError(ValueError):
 
 def _read_verified(manifest: ModuleManifest, root: Path,
                    expected_base_sha256: str, available_ram_bytes: int,
-                   max_artifact_bytes: int) -> bytearray:
+                   max_artifact_bytes: int, *, materialize: bool = True) -> bytearray | None:
     if not manifest.approved:
         raise CatalogError("module is not approved")
     if manifest.base_model_sha256 != expected_base_sha256:
