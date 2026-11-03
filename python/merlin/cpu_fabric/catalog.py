@@ -8,6 +8,7 @@ from __future__ import annotations
 from collections import OrderedDict
 from dataclasses import dataclass
 from hashlib import sha256
+from typing import BinaryIO
 from pathlib import Path
 from threading import RLock
 from time import perf_counter
@@ -67,7 +68,7 @@ def _read_verified(manifest: ModuleManifest, root: Path,
 def verify_manifest(manifest: ModuleManifest, artifact_root: Path,
                     expected_base_sha256: str, available_ram_bytes: int) -> Path:
     """Validate metadata and artifact, returning its resolved path for inspection."""
-    _read_verified(manifest, artifact_root, expected_base_sha256, available_ram_bytes)
+    _read_verified(manifest, artifact_root, expected_base_sha256, available_ram_bytes,\n                   max_artifact_bytes=max(1, manifest.estimated_bytes))
     return (artifact_root.resolve() / manifest.artifact_path).resolve()
 
 
@@ -83,7 +84,7 @@ class BoundedModuleManager:
                  loader: Callable[[bytes], object] | None = None,
                  unloader: Callable[[object], None] | None = None,
                  event_sink: Callable[[dict], None] | None = None,
-                 run_id: str | None = None):
+                 run_id: str | None = None,\n                 max_artifact_bytes: int | None = None):
         if max_resident_bytes <= 0:
             raise ValueError("max_resident_bytes must be positive")
         self.root = Path(artifact_root)
@@ -103,7 +104,7 @@ class BoundedModuleManager:
         with self._lock:
             if manifest.module_id in self.catalog:
                 raise CatalogError("duplicate module_id")
-            _read_verified(manifest, self.root, self.base_hash, self.available_ram)
+            _read_verified(manifest, self.root, self.base_hash, self.available_ram, self.max_artifact_bytes)
             if manifest.estimated_bytes > self.budget:
                 raise CatalogError("module exceeds resident memory budget")
             self.catalog[manifest.module_id] = manifest
@@ -183,13 +184,13 @@ class BoundedModuleManager:
                 handle = self.loader(payload)
             except Exception as exc:
                 self._emit(module_id, "load", started, rss_before,
-                           outcome="failed", artifact_bytes=len(payload),
+                           outcome="failed", artifact_bytes=manifest.estimated_bytes,
                            error_type=type(exc).__name__)
                 raise
             self.resident[module_id] = (handle, manifest.estimated_bytes, manifest.pinned)
             self.resident_bytes += manifest.estimated_bytes
             self._emit(module_id, "load", started, rss_before,
-                       outcome="succeeded", artifact_bytes=len(payload))
+                       outcome="succeeded", artifact_bytes=manifest.estimated_bytes)
             return handle
 
     def deactivate(self, module_id: str) -> None:
