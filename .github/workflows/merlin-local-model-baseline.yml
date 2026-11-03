@@ -43,7 +43,7 @@ jobs:
 
       - name: Pull selected CPU model
         env:
-          MODEL: ${{ inputs.model }}
+          MODEL: ${{ inputs.model || 'qwen2.5:7b' }}
         shell: bash
         run: |
           set -euo pipefail
@@ -52,7 +52,7 @@ jobs:
       - name: Run fixed inference and record peak memory
         env:
           MODEL: ${{ inputs.model }}
-          NUM_PREDICT: ${{ inputs.num_predict }}
+          NUM_PREDICT: ${{ inputs.num_predict || '192' }}
         shell: bash
         run: |
           set -euo pipefail
