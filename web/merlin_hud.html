@@ -52,7 +52,8 @@ function inspectGraphNode(id){
  const links=(activeGraph.edges||[]).filter(e=>e.source===id||e.target===id);
  $("graphDetail").dataset.selected=id;
  $("graphNodes").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.node===id)));
- $("graphDetail").innerHTML="<b style=\"color:var(--cyan)\">"+escapeHtml(node.kind.toUpperCase())+"</b><div>"+escapeHtml(node.label||node.id)+"</div><div class=\"sub\">"+escapeHtml(node.id)+"</div><pre>"+escapeHtml(JSON.stringify(node,null,2))+"</pre><div class=\"graph-links\"><b>EXPLICIT EDGES ("+links.length+")</b>"+links.map(e=>"<div>"+escapeHtml(e.kind)+": "+escapeHtml(e.source)+" → "+escapeHtml(e.target)+"</div>").join("")+"</div>";
+ $("graphDetail").innerHTML="<b style=\"color:var(--cyan)\">"+escapeHtml(node.kind.toUpperCase())+"</b><div>"+escapeHtml(node.label||node.id)+"</div><div class=\"sub\">"+escapeHtml(node.id)+"</div><pre>"+escapeHtml(JSON.stringify(node,null,2))+"</pre><div class=\"graph-links\"><b>EXPLICIT EDGES ("+links.length+")</b>"+links.map(e=>{const other=e.source===id?e.target:e.source;return "<div>"+escapeHtml(e.kind)+" · <button class=\"graph-node\" data-jump=\""+escapeHtml(other)+"\">Open "+escapeHtml(other)+"</button></div>"}).join("")+"</div>";
+ $("graphDetail").querySelectorAll("[data-jump]").forEach(b=>b.addEventListener("click",()=>inspectGraphNode(b.dataset.jump)));
 }
 function renderGraph(graph){
  activeGraph=graph;const nodes=graph.nodes||[];const counts={run:0,task:0,event:0,evidence:0};
