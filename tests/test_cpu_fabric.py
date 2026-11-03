@@ -12,3 +12,16 @@ class CpuFabricTests(unittest.TestCase):
         self.assertTrue(run_suite(12,4)["verified"])
 
 if __name__ == "__main__": unittest.main()
+
+from merlin.cpu_fabric.ideonomy import enumerate_candidates, rank_measured
+
+class IdeonomyTests(unittest.TestCase):
+    def test_candidates_are_bounded_and_repeatable(self):
+        self.assertEqual(enumerate_candidates(12), enumerate_candidates(12))
+        self.assertEqual(len(enumerate_candidates(12)), 12)
+    def test_unverified_candidates_are_not_ranked(self):
+        self.assertEqual(rank_measured([{"verified": False}]), [])
+    def test_quality_gate_is_enforced(self):
+        bad={"verified":True,"peak_rss_bytes":1024,"tokens_per_second":10,
+             "task_quality":0.7,"baseline_task_quality":0.9}
+        self.assertEqual(rank_measured([bad]), [])
