@@ -21,6 +21,7 @@ from urllib.error import URLError, HTTPError
 from .council import PERSONAS, build_deliberation_packets
 from .council_runtime import run_local_council
 from .simulation import MerlinSimulation
+from .telemetry import normalize_event, telemetry_view
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
     validate_analogy,
@@ -207,6 +208,13 @@ def make_handler(store: EventStore):
                 self._send(200, simulation.snapshot())
             elif path == "/api/sim/events":
                 self._send(200, simulation.get_events())
+            elif path == "/api/telemetry":
+                rows = store.recent(100)
+                events = [row["summary"]["event"] for row in rows
+                          if row["kind"] == "/api/telemetry/ingest"
+                          and isinstance(row.get("summary"), dict)
+                          and isinstance(row["summary"].get("event"), dict)]
+                self._send(200, telemetry_view(events))
             elif path == "/health":
                 self._send(200, {"ok": True, "service": "merlin", "version": "0.4"})
             elif path == "/api/capabilities":
@@ -234,6 +242,13 @@ def make_handler(store: EventStore):
                 if not isinstance(data, dict):
                     raise ValueError("request body must be a JSON object")
 
+                if path == "/api/telemetry/ingest":
+                    event = normalize_event(data)
+                    store.append(path, {"event_id": event["event_id"], "source": event["source"]},
+                                 {"event": event})
+                    self._send(202, {"accepted": True, "event": event,
+                                     "promotion_authorized": False})
+                    return
                 if path == "/api/sim/step":
                     action = data.get("action", "")
                     if not isinstance(action, str):
