@@ -32,6 +32,14 @@ class CpuFabricRegressionTests(unittest.TestCase):
         with self.assertRaises(CatalogError):
             manager.register(self.manifest)
 
+    def test_activation_rechecks_transient_cap_after_registration(self):
+        manager = BoundedModuleManager(self.root, self.base, 128, 128,
+                                       max_artifact_bytes=128)
+        manager.register(self.manifest)
+        self.artifact.write_bytes(b"x" * 129)
+        with self.assertRaisesRegex(CatalogError, "transient memory limit"):
+            manager.activate("adapter")
+
     def test_loader_receives_exact_verified_snapshot(self):
         received = []
         manager = BoundedModuleManager(
