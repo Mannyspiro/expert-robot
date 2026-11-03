@@ -1,0 +1,46 @@
+name: Merlin CPU Compute Fabric
+on:
+  workflow_dispatch:
+    inputs:
+      size:
+        description: Matrix dimension (8-192)
+        required: true
+        default: "48"
+      tile:
+        description: Tile dimension
+        required: true
+        default: "16"
+jobs:
+  cpu-fabric:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Capture hardware limits
+        run: |
+          mkdir -p artifacts/merlin-cpu-fabric
+          { uname -a; lscpu; free -h; df -h; cat /sys/fs/cgroup/memory.max 2>/dev/null || true; cat /sys/fs/cgroup/cpu.max 2>/dev/null || true; } > artifacts/merlin-cpu-fabric/system.txt
+      - name: Run correctness tests
+        env:
+          PYTHONPATH: python
+        run: python3 -m unittest discover -s tests -p 'test_cpu_fabric.py' -v
+      - name: Run bounded benchmark
+        env:
+          PYTHONPATH: python
+          SIZE: ${{ inputs.size || '48' }}
+          TILE: ${{ inputs.tile || '16' }}
+        run: |
+          python3 - <<'PY'
+          import json, os
+          from merlin.cpu_fabric.benchmarks import run_suite
+          report = run_suite(int(os.environ['SIZE']), int(os.environ['TILE']))
+          print(json.dumps(report, indent=2))
+          open('artifacts/merlin-cpu-fabric/result.json','w').write(json.dumps(report,indent=2)+'\\n')
+          if not report['verified']: raise SystemExit('numerical verification failed')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: merlin-cpu-fabric
+          path: artifacts/merlin-cpu-fabric/
+          retention-days: 7
