@@ -91,6 +91,18 @@ class EventStore:
             for row in rows
         ]
 
+    def by_kind(self, kind: str, limit: int = 10000) -> list[dict[str, Any]]:
+        """Return oldest-first event metadata for deterministic replay."""
+        if not 1 <= limit <= 100000:
+            raise ValueError("event limit out of range")
+        with sqlite3.connect(self.path) as db:
+            rows = db.execute(
+                "SELECT id,kind,request_sha256,summary_json,created_at FROM events WHERE kind=? ORDER BY id ASC LIMIT ?",
+                (kind, limit),
+            ).fetchall()
+        return [{"id": row[0], "kind": row[1], "request_sha256": row[2],
+                 "summary": json.loads(row[3]), "created_at": row[4]} for row in rows]
+
 
 CAPABILITIES = [
     {"id": "simulation.world", "status": "AVAILABLE", "evidence": "deterministic bounded world state, actions, and event telemetry"},
@@ -176,6 +188,14 @@ def _netlist(data: dict[str, Any]) -> Netlist:
 
 def make_handler(store: EventStore):
     simulation = MerlinSimulation()
+    # Rebuild simulation state from the durable action ledger on process restart.
+    replay_rows = store.by_kind("/api/sim/step")
+    replayed = 0
+    for row in replay_rows:
+        action = row.get("summary", {}).get("last_action")
+        if isinstance(action, str):
+            simulation.step(action)
+            replayed += 1
     class Handler(BaseHTTPRequestHandler):
         server_version = "MerlinMVP/0.3"
 
@@ -208,6 +228,15 @@ def make_handler(store: EventStore):
                 self._send(200, simulation.snapshot())
             elif path == "/api/sim/events":
                 self._send(200, simulation.get_events())
+            elif path == "/api/sim/replay":
+                rows = store.by_kind("/api/sim/step")
+                actions = [row["summary"]["last_action"] for row in rows
+                           if isinstance(row.get("summary", {}).get("last_action"), str)]
+                self._send(200, {"schema": "merlin-simulation-replay/1",
+                                 "environment": "deterministic_simulation",
+                                 "actions": actions, "replayed_actions": len(actions),
+                                 "state": simulation.snapshot(),
+                                 "promotion_authorized": False})
             elif path == "/api/telemetry":
                 rows = store.recent(100)
                 events = [row["summary"]["event"] for row in rows
