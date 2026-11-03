@@ -1,0 +1,133 @@
+name: Merlin local model baseline
+
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: "Ollama model tag to benchmark"
+        required: true
+        default: "qwen2.5:7b"
+      num_predict:
+        description: "Maximum generated tokens"
+        required: true
+        default: "192"
+
+concurrency:
+  group: merlin-local-model-baseline-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  cpu-baseline:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 30
+    steps:
+      - name: Capture baseline and install Ollama
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/merlin-model-baseline
+          uname -a > artifacts/merlin-model-baseline/system.txt
+          lscpu >> artifacts/merlin-model-baseline/system.txt
+          free -h >> artifacts/merlin-model-baseline/system.txt
+          df -h >> artifacts/merlin-model-baseline/system.txt
+          curl -fsSL https://ollama.com/install.sh | sh
+          (ollama serve > /tmp/ollama.log 2>&1 &)
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:11434/api/tags >/dev/null; then break; fi
+            sleep 2
+          done
+          curl -fsS http://127.0.0.1:11434/api/tags >/dev/null
+
+      - name: Pull selected CPU model
+        env:
+          MODEL: ${{ inputs.model }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ollama pull "$MODEL"
+
+      - name: Run fixed inference and record peak memory
+        env:
+          MODEL: ${{ inputs.model }}
+          NUM_PREDICT: ${{ inputs.num_predict }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, subprocess, threading, time, urllib.request
+          from pathlib import Path
+
+          model = os.environ["MODEL"]
+          num_predict = int(os.environ["NUM_PREDICT"])
+          samples = []
+          stop = False
+
+          def sample():
+              while not stop:
+                  try:
+                      vals = {}
+                      for line in Path("/proc/meminfo").read_text().splitlines():
+                          if ":" in line:
+                              k, v = line.split(":", 1)
+                              if k in ("MemTotal", "MemAvailable", "SwapFree"):
+                                  vals[k] = v.strip()
+                      p = subprocess.run(["pgrep", "-f", "ollama"], capture_output=True, text=True)
+                      rss_kb = 0
+                      for pid in p.stdout.split():
+                          try:
+                              rss_kb += int(Path(f"/proc/{pid}/status").read_text().split("VmRSS:")[1].split()[0])
+                          except Exception:
+                              pass
+                      samples.append({"time": time.time(), "memory": vals, "ollama_rss_kb": rss_kb})
+                  except Exception:
+                      pass
+                  time.sleep(0.5)
+
+          thread = threading.Thread(target=sample, daemon=True)
+          thread.start()
+          payload = {
+              "model": model,
+              "prompt": "Explain the difference between a hypothesis, an assumption, and a verified result. Give one concise example of each.",
+              "stream": False,
+              "options": {"num_predict": num_predict, "temperature": 0}
+          }
+          req = urllib.request.Request(
+              "http://127.0.0.1:11434/api/generate",
+              data=json.dumps(payload).encode(),
+              headers={"Content-Type": "application/json"}
+          )
+          start = time.time()
+          with urllib.request.urlopen(req, timeout=900) as response:
+              result = json.loads(response.read())
+          elapsed = time.time() - start
+          stop = True
+          thread.join(timeout=2)
+          eval_count = result.get("eval_count", 0)
+          eval_ns = result.get("eval_duration", 0)
+          report = {
+              "model": model,
+              "prompt": payload["prompt"],
+              "requested_max_tokens": num_predict,
+              "elapsed_seconds": elapsed,
+              "prompt_tokens": result.get("prompt_eval_count"),
+              "generated_tokens": eval_count,
+              "generation_tokens_per_second": (eval_count / (eval_ns / 1e9)) if eval_ns else None,
+              "load_duration_ns": result.get("load_duration"),
+              "prompt_eval_duration_ns": result.get("prompt_eval_duration"),
+              "eval_duration_ns": eval_ns,
+              "response": result.get("response"),
+              "memory_samples": samples,
+              "peak_ollama_rss_kb": max((s["ollama_rss_kb"] for s in samples), default=0),
+              "completed": True
+          }
+          Path("artifacts/merlin-model-baseline/result.json").write_text(json.dumps(report, indent=2) + "\n")
+          print(json.dumps({k:v for k,v in report.items() if k != "memory_samples"}, indent=2))
+          PY
+
+      - name: Upload benchmark report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-local-model-baseline
+          path: artifacts/merlin-model-baseline/
+          retention-days: 7
