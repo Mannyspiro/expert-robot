@@ -98,20 +98,38 @@ class MerlinApiTests(unittest.TestCase):
         self.assertGreaterEqual(len(events["events"]), 2)
 
     def test_telemetry_ingest_and_source_separation(self):
-        accepted = self.post("/api/telemetry/ingest", {
-            "source": "runtime", "kind": "task.progress", "run_id": "api-test",
-            "task_id": "task-1", "payload": {"step": 1}, "cpu_percent": 8.5
-        })
-        self.assertTrue(accepted["accepted"])
-        self.assertEqual(accepted["event"]["source"], "runtime")
-        self.post("/api/telemetry/ingest", {
-            "source": "simulation", "kind": "task.progress", "run_id": "sim-test"
-        })
-        with urlopen(self.base + "/api/telemetry", timeout=5) as response:
-            view = json.loads(response.read())
-        self.assertEqual(view["source_counts"]["runtime"], 1)
-        self.assertEqual(view["source_counts"]["simulation"], 1)
-        self.assertTrue(view["simulation_is_not_runtime"])
+        # Fresh store prevents unrelated HTTP boundary events from polluting counts.
+        with tempfile.TemporaryDirectory() as tmp:
+            isolated_store = EventStore(Path(tmp) / "isolated.sqlite3")
+            server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(isolated_store))
+            thread = threading.Thread(target=server.serve_forever, daemon=True)
+            thread.start()
+            base = f"http://127.0.0.1:{server.server_port}"
+            try:
+                def post(path, payload):
+                    request = Request(base + path, data=json.dumps(payload).encode(),
+                                      headers={"Content-Type": "application/json"})
+                    with urlopen(request, timeout=5) as response:
+                        return json.loads(response.read())
+                accepted = post("/api/telemetry/ingest", {
+                    "source": "runtime", "kind": "task.progress", "run_id": "api-test",
+                    "task_id": "task-1", "payload": {"step": 1}, "cpu_percent": 8.5
+                })
+                self.assertTrue(accepted["accepted"])
+                self.assertEqual(accepted["event"]["source"], "runtime")
+                post("/api/telemetry/ingest", {
+                    "source": "simulation", "kind": "task.progress", "run_id": "sim-test"
+                })
+                with urlopen(base + "/api/telemetry", timeout=5) as response:
+                    view = json.loads(response.read())
+                # Two POSTs and the GET each emit an HTTP-boundary runtime event.
+                self.assertEqual(view["source_counts"]["runtime"], 3)
+                self.assertEqual(view["source_counts"]["simulation"], 1)
+                self.assertTrue(view["simulation_is_not_runtime"])
+            finally:
+                server.shutdown()
+                server.server_close()
+                thread.join(timeout=2)
 
     def test_http_boundaries_emit_measured_runtime_telemetry(self):
         with urlopen(self.base + "/health", timeout=5) as response:
