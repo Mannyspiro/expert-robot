@@ -24,6 +24,7 @@ jobs:
         env:
           PYTHONPATH: python
         run: python3 -m unittest discover -s tests -p 'test_cpu_fabric.py' -v
+          python3 -m unittest discover -s tests -p 'test_module_catalog.py' -v
       - name: Run bounded benchmark
         env:
           PYTHONPATH: python
