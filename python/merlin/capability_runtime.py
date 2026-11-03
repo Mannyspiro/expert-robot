@@ -153,7 +153,8 @@ class AsyncStreamingGateway:
     async def stream(self, request_id: str,
                      open_stream: Callable[[], Awaitable[AsyncIterable[bytes]]],
                      *, deadline_seconds: float = 180.0,
-                     on_chunk: Callable[[bytes], Any] | None = None
+                     on_chunk: Callable[[bytes], Any] | None = None,
+                     on_timing: Callable[[StreamChunk], Any] | None = None
                      ) -> AsyncIterator[bytes]:
         if not request_id or deadline_seconds <= 0 or not math.isfinite(deadline_seconds):
             raise ValueError("request_id and finite positive deadline are required")
@@ -193,6 +194,10 @@ class AsyncStreamingGateway:
                     (now-started)*1000.0, (now-previous)*1000.0,
                     (now-started)*1000.0 if not chunks else None))
                 previous = now
+                if on_timing is not None:
+                    timing_result = on_timing(chunks[-1])
+                    if asyncio.iscoroutine(timing_result):
+                        await timing_result
                 if on_chunk is not None:
                     result = on_chunk(chunk)
                     if asyncio.iscoroutine(result):
