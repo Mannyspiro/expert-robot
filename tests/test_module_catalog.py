@@ -95,11 +95,11 @@ class CatalogTests(unittest.TestCase):
         self.assertEqual([event["operation"] for event in events], ["load", "unload"])
         self.assertTrue(all(event["source"] == "runtime" for event in events))
         self.assertTrue(all(event["run_id"] == "loader-test-run" for event in events))
-        self.assertEqual(events[0]["artifact_bytes"], len(self.artifact.read_bytes()))
-        self.assertEqual(events[0]["outcome"], "succeeded")
-        self.assertEqual(events[1]["resident_module_bytes"], 0)
+        self.assertEqual(events[0]["payload"]["artifact_bytes"], len(self.artifact.read_bytes()))
+        self.assertEqual(events[0]["payload"]["outcome"], "succeeded")
+        self.assertEqual(events[1]["payload"]["resident_module_bytes"], 0)
         self.assertGreaterEqual(events[0]["duration_ms"], 0)
-        self.assertIn(events[0]["rss_measurement"],
+        self.assertIn(events[0]["payload"]["rss_measurement"],
                       ("linux_proc_statm_current_rss", "unavailable"))
 
     def test_failed_loader_emits_failure_without_residency(self):
