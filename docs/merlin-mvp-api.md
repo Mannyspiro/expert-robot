@@ -1,4 +1,4 @@
-# Merlin MVP API 0.3
+# Merlin MVP API 0.4
 
 Run from the repository root:
 
@@ -29,3 +29,4 @@ This is a real API foundation, not the completed Merlin product. It does not exp
 ## Network inference v1
 
 See [NETWORK_MODEL_STREAMING_V1.md](NETWORK_MODEL_STREAMING_V1.md). Configure `MERLIN_REMOTE_MODEL_URL`, `MERLIN_REMOTE_API_KEY`, `MERLIN_REMOTE_ALLOWED_HOSTS` and `MERLIN_REMOTE_MODEL_QUALIFIED=1` through the runtime environment, never a committed file. Remote inference requires HTTPS and an exact hostname allowlist. Set `stream: true` to pass through server-sent events incrementally. The current standard-library proxy is an MVP for low concurrency; an async connection-pooled gateway is the next performance step. Provider fallback must not silently move private prompts across trust boundaries.
+\nThe deterministic simulation and HUD are documented in [MERLIN_SIMULATION_CONTROL_ROOM.md](MERLIN_SIMULATION_CONTROL_ROOM.md). The HUD is served at `http://127.0.0.1:8765/hud`; all values are source-labeled simulation telemetry until real runtime adapters are separately connected and qualified.\n
