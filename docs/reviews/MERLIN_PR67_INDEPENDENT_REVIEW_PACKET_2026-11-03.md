@@ -65,3 +65,9 @@ Capability grows, authority never expands. Evaluation and review are evidence on
 
 ## CI iteration update
 A CI attempt including the new engineering CPU-fabric tests initially failed at import time because the test used `merlin.*` while this repository's runner imports the package as `python.merlin.*`. Commit 55ccfaa9c769bfcce3afe5a1e8885f0f06a9b18e corrected the test imports. The corrected engineering test file must still be executed on Avrea before its result is considered verified.
+
+## Latest bounded Avrea verification
+CI run 41677435187 (job 126061727081) completed successfully on the Avrea 8-vCPU AMD EPYC 4585PX runner. CTest passed 33/33; voice contracts 6/6; engineering tests 14/14 including all four new CPU-fabric regression tests; research/API tests 26/26. Raw log and metadata are archived under `artifacts/avrea/2026-11-03-run-41677435187/`. The checked-out merge commit was 9d63bec, merging 731ecef into the PR base. The only post-run change was evidence documentation/log archival; source files in scope were already present in the tested merge commit.
+
+## Independent review status
+No PR reviews are currently recorded. The packet is prepared, but a genuinely independent reviewer has not yet submitted a review. Do not describe the code as independently reviewed or qualified.
