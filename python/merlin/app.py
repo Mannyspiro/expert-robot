@@ -312,6 +312,15 @@ def make_handler(store: EventStore):
                                   "tick": result["state"]["tick"],
                                   "progress": result["state"]["progress"],
                                   "uncertainty": result["state"]["uncertainty"]})
+                    sim_event = normalize_event({
+                        "source": "simulation", "kind": "operator.action",
+                        "run_id": "simulation-session", "task_id": "simulation-control",
+                        "payload": {"action": action, "tick": result["state"]["tick"],
+                                    "simulation_only": True},
+                    })
+                    store.append("/api/telemetry/ingest",
+                                 {"event_id": sim_event["event_id"], "source": "simulation"},
+                                 {"event": sim_event})
                     self._send(200, result)
                     return
                 if path == "/api/council/prepare":
