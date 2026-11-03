@@ -39,6 +39,20 @@ class MerlinApiTests(unittest.TestCase):
             payload = json.loads(response.read())
         self.assertIn("engineering.geometry.validate", {row["id"] for row in payload["capabilities"]})
 
+    def test_council_roles_and_prepare_endpoint(self):
+        with urlopen(self.base + "/api/council/roles", timeout=5) as response:
+            roles = json.loads(response.read())["roles"]
+        self.assertGreaterEqual(len(roles), 5)
+        self.assertIn("skeptic", {role["id"] for role in roles})
+
+        payload = self.post("/api/council/prepare", {
+            "question": "Should Merlin use hybrid routing?",
+            "verbosity": "lively",
+        })
+        self.assertEqual(payload["schema"], "merlin-council-packets/1")
+        self.assertGreaterEqual(len(payload["packets"]), 5)
+        self.assertFalse(payload["promotion_authorized"])
+
     def test_ideonomy_rank_endpoint(self):
         payload = self.post("/api/ideonomy/rank", {"ideas": [{
             "title": "Mesh reduction", "mechanism": "Collapse degree-two nodes.",
