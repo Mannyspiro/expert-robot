@@ -9,8 +9,15 @@ The server binds only to 127.0.0.1. It uses Python's standard library and SQLite
 ## Endpoints
 
 - GET /health
+- GET /hud (Merlin Simulation Control Room)
+- GET /api/sim/state
+- GET /api/sim/events
+- POST /api/sim/step
 - GET /api/capabilities
 - GET /api/events
+- GET /api/council/roles
+- POST /api/council/prepare
+- POST /api/council/run (qualification-gated, local-only inference)
 - POST /api/chat (allowlisted remote HTTPS OpenAI-compatible gateway with SSE passthrough; local loopback model remains separately gated)
 - POST /api/speech (loopback Kokoro proxy)
 - POST /api/ideonomy/rank
@@ -25,8 +32,10 @@ Model chat, Hermes execution, image/video generation, and biochemistry remain ex
 
 This is a real API foundation, not the completed Merlin product. It does not expose arbitrary shell, file, repository, or deployment actions.
 
+## Simulation Control Room
+
+See [MERLIN_SIMULATION_CONTROL_ROOM.md](MERLIN_SIMULATION_CONTROL_ROOM.md). Start the API, then open http://127.0.0.1:8765/hud. All values in this first environment are source-labeled deterministic simulation telemetry, not host or production runtime measurements.
 
 ## Network inference v1
 
-See [NETWORK_MODEL_STREAMING_V1.md](NETWORK_MODEL_STREAMING_V1.md). Configure `MERLIN_REMOTE_MODEL_URL`, `MERLIN_REMOTE_API_KEY`, `MERLIN_REMOTE_ALLOWED_HOSTS` and `MERLIN_REMOTE_MODEL_QUALIFIED=1` through the runtime environment, never a committed file. Remote inference requires HTTPS and an exact hostname allowlist. Set `stream: true` to pass through server-sent events incrementally. The current standard-library proxy is an MVP for low concurrency; an async connection-pooled gateway is the next performance step. Provider fallback must not silently move private prompts across trust boundaries.
-\nThe deterministic simulation and HUD are documented in [MERLIN_SIMULATION_CONTROL_ROOM.md](MERLIN_SIMULATION_CONTROL_ROOM.md). The HUD is served at `http://127.0.0.1:8765/hud`; all values are source-labeled simulation telemetry until real runtime adapters are separately connected and qualified.\n
+See [NETWORK_MODEL_STREAMING_V1.md](NETWORK_MODEL_STREAMING_V1.md). Configure MERLIN_REMOTE_MODEL_URL, MERLIN_REMOTE_API_KEY, MERLIN_REMOTE_ALLOWED_HOSTS and MERLIN_REMOTE_MODEL_QUALIFIED=1 through the runtime environment, never a committed file. Remote inference requires HTTPS and an exact hostname allowlist. Set stream: true to pass through server-sent events incrementally. The current standard-library proxy is an MVP for low concurrency; an async connection-pooled gateway is the next performance step. Provider fallback must not silently move private prompts across trust boundaries.
