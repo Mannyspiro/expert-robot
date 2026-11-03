@@ -127,16 +127,20 @@ class BoundedModuleManager:
         rss_after = self._rss_bytes()
         event = {
             "schema": "merlin-loader-event/1", "source": "runtime",
-            "kind": "module.loader", "run_id": self.run_id,
-            "task_id": module_id, "operation": operation,
+            "kind": "resource.sample", "run_id": self.run_id,
+            "task_id": module_id,
             "duration_ms": max(0.0, (perf_counter() - started) * 1000),
-            "artifact_bytes": artifact_bytes,
-            "resident_module_bytes": self.resident_bytes,
-            "rss_before_bytes": rss_before, "rss_after_bytes": rss_after,
-            "rss_delta_bytes": (rss_after - rss_before)
-                if rss_before is not None and rss_after is not None else None,
-            "rss_measurement": "linux_proc_statm_current_rss" if rss_after is not None else "unavailable",
-            "outcome": outcome, "error_type": error_type,
+            "memory_bytes": rss_after,
+            "payload": {
+                "component": "module_loader", "operation": operation,
+                "artifact_bytes": artifact_bytes,
+                "resident_module_bytes": self.resident_bytes,
+                "rss_before_bytes": rss_before, "rss_after_bytes": rss_after,
+                "rss_delta_bytes": (rss_after - rss_before)
+                    if rss_before is not None and rss_after is not None else None,
+                "rss_measurement": "linux_proc_statm_current_rss" if rss_after is not None else "unavailable",
+                "outcome": outcome, "error_type": error_type,
+            },
         }
         try:
             self.event_sink(event)
