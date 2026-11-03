@@ -113,6 +113,49 @@ class MerlinApiTests(unittest.TestCase):
         self.assertEqual(view["source_counts"]["simulation"], 1)
         self.assertTrue(view["simulation_is_not_runtime"])
 
+    def test_simulation_replay_survives_server_restart(self):
+        from http.server import ThreadingHTTPServer
+        import threading
+        db = Path(self.temp.name) / "replay.sqlite3"
+        store = EventStore(db)
+        first = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(store))
+        thread = threading.Thread(target=first.serve_forever, daemon=True)
+        thread.start()
+        base = f"http://127.0.0.1:{first.server_port}"
+        try:
+            for action in ("advance", "verify", "advance"):
+                request = Request(base + "/api/sim/step", data=json.dumps({"action": action}).encode(),
+                                  headers={"Content-Type": "application/json"})
+                with urlopen(request, timeout=5) as response:
+                    self.assertEqual(response.status, 200)
+        finally:
+            first.shutdown()
+            first.server_close()
+            thread.join(timeout=2)
+        second = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(EventStore(db)))
+        thread2 = threading.Thread(target=second.serve_forever, daemon=True)
+        thread2.start()
+        try:
+            with urlopen(f"http://127.0.0.1:{second.server_port}/api/sim/replay", timeout=5) as response:
+                replay = json.loads(response.read())
+            self.assertEqual(replay["replayed_actions"], 3)
+            self.assertEqual(replay["actions"], ["advance", "verify", "advance"])
+            self.assertEqual(replay["state"]["state"]["tick"], 3)
+        finally:
+            second.shutdown()
+            second.server_close()
+            thread2.join(timeout=2)
+
+    def test_telemetry_graph_endpoint(self):
+        self.post("/api/telemetry/ingest", {
+            "source": "verifier", "kind": "verification.completed", "run_id": "graph-run",
+            "task_id": "proof-task", "evidence_refs": ["sha256:proof"]
+        })
+        with urlopen(self.base + "/api/telemetry/graph", timeout=5) as response:
+            graph = json.loads(response.read())
+        kinds = {node["kind"] for node in graph["nodes"]}
+        self.assertTrue({"run", "task", "event", "evidence"}.issubset(kinds))
+
     def test_model_route_fails_closed_until_qualified(self):
         request = Request(self.base + "/api/chat", data=json.dumps({"messages": []}).encode(), headers={"Content-Type": "application/json"})
         try:
