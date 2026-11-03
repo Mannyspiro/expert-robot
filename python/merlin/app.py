@@ -326,6 +326,18 @@ def make_handler(store: EventStore):
                                  {"model": result["model"], "opening_count": len(result["opening_positions"]),
                                   "cross_examination_count": len(result["cross_examination"]),
                                   "transcript_sha256": transcript_digest})
+                    council_event = normalize_event({
+                        "source": "model_output", "kind": "model.inference",
+                        "run_id": transcript_digest, "task_id": "council-deliberation",
+                        "model_id": str(result.get("model", "local-unidentified")),
+                        "payload": {"opening_count": len(result["opening_positions"]),
+                                    "cross_examination_count": len(result["cross_examination"]),
+                                    "transcript_sha256": transcript_digest},
+                        "evidence_refs": ["sha256:" + transcript_digest],
+                    })
+                    store.append("/api/telemetry/ingest",
+                                 {"event_id": council_event["event_id"], "source": "model_output"},
+                                 {"event": council_event})
                     self._send(200, result)
                     return
                 if path == "/api/speech":
