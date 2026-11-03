@@ -71,3 +71,6 @@ CI run 41677435187 (job 126061727081) completed successfully on the Avrea 8-vCPU
 
 ## Independent review status
 No PR reviews are currently recorded. The packet is prepared, but a genuinely independent reviewer has not yet submitted a review. Do not describe the code as independently reviewed or qualified.
+
+## Final runner verification update
+A further Avrea run, CI 41677813146 / job 126063089202, completed successfully on the same 8-vCPU AMD EPYC 4585PX / 29 GiB runner class. CTest passed 33/33, voice tests 6/6, engineering tests 15/15 (including the new activation-time cap recheck), and research/API tests 26/26. Full raw log and metadata are archived at `artifacts/avrea/2026-11-03-run-41677813146/`. Checked-out merge commit: 72e646c, containing source/test commit 39065a2. NousCoder inference remained skipped.
