@@ -72,6 +72,24 @@ def normalize_event(data: Mapping[str, Any]) -> dict[str, Any]:
         memory_bytes=numeric.get("memory_bytes"))
     return event.to_dict()
 
+
+def record_runtime_event(store: Any, *, path: str, method: str, status: int,
+                         duration_ms: float, response_bytes: int) -> dict[str, Any]:
+    """Append measured HTTP boundary telemetry; never persist request/response content."""
+    event = normalize_event({
+        "source": "runtime",
+        "kind": "system.error" if status >= 500 else "task.completed",
+        "run_id": str(uuid4()),
+        "task_id": path[:128],
+        "duration_ms": max(0.0, duration_ms),
+        "payload": {"component": "http_api", "method": method,
+                    "status_code": int(status), "response_bytes": int(response_bytes)},
+    })
+    store.append("/api/telemetry/ingest",
+                 {"event_id": event["event_id"], "source": "runtime"},
+                 {"event": event})
+    return event
+
 def telemetry_view(events: list[dict[str, Any]]) -> dict[str, Any]:
     grouped = {source: [] for source in sorted(SOURCES)}
     for event in events:
