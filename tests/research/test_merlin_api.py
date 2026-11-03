@@ -97,6 +97,22 @@ class MerlinApiTests(unittest.TestCase):
             events = json.loads(response.read())
         self.assertGreaterEqual(len(events["events"]), 2)
 
+    def test_telemetry_ingest_and_source_separation(self):
+        accepted = self.post("/api/telemetry/ingest", {
+            "source": "runtime", "kind": "task.progress", "run_id": "api-test",
+            "task_id": "task-1", "payload": {"step": 1}, "cpu_percent": 8.5
+        })
+        self.assertTrue(accepted["accepted"])
+        self.assertEqual(accepted["event"]["source"], "runtime")
+        self.post("/api/telemetry/ingest", {
+            "source": "simulation", "kind": "task.progress", "run_id": "sim-test"
+        })
+        with urlopen(self.base + "/api/telemetry", timeout=5) as response:
+            view = json.loads(response.read())
+        self.assertEqual(view["source_counts"]["runtime"], 1)
+        self.assertEqual(view["source_counts"]["simulation"], 1)
+        self.assertTrue(view["simulation_is_not_runtime"])
+
     def test_model_route_fails_closed_until_qualified(self):
         request = Request(self.base + "/api/chat", data=json.dumps({"messages": []}).encode(), headers={"Content-Type": "application/json"})
         try:
