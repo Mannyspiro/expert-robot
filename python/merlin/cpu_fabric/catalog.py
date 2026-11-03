@@ -68,26 +68,24 @@ def _read_verified(manifest: ModuleManifest, root: Path,
             if size > max_artifact_bytes:
                 raise CatalogError("artifact exceeds transient memory limit")
             digest = sha256()
+            payload = bytearray(size) if materialize else None
+            view = memoryview(payload) if payload is not None else None
+            offset = 0
             while True:
                 chunk = stream.read(1024 * 1024)
                 if not chunk:
                     break
                 digest.update(chunk)
+                if view is not None:
+                    end = offset + len(chunk)
+                    if end > size:
+                        raise CatalogError("artifact grew while verified snapshot was read")
+                    view[offset:end] = chunk
+                offset += len(chunk)
+            if offset != size:
+                raise CatalogError("artifact changed while verified snapshot was read")
             if digest.hexdigest() != manifest.artifact_sha256:
                 raise CatalogError("artifact SHA-256 mismatch")
-            if not materialize:
-                return None
-            stream.seek(0)
-            payload = bytearray()
-            while True:
-                chunk = stream.read(min(1024 * 1024, max_artifact_bytes + 1 - len(payload)))
-                if not chunk:
-                    break
-                payload.extend(chunk)
-                if len(payload) > max_artifact_bytes:
-                    raise CatalogError("artifact exceeds transient memory limit")
-            if len(payload) != size:
-                raise CatalogError("artifact changed while verified snapshot was read")
             return payload
     except OSError as exc:
         raise CatalogError("artifact could not be read") from exc
