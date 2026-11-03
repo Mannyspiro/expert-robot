@@ -45,6 +45,8 @@ def run_paired_trials(strategies: dict[str, Callable[[int], dict]],
             required = ("quality", "latency_ms", "peak_rss_bytes", "resident_bytes")
             if any(key not in result for key in required):
                 raise ValueError(f"evaluator for {name} omitted required metrics")
+            if isinstance(result.get("failures", 0), bool) or not isinstance(result.get("failures", 0), int):
+                raise ValueError(f"failures for {name} must be an integer")
             trial = Trial(
                 strategy=name, seed=seed,
                 quality=float(result["quality"]),
