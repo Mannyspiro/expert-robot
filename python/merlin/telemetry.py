@@ -90,6 +90,16 @@ def record_runtime_event(store: Any, *, path: str, method: str, status: int,
                  {"event": event})
     return event
 
+
+def loader_event_sink(store: Any):
+    """Return a catalog event sink that persists normalized metadata-only telemetry."""
+    def sink(data: Mapping[str, Any]) -> None:
+        event = normalize_event(data)
+        store.append("/api/telemetry/ingest",
+                     {"event_id": event["event_id"], "source": "runtime"},
+                     {"event": event})
+    return sink
+
 def telemetry_view(events: list[dict[str, Any]]) -> dict[str, Any]:
     grouped = {source: [] for source in sorted(SOURCES)}
     for event in events:
