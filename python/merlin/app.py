@@ -19,6 +19,7 @@ from urllib.request import Request, urlopen
 from urllib.error import URLError, HTTPError
 
 from .council import PERSONAS, build_deliberation_packets
+from .council_runtime import run_local_council
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
     validate_analogy,
@@ -92,6 +93,7 @@ class EventStore:
 CAPABILITIES = [
     {"id": "council.roles", "status": "AVAILABLE", "evidence": "deterministic simulated persona registry"},
     {"id": "council.deliberation.prepare", "status": "AVAILABLE", "evidence": "role-specific prompt packets and auditable self-map contract"},
+    {"id": "council.deliberation.run_local", "status": "QUALIFICATION_GATED", "evidence": "six isolated local model openings; optional bounded cross-examination"},
     {"id": "research.ideonomy.rank", "status": "AVAILABLE", "evidence": "unit-tested deterministic candidate ranking"},
     {"id": "research.analogy.validate", "status": "AVAILABLE", "evidence": "unit-tested invariant and boundary checks"},
     {"id": "research.rsi.qualify", "status": "AVAILABLE", "evidence": "fail-closed qualification contract"},
@@ -233,6 +235,22 @@ def make_handler(store: EventStore):
                                  {"persona_count": len(PERSONAS), "verbosity": verbosity})
                     self._send(200, result)
                     return
+                if path == "/api/council/run":
+                    question = data.get("question", "")
+                    context = data.get("context", "")
+                    verbosity = data.get("verbosity", "lively")
+                    rounds = data.get("rounds", 1)
+                    if not isinstance(question, str) or not isinstance(context, str):
+                        raise ValueError("question and context must be strings")
+                    result = run_local_council(question, context, verbosity, rounds)
+                    transcript_digest = sha256(_json_bytes(result)).hexdigest()
+                    result["transcript_sha256"] = transcript_digest
+                    store.append(path, {"question": question, "verbosity": verbosity, "rounds": rounds},
+                                 {"model": result["model"], "opening_count": len(result["opening_positions"]),
+                                  "cross_examination_count": len(result["cross_examination"]),
+                                  "transcript_sha256": transcript_digest})
+                    self._send(200, result)
+                    return
                 if path == "/api/speech":
                     endpoint = _loopback_endpoint("MERLIN_TTS_URL", "http://127.0.0.1:8880/v1/audio/speech")
                     request = Request(endpoint, data=raw, headers={"Content-Type": "application/json"}, method="POST")
@@ -324,6 +342,8 @@ def make_handler(store: EventStore):
                 self._send(200, result)
             except (ValueError, TypeError, KeyError, json.JSONDecodeError) as exc:
                 self._send(400, {"error": "invalid_request", "detail": str(exc)[:300]})
+            except RuntimeError as exc:
+                self._send(503, {"error": "council_model_unavailable", "detail": str(exc)[:200]})
             except (URLError, HTTPError, TimeoutError, OSError) as exc:
                 self._send(503, {"error": "local_adapter_unavailable", "detail": str(exc)[:200]})
             except Exception:
