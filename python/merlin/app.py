@@ -363,7 +363,9 @@ def make_handler(store: EventStore):
                     rounds = data.get("rounds", 1)
                     if not isinstance(question, str) or not isinstance(context, str):
                         raise ValueError("question and context must be strings")
+                    council_started = perf_counter()
                     result = run_local_council(question, context, verbosity, rounds)
+                    council_duration_ms = (perf_counter() - council_started) * 1000.0
                     transcript_digest = sha256(_json_bytes(result)).hexdigest()
                     result["transcript_sha256"] = transcript_digest
                     store.append(path, {"question": question, "verbosity": verbosity, "rounds": rounds},
@@ -374,6 +376,7 @@ def make_handler(store: EventStore):
                         "source": "model_output", "kind": "model.inference",
                         "run_id": transcript_digest, "task_id": "council-deliberation",
                         "model_id": str(result.get("model", "local-unidentified")),
+                        "duration_ms": council_duration_ms,
                         "payload": {"opening_count": len(result["opening_positions"]),
                                     "cross_examination_count": len(result["cross_examination"]),
                                     "transcript_sha256": transcript_digest},
@@ -438,6 +441,7 @@ def make_handler(store: EventStore):
                                     raise ValueError("stream exceeded 64 MB safety limit")
                                 self.wfile.write(chunk)
                                 self.wfile.flush()
+                            self._record_boundary(200, total)
                             store.append(path, data, {"streamed": True, "bytes": total, "provider_host": urlsplit(endpoint).hostname})
                             _append_component_event(store, source="model_output", kind="model.inference",
                                 component="chat_adapter", task_id="chat",
