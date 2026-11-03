@@ -27,7 +27,9 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_cpu_fabric.py' -v
           python3 -m unittest discover -s tests -p 'test_module_catalog.py' -v
           python3 -m unittest discover -s tests -p 'test_strategy_eval.py' -v
-          python3 -m unittest discover -s tests -p 'test_council.py' -v\n          python3 -m unittest discover -s tests -p 'test_council_runtime.py' -v\n          python3 -m unittest discover -s tests/research -p 'test_merlin_api.py' -v
+          python3 -m unittest discover -s tests -p 'test_council.py' -v
+          python3 -m unittest discover -s tests -p 'test_council_runtime.py' -v
+          python3 -m unittest discover -s tests/research -p 'test_merlin_api.py' -v
       - name: Run bounded benchmark
         env:
           PYTHONPATH: python
