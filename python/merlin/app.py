@@ -16,12 +16,12 @@ import sqlite3
 from typing import Any
 from urllib.parse import urlparse, urlsplit
 from urllib.request import Request, urlopen
-from urllib.error import URLError, HTTPError
+from urllib.error import URLError, HTTPError\nfrom time import perf_counter
 
 from .council import PERSONAS, build_deliberation_packets
 from .council_runtime import run_local_council
 from .simulation import MerlinSimulation
-from .telemetry import normalize_event, telemetry_view
+from .telemetry import normalize_event, telemetry_view, record_runtime_event
 from .telemetry_graph import build_telemetry_graph
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
