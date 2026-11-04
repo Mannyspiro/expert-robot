@@ -9,8 +9,8 @@ class MediaAndDraftingTests(unittest.TestCase):
     def setUp(self):
         self.project = EngineeringProject(
             "demo", "mm",
-            (Part("J1", "connector", (Pin("1", "VIN"),), size_mm=(20, 10, 4)),
-             Part("U1", "controller", (Pin("1", "VCC"),), size_mm=(12, 8, 2))),
+            (Part("J1", "connector", (Pin("1", "VIN", position_mm=(10, 0, 0)),), size_mm=(20, 10, 4)),
+             Part("U1", "controller", (Pin("1", "VCC", position_mm=(-6, 0, 0)),), size_mm=(12, 8, 2))),
             (Net("VIN", ("J1.1", "U1.1"), 5.0, 0.2, "power"),),
         )
         self.assembly = CADAssembly(
@@ -48,6 +48,8 @@ class MediaAndDraftingTests(unittest.TestCase):
     def test_top_view_svg_uses_declared_geometry_and_is_labelled(self):
         svg = export_top_view_svg(self.project, self.assembly)
         self.assertIn("NOT FOR MANUFACTURE", svg)
+        self.assertIn("NOT ROUTED", svg)
+        self.assertIn('stroke-dasharray="4 3"', svg)
         self.assertIn("J1", svg)
         self.assertIn("U1", svg)
         self.assertIn('width="', svg)
