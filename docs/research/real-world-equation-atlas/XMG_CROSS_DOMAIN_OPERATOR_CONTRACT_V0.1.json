@@ -1,0 +1,251 @@
+{
+  "contract_id": "merlin-xmg-operator-contract/0.1",
+  "status": "PROPOSED_CONTRACT_NOT_RUNTIME_CAPABILITY",
+  "principles": [
+    "Operators are typed transformations over declared frames.",
+    "Physical units, SI dimensions, probability units, and information units remain distinct.",
+    "Conservation claims require explicit boundary and topology assumptions.",
+    "A stochastic jump operator must declare its propensity or rate law and state-space boundary behavior.",
+    "Composition is valid only when the upstream output frame exactly matches the downstream input frame."
+  ],
+  "frames": {
+    "ScalarField": {
+      "quantity": "spatial scalar field",
+      "required": [
+        "domain",
+        "unit",
+        "spatial_dimension",
+        "boundary_condition"
+      ]
+    },
+    "PopulationState": {
+      "quantity": "nonnegative population vector",
+      "required": [
+        "population_basis",
+        "unit",
+        "topology_or_patch_index"
+      ]
+    },
+    "ProbabilityMass": {
+      "quantity": "normalized discrete probability distribution",
+      "required": [
+        "state_space",
+        "normalization",
+        "time_convention"
+      ]
+    },
+    "GraphState": {
+      "quantity": "node states and graph topology",
+      "required": [
+        "node_state_type",
+        "adjacency_convention",
+        "directedness"
+      ]
+    },
+    "PhaseNetwork": {
+      "quantity": "oscillator phases and network",
+      "required": [
+        "phase_unit",
+        "frequency_unit",
+        "adjacency_convention"
+      ]
+    },
+    "ReactionState": {
+      "quantity": "discrete or continuous species state",
+      "required": [
+        "species",
+        "state_representation",
+        "stoichiometry"
+      ]
+    },
+    "NeuralField": {
+      "quantity": "continuous neural population activity",
+      "required": [
+        "domain",
+        "activity_unit",
+        "kernel",
+        "activation_function"
+      ]
+    }
+  },
+  "operators": [
+    {
+      "id": "diffusion",
+      "inputs": [
+        "ScalarField"
+      ],
+      "outputs": [
+        "ScalarField"
+      ],
+      "parameters": [
+        "diffusion_tensor",
+        "domain",
+        "boundary_condition"
+      ],
+      "invariants": [
+        "mass_or_integral_conservation_only_for_no_flux_or_periodic_boundaries_and_conservative_discretization"
+      ],
+      "notes": "D has dimensions L²/T; anisotropic tensors and coordinate frame must be explicit."
+    },
+    {
+      "id": "reaction",
+      "inputs": [
+        "ScalarField"
+      ],
+      "outputs": [
+        "ScalarField"
+      ],
+      "parameters": [
+        "kinetic_law",
+        "species_or_field_mapping"
+      ],
+      "invariants": [
+        "declared_stoichiometric_conservation_laws"
+      ],
+      "notes": "Reaction rates and state units must be dimensionally compatible."
+    },
+    {
+      "id": "advection",
+      "inputs": [
+        "ScalarField"
+      ],
+      "outputs": [
+        "ScalarField"
+      ],
+      "parameters": [
+        "velocity_field",
+        "domain",
+        "boundary_condition"
+      ],
+      "invariants": [
+        "conservation_depends_on_flux_form_and_boundary_flux"
+      ],
+      "notes": "Use conservative divergence form for conserved quantities."
+    },
+    {
+      "id": "graph_coupling",
+      "inputs": [
+        "PopulationState",
+        "GraphState"
+      ],
+      "outputs": [
+        "PopulationState"
+      ],
+      "parameters": [
+        "adjacency_or_laplacian",
+        "coupling_strength",
+        "flux_convention"
+      ],
+      "invariants": [
+        "total_population_conservation_only_for_balanced_pairwise_flux"
+      ],
+      "notes": "Directedness, normalization, and weighted-degree convention are part of the type."
+    },
+    {
+      "id": "jump_process",
+      "inputs": [
+        "ReactionState",
+        "ProbabilityMass"
+      ],
+      "outputs": [
+        "ProbabilityMass"
+      ],
+      "parameters": [
+        "generator_or_propensities",
+        "stoichiometric_updates",
+        "absorbing_or_reflecting_boundaries"
+      ],
+      "invariants": [
+        "probability_normalization",
+        "nonnegative_state_counts"
+      ],
+      "notes": "Generator convention (row/column) and propensity units must be explicit."
+    },
+    {
+      "id": "phase_coupling",
+      "inputs": [
+        "PhaseNetwork"
+      ],
+      "outputs": [
+        "PhaseNetwork"
+      ],
+      "parameters": [
+        "natural_frequencies",
+        "adjacency",
+        "coupling_function",
+        "coupling_strength"
+      ],
+      "invariants": [
+        "global_phase_shift_symmetry_when_model_has_it"
+      ],
+      "notes": "Phase is periodic; frequency and phase/time conventions are declared."
+    },
+    {
+      "id": "neural_convolution",
+      "inputs": [
+        "NeuralField"
+      ],
+      "outputs": [
+        "NeuralField"
+      ],
+      "parameters": [
+        "synaptic_kernel",
+        "activation_function",
+        "time_constant",
+        "external_input"
+      ],
+      "invariants": [
+        "boundedness_only_under_declared_kernel_activation_and_input_conditions"
+      ],
+      "notes": "Kernel measure, domain, and boundary treatment are explicit."
+    },
+    {
+      "id": "project_frame",
+      "inputs": [
+        "ScalarField",
+        "PopulationState",
+        "GraphState",
+        "PhaseNetwork",
+        "ReactionState",
+        "NeuralField"
+      ],
+      "outputs": [
+        "ScalarField",
+        "PopulationState",
+        "GraphState",
+        "PhaseNetwork",
+        "ReactionState",
+        "NeuralField"
+      ],
+      "parameters": [
+        "source_frame",
+        "target_frame",
+        "map_kind",
+        "map_definition"
+      ],
+      "invariants": [
+        "declared_invariants_only"
+      ],
+      "notes": "Projection, embedding, active transformation, and passive coordinate change are distinct map kinds."
+    }
+  ],
+  "composition_rule": {
+    "rule": "For A then B, output_frame(A) must equal input_frame(B).",
+    "frame_matching": "Exact frame identifiers and required metadata; no implicit unit coercion.",
+    "provenance": [
+      "operator_id",
+      "operator_version",
+      "input_hash",
+      "parameter_hash",
+      "code_revision",
+      "random_seed_if_any",
+      "numerical_method",
+      "tolerance",
+      "boundary_conditions"
+    ]
+  },
+  "nonclaims": [
+    "This file specifies an interface contract only.",
+    "It does not claim a production operator runtime, GPU implementation, CAD integration, or empirical validation."
+  ]
+}
