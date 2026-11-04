@@ -1,5 +1,5 @@
 import unittest
-from glyph_foundry import EvidenceState, GlyphFoundry, PromotionError, TypeMismatch, TypeRef, build_default_registry
+from merlin.glyph_foundry import EvidenceState, GlyphFoundry, PromotionError, TypeMismatch, TypeRef, build_default_registry
 
 class GlyphFoundryTests(unittest.TestCase):
     def setUp(self):
