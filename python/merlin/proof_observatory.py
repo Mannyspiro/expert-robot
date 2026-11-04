@@ -241,7 +241,7 @@ class ProofObservatory:
         mapping = domain_to_registry_domains or {
             "geometry": ("geometry",),
             "xmg": (),
-            "equation_atlas": ("algebra",),
+            "equation_atlas": (),
             "cad": ("manufacturing", "electrical", "thermal"),
         }
         nodes = theorem_dag.get("nodes", [])
