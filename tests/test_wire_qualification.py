@@ -69,6 +69,19 @@ class WireQualificationTests(unittest.TestCase):
         self.assertEqual(result[0]["code"], "BEND_GEOMETRY_UNVERIFIED")
         self.assertEqual(result[0]["status"], "BLOCKED")
 
+    def test_invalid_non_numeric_input_is_blocked_not_crashed(self):
+        from dataclasses import replace
+        result = assess_electrical(replace(electrical(), measured_minimum_clearance_mm="unknown"))
+        self.assertTrue(any(item["status"] == "BLOCKED" for item in result))
+
+    def test_report_binds_all_input_payloads(self):
+        report = build_qualification_report(route(), electrical(),
+            ThermalInputs(25.0, 90.0, 4.0, "thermal-test-001"),
+            ManufacturingInputs(10.0, (12.0,), 5.0, 8.0, "REV-A", "process-001"))
+        self.assertEqual(len(report["input_hashes"]["route_sha256"]), 64)
+        self.assertEqual(len(report["input_hashes"]["electrical_inputs_sha256"]), 64)
+        self.assertEqual(len(report["report_sha256"]), 64)
+
     def test_missing_authoritative_data_blocks_release(self):
         report = build_qualification_report(route(), None, None, None)
         self.assertEqual(report["overall_status"], "BLOCKED")
