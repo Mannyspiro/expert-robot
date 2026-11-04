@@ -78,3 +78,18 @@ Merlin's CAD/wiring path now separates:
 
 These are distinct artifacts and evidence gates. A route visualization is not a
 release schematic; a qualification screening report is not certification.
+
+## MCFC queue scheduling increment
+
+`python/merlin/cpu_fabric/workload_scheduler.py` adds a deterministic
+priority/FIFO admission queue over the typed lease book. It dispatches work that
+fits the current measured capacity, skips temporarily unfit work rather than
+head-of-line blocking, and retains blocked jobs for a later dispatch. The
+scheduler issues leases; it does not start processes, preempt workers, or persist
+queue state across restarts. Priority is a queue-order field, not an entitlement
+to exceed resource limits.
+
+Avrea CI tests priority/FIFO ordering, blocked-job bypass, redispatch after
+resources are released, cancellation, and duplicate workload IDs. This remains
+a reference scheduler; durable queue state, distributed worker heartbeats,
+fairness/aging, and real worker execution are not yet implemented.

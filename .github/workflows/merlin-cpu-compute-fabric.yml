@@ -26,6 +26,7 @@ jobs:
         run: |
           python3 -m unittest discover -s tests -p 'test_cpu_fabric.py' -v
           python3 -m unittest discover -s tests -p 'test_workload_leases.py' -v
+          python3 -m unittest discover -s tests -p 'test_workload_scheduler.py' -v
           python3 -m unittest discover -s tests -p 'test_module_catalog.py' -v
           python3 -m unittest discover -s tests -p 'test_strategy_eval.py' -v
           python3 -m unittest discover -s tests -p 'test_council.py' -v

@@ -164,3 +164,12 @@ The current `LeaseBook` is an in-process reference implementation, not yet a
 durable distributed scheduler. Live hardware capacity, lease persistence across
 restarts, worker heartbeats, preemption, fairness, native EDA export, SPICE
 simulation, and independent electrical sign-off remain separate completion gates.
+
+## MCFC queue/admission boundary
+
+`WorkloadScheduler` now orders queued CAD jobs by descending declared priority
+and FIFO for ties, then asks `LeaseBook` to reserve measured CPU/memory/GPU and
+compute-budget capacity. A request that does not currently fit remains queued;
+smaller eligible work may proceed. This is a deterministic first-fit admission
+policy, not a production fairness guarantee or a worker executor. The scheduler
+does not spawn processes, preempt active work, or persist its queue across restarts.
