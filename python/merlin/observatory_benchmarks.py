@@ -306,7 +306,7 @@ if __name__ == "__main__":
     receipt = write_benchmark_receipt(args.output, args.commit)
     repeated = run_repeated_benchmarks(args.commit, repeats=3)
     repeat_path = Path(args.output).with_name("merlin-cross-domain-repeatability.json")
-    repeat_path.write_text(_canonical(repeated) + "\\n", encoding="utf-8")
+    repeat_path.write_text(_canonical(repeated) + "\n", encoding="utf-8")
     print(json.dumps({
         "receipt_sha256": receipt["receipt_sha256"],
         "all_passed": receipt["all_passed"],
