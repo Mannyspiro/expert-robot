@@ -116,3 +116,22 @@ CACE owns evidence validation, reproducibility, independent verification, approv
 MCFC remains the virtual compute fabric: typed CPU/memory/GPU resources, resource budgets, scheduling, leases, telemetry, and bounded workers. It executes simulation/EDA/CAD jobs under resource limits; it does not define physical coordinate frames. XMG / coordinate-frame contracts describe the same physical design across assembly, board, component, pin, harness and sensor frames.
 
 Capability grows, authority never expands.
+
+## Formal proof layer (conditional mathematics)
+
+`formal/MathAI/WireQualification.lean` adds conditional Lean theorems for:
+- derated ampacity implying the nominal manufacturer ampacity bound;
+- nonnegativity of the declared DC resistive voltage-drop expression;
+- positivity of temperature-corrected resistance under stated assumptions;
+- uniqueness of a fixed point for the affine lumped thermal model when feedback gain is below one;
+- scalar clearance and swept bend-radius comparisons.
+
+The file is imported into `formal/MathAI.lean`, and each theorem is included in
+`formal/MathAI/Audit.lean` for kernel-visible axiom reporting. The theorem
+registry records these as **candidate** until the dedicated Lean workflow passes.
+
+These proofs validate algebraic implications inside declared models. They do
+not validate the source datasheets, the selected standard, the CAD measurement,
+the thermal boundary conditions, or the real physical assembly. In particular,
+the thermal fixed-point uniqueness theorem is not a proof that the physical
+system is represented by the lumped model.
