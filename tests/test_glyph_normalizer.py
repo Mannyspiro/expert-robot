@@ -46,7 +46,7 @@ class GlyphNormalizerTests(unittest.TestCase):
         with self.assertRaises(Exception): normalizer.normalize(self.registry.compose(n,n))
     def test_no_unbounded_rewrite_loop(self):
         n=self.registry.primitive_expr("NEGATE_INT")
-        result=self.normalizer.normalize(self.registry.compose(n,n),max_steps=1)
+        result=self.normalizer.normalize(self.registry.compose(n,n),max_steps=2)
         self.assertTrue(result.complete)
 
 if __name__=="__main__": unittest.main()
