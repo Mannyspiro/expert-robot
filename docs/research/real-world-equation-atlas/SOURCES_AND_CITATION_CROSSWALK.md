@@ -166,3 +166,25 @@ This is a source-to-entry crosswalk, not a claim that every entry has already re
 - **S46 — Percolation theory:** D. H. Rothman, MIT OpenCourseWare 12.086/12.586, *Modeling Environmental Complexity*, lecture notes on bond percolation, clusters, critical thresholds, scaling, and finite-size effects. https://ocw.mit.edu/courses/12-086-modeling-environmental-complexity-fall-2014/a8b26843ad438d5f648b3b0330193d02_MIT12_086F14_percolation.pdf
 
 - **S47 — Fisher information geometry:** Ay et al., “An Elementary Introduction to Information Geometry,” open-access review defining the Fisher information metric, Fisher–Rao geometry, regularity conditions, and invariance properties. https://pmc.ncbi.nlm.nih.gov/articles/PMC7650632/
+
+
+| 071 | S48 | Fisher-KPP invasion wave; the classical minimum speed applies under scalar KPP hypotheses on an unbounded homogeneous domain. |
+| 072 | S49 | Classical Lotka-Volterra predator-prey model; neutral center is specific to the idealized equations. |
+| 073 | S50 | SIR deterministic/stochastic relationship; incidence and population normalization conventions must be declared. |
+| 074 | S51 | Compartmental epidemic models and network/metapopulation extensions. |
+| 075 | S52 | Neural-field mathematical framework, including Wilson-Cowan and Amari model families and inherited assumptions. |
+| 076 | S53 | Gillespie exact stochastic simulation and chemical master equation formulation. |
+| 077 | S53 | Gillespie direct-method waiting-time and reaction-selection construction. |
+| 078 | S54 | Convergent reaction-diffusion master equation; standard RDME continuum-limit caveats. |
+| 079 | S55 | Adaptive coevolutionary networks: node-state dynamics coupled to topology evolution. |
+| 080 | S56 | Generalized Lotka-Volterra community models and ecological applications. |
+
+- **S48 — Fisher-KPP:** *Introduction to Mathematical Modeling*, University of Arizona open textbook, diffusion chapter; derives the Fisher-KPP equation and traveling-wave family. https://opentextbooks.library.arizona.edu/mathematicalmodeling/chapter/diffusion/
+- **S49 — Lotka-Volterra:** University of Florida computational physics course notes on the classical predator-prey equations. https://cmp.phys.ufl.edu/PHZ4710/files/unit5/Lotka-Volterra.html
+- **S50 — SIR:** Wilkinson, Ball and Sharkey, “The relationships between message passing, pairwise, Kermack–McKendrick and stochastic SIR epidemic models,” *Journal of Mathematical Biology* (2017), open access. https://pmc.ncbi.nlm.nih.gov/articles/PMC5641366/
+- **S51 — Metapopulation and network epidemics:** Getz et al., “Modeling epidemics: A primer and Numerus Model Builder implementation,” *Epidemics* (2018), including network and metapopulation extensions. https://www.sciencedirect.com/science/article/pii/S1755436517301342
+- **S52 — Neural fields:** Cook et al., “Neural Field Models: A mathematical overview and unifying framework,” *Mathematical Neuroscience and Applications* (2022). https://mna.episciences.org/9228
+- **S53 — Chemical master equation and SSA:** Gillespie, “Exact Stochastic Simulation of Coupled Chemical Reactions,” *The Journal of Physical Chemistry* 81 (1977), 2340–2361. https://apice.unibo.it/bin/view/Publication/StochasticsimulationJphyschem81
+- **S54 — RDME:** Isaacson, “A Convergent Reaction-Diffusion Master Equation,” arXiv:1211.6772; explains why naive lattice refinement can lose bimolecular reaction effects and develops a convergent alternative. https://arxiv.org/abs/1211.6772
+- **S55 — Adaptive networks:** Gross and Blasius, “Adaptive coevolutionary networks: a review,” *Journal of the Royal Society Interface* 5 (2008), 259–271. https://pmc.ncbi.nlm.nih.gov/articles/PMC2405905/
+- **S56 — Generalized Lotka-Volterra:** Allesina, “One Hundred Years of Lotka–Volterra Models,” *Annual Review of Ecology, Evolution, and Systematics* (2026, review in advance). https://www.annualreviews.org/content/journals/10.1146/annurev-ecolsys-102924-040829
