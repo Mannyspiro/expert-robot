@@ -65,7 +65,7 @@ size-decreasing rewrite policy; a concrete AST implementation must still prove
 that each accepted rewrite decreases its declared measure. -/
 theorem wellFounded_of_nat_measure_decrease
     {α : Type} (size : α → ℕ) :
-    WellFounded (fun a b => size b < size a) := by
+    WellFounded (fun a b => size a < size b) := by
   have aux : ∀ n, ∀ a, size a = n →
       Acc (fun x y => size y < size x) a := by
     intro n
