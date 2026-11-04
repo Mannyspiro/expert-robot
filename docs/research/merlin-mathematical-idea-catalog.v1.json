@@ -1,0 +1,975 @@
+{
+  "schema_version": 1,
+  "catalog_id": "merlin.mathematics",
+  "status_vocabulary": [
+    "candidate",
+    "literature_checked",
+    "counterexample_checked",
+    "finite_tested",
+    "formalized",
+    "supported",
+    "refuted",
+    "unresolved"
+  ],
+  "relation_vocabulary": [
+    "generalizes",
+    "specializes",
+    "depends_on",
+    "equivalent_under",
+    "maps_to",
+    "contrasts_with",
+    "tested_by",
+    "formalized_by",
+    "implemented_by",
+    "applies_to",
+    "motivated_by"
+  ],
+  "ideas": [
+    {
+      "id": "MATH-REP-001",
+      "title": "Representation-first mathematical objects",
+      "kind": "concept",
+      "claim": "A mathematical object can be exposed through multiple typed representations linked by explicit maps and invariants.",
+      "definitions": [
+        "source/target types",
+        "domains",
+        "frames",
+        "invariants"
+      ],
+      "assumptions": [
+        "Each representation has declared semantics and scope."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin discussions: coordinate systems and geometric transforms"
+      ],
+      "relations": [
+        {
+          "type": "generalizes",
+          "target": "MATH-COORD-001"
+        },
+        {
+          "type": "maps_to",
+          "target": "MATH-XMG-001"
+        }
+      ],
+      "objections": [
+        "Not all representations are lossless or mutually convertible."
+      ],
+      "next_steps": [
+        "Specify typed representation interface and commuting-diagram checker."
+      ]
+    },
+    {
+      "id": "MATH-COORD-001",
+      "title": "Simultaneous coordinate frames",
+      "kind": "representation",
+      "claim": "One geometric object may have multiple coordinate descriptions connected by transition maps.",
+      "definitions": [
+        "Cartesian",
+        "polar",
+        "cylindrical",
+        "spherical",
+        "homogeneous",
+        "manifold charts"
+      ],
+      "assumptions": [
+        "Frames, units, domains and singularities are explicit."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin discussions: one point in 2D/3D/4D/5D+ systems"
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-REP-001"
+        },
+        {
+          "type": "applies_to",
+          "target": "MATH-CAD-001"
+        }
+      ],
+      "objections": [
+        "Coordinate singularity must not be confused with geometric singularity."
+      ],
+      "next_steps": [
+        "Build typed transition-map registry and path-consistency tests."
+      ]
+    },
+    {
+      "id": "MATH-CALG-001",
+      "title": "Complex and trigonometric representation bridge",
+      "kind": "representation",
+      "claim": "Complex polar form, Euler identity and planar rotations provide linked representations of 2D rotations.",
+      "definitions": [
+        "complex plane",
+        "Euler identity",
+        "rotation matrix"
+      ],
+      "assumptions": [
+        "Angle convention and orientation are fixed."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin discussions: cos x, sin y, i and polar coordinates"
+      ],
+      "relations": [
+        {
+          "type": "specializes",
+          "target": "MATH-REP-001"
+        },
+        {
+          "type": "equivalent_under",
+          "target": "MATH-COORD-001"
+        }
+      ],
+      "objections": [
+        "Conventions and branch choices matter."
+      ],
+      "next_steps": [
+        "Prove matrix/complex rotation correspondence in Lean."
+      ]
+    },
+    {
+      "id": "MATH-ALG-001",
+      "title": "Geometric number systems",
+      "kind": "concept",
+      "claim": "Complex numbers, quaternions, dual numbers and Clifford/geometric algebras can be compared by their algebraic laws and geometric semantics.",
+      "definitions": [
+        "field/ring/algebra",
+        "signature",
+        "norm",
+        "conjugation",
+        "grade"
+      ],
+      "assumptions": [
+        "Each algebra is specified independently; no blanket interchangeability."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin discussions: geometric numbers and alien glyph mathematics"
+      ],
+      "relations": [
+        {
+          "type": "generalizes",
+          "target": "MATH-CALG-001"
+        },
+        {
+          "type": "maps_to",
+          "target": "MATH-XMG-001"
+        }
+      ],
+      "objections": [
+        "Different algebras have different multiplication and geometric properties."
+      ],
+      "next_steps": [
+        "Create algebra capability matrix and typed homomorphism catalog."
+      ]
+    },
+    {
+      "id": "MATH-LIN-001",
+      "title": "Eigenstructure and higher-dimensional transforms",
+      "kind": "concept",
+      "claim": "Spectral and invariant-subspace descriptions can be compared across matrix representations when basis and operator semantics are explicit.",
+      "definitions": [
+        "eigenvalues",
+        "eigenspaces",
+        "Jordan form",
+        "singular values",
+        "tensor invariants"
+      ],
+      "assumptions": [
+        "Underlying operator and field are declared."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin discussions: eigenvalues and 3D/4D/5D number systems"
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-REP-001"
+        },
+        {
+          "type": "applies_to",
+          "target": "MATH-CAD-001"
+        }
+      ],
+      "objections": [
+        "Matrix eigenvalues depend on the represented operator; basis changes and field matter."
+      ],
+      "next_steps": [
+        "Implement basis-aware operator identity and spectral test suite."
+      ]
+    },
+    {
+      "id": "MATH-ST-001",
+      "title": "Spacetime projections and periodic time structure",
+      "kind": "open_question",
+      "claim": "Spacetime trajectories, observer frames, time slices and periodic dynamics can be represented with explicit projection and information-loss semantics.",
+      "definitions": [
+        "spacetime metric",
+        "worldline/world-tube",
+        "observer frame",
+        "Floquet operator"
+      ],
+      "assumptions": [
+        "Physical claims require a specified model and observable."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin discussions: block spacetime, projections and time crystals"
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-COORD-001"
+        },
+        {
+          "type": "applies_to",
+          "target": "MATH-CAD-001"
+        }
+      ],
+      "objections": [
+        "Time-crystal definitions differ between equilibrium and driven settings."
+      ],
+      "next_steps": [
+        "Specify model classes and observable-level falsifiable tests."
+      ]
+    },
+    {
+      "id": "MATH-XMG-001",
+      "title": "Glyph-native typed mathematical language",
+      "kind": "concept",
+      "claim": "A glyph can denote a typed operation with a canonical AST identity; its visual glyph is a rendering, not semantic authority.",
+      "definitions": [
+        "typed AST",
+        "operator signature",
+        "domain",
+        "assumptions",
+        "rendering"
+      ],
+      "assumptions": [
+        "Glyph IDs and semantics are versioned."
+      ],
+      "status": "finite_tested",
+      "provenance": [
+        "XMG-1 Glyph Foundry and normalizer implementation"
+      ],
+      "relations": [
+        {
+          "type": "implemented_by",
+          "target": "MATH-XMG-002"
+        },
+        {
+          "type": "depends_on",
+          "target": "MATH-REP-001"
+        }
+      ],
+      "objections": [
+        "Current language and operators are limited; not a general discovery system."
+      ],
+      "next_steps": [
+        "Extend operator signatures, symbolic patterns and proof export."
+      ]
+    },
+    {
+      "id": "MATH-XMG-002",
+      "title": "XMG termination and confluence",
+      "kind": "conjecture",
+      "claim": "A terminating typed rewrite system with locally joinable critical pairs is confluent; current implementation explores a bounded subset.",
+      "definitions": [
+        "rewrite relation",
+        "AST size",
+        "critical pair",
+        "Newman lemma"
+      ],
+      "assumptions": [
+        "Every rewrite strictly decreases a well-founded measure; local confluence covers all overlaps."
+      ],
+      "status": "unresolved",
+      "provenance": [
+        "XMG-1C normalizer; XMG-1D Lean source; XMG-1E explorer"
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-XMG-001"
+        },
+        {
+          "type": "tested_by",
+          "target": "MATH-EXP-001"
+        }
+      ],
+      "objections": [
+        "Finite expression probes do not establish global confluence; Lean compilation remains to be confirmed."
+      ],
+      "next_steps": [
+        "Compile Lean root; formalize AST size, typing and rule decrease; generate symbolic critical pairs."
+      ]
+    },
+    {
+      "id": "MATH-IDEA-001",
+      "title": "Ideonomy as a typed idea hypergraph",
+      "kind": "concept",
+      "claim": "Mathematical ideas and multi-way relations can be represented as a typed hypergraph with explicit epistemic status.",
+      "definitions": [
+        "vertices",
+        "hyperedges",
+        "type maps",
+        "provenance",
+        "gap classes"
+      ],
+      "assumptions": [
+        "Missing catalog entries are not evidence of novelty."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin discussions: ideonomy and idea-space enumeration"
+      ],
+      "relations": [
+        {
+          "type": "maps_to",
+          "target": "MATH-REP-001"
+        },
+        {
+          "type": "implemented_by",
+          "target": "MATH-IDEA-002"
+        }
+      ],
+      "objections": [
+        "Null-model scores require calibration and multiple-testing controls."
+      ],
+      "next_steps": [
+        "Implement idea graph, duplicate detection and provenance validation."
+      ]
+    },
+    {
+      "id": "MATH-IDEA-002",
+      "title": "Mathematical idea intake and evidence ledger",
+      "kind": "experiment",
+      "claim": "Stable idea IDs, controlled status vocabulary and typed relations make research accumulation auditable.",
+      "definitions": [
+        "catalog schema",
+        "stable IDs",
+        "status vocabulary",
+        "relation vocabulary"
+      ],
+      "assumptions": [
+        "Repository intake protocol is followed by agents and contributors."
+      ],
+      "status": "finite_tested",
+      "provenance": [
+        "docs/research/MERLIN_MATHEMATICAL_IDEA_INTAKE.md"
+      ],
+      "relations": [
+        {
+          "type": "implemented_by",
+          "target": "MATH-IDEA-001"
+        }
+      ],
+      "objections": [
+        "Conversation-to-repository capture still requires an authorized workflow."
+      ],
+      "next_steps": [
+        "Add schema validator and CI integration."
+      ]
+    },
+    {
+      "id": "MATH-FRACT-001",
+      "title": "Lacunarity and multiscale morphology",
+      "kind": "concept",
+      "claim": "Lacunarity describes scale-dependent mass heterogeneity and can distinguish structures with similar fractal dimension.",
+      "definitions": [
+        "window mass",
+        "mean mass",
+        "second moment",
+        "scale",
+        "mask"
+      ],
+      "assumptions": [
+        "Mean window mass is positive; sampling metadata is recorded."
+      ],
+      "status": "literature_checked",
+      "provenance": [
+        "Allain & Cloitre 1991 DOI 10.1103/PhysRevA.44.3552; Merlin fractal engineering discussions"
+      ],
+      "relations": [
+        {
+          "type": "applies_to",
+          "target": "MATH-CAD-001"
+        },
+        {
+          "type": "depends_on",
+          "target": "MATH-IDEA-001"
+        }
+      ],
+      "objections": [
+        "Not a universal engineering quality score."
+      ],
+      "next_steps": [
+        "Build reproducible multiscale lacunarity benchmark with matched baselines."
+      ]
+    },
+    {
+      "id": "MATH-CAD-001",
+      "title": "Mathematical-to-CAD/MCFC engineering bridge",
+      "kind": "engineering_mapping",
+      "claim": "CAD and wiring artifacts can be represented as typed geometry, frames, connectivity, physical fields, constraints and evidence.",
+      "definitions": [
+        "geometry",
+        "ports",
+        "connectivity graph",
+        "materials",
+        "loads",
+        "solver receipts"
+      ],
+      "assumptions": [
+        "Simulation is conditional on model assumptions and requires independent validation."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin/CACE/MCFC CAD and wiring discussions"
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-COORD-001"
+        },
+        {
+          "type": "depends_on",
+          "target": "MATH-LIN-001"
+        },
+        {
+          "type": "applies_to",
+          "target": "MATH-FRACT-001"
+        }
+      ],
+      "objections": [
+        "A rendered diagram is not a verified physical design."
+      ],
+      "next_steps": [
+        "Define typed assembly and wiring schema; connect simulation receipts."
+      ]
+    },
+    {
+      "id": "MATH-COL-001",
+      "title": "Superorganism and collective mathematics",
+      "kind": "concept",
+      "claim": "Collective systems can be modeled through interacting agents, network dynamics and multiscale observables.",
+      "definitions": [
+        "agents",
+        "state",
+        "interaction graph",
+        "update rule",
+        "emergence"
+      ],
+      "assumptions": [
+        "Specify causal and measurement assumptions."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin discussions: superorganism mathematics"
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-IDEA-001"
+        },
+        {
+          "type": "maps_to",
+          "target": "MATH-REP-001"
+        }
+      ],
+      "objections": [
+        "Analogy alone does not establish a shared mathematical mechanism."
+      ],
+      "next_steps": [
+        "Choose a concrete model class and derive falsifiable predictions."
+      ]
+    },
+    {
+      "id": "MATH-EXP-001",
+      "title": "XMG-1E deterministic confluence benchmark",
+      "kind": "experiment",
+      "claim": "The benchmark includes a deliberately divergent positive control and a bounded default-rule probe.",
+      "definitions": [
+        "positive control",
+        "pair counts",
+        "normal forms",
+        "truncation"
+      ],
+      "assumptions": [
+        "Only the recorded expressions and rule set are tested."
+      ],
+      "status": "unresolved",
+      "provenance": [
+        "scripts/merlin_glyph_confluence_benchmark.py; workflow run 41879787446"
+      ],
+      "relations": [
+        {
+          "type": "motivated_by",
+          "target": "MATH-XMG-002"
+        }
+      ],
+      "objections": [
+        "Prior run failed import resolution; path fix committed but rerun not yet confirmed."
+      ],
+      "next_steps": [
+        "Rerun benchmark on Avrea and preserve JSON artifact with source revision."
+      ]
+    },
+    {
+      "id": "MATH-NULL-001",
+      "title": "Null-model anomaly scoring for idea-space gaps",
+      "kind": "conjecture",
+      "claim": "A calibrated null model may help identify structurally unusual regions of an idea graph.",
+      "definitions": [
+        "observed statistic",
+        "null distribution",
+        "standard deviation",
+        "multiple testing"
+      ],
+      "assumptions": [
+        "Null constraints, seed, sample size and correction method are declared."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin ideonomy discussions"
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-IDEA-001"
+        }
+      ],
+      "objections": [
+        "Zero variance is not calibrated; anomaly does not imply novelty or truth."
+      ],
+      "next_steps": [
+        "Specify null models and calibration experiments before using scores."
+      ]
+    },
+    {
+      "id": "MATH-REP-002",
+      "title": "Exact multi-frame transition graph",
+      "kind": "representation",
+      "claim": "For a fixed two-dimensional vector space and invertible rational frame maps P_i, coordinate transitions T_i_to_j = P_j P_i^{-1} compose path-independently and closed frame cycles are identity.",
+      "definitions": [
+        "canonical coordinate map P_i",
+        "invertible n×n frame matrix",
+        "transition map",
+        "path composition"
+      ],
+      "assumptions": [
+        "All frames describe the same vector space over the same field.",
+        "All frame maps are invertible and share the declared canonical reference."
+      ],
+      "status": "finite_tested",
+      "provenance": [
+        "MERLIN_MULTI_REPRESENTATION_GEOMETRY_V0.1.md",
+        "merlin/representation_graph.py",
+        "tests/test_merlin_representation_graph.py",
+        "Avrea workflow run 41888107492 passed the 2D prototype, catalog validator and Python compile at commit d7664972db5c032b439c901e00d68c9f6ad8ba03.",
+        "Avrea run 41888718729 passed catalog validation, representation graph tests including the 5D case, and Python compile at the recorded PR-head snapshot."
+      ],
+      "relations": [
+        {
+          "type": "generalizes",
+          "target": "MATH-REP-001"
+        },
+        {
+          "type": "specializes",
+          "target": "MATH-COORD-001"
+        },
+        {
+          "type": "tested_by",
+          "target": "MATH-EXP-001"
+        }
+      ],
+      "objections": [
+        "The Avrea receipt applies to the 2D implementation at the recorded commit; the later n-dimensional extension has not yet been rerun on Avrea.",
+        "This does not prove consistency of arbitrary independently supplied graph edges or connection holonomy."
+      ],
+      "next_steps": [
+        "Qualify the later n-dimensional extension on Avrea.",
+        "Add partial coordinate charts and explicit domains.",
+        "Formalize transition composition in Lean."
+      ]
+    },
+    {
+      "id": "MATH-SPEC-001",
+      "title": "Spectral invariants under basis change",
+      "kind": "theorem",
+      "claim": "If A_i = P_i A P_i^{-1} for an invertible basis-change matrix over a fixed field, then A_i is similar to A and has the same characteristic polynomial, trace, determinant and eigenvalue multiset with algebraic multiplicity.",
+      "definitions": [
+        "linear operator",
+        "similar matrices",
+        "characteristic polynomial",
+        "eigenspace"
+      ],
+      "assumptions": [
+        "Finite-dimensional vector space.",
+        "P_i is invertible.",
+        "The scalar field is held fixed."
+      ],
+      "status": "finite_tested",
+      "provenance": [
+        "MERLIN_MULTI_REPRESENTATION_GEOMETRY_V0.1.md",
+        "merlin/representation_graph.py",
+        "tests/test_merlin_representation_graph.py",
+        "Avrea run 41888718729 passed catalog validation, representation graph tests including the 5D case, and Python compile at the recorded PR-head snapshot."
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-REP-002"
+        },
+        {
+          "type": "applies_to",
+          "target": "MATH-LIN-001"
+        },
+        {
+          "type": "tested_by",
+          "target": "MATH-EXP-001"
+        }
+      ],
+      "objections": [
+        "The real-versus-complex scalar field distinction changes which eigenvalues and eigenvectors are visible.",
+        "Current prototype tests trace and determinant invariance in dimensions 2 and 5; full characteristic-polynomial identity is not yet implemented.",
+        "The current Avrea run checked trace/determinant invariance only in 2D; the later 5D test source has not yet been qualified."
+      ],
+      "next_steps": [
+        "Add exact characteristic-polynomial calculation.",
+        "Prove similarity invariance in Lean for finite matrices."
+      ]
+    },
+    {
+      "id": "MATH-HOL-001",
+      "title": "Coordinate cocycles versus connection holonomy",
+      "kind": "open_question",
+      "claim": "Merlin must distinguish overlap-consistent coordinate transition maps from parallel transport defined by a connection; non-identity products of arbitrary graph edges alone do not establish curvature.",
+      "definitions": [
+        "coordinate chart",
+        "transition cocycle",
+        "connection",
+        "parallel transport",
+        "curvature",
+        "holonomy"
+      ],
+      "assumptions": [
+        "Domains and overlap maps are explicitly recorded.",
+        "Connection transport is separately defined along paths."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "MERLIN_MULTI_REPRESENTATION_GEOMETRY_V0.1.md",
+        "Merlin discussions of multiple frames and spacetime geometry"
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-REP-002"
+        },
+        {
+          "type": "applies_to",
+          "target": "MATH-ST-001"
+        }
+      ],
+      "objections": [
+        "A graph-cycle discrepancy may be inconsistent edge data, not geometric holonomy.",
+        "Nontrivial holonomy requires a specified connection and path transport."
+      ],
+      "next_steps": [
+        "Implement connection-aware path transport on a small manifold example.",
+        "Compare coordinate overlap cocycles with curvature-derived holonomy."
+      ]
+    },
+    {
+      "id": "MATH-GA-001",
+      "title": "Audit of proposed Clifford embeddings and quadric intersections",
+      "kind": "open_question",
+      "claim": "Archived PGA/CGA/QGA embedding, projection and exact quadric-intersection claims require explicit signature-preserving algebra homomorphisms and an algebraic-geometric intersection construction; outer product alone is not a general intersection-ideal operation.",
+      "definitions": [
+        "Clifford algebra Cl(p,q)",
+        "metric signature",
+        "algebra homomorphism",
+        "exterior product",
+        "algebraic variety",
+        "intersection ideal"
+      ],
+      "assumptions": [
+        "Each algebra uses a declared basis and metric convention.",
+        "Every generator relation must be preserved by an embedding."
+      ],
+      "status": "refuted",
+      "provenance": [
+        "MERLIN_ARCHIVED_MATH_CLAIM_AUDIT_V0.1.md",
+        "MERLIN_MASTER_HANDOFF_2026-11-03_part2.zip: archived readable-math document"
+      ],
+      "relations": [
+        {
+          "type": "applies_to",
+          "target": "MATH-ALG-001"
+        },
+        {
+          "type": "contrasts_with",
+          "target": "MATH-REP-002"
+        }
+      ],
+      "objections": [
+        "The archived text conflates basis labels, metric relations and geometric interpretations.",
+        "The outer product of blades is not, in general, the ideal-theoretic intersection of arbitrary quadric zero sets."
+      ],
+      "next_steps": [
+        "Construct explicit low-dimensional counterexamples.",
+        "Derive candidate embeddings from the Clifford algebra universal property.",
+        "Define quadrics as polynomial ideals or verified equivalent representations."
+      ]
+    },
+    {
+      "id": "MATH-DYN-001",
+      "title": "Integral criterion for finite-time blow-up",
+      "kind": "theorem",
+      "claim": "For a positive scalar autonomous ODE dI/dt = f(I)I, finite-time escape to infinity is governed by convergence of the separation integral from I0 to infinity, not merely by f(I) being bounded below by a positive constant.",
+      "definitions": [
+        "positive solution",
+        "autonomous ODE",
+        "maximal solution",
+        "separation integral"
+      ],
+      "assumptions": [
+        "f is sufficiently regular and positive on [I0,infinity).",
+        "A local solution exists and remains in the stated domain.",
+        "The maximal-solution and escape-time argument is supplied."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "MERLIN_ARCHIVED_MATH_CLAIM_AUDIT_V0.1.md",
+        "merlin_math_core/IntelligenceExplosion.lean in uploaded handoff"
+      ],
+      "relations": [],
+      "objections": [
+        "The archived lower-bound condition f(I)>=1 only yields at least exponential growth and does not imply finite-time blow-up.",
+        "A rigorous Lean statement must quantify a solution trajectory and non-vacuous maximal time."
+      ],
+      "next_steps": [
+        "Formalize the integral criterion for a concrete power-law family.",
+        "Replace the vacuous archived theorem statement with an ODE solution theorem."
+      ]
+    },
+    {
+      "id": "MATH-PARR-001",
+      "title": "Audit of archived Parrondo capability demonstration",
+      "kind": "experiment",
+      "claim": "The archived Python example does not demonstrate two individually losing operators producing net gain under alternation because operator A is assigned a positive capability increment.",
+      "definitions": [
+        "operator increment",
+        "isolated baseline",
+        "switching policy",
+        "resource budget"
+      ],
+      "assumptions": [
+        "The code's delta_I is interpreted as its deterministic per-step capability change.",
+        "The resource subtraction convention is retained."
+      ],
+      "status": "refuted",
+      "provenance": [
+        "MERLIN_ARCHIVED_MATH_CLAIM_AUDIT_V0.1.md",
+        "merlin_math_core/CapabilityModel.py in uploaded handoff"
+      ],
+      "relations": [],
+      "objections": [
+        "A corrected stochastic Parrondo model may still be possible but is a separate experiment."
+      ],
+      "next_steps": [
+        "Define stochastic state transitions and a common initial distribution.",
+        "Compare A-alone, B-alone and switching policies with paired seeds and identical budgets."
+      ]
+    },
+    {
+      "id": "MATH-REP-003",
+      "title": "N-dimensional exact frame graph",
+      "kind": "representation",
+      "claim": "The transition-graph construction extends to arbitrary finite dimension n when each frame is represented by an invertible n×n matrix over a common field.",
+      "definitions": [
+        "n-dimensional vector space",
+        "invertible frame matrix",
+        "matrix inverse",
+        "typed coordinate transition"
+      ],
+      "assumptions": [
+        "All frames have equal dimension and describe the same vector space.",
+        "The common scalar field and exact or approximate arithmetic model are declared."
+      ],
+      "status": "finite_tested",
+      "provenance": [
+        "merlin/representation_graph.py n-dimensional extension",
+        "tests/test_merlin_representation_graph.py 5D case (Avrea qualification pending)",
+        "Avrea run 41888718729 passed catalog validation, representation graph tests including the 5D case, and Python compile at the recorded PR-head snapshot."
+      ],
+      "relations": [
+        {
+          "type": "generalizes",
+          "target": "MATH-REP-002"
+        },
+        {
+          "type": "depends_on",
+          "target": "MATH-REP-001"
+        }
+      ],
+      "objections": [
+        "The current implementation is limited to exact rational matrices.",
+        "Partial charts, affine transforms, tensors and nonlinear maps are not implemented.",
+        "The added 5D test has not yet been confirmed by a current Avrea run."
+      ],
+      "next_steps": [
+        "Run the expanded tests on Avrea.",
+        "Add 3D, 4D and 5D examples and random invertible matrices with reproducible seeds.",
+        "Formalize arbitrary finite-dimensional composition in Lean."
+      ]
+    },
+    {
+      "id": "MATH-ROT-001",
+      "title": "Complex, quaternion, matrix and rotor views of 3D rotations",
+      "kind": "representation",
+      "claim": "For the tested exact 180-degree rotations about coordinate axes and 120-degree rotation about the (1,1,1) axis, unit-quaternion sandwich action, SO(3) matrix action and Cl(3,0) rotor sandwich action agree.",
+      "definitions": [
+        "SO(3) rotation matrix",
+        "unit quaternion",
+        "pure quaternion vector",
+        "Cl(3,0) rotor",
+        "axis-angle representation",
+        "double cover S3 to SO(3)"
+      ],
+      "assumptions": [
+        "Rotation axis is unit length.",
+        "Quaternion and rotor multiplication conventions are fixed.",
+        "The same active/passive and handedness conventions are used across representations."
+      ],
+      "status": "finite_tested",
+      "provenance": [
+        "Merlin discussions: sin/cos, i, polar coordinates, quaternions and geometric numbers",
+        "MERLIN mathematical idea ledger sections 3 and 4",
+        "merlin/rotation_representations.py",
+        "tests/test_merlin_rotation_representations.py",
+        "Avrea run 41889392289 passed all 9 quaternion/Cl(3,0) rotor tests, including the exact 120-degree axis-cycling rotation, plus the 5D frame graph tests and catalog validation.",
+        "Avrea run 41889678715 passed the expanded four-view rotation tests: 11/11 rotation tests, 11/11 frame-graph tests, 5/5 catalog-validator tests, and module compilation."
+      ],
+      "relations": [
+        {
+          "type": "specializes",
+          "target": "MATH-ALG-001"
+        },
+        {
+          "type": "maps_to",
+          "target": "MATH-COORD-001"
+        },
+        {
+          "type": "applies_to",
+          "target": "MATH-LIN-001"
+        }
+      ],
+      "objections": [
+        "The current tests cover selected exact rotations, not all unit quaternions.",
+        "The complex-plane representation is specified but not implemented in the prototype.",
+        "Quaternion q and -q encode the same spatial rotation."
+      ],
+      "next_steps": [
+        "Prove the quaternion-to-Cl(3,0) even-subalgebra isomorphism generally.",
+        "Implement the fixed-axis complex-plane adapter and compare it with the other views."
+      ]
+    },
+    {
+      "id": "MATH-ROT-002",
+      "title": "Complex plane as the perpendicular subspace of an axis rotation",
+      "kind": "representation",
+      "claim": "For a fixed unit axis u in three-dimensional Euclidean space, the orthogonal plane u-perp is a two-dimensional invariant subspace on which the rotation acts as multiplication by e^(i theta) after choosing an oriented orthonormal basis.",
+      "definitions": [
+        "unit axis",
+        "orthogonal complement",
+        "oriented orthonormal plane basis",
+        "complex structure J with J^2=-I",
+        "rotation angle"
+      ],
+      "assumptions": [
+        "The ambient metric is Euclidean.",
+        "The axis and orientation are fixed.",
+        "The complex structure is defined by the chosen oriented orthonormal basis of u-perp."
+      ],
+      "status": "finite_tested",
+      "provenance": [
+        "MERLIN_MULTI_REPRESENTATION_GEOMETRY_V0.1.md section 18",
+        "Merlin discussions: complex numbers, sine/cosine and polar coordinates",
+        "merlin/rotation_representations.py: complex_plane_rotate",
+        "tests/test_merlin_rotation_representations.py: all three coordinate-axis orientations",
+        "Avrea run 41889678715 passed the expanded four-view rotation tests: 11/11 rotation tests, 11/11 frame-graph tests, 5/5 catalog-validator tests, and module compilation."
+      ],
+      "relations": [
+        {
+          "type": "specializes",
+          "target": "MATH-ROT-001"
+        },
+        {
+          "type": "depends_on",
+          "target": "MATH-COORD-001"
+        }
+      ],
+      "objections": [
+        "The implementation tests exact rational rotations and fixed coordinate axes; arbitrary axes require a declared orthonormal frame.",
+        "The complex coordinate is only for the perpendicular plane; the axial component is stored separately."
+      ],
+      "next_steps": [
+        "Qualify the expanded four-view tests on Avrea.",
+        "Generalize from coordinate axes to arbitrary unit axes using an explicit orthonormal frame."
+      ]
+    },
+    {
+      "id": "MATH-HOL-002",
+      "title": "Spherical triangle holonomy equals enclosed area",
+      "kind": "experiment",
+      "claim": "For the unit sphere's Levi-Civita connection, numerical parallel transport around the positively oriented octant geodesic triangle rotates a tangent vector by pi/2, matching its spherical area; reversing the loop reverses the sign.",
+      "definitions": [
+        "unit sphere",
+        "Levi-Civita connection",
+        "great-circle geodesic",
+        "parallel transport",
+        "signed holonomy angle",
+        "spherical excess"
+      ],
+      "assumptions": [
+        "The ambient sphere has unit radius and induced metric.",
+        "Edges follow the shorter great-circle arcs.",
+        "The loop orientation and tangent-plane orientation are fixed.",
+        "Numerical comparisons use declared floating-point tolerances."
+      ],
+      "status": "finite_tested",
+      "provenance": [
+        "MERLIN_SPHERICAL_HOLONOMY_V0.1.md",
+        "merlin/spherical_holonomy.py",
+        "tests/test_merlin_spherical_holonomy.py",
+        "Gauss-Bonnet theorem as the classical mathematical basis",
+        "Avrea run 41890168597 passed all 7 spherical-holonomy tests, including octant area = pi/2, parallel-transport holonomy agreement, and loop-orientation reversal."
+      ],
+      "relations": [
+        {
+          "type": "specializes",
+          "target": "MATH-HOL-001"
+        },
+        {
+          "type": "applies_to",
+          "target": "MATH-ST-001"
+        }
+      ],
+      "objections": [
+        "Floating-point tests do not constitute a formal proof of Gauss-Bonnet.",
+        "The ambient Rodrigues-rotation implementation is specialized to the unit sphere's shorter great-circle arcs."
+      ],
+      "next_steps": [
+        "Test non-octant triangles and compare with the spherical-area formula.",
+        "Extend to a mesh-based transport experiment and a second curved surface."
+      ]
+    }
+  ]
+}

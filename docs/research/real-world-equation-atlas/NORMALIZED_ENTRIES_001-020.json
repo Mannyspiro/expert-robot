@@ -1,0 +1,756 @@
+{
+  "schema_version": "0.2",
+  "dimension_basis": [
+    "L",
+    "M",
+    "T",
+    "I",
+    "Theta",
+    "N",
+    "J"
+  ],
+  "note": "Units and dimensions are expressed in SI. Generic algebraic models require application-specific units for their variables and coefficients; those are identified explicitly rather than guessed.",
+  "entries": [
+    {
+      "id": "RWEA-001",
+      "domain": "optimization",
+      "equation": "minimize f(x) subject to g_i(x)<=0 and h_j(x)=0",
+      "variables": [
+        {
+          "symbol": "x",
+          "meaning": "decision vector",
+          "unit": "application-defined",
+          "dimension": "application-defined"
+        },
+        {
+          "symbol": "f",
+          "meaning": "objective/cost",
+          "unit": "application-defined",
+          "dimension": "application-defined"
+        },
+        {
+          "symbol": "g_i",
+          "meaning": "inequality constraint functions",
+          "unit": "constraint-specific",
+          "dimension": "constraint-specific"
+        },
+        {
+          "symbol": "h_j",
+          "meaning": "equality constraint functions",
+          "unit": "constraint-specific",
+          "dimension": "constraint-specific"
+        }
+      ],
+      "assumptions": [
+        "Feasible set is defined",
+        "Objective and constraints are measurable and well-posed",
+        "Units are consistent within each function",
+        "Global optimality requires suitable convexity or exhaustive certification"
+      ],
+      "conditions": [
+        "State whether local or global optimum is sought"
+      ],
+      "sources": [
+        "S01",
+        "S02"
+      ]
+    },
+    {
+      "id": "RWEA-002",
+      "domain": "optimization",
+      "equation": "minimize c^T x subject to A x <= b and x >= 0",
+      "variables": [
+        {
+          "symbol": "x_j",
+          "meaning": "decision variable",
+          "unit": "x_j-specific",
+          "dimension": "declared per variable"
+        },
+        {
+          "symbol": "c_j",
+          "meaning": "objective coefficient",
+          "unit": "currency/x_j or objective-unit/x_j",
+          "dimension": "objective/x_j"
+        },
+        {
+          "symbol": "A_ij",
+          "meaning": "constraint coefficient",
+          "unit": "b_i/x_j",
+          "dimension": "dim(b_i)/dim(x_j)"
+        },
+        {
+          "symbol": "b_i",
+          "meaning": "constraint bound",
+          "unit": "constraint-specific",
+          "dimension": "constraint-specific"
+        }
+      ],
+      "assumptions": [
+        "Linear objective and constraints",
+        "Feasible polyhedron",
+        "No integer restrictions unless explicitly added"
+      ],
+      "conditions": [
+        "Each row i must combine terms with matching units"
+      ],
+      "sources": [
+        "S01"
+      ]
+    },
+    {
+      "id": "RWEA-003",
+      "domain": "optimization",
+      "equation": "minimize 1/2 x^T Q x + c^T x subject to linear constraints",
+      "variables": [
+        {
+          "symbol": "x",
+          "meaning": "decision vector",
+          "unit": "application-defined",
+          "dimension": "application-defined"
+        },
+        {
+          "symbol": "Q_ij",
+          "meaning": "quadratic cost coefficient",
+          "unit": "objective-unit/(x_i*x_j)",
+          "dimension": "objective/(dim(x_i)*dim(x_j))"
+        },
+        {
+          "symbol": "c_i",
+          "meaning": "linear cost coefficient",
+          "unit": "objective-unit/x_i",
+          "dimension": "objective/dim(x_i)"
+        }
+      ],
+      "assumptions": [
+        "Quadratic objective",
+        "For convex global optimization, Q is positive semidefinite",
+        "Linear constraints in stated form"
+      ],
+      "conditions": [
+        "Coefficient units depend on each variable's unit"
+      ],
+      "sources": [
+        "S01",
+        "S02"
+      ]
+    },
+    {
+      "id": "RWEA-004",
+      "domain": "estimation",
+      "equation": "minimize ||A x - b||_2^2",
+      "variables": [
+        {
+          "symbol": "A_ij",
+          "meaning": "design/measurement coefficient",
+          "unit": "b_i/x_j",
+          "dimension": "dim(b_i)/dim(x_j)"
+        },
+        {
+          "symbol": "x_j",
+          "meaning": "unknown parameter",
+          "unit": "parameter-specific",
+          "dimension": "parameter-specific"
+        },
+        {
+          "symbol": "b_i",
+          "meaning": "observation",
+          "unit": "observation-specific",
+          "dimension": "observation-specific"
+        },
+        {
+          "symbol": "r_i",
+          "meaning": "residual",
+          "unit": "same as b_i",
+          "dimension": "dim(b_i)"
+        }
+      ],
+      "assumptions": [
+        "Least-squares loss is appropriate",
+        "Rank/conditioning and noise model are checked",
+        "Residuals within each summed norm share compatible units"
+      ],
+      "conditions": [
+        "Whiten or scale heterogeneous observations before combining residuals"
+      ],
+      "sources": [
+        "S01",
+        "S05"
+      ]
+    },
+    {
+      "id": "RWEA-005",
+      "domain": "estimation",
+      "equation": "minimize ||A x-b||_2^2 + lambda ||x||_2^2",
+      "variables": [
+        {
+          "symbol": "lambda",
+          "meaning": "ridge penalty coefficient",
+          "unit": "residual-unit^2/parameter-unit^2",
+          "dimension": "dim(b)^2/dim(x)^2"
+        },
+        {
+          "symbol": "x",
+          "meaning": "parameter vector",
+          "unit": "parameter-specific",
+          "dimension": "parameter-specific"
+        }
+      ],
+      "assumptions": [
+        "Quadratic penalty",
+        "Feature/parameter scaling is declared",
+        "lambda chosen by validation or justified prior"
+      ],
+      "conditions": [
+        "If parameters have different units, scale or use a dimensionally weighted penalty"
+      ],
+      "sources": [
+        "S01",
+        "S02"
+      ]
+    },
+    {
+      "id": "RWEA-006",
+      "domain": "estimation",
+      "equation": "minimize ||A x-b||_2^2 + lambda ||x||_1",
+      "variables": [
+        {
+          "symbol": "lambda",
+          "meaning": "sparsity penalty coefficient",
+          "unit": "residual-unit^2/parameter-unit",
+          "dimension": "dim(b)^2/dim(x)"
+        },
+        {
+          "symbol": "x",
+          "meaning": "parameter vector",
+          "unit": "parameter-specific",
+          "dimension": "parameter-specific"
+        }
+      ],
+      "assumptions": [
+        "Sparse solution is meaningful",
+        "Parameters are scaled consistently",
+        "Penalty strength selected by validation"
+      ],
+      "conditions": [
+        "Unit-aware scaling is necessary when parameter units differ"
+      ],
+      "sources": [
+        "S01",
+        "S02"
+      ]
+    },
+    {
+      "id": "RWEA-007",
+      "domain": "inference",
+      "equation": "p(theta|D)=p(D|theta)p(theta)/p(D)",
+      "variables": [
+        {
+          "symbol": "theta",
+          "meaning": "unknown parameter/state",
+          "unit": "model-specific",
+          "dimension": "model-specific"
+        },
+        {
+          "symbol": "D",
+          "meaning": "observed data",
+          "unit": "data-specific",
+          "dimension": "data-specific"
+        },
+        {
+          "symbol": "p",
+          "meaning": "probability or probability density",
+          "unit": "dimensionless for discrete probabilities; inverse parameter units for densities",
+          "dimension": "density dimension depends on measure"
+        }
+      ],
+      "assumptions": [
+        "Prior and likelihood are proper or otherwise mathematically well-defined",
+        "Data-generating model is adequate",
+        "Measure and density conventions are explicit"
+      ],
+      "conditions": [
+        "Do not treat continuous densities as dimensionless scalars"
+      ],
+      "sources": [
+        "S05",
+        "S06"
+      ]
+    },
+    {
+      "id": "RWEA-008",
+      "domain": "inference",
+      "equation": "theta_hat=argmax_theta p(D|theta)",
+      "variables": [
+        {
+          "symbol": "theta",
+          "meaning": "model parameter",
+          "unit": "model-specific",
+          "dimension": "model-specific"
+        },
+        {
+          "symbol": "D",
+          "meaning": "observations",
+          "unit": "data-specific",
+          "dimension": "data-specific"
+        },
+        {
+          "symbol": "L",
+          "meaning": "likelihood",
+          "unit": "density-dependent",
+          "dimension": "density-dependent"
+        }
+      ],
+      "assumptions": [
+        "Likelihood corresponds to stated observation process",
+        "Identifiability and regularity conditions checked",
+        "Optimization procedure reaches relevant maximum"
+      ],
+      "conditions": [
+        "Likelihood values may carry units when observations are continuous"
+      ],
+      "sources": [
+        "S05",
+        "S06"
+      ]
+    },
+    {
+      "id": "RWEA-009",
+      "domain": "decision",
+      "equation": "min_x max_{u in U} f(x,u)",
+      "variables": [
+        {
+          "symbol": "x",
+          "meaning": "decision",
+          "unit": "application-defined",
+          "dimension": "application-defined"
+        },
+        {
+          "symbol": "u",
+          "meaning": "uncertain parameter",
+          "unit": "parameter-specific",
+          "dimension": "parameter-specific"
+        },
+        {
+          "symbol": "U",
+          "meaning": "uncertainty set",
+          "unit": "same space as u",
+          "dimension": "same as u"
+        },
+        {
+          "symbol": "f",
+          "meaning": "loss/cost",
+          "unit": "objective-unit",
+          "dimension": "objective dimension"
+        }
+      ],
+      "assumptions": [
+        "Uncertainty set is defensible",
+        "Worst-case objective is appropriate",
+        "Feasibility under all u is explicitly checked"
+      ],
+      "conditions": [
+        "Do not hide infeasibility in a weighted score"
+      ],
+      "sources": [
+        "S01",
+        "S02"
+      ]
+    },
+    {
+      "id": "RWEA-010",
+      "domain": "decision",
+      "equation": "minimize vector (f_1(x),...,f_k(x))",
+      "variables": [
+        {
+          "symbol": "x",
+          "meaning": "decision vector",
+          "unit": "application-defined",
+          "dimension": "application-defined"
+        },
+        {
+          "symbol": "f_i",
+          "meaning": "objective i",
+          "unit": "objective-specific",
+          "dimension": "objective-specific"
+        }
+      ],
+      "assumptions": [
+        "Objectives are explicitly defined",
+        "Trade-offs are retained as Pareto information"
+      ],
+      "conditions": [
+        "Scalarization requires normalization of unlike units and justified weights"
+      ],
+      "sources": [
+        "S01",
+        "S02"
+      ]
+    },
+    {
+      "id": "RWEA-011",
+      "domain": "linear algebra",
+      "equation": "A x = b",
+      "variables": [
+        {
+          "symbol": "A_ij",
+          "meaning": "linear map coefficient",
+          "unit": "b_i/x_j",
+          "dimension": "dim(b_i)/dim(x_j)"
+        },
+        {
+          "symbol": "x_j",
+          "meaning": "unknown vector component",
+          "unit": "component-specific",
+          "dimension": "component-specific"
+        },
+        {
+          "symbol": "b_i",
+          "meaning": "output component",
+          "unit": "row-specific",
+          "dimension": "row-specific"
+        }
+      ],
+      "assumptions": [
+        "Matrix dimensions conform",
+        "Rank and conditioning assessed",
+        "Rows combine only like dimensions"
+      ],
+      "conditions": [
+        "Use block/unit-aware matrices for heterogeneous state variables"
+      ],
+      "sources": [
+        "S03",
+        "S18"
+      ]
+    },
+    {
+      "id": "RWEA-012",
+      "domain": "linear algebra",
+      "equation": "A v = lambda v",
+      "variables": [
+        {
+          "symbol": "A",
+          "meaning": "linear operator",
+          "unit": "operator-specific",
+          "dimension": "maps v to output dimension"
+        },
+        {
+          "symbol": "v",
+          "meaning": "eigenvector",
+          "unit": "arbitrary scale within compatible component type",
+          "dimension": "vector-space-specific"
+        },
+        {
+          "symbol": "lambda",
+          "meaning": "eigenvalue",
+          "unit": "operator eigenvalue unit",
+          "dimension": "same as A when domain and codomain units match"
+        }
+      ],
+      "assumptions": [
+        "v is nonzero",
+        "A is square on the declared vector space",
+        "Eigenvalue field and operator type specified"
+      ],
+      "conditions": [
+        "For a physical operator, state boundary conditions and unit convention"
+      ],
+      "sources": [
+        "S18"
+      ]
+    },
+    {
+      "id": "RWEA-013",
+      "domain": "linear algebra",
+      "equation": "A=U Sigma V^T",
+      "variables": [
+        {
+          "symbol": "A",
+          "meaning": "input matrix",
+          "unit": "entry-specific",
+          "dimension": "entry-specific"
+        },
+        {
+          "symbol": "U",
+          "meaning": "left singular vectors",
+          "unit": "dimensionless in orthonormal Euclidean convention",
+          "dimension": "dimensionless"
+        },
+        {
+          "symbol": "Sigma",
+          "meaning": "singular values",
+          "unit": "same as A under compatible Euclidean scaling",
+          "dimension": "same as A"
+        },
+        {
+          "symbol": "V",
+          "meaning": "right singular vectors",
+          "unit": "dimensionless in orthonormal Euclidean convention",
+          "dimension": "dimensionless"
+        }
+      ],
+      "assumptions": [
+        "Finite-dimensional matrix",
+        "Inner products and scaling are declared"
+      ],
+      "conditions": [
+        "Mixed-unit columns/rows should be scaled before interpreting singular values"
+      ],
+      "sources": [
+        "S18"
+      ]
+    },
+    {
+      "id": "RWEA-014",
+      "domain": "statistics",
+      "equation": "Cov(X)=E[(X-mu)(X-mu)^T]",
+      "variables": [
+        {
+          "symbol": "X_i",
+          "meaning": "random variable component",
+          "unit": "component-specific",
+          "dimension": "component-specific"
+        },
+        {
+          "symbol": "mu_i",
+          "meaning": "mean",
+          "unit": "same as X_i",
+          "dimension": "same as X_i"
+        },
+        {
+          "symbol": "Cov_ij",
+          "meaning": "covariance",
+          "unit": "unit(X_i)*unit(X_j)",
+          "dimension": "dim(X_i)*dim(X_j)"
+        }
+      ],
+      "assumptions": [
+        "Second moments exist",
+        "Sampling and dependence assumptions are stated"
+      ],
+      "conditions": [
+        "Correlation is dimensionless; covariance generally is not"
+      ],
+      "sources": [
+        "S05",
+        "S06"
+      ]
+    },
+    {
+      "id": "RWEA-015",
+      "domain": "networks",
+      "equation": "L=D-A",
+      "variables": [
+        {
+          "symbol": "D_ii",
+          "meaning": "weighted degree",
+          "unit": "edge-weight unit",
+          "dimension": "edge-weight dimension"
+        },
+        {
+          "symbol": "A_ij",
+          "meaning": "adjacency weight",
+          "unit": "edge-weight unit",
+          "dimension": "edge-weight dimension"
+        },
+        {
+          "symbol": "L",
+          "meaning": "graph Laplacian",
+          "unit": "edge-weight unit",
+          "dimension": "edge-weight dimension"
+        }
+      ],
+      "assumptions": [
+        "Graph convention (directed/undirected, weighted/unweighted) declared",
+        "For standard symmetric spectral claims, graph is undirected with symmetric weights"
+      ],
+      "conditions": [
+        "Unweighted graph gives dimensionless integer entries"
+      ],
+      "sources": [
+        "S16",
+        "S17"
+      ]
+    },
+    {
+      "id": "RWEA-016",
+      "domain": "geometry",
+      "equation": "p=sum_i lambda_i v_i; sum_i lambda_i=1",
+      "variables": [
+        {
+          "symbol": "p",
+          "meaning": "interpolated point",
+          "unit": "coordinate unit",
+          "dimension": "coordinate dimension"
+        },
+        {
+          "symbol": "v_i",
+          "meaning": "simplex vertices",
+          "unit": "same coordinate unit as p",
+          "dimension": "same as p"
+        },
+        {
+          "symbol": "lambda_i",
+          "meaning": "barycentric weights",
+          "unit": "dimensionless",
+          "dimension": "dimensionless"
+        }
+      ],
+      "assumptions": [
+        "Vertices form a nondegenerate simplex for unique coordinates",
+        "Weights sum to one"
+      ],
+      "conditions": [
+        "Nonnegative weights characterize points inside the simplex"
+      ],
+      "sources": [
+        "S18"
+      ]
+    },
+    {
+      "id": "RWEA-017",
+      "domain": "robotics",
+      "equation": "p'=R p+t",
+      "variables": [
+        {
+          "symbol": "p",
+          "meaning": "input position",
+          "unit": "m",
+          "dimension": "L"
+        },
+        {
+          "symbol": "R",
+          "meaning": "proper rotation matrix",
+          "unit": "1",
+          "dimension": "dimensionless"
+        },
+        {
+          "symbol": "t",
+          "meaning": "translation",
+          "unit": "m",
+          "dimension": "L"
+        },
+        {
+          "symbol": "p'",
+          "meaning": "output position",
+          "unit": "m",
+          "dimension": "L"
+        }
+      ],
+      "assumptions": [
+        "Both coordinate frames use compatible length units",
+        "R^T R=I and det(R)=+1"
+      ],
+      "conditions": [
+        "Declare active/passive convention and transform direction"
+      ],
+      "sources": [
+        "S08",
+        "S18"
+      ]
+    },
+    {
+      "id": "RWEA-018",
+      "domain": "robotics",
+      "equation": "T=[[R,t],[0,1]]",
+      "variables": [
+        {
+          "symbol": "R",
+          "meaning": "rotation block",
+          "unit": "1",
+          "dimension": "dimensionless"
+        },
+        {
+          "symbol": "t",
+          "meaning": "translation block",
+          "unit": "m",
+          "dimension": "L"
+        },
+        {
+          "symbol": "T",
+          "meaning": "homogeneous pose transform",
+          "unit": "mixed block units",
+          "dimension": "typed block matrix"
+        }
+      ],
+      "assumptions": [
+        "Rigid transform in SE(3)",
+        "Homogeneous coordinate convention declared"
+      ],
+      "conditions": [
+        "Do not treat all matrix entries as having identical physical units"
+      ],
+      "sources": [
+        "S08",
+        "S18"
+      ]
+    },
+    {
+      "id": "RWEA-019",
+      "domain": "estimation",
+      "equation": "min_x ||H x-y||_2^2",
+      "variables": [
+        {
+          "symbol": "H_ij",
+          "meaning": "observation operator",
+          "unit": "y_i/x_j",
+          "dimension": "dim(y_i)/dim(x_j)"
+        },
+        {
+          "symbol": "x_j",
+          "meaning": "hidden state",
+          "unit": "state-specific",
+          "dimension": "state-specific"
+        },
+        {
+          "symbol": "y_i",
+          "meaning": "sensor measurement",
+          "unit": "sensor-specific",
+          "dimension": "sensor-specific"
+        }
+      ],
+      "assumptions": [
+        "Observation model is stated",
+        "Observability/identifiability checked",
+        "Noise and weighting declared"
+      ],
+      "conditions": [
+        "Heterogeneous sensors require unit-aware weighting"
+      ],
+      "sources": [
+        "S05",
+        "S09"
+      ]
+    },
+    {
+      "id": "RWEA-020",
+      "domain": "numerical analysis",
+      "equation": "kappa(A)=||A|| ||A^-1||",
+      "variables": [
+        {
+          "symbol": "A",
+          "meaning": "invertible linear operator",
+          "unit": "operator-specific",
+          "dimension": "operator-specific"
+        },
+        {
+          "symbol": "kappa",
+          "meaning": "condition number",
+          "unit": "1",
+          "dimension": "dimensionless"
+        }
+      ],
+      "assumptions": [
+        "A is invertible for this expression",
+        "Norm is specified"
+      ],
+      "conditions": [
+        "Condition number is scale-invariant under uniform scalar scaling, not arbitrary variable rescaling"
+      ],
+      "sources": [
+        "S08",
+        "S18"
+      ]
+    }
+  ]
+}

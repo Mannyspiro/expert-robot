@@ -6,11 +6,21 @@ on:
     paths-ignore:
       - "formal/**"
       - ".github/workflows/formal-qualification.yml"
+      - "docs/research/MERLIN_MATHEMATICAL_IDEA_LEDGER_V0.1.md"
+      - "docs/research/MERLIN_MATHEMATICAL_IDEA_INTAKE.md"
+      - "docs/research/merlin-mathematical-idea-catalog.v1.json"
+      - "scripts/merlin_math_idea_validate.py"
+      - "tests/test_merlin_math_idea_validate.py"
   workflow_dispatch:
   pull_request:
     paths-ignore:
       - "formal/**"
       - ".github/workflows/formal-qualification.yml"
+      - "docs/research/MERLIN_MATHEMATICAL_IDEA_LEDGER_V0.1.md"
+      - "docs/research/MERLIN_MATHEMATICAL_IDEA_INTAKE.md"
+      - "docs/research/merlin-mathematical-idea-catalog.v1.json"
+      - "scripts/merlin_math_idea_validate.py"
+      - "tests/test_merlin_math_idea_validate.py"
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref_name }}
@@ -101,6 +111,51 @@ jobs:
 
       - name: Merlin deterministic research and API contracts
         run: python3 -m unittest discover -s tests/research -v
+      - name: Merlin glyph Foundry, normalizer and confluence tests
+        run: |
+          python3 -m unittest discover -s tests -p "test_glyph_foundry.py" -v
+          python3 -m unittest discover -s tests -p "test_glyph_normalizer.py" -v
+          python3 -m unittest discover -s tests -p "test_glyph_confluence.py" -v
+
+      - name: Merlin media, drafting and council contracts
+        env:
+          PYTHONPATH: python
+        run: |
+          python3 -m unittest discover -s tests -p "test_media_and_drafting.py" -v
+          python3 -m unittest discover -s tests -p "test_research_council.py" -v
+          python3 -m unittest discover -s tests -p "test_project_registry.py" -v
+          python3 -m pip install pytest
+          python3 -m pytest -q tests/test_knowledge_graph.py tests/test_foundation_store.py tests/test_archive_intake.py
+
+      - name: Merlin equation-atlas symbolic, dimensional and numerical checks
+        env:
+          PYTHONPATH: python
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install -r requirements-equation-atlas.txt
+          python3 -m merlin.equation_atlas.dimensions
+          python3 -m merlin.equation_atlas.symbolic_checks
+          python3 -m unittest discover -s tests -p "test_merlin_simulation_engine.py" -v
+          python3 -m unittest discover -s tests -p "test_merlin_composed_models.py" -v
+          mkdir -p artifacts
+          python3 -m merlin.equation_atlas.experiments.baseline > artifacts/equation-atlas-baseline.json
+          python3 -m merlin.equation_atlas.normalize
+          cp docs/research/real-world-equation-atlas/NORMALIZED_ENTRIES_001-080_V0.3.json artifacts/equation-atlas-normalized-entries-001-080.json
+          python3 -m merlin.equation_atlas.receipts --artifact artifacts/equation-atlas-baseline.json --source docs/research/real-world-equation-atlas/NORMALIZED_ENTRIES_001-020.json --source docs/research/real-world-equation-atlas/NORMALIZED_ENTRIES_021-030.json --source docs/research/real-world-equation-atlas/NORMALIZED_ENTRIES_031-040.json --source docs/research/real-world-equation-atlas/NORMALIZED_ENTRIES_041-050.json --source docs/research/real-world-equation-atlas/NORMALIZED_ENTRIES_051-060.json --source docs/research/real-world-equation-atlas/NORMALIZED_ENTRIES_061-070.json --source docs/research/real-world-equation-atlas/NORMALIZED_ENTRIES_071-080.json --source docs/research/real-world-equation-atlas/XMG_CROSS_DOMAIN_OPERATOR_CONTRACT_V0.1.json --source python/merlin/equation_atlas/operators.py --source tests/test_merlin_xmg_operator_contract.py --source python/merlin/equation_atlas/simulation.py --source tests/test_merlin_simulation_engine.py --source python/merlin/equation_atlas/models.py --source tests/test_merlin_composed_models.py --source docs/research/real-world-equation-atlas/equation-entry.schema.json --source docs/research/real-world-equation-atlas/evidence-receipt.schema.json --source requirements-equation-atlas.txt --source python/merlin/equation_atlas/normalize.py --source python/merlin/equation_atlas/experiments/baseline.py --source python/merlin/equation_atlas/experiments/signal_processing.py --source python/merlin/equation_atlas/experiments/stochastic.py --source python/merlin/equation_atlas/experiments/biological_complexity.py --source python/merlin/equation_atlas/dimensions.py --source python/merlin/equation_atlas/symbolic_checks.py --source artifacts/equation-atlas-normalized-entries-001-080.json --output artifacts/equation-atlas-evidence-receipt.json
+          python3 -m unittest discover -s tests -p "test_merlin_equation_atlas*.py" -v
+          python3 -m unittest discover -s tests -p "test_merlin_signal_processing.py" -v
+          python3 -m unittest discover -s tests -p "test_merlin_stochastic.py" -v
+          python3 -m unittest discover -s tests -p "test_merlin_biological_complexity.py" -v
+          python3 -m unittest discover -s tests -p "test_merlin_xmg_operator_contract.py" -v
+          python3 -m unittest discover -s tests -p "test_merlin_evidence_receipts.py" -v
+      - name: Publish equation-atlas reproducibility artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-equation-atlas-baseline
+          path: artifacts/equation-atlas-*
+          retention-days: 14
 
       - name: Merlin engineering IR, persistence, CAD and coordinate-frame tests
         env:
@@ -108,7 +163,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for pattern in test_engineering_ir.py test_engineering_project_store.py test_cad_assembly.py test_coordinate_frames.py test_physical_connectivity.py test_lean_proof_receipt.py; do
+          for pattern in test_engineering_ir.py test_engineering_project_store.py test_cad_assembly.py test_coordinate_frames.py test_physical_connectivity.py test_wire_routing.py test_wire_qualification.py test_wiring_exports.py test_media_and_drafting.py test_route_evidence.py test_workload_leases.py test_workload_scheduler.py test_resource_probe.py test_lean_proof_receipt.py; do
             python3 -m unittest discover -s tests -p "$pattern" -v
           done
 
@@ -145,7 +200,7 @@ jobs:
           fi
 
       - name: Save C++ compiler cache
-        if: ${{ success() && github.event_name != 'pull_request' && env.EXPERT_ROBOT_CCACHE == '1' }}
+        if: ${{ success() && env.EXPERT_ROBOT_CCACHE == '1' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
         uses: actions/cache/save@v4
         with:
           path: ~/.cache/ccache
@@ -172,7 +227,8 @@ jobs:
           set -euo pipefail
           model='models/hermes_coder/NousResearch_NousCoder-14B-Q4_K_M.gguf'
           test -s "$model"
-          printf '%s  %s\n' '9cc51afc755319db42a6324baf3395436cce5954dc87df95d3b9e7d625610624' "$model" | sha256sum --check
+          printf '%s  %s
+' '9cc51afc755319db42a6324baf3395436cce5954dc87df95d3b9e7d625610624' "$model" | sha256sum --check
       - name: Save verified NousCoder cache
         if: success() && steps.nouscoder-cache.outputs.cache-hit != 'true'
         continue-on-error: true

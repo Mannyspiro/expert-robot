@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0.0",
+  "platform": "Merlin",
+  "purpose": "A reproducible, evidence-governed research and engineering operating system.",
+  "principle": "Capability grows, authority never expands.",
+  "canonical_layers": [
+    {"id":"project_registry","maturity":"foundation","responsibility":"canonical inventory, project identities, versions and dependencies"},
+    {"id":"artifact_store","maturity":"foundation","responsibility":"immutable content-addressed artifacts and provenance"},
+    {"id":"knowledge_graph","maturity":"foundation","responsibility":"typed claims, sources, relations, assumptions and contradictions"},
+    {"id":"research_council","maturity":"prototype","responsibility":"specialist agents, skeptic review, disagreement and evidence classification"},
+    {"id":"simulation_fabric","maturity":"prototype","responsibility":"pluggable physics environments and virtual compute budgets"},
+    {"id":"formal_verification","maturity":"partial","responsibility":"Lean theorems, assumptions, axiom audit and proof receipts"},
+    {"id":"engineering_ir","maturity":"partial","responsibility":"canonical typed CAD, electrical and wiring facts"},
+    {"id":"media_generation","maturity":"prototype","responsibility":"image/video prompt compilation and local generation adapters"},
+    {"id":"worker_fabric","maturity":"partial","responsibility":"leased, bounded, reproducible research workers"},
+    {"id":"virtual_vcs","maturity":"partial","responsibility":"Merlin-native branches, diffs, reviews, virtual PRs and controlled merges"},
+    {"id":"integrations","maturity":"partial","responsibility":"Hermes, CACE, MCFC, Avrea and read-only Git adapters"},
+    {"id":"voice_web","maturity":"planned","responsibility":"voice conversation, session state, council visualization and artifact explorer"},
+    {"id":"rsi","maturity":"planned","responsibility":"measured candidate improvement with independent gates and rollback"}
+  ],
+  "evidence_classes": ["hypothesis","literature","numerical","experimental","interval_certified","formal","independent_review","provenance"],
+  "promotion_invariants": [
+    "AI output is not proof",
+    "benchmarks are not scientific truth",
+    "hashes establish identity and integrity, not correctness",
+    "cached qualification is not fresh exact-head qualification",
+    "stale evidence invalidates dependent qualification",
+    "no automatic authority expansion",
+    "no promotion without independent verification and rollback"
+  ],
+  "deployment_targets": {
+    "development": "local or Avrea runner",
+    "cache": "content-addressed artifacts, exact dependency/model manifests, verified reusable build outputs",
+    "web": "voice-first interface with streaming sessions and durable project/evidence state"
+  }
+}

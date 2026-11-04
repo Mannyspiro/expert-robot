@@ -1,0 +1,741 @@
+{
+  "schema_version": "0.3",
+  "dimension_basis": [
+    "L",
+    "M",
+    "T",
+    "I",
+    "Theta",
+    "N",
+    "J",
+    "information"
+  ],
+  "entries": [
+    {
+      "id": "RWEA-041",
+      "domain": "signal processing",
+      "application": "Fourier series representation of a periodic signal",
+      "model_family": "fourier_series",
+      "equations": [
+        "x(t) = Σₖ cₖ exp(i k ω₀ t)",
+        "cₖ = (1/T₀)∫₀ᵀ⁰ x(t) exp(-i k ω₀ t) dt"
+      ],
+      "variables": [
+        {
+          "symbol": "x",
+          "meaning": "periodic signal",
+          "unit": "signal amplitude",
+          "dimension": "[A]"
+        },
+        {
+          "symbol": "cₖ",
+          "meaning": "complex Fourier coefficient",
+          "unit": "signal amplitude",
+          "dimension": "[A]"
+        },
+        {
+          "symbol": "ω₀",
+          "meaning": "fundamental angular frequency",
+          "unit": "rad/s",
+          "dimension": "T^-1"
+        },
+        {
+          "symbol": "T₀",
+          "meaning": "period",
+          "unit": "s",
+          "dimension": "T"
+        }
+      ],
+      "assumptions": [
+        "Periodic signal with suitable integrability",
+        "coefficient convention and interval are fixed."
+      ],
+      "initial_conditions": "Specify one full period or equivalent periodic extension.",
+      "boundary_conditions": "Not applicable as a spatial boundary-value model; declare finite observation interval, window, or probability sample space as appropriate.",
+      "validity_regime": "Harmonic representation of periodic signals; convergence at discontinuities may be to midpoint values under standard conditions.",
+      "intuition": "A repeating pattern decomposes into harmonics at integer multiples of its base frequency.",
+      "applications": [
+        "Vibration",
+        "acoustics",
+        "power systems",
+        "periodic sensor signals"
+      ],
+      "limitations": [
+        "Convergence depends on regularity and chosen summation interpretation",
+        "Finite truncation introduces approximation and Gibbs oscillations"
+      ],
+      "alternatives": [
+        "Trigonometric series",
+        "Complex exponential series",
+        "Orthogonal basis expansion"
+      ],
+      "validation": [
+        "Reconstruct test signals from coefficients",
+        "Check Parseval identity and convergence for smooth and discontinuous examples"
+      ],
+      "uncertainty": [
+        "Finite-window and coefficient-estimation uncertainty"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT OpenCourseWare course material supports the stated topic; it does not by itself validate an application-specific implementation.",
+          "citation": "S30 · MIT OpenCourseWare",
+          "doi_or_url": "https://ocw.mit.edu/courses/6-003-signals-and-systems-fall-2011/pages/lecture-notes/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "The source supports the general topic or equation family. No application-specific derivation audit, independent numerical reproduction, empirical validation, or formal proof has yet been completed."
+    },
+    {
+      "id": "RWEA-042",
+      "domain": "signal processing",
+      "application": "Continuous-time Fourier transform",
+      "model_family": "continuous_fourier_transform",
+      "equations": [
+        "X(ω) = ∫₋∞∞ x(t) exp(-iωt) dt",
+        "x(t) = (1/2π)∫₋∞∞ X(ω) exp(iωt) dω"
+      ],
+      "variables": [
+        {
+          "symbol": "x",
+          "meaning": "time-domain signal",
+          "unit": "signal amplitude",
+          "dimension": "[A]"
+        },
+        {
+          "symbol": "X",
+          "meaning": "Fourier transform",
+          "unit": "signal amplitude·s",
+          "dimension": "[A]T"
+        },
+        {
+          "symbol": "ω",
+          "meaning": "angular frequency",
+          "unit": "rad/s",
+          "dimension": "T^-1"
+        }
+      ],
+      "assumptions": [
+        "Transform convention is stated explicitly",
+        "signal is integrable or treated using generalized functions."
+      ],
+      "initial_conditions": "No initial condition; transform domain and distributional interpretation must be specified.",
+      "boundary_conditions": "Not applicable as a spatial boundary-value model; declare finite observation interval, window, or probability sample space as appropriate.",
+      "validity_regime": "Continuous-time Fourier transform with angular frequency in rad/s.",
+      "intuition": "The transform describes how much of each frequency contributes to the signal.",
+      "applications": [
+        "Spectral analysis",
+        "filtering",
+        "communications",
+        "optics"
+      ],
+      "limitations": [
+        "Alternative conventions move factors of 2π",
+        "Not every signal has an ordinary absolutely convergent transform"
+      ],
+      "alternatives": [
+        "Frequency in Hz convention",
+        "Fourier series",
+        "Laplace transform"
+      ],
+      "validation": [
+        "Check inverse transform on Gaussian and sinusoidal test cases",
+        "Check units and Parseval/Plancherel relation under stated convention"
+      ],
+      "uncertainty": [
+        "Finite observation window and measurement noise"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT OpenCourseWare course material supports the stated topic; it does not by itself validate an application-specific implementation.",
+          "citation": "S30 · MIT OpenCourseWare",
+          "doi_or_url": "https://ocw.mit.edu/courses/6-003-signals-and-systems-fall-2011/pages/lecture-notes/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "The source supports the general topic or equation family. No application-specific derivation audit, independent numerical reproduction, empirical validation, or formal proof has yet been completed."
+    },
+    {
+      "id": "RWEA-043",
+      "domain": "signal processing",
+      "application": "Convolution of continuous-time signals",
+      "model_family": "continuous_convolution",
+      "equations": [
+        "y(t) = (x*h)(t) = ∫₋∞∞ x(τ) h(t-τ) dτ"
+      ],
+      "variables": [
+        {
+          "symbol": "x",
+          "meaning": "input signal",
+          "unit": "signal amplitude",
+          "dimension": "[A]"
+        },
+        {
+          "symbol": "h",
+          "meaning": "impulse response",
+          "unit": "output/input·1/s",
+          "dimension": "[B][A]^-1 T^-1"
+        },
+        {
+          "symbol": "y",
+          "meaning": "output signal",
+          "unit": "output amplitude",
+          "dimension": "[B]"
+        },
+        {
+          "symbol": "τ",
+          "meaning": "integration time variable",
+          "unit": "s",
+          "dimension": "T"
+        }
+      ],
+      "assumptions": [
+        "Signals and impulse response use a consistent normalization",
+        "integral exists or is interpreted appropriately."
+      ],
+      "initial_conditions": "Input signal x(t) and system impulse response h(t) are specified.",
+      "boundary_conditions": "Not applicable as a spatial boundary-value model; declare finite observation interval, window, or probability sample space as appropriate.",
+      "validity_regime": "Continuous-time LTI input-output relation for zero-state response.",
+      "intuition": "Each past input value contributes according to the delayed impulse response.",
+      "applications": [
+        "Linear systems",
+        "image blur",
+        "audio reverberation",
+        "channel models"
+      ],
+      "limitations": [
+        "Initial stored energy/state response may require an added homogeneous term",
+        "Distributional impulses need generalized-function treatment"
+      ],
+      "alternatives": [
+        "Discrete convolution",
+        "State-space realization",
+        "Frequency-domain multiplication"
+      ],
+      "validation": [
+        "Compare direct integral with numerical quadrature and FFT convolution",
+        "Verify transform-domain product identity for valid pairs"
+      ],
+      "uncertainty": [
+        "Finite support truncation and impulse-response estimation error"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT OpenCourseWare course material supports the stated topic; it does not by itself validate an application-specific implementation.",
+          "citation": "S30 · MIT OpenCourseWare",
+          "doi_or_url": "https://ocw.mit.edu/courses/6-003-signals-and-systems-fall-2011/pages/lecture-notes/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "The source supports the general topic or equation family. No application-specific derivation audit, independent numerical reproduction, empirical validation, or formal proof has yet been completed."
+    },
+    {
+      "id": "RWEA-044",
+      "domain": "signal processing",
+      "application": "LTI frequency response and filtering",
+      "model_family": "lti_frequency_response",
+      "equations": [
+        "Y(ω) = H(ω)X(ω)",
+        "H(ω) = ∫₋∞∞ h(t) exp(-iωt) dt"
+      ],
+      "variables": [
+        {
+          "symbol": "X",
+          "meaning": "input spectrum",
+          "unit": "input·s",
+          "dimension": "[A]T"
+        },
+        {
+          "symbol": "H",
+          "meaning": "frequency response",
+          "unit": "output/input",
+          "dimension": "[B][A]^-1"
+        },
+        {
+          "symbol": "Y",
+          "meaning": "output spectrum",
+          "unit": "output·s",
+          "dimension": "[B]T"
+        }
+      ],
+      "assumptions": [
+        "Linear time-invariant system",
+        "zero-state convolution model and transform convention are fixed."
+      ],
+      "initial_conditions": "Input and system impulse response are specified.",
+      "boundary_conditions": "Not applicable as a spatial boundary-value model; declare finite observation interval, window, or probability sample space as appropriate.",
+      "validity_regime": "Frequency-domain input-output relation for LTI systems.",
+      "intuition": "Each frequency component is scaled and phase-shifted independently.",
+      "applications": [
+        "Audio filters",
+        "sensor conditioning",
+        "communication channels"
+      ],
+      "limitations": [
+        "Stability and causality are not guaranteed by this identity alone",
+        "Time-varying or nonlinear systems do not generally obey it"
+      ],
+      "alternatives": [
+        "State-space transfer function",
+        "Discrete-time z-transform response"
+      ],
+      "validation": [
+        "Compare measured output spectrum to H times input spectrum",
+        "Test impulse, step, and sinusoidal responses"
+      ],
+      "uncertainty": [
+        "Parameter drift, noise, and model identification error"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT OpenCourseWare course material supports the stated topic; it does not by itself validate an application-specific implementation.",
+          "citation": "S30 · MIT OpenCourseWare",
+          "doi_or_url": "https://ocw.mit.edu/courses/6-003-signals-and-systems-fall-2011/pages/lecture-notes/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "The source supports the general topic or equation family. No application-specific derivation audit, independent numerical reproduction, empirical validation, or formal proof has yet been completed."
+    },
+    {
+      "id": "RWEA-045",
+      "domain": "signal processing",
+      "application": "Discrete Fourier transform",
+      "model_family": "discrete_fourier_transform",
+      "equations": [
+        "X[k] = Σₙ₌₀ᴺ⁻¹ x[n] exp(-i2πkn/N)",
+        "x[n] = (1/N)Σₖ₌₀ᴺ⁻¹ X[k] exp(i2πkn/N)"
+      ],
+      "variables": [
+        {
+          "symbol": "x[n]",
+          "meaning": "finite sample sequence",
+          "unit": "signal amplitude",
+          "dimension": "[A]"
+        },
+        {
+          "symbol": "X[k]",
+          "meaning": "DFT coefficient",
+          "unit": "signal amplitude",
+          "dimension": "[A]"
+        },
+        {
+          "symbol": "N",
+          "meaning": "transform length",
+          "unit": "count",
+          "dimension": "1"
+        },
+        {
+          "symbol": "k,n",
+          "meaning": "integer indices",
+          "unit": "count",
+          "dimension": "1"
+        }
+      ],
+      "assumptions": [
+        "Finite sequence length N and normalization convention are fixed",
+        "inverse uses 1/N."
+      ],
+      "initial_conditions": "Finite sequence x[0]...x[N-1] is given.",
+      "boundary_conditions": "Not applicable as a spatial boundary-value model; declare finite observation interval, window, or probability sample space as appropriate.",
+      "validity_regime": "Exact finite-dimensional transform; frequency interpretation assumes a window/periodic extension.",
+      "intuition": "The DFT expresses a finite sequence in orthogonal discrete complex sinusoids.",
+      "applications": [
+        "FFT spectral analysis",
+        "communications",
+        "numerical convolution"
+      ],
+      "limitations": [
+        "Spectral leakage depends on windowing and periodic extension",
+        "DFT bins are not automatically physical frequency estimates"
+      ],
+      "alternatives": [
+        "DTFT",
+        "Discrete Fourier series",
+        "Chirp-Z transform"
+      ],
+      "validation": [
+        "Round-trip inverse test",
+        "Check Parseval scaling and compare direct DFT with FFT"
+      ],
+      "uncertainty": [
+        "Finite-record leakage and quantization error"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT OpenCourseWare course material supports the stated topic; it does not by itself validate an application-specific implementation.",
+          "citation": "S30 · MIT OpenCourseWare",
+          "doi_or_url": "https://ocw.mit.edu/courses/6-003-signals-and-systems-fall-2011/pages/lecture-notes/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "The source supports the general topic or equation family. No application-specific derivation audit, independent numerical reproduction, empirical validation, or formal proof has yet been completed."
+    },
+    {
+      "id": "RWEA-046",
+      "domain": "signal processing",
+      "application": "Discrete-time sampling and aliasing criterion",
+      "model_family": "sampling_theorem",
+      "equations": [
+        "f_s > 2 f_max",
+        "x(t) = Σₙ x[n] sinc((t-nT_s)/T_s), under ideal bandlimit assumptions"
+      ],
+      "variables": [
+        {
+          "symbol": "f_s",
+          "meaning": "sampling frequency",
+          "unit": "Hz",
+          "dimension": "T^-1"
+        },
+        {
+          "symbol": "f_max",
+          "meaning": "highest signal frequency",
+          "unit": "Hz",
+          "dimension": "T^-1"
+        },
+        {
+          "symbol": "T_s",
+          "meaning": "sampling interval",
+          "unit": "s",
+          "dimension": "T"
+        },
+        {
+          "symbol": "x[n]",
+          "meaning": "sampled signal",
+          "unit": "signal amplitude",
+          "dimension": "[A]"
+        }
+      ],
+      "assumptions": [
+        "Signal is strictly band-limited below f_s/2",
+        "ideal uniform sampling and reconstruction assumptions apply."
+      ],
+      "initial_conditions": "Continuous signal and sampling clock are defined.",
+      "boundary_conditions": "Not applicable as a spatial boundary-value model; declare finite observation interval, window, or probability sample space as appropriate.",
+      "validity_regime": "Shannon-Nyquist reconstruction condition; practical systems require transition bands and anti-alias filtering.",
+      "intuition": "Sampling fast enough keeps shifted spectral replicas from overlapping.",
+      "applications": [
+        "Data acquisition",
+        "audio",
+        "imaging",
+        "instrumentation"
+      ],
+      "limitations": [
+        "Real signals are rarely perfectly band-limited",
+        "Clock jitter, finite filters, and noise affect reconstruction"
+      ],
+      "alternatives": [
+        "Oversampling",
+        "Bandpass sampling with known support",
+        "Nonuniform sampling theory"
+      ],
+      "validation": [
+        "Synthetic sinusoid reconstruction and aliasing demonstrations",
+        "Verify sample-rate/frequency units and anti-alias filter margin"
+      ],
+      "uncertainty": [
+        "Clock jitter and analog front-end uncertainty"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT OpenCourseWare course material supports the stated topic; it does not by itself validate an application-specific implementation.",
+          "citation": "S31 · MIT OpenCourseWare",
+          "doi_or_url": "https://ocw.mit.edu/courses/2-161-signal-processing-continuous-and-discrete-fall-2008/2934569026a399e9062597924c730a78_lecture_10.pdf"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "The source supports the general topic or equation family. No application-specific derivation audit, independent numerical reproduction, empirical validation, or formal proof has yet been completed."
+    },
+    {
+      "id": "RWEA-047",
+      "domain": "signal processing",
+      "application": "Quantization and uniform quantization noise model",
+      "model_family": "uniform_quantization",
+      "equations": [
+        "Q(x) = Δ·round(x/Δ)",
+        "e_q = Q(x)-x",
+        "σ_q² = Δ²/12 under the ideal uniform-error model"
+      ],
+      "variables": [
+        {
+          "symbol": "x",
+          "meaning": "input amplitude",
+          "unit": "signal amplitude",
+          "dimension": "[A]"
+        },
+        {
+          "symbol": "Δ",
+          "meaning": "quantization step",
+          "unit": "signal amplitude",
+          "dimension": "[A]"
+        },
+        {
+          "symbol": "e_q",
+          "meaning": "quantization error",
+          "unit": "signal amplitude",
+          "dimension": "[A]"
+        },
+        {
+          "symbol": "σ_q²",
+          "meaning": "error variance",
+          "unit": "signal amplitude squared",
+          "dimension": "[A]^2"
+        }
+      ],
+      "assumptions": [
+        "No overload",
+        "ideal rounding",
+        "quantization error treated as uniform and sufficiently decorrelated when invoking Δ²/12."
+      ],
+      "initial_conditions": "Input range and quantizer step are specified.",
+      "boundary_conditions": "Not applicable as a spatial boundary-value model; declare finite observation interval, window, or probability sample space as appropriate.",
+      "validity_regime": "Uniform scalar quantizer; variance formula is a model under stated assumptions, not universal truth.",
+      "intuition": "Finite precision maps a continuum of amplitudes to discrete levels.",
+      "applications": [
+        "ADC design",
+        "audio coding",
+        "embedded sensing"
+      ],
+      "limitations": [
+        "Overload invalidates the simple noise model",
+        "Error may be signal-correlated, especially for low-level or periodic inputs"
+      ],
+      "alternatives": [
+        "Nonuniform quantization",
+        "Dithered quantization",
+        "Vector quantization"
+      ],
+      "validation": [
+        "Enumerate quantization error over a bounded range",
+        "Monte Carlo variance test with explicit input assumptions and seed"
+      ],
+      "uncertainty": [
+        "Reference voltage, offset, gain, and converter nonlinearity"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT OpenCourseWare course material supports the stated topic; it does not by itself validate an application-specific implementation.",
+          "citation": "S32 · MIT OpenCourseWare",
+          "doi_or_url": "https://ocw.mit.edu/courses/6-450-principles-of-digital-communication-i-fall-2009/pages/lecture-notes/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "The source supports the general topic or equation family. No application-specific derivation audit, independent numerical reproduction, empirical validation, or formal proof has yet been completed."
+    },
+    {
+      "id": "RWEA-048",
+      "domain": "information theory",
+      "application": "Shannon entropy of a discrete random variable",
+      "model_family": "shannon_entropy",
+      "equations": [
+        "H(X) = -Σₓ p(x) log₂ p(x)"
+      ],
+      "variables": [
+        {
+          "symbol": "p(x)",
+          "meaning": "probability mass",
+          "unit": "dimensionless",
+          "dimension": "1"
+        },
+        {
+          "symbol": "H(X)",
+          "meaning": "entropy",
+          "unit": "bit",
+          "dimension": "information"
+        }
+      ],
+      "assumptions": [
+        "Finite or countable distribution with normalized probabilities",
+        "zero-probability terms contribute zero."
+      ],
+      "initial_conditions": "Specify probability distribution p(x).",
+      "boundary_conditions": "Not applicable as a spatial boundary-value model; declare finite observation interval, window, or probability sample space as appropriate.",
+      "validity_regime": "Discrete Shannon entropy; logarithm base 2 gives bits.",
+      "intuition": "Entropy measures average uncertainty before observing the outcome.",
+      "applications": [
+        "Source coding",
+        "data compression",
+        "statistical physics connections"
+      ],
+      "limitations": [
+        "Entropy depends on distribution and logarithm base",
+        "Differential entropy for continuous variables has different properties"
+      ],
+      "alternatives": [
+        "Conditional entropy",
+        "Differential entropy",
+        "Rényi entropy"
+      ],
+      "validation": [
+        "Check non-negativity and maximum for uniform finite distributions",
+        "Verify entropy of deterministic and fair binary sources"
+      ],
+      "uncertainty": [
+        "Probability-estimation and finite-sample bias"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT OpenCourseWare course material supports the stated topic; it does not by itself validate an application-specific implementation.",
+          "citation": "S32 · MIT OpenCourseWare",
+          "doi_or_url": "https://ocw.mit.edu/courses/6-450-principles-of-digital-communication-i-fall-2009/pages/lecture-notes/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "The source supports the general topic or equation family. No application-specific derivation audit, independent numerical reproduction, empirical validation, or formal proof has yet been completed."
+    },
+    {
+      "id": "RWEA-049",
+      "domain": "information theory",
+      "application": "Mutual information between two discrete variables",
+      "model_family": "mutual_information",
+      "equations": [
+        "I(X;Y) = Σₓ,ᵧ p(x,y) log₂(p(x,y)/(p(x)p(y)))",
+        "I(X;Y) = H(X)-H(X|Y)"
+      ],
+      "variables": [
+        {
+          "symbol": "p(x,y)",
+          "meaning": "joint probability",
+          "unit": "dimensionless",
+          "dimension": "1"
+        },
+        {
+          "symbol": "p(x),p(y)",
+          "meaning": "marginal probabilities",
+          "unit": "dimensionless",
+          "dimension": "1"
+        },
+        {
+          "symbol": "I(X;Y)",
+          "meaning": "mutual information",
+          "unit": "bit",
+          "dimension": "information"
+        }
+      ],
+      "assumptions": [
+        "Joint distribution is normalized",
+        "terms with zero joint probability contribute zero",
+        "logarithm base 2."
+      ],
+      "initial_conditions": "Specify joint distribution p(x,y).",
+      "boundary_conditions": "Not applicable as a spatial boundary-value model; declare finite observation interval, window, or probability sample space as appropriate.",
+      "validity_regime": "Discrete mutual information; quantifies statistical dependence, not causality.",
+      "intuition": "It measures how much knowing Y reduces uncertainty about X.",
+      "applications": [
+        "Feature selection",
+        "communications",
+        "dependence analysis",
+        "neuroscience"
+      ],
+      "limitations": [
+        "Finite-sample estimates can be biased",
+        "Association does not establish causation"
+      ],
+      "alternatives": [
+        "Conditional mutual information",
+        "Transfer entropy",
+        "Kullback-Leibler divergence"
+      ],
+      "validation": [
+        "Check symmetry, non-negativity, and zero for independent variables",
+        "Compare both entropy-difference identities"
+      ],
+      "uncertainty": [
+        "Sampling uncertainty and estimator bias"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT OpenCourseWare course material supports the stated topic; it does not by itself validate an application-specific implementation.",
+          "citation": "S32 · MIT OpenCourseWare",
+          "doi_or_url": "https://ocw.mit.edu/courses/6-450-principles-of-digital-communication-i-fall-2009/pages/lecture-notes/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "The source supports the general topic or equation family. No application-specific derivation audit, independent numerical reproduction, empirical validation, or formal proof has yet been completed."
+    },
+    {
+      "id": "RWEA-050",
+      "domain": "signal processing",
+      "application": "Power spectral density and Wiener-Khinchin relation",
+      "model_family": "power_spectral_density",
+      "equations": [
+        "Sₓₓ(ω) = ∫₋∞∞ Rₓₓ(τ) exp(-iωτ) dτ",
+        "Rₓₓ(τ) = E[x(t)x*(t-τ)]"
+      ],
+      "variables": [
+        {
+          "symbol": "x",
+          "meaning": "wide-sense stationary signal",
+          "unit": "signal amplitude",
+          "dimension": "[A]"
+        },
+        {
+          "symbol": "Rₓₓ",
+          "meaning": "autocorrelation",
+          "unit": "signal amplitude squared",
+          "dimension": "[A]^2"
+        },
+        {
+          "symbol": "Sₓₓ",
+          "meaning": "power spectral density (angular frequency convention)",
+          "unit": "signal amplitude squared·s",
+          "dimension": "[A]^2 T"
+        },
+        {
+          "symbol": "τ",
+          "meaning": "lag",
+          "unit": "s",
+          "dimension": "T"
+        }
+      ],
+      "assumptions": [
+        "Wide-sense stationarity and finite second moments",
+        "Fourier convention and one-sided/two-sided PSD convention are declared."
+      ],
+      "initial_conditions": "No initial condition; specify ensemble or ergodic estimation assumptions.",
+      "boundary_conditions": "Not applicable as a spatial boundary-value model; declare finite observation interval, window, or probability sample space as appropriate.",
+      "validity_regime": "Wiener-Khinchin relation for wide-sense stationary processes under suitable conditions.",
+      "intuition": "Autocorrelation and spectral power are Fourier-transform pairs.",
+      "applications": [
+        "Noise characterization",
+        "vibration monitoring",
+        "communications",
+        "system identification"
+      ],
+      "limitations": [
+        "Finite records require spectral estimators and window corrections",
+        "One-sided and two-sided PSD conventions differ by factors"
+      ],
+      "alternatives": [
+        "Periodogram",
+        "Welch PSD estimator",
+        "Spectral measure for non-absolutely-continuous cases"
+      ],
+      "validation": [
+        "Compare PSD integral to mean-square signal under declared convention",
+        "Use synthetic white-noise and sinusoid benchmarks"
+      ],
+      "uncertainty": [
+        "Finite sample variance, window bias, and leakage"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT OpenCourseWare course material supports the stated topic; it does not by itself validate an application-specific implementation.",
+          "citation": "S30 · MIT OpenCourseWare",
+          "doi_or_url": "https://ocw.mit.edu/courses/6-003-signals-and-systems-fall-2011/pages/lecture-notes/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "The source supports the general topic or equation family. No application-specific derivation audit, independent numerical reproduction, empirical validation, or formal proof has yet been completed."
+    }
+  ]
+}

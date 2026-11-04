@@ -406,6 +406,123 @@
         "lean_verified"
       ],
       "uses": []
+    },
+    {
+      "name": "MathAI.EquationAtlas.square_nonnegative",
+      "source": "MathAI/EquationAtlas.lean",
+      "status": "candidate",
+      "statement": "For every real x, 0 ≤ x^2.",
+      "domain": "algebra",
+      "tags": [
+        "equation_atlas",
+        "order",
+        "candidate"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.EquationAtlas.square_sum_ge_four_product",
+      "source": "MathAI/EquationAtlas.lean",
+      "status": "candidate",
+      "statement": "For all real x,y, 4xy ≤ (x+y)^2.",
+      "domain": "optimization",
+      "tags": [
+        "equation_atlas",
+        "rectangle_perimeter",
+        "candidate"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.EquationAtlas.normalized_logistic_growth_nonnegative",
+      "source": "MathAI/EquationAtlas.lean",
+      "status": "candidate",
+      "statement": "For r≥0 and 0≤p≤1, r p (1−p)≥0.",
+      "domain": "dynamical_systems",
+      "tags": [
+        "equation_atlas",
+        "logistic_growth",
+        "candidate"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.WireQualification.current_within_derated_ampacity",
+      "source": "MathAI/WireQualification.lean",
+      "status": "verified",
+      "statement": "A load below manufacturer ampacity after supplied derating is also below nominal manufacturer ampacity.",
+      "domain": "electrical",
+      "tags": [
+        "wire_qualification",
+        "conditional_model",
+        "candidate"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.WireQualification.dc_voltage_drop_nonnegative",
+      "source": "MathAI/WireQualification.lean",
+      "status": "verified",
+      "statement": "The declared DC resistive voltage-drop expression is nonnegative for nonnegative current, resistance and complete loop length.",
+      "domain": "electrical",
+      "tags": [
+        "wire_qualification",
+        "conditional_model",
+        "candidate"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.WireQualification.corrected_resistance_positive",
+      "source": "MathAI/WireQualification.lean",
+      "status": "verified",
+      "statement": "Temperature-corrected conductor resistance remains positive above reference temperature for positive base resistance and nonnegative coefficient.",
+      "domain": "thermal",
+      "tags": [
+        "wire_qualification",
+        "conditional_model",
+        "candidate"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.WireQualification.lumped_thermal_fixed_point_unique",
+      "source": "MathAI/WireQualification.lean",
+      "status": "verified",
+      "statement": "The affine lumped thermal steady-state equation has at most one fixed point when feedback gain is below one.",
+      "domain": "thermal",
+      "tags": [
+        "wire_qualification",
+        "conditional_model",
+        "candidate"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.WireQualification.measured_clearance_meets_requirement",
+      "source": "MathAI/WireQualification.lean",
+      "status": "verified",
+      "statement": "A measured spacing at least as large as a separately supplied required spacing satisfies that scalar comparison.",
+      "domain": "electrical",
+      "tags": [
+        "wire_qualification",
+        "conditional_model",
+        "candidate"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.WireQualification.minimum_bend_radius_meets_requirement",
+      "source": "MathAI/WireQualification.lean",
+      "status": "verified",
+      "statement": "A verified swept-cable bend radius at least as large as the manufacturer's minimum satisfies that scalar comparison.",
+      "domain": "manufacturing",
+      "tags": [
+        "wire_qualification",
+        "conditional_model",
+        "candidate"
+      ],
+      "uses": []
     }
   ]
 }

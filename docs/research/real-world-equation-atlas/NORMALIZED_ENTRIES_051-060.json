@@ -1,0 +1,740 @@
+{
+  "schema_version": "0.3",
+  "dimension_basis": [
+    "L",
+    "M",
+    "T",
+    "I",
+    "Theta",
+    "N",
+    "J",
+    "probability",
+    "information"
+  ],
+  "entries": [
+    {
+      "id": "RWEA-051",
+      "domain": "probability",
+      "application": "Finite-state Markov chain",
+      "model_family": "markov_chain",
+      "equations": [
+        "P(Xₙ₊₁=j|Xₙ=i)=Pᵢⱼ",
+        "pₙ₊₁=pₙP",
+        "ΣⱼPᵢⱼ=1"
+      ],
+      "variables": [
+        {
+          "symbol": "Pᵢⱼ",
+          "meaning": "transition probability",
+          "unit": "dimensionless",
+          "dimension": "1"
+        },
+        {
+          "symbol": "pₙ",
+          "meaning": "state probability vector",
+          "unit": "dimensionless",
+          "dimension": "1"
+        }
+      ],
+      "assumptions": [
+        "Finite state space",
+        "Markov property",
+        "row-stochastic transition matrix."
+      ],
+      "initial_conditions": "Initial distribution p₀.",
+      "boundary_conditions": "Finite discrete state space.",
+      "validity_regime": "The next state depends on the present state conditional on the present.",
+      "intuition": "The next state depends on the present state, not the entire past, conditional on the present.",
+      "applications": [
+        "Queues",
+        "Reliability",
+        "Population models"
+      ],
+      "limitations": [
+        "State aggregation can destroy Markov property",
+        "Time-homogeneity is an extra assumption"
+      ],
+      "alternatives": [
+        "Hidden Markov model",
+        "Semi-Markov process",
+        "Continuous-time Markov chain"
+      ],
+      "validation": [
+        "Check nonnegative entries and row sums",
+        "Compare iterative propagation with matrix powers"
+      ],
+      "uncertainty": [
+        "Transition estimation uncertainty",
+        "Model selection uncertainty"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT OpenCourseWare course material covers the foundational stochastic-process, statistical-mechanics, or probability topic; it does not independently validate a specific implementation.",
+          "citation": "S33 · MIT OCW 18.445 Introduction to Stochastic Processes",
+          "doi_or_url": "https://www.ocw.mit.edu/courses/18-445-introduction-to-stochastic-processes-spring-2015/resources/lecture-notes/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Course-level source supports the equation family. Detailed derivation, application-specific dimensional checks, independent numerical reproduction, empirical validation, and formal proof remain pending."
+    },
+    {
+      "id": "RWEA-052",
+      "domain": "probability",
+      "application": "Stationary distribution and detailed balance",
+      "model_family": "stationary_distribution",
+      "equations": [
+        "π=πP",
+        "πᵢPᵢⱼ=πⱼPⱼᵢ"
+      ],
+      "variables": [
+        {
+          "symbol": "πᵢ",
+          "meaning": "stationary probability",
+          "unit": "dimensionless",
+          "dimension": "1"
+        },
+        {
+          "symbol": "Pᵢⱼ",
+          "meaning": "transition probability",
+          "unit": "dimensionless",
+          "dimension": "1"
+        }
+      ],
+      "assumptions": [
+        "Finite chain",
+        "stationary distribution exists",
+        "detailed balance is sufficient but not necessary for stationarity."
+      ],
+      "initial_conditions": "Solve normalized invariant distribution.",
+      "boundary_conditions": "State space and transition graph.",
+      "validity_regime": "A distribution remains unchanged after one transition; detailed balance additionally removes stationary currents.",
+      "intuition": "A stationary distribution is unchanged by the transition operator; detailed balance is a stronger reversibility condition.",
+      "applications": [
+        "Markov chain Monte Carlo",
+        "Equilibrium models",
+        "Network random walks"
+      ],
+      "limitations": [
+        "Reducible chains may have nonunique stationary distributions",
+        "Detailed balance is stronger than stationarity"
+      ],
+      "alternatives": [
+        "Invariant measures",
+        "Non-reversible Markov chains"
+      ],
+      "validation": [
+        "Check normalization, invariance, and detailed-balance residuals",
+        "Check irreducibility and aperiodicity before claiming convergence"
+      ],
+      "uncertainty": [
+        "Transition matrix estimation uncertainty"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT OpenCourseWare course material covers the foundational stochastic-process, statistical-mechanics, or probability topic; it does not independently validate a specific implementation.",
+          "citation": "S33 · MIT OCW 18.445 Introduction to Stochastic Processes",
+          "doi_or_url": "https://www.ocw.mit.edu/courses/18-445-introduction-to-stochastic-processes-spring-2015/resources/lecture-notes/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Course-level source supports the equation family. Detailed derivation, application-specific dimensional checks, independent numerical reproduction, empirical validation, and formal proof remain pending."
+    },
+    {
+      "id": "RWEA-053",
+      "domain": "stochastic processes",
+      "application": "Poisson counting process",
+      "model_family": "poisson_process",
+      "equations": [
+        "N(t)~Poisson(λt)",
+        "P(ΔN(h)=k)=e^(-λh)(λh)^k/k!",
+        "E[N(t)]=Var[N(t)]=λt"
+      ],
+      "variables": [
+        {
+          "symbol": "N(t)",
+          "meaning": "event count",
+          "unit": "count",
+          "dimension": "1"
+        },
+        {
+          "symbol": "λ",
+          "meaning": "event rate",
+          "unit": "s⁻¹",
+          "dimension": "T^-1"
+        },
+        {
+          "symbol": "t",
+          "meaning": "time",
+          "unit": "s",
+          "dimension": "T"
+        }
+      ],
+      "assumptions": [
+        "Independent stationary increments",
+        "constant event rate",
+        "events occur singly infinitesimally."
+      ],
+      "initial_conditions": "N(0)=0.",
+      "boundary_conditions": "Nonnegative time axis.",
+      "validity_regime": "Independent events occur at a constant average rate.",
+      "intuition": "Independent events occur at a constant average rate, producing Poisson-distributed counts.",
+      "applications": [
+        "Arrival processes",
+        "Radioactive decay idealization",
+        "Reliability"
+      ],
+      "limitations": [
+        "Clustering, inhibition, and rate drift violate assumptions",
+        "Finite event duration may matter"
+      ],
+      "alternatives": [
+        "Nonhomogeneous Poisson process",
+        "Renewal process",
+        "Cox process"
+      ],
+      "validation": [
+        "Check mean and variance against λt over replicated paths",
+        "Check independent increments"
+      ],
+      "uncertainty": [
+        "Rate estimation uncertainty",
+        "Event-detection uncertainty"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT OpenCourseWare course material covers the foundational stochastic-process, statistical-mechanics, or probability topic; it does not independently validate a specific implementation.",
+          "citation": "S33 · MIT OCW 18.445 Introduction to Stochastic Processes",
+          "doi_or_url": "https://www.ocw.mit.edu/courses/18-445-introduction-to-stochastic-processes-spring-2015/resources/lecture-notes/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Course-level source supports the equation family. Detailed derivation, application-specific dimensional checks, independent numerical reproduction, empirical validation, and formal proof remain pending."
+    },
+    {
+      "id": "RWEA-054",
+      "domain": "stochastic processes",
+      "application": "Standard Brownian motion",
+      "model_family": "brownian_motion",
+      "equations": [
+        "W(0)=0",
+        "W(t)-W(s)~Normal(0,t-s)",
+        "Cov(W(s),W(t))=min(s,t)"
+      ],
+      "variables": [
+        {
+          "symbol": "W(t)",
+          "meaning": "Brownian position",
+          "unit": "√s",
+          "dimension": "T^1/2"
+        },
+        {
+          "symbol": "t",
+          "meaning": "time",
+          "unit": "s",
+          "dimension": "T"
+        }
+      ],
+      "assumptions": [
+        "Continuous paths",
+        "independent Gaussian increments",
+        "variance equals elapsed time."
+      ],
+      "initial_conditions": "W(0)=0.",
+      "boundary_conditions": "Wiener process on nonnegative time.",
+      "validity_regime": "Continuous random paths whose increment variance grows with elapsed time.",
+      "intuition": "A continuous random path has independent Gaussian increments whose variance grows with elapsed time.",
+      "applications": [
+        "Diffusion limits",
+        "Stochastic dynamics",
+        "Random path models"
+      ],
+      "limitations": [
+        "Paths are almost surely nowhere differentiable",
+        "Physical systems have finite correlation times and bandwidth"
+      ],
+      "alternatives": [
+        "Fractional Brownian motion",
+        "Lévy process",
+        "Reflected Brownian motion"
+      ],
+      "validation": [
+        "Check increment means, variances, and independence across seeded paths",
+        "Check mean-square scaling"
+      ],
+      "uncertainty": [
+        "Monte Carlo error",
+        "Discretization uncertainty"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT OpenCourseWare course material covers the foundational stochastic-process, statistical-mechanics, or probability topic; it does not independently validate a specific implementation.",
+          "citation": "S34 · MIT OCW 15.070J Advanced Stochastic Processes",
+          "doi_or_url": "https://ocw.mit.edu/courses/15-070j-advanced-stochastic-processes-fall-2013/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Course-level source supports the equation family. Detailed derivation, application-specific dimensional checks, independent numerical reproduction, empirical validation, and formal proof remain pending."
+    },
+    {
+      "id": "RWEA-055",
+      "domain": "stochastic dynamics",
+      "application": "Langevin stochastic differential equation",
+      "model_family": "langevin_sde",
+      "equations": [
+        "dXₜ=a(Xₜ,t)dt+b(Xₜ,t)dWₜ",
+        "dX=μF(X)dt+√(2D)dW"
+      ],
+      "variables": [
+        {
+          "symbol": "X",
+          "meaning": "state",
+          "unit": "state-dependent",
+          "dimension": "state"
+        },
+        {
+          "symbol": "a",
+          "meaning": "drift",
+          "unit": "state/s",
+          "dimension": "state·T^-1"
+        },
+        {
+          "symbol": "b",
+          "meaning": "diffusion amplitude",
+          "unit": "state/√s",
+          "dimension": "state·T^-1/2"
+        },
+        {
+          "symbol": "D",
+          "meaning": "diffusion coefficient",
+          "unit": "state²/s",
+          "dimension": "state²·T^-1"
+        }
+      ],
+      "assumptions": [
+        "Itô convention stated",
+        "Wiener noise",
+        "coefficients admit a solution",
+        "overdamped form requires appropriate mobility/noise relation."
+      ],
+      "initial_conditions": "Initial state distribution.",
+      "boundary_conditions": "Declare reflecting, absorbing, periodic, or natural boundaries.",
+      "validity_regime": "Deterministic drift plus random increments model fluctuations.",
+      "intuition": "A stochastic trajectory combines systematic drift with random fluctuations.",
+      "applications": [
+        "Brownian particles",
+        "Thermal fluctuations",
+        "Noisy dynamical systems"
+      ],
+      "limitations": [
+        "Itô and Stratonovich differ for state-dependent noise",
+        "White-noise approximation may fail at short times"
+      ],
+      "alternatives": [
+        "Stratonovich SDE",
+        "Generalized Langevin equation",
+        "Jump diffusion"
+      ],
+      "validation": [
+        "Compare Euler-Maruyama convergence on a known linear SDE",
+        "Check harmonic-potential stationary distribution"
+      ],
+      "uncertainty": [
+        "Noise intensity uncertainty",
+        "Parameter uncertainty",
+        "Discretization uncertainty"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT OpenCourseWare course material covers the foundational stochastic-process, statistical-mechanics, or probability topic; it does not independently validate a specific implementation.",
+          "citation": "S34 · MIT OCW 15.070J Advanced Stochastic Processes",
+          "doi_or_url": "https://ocw.mit.edu/courses/15-070j-advanced-stochastic-processes-fall-2013/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Course-level source supports the equation family. Detailed derivation, application-specific dimensional checks, independent numerical reproduction, empirical validation, and formal proof remain pending."
+    },
+    {
+      "id": "RWEA-056",
+      "domain": "statistical physics",
+      "application": "Fokker-Planck equation",
+      "model_family": "fokker_planck",
+      "equations": [
+        "∂ₜp=-∂ₓ(ap)+1/2∂ₓ²(b²p)"
+      ],
+      "variables": [
+        {
+          "symbol": "p",
+          "meaning": "probability density",
+          "unit": "state⁻¹",
+          "dimension": "state^-1"
+        },
+        {
+          "symbol": "a",
+          "meaning": "drift",
+          "unit": "state/s",
+          "dimension": "state·T^-1"
+        },
+        {
+          "symbol": "b",
+          "meaning": "diffusion amplitude",
+          "unit": "state/√s",
+          "dimension": "state·T^-1/2"
+        }
+      ],
+      "assumptions": [
+        "Consistent Itô SDE",
+        "normalized nonnegative density",
+        "compatible boundary conditions."
+      ],
+      "initial_conditions": "Initial density p(x,0).",
+      "boundary_conditions": "No-flux, absorbing, or physically justified probability-current boundary conditions.",
+      "validity_regime": "Probability density evolves through drift and diffusion.",
+      "intuition": "A probability density evolves through drift and diffusion in state space.",
+      "applications": [
+        "Diffusion",
+        "Chemical kinetics",
+        "Population dynamics"
+      ],
+      "limitations": [
+        "Boundary flux can change probability mass",
+        "Noise convention must be consistent"
+      ],
+      "alternatives": [
+        "Kolmogorov forward equation",
+        "Master equation",
+        "Kinetic equation"
+      ],
+      "validation": [
+        "Check normalization and nonnegativity",
+        "Compare moments with SDE simulations"
+      ],
+      "uncertainty": [
+        "Finite-volume error",
+        "Monte Carlo error"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT OpenCourseWare course material covers the foundational stochastic-process, statistical-mechanics, or probability topic; it does not independently validate a specific implementation.",
+          "citation": "S35 · MIT OCW 5.72 Non-Equilibrium Statistical Mechanics",
+          "doi_or_url": "https://ocw.mit.edu/courses/5-72-non-equilibrium-statistical-mechanics-spring-2012/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Course-level source supports the equation family. Detailed derivation, application-specific dimensional checks, independent numerical reproduction, empirical validation, and formal proof remain pending."
+    },
+    {
+      "id": "RWEA-057",
+      "domain": "Bayesian statistics",
+      "application": "Bayes rule and posterior inference",
+      "model_family": "bayesian_inference",
+      "equations": [
+        "p(θ|y)=p(y|θ)p(θ)/p(y)",
+        "p(y)=∫p(y|θ)p(θ)dθ"
+      ],
+      "variables": [
+        {
+          "symbol": "θ",
+          "meaning": "parameter",
+          "unit": "parameter-dependent",
+          "dimension": "model-specific"
+        },
+        {
+          "symbol": "y",
+          "meaning": "observations",
+          "unit": "data-dependent",
+          "dimension": "model-specific"
+        },
+        {
+          "symbol": "p(θ)",
+          "meaning": "prior",
+          "unit": "parameter⁻¹",
+          "dimension": "depends on θ"
+        },
+        {
+          "symbol": "p(y|θ)",
+          "meaning": "likelihood",
+          "unit": "data⁻¹",
+          "dimension": "depends on data"
+        }
+      ],
+      "assumptions": [
+        "Prior and likelihood are specified",
+        "evidence is finite and nonzero."
+      ],
+      "initial_conditions": "Prior distribution p(θ).",
+      "boundary_conditions": "Parameter support and data-generating model are specified.",
+      "validity_regime": "Prior beliefs are updated according to how well parameter values predict data.",
+      "intuition": "Bayesian inference updates prior beliefs according to how well parameter values predict observed data.",
+      "applications": [
+        "Scientific inference",
+        "Calibration",
+        "Model comparison"
+      ],
+      "limitations": [
+        "Posterior depends on prior and model choices",
+        "Likelihood is not a probability distribution over parameters"
+      ],
+      "alternatives": [
+        "Frequentist inference",
+        "Empirical Bayes",
+        "Hierarchical Bayes"
+      ],
+      "validation": [
+        "Check conjugate toy posteriors analytically",
+        "Compare analytic and numerical posterior moments"
+      ],
+      "uncertainty": [
+        "Prior sensitivity",
+        "Model misspecification"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT OpenCourseWare course material covers the foundational stochastic-process, statistical-mechanics, or probability topic; it does not independently validate a specific implementation.",
+          "citation": "S36 · MIT OCW 6.041SC Probabilistic Systems Analysis",
+          "doi_or_url": "https://ocw.mit.edu/courses/6-041sc-probabilistic-systems-analysis-and-applied-probability-fall-2013/pages/readings/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Course-level source supports the equation family. Detailed derivation, application-specific dimensional checks, independent numerical reproduction, empirical validation, and formal proof remain pending."
+    },
+    {
+      "id": "RWEA-058",
+      "domain": "estimation and control",
+      "application": "Linear Kalman filter",
+      "model_family": "linear_kalman_filter",
+      "equations": [
+        "xₖ=Fₖxₖ₋₁+Bₖuₖ+wₖ",
+        "zₖ=Hₖxₖ+vₖ",
+        "Kₖ=Pₖ⁻Hₖᵀ(HₖPₖ⁻Hₖᵀ+Rₖ)⁻¹",
+        "x̂ₖ=x̂ₖ⁻+Kₖ(zₖ-Hₖx̂ₖ⁻)"
+      ],
+      "variables": [
+        {
+          "symbol": "x",
+          "meaning": "state vector",
+          "unit": "state-dependent",
+          "dimension": "component-specific"
+        },
+        {
+          "symbol": "Q",
+          "meaning": "process covariance",
+          "unit": "state²",
+          "dimension": "component-specific"
+        },
+        {
+          "symbol": "R",
+          "meaning": "measurement covariance",
+          "unit": "measurement²",
+          "dimension": "component-specific"
+        },
+        {
+          "symbol": "P",
+          "meaning": "state covariance",
+          "unit": "state²",
+          "dimension": "component-specific"
+        },
+        {
+          "symbol": "K",
+          "meaning": "Kalman gain",
+          "unit": "state/measurement",
+          "dimension": "component-specific"
+        }
+      ],
+      "assumptions": [
+        "Linear model",
+        "zero-mean white noises",
+        "noise cross-correlation handled if present",
+        "valid covariance matrices."
+      ],
+      "initial_conditions": "Initial state estimate and covariance.",
+      "boundary_conditions": "Observation model and dimensions specified at every step.",
+      "validity_regime": "Predict state and uncertainty, then update with measurements.",
+      "intuition": "The filter predicts state and uncertainty, then uses measurements to update both.",
+      "applications": [
+        "Navigation",
+        "Robotics",
+        "Sensor fusion"
+      ],
+      "limitations": [
+        "Optimality depends on linear-Gaussian and covariance assumptions",
+        "Numerical covariance update needs stable implementation"
+      ],
+      "alternatives": [
+        "Extended Kalman filter",
+        "Unscented Kalman filter",
+        "Ensemble Kalman filter"
+      ],
+      "validation": [
+        "Compare scalar filter with Gaussian conditioning",
+        "Check covariance symmetry and positive semidefiniteness"
+      ],
+      "uncertainty": [
+        "Model mismatch",
+        "Sensor bias"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT OpenCourseWare course material covers the foundational stochastic-process, statistical-mechanics, or probability topic; it does not independently validate a specific implementation.",
+          "citation": "S36 · MIT OCW 6.041SC Probabilistic Systems Analysis",
+          "doi_or_url": "https://ocw.mit.edu/courses/6-041sc-probabilistic-systems-analysis-and-applied-probability-fall-2013/pages/readings/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Course-level source supports the equation family. Detailed derivation, application-specific dimensional checks, independent numerical reproduction, empirical validation, and formal proof remain pending."
+    },
+    {
+      "id": "RWEA-059",
+      "domain": "information geometry",
+      "application": "Fisher information metric",
+      "model_family": "fisher_information_metric",
+      "equations": [
+        "Iᵢⱼ=Eθ[(∂ᵢlog p)(∂ⱼlog p)]",
+        "Iᵢⱼ=-Eθ[∂ᵢ∂ⱼlog p] under regularity"
+      ],
+      "variables": [
+        {
+          "symbol": "θ",
+          "meaning": "parameter coordinates",
+          "unit": "parameter-dependent",
+          "dimension": "model-specific"
+        },
+        {
+          "symbol": "Iᵢⱼ",
+          "meaning": "Fisher information tensor",
+          "unit": "parameterᵢ⁻¹parameterⱼ⁻¹",
+          "dimension": "coordinate-covariant"
+        }
+      ],
+      "assumptions": [
+        "Differentiability, regular support, finite expectations",
+        "Hessian identity needs extra regularity."
+      ],
+      "initial_conditions": "Specify likelihood p(x|θ) and θ.",
+      "boundary_conditions": "Parameter chart specified; singular models require special care.",
+      "validity_regime": "Measures how sensitively a probability model changes with its parameters.",
+      "intuition": "The Fisher metric measures local distinguishability between nearby probability distributions.",
+      "applications": [
+        "Experimental design",
+        "Asymptotic statistics",
+        "Natural gradients"
+      ],
+      "limitations": [
+        "May be singular or degenerate",
+        "Must transform tensorially under reparameterization"
+      ],
+      "alternatives": [
+        "Observed information",
+        "Expected Hessian",
+        "Quantum Fisher information"
+      ],
+      "validation": [
+        "Check positive semidefiniteness",
+        "Verify transformation under simple reparameterizations"
+      ],
+      "uncertainty": [
+        "Finite-sample uncertainty",
+        "Model approximation error"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "Review source explicitly defines the Fisher information metric and its regularity and invariance properties.",
+          "citation": "S47 · Ay et al., An Elementary Introduction to Information Geometry",
+          "doi_or_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7650632/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Course-level source supports the equation family. Detailed derivation, application-specific dimensional checks, independent numerical reproduction, empirical validation, and formal proof remain pending."
+    },
+    {
+      "id": "RWEA-060",
+      "domain": "nonequilibrium statistical mechanics",
+      "application": "Entropy production in continuous-time Markov jump process",
+      "model_family": "markov_entropy_production",
+      "equations": [
+        "Jᵢⱼ=πᵢqᵢⱼ-πⱼqⱼᵢ",
+        "σ=(k_B/2)Σᵢ≠ⱼJᵢⱼ ln((πᵢqᵢⱼ)/(πⱼqⱼᵢ)) ≥0"
+      ],
+      "variables": [
+        {
+          "symbol": "πᵢ",
+          "meaning": "stationary probability",
+          "unit": "dimensionless",
+          "dimension": "1"
+        },
+        {
+          "symbol": "qᵢⱼ",
+          "meaning": "transition rate",
+          "unit": "s⁻¹",
+          "dimension": "T^-1"
+        },
+        {
+          "symbol": "Jᵢⱼ",
+          "meaning": "net probability current",
+          "unit": "s⁻¹",
+          "dimension": "T^-1"
+        },
+        {
+          "symbol": "σ",
+          "meaning": "entropy production rate",
+          "unit": "J/(K s)",
+          "dimension": "energy·temperature^-1·T^-1"
+        },
+        {
+          "symbol": "k_B",
+          "meaning": "Boltzmann constant",
+          "unit": "J/K",
+          "dimension": "energy·temperature^-1"
+        }
+      ],
+      "assumptions": [
+        "Stationary finite jump process",
+        "paired reverse transitions on supported edges",
+        "physical thermodynamic interpretation requires local detailed balance."
+      ],
+      "initial_conditions": "Stationary π satisfying πQ=0.",
+      "boundary_conditions": "Transition graph and reservoirs represented consistently.",
+      "validity_regime": "Irreversible probability currents quantify departure from detailed balance.",
+      "intuition": "Irreversible probability currents quantify departure from detailed balance.",
+      "applications": [
+        "Chemical reaction networks",
+        "Mesoscopic thermodynamics",
+        "Transport systems"
+      ],
+      "limitations": [
+        "Zero reverse rates need limiting conventions",
+        "Path-space irreversibility and physical entropy production require a thermodynamic model"
+      ],
+      "alternatives": [
+        "Path-space KL rate",
+        "Schnakenberg network entropy production"
+      ],
+      "validation": [
+        "Check nonnegativity on small rate matrices",
+        "Check zero at detailed balance and positive driven-cycle result"
+      ],
+      "uncertainty": [
+        "Rate estimation uncertainty",
+        "Hidden-transition uncertainty"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT OpenCourseWare course material covers the foundational stochastic-process, statistical-mechanics, or probability topic; it does not independently validate a specific implementation.",
+          "citation": "S35 · MIT OCW 5.72 Non-Equilibrium Statistical Mechanics",
+          "doi_or_url": "https://ocw.mit.edu/courses/5-72-non-equilibrium-statistical-mechanics-spring-2012/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Course-level source supports the equation family. Detailed derivation, application-specific dimensional checks, independent numerical reproduction, empirical validation, and formal proof remain pending."
+    }
+  ]
+}

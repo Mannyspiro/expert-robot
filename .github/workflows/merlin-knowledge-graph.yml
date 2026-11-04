@@ -1,0 +1,32 @@
+name: Merlin Foundation Contracts
+on:
+  push:
+    branches: ["feat/merlin-real-world-equation-atlas-v01-20261104"]
+    paths:
+      - "python/merlin/knowledge_graph.py"
+      - "python/merlin/foundation_store.py"
+      - "python/merlin/archive_intake.py"
+      - "tests/test_knowledge_graph.py"
+      - "tests/test_foundation_store.py"
+      - "tests/test_archive_intake.py"
+      - ".github/workflows/merlin-knowledge-graph.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: merlin-foundation-contracts-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  foundation-contracts:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install test runner
+        run: python -m pip install pytest
+      - name: Run Merlin foundation contracts
+        env:
+          PYTHONPATH: python
+        run: python3 -m pytest -q tests/test_knowledge_graph.py tests/test_foundation_store.py tests/test_archive_intake.py

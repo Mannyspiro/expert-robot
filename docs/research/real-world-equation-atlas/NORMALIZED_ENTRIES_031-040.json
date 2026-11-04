@@ -1,0 +1,798 @@
+{
+  "schema_version": "0.3",
+  "dimension_basis": [
+    "L",
+    "M",
+    "T",
+    "I",
+    "Theta",
+    "N",
+    "J"
+  ],
+  "entries": [
+    {
+      "id": "RWEA-031",
+      "domain": "continuum physics",
+      "application": "Local conservation law",
+      "model_family": "local_conservation_law",
+      "equations": [
+        "∂u/∂t + ∇·J = s"
+      ],
+      "variables": [
+        {
+          "symbol": "u",
+          "meaning": "u variable",
+          "unit": "conserved density [Q]L^-3",
+          "dimension": "application-specific; verify per component"
+        },
+        {
+          "symbol": "J",
+          "meaning": "J variable",
+          "unit": "flux [Q]L^-2T^-1",
+          "dimension": "application-specific; verify per component"
+        },
+        {
+          "symbol": "s",
+          "meaning": "s variable",
+          "unit": "source [Q]L^-3T^-1",
+          "dimension": "application-specific; verify per component"
+        }
+      ],
+      "assumptions": [
+        "Continuum or field approximation is appropriate",
+        "Spatial domain, coordinate frame, and units are declared",
+        "Constitutive relations and sign conventions are stated explicitly"
+      ],
+      "initial_conditions": "Specify the required initial field for time-dependent problems; not applicable to static elliptic equations.",
+      "boundary_conditions": "Specify physically appropriate Dirichlet, Neumann, inflow/outflow, interface, or radiation conditions.",
+      "validity_regime": "Local balance law; sources and boundary fluxes determine global conservation.",
+      "intuition": "Local balance law; sources and boundary fluxes determine global conservation.",
+      "applications": [
+        "Control-volume balance; mass, charge, species, energy."
+      ],
+      "limitations": [
+        "The base equation omits application-specific constitutive, boundary, and parameter identification work",
+        "No empirical validation is implied by the equation form"
+      ],
+      "alternatives": [
+        "Conservative or weak formulation",
+        "Variable-coefficient or coupled multiphysics formulation",
+        "Discrete finite-volume, finite-element, or spectral approximation"
+      ],
+      "validation": [
+        "Check every term dimensionally",
+        "Check initial/boundary compatibility and conservation constraints",
+        "Compare analytic benchmarks and perform mesh/time-step refinement"
+      ],
+      "uncertainty": [
+        "Parameter and boundary-condition uncertainty",
+        "Model-form and numerical-discretization error"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT PDE course covers heat, wave, Laplace, Poisson, transport, and related PDE theory.",
+          "citation": "S27 · MIT 18.152",
+          "doi_or_url": "https://ocw.mit.edu/courses/18-152-introduction-to-partial-differential-equations-fall-2011/pages/lecture-notes/"
+        },
+        {
+          "claim": "MIT numerical PDE course covers heat, wave, transport, conservation laws, stability, and Navier-Stokes methods.",
+          "citation": "S28 · MIT 18.336",
+          "doi_or_url": "https://ocw.mit.edu/courses/18-336-numerical-methods-for-partial-differential-equations-spring-2009/pages/lecture-notes/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Course sources support the equation family, but no application-specific calibration, independent numerical reproduction, empirical validation, or formal proof has been completed."
+    },
+    {
+      "id": "RWEA-032",
+      "domain": "heat transfer",
+      "application": "Transient heat conduction",
+      "model_family": "heat_equation",
+      "equations": [
+        "ρ c_p ∂T/∂t = ∇·(k∇T) + q̇"
+      ],
+      "variables": [
+        {
+          "symbol": "ρ",
+          "meaning": "ρ variable",
+          "unit": "kg/m^3",
+          "dimension": "application-specific; verify per component"
+        },
+        {
+          "symbol": "cp",
+          "meaning": "cp variable",
+          "unit": "J/(kg K)",
+          "dimension": "application-specific; verify per component"
+        },
+        {
+          "symbol": "T",
+          "meaning": "T variable",
+          "unit": "K",
+          "dimension": "application-specific; verify per component"
+        },
+        {
+          "symbol": "k",
+          "meaning": "k variable",
+          "unit": "W/(m K)",
+          "dimension": "application-specific; verify per component"
+        },
+        {
+          "symbol": "qdot",
+          "meaning": "qdot variable",
+          "unit": "W/m^3",
+          "dimension": "application-specific; verify per component"
+        }
+      ],
+      "assumptions": [
+        "Continuum or field approximation is appropriate",
+        "Spatial domain, coordinate frame, and units are declared",
+        "Constitutive relations and sign conventions are stated explicitly"
+      ],
+      "initial_conditions": "Specify the required initial field for time-dependent problems; not applicable to static elliptic equations.",
+      "boundary_conditions": "Specify physically appropriate Dirichlet, Neumann, inflow/outflow, interface, or radiation conditions.",
+      "validity_regime": "Fourier conduction in a stationary continuum; no bulk advection or phase change.",
+      "intuition": "Fourier conduction in a stationary continuum; no bulk advection or phase change.",
+      "applications": [
+        "Thermal design, battery cooling, building physics."
+      ],
+      "limitations": [
+        "The base equation omits application-specific constitutive, boundary, and parameter identification work",
+        "No empirical validation is implied by the equation form"
+      ],
+      "alternatives": [
+        "Conservative or weak formulation",
+        "Variable-coefficient or coupled multiphysics formulation",
+        "Discrete finite-volume, finite-element, or spectral approximation"
+      ],
+      "validation": [
+        "Check every term dimensionally",
+        "Check initial/boundary compatibility and conservation constraints",
+        "Compare analytic benchmarks and perform mesh/time-step refinement"
+      ],
+      "uncertainty": [
+        "Parameter and boundary-condition uncertainty",
+        "Model-form and numerical-discretization error"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT PDE course covers heat, wave, Laplace, Poisson, transport, and related PDE theory.",
+          "citation": "S27 · MIT 18.152",
+          "doi_or_url": "https://ocw.mit.edu/courses/18-152-introduction-to-partial-differential-equations-fall-2011/pages/lecture-notes/"
+        },
+        {
+          "claim": "MIT numerical PDE course covers heat, wave, transport, conservation laws, stability, and Navier-Stokes methods.",
+          "citation": "S28 · MIT 18.336",
+          "doi_or_url": "https://ocw.mit.edu/courses/18-336-numerical-methods-for-partial-differential-equations-spring-2009/pages/lecture-notes/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Course sources support the equation family, but no application-specific calibration, independent numerical reproduction, empirical validation, or formal proof has been completed."
+    },
+    {
+      "id": "RWEA-033",
+      "domain": "transport phenomena",
+      "application": "Advection-diffusion with source",
+      "model_family": "advection_diffusion",
+      "equations": [
+        "∂c/∂t + ∇·(v c) = ∇·(D∇c) + r"
+      ],
+      "variables": [
+        {
+          "symbol": "c",
+          "meaning": "c variable",
+          "unit": "quantity/m^3",
+          "dimension": "application-specific; verify per component"
+        },
+        {
+          "symbol": "v",
+          "meaning": "v variable",
+          "unit": "m/s",
+          "dimension": "application-specific; verify per component"
+        },
+        {
+          "symbol": "D",
+          "meaning": "D variable",
+          "unit": "m^2/s",
+          "dimension": "application-specific; verify per component"
+        },
+        {
+          "symbol": "r",
+          "meaning": "r variable",
+          "unit": "quantity/(m^3 s)",
+          "dimension": "application-specific; verify per component"
+        }
+      ],
+      "assumptions": [
+        "Continuum or field approximation is appropriate",
+        "Spatial domain, coordinate frame, and units are declared",
+        "Constitutive relations and sign conventions are stated explicitly"
+      ],
+      "initial_conditions": "Specify the required initial field for time-dependent problems; not applicable to static elliptic equations.",
+      "boundary_conditions": "Specify physically appropriate Dirichlet, Neumann, inflow/outflow, interface, or radiation conditions.",
+      "validity_regime": "Continuum scalar transport with Fickian diffusion and specified velocity.",
+      "intuition": "Continuum scalar transport with Fickian diffusion and specified velocity.",
+      "applications": [
+        "Pollutant transport, drug distribution, species mixing."
+      ],
+      "limitations": [
+        "The base equation omits application-specific constitutive, boundary, and parameter identification work",
+        "No empirical validation is implied by the equation form"
+      ],
+      "alternatives": [
+        "Conservative or weak formulation",
+        "Variable-coefficient or coupled multiphysics formulation",
+        "Discrete finite-volume, finite-element, or spectral approximation"
+      ],
+      "validation": [
+        "Check every term dimensionally",
+        "Check initial/boundary compatibility and conservation constraints",
+        "Compare analytic benchmarks and perform mesh/time-step refinement"
+      ],
+      "uncertainty": [
+        "Parameter and boundary-condition uncertainty",
+        "Model-form and numerical-discretization error"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT PDE course covers heat, wave, Laplace, Poisson, transport, and related PDE theory.",
+          "citation": "S27 · MIT 18.152",
+          "doi_or_url": "https://ocw.mit.edu/courses/18-152-introduction-to-partial-differential-equations-fall-2011/pages/lecture-notes/"
+        },
+        {
+          "claim": "MIT numerical PDE course covers heat, wave, transport, conservation laws, stability, and Navier-Stokes methods.",
+          "citation": "S28 · MIT 18.336",
+          "doi_or_url": "https://ocw.mit.edu/courses/18-336-numerical-methods-for-partial-differential-equations-spring-2009/pages/lecture-notes/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Course sources support the equation family, but no application-specific calibration, independent numerical reproduction, empirical validation, or formal proof has been completed."
+    },
+    {
+      "id": "RWEA-034",
+      "domain": "wave physics",
+      "application": "Linear wave propagation",
+      "model_family": "linear_wave_equation",
+      "equations": [
+        "∂²u/∂t² = c²∇²u + f"
+      ],
+      "variables": [
+        {
+          "symbol": "u",
+          "meaning": "u variable",
+          "unit": "field amplitude",
+          "dimension": "application-specific; verify per component"
+        },
+        {
+          "symbol": "c",
+          "meaning": "c variable",
+          "unit": "m/s",
+          "dimension": "application-specific; verify per component"
+        },
+        {
+          "symbol": "f",
+          "meaning": "f variable",
+          "unit": "u/s^2",
+          "dimension": "application-specific; verify per component"
+        }
+      ],
+      "assumptions": [
+        "Continuum or field approximation is appropriate",
+        "Spatial domain, coordinate frame, and units are declared",
+        "Constitutive relations and sign conventions are stated explicitly"
+      ],
+      "initial_conditions": "Specify the required initial field for time-dependent problems; not applicable to static elliptic equations.",
+      "boundary_conditions": "Specify physically appropriate Dirichlet, Neumann, inflow/outflow, interface, or radiation conditions.",
+      "validity_regime": "Linear small-amplitude wave in a homogeneous medium; damping and dispersion omitted.",
+      "intuition": "Linear small-amplitude wave in a homogeneous medium; damping and dispersion omitted.",
+      "applications": [
+        "Acoustics, elastic waves, idealized field propagation."
+      ],
+      "limitations": [
+        "The base equation omits application-specific constitutive, boundary, and parameter identification work",
+        "No empirical validation is implied by the equation form"
+      ],
+      "alternatives": [
+        "Conservative or weak formulation",
+        "Variable-coefficient or coupled multiphysics formulation",
+        "Discrete finite-volume, finite-element, or spectral approximation"
+      ],
+      "validation": [
+        "Check every term dimensionally",
+        "Check initial/boundary compatibility and conservation constraints",
+        "Compare analytic benchmarks and perform mesh/time-step refinement"
+      ],
+      "uncertainty": [
+        "Parameter and boundary-condition uncertainty",
+        "Model-form and numerical-discretization error"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT PDE course covers heat, wave, Laplace, Poisson, transport, and related PDE theory.",
+          "citation": "S27 · MIT 18.152",
+          "doi_or_url": "https://ocw.mit.edu/courses/18-152-introduction-to-partial-differential-equations-fall-2011/pages/lecture-notes/"
+        },
+        {
+          "claim": "MIT numerical PDE course covers heat, wave, transport, conservation laws, stability, and Navier-Stokes methods.",
+          "citation": "S28 · MIT 18.336",
+          "doi_or_url": "https://ocw.mit.edu/courses/18-336-numerical-methods-for-partial-differential-equations-spring-2009/pages/lecture-notes/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Course sources support the equation family, but no application-specific calibration, independent numerical reproduction, empirical validation, or formal proof has been completed."
+    },
+    {
+      "id": "RWEA-035",
+      "domain": "potential theory",
+      "application": "Laplace equation",
+      "model_family": "laplace_equation",
+      "equations": [
+        "∇²φ = 0"
+      ],
+      "variables": [
+        {
+          "symbol": "φ",
+          "meaning": "φ variable",
+          "unit": "scalar potential",
+          "dimension": "application-specific; verify per component"
+        },
+        {
+          "symbol": "∇²",
+          "meaning": "∇² variable",
+          "unit": "m^-2",
+          "dimension": "application-specific; verify per component"
+        }
+      ],
+      "assumptions": [
+        "Continuum or field approximation is appropriate",
+        "Spatial domain, coordinate frame, and units are declared",
+        "Constitutive relations and sign conventions are stated explicitly"
+      ],
+      "initial_conditions": "Specify the required initial field for time-dependent problems; not applicable to static elliptic equations.",
+      "boundary_conditions": "Specify physically appropriate Dirichlet, Neumann, inflow/outflow, interface, or radiation conditions.",
+      "validity_regime": "Static source-free elliptic field; boundary data determine the solution.",
+      "intuition": "Static source-free elliptic field; boundary data determine the solution.",
+      "applications": [
+        "Electrostatic potential in charge-free regions, steady source-free temperature."
+      ],
+      "limitations": [
+        "The base equation omits application-specific constitutive, boundary, and parameter identification work",
+        "No empirical validation is implied by the equation form"
+      ],
+      "alternatives": [
+        "Conservative or weak formulation",
+        "Variable-coefficient or coupled multiphysics formulation",
+        "Discrete finite-volume, finite-element, or spectral approximation"
+      ],
+      "validation": [
+        "Check every term dimensionally",
+        "Check initial/boundary compatibility and conservation constraints",
+        "Compare analytic benchmarks and perform mesh/time-step refinement"
+      ],
+      "uncertainty": [
+        "Parameter and boundary-condition uncertainty",
+        "Model-form and numerical-discretization error"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT PDE course covers heat, wave, Laplace, Poisson, transport, and related PDE theory.",
+          "citation": "S27 · MIT 18.152",
+          "doi_or_url": "https://ocw.mit.edu/courses/18-152-introduction-to-partial-differential-equations-fall-2011/pages/lecture-notes/"
+        },
+        {
+          "claim": "MIT numerical PDE course covers heat, wave, transport, conservation laws, stability, and Navier-Stokes methods.",
+          "citation": "S28 · MIT 18.336",
+          "doi_or_url": "https://ocw.mit.edu/courses/18-336-numerical-methods-for-partial-differential-equations-spring-2009/pages/lecture-notes/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Course sources support the equation family, but no application-specific calibration, independent numerical reproduction, empirical validation, or formal proof has been completed."
+    },
+    {
+      "id": "RWEA-036",
+      "domain": "potential theory",
+      "application": "Poisson equation",
+      "model_family": "poisson_equation",
+      "equations": [
+        "∇²φ = f"
+      ],
+      "variables": [
+        {
+          "symbol": "φ",
+          "meaning": "φ variable",
+          "unit": "scalar potential",
+          "dimension": "application-specific; verify per component"
+        },
+        {
+          "symbol": "f",
+          "meaning": "f variable",
+          "unit": "φ/m^2",
+          "dimension": "application-specific; verify per component"
+        }
+      ],
+      "assumptions": [
+        "Continuum or field approximation is appropriate",
+        "Spatial domain, coordinate frame, and units are declared",
+        "Constitutive relations and sign conventions are stated explicitly"
+      ],
+      "initial_conditions": "Specify the required initial field for time-dependent problems; not applicable to static elliptic equations.",
+      "boundary_conditions": "Specify physically appropriate Dirichlet, Neumann, inflow/outflow, interface, or radiation conditions.",
+      "validity_regime": "Static elliptic field with specified source and boundary conditions.",
+      "intuition": "Static elliptic field with specified source and boundary conditions.",
+      "applications": [
+        "Electrostatics, Newtonian gravity, steady heat generation."
+      ],
+      "limitations": [
+        "The base equation omits application-specific constitutive, boundary, and parameter identification work",
+        "No empirical validation is implied by the equation form"
+      ],
+      "alternatives": [
+        "Conservative or weak formulation",
+        "Variable-coefficient or coupled multiphysics formulation",
+        "Discrete finite-volume, finite-element, or spectral approximation"
+      ],
+      "validation": [
+        "Check every term dimensionally",
+        "Check initial/boundary compatibility and conservation constraints",
+        "Compare analytic benchmarks and perform mesh/time-step refinement"
+      ],
+      "uncertainty": [
+        "Parameter and boundary-condition uncertainty",
+        "Model-form and numerical-discretization error"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT PDE course covers heat, wave, Laplace, Poisson, transport, and related PDE theory.",
+          "citation": "S27 · MIT 18.152",
+          "doi_or_url": "https://ocw.mit.edu/courses/18-152-introduction-to-partial-differential-equations-fall-2011/pages/lecture-notes/"
+        },
+        {
+          "claim": "MIT numerical PDE course covers heat, wave, transport, conservation laws, stability, and Navier-Stokes methods.",
+          "citation": "S28 · MIT 18.336",
+          "doi_or_url": "https://ocw.mit.edu/courses/18-336-numerical-methods-for-partial-differential-equations-spring-2009/pages/lecture-notes/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Course sources support the equation family, but no application-specific calibration, independent numerical reproduction, empirical validation, or formal proof has been completed."
+    },
+    {
+      "id": "RWEA-037",
+      "domain": "fluid mechanics",
+      "application": "Linear advection",
+      "model_family": "linear_advection",
+      "equations": [
+        "∂u/∂t + a·∇u = 0"
+      ],
+      "variables": [
+        {
+          "symbol": "u",
+          "meaning": "u variable",
+          "unit": "advected scalar",
+          "dimension": "application-specific; verify per component"
+        },
+        {
+          "symbol": "a",
+          "meaning": "a variable",
+          "unit": "velocity m/s",
+          "dimension": "application-specific; verify per component"
+        },
+        {
+          "symbol": "∇",
+          "meaning": "∇ variable",
+          "unit": "m^-1",
+          "dimension": "application-specific; verify per component"
+        }
+      ],
+      "assumptions": [
+        "Continuum or field approximation is appropriate",
+        "Spatial domain, coordinate frame, and units are declared",
+        "Constitutive relations and sign conventions are stated explicitly"
+      ],
+      "initial_conditions": "Specify the required initial field for time-dependent problems; not applicable to static elliptic equations.",
+      "boundary_conditions": "Specify physically appropriate Dirichlet, Neumann, inflow/outflow, interface, or radiation conditions.",
+      "validity_regime": "Constant-velocity transport without diffusion or source.",
+      "intuition": "Constant-velocity transport without diffusion or source.",
+      "applications": [
+        "Passive tracers, simplified traffic and signal propagation."
+      ],
+      "limitations": [
+        "The base equation omits application-specific constitutive, boundary, and parameter identification work",
+        "No empirical validation is implied by the equation form"
+      ],
+      "alternatives": [
+        "Conservative or weak formulation",
+        "Variable-coefficient or coupled multiphysics formulation",
+        "Discrete finite-volume, finite-element, or spectral approximation"
+      ],
+      "validation": [
+        "Check every term dimensionally",
+        "Check initial/boundary compatibility and conservation constraints",
+        "Compare analytic benchmarks and perform mesh/time-step refinement"
+      ],
+      "uncertainty": [
+        "Parameter and boundary-condition uncertainty",
+        "Model-form and numerical-discretization error"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT PDE course covers heat, wave, Laplace, Poisson, transport, and related PDE theory.",
+          "citation": "S27 · MIT 18.152",
+          "doi_or_url": "https://ocw.mit.edu/courses/18-152-introduction-to-partial-differential-equations-fall-2011/pages/lecture-notes/"
+        },
+        {
+          "claim": "MIT numerical PDE course covers heat, wave, transport, conservation laws, stability, and Navier-Stokes methods.",
+          "citation": "S28 · MIT 18.336",
+          "doi_or_url": "https://ocw.mit.edu/courses/18-336-numerical-methods-for-partial-differential-equations-spring-2009/pages/lecture-notes/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Course sources support the equation family, but no application-specific calibration, independent numerical reproduction, empirical validation, or formal proof has been completed."
+    },
+    {
+      "id": "RWEA-038",
+      "domain": "fluid mechanics",
+      "application": "Incompressible Newtonian Navier-Stokes",
+      "model_family": "incompressible_navier_stokes",
+      "equations": [
+        "∇·u = 0",
+        "ρ(∂u/∂t + (u·∇)u) = -∇p + μ∇²u + ρg"
+      ],
+      "variables": [
+        {
+          "symbol": "u",
+          "meaning": "u variable",
+          "unit": "m/s",
+          "dimension": "application-specific; verify per component"
+        },
+        {
+          "symbol": "ρ",
+          "meaning": "ρ variable",
+          "unit": "kg/m^3",
+          "dimension": "application-specific; verify per component"
+        },
+        {
+          "symbol": "p",
+          "meaning": "p variable",
+          "unit": "Pa",
+          "dimension": "application-specific; verify per component"
+        },
+        {
+          "symbol": "μ",
+          "meaning": "μ variable",
+          "unit": "Pa s",
+          "dimension": "application-specific; verify per component"
+        },
+        {
+          "symbol": "g",
+          "meaning": "g variable",
+          "unit": "m/s^2",
+          "dimension": "application-specific; verify per component"
+        }
+      ],
+      "assumptions": [
+        "Continuum or field approximation is appropriate",
+        "Spatial domain, coordinate frame, and units are declared",
+        "Constitutive relations and sign conventions are stated explicitly"
+      ],
+      "initial_conditions": "Specify the required initial field for time-dependent problems; not applicable to static elliptic equations.",
+      "boundary_conditions": "Specify physically appropriate Dirichlet, Neumann, inflow/outflow, interface, or radiation conditions.",
+      "validity_regime": "Constant-density incompressible Newtonian continuum flow.",
+      "intuition": "Constant-density incompressible Newtonian continuum flow.",
+      "applications": [
+        "Pipe flow, aerodynamics, hydrodynamics, mixing."
+      ],
+      "limitations": [
+        "The base equation omits application-specific constitutive, boundary, and parameter identification work",
+        "No empirical validation is implied by the equation form"
+      ],
+      "alternatives": [
+        "Conservative or weak formulation",
+        "Variable-coefficient or coupled multiphysics formulation",
+        "Discrete finite-volume, finite-element, or spectral approximation"
+      ],
+      "validation": [
+        "Check every term dimensionally",
+        "Check initial/boundary compatibility and conservation constraints",
+        "Compare analytic benchmarks and perform mesh/time-step refinement"
+      ],
+      "uncertainty": [
+        "Parameter and boundary-condition uncertainty",
+        "Model-form and numerical-discretization error"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT PDE course covers heat, wave, Laplace, Poisson, transport, and related PDE theory.",
+          "citation": "S27 · MIT 18.152",
+          "doi_or_url": "https://ocw.mit.edu/courses/18-152-introduction-to-partial-differential-equations-fall-2011/pages/lecture-notes/"
+        },
+        {
+          "claim": "MIT numerical PDE course covers heat, wave, transport, conservation laws, stability, and Navier-Stokes methods.",
+          "citation": "S28 · MIT 18.336",
+          "doi_or_url": "https://ocw.mit.edu/courses/18-336-numerical-methods-for-partial-differential-equations-spring-2009/pages/lecture-notes/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Course sources support the equation family, but no application-specific calibration, independent numerical reproduction, empirical validation, or formal proof has been completed."
+    },
+    {
+      "id": "RWEA-039",
+      "domain": "electromagnetism",
+      "application": "Maxwell equations in differential form",
+      "model_family": "maxwell_differential",
+      "equations": [
+        "∇·E = ρe/ε0",
+        "∇·B = 0",
+        "∇×E = -∂B/∂t",
+        "∇×B = μ0 J + μ0 ε0 ∂E/∂t"
+      ],
+      "variables": [
+        {
+          "symbol": "E",
+          "meaning": "E variable",
+          "unit": "V/m",
+          "dimension": "application-specific; verify per component"
+        },
+        {
+          "symbol": "B",
+          "meaning": "B variable",
+          "unit": "T",
+          "dimension": "application-specific; verify per component"
+        },
+        {
+          "symbol": "ρe",
+          "meaning": "ρe variable",
+          "unit": "C/m^3",
+          "dimension": "application-specific; verify per component"
+        },
+        {
+          "symbol": "J",
+          "meaning": "J variable",
+          "unit": "A/m^2",
+          "dimension": "application-specific; verify per component"
+        },
+        {
+          "symbol": "ε0",
+          "meaning": "ε0 variable",
+          "unit": "F/m",
+          "dimension": "application-specific; verify per component"
+        },
+        {
+          "symbol": "μ0",
+          "meaning": "μ0 variable",
+          "unit": "N/A^2",
+          "dimension": "application-specific; verify per component"
+        }
+      ],
+      "assumptions": [
+        "Continuum or field approximation is appropriate",
+        "Spatial domain, coordinate frame, and units are declared",
+        "Constitutive relations and sign conventions are stated explicitly"
+      ],
+      "initial_conditions": "Specify the required initial field for time-dependent problems; not applicable to static elliptic equations.",
+      "boundary_conditions": "Specify physically appropriate Dirichlet, Neumann, inflow/outflow, interface, or radiation conditions.",
+      "validity_regime": "Classical vacuum form; material media require constitutive relations.",
+      "intuition": "Classical vacuum form; material media require constitutive relations.",
+      "applications": [
+        "Antennas, optics, motors, wireless systems."
+      ],
+      "limitations": [
+        "The base equation omits application-specific constitutive, boundary, and parameter identification work",
+        "No empirical validation is implied by the equation form"
+      ],
+      "alternatives": [
+        "Conservative or weak formulation",
+        "Variable-coefficient or coupled multiphysics formulation",
+        "Discrete finite-volume, finite-element, or spectral approximation"
+      ],
+      "validation": [
+        "Check every term dimensionally",
+        "Check initial/boundary compatibility and conservation constraints",
+        "Compare analytic benchmarks and perform mesh/time-step refinement"
+      ],
+      "uncertainty": [
+        "Parameter and boundary-condition uncertainty",
+        "Model-form and numerical-discretization error"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT course notes cover integral and differential Maxwell equations and electromagnetic field formulations.",
+          "citation": "S29 · MIT 6.641",
+          "doi_or_url": "https://ocw.mit.edu/courses/6-641-electromagnetic-fields-forces-and-motion-spring-2009/resources/lecture-notes/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Course sources support the equation family, but no application-specific calibration, independent numerical reproduction, empirical validation, or formal proof has been completed."
+    },
+    {
+      "id": "RWEA-040",
+      "domain": "electromagnetism",
+      "application": "Poynting energy balance",
+      "model_family": "poynting_theorem",
+      "equations": [
+        "∂u_em/∂t + ∇·S = -J·E",
+        "u_em = 1/2(ε0|E|² + |B|²/μ0)",
+        "S = (1/μ0)(E×B)"
+      ],
+      "variables": [
+        {
+          "symbol": "u_em",
+          "meaning": "u_em variable",
+          "unit": "J/m^3",
+          "dimension": "application-specific; verify per component"
+        },
+        {
+          "symbol": "S",
+          "meaning": "S variable",
+          "unit": "W/m^2",
+          "dimension": "application-specific; verify per component"
+        },
+        {
+          "symbol": "J",
+          "meaning": "J variable",
+          "unit": "A/m^2",
+          "dimension": "application-specific; verify per component"
+        },
+        {
+          "symbol": "E",
+          "meaning": "E variable",
+          "unit": "V/m",
+          "dimension": "application-specific; verify per component"
+        },
+        {
+          "symbol": "B",
+          "meaning": "B variable",
+          "unit": "T",
+          "dimension": "application-specific; verify per component"
+        }
+      ],
+      "assumptions": [
+        "Continuum or field approximation is appropriate",
+        "Spatial domain, coordinate frame, and units are declared",
+        "Constitutive relations and sign conventions are stated explicitly"
+      ],
+      "initial_conditions": "Specify the required initial field for time-dependent problems; not applicable to static elliptic equations.",
+      "boundary_conditions": "Specify physically appropriate Dirichlet, Neumann, inflow/outflow, interface, or radiation conditions.",
+      "validity_regime": "Vacuum energy density and flux; dispersive and nonlinear material terms excluded.",
+      "intuition": "Vacuum energy density and flux; dispersive and nonlinear material terms excluded.",
+      "applications": [
+        "Waveguides, antennas, radiated power, field-energy simulations."
+      ],
+      "limitations": [
+        "The base equation omits application-specific constitutive, boundary, and parameter identification work",
+        "No empirical validation is implied by the equation form"
+      ],
+      "alternatives": [
+        "Conservative or weak formulation",
+        "Variable-coefficient or coupled multiphysics formulation",
+        "Discrete finite-volume, finite-element, or spectral approximation"
+      ],
+      "validation": [
+        "Check every term dimensionally",
+        "Check initial/boundary compatibility and conservation constraints",
+        "Compare analytic benchmarks and perform mesh/time-step refinement"
+      ],
+      "uncertainty": [
+        "Parameter and boundary-condition uncertainty",
+        "Model-form and numerical-discretization error"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT course notes cover integral and differential Maxwell equations and electromagnetic field formulations.",
+          "citation": "S29 · MIT 6.641",
+          "doi_or_url": "https://ocw.mit.edu/courses/6-641-electromagnetic-fields-forces-and-motion-spring-2009/resources/lecture-notes/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Course sources support the equation family, but no application-specific calibration, independent numerical reproduction, empirical validation, or formal proof has been completed."
+    }
+  ]
+}

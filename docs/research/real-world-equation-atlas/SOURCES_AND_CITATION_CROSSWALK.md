@@ -1,0 +1,190 @@
+# Authoritative source register and equation crosswalk
+
+**Citation policy:** a source supports only the claims and equation families actually covered by its content. A citation to a broad course or standard is not evidence that every application-specific model has been validated. Uncovered entries remain explicitly marked for primary-source completion.
+
+## Source register
+
+- **S01 — Convex optimization:** MIT OpenCourseWare, *Introduction to Convex Optimization* (6.079, Fall 2009). Covers convex modeling, least squares, linear/quadratic/semidefinite programs, optimality and duality, and scientific/engineering applications. https://ocw.mit.edu/courses/6-079-introduction-to-convex-optimization-fall-2009/
+- **S02 — Convex optimization text:** Boyd & Vandenberghe, *Convex Optimization*, Stanford-hosted author resource and examples. https://web.stanford.edu/~boyd/cvxbook/
+- **S03 — SI dimensions and units:** NIST, *Guide to the SI*, Chapter 7, dimensions and dimensional exponents. https://www.nist.gov/pml/special-publication-811/nist-guide-si-chapter-7-rules-and-style-conventions-expressing-values
+- **S04 — SI base quantities:** NIST, *The International System of Units (SI), SP 330*, including seven base quantities and derived dimensions. https://www.nist.gov/pml/special-publication-330/sp-330-section-2
+- **S05 — Uncertainty propagation:** NIST TN 1297, Appendix A, law of propagation of uncertainty. https://www.nist.gov/pml/nist-technical-note-1297/nist-tn-1297-appendix-law-propagation-uncertainty
+- **S06 — Measurement uncertainty:** Possolo, NIST TN 1900, measurement models and uncertainty evaluation. https://doi.org/10.6028/NIST.TN.1900
+- **S07 — SymPy dimensional system:** SymPy 1.14 documentation, physical dimensions and unit systems. https://docs.sympy.org/latest/modules/physics/units/dimensions.html
+- **S08 — Applied PDEs and numerical methods:** MIT OCW 18.086, *Mathematical Methods for Engineers II*: heat, wave, convection, conservation laws, stability, finite differences, Fourier methods, sparse linear systems, optimization. https://ocw.mit.edu/courses/18-086-mathematical-methods-for-engineers-ii-spring-2006/
+- **S09 — NASA state estimation:** NASA Technical Memorandum 2022-0007267, Kalman filter appendix, LTI state-space model, discretization, noise assumptions and covariance updates. https://ntrs.nasa.gov/api/citations/20220007267/downloads/NASA-TM-20220007267.pdf
+- **S10 — Sampling and DSP:** IEEE Technology Navigator, digital signal processing and sampling theorem overview. https://technav.ieee.org/area/digital-signal-processing/
+- **S11 — Sampling theorem teaching reference:** Carnegie Mellon University, *The Nyquist-Shannon Sampling Theorem*. https://www.cs.cmu.edu/~15322/book/ch07/01.html
+- **S12 — Reproducible random streams:** NumPy documentation, Generator and seeded default_rng. https://numpy.org/doc/stable/reference/random/generator.html
+- **S13 — Logistic growth:** OpenStax, *Calculus Volume 2*, Section 4.4, logistic equation, carrying capacity, initial-value solution and interpretation. https://openstax.org/books/calculus-volume-2/pages/4-4-the-logistic-equation
+- **S14 — Enzyme kinetics context:** OpenStax Biology, Section 6.5, enzyme catalysis and reaction-rate context. https://openstax.org/books/biology/pages/6-5-enzymes
+- **S15 — Michaelis–Menten derivation/context:** Chemistry LibreTexts, Michaelis–Menten kinetics and reaction scheme. https://chem.libretexts.org/Bookshelves/Biological_Chemistry/Supplemental_Modules_%28Biological_Chemistry%29/Enzymes/Enzymatic_Kinetics/Michaelis-Menten_Kinetics
+- **S16 — Spectral graph theory:** Carnegie Mellon University lecture notes, graph Laplacian, eigenvalues and connectivity. https://www.cs.cmu.edu/~venkatg/teaching/15252-sp21/notes/spectral-GT-spring2020.pdf
+- **S17 — Spectral graph theory applications:** Simons Institute / UC Berkeley, spectral graph theory, expanders, eigenvalues and graph partitioning. https://simons.berkeley.edu/spectral-graph-theory
+- **S18 — Lean formalization background:** *Mathematics in Lean*, linear algebra, modules, matrices and vector spaces. https://mathlib.org/theories/linear_algebra.html
+- **S19 — Post-quantum lattice standard:** NIST FIPS 203, ML-KEM and Module Learning with Errors basis. https://csrc.nist.gov/pubs/fips/203/final
+- **S20 — Relativity/geometric equations:** NASA Glenn, field equations and equations of motion (educational introduction; use primary GR texts/papers for technical validation). https://www.grc.nasa.gov/WWW/k-12/Numbers/Math/Mathematical_Thinking/field_equations.htm
+- **S21 — Einstein field equation technical reference:** NASA/JPL-hosted technical document on Einstein field equations, metric, energy-momentum and curvature tensors. https://spsweb.fltops.jpl.nasa.gov/portaldataops/mpg/MPG_Docs/Source%20Docs/Einstein%27s%20Field%20Equations.pdf
+
+## Equation-ID crosswalk
+
+| Atlas IDs | Source mapping | Evidence boundary / remaining source work |
+|---|---|---|
+| 001–010 | S01, S02, S03, S05 | Optimization and estimation foundations supported; add domain-specific references for finance/robust decision applications. |
+| 011–020 | S03, S04, S16, S17, S18 | Linear algebra, graph Laplacian and dimensions supported; add primary references for each geometric construction. |
+| 021–030 | S03, S09 | State-space and Kalman model supported; PID/LQR/robot dynamics/kinematics need specialist control and robotics references per entry. |
+| 031–040 | S03, S08 | Conservation, heat, wave, finite-difference/PDE foundations supported; Maxwell and constitutive relations require EM primary references. |
+| 041–050 | S03, S07, S10, S11, S12 | Sampling, transform and dimensional computation foundations supported; entropy/coding/complexity need dedicated sources per entry. |
+| 051–060 | S03, S08 | FEM/numerical methods supported at course level; elasticity, fatigue, fracture, buckling and AM process laws need standards/material-specific primary sources. |
+| 061–070 | S03, S13, S14, S15 | Logistic growth and enzyme kinetics context supported; SIR, Lotka–Volterra, gene regulation, PK and allometry need dedicated domain sources. |
+| 071–080 | S03, S08 | Network linear algebra foundations supported; shortest path, queueing, reliability, inventory and input-output require dedicated OR/engineering references. |
+| 081–090 | S03, S05 | Uncertainty and statistical foundations supported; CAPM, VaR, survival and regression require finance/statistics primary references. |
+| 091–100 | S03, S18, S19, S20, S21 | Tensor/linear-algebra, lattice standard and introductory relativity references supported; Floquet, geometric algebra and equivariant ML need dedicated references. |
+
+## Status
+
+This is a source-to-entry crosswalk, not a claim that every entry has already received a complete primary-source audit. Entries with explicit gaps must remain UNVERIFIED for application-specific use until a source directly supports the model, assumptions, and regime. The source register should be expanded entry-by-entry before a production promotion.
+
+
+## Additional sources for RWEA-021–030
+
+- **S22 — Linear systems and feedback control:** MIT OpenCourseWare, 16.30 *Feedback Control Systems*, Fall 2010, lecture notes on state-space models, controllability, state feedback, estimators, LQR, LQG, and digital control. https://ocw.mit.edu/courses/16-30-feedback-control-systems-fall-2010/pages/lecture-notes/
+- **S23 — Robot kinematics and rigid-body transformations:** Kevin M. Lynch and Frank C. Park, *Modern Robotics*, Northwestern University/Cambridge University Press online chapter supplements; Chapters 3–6 cover rigid-body motions, product-of-exponentials forward kinematics, Jacobians, singularities, and inverse kinematics. https://modernrobotics.northwestern.edu/nu-gm-book-resource/
+- **S24 — Multibody and manipulator dynamics:** Russ Tedrake, MIT, *Underactuated Robotics*, “Multi-Body Dynamics,” Lagrangian equations and manipulator equations. https://underactuated.mit.edu/multibody.html
+- **S25 — PID control:** Karl J. Åström and Richard M. Murray, *Feedback Systems*, Caltech, introductory feedback-control text and PID control treatment. https://www.cds.caltech.edu/~murray/books/AM08/pdf/am08-intro_09Aug12.pdf
+- **S26 — Manipulator stiffness and impedance control:** Russ Tedrake, MIT, *Robotic Manipulation*, Chapter 8 “Manipulator Control,” including joint stiffness control and generalized manipulator dynamics. https://manipulation.mit.edu/force.html
+
+## Equation-ID crosswalk additions
+
+| Atlas IDs | Source mapping | Evidence boundary / remaining source work |
+|---|---|---|
+| 021 | S22 | Supports continuous-time state-space modeling; application-specific state/input units and model identification remain to be supplied. |
+| 022 | S22, S09 | Supports discrete state-space and estimation context; discretization method and process/measurement noise assumptions must be specified per system. |
+| 023 | S09, S22 | Supports Kalman filtering/state estimation; covariance units, noise assumptions, and observability must be checked for each application. |
+| 024 | S25, S22 | Supports ideal PID form and feedback context; practical derivative filtering, saturation, anti-windup, and tuning are implementation-specific. |
+| 025 | S22 | Supports deterministic LQR formulation; stabilizability/detectability, cost-matrix dimensions, and continuous/discrete convention must be stated. |
+| 026 | S23 | Supports product-of-exponentials forward kinematics; robot-specific screw axes, home pose, frame conventions, and joint units are required. |
+| 027 | S23 | Supports Jacobian velocity mapping; distinguish body/space Jacobian and mixed revolute/prismatic joint units. |
+| 028 | S23 | Supports numerical inverse kinematics; local convergence, singularities, joint limits, and solution selection are application-dependent. |
+| 029 | S24, S23 | Supports Lagrangian manipulator dynamics; friction, actuator mapping, contact, constraints, and sign conventions require model-specific treatment. |
+| 030 | S26 | Supports joint-space stiffness/PD control; gain units, gravity compensation, actuator limits, and closed-loop stability require robot-specific validation. |
+
+
+## Additional sources for RWEA-031–040
+
+- **S27 — Partial differential equations:** MIT OpenCourseWare, 18.152 *Introduction to Partial Differential Equations*, Fall 2011. Lecture sequence covers heat, Laplace, Poisson, wave, transport, and related PDE theory. https://ocw.mit.edu/courses/18-152-introduction-to-partial-differential-equations-fall-2011/pages/lecture-notes/
+- **S28 — Numerical PDEs and conservation laws:** MIT OpenCourseWare, 18.336 *Numerical Methods for Partial Differential Equations*, Spring 2009. Covers heat, transport, wave, stability, conservation-law theory and numerical methods, and Navier–Stokes discretization. https://ocw.mit.edu/courses/18-336-numerical-methods-for-partial-differential-equations-spring-2009/pages/lecture-notes/
+- **S29 — Electromagnetic fields and Maxwell equations:** MIT OpenCourseWare, 6.641 *Electromagnetic Fields, Forces, and Motion*, Spring 2009. Includes integral and differential Maxwell equations, field boundary conditions, and electromagnetic energy/field topics. https://ocw.mit.edu/courses/6-641-electromagnetic-fields-forces-and-motion-spring-2009/resources/lecture-notes/
+
+## Equation-ID crosswalk additions
+
+| Atlas IDs | Source mapping | Evidence boundary / remaining source work |
+|---|---|---|
+| 031 | S27, S28 | Local conservation balance supported at PDE-course level; flux constitutive law and source terms remain application-specific. |
+| 032 | S27, S28 | Heat equation supported; anisotropy, phase change, radiation, and material-property calibration require separate treatment. |
+| 033 | S27, S28 | Advection-diffusion family supported; turbulence closures and reaction kinetics need application-specific sources. |
+| 034 | S27, S28 | Linear wave equation supported; damping, dispersion, material constitutive laws, and boundary reflections remain model-specific. |
+| 035 | S27 | Laplace equation and elliptic theory supported; physical interpretation and boundary uniqueness must be checked per use. |
+| 036 | S27 | Poisson equation and Green-function context supported; source sign, gauge, and boundary compatibility require per-domain review. |
+| 037 | S27, S28 | Transport/advection family supported; conservative versus nonconservative form depends on variable velocity and physical density. |
+| 038 | S28 | Numerical Navier–Stokes methods supported at course level; turbulence closure, rheology, compressibility, and boundary conditions remain unresolved per case. |
+| 039 | S29 | MIT notes cover differential Maxwell equations; macroscopic material constitutive relations and interface conditions need separate review. |
+| 040 | S29 | Maxwell field framework supports derivation context; Poynting theorem and material-medium energy expressions require a dedicated derivation and sign-convention audit. |
+
+
+## Additional sources for RWEA-041–050
+
+- **S30 — Fourier representations, filtering, and sampling:** MIT OpenCourseWare, 6.003 *Signals and Systems*, Fall 2011. Lecture notes cover Fourier representations, Fourier series/transforms, convolution, filtering, frequency response, discrete-time representations, and sampling. https://ocw.mit.edu/courses/6-003-signals-and-systems-fall-2011/pages/lecture-notes/
+- **S31 — Sampling theorem and reconstruction:** MIT OpenCourseWare, 2.161 *Signal Processing: Continuous and Discrete*, Fall 2008, Lecture 10. The lecture handout develops the band-limited sampling theorem, reconstruction conditions, and discrete Fourier transform. https://ocw.mit.edu/courses/2-161-signal-processing-continuous-and-discrete-fall-2008/2934569026a399e9062597924c730a78_lecture_10.pdf
+- **S32 — Entropy, coding, quantization, Fourier and sampling:** MIT OpenCourseWare, 6.450 *Principles of Digital Communication I*, Fall 2009. Lecture notes include Fourier transforms, sampling, entropy, source coding, quantization, random processes, and mutual information-related communication theory. https://ocw.mit.edu/courses/6-450-principles-of-digital-communication-i-fall-2009/pages/lecture-notes/
+
+## Equation-ID crosswalk additions
+
+| Atlas IDs | Source mapping | Evidence boundary / remaining source work |
+|---|---|---|
+| 041 | S30 | Fourier series representation supported; convergence mode and endpoint conventions require explicit treatment for discontinuous signals. |
+| 042 | S30 | Fourier transform and inverse convention supported; normalization and generalized-function assumptions must be stated. |
+| 043 | S30 | Convolution and LTI systems supported; zero-state assumptions and impulse normalization must be explicit. |
+| 044 | S30 | Frequency response and filtering supported; stability, causality, and realization are separate properties. |
+| 045 | S30, S31 | DFT family supported; normalization, periodic extension, leakage, and bin-to-frequency mapping require exact conventions. |
+| 046 | S31, S30 | Band-limited sampling theorem supported; ideal assumptions differ from practical anti-alias filters and finite precision systems. |
+| 047 | S32 | Quantization topics supported; Δ²/12 is only the ideal uniform-error model under stated assumptions, not a universal converter-noise law. |
+| 048 | S32 | Discrete source entropy supported; log base determines units and finite-sample estimation bias is not addressed by the formula. |
+| 049 | S32 | Information-theory source materials support the topic; joint-distribution identities and finite-sample estimators need separate reproducible checks. |
+| 050 | S30, S32 | Spectral analysis and random-process material support the topic; PSD normalization, stationarity, ergodicity, and one-/two-sided conventions need explicit audit. |
+
+
+## Additional sources for RWEA-051–060
+
+- **S33 — Finite and continuous-time Markov chains:** MIT OpenCourseWare 18.445, *Introduction to Stochastic Processes*, Spring 2015. Lecture notes include finite Markov chains, stationary distributions, reversibility, mixing, Poisson processes, continuous-time chains, and martingales. https://www.ocw.mit.edu/courses/18-445-introduction-to-stochastic-processes-spring-2015/resources/lecture-notes/
+- **S34 — Brownian motion and stochastic calculus:** MIT OpenCourseWare 15.070J / 6.265J, *Advanced Stochastic Processes*, Fall 2013. Lecture sequence includes Brownian motion, quadratic variation, martingales, Itô calculus, and stochastic integrals. https://ocw.mit.edu/courses/15-070j-advanced-stochastic-processes-fall-2013/
+- **S35 — Langevin, Fokker–Planck, and nonequilibrium thermodynamics:** MIT OpenCourseWare 5.72, *Non-Equilibrium Statistical Mechanics*, Spring 2012. Course notes include stochastic processes, Brownian motion, Markov processes, master and Fokker–Planck equations, Langevin equations, and nonequilibrium thermodynamics. https://ocw.mit.edu/courses/5-72-non-equilibrium-statistical-mechanics-spring-2012/
+- **S36 — Bayesian probability and estimation foundations:** MIT OpenCourseWare 6.041SC, *Probabilistic Systems Analysis and Applied Probability*, Fall 2013. Reading and lecture materials provide probability, conditional probability, random variables, and inference foundations. https://ocw.mit.edu/courses/6-041sc-probabilistic-systems-analysis-and-applied-probability-fall-2013/pages/readings/
+
+## Equation-ID crosswalk additions
+
+| Atlas IDs | Source mapping | Evidence boundary / remaining source work |
+|---|---|---|
+| 051–052 | S33 | Markov transition and stationary/reversible chain theory supported; irreducibility, periodicity, and state-space conditions must be checked for each use. |
+| 053 | S33 | Poisson process covered in stochastic-process curriculum; homogeneous-rate and independent-increment assumptions remain explicit. |
+| 054 | S34 | Brownian motion, increments, and quadratic variation covered; physical diffusion limits require scale-separation justification. |
+| 055 | S34, S35 | Itô/Langevin family supported; stochastic convention, noise interpretation, and boundary behavior require model-specific derivation. |
+| 056 | S35 | Fokker–Planck equation and stochastic diffusion covered; probability-current boundary conditions and coefficient convention need verification. |
+| 057 | S36 | Probability and conditional-inference foundations supported; prior choice, evidence, and model adequacy remain application-specific. |
+| 058 | S36 | Probabilistic estimation foundations support Bayesian filtering context; the full Kalman recursion requires dedicated state-estimation derivation and covariance tests. |
+| 059 | S47 | Statistical-model geometry is an extension beyond introductory probability; Fisher metric regularity and tensor transformation need specialist derivation. |
+| 060 | S35 | Nonequilibrium stochastic thermodynamics supports the topic; local detailed balance, zero-rate limits, and physical entropy interpretation need a dedicated source audit. |
+
+
+## Sources for RWEA-061–070
+
+- **S37 — Reaction-diffusion and Turing pattern formation:** *Biological Circuit Design*, chapter 21, “Turing patterns”; introduces coupled reaction-diffusion fields and diffusion-driven patterning. https://biocircuits.github.io/chapters/turing.html
+- **S38 — Cellular automata:** Stanford Encyclopedia of Philosophy, “Cellular Automata”; formal background on local finite-state update rules, discrete dynamics, and computational universality. https://plato.stanford.edu/entries/cellular-automata/
+- **S39 — Replicator equations and population dynamics:** Karev & Kareva, “Replicator Equations and Models of Biological Populations and Communities,” *Mathematical Modelling of Natural Phenomena* (2014). https://doi.org/10.1051/mmnp/20149305
+- **S40 — Wilson–Cowan neural population dynamics:** Cowan et al., “Wilson–Cowan Equations for Neocortical Dynamics,” *Journal of Mathematical Neuroscience* (2016). https://pmc.ncbi.nlm.nih.gov/articles/PMC4733815/
+- **S41 — Kuramoto network synchronization:** “Control of coupled oscillator networks with application to microgrid technologies,” open-access paper presenting network-coupled Kuramoto phase dynamics. https://pmc.ncbi.nlm.nih.gov/articles/PMC4643801/
+- **S42 — Directed percolation in neural population models:** Cowan et al. (2016) discusses directed-percolation interpretations of neural activity; this is contextual support, not a general percolation threshold reference. https://pmc.ncbi.nlm.nih.gov/articles/PMC4733815/
+- **S43 — Information theory foundations:** MIT OpenCourseWare 6.450, *Principles of Digital Communication I*, lecture notes for entropy and mutual information foundations. https://ocw.mit.edu/courses/6-450-principles-of-digital-communication-i-fall-2009/pages/lecture-notes/
+- **S44 — Reaction-diffusion self-organization:** Pearson, “Complex patterns in a simple system,” *Science* 261 (1993), DOI 10.1126/science.261.5118.189. https://pubmed.ncbi.nlm.nih.gov/17829274/
+
+## Equation-ID crosswalk additions
+
+| ID | Source | Scope and unresolved qualification |
+|---|---|---|
+| 061 | S37 | Coupled reaction-diffusion form; kinetic functions, units, and boundary conditions remain model-specific. |
+| 062 | S37 | Turing pattern mechanism; full two-species instability inequalities and domain spectrum need independent derivation. |
+| 063 | S38 | Local update-rule formalism; physical interpretation requires separate validation. |
+| 064 | S45 | Population-model context; logistic equation is a simplified baseline and needs dedicated demographic source review. |
+| 065 | S39 | Replicator dynamics and heterogeneous populations; payoff/fitness interpretation must be explicit. |
+| 066 | S40 | Excitatory-inhibitory population equations; mean-field limitations and parameter conventions need review. |
+| 067 | S43 | Entropy and mutual-information foundations; biological estimator bias and temporal dependence need separate treatment. |
+| 068 | S41 | Network Kuramoto phase model; phase reduction and topology-specific synchronization thresholds need review. |
+| 069 | S46 | Contextual neural directed-percolation discussion; add a dedicated percolation-theory source before stronger threshold claims. |
+| 070 | S44, S41 | Pattern formation and collective order context; there is no universal equation for self-organization. |
+
+- **S45 — Logistic population growth:** OpenStax, *Calculus Volume 2*, section 4.4, “The Logistic Equation”; states the logistic differential equation, carrying-capacity interpretation, and closed-form solution. https://openstax.org/books/calculus-volume-2/pages/4-4-the-logistic-equation
+- **S46 — Percolation theory:** D. H. Rothman, MIT OpenCourseWare 12.086/12.586, *Modeling Environmental Complexity*, lecture notes on bond percolation, clusters, critical thresholds, scaling, and finite-size effects. https://ocw.mit.edu/courses/12-086-modeling-environmental-complexity-fall-2014/a8b26843ad438d5f648b3b0330193d02_MIT12_086F14_percolation.pdf
+
+- **S47 — Fisher information geometry:** Ay et al., “An Elementary Introduction to Information Geometry,” open-access review defining the Fisher information metric, Fisher–Rao geometry, regularity conditions, and invariance properties. https://pmc.ncbi.nlm.nih.gov/articles/PMC7650632/
+
+
+| 071 | S48 | Fisher-KPP invasion wave; the classical minimum speed applies under scalar KPP hypotheses on an unbounded homogeneous domain. |
+| 072 | S49 | Classical Lotka-Volterra predator-prey model; neutral center is specific to the idealized equations. |
+| 073 | S50 | SIR deterministic/stochastic relationship; incidence and population normalization conventions must be declared. |
+| 074 | S51 | Compartmental epidemic models and network/metapopulation extensions. |
+| 075 | S52 | Neural-field mathematical framework, including Wilson-Cowan and Amari model families and inherited assumptions. |
+| 076 | S53 | Gillespie exact stochastic simulation and chemical master equation formulation. |
+| 077 | S53 | Gillespie direct-method waiting-time and reaction-selection construction. |
+| 078 | S54 | Convergent reaction-diffusion master equation; standard RDME continuum-limit caveats. |
+| 079 | S55 | Adaptive coevolutionary networks: node-state dynamics coupled to topology evolution. |
+| 080 | S56 | Generalized Lotka-Volterra community models and ecological applications. |
+
+- **S48 — Fisher-KPP:** *Introduction to Mathematical Modeling*, University of Arizona open textbook, diffusion chapter; derives the Fisher-KPP equation and traveling-wave family. https://opentextbooks.library.arizona.edu/mathematicalmodeling/chapter/diffusion/
+- **S49 — Lotka-Volterra:** University of Florida computational physics course notes on the classical predator-prey equations. https://cmp.phys.ufl.edu/PHZ4710/files/unit5/Lotka-Volterra.html
+- **S50 — SIR:** Wilkinson, Ball and Sharkey, “The relationships between message passing, pairwise, Kermack–McKendrick and stochastic SIR epidemic models,” *Journal of Mathematical Biology* (2017), open access. https://pmc.ncbi.nlm.nih.gov/articles/PMC5641366/
+- **S51 — Metapopulation and network epidemics:** Getz et al., “Modeling epidemics: A primer and Numerus Model Builder implementation,” *Epidemics* (2018), including network and metapopulation extensions. https://www.sciencedirect.com/science/article/pii/S1755436517301342
+- **S52 — Neural fields:** Cook et al., “Neural Field Models: A mathematical overview and unifying framework,” *Mathematical Neuroscience and Applications* (2022). https://mna.episciences.org/9228
+- **S53 — Chemical master equation and SSA:** Gillespie, “Exact Stochastic Simulation of Coupled Chemical Reactions,” *The Journal of Physical Chemistry* 81 (1977), 2340–2361. https://apice.unibo.it/bin/view/Publication/StochasticsimulationJphyschem81
+- **S54 — RDME:** Isaacson, “A Convergent Reaction-Diffusion Master Equation,” arXiv:1211.6772; explains why naive lattice refinement can lose bimolecular reaction effects and develops a convergent alternative. https://arxiv.org/abs/1211.6772
+- **S55 — Adaptive networks:** Gross and Blasius, “Adaptive coevolutionary networks: a review,” *Journal of the Royal Society Interface* 5 (2008), 259–271. https://pmc.ncbi.nlm.nih.gov/articles/PMC2405905/
+- **S56 — Generalized Lotka-Volterra:** Allesina, “One Hundred Years of Lotka–Volterra Models,” *Annual Review of Ecology, Evolution, and Systematics* (2026, review in advance). https://www.annualreviews.org/content/journals/10.1146/annurev-ecolsys-102924-040829

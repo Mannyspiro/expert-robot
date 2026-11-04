@@ -1,0 +1,879 @@
+{
+  "schema_version": "1.0.0",
+  "catalog_id": "MERLIN-PROJECT-CATALOG-2026-11-04",
+  "updated_at": "2026-11-04",
+  "repository": "Mannyspiro/expert-robot",
+  "canonical_branch": "feat/merlin-real-world-equation-atlas-v01-20261104",
+  "canonical_head": "b80e975c718794024793a2750d73e8d785e68ee2",
+  "mission": "Persistent, modular research and engineering operating system; preserve every project, idea, artifact, dependency, decision and evidence record with explicit lineage and status.",
+  "governing_principle": "Capability grows, authority never expands.",
+  "status_vocabulary": [
+    "implemented_tested",
+    "implemented_not_fully_qualified",
+    "partial",
+    "prototype",
+    "specification_only",
+    "archive_context_only",
+    "planned",
+    "blocked",
+    "unknown"
+  ],
+  "coverage": {
+    "foundation_v02_project_groups": 13,
+    "foundation_v02_artifacts_reported": 1452,
+    "foundation_v02_archive_members_reported": 1409,
+    "packaged_snapshot_tests": "16/16 reported in prior Foundation v0.2 handoff; not rerun in this catalog update",
+    "five_archive_intake": "NOT_COMPLETE",
+    "part3": {
+      "outer_objects": 1088,
+      "outer_bytes": 284744822,
+      "archive_sha256": "ddab71f63cc5c819e0e3c35fe43508825c3bdd1ef1b8d2e4d63af37979e7dba4",
+      "nested_zip_archives": 42,
+      "nested_file_entries": 4881,
+      "distinct_internal_paths": 4228,
+      "integrity": "all outer-object SHA-256 paths and 42 embedded ZIP CRCs passed",
+      "lineage": "PARTIALLY_RECONSTRUCTED"
+    },
+    "other_parts": "Part 1 and Part 2 archive-level inventories were not available in the inspected repository paths during this pass; their absence here is not evidence they do not exist.",
+    "full_historical_chat_coverage": "PARTIAL: prior conversation summaries, project handoffs, selected Library files, current repository branch and open PR metadata were reconciled; not every raw chat transcript or every historical repository was enumerated.",
+    "repo_artifact_index": "Exact changed-file inventory for open PRs #72–#74; not a complete repository tree."
+  },
+  "project_groups": [
+    {
+      "id": "MERLIN-PROJ-001",
+      "name": "Merlin Core",
+      "kind": "platform",
+      "purpose": "Persistent research and engineering operating system: project registry, artifact store, knowledge graph, research council, workflows, evidence and user interface.",
+      "status": "partial",
+      "source_scope": [
+        "Merlin v11 archive family",
+        "current expert-robot branch"
+      ],
+      "known_components": [
+        "project registry",
+        "content-addressed artifact store",
+        "typed knowledge graph",
+        "research council",
+        "resource probe",
+        "research engine",
+        "skill store",
+        "voice-first UI plan"
+      ],
+      "gaps": [
+        "universal five-archive intake not complete",
+        "full artifact lineage reconciliation",
+        "all project modules not runtime-integrated"
+      ]
+    },
+    {
+      "id": "MERLIN-PROJ-002",
+      "name": "Hermes",
+      "kind": "orchestration",
+      "purpose": "Research routing, context assembly, agent coordination and task delegation.",
+      "status": "context_and_contracts",
+      "source_scope": [
+        "Hermes Lite v18",
+        "Hermes research miner v19",
+        "Merlin/Hermes/CACE/MCFC bundle"
+      ],
+      "known_components": [
+        "routing contracts",
+        "research miner snapshots",
+        "context assembly",
+        "agent role coordination"
+      ],
+      "gaps": [
+        "live Hermes runtime binding to Merlin registry not demonstrated",
+        "model adapters require pinned real providers"
+      ]
+    },
+    {
+      "id": "MERLIN-PROJ-003",
+      "name": "CACE / CACE Studio VRE",
+      "kind": "verification_and_experiment_runtime",
+      "purpose": "Typed scientific module registry, graph validation/execution, claims, proofs, verification records, certificates and reproducible experiments.",
+      "status": "partial_external_integration",
+      "source_scope": [
+        "CACE VRE v0.1-v0.13 snapshots",
+        "CACE v3.21-labelled archive family",
+        "morganaspim/Cace-app"
+      ],
+      "known_components": [
+        "typed module registry",
+        "graph executor",
+        "claim/proof registry concepts",
+        "verification records PASS/FAIL/NOT_RUN",
+        "run certificates",
+        "Lean qualification bridge"
+      ],
+      "gaps": [
+        "current canonical CACE repo must be read independently",
+        "version metadata conflicts in archived v3.21 folder",
+        "live adapter and exact-head proof receipts not fully bound to Merlin"
+      ]
+    },
+    {
+      "id": "MERLIN-PROJ-004",
+      "name": "MCFC Virtual Compute Fabric",
+      "kind": "compute_orchestration",
+      "purpose": "Typed CPU/memory/GPU resource models, bounded scheduling, leases, capacity evidence, telemetry and worker provenance.",
+      "status": "partial",
+      "source_scope": [
+        "MCFC/CACE iteration archives",
+        "current python/merlin/cpu_fabric"
+      ],
+      "known_components": [
+        "workload scheduler",
+        "leases",
+        "resource probe",
+        "route workload contract",
+        "capacity-aware admission"
+      ],
+      "gaps": [
+        "runtime fleet capacity must be measured",
+        "no GPU availability inference from unknown data",
+        "complete worker deployment/telemetry integration pending"
+      ]
+    },
+    {
+      "id": "MERLIN-PROJ-005",
+      "name": "Mathematics and Formal Verification",
+      "kind": "research_and_proof",
+      "purpose": "Mathematical atlas, symbolic/numerical experiments, theorem candidates, Lean formalization and axiom audits.",
+      "status": "partial",
+      "source_scope": [
+        "RWEA-001–080",
+        "formal/MathAI",
+        "Math Kung Fu lesson sequence",
+        "UFT/THTG research conversations"
+      ],
+      "known_components": [
+        "Real-World Equation Atlas",
+        "dimensional and symbolic checks",
+        "synthetic numerical baselines",
+        "Lean theorem registry",
+        "XMG composition laws",
+        "wire qualification theorems"
+      ],
+      "gaps": [
+        "all 80 atlas entries remain unverified",
+        "exact-head Lean compilation required per commit",
+        "research claims and proof statuses need claim-level tracking"
+      ]
+    },
+    {
+      "id": "MERLIN-PROJ-006",
+      "name": "Photonics",
+      "kind": "engineering_research",
+      "purpose": "Photonics and optical structures research, including archived models and concept geometry.",
+      "status": "archive_context_only",
+      "source_scope": [
+        "Foundation v0.2 project inventory",
+        "photonic crystal concept mesh in archive"
+      ],
+      "known_components": [
+        "photonic crystal concept mesh",
+        "research asset family"
+      ],
+      "gaps": [
+        "source repository and module lineage not bound",
+        "simulation and physical validation not demonstrated"
+      ]
+    },
+    {
+      "id": "MERLIN-PROJ-007",
+      "name": "CAD and Engineering Design",
+      "kind": "engineering",
+      "purpose": "Typed engineering IR, assemblies, coordinate frames, connectivity, routing, drafting and CAD/EDA adapters.",
+      "status": "partial",
+      "source_scope": [
+        "Merlin v11 archive",
+        "current python/merlin engineering modules"
+      ],
+      "known_components": [
+        "EngineeringProject IR",
+        "CADAssembly",
+        "coordinate frames",
+        "physical netlist mapping",
+        "wire route proposal",
+        "wire qualification",
+        "SVG drafting",
+        "Graphviz/CSV/JSON exports",
+        "ComfyUI prompt compiler"
+      ],
+      "gaps": [
+        "native FreeCAD/KiCad round-trip pending",
+        "ERC/DRC and geometry-fidelity qualification pending",
+        "draft outputs are not manufacturing drawings"
+      ]
+    },
+    {
+      "id": "MERLIN-PROJ-008",
+      "name": "Physics and Simulation",
+      "kind": "simulation",
+      "purpose": "Pluggable declared physics environments and deterministic synthetic model experiments.",
+      "status": "partial_prototype",
+      "source_scope": [
+        "Merlin v11 archive",
+        "research_council.py",
+        "equation atlas simulation"
+      ],
+      "known_components": [
+        "classical mechanics environment contract",
+        "electromagnetics",
+        "thermal",
+        "quantum",
+        "relativistic",
+        "fluid",
+        "materials",
+        "abstract axiomatic environments",
+        "reaction-diffusion",
+        "SIR",
+        "Lotka-Volterra",
+        "Gillespie SSA"
+      ],
+      "gaps": [
+        "environment declarations are not all live solvers",
+        "synthetic simulations do not establish empirical physical validity"
+      ]
+    },
+    {
+      "id": "MERLIN-PROJ-009",
+      "name": "Expert Robot",
+      "kind": "agent_and_repository_worker",
+      "purpose": "Bounded code/repository execution and implementation agent integrated through reviewed changes and evidence.",
+      "status": "partial_integration",
+      "source_scope": [
+        "Mannyspiro/expert-robot",
+        "prior Expert Robot conversations"
+      ],
+      "known_components": [
+        "repository workflows",
+        "Avrea CI",
+        "proof-search components",
+        "worker and evidence integration plans"
+      ],
+      "gaps": [
+        "full Merlin orchestration/registry binding pending",
+        "live worker authority remains bounded by explicit contracts"
+      ]
+    },
+    {
+      "id": "MERLIN-PROJ-010",
+      "name": "Geometric Engine",
+      "kind": "geometry_and_algebra",
+      "purpose": "Coordinate-independent geometry, geometric algebra, multivectors, transforms, frames and high-dimensional representations.",
+      "status": "context_and_partial_research",
+      "source_scope": [
+        "Foundation v0.2 project inventory",
+        "CACE math roadmap",
+        "XMG multi-frame contracts"
+      ],
+      "known_components": [
+        "Cartesian/polar/complex representations",
+        "quaternions",
+        "Clifford/geometric algebra",
+        "PGA/CGA",
+        "vectors/bivectors/rotors/spinors",
+        "SE(3) frame composition"
+      ],
+      "gaps": [
+        "standalone source repo not yet bound",
+        "full canonical object representation graph pending"
+      ]
+    },
+    {
+      "id": "MERLIN-PROJ-011",
+      "name": "Xenomathematics / XMG",
+      "kind": "exploratory_formalism",
+      "purpose": "Glyph-native typed operations and alternative mathematical representation systems.",
+      "status": "partial_prototype",
+      "source_scope": [
+        "xenomathematics conversations",
+        "MERLIN_XMG documents",
+        "glyph engine source"
+      ],
+      "known_components": [
+        "XMG-1 glyph registry",
+        "typed expression AST",
+        "Glyph Foundry",
+        "normalizer",
+        "critical-pair/confluence explorer",
+        "Lean composition laws",
+        "multi-frame operators"
+      ],
+      "gaps": [
+        "exploratory design, not alien-math discovery",
+        "general pattern overlap and Lean confluence proof pending"
+      ]
+    },
+    {
+      "id": "MERLIN-PROJ-012",
+      "name": "Sui Workbench",
+      "kind": "workbench",
+      "purpose": "Archived project/workbench context from the Foundation inventory.",
+      "status": "archive_context_only",
+      "source_scope": [
+        "Foundation v0.2 project inventory"
+      ],
+      "known_components": [],
+      "gaps": [
+        "no source repository, module manifest or current implementation details recovered"
+      ]
+    },
+    {
+      "id": "MERLIN-PROJ-013",
+      "name": "App Builder",
+      "kind": "application_builder",
+      "purpose": "Application-building project family included in the Foundation inventory.",
+      "status": "archive_context_only",
+      "source_scope": [
+        "Foundation v0.2 project inventory",
+        "Base44/Vercel integration conversations"
+      ],
+      "known_components": [
+        "UiPath MVP specification is a separate automation layer",
+        "Base44/Vercel integration planning"
+      ],
+      "gaps": [
+        "do not conflate App Builder archive project with Base44 or UiPath",
+        "actual project source and runtime lineage pending"
+      ]
+    }
+  ],
+  "platform_layers": [
+    {
+      "id": "MERLIN-LAYER-001",
+      "name": "Project Registry",
+      "maturity": "foundation",
+      "purpose": "Canonical project, module, version, ownership and dependency identities.",
+      "source": "python/merlin/project_registry.py"
+    },
+    {
+      "id": "MERLIN-LAYER-002",
+      "name": "Artifact Store",
+      "maturity": "foundation",
+      "purpose": "Immutable SHA-256 content-addressed blobs and provenance.",
+      "source": "python/merlin/foundation_store.py"
+    },
+    {
+      "id": "MERLIN-LAYER-003",
+      "name": "Knowledge Graph",
+      "maturity": "foundation",
+      "purpose": "Typed concepts, claims, equations, sources, evidence, assumptions, contradictions and relations.",
+      "source": "python/merlin/knowledge_graph.py"
+    },
+    {
+      "id": "MERLIN-LAYER-004",
+      "name": "Archive Intake",
+      "maturity": "partial",
+      "purpose": "Safe archive inspection, member hashes, duplicate detection and registry reconciliation.",
+      "source": "python/merlin/archive_intake.py"
+    },
+    {
+      "id": "MERLIN-LAYER-005",
+      "name": "Research Council",
+      "maturity": "prototype",
+      "purpose": "Chair, mathematician, physicist, engineer, coder, skeptic and librarian roles; model adapters are contracts.",
+      "source": "python/merlin/research_council.py"
+    },
+    {
+      "id": "MERLIN-LAYER-006",
+      "name": "Resource Probe",
+      "maturity": "partial",
+      "purpose": "Discover measured resource facts; unknown values remain unknown.",
+      "source": "python/merlin/resource_probe.py"
+    },
+    {
+      "id": "MERLIN-LAYER-007",
+      "name": "CPU Compute Fabric",
+      "maturity": "partial",
+      "purpose": "Bounded task scheduling, leases and workload admission.",
+      "source": "python/merlin/cpu_fabric/"
+    },
+    {
+      "id": "MERLIN-LAYER-008",
+      "name": "Equation Atlas",
+      "maturity": "partial",
+      "purpose": "80 normalized equation entries, dimensional metadata, source crosswalk, synthetic experiments and receipts.",
+      "source": "python/merlin/equation_atlas/"
+    },
+    {
+      "id": "MERLIN-LAYER-009",
+      "name": "XMG Glyph System",
+      "maturity": "prototype",
+      "purpose": "Typed glyph AST, operators, candidate generation, rewrite normalization and critical-pair exploration.",
+      "source": "merlin/glyph_foundry.py"
+    },
+    {
+      "id": "MERLIN-LAYER-010",
+      "name": "Formal Verification",
+      "maturity": "partial",
+      "purpose": "Lean source, theorem registry, assumptions and axiom audit.",
+      "source": "formal/MathAI.lean"
+    },
+    {
+      "id": "MERLIN-LAYER-011",
+      "name": "Engineering IR",
+      "maturity": "partial",
+      "purpose": "Typed parts, pins, nets, units, assemblies and source geometry.",
+      "source": "engineering IR modules"
+    },
+    {
+      "id": "MERLIN-LAYER-012",
+      "name": "Coordinate Frame Graph",
+      "maturity": "partial",
+      "purpose": "Named frames, rigid transforms, units, projections and invariants.",
+      "source": "MCFC_CAD_WIRING_INTEGRATION_V0.1.md"
+    },
+    {
+      "id": "MERLIN-LAYER-013",
+      "name": "Wire Routing and Qualification",
+      "maturity": "prototype",
+      "purpose": "Deterministic route proposals and conditional model checks; not safety/manufacturing approval.",
+      "source": "python/merlin/wire_routing.py"
+    },
+    {
+      "id": "MERLIN-LAYER-014",
+      "name": "Engineering Drafting",
+      "maturity": "prototype",
+      "purpose": "Editable deterministic SVG and logical connectivity exports.",
+      "source": "python/merlin/engineering_drafting.py"
+    },
+    {
+      "id": "MERLIN-LAYER-015",
+      "name": "Media Generation",
+      "maturity": "prototype",
+      "purpose": "Prompt compiler and local ComfyUI adapter; no model runtime assumed.",
+      "source": "python/merlin/media_generation.py"
+    },
+    {
+      "id": "MERLIN-LAYER-016",
+      "name": "Virtual VCS",
+      "maturity": "partial_design",
+      "purpose": "Read-only Git first, then virtual branches/diffs/reviews/PRs/controlled merges/rollback.",
+      "source": "MERLIN_MASTER_BUILD_SPEC_2026-11-04.md"
+    },
+    {
+      "id": "MERLIN-LAYER-017",
+      "name": "Evidence Receipts",
+      "maturity": "partial",
+      "purpose": "Content-addressed evidence tied to source, tests, parameters and run metadata.",
+      "source": "python/merlin/equation_atlas/receipts.py"
+    },
+    {
+      "id": "MERLIN-LAYER-018",
+      "name": "Voice-first Web",
+      "maturity": "planned",
+      "purpose": "Voice interface, council state, streaming sessions and artifact explorer.",
+      "source": "MERLIN_MASTER_BUILD_SPEC_2026-11-04.md"
+    },
+    {
+      "id": "MERLIN-LAYER-019",
+      "name": "RSI Governance",
+      "maturity": "planned",
+      "purpose": "Candidate proposal, sandbox, test, benchmark, independent verification, compare, retain/reject and rollback.",
+      "source": "platform_manifest.json"
+    },
+    {
+      "id": "MERLIN-LAYER-020",
+      "name": "Automation Adapter",
+      "maturity": "specification",
+      "purpose": "UiPath Community Edition workflows specified; no Studio project execution claimed.",
+      "source": "docs/merlin/UIPATH_COMMUNITY_MVP.md"
+    }
+  ],
+  "research_domains": [
+    "mathematics and formal verification",
+    "xenomathematics and glyph systems",
+    "geometry and geometric algebra",
+    "physics and simulation",
+    "engineering and CAD/EDA",
+    "electrical, thermal and manufacturing analysis",
+    "photonic structures",
+    "materials and chemistry",
+    "biology and collective systems",
+    "neural systems",
+    "signal processing and information theory",
+    "robotics and control",
+    "computing and AI systems",
+    "research methods, ideonomy and literature synthesis"
+  ],
+  "mathematical_programs": [
+    {
+      "id": "MATH-PROG-001",
+      "name": "Representation-first mathematics",
+      "topics": [
+        "Cartesian/polar/cylindrical/spherical",
+        "complex and split-complex numbers",
+        "quaternions",
+        "dual numbers",
+        "matrices/tensors",
+        "Clifford/geometric algebra",
+        "manifolds/charts/frames",
+        "homogeneous/projective coordinates",
+        "3D/4D/5D+ embeddings"
+      ],
+      "status": "candidate_and_partial_implementation"
+    },
+    {
+      "id": "MATH-PROG-002",
+      "name": "Transformation and invariant atlas",
+      "topics": [
+        "typed maps",
+        "domain/codomain",
+        "inverse/partial inverse",
+        "singularities and branch cuts",
+        "information loss",
+        "invariant preservation",
+        "path consistency",
+        "commuting diagrams",
+        "uncertainty propagation"
+      ],
+      "status": "partial_contracts"
+    },
+    {
+      "id": "MATH-PROG-003",
+      "name": "Eigenstructure and operator systems",
+      "topics": [
+        "eigenvalues/eigenvectors",
+        "invariant subspaces",
+        "Jordan form",
+        "singular values",
+        "spectral decompositions",
+        "tensor contractions",
+        "Koopman/Jacobian tangent maps"
+      ],
+      "status": "research"
+    },
+    {
+      "id": "MATH-PROG-004",
+      "name": "Spacetime and temporal systems",
+      "topics": [
+        "block spacetime",
+        "world-tubes",
+        "observer frames",
+        "4D-to-3D projection",
+        "time crystals",
+        "Floquet operators",
+        "causal structure"
+      ],
+      "status": "research"
+    },
+    {
+      "id": "MATH-PROG-005",
+      "name": "Xenomathematics/XMG",
+      "topics": [
+        "glyphs as typed operators",
+        "higher-order glyph composition",
+        "custom algebraic systems",
+        "rewrite systems",
+        "normal forms",
+        "critical pairs",
+        "confluence",
+        "Lean-exported proof obligations"
+      ],
+      "status": "prototype"
+    },
+    {
+      "id": "MATH-PROG-006",
+      "name": "Ideonomy",
+      "topics": [
+        "typed hypergraphs",
+        "knowledge/connection/representation/proof/measurement gaps",
+        "candidate generation",
+        "null models",
+        "novelty uncertainty and multiple-testing correction"
+      ],
+      "status": "partial_specification"
+    },
+    {
+      "id": "MATH-PROG-007",
+      "name": "Fractal/lacunarity engineering",
+      "topics": [
+        "box-counting dimension",
+        "gliding-box lacunarity",
+        "graph lacunarity",
+        "multiscale morphology",
+        "matched engineering comparisons",
+        "uncertainty and boundary policies"
+      ],
+      "status": "partial_implementation"
+    },
+    {
+      "id": "MATH-PROG-008",
+      "name": "Collective and superorganism mathematics",
+      "topics": [
+        "agent/cell/module networks",
+        "coupled oscillators",
+        "reaction-diffusion",
+        "network control",
+        "statistical mechanics",
+        "emergent behavior"
+      ],
+      "status": "partial_synthetic_models"
+    },
+    {
+      "id": "MATH-PROG-009",
+      "name": "Real-World Equation Atlas",
+      "topics": [
+        "RWEA-001–080",
+        "signal processing",
+        "stochastic systems",
+        "biological complexity",
+        "epidemics",
+        "chemical master equations",
+        "reaction-diffusion",
+        "control and robotics"
+      ],
+      "status": "80_entries_authored_unverified"
+    },
+    {
+      "id": "MATH-PROG-010",
+      "name": "Engineering mathematical bridge",
+      "topics": [
+        "SE(3) frame composition",
+        "netlist graphs embedded in 3D",
+        "collision approximations",
+        "wire path search",
+        "thermal/electrical scalar models",
+        "CAD evidence receipts"
+      ],
+      "status": "partial_conditional"
+    }
+  ],
+  "integrations": [
+    {
+      "id": "INT-001",
+      "system": "Hermes",
+      "responsibility": "routing, context assembly, agent coordination",
+      "status": "contract_or_archive; live runtime binding pending"
+    },
+    {
+      "id": "INT-002",
+      "system": "CACE",
+      "responsibility": "typed experiments, graph execution, claims, proofs, verifier and certificates",
+      "status": "partial adapter; independent repository binding pending"
+    },
+    {
+      "id": "INT-003",
+      "system": "MCFC",
+      "responsibility": "worker scheduling, resource capacity, leases and telemetry",
+      "status": "partial CPU fabric; broader runtime integration pending"
+    },
+    {
+      "id": "INT-004",
+      "system": "Avrea",
+      "responsibility": "CI, pinned builds, benchmark and cache compute",
+      "status": "workflow integration exists; current cache state not inspected"
+    },
+    {
+      "id": "INT-005",
+      "system": "GitHub",
+      "responsibility": "read-only discovery initially; draft PR review and controlled changes",
+      "status": "live repository integration through connected account; Merlin-native virtual VCS remains partial"
+    },
+    {
+      "id": "INT-006",
+      "system": "UiPath Community Edition",
+      "responsibility": "desktop automation workflows for archive intake, GitHub, Avrea, Lean, research and CAD capture",
+      "status": "MVP specification only; Studio workflows not installed or tested"
+    },
+    {
+      "id": "INT-007",
+      "system": "Base44",
+      "responsibility": "optional app/account metadata and connector architecture",
+      "status": "planning/connector boundary; no Merlin production binding confirmed"
+    },
+    {
+      "id": "INT-008",
+      "system": "Vercel",
+      "responsibility": "possible web deployment surface",
+      "status": "integration context only; current deployment not claimed"
+    },
+    {
+      "id": "INT-009",
+      "system": "ComfyUI",
+      "responsibility": "local image/video generation from typed engineering facts",
+      "status": "API adapter implemented; no CI model-generation job"
+    },
+    {
+      "id": "INT-010",
+      "system": "FreeCAD/OpenSCAD/KiCad",
+      "responsibility": "native CAD/EDA adapters and round-trip verification",
+      "status": "planned adapters; native round-trip not verified"
+    },
+    {
+      "id": "INT-011",
+      "system": "Lean/Mathlib",
+      "responsibility": "formal theorem verification and axiom audits",
+      "status": "formal workflows exist; per-head qualification required"
+    },
+    {
+      "id": "INT-012",
+      "system": "Public literature sources",
+      "responsibility": "Crossref/OpenAlex/arXiv/IEEE/public datasets/standards catalogs",
+      "status": "research design; individual source access/licensing tracked per source"
+    }
+  ],
+  "source_snapshots": [
+    {
+      "id": "SNAP-001",
+      "name": "Merlin v11",
+      "entries": 871,
+      "kind": "nested archive family",
+      "status": "archive inspected; not current runtime proof",
+      "notes": "README describes local-first Merlin×Hermes×CACE-MCFC research studio; includes reasoning/formal/geometry core, UI, local model bridge, research context, CAD/drafting/media and MCFC/CACE milestones."
+    },
+    {
+      "id": "SNAP-002",
+      "name": "CACE VRE v0.1–v0.13",
+      "kind": "versioned snapshots",
+      "status": "archive family present",
+      "notes": "Distinct snapshots; preserve lineage and release identities."
+    },
+    {
+      "id": "SNAP-003",
+      "name": "CACE VRE folder cace-studio-vre-v3.21",
+      "entries": 954,
+      "kind": "nested archive folder",
+      "status": "version conflict",
+      "notes": "pyproject 0.76.0, README v0.76, RELEASE_MANIFEST release 1.0/source baseline v0.76; folder label not canonical version."
+    },
+    {
+      "id": "SNAP-004",
+      "name": "Merlin/Hermes/CACE/MCFC unified bundles",
+      "entries": [
+        144,
+        110,
+        101
+      ],
+      "kind": "three distinct nested archives",
+      "status": "lineage unresolved",
+      "notes": "Do not collapse source snapshots before manifest/diff reconciliation."
+    },
+    {
+      "id": "SNAP-005",
+      "name": "Research iteration source tree",
+      "entries": 314,
+      "kind": "manifest-listed research artifacts",
+      "status": "partial local research scope",
+      "notes": "Includes Merlin iterations, MCFC/CACE milestones 44–120, LGM batches, modular atlas, geometric automata, spectral glyph and online spectral batches."
+    },
+    {
+      "id": "SNAP-006",
+      "name": "Merlin research miner v17",
+      "entries": 32,
+      "kind": "nested archive",
+      "status": "scaffold",
+      "notes": "Evidence-first NASA/GitHub research and teaching-model scaffold."
+    },
+    {
+      "id": "SNAP-007",
+      "name": "Hermes Lite v18",
+      "entries": 25,
+      "kind": "nested archive",
+      "status": "thin integration",
+      "notes": "Skill integration over research miner v17, not bundled Hermes runtime."
+    },
+    {
+      "id": "SNAP-008",
+      "name": "Hermes research miner v19",
+      "entries": 15,
+      "kind": "nested archive",
+      "status": "scaffold",
+      "notes": "Source revision pinning, evidence hashes, rights-aware metadata and local teaching-model scaffold."
+    },
+    {
+      "id": "SNAP-009",
+      "name": "Merlin/CACE context package v3",
+      "entries": 38,
+      "kind": "nested archive",
+      "status": "context tooling",
+      "notes": "Project handoffs, context coverage audit, merit register, topic graph, SQLite context store, bridge and RSI sources."
+    },
+    {
+      "id": "SNAP-010",
+      "name": "Master handoff package 2026-11-04",
+      "kind": "split ZIP handoff",
+      "status": "content summary only; exact archive inventory not imported in this pass",
+      "notes": "Reported 234 MB, 50 files, SHA-256 prefix 26ad826d…ad7c73e; split into 133 MB and 99 MB ZIPs. Includes Sovereign OS, Hermes/CACE/MCFC, Forge v0.2–v0.4, MVP archives, Virtual PR/engineering prototypes; tests not freshly rerun."
+    }
+  ],
+  "known_skill_manifest": {
+    "name": "merlin-skills-manifest-1793653282176.json",
+    "reported_count": 10,
+    "status": "manifest named in prior chat; original file not retrieved in this pass",
+    "known_entries": [
+      "Shannon-Nyquist Signal & Aliasing Validator",
+      "MIT Ideonomy Simplex Combinator",
+      "AlphaFold Evoformer Ramachandran Scorer",
+      "Internet Research & arXiv Literature Invariant Synthesizer"
+    ],
+    "remaining_entries": "Six skill definitions not yet recovered; preserve as an explicit intake gap."
+  },
+  "governance": [
+    "Capability grows, authority never expands.",
+    "Read-only Git discovery precedes write-capable integration.",
+    "Imported archive code is never executed during intake.",
+    "Hashes establish identity and integrity, not semantic truth.",
+    "AI-generated output and council consensus are not proof.",
+    "Numerical simulation, benchmark, formal proof, physical measurement and engineering qualification remain distinct.",
+    "Every worker is capability-scoped, leased, idempotent, bounded and observable.",
+    "Promotion requires independent qualification, rollback and no authority expansion.",
+    "Cache keys bind source, dependency, model, parameters, seed, toolchain and environment; cache hits are not fresh verification.",
+    "Engineering CAD/wiring outputs remain proposals until native validation, source data and independent sign-off."
+  ],
+  "open_prs": [
+    {
+      "number": 72,
+      "title": "Merlin Equation Atlas 001–080 and XMG Simulation Engine",
+      "branch": "feat/merlin-real-world-equation-atlas-v01-20261104",
+      "head": "b80e975c718794024793a2750d73e8d785e68ee2",
+      "status": "draft_unmerged"
+    },
+    {
+      "number": 73,
+      "title": "Merlin integration and operations handoff",
+      "branch": "docs/merlin-integrations-operations-20261104",
+      "head": "f99ec5d2afc990ee1b9b469ebdcd69eb0e69e195",
+      "status": "draft_unmerged"
+    },
+    {
+      "number": 74,
+      "title": "Merlin UiPath Community Edition MVP specification",
+      "branch": "feat/merlin-uipath-community-mvp-20261104",
+      "head": "62dcd0807f6def8295f7f5d43f5ea0739584cc77",
+      "status": "draft_unmerged"
+    }
+  ],
+  "artifact_index_path": "docs/research/MERLIN_REPOSITORY_ARTIFACT_INDEX_V1.json",
+  "coverage_report_path": "docs/research/MERLIN_CONTEXT_COVERAGE_V1.md",
+  "limitations": [
+    "This catalog reconciles available project summaries, handoffs, selected Library sources, current branch files and open PR metadata; it does not claim exhaustive retrieval of every historical raw chat.",
+    "Foundation v0.2's reported 1,452 artifacts are not individually enumerated in the current repo artifact index.",
+    "Part 1 and Part 2 of the five-archive intake need their original bytes, hashes and inventories before intake can be marked complete.",
+    "The current repository artifact index is a changed-file list for PRs #72–#74, not a full recursive repository manifest.",
+    "Archive-only and context-only projects are not represented as implemented runtime capabilities."
+  ],
+  "catalog_maintenance": {
+    "rule": "Every new Merlin project conversation, decision, research idea, module, artifact, integration or result must be assigned a stable catalog ID and recorded with provenance.",
+    "required_fields": [
+      "stable_id",
+      "title",
+      "kind",
+      "source_conversation_or_file",
+      "created_or_observed_at",
+      "project_id",
+      "status",
+      "assumptions",
+      "relations",
+      "evidence_refs",
+      "next_steps"
+    ],
+    "status_rule": "Keep archive-only, context-only, planned, specification-only, prototype, partial, implemented, tested and independently verified states distinct.",
+    "append_only": "Do not silently overwrite prior decisions. Add a superseding record and link the earlier record.",
+    "artifact_rule": "Record exact repository path, source commit, content hash and test/evidence reference when available.",
+    "authority_rule": "Cataloging does not confer implementation, proof, safety or deployment approval."
+  }
+}

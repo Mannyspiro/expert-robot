@@ -1,0 +1,17 @@
+flowchart LR
+  O[Canonical object / state]
+  O --> F1[Physical frame]
+  O --> F2[State-space frame]
+  O --> F3[Graph frame]
+  O --> F4[Spectral frame]
+  F1 -->|measurement / projection| F2
+  F1 -->|discretization| F3
+  F2 -->|basis change| F4
+  F3 -->|Laplacian operator| F4
+  F1 -->|coordinate change| F1b[Alternate physical coordinates]
+  F1b -->|invariants checked| I[Invariant registry]
+  F2 -->|units + assumptions| V[Verification engine]
+  F3 -->|information-loss metadata| V
+  F4 -->|spectrum + residuals| V
+  V --> E[Evidence receipt]
+  E --> L[Math Kung Fu lesson]

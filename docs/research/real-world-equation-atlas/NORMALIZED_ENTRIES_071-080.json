@@ -1,0 +1,729 @@
+{
+  "schema_version": "0.3",
+  "entries": [
+    {
+      "id": "RWEA-071",
+      "domain": "spatial population dynamics",
+      "application": "Fisher-KPP invasion wave",
+      "model_family": "fisher_kpp",
+      "equations": [
+        "∂ₜu=D∇²u+ru(1-u/K)",
+        "c_min=2√(Dr) for the classical scalar KPP equation on the line"
+      ],
+      "variables": [
+        {
+          "symbol": "u",
+          "meaning": "population density or normalized allele frequency",
+          "unit": "density or fraction"
+        },
+        {
+          "symbol": "D",
+          "meaning": "diffusion coefficient",
+          "unit": "m²/s"
+        },
+        {
+          "symbol": "r",
+          "meaning": "intrinsic growth or selection rate",
+          "unit": "s⁻¹"
+        },
+        {
+          "symbol": "K",
+          "meaning": "carrying capacity or saturation density",
+          "unit": "density"
+        }
+      ],
+      "assumptions": [
+        "Scalar field; logistic local growth; constant isotropic diffusion; classical KPP reaction conditions"
+      ],
+      "initial_conditions": "Localized nonnegative initial population patch.",
+      "boundary_conditions": "Whole line or sufficiently large domain; far-field state approaches zero ahead of invasion.",
+      "validity_regime": "Invasion front propagates into an unstable zero state; the classical minimal wave speed is conditional on KPP assumptions.",
+      "intuition": "Invasion front propagates into an unstable zero state; the classical minimal wave speed is conditional on KPP assumptions.",
+      "applications": [
+        "Invasion ecology",
+        "Spatial population genetics",
+        "Cell migration"
+      ],
+      "limitations": [
+        "Heterogeneous media and nonlocal dispersal change wave speed",
+        "Finite domains affect measured front speed"
+      ],
+      "alternatives": [
+        "Porous-Fisher equation",
+        "Fisher-Stefan moving-boundary model"
+      ],
+      "validation": [
+        "Compare measured front speed with 2√(Dr) under mesh and domain refinement",
+        "Check positivity and saturation bounds"
+      ],
+      "uncertainty": [
+        "Initial patch, boundary, and discretization uncertainty"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "The cited source supports the foundational model family and stated mathematical formulation; it does not establish application-specific empirical validity.",
+          "citation": "S48 · Fisher-KPP invasion-wave formulation",
+          "doi_or_url": "https://opentextbooks.library.arizona.edu/mathematicalmodeling/chapter/diffusion/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Foundational model family identified; source-specific derivation, dimensional audit, independent numerical reproduction, empirical validation, and formal qualification remain pending."
+    },
+    {
+      "id": "RWEA-072",
+      "domain": "population ecology",
+      "application": "Lotka-Volterra predator-prey dynamics",
+      "model_family": "lotka_volterra",
+      "equations": [
+        "dX/dt=αX-βXY",
+        "dY/dt=δXY-γY"
+      ],
+      "variables": [
+        {
+          "symbol": "X",
+          "meaning": "prey abundance",
+          "unit": "individuals"
+        },
+        {
+          "symbol": "Y",
+          "meaning": "predator abundance",
+          "unit": "individuals"
+        },
+        {
+          "symbol": "α",
+          "meaning": "prey intrinsic growth rate",
+          "unit": "time⁻¹"
+        },
+        {
+          "symbol": "β",
+          "meaning": "predation coefficient",
+          "unit": "(predator·time)⁻¹"
+        },
+        {
+          "symbol": "δ",
+          "meaning": "predator conversion coefficient",
+          "unit": "(prey·time)⁻¹"
+        },
+        {
+          "symbol": "γ",
+          "meaning": "predator mortality rate",
+          "unit": "time⁻¹"
+        }
+      ],
+      "assumptions": [
+        "Well-mixed deterministic populations; mass-action encounter term; no carrying capacity in the classical form"
+      ],
+      "initial_conditions": "Positive initial prey and predator abundances.",
+      "boundary_conditions": "No spatial structure; nonnegative population boundary is invariant.",
+      "validity_regime": "Classical coexistence equilibrium is a neutrally stable center under the idealized model, not a robust attracting cycle.",
+      "intuition": "Classical coexistence equilibrium is a neutrally stable center under the idealized model, not a robust attracting cycle.",
+      "applications": [
+        "Predator-prey theory",
+        "Trophic interaction models",
+        "Population-cycle teaching"
+      ],
+      "limitations": [
+        "No prey saturation or predator self-limitation",
+        "Neutral cycles are sensitive to omitted mechanisms"
+      ],
+      "alternatives": [
+        "Rosenzweig-MacArthur model",
+        "Logistic prey with Holling response",
+        "Stochastic predator-prey process"
+      ],
+      "validation": [
+        "Check positivity and the classical first integral with a high-accuracy solver",
+        "Compare against a small-step reference integration"
+      ],
+      "uncertainty": [
+        "Functional response and demographic uncertainty"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "The cited source supports the foundational model family and stated mathematical formulation; it does not establish application-specific empirical validity.",
+          "citation": "S49 · Lotka-Volterra predator-prey equations",
+          "doi_or_url": "https://cmp.phys.ufl.edu/PHZ4710/files/unit5/Lotka-Volterra.html"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Foundational model family identified; source-specific derivation, dimensional audit, independent numerical reproduction, empirical validation, and formal qualification remain pending."
+    },
+    {
+      "id": "RWEA-073",
+      "domain": "epidemiology",
+      "application": "Susceptible-Infectious-Recovered compartment model",
+      "model_family": "sir",
+      "equations": [
+        "dS/dt=-βSI/N",
+        "dI/dt=βSI/N-γI",
+        "dR/dt=γI",
+        "R₀=β/γ for a fully susceptible homogeneous population under this frequency-dependent convention"
+      ],
+      "variables": [
+        {
+          "symbol": "S",
+          "meaning": "susceptible count",
+          "unit": "individuals"
+        },
+        {
+          "symbol": "I",
+          "meaning": "infectious count",
+          "unit": "individuals"
+        },
+        {
+          "symbol": "R",
+          "meaning": "recovered or removed count",
+          "unit": "individuals"
+        },
+        {
+          "symbol": "β",
+          "meaning": "transmission rate",
+          "unit": "time⁻¹"
+        },
+        {
+          "symbol": "γ",
+          "meaning": "recovery rate",
+          "unit": "time⁻¹"
+        },
+        {
+          "symbol": "N",
+          "meaning": "closed population total",
+          "unit": "individuals"
+        }
+      ],
+      "assumptions": [
+        "Homogeneous mixing; closed population; no latent period or reinfection; deterministic approximation"
+      ],
+      "initial_conditions": "Nonnegative S,I,R with S+I+R=N.",
+      "boundary_conditions": "Closed population; S+I+R conserved.",
+      "validity_regime": "Tracks transfers among three compartments; threshold and R₀ depend on incidence convention and susceptibility assumptions.",
+      "intuition": "Tracks transfers among three compartments; threshold and R₀ depend on incidence convention and susceptibility assumptions.",
+      "applications": [
+        "Epidemic theory",
+        "Compartment model education",
+        "Scenario analysis"
+      ],
+      "limitations": [
+        "No age or contact heterogeneity",
+        "No latent period, waning immunity, or stochastic fadeout"
+      ],
+      "alternatives": [
+        "SEIR",
+        "Network epidemic model",
+        "Stochastic SIR continuous-time Markov chain"
+      ],
+      "validation": [
+        "Check S+I+R conservation and nonnegative states",
+        "Check initial infectious growth against βS₀/N-γ"
+      ],
+      "uncertainty": [
+        "Transmission, recovery, and contact-structure uncertainty"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "The cited source supports the foundational model family and stated mathematical formulation; it does not establish application-specific empirical validity.",
+          "citation": "S50 · Stochastic and deterministic SIR epidemic models",
+          "doi_or_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5641366/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Foundational model family identified; source-specific derivation, dimensional audit, independent numerical reproduction, empirical validation, and formal qualification remain pending."
+    },
+    {
+      "id": "RWEA-074",
+      "domain": "spatial ecology and network science",
+      "application": "Network metapopulation migration model",
+      "model_family": "network_metapopulation",
+      "equations": [
+        "dxᵢ/dt=fᵢ(xᵢ)+mΣⱼAᵢⱼ(xⱼ-xᵢ) for symmetric unweighted adjacency A"
+      ],
+      "variables": [
+        {
+          "symbol": "xᵢ",
+          "meaning": "population in patch i",
+          "unit": "individuals"
+        },
+        {
+          "symbol": "m",
+          "meaning": "migration rate",
+          "unit": "time⁻¹"
+        },
+        {
+          "symbol": "Aᵢⱼ",
+          "meaning": "patch adjacency or weight",
+          "unit": "dimensionless"
+        },
+        {
+          "symbol": "fᵢ",
+          "meaning": "local patch dynamics",
+          "unit": "individuals/time"
+        }
+      ],
+      "assumptions": [
+        "Patches are graph nodes; migration rule specified; symmetric flux convention for conservation claim"
+      ],
+      "initial_conditions": "Initial abundance vector across patches.",
+      "boundary_conditions": "Migration-only total abundance is conserved for symmetric A with balanced pairwise flux.",
+      "validity_regime": "Local demographic dynamics and graph-mediated migration jointly shape patch persistence and regional abundance.",
+      "intuition": "Local demographic dynamics and graph-mediated migration jointly shape patch persistence and regional abundance.",
+      "applications": [
+        "Fragmented habitats",
+        "Disease metapopulations",
+        "Dispersal networks"
+      ],
+      "limitations": [
+        "Linear symmetric migration is simplified; directed or state-dependent migration changes conservation conditions"
+      ],
+      "alternatives": [
+        "Patch occupancy model",
+        "Structured metapopulation matrix",
+        "Nonlinear migration network"
+      ],
+      "validation": [
+        "Verify migration-only total conservation numerically",
+        "Check isolated-patch and strongly connected limits"
+      ],
+      "uncertainty": [
+        "Migration matrix and local demographic uncertainty"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "The cited source supports the foundational model family and stated mathematical formulation; it does not establish application-specific empirical validity.",
+          "citation": "S51 · Epidemic models and metapopulation networks",
+          "doi_or_url": "https://www.sciencedirect.com/science/article/pii/S1755436517301342"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Foundational model family identified; source-specific derivation, dimensional audit, independent numerical reproduction, empirical validation, and formal qualification remain pending."
+    },
+    {
+      "id": "RWEA-075",
+      "domain": "computational neuroscience",
+      "application": "Amari neural-field integro-differential equation",
+      "model_family": "amari_neural_field",
+      "equations": [
+        "τ∂ₜu(x,t)=-u(x,t)+∫Ωw(x-y)S(u(y,t))dy+I(x,t)"
+      ],
+      "variables": [
+        {
+          "symbol": "u",
+          "meaning": "neural activity field",
+          "unit": "model-dependent"
+        },
+        {
+          "symbol": "τ",
+          "meaning": "activity time constant",
+          "unit": "s"
+        },
+        {
+          "symbol": "w",
+          "meaning": "spatial coupling kernel",
+          "unit": "model-dependent"
+        },
+        {
+          "symbol": "S",
+          "meaning": "activation function",
+          "unit": "dimensionless"
+        },
+        {
+          "symbol": "I",
+          "meaning": "external input field",
+          "unit": "model-dependent"
+        }
+      ],
+      "assumptions": [
+        "Continuum population approximation; coupling kernel and activation specified; domain and boundary conditions declared"
+      ],
+      "initial_conditions": "Initial activity field u(x,0).",
+      "boundary_conditions": "Periodic, bounded-domain, or decaying-field conditions must be selected explicitly.",
+      "validity_regime": "Spatially distributed recurrent input shapes local population activity and can support waves or stationary bumps.",
+      "intuition": "Spatially distributed recurrent input shapes local population activity and can support waves or stationary bumps.",
+      "applications": [
+        "Cortical wave models",
+        "Bump attractors",
+        "Neural pattern formation"
+      ],
+      "limitations": [
+        "Mean-field approximation omits cellular variability",
+        "Kernel and activation strongly affect qualitative behavior"
+      ],
+      "alternatives": [
+        "Wilson-Cowan neural mass",
+        "Spiking network",
+        "Stochastic neural field"
+      ],
+      "validation": [
+        "Check boundedness under bounded activation and integrable kernel",
+        "Compare stationary solutions under parameter variation"
+      ],
+      "uncertainty": [
+        "Kernel estimation and coarse-graining uncertainty"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "The cited source supports the foundational model family and stated mathematical formulation; it does not establish application-specific empirical validity.",
+          "citation": "S52 · Neural Field Models: A Mathematical Overview and Unifying Framework",
+          "doi_or_url": "https://mna.episciences.org/9228"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Foundational model family identified; source-specific derivation, dimensional audit, independent numerical reproduction, empirical validation, and formal qualification remain pending."
+    },
+    {
+      "id": "RWEA-076",
+      "domain": "stochastic chemical kinetics",
+      "application": "Chemical master equation",
+      "model_family": "chemical_master_equation",
+      "equations": [
+        "∂ₜP(x,t)=Σⱼ[aⱼ(x-νⱼ)P(x-νⱼ,t)-aⱼ(x)P(x,t)]"
+      ],
+      "variables": [
+        {
+          "symbol": "P",
+          "meaning": "probability of molecular state x",
+          "unit": "dimensionless"
+        },
+        {
+          "symbol": "aⱼ",
+          "meaning": "reaction propensity",
+          "unit": "s⁻¹"
+        },
+        {
+          "symbol": "νⱼ",
+          "meaning": "stoichiometric state-change vector",
+          "unit": "molecules"
+        },
+        {
+          "symbol": "x",
+          "meaning": "molecular count state",
+          "unit": "molecules"
+        }
+      ],
+      "assumptions": [
+        "Well-stirred system; discrete molecular counts; reaction channels and propensities specified"
+      ],
+      "initial_conditions": "Initial probability distribution over molecular states.",
+      "boundary_conditions": "State-space boundary transitions must preserve nonnegative counts and total probability.",
+      "validity_regime": "Exact probability evolution for the specified continuous-time Markov reaction network.",
+      "intuition": "Exact probability evolution for the specified continuous-time Markov reaction network.",
+      "applications": [
+        "Gene expression",
+        "Molecular reaction networks",
+        "Small-volume chemistry"
+      ],
+      "limitations": [
+        "State space can be huge or unbounded",
+        "Propensities require physical reaction assumptions"
+      ],
+      "alternatives": [
+        "Chemical Langevin equation",
+        "Reaction-rate ODE",
+        "Fokker-Planck approximation"
+      ],
+      "validation": [
+        "Check generator column sums and probability normalization",
+        "Compare a unimolecular reaction against its analytic distribution"
+      ],
+      "uncertainty": [
+        "Reaction-rate, volume, and well-mixed approximation uncertainty"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "The cited source supports the foundational model family and stated mathematical formulation; it does not establish application-specific empirical validity.",
+          "citation": "S53 · Gillespie, Exact Stochastic Simulation of Coupled Chemical Reactions (1977)",
+          "doi_or_url": "https://apice.unibo.it/bin/view/Publication/StochasticsimulationJphyschem81"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Foundational model family identified; source-specific derivation, dimensional audit, independent numerical reproduction, empirical validation, and formal qualification remain pending."
+    },
+    {
+      "id": "RWEA-077",
+      "domain": "stochastic simulation",
+      "application": "Gillespie stochastic simulation algorithm",
+      "model_family": "gillespie_ssa",
+      "equations": [
+        "a₀(x)=Σⱼaⱼ(x)",
+        "τ=-ln(U₁)/a₀(x)",
+        "P(j next|x)=aⱼ(x)/a₀(x)"
+      ],
+      "variables": [
+        {
+          "symbol": "aⱼ",
+          "meaning": "reaction propensity",
+          "unit": "s⁻¹"
+        },
+        {
+          "symbol": "a₀",
+          "meaning": "total propensity",
+          "unit": "s⁻¹"
+        },
+        {
+          "symbol": "τ",
+          "meaning": "waiting time",
+          "unit": "s"
+        },
+        {
+          "symbol": "U₁",
+          "meaning": "uniform random variate",
+          "unit": "dimensionless"
+        }
+      ],
+      "assumptions": [
+        "Well-stirred continuous-time Markov reaction network; correct propensities; direct method"
+      ],
+      "initial_conditions": "Initial integer-valued molecular state and simulation time.",
+      "boundary_conditions": "Reaction updates must respect nonnegative molecular counts.",
+      "validity_regime": "Samples trajectories of the specified chemical master equation up to floating-point and model assumptions.",
+      "intuition": "Samples trajectories of the specified chemical master equation up to floating-point and model assumptions.",
+      "applications": [
+        "Stochastic gene circuits",
+        "Small-volume chemistry",
+        "Reaction-network uncertainty"
+      ],
+      "limitations": [
+        "Slow for stiff or high-event-rate systems",
+        "Exactness applies to the specified propensity model"
+      ],
+      "alternatives": [
+        "Next-reaction method",
+        "Tau-leaping",
+        "Hybrid stochastic-deterministic method"
+      ],
+      "validation": [
+        "Check one-channel exponential waiting-time distribution",
+        "Check reaction-selection frequencies against normalized propensities"
+      ],
+      "uncertainty": [
+        "Monte Carlo sampling and propensity-model uncertainty"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "The cited source supports the foundational model family and stated mathematical formulation; it does not establish application-specific empirical validity.",
+          "citation": "S53 · Gillespie, Exact Stochastic Simulation of Coupled Chemical Reactions (1977)",
+          "doi_or_url": "https://apice.unibo.it/bin/view/Publication/StochasticsimulationJphyschem81"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Foundational model family identified; source-specific derivation, dimensional audit, independent numerical reproduction, empirical validation, and formal qualification remain pending."
+    },
+    {
+      "id": "RWEA-078",
+      "domain": "spatial stochastic chemistry",
+      "application": "Reaction-diffusion master equation",
+      "model_family": "rdme",
+      "equations": [
+        "∂ₜP(x,t)=Σⱼ reaction-transition terms + Σᵢⱼ diffusion-jump terms"
+      ],
+      "variables": [
+        {
+          "symbol": "P",
+          "meaning": "probability of spatial molecular state",
+          "unit": "dimensionless"
+        },
+        {
+          "symbol": "aⱼ",
+          "meaning": "local reaction propensity",
+          "unit": "s⁻¹"
+        },
+        {
+          "symbol": "Dᵢ",
+          "meaning": "molecular diffusion coefficient",
+          "unit": "m²/s"
+        },
+        {
+          "symbol": "x",
+          "meaning": "molecule counts across voxels",
+          "unit": "molecules"
+        }
+      ],
+      "assumptions": [
+        "Space discretized into voxels; local reactions and inter-voxel jumps specified; voxel validity assessed"
+      ],
+      "initial_conditions": "Initial joint molecular-count distribution across voxels.",
+      "boundary_conditions": "No-flux, periodic, or physical boundary jump rules.",
+      "validity_regime": "Couples discrete stochastic reactions with spatial molecular transport; model validity depends on voxel scale and reaction regime.",
+      "intuition": "Couples discrete stochastic reactions with spatial molecular transport; model validity depends on voxel scale and reaction regime.",
+      "applications": [
+        "Intracellular reaction-diffusion",
+        "Spatial gene regulation",
+        "Heterogeneous chemical media"
+      ],
+      "limitations": [
+        "Naive RDME may fail to converge for some bimolecular reactions as voxel size shrinks",
+        "Cost grows rapidly with spatial state size"
+      ],
+      "alternatives": [
+        "Convergent RDME",
+        "Particle-based Brownian reaction model",
+        "Stochastic PDE approximation"
+      ],
+      "validation": [
+        "Check total-molecule conservation for diffusion-only jumps",
+        "Perform voxel-refinement comparison on a supported reaction system"
+      ],
+      "uncertainty": [
+        "Voxel size, diffusion, and reaction-propensity uncertainty"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "The cited source supports the foundational model family and stated mathematical formulation; it does not establish application-specific empirical validity.",
+          "citation": "S54 · Isaacson, A Convergent Reaction-Diffusion Master Equation",
+          "doi_or_url": "https://arxiv.org/abs/1211.6772"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Foundational model family identified; source-specific derivation, dimensional audit, independent numerical reproduction, empirical validation, and formal qualification remain pending."
+    },
+    {
+      "id": "RWEA-079",
+      "domain": "complex networks and adaptive systems",
+      "application": "Adaptive coevolutionary network model",
+      "model_family": "adaptive_network",
+      "equations": [
+        "dx/dt=F(x,A)",
+        "dA/dt=G(x,A); F and G are model-specific"
+      ],
+      "variables": [
+        {
+          "symbol": "x",
+          "meaning": "node state vector",
+          "unit": "model-dependent"
+        },
+        {
+          "symbol": "A",
+          "meaning": "network adjacency or weight matrix",
+          "unit": "dimensionless or weighted"
+        },
+        {
+          "symbol": "F",
+          "meaning": "node-state dynamics",
+          "unit": "state/time"
+        },
+        {
+          "symbol": "G",
+          "meaning": "network rewiring dynamics",
+          "unit": "edge/time"
+        }
+      ],
+      "assumptions": [
+        "Node-state and topology dynamics both specified; rewiring rule, timescale, and graph constraints explicit"
+      ],
+      "initial_conditions": "Initial node states and graph.",
+      "boundary_conditions": "Allowed edges, degree rules, directedness, and self-loop policy declared.",
+      "validity_regime": "Network structure changes in response to node states while node states evolve on the changing graph.",
+      "intuition": "Network structure changes in response to node states while node states evolve on the changing graph.",
+      "applications": [
+        "Adaptive epidemics",
+        "Opinion dynamics",
+        "Evolutionary games",
+        "Ecological interaction networks"
+      ],
+      "limitations": [
+        "No universal F or G; mean-field closure can miss degree correlations and motifs"
+      ],
+      "alternatives": [
+        "Static-network dynamics",
+        "Pair approximation",
+        "Agent-based adaptive graph model"
+      ],
+      "validation": [
+        "Check graph invariants after every rewiring event",
+        "Compare trajectories with a frozen-topology control"
+      ],
+      "uncertainty": [
+        "Rewiring-rule, topology-sampling, and timescale uncertainty"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "The cited source supports the foundational model family and stated mathematical formulation; it does not establish application-specific empirical validity.",
+          "citation": "S55 · Gross and Blasius, Adaptive Coevolutionary Networks: A Review",
+          "doi_or_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2405905/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Foundational model family identified; source-specific derivation, dimensional audit, independent numerical reproduction, empirical validation, and formal qualification remain pending."
+    },
+    {
+      "id": "RWEA-080",
+      "domain": "community ecology and network dynamics",
+      "application": "Generalized Lotka-Volterra community model",
+      "model_family": "generalized_lotka_volterra",
+      "equations": [
+        "dxᵢ/dt=xᵢ(rᵢ+ΣⱼAᵢⱼxⱼ)",
+        "At an interior equilibrium x*: r+A x*=0",
+        "Jᵢⱼ=xᵢ* Aᵢⱼ for this per-capita interaction form"
+      ],
+      "variables": [
+        {
+          "symbol": "xᵢ",
+          "meaning": "abundance of species i",
+          "unit": "individuals or biomass"
+        },
+        {
+          "symbol": "rᵢ",
+          "meaning": "intrinsic per-capita growth rate",
+          "unit": "time⁻¹"
+        },
+        {
+          "symbol": "Aᵢⱼ",
+          "meaning": "per-capita interaction coefficient",
+          "unit": "(abundance·time)⁻¹"
+        },
+        {
+          "symbol": "J",
+          "meaning": "community Jacobian at equilibrium",
+          "unit": "time⁻¹"
+        }
+      ],
+      "assumptions": [
+        "Pairwise interaction approximation; differentiable dynamics; nonnegative abundances; interaction convention stated"
+      ],
+      "initial_conditions": "Initial abundance vector x(0)≥0.",
+      "boundary_conditions": "Extinction boundary xᵢ=0 is invariant without immigration.",
+      "validity_regime": "Multiple populations evolve through intrinsic growth and pairwise interaction effects; equilibrium stability depends on the interaction matrix.",
+      "intuition": "Multiple populations evolve through intrinsic growth and pairwise interaction effects; equilibrium stability depends on the interaction matrix.",
+      "applications": [
+        "Food webs",
+        "Microbial communities",
+        "Community assembly",
+        "Ecological stability"
+      ],
+      "limitations": [
+        "Constant pairwise interactions can oversimplify context dependence",
+        "Interaction-matrix estimation and identifiability are difficult"
+      ],
+      "alternatives": [
+        "Consumer-resource model",
+        "Higher-order interaction model",
+        "Stochastic generalized LV"
+      ],
+      "validation": [
+        "Check nonnegative invariance",
+        "Compute feasible equilibria and inspect Jacobian eigenvalues"
+      ],
+      "uncertainty": [
+        "Interaction-matrix, environment, and model-structure uncertainty"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "The cited source supports the foundational model family and stated mathematical formulation; it does not establish application-specific empirical validity.",
+          "citation": "S56 · Allesina, One Hundred Years of Lotka-Volterra Models",
+          "doi_or_url": "https://www.annualreviews.org/content/journals/10.1146/annurev-ecolsys-102924-040829"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Foundational model family identified; source-specific derivation, dimensional audit, independent numerical reproduction, empirical validation, and formal qualification remain pending."
+    }
+  ]
+}
