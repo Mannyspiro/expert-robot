@@ -855,5 +855,25 @@
     "Part 1 and Part 2 of the five-archive intake need their original bytes, hashes and inventories before intake can be marked complete.",
     "The current repository artifact index is a changed-file list for PRs #72–#74, not a full recursive repository manifest.",
     "Archive-only and context-only projects are not represented as implemented runtime capabilities."
-  ]
+  ],
+  "catalog_maintenance": {
+    "rule": "Every new Merlin project conversation, decision, research idea, module, artifact, integration or result must be assigned a stable catalog ID and recorded with provenance.",
+    "required_fields": [
+      "stable_id",
+      "title",
+      "kind",
+      "source_conversation_or_file",
+      "created_or_observed_at",
+      "project_id",
+      "status",
+      "assumptions",
+      "relations",
+      "evidence_refs",
+      "next_steps"
+    ],
+    "status_rule": "Keep archive-only, context-only, planned, specification-only, prototype, partial, implemented, tested and independently verified states distinct.",
+    "append_only": "Do not silently overwrite prior decisions. Add a superseding record and link the earlier record.",
+    "artifact_rule": "Record exact repository path, source commit, content hash and test/evidence reference when available.",
+    "authority_rule": "Cataloging does not confer implementation, proof, safety or deployment approval."
+  }
 }
