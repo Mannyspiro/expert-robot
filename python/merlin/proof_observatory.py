@@ -81,7 +81,7 @@ class ProofAttempt:
         if not self.lean_version.strip() or not self.mathlib_revision.strip():
             raise ValueError("Lean version and Mathlib revision are required")
         if self.workflow_run_url is not None and not re.fullmatch(
-            r"https://github\\.com/[^/]+/[^/]+/actions/runs/[1-9][0-9]*", self.workflow_run_url
+            r"https://github\.com/[^/]+/[^/]+/actions/runs/[1-9][0-9]*", self.workflow_run_url
         ):
             raise ValueError("workflow_run_url must be a GitHub Actions run URL")
         if self.outcome == "success" and self.failure_stage is not None:
