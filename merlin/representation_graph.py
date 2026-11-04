@@ -2,7 +2,7 @@
 
 Convention: each frame matrix P_i maps canonical coordinates to frame-i
 coordinates. Thus T_{i->j} = P_j * inverse(P_i).
-This v0.1 module covers invertible 2x2 rational linear frames only.
+The implementation supports finite-dimensional square rational matrices.
 """
 from __future__ import annotations
 
@@ -11,46 +11,86 @@ from fractions import Fraction
 from typing import Iterable, Sequence
 
 Scalar = Fraction
-Matrix2 = tuple[tuple[Scalar, Scalar], tuple[Scalar, Scalar]]
-IDENTITY: Matrix2 = ((Fraction(1), Fraction(0)), (Fraction(0), Fraction(1)))
+Matrix = tuple[tuple[Scalar, ...], ...]
 
 
-def matrix(a: Sequence[Sequence[int | Fraction]]) -> Matrix2:
-    if len(a) != 2 or any(len(row) != 2 for row in a):
-        raise ValueError("expected a 2x2 matrix")
-    return tuple(tuple(Fraction(x) for x in row) for row in a)  # type: ignore[return-value]
+def matrix(rows: Sequence[Sequence[int | Fraction]]) -> Matrix:
+    if not rows or any(len(row) != len(rows) for row in rows):
+        raise ValueError("expected a non-empty square matrix")
+    return tuple(tuple(Fraction(x) for x in row) for row in rows)
 
 
-def multiply(a: Matrix2, b: Matrix2) -> Matrix2:
-    return tuple(tuple(sum(a[i][k] * b[k][j] for k in range(2))
-                       for j in range(2)) for i in range(2))  # type: ignore[return-value]
+def identity(n: int) -> Matrix:
+    if n < 1:
+        raise ValueError("matrix dimension must be positive")
+    return tuple(tuple(Fraction(int(i == j)) for j in range(n))
+                 for i in range(n))
 
 
-def determinant(a: Matrix2) -> Scalar:
-    return a[0][0] * a[1][1] - a[0][1] * a[1][0]
+def _same_shape(a: Matrix, b: Matrix) -> None:
+    if not a or len(a) != len(b) or any(len(x) != len(y) for x, y in zip(a, b)):
+        raise ValueError("matrix dimensions must agree")
 
 
-def inverse(a: Matrix2) -> Matrix2:
-    d = determinant(a)
-    if d == 0:
-        raise ValueError("frame matrix must be invertible")
-    return ((a[1][1] / d, -a[0][1] / d),
-            (-a[1][0] / d, a[0][0] / d))
+def multiply(a: Matrix, b: Matrix) -> Matrix:
+    if not a or not b or len(a[0]) != len(b):
+        raise ValueError("incompatible matrix dimensions")
+    return tuple(tuple(sum(a[i][k] * b[k][j] for k in range(len(b)))
+                       for j in range(len(b[0]))) for i in range(len(a)))
 
 
-def subtract(a: Matrix2, b: Matrix2) -> Matrix2:
-    return tuple(tuple(a[i][j] - b[i][j] for j in range(2))
-                 for i in range(2))  # type: ignore[return-value]
+def determinant(a: Matrix) -> Scalar:
+    n = len(a)
+    if n == 0 or any(len(row) != n for row in a):
+        raise ValueError("determinant requires a non-empty square matrix")
+    work = [list(row) for row in a]
+    sign, result = 1, Fraction(1)
+    for col in range(n):
+        pivot = next((r for r in range(col, n) if work[r][col] != 0), None)
+        if pivot is None:
+            return Fraction(0)
+        if pivot != col:
+            work[col], work[pivot] = work[pivot], work[col]
+            sign *= -1
+        value = work[col][col]
+        result *= value
+        for row in range(col + 1, n):
+            factor = work[row][col] / value
+            for j in range(col + 1, n):
+                work[row][j] -= factor * work[col][j]
+    return result * sign
 
 
-def trace(a: Matrix2) -> Scalar:
-    return a[0][0] + a[1][1]
+def inverse(a: Matrix) -> Matrix:
+    n = len(a)
+    if n == 0 or any(len(row) != n for row in a):
+        raise ValueError("inverse requires a non-empty square matrix")
+    work = [list(a[i]) + list(identity(n)[i]) for i in range(n)]
+    for col in range(n):
+        pivot = next((r for r in range(col, n) if work[r][col] != 0), None)
+        if pivot is None:
+            raise ValueError("frame matrix must be invertible")
+        work[col], work[pivot] = work[pivot], work[col]
+        scale = work[col][col]
+        work[col] = [x / scale for x in work[col]]
+        for row in range(n):
+            if row == col:
+                continue
+            factor = work[row][col]
+            work[row] = [work[row][j] - factor * work[col][j] for j in range(2 * n)]
+    return tuple(tuple(work[i][n:]) for i in range(n))
+
+
+def trace(a: Matrix) -> Scalar:
+    if not a or any(len(row) != len(a) for row in a):
+        raise ValueError("trace requires a non-empty square matrix")
+    return sum((a[i][i] for i in range(len(a))), Fraction(0))
 
 
 @dataclass(frozen=True)
 class Frame:
     frame_id: str
-    canonical_to_frame: Matrix2
+    canonical_to_frame: Matrix
 
     def __post_init__(self) -> None:
         if not self.frame_id:
@@ -62,13 +102,13 @@ class Frame:
 @dataclass(frozen=True)
 class PathAudit:
     path: tuple[str, ...]
-    composed: Matrix2
-    direct: Matrix2
+    composed: Matrix
+    direct: Matrix
     consistent: bool
 
 
 class RepresentationGraph:
-    """A finite family of coordinate frames for one underlying vector space."""
+    """A finite family of coordinate frames for one vector space."""
 
     def __init__(self, frames: Iterable[Frame]):
         items = tuple(frames)
@@ -77,8 +117,12 @@ class RepresentationGraph:
             raise ValueError("at least one frame is required")
         if len(self.frames) != len(items):
             raise ValueError("frame IDs must be unique")
+        dimensions = {len(item.canonical_to_frame) for item in items}
+        if len(dimensions) != 1:
+            raise ValueError("all frames must have the same dimension")
+        self.dimension = dimensions.pop()
 
-    def transition(self, source: str, target: str) -> Matrix2:
+    def transition(self, source: str, target: str) -> Matrix:
         """Return the exact coordinate map source -> target."""
         try:
             src = self.frames[source].canonical_to_frame
@@ -87,10 +131,10 @@ class RepresentationGraph:
             raise KeyError(f"unknown frame: {exc.args[0]}") from exc
         return multiply(dst, inverse(src))
 
-    def compose_path(self, path: Sequence[str]) -> Matrix2:
+    def compose_path(self, path: Sequence[str]) -> Matrix:
         if len(path) < 2:
             raise ValueError("path must contain at least two frame IDs")
-        result = IDENTITY
+        result = identity(self.dimension)
         for source, target in zip(path, path[1:]):
             result = multiply(self.transition(source, target), result)
         return result
@@ -102,13 +146,15 @@ class RepresentationGraph:
         composed = self.compose_path(path)
         return PathAudit(tuple(path), composed, direct, composed == direct)
 
-    def represented_operator(self, operator: Matrix2, frame_id: str) -> Matrix2:
+    def represented_operator(self, operator: Matrix, frame_id: str) -> Matrix:
         """Conjugate an operator into the selected frame."""
+        if len(operator) != self.dimension or any(len(row) != self.dimension for row in operator):
+            raise ValueError("operator dimension must match frame dimension")
         p = self.frames[frame_id].canonical_to_frame
         return multiply(multiply(p, operator), inverse(p))
 
-    def spectral_signature(self, operator: Matrix2, frame_id: str) -> tuple[Scalar, Scalar]:
-        """Return (trace, determinant), the coefficients of the 2x2 characteristic polynomial."""
+    def spectral_signature(self, operator: Matrix, frame_id: str) -> tuple[Scalar, Scalar]:
+        """Return (trace, determinant), coefficients of the 2x2 characteristic polynomial only when n=2."""
         represented = self.represented_operator(operator, frame_id)
         return trace(represented), determinant(represented)
 
@@ -116,4 +162,4 @@ class RepresentationGraph:
 def cycle_is_identity(graph: RepresentationGraph, cycle: Sequence[str]) -> bool:
     if len(cycle) < 2 or cycle[0] != cycle[-1]:
         raise ValueError("cycle must start and end at the same frame")
-    return graph.compose_path(cycle) == IDENTITY
+    return graph.compose_path(cycle) == identity(graph.dimension)
