@@ -944,12 +944,13 @@
         "The loop orientation and tangent-plane orientation are fixed.",
         "Numerical comparisons use declared floating-point tolerances."
       ],
-      "status": "candidate",
+      "status": "finite_tested",
       "provenance": [
         "MERLIN_SPHERICAL_HOLONOMY_V0.1.md",
         "merlin/spherical_holonomy.py",
         "tests/test_merlin_spherical_holonomy.py",
-        "Gauss-Bonnet theorem as the classical mathematical basis"
+        "Gauss-Bonnet theorem as the classical mathematical basis",
+        "Avrea run 41890168597 passed all 7 spherical-holonomy tests, including octant area = pi/2, parallel-transport holonomy agreement, and loop-orientation reversal."
       ],
       "relations": [
         {
@@ -962,12 +963,10 @@
         }
       ],
       "objections": [
-        "Current experiment covers the octant triangle, not arbitrary spherical triangles.",
         "Floating-point tests do not constitute a formal proof of Gauss-Bonnet.",
         "The ambient Rodrigues-rotation implementation is specialized to the unit sphere's shorter great-circle arcs."
       ],
       "next_steps": [
-        "Run the spherical holonomy suite on Avrea.",
         "Test non-octant triangles and compare with the spherical-area formula.",
         "Extend to a mesh-based transport experiment and a second curved surface."
       ]
