@@ -1,6 +1,6 @@
 # Merlin Glyph Foundry v0.1
 
-**Status:** prototype implementation. Eleven local unit tests passed in the authoring environment. Formal Lean verification and repository CI have not yet been run.
+**Status:** prototype implementation. Twelve local unit tests passed in the authoring environment. Formal Lean verification and repository CI have not yet been run.
 
 ## Purpose
 
@@ -15,11 +15,11 @@ The Glyph Foundry synthesizes higher-order operators from a small typed basis. I
 - Deterministic structural fingerprints.
 - Bounded, resumable composition enumeration with in-process deduplication and benchmark-value validation.
 - Candidate evidence states and promotion gates.
-- Promotion requires test receipts, a formal-proof receipt, independent-review receipt, and benchmark improvement over a baseline.
+- Promotion requires test receipts, a formal-proof receipt, independent-review receipt, benchmark improvement over a baseline, and an injected external verifier that validates every receipt against the candidate fingerprint.
 
 ## Important interpretation
 
-The proof and review receipt fields currently hold identifiers; they do not cryptographically validate external evidence. Production integration must resolve each receipt against actual Lean/CACE artifacts and verify repository commit, toolchain, assumptions, data hashes, and provenance.
+The receipt fields hold identifiers. Promotion now fails closed unless an external verifier callback validates each test, proof, review, and benchmark receipt against the candidate fingerprint. The prototype does not yet connect that verifier to CACE or Lean, so production promotion remains unavailable until those adapters are implemented. Production integration must resolve each receipt against actual Lean/CACE artifacts and verify repository commit, toolchain, assumptions, data hashes, and provenance.
 
 The local unit tests verify Python implementation behavior. They do not formally prove the mathematical semantics.
 
