@@ -571,7 +571,8 @@
         "MERLIN_MULTI_REPRESENTATION_GEOMETRY_V0.1.md",
         "merlin/representation_graph.py",
         "tests/test_merlin_representation_graph.py",
-        "Avrea workflow run 41888107492 passed the 2D prototype, catalog validator and Python compile at commit d7664972db5c032b439c901e00d68c9f6ad8ba03."
+        "Avrea workflow run 41888107492 passed the 2D prototype, catalog validator and Python compile at commit d7664972db5c032b439c901e00d68c9f6ad8ba03.",
+        "Avrea run 41888718729 passed catalog validation, representation graph tests including the 5D case, and Python compile at the recorded PR-head snapshot."
       ],
       "relations": [
         {
@@ -613,11 +614,12 @@
         "P_i is invertible.",
         "The scalar field is held fixed."
       ],
-      "status": "candidate",
+      "status": "finite_tested",
       "provenance": [
         "MERLIN_MULTI_REPRESENTATION_GEOMETRY_V0.1.md",
         "merlin/representation_graph.py",
-        "tests/test_merlin_representation_graph.py"
+        "tests/test_merlin_representation_graph.py",
+        "Avrea run 41888718729 passed catalog validation, representation graph tests including the 5D case, and Python compile at the recorded PR-head snapshot."
       ],
       "relations": [
         {
@@ -801,10 +803,11 @@
         "All frames have equal dimension and describe the same vector space.",
         "The common scalar field and exact or approximate arithmetic model are declared."
       ],
-      "status": "candidate",
+      "status": "finite_tested",
       "provenance": [
         "merlin/representation_graph.py n-dimensional extension",
-        "tests/test_merlin_representation_graph.py 5D case (Avrea qualification pending)"
+        "tests/test_merlin_representation_graph.py 5D case (Avrea qualification pending)",
+        "Avrea run 41888718729 passed catalog validation, representation graph tests including the 5D case, and Python compile at the recorded PR-head snapshot."
       ],
       "relations": [
         {
