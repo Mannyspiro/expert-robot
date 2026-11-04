@@ -14,7 +14,7 @@
 - `python/merlin/equation_atlas/symbolic_checks.py`: optimization derivative, logistic equilibria, least-squares gradient shape.
 - `python/merlin/equation_atlas/experiments/baseline.py`: deterministic optimization, least-squares, explicit heat solver, logistic RK4, and FFT examples.
 - `tests/test_merlin_equation_atlas.py`: regression tests for the starter layer.
-- `lean/MerlinEquationAtlas/Basic.lean`: exact algebraic inequalities and normalized logistic positivity statements.
+- `formal/MathAI/EquationAtlas.lean`: Lean theorem candidates integrated into the repository's pinned `formal/` Mathlib project and axiom audit.
 - `docs/research/real-world-equation-atlas/NORMALIZED_ENTRIES_001-020.json`: first normalized metadata tranche.
 
 ## Run
@@ -28,10 +28,10 @@ PYTHONPATH=python python -m merlin.equation_atlas.experiments.baseline
 PYTHONPATH=python python -m unittest discover -s tests -p 'test_merlin_equation_atlas.py'
 ```
 
-Lean project must use the repository's pinned Lean/mathlib toolchain. From its configured Lean project root:
+Lean project uses the repository's pinned Lean 4.34.0 / Mathlib v4.34.0 toolchain. From the repository's `formal/` directory:
 
 ```bash
-lake env lean lean/MerlinEquationAtlas/Basic.lean
+lake env lean MathAI/EquationAtlas.lean
 ```
 
 ## Promotion gates
