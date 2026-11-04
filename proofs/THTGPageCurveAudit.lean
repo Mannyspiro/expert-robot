@@ -43,10 +43,12 @@ theorem pageRatio_strict_mono
   have hnum : Real.sinh (a * t₁) < Real.sinh (a * t₂) :=
     Real.sinh_strictMono hnumArg
   have hden : Real.sinh (a * (T - t₂)) < Real.sinh (a * (T - t₁)) :=
-    Real.strictMono_sinh hdenArg
+    Real.sinh_strictMono hdenArg
   have hnumPos : 0 < Real.sinh (a * t₂) :=
     (Real.sinh_pos_iff).2 (mul_pos ha (lt_trans ht₁ ht₂))
   have hdenPos : 0 < Real.sinh (a * (T - t₁)) :=
+    (Real.sinh_pos_iff).2 (mul_pos ha (by linarith))
+  have hdenPos₂ : 0 < Real.sinh (a * (T - t₂)) :=
     (Real.sinh_pos_iff).2 (mul_pos ha (by linarith))
   have hstep₁ :
       Real.sinh (a * t₁) / Real.sinh (a * (T - t₁)) <
@@ -55,7 +57,7 @@ theorem pageRatio_strict_mono
   have hstep₂ :
       Real.sinh (a * t₂) / Real.sinh (a * (T - t₁)) <
       Real.sinh (a * t₂) / Real.sinh (a * (T - t₂)) :=
-    div_lt_div_of_pos_left hnumPos hden
+    div_lt_div_of_pos_left hnumPos hdenPos₂ hden
   exact lt_trans hstep₁ hstep₂
 
 /-- The printed entropy branch is strictly increasing for positive c and a. -/
