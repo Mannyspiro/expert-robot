@@ -239,3 +239,27 @@ Implemented in `hypothesis_ledger.py`:
 - Hypothesis evidence records are local metadata; this version does not execute experiments, run Lean, or independently verify cited sources.
 - A proof artifact hash records identity, not correctness. A trusted Lean build and theorem dependency audit are still required before accepting formal verification.
 - All network acquisition remains explicit and public-API-only.
+
+## v0.7 — versioned engineering project persistence
+
+Implemented in `python/merlin/engineering_project_store.py`:
+- Canonical schema-versioned serialization for the typed EngineeringProject model.
+- Stable SHA-256 content hashes over canonical JSON.
+- SQLite append-only revision snapshots with parent-hash chaining.
+- Idempotent saves: identical content does not create a new revision.
+- Historical loading, revision history and deterministic path-level diffs.
+- History verification checks content hashes and parent links.
+
+### Scope and limitations
+- This is local project persistence, not a multi-user collaboration or cloud sync service.
+- Hash chaining detects accidental or unauthorized history changes only when the stored history is independently trusted; it is not a signed audit log.
+- Schema migrations beyond version 1 are not implemented.
+- Canonical ordering intentionally treats part, pin, net and endpoint order as non-semantic for this IR version.
+- The CAD exporter remains a simple box-based OpenSCAD output; no parametric constraints, transforms, collision detection, KiCad export or engineering sign-off is implied.
+
+### Tests added
+- Round-trip serialization and stable hashes.
+- Canonical hash stability under reordered parts/nets.
+- Idempotent saves and append-only revision increments.
+- Deterministic diffs and historical diff retrieval.
+- Schema rejection, invalid project rejection and missing revision behavior.
