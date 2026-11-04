@@ -43,9 +43,6 @@ class MathIdeaCatalogValidationTests(unittest.TestCase):
         self.assertTrue(any("missing fields" in e for e in validate_catalog(data)))
 
 
-if __ (False) else False:
-    pass
-
 
 if __name__ == "__main__":
     unittest.main()
