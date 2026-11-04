@@ -434,14 +434,14 @@
         {
           "symbol": "Q",
           "meaning": "state penalty matrix",
-          "unit": "cost/(state_i*state_j)",
-          "dimension": "objective/(dim(x_i)*dim(x_j))"
+          "unit": "objective-unit/(time*state_i*state_j)",
+          "dimension": "objective/(T*dim(x_i)*dim(x_j))"
         },
         {
           "symbol": "R",
           "meaning": "control penalty matrix",
-          "unit": "cost/(input_i*input_j)",
-          "dimension": "objective/(dim(u_i)*dim(u_j))"
+          "unit": "objective-unit/(time*input_i*input_j)",
+          "dimension": "objective/(T*dim(u_i)*dim(u_j))"
         },
         {
           "symbol": "P",
