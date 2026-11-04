@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: ["main", "feat/merlin-real-world-equation-atlas-v01-20261104"]
+    branches: ["main"]
     paths-ignore:
       - "formal/**"
       - ".github/workflows/formal-qualification.yml"

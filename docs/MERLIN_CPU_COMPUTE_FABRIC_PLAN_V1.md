@@ -103,3 +103,12 @@ Snapshot evidence SHA-256:
 This snapshot is ephemeral and must be refreshed for each execution environment;
 it does not authorize a lease by itself because compute-budget capacity is
 unknown.
+
+## Focused Avrea engineering verification workflow
+
+`.github/workflows/merlin-engineering-ci.yml` runs the MCFC lease/scheduler,
+resource-probe, 3D routing, wiring export/qualification, drafting, CAD frame,
+and CACE receipt tests on the Avrea 8-vCPU runner. It also captures a fresh
+machine-readable capacity snapshot and publishes it with the test log. This
+focused workflow complements the full repository CI; it is not a replacement
+for the full C++/formal qualification gates.

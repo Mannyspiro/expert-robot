@@ -1,0 +1,86 @@
+name: Merlin MCFC CAD Engineering CI
+
+on:
+  push:
+    branches: ["feat/merlin-real-world-equation-atlas-v01-20261104"]
+    paths:
+      - "python/merlin/cpu_fabric/**"
+      - "python/merlin/wire_routing.py"
+      - "python/merlin/route_evidence.py"
+      - "python/merlin/engineering_drafting.py"
+      - "python/merlin/wiring_exports.py"
+      - "python/merlin/wire_qualification.py"
+      - "python/merlin/resource_probe.py"
+      - "scripts/merlin_resource_probe.py"
+      - "tests/test_wire_*.py"
+      - "tests/test_wiring_exports.py"
+      - "tests/test_route_evidence.py"
+      - "tests/test_workload_*.py"
+      - "tests/test_resource_probe.py"
+      - "tests/test_media_and_drafting.py"
+      - "tests/test_engineering_ir.py"
+      - "tests/test_cad_assembly.py"
+      - "tests/test_coordinate_frames.py"
+      - "tests/test_physical_connectivity.py"
+      - "tests/test_engineering_project_store.py"
+      - "tests/test_lean_proof_receipt.py"
+      - "requirements-equation-atlas.txt"
+      - ".github/workflows/merlin-engineering-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: merlin-engineering-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify-merlin-engineering:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 30
+    env:
+      PYTHONPATH: python
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install declared numerical dependencies
+        run: python3 -m pip install -r requirements-equation-atlas.txt
+
+      - name: Capture live MCFC capacity evidence
+        run: python3 scripts/merlin_resource_probe.py --output artifacts/runner-inventory/capacity.json
+
+      - name: Verify MCFC, CAD, wiring and CACE contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/verification
+          for pattern in \
+            test_cpu_fabric.py \
+            test_workload_leases.py \
+            test_workload_scheduler.py \
+            test_resource_probe.py \
+            test_wire_routing.py \
+            test_wire_qualification.py \
+            test_wiring_exports.py \
+            test_route_evidence.py \
+            test_media_and_drafting.py \
+            test_engineering_ir.py \
+            test_cad_assembly.py \
+            test_coordinate_frames.py \
+            test_physical_connectivity.py \
+            test_engineering_project_store.py \
+            test_lean_proof_receipt.py; do
+            echo "=== ${pattern} ==="
+            python3 -m unittest discover -s tests -p "${pattern}" -v 2>&1 | tee -a artifacts/verification/test-results.log
+          done
+
+      - name: Publish MCFC capacity and verification receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-mcfc-cad-engineering-evidence
+          path: |
+            artifacts/runner-inventory/capacity.json
+            artifacts/verification/test-results.log
+          retention-days: 14
