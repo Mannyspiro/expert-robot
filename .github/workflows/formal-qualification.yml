@@ -24,6 +24,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Restore pinned Lean dependency cache
+        id: lean-deps-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: formal/.lake/packages
+          key: lean-deps-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('formal/lean-toolchain', 'formal/lake-manifest.json', 'formal/lakefile.toml') }}
+          restore-keys: |
+            lean-deps-v1-${{ runner.os }}-${{ runner.arch }}-
+
       - name: Project proof-escape audit
         shell: bash
         run: |
@@ -118,6 +127,13 @@ jobs:
           axiom-audit: "true"
           axiom-audit-root: "MathAI"
           axiom-audit-allow: "propext,Classical.choice,Quot.sound"
+
+      - name: Save pinned Lean dependency cache
+        if: ${{ success() && steps.lean-deps-cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v4
+        with:
+          path: formal/.lake/packages
+          key: lean-deps-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('formal/lean-toolchain', 'formal/lake-manifest.json', 'formal/lakefile.toml') }}
 
       - name: Verify hidden hard-v2 benchmark witnesses
         working-directory: formal
