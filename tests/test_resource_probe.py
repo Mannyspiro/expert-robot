@@ -30,7 +30,7 @@ class ResourceProbeTests(unittest.TestCase):
     def test_gpu_capacity_parsed_in_bytes(self):
         count, memory, names = parse_gpu_capacity("GPU A, 8192\nGPU B, 16384")
         self.assertEqual(count, 2)
-        self.assertEqual(memory, 24 * 1024**2)
+        self.assertEqual(memory, 24 * 1024**3)
         self.assertEqual(names, ["GPU A", "GPU B"])
 
     def test_unavailable_gpu_probe_remains_unknown(self):
