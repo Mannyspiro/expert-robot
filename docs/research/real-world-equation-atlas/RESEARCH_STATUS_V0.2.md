@@ -22,7 +22,7 @@
 | Learning | Lesson sequence added | Lessons need visual assets and adaptive learner testing |
 
 ## AVREA / compute note
-No Avrea/Avrea-runner connector or execution tool was exposed in this session. To avoid pretending that a remote runner was used, this iteration uses repository-backed source artifacts and deterministic local calculations. The scripts are suitable for the project's available runner once its credentials and execution interface are available.
+The repository's existing GitHub Actions workflows use the self-hosted `avrea-ubuntu-latest-8-vcpu` runner. The equation-atlas Python test and artifact steps have been added to `.github/workflows/ci.yml`, and the Lean module is integrated into the existing `formal-qualification.yml` workflow, which also targets Avrea. The GitHub status query returned no check statuses at the time this note was written, so execution and successful completion are not yet confirmed. No Avrea run is claimed until workflow logs/artifacts are observed.
 
 ## Next completion gates
 1. Add specialist primary sources for every crosswalk gap.
