@@ -59,4 +59,25 @@ theorem int_double_negation (x : ℤ) : -(-x) = x := by
 theorem int_natAbs_negation (x : ℤ) : Int.natAbs (-x) = Int.natAbs x := by
   simp
 
+/-- Any rewrite relation that strictly decreases a natural-valued measure is
+well-founded. This is the abstract termination theorem behind XMG's
+size-decreasing rewrite policy; a concrete AST implementation must still prove
+that each accepted rewrite decreases its declared measure. -/
+theorem wellFounded_of_nat_measure_decrease
+    {α : Type} (size : α → ℕ) :
+    WellFounded (fun a b => size b < size a) := by
+  have aux : ∀ n, ∀ a, size a = n →
+      Acc (fun x y => size y < size x) a := by
+    intro n
+    induction n using Nat.strong_induction_on with
+    | h n ih =>
+        intro a ha
+        apply Acc.intro
+        intro b hb
+        apply ih (size b)
+        · rw [ha]
+          exact hb
+        · rfl
+  exact ⟨fun a => aux (size a) a rfl⟩
+
 end MathAI.XMG
