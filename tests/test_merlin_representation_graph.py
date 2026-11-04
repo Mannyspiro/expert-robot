@@ -3,7 +3,7 @@ from fractions import Fraction as F
 
 from merlin.representation_graph import (
     Frame, RepresentationGraph, cycle_is_identity, determinant, matrix,
-    multiply, inverse, IDENTITY,
+    multiply, inverse, identity,
 )
 
 
@@ -18,7 +18,7 @@ class RepresentationGraphTests(unittest.TestCase):
     def test_transition_round_trip_is_identity(self):
         forward = self.frames.transition("cartesian", "sheared")
         backward = self.frames.transition("sheared", "cartesian")
-        self.assertEqual(multiply(backward, forward), IDENTITY)
+        self.assertEqual(multiply(backward, forward), identity(2))
 
     def test_direct_transition_equals_two_step_path(self):
         audit = self.frames.audit_path(["cartesian", "sheared", "rotated"])
@@ -37,20 +37,13 @@ class RepresentationGraphTests(unittest.TestCase):
             self.assertEqual(self.frames.spectral_signature(operator, frame_id), expected)
 
     def test_eigenvector_coordinates_transform_with_frame(self):
-        # A has eigenvector (1,0) for eigenvalue 2.
         operator = matrix([[2, 0], [0, 3]])
         p = self.frames.transition("cartesian", "sheared")
-        vector = ((F(1),), (F(0),))
-        transformed = (
-            (p[0][0] * vector[0][0] + p[0][1] * vector[1][0],),
-            (p[1][0] * vector[0][0] + p[1][1] * vector[1][0],),
-        )
+        vector = (F(1), F(0))
+        transformed = tuple(sum(p[i][j] * vector[j] for j in range(2)) for i in range(2))
         a_sheared = self.frames.represented_operator(operator, "sheared")
-        lhs = (
-            (a_sheared[0][0] * transformed[0][0] + a_sheared[0][1] * transformed[1][0],),
-            (a_sheared[1][0] * transformed[0][0] + a_sheared[1][1] * transformed[1][0],),
-        )
-        rhs = ((2 * transformed[0][0],), (2 * transformed[1][0],))
+        lhs = tuple(sum(a_sheared[i][j] * transformed[j] for j in range(2)) for i in range(2))
+        rhs = tuple(2 * x for x in transformed)
         self.assertEqual(lhs, rhs)
 
     def test_singular_frame_is_rejected(self):
@@ -68,7 +61,48 @@ class RepresentationGraphTests(unittest.TestCase):
     def test_fraction_arithmetic_is_exact(self):
         a = matrix([[1, 1], [0, 1]])
         self.assertEqual(determinant(a), F(1))
-        self.assertEqual(multiply(a, inverse(a)), IDENTITY)
+        self.assertEqual(multiply(a, inverse(a)), identity(2))
+
+    def test_five_dimensional_frames_preserve_operator_invariants(self):
+        shear = matrix([
+            [1, 1, 0, 0, 0],
+            [0, 1, 1, 0, 0],
+            [0, 0, 1, 1, 0],
+            [0, 0, 0, 1, 1],
+            [0, 0, 0, 0, 1],
+        ])
+        reverse = matrix([
+            [0, 0, 0, 0, 1],
+            [0, 0, 0, 1, 0],
+            [0, 0, 1, 0, 0],
+            [0, 1, 0, 0, 0],
+            [1, 0, 0, 0, 0],
+        ])
+        graph = RepresentationGraph([
+            Frame("canonical5", identity(5)),
+            Frame("shear5", shear),
+            Frame("reverse5", reverse),
+        ])
+        operator = matrix([
+            [1, 1, 0, 0, 0],
+            [0, 2, 1, 0, 0],
+            [0, 0, 3, 1, 0],
+            [0, 0, 0, 4, 1],
+            [0, 0, 0, 0, 5],
+        ])
+        expected = (F(15), F(120))
+        for frame_id in graph.frames:
+            self.assertEqual(graph.spectral_signature(operator, frame_id), expected)
+        self.assertTrue(cycle_is_identity(
+            graph, ["canonical5", "shear5", "reverse5", "canonical5"]
+        ))
+
+    def test_mixed_dimensions_are_rejected(self):
+        with self.assertRaises(ValueError):
+            RepresentationGraph([
+                Frame("two", identity(2)),
+                Frame("three", identity(3)),
+            ])
 
 
 if __name__ == "__main__":
