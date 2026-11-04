@@ -10,6 +10,8 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+from jsonschema import Draft202012Validator, FormatChecker
+
 def sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as stream:
@@ -50,6 +52,11 @@ def main() -> int:
             "Lean status is not inferred from this receipt.",
         ],
     }
+    schema_path = Path("docs/research/real-world-equation-atlas/evidence-receipt.schema.json")
+    schema = json.loads(schema_path.read_text(encoding="utf-8"))
+    errors = list(Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(receipt))
+    if errors:
+        raise SystemExit("Invalid evidence receipt: " + "; ".join(error.message for error in errors))
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
     print(f"PASS evidence receipt: {args.output}")
