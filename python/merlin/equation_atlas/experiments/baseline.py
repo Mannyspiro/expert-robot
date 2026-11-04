@@ -7,6 +7,7 @@ Requires NumPy. Outputs JSON to stdout; no network access or external data.
 import json
 import math
 import numpy as np
+from merlin.equation_atlas.experiments.signal_processing import run_signal_checks
 
 def logistic_rk4(r=0.35, capacity=1000.0, initial=80.0, dt=0.1, duration=20.0):
     steps = int(round(duration / dt))
@@ -77,6 +78,7 @@ def run():
             "dt_time_units": 0.1,
             "population_at_end": logistic_rk4(),
         },
+        "signal_processing_checks": run_signal_checks(),
         "fourier_sampling": {
             "sample_rate_hz": fs,
             "input_frequency_hz": f0,
