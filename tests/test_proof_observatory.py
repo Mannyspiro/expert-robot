@@ -167,6 +167,14 @@ class ProofObservatoryTests(unittest.TestCase):
                 no_sorry=True, exact_target_declaration=True,
             )
 
+    def test_strategy_ranking_counts_failed_attempts_in_success_rate(self):
+        rows = [attempt("s1"), attempt("s2"), attempt("s3"),
+                attempt("f1", outcome="failure", qualified=False)]
+        ranked = rank_strategies(rows)
+        self.assertEqual(ranked[0]["qualified_observations"], 3)
+        self.assertEqual(ranked[0]["total_observations"], 4)
+        self.assertEqual(ranked[0]["success_rate"], 0.75)
+
 
 if __name__ == "__main__":
     unittest.main()
