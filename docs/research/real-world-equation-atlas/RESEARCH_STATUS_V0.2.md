@@ -79,3 +79,11 @@ The existing self-hosted runner label is `avrea-ubuntu-latest-8-vcpu`. CI run 12
 - Extended normalizer, schema tests, CI receipt inputs, and artifact names to cover 60 entries.
 - All new entries remain UNVERIFIED pending Avrea, source-specific derivations, dimensional and convention audits, and independent validation.
 - The last confirmed successful Avrea run remains #1302 for the earlier 001–030 revision. No successful 001–060 run is claimed.
+
+
+## Phase 0.7 tranche — RWEA-061–070
+- Added ten canonical entries spanning reaction-diffusion, Turing instability, cellular automata, logistic population growth, replicator dynamics, Wilson–Cowan neural populations, biological mutual information, Kuramoto synchronization, percolation, and self-organization.
+- Added source register S37–S44 and an explicit evidence-boundary crosswalk.
+- Added deterministic toy experiments and regression tests for seven numerical invariants and model identities.
+- Extended normalizer, schema tests, CI provenance inputs, and artifact paths to 70 entries.
+- All new entries remain UNVERIFIED. The percolation threshold treatment is provisional and requires a dedicated source; the self-organization entry is explicitly a measurement framework rather than a universal governing equation.
