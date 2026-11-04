@@ -149,10 +149,14 @@ jobs:
           import os
           output = os.environ["LEAN_OUTPUT"]
           needle = "THTGPrintedBetaAudit.no_positive_g_fixed_point' depends on axioms: ["
-          line = next((item for item in output.splitlines() if needle in item), None)
-          if line is None:
+          start = output.find(needle)
+          if start < 0:
               raise SystemExit("missing theorem-specific #print axioms output")
-          axioms = {item.strip() for item in line.split("[", 1)[1].split("]", 1)[0].split(",") if item.strip()}
+          tail = output[start + len(needle):]
+          end = tail.find("]")
+          if end < 0:
+              raise SystemExit("unterminated theorem-specific axiom list")
+          axioms = {item.strip() for item in tail[:end].replace("\\n", " ").split(",") if item.strip()}
           allowed = {"propext", "Classical.choice", "Quot.sound"}
           unexpected = axioms - allowed
           if unexpected:
@@ -180,10 +184,14 @@ jobs:
           import os
           output = os.environ["LEAN_OUTPUT"]
           needle = "THTGPageCurveAudit.pageEntropy_has_no_maximum_on_open_interval' depends on axioms: ["
-          line = next((item for item in output.splitlines() if needle in item), None)
-          if line is None:
+          start = output.find(needle)
+          if start < 0:
               raise SystemExit("missing Page-curve theorem-specific #print axioms output")
-          axioms = {item.strip() for item in line.split("[", 1)[1].split("]", 1)[0].split(",") if item.strip()}
+          tail = output[start + len(needle):]
+          end = tail.find("]")
+          if end < 0:
+              raise SystemExit("unterminated Page-curve theorem-specific axiom list")
+          axioms = {item.strip() for item in tail[:end].replace("\\n", " ").split(",") if item.strip()}
           allowed = {"propext", "Classical.choice", "Quot.sound"}
           unexpected = axioms - allowed
           if unexpected:
