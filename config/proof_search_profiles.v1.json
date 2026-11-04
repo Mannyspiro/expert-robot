@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "status": "research_profile_not_yet_benchmarked",
+  "principles": [
+    "Use theorem-library lemmas before expanding definitions.",
+    "Prefer narrow simplification sets over unrestricted simp.",
+    "Run low-cost deterministic tactics before broad proof search.",
+    "Use domain-specific tactics only when the goal shape justifies them.",
+    "Promote a strategy only from repeated, kernel-checked, provenance-complete measurements."
+  ],
+  "profiles": {
+    "structural": [
+      "rfl",
+      "exact",
+      "assumption",
+      "constructor",
+      "cases",
+      "simp only",
+      "ext",
+      "funext"
+    ],
+    "closed_numeric": [
+      "rfl",
+      "norm_num"
+    ],
+    "polynomial_identity": [
+      "ring",
+      "ring_nf"
+    ],
+    "linear_arithmetic": [
+      "omega",
+      "linarith"
+    ],
+    "nonlinear_arithmetic": [
+      "positivity",
+      "nlinarith"
+    ],
+    "ordered_field_inequality": [
+      "positivity",
+      "linarith",
+      "nlinarith"
+    ],
+    "geometry_coordinates": [
+      "exact",
+      "simp only",
+      "ext",
+      "ring",
+      "positivity",
+      "nlinarith"
+    ],
+    "theorem_reuse": [
+      "exact",
+      "apply",
+      "refine",
+      "library_search"
+    ],
+    "controlled_search": [
+      "aesop with explicit rule sets and bounded configuration"
+    ]
+  },
+  "avoid_by_default": [
+    "unrestricted simp at the beginning of every goal",
+    "unrestricted aesop before simplifying or decomposing the goal",
+    "unfolding every definition when a library lemma can close the goal",
+    "nlinarith before checking whether positivity or linarith suffices",
+    "treating successful helper lemmas as proof of an unfinished top-level theorem"
+  ],
+  "measurement": {
+    "minimum_verified_observations_before_adaptive_ranking": 3,
+    "metrics": [
+      "success",
+      "elapsed_ms",
+      "heartbeats",
+      "peak_memory_bytes",
+      "source_revision",
+      "toolchain",
+      "mathlib_revision"
+    ],
+    "require_kernel_checked": true,
+    "require_no_sorry": true,
+    "record_axiom_dependencies": true,
+    "record_statement_and_assumption_hashes": true,
+    "compare_against_baseline": true
+  },
+  "promotion_gates": [
+    "same theorem statement and assumptions",
+    "kernel-checked proof with no sorryAx",
+    "axiom dependency audit recorded",
+    "source commit and toolchain pinned",
+    "repeated benchmark shows no regression in reliability",
+    "performance gain measured rather than inferred from shorter source"
+  ]
+}
