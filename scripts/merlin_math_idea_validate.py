@@ -52,9 +52,9 @@ def validate_catalog(data: dict[str, Any]) -> list[str]:
             errors.append(f"duplicate idea id: {ident}")
         else:
             ids.add(ident)
-        if idea["kind"] not in KINDS:
+        if not isinstance(idea["kind"], str) or idea["kind"] not in KINDS:
             errors.append(f"{prefix}.kind is not recognized: {idea['kind']}")
-        if idea["status"] not in STATUSES:
+        if not isinstance(idea["status"], str) or idea["status"] not in STATUSES:
             errors.append(f"{prefix}.status is not recognized: {idea['status']}")
         for field in ("title", "claim"):
             if not isinstance(idea[field], str) or not idea[field].strip():
@@ -62,12 +62,16 @@ def validate_catalog(data: dict[str, Any]) -> list[str]:
         for field in ("definitions", "assumptions", "provenance", "relations", "objections", "next_steps"):
             if not isinstance(idea[field], list):
                 errors.append(f"{prefix}.{field} must be an array")
+            elif field != "relations" and any(not isinstance(item, str) or not item.strip() for item in idea[field]):
+                errors.append(f"{prefix}.{field} entries must be non-empty strings")
         for j, relation in enumerate(idea["relations"] if isinstance(idea["relations"], list) else []):
             if not isinstance(relation, dict) or set(relation) != {"type", "target"}:
                 errors.append(f"{prefix}.relations[{j}] must contain exactly type and target")
                 continue
-            if relation["type"] not in RELATIONS:
+            if not isinstance(relation["type"], str) or relation["type"] not in RELATIONS:
                 errors.append(f"{prefix}.relations[{j}] has unknown relation type")
+            if not isinstance(relation["target"], str) or not relation["target"].strip():
+                errors.append(f"{prefix}.relations[{j}] target must be a non-empty string")
     # Resolve edges after collecting all IDs, allowing forward references.
     for index, idea in enumerate(ideas):
         if not isinstance(idea, dict) or not isinstance(idea.get("relations"), list):
