@@ -555,10 +555,10 @@
       "id": "MATH-REP-002",
       "title": "Exact multi-frame transition graph",
       "kind": "representation",
-      "claim": "For a fixed finite-dimensional vector space and invertible frame maps P_i, coordinate transitions T_i_to_j = P_j P_i^{-1} compose path-independently and closed frame cycles are identity.",
+      "claim": "For a fixed finite-dimensional vector space and invertible frame maps P_i represented by exact rational square matrices, coordinate transitions T_i_to_j = P_j P_i^{-1} compose path-independently and closed frame cycles are identity.",
       "definitions": [
         "canonical coordinate map P_i",
-        "invertible frame",
+        "invertible n×n frame matrix",
         "transition map",
         "path composition"
       ],
@@ -587,11 +587,11 @@
         }
       ],
       "objections": [
-        "Current implementation covers exact rational 2x2 linear frames only.",
+        "Current implementation uses exact rational matrices and has finite tests in dimensions 2 and 5.",
         "This does not prove consistency of arbitrary independently supplied graph edges or connection holonomy."
       ],
       "next_steps": [
-        "Generalize to n-dimensional matrices and partial coordinate charts.",
+        "Add partial coordinate charts and explicit domains.",
         "Formalize transition composition in Lean."
       ]
     },
@@ -599,7 +599,7 @@
       "id": "MATH-SPEC-001",
       "title": "Spectral invariants under basis change",
       "kind": "theorem",
-      "claim": "If A_i = P_i A P_i^{-1} for an invertible basis-change matrix over a fixed field, then A_i is similar to A and has the same characteristic polynomial, trace, determinant and eigenvalue multiset.",
+      "claim": "If A_i = P_i A P_i^{-1} for an invertible basis-change matrix over a fixed field, then A_i is similar to A and has the same characteristic polynomial, trace, determinant and eigenvalue multiset with algebraic multiplicity.",
       "definitions": [
         "linear operator",
         "similar matrices",
@@ -633,7 +633,7 @@
       ],
       "objections": [
         "The real-versus-complex scalar field distinction changes which eigenvalues and eigenvectors are visible.",
-        "Only trace and determinant are tested in the current prototype; full characteristic-polynomial identity is not yet implemented."
+        "Current prototype tests trace and determinant invariance in dimensions 2 and 5; full characteristic-polynomial identity is not yet implemented."
       ],
       "next_steps": [
         "Add exact characteristic-polynomial calculation.",
