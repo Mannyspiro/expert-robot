@@ -131,3 +131,9 @@ All 70 entries remain `UNVERIFIED`. The 061–070 sources are foundational refer
 - `python/merlin/route_evidence.py` binds project, assembly, frame graph, route output, router version, and source commit into a content-addressed receipt; CACE/Merlin ledger ingestion re-verifies inputs and never auto-promotes a hypothesis.
 - `tests/test_wire_routing.py` covers clear paths, obstacle overpass candidates, missing pin geometry, multi-terminal star topology, invalid clearance, and the explicit non-qualification status.
 - Avrea CI runs this test alongside engineering IR, CAD assembly, coordinate-frame, and physical-connectivity tests. A successful run validates only these declared software tests; it does not qualify a wiring harness for fabrication or energized use.
+
+## Electrical / thermal / manufacturing qualification research
+- `python/merlin/wire_qualification.py` implements transparent screening calculations and explicit evidence blockers for ampacity, DC voltage drop, insulation rating, reviewed clearance, lumped thermal estimate, bend radius and harness slack.
+- `python/merlin/wiring_exports.py` emits a logical connectivity graph, review-only wire schedule CSV and schematic manifest; none is a release drawing or fabrication file.
+- Tests: `tests/test_wire_qualification.py`, `tests/test_wiring_exports.py`; included in the Avrea engineering test loop.
+- Ranked research and proof obligations: `docs/research/MERLIN_ELECTRICAL_THERMAL_MANUFACTURING_QUALIFICATION_V0.1.md`.
