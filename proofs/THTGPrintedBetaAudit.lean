@@ -99,7 +99,8 @@ lemma betaG_after_elimination (g : ℝ) (hD : denominator g ≠ 0) :
   unfold betaG omegaSolved thetaSolved omegaNumerator thetaNumerator
     reducedNumerator
   field_simp [hD]
-  <;> ring_nf
+  unfold denominator
+  ring
 
 /-- The reduced beta_g is strictly positive for every positive g. -/
 theorem reduced_betaG_positive (g : ℝ) (hg : 0 < g) :
@@ -130,6 +131,7 @@ theorem no_positive_g_fixed_point
   rw [hω', hθ'] at hgβ
   exact (ne_of_gt (reduced_betaG_positive g hg)) hgβ
 
+end
 end THTGPrintedBetaAudit
 
 #print axioms THTGPrintedBetaAudit.no_positive_g_fixed_point
