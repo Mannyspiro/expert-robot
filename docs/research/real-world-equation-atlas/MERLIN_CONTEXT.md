@@ -72,7 +72,7 @@ This package records research direction and proposed outputs. It does not claim 
 - A successful Avrea run is recorded against its exact commit and workflow run. Later changes require a new run before they are called tested.
 
 ## Next execution focus
-1. Inspect the pending Avrea run for combined 001–030 validation and the complete artifact bundle.
+1. Record Avrea run #1302 as successful for the 001–030 revision; run a new validation for the combined 001–040 revision and inspect its complete artifact bundle.
 2. Extend receipts with test-output digests, container image digests, seeds/tolerances, and experiment-to-entry mapping.
 3. Normalize entries 031–040 with primary PDE, electromagnetism, and numerical-method sources.
 4. Expand dimensional checks and numerical convergence/sensitivity tests.
@@ -96,3 +96,9 @@ The standing authority boundary remains: research and verification can produce e
 3. Add finite-volume conservation tests, heat/wave convergence tests, and electromagnetic energy-balance tests with deterministic seeds/tolerances where applicable.
 4. Expand the source audit for Maxwell constitutive media, Poynting theorem derivation, fluid closures, and domain-specific boundary conditions.
 5. Run the separate Lean qualification workflow; inspect exact theorem and axiom output before any formal status change.
+
+
+## Avrea result clarification — 2026-11-04
+- CI run #1302 (run ID `41839694953`) completed successfully for the 001–030 revision. Its downloaded artifact contains exactly 30 canonical entries, RWEA-001 through RWEA-030, all marked UNVERIFIED, along with a synthetic baseline and provenance receipt.
+- The artifact ZIP SHA-256 is `699fa3156fc24ee108d38d02246b38ac994ae03941160715ff926a73493e02c7`.
+- This successful run does not cover the later RWEA-031–040 tranche or the 40-entry normalizer/receipt-path changes. A separate run is required before reporting the 40-entry batch as validated.
