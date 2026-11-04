@@ -54,6 +54,14 @@ class GlyphFoundryTests(unittest.TestCase):
         c = self.foundry.propose(self.registry.primitive_expr("NEGATE_INT"))
         with self.assertRaises(PromotionError):
             self.foundry.record_value(c, float("nan"), 1.0, "bad-benchmark")
+    def test_promotion_fails_closed_without_trusted_verifier(self):
+        foundry=GlyphFoundry(self.registry)
+        c=foundry.propose(self.registry.primitive_expr("NEGATE_INT"))
+        foundry.record_tests(c,["test"])
+        foundry.record_proof(c,"proof")
+        foundry.record_independent_review(c,"review")
+        foundry.record_value(c,2.0,1.0,"benchmark")
+        with self.assertRaises(PromotionError): foundry.promote(c)
     def test_no_improvement_cannot_be_promoted(self):
         c=self.foundry.propose(self.registry.primitive_expr("NEGATE_INT"))
         self.foundry.record_tests(c,["test"])
