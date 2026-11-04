@@ -124,6 +124,12 @@ jobs:
           LEAN_ABORT_ON_PANIC: "1"
         run: lake env lean MathAI.lean
 
+      - name: Compile THTG conditional maximum theorem and print axiom dependencies
+        working-directory: formal
+        env:
+          LEAN_ABORT_ON_PANIC: "1"
+        run: lake env lean THTGConditionalTheorems.lean
+
       - name: Registered theorem axiom report
         working-directory: formal
         env:
