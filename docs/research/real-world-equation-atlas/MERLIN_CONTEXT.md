@@ -58,7 +58,7 @@ This package records research direction and proposed outputs. It does not claim 
 - `python/merlin/equation_atlas/normalize.py` migrates legacy entries 001–020 into canonical entries and validates each with JSON Schema Draft 2020-12. It preserves legacy conditions as explicit assumptions and source-register IDs as review-required citation records.
 - All migrated entries are explicitly `UNVERIFIED`; a citation identifier is not treated as claim-level source validation.
 - `python/merlin/equation_atlas/receipts.py` creates content-addressed evidence receipts binding the generated artifact to declared source files, code revision, command, and runtime metadata.
-- CI has been extended to generate the canonical tranche, create the evidence receipt, and archive the baseline, normalized entries, and receipt together. These new steps are pending their own Avrea run; do not infer success from the earlier CI run.
+- CI run #1289 completed successfully on Avrea. It generated and schema-validated all 20 canonical entries, generated and validated the receipt, and published an artifact containing the baseline, canonical normalized tranche, and receipt. The artifact was downloaded and inspected; its receipt contains nine source hashes and the canonical tranche has 20 entries, all marked UNVERIFIED.
 
 ## Data and evidence rules
 - Canonical entries are the typed source of truth; legacy JSON is migration input only until replaced.
