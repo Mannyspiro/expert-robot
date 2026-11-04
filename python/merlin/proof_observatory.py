@@ -192,13 +192,13 @@ class ProofObservatory:
 
 def rank_strategies(attempts: Iterable[ProofAttempt], minimum_qualified: int = 3) -> list[dict]:
     """Rank tactic sequences only after repeated exact-target kernel-checked observations."""
-    groups: dict[tuple[str, ...], list[ProofAttempt]] = {}
+    groups: dict[tuple[tuple[str, ...], str, str, str, str, str], list[ProofAttempt]] = {}
     for attempt in attempts:
         attempt.validate()
         if attempt.qualified:
-            groups.setdefault(attempt.tactic_sequence, []).append(attempt)
+            group_key = (attempt.tactic_sequence, attempt.goal.domain,\n                     attempt.goal.statement_sha256, attempt.goal.assumptions_sha256,\n                     attempt.lean_version, attempt.mathlib_revision)\n            groups.setdefault(group_key, []).append(attempt)
     ranked = []
-    for tactics, rows in groups.items():
+    for group_key, rows in groups.items():\n        tactics = group_key[0]
         if len(rows) < minimum_qualified:
             continue
         ranked.append({
