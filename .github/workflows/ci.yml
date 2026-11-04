@@ -125,7 +125,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for pattern in test_engineering_ir.py test_engineering_project_store.py test_cad_assembly.py test_coordinate_frames.py; do
+          for pattern in test_engineering_ir.py test_engineering_project_store.py test_cad_assembly.py test_coordinate_frames.py test_physical_connectivity.py; do
             python3 -m unittest discover -s tests -p "$pattern" -v
           done
 
