@@ -141,3 +141,38 @@ A theorem that depends on classical choice is not automatically invalid. Merlin 
 - The proof searcher learns from failures as well as successes.
 
 **Design rule:** capability grows, authority never expands.
+
+
+## Newly announced Lean-formalized mathematics to mine
+
+The following are recent public announcements and should be ingested as *claims with status metadata*, not treated as equally mature or independently settled results:
+
+| Date / period | Result announced | Evidence boundary | Merlin mining target |
+|---|---|---|---|
+| 4 Sep 2026 | Complete Lean formalization of Fermat's Last Theorem (FLT) | Anthropic reports a 13-million-line development, 29,500 intermediate theorems in the final proof, three standard Lean axioms, and statement comparison with Mathlib. This formalizes the established Wiles proof; the novelty is the end-to-end formalization, not a new proof of FLT. | theorem DAG decomposition, shared intermediate lemma discovery, statement/proof file separation, natural-language theorem indexing, collaborative work queues, statement comparator, dependency reuse |
+| 17 Oct 2026 | Lean formalization of an announced refutation of the Exponential Time Hypothesis | OpenAI reports the result and Lean formalization; it also says an expert group will examine and shepherd the result. Treat as an announced result under external scrutiny, not as a settled consensus theorem. | exact statement normalization, counterexample/contradiction structure, premise tracking, independent verification and status tracking |
+| 19 Oct 2026 | Lean formalization associated with local smoothing, Kakeya and Stein restriction results | OpenAI reports an AI-derived proof based on a novel auxiliary PDE and public Lean artifacts. Track the three implications separately and preserve the analytic hypotheses. | PDE auxiliary-object construction, implication graph, function-space hypotheses, theorem reuse across dimensions, analytic estimate libraries |
+| Oct 2026 | Complete Lean formalization of the Classification of Finite Simple Groups announced by Axiom | Listed by Lean FRO as an announcement; do not infer code size, proof architecture or review status without examining the actual artifact. | massive theorem dependency graph, finite-group API reuse, modular decomposition, build scalability |
+| Sep 2026 | Stronger prime-gap bound of 186 with Lean formalization announced | Lean FRO lists the result; record exact theorem statement, quantifiers and proof artifact before treating it as a verified corpus item. | analytic number theory interfaces, sieve estimates, explicit constants, reusable finite combinatorics |
+| Aug 2026 | Progress on a Riemann-zeta result / stronger proportion bound announced with Lean formalization | Reported as progress on a proportion of zeros on the critical line, not a proof of the Riemann hypothesis. | statement-faithfulness checks, analytic estimates, partial-result classification, counterexample/status distinctions |
+
+Primary sources:
+- FLT formalization report: https://www.anthropic.com/research/formalizing-fermats-last-theorem
+- OpenAI October 2026 mathematics announcements: https://openai.com/index/building-scientific-understanding-with-academic-communities/
+- Lean FRO announcement timeline: https://lean-lang.org/
+- Curated Lean papers and projects: https://leanprover-community.github.io/papers.html and https://leanprover-community.github.io/lean_projects.html
+
+### FLT-specific architectural lessons Merlin should adopt
+
+The FLT report describes several concrete engineering choices that are more transferable than any individual tactic:
+
+1. **Theorem DAG as the planning authority.** Each theorem node should have a statement, assumptions, dependencies, proof status and assigned work. Agents select tasks from unmet dependency nodes, not from a vague global prompt.
+2. **Separate theorem statements from proof bodies.** Keep stable statement modules independent of proof implementation modules so that dependency consumers can compile against the interface without recompiling unrelated proof bodies.
+3. **Natural-language theorem descriptions.** Index every theorem by both its Lean declaration and a concise mathematical description; use this for semantic retrieval and lemma reuse.
+4. **Reusable intermediate results.** Before proving a new lemma, search the current project and Mathlib for a statement-equivalent or weaker/stronger reusable result. Record adaptation cost and assumptions.
+5. **Bounded parallelism with shared state.** Parallel agents need a single authoritative task graph, explicit ownership/leases and append-only receipts. The FLT report notes early coordination failures before the shared platform improved work allocation.
+6. **Statement comparator.** Compare the final Lean theorem against a separately normalized intended statement. Check quantifiers, domains, side conditions and definitions—not merely names or prose.
+7. **Build-aware module boundaries.** Measure import closure and compilation cost; isolate expensive proof bodies and avoid making every consumer import a huge implementation module.
+8. **Independent proof audit.** Preserve the final kernel check, axiom report, exact source revision and dependency graph.
+
+These are architecture patterns from a reported large-scale formalization. They are not proof tactics, and Merlin must validate their benefit on its own repository before calling them optimizations.
