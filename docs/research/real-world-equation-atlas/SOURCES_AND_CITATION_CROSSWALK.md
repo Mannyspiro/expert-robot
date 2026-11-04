@@ -90,3 +90,25 @@ This is a source-to-entry crosswalk, not a claim that every entry has already re
 | 038 | S28 | Numerical Navier–Stokes methods supported at course level; turbulence closure, rheology, compressibility, and boundary conditions remain unresolved per case. |
 | 039 | S29 | MIT notes cover differential Maxwell equations; macroscopic material constitutive relations and interface conditions need separate review. |
 | 040 | S29 | Maxwell field framework supports derivation context; Poynting theorem and material-medium energy expressions require a dedicated derivation and sign-convention audit. |
+
+
+## Additional sources for RWEA-041–050
+
+- **S30 — Fourier representations, filtering, and sampling:** MIT OpenCourseWare, 6.003 *Signals and Systems*, Fall 2011. Lecture notes cover Fourier representations, Fourier series/transforms, convolution, filtering, frequency response, discrete-time representations, and sampling. https://ocw.mit.edu/courses/6-003-signals-and-systems-fall-2011/pages/lecture-notes/
+- **S31 — Sampling theorem and reconstruction:** MIT OpenCourseWare, 2.161 *Signal Processing: Continuous and Discrete*, Fall 2008, Lecture 10. The lecture handout develops the band-limited sampling theorem, reconstruction conditions, and discrete Fourier transform. https://ocw.mit.edu/courses/2-161-signal-processing-continuous-and-discrete-fall-2008/2934569026a399e9062597924c730a78_lecture_10.pdf
+- **S32 — Entropy, coding, quantization, Fourier and sampling:** MIT OpenCourseWare, 6.450 *Principles of Digital Communication I*, Fall 2009. Lecture notes include Fourier transforms, sampling, entropy, source coding, quantization, random processes, and mutual information-related communication theory. https://ocw.mit.edu/courses/6-450-principles-of-digital-communication-i-fall-2009/pages/lecture-notes/
+
+## Equation-ID crosswalk additions
+
+| Atlas IDs | Source mapping | Evidence boundary / remaining source work |
+|---|---|---|
+| 041 | S30 | Fourier series representation supported; convergence mode and endpoint conventions require explicit treatment for discontinuous signals. |
+| 042 | S30 | Fourier transform and inverse convention supported; normalization and generalized-function assumptions must be stated. |
+| 043 | S30 | Convolution and LTI systems supported; zero-state assumptions and impulse normalization must be explicit. |
+| 044 | S30 | Frequency response and filtering supported; stability, causality, and realization are separate properties. |
+| 045 | S30, S31 | DFT family supported; normalization, periodic extension, leakage, and bin-to-frequency mapping require exact conventions. |
+| 046 | S31, S30 | Band-limited sampling theorem supported; ideal assumptions differ from practical anti-alias filters and finite precision systems. |
+| 047 | S32 | Quantization topics supported; Δ²/12 is only the ideal uniform-error model under stated assumptions, not a universal converter-noise law. |
+| 048 | S32 | Discrete source entropy supported; log base determines units and finite-sample estimation bias is not addressed by the formula. |
+| 049 | S32 | Information-theory source materials support the topic; joint-distribution identities and finite-sample estimators need separate reproducible checks. |
+| 050 | S30, S32 | Spectral analysis and random-process material support the topic; PSD normalization, stationarity, ergodicity, and one-/two-sided conventions need explicit audit. |
