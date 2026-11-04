@@ -16,8 +16,9 @@ ROOT = Path(__file__).resolve().parents[3]
 ATLAS = ROOT / "docs/research/real-world-equation-atlas"
 LEGACY = ATLAS / "NORMALIZED_ENTRIES_001-020.json"
 BATCH_021_030 = ATLAS / "NORMALIZED_ENTRIES_021-030.json"
+BATCH_031_040 = ATLAS / "NORMALIZED_ENTRIES_031-040.json"
 SCHEMA = ATLAS / "equation-entry.schema.json"
-OUTPUT = ATLAS / "NORMALIZED_ENTRIES_001-030_V0.3.json"
+OUTPUT = ATLAS / "NORMALIZED_ENTRIES_001-040_V0.3.json"
 
 MODEL_FAMILY = {
     "optimization": "mathematical_optimization",
@@ -95,6 +96,8 @@ def main() -> int:
     entries = [normalize_entry(entry) for entry in legacy["entries"]]
     batch_021_030 = json.loads(BATCH_021_030.read_text(encoding="utf-8"))
     entries.extend(batch_021_030["entries"])
+    batch_031_040 = json.loads(BATCH_031_040.read_text(encoding="utf-8"))
+    entries.extend(batch_031_040["entries"])
     ids = [entry["id"] for entry in entries]
     if len(ids) != len(set(ids)):
         raise SystemExit("Duplicate equation IDs in normalized batches")
