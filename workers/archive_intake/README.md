@@ -13,6 +13,12 @@ A standard-library-only Python prototype for non-executing ZIP intake, local SQL
 
 Optional Git provenance must be supplied as a pair using `--repository owner/name --commit-sha FULL_40_CHAR_SHA`. The adapter validates the SHA shape but does not independently fetch GitHub; a future GitHub adapter must fetch the commit and bind the returned canonical SHA/URL before attaching provenance. The outbox event is local only; no Hermes network call occurs.
 
+## Export the project provenance graph
+
+    python3 workers/archive_intake/project_graph.py ./intake/package/merlin-intake-manifest.json --project-id PROJECT_ID --out ./data/project-graph.json
+
+The graph links project, intake, artifact occurrence, content hash, and optional Git commit nodes. It is a deterministic local JSON export, not a connected graph database. Git provenance remains optional and must come from a separately verified GitHub commit fetch.
+
 ## Tests
 
     python3 -m unittest discover -s workers/archive_intake/tests -v
