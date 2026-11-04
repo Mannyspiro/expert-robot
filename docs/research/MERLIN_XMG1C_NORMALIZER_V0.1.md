@@ -1,6 +1,6 @@
 # Merlin XMG-1C: Glyph Normalizer and Equivalence Engine
 
-**Status:** source addition; repository CI and Lean proof runs remain unverified.
+**Status:** source committed; repository CI and Lean proof runs remain unverified. The normalizer records each semantic rewrite explicitly and does not silently simplify while rebuilding AST nodes.
 
 ## Scope
 
