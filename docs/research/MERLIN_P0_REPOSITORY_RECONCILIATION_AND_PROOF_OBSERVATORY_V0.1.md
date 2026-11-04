@@ -130,3 +130,6 @@ For the current PR branch, commit-SHA and combined-status lookups returned no ru
 
 **Qualification remains pending.** No test result or four-domain receipt has been captured from the new code. Do not promote any benchmark, theorem or engineering claim until the exact current PR merge SHA has a successful CI run and the artifacts are independently inspected.
 
+### Static theorem-registry cross-check
+
+A source-level check against the current branch found 45 theorem registry entries across 7 Lean source files; every registry theorem name is present in its declared source file, all 45 declaration headers can be parsed by the DAG header scanner, every registry theorem has both a #check and #print axioms root in formal/MathAI/Audit.lean, all uses references resolve, and the dependency graph is acyclic (45-node topological ordering). This is a static cross-check only; it does not replace running the theorem-DAG unit tests or the Lean formal-qualification workflow.
