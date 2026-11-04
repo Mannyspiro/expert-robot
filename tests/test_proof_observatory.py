@@ -2,7 +2,10 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from merlin.engineering_ir import EngineeringProject\nfrom merlin.representation_graph import Frame, RepresentationGraph, identity\n\nfrom merlin.proof_observatory import (
+from merlin.engineering_ir import EngineeringProject
+from merlin.representation_graph import Frame, RepresentationGraph, identity
+
+from merlin.proof_observatory import (
     CrossDomainLink, GoalKey, ProofAttempt, ProofObservatory,
     link_representation_frames_to_engineering_project, object_view_engineering_links, rank_strategies,
 )
