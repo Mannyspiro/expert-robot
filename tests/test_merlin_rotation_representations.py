@@ -3,7 +3,7 @@ from fractions import Fraction as F
 
 from merlin.rotation_representations import (
     quaternion, vector3, qmul, qconj, qnorm_sq, qrotate, q_to_matrix,
-    matrix_rotate, gp, quaternion_to_rotor, rotor_rotate,
+    matrix_rotate, gp, quaternion_to_rotor, rotor_rotate, complex_plane_rotate,
 )
 
 
@@ -45,6 +45,26 @@ class RotationRepresentationTests(unittest.TestCase):
         self.assertEqual(rotor_rotate(q,e3),e1)
         expected=((F(0),F(0),F(1)),(F(1),F(0),F(0)),(F(0),F(1),F(0)))
         self.assertEqual(q_to_matrix(q),expected)
+
+    def test_complex_plane_view_matches_quaternion_matrix_and_rotor_for_all_axes(self):
+        c,s=F(-7,25),F(24,25)
+        v=vector3([2,3,5])
+        quaternions=[
+            quaternion([F(3,5),F(4,5),0,0]),
+            quaternion([F(3,5),0,F(4,5),0]),
+            quaternion([F(3,5),0,0,F(4,5)]),
+        ]
+        for axis,q in enumerate(quaternions):
+            expected=qrotate(q,v)
+            self.assertEqual(complex_plane_rotate(v,axis,c,s),expected)
+            self.assertEqual(matrix_rotate(q_to_matrix(q),v),expected)
+            self.assertEqual(rotor_rotate(q,v),expected)
+
+    def test_complex_plane_adapter_rejects_invalid_rotation(self):
+        with self.assertRaises(ValueError):
+            complex_plane_rotate(vector3([1,2,3]),2,F(1,2),F(1,2))
+        with self.assertRaises(ValueError):
+            complex_plane_rotate(vector3([1,2,3]),3,F(0),F(1))
 
     def test_q_and_minus_q_induce_same_rotation_matrix_and_action(self):
         q=quaternion([0,0,0,1])
