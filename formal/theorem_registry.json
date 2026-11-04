@@ -2,378 +2,41 @@
   "schema_version": 1,
   "theorems": [
     {
-      "name": "MathAI.Trust.add_zero_verified",
-      "source": "MathAI/Trust/Seed.lean",
-      "status": "verified",
-      "statement": "For every natural number n, n + 0 = n.",
-      "domain": "algebra",
+      "name": "MathAI.EquationAtlas.normalized_logistic_growth_nonnegative",
+      "source": "MathAI/EquationAtlas.lean",
+      "status": "candidate",
+      "statement": "For r≥0 and 0≤p≤1, r p (1−p)≥0.",
+      "domain": "dynamical_systems",
       "tags": [
-        "seed",
-        "arithmetic",
-        "lean_verified"
+        "equation_atlas",
+        "logistic_growth",
+        "candidate"
       ],
       "uses": []
     },
     {
-      "name": "MathAI.Trust.square_nonnegative",
-      "source": "MathAI/Trust/Seed.lean",
-      "status": "verified",
+      "name": "MathAI.EquationAtlas.square_nonnegative",
+      "source": "MathAI/EquationAtlas.lean",
+      "status": "candidate",
       "statement": "For every real x, 0 ≤ x^2.",
       "domain": "algebra",
       "tags": [
-        "seed",
+        "equation_atlas",
         "order",
-        "square",
-        "lean_verified"
+        "candidate"
       ],
       "uses": []
     },
     {
-      "name": "MathAI.Geometry.origin_on_xy_plane",
-      "source": "MathAI/Geometry/Exact.lean",
-      "status": "verified",
-      "statement": "The origin lies on the exact rational xy-plane with normal (0,0,1) and offset 0.",
-      "domain": "geometry",
+      "name": "MathAI.EquationAtlas.square_sum_ge_four_product",
+      "source": "MathAI/EquationAtlas.lean",
+      "status": "candidate",
+      "statement": "For all real x,y, 4xy ≤ (x+y)^2.",
+      "domain": "optimization",
       "tags": [
-        "exact_geometry",
-        "plane",
-        "example",
-        "lean_verified"
-      ],
-      "uses": []
-    },
-    {
-      "name": "MathAI.Geometry.unit_x_on_unit_sphere",
-      "source": "MathAI/Geometry/Exact.lean",
-      "status": "verified",
-      "statement": "The point (1,0,0) lies on the exact rational unit sphere centered at the origin.",
-      "domain": "geometry",
-      "tags": [
-        "exact_geometry",
-        "sphere",
-        "example",
-        "lean_verified"
-      ],
-      "uses": []
-    },
-    {
-      "name": "MathAI.Geometry.dot_comm",
-      "source": "MathAI/Geometry/Derived.lean",
-      "status": "verified",
-      "statement": "The exact rational 3D dot product is symmetric.",
-      "domain": "geometry",
-      "tags": [
-        "exact_geometry",
-        "dot_product",
-        "symmetry",
-        "lean_verified"
-      ],
-      "uses": []
-    },
-    {
-      "name": "MathAI.Geometry.dot_zero_left",
-      "source": "MathAI/Geometry/Derived.lean",
-      "status": "verified",
-      "statement": "The dot product of the zero vector with any exact rational vector is zero.",
-      "domain": "geometry",
-      "tags": [
-        "exact_geometry",
-        "dot_product",
-        "zero",
-        "lean_verified"
-      ],
-      "uses": []
-    },
-    {
-      "name": "MathAI.Geometry.dot_zero_right",
-      "source": "MathAI/Geometry/Derived.lean",
-      "status": "verified",
-      "statement": "The dot product of any exact rational vector with the zero vector is zero.",
-      "domain": "geometry",
-      "tags": [
-        "exact_geometry",
-        "dot_product",
-        "zero",
-        "lean_verified"
-      ],
-      "uses": []
-    },
-    {
-      "name": "MathAI.Geometry.orthogonal_symm",
-      "source": "MathAI/Geometry/Derived.lean",
-      "status": "verified",
-      "statement": "Exact rational vector orthogonality is symmetric.",
-      "domain": "geometry",
-      "tags": [
-        "exact_geometry",
-        "orthogonality",
-        "symmetry",
-        "lean_verified"
-      ],
-      "uses": [
-        "MathAI.Geometry.dot_comm"
-      ]
-    },
-    {
-      "name": "MathAI.Geometry.zero_orthogonal_left",
-      "source": "MathAI/Geometry/Derived.lean",
-      "status": "verified",
-      "statement": "The zero vector is orthogonal to every exact rational vector.",
-      "domain": "geometry",
-      "tags": [
-        "exact_geometry",
-        "orthogonality",
-        "zero",
-        "lean_verified"
-      ],
-      "uses": [
-        "MathAI.Geometry.dot_zero_left"
-      ]
-    },
-    {
-      "name": "MathAI.Geometry.zero_orthogonal_right",
-      "source": "MathAI/Geometry/Derived.lean",
-      "status": "verified",
-      "statement": "Every exact rational vector is orthogonal to the zero vector.",
-      "domain": "geometry",
-      "tags": [
-        "exact_geometry",
-        "orthogonality",
-        "zero",
-        "lean_verified"
-      ],
-      "uses": [
-        "MathAI.Geometry.dot_zero_right"
-      ]
-    },
-    {
-      "name": "MathAI.Geometry.squaredDistance_self",
-      "source": "MathAI/Geometry/Derived.lean",
-      "status": "verified",
-      "statement": "The squared distance from an exact rational point to itself is zero.",
-      "domain": "geometry",
-      "tags": [
-        "exact_geometry",
-        "distance",
-        "zero",
-        "lean_verified"
-      ],
-      "uses": []
-    },
-    {
-      "name": "MathAI.Geometry.squaredDistance_symm",
-      "source": "MathAI/Geometry/Derived.lean",
-      "status": "verified",
-      "statement": "Exact rational squared distance is symmetric.",
-      "domain": "geometry",
-      "tags": [
-        "exact_geometry",
-        "distance",
-        "symmetry",
-        "lean_verified"
-      ],
-      "uses": []
-    },
-    {
-      "name": "MathAI.Geometry.squaredDistance_nonnegative",
-      "source": "MathAI/Geometry/Derived.lean",
-      "status": "verified",
-      "statement": "Exact rational squared distance is nonnegative.",
-      "domain": "geometry",
-      "tags": [
-        "exact_geometry",
-        "distance",
-        "nonnegative",
-        "lean_verified"
-      ],
-      "uses": []
-    },
-    {
-      "name": "MathAI.Geometry.validSphere_of_pointOnSphere",
-      "source": "MathAI/Geometry/Derived.lean",
-      "status": "verified",
-      "statement": "A point-on-sphere proof entails validity of the exact rational sphere.",
-      "domain": "geometry",
-      "tags": [
-        "exact_geometry",
-        "sphere",
-        "validity",
-        "lean_verified"
-      ],
-      "uses": []
-    },
-    {
-      "name": "MathAI.Geometry.squaredDistance_eq_radius_of_pointOnSphere",
-      "source": "MathAI/Geometry/Derived.lean",
-      "status": "verified",
-      "statement": "A point-on-sphere proof entails that squared distance to the center equals the sphere radius squared.",
-      "domain": "geometry",
-      "tags": [
-        "exact_geometry",
-        "sphere",
-        "distance",
-        "lean_verified"
-      ],
-      "uses": []
-    },
-    {
-      "name": "MathAI.Geometry.cross_zero_left",
-      "source": "MathAI/Geometry/VectorDerived.lean",
-      "status": "verified",
-      "statement": "The cross product of the zero vector with any exact rational vector is the zero vector.",
-      "domain": "geometry",
-      "tags": [
-        "exact_geometry",
-        "cross_product",
-        "zero",
-        "lean_verified"
-      ],
-      "uses": []
-    },
-    {
-      "name": "MathAI.Geometry.cross_zero_right",
-      "source": "MathAI/Geometry/VectorDerived.lean",
-      "status": "verified",
-      "statement": "The cross product of any exact rational vector with the zero vector is the zero vector.",
-      "domain": "geometry",
-      "tags": [
-        "exact_geometry",
-        "cross_product",
-        "zero",
-        "lean_verified"
-      ],
-      "uses": []
-    },
-    {
-      "name": "MathAI.Geometry.cross_self",
-      "source": "MathAI/Geometry/VectorDerived.lean",
-      "status": "verified",
-      "statement": "The cross product of an exact rational vector with itself is the zero vector.",
-      "domain": "geometry",
-      "tags": [
-        "exact_geometry",
-        "cross_product",
-        "self",
-        "lean_verified"
-      ],
-      "uses": []
-    },
-    {
-      "name": "MathAI.Geometry.vecBetween_self",
-      "source": "MathAI/Geometry/VectorDerived.lean",
-      "status": "verified",
-      "statement": "The exact rational displacement from a point to itself is the zero vector.",
-      "domain": "geometry",
-      "tags": [
-        "exact_geometry",
-        "displacement",
-        "zero",
-        "lean_verified"
-      ],
-      "uses": []
-    },
-    {
-      "name": "MathAI.Geometry.parallel_zero_left",
-      "source": "MathAI/Geometry/VectorDerived.lean",
-      "status": "verified",
-      "statement": "The zero vector is parallel to every exact rational vector under the kernel predicate.",
-      "domain": "geometry",
-      "tags": [
-        "exact_geometry",
-        "parallel",
-        "zero",
-        "lean_verified"
-      ],
-      "uses": [
-        "MathAI.Geometry.cross_zero_left"
-      ]
-    },
-    {
-      "name": "MathAI.Geometry.parallel_zero_right",
-      "source": "MathAI/Geometry/VectorDerived.lean",
-      "status": "verified",
-      "statement": "Every exact rational vector is parallel to the zero vector under the kernel predicate.",
-      "domain": "geometry",
-      "tags": [
-        "exact_geometry",
-        "parallel",
-        "zero",
-        "lean_verified"
-      ],
-      "uses": [
-        "MathAI.Geometry.cross_zero_right"
-      ]
-    },
-    {
-      "name": "MathAI.Geometry.parallel_self",
-      "source": "MathAI/Geometry/VectorDerived.lean",
-      "status": "verified",
-      "statement": "Every exact rational vector is parallel to itself under the kernel predicate.",
-      "domain": "geometry",
-      "tags": [
-        "exact_geometry",
-        "parallel",
-        "self",
-        "lean_verified"
-      ],
-      "uses": [
-        "MathAI.Geometry.cross_self"
-      ]
-    },
-    {
-      "name": "MathAI.Geometry.dot_self_nonnegative",
-      "source": "MathAI/Geometry/VectorDerived.lean",
-      "status": "verified",
-      "statement": "The exact rational dot product of a vector with itself is nonnegative.",
-      "domain": "geometry",
-      "tags": [
-        "exact_geometry",
-        "dot_product",
-        "nonnegative",
-        "lean_verified"
-      ],
-      "uses": []
-    },
-    {
-      "name": "MathAI.Geometry.validPlane_of_pointOnPlane",
-      "source": "MathAI/Geometry/VectorDerived.lean",
-      "status": "verified",
-      "statement": "A point-on-plane proof entails validity of the exact rational plane.",
-      "domain": "geometry",
-      "tags": [
-        "exact_geometry",
-        "plane",
-        "validity",
-        "lean_verified"
-      ],
-      "uses": []
-    },
-    {
-      "name": "MathAI.Geometry.validLine_of_pointOnLine",
-      "source": "MathAI/Geometry/VectorDerived.lean",
-      "status": "verified",
-      "statement": "A point-on-line proof entails validity of the exact rational line.",
-      "domain": "geometry",
-      "tags": [
-        "exact_geometry",
-        "line",
-        "validity",
-        "lean_verified"
-      ],
-      "uses": []
-    },
-    {
-      "name": "MathAI.Geometry.squaredDistance_eq_dot_vecBetween",
-      "source": "MathAI/Geometry/VectorDerived.lean",
-      "status": "verified",
-      "statement": "Squared distance equals the self-dot product of the displacement vector between the two exact rational points.",
-      "domain": "geometry",
-      "tags": [
-        "exact_geometry",
-        "distance",
-        "dot_product",
-        "representation_bridge",
-        "lean_verified"
+        "equation_atlas",
+        "rectangle_perimeter",
+        "candidate"
       ],
       "uses": []
     },
@@ -408,40 +71,390 @@
       "uses": []
     },
     {
-      "name": "MathAI.EquationAtlas.square_nonnegative",
-      "source": "MathAI/EquationAtlas.lean",
-      "status": "candidate",
+      "name": "MathAI.Geometry.cross_self",
+      "source": "MathAI/Geometry/VectorDerived.lean",
+      "status": "verified",
+      "statement": "The cross product of an exact rational vector with itself is the zero vector.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "cross_product",
+        "self",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.cross_zero_left",
+      "source": "MathAI/Geometry/VectorDerived.lean",
+      "status": "verified",
+      "statement": "The cross product of the zero vector with any exact rational vector is the zero vector.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "cross_product",
+        "zero",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.cross_zero_right",
+      "source": "MathAI/Geometry/VectorDerived.lean",
+      "status": "verified",
+      "statement": "The cross product of any exact rational vector with the zero vector is the zero vector.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "cross_product",
+        "zero",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.dot_comm",
+      "source": "MathAI/Geometry/Derived.lean",
+      "status": "verified",
+      "statement": "The exact rational 3D dot product is symmetric.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "dot_product",
+        "symmetry",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.dot_self_nonnegative",
+      "source": "MathAI/Geometry/VectorDerived.lean",
+      "status": "verified",
+      "statement": "The exact rational dot product of a vector with itself is nonnegative.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "dot_product",
+        "nonnegative",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.dot_zero_left",
+      "source": "MathAI/Geometry/Derived.lean",
+      "status": "verified",
+      "statement": "The dot product of the zero vector with any exact rational vector is zero.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "dot_product",
+        "zero",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.dot_zero_right",
+      "source": "MathAI/Geometry/Derived.lean",
+      "status": "verified",
+      "statement": "The dot product of any exact rational vector with the zero vector is zero.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "dot_product",
+        "zero",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.origin_on_xy_plane",
+      "source": "MathAI/Geometry/Exact.lean",
+      "status": "verified",
+      "statement": "The origin lies on the exact rational xy-plane with normal (0,0,1) and offset 0.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "plane",
+        "example",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.orthogonal_symm",
+      "source": "MathAI/Geometry/Derived.lean",
+      "status": "verified",
+      "statement": "Exact rational vector orthogonality is symmetric.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "orthogonality",
+        "symmetry",
+        "lean_verified"
+      ],
+      "uses": [
+        "MathAI.Geometry.dot_comm"
+      ]
+    },
+    {
+      "name": "MathAI.Geometry.parallel_self",
+      "source": "MathAI/Geometry/VectorDerived.lean",
+      "status": "verified",
+      "statement": "Every exact rational vector is parallel to itself under the kernel predicate.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "parallel",
+        "self",
+        "lean_verified"
+      ],
+      "uses": [
+        "MathAI.Geometry.cross_self"
+      ]
+    },
+    {
+      "name": "MathAI.Geometry.parallel_zero_left",
+      "source": "MathAI/Geometry/VectorDerived.lean",
+      "status": "verified",
+      "statement": "The zero vector is parallel to every exact rational vector under the kernel predicate.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "parallel",
+        "zero",
+        "lean_verified"
+      ],
+      "uses": [
+        "MathAI.Geometry.cross_zero_left"
+      ]
+    },
+    {
+      "name": "MathAI.Geometry.parallel_zero_right",
+      "source": "MathAI/Geometry/VectorDerived.lean",
+      "status": "verified",
+      "statement": "Every exact rational vector is parallel to the zero vector under the kernel predicate.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "parallel",
+        "zero",
+        "lean_verified"
+      ],
+      "uses": [
+        "MathAI.Geometry.cross_zero_right"
+      ]
+    },
+    {
+      "name": "MathAI.Geometry.squaredDistance_eq_dot_vecBetween",
+      "source": "MathAI/Geometry/VectorDerived.lean",
+      "status": "verified",
+      "statement": "Squared distance equals the self-dot product of the displacement vector between the two exact rational points.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "distance",
+        "dot_product",
+        "representation_bridge",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.squaredDistance_eq_radius_of_pointOnSphere",
+      "source": "MathAI/Geometry/Derived.lean",
+      "status": "verified",
+      "statement": "A point-on-sphere proof entails that squared distance to the center equals the sphere radius squared.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "sphere",
+        "distance",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.squaredDistance_nonnegative",
+      "source": "MathAI/Geometry/Derived.lean",
+      "status": "verified",
+      "statement": "Exact rational squared distance is nonnegative.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "distance",
+        "nonnegative",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.squaredDistance_self",
+      "source": "MathAI/Geometry/Derived.lean",
+      "status": "verified",
+      "statement": "The squared distance from an exact rational point to itself is zero.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "distance",
+        "zero",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.squaredDistance_symm",
+      "source": "MathAI/Geometry/Derived.lean",
+      "status": "verified",
+      "statement": "Exact rational squared distance is symmetric.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "distance",
+        "symmetry",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.unit_x_on_unit_sphere",
+      "source": "MathAI/Geometry/Exact.lean",
+      "status": "verified",
+      "statement": "The point (1,0,0) lies on the exact rational unit sphere centered at the origin.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "sphere",
+        "example",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.validLine_of_pointOnLine",
+      "source": "MathAI/Geometry/VectorDerived.lean",
+      "status": "verified",
+      "statement": "A point-on-line proof entails validity of the exact rational line.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "line",
+        "validity",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.validPlane_of_pointOnPlane",
+      "source": "MathAI/Geometry/VectorDerived.lean",
+      "status": "verified",
+      "statement": "A point-on-plane proof entails validity of the exact rational plane.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "plane",
+        "validity",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.validSphere_of_pointOnSphere",
+      "source": "MathAI/Geometry/Derived.lean",
+      "status": "verified",
+      "statement": "A point-on-sphere proof entails validity of the exact rational sphere.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "sphere",
+        "validity",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.vecBetween_self",
+      "source": "MathAI/Geometry/VectorDerived.lean",
+      "status": "verified",
+      "statement": "The exact rational displacement from a point to itself is the zero vector.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "displacement",
+        "zero",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Geometry.zero_orthogonal_left",
+      "source": "MathAI/Geometry/Derived.lean",
+      "status": "verified",
+      "statement": "The zero vector is orthogonal to every exact rational vector.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "orthogonality",
+        "zero",
+        "lean_verified"
+      ],
+      "uses": [
+        "MathAI.Geometry.dot_zero_left"
+      ]
+    },
+    {
+      "name": "MathAI.Geometry.zero_orthogonal_right",
+      "source": "MathAI/Geometry/Derived.lean",
+      "status": "verified",
+      "statement": "Every exact rational vector is orthogonal to the zero vector.",
+      "domain": "geometry",
+      "tags": [
+        "exact_geometry",
+        "orthogonality",
+        "zero",
+        "lean_verified"
+      ],
+      "uses": [
+        "MathAI.Geometry.dot_zero_right"
+      ]
+    },
+    {
+      "name": "MathAI.Trust.add_zero_verified",
+      "source": "MathAI/Trust/Seed.lean",
+      "status": "verified",
+      "statement": "For every natural number n, n + 0 = n.",
+      "domain": "algebra",
+      "tags": [
+        "seed",
+        "arithmetic",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.Trust.square_nonnegative",
+      "source": "MathAI/Trust/Seed.lean",
+      "status": "verified",
       "statement": "For every real x, 0 ≤ x^2.",
       "domain": "algebra",
       "tags": [
-        "equation_atlas",
+        "seed",
         "order",
-        "candidate"
+        "square",
+        "lean_verified"
       ],
       "uses": []
     },
     {
-      "name": "MathAI.EquationAtlas.square_sum_ge_four_product",
-      "source": "MathAI/EquationAtlas.lean",
-      "status": "candidate",
-      "statement": "For all real x,y, 4xy ≤ (x+y)^2.",
-      "domain": "optimization",
+      "name": "MathAI.WireQualification.corrected_resistance_positive",
+      "source": "MathAI/WireQualification.lean",
+      "status": "verified",
+      "statement": "Temperature-corrected conductor resistance remains positive above reference temperature for positive base resistance and nonnegative coefficient.",
+      "domain": "thermal",
       "tags": [
-        "equation_atlas",
-        "rectangle_perimeter",
-        "candidate"
-      ],
-      "uses": []
-    },
-    {
-      "name": "MathAI.EquationAtlas.normalized_logistic_growth_nonnegative",
-      "source": "MathAI/EquationAtlas.lean",
-      "status": "candidate",
-      "statement": "For r≥0 and 0≤p≤1, r p (1−p)≥0.",
-      "domain": "dynamical_systems",
-      "tags": [
-        "equation_atlas",
-        "logistic_growth",
+        "wire_qualification",
+        "conditional_model",
         "candidate"
       ],
       "uses": []
@@ -465,19 +478,6 @@
       "status": "verified",
       "statement": "The declared DC resistive voltage-drop expression is nonnegative for nonnegative current, resistance and complete loop length.",
       "domain": "electrical",
-      "tags": [
-        "wire_qualification",
-        "conditional_model",
-        "candidate"
-      ],
-      "uses": []
-    },
-    {
-      "name": "MathAI.WireQualification.corrected_resistance_positive",
-      "source": "MathAI/WireQualification.lean",
-      "status": "verified",
-      "statement": "Temperature-corrected conductor resistance remains positive above reference temperature for positive base resistance and nonnegative coefficient.",
-      "domain": "thermal",
       "tags": [
         "wire_qualification",
         "conditional_model",
@@ -520,6 +520,126 @@
       "tags": [
         "wire_qualification",
         "conditional_model",
+        "candidate"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.XMG.compose_associative",
+      "source": "MathAI/XMGComposition.lean",
+      "status": "candidate",
+      "statement": "Typed function composition is associative.",
+      "domain": "algebra",
+      "tags": [
+        "xmg",
+        "glyph_foundry",
+        "associativity",
+        "composition",
+        "candidate"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.XMG.compose_identity_left",
+      "source": "MathAI/XMGComposition.lean",
+      "status": "candidate",
+      "statement": "Typed function composition has a left identity.",
+      "domain": "algebra",
+      "tags": [
+        "xmg",
+        "glyph_foundry",
+        "identity",
+        "composition",
+        "candidate"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.XMG.compose_identity_right",
+      "source": "MathAI/XMGComposition.lean",
+      "status": "candidate",
+      "statement": "Typed function composition has a right identity.",
+      "domain": "algebra",
+      "tags": [
+        "xmg",
+        "glyph_foundry",
+        "identity",
+        "composition",
+        "candidate"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.XMG.int_double_negation",
+      "source": "MathAI/XMGComposition.lean",
+      "status": "candidate",
+      "statement": "Integer double negation is identity.",
+      "domain": "algebra",
+      "tags": [
+        "xmg",
+        "glyph_foundry",
+        "integer",
+        "rewrite",
+        "candidate"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.XMG.int_natAbs_negation",
+      "source": "MathAI/XMGComposition.lean",
+      "status": "candidate",
+      "statement": "Integer natural absolute magnitude is invariant under negation.",
+      "domain": "algebra",
+      "tags": [
+        "xmg",
+        "glyph_foundry",
+        "integer",
+        "rewrite",
+        "candidate"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.XMG.project_pair_left",
+      "source": "MathAI/XMGComposition.lean",
+      "status": "candidate",
+      "statement": "The first projection after pairing recovers the first function.",
+      "domain": "algebra",
+      "tags": [
+        "xmg",
+        "glyph_foundry",
+        "product",
+        "projection",
+        "candidate"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.XMG.project_pair_right",
+      "source": "MathAI/XMGComposition.lean",
+      "status": "candidate",
+      "statement": "The second projection after pairing recovers the second function.",
+      "domain": "algebra",
+      "tags": [
+        "xmg",
+        "glyph_foundry",
+        "product",
+        "projection",
+        "candidate"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.XMG.wellFounded_of_nat_measure_decrease",
+      "source": "MathAI/XMGComposition.lean",
+      "status": "candidate",
+      "statement": "A relation that strictly decreases a natural-valued measure is well-founded.",
+      "domain": "algebra",
+      "tags": [
+        "xmg",
+        "glyph_foundry",
+        "termination",
+        "rewrite",
         "candidate"
       ],
       "uses": []
