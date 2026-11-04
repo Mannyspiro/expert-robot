@@ -227,3 +227,13 @@ Important limits:
 - The routines do not infer units, validate a model against nature, or guarantee stability for arbitrary parameters.
 - SSA exactness is relative to the specified propensity functions and stoichiometric model.
 - Every output is labeled synthetic and non-empirical. The current code revision awaits its own Avrea run; earlier run #1354 does not verify this increment.
+
+
+## Phase 0.9 verification — Avrea run #1360
+- Workflow run `41843498944` completed successfully for PR branch head `2854e92eafd36b5ad8de3f8ef6a6e4066c44738e`.
+- All CI steps passed, including the equation-atlas test stage with the new simulation-engine tests and artifact publication.
+- Artifact ZIP SHA-256: `39b32edc8e190143cf62cc0621860fe5a0bc8fa7aff8a798ab803409ed89daa3`.
+- Evidence receipt SHA-256: `690efca64e79c3efb40bfd3e4b180118ad14ecb98cd233019d72cb6df9b22cd9`.
+- Normalized 80-entry atlas SHA-256: `da3f9edba190fe667aecbae21eabfe422350e1be9a139fcba2bcea187236dc51`.
+- Receipt's `git_commit` is the PR merge-ref snapshot `7cbaa1f40e6e2c0c5e5e787add3e85d552874e0f`; it is not the branch-head SHA. Receipt explicitly includes the simulation engine source and its test file.
+- This pass verifies the declared tests and synthetic reproducibility only. It does not confer empirical validation, formal proof, or production solver status.
