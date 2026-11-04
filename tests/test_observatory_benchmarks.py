@@ -2,7 +2,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from merlin.observatory_benchmarks import (\n    run_core_benchmarks, run_negative_controls, run_repeated_benchmarks, write_benchmark_receipt,\n)
+from merlin.observatory_benchmarks import (
+    run_core_benchmarks, run_negative_controls, run_repeated_benchmarks, write_benchmark_receipt,
+)
 
 
 COMMIT = "a" * 40
@@ -21,7 +23,21 @@ class ObservatoryBenchmarkTests(unittest.TestCase):
         self.assertEqual(len(first["receipt_sha256"]), 64)
         self.assertEqual(len(first["source_sha256"]), 10)
 
-    def test_controlled_negative_cases_are_detected(self):\n        controls = run_negative_controls()\n        self.assertTrue(controls["all_detected"], controls)\n\n    def test_repeated_runs_are_stable(self):\n        result = run_repeated_benchmarks(COMMIT, repeats=3)\n        self.assertTrue(result["all_passed"], result)\n        self.assertEqual(result["repeats"], 3)\n        self.assertTrue(all(result["domain_stable"].values()))\n\n    def test_repeat_count_is_bounded(self):\n        with self.assertRaises(ValueError):\n            run_repeated_benchmarks(COMMIT, repeats=1)\n\n    def test_receipt_is_pinned_to_source_commit(self):
+    def test_controlled_negative_cases_are_detected(self):
+        controls = run_negative_controls()
+        self.assertTrue(controls["all_detected"], controls)
+
+    def test_repeated_runs_are_stable(self):
+        result = run_repeated_benchmarks(COMMIT, repeats=3)
+        self.assertTrue(result["all_passed"], result)
+        self.assertEqual(result["repeats"], 3)
+        self.assertTrue(all(result["domain_stable"].values()))
+
+    def test_repeat_count_is_bounded(self):
+        with self.assertRaises(ValueError):
+            run_repeated_benchmarks(COMMIT, repeats=1)
+
+    def test_receipt_is_pinned_to_source_commit(self):
         with self.assertRaises(ValueError):
             run_core_benchmarks("not-a-commit")
 
