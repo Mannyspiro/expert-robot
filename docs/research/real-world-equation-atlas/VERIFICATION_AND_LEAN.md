@@ -15,6 +15,7 @@
 - `python/merlin/equation_atlas/experiments/baseline.py`: deterministic optimization, least-squares, explicit heat solver, logistic RK4, and FFT examples.
 - `tests/test_merlin_equation_atlas.py`: regression tests for the starter layer.
 - `lean/MerlinEquationAtlas/Basic.lean`: exact algebraic inequalities and normalized logistic positivity statements.
+- `docs/research/real-world-equation-atlas/NORMALIZED_ENTRIES_001-020.json`: first normalized metadata tranche.
 
 ## Run
 
@@ -24,7 +25,7 @@ From repository root, with `python/` on PYTHONPATH:
 PYTHONPATH=python python -m merlin.equation_atlas.dimensions
 PYTHONPATH=python python -m merlin.equation_atlas.symbolic_checks
 PYTHONPATH=python python -m merlin.equation_atlas.experiments.baseline
-PYTHONPATH=python python -m unittest tests/test_merlin_equation_atlas.py
+PYTHONPATH=python python -m unittest discover -s tests -p 'test_merlin_equation_atlas.py'
 ```
 
 Lean project must use the repository's pinned Lean/mathlib toolchain. From its configured Lean project root:
