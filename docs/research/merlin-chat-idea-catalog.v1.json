@@ -1,0 +1,270 @@
+{
+  "schema_version": "1.0",
+  "generated_on": "2026-11-04",
+  "title": "Merlin Chat-Derived Idea Catalog",
+  "governance": "capability grows, authority never expands",
+  "evidence_labels": [
+    "implemented_evidenced",
+    "designed_unqualified",
+    "research_hypothesis"
+  ],
+  "items": [
+    [
+      "MER-001",
+      "Merlin research-to-engineering workbench",
+      "designed_unqualified",
+      "research",
+      "observe-retrieve-normalize-enumerate-hypothesize-challenge-model-simulate-verify-design-review-release"
+    ],
+    [
+      "MER-002",
+      "Typed CACE/Expert Robot/Hermes responsibility boundaries",
+      "designed_unqualified",
+      "architecture",
+      "Merlin proposes; Expert Robot executes bounded tasks; Hermes works behind broker; CACE independently qualifies"
+    ],
+    [
+      "MER-003",
+      "MCFC virtual compute fabric",
+      "implemented_evidenced",
+      "compute",
+      "typed CPU/RAM/GPU resources, budgets, leases, scheduler and telemetry; durable distributed execution remains open"
+    ],
+    [
+      "MER-004",
+      "Public academic Spider and professor-site discovery",
+      "implemented_evidenced",
+      "research_discovery",
+      "query generation, public metadata store, OpenAlex adapter and graph; broad site enumeration incomplete"
+    ],
+    [
+      "MER-005",
+      "Ideonomy typed hypergraph",
+      "designed_unqualified",
+      "knowledge_representation",
+      "ideas, concepts, claims, methods, evidence, counterexamples and typed relations"
+    ],
+    [
+      "MER-006",
+      "Lacunarity and fractal engineering descriptors",
+      "research_hypothesis",
+      "engineering_morphology",
+      "scale-aware heterogeneity descriptors with matched boundary and material conditions"
+    ],
+    [
+      "MER-007",
+      "Equation Atlas",
+      "implemented_evidenced",
+      "mathematics",
+      "equations, units, assumptions, invariants, sources, methods, limitations, proof status and applications"
+    ],
+    [
+      "MER-008",
+      "Multi-coordinate object-view graph",
+      "designed_unqualified",
+      "geometry",
+      "one object represented in multiple typed coordinate systems and algebraic views with explicit maps and invariants"
+    ],
+    [
+      "MER-009",
+      "Complex and alternative number systems",
+      "research_hypothesis",
+      "algebra",
+      "complex, split-complex, dual, quaternion, dual-quaternion, octonion, Clifford, p-adic, tropical and related systems"
+    ],
+    [
+      "MER-010",
+      "Spectral and operator mathematics",
+      "research_hypothesis",
+      "linear_algebra",
+      "eigenvalues, spectra, invariant subspaces, singular values, tensors and operator domains"
+    ],
+    [
+      "MER-011",
+      "Higher-dimensional geometry and spacetime",
+      "research_hypothesis",
+      "geometry_physics",
+      "2D/3D/4D/5D+ typed spaces, frame changes, spacetime projections and explicit physical assumptions"
+    ],
+    [
+      "MER-012",
+      "Xenomathematics glyph grammar",
+      "designed_unqualified",
+      "formal_languages",
+      "glyphs as typed operators/programs with syntax, semantics, composition and proof obligations"
+    ],
+    [
+      "MER-013",
+      "XMG rewrite normalization and confluence",
+      "implemented_evidenced",
+      "formal_methods",
+      "typed expression engine, bounded rewriting, critical-pair exploration and Lean law foundations; global confluence not yet established"
+    ],
+    [
+      "MER-014",
+      "Superorganism and collective mathematics",
+      "research_hypothesis",
+      "complex_systems",
+      "agent graphs, consensus, distributed optimization, synchronization, phase transitions and emergence"
+    ],
+    [
+      "MER-015",
+      "THTG/UFT reconstruction",
+      "designed_unqualified",
+      "theoretical_physics",
+      "action, Page curve, 5D couplings, curvature invariants, FRG beta functions, fixed points and conditional Lean theorems"
+    ],
+    [
+      "MER-016",
+      "Lean Proof Strategy Observatory",
+      "designed_unqualified",
+      "formal_verification",
+      "tactic observations, theorem DAGs, premise retrieval, benchmarks, successor tests and axiom audits"
+    ],
+    [
+      "MER-017",
+      "Theorem statement and assumption comparator",
+      "designed_unqualified",
+      "formal_verification",
+      "compare informal target and Lean declaration including quantifiers, domains and side conditions"
+    ],
+    [
+      "MER-018",
+      "Formalization integrity ladder",
+      "implemented_evidenced",
+      "formal_verification",
+      "statement elaboration, kernel check, no sorry, axiom audit, dependencies, toolchain and successor compilation"
+    ],
+    [
+      "MER-019",
+      "Research-to-simulation evidence receipts",
+      "implemented_evidenced",
+      "reproducibility",
+      "bind source, model, solver, parameters, seed, code revision and outputs"
+    ],
+    [
+      "MER-020",
+      "Shared mechanical/electrical Engineering IR",
+      "implemented_evidenced",
+      "engineering",
+      "typed parts, pins, nets, dimensions, units, frames, geometry and deterministic exports"
+    ],
+    [
+      "MER-021",
+      "CAD assemblies and kinematics",
+      "designed_unqualified",
+      "mechanical_engineering",
+      "stable instances, joints, constraints, degrees of freedom, collision, tolerances and parametric export"
+    ],
+    [
+      "MER-022",
+      "Wiring and harness routing",
+      "implemented_evidenced",
+      "electrical_engineering",
+      "typed connectivity and candidate 3D routes; electrical/manufacturing qualification remains separate"
+    ],
+    [
+      "MER-023",
+      "CAD-simulation-netlist shared revision graph",
+      "designed_unqualified",
+      "engineering_integration",
+      "single project revision and geometry hash across outputs and evidence"
+    ],
+    [
+      "MER-024",
+      "Local-first model core and specialists",
+      "designed_unqualified",
+      "ai_runtime",
+      "replaceable core, adapter manifests, on-demand modules, bounded memory and verifier-triggered escalation"
+    ],
+    [
+      "MER-025",
+      "Dynamic compression and context routing",
+      "research_hypothesis",
+      "ai_efficiency",
+      "quantization, structured sparsity, low-rank compensation, retrieval and KV/context compression measured against quality"
+    ],
+    [
+      "MER-026",
+      "CPU-native compute kernels",
+      "designed_unqualified",
+      "compute_optimization",
+      "cache tiling, SIMD detection, quantized kernels, bounded parallelism and reproducible numerical tests"
+    ],
+    [
+      "MER-027",
+      "Parrondo-inspired strategy switching",
+      "research_hypothesis",
+      "optimization",
+      "compare standalone, alternating and contextual strategies with switching costs and paired seeds"
+    ],
+    [
+      "MER-028",
+      "Independent research council",
+      "designed_unqualified",
+      "agent_orchestration",
+      "implementer, challenger, performance analyst, verifier, integrator and human maintainer"
+    ],
+    [
+      "MER-029",
+      "Math learning and visualization module",
+      "designed_unqualified",
+      "education",
+      "first-principles lessons, short explanations, adaptive recall, spaced repetition and mistake tracking"
+    ],
+    [
+      "MER-030",
+      "Visual research control room",
+      "designed_unqualified",
+      "visualization",
+      "linked equations, proofs, graphs, coordinate views, CAD, netlists and simulation plots"
+    ],
+    [
+      "MER-031",
+      "Public-source provenance and licensing",
+      "implemented_evidenced",
+      "research_governance",
+      "canonical URLs, identifiers, retrieval time, attribution and permitted use"
+    ],
+    [
+      "MER-032",
+      "Problem reframing and analogy verification",
+      "designed_unqualified",
+      "research_method",
+      "explicit source-target mapping, preserved invariants, lost information, boundaries and falsifiers"
+    ],
+    [
+      "MER-033",
+      "Hypothesis ledger and evidence states",
+      "implemented_evidenced",
+      "research_governance",
+      "proposed, literature checked, computationally tested, conditional/refuted and formally verified states"
+    ],
+    [
+      "MER-034",
+      "Bounded worker leases and idempotent orchestration",
+      "designed_unqualified",
+      "runtime",
+      "durable leases, heartbeats, cancellation, retries, queue persistence and execution receipts"
+    ],
+    [
+      "MER-035",
+      "Formal and empirical research corpus",
+      "designed_unqualified",
+      "research_data",
+      "ingest papers, professor pages, code, datasets, Lean projects and reproducible benchmark records"
+    ]
+  ],
+  "sources": [
+    "https://ai.meta.com/research/publications/autoformbot-formalizing-mathematics-at-scale/",
+    "https://arxiv.org/abs/2605.13137",
+    "https://arxiv.org/abs/2606.25363",
+    "https://aclanthology.org/2026.acl-industry.150/",
+    "https://arxiv.org/abs/2602.17016",
+    "https://arxiv.org/abs/2610.11605",
+    "https://goedelarchitect.github.io/",
+    "https://drops.dagstuhl.de/entities/document/10.4230/LIPIcs.ITP.2026.25",
+    "https://ideonomy.mit.edu/"
+  ],
+  "status_note": "Statuses are provisional repository-ledger classifications. Verify exact files, tests and receipts before promoting any item."
+}
