@@ -7,7 +7,7 @@ from merlin.representation_graph import Frame, RepresentationGraph, identity
 
 from merlin.proof_observatory import (
     CrossDomainLink, GoalKey, ProofAttempt, ProofObservatory,
-    link_representation_frames_to_engineering_project, object_view_engineering_links, rank_strategies,
+    link_representation_frames_to_engineering_project, object_view_engineering_links,\n    proof_attempt_from_qualified_receipt, rank_strategies,
 )
 
 
@@ -117,6 +117,53 @@ class ProofObservatoryTests(unittest.TestCase):
         with self.assertRaises(KeyError):
             link_representation_frames_to_engineering_project(
                 "t", graph, ["missing"], "p", project, "supports", digest("receipt")
+            )
+
+    def test_validated_lean_receipt_becomes_proof_observation(self):
+        import hashlib
+        from merlin.lean_proof_receipt import LeanProofReceipt
+        digest = lambda value: hashlib.sha256(value.encode()).hexdigest()
+        receipt = LeanProofReceipt(
+            repository="Mannyspiro/expert-robot",
+            commit_sha="a" * 40,
+            workflow_run_id=12345,
+            workflow_run_url="https://github.com/Mannyspiro/expert-robot/actions/runs/12345",
+            workflow_name="Formal Qualification",
+            conclusion="success",
+            theorem="MathAI.Example.identity",
+            theorem_compiled=True,
+            axiom_audit_passed=True,
+            axioms=("propext",),
+            source_sha256=digest("source"),
+        )
+        goal = GoalKey("MathAI.Example.identity", digest("statement"), digest("assumptions"),
+                       "algebra", ("cartesian-2d",))
+        observation = proof_attempt_from_qualified_receipt(
+            receipt, goal, ("rfl",), lean_version="4.34.0",
+            mathlib_revision="locked-mathlib", import_closure_sha256=digest("imports"),
+            elapsed_ms=10.0, heartbeats=20, peak_memory_bytes=4096,
+            no_sorry=True, exact_target_declaration=True,
+        )
+        self.assertTrue(observation.qualified)
+        self.assertEqual(observation.source_commit, "a" * 40)
+
+    def test_receipt_adapter_rejects_statement_theorem_mismatch(self):
+        import hashlib
+        from merlin.lean_proof_receipt import LeanProofReceipt
+        digest = lambda value: hashlib.sha256(value.encode()).hexdigest()
+        receipt = LeanProofReceipt(
+            "Mannyspiro/expert-robot", "a" * 40, 12345,
+            "https://github.com/Mannyspiro/expert-robot/actions/runs/12345",
+            "Formal Qualification", "success", "MathAI.Other.theorem",
+            True, True, ("propext",), digest("source"),
+        )
+        goal = GoalKey("MathAI.Example.identity", digest("statement"), digest("assumptions"), "algebra")
+        with self.assertRaises(ValueError):
+            proof_attempt_from_qualified_receipt(
+                receipt, goal, ("rfl",), lean_version="4.34.0",
+                mathlib_revision="locked", import_closure_sha256=digest("imports"),
+                elapsed_ms=1, heartbeats=1, peak_memory_bytes=None,
+                no_sorry=True, exact_target_declaration=True,
             )
 
 
