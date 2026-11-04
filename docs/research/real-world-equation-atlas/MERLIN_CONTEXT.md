@@ -237,3 +237,11 @@ Important limits:
 - Normalized 80-entry atlas SHA-256: `da3f9edba190fe667aecbae21eabfe422350e1be9a139fcba2bcea187236dc51`.
 - Receipt's `git_commit` is the PR merge-ref snapshot `7cbaa1f40e6e2c0c5e5e787add3e85d552874e0f`; it is not the branch-head SHA. Receipt explicitly includes the simulation engine source and its test file.
 - This pass verifies the declared tests and synthetic reproducibility only. It does not confer empirical validation, formal proof, or production solver status.
+
+
+## Phase 0.9.1 — composed mathematical models
+Built three first cross-domain model compositions on top of the shared integrator:
+- **Reaction–diffusion:** local reaction RHS plus periodic diffusion RHS. The 1-D explicit diffusion condition `dt D/dx² ≤ 1/2` is enforced; reaction stiffness is not covered by this bound.
+- **SIR:** susceptible/infectious/recovered transfers with closed-population conservation residual monitoring, initial-total validation, and a negative-compartment guard.
+- **Lotka–Volterra:** coupled prey/predator growth, interaction, conversion, and mortality with positivity guard.
+- CI adds model-level tests for composition, step-size restriction, population conservation, invalid initial totals, and reproducibility. The next Avrea run will verify this increment.
