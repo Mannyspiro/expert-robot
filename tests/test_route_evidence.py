@@ -63,7 +63,8 @@ class RouteEvidenceTests(unittest.TestCase):
         self.assertTrue(verify_route_evidence_receipt(
             receipt, project, assembly, output, lease
         ))
-        self.assertEqual(receipt["mcfc_lease_sha256"], receipt["mcfc_lease_sha256"])
+        self.assertEqual(len(receipt["mcfc_lease_sha256"]), 64)
+        self.assertEqual(receipt["mcfc_lease"]["capacity_evidence_sha256"], lease.capacity_evidence_sha256)
         self.assertEqual(receipt["mcfc_lease"]["status"], "completed")
         self.assertFalse(receipt["promotion_authority"])
         self.assertEqual(receipt["qualification_status"], "not_qualified")
