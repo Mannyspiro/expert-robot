@@ -126,7 +126,7 @@ def assess_electrical(inputs: ElectricalInputs) -> list[dict[str, Any]]:
         if not _finite_number(x[key]):
             findings.append(_finding("ELECTRICAL_INPUT_INVALID", "BLOCKED",
                                      f"{key} must be finite."))
-    if not math.isfinite(inputs.ampacity_derating_factor) or not 0 < inputs.ampacity_derating_factor <= 1:
+    if not _finite_number(inputs.ampacity_derating_factor) or not 0 < inputs.ampacity_derating_factor <= 1:
         findings.append(_finding("AMPACITY_DERATING_INVALID", "BLOCKED",
                                  "Derating factor must be in (0, 1] and sourced from applicable data."))
     if findings:
