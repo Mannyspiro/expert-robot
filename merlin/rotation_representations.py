@@ -105,9 +105,7 @@ def quaternion_to_rotor(q: Q) -> GA3:
 
 def ga_vector(v: V3) -> GA3:
     x,y,z=v
-    return (Fraction(0),x,y,z*0,Fraction(0),Fraction(0),Fraction(0),Fraction(0)) if False else (
-        Fraction(0), x, y, Fraction(0), z, Fraction(0), Fraction(0), Fraction(0)
-    )
+    return (Fraction(0), x, y, Fraction(0), z, Fraction(0), Fraction(0), Fraction(0))
 
 
 def rotor_rotate(q: Q, v: V3) -> V3:
