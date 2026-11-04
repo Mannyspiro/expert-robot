@@ -81,6 +81,10 @@ Adaptive ranking is deliberately strict: it only includes kernel-checked, exact-
 
 The bridge is intentionally reference-based: it does not silently infer that a mathematical theorem validates an engineering object.
 
+### Implementation increment after the initial snapshot
+
+The Observatory implementation and reconciliation document are now committed on PR #75 through head `0d4c0bebfab206730e9c242a24bddfb5204ac4e1`. The PR includes the new implementation, tests, reconciliation document and CI test-loop entry. The commit workflow-run lookup returned no runs for this head; tests are therefore **added but not yet executed/qualified**.
+
 ## 4. P0 unresolved dependencies
 
 1. Run the new Observatory test suite and the full Merlin focused suite on the exact PR #75 head.
