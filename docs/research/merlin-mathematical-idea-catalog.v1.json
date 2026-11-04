@@ -854,7 +854,7 @@
         "MERLIN mathematical idea ledger sections 3 and 4",
         "merlin/rotation_representations.py",
         "tests/test_merlin_rotation_representations.py",
-        "Avrea run 41889187523 passed the initial quaternion/matrix/rotor test suite; the exact 120-degree case was added afterward and awaits the next run."
+        "Avrea run 41889392289 passed all 9 quaternion/Cl(3,0) rotor tests, including the exact 120-degree axis-cycling rotation, plus the 5D frame graph tests and catalog validation."
       ],
       "relations": [
         {
@@ -876,7 +876,6 @@
         "Quaternion q and -q encode the same spatial rotation."
       ],
       "next_steps": [
-        "Run the expanded exact 120-degree test on Avrea.",
         "Prove the quaternion-to-Cl(3,0) even-subalgebra isomorphism generally.",
         "Implement the fixed-axis complex-plane adapter and compare it with the other views."
       ]
