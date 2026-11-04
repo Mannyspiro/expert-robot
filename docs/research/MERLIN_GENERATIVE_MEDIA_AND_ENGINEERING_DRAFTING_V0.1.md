@@ -87,3 +87,13 @@ The spider should store source title, DOI/URL, publisher, publication date, stan
 ## Evidence boundary
 
 The new tests validate prompt compilation, template substitution and the deterministic SVG output. They do not prove that a diffusion model will preserve geometry, that the local ComfyUI server is installed, that a specific workflow/model is available, or that a generated illustration is a valid engineering drawing. The adapter has not executed a media-generation job in CI. Native KiCad/FreeCAD round-trip remains the next major engineering task.
+
+## Routed CAD view increment
+
+The deterministic drafting module can now consume the exact Merlin 3D route
+proposal. Its top view draws the route polyline projected into XY and embeds
+the original Z profile and MCFC lease identifier as traceable SVG metadata.
+Because top projection collapses height, a separate distance-versus-Z elevation
+SVG is available for each net. Both outputs remain review drawings, not
+fabrication drawings; the source route hash and CACE receipt remain the
+engineering provenance.

@@ -59,10 +59,18 @@ def export_top_view_svg(project: EngineeringProject, assembly: Any,
             raise ValueError("unsupported route proposal format or units")
         if route_output.get("project") != project.name or route_output.get("assembly") != assembly.name:
             raise ValueError("route proposal project/assembly identity mismatch")
-        for route_net in route_output.get("nets", []):
+        route_nets = route_output.get("nets")
+        if not isinstance(route_nets, list):
+            raise ValueError("route proposal nets must be a list")
+        for route_net in route_nets:
             if not isinstance(route_net, dict):
                 continue
-            for route in route_net.get("routes", []):
+            routes = route_net.get("routes", [])
+            if not isinstance(routes, list):
+                raise ValueError("route net routes must be a list")
+            for route in routes:
+                if not isinstance(route, dict):
+                    continue
                 if route.get("status") != "candidate_geometry_not_manufacturing_qualified":
                     continue
                 raw = route.get("polyline_mm")
@@ -128,7 +136,8 @@ def export_top_view_svg(project: EngineeringProject, assembly: Any,
                 for point in points
             )
             z_profile = ",".join(f"{point[2]:.3f}" for point in points)
-            lease_id = (route_output.get("execution") or {}).get("mcfc_lease_id", "")
+            execution = route_output.get("execution")
+            lease_id = execution.get("mcfc_lease_id", "") if isinstance(execution, dict) else ""
             wire_svg.append(
                 f'<polyline points="{xy}" fill="none" stroke="#0f766e" stroke-width="2" '
                 'stroke-dasharray="3 2" '
@@ -175,7 +184,12 @@ def export_route_elevation_svg(
     if net is None:
         raise ValueError(f"route net not found: {net_name}")
     profiles = []
-    for route in net.get("routes", []):
+    routes = net.get("routes", [])
+    if not isinstance(routes, list):
+        raise ValueError("route net routes must be a list")
+    for route in routes:
+        if not isinstance(route, dict):
+            continue
         if route.get("status") != "candidate_geometry_not_manufacturing_qualified":
             continue
         raw = route.get("polyline_mm")

@@ -2,7 +2,7 @@ import unittest
 from merlin.engineering_ir import EngineeringProject, Net, Part, Pin
 from merlin.cad_assembly import AssemblyComponent, CADAssembly, Transform3D
 from merlin.media_generation import EngineeringMediaBrief, compile_engineering_prompts, _replace_prompt_tokens
-from merlin.engineering_drafting import export_top_view_svg
+from merlin.engineering_drafting import export_route_elevation_svg, export_top_view_svg
 
 
 class MediaAndDraftingTests(unittest.TestCase):
@@ -18,6 +18,23 @@ class MediaAndDraftingTests(unittest.TestCase):
             (AssemblyComponent("J1", Transform3D(translation_mm=(0, 0, 0))),
              AssemblyComponent("U1", Transform3D(translation_mm=(30, 0, 0)))),
         )
+        self.route_output = {
+            "format": "merlin-wire-route-proposals-v0.1",
+            "units": "mm",
+            "project": "demo",
+            "assembly": "demo-assembly",
+            "nets": [{
+                "name": "VIN",
+                "status": "candidate_geometry_not_manufacturing_qualified",
+                "routes": [{
+                    "from": "J1.1", "to": "U1.1",
+                    "status": "candidate_geometry_not_manufacturing_qualified",
+                    "method": "global_z_overpass",
+                    "polyline_mm": [[10, 0, 0], [10, 0, 8], [24, 0, 8], [24, 0, 0]],
+                }],
+            }],
+            "status": "GEOMETRY_PROPOSAL_ONLY_NOT_ELECTRICAL_OR_MANUFACTURING_APPROVAL",
+        }
 
     def test_prompt_pack_is_bound_to_exact_source_facts(self):
         pack = compile_engineering_prompts(
@@ -54,6 +71,35 @@ class MediaAndDraftingTests(unittest.TestCase):
         self.assertIn("U1", svg)
         self.assertIn('width="', svg)
         self.assertIn('viewBox=', svg)
+
+
+    def test_top_view_projects_3d_route_and_preserves_z_metadata(self):
+        svg = export_top_view_svg(self.project, self.assembly, route_output=self.route_output)
+        self.assertIn("XY PROJECTION (Z COLLAPSED)", svg)
+        self.assertIn('data-z-profile="0.000,8.000,8.000,0.000"', svg)
+        self.assertIn('data-route-method="global_z_overpass"', svg)
+        self.assertNotIn("NOT ROUTED", svg)
+
+    def test_route_elevation_svg_shows_vertical_overpass(self):
+        svg = export_route_elevation_svg(self.route_output, "VIN")
+        self.assertIn("Z ELEVATION (mm): 0.000 to 8.000", svg)
+        self.assertIn("CUMULATIVE CENTERLINE DISTANCE (mm)", svg)
+        self.assertIn('data-route-method="global_z_overpass"', svg)
+
+    def test_drafting_rejects_route_for_another_project(self):
+        wrong = dict(self.route_output)
+        wrong["project"] = "other-project"
+        with self.assertRaisesRegex(ValueError, "identity mismatch"):
+            export_top_view_svg(self.project, self.assembly, route_output=wrong)
+
+    def test_drafting_rejects_nonfinite_route_geometry(self):
+        wrong = dict(self.route_output)
+        wrong["nets"] = [dict(self.route_output["nets"][0])]
+        wrong["nets"][0]["routes"] = [dict(wrong["nets"][0]["routes"][0])]
+        wrong["nets"][0]["routes"][0]["polyline_mm"] = [[10, 0, 0], [float("nan"), 0, 0]]
+        with self.assertRaisesRegex(ValueError, "finite"):
+            export_top_view_svg(self.project, self.assembly, route_output=wrong)
+
 
 
 if __name__ == "__main__":
