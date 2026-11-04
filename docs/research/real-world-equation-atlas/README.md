@@ -6,7 +6,8 @@ This directory contains the 100-entry atlas, research prompt, Merlin context, so
 - `PROMPT.md` — complete Merlin research instruction.
 - `ATLAS_001-100.md` — initial equation atlas.
 - `SOURCES_AND_CITATION_CROSSWALK.md` — source register and equation-ID mapping, with explicit application-specific gaps.
-- `NORMALIZED_ENTRIES_001-020.json` — first normalized metadata tranche; it is not yet a complete canonical-schema export.
+- `NORMALIZED_ENTRIES_001-020.json` — legacy metadata migration input.
+- `NORMALIZED_ENTRIES_021-030.json` — canonical robotics, dynamics, and control tranche with claim-linked sources.
 - `equation-entry.schema.json` — canonical machine-readable entry schema, including SI dimension metadata.
 - `NORMALIZED_ENTRIES_001-020_V0.3.json` — generated canonical migration output (created and validated in CI).
 - `EVIDENCE_RECEIPT_CONTRACT_V0.1.md` — content-addressed reproducibility receipt contract.
