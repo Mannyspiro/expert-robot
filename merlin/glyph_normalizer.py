@@ -63,36 +63,45 @@ class GlyphNormalizer:
             RewriteRule("PROJECT_PAIR_RIGHT","Right projection of a pair returns its second map",
                 lambda e: e.op=="project" and e.args[0].op=="pair" and e.args[1]==1,
                 lambda e,r: e.args[0].args[1]),
+            RewriteRule("COMPOSE_IDENTITY_INNER","Composition after identity reduces to the outer map",
+                lambda e: e.op=="compose" and e.args[1].op=="identity",
+                lambda e,r: e.args[0]),
+            RewriteRule("COMPOSE_IDENTITY_OUTER","Identity after composition reduces to the inner map",
+                lambda e: e.op=="compose" and e.args[0].op=="identity",
+                lambda e,r: e.args[1]),
         )
 
-    def _rebuild(self,e:Expr)->Expr:
+    def _rebuild(self,e:Expr,max_steps:int)->tuple[Expr,tuple[RewriteStep,...]]:
         a=e.args
-        if e.op in ("identity","primitive"): return e
+        if e.op in ("identity","primitive"): return e,()
         # Rebuild without applying constructor simplifications: every semantic
-        # change must be represented by an explicit RewriteStep below.
+        # change must be represented by an explicit RewriteStep.
         if e.op=="compose":
-            outer,inner=self.normalize_children(a[0]),self.normalize_children(a[1])
+            outer_result=self.normalize(a[0],max_steps)
+            inner_result=self.normalize(a[1],max_steps)
+            outer,inner=outer_result.expression,inner_result.expression
             if inner.output_type!=outer.input_type: raise TypeMismatch("ill-typed compose node")
-            return Expr("compose",(outer,inner),e.input_type,e.output_type)
+            return Expr("compose",(outer,inner),e.input_type,e.output_type), outer_result.steps+inner_result.steps
         if e.op=="pair":
-            left,right=self.normalize_children(a[0]),self.normalize_children(a[1])
+            left_result=self.normalize(a[0],max_steps)
+            right_result=self.normalize(a[1],max_steps)
+            left,right=left_result.expression,right_result.expression
             if left.input_type!=right.input_type: raise TypeMismatch("ill-typed pair node")
-            return Expr("pair",(left,right),e.input_type,e.output_type)
+            return Expr("pair",(left,right),e.input_type,e.output_type), left_result.steps+right_result.steps
         if e.op=="project":
-            inner=self.normalize_children(a[0])
-            return Expr("project",(inner,a[1]),e.input_type,e.output_type)
+            inner_result=self.normalize(a[0],max_steps)
+            return Expr("project",(inner_result.expression,a[1]),e.input_type,e.output_type),inner_result.steps
         if e.op=="equal":
-            left,right=self.normalize_children(a[0]),self.normalize_children(a[1])
+            left_result=self.normalize(a[0],max_steps)
+            right_result=self.normalize(a[1],max_steps)
+            left,right=left_result.expression,right_result.expression
             if (left.input_type,left.output_type)!=(right.input_type,right.output_type):
                 raise TypeMismatch("ill-typed equality node")
-            return Expr("equal",(left,right),e.input_type,e.output_type)
+            return Expr("equal",(left,right),e.input_type,e.output_type),left_result.steps+right_result.steps
         if e.op=="constrain":
-            inner=self.normalize_children(a[0])
-            return Expr("constrain",(inner,a[1]),e.input_type,e.output_type)
+            inner_result=self.normalize(a[0],max_steps)
+            return Expr("constrain",(inner_result.expression,a[1]),e.input_type,e.output_type),inner_result.steps
         raise TypeMismatch(f"normalizer does not understand AST node {e.op!r}")
-
-    def normalize_children(self,e:Expr)->Expr:
-        return self.normalize(e).expression
 
     def normalize(self,expression:Expr,max_steps:int=256)->NormalizationResult:
         if max_steps<1: raise ValueError("max_steps must be positive")
@@ -100,7 +109,8 @@ class GlyphNormalizer:
         steps=[]
         seen={current.fingerprint()}
         for _ in range(max_steps):
-            rebuilt=self._rebuild(current)
+            rebuilt,child_steps=self._rebuild(current,max_steps)
+            steps.extend(child_steps)
             if rebuilt.fingerprint()!=current.fingerprint():
                 current=rebuilt
                 seen.add(current.fingerprint())
