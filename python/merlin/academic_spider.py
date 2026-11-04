@@ -34,7 +34,7 @@ DEFAULT_TOPICS = (
 
 def _valid_domain(domain: str) -> str:
     value = domain.strip().lower().rstrip(".")
-    if not re.fullmatch(r"(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,63}", value):
+    if not re.fullmatch(r"(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?[.])+[a-z]{2,63}", value):
         raise ValueError(f"invalid institution domain: {domain!r}")
     return value
 
