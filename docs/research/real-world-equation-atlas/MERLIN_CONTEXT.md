@@ -50,3 +50,32 @@ Justify weights; expose Pareto trade-offs; never hide unacceptable safety/physic
 
 ## Non-claims
 This package records research direction and proposed outputs. It does not claim that a Merlin runtime was executed, a simulation was run, a CAD model was generated, a Lean theorem was proved, or literature was exhaustively reviewed in this commit.
+
+
+## Phase 0.3 implementation update — 2026-11-04
+- Avrea CI run 1271 (run ID 41837021534) completed successfully for the initial atlas checks and produced the reproducibility baseline artifact. This is execution evidence for that revision only; it is not an empirical validation or Lean qualification.
+- The canonical entry schema now has an explicit per-variable `dimension` field so SI dimensional metadata is not discarded during normalization.
+- `python/merlin/equation_atlas/normalize.py` migrates legacy entries 001–020 into canonical entries and validates each with JSON Schema Draft 2020-12. It preserves legacy conditions as explicit assumptions and source-register IDs as review-required citation records.
+- All migrated entries are explicitly `UNVERIFIED`; a citation identifier is not treated as claim-level source validation.
+- `python/merlin/equation_atlas/receipts.py` creates content-addressed evidence receipts binding the generated artifact to declared source files, code revision, command, and runtime metadata.
+- CI has been extended to generate the canonical tranche, create the evidence receipt, and archive the baseline, normalized entries, and receipt together. These new steps are pending their own Avrea run; do not infer success from the earlier CI run.
+
+## Data and evidence rules
+- Canonical entries are the typed source of truth; legacy JSON is migration input only until replaced.
+- Preserve SI dimensions, coefficient dimensions, variable domains, and mixed-unit vector/matrix structure. Never silently coerce unknown units to dimensionless.
+- Missing application details, boundary conditions, validity regimes, citations, and uncertainty remain explicit gaps, not invented facts.
+- Keep independent evidence dimensions separate: source support, dimensional consistency, symbolic checking, computational reproduction, empirical validation, and formal verification.
+- A generated receipt proves provenance and byte identity only within its declared scope. It does not establish scientific truth.
+- A successful Avrea run is recorded against its exact commit and workflow run. Later changes require a new run before they are called tested.
+
+## Next execution focus
+1. Inspect the new Avrea CI run for canonical schema migration, tests, receipt generation, and artifact publication.
+2. Fix any actual failures before expanding the inventory.
+3. Add receipt schema validation, dependency-lock hash, test-output digest, seeds/tolerances, and experiment-to-entry mapping.
+4. Normalize entries 021–040, prioritizing robotics, dynamics, control, signal processing, and geometry.
+5. Expand dimensional checks and numerical convergence/sensitivity tests.
+6. Execute separate Lean qualification and inspect the exact theorem/axiom output.
+7. Add XMG serialization and deterministic SVG exports from tested typed geometry.
+8. Feed only appropriately supported entries into Math Kung Fu lessons.
+
+The standing authority boundary remains: research and verification can produce evidence; promotion, merge, and permission changes remain approval-gated. Capability grows, authority never expands.
