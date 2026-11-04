@@ -177,3 +177,26 @@ Suggested typed transformations:
 `GraphEnsemble --BondOccupation(p)--> ComponentDistribution`
 
 These are proposed contracts, not claims of an already implemented XMG runtime. Keep physical entropy, Shannon information, and dimensionless order parameters separate.
+
+
+## Phase 0.8 — invasion, epidemics, and stochastic systems
+- Added RWEA-071–080 for Fisher-KPP invasion fronts, Lotka-Volterra predator-prey dynamics, SIR epidemic dynamics, network metapopulations, Amari neural fields, chemical master equation, Gillespie SSA, RDME, adaptive coevolutionary networks, and generalized Lotka-Volterra communities.
+- Added claim-level source records S48–S56. Explicit caveats include KPP wave-speed hypotheses, idealized neutral predator-prey cycles, incidence normalization in SIR, network mixing assumptions, neural-field coarse graining, propensity-model exactness, and RDME mesh/convergence limitations.
+- Extended the canonical normalizer, schema regression test, Avrea artifact path, and evidence receipt inputs to RWEA-080.
+- Added the proposed XMG cross-domain operator contract: reaction, diffusion, advection, graph coupling, jump process, phase coupling, neural convolution, and frame projection.
+- Added a small declaration validator that checks operator input/output frame types and pipeline composition. This is a contract checker, not a physical simulator or a claim of production runtime support.
+- Added CI tests for valid pipelines, exact frame matching, invalid frame types, and unknown operators.
+- The 80-entry revision is authored but has not yet passed its own Avrea run. Prior run #1343 applies only to the exact 001–070 revision. All 80 entries remain UNVERIFIED.
+
+## XMG cross-domain composition rules
+A composed model should be a typed graph of operators, not a collection of unrelated one-off solvers:
+- **Reaction** transforms local state using declared kinetic laws and stoichiometry.
+- **Diffusion** transports a field under an explicit domain and boundary condition.
+- **Advection** transports conserved quantities in flux form with explicit velocity and boundary flux.
+- **Graph coupling** exchanges state across a declared adjacency or graph Laplacian; conservation depends on balanced flux convention.
+- **Jump process** transforms discrete states and probability distributions using a generator or propensities, with row/column convention and state-space boundaries explicit.
+- **Phase coupling** evolves periodic oscillator states with declared frequency, adjacency, and coupling function.
+- **Neural convolution** applies a spatial kernel and activation function to a neural population field.
+- **Frame projection** declares whether a map is an embedding, projection, active physical transformation, or passive coordinate change.
+
+Composition is permitted only when output and input frame identifiers and required metadata match exactly. No implicit unit conversion is allowed. Each run should bind operator/version, input and parameter hashes, code revision, numerical method, tolerance, boundary conditions, and random seed when stochastic.
