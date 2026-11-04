@@ -66,8 +66,18 @@ _REQUIRED_EVIDENCE = (
 )
 
 
+def _finite_number(value: Any) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
+
+
 def _finite_positive(value: float) -> bool:
-    return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value) and value > 0
+    return _finite_number(value) and value > 0
+
+
+def _payload_hash(value: Any) -> str:
+    canonical = json.dumps(value, sort_keys=True, separators=(",", ":"),
+                           ensure_ascii=False, allow_nan=False)
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
 def _finding(code: str, status: str, message: str, **metrics: Any) -> dict[str, Any]:
@@ -113,7 +123,7 @@ def assess_electrical(inputs: ElectricalInputs) -> list[dict[str, Any]]:
                                      f"{key} must be a finite positive value."))
     for key in ("conductor_reference_temperature_c", "resistance_temperature_coefficient_per_c",
                 "minimum_required_clearance_mm", "measured_minimum_clearance_mm"):
-        if not math.isfinite(x[key]):
+        if not _finite_number(x[key]):
             findings.append(_finding("ELECTRICAL_INPUT_INVALID", "BLOCKED",
                                      f"{key} must be finite."))
     if not math.isfinite(inputs.ampacity_derating_factor) or not 0 < inputs.ampacity_derating_factor <= 1:
@@ -166,7 +176,7 @@ def assess_thermal(electrical: ElectricalInputs, thermal: ThermalInputs) -> list
         electrical.conductor_reference_temperature_c,
         electrical.resistance_temperature_coefficient_per_c,
     )
-    if any(not math.isfinite(v) for v in values) or thermal.lumped_thermal_resistance_k_per_w <= 0:
+    if any(not _finite_number(v) for v in values) or thermal.lumped_thermal_resistance_k_per_w <= 0:
         return [_finding("THERMAL_INPUT_INVALID", "BLOCKED",
                          "Thermal inputs must be finite and thermal resistance positive.")]
     result = _thermal_fixed_point(
@@ -285,6 +295,13 @@ def build_qualification_report(
     )
     report = {
         "schema": "merlin-wire-qualification-report/0.1",
+        "input_hashes": {
+            "route_sha256": _payload_hash(route),
+            "electrical_inputs_sha256": _payload_hash(asdict(electrical)) if electrical is not None else None,
+            "thermal_inputs_sha256": _payload_hash(asdict(thermal)) if thermal is not None else None,
+            "manufacturing_inputs_sha256": _payload_hash(asdict(manufacturing)) if manufacturing is not None else None,
+            "evidence_sha256": _payload_hash(supplied),
+        },
         "route_format": route.get("format"),
         "route_status": route.get("status"),
         "overall_status": overall,
