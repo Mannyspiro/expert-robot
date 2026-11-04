@@ -41,6 +41,21 @@ class WiringExportTests(unittest.TestCase):
                          "LOGICAL_SCHEMATIC_AND_ROUTE_PROPOSALS_NOT_RELEASE_DOCUMENTS")
         self.assertIsNotNone(manifest["parts"][0]["pins"][0]["position_mm"])
 
+    def test_dot_export_escapes_user_supplied_labels(self):
+        from dataclasses import replace
+        from merlin.engineering_ir import Pin, Part
+        project = replace(
+            self.project,
+            parts=(
+                Part("J1", 'input "quoted"', (Pin("1", 'OUT\\n"quoted"', position_mm=(0, 0, 0)),)),
+                self.project.parts[1],
+            ),
+        )
+        physical = physical_netlist(project, self.assembly)
+        dot = export_wiring_graph_dot(project, physical)
+        self.assertIn('\\\\\\n', dot)
+        self.assertIn('\\\\"quoted\\\"', dot)
+
     def test_unknown_physical_netlist_rejected(self):
         with self.assertRaises(ValueError):
             export_schematic_manifest(self.project, {"format": "wrong"})
