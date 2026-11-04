@@ -217,3 +217,52 @@ These are leads, not proof that every claim in this ledger is supported by those
 9. Promote only with independent CACE qualification; preserve rollback and authority boundaries.
 
 **Governance:** capability grows, authority never expands. Candidate generation and search do not grant execution or merge authority. No result is promoted solely because a model generated it.
+
+
+## 14. Multi-representation transition graph (new v0.1 research slice)
+
+For a vector space V and invertible frame maps P_i from canonical coordinates into frame i, define
+
+\[
+T_{i\\to j}=P_jP_i^{-1}.
+\]
+
+Then
+
+\[
+T_{j\\to k}T_{i\\to j}=P_kP_j^{-1}P_jP_i^{-1}=P_kP_i^{-1}=T_{i\\to k}.
+\]
+
+The companion prototype `merlin/representation_graph.py` implements this for exact rational 2x2 matrices. Its tests cover transition round trips, path composition, closed cycles, trace/determinant invariance under similarity, eigenvector coordinate transformation and invalid frames.
+
+For an operator A, the matrix in frame i is A_i=P_iAP_i^{-1}. Similarity preserves the characteristic polynomial over the same field. This does not mean eigenvalues are independent of scalar-field extension: a real rotation matrix has no real eigenvectors but has complex eigenvalues over C.
+
+**Boundary:** this is a finite exact implementation of standard linear algebra, not a claim of novel mathematics or a general coordinate engine.
+
+## 15. Distinguish transition consistency from geometric holonomy
+
+Coordinate-chart transition maps obey overlap compatibility where their domains overlap. A connection defines parallel transport along paths. Curvature and holonomy concern that transport, not arbitrary products of graph-edge labels.
+
+A non-identity product around a graph cycle can mean inconsistent edge data. It is not, by itself, evidence of curvature. The next research stage must define a connection, path transport and loop comparison before using holonomy terminology.
+
+## 16. Audit findings from the uploaded Master Handoff
+
+The recovered archive's mathematical-core files contain useful candidates, but three claims require correction:
+
+1. The archived ODE condition f(I)≥1 for dI/dt=f(I)I does not imply finite-time blow-up. A positive regular scalar model requires the separation integral \(\int_{I_0}^{\\infty} dI/(f(I)I)\) to converge, together with a properly stated maximal-solution argument. The archived Lean theorem also has a vacuous conclusion containing `True`.
+2. The archived Parrondo demo sets operator A to a positive capability increment (+0.15), so it does not demonstrate two individually losing operators producing net gain under alternation.
+3. The archived PGA/CGA/QGA claims require explicit generator-relation and metric-signature preservation. The exterior product of blades is not generally the algebraic-geometric intersection ideal of arbitrary quadric zero sets.
+
+See `MERLIN_ARCHIVED_MATH_CLAIM_AUDIT_V0.1.md`. These findings are recorded as corrections, not silently deleted from historical provenance.
+
+## 17. Immediate mathematical work queue
+
+1. Generalize the exact frame graph to n×n rational matrices and then typed real/complex matrices.
+2. Add characteristic-polynomial equality and generalized eigenspace transport.
+3. Add partial coordinate charts, domains and singular loci.
+4. Formalize transition composition and similarity invariance in Lean.
+5. Build a separate connection/holonomy experiment on a known curved manifold.
+6. Reconstruct geometric-algebra embeddings from metric-preserving generator maps.
+7. Replace the archived blow-up sketch with a non-vacuous theorem based on the integral criterion.
+8. Rebuild the Parrondo experiment using an explicit stochastic transition model, paired seeds and equal resource budgets.
+
