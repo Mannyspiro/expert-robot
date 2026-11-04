@@ -1,0 +1,293 @@
+{
+  "schema_version": "xmg-atlas-0.1",
+  "semantics": {
+    "canonical_object": "A domain object/state, independent of coordinate notation.",
+    "frame": "A typed representation with explicit units, axes, basis, and domain.",
+    "map_types": [
+      "passive_coordinate_change",
+      "active_transformation",
+      "projection",
+      "embedding",
+      "measurement",
+      "basis_change"
+    ],
+    "invariant_rule": "Every invariant is declared relative to a map family and assumptions; invariance is never inferred from visual similarity."
+  },
+  "examples": [
+    {
+      "id": "XMG-GARDEN-001",
+      "object": {
+        "type": "rectangle",
+        "constraint": "area=12 m^2"
+      },
+      "frames": [
+        {
+          "id": "physical_xy",
+          "type": "euclidean_2d",
+          "coordinates": [
+            "x",
+            "y"
+          ],
+          "units": [
+            "m",
+            "m"
+          ]
+        },
+        {
+          "id": "area",
+          "type": "scalar_observable",
+          "coordinates": [
+            "A"
+          ],
+          "units": [
+            "m^2"
+          ]
+        },
+        {
+          "id": "perimeter",
+          "type": "scalar_objective",
+          "coordinates": [
+            "P"
+          ],
+          "units": [
+            "m"
+          ]
+        },
+        {
+          "id": "normalized_shape",
+          "type": "dimensionless_shape",
+          "coordinates": [
+            "x/sqrt(A)",
+            "y/sqrt(A)"
+          ],
+          "units": [
+            "1",
+            "1"
+          ]
+        }
+      ],
+      "maps": [
+        {
+          "from": "physical_xy",
+          "to": "area",
+          "type": "measurement",
+          "formula": "A=x*y",
+          "lossy": false
+        },
+        {
+          "from": "physical_xy",
+          "to": "perimeter",
+          "type": "measurement",
+          "formula": "P=2*x+2*y",
+          "lossy": false
+        },
+        {
+          "from": "physical_xy",
+          "to": "normalized_shape",
+          "type": "normalization",
+          "formula": "(x/sqrt(A),y/sqrt(A))",
+          "lossy": false
+        }
+      ],
+      "invariants": [
+        {
+          "name": "area",
+          "value": "12 m^2",
+          "under": "feasible rectangle family"
+        }
+      ],
+      "non_invariants": [
+        "perimeter",
+        "aspect_ratio"
+      ],
+      "assumptions": [
+        "x>0",
+        "y>0",
+        "Euclidean rectangular geometry"
+      ],
+      "evidence_status": "FORMALLY_VERIFIED_CANDIDATE"
+    },
+    {
+      "id": "XMG-HEAT-1D-001",
+      "object": {
+        "type": "temperature_field",
+        "symbol": "T(x,t)",
+        "units": "K"
+      },
+      "frames": [
+        {
+          "id": "continuum",
+          "type": "physical_field",
+          "coordinates": [
+            "x",
+            "t"
+          ],
+          "units": [
+            "m",
+            "s"
+          ]
+        },
+        {
+          "id": "grid",
+          "type": "discrete_mesh",
+          "coordinates": [
+            "i",
+            "n"
+          ],
+          "units": [
+            "index",
+            "index"
+          ],
+          "metadata": [
+            "dx_m",
+            "dt_s"
+          ]
+        },
+        {
+          "id": "state_vector",
+          "type": "finite_dimensional_state",
+          "coordinates": [
+            "T_1",
+            "...",
+            "T_n"
+          ],
+          "units": [
+            "K"
+          ]
+        },
+        {
+          "id": "spatial_spectrum",
+          "type": "fourier_modes",
+          "coordinates": [
+            "k_hat"
+          ],
+          "units": [
+            "K* m"
+          ]
+        }
+      ],
+      "maps": [
+        {
+          "from": "continuum",
+          "to": "grid",
+          "type": "projection",
+          "formula": "T_i^n≈T(i*dx,n*dt)",
+          "lossy": true,
+          "loss_note": "finite resolution and truncation"
+        },
+        {
+          "from": "grid",
+          "to": "state_vector",
+          "type": "encoding",
+          "formula": "[T_1,...,T_n]^T",
+          "lossy": false
+        },
+        {
+          "from": "state_vector",
+          "to": "spatial_spectrum",
+          "type": "basis_change",
+          "formula": "DFT(T)",
+          "lossy": false
+        }
+      ],
+      "invariants": [
+        {
+          "name": "boundary_temperature",
+          "value": "0 K offset convention in this synthetic example",
+          "under": "fixed Dirichlet boundary nodes"
+        }
+      ],
+      "diagnostics": [
+        "alpha*dt/dx^2",
+        "discrete energy decay for source-free diffusion"
+      ],
+      "assumptions": [
+        "constant alpha",
+        "1D homogeneous medium",
+        "Dirichlet endpoints",
+        "explicit FTCS stability ratio <= 1/2"
+      ],
+      "evidence_status": "NUMERICAL_BASELINE"
+    },
+    {
+      "id": "XMG-ROBOT-POSE-001",
+      "object": {
+        "type": "rigid_body_pose",
+        "group": "SE(3)"
+      },
+      "frames": [
+        {
+          "id": "world",
+          "type": "cartesian_3d",
+          "coordinates": [
+            "x",
+            "y",
+            "z"
+          ],
+          "units": [
+            "m",
+            "m",
+            "m"
+          ]
+        },
+        {
+          "id": "body",
+          "type": "rigid_body_local",
+          "coordinates": [
+            "x_b",
+            "y_b",
+            "z_b"
+          ],
+          "units": [
+            "m",
+            "m",
+            "m"
+          ]
+        },
+        {
+          "id": "sensor",
+          "type": "sensor_local",
+          "coordinates": [
+            "x_s",
+            "y_s",
+            "z_s"
+          ],
+          "units": [
+            "m",
+            "m",
+            "m"
+          ]
+        }
+      ],
+      "maps": [
+        {
+          "from": "body",
+          "to": "world",
+          "type": "passive_coordinate_change",
+          "formula": "p_w=R_wb*p_b+t_wb",
+          "lossy": false
+        },
+        {
+          "from": "sensor",
+          "to": "body",
+          "type": "passive_coordinate_change",
+          "formula": "p_b=R_bs*p_s+t_bs",
+          "lossy": false
+        }
+      ],
+      "invariants": [
+        {
+          "name": "Euclidean_distance",
+          "value": "preserved",
+          "under": "proper rigid transforms"
+        }
+      ],
+      "assumptions": [
+        "R^T R=I",
+        "det(R)=+1",
+        "frame direction and multiplication order are explicit"
+      ],
+      "evidence_status": "MODEL_CONTRACT"
+    }
+  ]
+}
