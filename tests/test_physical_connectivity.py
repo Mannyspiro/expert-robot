@@ -34,23 +34,20 @@ class PhysicalConnectivityTests(unittest.TestCase):
     def test_rotation_applies_to_pin_direction(self):
         project = EngineeringProject(
             "rotation", "mm",
-            (Part("P1", "part", (Pin("1", "signal", position_mm=(1, 0, 0),
-                                      direction=(1, 0, 0)),)),),
-            (),
+            (Part("P1", "part", (
+                Pin("1", "signal", position_mm=(1, 0, 0), direction=(1, 0, 0)),
+                Pin("2", "return", position_mm=(0, 1, 0), direction=(0, 1, 0)),
+            )),),
+            (Net("N", ("P1.1", "P1.2")),),
         )
         rotation = Transform3D(rotation=(0, -1, 0, 1, 0, 0, 0, 0, 1))
         result = physical_netlist(project, CADAssembly(
             "rotated", (AssemblyComponent("P1", rotation),)
         ))
-        # No nets, so inspect by adding a net endpoint in a second project.
-        project_with_net = EngineeringProject(
-            "rotation", "mm", project.parts,
-            (Net("N", ("P1.1", "P1.1B")),),
-        )
-        # Unknown endpoint is rejected by project validation.
-        with self.assertRaises(ValueError):
-            physical_netlist(project_with_net, CADAssembly("rotated", (AssemblyComponent("P1", rotation),)))
-        self.assertEqual(result["nets"], [])
+        pins = {item["endpoint"]: item for item in result["nets"][0]["endpoints"]}
+        self.assertEqual(pins["P1.1"]["position_mm"], [0, 1, 0])
+        self.assertEqual(pins["P1.1"]["direction"], [0, 1, 0])
+        self.assertEqual(pins["P1.2"]["direction"], [-1, 0, 0])
 
     def test_missing_physical_geometry_is_explicit(self):
         project = EngineeringProject(
