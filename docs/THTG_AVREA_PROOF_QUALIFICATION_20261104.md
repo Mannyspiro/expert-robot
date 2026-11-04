@@ -57,3 +57,21 @@ This result applies only to the coefficients as printed in the report. It does n
 6. Derive the full matter/source equations from the specified matter action and variational boundary conditions.
 
 The two Lean results above are formal proofs of their stated mathematical propositions, not validation of THTG as a physical theory.
+
+
+### 3. Printed Page-curve branch has no interior maximum
+
+File: `proofs/THTGPageCurveAudit.lean`
+
+For the expression printed in the report,
+
+`S(t) = (c/6) log(sinh(a*t) / sinh(a*(T-t)))`,
+
+Lean proves that, when `c > 0`, `a > 0` and `0 < t < T`, every interior point has a later point `u = (t+T)/2) with `S(t) < S(u)`. The proof establishes strict monotonicity of the sinh ratio and then uses strict monotonicity of the logarithm.
+
+- Avrea run: [#460](https://github.com/Mannyspiro/expert-robot/actions/runs/41763911516)
+- Result: success on runner `avrea-exe-01a1a47c51877642aedb584e321a8816`.
+- Axiom dependencies: `[propext, Classical.choice, Quot.sound]`.
+- The workflow now parses the complete multiline axiom report and enforces the full allowlist.
+
+This proves there is no interior maximum for the printed branch. It does not yet formalize the endpoint limit `S(t) → +∞` as `t → T⁻`, and it does not validate a generalized-entropy/island replacement.
