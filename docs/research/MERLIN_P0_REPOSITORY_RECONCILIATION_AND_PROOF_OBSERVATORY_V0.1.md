@@ -104,3 +104,29 @@ The Observatory implementation and reconciliation document are now committed on 
 - Every object-view/Engineering IR bridge carries explicit IDs and content hashes.
 - No evidence receipt is interpreted as proof of empirical adequacy or engineering safety.
 - No merge, deployment or promotion occurs automatically.
+
+## 4. Cross-domain benchmark and theorem-DAG increment (2026-11-04)
+
+The Observatory now includes a deterministic four-domain benchmark harness:
+
+- Geometry: exact frame-path composition and trace/determinant invariance.
+- XMG: typed integer double-negation normalization with a finite semantic holdout.
+- Equation Atlas: dimensional checks, symbolic checks and deterministic numerical baseline.
+- CAD: typed Engineering IR validation, conservative AABB separation and deterministic OpenSCAD export.
+
+The receipt pins the caller-supplied Git commit and SHA-256 hashes of each imported implementation module. A three-repeat runner compares domain receipt hashes. Four controlled negative cases require rejection/detection of a singular geometry frame, a deliberately incorrect XMG rewrite, a length/time dimensional mismatch and overlapping CAD AABBs. These checks establish regression behavior only; they are not physical validation or proof of all-input correctness.
+
+python/merlin/theorem_dag.py extracts dependency edges from the explicit uses fields in formal/theorem_registry.json, validates missing references and cycles, and hashes Lean declaration headers when it can parse them. The Lean hashes are surface-syntax fingerprints, not kernel-normalized theorem identities. Eight existing XMG composition/rewrite declarations were added to the registry and formal axiom-audit roots with candidate status pending fresh qualification.
+
+python/merlin/proof_observatory.py now persists self-hash-verified benchmark receipts and links matching theorem-DAG nodes to explicit object-view IDs and the canonical Engineering IR project hash. python/merlin/observatory_linking.py builds those links from CI artifacts. CI runs the new benchmark, theorem-DAG and linking tests and publishes the JSON receipts, theorem DAG, SQLite database and link summary.
+
+The package initializers at both merlin/ and python/merlin/ now extend the package path to include the other source tree. This is required because Merlin's mathematical core and engineering/proof subsystems are split across those two directories.
+
+### CI and Avrea diagnosis
+
+The repository metadata reports admin permission for the connected account. Historical Avrea CI run #1428 (run ID 41851200579) completed successfully on commit 391fd21f8954614c642c918ff5224b5ae65c0cc1. Its job log identifies runner avrea-exe-01a1a707fcb473a38ed99f898f178ddf, runner group Default, runner version 2.338.2; the job completed all 25 steps successfully. This verifies that the Avrea self-hosted runner integration worked for that historical run.
+
+For the current PR branch, commit-SHA and combined-status lookups returned no runs/statuses, including the current branch commit. The workflow's pull_request trigger exists on the PR base branch, the changed paths are not all ignored, and the PR is mergeable at the last metadata read. A branch-specific push trigger was added as an additional diagnostic trigger, but no run appeared on the commit that added it. Repository-level Actions enablement/policy and the current live runner registration state are not exposed by the connected GitHub tools. Thus the exact event suppression/approval cause remains unresolved; it is not justified to blame Avrea runner availability.
+
+**Qualification remains pending.** No test result or four-domain receipt has been captured from the new code. Do not promote any benchmark, theorem or engineering claim until the exact current PR merge SHA has a successful CI run and the artifacts are independently inspected.
+
