@@ -276,3 +276,10 @@ CACE integration boundary:
 4. Promotion remains approval-gated; no worker or model can self-authorize a fabrication or energized-hardware state.
 
 Capability grows, authority never expands.
+
+### Phase 0.10.1 — CACE route-evidence integration
+- Added `python/merlin/route_evidence.py` to bind project, assembly, frame graph, route output, router version, and source commit into a deterministic SHA-256 receipt.
+- Added a CACE-facing ledger ingest path that recomputes the receipt against the supplied project/assembly/route inputs before recording it as experiment evidence.
+- Receipt status remains `not_qualified`; `promotion_authority` is always false. Ledger ingestion does not change hypothesis status.
+- Added tests for deterministic binding, route-output tampering, assembly/frame changes, authority expansion, invalid source revision, and no-auto-promotion.
+- Avrea CI engineering tests now include both route-planner and route-evidence tests. Verify the final run against its exact head SHA before treating the increment as passed.
