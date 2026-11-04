@@ -134,3 +134,30 @@ This is a source-to-entry crosswalk, not a claim that every entry has already re
 | 058 | S36 | Probabilistic estimation foundations support Bayesian filtering context; the full Kalman recursion requires dedicated state-estimation derivation and covariance tests. |
 | 059 | S36 | Statistical-model geometry is an extension beyond introductory probability; Fisher metric regularity and tensor transformation need specialist derivation. |
 | 060 | S35 | Nonequilibrium stochastic thermodynamics supports the topic; local detailed balance, zero-rate limits, and physical entropy interpretation need a dedicated source audit. |
+
+
+## Sources for RWEA-061–070
+
+- **S37 — Reaction-diffusion and Turing pattern formation:** *Biological Circuit Design*, chapter 21, “Turing patterns”; introduces coupled reaction-diffusion fields and diffusion-driven patterning. https://biocircuits.github.io/chapters/turing.html
+- **S38 — Cellular automata:** Stanford Encyclopedia of Philosophy, “Cellular Automata”; formal background on local finite-state update rules, discrete dynamics, and computational universality. https://plato.stanford.edu/entries/cellular-automata/
+- **S39 — Replicator equations and population dynamics:** Karev & Kareva, “Replicator Equations and Models of Biological Populations and Communities,” *Mathematical Modelling of Natural Phenomena* (2014). https://doi.org/10.1051/mmnp/20149305
+- **S40 — Wilson–Cowan neural population dynamics:** Cowan et al., “Wilson–Cowan Equations for Neocortical Dynamics,” *Journal of Mathematical Neuroscience* (2016). https://pmc.ncbi.nlm.nih.gov/articles/PMC4733815/
+- **S41 — Kuramoto network synchronization:** “Control of coupled oscillator networks with application to microgrid technologies,” open-access paper presenting network-coupled Kuramoto phase dynamics. https://pmc.ncbi.nlm.nih.gov/articles/PMC4643801/
+- **S42 — Directed percolation in neural population models:** Cowan et al. (2016) discusses directed-percolation interpretations of neural activity; this is contextual support, not a general percolation threshold reference. https://pmc.ncbi.nlm.nih.gov/articles/PMC4733815/
+- **S43 — Information theory foundations:** MIT OpenCourseWare 6.450, *Principles of Digital Communication I*, lecture notes for entropy and mutual information foundations. https://ocw.mit.edu/courses/6-450-principles-of-digital-communication-i-fall-2009/pages/lecture-notes/
+- **S44 — Reaction-diffusion self-organization:** Pearson, “Complex patterns in a simple system,” *Science* 261 (1993), DOI 10.1126/science.261.5118.189. https://pubmed.ncbi.nlm.nih.gov/17829274/
+
+## Equation-ID crosswalk additions
+
+| ID | Source | Scope and unresolved qualification |
+|---|---|---|
+| 061 | S37 | Coupled reaction-diffusion form; kinetic functions, units, and boundary conditions remain model-specific. |
+| 062 | S37 | Turing pattern mechanism; full two-species instability inequalities and domain spectrum need independent derivation. |
+| 063 | S38 | Local update-rule formalism; physical interpretation requires separate validation. |
+| 064 | S39 | Population-model context; logistic equation is a simplified baseline and needs dedicated demographic source review. |
+| 065 | S39 | Replicator dynamics and heterogeneous populations; payoff/fitness interpretation must be explicit. |
+| 066 | S40 | Excitatory-inhibitory population equations; mean-field limitations and parameter conventions need review. |
+| 067 | S43 | Entropy and mutual-information foundations; biological estimator bias and temporal dependence need separate treatment. |
+| 068 | S41 | Network Kuramoto phase model; phase reduction and topology-specific synchronization thresholds need review. |
+| 069 | S42 | Contextual neural directed-percolation discussion; add a dedicated percolation-theory source before stronger threshold claims. |
+| 070 | S44, S41 | Pattern formation and collective order context; there is no universal equation for self-organization. |
