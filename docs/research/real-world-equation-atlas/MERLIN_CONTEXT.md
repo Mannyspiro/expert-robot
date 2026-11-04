@@ -57,8 +57,11 @@ This package records research direction and proposed outputs. It does not claim 
 - The canonical entry schema now has an explicit per-variable `dimension` field so SI dimensional metadata is not discarded during normalization.
 - `python/merlin/equation_atlas/normalize.py` migrates legacy entries 001–020 into canonical entries and validates each with JSON Schema Draft 2020-12. It preserves legacy conditions as explicit assumptions and source-register IDs as review-required citation records.
 - All migrated entries are explicitly `UNVERIFIED`; a citation identifier is not treated as claim-level source validation.
+- Added RWEA-021–030 for continuous/discrete state-space models, Kalman filtering, PID, LQR, serial-chain forward kinematics, Jacobians, numerical inverse kinematics, manipulator dynamics, and joint stiffness control.
+- Added specialist references S22–S26: MIT Feedback Control Systems, Modern Robotics, MIT Underactuated Robotics, Åström–Murray Feedback Systems, and MIT Robotic Manipulation. Entry-level citations state the precise chapter or lecture coverage and preserve remaining application-specific limitations.
+- The LQR cost matrices carry explicit time factors in their units; mixed revolute/prismatic robot coordinates and task-space angular/linear quantities remain typed rather than collapsed into one scalar unit.
 - `python/merlin/equation_atlas/receipts.py` creates content-addressed evidence receipts binding the generated artifact to declared source files, code revision, command, and runtime metadata.
-- CI run #1289 completed successfully on Avrea. It generated and schema-validated all 20 canonical entries, generated and validated the receipt, and published an artifact containing the baseline, canonical normalized tranche, and receipt. The artifact was downloaded and inspected; its receipt contains nine source hashes and the canonical tranche has 20 entries, all marked UNVERIFIED.
+- CI run #1289 completed successfully on Avrea for the first 20 entries. It generated and schema-validated all 20 canonical entries, generated and validated the receipt, and published an artifact containing the baseline, canonical normalized tranche, and receipt. The artifact was downloaded and inspected; its receipt contains nine source hashes and all 20 entries are marked UNVERIFIED. A separate pending run is validating the combined 001–030 batch.
 
 ## Data and evidence rules
 - Canonical entries are the typed source of truth; legacy JSON is migration input only until replaced.
@@ -69,13 +72,12 @@ This package records research direction and proposed outputs. It does not claim 
 - A successful Avrea run is recorded against its exact commit and workflow run. Later changes require a new run before they are called tested.
 
 ## Next execution focus
-1. Inspect the new Avrea CI run for canonical schema migration, tests, receipt generation, and artifact publication.
-2. Fix any actual failures before expanding the inventory.
-3. Add receipt schema validation, dependency-lock hash, test-output digest, seeds/tolerances, and experiment-to-entry mapping.
-4. Normalize entries 021–040, prioritizing robotics, dynamics, control, signal processing, and geometry.
-5. Expand dimensional checks and numerical convergence/sensitivity tests.
-6. Execute separate Lean qualification and inspect the exact theorem/axiom output.
-7. Add XMG serialization and deterministic SVG exports from tested typed geometry.
-8. Feed only appropriately supported entries into Math Kung Fu lessons.
+1. Inspect the pending Avrea run for combined 001–030 validation and the complete artifact bundle.
+2. Extend receipts with test-output digests, container image digests, seeds/tolerances, and experiment-to-entry mapping.
+3. Normalize entries 031–040 with primary PDE, electromagnetism, and numerical-method sources.
+4. Expand dimensional checks and numerical convergence/sensitivity tests.
+5. Execute separate Lean qualification and inspect exact theorem/axiom output.
+6. Add XMG serialization and deterministic SVG exports from tested typed geometry.
+7. Feed only appropriately supported entries into Math Kung Fu lessons.
 
 The standing authority boundary remains: research and verification can produce evidence; promotion, merge, and permission changes remain approval-gated. Capability grows, authority never expands.
