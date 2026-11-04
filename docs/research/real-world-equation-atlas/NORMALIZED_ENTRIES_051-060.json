@@ -44,25 +44,29 @@
       "initial_conditions": "Initial distribution p₀.",
       "boundary_conditions": "Finite discrete state space.",
       "validity_regime": "The next state depends on the present state conditional on the present.",
-      "intuition": "Queues, reliability, population models",
+      "intuition": "The next state depends on the present state, not the entire past, conditional on the present.",
       "applications": [
+        "Queues",
+        "Reliability",
+        "Population models"
+      ],
+      "limitations": [
+        "State aggregation can destroy Markov property",
+        "Time-homogeneity is an extra assumption"
+      ],
+      "alternatives": [
+        "State aggregation can destroy Markov property",
+        "Time-homogeneity is an extra assumption"
+      ],
+      "validation": [
+        "State aggregation can destroy Markov property",
+        "Time-homogeneity is an extra assumption"
+      ],
+      "uncertainty": [
         [
           "State aggregation can destroy Markov property",
           "Time-homogeneity is an extra assumption"
         ]
-      ],
-      "limitations": [
-        "Hidden Markov model",
-        "Semi-Markov process",
-        "Continuous-time Markov chain"
-      ],
-      "alternatives": [
-        "Check nonnegative entries and row sums",
-        "Compare iterative propagation with matrix powers"
-      ],
-      "validation": "Transition estimation and model selection",
-      "uncertainty": [
-        "S33"
       ],
       "formal_claims": [],
       "sources": [
@@ -106,24 +110,29 @@
       "initial_conditions": "Solve normalized invariant distribution.",
       "boundary_conditions": "State space and transition graph.",
       "validity_regime": "A distribution remains unchanged after one transition; detailed balance additionally removes stationary currents.",
-      "intuition": "MCMC, equilibrium models, network random walks",
+      "intuition": "A stationary distribution is unchanged by the transition operator; detailed balance is a stronger reversibility condition.",
       "applications": [
+        "Markov chain Monte Carlo",
+        "Equilibrium models",
+        "Network random walks"
+      ],
+      "limitations": [
+        "Reducible chains may have nonunique stationary distributions",
+        "Detailed balance is stronger than stationarity"
+      ],
+      "alternatives": [
+        "Reducible chains may have nonunique stationary distributions",
+        "Detailed balance is stronger than stationarity"
+      ],
+      "validation": [
+        "Reducible chains may have nonunique stationary distributions",
+        "Detailed balance is stronger than stationarity"
+      ],
+      "uncertainty": [
         [
           "Reducible chains may have nonunique stationary distributions",
           "Detailed balance is stronger than stationarity"
         ]
-      ],
-      "limitations": [
-        "Invariant measures",
-        "Non-reversible Markov chains"
-      ],
-      "alternatives": [
-        "Check normalization, invariance, and detailed-balance residuals",
-        "Check irreducibility and aperiodicity before claiming convergence"
-      ],
-      "validation": "Transition matrix estimation",
-      "uncertainty": [
-        "S33"
       ],
       "formal_claims": [],
       "sources": [
@@ -174,25 +183,29 @@
       "initial_conditions": "N(0)=0.",
       "boundary_conditions": "Nonnegative time axis.",
       "validity_regime": "Independent events occur at a constant average rate.",
-      "intuition": "Arrivals, decay idealization, reliability",
+      "intuition": "Independent events occur at a constant average rate, producing Poisson-distributed counts.",
       "applications": [
+        "Arrival processes",
+        "Radioactive decay idealization",
+        "Reliability"
+      ],
+      "limitations": [
+        "Clustering, inhibition, and rate drift violate assumptions",
+        "Finite event duration may matter"
+      ],
+      "alternatives": [
+        "Clustering, inhibition, and rate drift violate assumptions",
+        "Finite event duration may matter"
+      ],
+      "validation": [
+        "Clustering, inhibition, and rate drift violate assumptions",
+        "Finite event duration may matter"
+      ],
+      "uncertainty": [
         [
           "Clustering, inhibition, and rate drift violate assumptions",
           "Finite event duration may matter"
         ]
-      ],
-      "limitations": [
-        "Nonhomogeneous Poisson process",
-        "Renewal process",
-        "Cox process"
-      ],
-      "alternatives": [
-        "Check mean and variance against λt over replicated paths",
-        "Check independent increments"
-      ],
-      "validation": "Rate estimation and event detection",
-      "uncertainty": [
-        "S33"
       ],
       "formal_claims": [],
       "sources": [
@@ -237,25 +250,29 @@
       "initial_conditions": "W(0)=0.",
       "boundary_conditions": "Wiener process on nonnegative time.",
       "validity_regime": "Continuous random paths whose increment variance grows with elapsed time.",
-      "intuition": "Diffusion limits, stochastic dynamics",
+      "intuition": "A continuous random path has independent Gaussian increments whose variance grows with elapsed time.",
       "applications": [
+        "Diffusion limits",
+        "Stochastic dynamics",
+        "Random path models"
+      ],
+      "limitations": [
+        "Paths are almost surely nowhere differentiable",
+        "Physical systems have finite correlation times and bandwidth"
+      ],
+      "alternatives": [
+        "Paths are almost surely nowhere differentiable",
+        "Physical systems have finite correlation times and bandwidth"
+      ],
+      "validation": [
+        "Paths are almost surely nowhere differentiable",
+        "Physical systems have finite correlation times and bandwidth"
+      ],
+      "uncertainty": [
         [
           "Paths are almost surely nowhere differentiable",
           "Physical systems have finite correlation times and bandwidth"
         ]
-      ],
-      "limitations": [
-        "Fractional Brownian motion",
-        "Lévy process",
-        "Reflected Brownian motion"
-      ],
-      "alternatives": [
-        "Check increment means, variances, independence across seeded paths",
-        "Check mean-square scaling"
-      ],
-      "validation": "Monte Carlo and discretization error",
-      "uncertainty": [
-        "S34"
       ],
       "formal_claims": [],
       "sources": [
@@ -312,25 +329,29 @@
       "initial_conditions": "Initial state distribution.",
       "boundary_conditions": "Declare reflecting, absorbing, periodic, or natural boundaries.",
       "validity_regime": "Deterministic drift plus random increments model fluctuations.",
-      "intuition": "Brownian particles, thermal fluctuations, noisy dynamics",
+      "intuition": "A stochastic trajectory combines systematic drift with random fluctuations.",
       "applications": [
+        "Brownian particles",
+        "Thermal fluctuations",
+        "Noisy dynamical systems"
+      ],
+      "limitations": [
+        "Itô and Stratonovich differ for state-dependent noise",
+        "White-noise approximation may fail at short times"
+      ],
+      "alternatives": [
+        "Itô and Stratonovich differ for state-dependent noise",
+        "White-noise approximation may fail at short times"
+      ],
+      "validation": [
+        "Itô and Stratonovich differ for state-dependent noise",
+        "White-noise approximation may fail at short times"
+      ],
+      "uncertainty": [
         [
           "Itô and Stratonovich differ for state-dependent noise",
           "White-noise approximation may fail at short times"
         ]
-      ],
-      "limitations": [
-        "Stratonovich SDE",
-        "Generalized Langevin equation",
-        "Jump diffusion"
-      ],
-      "alternatives": [
-        "Compare Euler-Maruyama convergence on a known linear SDE",
-        "Check harmonic-potential stationary distribution"
-      ],
-      "validation": "Noise intensity, parameter, discretization uncertainty",
-      "uncertainty": [
-        "S34"
       ],
       "formal_claims": [],
       "sources": [
@@ -379,25 +400,29 @@
       "initial_conditions": "Initial density p(x,0).",
       "boundary_conditions": "No-flux, absorbing, or physically justified probability-current boundary conditions.",
       "validity_regime": "Probability density evolves through drift and diffusion.",
-      "intuition": "Diffusion, chemical kinetics, population dynamics",
+      "intuition": "A probability density evolves through drift and diffusion in state space.",
       "applications": [
+        "Diffusion",
+        "Chemical kinetics",
+        "Population dynamics"
+      ],
+      "limitations": [
+        "Boundary flux can change probability mass",
+        "Noise convention must be consistent"
+      ],
+      "alternatives": [
+        "Boundary flux can change probability mass",
+        "Noise convention must be consistent"
+      ],
+      "validation": [
+        "Boundary flux can change probability mass",
+        "Noise convention must be consistent"
+      ],
+      "uncertainty": [
         [
           "Boundary flux can change probability mass",
           "Noise convention must be consistent"
         ]
-      ],
-      "limitations": [
-        "Kolmogorov forward equation",
-        "Master equation",
-        "Kinetic equation"
-      ],
-      "alternatives": [
-        "Check normalization and nonnegativity",
-        "Compare moments with SDE simulations"
-      ],
-      "validation": "Finite-volume and Monte Carlo error",
-      "uncertainty": [
-        "S35"
       ],
       "formal_claims": [],
       "sources": [
@@ -452,25 +477,29 @@
       "initial_conditions": "Prior distribution p(θ).",
       "boundary_conditions": "Parameter support and data-generating model are specified.",
       "validity_regime": "Prior beliefs are updated according to how well parameter values predict data.",
-      "intuition": "Scientific inference, calibration, diagnostics",
+      "intuition": "Bayesian inference updates prior beliefs according to how well parameter values predict observed data.",
       "applications": [
+        "Scientific inference",
+        "Calibration",
+        "Model comparison"
+      ],
+      "limitations": [
+        "Posterior depends on prior and model choices",
+        "Likelihood is not a probability distribution over parameters"
+      ],
+      "alternatives": [
+        "Posterior depends on prior and model choices",
+        "Likelihood is not a probability distribution over parameters"
+      ],
+      "validation": [
+        "Posterior depends on prior and model choices",
+        "Likelihood is not a probability distribution over parameters"
+      ],
+      "uncertainty": [
         [
           "Posterior depends on prior and model choices",
           "Likelihood is not a probability distribution over parameters"
         ]
-      ],
-      "limitations": [
-        "Frequentist inference",
-        "Empirical Bayes",
-        "Hierarchical Bayes"
-      ],
-      "alternatives": [
-        "Check conjugate toy posteriors analytically",
-        "Compare analytic and numerical posterior moments"
-      ],
-      "validation": "Prior sensitivity and model misspecification",
-      "uncertainty": [
-        "S36"
       ],
       "formal_claims": [],
       "sources": [
@@ -535,25 +564,29 @@
       "initial_conditions": "Initial state estimate and covariance.",
       "boundary_conditions": "Observation model and dimensions specified at every step.",
       "validity_regime": "Predict state and uncertainty, then update with measurements.",
-      "intuition": "Navigation, robotics, sensor fusion",
+      "intuition": "The filter predicts state and uncertainty, then uses measurements to update both.",
       "applications": [
+        "Navigation",
+        "Robotics",
+        "Sensor fusion"
+      ],
+      "limitations": [
+        "Optimality depends on linear-Gaussian and covariance assumptions",
+        "Numerical covariance update needs stable implementation"
+      ],
+      "alternatives": [
+        "Optimality depends on linear-Gaussian and covariance assumptions",
+        "Numerical covariance update needs stable implementation"
+      ],
+      "validation": [
+        "Optimality depends on linear-Gaussian and covariance assumptions",
+        "Numerical covariance update needs stable implementation"
+      ],
+      "uncertainty": [
         [
           "Optimality depends on linear-Gaussian and covariance assumptions",
           "Numerical covariance update needs stable implementation"
         ]
-      ],
-      "limitations": [
-        "Extended Kalman filter",
-        "Unscented Kalman filter",
-        "Ensemble Kalman filter"
-      ],
-      "alternatives": [
-        "Compare scalar filter with Gaussian conditioning",
-        "Check covariance symmetry and positive semidefiniteness"
-      ],
-      "validation": "Model mismatch and sensor bias",
-      "uncertainty": [
-        "S36"
       ],
       "formal_claims": [],
       "sources": [
@@ -596,25 +629,29 @@
       "initial_conditions": "Specify likelihood p(x|θ) and θ.",
       "boundary_conditions": "Parameter chart specified; singular models require special care.",
       "validity_regime": "Measures how sensitively a probability model changes with its parameters.",
-      "intuition": "Experimental design, asymptotic statistics, natural gradients",
+      "intuition": "The Fisher metric measures local distinguishability between nearby probability distributions.",
       "applications": [
+        "Experimental design",
+        "Asymptotic statistics",
+        "Natural gradients"
+      ],
+      "limitations": [
+        "May be singular or degenerate",
+        "Must transform tensorially under reparameterization"
+      ],
+      "alternatives": [
+        "May be singular or degenerate",
+        "Must transform tensorially under reparameterization"
+      ],
+      "validation": [
+        "May be singular or degenerate",
+        "Must transform tensorially under reparameterization"
+      ],
+      "uncertainty": [
         [
           "May be singular or degenerate",
           "Must transform tensorially under reparameterization"
         ]
-      ],
-      "limitations": [
-        "Observed information",
-        "Expected Hessian",
-        "Quantum Fisher information"
-      ],
-      "alternatives": [
-        "Check positive semidefiniteness",
-        "Verify transformation under simple reparameterizations"
-      ],
-      "validation": "Finite-sample and model approximation error",
-      "uncertainty": [
-        "S36"
       ],
       "formal_claims": [],
       "sources": [
@@ -676,24 +713,29 @@
       "initial_conditions": "Stationary π satisfying πQ=0.",
       "boundary_conditions": "Transition graph and reservoirs represented consistently.",
       "validity_regime": "Irreversible probability currents quantify departure from detailed balance.",
-      "intuition": "Chemical networks, mesoscopic thermodynamics, transport",
+      "intuition": "Irreversible probability currents quantify departure from detailed balance.",
       "applications": [
+        "Chemical reaction networks",
+        "Mesoscopic thermodynamics",
+        "Transport systems"
+      ],
+      "limitations": [
+        "Zero reverse rates need limiting conventions",
+        "Path-space irreversibility and physical entropy production require a thermodynamic model"
+      ],
+      "alternatives": [
+        "Zero reverse rates need limiting conventions",
+        "Path-space irreversibility and physical entropy production require a thermodynamic model"
+      ],
+      "validation": [
+        "Zero reverse rates need limiting conventions",
+        "Path-space irreversibility and physical entropy production require a thermodynamic model"
+      ],
+      "uncertainty": [
         [
           "Zero reverse rates need limiting conventions",
           "Path-space irreversibility and physical entropy production require a thermodynamic model"
         ]
-      ],
-      "limitations": [
-        "Path-space KL rate",
-        "Schnakenberg network entropy production"
-      ],
-      "alternatives": [
-        "Check nonnegativity on small rate matrices",
-        "Check zero at detailed balance and positive driven-cycle result"
-      ],
-      "validation": "Rate estimation and hidden-transition uncertainty",
-      "uncertainty": [
-        "S35"
       ],
       "formal_claims": [],
       "sources": [
