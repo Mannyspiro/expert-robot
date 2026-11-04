@@ -285,3 +285,12 @@ Capability grows, authority never expands.
 - Receipt status remains `not_qualified`; `promotion_authority` is always false. Ledger ingestion does not change hypothesis status.
 - Added tests for deterministic binding, route-output tampering, assembly/frame changes, authority expansion, invalid source revision, and no-auto-promotion.
 - Avrea CI engineering tests now include both route-planner and route-evidence tests. Verify the final run against its exact head SHA before treating the increment as passed.
+
+### Phase 0.10.2 — Electrical / thermal / manufacturing proof-obligation layer
+- Added `python/merlin/wire_qualification.py`: manufacturer-ampacity × supplied derating comparison; DC resistive voltage-drop estimate using explicit circuit-loop length; supplied insulation rating comparison; comparison to separately reviewed clearance requirement; lumped steady-state thermal estimate with temperature-corrected resistance; swept bend-radius and harness slack comparisons; 14 evidence gates.
+- Missing conductor data, thermal correlation, swept bend geometry, standards applicability, tests or independent sign-off produce BLOCKED / REVIEW_REQUIRED results. The report never sets energized-use or manufacturing qualification true and never grants promotion authority.
+- Added `python/merlin/wiring_exports.py`: logical Graphviz connectivity view, review-only wire schedule CSV and JSON schematic manifest. Outputs are deliberately labelled non-release and never invent wire specifications.
+- Added tests for calculations, failed limits, absent evidence, non-certification and export labelling; added both suites to Avrea CI.
+- Research roadmap ranks source-of-truth/provenance, electrical/protection review, thermal correlation, swept harness manufacturing geometry, EDA/CAD round-tripping, and independent verification.
+- Standards families mapped for applicability review: IEC 60204-1 machinery electrical equipment; IEC 60664-1 insulation coordination; IPC/WHMA-A-620F harness manufacture/acceptance. Applicability is project-dependent and must be reviewed against the full normative editions.
+- MCFC remains the virtual compute fabric; XMG coordinate frames remain a separate engineering representation contract.
