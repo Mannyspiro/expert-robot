@@ -34,6 +34,18 @@ class RotationRepresentationTests(unittest.TestCase):
         self.assertEqual(qrotate(quaternion([0,0,1,0]),v),vector3([-1,2,-3]))
         self.assertEqual(rotor_rotate(quaternion([0,0,1,0]),v),vector3([-1,2,-3]))
 
+    def test_exact_120_degree_rotation_cycles_coordinate_axes(self):
+        q=quaternion([F(1,2),F(1,2),F(1,2),F(1,2)])
+        e1=vector3([1,0,0]); e2=vector3([0,1,0]); e3=vector3([0,0,1])
+        self.assertEqual(qrotate(q,e1),e2)
+        self.assertEqual(qrotate(q,e2),e3)
+        self.assertEqual(qrotate(q,e3),e1)
+        self.assertEqual(rotor_rotate(q,e1),e2)
+        self.assertEqual(rotor_rotate(q,e2),e3)
+        self.assertEqual(rotor_rotate(q,e3),e1)
+        expected=((F(0),F(0),F(1)),(F(1),F(0),F(0)),(F(0),F(1),F(0)))
+        self.assertEqual(q_to_matrix(q),expected)
+
     def test_q_and_minus_q_induce_same_rotation_matrix_and_action(self):
         q=quaternion([0,0,0,1])
         minus_q=tuple(-x for x in q)
