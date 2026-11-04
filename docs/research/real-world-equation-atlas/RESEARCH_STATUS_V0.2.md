@@ -29,7 +29,9 @@
 | Units/dimensions | Starter checker executed successfully in Avrea CI | Only eight representative relations are executable; not all 100 entries |
 | Symbolic | Starter checks executed successfully in Avrea CI | Not a proof of physical adequacy |
 | Numerical | Deterministic scripts executed successfully in Avrea CI; output artifact archived | Synthetic baselines are not independent empirical validation; no broad convergence or uncertainty study yet |
-| Canonical schema | 20/20 legacy entries migrated and schema-validated in Avrea CI; 021–030 batch authored and queued for validation | Combined 001–030 Avrea run pending; 031–100 not yet normalized |\n| Evidence receipts | Receipt schema validated; content-addressed receipt generated and inspected in Avrea CI | Test-output digest, container image digest, and reviewer signature remain future extensions |\n| Lean | Candidate theorems and axiom audit source integrated | CI run #1289 did not execute formal qualification; theorem candidates remain unverified until the pinned Lean workflow compiles them |
+| Canonical schema | 20/20 legacy entries migrated and schema-validated in Avrea CI; 021–030 batch authored and queued for validation | Combined 001–030 Avrea run pending; 031–100 not yet normalized | 
+| Evidence receipts | Receipt schema validated; content-addressed receipt generated and inspected in Avrea CI | Test-output digest, container image digest, and reviewer signature remain future extensions | 
+| Lean | Candidate theorems and axiom audit source integrated | CI run #1289 did not execute formal qualification; theorem candidates remain unverified until the pinned Lean workflow compiles them |
 | XMG | Typed design contract and examples added | No interactive CAD/3D renderer or runtime integration has been executed |
 | Learning | Lesson sequence added | Lessons need visual assets and adaptive learner testing |
 
