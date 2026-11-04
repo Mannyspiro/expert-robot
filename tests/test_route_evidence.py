@@ -11,7 +11,7 @@ from merlin.hypothesis_ledger import HypothesisLedger
 from merlin.route_evidence import (
     create_route_evidence_receipt, record_route_evidence, verify_route_evidence_receipt,
 )
-from merlin.wire_routing import route_physical_netlist
+from merlin.wire_routing import run_wire_route_with_lease
 
 
 def fixture():
@@ -49,7 +49,7 @@ def fixture():
     lease = book.grant(request, now=now, ttl_seconds=30)
     if not book.validate_start(lease.lease_id, now=now):
         raise AssertionError("synthetic MCFC lease should authorize route start")
-    output = route_physical_netlist(project, assembly)
+    output = run_wire_route_with_lease(project, assembly, book, lease.lease_id, now=now)
     lease = book.complete(lease.lease_id, now=now)
     return project, assembly, output, lease
 

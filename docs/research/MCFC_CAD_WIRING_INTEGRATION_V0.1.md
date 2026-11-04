@@ -173,3 +173,15 @@ compute-budget capacity. A request that does not currently fit remains queued;
 smaller eligible work may proceed. This is a deterministic first-fit admission
 policy, not a production fairness guarantee or a worker executor. The scheduler
 does not spawn processes, preempt active work, or persist its queue across restarts.
+
+
+## Lease-enforced route execution
+
+`run_wire_route_with_lease()` is the production-facing bridge between MCFC and
+Merlin's lower-level pure route function. It checks that the lease is active,
+unexpired, CPU-only, capability-matched, and execution-only before generating
+the route. It adds the lease/workload identifiers to the route artifact.
+The worker then completes the lease; CACE receipt creation requires that
+completed lease and binds it to the route output. Direct pure-function calls
+remain available for local mathematical tests, but they are not MCFC-dispatched
+worker executions.

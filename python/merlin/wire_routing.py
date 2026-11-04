@@ -202,3 +202,40 @@ def route_physical_netlist(
             "Multi-terminal nets use a star proposal, not a globally optimized tree.",
         ],
     }
+
+
+def run_wire_route_with_lease(
+    project: EngineeringProject,
+    assembly: CADAssembly,
+    lease_book,
+    lease_id: str,
+    *,
+    now,
+    clearance_mm: float = 1.0,
+) -> dict[str, Any]:
+    """Run the CAD route proposal only under a current MCFC execution lease.
+
+    The caller must complete the lease after the operation and pass the
+    completed lease to the CACE route-evidence receipt builder.
+    """
+    from merlin.cpu_fabric.leases import LeaseBook, LeaseError
+
+    if not isinstance(lease_book, LeaseBook):
+        raise ValueError("lease_book must be an MCFC LeaseBook")
+    lease = lease_book.get(lease_id)
+    if lease.capability != "cad.wire_route_proposal":
+        raise LeaseError("execution lease does not authorize CAD wire routing")
+    if lease.authority != "execution_only" or lease.promotion_authority is not False:
+        raise LeaseError("execution lease cannot carry promotion authority")
+    if lease.resources.cpu_cores < 1 or lease.resources.gpu_count != 0:
+        raise LeaseError("current CAD route planner requires a CPU-only lease")
+    if not lease_book.validate_start(lease_id, now=now):
+        raise LeaseError("execution lease is not active or its deadline has passed")
+    result = route_physical_netlist(project, assembly, clearance_mm=clearance_mm)
+    result["execution"] = {
+        "mcfc_lease_id": lease.lease_id,
+        "mcfc_workload_id": lease.workload_id,
+        "authority": "execution_only",
+        "promotion_authority": False,
+    }
+    return result

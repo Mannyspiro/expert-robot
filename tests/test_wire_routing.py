@@ -1,8 +1,10 @@
 import unittest
+from datetime import datetime, timedelta, timezone
 
 from merlin.cad_assembly import AssemblyComponent, CADAssembly, Transform3D
+from merlin.cpu_fabric.leases import CapacitySnapshot, LeaseBook, LeaseError, cad_wire_route_request
 from merlin.engineering_ir import EngineeringProject, Net, Part, Pin
-from merlin.wire_routing import route_physical_netlist
+from merlin.wire_routing import route_physical_netlist, run_wire_route_with_lease
 
 
 def project_with_endpoints(*, obstacle=False, missing=False, multi=False):
@@ -71,6 +73,40 @@ class WireRoutingTests(unittest.TestCase):
             for start, end in zip(points, points[1:]):
                 changed_axes = sum(abs(start[i] - end[i]) > 1e-10 for i in range(3))
                 self.assertLessEqual(changed_axes, 1)
+
+    def test_route_execution_requires_active_mcfc_lease(self):
+        project, assembly = project_with_endpoints()
+        now = datetime(2026, 11, 4, 18, 0, tzinfo=timezone.utc)
+        capacity = CapacitySnapshot(2, 1024**3, None, None, 50, now.isoformat(),
+                                    "synthetic-route-execution", "e" * 64)
+        book = LeaseBook(capacity)
+        request = cad_wire_route_request(
+            "leased-route", estimated_memory_bytes=1024**2,
+            max_wall_seconds=10, compute_budget_units=5,
+        )
+        lease = book.grant(request, now=now, ttl_seconds=10)
+        output = run_wire_route_with_lease(
+            project, assembly, book, lease.lease_id, now=now
+        )
+        self.assertEqual(output["execution"]["mcfc_lease_id"], lease.lease_id)
+        self.assertFalse(output["execution"]["promotion_authority"])
+
+    def test_expired_mcfc_lease_blocks_route_execution(self):
+        project, assembly = project_with_endpoints()
+        now = datetime(2026, 11, 4, 18, 0, tzinfo=timezone.utc)
+        capacity = CapacitySnapshot(2, 1024**3, None, None, 50, now.isoformat(),
+                                    "synthetic-route-execution", "f" * 64)
+        book = LeaseBook(capacity)
+        request = cad_wire_route_request(
+            "expired-route", estimated_memory_bytes=1024**2,
+            max_wall_seconds=10, compute_budget_units=5,
+        )
+        lease = book.grant(request, now=now, ttl_seconds=10)
+        with self.assertRaisesRegex(LeaseError, "deadline"):
+            run_wire_route_with_lease(
+                project, assembly, book, lease.lease_id,
+                now=now + timedelta(seconds=11),
+            )
 
     def test_invalid_clearance_rejected(self):
         project, assembly = project_with_endpoints()

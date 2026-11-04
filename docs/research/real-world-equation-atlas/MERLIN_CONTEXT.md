@@ -303,3 +303,9 @@ Capability grows, authority never expands.
 - CACE route receipts now bind a completed MCFC lease and capacity-evidence hash to the project, assembly/frame graph, route output, and source revision. Ledger ingestion recomputes the bound inputs and records experiment evidence without status promotion.
 - Existing wiring-export and qualification modules are part of the same engineering path: graph/schedule/manifest exports remain non-release artifacts; electrical/thermal/manufacturing assessments block when authoritative evidence is missing.
 - Current MCFC `LeaseBook` is an in-process reference implementation. Durable lease persistence, multi-worker heartbeats, fair scheduling, preemption, measured live capacity probes, native EDA export, SPICE correlation, and independent sign-off remain open.
+
+
+### Phase 0.10.3 — lease-enforced CAD execution
+- Added `run_wire_route_with_lease()`: Merlin checks the active MCFC lease, capability, CPU-only resource profile, expiry/deadline and authority boundary before generating a route.
+- The route output records the MCFC lease/workload IDs. After completion, CACE receipt creation requires the completed lease and binds it to the exact route artifact.
+- Tests cover successful lease-bound routing and rejection after lease expiry. This is still a local in-process reference execution path; distributed worker enforcement and durable leases remain future work.
