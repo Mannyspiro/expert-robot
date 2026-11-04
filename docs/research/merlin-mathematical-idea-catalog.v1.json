@@ -744,12 +744,7 @@
         "MERLIN_ARCHIVED_MATH_CLAIM_AUDIT_V0.1.md",
         "merlin_math_core/IntelligenceExplosion.lean in uploaded handoff"
       ],
-      "relations": [
-        {
-          "type": "contrasts_with",
-          "target": "MATH-EXP-001"
-        }
-      ],
+      "relations": [],
       "objections": [
         "The archived lower-bound condition f(I)>=1 only yields at least exponential growth and does not imply finite-time blow-up.",
         "A rigorous Lean statement must quantify a solution trajectory and non-vacuous maximal time."
@@ -779,12 +774,7 @@
         "MERLIN_ARCHIVED_MATH_CLAIM_AUDIT_V0.1.md",
         "merlin_math_core/CapabilityModel.py in uploaded handoff"
       ],
-      "relations": [
-        {
-          "type": "contrasts_with",
-          "target": "MATH-EXP-001"
-        }
-      ],
+      "relations": [],
       "objections": [
         "A corrected stochastic Parrondo model may still be possible but is a separate experiment."
       ],
