@@ -1,0 +1,26 @@
+name: Merlin Knowledge Graph
+on:
+  push:
+    branches: ["feat/merlin-real-world-equation-atlas-v01-20261104"]
+    paths:
+      - "python/merlin/knowledge_graph.py"
+      - "tests/test_knowledge_graph.py"
+      - ".github/workflows/merlin-knowledge-graph.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: merlin-knowledge-graph-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  graph-contract:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run knowledge graph contract tests
+        env:
+          PYTHONPATH: python
+        run: python3 -m pytest -q tests/test_knowledge_graph.py
