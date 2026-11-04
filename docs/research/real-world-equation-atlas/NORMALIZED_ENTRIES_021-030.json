@@ -1,0 +1,989 @@
+{
+  "schema_version": "0.3",
+  "dimension_basis": [
+    "L",
+    "M",
+    "T",
+    "I",
+    "Theta",
+    "N",
+    "J"
+  ],
+  "entries": [
+    {
+      "id": "RWEA-021",
+      "domain": "control systems",
+      "application": "Linear time-invariant system modeling",
+      "model_family": "continuous_state_space",
+      "equations": [
+        "xdot(t) = A x(t) + B u(t)",
+        "y(t) = C x(t) + D u(t)"
+      ],
+      "variables": [
+        {
+          "symbol": "x",
+          "meaning": "state vector",
+          "unit": "state-component-specific",
+          "dimension": "component-specific"
+        },
+        {
+          "symbol": "u",
+          "meaning": "input vector",
+          "unit": "input-component-specific",
+          "dimension": "component-specific"
+        },
+        {
+          "symbol": "y",
+          "meaning": "measured/output vector",
+          "unit": "output-component-specific",
+          "dimension": "component-specific"
+        },
+        {
+          "symbol": "A",
+          "meaning": "state transition generator",
+          "unit": "state_i/(time*state_j)",
+          "dimension": "dim(x_i)/(T*dim(x_j))"
+        },
+        {
+          "symbol": "B",
+          "meaning": "input map",
+          "unit": "state_i/(time*input_j)",
+          "dimension": "dim(x_i)/(T*dim(u_j))"
+        },
+        {
+          "symbol": "C",
+          "meaning": "observation map",
+          "unit": "output_i/state_j",
+          "dimension": "dim(y_i)/dim(x_j)"
+        },
+        {
+          "symbol": "D",
+          "meaning": "direct feedthrough map",
+          "unit": "output_i/input_j",
+          "dimension": "dim(y_i)/dim(u_j)"
+        }
+      ],
+      "assumptions": [
+        "Continuous-time linear model in a declared operating region",
+        "A, B, C, D are constant in time for the LTI form",
+        "State, input, and output coordinates and units are declared",
+        "Unmodeled disturbances are excluded from this base equation"
+      ],
+      "initial_conditions": "x(0)=x0 must be supplied for an initial-value simulation",
+      "boundary_conditions": null,
+      "validity_regime": "Local or global LTI approximation as justified by the physical system; nonlinear behavior outside the operating region is not represented.",
+      "intuition": "A maps the current state into its rate of change; B injects controls; C observes the state; D captures instantaneous input-to-output coupling.",
+      "applications": [
+        "Aircraft and vehicle control",
+        "Robot joint and actuator models",
+        "Electrical and mechanical system identification"
+      ],
+      "limitations": [
+        "Linearization may be valid only near an operating point",
+        "A model's mathematical form does not establish that identified parameters match a physical plant"
+      ],
+      "alternatives": [
+        "Nonlinear state-space model",
+        "Transfer-function representation",
+        "Descriptor state-space model"
+      ],
+      "validation": [
+        "Check matrix dimensions and component-level units",
+        "Check controllability and observability for the selected realization",
+        "Compare predicted outputs with independent measurements"
+      ],
+      "uncertainty": [
+        "Parameter uncertainty in A, B, C, D",
+        "Unmodeled dynamics and sensor noise"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "Continuous-time state-space models, model properties, controllability and state feedback are covered in the course lecture sequence.",
+          "citation": "S22 · Lectures 5–12",
+          "doi_or_url": "https://ocw.mit.edu/courses/16-30-feedback-control-systems-fall-2010/pages/lecture-notes/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Source crosswalk supports the model family; no application-specific identification or empirical validation has been performed."
+    },
+    {
+      "id": "RWEA-022",
+      "domain": "state estimation",
+      "application": "Discrete-time state and observation model",
+      "model_family": "discrete_state_space",
+      "equations": [
+        "x[k+1] = A_d x[k] + B_d u[k] + w[k]",
+        "y[k] = H x[k] + v[k]"
+      ],
+      "variables": [
+        {
+          "symbol": "x[k]",
+          "meaning": "state at sample k",
+          "unit": "state-component-specific",
+          "dimension": "component-specific"
+        },
+        {
+          "symbol": "u[k]",
+          "meaning": "input at sample k",
+          "unit": "input-component-specific",
+          "dimension": "component-specific"
+        },
+        {
+          "symbol": "y[k]",
+          "meaning": "measurement at sample k",
+          "unit": "measurement-component-specific",
+          "dimension": "component-specific"
+        },
+        {
+          "symbol": "A_d",
+          "meaning": "discrete state transition matrix",
+          "unit": "state_i/state_j",
+          "dimension": "dim(x_i)/dim(x_j)"
+        },
+        {
+          "symbol": "B_d",
+          "meaning": "discrete input map",
+          "unit": "state_i/input_j",
+          "dimension": "dim(x_i)/dim(u_j)"
+        },
+        {
+          "symbol": "H",
+          "meaning": "measurement matrix",
+          "unit": "measurement_i/state_j",
+          "dimension": "dim(y_i)/dim(x_j)"
+        },
+        {
+          "symbol": "w[k]",
+          "meaning": "process disturbance",
+          "unit": "same as state",
+          "dimension": "same as x"
+        },
+        {
+          "symbol": "v[k]",
+          "meaning": "measurement disturbance",
+          "unit": "same as measurement",
+          "dimension": "same as y"
+        }
+      ],
+      "assumptions": [
+        "Sampling interval and discretization method are declared",
+        "Noise terms have declared distributions or second-moment models when used statistically",
+        "State and measurement units are consistent within each equation"
+      ],
+      "initial_conditions": "Initial state estimate or state distribution is required",
+      "boundary_conditions": null,
+      "validity_regime": "Discrete sampled-data model at a specified sampling interval; A_d and B_d depend on the discretization and zero-order-hold or other input assumption.",
+      "intuition": "The first equation predicts the next hidden state; the second maps that state into sensor readings.",
+      "applications": [
+        "Sensor fusion",
+        "Navigation",
+        "Digital control",
+        "Robotic state estimation"
+      ],
+      "limitations": [
+        "Incorrect sampling or discretization assumptions bias the model",
+        "Linear observation equations do not represent arbitrary nonlinear sensors"
+      ],
+      "alternatives": [
+        "Nonlinear state-space model",
+        "Extended or unscented Kalman model",
+        "Particle filtering"
+      ],
+      "validation": [
+        "Compare discrete model against the continuous model under the declared hold assumption",
+        "Check residuals and noise covariance estimates"
+      ],
+      "uncertainty": [
+        "Process noise covariance Q",
+        "Measurement noise covariance R",
+        "Sampling jitter and model mismatch"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT control lecture notes cover state-space models, state estimators, and digital control; NASA TM provides state-space/Kalman filtering context.",
+          "citation": "S22 · Lectures 5–9, 14, 20; S09 · Kalman filter appendix",
+          "doi_or_url": "https://ocw.mit.edu/courses/16-30-feedback-control-systems-fall-2010/pages/lecture-notes/"
+        },
+        {
+          "claim": "NASA technical memorandum discusses LTI state-space models, discretization, noise assumptions, and covariance updates.",
+          "citation": "S09 · NASA TM 2022-0007267",
+          "doi_or_url": "https://ntrs.nasa.gov/api/citations/20220007267/downloads/NASA-TM-20220007267.pdf"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "The model family is source-supported; each application's sampling, discretization, and noise model still requires audit."
+    },
+    {
+      "id": "RWEA-023",
+      "domain": "state estimation",
+      "application": "Linear Kalman state estimation",
+      "model_family": "linear_gaussian_state_estimation",
+      "equations": [
+        "xhat[k|k-1] = A_d xhat[k-1|k-1] + B_d u[k-1]",
+        "P[k|k-1] = A_d P[k-1|k-1] A_d^T + Q",
+        "K[k] = P[k|k-1] H^T (H P[k|k-1] H^T + R)^(-1)",
+        "xhat[k|k] = xhat[k|k-1] + K[k](y[k] - H xhat[k|k-1])",
+        "P[k|k] = (I - K[k]H)P[k|k-1]"
+      ],
+      "variables": [
+        {
+          "symbol": "xhat",
+          "meaning": "estimated state",
+          "unit": "state-component-specific",
+          "dimension": "component-specific"
+        },
+        {
+          "symbol": "P",
+          "meaning": "state estimation error covariance",
+          "unit": "state_i*state_j",
+          "dimension": "dim(x_i)*dim(x_j)"
+        },
+        {
+          "symbol": "Q",
+          "meaning": "process noise covariance",
+          "unit": "state_i*state_j",
+          "dimension": "dim(x_i)*dim(x_j)"
+        },
+        {
+          "symbol": "R",
+          "meaning": "measurement noise covariance",
+          "unit": "measurement_i*measurement_j",
+          "dimension": "dim(y_i)*dim(y_j)"
+        },
+        {
+          "symbol": "K",
+          "meaning": "Kalman gain",
+          "unit": "state_i/measurement_j",
+          "dimension": "dim(x_i)/dim(y_j)"
+        },
+        {
+          "symbol": "H",
+          "meaning": "measurement matrix",
+          "unit": "measurement_i/state_j",
+          "dimension": "dim(y_i)/dim(x_j)"
+        }
+      ],
+      "assumptions": [
+        "Linear state and measurement models",
+        "Zero-mean process and measurement noise with specified covariances",
+        "Noise cross-covariance is zero in the standard form",
+        "Initial estimate and covariance are supplied",
+        "Innovation covariance is invertible or a suitable generalized treatment is used"
+      ],
+      "initial_conditions": "Initial state estimate xhat[0|0] and covariance P[0|0] are required",
+      "boundary_conditions": null,
+      "validity_regime": "Optimal minimum-variance estimator under the stated linear-Gaussian assumptions; the recursion can still be used as an approximation outside them.",
+      "intuition": "Predict the next state and uncertainty, compare the predicted sensor reading with the actual reading, then correct the estimate according to relative uncertainty.",
+      "applications": [
+        "GPS/IMU fusion",
+        "Robot localization",
+        "Aircraft navigation",
+        "Tracking"
+      ],
+      "limitations": [
+        "The simple covariance update may lose numerical symmetry/positive semidefiniteness under finite precision; Joseph form is often preferred",
+        "Linear-Gaussian assumptions may be poor for nonlinear or heavy-tailed systems"
+      ],
+      "alternatives": [
+        "Extended Kalman filter",
+        "Unscented Kalman filter",
+        "Information filter",
+        "Particle filter"
+      ],
+      "validation": [
+        "Check covariance symmetry and positive semidefiniteness",
+        "Check innovation whiteness and normalized innovation statistics",
+        "Compare with independent ground truth"
+      ],
+      "uncertainty": [
+        "Initial covariance",
+        "Q and R calibration",
+        "Model mismatch and outliers"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "NASA TM provides Kalman filtering equations, LTI state-space formulation, noise assumptions, discretization and covariance updates.",
+          "citation": "S09 · Kalman filter appendix",
+          "doi_or_url": "https://ntrs.nasa.gov/api/citations/20220007267/downloads/NASA-TM-20220007267.pdf"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "The standard linear Kalman recursion is source-supported; numerical stability and covariance calibration remain application-specific."
+    },
+    {
+      "id": "RWEA-024",
+      "domain": "control systems",
+      "application": "Proportional-integral-derivative feedback",
+      "model_family": "pid_feedback_control",
+      "equations": [
+        "u(t) = Kp e(t) + Ki integral_0^t e(tau) d tau + Kd de(t)/dt"
+      ],
+      "variables": [
+        {
+          "symbol": "e(t)",
+          "meaning": "reference minus measured error",
+          "unit": "error-unit",
+          "dimension": "application-specific"
+        },
+        {
+          "symbol": "u(t)",
+          "meaning": "control command",
+          "unit": "actuator-command-unit",
+          "dimension": "application-specific"
+        },
+        {
+          "symbol": "Kp",
+          "meaning": "proportional gain",
+          "unit": "u/e",
+          "dimension": "dim(u)/dim(e)"
+        },
+        {
+          "symbol": "Ki",
+          "meaning": "integral gain",
+          "unit": "u/(e*s)",
+          "dimension": "dim(u)/(dim(e)*T)"
+        },
+        {
+          "symbol": "Kd",
+          "meaning": "derivative gain",
+          "unit": "u*s/e",
+          "dimension": "dim(u)*T/dim(e)"
+        }
+      ],
+      "assumptions": [
+        "Continuous-time ideal PID form",
+        "Error and control signal units are fixed",
+        "Derivative is interpreted on a sufficiently regular signal",
+        "Actuator saturation and derivative filtering are not represented in the ideal equation"
+      ],
+      "initial_conditions": "The integral state requires an initial value",
+      "boundary_conditions": null,
+      "validity_regime": "Feedback loop with a defined plant and sampling/implementation regime; practical digital controllers require discretization and usually derivative filtering.",
+      "intuition": "Proportional action reacts to present error, integral action accumulates past error, and derivative action responds to its rate of change.",
+      "applications": [
+        "Temperature regulation",
+        "Motor speed control",
+        "Position servos",
+        "Process control"
+      ],
+      "limitations": [
+        "Derivative action amplifies high-frequency measurement noise",
+        "Integral windup can occur under actuator saturation",
+        "Gain tuning depends on plant dynamics and delays"
+      ],
+      "alternatives": [
+        "PI or PD control",
+        "Lead-lag compensation",
+        "State feedback",
+        "Model predictive control"
+      ],
+      "validation": [
+        "Check closed-loop stability and robustness margins",
+        "Test setpoint tracking and disturbance rejection",
+        "Test saturation, noise, and actuator constraints"
+      ],
+      "uncertainty": [
+        "Plant parameter variation",
+        "Sensor noise",
+        "Unmodeled delays"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "The PID equation and interpretation of proportional, integral, and derivative action are presented in Feedback Systems.",
+          "citation": "S25 · Feedback Systems, PID control section",
+          "doi_or_url": "https://www.cds.caltech.edu/~murray/books/AM08/pdf/am08-intro_09Aug12.pdf"
+        },
+        {
+          "claim": "MIT Feedback Control Systems includes feedback design, digital control, nonlinearities, and anti-windup topics.",
+          "citation": "S22 · Lectures 1–4, 20–24",
+          "doi_or_url": "https://ocw.mit.edu/courses/16-30-feedback-control-systems-fall-2010/pages/lecture-notes/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "The ideal PID form is established in the cited control text; practical filter and anti-windup implementation is not represented by this ideal equation."
+    },
+    {
+      "id": "RWEA-025",
+      "domain": "optimal control",
+      "application": "Continuous-time linear quadratic regulator",
+      "model_family": "linear_quadratic_regulator",
+      "equations": [
+        "xdot = A x + B u",
+        "J = integral_0^infinity (x^T Q x + u^T R u) dt",
+        "u_star = -K x",
+        "K = R^(-1) B^T P",
+        "A^T P + P A - P B R^(-1) B^T P + Q = 0"
+      ],
+      "variables": [
+        {
+          "symbol": "x",
+          "meaning": "state vector",
+          "unit": "state-component-specific",
+          "dimension": "component-specific"
+        },
+        {
+          "symbol": "u",
+          "meaning": "control vector",
+          "unit": "input-component-specific",
+          "dimension": "component-specific"
+        },
+        {
+          "symbol": "Q",
+          "meaning": "state penalty matrix",
+          "unit": "cost/(state_i*state_j)",
+          "dimension": "objective/(dim(x_i)*dim(x_j))"
+        },
+        {
+          "symbol": "R",
+          "meaning": "control penalty matrix",
+          "unit": "cost/(input_i*input_j)",
+          "dimension": "objective/(dim(u_i)*dim(u_j))"
+        },
+        {
+          "symbol": "P",
+          "meaning": "symmetric Riccati solution",
+          "unit": "cost/(state_i*state_j)",
+          "dimension": "objective/(dim(x_i)*dim(x_j))"
+        },
+        {
+          "symbol": "K",
+          "meaning": "optimal state feedback gain",
+          "unit": "input_i/state_j",
+          "dimension": "dim(u_i)/dim(x_j)"
+        }
+      ],
+      "assumptions": [
+        "Continuous-time LTI dynamics",
+        "Q is positive semidefinite and R is positive definite",
+        "The pair (A,B) satisfies stabilizability conditions for a stabilizing solution",
+        "The infinite-horizon cost and solution convention are specified"
+      ],
+      "initial_conditions": "Initial state x(0) determines the achieved cost",
+      "boundary_conditions": null,
+      "validity_regime": "Infinite-horizon continuous-time LQR for the stated linear model and quadratic cost; finite-horizon and discrete-time formulations use different Riccati equations.",
+      "intuition": "Choose feedback that balances keeping the state small against using large control effort.",
+      "applications": [
+        "Aircraft control",
+        "Robot motion control",
+        "Vehicle stabilization",
+        "Power systems"
+      ],
+      "limitations": [
+        "Optimality is only relative to the selected model and quadratic cost",
+        "State feedback requires state measurements or an estimator",
+        "Actuator saturation is not included in the unconstrained LQR problem"
+      ],
+      "alternatives": [
+        "Discrete-time LQR",
+        "LQG",
+        "Constrained MPC",
+        "Robust control"
+      ],
+      "validation": [
+        "Check stabilizability and detectability assumptions",
+        "Verify Riccati residual and closed-loop eigenvalues",
+        "Sweep Q and R to inspect performance trade-offs"
+      ],
+      "uncertainty": [
+        "Plant-model mismatch",
+        "Cost-weight selection",
+        "State-estimation error"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT OCW lecture notes include deterministic LQR, LQG, state feedback, and controllability.",
+          "citation": "S22 · Lectures 10–19",
+          "doi_or_url": "https://ocw.mit.edu/courses/16-30-feedback-control-systems-fall-2010/pages/lecture-notes/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "The LQR family is supported by MIT course material; theorem conditions and numerical Riccati solutions must be checked for each model."
+    },
+    {
+      "id": "RWEA-026",
+      "domain": "robotics",
+      "application": "Serial-chain forward kinematics",
+      "model_family": "product_of_exponentials_forward_kinematics",
+      "equations": [
+        "T_0n(q) = exp([S1]q1) exp([S2]q2) ... exp([Sn]qn) M"
+      ],
+      "variables": [
+        {
+          "symbol": "T_0n",
+          "meaning": "end-effector pose relative to base frame",
+          "unit": "rotation dimensionless; translation m",
+          "dimension": "typed SE(3) block matrix"
+        },
+        {
+          "symbol": "q_i",
+          "meaning": "joint coordinate",
+          "unit": "rad for revolute; m for prismatic",
+          "dimension": "dimensionless angle convention or L"
+        },
+        {
+          "symbol": "S_i",
+          "meaning": "joint screw axis in the space frame",
+          "unit": "inverse joint-coordinate units in the corresponding twist components",
+          "dimension": "typed twist per joint coordinate"
+        },
+        {
+          "symbol": "M",
+          "meaning": "home configuration of end effector",
+          "unit": "rotation dimensionless; translation m",
+          "dimension": "typed SE(3) block matrix"
+        }
+      ],
+      "assumptions": [
+        "Open-chain rigid-link robot",
+        "Joint screw axes are expressed in a single declared space frame",
+        "Home pose M and joint coordinate conventions are supplied",
+        "Rigid links and ideal joints are assumed"
+      ],
+      "initial_conditions": "Joint configuration q is the model input; M defines the home pose at q=0",
+      "boundary_conditions": null,
+      "validity_regime": "Rigid-body kinematics for a serial open chain; compliance, backlash, thermal deformation, and link flexibility are excluded.",
+      "intuition": "Each joint contributes a rigid transformation; multiplying them in chain order moves the tool frame from its home pose.",
+      "applications": [
+        "Robot-arm pose calculation",
+        "CAD assembly kinematics",
+        "Motion planning",
+        "Digital twins"
+      ],
+      "limitations": [
+        "Model accuracy depends on calibrated geometry and joint zero offsets",
+        "Transform order and frame convention errors produce incorrect poses"
+      ],
+      "alternatives": [
+        "Denavit-Hartenberg parameterization",
+        "URDF tree transforms",
+        "Direct geometric constraint solving"
+      ],
+      "validation": [
+        "Check T lies in SE(3): R^T R=I and det(R)=1",
+        "Test known configurations and inverse round trips",
+        "Compare against calibrated measurements"
+      ],
+      "uncertainty": [
+        "Joint zero-offset error",
+        "Link length and axis calibration",
+        "Backlash and compliance"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "Modern Robotics Chapter 4 presents the product-of-exponentials formula for forward kinematics in space and end-effector frames.",
+          "citation": "S23 · Chapter 4, Forward Kinematics",
+          "doi_or_url": "https://modernrobotics.northwestern.edu/chapters/chapter4/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "The kinematic construction is source-supported; robot-specific screw axes and calibration are not yet supplied."
+    },
+    {
+      "id": "RWEA-027",
+      "domain": "robotics",
+      "application": "Robot velocity kinematics",
+      "model_family": "robot_jacobian_velocity_mapping",
+      "equations": [
+        "V_s = J_s(q) qdot",
+        "V_b = J_b(q) qdot"
+      ],
+      "variables": [
+        {
+          "symbol": "V_s",
+          "meaning": "end-effector spatial twist in space frame",
+          "unit": "angular rad/s and linear m/s components",
+          "dimension": "mixed angular/time and L/T"
+        },
+        {
+          "symbol": "V_b",
+          "meaning": "end-effector body twist in body frame",
+          "unit": "angular rad/s and linear m/s components",
+          "dimension": "mixed angular/time and L/T"
+        },
+        {
+          "symbol": "J_s",
+          "meaning": "space Jacobian",
+          "unit": "twist-component per joint-coordinate",
+          "dimension": "typed mixed-unit matrix"
+        },
+        {
+          "symbol": "J_b",
+          "meaning": "body Jacobian",
+          "unit": "twist-component per joint-coordinate",
+          "dimension": "typed mixed-unit matrix"
+        },
+        {
+          "symbol": "qdot",
+          "meaning": "joint velocity vector",
+          "unit": "rad/s for revolute; m/s for prismatic",
+          "dimension": "typed joint-rate vector"
+        }
+      ],
+      "assumptions": [
+        "Robot configuration and joint types are declared",
+        "Twist convention and frame are specified",
+        "The Jacobian is evaluated away from any invalid parameterization singularity"
+      ],
+      "initial_conditions": null,
+      "boundary_conditions": null,
+      "validity_regime": "Differential kinematics at a given configuration; Jacobian rank and conditioning vary with configuration.",
+      "intuition": "The Jacobian converts small joint motions into end-effector linear and angular velocity.",
+      "applications": [
+        "Cartesian velocity control",
+        "Manipulability analysis",
+        "Force-to-torque mapping",
+        "Singularity detection"
+      ],
+      "limitations": [
+        "Near singularities, inverse mappings amplify noise and joint speed",
+        "Mixed revolute/prismatic units require typed columns"
+      ],
+      "alternatives": [
+        "Finite-difference kinematics",
+        "Automatic differentiation of forward kinematics"
+      ],
+      "validation": [
+        "Compare Jacobian predictions with finite differences",
+        "Check frame conversion between body and space Jacobians",
+        "Inspect singular values over workspace"
+      ],
+      "uncertainty": [
+        "Joint calibration",
+        "Pose estimation",
+        "Numerical differentiation error"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "Modern Robotics Chapter 5 describes the space and body Jacobians, relating joint velocities to end-effector twists, and discusses singularities and manipulability.",
+          "citation": "S23 · Chapter 5, Velocity Kinematics and Statics",
+          "doi_or_url": "https://modernrobotics.northwestern.edu/chapters/chapter5/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "The Jacobian relationship is source-supported; each robot's frame and mixed-unit conventions require explicit implementation."
+    },
+    {
+      "id": "RWEA-028",
+      "domain": "robotics",
+      "application": "Numerical inverse kinematics",
+      "model_family": "damped_least_squares_inverse_kinematics",
+      "equations": [
+        "e(q) = pose_error(T(q), T_desired)",
+        "Delta_q = J(q)^dagger e(q)",
+        "q_next = q + alpha Delta_q"
+      ],
+      "variables": [
+        {
+          "symbol": "q",
+          "meaning": "joint configuration",
+          "unit": "rad for revolute; m for prismatic",
+          "dimension": "typed joint-coordinate vector"
+        },
+        {
+          "symbol": "T(q)",
+          "meaning": "forward-kinematics pose",
+          "unit": "rotation dimensionless; translation m",
+          "dimension": "typed SE(3) pose"
+        },
+        {
+          "symbol": "T_desired",
+          "meaning": "target end-effector pose",
+          "unit": "rotation dimensionless; translation m",
+          "dimension": "typed SE(3) pose"
+        },
+        {
+          "symbol": "e",
+          "meaning": "local pose error/twist coordinate",
+          "unit": "translation m and rotation rad",
+          "dimension": "mixed task-space coordinates"
+        },
+        {
+          "symbol": "J",
+          "meaning": "task Jacobian",
+          "unit": "task-coordinate per joint-coordinate",
+          "dimension": "typed mixed-unit matrix"
+        },
+        {
+          "symbol": "alpha",
+          "meaning": "dimensionless step size",
+          "unit": "1",
+          "dimension": "dimensionless"
+        }
+      ],
+      "assumptions": [
+        "A local pose-error coordinate is defined consistently",
+        "The Jacobian corresponds to the same frame and error convention",
+        "A step-size or damping strategy is used to manage ill-conditioning",
+        "Joint limits and collision constraints are handled separately or added explicitly"
+      ],
+      "initial_conditions": "An initial joint configuration q0 is required",
+      "boundary_conditions": null,
+      "validity_regime": "Local iterative method; convergence is not guaranteed for arbitrary targets, initial guesses, singularities, or constrained workspaces.",
+      "intuition": "Move the joints in the direction that most reduces the current end-effector pose error.",
+      "applications": [
+        "Robot arm target reaching",
+        "CAD pose matching",
+        "Trajectory tracking initialization"
+      ],
+      "limitations": [
+        "Pseudoinverse can become unstable near singularities",
+        "Multiple solutions and unreachable targets are possible",
+        "The mixed translation/rotation error requires a scale or metric choice"
+      ],
+      "alternatives": [
+        "Damped least squares",
+        "Optimization-based inverse kinematics",
+        "Analytical inverse kinematics",
+        "Task-priority null-space methods"
+      ],
+      "validation": [
+        "Measure pose residual after each iteration",
+        "Check joint limits and collision constraints",
+        "Test convergence from multiple initial configurations"
+      ],
+      "uncertainty": [
+        "Initial guess",
+        "Pose target noise",
+        "Jacobian conditioning"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "Modern Robotics Chapter 6 covers inverse kinematics and numerical inverse kinematics for open chains.",
+          "citation": "S23 · Chapter 6, Inverse Kinematics",
+          "doi_or_url": "https://modernrobotics.northwestern.edu/nu-gm-book-resource/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "The iterative method is a standard local formulation; the exact error metric and damping strategy must be specified before implementation."
+    },
+    {
+      "id": "RWEA-029",
+      "domain": "robotics dynamics",
+      "application": "Rigid-link manipulator dynamics",
+      "model_family": "lagrangian_manipulator_dynamics",
+      "equations": [
+        "M(q) qddot + C(q,qdot) qdot + g(q) = tau + J(q)^T F_ext"
+      ],
+      "variables": [
+        {
+          "symbol": "q",
+          "meaning": "joint configuration",
+          "unit": "rad for revolute; m for prismatic",
+          "dimension": "typed joint-coordinate vector"
+        },
+        {
+          "symbol": "qdot",
+          "meaning": "joint velocity",
+          "unit": "rad/s or m/s by joint",
+          "dimension": "typed joint-rate vector"
+        },
+        {
+          "symbol": "qddot",
+          "meaning": "joint acceleration",
+          "unit": "rad/s^2 or m/s^2 by joint",
+          "dimension": "typed joint-acceleration vector"
+        },
+        {
+          "symbol": "M(q)",
+          "meaning": "joint-space inertia matrix",
+          "unit": "generalized-force_i/(joint-acceleration_j)",
+          "dimension": "typed generalized-force per joint-acceleration"
+        },
+        {
+          "symbol": "C(q,qdot)",
+          "meaning": "Coriolis/centrifugal matrix",
+          "unit": "generalized-force_i/(joint-rate_j*joint-rate_k) after contraction",
+          "dimension": "typed contraction-compatible units"
+        },
+        {
+          "symbol": "g(q)",
+          "meaning": "gravity generalized-force vector",
+          "unit": "N for prismatic; N*m for revolute",
+          "dimension": "typed generalized-force vector"
+        },
+        {
+          "symbol": "tau",
+          "meaning": "actuator generalized force",
+          "unit": "N or N*m by joint",
+          "dimension": "typed generalized-force vector"
+        },
+        {
+          "symbol": "F_ext",
+          "meaning": "external Cartesian wrench",
+          "unit": "N and N*m components",
+          "dimension": "mixed force/torque wrench"
+        }
+      ],
+      "assumptions": [
+        "Rigid links and ideal joint coordinates",
+        "The mechanism topology and inertial parameters are known",
+        "C and g use a declared sign convention",
+        "External wrench is mapped through a Jacobian with matching frame and point"
+      ],
+      "initial_conditions": "Initial q and qdot are required for forward dynamics",
+      "boundary_conditions": null,
+      "validity_regime": "Open-chain rigid manipulator model; contact constraints, flexible links, backlash, friction, and actuator dynamics require additional terms.",
+      "intuition": "Inertia times acceleration plus velocity-dependent and gravity effects must balance motor effort and external contact forces.",
+      "applications": [
+        "Robot simulation",
+        "Inverse dynamics and torque control",
+        "CAD motion studies",
+        "Model-based planning"
+      ],
+      "limitations": [
+        "The exact C matrix is not unique although its contracted effect is",
+        "Parameter errors can strongly affect torque predictions",
+        "Contact-rich dynamics need complementarity or contact models"
+      ],
+      "alternatives": [
+        "Recursive Newton-Euler dynamics",
+        "Constrained multibody dynamics",
+        "Data-driven residual dynamics"
+      ],
+      "validation": [
+        "Check mass-matrix symmetry and positive definiteness for independent coordinates",
+        "Check energy consistency in an unforced conservative case",
+        "Compare inverse-dynamics predictions with measured torque/acceleration"
+      ],
+      "uncertainty": [
+        "Mass and inertia parameter uncertainty",
+        "Friction and compliance",
+        "Contact-force estimation"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT Underactuated Robotics derives the Lagrangian equations and general manipulator equations with inertia, Coriolis, gravity, and actuation terms.",
+          "citation": "S24 · Multi-Body Dynamics, Manipulator Equations",
+          "doi_or_url": "https://underactuated.mit.edu/multibody.html"
+        },
+        {
+          "claim": "Modern Robotics Chapter 8 covers Lagrangian and Newton-Euler dynamics of open chains.",
+          "citation": "S23 · Chapter 8, Dynamics of Open Chains",
+          "doi_or_url": "https://www.cambridge.org/core/books/abs/modern-robotics/dynamics-of-open-chains/F831C9F298F7A32572CEBC44CAFF5393"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "The general manipulator structure is source-supported; individual robot inertial parameters and external-force conventions require validation."
+    },
+    {
+      "id": "RWEA-030",
+      "domain": "robotics control",
+      "application": "Joint-space stiffness and PD control",
+      "model_family": "joint_impedance_stiffness_control",
+      "equations": [
+        "u = -g(q) + Kp (q_des - q) + Kd (qdot_des - qdot) + tau_ff"
+      ],
+      "variables": [
+        {
+          "symbol": "u",
+          "meaning": "commanded generalized actuator effort",
+          "unit": "N for prismatic; N*m for revolute",
+          "dimension": "typed generalized-force vector"
+        },
+        {
+          "symbol": "g(q)",
+          "meaning": "gravity compensation term",
+          "unit": "N or N*m by joint",
+          "dimension": "typed generalized-force vector"
+        },
+        {
+          "symbol": "Kp",
+          "meaning": "joint stiffness gain matrix",
+          "unit": "generalized-force_i/joint-position_j",
+          "dimension": "typed force per position"
+        },
+        {
+          "symbol": "Kd",
+          "meaning": "joint damping gain matrix",
+          "unit": "generalized-force_i/joint-rate_j",
+          "dimension": "typed force per rate"
+        },
+        {
+          "symbol": "q_des",
+          "meaning": "desired joint configuration",
+          "unit": "rad or m by joint",
+          "dimension": "typed joint-coordinate vector"
+        },
+        {
+          "symbol": "q",
+          "meaning": "measured joint configuration",
+          "unit": "rad or m by joint",
+          "dimension": "typed joint-coordinate vector"
+        },
+        {
+          "symbol": "qdot_des",
+          "meaning": "desired joint velocity",
+          "unit": "rad/s or m/s by joint",
+          "dimension": "typed joint-rate vector"
+        },
+        {
+          "symbol": "qdot",
+          "meaning": "measured joint velocity",
+          "unit": "rad/s or m/s by joint",
+          "dimension": "typed joint-rate vector"
+        },
+        {
+          "symbol": "tau_ff",
+          "meaning": "feed-forward generalized effort",
+          "unit": "N or N*m by joint",
+          "dimension": "typed generalized-force vector"
+        }
+      ],
+      "assumptions": [
+        "Joint positions and velocities are available or estimated",
+        "Gain matrices are selected for the robot's joint units and dynamics",
+        "Gravity compensation sign convention is explicit",
+        "The actuator can realize the commanded effort within its limits"
+      ],
+      "initial_conditions": null,
+      "boundary_conditions": null,
+      "validity_regime": "Low-level joint-space feedback for a manipulator with a compatible actuator interface; this expression alone does not specify all rotor-inertia shaping or inner firmware behavior.",
+      "intuition": "A virtual spring pulls each joint toward its target, while a virtual damper resists relative velocity.",
+      "applications": [
+        "Robot-arm position control",
+        "Compliant manipulation",
+        "Joint-level motion tracking"
+      ],
+      "limitations": [
+        "Large gains can excite unmodeled dynamics or exceed actuator limits",
+        "The control law's stability depends on plant dynamics and implementation",
+        "It is not by itself a complete Cartesian force-control law"
+      ],
+      "alternatives": [
+        "Computed-torque control",
+        "Task-space impedance control",
+        "Admittance control",
+        "LQR"
+      ],
+      "validation": [
+        "Check gain dimensions and actuator limits",
+        "Test tracking and contact behavior in simulation before hardware",
+        "Measure closed-loop damping and stability across payloads"
+      ],
+      "uncertainty": [
+        "Payload and friction variation",
+        "Velocity estimation noise",
+        "Actuator delay and saturation"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "MIT Robotic Manipulation Chapter 8 presents joint stiffness control with gravity compensation, proportional position error, derivative velocity error, and feed-forward torque.",
+          "citation": "S26 · Chapter 8, Joint Stiffness Control",
+          "doi_or_url": "https://manipulation.mit.edu/force.html"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "The cited MIT notes support this controller form; gains and stability must be established for the specific robot and actuator stack."
+    }
+  ]
+}
