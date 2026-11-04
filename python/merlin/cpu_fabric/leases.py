@@ -102,6 +102,24 @@ class CapacitySnapshot:
     source: str
     evidence_sha256: str
 
+    @classmethod
+    def from_probe_document(cls, document: dict[str, Any]) -> "CapacitySnapshot":
+        """Load the typed MCFC capacity block from the Avrea probe artifact."""
+        if not isinstance(document, dict):
+            raise ValueError("resource probe document must be an object")
+        payload = document.get("mcfc_capacity", document)
+        if not isinstance(payload, dict):
+            raise ValueError("mcfc_capacity must be an object")
+        if payload.get("schema") != "mcfc-capacity-snapshot/0.1":
+            raise ValueError("unsupported MCFC capacity snapshot schema")
+        required = (
+            "cpu_cores", "memory_bytes", "gpu_count", "gpu_memory_bytes",
+            "compute_budget_units", "observed_at", "source", "evidence_sha256",
+        )
+        if any(key not in payload for key in required):
+            raise ValueError("MCFC capacity snapshot is missing required fields")
+        return cls(**{key: payload[key] for key in required})
+
     def __post_init__(self):
         _integer(self.cpu_cores, "capacity.cpu_cores", 0)
         _integer(self.memory_bytes, "capacity.memory_bytes", 0)
