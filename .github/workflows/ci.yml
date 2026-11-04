@@ -176,7 +176,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: merlin-cross-domain-benchmark
-          path: artifacts/merlin-cross-domain-benchmark.json
+          path: |
+            artifacts/merlin-cross-domain-benchmark.json
+            artifacts/merlin-cross-domain-repeatability.json
+            artifacts/merlin-theorem-dag.json
+            artifacts/merlin-proof-observatory.sqlite3
+            artifacts/merlin-observatory-link-summary.json
           retention-days: 14
 
       - name: CACE return bridge guardrails
