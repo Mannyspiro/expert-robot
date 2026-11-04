@@ -196,28 +196,6 @@ def write_benchmark_receipt(path: str | Path, commit_sha: str) -> dict[str, Any]
     return receipt
 
 
-if __name__ == "__main__":
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Run Merlin cross-domain benchmark receipts")
-    parser.add_argument("--commit", required=True, help="40-character source Git commit")
-    parser.add_argument("--output", required=True, help="Path for canonical JSON receipt")
-    args = parser.parse_args()
-    receipt = write_benchmark_receipt(args.output, args.commit)
-    repeated = run_repeated_benchmarks(args.commit, repeats=3)
-    repeat_path = Path(args.output).with_name("merlin-cross-domain-repeatability.json")
-    repeat_path.write_text(_canonical(repeated) + "\\n", encoding="utf-8")
-    print(json.dumps({
-        "receipt_sha256": receipt["receipt_sha256"],
-        "all_passed": receipt["all_passed"],
-        "negative_controls_detected": receipt["negative_controls"]["all_detected"],
-        "repeatability": repeated["all_passed"],
-        "domains": {name: value["passed"] for name, value in receipt["domains"].items()},
-    }, sort_keys=True))
-    if not receipt["all_passed"] or not repeated["all_passed"]:
-        raise SystemExit(1)
-
-
 def run_negative_controls() -> dict[str, Any]:
     """Prove that each domain fixture detects one deliberately invalid case."""
     # Geometry: singular frame matrices must be rejected at construction.
@@ -316,3 +294,26 @@ def run_repeated_benchmarks(commit_sha: str, repeats: int = 3) -> dict[str, Any]
         "domain_stable": stable,
         "all_passed": all(receipt["all_passed"] for receipt in receipts) and all(stable.values()),
     }
+
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Run Merlin cross-domain benchmark receipts")
+    parser.add_argument("--commit", required=True, help="40-character source Git commit")
+    parser.add_argument("--output", required=True, help="Path for canonical JSON receipt")
+    args = parser.parse_args()
+    receipt = write_benchmark_receipt(args.output, args.commit)
+    repeated = run_repeated_benchmarks(args.commit, repeats=3)
+    repeat_path = Path(args.output).with_name("merlin-cross-domain-repeatability.json")
+    repeat_path.write_text(_canonical(repeated) + "\\n", encoding="utf-8")
+    print(json.dumps({
+        "receipt_sha256": receipt["receipt_sha256"],
+        "all_passed": receipt["all_passed"],
+        "negative_controls_detected": receipt["negative_controls"]["all_detected"],
+        "repeatability": repeated["all_passed"],
+        "domains": {name: value["passed"] for name, value in receipt["domains"].items()},
+    }, sort_keys=True))
+    if not receipt["all_passed"] or not repeated["all_passed"]:
+        raise SystemExit(1)
+
