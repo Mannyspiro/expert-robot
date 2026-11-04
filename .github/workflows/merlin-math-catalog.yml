@@ -10,10 +10,12 @@ on:
       - "docs/research/MERLIN_ARCHIVED_MATH_CLAIM_AUDIT_V0.1.md"
       - "merlin/representation_graph.py"
       - "merlin/rotation_representations.py"
+      - "merlin/spherical_holonomy.py"
       - "scripts/merlin_math_idea_validate.py"
       - "tests/test_merlin_math_idea_validate.py"
       - "tests/test_merlin_representation_graph.py"
       - "tests/test_merlin_rotation_representations.py"
+      - "tests/test_merlin_spherical_holonomy.py"
       - ".github/workflows/merlin-math-catalog.yml"
   pull_request:
     paths:
@@ -46,5 +48,7 @@ jobs:
         run: python3 -m unittest discover -s tests -p "test_merlin_representation_graph.py" -v
       - name: Test quaternion and Cl(3,0) rotor correspondence
         run: python3 -m unittest discover -s tests -p "test_merlin_rotation_representations.py" -v
+      - name: Test spherical curvature and holonomy
+        run: python3 -m unittest discover -s tests -p "test_merlin_spherical_holonomy.py" -v
       - name: Compile mathematical representation modules
-        run: python3 -m py_compile merlin/representation_graph.py merlin/rotation_representations.py
+        run: python3 -m py_compile merlin/representation_graph.py merlin/rotation_representations.py merlin/spherical_holonomy.py
