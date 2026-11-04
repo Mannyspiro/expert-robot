@@ -24,13 +24,13 @@ No PR merge is assumed. PR #75 head at reconciliation was `d0a057100d2f64d278e71
 
 ## 2. Module-to-test-to-evidence map
 
-The paths below were found in PR #70/#72 changed-file inventories or fetched from the PR #72 branch. A test file's existence is not proof it passed on the current head. “Latest prior qualification” means the latest run specifically named in the PR's recorded verification history, not a fresh rerun at PR #75 head.
+The paths below were found in PR #70/#72 changed-file inventories or fetched from the PR #72 branch. The new Observatory files and test were added to PR #75. A test file's existence is not proof it passed on the current head. “Latest prior qualification” means the latest run specifically named in the PR's recorded verification history, not a fresh rerun at PR #75 head.
 
 | Module / capability | Implementation files | Focused tests | Latest prior qualification / receipt | Unresolved dependencies and limits |
 |---|---|---|---|---|
-| Representation / object-view graph | `merlin/representation_graph.py` | `tests/test_merlin_representation_graph.py` | Included in PR #72 math/CI lineage; no per-test run receipt isolated in current metadata | Exact rational square-matrix frame graph only; needs typed bridge to CAD frame IDs, units, domains/codomains, lossiness and engineering revision hashes |
-| Rotation representations | `merlin/rotation_representations.py` | `tests/test_merlin_rotation_representations.py` | PR #72 CI lineage; no separately identified receipt | Need consistent conventions and conversion invariants across complex, matrix, quaternion and geometric-algebra representations |
-| Spherical holonomy | `merlin/spherical_holonomy.py` | `tests/test_merlin_spherical_holonomy.py` | PR #72 CI lineage; no separately identified receipt | Scope is current implemented model; broader manifolds/curvature claims need independent derivations |
+| Representation / object-view graph | `merlin/representation_graph.py` | `tests/test_merlin_representation_graph.py` | Catalog run #66 passed on PR #72 head; exact representation graph test step passed in current metadata | Exact rational square-matrix frame graph only; needs typed bridge to CAD frame IDs, units, domains/codomains, lossiness and engineering revision hashes |
+| Rotation representations | `merlin/rotation_representations.py` | `tests/test_merlin_rotation_representations.py` | Catalog run #66 passed quaternion/Cl(3,0) step | Need consistent conventions and conversion invariants across complex, matrix, quaternion and geometric-algebra representations |
+| Spherical holonomy | `merlin/spherical_holonomy.py` | `tests/test_merlin_spherical_holonomy.py` | Catalog run #66 passed spherical curvature/holonomy step | Scope is current implemented model; broader manifolds/curvature claims need independent derivations |
 | Engineering IR | `python/merlin/engineering_ir.py` | `tests/test_engineering_ir.py` | Avrea CI #1418 passed for head `5d5635de04560f260f57da0ffda797e510e45ab9`; later PR #72 CI #1428 passed at `391fd21f8954614c642c918ff5224b5ae65c0cc1` | IR currently has typed parts/pins/nets and mm geometry; no certification, native EDA round-trip or fabrication sign-off |
 | Coordinate frames / CAD assembly | `python/merlin/coordinate_frames.py`, `python/merlin/cad_assembly.py` | `tests/test_coordinate_frames.py`, `tests/test_cad_assembly.py` | Included in Avrea CI #1418; later broad CI #1428 | Rigid transforms and conservative AABB only; multi-instance identity, joints/DOF, B-rep collision and tolerance stack-up remain incomplete |
 | Physical connectivity | `python/merlin/physical_connectivity.py` | `tests/test_physical_connectivity.py` | Included in Avrea CI #1418 / #1428 lineage | Pin positions/directions are supplied inputs; no inferred datasheet truth, full harness geometry or electrical certification |
@@ -50,8 +50,8 @@ The paths below were found in PR #70/#72 changed-file inventories or fetched fro
 ### Exact current status
 
 - PR #72 records Avrea CI #1428 passed at `391fd21f8954614c642c918ff5224b5ae65c0cc1`, and Lean Formal Qualification #472 passed at `6921c984b77852d90b4bc2a3232685f39d4d66e8`.
-- PR #72 later advanced to `ddab7c3fe732bcde7c94e2c645487055cfd311f0`; its description explicitly says latest PR head has no reported status checks and the Lean compilation, Avrea benchmark rerun and full build are pending.
-- PR #75 advances to `d0a057100d2f64d278e71fad3881f801ebb4963e`; its description reports failed Actions runs and no Avrea qualification for its ledger increment. Current combined-status lookup returned no entries. Therefore **there is no qualified run for the current PR #75 head**.
+- PR #72 later advanced to `ddab7c3fe732bcde7c94e2c645487055cfd311f0`. A targeted Mathematical Idea Catalog run #66 (run ID `41890294029`) passed on this exact head: stable-ID/relation validation, catalog tests, exact multi-representation algebra tests, quaternion/Cl(3,0) correspondence, spherical holonomy tests and compilation of the three representation modules. This is a focused math-catalog pass, not the full Merlin build or formal qualification; the Lean compilation, Avrea benchmark rerun and full build remain pending.
+- PR #75 advances to `d0a057100d2f64d278e71fad3881f801ebb4963e`; its description reports failed Actions runs and no Avrea qualification for its ledger increment. Current combined-status lookup returned no entries and the PR-triggered workflow-run lookup returned no runs for this SHA. Therefore **there is no qualified run for the current PR #75 head**.
 
 ## 3. Proof Strategy Observatory implementation
 
