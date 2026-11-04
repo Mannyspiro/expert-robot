@@ -164,6 +164,7 @@ def run_core_benchmarks(commit_sha: str) -> dict[str, Any]:
         "cad_assembly": cad_assembly,
         "engineering_ir": engineering_ir,
         "engineering_project_store": engineering_project_store,
+        "observatory_benchmarks": inspect.getmodule(run_core_benchmarks),
     }
     source_hashes = {name: _module_sha256(module) for name, module in sorted(modules.items())}
     domains = {
@@ -190,3 +191,20 @@ def write_benchmark_receipt(path: str | Path, commit_sha: str) -> dict[str, Any]
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(_canonical(receipt) + "\n", encoding="utf-8")
     return receipt
+
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Run Merlin cross-domain benchmark receipts")
+    parser.add_argument("--commit", required=True, help="40-character source Git commit")
+    parser.add_argument("--output", required=True, help="Path for canonical JSON receipt")
+    args = parser.parse_args()
+    receipt = write_benchmark_receipt(args.output, args.commit)
+    print(json.dumps({
+        "receipt_sha256": receipt["receipt_sha256"],
+        "all_passed": receipt["all_passed"],
+        "domains": {name: value["passed"] for name, value in receipt["domains"].items()},
+    }, sort_keys=True))
+    if not receipt["all_passed"]:
+        raise SystemExit(1)
