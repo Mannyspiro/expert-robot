@@ -68,3 +68,25 @@ This is a source-to-entry crosswalk, not a claim that every entry has already re
 | 028 | S23 | Supports numerical inverse kinematics; local convergence, singularities, joint limits, and solution selection are application-dependent. |
 | 029 | S24, S23 | Supports Lagrangian manipulator dynamics; friction, actuator mapping, contact, constraints, and sign conventions require model-specific treatment. |
 | 030 | S26 | Supports joint-space stiffness/PD control; gain units, gravity compensation, actuator limits, and closed-loop stability require robot-specific validation. |
+
+
+## Additional sources for RWEA-031–040
+
+- **S27 — Partial differential equations:** MIT OpenCourseWare, 18.152 *Introduction to Partial Differential Equations*, Fall 2011. Lecture sequence covers heat, Laplace, Poisson, wave, transport, and related PDE theory. https://ocw.mit.edu/courses/18-152-introduction-to-partial-differential-equations-fall-2011/pages/lecture-notes/
+- **S28 — Numerical PDEs and conservation laws:** MIT OpenCourseWare, 18.336 *Numerical Methods for Partial Differential Equations*, Spring 2009. Covers heat, transport, wave, stability, conservation-law theory and numerical methods, and Navier–Stokes discretization. https://ocw.mit.edu/courses/18-336-numerical-methods-for-partial-differential-equations-spring-2009/pages/lecture-notes/
+- **S29 — Electromagnetic fields and Maxwell equations:** MIT OpenCourseWare, 6.641 *Electromagnetic Fields, Forces, and Motion*, Spring 2009. Includes integral and differential Maxwell equations, field boundary conditions, and electromagnetic energy/field topics. https://ocw.mit.edu/courses/6-641-electromagnetic-fields-forces-and-motion-spring-2009/resources/lecture-notes/
+
+## Equation-ID crosswalk additions
+
+| Atlas IDs | Source mapping | Evidence boundary / remaining source work |
+|---|---|---|
+| 031 | S27, S28 | Local conservation balance supported at PDE-course level; flux constitutive law and source terms remain application-specific. |
+| 032 | S27, S28 | Heat equation supported; anisotropy, phase change, radiation, and material-property calibration require separate treatment. |
+| 033 | S27, S28 | Advection-diffusion family supported; turbulence closures and reaction kinetics need application-specific sources. |
+| 034 | S27, S28 | Linear wave equation supported; damping, dispersion, material constitutive laws, and boundary reflections remain model-specific. |
+| 035 | S27 | Laplace equation and elliptic theory supported; physical interpretation and boundary uniqueness must be checked per use. |
+| 036 | S27 | Poisson equation and Green-function context supported; source sign, gauge, and boundary compatibility require per-domain review. |
+| 037 | S27, S28 | Transport/advection family supported; conservative versus nonconservative form depends on variable velocity and physical density. |
+| 038 | S28 | Numerical Navier–Stokes methods supported at course level; turbulence closure, rheology, compressibility, and boundary conditions remain unresolved per case. |
+| 039 | S29 | MIT notes cover differential Maxwell equations; macroscopic material constitutive relations and interface conditions need separate review. |
+| 040 | S29 | Maxwell field framework supports derivation context; Poynting theorem and material-medium energy expressions require a dedicated derivation and sign-convention audit. |
