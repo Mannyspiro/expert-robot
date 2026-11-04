@@ -90,6 +90,9 @@ def register_manifest(manifest_path: Path, database_path: Path) -> dict:
           CREATE INDEX IF NOT EXISTS idx_artifacts_sha256 ON artifacts(sha256);
           CREATE INDEX IF NOT EXISTS idx_artifacts_classification ON artifacts(classification);
         """)
+        columns = {row[1] for row in connection.execute("PRAGMA table_info(intakes)")}
+        if "archive_size_bytes" not in columns:
+            connection.execute("ALTER TABLE intakes ADD COLUMN archive_size_bytes INTEGER NOT NULL DEFAULT 0")
         existing = connection.execute("SELECT manifest_sha256 FROM intakes WHERE intake_id=?",
                                        (data["intake_id"],)).fetchone()
         if existing:
@@ -97,10 +100,13 @@ def register_manifest(manifest_path: Path, database_path: Path) -> dict:
             return {"status":"already_registered","intake_id":data["intake_id"],
                     "file_count":data["file_count"],"database":str(database_path)}
         with connection:
-            connection.execute("INSERT INTO intakes VALUES (?,?,?,?,?,?,?,?)",
+            connection.execute("""INSERT INTO intakes
+              (intake_id,archive_sha256,archive_filename,manifest_sha256,registered_at,
+               file_count,total_uncompressed_bytes,archive_size_bytes)
+              VALUES (?,?,?,?,?,?,?,?)""",
               (data["intake_id"],data["archive"]["sha256"],data["archive"]["filename"],
-               data["archive"]["size_bytes"],digest,datetime.now(timezone.utc).isoformat(),
-               data["file_count"],data["total_uncompressed_bytes"]))
+               digest,datetime.now(timezone.utc).isoformat(),data["file_count"],
+               data["total_uncompressed_bytes"],data["archive"]["size_bytes"]))
             connection.executemany("INSERT INTO artifacts VALUES (?,?,?,?,?)",
               [(data["intake_id"],_safe_relative_path(x["path"]),x["sha256"],x["size_bytes"],x["classification"])
                for x in data["files"]])
