@@ -139,3 +139,19 @@ Suggested typed graph:
 `JointDistribution --MutualInformationBase2--> Bits`
 
 These are representation contracts and research directions, not claims that the current XMG runtime already implements them.
+
+
+## Phase 0.6 research update — 2026-11-04
+- Added RWEA-051–060: finite Markov chains, stationary distributions and detailed balance, Poisson processes, Brownian motion, Langevin SDEs, Fokker–Planck dynamics, Bayesian updating, linear Kalman filtering, Fisher information geometry, and Markov-jump entropy production.
+- Added specialist source records S33–S36 and claim-level crosswalks to MIT stochastic-process, stochastic-calculus, nonequilibrium statistical-mechanics, and probability materials.
+- Added deterministic synthetic checks for Markov stationarity, Brownian increment variance, Beta-Binomial posterior, scalar Kalman update, Ornstein–Uhlenbeck stationary variance, and entropy production on driven/equilibrium rings.
+- Extended the canonical normalizer and schema tests to 60 entries; CI includes the new source tranche and stochastic experiment suite.
+- All entries remain UNVERIFIED. In particular, Fisher information geometry and physical entropy production require specialist derivation and regularity/local-detailed-balance audits; course-level citations alone do not qualify them.
+
+## XMG stochastic and probabilistic frames
+Add typed frames for (1) sample space and event algebra, (2) probability measure and normalized distributions, (3) random-variable/state space, (4) transition kernel and generator, (5) time filtration/information, (6) path space, and (7) thermodynamic currents/entropy flow. Maps must distinguish a probability density from a probability mass, a sample path from an ensemble distribution, and dimensionless Shannon information from thermodynamic entropy in J/K. Record Itô versus Stratonovich convention and discrete versus continuous time explicitly. These are design contracts, not claims of runtime implementation.
+
+Suggested typed paths:
+`MarkovState --TransitionKernel(P)--> NextStateDistribution`
+`SDE(drift,diffusion,interpretation) --FokkerPlanck--> ProbabilityDensity`
+`StationaryDistribution + RateGenerator --ProbabilityCurrent--> EntropyProductionRate`
