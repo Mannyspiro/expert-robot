@@ -19,8 +19,9 @@ BATCH_021_030 = ATLAS / "NORMALIZED_ENTRIES_021-030.json"
 BATCH_031_040 = ATLAS / "NORMALIZED_ENTRIES_031-040.json"
 BATCH_041_050 = ATLAS / "NORMALIZED_ENTRIES_041-050.json"
 BATCH_051_060 = ATLAS / "NORMALIZED_ENTRIES_051-060.json"
+BATCH_061_070 = ATLAS / "NORMALIZED_ENTRIES_061-070.json"
 SCHEMA = ATLAS / "equation-entry.schema.json"
-OUTPUT = ATLAS / "NORMALIZED_ENTRIES_001-060_V0.3.json"
+OUTPUT = ATLAS / "NORMALIZED_ENTRIES_001-070_V0.3.json"
 
 MODEL_FAMILY = {
     "optimization": "mathematical_optimization",
@@ -104,6 +105,8 @@ def main() -> int:
     entries.extend(batch_041_050["entries"])
     batch_051_060 = json.loads(BATCH_051_060.read_text(encoding="utf-8"))
     entries.extend(batch_051_060["entries"])
+    batch_061_070 = json.loads(BATCH_061_070.read_text(encoding="utf-8"))
+    entries.extend(batch_061_070["entries"])
     ids = [entry["id"] for entry in entries]
     if len(ids) != len(set(ids)):
         raise SystemExit("Duplicate equation IDs in normalized batches")
