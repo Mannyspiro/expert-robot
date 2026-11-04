@@ -279,3 +279,22 @@ Implemented in `python/merlin/cad_assembly.py`:
 - Assembly transforms are absolute component placements and do not yet provide a mate/constraint solver.
 - Electrical nets are not yet coupled to physical connector coordinates or wire-routing geometry.
 - Exported geometry and warnings require engineering review before manufacture or use.
+
+## v0.8.1 — hierarchical coordinate frames
+
+Implemented:
+- `python/merlin/coordinate_frames.py` defines named parent/child rigid frames.
+- Row-major active-rotation composition, rigid-transform inversion and point transformation.
+- Recursive world-frame resolution with duplicate-ID, missing-parent and cycle rejection.
+- CAD assemblies can attach components to named frames.
+- Component world placement composes parent frame, component-local transform and the part's own local position.
+- OpenSCAD assembly export and AABB screening now use the same resolved world transform.
+- Assembly reports retain frame definitions and component frame references.
+
+Tests cover nested translations, rotated composition, inverse round trips, duplicate/missing/cyclic frames, frame-aware CAD export and validation failures.
+
+### Limitations
+- Frames are rigid Euclidean 3D frames; no scale, shear, non-Euclidean coordinates or time-varying frames.
+- No mate/joint solver, constraint graph, degrees-of-freedom analysis or kinematic simulation yet.
+- Component identity is still tied to a unique part reference; multiple instances of one library part need a separate instance identifier.
+- AABB checks remain conservative and are not exact solid collision detection.
