@@ -140,6 +140,14 @@ class ProofObservatory:
               created_ns INTEGER NOT NULL
             )
         """)
+        self.db.execute("""
+            CREATE TABLE IF NOT EXISTS benchmark_receipts (
+              receipt_sha256 TEXT PRIMARY KEY,
+              source_commit TEXT NOT NULL,
+              payload TEXT NOT NULL,
+              created_ns INTEGER NOT NULL
+            )
+        """)
         self.db.commit()
 
     def close(self) -> None:
@@ -190,6 +198,80 @@ class ProofObservatory:
         )
         self.db.commit()
         return digest
+
+    def record_benchmark_receipt(self, receipt: dict) -> str:
+        """Store a canonical cross-domain receipt after verifying its self-hash."""
+        if receipt.get("schema") != "merlin-cross-domain-benchmark-receipt-v1":
+            raise ValueError("unsupported benchmark receipt schema")
+        supplied = receipt.get("receipt_sha256")
+        payload = {key: value for key, value in receipt.items() if key != "receipt_sha256"}
+        actual = sha256_text(canonical_json(payload))
+        if supplied != actual:
+            raise ValueError("benchmark receipt SHA-256 mismatch")
+        commit = receipt.get("source_commit", "")
+        if not re.fullmatch(r"[0-9a-f]{40}", commit):
+            raise ValueError("benchmark receipt has invalid source commit")
+        if not isinstance(receipt.get("domains"), dict):
+            raise ValueError("benchmark receipt domains are required")
+        self.db.execute(
+            "INSERT OR IGNORE INTO benchmark_receipts(receipt_sha256,source_commit,payload,created_ns) VALUES(?,?,?,?)",
+            (supplied, commit, canonical_json(receipt), time.time_ns()),
+        )
+        self.db.commit()
+        return supplied
+
+    def record_benchmark_theorem_links(
+        self,
+        receipt: dict,
+        theorem_dag: dict,
+        engineering_project_id: str,
+        engineering_revision_sha256: str,
+        object_view_ids_by_domain: dict[str, Iterable[str]],
+        domain_to_registry_domains: dict[str, tuple[str, ...]] | None = None,
+    ) -> list[str]:
+        """Link benchmark receipts to explicit theorem-DAG nodes and Engineering IR revision."""
+        receipt_hash = self.record_benchmark_receipt(receipt)
+        if theorem_dag.get("schema") != "merlin-theorem-dependency-dag-v1":
+            raise ValueError("unsupported theorem DAG schema")
+        dag_payload = {key: value for key, value in theorem_dag.items() if key != "dag_sha256"}
+        if theorem_dag.get("dag_sha256") != sha256_text(canonical_json(dag_payload)):
+            raise ValueError("theorem DAG SHA-256 mismatch")
+        if not engineering_project_id.strip():
+            raise ValueError("engineering_project_id is required")
+        mapping = domain_to_registry_domains or {
+            "geometry": ("geometry",),
+            "xmg": (),
+            "equation_atlas": ("algebra",),
+            "cad": ("manufacturing", "electrical", "thermal"),
+        }
+        nodes = theorem_dag.get("nodes", [])
+        created = []
+        for benchmark_domain, benchmark in receipt["domains"].items():
+            if not benchmark.get("passed"):
+                continue
+            object_ids = tuple(object_view_ids_by_domain.get(benchmark_domain, ()))
+            if not object_ids:
+                continue
+            for node in nodes:
+                tags = set(node.get("tags", []))
+                matches = node.get("domain") in mapping.get(benchmark_domain, ())
+                if benchmark_domain == "xmg":
+                    matches = "xmg" in tags or "glyph" in tags
+                elif benchmark_domain == "equation_atlas":
+                    matches = matches or "equation_atlas" in tags
+                if not matches:
+                    continue
+                for object_id in object_ids:
+                    link = CrossDomainLink(
+                        theorem_id=node["id"],
+                        object_view_id=object_id,
+                        engineering_project_id=engineering_project_id,
+                        engineering_revision_sha256=engineering_revision_sha256,
+                        relation="benchmark:" + benchmark_domain + ":dag:" + theorem_dag["dag_sha256"],
+                        evidence_receipt_sha256=receipt_hash,
+                    )
+                    created.append(self.record_link(link))
+        return created
 
     def links_for_theorem(self, theorem_id: str) -> list[dict]:
         rows = self.db.execute("SELECT payload FROM cross_domain_links ORDER BY created_ns").fetchall()
