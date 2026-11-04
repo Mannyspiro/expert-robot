@@ -14,7 +14,6 @@ namespace MathAI.WireQualification
 /-- A current is within the supplied manufacturer ampacity after derating. -/
 theorem current_within_derated_ampacity
     (load ampacity derating : ℝ)
-    (hload : 0 ≤ load)
     (hampacity : 0 < ampacity)
     (hderating : 0 < derating ∧ derating ≤ 1)
     (hlimit : load ≤ ampacity * derating) :
