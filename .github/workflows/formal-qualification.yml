@@ -134,7 +134,13 @@ jobs:
         working-directory: formal
         env:
           LEAN_ABORT_ON_PANIC: "1"
-        run: lake env lean ../proofs/THTGPrintedBetaAudit.lean
+        run: |
+          output="$(lake env lean ../proofs/THTGPrintedBetaAudit.lean 2>&1)"
+          printf '%s\n' "$output"
+          if grep -Eq 'sorryAx|admitAx' <<< "$output"; then
+            echo "::error::THTG beta theorem contains an untrusted proof escape."
+            exit 1
+          fi
 
       - name: Registered theorem axiom report
         working-directory: formal
