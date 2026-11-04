@@ -105,3 +105,12 @@ All 70 entries remain `UNVERIFIED`. The 061–070 sources are foundational refer
 - Normalized atlas SHA-256: `da3f9edba190fe667aecbae21eabfe422350e1be9a139fcba2bcea187236dc51`; inspection confirmed 80 ordered unique entries, RWEA-001–080.
 - Receipt records PR merge-ref snapshot `7cbaa1f40e6e2c0c5e5e787add3e85d552874e0f`, not the branch-head SHA. It includes hashes for `simulation.py` and `test_merlin_simulation_engine.py`.
 - Verification is limited to the recorded synthetic test suite and byte-level provenance; it does not establish empirical validity or scientific truth.
+
+
+### Phase 0.9.1 — composed model layer
+- Added `models.py` with three higher-level compositions over the shared integrator: reaction + periodic diffusion, closed-population SIR, and classical Lotka-Volterra predator-prey.
+- Reaction-diffusion enforces the one-dimensional explicit diffusion restriction `dt*D/dx² <= 0.5`; this does not guarantee stability of a stiff local reaction term.
+- SIR checks initial population consistency, records the maximum population-conservation residual, and rejects negative compartments caused by an oversized step.
+- Lotka-Volterra records its model composition and rejects negative numerical populations.
+- Added tests for reaction/diffusion composition, diffusion step-size guard, SIR conservation, invalid initial population totals, and deterministic predator-prey traces.
+- CI now runs these composed-model tests and includes both model source and test source in the evidence receipt. This increment awaits its own Avrea run.
