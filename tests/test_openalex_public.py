@@ -30,6 +30,7 @@ class OpenAlexPublicTests(unittest.TestCase):
             "primary_location": {"landing_page_url": "https://journal.example.org/paper"},
             "open_access": {"is_oa": True},
             "cited_by_count": 4,
+            "topics": [{"id": "https://openalex.org/T123", "display_name": "Graph theory", "score": 0.91}],
             "authorships": [{
                 "author": {
                     "id": "https://openalex.org/A456",
@@ -46,6 +47,8 @@ class OpenAlexPublicTests(unittest.TestCase):
         self.assertEqual(work.authors[0].display_name, "Ada Example")
         self.assertEqual(work.authors[0].institutions, ("Example University",))
         self.assertEqual(work.evidence_status, "metadata_discovered")
+        self.assertEqual(work.topics[0].openalex_id, "https://openalex.org/T123")
+        self.assertAlmostEqual(work.topics[0].score, 0.91)
 
     def test_search_uses_https_api_and_small_page_size(self):
         seen = {}
