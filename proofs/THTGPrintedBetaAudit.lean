@@ -12,6 +12,8 @@ coefficients remain unspecified in the source report.
 
 namespace THTGPrintedBetaAudit
 
+noncomputable section
+
 def denominator (g : ℝ) : ℝ :=
   10970423 * g ^ 2 + 65060000 * g + 80000000
 
@@ -95,17 +97,21 @@ lemma betaG_after_elimination (g : ℝ) (hD : denominator g ≠ 0) :
     betaG g (omegaSolved g) (thetaSolved g) =
       g * reducedNumerator g / (100 * denominator g) := by
   unfold betaG omegaSolved thetaSolved omegaNumerator thetaNumerator
-    denominator reducedNumerator
+    reducedNumerator
   field_simp [hD]
-  <;> ring
+  <;> ring_nf
 
 /-- The reduced beta_g is strictly positive for every positive g. -/
 theorem reduced_betaG_positive (g : ℝ) (hg : 0 < g) :
     0 < betaG g (omegaSolved g) (thetaSolved g) := by
   have hD : denominator g ≠ 0 := ne_of_gt (denominator_pos g hg)
   rw [betaG_after_elimination g hD]
-  unfold reducedNumerator denominator
-  positivity
+  have hP : 0 < reducedNumerator g := by
+    unfold reducedNumerator
+    positivity
+  have hDen : 0 < 100 * denominator g :=
+    mul_pos (by norm_num) (denominator_pos g hg)
+  exact div_pos (mul_pos hg hP) hDen
 
 /--
 The four beta functions as printed in the uploaded report have no simultaneous
