@@ -37,14 +37,19 @@ def classify(path: str) -> str:
         ".obj":"mesh_model", ".gcode":"manufacturing_data", ".csv":"dataset",
         ".tsv":"dataset", ".xlsx":"spreadsheet", ".ods":"spreadsheet",
         ".png":"image", ".jpg":"image", ".jpeg":"image", ".webp":"image",
-        ".mp4":"video", ".mov":"video"
+        ".mp4":"video", ".mov":"video", ".f3d":"cad_native_project",
+        ".fcstd":"cad_native_project", ".3mf":"mesh_model",
+        ".dxf":"cad_drawing", ".dwg":"cad_drawing", ".ifc":"building_model",
+        ".msh":"simulation_mesh", ".inp":"simulation_input", ".odb":"simulation_result",
+        ".cir":"electrical_netlist", ".sp":"electrical_netlist",
+        ".kicad_sch":"electrical_schematic", ".kicad_pcb":"pcb_layout"
     }
     return mapping.get(suffix, "unclassified")
 
 def safe_member_name(raw: str, limits: IntakeLimits) -> str:
     if "\x00" in raw:
         raise IntakeError("NUL byte in member name")
-    name = raw.replace("\\", "/")
+    name = raw.replace("\\\\", "/").replace("\\", "/")
     if len(name) > limits.max_path_length:
         raise IntakeError("Member path too long")
     if name.startswith("/") or name.startswith("//"):
@@ -120,7 +125,7 @@ def intake_archive(archive_path: Path, destination: Path, limits=None) -> dict:
                         if not chunk:
                             break
                         written += len(chunk)
-                        if written > limits.max_member_uncompressed:
+                        if written > limits.max_member_uncompressed or written > limits.max_total_uncompressed:
                             raise IntakeError("Actual expanded size exceeds limit: " + name)
                         digest.update(chunk)
                         sink.write(chunk)
