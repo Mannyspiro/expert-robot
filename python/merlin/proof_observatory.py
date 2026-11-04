@@ -118,6 +118,7 @@ class ProofObservatory:
 
     def __init__(self, path: str | Path):
         self.path = str(path)
+        Path(self.path).parent.mkdir(parents=True, exist_ok=True)
         self.db = sqlite3.connect(self.path)
         self.db.execute("PRAGMA foreign_keys=ON")
         self.db.execute("""
@@ -184,7 +185,7 @@ class ProofObservatory:
         payload = canonical_json(asdict(link))
         digest = sha256_text(payload)
         self.db.execute(
-            "INSERT INTO cross_domain_links(link_id,payload,payload_sha256,created_ns) VALUES(?,?,?,?)",
+            "INSERT OR IGNORE INTO cross_domain_links(link_id,payload,payload_sha256,created_ns) VALUES(?,?,?,?)",
             (digest, payload, digest, time.time_ns()),
         )
         self.db.commit()
@@ -197,36 +198,41 @@ class ProofObservatory:
 
 
 def rank_strategies(attempts: Iterable[ProofAttempt], minimum_qualified: int = 3) -> list[dict]:
-    """Rank tactic sequences only after repeated exact-target kernel-checked observations."""
-    groups: dict[tuple[tuple[str, ...], str, str, str, str, str], list[ProofAttempt]] = {}
+    """Rank only repeated qualified strategies; include failures in reliability denominator."""
+    if minimum_qualified < 1:
+        raise ValueError("minimum_qualified must be at least one")
+    groups: dict[tuple[tuple[str, ...], str, str, str, tuple[str, ...], str, str], list[ProofAttempt]] = {}
     for attempt in attempts:
         attempt.validate()
-        if attempt.qualified:
-            group_key = (
-                attempt.tactic_sequence,
-                attempt.goal.domain,
-                attempt.goal.statement_sha256,
-                attempt.goal.assumptions_sha256,
-                attempt.lean_version,
-                attempt.mathlib_revision,
-            )
-            groups.setdefault(group_key, []).append(attempt)
+        group_key = (
+            attempt.tactic_sequence,
+            attempt.goal.domain,
+            attempt.goal.statement_sha256,
+            attempt.goal.assumptions_sha256,
+            attempt.goal.representation_ids,
+            attempt.lean_version,
+            attempt.mathlib_revision,
+        )
+        groups.setdefault(group_key, []).append(attempt)
     ranked = []
     for group_key, rows in groups.items():
-        tactics = group_key[0]
-        if len(rows) < minimum_qualified:
+        successful = [row for row in rows if row.qualified]
+        if len(successful) < minimum_qualified:
             continue
+        tactics = group_key[0]
         ranked.append({
             "tactics": list(tactics),
-            "qualified_observations": len(rows),
-            "success_rate": 1.0,
-            "median_heartbeats": statistics.median(row.heartbeats for row in rows),
-            "median_elapsed_ms": statistics.median(row.elapsed_ms for row in rows),
+            "qualified_observations": len(successful),
+            "total_observations": len(rows),
+            "success_rate": len(successful) / len(rows),
+            "median_heartbeats": statistics.median(row.heartbeats for row in successful),
+            "median_elapsed_ms": statistics.median(row.elapsed_ms for row in successful),
             "domain": group_key[1],
             "statement_sha256": group_key[2],
             "assumptions_sha256": group_key[3],
-            "lean_version": group_key[4],
-            "mathlib_revision": group_key[5],
+            "representation_ids": list(group_key[4]),
+            "lean_version": group_key[5],
+            "mathlib_revision": group_key[6],
         })
     return sorted(ranked, key=lambda row: (
         -row["success_rate"], row["median_heartbeats"], row["median_elapsed_ms"]
