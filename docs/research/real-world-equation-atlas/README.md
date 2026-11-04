@@ -31,11 +31,11 @@ This directory contains the 100-entry atlas, research prompt, Merlin context, so
 On 2026-11-04, CI run 1271 (run ID `41837021534`) completed successfully on the configured Avrea runner for the earlier starter implementation. The canonical schema migration and evidence-receipt implementation passed Avrea CI run #1289 (run ID `41838851056`). The downloaded artifact was inspected and contains the five-family synthetic baseline, the generated canonical 20-entry tranche, and a receipt with nine source hashes. The artifact bundle SHA-256 is `03c811b6d1af905bd0a6dd2605ce4055b71eec2f04e538542cca19b87aae42fb`. All migrated entries remain `UNVERIFIED`; this run does not establish empirical validity or Lean proof success. That run does not establish empirical validity or Lean proof success. The combined 001–040 tranche is now queued for its own Avrea validation.
 
 ## Status and limitations
-This is an initial research implementation, not a completed verification of all 100 equations. Entries 001–020 are migrated from legacy metadata; entries 021–030 are a sourced robotics/control tranche; entries 031–040 cover PDEs, conservation laws, fluids, and electromagnetism. The normalizer now combines all three batches into a canonical 40-entry output and validates each entry against JSON Schema. All entries remain `UNVERIFIED`. Executable dimensional checks still cover eight representative relations; source coverage gaps remain. Lean code remains candidate until the separate pinned formal-qualification workflow compiles it and its axiom report is reviewed. Numerical baselines are synthetic reproducibility checks, not empirical validation.
+This is an initial research implementation, not a completed verification of all 100 equations. Entries 001–020 are migrated from legacy metadata; entries 021–030 are a sourced robotics/control tranche; entries 031–040 cover PDEs, conservation laws, fluids, and electromagnetism. The normalizer now combines all three batches into a canonical 40-entry output and validates each entry against JSON Schema; the 40-entry revision still requires its own Avrea run. All entries remain `UNVERIFIED`. Executable dimensional checks still cover eight representative relations; source coverage gaps remain. Lean code remains candidate until the separate pinned formal-qualification workflow compiles it and its axiom report is reviewed. Numerical baselines are synthetic reproducibility checks, not empirical validation.
 
 ## Next completion gates
 1. Close specialist primary-source gaps with claim-level citations.
-2. Inspect the pending Avrea run for the combined 001–030 migration, schema checks, and evidence bundle.
+2. Inspect the Avrea run for the combined 001–040 migration, schema checks, and evidence bundle.
 3. Correct any failures, then normalize entries 031–040 with primary sources and units.
 4. Extend dimensional and symbolic checks across all applicable entries.
 5. Add convergence, sensitivity, uncertainty, and benchmark comparisons to the numerical experiments.
@@ -46,3 +46,7 @@ This is an initial research implementation, not a completed verification of all 
 
 - `NORMALIZED_ENTRIES_031-040.json` — canonical PDE, conservation-law, fluid, and electromagnetism tranche.
 - `NORMALIZED_ENTRIES_001-040_V0.3.json` — generated combined canonical output (created and schema-validated in CI).
+
+
+## Latest verified run boundary
+Avrea CI run #1302 (run ID `41839694953`) passed for commit `85bd57ea0496d6935bd6e29273b91b08fee76b29` and produced the 30-entry artifact. The artifact was downloaded and inspected: it contains entries RWEA-001–030, all `UNVERIFIED`, plus the synthetic baseline and a provenance receipt. Its receipt does not include RWEA-031–040. The 40-entry revision is authored but awaits a new CI run.
