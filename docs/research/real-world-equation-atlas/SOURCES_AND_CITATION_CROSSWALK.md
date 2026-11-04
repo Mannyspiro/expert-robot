@@ -116,9 +116,9 @@ This is a source-to-entry crosswalk, not a claim that every entry has already re
 
 ## Additional sources for RWEA-051–060
 
-- **S33 — Finite and continuous-time Markov chains:** MIT OpenCourseWare 18.445, *Introduction to Stochastic Processes*, Spring 2015. Lecture notes include finite Markov chains, stationary distributions, reversibility, mixing, Poisson processes, continuous-time chains, and martingales. https://ocw.iti.hr/courses/mathematics/18-445-introduction-to-stochastic-processes-spring-2015/lecture-notes/
-- **S34 — Brownian motion and stochastic calculus:** MIT OpenCourseWare 15.070J / 6.265J, *Advanced Stochastic Processes*, Fall 2013. Lecture sequence includes Brownian motion, quadratic variation, martingales, Itô calculus, and stochastic integrals. https://www.ocw.mit.edu/courses/15-070j-advanced-stochastic-processes-fall-2013/pages/lecture-notes/
-- **S35 — Langevin, Fokker–Planck, and nonequilibrium thermodynamics:** MIT OpenCourseWare 5.72, *Non-Equilibrium Statistical Mechanics*, Spring 2012. Course notes include stochastic processes, Brownian motion, Markov processes, master and Fokker–Planck equations, Langevin equations, and nonequilibrium thermodynamics. https://ocw.mit.edu/courses/5-72-non-equilibrium-statistical-mechanics-spring-2012/pages/lecture-notes/
+- **S33 — Finite and continuous-time Markov chains:** MIT OpenCourseWare 18.445, *Introduction to Stochastic Processes*, Spring 2015. Lecture notes include finite Markov chains, stationary distributions, reversibility, mixing, Poisson processes, continuous-time chains, and martingales. https://www.ocw.mit.edu/courses/18-445-introduction-to-stochastic-processes-spring-2015/resources/lecture-notes/
+- **S34 — Brownian motion and stochastic calculus:** MIT OpenCourseWare 15.070J / 6.265J, *Advanced Stochastic Processes*, Fall 2013. Lecture sequence includes Brownian motion, quadratic variation, martingales, Itô calculus, and stochastic integrals. https://ocw.mit.edu/courses/15-070j-advanced-stochastic-processes-fall-2013/
+- **S35 — Langevin, Fokker–Planck, and nonequilibrium thermodynamics:** MIT OpenCourseWare 5.72, *Non-Equilibrium Statistical Mechanics*, Spring 2012. Course notes include stochastic processes, Brownian motion, Markov processes, master and Fokker–Planck equations, Langevin equations, and nonequilibrium thermodynamics. https://ocw.mit.edu/courses/5-72-non-equilibrium-statistical-mechanics-spring-2012/
 - **S36 — Bayesian probability and estimation foundations:** MIT OpenCourseWare 6.041SC, *Probabilistic Systems Analysis and Applied Probability*, Fall 2013. Reading and lecture materials provide probability, conditional probability, random variables, and inference foundations. https://ocw.mit.edu/courses/6-041sc-probabilistic-systems-analysis-and-applied-probability-fall-2013/pages/readings/
 
 ## Equation-ID crosswalk additions
@@ -132,7 +132,7 @@ This is a source-to-entry crosswalk, not a claim that every entry has already re
 | 056 | S35 | Fokker–Planck equation and stochastic diffusion covered; probability-current boundary conditions and coefficient convention need verification. |
 | 057 | S36 | Probability and conditional-inference foundations supported; prior choice, evidence, and model adequacy remain application-specific. |
 | 058 | S36 | Probabilistic estimation foundations support Bayesian filtering context; the full Kalman recursion requires dedicated state-estimation derivation and covariance tests. |
-| 059 | S36 | Statistical-model geometry is an extension beyond introductory probability; Fisher metric regularity and tensor transformation need specialist derivation. |
+| 059 | S47 | Statistical-model geometry is an extension beyond introductory probability; Fisher metric regularity and tensor transformation need specialist derivation. |
 | 060 | S35 | Nonequilibrium stochastic thermodynamics supports the topic; local detailed balance, zero-rate limits, and physical entropy interpretation need a dedicated source audit. |
 
 
@@ -164,3 +164,5 @@ This is a source-to-entry crosswalk, not a claim that every entry has already re
 
 - **S45 — Logistic population growth:** OpenStax, *Calculus Volume 2*, section 4.4, “The Logistic Equation”; states the logistic differential equation, carrying-capacity interpretation, and closed-form solution. https://openstax.org/books/calculus-volume-2/pages/4-4-the-logistic-equation
 - **S46 — Percolation theory:** D. H. Rothman, MIT OpenCourseWare 12.086/12.586, *Modeling Environmental Complexity*, lecture notes on bond percolation, clusters, critical thresholds, scaling, and finite-size effects. https://ocw.mit.edu/courses/12-086-modeling-environmental-complexity-fall-2014/a8b26843ad438d5f648b3b0330193d02_MIT12_086F14_percolation.pdf
+
+- **S47 — Fisher information geometry:** Ay et al., “An Elementary Introduction to Information Geometry,” open-access review defining the Fisher information metric, Fisher–Rao geometry, regularity conditions, and invariance properties. https://pmc.ncbi.nlm.nih.gov/articles/PMC7650632/
