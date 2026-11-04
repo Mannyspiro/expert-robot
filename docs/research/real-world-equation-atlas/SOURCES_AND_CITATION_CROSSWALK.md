@@ -154,10 +154,13 @@ This is a source-to-entry crosswalk, not a claim that every entry has already re
 | 061 | S37 | Coupled reaction-diffusion form; kinetic functions, units, and boundary conditions remain model-specific. |
 | 062 | S37 | Turing pattern mechanism; full two-species instability inequalities and domain spectrum need independent derivation. |
 | 063 | S38 | Local update-rule formalism; physical interpretation requires separate validation. |
-| 064 | S39 | Population-model context; logistic equation is a simplified baseline and needs dedicated demographic source review. |
+| 064 | S45 | Population-model context; logistic equation is a simplified baseline and needs dedicated demographic source review. |
 | 065 | S39 | Replicator dynamics and heterogeneous populations; payoff/fitness interpretation must be explicit. |
 | 066 | S40 | Excitatory-inhibitory population equations; mean-field limitations and parameter conventions need review. |
 | 067 | S43 | Entropy and mutual-information foundations; biological estimator bias and temporal dependence need separate treatment. |
 | 068 | S41 | Network Kuramoto phase model; phase reduction and topology-specific synchronization thresholds need review. |
-| 069 | S42 | Contextual neural directed-percolation discussion; add a dedicated percolation-theory source before stronger threshold claims. |
+| 069 | S46 | Contextual neural directed-percolation discussion; add a dedicated percolation-theory source before stronger threshold claims. |
 | 070 | S44, S41 | Pattern formation and collective order context; there is no universal equation for self-organization. |
+
+- **S45 — Logistic population growth:** OpenStax, *Calculus Volume 2*, section 4.4, “The Logistic Equation”; states the logistic differential equation, carrying-capacity interpretation, and closed-form solution. https://openstax.org/books/calculus-volume-2/pages/4-4-the-logistic-equation
+- **S46 — Percolation theory:** D. H. Rothman, MIT OpenCourseWare 12.086/12.586, *Modeling Environmental Complexity*, lecture notes on bond percolation, clusters, critical thresholds, scaling, and finite-size effects. https://ocw.mit.edu/courses/12-086-modeling-environmental-complexity-fall-2014/a8b26843ad438d5f648b3b0330193d02_MIT12_086F14_percolation.pdf
