@@ -6,11 +6,21 @@ on:
     paths-ignore:
       - "formal/**"
       - ".github/workflows/formal-qualification.yml"
+      - "docs/research/MERLIN_MATHEMATICAL_IDEA_LEDGER_V0.1.md"
+      - "docs/research/MERLIN_MATHEMATICAL_IDEA_INTAKE.md"
+      - "docs/research/merlin-mathematical-idea-catalog.v1.json"
+      - "scripts/merlin_math_idea_validate.py"
+      - "tests/test_merlin_math_idea_validate.py"
   workflow_dispatch:
   pull_request:
     paths-ignore:
       - "formal/**"
       - ".github/workflows/formal-qualification.yml"
+      - "docs/research/MERLIN_MATHEMATICAL_IDEA_LEDGER_V0.1.md"
+      - "docs/research/MERLIN_MATHEMATICAL_IDEA_INTAKE.md"
+      - "docs/research/merlin-mathematical-idea-catalog.v1.json"
+      - "scripts/merlin_math_idea_validate.py"
+      - "tests/test_merlin_math_idea_validate.py"
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref_name }}
