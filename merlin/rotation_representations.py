@@ -71,6 +71,20 @@ def matrix_rotate(m: M3, v: V3) -> V3:
     return tuple(sum(m[i][j]*v[j] for j in range(3)) for i in range(3))  # type: ignore[return-value]
 
 
+def complex_plane_rotate(v: V3, axis: int, cos_theta: Fraction, sin_theta: Fraction) -> V3:
+    """Rotate in the oriented plane perpendicular to axis; preserve axis component."""
+    if axis not in (0, 1, 2):
+        raise ValueError("axis must be 0, 1 or 2")
+    if cos_theta*cos_theta + sin_theta*sin_theta != 1:
+        raise ValueError("complex rotation coefficients must satisfy cos²+sin²=1")
+    i, j = (axis + 1) % 3, (axis + 2) % 3
+    out = list(v)
+    a, b = v[i], v[j]
+    out[i] = cos_theta*a - sin_theta*b
+    out[j] = sin_theta*a + cos_theta*b
+    return tuple(out)  # type: ignore[return-value]
+
+
 def _blade_sign(a: int, b: int) -> int:
     swaps=sum(1 for i in range(3) if a & (1<<i)
               for j in range(3) if (b & (1<<j)) and i>j)
