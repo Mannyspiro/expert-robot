@@ -327,7 +327,7 @@ Implemented:
 - Receipts bind repository, exact commit SHA, GitHub Actions run URL/ID, workflow name, theorem name, successful conclusion, theorem compile flag, axiom-audit flag, source SHA-256 and axiom dependencies.
 - The validator rejects failed runs, incomplete compilation/audit, mismatched run URLs, malformed hashes and axiom dependencies outside the explicit allowlist (`propext`, `Classical.choice`, `Quot.sound`).
 - `record_lean_proof` records the validated receipt as proof evidence but deliberately does not promote hypothesis status automatically.
-- `research/merlin/proof_receipts/avrea_thtg_2026-11-04.json` records two successful Avrea Lean receipts: the conditional compact-interval maximum theorem and the no-positive-`g` theorem for the four beta functions printed in the THTG report.
+- `research/merlin/proof_receipts/avrea_thtg_2026-11-04.json` records three successful Avrea Lean receipts: the conditional compact-interval maximum theorem, the no-positive-`g` theorem for the four beta functions printed in the THTG report, and the strict-monotonicity/no-interior-maximum theorem for the printed Page-curve branch.
 - Tests verify receipt rejection paths and ingestion into the hypothesis ledger.
 
 ### Qualification boundary
