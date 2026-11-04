@@ -19,7 +19,7 @@ class ObservatoryBenchmarkTests(unittest.TestCase):
             {"geometry", "xmg", "equation_atlas", "cad"},
         )
         self.assertEqual(len(first["receipt_sha256"]), 64)
-        self.assertEqual(len(first["source_sha256"]), 9)
+        self.assertEqual(len(first["source_sha256"]), 10)
 
     def test_receipt_is_pinned_to_source_commit(self):
         with self.assertRaises(ValueError):
