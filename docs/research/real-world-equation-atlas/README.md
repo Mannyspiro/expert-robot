@@ -95,3 +95,13 @@ All 70 entries remain `UNVERIFIED`. The 061–070 sources are foundational refer
 - CI now runs the simulation-engine test module and includes both engine source and tests in the evidence receipt.
 - Scope remains deliberately limited: these are small reference solvers, not production-grade adaptive integrators, GPU solvers, validated physical simulators, or empirical models. Stability/CFL limits and units must be checked by each model configuration.
 - The Phase 0.9 code revision is awaiting its own Avrea CI result. The previously passed run #1354 does not cover these new files.
+
+
+### Phase 0.9 verification — Avrea CI run #1360
+- Run ID: `41843498944`; successful conclusion for PR head `2854e92eafd36b5ad8de3f8ef6a6e4066c44738e`.
+- All workflow steps completed successfully, including the equation-atlas stage (which runs `test_merlin_simulation_engine.py`), artifact publication, CAD/engineering checks, CACE, Hermes, and independent smoke tests.
+- Downloaded artifact ZIP SHA-256: `39b32edc8e190143cf62cc0621860fe5a0bc8fa7aff8a798ab803409ed89daa3`.
+- Evidence receipt SHA-256: `690efca64e79c3efb40bfd3e4b180118ad14ecb98cd233019d72cb6df9b22cd9`.
+- Normalized atlas SHA-256: `da3f9edba190fe667aecbae21eabfe422350e1be9a139fcba2bcea187236dc51`; inspection confirmed 80 ordered unique entries, RWEA-001–080.
+- Receipt records PR merge-ref snapshot `7cbaa1f40e6e2c0c5e5e787add3e85d552874e0f`, not the branch-head SHA. It includes hashes for `simulation.py` and `test_merlin_simulation_engine.py`.
+- Verification is limited to the recorded synthetic test suite and byte-level provenance; it does not establish empirical validity or scientific truth.
