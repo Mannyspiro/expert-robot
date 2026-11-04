@@ -75,3 +75,13 @@ All 60 entries remain `UNVERIFIED`. The earlier Avrea success applies only to th
 - `tests/test_merlin_biological_complexity.py` — regression tests for diffusion mass conservation, logistic boundedness, replicator simplex invariance, Rule 30, Kuramoto synchronization, mutual information, and graph connectivity.
 
 All 70 entries remain `UNVERIFIED`. The 061–070 sources are foundational references; the percolation entry especially needs a dedicated percolation-theory source before stronger threshold claims.
+
+
+## Phase 0.8 — invasion, epidemics, stochastic chemistry, and adaptive networks
+- `NORMALIZED_ENTRIES_071-080.json` adds Fisher-KPP invasion waves, Lotka-Volterra predator-prey dynamics, SIR epidemics, network metapopulation migration, Amari neural fields, the chemical master equation, Gillespie SSA, the reaction-diffusion master equation, adaptive coevolutionary networks, and generalized Lotka-Volterra communities.
+- Source crosswalk S48–S56 provides dedicated foundational references. Entry-level claims remain bounded by each source's stated assumptions.
+- `XMG_CROSS_DOMAIN_OPERATOR_CONTRACT_V0.1.json` defines typed contracts for reaction, diffusion, advection, graph coupling, stochastic jumps, phase coupling, neural convolution, and frame projection.
+- `python/merlin/equation_atlas/operators.py` validates declared operator pipelines and exact frame compatibility. It validates contracts only; it does not execute the underlying physics.
+- `tests/test_merlin_xmg_operator_contract.py` tests valid composition, mismatched frames, invalid input/output types, and unknown operators.
+- The normalizer and Avrea CI have been extended to 80 entries and include the new contract/test files in the evidence receipt. This latest revision awaits its own CI run; the prior successful run #1343 applies only to its exact earlier commit.
+- All 80 entries remain `UNVERIFIED`. No empirical validation, production operator runtime, or Lean qualification is claimed.
