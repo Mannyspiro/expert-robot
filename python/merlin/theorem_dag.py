@@ -66,13 +66,14 @@ def _declaration_header(source: str, local_name: str) -> dict[str, str] | None:
 def extract_theorem_dag(
     registry_path: str | Path,
     formal_root: str | Path | None = None,
+    *,
+    require_surface_parse: bool = False,
 ) -> dict[str, Any]:
     registry_file = Path(registry_path)
     formal_dir = Path(formal_root) if formal_root is not None else registry_file.parent
     registry = json.loads(registry_file.read_text(encoding="utf-8"))
     if registry.get("schema_version") != 1 or not isinstance(registry.get("theorems"), list):
         raise ValueError("unsupported theorem registry schema")
-
     entries = registry["theorems"]
     names = [item.get("name") for item in entries]
     if any(not isinstance(name, str) or not name.strip() for name in names):
@@ -80,9 +81,7 @@ def extract_theorem_dag(
     if len(names) != len(set(names)):
         raise ValueError("duplicate theorem names in registry")
     known = set(names)
-
-    nodes = []
-    edges = []
+    nodes, edges = [], []
     for item in sorted(entries, key=lambda row: row["name"]):
         name = item["name"]
         source_rel = item.get("source", "")
@@ -91,16 +90,13 @@ def extract_theorem_dag(
             raise FileNotFoundError(f"missing Lean source for {name}: {source_path}")
         source_text = source_path.read_text(encoding="utf-8")
         source_hash = hashlib.sha256(source_path.read_bytes()).hexdigest()
-        local_name = name.rsplit(".", 1)[-1]
-        declaration = _declaration_header(source_text, local_name)
+        declaration = _declaration_header(source_text, name.rsplit(".", 1)[-1])
         dependencies = item.get("uses", [])
         if not isinstance(dependencies, list) or any(dep not in known for dep in dependencies):
             missing = sorted(set(dependencies) - known) if isinstance(dependencies, list) else []
             raise ValueError(f"invalid theorem dependencies for {name}: {missing}")
         for dependency in sorted(set(dependencies)):
             edges.append({"theorem": name, "depends_on": dependency})
-
-        registry_statement = str(item.get("statement", ""))
         nodes.append({
             "id": name,
             "source": source_rel,
@@ -109,12 +105,14 @@ def extract_theorem_dag(
             "status": str(item.get("status", "unclassified")),
             "tags": sorted(str(tag) for tag in item.get("tags", [])),
             "dependencies": sorted(set(dependencies)),
-            "registry_statement_sha256": sha256_text(registry_statement),
+            "registry_statement_sha256": sha256_text(str(item.get("statement", ""))),
             "lean_surface_declaration": declaration,
             "lean_surface_parse_status": "parsed" if declaration else "unparsed",
             "formal_qualification_required": True,
         })
-
+    unparsed = [node["id"] for node in nodes if node["lean_surface_parse_status"] != "parsed"]
+    if require_surface_parse and unparsed:
+        raise ValueError("unparsed registered Lean declarations: " + ", ".join(unparsed))
     dependencies = {node["id"]: set(node["dependencies"]) for node in nodes}
     ready = sorted(name for name, deps in dependencies.items() if not deps)
     topological_order = []
@@ -130,7 +128,6 @@ def extract_theorem_dag(
     if len(topological_order) != len(nodes):
         cyclic = sorted(name for name, deps in dependencies.items() if deps)
         raise ValueError("theorem dependency cycle detected: " + ", ".join(cyclic))
-
     payload = {
         "schema": "merlin-theorem-dependency-dag-v1",
         "registry_sha256": hashlib.sha256(registry_file.read_bytes()).hexdigest(),
@@ -146,8 +143,10 @@ def extract_theorem_dag(
 
 
 def write_theorem_dag(registry_path: str | Path, output_path: str | Path,
-                      formal_root: str | Path | None = None) -> dict[str, Any]:
-    dag = extract_theorem_dag(registry_path, formal_root)
+                      formal_root: str | Path | None = None,
+                      *, require_surface_parse: bool = False) -> dict[str, Any]:
+    dag = extract_theorem_dag(registry_path, formal_root,
+                               require_surface_parse=require_surface_parse)
     target = Path(output_path)
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(canonical_json(dag) + "\n", encoding="utf-8")
@@ -160,7 +159,8 @@ if __name__ == "__main__":
     parser.add_argument("--formal-root", default="formal")
     parser.add_argument("--output", required=True)
     args = parser.parse_args()
-    result = write_theorem_dag(args.registry, args.output, args.formal_root)
+    result = write_theorem_dag(args.registry, args.output, args.formal_root,
+                               require_surface_parse=True)
     print(json.dumps({
         "dag_sha256": result["dag_sha256"],
         "node_count": result["node_count"],
