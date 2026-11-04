@@ -13,7 +13,7 @@ A receipt binds a reproducible computation to the exact input files, source code
 - output artifact SHA-256 and byte count;
 - explicit limits on what the receipt proves.
 
-The CI job hashes the legacy normalized tranche, canonical schema, normalizer, dimensional checker, symbolic checker, and numerical baseline implementation. It then publishes the numerical baseline, canonical normalized tranche, and receipt together.
+The CI job hashes the legacy normalized tranche, canonical entry schema, receipt schema, dependency lock, normalizer, dimensional checker, symbolic checker, numerical baseline implementation, and generated canonical normalized tranche. It publishes the numerical baseline, canonical normalized tranche, and receipt together.
 
 ## Verification semantics
 - Hash equality means byte identity for the hashed file, not correctness of its content.
@@ -26,7 +26,7 @@ The CI job hashes the legacy normalized tranche, canonical schema, normalizer, d
 Receipts are immutable evidence records. A correction or rerun creates a new receipt with a new timestamp, commit and artifact hash. Do not edit historical receipts in place. A future registry should link superseding receipts without deleting the original.
 
 ## Planned extensions
-1. Add schema validation for receipt documents.
+1. Add a separate digest for the test log and record per-test outcomes in the receipt.
 2. Include dependency lockfile hash and OS/container image digest.
 3. Record random seeds, numerical tolerances, solver settings and test output digest.
 4. Bind each experiment to exact equation-entry IDs and versions.
