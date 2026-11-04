@@ -1,3 +1,4 @@
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -83,6 +84,38 @@ class LeanProofReceiptTests(unittest.TestCase):
     def test_rejects_malformed_mapping(self):
         with self.assertRaises(ValueError):
             LeanProofReceipt.from_mapping({"theorem": "missing fields"})
+
+    def test_recorded_avrea_thtg_receipts_ingest_into_merlin_ledger(self):
+        repo_root = Path(__file__).resolve().parents[1]
+        fixture = repo_root / "research" / "merlin" / "proof_receipts" / "avrea_thtg_2026-11-04.json"
+        payload = json.loads(fixture.read_text(encoding="utf-8"))
+        self.assertEqual(payload["format"], "merlin-avrea-lean-proof-receipts-v1")
+
+        for item in payload["receipts"]:
+            receipt = LeanProofReceipt.from_mapping(item)
+            receipt.validate()
+            if receipt.theorem.endswith("no_positive_g_fixed_point"):
+                hypothesis_id = "THTG-PRINTED-BETA-NO-POSITIVE-ROOT"
+                self.ledger.create(
+                    hypothesis_id,
+                    "The four beta functions printed in the THTG report have no simultaneous fixed point with g > 0.",
+                    mathematical_objects=("beta_g", "beta_omega", "beta_theta", "positive real g"),
+                    relation="no_simultaneous_zero_under_printed_coefficients",
+                    assumptions=(
+                        "Use exactly the four decimal beta functions transcribed from the uploaded report.",
+                        "Treat the printed decimal coefficients as exact rational numbers.",
+                        "This is not a claim that the printed system is the correct physical FRG flow.",
+                    ),
+                )
+            else:
+                hypothesis_id = "THTG-COND-MAX"
+            evidence = record_lean_proof(self.ledger, hypothesis_id, receipt)
+            self.assertEqual(evidence.source_url, receipt.workflow_run_url)
+            self.assertEqual(len(evidence.artifact_hash), 64)
+            self.assertEqual(
+                self.ledger.set_status(hypothesis_id, "formally_verified").status,
+                "formally_verified",
+            )
 
 
 if __name__ == "__main__":
