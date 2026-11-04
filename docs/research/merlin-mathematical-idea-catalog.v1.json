@@ -509,7 +509,7 @@
       ],
       "relations": [
         {
-          "type": "tests",
+          "type": "motivated_by",
           "target": "MATH-XMG-002"
         }
       ],
