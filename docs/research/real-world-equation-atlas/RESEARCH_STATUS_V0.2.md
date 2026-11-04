@@ -49,7 +49,7 @@ The successful Avrea run establishes that the configured Python equation-atlas c
 8. Generate Math Kung Fu lessons only from entries meeting the declared evidence threshold; retain explicit uncertainty and counterexamples in lesson notes.
 
 ## Avrea / compute note
-The existing self-hosted runner label is `avrea-ubuntu-latest-8-vcpu`. CI run 1289 confirms the canonical migration for RWEA-001–020, receipt generation, equation-atlas checks, and artifact publication completed on that runner. The combined RWEA-001–030 validation is pending in the latest workflow run. The formal-qualification workflow is separate and was not part of this CI run. Do not mark Lean candidates verified until that workflow's actual logs and theorem/axiom outputs have been inspected.
+The existing self-hosted runner label is `avrea-ubuntu-latest-8-vcpu`. CI run 1289 confirms the canonical migration for RWEA-001–020, receipt generation, equation-atlas checks, and artifact publication completed on that runner. Avrea run #1302 completed successfully for RWEA-001–030. The subsequent RWEA-031–040 and 40-entry normalizer/receipt changes await a separate CI run. The formal-qualification workflow is separate and was not part of this CI run. Do not mark Lean candidates verified until that workflow's actual logs and theorem/axiom outputs have been inspected.
 
 
 ## Phase 0.4 tranche — RWEA-031–040
@@ -57,3 +57,10 @@ The existing self-hosted runner label is `avrea-ubuntu-latest-8-vcpu`. CI run 12
 - Added source register S27–S29 (MIT 18.152, MIT 18.336, MIT 6.641) and an entry-level citation crosswalk with explicit evidence boundaries.
 - Extended normalizer, schema tests, and CI artifact/receipt inputs to produce a combined 40-entry output.
 - All 031–040 entries remain UNVERIFIED pending Avrea CI, detailed dimensional audits, derivation checks, numerical benchmarks, and domain-specific source review.
+
+
+## Latest Avrea result boundary
+- Run #1302 (ID `41839694953`) completed successfully for commit `85bd57ea0496d6935bd6e29273b91b08fee76b29`.
+- The downloaded artifact ZIP digest was `sha256:699fa3156fc24ee108d38d02246b38ac994ae03941160715ff926a73493e02c7`.
+- Artifact inspection found `equation-atlas-baseline.json`, `equation-atlas-evidence-receipt.json`, and `equation-atlas-normalized-entries-001-030.json`; the canonical JSON contains 30 entries (001–030), all `UNVERIFIED`.
+- This run predates RWEA-031–040 and the subsequent 40-entry normalizer/CI changes. No successful Avrea result is yet claimed for the 40-entry revision.
