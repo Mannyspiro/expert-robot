@@ -1,10 +1,12 @@
 import tempfile
 import unittest
+from datetime import datetime, timezone
 from pathlib import Path
 
 from merlin.cad_assembly import AssemblyComponent, CADAssembly, Transform3D
 from merlin.engineering_ir import EngineeringProject, Net, Part, Pin
 from merlin.hypothesis_ledger import HypothesisLedger
+from merlin.cpu_fabric.leases import CapacitySnapshot, LeaseBook, cad_wire_route_request
 from merlin.route_evidence import (
     create_route_evidence_receipt, record_route_evidence, verify_route_evidence_receipt,
 )
@@ -31,17 +33,33 @@ def fixture():
             AssemblyComponent("U1", Transform3D(translation_mm=(15, 0, 0))),
         ),
     )
+    now = datetime(2026, 11, 4, 18, 0, tzinfo=timezone.utc)
+    capacity = CapacitySnapshot(
+        cpu_cores=4, memory_bytes=2 * 1024**3, gpu_count=None,
+        gpu_memory_bytes=None, compute_budget_units=100,
+        observed_at=now.isoformat(), source="synthetic-route-test-capacity",
+        evidence_sha256="c" * 64,
+    )
+    book = LeaseBook(capacity)
+    request = cad_wire_route_request(
+        "route-job-001", estimated_memory_bytes=64 * 1024**2,
+        max_wall_seconds=30, compute_budget_units=10,
+    )
+    lease = book.grant(request, now=now, ttl_seconds=30)
+    if not book.validate_start(lease.lease_id, now=now):
+        raise AssertionError("synthetic MCFC lease should authorize route start")
     output = route_physical_netlist(project, assembly)
-    return project, assembly, output
+    lease = book.complete(lease.lease_id, now=now)
+    return project, assembly, output, lease
 
 
 class RouteEvidenceTests(unittest.TestCase):
     def test_receipt_binds_project_assembly_frames_and_route(self):
-        project, assembly, output = fixture()
+        project, assembly, output, lease = fixture()
         receipt = create_route_evidence_receipt(
-            project, assembly, output, code_revision="a" * 40
+            project, assembly, output, lease, code_revision="a" * 40
         )
-        self.assertTrue(verify_route_evidence_receipt(receipt, project, assembly, output))
+        self.assertTrue(verify_route_evidence_receipt(receipt, project, assembly, output, lease))
         self.assertFalse(receipt["promotion_authority"])
         self.assertEqual(receipt["qualification_status"], "not_qualified")
 
@@ -65,7 +83,7 @@ class RouteEvidenceTests(unittest.TestCase):
              AssemblyComponent("U1", Transform3D(translation_mm=(15, 1, 0)))),
             frames=assembly.frames,
         )
-        self.assertFalse(verify_route_evidence_receipt(receipt, project, moved, output))
+        self.assertFalse(verify_route_evidence_receipt(receipt, project, moved, output, lease))
 
     def test_receipt_rejects_authority_expansion_and_bad_digest(self):
         project, assembly, output = fixture()
@@ -74,12 +92,12 @@ class RouteEvidenceTests(unittest.TestCase):
         )
         elevated = dict(receipt)
         elevated["promotion_authority"] = True
-        self.assertFalse(verify_route_evidence_receipt(elevated, project, assembly, output))
+        self.assertFalse(verify_route_evidence_receipt(elevated, project, assembly, output, lease))
         with self.assertRaisesRegex(ValueError, "promotion authority"):
             with tempfile.TemporaryDirectory() as tmp:
                 ledger = HypothesisLedger(Path(tmp) / "ledger.sqlite3")
                 ledger.create("CAD-WIRE-1", "Route geometry is acceptable.")
-                record_route_evidence(ledger, "CAD-WIRE-1", elevated, project, assembly, output)
+                record_route_evidence(ledger, "CAD-WIRE-1", elevated, project, assembly, output, lease)
 
     def test_cace_ledger_ingest_does_not_promote_hypothesis(self):
         project, assembly, output = fixture()
@@ -90,7 +108,7 @@ class RouteEvidenceTests(unittest.TestCase):
             ledger = HypothesisLedger(Path(tmp) / "ledger.sqlite3")
             ledger.create("CAD-WIRE-1", "The proposed route meets geometric requirements.")
             evidence = record_route_evidence(
-                ledger, "CAD-WIRE-1", receipt, project, assembly, output,
+                ledger, "CAD-WIRE-1", receipt, project, assembly, output, lease,
                 source_url="https://github.com/Mannyspiro/expert-robot/actions/runs/41847081879",
             )
             self.assertEqual(evidence.kind, "experiment")
