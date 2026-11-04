@@ -19,6 +19,8 @@ class Pin:
     name: str
     max_voltage_v: float | None = None
     max_current_a: float | None = None
+    position_mm: tuple[float, float, float] | None = None
+    direction: tuple[float, float, float] | None = None
 
 
 @dataclass(frozen=True)
@@ -104,6 +106,17 @@ def validate_project(project: EngineeringProject) -> tuple[ValidationIssue, ...]
             if pin.max_current_a is not None and not _finite_positive(pin.max_current_a):
                 issues.append(ValidationIssue("INVALID_PIN_CURRENT_RATING", "error",
                                               f"{part.ref}.{pin.number}: current rating must be positive."))
+            if pin.position_mm is not None:
+                if len(pin.position_mm) != 3 or any(not (-1e6 < v < 1e6) for v in pin.position_mm):
+                    issues.append(ValidationIssue("INVALID_PIN_POSITION", "error",
+                                                  f"{part.ref}.{pin.number}: pin position must contain three finite coordinates."))
+            if pin.direction is not None:
+                if len(pin.direction) != 3 or any(not (-1.000001 <= v <= 1.000001) for v in pin.direction):
+                    issues.append(ValidationIssue("INVALID_PIN_DIRECTION", "error",
+                                                  f"{part.ref}.{pin.number}: pin direction must be a unit vector."))
+                elif abs(sum(v * v for v in pin.direction) - 1.0) > 1e-5:
+                    issues.append(ValidationIssue("INVALID_PIN_DIRECTION", "error",
+                                                  f"{part.ref}.{pin.number}: pin direction must be normalized."))
     known = _pin_index(project)
     net_names = [net.name for net in project.nets]
     if len(net_names) != len(set(net_names)):
