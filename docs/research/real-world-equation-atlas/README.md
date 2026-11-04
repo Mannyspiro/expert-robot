@@ -85,3 +85,13 @@ All 70 entries remain `UNVERIFIED`. The 061–070 sources are foundational refer
 - `tests/test_merlin_xmg_operator_contract.py` tests valid composition, mismatched frames, invalid input/output types, and unknown operators.
 - The normalizer and Avrea CI have been extended to 80 entries and include the new contract/test files in the evidence receipt. This latest revision awaits its own CI run; the prior successful run #1343 applies only to its exact earlier commit.
 - All 80 entries remain `UNVERIFIED`. No empirical validation, production operator runtime, or Lean qualification is claimed.
+
+
+## Phase 0.9 — first executable simulation primitives
+- Added `python/merlin/equation_atlas/simulation.py` with an explicit-Euler integration interface, periodic 1-D diffusion RHS, periodic first-order upwind advection RHS, symmetric graph-exchange RHS, and direct-method Gillespie SSA.
+- Every deterministic run records the initial-state hash, parameter hash, final-state hash, time step, step count, method, seed, boundary declaration, code revision, and a canonical run hash.
+- SSA records seeded trajectory states/times, reaction indices, parameter and state hashes, and rejects invalid propensities or negative molecular counts.
+- Added synthetic regression tests for periodic diffusion conservation, periodic advection conservation, balanced graph-exchange conservation and nonnegativity, RHS shape validation, seeded SSA reproducibility, and molecule-count conservation.
+- CI now runs the simulation-engine test module and includes both engine source and tests in the evidence receipt.
+- Scope remains deliberately limited: these are small reference solvers, not production-grade adaptive integrators, GPU solvers, validated physical simulators, or empirical models. Stability/CFL limits and units must be checked by each model configuration.
+- The Phase 0.9 code revision is awaiting its own Avrea CI result. The previously passed run #1354 does not cover these new files.
