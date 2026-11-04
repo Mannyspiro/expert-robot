@@ -102,3 +102,19 @@ The standing authority boundary remains: research and verification can produce e
 - CI run #1302 (run ID `41839694953`) completed successfully for the 001–030 revision. Its downloaded artifact contains exactly 30 canonical entries, RWEA-001 through RWEA-030, all marked UNVERIFIED, along with a synthetic baseline and provenance receipt.
 - The artifact ZIP SHA-256 is `699fa3156fc24ee108d38d02246b38ac994ae03941160715ff926a73493e02c7`.
 - This successful run does not cover the later RWEA-031–040 tranche or the 40-entry normalizer/receipt-path changes. A separate run is required before reporting the 40-entry batch as validated.
+
+
+## Phase 0.5 research update — 2026-11-04
+- Added RWEA-041–050 covering Fourier series, continuous Fourier transform, convolution, LTI frequency response, DFT, Shannon-Nyquist sampling, uniform quantization, Shannon entropy, mutual information, and power spectral density.
+- Added source register S30–S32 and an entry-level crosswalk to MIT OpenCourseWare signals/systems, sampling, and digital communications materials.
+- Added canonical JSON tranche `NORMALIZED_ENTRIES_041-050.json`; every entry remains UNVERIFIED. The Shannon-Nyquist and quantization entries explicitly preserve ideal assumptions; the entropy/information entries distinguish discrete entropy from continuous differential entropy.
+- Extended the canonical normalizer and schema test target from 40 to 50 entries. CI now includes the 041–050 input and is configured to emit the 001–050 combined artifact and evidence receipt.
+- No Avrea run, numerical experiment suite, or Lean qualification for this 50-entry revision is yet claimed.
+
+## Revised next execution focus
+1. Run Avrea CI for the combined 001–050 revision and inspect the artifact and receipt.
+2. Add executable spectral tests: Fourier/DFT round-trip, Parseval, convolution theorem, aliasing demonstrations, quantization error assumptions, entropy identities, and PSD normalization.
+3. Add unit-aware metadata checks for amplitude, time, frequency, PSD, entropy, and logarithm base.
+4. Audit the sampling theorem's strict band-limit condition and practical anti-alias filter assumptions.
+5. Extend XMG with signal frames: time, frequency, scale, phase, probability, and information units as distinct typed frames.
+6. Keep Math Kung Fu lesson generation limited to entries with source and validation gates satisfied.
