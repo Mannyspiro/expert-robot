@@ -124,6 +124,82 @@ jobs:
           LEAN_ABORT_ON_PANIC: "1"
         run: lake env lean MathAI.lean
 
+      - name: Compile THTG conditional maximum theorem and print axiom dependencies
+        working-directory: formal
+        env:
+          LEAN_ABORT_ON_PANIC: "1"
+        run: lake env lean THTGConditionalTheorems.lean
+
+      - name: Compile exact printed-beta audit and print axiom dependencies
+        working-directory: formal
+        env:
+          LEAN_ABORT_ON_PANIC: "1"
+        run: |
+          set +e
+          output="$(lake env lean ../proofs/THTGPrintedBetaAudit.lean 2>&1)"
+          result=$?
+          set -e
+          printf '%s\n' "$output"
+          if [ "$result" -ne 0 ]; then exit "$result"; fi
+          if grep -Eq 'sorryAx|admitAx' <<< "$output"; then
+            echo "::error::THTG beta theorem contains an untrusted proof escape."
+            exit 1
+          fi
+          LEAN_OUTPUT="$output" python3 - <<'PY'
+          import os
+          output = os.environ["LEAN_OUTPUT"]
+          needle = "THTGPrintedBetaAudit.no_positive_g_fixed_point' depends on axioms: ["
+          start = output.find(needle)
+          if start < 0:
+              raise SystemExit("missing theorem-specific #print axioms output")
+          tail = output[start + len(needle):]
+          end = tail.find("]")
+          if end < 0:
+              raise SystemExit("unterminated theorem-specific axiom list")
+          axioms = {item.strip() for item in tail[:end].replace("\\n", " ").split(",") if item.strip()}
+          allowed = {"propext", "Classical.choice", "Quot.sound"}
+          unexpected = axioms - allowed
+          if unexpected:
+              raise SystemExit(f"unexpected axiom dependencies: {sorted(unexpected)}")
+          print(f"axiom allowlist passed: {sorted(axioms)}")
+          PY
+          echo "THTG printed-beta audit compiled without proof escapes."
+
+      - name: Compile corrected Page-curve proof and enforce theorem axiom allowlist
+        working-directory: formal
+        env:
+          LEAN_ABORT_ON_PANIC: "1"
+        run: |
+          set +e
+          output="$(lake env lean ../proofs/THTGPageCurveAudit.lean 2>&1)"
+          result=$?
+          set -e
+          printf '%s\n' "$output"
+          if [ "$result" -ne 0 ]; then exit "$result"; fi
+          if grep -Eq 'sorryAx|admitAx' <<< "$output"; then
+            echo "::error::THTG Page-curve theorem contains an untrusted proof escape."
+            exit 1
+          fi
+          LEAN_OUTPUT="$output" python3 - <<'PY'
+          import os
+          output = os.environ["LEAN_OUTPUT"]
+          needle = "THTGPageCurveAudit.pageEntropy_has_no_maximum_on_open_interval' depends on axioms: ["
+          start = output.find(needle)
+          if start < 0:
+              raise SystemExit("missing Page-curve theorem-specific #print axioms output")
+          tail = output[start + len(needle):]
+          end = tail.find("]")
+          if end < 0:
+              raise SystemExit("unterminated Page-curve theorem-specific axiom list")
+          axioms = {item.strip() for item in tail[:end].replace("\\n", " ").split(",") if item.strip()}
+          allowed = {"propext", "Classical.choice", "Quot.sound"}
+          unexpected = axioms - allowed
+          if unexpected:
+              raise SystemExit(f"unexpected axiom dependencies: {sorted(unexpected)}")
+          print(f"Page-curve axiom allowlist passed: {sorted(axioms)}")
+          PY
+          echo "THTG Page-curve monotonicity audit compiled without proof escapes."
+
       - name: Registered theorem axiom report
         working-directory: formal
         env:
