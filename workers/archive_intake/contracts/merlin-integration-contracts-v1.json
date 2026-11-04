@@ -1,0 +1,93 @@
+{
+  "contract_version": "1.0",
+  "authority_policy": "capability_grows_authority_never_expands",
+  "project_registry": {
+    "project_id": "required-stable-id",
+    "source_of_truth": "verified-git-repository-and-commit-plus-merlin-registry-record",
+    "idempotency_key": "sha256(canonical-event-json)",
+    "mutations_require": "explicit-approval-and-auditable-receipt"
+  },
+  "hermes": {
+    "event_type": "merlin.project.intake.registered.v1",
+    "delivery": "local-outbox-until-acknowledged",
+    "required": [
+      "event_id",
+      "project_id",
+      "intake_id",
+      "manifest_sha256",
+      "created_at"
+    ],
+    "ack_required": true
+  },
+  "github_provenance": {
+    "required": [
+      "repository_full_name",
+      "commit_sha"
+    ],
+    "validation": "fetch commit from connected GitHub account; record returned canonical URL and SHA; never infer from branch name alone"
+  },
+  "avrea": {
+    "dispatch_state_machine": [
+      "proposed",
+      "approved",
+      "submitted",
+      "running",
+      "completed",
+      "failed",
+      "cancelled"
+    ],
+    "dispatch_requires": [
+      "explicit_approval_id",
+      "task_contract_sha256",
+      "worker_capability_allowlist",
+      "resource_budget",
+      "timeout_seconds",
+      "result_artifact_manifest"
+    ],
+    "default": "proposed",
+    "no_implicit_execution": true
+  },
+  "cace": {
+    "verification_states": [
+      "not_requested",
+      "queued",
+      "running",
+      "passed",
+      "failed",
+      "inconclusive"
+    ],
+    "required_receipt": [
+      "subject_sha256",
+      "verifier_id",
+      "verifier_version",
+      "assumptions",
+      "axioms",
+      "result",
+      "log_sha256",
+      "completed_at"
+    ],
+    "promotion_requires": "independent_verification_and_explicit_policy_gate"
+  },
+  "cad_mcfc": {
+    "artifact_families": [
+      "cad_model",
+      "cad_drawing",
+      "cad_native_project",
+      "mesh_model",
+      "simulation_mesh",
+      "simulation_input",
+      "simulation_result",
+      "electrical_netlist",
+      "electrical_schematic",
+      "pcb_layout",
+      "manufacturing_data"
+    ],
+    "required_metadata": [
+      "units",
+      "coordinate_frame",
+      "revision",
+      "source_artifact_sha256"
+    ],
+    "derived_artifacts_require": "parent_hash_and_transform_or_solver_provenance"
+  }
+}\n
