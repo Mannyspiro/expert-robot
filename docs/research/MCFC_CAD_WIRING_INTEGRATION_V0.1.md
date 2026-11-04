@@ -1,4 +1,27 @@
-# MCFC–CAD–Wiring integration plan (Merlin / CACE)
+# MCFC Virtual Fabric × CAD/Wiring integration plan (Merlin / CACE)
+
+## MCFC responsibility and CAD workload contract
+
+MCFC owns the execution envelope, not the CAD truth:
+- resource types: CPU cores, memory bytes, GPU count and GPU memory (unknown remains unknown);
+- workload requirements: task type, requested resources, maximum wall time, compute budget, and required capabilities;
+- scheduling: bounded concurrency and deterministic admission decisions;
+- leases: expiring, revocable execution grants with explicit resource reservations;
+- telemetry: measured runtime resource samples, kept separate from synthetic simulation;
+- policy: no worker may promote its own result or expand authority.
+
+A CAD/wiring job is a typed workload submitted to MCFC. For example,
+`cad.wire_route_proposal` is CPU-only unless a later measured implementation
+proves a GPU path is useful. Its request must state resource estimates and
+time/budget limits; estimates are not hardware facts. MCFC grants a lease only
+when the current capacity snapshot is known and sufficient. If GPU capacity is
+unknown, a GPU-required workload is held or rejected rather than assigned an
+invented device.
+
+Merlin consumes the lease to run the CAD/wiring workload. CACE independently
+checks the resulting project revision, geometry, netlist, route artifact,
+resource/telemetry receipt, and declared verification tests. A successful lease
+only authorizes bounded execution; it does not approve the engineering result.
 
 ## Purpose
 
@@ -6,9 +29,13 @@ Connect one typed engineering object across mechanical CAD, electrical connectiv
 wire-harness geometry, simulation, and evidence review without pretending that a
 coordinate conversion or a visually plausible model is an engineering approval.
 
-**MCFC** in this repository means **Multi-Coordinate-Frame Contract**: a set of
-explicit, typed relationships between reference frames, not an additional physical
-dimension and not a free-form mixing of coordinates.
+**MCFC** is Merlin's **virtual compute fabric**. It manages typed CPU, memory and
+GPU resources, compute budgets, workload scheduling, expiring execution leases,
+and resource telemetry. It is not the coordinate-frame system.
+
+Coordinate-frame semantics belong to Merlin's XMG multi-frame contract: typed
+frames, rigid transforms, units, projections, embeddings, and declared invariants.
+Do not conflate a compute-resource lease with a geometric transform.
 
 ## Reframing the problem as exact analogues
 
