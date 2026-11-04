@@ -62,8 +62,8 @@
       "formal_claims": [],
       "sources": [
         {
-          "claim": "This source supports the model family or foundational formulation; it does not establish application-specific empirical validity.",
-          "citation": "S48 · source crosswalk",
+          "claim": "The cited source supports the foundational model family and stated mathematical formulation; it does not establish application-specific empirical validity.",
+          "citation": "S48 · Fisher-KPP invasion-wave formulation",
           "doi_or_url": "https://opentextbooks.library.arizona.edu/mathematicalmodeling/chapter/diffusion/"
         }
       ],
@@ -142,8 +142,8 @@
       "formal_claims": [],
       "sources": [
         {
-          "claim": "This source supports the model family or foundational formulation; it does not establish application-specific empirical validity.",
-          "citation": "S49 · source crosswalk",
+          "claim": "The cited source supports the foundational model family and stated mathematical formulation; it does not establish application-specific empirical validity.",
+          "citation": "S49 · Lotka-Volterra predator-prey equations",
           "doi_or_url": "https://cmp.phys.ufl.edu/PHZ4710/files/unit5/Lotka-Volterra.html"
         }
       ],
@@ -224,8 +224,8 @@
       "formal_claims": [],
       "sources": [
         {
-          "claim": "This source supports the model family or foundational formulation; it does not establish application-specific empirical validity.",
-          "citation": "S50 · source crosswalk",
+          "claim": "The cited source supports the foundational model family and stated mathematical formulation; it does not establish application-specific empirical validity.",
+          "citation": "S50 · Stochastic and deterministic SIR epidemic models",
           "doi_or_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5641366/"
         }
       ],
@@ -292,8 +292,8 @@
       "formal_claims": [],
       "sources": [
         {
-          "claim": "This source supports the model family or foundational formulation; it does not establish application-specific empirical validity.",
-          "citation": "S51 · source crosswalk",
+          "claim": "The cited source supports the foundational model family and stated mathematical formulation; it does not establish application-specific empirical validity.",
+          "citation": "S51 · Epidemic models and metapopulation networks",
           "doi_or_url": "https://www.sciencedirect.com/science/article/pii/S1755436517301342"
         }
       ],
@@ -366,9 +366,9 @@
       "formal_claims": [],
       "sources": [
         {
-          "claim": "This source supports the model family or foundational formulation; it does not establish application-specific empirical validity.",
-          "citation": "S52 · source crosswalk",
-          "doi_or_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2405905/"
+          "claim": "The cited source supports the foundational model family and stated mathematical formulation; it does not establish application-specific empirical validity.",
+          "citation": "S52 · Neural Field Models: A Mathematical Overview and Unifying Framework",
+          "doi_or_url": "https://mna.episciences.org/9228"
         }
       ],
       "evidence_status": "UNVERIFIED",
@@ -435,9 +435,9 @@
       "formal_claims": [],
       "sources": [
         {
-          "claim": "This source supports the model family or foundational formulation; it does not establish application-specific empirical validity.",
-          "citation": "S53 · source crosswalk",
-          "doi_or_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6002090/"
+          "claim": "The cited source supports the foundational model family and stated mathematical formulation; it does not establish application-specific empirical validity.",
+          "citation": "S53 · Gillespie, Exact Stochastic Simulation of Coupled Chemical Reactions (1977)",
+          "doi_or_url": "https://apice.unibo.it/bin/view/Publication/StochasticsimulationJphyschem81"
         }
       ],
       "evidence_status": "UNVERIFIED",
@@ -506,9 +506,9 @@
       "formal_claims": [],
       "sources": [
         {
-          "claim": "This source supports the model family or foundational formulation; it does not establish application-specific empirical validity.",
-          "citation": "S53 · source crosswalk",
-          "doi_or_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6002090/"
+          "claim": "The cited source supports the foundational model family and stated mathematical formulation; it does not establish application-specific empirical validity.",
+          "citation": "S53 · Gillespie, Exact Stochastic Simulation of Coupled Chemical Reactions (1977)",
+          "doi_or_url": "https://apice.unibo.it/bin/view/Publication/StochasticsimulationJphyschem81"
         }
       ],
       "evidence_status": "UNVERIFIED",
@@ -575,9 +575,9 @@
       "formal_claims": [],
       "sources": [
         {
-          "claim": "This source supports the model family or foundational formulation; it does not establish application-specific empirical validity.",
-          "citation": "S54 · source crosswalk",
-          "doi_or_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7650632/"
+          "claim": "The cited source supports the foundational model family and stated mathematical formulation; it does not establish application-specific empirical validity.",
+          "citation": "S54 · Isaacson, A Convergent Reaction-Diffusion Master Equation",
+          "doi_or_url": "https://arxiv.org/abs/1211.6772"
         }
       ],
       "evidence_status": "UNVERIFIED",
@@ -645,9 +645,9 @@
       "formal_claims": [],
       "sources": [
         {
-          "claim": "This source supports the model family or foundational formulation; it does not establish application-specific empirical validity.",
-          "citation": "S55 · source crosswalk",
-          "doi_or_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5641366/"
+          "claim": "The cited source supports the foundational model family and stated mathematical formulation; it does not establish application-specific empirical validity.",
+          "citation": "S55 · Gross and Blasius, Adaptive Coevolutionary Networks: A Review",
+          "doi_or_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2405905/"
         }
       ],
       "evidence_status": "UNVERIFIED",
@@ -717,9 +717,9 @@
       "formal_claims": [],
       "sources": [
         {
-          "claim": "This source supports the model family or foundational formulation; it does not establish application-specific empirical validity.",
-          "citation": "S56 · source crosswalk",
-          "doi_or_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7650632/"
+          "claim": "The cited source supports the foundational model family and stated mathematical formulation; it does not establish application-specific empirical validity.",
+          "citation": "S56 · Allesina, One Hundred Years of Lotka-Volterra Models",
+          "doi_or_url": "https://www.annualreviews.org/content/journals/10.1146/annurev-ecolsys-102924-040829"
         }
       ],
       "evidence_status": "UNVERIFIED",
