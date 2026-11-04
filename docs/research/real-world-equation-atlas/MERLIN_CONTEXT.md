@@ -255,3 +255,24 @@ Built three first cross-domain model compositions on top of the shared integrato
 - Normalized atlas SHA-256: `da3f9edba190fe667aecbae21eabfe422350e1be9a139fcba2bcea187236dc51`.
 - Receipt contains 25 source/artifact hashes, including both model modules and their tests. Receipt merge-ref snapshot: `412d7bbb34fb2e1a0239660cf41b73afd13e2224`.
 - This establishes the declared synthetic checks only; it does not establish empirical validity or formal proof.
+
+## Phase 0.10 — MCFC / CAD / wiring geometry bridge
+The engineering direction has been reframed as one canonical typed engineering object viewed through explicit coordinate frames, rather than independent CAD, PCB, and wiring drawings.
+
+- MCFC means Multi-Coordinate-Frame Contract. It extends the existing XMG multi-frame contract into mechanical assembly, board, component-local, pin-local, harness, sensor, and optional thermal frames. A frame is a representation with a declared map, units, source, tolerance, and evidence status; it is not an extra physical dimension.
+- The exact mathematical analogue for frame placement is composition of rigid transforms in SE(3). Passive coordinate changes preserve the represented object; projections into 2D drawings are potentially lossy and must be labelled.
+- The exact analogue for wiring is a graph/hypergraph embedded in 3D. Net endpoints are vertices; proposed conductor centerlines are polylines. Multi-terminal nets currently use a deterministic star topology.
+- Added `python/merlin/wire_routing.py`: deterministic orthogonal 3D route proposals, conservative transformed AABB keep-outs, configurable geometric clearance assumption, path-length comparison, and explicit blocked/missing-geometry statuses. A global-Z overpass is a synthetic candidate only.
+- Added `tests/test_wire_routing.py`: direct route determinism, AABB obstacle detour, missing geometry, multi-terminal topology, invalid clearance, and non-qualification label.
+- Added `docs/research/MCFC_CAD_WIRING_INTEGRATION_V0.1.md`: frame contract, problem-to-mathematical-analogue map, CACE evidence gates, and engineering qualification requirements.
+- Added the route test to the Avrea CI engineering test loop. The next run must be inspected against its exact head SHA before claiming this increment passed.
+
+This is not yet a fabrication router. No wire gauge, ampacity, voltage-domain separation, creepage/clearance, impedance, thermal, EMI, bend radius, strain relief, connector, regulatory, or manufacturability checks are performed. AABB overlap is conservative broad-phase geometry, not exact solid collision. The generated polylines are not approved harness routes.
+
+CACE integration boundary:
+1. Merlin emits immutable project/frame/netlist/route artifacts and hashes.
+2. CACE verifies schema, provenance, deterministic replay, declared constraints, and independent test receipts.
+3. A separate qualified electrical/mechanical review must supply any required domain-specific sign-off.
+4. Promotion remains approval-gated; no worker or model can self-authorize a fabrication or energized-hardware state.
+
+Capability grows, authority never expands.
