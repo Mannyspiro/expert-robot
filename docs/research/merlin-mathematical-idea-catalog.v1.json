@@ -834,7 +834,7 @@
       "id": "MATH-ROT-001",
       "title": "Complex, quaternion, matrix and rotor views of 3D rotations",
       "kind": "representation",
-      "claim": "A 3D rotation about a fixed axis can be represented as a real rotation matrix, a complex multiplication on the orthogonal plane, a unit-quaternion sandwich action, and a geometric-algebra rotor action, with explicit convention-preserving maps.",
+      "claim": "For the tested exact 180-degree rotations about coordinate axes and 120-degree rotation about the (1,1,1) axis, unit-quaternion sandwich action, SO(3) matrix action and Cl(3,0) rotor sandwich action agree.",
       "definitions": [
         "SO(3) rotation matrix",
         "unit quaternion",
@@ -848,10 +848,13 @@
         "Quaternion and rotor multiplication conventions are fixed.",
         "The same active/passive and handedness conventions are used across representations."
       ],
-      "status": "candidate",
+      "status": "finite_tested",
       "provenance": [
         "Merlin discussions: sin/cos, i, polar coordinates, quaternions and geometric numbers",
-        "MERLIN mathematical idea ledger sections 3 and 4"
+        "MERLIN mathematical idea ledger sections 3 and 4",
+        "merlin/rotation_representations.py",
+        "tests/test_merlin_rotation_representations.py",
+        "Avrea run 41889187523 passed the initial quaternion/matrix/rotor test suite; the exact 120-degree case was added afterward and awaits the next run."
       ],
       "relations": [
         {
@@ -868,14 +871,56 @@
         }
       ],
       "objections": [
-        "Quaternion q and -q encode the same spatial rotation; the representation is a double cover, not one-to-one.",
-        "The complex-plane representation covers the plane perpendicular to the rotation axis, not all of 3D as a single complex coordinate.",
-        "Rotor sign and orientation conventions must be reconciled explicitly."
+        "The current tests cover selected exact rotations, not all unit quaternions.",
+        "The complex-plane representation is specified but not implemented in the prototype.",
+        "Quaternion q and -q encode the same spatial rotation."
       ],
       "next_steps": [
-        "Derive the quaternion-to-matrix formula and verify it symbolically.",
-        "Prove equivalence of quaternion sandwich action and Cl(3,0) rotor action under a declared basis map.",
-        "Test exact 180-degree rotations and approximate 90-degree rotations with error bounds."
+        "Run the expanded exact 120-degree test on Avrea.",
+        "Prove the quaternion-to-Cl(3,0) even-subalgebra isomorphism generally.",
+        "Implement the fixed-axis complex-plane adapter and compare it with the other views."
+      ]
+    },
+    {
+      "id": "MATH-ROT-002",
+      "title": "Complex plane as the perpendicular subspace of an axis rotation",
+      "kind": "representation",
+      "claim": "For a fixed unit axis u in three-dimensional Euclidean space, the orthogonal plane u-perp is a two-dimensional invariant subspace on which the rotation acts as multiplication by e^(i theta) after choosing an oriented orthonormal basis.",
+      "definitions": [
+        "unit axis",
+        "orthogonal complement",
+        "oriented orthonormal plane basis",
+        "complex structure J with J^2=-I",
+        "rotation angle"
+      ],
+      "assumptions": [
+        "The ambient metric is Euclidean.",
+        "The axis and orientation are fixed.",
+        "The complex structure is defined by the chosen oriented orthonormal basis of u-perp."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "MERLIN_MULTI_REPRESENTATION_GEOMETRY_V0.1.md section 18",
+        "Merlin discussions: complex numbers, sine/cosine and polar coordinates"
+      ],
+      "relations": [
+        {
+          "type": "specializes",
+          "target": "MATH-ROT-001"
+        },
+        {
+          "type": "depends_on",
+          "target": "MATH-COORD-001"
+        }
+      ],
+      "objections": [
+        "This is a representation of the perpendicular plane, not a global encoding of arbitrary 3D vectors by one complex number.",
+        "Changing the oriented plane basis changes the complex coordinate convention."
+      ],
+      "next_steps": [
+        "Implement the axis-plus-complex-plane decomposition.",
+        "Verify the matrix and complex multiplication actions agree for exact and approximate angles.",
+        "Record how the axial component is preserved."
       ]
     }
   ]
