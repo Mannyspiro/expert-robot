@@ -57,3 +57,12 @@ Avrea CI run #1302 (run ID `41839694953`) passed for commit `85bd57ea0496d6935bd
 
 ## Latest authored tranche
 RWEA-041–050 has been added with source links S30–S32. The combined 001–050 normalizer and CI artifact path have been updated, but this revision is not yet Avrea-validated. All 50 entries remain UNVERIFIED.
+
+
+## Phase 0.6 — stochastic atlas tranche
+- `NORMALIZED_ENTRIES_051-060.json` — canonical Markov chains, Poisson process, Brownian motion, Langevin SDE, Fokker–Planck, Bayes, Kalman filtering, Fisher information, and entropy production.
+- `NORMALIZED_ENTRIES_001-060_V0.3.json` — generated combined canonical output; Avrea validation pending.
+- `python/merlin/equation_atlas/experiments/stochastic.py` — deterministic synthetic stochastic-model checks.
+- `tests/test_merlin_stochastic.py` — regression tests for stationary distributions, Brownian variance, Bayesian updating, scalar Kalman update, Ornstein–Uhlenbeck variance, and entropy production.
+
+All 60 entries remain `UNVERIFIED`. The earlier Avrea success applies only to the 001–030 revision; no CI pass is claimed for the current 001–060 revision.
