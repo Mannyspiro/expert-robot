@@ -59,7 +59,7 @@ A key caveat: the field matters. A real 2D rotation matrix can have no real eige
 
 ## Exact prototype
 
-The v0.1 implementation uses Python `Fraction` arithmetic and square n×n matrices. Tests include 2D and 5D examples. It checks:
+The v0.1 implementation uses Python `Fraction` arithmetic and square n×n matrices. Tests include 2D and 5D examples. Avrea run 41888718729 passed the catalog validator, the representation graph test suite (including 5D), and module compilation. This is finite test evidence, not a proof for all dimensions. It checks:
 - invertible frame transitions and round trips;
 - direct versus multi-step transition composition;
 - closed cycles generated from common frame maps;
