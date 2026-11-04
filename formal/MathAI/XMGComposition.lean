@@ -75,7 +75,7 @@ theorem wellFounded_of_nat_measure_decrease
         apply Acc.intro
         intro b hb
         apply ih (size b)
-        · rw [ha]
+        · rw [← ha]
           exact hb
         · rfl
   exact ⟨fun a => aux (size a) a rfl⟩
