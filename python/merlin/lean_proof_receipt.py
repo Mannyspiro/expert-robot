@@ -62,9 +62,9 @@ class LeanProofReceipt:
             raise ValueError("workflow_run_id must be positive")
         if not _RUN_PATH.fullmatch(self.workflow_run_url):
             raise ValueError("workflow_run_url must be a GitHub Actions run URL")
-        expected_suffix = f"/{self.workflow_run_id}"
-        if not self.workflow_run_url.endswith(expected_suffix):
-            raise ValueError("workflow_run_url does not match workflow_run_id")
+        expected_url = f"https://github.com/{self.repository}/actions/runs/{self.workflow_run_id}"
+        if self.workflow_run_url != expected_url:
+            raise ValueError("workflow_run_url does not match repository and workflow_run_id")
         if not self.workflow_name.strip() or not self.theorem.strip():
             raise ValueError("workflow_name and theorem must be non-empty")
         if self.conclusion != "success":
