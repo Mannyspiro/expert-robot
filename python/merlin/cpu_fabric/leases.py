@@ -97,19 +97,20 @@ class CapacitySnapshot:
     memory_bytes: int
     gpu_count: int | None
     gpu_memory_bytes: int | None
-    compute_budget_units: int
+    compute_budget_units: int | None
     observed_at: str
     source: str
     evidence_sha256: str
 
     def __post_init__(self):
-        _integer(self.cpu_cores, "capacity.cpu_cores", 1)
-        _integer(self.memory_bytes, "capacity.memory_bytes", 1)
+        _integer(self.cpu_cores, "capacity.cpu_cores", 0)
+        _integer(self.memory_bytes, "capacity.memory_bytes", 0)
         if self.gpu_count is not None:
             _integer(self.gpu_count, "capacity.gpu_count")
         if self.gpu_memory_bytes is not None:
             _integer(self.gpu_memory_bytes, "capacity.gpu_memory_bytes")
-        _integer(self.compute_budget_units, "capacity.compute_budget_units", 1)
+        if self.compute_budget_units is not None:
+            _integer(self.compute_budget_units, "capacity.compute_budget_units", 0)
         _datetime(self.observed_at, "capacity.observed_at")
         if not self.source.strip():
             raise ValueError("capacity.source must identify the measurement source")
@@ -287,6 +288,8 @@ class LeaseBook:
             if need.gpu_count and (used_gpu + need.gpu_count > cap.gpu_count or
                                    used_gpu_memory + need.gpu_memory_bytes > cap.gpu_memory_bytes):
                 raise LeaseError("GPU reservation budget exhausted")
+            if cap.compute_budget_units is None:
+                raise LeaseError("compute budget capacity is unknown")
             if used_budget + request.compute_budget_units > cap.compute_budget_units:
                 raise LeaseError("compute budget exhausted")
 
@@ -380,7 +383,7 @@ class LeaseBook:
                     "memory_bytes": cap.memory_bytes - used["memory_bytes"],
                     "gpu_count": None if cap.gpu_count is None else cap.gpu_count - used["gpu_count"],
                     "gpu_memory_bytes": None if cap.gpu_memory_bytes is None else cap.gpu_memory_bytes - used["gpu_memory_bytes"],
-                    "compute_budget_units": cap.compute_budget_units - used["compute_budget_units"],
+                    "compute_budget_units": None if cap.compute_budget_units is None else cap.compute_budget_units - used["compute_budget_units"],
                 },
                 "active_lease_count": len(active),
                 "promotion_authority": False,

@@ -1,7 +1,16 @@
 name: Merlin runner resource probe
 
 on:
+  push:
+    branches: ["feat/merlin-real-world-equation-atlas-v01-20261104"]
+    paths:
+      - "scripts/merlin_resource_probe.py"
+      - "python/merlin/cpu_fabric/leases.py"
+      - ".github/workflows/merlin-resource-probe.yml"
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
   group: merlin-resource-probe-${{ github.ref }}
@@ -18,79 +27,8 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p artifacts/runner-inventory
-          python3 - <<'PY'
-          import json, os, platform, shutil, subprocess, sys
-          from pathlib import Path
-
-          def read_text(path):
-              try:
-                  return Path(path).read_text().strip()
-              except Exception:
-                  return None
-
-          def command_output(args):
-              try:
-                  return subprocess.run(args, check=False, capture_output=True, text=True, timeout=8).stdout[:12000]
-              except Exception as exc:
-                  return f"unavailable: {type(exc).__name__}"
-
-          meminfo = {}
-          for line in (read_text("/proc/meminfo") or "").splitlines():
-              if ":" in line:
-                  key, value = line.split(":", 1)
-                  meminfo[key] = value.strip()
-
-          cgroup = {}
-          for key, path in {
-              "memory_max": "/sys/fs/cgroup/memory.max",
-              "memory_current": "/sys/fs/cgroup/memory.current",
-              "cpu_max": "/sys/fs/cgroup/cpu.max",
-              "cpuset_cpus": "/sys/fs/cgroup/cpuset.cpus.effective",
-          }.items():
-              cgroup[key] = read_text(path)
-
-          usage = {}
-          for name, path in {"workspace": ".", "tmp": "/tmp"}.items():
-              try:
-                  d = shutil.disk_usage(path)
-                  usage[name] = {"total_bytes": d.total, "used_bytes": d.used, "free_bytes": d.free}
-              except Exception as exc:
-                  usage[name] = {"error": type(exc).__name__}
-
-          model_files = []
-          for root in ("models", ".cache/huggingface/hub", "/root/.cache/huggingface/hub"):
-              p = Path(root)
-              try:
-                  if not p.exists():
-                      continue
-                  for f in p.rglob("*"):
-                      try:
-                          if f.is_file() and f.suffix.lower() in {".gguf", ".safetensors", ".bin", ".onnx", ".pt", ".pth"}:
-                              model_files.append({"path": str(f), "bytes": f.stat().st_size})
-                      except (OSError, PermissionError):
-                          continue
-              except (OSError, PermissionError):
-                  continue
-
-          result = {
-              "platform": platform.platform(),
-              "machine": platform.machine(),
-              "python": sys.version,
-              "cpu_count_logical": os.cpu_count(),
-              "load_average": os.getloadavg() if hasattr(os, "getloadavg") else None,
-              "meminfo": {k: meminfo.get(k) for k in ("MemTotal", "MemAvailable", "SwapTotal", "SwapFree")},
-              "cgroup_limits": cgroup,
-              "disk": usage,
-              "gpu": command_output(["nvidia-smi", "--query-gpu=name,memory.total,memory.free,driver_version", "--format=csv,noheader"]) or "not detected",
-              "lscpu": command_output(["lscpu"]),
-              "model_artifacts": sorted(model_files, key=lambda x: x["path"]),
-              "model_download_performed": False,
-              "secrets_or_environment_values_recorded": False,
-          }
-          Path("artifacts/runner-inventory/capacity.json").write_text(json.dumps(result, indent=2) + "\n")
-          print(json.dumps(result, indent=2))
-          PY
+          python3 scripts/merlin_resource_probe.py --output artifacts/runner-inventory/capacity.json
+          cat artifacts/runner-inventory/capacity.json
 
       - name: Publish runner inventory
         uses: actions/upload-artifact@v4

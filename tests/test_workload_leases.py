@@ -67,6 +67,14 @@ class MCFCLeaseTests(unittest.TestCase):
         with self.assertRaisesRegex(LeaseError, "compute budget"):
             book.grant(request("two", budget=40), now=NOW, ttl_seconds=15)
 
+    def test_unknown_compute_budget_blocks_lease_admission(self):
+        unknown_budget = CapacitySnapshot(
+            8, 16 * 1024**3, None, None, None, NOW.isoformat(),
+            "synthetic-test-fixture", "b" * 64,
+        )
+        with self.assertRaisesRegex(LeaseError, "compute budget capacity is unknown"):
+            LeaseBook(unknown_budget).grant(request(), now=NOW, ttl_seconds=15)
+
     def test_gpu_requirement_is_not_assigned_when_capacity_unknown(self):
         book = LeaseBook(CAPACITY)
         with self.assertRaisesRegex(LeaseError, "GPU capacity is unknown"):
