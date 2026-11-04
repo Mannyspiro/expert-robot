@@ -1,0 +1,57 @@
+import unittest
+from merlin.engineering_ir import EngineeringProject, Net, Part, Pin
+from merlin.cad_assembly import AssemblyComponent, CADAssembly, Transform3D
+from merlin.media_generation import EngineeringMediaBrief, compile_engineering_prompts, _replace_prompt_tokens
+from merlin.engineering_drafting import export_top_view_svg
+
+
+class MediaAndDraftingTests(unittest.TestCase):
+    def setUp(self):
+        self.project = EngineeringProject(
+            "demo", "mm",
+            (Part("J1", "connector", (Pin("1", "VIN"),), size_mm=(20, 10, 4)),
+             Part("U1", "controller", (Pin("1", "VCC"),), size_mm=(12, 8, 2))),
+            (Net("VIN", ("J1.1", "U1.1"), 5.0, 0.2, "power"),),
+        )
+        self.assembly = CADAssembly(
+            "demo-assembly",
+            (AssemblyComponent("J1", Transform3D(translation_mm=(0, 0, 0))),
+             AssemblyComponent("U1", Transform3D(translation_mm=(30, 0, 0)))),
+        )
+
+    def test_prompt_pack_is_bound_to_exact_source_facts(self):
+        pack = compile_engineering_prompts(
+            self.project, EngineeringMediaBrief("demo", "assembly review"), self.assembly)
+        self.assertIn("J1 connector", pack.image_prompt)
+        self.assertIn("J1.1", pack.video_prompt)
+        self.assertIn('"units": "mm"', pack.coder_prompt)
+        self.assertIn("not_engineering_source", pack.status.lower())
+
+    def test_prompts_do_not_claim_missing_wire_specs(self):
+        pack = compile_engineering_prompts(
+            self.project, EngineeringMediaBrief("demo", "review"), self.assembly)
+        self.assertIn("unverified wire gauge", pack.negative_prompt)
+        self.assertNotIn("AWG", pack.image_prompt)
+
+    def test_prompt_limits(self):
+        with self.assertRaises(ValueError):
+            compile_engineering_prompts(self.project,
+                EngineeringMediaBrief("demo", "review", duration_seconds=60))
+
+    def test_comfy_workflow_token_replacement(self):
+        source = {"1": {"inputs": {"text": "{{PROMPT}}", "negative": "{{NEGATIVE_PROMPT}}"}}}
+        result = _replace_prompt_tokens(source, "exact geometry", "no fake text")
+        self.assertEqual(result["1"]["inputs"]["text"], "exact geometry")
+        self.assertEqual(result["1"]["inputs"]["negative"], "no fake text")
+        self.assertEqual(source["1"]["inputs"]["text"], "{{PROMPT}}")
+
+    def test_top_view_svg_uses_declared_geometry_and_is_labelled(self):
+        svg = export_top_view_svg(self.project, self.assembly)
+        self.assertIn("NOT FOR MANUFACTURE", svg)
+        self.assertIn("J1", svg)
+        self.assertIn("U1", svg)
+        self.assertIn('width="20.000"', svg)
+
+
+if __name__ == "__main__":
+    unittest.main()
