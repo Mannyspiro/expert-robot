@@ -55,18 +55,17 @@
         "Time-homogeneity is an extra assumption"
       ],
       "alternatives": [
-        "State aggregation can destroy Markov property",
-        "Time-homogeneity is an extra assumption"
+        "Hidden Markov model",
+        "Semi-Markov process",
+        "Continuous-time Markov chain"
       ],
       "validation": [
-        "State aggregation can destroy Markov property",
-        "Time-homogeneity is an extra assumption"
+        "Check nonnegative entries and row sums",
+        "Compare iterative propagation with matrix powers"
       ],
       "uncertainty": [
-        [
-          "State aggregation can destroy Markov property",
-          "Time-homogeneity is an extra assumption"
-        ]
+        "Transition estimation uncertainty",
+        "Model selection uncertainty"
       ],
       "formal_claims": [],
       "sources": [
@@ -121,18 +120,15 @@
         "Detailed balance is stronger than stationarity"
       ],
       "alternatives": [
-        "Reducible chains may have nonunique stationary distributions",
-        "Detailed balance is stronger than stationarity"
+        "Invariant measures",
+        "Non-reversible Markov chains"
       ],
       "validation": [
-        "Reducible chains may have nonunique stationary distributions",
-        "Detailed balance is stronger than stationarity"
+        "Check normalization, invariance, and detailed-balance residuals",
+        "Check irreducibility and aperiodicity before claiming convergence"
       ],
       "uncertainty": [
-        [
-          "Reducible chains may have nonunique stationary distributions",
-          "Detailed balance is stronger than stationarity"
-        ]
+        "Transition matrix estimation uncertainty"
       ],
       "formal_claims": [],
       "sources": [
@@ -194,18 +190,17 @@
         "Finite event duration may matter"
       ],
       "alternatives": [
-        "Clustering, inhibition, and rate drift violate assumptions",
-        "Finite event duration may matter"
+        "Nonhomogeneous Poisson process",
+        "Renewal process",
+        "Cox process"
       ],
       "validation": [
-        "Clustering, inhibition, and rate drift violate assumptions",
-        "Finite event duration may matter"
+        "Check mean and variance against λt over replicated paths",
+        "Check independent increments"
       ],
       "uncertainty": [
-        [
-          "Clustering, inhibition, and rate drift violate assumptions",
-          "Finite event duration may matter"
-        ]
+        "Rate estimation uncertainty",
+        "Event-detection uncertainty"
       ],
       "formal_claims": [],
       "sources": [
@@ -261,18 +256,17 @@
         "Physical systems have finite correlation times and bandwidth"
       ],
       "alternatives": [
-        "Paths are almost surely nowhere differentiable",
-        "Physical systems have finite correlation times and bandwidth"
+        "Fractional Brownian motion",
+        "Lévy process",
+        "Reflected Brownian motion"
       ],
       "validation": [
-        "Paths are almost surely nowhere differentiable",
-        "Physical systems have finite correlation times and bandwidth"
+        "Check increment means, variances, and independence across seeded paths",
+        "Check mean-square scaling"
       ],
       "uncertainty": [
-        [
-          "Paths are almost surely nowhere differentiable",
-          "Physical systems have finite correlation times and bandwidth"
-        ]
+        "Monte Carlo error",
+        "Discretization uncertainty"
       ],
       "formal_claims": [],
       "sources": [
@@ -340,18 +334,18 @@
         "White-noise approximation may fail at short times"
       ],
       "alternatives": [
-        "Itô and Stratonovich differ for state-dependent noise",
-        "White-noise approximation may fail at short times"
+        "Stratonovich SDE",
+        "Generalized Langevin equation",
+        "Jump diffusion"
       ],
       "validation": [
-        "Itô and Stratonovich differ for state-dependent noise",
-        "White-noise approximation may fail at short times"
+        "Compare Euler-Maruyama convergence on a known linear SDE",
+        "Check harmonic-potential stationary distribution"
       ],
       "uncertainty": [
-        [
-          "Itô and Stratonovich differ for state-dependent noise",
-          "White-noise approximation may fail at short times"
-        ]
+        "Noise intensity uncertainty",
+        "Parameter uncertainty",
+        "Discretization uncertainty"
       ],
       "formal_claims": [],
       "sources": [
@@ -411,18 +405,17 @@
         "Noise convention must be consistent"
       ],
       "alternatives": [
-        "Boundary flux can change probability mass",
-        "Noise convention must be consistent"
+        "Kolmogorov forward equation",
+        "Master equation",
+        "Kinetic equation"
       ],
       "validation": [
-        "Boundary flux can change probability mass",
-        "Noise convention must be consistent"
+        "Check normalization and nonnegativity",
+        "Compare moments with SDE simulations"
       ],
       "uncertainty": [
-        [
-          "Boundary flux can change probability mass",
-          "Noise convention must be consistent"
-        ]
+        "Finite-volume error",
+        "Monte Carlo error"
       ],
       "formal_claims": [],
       "sources": [
@@ -488,18 +481,17 @@
         "Likelihood is not a probability distribution over parameters"
       ],
       "alternatives": [
-        "Posterior depends on prior and model choices",
-        "Likelihood is not a probability distribution over parameters"
+        "Frequentist inference",
+        "Empirical Bayes",
+        "Hierarchical Bayes"
       ],
       "validation": [
-        "Posterior depends on prior and model choices",
-        "Likelihood is not a probability distribution over parameters"
+        "Check conjugate toy posteriors analytically",
+        "Compare analytic and numerical posterior moments"
       ],
       "uncertainty": [
-        [
-          "Posterior depends on prior and model choices",
-          "Likelihood is not a probability distribution over parameters"
-        ]
+        "Prior sensitivity",
+        "Model misspecification"
       ],
       "formal_claims": [],
       "sources": [
@@ -575,18 +567,17 @@
         "Numerical covariance update needs stable implementation"
       ],
       "alternatives": [
-        "Optimality depends on linear-Gaussian and covariance assumptions",
-        "Numerical covariance update needs stable implementation"
+        "Extended Kalman filter",
+        "Unscented Kalman filter",
+        "Ensemble Kalman filter"
       ],
       "validation": [
-        "Optimality depends on linear-Gaussian and covariance assumptions",
-        "Numerical covariance update needs stable implementation"
+        "Compare scalar filter with Gaussian conditioning",
+        "Check covariance symmetry and positive semidefiniteness"
       ],
       "uncertainty": [
-        [
-          "Optimality depends on linear-Gaussian and covariance assumptions",
-          "Numerical covariance update needs stable implementation"
-        ]
+        "Model mismatch",
+        "Sensor bias"
       ],
       "formal_claims": [],
       "sources": [
@@ -640,18 +631,17 @@
         "Must transform tensorially under reparameterization"
       ],
       "alternatives": [
-        "May be singular or degenerate",
-        "Must transform tensorially under reparameterization"
+        "Observed information",
+        "Expected Hessian",
+        "Quantum Fisher information"
       ],
       "validation": [
-        "May be singular or degenerate",
-        "Must transform tensorially under reparameterization"
+        "Check positive semidefiniteness",
+        "Verify transformation under simple reparameterizations"
       ],
       "uncertainty": [
-        [
-          "May be singular or degenerate",
-          "Must transform tensorially under reparameterization"
-        ]
+        "Finite-sample uncertainty",
+        "Model approximation error"
       ],
       "formal_claims": [],
       "sources": [
@@ -724,18 +714,16 @@
         "Path-space irreversibility and physical entropy production require a thermodynamic model"
       ],
       "alternatives": [
-        "Zero reverse rates need limiting conventions",
-        "Path-space irreversibility and physical entropy production require a thermodynamic model"
+        "Path-space KL rate",
+        "Schnakenberg network entropy production"
       ],
       "validation": [
-        "Zero reverse rates need limiting conventions",
-        "Path-space irreversibility and physical entropy production require a thermodynamic model"
+        "Check nonnegativity on small rate matrices",
+        "Check zero at detailed balance and positive driven-cycle result"
       ],
       "uncertainty": [
-        [
-          "Zero reverse rates need limiting conventions",
-          "Path-space irreversibility and physical entropy production require a thermodynamic model"
-        ]
+        "Rate estimation uncertainty",
+        "Hidden-transition uncertainty"
       ],
       "formal_claims": [],
       "sources": [
