@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Merlin Provenance Graph v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "graph_version",
+    "project_id",
+    "nodes",
+    "edges"
+  ],
+  "properties": {
+    "graph_version": {
+      "const": "1.0"
+    },
+    "project_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "type"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "enum": [
+              "Project",
+              "Intake",
+              "GitCommit",
+              "ArtifactOccurrence",
+              "Artifact"
+            ]
+          }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "from",
+          "relation",
+          "to"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "from": {
+            "type": "string"
+          },
+          "relation": {
+            "enum": [
+              "hasIntake",
+              "hasSource",
+              "contains",
+              "hasContent"
+            ]
+          },
+          "to": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
