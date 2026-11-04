@@ -1,0 +1,742 @@
+{
+  "schema_version": "0.3",
+  "dimension_basis": [
+    "L",
+    "M",
+    "T",
+    "I",
+    "Theta",
+    "N",
+    "J",
+    "probability",
+    "information"
+  ],
+  "entries": [
+    {
+      "id": "RWEA-061",
+      "domain": "reaction-diffusion",
+      "application": "Coupled reaction-diffusion system",
+      "model_family": "reaction_diffusion",
+      "equations": [
+        "∂ₜu=Dᵤ∇²u+f(u,v)",
+        "∂ₜv=Dᵥ∇²v+g(u,v)"
+      ],
+      "variables": [
+        {
+          "symbol": "u",
+          "meaning": "species concentration",
+          "unit": "mol/m³",
+          "dimension": "N·L^-3"
+        },
+        {
+          "symbol": "Dᵤ",
+          "meaning": "diffusion coefficient",
+          "unit": "m²/s",
+          "dimension": "L²·T^-1"
+        }
+      ],
+      "assumptions": [
+        "Continuum fields",
+        "Local reaction kinetics",
+        "Fickian diffusion",
+        "Boundary conditions specified"
+      ],
+      "initial_conditions": "Initial concentration fields.",
+      "boundary_conditions": "No-flux, periodic, or physical boundaries.",
+      "validity_regime": "Local reactions and spatial diffusion jointly evolve fields.",
+      "intuition": "Local reactions and spatial diffusion jointly evolve fields.",
+      "applications": [
+        "Chemical patterning",
+        "Ecology",
+        "Developmental models"
+      ],
+      "limitations": [
+        "Well-mixed kinetics alone do not imply spatial patterns",
+        "Cross-diffusion needs extensions"
+      ],
+      "alternatives": [
+        "Cross-diffusion",
+        "Stochastic reaction-diffusion"
+      ],
+      "validation": [
+        "Check diffusion-only mass conservation on periodic grids",
+        "Check grid/time convergence"
+      ],
+      "uncertainty": [
+        "Parameter, boundary, and discretization uncertainty"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "Source supports the equation family or foundational model, not application-specific validation.",
+          "citation": "S37 · source crosswalk",
+          "doi_or_url": "https://biocircuits.github.io/chapters/turing.html"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Source-grounded model family; detailed derivation, dimensional audit, reproducibility, empirical validation, and formal qualification remain pending."
+    },
+    {
+      "id": "RWEA-062",
+      "domain": "nonlinear dynamics",
+      "application": "Turing diffusion-driven instability",
+      "model_family": "turing_instability",
+      "equations": [
+        "∂ₜw=F(w)+D∇²w",
+        "det(J)>0 and tr(J)<0 for stable two-species homogeneous kinetics",
+        "det(J-k²D)<0 for an unstable spatial mode"
+      ],
+      "variables": [
+        {
+          "symbol": "J",
+          "meaning": "reaction Jacobian",
+          "unit": "s⁻¹",
+          "dimension": "T^-1"
+        },
+        {
+          "symbol": "D",
+          "meaning": "diffusion matrix",
+          "unit": "m²/s",
+          "dimension": "L²·T^-1"
+        },
+        {
+          "symbol": "k",
+          "meaning": "spatial wavenumber",
+          "unit": "m⁻¹",
+          "dimension": "L^-1"
+        }
+      ],
+      "assumptions": [
+        "At least two interacting fields",
+        "Homogeneous equilibrium stable without diffusion",
+        "A spatial mode becomes unstable with diffusion"
+      ],
+      "initial_conditions": "Homogeneous steady state plus small perturbation.",
+      "boundary_conditions": "Domain geometry determines allowed modes.",
+      "validity_regime": "Diffusion can destabilize a uniform equilibrium and select a wavelength.",
+      "intuition": "Diffusion can destabilize a uniform equilibrium and select a wavelength.",
+      "applications": [
+        "Developmental patterning",
+        "Chemical systems",
+        "Ecological patchiness"
+      ],
+      "limitations": [
+        "Not every reaction-diffusion system forms Turing patterns",
+        "Linear instability does not determine final nonlinear pattern"
+      ],
+      "alternatives": [
+        "Wave instability",
+        "Turing-Hopf instability"
+      ],
+      "validation": [
+        "Compute dispersion relation over allowed wavenumbers",
+        "Compare unstable band with simulation"
+      ],
+      "uncertainty": [
+        "Kinetic parameter and domain-size sensitivity"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "Source supports the equation family or foundational model, not application-specific validation.",
+          "citation": "S37 · source crosswalk",
+          "doi_or_url": "https://biocircuits.github.io/chapters/turing.html"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Source-grounded model family; detailed derivation, dimensional audit, reproducibility, empirical validation, and formal qualification remain pending."
+    },
+    {
+      "id": "RWEA-063",
+      "domain": "discrete dynamical systems",
+      "application": "Cellular automaton local update rule",
+      "model_family": "cellular_automaton",
+      "equations": [
+        "sᵢ(t+1)=φ(sᵢ₋ᵣ(t),…,sᵢ₊ᵣ(t))"
+      ],
+      "variables": [
+        {
+          "symbol": "sᵢ",
+          "meaning": "cell state",
+          "unit": "finite state set",
+          "dimension": "discrete"
+        },
+        {
+          "symbol": "t",
+          "meaning": "time step",
+          "unit": "step",
+          "dimension": "count"
+        },
+        {
+          "symbol": "φ",
+          "meaning": "local transition function",
+          "unit": "mapping",
+          "dimension": "discrete"
+        }
+      ],
+      "assumptions": [
+        "Discrete lattice",
+        "Finite state alphabet",
+        "Update timing and neighborhood declared"
+      ],
+      "initial_conditions": "Initial lattice configuration.",
+      "boundary_conditions": "Periodic, fixed, or open boundary convention.",
+      "validity_regime": "Simple local rules can generate global spatial patterns.",
+      "intuition": "Simple local rules can generate global spatial patterns.",
+      "applications": [
+        "Spatial ecology",
+        "Excitable media",
+        "Computation"
+      ],
+      "limitations": [
+        "Rule choice strongly affects behavior",
+        "A CA is not automatically a faithful physical model"
+      ],
+      "alternatives": [
+        "Probabilistic CA",
+        "Coupled map lattice",
+        "Agent-based model"
+      ],
+      "validation": [
+        "Check hand-computed neighborhoods",
+        "Check invariants and boundary dependence"
+      ],
+      "uncertainty": [
+        "Initial-condition and rule-selection uncertainty"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "Source supports the equation family or foundational model, not application-specific validation.",
+          "citation": "S38 · source crosswalk",
+          "doi_or_url": "https://plato.stanford.edu/entries/cellular-automata/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Source-grounded model family; detailed derivation, dimensional audit, reproducibility, empirical validation, and formal qualification remain pending."
+    },
+    {
+      "id": "RWEA-064",
+      "domain": "population ecology",
+      "application": "Logistic population growth",
+      "model_family": "logistic_population",
+      "equations": [
+        "dN/dt=rN(1-N/K)",
+        "N(t)=K/[1+(K/N₀-1)e^(-rt)]"
+      ],
+      "variables": [
+        {
+          "symbol": "N",
+          "meaning": "population size",
+          "unit": "individuals",
+          "dimension": "count"
+        },
+        {
+          "symbol": "r",
+          "meaning": "intrinsic growth rate",
+          "unit": "year⁻¹",
+          "dimension": "T^-1"
+        },
+        {
+          "symbol": "K",
+          "meaning": "carrying capacity",
+          "unit": "individuals",
+          "dimension": "count"
+        }
+      ],
+      "assumptions": [
+        "Closed homogeneous population",
+        "Constant growth rate and carrying capacity",
+        "No age structure or stochasticity"
+      ],
+      "initial_conditions": "N(0)=N₀≥0.",
+      "boundary_conditions": "Well-mixed model; no spatial boundary.",
+      "validity_regime": "Growth slows as population approaches carrying capacity.",
+      "intuition": "Growth slows as population approaches carrying capacity.",
+      "applications": [
+        "Population ecology",
+        "Resource-limited growth"
+      ],
+      "limitations": [
+        "Carrying capacity can vary",
+        "Allee effects, age structure, migration, and noise omitted"
+      ],
+      "alternatives": [
+        "Gompertz growth",
+        "Ricker model",
+        "Age-structured population"
+      ],
+      "validation": [
+        "Compare analytic solution with numerical integration",
+        "Verify nonnegative bounded solutions"
+      ],
+      "uncertainty": [
+        "Parameter and structural uncertainty"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "Source supports the equation family or foundational model, not application-specific validation.",
+          "citation": "S39 · source crosswalk",
+          "doi_or_url": "https://www.cambridge.org/core/journals/mathematical-modelling-of-natural-phenomena/article/abs/replicator-equations-and-models-of-biological-populations-and-communities/6E7B3ABE19249F58AF38B1D10116F1D7"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Source-grounded model family; detailed derivation, dimensional audit, reproducibility, empirical validation, and formal qualification remain pending."
+    },
+    {
+      "id": "RWEA-065",
+      "domain": "evolutionary dynamics",
+      "application": "Replicator equation",
+      "model_family": "replicator_dynamics",
+      "equations": [
+        "dxᵢ/dt=xᵢ[fᵢ(x)-φ(x)]",
+        "φ(x)=Σⱼxⱼfⱼ(x)",
+        "Σᵢxᵢ=1"
+      ],
+      "variables": [
+        {
+          "symbol": "xᵢ",
+          "meaning": "type frequency",
+          "unit": "dimensionless",
+          "dimension": "1"
+        },
+        {
+          "symbol": "fᵢ",
+          "meaning": "fitness or payoff",
+          "unit": "time⁻¹",
+          "dimension": "T^-1"
+        },
+        {
+          "symbol": "φ",
+          "meaning": "mean fitness",
+          "unit": "time⁻¹",
+          "dimension": "T^-1"
+        }
+      ],
+      "assumptions": [
+        "Well-mixed deterministic population",
+        "Frequency vector lies on simplex",
+        "Fitness functions specified"
+      ],
+      "initial_conditions": "Initial frequency vector in probability simplex.",
+      "boundary_conditions": "Simplex boundary invariant for standard dynamics.",
+      "validity_regime": "Types change frequency according to fitness relative to population mean.",
+      "intuition": "Types change frequency according to fitness relative to population mean.",
+      "applications": [
+        "Evolution",
+        "Ecology",
+        "Evolutionary game theory"
+      ],
+      "limitations": [
+        "Mutation and finite-population drift require extensions",
+        "Fitness is model-dependent"
+      ],
+      "alternatives": [
+        "Replicator-mutator",
+        "Stochastic evolutionary game",
+        "Adaptive dynamics"
+      ],
+      "validation": [
+        "Verify simplex sum and nonnegativity",
+        "Check fixed points and stability"
+      ],
+      "uncertainty": [
+        "Fitness and finite-population uncertainty"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "Source supports the equation family or foundational model, not application-specific validation.",
+          "citation": "S39 · source crosswalk",
+          "doi_or_url": "https://www.cambridge.org/core/journals/mathematical-modelling-of-natural-phenomena/article/abs/replicator-equations-and-models-of-biological-populations-and-communities/6E7B3ABE19249F58AF38B1D10116F1D7"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Source-grounded model family; detailed derivation, dimensional audit, reproducibility, empirical validation, and formal qualification remain pending."
+    },
+    {
+      "id": "RWEA-066",
+      "domain": "computational neuroscience",
+      "application": "Wilson-Cowan excitatory-inhibitory population model",
+      "model_family": "wilson_cowan",
+      "equations": [
+        "τₑdE/dt=-E+(1-rₑE)Sₑ(wₑₑE-wₑᵢI+P)",
+        "τᵢdI/dt=-I+(1-rᵢI)Sᵢ(wᵢₑE-wᵢᵢI+Q)"
+      ],
+      "variables": [
+        {
+          "symbol": "E",
+          "meaning": "excitatory population activity",
+          "unit": "fraction or rate",
+          "dimension": "model-dependent"
+        },
+        {
+          "symbol": "I",
+          "meaning": "inhibitory population activity",
+          "unit": "fraction or rate",
+          "dimension": "model-dependent"
+        },
+        {
+          "symbol": "τₑ",
+          "meaning": "excitatory time constant",
+          "unit": "s",
+          "dimension": "T"
+        },
+        {
+          "symbol": "τᵢ",
+          "meaning": "inhibitory time constant",
+          "unit": "s",
+          "dimension": "T"
+        }
+      ],
+      "assumptions": [
+        "Mean-field population approximation",
+        "Activation functions and coupling declared",
+        "Activity bounds interpreted consistently"
+      ],
+      "initial_conditions": "Initial excitatory and inhibitory activities.",
+      "boundary_conditions": "Lumped model; spatial extensions need boundary conditions.",
+      "validity_regime": "Population averages capture excitation-inhibition feedback and collective activity.",
+      "intuition": "Population averages capture excitation-inhibition feedback and collective activity.",
+      "applications": [
+        "Neural population dynamics",
+        "Oscillations",
+        "Stimulus response"
+      ],
+      "limitations": [
+        "Mean-field model omits correlations and single-neuron details",
+        "Parameters are phenomenological"
+      ],
+      "alternatives": [
+        "Spiking network",
+        "Neural field",
+        "Markov population model"
+      ],
+      "validation": [
+        "Check bounded activity",
+        "Compare equilibria and oscillation onset with Jacobian"
+      ],
+      "uncertainty": [
+        "Heterogeneity, noise, and closure uncertainty"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "Source supports the equation family or foundational model, not application-specific validation.",
+          "citation": "S40 · source crosswalk",
+          "doi_or_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4733815/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Source-grounded model family; detailed derivation, dimensional audit, reproducibility, empirical validation, and formal qualification remain pending."
+    },
+    {
+      "id": "RWEA-067",
+      "domain": "biological information theory",
+      "application": "Mutual information between biological variables",
+      "model_family": "biological_mutual_information",
+      "equations": [
+        "I(X;Y)=Σₓ,ᵧp(x,y)log₂[p(x,y)/(p(x)p(y))]",
+        "I(X;Y)=H(X)-H(X|Y)"
+      ],
+      "variables": [
+        {
+          "symbol": "X",
+          "meaning": "biological input or state",
+          "unit": "variable-dependent",
+          "dimension": "model-dependent"
+        },
+        {
+          "symbol": "Y",
+          "meaning": "biological response or state",
+          "unit": "variable-dependent",
+          "dimension": "model-dependent"
+        },
+        {
+          "symbol": "I",
+          "meaning": "mutual information",
+          "unit": "bit",
+          "dimension": "information"
+        }
+      ],
+      "assumptions": [
+        "Joint distribution specified",
+        "Logarithm base 2",
+        "Estimator accounts for sample size and temporal dependence"
+      ],
+      "initial_conditions": "Joint observations or justified probability model.",
+      "boundary_conditions": "Observation window and sampling process declared.",
+      "validity_regime": "Measures statistical dependence, not causation.",
+      "intuition": "Measures statistical dependence, not causation.",
+      "applications": [
+        "Neural coding",
+        "Gene regulation",
+        "Cell signaling",
+        "Ecology"
+      ],
+      "limitations": [
+        "Finite-sample estimates are biased",
+        "Mutual information alone does not establish causation"
+      ],
+      "alternatives": [
+        "Conditional mutual information",
+        "Transfer entropy",
+        "Directed information"
+      ],
+      "validation": [
+        "Test independent and deterministic toy distributions",
+        "Measure estimator bias under simulated samples"
+      ],
+      "uncertainty": [
+        "Sampling bias, hidden variables, temporal dependence"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "Source supports the equation family or foundational model, not application-specific validation.",
+          "citation": "S43 · source crosswalk",
+          "doi_or_url": "https://ocw.mit.edu/courses/6-450-principles-of-digital-communication-i-fall-2009/pages/lecture-notes/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Source-grounded model family; detailed derivation, dimensional audit, reproducibility, empirical validation, and formal qualification remain pending."
+    },
+    {
+      "id": "RWEA-068",
+      "domain": "network dynamics",
+      "application": "Kuramoto network synchronization",
+      "model_family": "kuramoto_network",
+      "equations": [
+        "dθᵢ/dt=ωᵢ+KΣⱼAᵢⱼsin(θⱼ-θᵢ)",
+        "reⁱψ=(1/N)Σⱼeⁱθʲ"
+      ],
+      "variables": [
+        {
+          "symbol": "θᵢ",
+          "meaning": "oscillator phase",
+          "unit": "rad",
+          "dimension": "dimensionless"
+        },
+        {
+          "symbol": "ωᵢ",
+          "meaning": "natural angular frequency",
+          "unit": "rad/s",
+          "dimension": "T^-1"
+        },
+        {
+          "symbol": "K",
+          "meaning": "coupling strength",
+          "unit": "s⁻¹",
+          "dimension": "T^-1"
+        },
+        {
+          "symbol": "Aᵢⱼ",
+          "meaning": "network adjacency",
+          "unit": "dimensionless",
+          "dimension": "1"
+        },
+        {
+          "symbol": "r",
+          "meaning": "phase coherence",
+          "unit": "dimensionless",
+          "dimension": "1"
+        }
+      ],
+      "assumptions": [
+        "Phase-reduced oscillators",
+        "Sinusoidal coupling",
+        "Network and frequency distribution specified"
+      ],
+      "initial_conditions": "Initial phase vector.",
+      "boundary_conditions": "Topology and edge weights define interactions.",
+      "validity_regime": "Coupled oscillators can transition from incoherence to synchronization.",
+      "intuition": "Coupled oscillators can transition from incoherence to synchronization.",
+      "applications": [
+        "Neural rhythms",
+        "Power grids",
+        "Biological clocks"
+      ],
+      "limitations": [
+        "Phase reduction omits amplitude dynamics",
+        "Critical coupling depends on topology and frequencies"
+      ],
+      "alternatives": [
+        "Sakaguchi-Kuramoto",
+        "Higher-order coupling",
+        "Adaptive oscillator network"
+      ],
+      "validation": [
+        "Check common phase-shift invariance",
+        "Measure order parameter for identical frequencies"
+      ],
+      "uncertainty": [
+        "Frequency and network sampling uncertainty"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "Source supports the equation family or foundational model, not application-specific validation.",
+          "citation": "S41 · source crosswalk",
+          "doi_or_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4643801/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Source-grounded model family; detailed derivation, dimensional audit, reproducibility, empirical validation, and formal qualification remain pending."
+    },
+    {
+      "id": "RWEA-069",
+      "domain": "statistical physics and networks",
+      "application": "Bond percolation and giant connected component",
+      "model_family": "bond_percolation",
+      "equations": [
+        "p_c=inf{p:P(infinite occupied cluster)>0}",
+        "For Erdős-Rényi G(n,p), c≈np; giant component emerges near c=1"
+      ],
+      "variables": [
+        {
+          "symbol": "p",
+          "meaning": "bond occupation probability",
+          "unit": "dimensionless",
+          "dimension": "1"
+        },
+        {
+          "symbol": "p_c",
+          "meaning": "critical probability",
+          "unit": "dimensionless",
+          "dimension": "1"
+        },
+        {
+          "symbol": "n",
+          "meaning": "vertex count",
+          "unit": "count",
+          "dimension": "1"
+        },
+        {
+          "symbol": "c",
+          "meaning": "mean degree",
+          "unit": "dimensionless",
+          "dimension": "1"
+        }
+      ],
+      "assumptions": [
+        "Graph or lattice ensemble specified",
+        "Independent bond occupation",
+        "Infinite-limit and finite-size claims distinguished"
+      ],
+      "initial_conditions": "Underlying graph and occupation probability.",
+      "boundary_conditions": "Topology and dimension affect threshold.",
+      "validity_regime": "A giant connected cluster emerges beyond a connectivity threshold.",
+      "intuition": "A giant connected cluster emerges beyond a connectivity threshold.",
+      "applications": [
+        "Material connectivity",
+        "Epidemics",
+        "Infrastructure",
+        "Ecology"
+      ],
+      "limitations": [
+        "Threshold depends on topology and dimension",
+        "Finite systems show rounded transitions"
+      ],
+      "alternatives": [
+        "Site percolation",
+        "Directed percolation",
+        "Bootstrap percolation"
+      ],
+      "validation": [
+        "Enumerate components on seeded graphs",
+        "Compare giant-component fraction around c≈1"
+      ],
+      "uncertainty": [
+        "Finite-size scaling and ensemble variation"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "Source supports the equation family or foundational model, not application-specific validation.",
+          "citation": "S42 · source crosswalk",
+          "doi_or_url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4733815/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Source-grounded model family; detailed derivation, dimensional audit, reproducibility, empirical validation, and formal qualification remain pending."
+    },
+    {
+      "id": "RWEA-070",
+      "domain": "complex systems",
+      "application": "Order parameters and self-organization",
+      "model_family": "self_organization_order_parameter",
+      "equations": [
+        "R=|(1/N)Σⱼeⁱθʲ|",
+        "H(X)=-Σₓp(x)log₂p(x)",
+        "Track order and entropy jointly; no universal scalar law defines self-organization"
+      ],
+      "variables": [
+        {
+          "symbol": "R",
+          "meaning": "collective phase coherence",
+          "unit": "dimensionless",
+          "dimension": "1"
+        },
+        {
+          "symbol": "H",
+          "meaning": "Shannon entropy",
+          "unit": "bit",
+          "dimension": "information"
+        },
+        {
+          "symbol": "N",
+          "meaning": "component count",
+          "unit": "count",
+          "dimension": "1"
+        },
+        {
+          "symbol": "p(x)",
+          "meaning": "state probability",
+          "unit": "dimensionless",
+          "dimension": "1"
+        }
+      ],
+      "assumptions": [
+        "Microscopic model and macro-observable specified",
+        "Ensemble and coarse-graining declared",
+        "Entropy convention stated"
+      ],
+      "initial_conditions": "Initial microscopic state or ensemble.",
+      "boundary_conditions": "System boundary and external driving declared.",
+      "validity_regime": "Macroscopic structure emerges from interactions; entropy alone is not a universal order measure.",
+      "intuition": "Macroscopic structure emerges from interactions; entropy alone is not a universal order measure.",
+      "applications": [
+        "Pattern formation",
+        "Synchronization",
+        "Collective behavior"
+      ],
+      "limitations": [
+        "No universal equation captures all emergence",
+        "Coarse-graining changes measured entropy and order"
+      ],
+      "alternatives": [
+        "Synergetics",
+        "Information-theoretic complexity",
+        "Nonequilibrium statistical mechanics"
+      ],
+      "validation": [
+        "Compare observables against randomized nulls",
+        "Report order and entropy separately"
+      ],
+      "uncertainty": [
+        "Coarse-graining, observer choice, external forcing"
+      ],
+      "formal_claims": [],
+      "sources": [
+        {
+          "claim": "Source supports the equation family or foundational model, not application-specific validation.",
+          "citation": "S44 · source crosswalk",
+          "doi_or_url": "https://pubmed.ncbi.nlm.nih.gov/17829274/"
+        }
+      ],
+      "evidence_status": "UNVERIFIED",
+      "confidence_rationale": "Source-grounded model family; detailed derivation, dimensional audit, reproducibility, empirical validation, and formal qualification remain pending."
+    }
+  ]
+}
