@@ -154,7 +154,7 @@ class RepresentationGraph:
         return multiply(multiply(p, operator), inverse(p))
 
     def spectral_signature(self, operator: Matrix, frame_id: str) -> tuple[Scalar, Scalar]:
-        """Return (trace, determinant), coefficients of the 2x2 characteristic polynomial only when n=2."""
+        """Return trace and determinant invariants (not the full characteristic polynomial for n > 2)."""
         represented = self.represented_operator(operator, frame_id)
         return trace(represented), determinant(represented)
 
