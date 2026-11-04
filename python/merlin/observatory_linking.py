@@ -7,7 +7,9 @@ from pathlib import Path
 
 from merlin.engineering_project_store import project_hash
 from merlin.observatory_benchmarks import project_fixture
+from merlin.observatory_integrity import verify_database
 from merlin.proof_observatory import ProofObservatory
+from merlin.theorem_dag import extract_theorem_dag
 
 
 def link_benchmark_artifacts(receipt_path: str, dag_path: str, database_path: str) -> dict:
@@ -29,27 +31,27 @@ def link_benchmark_artifacts(receipt_path: str, dag_path: str, database_path: st
     store = ProofObservatory(database_path)
     try:
         links = store.record_benchmark_theorem_links(
-            receipt,
-            theorem_dag,
-            "merlin-observatory-fixture",
-            revision_hash,
-            object_ids,
+            receipt, theorem_dag, "merlin-observatory-fixture", revision_hash, object_ids,
         )
-        return {
-            "receipt_sha256": receipt["receipt_sha256"],
-            "theorem_dag_sha256": theorem_dag["dag_sha256"],
-            "engineering_revision_sha256": revision_hash,
-            "links_created": len(links),
-            "chain_verified": store.verify_chain(),
-        }
     finally:
         store.close()
+    integrity = verify_database(database_path, theorem_dag)
+    return {
+        "receipt_sha256": receipt["receipt_sha256"],
+        "theorem_dag_sha256": theorem_dag["dag_sha256"],
+        "engineering_revision_sha256": revision_hash,
+        "links_created": len(links),
+        "integrity": integrity,
+    }
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Link benchmark evidence to theorem DAG and Engineering IR")
+    parser = argparse.ArgumentParser(description="Link benchmark evidence and verify all Observatory evidence")
     parser.add_argument("--receipt", required=True)
     parser.add_argument("--dag", required=True)
     parser.add_argument("--database", required=True)
     args = parser.parse_args()
-    print(json.dumps(link_benchmark_artifacts(args.receipt, args.dag, args.database), sort_keys=True))
+    summary = link_benchmark_artifacts(args.receipt, args.dag, args.database)
+    print(json.dumps(summary, sort_keys=True))
+    if not summary["integrity"]["ok"]:
+        raise SystemExit(2)
