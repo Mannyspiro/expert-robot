@@ -210,3 +210,20 @@ Composition is permitted only when output and input frame identifiers and requir
 - Normalized output SHA-256: `da3f9edba190fe667aecbae21eabfe422350e1be9a139fcba2bcea187236dc51`.
 - Receipt SHA-256: `a39d9408dc258bdd47e4afeb4c2bb3b8a44d3d663535a5e0f531cfcdd2830271`; receipt contains 20 source/artifact hashes, including the new tranche, operator contract, validator, and operator tests.
 - Receipt commit is the PR merge-ref snapshot recorded by the runner. CI success establishes test/reproducibility status for that exact snapshot, not empirical validity, scientific truth, or Lean proof success.
+
+
+## Phase 0.9 — executable simulation core (first increment)
+A first, deliberately small execution layer now exists:
+- `explicit_euler`: common vector-state integration interface, shape/finite checks, full state trace, deterministic provenance metadata, and canonical run digest.
+- `periodic_diffusion_rhs`: one-dimensional centered periodic Laplacian.
+- `periodic_upwind_advection_rhs`: first-order upwind periodic transport for either velocity sign.
+- `graph_exchange_rhs`: symmetric weighted-graph pairwise exchange with mass conservation implied by the graph Laplacian.
+- `run_gillespie_ssa`: seeded direct-method continuous-time Markov jump simulation with stoichiometry, propensity validation, nonnegative-count enforcement, and trajectory digest.
+- Synthetic tests cover diffusion/advection sum conservation, graph exchange conservation and nonnegativity, invalid RHS shape, SSA seeded reproducibility, and molecule-count conservation.
+- CI executes the new test module and includes engine/test source in the evidence receipt.
+
+Important limits:
+- Explicit Euler is a baseline integrator, not an adaptive or stiff solver. Model authors must check the applicable diffusion stability bound, advection CFL bound, and graph-exchange step-size restrictions.
+- The routines do not infer units, validate a model against nature, or guarantee stability for arbitrary parameters.
+- SSA exactness is relative to the specified propensity functions and stoichiometric model.
+- Every output is labeled synthetic and non-empirical. The current code revision awaits its own Avrea run; earlier run #1354 does not verify this increment.
