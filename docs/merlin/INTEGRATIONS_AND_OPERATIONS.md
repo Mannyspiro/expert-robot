@@ -344,3 +344,57 @@ Do not present planned or prototype components as deployed integrations. Track e
 
 ---
 This guide is an operational handoff and integration specification. It does not assert that every listed integration is currently connected, deployed or qualified. Re-check live connection state, repository permissions, plan limits and workflow results before execution.
+
+
+## 13. Avrea CLI installation and deeper operations
+
+The official CLI package is named avr-cli and installs the avr command. Choose one supported installation path for the machine:
+
+~~~bash
+# macOS with Homebrew
+brew install avrea-com/tap/avr
+
+# Python tool install (recommended by the CLI project)
+uv tool install avr-cli
+
+# Or, with a compatible Python 3.14 already installed
+pip install avr-cli
+~~~
+
+Verify and authenticate:
+
+~~~bash
+avr --version
+avr auth login
+avr auth status
+avr config
+~~~
+
+The first login is browser-based. In a non-interactive job, use a scoped token from the Avrea console/CLI and provide it through a secret manager as AVR_TOKEN; set AVR_ORG to the organization ID when the token requires it. AVR_REPO can select a default owner/repository. Do not print environment variables or enable shell tracing around secrets.
+
+Useful job and workflow commands:
+
+~~~bash
+# Recent runs for the current Git checkout
+avr run list
+
+# Inspect a run and its jobs
+avr run view <run-id>
+avr run view <run-id> --log-failed
+avr run logs <run-id>
+
+# Follow a run and preserve the exit status for automation
+avr run watch <run-id> --exit-status
+
+# Dispatch an existing workflow_dispatch workflow
+avr workflow run ci.yml --ref feat/merlin-topic
+
+# Inspect an individual job
+avr job logs <job-id> --follow
+avr job metrics <job-id> --watch
+~~~
+
+For a run launched by Expert Robot, persist the returned run ID and poll by ID. Do not scrape the console UI when the CLI/API provides structured output. Prefer --json for automation and validate the returned repository, workflow, branch and SHA before treating the run as evidence.
+
+The CLI also supports job SSH and organization-scoped development VMs. These are optional capabilities, not the default CI path. Use them only when the Avrea organization has the feature enabled, the resource budget is approved, and the job needs an interactive debugging session. A VM's disk may be ephemeral; do not store sole copies of evidence or project data there.
+
