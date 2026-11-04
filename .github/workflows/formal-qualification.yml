@@ -135,8 +135,12 @@ jobs:
         env:
           LEAN_ABORT_ON_PANIC: "1"
         run: |
+          set +e
           output="$(lake env lean ../proofs/THTGPrintedBetaAudit.lean 2>&1)"
+          result=$?
+          set -e
           printf '%s\n' "$output"
+          if [ "$result" -ne 0 ]; then exit "$result"; fi
           if grep -Eq 'sorryAx|admitAx' <<< "$output"; then
             echo "::error::THTG beta theorem contains an untrusted proof escape."
             exit 1
