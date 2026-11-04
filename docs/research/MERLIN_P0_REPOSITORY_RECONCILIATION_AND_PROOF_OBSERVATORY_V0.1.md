@@ -70,7 +70,7 @@ The subsystem records every attempt, including failures, with:
 
 SQLite observations are append-only through the public API and use a SHA-256 predecessor chain. Chain verification detects altered payloads or reordered/missing links. Cross-domain links explicitly bind a theorem to one or more object-view IDs and an Engineering IR project revision hash plus a proof-receipt hash.
 
-Adaptive ranking is deliberately strict: it only includes kernel-checked, exact-target, no-sorry successful attempts with a workflow URL; it requires at least three observations for the same tactic sequence, exact statement hash, assumptions hash, domain, Lean version and Mathlib revision. It ranks reliability first, then median heartbeats and elapsed time. It does not infer strategy quality from a single success.
+Adaptive ranking is deliberately strict: it only includes kernel-checked, exact-target, no-sorry successful attempts with a workflow URL; it requires at least three observations for the same tactic sequence, exact statement hash, assumptions hash, domain, Lean version and Mathlib revision. It includes failed attempts in the success-rate denominator, keeps representation-ID families separate, and ranks reliability first, then median heartbeats and elapsed time. It does not infer strategy quality from a single success.
 
 ### Integration contract
 
