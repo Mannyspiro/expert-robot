@@ -66,6 +66,11 @@ class WireRoutingTests(unittest.TestCase):
         routes = result["nets"][0]["routes"]
         self.assertEqual(len(routes), 2)
         self.assertTrue(all(route["from"] == "J1.1" for route in routes))
+        for route in routes:
+            points = route["polyline_mm"]
+            for start, end in zip(points, points[1:]):
+                changed_axes = sum(abs(start[i] - end[i]) > 1e-10 for i in range(3))
+                self.assertLessEqual(changed_axes, 1)
 
     def test_invalid_clearance_rejected(self):
         project, assembly = project_with_endpoints()
