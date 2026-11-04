@@ -15,12 +15,13 @@ class CanonicalSchemaTests(unittest.TestCase):
         cls.schema = json.loads((ATLAS / "equation-entry.schema.json").read_text())
         cls.legacy = json.loads((ATLAS / "NORMALIZED_ENTRIES_001-020.json").read_text())
         cls.batch_021_030 = json.loads((ATLAS / "NORMALIZED_ENTRIES_021-030.json").read_text())
+        cls.batch_031_040 = json.loads((ATLAS / "NORMALIZED_ENTRIES_031-040.json").read_text())
         cls.validator = Draft202012Validator(cls.schema)
 
     def test_all_legacy_entries_migrate_to_canonical_schema(self):
-        migrated = [normalize_entry(item) for item in self.legacy["entries"]] + self.batch_021_030["entries"]
-        self.assertEqual(len(migrated), 30)
-        self.assertEqual([item["id"] for item in migrated], [f"RWEA-{i:03d}" for i in range(1, 31)])
+        migrated = [normalize_entry(item) for item in self.legacy["entries"]] + self.batch_021_030["entries"] + self.batch_031_040["entries"]
+        self.assertEqual(len(migrated), 40)
+        self.assertEqual([item["id"] for item in migrated], [f"RWEA-{i:03d}" for i in range(1, 41)])
         for entry in migrated:
             with self.subTest(entry=entry["id"]):
                 self.assertEqual(list(self.validator.iter_errors(entry)), [])
