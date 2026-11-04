@@ -22,6 +22,9 @@ on:
       - "scripts/merlin_math_idea_validate.py"
       - "tests/test_merlin_math_idea_validate.py"
 
+permissions:
+  contents: read
+
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref_name }}
   cancel-in-progress: true
