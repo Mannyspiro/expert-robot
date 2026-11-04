@@ -1,0 +1,34 @@
+name: Merlin Mathematical Idea Catalog
+
+on:
+  push:
+    paths:
+      - "docs/research/MERLIN_MATHEMATICAL_IDEA_LEDGER_V0.1.md"
+      - "docs/research/MERLIN_MATHEMATICAL_IDEA_INTAKE.md"
+      - "docs/research/merlin-mathematical-idea-catalog.v1.json"
+      - "scripts/merlin_math_idea_validate.py"
+      - "tests/test_merlin_math_idea_validate.py"
+      - ".github/workflows/merlin-math-catalog.yml"
+  pull_request:
+    paths:
+      - "docs/research/MERLIN_MATHEMATICAL_IDEA_LEDGER_V0.1.md"
+      - "docs/research/MERLIN_MATHEMATICAL_IDEA_INTAKE.md"
+      - "docs/research/merlin-mathematical-idea-catalog.v1.json"
+      - "scripts/merlin_math_idea_validate.py"
+      - "tests/test_merlin_math_idea_validate.py"
+      - ".github/workflows/merlin-math-catalog.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: merlin-math-catalog-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-catalog:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate stable IDs and typed relations
+        run: python3 scripts/merlin_math_idea_validate.py
+      - name: Test catalog validator
+        run: python3 -m unittest discover -s tests -p "test_merlin_math_idea_validate.py" -v
