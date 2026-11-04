@@ -100,3 +100,21 @@ kernel-visible axiom dependencies for review.
 
 #check MathAI.EquationAtlas.normalized_logistic_growth_nonnegative
 #print axioms MathAI.EquationAtlas.normalized_logistic_growth_nonnegative
+
+#check MathAI.WireQualification.current_within_derated_ampacity
+#print axioms MathAI.WireQualification.current_within_derated_ampacity
+
+#check MathAI.WireQualification.dc_voltage_drop_nonnegative
+#print axioms MathAI.WireQualification.dc_voltage_drop_nonnegative
+
+#check MathAI.WireQualification.corrected_resistance_positive
+#print axioms MathAI.WireQualification.corrected_resistance_positive
+
+#check MathAI.WireQualification.lumped_thermal_fixed_point_unique
+#print axioms MathAI.WireQualification.lumped_thermal_fixed_point_unique
+
+#check MathAI.WireQualification.measured_clearance_meets_requirement
+#print axioms MathAI.WireQualification.measured_clearance_meets_requirement
+
+#check MathAI.WireQualification.minimum_bend_radius_meets_requirement
+#print axioms MathAI.WireQualification.minimum_bend_radius_meets_requirement
