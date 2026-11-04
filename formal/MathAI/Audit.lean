@@ -91,3 +91,12 @@ kernel-visible axiom dependencies for review.
 
 #check MathAI.Geometry.cross_orthogonal_right
 #print axioms MathAI.Geometry.cross_orthogonal_right
+
+#check MathAI.EquationAtlas.square_nonnegative
+#print axioms MathAI.EquationAtlas.square_nonnegative
+
+#check MathAI.EquationAtlas.square_sum_ge_four_product
+#print axioms MathAI.EquationAtlas.square_sum_ge_four_product
+
+#check MathAI.EquationAtlas.normalized_logistic_growth_nonnegative
+#print axioms MathAI.EquationAtlas.normalized_logistic_growth_nonnegative
