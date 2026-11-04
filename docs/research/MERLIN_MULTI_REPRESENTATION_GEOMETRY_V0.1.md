@@ -111,7 +111,7 @@ For a unit axis u and angle θ, a spatial rotation has several exact mathematica
 
 **Geometric-algebra view.** In Cl(3,0), a unit rotor R is formed from the plane bivector and acts by v'=R v R̃. Under a convention-consistent identification of the even subalgebra with quaternions, the sandwich actions agree.
 
-The current code implements and tests the quaternion, matrix and rotor views. The complex-plane view is mathematically specified here but remains a separate implementation task.
+The current code implements and tests all four views: quaternion sandwich action, SO(3) matrix action, Cl(3,0) rotor sandwich action, and complex multiplication on the oriented plane perpendicular to each tested rotation axis.
 
 This creates a concrete representation graph:
 
