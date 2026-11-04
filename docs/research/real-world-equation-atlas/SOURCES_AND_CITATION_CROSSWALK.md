@@ -1,0 +1,46 @@
+# Authoritative source register and equation crosswalk
+
+**Citation policy:** a source supports only the claims and equation families actually covered by its content. A citation to a broad course or standard is not evidence that every application-specific model has been validated. Uncovered entries remain explicitly marked for primary-source completion.
+
+## Source register
+
+- **S01 — Convex optimization:** MIT OpenCourseWare, *Introduction to Convex Optimization* (6.079, Fall 2009). Covers convex modeling, least squares, linear/quadratic/semidefinite programs, optimality and duality, and scientific/engineering applications. https://ocw.mit.edu/courses/6-079-introduction-to-convex-optimization-fall-2009/
+- **S02 — Convex optimization text:** Boyd & Vandenberghe, *Convex Optimization*, Stanford-hosted author resource and examples. https://web.stanford.edu/~boyd/cvxbook/
+- **S03 — SI dimensions and units:** NIST, *Guide to the SI*, Chapter 7, dimensions and dimensional exponents. https://www.nist.gov/pml/special-publication-811/nist-guide-si-chapter-7-rules-and-style-conventions-expressing-values
+- **S04 — SI base quantities:** NIST, *The International System of Units (SI), SP 330*, including seven base quantities and derived dimensions. https://www.nist.gov/pml/special-publication-330/sp-330-section-2
+- **S05 — Uncertainty propagation:** NIST TN 1297, Appendix A, law of propagation of uncertainty. https://www.nist.gov/pml/nist-technical-note-1297/nist-tn-1297-appendix-law-propagation-uncertainty
+- **S06 — Measurement uncertainty:** Possolo, NIST TN 1900, measurement models and uncertainty evaluation. https://doi.org/10.6028/NIST.TN.1900
+- **S07 — SymPy dimensional system:** SymPy 1.14 documentation, physical dimensions and unit systems. https://docs.sympy.org/latest/modules/physics/units/dimensions.html
+- **S08 — Applied PDEs and numerical methods:** MIT OCW 18.086, *Mathematical Methods for Engineers II*: heat, wave, convection, conservation laws, stability, finite differences, Fourier methods, sparse linear systems, optimization. https://ocw.mit.edu/courses/18-086-mathematical-methods-for-engineers-ii-spring-2006/
+- **S09 — NASA state estimation:** NASA Technical Memorandum 2022-0007267, Kalman filter appendix, LTI state-space model, discretization, noise assumptions and covariance updates. https://ntrs.nasa.gov/api/citations/20220007267/downloads/NASA-TM-20220007267.pdf
+- **S10 — Sampling and DSP:** IEEE Technology Navigator, digital signal processing and sampling theorem overview. https://technav.ieee.org/area/digital-signal-processing/
+- **S11 — Sampling theorem teaching reference:** Carnegie Mellon University, *The Nyquist-Shannon Sampling Theorem*. https://www.cs.cmu.edu/~15322/book/ch07/01.html
+- **S12 — Reproducible random streams:** NumPy documentation, Generator and seeded default_rng. https://numpy.org/doc/stable/reference/random/generator.html
+- **S13 — Logistic growth:** OpenStax, *Calculus Volume 2*, Section 4.4, logistic equation, carrying capacity, initial-value solution and interpretation. https://openstax.org/books/calculus-volume-2/pages/4-4-the-logistic-equation
+- **S14 — Enzyme kinetics context:** OpenStax Biology, Section 6.5, enzyme catalysis and reaction-rate context. https://openstax.org/books/biology/pages/6-5-enzymes
+- **S15 — Michaelis–Menten derivation/context:** Chemistry LibreTexts, Michaelis–Menten kinetics and reaction scheme. https://chem.libretexts.org/Bookshelves/Biological_Chemistry/Supplemental_Modules_%28Biological_Chemistry%29/Enzymes/Enzymatic_Kinetics/Michaelis-Menten_Kinetics
+- **S16 — Spectral graph theory:** Carnegie Mellon University lecture notes, graph Laplacian, eigenvalues and connectivity. https://www.cs.cmu.edu/~venkatg/teaching/15252-sp21/notes/spectral-GT-spring2020.pdf
+- **S17 — Spectral graph theory applications:** Simons Institute / UC Berkeley, spectral graph theory, expanders, eigenvalues and graph partitioning. https://simons.berkeley.edu/spectral-graph-theory
+- **S18 — Lean formalization background:** *Mathematics in Lean*, linear algebra, modules, matrices and vector spaces. https://mathlib.org/theories/linear_algebra.html
+- **S19 — Post-quantum lattice standard:** NIST FIPS 203, ML-KEM and Module Learning with Errors basis. https://csrc.nist.gov/pubs/fips/203/final
+- **S20 — Relativity/geometric equations:** NASA Glenn, field equations and equations of motion (educational introduction; use primary GR texts/papers for technical validation). https://www.grc.nasa.gov/WWW/k-12/Numbers/Math/Mathematical_Thinking/field_equations.htm
+- **S21 — Einstein field equation technical reference:** NASA/JPL-hosted technical document on Einstein field equations, metric, energy-momentum and curvature tensors. https://spsweb.fltops.jpl.nasa.gov/portaldataops/mpg/MPG_Docs/Source%20Docs/Einstein%27s%20Field%20Equations.pdf
+
+## Equation-ID crosswalk
+
+| Atlas IDs | Source mapping | Evidence boundary / remaining source work |
+|---|---|---|
+| 001–010 | S01, S02, S03, S05 | Optimization and estimation foundations supported; add domain-specific references for finance/robust decision applications. |
+| 011–020 | S03, S04, S16, S17, S18 | Linear algebra, graph Laplacian and dimensions supported; add primary references for each geometric construction. |
+| 021–030 | S03, S09 | State-space and Kalman model supported; PID/LQR/robot dynamics/kinematics need specialist control and robotics references per entry. |
+| 031–040 | S03, S08 | Conservation, heat, wave, finite-difference/PDE foundations supported; Maxwell and constitutive relations require EM primary references. |
+| 041–050 | S03, S07, S10, S11, S12 | Sampling, transform and dimensional computation foundations supported; entropy/coding/complexity need dedicated sources per entry. |
+| 051–060 | S03, S08 | FEM/numerical methods supported at course level; elasticity, fatigue, fracture, buckling and AM process laws need standards/material-specific primary sources. |
+| 061–070 | S03, S13, S14, S15 | Logistic growth and enzyme kinetics context supported; SIR, Lotka–Volterra, gene regulation, PK and allometry need dedicated domain sources. |
+| 071–080 | S03, S08 | Network linear algebra foundations supported; shortest path, queueing, reliability, inventory and input-output require dedicated OR/engineering references. |
+| 081–090 | S03, S05 | Uncertainty and statistical foundations supported; CAPM, VaR, survival and regression require finance/statistics primary references. |
+| 091–100 | S03, S18, S19, S20, S21 | Tensor/linear-algebra, lattice standard and introductory relativity references supported; Floquet, geometric algebra and equivariant ML need dedicated references. |
+
+## Status
+
+This is a source-to-entry crosswalk, not a claim that every entry has already received a complete primary-source audit. Entries with explicit gaps must remain UNVERIFIED for application-specific use until a source directly supports the model, assumptions, and regime. The source register should be expanded entry-by-entry before a production promotion.
