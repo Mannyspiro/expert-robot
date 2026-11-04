@@ -21,6 +21,14 @@ on:
       - "formal/MathAI.lean"
       - "formal/lean-toolchain"
       - "formal/lake-manifest.json"
+      - "merlin/glyph_foundry.py"
+      - "merlin/glyph_normalizer.py"
+      - "merlin/glyph_confluence.py"
+      - "tests/test_glyph_foundry.py"
+      - "tests/test_glyph_normalizer.py"
+      - "tests/test_glyph_confluence.py"
+      - "scripts/merlin_glyph_confluence_benchmark.py"
+      - "docs/research/MERLIN_XMG1E_CONFLUENCE_V0.1.md"
       - ".github/workflows/math-benchmark.yml"
   workflow_dispatch:
     inputs:
@@ -240,3 +248,30 @@ jobs:
         run: |
           echo "::error::At least one independent benchmark variant failed."
           exit 1
+
+  glyph-confluence:
+    name: glyph-confluence-avrea
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Glyph Foundry, normalizer and confluence tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tests -p "test_glyph_foundry.py" -v
+          python3 -m unittest discover -s tests -p "test_glyph_normalizer.py" -v
+          python3 -m unittest discover -s tests -p "test_glyph_confluence.py" -v
+      - name: Run deterministic XMG-1E positive-control benchmark
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/merlin_glyph_confluence_benchmark.py --output artifacts/merlin-xmg1e-confluence.json
+      - name: Publish XMG-1E evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-xmg1e-confluence-${{ github.run_id }}
+          path: artifacts/merlin-xmg1e-confluence.json
+          if-no-files-found: warn
+          retention-days: 30
