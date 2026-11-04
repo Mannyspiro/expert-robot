@@ -897,10 +897,13 @@
         "The axis and orientation are fixed.",
         "The complex structure is defined by the chosen oriented orthonormal basis of u-perp."
       ],
-      "status": "candidate",
+      "status": "finite_tested",
       "provenance": [
         "MERLIN_MULTI_REPRESENTATION_GEOMETRY_V0.1.md section 18",
-        "Merlin discussions: complex numbers, sine/cosine and polar coordinates"
+        "Merlin discussions: complex numbers, sine/cosine and polar coordinates",
+        "merlin/rotation_representations.py: complex_plane_rotate",
+        "tests/test_merlin_rotation_representations.py: all three coordinate-axis orientations",
+        "Avrea run pending for the complex-plane adapter extension."
       ],
       "relations": [
         {
@@ -913,13 +916,12 @@
         }
       ],
       "objections": [
-        "This is a representation of the perpendicular plane, not a global encoding of arbitrary 3D vectors by one complex number.",
-        "Changing the oriented plane basis changes the complex coordinate convention."
+        "The implementation tests exact rational rotations and fixed coordinate axes; arbitrary axes require a declared orthonormal frame.",
+        "The complex coordinate is only for the perpendicular plane; the axial component is stored separately."
       ],
       "next_steps": [
-        "Implement the axis-plus-complex-plane decomposition.",
-        "Verify the matrix and complex multiplication actions agree for exact and approximate angles.",
-        "Record how the axial component is preserved."
+        "Qualify the expanded four-view tests on Avrea.",
+        "Generalize from coordinate axes to arbitrary unit axes using an explicit orthonormal frame."
       ]
     }
   ]
