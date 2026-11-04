@@ -54,6 +54,7 @@ theorem levelScale_bounds
           r ^ n * r ≤ r ^ n * 1 :=
             mul_le_mul_of_nonneg_left hr1 (pow_nonneg hr0 n)
           _ = r ^ n := by ring
+          _ ≤ 1 := by simpa [levelScale] using ih.2
 
 /-- If 0 ≤ r ≤ 1, increasing the hierarchy depth cannot increase
     its nominal linear scale. -/
