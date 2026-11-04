@@ -144,3 +144,46 @@ A release is not “complete” until:
 - No automatic promotion from cache hits, benchmarks or hashes.
 - No broad permission grants to research agents.
 - No paid services or card trials as default dependencies.
+
+
+## Foundation implementation update — 2026-11-04
+
+The following source components have now been added on branch
+`feat/merlin-real-world-equation-atlas-v01-20261104`:
+
+- `python/merlin/knowledge_graph.py`: typed SQLite graph with controlled node
+  and relation vocabularies, directional traversal, deterministic snapshots,
+  and an explicit epistemic notice.
+- `python/merlin/foundation_store.py`: facade joining immutable artifact
+  storage to graph identities, with project reconciliation and evidence-link
+  integrity checks. The registry and graph remain separate SQLite stores, so
+  this facade is not an atomic cross-database transaction.
+- `python/merlin/archive_intake.py`: bounded ZIP inspection and manifest-first
+  intake. It rejects traversal paths, encrypted members, oversized archives
+  and suspicious compression ratios; it never extracts archive paths to disk.
+  It preserves original archive bytes, member paths and SHA-256 digests, and
+  reports duplicate content. Project ownership must be supplied explicitly.
+- Tests: `test_knowledge_graph.py`, `test_foundation_store.py`, and
+  `test_archive_intake.py`.
+- `.github/workflows/merlin-knowledge-graph.yml`: focused Avrea runner
+  workflow for these contract tests.
+
+These are committed implementations, not yet a claim that the full archive
+inventory has been imported. The five original archives have not been
+available in the current working context, so the historical 13-project /
+1,452-artifact count remains an unverified prior package report. The focused
+workflow was configured but its result was not confirmed at the time of this
+update.
+
+### Immediate next gates
+
+1. Run and inspect the focused archive/graph CI on the exact branch head.
+2. Correct any test or integration failures before adding more foundation layers.
+3. Obtain and ingest the five source ZIPs; preserve source archive hashes and
+   produce a reconciled inventory without guessing project boundaries.
+4. Add idempotent import receipts and restart/resume behavior for interrupted
+   multi-archive ingestion.
+5. Connect Hermes, CACE and MCFC using explicit typed adapters and contract
+   tests; do not claim live runtime integration until exercised.
+6. Add a durable evidence-receipt ledger and replay API, then use it as the
+   common source for virtual PR review and controlled merge gates.
