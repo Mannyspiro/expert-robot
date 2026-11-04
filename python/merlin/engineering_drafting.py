@@ -19,23 +19,26 @@ def export_top_view_svg(project: EngineeringProject, assembly: Any,
     errors = [issue for issue in validate_project(project) if issue.severity == "error"]
     if errors:
         raise ValueError("cannot draft an invalid engineering project")
-    from merlin.cad_assembly import validate_assembly
+    from merlin.cad_assembly import validate_assembly, compose, resolve_frames, Transform3D
     assembly_errors = [issue for issue in validate_assembly(project, assembly)
                        if issue.severity == "error"]
     if assembly_errors:
         raise ValueError("cannot draft an invalid assembly")
     parts = {part.ref: part for part in project.parts}
+    frame_world = resolve_frames(assembly.frames)
     items = []
     for component in assembly.components:
         part = parts[component.part_ref]
-        # Use only the explicit assembly translation and declared part footprint.
-        # Rotated extents are calculated from the XY rows of the rotation matrix.
-        r = component.transform.rotation
+        world = component.transform
+        if component.frame_id is not None:
+            world = compose(frame_world[component.frame_id], world)
+        world = compose(world, Transform3D(translation_mm=part.position_mm))
+        # Axis-aligned XY projection of the declared rectangular footprint.
+        r = world.rotation
         sx, sy, _ = part.size_mm
         hx = (abs(r[0]) * sx + abs(r[1]) * sy) / 2
         hy = (abs(r[3]) * sx + abs(r[4]) * sy) / 2
-        cx = component.transform.translation_mm[0] + part.position_mm[0]
-        cy = component.transform.translation_mm[1] + part.position_mm[1]
+        cx, cy = world.translation_mm[0], world.translation_mm[1]
         items.append((part.ref, part.name, cx-hx, cy-hy, 2*hx, 2*hy))
     if not items:
         raise ValueError("assembly has no components")
