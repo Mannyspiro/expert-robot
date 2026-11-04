@@ -53,8 +53,9 @@ class WiringExportTests(unittest.TestCase):
         )
         physical = physical_netlist(project, self.assembly)
         dot = export_wiring_graph_dot(project, physical)
-        self.assertIn('\\\\\\n', dot)
-        self.assertIn('\\\\"quoted\\\"', dot)
+        import json
+        expected = json.dumps('J1.1\\nOUT\\n"quoted"', ensure_ascii=False)
+        self.assertIn(expected, dot)
 
     def test_unknown_physical_netlist_rejected(self):
         with self.assertRaises(ValueError):
