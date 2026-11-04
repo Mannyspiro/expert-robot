@@ -104,6 +104,10 @@ def record_route_evidence(
     source_url: str = "",
 ) -> Evidence:
     """Verify all bound inputs, then add evidence without promoting the hypothesis."""
+    if not isinstance(receipt, dict) or receipt.get("promotion_authority") is not False:
+        raise ValueError("route evidence cannot carry promotion authority")
+    if receipt.get("qualification_status") != "not_qualified":
+        raise ValueError("route evidence must remain not qualified")
     if not verify_route_evidence_receipt(receipt, project, assembly, route_output):
         raise ValueError("route evidence receipt does not match the supplied inputs")
     supplied_hash = receipt["receipt_sha256"]
