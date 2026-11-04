@@ -16,6 +16,7 @@ theorem normalized_logistic_growth_nonnegative
     (r p : ℝ) (hr : 0 ≤ r) (hp : 0 ≤ p) (hp_le_one : p ≤ 1) :
     0 ≤ r * p * (1 - p) := by
   have hfactor : 0 ≤ 1 - p := by linarith
-  exact mul_nonneg hr (mul_nonneg hp hfactor)
+  have hrp : 0 ≤ r * p := mul_nonneg hr hp
+  exact mul_nonneg hrp hfactor
 
 end MathAI.EquationAtlas
