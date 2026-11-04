@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Merlin CAD MCFC Artifact Metadata v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "metadata_version",
+    "artifact_sha256",
+    "artifact_family",
+    "units",
+    "coordinate_frame",
+    "revision",
+    "provenance"
+  ],
+  "properties": {
+    "metadata_version": {
+      "const": "1.0"
+    },
+    "artifact_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "artifact_family": {
+      "enum": [
+        "cad_model",
+        "cad_drawing",
+        "cad_native_project",
+        "mesh_model",
+        "simulation_mesh",
+        "simulation_input",
+        "simulation_result",
+        "electrical_netlist",
+        "electrical_schematic",
+        "pcb_layout",
+        "manufacturing_data"
+      ]
+    },
+    "units": {
+      "type": "object",
+      "required": [
+        "length",
+        "angle"
+      ],
+      "properties": {
+        "length": {
+          "type": "string",
+          "minLength": 1
+        },
+        "angle": {
+          "type": "string",
+          "minLength": 1
+        },
+        "mass": {
+          "type": "string"
+        },
+        "time": {
+          "type": "string"
+        }
+      }
+    },
+    "coordinate_frame": {
+      "type": "object",
+      "required": [
+        "frame_id",
+        "handedness",
+        "axis_convention"
+      ],
+      "properties": {
+        "frame_id": {
+          "type": "string"
+        },
+        "handedness": {
+          "enum": [
+            "right",
+            "left"
+          ]
+        },
+        "axis_convention": {
+          "type": "string"
+        },
+        "transform_to_parent": {
+          "type": "array",
+          "minItems": 16,
+          "maxItems": 16,
+          "items": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "revision": {
+      "type": "string",
+      "minLength": 1
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "source_artifact_sha256",
+        "operation"
+      ],
+      "properties": {
+        "source_artifact_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "operation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tool": {
+          "type": "string"
+        },
+        "tool_version": {
+          "type": "string"
+        },
+        "parameters_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "solver_log_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "verification": {
+      "enum": [
+        "not_verified",
+        "pending",
+        "passed",
+        "failed",
+        "inconclusive"
+      ],
+      "default": "not_verified"
+    }
+  }
+}
