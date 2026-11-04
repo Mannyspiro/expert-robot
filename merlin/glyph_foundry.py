@@ -116,7 +116,10 @@ class Candidate:
 
 class GlyphFoundry:
     """Finite resumable slices of a potentially unbounded typed composition space."""
-    def __init__(self,registry): self.registry=registry; self._seen=set()
+    def __init__(self,registry,evidence_verifier=None):
+        self.registry=registry
+        self.evidence_verifier=evidence_verifier
+        self._seen=set()
     def seed_expressions(self): return [self.registry.primitive_expr(k) for k in sorted(self.registry.primitives)]
     def enumerate_compositions(self,max_depth=4,max_nodes=12,max_candidates=1000)->Iterator[Expr]:
         if min(max_depth,max_nodes,max_candidates)<1: raise FoundryError("limits must be positive")
@@ -172,6 +175,14 @@ class GlyphFoundry:
         if require_proof and not c.proof_receipt: raise PromotionError("promotion requires formal proof receipt")
         if not c.independent_review_receipt: raise PromotionError("promotion requires independent review")
         if not self._demonstrates_value(c): raise PromotionError("promotion requires benchmark improvement over baseline")
+        if self.evidence_verifier is None:
+            raise PromotionError("no trusted evidence verifier configured; receipt strings are not self-authenticating")
+        subject=c.fingerprint
+        required=[("test",r) for r in c.test_receipts]
+        if require_proof: required.append(("formal_proof",c.proof_receipt))
+        required.extend([("independent_review",c.independent_review_receipt),("benchmark",c.value_receipt)])
+        if not all(self.evidence_verifier(kind,receipt,subject) for kind,receipt in required):
+            raise PromotionError("one or more evidence receipts failed independent verification")
         self.registry.promoted[c.id]=c; c.state=EvidenceState.PROMOTED
 
 def build_default_registry():
