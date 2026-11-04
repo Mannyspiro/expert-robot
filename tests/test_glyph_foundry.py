@@ -44,6 +44,16 @@ class GlyphFoundryTests(unittest.TestCase):
         self.foundry.record_value(c,1.2,1.0,"benchmark-run",min_relative_gain=.1)
         self.foundry.promote(c)
         self.assertEqual(c.state,EvidenceState.PROMOTED)
+    def test_bounded_search_slices_resume_without_repeating(self):
+        first = list(self.foundry.enumerate_compositions(4, 10, 5))
+        second = list(self.foundry.enumerate_compositions(4, 10, 100))
+        self.assertTrue(first)
+        self.assertTrue(second)
+        self.assertFalse({x.fingerprint() for x in first} & {x.fingerprint() for x in second})
+    def test_nonfinite_benchmark_is_rejected(self):
+        c = self.foundry.propose(self.registry.primitive_expr("NEGATE_INT"))
+        with self.assertRaises(PromotionError):
+            self.foundry.record_value(c, float("nan"), 1.0, "bad-benchmark")
     def test_no_improvement_cannot_be_promoted(self):
         c=self.foundry.propose(self.registry.primitive_expr("NEGATE_INT"))
         self.foundry.record_tests(c,["test"])
