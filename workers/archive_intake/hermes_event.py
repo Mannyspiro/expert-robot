@@ -9,21 +9,25 @@ from register_inventory import RegistryError, validate_manifest
 def build_event(manifest: dict, project_id: str, repository: str | None = None,
                 commit_sha: str | None = None) -> dict:
     validate_manifest(manifest)
-    if not project_id or not project_id.strip():
+    if not isinstance(project_id, str) or not project_id.strip():
         raise RegistryError("project_id is required")
     if bool(repository) != bool(commit_sha):
         raise RegistryError("repository and commit_sha must be supplied together")
+    if repository and ("/" not in repository or repository.startswith("/") or repository.endswith("/")):
+        raise RegistryError("repository must use owner/name form")
     if commit_sha and (len(commit_sha) != 40 or any(c not in "0123456789abcdef" for c in commit_sha.lower())):
         raise RegistryError("commit_sha must be a full 40-character hexadecimal SHA")
-    body = {"event_type":"merlin.project.intake.registered.v1","project_id":project_id,
-      "intake_id":manifest["intake_id"],"manifest_sha256":hashlib.sha256(
-        json.dumps(manifest,sort_keys=True,separators=(",",":")).encode()).hexdigest(),
-      "created_at":datetime.now(timezone.utc).isoformat(),
+    manifest_sha = hashlib.sha256(
+        json.dumps(manifest,sort_keys=True,separators=(",",":")).encode()).hexdigest()
+    source = {"repository_full_name":repository,"commit_sha":commit_sha.lower()} if repository else None
+    identity = {"event_type":"merlin.project.intake.registered.v1","project_id":project_id,
+      "intake_id":manifest["intake_id"],"manifest_sha256":manifest_sha,"source":source}
+    event_id = "sha256:" + hashlib.sha256(
+        json.dumps(identity,sort_keys=True,separators=(",",":")).encode()).hexdigest()
+    body = {**identity,"event_id":event_id,"created_at":datetime.now(timezone.utc).isoformat(),
       "archive_sha256":manifest["archive"]["sha256"],"file_count":manifest["file_count"]}
-    if repository:
-        body["source"]={"repository_full_name":repository,"commit_sha":commit_sha.lower()}
-    stable = json.dumps(body,sort_keys=True,separators=(",",":")).encode()
-    body["event_id"]="sha256:"+hashlib.sha256(stable).hexdigest()
+    if source is None:
+        body.pop("source")
     return body
 
 def main():
@@ -36,7 +40,7 @@ def main():
         manifest=json.loads(args.manifest.read_text(encoding="utf-8"))
         event=build_event(manifest,args.project_id,args.repository,args.commit_sha)
         args.outbox.parent.mkdir(parents=True,exist_ok=True)
-        args.outbox.write_text(json.dumps(event,indent=2,sort_keys=True)+"\\n",encoding="utf-8")
+        args.outbox.write_text(json.dumps(event,indent=2,sort_keys=True)+"\n",encoding="utf-8")
         print(json.dumps({"status":"queued_locally","event_id":event["event_id"],"outbox":str(args.outbox)},indent=2))
         return 0
     except (OSError,ValueError,RegistryError) as exc:
