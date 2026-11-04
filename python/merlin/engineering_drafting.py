@@ -19,7 +19,8 @@ def export_top_view_svg(project: EngineeringProject, assembly: Any,
     errors = [issue for issue in validate_project(project) if issue.severity == "error"]
     if errors:
         raise ValueError("cannot draft an invalid engineering project")
-    from merlin.cad_assembly import validate_assembly, compose, resolve_frames, Transform3D
+    from merlin.cad_assembly import validate_assembly, Transform3D
+    from merlin.coordinate_frames import compose, resolve_frames
     assembly_errors = [issue for issue in validate_assembly(project, assembly)
                        if issue.severity == "error"]
     if assembly_errors:
