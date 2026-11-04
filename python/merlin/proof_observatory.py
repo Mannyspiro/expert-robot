@@ -9,6 +9,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 import hashlib
 import json
+import re
 import sqlite3
 import statistics
 import time
@@ -57,6 +58,7 @@ class ProofAttempt:
     mathlib_revision: str
     import_closure_sha256: str
     kernel_checked: bool = False
+    axiom_audit_passed: bool = False
     contains_sorry: bool = False
     axiom_dependencies: tuple[str, ...] = ()
     exact_target_declaration: bool = False
@@ -78,13 +80,17 @@ class ProofAttempt:
                 raise ValueError(f"{label} must be lowercase SHA-256")
         if not self.lean_version.strip() or not self.mathlib_revision.strip():
             raise ValueError("Lean version and Mathlib revision are required")
+        if self.workflow_run_url is not None and not re.fullmatch(
+            r"https://github\\.com/[^/]+/[^/]+/actions/runs/[1-9][0-9]*", self.workflow_run_url
+        ):
+            raise ValueError("workflow_run_url must be a GitHub Actions run URL")
         if self.outcome == "success" and self.failure_stage is not None:
             raise ValueError("successful attempts cannot have a failure_stage")
 
     @property
     def qualified(self) -> bool:
         return (self.outcome == "success" and self.kernel_checked and
-                not self.contains_sorry and self.exact_target_declaration and
+                self.axiom_audit_passed and not self.contains_sorry and self.exact_target_declaration and
                 bool(self.workflow_run_url))
 
 
