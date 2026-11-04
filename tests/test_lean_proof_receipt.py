@@ -107,6 +107,19 @@ class LeanProofReceiptTests(unittest.TestCase):
                         "This is not a claim that the printed system is the correct physical FRG flow.",
                     ),
                 )
+            elif receipt.theorem.endswith("pageEntropy_has_no_maximum_on_open_interval"):
+                hypothesis_id = "THTG-PRINTED-PAGE-NO-INTERIOR-MAXIMUM"
+                self.ledger.create(
+                    hypothesis_id,
+                    "The printed pre-Page THTG entropy expression has no maximum in the open interval (0,T).",
+                    mathematical_objects=("sinh", "log", "time t", "positive c, a, T"),
+                    relation="strictly_increasing_on_open_interval",
+                    assumptions=(
+                        "Use S(t) = (c/6) * log(sinh(a*t) / sinh(a*(T-t))).",
+                        "Assume c > 0, a > 0 and 0 < t < T.",
+                        "This result applies to the printed branch, not a generalized-entropy/island replacement.",
+                    ),
+                )
             else:
                 hypothesis_id = "THTG-COND-MAX"
             evidence = record_lean_proof(self.ledger, hypothesis_id, receipt)
@@ -116,6 +129,29 @@ class LeanProofReceiptTests(unittest.TestCase):
                 self.ledger.set_status(hypothesis_id, "formally_verified").status,
                 "formally_verified",
             )
+            if receipt.theorem.endswith("pageEntropy_has_no_maximum_on_open_interval"):
+                refuted_id = "THTG-PRINTED-PAGE-FINITE-MAX-CLAIM"
+                self.ledger.create(
+                    refuted_id,
+                    "The printed pre-Page THTG entropy expression attains a finite maximum at an interior point of (0,T).",
+                    mathematical_objects=("pageEntropy", "open interval (0,T)"),
+                    relation="interior_finite_maximum",
+                    assumptions=(
+                        "Use the printed sinh-log expression exactly.",
+                        "Assume c > 0 and a > 0.",
+                    ),
+                )
+                self.ledger.add_evidence(
+                    refuted_id,
+                    "counterexample",
+                    "The Lean witness construction chooses u=(t+T)/2, with t<u<T and S(t)<S(u) for every interior t.",
+                    source_url=receipt.workflow_run_url,
+                    artifact_hash=receipt.digest(),
+                )
+                self.assertEqual(
+                    self.ledger.set_status(refuted_id, "refuted").status,
+                    "refuted",
+                )
 
 
 if __name__ == "__main__":
