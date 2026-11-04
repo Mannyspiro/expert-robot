@@ -406,6 +406,45 @@
         "lean_verified"
       ],
       "uses": []
+    },
+    {
+      "name": "MathAI.EquationAtlas.square_nonnegative",
+      "source": "MathAI/EquationAtlas.lean",
+      "status": "candidate",
+      "statement": "For every real x, 0 ≤ x^2.",
+      "domain": "algebra",
+      "tags": [
+        "equation_atlas",
+        "order",
+        "candidate"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.EquationAtlas.square_sum_ge_four_product",
+      "source": "MathAI/EquationAtlas.lean",
+      "status": "candidate",
+      "statement": "For all real x,y, 4xy ≤ (x+y)^2.",
+      "domain": "optimization",
+      "tags": [
+        "equation_atlas",
+        "rectangle_perimeter",
+        "candidate"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.EquationAtlas.normalized_logistic_growth_nonnegative",
+      "source": "MathAI/EquationAtlas.lean",
+      "status": "candidate",
+      "statement": "For r≥0 and 0≤p≤1, r p (1−p)≥0.",
+      "domain": "dynamical_systems",
+      "tags": [
+        "equation_atlas",
+        "logistic_growth",
+        "candidate"
+      ],
+      "uses": []
     }
   ]
 }
