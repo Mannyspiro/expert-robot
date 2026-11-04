@@ -128,5 +128,6 @@ All 70 entries remain `UNVERIFIED`. The 061–070 sources are foundational refer
 ## MCFC, CAD and wiring integration
 - `docs/research/MCFC_CAD_WIRING_INTEGRATION_V0.1.md` defines the Multi-Coordinate-Frame Contract as the bridge between one canonical engineering object, assembly frames, PCB/mechanical datums, pin geometry, and harness planning.
 - `python/merlin/wire_routing.py` proposes deterministic orthogonal 3D centerlines from the physical netlist using conservative transformed component AABBs. It reports missing geometry and blocked paths rather than guessing.
+- `python/merlin/route_evidence.py` binds project, assembly, frame graph, route output, router version, and source commit into a content-addressed receipt; CACE/Merlin ledger ingestion re-verifies inputs and never auto-promotes a hypothesis.
 - `tests/test_wire_routing.py` covers clear paths, obstacle overpass candidates, missing pin geometry, multi-terminal star topology, invalid clearance, and the explicit non-qualification status.
 - Avrea CI runs this test alongside engineering IR, CAD assembly, coordinate-frame, and physical-connectivity tests. A successful run validates only these declared software tests; it does not qualify a wiring harness for fabrication or energized use.
