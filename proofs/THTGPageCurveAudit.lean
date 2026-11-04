@@ -27,8 +27,8 @@ lemma pageRatio_pos (a T t : ℝ)
     0 < pageRatio a T t := by
   unfold pageRatio
   apply div_pos
-  · exact Real.sinh_pos (mul_pos ha ht)
-  · exact Real.sinh_pos (mul_pos ha (by linarith))
+  · exact (Real.sinh_pos_iff).2 (mul_pos ha ht)
+  · exact (Real.sinh_pos_iff).2 (mul_pos ha (by linarith))
 
 /-- The printed sinh ratio is strictly increasing before the proposed Page time. -/
 theorem pageRatio_strict_mono
@@ -41,13 +41,13 @@ theorem pageRatio_strict_mono
     apply mul_lt_mul_of_pos_left _ ha
     linarith
   have hnum : Real.sinh (a * t₁) < Real.sinh (a * t₂) :=
-    Real.strictMono_sinh hnumArg
+    Real.sinh_strictMono hnumArg
   have hden : Real.sinh (a * (T - t₂)) < Real.sinh (a * (T - t₁)) :=
     Real.strictMono_sinh hdenArg
   have hnumPos : 0 < Real.sinh (a * t₂) :=
-    Real.sinh_pos (mul_pos ha (lt_trans ht₁ ht₂))
+    (Real.sinh_pos_iff).2 (mul_pos ha (lt_trans ht₁ ht₂))
   have hdenPos : 0 < Real.sinh (a * (T - t₁)) :=
-    Real.sinh_pos (mul_pos ha (by linarith))
+    (Real.sinh_pos_iff).2 (mul_pos ha (by linarith))
   have hstep₁ :
       Real.sinh (a * t₁) / Real.sinh (a * (T - t₁)) <
       Real.sinh (a * t₂) / Real.sinh (a * (T - t₁)) :=
@@ -55,7 +55,7 @@ theorem pageRatio_strict_mono
   have hstep₂ :
       Real.sinh (a * t₂) / Real.sinh (a * (T - t₁)) <
       Real.sinh (a * t₂) / Real.sinh (a * (T - t₂)) :=
-    div_lt_div_of_pos_left hden hnumPos
+    div_lt_div_of_pos_left hnumPos hden
   exact lt_trans hstep₁ hstep₂
 
 /-- The printed entropy branch is strictly increasing for positive c and a. -/
