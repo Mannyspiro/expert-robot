@@ -68,11 +68,27 @@ class GlyphNormalizer:
     def _rebuild(self,e:Expr)->Expr:
         a=e.args
         if e.op in ("identity","primitive"): return e
-        if e.op=="compose": return self.registry.compose(self.normalize_children(a[0]),self.normalize_children(a[1]))
-        if e.op=="pair": return self.registry.pair(self.normalize_children(a[0]),self.normalize_children(a[1]))
-        if e.op=="project": return self.registry.project(self.normalize_children(a[0]),a[1])
-        if e.op=="equal": return self.registry.equal(self.normalize_children(a[0]),self.normalize_children(a[1]))
-        if e.op=="constrain": return self.registry.constrain(self.normalize_children(a[0]),a[1])
+        # Rebuild without applying constructor simplifications: every semantic
+        # change must be represented by an explicit RewriteStep below.
+        if e.op=="compose":
+            outer,inner=self.normalize_children(a[0]),self.normalize_children(a[1])
+            if inner.output_type!=outer.input_type: raise TypeMismatch("ill-typed compose node")
+            return Expr("compose",(outer,inner),e.input_type,e.output_type)
+        if e.op=="pair":
+            left,right=self.normalize_children(a[0]),self.normalize_children(a[1])
+            if left.input_type!=right.input_type: raise TypeMismatch("ill-typed pair node")
+            return Expr("pair",(left,right),e.input_type,e.output_type)
+        if e.op=="project":
+            inner=self.normalize_children(a[0])
+            return Expr("project",(inner,a[1]),e.input_type,e.output_type)
+        if e.op=="equal":
+            left,right=self.normalize_children(a[0]),self.normalize_children(a[1])
+            if (left.input_type,left.output_type)!=(right.input_type,right.output_type):
+                raise TypeMismatch("ill-typed equality node")
+            return Expr("equal",(left,right),e.input_type,e.output_type)
+        if e.op=="constrain":
+            inner=self.normalize_children(a[0])
+            return Expr("constrain",(inner,a[1]),e.input_type,e.output_type)
         raise TypeMismatch(f"normalizer does not understand AST node {e.op!r}")
 
     def normalize_children(self,e:Expr)->Expr:
