@@ -1,12 +1,13 @@
 import tempfile
 import unittest
+from dataclasses import replace
 from datetime import datetime, timezone
 from pathlib import Path
 
 from merlin.cad_assembly import AssemblyComponent, CADAssembly, Transform3D
+from merlin.cpu_fabric.leases import CapacitySnapshot, LeaseBook, cad_wire_route_request
 from merlin.engineering_ir import EngineeringProject, Net, Part, Pin
 from merlin.hypothesis_ledger import HypothesisLedger
-from merlin.cpu_fabric.leases import CapacitySnapshot, LeaseBook, cad_wire_route_request
 from merlin.route_evidence import (
     create_route_evidence_receipt, record_route_evidence, verify_route_evidence_receipt,
 )
@@ -54,28 +55,34 @@ def fixture():
 
 
 class RouteEvidenceTests(unittest.TestCase):
-    def test_receipt_binds_project_assembly_frames_and_route(self):
+    def test_receipt_binds_project_assembly_frames_route_and_mcfc_lease(self):
         project, assembly, output, lease = fixture()
         receipt = create_route_evidence_receipt(
             project, assembly, output, lease, code_revision="a" * 40
         )
-        self.assertTrue(verify_route_evidence_receipt(receipt, project, assembly, output, lease))
+        self.assertTrue(verify_route_evidence_receipt(
+            receipt, project, assembly, output, lease
+        ))
+        self.assertEqual(receipt["mcfc_lease_sha256"], receipt["mcfc_lease_sha256"])
+        self.assertEqual(receipt["mcfc_lease"]["status"], "completed")
         self.assertFalse(receipt["promotion_authority"])
         self.assertEqual(receipt["qualification_status"], "not_qualified")
 
     def test_tampered_route_output_is_rejected(self):
-        project, assembly, output = fixture()
+        project, assembly, output, lease = fixture()
         receipt = create_route_evidence_receipt(
-            project, assembly, output, code_revision="a" * 40
+            project, assembly, output, lease, code_revision="a" * 40
         )
         changed = dict(output)
         changed["clearance_assumption_mm"] = 999
-        self.assertFalse(verify_route_evidence_receipt(receipt, project, assembly, changed))
+        self.assertFalse(verify_route_evidence_receipt(
+            receipt, project, assembly, changed, lease
+        ))
 
     def test_changed_assembly_frame_invalidates_receipt(self):
-        project, assembly, output = fixture()
+        project, assembly, output, lease = fixture()
         receipt = create_route_evidence_receipt(
-            project, assembly, output, code_revision="a" * 40
+            project, assembly, output, lease, code_revision="a" * 40
         )
         moved = CADAssembly(
             assembly.name,
@@ -83,26 +90,47 @@ class RouteEvidenceTests(unittest.TestCase):
              AssemblyComponent("U1", Transform3D(translation_mm=(15, 1, 0)))),
             frames=assembly.frames,
         )
-        self.assertFalse(verify_route_evidence_receipt(receipt, project, moved, output, lease))
+        self.assertFalse(verify_route_evidence_receipt(
+            receipt, project, moved, output, lease
+        ))
 
-    def test_receipt_rejects_authority_expansion_and_bad_digest(self):
-        project, assembly, output = fixture()
+    def test_changed_or_elevated_lease_invalidates_receipt(self):
+        project, assembly, output, lease = fixture()
         receipt = create_route_evidence_receipt(
-            project, assembly, output, code_revision="a" * 40
+            project, assembly, output, lease, code_revision="a" * 40
+        )
+        elevated = replace(lease, promotion_authority=True)
+        self.assertFalse(verify_route_evidence_receipt(
+            receipt, project, assembly, output, elevated
+        ))
+        with self.assertRaisesRegex(ValueError, "completed"):
+            create_route_evidence_receipt(
+                project, assembly, output, replace(lease, status="active"),
+                code_revision="a" * 40,
+            )
+
+    def test_receipt_rejects_top_level_authority_expansion(self):
+        project, assembly, output, lease = fixture()
+        receipt = create_route_evidence_receipt(
+            project, assembly, output, lease, code_revision="a" * 40
         )
         elevated = dict(receipt)
         elevated["promotion_authority"] = True
-        self.assertFalse(verify_route_evidence_receipt(elevated, project, assembly, output, lease))
+        self.assertFalse(verify_route_evidence_receipt(
+            elevated, project, assembly, output, lease
+        ))
         with self.assertRaisesRegex(ValueError, "promotion authority"):
             with tempfile.TemporaryDirectory() as tmp:
                 ledger = HypothesisLedger(Path(tmp) / "ledger.sqlite3")
                 ledger.create("CAD-WIRE-1", "Route geometry is acceptable.")
-                record_route_evidence(ledger, "CAD-WIRE-1", elevated, project, assembly, output, lease)
+                record_route_evidence(
+                    ledger, "CAD-WIRE-1", elevated, project, assembly, output, lease
+                )
 
     def test_cace_ledger_ingest_does_not_promote_hypothesis(self):
-        project, assembly, output = fixture()
+        project, assembly, output, lease = fixture()
         receipt = create_route_evidence_receipt(
-            project, assembly, output, code_revision="a" * 40
+            project, assembly, output, lease, code_revision="a" * 40
         )
         with tempfile.TemporaryDirectory() as tmp:
             ledger = HypothesisLedger(Path(tmp) / "ledger.sqlite3")
@@ -116,9 +144,11 @@ class RouteEvidenceTests(unittest.TestCase):
             self.assertEqual(ledger.get("CAD-WIRE-1").status, "proposed")
 
     def test_invalid_source_revision_rejected(self):
-        project, assembly, output = fixture()
+        project, assembly, output, lease = fixture()
         with self.assertRaisesRegex(ValueError, "Git SHA"):
-            create_route_evidence_receipt(project, assembly, output, code_revision="main")
+            create_route_evidence_receipt(
+                project, assembly, output, lease, code_revision="main"
+            )
 
 
 if __name__ == "__main__":
