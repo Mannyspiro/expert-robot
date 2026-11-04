@@ -1,9 +1,4 @@
-"""Public OpenAlex enrichment for Merlin.
-
-Only calls the documented public OpenAlex API over HTTPS. No institutional
-login, paywall bypass, private endpoint, bulk dump, or full-text harvesting.
-A small page size and sequential requests keep the default workflow conservative.
-"""
+"""Public OpenAlex metadata adapter for Merlin; metadata only, no full-text harvesting."""
 from __future__ import annotations
 
 import argparse
@@ -16,11 +11,10 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 
-
 API_ROOT = "https://api.openalex.org"
 DEFAULT_FIELDS = (
     "id", "doi", "title", "publication_year", "type", "authorships",
-    "primary_location", "open_access", "cited_by_count",
+    "primary_location", "open_access", "cited_by_count", "topics",
 )
 
 
@@ -30,6 +24,13 @@ class OpenAlexAuthor:
     display_name: str
     orcid: str
     institutions: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class OpenAlexTopic:
+    openalex_id: str
+    display_name: str
+    score: float | None = None
 
 
 @dataclass(frozen=True)
@@ -43,6 +44,7 @@ class OpenAlexWork:
     is_oa: bool | None
     cited_by_count: int
     authors: tuple[OpenAlexAuthor, ...]
+    topics: tuple[OpenAlexTopic, ...] = ()
     source: str = "OpenAlex public API"
     evidence_status: str = "metadata_discovered"
 
@@ -62,6 +64,20 @@ def _abstract_free_record(raw: dict[str, Any]) -> OpenAlexWork:
             orcid=author.get("orcid") or "",
             institutions=institutions,
         ))
+    topics: list[OpenAlexTopic] = []
+    for item in raw.get("topics") or []:
+        if not isinstance(item, dict):
+            continue
+        topic_id = item.get("id") or ""
+        label = item.get("display_name") or ""
+        if not topic_id or not label:
+            continue
+        score = item.get("score")
+        topics.append(OpenAlexTopic(
+            openalex_id=topic_id,
+            display_name=label,
+            score=None if score is None else float(score),
+        ))
     location = raw.get("primary_location") or {}
     landing = location.get("landing_page_url") or ""
     oa = raw.get("open_access") or {}
@@ -75,21 +91,16 @@ def _abstract_free_record(raw: dict[str, Any]) -> OpenAlexWork:
         is_oa=oa.get("is_oa"),
         cited_by_count=int(raw.get("cited_by_count") or 0),
         authors=tuple(authors),
+        topics=tuple(topics),
     )
 
 
 class OpenAlexClient:
-    """Small public API client; caller controls whether a search is initiated."""
+    """Small opt-in public API client; caller explicitly initiates every query."""
 
-    def __init__(
-        self,
-        *,
-        api_key: str | None = None,
-        mailto: str | None = None,
-        timeout: float = 15.0,
-        min_interval_seconds: float = 1.0,
-        opener: Callable[..., Any] | None = None,
-    ):
+    def __init__(self, *, api_key: str | None = None, mailto: str | None = None,
+                 timeout: float = 15.0, min_interval_seconds: float = 1.0,
+                 opener: Callable[..., Any] | None = None):
         if timeout <= 0 or min_interval_seconds < 0:
             raise ValueError("timeout must be positive and interval non-negative")
         self.api_key = api_key or os.getenv("OPENALEX_API_KEY")
@@ -105,12 +116,12 @@ class OpenAlexClient:
             query["api_key"] = self.api_key
         if self.mailto:
             query["mailto"] = self.mailto
-        url = API_ROOT + path + "?" + urlencode(query)
+        request = Request(API_ROOT + path + "?" + urlencode(query),
+                          headers={"Accept": "application/json",
+                                   "User-Agent": "MerlinAcademicResearch/0.5"})
         elapsed = time.monotonic() - self._last_request
         if self._last_request and elapsed < self.min_interval_seconds:
             time.sleep(self.min_interval_seconds - elapsed)
-        request = Request(url, headers={"Accept": "application/json",
-                                        "User-Agent": "MerlinAcademicResearch/0.3"})
         try:
             with self._opener(request, timeout=self.timeout) as response:
                 payload = json.loads(response.read().decode("utf-8"))
@@ -121,7 +132,7 @@ class OpenAlexClient:
         except (URLError, TimeoutError) as exc:
             raise RuntimeError("OpenAlex request failed; check connectivity and retry later") from exc
         except (UnicodeDecodeError, json.JSONDecodeError) as exc:
-            raise RuntimeError("OpenAlex returned an invalid JSON response") from exc
+            raise RuntimeError("OpenAlex returned invalid JSON") from exc
         self._last_request = time.monotonic()
         if not isinstance(payload, dict):
             raise RuntimeError("OpenAlex response was not a JSON object")
@@ -130,12 +141,11 @@ class OpenAlexClient:
     def search_works(self, query: str, *, per_page: int = 10) -> list[OpenAlexWork]:
         text = " ".join(query.split()).strip()
         if not text or len(text) > 300:
-            raise ValueError("query must be a non-empty string of at most 300 characters")
+            raise ValueError("query must be non-empty and at most 300 characters")
         if not 1 <= per_page <= 25:
-            raise ValueError("per_page must be between 1 and 25 for conservative discovery")
+            raise ValueError("per_page must be between 1 and 25")
         payload = self._get_json("/works", {
-            "search": text,
-            "per_page": str(per_page),
+            "search": text, "per_page": str(per_page),
             "select": ",".join(DEFAULT_FIELDS),
         })
         results = payload.get("results")
@@ -146,12 +156,11 @@ class OpenAlexClient:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Search public OpenAlex scholarly metadata.")
-    parser.add_argument("--query", required=True, help="research topic or phrase")
+    parser.add_argument("--query", required=True)
     parser.add_argument("--per-page", type=int, default=10)
-    parser.add_argument("--mailto", help="optional contact email for OpenAlex polite pool")
+    parser.add_argument("--mailto")
     args = parser.parse_args()
-    client = OpenAlexClient(mailto=args.mailto)
-    works = client.search_works(args.query, per_page=args.per_page)
+    works = OpenAlexClient(mailto=args.mailto).search_works(args.query, per_page=args.per_page)
     print(json.dumps([asdict(work) for work in works], ensure_ascii=False, indent=2))
 
 
