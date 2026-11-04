@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Merlin Real-World Equation Atlas Entry",
+  "type": "object",
+  "required": ["id", "domain", "application", "model_family", "equations", "variables", "assumptions", "validation", "evidence_status"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^RWEA-[0-9]{3}$"},
+    "domain": {"type": "string"},
+    "application": {"type": "string"},
+    "model_family": {"type": "string"},
+    "equations": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "variables": {"type": "array", "items": {"type": "object", "required": ["symbol", "meaning", "unit"], "properties": {"symbol": {"type": "string"}, "meaning": {"type": "string"}, "unit": {"type": "string"}, "domain": {"type": "string"}}}},
+    "assumptions": {"type": "array", "items": {"type": "string"}},
+    "initial_conditions": {"type": ["string", "null"]},
+    "boundary_conditions": {"type": ["string", "null"]},
+    "validity_regime": {"type": "string"},
+    "intuition": {"type": "string"},
+    "applications": {"type": "array", "items": {"type": "string"}},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "alternatives": {"type": "array", "items": {"type": "string"}},
+    "validation": {"type": "array", "items": {"type": "string"}},
+    "uncertainty": {"type": "array", "items": {"type": "string"}},
+    "formal_claims": {"type": "array", "items": {"type": "string"}},
+    "sources": {"type": "array", "items": {"type": "object", "required": ["claim", "citation"], "properties": {"claim": {"type": "string"}, "citation": {"type": "string"}, "doi_or_url": {"type": ["string", "null"]}}}},
+    "evidence_status": {"enum": ["ESTABLISHED", "REPRODUCED", "FORMALLY_VERIFIED", "COMPUTATIONAL_CONJECTURE", "UNVERIFIED", "REFUTED"]},
+    "confidence_rationale": {"type": "string"},
+    "math_kung_fu": {"type": "object", "properties": {"visual_intuition": {"type": "string"}, "analogy": {"type": "string"}, "recall_question": {"type": "string"}, "extension": {"type": "string"}}}
+  },
+  "additionalProperties": false
+}
