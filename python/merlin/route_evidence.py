@@ -104,10 +104,13 @@ def verify_route_evidence_receipt(
     supplied_hash = receipt.get("receipt_sha256")
     if not isinstance(supplied_hash, str) or not _SHA256.fullmatch(supplied_hash):
         return False
-    expected = create_route_evidence_receipt(
-        project, assembly, route_output, execution_lease,
-        code_revision=receipt.get("code_revision", "")
-    )
+    try:
+        expected = create_route_evidence_receipt(
+            project, assembly, route_output, execution_lease,
+            code_revision=receipt.get("code_revision", "")
+        )
+    except (TypeError, ValueError, AttributeError):
+        return False
     return receipt == expected
 
 
