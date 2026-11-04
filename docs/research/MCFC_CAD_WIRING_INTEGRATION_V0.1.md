@@ -149,3 +149,18 @@ tamper rejection, authority boundary, and no-auto-promotion behavior.
 The receipt is a local provenance object. It does not independently authenticate
 a GitHub workflow or replace the separate Avrea run receipt; the CI run must be
 checked against the exact commit SHA.
+
+## Current repository integration points
+
+- `python/merlin/cpu_fabric/leases.py`: typed MCFC workload requirements, measured capacity snapshots, resource admission, expiring/revocable leases, and runtime telemetry.
+- `python/merlin/cpu_fabric/leases.py::cad_wire_route_request`: creates a CPU-only CAD routing workload. Memory, wall-time and compute-budget estimates are explicit caller inputs.
+- `python/merlin/wire_routing.py`: deterministic candidate geometry generation under an MCFC lease.
+- `python/merlin/wiring_exports.py`: logical graph, connection schedule and schematic manifest exports, all marked as non-release artifacts.
+- `python/merlin/wire_qualification.py`: evidence-gated electrical, thermal and manufacturing screening. Missing authoritative inputs block release; the report never calls the design safe or self-certifies it.
+- `python/merlin/route_evidence.py`: content-addressed CACE receipt that binds the completed MCFC lease, capacity evidence hash, engineering project, assembly/frame graph, route output and source revision.
+- `python/merlin/telemetry.py`: source-labelled runtime telemetry; MCFC lease events are recorded as runtime resource samples, not simulation data.
+
+The current `LeaseBook` is an in-process reference implementation, not yet a
+durable distributed scheduler. Live hardware capacity, lease persistence across
+restarts, worker heartbeats, preemption, fairness, native EDA export, SPICE
+simulation, and independent electrical sign-off remain separate completion gates.
