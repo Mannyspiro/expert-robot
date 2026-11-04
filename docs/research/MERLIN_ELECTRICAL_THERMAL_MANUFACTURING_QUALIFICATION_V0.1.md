@@ -128,7 +128,7 @@ Capability grows, authority never expands.
 
 The file is imported into `formal/MathAI.lean`, and each theorem is included in
 `formal/MathAI/Audit.lean` for kernel-visible axiom reporting. The theorem
-registry records these as **candidate** until the dedicated Lean workflow passes.
+registry now marks all six as **verified** after Dedicated Lean Formal Qualification run #471 passed. This status certifies the Lean propositions and audited build only, not physical inputs or a real product.
 
 These proofs validate algebraic implications inside declared models. They do
 not validate the source datasheets, the selected standard, the CAD measurement,
