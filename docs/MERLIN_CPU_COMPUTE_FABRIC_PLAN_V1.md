@@ -23,3 +23,58 @@ Capability grows, authority never expands. No generated kernel is promoted based
 
 ## Known benchmark issue
 The existing Ollama baseline downloaded qwen2.5:7b successfully, but inference failed because the inference step's MODEL environment variable did not use the same default expression as the download step. Fix this before rerunning; do not download another model.
+
+## MCFC workload contracts and execution leases
+
+MCFC is the virtual compute fabric: it owns typed CPU, memory, and GPU resource
+availability, compute budgets, workload admission, expiring/revocable leases,
+and runtime resource telemetry. It does not own geometric coordinate transforms
+(those belong to XMG) and it does not qualify engineering results (that belongs
+to independent CACE verification and human review).
+
+The first typed reference contract is implemented in
+`python/merlin/cpu_fabric/leases.py`:
+
+- `ResourceRequest`: CPU cores, memory bytes, GPU count, and GPU memory bytes.
+- `CapacitySnapshot`: measured capacity, observation time, source, and evidence
+  SHA-256. Unknown GPU fields remain `None`; they are never inferred.
+- `WorkloadRequest`: workload ID, capability, resource request, wall-time limit,
+  compute-budget units, and priority.
+- `ExecutionLease`: explicit resource reservation, issue time, wall-time deadline,
+  expiry, capacity evidence hash, execution-only authority, and lifecycle state.
+- `LeaseBook`: bounded admission, idempotent workload IDs, resource reservations,
+  expiry, completion, revocation, and runtime telemetry.
+- `cad_wire_route_request()`: CPU-only CAD wire-route workload adapter. The caller
+  must supply memory, wall-time, and compute-budget estimates; the adapter does
+  not invent them.
+
+The route evidence receipt in `python/merlin/route_evidence.py` binds the
+completed MCFC lease and its capacity-evidence hash to the project, assembly,
+frame graph, route output, router version, and source revision. CACE ledger
+ingestion re-verifies those inputs and adds experiment evidence only. It does
+not change hypothesis status or grant promotion authority.
+
+Current implementation boundary: `LeaseBook` is an in-process reference
+admission ledger. Durable multi-process lease storage, worker heartbeats,
+preemption, fair scheduling, and measured live resource probes are future work.
+The test capacity fixture is synthetic and must not be reported as actual runner
+capacity.
+
+## CAD/wiring workload routing
+
+The current CPU-only `cad.wire_route_proposal` task maps to a one-core request,
+with memory and runtime bounds supplied by the orchestrator. GPU use is not
+requested because the current route planner is a deterministic CPU algorithm.
+If a later CAD/solver workload requests GPU resources while GPU capacity is
+unknown, MCFC rejects admission pending a fresh resource probe.
+
+Merlin's CAD/wiring path now separates:
+1. logical project and pin/net topology;
+2. XMG coordinate-frame transforms and physical pin placement;
+3. candidate 3D route geometry;
+4. review-labelled wiring exports;
+5. electrical/thermal/manufacturing screening;
+6. CACE evidence verification and human approval.
+
+These are distinct artifacts and evidence gates. A route visualization is not a
+release schematic; a qualification screening report is not certification.
