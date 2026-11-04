@@ -1,0 +1,72 @@
+import unittest
+
+from merlin.engineering_ir import (
+    EngineeringProject, Net, Part, Pin, export_netlist, export_openscad,
+    validate_project,
+)
+
+
+def sample():
+    return EngineeringProject(
+        name="bench-controller",
+        units="mm",
+        parts=(
+            Part("U1", "controller", (
+                Pin("1", "VCC", max_voltage_v=5.5, max_current_a=0.5),
+                Pin("2", "GND", max_voltage_v=5.5, max_current_a=0.5),
+            ), size_mm=(20, 15, 2), position_mm=(0, 0, 1)),
+            Part("J1", "power connector", (
+                Pin("1", "5V", max_voltage_v=5.5, max_current_a=1.0),
+                Pin("2", "GND", max_voltage_v=5.5, max_current_a=1.0),
+            )),
+        ),
+        nets=(
+            Net("VCC_5V", ("U1.1", "J1.1"), nominal_voltage_v=5.0, max_current_a=0.25, net_class="power"),
+            Net("GND", ("U1.2", "J1.2"), nominal_voltage_v=0.0, max_current_a=0.25, net_class="return"),
+        ),
+    )
+
+
+class EngineeringIRTests(unittest.TestCase):
+    def test_valid_project_exports_netlist_and_openscad(self):
+        project = sample()
+        self.assertEqual(validate_project(project), ())
+        self.assertEqual(export_netlist(project)["format"], "merlin-netlist-v1")
+        scad = export_openscad(project)
+        self.assertIn("cube(size, center=true)", scad)
+        self.assertIn("U1: controller", scad)
+
+    def test_detects_unknown_endpoint_and_pin_assigned_twice(self):
+        project = sample()
+        bad = EngineeringProject(
+            project.name, project.units, project.parts,
+            project.nets + (
+                Net("BAD", ("U1.1", "NOPE.1"), nominal_voltage_v=3.3),
+            ),
+        )
+        codes = {issue.code for issue in validate_project(bad)}
+        self.assertIn("UNKNOWN_ENDPOINT", codes)
+        self.assertIn("PIN_ON_MULTIPLE_NETS", codes)
+
+    def test_detects_voltage_and_current_rating_exceedance(self):
+        project = sample()
+        bad = EngineeringProject(
+            project.name, project.units, project.parts,
+            (Net("OVER", ("U1.1", "J1.1"), nominal_voltage_v=12.0, max_current_a=2.0),),
+        )
+        codes = {issue.code for issue in validate_project(bad)}
+        self.assertIn("PIN_VOLTAGE_EXCEEDED", codes)
+        self.assertIn("PIN_CURRENT_EXCEEDED", codes)
+
+    def test_invalid_projects_cannot_export(self):
+        project = sample()
+        bad = EngineeringProject(
+            project.name, project.units, project.parts,
+            (Net("BROKEN", ("U1.1", "MISSING.1")),),
+        )
+        with self.assertRaises(ValueError):
+            export_netlist(bad)
+
+
+if __name__ == "__main__":
+    unittest.main()
