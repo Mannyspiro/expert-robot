@@ -206,3 +206,36 @@ Merlin is real when a user can:
 9. approve a revision with an auditable diff.
 
 The present branch advances the foundations; it does not yet satisfy the full end-to-end definition.
+
+
+---
+
+## Implementation update — v0.5 and v0.6
+
+### v0.5 topic-aware scholarly graph
+Implemented in `openalex_public.py` and `academic_graph.py`:
+- Public OpenAlex work metadata now requests topic IDs, labels and classification scores.
+- Graph store adds `topics` and `work_topics` tables.
+- Topic IDs are stable entity keys; topic labels remain descriptive metadata.
+- Re-ingestion rebuilds a work's topic edges, removing stale assignments.
+- `topic_works()` provides a local query path for a topic.
+- Topic scores are range-checked and explicitly treated as classifications, not confidence in a scientific claim.
+
+### v0.6 evidence-gated hypothesis ledger
+Implemented in `hypothesis_ledger.py`:
+- Hypotheses are stored separately from scholarly facts.
+- Each hypothesis records a claim, mathematical objects, relation, assumptions and status.
+- Evidence records are append-only and categorized as source, counterexample, experiment, proof or assumption.
+- Status transitions require matching evidence:
+  - `literature_checked` requires a source record.
+  - `computationally_tested` requires an experiment record.
+  - `refuted` requires a counterexample record.
+  - `conditional` requires an assumption record.
+  - `formally_verified` requires a proof record with a content/artifact hash.
+- No automated promotion occurs.
+
+### Current limitations
+- Topic graph stores OpenAlex's supplied classifications; no independent topic inference or citation-network traversal is implemented.
+- Hypothesis evidence records are local metadata; this version does not execute experiments, run Lean, or independently verify cited sources.
+- A proof artifact hash records identity, not correctness. A trusted Lean build and theorem dependency audit are still required before accepting formal verification.
+- All network acquisition remains explicit and public-API-only.
