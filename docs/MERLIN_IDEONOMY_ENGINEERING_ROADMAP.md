@@ -263,3 +263,19 @@ Implemented in `python/merlin/engineering_project_store.py`:
 - Idempotent saves and append-only revision increments.
 - Deterministic diffs and historical diff retrieval.
 - Schema rejection, invalid project rejection and missing revision behavior.
+## v0.8 — CAD assembly transforms and interference screening
+
+Implemented in `python/merlin/cad_assembly.py`:
+- Explicit 3D component transforms using 3x3 rotation matrices and millimetre translations.
+- Rotation validation checks finite values, orthonormality and determinant +1.
+- Conservative world-axis-aligned bounding boxes for transformed box components.
+- Pairwise AABB overlap warnings with configurable tolerance.
+- Deterministic OpenSCAD assembly export using multmatrix transforms.
+- Machine-readable assembly report with explicit non-certification marker.
+
+### Scope and limitations
+- This version supports rigid transforms of box primitives only; no parametric feature tree or arbitrary B-rep/mesh geometry.
+- AABB interference is conservative: rotated boxes can produce false-positive overlap warnings; it is not an exact collision solver.
+- Assembly transforms are absolute component placements and do not yet provide a mate/constraint solver.
+- Electrical nets are not yet coupled to physical connector coordinates or wire-routing geometry.
+- Exported geometry and warnings require engineering review before manufacture or use.
