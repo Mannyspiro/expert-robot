@@ -10,6 +10,7 @@ This directory contains the 100-entry atlas, research prompt, Merlin context, so
 - `equation-entry.schema.json` — canonical machine-readable entry schema, including SI dimension metadata.
 - `NORMALIZED_ENTRIES_001-020_V0.3.json` — generated canonical migration output (created and validated in CI).
 - `EVIDENCE_RECEIPT_CONTRACT_V0.1.md` — content-addressed reproducibility receipt contract.
+- `evidence-receipt.schema.json` — schema for receipt validation.
 - `MERLIN_CONTEXT.md` — relevant project context and research architecture.
 - `PHASE_0.3_EXECUTION_PLAN.md` — next-stage workstreams, evidence receipts, verification ladder, XMG integration, and recommended execution order.
 - `RESEARCH_STATUS_V0.2.md` — current status record (document heading tracks v0.3 and records the observed Avrea run).
@@ -26,7 +27,7 @@ This directory contains the 100-entry atlas, research prompt, Merlin context, so
 - `formal/MathAI/Audit.lean` and `formal/theorem_registry.json` — axiom-audit binding and theorem candidate registry.
 
 ## Avrea execution evidence
-On 2026-11-04, CI run 1271 (run ID `41837021534`) completed successfully on the configured Avrea runner for the earlier starter implementation. The new schema migration and evidence-receipt changes are awaiting their own CI run. Do not infer their success from the earlier run. The earlier baseline artifact confirms execution of the original starter checks, not empirical validity of the models or formal proof success.
+On 2026-11-04, CI run 1271 (run ID `41837021534`) completed successfully on the configured Avrea runner for the earlier starter implementation. The new schema migration and evidence-receipt changes are awaiting their own CI run. The updated workflow now validates both canonical entries and receipt structure, and hashes the dependency lock and receipt schema into the evidence record. Do not infer their success from the earlier run. The earlier baseline artifact confirms execution of the original starter checks, not empirical validity of the models or formal proof success.
 
 ## Status and limitations
 This is an initial research implementation, not a completed verification of all 100 equations. Entries 001–020 have a legacy normalized metadata tranche and a new schema-driven canonical migration. The migration preserves variable dimensions and legacy conditions, maps source IDs into explicit review-required citation records, and intentionally marks all migrated entries `UNVERIFIED`. CI now validates each migrated entry against the canonical JSON Schema. Executable dimensional checks still cover eight representative relations; source coverage gaps remain. Lean code remains candidate until the separate pinned formal-qualification workflow compiles it and its axiom report is reviewed. Numerical baselines are synthetic reproducibility checks, not empirical validation.
