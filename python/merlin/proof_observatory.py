@@ -275,3 +275,50 @@ def link_representation_frames_to_engineering_project(
         theorem_id, selected, engineering_project_id, revision_hash,
         relation, evidence_receipt_sha256,
     )
+
+def proof_attempt_from_qualified_receipt(
+    receipt: object,
+    goal: GoalKey,
+    tactic_sequence: tuple[str, ...],
+    *,
+    lean_version: str,
+    mathlib_revision: str,
+    import_closure_sha256: str,
+    elapsed_ms: float,
+    heartbeats: int,
+    peak_memory_bytes: int | None,
+    no_sorry: bool,
+    exact_target_declaration: bool,
+) -> ProofAttempt:
+    """Adapt a validated Merlin LeanProofReceipt without inventing missing telemetry."""
+    validate = getattr(receipt, "validate", None)
+    if not callable(validate):
+        raise TypeError("receipt must expose validate()")
+    validate()
+    if getattr(receipt, "theorem", None) != goal.theorem_id:
+        raise ValueError("receipt theorem does not match the GoalKey theorem_id")
+    attempt = ProofAttempt(
+        attempt_id=sha256_text(
+            str(receipt.workflow_run_id) + ":" + receipt.theorem + ":" + receipt.source_sha256
+        ),
+        goal=goal,
+        tactic_sequence=tactic_sequence,
+        outcome="success",
+        failure_stage=None,
+        elapsed_ms=elapsed_ms,
+        heartbeats=heartbeats,
+        peak_memory_bytes=peak_memory_bytes,
+        source_commit=receipt.commit_sha,
+        source_sha256=receipt.source_sha256,
+        lean_version=lean_version,
+        mathlib_revision=mathlib_revision,
+        import_closure_sha256=import_closure_sha256,
+        kernel_checked=receipt.theorem_compiled,
+        axiom_audit_passed=receipt.axiom_audit_passed,
+        contains_sorry=not no_sorry,
+        axiom_dependencies=tuple(receipt.axioms),
+        exact_target_declaration=exact_target_declaration,
+        workflow_run_url=receipt.workflow_run_url,
+    )
+    attempt.validate()
+    return attempt
