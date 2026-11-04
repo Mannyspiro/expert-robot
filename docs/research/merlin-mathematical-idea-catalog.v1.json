@@ -924,6 +924,53 @@
         "Qualify the expanded four-view tests on Avrea.",
         "Generalize from coordinate axes to arbitrary unit axes using an explicit orthonormal frame."
       ]
+    },
+    {
+      "id": "MATH-HOL-002",
+      "title": "Spherical triangle holonomy equals enclosed area",
+      "kind": "experiment",
+      "claim": "For the unit sphere's Levi-Civita connection, numerical parallel transport around the positively oriented octant geodesic triangle rotates a tangent vector by pi/2, matching its spherical area; reversing the loop reverses the sign.",
+      "definitions": [
+        "unit sphere",
+        "Levi-Civita connection",
+        "great-circle geodesic",
+        "parallel transport",
+        "signed holonomy angle",
+        "spherical excess"
+      ],
+      "assumptions": [
+        "The ambient sphere has unit radius and induced metric.",
+        "Edges follow the shorter great-circle arcs.",
+        "The loop orientation and tangent-plane orientation are fixed.",
+        "Numerical comparisons use declared floating-point tolerances."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "MERLIN_SPHERICAL_HOLONOMY_V0.1.md",
+        "merlin/spherical_holonomy.py",
+        "tests/test_merlin_spherical_holonomy.py",
+        "Gauss-Bonnet theorem as the classical mathematical basis"
+      ],
+      "relations": [
+        {
+          "type": "specializes",
+          "target": "MATH-HOL-001"
+        },
+        {
+          "type": "applies_to",
+          "target": "MATH-ST-001"
+        }
+      ],
+      "objections": [
+        "Current experiment covers the octant triangle, not arbitrary spherical triangles.",
+        "Floating-point tests do not constitute a formal proof of Gauss-Bonnet.",
+        "The ambient Rodrigues-rotation implementation is specialized to the unit sphere's shorter great-circle arcs."
+      ],
+      "next_steps": [
+        "Run the spherical holonomy suite on Avrea.",
+        "Test non-octant triangles and compare with the spherical-area formula.",
+        "Extend to a mesh-based transport experiment and a second curved surface."
+      ]
     }
   ]
 }
