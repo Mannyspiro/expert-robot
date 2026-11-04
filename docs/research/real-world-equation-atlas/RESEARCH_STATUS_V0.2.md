@@ -50,3 +50,10 @@ The successful Avrea run establishes that the configured Python equation-atlas c
 
 ## Avrea / compute note
 The existing self-hosted runner label is `avrea-ubuntu-latest-8-vcpu`. CI run 1289 confirms the canonical migration for RWEA-001–020, receipt generation, equation-atlas checks, and artifact publication completed on that runner. The combined RWEA-001–030 validation is pending in the latest workflow run. The formal-qualification workflow is separate and was not part of this CI run. Do not mark Lean candidates verified until that workflow's actual logs and theorem/axiom outputs have been inspected.
+
+
+## Phase 0.4 tranche — RWEA-031–040
+- Added ten canonical entries covering conservation balance, heat conduction, advection-diffusion, linear waves, Laplace, Poisson, advection, incompressible Navier–Stokes, Maxwell differential equations, and Poynting energy balance.
+- Added source register S27–S29 (MIT 18.152, MIT 18.336, MIT 6.641) and an entry-level citation crosswalk with explicit evidence boundaries.
+- Extended normalizer, schema tests, and CI artifact/receipt inputs to produce a combined 40-entry output.
+- All 031–040 entries remain UNVERIFIED pending Avrea CI, detailed dimensional audits, derivation checks, numerical benchmarks, and domain-specific source review.
