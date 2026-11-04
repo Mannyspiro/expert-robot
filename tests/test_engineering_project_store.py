@@ -36,7 +36,7 @@ class EngineeringProjectStoreTests(unittest.TestCase):
         restored = project_from_dict(project_to_dict(original))
         self.assertEqual(project_hash(original), project_hash(restored))
         self.assertEqual(restored.name, original.name)
-        self.assertEqual(restored.parts[0].pins[0].name, "VCC")
+        self.assertEqual(next(part for part in restored.parts if part.ref == "U1").pins[0].name, "VCC")
 
     def test_canonical_hash_ignores_input_order(self):
         original = sample()
