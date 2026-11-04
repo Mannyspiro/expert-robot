@@ -118,3 +118,18 @@ kernel-visible axiom dependencies for review.
 
 #check MathAI.WireQualification.minimum_bend_radius_meets_requirement
 #print axioms MathAI.WireQualification.minimum_bend_radius_meets_requirement
+
+#check MathAI.FractalEngineering.levelCount_compose
+#print axioms MathAI.FractalEngineering.levelCount_compose
+
+#check MathAI.FractalEngineering.levelScale_compose
+#print axioms MathAI.FractalEngineering.levelScale_compose
+
+#check MathAI.FractalEngineering.weighted_self_similarity_balance
+#print axioms MathAI.FractalEngineering.weighted_self_similarity_balance
+
+#check MathAI.FractalEngineering.levelScale_bounds
+#print axioms MathAI.FractalEngineering.levelScale_bounds
+
+#check MathAI.FractalEngineering.levelScale_step_nonincreasing
+#print axioms MathAI.FractalEngineering.levelScale_step_nonincreasing
