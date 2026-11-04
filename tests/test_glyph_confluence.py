@@ -13,15 +13,26 @@ class GlyphConfluenceTests(unittest.TestCase):
             "compose", (self.neg, self.neg), TypeRef("Int"), TypeRef("Int")
         )
 
-    def test_identity_and_double_negation_overlap_is_joinable(self):
-        rules = GlyphNormalizer(self.registry).rules
+    def test_two_overlapping_routes_to_identity_are_joinable(self):
+        identity = self.registry.identity(TypeRef("Int"))
+        rules = (
+            RewriteRule("TO_IDENTITY_A", "first route to identity",
+                        lambda e: e == self.double_negation, lambda e, r: identity),
+            RewriteRule("TO_IDENTITY_B", "second route to identity",
+                        lambda e: e == self.double_negation, lambda e, r: identity),
+        )
         report = CriticalPairExplorer(self.registry, rules).analyze_expression(
             self.double_negation
         )
-        self.assertEqual(report.pair_count, 0)
-        # The primitive double-negation rule has one redex, not a critical pair.
-        self.assertEqual(one_step_rewrites(self.double_negation, self.registry, rules)[0].rule_id,
-                         "INT_DOUBLE_NEGATION")
+        self.assertEqual(report.pair_count, 1)
+        self.assertEqual(report.joinable_count, 1)
+        self.assertEqual(report.results[0].status, PairStatus.JOINABLE)
+
+    def test_default_double_negation_rule_has_one_redex(self):
+        rules = GlyphNormalizer(self.registry).rules
+        rewrites = one_step_rewrites(self.double_negation, self.registry, rules)
+        self.assertEqual(len(rewrites), 1)
+        self.assertEqual(rewrites[0].rule_id, "INT_DOUBLE_NEGATION")
 
     def test_deliberately_divergent_rules_produce_non_joinable_witness(self):
         identity = self.registry.identity(TypeRef("Int"))
