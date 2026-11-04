@@ -7,7 +7,8 @@ from merlin.representation_graph import Frame, RepresentationGraph, identity
 
 from merlin.proof_observatory import (
     CrossDomainLink, GoalKey, ProofAttempt, ProofObservatory,
-    link_representation_frames_to_engineering_project, object_view_engineering_links,\n    proof_attempt_from_qualified_receipt, rank_strategies,
+    link_representation_frames_to_engineering_project, object_view_engineering_links,
+    proof_attempt_from_qualified_receipt, rank_strategies,
 )
 
 
