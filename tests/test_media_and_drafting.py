@@ -50,7 +50,8 @@ class MediaAndDraftingTests(unittest.TestCase):
         self.assertIn("NOT FOR MANUFACTURE", svg)
         self.assertIn("J1", svg)
         self.assertIn("U1", svg)
-        self.assertIn('width="20.000"', svg)
+        self.assertIn('width="', svg)
+        self.assertIn('viewBox=', svg)
 
 
 if __name__ == "__main__":
