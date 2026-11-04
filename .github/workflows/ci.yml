@@ -108,6 +108,7 @@ jobs:
         run: |
           python3 -m unittest discover -s tests -p "test_media_and_drafting.py" -v
           python3 -m unittest discover -s tests -p "test_research_council.py" -v
+          python3 -m unittest discover -s tests -p "test_project_registry.py" -v
 
       - name: Merlin equation-atlas symbolic, dimensional and numerical checks
         env:
