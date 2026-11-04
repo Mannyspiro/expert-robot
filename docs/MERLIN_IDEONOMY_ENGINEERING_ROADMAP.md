@@ -318,3 +318,17 @@ Implemented:
 - Coordinates must be supplied by the project author or a separately verified part-library import; Merlin does not infer pin locations from datasheets.
 - This creates endpoint geometry only. It does not generate wire paths or perform routing, gauge selection, voltage-drop, thermal, creepage/clearance, EMC or safety analysis.
 - Physical netlist output is a design aid, not a fabrication or electrical-safety approval.
+
+
+## v0.9 — Lean/Avrea proof receipt ingestion
+
+Implemented:
+- `python/merlin/lean_proof_receipt.py` validates structured Lean qualification receipts before they enter Merlin's hypothesis ledger.
+- Receipts bind repository, exact commit SHA, GitHub Actions run URL/ID, workflow name, theorem name, successful conclusion, theorem compile flag, axiom-audit flag, source SHA-256 and axiom dependencies.
+- The validator rejects failed runs, incomplete compilation/audit, mismatched run URLs, malformed hashes and axiom dependencies outside the explicit allowlist (`propext`, `Classical.choice`, `Quot.sound`).
+- `record_lean_proof` records the validated receipt as proof evidence but deliberately does not promote hypothesis status automatically.
+- `research/merlin/proof_receipts/avrea_thtg_2026-11-04.json` records two successful Avrea Lean receipts: the conditional compact-interval maximum theorem and the no-positive-`g` theorem for the four beta functions printed in the THTG report.
+- Tests verify receipt rejection paths and ingestion into the hypothesis ledger.
+
+### Qualification boundary
+The receipt validator checks the integrity and declared properties of a CI-produced receipt; it does not call GitHub or independently authenticate remote workflow logs. The workflow URL, commit, source digest and axiom list remain attached for human review. A formally verified ledger entry is a theorem-level result under its explicit assumptions, not proof of the physical validity of THTG.
