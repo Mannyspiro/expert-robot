@@ -89,5 +89,54 @@
     "source commit and toolchain pinned",
     "repeated benchmark shows no regression in reliability",
     "performance gain measured rather than inferred from shorter source"
+  ],
+  "formalization_architecture": {
+    "theorem_dag_required": true,
+    "theorem_node_fields": [
+      "declaration",
+      "normalized_statement",
+      "natural_language_statement",
+      "assumptions",
+      "dependencies",
+      "proof_status",
+      "source_revision",
+      "owner_lease",
+      "evidence_receipts"
+    ],
+    "statement_proof_separation": true,
+    "theorem_search_fields": [
+      "declaration_name",
+      "normalized_statement",
+      "natural_language_summary",
+      "domain_tags",
+      "assumption_hash",
+      "dependency_ids"
+    ],
+    "statement_comparator_required": true,
+    "bounded_parallelism": true,
+    "immutable_attempt_receipts": true,
+    "compile_cost_metrics": [
+      "import_closure_size",
+      "wall_clock_ms",
+      "heartbeats",
+      "peak_memory_bytes",
+      "incremental_rebuild_ms"
+    ],
+    "promotion_requires_exact_target_declaration": true
+  },
+  "proof_corpus_status_labels": [
+    "announced",
+    "artifact_located",
+    "statement_compared",
+    "kernel_checked",
+    "axioms_audited",
+    "independently_reviewed",
+    "reproduced"
+  ],
+  "notes": [
+    "Recent public announcements are leads, not equivalent evidence levels.",
+    "FLT formalization is a verification-scale case study, not a newly discovered proof of Fermat's Last Theorem.",
+    "ETH and analytic-number-theory claims must retain their announced/review status until artifacts and exact statements are independently checked.",
+    "No tactic profile is optimized until comparative benchmarks exist."
   ]
 }
