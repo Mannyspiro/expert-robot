@@ -245,3 +245,27 @@ def object_view_engineering_links(
     for link in links:
         link.validate()
     return links
+
+def link_representation_frames_to_engineering_project(
+    theorem_id: str,
+    representation_graph: object,
+    frame_ids: Iterable[str],
+    engineering_project_id: str,
+    engineering_project: object,
+    relation: str,
+    evidence_receipt_sha256: str,
+) -> tuple[CrossDomainLink, ...]:
+    """Bind real representation-graph frame IDs to the canonical Engineering IR hash."""
+    frames = getattr(representation_graph, "frames", None)
+    if not isinstance(frames, dict):
+        raise TypeError("representation_graph must expose a frames mapping")
+    selected = tuple(frame_ids)
+    missing = sorted(set(selected) - set(frames))
+    if missing:
+        raise KeyError("unknown representation frame IDs: " + ", ".join(missing))
+    from merlin.engineering_project_store import project_hash
+    revision_hash = project_hash(engineering_project)
+    return object_view_engineering_links(
+        theorem_id, selected, engineering_project_id, revision_hash,
+        relation, evidence_receipt_sha256,
+    )
