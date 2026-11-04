@@ -97,22 +97,16 @@ def record_route_evidence(
     ledger: HypothesisLedger,
     hypothesis_id: str,
     receipt: dict[str, Any],
+    project: EngineeringProject,
+    assembly: CADAssembly,
+    route_output: dict[str, Any],
     *,
     source_url: str = "",
 ) -> Evidence:
-    """Add geometry-proposal evidence to CACE/Merlin's ledger without promotion."""
-    if not isinstance(receipt, dict):
-        raise ValueError("receipt must be an object")
-    supplied_hash = receipt.get("receipt_sha256")
-    payload = {key: value for key, value in receipt.items() if key != "receipt_sha256"}
-    if receipt.get("promotion_authority") is not False:
-        raise ValueError("route evidence cannot carry promotion authority")
-    if receipt.get("qualification_status") != "not_qualified":
-        raise ValueError("route evidence must remain not qualified")
-    if not isinstance(supplied_hash, str) or supplied_hash != _digest(payload):
-        raise ValueError("route evidence receipt digest mismatch")
-    if not _SHA40.fullmatch(str(receipt.get("code_revision", ""))):
-        raise ValueError("route evidence has an invalid source revision")
+    """Verify all bound inputs, then add evidence without promoting the hypothesis."""
+    if not verify_route_evidence_receipt(receipt, project, assembly, route_output):
+        raise ValueError("route evidence receipt does not match the supplied inputs")
+    supplied_hash = receipt["receipt_sha256"]
     description = (
         f"Merlin 3D wiring geometry proposal; router {receipt['router_version']}; "
         f"project {receipt['project_sha256']}; assembly {receipt['assembly_sha256']}; "
