@@ -196,9 +196,18 @@ def rank_strategies(attempts: Iterable[ProofAttempt], minimum_qualified: int = 3
     for attempt in attempts:
         attempt.validate()
         if attempt.qualified:
-            group_key = (attempt.tactic_sequence, attempt.goal.domain,\n                     attempt.goal.statement_sha256, attempt.goal.assumptions_sha256,\n                     attempt.lean_version, attempt.mathlib_revision)\n            groups.setdefault(group_key, []).append(attempt)
+            group_key = (
+                attempt.tactic_sequence,
+                attempt.goal.domain,
+                attempt.goal.statement_sha256,
+                attempt.goal.assumptions_sha256,
+                attempt.lean_version,
+                attempt.mathlib_revision,
+            )
+            groups.setdefault(group_key, []).append(attempt)
     ranked = []
-    for group_key, rows in groups.items():\n        tactics = group_key[0]
+    for group_key, rows in groups.items():
+        tactics = group_key[0]
         if len(rows) < minimum_qualified:
             continue
         ranked.append({
@@ -207,14 +216,15 @@ def rank_strategies(attempts: Iterable[ProofAttempt], minimum_qualified: int = 3
             "success_rate": 1.0,
             "median_heartbeats": statistics.median(row.heartbeats for row in rows),
             "median_elapsed_ms": statistics.median(row.elapsed_ms for row in rows),
-            "statement_hashes": sorted({row.goal.statement_sha256 for row in rows}),
-            "assumption_hashes": sorted({row.goal.assumptions_sha256 for row in rows}),
+            "domain": group_key[1],
+            "statement_sha256": group_key[2],
+            "assumptions_sha256": group_key[3],
+            "lean_version": group_key[4],
+            "mathlib_revision": group_key[5],
         })
     return sorted(ranked, key=lambda row: (
         -row["success_rate"], row["median_heartbeats"], row["median_elapsed_ms"]
     ))
-
-
 def object_view_engineering_links(
     theorem_id: str,
     object_view_ids: Iterable[str],
