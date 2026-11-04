@@ -101,6 +101,11 @@ jobs:
 
       - name: Merlin deterministic research and API contracts
         run: python3 -m unittest discover -s tests/research -v
+      - name: Merlin glyph Foundry, normalizer and confluence tests
+        run: |
+          python3 -m unittest discover -s tests -p "test_glyph_foundry.py" -v
+          python3 -m unittest discover -s tests -p "test_glyph_normalizer.py" -v
+          python3 -m unittest discover -s tests -p "test_glyph_confluence.py" -v
 
       - name: Merlin media, drafting and council contracts
         env:
