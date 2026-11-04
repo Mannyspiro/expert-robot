@@ -854,7 +854,8 @@
         "MERLIN mathematical idea ledger sections 3 and 4",
         "merlin/rotation_representations.py",
         "tests/test_merlin_rotation_representations.py",
-        "Avrea run 41889392289 passed all 9 quaternion/Cl(3,0) rotor tests, including the exact 120-degree axis-cycling rotation, plus the 5D frame graph tests and catalog validation."
+        "Avrea run 41889392289 passed all 9 quaternion/Cl(3,0) rotor tests, including the exact 120-degree axis-cycling rotation, plus the 5D frame graph tests and catalog validation.",
+        "Avrea run 41889678715 passed the expanded four-view rotation tests: 11/11 rotation tests, 11/11 frame-graph tests, 5/5 catalog-validator tests, and module compilation."
       ],
       "relations": [
         {
@@ -903,7 +904,7 @@
         "Merlin discussions: complex numbers, sine/cosine and polar coordinates",
         "merlin/rotation_representations.py: complex_plane_rotate",
         "tests/test_merlin_rotation_representations.py: all three coordinate-axis orientations",
-        "Avrea run pending for the complex-plane adapter extension."
+        "Avrea run 41889678715 passed the expanded four-view rotation tests: 11/11 rotation tests, 11/11 frame-graph tests, 5/5 catalog-validator tests, and module compilation."
       ],
       "relations": [
         {
