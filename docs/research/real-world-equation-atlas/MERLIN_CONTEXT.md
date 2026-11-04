@@ -155,3 +155,25 @@ Suggested typed paths:
 `MarkovState --TransitionKernel(P)--> NextStateDistribution`
 `SDE(drift,diffusion,interpretation) --FokkerPlanck--> ProbabilityDensity`
 `StationaryDistribution + RateGenerator --ProbabilityCurrent--> EntropyProductionRate`
+
+
+## Phase 0.7 — biological and collective systems
+RWEA-061–070 extends the atlas into reaction-diffusion, Turing instability, cellular automata, logistic population growth, replicator dynamics, Wilson–Cowan neural populations, biological mutual information, Kuramoto synchronization, bond percolation, and self-organization observables.
+
+Proposed typed XMG frames:
+- **Field frame:** spatial coordinate, concentration/activity field, physical units, domain, and boundary condition.
+- **Reaction frame:** species/state vector, kinetic map, conservation constraints, and parameter dimensions.
+- **Lattice frame:** cell index, neighborhood, finite state alphabet, and update schedule.
+- **Population-simplex frame:** frequencies, fitness map, normalization invariant, and mutation/noise extension.
+- **Neural population frame:** excitatory/inhibitory activity, time constants, coupling, and activation map.
+- **Oscillator-network frame:** phase, natural frequency, adjacency/weight matrix, coupling function, and order parameter.
+- **Graph connectivity frame:** vertices, edges, ensemble, occupation probability, and component statistics.
+- **Information-observation frame:** joint distribution, estimator, sampling window, bias correction, and units in bits.
+
+Suggested typed transformations:
+`ReactionState --DiffusionOperator(D,domain,boundary)--> SpatialFieldEvolution`
+`PopulationSimplex --FitnessMap--> ReplicatorFlow`
+`OscillatorNetwork --Coupling(K,A)--> PhaseField + OrderParameter`
+`GraphEnsemble --BondOccupation(p)--> ComponentDistribution`
+
+These are proposed contracts, not claims of an already implemented XMG runtime. Keep physical entropy, Shannon information, and dimensionless order parameters separate.
