@@ -294,3 +294,12 @@ Capability grows, authority never expands.
 - Research roadmap ranks source-of-truth/provenance, electrical/protection review, thermal correlation, swept harness manufacturing geometry, EDA/CAD round-tripping, and independent verification.
 - Standards families mapped for applicability review: IEC 60204-1 machinery electrical equipment; IEC 60664-1 insulation coordination; IPC/WHMA-A-620F harness manufacture/acceptance. Applicability is project-dependent and must be reviewed against the full normative editions.
 - MCFC remains the virtual compute fabric; XMG coordinate frames remain a separate engineering representation contract.
+
+### Phase 0.10.2 — MCFC virtual-fabric integration
+- Recovered the original MCFC project definition: a virtual compute fabric for typed CPU/memory/GPU resources, budgets, workload scheduling, expiring execution leases, and telemetry. Coordinate frames remain XMG's responsibility.
+- Added `python/merlin/cpu_fabric/leases.py`: `ResourceRequest`, `CapacitySnapshot`, `WorkloadRequest`, `ExecutionLease`, `LeaseBook`, and a CPU-only `cad_wire_route_request()` adapter.
+- Admission checks explicit measured capacity provenance and freshness, concurrent CPU/memory/GPU reservations, compute-budget units, idempotency, expiry, completion, and revocation. Unknown GPU capacity blocks GPU-required jobs.
+- MCFC emits runtime-labelled resource telemetry. Leases grant bounded execution only and never promotion authority.
+- CACE route receipts now bind a completed MCFC lease and capacity-evidence hash to the project, assembly/frame graph, route output, and source revision. Ledger ingestion recomputes the bound inputs and records experiment evidence without status promotion.
+- Existing wiring-export and qualification modules are part of the same engineering path: graph/schedule/manifest exports remain non-release artifacts; electrical/thermal/manufacturing assessments block when authoritative evidence is missing.
+- Current MCFC `LeaseBook` is an in-process reference implementation. Durable lease persistence, multi-worker heartbeats, fair scheduling, preemption, measured live capacity probes, native EDA export, SPICE correlation, and independent sign-off remain open.
