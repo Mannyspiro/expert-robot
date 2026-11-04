@@ -245,3 +245,13 @@ Built three first cross-domain model compositions on top of the shared integrato
 - **SIR:** susceptible/infectious/recovered transfers with closed-population conservation residual monitoring, initial-total validation, and a negative-compartment guard.
 - **Lotka–Volterra:** coupled prey/predator growth, interaction, conversion, and mortality with positivity guard.
 - CI adds model-level tests for composition, step-size restriction, population conservation, invalid initial totals, and reproducibility. The next Avrea run will verify this increment.
+
+
+## Phase 0.9.1 verification — Avrea run #1366
+- Workflow run `41844026188` passed for branch head `a1c551bde110cc72a93bf7a255adf3161930a57a`.
+- The equation-atlas CI step passed with both simulation-engine and composed-model tests; all other workflow stages completed successfully.
+- Artifact ZIP SHA-256: `a3f90c5c6fb5f66f4885bb83335b3939c141163069e691a7ad254bb9e63b0fc2`.
+- Receipt SHA-256: `6d41c11d968e65a7306236f7181c6299a4bc166ac6247d4d124b7715e0107a81`.
+- Normalized atlas SHA-256: `da3f9edba190fe667aecbae21eabfe422350e1be9a139fcba2bcea187236dc51`.
+- Receipt contains 25 source/artifact hashes, including both model modules and their tests. Receipt merge-ref snapshot: `412d7bbb34fb2e1a0239660cf41b73afd13e2224`.
+- This establishes the declared synthetic checks only; it does not establish empirical validity or formal proof.
