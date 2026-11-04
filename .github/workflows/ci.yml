@@ -114,8 +114,8 @@ jobs:
           mkdir -p artifacts
           python3 -m merlin.equation_atlas.experiments.baseline > artifacts/equation-atlas-baseline.json
           python3 -m merlin.equation_atlas.normalize
-          cp docs/research/real-world-equation-atlas/NORMALIZED_ENTRIES_001-020_V0.3.json artifacts/
-          python3 -m merlin.equation_atlas.receipts --artifact artifacts/equation-atlas-baseline.json --source docs/research/real-world-equation-atlas/NORMALIZED_ENTRIES_001-020.json --source docs/research/real-world-equation-atlas/equation-entry.schema.json --source docs/research/real-world-equation-atlas/evidence-receipt.schema.json --source requirements-equation-atlas.txt --source python/merlin/equation_atlas/normalize.py --source python/merlin/equation_atlas/experiments/baseline.py --source python/merlin/equation_atlas/dimensions.py --source python/merlin/equation_atlas/symbolic_checks.py --output artifacts/equation-atlas-evidence-receipt.json
+          cp docs/research/real-world-equation-atlas/NORMALIZED_ENTRIES_001-020_V0.3.json artifacts/equation-atlas-normalized-entries-001-020.json
+          python3 -m merlin.equation_atlas.receipts --artifact artifacts/equation-atlas-baseline.json --source docs/research/real-world-equation-atlas/NORMALIZED_ENTRIES_001-020.json --source docs/research/real-world-equation-atlas/equation-entry.schema.json --source docs/research/real-world-equation-atlas/evidence-receipt.schema.json --source requirements-equation-atlas.txt --source python/merlin/equation_atlas/normalize.py --source python/merlin/equation_atlas/experiments/baseline.py --source python/merlin/equation_atlas/dimensions.py --source python/merlin/equation_atlas/symbolic_checks.py --source artifacts/equation-atlas-normalized-entries-001-020.json --output artifacts/equation-atlas-evidence-receipt.json
           python3 -m unittest discover -s tests -p "test_merlin_equation_atlas*.py" -v
           python3 -m unittest discover -s tests -p "test_merlin_evidence_receipts.py" -v
       - name: Publish equation-atlas reproducibility artifact
