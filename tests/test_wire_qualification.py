@@ -74,6 +74,15 @@ class WireQualificationTests(unittest.TestCase):
         result = assess_electrical(replace(electrical(), measured_minimum_clearance_mm="unknown"))
         self.assertTrue(any(item["status"] == "BLOCKED" for item in result))
 
+    def test_nonfinite_input_is_blocked_and_still_receipted(self):
+        from dataclasses import replace
+        malformed = replace(electrical(), measured_minimum_clearance_mm=float("nan"))
+        report = build_qualification_report(route(), malformed,
+            ThermalInputs(25.0, 90.0, 4.0, "thermal-test-001"),
+            ManufacturingInputs(10.0, (12.0,), 5.0, 8.0, "REV-A", "process-001"))
+        self.assertEqual(report["overall_status"], "BLOCKED")
+        self.assertEqual(len(report["input_hashes"]["electrical_inputs_sha256"]), 64)
+
     def test_report_binds_all_input_payloads(self):
         report = build_qualification_report(route(), electrical(),
             ThermalInputs(25.0, 90.0, 4.0, "thermal-test-001"),
