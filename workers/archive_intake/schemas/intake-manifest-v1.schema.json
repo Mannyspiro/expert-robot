@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://merlin.local/schemas/intake-manifest-v1.schema.json",
+  "title": "Merlin Intake Manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "manifest_version",
+    "intake_id",
+    "archive",
+    "started_at",
+    "finished_at",
+    "policy",
+    "execution_policy",
+    "file_count",
+    "total_uncompressed_bytes",
+    "files"
+  ],
+  "properties": {
+    "manifest_version": {
+      "const": "1.0"
+    },
+    "intake_id": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$"
+    },
+    "archive": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "filename",
+        "sha256",
+        "size_bytes"
+      ],
+      "properties": {
+        "filename": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "finished_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "policy": {
+      "type": "object"
+    },
+    "execution_policy": {
+      "const": "contents_inspected_only_never_executed"
+    },
+    "file_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "total_uncompressed_bytes": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "sha256",
+          "size_bytes",
+          "classification"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "classification": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}\n
