@@ -161,7 +161,7 @@ jobs:
           PY
           echo "THTG printed-beta audit compiled without proof escapes."
 
-      - name: Compile exact Page-curve monotonicity audit and print axiom dependencies
+      - name: Compile Page-curve monotonicity theorem and enforce axiom allowlist
         working-directory: formal
         env:
           LEAN_ABORT_ON_PANIC: "1"
