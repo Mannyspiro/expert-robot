@@ -101,12 +101,16 @@ def validate_assembly(project: EngineeringProject, assembly: CADAssembly) -> tup
                                         "Assembly references unknown part " + component.part_ref))
             continue
         errors = list(validate_transform(component.transform))
-        if component.frame_id is not None and component.frame_id not in frame_world:
-            errors.append("unknown coordinate frame: " + component.frame_id)
+        invalid_frame = component.frame_id is not None and component.frame_id not in frame_world
+        if invalid_frame:
+            issues.append(AssemblyIssue(
+                "INVALID_FRAME_GRAPH", "error",
+                component.part_ref + ": unknown coordinate frame " + str(component.frame_id),
+            ))
         for error in errors:
             issues.append(AssemblyIssue("INVALID_TRANSFORM", "error",
                                         component.part_ref + ": " + error))
-        if not errors and all(math.isfinite(x) and x > 0 for x in part.size_mm):
+        if not errors and not invalid_frame and all(math.isfinite(x) and x > 0 for x in part.size_mm):
             world = component.transform
             if component.frame_id is not None:
                 world = compose(frame_world[component.frame_id], world)
