@@ -298,3 +298,23 @@ Tests cover nested translations, rotated composition, inverse round trips, dupli
 - No mate/joint solver, constraint graph, degrees-of-freedom analysis or kinematic simulation yet.
 - Component identity is still tied to a unique part reference; multiple instances of one library part need a separate instance identifier.
 - AABB checks remain conservative and are not exact solid collision detection.
+
+
+## v0.8.2 — physical pin geometry linked to electrical nets
+
+Implemented:
+- `Pin` now optionally stores local 3D `position_mm` and a normalized local `direction` vector.
+- Pin geometry is part of the shared Engineering IR and is preserved by dataclass serialization and the versioned project store.
+- `python/merlin/physical_connectivity.py` maps net endpoints to physical pin locations through the component transform, parent-frame hierarchy, part offset and pin-local position.
+- Pin directions are rotated into world coordinates without applying translation.
+- Missing pin geometry and absent assembly components are reported explicitly; no coordinates are inferred.
+- Output is a physical netlist manifest that retains the original electrical net identity and declared voltage/current metadata.
+
+### Tests and CI
+- Added `tests/test_physical_connectivity.py` for nested-frame position mapping, direction rotation, missing geometry and invalid coordinates.
+- The CI workflow now includes focused Python regression tests for Engineering IR, project persistence, CAD assembly, coordinate frames and physical connectivity.
+
+### Limitations
+- Coordinates must be supplied by the project author or a separately verified part-library import; Merlin does not infer pin locations from datasheets.
+- This creates endpoint geometry only. It does not generate wire paths or perform routing, gauge selection, voltage-drop, thermal, creepage/clearance, EMC or safety analysis.
+- Physical netlist output is a design aid, not a fabrication or electrical-safety approval.
