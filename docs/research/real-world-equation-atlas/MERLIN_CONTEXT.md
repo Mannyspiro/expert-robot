@@ -200,3 +200,13 @@ A composed model should be a typed graph of operators, not a collection of unrel
 - **Frame projection** declares whether a map is an embedding, projection, active physical transformation, or passive coordinate change.
 
 Composition is permitted only when output and input frame identifiers and required metadata match exactly. No implicit unit conversion is allowed. Each run should bind operator/version, input and parameter hashes, code revision, numerical method, tolerance, boundary conditions, and random seed when stochastic.
+
+
+## Avrea verification update — 80-entry revision
+- Avrea CI run #1354 (run ID `41842870640`) passed for PR head `d18959fe6d77dda863a98bea651ebd753c37d5c6`.
+- All top-level CI steps completed successfully, including the atlas schema/dimensional/numerical test stage, artifact publication, engineering IR/CAD tests, CACE guardrails, Hermes/voice contracts, and independent smoke tests.
+- Downloaded artifact ZIP SHA-256: `b751693229589025a011e89b3b01d4b42b3087a1fd6e4354808d19e4fca292c7`.
+- Inspected normalized output: exactly 80 unique ordered entries RWEA-001–080; every entry remains `UNVERIFIED`.
+- Normalized output SHA-256: `da3f9edba190fe667aecbae21eabfe422350e1be9a139fcba2bcea187236dc51`.
+- Receipt SHA-256: `a39d9408dc258bdd47e4afeb4c2bb3b8a44d3d663535a5e0f531cfcdd2830271`; receipt contains 20 source/artifact hashes, including the new tranche, operator contract, validator, and operator tests.
+- Receipt commit is the PR merge-ref snapshot recorded by the runner. CI success establishes test/reproducibility status for that exact snapshot, not empirical validity, scientific truth, or Lean proof success.
