@@ -19,12 +19,13 @@ class CanonicalSchemaTests(unittest.TestCase):
         cls.batch_041_050 = json.loads((ATLAS / "NORMALIZED_ENTRIES_041-050.json").read_text())
         cls.batch_051_060 = json.loads((ATLAS / "NORMALIZED_ENTRIES_051-060.json").read_text())
         cls.batch_061_070 = json.loads((ATLAS / "NORMALIZED_ENTRIES_061-070.json").read_text())
+        cls.batch_071_080 = json.loads((ATLAS / "NORMALIZED_ENTRIES_071-080.json").read_text())
         cls.validator = Draft202012Validator(cls.schema)
 
     def test_all_legacy_entries_migrate_to_canonical_schema(self):
-        migrated = [normalize_entry(item) for item in self.legacy["entries"]] + self.batch_021_030["entries"] + self.batch_031_040["entries"] + self.batch_041_050["entries"] + self.batch_051_060["entries"] + self.batch_061_070["entries"]
-        self.assertEqual(len(migrated), 70)
-        self.assertEqual([item["id"] for item in migrated], [f"RWEA-{i:03d}" for i in range(1, 71)])
+        migrated = [normalize_entry(item) for item in self.legacy["entries"]] + self.batch_021_030["entries"] + self.batch_031_040["entries"] + self.batch_041_050["entries"] + self.batch_051_060["entries"] + self.batch_061_070["entries"] + self.batch_071_080["entries"]
+        self.assertEqual(len(migrated), 80)
+        self.assertEqual([item["id"] for item in migrated], [f"RWEA-{i:03d}" for i in range(1, 81)])
         for entry in migrated:
             with self.subTest(entry=entry["id"]):
                 self.assertEqual(list(self.validator.iter_errors(entry)), [])
