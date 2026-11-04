@@ -1,0 +1,367 @@
+{
+  "schema": "merlin.xmg.glyph-registry",
+  "version": "0.1.0",
+  "status": "proposed_not_compiler_verified",
+  "canonicalIdentity": "id",
+  "rendering": "glyph",
+  "rules": [
+    "Glyph artwork is not semantic authority; canonical id and typed AST are.",
+    "Every operator overload declares input/output types, units, preconditions, assumptions, and error behavior.",
+    "Unknown or ambiguous overloads are rejected or retained as unresolved.",
+    "Effectful operations require explicit capability and resource policies.",
+    "Cached outputs are reusable only when the complete content-addressed key matches."
+  ],
+  "glyphs": [
+    {
+      "id": "SEED",
+      "glyph": "⟐",
+      "operator": "construct",
+      "meaning": "typed object or initial state",
+      "effect": "pure",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "OBJ",
+      "glyph": "◉",
+      "operator": "reference",
+      "meaning": "typed object identity",
+      "effect": "pure",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "REL",
+      "glyph": "⋈",
+      "operator": "relation",
+      "meaning": "typed relation between objects",
+      "effect": "pure",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "MAP",
+      "glyph": "↦",
+      "operator": "mapping",
+      "meaning": "explicit map between types or representations",
+      "effect": "pure",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "FRAME",
+      "glyph": "⤢",
+      "operator": "frame_transform",
+      "meaning": "coordinate-frame transform",
+      "effect": "pure",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "COMPOSE",
+      "glyph": "⊗",
+      "operator": "composition",
+      "meaning": "compose compatible operations",
+      "effect": "pure",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "VAR",
+      "glyph": "∇",
+      "operator": "variation",
+      "meaning": "derivative, sensitivity, variation",
+      "effect": "pure",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "SCALE",
+      "glyph": "⌁",
+      "operator": "scale",
+      "meaning": "rescale or coarse-grain",
+      "effect": "pure",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "INV",
+      "glyph": "⌬",
+      "operator": "invariant",
+      "meaning": "quantity invariant under declared group action",
+      "effect": "pure",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "ASSEMBLE",
+      "glyph": "⊞",
+      "operator": "assembly",
+      "meaning": "combine components under constraints",
+      "effect": "pure",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "DIFF",
+      "glyph": "⊖",
+      "operator": "difference",
+      "meaning": "difference or residual",
+      "effect": "pure",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "SUPERPOSE",
+      "glyph": "⊕",
+      "operator": "combination",
+      "meaning": "combine compatible states",
+      "effect": "pure",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "SEARCH",
+      "glyph": "⌕",
+      "operator": "search",
+      "meaning": "enumerate candidates under predicate",
+      "effect": "read",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "ITER",
+      "glyph": "⟲",
+      "operator": "iteration",
+      "meaning": "iterate map under stop rule",
+      "effect": "compute",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "PROVE",
+      "glyph": "⊢",
+      "operator": "proof",
+      "meaning": "create/discharge proof obligation",
+      "effect": "verify",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "UNCERTAIN",
+      "glyph": "◌",
+      "operator": "uncertainty",
+      "meaning": "attach probability, interval, or error model",
+      "effect": "annotate",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "TIME",
+      "glyph": "⧖",
+      "operator": "temporal",
+      "meaning": "time-indexed state or evolution",
+      "effect": "pure",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "BOUNDARY",
+      "glyph": "⌂",
+      "operator": "boundary",
+      "meaning": "domain/interface/boundary condition",
+      "effect": "pure",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "ENCODE",
+      "glyph": "⧈",
+      "operator": "encoding",
+      "meaning": "serialize typed object",
+      "effect": "pure",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "DECODE",
+      "glyph": "⧉",
+      "operator": "decoding",
+      "meaning": "interpret encoded representation",
+      "effect": "pure",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "EXEC",
+      "glyph": "⛭",
+      "operator": "execution",
+      "meaning": "execute permitted computation",
+      "effect": "effectful",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "QUALIFY",
+      "glyph": "⛨",
+      "operator": "qualification",
+      "meaning": "independent evidence qualification",
+      "effect": "verify",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "CACHE",
+      "glyph": "⧗",
+      "operator": "cache",
+      "meaning": "content-addressed artifact lookup/store",
+      "effect": "effectful",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "OPT",
+      "glyph": "⧁",
+      "operator": "optimization",
+      "meaning": "optimize objective subject to constraints",
+      "effect": "compute",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "COORD",
+      "glyph": "⌖",
+      "operator": "coordinates",
+      "meaning": "coordinate/chart/frame declaration",
+      "effect": "pure",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "SPLIT",
+      "glyph": "⫶",
+      "operator": "partition",
+      "meaning": "partition object",
+      "effect": "pure",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "MERGE",
+      "glyph": "⫷",
+      "operator": "merge",
+      "meaning": "merge compatible objects preserving lineage",
+      "effect": "pure",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "CONSTRAIN",
+      "glyph": "⊣",
+      "operator": "constraint",
+      "meaning": "apply type/unit/domain constraint",
+      "effect": "pure",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "SATISFY",
+      "glyph": "⊨",
+      "operator": "satisfaction",
+      "meaning": "evaluate model against proposition",
+      "effect": "verify",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "FLOW",
+      "glyph": "⤳",
+      "operator": "dataflow",
+      "meaning": "directed dependency/process graph",
+      "effect": "pure",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "BRANCH",
+      "glyph": "⧫",
+      "operator": "branch",
+      "meaning": "fork hypothetical state",
+      "effect": "pure",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "MEASURE",
+      "glyph": "⊙",
+      "operator": "measurement",
+      "meaning": "measure quantity under protocol",
+      "effect": "compute",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "COMPARE",
+      "glyph": "⊚",
+      "operator": "comparison",
+      "meaning": "compare under declared rule",
+      "effect": "pure",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "INVALID",
+      "glyph": "⊘",
+      "operator": "invalidity",
+      "meaning": "represent undefined/ill-typed/singular operation",
+      "effect": "pure",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "PROVENANCE",
+      "glyph": "⧬",
+      "operator": "provenance",
+      "meaning": "attach source and lineage",
+      "effect": "annotate",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "LIFT",
+      "glyph": "⧿",
+      "operator": "embedding",
+      "meaning": "embed object into larger space",
+      "effect": "pure",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "PROJECT",
+      "glyph": "⤺",
+      "operator": "projection",
+      "meaning": "project object to subspace/view",
+      "effect": "pure",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "DUAL",
+      "glyph": "⊛",
+      "operator": "duality",
+      "meaning": "form dual/adjoint/reciprocal",
+      "effect": "pure",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    },
+    {
+      "id": "GLYPH",
+      "glyph": "⌗",
+      "operator": "metasyntax",
+      "meaning": "reference glyph definition",
+      "effect": "pure",
+      "status": "proposed",
+      "requiresExplicitTypes": true
+    }
+  ]
+}
