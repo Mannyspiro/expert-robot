@@ -44,3 +44,27 @@
 ## Status
 
 This is a source-to-entry crosswalk, not a claim that every entry has already received a complete primary-source audit. Entries with explicit gaps must remain UNVERIFIED for application-specific use until a source directly supports the model, assumptions, and regime. The source register should be expanded entry-by-entry before a production promotion.
+
+
+## Additional sources for RWEA-021–030
+
+- **S22 — Linear systems and feedback control:** MIT OpenCourseWare, 16.30 *Feedback Control Systems*, Fall 2010, lecture notes on state-space models, controllability, state feedback, estimators, LQR, LQG, and digital control. https://ocw.mit.edu/courses/16-30-feedback-control-systems-fall-2010/pages/lecture-notes/
+- **S23 — Robot kinematics and rigid-body transformations:** Kevin M. Lynch and Frank C. Park, *Modern Robotics*, Northwestern University/Cambridge University Press online chapter supplements; Chapters 3–6 cover rigid-body motions, product-of-exponentials forward kinematics, Jacobians, singularities, and inverse kinematics. https://modernrobotics.northwestern.edu/nu-gm-book-resource/
+- **S24 — Multibody and manipulator dynamics:** Russ Tedrake, MIT, *Underactuated Robotics*, “Multi-Body Dynamics,” Lagrangian equations and manipulator equations. https://underactuated.mit.edu/multibody.html
+- **S25 — PID control:** Karl J. Åström and Richard M. Murray, *Feedback Systems*, Caltech, introductory feedback-control text and PID control treatment. https://www.cds.caltech.edu/~murray/books/AM08/pdf/am08-intro_09Aug12.pdf
+- **S26 — Manipulator stiffness and impedance control:** Russ Tedrake, MIT, *Robotic Manipulation*, Chapter 8 “Manipulator Control,” including joint stiffness control and generalized manipulator dynamics. https://manipulation.mit.edu/force.html
+
+## Equation-ID crosswalk additions
+
+| Atlas IDs | Source mapping | Evidence boundary / remaining source work |
+|---|---|---|
+| 021 | S22 | Supports continuous-time state-space modeling; application-specific state/input units and model identification remain to be supplied. |
+| 022 | S22, S09 | Supports discrete state-space and estimation context; discretization method and process/measurement noise assumptions must be specified per system. |
+| 023 | S09, S22 | Supports Kalman filtering/state estimation; covariance units, noise assumptions, and observability must be checked for each application. |
+| 024 | S25, S22 | Supports ideal PID form and feedback context; practical derivative filtering, saturation, anti-windup, and tuning are implementation-specific. |
+| 025 | S22 | Supports deterministic LQR formulation; stabilizability/detectability, cost-matrix dimensions, and continuous/discrete convention must be stated. |
+| 026 | S23 | Supports product-of-exponentials forward kinematics; robot-specific screw axes, home pose, frame conventions, and joint units are required. |
+| 027 | S23 | Supports Jacobian velocity mapping; distinguish body/space Jacobian and mixed revolute/prismatic joint units. |
+| 028 | S23 | Supports numerical inverse kinematics; local convergence, singularities, joint limits, and solution selection are application-dependent. |
+| 029 | S24, S23 | Supports Lagrangian manipulator dynamics; friction, actuator mapping, contact, constraints, and sign conventions require model-specific treatment. |
+| 030 | S26 | Supports joint-space stiffness/PD control; gain units, gravity compensation, actuator limits, and closed-loop stability require robot-specific validation. |
