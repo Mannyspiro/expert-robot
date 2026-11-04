@@ -145,6 +145,20 @@ jobs:
             echo "::error::THTG beta theorem contains an untrusted proof escape."
             exit 1
           fi
+          LEAN_OUTPUT="$output" python3 - <<'PY'
+          import os
+          output = os.environ["LEAN_OUTPUT"]
+          needle = "THTGPrintedBetaAudit.no_positive_g_fixed_point' depends on axioms: ["
+          line = next((item for item in output.splitlines() if needle in item), None)
+          if line is None:
+              raise SystemExit("missing theorem-specific #print axioms output")
+          axioms = {item.strip() for item in line.split("[", 1)[1].split("]", 1)[0].split(",") if item.strip()}
+          allowed = {"propext", "Classical.choice", "Quot.sound"}
+          unexpected = axioms - allowed
+          if unexpected:
+              raise SystemExit(f"unexpected axiom dependencies: {sorted(unexpected)}")
+          print(f"axiom allowlist passed: {sorted(axioms)}")
+          PY
           echo "THTG printed-beta audit compiled without proof escapes."
 
       - name: Registered theorem axiom report
