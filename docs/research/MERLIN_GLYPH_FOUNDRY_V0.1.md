@@ -1,6 +1,6 @@
 # Merlin Glyph Foundry v0.1
 
-**Status:** prototype implementation. Nine local unit tests passed in the authoring environment. Formal Lean verification and repository CI have not yet been run.
+**Status:** prototype implementation. Eleven local unit tests passed in the authoring environment. Formal Lean verification and repository CI have not yet been run.
 
 ## Purpose
 
@@ -13,7 +13,7 @@ The Glyph Foundry synthesizes higher-order operators from a small typed basis. I
 - Pair construction and projections.
 - Equality expressions and typed runtime constraints.
 - Deterministic structural fingerprints.
-- Bounded composition enumeration with in-process deduplication.
+- Bounded, resumable composition enumeration with in-process deduplication and benchmark-value validation.
 - Candidate evidence states and promotion gates.
 - Promotion requires test receipts, a formal-proof receipt, independent-review receipt, and benchmark improvement over a baseline.
 
