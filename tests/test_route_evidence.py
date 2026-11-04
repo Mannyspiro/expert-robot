@@ -104,6 +104,10 @@ class RouteEvidenceTests(unittest.TestCase):
         self.assertFalse(verify_route_evidence_receipt(
             receipt, project, assembly, output, elevated
         ))
+        mismatched = replace(lease, lease_id="different-lease-id")
+        self.assertFalse(verify_route_evidence_receipt(
+            receipt, project, assembly, output, mismatched
+        ))
         with self.assertRaisesRegex(ValueError, "completed"):
             create_route_evidence_receipt(
                 project, assembly, output, replace(lease, status="active"),

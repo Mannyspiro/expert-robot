@@ -47,6 +47,16 @@ def create_route_evidence_receipt(
         raise ValueError("unsupported route output format")
     if route_output.get("status") != "GEOMETRY_PROPOSAL_ONLY_NOT_ELECTRICAL_OR_MANUFACTURING_APPROVAL":
         raise ValueError("route output must retain the non-qualification status")
+    execution = route_output.get("execution")
+    if not isinstance(execution, dict):
+        raise ValueError("route output must include MCFC execution metadata")
+    if (
+        execution.get("mcfc_lease_id") != execution_lease.lease_id
+        or execution.get("mcfc_workload_id") != execution_lease.workload_id
+        or execution.get("authority") != "execution_only"
+        or execution.get("promotion_authority") is not False
+    ):
+        raise ValueError("route output execution metadata does not match the MCFC lease")
     if not isinstance(execution_lease, ExecutionLease):
         raise ValueError("execution_lease must be an MCFC ExecutionLease")
     if execution_lease.capability != "cad.wire_route_proposal":
