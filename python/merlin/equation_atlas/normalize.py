@@ -15,8 +15,9 @@ from jsonschema import Draft202012Validator
 ROOT = Path(__file__).resolve().parents[3]
 ATLAS = ROOT / "docs/research/real-world-equation-atlas"
 LEGACY = ATLAS / "NORMALIZED_ENTRIES_001-020.json"
+BATCH_021_030 = ATLAS / "NORMALIZED_ENTRIES_021-030.json"
 SCHEMA = ATLAS / "equation-entry.schema.json"
-OUTPUT = ATLAS / "NORMALIZED_ENTRIES_001-020_V0.3.json"
+OUTPUT = ATLAS / "NORMALIZED_ENTRIES_001-030_V0.3.json"
 
 MODEL_FAMILY = {
     "optimization": "mathematical_optimization",
@@ -92,6 +93,13 @@ def main() -> int:
     schema = json.loads(SCHEMA.read_text(encoding="utf-8"))
     validator = Draft202012Validator(schema)
     entries = [normalize_entry(entry) for entry in legacy["entries"]]
+    batch_021_030 = json.loads(BATCH_021_030.read_text(encoding="utf-8"))
+    entries.extend(batch_021_030["entries"])
+    ids = [entry["id"] for entry in entries]
+    if len(ids) != len(set(ids)):
+        raise SystemExit("Duplicate equation IDs in normalized batches")
+    if ids != sorted(ids):
+        raise SystemExit("Equation entries must be ordered by stable ID")
     errors = []
     for entry in entries:
         errors.extend(
@@ -103,7 +111,7 @@ def main() -> int:
     result = {
         "schema_version": "0.3",
         "dimension_basis": legacy["dimension_basis"],
-        "migration_policy": "Legacy entries are preserved and normalized; evidence remains UNVERIFIED until claim-level review.",
+        "migration_policy": "Legacy entries are normalized and canonical batch entries are preserved; evidence remains UNVERIFIED until claim-level review.",
         "entries": entries,
     }
     OUTPUT.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
