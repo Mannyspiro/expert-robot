@@ -29,7 +29,7 @@
 | Units/dimensions | Starter checker executed successfully in Avrea CI | Only eight representative relations are executable; not all 100 entries |
 | Symbolic | Starter checks executed successfully in Avrea CI | Not a proof of physical adequacy |
 | Numerical | Deterministic scripts executed successfully in Avrea CI; output artifact archived | Synthetic baselines are not independent empirical validation; no broad convergence or uncertainty study yet |
-| Canonical schema | 20/20 legacy entries migrated and schema-validated in Avrea CI | Entries 021–100 not yet normalized; first tranche still needs source/assumption completion |\n| Evidence receipts | Receipt schema validated; content-addressed receipt generated and inspected in Avrea CI | Test-output digest, container image digest, and reviewer signature remain future extensions |\n| Lean | Candidate theorems and axiom audit source integrated | CI run #1289 did not execute formal qualification; theorem candidates remain unverified until the pinned Lean workflow compiles them |
+| Canonical schema | 20/20 legacy entries migrated and schema-validated in Avrea CI; 021–030 batch authored and queued for validation | Combined 001–030 Avrea run pending; 031–100 not yet normalized |\n| Evidence receipts | Receipt schema validated; content-addressed receipt generated and inspected in Avrea CI | Test-output digest, container image digest, and reviewer signature remain future extensions |\n| Lean | Candidate theorems and axiom audit source integrated | CI run #1289 did not execute formal qualification; theorem candidates remain unverified until the pinned Lean workflow compiles them |
 | XMG | Typed design contract and examples added | No interactive CAD/3D renderer or runtime integration has been executed |
 | Learning | Lesson sequence added | Lessons need visual assets and adaptive learner testing |
 
@@ -38,7 +38,7 @@ The successful Avrea run establishes that the configured Python equation-atlas c
 
 ## Next completion gates
 1. Close specialist-source gaps and attach claim-level citations to every equation and model assumption.
-2. Normalize RWEA-021–100 with variable-level SI dimensions, coefficient dimensions, domain restrictions, initial/boundary conditions, and validity regimes.
+2. Complete Avrea validation of RWEA-001–030, then normalize RWEA-031–100 with variable-level SI dimensions, coefficient dimensions, domain restrictions, initial/boundary conditions, and validity regimes.
 3. Expand dimensional and symbolic tests from representative examples to all entries that admit executable checks.
 4. Add numerical convergence, stability, sensitivity, uncertainty, and failure-regime sweeps; archive environment metadata and tolerances with each result.
 5. Run the separate pinned Lean 4.34.0 / Mathlib v4.34.0 formal-qualification workflow; inspect logs and axiom output before promoting any theorem.
@@ -47,4 +47,4 @@ The successful Avrea run establishes that the configured Python equation-atlas c
 8. Generate Math Kung Fu lessons only from entries meeting the declared evidence threshold; retain explicit uncertainty and counterexamples in lesson notes.
 
 ## Avrea / compute note
-The existing self-hosted runner label is `avrea-ubuntu-latest-8-vcpu`. CI run 1289 confirms the canonical migration, receipt generation, equation-atlas checks, and artifact publication completed on that runner. The formal-qualification workflow is separate and was not part of this CI run. Do not mark Lean candidates verified until that workflow's actual logs and theorem/axiom outputs have been inspected.
+The existing self-hosted runner label is `avrea-ubuntu-latest-8-vcpu`. CI run 1289 confirms the canonical migration for RWEA-001–020, receipt generation, equation-atlas checks, and artifact publication completed on that runner. The combined RWEA-001–030 validation is pending in the latest workflow run. The formal-qualification workflow is separate and was not part of this CI run. Do not mark Lean candidates verified until that workflow's actual logs and theorem/axiom outputs have been inspected.
