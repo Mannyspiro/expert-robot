@@ -81,3 +81,18 @@ This package records research direction and proposed outputs. It does not claim 
 7. Feed only appropriately supported entries into Math Kung Fu lessons.
 
 The standing authority boundary remains: research and verification can produce evidence; promotion, merge, and permission changes remain approval-gated. Capability grows, authority never expands.
+
+
+## Phase 0.4 research update — 2026-11-04
+- Added RWEA-031–040: local conservation balance, heat conduction, advection-diffusion, linear wave, Laplace, Poisson, linear advection, incompressible Newtonian Navier–Stokes, differential Maxwell system, and Poynting energy balance.
+- Added specialist source records S27–S29 from MIT OpenCourseWare PDE, numerical PDE, and electromagnetics courses, with entry-level crosswalks and explicit evidence boundaries.
+- The new tranche is authored as canonical JSON and all ten entries remain UNVERIFIED. The compact source crosswalk does not replace a full primary-source derivation audit; RWEA-040 in particular needs a dedicated Poynting-theorem derivation and material-medium convention review.
+- Updated the normalizer and schema tests to combine legacy 001–020 with canonical 021–030 and 031–040 batches into a 40-entry schema-validated output. CI now includes the 031–040 source file and emits the 001–040 normalized artifact.
+- This work was authored through the GitHub repository integration on the Merlin research branch. The Avrea workflow is the repository's configured self-hosted runner; no separate direct Avrea session is claimed.
+
+## Revised next execution focus
+1. Complete Avrea CI validation for the 001–040 batch and inspect its evidence artifact and receipt.
+2. Add executable dimensional checks for heat, wave, diffusion, Navier–Stokes, Maxwell, and Poynting equations, including component-wise vector/tensor units.
+3. Add finite-volume conservation tests, heat/wave convergence tests, and electromagnetic energy-balance tests with deterministic seeds/tolerances where applicable.
+4. Expand the source audit for Maxwell constitutive media, Poynting theorem derivation, fluid closures, and domain-specific boundary conditions.
+5. Run the separate Lean qualification workflow; inspect exact theorem and axiom output before any formal status change.
