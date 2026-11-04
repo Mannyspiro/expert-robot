@@ -266,3 +266,27 @@ See `MERLIN_ARCHIVED_MATH_CLAIM_AUDIT_V0.1.md`. These findings are recorded as c
 7. Replace the archived blow-up sketch with a non-vacuous theorem based on the integral criterion.
 8. Rebuild the Parrondo experiment using an explicit stochastic transition model, paired seeds and equal resource budgets.
 
+
+
+## 18. Four linked representations of a 3D rotation
+
+For a unit axis u and angle θ, a spatial rotation has several exact mathematical descriptions.
+
+**Matrix view.** A rotation is R ∈ SO(3), with RᵀR=I and det(R)=1.
+
+**Complex-plane view.** Decompose v into its component parallel to u and its orthogonal component. The parallel component is fixed. The perpendicular 2D plane can be identified with C, where the rotation acts by multiplication by e^{iθ}. This is a plane representation, not a lossless identification of all 3D vectors with one complex number.
+
+**Quaternion view.** Let q=cos(θ/2)+u sin(θ/2) be a unit quaternion and encode a vector v as a pure quaternion. Then v'=qvq^{-1}. The quaternions q and -q induce the same 3D rotation, giving the double cover S³→SO(3).
+
+**Geometric-algebra view.** In Cl(3,0), a unit rotor R is formed from the plane bivector and acts by v'=R v R̃. Under a convention-consistent identification of the even subalgebra with quaternions, the sandwich actions agree.
+
+This creates a concrete representation graph:
+
+\[
+SO(3)\;\longleftrightarrow\;\text{unit quaternions}\;\longleftrightarrow\;\text{Cl}(3,0)\text{ rotors},
+\]
+
+with a complex representation of the orthogonal plane attached to each fixed-axis rotation.
+
+**Next experiment:** compare all four views on exact quarter/half-turn examples, verify orthogonality and determinant, and test q and -q equivalence. Preserve handedness, active/passive convention, axis orientation and scalar-field metadata.
+
