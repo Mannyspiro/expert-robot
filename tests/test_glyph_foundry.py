@@ -4,7 +4,7 @@ from merlin.glyph_foundry import EvidenceState, GlyphFoundry, PromotionError, Ty
 class GlyphFoundryTests(unittest.TestCase):
     def setUp(self):
         self.registry=build_default_registry()
-        self.foundry=GlyphFoundry(self.registry)
+        self.foundry=GlyphFoundry(self.registry,evidence_verifier=lambda kind,receipt,subject: bool(receipt and subject))
     def test_identity_laws_and_elimination(self):
         f=self.registry.primitive_expr("NEGATE_INT")
         i=self.registry.identity(TypeRef("Int"))
