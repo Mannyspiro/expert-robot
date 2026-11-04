@@ -1,5 +1,5 @@
 import unittest
-from merlin.glyph_foundry import TypeRef, build_default_registry
+from merlin.glyph_foundry import Expr, TypeMismatch, TypeRef, build_default_registry
 from merlin.glyph_normalizer import GlyphNormalizer, RewriteRule, RewriteStatus
 
 class GlyphNormalizerTests(unittest.TestCase):
@@ -43,7 +43,16 @@ class GlyphNormalizerTests(unittest.TestCase):
         bad=RewriteRule("BAD","bad signature",lambda e:e.op=="compose",
                         lambda e,r:r.primitive_expr("ABS_INT"))
         normalizer=GlyphNormalizer(self.registry,(bad,))
-        with self.assertRaises(Exception): normalizer.normalize(self.registry.compose(n,n))
+        with self.assertRaises(TypeMismatch): normalizer.normalize(self.registry.compose(n,n))
+    def test_nested_rewrites_are_preserved_in_trace(self):
+        n=self.registry.primitive_expr("NEGATE_INT")
+        a=self.registry.primitive_expr("ABS_INT")
+        inner=self.registry.compose(n,n)
+        nested=self.registry.compose(a,inner)
+        result=self.normalizer.normalize(nested)
+        self.assertEqual(result.expression,a)
+        self.assertEqual([s.rule_id for s in result.steps],
+                         ["INT_DOUBLE_NEGATION","COMPOSE_IDENTITY_INNER"])
     def test_no_unbounded_rewrite_loop(self):
         n=self.registry.primitive_expr("NEGATE_INT")
         result=self.normalizer.normalize(self.registry.compose(n,n),max_steps=2)
