@@ -79,7 +79,7 @@ class RouteEvidenceTests(unittest.TestCase):
             with tempfile.TemporaryDirectory() as tmp:
                 ledger = HypothesisLedger(Path(tmp) / "ledger.sqlite3")
                 ledger.create("CAD-WIRE-1", "Route geometry is acceptable.")
-                record_route_evidence(ledger, "CAD-WIRE-1", elevated)
+                record_route_evidence(ledger, "CAD-WIRE-1", elevated, project, assembly, output)
 
     def test_cace_ledger_ingest_does_not_promote_hypothesis(self):
         project, assembly, output = fixture()
@@ -90,7 +90,7 @@ class RouteEvidenceTests(unittest.TestCase):
             ledger = HypothesisLedger(Path(tmp) / "ledger.sqlite3")
             ledger.create("CAD-WIRE-1", "The proposed route meets geometric requirements.")
             evidence = record_route_evidence(
-                ledger, "CAD-WIRE-1", receipt,
+                ledger, "CAD-WIRE-1", receipt, project, assembly, output,
                 source_url="https://github.com/Mannyspiro/expert-robot/actions/runs/41847081879",
             )
             self.assertEqual(evidence.kind, "experiment")
