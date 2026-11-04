@@ -90,4 +90,4 @@
     ],
     "derived_artifacts_require": "parent_hash_and_transform_or_solver_provenance"
   }
-}\n
+}
