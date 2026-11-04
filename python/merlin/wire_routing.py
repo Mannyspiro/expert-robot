@@ -111,6 +111,7 @@ def _candidate_paths(start, end, obstacles, clearance_mm):
         candidates.append(("global_z_overpass", _compress([
             start,
             (start[0], start[1], overpass_z),
+            (end[0], start[1], overpass_z),
             (end[0], end[1], overpass_z),
             end,
         ])))
