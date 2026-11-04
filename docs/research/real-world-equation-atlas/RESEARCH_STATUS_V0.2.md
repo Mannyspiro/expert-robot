@@ -71,3 +71,11 @@ The existing self-hosted runner label is `avrea-ubuntu-latest-8-vcpu`. CI run 12
 - Added source register S30–S32 and entry-level source crosswalk.
 - Extended normalizer, schema tests, CI receipt source inputs, and artifact names to cover 50 entries.
 - All 041–050 entries remain UNVERIFIED pending Avrea CI, dimensional and convention audits, deterministic signal-processing experiments, and formal qualification where appropriate.
+
+
+## Phase 0.6 tranche — RWEA-051–060
+- Added ten canonical stochastic and statistical entries, source register S33–S36, and claim-level crosswalk.
+- Added deterministic synthetic experiments for Markov stationary distributions, Brownian variance, Beta-Binomial Bayes, scalar Kalman filtering, Ornstein–Uhlenbeck variance, and driven/equilibrium Markov entropy production.
+- Extended normalizer, schema tests, CI receipt inputs, and artifact names to cover 60 entries.
+- All new entries remain UNVERIFIED pending Avrea, source-specific derivations, dimensional and convention audits, and independent validation.
+- The last confirmed successful Avrea run remains #1302 for the earlier 001–030 revision. No successful 001–060 run is claimed.
