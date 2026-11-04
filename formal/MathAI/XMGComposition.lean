@@ -67,7 +67,7 @@ theorem wellFounded_of_nat_measure_decrease
     {α : Type} (size : α → ℕ) :
     WellFounded (fun a b => size a < size b) := by
   have aux : ∀ n, ∀ a, size a = n →
-      Acc (fun x y => size y < size x) a := by
+      Acc (fun x y => size x < size y) a := by
     intro n
     induction n using Nat.strong_induction_on with
     | h n ih =>
