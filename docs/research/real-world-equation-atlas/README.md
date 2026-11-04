@@ -66,3 +66,12 @@ RWEA-041–050 has been added with source links S30–S32. The combined 001–05
 - `tests/test_merlin_stochastic.py` — regression tests for stationary distributions, Brownian variance, Bayesian updating, scalar Kalman update, Ornstein–Uhlenbeck variance, and entropy production.
 
 All 60 entries remain `UNVERIFIED`. The earlier Avrea success applies only to the 001–030 revision; no CI pass is claimed for the current 001–060 revision.
+
+
+## Phase 0.7 — biological and collective systems
+- `NORMALIZED_ENTRIES_061-070.json` — reaction-diffusion, Turing instability, cellular automata, population/evolutionary dynamics, neural population models, biological information, synchronization, percolation, and self-organization.
+- `NORMALIZED_ENTRIES_001-070_V0.3.json` — generated combined canonical output; CI/Avrea validation pending.
+- `python/merlin/equation_atlas/experiments/biological_complexity.py` — deterministic toy checks.
+- `tests/test_merlin_biological_complexity.py` — regression tests for diffusion mass conservation, logistic boundedness, replicator simplex invariance, Rule 30, Kuramoto synchronization, mutual information, and graph connectivity.
+
+All 70 entries remain `UNVERIFIED`. The 061–070 sources are foundational references; the percolation entry especially needs a dedicated percolation-theory source before stronger threshold claims.
