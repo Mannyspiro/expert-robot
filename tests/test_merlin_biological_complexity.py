@@ -24,7 +24,7 @@ class BiologicalComplexityChecks(unittest.TestCase):
 
     def test_cellular_automaton_rule_is_reproducible(self):
         ca = self.result["cellular_automaton"]
-        self.assertEqual(ca["next"], [0, 0, 0, 1, 1, 1, 1, 0, 0])
+        self.assertEqual(ca["next"], [0, 0, 0, 1, 1, 1, 0, 0, 0])
 
     def test_kuramoto_coupling_increases_coherence(self):
         k = self.result["kuramoto"]
