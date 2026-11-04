@@ -34,6 +34,23 @@
         "Quot.sound"
       ],
       "source_sha256": "3c4e7a43621b1080baee2e97f5e91d2b5b72450f2a4cb97361029e6a263140c6"
+    },
+    {
+      "repository": "Mannyspiro/expert-robot",
+      "commit_sha": "690c52b4ee27ee252c453e1bca5a9a38481c9c7f",
+      "workflow_run_id": 41763911516,
+      "workflow_run_url": "https://github.com/Mannyspiro/expert-robot/actions/runs/41763911516",
+      "workflow_name": "Formal Qualification",
+      "conclusion": "success",
+      "theorem": "THTGPageCurveAudit.pageEntropy_has_no_maximum_on_open_interval",
+      "theorem_compiled": true,
+      "axiom_audit_passed": true,
+      "axioms": [
+        "propext",
+        "Classical.choice",
+        "Quot.sound"
+      ],
+      "source_sha256": "683d1ad9d2fc683645128c381df0804ed2934ee7ae636bda6754c3eb46bcfa74"
     }
   ]
 }
