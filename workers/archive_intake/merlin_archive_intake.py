@@ -109,6 +109,7 @@ def intake_archive(archive_path: Path, destination: Path, limits=None) -> dict:
     staging = Path(tempfile.mkdtemp(prefix=".merlin-intake-", dir=destination.parent))
     started = datetime.now(timezone.utc).isoformat()
     records = []
+    actual_total = 0
     try:
         with zipfile.ZipFile(archive_path, "r") as zf:
             members = validate_archive(zf, limits)
@@ -125,7 +126,8 @@ def intake_archive(archive_path: Path, destination: Path, limits=None) -> dict:
                         if not chunk:
                             break
                         written += len(chunk)
-                        if written > limits.max_member_uncompressed or written > limits.max_total_uncompressed:
+                        actual_total += len(chunk)
+                        if written > limits.max_member_uncompressed or actual_total > limits.max_total_uncompressed:
                             raise IntakeError("Actual expanded size exceeds limit: " + name)
                         digest.update(chunk)
                         sink.write(chunk)
