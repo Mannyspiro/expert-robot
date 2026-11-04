@@ -2,9 +2,9 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from merlin.proof_observatory import (
+from merlin.engineering_ir import EngineeringProject\nfrom merlin.representation_graph import Frame, RepresentationGraph, identity\n\nfrom merlin.proof_observatory import (
     CrossDomainLink, GoalKey, ProofAttempt, ProofObservatory,
-    object_view_engineering_links, rank_strategies,
+    link_representation_frames_to_engineering_project, object_view_engineering_links, rank_strategies,
 )
 
 
@@ -86,6 +86,34 @@ class ProofObservatoryTests(unittest.TestCase):
     def test_cross_domain_link_rejects_missing_revision_hash(self):
         with self.assertRaises(ValueError):
             CrossDomainLink("t", "o", "p", "bad", "supports", "0" * 64).validate()
+
+    def test_representation_graph_binds_to_canonical_engineering_revision(self):
+        import hashlib
+        from fractions import Fraction
+        digest = lambda value: hashlib.sha256(value.encode()).hexdigest()
+        graph = RepresentationGraph([
+            Frame("cartesian-3d", identity(3)),
+            Frame("projective-3d", identity(3)),
+        ])
+        project = EngineeringProject("proof-linked-project", "mm", (), ())
+        links = link_representation_frames_to_engineering_project(
+            "MathAI.Geometry.frame_identity", graph,
+            ["cartesian-3d", "projective-3d"], "project:proof-linked",
+            project, "preserves-coordinate-invariant", digest("receipt"),
+        )
+        self.assertEqual(len(links), 2)
+        from merlin.engineering_project_store import project_hash
+        self.assertEqual(links[0].engineering_revision_sha256, project_hash(project))
+
+    def test_representation_bridge_rejects_unknown_frame(self):
+        import hashlib
+        digest = lambda value: hashlib.sha256(value.encode()).hexdigest()
+        graph = RepresentationGraph([Frame("cartesian", identity(2))])
+        project = EngineeringProject("p", "mm", (), ())
+        with self.assertRaises(KeyError):
+            link_representation_frames_to_engineering_project(
+                "t", graph, ["missing"], "p", project, "supports", digest("receipt")
+            )
 
 
 if __name__ == "__main__":
