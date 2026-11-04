@@ -1,0 +1,35 @@
+{
+  "experiment_set": "merlin-equation-atlas-baseline-v0.1",
+  "seed": "not_applicable_no_random_sampling",
+  "optimization": {
+    "fixed_area_m2": 12,
+    "optimal_square_side_m": 3.4641016151377544,
+    "minimum_perimeter_m": 13.856406460551018,
+    "analytic_solution": "square"
+  },
+  "least_squares": {
+    "true_slope": 2.5,
+    "estimated_slope": 2.4963636363636352,
+    "estimated_intercept": -1.233636363636364,
+    "observations": 10
+  },
+  "heat_equation_ftcs": {
+    "lambda": 0.4,
+    "center_value_after_100_steps": 0.8538613443270714,
+    "stable_under_1d_ftcs_condition": true
+  },
+  "logistic_rk4": {
+    "r_per_time_unit": 0.35,
+    "capacity_population": 1000,
+    "initial_population": 80,
+    "duration_time_units": 20,
+    "dt_time_units": 0.1,
+    "population_at_end": 989.622185398021
+  },
+  "fourier_sampling": {
+    "sample_rate_hz": 64,
+    "input_frequency_hz": 5,
+    "dominant_fft_bin_hz": 5,
+    "record_duration_s": 1
+  }
+}
