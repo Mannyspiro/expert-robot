@@ -74,3 +74,20 @@ The uploaded source archives do not establish live Avrea/OCI RAM, VRAM, CPU, dis
 - Per-session KV state must never cross user/session/model/tokenizer boundaries.
 - No silent private-prompt fallback to a remote provider.
 - Candidate generation may be automatic; model promotion requires independent verification, human approval, rollback and authority non-expansion.
+
+## Avrea MCFC capacity evidence — 2026-11-04
+
+Resource-probe workflow run #8 completed on the Avrea runner. The artifact's
+typed MCFC snapshot records:
+- effective CPU cores: 8;
+- effective memory: 31,609,856,000 bytes;
+- NVIDIA GPU count and memory: unknown (NVIDIA probe unavailable; not proof of absence);
+- compute-budget units: unknown (not configured);
+- source: `avrea-runner-resource-probe`;
+- observation: `2026-11-04T15:04:55+00:00`;
+- capacity evidence SHA-256:
+  `05d57c837e3de8f3542a6fdf35a6fbf1fa2cd1c5db19e07fffe0058b8a5600a6`.
+
+This is one ephemeral runner observation, not a permanent service-level
+capacity guarantee. MCFC admission must refresh it and must not infer GPU or
+compute-budget availability.

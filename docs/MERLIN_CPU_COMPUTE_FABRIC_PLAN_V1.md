@@ -93,3 +93,13 @@ Avrea CI tests priority/FIFO ordering, blocked-job bypass, redispatch after
 resources are released, cancellation, and duplicate workload IDs. This remains
 a reference scheduler; durable queue state, distributed worker heartbeats,
 fairness/aging, and real worker execution are not yet implemented.
+
+### First measured Avrea snapshot (2026-11-04)
+
+Resource-probe run #8 measured 8 effective CPU cores and 31,609,856,000 bytes
+of effective memory. GPU capacity and compute-budget units were both unknown.
+Snapshot evidence SHA-256:
+`05d57c837e3de8f3542a6fdf35a6fbf1fa2cd1c5db19e07fffe0058b8a5600a6`.
+This snapshot is ephemeral and must be refreshed for each execution environment;
+it does not authorize a lease by itself because compute-budget capacity is
+unknown.
