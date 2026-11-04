@@ -102,6 +102,13 @@ jobs:
       - name: Merlin deterministic research and API contracts
         run: python3 -m unittest discover -s tests/research -v
 
+      - name: Merlin media, drafting and council contracts
+        env:
+          PYTHONPATH: python
+        run: |
+          python3 -m unittest discover -s tests -p "test_media_and_drafting.py" -v
+          python3 -m unittest discover -s tests -p "test_research_council.py" -v
+
       - name: Merlin equation-atlas symbolic, dimensional and numerical checks
         env:
           PYTHONPATH: python
