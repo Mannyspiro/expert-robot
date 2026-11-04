@@ -64,3 +64,10 @@ The existing self-hosted runner label is `avrea-ubuntu-latest-8-vcpu`. CI run 12
 - The downloaded artifact ZIP digest was `sha256:699fa3156fc24ee108d38d02246b38ac994ae03941160715ff926a73493e02c7`.
 - Artifact inspection found `equation-atlas-baseline.json`, `equation-atlas-evidence-receipt.json`, and `equation-atlas-normalized-entries-001-030.json`; the canonical JSON contains 30 entries (001–030), all `UNVERIFIED`.
 - This run predates RWEA-031–040 and the subsequent 40-entry normalizer/CI changes. No successful Avrea result is yet claimed for the 40-entry revision.
+
+
+## Phase 0.5 tranche — RWEA-041–050
+- Added ten canonical entries for Fourier series, continuous Fourier transform, convolution, LTI frequency response, DFT, sampling theorem, uniform quantization, discrete Shannon entropy, mutual information, and power spectral density.
+- Added source register S30–S32 and entry-level source crosswalk.
+- Extended normalizer, schema tests, CI receipt source inputs, and artifact names to cover 50 entries.
+- All 041–050 entries remain UNVERIFIED pending Avrea CI, dimensional and convention audits, deterministic signal-processing experiments, and formal qualification where appropriate.
