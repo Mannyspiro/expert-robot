@@ -163,9 +163,19 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for pattern in test_engineering_ir.py test_engineering_project_store.py test_cad_assembly.py test_coordinate_frames.py test_physical_connectivity.py test_wire_routing.py test_wire_qualification.py test_wiring_exports.py test_media_and_drafting.py test_route_evidence.py test_workload_leases.py test_workload_scheduler.py test_resource_probe.py test_lean_proof_receipt.py test_proof_observatory.py; do
+          for pattern in test_engineering_ir.py test_engineering_project_store.py test_cad_assembly.py test_coordinate_frames.py test_physical_connectivity.py test_wire_routing.py test_wire_qualification.py test_wiring_exports.py test_media_and_drafting.py test_route_evidence.py test_workload_leases.py test_workload_scheduler.py test_resource_probe.py test_lean_proof_receipt.py test_proof_observatory.py test_observatory_benchmarks.py; do
             python3 -m unittest discover -s tests -p "$pattern" -v
           done
+          mkdir -p artifacts
+          python3 -m merlin.observatory_benchmarks --commit "$GITHUB_SHA" --output artifacts/merlin-cross-domain-benchmark.json
+
+      - name: Publish cross-domain Observatory evidence
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-cross-domain-benchmark
+          path: artifacts/merlin-cross-domain-benchmark.json
+          retention-days: 14
 
       - name: CACE return bridge guardrails
         run: python3 tests/cace_return_bridge_smoke.py
