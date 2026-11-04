@@ -145,6 +145,7 @@ jobs:
             echo "::error::THTG beta theorem contains an untrusted proof escape."
             exit 1
           fi
+          echo "THTG printed-beta audit compiled without proof escapes."
 
       - name: Registered theorem axiom report
         working-directory: formal
