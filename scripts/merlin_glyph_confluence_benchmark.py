@@ -1,10 +1,22 @@
 """Deterministic Avrea benchmark for XMG-1E critical-pair exploration."""
 from __future__ import annotations
-import argparse, json
+
+import argparse
+import json
+import sys
 from pathlib import Path
+
+# Running a file under scripts/ sets sys.path[0] to that directory rather
+# than the repository root. Add the project root so the merlin package is
+# importable both in CI and from an arbitrary working directory.
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
 from merlin.glyph_foundry import Expr, TypeRef, build_default_registry
 from merlin.glyph_normalizer import GlyphNormalizer, RewriteRule
 from merlin.glyph_confluence import CriticalPairExplorer
+
 
 def main() -> int:
     parser = argparse.ArgumentParser()
@@ -63,6 +75,7 @@ def main() -> int:
     output.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     print(json.dumps(payload, indent=2, sort_keys=True))
     return 0
+
 
 if __name__ == "__main__":
     raise SystemExit(main())
