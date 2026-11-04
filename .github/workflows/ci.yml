@@ -102,6 +102,26 @@ jobs:
       - name: Merlin deterministic research and API contracts
         run: python3 -m unittest discover -s tests/research -v
 
+      - name: Merlin equation-atlas symbolic, dimensional and numerical checks
+        env:
+          PYTHONPATH: python
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install -r requirements-equation-atlas.txt
+          python3 -m merlin.equation_atlas.dimensions
+          python3 -m merlin.equation_atlas.symbolic_checks
+          mkdir -p artifacts
+          python3 -m merlin.equation_atlas.experiments.baseline > artifacts/equation-atlas-baseline.json
+          python3 -m unittest discover -s tests -p "test_merlin_equation_atlas.py" -v
+      - name: Publish equation-atlas reproducibility artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-equation-atlas-baseline
+          path: artifacts/equation-atlas-baseline.json
+          retention-days: 14
+
       - name: Merlin engineering IR, persistence, CAD and coordinate-frame tests
         env:
           PYTHONPATH: python
