@@ -104,3 +104,21 @@ Add a deterministic unit-test stage for route generation, obstruction handling,
 missing geometry, multi-terminal topology, invalid clearance, and the explicit
 non-qualification status. Publish route examples only as synthetic reproducibility
 artifacts. No empirical or fabrication qualification is claimed.
+
+## CACE route-evidence bridge
+
+`python/merlin/route_evidence.py` now creates a content-addressed evidence receipt
+binding the canonical engineering-project hash, assembly hash, frame-graph hash,
+route-output hash, router version, and exact source commit. The receipt labels its
+scope as synthetic geometry proposal, keeps qualification status at
+`not_qualified`, and hard-codes `promotion_authority: false`.
+
+Before adding a receipt to the Merlin hypothesis ledger, the CACE-facing adapter
+recomputes every bound hash from the supplied project, assembly, and route output.
+A mismatch rejects ingestion. Successful ingestion adds an `experiment` evidence
+record but leaves the hypothesis status unchanged. CI tests verify the hashes,
+tamper rejection, authority boundary, and no-auto-promotion behavior.
+
+The receipt is a local provenance object. It does not independently authenticate
+a GitHub workflow or replace the separate Avrea run receipt; the CI run must be
+checked against the exact commit SHA.
