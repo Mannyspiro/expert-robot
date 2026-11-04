@@ -118,3 +118,24 @@ The standing authority boundary remains: research and verification can produce e
 4. Audit the sampling theorem's strict band-limit condition and practical anti-alias filter assumptions.
 5. Extend XMG with signal frames: time, frequency, scale, phase, probability, and information units as distinct typed frames.
 6. Keep Math Kung Fu lesson generation limited to entries with source and validation gates satisfied.
+
+
+## XMG signal and information frames — phase 0.5
+Extend the typed multi-frame representation with signal-domain frames rather than mixing incompatible quantities in one coordinate vector:
+
+- **Time frame** (F_t): time coordinate in seconds; sampling interval and clock reference are explicit.
+- **Frequency frame** (F_f): frequency in hertz or angular frequency in rad/s; the conversion (\omega=2\pi f) is a typed map.
+- **Amplitude frame** (F_a): physical signal amplitude with declared units and reference impedance/normalization where relevant.
+- **Phase frame** (F_\phi): phase in radians, treated as dimensionless but with explicit periodicity and branch convention.
+- **Probability frame** (F_p): normalized probability distributions; entries are dimensionless and sum to one.
+- **Information frame** (F_I): entropy and mutual information in bits when logarithms are base 2; distinguish information units from physical SI dimensions.
+- **Spectral-density frame** (F_S): PSD units are amplitude-squared per hertz or per rad/s, depending on convention; record one-sided/two-sided and angular/cyclic-frequency normalization.
+
+Frame maps must record transform convention, normalization, finite-window assumptions, sample rate, aliasing policy, and whether a quantity is deterministic, random, or estimated. Do not silently compare amplitudes, power, probability, entropy, and spectral density as if they shared a unit system. Each transform edge should carry its inverse or information-loss status (e.g., finite sampling below the Nyquist condition is non-invertible without additional priors).
+
+Suggested typed graph:
+`TimeSamples --DFT(window, N, fs)--> ComplexSpectrum --MagnitudeSquared/Normalization--> PSD`
+`JointDistribution --Marginalize--> Marginals --EntropyBase2--> Bits`
+`JointDistribution --MutualInformationBase2--> Bits`
+
+These are representation contracts and research directions, not claims that the current XMG runtime already implements them.
