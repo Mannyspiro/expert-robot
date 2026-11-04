@@ -18,8 +18,11 @@ theorem current_within_derated_ampacity
     (hampacity : 0 < ampacity)
     (hderating : 0 < derating ∧ derating ≤ 1)
     (hlimit : load ≤ ampacity * derating) :
-    load ≤ ampacity * derating := by
-  exact hlimit
+    load ≤ ampacity := by
+  calc
+    load ≤ ampacity * derating := hlimit
+    _ ≤ ampacity * 1 := mul_le_mul_of_nonneg_left hderating.2 hampacity.le
+    _ = ampacity := by ring
 
 /-- The declared DC resistive voltage-drop estimate is nonnegative. -/
 theorem dc_voltage_drop_nonnegative
