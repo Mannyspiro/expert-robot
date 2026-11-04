@@ -74,8 +74,20 @@ def _finite_positive(value: float) -> bool:
     return _finite_number(value) and value > 0
 
 
+def _hash_safe(value: Any) -> Any:
+    if isinstance(value, float) and not math.isfinite(value):
+        if math.isnan(value):
+            return "<NaN>"
+        return "<+Infinity>" if value > 0 else "<-Infinity>"
+    if isinstance(value, dict):
+        return {str(key): _hash_safe(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_hash_safe(item) for item in value]
+    return value
+
+
 def _payload_hash(value: Any) -> str:
-    canonical = json.dumps(value, sort_keys=True, separators=(",", ":"),
+    canonical = json.dumps(_hash_safe(value), sort_keys=True, separators=(",", ":"),
                            ensure_ascii=False, allow_nan=False)
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
@@ -165,7 +177,7 @@ def assess_electrical(inputs: ElectricalInputs) -> list[dict[str, Any]]:
 
 
 def assess_thermal(electrical: ElectricalInputs, thermal: ThermalInputs) -> list[dict[str, Any]]:
-    if not thermal.model_correlation_evidence_id.strip():
+    if not isinstance(thermal.model_correlation_evidence_id, str) or not thermal.model_correlation_evidence_id.strip():
         return [_finding("THERMAL_MODEL_UNCORRELATED", "BLOCKED",
                          "Thermal model needs a traceable correlation/test evidence identifier.")]
     values = (
@@ -205,7 +217,10 @@ def assess_manufacturing(route: dict[str, Any], inputs: ManufacturingInputs) -> 
     if route.get("status") != "candidate_geometry_not_manufacturing_qualified":
         return [_finding("ROUTE_NOT_CANDIDATE", "BLOCKED",
                          "Manufacturing assessment requires a candidate route geometry.")]
-    if not inputs.harness_process_evidence_id.strip() or not inputs.drawing_revision.strip():
+    if (not isinstance(inputs.harness_process_evidence_id, str)
+            or not inputs.harness_process_evidence_id.strip()
+            or not isinstance(inputs.drawing_revision, str)
+            or not inputs.drawing_revision.strip()):
         return [_finding("MANUFACTURING_TRACEABILITY_MISSING", "BLOCKED",
                          "A controlled drawing revision and harness process evidence are required.")]
     if not _finite_positive(inputs.manufacturer_minimum_bend_radius_mm):
@@ -255,6 +270,10 @@ def build_qualification_report(
 ) -> dict[str, Any]:
     """Combine independent gate results. Never returns a certified/safe status."""
     findings: list[dict[str, Any]] = []
+    if not isinstance(route, dict):
+        route = {}
+        findings.append(_finding("ROUTE_INPUT_INVALID", "BLOCKED",
+                                 "Route proposal must be a structured object."))
     if electrical is None:
         findings.append(_finding("ELECTRICAL_INPUTS_MISSING", "BLOCKED",
                                  "No authoritative conductor, circuit, insulation and clearance inputs supplied."))
