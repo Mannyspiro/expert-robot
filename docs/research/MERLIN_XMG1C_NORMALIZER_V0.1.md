@@ -12,6 +12,8 @@ Normalize typed glyph expressions using a finite, explicitly versioned rewrite s
 - INT_ABS_NEGATION: ABS_INT composed with NEGATE_INT reduces to ABS_INT.
 - PROJECT_PAIR_LEFT: first projection of a pair reduces to its first component.
 - PROJECT_PAIR_RIGHT: second projection of a pair reduces to its second component.
+- COMPOSE_IDENTITY_INNER: composition after identity reduces to the outer map.
+- COMPOSE_IDENTITY_OUTER: identity after composition reduces to the inner map.
 
 The current rules are labeled candidate unless separately linked to a verified proof. The test suite checks finite examples and implementation behavior; finite testing is not a universal proof.
 
@@ -20,6 +22,7 @@ The current rules are labeled candidate unless separately linked to a verified p
 - Rewrites must preserve the exact input and output types.
 - Current rewrite rules must strictly reduce AST node count.
 - Fingerprints prevent revisiting an expression within a normalization pass.
+- Nested rewrites are retained in the parent derivation trace; AST rebuilding itself does not silently simplify.
 - A configurable step limit prevents runaway normalization.
 - Unsupported AST node types fail explicitly rather than being silently ignored.
 
