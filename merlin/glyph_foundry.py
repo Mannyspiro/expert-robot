@@ -120,24 +120,29 @@ class GlyphFoundry:
     def seed_expressions(self): return [self.registry.primitive_expr(k) for k in sorted(self.registry.primitives)]
     def enumerate_compositions(self,max_depth=4,max_nodes=12,max_candidates=1000)->Iterator[Expr]:
         if min(max_depth,max_nodes,max_candidates)<1: raise FoundryError("limits must be positive")
-        frontier=self.seed_expressions(); emitted=0
-        for e in frontier:
+        pool=self.seed_expressions(); emitted=0
+        for e in pool:
             fp=e.fingerprint()
-            if fp not in self._seen and e.node_count()<=max_nodes:
+            if e.node_count()<=max_nodes and fp not in self._seen:
                 self._seen.add(fp); yield e; emitted+=1
                 if emitted>=max_candidates:return
-        for _ in range(2,max_depth+1):
-            new=[]
-            for inner,outer in product(frontier,frontier):
-                if inner.output_type!=outer.input_type: continue
+        # Compose every pair whose maximum child depth is the preceding layer.
+        # Rebuild prior layers on each bounded slice; the persistent seen-set
+        # suppresses repeats while retaining all expressions for later layers.
+        for layer in range(2,max_depth+1):
+            layer_items=[]
+            for inner,outer in product(pool,pool):
+                if max(inner.depth(),outer.depth()) != layer-1: continue
+                if inner.output_type != outer.input_type: continue
                 e=self.registry.compose(outer,inner)
                 if e.depth()>max_depth or e.node_count()>max_nodes: continue
                 fp=e.fingerprint()
+                layer_items.append(e)
                 if fp in self._seen: continue
-                self._seen.add(fp); new.append(e); yield e; emitted+=1
+                self._seen.add(fp); yield e; emitted+=1
                 if emitted>=max_candidates:return
-            if not new: break
-            frontier=new
+            known={x.fingerprint() for x in pool}
+            pool.extend(x for x in layer_items if x.fingerprint() not in known)
     def propose(self,e,description=""): return Candidate(e.fingerprint()[:16],e,description)
     def record_tests(self,c,receipts:Sequence[str]):
         if not receipts or any(not x.strip() for x in receipts): raise PromotionError("test receipts required")
@@ -149,7 +154,12 @@ class GlyphFoundry:
         if not receipt.strip(): raise PromotionError("independent review receipt required")
         c.independent_review_receipt=receipt; c.state=EvidenceState.INDEPENDENTLY_REVIEWED
     def record_value(self,c,measured,baseline,receipt,min_relative_gain=0.0,higher_is_better=True):
+        import math
         if not receipt.strip(): raise PromotionError("benchmark receipt required")
+        if not math.isfinite(float(measured)) or not math.isfinite(float(baseline)):
+            raise PromotionError("benchmark values must be finite")
+        if not math.isfinite(float(min_relative_gain)) or float(min_relative_gain)<0:
+            raise PromotionError("minimum relative gain must be finite and nonnegative")
         c.measured_value=float(measured); c.baseline_value=float(baseline)
         c.value_receipt=receipt; c.min_relative_gain=float(min_relative_gain); c.higher_is_better=higher_is_better
     def _demonstrates_value(self,c):
