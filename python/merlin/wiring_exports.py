@@ -33,7 +33,8 @@ def export_wiring_graph_dot(project: EngineeringProject, physical_netlist: dict[
         for pin in sorted(part.pins, key=lambda p: p.number):
             endpoint = f"{part.ref}.{pin.number}"
             label = f"{endpoint}\\n{pin.name}"
-            lines.append(f'  "{endpoint}" [label="{label}"];')
+            lines.append(f"  {json.dumps(endpoint, ensure_ascii=False)} "
+                         f"[label={json.dumps(label, ensure_ascii=False)}];")
     for net in sorted(project.nets, key=lambda n: n.name):
         endpoints = sorted(net.endpoints)
         if len(endpoints) < 2:
@@ -41,9 +42,11 @@ def export_wiring_graph_dot(project: EngineeringProject, physical_netlist: dict[
         route_info = routes.get(net.name, {})
         route_status = route_info.get("status", "not_routed")
         for endpoint in endpoints[1:]:
+            edge_label = f"{net.name} | {net.net_class} | {route_status}"
             lines.append(
-                f'  "{endpoints[0]}" -- "{endpoint}" '
-                f'[label="{net.name} | {net.net_class} | {route_status}"];'
+                f"  {json.dumps(endpoints[0], ensure_ascii=False)} -- "
+                f"{json.dumps(endpoint, ensure_ascii=False)} "
+                f"[label={json.dumps(edge_label, ensure_ascii=False)}];"
             )
     lines.append("}")
     return "\n".join(lines) + "\n"
