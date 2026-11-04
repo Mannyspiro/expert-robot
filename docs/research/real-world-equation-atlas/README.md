@@ -114,3 +114,13 @@ All 70 entries remain `UNVERIFIED`. The 061–070 sources are foundational refer
 - Lotka-Volterra records its model composition and rejects negative numerical populations.
 - Added tests for reaction/diffusion composition, diffusion step-size guard, SIR conservation, invalid initial population totals, and deterministic predator-prey traces.
 - CI now runs these composed-model tests and includes both model source and test source in the evidence receipt. This increment awaits its own Avrea run.
+
+
+### Phase 0.9.1 verification — Avrea CI run #1366
+- Run ID: `41844026188`; successful conclusion for PR head `a1c551bde110cc72a93bf7a255adf3161930a57a`.
+- The equation-atlas CI step passed, including both `test_merlin_simulation_engine.py` and `test_merlin_composed_models.py`; all remaining workflow steps also completed successfully.
+- Downloaded artifact ZIP SHA-256: `a3f90c5c6fb5f66f4885bb83335b3939c141163069e691a7ad254bb9e63b0fc2`.
+- Evidence receipt SHA-256: `6d41c11d968e65a7306236f7181c6299a4bc166ac6247d4d124b7715e0107a81`.
+- Normalized atlas SHA-256: `da3f9edba190fe667aecbae21eabfe422350e1be9a139fcba2bcea187236dc51`; inspected output has exactly 80 ordered unique entries.
+- Receipt contains 25 source/artifact hashes, including `simulation.py`, `models.py`, and both corresponding test modules. Its `git_commit` is PR merge-ref snapshot `412d7bbb34fb2e1a0239660cf41b73afd13e2224`, not the branch-head SHA.
+- This is evidence of the specified synthetic test suite and artifact identity, not empirical validation or a formal proof.
