@@ -193,3 +193,34 @@ The storyboard is a production plan, not a rendered MP4. No performance values s
 - No autonomous fabrication without operator approval, guarded motion and bounded work envelope.
 - No hypothesis promotion from generated prose, CAD renders or simulation alone.
 - No merge, deployment, external provider activation or paid infrastructure is implied by this research package.
+
+
+---
+
+## 11. Correction and authoritative Titan security track (2026-11-04)
+
+**Correction:** Titan is the project's security/encryption system. The earlier description of Titan as a CPU-first compute fabric was a naming/context error. That compute-fabric concept is a separate Merlin research candidate and is not Titan's cryptographic architecture.
+
+### 11.1 Historical baseline
+
+Prior design notes describe an experimental rotor / N-pick-K / Steckerbrett / graph-topology research concept; a later AES-256-GCM + scrypt baseline with random salt/nonce and strict payload validation (historical report: 19 checks); and Titan envelope v1 using HKDF-SHA-256, domain-separated derivation, authenticated topology/context metadata and AES-256-GCM-SIV (historical report: 43/43 prototype checks). These counts are historical prototype tests, not proof of cryptographic security or independent review. Experimental graph/rotor ideas must not replace standardized primitives in a production profile.
+
+### 11.2 Trust boundary
+
+Research baseline: HKDF-SHA-256 with distinct documented context labels; AES-256-GCM-SIV per RFC 8452; canonical versioned context metadata authenticated as associated data; explicit lifecycle states for establishment, derivation, sealing, verification, rotation, rejection and recovery. Optional ML-KEM integration must use a published conformant construction and specified key combiner. Do not invent a hybrid combiner. Review current FIPS 203 errata and SP 800-227 before implementation. RFC 9936 (March 2026) specifies ML-KEM use in CMS but does not specify every Titan envelope format.
+
+### 11.3 Merlin module
+
+The new module python/merlin/titan_crypto_lab.py defines a constrained profile allow-list, models lifecycle states and fail-closed scenarios, and emits a deterministic research matrix for context binding, hybrid KEM integration, key lifecycle and interoperability. It performs no cryptographic operations. It is not a security proof, entropy test, side-channel assessment or certification.
+
+### 11.4 Standards
+
+- NIST FIPS 203 ML-KEM: https://csrc.nist.gov/pubs/fips/203/final
+- NIST SP 800-227: https://csrc.nist.gov/pubs/sp/800/227/final
+- RFC 8452 AES-GCM-SIV: https://www.rfc-editor.org/rfc/rfc8452
+- RFC 5869 HKDF: https://www.rfc-editor.org/rfc/rfc5869
+- RFC 9936 ML-KEM in CMS: https://www.rfc-editor.org/rfc/rfc9936
+
+### 11.5 Promotion gates
+
+Require exact artifact digests, reproducible vectors and negative tests, independent implementation interoperability, formal claims with explicit assumptions, independent cryptographic review, CACE verification of artifact identity/provenance, and human approval. No generated design, graph complexity, benchmark, simulation or unit-test count is a security proof.
