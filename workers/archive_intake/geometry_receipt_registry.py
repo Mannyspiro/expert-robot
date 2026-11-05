@@ -11,7 +11,7 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 
-from canonical_registry import connect, query_artifacts
+from canonical_registry import connect
 from cad_geometry_backend import canonical_sha
 
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
@@ -34,14 +34,25 @@ def register_geometry_receipt(database: str | Path, project_id: str, receipt: di
         raise ValueError("geometry receipt digest must be lowercase SHA-256")
     if canonical_sha(receipt) != receipt["receipt_sha256"]:
         raise ValueError("geometry receipt canonical digest mismatch")
+    artifacts = receipt["artifacts"]
+    if not isinstance(artifacts, list) or (receipt["status"] == "completed" and not artifacts):
+        raise ValueError("completed geometry receipt must contain output artifacts")
+    seen_paths = set()
+    for artifact in artifacts:
+        if not isinstance(artifact, dict) or not isinstance(artifact.get("path"), str):
+            raise ValueError("invalid geometry output artifact record")
+        relative = Path(artifact["path"])
+        if relative.is_absolute() or ".." in relative.parts or str(relative) in ("", "."):
+            raise ValueError("geometry output artifact path must be relative and traversal-free")
+        if str(relative) in seen_paths:
+            raise ValueError("duplicate geometry output artifact path")
+        seen_paths.add(str(relative))
+        if not isinstance(artifact.get("sha256"), str) or not SHA256.fullmatch(artifact["sha256"]):
+            raise ValueError("geometry output artifact SHA-256 is invalid")
     if not isinstance(receipt["backend_id"], str) or not receipt["backend_id"].strip():
         raise ValueError("geometry backend identity is required")
     if not isinstance(receipt["backend_version"], str) or not receipt["backend_version"].strip():
         raise ValueError("geometry backend version is required")
-
-    matches = query_artifacts(str(database), project_id, limit=500)
-    if not any(row["sha256"] == receipt["input_sha256"] for row in matches):
-        raise ValueError("input artifact is not registered to this project")
 
     receipt_id = "geometry:" + receipt["receipt_sha256"]
     encoded = json.dumps(receipt, sort_keys=True, separators=(",", ":"))
@@ -50,6 +61,14 @@ def register_geometry_receipt(database: str | Path, project_id: str, receipt: di
         project = db.execute("SELECT 1 FROM projects WHERE project_id=?", (project_id,)).fetchone()
         if not project:
             raise ValueError("unknown project")
+        artifact = db.execute(
+            """SELECT 1 FROM artifacts a
+               JOIN project_intakes pi ON pi.intake_id=a.intake_id
+               WHERE pi.project_id=? AND a.sha256=? LIMIT 1""",
+            (project_id, receipt["input_sha256"]),
+        ).fetchone()
+        if not artifact:
+            raise ValueError("input artifact is not registered to this project")
         existing = db.execute(
             "SELECT receipt_json FROM verification_receipts WHERE receipt_id=?", (receipt_id,)
         ).fetchone()
