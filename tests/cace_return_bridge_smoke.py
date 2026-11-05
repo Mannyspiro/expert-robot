@@ -40,6 +40,10 @@ assert 'json.dumps(manifest, sort_keys=True, indent=2) + "\\\\n"' not in externa
 assert "cace_workflow_id" in external
 assert "expected_workflow_ref" in external
 assert "refs/heads/cace-request/" in external
+await_section, persist_section = external.split("      - name: Persist CACE evidence in Expert Robot", 1)
+assert "+ expected_request" in await_section
+assert "+ expected_id" not in await_section
+assert "+ expected_id" in persist_section
 assert "cace_workflow_run_id" in external
 assert "cace_run_attempt" in external
 assert "result_log_sha256" in external
