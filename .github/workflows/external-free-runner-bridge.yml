@@ -116,7 +116,7 @@ jobs:
         shell: bash
         env:
           RUNNER_REPO_SSH: git@github.com:morganaspim/Cace-app.git
-          BRIDGE_BASE_BRANCH: executor/expert-robot-bridge
+          BRIDGE_BASE_BRANCH: repair/oci-disk-diagnostics-20261105
           REQUEST_BRANCH: cace-request/${{ steps.package.outputs.request_id }}
           REQUEST_ID: ${{ steps.package.outputs.request_id }}
           ARCHIVE: ${{ steps.package.outputs.archive }}
