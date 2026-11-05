@@ -94,7 +94,7 @@ theorem hybrid_acceptance_requires_both_keys (s : State) (next : State)
     (h : step s .acceptHybrid = some next) :
     next.kemKeyId.isSome ∧ next.signatureKeyId.isSome := by
   simp [step] at h
-  rcases h with ⟨_, rfl⟩
-  exact ⟨by simp, by simp⟩
+  rcases h with ⟨⟨⟨⟨htranscript, hkem⟩, hsignature⟩, hlocked⟩, hphase⟩, rfl⟩
+  exact ⟨hkem, hsignature⟩
 
 end MathAI.Titan
