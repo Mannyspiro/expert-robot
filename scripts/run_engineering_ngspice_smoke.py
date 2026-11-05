@@ -7,6 +7,8 @@ import hashlib
 import json
 from pathlib import Path
 import sys
+import shutil
+import subprocess
 
 from merlin.engineering_ir import (
     EngineeringProject, Net, Part, Pin, export_netlist,
@@ -43,6 +45,22 @@ def main() -> int:
     (output / "assembly.scad").write_text(export_openscad(project), encoding="utf-8")
     (output / "divider.cir").write_text(spice, encoding="utf-8")
     cad = write_freecad_bundle(project, output)
+    freecad_cmd = shutil.which("FreeCADCmd") or shutil.which("freecadcmd")
+    freecad_runtime = "macro-generated; runtime executable unavailable"
+    if freecad_cmd:
+        completed = subprocess.run(
+            [freecad_cmd, cad["macro"]],
+            cwd=str(output),
+            capture_output=True,
+            text=True,
+            timeout=180,
+            check=False,
+        )
+        if completed.returncode != 0:
+            raise RuntimeError("FreeCAD macro execution failed: " + (completed.stderr or completed.stdout)[-3000:])
+        if not Path(cad["fcstd_output"]).is_file() or not Path(cad["step_output"]).is_file():
+            raise RuntimeError("FreeCAD did not produce the expected FCStd and STEP outputs")
+        freecad_runtime = "executed; FCStd and STEP outputs verified"
     result = run_ngspice(spice, timeout_seconds=30, max_memory_bytes=512 * 1024 * 1024)
     result_path = output / "ngspice-result.json"
     result_path.write_bytes(result["artifact_bytes"])
@@ -54,7 +72,7 @@ def main() -> int:
         "ngspice_returncode": result["metadata"]["returncode"],
         "ngspice_wall_seconds": result["metadata"]["wall_seconds"],
         "freecad_macro": str(Path(cad["macro"]).name),
-        "freecad_runtime": "macro-generated; runtime execution not attempted in this smoke",
+        "freecad_runtime": freecad_runtime,
         "authority": "qualification-only",
         "promotion_authority": False,
     }
