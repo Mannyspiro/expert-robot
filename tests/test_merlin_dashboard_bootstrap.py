@@ -1,12 +1,48 @@
+import json
+import os
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
+from merlin.app import _build_optional_hud_runtime
 from merlin.project_registry import MerlinRegistry
 from scripts.init_merlin_dashboard_stores import initialize
 
 
 class MerlinDashboardBootstrapTests(unittest.TestCase):
+    def test_bootstrapped_paths_mount_read_only_hud_runtime(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            initialize(directory, project_id="merlin-live", project_name="Merlin Live")
+            environment = {
+                "MERLIN_REGISTRY_ROOT": str(root / "registry"),
+                "MERLIN_GRAPH_DB_PATH": str(root / "knowledge-graph.sqlite3"),
+                "MERLIN_OUTBOX_DB_PATH": str(root / "event-outbox.sqlite3"),
+                "MERLIN_HYPOTHESES_DB_PATH": str(root / "hypotheses.sqlite3"),
+                "MERLIN_DB_PATH": str(root / "events.sqlite3"),
+            }
+            with patch.dict(os.environ, environment):
+                runtime = _build_optional_hud_runtime()
+            self.assertIsNotNone(runtime)
+            response = {}
+            def start(status, headers):
+                response["status"] = status
+                response["headers"] = dict(headers)
+            body = b"".join(runtime.application(
+                {"PATH_INFO": "/api/hud/graph", "REQUEST_METHOD": "GET"},
+                start,
+            ))
+            self.assertEqual(response["status"], "200 OK")
+            payload = json.loads(body)
+            self.assertEqual(payload["schema_version"], "1.0")
+            response.clear()
+            runtime.application(
+                {"PATH_INFO": "/api/hud/graph", "REQUEST_METHOD": "POST"},
+                start,
+            )
+            self.assertEqual(response["status"], "405 Method Not Allowed")
+
     def test_existing_project_metadata_is_preserved(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
