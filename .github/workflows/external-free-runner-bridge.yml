@@ -162,6 +162,13 @@ jobs:
                   with:
                     persist-credentials: false
 
+                - name: Report OCI disk capacity
+                  shell: bash
+                  run: |
+                    set -euo pipefail
+                    df -h /var/lib/cace-cache "$RUNNER_TEMP" /dev/shm /tmp || true
+                    du -x -h --max-depth=1 /var/lib/cace-cache /home/runner /opt/actions-runner/_work /tmp 2>/dev/null | sort -h | tail -20 || true
+
                 - name: Validate and run bounded Expert Robot formal checks
                   shell: bash
                   run: |
