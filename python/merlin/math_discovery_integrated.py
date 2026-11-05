@@ -421,6 +421,16 @@ def build_integrated_math_discovery_handlers(
             "metadata": {"artifact_schema": INTEGRATION_SCHEMA,
                          "artifact_sha256": sha256(payload),
                          "candidate_count": len(results),
+                         "theorem_claims": [
+                             {
+                                 "formal_statement": item["formal_statement"],
+                                 "compilation_status": item.get("compilation_status"),
+                                 "conjecture_id": item.get("conjecture_id"),
+                             }
+                             for result in results
+                             for item in result["lean_results"]
+                             if item.get("compilation_status") == "compiled"
+                         ],
                          "promotion_authority": False},
         }
 
