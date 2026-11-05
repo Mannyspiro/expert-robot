@@ -115,5 +115,29 @@
     "ingestion_authority": "bounded source worker",
     "promotion_authority": "explicit review gate",
     "authority_delta": 0
-  }
+  },
+  "logic_lens_case_required": [
+    "case_id",
+    "scope",
+    "problem_context",
+    "historical_context",
+    "sources",
+    "argument_reconstruction",
+    "translation_records",
+    "claims",
+    "interpretations",
+    "review",
+    "record_status"
+  ],
+  "logic_lens_case_rules": [
+    "Scope every case to a named tradition or school, community/context, region, language and date range; never generalize one case to an entire culture.",
+    "Every source has edition/version, language, item-level rights status, exact locator and provenance.",
+    "Every historical claim and interpretation references one or more known source IDs.",
+    "Keep primary sources, translations and secondary scholarship as separate source records.",
+    "A formal reconstruction states its logic-system ID, version, syntax, semantics, inference rules, assumptions, preservation claims and limitations.",
+    "Every translation records what is preserved and what is lost or changed; equivalence is never assumed from a gloss.",
+    "Specialist-reviewed status requires recorded review status and reviewer expertise.",
+    "Historical actors' private thoughts and motives are not inferred without traceable evidence.",
+    "Formal validity, historical interpretation and cultural context are distinct claim types and are reviewed separately."
+  ]
 }
