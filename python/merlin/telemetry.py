@@ -108,3 +108,15 @@ def telemetry_view(events: list[dict[str, Any]]) -> dict[str, Any]:
     return {"schema": "merlin-telemetry-view/1",
             "source_counts": {key: len(value) for key, value in grouped.items()},
             "streams": grouped, "simulation_is_not_runtime": True}
+
+
+def telemetry_outbox_sink(outbox: Any):
+    """Return a durable telemetry sink using event IDs as idempotency keys."""
+    def sink_event(data: Mapping[str, Any]) -> dict[str, Any]:
+        event = normalize_event(data)
+        return outbox.enqueue(
+            idempotency_key="telemetry:" + event["event_id"],
+            topic="merlin.telemetry." + event["kind"],
+            payload=event,
+        )
+    return sink_event
