@@ -32,3 +32,14 @@ def test_graph_direction_validation(tmp_path):
     graph = MerlinKnowledgeGraph(tmp_path / "graph.sqlite3")
     with pytest.raises(ValueError):
         graph.neighbors("node:x", "sideways")
+
+
+def test_edge_identity_is_immutable_and_idempotent(tmp_path):
+    graph = MerlinKnowledgeGraph(tmp_path / "graph.sqlite3")
+    graph.add_node(GraphNode("claim:a", "claim", "A", {}))
+    graph.add_node(GraphNode("claim:b", "claim", "B", {}))
+    edge = GraphEdge("claim:a", "supports", "claim:b", {"scope": "test"})
+    graph.add_edge(edge)
+    graph.add_edge(edge)
+    with pytest.raises(ValueError, match="different payload"):
+        graph.add_edge(GraphEdge("claim:a", "supports", "claim:b", {"scope": "changed"}))
