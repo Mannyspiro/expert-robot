@@ -1,5 +1,5 @@
 import unittest
-from merlin.telemetry import loader_event_sink, normalize_event, telemetry_view
+from merlin.telemetry import agent_event_sink, loader_event_sink, normalize_event, telemetry_view
 
 class TelemetryTests(unittest.TestCase):
     def test_normalizes_source_labeled_event(self):
@@ -33,6 +33,34 @@ class TelemetryTests(unittest.TestCase):
         self.assertEqual(event["source"], "runtime")
         self.assertEqual(event["kind"], "resource.sample")
         self.assertEqual(event["payload"]["component"], "module_loader")
+
+    def test_resource_payload_metrics_are_bounded(self):
+        valid = normalize_event({
+            "source": "avrea", "kind": "resource.sample", "run_id": "runner-1",
+            "payload": {"measurement_kind": "observed", "gpu_percent": 72.5,
+                        "memory_bytes": 2048, "wall_seconds": 3.2},
+        })
+        self.assertEqual(valid["payload"]["gpu_percent"], 72.5)
+        with self.assertRaises(ValueError):
+            normalize_event({
+                "source": "avrea", "kind": "resource.sample", "run_id": "runner-1",
+                "payload": {"gpu_percent": 120},
+            })
+
+    def test_service_bound_agent_sink_preserves_real_service_identity(self):
+        class Outbox:
+            def __init__(self):
+                self.rows = []
+            def enqueue(self, **kwargs):
+                self.rows.append(kwargs)
+                return kwargs
+        outbox = Outbox()
+        publish = agent_event_sink(outbox, "cace")
+        publish(kind="verification.completed", run_id="commit-1", task_id="artifact-1",
+                payload={"status": "verified", "independent": True})
+        self.assertEqual(outbox.rows[0]["topic"], "merlin.telemetry.verification.completed")
+        self.assertEqual(outbox.rows[0]["payload"]["source"], "cace")
+        self.assertEqual(outbox.rows[0]["payload"]["task_id"], "artifact-1")
 
     def test_view_keeps_sources_separate(self):
         events = [normalize_event({"source":s,"kind":"task.progress","run_id":"r"})

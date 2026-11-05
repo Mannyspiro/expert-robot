@@ -112,10 +112,18 @@ class MerlinRegistry:
                metadata: dict[str, Any] | None = None) -> None:
         if not source_id.strip() or not relation.strip() or not target_id.strip():
             raise ValueError("relation endpoints and type are required")
+        encoded = json.dumps(metadata or {}, sort_keys=True, separators=(",", ":"))
         with self._connect() as db:
-            db.execute("INSERT OR REPLACE INTO relations VALUES(?,?,?,?)",
-                       (source_id, relation, target_id,
-                        json.dumps(metadata or {}, sort_keys=True, separators=(",", ":"))))
+            existing = db.execute(
+                "SELECT metadata_json FROM relations WHERE source_id=? AND relation=? AND target_id=?",
+                (source_id, relation, target_id),
+            ).fetchone()
+            if existing is not None:
+                if existing["metadata_json"] != encoded:
+                    raise ValueError("registry relation already exists with different metadata")
+                return
+            db.execute("INSERT INTO relations VALUES(?,?,?,?)",
+                       (source_id, relation, target_id, encoded))
 
     def inventory(self, project_id: str) -> dict[str, Any]:
         with self._connect() as db:

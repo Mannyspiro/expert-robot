@@ -6,3 +6,4 @@ import MathAI.EquationAtlas
 import MathAI.WireQualification
 import MathAI.FractalEngineering
 import MathAI.XMGComposition
+import MathAI.TitanProtocol

@@ -18,7 +18,9 @@ _ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/-]{0,159}$")
 NODE_TYPES = frozenset({
     "project", "module", "artifact", "source", "claim", "assumption",
     "equation", "theorem", "experiment", "dataset", "model", "simulation",
-    "cad_model", "object_view", "media", "worker", "session", "review",
+    "cad_model", "equation_atlas", "proof_receipt", "freecad_model",
+    "freecad_assembly", "electrical_net", "simulation_result",
+    "object_view", "media", "worker", "session", "review",
 })
 EDGE_TYPES = frozenset({
     "contains", "derived_from", "supports", "contradicts", "depends_on",
@@ -78,12 +80,18 @@ class MerlinKnowledgeGraph:
             raise ValueError("label and evidence class are required")
         payload = json.dumps(node.payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
         with self._connect() as db:
-            db.execute("""INSERT INTO graph_nodes VALUES(?,?,?,?,?,?,?)
-              ON CONFLICT(node_id) DO UPDATE SET node_type=excluded.node_type,
-              label=excluded.label,payload_json=excluded.payload_json,
-              evidence_class=excluded.evidence_class,source_uri=excluded.source_uri""",
-              (node.node_id,node.node_type,node.label,payload,node.evidence_class,
-               node.source_uri,time.time()))
+            existing = db.execute(
+                "SELECT node_type,label,payload_json,evidence_class,source_uri "
+                "FROM graph_nodes WHERE node_id=?", (node.node_id,)
+            ).fetchone()
+            values = (node.node_type, node.label, payload, node.evidence_class, node.source_uri)
+            if existing is not None:
+                if tuple(existing) != values:
+                    raise ValueError("graph node already exists with different content or provenance")
+            else:
+                db.execute("INSERT INTO graph_nodes VALUES(?,?,?,?,?,?,?)",
+                           (node.node_id,node.node_type,node.label,payload,node.evidence_class,
+                            node.source_uri,time.time()))
         return hashlib.sha256(payload.encode()).hexdigest()
 
     def add_edge(self, edge: GraphEdge) -> None:
@@ -92,7 +100,15 @@ class MerlinKnowledgeGraph:
             raise ValueError(f"unsupported relation: {edge.relation}")
         payload = json.dumps(edge.payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
         with self._connect() as db:
-            db.execute("INSERT OR REPLACE INTO graph_edges VALUES(?,?,?,?,?)",
+            existing = db.execute(
+                "SELECT payload_json FROM graph_edges WHERE source_id=? AND relation=? AND target_id=?",
+                (edge.source_id, edge.relation, edge.target_id),
+            ).fetchone()
+            if existing is not None:
+                if existing[0] != payload:
+                    raise ValueError("graph edge already exists with different payload")
+                return
+            db.execute("INSERT INTO graph_edges VALUES(?,?,?,?,?)",
                        (edge.source_id,edge.relation,edge.target_id,payload,time.time()))
 
     def get_node(self, node_id: str) -> GraphNode | None:

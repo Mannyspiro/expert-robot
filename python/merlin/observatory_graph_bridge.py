@@ -42,9 +42,14 @@ def _revision_snapshot(project_store: EngineeringProjectStore, project_id: str,
 def _add_immutable_node(graph: MerlinKnowledgeGraph, node: GraphNode) -> None:
     existing = graph.get_node(node.node_id)
     if existing is not None:
-        if (existing.node_type != node.node_type or existing.label != node.label
-                or existing.payload != node.payload):
-            raise ValueError("graph node ID already exists with different content: " + node.node_id)
+        if ((
+            existing.node_type, existing.label, existing.payload,
+            existing.evidence_class, existing.source_uri,
+        ) != (
+            node.node_type, node.label, node.payload,
+            node.evidence_class, node.source_uri,
+        )):
+            raise ValueError("graph node ID already exists with different content or provenance: " + node.node_id)
         return
     graph.add_node(node)
 

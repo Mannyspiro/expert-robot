@@ -1,4 +1,4 @@
-"""Versioned, source-separated telemetry contracts for Merlin."""
+""""Versioned, source-separated telemetry contracts for Merlin."""
 from __future__ import annotations
 from dataclasses import dataclass, asdict
 from datetime import datetime, timezone
@@ -6,10 +6,15 @@ from math import isfinite
 from typing import Any, Mapping
 from uuid import uuid4
 
-SOURCES = {"runtime", "simulation", "model_output", "verifier", "operator"}
-KINDS = {"task.started", "task.progress", "task.completed", "agent.status",
-         "model.inference", "verification.completed", "resource.sample",
-         "decision.trace", "operator.action", "system.error"}
+SOURCES = {"runtime", "simulation", "model_output", "verifier", "operator", "hermes", "mcfc", "avrea", "cace"}
+KINDS = {
+    "task.started", "task.progress", "task.completed", "agent.status",
+    "model.inference", "verification.completed", "resource.sample",
+    "decision.trace", "operator.action", "system.error",
+    "research.stage", "agent.tool.started", "agent.tool.completed",
+    "artifact.registered", "experiment.completed", "proof.checked",
+    "hypothesis.updated", "outbox.acknowledged",
+}
 
 @dataclass(frozen=True)
 class TelemetryEvent:
@@ -46,6 +51,21 @@ def normalize_event(data: Mapping[str, Any]) -> dict[str, Any]:
     payload = data.get("payload", {})
     if not isinstance(payload, dict):
         raise ValueError("payload must be an object")
+    if kind == "resource.sample":
+        for key in (
+            "gpu_percent", "gpu_memory_bytes", "wall_seconds", "cpu_seconds",
+            "peak_memory_bytes", "cpu_cores_reserved", "memory_bytes_reserved",
+            "max_wall_seconds_reserved", "gpu_count_reserved",
+            "compute_budget_units_reserved",
+        ):
+            value = payload.get(key)
+            if value is not None and (
+                isinstance(value, bool) or not isinstance(value, (int, float))
+                or not isfinite(value) or value < 0
+            ):
+                raise ValueError(key + " must be finite and non-negative")
+        if payload.get("gpu_percent", 0) > 100:
+            raise ValueError("gpu_percent cannot exceed 100")
     refs = data.get("evidence_refs", [])
     if not isinstance(refs, (list, tuple)) or len(refs) > 100 or any(not isinstance(x, str) or not x or len(x) > 512 for x in refs):
         raise ValueError("evidence_refs must contain at most 100 non-empty strings")
@@ -100,6 +120,38 @@ def loader_event_sink(store: Any):
                      {"event": event})
     return sink
 
+
+SERVICE_SOURCES = frozenset({"hermes", "mcfc", "avrea", "cace"})
+
+
+def agent_event_sink(outbox: Any, service: str):
+    """Create a source-bound publisher for observable service events."""
+    if service not in SERVICE_SOURCES:
+        raise ValueError("service must be hermes, mcfc, avrea, or cace")
+    sink = telemetry_outbox_sink(outbox)
+
+    def publish(*, kind: str, run_id: str, payload: Mapping[str, Any],
+                task_id: str | None = None,
+                evidence_refs: tuple[str, ...] | list[str] = (),
+                duration_ms: float | None = None,
+                cpu_percent: float | None = None,
+                memory_bytes: int | None = None) -> dict[str, Any]:
+        if not isinstance(payload, Mapping):
+            raise ValueError("payload must be an object")
+        body = dict(payload)
+        if kind == "agent.status":
+            body.setdefault("agent_id", service)
+        normalized = normalize_event({
+            "source": service, "kind": kind, "run_id": run_id,
+            "task_id": task_id, "payload": body,
+            "evidence_refs": list(evidence_refs),
+            "duration_ms": duration_ms, "cpu_percent": cpu_percent,
+            "memory_bytes": memory_bytes,
+        })
+        return sink(normalized)
+
+    return publish
+
 def telemetry_view(events: list[dict[str, Any]]) -> dict[str, Any]:
     grouped = {source: [] for source in sorted(SOURCES)}
     for event in events:
@@ -108,3 +160,15 @@ def telemetry_view(events: list[dict[str, Any]]) -> dict[str, Any]:
     return {"schema": "merlin-telemetry-view/1",
             "source_counts": {key: len(value) for key, value in grouped.items()},
             "streams": grouped, "simulation_is_not_runtime": True}
+
+
+def telemetry_outbox_sink(outbox: Any):
+    """Return a durable telemetry sink using event IDs as idempotency keys."""
+    def sink_event(data: Mapping[str, Any]) -> dict[str, Any]:
+        event = normalize_event(data)
+        return outbox.enqueue(
+            idempotency_key="telemetry:" + event["event_id"],
+            topic="merlin.telemetry." + event["kind"],
+            payload=event,
+        )
+    return sink_event
