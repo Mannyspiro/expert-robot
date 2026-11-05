@@ -63,7 +63,9 @@ def build_change_manifest(before: dict[str, Any], after: dict[str, Any],
             kind, disposition = "added", "new"
         elif current is None:
             kind, disposition = "deleted", "unresolved-retain"
-        elif prior["sha256"] == current["sha256"]:
+        elif (prior["sha256"] == current["sha256"]
+              and prior.get("mode") == current.get("mode")
+              and prior.get("git_object_type") == current.get("git_object_type")):
             kind, disposition = "unchanged", "retained"
         else:
             kind, disposition = "modified", "superseded-recoverably"
