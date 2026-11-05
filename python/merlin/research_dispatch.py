@@ -7,6 +7,7 @@ It never launches a process or grants authority.
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
+import hashlib
 from typing import Any, Callable
 
 from merlin.event_outbox import MerlinEventOutbox
@@ -94,21 +95,6 @@ class ResearchDispatchCoordinator:
             raise PermissionError("explicit operator approval was not validated")
         if not self.lease_validator(task.lease_ref, task.resource_budget):
             raise PermissionError("active MCFC resource lease was not validated")
-        self.emit_mcfc_event(
-            kind="agent.status", run_id=task.task_id, task_id=task.task_id,
-            payload={"agent_id": "mcfc", "role": "resource governor",
-                     "status": "leased", "activity": "resource lease validated",
-                     "lease_ref": task.lease_ref},
-        )
-        self.emit_mcfc_event(
-            kind="resource.sample", run_id=task.task_id, task_id=task.task_id,
-            payload={"measurement_kind": "reserved",
-                     "cpu_cores_reserved": task.resource_budget["cpu_cores"],
-                     "memory_bytes_reserved": task.resource_budget["memory_bytes"],
-                     "max_wall_seconds_reserved": task.resource_budget["max_wall_seconds"],
-                     "compute_budget_units_reserved": task.resource_budget["compute_budget_units"],
-                     "lease_ref": task.lease_ref},
-        )
         payload = {
             "schema": "merlin-research-task/1",
             "task_id": task.task_id,
@@ -124,10 +110,30 @@ class ResearchDispatchCoordinator:
             "authority": "bounded_execution_only",
             "promotion_authority": False,
         }
+        idempotency_key = "research-task:" + task.task_id
+        outbox_id = "evt_" + hashlib.sha256(idempotency_key.encode()).hexdigest()
+        already_queued = self.outbox.get(outbox_id) is not None
         queued = self.outbox.enqueue(
-            idempotency_key="research-task:" + task.task_id,
+            idempotency_key=idempotency_key,
             topic="merlin.hermes.task",
             payload=payload,
+        )
+        if already_queued:
+            return queued
+        self.emit_mcfc_event(
+            kind="agent.status", run_id=task.task_id, task_id=task.task_id,
+            payload={"agent_id": "mcfc", "role": "resource governor",
+                     "status": "leased", "activity": "resource lease validated",
+                     "lease_ref": task.lease_ref},
+        )
+        self.emit_mcfc_event(
+            kind="resource.sample", run_id=task.task_id, task_id=task.task_id,
+            payload={"measurement_kind": "reserved",
+                     "cpu_cores_reserved": task.resource_budget["cpu_cores"],
+                     "memory_bytes_reserved": task.resource_budget["memory_bytes"],
+                     "max_wall_seconds_reserved": task.resource_budget["max_wall_seconds"],
+                     "compute_budget_units_reserved": task.resource_budget["compute_budget_units"],
+                     "lease_ref": task.lease_ref},
         )
         self.emit_event(
             kind="task.started", run_id=task.task_id, task_id=task.task_id,
