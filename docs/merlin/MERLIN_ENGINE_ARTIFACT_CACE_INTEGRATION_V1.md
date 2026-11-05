@@ -25,6 +25,38 @@ commit, artifact digest, kind, schema and logical path. Both the result blob
 and CACE receipt digest are returned as evidence references. No stage can
 promote a hypothesis.
 
+The host process composes the worker only after it has its canonical
+stores and real services. The expected wiring shape is:
+
+```python
+cace = CaceVerificationAdapter(
+    verify_transport=cace_transport.verify_artifact,
+    registry=canonical_registry,
+    outbox=canonical_outbox,
+    graph=canonical_graph,
+)
+handlers = build_merlin_hermes_handlers(
+    evidence_recorder=canonical_evidence_recorder,
+    project_id=project_id,
+    research_executor=real_research_executor,
+    proof_search_executor=real_proof_search_executor,
+    artifact_verifier=cace.verify_artifact,
+    repository="owner/repo",
+    commit_sha=runtime_source_commit,
+    requester_id="merlin-hermes",
+)
+worker = HermesWorker(
+    canonical_outbox,
+    handlers=handlers,
+    approval_validator=approval_service.validate_task,
+    lease_validator=mcfc_service.validate_budget,
+)
+```
+
+The identifiers above describe the injection contract; they are not claims that
+those service objects or the CACE transport are already connected in this
+repository deployment.
+
 ## Numerical and electrical engines
 
 ### Linear ODE simulation
