@@ -8,6 +8,9 @@ on:
     paths:
       - "python/merlin/engineering_ir.py"
       - "python/merlin/freecad_bridge.py"
+      - "python/merlin/freecad_document_bridge.py"
+      - "python/merlin/project_registry.py"
+      - "python/merlin/knowledge_graph.py"
       - "python/merlin/ngspice_engine.py"
       - "scripts/run_engineering_ngspice_smoke.py"
       - ".github/workflows/engineering-integration.yml"
@@ -25,17 +28,30 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install ngspice when absent
+      - name: Install ngspice and FreeCAD command-line tools when absent
         shell: bash
         run: |
           set -euo pipefail
-          if ! command -v ngspice >/dev/null 2>&1; then
+          need_install=0
+          command -v ngspice >/dev/null 2>&1 || need_install=1
+          command -v FreeCADCmd >/dev/null 2>&1 || command -v freecadcmd >/dev/null 2>&1 || need_install=1
+          if [ "$need_install" = "1" ]; then
             sudo apt-get update
-            sudo apt-get install -y ngspice
+            sudo apt-get install -y ngspice freecad
           fi
           command -v ngspice
           command -v prlimit
           ngspice --version | head -n 4
+          freecad_cmd="$(command -v FreeCADCmd || command -v freecadcmd || true)"
+          if [ -z "$freecad_cmd" ]; then
+            freecad_cmd="$(find /usr/lib/freecad /usr/bin -type f \\( -name FreeCADCmd -o -name freecadcmd \\) -print -quit 2>/dev/null || true)"
+          fi
+          if [ -z "$freecad_cmd" ]; then
+            echo "::error::FreeCADCmd/freecadcmd was not installed."
+            exit 1
+          fi
+          echo "FREECAD_CMD=$freecad_cmd" >> "$GITHUB_ENV"
+          echo "FreeCAD command: $freecad_cmd"
           if ! command -v FreeCADCmd >/dev/null 2>&1 && ! command -v freecadcmd >/dev/null 2>&1; then
             available_kb="$(df -Pk / | awk 'NR==2 {print $4}')"
             if [ "$available_kb" -ge 4194304 ]; then
@@ -57,7 +73,14 @@ jobs:
           PYTHONPATH=python python3 scripts/run_engineering_ngspice_smoke.py artifacts/engineering-ngspice
           python3 -m json.tool artifacts/engineering-ngspice/manifest.json >/dev/null
           test -s artifacts/engineering-ngspice/merlin_import.FCMacro
+          test -s artifacts/engineering-ngspice/merlin_project.FCStd
+          test -s artifacts/engineering-ngspice/merlin_project.step
+          test -s artifacts/engineering-ngspice/freecad_document_export.FCMacro
+          test -s artifacts/engineering-ngspice/freecad-mesh.json
+          test -s artifacts/engineering-ngspice/freecad-registration.json
           test -s artifacts/engineering-ngspice/ngspice-result.json
+          test -s artifacts/engineering-ngspice/canonical-registry/merlin.sqlite3
+          test -s artifacts/engineering-ngspice/canonical-graph.sqlite3
           echo "engineering_integration=PASS"
 
       - name: Upload reproducible engineering evidence
