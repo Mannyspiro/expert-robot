@@ -135,6 +135,10 @@ The read-only disk diagnosis found `2.8G` under `/var/lib/cace-cache/elan/toolch
 
 An earlier verified v3 cycle (Expert Robot run `42065066165`, CACE run `42065140582`) also completed the same transport and returned an integrity-checked qualification failure. The latest run above supersedes it for current runner diagnostics.
 
+**v3 exact-source binding (2026-11-05):** Request schema 3 carries `source_archive_sha256`; the CACE OCI runner recomputes the received tarball digest before extraction and records the request SHA-256 and source archive SHA-256 in the signed-data envelope. The result binds the Expert Robot commit, exact archive bytes, request bytes, CACE workflow ref/SHA/run/attempt, Lean image `leanprover/lean4:v4.34.0`, Mathlib commit `5ed2965256430c3649e86755f9576b54eca72435`, Python version and exact Lean commands. Expert Robot independently recomputes the local archive and request digests before accepting the result. CACE run `42070554018` recorded `request/archive binding: PASS` and passed the Hermes, engineering/SPICE, FreeCAD, ngspice, HUD and registry test groups; it stopped at a stale regression assertion expecting request schema 2. That assertion was updated for schema 3 in Expert Robot commit `5905275fde4ad60ef6eae26bd67af919b822a8ba`; the next CACE request is the acceptance run for that fix.
+
+**Signer status:** The v3 result is currently hash/run/toolchain-bound but not cryptographically signer-authenticated. The CACE reverse SSH deploy key is already configured for the optional return path, but it has not been approved or pinned as a receipt-signing identity. Do not mark a receipt as signed until its signature verifies against a pinned public key.
+
 The request branch is `cace-request/<request-id>` and the returned result branch is `cace-result/<request-id>`. The canonical CACE workflow base is `repair/oci-disk-diagnostics-20261105`, derived from `executor/expert-robot-bridge`; it is used only as the workflow/base branch. No shared request branch is rebased or cleaned.
 
 ## 7. CI and workflow validation
