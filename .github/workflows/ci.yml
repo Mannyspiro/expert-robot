@@ -116,6 +116,16 @@ jobs:
           set -euo pipefail
           python3 tests/smoke.py ./build/expert_robot_runtime
           python3 tests/research_cli_contract_smoke.py
+          python3 -m json.tool research/science/video-transcript-index.v1.json >/dev/null
+          python3 tests/merlin_science_atlas_smoke.py
+          python3 tests/merlin_google_books_contract_smoke.py
+          python3 tests/merlin_science_intake_smoke.py
+          python3 tests/merlin_science_ideonomy_bridge_smoke.py
+          python3 tests/merlin_governance_smoke.py
+          python3 tests/merlin_problem_reframing_smoke.py
+          python3 tests/merlin_orchestrator_plan_gate_smoke.py
+          python3 scripts/merlin_domain_audit.py --taxonomy research/science/discipline-taxonomy.v1.json --governance research/science/merlin-research-governance.v1.json >/dev/null
+          python3 scripts/merlin_storage_guard.py --root state/merlin-ci-staging --reserve-bytes 0 >/dev/null
 
       - name: Show ccache stats
         if: always()
