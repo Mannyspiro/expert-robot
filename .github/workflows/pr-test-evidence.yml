@@ -75,7 +75,7 @@ jobs:
           }
           with open("artifacts/pr-test-evidence/manifest.json", "w", encoding="utf-8") as f:
               json.dump(result, f, indent=2, sort_keys=True)
-              f.write("\\n")
+              f.write("\n")
           PY
 
           if [ "$compile_status" -ne 0 ] || [ "$unittest_status" -ne 0 ]; then
