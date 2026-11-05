@@ -73,24 +73,28 @@ theorem kem_requires_transcript (s : State) (keyId : Nat) (next : State)
     (h : step s (.establishKem keyId) = some next) :
     s.transcriptBound = true := by
   simp [step] at h
-  split at h <;> simp_all
+  rcases h with ⟨⟨hbound, _⟩, rfl⟩
+  exact hbound
 
 theorem signature_key_is_separate (s : State) (keyId : Nat) (next : State)
     (h : step s (.bindSignature keyId) = some next) :
     s.kemKeyId ≠ some keyId := by
   simp [step] at h
-  split at h <;> simp_all
+  rcases h with ⟨⟨⟨_, _⟩, hseparate⟩, rfl⟩
+  exact hseparate
 
 theorem accepted_hybrid_is_transcript_bound (s : State) (next : State)
     (h : step s .acceptHybrid = some next) :
     next.transcriptBound = true ∧ next.downgradeLocked = true := by
   simp [step] at h
-  split at h <;> simp_all
+  rcases h with ⟨_, rfl⟩
+  exact ⟨rfl, rfl⟩
 
 theorem hybrid_acceptance_requires_both_keys (s : State) (next : State)
     (h : step s .acceptHybrid = some next) :
     next.kemKeyId.isSome ∧ next.signatureKeyId.isSome := by
   simp [step] at h
-  split at h <;> simp_all
+  rcases h with ⟨_, rfl⟩
+  exact ⟨by simp, by simp⟩
 
 end MathAI.Titan
