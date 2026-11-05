@@ -130,3 +130,38 @@ Independent CACE archive/bundle verification:
 ## Definition of production-ready
 
 Merlin is not production-ready until the canonical data model, durable orchestration, actual Avrea worker roundtrip, signed CACE verification, Lean qualification, CAD/ngspice execution, replayable read-only HUD, security/packaging, backup/restore and exact-head evidence are all demonstrated on the same pinned release candidate. A green Python unit suite is necessary but not sufficient.
+
+
+## Live continuation addendum — 2026-11-05 UTC
+
+This addendum supersedes any conflicting PR #82 head/test snapshot above. The earlier snapshot is retained as history, not current status.
+
+### Current PR #82 exact-head evidence
+
+- Current verified head: `dce93029cecaa84cccbed36412060687e15f914b`.
+- PR: https://github.com/Mannyspiro/expert-robot/pull/82 — open, draft, unmerged.
+- Exact-head run: https://github.com/Mannyspiro/expert-robot/actions/runs/42112017352 — completed success.
+- Job: `Hosted Python test evidence`, completed success.
+- `python -m compileall -q python tests`: exit 0.
+- `python -m unittest discover -s tests -v`: 485 tests, 3.051 seconds, exit 0.
+- Pinned dependency installation: exit 0.
+- Retained artifact: https://github.com/Mannyspiro/expert-robot/actions/runs/42112017352/artifacts/13455441795
+- Artifact SHA-256: `116df81ed7a6f506665697791072515eb75af6c90c70284d4144632ca77b7e75`.
+- Artifact expiry: 2026-12-05T21:22:40Z.
+- This is Python baseline evidence only. It is not evidence of a live Avrea/OCI execution, signed CACE receipt, Lean kernel qualification, CAD/ngspice E2E, or production deployment.
+
+### Ranked next execution gates
+
+1. **P0 — preserve the green baseline and reconcile source of truth.** Keep this PR draft. Require a fresh exact-head evidence artifact after every subsequent commit. Update this handoff whenever head or run changes; do not reuse earlier evidence for a new SHA.
+2. **P1 — make the external runner bridge safe and reproducible before dispatch.** Replace shared mutable bridge-branch assumptions with a unique request branch or immutable request object keyed by run ID and source SHA. Remove force-push and destructive cleanup from the dispatch path. Bind request ID, source repository/ref/SHA, archive SHA-256, requested lane, policy hash, resource budget and expiry. Require an explicit approval token and active MCFC lease at the worker boundary. Use least-privilege, scoped credentials; never use a generic Railway-named secret as proof of Avrea/OCI identity.
+3. **P2 — prove one real worker roundtrip.** Record runner identity, architecture, image digest, tool versions, start/end time, exit code, resource measurements, stdout/stderr digests and every output artifact digest. A missing job/log/artifact is NOT_RUN, not PASS. Capture exact source commit and request ID in both request and response. Avoid triggering the existing bridge until its branch mutation and credential behavior have been reviewed.
+4. **P3 — finish cryptographic CACE verification.** The Merlin verifier must pin exact CACE source commit, verifier identity and ML-DSA-65 key ID; verify signature, canonical statement, trust/revocation state, repository, source commit, request/run ID, bundle digest and actual artifact bytes. Reject replay, wrong subject, stale key, unsupported schema and absent trust state. Hash equality alone is not a signature. Keep semantic proof validation separate from provenance.
+5. **P4 — durable Hermes/MCFC lifecycle.** Demonstrate publisher → durable outbox → claim/lease → worker → result → acknowledgement, including crash/restart, expired lease, duplicate delivery, retry and dead-letter. Prove no dispatch after lease expiry/revocation. No worker gets merge, deploy or promotion authority.
+6. **P5 — Lean proof path.** Identify the single real Hermes-to-Lean dispatch seam; pin Lean, Mathlib and source commits; run a small conditional theorem; retain kernel output and axiom/dependency audit; independently rehash/verify the exact proof artifact with CACE. Preserve unresolved UFT items as explicit assumptions, not completed results.
+7. **P6 — engineering and simulation.** Import a small FreeCAD fixture, convert it to typed Engineering IR, validate units/frames/connectivity, generate a deterministic passive-circuit netlist, and run pinned ngspice. Retain input files, generated deck, tool versions, logs and numeric outputs.
+8. **P7 — read-only operational HUD.** Consume durable events with replay/cursor pagination and stale/out-of-order handling. Show run/worker/lease/artifact/recovery/CACE/Lean state and evidence links. Add authentication before exposure; do not add control, approval, merge or promotion actions.
+9. **P8 — release qualification.** Complete backup/restore and quarantine recovery drills, key custody/rotation/revocation, authentication/authorization, packaging/upgrade/rollback, supported OS tests, resource caps, observability and independent review. A release candidate is qualified only when all gates are demonstrated on the same pinned release candidate.
+
+### Immediate stop/go rule
+
+The next live dispatch is STOP until the external bridge is reviewed for immutable request isolation, non-destructive branch handling, credential scope, explicit approval, MCFC lease enforcement and result binding. Once those are evidenced, run exactly one minimal no-side-effect qualification job first. No merge, deploy, canonical promotion, destructive cleanup or authority expansion is implied by a successful test.
