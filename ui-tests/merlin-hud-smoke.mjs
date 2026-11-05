@@ -30,7 +30,7 @@ const workspace = {
   "simulation:1": { schema: "merlin-hud-workspace/1", workspace: "simulation", title: "Simulation", simulation: { series: nodes[2].payload.series } }
 };
 await page.route("**/api/hud/graph", route => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(graph) }));
-await page.route("**/api/hud/node?*", async route => {
+await page.route("**/api/hud/node*", async route => {
   const id = new URL(route.request().url()).searchParams.get("node_id");
   const node = nodes.find(item => item.node_id === id);
   if (!node) return route.fulfill({ status: 404, contentType: "application/json", body: JSON.stringify({ error: "node_not_found" }) });
@@ -40,7 +40,7 @@ await page.route("**/api/hud/node?*", async route => {
 try {
   await page.goto(target, { waitUntil: "domcontentloaded", timeout: 30000 });
   await page.getByText("MERLIN", { exact: false }).first().waitFor({ state: "visible" });
-  await page.waitForFunction(() => document.querySelector("#connection")?.textContent?.includes("LIVE EVENT FEED"), { timeout: 15000 });
+  await page.waitForFunction(() => document.querySelector("#connection")?.textContent?.includes("LIVE EVENT FEED"), null, { timeout: 15000 });
 
   await page.locator("#graphReset").click();
   await page.locator("#graphReload").click();
