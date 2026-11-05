@@ -136,7 +136,7 @@ def hermes_titan_research_executor(task, context):
         "objective": objective,
     }
     payload = (json.dumps(report, sort_keys=True, separators=(",", ":"),
-                          ensure_ascii=False, allow_nan=False) + "\\n").encode()
+                          ensure_ascii=False, allow_nan=False) + "\n").encode()
     return {
         "artifact_bytes": payload,
         "media_type": "application/vnd.merlin.titan-research+json",
