@@ -95,6 +95,6 @@ of the latest Avrea artifact archive (run `42090360334`) and its extracted log,
 JUnit report, provider provenance, and evidence manifest. The CACE verification run is
 `42090006059`; its verification artifact is retained for 30 days.
 
-The ML-DSA v2 Avrea sign/verify workflow is still pending. Until that workflow
+The ML-DSA v2 receipt roundtrip is now running on the independent CACE OCI runner in workflow `42092942992`. Until that workflow
 passes and an authorized production key is provisioned, the profile remains
 implemented-but-unqualified and no production signed receipt is claimed.
