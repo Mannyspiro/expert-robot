@@ -120,3 +120,4 @@ Tests are authored but have not been executed in this environment. No GitHub Act
 - SQLite is a single-host prototype, not a production multi-user registry.
 - No service has been deployed; PR remains draft and requires tests/review.
 - Governing invariant: capability grows, authority never expands.
+\n\n### Optional FreeCAD adapter\n\nSee [`FREECAD_ADAPTER.md`](FREECAD_ADAPTER.md). `freecad_adapter.py` is an explicit, opt-in adapter that requires a caller-supplied FreeCAD Python runtime. It can import supported CAD files, report shape validity/topology counts/bounds/placements, and export STL meshes with explicit tessellation settings. No FreeCAD runtime is bundled or launched by Merlin; no actual FreeCAD run is claimed. Source assembly hierarchy reconstruction, unit/frame conversion, collision and joint analysis, and solver execution remain future work.\n
