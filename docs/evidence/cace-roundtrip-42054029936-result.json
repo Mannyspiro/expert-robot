@@ -5,7 +5,7 @@
   "cace_repository": "morganaspim/Cace-app",
   "cace_run_attempt": 1,
   "cace_workflow_name": "Expert Robot Free Runner Bridge",
-  "cace_workflow_ref": "morganaspim/Cace-app/.github/workflows/expert-robot-bridge.yml@refs/heads/executor/bridge",
+  "cace_workflow_ref": "morganaspim/Cace-app/.github/workflows/expert-robot-bridge.yml@refs/heads/executor/expert-robot-bridge",
   "cace_workflow_run_id": 42055104542,
   "cace_workflow_sha": "d166699cad2b46f429aa9f317f3938e27d0764bd",
   "completed_at": "2026-11-05T15:27:15.518106+00:00",
