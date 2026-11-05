@@ -34,7 +34,7 @@ def build_packet(dossier: dict) -> tuple[str,str]:
       "response_format":"Return concise JSON with keys: source_digest, historical_context, methods, evidence, limitations, discipline_links, ideonomy_candidates, merlin_improvements, unsupported_questions.",
       "promotion":"candidate_only","authority_delta":0,"dossier":dossier
     }
-    return "You are Merlin's bounded science-history and ideonomy research worker. Follow this task contract exactly.\\n"+json.dumps(instructions,ensure_ascii=False,indent=2),digest
+    return "You are Merlin's bounded science-history and ideonomy research worker. Follow this task contract exactly.\n"+json.dumps(instructions,ensure_ascii=False,indent=2),digest
 
 
 def build_engineering_plan(dossier: dict) -> dict:
@@ -77,7 +77,7 @@ def main() -> int:
         plan=build_engineering_plan(dossier)
         plan_path=a.out.resolve().with_suffix(a.out.suffix+".engineering-plan.json")
         plan_path.parent.mkdir(parents=True,exist_ok=True)
-        plan_path.write_text(json.dumps(plan,ensure_ascii=False,indent=2,sort_keys=True)+"\\n",encoding="utf-8")
+        plan_path.write_text(json.dumps(plan,ensure_ascii=False,indent=2,sort_keys=True)+"\n",encoding="utf-8")
         validator=Path(__file__).resolve().with_name("merlin_engineering_plan.py")
         validation=subprocess.run([sys.executable,str(validator),"--validate",str(plan_path)],capture_output=True,text=True,check=False)
         if validation.returncode != 0: raise ValueError("generated engineering plan failed validation: "+validation.stdout+validation.stderr)
@@ -97,7 +97,7 @@ def main() -> int:
         }
         out=a.out.resolve()
         out.parent.mkdir(parents=True,exist_ok=True)
-        out.write_text(json.dumps(record,ensure_ascii=False,indent=2,sort_keys=True)+"\\n",encoding="utf-8")
+        out.write_text(json.dumps(record,ensure_ascii=False,indent=2,sort_keys=True)+"\n",encoding="utf-8")
         print(json.dumps({"ok":result.returncode==0,"dossier_id":record["dossier_id"],"source_digest_sha256":digest,"engineering_plan_sha256":record["engineering_plan_sha256"],"candidate_status":record["candidate_status"],"promotion_state":record["promotion_state"]},sort_keys=True))
         return 0 if result.returncode==0 else 2
     except Exception as exc:
