@@ -1,0 +1,34 @@
+{
+  "authority": "qualification-only",
+  "cace_commit": "73240368be77f2acaee8b59db8a42c4faadd29c2",
+  "cace_repository": "morganaspim/Cace-app",
+  "cace_run_attempt": 1,
+  "cace_workflow_id": 367390621,
+  "cace_workflow_name": "Expert Robot Free Runner Bridge",
+  "cace_workflow_ref": "morganaspim/Cace-app/.github/workflows/expert-robot-bridge.yml@refs/heads/cace-request/expert-robot-42071028804-4-874465e9055ec78896f227e9513a9cea04f9726c",
+  "cace_workflow_run_id": 42072648197,
+  "cace_workflow_sha": "73240368be77f2acaee8b59db8a42c4faadd29c2",
+  "expert_robot_commit": "874465e9055ec78896f227e9513a9cea04f9726c",
+  "promotion_authority": false,
+  "qualification_passed": false,
+  "qualification_status": "fail",
+  "request_id": "expert-robot-42071028804-4-874465e9055ec78896f227e9513a9cea04f9726c",
+  "request_sha256": "84c863382485f8d89ddef5b9b239b011aff2c2d978035d50fc52f91b7ca69a2d",
+  "result_log_sha256": "cfd379acd1d8021ef0b98e20817d558b1b5a4b4bf04ad36b88645825ab87166d",
+  "result_sha256": "7f4c4f2d4bc3d1c1d79480df245a976d722309c17ca32ac02d26c5086d1eb2c7",
+  "schema_version": 1,
+  "signature_status": "missing",
+  "signer_fingerprint": null,
+  "signer_identity": null,
+  "source_archive_sha256": "3fbbaf1ac124c69c434d5b87e3d5743aa75e08c5e9b1dee6ef286757364300b8",
+  "toolchain": {
+    "commands": [
+      "lake env lean MathAI.lean",
+      "lake env lean MathAI/Audit.lean"
+    ],
+    "lean_image": "leanprover/lean4:v4.34.0",
+    "mathlib_commit": "5ed2965256430c3649e86755f9576b54eca72435",
+    "python_version": "3.9.25"
+  },
+  "verification_level": "integrity-checked; source archive, request, commit, workflow and toolchain bound; signer key not yet configured"
+}
