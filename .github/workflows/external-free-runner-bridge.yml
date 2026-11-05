@@ -315,11 +315,7 @@ jobs:
                       echo "Disk before Lean install:" | tee -a "$log"
                       df -h "$ELAN_HOME" "$RUNNER_TEMP" /dev/shm /tmp | tee -a "$log" || true
                       echo "Top-level disk consumers:" | tee -a "$log"
-                      for scan_root in /var/lib/cace-cache /home/runner /opt/actions-runner/_work /tmp; do
-                        if [ -d "$scan_root" ]; then
-                          du -x -h --max-depth=1 "$scan_root" 2>/dev/null | sort -h | tail -12 | tee -a "$log" || true
-                        fi
-                      done
+                      du -x -h --max-depth=1 /var/lib/cace-cache /home/runner /opt/actions-runner/_work /tmp 2>/dev/null | sort -h | tail -20 | tee -a "$log" || true
                       free_kb="$(df -Pk "$ELAN_HOME" | awk 'NR==2 {print $4}')"
                       if [ -z "$free_kb" ] || [ "$free_kb" -lt 2097152 ]; then
                         echo "insufficient disk space for pinned Lean toolchain: available_kb=${free_kb:-unknown}, required_kb=2097152" | tee -a "$log"
