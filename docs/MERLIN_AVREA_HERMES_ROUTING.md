@@ -25,6 +25,8 @@ python/merlin/hermes_claim_routing.py implements deterministic fail-closed routi
 
 Lean compilation is compiled_unverified, not proof verification. Independent CACE verification is separate and only an exact-input CACE receipt can establish independent verification.
 
+The production proof-search stage handler now invokes `dispatch_eligible_claim` for each theorem claim emitted by the injected proof-search executor. It records the exact Lean source bytes in the canonical registry before dispatch, binds the dispatch receipt to the repository commit and SHA-256, and ignores any `compilation_status` supplied by the research executor. A theorem-specific CACE verifier is called only after the injected Lean dispatcher reports `compiled`. If no dispatcher is configured, the claim is explicitly `blocked_missing_lean_dispatcher`; it is never treated as compiled or independently verified. A concrete isolated Avrea/Lean transport still must be injected by deployment—do not execute untrusted Lean source in the Merlin web process.
+
 ## Training and evaluation
 Labelled corpora: tests/fixtures/hermes-routing-train.json and tests/fixtures/hermes-routing-heldout.json. Run PYTHONPATH=python pytest -q tests/test_hermes_claim_routing.py. Metrics keep false eligibility, missed eligibility, unnecessary Lean dispatch, compilation failure and CACE rejection separate. Held-out IDs are checked for overlap. Never tune on held-out outcomes; freeze a replacement held-out set before moving old examples into training. Store policy version, corpus hashes, Lean toolchain and CACE receipt IDs per evaluation.
 
