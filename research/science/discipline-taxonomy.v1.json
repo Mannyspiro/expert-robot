@@ -76,9 +76,7 @@
         "electrochemistry",
         "materials chemistry",
         "chemical biology",
-        "astrochemistry",
-        "geochemistry",
-        "chemical engineering"
+        "astrochemistry"
       ]
     },
     {
@@ -98,7 +96,6 @@
         "botany",
         "zoology",
         "physiology",
-        "systems biology",
         "synthetic biology",
         "bioinformatics",
         "conservation biology"
@@ -172,13 +169,11 @@
       "status": "established",
       "branches": [
         "anatomy",
-        "physiology",
         "pathology",
         "pharmacology",
         "epidemiology",
         "public health",
         "clinical medicine",
-        "neuroscience",
         "nutrition science",
         "rehabilitation science",
         "health services research",
@@ -363,5 +358,52 @@
     "cross-disciplinary analogy",
     "formal proof",
     "computational reproducibility"
+  ],
+  "cross_domain_relationships": [
+    {
+      "label": "geochemistry",
+      "primary_domain": "earth-space",
+      "secondary_domains": [
+        "chemical"
+      ],
+      "relationship": "Earth-system chemistry and chemical composition",
+      "scope_rationale": "Earth materials and processes are the primary object; chemical methods and theory are integral secondary methods."
+    },
+    {
+      "label": "chemical engineering",
+      "primary_domain": "engineering",
+      "secondary_domains": [
+        "chemical"
+      ],
+      "relationship": "Engineering application of chemical science",
+      "scope_rationale": "The discipline's primary focus is design and operation of processes and systems, with chemistry as its core scientific foundation."
+    },
+    {
+      "label": "physiology",
+      "primary_domain": "life",
+      "secondary_domains": [
+        "medical-health"
+      ],
+      "relationship": "Organismal and human function",
+      "scope_rationale": "The field studies functions of living systems; medical physiology is an applied health-science context."
+    },
+    {
+      "label": "systems biology",
+      "primary_domain": "interdisciplinary",
+      "secondary_domains": [
+        "life"
+      ],
+      "relationship": "Cross-scale systems analysis of living systems",
+      "scope_rationale": "It is explicitly interdisciplinary, integrating biological objects with mathematical, computational and systems methods."
+    },
+    {
+      "label": "neuroscience",
+      "primary_domain": "mind-behavior",
+      "secondary_domains": [
+        "medical-health"
+      ],
+      "relationship": "Nervous systems, cognition and clinical translation",
+      "scope_rationale": "The primary home is the study of nervous systems and behavior; clinical neuroscience is a secondary medical context."
+    }
   ]
 }
