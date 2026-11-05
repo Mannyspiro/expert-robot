@@ -29,7 +29,7 @@ def request(prompt_id="prompt-001", target="hermes"):
         },
         constraints=("No network access unless separately authorized.", "Do not alter canonical artifacts."),
         success_criteria=("All assumptions are explicit.", "Output conforms to the declared object contract."),
-        resource_budget={"cpu_cores": 1, "memory_bytes": 1048576, "max_wall_seconds": 30},
+        resource_budget={"cpu_cores": 1, "memory_bytes": 1048576, "max_wall_seconds": 30, "compute_budget_units": 100},
         source_refs=("hypothesis:H-1",),
     )
 
@@ -104,6 +104,37 @@ class PromptEngineeringTests(unittest.TestCase):
         self.assertEqual(first["payload"]["prompt_sha256"], prompt.prompt_sha256)
         self.assertFalse(first["payload"]["promotion_authority"])
         self.assertEqual(self.outbox.counts()["pending"], 1)
+
+    def test_hermes_adapter_publishes_existing_worker_task_contract(self):
+        prompt = self.compiler.compile(request())
+        coordinator = self.coordinator()
+        event = coordinator.publish_to_hermes(
+            prompt,
+            approval_ref="approval:1",
+            lease_ref="lease:1",
+            resource_budget=dict(request().resource_budget),
+        )
+        payload = event["payload"]
+        self.assertEqual(event["topic"], "merlin.hermes.task")
+        self.assertEqual(payload["schema"], "merlin-research-task/1")
+        self.assertEqual(payload["stage"], "proof_search")
+        self.assertEqual(payload["hypothesis_id"], "H-1")
+        self.assertEqual(payload["experiment_spec"]["prompt_sha256"], prompt.prompt_sha256)
+        self.assertFalse(payload["promotion_authority"])
+        self.assertEqual(self.outbox.counts()["pending"], 1)
+
+    def test_hermes_adapter_rejects_unmapped_task_types(self):
+        prompt = self.compiler.compile(request())
+        prompt = type(prompt)(
+            **{**prompt.__dict__, "task_type": "unregistered_action"}
+        )
+        with self.assertRaises(ValueError):
+            self.coordinator().publish_to_hermes(
+                prompt,
+                approval_ref="approval:1",
+                lease_ref="lease:1",
+                resource_budget=dict(request().resource_budget),
+            )
 
     def test_prompt_id_reuse_with_different_content_is_not_silently_accepted(self):
         coordinator = self.coordinator()
