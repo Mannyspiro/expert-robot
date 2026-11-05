@@ -17,6 +17,12 @@ open_license=dict(base,rights_status="open_license_verified",license_uri=None)
 try: mod.stage(open_license,b"no license URI")
 except mod.IntakeError: pass
 else: raise AssertionError("open license must have license URI")
+nc=dict(base,rights_status="open_license_verified",license_uri="https://creativecommons.org/licenses/by-nc-sa/4.0/",license_id="CC-BY-NC-SA-4.0")
+try: mod.stage(nc,b"NC-SA source")
+except mod.IntakeError: pass
+else: raise AssertionError("NC-SA source accepted without noncommercial context")
+nc["use_context"]="noncommercial"
+assert mod.stage(nc,b"NC-SA source")["use_context"]=="noncommercial"
 import gzip, json, subprocess, sys, tempfile
 with tempfile.TemporaryDirectory() as td:
     staging_root=Path(td)/"staging"; staging_root.mkdir()
