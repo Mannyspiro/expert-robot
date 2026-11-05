@@ -40,11 +40,11 @@ jobs:
           git clone --filter=blob:none https://github.com/open-quantum-safe/liboqs.git /tmp/liboqs
           git -C /tmp/liboqs checkout --detach 5a1a854b0dc9f2141bdc771c555ee60c37950183
           test "$(git -C /tmp/liboqs rev-parse HEAD)" = "5a1a854b0dc9f2141bdc771c555ee60c37950183"
-          git -C /tmp/liboqs clone --filter=blob:none https://github.com/usnistgov/ACVP-Server.git /tmp/acvp-server
-          test "$(git -C /tmp/acvp-server rev-parse 'v1.1.0.41^{commit}')" = "b121fee031dc65d32c96f4109a42a10dacbe2076"
+          ACVP_TAG_SHA="$(git ls-remote https://github.com/usnistgov/ACVP-Server.git refs/tags/v1.1.0.41 | awk '{print $1}')"
+          test "$ACVP_TAG_SHA" = "b121fee031dc65d32c96f4109a42a10dacbe2076"
           {
             echo "liboqs_commit=$(git -C /tmp/liboqs rev-parse HEAD)"
-            echo "acvp_server_commit=$(git -C /tmp/acvp-server rev-parse 'v1.1.0.41^{commit}')"
+            echo "acvp_server_commit=$ACVP_TAG_SHA"
             echo "python=$(python3 --version)"
             echo "cmake=$(cmake --version | head -1)"
             echo "gcc=$(gcc --version | head -1)"
