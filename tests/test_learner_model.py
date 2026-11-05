@@ -2,13 +2,17 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from merlin.learner_model import LearnerStore, LearnerEventConflict, select_next_lesson
+from merlin.event_outbox import MerlinEventOutbox
+from merlin.learner_model import (
+    LearnerStore, LearnerEventConflict, HermesLearningRouter, select_next_lesson,
+)
 
 
 class LearnerModelTests(unittest.TestCase):
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory()
-        self.store=LearnerStore(Path(self.tmp.name)/"learner.sqlite")
+        self.root=Path(self.tmp.name)
+        self.store=LearnerStore(self.root/"learner.sqlite")
     def tearDown(self): self.tmp.cleanup()
 
     def event(self,attempt,session,score=1.0,dimension="conceptual_explanation",**extra):
@@ -53,6 +57,18 @@ class LearnerModelTests(unittest.TestCase):
     def test_invalid_score_rejected(self):
         with self.assertRaises(ValueError):
             self.store.record_attempt(self.event("a1","s1",score=1.5))
+
+    def test_hermes_consumes_and_acknowledges_learner_attempt(self):
+        outbox=MerlinEventOutbox(self.root/"outbox.sqlite")
+        e=self.event("a1","s1")
+        outbox.enqueue("learning-attempt:a1","merlin.learning.attempt",e,now=1)
+        graph={"rotation":{"prerequisites":[],"dimensions":["conceptual_explanation"]}}
+        lessons=[{"lesson_id":"rotation-lesson","idea_id":"rotation"}]
+        router=HermesLearningRouter(outbox,self.store,graph,lessons)
+        result=router.run_once()
+        self.assertEqual(result["state"],"acknowledged")
+        self.assertEqual(self.store.estimate("learner-test","rotation",
+          "conceptual_explanation").observations,1)
 
 
 if __name__=="__main__": unittest.main()
