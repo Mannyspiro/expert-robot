@@ -67,6 +67,21 @@ Initial source registry is docs/research/merlin-economic-data-source-registry.v1
 
 Record the data owner's definition and release calendar. Do not confuse a convenient aggregator with the original data producer. Respect API limits, terms, privacy and licensing; free access does not imply unrestricted redistribution.
 
+## 6A. What a market actually does: mechanism before metaphor
+A market is not a single abstract supply-demand curve. For each venue and instrument, reconstruct the actual chain: participants and mandates; order or quote submission; matching and priority rules; dealer inventory and risk warehousing; broker routing and conflicts; clearing, netting, collateral and margin; settlement; custody; corporate actions; and the legal rights attached to the instrument.
+
+For listed equities, distinguish displayed limit orders, marketable orders, auctions, exchange books, wholesalers/market makers, broker routing, internalization and payment for order flow. Measure spread, depth, queue position, price impact, fill probability and adverse selection where data allows. A quote is not a guaranteed execution price. The SEC's execution explainer describes broker routing choices and how routing, internalization and payment for order flow can affect execution costs: https://www.investor.gov/introduction-investing/investing-basics/how-stock-markets-work/executing-order.
+
+Derive the math from the mechanism:
+- limit-order books imply price-time or venue-specific priority and matching constraints;
+- bid/ask spread and depth produce measurable execution cost and price impact;
+- inventory risk and adverse selection explain why liquidity providers change quotes;
+- clearing and netting transform gross trades into net obligations;
+- collateral and margin constrain leverage and create liquidity feedback;
+- double-entry accounting reconciles the assets and liabilities created by each contract and transaction.
+
+Do not assume every market is a continuous double auction. Treasury dealer markets, municipal bonds, corporate bonds, FX, futures, options, private credit and real estate have different participants, trading protocols, disclosure, settlement and liquidity. Model each separately and test how the mechanism changes in stress.
+
 ## 7. Investable-market coverage
 Build a read-only instrument ontology and market calendar across listed equities, ADRs, ETFs, ETNs, closed-end funds and REITs; sovereign, municipal, agency, corporate and securitized fixed income; cash and money-market instruments; listed options, futures and exchange-traded derivatives; FX and commodity markets; private equity, private credit, venture and real assets where data coverage is sparse; and digital assets where legally accessible and provenance is adequate.
 
