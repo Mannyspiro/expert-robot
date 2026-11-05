@@ -16,6 +16,9 @@ DIMENSIONS = {
     "recognition", "conceptual_explanation", "procedure",
     "representation_translation", "estimation_error_detection",
     "transfer", "proof_justification", "delayed_retention",
+    "artistic_composition", "observation_accuracy", "material_technique",
+    "visual_analysis", "artistic_critique", "artistic_intent", "revision",
+    "cultural_context", "creative_iteration", "authorship_provenance",
 }
 ATTEMPT_TOPIC = "merlin.learning.attempt"
 
