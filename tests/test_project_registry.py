@@ -35,3 +35,12 @@ class MerlinRegistryTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+    def test_relation_identity_is_idempotent_and_immutable(self):
+        with tempfile.TemporaryDirectory() as temp:
+            registry = MerlinRegistry(temp)
+            registry.register_project("p", "Project")
+            registry.relate("p", "contains", "artifact:x", {"scope": "v1"})
+            registry.relate("p", "contains", "artifact:x", {"scope": "v1"})
+            with self.assertRaisesRegex(ValueError, "different metadata"):
+                registry.relate("p", "contains", "artifact:x", {"scope": "v2"})
