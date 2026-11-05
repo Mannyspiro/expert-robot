@@ -223,8 +223,9 @@ class MerlinRegistry:
         with self._connect() as db:
             db.execute("BEGIN IMMEDIATE")
             old = db.execute("""
-              SELECT digest,generation FROM project_artifacts
-              WHERE project_id=? AND logical_path=?
+              SELECT pa.digest,pa.generation,a.size_bytes,a.media_type
+              FROM project_artifacts pa JOIN artifacts a USING(digest)
+              WHERE pa.project_id=? AND pa.logical_path=?
             """, (project_id, logical_path)).fetchone()
             if old is None:
                 db.rollback()
@@ -260,6 +261,7 @@ class MerlinRegistry:
                 "operation_id": operation_id,
                 "artifacts": [{
                     "path": logical_path, "sha256": old["digest"],
+                    "size_bytes": old["size_bytes"], "media_type": old["media_type"],
                     "generation": expected_generation, "disposition": "retained",
                 }],
             }
