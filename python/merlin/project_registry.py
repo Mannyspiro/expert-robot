@@ -120,13 +120,34 @@ class MerlinRegistry:
             CREATE TRIGGER IF NOT EXISTS project_artifacts_no_delete
               BEFORE DELETE ON project_artifacts
               BEGIN SELECT RAISE(ABORT, 'artifact heads cannot be deleted; tombstone instead'); END;
+            CREATE TRIGGER IF NOT EXISTS project_artifacts_guard_insert
+              BEFORE INSERT ON project_artifacts
+              WHEN NOT EXISTS (
+                SELECT 1 FROM artifact_versions av
+                WHERE av.project_id=NEW.project_id AND av.logical_path=NEW.logical_path
+                  AND av.digest=NEW.digest AND av.generation=NEW.generation
+                  AND av.parent_version_id IS NULL
+              )
+              BEGIN SELECT RAISE(ABORT, 'artifact head insert requires a matching initial version row'); END;
             CREATE TRIGGER IF NOT EXISTS project_artifacts_guard_update
               BEFORE UPDATE ON project_artifacts
               WHEN NEW.project_id != OLD.project_id
                 OR NEW.logical_path != OLD.logical_path
                 OR NEW.generation != OLD.generation + 1
                 OR NEW.digest = OLD.digest
-              BEGIN SELECT RAISE(ABORT, 'artifact head update requires a one-step version advance'); END;
+                OR NOT EXISTS (
+                  SELECT 1 FROM artifact_versions parent
+                  JOIN artifact_versions next ON next.parent_version_id=parent.version_id
+                  WHERE parent.project_id=OLD.project_id
+                    AND parent.logical_path=OLD.logical_path
+                    AND parent.digest=OLD.digest
+                    AND parent.generation=OLD.generation
+                    AND next.project_id=NEW.project_id
+                    AND next.logical_path=NEW.logical_path
+                    AND next.digest=NEW.digest
+                    AND next.generation=NEW.generation
+                )
+              BEGIN SELECT RAISE(ABORT, 'artifact head update requires a matching append-only version row'); END;
             """)
 
     @staticmethod
@@ -218,12 +239,12 @@ class MerlinRegistry:
                 )
             version_id = "av_" + uuid4().hex
             timestamp = time.time()
-            db.execute("INSERT INTO project_artifacts(project_id,digest,logical_path,generation) VALUES(?,?,?,1)",
-                       (project_id, digest, logical_path))
             db.execute("""INSERT INTO artifact_versions(
                 version_id,project_id,logical_path,digest,parent_version_id,generation,actor,operation_id,created_at
                 ) VALUES(?,?,?,?,NULL,1,?,?,?)""",
                 (version_id, project_id, logical_path, digest, actor, operation_id or version_id, timestamp))
+            db.execute("INSERT INTO project_artifacts(project_id,digest,logical_path,generation) VALUES(?,?,?,1)",
+                       (project_id, digest, logical_path))
             db.commit()
         return digest
 
@@ -276,13 +297,6 @@ class MerlinRegistry:
             next_generation = expected_generation + 1
             version_id = "av_" + uuid4().hex
             timestamp = time.time()
-            updated = db.execute("""
-              UPDATE project_artifacts SET digest=?, generation=?
-              WHERE project_id=? AND logical_path=? AND digest=? AND generation=?
-            """, (digest, next_generation, project_id, logical_path, expected_digest, expected_generation))
-            if updated.rowcount != 1:
-                db.rollback()
-                raise ArtifactConflict("compare-and-swap failed")
             recovery_id = "rp_" + uuid4().hex
             recovery_manifest = {
                 "schema": "merlin-recovery-manifest/1",
@@ -306,6 +320,13 @@ class MerlinRegistry:
               ) VALUES(?,?,?,?,?,?,?,?,?,?)""",
               (version_id, project_id, logical_path, digest, parent["version_id"],
                next_generation, actor, operation_id, timestamp, recovery_id))
+            updated = db.execute("""
+              UPDATE project_artifacts SET digest=?, generation=?
+              WHERE project_id=? AND logical_path=? AND digest=? AND generation=?
+            """, (digest, next_generation, project_id, logical_path, expected_digest, expected_generation))
+            if updated.rowcount != 1:
+                db.rollback()
+                raise ArtifactConflict("compare-and-swap failed")
             db.commit()
         return digest
 
