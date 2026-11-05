@@ -65,9 +65,9 @@ def render_descriptor(node: Any, artifact: Mapping[str, Any] | None = None) -> d
     elif workspace == "freecad":
         descriptor["cad"] = {
             key: payload[key] for key in (
-                "format", "document", "object_name", "assembly", "parts",
-                "instances", "geometry", "size_mm", "position_mm",
-                "units", "artifact_path", "export_format",
+                "format", "document", "object_name", "assembly", "assemblies", "parts",
+                "objects", "instances", "geometry", "mesh", "bounds_mm",
+                "size_mm", "position_mm", "units", "artifact_path", "export_format",
             ) if key in payload
         }
     elif workspace == "electrical":
