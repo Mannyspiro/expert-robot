@@ -294,7 +294,7 @@ jobs:
           payload["job_status"] = os.environ.get("JOB_STATUS", "see GitHub Actions job conclusion")
           with open("artifacts/pr-test-evidence.json", "w", encoding="utf-8") as handle:
               json.dump(payload, handle, sort_keys=True, indent=2)
-              handle.write("\\n")
+              handle.write("\n")
           PY
 
       - name: Upload CI diagnostics and runner identity
