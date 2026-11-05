@@ -146,7 +146,7 @@ class HudActivityWSGI:
 
     def __call__(self, environ: dict[str, Any], start_response: Callable[..., Any]):
         path = environ.get("PATH_INFO")
-        if path not in {"/dashboard", "/api/hud/activity", "/api/hud/graph", "/api/hud/node"}:
+        if path not in {"/dashboard", "/api/hud/activity", "/api/hud/graph", "/api/hud/node", "/api/hud/projects", "/api/hud/project", "/api/hud/hypotheses", "/api/hud/outbox"}:
             return self._respond(start_response, "404 Not Found",
                                  {"error": "not_found"})
         if environ.get("REQUEST_METHOD", "GET").upper() != "GET":
@@ -156,6 +156,41 @@ class HudActivityWSGI:
         if path == "/dashboard":
             return self._respond_html(start_response, DASHBOARD_HTML)
         try:
+            if path in {"/api/hud/projects", "/api/hud/project",
+                         "/api/hud/hypotheses", "/api/hud/outbox"}:
+                if self.read_api is None:
+                    return self._respond(start_response, "503 Service Unavailable",
+                                         {"error": "research_query_not_configured"})
+                from urllib.parse import parse_qs
+                params = parse_qs(environ.get("QUERY_STRING", ""))
+
+                def bounded_int(name: str, default: int, maximum: int) -> int:
+                    raw = (params.get(name) or [str(default)])[0]
+                    if not raw.isdigit() or int(raw) > maximum:
+                        raise ValueError(name + " is outside the supported range")
+                    return int(raw)
+
+                if path == "/api/hud/projects":
+                    limit = bounded_int("limit", 100, 500)
+                    offset = bounded_int("offset", 0, 100000000)
+                    return self._respond(start_response, "200 OK",
+                                         self.read_api.projects(limit=limit, offset=offset))
+                if path == "/api/hud/project":
+                    project_id = (params.get("project_id") or [""])[0]
+                    if not project_id or len(project_id) > 160:
+                        return self._respond(start_response, "400 Bad Request",
+                                             {"error": "project_id_required"})
+                    return self._respond(start_response, "200 OK",
+                                         self.read_api.project_snapshot(project_id))
+                if path == "/api/hud/hypotheses":
+                    limit = bounded_int("limit", 100, 500)
+                    offset = bounded_int("offset", 0, 100000000)
+                    status = (params.get("status") or [None])[0]
+                    return self._respond(start_response, "200 OK",
+                                         self.read_api.list_hypotheses(
+                                             status=status, limit=limit, offset=offset))
+                return self._respond(start_response, "200 OK",
+                                     self.read_api.outbox_status())
             if path in {"/api/hud/graph", "/api/hud/node"}:
                 if self.read_api is None:
                     return self._respond(start_response, "503 Service Unavailable",
