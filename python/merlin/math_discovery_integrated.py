@@ -440,6 +440,7 @@ def build_integrated_math_discovery_handlers(
         numerical_experiment_executor=executor,
         proof_search_executor=executor,
         artifact_verifier=cace_adapter.verify_artifact,
+        theorem_verifier=cace_adapter.verify,
         repository=repository, commit_sha=commit_sha,
         requester_id=requester_id,
     )
