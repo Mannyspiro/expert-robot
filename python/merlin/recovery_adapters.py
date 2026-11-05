@@ -7,6 +7,8 @@ import subprocess
 from typing import Any
 from uuid import uuid4
 
+from merlin.change_manifest import build_change_manifest
+
 
 def _safe_relative(path: str) -> str:
     normalized = path.replace("\\", "/")
@@ -48,11 +50,74 @@ class GitRecoveryAdapter:
         if not (self.repository / ".git").exists():
             raise ValueError("repository must be an existing Git worktree")
 
+    @staticmethod
+    def _pinned_commit(commit: str) -> str:
+        if (not isinstance(commit, str) or len(commit) != 40
+                or any(char not in "0123456789abcdef" for char in commit)):
+            raise ValueError("a full lowercase 40-character Git commit SHA is required")
+        return commit
+
+    def tree_manifest(self, commit: str, *, max_entries: int = 25000,
+                      max_total_bytes: int = 1_000_000_000,
+                      max_blob_bytes: int = 100_000_000) -> dict[str, Any]:
+        """Inventory every tracked tree entry at a pinned commit with exact blob hashes."""
+        commit = self._pinned_commit(commit)
+        listing = subprocess.run(
+            ["git", "-C", str(self.repository), "ls-tree", "-rz", "--full-tree", commit],
+            check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        ).stdout
+        entries = []
+        total_bytes = 0
+        for record in listing.split(b"\\0"):
+            if not record:
+                continue
+            metadata, raw_path = record.split(b"\\t", 1)
+            mode, object_type, object_id = metadata.decode("ascii").split(" ")
+            path = raw_path.decode("utf-8", errors="surrogateescape")
+            safe_path = _safe_relative(path)
+            if object_type == "blob":
+                size = int(subprocess.run(
+                    ["git", "-C", str(self.repository), "cat-file", "-s", object_id],
+                    check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                    text=True,
+                ).stdout.strip())
+                if size > max_blob_bytes:
+                    raise ValueError("Git manifest blob exceeds configured per-file limit")
+                total_bytes += size
+                if total_bytes > max_total_bytes:
+                    raise ValueError("Git manifest exceeds configured total-byte limit")
+                data = subprocess.run(
+                    ["git", "-C", str(self.repository), "cat-file", "blob", object_id],
+                    check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                ).stdout
+                if len(data) != size:
+                    raise RuntimeError("Git blob size mismatch during manifest creation")
+                digest = hashlib.sha256(data).hexdigest()
+            else:
+                size = 0
+                digest = hashlib.sha256((object_type + ":" + object_id).encode()).hexdigest()
+            entries.append({
+                "path": safe_path, "sha256": digest, "size_bytes": size,
+                "mode": mode, "git_object_type": object_type,
+                "git_object_id": object_id,
+            })
+            if len(entries) > max_entries:
+                raise ValueError("Git manifest exceeds configured entry-count limit")
+        return {"schema": "merlin-git-tree-manifest/1", "commit": commit, "artifacts": entries}
+
+    def compare_commits(self, before_commit: str, after_commit: str, *,
+                        operation_id: str, actor: str, reason: str) -> dict[str, Any]:
+        """Produce a complete tracked-file manifest; unapproved deletions remain blocked."""
+        before = self.tree_manifest(before_commit)
+        after = self.tree_manifest(after_commit)
+        return build_change_manifest(
+            before, after, operation_id=operation_id, actor=actor, reason=reason,
+        )
+
     def recover(self, *, commit: str, path: str, expected_sha256: str,
                 project_id: str, registry, actor: str = "recovery") -> dict[str, Any]:
+        commit = self._pinned_commit(commit)
         safe_path = _safe_relative(path)
-        if not commit or commit.startswith("-"):
-            raise ValueError("a pinned Git commit is required")
         result = subprocess.run(
             ["git", "-C", str(self.repository), "show", f"{commit}:{safe_path}"],
             check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
