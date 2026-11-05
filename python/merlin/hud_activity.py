@@ -138,6 +138,11 @@ class HudActivityProjector:
                         "runner_id": payload.get("agent_id") or payload.get("worker_id"),
                         "status": payload.get("status", "unknown"),
                         "activity": payload.get("activity", EVENT_LABELS[kind]),
+                        "exit_code": payload.get("exit_code"),
+                        "worker_image_digest": payload.get("worker_image_digest"),
+                        "tool_versions": payload.get("tool_versions", {}),
+                        "artifact_count": payload.get("artifact_count"),
+                        "result_receipt_sha256": payload.get("result_receipt_sha256"),
                         "receipt_ref": event["evidence_refs"][0] if event["evidence_refs"] else None,
                         "event_id": event["event_id"],
                     }
