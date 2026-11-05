@@ -42,5 +42,24 @@
     "observed": "all five secret environment values were empty",
     "outcome": "reverse SSH authentication unavailable; return step skipped"
   },
-  "result_mirror_correction_commit": "a712a36c33b40213ba1e4774231460da24faa36f"
+  "result_mirror_correction_commit": "a712a36c33b40213ba1e4774231460da24faa36f",
+  "disk_diagnostic_followup": {
+    "cace_workflow_run_id": 42056170049,
+    "cace_commit": "d548e60be9bd5490e50444b35e88efd1a094a174",
+    "artifact_id": 13430265917,
+    "observed_free_kb": 1162936,
+    "required_free_kb": 2097152,
+    "installed_lean_toolchains": [
+      "leanprover/lean4:v4.32.1"
+    ],
+    "requested_lean_toolchain": "leanprover/lean4:v4.34.0",
+    "cache_observations": {
+      "cace_cache_total_gb": 19,
+      "old_mathlib_v4321_gb": 8.6,
+      "lake_artifacts_gb": 6.6,
+      "lean_toolchains_gb": 2.8,
+      "huggingface_model_cache_gb": 2.5
+    },
+    "outcome": "pinned Lean 4.34.0 absent; no cache was deleted; exact qualification blocked by disk reserve"
+  }
 }
