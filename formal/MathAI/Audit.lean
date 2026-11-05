@@ -133,3 +133,27 @@ kernel-visible axiom dependencies for review.
 
 #check MathAI.FractalEngineering.levelScale_step_nonincreasing
 #print axioms MathAI.FractalEngineering.levelScale_step_nonincreasing
+
+#check MathAI.XMG.compose_associative
+#print axioms MathAI.XMG.compose_associative
+
+#check MathAI.XMG.compose_identity_left
+#print axioms MathAI.XMG.compose_identity_left
+
+#check MathAI.XMG.compose_identity_right
+#print axioms MathAI.XMG.compose_identity_right
+
+#check MathAI.XMG.project_pair_left
+#print axioms MathAI.XMG.project_pair_left
+
+#check MathAI.XMG.project_pair_right
+#print axioms MathAI.XMG.project_pair_right
+
+#check MathAI.XMG.int_double_negation
+#print axioms MathAI.XMG.int_double_negation
+
+#check MathAI.XMG.int_natAbs_negation
+#print axioms MathAI.XMG.int_natAbs_negation
+
+#check MathAI.XMG.wellFounded_of_nat_measure_decrease
+#print axioms MathAI.XMG.wellFounded_of_nat_measure_decrease

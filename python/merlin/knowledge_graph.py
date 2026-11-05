@@ -18,7 +18,7 @@ _ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/-]{0,159}$")
 NODE_TYPES = frozenset({
     "project", "module", "artifact", "source", "claim", "assumption",
     "equation", "theorem", "experiment", "dataset", "model", "simulation",
-    "cad_model", "media", "worker", "session", "review",
+    "cad_model", "object_view", "media", "worker", "session", "review",
 })
 EDGE_TYPES = frozenset({
     "contains", "derived_from", "supports", "contradicts", "depends_on",

@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "feat/merlin-lean-proof-optimization-atlas-20261104"]
     paths-ignore:
       - "formal/**"
       - ".github/workflows/formal-qualification.yml"
@@ -13,6 +13,7 @@ on:
       - "tests/test_merlin_math_idea_validate.py"
   workflow_dispatch:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     paths-ignore:
       - "formal/**"
       - ".github/workflows/formal-qualification.yml"
@@ -21,6 +22,9 @@ on:
       - "docs/research/merlin-mathematical-idea-catalog.v1.json"
       - "scripts/merlin_math_idea_validate.py"
       - "tests/test_merlin_math_idea_validate.py"
+
+permissions:
+  contents: read
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref_name }}
@@ -163,9 +167,26 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for pattern in test_engineering_ir.py test_engineering_project_store.py test_cad_assembly.py test_coordinate_frames.py test_physical_connectivity.py test_wire_routing.py test_wire_qualification.py test_wiring_exports.py test_media_and_drafting.py test_route_evidence.py test_workload_leases.py test_workload_scheduler.py test_resource_probe.py test_lean_proof_receipt.py; do
+          for pattern in test_engineering_ir.py test_engineering_project_store.py test_cad_assembly.py test_coordinate_frames.py test_physical_connectivity.py test_wire_routing.py test_wire_qualification.py test_wiring_exports.py test_media_and_drafting.py test_route_evidence.py test_workload_leases.py test_workload_scheduler.py test_resource_probe.py test_lean_proof_receipt.py test_proof_observatory.py test_observatory_benchmarks.py test_theorem_dag.py test_observatory_benchmark_links.py test_observatory_graph_bridge.py; do
             python3 -m unittest discover -s tests -p "$pattern" -v
           done
+          mkdir -p artifacts
+          python3 -m merlin.observatory_benchmarks --commit "$GITHUB_SHA" --output artifacts/merlin-cross-domain-benchmark.json
+          python3 -m merlin.theorem_dag --output artifacts/merlin-theorem-dag.json
+          python3 -m merlin.observatory_linking --receipt artifacts/merlin-cross-domain-benchmark.json --dag artifacts/merlin-theorem-dag.json --database artifacts/merlin-proof-observatory.sqlite3 > artifacts/merlin-observatory-link-summary.json
+
+      - name: Publish cross-domain Observatory evidence
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-cross-domain-benchmark
+          path: |
+            artifacts/merlin-cross-domain-benchmark.json
+            artifacts/merlin-cross-domain-repeatability.json
+            artifacts/merlin-theorem-dag.json
+            artifacts/merlin-proof-observatory.sqlite3
+            artifacts/merlin-observatory-link-summary.json
+          retention-days: 14
 
       - name: CACE return bridge guardrails
         run: python3 tests/cace_return_bridge_smoke.py

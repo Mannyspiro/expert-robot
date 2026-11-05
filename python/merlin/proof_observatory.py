@@ -1,0 +1,412 @@
+"""Proof Strategy Observatory: immutable Lean attempt telemetry and cross-domain links.
+
+This module records observations; it does not run Lean, authenticate CI, or
+promote theorem status. A receipt is qualified only when its provenance and
+kernel/audit fields are supplied by a trusted external qualification workflow.
+"""
+from __future__ import annotations
+
+from dataclasses import asdict, dataclass
+import hashlib
+import json
+import re
+import sqlite3
+import statistics
+import time
+from pathlib import Path
+from typing import Iterable
+
+
+def canonical_json(value: object) -> str:
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+
+
+def sha256_text(value: str) -> str:
+    return hashlib.sha256(value.encode("utf-8")).hexdigest()
+
+
+@dataclass(frozen=True)
+class GoalKey:
+    theorem_id: str
+    statement_sha256: str
+    assumptions_sha256: str
+    domain: str
+    representation_ids: tuple[str, ...] = ()
+
+    def validate(self) -> None:
+        if not self.theorem_id.strip() or not self.domain.strip():
+            raise ValueError("theorem_id and domain are required")
+        for label, digest in (("statement", self.statement_sha256),
+                              ("assumptions", self.assumptions_sha256)):
+            if len(digest) != 64 or any(c not in "0123456789abcdef" for c in digest):
+                raise ValueError(f"{label}_sha256 must be lowercase SHA-256")
+
+
+@dataclass(frozen=True)
+class ProofAttempt:
+    attempt_id: str
+    goal: GoalKey
+    tactic_sequence: tuple[str, ...]
+    outcome: str
+    failure_stage: str | None
+    elapsed_ms: float
+    heartbeats: int
+    peak_memory_bytes: int | None
+    source_commit: str
+    source_sha256: str
+    lean_version: str
+    mathlib_revision: str
+    import_closure_sha256: str
+    kernel_checked: bool = False
+    axiom_audit_passed: bool = False
+    contains_sorry: bool = False
+    axiom_dependencies: tuple[str, ...] = ()
+    exact_target_declaration: bool = False
+    workflow_run_url: str | None = None
+
+    def validate(self) -> None:
+        self.goal.validate()
+        if not self.attempt_id.strip() or not self.tactic_sequence:
+            raise ValueError("attempt_id and tactic_sequence are required")
+        if self.outcome not in {"success", "failure", "timeout", "cancelled"}:
+            raise ValueError("unsupported attempt outcome")
+        if self.elapsed_ms < 0 or self.heartbeats < 0:
+            raise ValueError("elapsed_ms and heartbeats must be non-negative")
+        if len(self.source_commit) != 40 or any(c not in "0123456789abcdef" for c in self.source_commit):
+            raise ValueError("source_commit must be a lowercase Git SHA")
+        for label, digest in (("source_sha256", self.source_sha256),
+                              ("import_closure_sha256", self.import_closure_sha256)):
+            if len(digest) != 64 or any(c not in "0123456789abcdef" for c in digest):
+                raise ValueError(f"{label} must be lowercase SHA-256")
+        if not self.lean_version.strip() or not self.mathlib_revision.strip():
+            raise ValueError("Lean version and Mathlib revision are required")
+        if self.workflow_run_url is not None and not re.fullmatch(
+            r"https://github\.com/[^/]+/[^/]+/actions/runs/[1-9][0-9]*", self.workflow_run_url
+        ):
+            raise ValueError("workflow_run_url must be a GitHub Actions run URL")
+        if self.outcome == "success" and self.failure_stage is not None:
+            raise ValueError("successful attempts cannot have a failure_stage")
+
+    @property
+    def qualified(self) -> bool:
+        return (self.outcome == "success" and self.kernel_checked and
+                self.axiom_audit_passed and not self.contains_sorry and self.exact_target_declaration and
+                bool(self.workflow_run_url))
+
+
+@dataclass(frozen=True)
+class CrossDomainLink:
+    theorem_id: str
+    object_view_id: str
+    engineering_project_id: str
+    engineering_revision_sha256: str
+    relation: str
+    evidence_receipt_sha256: str
+
+    def validate(self) -> None:
+        required = (self.theorem_id, self.object_view_id, self.engineering_project_id, self.relation)
+        if any(not value.strip() for value in required):
+            raise ValueError("cross-domain link identifiers and relation are required")
+        for label, digest in (("engineering_revision_sha256", self.engineering_revision_sha256),
+                              ("evidence_receipt_sha256", self.evidence_receipt_sha256)):
+            if len(digest) != 64 or any(c not in "0123456789abcdef" for c in digest):
+                raise ValueError(f"{label} must be lowercase SHA-256")
+
+
+class ProofObservatory:
+    """Append-only SQLite store with a tamper-evident receipt hash chain."""
+
+    def __init__(self, path: str | Path):
+        self.path = str(path)
+        Path(self.path).parent.mkdir(parents=True, exist_ok=True)
+        self.db = sqlite3.connect(self.path)
+        self.db.execute("PRAGMA foreign_keys=ON")
+        self.db.execute("""
+            CREATE TABLE IF NOT EXISTS observations (
+              seq INTEGER PRIMARY KEY AUTOINCREMENT,
+              attempt_id TEXT NOT NULL UNIQUE,
+              payload TEXT NOT NULL,
+              payload_sha256 TEXT NOT NULL,
+              previous_sha256 TEXT NOT NULL,
+              chain_sha256 TEXT NOT NULL,
+              created_ns INTEGER NOT NULL
+            )
+        """)
+        self.db.execute("""
+            CREATE TABLE IF NOT EXISTS cross_domain_links (
+              link_id TEXT PRIMARY KEY,
+              payload TEXT NOT NULL,
+              payload_sha256 TEXT NOT NULL,
+              created_ns INTEGER NOT NULL
+            )
+        """)
+        self.db.execute("""
+            CREATE TABLE IF NOT EXISTS benchmark_receipts (
+              receipt_sha256 TEXT PRIMARY KEY,
+              source_commit TEXT NOT NULL,
+              payload TEXT NOT NULL,
+              created_ns INTEGER NOT NULL
+            )
+        """)
+        self.db.commit()
+
+    def close(self) -> None:
+        self.db.close()
+
+    def record_attempt(self, attempt: ProofAttempt) -> str:
+        attempt.validate()
+        payload = canonical_json(asdict(attempt))
+        payload_hash = sha256_text(payload)
+        previous = self.db.execute(
+            "SELECT chain_sha256 FROM observations ORDER BY seq DESC LIMIT 1"
+        ).fetchone()
+        previous_hash = previous[0] if previous else "0" * 64
+        chain_hash = sha256_text(previous_hash + payload_hash)
+        self.db.execute(
+            "INSERT INTO observations(attempt_id,payload,payload_sha256,previous_sha256,chain_sha256,created_ns) VALUES(?,?,?,?,?,?)",
+            (attempt.attempt_id, payload, payload_hash, previous_hash, chain_hash, time.time_ns()),
+        )
+        self.db.commit()
+        return chain_hash
+
+    def verify_chain(self) -> bool:
+        previous = "0" * 64
+        rows = self.db.execute(
+            "SELECT payload,payload_sha256,previous_sha256,chain_sha256 FROM observations ORDER BY seq"
+        ).fetchall()
+        for payload, payload_hash, stored_previous, stored_chain in rows:
+            actual_payload = sha256_text(payload)
+            actual_chain = sha256_text(previous + actual_payload)
+            if actual_payload != payload_hash or stored_previous != previous or actual_chain != stored_chain:
+                return False
+            previous = stored_chain
+        return True
+
+    def attempts(self, theorem_id: str | None = None) -> list[dict]:
+        rows = self.db.execute("SELECT payload FROM observations ORDER BY seq").fetchall()
+        values = [json.loads(row[0]) for row in rows]
+        return [item for item in values
+                if theorem_id is None or item["goal"]["theorem_id"] == theorem_id]
+
+    def record_link(self, link: CrossDomainLink) -> str:
+        link.validate()
+        payload = canonical_json(asdict(link))
+        digest = sha256_text(payload)
+        self.db.execute(
+            "INSERT OR IGNORE INTO cross_domain_links(link_id,payload,payload_sha256,created_ns) VALUES(?,?,?,?)",
+            (digest, payload, digest, time.time_ns()),
+        )
+        self.db.commit()
+        return digest
+
+    def record_benchmark_receipt(self, receipt: dict) -> str:
+        """Store a canonical cross-domain receipt after verifying its self-hash."""
+        if receipt.get("schema") != "merlin-cross-domain-benchmark-receipt-v1":
+            raise ValueError("unsupported benchmark receipt schema")
+        supplied = receipt.get("receipt_sha256")
+        payload = {key: value for key, value in receipt.items() if key != "receipt_sha256"}
+        actual = sha256_text(canonical_json(payload))
+        if supplied != actual:
+            raise ValueError("benchmark receipt SHA-256 mismatch")
+        commit = receipt.get("source_commit", "")
+        if not re.fullmatch(r"[0-9a-f]{40}", commit):
+            raise ValueError("benchmark receipt has invalid source commit")
+        if not isinstance(receipt.get("domains"), dict):
+            raise ValueError("benchmark receipt domains are required")
+        self.db.execute(
+            "INSERT OR IGNORE INTO benchmark_receipts(receipt_sha256,source_commit,payload,created_ns) VALUES(?,?,?,?)",
+            (supplied, commit, canonical_json(receipt), time.time_ns()),
+        )
+        self.db.commit()
+        return supplied
+
+    def record_benchmark_theorem_links(
+        self,
+        receipt: dict,
+        theorem_dag: dict,
+        engineering_project_id: str,
+        engineering_revision_sha256: str,
+        object_view_ids_by_domain: dict[str, Iterable[str]],
+        domain_to_registry_domains: dict[str, tuple[str, ...]] | None = None,
+    ) -> list[str]:
+        """Link benchmark receipts to explicit theorem-DAG nodes and Engineering IR revision."""
+        if theorem_dag.get("schema") != "merlin-theorem-dependency-dag-v1":
+            raise ValueError("unsupported theorem DAG schema")
+        dag_payload = {key: value for key, value in theorem_dag.items() if key != "dag_sha256"}
+        if theorem_dag.get("dag_sha256") != sha256_text(canonical_json(dag_payload)):
+            raise ValueError("theorem DAG SHA-256 mismatch")
+        if not engineering_project_id.strip():
+            raise ValueError("engineering_project_id is required")
+        mapping = domain_to_registry_domains or {
+            "geometry": ("geometry",),
+            "xmg": (),
+            "equation_atlas": (),
+            "cad": ("manufacturing", "electrical", "thermal"),
+        }
+        nodes = theorem_dag.get("nodes", [])
+        receipt_hash = self.record_benchmark_receipt(receipt)
+        created = []
+        for benchmark_domain, benchmark in receipt["domains"].items():
+            if not benchmark.get("passed"):
+                continue
+            object_ids = tuple(object_view_ids_by_domain.get(benchmark_domain, ()))
+            if not object_ids:
+                continue
+            for node in nodes:
+                tags = set(node.get("tags", []))
+                matches = node.get("domain") in mapping.get(benchmark_domain, ())
+                if benchmark_domain == "xmg":
+                    matches = "xmg" in tags or "glyph" in tags
+                elif benchmark_domain == "equation_atlas":
+                    matches = matches or "equation_atlas" in tags
+                if not matches:
+                    continue
+                for object_id in object_ids:
+                    link = CrossDomainLink(
+                        theorem_id=node["id"],
+                        object_view_id=object_id,
+                        engineering_project_id=engineering_project_id,
+                        engineering_revision_sha256=engineering_revision_sha256,
+                        relation="benchmark:" + benchmark_domain + ":dag:" + theorem_dag["dag_sha256"],
+                        evidence_receipt_sha256=receipt_hash,
+                    )
+                    created.append(self.record_link(link))
+        return created
+
+    def links_for_theorem(self, theorem_id: str) -> list[dict]:
+        rows = self.db.execute("SELECT payload FROM cross_domain_links ORDER BY created_ns").fetchall()
+        return [value for (payload,) in rows
+                if (value := json.loads(payload))["theorem_id"] == theorem_id]
+
+
+def rank_strategies(attempts: Iterable[ProofAttempt], minimum_qualified: int = 3) -> list[dict]:
+    """Rank only repeated qualified strategies; include failures in reliability denominator."""
+    if minimum_qualified < 1:
+        raise ValueError("minimum_qualified must be at least one")
+    groups: dict[tuple[tuple[str, ...], str, str, str, tuple[str, ...], str, str], list[ProofAttempt]] = {}
+    for attempt in attempts:
+        attempt.validate()
+        group_key = (
+            attempt.tactic_sequence,
+            attempt.goal.domain,
+            attempt.goal.statement_sha256,
+            attempt.goal.assumptions_sha256,
+            attempt.goal.representation_ids,
+            attempt.lean_version,
+            attempt.mathlib_revision,
+        )
+        groups.setdefault(group_key, []).append(attempt)
+    ranked = []
+    for group_key, rows in groups.items():
+        successful = [row for row in rows if row.qualified]
+        if len(successful) < minimum_qualified:
+            continue
+        tactics = group_key[0]
+        ranked.append({
+            "tactics": list(tactics),
+            "qualified_observations": len(successful),
+            "total_observations": len(rows),
+            "success_rate": len(successful) / len(rows),
+            "median_heartbeats": statistics.median(row.heartbeats for row in successful),
+            "median_elapsed_ms": statistics.median(row.elapsed_ms for row in successful),
+            "domain": group_key[1],
+            "statement_sha256": group_key[2],
+            "assumptions_sha256": group_key[3],
+            "representation_ids": list(group_key[4]),
+            "lean_version": group_key[5],
+            "mathlib_revision": group_key[6],
+        })
+    return sorted(ranked, key=lambda row: (
+        -row["success_rate"], row["median_heartbeats"], row["median_elapsed_ms"]
+    ))
+def object_view_engineering_links(
+    theorem_id: str,
+    object_view_ids: Iterable[str],
+    engineering_project_id: str,
+    engineering_revision_sha256: str,
+    relation: str,
+    evidence_receipt_sha256: str,
+) -> tuple[CrossDomainLink, ...]:
+    """Create explicit links; callers must supply real IDs and revision/evidence hashes."""
+    links = tuple(CrossDomainLink(
+        theorem_id=theorem_id,
+        object_view_id=object_id,
+        engineering_project_id=engineering_project_id,
+        engineering_revision_sha256=engineering_revision_sha256,
+        relation=relation,
+        evidence_receipt_sha256=evidence_receipt_sha256,
+    ) for object_id in object_view_ids)
+    for link in links:
+        link.validate()
+    return links
+
+def link_representation_frames_to_engineering_project(
+    theorem_id: str,
+    representation_graph: object,
+    frame_ids: Iterable[str],
+    engineering_project_id: str,
+    engineering_project: object,
+    relation: str,
+    evidence_receipt_sha256: str,
+) -> tuple[CrossDomainLink, ...]:
+    """Bind real representation-graph frame IDs to the canonical Engineering IR hash."""
+    frames = getattr(representation_graph, "frames", None)
+    if not isinstance(frames, dict):
+        raise TypeError("representation_graph must expose a frames mapping")
+    selected = tuple(frame_ids)
+    missing = sorted(set(selected) - set(frames))
+    if missing:
+        raise KeyError("unknown representation frame IDs: " + ", ".join(missing))
+    from merlin.engineering_project_store import project_hash
+    revision_hash = project_hash(engineering_project)
+    return object_view_engineering_links(
+        theorem_id, selected, engineering_project_id, revision_hash,
+        relation, evidence_receipt_sha256,
+    )
+
+def proof_attempt_from_qualified_receipt(
+    receipt: object,
+    goal: GoalKey,
+    tactic_sequence: tuple[str, ...],
+    *,
+    lean_version: str,
+    mathlib_revision: str,
+    import_closure_sha256: str,
+    elapsed_ms: float,
+    heartbeats: int,
+    peak_memory_bytes: int | None,
+    no_sorry: bool,
+    exact_target_declaration: bool,
+) -> ProofAttempt:
+    """Adapt a validated Merlin LeanProofReceipt without inventing missing telemetry."""
+    validate = getattr(receipt, "validate", None)
+    if not callable(validate):
+        raise TypeError("receipt must expose validate()")
+    validate()
+    if getattr(receipt, "theorem", None) != goal.theorem_id:
+        raise ValueError("receipt theorem does not match the GoalKey theorem_id")
+    attempt = ProofAttempt(
+        attempt_id=sha256_text(
+            str(receipt.workflow_run_id) + ":" + receipt.theorem + ":" + receipt.source_sha256
+        ),
+        goal=goal,
+        tactic_sequence=tactic_sequence,
+        outcome="success",
+        failure_stage=None,
+        elapsed_ms=elapsed_ms,
+        heartbeats=heartbeats,
+        peak_memory_bytes=peak_memory_bytes,
+        source_commit=receipt.commit_sha,
+        source_sha256=receipt.source_sha256,
+        lean_version=lean_version,
+        mathlib_revision=mathlib_revision,
+        import_closure_sha256=import_closure_sha256,
+        kernel_checked=receipt.theorem_compiled,
+        axiom_audit_passed=receipt.axiom_audit_passed,
+        contains_sorry=not no_sorry,
+        axiom_dependencies=tuple(receipt.axioms),
+        exact_target_declaration=exact_target_declaration,
+        workflow_run_url=receipt.workflow_run_url,
+    )
+    attempt.validate()
+    return attempt
