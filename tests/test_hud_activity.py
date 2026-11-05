@@ -29,6 +29,15 @@ class HudActivityTests(unittest.TestCase):
         self.assertEqual(view["evidence_refs"], ["artifact:proof-candidate"])
         self.assertTrue(view["visualization_policy"]["private_reasoning_is_not_exposed"])
 
+    def test_hermes_task_progress_updates_current_research_phase(self):
+        hud = HudActivityProjector()
+        hud.ingest(event("progress-1", "task.progress",
+                         {"agent_id": "hermes", "stage": "experiment",
+                          "summary": "Numerical sweep running"}, source="hermes"))
+        view = hud.snapshot()
+        self.assertEqual(view["phase"], "experiment")
+        self.assertEqual(view["timeline"][0]["summary"], "Numerical sweep running")
+
     def test_duplicate_event_is_idempotent(self):
         hud = HudActivityProjector()
         item = event("same", "task.started")
