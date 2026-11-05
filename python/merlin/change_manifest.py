@@ -84,7 +84,10 @@ def build_change_manifest(before: dict[str, Any], after: dict[str, Any],
     return manifest
 
 
-def validate_change_manifest(manifest: dict[str, Any]) -> None:
+def validate_change_manifest(
+    manifest: dict[str, Any], *,
+    approval_validator=None,
+) -> None:
     """Fail closed on missing dispositions, unapproved deletion, or hash mismatch."""
     if manifest.get("schema") != "merlin-change-manifest/1":
         raise ValueError("unsupported change manifest schema")
@@ -101,7 +104,8 @@ def validate_change_manifest(manifest: dict[str, Any]) -> None:
         if item.get("change_kind") == "deleted":
             if (item["disposition"] != "approved-retirement"
                     or not item.get("approval_ref")
-                    or item.get("approval_verified") is not True):
+                    or not callable(approval_validator)
+                    or approval_validator(item["approval_ref"], item) is not True):
                 raise ValueError(f"deletion lacks independently validated approval; preserve artifact: {path}")
         if item.get("change_kind") == "modified" and item["disposition"] not in {
             "superseded-recoverably", "approved-retirement"
