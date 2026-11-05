@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "feat/reuse-refactored-fishstick"
+      - "feat/hermes-routing-eval-avrea-discovery-20261105"
     paths:
       - ".github/workflows/external-free-runner-bridge.yml"
       - ".github/workflows/cace-return-pr.yml"
@@ -254,7 +255,7 @@ jobs:
                       if pathlib.Path("formal/lakefile.lean").exists():
                           raise SystemExit("executable formal/lakefile.lean is forbidden in external runner lane")
                       print("formal source safety: PASS")
-                      PY
+                    PY
                       if [ "${PIPESTATUS[0]}" -ne 0 ]; then
                         record_failure 41
                       fi
@@ -284,7 +285,7 @@ jobs:
                             if item.get("name") == "mathlib"
                         )
                         print(package["rev"])
-                        PY
+                    PY
                       )"
 
                       test "$toolchain" = "leanprover/lean4:v4.34.0"
