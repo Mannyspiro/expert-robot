@@ -133,9 +133,10 @@ jobs:
           git fetch origin "$BRIDGE_BASE_BRANCH:refs/remotes/origin/$BRIDGE_BASE_BRANCH"
           git checkout -b "$REQUEST_BRANCH" "refs/remotes/origin/$BRIDGE_BASE_BRANCH"
 
-          # A request branch is immutable and unique to this workflow attempt.
-          # The CACE workflow already listens on cace-request/**. Never rewrite
-          # the shared executor branch or delete another request's evidence.
+          # CACE's canonical workflow remains on the executor base branch.
+          # Each request branch is immutable and unique to this workflow attempt.
+          # The CACE workflow listens on cace-request/**. Never rewrite the shared
+          # executor branch or delete another request's evidence.
           mkdir -p bridge
           cp "$ARCHIVE" bridge/expert-robot-source.tar.gz
 
