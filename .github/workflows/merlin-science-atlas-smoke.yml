@@ -43,6 +43,7 @@ jobs:
           python3 -m json.tool research/science/discipline-taxonomy.v1.json >/dev/null
           python3 -m json.tool research/science/source-registry.v1.json >/dev/null
           python3 -m json.tool research/science/ingestion-contract.v1.json >/dev/null
+          python3 -m json.tool research/science/video-transcript-index.v1.json >/dev/null
           python3 tests/merlin_science_atlas_smoke.py
           python3 tests/merlin_google_books_contract_smoke.py
           python3 tests/merlin_science_intake_smoke.py
