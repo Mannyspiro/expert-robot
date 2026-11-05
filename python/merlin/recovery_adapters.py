@@ -82,7 +82,7 @@ class GitRecoveryAdapter:
         for record in listing.split(b"\0"):
             if not record:
                 continue
-            metadata, raw_path = record.split(b"\\t", 1)
+            metadata, raw_path = record.split(b"\t", 1)
             mode, object_type, object_id = metadata.decode("ascii").split(" ")
             path = raw_path.decode("utf-8", errors="surrogateescape")
             safe_path = _safe_relative(path)
