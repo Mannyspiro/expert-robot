@@ -42,6 +42,15 @@ def run_cace(cace_root, experiment, timeout=300, seed=0):
           "experiment_sha256":sha256_file(source),"report_sha256":hashlib.sha256(
           json.dumps(data,sort_keys=True,separators=(",",":")).encode()).hexdigest()}
 
+def verify_attestation(cace_root, attestation_path, timeout=60):
+    root=Path(cace_root).resolve(strict=True); source=Path(attestation_path).resolve(strict=True)
+    command=["cace-attest","verify",str(source)]
+    env={"PATH":os.environ.get("PATH",""),"HOME":str(root),"PYTHONNOUSERSITE":"1","LANG":"C.UTF-8"}
+    proc=subprocess.run(command,cwd=root,env=env,capture_output=True,text=True,timeout=timeout,check=False)
+    return {"attestation_sha256":sha256_file(source),"verification_result":"passed" if proc.returncode==0 else "failed",
+      "exit_code":proc.returncode,"stdout_tail":proc.stdout[-4000:],"stderr_tail":proc.stderr[-4000:],
+      "authority_effect":"none"}
+
 def persist_receipt(database, artifact_sha256, run, verifier_version):
     receipt={"receipt_version":"1.0","subject_sha256":artifact_sha256,"verifier_id":"CACE Studio CLI",
       "verifier_version":verifier_version,"result":run["result"],"evidence_class":"cace_executed_verification",
