@@ -51,11 +51,15 @@ class HudActivityWSGI:
                 if node is None:
                     return self._respond(start_response, "404 Not Found",
                                          {"error": "node_not_found"})
-                return self._respond(start_response, "200 OK", {
-                    "schema": "merlin-hud-node/1",
-                    "node": asdict(node),
-                    "neighbors": self.read_api.graph_store.neighbors(node_id),
-                })
+                detail = {"schema": "merlin-hud-node/1",
+                          "node": asdict(node),
+                          "neighbors": self.read_api.graph_store.neighbors(node_id)}
+                if node.node_type == "artifact":
+                    project_id = node.payload.get("project_id")
+                    logical_path = node.payload.get("logical_path")
+                    if isinstance(project_id, str) and isinstance(logical_path, str):
+                        detail["artifact"] = self.read_api.artifact(project_id, logical_path)
+                return self._respond(start_response, "200 OK", detail)
             if self.consumer is not None:
                 for _ in range(self.max_drain_per_request):
                     result = self.consumer.drain_one()
