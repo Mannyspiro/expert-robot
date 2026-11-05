@@ -7,7 +7,7 @@ from pathlib import Path
 def validate_matrix(m):
     if not isinstance(m,list) or len(m)!=4 or any(not isinstance(r,list) or len(r)!=4 for r in m):
         raise ValueError("transform must be a 4x4 matrix")
-    if any(not isinstance(x,(int,float)) or not math.isfinite(x) for row in m for x in row):
+    if any(not isinstance(x,(int,float)) or isinstance(x,bool) or not math.isfinite(x) for row in m for x in row):
         raise ValueError("transform entries must be finite numbers")
     if any(abs(m[3][i]-(1.0 if i==3 else 0.0))>1e-9 for i in range(4)):
         raise ValueError("transform must be affine with homogeneous final row [0,0,0,1]")
@@ -33,7 +33,7 @@ def multiply(a,b):
 
 def transform_point(m,p):
     validate_matrix(m)
-    if len(p)!=3 or any(not isinstance(x,(int,float)) or not math.isfinite(x) for x in p):
+    if len(p)!=3 or any(not isinstance(x,(int,float)) or isinstance(x,bool) or not math.isfinite(x) for x in p):
         raise ValueError("point must contain three finite coordinates")
     v=[*p,1.0]; out=[sum(m[i][j]*v[j] for j in range(4)) for i in range(4)]
     if abs(out[3])<1e-12: raise ValueError("point mapped to infinity")
@@ -43,14 +43,16 @@ def validate_simulation(meta):
     required=("solver","solver_version","model_sha256","input_sha256","units","parameters","boundary_conditions")
     if any(k not in meta for k in required): raise ValueError("simulation metadata missing required fields")
     for k in ("model_sha256","input_sha256"):
-        if len(meta[k])!=64 or any(c not in "0123456789abcdef" for c in meta[k]): raise ValueError("invalid "+k)
+        if not isinstance(meta[k],str) or len(meta[k])!=64 or any(c not in "0123456789abcdef" for c in meta[k]): raise ValueError("invalid "+k)
     return {**meta,"metadata_version":"1.0","status":"not_verified"}
 
 def validate_wiring(connections):
-    pin_nets={}; nets={}
+    pin_nets={}; nets={}; connection_ids=set()
     for c in connections:
         for k in ("connection_id","from_node","from_pin","to_node","to_pin","net_name"):
             if not isinstance(c.get(k),str) or not c[k].strip(): raise ValueError("missing wiring field "+k)
+        if c["connection_id"] in connection_ids: raise ValueError("duplicate connection_id")
+        connection_ids.add(c["connection_id"])
         for key in ((c["from_node"],c["from_pin"]),(c["to_node"],c["to_pin"])):
             if key in pin_nets and pin_nets[key]!=c["net_name"]:
                 raise ValueError("a component pin cannot belong to multiple nets")
