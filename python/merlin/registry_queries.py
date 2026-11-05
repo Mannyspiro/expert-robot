@@ -32,6 +32,10 @@ class MerlinReadAPI:
             raise ValueError("offset must be a non-negative integer")
         return limit, offset
 
+    def projects(self, *, limit: int = 100, offset: int = 0) -> dict[str, Any]:
+        limit, offset = self._page(limit, offset)
+        return self.registry.list_projects(limit=limit, offset=offset)
+
     def project(self, project_id: str) -> dict[str, Any]:
         return self.registry.inventory(project_id)
 
