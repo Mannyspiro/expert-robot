@@ -73,7 +73,14 @@ class HudActivityWSGITests(unittest.TestCase):
         node = GraphNode("claim:1", "claim", "Claim", {"text": "test"})
         graph = SimpleNamespace(
             get_node=lambda node_id: node if node_id == "claim:1" else None,
-            neighbors=lambda node_id: [{"relation": "supports"}],
+            neighbors=lambda node_id: [{
+                "source_id": "claim:1",
+                "target_id": "hypothesis:1",
+                "relation": "supports",
+                "payload": {},
+                "source_label": "Claim",
+                "target_label": "Hypothesis",
+            }],
         )
         app = HudActivityWSGI(HudActivityProjector(),
                               read_api=SimpleNamespace(graph_store=graph))
