@@ -61,14 +61,16 @@ class LearnerModelTests(unittest.TestCase):
     def test_hermes_consumes_and_acknowledges_learner_attempt(self):
         outbox=MerlinEventOutbox(self.root/"outbox.sqlite")
         e=self.event("a1","s1")
+        e["problem_id"]="rotation-coordinate-90"
+        e["response"]={"x":0,"y":1}
         outbox.enqueue("learning-attempt:a1","merlin.learning.attempt",e,now=1)
-        graph={"rotation":{"prerequisites":[],"dimensions":["conceptual_explanation"]}}
-        lessons=[{"lesson_id":"rotation-lesson","idea_id":"rotation"}]
+        graph={"MATH-REP-001":{"prerequisites":[],"dimensions":["procedure"]}}
+        lessons=[{"lesson_id":"rotation-lesson","idea_id":"MATH-REP-001"}]
         router=HermesLearningRouter(outbox,self.store,graph,lessons)
         result=router.run_once()
         self.assertEqual(result["state"],"acknowledged")
-        self.assertEqual(self.store.estimate("learner-test","rotation",
-          "conceptual_explanation").observations,1)
+        self.assertEqual(self.store.estimate("learner-test","MATH-REP-001",
+          "procedure").observations,1)
 
 
 if __name__=="__main__": unittest.main()
