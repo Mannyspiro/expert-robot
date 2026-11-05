@@ -60,7 +60,7 @@ def main() -> int:
           "schema_version":1,
           "record_type":"merlin.science.ideonomy-candidate",
           "dossier_id":dossier.get("dossier_id"),
-          "source_digest_sha256":digest,
+          "source_digest_sha256":digest,\n          "engineering_plan_path":str(plan_path),\n          "engineering_plan_sha256":hashlib.sha256(json.dumps(plan,ensure_ascii=False,sort_keys=True,separators=(",",":")).encode()).hexdigest(),
           "source_citations":dossier.get("citations",[]),
           "runtime_role":a.role,
           "runtime_exit_code":result.returncode,
