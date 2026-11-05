@@ -11,7 +11,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Mapping
 
-from merlin.change_manifest import create_recovery_snapshot
+from merlin.change_manifest import (
+    build_change_manifest, create_recovery_snapshot, validate_change_manifest,
+)
 from merlin.hermes_outbox import HermesOutboxConsumer
 from merlin.recovery_adapters import (
     GitRecoveryAdapter, RegistryRecoveryAdapter, ZipRecoveryAdapter,
@@ -192,12 +194,25 @@ class RecoveryCoordinator:
             if cace_result.get("verification_status") == "verified":
                 status = "quarantined_independently_verified"
 
+        after_snapshot = create_recovery_snapshot(
+            self.registry, project_id, actor="post-recovery:" + payload["task_id"]
+        )
+        change_manifest = build_change_manifest(
+            snapshot["manifest"], after_snapshot["manifest"],
+            operation_id=payload["task_id"], actor=payload["actor"],
+            reason="recover exact bytes into quarantine without replacing canonical path",
+        )
+        validate_change_manifest(change_manifest)
+
         receipt = {
             "schema": "merlin-recovery-result/1",
             "task_id": payload["task_id"], "status": status,
             "source": source, **result,
             "pre_recovery_snapshot": snapshot["recovery_id"],
             "pre_recovery_manifest_sha256": snapshot["manifest_digest"],
+            "post_recovery_snapshot": after_snapshot["recovery_id"],
+            "post_recovery_manifest_sha256": after_snapshot["manifest_digest"],
+            "change_manifest": change_manifest,
             "cace_receipt_sha256": (cace_result or {}).get("receipt_artifact_sha256"),
             "promotion_authority": False,
         }
