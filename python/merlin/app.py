@@ -24,7 +24,7 @@ from .council_runtime import run_local_council
 from .simulation import MerlinSimulation
 from .telemetry import normalize_event, telemetry_view, record_runtime_event
 from .telemetry_graph import build_telemetry_graph
-from .learner_model import LearnerStore, select_next_lesson, HermesLearningRouter
+from .learner_model import LearnerStore, select_next_lesson, HermesLearningRouter, score_attempt_event
 from .event_outbox import MerlinEventOutbox
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
@@ -408,16 +408,18 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     raise ValueError("request body must be a JSON object")
 
                 if path == "/api/learning/attempt":
-                    result = learner_store.record_attempt(data)
+                    scored_event = score_attempt_event(data)
+                    result = learner_store.record_attempt(scored_event)
                     if learning_outbox is not None:
-                        learning_outbox.enqueue("learning-attempt:" + str(data.get("attempt_id", "")),
-                            "merlin.learning.attempt", data)
+                        learning_outbox.enqueue("learning-attempt:" + str(scored_event.get("attempt_id", "")),
+                            "merlin.learning.attempt", scored_event)
                         if learning_router is not None:
                             learning_router.run_once()
-                    store.append(path, {"attempt_id": data.get("attempt_id"),
-                                        "learner_id": data.get("learner_id")},
-                                 {"state": result.get("state"), "idea_id": data.get("idea_id"),
-                                  "dimension": data.get("dimension")})
+                    store.append(path, {"attempt_id": scored_event.get("attempt_id"),
+                                        "learner_id": scored_event.get("learner_id")},
+                                 {"state": result.get("state"), "idea_id": scored_event.get("idea_id"),
+                                  "dimension": scored_event.get("dimension"),
+                                  "scoring_source": scored_event.get("scoring_source")})
                     self._send(202, {"schema": "merlin-learning-attempt/1", "accepted": True, **result})
                     return
                 if path == "/api/telemetry/ingest":
