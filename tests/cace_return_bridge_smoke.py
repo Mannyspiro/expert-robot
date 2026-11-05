@@ -32,7 +32,7 @@ assert "permissions:\n                contents: read" in qualify
 assert "persist-credentials: false" in qualify
 assert "EXPERT_ROBOT_SSH_PRIVATE_KEY" not in qualify
 assert "Prepare Expert Robot reverse deploy key" in publisher
-assert "Return passed evidence to Expert Robot" in publisher
+assert "Return qualification evidence to Expert Robot" in publisher
 assert 'return_branch="cace-return/$REQUEST_ID"' in publisher
 assert 'git add .cace-return.json "$evidence_dir"' in publisher
 assert '"promotion_authority": False' in publisher
