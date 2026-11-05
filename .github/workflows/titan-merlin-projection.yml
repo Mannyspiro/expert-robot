@@ -1,0 +1,43 @@
+name: Titan Merlin Research Projection
+
+on:
+  push:
+    branches:
+      - "feat/titan-pqc-foundation-20261105"
+    paths:
+      - "scripts/export_titan_merlin_projection.py"
+      - "tests/titan_merlin_projection_smoke.py"
+      - "docs/titan/evidence/**"
+      - "config/titan/provider-lock.v1.json"
+      - ".github/workflows/titan-merlin-projection.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: titan-merlin-projection
+  cancel-in-progress: true
+
+jobs:
+  projection:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Export and validate read-only dashboard projection
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 tests/titan_merlin_projection_smoke.py
+          python3 scripts/export_titan_merlin_projection.py --output titan-merlin-projection.json
+          python3 -m json.tool titan-merlin-projection.json >/dev/null
+      - name: Upload dashboard projection
+        uses: actions/upload-artifact@v4
+        with:
+          name: titan-merlin-projection-${{ github.run_id }}
+          path: titan-merlin-projection.json
+          if-no-files-found: error
+          retention-days: 30
