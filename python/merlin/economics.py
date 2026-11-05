@@ -107,8 +107,11 @@ class LocalDemandEvent:
         if len(self.source_sha256) != 64 or any(c not in "0123456789abcdef" for c in self.source_sha256.lower()):
             raise ValueError("source_sha256 must be a 64-character hexadecimal digest")
         for amount in (self.proposed_amount, self.authorized_amount):
-            if amount is not None and (not math.isfinite(amount) or amount < 0):
-                raise ValueError("event amounts must be finite and non-negative")
+            if amount is not None and (
+                isinstance(amount, bool) or not isinstance(amount, (int, float))
+                or not math.isfinite(amount) or amount < 0
+            ):
+                raise ValueError("event amounts must be numeric, finite and non-negative")
 
     @property
     def evidence_label(self) -> str:
