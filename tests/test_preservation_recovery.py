@@ -85,6 +85,34 @@ class PreservationRecoveryTests(unittest.TestCase):
         self.assertEqual(result["confidence"], "exact")
         self.assertEqual(self.registry.get_artifact_bytes(digest), data)
 
+
+    def test_git_tree_manifest_detects_deletion_and_blocks_retirement(self):
+        repo = self.root / "tree-repo"
+        repo.mkdir()
+        subprocess.run(["git", "init", str(repo)], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(repo), "config", "user.email", "test@example.invalid"], check=True)
+        subprocess.run(["git", "-C", str(repo), "config", "user.name", "Test"], check=True)
+        (repo / "keep-me.txt").write_bytes(b"valuable work")
+        subprocess.run(["git", "-C", str(repo), "add", "keep-me.txt"], check=True)
+        subprocess.run(["git", "-C", str(repo), "commit", "-m", "add work"], check=True, capture_output=True)
+        first = subprocess.run(["git", "-C", str(repo), "rev-parse", "HEAD"],
+                               check=True, capture_output=True, text=True).stdout.strip()
+        (repo / "keep-me.txt").unlink()
+        subprocess.run(["git", "-C", str(repo), "add", "-A"], check=True)
+        subprocess.run(["git", "-C", str(repo), "commit", "-m", "remove work"], check=True, capture_output=True)
+        second = subprocess.run(["git", "-C", str(repo), "rev-parse", "HEAD"],
+                                check=True, capture_output=True, text=True).stdout.strip()
+        adapter = GitRecoveryAdapter(repo)
+        before = adapter.tree_manifest(first)
+        after = adapter.tree_manifest(second)
+        self.assertEqual(before["artifacts"][0]["sha256"], hashlib.sha256(b"valuable work").hexdigest())
+        manifest = build_change_manifest(
+            before, after, operation_id="tree-diff", actor="test", reason="test deletion audit")
+        deleted = [item for item in manifest["items"] if item["change_kind"] == "deleted"]
+        self.assertEqual([item["path"] for item in deleted], ["keep-me.txt"])
+        with self.assertRaisesRegex(ValueError, "independently validated approval"):
+            validate_change_manifest(manifest)
+
     def test_hermes_recovery_queue_uses_approval_lease_and_quarantine(self):
         outbox = MerlinEventOutbox(self.root / "outbox.sqlite3")
         data = b"source bytes to recover"
