@@ -40,6 +40,9 @@ jobs:
             | tee artifacts/pr-test-evidence/environment.txt
 
           start_utc="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          python -m pip install numpy==2.2.6 sympy==1.14.0 jsonschema==4.25.1 pytest==8.4.2 \
+            > artifacts/pr-test-evidence/dependency-install.log 2>&1
+          dependency_status=$?
           python -m compileall -q python tests \
             > >(tee artifacts/pr-test-evidence/compileall.log) \
             2> >(tee -a artifacts/pr-test-evidence/compileall.log >&2)
@@ -66,19 +69,20 @@ jobs:
               "runner": os.environ.get("RUNNER_NAME"),
               "python": sys.version,
               "commands": [
+                  {"command": "python -m pip install numpy==2.2.6 sympy==1.14.0 jsonschema==4.25.1 pytest==8.4.2", "exit_code": dependency_status},
                   {"command": "python -m compileall -q python tests", "exit_code": compile_status},
                   {"command": "python -m unittest discover -s tests -v", "exit_code": unittest_status},
               ],
-              "start_utc": sys.argv[3],
-              "end_utc": sys.argv[4],
-              "overall": "passed" if compile_status == 0 and unittest_status == 0 else "failed",
+              "start_utc": sys.argv[4],
+              "end_utc": sys.argv[5],
+              "overall": "passed" if dependency_status == 0 and compile_status == 0 and unittest_status == 0 else "failed",
           }
           with open("artifacts/pr-test-evidence/manifest.json", "w", encoding="utf-8") as f:
               json.dump(result, f, indent=2, sort_keys=True)
               f.write("\n")
           PY
 
-          if [ "$compile_status" -ne 0 ] || [ "$unittest_status" -ne 0 ]; then
+          if [ "$dependency_status" -ne 0 ] || [ "$compile_status" -ne 0 ] || [ "$unittest_status" -ne 0 ]; then
             exit 1
           fi
 
@@ -98,10 +102,10 @@ jobs:
           {
             echo "## PR test evidence"
             echo
-            echo "- Repository: `$GITHUB_REPOSITORY`"
-            echo "- Exact commit: `$GITHUB_SHA`"
+            echo "- Repository: $GITHUB_REPOSITORY"
+            echo "- Exact commit: $GITHUB_SHA"
             echo "- Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID (attempt $GITHUB_RUN_ATTEMPT)"
-            echo "- Evidence artifact: `pr-test-evidence-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT`"
+            echo "- Evidence artifact: pr-test-evidence-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
             if [ -f artifacts/pr-test-evidence/result.txt ]; then
               echo
               echo '~~~text'
