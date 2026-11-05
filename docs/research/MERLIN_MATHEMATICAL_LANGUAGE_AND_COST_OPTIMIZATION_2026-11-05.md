@@ -54,7 +54,7 @@ The current Expert Robot branch already contains substantial foundations:
 
 ### Why this ranking
 
-**The DAG plus typed IR is the most practical starting point.** It avoids repeating identical subexpressions, gives every downstream tool a stable contract, and supports deterministic serialization and hashing.
+**The DAG plus typed IR is the most practical starting point.** It avoids repeating identical subexpressions, gives every downstream tool a stable contract, and supports deterministic serialization and hashing. Recent symbolic-computation work on hash-consing reports workload-dependent memory and runtime gains, including up to 2× lower memory and up to 100× faster numerical evaluation in selected large models; these are external results, not Merlin performance claims. Hash-consing can also cost extra lookups for short-lived nodes, so Merlin must benchmark its own workload mix.
 
 **E-graphs are the most promising optimization layer**, because they can retain many equivalent expressions and choose a low-cost form later. But unconstrained equality saturation can consume enormous memory: published work reports multi-gigabyte growth and failed searches on complex optimization tasks. Merlin must therefore use cost-guided rules, budgets, sketches, and early extraction—not unbounded saturation.
 
