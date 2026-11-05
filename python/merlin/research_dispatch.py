@@ -36,15 +36,23 @@ class ResearchTask:
                             ("approval_ref", self.approval_ref), ("lease_ref", self.lease_ref)):
             if not isinstance(value, str) or not value.strip() or len(value) > 2000:
                 raise ValueError(name + " must be a non-empty bounded string")
+        if not isinstance(self.metrics, ResearchMetrics):
+            raise ValueError("metrics must be ResearchMetrics")
+        if not isinstance(self.constraints, dict) or any(
+            not isinstance(key, str) or not isinstance(value, bool)
+            for key, value in self.constraints.items()
+        ):
+            raise ValueError("constraints must map string names to booleans")
         required = {"cpu_cores", "memory_bytes", "max_wall_seconds", "compute_budget_units"}
         if not isinstance(self.resource_budget, dict) or not required.issubset(self.resource_budget):
             raise ValueError("resource_budget is missing required limits")
-        for key in required:
-            value = self.resource_budget[key]
+        for key, value in self.resource_budget.items():
             if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
                 raise ValueError("resource budget values must be positive integers")
         if any(not isinstance(ref, str) or not ref.strip() for ref in self.evidence_refs):
             raise ValueError("evidence_refs must be non-empty strings")
+        if self.experiment_spec is not None and not isinstance(self.experiment_spec, dict):
+            raise ValueError("experiment_spec must be an object")
 
 
 class ResearchDispatchCoordinator:
