@@ -34,6 +34,15 @@ class MerlinReadAPITests(unittest.TestCase):
         self.assertTrue(artifact["verified"])
         self.assertEqual(artifact["content_bytes"], len(b"proof candidate"))
 
+    def test_project_index_is_bounded_and_uses_canonical_registry(self):
+        self.registry.register_project("other", "Other project")
+        page = self.api.projects(limit=1, offset=0)
+        self.assertEqual(page["schema"], "merlin-project-index/1")
+        self.assertEqual(page["total"], 2)
+        self.assertEqual(len(page["items"]), 1)
+        self.assertEqual(page["items"][0]["project_id"], "other")
+        self.assertEqual(self.api.projects(limit=10)["total"], 2)
+
     def test_hypothesis_and_graph_queries_are_read_only_views(self):
         self.assertEqual(self.api.hypothesis("H-1")["status"], "proposed")
         page = self.api.list_hypotheses(limit=1, offset=0)
