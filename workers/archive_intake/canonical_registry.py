@@ -46,6 +46,10 @@ def initialize(path):
           event_id TEXT PRIMARY KEY, event_json TEXT NOT NULL, state TEXT NOT NULL,
           attempts INTEGER NOT NULL DEFAULT 0, lease_owner TEXT, lease_until TEXT,
           created_at TEXT NOT NULL, acknowledged_at TEXT, acknowledgement_json TEXT);
+        CREATE TABLE IF NOT EXISTS approval_records(
+          approval_id TEXT PRIMARY KEY, task_contract_sha256 TEXT NOT NULL,
+          approved_by TEXT NOT NULL, approval_source TEXT NOT NULL,
+          approved_at TEXT NOT NULL, approval_note TEXT NOT NULL DEFAULT '');
         CREATE TABLE IF NOT EXISTS avrea_tasks(
           task_id TEXT PRIMARY KEY, contract_sha256 TEXT NOT NULL, approval_id TEXT NOT NULL,
           state TEXT NOT NULL, task_json TEXT NOT NULL, result_json TEXT,
@@ -100,7 +104,7 @@ def attach_intake(path, project_id, intake_id):
 def query_projects(path, limit=100, offset=0):
     with connect(path) as db:
         rows=db.execute("""SELECT p.*,COUNT(DISTINCT pi.intake_id) intake_count,
-          COUNT(DISTINCT a.path) artifact_count FROM projects p
+          COUNT(DISTINCT a.intake_id || ':' || a.path) artifact_count FROM projects p
           LEFT JOIN project_intakes pi ON pi.project_id=p.project_id
           LEFT JOIN artifacts a ON a.intake_id=pi.intake_id
           GROUP BY p.project_id ORDER BY p.created_at DESC LIMIT ? OFFSET ?""",(limit,offset)).fetchall()
