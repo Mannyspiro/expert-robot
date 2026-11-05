@@ -168,7 +168,10 @@ class AvreaAdapter:
                 kind="task.completed", run_id=job_id, task_id=task_id,
                 payload={"agent_id": runner_id, "status": result["status"],
                          "activity": "runner results collected",
-                         "artifact_count": len(saved)},
+                         "artifact_count": len(saved), "exit_code": exit_code,
+                         "worker_image_digest": worker_image_digest,
+                         "tool_versions": dict(tool_versions),
+                         "result_receipt_sha256": result["receipt_sha256"]},
                 evidence_refs=["sha256:" + result["receipt_sha256"]],
             )
             self.emit_event(
