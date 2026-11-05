@@ -14,17 +14,19 @@ from merlin.hud_activity import HudActivityProjector, HudOutboxConsumer
 class HudActivityWSGI:
     def __init__(self, projector: HudActivityProjector,
                  consumer: HudOutboxConsumer | None = None,
-                 *, max_drain_per_request: int = 100):
+                 *, read_api: Any | None = None, max_drain_per_request: int = 100):
         if not isinstance(projector, HudActivityProjector):
             raise ValueError("projector must be a HudActivityProjector")
         if isinstance(max_drain_per_request, bool) or not isinstance(max_drain_per_request, int) or not 1 <= max_drain_per_request <= 1000:
             raise ValueError("max_drain_per_request must be between 1 and 1000")
         self.projector = projector
         self.consumer = consumer
+        self.read_api = read_api
         self.max_drain_per_request = max_drain_per_request
 
     def __call__(self, environ: dict[str, Any], start_response: Callable[..., Any]):
-        if environ.get("PATH_INFO") != "/api/hud/activity":
+        path = environ.get("PATH_INFO")
+        if path not in {"/api/hud/activity", "/api/hud/graph", "/api/hud/node"}:
             return self._respond(start_response, "404 Not Found",
                                  {"error": "not_found"})
         if environ.get("REQUEST_METHOD", "GET").upper() != "GET":
@@ -32,6 +34,28 @@ class HudActivityWSGI:
                                  {"error": "method_not_allowed"},
                                  extra=[("Allow", "GET")])
         try:
+            if path in {"/api/hud/graph", "/api/hud/node"}:
+                if self.read_api is None:
+                    return self._respond(start_response, "503 Service Unavailable",
+                                         {"error": "graph_query_not_configured"})
+                if path == "/api/hud/graph":
+                    return self._respond(start_response, "200 OK", self.read_api.graph())
+                from urllib.parse import parse_qs
+                from dataclasses import asdict
+                params = parse_qs(environ.get("QUERY_STRING", ""))
+                node_id = (params.get("node_id") or [""])[0]
+                if not node_id or len(node_id) > 160:
+                    return self._respond(start_response, "400 Bad Request",
+                                         {"error": "node_id_required"})
+                node = self.read_api.graph_store.get_node(node_id)
+                if node is None:
+                    return self._respond(start_response, "404 Not Found",
+                                         {"error": "node_not_found"})
+                return self._respond(start_response, "200 OK", {
+                    "schema": "merlin-hud-node/1",
+                    "node": asdict(node),
+                    "neighbors": self.read_api.graph_store.neighbors(node_id),
+                })
             if self.consumer is not None:
                 for _ in range(self.max_drain_per_request):
                     result = self.consumer.drain_one()
