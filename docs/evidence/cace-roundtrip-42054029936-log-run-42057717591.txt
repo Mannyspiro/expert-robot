@@ -6,6 +6,8 @@ Linux cace-oci-a1 6.12.0-204.92.4.4.3.el9uek.aarch64 #2 SMP Wed Aug  5 12:21:14 
                total        used        free      shared  buff/cache   available
 Mem:            10Gi       1.4Gi       2.6Gi       135Mi       7.0Gi       9.2Gi
 Swap:          4.0Gi       220Mi       3.8Gi
+archive safety: PASS
+formal source safety: PASS
 === compute policy ===
 compute policy guardrails: PASS
 exit_code=0
