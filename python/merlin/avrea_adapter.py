@@ -134,8 +134,7 @@ class AvreaAdapter:
             observed["runner_id"] = runner_id
             observed["job_id"] = job_id
             self.emit_event(kind="resource.sample", run_id=job_id, task_id=task_id,
-                            payload=observed,
-                            duration_ms=response.get("duration_ms"))
+                            payload=observed)
         self.emit_event(
             kind="task.completed", run_id=job_id, task_id=task_id,
             payload={"agent_id": runner_id, "status": result["status"],
