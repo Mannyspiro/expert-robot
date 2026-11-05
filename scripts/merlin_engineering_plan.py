@@ -40,6 +40,16 @@ def validate(plan):
             if not methods.get(key): errors.append("research_methods."+key+" must be addressed")
     elif not methods.get("not_applicable_rationale"):
         errors.append("research_methods.not_applicable_rationale is required when methods are not applicable")
+    if scope.get("primary_domain") in ("mathematics","mathematical-research") and methods.get("applicable"):
+        if not methods.get("ideonomy",{}).get("ranked_candidates"):
+            errors.append("mathematics research requires ranked ideonomy candidates")
+        logic=methods.get("logic_lenses",{})
+        if not logic.get("ranked_compositions"):
+            errors.append("mathematics research requires ranked logic compositions")
+        if not logic.get("finite_truth_table"):
+            errors.append("mathematics research requires a finite n-valued truth-table sample")
+        if not logic.get("fuzzy_operator_examples"):
+            errors.append("mathematics research requires fuzzy operator examples")
     budget=plan.get("resource_budget",{})
     for key in ("max_runtime_seconds","max_memory_mb","max_disk_bytes","max_input_bytes"):
         if not isinstance(budget.get(key),int) or budget[key] <= 0: errors.append("resource_budget."+key+" must be a positive integer")
