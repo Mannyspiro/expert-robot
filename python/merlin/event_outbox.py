@@ -37,12 +37,18 @@ class MerlinEventOutbox:
               attempts INTEGER NOT NULL DEFAULT 0, available_at REAL NOT NULL,
               lease_owner TEXT, lease_token TEXT, lease_expires_at REAL,
               last_error TEXT, created_at REAL NOT NULL, updated_at REAL NOT NULL,
-              acknowledged_at REAL);
+              acknowledged_at REAL, result_json TEXT);
             CREATE INDEX IF NOT EXISTS outbox_ready
               ON event_outbox(state, available_at, created_at);
             CREATE INDEX IF NOT EXISTS outbox_expiry
               ON event_outbox(state, lease_expires_at);
             """)
+            columns = {row[1] for row in self._connect().execute(
+                "PRAGMA table_info(event_outbox)"
+            )}
+            if "result_json" not in columns:
+                with self._connect() as db:
+                    db.execute("ALTER TABLE event_outbox ADD COLUMN result_json TEXT")
 
     def _connect(self):
         db = sqlite3.connect(self.path, timeout=30)
@@ -60,6 +66,8 @@ class MerlinEventOutbox:
     def _row(row: sqlite3.Row) -> dict[str, Any]:
         result = dict(row)
         result["payload"] = json.loads(result.pop("payload_json"))
+        encoded_result = result.pop("result_json", None)
+        result["result"] = json.loads(encoded_result) if encoded_result else None
         return result
 
     def enqueue(self, idempotency_key: str, topic: str, payload: Mapping[str, Any],
@@ -119,8 +127,10 @@ class MerlinEventOutbox:
             raise LeaseConflict("operation requires the current unexpired lease")
 
     def acknowledge(self, event_id: str, worker_id: str, lease_token: str,
-                    *, now: float | None = None) -> dict[str, Any]:
+                    *, result: Mapping[str, Any] | None = None,
+                    now: float | None = None) -> dict[str, Any]:
         timestamp = time.time() if now is None else float(now)
+        result_json = None if result is None else _canonical(dict(result))
         with self._connect() as db:
             db.execute("BEGIN IMMEDIATE")
             row = db.execute("SELECT * FROM event_outbox WHERE event_id=?", (event_id,)).fetchone()
@@ -130,8 +140,8 @@ class MerlinEventOutbox:
                 return self._row(row)
             self._require_lease(row,worker_id,lease_token,timestamp)
             db.execute("""UPDATE event_outbox SET state='acknowledged',acknowledged_at=?,
-                lease_owner=NULL,lease_token=NULL,lease_expires_at=NULL,updated_at=?
-                WHERE event_id=?""", (timestamp,timestamp,event_id))
+                lease_owner=NULL,lease_token=NULL,lease_expires_at=NULL,updated_at=?,result_json=?
+                WHERE event_id=?""", (timestamp,timestamp,result_json,event_id))
             return self._row(db.execute(
                 "SELECT * FROM event_outbox WHERE event_id=?", (event_id,)).fetchone())
 
