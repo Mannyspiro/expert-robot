@@ -217,7 +217,8 @@ def hermes_learning_handler(store: LearnerStore, graph: Mapping[str,Any],
         topic=event.get("topic")
         payload=event.get("payload",{})
         if topic==ATTEMPT_TOPIC:
-            result=store.record_attempt(payload)
+            scored=score_attempt_event(payload)
+            result=store.record_attempt(scored)
             return {"kind":"learner.attempt.recorded",**result}
         if topic=="merlin.learning.recommendation":
             learner=payload.get("learner_id")
