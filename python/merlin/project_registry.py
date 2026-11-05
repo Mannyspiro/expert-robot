@@ -79,6 +79,25 @@ class MerlinRegistry:
               metadata_json TEXT NOT NULL,
               PRIMARY KEY(source_id, relation, target_id));
             """)
+            columns = {row["name"] for row in db.execute("PRAGMA table_info(project_artifacts)")}
+            if "generation" not in columns:
+                db.execute("ALTER TABLE project_artifacts ADD COLUMN generation INTEGER NOT NULL DEFAULT 1")
+            version_columns = {row["name"] for row in db.execute("PRAGMA table_info(artifact_versions)")}
+            if "pre_change_recovery_id" not in version_columns:
+                db.execute("ALTER TABLE artifact_versions ADD COLUMN pre_change_recovery_id TEXT")
+            # Migrate pre-versioning heads once. Existing blob bytes are not modified.
+            db.execute("""
+              INSERT INTO artifact_versions(
+                version_id, project_id, logical_path, digest, parent_version_id,
+                generation, actor, operation_id, created_at)
+              SELECT 'legacy:' || pa.project_id || ':' || pa.logical_path,
+                     pa.project_id, pa.logical_path, pa.digest, NULL,
+                     COALESCE(pa.generation, 1), 'migration', 'legacy-import', ?
+              FROM project_artifacts pa
+              WHERE NOT EXISTS (
+                SELECT 1 FROM artifact_versions av
+                WHERE av.project_id=pa.project_id AND av.logical_path=pa.logical_path)
+            """, (time.time(),))
             db.executescript("""
             CREATE TRIGGER IF NOT EXISTS artifact_blobs_no_update
               BEFORE UPDATE ON artifacts
@@ -109,25 +128,6 @@ class MerlinRegistry:
                 OR NEW.digest = OLD.digest
               BEGIN SELECT RAISE(ABORT, 'artifact head update requires a one-step version advance'); END;
             """)
-            columns = {row["name"] for row in db.execute("PRAGMA table_info(project_artifacts)")}
-            if "generation" not in columns:
-                db.execute("ALTER TABLE project_artifacts ADD COLUMN generation INTEGER NOT NULL DEFAULT 1")
-            version_columns = {row["name"] for row in db.execute("PRAGMA table_info(artifact_versions)")}
-            if "pre_change_recovery_id" not in version_columns:
-                db.execute("ALTER TABLE artifact_versions ADD COLUMN pre_change_recovery_id TEXT")
-            # Migrate pre-versioning heads once. Existing blob bytes are not modified.
-            db.execute("""
-              INSERT INTO artifact_versions(
-                version_id, project_id, logical_path, digest, parent_version_id,
-                generation, actor, operation_id, created_at)
-              SELECT 'legacy:' || pa.project_id || ':' || pa.logical_path,
-                     pa.project_id, pa.logical_path, pa.digest, NULL,
-                     COALESCE(pa.generation, 1), 'migration', 'legacy-import', ?
-              FROM project_artifacts pa
-              WHERE NOT EXISTS (
-                SELECT 1 FROM artifact_versions av
-                WHERE av.project_id=pa.project_id AND av.logical_path=pa.logical_path)
-            """, (time.time(),))
 
     @staticmethod
     def _validate_path(logical_path: str) -> str:
