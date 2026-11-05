@@ -133,7 +133,7 @@ function renderGraph(){
 function escapeHtml(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 const num=(v,d=0)=>typeof v==="number"&&Number.isFinite(v)?v:d;
 const pt=(v)=>Array.isArray(v)?{x:num(v[0]),y:num(v[1])}:{x:num(v?.x),y:num(v?.y)};
-function cadParts(node,workspace){const p=node.payload||{},cad=workspace.cad||p.cad||p.model||p;let rows=cad.parts||p.parts||cad.geometry||p.geometry||[];if(!Array.isArray(rows)&&Array.isArray(rows.objects))rows=rows.objects;if(!Array.isArray(rows)&&rows&&typeof rows==="object"&&(rows.size_mm||rows.size))rows=[rows];return Array.isArray(rows)?rows.filter(x=>x&&typeof x==="object").slice(0,100):[];}
+function cadParts(node,workspace){const p=node.payload||{},cad=workspace.cad||p.cad||p.model||p;let rows=cad.parts||p.parts||cad.geometry||p.geometry||cad.objects||p.objects||[];if(!Array.isArray(rows)&&Array.isArray(rows.objects))rows=rows.objects;if(!Array.isArray(rows)&&rows&&typeof rows==="object"&&(rows.size_mm||rows.size||rows.mesh))rows=[rows];return Array.isArray(rows)?rows.filter(x=>x&&typeof x==="object").slice(0,100):[];}
 function cadSvg(parts,rotation,zoom){
  const W=600,H=290,rx=rotation[0],ry=rotation[1],objects=[];let remainingVertices=20000,remainingFaces=40000;
  parts.forEach((part,i)=>{
