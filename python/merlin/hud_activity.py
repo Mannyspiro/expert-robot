@@ -60,10 +60,11 @@ class HudActivityProjector:
         normalized = normalize_event(event)
         if normalized["event_id"] in self._seen:
             return False
+        if len(self._events) == self.max_events:
+            evicted = self._events.popleft()
+            self._seen.discard(evicted["event_id"])
         self._events.append(normalized)
         self._seen.add(normalized["event_id"])
-        while len(self._seen) > self.max_events:
-            self._seen.discard(self._events[0]["event_id"])
         return True
 
     def ingest_many(self, events: Iterable[Mapping[str, Any]]) -> int:
