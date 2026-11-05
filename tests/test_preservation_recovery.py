@@ -35,7 +35,7 @@ class PreservationRecoveryTests(unittest.TestCase):
         before = {"artifacts": [{"path": "keep.txt", "sha256": "a" * 64}]}
         after = {"artifacts": []}
         manifest = build_change_manifest(before, after, operation_id="op", actor="test", reason="test diff")
-        with self.assertRaisesRegex(ValueError, "not approved"):
+        with self.assertRaisesRegex(ValueError, "independently validated approval"):
             validate_change_manifest(manifest)
 
     def test_change_manifest_accepts_recoverable_modification(self):
