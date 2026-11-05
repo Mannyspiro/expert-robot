@@ -145,5 +145,111 @@ class HermesStageHandlerTests(unittest.TestCase):
             handlers["research"]({"stage": "research"}, Context())
 
 
+    def test_proof_search_routes_exact_claim_source_through_lean_then_cace(self):
+        source = "theorem target : True := by trivial"
+        claim = {
+            "claim_id": "theorem-target",
+            "formal_statement": source,
+            "lean_source": source,
+            "assumptions": ["none"],
+            "falsifiability": ["Lean rejects malformed source"],
+            "source_ids": ["paper:target"],
+            "compilation_status": "compile_failed",
+        }
+        lean_calls = []
+        cace_calls = []
+
+        def proof_executor(task, context):
+            return {
+                "artifact_bytes": b"proof-search transcript",
+                "summary": "Proof candidate emitted.",
+                "metadata": {"theorem_claims": [claim]},
+            }
+
+        def lean_dispatcher(**request):
+            lean_calls.append(request)
+            return {"compilation_status": "compiled"}
+
+        def theorem_verifier(**request):
+            cace_calls.append(request)
+            return {
+                "verification_status": "verified",
+                "artifact_sha256": request["artifact_sha256"],
+                "receipt_artifact_sha256": "e" * 64,
+                "promotion_authority": False,
+            }
+
+        handlers = build_hermes_stage_handlers(
+            evidence_recorder=self.recorder,
+            project_id="merlin",
+            research_executor=lambda task, context: {
+                "artifact_bytes": b"research", "summary": "Research complete."
+            },
+            numerical_experiment_executor=lambda task, context: {
+                "artifact_bytes": b"experiment", "summary": "Experiment complete."
+            },
+            proof_search_executor=proof_executor,
+            artifact_verifier=fake_cace_verifier,
+            repository="owner/repo",
+            commit_sha="a" * 40,
+            requester_id="merlin-worker",
+            lean_dispatcher=lean_dispatcher,
+            lean_tool_version="Lean 4.34.0",
+            theorem_verifier=theorem_verifier,
+        )
+        result = handlers["proof_search"]({"stage": "proof_search"}, Context())
+
+        self.assertEqual(len(lean_calls), 1)
+        self.assertEqual(lean_calls[0]["source"], source)
+        self.assertEqual(lean_calls[0]["tool_version"], "Lean 4.34.0")
+        dispatch_receipt = result["metadata"]["lean_dispatch_receipts"][0]
+        self.assertEqual(dispatch_receipt["compilation_status"], "compiled")
+        self.assertEqual(dispatch_receipt["verification_status"], "verified")
+        self.assertEqual(lean_calls[0]["source_sha256"], dispatch_receipt["source_sha256"])
+        self.assertTrue(self.recorder.registry.verify_artifact(dispatch_receipt["source_sha256"]))
+        self.assertEqual(len(cace_calls), 1)
+        self.assertEqual(cace_calls[0]["artifact_sha256"], dispatch_receipt["source_sha256"])
+        self.assertEqual(result["cace_theorem_receipts"][0]["verification_status"], "verified")
+        self.assertIn("sha256:" + dispatch_receipt["source_sha256"], result["evidence_refs"])
+        self.assertFalse(result["promotion_authority"])
+
+    def test_unconfigured_lean_dispatch_ignores_executor_compilation_claim(self):
+        claim = {
+            "claim_id": "blocked-claim",
+            "formal_statement": "theorem blocked : True := by trivial",
+            "lean_source": "theorem blocked : True := by sorry",
+            "assumptions": ["none"],
+            "falsifiability": ["Lean rejects unfinished proof"],
+            "source_ids": ["paper:blocked"],
+            "compilation_status": "compiled",
+        }
+        theorem_calls = []
+        handlers = build_hermes_stage_handlers(
+            evidence_recorder=self.recorder,
+            project_id="merlin",
+            research_executor=lambda task, context: {
+                "artifact_bytes": b"research", "summary": "Research complete."
+            },
+            numerical_experiment_executor=lambda task, context: {
+                "artifact_bytes": b"experiment", "summary": "Experiment complete."
+            },
+            proof_search_executor=lambda task, context: {
+                "artifact_bytes": b"proof-search transcript",
+                "summary": "Unfinished proof candidate emitted.",
+                "metadata": {"theorem_claims": [claim]},
+            },
+            artifact_verifier=fake_cace_verifier,
+            repository="owner/repo",
+            commit_sha="a" * 40,
+            requester_id="merlin-worker",
+            theorem_verifier=lambda **request: theorem_calls.append(request),
+        )
+        result = handlers["proof_search"]({"stage": "proof_search"}, Context())
+        receipt = result["metadata"]["lean_dispatch_receipts"][0]
+        self.assertEqual(receipt["compilation_status"], "not_dispatched")
+        self.assertEqual(receipt["verification_status"], "blocked_missing_lean_dispatcher")
+        self.assertEqual(theorem_calls, [])
+
+
 if __name__ == "__main__":
     unittest.main()
