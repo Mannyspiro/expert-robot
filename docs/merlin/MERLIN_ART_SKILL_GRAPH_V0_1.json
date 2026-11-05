@@ -86,7 +86,8 @@
         "negative_space",
         "proportion"
       ],
-      "prerequisites": []
+      "prerequisites": [],
+      "lesson_id": "art-math-observation-warmup-v0.1"
     },
     {
       "id": "ART-COMP-001",
@@ -124,9 +125,8 @@
         "variation",
         "visual_coherence"
       ],
-      "prerequisites": [
-        "ART-COMP-001"
-      ]
+      "prerequisites": [],
+      "lesson_id": "art-math-symmetry-studio-v0.1"
     },
     {
       "id": "ART-CONTEXT-001",
