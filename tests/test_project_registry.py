@@ -250,6 +250,52 @@ class MerlinRegistryTests(unittest.TestCase):
         with self.assertRaises((FileNotFoundError, RuntimeError)):
             MerlinRegistry(root)
 
+    def test_migration_rolls_back_schema_and_history_when_history_insert_is_interrupted(self):
+        root = Path(self.temp.name) / "migration-interruption"
+        root.mkdir(parents=True)
+        blob = b"migration rollback bytes"
+        digest = __import__("hashlib").sha256(blob).hexdigest()
+        relative = f"blobs/sha256/{digest[:2]}/{digest[2:]}"
+        target = root / relative
+        target.parent.mkdir(parents=True)
+        target.write_bytes(blob)
+        database = root / "merlin.sqlite3"
+        with sqlite3.connect(database) as db:
+            db.executescript("""
+                CREATE TABLE projects(project_id TEXT PRIMARY KEY, name TEXT NOT NULL,
+                  version TEXT NOT NULL, metadata_json TEXT NOT NULL, created_at REAL NOT NULL);
+                CREATE TABLE artifacts(digest TEXT PRIMARY KEY, media_type TEXT NOT NULL,
+                  size_bytes INTEGER NOT NULL, relative_path TEXT NOT NULL, created_at REAL NOT NULL);
+                CREATE TABLE project_artifacts(project_id TEXT NOT NULL, digest TEXT NOT NULL,
+                  logical_path TEXT NOT NULL, PRIMARY KEY(project_id, logical_path));
+                CREATE TABLE artifact_versions(version_id TEXT PRIMARY KEY,
+                  project_id TEXT NOT NULL, logical_path TEXT NOT NULL, digest TEXT NOT NULL,
+                  parent_version_id TEXT, generation INTEGER NOT NULL, actor TEXT NOT NULL,
+                  operation_id TEXT NOT NULL, created_at REAL NOT NULL);
+            """)
+            db.execute("INSERT INTO projects VALUES(?,?,?,?,?)", ("p", "P", "0.1", "{}", 1.0))
+            db.execute("INSERT INTO artifacts VALUES(?,?,?,?,?)",
+                       (digest, "application/octet-stream", len(blob), relative, 1.0))
+            db.execute("INSERT INTO project_artifacts VALUES(?,?,?)", ("p", digest, "legacy.bin"))
+            db.execute("""
+                CREATE TRIGGER interrupt_legacy_history BEFORE INSERT ON artifact_versions
+                BEGIN SELECT RAISE(ABORT, 'injected migration interruption'); END
+            """)
+        with self.assertRaisesRegex(sqlite3.IntegrityError, "injected migration interruption"):
+            MerlinRegistry(root)
+        with sqlite3.connect(database) as db:
+            head_columns = {row[1] for row in db.execute("PRAGMA table_info(project_artifacts)")}
+            version_columns = {row[1] for row in db.execute("PRAGMA table_info(artifact_versions)")}
+            self.assertNotIn("generation", head_columns)
+            self.assertNotIn("pre_change_recovery_id", version_columns)
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM artifact_versions").fetchone()[0], 0)
+            db.execute("DROP TRIGGER interrupt_legacy_history")
+        migrated = MerlinRegistry(root)
+        head = migrated.get_artifact_head("p", "legacy.bin")
+        self.assertEqual(head["digest"], digest)
+        self.assertEqual(head["generation"], 1)
+        self.assertEqual(migrated.artifact_history("p", "legacy.bin")[0]["actor"], "migration")
+
     def test_relation_identity_is_idempotent_and_immutable(self):
         self.registry.relate("p", "contains", "artifact:x", {"scope": "v1"})
         self.registry.relate("p", "contains", "artifact:x", {"scope": "v1"})
