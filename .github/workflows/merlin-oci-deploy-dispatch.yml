@@ -9,6 +9,7 @@ on:
       - ".github/workflows/merlin-oci-deploy-dispatch.yml"
 
 permissions:
+  actions: read
   contents: read
 
 concurrency:
@@ -25,6 +26,36 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Download pinned FreeCAD and ngspice evidence artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: merlin-engineering-integration
+          run-id: 42069240351
+          github-token: \${{ secrets.GITHUB_TOKEN }}
+          path: \${{ runner.temp }}/merlin-evidence
+
+      - name: Independently re-check imported engineering evidence on Avrea
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s "$RUNNER_TEMP/merlin-evidence/manifest.json"
+          PYTHONPATH="python:." python3 scripts/import_merlin_engineering_evidence.py \
+            --evidence-dir "$RUNNER_TEMP/merlin-evidence" \
+            --data-dir "$RUNNER_TEMP/merlin-import-smoke" \
+            --source-commit 51f0c8a8977a3095e2719d6759c91397c2e23352 \
+            --run-id 42069240351 --artifact-id 13433224922 \
+            --artifact-sha256 14fe49cca132007ce4f1fd9e1e3507bb82f5c7e693f556916c4ea35786a374e8 \
+            > "$RUNNER_TEMP/merlin-import-smoke.json"
+          python3 -m json.tool "$RUNNER_TEMP/merlin-import-smoke.json" >/dev/null
+          python3 - "$RUNNER_TEMP/merlin-import-smoke.json" <<'PY'
+          import json,sys
+          result=json.load(open(sys.argv[1],encoding="utf-8"))
+          assert result["status"]=="pass"
+          assert result["independent_cace_verification"] is False
+          assert result["promotion_authority"] is False
+          assert result["graph_node_count"] >= 8
+          PY
+
       - name: Validate request and run focused Python regressions
         shell: bash
         run: |
@@ -35,7 +66,7 @@ jobs:
           req=json.load(open("config/merlin_deploy_request.json", encoding="utf-8"))
           assert req.get("deploy") is True
           assert req.get("target") == "oci-preview"
-          assert req.get("exposure") == "read-only"
+          assert req.get("exposure") == "bounded-interactive"
           assert req.get("authority") == "qualification-only"
           assert req.get("promotion_authority") is False
           assert req.get("public_host") == "merlin.129.146.160.46.nip.io"
