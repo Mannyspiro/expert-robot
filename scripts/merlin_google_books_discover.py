@@ -6,15 +6,40 @@ download book content. Public-domain/full-view flags are recorded as Google's
 catalog claims and must be cross-checked against the source edition and local law.
 """
 from __future__ import annotations
-import argparse, json, time, urllib.parse, urllib.request
+import argparse, json, time, urllib.parse, urllib.request, urllib.error
 from datetime import datetime, timezone
 
 API="https://www.googleapis.com/books/v1/volumes"
 def discover(query: str, max_results: int=10) -> dict:
     params=urllib.parse.urlencode({"q":query,"maxResults":max(1,min(max_results,40)),"printType":"books"})
     req=urllib.request.Request(API+"?"+params,headers={"User-Agent":"MerlinResearchAtlas/0.1 (public catalog discovery)"})
-    with urllib.request.urlopen(req,timeout=20) as response:
-        payload=json.load(response)
+    payload=None
+    last_error=None
+    for attempt in range(3):
+        try:
+            with urllib.request.urlopen(req,timeout=20) as response:
+                payload=json.load(response)
+            break
+        except urllib.error.HTTPError as exc:
+            last_error={"http_status":exc.code,"reason":str(exc.reason)}
+            if exc.code not in (429,500,502,503,504):
+                break
+            time.sleep(min(2 ** attempt, 4))
+        except (urllib.error.URLError, TimeoutError) as exc:
+            last_error={"network_error":str(exc)}
+            time.sleep(min(2 ** attempt, 4))
+    if payload is None:
+        return {
+            "schema_version":1,
+            "source":"Google Books API",
+            "query":query,
+            "retrieved_at":datetime.now(timezone.utc).isoformat(),
+            "discovery_status":"temporarily_unavailable",
+            "error":last_error,
+            "total_items":0,
+            "items":[],
+            "limitations":["The public API request did not return data during this run. Retry later; no book text was fetched or inferred."]
+        }
     items=[]
     for item in payload.get("items",[]):
         info=item.get("volumeInfo",{})
@@ -44,6 +69,7 @@ def discover(query: str, max_results: int=10) -> dict:
         "source":"Google Books API",
         "query":query,
         "retrieved_at":datetime.now(timezone.utc).isoformat(),
+        "discovery_status":"ok",
         "total_items":payload.get("totalItems",0),
         "items":items,
         "limitations":[
