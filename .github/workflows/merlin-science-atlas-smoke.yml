@@ -7,6 +7,9 @@ on:
       - "research/science/**"
       - "docs/MERLIN_SCIENCE_HISTORY_PHILOSOPHY_PLATFORM.md"
       - "tests/merlin_science_atlas_smoke.py"
+      - "tests/merlin_google_books_contract_smoke.py"
+      - "scripts/merlin_google_books_discover.py"
+      - "research/science/reading-notes/**"
       - ".github/workflows/merlin-science-atlas-smoke.yml"
   workflow_dispatch:
 permissions:
@@ -28,3 +31,4 @@ jobs:
           python3 -m json.tool research/science/source-registry.v1.json >/dev/null
           python3 -m json.tool research/science/ingestion-contract.v1.json >/dev/null
           python3 tests/merlin_science_atlas_smoke.py
+          python3 tests/merlin_google_books_contract_smoke.py
