@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "policy_id": "merlin.research-governance.v1",
+  "principle": "Skepticism is a repeatable method, not a personality trait. Every build and research task must expose its plan, assumptions, evidence, uncertainty, scope and verification.",
+  "non_bypassable_gates": [
+    "engineering_plan_before_creation",
+    "domain_and_subsystem_scope_check",
+    "requirements_traceability",
+    "inductive_deductive_abductive_reasoning_record",
+    "assumption_and_bias_ledger",
+    "disconfirmation_and_alternative_explanations",
+    "resource_and_storage_budget",
+    "verification_and_rollback"
+  ],
+  "engineering_lifecycle": [
+    "intake_and_classify",
+    "define_problem_and_non_goals",
+    "map_domains_subsystems_and_interfaces",
+    "elicit_requirements_and_acceptance_tests",
+    "record_assumptions_constraints_and_dependencies",
+    "compare_design_alternatives",
+    "select_architecture_with_tradeoffs",
+    "set_compute_memory_disk_network_and_time_budgets",
+    "implement_small_reversible_change",
+    "test_unit_integration_property_and_regression",
+    "independent_review_and_evidence_capture",
+    "release_or_reject_with_rollback_plan",
+    "monitor_outcomes_and_update_the_plan"
+  ],
+  "reasoning_protocol": {
+    "induction": "Infer patterns from observations or cases; record sample selection, coverage, exceptions, uncertainty and limits on generalization. Never present a finite sample as deductive proof.",
+    "deduction": "Derive consequences from explicit premises and rules; expose each premise, rule, intermediate step and validity condition. A valid deduction does not establish that its premises are true.",
+    "abduction": "Generate competing explanations for observations; compare explanatory coverage, simplicity, prior plausibility and novel predictions. Do not confuse best available explanation with established fact.",
+    "falsification": "State what observation, counterexample, failed prediction or proof obligation would count against the claim. Prefer tests that distinguish competing hypotheses.",
+    "mathematical_proof": "Separate definitions, axioms, lemmas, inference rules and theorem statements; record proof checker, version, imports and axiom dependencies.",
+    "empirical_research": "Predefine variables, operational definitions, sampling, controls, confounders, measurement error, analysis plan and replication criteria where applicable."
+  },
+  "epistemic_labels": ["direct_observation", "measurement", "source_report", "derived_result", "theorem_proved", "model_result", "hypothesis", "interpretation", "analogy", "conjecture", "unknown", "contradicted"],
+  "bias_and_fallacy_review": {
+    "requirement": "For each material argument or research design, identify plausible biases and fallacies, explain the mechanism, state whether evidence shows they occurred, and propose a discriminating check. A checklist item is not proof of bias.",
+    "cognitive_biases": ["confirmation_bias", "selection_bias", "survivorship_bias", "availability_heuristic", "anchoring", "framing_effect", "base_rate_neglect", "motivated_reasoning", "overconfidence", "hindsight_bias", "halo_effect", "authority_bias", "ingroup_bias", "sunk_cost_fallacy", "status_quo_bias", "fundamental_attribution_error", "publication_bias", "recency_bias", "measurement_reactivity"],
+    "research_design_biases": ["sampling_bias", "nonresponse_bias", "measurement_bias", "observer_expectancy", "instrument_calibration_bias", "confounding", "omitted_variable_bias", "p_hacking", "multiple_comparisons", "data_leakage", "spectrum_bias", "sponsorship_or_funding_bias", "construct_validity_failure", "external_validity_failure", "historical_presentism", "translation_or_transcription_bias"],
+    "logical_fallacies": ["affirming_the_consequent", "denying_the_antecedent", "false_dilemma", "straw_man", "ad_hominem", "appeal_to_authority", "appeal_to_popularity", "circular_reasoning", "begging_the_question", "equivocation", "composition_division", "post_hoc_ergo_propter_hoc", "slippery_slope", "hasty_generalization", "anecdotal_evidence", "false_analogy", "special_pleading", "moving_the_goalposts", "argument_from_ignorance", "texas_sharpshooter"],
+    "checks": ["steelman_competing_views", "search_for_disconfirming_evidence", "inspect_denominators_and_base_rates", "check_missing_data_and_exclusions", "separate_correlation_from_causation", "check_measurement_and_construct_validity", "test_sensitivity_to_assumptions", "seek_independent_replication", "audit_data_leakage_and_multiple_testing", "record_conflicts_and_incentives", "check_historical_context_and_anachronism"]
+  },
+  "domain_scope_rules": {
+    "every_item_has_one_primary_domain": true,
+    "allow_multiple_secondary_domains": true,
+    "require_explicit_relationship_for_cross_domain_items": true,
+    "speculative_fields_must_remain_speculative_until_reviewed": true,
+    "historical_and_superseded_items_must_not_be_rendered_as_current_consensus": true,
+    "unknown_scope_action": "quarantine_for_human_review",
+    "never_auto_reassign_on_name_similarity_alone": true
+  },
+  "storage_policy": {
+    "default_max_single_source_bytes": 10485760,
+    "default_max_transcript_bytes": 2097152,
+    "default_max_total_staging_bytes": 268435456,
+    "default_max_staged_records": 5000,
+    "deduplicate_by": ["canonical_url", "content_sha256"],
+    "store_full_text_only_when_rights_verified": true,
+    "prefer_metadata_and_source_spans_over_duplicate_full_copies": true,
+    "compress_archival_text": true,
+    "never_cache_video_or_audio_media_by_default": true,
+    "never_delete_canonical_or_verified_records_automatically": true,
+    "prune_only_rebuildable_cache_and_expired_temporary_artifacts": true,
+    "stop_ingestion_before_disk_reserve_is_breached": true,
+    "default_free_disk_reserve_bytes": 1073741824
+  },
+  "youtube_policy": {
+    "discovery": "metadata_only_by_default",
+    "transcript_sources": ["creator_authorized_caption_export", "user_supplied_vtt_or_srt", "explicitly_open_licensed_transcript"],
+    "store_video_media": false,
+    "store_timestamps_and_source_url": true,
+    "record_language_caption_type_and_rights": true,
+    "arbitrary_public_video_transcript_api": "not_assumed_available",
+    "no_auth_or_access_control_bypass": true
+  },
+  "promotion": {
+    "new_outputs_default_status": "candidate_only",
+    "require_human_or_independent_domain_review": true,
+    "formal_claims_require_proof_artifact_and_axiom_audit": true,
+    "empirical_claims_require_method_data_provenance_and_replication_path": true,
+    "authority_delta": 0
+  }
+}
