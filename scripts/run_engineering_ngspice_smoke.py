@@ -142,7 +142,7 @@ def main() -> int:
         result_payload.get("log", ""),
     )
     if measurement is None:
-        raise RuntimeError("ngspice did not emit the expected v_mid operating-point measurement")
+        raise RuntimeError("ngspice did not emit the expected MID node voltage in ngspice operating-point table")
     measured_mid_voltage = float(measurement.group(1))
     if not math.isclose(measured_mid_voltage, 2.5, rel_tol=0.0, abs_tol=1e-6):
         raise RuntimeError(
