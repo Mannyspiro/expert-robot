@@ -45,6 +45,7 @@ class AvreaAdapterTests(unittest.TestCase):
 
     def test_result_collection_registers_and_verifies_artifacts(self):
         adapter = self.adapter()
+        adapter.dispatch(self.job)
         result = adapter.collect("job-1",project_id="merlin")
         self.assertEqual(result["artifacts"][0]["name"],"result.json")
         self.assertTrue(self.registry.verify_artifact(result["artifacts"][0]["sha256"]))
