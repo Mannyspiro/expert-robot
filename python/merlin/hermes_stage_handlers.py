@@ -28,6 +28,11 @@ _STAGE_CONTRACTS = {
         "tool": "proof-search-engine",
         "label": "proof search",
     },
+    "electrical_analysis": {
+        "evidence_kind": "experiment",
+        "tool": "ngspice",
+        "label": "electrical analysis",
+    },
 }
 
 
@@ -69,12 +74,18 @@ def build_hermes_stage_handlers(
     research_executor: Callable[[Mapping[str, Any], Any], Mapping[str, Any]],
     numerical_experiment_executor: Callable[[Mapping[str, Any], Any], Mapping[str, Any]],
     proof_search_executor: Callable[[Mapping[str, Any], Any], Mapping[str, Any]],
+    artifact_verifier: Callable[..., Mapping[str, Any]],
+    repository: str,
+    commit_sha: str,
+    requester_id: str,
+    electrical_executor: Callable[[Mapping[str, Any], Any], Mapping[str, Any]] | None = None,
 ) -> dict[str, Callable[[Mapping[str, Any], Any], Mapping[str, Any]]]:
-    """Build the three real stage handlers around supplied executable engines.
+    """Build stage handlers that record artifacts and obtain independent CACE receipts.
 
-    The three executors are mandatory: registration fails closed if an engine
-    is absent. Executors receive the task and bounded TaskExecutionContext;
-    they must enforce the supplied budget/deadline at their own process boundary.
+    Research, numerical and proof-search executors are mandatory. Electrical
+    analysis is registered when its ngspice executor is supplied. The verifier
+    should be CaceVerificationAdapter.verify_artifact; no handler silently
+    treats registry hashing as independent verification.
     """
     if not isinstance(evidence_recorder, ResearchEvidenceRecorder):
         raise ValueError("the canonical ResearchEvidenceRecorder is required")
@@ -85,8 +96,18 @@ def build_hermes_stage_handlers(
         "numerical_experiment": numerical_experiment_executor,
         "proof_search": proof_search_executor,
     }
+    if electrical_executor is not None:
+        executors["electrical_analysis"] = electrical_executor
     if any(not callable(executor) for executor in executors.values()):
-        raise ValueError("research, numerical experiment and proof-search engines must all be injected")
+        raise ValueError("all registered stage executors must be callable")
+    if not callable(artifact_verifier):
+        raise ValueError("an independent CACE artifact verifier is required")
+    if not isinstance(repository, str) or "/" not in repository:
+        raise ValueError("repository must be owner/name")
+    if not isinstance(commit_sha, str) or len(commit_sha) != 40 or any(c not in "0123456789abcdef" for c in commit_sha):
+        raise ValueError("commit_sha must be a lowercase 40-character Git SHA")
+    if not isinstance(requester_id, str) or not requester_id.strip():
+        raise ValueError("requester_id is required")
 
     handlers = {}
     for stage, executor in executors.items():
@@ -119,12 +140,33 @@ def build_hermes_stage_handlers(
             if recorded.get("artifact_verified") is not True:
                 raise RuntimeError("canonical registry did not verify the recorded artifact")
             digest = recorded["artifact_sha256"]
+            context.emit_progress(_contract["label"] + " artifact stored; requesting independent CACE verification")
+            cace_result = artifact_verifier(
+                project_id=project_id,
+                repository=repository,
+                commit_sha=commit_sha,
+                artifact_sha256=digest,
+                artifact_kind=_stage,
+                artifact_schema=str(output["metadata"].get("artifact_schema") or output["media_type"]),
+                requester_id=requester_id,
+                logical_path=logical_path,
+            )
+            if not isinstance(cace_result, Mapping):
+                raise TypeError("CACE artifact verifier must return a receipt result")
+            cace_result = dict(cace_result)
+            if cace_result.get("artifact_sha256") != digest:
+                raise ValueError("CACE result does not bind the submitted artifact digest")
+            receipt_digest = cace_result.get("receipt_artifact_sha256")
+            evidence_refs = ["sha256:" + digest]
+            if isinstance(receipt_digest, str) and len(receipt_digest) == 64:
+                evidence_refs.append("sha256:" + receipt_digest)
             context.emit_tool_event(
                 "agent.tool.completed", _contract["tool"],
                 {"stage": _stage, "task_id": context.task_id,
-                 "artifact_sha256": digest, "artifact_verified": True},
+                 "artifact_sha256": digest, "artifact_verified": True,
+                 "cace_status": cace_result.get("verification_status")},
             )
-            context.emit_progress(_contract["label"] + " artifact verified and linked to graph")
+            context.emit_progress(_contract["label"] + " artifact and CACE receipt recorded")
             return {
                 "schema": "merlin-hermes-stage-result/1",
                 "stage": _stage,
@@ -139,7 +181,8 @@ def build_hermes_stage_handlers(
                     "registry_verified": True,
                 },
                 "graph_edge": recorded["graph_edge"],
-                "evidence_refs": ["sha256:" + digest],
+                "cace_verification": cace_result,
+                "evidence_refs": evidence_refs,
                 "hypothesis_status_unchanged": recorded["hypothesis_status_unchanged"],
                 "promotion_authority": False,
             }
