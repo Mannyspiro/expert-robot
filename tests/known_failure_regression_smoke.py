@@ -83,7 +83,8 @@ bridge_summary = (
 assert '"schema_version": 2' in external
 assert '"requested_lane": "cace-oci-aarch64"' in external
 assert "CACE's canonical workflow" in external
-assert "persist-credentials: false" in external
+assert "permissions:\\n  contents: write" in external
+assert "persist-credentials: true" in external
 assert "name: Await external free-runner evidence" in external
 assert "name: Upload external runner evidence" in external
 assert 'result.get("schema_version") == 3' in external
