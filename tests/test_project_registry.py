@@ -51,7 +51,7 @@ class MerlinRegistryTests(unittest.TestCase):
         self.assertEqual(self.registry.get_artifact_bytes(first), b"v1")
         self.assertEqual(self.registry.get_artifact_bytes(second), b"v2")
         self.assertEqual(self.registry.get_artifact_head("p", "same.txt")["generation"], 2)
-        self.assertEqual(len(self.registry.artifact_history("p", "same.txt")), 2)
+        history = self.registry.artifact_history("p", "same.txt")\n        self.assertEqual(len(history), 2)\n        recovery_id = history[1]["pre_change_recovery_id"]\n        self.assertTrue(recovery_id)\n        snapshot = self.registry.get_recovery_point(recovery_id)\n        self.assertEqual(snapshot["manifest"]["artifacts"][0]["sha256"], first)
         with self.assertRaises(ArtifactConflict):
             self.registry.replace_artifact(
                 "p", "same.txt", b"v3", expected_digest=head["digest"],
