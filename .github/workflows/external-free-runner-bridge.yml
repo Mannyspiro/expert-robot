@@ -5,6 +5,7 @@ on:
     branches:
       - "feat/reuse-refactored-fishstick"
       - "feat/hermes-routing-eval-avrea-discovery-20261105"
+      - "repair/cace-bridge-request-isolation-20261105"
     paths:
       - ".github/workflows/external-free-runner-bridge.yml"
       - ".github/workflows/cace-return-pr.yml"
@@ -86,7 +87,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          request_id="expert-robot-$GITHUB_RUN_ID-$GITHUB_SHA"
+          request_id="expert-robot-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT-$GITHUB_SHA"
           archive="$RUNNER_TEMP/expert-robot-source.tar.gz"
 
           tar \
@@ -110,12 +111,13 @@ jobs:
             echo "size_bytes=$size_bytes"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Install request on isolated Cace-app bridge branch
+      - name: Publish request to isolated Cace-app request branch
         id: install
         shell: bash
         env:
           RUNNER_REPO_SSH: git@github.com:morganaspim/Cace-app.git
-          BRIDGE_BRANCH: executor/expert-robot-bridge
+          BRIDGE_BASE_BRANCH: executor/expert-robot-bridge
+          REQUEST_BRANCH: cace-request/${{ steps.package.outputs.request_id }}
           REQUEST_ID: ${{ steps.package.outputs.request_id }}
           ARCHIVE: ${{ steps.package.outputs.archive }}
         run: |
@@ -128,18 +130,13 @@ jobs:
             git clone "$RUNNER_REPO_SSH" "$work"
 
           cd "$work"
-          default_ref="$(git symbolic-ref --short refs/remotes/origin/HEAD)"
-          if git fetch origin "$BRIDGE_BRANCH:refs/remotes/origin/$BRIDGE_BRANCH" 2>/dev/null; then
-            git checkout -B "$BRIDGE_BRANCH" "refs/remotes/origin/$BRIDGE_BRANCH"
-          else
-            git checkout -B "$BRIDGE_BRANCH" "$default_ref"
-          fi
+          git fetch origin "$BRIDGE_BASE_BRANCH:refs/remotes/origin/$BRIDGE_BASE_BRANCH"
+          git checkout -b "$REQUEST_BRANCH" "refs/remotes/origin/$BRIDGE_BASE_BRANCH"
 
-          # Preserve CACE's canonical workflow on its bridge branch. Do not
-          # generate a second copy here; schema and policy must have one owner.
+          # A request branch is immutable and unique to this workflow attempt.
+          # The CACE workflow already listens on cace-request/**. Never rewrite
+          # the shared executor branch or delete another request's evidence.
           mkdir -p bridge
-          rm -f bridge/expert-robot-source.tar.gz bridge/result.json bridge/result.log
-
           cp "$ARCHIVE" bridge/expert-robot-source.tar.gz
 
           python3 - "$REQUEST_ID" "$GITHUB_SHA" "${{ steps.package.outputs.size_bytes }}" "$GITHUB_REF_NAME" > bridge/request.json <<'PY'
@@ -161,30 +158,14 @@ jobs:
 
           git config user.name "expert-robot-dispatcher"
           git config user.email "noreply@github.com"
-          # Stage removal of the previous bridge-branch result as well as the new request.
-          git add -A bridge
+          git add bridge/request.json bridge/expert-robot-source.tar.gz
+          git diff --cached --check
           git commit -m "Dispatch Expert Robot request: $REQUEST_ID"
+          GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
+            git push origin "HEAD:refs/heads/$REQUEST_BRANCH"
 
-          # Preserve concurrent CACE result commits. Rebase and fast-forward only;
-          # never force-push a bridge branch containing evidence.
-          for attempt in 1 2 3 4 5; do
-            git fetch origin "$BRIDGE_BRANCH"
-            git rebase "origin/$BRIDGE_BRANCH"
-            if GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
-              git push origin "HEAD:$BRIDGE_BRANCH"; then
-              echo "request_published=true attempt=$attempt"
-              break
-            fi
-            echo "Request push raced with a CACE result commit; retry=$attempt" >&2
-            git rebase --abort || true
-            if [ "$attempt" -eq 5 ]; then
-              echo "::error::Could not publish request after five fast-forward-safe attempts."
-              exit 1
-            fi
-            sleep "$attempt"
-          done
-
-          echo "bridge_branch=$BRIDGE_BRANCH" >> "$GITHUB_OUTPUT"
+          echo "request_published=true branch=$REQUEST_BRANCH"
+          echo "request_branch=$REQUEST_BRANCH" >> "$GITHUB_OUTPUT"
 
       - name: Await external free-runner evidence
         id: await
@@ -230,9 +211,18 @@ jobs:
           assert re.fullmatch(r"[0-9a-f]{40}", result.get("cace_commit", ""))
           assert re.fullmatch(r"[0-9a-f]{40}", result.get("cace_workflow_sha", ""))
           assert result.get("cace_workflow_id") == 367390621
+          expected_workflow_ref = (
+              "morganaspim/Cace-app/.github/workflows/expert-robot-bridge.yml@refs/heads/cace-request/"
+              + expected_id
+          )
+          assert result.get("cace_workflow_ref") == expected_workflow_ref
           assert isinstance(result.get("cace_workflow_run_id"), int) and result["cace_workflow_run_id"] > 0
           assert isinstance(result.get("cace_run_attempt"), int) and result["cace_run_attempt"] > 0
-          assert result.get("cace_workflow_ref") == "morganaspim/Cace-app/.github/workflows/expert-robot-bridge.yml@refs/heads/executor/expert-robot-bridge"
+          expected_workflow_ref = (
+              "morganaspim/Cace-app/.github/workflows/expert-robot-bridge.yml@refs/heads/cace-request/"
+              + expected_request
+          )
+          assert result.get("cace_workflow_ref") == expected_workflow_ref
           assert result.get("cace_workflow_name") == "Expert Robot Free Runner Bridge"
           assert result.get("status") in ("pass", "fail")
           assert isinstance(result.get("exit_code"), int)
