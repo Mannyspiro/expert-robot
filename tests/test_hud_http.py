@@ -30,6 +30,25 @@ class HudActivityWSGITests(unittest.TestCase):
     def test_endpoint_is_get_only(self):
         self.assertEqual(self.request(method="POST")["status"], "405 Method Not Allowed")
 
+    def test_dashboard_is_a_read_only_html_view(self):
+        response = {}
+        def start(status, headers):
+            response["status"] = status
+            response["headers"] = dict(headers)
+        body = b"".join(self.app(
+            {"PATH_INFO": "/dashboard", "REQUEST_METHOD": "GET"}, start
+        )).decode("utf-8")
+        self.assertEqual(response["status"], "200 OK")
+        self.assertEqual(response["headers"]["Content-Type"], "text/html; charset=utf-8")
+        self.assertEqual(response["headers"]["X-Frame-Options"], "DENY")
+        self.assertIn('fetch("/api/hud/activity"', body)
+        self.assertIn('fetch("/api/hud/graph"', body)
+        self.assertNotIn('method:"POST"', body)
+
+    def test_dashboard_rejects_mutating_methods(self):
+        self.assertEqual(self.request(path="/dashboard", method="POST")["status"],
+                         "405 Method Not Allowed")
+
     def test_unknown_path_is_not_found(self):
         self.assertEqual(self.request(path="/other")["status"], "404 Not Found")
 
