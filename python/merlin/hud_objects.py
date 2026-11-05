@@ -74,7 +74,8 @@ def render_descriptor(node: Any, artifact: Mapping[str, Any] | None = None) -> d
         descriptor["netlist"] = {
             key: payload[key] for key in (
                 "netlist", "nodes", "components", "connections",
-                "units", "artifact_path",
+                "units", "artifact_path", "engine", "status", "analysis",
+                "analysis_result", "measurements", "metrics", "solver_receipt", "log",
             ) if key in payload
         }
     elif workspace == "simulation":
