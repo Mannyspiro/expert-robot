@@ -160,6 +160,28 @@ Canonical file: `.github/workflows/merlin-workflow-lint-probe.yml`.
 
 It runs actionlint against the CI and external bridge workflows and uploads the actual linter output. The wrapper must preserve the linter process exit code. A previous probe printed `actionlint_exit=1` but incorrectly returned overall exit 0; that probe was not a clean lint pass. Treat the corrected probe's next run and its uploaded log as the acceptance evidence.
 
+### Hermes-to-Lean, engineering/CAD, and read-only research dashboard
+
+**Hermes → Lean boundary**
+- `MerlinEventOutbox` is the durable at-least-once event source with leases, idempotency, retry and explicit acknowledgements.
+- `HermesWorker` consumes only `merlin.hermes.task`; it revalidates approval and resource lease immediately before invoking an injected stage handler.
+- `build_hermes_stage_handlers` records immutable result bytes in the canonical registry before returning evidence references. Proof-search theorem claims pass through `dispatch_eligible_claim`: the claim router must choose `LEAN_COMPILE`, exact UTF-8 Lean source bytes are hashed and verified in the registry, and only then is the injected Lean dispatcher called.
+- A compile result is not a CACE proof receipt. The exact stored source digest is passed to the independent theorem verifier when configured. Missing dispatch/verifier configuration is explicitly blocked; promotion authority remains false.
+- CI run `42066010201` passed the focused Hermes routing, proof orchestrator/CACE adapter, research lifecycle, and subsequent full build/smoke suite.
+
+**Engineering IR and CAD**
+- `engineering_ir.py` is the typed source of truth for parts, pin geometry, pin ratings, nets and endpoint connectivity. Invalid or out-of-range projects cannot be exported.
+- `freecad_bridge.py` creates a FreeCAD macro, FCStd/STEP output targets, and a validated wiring sidecar. `freecad_document_bridge.py` creates bounded FCStd/STEP import macros that export provenance-labelled meshes and can register those artifacts into the canonical registry and knowledge graph.
+- `export_spice_netlist` requires explicit per-component kind/value mappings and a declared ground net; it does not infer electrical values from CAD geometry. The current deterministic exporter supports two-terminal R/C/L/V/I components and operating-point analysis.
+- `ngspice_engine.py` rejects shell/control/include/external-file directives, applies a wall-time timeout, and now requires `prlimit` to enforce the configured virtual address-space limit.
+- `.github/workflows/engineering-integration.yml` runs a deterministic Engineering IR → FreeCAD macro/netlist → ngspice smoke on the Avrea runner and uploads the netlist, result, macro and SHA-256 manifest. Macro generation is covered by CI; FreeCAD desktop runtime execution is not yet claimed.
+
+**Read-only research dashboard**
+- `MerlinReadAPI` composes the canonical project registry, hypothesis ledger, knowledge graph and event outbox; it does not create shadow stores or mutate research state.
+- `HudActivityWSGI` exposes GET-only `/api/hud/activity`, `/api/hud/graph` and `/api/hud/node` endpoints. HTTP reads do not acknowledge outbox events. The optional event pump is a separate local projection consumer.
+- `build_hud_runtime` must receive the actual canonical store instances. The host application remains responsible for authentication, authorization, TLS and loopback/network binding; do not expose the HUD publicly without those controls.
+- Registry query, HUD runtime, node/graph and outbox read-only contracts are covered by the Expert Robot CI suite.
+
 ## 8. How an AI agent should operate this system
 
 ### Before acting
