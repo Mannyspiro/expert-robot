@@ -561,13 +561,17 @@ def _build_optional_hud_runtime():
     from .hypothesis_ledger import HypothesisLedger
     from .hud_runtime import build_hud_runtime
     hypotheses_path = os.environ.get("MERLIN_HYPOTHESES_DB_PATH", "").strip()
-    hypotheses = HypothesisLedger(hypotheses_path) if hypotheses_path and Path(hypotheses_path).is_file() else None
-    return build_hud_runtime(
-        registry=MerlinRegistry(registry_root),
-        graph=MerlinKnowledgeGraph(graph_path),
-        outbox=MerlinEventOutbox(outbox_path),
-        hypotheses=hypotheses,
-    )
+    try:
+        hypotheses = HypothesisLedger(hypotheses_path) if hypotheses_path and Path(hypotheses_path).is_file() else None
+        return build_hud_runtime(
+            registry=MerlinRegistry(registry_root),
+            graph=MerlinKnowledgeGraph(graph_path),
+            outbox=MerlinEventOutbox(outbox_path),
+            hypotheses=hypotheses,
+        )
+    except Exception as exc:
+        print("Merlin HUD integration unavailable: " + type(exc).__name__)
+        return None
 
 
 def serve(port: int = 8765, db_path: str | None = None) -> None:
