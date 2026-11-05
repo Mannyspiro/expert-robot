@@ -4,7 +4,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from freecad_adapter import FreeCADBackend, FreeCADUnavailable, _placement_matrix
+from freecad_adapter import FreeCADBackend, FreeCADUnavailable, _placement_matrix, _topology_status
 
 
 class FreeCADAdapterContractTests(unittest.TestCase):
@@ -23,6 +23,11 @@ class FreeCADAdapterContractTests(unittest.TestCase):
         )
         with self.assertRaises(FreeCADUnavailable):
             FreeCADBackend(**modules, backend_version=" ")
+
+    def test_topology_validation_fails_closed(self):
+        self.assertEqual(_topology_status("validate_topology", False), "failed")
+        self.assertEqual(_topology_status("validate_topology", True), "completed")
+        self.assertEqual(_topology_status("inspect", False), "completed")
 
     def test_normalizes_freecad_placement_matrix(self):
         values = [
