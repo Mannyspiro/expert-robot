@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "record_type": "merlin.research.titan-pqc",
+  "record_id": "titan-pqc:{source_commit}:{workflow_run_id}",
+  "required_fields": [
+    "candidate_id",
+    "source_repository",
+    "source_commit",
+    "provider_release",
+    "provider_commit",
+    "vector_source_tag",
+    "vector_source_commit",
+    "workflow_run_id",
+    "runner_identity",
+    "test_suites",
+    "test_result",
+    "artifact_sha256",
+    "cace_verification_status",
+    "receipt_profile",
+    "signature_status",
+    "qualification_status",
+    "promotion_authority"
+  ],
+  "enumerations": {
+    "test_result": [
+      "not_run",
+      "pass",
+      "fail",
+      "blocked"
+    ],
+    "cace_verification_status": [
+      "not_run",
+      "pass",
+      "fail",
+      "blocked"
+    ],
+    "signature_status": [
+      "unsigned",
+      "ed25519_v1",
+      "ml_dsa_65_v2",
+      "invalid"
+    ],
+    "qualification_status": [
+      "research_only",
+      "review_required",
+      "qualified",
+      "rejected"
+    ]
+  },
+  "invariants": {
+    "source_commit_required": true,
+    "artifact_digest_required_for_run": true,
+    "cace_pass_required_for_qualified": true,
+    "valid_signature_required_for_signed_receipt": true,
+    "production_eligible_default": false,
+    "authority_expansion": false
+  },
+  "projection": "Read-only dashboard projection over canonical records; never accept dashboard edits as evidence or promotion."
+}
