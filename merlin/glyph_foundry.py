@@ -84,6 +84,7 @@ class ExprArena:
             raise FoundryError("max_nodes must be a positive integer")
         self.max_nodes = max_nodes
         self._nodes: dict[tuple[Any, ...], Expr] = {}
+        self._canonical_ids: set[int] = set()
 
     @property
     def unique_node_count(self) -> int:
@@ -94,6 +95,8 @@ class ExprArena:
 
         if not isinstance(expression, Expr):
             raise FoundryError("only Expr nodes can be interned")
+        if id(expression) in self._canonical_ids:
+            return expression
         args = tuple(
             self.intern(value) if isinstance(value, Expr) else value
             for value in expression.args
@@ -119,7 +122,15 @@ class ExprArena:
         if len(self._nodes) >= self.max_nodes:
             raise FoundryError("expression arena node budget exhausted")
         self._nodes[key] = canonical
+        self._canonical_ids.add(id(canonical))
         return canonical
+
+    def make(
+        self, op: str, args: Sequence[Any],
+        input_type: TypeRef, output_type: TypeRef,
+    ) -> Expr:
+        """Construct and intern a node directly, avoiding an expanded source tree."""
+        return self.intern(Expr(op, tuple(args), input_type, output_type))
 
     def stats(self, expression: Expr) -> dict[str, float | int]:
         """Count expanded tree occurrences versus unique reachable DAG nodes."""
