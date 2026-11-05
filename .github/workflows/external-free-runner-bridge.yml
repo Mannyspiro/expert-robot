@@ -164,8 +164,24 @@ jobs:
           git add bridge/request.json bridge/expert-robot-source.tar.gz
           git commit -m "Dispatch Expert Robot request: $REQUEST_ID"
 
-          GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
-            git push --force-with-lease origin "HEAD:$BRIDGE_BRANCH"
+          # Preserve concurrent CACE result commits. Rebase and fast-forward only;
+          # never force-push a bridge branch containing evidence.
+          for attempt in 1 2 3 4 5; do
+            git fetch origin "$BRIDGE_BRANCH"
+            git rebase "origin/$BRIDGE_BRANCH"
+            if GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
+              git push origin "HEAD:$BRIDGE_BRANCH"; then
+              echo "request_published=true attempt=$attempt"
+              break
+            fi
+            echo "Request push raced with a CACE result commit; retry=$attempt" >&2
+            git rebase --abort || true
+            if [ "$attempt" -eq 5 ]; then
+              echo "::error::Could not publish request after five fast-forward-safe attempts."
+              exit 1
+            fi
+            sleep "$attempt"
+          done
 
           echo "bridge_branch=$BRIDGE_BRANCH" >> "$GITHUB_OUTPUT"
 
