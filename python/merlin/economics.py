@@ -121,13 +121,19 @@ class LocalDemandEvent:
         return "status-change event; do not count as incremental demand without reconciliation"
 
 
+def _validate_opportunity_dimensions(candidate: Mapping[str, Any]) -> None:
+    for key in POSITIVE_OPPORTUNITY_DIMENSIONS + RISK_OPPORTUNITY_DIMENSIONS:
+        value = candidate.get(key)
+        if isinstance(value, bool) or not isinstance(value, (int, float)):
+            raise ValueError(f"{key} must be numeric and within [0,1]")
+        if not math.isfinite(value) or not 0 <= value <= 1:
+            raise ValueError(f"{key} must be finite and within [0,1]")
+
+
 def opportunity_dominates(a: Mapping[str, float], b: Mapping[str, float]) -> bool:
     """True when a is no worse than b on all dimensions and better on one."""
-    dimensions = POSITIVE_OPPORTUNITY_DIMENSIONS + RISK_OPPORTUNITY_DIMENSIONS
-    for key in dimensions:
-        av, bv = a[key], b[key]
-        if not (math.isfinite(av) and math.isfinite(bv) and 0 <= av <= 1 and 0 <= bv <= 1):
-            raise ValueError(f"{key} must be finite and within [0,1]")
+    _validate_opportunity_dimensions(a)
+    _validate_opportunity_dimensions(b)
     no_worse = all(a[k] >= b[k] for k in POSITIVE_OPPORTUNITY_DIMENSIONS)
     no_worse = no_worse and all(a[k] <= b[k] for k in RISK_OPPORTUNITY_DIMENSIONS)
     strictly_better = any(a[k] > b[k] for k in POSITIVE_OPPORTUNITY_DIMENSIONS)
@@ -148,6 +154,7 @@ def opportunity_frontier(candidates: list[Mapping[str, Any]]) -> dict[str, Any]:
         for key in POSITIVE_OPPORTUNITY_DIMENSIONS + RISK_OPPORTUNITY_DIMENSIONS:
             if key not in row:
                 raise ValueError(f"candidate {candidate_id} is missing {key}")
+        _validate_opportunity_dimensions(row)
         normalized.append(row)
     frontier: list[dict[str, Any]] = []
     dominated: list[dict[str, Any]] = []
