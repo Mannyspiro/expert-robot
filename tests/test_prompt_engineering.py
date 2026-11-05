@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from merlin.event_outbox import MerlinEventOutbox, OutboxConflict
+from merlin.event_outbox import MerlinEventOutbox
 from merlin.prompt_engineering import (
     PromptCompiler, PromptDispatchCoordinator, PromptRequest,
 )
@@ -111,9 +111,10 @@ class PromptEngineeringTests(unittest.TestCase):
         first = self.compiler.compile(request())
         second_request = PromptRequest(**{**request().__dict__, "objective": "Different objective"})
         second = self.compiler.compile(second_request)
-        coordinator.publish(first, approval_ref="approval:1", lease_ref="lease:1", resource_budget=budget)
-        # Different digest is a different immutable prompt version, not an overwrite.
-        event = coordinator.publish(second, approval_ref="approval:1", lease_ref="lease:1", resource_budget=budget)
+        first_event = coordinator.publish(first, approval_ref="approval:1", lease_ref="lease:1", resource_budget=budget)
+        # Different digest is a new immutable prompt version, never an overwrite.
+        second_event = coordinator.publish(second, approval_ref="approval:1", lease_ref="lease:1", resource_budget=budget)
         self.assertNotEqual(first.prompt_sha256, second.prompt_sha256)
-        self.assertNotEqual(first["event_id"] if isinstance(first, dict) else first.prompt_sha256, event["event_id"])
+        self.assertNotEqual(first_event["event_id"], second_event["event_id"])
+        self.assertEqual(self.outbox.counts()["pending"], 2)
 
