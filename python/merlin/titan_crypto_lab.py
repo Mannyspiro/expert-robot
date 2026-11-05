@@ -119,3 +119,32 @@ def register_titan_research(registry, graph, project_id: str,
 
 
 __all__.append("register_titan_research")
+
+
+def hermes_titan_research_executor(task, context):
+    """Injected Hermes research-stage executor; emits deterministic matrix bytes."""
+    import json
+    if task.get("stage") != "research":
+        raise ValueError("Titan executor only accepts the research stage")
+    objective = str(task.get("objective", "")).strip()
+    if not objective or "titan" not in objective.lower():
+        raise ValueError("task objective must explicitly identify Titan research")
+    report = build_research_matrix()
+    report["task"] = {
+        "task_id": context.task_id,
+        "hypothesis_id": context.hypothesis_id,
+        "objective": objective,
+    }
+    payload = (json.dumps(report, sort_keys=True, separators=(",", ":"),
+                          ensure_ascii=False, allow_nan=False) + "\\n").encode()
+    return {
+        "artifact_bytes": payload,
+        "media_type": "application/vnd.merlin.titan-research+json",
+        "summary": "Generated deterministic Titan protocol research matrix; no cryptographic operations performed.",
+        "metadata": {"artifact_schema": report["schema"],
+                     "execution_mode": "deterministic_protocol_model",
+                     "cryptographic_operations_performed": False},
+    }
+
+
+__all__.append("hermes_titan_research_executor")
