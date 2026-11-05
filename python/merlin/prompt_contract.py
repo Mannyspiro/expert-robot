@@ -74,7 +74,7 @@ class PromptTask:
         for key, value in self.resource_limits.items():
             if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
                 raise ValueError(f"resource limit {key} must be a positive integer")
-        if self.authority_scope not in _ALLOWED_AUTHORITY:
+        if not isinstance(self.authority_scope, str) or self.authority_scope not in _ALLOWED_AUTHORITY:
             raise ValueError("authority_scope must be draft_only or bounded_execution")
         if self.authority_scope == "bounded_execution" and not self.approval_ref:
             raise ValueError("bounded execution requires an approval reference")
@@ -93,7 +93,28 @@ class CompiledPrompt:
     prompt_sha256: str
     task_sha256: str
 
+    def validate(self) -> None:
+        _bounded_text(self.task_id, "task_id", 200)
+        if not isinstance(self.recipient, str) or not _RECIPIENT.fullmatch(self.recipient):
+            raise ValueError("recipient must be a stable lowercase subsystem identifier")
+        if self.schema != "merlin-engineered-prompt/1":
+            raise ValueError("unsupported compiled prompt schema")
+        if not isinstance(self.authority_scope, str) or self.authority_scope not in _ALLOWED_AUTHORITY:
+            raise ValueError("invalid compiled prompt authority scope")
+        _bounded_text(self.prompt_text, "prompt_text", 50000)
+        for label, digest in (("prompt_sha256", self.prompt_sha256), ("task_sha256", self.task_sha256)):
+            if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
+                raise ValueError(f"{label} must be a lowercase SHA-256 digest")
+        actual = hashlib.sha256(self.prompt_text.encode("utf-8")).hexdigest()
+        if actual != self.prompt_sha256:
+            raise ValueError("compiled prompt text does not match prompt_sha256")
+        if self.approval_ref is not None:
+            _bounded_text(self.approval_ref, "approval_ref", 256)
+        if self.authority_scope == "bounded_execution" and not self.approval_ref:
+            raise ValueError("bounded execution requires an approval reference")
+
     def to_payload(self) -> dict[str, Any]:
+        self.validate()
         return asdict(self)
 
 
@@ -190,6 +211,7 @@ class PromptOutboxPublisher:
     def publish(self, prompt: CompiledPrompt) -> dict[str, Any]:
         if not isinstance(prompt, CompiledPrompt):
             raise TypeError("prompt must be a CompiledPrompt")
+        prompt.validate()
         if not self.recipient_validator(prompt.recipient):
             raise PermissionError("recipient subsystem is not registered or enabled")
         if prompt.authority_scope == "bounded_execution":
