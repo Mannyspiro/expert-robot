@@ -50,10 +50,17 @@ class AvreaAdapterTests(unittest.TestCase):
     def test_result_collection_registers_and_verifies_artifacts(self):
         adapter = self.adapter()
         adapter.dispatch(self.job)
+        pending_after_dispatch = self.outbox.counts()["pending"]
         result = adapter.collect("job-1",project_id="merlin")
         self.assertEqual(result["artifacts"][0]["name"],"result.json")
         self.assertTrue(self.registry.verify_artifact(result["artifacts"][0]["sha256"]))
-        self.assertEqual(self.outbox.counts()["pending"],1)
+        result_event_id = "evt_" + __import__("hashlib").sha256(
+            b"avrea-result:job-1"
+        ).hexdigest()
+        result_event = self.outbox.get(result_event_id)
+        self.assertIsNotNone(result_event)
+        self.assertEqual(result_event["topic"], "merlin.avrea.result.collected")
+        self.assertGreater(self.outbox.counts()["pending"], pending_after_dispatch)
 
     def test_missing_transport_fails_closed(self):
         adapter = AvreaAdapter(dispatch_transport=None,collect_transport=None,
