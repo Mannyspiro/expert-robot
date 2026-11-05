@@ -25,16 +25,24 @@ def build(problem,limit=48,n=3,arity=2):
     plan["problem_representation"]["representations"][1].update(encoding="Typed representation graph",mapping="Objects map to nodes and transformations to typed edges",preserved_invariants=["declared structure"],lost_information=["presentation order"],validity_conditions=["maps are explicitly specified"],non_transferable_properties=["Graph connection alone does not establish equivalence."],validation_method="Prove map and invariant lemmas")
     plan["research_methods"]["ideonomy"].update(enumeration_scope="Lens x transformation x relation x question move",candidate_limit=limit)
     plan["research_methods"]["logic_lenses"].update(n_values=n,truth_table_arity=arity)
+    idea_space=ideas.enumerate_space(problem,limit)
+    compositions=fuzzy.compose_candidates(problem,limit)
+    finite_truth_table=fuzzy.finite_table(n,arity)
+    fuzzy_examples=[{"a":x/4,"b":y/4,"operators":fuzzy.fuzzy_ops(x/4,y/4)} for x,y in __import__("itertools").product(range(5),repeat=2)]
+    plan["research_methods"]["ideonomy"]["ranked_candidates"]=idea_space["ideas"]
+    plan["research_methods"]["logic_lenses"]["ranked_compositions"]=compositions["ranked_compositions"]
+    plan["research_methods"]["logic_lenses"]["finite_truth_table"]=finite_truth_table
+    plan["research_methods"]["logic_lenses"]["fuzzy_operator_examples"]=fuzzy_examples
     plan["verification"].update(tests=["Validate logic tables and idea-space bounds","Check all candidate hypotheses have disconfirmation paths"],independent_check="Lean kernel checks selected formal claims; independent reviewer checks semantics and assumptions.")
     return {
       "schema_version":1,"problem":problem,
       "mandatory_methods":["decompose","multi_representation","fuzzy_logic_lenses","finite_n_valued_logic_lenses","ideonomy_enumeration","hypothesis_generation","Lean_formalization"],
       "problem_representation":plan["problem_representation"],
       "logic_lenses":{"fuzzy_operators":["godel_and","product_and","lukasiewicz_and","godel_or","probabilistic_or","lukasiewicz_or","godel_implication","lukasiewicz_implication","product_implication"],
-       "finite_logic":fuzzy.finite_table(n,arity),"ranked_candidates":fuzzy.rank_candidates(problem),
-       "ranked_compositions":fuzzy.compose_candidates(problem,limit),
+       "finite_logic":finite_truth_table,"fuzzy_operator_examples":fuzzy_examples,"ranked_candidates":fuzzy.rank_candidates(problem),
+       "ranked_compositions":compositions,
        "selection_rule":"Rank by semantic fit, assumptions, expressive adequacy, compositionality, decidability/complexity, proof support and empirical calibration; do not conflate fuzzy degree with probability."},
-      "ideonomy":ideas.enumerate_space(problem,limit),
+      "ideonomy":idea_space,
       "lean_bridge":{"status":"candidate_generation_only","obligations":[
         "Define the underlying object and each representation in Lean.",
         "State maps between representations with explicit domains and codomains.",
