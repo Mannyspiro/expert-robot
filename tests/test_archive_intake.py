@@ -42,7 +42,7 @@ def test_zip_intake_detects_duplicate_content_across_archives(tmp_path):
     snapshot = store.graph.export_snapshot()
     member_refs = [
         node for node in snapshot["nodes"]
-        if node["node_type"] == "artifact_reference"
+        if node["node_type"] == "source"
         and node["payload"]["artifact_sha256"] == digest
     ]
     assert len(member_refs) == 2
