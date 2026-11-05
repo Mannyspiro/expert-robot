@@ -105,9 +105,11 @@ exists in the canonical registry before sending a request to CACE. It requires
 the returned receipt to bind the exact repository, commit, digest, artifact
 kind, schema and logical path; it checks independent verifier identity,
 source-commit and digest assertions, status and the receipt's own SHA-256.
-A `verified` artifact receipt must additionally affirm both
-`artifact_schema_validated=true` and `artifact_content_verified=true`; a digest
-match alone is not a semantic/domain validation. It stores the receipt in the
+A The adapter sends the exact registry-verified artifact bytes (base64 and byte
+length, capped at 25 MiB) to the independent transport. A `verified` artifact
+receipt must additionally affirm both `artifact_schema_validated=true` and
+`artifact_content_verified=true`; a digest match alone is not a semantic/domain
+validation. It stores the receipt in the
 registry and, when a graph is injected, creates a `proof_receipt` node connected
 to the subject artifact by a `reviews` edge.
 
