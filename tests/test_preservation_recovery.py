@@ -122,6 +122,38 @@ class PreservationRecoveryTests(unittest.TestCase):
         self.assertEqual(self.registry.get_artifact_bytes(digest), data)
 
 
+    def test_deleted_git_file_restores_exact_bytes_from_pinned_pre_deletion_commit(self):
+        repo = self.root / "deleted-file-restore"
+        repo.mkdir()
+        subprocess.run(["git", "init", str(repo)], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(repo), "config", "user.email", "test@example.invalid"], check=True)
+        subprocess.run(["git", "-C", str(repo), "config", "user.name", "Test"], check=True)
+        original = b"exact bytes before deletion\\x00\\xff"
+        (repo / "deleted.bin").write_bytes(original)
+        subprocess.run(["git", "-C", str(repo), "add", "deleted.bin"], check=True)
+        subprocess.run(["git", "-C", str(repo), "commit", "-m", "retain source"], check=True, capture_output=True)
+        source_commit = subprocess.run(
+            ["git", "-C", str(repo), "rev-parse", "HEAD"], check=True,
+            capture_output=True, text=True).stdout.strip()
+        (repo / "deleted.bin").unlink()
+        subprocess.run(["git", "-C", str(repo), "add", "-A"], check=True)
+        subprocess.run(["git", "-C", str(repo), "commit", "-m", "delete source"], check=True, capture_output=True)
+        current_head = subprocess.run(
+            ["git", "-C", str(repo), "rev-parse", "HEAD"], check=True,
+            capture_output=True, text=True).stdout.strip()
+        self.assertNotEqual(source_commit, current_head)
+        self.assertFalse((repo / "deleted.bin").exists())
+
+        digest = hashlib.sha256(original).hexdigest()
+        result = GitRecoveryAdapter(repo).recover(
+            commit=source_commit, path="deleted.bin", expected_sha256=digest,
+            project_id="p", registry=self.registry)
+        self.assertEqual(result["confidence"], "exact")
+        self.assertEqual(result["sha256"], digest)
+        self.assertTrue(result["recovery_path"].startswith("_recovery/"))
+        self.assertEqual(self.registry.get_artifact_bytes(digest), original)
+        self.assertFalse((repo / "deleted.bin").exists())
+
     def test_git_tree_manifest_detects_deletion_and_blocks_retirement(self):
         repo = self.root / "tree-repo"
         repo.mkdir()
