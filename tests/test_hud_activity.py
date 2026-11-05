@@ -74,7 +74,10 @@ class HudActivityTests(unittest.TestCase):
             event("cace-verified", "verification.completed",
                   {"agent_id": "cace:verifier-1", "status": "verified",
                    "independent": True, "artifact_sha256": "b" * 64,
-                   "receipt_artifact_sha256": "c" * 64, "source_commit": "d" * 40},
+                   "receipt_artifact_sha256": "c" * 64, "source_commit": "d" * 40,
+                   "logical_path": "engineering/assembly.json",
+                   "artifact_kind": "cad_assembly",
+                   "artifact_schema": "merlin-freecad-document-mesh/1"},
                   source="cace", refs=("sha256:" + "c" * 64,)),
             event("recovery-quarantine", "artifact.registered",
                   {"status": "quarantined_unverified",
@@ -88,6 +91,9 @@ class HudActivityTests(unittest.TestCase):
         self.assertEqual(view["executions"][0]["receipt_ref"], "sha256:" + "a" * 64)
         self.assertEqual(view["verification"]["verifier_id"], "cace:verifier-1")
         self.assertEqual(view["verification"]["source_commit"], "d" * 40)
+        self.assertEqual(view["verification"]["logical_path"], "engineering/assembly.json")
+        self.assertEqual(view["verification"]["artifact_kind"], "cad_assembly")
+        self.assertEqual(view["verification"]["artifact_schema"], "merlin-freecad-document-mesh/1")
         self.assertEqual(view["verification"]["receipt_ref"], "sha256:" + "c" * 64)
         self.assertEqual(view["recoveries"][0]["status"], "quarantined_unverified")
         self.assertFalse(view["recoveries"][0]["promotion_authority"])
