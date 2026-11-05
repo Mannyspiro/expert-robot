@@ -72,7 +72,7 @@ class CaceMldsaReceiptTests(unittest.TestCase):
                 "signature_algorithm": "ML-DSA-65",
                 "proof_effect": "none",
                 "canonicalization": "sha256/cace-canonical-json-v1",
-                "domain_separator": "CACE:TITAN:SIGNED-ATTESTATION:v2\\u0000",
+                "domain_separator": "CACE:TITAN:SIGNED-ATTESTATION:v2\0",
                 "statement_sha256": "c" * 64,
                 "statement": {
                     "schema": "cace-attestation-statement-v2",
