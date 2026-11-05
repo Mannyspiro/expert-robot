@@ -51,6 +51,7 @@ jobs:
             nproc
           } | tee artifacts/runner-identity.log
       - name: Test deterministic prompt contracts
+        if: always()
         env:
           PYTHONPATH: python
         shell: bash
@@ -62,6 +63,7 @@ jobs:
           printf '{"suite":"prompt-contract-tests","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$rc" > artifacts/prompt-contract-tests-result.json
           exit "$rc"
       - name: Test prompt to Hermes worker round trip
+        if: always()
         env:
           PYTHONPATH: python
         shell: bash
@@ -72,6 +74,7 @@ jobs:
           printf '{"suite":"prompt-hermes-adapter-tests","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$rc" > artifacts/prompt-hermes-adapter-tests-result.json
           exit "$rc"
       - name: Test existing Hermes worker lifecycle
+        if: always()
         env:
           PYTHONPATH: python
         shell: bash
@@ -82,6 +85,7 @@ jobs:
           printf '{"suite":"hermes-worker-tests","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$rc" > artifacts/hermes-worker-tests-result.json
           exit "$rc"
       - name: Test canonical Hermes stage handlers
+        if: always()
         env:
           PYTHONPATH: python
         shell: bash
@@ -92,6 +96,7 @@ jobs:
           printf '{"suite":"hermes-stage-handler-tests","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$rc" > artifacts/hermes-stage-handler-tests-result.json
           exit "$rc"
       - name: Compile prompt and Hermes bridge modules
+        if: always()
         env:
           PYTHONPATH: python
         shell: bash
