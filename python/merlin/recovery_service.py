@@ -6,12 +6,38 @@ human-approved operation and is intentionally not implemented here.
 from __future__ import annotations
 
 import hashlib
+import json
+from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Callable, Mapping
 
 from merlin.change_manifest import create_recovery_snapshot
 from merlin.hermes_outbox import HermesOutboxConsumer
-from merlin.recovery_adapters import GitRecoveryAdapter, RegistryRecoveryAdapter, ZipRecoveryAdapter
+from merlin.recovery_adapters import (
+    GitRecoveryAdapter, RegistryRecoveryAdapter, ZipRecoveryAdapter,
+)
 from merlin.telemetry import agent_event_sink
+
+
+def mcfc_lease_validator(lease_book, *, clock: Callable[[], datetime] | None = None):
+    """Adapt the canonical MCFC LeaseBook to the recovery coordinator contract."""
+    def validate(lease_ref: str, budget: Mapping[str, int]) -> bool:
+        now = (clock or (lambda: datetime.now(timezone.utc)))()
+        try:
+            lease = lease_book.get(lease_ref)
+            if not lease_book.validate_start(lease_ref, now=now):
+                return False
+            return bool(
+                budget.get("cpu_cores", 0) <= lease.resources.cpu_cores
+                and budget.get("memory_bytes", 0) <= lease.resources.memory_bytes
+                and budget.get("max_wall_seconds", 0) <= lease.max_wall_seconds
+                and budget.get("compute_budget_units", 0) <= lease.compute_budget_units
+                and lease.promotion_authority is False
+                and lease.authority == "execution_only"
+            )
+        except (KeyError, ValueError, TypeError):
+            return False
+    return validate
 
 
 class AvreaRecoveryAdapter:
@@ -26,8 +52,7 @@ class AvreaRecoveryAdapter:
                    if item["name"] == artifact_name and item["sha256"] == expected_sha256]
         if len(matches) != 1:
             raise KeyError("retained Avrea artifact is missing or ambiguous")
-        source = matches[0]
-        data = self.avrea.registry.get_artifact_bytes(source["sha256"])
+        data = self.avrea.registry.get_artifact_bytes(matches[0]["sha256"])
         recovery_path = "_recovery/avrea/" + job_id + "/" + artifact_name
         digest = self.avrea.registry.put_artifact(
             project_id, recovery_path, data, actor="avrea-recovery",
@@ -48,6 +73,7 @@ class RecoveryCoordinator:
                  approval_validator: Callable[[str, Mapping[str, Any]], bool],
                  lease_validator: Callable[[str, Mapping[str, int]], bool],
                  repository: str, requester_id: str,
+                 git_repository: str | Path | None = None,
                  cace_adapter=None, avrea_adapter=None):
         if not callable(approval_validator) or not callable(lease_validator):
             raise ValueError("approval and MCFC lease validators are required")
@@ -59,6 +85,7 @@ class RecoveryCoordinator:
         self.lease_validator = lease_validator
         self.repository = repository
         self.requester_id = requester_id
+        self.git_repository = Path(git_repository).resolve() if git_repository is not None else None
         self.cace = cace_adapter
         self.avrea = AvreaRecoveryAdapter(avrea_adapter) if avrea_adapter is not None else None
         self.hermes_events = agent_event_sink(outbox, "hermes")
@@ -78,6 +105,8 @@ class RecoveryCoordinator:
             "archive_path": archive_path, "job_id": job_id,
             "actor": actor or self.requester_id,
         }
+        if not task_id.strip() or not project_id.strip() or not original_path.strip():
+            raise ValueError("task, project and original path are required")
         if len(expected_sha256) != 64 or any(c not in "0123456789abcdef" for c in expected_sha256):
             raise ValueError("expected_sha256 must be lowercase SHA-256")
         if source not in {"git", "zip", "registry", "avrea"}:
@@ -85,16 +114,25 @@ class RecoveryCoordinator:
         required = {"cpu_cores", "memory_bytes", "max_wall_seconds", "compute_budget_units"}
         if not required.issubset(payload["resource_budget"]):
             raise ValueError("MCFC resource budget is incomplete")
+        if any(isinstance(v, bool) or not isinstance(v, int) or v <= 0
+               for v in payload["resource_budget"].values()):
+            raise ValueError("MCFC resource budget values must be positive integers")
         if not self.approval_validator(approval_ref, payload):
             raise PermissionError("explicit recovery approval was not validated")
         if not self.lease_validator(lease_ref, payload["resource_budget"]):
             raise PermissionError("active MCFC recovery lease was not validated")
-        if source == "git" and (not commit_sha or len(commit_sha) != 40):
-            raise ValueError("Git recovery requires a pinned commit SHA")
+        if source == "git" and (
+            not commit_sha or len(commit_sha) != 40 or self.git_repository is None
+        ):
+            raise ValueError("Git recovery requires a pinned commit and configured repository root")
         if source == "zip" and not archive_path:
-            raise ValueError("ZIP recovery requires an archive path")
+            raise ValueError("ZIP recovery requires an archive path accessible to the worker")
         if source == "avrea" and (not job_id or self.avrea is None):
             raise ValueError("Avrea recovery requires a configured adapter and retained job ID")
+        if self.cace is not None and (
+            not commit_sha or len(commit_sha) != 40
+        ):
+            raise ValueError("CACE qualification requires an exact source commit binding")
         key = "merlin-recovery:" + task_id
         queued = self.outbox.enqueue(key, self.TOPIC, payload)
         self.hermes_events(
@@ -120,16 +158,14 @@ class RecoveryCoordinator:
             self.registry, project_id, actor="pre-recovery:" + payload["task_id"]
         )
         source = payload["source"]
-        common = {
-            "expected_sha256": payload["expected_sha256"],
-            "project_id": project_id,
-        }
+        common = {"expected_sha256": payload["expected_sha256"], "project_id": project_id}
         if source == "registry":
             result = RegistryRecoveryAdapter(self.registry).recover(
                 digest=payload["expected_sha256"], original_path=payload["original_path"], **common)
         elif source == "git":
-            # Git object is read from a pinned commit; no checkout or worktree mutation.
-            raise RuntimeError("Git adapter requires an explicitly configured repository root")
+            result = GitRecoveryAdapter(self.git_repository).recover(
+                commit=payload["commit_sha"], path=payload["original_path"],
+                registry=self.registry, **common)
         elif source == "zip":
             result = ZipRecoveryAdapter().recover(
                 archive_path=payload["archive_path"], member_path=payload["original_path"],
@@ -145,11 +181,9 @@ class RecoveryCoordinator:
         status = "quarantined_unverified"
         cace_result = None
         if self.cace is not None:
-            commit_sha = payload.get("commit_sha")
-            if not commit_sha or len(commit_sha) != 40:
-                raise ValueError("CACE verification requires the exact source commit")
             cace_result = self.cace.verify_artifact(
-                project_id=project_id, repository=self.repository, commit_sha=commit_sha,
+                project_id=project_id, repository=self.repository,
+                commit_sha=payload["commit_sha"],
                 artifact_sha256=result["sha256"], artifact_kind="recovered_artifact",
                 artifact_schema="merlin-recovery-artifact/1",
                 requester_id=self.requester_id, logical_path=result["recovery_path"],
@@ -167,7 +201,7 @@ class RecoveryCoordinator:
             "promotion_authority": False,
         }
         receipt["receipt_sha256"] = hashlib.sha256(
-            __import__("json").dumps(receipt, sort_keys=True, separators=(",", ":")).encode()
+            json.dumps(receipt, sort_keys=True, separators=(",", ":")).encode()
         ).hexdigest()
         self.hermes_events(
             kind="artifact.registered", run_id=payload["task_id"], task_id=payload["task_id"],
