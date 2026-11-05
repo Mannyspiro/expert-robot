@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "policy": "Prefer public-domain or openly licensed full text. Publicly viewable does not mean reusable. Store bibliographic metadata, rights status, provenance and links for restricted works; do not ingest or redistribute copyrighted full text without permission.",
+  "repositories": [
+    {
+      "id": "gutenberg",
+      "name": "Project Gutenberg",
+      "kind": "public-domain books",
+      "url": "https://www.gutenberg.org/",
+      "access": "public",
+      "ingest": "catalog metadata and confirmed public-domain text; retain edition and jurisdiction notes"
+    },
+    {
+      "id": "google-books",
+      "name": "Google Books",
+      "kind": "book discovery and previews",
+      "url": "https://books.google.com/",
+      "api": "https://www.googleapis.com/books/v1/volumes?q=",
+      "access": "public API with Google terms",
+      "ingest": "metadata, bibliographic identifiers, public-domain full-view links; preview-only works remain metadata/link records"
+    },
+    {
+      "id": "internet-archive",
+      "name": "Internet Archive",
+      "kind": "digitized books and collections",
+      "url": "https://archive.org/",
+      "api": "https://archive.org/advancedsearch.php",
+      "access": "public catalog; item rights vary",
+      "ingest": "metadata first; full text only when rights/license and download policy permit"
+    },
+    {
+      "id": "hathitrust",
+      "name": "HathiTrust",
+      "kind": "digitized scholarly books",
+      "url": "https://www.hathitrust.org/",
+      "access": "public catalog; full-view status varies",
+      "ingest": "catalog and rights status; retrieve only public-domain/open records"
+    },
+    {
+      "id": "loc",
+      "name": "Library of Congress",
+      "kind": "primary sources and collections",
+      "url": "https://www.loc.gov/collections/",
+      "api": "https://www.loc.gov/apis/",
+      "access": "public; item rights vary",
+      "ingest": "metadata, item rights statement, source URL and collection context"
+    },
+    {
+      "id": "gallica",
+      "name": "Gallica / Bibliothèque nationale de France",
+      "kind": "historical books and manuscripts",
+      "url": "https://gallica.bnf.fr/",
+      "access": "public; rights vary",
+      "ingest": "catalog metadata and openly reusable digitizations"
+    },
+    {
+      "id": "europeana",
+      "name": "Europeana",
+      "kind": "cultural heritage aggregator",
+      "url": "https://www.europeana.eu/",
+      "access": "public API; item-level rights",
+      "ingest": "metadata plus explicit rights URI"
+    },
+    {
+      "id": "perseus",
+      "name": "Perseus Digital Library",
+      "kind": "classical primary texts",
+      "url": "https://www.perseus.tufts.edu/",
+      "access": "public; edition/license dependent",
+      "ingest": "edition metadata, text only under stated license"
+    },
+    {
+      "id": "darwin-online",
+      "name": "Darwin Online",
+      "kind": "historical science primary sources",
+      "url": "https://darwin-online.org.uk/",
+      "access": "public; rights vary by item",
+      "ingest": "metadata, correspondence context, item-specific reuse rules"
+    },
+    {
+      "id": "newton-project",
+      "name": "The Newton Project",
+      "kind": "primary manuscripts and editions",
+      "url": "https://www.newtonproject.ox.ac.uk/",
+      "access": "public; edition-specific rights",
+      "ingest": "metadata and citation links; text subject to edition rights"
+    },
+    {
+      "id": "royal-society",
+      "name": "Philosophical Transactions archive",
+      "kind": "historical journal",
+      "url": "https://royalsocietypublishing.org/loi/rstl/group/c1600.d1660.y1665",
+      "access": "open archive varies by item",
+      "ingest": "metadata and article links; text subject to publisher rights"
+    },
+    {
+      "id": "mactutor",
+      "name": "MacTutor History of Mathematics",
+      "kind": "biographical and historical reference",
+      "url": "https://mathshistory.st-andrews.ac.uk/",
+      "access": "public web resource",
+      "ingest": "citations and short metadata; respect site copyright"
+    },
+    {
+      "id": "openalex",
+      "name": "OpenAlex",
+      "kind": "modern scholarly metadata",
+      "url": "https://openalex.org/",
+      "api": "https://api.openalex.org/",
+      "access": "open scholarly metadata",
+      "ingest": "metadata, concepts, authors, institutions and DOI links"
+    },
+    {
+      "id": "crossref",
+      "name": "Crossref",
+      "kind": "scholarly DOI metadata",
+      "url": "https://www.crossref.org/",
+      "api": "https://api.crossref.org/",
+      "access": "public API",
+      "ingest": "metadata and DOI resolution"
+    },
+    {
+      "id": "arxiv",
+      "name": "arXiv",
+      "kind": "preprints",
+      "url": "https://arxiv.org/",
+      "api": "https://info.arxiv.org/help/api/index.html",
+      "access": "public; article license varies",
+      "ingest": "metadata and abstract by default; full text only under license"
+    },
+    {
+      "id": "nist",
+      "name": "NIST publications",
+      "kind": "standards and technical reports",
+      "url": "https://www.nist.gov/publications",
+      "access": "public government publications",
+      "ingest": "metadata and public report text where permitted"
+    },
+    {
+      "id": "pubmed",
+      "name": "PubMed",
+      "kind": "biomedical literature metadata",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/",
+      "api": "https://www.ncbi.nlm.nih.gov/books/NBK25501/",
+      "access": "public metadata; article rights vary",
+      "ingest": "metadata and abstracts; full text only via PMC/open license"
+    },
+    {
+      "id": "pmc",
+      "name": "PubMed Central",
+      "kind": "open-access biomedical full text",
+      "url": "https://pmc.ncbi.nlm.nih.gov/",
+      "api": "https://www.ncbi.nlm.nih.gov/pmc/tools/developers/",
+      "access": "public; article-level license",
+      "ingest": "full text only where article license permits reuse"
+    }
+  ],
+  "search_patterns": [
+    "site:gutenberg.org/ebooks mathematics philosophy science",
+    "site:books.google.com/books \"Full view\" history of science",
+    "site:archive.org/details \"public domain\" natural philosophy",
+    "site:loc.gov/item/ scientific correspondence manuscript",
+    "site:gallica.bnf.fr \"mathématiques\" histoire",
+    "site:darwin-online.org.uk correspondence notebook",
+    "site:newtonproject.ox.ac.uk manuscripts letters",
+    "site:royalsocietypublishing.org/loi/rstl 17th century experiment"
+  ]
+}
