@@ -4,17 +4,7 @@
   "title": "Merlin CAD Geometry Job Contract v1",
   "type": "object",
   "additionalProperties": false,
-  "required": [
-    "contract_version",
-    "job_id",
-    "operation",
-    "input_path",
-    "input_sha256",
-    "input_format",
-    "units",
-    "coordinate_frame",
-    "requested_outputs"
-  ],
+  "required": ["contract_version", "job_id", "operation", "input_path", "input_sha256", "input_format", "units", "coordinate_frame", "requested_outputs"],
   "properties": {
     "contract_version": {"const": "1.0"},
     "job_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"},
@@ -25,10 +15,7 @@
     "units": {
       "type": "object",
       "required": ["length", "angle"],
-      "properties": {
-        "length": {"type": "string", "minLength": 1},
-        "angle": {"type": "string", "minLength": 1}
-      },
+      "properties": {"length": {"type": "string", "minLength": 1}, "angle": {"type": "string", "minLength": 1}},
       "additionalProperties": true
     },
     "coordinate_frame": {
@@ -45,9 +32,15 @@
       "type": "array",
       "minItems": 1,
       "uniqueItems": true,
-      "items": {
-        "enum": ["topology_report", "mesh", "bounding_box", "volume", "surface_area"]
-      }
+      "items": {"enum": ["topology_report", "mesh", "bounding_box", "volume", "surface_area"]}
+    },
+    "mesh_parameters": {
+      "type": "object",
+      "properties": {
+        "linear_deflection": {"type": "number", "exclusiveMinimum": 0},
+        "angular_deflection": {"type": "number", "exclusiveMinimum": 0}
+      },
+      "additionalProperties": false
     }
   }
 }
