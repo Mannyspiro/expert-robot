@@ -52,9 +52,6 @@ class HudActivityTests(unittest.TestCase):
         self.assertEqual(hud.snapshot()["event_count"], 0)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
     def test_outbox_consumer_projects_and_acknowledges_telemetry(self):
         import tempfile
         from pathlib import Path
@@ -72,3 +69,7 @@ if __name__ == "__main__":
             self.assertTrue(result["projected"])
             self.assertEqual(projector.snapshot()["phase"],"experiment")
             self.assertEqual(outbox.get(result["event_id"])["state"],"acknowledged")
+
+
+if __name__ == "__main__":
+    unittest.main()
