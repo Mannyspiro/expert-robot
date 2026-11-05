@@ -242,7 +242,7 @@ def export_spice_netlist(
         value = spec.get("value", "")
         if kind not in {"R", "C", "L", "V", "I"}:
             raise ValueError(f"{part.ref} has unsupported SPICE component kind")
-        if not re.fullmatch(r"[0-9]+(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?(?:[TGMKmunpf]|meg)?", value):
+        if not re.fullmatch(r"[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?(?:[TGMKmunpf]|meg)?", value):
             raise ValueError(f"{part.ref} has an invalid SPICE value")
         if not part.ref.upper().startswith(kind) or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", part.ref):
             raise ValueError(f"{part.ref} reference must begin with its SPICE component kind")
