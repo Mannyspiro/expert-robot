@@ -4,7 +4,7 @@ from dataclasses import replace
 from pathlib import Path
 
 from merlin.event_outbox import MerlinEventOutbox
-from merlin.prompt_contract import CompiledPrompt, PromptCompiler, PromptOutboxPublisher, PromptTask
+from merlin.prompt_contract import (CompiledPrompt, PromptCompiler, PromptOutboxPublisher, PromptResult, PromptResultReceiver, PromptTask)
 
 
 def make_task(**overrides):
@@ -117,6 +117,85 @@ class PromptContractTests(unittest.TestCase):
             )
             with self.assertRaises(ValueError):
                 publisher.publish(forged)
+
+    def _leased_prompt(self, directory):
+        outbox = MerlinEventOutbox(Path(directory) / "outbox.sqlite3")
+        compiled = PromptCompiler().compile(make_task())
+        publisher = PromptOutboxPublisher(
+            outbox, recipient_validator=lambda _: True,
+            approval_validator=lambda ref, prompt: True,
+        )
+        event = publisher.publish(compiled)
+        leased = outbox.claim_next(
+            "hermes-worker-1", topics=["merlin.prompt.hermes.research"], lease_seconds=60
+        )
+        self.assertEqual(leased["event_id"], event["event_id"])
+        return outbox, compiled, leased
+
+    def _result_for(self, compiled, **overrides):
+        values = dict(
+            schema="merlin-engineered-result/1",
+            task_id=compiled.task_id,
+            recipient=compiled.recipient,
+            prompt_sha256=compiled.prompt_sha256,
+            task_sha256=compiled.task_sha256,
+            worker_id="hermes-worker-1",
+            status="completed",
+            outputs={"experiment_plan": "Run deterministic test with seed 42."},
+            tests_run=("test_reproducibility",),
+            test_results={"test_reproducibility": "passed"},
+            evidence_refs=("artifact:result.json",),
+            artifact_sha256={"result.json": "a" * 64},
+            tool_versions={"python": "3.12.1"},
+            limitations=(),
+        )
+        values.update(overrides)
+        return PromptResult(**values)
+
+    def test_result_is_bound_to_prompt_and_acknowledged(self):
+        with tempfile.TemporaryDirectory() as directory:
+            outbox, compiled, leased = self._leased_prompt(directory)
+            result = self._result_for(compiled)
+            receiver = PromptResultReceiver(outbox)
+            acknowledged = receiver.accept(
+                leased["event_id"], "hermes-worker-1", leased["lease_token"], result
+            )
+            self.assertEqual(acknowledged["state"], "acknowledged")
+            self.assertEqual(acknowledged["result"]["prompt_sha256"], compiled.prompt_sha256)
+            self.assertEqual(len(acknowledged["result"]["result_sha256"]), 64)
+            replay = receiver.accept(
+                leased["event_id"], "hermes-worker-1", leased["lease_token"], result
+            )
+            self.assertEqual(replay["state"], "acknowledged")
+
+    def test_mismatched_prompt_hash_quarantines_result(self):
+        with tempfile.TemporaryDirectory() as directory:
+            outbox, compiled, leased = self._leased_prompt(directory)
+            result = self._result_for(compiled, prompt_sha256="0" * 64)
+            receiver = PromptResultReceiver(outbox)
+            with self.assertRaises(ValueError):
+                receiver.accept(
+                    leased["event_id"], "hermes-worker-1", leased["lease_token"], result
+                )
+            self.assertEqual(outbox.get(leased["event_id"])["state"], "quarantined")
+
+    def test_result_requires_current_worker_lease(self):
+        with tempfile.TemporaryDirectory() as directory:
+            outbox, compiled, leased = self._leased_prompt(directory)
+            result = self._result_for(compiled, worker_id="other-worker")
+            receiver = PromptResultReceiver(outbox)
+            with self.assertRaises(PermissionError):
+                receiver.accept(
+                    leased["event_id"], "other-worker", leased["lease_token"], result
+                )
+            self.assertEqual(outbox.get(leased["event_id"])["state"], "leased")
+
+    def test_completed_result_requires_outputs_and_valid_artifact_hashes(self):
+        compiled = PromptCompiler().compile(make_task())
+        with self.assertRaises(ValueError):
+            self._result_for(compiled, outputs={}).validate()
+        with self.assertRaises(ValueError):
+            self._result_for(compiled, artifact_sha256={"result.json": "not-a-hash"}).validate()
 
     def test_bounded_execution_requires_independent_approval(self):
         with tempfile.TemporaryDirectory() as directory:
