@@ -23,6 +23,8 @@ The initial implementation is `python/merlin/prompt_engineering.py`:
 - `PromptRequest`: typed objective, target, task, context, inputs, instructions, output contract, constraints, acceptance criteria, resource budget and source references.
 - `PromptCompiler`: deterministic prompt text and canonical manifest; SHA-256 binds both.
 - `PromptDispatchCoordinator`: allowlisted targets, explicit approval, active lease, durable outbox, idempotency and self/subsystem channel.
+- `publish_to_hermes`: maps registered prompt task types to the existing `merlin.hermes.task` contract, preserves the compiled prompt and digest in `experiment_spec`, and leaves execution-time approval/lease revalidation to `HermesWorker`.
+- Integration test: compiles a prompt, publishes it, lets the real `HermesWorker` claim and acknowledge it using an injected test handler, and verifies the exact prompt digest/text arrived. This is a local contract test, not a live Avrea/OCI run.
 - `merlin.prompt.dispatch`: outbox topic for dispatch requests.
 - `merlin-engineered-prompt/1` and `merlin-prompt-dispatch/1`: versioned schemas.
 
