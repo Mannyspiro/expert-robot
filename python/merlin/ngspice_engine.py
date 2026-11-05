@@ -27,9 +27,15 @@ def validate_netlist(netlist: str) -> str:
     has_component = False
     has_analysis = False
     has_end = False
+    seen_title = False
     for index, raw in enumerate(lines):
         line = raw.strip()
         if not line or line.startswith("*") or line.startswith("$"):
+            continue
+        if not seen_title:
+            seen_title = True
+            if line.startswith("."):
+                raise ValueError("first active netlist line must be the SPICE title")
             continue
         if _FORBIDDEN.search(line):
             raise ValueError("netlist contains a forbidden control or external-file directive")
@@ -44,9 +50,6 @@ def validate_netlist(netlist: str) -> str:
             continue
         if _COMPONENT.match(line):
             has_component = True
-            continue
-        # First non-comment, non-directive line is the SPICE title.
-        if index == 0:
             continue
         raise ValueError("unsupported netlist statement on line " + str(index + 1))
     if not has_component or not has_analysis or not has_end:
