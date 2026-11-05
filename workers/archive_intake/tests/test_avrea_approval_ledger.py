@@ -11,6 +11,7 @@ class AvreaApprovalTests(unittest.TestCase):
    task={"contract_version":"1.0","task_id":"t2","approval_id":"a2","capability_allowlist":["lean-check"],
     "resource_budget":{"max_cpu_seconds":10,"max_memory_mb":128,"max_output_bytes":1000},
     "timeout_seconds":30,"network_access":"none","result_manifest_required":True}
+   task["task_contract_sha256"]=canonical_sha(task)
    approval={"approval_id":"a2","status":"approved","task_contract_sha256":canonical_sha(task),
     "approved_by":"operator","approval_source":"manual-review","approved_at":"2026-11-04T00:00:00Z"}
    policy={"allowed_capabilities":["lean-check"],"resource_maxima":{"max_cpu_seconds":60,"max_memory_mb":512,"max_output_bytes":10000},"max_timeout_seconds":120}
