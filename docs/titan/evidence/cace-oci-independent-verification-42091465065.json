@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "evidence_type": "cace-independent-titan-avrea-verification",
+  "source_repository": "Mannyspiro/expert-robot",
+  "source_workflow_run_id": 42090360334,
+  "source_commit_sha": "8e40cb034864f80e58aef7602c4cc4dd1e41ed57",
+  "source_workflow_artifact_sha256": "0cd2040e9a426079bda9311937e55da9ae8b57d832908ff42f2e2c41c8d02eb6",
+  "workflow_name": "CACE Independent Avrea Evidence Verification",
+  "workflow_url": "https://github.com/morganaspim/Cace-app/actions/runs/42091465065",
+  "verification_workflow_run_id": 42091465065,
+  "verification_workflow_commit": "67d45ec9f040788d86d4368f3512c75b5a005376",
+  "cace_repository": "morganaspim/Cace-app",
+  "cace_branch": "feat/titan-mldsa-attestation-v2-20261105",
+  "cace_verification_artifact_sha256": "b1035510ed783fa0cf049141f9b16adbc687ef37f01963abbbe741cd85b8a352",
+  "runner_host": "cace-oci-a1",
+  "architecture": "aarch64",
+  "provider_commit": "5a1a854b0dc9f2141bdc771c555ee60c37950183",
+  "vector_source_commit": "b121fee031dc65d32c96f4109a42a10dacbe2076",
+  "cace_bundle_verification": "pass",
+  "artifact_count": 4,
+  "signature_status": "unsigned",
+  "qualification_status": "research_only",
+  "proof_effect": "none",
+  "promotion_authority": false,
+  "limitations": [
+    "CACE OCI independently recomputed the evidence-bundle digest and verified all four extracted artifact byte streams from the exact Avrea workflow archive.",
+    "The ML-DSA v2 signing profile is tested separately; this evidence record itself is unsigned.",
+    "This is provenance verification, not FIPS 140 validation or proof of cryptographic security."
+  ]
+}
