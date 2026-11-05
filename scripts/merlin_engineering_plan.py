@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Validate the mandatory engineering/research plan gate for Merlin tasks."""
-import argparse, json, re, sys
+import argparse, json, re, sys, importlib.util
 from pathlib import Path
 
 REQUIRED = ("task_id","objective","domain_scope","requirements","assumptions",
-            "reasoning_plan","design","resource_budget","verification","rollback")
+            "reasoning_plan","design","problem_representation","resource_budget","verification","rollback")
 def validate(plan):
     errors=[]
     if not isinstance(plan,dict): return ["plan must be a JSON object"]
@@ -29,6 +29,10 @@ def validate(plan):
     design=plan.get("design",{})
     for key in ("method","limitations","bias_review"):
         if not design.get(key): errors.append("design."+key+" must be addressed")
+    rp_path=Path(__file__).with_name("merlin_problem_reframing.py")
+    rp_spec=importlib.util.spec_from_file_location("merlin_problem_reframing",rp_path)
+    rp_module=importlib.util.module_from_spec(rp_spec); rp_spec.loader.exec_module(rp_module)
+    errors.extend(["problem_representation: "+e for e in rp_module.validate(plan.get("problem_representation",{}))])
     budget=plan.get("resource_budget",{})
     for key in ("max_runtime_seconds","max_memory_mb","max_disk_bytes","max_input_bytes"):
         if not isinstance(budget.get(key),int) or budget[key] <= 0: errors.append("resource_budget."+key+" must be a positive integer")
@@ -45,6 +49,7 @@ def template(task_id):
       "assumptions":[],"constraints":[],"dependencies":[],
       "reasoning_plan":{"inductive":"Not applicable; explain why or describe sample and limits.","deductive":"List premises, rules and derived obligations.","abductive":"Compare at least two plausible explanations/designs.","disconfirmation":"Name counterexamples and failure conditions."},
       "design":{"method":"","alternatives":[],"limitations":"","bias_review":{"possible_biases":[],"possible_fallacies":[],"checks":[]}},
+      "problem_representation":json.loads(__import__("subprocess").check_output([sys.executable,str(Path(__file__).with_name("merlin_problem_reframing.py")),"--template",task_id],text=True)),
       "resource_budget":{"max_runtime_seconds":300,"max_memory_mb":1024,"max_disk_bytes":10485760,"max_input_bytes":1048576},
       "verification":{"tests":["unit"],"independent_check":"Describe independent verifier or reviewer."},
       "rollback":"Describe how to revert without damaging canonical data."
