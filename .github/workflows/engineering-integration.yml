@@ -74,7 +74,7 @@ jobs:
           export QT_QPA_PLATFORM=offscreen
           export FREECAD_USER_HOME="${RUNNER_TEMP:-/tmp}/freecad-user"
           mkdir -p "$FREECAD_USER_HOME"
-          exec "$MERLIN_FREECAD_APPIMAGE" --appimage-extract-and-run "$@"
+          exec "$MERLIN_FREECAD_APPIMAGE" --appimage-extract-and-run --platform offscreen "$@"
           SH
           chmod +x "$RUNNER_TEMP/freecadcmd"
           echo "MERLIN_FREECAD_APPIMAGE=$appimage" >> "$GITHUB_ENV"
