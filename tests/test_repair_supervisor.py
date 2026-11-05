@@ -1,4 +1,5 @@
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -65,6 +66,7 @@ class RepairSupervisorTests(unittest.TestCase):
             lease_validator=lambda ref, budget: ref == "lease",
             repository="Mannyspiro/expert-robot", requester_id="test-agent",
         )
+        base = time.time()
         queued = supervisor.submit(
             task_id="crash-retry", project_id="p", commit_sha="b" * 40,
             failure_event={"event_id": "crash-1", "kind": "system.error"},
@@ -72,10 +74,10 @@ class RepairSupervisorTests(unittest.TestCase):
             resource_budget={"cpu_cores": 1, "memory_bytes": 1024,
                              "max_wall_seconds": 30, "compute_budget_units": 1},
         )
-        first = supervisor.consume_one(now=100)
+        first = supervisor.consume_one(now=base)
         self.assertEqual(first["state"], "pending")
         self.assertIn("injected worker crash", first["error"])
-        second = supervisor.consume_one(now=111)
+        second = supervisor.consume_one(now=base + 11)
         self.assertEqual(second["state"], "acknowledged")
         self.assertEqual(attempts["count"], 2)
         self.assertEqual(self.registry.get_artifact_head("p", "src/main.py")["digest"], original)
@@ -101,7 +103,7 @@ class RepairSupervisorTests(unittest.TestCase):
                              "max_wall_seconds": 30, "compute_budget_units": 1},
         )
         lease["active"] = False
-        result = supervisor.consume_one(now=200)
+        result = supervisor.consume_one(now=time.time())
         self.assertEqual(result["state"], "pending")
         self.assertIn("lease expired or was revoked", result["error"])
         self.assertEqual(self.registry.get_artifact_head("p", "src/main.py")["digest"], original)
@@ -144,7 +146,7 @@ class RepairSupervisorTests(unittest.TestCase):
             resource_budget={"cpu_cores": 1, "memory_bytes": 1024,
                              "max_wall_seconds": 30, "compute_budget_units": 1},
         )
-        result = supervisor.consume_one(now=300)
+        result = supervisor.consume_one(now=time.time())
         self.assertEqual(result["state"], "acknowledged")
         self.assertEqual(result["result"]["status"], "candidate_rejected")
         self.assertEqual(self.registry.get_artifact_head("p", "src/main.py")["digest"], original)
