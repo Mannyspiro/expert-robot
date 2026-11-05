@@ -37,9 +37,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          LIBOQS_TAG_SHA="$(git ls-remote https://github.com/open-quantum-safe/liboqs.git refs/tags/0.16.0 | awk '{print $1}')"
+          test "$LIBOQS_TAG_SHA" = "5a1a854b0dc9f2141bdc771c555ee60c37950183"
           git clone --filter=blob:none https://github.com/open-quantum-safe/liboqs.git /tmp/liboqs
           git -C /tmp/liboqs checkout --detach 5a1a854b0dc9f2141bdc771c555ee60c37950183
-          test "$(git -C /tmp/liboqs rev-parse HEAD)" = "5a1a854b0dc9f2141bdc771c555ee60c37950183"
+          test "$(git -C /tmp/liboqs rev-parse HEAD)" = "$LIBOQS_TAG_SHA"
           ACVP_TAG_SHA="$(git ls-remote https://github.com/usnistgov/ACVP-Server.git refs/tags/v1.1.0.41 | awk '{print $1}')"
           test "$ACVP_TAG_SHA" = "b121fee031dc65d32c96f4109a42a10dacbe2076"
           echo "ACVP_TAG_SHA=$ACVP_TAG_SHA" >> "$GITHUB_ENV"
