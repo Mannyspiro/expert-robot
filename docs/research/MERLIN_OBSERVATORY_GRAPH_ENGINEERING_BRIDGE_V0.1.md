@@ -4,6 +4,7 @@
 **Repository:** `Mannyspiro/expert-robot`  
 **Implementation branch:** `feat/merlin-lean-proof-optimization-atlas-20261104`  
 **Starting commit:** `216faab900aeef64566b8b8bc1a7fad3dc77b297`  
+**Latest implementation commit:** `ed0777544faf0dbf820a8ec2397a4e4b3a91ceee`  
 **Status:** draft implementation; exact-head CI/Avrea qualification pending.
 
 ## Purpose
@@ -30,6 +31,6 @@ Connect proof and benchmark evidence to the persistent Merlin Knowledge Graph an
 
 ## Tests added
 
-`tests/test_observatory_graph_bridge.py` covers real EngineeringProjectStore revisions, part/net object views, coordinate-frame registration, theorem linking, stale-revision rejection, and rejection of a malformed theorem DAG before any benchmark receipt is persisted.
+`tests/test_observatory_graph_bridge.py` contains six integration tests covering real EngineeringProjectStore revisions, part/net object views, coordinate-frame registration, theorem linking, stale-revision rejection, malformed theorem-DAG rejection before receipt persistence, project-node identity mismatch, and invalid string-as-collection input.
 
-The test is added to the existing Avrea-backed CI suite. Passing CI on this exact commit is still required before treating the implementation as validated.
+The six tests are added to the existing Avrea-backed CI suite. The exact-head Avrea check suite is queued and has not yet reported job results; the GitHub Actions workflow check has failed without exposing any jobs or test logs. Cloudflare preview checks are separate deployment checks. Passing Avrea CI on the exact current commit is still required before treating the implementation as validated. Passing CI on this exact commit is still required before treating the implementation as validated.
