@@ -21,10 +21,15 @@ def _safe_relative(path: str) -> str:
     return str(value)
 
 
-def _verify(data: bytes, expected_sha256: str) -> bytes:
+def _validate_sha256(expected_sha256: str) -> str:
     if (not isinstance(expected_sha256, str) or len(expected_sha256) != 64
             or any(char not in "0123456789abcdef" for char in expected_sha256)):
         raise ValueError("expected SHA-256 must be 64 lowercase hexadecimal characters")
+    return expected_sha256
+
+
+def _verify(data: bytes, expected_sha256: str) -> bytes:
+    _validate_sha256(expected_sha256)
     actual = hashlib.sha256(data).hexdigest()
     if actual != expected_sha256:
         raise ValueError(f"recovered bytes do not match expected SHA-256: {actual}")
@@ -37,6 +42,7 @@ class RegistryRecoveryAdapter:
 
     def recover(self, *, digest: str, project_id: str, original_path: str,
                 actor: str = "recovery") -> dict[str, Any]:
+        _validate_sha256(digest)
         try:
             source_bytes = self.registry.get_artifact_bytes(digest)
         except KeyError:
@@ -215,10 +221,10 @@ class GitRecoveryAdapter:
         digest = registry.put_artifact(
             project_id, recovery_path, data, actor=actor, operation_id=f"git-recovery:{commit}"
         )
+        _verify(registry.get_artifact_bytes(digest), expected_sha256)
         return {"confidence": "exact", "source": "git", "commit": commit,
                 "original_path": safe_path, "recovery_path": recovery_path,
-                "sha256": _verify(registry.get_artifact_bytes(digest), expected_sha256) and digest,
-                "size_bytes": len(data)}
+                "sha256": digest, "size_bytes": len(data)}
 
 
 class ZipRecoveryAdapter:
