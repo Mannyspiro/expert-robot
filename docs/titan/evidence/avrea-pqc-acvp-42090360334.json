@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "evidence_type": "titan-pqc-acvp-test",
+  "workflow": {
+    "name": "Titan PQC ACVP Reference Tests",
+    "run_id": 42090360334,
+    "run_url": "https://github.com/Mannyspiro/expert-robot/actions/runs/42090360334",
+    "conclusion": "success",
+    "commit_sha": "8e40cb034864f80e58aef7602c4cc4dd1e41ed57",
+    "attempt": 1
+  },
+  "runner": {
+    "name": "avrea-exe-01a1ad1a42ce7487a97f7485b68e7978",
+    "label": "avrea-ubuntu-latest-8-vcpu",
+    "python": "3.12.3",
+    "cmake": "3.31.6",
+    "gcc": "13.3.0"
+  },
+  "provider": {
+    "repository": "https://github.com/open-quantum-safe/liboqs",
+    "release": "0.16.0",
+    "commit": "5a1a854b0dc9f2141bdc771c555ee60c37950183"
+  },
+  "vectors": {
+    "repository": "https://github.com/usnistgov/ACVP-Server",
+    "tag": "v1.1.0.41",
+    "commit": "b121fee031dc65d32c96f4109a42a10dacbe2076"
+  },
+  "test_suites": [
+    "FIPS203",
+    "FIPS204",
+    "FIPS205"
+  ],
+  "suite_results": {
+    "FIPS203": {
+      "tests": 9,
+      "passed": 9,
+      "skipped": 0,
+      "failed": 0
+    },
+    "FIPS204": {
+      "tests": 9,
+      "passed": 9,
+      "skipped": 0,
+      "failed": 0
+    },
+    "FIPS205": {
+      "tests": 36,
+      "passed": 36,
+      "skipped": 0,
+      "failed": 0
+    }
+  },
+  "test_counts": {
+    "tests": 54,
+    "passed": 54,
+    "skipped": 0,
+    "failed": 0
+  },
+  "test_result": "pass",
+  "known_answer_tests_run": true,
+  "test_log_sha256": "c5231cc7da55103ce968693bc8bcee258082bcb39f7689e7a525a2221f97f964",
+  "junit_sha256": "c8b121d5b272a49b1b00fb523aaefb4ed67c1e59f78fabe30fabb71db3eee5d6",
+  "artifact": {
+    "name": "titan-pqc-acvp-42090360334",
+    "id": 13445845802,
+    "zip_sha256": "0cd2040e9a426079bda9311937e55da9ae8b57d832908ff42f2e2c41c8d02eb6",
+    "size_bytes": 8585,
+    "expires_at": "2026-12-05T19:07:57Z"
+  },
+  "cace_independent_verification": "not_run",
+  "signature_status": "unsigned",
+  "qualification_status": "research_only",
+  "fips_140_validation_claim": false,
+  "production_eligible": false,
+  "promotion_authority": false,
+  "limitations": [
+    "Official NIST ACVP projection-vector test harness passed selected standardized parameter sets; this is not FIPS 140 validation.",
+    "liboqs is a research/interoperability provider; no production cryptographic qualification or independent security review is claimed.",
+    "NIST ACVP-Server tag commit is pinned but upstream GitHub commit is unsigned."
+  ]
+}
