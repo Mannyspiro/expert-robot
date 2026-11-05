@@ -30,15 +30,15 @@ from merlin.research_evidence import ResearchEvidenceRecorder
 
 INTEGRATION_SCHEMA = "merlin-math-discovery-integrated/1"
 PLACEHOLDER_RE = re.compile(
-    r"\\bsorry\\b|\\badmit\\b|\\baxiom\\s+TODO\\b|"
-    r"TODO\\s*[:(]|REPLACE_WITH|\\?\\?\\?",
+    r"\bsorry\b|\badmit\b|\baxiom\s+TODO\b|"
+    r"TODO\s*[:(]|REPLACE_WITH|\?\?\?",
     re.IGNORECASE,
 )
 
 
 def canonical_bytes(value: Any) -> bytes:
     return (json.dumps(value, sort_keys=True, separators=(",", ":"),
-                       ensure_ascii=False, allow_nan=False) + "\\n").encode("utf-8")
+                       ensure_ascii=False, allow_nan=False) + "\n").encode("utf-8")
 
 
 def sha256(data: bytes) -> str:
