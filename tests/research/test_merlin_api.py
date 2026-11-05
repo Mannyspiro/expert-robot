@@ -333,7 +333,7 @@ class MerlinApiTests(unittest.TestCase):
         with urlopen(self.base + "/api/learning/learner?learner_id=" + learner, timeout=5) as response:
             state = json.loads(response.read())
         self.assertEqual(state["attempts"], 2)
-        self.assertEqual(state["skills"]["MATH-REP-001"]["conceptual_explanation"]["state"],
+        self.assertEqual(state["skills"]["MATH-REP-001"]["procedure"]["state"],
                          "provisionally_mastered")
         with urlopen(self.base + "/api/learning/recommendation?learner_id=" + learner + "&curriculum_id=mathematics", timeout=5) as response:
             recommendation = json.loads(response.read())
