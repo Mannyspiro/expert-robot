@@ -6,7 +6,7 @@ from merlin.hypothesis_ledger import HypothesisLedger
 from merlin.knowledge_graph import MerlinKnowledgeGraph
 from merlin.project_registry import MerlinRegistry
 from merlin.research_evidence import ResearchEvidenceRecorder
-from merlin.hermes_stage_handlers import build_hermes_stage_handlers
+from merlin.hermes_stage_handlers import build_hermes_stage_handlers, build_merlin_hermes_handlers
 
 
 def fake_cace_verifier(**request):
@@ -99,6 +99,21 @@ class HermesStageHandlerTests(unittest.TestCase):
         self.assertEqual(len(snapshot["nodes"]), 4)
         self.assertEqual(len(snapshot["edges"]), 3)
         self.assertEqual(self.ledger.get("H-17").status, "proposed")
+
+    def test_standard_composition_registers_builtin_numerical_and_electrical_engines(self):
+        handlers = build_merlin_hermes_handlers(
+            evidence_recorder=self.recorder,
+            project_id="merlin",
+            research_executor=lambda task, context: {},
+            proof_search_executor=lambda task, context: {},
+            artifact_verifier=fake_cace_verifier,
+            repository="owner/repo",
+            commit_sha="a" * 40,
+            requester_id="merlin-worker",
+        )
+        self.assertEqual(set(handlers), {
+            "research", "numerical_experiment", "proof_search", "electrical_analysis"
+        })
 
     def test_registration_fails_closed_when_an_engine_is_missing(self):
         with self.assertRaisesRegex(ValueError, "callable"):
