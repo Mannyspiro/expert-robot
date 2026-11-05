@@ -161,6 +161,8 @@ class RepairSupervisorTests(unittest.TestCase):
             "schema": "merlin-research-task/1", "task_id": "avrea-cace-1",
             "approval_ref": "approved", "lease_ref": "lease",
             "resource_budget": {"cpu_cores": 1, "memory_bytes": 1024},
+            "worker_image_digest": "1" * 64,
+            "tool_versions": {"pytest": "8.4.2"},
             "promotion_authority": False,
         }
         avrea = AvreaAdapter(
@@ -203,6 +205,31 @@ class RepairSupervisorTests(unittest.TestCase):
         self.assertEqual(len(verified.requests), 1)
         self.assertEqual(verified.requests[0]["commit_sha"], "f" * 40)
         self.assertEqual(verified.requests[0]["artifact_kind"], "avrea_test_result")
+
+        # A worker may not substitute another image or toolchain while reporting success.
+        mismatched_avrea = AvreaAdapter(
+            dispatch_transport=lambda payload: {
+                "runner_id": "runner-test", "job_id": "job-mismatch", "status": "accepted",
+            },
+            collect_transport=lambda job_id: {
+                "runner_id": "runner-test", "job_id": job_id, "status": "completed",
+                "exit_code": 0, "worker_image_digest": "2" * 64,
+                "tool_versions": {"pytest": "8.4.2"},
+                "artifacts": [{"name": "pytest.json", "content": b'{"passed":true}'}],
+            },
+            approval_validator=lambda ref, payload: ref == "approved",
+            lease_validator=lambda ref, budget: ref == "lease",
+            registry=self.registry, outbox=self.outbox,
+        )
+        mismatched = avrea_repair_test_runner(
+            mismatched_avrea, job_factory=lambda refs, payload: job,
+            result_evaluator=lambda collected, refs, payload: {"passed": True},
+            cace_adapter=Cace("verified"), repository="Mannyspiro/expert-robot",
+            requester_id="hermes-repair",
+        )
+        mismatch_result = mismatched([], task_payload)
+        self.assertFalse(mismatch_result["passed"])
+        self.assertFalse(mismatch_result["provider_execution_qualified"])
 
         inconclusive = Cace("inconclusive")
         runner = avrea_repair_test_runner(
