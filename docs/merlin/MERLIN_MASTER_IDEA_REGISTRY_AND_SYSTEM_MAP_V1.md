@@ -424,3 +424,21 @@ The repository already contains a more detailed mathematical idea system. This r
 **Important audit note:** the current CI workflow has `paths-ignore` entries for the mathematical ledger, intake, JSON catalog, validator and its test. Therefore changes limited to those files may not trigger the standard PR workflow. This must be reviewed and corrected so mathematical idea changes receive automated validation and retained test logs. The current registry PR includes the math program as a cross-linked inventory; it does not claim that the catalog is fully exhaustive or that every idea is formally established.
 
 The existing catalog's statuses are scoped to individual claims. Keep that rule. The ledger already correctly distinguishes coordinate transition consistency from geometric holonomy and records that the finite XMG rewrite explorer does not prove global confluence.
+
+
+## 17. Follow-up PRs created after this registry snapshot
+
+- PR #89 — [Add Merlin master idea registry and system map](https://github.com/Mannyspiro/expert-robot/pull/89). Head `8a5b7b33ebbb68bb5f0b291cbb0bb420752e1f1b`. CI run #2539 / ID `42119323668`: completed success; build-and-smoke job succeeded; NousCoder inference job skipped. Diagnostics artifact ID `13458285102`, digest `cdefeb2b48a48b745dc808801edca952494ef220941e735df0a04727fb263305`. Equation-atlas and cross-domain artifacts also uploaded.
+- PR #90 — [Specify logic as cultural lenses research program](https://github.com/Mannyspiro/expert-robot/pull/90). Head `3541ede933d123756b0a299b5c237c671c9f8c25`. CI run #2540 / ID `42119547822`: completed success; build-and-smoke succeeded; NousCoder inference job skipped. Diagnostics artifact ID `13458170847`, digest `fd8c755c379d07286e1b4fbe9db46b2db2f71107c4bd7885b4633bbdb785eb1a`.
+- PR #91 — [Retain Avrea logs and results for mathematical catalog validation](https://github.com/Mannyspiro/expert-robot/pull/91). Head `173cc0a3e1b20d10126d6f6d1eb81d079c9eb10b`. Dedicated Avrea workflow run #68 / ID `42119741185`: completed success. Catalog validator reported **25 mathematical ideas; IDs and typed links valid**. Validator unit tests: **5 passed**; exact representation graph: **11 passed**; rotation representations: **11 passed**; spherical curvature/holonomy: **7 passed**; Python compile step completed successfully. Evidence artifact ID `13457703602`, SHA-256 `bef21ed61a5b625f716262e736b9c05d96a28006bd9aff0c2ae14efe980af1f4`. The separate full CI run #2541 was still in progress when this record was written; do not infer its final state from the dedicated workflow.
+
+The math-catalog workflow now captures runner identity, per-suite stdout/stderr, machine-readable exit-code records and an always-uploaded evidence bundle; concurrency no longer cancels an earlier run. The dedicated workflow validates the existing catalog and representation modules. It does not yet validate the new cultural-logic case-study schema because that schema is a later deliverable.
+
+## 18. Newly confirmed repository relationships
+
+- The mathematical idea ledger and intake protocol are already in the repository and should remain the canonical mathematics intake path.
+- The representation graph includes exact rational frame transformations; the Avrea tests cover 5D frame invariants.
+- The rotation representation tests cover matrix, complex-plane, quaternion and Cl(3,0) rotor correspondence, including the quaternion sign equivalence.
+- Spherical holonomy has its own tests and must remain conceptually separate from arbitrary frame-graph cycle consistency.
+- The existing CI main workflow had ignored math-ledger/catalog/validator paths. PR #91 adds a dedicated Avrea workflow for those paths rather than duplicating the catalog or relying on the broad CI workflow alone.
+- The new logic-as-cultural-lenses program is deliberately a research protocol. It must become a source-backed catalog and schema before comparative case studies are generated at scale.
