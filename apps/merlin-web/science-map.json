@@ -489,5 +489,55 @@
       "access": "public; article-level license",
       "ingest": "full text only where article license permits reuse"
     }
+  ],
+  "reading_list": [
+    {
+      "id": "newton-principia",
+      "title": "Newton's Principia: The Mathematical Principles of Natural Philosophy",
+      "creator": "Isaac Newton; English translation by Andrew Motte",
+      "date": "1687 original; 1819 public-domain edition",
+      "domain": "mathematics / physics / astronomy",
+      "rights": "Public domain; Library of Congress rights statement",
+      "url": "https://www.loc.gov/item/04031837/",
+      "context": "A synthesis of mathematical mechanics and celestial motion, shaped by the astronomical work of Copernicus, Kepler and observational data available in the seventeenth century. Read the definitions, laws, scholia and geometric demonstrations as a historical mathematical practice, not as a modern textbook.",
+      "questions": [
+        "What does Newton define before proving anything?",
+        "How are mathematical laws connected to observations of planetary motion?",
+        "Which assumptions are explicit, and which belong to the period's natural philosophy?",
+        "How did later mechanics reinterpret the work?"
+      ]
+    },
+    {
+      "id": "darwin-origin",
+      "title": "On the Origin of Species",
+      "creator": "Charles Darwin",
+      "date": "1859 first edition",
+      "domain": "biology / evolution / natural history",
+      "rights": "Public domain; Smithsonian Libraries CC0 record",
+      "url": "https://library.si.edu/digital-library/book/onoriginofspec00darw",
+      "context": "Darwin developed an argument from extensive natural-history observation, variation under domestication, biogeography, classification, geology and correspondence. Read the first edition in its Victorian scientific context; later genetics and evolutionary synthesis were not yet available.",
+      "questions": [
+        "How does Darwin build a cumulative argument across different kinds of evidence?",
+        "What role do domestication and artificial selection play?",
+        "Where does he state difficulties and unresolved questions?",
+        "Which later discoveries changed the interpretation without erasing the original argument?"
+      ]
+    },
+    {
+      "id": "lavoisier-traite",
+      "title": "Traité élémentaire de chimie",
+      "creator": "Antoine-Laurent Lavoisier; with major visual and editorial contributions by Marie-Anne Paulze Lavoisier",
+      "date": "1789",
+      "domain": "chemistry / measurement / history of experimentation",
+      "rights": "Public Domain Mark / CC0 item records",
+      "url": "https://digital.sciencehistory.org/works/v979v4270",
+      "context": "Lavoisier's chemical program emphasized quantitative measurement, the balance, systematic nomenclature and a reorganization of combustion and matter. Paulze Lavoisier contributed illustrations and helped transmit chemical knowledge. Study the instruments, tables, terminology and experimental procedures alongside the argument.",
+      "questions": [
+        "Why does mass measurement matter to the argument?",
+        "How are experiments described so others can repeat them?",
+        "How does a new nomenclature change what can be reasoned about?",
+        "Who contributed to the work beyond the named author?"
+      ]
+    }
   ]
 }
