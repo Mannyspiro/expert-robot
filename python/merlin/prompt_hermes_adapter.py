@@ -65,6 +65,8 @@ class PromptHermesDispatcher:
             raise TypeError("binding must be a HermesPromptBinding")
         binding.validate()
         compiled = self.compiler.compile(task)
+        if len(task.objective) > 2000:
+            raise ValueError("Hermes task objective must not exceed the worker envelope limit of 2000 characters")
         expected_stage = HERMES_RECIPIENT_STAGES.get(task.recipient)
         if expected_stage is None or expected_stage != binding.stage:
             raise ValueError("recipient does not map to the declared Hermes stage")
