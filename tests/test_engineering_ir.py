@@ -2,7 +2,7 @@ import unittest
 
 from merlin.engineering_ir import (
     EngineeringProject, Net, Part, Pin, export_netlist, export_openscad,
-    validate_project,
+    export_spice_netlist, validate_project,
 )
 
 
@@ -57,6 +57,40 @@ class EngineeringIRTests(unittest.TestCase):
         codes = {issue.code for issue in validate_project(bad)}
         self.assertIn("PIN_VOLTAGE_EXCEEDED", codes)
         self.assertIn("PIN_CURRENT_EXCEEDED", codes)
+
+    def test_explicit_component_specs_export_deterministic_spice_netlist(self):
+        project = EngineeringProject(
+            "divider", "mm",
+            parts=(
+                Part("V1", "supply", (Pin("1", "positive"), Pin("2", "negative"))),
+                Part("R1", "resistor", (Pin("1", "input"), Pin("2", "return"))),
+            ),
+            nets=(
+                Net("SUPPLY", ("V1.1", "R1.1"), nominal_voltage_v=5.0),
+                Net("GND", ("V1.2", "R1.2"), nominal_voltage_v=0.0),
+            ),
+        )
+        output = export_spice_netlist(
+            project, {"V1": {"kind": "V", "value": "5"},
+                      "R1": {"kind": "R", "value": "1k"}},
+            ground_net="GND",
+        )
+        self.assertIn("R1 SUPPLY 0 1k\\n", output)
+        self.assertIn("V1 SUPPLY 0 DC 5\\n", output)
+        self.assertTrue(output.endswith(".op\\n.end\\n"))
+
+    def test_spice_export_rejects_injected_values_and_unknown_refs(self):
+        project = EngineeringProject(
+            "divider", "mm",
+            parts=(Part("R1", "resistor", (Pin("1", "a"), Pin("2", "b"))),),
+            nets=(Net("A", ("R1.1", "R1.2")),),
+        )
+        with self.assertRaisesRegex(ValueError, "invalid SPICE value"):
+            export_spice_netlist(project, {"R1": {"kind": "R", "value": "1k\\n.shell"}},
+                                 ground_net="A")
+        with self.assertRaisesRegex(ValueError, "unknown part references"):
+            export_spice_netlist(project, {"R9": {"kind": "R", "value": "1k"}},
+                                 ground_net="A")
 
     def test_invalid_projects_cannot_export(self):
         project = sample()
