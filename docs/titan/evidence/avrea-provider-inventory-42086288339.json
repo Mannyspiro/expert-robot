@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "evidence_type": "titan-provider-inventory",
+  "workflow": {
+    "name": "Titan Reference Provider Inventory",
+    "run_id": 42086288339,
+    "run_url": "https://github.com/Mannyspiro/expert-robot/actions/runs/42086288339",
+    "conclusion": "success",
+    "commit_sha": "4259a8b23119cc7717c0c563714ab247e5840ca4",
+    "branch": "feat/titan-pqc-foundation-20261105",
+    "job_id": 127452160715,
+    "job_name": "provider-inventory"
+  },
+  "runner": {
+    "label": "avrea-ubuntu-latest-8-vcpu",
+    "name": "avrea-exe-01a1ad020d757154aa1aa7591791bd61",
+    "runner_version": "2.338.2",
+    "os": "Linux",
+    "architecture": "x86_64",
+    "python": "3.12.3"
+  },
+  "artifact": {
+    "name": "titan-provider-inventory-42086288339",
+    "artifact_id": 13441524869,
+    "zip_sha256": "b584cb3ce4be29df7887ad1a9d0b49981eed7e0e9d065edc67399be787d3a735",
+    "size_bytes": 819,
+    "retention_expires_at": "2026-11-19T18:39:23Z"
+  },
+  "inventory": {
+    "liboqs_python": {
+      "present": false,
+      "version": null
+    },
+    "pqcrypto": {
+      "present": false,
+      "version": null
+    },
+    "cryptography": {
+      "present": true,
+      "version": "41.0.7",
+      "scope": "not treated as a PQC provider"
+    }
+  },
+  "result": "PQC provider packages were not installed on this Avrea worker. Reference known-answer testing is therefore blocked pending an approved, pinned provider and authoritative test vectors.",
+  "known_answer_tests_run": false,
+  "cryptographic_operations_run": false,
+  "pqc_conformance_claim": false,
+  "cace_independent_verification": "not_run",
+  "signature_status": "unsigned",
+  "promotion_authority": false,
+  "limitations": [
+    "Provider availability probe only.",
+    "Package presence alone does not establish algorithm availability, correctness, constant-time behavior, validation or security.",
+    "No dependencies installed; no keys or secrets generated."
+  ]
+}
