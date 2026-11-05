@@ -15,7 +15,7 @@ Accepts a learner attempt:
 - structured response or learner work;
 - optional evidence reference, transfer flag, delayed flag and submission timestamp.
 
-Attempts are append-only. Replaying the same attempt ID and content is idempotent; reusing it with different content is rejected. The API stores learner work in SQLite and writes only a metadata summary to the general Merlin event ledger.
+Attempts are append-only. Replaying the same attempt ID and content is idempotent; reusing it with different content is rejected. The API stores learner work in SQLite and writes only a metadata summary to the general Merlin event ledger. For the current objective problems, the server maps problem IDs to versioned scoring rubrics and computes the score from the response; browser-supplied score, idea ID and dimension claims are ignored.
 
 ### GET /api/learning/learner?learner_id=...
 
@@ -23,15 +23,17 @@ Returns per-idea, per-dimension estimates, uncertainty, observation counts, inde
 
 ### GET /api/learning/recommendation?learner_id=...
 
-Returns a lesson recommendation and reason trace: prerequisite readiness, target-skill estimates, uncertainty and recommendation-only authority.
+Returns a lesson recommendation and reason trace: prerequisite readiness, target-skill estimates, uncertainty and recommendation-only authority. Optional curriculum_id scopes selection to mathematics or b2b-ml-agentic-ai.
 
 ## Evidence model
 
-A uniform Beta(1,1) prior is combined with rubric scores as fractional evidence. This is a transparent baseline estimator, not a validated cognitive diagnosis or calibrated psychometric model. A skill is unobserved until evidence exists. Provisional mastery requires multiple observations across at least two sessions and a minimum posterior mean. Retention additionally requires delayed and transfer evidence.
+A uniform Beta(1,1) prior is combined with server-scored rubric results as fractional evidence. This is a transparent baseline estimator, not a validated cognitive diagnosis or calibrated psychometric model. A skill is unobserved until evidence exists. Provisional mastery requires multiple observations across at least two sessions and a minimum posterior mean. Retention additionally requires delayed and transfer evidence.
 
-The estimator is intentionally easy to inspect and replace. Production calibration requires task-specific rubrics, item difficulty calibration, held-out cohorts, fairness analysis and comparison with human expert judgments. Do not use the present numeric threshold for employment decisions or high-stakes certification.
+The current objective rubrics cover the rotation coordinate calculation, rotor half-angle recognition, invoice approval boundary and precision/recall calculation. Constructed explanations still require a separately reviewed rubric; they are not silently scored by an LLM. The estimator is intentionally easy to inspect and replace. Production calibration requires task-specific rubrics, item difficulty calibration, held-out cohorts, fairness analysis and comparison with human expert judgments. Do not use the present numeric threshold for employment decisions or high-stakes certification.
 
 ## Hermes connection
+
+The mathematical curriculum graph is loaded from the canonical merlin-mathematical-idea-catalog.v1.json, using its lesson metadata and prerequisite IDs. B2B machine-learning and agentic-AI objectives are stored in MERLIN_B2B_LEARNING_GRAPH_V0_1.json. The API accepts curriculum_id=mathematics or curriculum_id=b2b-ml-agentic-ai.
 
 When MERLIN_OUTBOX_DB_PATH points to the existing durable outbox, the API publishes:
 - merlin.learning.attempt
