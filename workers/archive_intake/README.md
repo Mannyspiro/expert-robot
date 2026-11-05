@@ -90,7 +90,7 @@ Example transform input:
 Example wiring input:
     {"kind":"wiring","connections":[{"connection_id":"c1","from_node":"J1","from_pin":"1","to_node":"R1","to_pin":"1","net_name":"VCC"}]}
 
-Simulation metadata requires solver/version, model and input hashes, units, parameters and boundary conditions. Results remain `not_verified` until a separate verifier receipt is attached.
+Simulation metadata requires solver/version, model and input hashes, units, parameters and boundary conditions. Results remain `not_verified` until a separate verifier receipt is attached.\n\n### Geometry backend and assembly frame graph\n\n`cad_geometry_backend.py` defines a fail-closed geometry-kernel adapter contract for STEP/STP, IGES/IGS and mesh inputs. It verifies the input digest, confines inputs/outputs to configured workspaces, checks explicit backend identity/version and hashes every returned artifact. A backend must be passed explicitly as a Python adapter; there is no automatic executable discovery or shell invocation. Its fixture tests validate contract and receipt integrity only—not CAD topology correctness. Request schema: `schemas/cad-geometry-job-v1.schema.json`. No FreeCAD/OpenCascade kernel is bundled.\n\n`cad_assembly_graph.py` validates a single-root component hierarchy, rejects duplicate IDs, missing parents, cycles and invalid frame matrices, and resolves each component transform into the assembly-root frame using column-vector composition. Its deterministic assembly digest is independent of component input ordering. Schema: `schemas/cad-assembly-graph-v1.schema.json`. This checks frame-graph consistency only; it does not perform collision detection, mating/joint solving, geometric interference checks or topology validation.
 
 ## 9. Local smoke test and unit tests
 
@@ -116,7 +116,7 @@ Tests are authored but have not been executed in this environment. No GitHub Act
 - GitHub commit receipts are point-in-time API records; signed-commit status is separately recorded.
 - Hermes transport, Avrea provider dispatch and CACE qualification remain explicit integration boundaries.
 - CACE run success is not automatically formal proof qualification.
-- CAD transforms are mathematical metadata operations, not a geometry-kernel or solver implementation.
+- CAD transforms and assembly graphs are mathematical metadata operations. The geometry backend is an adapter contract and artifact-integrity boundary, not a bundled FreeCAD/OpenCascade kernel or simulation solver.
 - SQLite is a single-host prototype, not a production multi-user registry.
 - No service has been deployed; PR remains draft and requires tests/review.
 - Governing invariant: capability grows, authority never expands.
