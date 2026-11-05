@@ -10,7 +10,9 @@ assert "confirmation_bias" in policy["bias_and_fallacy_review"]["cognitive_biase
 assert "affirming_the_consequent" in policy["bias_and_fallacy_review"]["logical_fallacies"]
 plan=load("merlin_engineering_plan.py")
 sample=plan.template("smoke")
-sample["objective"]="Verify the plan gate"\nsample["requirements"][0]["statement"]="The plan validator accepts a complete plan"\nsample["requirements"][0]["acceptance"]="The fixture returns no validation errors"
+sample["objective"]="Verify the plan gate"
+sample["requirements"][0]["statement"]="The plan validator accepts a complete plan"
+sample["requirements"][0]["acceptance"]="The fixture returns no validation errors"
 sample["domain_scope"]["primary_domain"]="computer-information"
 sample["design"]["method"]="contract test"
 sample["design"]["limitations"]="smoke-test only"
