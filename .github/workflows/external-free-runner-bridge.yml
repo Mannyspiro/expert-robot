@@ -219,8 +219,6 @@ jobs:
               if [ "$got" = "$REQUEST_ID" ]; then
                 git -C "$poll" show refs/remotes/origin/result:bridge/result.log > "$evidence/result.log" 2>/dev/null || true
                 git -C "$poll" show refs/remotes/origin/result:bridge/request.json > "$evidence/request.json"
-                if ! git -C "$poll" show refs/remotes/origin/result:bridge/result.json.sig > "$evidence/result.json.sig" 2>/dev/null; then continue; fi
-                if ! git -C "$poll" show refs/remotes/origin/result:bridge/cace-signer.pub > "$evidence/cace-signer.pub" 2>/dev/null; then continue; fi
                 python3 - "$evidence/result.json" "$evidence/result.log" "$evidence/request.json" "$ARCHIVE" "$REQUEST_ID" "$GITHUB_SHA" <<'PY'
           import hashlib
           import json
