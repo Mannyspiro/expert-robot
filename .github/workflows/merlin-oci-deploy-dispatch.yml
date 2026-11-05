@@ -1,0 +1,213 @@
+name: Merlin OCI Preview Dispatch
+
+on:
+  push:
+    branches:
+      - "repair/merlin-full-integration-20261105"
+    paths:
+      - "config/merlin_deploy_request.json"
+      - ".github/workflows/merlin-oci-deploy-dispatch.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: merlin-oci-preview-dispatch
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 35
+    steps:
+      - name: Check out exact Merlin source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Validate request and run focused Python regressions
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m json.tool config/merlin_deploy_request.json >/dev/null
+          python3 - <<'PY'
+          import json
+          req=json.load(open("config/merlin_deploy_request.json", encoding="utf-8"))
+          assert req.get("deploy") is True
+          assert req.get("target") == "oci-preview"
+          assert req.get("exposure") == "read-only"
+          assert req.get("authority") == "qualification-only"
+          assert req.get("promotion_authority") is False
+          assert req.get("public_host") == "merlin.129.146.160.46.nip.io"
+          print("MERLIN_DEPLOY_AUTHORIZATION_VALID")
+          PY
+          export PYTHONPATH="python:."
+          python3 -m compileall -q python/merlin scripts/init_merlin_dashboard_stores.py
+          python3 -m unittest discover -s tests -p 'test_hud_http.py'
+          python3 -m unittest discover -s tests -p 'test_hud_runtime.py'
+          python3 -m unittest discover -s tests -p 'test_merlin_dashboard_bootstrap.py'
+          python3 -m unittest discover -s tests -p 'test_registry_queries.py'
+
+      - name: Package the deployable Merlin API and HUD
+        id: package
+        shell: bash
+        run: |
+          set -euo pipefail
+          archive="$RUNNER_TEMP/merlin-source.tar.gz"
+          tar -czf "$archive" \
+            python/merlin \
+            scripts/init_merlin_dashboard_stores.py \
+            scripts/run_merlin_hud.sh \
+            ui/merlin-hud
+          size="$(stat -c %s "$archive")"
+          test "$size" -le $((25 * 1024 * 1024))
+          digest="$(sha256sum "$archive" | awk '{print $1}')"
+          request_id="merlin-deploy-$GITHUB_RUN_ID-$GITHUB_SHA"
+          {
+            echo "archive=$archive"
+            echo "size=$size"
+            echo "digest=$digest"
+            echo "request_id=$request_id"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Prepare existing CACE repository transport key
+        shell: bash
+        env:
+          CACE_BRIDGE_SSH_PRIVATE_KEY: \${{ secrets.CACE_BRIDGE_SSH_PRIVATE_KEY }}
+          LEGACY_CACE_BRIDGE_SSH_PRIVATE_KEY: \${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          bridge_key="\${CACE_BRIDGE_SSH_PRIVATE_KEY:-}"
+          if [ -z "$bridge_key" ]; then bridge_key="\${LEGACY_CACE_BRIDGE_SSH_PRIVATE_KEY:-}"; fi
+          if [ -z "$bridge_key" ]; then
+            echo "::error::The existing CACE repository transport key is unavailable."
+            exit 1
+          fi
+          umask 077
+          key_file="$RUNNER_TEMP/cace_bridge_key"
+          printf '%s\n' "$bridge_key" > "$key_file"
+          unset bridge_key CACE_BRIDGE_SSH_PRIVATE_KEY LEGACY_CACE_BRIDGE_SSH_PRIVATE_KEY
+          chmod 600 "$key_file"
+          ssh-keygen -y -f "$key_file" >/dev/null
+          eval "$(ssh-agent -s)"
+          ssh-add "$key_file"
+          echo "SSH_AUTH_SOCK=$SSH_AUTH_SOCK" >> "$GITHUB_ENV"
+          echo "SSH_AGENT_PID=$SSH_AGENT_PID" >> "$GITHUB_ENV"
+
+      - name: Publish immutable Merlin deployment request to CACE
+        shell: bash
+        env:
+          ARCHIVE: \${{ steps.package.outputs.archive }}
+          ARCHIVE_SIZE: \${{ steps.package.outputs.size }}
+          ARCHIVE_SHA: \${{ steps.package.outputs.digest }}
+          REQUEST_ID: \${{ steps.package.outputs.request_id }}
+          SOURCE_SHA: \${{ github.sha }}
+          PUBLIC_HOST: merlin.129.146.160.46.nip.io
+          CACE_BASE_BRANCH: deploy/merlin-oci-preview-20261105
+        run: |
+          set -euo pipefail
+          work="$RUNNER_TEMP/cace-merlin-deploy"
+          GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
+            git clone git@github.com:morganaspim/Cace-app.git "$work"
+          cd "$work"
+          git fetch origin "$CACE_BASE_BRANCH"
+          request_branch="merlin-deploy/$REQUEST_ID"
+          git checkout -b "$request_branch" "origin/$CACE_BASE_BRANCH"
+          mkdir -p bridge
+          cp "$ARCHIVE" bridge/merlin-source.tar.gz
+          python3 - "$REQUEST_ID" "$SOURCE_SHA" "$ARCHIVE_SIZE" "$ARCHIVE_SHA" "$PUBLIC_HOST" > bridge/merlin-request.json <<'PY'
+          import json, sys
+          request_id, source_sha, size, digest, host = sys.argv[1:]
+          print(json.dumps({
+              "schema_version": 1,
+              "request_id": request_id,
+              "expert_robot_commit": source_sha,
+              "archive_size_bytes": int(size),
+              "archive_sha256": digest,
+              "public_host": host,
+              "exposure": "read-only",
+              "authority": "qualification-only",
+              "promotion_authority": False,
+          }, indent=2))
+          PY
+          git config user.name "merlin-deployment-dispatcher"
+          git config user.email "noreply@github.com"
+          git add bridge/merlin-request.json bridge/merlin-source.tar.gz
+          git diff --cached --check
+          git commit -m "Dispatch isolated Merlin OCI preview: $REQUEST_ID"
+          GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
+            git push origin "HEAD:refs/heads/$request_branch"
+          echo "MERLIN_DEPLOY_REQUEST_PUBLISHED branch=$request_branch"
+
+      - name: Await independently executed OCI deployment receipt
+        id: await
+        shell: bash
+        env:
+          REQUEST_ID: \${{ steps.package.outputs.request_id }}
+        run: |
+          set -euo pipefail
+          poll="$RUNNER_TEMP/cace-merlin-result"
+          mkdir -p "$poll"
+          git -C "$poll" init -q
+          git -C "$poll" remote add origin git@github.com:morganaspim/Cace-app.git
+          result_branch="merlin-deploy-result/$REQUEST_ID"
+          found=false
+          for attempt in $(seq 1 120); do
+            GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
+              git -C "$poll" fetch -q --force origin "refs/heads/$result_branch:refs/remotes/origin/result" 2>/dev/null || true
+            if git -C "$poll" show refs/remotes/origin/result:bridge/deploy-result.json > "$RUNNER_TEMP/merlin-deploy-result.json" 2>/dev/null; then
+              found=true
+              break
+            fi
+            sleep 10
+          done
+          if [ "$found" != true ]; then
+            echo "::error::Timed out waiting for CACE OCI deployment receipt."
+            exit 1
+          fi
+          python3 - "$RUNNER_TEMP/merlin-deploy-result.json" "$REQUEST_ID" "$GITHUB_SHA" <<'PY'
+          import json, re, sys
+          result=json.load(open(sys.argv[1], encoding="utf-8"))
+          assert result.get("schema_version") == 1
+          assert result.get("request_id") == sys.argv[2]
+          assert result.get("expert_robot_commit") == sys.argv[3]
+          assert result.get("cace_repository") == "morganaspim/Cace-app"
+          assert result.get("status") == "pass"
+          assert result.get("public_read_only") is True
+          assert result.get("authority") == "qualification-only"
+          assert result.get("promotion_authority") is False
+          assert isinstance(result.get("cace_workflow_run_id"), int)
+          assert result.get("deployment_url", "").startswith(("https://", "http://"))
+          print(json.dumps(result, sort_keys=True, indent=2))
+          PY
+          url="$(python3 -c 'import json; print(json.load(open("'$RUNNER_TEMP'/merlin-deploy-result.json"))["deployment_url"])')"
+          echo "deployment_url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Verify external Merlin GUI and run browser interaction suite
+        shell: bash
+        env:
+          DEPLOYMENT_URL: \${{ steps.await.outputs.deployment_url }}
+        run: |
+          set -euo pipefail
+          origin="\${DEPLOYMENT_URL%/hud}"
+          curl --fail --silent --show-error "$origin/health"
+          curl --fail --silent --show-error "$origin/hud" | grep -q "MERLIN"
+          curl --fail --silent --show-error "$origin/api/hud/graph" | python3 -c 'import json,sys; assert json.load(sys.stdin)["schema_version"]=="1.0"'
+          npm --prefix ui-tests install --no-save --no-audit --no-fund playwright@1.54.2
+          ui-tests/node_modules/.bin/playwright install --with-deps chromium
+          node ui-tests/merlin-hud-smoke.mjs "$DEPLOYMENT_URL"
+
+      - name: Publish deployment summary
+        if: always()
+        shell: bash
+        env:
+          DEPLOYMENT_URL: \${{ steps.await.outputs.deployment_url }}
+        run: |
+          {
+            echo "## Merlin OCI preview"
+            echo ""
+            echo "- URL: \${DEPLOYMENT_URL:-not verified}"
+            echo "- Source commit: $GITHUB_SHA"
+            echo "- Exposure: GET/HEAD only"
+            echo "- CACE promotion authority: disabled"
+          } >> "$GITHUB_STEP_SUMMARY"
