@@ -53,9 +53,26 @@ def avrea_repair_test_runner(avrea_adapter, *, job_factory, result_evaluator,
         artifacts = collected.get("artifacts")
         if not isinstance(artifacts, list) or not artifacts:
             result["passed"] = False
+            result["provider_execution_qualified"] = False
             result["cace_verification_status"] = "inconclusive"
             result["cace_receipts"] = []
             return result
+        image_digest = collected.get("worker_image_digest")
+        tool_versions = collected.get("tool_versions")
+        provider_qualified = (
+            collected.get("status") in {"completed", "success", "succeeded"}
+            and collected.get("exit_code") == 0
+            and isinstance(image_digest, str) and len(image_digest) == 64
+            and all(char in "0123456789abcdef" for char in image_digest)
+            and isinstance(tool_versions, Mapping) and bool(tool_versions)
+            and all(isinstance(key, str) and key.strip()
+                    and isinstance(value, str) and value.strip()
+                    for key, value in tool_versions.items())
+        )
+        result["provider_execution_qualified"] = provider_qualified
+        result["worker_image_digest"] = image_digest
+        result["tool_versions"] = dict(tool_versions) if isinstance(tool_versions, Mapping) else {}
+        result["exit_code"] = collected.get("exit_code")
         receipts = []
         for item in artifacts:
             receipt = cace_adapter.verify_artifact(
@@ -77,7 +94,8 @@ def avrea_repair_test_runner(avrea_adapter, *, job_factory, result_evaluator,
         )
         result["cace_receipts"] = receipts
         result["cace_verification_status"] = status
-        result["passed"] = result.get("passed") is True and status == "verified"
+        result["passed"] = (result.get("passed") is True and status == "verified"
+                            and provider_qualified)
         return result
 
     return run
