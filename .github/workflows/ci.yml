@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: ["main", "feat/merlin-lean-proof-optimization-atlas-20261104"]
+    branches: ["main", "feat/merlin-lean-proof-optimization-atlas-20261104", "feat/merlin-preservation-implementation-p0p1-20261105"]
     paths-ignore:
       - "formal/**"
       - ".github/workflows/formal-qualification.yml"
