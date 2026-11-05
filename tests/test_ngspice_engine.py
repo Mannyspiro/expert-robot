@@ -25,10 +25,10 @@ R2 out 0 1k
                     validate_netlist(netlist)
 
     def test_run_enforces_address_space_limit_with_prlimit(self):
-        netlist = "RC operating point\\nV1 in 0 DC 5\\nR1 in 0 1k\\n.op\\n.end\\n"
+        netlist = "RC operating point\nV1 in 0 DC 5\nR1 in 0 1k\n.op\n.end\n"
         def which(name):
             return { "ngspice": "/usr/bin/ngspice", "prlimit": "/usr/bin/prlimit" }.get(name)
-        with patch("merlin.ngspice_engine.shutil.which", side_effect=which), \\
+        with patch("merlin.ngspice_engine.shutil.which", side_effect=which), \
              patch("merlin.ngspice_engine.subprocess.run",
                    return_value=subprocess.CompletedProcess([], 0, "", "")) as run:
             result = run_ngspice(netlist, max_memory_bytes=268435456)
@@ -41,7 +41,7 @@ R2 out 0 1k
         with patch("merlin.ngspice_engine.shutil.which",
                    side_effect=lambda name: "/usr/bin/ngspice" if name == "ngspice" else None):
             with self.assertRaisesRegex(RuntimeError, "prlimit is required"):
-                run_ngspice("RC operating point\\nV1 in 0 5\\nR1 in 0 1k\\n.op\\n.end\\n")
+                run_ngspice("RC operating point\nV1 in 0 5\nR1 in 0 1k\n.op\n.end\n")
 
     def test_requires_analysis_and_end(self):
         with self.assertRaisesRegex(ValueError, "analysis directive"):
