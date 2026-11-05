@@ -101,6 +101,8 @@ std::string shell_quote(const std::string& value) {
 }
 
 std::string read_text_file(const std::filesystem::path& path) {
+    const auto size = std::filesystem::file_size(path);
+    if (size > 1048576U) throw std::invalid_argument("Merlin plan exceeds the 1 MiB dispatch limit");
     std::ifstream input(path, std::ios::binary);
     if (!input) throw std::invalid_argument("cannot read Merlin plan file");
     std::ostringstream contents;
