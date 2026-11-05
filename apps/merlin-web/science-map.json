@@ -543,16 +543,17 @@
       "id": "darwin-origin",
       "title": "On the Origin of Species",
       "creator": "Charles Darwin",
-      "date": "1859 first edition",
+      "date": "1859 first edition (compare 1872 sixth edition)",
       "domain": "biology / evolution / natural history",
       "rights": "Public domain; Smithsonian Libraries CC0 record",
-      "url": "https://library.si.edu/digital-library/book/onoriginofspec00darw",
-      "context": "Darwin developed an argument from extensive natural-history observation, variation under domestication, biogeography, classification, geology and correspondence. Read the first edition in its Victorian scientific context; later genetics and evolutionary synthesis were not yet available.",
+      "url": "https://www.gutenberg.org/files/1228/1228-h/1228-h.htm",
+      "context": "Read the first edition in Darwin's own publication context: he records Beagle observations, years of accumulating evidence, the independent work of Alfred Russel Wallace, collaboration with Lyell and Hooker, and the limits of his compressed abstract. Compare the sixth edition's later historical sketch to see how priority and predecessor histories were revised.",
       "questions": [
-        "How does Darwin build a cumulative argument across different kinds of evidence?",
-        "What role do domestication and artificial selection play?",
-        "Where does he state difficulties and unresolved questions?",
-        "Which later discoveries changed the interpretation without erasing the original argument?"
+        "How did Darwin combine biogeography, geology, domestication, classification and embryology?",
+        "Why did he publish an abstract before the full evidence was complete?",
+        "How did he state difficulties and alternative evidence?",
+        "What did he acknowledge about Wallace, Hooker and Lyell?",
+        "How did the 1872 historical sketch revise the story of prior ideas?"
       ]
     },
     {
