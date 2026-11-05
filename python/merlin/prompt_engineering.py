@@ -197,6 +197,83 @@ class PromptDispatchCoordinator:
         self.approval_validator = approval_validator
         self.lease_validator = lease_validator
 
+    def publish_to_hermes(
+        self,
+        prompt: CompiledPrompt,
+        *,
+        approval_ref: str,
+        lease_ref: str,
+        resource_budget: Mapping[str, int],
+        hypothesis_id: str | None = None,
+        stage_map: Mapping[str, str] | None = None,
+    ) -> dict[str, Any]:
+        """Translate a compiled prompt into the existing Hermes task contract.
+
+        This is an adapter, not an executor. Hermes still revalidates approval,
+        lease, stage handler and time budget when it claims the durable event.
+        """
+        if not isinstance(prompt, CompiledPrompt):
+            raise TypeError("prompt must be CompiledPrompt")
+        if prompt.target_system != "hermes" or "hermes" not in self.allowed_targets:
+            raise PermissionError("prompt is not addressed to an allowlisted Hermes target")
+        if prompt.schema != PromptCompiler.SCHEMA or prompt.authority != "bounded_task_only" or prompt.promotion_authority:
+            raise PermissionError("prompt schema or authority is not admissible")
+        stage_map = dict(stage_map or {
+            "research": "research",
+            "literature_review": "research",
+            "symbolic_research": "proof_search",
+            "proof_search": "proof_search",
+            "numerical_experiment": "numerical_experiment",
+            "electrical_analysis": "electrical_analysis",
+        })
+        stage = stage_map.get(prompt.task_type)
+        if stage not in {"research", "proof_search", "numerical_experiment", "electrical_analysis"}:
+            raise ValueError("prompt task_type has no registered Hermes stage mapping")
+        if not isinstance(resource_budget, Mapping):
+            raise ValueError("resource_budget must be an object")
+        budget = dict(resource_budget)
+        required_budget = {"cpu_cores", "memory_bytes", "max_wall_seconds", "compute_budget_units"}
+        if not required_budget.issubset(budget):
+            raise ValueError("Hermes resource budget is incomplete")
+        if any(not isinstance(k, str) or isinstance(v, bool) or not isinstance(v, int) or v <= 0 for k, v in budget.items()):
+            raise ValueError("resource budget values must be positive integers")
+        inputs = dict(prompt.manifest.get("inputs") or {})
+        hypothesis = hypothesis_id or inputs.get("hypothesis_id")
+        hypothesis = _bounded_text(hypothesis, "hypothesis_id", 200)
+        approval_ref = _bounded_text(approval_ref, "approval_ref", 256)
+        lease_ref = _bounded_text(lease_ref, "lease_ref", 256)
+        if not self.approval_validator(approval_ref, prompt):
+            raise PermissionError("explicit approval was not validated")
+        if not self.lease_validator(lease_ref, budget):
+            raise PermissionError("active MCFC lease was not validated")
+        payload = {
+            "schema": "merlin-research-task/1",
+            "task_id": prompt.prompt_id,
+            "hypothesis_id": hypothesis,
+            "objective": prompt.objective,
+            "stage": stage,
+            "constraints": {"prompt_contract_valid": True, "bounded_authority": True},
+            "resource_budget": budget,
+            "approval_ref": approval_ref,
+            "lease_ref": lease_ref,
+            "experiment_spec": {
+                "schema": "merlin-hermes-engineered-prompt/1",
+                "prompt_schema": prompt.schema,
+                "prompt_id": prompt.prompt_id,
+                "prompt_sha256": prompt.prompt_sha256,
+                "prompt_text": prompt.prompt_text,
+                "manifest": dict(prompt.manifest),
+            },
+            "authority": "bounded_execution_only",
+            "promotion_authority": False,
+        }
+        key = f"hermes-engineered-prompt:{prompt.prompt_id}:{prompt.prompt_sha256}"
+        return self.outbox.enqueue(
+            idempotency_key=key,
+            topic="merlin.hermes.task",
+            payload=payload,
+        )
+
     def publish(
         self,
         prompt: CompiledPrompt,
