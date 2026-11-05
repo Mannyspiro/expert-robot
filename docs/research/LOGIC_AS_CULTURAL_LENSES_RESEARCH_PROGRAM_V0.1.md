@@ -230,3 +230,28 @@ This program consumes the mathematical idea ledger and research source graph; us
 The program contributes new typed records to the canonical registry and dashboard. It does not create a parallel knowledge base.
 
 **Research principle:** preserve both the rigor of formal systems and the specificity of lived intellectual history. Compare carefully; do not collapse differences for the sake of a single universal story.
+
+
+## 12. Existing Merlin logic-lens implementation — extend, do not duplicate
+
+PR #80 already introduced a computational logic-lens foundation:
+- `scripts/merlin_logic_lenses.py` explores fuzzy membership, finite n-valued, paraconsistent, intuitionistic, modal/temporal, probabilistic, rough approximation, many-sorted/type, algebraic, topological, category-semantic, information, game and quantum logic families.
+- It defines bounded finite truth-table generation, several fuzzy operators, candidate ranking and logic/mathematics/composition combinations.
+- `formal/MathAI/LogicLenses.lean` contains finite n-valued min/max operations and fuzzy Gödel, product and Łukasiewicz conjunctions, with commutativity/idempotence lemmas.
+- `research/science/merlin-research-governance.v1.json` requires fuzzy and n-valued logic lens review, logic composition, explicit epistemic labels, reasoning protocols and bias/fallacy review.
+- `tests/merlin_logic_ideonomy_smoke.py` checks bounded generation, truth-table caps, deterministic ideonomy, composition counts and research-packet construction.
+- `docs/MERLIN_SCIENCE_HISTORY_PHILOSOPHY_PLATFORM.md` defines the science/history/philosophy source-grounded atlas and pioneer dossier template.
+
+See [PR #80 — Merlin science, mathematics, history and philosophy atlas](https://github.com/Mannyspiro/expert-robot/pull/80), which reported a successful Avrea smoke workflow run #42088542852.
+
+**What the existing code does not establish:** the Python candidate scores are heuristic priors, not measured usefulness or truth; finite tables do not establish general properties; Lean lemmas about connectives do not validate historical interpretations; the existing computational logic families are not a comparative history of cultural reasoning practices.
+
+This research program adds the missing source-grounded historical, linguistic, epistemic, translation and specialist-review layers. It should reuse the existing logic engine and formal models, attach its case-study records to the existing science source registry and canonical research graph, and export lessons to Merlin Learning. Do not fork a second logic catalogue or duplicate the fuzzy/n-valued implementations.
+
+### Existing-to-new interface
+
+- Existing formal profile -> new case study: link by stable logic-system ID and exact formal specification revision.
+- Historical source -> concept/argument reconstruction: cite edition, translation, page/section and source span.
+- Historical term -> modern term: create a translation record with equivalence/analogy/loss status.
+- Formal reconstruction -> Lean/XMG: link to definitions, assumptions, theorem/test receipts and visual AST identity.
+- Case study -> curriculum lesson: export only after source and specialist review, keeping interpretation disputes visible.
