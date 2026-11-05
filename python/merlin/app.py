@@ -14,7 +14,7 @@ import os
 from pathlib import Path
 import sqlite3
 from typing import Any
-from urllib.parse import urlparse, urlsplit
+from urllib.parse import urlparse, urlsplit, parse_qs
 from urllib.request import Request, urlopen
 from urllib.error import URLError, HTTPError
 from time import perf_counter
@@ -24,6 +24,8 @@ from .council_runtime import run_local_council
 from .simulation import MerlinSimulation
 from .telemetry import normalize_event, telemetry_view, record_runtime_event
 from .telemetry_graph import build_telemetry_graph
+from .learner_model import LearnerStore, select_next_lesson
+from .event_outbox import MerlinEventOutbox
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
     validate_analogy,
@@ -205,8 +207,25 @@ def _netlist(data: dict[str, Any]) -> Netlist:
     return Netlist(components=components, nets=nets)
 
 
-def make_handler(store: EventStore, hud_runtime: Any | None = None):
+def make_handler(store: EventStore, hud_runtime: Any | None = None,
+                 learner_store: LearnerStore | None = None,
+                 learning_outbox: MerlinEventOutbox | None = None):
     simulation = MerlinSimulation()
+    learner_store = learner_store or LearnerStore(store.path)
+    learning_graph = {
+        "planar-rotation": {"prerequisites": [], "dimensions": ["recognition", "conceptual_explanation", "procedure", "representation_translation", "transfer"]},
+        "complex-multiplication": {"prerequisites": ["planar-rotation"], "dimensions": ["conceptual_explanation", "procedure", "representation_translation"]},
+        "rotor-representations": {"prerequisites": ["planar-rotation"], "dimensions": ["conceptual_explanation", "representation_translation", "transfer"]},
+        "ml-foundations": {"prerequisites": [], "dimensions": ["recognition", "conceptual_explanation", "procedure", "transfer"]},
+        "agentic-workflows": {"prerequisites": ["ml-foundations"], "dimensions": ["conceptual_explanation", "procedure", "transfer", "proof_justification"]},
+    }
+    learning_lessons = [
+        {"lesson_id": "rotation-four-representations-v0.1", "idea_id": "planar-rotation"},
+        {"lesson_id": "complex-multiplication-rotation-v0.1", "idea_id": "complex-multiplication"},
+        {"lesson_id": "quaternion-ga-rotors-v0.1", "idea_id": "rotor-representations"},
+        {"lesson_id": "b2b-ml-foundations-v0.1", "idea_id": "ml-foundations"},
+        {"lesson_id": "b2b-agentic-workflows-v0.1", "idea_id": "agentic-workflows"},
+    ]
     # Rebuild simulation state from the durable action ledger on process restart.
     replay_rows = store.by_kind("/api/sim/step")
     replayed = 0
@@ -314,6 +333,26 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None):
                 self._send(200, {"schema": "merlin-capabilities/1", "capabilities": CAPABILITIES})
             elif path == "/api/events":
                 self._send(200, {"schema": "merlin-events/1", "events": store.recent()})
+            elif path in {"/api/learning/learner", "/api/learning/recommendation"}:
+                query = parse_qs(parsed.query)
+                learner_id = (query.get("learner_id") or [""])[0]
+                if not learner_id or len(learner_id) > 200:
+                    self._send(400, {"error": "learner_id_required"})
+                    return
+                if path == "/api/learning/recommendation":
+                    result = select_next_lesson(learner_id, learner_store, learning_graph, learning_lessons)
+                    if learning_outbox is not None:
+                        minute = int(datetime.now(timezone.utc).timestamp() // 60)
+                        learning_outbox.enqueue("learning-recommendation:" + learner_id + ":" + str(minute),
+                            "merlin.learning.recommendation", {"learner_id": learner_id})
+                    self._send(200, {"schema": "merlin-learning-recommendation/1", **result})
+                else:
+                    estimates = {}
+                    for idea_id, idea in learning_graph.items():
+                        estimates[idea_id] = {dimension: learner_store.estimate(
+                            learner_id, idea_id, dimension).__dict__ for dimension in idea["dimensions"]}
+                    self._send(200, {"schema": "merlin-learner-state/1", "learner_id": learner_id,
+                                     "skills": estimates, "attempts": len(learner_store.attempts(learner_id))})
             elif path == "/api/council/roles":
                 self._send(200, {"schema": "merlin-council-roles/1",
                                  "roles": [{"id": p.persona_id, "title": p.title,
@@ -336,6 +375,17 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None):
                 if not isinstance(data, dict):
                     raise ValueError("request body must be a JSON object")
 
+                if path == "/api/learning/attempt":
+                    result = learner_store.record_attempt(data)
+                    if learning_outbox is not None:
+                        learning_outbox.enqueue("learning-attempt:" + str(data.get("attempt_id", "")),
+                            "merlin.learning.attempt", data)
+                    store.append(path, {"attempt_id": data.get("attempt_id"),
+                                        "learner_id": data.get("learner_id")},
+                                 {"state": result["state"], "idea_id": data.get("idea_id"),
+                                  "dimension": data.get("dimension")})
+                    self._send(202, {"schema": "merlin-learning-attempt/1", "accepted": True, **result})
+                    return
                 if path == "/api/telemetry/ingest":
                     event = normalize_event(data)
                     store.append(path, {"event_id": event["event_id"], "source": event["source"]},
@@ -580,10 +630,14 @@ def serve(port: int = 8765, db_path: str | None = None) -> None:
         str(Path.home() / ".local" / "share" / "merlin" / "events.sqlite3"),
     )
     store = EventStore(target)
+    learner_db = os.environ.get("MERLIN_LEARNER_DB_PATH", target)
+    learner_store = LearnerStore(learner_db)
+    outbox_path = os.environ.get("MERLIN_OUTBOX_DB_PATH", "").strip()
+    learning_outbox = MerlinEventOutbox(outbox_path) if outbox_path else None
     hud_runtime = _build_optional_hud_runtime()
     if hud_runtime is not None:
         hud_runtime.start()
-    server = ThreadingHTTPServer(("127.0.0.1", port), make_handler(store, hud_runtime))
+    server = ThreadingHTTPServer(("127.0.0.1", port), make_handler(store, hud_runtime, learner_store, learning_outbox))
     print(f"Merlin MVP API listening on http://127.0.0.1:{port}")
     print("Merlin HUD: canonical graph/event stores connected" if hud_runtime
           else "Merlin HUD: labelled demonstration fallback (canonical store paths not configured)")
