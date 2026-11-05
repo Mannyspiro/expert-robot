@@ -131,7 +131,6 @@ class MerlinFoundationStore:
         missing_references = []
         missing_reference_edges = []
         corrupt_artifacts = []
-        expected_reference_ids = set()
 
         for artifact in inventory["artifacts"]:
             digest = artifact["digest"]
@@ -141,7 +140,6 @@ class MerlinFoundationStore:
                 f"{project_id}\0{logical_path}".encode("utf-8")
             ).hexdigest()
             reference_id = f"artifact-ref:{reference_digest}"
-            expected_reference_ids.add(reference_id)
 
             if self.graph.get_node(node_id) is None:
                 missing_artifacts.append(logical_path)
