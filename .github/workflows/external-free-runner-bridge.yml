@@ -233,28 +233,28 @@ jobs:
                       # Reject proof escapes and compile-time command seams before
                       # invoking Lean on the self-hosted machine.
                       python3 - <<'PY' 2>&1 | tee -a "$log"
-                    import pathlib
-                    import re
+                  import pathlib
+                  import re
 
-                    root = pathlib.Path("formal/MathAI")
-                    forbidden = [
-                        ("sorry", re.compile(r"(?<![A-Za-z0-9_])sorry(?![A-Za-z0-9_])")),
-                        ("admit", re.compile(r"(?<![A-Za-z0-9_])admit(?![A-Za-z0-9_])")),
-                        ("axiom declaration", re.compile(r"(?m)^\s*axiom\s+")),
-                        ("unsafe declaration", re.compile(r"(?m)^\s*unsafe\s+")),
-                        ("run_cmd", re.compile(r"(?<![A-Za-z0-9_])run_cmd(?![A-Za-z0-9_])")),
-                    ]
-                    failures = []
-                    for path in sorted(root.rglob("*.lean")):
-                        text = path.read_text(encoding="utf-8")
-                        for label, pattern in forbidden:
-                            if pattern.search(text):
-                                failures.append(f"{path}: forbidden {label}")
-                    if failures:
-                        raise SystemExit("\n".join(failures))
-                    if pathlib.Path("formal/lakefile.lean").exists():
-                        raise SystemExit("executable formal/lakefile.lean is forbidden in external runner lane")
-                    print("formal source safety: PASS")
+                  root = pathlib.Path("formal/MathAI")
+                  forbidden = [
+                      ("sorry", re.compile(r"(?<![A-Za-z0-9_])sorry(?![A-Za-z0-9_])")),
+                      ("admit", re.compile(r"(?<![A-Za-z0-9_])admit(?![A-Za-z0-9_])")),
+                      ("axiom declaration", re.compile(r"(?m)^\s*axiom\s+")),
+                      ("unsafe declaration", re.compile(r"(?m)^\s*unsafe\s+")),
+                      ("run_cmd", re.compile(r"(?<![A-Za-z0-9_])run_cmd(?![A-Za-z0-9_])")),
+                  ]
+                  failures = []
+                  for path in sorted(root.rglob("*.lean")):
+                      text = path.read_text(encoding="utf-8")
+                      for label, pattern in forbidden:
+                          if pattern.search(text):
+                              failures.append(f"{path}: forbidden {label}")
+                  if failures:
+                      raise SystemExit("\n".join(failures))
+                  if pathlib.Path("formal/lakefile.lean").exists():
+                      raise SystemExit("executable formal/lakefile.lean is forbidden in external runner lane")
+                  print("formal source safety: PASS")
                     PY
                       if [ "${PIPESTATUS[0]}" -ne 0 ]; then
                         record_failure 41
@@ -276,15 +276,15 @@ jobs:
                       toolchain="$(cat "$formal_dir/lean-toolchain")"
                       mathlib_commit="$(
                         python3 - "$formal_dir/lake-manifest.json" <<'PY'
-                    import json
-                    import sys
+                import json
+                import sys
 
-                    manifest = json.load(open(sys.argv[1], encoding="utf-8"))
-                    package = next(
-                        item for item in manifest.get("packages", [])
-                        if item.get("name") == "mathlib"
-                    )
-                    print(package["rev"])
+                manifest = json.load(open(sys.argv[1], encoding="utf-8"))
+                package = next(
+                    item for item in manifest.get("packages", [])
+                    if item.get("name") == "mathlib"
+                )
+                print(package["rev"])
                     PY
                       )"
 
