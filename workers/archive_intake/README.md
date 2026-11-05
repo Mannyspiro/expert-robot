@@ -108,8 +108,6 @@ These commands are local-only. They do not use GitHub Actions, send Hermes event
 
 ## 10. Tests and trust boundaries
 
-    python3 -m unittest discover -s workers/archive_intake/tests -v
-
 Tests are authored but have not been executed in this environment. No GitHub Actions workflow was added, to conserve the Actions budget.
 
 - Archive contents are never executed, imported, rendered or opened in an application.
