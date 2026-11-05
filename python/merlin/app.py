@@ -297,7 +297,17 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             self._request_started = perf_counter()
             parsed = urlparse(self.path)
             path = parsed.path
-            if path in {"/api/hud/activity", "/api/hud/graph", "/api/hud/node"}:
+            if path in {"/lessons/math-rotation", "/lessons/b2b-ml-agentic-ai"}:
+                repo_root = Path(__file__).resolve().parents[2]
+                lesson_name = ("MATH_KUNG_FU_ROTATION_LESSON_V0_1.html"
+                               if path == "/lessons/math-rotation"
+                               else "MERLIN_B2B_ML_AGENTIC_AI_LAB_V0_1.html")
+                lesson_path = repo_root / "docs" / "merlin" / lesson_name
+                if not lesson_path.is_file():
+                    self._send(404, {"error": "lesson_not_found"})
+                    return
+                self._send_bytes(200, lesson_path.read_bytes(), "text/html; charset=utf-8")
+            elif path in {"/api/hud/activity", "/api/hud/graph", "/api/hud/node"}:
                 if hud_runtime is None:
                     self._send(503, {"error": "hud_runtime_not_configured",
                                      "mode": "labelled_demonstration_fallback"})
