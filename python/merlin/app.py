@@ -383,7 +383,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     return
                 if path == "/api/learning/recommendation":
                     curriculum_id = (query.get("curriculum_id") or [None])[0]
-                    if curriculum_id not in {None, "mathematics", "b2b-ml-agentic-ai"}:
+                    if curriculum_id not in {None, "mathematics", "b2b-ml-agentic-ai", "art-math-studio"}:
                         self._send(400, {"error": "unsupported_curriculum"})
                         return
                     result = select_next_lesson(learner_id, learner_store, learning_graph,
