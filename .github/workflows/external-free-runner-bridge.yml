@@ -211,11 +211,6 @@ jobs:
           assert re.fullmatch(r"[0-9a-f]{40}", result.get("cace_commit", ""))
           assert re.fullmatch(r"[0-9a-f]{40}", result.get("cace_workflow_sha", ""))
           assert result.get("cace_workflow_id") == 367390621
-          expected_workflow_ref = (
-              "morganaspim/Cace-app/.github/workflows/expert-robot-bridge.yml@refs/heads/cace-request/"
-              + expected_id
-          )
-          assert result.get("cace_workflow_ref") == expected_workflow_ref
           assert isinstance(result.get("cace_workflow_run_id"), int) and result["cace_workflow_run_id"] > 0
           assert isinstance(result.get("cace_run_attempt"), int) and result["cace_run_attempt"] > 0
           expected_workflow_ref = (
@@ -310,6 +305,11 @@ jobs:
           assert re.fullmatch(r"[0-9a-f]{40}", result.get("cace_commit", ""))
           assert re.fullmatch(r"[0-9a-f]{40}", result.get("cace_workflow_sha", ""))
           assert result.get("cace_workflow_id") == 367390621
+          expected_workflow_ref = (
+              "morganaspim/Cace-app/.github/workflows/expert-robot-bridge.yml@refs/heads/cace-request/"
+              + expected_id
+          )
+          assert result.get("cace_workflow_ref") == expected_workflow_ref
           assert isinstance(result.get("cace_workflow_run_id"), int)
           assert isinstance(result.get("cace_run_attempt"), int)
           assert result.get("result_log_sha256") == hashlib.sha256(log).hexdigest()
