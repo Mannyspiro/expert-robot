@@ -7,6 +7,19 @@ from scripts.init_merlin_dashboard_stores import initialize
 
 
 class MerlinDashboardBootstrapTests(unittest.TestCase):
+    def test_existing_project_metadata_is_preserved(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            registry = MerlinRegistry(root / "registry")
+            registry.register_project(
+                "merlin-existing", "Existing Project",
+                metadata={"owner": "preserve-me"},
+            )
+            initialize(directory, project_id="merlin-existing", project_name="Do Not Replace")
+            inventory = registry.inventory("merlin-existing")
+            self.assertEqual(inventory["project"]["name"], "Existing Project")
+            self.assertEqual(inventory["project"]["metadata"], {"owner": "preserve-me"})
+
     def test_initializes_canonical_read_only_dashboard_stores_idempotently(self):
         with tempfile.TemporaryDirectory() as directory:
             first = initialize(directory, project_id="merlin-test", project_name="Merlin Test")
