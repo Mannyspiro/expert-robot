@@ -20,8 +20,9 @@ By default this creates the stores under `~/.local/share/merlin`:
 - `events.sqlite3` (created when the API starts)
 - `merlin-hud.env` with local path configuration
 
-The bootstrap is idempotent. It opens or creates the stores and upserts the
-`merlin-main` project record; it does not fabricate research events or evidence.
+The bootstrap is idempotent. It opens or creates the stores and creates the
+`merlin-main` project record only if it is absent; existing project names and metadata
+are preserved. It does not fabricate research events or evidence.
 Use `--data-dir`, `--project-id`, and `--project-name` to select another local
 store root or project identity.
 
