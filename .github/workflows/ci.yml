@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: ["main", "feat/merlin-lean-proof-optimization-atlas-20261104", "feat/hermes-routing-eval-avrea-discovery-20261105", "repair/cace-bridge-request-isolation-20261105"]
+    branches: ["main", "feat/merlin-lean-proof-optimization-atlas-20261104", "feat/hermes-routing-eval-avrea-discovery-20261105", "repair/cace-bridge-request-isolation-20261105", "repair/merlin-full-integration-20261105"]
     paths-ignore:
       - "formal/**"
       - ".github/workflows/formal-qualification.yml"
