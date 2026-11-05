@@ -163,10 +163,13 @@ class RepairSupervisor:
                         requester_id=self.requester_id, logical_path=item["candidate_path"],
                     )
                     cace_receipts.append(receipt)
-                if cace_receipts and all(
-                    item.get("verification_status") == "verified" for item in cace_receipts
-                ):
+                states = {item.get("verification_status") for item in cace_receipts}
+                if cace_receipts and states == {"verified"}:
                     status = "candidate_independently_verified"
+                elif "rejected" in states:
+                    status = "candidate_cace_rejected"
+                elif "inconclusive" in states:
+                    status = "candidate_cace_inconclusive"
 
         after = create_recovery_snapshot(self.registry, project_id, actor="post-repair:" + task_id)
         change_manifest = build_change_manifest(
