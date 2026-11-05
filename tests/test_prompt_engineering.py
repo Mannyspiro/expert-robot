@@ -5,6 +5,7 @@ import unittest
 from pathlib import Path
 
 from merlin.event_outbox import MerlinEventOutbox
+from merlin.hermes_worker import HermesWorker
 from merlin.prompt_engineering import (
     PromptCompiler, PromptDispatchCoordinator, PromptRequest,
 )
@@ -122,6 +123,35 @@ class PromptEngineeringTests(unittest.TestCase):
         self.assertEqual(payload["experiment_spec"]["prompt_sha256"], prompt.prompt_sha256)
         self.assertFalse(payload["promotion_authority"])
         self.assertEqual(self.outbox.counts()["pending"], 1)
+
+    def test_compiled_prompt_reaches_hermes_worker_and_is_acknowledged(self):
+        prompt = self.compiler.compile(request())
+        self.coordinator().publish_to_hermes(
+            prompt,
+            approval_ref="approval:1",
+            lease_ref="lease:1",
+            resource_budget=dict(request().resource_budget),
+        )
+        received = []
+        worker = HermesWorker(
+            self.outbox,
+            handlers={
+                "proof_search": lambda task, context: (
+                    received.append(task["experiment_spec"]) or
+                    {"summary": "prompt received", "promotion_authority": False}
+                )
+            },
+            approval_validator=lambda ref, task: ref == "approval:1",
+            lease_validator=lambda ref, budget: ref == "lease:1",
+            worker_id="prompt-test-worker",
+            lease_seconds=60,
+        )
+        result = worker.run_once()
+        self.assertEqual(result["status"], "completed")
+        self.assertEqual(len(received), 1)
+        self.assertEqual(received[0]["prompt_sha256"], prompt.prompt_sha256)
+        self.assertIn("## Required instructions", received[0]["prompt_text"])
+        self.assertEqual(self.outbox.counts()["acknowledged"], 1)
 
     def test_hermes_adapter_rejects_unmapped_task_types(self):
         prompt = self.compiler.compile(request())
