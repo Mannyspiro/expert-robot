@@ -131,9 +131,12 @@ class PreservationRecoveryTests(unittest.TestCase):
         subprocess.run(["git", "-C", str(repo), "config", "user.email", "test@example.invalid"], check=True)
         subprocess.run(["git", "-C", str(repo), "config", "user.name", "Test"], check=True)
         unusual = "folder/name\twith-tab.txt"
+        unusual_newline = "folder/name\nwith-newline.txt"
         payload = b"exact bytes from retained commit"
+        newline_payload = b"newline path exact bytes"
         (repo / "folder").mkdir()
         (repo / unusual).write_bytes(payload)
+        (repo / unusual_newline).write_bytes(newline_payload)
         subprocess.run(["git", "-C", str(repo), "add", "-A"], check=True)
         subprocess.run(["git", "-C", str(repo), "commit", "-m", "retain unusual path"],
                        check=True, capture_output=True)
@@ -141,8 +144,12 @@ class PreservationRecoveryTests(unittest.TestCase):
                                 check=True, capture_output=True, text=True).stdout.strip()
         adapter = GitRecoveryAdapter(repo)
         manifest = adapter.tree_manifest(pinned)
-        self.assertEqual([item["path"] for item in manifest["artifacts"]], [unusual])
+        self.assertEqual(
+            {item["path"] for item in manifest["artifacts"]},
+            {unusual, unusual_newline},
+        )
         (repo / unusual).unlink()
+        (repo / unusual_newline).unlink()
         subprocess.run(["git", "-C", str(repo), "add", "-A"], check=True)
         subprocess.run(["git", "-C", str(repo), "commit", "-m", "delete unusual path"],
                        check=True, capture_output=True)
