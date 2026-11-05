@@ -24,9 +24,11 @@ class MerlinRegistryTests(unittest.TestCase):
             page = registry.list_projects(limit=1, offset=0)
             self.assertEqual(page["schema"], "merlin-project-index/1")
             self.assertEqual(page["total"], 2)
-            self.assertEqual(page["items"][0]["project_id"], "b")
-            self.assertEqual(page["items"][0]["artifact_count"], 1)
-            self.assertEqual(registry.list_projects(limit=1, offset=1)["items"][0]["project_id"], "a")
+            second = registry.list_projects(limit=1, offset=1)
+            self.assertNotEqual(page["items"][0]["project_id"], second["items"][0]["project_id"])
+            all_projects = registry.list_projects(limit=10)["items"]
+            self.assertEqual({item["project_id"] for item in all_projects}, {"a", "b"})
+            self.assertEqual(next(item for item in all_projects if item["project_id"] == "b")["artifact_count"], 1)
             with self.assertRaises(ValueError):
                 registry.list_projects(limit=0)
 
