@@ -64,7 +64,8 @@
         "dimensions": [
           "conceptual_explanation",
           "representation_translation",
-          "transfer"
+          "transfer",
+          "procedure"
         ],
         "prerequisites": []
       }
