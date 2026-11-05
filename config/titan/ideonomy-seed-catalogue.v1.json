@@ -1,0 +1,283 @@
+{
+  "schema_version": 1,
+  "catalogue_id": "titan:ideonomy-pqc-seeds-v1",
+  "purpose": "Research coverage and hypothesis generation only; not a security ranking or deployment recipe.",
+  "entries": [
+    {
+      "id": "titan:ml-kem-baseline",
+      "title": "ML-KEM standardized KEM baseline",
+      "status": "baseline",
+      "family": "lattice_kem",
+      "standards": [
+        "FIPS 203",
+        "NIST SP 800-227"
+      ],
+      "lenses": [
+        "module_lattice",
+        "probability",
+        "complexity"
+      ],
+      "questions": [
+        "Which standardized parameter set matches the documented threat model?",
+        "Are decapsulation failures and implicit rejection handled exactly as specified?"
+      ],
+      "evidence_required": [
+        "official standard edition",
+        "official known-answer tests",
+        "independent implementation comparison"
+      ],
+      "limitations": [
+        "No security claim beyond cited standard and reviewed implementation"
+      ]
+    },
+    {
+      "id": "titan:ml-dsa-baseline",
+      "title": "ML-DSA standardized signature baseline",
+      "status": "baseline",
+      "family": "lattice_signature",
+      "standards": [
+        "FIPS 204"
+      ],
+      "lenses": [
+        "module_lattice",
+        "algebra",
+        "probability"
+      ],
+      "questions": [
+        "Are signing randomness and deterministic modes configured according to the standard?",
+        "Are message/context bindings unambiguous?"
+      ],
+      "evidence_required": [
+        "official standard edition",
+        "official test vectors",
+        "implementation validation status"
+      ],
+      "limitations": [
+        "No custom parameter changes"
+      ]
+    },
+    {
+      "id": "titan:slh-dsa-baseline",
+      "title": "SLH-DSA hash-based signature baseline",
+      "status": "baseline",
+      "family": "hash_signature",
+      "standards": [
+        "FIPS 205"
+      ],
+      "lenses": [
+        "hash_functions",
+        "combinatorics",
+        "complexity"
+      ],
+      "questions": [
+        "What are the signature-size and performance tradeoffs across standardized parameter sets?",
+        "Are domain-separation and address encodings faithfully implemented?"
+      ],
+      "evidence_required": [
+        "official standard edition",
+        "official test vectors",
+        "independent implementation comparison"
+      ],
+      "limitations": [
+        "Do not extrapolate beyond standardized parameter sets"
+      ]
+    },
+    {
+      "id": "titan:hybrid-kem-composition",
+      "title": "Hybrid classical plus PQ KEM composition study",
+      "status": "research",
+      "family": "protocol_composition",
+      "standards": [
+        "NIST SP 800-227",
+        "NIST CSWP 39upd1"
+      ],
+      "lenses": [
+        "information_theory",
+        "probability",
+        "graph_theory",
+        "complexity"
+      ],
+      "questions": [
+        "Is the combiner reviewed and domain-separated?",
+        "Are transcript binding, downgrade resistance, key confirmation and failure behavior specified?",
+        "Can each component's contribution be stated without claiming additive security?"
+      ],
+      "evidence_required": [
+        "complete protocol transcript",
+        "reviewed combiner specification",
+        "formal state model",
+        "interoperability tests"
+      ],
+      "limitations": [
+        "Concatenation is not assumed secure; no novel combiner promoted"
+      ]
+    },
+    {
+      "id": "titan:code-based-comparison",
+      "title": "Code-based PQC comparative literature study",
+      "status": "research",
+      "family": "code_kem",
+      "standards": [
+        "NIST PQC public standards and reports"
+      ],
+      "lenses": [
+        "coding_theory",
+        "combinatorics",
+        "probability",
+        "complexity"
+      ],
+      "questions": [
+        "Which code families and decoding assumptions are relevant to current standardized candidates?",
+        "What are the key-size, bandwidth and implementation tradeoffs?"
+      ],
+      "evidence_required": [
+        "primary literature",
+        "standardized or publicly specified algorithms",
+        "reproducible benchmark definitions"
+      ],
+      "limitations": [
+        "Comparative research only; not an endorsement of an unstandardized construction"
+      ]
+    },
+    {
+      "id": "titan:lattice-geometry",
+      "title": "Lattice geometry and module-structure analysis",
+      "status": "research",
+      "family": "other_research",
+      "standards": [],
+      "lenses": [
+        "lattice_geometry",
+        "algebra",
+        "number_theory",
+        "complexity"
+      ],
+      "questions": [
+        "Which geometric invariants are mathematically relevant to the cited hardness assumptions?",
+        "Can assumptions be represented without implying a new reduction?"
+      ],
+      "evidence_required": [
+        "precise definitions",
+        "assumption provenance",
+        "independent mathematical review"
+      ],
+      "limitations": [
+        "Geometric analogy alone provides no cryptographic security evidence"
+      ]
+    },
+    {
+      "id": "titan:entropy-information",
+      "title": "Entropy and information-theoretic measurement study",
+      "status": "research",
+      "family": "other_research",
+      "standards": [],
+      "lenses": [
+        "entropy",
+        "information_theory",
+        "probability"
+      ],
+      "questions": [
+        "Which entropy notion is being measured and under what distribution?",
+        "Are estimates empirical, worst-case, min-entropy, or conditional entropy?"
+      ],
+      "evidence_required": [
+        "formal variable definitions",
+        "sampling protocol",
+        "confidence/estimation bounds"
+      ],
+      "limitations": [
+        "Large nominal key spaces do not establish effective entropy or security"
+      ]
+    },
+    {
+      "id": "titan:lean-protocol-model",
+      "title": "Lean model of protocol composition invariants",
+      "status": "formalization",
+      "family": "protocol_composition",
+      "standards": [
+        "NIST SP 800-227"
+      ],
+      "lenses": [
+        "logic",
+        "algebra",
+        "graph_theory"
+      ],
+      "questions": [
+        "Can transcript binding, key separation and state transitions be modeled?",
+        "Are assumptions explicit and theorem dependencies audited?"
+      ],
+      "evidence_required": [
+        "Lean source commit",
+        "compiler/toolchain pin",
+        "axiom audit",
+        "reviewed theorem statements"
+      ],
+      "limitations": [
+        "Formalizing an abstract model does not prove implementation correctness or primitive security"
+      ]
+    },
+    {
+      "id": "titan:xenomathematics-glyphs-nality",
+      "title": "Exploratory xenomathematics, glyph and n-ality lens",
+      "status": "exploratory",
+      "family": "other_research",
+      "standards": [],
+      "lenses": [
+        "xenomathematics",
+        "representation_theory",
+        "algebra",
+        "combinatorics"
+      ],
+      "questions": [
+        "Can the structures be defined rigorously and related to established algebraic objects?",
+        "Is there a precise conjecture with falsifiable consequences?"
+      ],
+      "evidence_required": [
+        "formal definitions",
+        "mapping to established mathematics",
+        "counterexample search",
+        "independent review"
+      ],
+      "limitations": [
+        "Exploratory analogy only; no presumed relevance to cryptographic hardness"
+      ]
+    },
+    {
+      "id": "titan:time-crystal-dynamics",
+      "title": "Time-crystal and dynamical-systems analogy study",
+      "status": "exploratory",
+      "family": "other_research",
+      "standards": [],
+      "lenses": [
+        "dynamical_systems",
+        "graph_theory",
+        "probability"
+      ],
+      "questions": [
+        "Can the proposed structure be represented as a well-defined dynamical system?",
+        "Does it yield a theorem or measurable invariant relevant to the stated mathematical question?"
+      ],
+      "evidence_required": [
+        "formal dynamical model",
+        "clear conjecture",
+        "reproducible analysis"
+      ],
+      "limitations": [
+        "No cryptographic security implication is assumed"
+      ]
+    }
+  ],
+  "promotion_policy": {
+    "default_status": "research_only",
+    "production_eligible": false,
+    "requirements": [
+      "standardized primitive",
+      "reviewed protocol composition",
+      "independent implementation and test vectors",
+      "formal assumptions and independent review",
+      "CACE verification",
+      "authorized signed receipt",
+      "separate production approval"
+    ],
+    "authority_expansion": false
+  }
+}
