@@ -149,3 +149,9 @@ After a worker returns `geometry-receipt.json`, Merlin can register it against t
     python3 workers/archive_intake/geometry_receipt_registry.py --database data/merlin.sqlite3 --project-id PROJECT_ID --receipt /path/to/geometry-receipt.json
 
 The adapter verifies the canonical receipt digest, terminal result, backend identity/version, output artifact records and project-bound input artifact before inserting an idempotent `geometry_execution` receipt into `verification_receipts`. Re-registering identical content is idempotent; receipt-ID collisions with different content are rejected. The receipt is execution/provenance evidence only: it does not assert geometry correctness, engineering safety, manufacturability, solver validity or formal qualification. Schema: `schemas/cad-geometry-receipt-v1.schema.json`.
+
+### Deterministic FreeCAD fixture and strict job validation
+
+The runtime now includes `freecad-runtime/generate_fixture.py`, which creates a three-solid assembly fixture (base plate, upper block and round post), native FCStd and STEP artifacts, and a SHA-256 manifest with analytic reference dimensions, volume and area. Its nested native document groups permit a hierarchy test independently from the neutral STEP round-trip. See `freecad-runtime/README.md` for details and caveats.
+
+The geometry job validator now requires the declared `input_format` to match the actual filename extension. Mesh jobs require explicit finite, positive linear and angular deflection parameters; the JSON Schema expresses the same conditional requirements. Tests were added for format mismatch, missing/invalid mesh tolerances, and mocked fixture-manifest generation. They have not been executed in this session.
