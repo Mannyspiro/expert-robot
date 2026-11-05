@@ -153,7 +153,7 @@ class GitRecoveryAdapter:
                 ["git", "-C", str(self.repository), "diff-tree", "--no-commit-id",
                  "--name-status", "-r", "-M", "-C", "-z", previous, commit],
                 check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            ).stdout.split(b"\\0")
+            ).stdout.split(b"\0")
             records = []
             index = 0
             while index < len(changes) and changes[index]:
