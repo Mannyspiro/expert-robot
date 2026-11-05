@@ -131,7 +131,9 @@ The reverse-key preparation was observed to fail because none of the supported s
 
 The current result schema v3 producer/consumer has therefore **not yet completed a new round trip**. The earlier recorded round trip used the prior v2 envelope and returned a structured qualification FAIL. Preserve that distinction.
 
-The CACE workflow also publishes the result on `executor/expert-robot-bridge`. That branch publication is not the same thing as returning it to the Expert Robot repository.
+**Verified v3 round trip (2026-11-05):** Expert Robot run `42065066165` on source commit `0e51da50bcdfa1854f99cb3bb303f19c4f94fe1a` successfully published an immutable request branch, polled the matching CACE result branch, validated the request ID, source commit, workflow identity and SHA-256 log digest, uploaded the returned artifact, and persisted all four evidence files under `.cace/evidence/expert-robot-42065066165-1-0e51da50bcdfa1854f99cb3bb303f19c4f94fe1a/`. The CACE workflow run was `42065140582` on commit `1be01133e7e500b16b5a68cb834298a776df3deb`; its OCI runner was `cace-oci-a1` (AArch64). The CACE publisher completed and returned a valid schema-v3 envelope. The qualification result is **FAIL / exit 50**, not a Lean failure: only `1,146,284 KB` was free, below the workflow's `2,097,152 KB` minimum for the pinned Lean toolchain. The CACE result artifact was ID `13434445988`, digest `sha256:1d9a659868937176a3ef129724ad6bb7346054f60bee9e7cc0affefc87777df6`. Expert Robot CI run `42065066117` passed all listed steps. The return manifest reports `signature_status=missing` and `verification_level=integrity-checked; Ed25519 signer trust not established`; therefore the evidence is hash- and run-bound, but not cryptographically signer-authenticated.
+
+The request branch is `cace-request/<request-id>` and the returned result branch is `cace-result/<request-id>`. The canonical `executor/expert-robot-bridge` branch is used only as the workflow/base branch. No shared request branch is rebased or cleaned.
 
 ## 7. CI and workflow validation
 
@@ -140,13 +142,13 @@ The CACE workflow also publishes the result on `executor/expert-robot-bridge`. T
 Canonical file: `.github/workflows/ci.yml`.
 
 - Runs on `avrea-ubuntu-latest-8-vcpu`.
-- Push branch filters include `main`, `feat/merlin-lean-proof-optimization-atlas-20261104`, and `feat/hermes-routing-eval-avrea-discovery-20261105`.
+- Push branch filters include `main`, `feat/merlin-lean-proof-optimization-atlas-20261104`, `feat/hermes-routing-eval-avrea-discovery-20261105`, and `repair/cace-bridge-request-isolation-20261105`.
 - Supports `workflow_dispatch` and pull requests (opened, synchronize, reopened, ready_for_review).
 - The three focused Python groups are separate steps: Hermes claim routing; proof orchestrator + CACE adapter + optional-verifier smoke; research lifecycle.
 - C++ configure/build and CTest follow the focused groups; later research, engineering, CAD, proof-observatory and guardrail suites follow.
 - Runner identity and `artifacts/` diagnostics are uploaded with `if: always()` at the end of the job. If an early step fails, later tests are skipped; read the job step list before reporting test counts.
 - The recent zero-job runs were not test failures. A malformed multiline `printf` in the workflow YAML was corrected; CI subsequently created real jobs.
-- One observed real test failure was a stale phrase assertion in `tests/cace_optional_verifier_smoke.py`; it was aligned with the current no-placeholder-secrets wording. A later complete CI pass has not yet been established by this document. On run `42060905047`, all three focused Python groups, CMake configure/build, and CTest (33/33) passed; the run stopped at the stale bridge regression assertion. The assertion was updated to reflect canonical CACE workflow ownership; the next CI run must verify that correction and continue through later suites.
+- One observed real test failure was a stale phrase assertion in `tests/cace_optional_verifier_smoke.py`; it was aligned with the current no-placeholder-secrets wording. CI run `42065066117` on the isolated bridge-repair branch completed successfully through the diagnostics and cache-save steps. On run `42060905047`, all three focused Python groups, CMake configure/build, and CTest (33/33) passed; the run stopped at the stale bridge regression assertion. The assertion was updated to reflect canonical CACE workflow ownership; the next CI run must verify that correction and continue through later suites.
 
 Workflow lint run `42061294025` completed successfully. Its retained artifact `13432386714` records `lint_exit=0` from actionlint on the CI and external bridge workflows.
 
