@@ -6,6 +6,7 @@ idempotent; estimates are transparent Beta-binomial summaries, not diagnoses.
 from __future__ import annotations
 from dataclasses import dataclass
 import json
+import math
 import sqlite3
 import time
 from pathlib import Path
@@ -90,13 +91,15 @@ class LearnerStore:
         if evidence is not None:
             evidence=self._required(evidence,"evidence_ref",512)
         submitted=float(event.get("submitted_at",time.time()))
-        if submitted<=0:
-            raise ValueError("submitted_at must be positive")
+        if not math.isfinite(submitted) or submitted<=0:
+            raise ValueError("submitted_at must be finite and positive")
         delayed=bool(event.get("delayed",False))
         transfer=bool(event.get("transfer",False))
+        response_json=json.dumps(dict(response),sort_keys=True,allow_nan=False)
+        if len(response_json)>100_000:
+            raise ValueError("response artifact exceeds 100 KB")
         row=(attempt,learner,idea,problem,version,dimension,float(score),session,
-             submitted,json.dumps(dict(response),sort_keys=True,allow_nan=False),
-             evidence,rubric,int(delayed),int(transfer))
+             submitted,response_json,evidence,rubric,int(delayed),int(transfer))
         with self._connect() as db:
             db.execute("BEGIN IMMEDIATE")
             old=db.execute("SELECT * FROM learner_attempts WHERE attempt_id=?",(attempt,)).fetchone()
@@ -105,7 +108,10 @@ class LearnerStore:
                   "attempt_id","learner_id","idea_id","problem_id","problem_version",
                   "dimension","score","session_id","submitted_at","response_json",
                   "evidence_ref","rubric_version","delayed","transfer"))
-                if oldrow != row:
+                same = oldrow == row
+                if "submitted_at" not in event:
+                    same = oldrow[:8] + oldrow[9:] == row[:8] + row[9:]
+                if not same:
                     raise LearnerEventConflict("attempt_id reused with different event content")
                 return {"attempt_id":attempt,"state":"duplicate","estimate":
                         self.estimate(learner,idea,dimension).__dict__}
@@ -130,7 +136,7 @@ class LearnerStore:
         delayed=any(r["delayed"] for r in rows)
         transfer=any(r["transfer"] for r in rows)
         state=("unobserved" if not rows else "emerging")
-        if len(rows)>=2 and sessions>=2 and mean>=0.8:
+        if len(rows)>=2 and sessions>=2 and mean>=0.75:
             state="retained" if delayed and transfer else "provisionally_mastered"
         elif len(rows)>=1:
             state="practicing" if mean<0.8 else "emerging"
@@ -180,7 +186,7 @@ def select_next_lesson(learner_id: str, store: LearnerStore,
         target_dims=idea_graph[idea_id].get("dimensions",["conceptual_explanation","procedure"])
         target=[store.estimate(learner_id,idea_id,d) for d in target_dims]
         unobserved=sum(x.state=="unobserved" for x in target)
-        weak=sum(x.mean<0.8 for x in target if x.observations)
+        weak=sum(x.mean<0.75 for x in target if x.observations)
         uncertain=sum(x.uncertainty for x in target)
         blocked=sum(x!="ready" for x in prereq_states)
         # Favor ready prerequisites, unobserved/weak target skills and uncertainty reduction.
