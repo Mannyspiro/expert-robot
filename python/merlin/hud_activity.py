@@ -139,4 +139,30 @@ class HudActivityProjector:
         }
 
 
-__all__ = ["HudActivityProjector", "PHASES", "EVENT_LABELS"]
+class HudOutboxConsumer:
+    """Project telemetry events from the durable outbox into a read-only HUD view."""
+
+    def __init__(self, outbox: Any, projector: HudActivityProjector):
+        self.outbox = outbox
+        self.projector = projector
+        from merlin.telemetry import KINDS
+        self.topics = tuple("merlin.telemetry." + kind for kind in sorted(KINDS))
+
+    def drain_one(self, worker_id: str = "merlin-hud", *, now: float | None = None) -> dict[str, Any] | None:
+        lease = self.outbox.claim_next(worker_id, topics=self.topics, now=now)
+        if lease is None:
+            return None
+        try:
+            accepted = self.projector.ingest(lease["payload"])
+            result = {"projected": accepted, "event_id": lease["payload"]["event_id"]}
+            self.outbox.acknowledge(lease["event_id"], worker_id, lease["lease_token"],
+                                    result=result, now=now)
+            return result
+        except Exception as exc:
+            self.outbox.retry(lease["event_id"], worker_id, lease["lease_token"],
+                              type(exc).__name__ + ": " + str(exc),
+                              delay_seconds=1, now=now)
+            raise
+
+
+__all__ = ["HudActivityProjector", "HudOutboxConsumer", "PHASES", "EVENT_LABELS"]
