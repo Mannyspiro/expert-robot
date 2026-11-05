@@ -119,6 +119,12 @@ class CompiledPrompt:
         actual = hashlib.sha256(self.prompt_text.encode("utf-8")).hexdigest()
         if actual != self.prompt_sha256:
             raise ValueError("compiled prompt text does not match prompt_sha256")
+        expected_repository = self.source_repository or "unspecified"
+        expected_commit = self.source_commit_sha or "unspecified"
+        if f"Source repository: {expected_repository}" not in self.prompt_text:
+            raise ValueError("source repository is not bound into prompt text")
+        if f"Source commit SHA: {expected_commit}" not in self.prompt_text:
+            raise ValueError("source commit is not bound into prompt text")
         if self.approval_ref is not None:
             _bounded_text(self.approval_ref, "approval_ref", 256)
         if (self.source_repository is None) != (self.source_commit_sha is None):
@@ -152,6 +158,8 @@ class PromptCompiler:
             f"Task ID: {task.task_id}",
             f"Recipient subsystem: {task.recipient}",
             f"Task specification SHA-256: {task_sha}",
+            f"Source repository: {task.source_repository or 'unspecified'}",
+            f"Source commit SHA: {task.source_commit_sha or 'unspecified'}",
             f"Authority scope: {task.authority_scope}",
             "",
             "ROLE AND TRUST BOUNDARY",
@@ -383,6 +391,10 @@ class PromptResultReceiver:
             actual_prompt_hash = hashlib.sha256(prompt_text.encode("utf-8")).hexdigest()
             if actual_prompt_hash != prompt.get("prompt_sha256"):
                 raise ValueError("stored prompt text does not match its hash")
+            if f"Source repository: {prompt.get('source_repository') or 'unspecified'}" not in prompt_text:
+                raise ValueError("stored source repository is not bound into prompt text")
+            if f"Source commit SHA: {prompt.get('source_commit_sha') or 'unspecified'}" not in prompt_text:
+                raise ValueError("stored source commit is not bound into prompt text")
             task_hash = prompt.get("task_sha256")
             if not isinstance(task_hash, str) or not re.fullmatch(r"[0-9a-f]{64}", task_hash):
                 raise ValueError("stored task hash is malformed")
