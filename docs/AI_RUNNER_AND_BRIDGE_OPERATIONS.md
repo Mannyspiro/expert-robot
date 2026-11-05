@@ -20,10 +20,10 @@ Never treat a handoff, README, cached chat summary, prior workflow run, or a bra
 | Role | Repository | Branch / ref | Canonical paths |
 |---|---|---|---|
 | Orchestrator, task source and return evidence | `Mannyspiro/expert-robot` | `feat/hermes-routing-eval-avrea-discovery-20261105` | `.github/workflows/external-free-runner-bridge.yml`, `.github/workflows/ci.yml`, `python/merlin/`, `docs/evidence/` |
-| CACE runner execution and qualification | `morganaspim/Cace-app` | persistent bridge branch `executor/expert-robot-bridge` | `bridge/request.json`, `bridge/result.json`, `bridge/result.log`, `.github/workflows/expert-robot-bridge.yml` |
+| CACE runner execution and qualification | `morganaspim/Cace-app` | per-request `cace-request/<request-id>` branch, based on `executor/expert-robot-bridge` | `bridge/request.json`, `bridge/expert-robot-source.tar.gz`, `.github/workflows/expert-robot-bridge.yml` |
 | CACE persistent source and policies | `morganaspim/Cace-app` | `main` | `AGENTS.md`, `CACE_AGENT_BOOTSTRAP.json`, `docs/`, `schema/`, `cace_studio/core/` |
 
-The CACE bridge branch is a persistent transport/work branch. CACE owns the canonical `.github/workflows/expert-robot-bridge.yml` on that branch. Expert Robot fetches and updates the existing branch, preserving the CACE workflow; it must not generate a duplicate workflow or reset the branch to CACE's default branch. Durable product documentation and policy still belong on CACE's default branch, while the bridge workflow itself is intentionally maintained on the bridge branch.
+The CACE `executor/expert-robot-bridge` branch is the canonical workflow/base branch. CACE owns `.github/workflows/expert-robot-bridge.yml` there. For each workflow attempt, Expert Robot creates a unique `cace-request/<request-id>` branch from that base and pushes only that request's archive and request envelope. The CACE workflow already listens on `cace-request/**`; its publisher writes results to a separate `cace-result/<request-id>` branch. This avoids rebasing or overwriting a shared request branch and keeps each request/result pair isolated. Never generate a duplicate CACE workflow, delete prior evidence, or rewrite the canonical executor branch. Durable product documentation and policy belong on CACE's default branch.
 
 ## 3. Runner inventory
 
@@ -64,8 +64,8 @@ Canonical source: `Mannyspiro/expert-robot/.github/workflows/external-free-runne
 2. It prepares a repository-scoped SSH transport key. It prefers `CACE_BRIDGE_SSH_PRIVATE_KEY`; if absent, it falls back to the already-installed legacy secret `RAILWAY_SSH_PRIVATE_KEY`.
 3. It packages the current source snapshot (maximum 25 MiB; build directories, `.git`, and formal dependency cache excluded).
 4. It creates `bridge/request.json` with schema version 2, request ID, full Expert Robot commit SHA, source branch, return repository, requested lane, and `qualification-only` authority.
-5. It fetches the existing `executor/expert-robot-bridge` branch and pushes only the new request and source archive. CACE's canonical workflow remains unchanged.
-6. The CACE workflow triggers on that branch/path and schedules the OCI ARM64 runner.
+5. It fetches `executor/expert-robot-bridge` as the canonical base, creates `cace-request/<request-id>` for this run attempt, and pushes only the new request and source archive. It does not rebase or write to the shared executor branch.
+6. The CACE workflow triggers on `cace-request/**` and schedules the OCI ARM64 runner. Its publisher creates `cace-result/<request-id>` for the result envelope and log.
 
 The legacy name `RAILWAY_SSH_PRIVATE_KEY` is historical. In this bridge it is the existing CACE-app Git transport/deploy key. It is **not** a Railway API token, CACE verifier credential, Ed25519 signing key, or proof authority. Do not rename, regenerate, replace, display, or paste the key merely because its name is confusing. The workflow writes it to a mode-0600 temporary file, validates it with `ssh-keygen`, and removes the temporary files at job end.
 
@@ -102,7 +102,7 @@ There are two distinct return mechanisms. Do not conflate them.
 
 ### Primary observed path: Avrea polls CACE bridge branch
 
-The Expert Robot dispatcher polls the CACE bridge branch over the existing forward SSH transport, matches the exact request ID, validates the v3 result and log digest, and uploads the returned files as an Expert Robot Actions artifact. This path does not require the CACE reverse deploy key.
+The Expert Robot dispatcher polls the exact `cace-result/<request-id>` branch over the existing forward SSH transport, matches the exact request ID, validates the v3 result and log digest, and uploads the returned files as an Expert Robot Actions artifact. This path does not require the CACE reverse deploy key.
 
 The latest recorded CACE publication for request `expert-robot-42054029936-e9e0e4312d61db3a758bbcae6c46dd144649fc55` is:
 - Expert Robot source commit `e9e0e4312d61db3a758bbcae6c46dd144649fc55`; originating workflow run `42054029936`, attempt 2.
