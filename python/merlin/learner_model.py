@@ -270,6 +270,14 @@ SCORING_RUBRICS = {
         "idea_id": "B2B-ML-001", "dimension": "procedure",
         "rubric_version": "b2b-metrics-r1",
     },
+    "radial-symmetry-step-angle": {
+        "idea_id": "MATH-ART-001", "dimension": "recognition",
+        "rubric_version": "math-recognition-r1",
+    },
+    "radial-pattern-composition": {
+        "idea_id": "ART-PAT-001", "dimension": "self_reflection",
+        "rubric_version": "reflection-completion-r1",
+    },
 }
 
 
@@ -294,6 +302,16 @@ def score_attempt_event(event: Mapping[str,Any]) -> dict[str,Any]:
             score=0.0
     elif problem_id=="invoice-approval-boundary":
         score=1.0 if response.get("choice")=="b" else 0.0
+    elif problem_id=="radial-symmetry-step-angle":
+        try:
+            n=int(response.get("n"))
+            answer=float(response.get("answer"))
+            score=1.0 if 3<=n<=16 and math.isfinite(answer) and abs(answer-360.0/n)<1e-9 else 0.0
+        except (TypeError,ValueError,OverflowError):
+            score=0.0
+    elif problem_id=="radial-pattern-composition":
+        reflection=response.get("reflection")
+        score=1.0 if isinstance(reflection,str) and len(reflection.strip())>=20 else 0.0
     else:
         try:
             precision=float(response.get("precision_percent"))
