@@ -39,6 +39,22 @@ The worker must return a structured status, outputs, tests, evidence references,
 
 Publication is at-least-once via the existing outbox. Consumers must deduplicate by event ID and task/hash identity, claim work with a lease, return a correlated result, and acknowledge only after durable result persistence.
 
+## Worker result and acknowledgement contract
+
+The result envelope is `merlin-engineered-result/1`. It binds the task ID, recipient, prompt SHA-256, task SHA-256 and worker identity to a bounded result status.
+
+Required return data includes:
+- status: `completed`, `partial` or `blocked`;
+- outputs and limitations;
+- tests run and one explicit result per test;
+- evidence references and artifact SHA-256 values;
+- tool names and exact versions;
+- any next required approval.
+
+`PromptResultReceiver` checks the event topic, active lease owner/token, prompt schema, prompt text hash, task-hash binding and result correlation before acknowledging the outbox event. The result is stored on the acknowledged event with a canonical result SHA-256. A repeated identical return is idempotent. A malformed or mismatched result is quarantined; a caller without the active lease cannot acknowledge or quarantine the event.
+
+This implements the durable local result-return boundary. It does not yet prove that a live Hermes process consumes the topic or that a remote worker can reach this receiver. The next adapter must expose this boundary through an authenticated transport and be tested end to end.
+
 ## Authority model
 
 - `draft_only` is the default.
