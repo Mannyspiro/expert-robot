@@ -295,7 +295,32 @@
         "political_framing",
         "not_proof_of_private_demand"
       ],
-      "url": "https://www.pima.gov/ ; https://www.maricopa.gov/",
+      "url": "https://www.pima.gov/meeting-minutes-ordinances-resolutions ; https://www.maricopa.gov/324/Board-of-Supervisors-Meeting-Information ; https://www.maricopa.gov/AgendaCenter",
+      "priority": 1
+    },
+    {
+      "id": "SRC-SEC-ORDER-EXECUTION",
+      "owner": "U.S. Securities and Exchange Commission / Investor.gov",
+      "family": "equity_market_microstructure",
+      "coverage": [
+        "broker_routing",
+        "exchanges",
+        "market_makers",
+        "ECNs",
+        "payment_for_order_flow",
+        "internalization",
+        "best_execution",
+        "order_types"
+      ],
+      "access": "public_education",
+      "cadence": "reference_material",
+      "strengths": [
+        "explains broker routing and execution venues"
+      ],
+      "limitations": [
+        "educational overview, not a live order book or venue feed"
+      ],
+      "url": "https://www.investor.gov/introduction-investing/investing-basics/how-stock-markets-work/executing-order",
       "priority": 1
     }
   ],
