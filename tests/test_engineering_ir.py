@@ -75,9 +75,9 @@ class EngineeringIRTests(unittest.TestCase):
                       "R1": {"kind": "R", "value": "1k"}},
             ground_net="GND",
         )
-        self.assertIn("R1 SUPPLY 0 1k\\n", output)
-        self.assertIn("V1 SUPPLY 0 DC 5\\n", output)
-        self.assertTrue(output.endswith(".op\\n.end\\n"))
+        self.assertIn("R1 SUPPLY 0 1k\n", output)
+        self.assertIn("V1 SUPPLY 0 DC 5\n", output)
+        self.assertTrue(output.endswith(".op\n.end\n"))
 
     def test_spice_export_rejects_injected_values_and_unknown_refs(self):
         project = EngineeringProject(
