@@ -18,15 +18,22 @@ from merlin.hermes_outbox import HermesOutboxConsumer
 from merlin.telemetry import agent_event_sink
 
 
-def avrea_repair_test_runner(avrea_adapter, *, job_factory, result_evaluator):
-    """Build a test runner around the existing AvreaAdapter without inventing result semantics.
+def avrea_repair_test_runner(avrea_adapter, *, job_factory, result_evaluator,
+                              cace_adapter, repository: str, requester_id: str):
+    """Collect a real Avrea job, evaluate it, then independently verify every result artifact.
 
-    job_factory receives candidate refs and the full approved task payload. The
-    evaluator must inspect collected artifacts and return a mapping containing
-    passed=True only when the actual test evidence supports that conclusion.
+    CACE receipts are bound to the exact commit and registry artifact bytes. A
+    missing/inconclusive/rejected receipt forces passed=False; an Avrea result
+    evaluator alone cannot qualify its own output.
     """
     if not callable(job_factory) or not callable(result_evaluator):
         raise ValueError("Avrea job_factory and result_evaluator are required")
+    if cace_adapter is None or not callable(getattr(cace_adapter, "verify_artifact", None)):
+        raise ValueError("independent CACE artifact verification is required")
+    if not isinstance(repository, str) or "/" not in repository:
+        raise ValueError("repository must be owner/name")
+    if not isinstance(requester_id, str) or not requester_id.strip():
+        raise ValueError("requester_id is required")
 
     def run(candidate_refs, task_payload):
         job = job_factory(candidate_refs, task_payload)
@@ -38,10 +45,42 @@ def avrea_repair_test_runner(avrea_adapter, *, job_factory, result_evaluator):
         evaluated = result_evaluator(collected, candidate_refs, task_payload)
         if not isinstance(evaluated, Mapping):
             raise TypeError("Avrea result evaluator must return a mapping")
-        return dict(evaluated)
+        result = dict(evaluated)
+        commit_sha = task_payload.get("commit_sha")
+        if (not isinstance(commit_sha, str) or len(commit_sha) != 40
+                or any(char not in "0123456789abcdef" for char in commit_sha)):
+            raise ValueError("CACE qualification requires the exact source commit SHA")
+        artifacts = collected.get("artifacts")
+        if not isinstance(artifacts, list) or not artifacts:
+            result["passed"] = False
+            result["cace_verification_status"] = "inconclusive"
+            result["cace_receipts"] = []
+            return result
+        receipts = []
+        for item in artifacts:
+            receipt = cace_adapter.verify_artifact(
+                project_id=task_payload["project_id"],
+                repository=repository,
+                commit_sha=commit_sha,
+                artifact_sha256=item["sha256"],
+                artifact_kind="avrea_test_result",
+                artifact_schema="merlin-avrea-result-artifact/1",
+                requester_id=requester_id,
+                logical_path=item["logical_path"],
+            )
+            if not isinstance(receipt, Mapping):
+                raise TypeError("CACE result verifier must return a receipt result")
+            receipts.append(dict(receipt))
+        states = {receipt.get("verification_status") for receipt in receipts}
+        status = "verified" if states == {"verified"} else (
+            "rejected" if "rejected" in states else "inconclusive"
+        )
+        result["cace_receipts"] = receipts
+        result["cace_verification_status"] = status
+        result["passed"] = result.get("passed") is True and status == "verified"
+        return result
 
     return run
-
 
 def _safe_segment(value: str) -> str:
     segment = re.sub(r"[^A-Za-z0-9._-]+", "-", value).strip(".-")
