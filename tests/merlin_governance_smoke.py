@@ -9,7 +9,12 @@ assert "engineering_plan_before_creation" in policy["non_bypassable_gates"]
 assert "confirmation_bias" in policy["bias_and_fallacy_review"]["cognitive_biases"]
 assert "affirming_the_consequent" in policy["bias_and_fallacy_review"]["logical_fallacies"]
 plan=load("merlin_engineering_plan.py")
-assert plan.validate(plan.template("smoke"))==[]
+sample=plan.template("smoke")
+sample["objective"]="Verify the plan gate"
+sample["domain_scope"]["primary_domain"]="computer-information"
+sample["design"]["method"]="contract test"
+sample["design"]["limitations"]="smoke-test only"
+assert plan.validate(sample)==[]
 bad=plan.template("bad"); bad["reasoning_plan"].pop("inductive")
 assert any("inductive" in x for x in plan.validate(bad))
 audit=load("merlin_domain_audit.py")
