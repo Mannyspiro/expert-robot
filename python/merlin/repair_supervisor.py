@@ -18,6 +18,31 @@ from merlin.hermes_outbox import HermesOutboxConsumer
 from merlin.telemetry import agent_event_sink
 
 
+def avrea_repair_test_runner(avrea_adapter, *, job_factory, result_evaluator):
+    """Build a test runner around the existing AvreaAdapter without inventing result semantics.
+
+    job_factory receives candidate refs and the full approved task payload. The
+    evaluator must inspect collected artifacts and return a mapping containing
+    passed=True only when the actual test evidence supports that conclusion.
+    """
+    if not callable(job_factory) or not callable(result_evaluator):
+        raise ValueError("Avrea job_factory and result_evaluator are required")
+
+    def run(candidate_refs, task_payload):
+        job = job_factory(candidate_refs, task_payload)
+        dispatch = avrea_adapter.dispatch(job)
+        collected = avrea_adapter.collect(
+            dispatch["job_id"], project_id=task_payload["project_id"],
+            logical_prefix="_repair-avrea-results",
+        )
+        evaluated = result_evaluator(collected, candidate_refs, task_payload)
+        if not isinstance(evaluated, Mapping):
+            raise TypeError("Avrea result evaluator must return a mapping")
+        return dict(evaluated)
+
+    return run
+
+
 def _safe_segment(value: str) -> str:
     segment = re.sub(r"[^A-Za-z0-9._-]+", "-", value).strip(".-")
     if not segment or segment in {".", ".."}:
@@ -146,7 +171,7 @@ class RepairSupervisor:
                 "sha256": digest, "size_bytes": len(data),
             })
 
-        test_result = self.test_runner(candidate_refs, payload["resource_budget"])
+        test_result = self.test_runner(candidate_refs, payload)
         if not isinstance(test_result, Mapping) or test_result.get("passed") is not True:
             status = "candidate_rejected"
             cace_receipts = []
