@@ -68,10 +68,17 @@ def persist_receipt(database, artifact_sha256, run, verifier_version):
     return {"receipt_id":rid,**receipt}
 
 def main():
-    p=argparse.ArgumentParser(); p.add_argument("artifact_sha256"); p.add_argument("experiment",type=Path)
-    p.add_argument("--cace-root",required=True); p.add_argument("--database",default="data/merlin.sqlite3")
-    p.add_argument("--timeout",type=int,default=300); p.add_argument("--seed",type=int,default=0)
-    p.add_argument("--version",default="unreported"); a=p.parse_args()
+    p=argparse.ArgumentParser(); p.add_argument("--cace-root",required=True)
+    p.add_argument("--database",default="data/merlin.sqlite3"); p.add_argument("--timeout",type=int,default=300)
+    p.add_argument("--verify-attestation",type=Path)
+    p.add_argument("artifact_sha256",nargs="?"); p.add_argument("experiment",type=Path,nargs="?")
+    p.add_argument("--seed",type=int,default=0); p.add_argument("--version",default="unreported"); a=p.parse_args()
+    if a.verify_attestation:
+        result=verify_attestation(a.cace_root,a.verify_attestation,a.timeout)
+        print(json.dumps(result,indent=2))
+        if result["verification_result"]!="passed": raise SystemExit(1)
+        return
+    if not a.artifact_sha256 or not a.experiment: raise SystemExit("artifact SHA and experiment path are required")
     if len(a.artifact_sha256)!=64: raise SystemExit("artifact SHA-256 required")
     initialize(a.database); run=run_cace(a.cace_root,a.experiment,a.timeout,a.seed)
     if a.artifact_sha256!=run["experiment_sha256"]:
