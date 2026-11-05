@@ -367,7 +367,7 @@ class MerlinApiTests(unittest.TestCase):
             "learner_id": learner, "attempt_id": "art-math-composition-1",
             "session_id": "art-session-1", "idea_id": "ART-PAT-001",
             "problem_id": "radial-pattern-composition", "problem_version": "1",
-            "dimension": "artistic_composition", "score": 0.75,
+            "dimension": "self_reflection", "score": 1.0,
             "rubric_version": "art-math-studio-r1",
             "response": {"reflection": "Repeated forms create visual rhythm."},
         }
