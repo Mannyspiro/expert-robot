@@ -242,7 +242,7 @@ def build_assembly_graph(
     artifact digest by the caller.
     """
     import re
-    from cad_assembly_graph import validate_assembly_graph
+    from cad_assembly_graph import resolve_assembly
 
     if not re.fullmatch(r"[0-9a-f]{64}", assembly_artifact_sha256):
         raise GeometryContractError("assembly artifact digest must be lowercase SHA-256")
@@ -324,5 +324,5 @@ def build_assembly_graph(
         "units": {"length": length_unit, "angle": angle_unit},
         "components": nodes,
     }
-    validate_assembly_graph(graph)
+    resolve_assembly(graph)
     return graph
