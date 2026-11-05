@@ -45,7 +45,8 @@ def run_cace(cace_root, experiment, timeout=300, seed=0):
 def persist_receipt(database, artifact_sha256, run, verifier_version):
     receipt={"receipt_version":"1.0","subject_sha256":artifact_sha256,"verifier_id":"CACE Studio CLI",
       "verifier_version":verifier_version,"result":run["result"],"evidence_class":"cace_executed_verification",
-      "assumptions":[],"axioms":[],"log_sha256":hashlib.sha256(
+      "assumptions":[],"axioms":[],"assumptions_complete":False,"axioms_complete":False,
+      "log_sha256":hashlib.sha256(
       (run["stdout_tail"]+run["stderr_tail"]).encode()).hexdigest(),
       "report_sha256":run["report_sha256"],"experiment_sha256":run["experiment_sha256"],
       "completed_at":datetime.now(timezone.utc).isoformat(),
@@ -64,6 +65,8 @@ def main():
     p.add_argument("--version",default="unreported"); a=p.parse_args()
     if len(a.artifact_sha256)!=64: raise SystemExit("artifact SHA-256 required")
     initialize(a.database); run=run_cace(a.cace_root,a.experiment,a.timeout,a.seed)
+    if a.artifact_sha256!=run["experiment_sha256"]:
+        raise SystemExit("subject artifact SHA must equal the exact CACE experiment file hash; no indirect binding is assumed")
     print(json.dumps(persist_receipt(a.database,a.artifact_sha256,run,a.version),indent=2))
     if run["result"]!="passed": raise SystemExit(1)
 if __name__=="__main__": main()
