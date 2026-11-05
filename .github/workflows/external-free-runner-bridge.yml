@@ -123,10 +123,12 @@ jobs:
           fi
 
           sha256sum "$archive"
+          archive_sha256="$(sha256sum "$archive" | awk '{print $1}')"
           {
             echo "request_id=$request_id"
             echo "archive=$archive"
             echo "size_bytes=$size_bytes"
+            echo "archive_sha256=$archive_sha256"
           } >> "$GITHUB_OUTPUT"
 
       - name: Publish request to isolated Cace-app request branch
@@ -138,6 +140,7 @@ jobs:
           REQUEST_BRANCH: cace-request/${{ steps.package.outputs.request_id }}
           REQUEST_ID: ${{ steps.package.outputs.request_id }}
           ARCHIVE: ${{ steps.package.outputs.archive }}
+          ARCHIVE_SHA256: ${{ steps.package.outputs.archive_sha256 }}
         run: |
           set -euo pipefail
 
@@ -158,16 +161,17 @@ jobs:
           mkdir -p bridge
           cp "$ARCHIVE" bridge/expert-robot-source.tar.gz
 
-          python3 - "$REQUEST_ID" "$GITHUB_SHA" "${{ steps.package.outputs.size_bytes }}" "$GITHUB_REF_NAME" > bridge/request.json <<'PY'
+          python3 - "$REQUEST_ID" "$GITHUB_SHA" "${{ steps.package.outputs.size_bytes }}" "$GITHUB_REF_NAME" "$ARCHIVE_SHA256" > bridge/request.json <<'PY'
           import json
           import sys
 
           print(json.dumps({
-              "schema_version": 2,
+              "schema_version": 3,
               "request_id": sys.argv[1],
               "expert_robot_commit": sys.argv[2],
               "archive_size_bytes": int(sys.argv[3]),
               "source_branch": sys.argv[4],
+              "source_archive_sha256": sys.argv[5],
               "return_repository": "Mannyspiro/expert-robot",
               "requested_lane": "cace-oci-aarch64",
               "authority": "qualification-only",
