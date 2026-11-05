@@ -221,3 +221,108 @@ class FreeCADBackend:
                     self.app.closeDocument(document.Name)
                 except Exception:
                     pass
+
+
+def build_assembly_graph(
+    document: Any,
+    *,
+    assembly_id: str,
+    assembly_artifact_sha256: str,
+    artifact_sha256_for_object: Any,
+    parent_from_component_for_object: Any,
+    length_unit: str,
+    angle_unit: str,
+) -> dict:
+    """Export a FreeCAD document's explicit Group hierarchy as Merlin frame graph.
+
+    Placement semantics differ across FreeCAD object types and importers. Rather
+    than silently treating global Placement as parent-relative, the caller must
+    provide a resolver that returns the exact parent_from_component matrix for
+    each object. Likewise, every component must be bound to a registered
+    artifact digest by the caller.
+    """
+    import re
+    from cad_assembly_graph import validate_assembly_graph
+
+    if not re.fullmatch(r"[0-9a-f]{64}", assembly_artifact_sha256):
+        raise GeometryContractError("assembly artifact digest must be lowercase SHA-256")
+    if not callable(artifact_sha256_for_object) or not callable(parent_from_component_for_object):
+        raise GeometryContractError("artifact and parent-relative placement resolvers are required")
+    if not isinstance(length_unit, str) or not length_unit.strip():
+        raise GeometryContractError("length unit must be explicit")
+    if not isinstance(angle_unit, str) or not angle_unit.strip():
+        raise GeometryContractError("angle unit must be explicit")
+
+    objects = list(getattr(document, "Objects", []))
+    by_identity = {id(obj): obj for obj in objects}
+    if len(by_identity) != len(objects):
+        raise GeometryContractError("document contains repeated object references")
+
+    # Only objects with non-null shapes become physical component nodes.
+    physical = {}
+    for obj in objects:
+        shape = getattr(obj, "Shape", None)
+        if shape is not None and not getattr(shape, "isNull", lambda: False)():
+            name = str(getattr(obj, "Name", ""))
+            if not name:
+                raise GeometryContractError("component object has no stable Name")
+            if name in physical:
+                raise GeometryContractError("component object names must be unique")
+            physical[name] = obj
+
+    if not physical:
+        raise GeometryContractError("document contains no physical component shapes")
+
+    parent_by_name = {name: None for name in physical}
+    for container in objects:
+        container_name = str(getattr(container, "Name", ""))
+        if container_name not in physical:
+            continue
+        for child in getattr(container, "Group", []) or []:
+            child_name = str(getattr(child, "Name", ""))
+            if child_name not in physical:
+                continue
+            if parent_by_name[child_name] is not None:
+                raise GeometryContractError("component is assigned to multiple assembly parents")
+            parent_by_name[child_name] = container_name
+
+    nodes = [{
+        "component_id": "assembly-root",
+        "parent_component_id": None,
+        "artifact_sha256": assembly_artifact_sha256,
+        "parent_from_component": [
+            [1.0, 0.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0, 0.0],
+            [0.0, 0.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+        ],
+        "metadata": {"kind": "synthetic_assembly_root"},
+    }]
+    for name in sorted(physical):
+        obj = physical[name]
+        parent_name = parent_by_name[name]
+        digest = artifact_sha256_for_object(obj)
+        if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
+            raise GeometryContractError("every component must resolve to a registered SHA-256 artifact")
+        matrix = parent_from_component_for_object(obj, physical.get(parent_name))
+        if not isinstance(matrix, list):
+            matrix = [list(row) for row in matrix]
+        nodes.append({
+            "component_id": name,
+            "parent_component_id": parent_name or "assembly-root",
+            "artifact_sha256": digest,
+            "parent_from_component": matrix,
+            "metadata": {
+                "label": str(getattr(obj, "Label", name)),
+                "freecad_type": str(getattr(obj, "TypeId", "")),
+            },
+        })
+
+    graph = {
+        "assembly_version": "1.0",
+        "assembly_id": assembly_id,
+        "units": {"length": length_unit, "angle": angle_unit},
+        "components": nodes,
+    }
+    validate_assembly_graph(graph)
+    return graph
