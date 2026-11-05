@@ -84,6 +84,18 @@ jobs:
           python3 -m pytest -q tests/test_research_lifecycle.py 2>&1 | tee artifacts/focused-python-group-3.log
 
 
+      - name: Merlin engineered prompt contract tests
+        env:
+          PYTHONPATH: python
+        shell: bash
+        run: |
+          set +e
+          mkdir -p artifacts
+          python3 -m unittest discover -s tests -p "test_merlin_prompt_contract.py" -v 2>&1 | tee artifacts/merlin-prompt-contract.log
+          test_exit=${PIPESTATUS[0]}
+          printf '{"suite":"merlin-prompt-contract","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$test_exit" > artifacts/merlin-prompt-contract-result.json
+          exit "$test_exit"
+
       - name: Restore C++ compiler cache
         id: ccache-restore
         uses: actions/cache/restore@v4
@@ -266,6 +278,22 @@ jobs:
           if [ "${EXPERT_ROBOT_CCACHE:-0}" = "1" ]; then
             ccache --show-stats || true
           fi
+
+      - name: Record PR test evidence manifest
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          python3 - <<'PY'
+          import json, os
+          keys = ("GITHUB_REPOSITORY", "GITHUB_SHA", "GITHUB_REF", "GITHUB_EVENT_NAME",
+                  "GITHUB_RUN_ID", "GITHUB_RUN_ATTEMPT", "GITHUB_WORKFLOW", "GITHUB_WORKFLOW_REF")
+          payload = {key.lower(): os.environ.get(key, "") for key in keys}
+          payload["job_status"] = os.environ.get("JOB_STATUS", "see GitHub Actions job conclusion")
+          with open("artifacts/pr-test-evidence.json", "w", encoding="utf-8") as handle:
+              json.dump(payload, handle, sort_keys=True, indent=2)
+              handle.write("\\n")
+          PY
 
       - name: Upload CI diagnostics and runner identity
         if: always()
