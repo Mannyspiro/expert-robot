@@ -80,7 +80,7 @@ bridge_summary = (
 
 # Expert Robot is the Avrea dispatcher and result consumer. The CACE OCI
 # workflow remains canonical in CACE-app; do not duplicate it in this repo.
-assert '"schema_version": 2' in external
+assert '"schema_version": 3' in external
 assert '"requested_lane": "cace-oci-aarch64"' in external
 assert "CACE's canonical workflow" in external
 assert "permissions:\n  contents: write" in external
@@ -90,6 +90,10 @@ assert "name: Upload external runner evidence" in external
 assert 'result.get("schema_version") == 3' in external
 assert 'result.get("request_id") == expected_request' in external
 assert 'result.get("expert_robot_commit") == expected_source' in external
+assert "source_archive_sha256" in external
+assert "hashlib.sha256(archive).hexdigest()" in external
+assert "request_sha256" in external
+assert "toolchain" in external
 assert 'result.get("cace_repository") == "morganaspim/Cace-app"' in external
 assert 'result.get("cace_workflow_id") == 367390621' in external
 assert 'result.get("status") in ("pass", "fail")' in external
