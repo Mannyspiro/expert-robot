@@ -73,6 +73,7 @@ class ResearchDispatchCoordinator:
         self.lease_validator = lease_validator
         self.weights = weights
         self.emit_event = agent_event_sink(outbox, "hermes")
+        self.emit_mcfc_event = agent_event_sink(outbox, "mcfc")
 
     def rank(self, tasks: list[ResearchTask]):
         for task in tasks:
@@ -93,6 +94,21 @@ class ResearchDispatchCoordinator:
             raise PermissionError("explicit operator approval was not validated")
         if not self.lease_validator(task.lease_ref, task.resource_budget):
             raise PermissionError("active MCFC resource lease was not validated")
+        self.emit_mcfc_event(
+            kind="agent.status", run_id=task.task_id, task_id=task.task_id,
+            payload={"agent_id": "mcfc", "role": "resource governor",
+                     "status": "leased", "activity": "resource lease validated",
+                     "lease_ref": task.lease_ref},
+        )
+        self.emit_mcfc_event(
+            kind="resource.sample", run_id=task.task_id, task_id=task.task_id,
+            payload={"measurement_kind": "reserved",
+                     "cpu_cores_reserved": task.resource_budget["cpu_cores"],
+                     "memory_bytes_reserved": task.resource_budget["memory_bytes"],
+                     "max_wall_seconds_reserved": task.resource_budget["max_wall_seconds"],
+                     "compute_budget_units_reserved": task.resource_budget["compute_budget_units"],
+                     "lease_ref": task.lease_ref},
+        )
         payload = {
             "schema": "merlin-research-task/1",
             "task_id": task.task_id,
