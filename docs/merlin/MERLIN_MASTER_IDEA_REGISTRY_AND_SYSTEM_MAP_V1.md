@@ -487,3 +487,12 @@ PR #94 proves a local, deterministic outbox-to-injected-Hermes-handler round tri
 - The mathematics catalog and representation tests have their own Avrea workflow in #91; the cultural case-study schema and science source pipeline are tested in #92; prompt dispatch and Hermes worker lifecycle are tested in #94.
 
 These are parallel draft branches, not one merged release. Before production release, reconcile the branches against a common integration base, resolve duplicate/overlapping files, run the full exact-head CI matrix, and only then request human merge/deployment approval.
+
+
+## 21. Math Kung Fu learning integration
+
+- PR #95 — [Specify Math Kung Fu first-principles learning engine](https://github.com/Mannyspiro/expert-robot/pull/95), head `8a83a17bf09bb03b7670cd915000cd9c85e10873`.
+- Connects the existing mathematical idea catalog, Equation Atlas, XMG, Lean and reproducibility receipts to Merlin Learning.
+- Defines a non-linear prerequisite graph, history-driven first-principles lesson arc, visual/interactive representations, adaptive mastery, spaced retrieval, misconception recovery and initial lesson pilots.
+- This is a specification, not an implemented/deployed learning application. PR-triggered broad CI run #42121434608 was still in progress at the time of this index update.
+- Architecture rule: Math Kung Fu is the learning interface over the canonical math catalog. It must not fork a parallel mathematics knowledge base or promote research claims.
