@@ -4,7 +4,7 @@ from pathlib import Path
 
 from merlin.event_outbox import MerlinEventOutbox
 from merlin.learner_model import (
-    LearnerStore, LearnerEventConflict, HermesLearningRouter, select_next_lesson,
+    LearnerStore, LearnerEventConflict, HermesLearningRouter, select_next_lesson, score_attempt_event,
 )
 
 
@@ -72,3 +72,15 @@ class LearnerModelTests(unittest.TestCase):
 
 
 if __name__=="__main__": unittest.main()
+
+
+    def test_server_scoring_ignores_client_score_and_idea_claims(self):
+        event = {"learner_id":"learner-test","attempt_id":"scored-1",
+          "problem_id":"rotation-coordinate-90","problem_version":"1","session_id":"s1",
+          "score":1.0,"idea_id":"FAKE-ID","dimension":"proof_justification",
+          "response":{"x":9,"y":9}}
+        scored=score_attempt_event(event)
+        self.assertEqual(scored["score"],0.0)
+        self.assertEqual(scored["idea_id"],"MATH-REP-001")
+        self.assertEqual(scored["dimension"],"procedure")
+        self.assertEqual(scored["scoring_source"],"server_rubric")
