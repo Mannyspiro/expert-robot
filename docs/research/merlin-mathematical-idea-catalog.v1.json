@@ -62,7 +62,9 @@
       "learning": {
         "lesson_id": "rotation-four-representations-v0.1",
         "dimensions": [
+          "recognition",
           "conceptual_explanation",
+          "procedure",
           "representation_translation",
           "transfer"
         ],
