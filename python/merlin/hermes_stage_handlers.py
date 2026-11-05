@@ -191,4 +191,34 @@ def build_hermes_stage_handlers(
     return handlers
 
 
-__all__ = ["build_hermes_stage_handlers"]
+def build_merlin_hermes_handlers(
+    *,
+    evidence_recorder: ResearchEvidenceRecorder,
+    project_id: str,
+    research_executor: Callable[[Mapping[str, Any], Any], Mapping[str, Any]],
+    proof_search_executor: Callable[[Mapping[str, Any], Any], Mapping[str, Any]],
+    artifact_verifier: Callable[..., Mapping[str, Any]],
+    repository: str,
+    commit_sha: str,
+    requester_id: str,
+    include_ngspice: bool = True,
+) -> dict[str, Callable[[Mapping[str, Any], Any], Mapping[str, Any]]]:
+    """Register built-in numerical/electrical engines plus real injected research/proof engines."""
+    from merlin.linear_simulation import linear_ode_task_executor
+    from merlin.ngspice_engine import ngspice_task_executor
+
+    return build_hermes_stage_handlers(
+        evidence_recorder=evidence_recorder,
+        project_id=project_id,
+        research_executor=research_executor,
+        numerical_experiment_executor=linear_ode_task_executor,
+        proof_search_executor=proof_search_executor,
+        electrical_executor=ngspice_task_executor if include_ngspice else None,
+        artifact_verifier=artifact_verifier,
+        repository=repository,
+        commit_sha=commit_sha,
+        requester_id=requester_id,
+    )
+
+
+__all__ = ["build_hermes_stage_handlers", "build_merlin_hermes_handlers"]
