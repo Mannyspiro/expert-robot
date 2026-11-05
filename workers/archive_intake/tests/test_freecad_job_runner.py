@@ -68,6 +68,15 @@ class FreeCADJobRunnerTests(unittest.TestCase):
             self.assertEqual(saved["status"], "completed")
             self.assertEqual(len(saved["artifacts"]), 1)
 
+    def test_rejects_job_contract_outside_input_workspace(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            inputs, outputs, request = self._fixture(root)
+            external = root / "external-job.json"
+            external.write_text(request.read_text(), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "inside the mounted input"):
+                run_request(external, inputs, outputs, backend_factory=FakeBackend)
+
     def test_rejects_nested_input_output_workspaces(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
