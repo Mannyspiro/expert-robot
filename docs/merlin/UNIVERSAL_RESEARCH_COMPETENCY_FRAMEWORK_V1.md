@@ -37,7 +37,7 @@ A strong agent must know when a task is outside its competence and route it to a
 
 ## 3. Domain and subdomain coverage
 
-The executable taxonomy in `research_curriculum.py` is the canonical initial list. The following describes the work that must be taught in each family.
+The executable taxonomy in `research_curriculum.py` is the canonical initial list. It currently defines 13 overlapping domain families and their subdomain identifiers. The following describes the work that must be taught in each family.
 
 ### 3.1 Mathematics and formal sciences
 
@@ -283,7 +283,7 @@ Do not wait for the whole Merlin platform to be complete. The following pieces c
 | Lean/formal workflows | Verify formalized mathematical claims | Truth of assumptions or applicability to physical systems |
 | Avrea CI | Run reproducible tests and preserve logs | Production qualification of every subsystem |
 
-The immediate goal is to connect these components into a working teaching and research cycle. Do not replace functioning components with a second orchestration engine.
+The `curriculum_unit_to_prompt_task` adapter now converts a validated curriculum unit into the existing `PromptTask` contract, with draft-only authority and explicit evidence requirements. The immediate goal is to connect these components into a working teaching and research cycle. Do not replace functioning components with a second orchestration engine.
 
 ## 9. The research lesson/task/result lifecycle
 
