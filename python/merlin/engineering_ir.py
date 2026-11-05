@@ -198,8 +198,8 @@ def export_spice_netlist(
     issues = validate_project(project)
     if any(issue.severity == "error" for issue in issues):
         raise ValueError("cannot export an invalid engineering project")
-    if analysis not in {".op", ".tran", ".ac", ".dc"}:
-        raise ValueError("unsupported SPICE analysis directive")
+    if analysis != ".op":
+        raise ValueError("only deterministic .op analysis is currently supported")
     if not isinstance(component_specs, dict) or not component_specs:
         raise ValueError("explicit component_specs are required")
     nets = {net.name: net for net in project.nets}
@@ -228,7 +228,7 @@ def export_spice_netlist(
         node_names[net_name] = candidate
         used_nodes.add(candidate.lower())
 
-    lines = [f"Merlin {project.name} — explicit Engineering IR SPICE export"]
+    lines = [f"Merlin {project.name} - explicit Engineering IR SPICE export"]
     used_refs: set[str] = set()
     for part in sorted(project.parts, key=lambda item: item.ref):
         spec = component_specs.get(part.ref)
@@ -238,7 +238,8 @@ def export_spice_netlist(
             raise ValueError(f"{part.ref} must have exactly two pins for this SPICE exporter")
         if not isinstance(spec, dict):
             raise ValueError(f"{part.ref} component specification must be an object")
-        kind = spec.get("kind", "").upper()
+        raw_kind = spec.get("kind", "")
+        kind = raw_kind.upper() if isinstance(raw_kind, str) else ""
         value = spec.get("value", "")
         if kind not in {"R", "C", "L", "V", "I"}:
             raise ValueError(f"{part.ref} has unsupported SPICE component kind")
