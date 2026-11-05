@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "attestation_kind": "github_actions_run_metadata",
+  "experiment_id": "titan-run:contract-smoke-42085358394",
+  "workflow": {
+    "name": "Titan Avrea Contract Smoke",
+    "run_id": 42085358394,
+    "run_number": 1,
+    "event": "push",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/Mannyspiro/expert-robot/actions/runs/42085358394",
+    "started_at": "2026-11-05T18:33:22Z",
+    "completed_at": "2026-11-05T18:33:40Z"
+  },
+  "source": {
+    "repository": "Mannyspiro/expert-robot",
+    "branch": "feat/titan-pqc-foundation-20261105",
+    "commit_sha": "e0ae1a07c6adf99d67b45ba6d48ab18c6eb03208",
+    "working_tree": "github_checkout_of_commit"
+  },
+  "runner": {
+    "label": "avrea-ubuntu-latest-8-vcpu",
+    "runner_name": "avrea-exe-01a1acfcb6a673979ff4d480a00f15b5",
+    "runner_id": 2487,
+    "job_name": "titan-contract",
+    "job_id": 127448866109,
+    "job_conclusion": "success"
+  },
+  "checks": [
+    {"name": "Checkout exact source", "conclusion": "success"},
+    {"name": "Record source and runner identity", "conclusion": "success"},
+    {"name": "Validate Titan schemas and fixtures", "conclusion": "success"},
+    {"name": "Upload non-secret test evidence", "conclusion": "success"}
+  ],
+  "artifact": {
+    "name": "titan-contract-smoke-42085358394",
+    "artifact_id": 13443110703,
+    "sha256": "ec412ab11d720cda31b3c0af74e296e209f0831c422bdf38a42bd94b91f8febc",
+    "size_bytes": 5358,
+    "expires_at": "2026-11-19T18:33:34Z"
+  },
+  "authority": "qualification-only",
+  "promotion_authority": false,
+  "cryptographic_qualification": false,
+  "cace_independent_verification": "not_run",
+  "signature_status": "unsigned",
+  "limitations": [
+    "This run verifies JSON schema syntax and the dependency-free candidate/experiment contract smoke tests only.",
+    "It does not run cryptographic known-answer tests, cryptographic security analysis, Lean proofs, production integration, or full repository CI.",
+    "The workflow artifact contains schemas, validator, and smoke-test source; it does not contain a signed CACE receipt.",
+    "GitHub Actions run metadata and artifact digest are recorded as provenance, not as a cryptographically signed bridge receipt."
+  ]
+}
