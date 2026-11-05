@@ -4,7 +4,7 @@ import argparse, json, re, sys, importlib.util
 from pathlib import Path
 
 REQUIRED = ("task_id","objective","domain_scope","requirements","assumptions",
-            "reasoning_plan","design","problem_representation","resource_budget","verification","rollback")
+            "reasoning_plan","design","problem_representation","research_methods","resource_budget","verification","rollback")
 def validate(plan):
     errors=[]
     if not isinstance(plan,dict): return ["plan must be a JSON object"]
@@ -33,6 +33,13 @@ def validate(plan):
     rp_spec=importlib.util.spec_from_file_location("merlin_problem_reframing",rp_path)
     rp_module=importlib.util.module_from_spec(rp_spec); rp_spec.loader.exec_module(rp_module)
     errors.extend(["problem_representation: "+e for e in rp_module.validate(plan.get("problem_representation",{}))])
+    methods=plan.get("research_methods",{})
+    if not isinstance(methods.get("applicable"),bool): errors.append("research_methods.applicable must be boolean")
+    if methods.get("applicable"):
+        for key in ("ideonomy","logic_lenses","ranking_criteria","hypothesis_disconfirmation"):
+            if not methods.get(key): errors.append("research_methods."+key+" must be addressed")
+    elif not methods.get("not_applicable_rationale"):
+        errors.append("research_methods.not_applicable_rationale is required when methods are not applicable")
     budget=plan.get("resource_budget",{})
     for key in ("max_runtime_seconds","max_memory_mb","max_disk_bytes","max_input_bytes"):
         if not isinstance(budget.get(key),int) or budget[key] <= 0: errors.append("resource_budget."+key+" must be a positive integer")
@@ -50,6 +57,7 @@ def template(task_id):
       "reasoning_plan":{"inductive":"Not applicable; explain why or describe sample and limits.","deductive":"List premises, rules and derived obligations.","abductive":"Compare at least two plausible explanations/designs.","disconfirmation":"Name counterexamples and failure conditions."},
       "design":{"method":"","alternatives":[],"limitations":"","bias_review":{"possible_biases":[],"possible_fallacies":[],"checks":[]}},
       "problem_representation":json.loads(__import__("subprocess").check_output([sys.executable,str(Path(__file__).with_name("merlin_problem_reframing.py")),"--template",task_id],text=True)),
+      "research_methods":{"applicable":True,"ideonomy":{"enumeration_scope":"Declare dimensions and bounded combinatorial search space","candidate_limit":48,"coverage_note":"Ranked sample, not exhaustive universe"},"logic_lenses":{"include_fuzzy":True,"include_finite_n_valued":True,"n_values":3,"truth_table_arity":2,"max_truth_table_rows":4096,"ranked_frameworks":["fuzzy","finite_n_valued","paraconsistent","intuitionistic","modal_temporal","probabilistic","rough_approximation","many_sorted_type","algebraic","topological","category_semantics","information","game","quantum"],"distinguish_truth_degree_from_probability":True},"ranking_criteria":["semantic_fit","invariant_preservation","expressive_adequacy","compositionality","proof_support","decidability_and_complexity","assumption_burden","empirical_calibration","novelty","resource_cost"],"hypothesis_disconfirmation":"Each candidate idea must include a counterexample or failed-prediction test."},
       "resource_budget":{"max_runtime_seconds":300,"max_memory_mb":1024,"max_disk_bytes":10485760,"max_input_bytes":1048576},
       "verification":{"tests":["unit"],"independent_check":"Describe independent verifier or reviewer."},
       "rollback":"Describe how to revert without damaging canonical data."
