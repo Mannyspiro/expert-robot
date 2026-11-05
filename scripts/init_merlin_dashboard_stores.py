@@ -28,15 +28,19 @@ def initialize(data_dir: str | Path, *, project_id: str = "merlin-main",
     env_file = root / "merlin-hud.env"
 
     registry = MerlinRegistry(registry_root)
-    registry.register_project(
-        project_id,
-        project_name,
-        metadata={
-            "purpose": "canonical research dashboard",
-            "authority": "qualification-only",
-            "promotion_authority": False,
-        },
-    )
+    try:
+        inventory = registry.inventory(project_id)
+    except KeyError:
+        registry.register_project(
+            project_id,
+            project_name,
+            metadata={
+                "purpose": "canonical research dashboard",
+                "authority": "qualification-only",
+                "promotion_authority": False,
+            },
+        )
+        inventory = registry.inventory(project_id)
     graph = MerlinKnowledgeGraph(graph_db)
     outbox = MerlinEventOutbox(outbox_db)
     hypotheses = HypothesisLedger(hypotheses_db)
@@ -61,7 +65,6 @@ def initialize(data_dir: str | Path, *, project_id: str = "merlin-main",
     except OSError:
         pass
 
-    inventory = registry.inventory(project_id)
     snapshot = graph.export_snapshot()
     return {
         "schema": "merlin-dashboard-bootstrap/1",
