@@ -110,7 +110,7 @@ jobs:
           GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
             git clone git@github.com:morganaspim/Cace-app.git "$work"
           cd "$work"
-          git fetch origin "$CACE_BASE_BRANCH"
+          git fetch origin "refs/heads/$CACE_BASE_BRANCH:refs/remotes/origin/$CACE_BASE_BRANCH"
           request_branch="merlin-deploy/$REQUEST_ID"
           git checkout -b "$request_branch" "origin/$CACE_BASE_BRANCH"
           mkdir -p bridge
