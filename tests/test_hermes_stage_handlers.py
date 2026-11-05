@@ -118,7 +118,7 @@ class HermesStageHandlerTests(unittest.TestCase):
         handlers = build_hermes_stage_handlers(
             evidence_recorder=self.recorder,
             project_id="merlin",
-            research_executor=lambda task, context: {"artifact_bytes": b"x", "summary": "ok"},
+            research_executor=lambda task, context: {"artifact_bytes": b"", "summary": "ok"},
             numerical_experiment_executor=lambda task, context: {"artifact_bytes": b"x", "summary": "ok"},
             proof_search_executor=lambda task, context: {"artifact_bytes": b"x", "summary": "ok"},
             artifact_verifier=fake_cace_verifier,
