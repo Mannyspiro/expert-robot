@@ -510,3 +510,13 @@ Evidence links:
 - [PR #92 science atlas run](https://github.com/Mannyspiro/expert-robot/actions/runs/42121269147)
 - [PR #94 prompt/Hermes bridge run](https://github.com/Mannyspiro/expert-robot/actions/runs/42121248360)
 - [PR #89 latest registry CI](https://github.com/Mannyspiro/expert-robot/actions/runs/42121537891)
+
+
+## 22. Hermes runtime composition follow-up
+
+- PR #96 — [Compose the production Hermes prompt and evidence runtime](https://github.com/Mannyspiro/expert-robot/pull/96), stacked on PR #94 and therefore on PR #77's Hermes worker foundation.
+- Adds `python/merlin/hermes_runtime.py`, which composes the prompt dispatcher, HermesWorker, existing stage handlers, canonical ResearchEvidenceRecorder, and an injected independent CACE verifier. The runtime binds each stage result to the exact compiled prompt/task/source hashes.
+- Avrea run #3 / ID `42121896953` completed success on PR head `2f50132ff6dd0303947f9abfbe40f11c0c260794`. Tests: prompt contract **18 passed**; prompt/Hermes adapter **6 passed**; Hermes worker **5 passed**; stage handlers **4 passed**; composed prompt-to-CACE runtime **3 passed**; module compilation passed. Artifact ID `13459351158`, SHA-256 `b753fbec95c69ce4ec8dcb563e3332564b439a43180286eab85fc9184c5961e8`.
+- The test round trip now exercises: PromptTask -> compile/hash -> approval + lease validation -> Hermes outbox -> HermesWorker -> injected research executor -> canonical artifact store -> injected CACE verifier -> result receipt with exact prompt/task/source binding -> acknowledgement.
+
+**Production boundary remains explicit:** this is a tested composition root and local injected-executor round trip. It is not yet a continuously running deployed worker. Production still needs a trusted deployment factory, actual research and proof-search executors, real operator approval and MCFC lease services, a qualified CACE transport with signer identity and revocation policy, durable storage, service supervision/health monitoring, and an end-to-end test against the actual deployed process. Do not describe the current fake CACE verifier test as a live CACE verification.
