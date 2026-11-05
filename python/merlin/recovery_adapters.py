@@ -33,7 +33,15 @@ class RegistryRecoveryAdapter:
 
     def recover(self, *, digest: str, project_id: str, original_path: str,
                 actor: str = "recovery") -> dict[str, Any]:
-        data = _verify(self.registry.get_artifact_bytes(digest), digest)
+        try:
+            source_bytes = self.registry.get_artifact_bytes(digest)
+        except KeyError:
+            # Recover an orphaned content-addressed blob even if its SQLite index row was lost.
+            blob_path = self.registry.blobs / digest[:2] / digest[2:]
+            if not blob_path.is_file():
+                raise
+            source_bytes = blob_path.read_bytes()
+        data = _verify(source_bytes, digest)
         recovery_path = f"_recovery/{uuid4().hex}/{_safe_relative(original_path)}"
         restored = self.registry.put_artifact(
             project_id, recovery_path, data, actor=actor, operation_id="registry-recovery"
