@@ -40,7 +40,11 @@ class CaceAdapterTests(unittest.TestCase):
         self.registry.register_project("merlin", "Merlin")
         self.outbox = MerlinEventOutbox(root / "outbox.sqlite3")
         self.commit = "a" * 40
-        self.artifact = "b" * 64
+        self.artifact_bytes = b"theorem target : True := True\\n"
+        self.artifact = self.registry.put_artifact(
+            "merlin", "proofs/target.lean", self.artifact_bytes,
+            "text/x-lean",
+        )
 
     def tearDown(self):
         self.temp.cleanup()
