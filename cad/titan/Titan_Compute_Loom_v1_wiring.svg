@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img" aria-labelledby="title desc">
+<title id="title">Titan Adaptive Compute Loom low-voltage wiring concept</title>
+<desc id="desc">Certified external 12 volt DC adapter feeds a 5 amp main fuse and fused branches for two regulated compute nodes, cooling fans and telemetry. Ethernet switch connects compute nodes. No mains wiring is shown.</desc>
+<defs>
+  <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#64748b"/></marker>
+  <style>
+    .bg{fill:#0b1220}.panel{fill:#131f31;stroke:#42536c;stroke-width:2}.dc{fill:#1d3d56;stroke:#65b8e8;stroke-width:2}.logic{fill:#243a32;stroke:#6fbd91;stroke-width:2}.warn{fill:#4b2e25;stroke:#e6a36c;stroke-width:2}.t{font:22px sans-serif;fill:#edf3fa}.h{font:bold 34px sans-serif;fill:#fff}.s{font:17px sans-serif;fill:#c5d0df}.wire{fill:none;stroke:#e6b85c;stroke-width:5;marker-end:url(#arrow)}.data{fill:none;stroke:#79c6a1;stroke-width:4;stroke-dasharray:10 8;marker-end:url(#arrow)}.small{font:15px sans-serif;fill:#b7c5d7}
+  </style>
+</defs>
+<rect class="bg" width="1440" height="900"/>
+<text class="h" x="60" y="70">TITAN · COMPUTE LOOM v1</text>
+<text class="s" x="60" y="105">Low-voltage DC power + data topology · conceptual wiring · verify selected components before assembly</text>
+<rect class="warn" x="60" y="145" width="330" height="110" rx="16"/>
+<text class="t" x="85" y="185">Certified external adapter</text><text class="s" x="85" y="218">12 V DC · 5 A maximum</text>
+<rect class="warn" x="455" y="145" width="250" height="110" rx="16"/>
+<text class="t" x="480" y="185">Main input protection</text><text class="s" x="480" y="218">5 A fuse · polarity check</text>
+<path class="wire" d="M390 200 H455"/>
+<rect class="panel" x="785" y="130" width="585" height="470" rx="18"/>
+<text class="t" x="820" y="175">Fused 12 V distribution bus</text>
+<text class="small" x="820" y="205">Branch fuse ratings are starting design values, not final component selection</text>
+<path class="wire" d="M705 200 H785"/>
+<rect class="dc" x="835" y="245" width="225" height="90" rx="14"/>
+<text class="t" x="860" y="280">Node A branch</text><text class="s" x="860" y="310">2 A fuse → 5 V regulator</text>
+<rect class="dc" x="1090" y="245" width="225" height="90" rx="14"/>
+<text class="t" x="1115" y="280">Node B branch</text><text class="s" x="1115" y="310">2 A fuse → 5 V regulator</text>
+<rect class="dc" x="835" y="390" width="225" height="90" rx="14"/>
+<text class="t" x="860" y="425">Cooling branch</text><text class="s" x="860" y="455">0.5 A fuse → 12 V fans</text>
+<rect class="dc" x="1090" y="390" width="225" height="90" rx="14"/>
+<text class="t" x="1115" y="425">Telemetry branch</text><text class="s" x="1115" y="455">0.5 A fuse → MCU/sensors</text>
+<path class="wire" d="M820 220 V290 H835"/><path class="wire" d="M820 220 V290 H1090"/>
+<path class="wire" d="M820 220 V435 H835"/><path class="wire" d="M820 220 V435 H1090"/>
+<rect class="logic" x="455" y="390" width="250" height="100" rx="14"/>
+<text class="t" x="480" y="430">Ethernet switch</text><text class="s" x="480" y="460">Node links + host uplink</text>
+<rect class="logic" x="90" y="390" width="280" height="100" rx="14"/>
+<text class="t" x="115" y="430">Merlin / Hermes host</text><text class="s" x="115" y="460">Task graph · evidence · CACE</text>
+<rect class="logic" x="835" y="650" width="225" height="90" rx="14"/>
+<text class="t" x="860" y="685">Compute Node A</text><text class="s" x="860" y="715">CPU board · 5 V DC</text>
+<rect class="logic" x="1090" y="650" width="225" height="90" rx="14"/>
+<text class="t" x="1115" y="685">Compute Node B</text><text class="s" x="1115" y="715">CPU board · 5 V DC</text>
+<path class="wire" d="M947 335 V650"/><path class="wire" d="M1202 335 V650"/>
+<path class="data" d="M947 740 V785 H580 V490"/><path class="data" d="M1202 740 V805 H580 V490"/>
+<path class="data" d="M455 440 H370"/>
+<rect class="panel" x="60" y="570" width="645" height="230" rx="18"/>
+<text class="t" x="90" y="615">Wiring and build rules</text>
+<text class="s" x="90" y="655">• No mains voltage inside this concept enclosure</text>
+<text class="s" x="90" y="690">• Use a certified, enclosed external DC adapter</text>
+<text class="s" x="90" y="725">• Fuse each branch; size wire and connectors for measured current</text>
+<text class="s" x="90" y="760">• Verify regulator thermal margin, polarity, strain relief and grounding</text>
+<text class="small" x="820" y="850">Power path: solid amber · Data path: dashed green · Ground/return wiring omitted from conceptual view; implement a documented common return and chassis strategy.</text>
+</svg>
