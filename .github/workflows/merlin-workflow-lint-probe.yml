@@ -1,0 +1,41 @@
+name: Merlin Workflow Lint Probe
+
+on:
+  push:
+    branches:
+      - "feat/hermes-routing-eval-avrea-discovery-20261105"
+    paths:
+      - ".github/workflows/merlin-workflow-lint-probe.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 5
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Lint workflow syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "runner=$RUNNER_NAME"
+          echo "go=$(command -v go || true)"
+          echo "ruby=$(command -v ruby || true)"
+          echo "python=$(command -v python3 || true)"
+          if command -v go >/dev/null 2>&1; then
+            go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.7 -oneline .github/workflows/ci.yml .github/workflows/external-free-runner-bridge.yml
+          elif command -v ruby >/dev/null 2>&1; then
+            ruby -e 'require "yaml"; ARGV.each { |p| YAML.load_file(p); puts "YAML PASS: #{p}" }' .github/workflows/ci.yml .github/workflows/external-free-runner-bridge.yml
+          else
+            python3 -m pip install --user pyyaml
+            python3 - <<'PY'
+          import yaml
+          for path in (".github/workflows/ci.yml", ".github/workflows/external-free-runner-bridge.yml"):
+              with open(path, encoding="utf-8") as handle:
+                  yaml.safe_load(handle)
+              print("YAML PASS:", path)
+          PY
+          fi
