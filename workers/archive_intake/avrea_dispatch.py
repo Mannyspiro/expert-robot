@@ -32,8 +32,24 @@ def validate_task(task,approval,policy):
         raise DispatchRejected("timeout outside policy")
     return digest
 
+def record_approval(database,approval):
+    required=("approval_id","task_contract_sha256","approved_by","approval_source","approved_at")
+    if any(not isinstance(approval.get(k),str) or not approval[k].strip() for k in required):
+        raise DispatchRejected("approval record is incomplete")
+    if len(approval["task_contract_sha256"])!=64:
+        raise DispatchRejected("approval must bind a SHA-256 task contract digest")
+    with connect(database) as db:
+        db.execute("INSERT INTO approval_records VALUES(?,?,?,?,?,?)",
+          (approval["approval_id"],approval["task_contract_sha256"],approval["approved_by"],
+           approval["approval_source"],approval["approved_at"],approval.get("approval_note","")))
+    return {"approval_id":approval["approval_id"],"status":"recorded"}
+
 def submit(database,task,approval,policy,provider=None):
     digest=validate_task(task,approval,policy)
+    with connect(database) as db:
+        stored=db.execute("SELECT * FROM approval_records WHERE approval_id=?",(approval["approval_id"],)).fetchone()
+    if not stored or stored["task_contract_sha256"]!=digest:
+        raise DispatchRejected("matching approval must first be recorded in canonical registry")
     task_id=task["task_id"]; now=datetime.now(timezone.utc).isoformat()
     with connect(database) as db:
         db.execute("INSERT OR IGNORE INTO avrea_tasks VALUES(?,?,?,?,?,?,?,?)",
@@ -64,9 +80,16 @@ def collect(database,task_id,provider):
     return {"task_id":task_id,"state":"completed","result_sha256":digest,"artifact_count":len(manifest["artifacts"])}
 
 def main():
-    p=argparse.ArgumentParser(); p.add_argument("task",type=Path); p.add_argument("--approval",type=Path,required=True)
-    p.add_argument("--policy",type=Path,required=True); p.add_argument("--database",default="data/merlin.sqlite3")
+    p=argparse.ArgumentParser(); sub=p.add_subparsers(dest="cmd",required=True)
+    ap=sub.add_parser("record-approval"); ap.add_argument("approval",type=Path)
+    run=sub.add_parser("submit"); run.add_argument("task",type=Path); run.add_argument("--approval",type=Path,required=True)
+    run.add_argument("--policy",type=Path,required=True)
+    for sp in (ap,run): sp.add_argument("--database",default="data/merlin.sqlite3")
     a=p.parse_args(); initialize(a.database)
-    task=json.loads(a.task.read_text()); approval=json.loads(a.approval.read_text()); policy=json.loads(a.policy.read_text())
-    print(json.dumps(submit(a.database,task,approval,policy),indent=2))
+    if a.cmd=="record-approval":
+        result=record_approval(a.database,json.loads(a.approval.read_text()))
+    else:
+        task=json.loads(a.task.read_text()); approval=json.loads(a.approval.read_text()); policy=json.loads(a.policy.read_text())
+        result=submit(a.database,task,approval,policy)
+    print(json.dumps(result,indent=2))
 if __name__=="__main__": main()
