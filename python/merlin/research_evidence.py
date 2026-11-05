@@ -37,7 +37,10 @@ class ResearchEvidenceRecorder:
             source_url=source_url, artifact_hash=digest,
         )
         claim_node_id = "hypothesis:" + hashlib.sha256(hypothesis_id.encode("utf-8")).hexdigest()[:32]
-        artifact_node_id = "artifact:" + digest
+        artifact_identity = project_id + "|" + logical_path + "|" + digest
+        artifact_node_id = "artifact:" + hashlib.sha256(
+            artifact_identity.encode("utf-8")
+        ).hexdigest()[:32]
         self.graph.add_node(GraphNode(
             claim_node_id, "claim", hypothesis.claim,
             {"hypothesis_id": hypothesis_id,
