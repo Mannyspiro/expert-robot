@@ -1,5 +1,7 @@
 import json
 import unittest
+from types import SimpleNamespace
+from merlin.knowledge_graph import GraphNode
 
 from merlin.hud_activity import HudActivityProjector
 from merlin.hud_http import HudActivityWSGI
@@ -30,6 +32,42 @@ class HudActivityWSGITests(unittest.TestCase):
 
     def test_unknown_path_is_not_found(self):
         self.assertEqual(self.request(path="/other")["status"], "404 Not Found")
+
+    def test_graph_routes_require_injected_read_api(self):
+        self.assertEqual(self.request(path="/api/hud/graph")["status"],
+                         "503 Service Unavailable")
+
+    def test_graph_snapshot_route_returns_canonical_snapshot(self):
+        snapshot = {"schema_version": "1.0", "nodes": [], "edges": [],
+                    "snapshot_sha256": "abc", "epistemic_notice": "not truth"}
+        read_api = SimpleNamespace(graph=lambda: snapshot)
+        app = HudActivityWSGI(HudActivityProjector(), read_api=read_api)
+        response = {}
+        def start(status, headers):
+            response["status"] = status
+        body = b"".join(app({"PATH_INFO": "/api/hud/graph", "REQUEST_METHOD": "GET"},
+                            start))
+        self.assertEqual(response["status"], "200 OK")
+        self.assertEqual(json.loads(body), snapshot)
+
+    def test_node_route_returns_node_and_typed_neighbors(self):
+        node = GraphNode("claim:1", "claim", "Claim", {"text": "test"})
+        graph = SimpleNamespace(
+            get_node=lambda node_id: node if node_id == "claim:1" else None,
+            neighbors=lambda node_id: [{"relation": "supports"}],
+        )
+        app = HudActivityWSGI(HudActivityProjector(),
+                              read_api=SimpleNamespace(graph_store=graph))
+        response = {}
+        def start(status, headers):
+            response["status"] = status
+        body = b"".join(app({"PATH_INFO": "/api/hud/node",
+                             "REQUEST_METHOD": "GET",
+                             "QUERY_STRING": "node_id=claim%3A1"}, start))
+        payload = json.loads(body)
+        self.assertEqual(response["status"], "200 OK")
+        self.assertEqual(payload["node"]["node_id"], "claim:1")
+        self.assertEqual(payload["neighbors"][0]["relation"], "supports")
 
 
 if __name__ == "__main__":
