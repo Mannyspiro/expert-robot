@@ -11,6 +11,7 @@ from typing import Any, Callable, Mapping
 
 from merlin.event_outbox import MerlinEventOutbox
 from merlin.project_registry import MerlinRegistry
+from merlin.knowledge_graph import GraphEdge, GraphNode, MerlinKnowledgeGraph
 from merlin.telemetry import agent_event_sink
 
 
@@ -21,10 +22,12 @@ def _canonical(value: Any) -> str:
 
 class CaceVerificationAdapter:
     def __init__(self, *, verify_transport: Callable[[dict[str, Any]], Mapping[str, Any]] | None,
-                 registry: MerlinRegistry, outbox: MerlinEventOutbox):
+                 registry: MerlinRegistry, outbox: MerlinEventOutbox,
+                 graph: MerlinKnowledgeGraph | None = None):
         self.verify_transport = verify_transport
         self.registry = registry
         self.outbox = outbox
+        self.graph = graph
         self.emit_event = agent_event_sink(outbox, "cace")
 
     def verify(self, *, project_id: str, repository: str, commit_sha: str,
@@ -99,6 +102,36 @@ class CaceVerificationAdapter:
                                             "application/vnd.merlin.cace-receipt+json")
         if not self.registry.verify_artifact(digest):
             raise RuntimeError("stored CACE receipt failed registry digest verification")
+        receipt_graph_node = None
+        if self.graph is not None:
+            artifact_identity = project_id + "|" + (logical_path or selected_path) + "|" + artifact_sha256
+            artifact_node_id = "artifact:" + hashlib.sha256(
+                artifact_identity.encode("utf-8")
+            ).hexdigest()[:32]
+            if self.graph.get_node(artifact_node_id) is None:
+                self.graph.add_node(GraphNode(
+                    artifact_node_id, "artifact", logical_path or selected_path,
+                    {"sha256": artifact_sha256, "project_id": project_id,
+                     "logical_path": logical_path or selected_path,
+                     "independently_submitted_to_cace": True},
+                    evidence_class="submitted_for_verification",
+                    source_uri="registry://sha256/" + artifact_sha256,
+                ))
+            receipt_graph_node = "cace-receipt:" + digest[:40]
+            self.graph.add_node(GraphNode(
+                receipt_graph_node, "proof_receipt", "CACE " + status + " receipt",
+                {"receipt_sha256": digest, "subject_artifact_sha256": artifact_sha256,
+                 "repository": repository, "commit_sha": commit_sha,
+                 "theorem": theorem, "verifier_id": verifier_id,
+                 "verification_status": status, "promotion_authority": False},
+                evidence_class="independent_verification",
+                source_uri="registry://sha256/" + digest,
+            ))
+            self.graph.add_edge(GraphEdge(
+                receipt_graph_node, "reviews", artifact_node_id,
+                {"receipt_sha256": digest, "subject_artifact_sha256": artifact_sha256,
+                 "verification_status": status, "independent": True},
+            ))
         result = {
             "schema": "merlin-cace-verification-result/1",
             "verification_status": status,
@@ -106,6 +139,7 @@ class CaceVerificationAdapter:
             "source_commit": commit_sha,
             "artifact_sha256": artifact_sha256,
             "receipt_artifact_sha256": digest,
+            "receipt_graph_node_id": receipt_graph_node,
             "promotion_authority": False,
         }
         verification_key = "cace-verification:" + digest
