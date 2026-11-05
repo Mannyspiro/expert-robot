@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "provider": {
+    "name": "Open Quantum Safe liboqs",
+    "repository": "https://github.com/open-quantum-safe/liboqs",
+    "release": "0.16.0",
+    "commit": "5a1a854b0dc9f2141bdc771c555ee60c37950183",
+    "tag": "0.16.0",
+    "tag_commit_verified": true,
+    "tag_signature": "GitHub release page reports verified signed tag",
+    "purpose": "research and interoperability testing only",
+    "algorithms": [
+      "ML-KEM (FIPS 203)",
+      "ML-DSA (FIPS 204)",
+      "SLH-DSA (FIPS 205)"
+    ]
+  },
+  "vectors": {
+    "name": "NIST ACVP-Server published projection vectors",
+    "repository": "https://github.com/usnistgov/ACVP-Server",
+    "tag": "v1.1.0.41",
+    "commit": "b121fee031dc65d32c96f4109a42a10dacbe2076",
+    "paths": [
+      "ML-KEM-keyGen-FIPS203/internalProjection.json",
+      "ML-KEM-encapDecap-FIPS203/internalProjection.json",
+      "ML-DSA-keyGen-FIPS204/internalProjection.json",
+      "ML-DSA-sigGen-FIPS204/internalProjection.json",
+      "ML-DSA-sigVer-FIPS204/internalProjection.json",
+      "SLH-DSA-keyGen-FIPS205/internalProjection.json",
+      "SLH-DSA-sigGen-FIPS205/internalProjection.json",
+      "SLH-DSA-sigVer-FIPS205/internalProjection.json"
+    ],
+    "note": "liboqs release test_acvp_vectors.py consumes these exact versioned raw paths; the workflow verifies the upstream tag commit before executing the upstream test harness."
+  },
+  "build": {
+    "os": "Ubuntu Linux on Avrea runner",
+    "python": "3.12",
+    "cmake": "runner-provided version recorded in evidence",
+    "compiler": "runner-provided GCC version recorded in evidence",
+    "algorithms_enabled": "STD",
+    "parallel_jobs": 4,
+    "timeout_minutes": 20
+  },
+  "nonclaims": [
+    "Not a FIPS 140 validation or CMVP certificate.",
+    "Passing ACVP vector tests is not a complete implementation security assessment.",
+    "No production deployment or key material."
+  ]
+}
