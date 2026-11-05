@@ -44,7 +44,7 @@ class MerlinEventOutboxTests(unittest.TestCase):
         self.assertEqual(final["state"],"quarantined")
 
     def test_claim_can_filter_topics_without_leasing_unrelated_events(self):
-        outbox = MerlinEventOutbox(self.temp / "topics.sqlite3")
+        outbox = MerlinEventOutbox(Path(self.temp.name) / "topics.sqlite3")
         outbox.enqueue("telemetry:1", "merlin.telemetry.task.progress", {"kind": "task.progress"}, now=1)
         outbox.enqueue("hermes:1", "merlin.hermes.task", {"task": "research"}, now=2)
         claimed = outbox.claim_next("hud", topics=["merlin.telemetry.task.progress"], now=3)
