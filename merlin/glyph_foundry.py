@@ -74,24 +74,22 @@ class ExprArena:
     The arena is opt-in: existing tree-based callers keep their current
     behavior. Interning preserves operator IDs, argument order, and exact
     input/output types. The capacity is a hard bound on unique resident nodes.
-    Child digests make key construction linear in the number of edges rather
-    than repeatedly serializing every descendant subtree.
+    Child nodes are interned before parents, so process-local child identity is
+    a safe and inexpensive key inside this arena. Use Expr.fingerprint() for
+    stable cross-process content identity and evidence receipts.
     """
 
     def __init__(self, max_nodes: int = 100_000):
         if isinstance(max_nodes, bool) or not isinstance(max_nodes, int) or max_nodes < 1:
             raise FoundryError("max_nodes must be a positive integer")
         self.max_nodes = max_nodes
-        self._nodes: dict[str, Expr] = {}
-        self._keys: dict[str, str] = {}
-        self._fingerprints: dict[int, str] = {}
+        self._nodes: dict[tuple[Any, ...], Expr] = {}
 
     @property
     def unique_node_count(self) -> int:
         return len(self._nodes)
 
     def intern(self, expression: Expr) -> Expr:
-        import hashlib
         import json
 
         if not isinstance(expression, Expr):
@@ -103,27 +101,24 @@ class ExprArena:
         canonical = Expr(
             expression.op, args, expression.input_type, expression.output_type
         )
-        keyed_args = [
-            ["expr", self._fingerprints[id(value)]]
-            if isinstance(value, Expr) else ["literal", value]
+        keyed_args = tuple(
+            ("expr", id(value)) if isinstance(value, Expr)
+            else ("literal", json.dumps(
+                value, sort_keys=True, separators=(",", ":"),
+                ensure_ascii=False, default=str,
+            ))
             for value in args
-        ]
-        key = json.dumps(
-            [canonical.op, keyed_args, str(canonical.input_type),
-             str(canonical.output_type)],
-            separators=(",", ":"), ensure_ascii=False, default=str,
         )
-        fingerprint = hashlib.sha256(key.encode("utf-8")).hexdigest()
-        existing = self._nodes.get(fingerprint)
+        key = (
+            canonical.op, keyed_args,
+            str(canonical.input_type), str(canonical.output_type),
+        )
+        existing = self._nodes.get(key)
         if existing is not None:
-            if self._keys[fingerprint] != key:
-                raise FoundryError("expression fingerprint collision")
             return existing
         if len(self._nodes) >= self.max_nodes:
             raise FoundryError("expression arena node budget exhausted")
-        self._nodes[fingerprint] = canonical
-        self._keys[fingerprint] = key
-        self._fingerprints[id(canonical)] = fingerprint
+        self._nodes[key] = canonical
         return canonical
 
     def stats(self, expression: Expr) -> dict[str, float | int]:
