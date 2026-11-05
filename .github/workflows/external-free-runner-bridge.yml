@@ -50,8 +50,10 @@ jobs:
         run: |
           set -euo pipefail
           bridge_key="${CACE_BRIDGE_SSH_PRIVATE_KEY:-}"
+          bridge_key_source="CACE_BRIDGE_SSH_PRIVATE_KEY"
           if [ -z "$bridge_key" ]; then
             bridge_key="${LEGACY_CACE_BRIDGE_SSH_PRIVATE_KEY:-}"
+            bridge_key_source="RAILWAY_SSH_PRIVATE_KEY (legacy alias)"
           fi
           if [ -z "$bridge_key" ]; then
             echo "::error::No existing CACE bridge key secret was found."
