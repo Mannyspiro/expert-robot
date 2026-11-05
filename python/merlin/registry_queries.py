@@ -21,7 +21,7 @@ class MerlinReadAPI:
                  outbox: MerlinEventOutbox | None = None):
         self.registry = registry
         self.hypotheses = hypotheses
-        self.graph = graph
+        self.graph_store = graph
         self.outbox = outbox
 
     @staticmethod
@@ -62,9 +62,9 @@ class MerlinReadAPI:
                 "limit": limit, "offset": offset, "total": len(items)}
 
     def graph(self) -> dict[str, Any]:
-        if self.graph is None:
+        if self.graph_store is None:
             raise RuntimeError("knowledge graph is not configured")
-        return self.graph.export_snapshot()
+        return self.graph_store.export_snapshot()
 
     def outbox_status(self) -> dict[str, Any]:
         if self.outbox is None:
@@ -82,8 +82,8 @@ class MerlinReadAPI:
         }
         if self.hypotheses is not None:
             result["hypotheses"] = self.list_hypotheses(limit=100)
-        if self.graph is not None:
-            result["graph"] = self.graph.export_snapshot()
+        if self.graph_store is not None:
+            result["graph"] = self.graph_store.export_snapshot()
         if self.outbox is not None:
             result["outbox"] = self.outbox_status()
         return result
