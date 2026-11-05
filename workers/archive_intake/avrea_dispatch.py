@@ -27,6 +27,7 @@ def validate_task(task,approval,policy):
     if not isinstance(caps,list) or not caps or len(caps)!=len(set(caps)): raise DispatchRejected("invalid capability allowlist")
     if not set(caps).issubset(set(policy["allowed_capabilities"])): raise DispatchRejected("capability outside policy")
     budget=task.get("resource_budget",{})
+    if set(budget)!=set(policy["resource_maxima"]): raise DispatchRejected("resource budget keys must exactly match policy")
     for key,maximum in policy["resource_maxima"].items():
         if not isinstance(budget.get(key),int) or isinstance(budget.get(key),bool) or budget[key]<1 or budget[key]>maximum:
             raise DispatchRejected("resource budget invalid or above policy: "+key)
@@ -58,8 +59,15 @@ def submit(database,task,approval,policy,provider=None):
         raise DispatchRejected("matching approval must first be recorded in canonical registry")
     task_id=task["task_id"]; now=datetime.now(timezone.utc).isoformat()
     with connect(database) as db:
-        db.execute("INSERT OR IGNORE INTO avrea_tasks VALUES(?,?,?,?,?,?,?,?)",
-          (task_id,digest,approval["approval_id"],"approved",json.dumps(task,sort_keys=True),None,now,now))
+        existing=db.execute("SELECT contract_sha256,approval_id,state,result_json FROM avrea_tasks WHERE task_id=?",(task_id,)).fetchone()
+        if existing:
+            if existing["contract_sha256"]!=digest or existing["approval_id"]!=approval["approval_id"]:
+                raise DispatchRejected("task_id already exists with a different contract or approval")
+            if existing["state"] in ("submitted","completed","failed","cancelled"):
+                return {"task_id":task_id,"state":existing["state"],"result":existing["result_json"]}
+        else:
+            db.execute("INSERT INTO avrea_tasks VALUES(?,?,?,?,?,?,?,?)",
+              (task_id,digest,approval["approval_id"],"approved",json.dumps(task,sort_keys=True),None,now,now))
     if provider is None:
         with connect(database) as db:
             db.execute("UPDATE avrea_tasks SET state='approved_waiting_for_provider',updated_at=? WHERE task_id=?",
