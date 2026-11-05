@@ -92,7 +92,21 @@ Example wiring input:
 
 Simulation metadata requires solver/version, model and input hashes, units, parameters and boundary conditions. Results remain `not_verified` until a separate verifier receipt is attached.
 
-## 9. Tests and trust boundaries
+## 9. Local smoke test and unit tests
+
+Run the end-to-end smoke fixture without network access or paid services:
+
+    python3 workers/archive_intake/smoke_test_merlin.py
+
+The smoke test creates a temporary ZIP and SQLite database, exercises intake registration, project/artifact queries, Hermes enqueue/retry/lease/acknowledgement, an Avrea approval gate with no provider, CAD frame transforms/inversion, wiring persistence and research-graph edge integrity. Its approval is explicitly a non-production fixture; it does not authorize or execute a real Avrea task. All temporary data is removed when the process exits.
+
+Then run the full unit-test suite:
+
+    python3 -m unittest discover -s workers/archive_intake/tests -v
+
+These commands are local-only. They do not use GitHub Actions, send Hermes events, dispatch Avrea work, or assert CACE formal qualification.
+
+## 10. Tests and trust boundaries
 
     python3 -m unittest discover -s workers/archive_intake/tests -v
 
