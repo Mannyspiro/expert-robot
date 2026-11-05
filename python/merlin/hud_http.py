@@ -65,11 +65,6 @@ class HudActivityWSGI:
                 from merlin.hud_objects import render_descriptor
                 detail["workspace"] = render_descriptor(node, detail.get("artifact"))
                 return self._respond(start_response, "200 OK", detail)
-            if self.consumer is not None:
-                for _ in range(self.max_drain_per_request):
-                    result = self.consumer.drain_one()
-                    if result is None:
-                        break
             run_id = environ.get("QUERY_STRING", "")
             selected_run = None
             if run_id.startswith("run_id="):
