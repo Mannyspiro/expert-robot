@@ -101,8 +101,6 @@ class HudActivityTests(unittest.TestCase):
         self.assertEqual(view["verification"]["source_commit"], "d" * 40)
         self.assertEqual(view["verification"]["repository"], "Mannyspiro/expert-robot")
         self.assertEqual(view["verification"]["theorem"], "Example.target")
-        self.assertEqual(view["verification"]["repository"], "Mannyspiro/expert-robot")
-        self.assertEqual(view["verification"]["theorem"], "Example.target")
         self.assertEqual(view["verification"]["logical_path"], "engineering/assembly.json")
         self.assertEqual(view["verification"]["artifact_kind"], "cad_assembly")
         self.assertEqual(view["verification"]["artifact_schema"], "merlin-freecad-document-mesh/1")
