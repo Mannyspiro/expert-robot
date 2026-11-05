@@ -32,6 +32,7 @@ def build(problem,limit=48,n=3,arity=2):
       "problem_representation":plan["problem_representation"],
       "logic_lenses":{"fuzzy_operators":["godel_and","product_and","lukasiewicz_and","godel_or","probabilistic_or","lukasiewicz_or","godel_implication","lukasiewicz_implication","product_implication"],
        "finite_logic":fuzzy.finite_table(n,arity),"ranked_candidates":fuzzy.rank_candidates(problem),
+       "ranked_compositions":fuzzy.compose_candidates(problem,limit),
        "selection_rule":"Rank by semantic fit, assumptions, expressive adequacy, compositionality, decidability/complexity, proof support and empirical calibration; do not conflate fuzzy degree with probability."},
       "ideonomy":ideas.enumerate_space(problem,limit),
       "lean_bridge":{"status":"candidate_generation_only","obligations":[
