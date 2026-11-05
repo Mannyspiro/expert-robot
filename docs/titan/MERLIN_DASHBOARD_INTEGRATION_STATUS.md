@@ -11,11 +11,11 @@
 
 ## Verified projection run
 
-- Workflow run: 42091141572
+- Workflow run: 42091592409
 - Conclusion: success
-- Artifact: `titan-merlin-projection-42091141572`
-- Artifact SHA-256: `0daa4843d75a7f9015f7ec78153a5644c669a2289b4455513139e8711e3ebe75`
-- Projection JSON SHA-256 after extraction: `9f1c4699495a8cda783b1cff733469b15b7d352413867eab0734082a4b06dff7`
+- Artifact: `titan-merlin-projection-42091592409`
+- Artifact SHA-256: `250b876926594502978069805783b525c42c0692a882c67e5086c913c5971b71`
+- Projection JSON SHA-256 after extraction: `d493270314e3abc699c8efe10db105aefb45a4c62577b1ee1d9c556c25b5d46a`
 - Records: 4 (contract smoke, provider inventory, FIPS 203/204/205 ACVP run, and CACE independent verification)
 
 The provider-inventory record is explicitly `blocked` for PQC testing, and both records remain `research_only`, unsigned, and without promotion authority.
