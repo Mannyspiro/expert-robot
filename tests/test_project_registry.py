@@ -1,3 +1,4 @@
+import sqlite3
 import tempfile
 import unittest
 from pathlib import Path
@@ -62,6 +63,28 @@ class MerlinRegistryTests(unittest.TestCase):
                 "p", "same.txt", b"v3", expected_digest=head["digest"],
                 expected_generation=head["generation"], actor="stale", operation_id="op-2")
         self.assertEqual(self.registry.get_artifact_bytes(second), b"v2")
+
+    def test_database_triggers_block_history_blob_and_head_deletion(self):
+        first = self.registry.put_artifact("p", "protected.txt", b"v1")
+        self.registry.replace_artifact(
+            "p", "protected.txt", b"v2", expected_digest=first,
+            expected_generation=1, actor="test", operation_id="op-protected")
+        history = self.registry.artifact_history("p", "protected.txt")
+        recovery_id = history[1]["pre_change_recovery_id"]
+        with self.registry._connect() as db:
+            with self.assertRaises(sqlite3.IntegrityError):
+                db.execute("UPDATE artifact_versions SET actor='tampered'")
+            with self.assertRaises(sqlite3.IntegrityError):
+                db.execute("DELETE FROM artifact_versions")
+            with self.assertRaises(sqlite3.IntegrityError):
+                db.execute("DELETE FROM artifacts")
+            with self.assertRaises(sqlite3.IntegrityError):
+                db.execute("DELETE FROM recovery_points WHERE recovery_id=?", (recovery_id,))
+            with self.assertRaises(sqlite3.IntegrityError):
+                db.execute("DELETE FROM project_artifacts WHERE project_id='p' AND logical_path='protected.txt'")
+            with self.assertRaises(sqlite3.IntegrityError):
+                db.execute("UPDATE project_artifacts SET digest=? WHERE project_id='p' AND logical_path='protected.txt'",
+                           (first,))
 
     def test_replace_requires_existing_head(self):
         with self.assertRaises(ArtifactConflict):
