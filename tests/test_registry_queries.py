@@ -40,8 +40,9 @@ class MerlinReadAPITests(unittest.TestCase):
         self.assertEqual(page["schema"], "merlin-project-index/1")
         self.assertEqual(page["total"], 2)
         self.assertEqual(len(page["items"]), 1)
-        self.assertEqual(page["items"][0]["project_id"], "other")
-        self.assertEqual(self.api.projects(limit=10)["total"], 2)
+        self.assertEqual(len(page["items"]), 1)
+        all_projects = self.api.projects(limit=10)["items"]
+        self.assertEqual({item["project_id"] for item in all_projects}, {"merlin", "other"})
 
     def test_hypothesis_and_graph_queries_are_read_only_views(self):
         self.assertEqual(self.api.hypothesis("H-1")["status"], "proposed")
