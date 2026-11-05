@@ -18,6 +18,8 @@ on:
       - "scripts/merlin_domain_audit.py"
       - "scripts/merlin_storage_guard.py"
       - "scripts/merlin_youtube_discover.py"
+      - "scripts/merlin_problem_reframing.py"
+      - "tests/merlin_problem_reframing_smoke.py"
       - "tests/merlin_governance_smoke.py"
       - "tests/merlin_orchestrator_plan_gate_smoke.py"
       - "research/science/reading-notes/**"
@@ -46,6 +48,7 @@ jobs:
           python3 tests/merlin_science_intake_smoke.py
           python3 tests/merlin_science_ideonomy_bridge_smoke.py
           python3 tests/merlin_governance_smoke.py
+          python3 tests/merlin_problem_reframing_smoke.py
           python3 tests/merlin_orchestrator_plan_gate_smoke.py
           python3 scripts/merlin_domain_audit.py --taxonomy research/science/discipline-taxonomy.v1.json --governance research/science/merlin-research-governance.v1.json > domain-audit.json
           python3 scripts/merlin_storage_guard.py --root state/merlin-ingestion-staging --reserve-bytes 0
