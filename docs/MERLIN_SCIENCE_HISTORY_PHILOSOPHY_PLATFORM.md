@@ -146,3 +146,27 @@ Every research or engineering item has one primary domain and may have explicitl
 The governance contract sets conservative staging defaults: 256 MiB total staging, 10 MiB per source, 2 MiB per transcript, 5,000 staged files, and a 1 GiB free-disk reserve. These are defaults, not guarantees about the machine's actual disk. Workers must preflight actual free space, stop before quotas are exceeded, deduplicate by canonical URL and content hash, avoid storing video/audio media, compress permitted text, and never prune canonical or verified evidence automatically.
 
 `scripts/merlin_youtube_discover.py` discovers metadata only when an explicitly configured YouTube Data API key is available. Transcript intake accepts authorized VTT/SRT exports or explicitly open-licensed material, with a 2 MiB cap and rights declaration. The official YouTube captions API is owner-authorized; arbitrary public transcript retrieval is not assumed. Every transcript record should preserve video URL, caption language/type, retrieval date, rights basis, timestamps and content hash.
+
+### Problem decomposition, translation and adaptive reframing
+
+Every engineering/research plan now includes a required problem_representation contract, validated by scripts/merlin_problem_reframing.py. Merlin must preserve the original problem, then decide whether decomposition is useful. When it is, it creates smaller subproblems with explicit objectives, dependencies, interfaces and acceptance criteria. If decomposition would add no value, it records why.
+
+For mathematical problems, Merlin actively looks for multiple useful representations of the same underlying object or question. Candidate languages include:
+- symbolic equations, systems of equations and inequalities;
+- coordinate frames, basis changes, matrices and tensors;
+- geometric constructions, loci and transformations;
+- graphs, hypergraphs, networks and constraint systems;
+- combinatorial objects, recurrences and generating functions;
+- logic, type theory, proof systems and formal specifications;
+- category-theoretic objects, morphisms and functorial views;
+- dynamical systems, state spaces, phase portraits and invariants;
+- probability distributions, statistical models and information-theoretic views;
+- optimization formulations, topology and algorithmic representations.
+
+These are candidate lenses, not a mandatory checklist for every task. Merlin chooses representations that expose structure, simplify proof or computation, or make hidden assumptions visible. It labels each translation as exact isomorphism, mathematical equivalence, embedding, structural analogy, or heuristic reframing. Every mapping records what is preserved, what is lost, its validity conditions, what does not transfer, and how to test the correspondence.
+
+An analogy is not an equivalence. A visual resemblance is not a theorem. Proofs transfer only when a structure-preserving map and all required hypotheses have been established. Otherwise the translated view is used to generate conjectures or search strategies, and the result must be checked back in the original formulation.
+
+Merlin should reframe when a search stagnates, the current representation becomes unwieldy, assumptions fail, independent formulations disagree, a useful invariant appears, or another discipline offers a productive model. It should compare candidate frames by invariant preservation, tractability, information loss, assumption burden, independent verifiability and resource cost. It should retain failed reframings and counterexamples as evidence rather than repeatedly rediscovering them.
+
+The Python orchestrator plan gate now requires this representation contract for all non-health-check tasks. The science-history ideonomy bridge creates its own decomposition and source-evidence/discipline-graph representations. CI includes validator tests for decomposition, exact/analogical distinctions, missing non-transferable properties and the explicitly justified no-decomposition case.
