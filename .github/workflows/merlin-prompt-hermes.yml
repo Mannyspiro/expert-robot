@@ -29,6 +29,9 @@ concurrency:
 jobs:
   prompt-hermes-roundtrip:
     runs-on: avrea-ubuntu-latest-8-vcpu
+    env:
+      PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      PR_BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -40,7 +43,9 @@ jobs:
           mkdir -p artifacts
           {
             echo "repository=$GITHUB_REPOSITORY"
-            echo "commit=$GITHUB_SHA"
+            echo "merge_sha=$GITHUB_SHA"
+            echo "head_sha=$PR_HEAD_SHA"
+            echo "base_sha=$PR_BASE_SHA"
             echo "event=$GITHUB_EVENT_NAME"
             echo "run_id=$GITHUB_RUN_ID"
             echo "run_attempt=$GITHUB_RUN_ATTEMPT"
@@ -60,7 +65,7 @@ jobs:
           mkdir -p artifacts
           python3 -m unittest discover -s tests -p "test_merlin_prompt_contract.py" -v 2>&1 | tee artifacts/prompt-contract-tests.log
           rc=${PIPESTATUS[0]}
-          printf '{"suite":"prompt-contract-tests","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$rc" > artifacts/prompt-contract-tests-result.json
+          printf '{"suite":"prompt-contract-tests","head_sha":"%s","merge_sha":"%s","base_sha":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$PR_HEAD_SHA" "$GITHUB_SHA" "$PR_BASE_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$rc" > artifacts/prompt-contract-tests-result.json
           exit "$rc"
       - name: Test prompt to Hermes worker round trip
         if: always()
@@ -71,7 +76,7 @@ jobs:
           set +e
           python3 -m unittest discover -s tests -p "test_merlin_prompt_hermes_adapter.py" -v 2>&1 | tee artifacts/prompt-hermes-adapter-tests.log
           rc=${PIPESTATUS[0]}
-          printf '{"suite":"prompt-hermes-adapter-tests","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$rc" > artifacts/prompt-hermes-adapter-tests-result.json
+          printf '{"suite":"prompt-hermes-adapter-tests","head_sha":"%s","merge_sha":"%s","base_sha":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$PR_HEAD_SHA" "$GITHUB_SHA" "$PR_BASE_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$rc" > artifacts/prompt-hermes-adapter-tests-result.json
           exit "$rc"
       - name: Test existing Hermes worker lifecycle
         if: always()
@@ -82,7 +87,7 @@ jobs:
           set +e
           python3 -m unittest discover -s tests -p "test_hermes_worker.py" -v 2>&1 | tee artifacts/hermes-worker-tests.log
           rc=${PIPESTATUS[0]}
-          printf '{"suite":"hermes-worker-tests","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$rc" > artifacts/hermes-worker-tests-result.json
+          printf '{"suite":"hermes-worker-tests","head_sha":"%s","merge_sha":"%s","base_sha":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$PR_HEAD_SHA" "$GITHUB_SHA" "$PR_BASE_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$rc" > artifacts/hermes-worker-tests-result.json
           exit "$rc"
       - name: Test canonical Hermes stage handlers
         if: always()
@@ -93,7 +98,7 @@ jobs:
           set +e
           python3 -m unittest discover -s tests -p "test_hermes_stage_handlers.py" -v 2>&1 | tee artifacts/hermes-stage-handler-tests.log
           rc=${PIPESTATUS[0]}
-          printf '{"suite":"hermes-stage-handler-tests","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$rc" > artifacts/hermes-stage-handler-tests-result.json
+          printf '{"suite":"hermes-stage-handler-tests","head_sha":"%s","merge_sha":"%s","base_sha":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$PR_HEAD_SHA" "$GITHUB_SHA" "$PR_BASE_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$rc" > artifacts/hermes-stage-handler-tests-result.json
           exit "$rc"
       - name: Compile prompt and Hermes bridge modules
         if: always()
@@ -104,7 +109,7 @@ jobs:
           set +e
           python3 -m py_compile python/merlin/prompt_contract.py python/merlin/prompt_hermes_adapter.py python/merlin/hermes_worker.py python/merlin/hermes_stage_handlers.py 2>&1 | tee artifacts/prompt-hermes-compile.log
           rc=${PIPESTATUS[0]}
-          printf '{"suite":"prompt-hermes-compile","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$rc" > artifacts/prompt-hermes-compile-result.json
+          printf '{"suite":"prompt-hermes-compile","head_sha":"%s","merge_sha":"%s","base_sha":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$PR_HEAD_SHA" "$GITHUB_SHA" "$PR_BASE_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$rc" > artifacts/prompt-hermes-compile-result.json
           exit "$rc"
       - name: Record evidence manifest
         if: always()
@@ -116,7 +121,7 @@ jobs:
           python3 - <<'PY'
           import json, os
           keys = ("GITHUB_REPOSITORY", "GITHUB_SHA", "GITHUB_REF", "GITHUB_EVENT_NAME",
-                  "GITHUB_RUN_ID", "GITHUB_RUN_ATTEMPT", "GITHUB_WORKFLOW", "RUNNER_NAME")
+                  "GITHUB_RUN_ID", "GITHUB_RUN_ATTEMPT", "GITHUB_WORKFLOW", "RUNNER_NAME", "PR_HEAD_SHA", "PR_BASE_SHA")
           payload = {key.lower(): os.environ.get(key, "") for key in keys}
           payload["job_status"] = os.environ.get("JOB_STATUS", "unknown")
           with open("artifacts/prompt-hermes-evidence.json", "w", encoding="utf-8") as handle:
