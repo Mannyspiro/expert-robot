@@ -47,6 +47,25 @@ class HudRuntimeTests(unittest.TestCase):
         self.assertEqual(node["body"]["workspace"]["workspace"], "equation")
         self.assertEqual(node["body"]["workspace"]["representation"]["latex"], "z = re^{i theta}")
 
+    def test_project_and_outbox_queries_use_canonical_stores(self):
+        self.registry.put_artifact("merlin", "notes/summary.txt", b"verified note")
+        runtime = build_hud_runtime(
+            registry=self.registry, graph=self.graph, outbox=self.outbox,
+        )
+        projects = self.request(runtime.application, "/api/hud/projects")
+        self.assertEqual(projects["status"], "200 OK")
+        self.assertEqual(projects["body"]["items"][0]["project_id"], "merlin")
+        self.assertEqual(projects["body"]["items"][0]["artifact_count"], 1)
+        project = self.request(runtime.application, "/api/hud/project",
+                               "project_id=merlin")
+        self.assertEqual(project["status"], "200 OK")
+        self.assertEqual(project["body"]["project"]["artifacts"][0]["logical_path"],
+                         "notes/summary.txt")
+        self.assertTrue(project["body"]["project"]["artifacts"][0]["verified"])
+        outbox = self.request(runtime.application, "/api/hud/outbox")
+        self.assertEqual(outbox["status"], "200 OK")
+        self.assertIn("pending", outbox["body"]["counts"])
+
     def test_activity_get_does_not_acknowledge_outbox_events(self):
         self.outbox.enqueue(
             "test-telemetry", "merlin.telemetry.task.progress",
