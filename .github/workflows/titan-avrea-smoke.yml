@@ -1,0 +1,59 @@
+name: Titan Avrea Contract Smoke
+
+on:
+  push:
+    branches:
+      - "feat/titan-pqc-foundation-20261105"
+    paths:
+      - "config/titan/**"
+      - "scripts/validate_titan_record.py"
+      - "tests/titan_contract_smoke.py"
+      - ".github/workflows/titan-avrea-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: titan-avrea-smoke-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  titan-contract:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 8
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Record source and runner identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "commit=$(git rev-parse HEAD)"
+          echo "runner=$RUNNER_NAME"
+          echo "os=$RUNNER_OS arch=$RUNNER_ARCH"
+          python3 --version
+          git status --short
+
+      - name: Validate Titan schemas and fixtures
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m json.tool config/titan/candidate.schema.json >/dev/null
+          python3 -m json.tool config/titan/experiment.schema.json >/dev/null
+          python3 tests/titan_contract_smoke.py
+
+      - name: Upload non-secret test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: titan-contract-smoke-${{ github.run_id }}
+          path: |
+            config/titan/*.schema.json
+            tests/titan_contract_smoke.py
+            scripts/validate_titan_record.py
+          if-no-files-found: error
+          retention-days: 14
