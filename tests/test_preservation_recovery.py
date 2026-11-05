@@ -53,6 +53,17 @@ class PreservationRecoveryTests(unittest.TestCase):
         self.assertTrue(result["recovery_path"].startswith("_recovery/"))
         self.assertEqual(self.registry.get_artifact_bytes(digest), data)
 
+    def test_registry_recovers_orphaned_blob_without_metadata_row(self):
+        data = b"orphaned but intact blob"
+        digest = hashlib.sha256(data).hexdigest()
+        blob_path = self.registry.blobs / digest[:2] / digest[2:]
+        blob_path.parent.mkdir(parents=True, exist_ok=True)
+        blob_path.write_bytes(data)
+        result = RegistryRecoveryAdapter(self.registry).recover(
+            digest=digest, project_id="p", original_path="lost/orphan.bin")
+        self.assertEqual(result["sha256"], digest)
+        self.assertEqual(self.registry.get_artifact_bytes(digest), data)
+
     def test_zip_recovery_restores_exact_member_without_extracting(self):
         data = b"archived bytes"
         archive_path = self.root / "bundle.zip"
