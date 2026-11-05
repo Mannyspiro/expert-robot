@@ -295,3 +295,31 @@ with a complex representation of the orthogonal plane attached to each fixed-axi
 ## 19. Avrea qualification receipt for the exact frame prototype
 
 Avrea workflow run [41888718729](https://github.com/Mannyspiro/expert-robot/actions/runs/41888718729) completed successfully. The run validated the 23-record mathematical idea catalog, passed the catalog-validator unit tests, passed the exact multi-representation tests including the five-dimensional frame case, and compiled `merlin/representation_graph.py`. This qualifies the finite tests at the commit snapshot used by that run; it does not prove the general n-dimensional theorem, full characteristic-polynomial preservation in Lean, partial-chart behavior, or connection holonomy.
+
+
+## 20. Exact characteristic polynomial under basis change
+
+The finite rational representation-graph prototype now computes the characteristic polynomial of a square matrix exactly using the Faddeev–LeVerrier recurrence (Newton identities). Coefficients are represented as `Fraction` values, avoiding floating-point rounding in this finite implementation.
+
+For a matrix (Ain M_n(F)), the returned tuple ((1,c_1,\ldots,c_n)) represents
+\[
+\chi_A(\lambda)=\det(\lambda I-A)
+=\lambda^n+c_1\lambda^{n-1}+\cdots+c_n.
+\]
+
+For an invertible basis change (P), the represented operator is (A'=PAP^{-1}). Similarity gives
+\[
+\chi_{A'}(\lambda)=\chi_A(\lambda).
+\]
+This is stronger than checking trace and determinant alone, because the full characteristic polynomial records the eigenvalue multiset with algebraic multiplicity over the declared field.
+
+**Avrea evidence, PR #93 head `5526380a769f9ad2c9c3eff9c270d4276f2fe54e`:**
+- Representation graph: **13 tests passed**, including exact characteristic-polynomial coefficients, invariance across three basis choices, repeated eigenvalue, and invalid-shape rejection.
+- Rotation representation correspondence: **11 tests passed**.
+- Spherical connection/holonomy: **7 tests passed**.
+- Python compilation of the three mathematical modules passed.
+- Dedicated Avrea job completed successfully; evidence artifact `merlin-representation-math-evidence-42120973994-1`, SHA-256 `a33a8177896d370a88d9d0f79ac0910cb971aaeea57bdc140dde22c9cf41e564`.
+
+**Scope boundary:** the implementation is finite-dimensional, square and rational. The mathematical similarity theorem is standard; this PR supplies exact executable checks, not a Lean proof. It does not yet implement generalized eigenspace transport, arbitrary field metadata, partial charts or infinite-dimensional operators.
+
+Next: formalize similarity invariance in Lean over a commutative field; add generalized eigenspace transport; make scalar-field and domain metadata explicit.
