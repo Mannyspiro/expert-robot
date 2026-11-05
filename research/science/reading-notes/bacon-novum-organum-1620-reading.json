@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "dossier_id": "merlin.pioneer.bacon.novum-organum.1620-reading.v1",
+  "person": {
+    "name": "Francis Bacon",
+    "dates": "1561–1626",
+    "field": [
+      "philosophy of science",
+      "natural philosophy",
+      "methodology",
+      "political philosophy"
+    ]
+  },
+  "work": {
+    "title": "Novum Organum",
+    "original_publication": 1620,
+    "edition_read": "1902 English edition edited by Joseph Devey",
+    "repository": "Project Gutenberg",
+    "ebook_id": 45988,
+    "url": "https://www.gutenberg.org/ebooks/45988",
+    "rights": "Public-domain English translation/edition in the United States; verify item/edition for reuse."
+  },
+  "scope_read": "Preface and Book I aphorisms, especially the discussion of method, instruments, induction and the four idols.",
+  "historical_context": [
+    "Bacon writes in early modern England amid criticism of inherited scholastic methods, renewed interest in natural history, instrument-making and practical arts.",
+    "The 1620 work proposes a new method for investigating nature; it is not a modern laboratory protocol and should be read as an ambitious philosophical program of its period.",
+    "The available English text is a 1902 edition by Joseph Devey, so wording and editorial framing belong to that translation/edition as well as to Bacon's work."
+  ],
+  "what_bacon_did": [
+    "Argued that inquiry needs aids and instruments for the mind just as mechanical work needs tools.",
+    "Contrasted premature movement from a few observations to sweeping axioms with a gradual ascent from particulars and experiments toward more general principles.",
+    "Named four recurring sources of cognitive distortion: Idols of the Tribe, Den, Market and Theatre.",
+    "Distinguished learning that cultivates established knowledge from methods intended to discover new knowledge.",
+    "Urged readers to test claims through experience rather than settle the question by dogmatic authority or abstract disputation."
+  ],
+  "methodological_reading": [
+    {
+      "section": "Preface",
+      "location": "paragraphs 1–18",
+      "note": "Bacon criticizes both dogmatism and radical despair, and argues that inquiry should be put to the test of experience with a directed method."
+    },
+    {
+      "section": "Preface",
+      "location": "instrument analogy",
+      "note": "He compares instruments that extend the hand with intellectual aids that discipline and extend the understanding."
+    },
+    {
+      "section": "Book I",
+      "location": "Aphorisms XIX–XXVI",
+      "note": "He contrasts rapid generalization with a gradual inductive ascent from observations and particulars."
+    },
+    {
+      "section": "Book I",
+      "location": "Aphorisms XXXIX–XLIX",
+      "note": "The four idols describe sources of distortion arising from human nature, individual disposition, language/social exchange and inherited philosophical systems."
+    },
+    {
+      "section": "Book I",
+      "location": "Aphorisms XLVI–XLVII",
+      "note": "He highlights confirmation bias and the human tendency to privilege confirming instances over negative evidence."
+    }
+  ],
+  "pioneer_questions": [
+    "What problem with inherited philosophical methods was Bacon trying to solve?",
+    "How does his instrument analogy anticipate the role of measurement technology and research infrastructure?",
+    "Which of the four idols map to modern cognitive biases, and where does the analogy break?",
+    "How does Bacon's inductive program differ from modern experimental design and statistical inference?",
+    "What would count as a fair test of a Baconian method today?"
+  ],
+  "cautions": [
+    "Bacon's program is historically influential but does not describe all modern science; modern methods include mathematical modeling, controlled experiments, statistics, causal inference and theory-driven prediction.",
+    "The four idols are philosophical categories, not a validated modern psychological taxonomy.",
+    "Use the 1902 Devey edition as a translation witness, not as Bacon's original-language wording."
+  ],
+  "citations": [
+    {
+      "section": "Preface and Book I aphorisms",
+      "url": "https://www.gutenberg.org/ebooks/45988",
+      "lines": "Preface; Aphorisms I–XLIX"
+    }
+  ],
+  "epistemic_status": "historical_interpretation_grounded_in_primary_text",
+  "review_status": "seed_notes_not_peer_reviewed"
+}
