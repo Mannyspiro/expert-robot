@@ -101,13 +101,17 @@ class HermesStageHandlerTests(unittest.TestCase):
         self.assertEqual(self.ledger.get("H-17").status, "proposed")
 
     def test_registration_fails_closed_when_an_engine_is_missing(self):
-        with self.assertRaisesRegex(ValueError, "all be injected"):
+        with self.assertRaisesRegex(ValueError, "callable"):
             build_hermes_stage_handlers(
                 evidence_recorder=self.recorder,
                 project_id="merlin",
                 research_executor=lambda task, context: {},
                 numerical_experiment_executor=None,
                 proof_search_executor=lambda task, context: {},
+                artifact_verifier=fake_cace_verifier,
+                repository="owner/repo",
+                commit_sha="a" * 40,
+                requester_id="merlin-worker",
             )
 
     def test_handler_rejects_untyped_or_empty_executor_output(self):
