@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://merlin.local/schemas/titan-candidate-v1.json",
+  "title": "Titan research candidate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "candidate_id", "title", "status", "objective", "threat_model", "primitive_families", "mathematical_lenses", "assumptions", "claims", "limitations", "provenance"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "candidate_id": {"type": "string", "pattern": "^titan:[a-z0-9][a-z0-9._-]{2,95}$"},
+    "title": {"type": "string", "minLength": 3, "maxLength": 180},
+    "status": {"enum": ["idea", "formalized", "experimental", "review_required", "rejected", "qualified"]},
+    "objective": {"type": "string", "minLength": 8},
+    "threat_model": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["classical", "quantum", "adaptive_chosen_ciphertext", "active_network", "compromised_endpoint", "malicious_insider", "supply_chain"]}},
+    "primitive_families": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["lattice_kem", "code_kem", "lattice_signature", "hash_signature", "classical_kem", "aead", "kdf", "protocol_composition", "other_research"]}},
+    "mathematical_lenses": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["lattice_geometry", "algebra", "coding_theory", "combinatorics", "probability", "entropy", "information_theory", "complexity", "graph_theory", "representation_theory", "topology", "dynamical_systems", "number_theory", "category_theory", "xenomathematics", "other"]}},
+    "assumptions": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 3}},
+    "claims": {"type": "array", "items": {"type": "string"}},
+    "limitations": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 3}},
+    "standards": {"type": "array", "items": {"type": "object", "required": ["identifier", "edition"], "properties": {"identifier": {"type": "string"}, "edition": {"type": "string"}, "url": {"type": "string", "format": "uri"}}, "additionalProperties": false}},
+    "provenance": {"type": "object", "required": ["repository", "commit_sha", "created_at"], "properties": {"repository": {"type": "string"}, "commit_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"}, "created_at": {"type": "string", "format": "date-time"}, "parent_candidate_id": {"type": "string"}}, "additionalProperties": false},
+    "production_eligible": {"const": false}
+  }
+}
