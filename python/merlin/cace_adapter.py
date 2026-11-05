@@ -27,7 +27,7 @@ class CaceVerificationAdapter:
 
     def verify(self, *, project_id: str, repository: str, commit_sha: str,
                artifact_sha256: str, theorem: str, requester_id: str,
-               logical_path: str = "cace-receipts/verification.json") -> dict[str, Any]:
+               logical_path: str | None = None) -> dict[str, Any]:
         if self.verify_transport is None:
             raise RuntimeError("CACE verification transport is not configured")
         if not repository or "/" not in repository:
