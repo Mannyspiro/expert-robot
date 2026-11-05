@@ -13,7 +13,13 @@
       "ML-KEM (FIPS 203)",
       "ML-DSA (FIPS 204)",
       "SLH-DSA (FIPS 205)"
-    ]
+    ],
+    "tag_type": "lightweight",
+    "commit_signature": {
+      "verified": true,
+      "verification_reason": "valid",
+      "verified_by": "GitHub commit verification API"
+    }
   },
   "vectors": {
     "name": "NIST ACVP-Server published projection vectors",
@@ -30,7 +36,13 @@
       "SLH-DSA-sigGen-FIPS205/internalProjection.json",
       "SLH-DSA-sigVer-FIPS205/internalProjection.json"
     ],
-    "note": "liboqs release test_acvp_vectors.py consumes these exact versioned raw paths; the workflow verifies the upstream tag commit before executing the upstream test harness."
+    "note": "liboqs release test_acvp_vectors.py consumes these exact versioned raw paths; the workflow verifies the upstream tag commit before executing the upstream test harness.",
+    "tag_type": "lightweight",
+    "commit_signature": {
+      "verified": false,
+      "verification_reason": "unsigned",
+      "note": "Exact tag commit SHA is pinned and verified by git ls-remote; upstream commit has no cryptographic signature."
+    }
   },
   "build": {
     "os": "Ubuntu Linux on Avrea runner",
@@ -51,7 +63,13 @@
     "repository": "https://github.com/open-quantum-safe/liboqs-python",
     "release": "0.16.0.2",
     "commit": "64c76ad0a80d6c69f2003219eb27b253782a3d68",
-    "upstream_verified_tag": true,
-    "security_note": "0.16.0.2 includes a fix for ML-DSA signature forgery and ML-KEM shared-secret recovery caused by short key inputs; do not use earlier binding releases."
+    "security_note": "0.16.0.2 includes a fix for ML-DSA signature forgery and ML-KEM shared-secret recovery caused by short key inputs; do not use earlier binding releases.",
+    "tag_type": "lightweight",
+    "commit_signature": {
+      "verified": true,
+      "verification_reason": "valid",
+      "verified_by": "GitHub commit verification API"
+    },
+    "commit_pinned": true
   }
 }
