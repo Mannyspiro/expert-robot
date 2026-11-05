@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "request_id": "expert-robot-42054029936-e9e0e4312d61db3a758bbcae6c46dd144649fc55",
+  "source": {
+    "repository": "Mannyspiro/expert-robot",
+    "branch": "feat/hermes-routing-eval-avrea-discovery-20261105",
+    "commit": "e9e0e4312d61db3a758bbcae6c46dd144649fc55"
+  },
+  "cace": {
+    "repository": "morganaspim/Cace-app",
+    "branch": "executor/expert-robot-bridge",
+    "workflow_run_id": 42056170049,
+    "run_attempt": 1,
+    "workflow_commit": "d548e60be9bd5490e50444b35e88efd1a094a174",
+    "workflow_ref": "morganaspim/Cace-app/.github/workflows/expert-robot-bridge.yml@refs/heads/executor/expert-robot-bridge"
+  },
+  "evidence": {
+    "artifact_id": 13430265917,
+    "artifact_sha256": "dc5542ff275733b46e463572be5cb470b96ee6b7f1bd0390ef29178fd890ab7f",
+    "result_json_sha256": "aa855166fa9bf6eae55e41b8086a567b7476cf5e3a81df025bf62a0a06a2714d",
+    "result_log_sha256": "2764f15f487a86c8784a759c1784ec9e792484e3fe35d4ea45f9c28cb975708e"
+  },
+  "outcome": {
+    "status": "fail",
+    "exit_code": 50,
+    "reason": "Pinned Lean 4.34.0 is absent; only Lean 4.32.1 is installed, and 1,162,936 KB is free versus the 2,097,152 KB minimum."
+  },
+  "diagnostic": {
+    "cache_root_gb": 19,
+    "mathlib_4321_gb": 8.6,
+    "lake_artifacts_gb": 6.6,
+    "elan_toolchains_gb": 2.8,
+    "unrelated_huggingface_cache_gb": 2.5,
+    "cleanup_performed": false
+  },
+  "integrity": {
+    "artifact_digest": "GitHub SHA-256 digest recorded; result JSON and log SHA-256 recomputed from downloaded artifact",
+    "signature": "unsigned; CACE Ed25519 signer is not configured in the workflow"
+  },
+  "return": {
+    "publisher_envelope_validation": "passed",
+    "reverse_ssh": "failed; all configured reverse-key aliases were empty",
+    "expert_robot_repository_mirror": "will be recorded in this branch",
+    "method": "authenticated GitHub connector write, not the CACE workflow reverse-SSH path"
+  },
+  "authority": "qualification-only",
+  "promotion_authority": false
+}
