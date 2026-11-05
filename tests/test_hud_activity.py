@@ -54,3 +54,21 @@ class HudActivityTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+    def test_outbox_consumer_projects_and_acknowledges_telemetry(self):
+        import tempfile
+        from pathlib import Path
+        from merlin.event_outbox import MerlinEventOutbox
+        from merlin.hud_activity import HudOutboxConsumer
+        from merlin.telemetry import normalize_event
+        with tempfile.TemporaryDirectory() as temp:
+            outbox = MerlinEventOutbox(Path(temp) / "outbox.sqlite3")
+            event_data = normalize_event({"event_id":"hud-event-1","source":"runtime",
+                "kind":"research.stage","run_id":"r1","payload":{"stage":"experiment"}})
+            outbox.enqueue("telemetry:hud-event-1","merlin.telemetry.research.stage",event_data,now=1)
+            projector = HudActivityProjector()
+            consumer = HudOutboxConsumer(outbox,projector)
+            result = consumer.drain_one(now=2)
+            self.assertTrue(result["projected"])
+            self.assertEqual(projector.snapshot()["phase"],"experiment")
+            self.assertEqual(outbox.get(result["event_id"])["state"],"acknowledged")
