@@ -135,3 +135,9 @@ Then probe with networking disabled:
     docker run --rm --network none merlin-freecad:debian-bookworm
 
 This image has not been built or deployed to Avrea. No Avrea runner connector is available in this session; see `freecad-runtime/README.md` for the operator handoff and isolation requirements.
+
+## FreeCAD geometry worker execution
+
+The pinned FreeCAD runtime now includes `freecad-runtime/run_geometry_job.py`. It accepts a JSON contract and CAD input from a dedicated input workspace, invokes the explicit FreeCAD adapter, validates output artifact paths and SHA-256 digests through the geometry backend contract, and atomically writes `geometry-receipt.json`. The request file must itself be inside the mounted input workspace; input and output workspaces must be separate and non-nested.
+
+See [freecad-runtime/README.md](freecad-runtime/README.md) for the build, module probe and isolated container invocation. Host/Avrea policy must enforce resource ceilings and network/filesystem isolation. The job runner is implemented and has mocked regression tests, but neither the tests nor the FreeCAD image have been executed in this session. No live Avrea dispatch or real CAD processing is claimed.
