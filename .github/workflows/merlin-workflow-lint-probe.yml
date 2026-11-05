@@ -4,9 +4,11 @@ on:
   push:
     branches:
       - "feat/hermes-routing-eval-avrea-discovery-20261105"
+      - "repair/cace-bridge-request-isolation-20261105"
     paths:
       - ".github/workflows/ci.yml"
       - ".github/workflows/external-free-runner-bridge.yml"
+      - ".github/workflows/engineering-integration.yml"
       - ".github/workflows/merlin-workflow-lint-probe.yml"
 
 permissions:
@@ -35,12 +37,12 @@ jobs:
           if command -v go >/dev/null 2>&1; then
             go version >> "$log" 2>&1
             set +e
-            go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.7 -oneline .github/workflows/ci.yml .github/workflows/external-free-runner-bridge.yml >> "$log" 2>&1
+            go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.7 -oneline .github/workflows/ci.yml.github/workflows/external-free-runner-bridge.yml .github/workflows/engineering-integration.yml >> "$log" 2>&1
             rc=$?
             set -e
           elif command -v ruby >/dev/null 2>&1; then
             set +e
-            ruby -e 'require "yaml"; ARGV.each { |p| YAML.load_file(p); puts "YAML PASS: #{p}" }' .github/workflows/ci.yml .github/workflows/external-free-runner-bridge.yml >> "$log" 2>&1
+            ruby -e 'require "yaml"; ARGV.each { |p| YAML.load_file(p); puts "YAML PASS: #{p}" }' .github/workflows/ci.yml .github/workflows/external-free-runner-bridge.yml .github/workflows/engineering-integration.yml >> "$log" 2>&1
             rc=$?
             set -e
           else
