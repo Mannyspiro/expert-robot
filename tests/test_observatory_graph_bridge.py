@@ -4,7 +4,7 @@ from pathlib import Path
 
 from merlin.engineering_ir import EngineeringProject, Part, Pin
 from merlin.engineering_project_store import EngineeringProjectStore
-from merlin.knowledge_graph import MerlinKnowledgeGraph
+from merlin.knowledge_graph import GraphNode, MerlinKnowledgeGraph
 from merlin.observatory_integrity import verify_database
 from merlin.proof_observatory import ProofObservatory, canonical_json, sha256_text
 from merlin.observatory_graph_bridge import (
@@ -143,6 +143,38 @@ class ObservatoryGraphBridgeTests(unittest.TestCase):
                 make_receipt(), make_dag(),
                 project_id="robot-controller", revision=2,
                 object_view_ids_by_domain={"geometry": [old_part_id]},
+            )
+
+    def test_rejects_a_project_node_with_a_mismatched_identity(self):
+        node_id = self.views["project_node_id"]
+        node = self.graph.get_node(node_id)
+        self.graph.add_node(GraphNode(
+            node_id=node_id,
+            node_type="project",
+            label=node.label,
+            payload={
+                **node.payload,
+                "engineering_project_id": "different-project",
+            },
+            evidence_class=node.evidence_class,
+        ))
+        part_id = self.views["part_object_views"]["U1"]
+        with self.assertRaisesRegex(ValueError, "exact Engineering IR revision"):
+            link_observatory_to_graph(
+                self.graph, self.project_store, self.observatory,
+                make_receipt(), make_dag(),
+                project_id="robot-controller", revision=1,
+                object_view_ids_by_domain={"geometry": [part_id]},
+            )
+
+    def test_rejects_string_instead_of_object_view_id_collection(self):
+        part_id = self.views["part_object_views"]["U1"]
+        with self.assertRaisesRegex(TypeError, "iterable of IDs"):
+            link_observatory_to_graph(
+                self.graph, self.project_store, self.observatory,
+                make_receipt(), make_dag(),
+                project_id="robot-controller", revision=1,
+                object_view_ids_by_domain={"geometry": part_id},
             )
 
     def test_invalid_dag_does_not_leave_a_benchmark_receipt_behind(self):

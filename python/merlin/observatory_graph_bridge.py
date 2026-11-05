@@ -213,8 +213,22 @@ def link_observatory_to_graph(
     project_node = graph.get_node(project_node_id)
     if project_node is None or project_node.node_type != "project":
         raise KeyError("Engineering IR revision has not been registered in the Knowledge Graph")
-    if project_node.payload.get("engineering_revision_sha256") != revision_sha256:
-        raise ValueError("Knowledge Graph project node has a stale Engineering IR hash")
+    project_binding = (
+        project_node.payload.get("engineering_project_id"),
+        project_node.payload.get("engineering_revision"),
+        project_node.payload.get("engineering_revision_sha256"),
+    )
+    if project_binding != (project_id, revision, revision_sha256):
+        raise ValueError("Knowledge Graph project node does not match the exact Engineering IR revision")
+
+    normalized_object_ids: dict[str, tuple[str, ...]] = {}
+    for domain, values in object_view_ids_by_domain.items():
+        if isinstance(values, (str, bytes)):
+            raise TypeError("each object-view domain must map to an iterable of IDs, not one string")
+        ids = tuple(values)
+        if any(not isinstance(item, str) or not item.strip() for item in ids):
+            raise ValueError("object-view IDs must be non-empty strings")
+        normalized_object_ids[domain] = tuple(dict.fromkeys(ids))
 
     snapshot = graph.export_snapshot()
     snapshot_payload = {key: value for key, value in snapshot.items() if key != "snapshot_sha256"}
@@ -240,7 +254,7 @@ def link_observatory_to_graph(
     for domain, benchmark in receipt["domains"].items():
         if not isinstance(benchmark, dict) or benchmark.get("passed") is not True:
             continue
-        object_ids = tuple(object_view_ids_by_domain.get(domain, ()))
+        object_ids = normalized_object_ids.get(domain, ())
         for object_id in object_ids:
             object_node = graph.get_node(object_id)
             if object_node is None or object_node.node_type != "object_view":
@@ -272,7 +286,7 @@ def link_observatory_to_graph(
 
     # All external references are checked before either evidence store is mutated.
     link_ids = observatory.record_benchmark_theorem_links(
-        receipt, theorem_dag, project_id, revision_sha256, object_view_ids_by_domain,
+        receipt, theorem_dag, project_id, revision_sha256, normalized_object_ids,
     )
     for theorem_id, object_id, domain in expected_links:
         theorem = next(node for node in nodes if node["id"] == theorem_id)
