@@ -2,6 +2,10 @@
 
 Expert Robot is a local, modular AI research system designed around a thin Python orchestration layer and a C++ runtime core.
 
+## AI / runner operations
+
+All coding agents with authorized GitHub access should begin with [AGENTS.md](AGENTS.md) and [the Merlin runner and bridge operations guide](docs/AI_RUNNER_AND_BRIDGE_OPERATIONS.md). It documents the Avrea hosted runner, CACE OCI ARM64 runner, CACE publisher, forward/reverse deploy-key boundaries, result schema, evidence retention, CI and reproducible troubleshooting steps. The workflow files remain authoritative; agents must inspect the live run and exact commit before acting.
+
 ## Architecture
 
 - **Python**: orchestration only
