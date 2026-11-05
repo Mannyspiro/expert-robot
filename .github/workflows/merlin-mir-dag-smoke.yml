@@ -1,0 +1,50 @@
+name: Merlin MIR DAG Resource Smoke
+
+on:
+  push:
+    branches: ["repair/merlin-full-integration-20261105"]
+    paths:
+      - "merlin/glyph_foundry.py"
+      - "tests/test_glyph_foundry.py"
+      - "scripts/merlin_mir_dag_benchmark.py"
+      - ".github/workflows/merlin-mir-dag-smoke.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: merlin-mir-dag-resource-smoke
+  cancel-in-progress: false
+
+jobs:
+  dag-smoke:
+    name: dag-memory-and-correctness
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Record exact source and runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          {
+            echo "commit=$GITHUB_SHA"
+            echo "runner=$RUNNER_NAME"
+            echo "os=$RUNNER_OS"
+            echo "arch=$RUNNER_ARCH"
+            nproc
+            python3 --version
+          } | tee artifacts/runner-identity.txt
+      - name: Run Glyph Foundry correctness suite
+        run: python3 -m unittest discover -s tests -p "test_glyph_foundry.py" -v
+      - name: Measure tree versus interned DAG
+        run: python3 scripts/merlin_mir_dag_benchmark.py --depth 12 --output artifacts/merlin-mir-dag-benchmark.json
+      - name: Upload reproducible benchmark evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-mir-dag-resource-smoke-${{ github.run_id }}
+          path: artifacts/
+          if-no-files-found: warn
+          retention-days: 30
