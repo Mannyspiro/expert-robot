@@ -52,7 +52,7 @@ el("check").addEventListener("click",()=>{
  const attempt={
   learner_id:el("learner").value.trim(),
   attempt_id:(crypto.randomUUID?crypto.randomUUID():"attempt-"+Date.now()+"-"+Math.random().toString(16).slice(2)),
-  idea_id:"rotor-representations",problem_id:"rotor-half-angle",
+  idea_id:"MATH-ALG-001",problem_id:"rotor-half-angle",
   problem_version:"1",dimension:"recognition",score:correct?1:0,
   session_id:el("session").value.trim(),rubric_version:"rotation-rubric-0.1",
   response:{selected_option:chosen.value,correct,angle_degrees:Number(angle.value)},
