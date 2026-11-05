@@ -9,12 +9,14 @@ on:
       - "python/merlin/event_outbox.py"
       - "python/merlin/hermes_worker.py"
       - "python/merlin/hermes_stage_handlers.py"
+      - "python/merlin/hermes_runtime.py"
       - "python/merlin/cace_adapter.py"
       - "python/merlin/project_registry.py"
       - "tests/test_merlin_prompt_contract.py"
       - "tests/test_merlin_prompt_hermes_adapter.py"
       - "tests/test_hermes_worker.py"
       - "tests/test_hermes_stage_handlers.py"
+      - "tests/test_merlin_hermes_runtime.py"
       - "docs/merlin/PROMPT_ENGINEERING_CONTRACT_V0.1.md"
       - ".github/workflows/merlin-prompt-hermes.yml"
   workflow_dispatch:
@@ -100,6 +102,17 @@ jobs:
           rc=${PIPESTATUS[0]}
           printf '{"suite":"hermes-stage-handler-tests","head_sha":"%s","merge_sha":"%s","base_sha":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$PR_HEAD_SHA" "$GITHUB_SHA" "$PR_BASE_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$rc" > artifacts/hermes-stage-handler-tests-result.json
           exit "$rc"
+      - name: Test composed prompt-to-CACE Hermes runtime
+        if: always()
+        env:
+          PYTHONPATH: python
+        shell: bash
+        run: |
+          set +e
+          python3 -m unittest discover -s tests -p "test_merlin_hermes_runtime.py" -v 2>&1 | tee artifacts/hermes-runtime-composition-tests.log
+          rc=${PIPESTATUS[0]}
+          printf '{"suite":"hermes-runtime-composition-tests","head_sha":"%s","merge_sha":"%s","base_sha":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$PR_HEAD_SHA" "$GITHUB_SHA" "$PR_BASE_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$rc" > artifacts/hermes-runtime-composition-tests-result.json
+          exit "$rc"
       - name: Compile prompt and Hermes bridge modules
         if: always()
         env:
@@ -107,7 +120,7 @@ jobs:
         shell: bash
         run: |
           set +e
-          python3 -m py_compile python/merlin/prompt_contract.py python/merlin/prompt_hermes_adapter.py python/merlin/hermes_worker.py python/merlin/hermes_stage_handlers.py 2>&1 | tee artifacts/prompt-hermes-compile.log
+          python3 -m py_compile python/merlin/prompt_contract.py python/merlin/prompt_hermes_adapter.py python/merlin/hermes_worker.py python/merlin/hermes_stage_handlers.py python/merlin/hermes_runtime.py 2>&1 | tee artifacts/prompt-hermes-compile.log
           rc=${PIPESTATUS[0]}
           printf '{"suite":"prompt-hermes-compile","head_sha":"%s","merge_sha":"%s","base_sha":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$PR_HEAD_SHA" "$GITHUB_SHA" "$PR_BASE_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$rc" > artifacts/prompt-hermes-compile-result.json
           exit "$rc"
