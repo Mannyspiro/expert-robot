@@ -30,7 +30,7 @@ def fetch_commit(repository, requested_sha, token=None):
       "verification_source":"github_rest_commit_endpoint"}
 
 def store_receipt(database, receipt, project_id=None):
-    rid="sha256:"+hashlib.sha256(json.dumps(receipt,sort_keys=True,separators=(",",":")).encode()).hexdigest()
+    rid="sha256:"+hashlib.sha256(json.dumps({"project_id":project_id,"receipt":receipt},sort_keys=True,separators=(",",":")).encode()).hexdigest()
     with connect(database) as db:
         if project_id and not db.execute("SELECT 1 FROM projects WHERE project_id=?",(project_id,)).fetchone():
             raise ValueError("unknown project_id")
