@@ -16,6 +16,20 @@ class HudObjectRendererTests(unittest.TestCase):
         self.assertEqual(view["cad"]["parts"][0]["ref"], "P1")
         self.assertTrue(view["capabilities"]["read_only"])
 
+    def test_freecad_descriptor_preserves_imported_mesh_and_assembly_tree(self):
+        payload = {
+            "objects": [{
+                "ref": "Body",
+                "mesh": {"vertices": [[0, 0, 0], [1, 0, 0], [0, 1, 0]],
+                         "faces": [[0, 1, 2]]},
+                "assembly_children": ["Bolt", "Plate"],
+            }],
+            "assemblies": [{"ref": "Assembly", "children": ["Body"]}],
+        }
+        view = render_descriptor(self.node("freecad_assembly", payload))
+        self.assertEqual(view["cad"]["objects"][0]["mesh"]["faces"], [[0, 1, 2]])
+        self.assertEqual(view["cad"]["assemblies"][0]["children"], ["Body"])
+
     def test_electrical_descriptor_preserves_nets_and_components(self):
         payload = {"components": [{"ref": "R1"}],
                    "netlist": {"nets": [{"name": "GND", "endpoints": ["R1.1", "J1.2"]}]}}
