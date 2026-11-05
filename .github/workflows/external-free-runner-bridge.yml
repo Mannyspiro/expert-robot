@@ -21,7 +21,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: external-free-runner-bridge-${{ github.ref_name }}
@@ -37,7 +37,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 2
-          persist-credentials: true
+          persist-credentials: false
 
       - name: Prepare deploy key
         id: key
@@ -50,10 +50,8 @@ jobs:
         run: |
           set -euo pipefail
           bridge_key="${CACE_BRIDGE_SSH_PRIVATE_KEY:-}"
-          bridge_key_source="CACE_BRIDGE_SSH_PRIVATE_KEY"
           if [ -z "$bridge_key" ]; then
             bridge_key="${LEGACY_CACE_BRIDGE_SSH_PRIVATE_KEY:-}"
-            bridge_key_source="RAILWAY_SSH_PRIVATE_KEY (legacy bridge alias)"
           fi
           if [ -z "$bridge_key" ]; then
             echo "::error::No existing CACE bridge key secret was found."
