@@ -56,3 +56,10 @@ Start the existing Merlin API process and use the lesson from the same origin. D
 - Hermes lesson routing has recommendation-only authority.
 - No lesson event grants tools, credentials, compute or production action authority.
 - Business scenario values are synthetic training data unless separately sourced and labeled.
+
+## Interactive lesson routes
+
+- GET /lessons/math-rotation serves the matrix/complex/quaternion/geometric-algebra lesson from the same origin as the learner API.
+- GET /lessons/b2b-ml-agentic-ai serves the ML and agentic workflow lab from the same origin.
+
+Because both pages are served by Merlin itself, their attempt submissions can reach POST /api/learning/attempt without a separate-origin integration.
