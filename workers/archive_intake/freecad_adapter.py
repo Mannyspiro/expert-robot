@@ -27,6 +27,13 @@ def _finite(value: Any) -> float:
     return number
 
 
+def _topology_status(operation: str, all_shapes_valid: bool) -> str:
+    """A topology-validation operation passes only when every imported shape is valid."""
+    if operation == "validate_topology" and not all_shapes_valid:
+        return "failed"
+    return "completed"
+
+
 def _placement_matrix(placement: Any) -> list[list[float]]:
     matrix = placement.toMatrix()
     values = matrix.A
@@ -208,11 +215,7 @@ class FreeCADBackend:
                 "input_sha256": request["input_sha256"],
                 "backend_id": self.backend_id,
                 "backend_version": self.backend_version,
-                "status": (
-                    "failed"
-                    if request["operation"] == "validate_topology" and not all_shapes_valid
-                    else "completed"
-                ),
+                "status": _topology_status(request["operation"], all_shapes_valid),
                 "artifacts": artifacts,
                 "metrics": metrics,
                 "limitations": limitations,
