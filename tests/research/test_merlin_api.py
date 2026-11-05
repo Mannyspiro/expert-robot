@@ -354,3 +354,19 @@ if __name__ == "__main__":
         self.assertEqual(recommendation["idea_id"], "B2B-ML-001")
         self.assertEqual(recommendation["lesson_id"], "b2b-ml-foundations-v0.1")
         self.assertEqual(recommendation["authority"], "recommendation_only")
+
+
+    def test_b2b_metrics_problem_is_scored_by_server_rubric(self):
+        learner = "api-learner-b2b-scoring-test"
+        self.post("/api/learning/attempt", {
+            "learner_id": learner, "attempt_id": "b2b-metric-1",
+            "problem_id": "b2b-precision-recall", "problem_version": "1",
+            "session_id": "b2b-session-1",
+            "score": 0.0, "idea_id": "CLIENT-CLAIMED-ID",
+            "response": {"precision_percent": 80.0, "recall_percent": 88.9},
+        })
+        with urlopen(self.base + "/api/learning/learner?learner_id=" + learner, timeout=5) as response:
+            state = json.loads(response.read())
+        estimate = state["skills"]["B2B-ML-001"]["procedure"]
+        self.assertAlmostEqual(estimate["mean"], 2/3, places=4)
+        self.assertEqual(estimate["observations"], 1)
