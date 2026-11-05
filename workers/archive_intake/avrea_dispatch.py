@@ -17,6 +17,8 @@ def canonical_sha(value):
     if isinstance(payload,dict): payload.pop("task_contract_sha256",None)
     return hashlib.sha256(json.dumps(payload,sort_keys=True,separators=(",",":")).encode()).hexdigest()
 def validate_task(task,approval,policy):
+    if not isinstance(task,dict) or not isinstance(approval,dict) or not isinstance(policy,dict):
+        raise DispatchRejected("task, approval and policy must be JSON objects")
     if task.get("contract_version")!="1.0": raise DispatchRejected("unsupported task contract")
     digest=canonical_sha(task)
     if task.get("task_contract_sha256")!=digest: raise DispatchRejected("task_contract_sha256 does not match canonical task body")
@@ -27,13 +29,15 @@ def validate_task(task,approval,policy):
     if not isinstance(caps,list) or not caps or len(caps)!=len(set(caps)): raise DispatchRejected("invalid capability allowlist")
     if not set(caps).issubset(set(policy["allowed_capabilities"])): raise DispatchRejected("capability outside policy")
     budget=task.get("resource_budget",{})
+    if not isinstance(budget,dict) or not isinstance(policy.get("resource_maxima"),dict):
+        raise DispatchRejected("resource budget and policy maxima must be objects")
     if set(budget)!=set(policy["resource_maxima"]): raise DispatchRejected("resource budget keys must exactly match policy")
     for key,maximum in policy["resource_maxima"].items():
         if not isinstance(budget.get(key),int) or isinstance(budget.get(key),bool) or budget[key]<1 or budget[key]>maximum:
             raise DispatchRejected("resource budget invalid or above policy: "+key)
     if task.get("network_access","none")!="none": raise DispatchRejected("network disabled unless a separately reviewed policy enables it")
     if task.get("result_manifest_required") is not True: raise DispatchRejected("result manifest is mandatory")
-    if not isinstance(task.get("timeout_seconds"),int) or not 1<=task["timeout_seconds"]<=policy["max_timeout_seconds"]:
+    if not isinstance(task.get("timeout_seconds"),int) or isinstance(task.get("timeout_seconds"),bool) or not isinstance(policy.get("max_timeout_seconds"),int) or not 1<=task["timeout_seconds"]<=policy["max_timeout_seconds"]:
         raise DispatchRejected("timeout outside policy")
     return digest
 
@@ -43,8 +47,8 @@ def record_approval(database,approval):
         raise DispatchRejected("approval record is incomplete")
     if approval.get("status")!="approved":
         raise DispatchRejected("approval status must be approved")
-    if len(approval["task_contract_sha256"])!=64:
-        raise DispatchRejected("approval must bind a SHA-256 task contract digest")
+    if not re.fullmatch(r"[0-9a-f]{64}",approval["task_contract_sha256"]):
+        raise DispatchRejected("approval must bind a lowercase SHA-256 task contract digest")
     with connect(database) as db:
         db.execute("INSERT INTO approval_records VALUES(?,?,?,?,?,?)",
           (approval["approval_id"],approval["task_contract_sha256"],approval["approved_by"],
