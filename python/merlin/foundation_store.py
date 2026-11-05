@@ -69,9 +69,9 @@ class MerlinFoundationStore:
         reference_digest = hashlib.sha256(
             f"{project_id}\0{logical_path}".encode("utf-8")
         ).hexdigest()
-        reference_id = f"artifact-ref:{reference_digest}"
+        source_id = f"source:{reference_digest}"
         self.graph.add_node(GraphNode(
-            reference_id, "artifact_reference", logical_path,
+            source_id, "source", logical_path,
             {
                 "project_id": project_id,
                 "logical_path": logical_path,
@@ -91,10 +91,10 @@ class MerlinFoundationStore:
                    for edge in direct_edges):
             self.graph.add_edge(GraphEdge(project_node_id, "contains", artifact_id, {}))
         self.graph.add_edge(GraphEdge(
-            project_node_id, "contains", reference_id, {"logical_path": logical_path}
+            project_node_id, "contains", source_id, {"logical_path": logical_path}
         ))
         self.graph.add_edge(GraphEdge(
-            reference_id, "uses", artifact_id, {"sha256": digest}
+            source_id, "derived_from", artifact_id, {"sha256": digest}
         ))
         return digest
 
@@ -139,15 +139,15 @@ class MerlinFoundationStore:
             reference_digest = hashlib.sha256(
                 f"{project_id}\0{logical_path}".encode("utf-8")
             ).hexdigest()
-            reference_id = f"artifact-ref:{reference_digest}"
+            source_id = f"source:{reference_digest}"
 
             if self.graph.get_node(node_id) is None:
                 missing_artifacts.append(logical_path)
-            if self.graph.get_node(reference_id) is None:
+            if self.graph.get_node(source_id) is None:
                 missing_references.append(logical_path)
             else:
-                reference_edges = self.graph.neighbors(reference_id, "out")
-                if not any(edge["relation"] == "uses" and edge["target_id"] == node_id
+                reference_edges = self.graph.neighbors(source_id, "out")
+                if not any(edge["relation"] == "derived_from" and edge["target_id"] == node_id
                            for edge in reference_edges):
                     missing_reference_edges.append(logical_path)
             if not self.registry.verify_artifact(digest):
