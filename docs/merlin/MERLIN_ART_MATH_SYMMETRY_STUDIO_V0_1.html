@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Merlin Art × Math Studio — Symmetry in Motion</title>
+<style>
+body{font:16px/1.5 system-ui,sans-serif;max-width:980px;margin:1.5rem auto;padding:0 1rem}
+h1{line-height:1.15}.panel{border:1px solid #8888;border-radius:14px;padding:1rem;margin:1rem 0}
+.layout{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(250px,.7fr);gap:1rem}
+svg{width:100%;height:auto;background:#8881;border-radius:12px}
+label{display:block;margin:.8rem 0}input[type=range]{width:100%}
+button{font:inherit;padding:.6rem .9rem;border-radius:8px;margin:.3rem .3rem .3rem 0}
+output{font-weight:700}.muted{opacity:.75}.question{padding:.8rem;background:#8881;border-radius:10px}
+@media(max-width:700px){.layout{grid-template-columns:1fr}}
+</style></head><body>
+<h1>Symmetry in motion: make a mathematical artwork</h1>
+<p>Start with one small shape. Repeat it by rotating around a center. You are both the artist choosing the visual language and the mathematician investigating the rule.</p>
+<div class="layout"><section class="panel">
+<svg id="art" viewBox="0 0 600 600" role="img" aria-label="An interactive radial pattern made from repeated geometric petals"></svg>
+<div><button id="download">Export your artwork as SVG</button><button id="reset">Reset composition</button></div>
+<p class="muted">Try a hand-drawn version too: mark a center, divide a circle into equal angles, and repeat one motif.</p>
+</section><section class="panel">
+<h2>Shape the composition</h2>
+<label>Number of repeated motifs: <output id="nOut">8</output><input id="n" type="range" min="3" max="16" value="8"></label>
+<label>Motif twist: <output id="twistOut">24°</output><input id="twist" type="range" min="-90" max="90" value="24"></label>
+<label>Motif length: <output id="lengthOut">120</output><input id="length" type="range" min="45" max="190" value="120"></label>
+<label>Color variation: <output id="colorOut">35%</output><input id="color" type="range" min="0" max="100" value="35"></label>
+<div class="question"><strong>Look closely.</strong><p id="observation">The pattern repeats after equal turns around the center.</p><p id="angle">One step is 45°.</p></div>
+</section></div>
+<section class="panel"><h2>What is the mathematical structure?</h2>
+<p>With <em>n</em> identical motifs arranged evenly, one step is <strong>360° ÷ n</strong>. Rotating the whole design by that angle maps it onto itself. Repeating the rotation generates a cyclic symmetry group, written <strong>C<sub>n</sub></strong>, for this idealized design.</p>
+<p>The artwork is not the group: the group describes transformations that preserve the pattern. A change to the motif or its placement can break some symmetries.</p>
+<p><strong>Try predicting:</strong> for the current number of motifs, how many degrees are in one smallest positive rotational step?</p>
+<label><input type="number" id="answer" min="1" max="360" placeholder="Your answer in degrees"></label>
+<button id="check">Check my reasoning</button><p id="feedback" aria-live="polite"></p>
+</section>
+<section class="panel"><h2>Artistic critique</h2>
+<p>Choose one intentional decision and explain its effect. There is no single correct aesthetic answer.</p>
+<label>What did you change or emphasize?<select id="choice"><option value="rhythm">Rhythm and repetition</option><option value="contrast">Contrast and color</option><option value="density">Density and visual complexity</option><option value="balance">Balance and negative space</option></select></label>
+<label>Your explanation<textarea id="reflection" rows="3" style="width:100%;font:inherit" placeholder="I chose this because..."></textarea></label></section>
+<section class="panel"><h2>Save evidence to Merlin</h2>
+<label>Learner ID <input id="learner" value="demo-art-math-learner" maxlength="100"></label>
+<label>Session ID <input id="session" maxlength="100"></label>
+<button id="save" disabled>Save math and art evidence</button>
+<p id="saveStatus" aria-live="polite">Submit an answer (right or wrong) and add an artistic reflection to save both kinds of evidence.</p>
+<p class="muted">The lesson records separate mathematical and artistic competency events. Use a pseudonymous learner ID in this local prototype.</p></section>
+<script>
+const el=id=>document.getElementById(id),ns="http://www.w3.org/2000/svg";
+function node(tag,attrs){const x=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))x.setAttribute(k,v);return x;}
+function render(){
+ const n=+el("n").value,twist=+el("twist").value,len=+el("length").value,color=+el("color").value;
+ el("nOut").textContent=n;el("twistOut").textContent=twist+"°";el("lengthOut").textContent=len;el("colorOut").textContent=color+"%";
+ const svg=el("art");svg.replaceChildren();svg.append(node("circle",{cx:300,cy:300,r:270,fill:"none",stroke:"currentColor","stroke-opacity":".18","stroke-width":"1"}));
+ const g=node("g",{transform:"translate(300 300)"});
+ for(let i=0;i<n;i++){
+  const hue=(210+i*360/n*color/100)%360;
+  const path="M 0 -"+(len*.18)+" C "+(len*.42)+" -"+(len*.55)+", "+(len*.44)+" -"+(len*.94)+", 0 -"+len+" C -"+(len*.44)+" -"+(len*.94)+", -"+(len*.42)+" -"+(len*.55)+", 0 -"+(len*.18)+" Z";
+  g.append(node("path",{d:path,transform:"rotate("+(i*360/n+twist)+")",fill:"hsl("+hue+" 62% 56%)",stroke:"currentColor","stroke-width":"1.5","stroke-opacity":".65"}));
+  g.append(node("circle",{cx:0,cy:-len*.18,r:4,transform:"rotate("+(i*360/n+twist)+")",fill:"currentColor"}));
+ }
+ g.append(node("circle",{cx:0,cy:0,r:9,fill:"currentColor"}));svg.append(g);
+ const step=360/n;el("angle").textContent="One step is "+step+"°. A full turn contains "+n+" equal steps.";
+ el("observation").textContent="The design has "+n+" repeated motifs. Its ideal rotational symmetry is C"+n+".";
+}
+["n","twist","length","color"].forEach(k=>el(k).addEventListener("input",render));render();
+el("session").value=crypto.randomUUID?crypto.randomUUID():"art-session-"+Date.now();
+let mathCorrect=false,mathAttempted=false,mathScore=0;
+el("check").addEventListener("click",()=>{
+ const n=+el("n").value,expected=360/n,answer=Number(el("answer").value);
+ mathAttempted=true;mathCorrect=Number.isFinite(answer)&&Math.abs(answer-expected)<1e-9;mathScore=mathCorrect?1:0;
+ el("feedback").textContent=mathCorrect?"Correct: 360° ÷ "+n+" = "+expected+"°. Each smallest step maps the ideal pattern onto itself.":"Try dividing one full turn (360°) into "+n+" equal parts.";
+ el("save").disabled=!mathAttempted||!el("reflection").value.trim();
+});
+el("reflection").addEventListener("input",()=>{el("save").disabled=!mathAttempted||!el("reflection").value.trim();});
+el("save").addEventListener("click",async()=>{
+ const learner=el("learner").value.trim(),session=el("session").value.trim();
+ if(!learner||!session){el("saveStatus").textContent="Enter learner and session IDs.";return;}
+ const shared={learner_id:learner,session_id:session,problem_version:"1",transfer:false,delayed:false};
+ const events=[
+ {...shared,rubric_version:"math-recognition-r1",attempt_id:crypto.randomUUID(),idea_id:"MATH-ART-001",problem_id:"radial-symmetry-step-angle",dimension:"recognition",score:mathScore,response:{n:+el("n").value,answer:Number(el("answer").value),expected:360/+el("n").value}},
+ {...shared,rubric_version:"reflection-completion-r1",attempt_id:crypto.randomUUID(),idea_id:"ART-PAT-001",problem_id:"radial-pattern-composition",dimension:"self_reflection",score:1,response:{choice:el("choice").value,reflection:el("reflection").value,parameters:{n:+el("n").value,twist:+el("twist").value,length:+el("length").value,color:+el("color").value}}}
+ ];
+ try{for(const event of events){const r=await fetch("/api/learning/attempt",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(event)});const body=await r.json();if(!r.ok)throw Error(body.detail||body.error||"save failed");}
+ el("saveStatus").textContent="Saved two separate events: mathematical recognition and artistic self-reflection completion. Aesthetic quality is not automatically scored.";
+ }catch(e){el("saveStatus").textContent="Not saved: run the local Merlin API with the art-math learner schema enabled. No mastery claim was made.";}
+});
+el("download").addEventListener("click",()=>{const clone=el("art").cloneNode(true),source=new XMLSerializer().serializeToString(clone),blob=new Blob([source],{type:"image/svg+xml"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="merlin-symmetry-studio.svg";a.click();URL.revokeObjectURL(url);});
+el("reset").addEventListener("click",()=>{el("n").value=8;el("twist").value=24;el("length").value=120;el("color").value=35;render();});
+</script></body></html>

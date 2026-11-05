@@ -317,5 +317,66 @@ class MerlinApiTests(unittest.TestCase):
         self.assertGreaterEqual(model_events[-1]["duration_ms"], 0)
 
 
+    def test_learning_attempt_storage_and_hermes_recommendation_api(self):
+        learner = "api-learner-rotation-test"
+        base = {
+            "learner_id": learner, "idea_id": "MATH-REP-001",
+            "problem_id": "rotation-coordinate-90", "problem_version": "1",
+            "dimension": "conceptual_explanation", "score": 1.0, "rubric_version": "rotation-r1",
+            "response": {"x": 0, "y": 1}, "transfer": False, "delayed": False,
+        }
+        for attempt_id, session in (("rotation-attempt-1", "session-a"),
+                                    ("rotation-attempt-2", "session-b")):
+            self.post("/api/learning/attempt", {
+                **base, "attempt_id": attempt_id, "session_id": session,
+            })
+        with urlopen(self.base + "/api/learning/learner?learner_id=" + learner, timeout=5) as response:
+            state = json.loads(response.read())
+        self.assertEqual(state["attempts"], 2)
+        self.assertEqual(state["skills"]["MATH-REP-001"]["procedure"]["state"],
+                         "provisionally_mastered")
+        with urlopen(self.base + "/api/learning/recommendation?learner_id=" + learner + "&curriculum_id=mathematics", timeout=5) as response:
+            recommendation = json.loads(response.read())
+        self.assertEqual(recommendation["state"], "recommended")
+        self.assertEqual(recommendation["authority"], "recommendation_only")
+        self.assertIn("reason", recommendation)
+
+
+    def test_b2b_curriculum_starts_with_ml_foundations(self):
+        learner = "api-learner-b2b-test"
+        with urlopen(self.base + "/api/learning/recommendation?learner_id=" + learner +
+                     "&curriculum_id=b2b-ml-agentic-ai", timeout=5) as response:
+            recommendation = json.loads(response.read())
+        self.assertEqual(recommendation["state"], "recommended")
+        self.assertEqual(recommendation["idea_id"], "B2B-ML-001")
+        self.assertEqual(recommendation["lesson_id"], "b2b-ml-foundations-v0.1")
+        self.assertEqual(recommendation["authority"], "recommendation_only")
+
+
+    def test_art_math_curriculum_routes_from_linked_math_and_art_graphs(self):
+        learner = "api-learner-art-math-test"
+        with urlopen(self.base + "/api/learning/recommendation?learner_id=" + learner +
+                     "&curriculum_id=art-math-studio", timeout=5) as response:
+            recommendation = json.loads(response.read())
+        self.assertEqual(recommendation["state"], "recommended")
+        self.assertEqual(recommendation["lesson_id"], "art-math-symmetry-studio-v0.1")
+        self.assertIn(recommendation["idea_id"], {"MATH-ART-001", "ART-PAT-001"})
+        self.assertEqual(recommendation["authority"], "recommendation_only")
+
+        event = {
+            "learner_id": learner, "attempt_id": "art-math-composition-1",
+            "session_id": "art-session-1", "idea_id": "ART-PAT-001",
+            "problem_id": "radial-pattern-composition", "problem_version": "1",
+            "dimension": "self_reflection", "score": 1.0,
+            "rubric_version": "art-math-studio-r1",
+            "response": {"reflection": "Repeated forms create visual rhythm."},
+        }
+        self.post("/api/learning/attempt", event)
+        with urlopen(self.base + "/api/learning/learner?learner_id=" + learner, timeout=5) as response:
+            state = json.loads(response.read())
+        self.assertIn("ART-PAT-001", state["skills"])
+        self.assertIn("self_reflection", state["skills"]["ART-PAT-001"])
+
+
 if __name__ == "__main__":
     unittest.main()

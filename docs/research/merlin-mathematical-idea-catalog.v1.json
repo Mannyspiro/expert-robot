@@ -58,7 +58,17 @@
       ],
       "next_steps": [
         "Specify typed representation interface and commuting-diagram checker."
-      ]
+      ],
+      "learning": {
+        "lesson_id": "rotation-four-representations-v0.1",
+        "dimensions": [
+          "conceptual_explanation",
+          "representation_translation",
+          "transfer",
+          "procedure"
+        ],
+        "prerequisites": []
+      }
     },
     {
       "id": "MATH-COORD-001",
@@ -95,7 +105,19 @@
       ],
       "next_steps": [
         "Build typed transition-map registry and path-consistency tests."
-      ]
+      ],
+      "learning": {
+        "lesson_id": "coordinate-frames-intro-v0.1",
+        "dimensions": [
+          "recognition",
+          "conceptual_explanation",
+          "procedure",
+          "representation_translation"
+        ],
+        "prerequisites": [
+          "MATH-REP-001"
+        ]
+      }
     },
     {
       "id": "MATH-CALG-001",
@@ -129,7 +151,19 @@
       ],
       "next_steps": [
         "Prove matrix/complex rotation correspondence in Lean."
-      ]
+      ],
+      "learning": {
+        "lesson_id": "complex-multiplication-rotation-v0.1",
+        "dimensions": [
+          "recognition",
+          "conceptual_explanation",
+          "procedure",
+          "representation_translation"
+        ],
+        "prerequisites": [
+          "MATH-REP-001"
+        ]
+      }
     },
     {
       "id": "MATH-ALG-001",
@@ -165,7 +199,18 @@
       ],
       "next_steps": [
         "Create algebra capability matrix and typed homomorphism catalog."
-      ]
+      ],
+      "learning": {
+        "lesson_id": "quaternion-ga-rotors-v0.1",
+        "dimensions": [
+          "conceptual_explanation",
+          "representation_translation",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-CALG-001"
+        ]
+      }
     },
     {
       "id": "MATH-LIN-001",
@@ -201,7 +246,20 @@
       ],
       "next_steps": [
         "Implement basis-aware operator identity and spectral test suite."
-      ]
+      ],
+      "learning": {
+        "lesson_id": "spectral-invariants-intro-v0.1",
+        "dimensions": [
+          "conceptual_explanation",
+          "procedure",
+          "representation_translation",
+          "proof_justification",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-REP-001"
+        ]
+      }
     },
     {
       "id": "MATH-ST-001",
@@ -972,6 +1030,437 @@
         "Test non-octant triangles and compare with the spherical-area formula.",
         "Extend to a mesh-based transport experiment and a second curved surface."
       ]
+    },
+    {
+      "id": "MATH-ART-001",
+      "title": "Planar transformations and symmetry groups",
+      "kind": "representation",
+      "claim": "Geometric transformations preserve or change declared properties of a planar figure; isometries generate symmetry actions.",
+      "definitions": [
+        "objects and domains",
+        "construction rules",
+        "invariants or measurable properties",
+        "representation choices"
+      ],
+      "assumptions": [
+        "Construction and scope are explicitly declared.",
+        "Visual resemblance alone is not mathematical equivalence."
+      ],
+      "status": "finite_tested",
+      "provenance": [
+        "Merlin Art × Mathematics Studio curriculum v0.1",
+        "Research synthesis documented in MERLIN_ART_MATH_STUDIO_CURRICULUM_V0_1.md"
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-REP-001"
+        }
+      ],
+      "objections": [
+        "Finite examples do not establish a universal theorem.",
+        "Artistic interpretation is not determined by mathematical structure alone."
+      ],
+      "next_steps": [
+        "Develop an intuitive construction lesson and formal problem set.",
+        "Add exact examples, counterexamples and independent assessments.",
+        "Formalize precise claims in Lean where suitable."
+      ],
+      "learning": {
+        "lesson_id": "art-math-symmetry-studio-v0.1",
+        "dimensions": [
+          "recognition",
+          "construction",
+          "representation_translation",
+          "proof_justification",
+          "transfer"
+        ],
+        "prerequisites": []
+      }
+    },
+    {
+      "id": "MATH-TESS-001",
+      "title": "Tessellations and wallpaper groups",
+      "kind": "concept",
+      "claim": "A tiling covers a domain under non-overlap constraints; periodic tilings admit translational symmetry and wallpaper-group structure.",
+      "definitions": [
+        "objects and domains",
+        "construction rules",
+        "invariants or measurable properties",
+        "representation choices"
+      ],
+      "assumptions": [
+        "Construction and scope are explicitly declared.",
+        "Visual resemblance alone is not mathematical equivalence."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin Art × Mathematics Studio curriculum v0.1",
+        "Research synthesis documented in MERLIN_ART_MATH_STUDIO_CURRICULUM_V0_1.md"
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-ART-001"
+        }
+      ],
+      "objections": [
+        "Finite examples do not establish a universal theorem.",
+        "Artistic interpretation is not determined by mathematical structure alone."
+      ],
+      "next_steps": [
+        "Develop an intuitive construction lesson and formal problem set.",
+        "Add exact examples, counterexamples and independent assessments.",
+        "Formalize precise claims in Lean where suitable."
+      ],
+      "learning": {
+        "lesson_id": "art-math-tessellation-v0.1",
+        "dimensions": [
+          "construction",
+          "classification",
+          "proof_justification",
+          "artistic_variation"
+        ],
+        "prerequisites": [
+          "MATH-ART-001"
+        ]
+      }
+    },
+    {
+      "id": "MATH-PROJ-001",
+      "title": "Projective geometry and perspective drawing",
+      "kind": "concept",
+      "claim": "Central projection maps 3D points to an image plane; perspective constructions can be analyzed through projective incidence and cross-ratio.",
+      "definitions": [
+        "objects and domains",
+        "construction rules",
+        "invariants or measurable properties",
+        "representation choices"
+      ],
+      "assumptions": [
+        "Construction and scope are explicitly declared.",
+        "Visual resemblance alone is not mathematical equivalence."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin Art × Mathematics Studio curriculum v0.1",
+        "Research synthesis documented in MERLIN_ART_MATH_STUDIO_CURRICULUM_V0_1.md"
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-COORD-001"
+        }
+      ],
+      "objections": [
+        "Finite examples do not establish a universal theorem.",
+        "Artistic interpretation is not determined by mathematical structure alone."
+      ],
+      "next_steps": [
+        "Develop an intuitive construction lesson and formal problem set.",
+        "Add exact examples, counterexamples and independent assessments.",
+        "Formalize precise claims in Lean where suitable."
+      ],
+      "learning": {
+        "lesson_id": "art-math-perspective-v0.1",
+        "dimensions": [
+          "construction",
+          "representation_translation",
+          "proof_justification",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-COORD-001"
+        ]
+      }
+    },
+    {
+      "id": "MATH-POLY-001",
+      "title": "Polyhedral geometry and topological invariants",
+      "kind": "concept",
+      "claim": "Polyhedral surfaces connect geometric construction with combinatorial and topological invariants such as vertices, edges, faces and Euler characteristic.",
+      "definitions": [
+        "objects and domains",
+        "construction rules",
+        "invariants or measurable properties",
+        "representation choices"
+      ],
+      "assumptions": [
+        "Construction and scope are explicitly declared.",
+        "Visual resemblance alone is not mathematical equivalence."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin Art × Mathematics Studio curriculum v0.1",
+        "Research synthesis documented in MERLIN_ART_MATH_STUDIO_CURRICULUM_V0_1.md"
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-COORD-001"
+        }
+      ],
+      "objections": [
+        "Finite examples do not establish a universal theorem.",
+        "Artistic interpretation is not determined by mathematical structure alone."
+      ],
+      "next_steps": [
+        "Develop an intuitive construction lesson and formal problem set.",
+        "Add exact examples, counterexamples and independent assessments.",
+        "Formalize precise claims in Lean where suitable."
+      ],
+      "learning": {
+        "lesson_id": "art-math-sculpture-v0.1",
+        "dimensions": [
+          "construction",
+          "spatial_reasoning",
+          "proof_justification",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-COORD-001"
+        ]
+      }
+    },
+    {
+      "id": "MATH-PARA-001",
+      "title": "Parametric curves and differential geometry",
+      "kind": "representation",
+      "claim": "Parametric functions generate curves whose tangent, speed and curvature can be studied analytically and translated into visual form.",
+      "definitions": [
+        "objects and domains",
+        "construction rules",
+        "invariants or measurable properties",
+        "representation choices"
+      ],
+      "assumptions": [
+        "Construction and scope are explicitly declared.",
+        "Visual resemblance alone is not mathematical equivalence."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin Art × Mathematics Studio curriculum v0.1",
+        "Research synthesis documented in MERLIN_ART_MATH_STUDIO_CURRICULUM_V0_1.md"
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-CALG-001"
+        }
+      ],
+      "objections": [
+        "Finite examples do not establish a universal theorem.",
+        "Artistic interpretation is not determined by mathematical structure alone."
+      ],
+      "next_steps": [
+        "Develop an intuitive construction lesson and formal problem set.",
+        "Add exact examples, counterexamples and independent assessments.",
+        "Formalize precise claims in Lean where suitable."
+      ],
+      "learning": {
+        "lesson_id": "art-math-parametric-curves-v0.1",
+        "dimensions": [
+          "procedure",
+          "visualization",
+          "representation_translation",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-CALG-001"
+        ]
+      }
+    },
+    {
+      "id": "MATH-FRACT-002",
+      "title": "Iterated systems, fractals and dimension",
+      "kind": "concept",
+      "claim": "Iterated rules can generate self-similar or statistically self-similar forms; dimension and scaling depend on construction and assumptions.",
+      "definitions": [
+        "objects and domains",
+        "construction rules",
+        "invariants or measurable properties",
+        "representation choices"
+      ],
+      "assumptions": [
+        "Construction and scope are explicitly declared.",
+        "Visual resemblance alone is not mathematical equivalence."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin Art × Mathematics Studio curriculum v0.1",
+        "Research synthesis documented in MERLIN_ART_MATH_STUDIO_CURRICULUM_V0_1.md"
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-FRACT-001"
+        }
+      ],
+      "objections": [
+        "Finite examples do not establish a universal theorem.",
+        "Artistic interpretation is not determined by mathematical structure alone."
+      ],
+      "next_steps": [
+        "Develop an intuitive construction lesson and formal problem set.",
+        "Add exact examples, counterexamples and independent assessments.",
+        "Formalize precise claims in Lean where suitable."
+      ],
+      "learning": {
+        "lesson_id": "art-math-fractal-studio-v0.1",
+        "dimensions": [
+          "procedure",
+          "scaling_analysis",
+          "modeling",
+          "creative_iteration"
+        ],
+        "prerequisites": [
+          "MATH-FRACT-001"
+        ]
+      }
+    },
+    {
+      "id": "MATH-SIG-001",
+      "title": "Fourier representations for sound and image",
+      "kind": "concept",
+      "claim": "Periodic and suitably integrable signals can be represented through Fourier components; spectral structure connects sound, image and temporal composition.",
+      "definitions": [
+        "objects and domains",
+        "construction rules",
+        "invariants or measurable properties",
+        "representation choices"
+      ],
+      "assumptions": [
+        "Construction and scope are explicitly declared.",
+        "Visual resemblance alone is not mathematical equivalence."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin Art × Mathematics Studio curriculum v0.1",
+        "Research synthesis documented in MERLIN_ART_MATH_STUDIO_CURRICULUM_V0_1.md"
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-CALG-001"
+        }
+      ],
+      "objections": [
+        "Finite examples do not establish a universal theorem.",
+        "Artistic interpretation is not determined by mathematical structure alone."
+      ],
+      "next_steps": [
+        "Develop an intuitive construction lesson and formal problem set.",
+        "Add exact examples, counterexamples and independent assessments.",
+        "Formalize precise claims in Lean where suitable."
+      ],
+      "learning": {
+        "lesson_id": "art-math-sound-image-v0.1",
+        "dimensions": [
+          "representation_translation",
+          "procedure",
+          "interpretation",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-CALG-001"
+        ]
+      }
+    },
+    {
+      "id": "MATH-GEN-001",
+      "title": "Procedural and generative composition",
+      "kind": "concept",
+      "claim": "A generative artwork is produced by a parameterized procedure whose rules, randomness and constraints can be analyzed, reproduced and intentionally revised.",
+      "definitions": [
+        "objects and domains",
+        "construction rules",
+        "invariants or measurable properties",
+        "representation choices"
+      ],
+      "assumptions": [
+        "Construction and scope are explicitly declared.",
+        "Visual resemblance alone is not mathematical equivalence."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin Art × Mathematics Studio curriculum v0.1",
+        "Research synthesis documented in MERLIN_ART_MATH_STUDIO_CURRICULUM_V0_1.md"
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-REP-001"
+        }
+      ],
+      "objections": [
+        "Finite examples do not establish a universal theorem.",
+        "Artistic interpretation is not determined by mathematical structure alone."
+      ],
+      "next_steps": [
+        "Develop an intuitive construction lesson and formal problem set.",
+        "Add exact examples, counterexamples and independent assessments.",
+        "Formalize precise claims in Lean where suitable."
+      ],
+      "learning": {
+        "lesson_id": "art-math-generative-studio-v0.1",
+        "dimensions": [
+          "algorithm_design",
+          "parameter_reasoning",
+          "reproducibility",
+          "artistic_intent"
+        ],
+        "prerequisites": [
+          "MATH-REP-001"
+        ]
+      }
+    },
+    {
+      "id": "MATH-DATA-001",
+      "title": "Statistical visual encoding and uncertainty",
+      "kind": "concept",
+      "claim": "A data artwork maps data attributes to visual channels; valid interpretation requires attention to scale, distribution, missingness, uncertainty and provenance.",
+      "definitions": [
+        "objects and domains",
+        "construction rules",
+        "invariants or measurable properties",
+        "representation choices"
+      ],
+      "assumptions": [
+        "Construction and scope are explicitly declared.",
+        "Visual resemblance alone is not mathematical equivalence."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin Art × Mathematics Studio curriculum v0.1",
+        "Research synthesis documented in MERLIN_ART_MATH_STUDIO_CURRICULUM_V0_1.md"
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-IDEA-002"
+        }
+      ],
+      "objections": [
+        "Finite examples do not establish a universal theorem.",
+        "Artistic interpretation is not determined by mathematical structure alone."
+      ],
+      "next_steps": [
+        "Develop an intuitive construction lesson and formal problem set.",
+        "Add exact examples, counterexamples and independent assessments.",
+        "Formalize precise claims in Lean where suitable."
+      ],
+      "learning": {
+        "lesson_id": "art-math-data-portrait-v0.1",
+        "dimensions": [
+          "data_reasoning",
+          "visual_encoding",
+          "uncertainty",
+          "critical_interpretation"
+        ],
+        "prerequisites": [
+          "MATH-IDEA-002"
+        ]
+      }
     }
   ]
 }

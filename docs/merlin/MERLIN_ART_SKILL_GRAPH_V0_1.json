@@ -1,0 +1,358 @@
+{
+  "schema_version": 1,
+  "graph_id": "merlin.art-skills",
+  "status": "candidate",
+  "description": "Separate artistic competency graph linked to canonical mathematical ideas; artistic and mathematical mastery remain independently assessed.",
+  "studios": [
+    {
+      "id": "ART-STUDIO-A",
+      "title": "Seeing, drawing and measuring",
+      "prerequisites": [],
+      "skills": [
+        "ART-OBS-001",
+        "ART-COMP-001",
+        "ART-TECH-001"
+      ]
+    },
+    {
+      "id": "ART-STUDIO-B",
+      "title": "Pattern, symmetry and ornament",
+      "prerequisites": [
+        "ART-STUDIO-A"
+      ],
+      "skills": [
+        "ART-PAT-001",
+        "ART-CONTEXT-001"
+      ]
+    },
+    {
+      "id": "ART-STUDIO-C",
+      "title": "Space, sculpture and architecture",
+      "prerequisites": [
+        "ART-STUDIO-A"
+      ],
+      "skills": [
+        "ART-SPACE-001",
+        "ART-MATERIAL-001"
+      ]
+    },
+    {
+      "id": "ART-STUDIO-D",
+      "title": "Motion, time, sound and light",
+      "prerequisites": [
+        "ART-STUDIO-A"
+      ],
+      "skills": [
+        "ART-MOTION-001",
+        "ART-COMM-001"
+      ]
+    },
+    {
+      "id": "ART-STUDIO-E",
+      "title": "Generative, computational and data art",
+      "prerequisites": [
+        "ART-STUDIO-A",
+        "ART-STUDIO-B"
+      ],
+      "skills": [
+        "ART-GEN-001",
+        "ART-DATA-001",
+        "ART-PROV-001"
+      ]
+    },
+    {
+      "id": "ART-STUDIO-F",
+      "title": "Mathematical art research atelier",
+      "prerequisites": [
+        "ART-STUDIO-B",
+        "ART-STUDIO-C",
+        "ART-STUDIO-D",
+        "ART-STUDIO-E"
+      ],
+      "skills": [
+        "ART-RESEARCH-001",
+        "ART-CRIT-001",
+        "ART-EXHIBIT-001"
+      ]
+    }
+  ],
+  "skills": [
+    {
+      "id": "ART-OBS-001",
+      "title": "Observation and visual description",
+      "dimensions": [
+        "observation_accuracy",
+        "visual_analysis",
+        "negative_space",
+        "proportion"
+      ],
+      "prerequisites": []
+    },
+    {
+      "id": "ART-COMP-001",
+      "title": "Composition and visual intention",
+      "dimensions": [
+        "composition",
+        "balance",
+        "rhythm",
+        "contrast",
+        "intentional_choice"
+      ],
+      "prerequisites": [
+        "ART-OBS-001"
+      ]
+    },
+    {
+      "id": "ART-TECH-001",
+      "title": "Material and technique control",
+      "dimensions": [
+        "tool_control",
+        "material_experiment",
+        "craft_precision",
+        "revision"
+      ],
+      "prerequisites": [
+        "ART-OBS-001"
+      ]
+    },
+    {
+      "id": "ART-PAT-001",
+      "title": "Pattern design and visual variation",
+      "dimensions": [
+        "motif_design",
+        "repeat_structure",
+        "variation",
+        "visual_coherence",
+        "self_reflection"
+      ],
+      "prerequisites": [],
+      "lesson_id": "art-math-symmetry-studio-v0.1"
+    },
+    {
+      "id": "ART-CONTEXT-001",
+      "title": "Historical and cultural interpretation",
+      "dimensions": [
+        "source_attribution",
+        "contextual_interpretation",
+        "ethical_representation"
+      ],
+      "prerequisites": [
+        "ART-OBS-001"
+      ]
+    },
+    {
+      "id": "ART-SPACE-001",
+      "title": "Spatial and three-dimensional making",
+      "dimensions": [
+        "spatial_composition",
+        "construction",
+        "viewpoint",
+        "material_constraints"
+      ],
+      "prerequisites": [
+        "ART-TECH-001"
+      ]
+    },
+    {
+      "id": "ART-MATERIAL-001",
+      "title": "Material reasoning and fabrication",
+      "dimensions": [
+        "material_selection",
+        "structural_iteration",
+        "fabrication_accuracy"
+      ],
+      "prerequisites": [
+        "ART-TECH-001"
+      ]
+    },
+    {
+      "id": "ART-MOTION-001",
+      "title": "Time-based and kinetic composition",
+      "dimensions": [
+        "temporal_rhythm",
+        "motion_design",
+        "sequence",
+        "sound_light_mapping"
+      ],
+      "prerequisites": [
+        "ART-COMP-001"
+      ]
+    },
+    {
+      "id": "ART-COMM-001",
+      "title": "Artistic communication and critique",
+      "dimensions": [
+        "artist_statement",
+        "interpretation",
+        "critique",
+        "audience_awareness"
+      ],
+      "prerequisites": [
+        "ART-COMP-001"
+      ]
+    },
+    {
+      "id": "ART-GEN-001",
+      "title": "Generative and procedural authorship",
+      "dimensions": [
+        "rule_design",
+        "parameter_exploration",
+        "creative_control",
+        "iteration"
+      ],
+      "prerequisites": [
+        "ART-PAT-001"
+      ]
+    },
+    {
+      "id": "ART-DATA-001",
+      "title": "Data and information art",
+      "dimensions": [
+        "data_selection",
+        "visual_encoding",
+        "uncertainty_disclosure",
+        "interpretive_integrity"
+      ],
+      "prerequisites": [
+        "ART-COMP-001"
+      ]
+    },
+    {
+      "id": "ART-PROV-001",
+      "title": "Digital provenance and responsible AI use",
+      "dimensions": [
+        "authorship_disclosure",
+        "source_provenance",
+        "licensing_awareness",
+        "model_critique"
+      ],
+      "prerequisites": [
+        "ART-COMM-001"
+      ]
+    },
+    {
+      "id": "ART-RESEARCH-001",
+      "title": "Independent artistic research",
+      "dimensions": [
+        "question_formulation",
+        "literature_context",
+        "artifact_iteration",
+        "research_notebook"
+      ],
+      "prerequisites": [
+        "ART-GEN-001",
+        "ART-SPACE-001"
+      ]
+    },
+    {
+      "id": "ART-CRIT-001",
+      "title": "Critical interpretation and reflective revision",
+      "dimensions": [
+        "formal_analysis",
+        "interpretation",
+        "revision_rationale",
+        "self_reflection"
+      ],
+      "prerequisites": [
+        "ART-COMM-001"
+      ]
+    },
+    {
+      "id": "ART-EXHIBIT-001",
+      "title": "Exhibition and public defense",
+      "dimensions": [
+        "curation",
+        "communication",
+        "evidence_presentation",
+        "limitations"
+      ],
+      "prerequisites": [
+        "ART-RESEARCH-001",
+        "ART-CRIT-001"
+      ]
+    }
+  ],
+  "links": [
+    {
+      "art_skill": "ART-PAT-001",
+      "math_ideas": [
+        "MATH-REP-001",
+        "MATH-ROT-001"
+      ],
+      "relationship": "co_develops_with"
+    },
+    {
+      "art_skill": "ART-SPACE-001",
+      "math_ideas": [
+        "MATH-COORD-001",
+        "MATH-LIN-001"
+      ],
+      "relationship": "co_develops_with"
+    },
+    {
+      "art_skill": "ART-MOTION-001",
+      "math_ideas": [
+        "MATH-CALG-001",
+        "MATH-ROT-001",
+        "MATH-ST-001"
+      ],
+      "relationship": "co_develops_with"
+    },
+    {
+      "art_skill": "ART-GEN-001",
+      "math_ideas": [
+        "MATH-FRACT-001",
+        "MATH-IDEA-001"
+      ],
+      "relationship": "co_develops_with"
+    },
+    {
+      "art_skill": "ART-DATA-001",
+      "math_ideas": [
+        "MATH-IDEA-002",
+        "MATH-NULL-001"
+      ],
+      "relationship": "co_develops_with"
+    },
+    {
+      "art_skill": "ART-RESEARCH-001",
+      "math_ideas": [
+        "MATH-REP-001",
+        "MATH-XMG-001"
+      ],
+      "relationship": "co_develops_with"
+    }
+  ],
+  "assessment_policy": {
+    "separate_profiles": true,
+    "dimensions": [
+      "observation",
+      "construction",
+      "explanation",
+      "formal_reasoning",
+      "critique",
+      "transfer",
+      "revision",
+      "retention"
+    ],
+    "mastery_requires": [
+      "multiple_tasks",
+      "independent_sessions",
+      "constructed_explanation",
+      "transfer"
+    ],
+    "retention_requires": [
+      "delayed_retrieval",
+      "new_artifact_or_problem"
+    ],
+    "single_composite_grade": false
+  },
+  "hermes_policy": {
+    "recommendation_only": true,
+    "require_prerequisites": true,
+    "allow_exploratory_preview": true,
+    "reason_trace_required": true,
+    "never_infer_artistic_mastery_from_math_score": true,
+    "never_infer_math_mastery_from_aesthetic_score": true
+  }
+}
