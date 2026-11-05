@@ -1,3 +1,6 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import tempfile, unittest
 from pathlib import Path
 from canonical_registry import initialize
