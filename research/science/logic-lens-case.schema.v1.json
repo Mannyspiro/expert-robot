@@ -1,0 +1,682 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://merlin.invalid/schemas/logic-lens-case.v1.json",
+  "title": "Merlin Logic Lens Historical Case",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "case_id",
+    "title",
+    "scope",
+    "problem_context",
+    "historical_context",
+    "sources",
+    "argument_reconstruction",
+    "translation_records",
+    "claims",
+    "interpretations",
+    "review",
+    "record_status"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "case_id": {
+      "type": "string",
+      "pattern": "^logic:[a-z0-9][a-z0-9._:-]{2,127}$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 240
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tradition_or_school",
+        "community_or_context",
+        "region",
+        "languages",
+        "date_range",
+        "scope_note"
+      ],
+      "properties": {
+        "tradition_or_school": {
+          "type": "string",
+          "minLength": 2
+        },
+        "community_or_context": {
+          "type": "string",
+          "minLength": 2
+        },
+        "region": {
+          "type": "string",
+          "minLength": 2
+        },
+        "languages": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 2
+          }
+        },
+        "date_range": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "start",
+            "end",
+            "date_basis"
+          ],
+          "properties": {
+            "start": {
+              "type": "string",
+              "minLength": 1
+            },
+            "end": {
+              "type": "string",
+              "minLength": 1
+            },
+            "date_basis": {
+              "type": "string",
+              "minLength": 2
+            }
+          }
+        },
+        "scope_note": {
+          "type": "string",
+          "minLength": 20,
+          "maxLength": 3000
+        }
+      }
+    },
+    "problem_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "problem_as_understood",
+        "why_it_mattered",
+        "available_tools_and_knowledge"
+      ],
+      "properties": {
+        "problem_as_understood": {
+          "type": "string",
+          "minLength": 20
+        },
+        "why_it_mattered": {
+          "type": "string",
+          "minLength": 10
+        },
+        "available_tools_and_knowledge": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 2
+          }
+        }
+      }
+    },
+    "historical_context": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "institutions",
+        "social_and_material_context",
+        "contributors_and_transmission",
+        "uncertainties"
+      ],
+      "properties": {
+        "institutions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "social_and_material_context": {
+          "type": "string",
+          "minLength": 10
+        },
+        "contributors_and_transmission": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "uncertainties": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_id",
+          "source_kind",
+          "title",
+          "creator",
+          "edition_or_version",
+          "language",
+          "canonical_url",
+          "rights_status",
+          "locator",
+          "provenance"
+        ],
+        "properties": {
+          "source_id": {
+            "type": "string",
+            "minLength": 3
+          },
+          "source_kind": {
+            "enum": [
+              "primary",
+              "secondary_scholarship",
+              "translation",
+              "artifact",
+              "oral_history",
+              "other"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "minLength": 2
+          },
+          "creator": {
+            "type": "string",
+            "minLength": 2
+          },
+          "edition_or_version": {
+            "type": "string",
+            "minLength": 2
+          },
+          "language": {
+            "type": "string",
+            "minLength": 2
+          },
+          "canonical_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "rights_status": {
+            "enum": [
+              "public_domain_verified",
+              "open_license_verified",
+              "metadata_only",
+              "preview_only",
+              "restricted",
+              "unknown"
+            ]
+          },
+          "license_uri": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uri"
+          },
+          "locator": {
+            "type": "string",
+            "minLength": 2
+          },
+          "provenance": {
+            "type": "string",
+            "minLength": 5
+          }
+        }
+      }
+    },
+    "argument_reconstruction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reconstruction_status",
+        "key_terms",
+        "premises",
+        "inference_steps",
+        "conclusion",
+        "caveats",
+        "source_ids"
+      ],
+      "properties": {
+        "reconstruction_status": {
+          "enum": [
+            "not_started",
+            "candidate",
+            "reviewed",
+            "contested"
+          ]
+        },
+        "key_terms": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "term",
+              "original_form",
+              "working_gloss",
+              "ambiguity"
+            ],
+            "properties": {
+              "term": {
+                "type": "string",
+                "minLength": 1
+              },
+              "original_form": {
+                "type": "string",
+                "minLength": 1
+              },
+              "working_gloss": {
+                "type": "string",
+                "minLength": 1
+              },
+              "ambiguity": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "premises": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 2
+          }
+        },
+        "inference_steps": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 2
+          }
+        },
+        "conclusion": {
+          "type": "string",
+          "minLength": 2
+        },
+        "caveats": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "source_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        }
+      }
+    },
+    "formal_reconstruction": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "logic_system_id",
+        "formal_system_version",
+        "syntax",
+        "semantics",
+        "inference_rules",
+        "assumptions",
+        "preservation_claims",
+        "limitations",
+        "formal_status"
+      ],
+      "properties": {
+        "logic_system_id": {
+          "type": "string",
+          "minLength": 2
+        },
+        "formal_system_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "syntax": {
+          "type": "string",
+          "minLength": 5
+        },
+        "semantics": {
+          "type": "string",
+          "minLength": 5
+        },
+        "inference_rules": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 2
+          }
+        },
+        "assumptions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "preservation_claims": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "formal_status": {
+          "enum": [
+            "candidate",
+            "tested",
+            "formalized",
+            "proved",
+            "refuted",
+            "unresolved"
+          ]
+        }
+      }
+    },
+    "translation_records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "source_expression",
+          "target_expression",
+          "source_language_or_system",
+          "target_language_or_system",
+          "mapping_kind",
+          "equivalence_status",
+          "preserved_features",
+          "lost_or_changed_features",
+          "assumptions",
+          "review_status"
+        ],
+        "properties": {
+          "source_expression": {
+            "type": "string",
+            "minLength": 1
+          },
+          "target_expression": {
+            "type": "string",
+            "minLength": 1
+          },
+          "source_language_or_system": {
+            "type": "string",
+            "minLength": 1
+          },
+          "target_language_or_system": {
+            "type": "string",
+            "minLength": 1
+          },
+          "mapping_kind": {
+            "enum": [
+              "literal_translation",
+              "approximate_translation",
+              "contextual_analogue",
+              "formal_embedding",
+              "formal_interpretation",
+              "not_translatable_in_context"
+            ]
+          },
+          "equivalence_status": {
+            "enum": [
+              "not_claimed",
+              "equivalent_under_assumptions",
+              "structure_preserving",
+              "partial",
+              "lossy",
+              "contested"
+            ]
+          },
+          "preserved_features": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "lost_or_changed_features": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "assumptions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "review_status": {
+            "enum": [
+              "unreviewed",
+              "language_reviewed",
+              "specialist_reviewed",
+              "contested"
+            ]
+          }
+        }
+      }
+    },
+    "claims": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "claim_id",
+          "statement",
+          "claim_type",
+          "epistemic_status",
+          "source_ids",
+          "limitations"
+        ],
+        "properties": {
+          "claim_id": {
+            "type": "string",
+            "minLength": 3
+          },
+          "statement": {
+            "type": "string",
+            "minLength": 10
+          },
+          "claim_type": {
+            "enum": [
+              "historical_report",
+              "interpretation",
+              "formal_claim",
+              "methodological_claim",
+              "open_question"
+            ]
+          },
+          "epistemic_status": {
+            "enum": [
+              "source_report",
+              "supported_interpretation",
+              "contested",
+              "candidate",
+              "unknown",
+              "contradicted"
+            ]
+          },
+          "source_ids": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 3
+            }
+          },
+          "limitations": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "interpretations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "interpretation_id",
+          "statement",
+          "supporting_source_ids",
+          "alternative_readings",
+          "status"
+        ],
+        "properties": {
+          "interpretation_id": {
+            "type": "string",
+            "minLength": 3
+          },
+          "statement": {
+            "type": "string",
+            "minLength": 10
+          },
+          "supporting_source_ids": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 3
+            }
+          },
+          "alternative_readings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "enum": [
+              "working",
+              "supported",
+              "contested",
+              "withdrawn"
+            ]
+          }
+        }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "specialist_review_required",
+        "review_status",
+        "reviewer_expertise",
+        "review_notes"
+      ],
+      "properties": {
+        "specialist_review_required": {
+          "type": "boolean"
+        },
+        "review_status": {
+          "enum": [
+            "not_reviewed",
+            "in_review",
+            "reviewed_with_caveats",
+            "contested",
+            "approved_for_teaching"
+          ]
+        },
+        "reviewer_expertise": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "review_notes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "learning_assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "asset_id",
+          "kind",
+          "rights_status",
+          "source_ids"
+        ],
+        "properties": {
+          "asset_id": {
+            "type": "string",
+            "minLength": 2
+          },
+          "kind": {
+            "enum": [
+              "timeline",
+              "primary_text_excerpt",
+              "audio",
+              "video",
+              "diagram",
+              "argument_map",
+              "exercise",
+              "simulation"
+            ]
+          },
+          "rights_status": {
+            "enum": [
+              "public_domain_verified",
+              "open_license_verified",
+              "metadata_only",
+              "link_only",
+              "generated_labeled",
+              "unknown"
+            ]
+          },
+          "source_ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "record_status": {
+      "enum": [
+        "draft",
+        "source_collected",
+        "translation_reviewed",
+        "historical_context_reviewed",
+        "formal_reconstruction_candidate",
+        "specialist_reviewed",
+        "contested",
+        "unresolved"
+      ]
+    }
+  }
+}
