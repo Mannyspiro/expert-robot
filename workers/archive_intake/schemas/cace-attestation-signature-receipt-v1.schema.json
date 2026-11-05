@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Merlin CACE Attestation Signature Receipt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "receipt_version",
+    "subject_sha256",
+    "verifier_id",
+    "verifier_version",
+    "result",
+    "evidence_class",
+    "log_sha256",
+    "completed_at",
+    "formal_qualification",
+    "authority_effect"
+  ],
+  "properties": {
+    "receipt_version": {
+      "const": "1.0"
+    },
+    "subject_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "verifier_id": {
+      "const": "cace-attest"
+    },
+    "verifier_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "result": {
+      "enum": [
+        "passed",
+        "failed",
+        "inconclusive"
+      ]
+    },
+    "evidence_class": {
+      "const": "cace_attestation_signature_verification"
+    },
+    "log_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "formal_qualification": {
+      "const": "not_asserted"
+    },
+    "authority_effect": {
+      "const": "none"
+    }
+  }
+}
