@@ -79,6 +79,36 @@ class MerlinRegistry:
               metadata_json TEXT NOT NULL,
               PRIMARY KEY(source_id, relation, target_id));
             """)
+            db.executescript("""
+            CREATE TRIGGER IF NOT EXISTS artifact_blobs_no_update
+              BEFORE UPDATE ON artifacts
+              BEGIN SELECT RAISE(ABORT, 'artifact blob metadata is append-only'); END;
+            CREATE TRIGGER IF NOT EXISTS artifact_blobs_no_delete
+              BEFORE DELETE ON artifacts
+              BEGIN SELECT RAISE(ABORT, 'artifact blobs cannot be deleted'); END;
+            CREATE TRIGGER IF NOT EXISTS artifact_versions_no_update
+              BEFORE UPDATE ON artifact_versions
+              BEGIN SELECT RAISE(ABORT, 'artifact versions are append-only'); END;
+            CREATE TRIGGER IF NOT EXISTS artifact_versions_no_delete
+              BEFORE DELETE ON artifact_versions
+              BEGIN SELECT RAISE(ABORT, 'artifact versions cannot be deleted'); END;
+            CREATE TRIGGER IF NOT EXISTS recovery_points_no_update
+              BEFORE UPDATE ON recovery_points
+              BEGIN SELECT RAISE(ABORT, 'recovery points are append-only'); END;
+            CREATE TRIGGER IF NOT EXISTS recovery_points_no_delete
+              BEFORE DELETE ON recovery_points
+              BEGIN SELECT RAISE(ABORT, 'recovery points cannot be deleted'); END;
+            CREATE TRIGGER IF NOT EXISTS project_artifacts_no_delete
+              BEFORE DELETE ON project_artifacts
+              BEGIN SELECT RAISE(ABORT, 'artifact heads cannot be deleted; tombstone instead'); END;
+            CREATE TRIGGER IF NOT EXISTS project_artifacts_guard_update
+              BEFORE UPDATE ON project_artifacts
+              WHEN NEW.project_id != OLD.project_id
+                OR NEW.logical_path != OLD.logical_path
+                OR NEW.generation != OLD.generation + 1
+                OR NEW.digest = OLD.digest
+              BEGIN SELECT RAISE(ABORT, 'artifact head update requires a one-step version advance'); END;
+            """)
             columns = {row["name"] for row in db.execute("PRAGMA table_info(project_artifacts)")}
             if "generation" not in columns:
                 db.execute("ALTER TABLE project_artifacts ADD COLUMN generation INTEGER NOT NULL DEFAULT 1")
