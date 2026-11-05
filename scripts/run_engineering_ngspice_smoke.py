@@ -46,6 +46,8 @@ def find_freecad_command() -> str:
 
 
 def run_freecad_macro(command: str, macro_path: Path, cwd: Path) -> str:
+    macro_path = macro_path.resolve()
+    cwd = cwd.resolve()
     env = dict(os.environ)
     env["QT_QPA_PLATFORM"] = "offscreen"
     completed = subprocess.run(
