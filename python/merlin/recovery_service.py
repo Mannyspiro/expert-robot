@@ -191,8 +191,15 @@ class RecoveryCoordinator:
                 artifact_schema="merlin-recovery-artifact/1",
                 requester_id=self.requester_id, logical_path=result["recovery_path"],
             )
-            if cace_result.get("verification_status") == "verified":
+            cace_status = cace_result.get("verification_status")
+            if cace_status == "verified":
                 status = "quarantined_independently_verified"
+            elif cace_status == "rejected":
+                status = "quarantined_cace_rejected"
+            elif cace_status == "inconclusive":
+                status = "quarantined_cace_inconclusive"
+            else:
+                raise ValueError("CACE returned an unsupported recovery verification status")
 
         after_snapshot = create_recovery_snapshot(
             self.registry, project_id, actor="post-recovery:" + payload["task_id"]
