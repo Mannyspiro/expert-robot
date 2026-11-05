@@ -314,7 +314,7 @@ class CaceVerificationAdapter:
                 payload={"agent_id": verifier_id, "verifier_id": verifier_id,
                          "status": status, "independent": True,
                          "source_commit": commit_sha, "repository": repository,
-                         "theorem": theorem, "artifact_kind": artifact_kind,
+                         "artifact_kind": artifact_kind,
                          "artifact_schema": artifact_schema, "logical_path": logical_path,
                          "artifact_sha256": artifact_sha256,
                          "receipt_artifact_sha256": receipt_digest},
