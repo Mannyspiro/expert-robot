@@ -266,7 +266,8 @@ class PromptContractTests(unittest.TestCase):
     def test_cace_bridge_fails_closed_without_source_commit_or_artifact_metadata(self):
         compiled = PromptCompiler().compile(make_task())
         result = self._result_for(compiled, artifact_sha256={"result.json": "a" * 64})
-        bridge = PromptCaceEvidenceBridge(object())
+        adapter = type("Adapter", (), {"verify_artifact": lambda self, **kwargs: None})()
+        bridge = PromptCaceEvidenceBridge(adapter)
         with self.assertRaises(ValueError):
             bridge.verify_artifacts(result, project_id="merlin", requester_id="worker")
 
