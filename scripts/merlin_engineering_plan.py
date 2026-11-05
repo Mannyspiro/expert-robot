@@ -20,7 +20,7 @@ def validate(plan):
         ids=[r.get("id") for r in reqs if isinstance(r,dict)]
         if len(ids)!=len(reqs) or any(not x for x in ids): errors.append("every requirement needs an id")
         if len(set(ids))!=len(ids): errors.append("requirement ids must be unique")
-        if any(not r.get("acceptance") for r in reqs if isinstance(r,dict)): errors.append("every requirement needs an acceptance criterion")
+        if any(not r.get("statement") or not r.get("acceptance") for r in reqs if isinstance(r,dict)): errors.append("every requirement needs a statement and acceptance criterion")
     assumptions=plan.get("assumptions",[])
     if not isinstance(assumptions,list): errors.append("assumptions must be a list (use [] when none)")
     reasoning=plan.get("reasoning_plan",{})
