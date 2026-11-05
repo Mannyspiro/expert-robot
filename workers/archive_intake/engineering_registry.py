@@ -19,10 +19,15 @@ def store_metadata(database,project_id,artifact_sha256,metadata):
             raise ValueError("CAD metadata version or artifact identity mismatch")
         if metadata["artifact_family"] not in ("cad_model","cad_drawing","cad_native_project","mesh_model","simulation_mesh","simulation_input","simulation_result","electrical_netlist","electrical_schematic","pcb_layout","manufacturing_data"):
             raise ValueError("unsupported engineering artifact family")
-        if not isinstance(metadata["units"],dict) or not isinstance(metadata["coordinate_frame"],dict):
-            raise ValueError("units and coordinate_frame must be objects")
-        if not isinstance(metadata["provenance"],dict) or not metadata["provenance"].get("operation"):
-            raise ValueError("engineering provenance operation is required")
+        if not isinstance(metadata["units"],dict) or not all(metadata["units"].get(k) for k in ("length","angle")):
+            raise ValueError("units must declare length and angle")
+        frame=metadata["coordinate_frame"]
+        if not isinstance(frame,dict) or not all(frame.get(k) for k in ("frame_id","handedness","axis_convention")):
+            raise ValueError("coordinate frame must declare frame_id, handedness and axis_convention")
+        if frame["handedness"] not in ("right","left"): raise ValueError("unsupported coordinate handedness")
+        provenance=metadata["provenance"]
+        if not isinstance(provenance,dict) or not provenance.get("operation") or not provenance.get("source_artifact_sha256"):
+            raise ValueError("engineering provenance must bind source artifact and operation")
     if "coordinate_frame" in metadata and "transform_to_parent" in metadata["coordinate_frame"]:
         validate_matrix([metadata["coordinate_frame"]["transform_to_parent"][i:i+4] for i in range(0,16,4)])
     payload=json.dumps(metadata,sort_keys=True,separators=(",",":"))
