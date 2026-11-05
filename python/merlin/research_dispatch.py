@@ -10,6 +10,7 @@ from dataclasses import asdict, dataclass
 from typing import Any, Callable
 
 from merlin.event_outbox import MerlinEventOutbox
+from merlin.telemetry import agent_event_sink
 from merlin.hypothesis_ledger import HypothesisLedger
 from merlin.research_optimizer import (
     ResearchCandidate, ResearchMetrics, ResearchWeights, rank_research_candidates,
@@ -71,6 +72,7 @@ class ResearchDispatchCoordinator:
         self.approval_validator = approval_validator
         self.lease_validator = lease_validator
         self.weights = weights
+        self.emit_event = agent_event_sink(outbox, "hermes")
 
     def rank(self, tasks: list[ResearchTask]):
         for task in tasks:
@@ -106,11 +108,23 @@ class ResearchDispatchCoordinator:
             "authority": "bounded_execution_only",
             "promotion_authority": False,
         }
-        return self.outbox.enqueue(
+        queued = self.outbox.enqueue(
             idempotency_key="research-task:" + task.task_id,
             topic="merlin.hermes.task",
             payload=payload,
         )
+        self.emit_event(
+            kind="task.started", run_id=task.task_id, task_id=task.task_id,
+            payload={"agent_id": "hermes", "role": "orchestrator",
+                     "status": "queued", "activity": "bounded task queued",
+                     "hypothesis_id": task.hypothesis_id},
+        )
+        self.emit_event(
+            kind="agent.status", run_id=task.task_id, task_id=task.task_id,
+            payload={"agent_id": "hermes", "role": "orchestrator",
+                     "status": "queued", "activity": "awaiting worker acknowledgement"},
+        )
+        return queued
 
 
 __all__ = ["ResearchTask", "ResearchDispatchCoordinator"]
