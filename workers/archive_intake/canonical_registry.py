@@ -35,7 +35,7 @@ def initialize(path):
           intake_id TEXT NOT NULL REFERENCES intakes(intake_id),
           attached_at TEXT NOT NULL, PRIMARY KEY(project_id,intake_id));
         CREATE TABLE IF NOT EXISTS github_commit_receipts(
-          receipt_id TEXT PRIMARY KEY, repository TEXT NOT NULL, requested_sha TEXT NOT NULL,
+          receipt_id TEXT PRIMARY KEY, project_id TEXT, repository TEXT NOT NULL, requested_sha TEXT NOT NULL,
           canonical_sha TEXT NOT NULL, commit_url TEXT NOT NULL, api_response_sha256 TEXT NOT NULL,
           signature_verified INTEGER NOT NULL, signature_reason TEXT, retrieved_at TEXT NOT NULL);
         CREATE TABLE IF NOT EXISTS verification_receipts(
@@ -66,10 +66,15 @@ def initialize(path):
           net_name TEXT NOT NULL, metadata_json TEXT NOT NULL,
           PRIMARY KEY(project_id,connection_id));
         CREATE INDEX IF NOT EXISTS idx_project_intakes_project ON project_intakes(project_id);
+        CREATE INDEX IF NOT EXISTS idx_github_receipt_project ON github_commit_receipts(project_id);
         CREATE INDEX IF NOT EXISTS idx_receipts_artifact ON verification_receipts(artifact_sha256);
         CREATE INDEX IF NOT EXISTS idx_graph_project ON graph_nodes(project_id,node_type);
         CREATE INDEX IF NOT EXISTS idx_wiring_net ON wiring_connections(project_id,net_name);
         """)
+    with connect(path) as db:
+        columns={row[1] for row in db.execute("PRAGMA table_info(github_commit_receipts)")}
+        if "project_id" not in columns:
+            db.execute("ALTER TABLE github_commit_receipts ADD COLUMN project_id TEXT")
     return str(path)
 
 def register_project(path, project_id, name, description=""):
