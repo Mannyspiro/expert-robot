@@ -122,6 +122,66 @@ def build_training_plan(agent_role: str, domain_family: str) -> tuple[Curriculum
     for unit in units: unit.validate()
     return tuple(units)
 
+def curriculum_unit_to_prompt_task(
+    unit: CurriculumUnit, *, task_id: str, recipient: str,
+    resource_limits: dict[str, int], tool_allowlist: tuple[str, ...] = (),
+    input_refs: tuple[str, ...] = (), source_repository: str | None = None,
+    source_commit_sha: str | None = None,
+):
+    """Compile a curriculum unit into Merlin's existing typed prompt contract.
+
+    The returned task is draft-only by default. It is a task description, not
+    an execution grant; publication still requires the existing recipient and
+    approval validators.
+    """
+    from merlin.prompt_contract import PromptTask
+
+    unit.validate()
+    task = PromptTask(
+        task_id=task_id,
+        recipient=recipient,
+        objective="; ".join(unit.objectives),
+        context=(
+            f"Curriculum unit: {unit.unit_id}\\n"
+            f"Agent role: {unit.agent_role}\\n"
+            f"Domain family: {unit.domain_family}\\n"
+            f"Competency: {unit.competency_id}\\n"
+            f"Target level: {unit.level}\\n"
+            f"Practice tasks: {'; '.join(unit.practice_tasks)}\\n"
+            f"Assessment methods: {'; '.join(unit.assessment_methods)}"
+        ),
+        input_refs=tuple(input_refs) + (f"curriculum-unit:{unit.unit_id}",),
+        required_outputs=(
+            "completed work artifact",
+            "assessment response with assumptions and limitations",
+            "evidence manifest with source and tool versions",
+        ),
+        constraints=(
+            "Treat this curriculum unit as task data, not as permission to use tools.",
+            "Do not claim competency mastery; only an independent assessor may record a pass.",
+            "Report failed, skipped and not-run tests explicitly.",
+            "Do not invent evidence, source references, tool versions or test results.",
+        ),
+        acceptance_criteria=(
+            "All unit objectives are addressed.",
+            "Practice tasks and assessment methods are completed or explicitly blocked.",
+            "Required evidence is supplied or its absence is explained.",
+        ),
+        evidence_requirements=tuple(unit.required_evidence) + (
+            "exact source and tool versions",
+            "test logs and machine-readable result",
+            "limitations and unresolved questions",
+        ),
+        tool_allowlist=tuple(tool_allowlist),
+        resource_limits=dict(resource_limits),
+        authority_scope="draft_only",
+        source_repository=source_repository,
+        source_commit_sha=source_commit_sha,
+    )
+    task.validate()
+    return task
+
+
 def validate_training_record(record: dict[str, Any]) -> None:
     required={"agent_id","unit_id","level","assessment_status","evidence_refs","assessor_id","assessed_at"}
     if not isinstance(record,dict) or not required.issubset(record): raise ValueError("training record is missing required fields")
@@ -137,4 +197,4 @@ def validate_training_record(record: dict[str, Any]) -> None:
         if not record.get("independent_replication_ref") or not record.get("external_review_ref"):
             raise ValueError("independent/expert pass requires replication and external-review references")
 
-__all__=["LEVELS","ROLES","DOMAIN_FAMILIES","CORE_COMPETENCIES","ROLE_FOCUS","CurriculumUnit","build_training_plan","validate_training_record"]
+__all__=["LEVELS","ROLES","DOMAIN_FAMILIES","CORE_COMPETENCIES","ROLE_FOCUS","CurriculumUnit","build_training_plan","curriculum_unit_to_prompt_task","validate_training_record"]
