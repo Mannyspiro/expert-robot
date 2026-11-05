@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "purpose": "Discovery index for authorized AI agents. This is navigation metadata, not a live status API or source of truth.",
+  "last_reviewed": "2026-11-05",
+  "mandatory_read_order": [
+    "AGENTS.md",
+    "docs/AI_RUNNER_AND_BRIDGE_OPERATIONS.md",
+    "docs/MERLIN_AVREA_HERMES_ROUTING.md",
+    "docs/cace-bidirectional-bridge.md"
+  ],
+  "canonical_repositories": {
+    "expert_robot": {
+      "repository": "Mannyspiro/expert-robot",
+      "active_branch": "feat/hermes-routing-eval-avrea-discovery-20261105",
+      "workflows": {
+        "ci": ".github/workflows/ci.yml",
+        "forward_dispatch_and_poll": ".github/workflows/external-free-runner-bridge.yml",
+        "workflow_lint": ".github/workflows/merlin-workflow-lint-probe.yml"
+      },
+      "evidence_directory": "docs/evidence/"
+    },
+    "cace": {
+      "repository": "morganaspim/Cace-app",
+      "persistent_branch": "main",
+      "generated_bridge_branch": "executor/expert-robot-bridge",
+      "generated_workflow": ".github/workflows/expert-robot-bridge.yml",
+      "generated_workflow_source": "Mannyspiro/expert-robot:.github/workflows/external-free-runner-bridge.yml#BRIDGE_YAML",
+      "durable_operations_guide": "docs/EXPERT_ROBOT_BRIDGE_OPERATIONS.md"
+    }
+  },
+  "runners": [
+    {
+      "id": "avrea-hosted-linux",
+      "repository": "Mannyspiro/expert-robot",
+      "runs_on": "avrea-ubuntu-latest-8-vcpu",
+      "observed_architecture": "x86_64",
+      "roles": [
+        "Expert Robot CI",
+        "workflow lint",
+        "forward bridge dispatcher"
+      ],
+      "integration_type": "GitHub Actions runner label; not a direct Avrea API client"
+    },
+    {
+      "id": "cace-oci-self-hosted-arm64",
+      "repository": "morganaspim/Cace-app",
+      "runs_on": [
+        "self-hosted",
+        "cace",
+        "oci",
+        "aarch64"
+      ],
+      "observed_architecture": "aarch64",
+      "roles": [
+        "bounded CACE formal qualification"
+      ],
+      "lean_toolchain": "leanprover/lean4:v4.34.0",
+      "mathlib_commit": "5ed2965256430c3649e86755f9576b54eca72435",
+      "disk_preflight_free_kib_min": 2097152
+    },
+    {
+      "id": "cace-result-publisher",
+      "repository": "morganaspim/Cace-app",
+      "runs_on": "ubuntu-latest",
+      "roles": [
+        "validate CACE result envelope",
+        "publish CACE bridge result",
+        "optional reverse SSH return"
+      ]
+    }
+  ],
+  "bridge_contract": {
+    "request_schema_version": 2,
+    "result_schema_version": 3,
+    "result_status_values": [
+      "pass",
+      "fail"
+    ],
+    "authority": "qualification-only",
+    "promotion_authority": false,
+    "integrity_fields": [
+      "result_log_sha256",
+      "result_log_size_bytes"
+    ],
+    "authentication": "Ed25519 signature is not established by SSH transport or unsigned schema/hash validation"
+  },
+  "credential_names_only": {
+    "expert_robot_forward_cace_transport_preferred": "CACE_BRIDGE_SSH_PRIVATE_KEY",
+    "expert_robot_forward_cace_transport_legacy_fallback": "RAILWAY_SSH_PRIVATE_KEY",
+    "cace_reverse_expert_robot_transport_candidates": [
+      "EXPERT_ROBOT_SSH_PRIVATE_KEY",
+      "EXPERT_ROBOT_DEPLOY_KEY",
+      "CACE_TO_EXPERT_ROBOT_SSH_KEY",
+      "EXPERT_ROBOT_DEPLOY_PRIVATE_KEY"
+    ],
+    "never_store_values_here": true
+  },
+  "agent_requirements": [
+    "Fetch current branch heads and workflow files before acting.",
+    "Inspect run ID, attempt, jobs, steps, artifacts and logs.",
+    "Never print, retrieve, commit or request private key material.",
+    "Do not claim a run executed if jobs are zero or steps were skipped.",
+    "Preserve valid structured failure results.",
+    "Do not claim signer authentication without trusted Ed25519 verification.",
+    "No automatic merge, promotion, or authority expansion."
+  ],
+  "known_evidence_examples": {
+    "structured_failure_round_trip": {
+      "expert_robot_run_id": 42054029936,
+      "expert_robot_attempt": 2,
+      "expert_robot_commit": "e9e0e4312d61db3a758bbcae6c46dd144649fc55",
+      "cace_run_id": 42057717591,
+      "cace_attempt": 1,
+      "cace_commit": "479867e0753e6802dbafce8e5b129bb8e16d87ea",
+      "qualification_status": "fail",
+      "reason": "insufficient free disk for pinned Lean 4.34.0",
+      "signer_authentication": "not established"
+    }
+  },
+  "refresh_rule": "Treat this JSON as a starting map only. Re-query GitHub for live branches, workflow content, runner access, current secrets by step outcome (never value), and exact run evidence.",
+  "current_observed_state": {
+    "reviewed_on": "2026-11-05",
+    "latest_v3_dispatch": {
+      "expert_robot_run_id": 42060896619,
+      "expert_robot_commit": "63781028911d459ac5dc8988e86b7506dc652ab2",
+      "key_preparation": "success",
+      "cace_clone_and_checkout": "success",
+      "remote_push": "rejected: fatal error in commit_refs",
+      "cace_qualification_triggered": false,
+      "root_cause": "not established; do not infer read-only deploy key versus repository branch/rules restriction"
+    },
+    "workflow_lint": {
+      "run_id": 42061294025,
+      "conclusion": "success",
+      "artifact_id": 13432386714,
+      "actionlint_exit": 0
+    },
+    "ci": {
+      "run_id": 42060905047,
+      "conclusion": "failure after tests",
+      "focused_python_groups": "all three passed",
+      "cpp_build": "passed",
+      "ctest": "33/33 passed",
+      "blocker": "known-failure regression guard expected the old duplicated CACE workflow design; guard has since been updated and needs a confirming run"
+    },
+    "latest_ci_run_id": 42061473457,
+    "latest_ci_run_status": "pending at last inspection"
+  }
+}

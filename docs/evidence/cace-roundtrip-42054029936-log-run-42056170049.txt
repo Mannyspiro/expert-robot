@@ -1,0 +1,65 @@
+request_id=expert-robot-42054029936-e9e0e4312d61db3a758bbcae6c46dd144649fc55
+expert_robot_commit=e9e0e4312d61db3a758bbcae6c46dd144649fc55
+runner=cace-oci-a1
+Linux cace-oci-a1 6.12.0-204.92.4.4.3.el9uek.aarch64 #2 SMP Wed Aug  5 12:21:14 PDT 2026 aarch64 aarch64 aarch64 GNU/Linux
+2
+               total        used        free      shared  buff/cache   available
+Mem:            10Gi       1.4Gi       2.6Gi       132Mi       7.0Gi       9.2Gi
+Swap:          4.0Gi       220Mi       3.8Gi
+=== archive safety ===
+archive safety: PASS
+=== formal source safety ===
+formal source safety: PASS
+=== compute policy ===
+compute policy guardrails: PASS
+exit_code=0
+=== known failure regression guardrails ===
+known failure regression guardrails: PASS
+exit_code=0
+=== formal dependency lock ===
+formal dependency lock: PASS
+exit_code=0
+=== CACE return bridge guardrails ===
+CACE return bridge guardrails: PASS
+exit_code=0
+=== shell syntax ===
+exit_code=0
+=== exact-pin Lean root + axiom audit ===
+Disk before Lean install:
+Filesystem                  Size  Used Avail Use% Mounted on
+/dev/mapper/ocivolume-root   30G   29G  1.2G  97% /
+Installed Lean toolchains:
+leanprover/lean4:v4.32.1
+Largest filesystem directories:
+0	/afs
+0	/media
+0	/mnt
+0	/root
+0	/srv
+7.3M	/tmp
+25M	/etc
+3.1G	/opt
+3.7G	/home
+4.3G	/usr
+20G	/var
+35G	/
+Largest CACE/runner cache directories:
+0	/var/lib/cace-cache/elan/tmp
+0	/var/lib/cace-cache/expert-robot
+0	/var/lib/cace-cache/pip
+0	/var/lib/cace-cache/uv
+0	/var/lib/cace-cache/xdg
+4.0K	/var/lib/cace-cache/mathlib/manifests
+1.2M	/var/lib/cace-cache/evidence
+1.2M	/var/lib/cace-cache/evidence/source-sanity
+12M	/var/lib/cace-cache/elan/bin
+35M	/var/lib/cace-cache/lake/outputs
+221M	/var/lib/cace-cache/canonical-qualification-build
+221M	/var/lib/cace-cache/canonical-qualification-build/leanprover_lean4_v4.32.1
+2.8G	/var/lib/cace-cache/elan/toolchains
+2.9G	/var/lib/cace-cache/elan
+6.6G	/var/lib/cace-cache/lake
+6.6G	/var/lib/cace-cache/lake/artifacts
+8.6G	/var/lib/cace-cache/mathlib
+8.6G	/var/lib/cace-cache/mathlib/v4.32.1-520045ab14e26149ee970e2e617ca04b09bde5d6
+19G	/var/lib/cace-cache

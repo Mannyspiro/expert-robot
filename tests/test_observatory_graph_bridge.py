@@ -1,3 +1,4 @@
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -148,16 +149,23 @@ class ObservatoryGraphBridgeTests(unittest.TestCase):
     def test_rejects_a_project_node_with_a_mismatched_identity(self):
         node_id = self.views["project_node_id"]
         node = self.graph.get_node(node_id)
-        self.graph.add_node(GraphNode(
-            node_id=node_id,
-            node_type="project",
-            label=node.label,
-            payload={
-                **node.payload,
-                "engineering_project_id": "different-project",
-            },
-            evidence_class=node.evidence_class,
-        ))
+        # Simulate a tampered persisted graph row. The public add_node API
+        # correctly rejects identity mutation before the bridge can inspect it.
+        tampered_payload = {
+            **node.payload,
+            "engineering_project_id": "different-project",
+        }
+        with self.graph._connect() as db:
+            db.execute(
+                "UPDATE graph_nodes SET payload_json=? WHERE node_id=?",
+                (
+                    json.dumps(
+                        tampered_payload, sort_keys=True, separators=(",", ":"),
+                        ensure_ascii=False,
+                    ),
+                    node_id,
+                ),
+            )
         part_id = self.views["part_object_views"]["U1"]
         with self.assertRaisesRegex(ValueError, "exact Engineering IR revision"):
             link_observatory_to_graph(

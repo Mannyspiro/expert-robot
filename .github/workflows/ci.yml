@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: ["main", "feat/merlin-lean-proof-optimization-atlas-20261104"]
+    branches: ["main", "feat/merlin-lean-proof-optimization-atlas-20261104", "feat/hermes-routing-eval-avrea-discovery-20261105"]
     paths-ignore:
       - "formal/**"
       - ".github/workflows/formal-qualification.yml"
@@ -28,7 +28,7 @@ permissions:
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.head.ref || github.ref_name }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build-and-smoke:
@@ -36,6 +36,53 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Record runner and source identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          {
+            echo "repository=$GITHUB_REPOSITORY"
+            echo "commit=$GITHUB_SHA"
+            echo "workflow=$GITHUB_WORKFLOW"
+            echo "workflow_ref=$GITHUB_WORKFLOW_REF"
+            echo "workflow_sha=$GITHUB_WORKFLOW_SHA"
+            echo "run_id=$GITHUB_RUN_ID"
+            echo "run_attempt=$GITHUB_RUN_ATTEMPT"
+            echo "runner_name=$RUNNER_NAME"
+            echo "runner_os=$RUNNER_OS"
+            echo "runner_arch=$RUNNER_ARCH"
+            echo "runner_environment=$RUNNER_ENVIRONMENT"
+            uname -a
+            nproc
+          } | tee artifacts/runner-identity.txt
+
+      - name: Focused Python group 1 — Hermes claim routing
+        env:
+          PYTHONPATH: python
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          python3 -m pip install pytest 2>&1 | tee artifacts/pytest-install.log
+          python3 -m pytest -q tests/test_hermes_claim_routing.py 2>&1 | tee artifacts/focused-python-group-1.log
+
+      - name: Focused Python group 2 — proof orchestrator and CACE adapter
+        env:
+          PYTHONPATH: python
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          python3 -m pytest -q tests/test_hermes_proof_orchestrator.py tests/test_cace_adapter.py 2>&1 | tee artifacts/focused-python-group-2.log
+          python3 tests/cace_optional_verifier_smoke.py 2>&1 | tee artifacts/cace-optional-verifier-smoke.log
+
+      - name: Focused Python group 3 — research lifecycle
+        env:
+          PYTHONPATH: python
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          python3 -m pytest -q tests/test_research_lifecycle.py 2>&1 | tee artifacts/focused-python-group-3.log
+
 
       - name: Restore C++ compiler cache
         id: ccache-restore
@@ -220,6 +267,15 @@ jobs:
             ccache --show-stats || true
           fi
 
+      - name: Upload CI diagnostics and runner identity
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: expert-robot-ci-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/
+          if-no-files-found: warn
+          retention-days: 14
+
       - name: Save C++ compiler cache
         if: ${{ success() && env.EXPERT_ROBOT_CCACHE == '1' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
         uses: actions/cache/save@v4
@@ -248,8 +304,7 @@ jobs:
           set -euo pipefail
           model='models/hermes_coder/NousResearch_NousCoder-14B-Q4_K_M.gguf'
           test -s "$model"
-          printf '%s  %s
-' '9cc51afc755319db42a6324baf3395436cce5954dc87df95d3b9e7d625610624' "$model" | sha256sum --check
+          printf '%s  %s\n' '9cc51afc755319db42a6324baf3395436cce5954dc87df95d3b9e7d625610624' "$model" | sha256sum --check
       - name: Save verified NousCoder cache
         if: success() && steps.nouscoder-cache.outputs.cache-hit != 'true'
         continue-on-error: true
@@ -275,7 +330,7 @@ jobs:
           server_pid=$!
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
           ready=0
-          for i in $(seq 1 180); do
+          for _ in $(seq 1 180); do
             if curl --fail --silent http://127.0.0.1:8080/health >/dev/null; then ready=1; break; fi
             if ! kill -0 "$server_pid" 2>/dev/null; then cat /tmp/nouscoder-llama-server.log; exit 5; fi
             sleep 2

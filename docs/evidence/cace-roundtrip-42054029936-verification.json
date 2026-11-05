@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "verification_status": "integrity_checked_unsigned_automated_consumer_pending",
+  "request_id": "expert-robot-42054029936-e9e0e4312d61db3a758bbcae6c46dd144649fc55",
+  "expert_robot": {
+    "repository": "Mannyspiro/expert-robot",
+    "branch": "feat/hermes-routing-eval-avrea-discovery-20261105",
+    "source_commit": "e9e0e4312d61db3a758bbcae6c46dd144649fc55",
+    "workflow_id": 367390519,
+    "workflow_run_id": 42054029936,
+    "run_attempt": 2,
+    "run_conclusion": "failure",
+    "dispatch_step": "success",
+    "await_step": "failure_on_structured_qualification_fail",
+    "consumer_workflow_update_commit": "177593aee5bf3d15720c95d7443d8ed9b24e66af",
+    "current_branch_head_at_recording": "258743eae9564841a899e51526557184a383257a"
+  },
+  "cace": {
+    "repository": "morganaspim/Cace-app",
+    "branch": "executor/expert-robot-bridge",
+    "workflow_id": 367390621,
+    "workflow_name": "Expert Robot Free Runner Bridge",
+    "workflow_path": ".github/workflows/expert-robot-bridge.yml",
+    "workflow_commit": "9b003a125701f40997b2d7353b283fa2032d1828",
+    "workflow_run_id": 42060207662,
+    "run_attempt": 1,
+    "workflow_run_conclusion": "failure",
+    "qualification_job_conclusion": "failure",
+    "result_publisher_job_conclusion": "success",
+    "result_validation_step": "passed",
+    "result_publication_step": "passed",
+    "reverse_key_preparation": "continue-on-error success; no key output; reverse-return step skipped",
+    "result_publication_commit": "e64c77e552e9ba332959c45b31f598e48f67d234",
+    "result_publication_parent": "9b003a125701f40997b2d7353b283fa2032d1828",
+    "artifact_id": 13432430344,
+    "artifact_name": "expert-robot-bridge-result-42054029936",
+    "artifact_sha256": "8dc5ab188c8fdeddfb60273f74ccba13d8d52fb4837d49d7cbd714d08d0f6031",
+    "artifact_size_bytes": 1445
+  },
+  "result": {
+    "schema_version": 3,
+    "status": "fail",
+    "exit_code": 50,
+    "expert_robot_commit": "e9e0e4312d61db3a758bbcae6c46dd144649fc55",
+    "cace_commit": "9b003a125701f40997b2d7353b283fa2032d1828",
+    "cace_workflow_id": 367390621,
+    "cace_workflow_run_id": 42060207662,
+    "cace_run_attempt": 1,
+    "lean_toolchain": "leanprover/lean4:v4.34.0",
+    "mathlib_commit": "5ed2965256430c3649e86755f9576b54eca72435",
+    "runner": "cace-oci-a1",
+    "architecture": "aarch64",
+    "authority": "qualification-only",
+    "promotion_authority": false,
+    "result_sha256": "2cc65cc58ab9b476aaeefc17d7c7a24d146c4e89ca311430f969b8c6e5dd92d1",
+    "result_log_sha256": "5436a3ca704fe13f76f7d0d7adeaddea03eb4d615e1338c7f52fb73ba6f68056",
+    "result_log_size_bytes": 1516,
+    "log_hash_independently_recomputed": true,
+    "log_size_independently_recomputed": true
+  },
+  "qualification_failure": {
+    "code": 50,
+    "reason": "insufficient free disk for pinned Lean 4.34.0 installation",
+    "available_kb": 1158896,
+    "required_kb": 2097152,
+    "installed_toolchain": "leanprover/lean4:v4.32.1",
+    "requested_toolchain": "leanprover/lean4:v4.34.0",
+    "action": "no cache deletion or toolchain substitution"
+  },
+  "integrity_checks": {
+    "request_id_matches_request_and_result": true,
+    "expert_robot_source_commit_matches_request_and_result": true,
+    "cace_commit_matches_workflow_run_head_sha": true,
+    "cace_workflow_id_run_id_attempt_match_run_metadata": true,
+    "result_status_and_exit_code_consistent": true,
+    "result_log_sha256_matches_independent_recomputation": true,
+    "result_log_size_matches_independent_recomputation": true,
+    "result_validation_step_passed_on_cace": true,
+    "result_publication_commit_is_child_of_cace_workflow_commit": true,
+    "github_artifact_digest_recorded": true
+  },
+  "authentication": {
+    "cace_ed25519_signature": "absent",
+    "github_commit_signature": "unsigned",
+    "trusted_signer_verification": "not performed",
+    "note": "Integrity hashes and workflow provenance do not substitute for an authenticated signer."
+  },
+  "transport": {
+    "cace_to_expert_robot_reverse_ssh": "not configured; return step skipped",
+    "expert_robot_polling_return": "consumer workflow updated but not yet executed on an Avrea dispatch job",
+    "expert_robot_repository_mirror": "performed manually through the authenticated GitHub repository connector",
+    "automatic_round_trip_acceptance": "not yet met"
+  },
+  "evidence_files": {
+    "request": "docs/evidence/cace-roundtrip-42054029936-request.json",
+    "result": "docs/evidence/cace-roundtrip-42054029936-published-result.json",
+    "log": "docs/evidence/cace-roundtrip-42054029936-published-result.log",
+    "verification": "docs/evidence/cace-roundtrip-42054029936-verification.json"
+  },
+  "authority": "qualification-only",
+  "promotion_authority": false
+}

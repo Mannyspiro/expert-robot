@@ -7,6 +7,9 @@ distributed transaction across the two SQLite databases.
 """
 from __future__ import annotations
 
+import hashlib
+import json
+import hashlib
 from pathlib import Path
 from typing import Any
 
@@ -41,19 +44,63 @@ class MerlinFoundationStore:
         digest = self.registry.put_artifact(project_id, logical_path, content, media_type)
         artifact_id = f"artifact:sha256:{digest}"
         project_node_id = f"project:{project_id}"
-        # Verify the project graph node exists before mutating graph edges.
+
+        # The content node is content-addressed and therefore cannot contain
+        # path-specific provenance. Multiple archive members may resolve to the
+        # same digest while retaining distinct logical paths and source metadata.
         if self.graph.get_node(project_node_id) is None:
             inventory = self.registry.inventory(project_id)
-            self.graph.add_node(GraphNode(project_node_id, "project", inventory["name"],
-                                          {"version": inventory["version"]}, "registry"))
+            self.graph.add_node(GraphNode(
+                project_node_id, "project", inventory["name"],
+                {"version": inventory["version"]}, "registry",
+            ))
+
+        content_node = self.graph.get_node(artifact_id)
+        if content_node is None:
+            self.graph.add_node(GraphNode(
+                artifact_id, "artifact", f"sha256:{digest}",
+                {"sha256": digest, "size_bytes": len(content)},
+                "unreviewed",
+            ))
+        elif (content_node.payload.get("sha256") != digest
+              or content_node.payload.get("size_bytes") != len(content)):
+            raise ValueError("content-addressed graph node does not match verified blob")
+
+        reference_digest = hashlib.sha256(
+            f"{project_id}\0{logical_path}".encode("utf-8")
+        ).hexdigest()
+        occurrence_id = (
+            f"source:{reference_digest}" if artifact_type == "source"
+            else f"artifact-ref:{reference_digest}"
+        )
+        occurrence_type = "source" if artifact_type == "source" else "artifact_reference"
         self.graph.add_node(GraphNode(
-            artifact_id, artifact_type, logical_path,
-            {"sha256": digest, "media_type": media_type, "size_bytes": len(content),
-             "project_id": project_id, **(metadata or {})},
+            occurrence_id, occurrence_type, logical_path,
+            {
+                "project_id": project_id,
+                "logical_path": logical_path,
+                "artifact_sha256": digest,
+                "media_type": media_type,
+                "size_bytes": len(content),
+                "artifact_type": artifact_type,
+                "metadata": metadata or {},
+            },
             evidence_class,
         ))
-        self.graph.add_edge(GraphEdge(project_node_id, "contains", artifact_id,
-                                      {"logical_path": logical_path}))
+
+        # Keep the direct project->content edge for existing graph consumers;
+        # its payload is stable and contains no path-specific fields.
+        direct_edges = self.graph.neighbors(project_node_id, "out")
+        if not any(edge["relation"] == "contains" and edge["target_id"] == artifact_id
+                   for edge in direct_edges):
+            self.graph.add_edge(GraphEdge(project_node_id, "contains", artifact_id, {}))
+        self.graph.add_edge(GraphEdge(
+            project_node_id, "contains", occurrence_id, {"logical_path": logical_path}
+        ))
+        relation = "derived_from" if artifact_type == "source" else "uses"
+        self.graph.add_edge(GraphEdge(
+            occurrence_id, relation, artifact_id, {"sha256": digest}
+        ))
         return digest
 
     def add_claim(self, claim_id: str, statement: str, evidence_class: str,
@@ -86,25 +133,50 @@ class MerlinFoundationStore:
         project_node_id = f"project:{project_id}"
         graph_project = self.graph.get_node(project_node_id)
         missing_artifacts = []
+        missing_references = []
+        missing_reference_edges = []
         corrupt_artifacts = []
+
         for artifact in inventory["artifacts"]:
-            node_id = f"artifact:sha256:{artifact['digest']}"
+            digest = artifact["digest"]
+            logical_path = artifact["logical_path"]
+            node_id = f"artifact:sha256:{digest}"
+            reference_digest = hashlib.sha256(
+                f"{project_id}\0{logical_path}".encode("utf-8")
+            ).hexdigest()
+            source_id = f"source:{reference_digest}"
+            reference_id = f"artifact-ref:{reference_digest}"
+
             if self.graph.get_node(node_id) is None:
-                missing_artifacts.append(artifact["logical_path"])
-            if not self.registry.verify_artifact(artifact["digest"]):
-                corrupt_artifacts.append(artifact["logical_path"])
+                missing_artifacts.append(logical_path)
+            occurrence = self.graph.get_node(source_id) or self.graph.get_node(reference_id)
+            if occurrence is None:
+                missing_references.append(logical_path)
+            else:
+                reference_edges = self.graph.neighbors(occurrence.node_id, "out")
+                expected_relation = "derived_from" if occurrence.node_type == "source" else "uses"
+                if not any(edge["relation"] == expected_relation and edge["target_id"] == node_id
+                           for edge in reference_edges):
+                    missing_reference_edges.append(logical_path)
+            if not self.registry.verify_artifact(digest):
+                corrupt_artifacts.append(logical_path)
+
         graph_edges = self.graph.neighbors(project_node_id, "out") if graph_project else []
         contained = {edge["target_id"] for edge in graph_edges if edge["relation"] == "contains"}
         expected = {f"artifact:sha256:{a['digest']}" for a in inventory["artifacts"]}
+        missing_contains = sorted(expected - contained)
         return {
             "project_id": project_id,
             "registry_artifact_count": len(inventory["artifacts"]),
             "graph_project_present": graph_project is not None,
             "graph_artifact_missing": missing_artifacts,
+            "graph_artifact_reference_missing": missing_references,
+            "graph_artifact_reference_edges_missing": missing_reference_edges,
             "blob_integrity_failures": corrupt_artifacts,
-            "missing_contains_edges": sorted(expected - contained),
+            "missing_contains_edges": missing_contains,
             "consistent": graph_project is not None and not missing_artifacts
-                          and not corrupt_artifacts and not (expected - contained),
+                          and not missing_references and not missing_reference_edges
+                          and not corrupt_artifacts and not missing_contains,
         }
 
     def export_snapshot(self) -> dict[str, Any]:

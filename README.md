@@ -2,6 +2,10 @@
 
 Expert Robot is a local, modular AI research system designed around a thin Python orchestration layer and a C++ runtime core.
 
+## AI / runner operations
+
+All coding agents with authorized GitHub access should begin with [AGENTS.md](AGENTS.md) and [the Merlin runner and bridge operations guide](docs/AI_RUNNER_AND_BRIDGE_OPERATIONS.md). It documents the Avrea hosted runner, CACE OCI ARM64 runner, CACE publisher, forward/reverse deploy-key boundaries, result schema, evidence retention, CI and reproducible troubleshooting steps. The workflow files remain authoritative; agents must inspect the live run and exact commit before acting.
+
 ## Architecture
 
 - **Python**: orchestration only
@@ -344,3 +348,7 @@ Run the loopback-only Merlin API using [docs/merlin-mvp-api.md](docs/merlin-mvp-
 ## Merlin simulation control room
 
 A deterministic, source-labeled simulation and responsive HUD are now available. Run `PYTHONPATH=python python3 -m merlin.app --port 8765` from the repository root and open `http://127.0.0.1:8765/hud`. The HUD displays the simulator's actual event stream, decision trace, research pipeline, and time-series metrics; it does not misrepresent simulated values as host telemetry or live model activity. See [docs/MERLIN_SIMULATION_CONTROL_ROOM.md](docs/MERLIN_SIMULATION_CONTROL_ROOM.md).\n
+
+## Merlin / Hermes / Avrea quick reference
+
+Read [docs/MERLIN_AVREA_HERMES_ROUTING.md](docs/MERLIN_AVREA_HERMES_ROUTING.md) for the canonical Avrea runner bridge, independent CACE secret setup, Hermes routing policy, labelled training/held-out corpora, and evaluation commands. Repository agents should read [AGENTS.md](AGENTS.md) before changing these integrations.

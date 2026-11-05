@@ -107,6 +107,7 @@ def ingest_archives(store: MerlinFoundationStore, project_id: str,
             logical_path = f"intake/members/{archive_digest}/{member['path']}"
             digest = store.put_artifact(
                 project_id, logical_path, member["_content"], member["media_type"],
+                artifact_type="source",
                 metadata={"source_archive_sha256": archive_digest,
                           "original_member_path": member["path"],
                           "crc32": member["crc32"]},

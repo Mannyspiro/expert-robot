@@ -1,0 +1,96 @@
+[
+  {
+    "id": "ho-eligible-01",
+    "expected_route": "lean_compile",
+    "claim": {
+      "claim_id": "zero-add",
+      "formal_statement": "0 + n = n",
+      "lean_source": "theorem zero_add_nat (n : Nat) : 0 + n = n := by rfl",
+      "assumptions": [
+        "n : Nat"
+      ],
+      "falsifiability": [
+        "Lean rejects proof"
+      ],
+      "source_ids": [
+        "mathlib:Nat.zero_add"
+      ]
+    }
+  },
+  {
+    "id": "ho-ambiguous-01",
+    "expected_route": "research_only",
+    "claim": {
+      "claim_id": "ambiguous",
+      "formal_statement": "True",
+      "lean_source": "theorem t : True := by trivial",
+      "assumptions": [
+        "domain unclear"
+      ],
+      "falsifiability": [
+        "domain counterexample"
+      ],
+      "source_ids": [
+        "proposal:ambiguous"
+      ],
+      "ambiguity": true
+    }
+  },
+  {
+    "id": "ho-malformed-01",
+    "expected_route": "reject",
+    "claim": {
+      "claim_id": "missing-source",
+      "formal_statement": "True",
+      "lean_source": "theorem t : True := by trivial",
+      "assumptions": [
+        "none"
+      ],
+      "falsifiability": [
+        "counterexample"
+      ],
+      "source_ids": []
+    }
+  },
+  {
+    "id": "ho-rejected-01",
+    "expected_route": "quarantine",
+    "claim": {
+      "claim_id": "known-reject",
+      "formal_statement": "True",
+      "lean_source": "theorem t : True := by trivial",
+      "assumptions": [
+        "none"
+      ],
+      "falsifiability": [
+        "counterexample"
+      ],
+      "source_ids": [
+        "review:reject"
+      ],
+      "previously_rejected": true
+    }
+  },
+  {
+    "id": "ho-cace-reject-01",
+    "expected_route": "lean_compile",
+    "claim": {
+      "claim_id": "cace-reject",
+      "formal_statement": "Function.Bijective (fun x : Nat => x)",
+      "lean_source": "theorem id_nat : Function.Bijective (fun x : Nat => x) := by exact h",
+      "assumptions": [
+        "Nat"
+      ],
+      "falsifiability": [
+        "CACE rejects axiom policy"
+      ],
+      "source_ids": [
+        "logic:identity"
+      ]
+    },
+    "outcome": {
+      "compilation_failure": false,
+      "cace_rejection": true
+    }
+  }
+]

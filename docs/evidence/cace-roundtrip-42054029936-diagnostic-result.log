@@ -1,0 +1,116 @@
+request_id=expert-robot-42054029936-e9e0e4312d61db3a758bbcae6c46dd144649fc55
+expert_robot_commit=e9e0e4312d61db3a758bbcae6c46dd144649fc55
+runner=cace-oci-a1
+Linux cace-oci-a1 6.12.0-204.92.4.4.3.el9uek.aarch64 #2 SMP Wed Aug  5 12:21:14 PDT 2026 aarch64 aarch64 aarch64 GNU/Linux
+2
+               total        used        free      shared  buff/cache   available
+Mem:            10Gi       1.4Gi       2.6Gi       130Mi       7.0Gi       9.2Gi
+Swap:          4.0Gi       220Mi       3.8Gi
+archive safety: PASS
+formal source safety: PASS
+=== compute policy ===
+compute policy guardrails: PASS
+exit_code=0
+=== known failure regression guardrails ===
+known failure regression guardrails: PASS
+exit_code=0
+=== formal dependency lock ===
+formal dependency lock: PASS
+exit_code=0
+=== CACE return bridge guardrails ===
+CACE return bridge guardrails: PASS
+exit_code=0
+=== shell syntax ===
+exit_code=0
+=== exact-pin Lean root + axiom audit ===
+Disk before Lean install:
+Disk before Lean install:
+Filesystem                  Size  Used Avail Use% Mounted on
+/dev/mapper/ocivolume-root   30G   29G  1.2G  97% /
+/dev/mapper/ocivolume-root   30G   29G  1.2G  97% /
+Filesystem                  Size  Used Avail Use% Mounted on
+/dev/mapper/ocivolume-root   30G   29G  1.2G  97% /
+/dev/mapper/ocivolume-root   30G   29G  1.2G  97% /
+Largest filesystem directories:
+Largest filesystem directories:
+3.1G	/opt
+3.7G	/home
+4.3G	/usr
+20G	/var
+35G	/
+Largest CACE/runner cache directories:
+Largest CACE/runner cache directories:
+0	/var/lib/cace-cache/elan/tmp
+0	/var/lib/cace-cache/expert-robot
+0	/var/lib/cace-cache/pip
+0	/var/lib/cace-cache/uv
+0	/var/lib/cace-cache/xdg
+4.0K	/var/lib/cace-cache/mathlib/manifests
+4.0K	/var/lib/cace-cache/telemetry
+1.2M	/var/lib/cace-cache/evidence
+1.2M	/var/lib/cace-cache/evidence/source-sanity
+12M	/var/lib/cace-cache/elan/bin
+35M	/var/lib/cace-cache/lake/outputs
+221M	/var/lib/cace-cache/canonical-qualification-build
+221M	/var/lib/cace-cache/canonical-qualification-build/leanprover_lean4_v4.32.1
+2.8G	/var/lib/cace-cache/elan/toolchains
+2.9G	/var/lib/cace-cache/elan
+6.6G	/var/lib/cace-cache/lake
+6.6G	/var/lib/cace-cache/lake/artifacts
+8.6G	/var/lib/cace-cache/mathlib
+8.6G	/var/lib/cace-cache/mathlib/v4.32.1-520045ab14e26149ee970e2e617ca04b09bde5d6
+19G	/var/lib/cace-cache
+0	/var/lib/cace-cache/elan/tmp
+0	/var/lib/cace-cache/expert-robot
+0	/var/lib/cace-cache/pip
+0	/var/lib/cace-cache/uv
+0	/var/lib/cace-cache/xdg
+4.0K	/var/lib/cace-cache/mathlib/manifests
+4.0K	/var/lib/cace-cache/telemetry
+1.2M	/var/lib/cace-cache/evidence
+1.2M	/var/lib/cace-cache/evidence/source-sanity
+12M	/var/lib/cace-cache/elan/bin
+35M	/var/lib/cace-cache/lake/outputs
+221M	/var/lib/cace-cache/canonical-qualification-build
+221M	/var/lib/cace-cache/canonical-qualification-build/leanprover_lean4_v4.32.1
+2.8G	/var/lib/cace-cache/elan/toolchains
+2.9G	/var/lib/cace-cache/elan
+6.6G	/var/lib/cace-cache/lake
+6.6G	/var/lib/cace-cache/lake/artifacts
+8.6G	/var/lib/cace-cache/mathlib
+8.6G	/var/lib/cace-cache/mathlib/v4.32.1-520045ab14e26149ee970e2e617ca04b09bde5d6
+19G	/var/lib/cace-cache
+8.0K	/home/opc/.cache/fontconfig
+44K	/home/opc/.cache/matplotlib
+120K	/home/opc/.cache/huggingface/xet
+2.5G	/home/opc/.cache
+2.5G	/home/opc/.cache/huggingface
+2.5G	/home/opc/.cache/huggingface/hub
+8.0K	/home/opc/.cache/fontconfig
+44K	/home/opc/.cache/matplotlib
+120K	/home/opc/.cache/huggingface/xet
+2.5G	/home/opc/.cache
+2.5G	/home/opc/.cache/huggingface
+2.5G	/home/opc/.cache/huggingface/hub
+4.0K	/opt/actions-runner/_work/_temp/expert-robot-42056170049/schemas
+12K	/opt/actions-runner/_work/_temp/expert-robot-42056170049/cad
+12K	/opt/actions-runner/_work/_temp/_github_workflow
+20K	/opt/actions-runner/_work/_temp/expert-robot-42056170049/web
+20K	/opt/actions-runner/_work/_temp/_runner_file_commands
+36K	/opt/actions-runner/_work/_temp/expert-robot-42056170049/research
+44K	/opt/actions-runner/_work/_temp/expert-robot-42056170049/ui
+60K	/opt/actions-runner/_work/_temp/expert-robot-42056170049/merlin
+84K	/opt/actions-runner/_work/_temp/expert-robot-42056170049/formal
+152K	/opt/actions-runner/_work/_temp/expert-robot-42056170049/scripts
+164K	/opt/actions-runner/_work/_temp/expert-robot-42056170049/config
+196K	/opt/actions-runner/_work/_temp/expert-robot-42056170049/.github
+292K	/opt/actions-runner/_work/_temp/expert-robot-42056170049/artifacts
+840K	/opt/actions-runner/_work/_temp/expert-robot-42056170049/cpp
+896K	/opt/actions-runner/_work/_temp/expert-robot-42056170049/python
+916K	/opt/actions-runner/_work/_temp/expert-robot-42056170049/tests
+1.1M	/opt/actions-runner/_work/_temp/expert-robot-42056170049/docs
+4.8M	/opt/actions-runner/_work/_temp/expert-robot-42056170049
+4.9M	/opt/actions-runner/_work/_temp
+insufficient disk space for pinned Lean toolchain: available_kb=1162936, required_kb=2097152
+insufficient disk space for pinned Lean toolchain: available_kb=1162936, required_kb=2097152
+exit_code=50

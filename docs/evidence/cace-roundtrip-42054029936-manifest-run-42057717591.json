@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "request_id": "expert-robot-42054029936-e9e0e4312d61db3a758bbcae6c46dd144649fc55",
+  "source": {
+    "repository": "Mannyspiro/expert-robot",
+    "branch": "feat/hermes-routing-eval-avrea-discovery-20261105",
+    "commit": "e9e0e4312d61db3a758bbcae6c46dd144649fc55"
+  },
+  "cace": {
+    "repository": "morganaspim/Cace-app",
+    "branch": "executor/expert-robot-bridge",
+    "workflow_run_id": 42057717591,
+    "run_attempt": 1,
+    "workflow_commit": "479867e0753e6802dbafce8e5b129bb8e16d87ea"
+  },
+  "evidence": {
+    "artifact_id": 13428874392,
+    "artifact_sha256": "4fe8a71a992b9bcdb049c57a94d88b58697b0705d9f9426b1e5db90356b21555",
+    "result_json_sha256": "ba84ff550e4607a84a4c58905ea98cbd24bff7dad31ad11dc4c4b384119d670b",
+    "result_log_sha256": "875aebd82f9753447c43b9a572f1e1a52c9a2d46a2f84cd96807e38232d75b45"
+  },
+  "outcome": {
+    "status": "fail",
+    "exit_code": 50,
+    "reason": "Only 1,159,388 KB free on OCI runner; pinned Lean 4.34.0 requires at least 2,097,152 KB."
+  },
+  "cace_publisher": {
+    "result_envelope_validation": "passed",
+    "result_branch_publish": "passed",
+    "reverse_key_prepare": "failed",
+    "reverse_return": "skipped"
+  },
+  "independent_integrity": {
+    "github_artifact_digest": "recorded",
+    "json_and_log_sha256": "recomputed from downloaded artifact",
+    "ed25519_signature": "not present"
+  },
+  "return_to_expert_robot": {
+    "method": "Expert Robot workflow polled CACE bridge branch and uploaded returned evidence artifact",
+    "reverse_ssh": "separately unavailable: configured reverse deploy-key secrets were empty",
+    "manual_repository_mirror": "also preserved in docs/evidence"
+  },
+  "authority": "qualification-only",
+  "promotion_authority": false,
+  "expert_robot_return": {
+    "workflow_run_id": 42054029936,
+    "run_attempt": 2,
+    "workflow_commit": "e9e0e4312d61db3a758bbcae6c46dd144649fc55",
+    "artifact_id": 13429153697,
+    "artifact_sha256": "efe82a6d14d8c8c0ab0ca18eb3f47070b4615705108b47760a044c94993ad8fd",
+    "result_json_sha256": "ba84ff550e4607a84a4c58905ea98cbd24bff7dad31ad11dc4c4b384119d670b",
+    "result_log_sha256": "875aebd82f9753447c43b9a572f1e1a52c9a2d46a2f84cd96807e38232d75b45",
+    "comparison": "byte-identical result.json and result.log in the CACE artifact and Expert Robot workflow artifact",
+    "outcome": "returned and preserved; workflow conclusion is failure because qualification status is fail, not because result validation failed"
+  }
+}
