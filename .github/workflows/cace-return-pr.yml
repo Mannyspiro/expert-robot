@@ -31,6 +31,7 @@ jobs:
           base_branch="$(python3 -c 'import json,os; print(json.load(open(os.environ["RUNNER_TEMP"] + "/validated.json"))["base_branch"])')"
           request_id="$(python3 -c 'import json,os; print(json.load(open(os.environ["RUNNER_TEMP"] + "/validated.json"))["request_id"])')"
           source_sha="$(python3 -c 'import json,os; print(json.load(open(os.environ["RUNNER_TEMP"] + "/validated.json"))["source_sha"])')"
+          qualification_status="$(python3 -c 'import json,os; print(json.load(open(os.environ["RUNNER_TEMP"] + "/validated.json"))["status"])')"
           evidence_dir=".cace/evidence/$request_id"
 
           git fetch origin "$base_branch"
@@ -58,11 +59,15 @@ jobs:
           test -f "$evidence_dir/request.json"
           test -f "$evidence_dir/result.json"
 
-          echo "base_branch=$base_branch" >> "$GITHUB_OUTPUT"
-          echo "request_id=$request_id" >> "$GITHUB_OUTPUT"
-          echo "source_sha=$source_sha" >> "$GITHUB_OUTPUT"
+          {
+            echo "base_branch=$base_branch"
+            echo "request_id=$request_id"
+            echo "source_sha=$source_sha"
+            echo "qualification_status=$qualification_status"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Open return PR if absent
+        if: ${{ steps.validate.outputs.qualification_status == 'pass' }}
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
