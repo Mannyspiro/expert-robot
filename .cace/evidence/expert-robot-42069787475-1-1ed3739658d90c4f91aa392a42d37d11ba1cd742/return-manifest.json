@@ -1,0 +1,22 @@
+{
+  "authority": "qualification-only",
+  "cace_commit": "f8c91d60b00fe51066ed7b7b5a3daa9d97958916",
+  "cace_repository": "morganaspim/Cace-app",
+  "cace_run_attempt": 1,
+  "cace_workflow_id": 367390621,
+  "cace_workflow_name": "Expert Robot Free Runner Bridge",
+  "cace_workflow_ref": "morganaspim/Cace-app/.github/workflows/expert-robot-bridge.yml@refs/heads/cace-request/expert-robot-42069787475-1-1ed3739658d90c4f91aa392a42d37d11ba1cd742",
+  "cace_workflow_run_id": 42069942044,
+  "cace_workflow_sha": "f8c91d60b00fe51066ed7b7b5a3daa9d97958916",
+  "expert_robot_commit": "1ed3739658d90c4f91aa392a42d37d11ba1cd742",
+  "promotion_authority": false,
+  "qualification_passed": false,
+  "qualification_status": "fail",
+  "request_id": "expert-robot-42069787475-1-1ed3739658d90c4f91aa392a42d37d11ba1cd742",
+  "request_sha256": "6a9ec33edb30eda3ae53f322667fef5a498e03f372f3702e04d4a1be4841a5d0",
+  "result_log_sha256": "a7eb32418f995fb725cbe4d607d5b9ffa63c67992021e29b96a4aad90dea3e60",
+  "result_sha256": "f49efab1ce1dd36675a26e8d1ff35214202a88eb5649012237f47213f08e9f69",
+  "schema_version": 1,
+  "signature_status": "missing",
+  "verification_level": "integrity-checked; Ed25519 signer trust not established"
+}
