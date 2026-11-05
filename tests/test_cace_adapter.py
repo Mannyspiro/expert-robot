@@ -154,6 +154,14 @@ class CaceAdapterTests(unittest.TestCase):
         self.assertTrue(self.registry.verify_artifact(result["receipt_artifact_sha256"]))
         self.assertTrue(any(edge["relation"] == "reviews"
                             for edge in graph.export_snapshot()["edges"]))
+        telemetry = self.outbox.claim_next(
+            "hud-test", topics=("merlin.telemetry.verification.completed",),
+            now=10**12,
+        )
+        self.assertEqual(telemetry["payload"]["payload"]["source_commit"], self.commit)
+        self.assertEqual(telemetry["payload"]["payload"]["logical_path"], artifact_path)
+        self.assertEqual(telemetry["payload"]["payload"]["artifact_schema"],
+                         "merlin-freecad-document-mesh/1")
         self.assertEqual(
             self.registry.get_artifact_bytes(artifact_digest),
             b'{"schema":"merlin-freecad-document-mesh/1"}',
