@@ -72,6 +72,9 @@ def run_ngspice(
     executable = shutil.which("ngspice")
     if not executable:
         raise RuntimeError("ngspice executable is not installed or not on PATH")
+    prlimit = shutil.which("prlimit")
+    if not prlimit:
+        raise RuntimeError("prlimit is required to enforce the configured ngspice address-space limit")
     with tempfile.TemporaryDirectory(prefix="merlin-ngspice-") as temp:
         root = Path(temp)
         net_path, log_path = root / "input.cir", root / "ngspice.log"
@@ -80,7 +83,8 @@ def run_ngspice(
         started = time.monotonic()
         try:
             completed = subprocess.run(
-                command, cwd=str(root), capture_output=True, text=True,
+                [prlimit, f"--as={max_memory_bytes}", "--", *command],
+                cwd=str(root), capture_output=True, text=True,
                 timeout=timeout_seconds, check=False,
                 env={"PATH": str(Path(executable).parent), "HOME": str(root), "LANG": "C"},
             )
@@ -100,7 +104,7 @@ def run_ngspice(
             "wall_seconds": elapsed,
             "limits": {"timeout_seconds": timeout_seconds,
                        "max_memory_bytes": max_memory_bytes},
-            "resource_note": "wall-time enforced; memory limit is recorded but requires an OS/container supervisor",
+            "resource_note": "wall-time enforced by subprocess timeout; virtual address-space limit enforced by prlimit",
         }
         encoded = (json.dumps(artifact, sort_keys=True, separators=(",", ":")) + "\n").encode()
         return {
