@@ -68,19 +68,23 @@ class AvreaAdapter:
         receipt["receipt_sha256"] = hashlib.sha256(
             _canonical(receipt).encode("utf-8")
         ).hexdigest()
-        self.outbox.enqueue("avrea-dispatch:" + job_id, "merlin.avrea.dispatch.accepted", receipt)
-        self.emit_event(
-            kind="task.started", run_id=job_id, task_id=str(payload.get("task_id", job_id)),
-            payload={"agent_id": runner_id, "role": "Avrea runner",
-                     "status": "accepted", "activity": "bounded job accepted",
-                     "job_id": job_id, "resource_budget": budget},
-        )
-        self.emit_event(
-            kind="agent.status", run_id=job_id, task_id=str(payload.get("task_id", job_id)),
-            payload={"agent_id": runner_id, "role": "Avrea runner",
-                     "status": "accepted", "activity": "runner accepted job",
-                     "job_id": job_id},
-        )
+        dispatch_key = "avrea-dispatch:" + job_id
+        dispatch_event_id = "evt_" + hashlib.sha256(dispatch_key.encode()).hexdigest()
+        already_recorded = self.outbox.get(dispatch_event_id) is not None
+        self.outbox.enqueue(dispatch_key, "merlin.avrea.dispatch.accepted", receipt)
+        if not already_recorded:
+            self.emit_event(
+                kind="task.started", run_id=job_id, task_id=str(payload.get("task_id", job_id)),
+                payload={"agent_id": runner_id, "role": "Avrea runner",
+                         "status": "accepted", "activity": "bounded job accepted",
+                         "job_id": job_id, "resource_budget": budget},
+            )
+            self.emit_event(
+                kind="agent.status", run_id=job_id, task_id=str(payload.get("task_id", job_id)),
+                payload={"agent_id": runner_id, "role": "Avrea runner",
+                         "status": "accepted", "activity": "runner accepted job",
+                         "job_id": job_id},
+            )
         return receipt
 
     def collect(self, job_id: str, *, project_id: str,
