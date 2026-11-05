@@ -170,7 +170,10 @@
     "store_timestamps_and_source_url": true,
     "record_language_caption_type_and_rights": true,
     "arbitrary_public_video_transcript_api": "not_assumed_available",
-    "no_auth_or_access_control_bypass": true
+    "no_auth_or_access_control_bypass": true,
+    "noncommercial_or_sharealike_restrictions_must_be_enforced": true,
+    "full_text_ingestion_requires_project_use_compatibility_review": true,
+    "cc_by_nc_sa_requires_explicit_noncommercial_use": true
   },
   "promotion": {
     "new_outputs_default_status": "candidate_only",
