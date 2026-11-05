@@ -15,6 +15,21 @@ class MerlinRegistryTests(unittest.TestCase):
             self.assertEqual(inventory["artifacts"][0]["digest"], digest)
             self.assertEqual(inventory["artifacts"][0]["logical_path"], "notes/idea.md")
 
+    def test_bounded_read_only_project_index(self):
+        with tempfile.TemporaryDirectory() as temp:
+            registry = MerlinRegistry(temp)
+            registry.register_project("a", "Alpha")
+            registry.register_project("b", "Beta")
+            registry.put_artifact("b", "notes.txt", b"hello")
+            page = registry.list_projects(limit=1, offset=0)
+            self.assertEqual(page["schema"], "merlin-project-index/1")
+            self.assertEqual(page["total"], 2)
+            self.assertEqual(page["items"][0]["project_id"], "b")
+            self.assertEqual(page["items"][0]["artifact_count"], 1)
+            self.assertEqual(registry.list_projects(limit=1, offset=1)["items"][0]["project_id"], "a")
+            with self.assertRaises(ValueError):
+                registry.list_projects(limit=0)
+
     def test_blob_tampering_is_detected(self):
         with tempfile.TemporaryDirectory() as temp:
             registry = MerlinRegistry(temp)
