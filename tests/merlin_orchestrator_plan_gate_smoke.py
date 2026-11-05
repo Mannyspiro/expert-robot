@@ -29,6 +29,7 @@ with tempfile.TemporaryDirectory() as td:
     rp["representations"][0].update(encoding="Task specification",mapping="Identity",preserved_invariants=["requirements"],lost_information=[],validity_conditions=["same task"],validation_method="Compare requirements")
     rp["representations"][1].update(encoding="Dependency graph",mapping="Subtasks map to nodes and dependencies to edges",preserved_invariants=["dependency order"],lost_information=["narrative detail"],validity_conditions=["dependencies explicit"],validation_method="Topological consistency")
     plan["problem_representation"]=rp
+    plan["research_methods"]={"applicable":True,"ideonomy":{"enumeration_scope":"subtasks x transformations","candidate_limit":12},"logic_lenses":{"include_fuzzy":True,"include_finite_n_valued":True},"ranking_criteria":["semantic_fit","testability"],"hypothesis_disconfirmation":"Counterexample test."}
     plan_path=tmp/"plan.json"; plan_path.write_text(json.dumps(plan))
     accepted=subprocess.run(task+["--plan",str(plan_path)],capture_output=True,text=True,timeout=20)
     assert accepted.returncode==0, accepted.stderr
