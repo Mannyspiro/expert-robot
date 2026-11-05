@@ -1,0 +1,51 @@
+name: Titan Reference Provider Inventory
+
+on:
+  push:
+    branches:
+      - "feat/titan-pqc-foundation-20261105"
+    paths:
+      - "config/titan/ideonomy-seed-catalogue.v1.json"
+      - "scripts/titan_reference_probe.py"
+      - "tests/titan_reference_probe_smoke.py"
+      - ".github/workflows/titan-reference-probe.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: titan-reference-probe-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  provider-inventory:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 5
+    steps:
+      - name: Checkout exact source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Record source and runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "commit=$(git rev-parse HEAD)"
+          echo "runner=$RUNNER_NAME"
+          echo "os=$RUNNER_OS arch=$RUNNER_ARCH"
+          python3 --version
+      - name: Validate catalogue and probe
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m json.tool config/titan/ideonomy-seed-catalogue.v1.json >/dev/null
+          python3 tests/titan_reference_probe_smoke.py
+          python3 scripts/titan_reference_probe.py > titan-provider-inventory.json
+      - name: Upload inventory evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: titan-provider-inventory-${{ github.run_id }}
+          path: titan-provider-inventory.json
+          if-no-files-found: error
+          retention-days: 14
