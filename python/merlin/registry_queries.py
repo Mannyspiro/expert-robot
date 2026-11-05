@@ -37,7 +37,20 @@ class MerlinReadAPI:
         return self.registry.list_projects(limit=limit, offset=offset)
 
     def project(self, project_id: str) -> dict[str, Any]:
-        return self.registry.inventory(project_id)
+        """Return canonical project inventory with per-artifact digest checks."""
+        inventory = self.registry.inventory(project_id)
+        for item in inventory.get("artifacts", []):
+            digest = item.get("digest")
+            verified = (
+                isinstance(digest, str)
+                and len(digest) == 64
+                and self.registry.verify_artifact(digest)
+            )
+            item["verified"] = bool(verified)
+            if verified:
+                blob = self.registry.blobs / digest[:2] / digest[2:]
+                item["content_bytes"] = blob.stat().st_size
+        return inventory
 
     def artifact(self, project_id: str, logical_path: str) -> dict[str, Any]:
         inventory = self.registry.inventory(project_id)
