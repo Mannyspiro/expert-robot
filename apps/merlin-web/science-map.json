@@ -1,0 +1,493 @@
+{
+  "schema_version": 1,
+  "domains": [
+    {
+      "id": "mathematics",
+      "name": "Mathematical sciences",
+      "status": "established",
+      "branches": [
+        "logic and foundations",
+        "number theory",
+        "algebra",
+        "geometry",
+        "topology",
+        "analysis",
+        "differential equations",
+        "dynamical systems",
+        "probability",
+        "statistics",
+        "combinatorics",
+        "graph theory",
+        "optimization",
+        "numerical analysis",
+        "information theory",
+        "category theory",
+        "computational mathematics",
+        "mathematical physics",
+        "mathematics education",
+        "history and philosophy of mathematics"
+      ]
+    },
+    {
+      "id": "physical",
+      "name": "Physical sciences",
+      "status": "established",
+      "branches": [
+        "classical mechanics",
+        "quantum mechanics",
+        "quantum field theory",
+        "particle physics",
+        "nuclear physics",
+        "atomic and molecular physics",
+        "condensed matter",
+        "optics and photonics",
+        "thermodynamics",
+        "statistical mechanics",
+        "relativity and gravitation",
+        "astrophysics",
+        "cosmology",
+        "plasma physics",
+        "acoustics",
+        "biophysics"
+      ]
+    },
+    {
+      "id": "chemical",
+      "name": "Chemical sciences",
+      "status": "established",
+      "branches": [
+        "organic chemistry",
+        "inorganic chemistry",
+        "physical chemistry",
+        "analytical chemistry",
+        "theoretical chemistry",
+        "biochemistry",
+        "electrochemistry",
+        "materials chemistry",
+        "chemical biology",
+        "astrochemistry",
+        "geochemistry",
+        "chemical engineering"
+      ]
+    },
+    {
+      "id": "life",
+      "name": "Life sciences",
+      "status": "established",
+      "branches": [
+        "molecular biology",
+        "cell biology",
+        "genetics",
+        "genomics",
+        "evolutionary biology",
+        "ecology",
+        "microbiology",
+        "immunology",
+        "developmental biology",
+        "botany",
+        "zoology",
+        "physiology",
+        "systems biology",
+        "synthetic biology",
+        "bioinformatics",
+        "conservation biology"
+      ]
+    },
+    {
+      "id": "earth-space",
+      "name": "Earth, climate and space sciences",
+      "status": "established",
+      "branches": [
+        "geology",
+        "geophysics",
+        "geochemistry",
+        "meteorology",
+        "climatology",
+        "oceanography",
+        "hydrology",
+        "glaciology",
+        "paleontology",
+        "planetary science",
+        "solar physics",
+        "space weather",
+        "astrobiology",
+        "remote sensing"
+      ]
+    },
+    {
+      "id": "computer-information",
+      "name": "Computer and information sciences",
+      "status": "established",
+      "branches": [
+        "computer science",
+        "algorithms",
+        "programming languages",
+        "computer architecture",
+        "distributed systems",
+        "databases",
+        "artificial intelligence",
+        "machine learning",
+        "information retrieval",
+        "cybernetics",
+        "human-computer interaction",
+        "information science",
+        "computational social science",
+        "scientific computing"
+      ]
+    },
+    {
+      "id": "engineering",
+      "name": "Engineering and design sciences",
+      "status": "established",
+      "branches": [
+        "mechanical engineering",
+        "electrical engineering",
+        "civil engineering",
+        "chemical engineering",
+        "aerospace engineering",
+        "biomedical engineering",
+        "materials engineering",
+        "control systems",
+        "robotics",
+        "systems engineering",
+        "manufacturing",
+        "CAD and computational design",
+        "reliability engineering"
+      ]
+    },
+    {
+      "id": "medical-health",
+      "name": "Medical and health sciences",
+      "status": "established",
+      "branches": [
+        "anatomy",
+        "physiology",
+        "pathology",
+        "pharmacology",
+        "epidemiology",
+        "public health",
+        "clinical medicine",
+        "neuroscience",
+        "nutrition science",
+        "rehabilitation science",
+        "health services research",
+        "medical imaging",
+        "translational medicine"
+      ]
+    },
+    {
+      "id": "mind-behavior",
+      "name": "Mind, cognition and behavioral sciences",
+      "status": "established",
+      "branches": [
+        "psychology",
+        "cognitive science",
+        "neuroscience",
+        "linguistics",
+        "behavioral economics",
+        "decision science",
+        "learning sciences",
+        "psychometrics",
+        "consciousness studies",
+        "computational psychiatry"
+      ]
+    },
+    {
+      "id": "social",
+      "name": "Social and political sciences",
+      "status": "established",
+      "branches": [
+        "anthropology",
+        "sociology",
+        "economics",
+        "political science",
+        "human geography",
+        "archaeology",
+        "communication",
+        "education research",
+        "demography",
+        "law and society",
+        "science and technology studies",
+        "social network analysis"
+      ]
+    },
+    {
+      "id": "environment-agriculture",
+      "name": "Environmental, agricultural and food sciences",
+      "status": "established",
+      "branches": [
+        "environmental science",
+        "agronomy",
+        "soil science",
+        "forestry",
+        "animal science",
+        "food science",
+        "food systems",
+        "agroecology",
+        "environmental economics",
+        "sustainability science",
+        "landscape ecology"
+      ]
+    },
+    {
+      "id": "humanities-philosophy",
+      "name": "Humanities, history and philosophy of inquiry",
+      "status": "established",
+      "branches": [
+        "history of science",
+        "philosophy of science",
+        "philosophy of mathematics",
+        "epistemology",
+        "metaphysics",
+        "logic",
+        "ethics of science",
+        "history of technology",
+        "history of medicine",
+        "philology",
+        "archaeometry",
+        "scientific communication"
+      ]
+    },
+    {
+      "id": "interdisciplinary",
+      "name": "Interdisciplinary and systems sciences",
+      "status": "interdisciplinary",
+      "branches": [
+        "complex systems",
+        "network science",
+        "systems biology",
+        "computational humanities",
+        "digital history",
+        "biogeochemistry",
+        "cognitive robotics",
+        "quantum information science",
+        "science of science",
+        "operations research",
+        "risk analysis",
+        "socio-technical systems"
+      ]
+    },
+    {
+      "id": "emerging",
+      "name": "Emerging and prospective research spaces",
+      "status": "speculative",
+      "branches": [
+        "computational epistemology (formal models of how claims gain or lose warrant)",
+        "cross-scale causal science (methods linking molecular, organismal, ecological and social scales)",
+        "machine-assisted experimental design as a distinct methodology",
+        "multi-modal mathematics (formal relations among symbolic, geometric, visual and embodied representations)",
+        "reproducibility engineering (science of executable provenance and independent replication)",
+        "planetary systems observability (integrated Earth, infrastructure and ecological measurement)",
+        "synthetic cognitive ecology (interactions among human, machine and institutional cognition)",
+        "xenomathematics (user-proposed exploratory program; definitions and theorems required)",
+        "glyph and n-ality mathematics (exploratory representation-theoretic program; formal objects required)",
+        "temporal structure science (cross-disciplinary study of time, periodicity, memory and phase)",
+        "quantum-enabled metrology and information science (bounded by demonstrated physical effects)"
+      ]
+    }
+  ],
+  "historical_programs": [
+    {
+      "id": "alchemy",
+      "label": "Alchemy",
+      "status": "historical",
+      "lesson": "Preserved experimental practices and material knowledge while its theoretical framework was transformed by modern chemistry."
+    },
+    {
+      "id": "phlogiston",
+      "label": "Phlogiston theory",
+      "status": "obsolete_or_superseded",
+      "lesson": "A useful case for studying how measurement, mass balance and new explanatory frameworks displaced a dominant theory."
+    },
+    {
+      "id": "caloric",
+      "label": "Caloric theory",
+      "status": "obsolete_or_superseded",
+      "lesson": "Shows how heat moved from a material-fluid picture toward energy and statistical mechanics."
+    },
+    {
+      "id": "vitalism",
+      "label": "Vitalism",
+      "status": "historical",
+      "lesson": "Useful for tracing disputes about mechanism, emergence and biological explanation; not a current substitute for biochemical accounts."
+    },
+    {
+      "id": "ether",
+      "label": "Luminiferous ether",
+      "status": "obsolete_or_superseded",
+      "lesson": "Shows how a background medium was motivated, tested and abandoned as relativity and experiment changed the problem."
+    },
+    {
+      "id": "phrenology",
+      "label": "Phrenology",
+      "status": "obsolete_or_superseded",
+      "lesson": "A cautionary example of weak measurement, confirmation bias and social prejudice dressed as scientific certainty."
+    },
+    {
+      "id": "humoral",
+      "label": "Humoral medicine",
+      "status": "historical",
+      "lesson": "Study as a historical explanatory system, not as a modern clinical guide."
+    },
+    {
+      "id": "miasma",
+      "label": "Miasma theory",
+      "status": "obsolete_or_superseded",
+      "lesson": "Contrasts environmental observation with later microbial causal evidence."
+    }
+  ],
+  "sources": [
+    {
+      "id": "gutenberg",
+      "name": "Project Gutenberg",
+      "kind": "public-domain books",
+      "url": "https://www.gutenberg.org/",
+      "access": "public",
+      "ingest": "catalog metadata and confirmed public-domain text; retain edition and jurisdiction notes"
+    },
+    {
+      "id": "google-books",
+      "name": "Google Books",
+      "kind": "book discovery and previews",
+      "url": "https://books.google.com/",
+      "api": "https://www.googleapis.com/books/v1/volumes?q=",
+      "access": "public API with Google terms",
+      "ingest": "metadata, bibliographic identifiers, public-domain full-view links; preview-only works remain metadata/link records"
+    },
+    {
+      "id": "internet-archive",
+      "name": "Internet Archive",
+      "kind": "digitized books and collections",
+      "url": "https://archive.org/",
+      "api": "https://archive.org/advancedsearch.php",
+      "access": "public catalog; item rights vary",
+      "ingest": "metadata first; full text only when rights/license and download policy permit"
+    },
+    {
+      "id": "hathitrust",
+      "name": "HathiTrust",
+      "kind": "digitized scholarly books",
+      "url": "https://www.hathitrust.org/",
+      "access": "public catalog; full-view status varies",
+      "ingest": "catalog and rights status; retrieve only public-domain/open records"
+    },
+    {
+      "id": "loc",
+      "name": "Library of Congress",
+      "kind": "primary sources and collections",
+      "url": "https://www.loc.gov/collections/",
+      "api": "https://www.loc.gov/apis/",
+      "access": "public; item rights vary",
+      "ingest": "metadata, item rights statement, source URL and collection context"
+    },
+    {
+      "id": "gallica",
+      "name": "Gallica / Bibliothèque nationale de France",
+      "kind": "historical books and manuscripts",
+      "url": "https://gallica.bnf.fr/",
+      "access": "public; rights vary",
+      "ingest": "catalog metadata and openly reusable digitizations"
+    },
+    {
+      "id": "europeana",
+      "name": "Europeana",
+      "kind": "cultural heritage aggregator",
+      "url": "https://www.europeana.eu/",
+      "access": "public API; item-level rights",
+      "ingest": "metadata plus explicit rights URI"
+    },
+    {
+      "id": "perseus",
+      "name": "Perseus Digital Library",
+      "kind": "classical primary texts",
+      "url": "https://www.perseus.tufts.edu/",
+      "access": "public; edition/license dependent",
+      "ingest": "edition metadata, text only under stated license"
+    },
+    {
+      "id": "darwin-online",
+      "name": "Darwin Online",
+      "kind": "historical science primary sources",
+      "url": "https://darwin-online.org.uk/",
+      "access": "public; rights vary by item",
+      "ingest": "metadata, correspondence context, item-specific reuse rules"
+    },
+    {
+      "id": "newton-project",
+      "name": "The Newton Project",
+      "kind": "primary manuscripts and editions",
+      "url": "https://www.newtonproject.ox.ac.uk/",
+      "access": "public; edition-specific rights",
+      "ingest": "metadata and citation links; text subject to edition rights"
+    },
+    {
+      "id": "royal-society",
+      "name": "Philosophical Transactions archive",
+      "kind": "historical journal",
+      "url": "https://royalsocietypublishing.org/loi/rstl/group/c1600.d1660.y1665",
+      "access": "open archive varies by item",
+      "ingest": "metadata and article links; text subject to publisher rights"
+    },
+    {
+      "id": "mactutor",
+      "name": "MacTutor History of Mathematics",
+      "kind": "biographical and historical reference",
+      "url": "https://mathshistory.st-andrews.ac.uk/",
+      "access": "public web resource",
+      "ingest": "citations and short metadata; respect site copyright"
+    },
+    {
+      "id": "openalex",
+      "name": "OpenAlex",
+      "kind": "modern scholarly metadata",
+      "url": "https://openalex.org/",
+      "api": "https://api.openalex.org/",
+      "access": "open scholarly metadata",
+      "ingest": "metadata, concepts, authors, institutions and DOI links"
+    },
+    {
+      "id": "crossref",
+      "name": "Crossref",
+      "kind": "scholarly DOI metadata",
+      "url": "https://www.crossref.org/",
+      "api": "https://api.crossref.org/",
+      "access": "public API",
+      "ingest": "metadata and DOI resolution"
+    },
+    {
+      "id": "arxiv",
+      "name": "arXiv",
+      "kind": "preprints",
+      "url": "https://arxiv.org/",
+      "api": "https://info.arxiv.org/help/api/index.html",
+      "access": "public; article license varies",
+      "ingest": "metadata and abstract by default; full text only under license"
+    },
+    {
+      "id": "nist",
+      "name": "NIST publications",
+      "kind": "standards and technical reports",
+      "url": "https://www.nist.gov/publications",
+      "access": "public government publications",
+      "ingest": "metadata and public report text where permitted"
+    },
+    {
+      "id": "pubmed",
+      "name": "PubMed",
+      "kind": "biomedical literature metadata",
+      "url": "https://pubmed.ncbi.nlm.nih.gov/",
+      "api": "https://www.ncbi.nlm.nih.gov/books/NBK25501/",
+      "access": "public metadata; article rights vary",
+      "ingest": "metadata and abstracts; full text only via PMC/open license"
+    },
+    {
+      "id": "pmc",
+      "name": "PubMed Central",
+      "kind": "open-access biomedical full text",
+      "url": "https://pmc.ncbi.nlm.nih.gov/",
+      "api": "https://www.ncbi.nlm.nih.gov/pmc/tools/developers/",
+      "access": "public; article-level license",
+      "ingest": "full text only where article license permits reuse"
+    }
+  ]
+}
