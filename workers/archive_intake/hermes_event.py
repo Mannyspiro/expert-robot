@@ -5,6 +5,7 @@ import argparse, hashlib, json, sys
 from datetime import datetime, timezone
 from pathlib import Path
 from register_inventory import RegistryError, validate_manifest
+from canonical_registry import get_github_receipt
 
 def build_event(manifest: dict, project_id: str, commit_receipt: dict | None = None) -> dict:
     validate_manifest(manifest)
@@ -34,12 +35,13 @@ def build_event(manifest: dict, project_id: str, commit_receipt: dict | None = N
 def main():
     parser=argparse.ArgumentParser(description="Create a local Hermes event envelope; does not send it.")
     parser.add_argument("manifest",type=Path); parser.add_argument("--project-id",required=True)
-    parser.add_argument("--github-receipt",type=Path)
+    parser.add_argument("--github-receipt-id")
+    parser.add_argument("--database",default="data/merlin.sqlite3")
     parser.add_argument("--outbox",type=Path,required=True)
     args=parser.parse_args()
     try:
         manifest=json.loads(args.manifest.read_text(encoding="utf-8"))
-        receipt=json.loads(args.github_receipt.read_text(encoding="utf-8")) if args.github_receipt else None
+        receipt=get_github_receipt(args.database,args.github_receipt_id,args.project_id) if args.github_receipt_id else None
         event=build_event(manifest,args.project_id,receipt)
         args.outbox.parent.mkdir(parents=True,exist_ok=True)
         args.outbox.write_text(json.dumps(event,indent=2,sort_keys=True)+"\n",encoding="utf-8")
