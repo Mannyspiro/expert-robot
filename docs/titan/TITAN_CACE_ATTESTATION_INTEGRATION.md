@@ -91,8 +91,8 @@ the tag itself is lightweight, not signed.
 
 The Avrea ACVP workflow passed the selected FIPS 203/204/205 parameter-set
 tests. CACE's separate OCI runner `cace-oci-a1` passed independent verification
-of the original Avrea artifact archive and its extracted log, JUnit report,
-provider provenance, and evidence manifest. The CACE verification run is
+of the latest Avrea artifact archive (run `42090360334`) and its extracted log,
+JUnit report, provider provenance, and evidence manifest. The CACE verification run is
 `42090006059`; its verification artifact is retained for 30 days.
 
 The ML-DSA v2 Avrea sign/verify workflow is still pending. Until that workflow
