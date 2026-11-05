@@ -654,6 +654,7 @@ jobs:
           RUNNER_REPO_SSH: git@github.com:morganaspim/Cace-app.git
           BRIDGE_BRANCH: ${{ steps.install.outputs.bridge_branch }}
           REQUEST_ID: ${{ steps.package.outputs.request_id }}
+          SOURCE_SHA: ${{ steps.package.outputs.source_sha }}
         run: |
           set -euo pipefail
 
@@ -674,19 +675,19 @@ jobs:
               got="$(python3 -c 'import json; print(json.load(open("'"$evidence"'/result.json"))["request_id"])' 2>/dev/null || true)"
               if [ "$got" = "$REQUEST_ID" ]; then
                 git -C "$poll" show refs/remotes/origin/bridge:bridge/result.log > "$evidence/result.log" 2>/dev/null || true
-                python3 - "$evidence/result.json" "$evidence/result.log" "$REQUEST_ID" <<'PY'
+                python3 - "$evidence/result.json" "$evidence/result.log" "$REQUEST_ID" "$SOURCE_SHA" <<'PY'
           import hashlib
           import json
           import re
           import sys
 
-          result_path, log_path, expected_request = sys.argv[1:]
+          result_path, log_path, expected_request, expected_source = sys.argv[1:]
           result = json.load(open(result_path, encoding="utf-8"))
           log = open(log_path, "rb").read()
           assert result.get("schema_version") == 3, "unsupported result schema"
           assert result.get("result_type") == "cace-external-qualification"
           assert result.get("request_id") == expected_request
-          assert result.get("expert_robot_commit") == expected_request.rsplit("-", 1)[-1]
+          assert result.get("expert_robot_commit") == expected_source
           assert result.get("cace_repository") == "morganaspim/Cace-app"
           assert re.fullmatch(r"[0-9a-f]{40}", result.get("cace_commit", ""))
           assert isinstance(result.get("cace_workflow_run_id"), int) and result["cace_workflow_run_id"] > 0
