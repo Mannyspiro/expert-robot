@@ -259,7 +259,7 @@ def export_spice_netlist(
     if not used_refs:
         raise ValueError("no explicitly modelled two-terminal components were exported")
     lines.extend([analysis, ".end"])
-    return "\\n".join(lines) + "\\n"
+    return "\n".join(lines) + "\n"
 
 
 def export_openscad(project: EngineeringProject) -> str:
