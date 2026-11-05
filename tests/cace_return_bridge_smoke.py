@@ -26,7 +26,7 @@ for placeholder in (
 
 assert 'dollar + "{{ secrets.EXPERT_ROBOT_SSH_PRIVATE_KEY }}"' in external
 assert 'dollar + "{{ secrets.RAILWAY_SSH_PRIVATE_KEY }}"' in external
-assert "permissions:\\n  contents: read" in external
+assert "permissions:\n  contents: read" in external
 assert "persist-credentials: false" in external
 
 # The execution envelope is checked against the request, exact source/CACE
