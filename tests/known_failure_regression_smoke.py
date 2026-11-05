@@ -71,19 +71,43 @@ assert 'awk \'!/"human_claim_url":/\'' in secure
 external = (
     ROOT / ".github" / "workflows" / "external-free-runner-bridge.yml"
 ).read_text(encoding="utf-8")
-assert '"qualification_lane": "formal-static-arm64"' in external
-assert '"cxx_required": False' in external
-assert '"self_hosted_contents_write": False' in external
-assert "runs-on: [self-hosted, cace, oci, aarch64]" in external
+bridge_docs = (
+    ROOT / "docs" / "AI_RUNNER_AND_BRIDGE_OPERATIONS.md"
+).read_text(encoding="utf-8")
+bridge_summary = (
+    ROOT / "docs" / "cace-bidirectional-bridge.md"
+).read_text(encoding="utf-8")
+
+# Expert Robot is the Avrea dispatcher and result consumer. The CACE OCI
+# workflow remains canonical in CACE-app; do not duplicate it in this repo.
+assert '"schema_version": 2' in external
+assert '"requested_lane": "cace-oci-aarch64"' in external
+assert "CACE's canonical workflow" in external
 assert "persist-credentials: false" in external
-assert "publish-result:" in external
-assert "name: Upload read-only runner evidence" in external
+assert "name: Await external free-runner evidence" in external
+assert "name: Upload external runner evidence" in external
+assert 'result.get("schema_version") == 3' in external
+assert 'result.get("request_id") == expected_request' in external
+assert 'result.get("expert_robot_commit") == expected_source' in external
+assert 'result.get("cace_repository") == "morganaspim/Cace-app"' in external
+assert 'result.get("cace_workflow_id") == 367390621' in external
+assert 'result.get("status") in ("pass", "fail")' in external
+assert 'result.get("authority") == "qualification-only"' in external
+assert 'result.get("promotion_authority") is False' in external
+assert 'result.get("result_log_sha256")' in external
+assert 'result.get("result_log_size_bytes")' in external
 assert "contents: read" in external
-assert "contents: write" in external
-assert "unsafe archive path" in external
-assert "unsafe archive member type" in external
-assert '("run_cmd", re.compile' in external
+assert "contents: write" not in external
 assert "cmake --build" not in external
+
+# CACE owns the self-hosted ARM64 qualification and the separate publisher.
+assert "self-hosted, cace, oci, aarch64" in bridge_docs
+assert "formal-static-arm64" in bridge_docs
+assert "publish-result" in bridge_docs
+assert "unsafe archive members" in bridge_docs
+assert "EXPERT_ROBOT_SSH_PRIVATE_KEY" in bridge_docs
+assert "promotion_authority=false" in bridge_docs
+assert "SSH proves only repository transport access" in bridge_summary
 
 proof_search = json.loads(
     (ROOT / "config" / "proof_search.json").read_text(encoding="utf-8")
