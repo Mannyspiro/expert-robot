@@ -80,6 +80,7 @@ class HudActivityProjector:
         resources: dict[str, Any] = {}
         timeline = []
         evidence_refs: list[str] = []
+        verification: dict[str, Any] | None = None
         for event in events:
             kind, payload = event["kind"], event["payload"]
             stage = payload.get("stage") if kind == "research.stage" else None
@@ -107,6 +108,16 @@ class HudActivityProjector:
                         "compute_budget_units_reserved",
                     ) if key in payload
                 }
+            if (kind == "verification.completed" and event["source"] == "cace"
+                    and payload.get("independent") is True
+                    and payload.get("status") in {"verified", "rejected", "inconclusive"}
+                    and event["evidence_refs"]):
+                verification = {
+                    "status": payload["status"],
+                    "independent": True,
+                    "receipt_ref": event["evidence_refs"][0],
+                    "event_id": event["event_id"],
+                }
             evidence_refs.extend(event["evidence_refs"])
             timeline.append({
                 "event_id": event["event_id"],
@@ -129,6 +140,7 @@ class HudActivityProjector:
             "phases": list(PHASES),
             "agents": list(agents.values()),
             "resources": resources,
+            "verification": verification,
             "timeline": timeline[-60:],
             "evidence_refs": list(dict.fromkeys(evidence_refs))[-100:],
             "event_count": len(events),
