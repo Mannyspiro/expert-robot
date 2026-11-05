@@ -71,10 +71,4 @@ theorem eligible_requires_authentication (facts : EnvelopeFacts)
   rcases h with ⟨_, _, _, _, hAuthentication⟩
   exact hAuthentication
 
-/-- Experimental topology is intentionally not a field of EnvelopeFacts. -/
-theorem experimental_topology_not_in_protocol_facts :
-    ∀ facts : EnvelopeFacts, facts.contextPresent → facts.contextPresent := by
-  intro facts hContext
-  exact hContext
-
 end MathAI.TitanProtocol
