@@ -254,7 +254,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None):
             self._request_started = perf_counter()
             parsed = urlparse(self.path)
             path = parsed.path
-            if path in {"/api/hud/activity", "/api/hud/graph", "/api/hud/node"}:
+            if path in {"/api/hud/activity", "/api/hud/graph", "/api/hud/node", "/api/hud/projects", "/api/hud/project", "/api/hud/hypotheses", "/api/hud/outbox"}:
                 if hud_runtime is None:
                     self._send(503, {"error": "hud_runtime_not_configured",
                                      "mode": "labelled_demonstration_fallback"})
