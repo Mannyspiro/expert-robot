@@ -73,9 +73,6 @@ class LearnerModelTests(unittest.TestCase):
           "procedure").observations,1)
 
 
-if __name__=="__main__": unittest.main()
-
-
     def test_server_scoring_ignores_client_score_and_idea_claims(self):
         event = {"learner_id":"learner-test","attempt_id":"scored-1",
           "problem_id":"rotation-coordinate-90","problem_version":"1","session_id":"s1",
@@ -86,3 +83,6 @@ if __name__=="__main__": unittest.main()
         self.assertEqual(scored["idea_id"],"MATH-REP-001")
         self.assertEqual(scored["dimension"],"procedure")
         self.assertEqual(scored["scoring_source"],"server_rubric")
+
+
+if __name__=="__main__": unittest.main()
