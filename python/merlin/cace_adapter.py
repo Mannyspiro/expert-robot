@@ -85,7 +85,8 @@ class CaceVerificationAdapter:
             raise ValueError("CACE receipt SHA-256 mismatch")
         receipt_bytes = (_canonical(receipt) + "\n").encode("utf-8")
         selected_path = logical_path or (
-            "cace-receipts/" + commit_sha + "/" + artifact_sha256 + ".json"
+            "cace-receipts/" + commit_sha + "/" + artifact_sha256 + "/" +
+            hashlib.sha256(theorem.encode("utf-8")).hexdigest() + ".json"
         )
         digest = self.registry.put_artifact(project_id, selected_path, receipt_bytes,
                                             "application/vnd.merlin.cace-receipt+json")
