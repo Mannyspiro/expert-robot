@@ -26,6 +26,14 @@ Every stage has a fail-closed transition to rejected. The model describes
 sequencing and acceptance conditions; it does not execute or prove the
 cryptographic operations represented by those stages.
 
+## Lean formalization
+
+The module formal/MathAI/TitanProtocol.lean defines the abstract transition relation,
+proves rejected and accepted states terminal, rules out a direct initialization-to-
+acceptance transition, and states the logical preconditions for eligibility. These
+theorems concern the specification only; they do not verify an implementation or
+cryptographic primitive. The Lean module is imported by formal/MathAI.lean.
+
 ## Reproducible vectors
 
 generate_structural_test_vectors() emits deterministic JSON fixtures for:
