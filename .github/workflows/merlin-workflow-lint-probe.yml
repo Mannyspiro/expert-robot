@@ -5,6 +5,8 @@ on:
     branches:
       - "feat/hermes-routing-eval-avrea-discovery-20261105"
     paths:
+      - ".github/workflows/ci.yml"
+      - ".github/workflows/external-free-runner-bridge.yml"
       - ".github/workflows/merlin-workflow-lint-probe.yml"
 
 permissions:
