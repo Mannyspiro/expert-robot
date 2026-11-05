@@ -1066,7 +1066,7 @@
         "Formalize precise claims in Lean where suitable."
       ],
       "learning": {
-        "lesson_id": "art-math-transformations-v0.1",
+        "lesson_id": "art-math-symmetry-studio-v0.1",
         "dimensions": [
           "recognition",
           "construction",
@@ -1074,9 +1074,7 @@
           "proof_justification",
           "transfer"
         ],
-        "prerequisites": [
-          "MATH-REP-001"
-        ]
+        "prerequisites": []
       }
     },
     {
