@@ -6,6 +6,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from merlin_problem_reframing import template as reframe_template
+from merlin_ideonomy import enumerate_space
+from merlin_logic_lenses import rank_candidates
 
 MAX_DOSSIER_BYTES=256_000
 MAX_RESPONSE_CHARS=24_000
@@ -22,6 +24,10 @@ def build_packet(dossier: dict) -> tuple[str,str]:
       "task":"historical_science_ideonomy_analysis",
       "objective":"Analyze the supplied primary-source dossier to improve Merlin's ideonomy and scientific reasoning.",
       "required_outputs":[
+        "enumerate a bounded ranked ideonomy space; include combinations and non-obvious transformations, not only obvious associations",
+        "rank fuzzy, finite n-valued and other logical systems by suitability to the research object; state when a lens is not useful",
+        "distinguish fuzzy truth degrees from probabilities and discrete n-valued semantics",
+        "compose useful logic operators with algebraic, geometric, topological, categorical, combinatorial, dynamical, probabilistic, optimization and information-theoretic representations where warranted",
         "separate direct source observations from historical interpretation and new conjecture",
         "identify the research problem and historical context",
         "extract methods, instruments, evidence types, assumptions and limitations",
@@ -33,7 +39,9 @@ def build_packet(dossier: dict) -> tuple[str,str]:
       ],
       "citation_rule":"Every historical or factual claim must point to a supplied citation URL and section/page/line location. If support is missing, say unknown. Never invent private thoughts or quotations.",
       "epistemic_rule":"Do not label speculative connections as established science. Distinguish modern consensus from period beliefs.",
-      "response_format":"Return concise JSON with keys: source_digest, historical_context, methods, evidence, limitations, discipline_links, ideonomy_candidates, merlin_improvements, unsupported_questions.",
+      "response_format":"Return concise JSON with keys: source_digest, historical_context, methods, evidence, limitations, discipline_links, ideonomy_candidates, ranked_logic_lenses, fuzzy_and_n_valued_views, merlin_improvements, unsupported_questions.",
+      "ideonomy_seed_space":enumerate_space("historical science inquiry and "+str(work.get("domain","")),48),
+      "ranked_logic_lenses":rank_candidates(str(work.get("domain",""))),
       "promotion":"candidate_only","authority_delta":0,"dossier":dossier
     }
     return "You are Merlin's bounded science-history and ideonomy research worker. Follow this task contract exactly.\n"+json.dumps(instructions,ensure_ascii=False,indent=2),digest
@@ -64,6 +72,7 @@ def build_engineering_plan(dossier: dict) -> dict:
       "dependencies":["Rights-cleared dossier","Traceable primary-source citations","Configured local Merlin runtime"],
       "reasoning_plan":{"inductive":"Extract patterns only from cited passages; state coverage and limits.","deductive":"Make premises, inference rules and formal consequences explicit.","abductive":"Compare at least two plausible historical or conceptual explanations.","disconfirmation":"Name counterevidence, missing sources and tests that would reject each proposed connection."},
       "design":{"method":"Primary-source analysis with explicit historical and epistemic separation.","alternatives":["Source-only summary","Comparative historical analysis"],"limitations":"A dossier is a selected sample, not the complete historical record.","bias_review":{"possible_biases":["selection_bias","survivorship_bias","confirmation_bias","historical_presentism","translation_or_transcription_bias"],"possible_fallacies":["appeal_to_authority","hasty_generalization","false_analogy"],"checks":["seek overlooked predecessors and critics","compare editions and translations","separate period beliefs from modern consensus","search for disconfirming evidence"]}},
+      "research_methods":{"applicable":True,"ideonomy":{"enumeration_scope":"Historical concepts x discipline links x methods x falsifiable question moves","candidate_limit":48,"coverage_note":"Bounded ranked sample; not exhaustive."},"logic_lenses":{"include_fuzzy":True,"include_finite_n_valued":True,"n_values":3,"truth_table_arity":2,"max_truth_table_rows":4096,"ranked_frameworks":["fuzzy","finite_n_valued","paraconsistent","intuitionistic","modal_temporal","probabilistic","rough_approximation","many_sorted_type","algebraic","topological","category_semantics","information","game","quantum"],"distinguish_truth_degree_from_probability":True},"ranking_criteria":["source_fit","semantic_fit","invariant_preservation","falsifiability","novelty","proof_support","resource_cost"],"hypothesis_disconfirmation":"Every ideonomy candidate must name a counterexample or disconfirming source/evidence."},
       "resource_budget":{"max_runtime_seconds":900,"max_memory_mb":2048,"max_disk_bytes":10485760,"max_input_bytes":262144},
       "verification":{"tests":["source digest matches dossier","claims cite supplied source spans","candidate count <= 8","no canonical writes"],"independent_check":"Human domain reviewer checks source citations, historical context and mathematical or empirical claims."},
       "rollback":"Quarantine or delete the unreviewed candidate and plan sidecar; canonical records remain untouched."
