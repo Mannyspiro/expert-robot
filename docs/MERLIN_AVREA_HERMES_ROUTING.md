@@ -1,5 +1,7 @@
 # Merlin / Hermes / Avrea quick reference
 
+**Runner and bridge operations:** read [AI_RUNNER_AND_BRIDGE_OPERATIONS.md](AI_RUNNER_AND_BRIDGE_OPERATIONS.md) first for the full Avrea/OCI runner inventory, exact request/result lifecycle, credential-name boundaries, evidence retention, and agent runbook.
+
 Canonical repository entry point for future handoffs and agent prompts.
 
 ## Avrea runner bridge
@@ -11,7 +13,7 @@ Canonical repository entry point for future handoffs and agent prompts.
 
 The existing bridge uses the Avrea hosted label avrea-ubuntu-latest-8-vcpu, packages a bounded source snapshot, then targets a separate CACE-app runner labelled self-hosted/cace/oci/aarch64. This is a GitHub Actions runner bridge, not a direct Avrea API client. Its RAILWAY_SSH_PRIVATE_KEY is a CACE-app repository deploy key, not CACE verifier authentication. The Avrea CA certificate mount is TLS trust, not an API credential.
 
-The current bridge push trigger names feat/reuse-refactored-fishstick; for other branches use workflow_dispatch after checking secrets and branch selection. Do not dispatch qualification workloads without explicit approval.
+The current external bridge push trigger includes both `feat/reuse-refactored-fishstick` and `feat/hermes-routing-eval-avrea-discovery-20261105`, with path filters; it also supports `workflow_dispatch`. Confirm the live workflow file before relying on a trigger. Do not dispatch qualification workloads without explicit approval.
 
 ## Independent CACE endpoint secrets
 Use a protected GitHub Actions Environment named cace-independent-verifier. Configure CACE_VERIFY_URL and CACE_VERIFY_TOKEN as environment secrets; optionally CACE_CLIENT_CERT_PEM and CACE_CLIENT_KEY_PEM for mutual TLS. Restrict deployment branches and require reviewers. Prefer GitHub OIDC-issued short-lived credentials if the verifier supports federation. Never commit or print values. The connected GitHub integration does not expose secret write/read operations here, so the secret values must be configured in GitHub Settings → Environments by an authorized maintainer.
