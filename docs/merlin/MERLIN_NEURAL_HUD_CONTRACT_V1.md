@@ -67,3 +67,16 @@ The HUD is a presentation surface, not an authority surface. It may display appr
 - A verified result shows its receipt identity and source revision in the adaptive canvas or detail view.
 - Reduced-motion mode preserves state and relationship information.
 - No chat/voice action is represented as successful before the authenticated backend confirms it.
+
+## 3D knowledge constellation and object inspection
+
+The adaptive workspace may switch from its phase illustration to a rotatable 3D projection of the canonical graph.
+
+- Graph nodes and edges are loaded from the read-only `/api/hud/graph` route. The graph snapshot SHA-256 is retained for provenance.
+- Node placement is a deterministic presentation projection, not a claim about physical or mathematical distance.
+- Drag rotates the projection; wheel/pinch zooms; reset restores the default camera. Reduced-motion settings must disable nonessential pulsing while retaining direct manipulation.
+- Edge direction and relation type are preserved. `supports` and `contradicts` use different visual encodings so competing hypotheses remain distinguishable.
+- A selected node resolves through `/api/hud/node?node_id=...`, which returns the canonical node and typed neighbors. Artifact nodes may include registry-verified digest and byte-length metadata.
+- Agent presence is appended only from current normalized `agent.status` events. Hermes, MCFC, Avrea and CACE are not shown as active unless an actual agent event identifies them. Absence means unknown/not reported, not offline or idle.
+- Equation, theorem, experiment, simulation and CAD model nodes retain their own node types and payloads. A future type-specific renderer may open a formula, proof declaration, experiment chart, simulation or FreeCAD artifact, but must not synthesize missing content.
+- The 3D graph is read-only. Mutations, approvals, dispatch and promotion remain in their respective authenticated workflows.
