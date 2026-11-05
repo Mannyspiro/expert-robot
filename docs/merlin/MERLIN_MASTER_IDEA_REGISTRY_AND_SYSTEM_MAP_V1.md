@@ -459,3 +459,14 @@ PR #80 [Science, mathematics, history and philosophy atlas](https://github.com/M
 **Relationship:** PR #90 adds the distinct historical, linguistic, epistemic, translation and specialist-review layer. It must reuse PR #80's logic profiles, formal definitions and governance policy. Heuristic ranking scores are not measured usefulness or truth; finite truth tables are bounded examples; Lean lemmas about operators do not validate cultural/historical interpretations. Do not create a duplicate logic engine or duplicate science atlas.
 
 The new program's source/case-study records should attach to the existing science source registry and canonical knowledge graph, then export reviewed material to Merlin Learning.
+
+
+## 20. Mathematics continuation: characteristic-polynomial invariants
+
+- PR #93 — [Extend exact frame invariants to characteristic polynomials](https://github.com/Mannyspiro/expert-robot/pull/93), current head `916975f844e4096cb4275cc38e8dfef19cf31f7d`.
+- Adds exact Fraction-based Faddeev–LeVerrier coefficients to `merlin/representation_graph.py`; tests similarity invariance under three basis choices including a repeated eigenvalue.
+- Exact Avrea run #42121123488 completed successfully on the current PR head: 13 representation-graph tests, 11 rotation correspondence tests, 7 spherical holonomy tests and module compilation passed. Artifact ID `13459635449`, SHA-256 `b4c8330db01517442dde3e5fce6b2a6c1de6b942241824834658d1009147b433`.
+- Mathematical idea record `MATH-SPEC-001` and the human-readable math ledger now cite the implementation and evidence. The claim remains scoped: finite rational executable checks are not a Lean proof or arbitrary-field implementation.
+- Broad CI run #2556 on the current head was still pending at this snapshot; do not report it as passed.
+
+Next math sequence: formalize similarity/characteristic-polynomial invariance in Lean; add typed scalar-field and partial-domain metadata; then generalized eigenspace transport. Keep Math Kung Fu as the learner-facing route through the same canonical mathematical objects, proofs, experiments and history—not as a parallel mathematics engine.
