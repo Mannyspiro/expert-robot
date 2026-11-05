@@ -55,13 +55,13 @@ Policy: consult this file and the subsystem's current tests before proposing, di
 Audit method: GitHub commit metadata for every commit in the first-parent PR range, inspecting each commit's changed-file records rather than relying only on the net branch diff.
 
 - Base: `694b34722a337fc2a7cc51321d6aedab8f16d5b2`
-- Audited head: `391a209882cc5b329e263e94927095a52d660649`
-- Range: 67 commits
-- Per-commit file records inspected: each commit's complete changed-file list
-- Observed statuses: additions and modifications only; no `removed` or `renamed` file status was returned in this range.
-- Net compare reports 16 changed paths.
+- Audited head: `1a4ffb27a8564a66d5dbaaf083b3aec360383c71`
+- Range: 87 commits from base `694b34722a337fc2a7cc51321d6aedab8f16d5b2`
+- Per-commit file records inspected: all 87 commits' complete changed-file lists (GitHub commit metadata)
+- Observed statuses: additions and modifications only; no `removed` or `renamed` file status was returned across the 87-commit PR range.
+- Net compare reports 16 changed paths at the previously recorded checkpoint; the current PR tree is still checked separately in GitHub's compare view.
 - This is a tracked Git history audit only. It does not inspect an Avrea/OCI worker filesystem, untracked files, ignored files, external volumes, or runtime-generated artifacts.
-- The in-repository `GitRecoveryAdapter.audit_history(base, head)` implementation and rename/delete fixture tests provide a reproducible local audit path, but have not yet been executed by CI in this session.
+- The in-repository `GitRecoveryAdapter.audit_history(base, head)` implementation records per-first-parent-commit tracked-tree digests and rename/copy/delete records. Its NUL-delimited path parser was corrected and the rename/delete fixture test is present; the test has not yet executed because CI creates no job records.
 
 ## Recovery-specific acceptance criteria
 
@@ -74,7 +74,7 @@ Audit method: GitHub commit metadata for every commit in the first-parent PR ran
 
 ## Current known limitations to carry forward
 
-- PR #82 remains draft and unmerged. GitHub Actions runs #42101528061, #42102299010 and the subsequent exact-head runs ended `failure` with zero job records and zero check runs; there are no job logs to inspect. Adding this branch to the push filter did not change the no-job symptom. The workflow's primary job requests `avrea-ubuntu-latest-8-vcpu`. The available GitHub connection cannot read the repository runner-registration/permissions endpoints, so the exact reason for the no-job failure is not yet established. Do not label CI as a test failure or a pass.
+- PR #82 remains draft and unmerged. GitHub Actions runs #42101528061, #42102299010 and #42103583336 ended `failure` with zero job records and zero check runs; the logs endpoint returns 404 because no job log stream exists. Adding this branch to the push filter caused a push run to be created but did not change the no-job symptom. The workflow's primary job requests `avrea-ubuntu-latest-8-vcpu`. The available GitHub connection cannot read the repository runner-registration/permissions endpoints, so the exact reason for the no-job failure is not yet established. Do not label CI as a test failure or a pass.
 - Avrea dispatch/collection still use injected transport interfaces. The repair runner now fails closed unless the result bundle includes a pinned image digest, tool versions, zero exit code and CACE verification for every artifact. No live provider dispatch, runner identity, worker exit status or retained output bundle has been evidenced in this session.
 - CACE adapter checks receipt fields and a canonical `receipt_sha256` content hash. That hash is not a cryptographic signature and does not authenticate the verifier identity. A production signed-receipt profile still needs a pinned verifier key/identity and signature verification. No live independent CACE invocation has been evidenced.
 - The Git adapter inventories tracked tree entries. Untracked/ignored files require a separate filesystem inventory with explicit scope and permissions.
