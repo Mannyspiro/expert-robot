@@ -28,6 +28,8 @@ def register_geometry_receipt(database: str | Path, project_id: str, receipt: di
         raise ValueError("unsupported geometry receipt version")
     if receipt["status"] not in ("completed", "rejected", "failed"):
         raise ValueError("geometry receipt must have a terminal status")
+    if receipt.get("verification") != "artifact_hashes_checked;geometry_correctness_not_independently_verified":
+        raise ValueError("geometry receipt verification boundary is missing or altered")
     if not isinstance(receipt["input_sha256"], str) or not SHA256.fullmatch(receipt["input_sha256"]):
         raise ValueError("geometry receipt input digest must be lowercase SHA-256")
     if not isinstance(receipt["receipt_sha256"], str) or not SHA256.fullmatch(receipt["receipt_sha256"]):
@@ -49,6 +51,8 @@ def register_geometry_receipt(database: str | Path, project_id: str, receipt: di
         seen_paths.add(str(relative))
         if not isinstance(artifact.get("sha256"), str) or not SHA256.fullmatch(artifact["sha256"]):
             raise ValueError("geometry output artifact SHA-256 is invalid")
+        if not isinstance(artifact.get("size_bytes"), int) or artifact["size_bytes"] < 0:
+            raise ValueError("geometry output artifact size_bytes must be a non-negative integer")
     if not isinstance(receipt["backend_id"], str) or not receipt["backend_id"].strip():
         raise ValueError("geometry backend identity is required")
     if not isinstance(receipt["backend_version"], str) or not receipt["backend_version"].strip():
