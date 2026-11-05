@@ -25,48 +25,128 @@ on:
       - "scripts/merlin_ideonomy.py"
       - "scripts/merlin_math_research_packet.py"
       - "tests/merlin_logic_ideonomy_smoke.py"
+      - "research/science/logic-lens-case.schema.v1.json"
+      - "scripts/merlin_logic_case_validate.py"
+      - "tests/test_merlin_logic_case_validate.py"
       - "tests/merlin_governance_smoke.py"
       - "tests/merlin_orchestrator_plan_gate_smoke.py"
       - "research/science/reading-notes/**"
+      - ".github/workflows/merlin-science-atlas-smoke.yml"
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "apps/merlin-web/**"
+      - "research/science/**"
+      - "docs/MERLIN_SCIENCE_HISTORY_PHILOSOPHY_PLATFORM.md"
+      - "tests/merlin_science_atlas_smoke.py"
+      - "tests/merlin_google_books_contract_smoke.py"
+      - "tests/merlin_science_intake_smoke.py"
+      - "tests/merlin_science_ideonomy_bridge_smoke.py"
+      - "scripts/merlin_science_ideonomy_packet.py"
+      - "python/orchestrator.py"
+      - "cpp/src/research_cli_main.cpp"
+      - "scripts/merlin_science_intake.py"
+      - "scripts/merlin_google_books_discover.py"
+      - "scripts/merlin_engineering_plan.py"
+      - "scripts/merlin_domain_audit.py"
+      - "scripts/merlin_storage_guard.py"
+      - "scripts/merlin_youtube_discover.py"
+      - "scripts/merlin_problem_reframing.py"
+      - "tests/merlin_problem_reframing_smoke.py"
+      - "scripts/merlin_logic_lenses.py"
+      - "scripts/merlin_ideonomy.py"
+      - "scripts/merlin_math_research_packet.py"
+      - "tests/merlin_logic_ideonomy_smoke.py"
+      - "tests/merlin_governance_smoke.py"
+      - "tests/merlin_orchestrator_plan_gate_smoke.py"
+      - "research/science/reading-notes/**"
+      - "scripts/merlin_logic_case_validate.py"
+      - "tests/test_merlin_logic_case_validate.py"
       - ".github/workflows/merlin-science-atlas-smoke.yml"
   workflow_dispatch:
 permissions:
   contents: read
 concurrency:
   group: merlin-science-atlas-${{ github.ref_name }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   smoke:
     runs-on: avrea-ubuntu-latest-8-vcpu
-    timeout-minutes: 4
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
-      - name: Validate atlas data and web shell
+      - name: Record runner and source identity
+        shell: bash
         run: |
-          python3 -m json.tool research/science/discipline-taxonomy.v1.json >/dev/null
-          python3 -m json.tool research/science/source-registry.v1.json >/dev/null
-          python3 -m json.tool research/science/ingestion-contract.v1.json >/dev/null
-          python3 -m json.tool research/science/video-transcript-index.v1.json >/dev/null
-          python3 tests/merlin_science_atlas_smoke.py
-          python3 tests/merlin_google_books_contract_smoke.py
-          python3 tests/merlin_science_intake_smoke.py
-          python3 tests/merlin_science_ideonomy_bridge_smoke.py
-          python3 tests/merlin_governance_smoke.py
-          python3 tests/merlin_problem_reframing_smoke.py
-          python3 tests/merlin_logic_ideonomy_smoke.py
-          python3 tests/merlin_orchestrator_plan_gate_smoke.py
-          python3 scripts/merlin_domain_audit.py --taxonomy research/science/discipline-taxonomy.v1.json --governance research/science/merlin-research-governance.v1.json > domain-audit.json
-          python3 scripts/merlin_storage_guard.py --root state/merlin-ingestion-staging --reserve-bytes 0
-          python3 scripts/merlin_google_books_discover.py --query "subject:history of science" --max-results 5 > google-books-discovery.json
-      - name: Upload discovery results
+          set -euo pipefail
+          mkdir -p artifacts
+          {
+            echo "repository=$GITHUB_REPOSITORY"
+            echo "commit=$GITHUB_SHA"
+            echo "event=$GITHUB_EVENT_NAME"
+            echo "run_id=$GITHUB_RUN_ID"
+            echo "run_attempt=$GITHUB_RUN_ATTEMPT"
+            echo "runner_name=$RUNNER_NAME"
+            echo "runner_os=$RUNNER_OS"
+            echo "runner_arch=$RUNNER_ARCH"
+            uname -a
+            nproc
+          } | tee artifacts/runner-identity.log
+      - name: Validate science atlas, logic case schema and research contracts
+        shell: bash
+        run: |
+          set +e
+          mkdir -p artifacts
+          failed=0
+          run_check() {
+            name="$1"; shift
+            "$@" 2>&1 | tee "artifacts/$name.log"
+            rc=${PIPESTATUS[0]}
+            printf '{"suite":"%s","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$name" "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$rc" > "artifacts/$name-result.json"
+            if [ "$rc" -ne 0 ]; then failed=1; fi
+          }
+          run_check "discipline-taxonomy-json" python3 -m json.tool research/science/discipline-taxonomy.v1.json
+          run_check "source-registry-json" python3 -m json.tool research/science/source-registry.v1.json
+          run_check "ingestion-contract-json" python3 -m json.tool research/science/ingestion-contract.v1.json
+          run_check "video-transcript-index-json" python3 -m json.tool research/science/video-transcript-index.v1.json
+          run_check "logic-lens-case-schema-json" python3 -m json.tool research/science/logic-lens-case.schema.v1.json
+          run_check "science-atlas-smoke" python3 tests/merlin_science_atlas_smoke.py
+          run_check "google-books-contract-smoke" python3 tests/merlin_google_books_contract_smoke.py
+          run_check "science-intake-smoke" python3 tests/merlin_science_intake_smoke.py
+          run_check "science-ideonomy-bridge-smoke" python3 tests/merlin_science_ideonomy_bridge_smoke.py
+          run_check "governance-smoke" python3 tests/merlin_governance_smoke.py
+          run_check "problem-reframing-smoke" python3 tests/merlin_problem_reframing_smoke.py
+          run_check "logic-ideonomy-smoke" python3 tests/merlin_logic_ideonomy_smoke.py
+          run_check "logic-case-validation-tests" python3 -m unittest discover -s tests -p "test_merlin_logic_case_validate.py" -v
+          run_check "orchestrator-plan-gate-smoke" python3 tests/merlin_orchestrator_plan_gate_smoke.py
+          run_check "domain-audit" python3 scripts/merlin_domain_audit.py --taxonomy research/science/discipline-taxonomy.v1.json --governance research/science/merlin-research-governance.v1.json
+          run_check "storage-guard" python3 scripts/merlin_storage_guard.py --root state/merlin-ingestion-staging --reserve-bytes 0
+          run_check "google-books-discovery" python3 scripts/merlin_google_books_discover.py --query "subject:history of science" --max-results 5
+          exit "$failed"
+      - name: Record science atlas evidence manifest
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          python3 - <<'PY'
+          import json, os
+          keys = ("GITHUB_REPOSITORY", "GITHUB_SHA", "GITHUB_REF", "GITHUB_EVENT_NAME",
+                  "GITHUB_RUN_ID", "GITHUB_RUN_ATTEMPT", "GITHUB_WORKFLOW", "RUNNER_NAME")
+          payload = {key.lower(): os.environ.get(key, "") for key in keys}
+          payload["job_status"] = os.environ.get("JOB_STATUS", "unknown")
+          with open("artifacts/science-atlas-evidence.json", "w", encoding="utf-8") as handle:
+              json.dump(payload, handle, sort_keys=True, indent=2)
+              handle.write("\\n")
+          PY
+      - name: Upload science atlas logs and results
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: merlin-google-books-discovery
-          path: |
-            google-books-discovery.json
-            domain-audit.json
+          name: merlin-science-atlas-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/
           if-no-files-found: warn
           retention-days: 14
