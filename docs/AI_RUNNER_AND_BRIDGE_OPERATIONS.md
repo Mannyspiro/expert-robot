@@ -20,10 +20,10 @@ Never treat a handoff, README, cached chat summary, prior workflow run, or a bra
 | Role | Repository | Branch / ref | Canonical paths |
 |---|---|---|---|
 | Orchestrator, task source and return evidence | `Mannyspiro/expert-robot` | `feat/hermes-routing-eval-avrea-discovery-20261105` | `.github/workflows/external-free-runner-bridge.yml`, `.github/workflows/ci.yml`, `python/merlin/`, `docs/evidence/` |
-| CACE runner execution and qualification | `morganaspim/Cace-app` | generated branch `executor/expert-robot-bridge` | `bridge/request.json`, `bridge/result.json`, `bridge/result.log`, `.github/workflows/expert-robot-bridge.yml` |
+| CACE runner execution and qualification | `morganaspim/Cace-app` | persistent bridge branch `executor/expert-robot-bridge` | `bridge/request.json`, `bridge/result.json`, `bridge/result.log`, `.github/workflows/expert-robot-bridge.yml` |
 | CACE persistent source and policies | `morganaspim/Cace-app` | `main` | `AGENTS.md`, `CACE_AGENT_BOOTSTRAP.json`, `docs/`, `schema/`, `cace_studio/core/` |
 
-The CACE bridge branch is a transport/work branch. The canonical generator for its workflow is the quoted `BRIDGE_YAML` heredoc in Expert Robot's `external-free-runner-bridge.yml`. A later request recreates the CACE bridge branch from CACE's default branch and writes a fresh request and workflow. Do not make durable documentation or policy changes only on `executor/expert-robot-bridge`.
+The CACE bridge branch is a persistent transport/work branch. CACE owns the canonical `.github/workflows/expert-robot-bridge.yml` on that branch. Expert Robot fetches and updates the existing branch, preserving the CACE workflow; it must not generate a duplicate workflow or reset the branch to CACE's default branch. Durable product documentation and policy still belong on CACE's default branch, while the bridge workflow itself is intentionally maintained on the bridge branch.
 
 ## 3. Runner inventory
 
@@ -41,7 +41,7 @@ The CACE bridge branch is a transport/work branch. The canonical generator for i
 - GitHub Actions labels: `[self-hosted, cace, oci, aarch64]`.
 - Repository: `morganaspim/Cace-app`.
 - Workflow job: `qualify` in `.github/workflows/expert-robot-bridge.yml`.
-- Lane: `cace-oci-aarch64`; qualification is bounded and qualification-only.
+- Request lane: `cace-oci-aarch64`; result qualification lane: `formal-static-arm64`. Qualification is bounded and qualification-only.
 - The runner checks the archive, extracts to a temporary directory, checks formal-source safety, verifies exact Lean/Mathlib pins, then runs the Lean root and axiom audit.
 - Current pinned formal toolchain in this bridge: `leanprover/lean4:v4.34.0`; Mathlib commit `5ed2965256430c3649e86755f9576b54eca72435`.
 - The script checks for at least 2 GiB free disk before installing Lean. A configured cache is not proof that the exact toolchain is present.
@@ -63,7 +63,7 @@ Canonical source: `Mannyspiro/expert-robot/.github/workflows/external-free-runne
 2. It prepares a repository-scoped SSH transport key. It prefers `CACE_BRIDGE_SSH_PRIVATE_KEY`; if absent, it falls back to the already-installed legacy secret `RAILWAY_SSH_PRIVATE_KEY`.
 3. It packages the current source snapshot (maximum 25 MiB; build directories, `.git`, and formal dependency cache excluded).
 4. It creates `bridge/request.json` with schema version 2, request ID, full Expert Robot commit SHA, source branch, return repository, requested lane, and `qualification-only` authority.
-5. It clones CACE-app and pushes the request plus the generated bridge workflow to `executor/expert-robot-bridge`.
+5. It fetches the existing `executor/expert-robot-bridge` branch and pushes only the new request and source archive. CACE's canonical workflow remains unchanged.
 6. The CACE workflow triggers on that branch/path and schedules the OCI ARM64 runner.
 
 The legacy name `RAILWAY_SSH_PRIVATE_KEY` is historical. In this bridge it is the existing CACE-app Git transport/deploy key. It is **not** a Railway API token, CACE verifier credential, Ed25519 signing key, or proof authority. Do not rename, regenerate, replace, display, or paste the key merely because its name is confusing. The workflow writes it to a mode-0600 temporary file, validates it with `ssh-keygen`, and removes the temporary files at job end.
@@ -85,7 +85,7 @@ The CACE workflow's qualification job:
 Current producer/consumer contract is **result schema version 3**. The Expert Robot consumer validates, among other fields:
 
 - request ID and exact Expert Robot commit;
-- CACE repository, full CACE commit SHA, workflow ID/ref/name;
+- CACE repository, triggering CACE commit SHA, exact workflow-definition SHA, workflow ID/ref/name;
 - CACE workflow run ID and run attempt;
 - `status` in `pass|fail`, integer exit code, and consistency between them;
 - exact log SHA-256 and byte length;
@@ -103,15 +103,15 @@ There are two distinct return mechanisms. Do not conflate them.
 
 The Expert Robot dispatcher polls the CACE bridge branch over the existing forward SSH transport, matches the exact request ID, validates the v3 result and log digest, and uploads the returned files as an Expert Robot Actions artifact. This path does not require the CACE reverse deploy key.
 
-A previous complete **failure-result** round trip was recorded as:
-- Expert Robot workflow run `42054029936`, attempt 2; source commit `e9e0e4312d61db3a758bbcae6c46dd144649fc55`.
-- CACE workflow run `42057717591`, attempt 1; CACE commit `479867e0753e6802dbafce8e5b129bb8e16d87ea`.
-- CACE artifact ID `13428874392`; returned Expert Robot artifact ID `13429153697`.
-- The returned `result.json` and `result.log` were byte-identical to the CACE artifact copies.
-- Qualification status was `fail` (exit code 50): insufficient free disk for pinned Lean 4.34.0.
-- The result was unsigned; signer authentication was not established.
+The latest recorded CACE publication for request `expert-robot-42054029936-e9e0e4312d61db3a758bbcae6c46dd144649fc55` is:
+- Expert Robot source commit `e9e0e4312d61db3a758bbcae6c46dd144649fc55`; originating workflow run `42054029936`, attempt 2.
+- CACE workflow run `42060207662`, attempt 1; triggering CACE commit `9b003a125701f40997b2d7353b283fa2032d1828`; result-publication commit `e64c77e552e9ba332959c45b31f598e48f67d234`.
+- CACE artifact ID `13432430344`; artifact SHA-256 `8dc5ab188c8fdeddfb60273f74ccba13d8d52fb4837d49d7cbd714d08d0f6031`.
+- Result status `fail` (exit code 50): the OCI runner had 1,158,896 KiB free, below the 2,097,152 KiB reserve for pinned Lean 4.34.0.
+- The result envelope and log digest validate; the log SHA-256 was independently recomputed. The result is unsigned.
+- The result was manually mirrored into Expert Robot evidence files. The updated polling consumer is in the workflow, but an automated run of that consumer against this latest CACE result is still pending.
 
-Use the exact manifest and evidence files in `docs/evidence/` for the full digests and checks. This historical round trip demonstrates a structured failure result returned intact; it does not establish a passing qualification or Ed25519 trust.
+Use `docs/evidence/cace-roundtrip-42054029936-verification.json` and the adjacent request/result/log files for exact digests and checks. This is integrity-checked failure evidence, not a signed result or a passing qualification.
 
 ### Optional reverse SSH path: CACE → Expert Robot branch
 
