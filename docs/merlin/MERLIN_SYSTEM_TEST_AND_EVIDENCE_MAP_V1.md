@@ -81,3 +81,22 @@ Audit method: GitHub commit metadata for every commit in the first-parent PR ran
 - A local/CI test does not prove the user's OCI runner, Avrea worker, Hermes process or HUD deployment is connected.
 - The HUD now projects Avrea execution records, CACE verification identity/subject/receipt references and recovery quarantine state from source-bound telemetry. It remains a read-only in-memory projection; a deployed persistent HUD feed is not yet proven.
 - The HUD is read-only; it must never imply that telemetry grants repair or promotion authority.
+
+
+## Mandatory PR test evidence policy (effective for new attempts)
+
+- Every attempted pull request must have an exact-head test-evidence run. The run must record repository, PR/ref, full commit SHA, runner identity, OS, toolchain versions, commands, UTC start/end times, exit codes and final classification.
+- Preserve stdout and stderr for each executed command, a machine-readable JSON manifest, and generated test-result files. Upload the evidence as a uniquely named Actions artifact with a retention period of at least 30 days.
+- The evidence-upload and run-summary steps must use `if: always()`, so failing tests still publish their logs and results.
+- A job that never starts is not a test result. Record it as `not_started` / `no_job_records`, with the run URL and available orchestration metadata; do not report pass or test failure.
+- A cancelled, timed-out, skipped, dependency-blocked or infrastructure-failed run must be classified distinctly from a test assertion failure.
+- Evidence must be tied to the exact PR head SHA. If the head changes, rerun the evidence workflow for the new SHA; evidence from an earlier commit does not qualify the new head.
+- PR review comments and handoff summaries must link the run and artifact, report pass/fail/not-started, and identify any missing logs. No merge or promotion while required evidence is missing or inconclusive.
+
+### Automated workflow
+
+`.github/workflows/pr-test-evidence.yml` runs on pull requests, pushes to main/feature branches, and manual dispatch. It uses a GitHub-hosted Ubuntu runner independent of the custom Avrea runner label, records Python compile and unittest discovery logs, writes a JSON manifest and result file, and uploads the evidence bundle even when the test step fails. It is an additional baseline suite; it does not replace subsystem-specific CI, live Avrea execution, or independent CACE verification.
+
+### First activation status
+
+The workflow definition has been committed to the PR branch, but GitHub has not yet produced an execution result for that workflow at the time this policy was added. Treat the workflow itself as implemented, not as tested or proven operational, until a run on the exact head yields a job and a retained evidence artifact.
