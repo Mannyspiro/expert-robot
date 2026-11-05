@@ -35,6 +35,27 @@ def test_zip_intake_detects_duplicate_content_across_archives(tmp_path):
     store.register_project("merlin", "Merlin")
     receipt = ingest_archives(store, "merlin", [one, two])
     assert len(receipt["duplicate_content"]) == 1
+    assert receipt["registry_reconciliation"]["consistent"] is True
+
+    digest = next(iter(receipt["duplicate_content"]))
+    artifact_id = f"artifact:sha256:{digest}"
+    artifact_node = store.graph.get_node(artifact_id)
+    assert artifact_node is not None
+    assert artifact_node.node_type == "artifact"
+    assert artifact_node.payload == {"sha256": digest, "size_bytes": len(b"identical")}
+
+    project_edges = store.graph.neighbors("project:merlin", "out")
+    source_ids = {
+        edge["target_id"] for edge in project_edges
+        if edge["relation"] == "contains" and edge["target_id"].startswith("source:")
+    }
+    assert len(source_ids) == 2
+    for source_id in source_ids:
+        provenance_edges = store.graph.neighbors(source_id, "out")
+        assert any(
+            edge["relation"] == "derived_from" and edge["target_id"] == artifact_id
+            for edge in provenance_edges
+        )
 
 
 def test_zip_intake_rejects_traversal_and_limits(tmp_path):
