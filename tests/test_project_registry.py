@@ -249,6 +249,11 @@ class MerlinRegistryTests(unittest.TestCase):
             db.execute("INSERT INTO project_artifacts VALUES(?,?,?)", ("p", digest, "lost.bin"))
         with self.assertRaises((FileNotFoundError, RuntimeError)):
             MerlinRegistry(root)
+        # The failed validation must roll back the schema upgrade as well as history rows.
+        with sqlite3.connect(database) as db:
+            columns = {row[1] for row in db.execute("PRAGMA table_info(project_artifacts)")}
+            self.assertNotIn("generation", columns)
+            self.assertEqual(db.execute("SELECT COUNT(*) FROM project_artifacts").fetchone()[0], 1)
 
     def test_migration_rolls_back_schema_and_history_when_history_insert_is_interrupted(self):
         root = Path(self.temp.name) / "migration-interruption"
