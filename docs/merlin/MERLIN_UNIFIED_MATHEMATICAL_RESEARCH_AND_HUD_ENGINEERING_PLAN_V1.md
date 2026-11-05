@@ -115,15 +115,15 @@ Every negative result is retained with exact inputs and reason. Failed attempts 
 
 ## 5. HUD product requirement
 
-Design target: a full-screen research workspace with almost no chrome. The HUD is a thin persistent status layer; the conversation surface stays anchored to the bottom.
+Design target: a full-screen research workspace with almost no chrome. The upper HUD is a live, animated activity visualization above the adaptive research canvas; the conversation surface stays anchored to the bottom.
 
 ### 5.1 Screen composition
 
-Top HUD: project/workspace identity; current research objective; run state; evidence/verification state; resource usage; connection status.
+Upper HUD activity layer (above the canvas): project/workspace identity; current task and phase; run state; agent/tool activity; event timeline; measured resources; evidence/verification state; connection status. Show animated process geometry (nodes, paths, pulses, dependency links and progress traces) driven by actual normalized telemetry and outbox events. If only demo data is available, label it DEMO and never present it as live runtime activity. This layer visualizes observable work—task transitions, model calls, tool invocations, experiment starts/results, proof checks, verification receipts and artifact registration—not private chain-of-thought or fabricated internal thoughts.
 
-Main canvas: one active work surface at a time. It can show a proof DAG, equation/graph visualization, experiment plot, CAD viewport, wiring topology, artifact diff or research graph. The active surface is selected by task context and can be switched without navigating away from the conversation.
+Adaptive research canvas (below the HUD): one active work surface at a time. It must change with the active stage: hypothesis graph, representation/coordinate transform, numerical plot, counterexample search space, theorem/proof DAG, verification evidence, artifact lineage, CAD assembly or wiring topology. The view is selected by task context and may animate geometry, but its displayed values and labels must be tied to actual event data or explicitly marked illustrative. It can be switched without navigating away from the conversation.
 
-Bottom chat: persistent text composer, push-to-talk/voice control, attachment/context affordance, stop/cancel, and agent activity indicator. Conversation remains the primary control plane.
+Bottom chat: persistent text composer, push-to-talk/voice control, attachment/context affordance, stop/cancel, and agent activity indicator. Conversation remains the primary control plane. Voice and text use the same task ID, authorization checks and event stream.
 
 Nothing should float over the central work area except deliberately invoked contextual controls. Avoid dashboards full of cards, decorative charts, or duplicate navigation.
 
