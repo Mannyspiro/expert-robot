@@ -5,7 +5,7 @@ root=Path(__file__).resolve().parents[1]
 with tempfile.TemporaryDirectory() as td:
     tmp=Path(td)
     fake=tmp/"fake_runtime.py"
-    fake.write_text("#!/usr/bin/env python3\\nimport sys,json\\nfor line in sys.stdin:\\n req=json.loads(line)\\n print(json.dumps({'id':req['id'],'ok':True,'result':req['task']}),flush=True)\\n")
+    fake.write_text("#!/usr/bin/env python3\nimport sys,json\nfor line in sys.stdin:\n req=json.loads(line)\n print(json.dumps({'id':req['id'],'ok':True,'result':req['task']}),flush=True)\n")
     fake.chmod(0o755)
     task=[sys.executable,str(root/"python/orchestrator.py"),"--runtime",str(fake),"--task","create a bounded test artifact"]
     denied=subprocess.run(task,capture_output=True,text=True)
