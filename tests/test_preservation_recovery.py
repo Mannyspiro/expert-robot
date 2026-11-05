@@ -153,6 +153,38 @@ class PreservationRecoveryTests(unittest.TestCase):
         self.assertEqual(self.registry.get_artifact_bytes(digest), payload)
         self.assertTrue(restored["recovery_path"].startswith("_recovery/"))
 
+    def test_git_history_audit_reports_each_rename_and_deletion_commit(self):
+        repo = self.root / "history-audit-repo"
+        repo.mkdir()
+        subprocess.run(["git", "init", str(repo)], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(repo), "config", "user.email", "test@example.invalid"], check=True)
+        subprocess.run(["git", "-C", str(repo), "config", "user.name", "Test"], check=True)
+        (repo / "before.txt").write_bytes(b"same exact bytes")
+        subprocess.run(["git", "-C", str(repo), "add", "-A"], check=True)
+        subprocess.run(["git", "-C", str(repo), "commit", "-m", "base"], check=True, capture_output=True)
+        base = subprocess.run(["git", "-C", str(repo), "rev-parse", "HEAD"],
+                              check=True, capture_output=True, text=True).stdout.strip()
+        subprocess.run(["git", "-C", str(repo), "mv", "before.txt", "renamed.txt"],
+                       check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(repo), "commit", "-m", "rename"], check=True, capture_output=True)
+        (repo / "renamed.txt").unlink()
+        subprocess.run(["git", "-C", str(repo), "add", "-A"], check=True)
+        subprocess.run(["git", "-C", str(repo), "commit", "-m", "delete"], check=True, capture_output=True)
+        head = subprocess.run(["git", "-C", str(repo), "rev-parse", "HEAD"],
+                              check=True, capture_output=True, text=True).stdout.strip()
+        audit = GitRecoveryAdapter(repo).audit_history(base, head)
+        self.assertEqual(audit["commit_count"], 2)
+        self.assertEqual(audit["commits"][0]["change_records"], [{
+            "status": "R100", "old_path": "before.txt", "new_path": "renamed.txt",
+        }])
+        self.assertEqual(audit["commits"][1]["change_records"], [{
+            "status": "D", "path": "renamed.txt",
+        }])
+        self.assertEqual(audit["commits"][0]["before_entry_count"], 1)
+        self.assertEqual(audit["commits"][0]["after_entry_count"], 1)
+        self.assertEqual(audit["commits"][1]["after_entry_count"], 0)
+        self.assertFalse(audit["untracked_and_ignored_included"])
+
     def test_zip_duplicate_member_name_is_rejected_as_ambiguous(self):
         archive_path = self.root / "duplicate.zip"
         with zipfile.ZipFile(archive_path, "w") as archive:
