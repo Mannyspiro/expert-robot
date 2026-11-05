@@ -97,8 +97,26 @@ def validate_request(request: dict, workspace: Path) -> tuple[dict, Path]:
     root = workspace.resolve(strict=True)
     candidate = root / request["input_path"]
     input_path = _inside(root, candidate)
+    actual_format = input_path.suffix.lower().lstrip(".")
     if input_path.suffix.lower() not in SUPPORTED_INPUTS:
         raise GeometryContractError("input file extension does not match supported geometry formats")
+    if request["input_format"].lower() != actual_format:
+        raise GeometryContractError("declared input_format does not match the input file extension")
+    mesh_parameters = request.get("mesh_parameters", {})
+    if not isinstance(mesh_parameters, dict):
+        raise GeometryContractError("mesh_parameters must be an object")
+    for key in ("linear_deflection", "angular_deflection"):
+        if key in mesh_parameters:
+            try:
+                value = float(mesh_parameters[key])
+            except (TypeError, ValueError) as exc:
+                raise GeometryContractError(f"{key} must be a finite positive number") from exc
+            import math
+            if not math.isfinite(value) or value <= 0:
+                raise GeometryContractError(f"{key} must be a finite positive number")
+    if ("mesh" in outputs or request["operation"] in ("tessellate", "export_mesh")):
+        if any(key not in mesh_parameters for key in ("linear_deflection", "angular_deflection")):
+            raise GeometryContractError("mesh jobs must explicitly set linear_deflection and angular_deflection")
     if sha256_file(input_path) != request["input_sha256"]:
         raise GeometryContractError("input file digest does not match request")
     return request, input_path
