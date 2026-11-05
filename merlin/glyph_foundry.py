@@ -74,6 +74,8 @@ class ExprArena:
     The arena is opt-in: existing tree-based callers keep their current
     behavior. Interning preserves operator IDs, argument order, and exact
     input/output types. The capacity is a hard bound on unique resident nodes.
+    Child digests make key construction linear in the number of edges rather
+    than repeatedly serializing every descendant subtree.
     """
 
     def __init__(self, max_nodes: int = 100_000):
@@ -81,12 +83,17 @@ class ExprArena:
             raise FoundryError("max_nodes must be a positive integer")
         self.max_nodes = max_nodes
         self._nodes: dict[str, Expr] = {}
+        self._keys: dict[str, str] = {}
+        self._fingerprints: dict[int, str] = {}
 
     @property
     def unique_node_count(self) -> int:
         return len(self._nodes)
 
     def intern(self, expression: Expr) -> Expr:
+        import hashlib
+        import json
+
         if not isinstance(expression, Expr):
             raise FoundryError("only Expr nodes can be interned")
         args = tuple(
@@ -96,31 +103,47 @@ class ExprArena:
         canonical = Expr(
             expression.op, args, expression.input_type, expression.output_type
         )
-        fingerprint = canonical.fingerprint()
+        keyed_args = [
+            ["expr", self._fingerprints[id(value)]]
+            if isinstance(value, Expr) else ["literal", value]
+            for value in args
+        ]
+        key = json.dumps(
+            [canonical.op, keyed_args, str(canonical.input_type),
+             str(canonical.output_type)],
+            separators=(",", ":"), ensure_ascii=False, default=str,
+        )
+        fingerprint = hashlib.sha256(key.encode("utf-8")).hexdigest()
         existing = self._nodes.get(fingerprint)
         if existing is not None:
-            if existing.canonical() != canonical.canonical():
+            if self._keys[fingerprint] != key:
                 raise FoundryError("expression fingerprint collision")
             return existing
         if len(self._nodes) >= self.max_nodes:
             raise FoundryError("expression arena node budget exhausted")
         self._nodes[fingerprint] = canonical
+        self._keys[fingerprint] = key
+        self._fingerprints[id(canonical)] = fingerprint
         return canonical
 
     def stats(self, expression: Expr) -> dict[str, float | int]:
         """Count expanded tree occurrences versus unique reachable DAG nodes."""
-        occurrence_nodes = 0
-        reachable: set[str] = set()
+        memo: dict[int, int] = {}
+        reachable: set[int] = set()
 
-        def visit(node: Expr) -> None:
-            nonlocal occurrence_nodes
-            occurrence_nodes += 1
-            reachable.add(node.fingerprint())
-            for child in node.args:
-                if isinstance(child, Expr):
-                    visit(child)
+        def count_occurrences(node: Expr) -> int:
+            identity = id(node)
+            reachable.add(identity)
+            if identity in memo:
+                return memo[identity]
+            count = 1 + sum(
+                count_occurrences(child)
+                for child in node.args if isinstance(child, Expr)
+            )
+            memo[identity] = count
+            return count
 
-        visit(expression)
+        occurrence_nodes = count_occurrences(expression)
         unique_nodes = len(reachable)
         return {
             "occurrence_nodes": occurrence_nodes,
