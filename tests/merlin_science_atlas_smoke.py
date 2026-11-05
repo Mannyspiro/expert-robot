@@ -8,6 +8,12 @@ assert data["schema_version"]==1
 assert len(data["domains"])>=10
 assert len(data["historical_programs"])>=5
 assert len(data["sources"])>=10
+assert len(data["reading_list"])>=6
+assert all(x.get("title") and x.get("creator") and x.get("url") and x.get("questions") for x in data["reading_list"])
+for dossier_path in (root/"research/science/reading-notes").glob("*.json"):
+ dossier=json.loads(dossier_path.read_text())
+ assert dossier.get("dossier_id") and dossier.get("work",{}).get("url") and dossier.get("citations")
+ assert dossier.get("epistemic_status") and dossier.get("review_status")
 assert all(d.get("id") and d.get("name") and d.get("branches") for d in data["domains"])
 assert all(s.get("id") and s.get("name") and s.get("url") for s in data["sources"])
 for p in ("index.html","app.js","styles.css"):
