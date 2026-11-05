@@ -128,7 +128,7 @@ class PreservationRecoveryTests(unittest.TestCase):
         subprocess.run(["git", "init", str(repo)], check=True, capture_output=True)
         subprocess.run(["git", "-C", str(repo), "config", "user.email", "test@example.invalid"], check=True)
         subprocess.run(["git", "-C", str(repo), "config", "user.name", "Test"], check=True)
-        original = b"exact bytes before deletion\\x00\\xff"
+        original = b"exact bytes before deletion\x00\xff"
         (repo / "deleted.bin").write_bytes(original)
         subprocess.run(["git", "-C", str(repo), "add", "deleted.bin"], check=True)
         subprocess.run(["git", "-C", str(repo), "commit", "-m", "retain source"], check=True, capture_output=True)
