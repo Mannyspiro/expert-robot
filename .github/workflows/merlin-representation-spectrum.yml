@@ -6,6 +6,11 @@ on:
     paths:
       - "merlin/representation_spectrum.py"
       - "tests/test_merlin_representation_spectrum.py"
+      - "python/merlin/learner_model.py"
+      - "python/merlin/app.py"
+      - "tests/test_learner_model.py"
+      - "tests/research/test_merlin_api.py"
+      - "docs/merlin/MATH_KUNG_FU_ROTATION_LESSON_V0_1.html"
       - ".github/workflows/merlin-representation-spectrum.yml"
   workflow_dispatch:
 
@@ -30,11 +35,25 @@ jobs:
           code=${PIPESTATUS[0]}
           printf '{"commit":"%s","run_id":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$code" > artifacts/result.json
           exit "$code"
-      - name: Compile spectrum module
+      - name: Run learner model and Hermes routing tests
         shell: bash
         run: |
           set +e
-          python3 -m py_compile merlin/representation_spectrum.py 2>&1 | tee artifacts/compile.log
+          python3 -m unittest discover -s tests -p "test_learner_model.py" -v 2>&1 | tee artifacts/learner-model-tests.log
+          code=${PIPESTATUS[0]}
+          exit "$code"
+      - name: Run Merlin learning API integration tests
+        shell: bash
+        run: |
+          set +e
+          python3 -m unittest discover -s tests/research -p "test_merlin_api.py" -v 2>&1 | tee artifacts/learning-api-tests.log
+          code=${PIPESTATUS[0]}
+          exit "$code"
+      - name: Compile learning and spectrum services
+        shell: bash
+        run: |
+          set +e
+          python3 -m py_compile merlin/representation_spectrum.py python/merlin/learner_model.py python/merlin/app.py 2>&1 | tee artifacts/compile.log
           code=${PIPESTATUS[0]}
           exit "$code"
       - name: Upload test logs and results
