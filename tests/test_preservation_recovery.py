@@ -64,6 +64,31 @@ class PreservationRecoveryTests(unittest.TestCase):
         self.assertEqual(result["sha256"], digest)
         self.assertEqual(self.registry.get_artifact_bytes(digest), data)
 
+    def test_registry_recovery_rejects_non_digest_before_blob_path_resolution(self):
+        with self.assertRaisesRegex(ValueError, "64 lowercase hexadecimal"):
+            RegistryRecoveryAdapter(self.registry).recover(
+                digest="../../outside", project_id="p", original_path="lost.bin")
+
+    def test_git_recovery_preserves_empty_blob_digest(self):
+        repo = self.root / "empty-blob-repo"
+        repo.mkdir()
+        subprocess.run(["git", "init", str(repo)], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(repo), "config", "user.email", "test@example.invalid"], check=True)
+        subprocess.run(["git", "-C", str(repo), "config", "user.name", "Test"], check=True)
+        (repo / "empty.txt").write_bytes(b"")
+        subprocess.run(["git", "-C", str(repo), "add", "empty.txt"], check=True)
+        subprocess.run(["git", "-C", str(repo), "commit", "-m", "empty blob"], check=True, capture_output=True)
+        commit = subprocess.run(
+            ["git", "-C", str(repo), "rev-parse", "HEAD"], check=True,
+            capture_output=True, text=True).stdout.strip()
+        digest = hashlib.sha256(b"").hexdigest()
+        result = GitRecoveryAdapter(repo).recover(
+            commit=commit, path="empty.txt", expected_sha256=digest,
+            project_id="p", registry=self.registry)
+        self.assertEqual(result["sha256"], digest)
+        self.assertEqual(result["size_bytes"], 0)
+        self.assertEqual(self.registry.get_artifact_bytes(digest), b"")
+
     def test_zip_recovery_restores_exact_member_without_extracting(self):
         data = b"archived bytes"
         archive_path = self.root / "bundle.zip"
