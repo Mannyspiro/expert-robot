@@ -7,7 +7,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from merlin_problem_reframing import template as reframe_template
 from merlin_ideonomy import enumerate_space
-from merlin_logic_lenses import rank_candidates
+from merlin_logic_lenses import rank_candidates, compose_candidates
 
 MAX_DOSSIER_BYTES=256_000
 MAX_RESPONSE_CHARS=24_000
@@ -42,6 +42,7 @@ def build_packet(dossier: dict) -> tuple[str,str]:
       "response_format":"Return concise JSON with keys: source_digest, historical_context, methods, evidence, limitations, discipline_links, ideonomy_candidates, ranked_logic_lenses, fuzzy_and_n_valued_views, merlin_improvements, unsupported_questions.",
       "ideonomy_seed_space":enumerate_space("historical science inquiry and "+str(work.get("domain","")),48),
       "ranked_logic_lenses":rank_candidates(str(work.get("domain",""))),
+      "ranked_logic_compositions":compose_candidates(str(work.get("domain","")),48),
       "promotion":"candidate_only","authority_delta":0,"dossier":dossier
     }
     return "You are Merlin's bounded science-history and ideonomy research worker. Follow this task contract exactly.\n"+json.dumps(instructions,ensure_ascii=False,indent=2),digest
