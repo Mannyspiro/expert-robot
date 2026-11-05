@@ -68,7 +68,10 @@ class HudActivityTests(unittest.TestCase):
                   {"agent_id": "runner-7", "job_id": "job-7", "status": "accepted"},
                   source="avrea", run_id="job-7"),
             event("avrea-done", "task.completed",
-                  {"agent_id": "runner-7", "job_id": "job-7", "status": "completed"},
+                  {"agent_id": "runner-7", "job_id": "job-7", "status": "completed",
+                   "exit_code": 0, "worker_image_digest": "1" * 64,
+                   "tool_versions": {"pytest": "8.4.2"}, "artifact_count": 1,
+                   "result_receipt_sha256": "a" * 64},
                   source="avrea", run_id="job-7",
                   refs=("sha256:" + "a" * 64,)),
             event("cace-verified", "verification.completed",
@@ -90,6 +93,9 @@ class HudActivityTests(unittest.TestCase):
         view = hud.snapshot()
         self.assertEqual(view["executions"][0]["job_id"], "job-7")
         self.assertEqual(view["executions"][0]["status"], "completed")
+        self.assertEqual(view["executions"][0]["exit_code"], 0)
+        self.assertEqual(view["executions"][0]["worker_image_digest"], "1" * 64)
+        self.assertEqual(view["executions"][0]["tool_versions"]["pytest"], "8.4.2")
         self.assertEqual(view["executions"][0]["receipt_ref"], "sha256:" + "a" * 64)
         self.assertEqual(view["verification"]["verifier_id"], "cace:verifier-1")
         self.assertEqual(view["verification"]["source_commit"], "d" * 40)
