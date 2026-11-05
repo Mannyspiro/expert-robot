@@ -1,3 +1,6 @@
+import pytest
+
+from merlin.foundation_store import MerlinFoundationStore
 
 
 def test_explicit_replacement_keeps_predecessor_and_graph_lineage(tmp_path):
