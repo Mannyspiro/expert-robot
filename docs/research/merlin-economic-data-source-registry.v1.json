@@ -1,0 +1,325 @@
+{
+  "schema_version": 1,
+  "registry_id": "merlin.economics.sources",
+  "status": "candidate",
+  "policy": {
+    "primary_sources_preferred": true,
+    "point_in_time_required": true,
+    "retain_original_artifact": true,
+    "terms_review_required": true,
+    "unknown_values_not_zero": true
+  },
+  "sources": [
+    {
+      "id": "SRC-SEC-EDGAR",
+      "owner": "U.S. Securities and Exchange Commission",
+      "family": "issuer_filings",
+      "coverage": [
+        "10-K",
+        "10-Q",
+        "8-K",
+        "20-F",
+        "fund_filings",
+        "XBRL_company_facts"
+      ],
+      "access": "public_api_no_key",
+      "cadence": "continuous_and_daily_bulk",
+      "strengths": [
+        "primary filings",
+        "structured XBRL facts",
+        "submission timestamps"
+      ],
+      "limitations": [
+        "custom tags",
+        "accounting policy differences",
+        "restatements"
+      ],
+      "url": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces",
+      "priority": 1
+    },
+    {
+      "id": "SRC-BEA",
+      "owner": "Bureau of Economic Analysis",
+      "family": "national_and_regional_accounts",
+      "coverage": [
+        "GDP",
+        "industry_accounts",
+        "input_output",
+        "regional_GDP",
+        "personal_income"
+      ],
+      "access": "public_api_key_required",
+      "cadence": "scheduled_releases_and_revisions",
+      "strengths": [
+        "official national accounts",
+        "county_and_state_detail"
+      ],
+      "limitations": [
+        "revisions",
+        "imputation",
+        "aggregation",
+        "release_lag"
+      ],
+      "url": "https://apps.bea.gov/API/",
+      "priority": 1
+    },
+    {
+      "id": "SRC-BLS",
+      "owner": "Bureau of Labor Statistics",
+      "family": "labor_prices_productivity",
+      "coverage": [
+        "employment",
+        "wages",
+        "CPI",
+        "PPI",
+        "productivity"
+      ],
+      "access": "public_api_v1_no_key_v2_registration",
+      "cadence": "scheduled_releases",
+      "strengths": [
+        "official labor and price statistics"
+      ],
+      "limitations": [
+        "sampling_error",
+        "seasonal_adjustment",
+        "benchmark_revisions"
+      ],
+      "url": "https://www.bls.gov/developers/",
+      "priority": 1
+    },
+    {
+      "id": "SRC-FRED-ALFRED",
+      "owner": "Federal Reserve Bank of St. Louis",
+      "family": "macro_time_series",
+      "coverage": [
+        "rates",
+        "credit",
+        "money",
+        "output",
+        "prices",
+        "labor",
+        "vintage_data"
+      ],
+      "access": "public_api_key_required",
+      "cadence": "series_specific",
+      "strengths": [
+        "broad time series",
+        "ALFRED vintages"
+      ],
+      "limitations": [
+        "aggregator; inspect original source",
+        "series definitions differ"
+      ],
+      "url": "https://fred.stlouisfed.org/docs/api/fred/",
+      "priority": 1
+    },
+    {
+      "id": "SRC-FED-Z1",
+      "owner": "Board of Governors of the Federal Reserve System",
+      "family": "financial_accounts",
+      "coverage": [
+        "sector_balance_sheets",
+        "financial_flows",
+        "debt",
+        "assets_and_liabilities"
+      ],
+      "access": "public_download",
+      "cadence": "quarterly",
+      "strengths": [
+        "stock_flow_consistency",
+        "sectoral_detail"
+      ],
+      "limitations": [
+        "quarterly frequency",
+        "estimates_and_revisions"
+      ],
+      "url": "https://www.federalreserve.gov/releases/z1/",
+      "priority": 1
+    },
+    {
+      "id": "SRC-TREASURY-RATES",
+      "owner": "U.S. Department of the Treasury",
+      "family": "rates_and_sovereign_finance",
+      "coverage": [
+        "nominal_yield_curve",
+        "real_yield_curve",
+        "bill_rates",
+        "debt_management"
+      ],
+      "access": "public_feed",
+      "cadence": "daily_business_days",
+      "strengths": [
+        "official Treasury curve series"
+      ],
+      "limitations": [
+        "indicative curve inputs; not executable quotes"
+      ],
+      "url": "https://home.treasury.gov/policy-issues/financing-the-government/interest-rate-statistics/",
+      "priority": 1
+    },
+    {
+      "id": "SRC-CFTC-COT",
+      "owner": "Commodity Futures Trading Commission",
+      "family": "derivatives_positioning",
+      "coverage": [
+        "futures_open_interest",
+        "options_on_futures_positions",
+        "trader_categories"
+      ],
+      "access": "public_reporting_api_no_token_normally_required",
+      "cadence": "weekly",
+      "strengths": [
+        "official position reports"
+      ],
+      "limitations": [
+        "weekly snapshot",
+        "reporting thresholds",
+        "not full market exposure"
+      ],
+      "url": "https://www.cftc.gov/MarketReports/CommitmentsofTraders/index.htm",
+      "priority": 2
+    },
+    {
+      "id": "SRC-FINRA-TRACE",
+      "owner": "Financial Industry Regulatory Authority",
+      "family": "fixed_income_market_data",
+      "coverage": [
+        "corporate_bond_transactions",
+        "agency_and_treasury_aggregates",
+        "market_breadth"
+      ],
+      "access": "public_datasets_terms_may_apply",
+      "cadence": "dataset_specific",
+      "strengths": [
+        "transaction-based transparency"
+      ],
+      "limitations": [
+        "coverage and delay differ by dataset",
+        "terms govern use"
+      ],
+      "url": "https://developer.finra.org/node/1171",
+      "priority": 2
+    },
+    {
+      "id": "SRC-OCC-DERIVATIVES",
+      "owner": "Office of the Comptroller of the Currency",
+      "family": "bank_derivatives",
+      "coverage": [
+        "bank_derivatives_notional",
+        "credit_exposure",
+        "trading_revenue"
+      ],
+      "access": "public_reports",
+      "cadence": "quarterly",
+      "strengths": [
+        "regulatory bank-level aggregation"
+      ],
+      "limitations": [
+        "not real-time",
+        "notional is not loss exposure"
+      ],
+      "url": "https://www.occ.treas.gov/publications-and-resources/publications/quarterly-report-on-bank-trading-and-derivatives-activities/index-quarterly-report-on-bank-trading-and-derivatives-activities.html",
+      "priority": 2
+    },
+    {
+      "id": "SRC-CENSUS",
+      "owner": "U.S. Census Bureau",
+      "family": "demographic_and_local_economy",
+      "coverage": [
+        "ACS",
+        "County_Business_Patterns",
+        "population_estimates",
+        "building_permits",
+        "economic_census"
+      ],
+      "access": "public_api_key_required_for_many_datasets",
+      "cadence": "annual_monthly_or_decennial",
+      "strengths": [
+        "geographic_detail",
+        "industry_and_household_baselines"
+      ],
+      "limitations": [
+        "release_lag",
+        "suppression",
+        "survey_uncertainty"
+      ],
+      "url": "https://www.census.gov/data/developers/guidance/api-user-guide.Available_Data.html",
+      "priority": 1
+    },
+    {
+      "id": "SRC-USASPENDING",
+      "owner": "U.S. federal spending data program",
+      "family": "public_procurement_and_awards",
+      "coverage": [
+        "federal_contracts",
+        "grants",
+        "loans",
+        "obligations",
+        "subawards"
+      ],
+      "access": "public_api_no_auth",
+      "cadence": "transaction_updates",
+      "strengths": [
+        "award_and_obligation_records"
+      ],
+      "limitations": [
+        "obligation_not_final_outlay_or_delivery",
+        "amendments"
+      ],
+      "url": "https://api.usaspending.gov/docs/endpoints",
+      "priority": 1
+    },
+    {
+      "id": "SRC-COUNTY-RECORDS",
+      "owner": "County and municipal clerks / public agencies",
+      "family": "local_demand_signals",
+      "coverage": [
+        "agendas",
+        "minutes",
+        "staff_reports",
+        "budgets",
+        "capital_plans",
+        "procurement",
+        "permits",
+        "planning_cases"
+      ],
+      "access": "varies_by_jurisdiction",
+      "cadence": "meeting_and_publication_schedule",
+      "strengths": [
+        "early_local_project_and_procurement_signals"
+      ],
+      "limitations": [
+        "unstructured",
+        "nonbinding_proposals",
+        "incomplete_archives",
+        "political_framing",
+        "not_proof_of_private_demand"
+      ],
+      "url": "https://www.pima.gov/ ; https://www.maricopa.gov/",
+      "priority": 1
+    }
+  ],
+  "event_stages": [
+    "proposal",
+    "discussion",
+    "authorization",
+    "appropriation",
+    "solicitation",
+    "award",
+    "obligation",
+    "invoice",
+    "delivery",
+    "cancelled",
+    "amended"
+  ],
+  "claim_status": [
+    "candidate",
+    "source_checked",
+    "data_reproduced",
+    "counterexample_checked",
+    "empirically_supported",
+    "formally_derived",
+    "contradicted",
+    "unresolved"
+  ]
+}
