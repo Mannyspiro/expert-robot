@@ -9,3 +9,6 @@ Before working on Merlin, Hermes, Avrea or CACE, read [docs/MERLIN_AVREA_HERMES_
 - Keep Lean compilation separate from CACE proof verification.
 - Keep training and held-out corpora disjoint and versioned.
 - Do not merge or deploy without explicit approval.
+
+- If independent CACE credentials are unavailable, keep research and artifact capture running with `artifact_verifier=None`; surface `blocked_missing_credentials` and never claim verification or promotion.
+- Never create placeholder secrets to satisfy GitHub's non-empty secret form.
