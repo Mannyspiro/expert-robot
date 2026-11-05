@@ -44,6 +44,10 @@ def run_request(
         raise ValueError("job request must be a regular file")
     if not input_root.is_dir():
         raise ValueError("input root must be a directory")
+    try:
+        request_path.relative_to(input_root)
+    except ValueError as exc:
+        raise ValueError("job request must be inside the mounted input workspace") from exc
     output_dir.mkdir(parents=True, exist_ok=True)
     output_dir = output_dir.resolve(strict=True)
     if output_dir == input_root or input_root in output_dir.parents or output_dir in input_root.parents:
