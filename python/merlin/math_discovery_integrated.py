@@ -150,7 +150,7 @@ class LeanCompilerAdapter:
 
     def __call__(self, payload: Mapping[str, Any]) -> Mapping[str, Any]:
         conjecture = payload["conjecture"]
-        source = _required_text(payload.get("source"), "Lean source")
+        source = _required_text(conjecture.get("lean_source") or payload.get("source"), "Lean source")
         eligible = conjecture.get("lean_translation_eligible") is True
         if not eligible:
             return {"status": "blocked_missing_formal_statement",
@@ -226,14 +226,20 @@ class ReproducibleNumericalAdapter:
             raise ValueError("numerical spec requires seed and parameters object")
         request = {**dict(spec), "parameters": dict(parameters)}
         start = time.monotonic()
-        result = self.solver(request)
+        first_result = self.solver(request)
+        first_raw = canonical_bytes(first_result)
+        first_elapsed = time.monotonic() - start
+        if first_elapsed > self.max_runtime_seconds:
+            raise TimeoutError("numerical solver exceeded configured runtime limit")
+        second_result = self.solver(request)
         elapsed = time.monotonic() - start
         if elapsed > self.max_runtime_seconds:
-            raise TimeoutError("numerical solver exceeded configured runtime limit")
-        raw = canonical_bytes(result)
+            raise TimeoutError("numerical reproducibility replay exceeded configured runtime limit")
+        raw = canonical_bytes(second_result)
+        reproducible = first_raw == raw
         environment_digest = sha256(canonical_bytes(self.environment))
         record = {
-            "schema": "merlin-numerical-run/1", "status": "completed",
+            "schema": "merlin-numerical-run/1", "status": "completed" if reproducible else "completed_non_reproducible",
             "engine": self.engine, "engine_version": self.engine_version,
             "tool_version": self.tool_version, "precision": precision,
             "seed": seed, "parameters": dict(parameters),
@@ -241,7 +247,7 @@ class ReproducibleNumericalAdapter:
             "runtime_limit_seconds": self.max_runtime_seconds,
             "elapsed_seconds": round(elapsed, 6),
             "raw_output_bytes_base64": __import__("base64").b64encode(raw).decode("ascii"),
-            "raw_output_sha256": sha256(raw), "reproducible": True,
+            "first_output_sha256": sha256(first_raw), "raw_output_sha256": sha256(raw), "reproducible": reproducible,
             "promotion_authority": False,
         }
         record["artifact_sha256"] = sha256(canonical_bytes(record))
@@ -286,7 +292,7 @@ class BoundedCounterexampleAdapter:
             "status": "completed" if completed else "incomplete",
             "search_domain": domain, "bounds": dict(bounds), "method": method,
             "seed": seed, "engine": self.engine, "engine_version": self.engine_version,
-            "tool_version": self.tool_version,
+            "tool_version": self.tool_version, "precision": str(spec.get("precision", "exact-or-backend-defined")),
             "runtime_limit_seconds": self.max_runtime_seconds,
             "elapsed_seconds": round(elapsed, 6),
             "termination_status": status, "counterexample": counterexample,
@@ -326,30 +332,11 @@ def build_integrated_math_discovery_handlers(
         tool_version=counterexample_tool_version,
     )
 
-    def cace_verify(payload: Mapping[str, Any]) -> Mapping[str, Any]:
-        # Existing adapter first requires the exact subject bytes to be in its registry.
-        digest = payload.get("artifact_sha256")
-        if not isinstance(digest, str):
-            raise ValueError("CACE input must carry its exact artifact digest")
-        kind = "lean_proof_candidate" if payload.get("kind") == "proof" else str(payload.get("kind", "research_artifact"))
-        result = cace_adapter.verify_artifact(
-            project_id=project_id, repository=repository, commit_sha=commit_sha,
-            artifact_sha256=digest, artifact_kind=kind,
-            artifact_schema=str(payload.get("schema", "merlin-research-artifact/1")),
-            requester_id=requester_id,
-            logical_path=str(payload.get("logical_path", "research/math-discovery/" + digest + ".json")),
-        )
-        return {
-            "artifact_sha256": digest,
-            "verification_status": result.get("verification_status"),
-            "receipt_artifact_sha256": result.get("receipt_artifact_sha256"),
-            "verifier_id": result.get("verifier_id"),
-            "promotion_authority": False,
-        }
-
+    # CACE runs in the Hermes handler only after the recorder stores and
+    # re-hashes the exact artifact bytes.
     adapters = ResearchAdapters(
         ideonomy=ideonomy, lean=lean, numerical=numerical,
-        counterexample=counterexample, cace=cace_verify,
+        counterexample=counterexample, cace=None,
     )
     engine = MathematicalDiscoveryEngine(adapters)
     candidates = {item["candidate_id"]: item for item in atlas_candidates()}
