@@ -20,13 +20,20 @@
   "evidence_files": {
     "request": "docs/evidence/cace-roundtrip-42054029936-request.json",
     "result": "docs/evidence/cace-roundtrip-42054029936-result.json",
-    "log": "docs/evidence/cace-roundtrip-42054029936-result.log"
+    "log": "docs/evidence/cace-roundtrip-42054029936-result.log",
+    "published_result": "docs/evidence/cace-roundtrip-42054029936-published-result.json",
+    "published_log": "docs/evidence/cace-roundtrip-42054029936-published-result.log",
+    "verification": "docs/evidence/cace-roundtrip-42054029936-verification.json"
   },
   "mirror_commits": [
     "ab856c14852d840ae46e800bfbf0bd8beda90388",
     "456c0ed2d56a03e3ed7a41b5dc5e81d591282476",
     "e064557bb2a34774284d04dd74c80cd6b33684cf",
-    "afde7f6c76a853d5553326696d7a17c4088a6e64"
+    "afde7f6c76a853d5553326696d7a17c4088a6e64",
+    "d764f9261a76ddc254b1df3ed5f14dc3cbc50de2",
+    "34205d4118f56c50b1cbedf3d4f6fbb7f0c645b2",
+    "11a507546a5a2bfd67b38bae0da1fbf9744e74dd",
+    "072ca6caa7461cc8fdf0361695f9a3b5b6e08584"
   ],
   "note": "Evidence was mirrored using the authenticated GitHub repository connector after the CACE workflow reverse-key step proved unavailable. This does not verify the workflow's reverse SSH transport.",
   "reverse_transport_followup": {
@@ -150,5 +157,38 @@
       "status": "implemented in source template, not yet exercised by a new workflow run"
     },
     "latest_workflow_execution_issue": "GitHub created push runs with zero jobs on the feature branch; therefore the new v3 template has not yet been executed. CI also has zero jobs and no tests ran."
+  },
+  "latest_cace_execution": {
+    "cace_workflow_run_id": 42060207662,
+    "cace_run_attempt": 1,
+    "cace_workflow_id": 367390621,
+    "cace_commit": "9b003a125701f40997b2d7353b283fa2032d1828",
+    "cace_result_publication_commit": "e64c77e552e9ba332959c45b31f598e48f67d234",
+    "cace_result_publication_parent": "9b003a125701f40997b2d7353b283fa2032d1828",
+    "cace_artifact_id": 13432430344,
+    "cace_artifact_sha256": "8dc5ab188c8fdeddfb60273f74ccba13d8d52fb4837d49d7cbd714d08d0f6031",
+    "result_sha256": "2cc65cc58ab9b476aaeefc17d7c7a24d146c4e89ca311430f969b8c6e5dd92d1",
+    "result_log_sha256": "5436a3ca704fe13f76f7d0d7adeaddea03eb4d615e1338c7f52fb73ba6f68056",
+    "result_log_size_bytes": 1516,
+    "result_log_hash_independently_verified": true,
+    "result_envelope_schema_version": 3,
+    "result_status": "fail",
+    "qualification_exit_code": 50,
+    "cace_result_validation": "passed",
+    "cace_result_publication": "passed",
+    "cace_reverse_key_step": "optional; key unavailable; return step skipped",
+    "cace_workflow_conclusion": "failure because qualification failed",
+    "expert_robot_source_commit": "e9e0e4312d61db3a758bbcae6c46dd144649fc55",
+    "expert_robot_workflow_run_id": 42054029936,
+    "expert_robot_run_attempt": 2,
+    "qualification_failure_reason": "insufficient disk to install pinned Lean 4.34.0",
+    "available_disk_kb": 1158896,
+    "required_disk_kb": 2097152,
+    "installed_toolchain": "leanprover/lean4:v4.32.1",
+    "requested_toolchain": "leanprover/lean4:v4.34.0",
+    "signature_status": "unsigned; CACE Ed25519 signer not provisioned",
+    "automated_return_status": "pending; Expert Robot polling consumer not yet exercised",
+    "manual_mirror_status": "completed through authenticated GitHub repository connector",
+    "acceptance_status": "not met: authenticated automated return still pending"
   }
 }
