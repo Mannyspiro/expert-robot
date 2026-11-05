@@ -95,3 +95,26 @@ The source pipeline is:
 ## Initial release scope
 
 The first web app is a responsive research map with searchable discipline taxonomy, historical-program gallery, primary-source directory, research method guide and a structured ingestion contract. It is a foundation, not yet a fully populated corpus or an automated mass-ingestion service.
+
+
+## Existing Merlin runtime integration
+
+The new `scripts/merlin_science_ideonomy_packet.py` connects a rights-cleared pioneer dossier to the existing `python/orchestrator.py` and C++ runtime protocol. It builds a bounded research task that asks Merlin to:
+- separate source observations, historical interpretation and conjecture;
+- extract methods, instruments, evidence and limitations;
+- map discipline relationships;
+- propose a small number of falsifiable ideonomy candidates;
+- identify missing predecessors, collaborators and alternative explanations;
+- suggest a measurable improvement to Merlin's own research process.
+
+Example on a machine where the existing C++ runtime and a configured model are available:
+
+```bash
+python3 scripts/merlin_science_ideonomy_packet.py \
+  --dossier research/science/reading-notes/newton-principia-reading.json \
+  --runtime ./build/expert_robot_runtime \
+  --role controller \
+  --out state/science-research/newton-ideonomy-candidate.json
+```
+
+The command is deliberately not run in CI because the hosted Avrea smoke runner does not have the user's local model weights or runtime configuration. The smoke test validates packet construction only. Runtime output is stored as an unreviewed candidate with source digest and citation links; it cannot write to the canonical theorem graph or promote claims.
