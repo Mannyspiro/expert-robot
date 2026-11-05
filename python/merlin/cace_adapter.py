@@ -5,6 +5,7 @@ the receipt. It never promotes hypotheses or grants execution authority.
 """
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 from typing import Any, Callable, Mapping
@@ -30,6 +31,15 @@ class CaceVerificationAdapter:
         self.graph = graph
         self.emit_event = agent_event_sink(outbox, "cace")
 
+    def _verified_artifact_bytes(self, digest: str) -> bytes:
+        if not self.registry.verify_artifact(digest):
+            raise ValueError("CACE input artifact is absent from the registry or failed digest verification")
+        path = self.registry.blobs / digest[:2] / digest[2:]
+        content = path.read_bytes()
+        if len(content) > 25 * 1024 * 1024:
+            raise ValueError("CACE artifact exceeds the 25 MiB verification transport limit")
+        return content
+
     def verify(self, *, project_id: str, repository: str, commit_sha: str,
                artifact_sha256: str, theorem: str, requester_id: str,
                logical_path: str | None = None) -> dict[str, Any]:
@@ -45,8 +55,7 @@ class CaceVerificationAdapter:
             raise ValueError("theorem and requester identity are required")
         # Refuse to ask an independent verifier to attest to an artifact that
         # the canonical registry cannot currently re-hash from stored bytes.
-        if not self.registry.verify_artifact(artifact_sha256):
-            raise ValueError("CACE input artifact is absent from the registry or failed digest verification")
+        artifact_bytes = self._verified_artifact_bytes(artifact_sha256)
         request = {
             "schema": "merlin-cace-verification-request/1",
             "repository": repository,
@@ -55,6 +64,8 @@ class CaceVerificationAdapter:
             "theorem": theorem,
             "requester_id": requester_id,
             "artifact_registry_verified": True,
+            "artifact_size_bytes": len(artifact_bytes),
+            "artifact_content_base64": base64.b64encode(artifact_bytes).decode("ascii"),
         }
         response = self.verify_transport(request)
         if not isinstance(response, Mapping):
@@ -194,8 +205,7 @@ class CaceVerificationAdapter:
                              (logical_path, "logical_path")):
             if not isinstance(value, str) or not value.strip() or len(value) > 500:
                 raise ValueError(label + " is required")
-        if not self.registry.verify_artifact(artifact_sha256):
-            raise ValueError("CACE input artifact is absent from the registry or failed digest verification")
+        artifact_bytes = self._verified_artifact_bytes(artifact_sha256)
         request = {
             "schema": "merlin-cace-artifact-verification-request/1",
             "repository": repository,
@@ -206,6 +216,8 @@ class CaceVerificationAdapter:
             "logical_path": logical_path,
             "requester_id": requester_id,
             "artifact_registry_verified": True,
+            "artifact_size_bytes": len(artifact_bytes),
+            "artifact_content_base64": base64.b64encode(artifact_bytes).decode("ascii"),
         }
         response = self.verify_transport(request)
         if not isinstance(response, Mapping):
