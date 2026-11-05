@@ -106,4 +106,20 @@ class GlyphFoundryTests(unittest.TestCase):
             with self.assertRaises(FoundryError):
                 ExprArena(max_nodes=value)
 
+
+    def test_expr_arena_can_build_shared_dag_directly(self):
+        arena = ExprArena(max_nodes=8)
+        def build(depth):
+            if depth == 0:
+                return arena.make("identity", (), TypeRef("Int"), TypeRef("Int"))
+            child = build(depth - 1)
+            return arena.make(
+                "compose", (child, child), TypeRef("Int"), TypeRef("Int")
+            )
+        dag = build(5)
+        stats = arena.stats(dag)
+        self.assertEqual(stats["occurrence_nodes"], 63)
+        self.assertEqual(stats["unique_nodes"], 6)
+        self.assertEqual(arena.unique_node_count, 6)
+
 if __name__=="__main__": unittest.main()
