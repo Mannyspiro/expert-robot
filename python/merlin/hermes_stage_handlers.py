@@ -205,7 +205,7 @@ def build_hermes_stage_handlers(
             context.emit_tool_event(
                 "agent.tool.completed", _contract["tool"],
                 {"stage": _stage, "task_id": context.task_id,
-                 "artifact_sha256": digest, "artifact_verified": True,
+                 "artifact_sha256": digest, "registry_verified": True,
                  "cace_status": cace_result.get("verification_status")},
             )
             if cace_result.get("verification_status") == "blocked_missing_credentials":
@@ -243,7 +243,7 @@ def build_merlin_hermes_handlers(
     project_id: str,
     research_executor: Callable[[Mapping[str, Any], Any], Mapping[str, Any]],
     proof_search_executor: Callable[[Mapping[str, Any], Any], Mapping[str, Any]],
-    artifact_verifier: Callable[..., Mapping[str, Any]],
+    artifact_verifier: Callable[..., Mapping[str, Any]] | None = None,
     repository: str,
     commit_sha: str,
     requester_id: str,
