@@ -307,7 +307,7 @@ For a matrix (Ain M_n(F)), the returned tuple ((1,c_1,\ldots,c_n)) represents
 =\lambda^n+c_1\lambda^{n-1}+\cdots+c_n.
 \]
 
-For an invertible basis change (P), the represented operator is (A'=PAP^{-1}). Similarity gives
+For an invertible basis change `P`, the represented operator is `A′ = P A P⁻¹`. Similarity gives
 \[
 \chi_{A'}(\lambda)=\chi_A(\lambda).
 \]
