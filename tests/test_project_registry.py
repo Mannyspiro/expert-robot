@@ -192,6 +192,64 @@ class MerlinRegistryTests(unittest.TestCase):
         self.assertEqual(head["generation"], 1)
         self.assertEqual(migrated.artifact_history("legacy", "keep.txt")[0]["actor"], "migration")
 
+    def test_legacy_migration_is_idempotent_after_partial_schema_upgrade(self):
+        root = Path(self.temp.name) / "interrupted"
+        root.mkdir(parents=True)
+        blob = b"survives interrupted migration"
+        digest = __import__("hashlib").sha256(blob).hexdigest()
+        relative = f"blobs/sha256/{digest[:2]}/{digest[2:]}"
+        target = root / relative
+        target.parent.mkdir(parents=True)
+        target.write_bytes(blob)
+        database = root / "merlin.sqlite3"
+        with sqlite3.connect(database) as db:
+            db.executescript("""
+                CREATE TABLE projects(project_id TEXT PRIMARY KEY, name TEXT NOT NULL,
+                  version TEXT NOT NULL, metadata_json TEXT NOT NULL, created_at REAL NOT NULL);
+                CREATE TABLE artifacts(digest TEXT PRIMARY KEY, media_type TEXT NOT NULL,
+                  size_bytes INTEGER NOT NULL, relative_path TEXT NOT NULL, created_at REAL NOT NULL);
+                CREATE TABLE project_artifacts(project_id TEXT NOT NULL, digest TEXT NOT NULL,
+                  logical_path TEXT NOT NULL, generation INTEGER NOT NULL DEFAULT 1,
+                  PRIMARY KEY(project_id, logical_path));
+                CREATE TABLE artifact_versions(version_id TEXT PRIMARY KEY,
+                  project_id TEXT NOT NULL, logical_path TEXT NOT NULL, digest TEXT NOT NULL,
+                  parent_version_id TEXT, generation INTEGER NOT NULL, actor TEXT NOT NULL,
+                  operation_id TEXT NOT NULL, created_at REAL NOT NULL);
+            """)
+            db.execute("INSERT INTO projects VALUES(?,?,?,?,?)", ("p", "P", "0.1", "{}", 1.0))
+            db.execute("INSERT INTO artifacts VALUES(?,?,?,?,?)",
+                       (digest, "application/octet-stream", len(blob), relative, 1.0))
+            db.execute("INSERT INTO project_artifacts VALUES(?,?,?,1)", ("p", digest, "keep.bin"))
+        migrated = MerlinRegistry(root)
+        migrated_again = MerlinRegistry(root)
+        self.assertEqual(migrated_again.get_artifact_bytes(digest), blob)
+        history = migrated_again.artifact_history("p", "keep.bin")
+        self.assertEqual(len(history), 1)
+        self.assertEqual(history[0]["generation"], 1)
+        self.assertEqual(history[0]["actor"], "migration")
+
+    def test_legacy_migration_fails_closed_when_blob_file_is_missing(self):
+        root = Path(self.temp.name) / "missing-blob"
+        root.mkdir(parents=True)
+        database = root / "merlin.sqlite3"
+        digest = "a" * 64
+        relative = f"blobs/sha256/{digest[:2]}/{digest[2:]}"
+        with sqlite3.connect(database) as db:
+            db.executescript("""
+                CREATE TABLE projects(project_id TEXT PRIMARY KEY, name TEXT NOT NULL,
+                  version TEXT NOT NULL, metadata_json TEXT NOT NULL, created_at REAL NOT NULL);
+                CREATE TABLE artifacts(digest TEXT PRIMARY KEY, media_type TEXT NOT NULL,
+                  size_bytes INTEGER NOT NULL, relative_path TEXT NOT NULL, created_at REAL NOT NULL);
+                CREATE TABLE project_artifacts(project_id TEXT NOT NULL, digest TEXT NOT NULL,
+                  logical_path TEXT NOT NULL, PRIMARY KEY(project_id, logical_path));
+            """)
+            db.execute("INSERT INTO projects VALUES(?,?,?,?,?)", ("p", "P", "0.1", "{}", 1.0))
+            db.execute("INSERT INTO artifacts VALUES(?,?,?,?,?)",
+                       (digest, "application/octet-stream", 3, relative, 1.0))
+            db.execute("INSERT INTO project_artifacts VALUES(?,?,?)", ("p", digest, "lost.bin"))
+        with self.assertRaises((FileNotFoundError, RuntimeError)):
+            MerlinRegistry(root)
+
     def test_relation_identity_is_idempotent_and_immutable(self):
         self.registry.relate("p", "contains", "artifact:x", {"scope": "v1"})
         self.registry.relate("p", "contains", "artifact:x", {"scope": "v1"})
