@@ -364,7 +364,7 @@ jobs:
               "authority": "qualification-only",
               "promotion_authority": False,
           }
-          (root / "return-manifest.json").write_text(json.dumps(manifest, sort_keys=True, indent=2) + "\\n", encoding="utf-8")
+          (root / "return-manifest.json").write_text(json.dumps(manifest, sort_keys=True, indent=2) + "\n", encoding="utf-8")
           PY
           git add "$evidence_dir"
           git config user.name "expert-robot-evidence-return"
