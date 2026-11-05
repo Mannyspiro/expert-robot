@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Math Kung Fu — One Rotation, Four Languages</title>
+<style>
+body{font:16px system-ui;max-width:850px;margin:2rem auto;padding:0 1rem;line-height:1.5}
+section{border:1px solid #8888;border-radius:12px;padding:1rem;margin:1rem 0}
+canvas{width:100%;max-width:520px;height:300px;border:1px solid #8888}
+.math{font-family:ui-monospace,monospace;overflow-wrap:anywhere}
+label{display:block;margin:.6rem 0}button{padding:.5rem 1rem;font:inherit}
+</style>
+<h1>One rotation, four mathematical languages</h1>
+<p>Rotate the point (1,0) around the origin. Change the angle and watch four descriptions of the same motion update together.</p>
+<section><canvas id="plane" width="520" height="300" aria-label="Rotating point in the coordinate plane"></canvas>
+<label>Angle: <output id="deg">45°</output><input id="angle" type="range" min="0" max="360" value="45"></label>
+<p id="point" class="math"></p></section>
+<section><h2>Matrix</h2><p class="math">R(θ) = [[cos θ, −sin θ], [sin θ, cos θ]]</p><p id="matrix" class="math"></p></section>
+<section><h2>Complex numbers</h2><p class="math">z′ = (cos θ + i sin θ)z</p><p id="complex" class="math"></p></section>
+<section><h2>Quaternions</h2><p>For rotation about the z-axis, q = cos(θ/2) + k sin(θ/2), and v′ = qvq⁻¹.</p><p id="quat" class="math"></p></section>
+<section><h2>Geometric algebra</h2><p>With B = e₁e₂ and B² = −1, rotor R = cos(θ/2) − B sin(θ/2), and v′ = RvR̃.</p><p id="rotor" class="math"></p></section>
+<section><h2>Check your understanding</h2><p>Why do the quaternion and geometric-algebra rotors use half the angle?</p>
+<label><input type="radio" name="answer" value="a"> Their two-sided sandwich action produces the full vector rotation.</label>
+<label><input type="radio" name="answer" value="b"> The 3D rotation is only half as large.</label>
+<label><input type="radio" name="answer" value="c"> Matrices cannot represent 3D rotations.</label>
+<button id="check">Check</button><p id="feedback" aria-live="polite"></p><pre id="attempt" class="math"></pre></section>
+<script>
+const el=id=>document.getElementById(id),angle=el("angle"),ctx=el("plane").getContext("2d");
+function update(){
+ const d=+angle.value,t=d*Math.PI/180,c=Math.cos(t),s=Math.sin(t),h=t/2;
+ el("deg").textContent=d+"°";el("point").textContent="(1,0) → ("+c.toFixed(4)+", "+s.toFixed(4)+")";
+ el("matrix").textContent="[[ "+c.toFixed(4)+", "+(-s).toFixed(4)+" ], [ "+s.toFixed(4)+", "+c.toFixed(4)+" ]]";
+ el("complex").textContent=c.toFixed(4)+" + "+s.toFixed(4)+"i";
+ el("quat").textContent="q = "+Math.cos(h).toFixed(4)+" + "+Math.sin(h).toFixed(4)+"k";
+ el("rotor").textContent="R = "+Math.cos(h).toFixed(4)+" − "+Math.sin(h).toFixed(4)+"B";
+ ctx.clearRect(0,0,520,300);ctx.save();ctx.translate(260,150);ctx.scale(1,-1);
+ ctx.strokeStyle="#888";ctx.beginPath();ctx.moveTo(-220,0);ctx.lineTo(220,0);ctx.moveTo(0,-120);ctx.lineTo(0,120);ctx.stroke();
+ ctx.strokeStyle="#2686d8";ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(110,0);ctx.stroke();
+ ctx.strokeStyle="#d97706";ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(110*c,110*s);ctx.stroke();
+ ctx.fillStyle="#d97706";ctx.beginPath();ctx.arc(110*c,110*s,6,0,Math.PI*2);ctx.fill();ctx.restore();
+}
+angle.addEventListener("input",update);update();
+el("check").addEventListener("click",()=>{
+ const chosen=document.querySelector('input[name="answer"]:checked');
+ if(!chosen){el("feedback").textContent="Choose an answer first.";return;}
+ const correct=chosen.value==="a";
+ el("feedback").textContent=correct?"Correct: the sandwich action doubles the rotor angle in the vector rotation.":"Try again: focus on the two-sided action qvq⁻¹ or RvR̃.";
+ el("attempt").textContent=JSON.stringify({lesson_id:"rotation-four-representations-v0.1",item_id:"rotor-half-angle",response:chosen.value,correct,recorded_at:new Date().toISOString()},null,2);
+});
+</script>
