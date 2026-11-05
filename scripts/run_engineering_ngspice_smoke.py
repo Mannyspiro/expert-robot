@@ -46,11 +46,12 @@ def find_freecad_command() -> str:
 
 
 def run_freecad_macro(command: str, macro_path: Path, cwd: Path) -> str:
+    macro_path = macro_path.resolve()
+    cwd = cwd.resolve()
     env = dict(os.environ)
     env["QT_QPA_PLATFORM"] = "offscreen"
-    absolute_macro = macro_path.expanduser().resolve()
     completed = subprocess.run(
-        [command, str(absolute_macro)],
+        [command, str(macro_path)],
         cwd=str(cwd),
         capture_output=True,
         text=True,
@@ -95,20 +96,6 @@ def main() -> int:
     (output / "assembly.scad").write_text(export_openscad(project), encoding="utf-8")
     (output / "divider.cir").write_text(spice, encoding="utf-8")
 
-    # Run the electrical simulation first so its result survives a later CAD
-    # runtime failure and remains independently inspectable in the Actions artifact.
-    (output / "ngspice-measurement.json").write_text(
-        json.dumps({
-            "node": "MID",
-            "expected_voltage_v": 2.5,
-            "measured_voltage_v": measured_mid_voltage,
-            "status": "PASS",
-            "netlist_sha256": hashlib.sha256(spice.encode("utf-8")).hexdigest(),
-            "result_sha256": hashlib.sha256(result["artifact_bytes"]).hexdigest(),
-        }, sort_keys=True, indent=2) + "\\n",
-        encoding="utf-8",
-    )
-
     cad = write_freecad_bundle(project, output)
     freecad_cmd = find_freecad_command()
     import_macro_log = run_freecad_macro(freecad_cmd, Path(cad["macro"]), output)
@@ -151,12 +138,23 @@ def main() -> int:
     result = run_ngspice(spice, timeout_seconds=30, max_memory_bytes=512 * 1024 * 1024)
     result_payload = json.loads(result["artifact_bytes"].decode("utf-8"))
     measurement = re.search(
-        r"(?im)^\s*v_mid\s*=\s*([-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?)\s*$",
+        r"(?im)^\s*mid\s+([-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?)\s*$",
         result_payload.get("log", ""),
     )
     if measurement is None:
-        raise RuntimeError("ngspice did not emit the expected v_mid operating-point measurement")
+        raise RuntimeError("ngspice did not emit the expected MID node voltage in ngspice operating-point table")
     measured_mid_voltage = float(measurement.group(1))
+    (output / "ngspice-measurement.json").write_text(
+        json.dumps({
+            "node": "MID",
+            "expected_voltage_v": 2.5,
+            "measured_voltage_v": measured_mid_voltage,
+            "status": "PASS" if math.isclose(measured_mid_voltage, 2.5, rel_tol=0.0, abs_tol=1e-6) else "FAIL",
+            "netlist_sha256": hashlib.sha256(spice.encode("utf-8")).hexdigest(),
+            "result_sha256": hashlib.sha256(result["artifact_bytes"]).hexdigest(),
+        }, sort_keys=True, indent=2) + "\\n",
+        encoding="utf-8",
+    )
     if not math.isclose(measured_mid_voltage, 2.5, rel_tol=0.0, abs_tol=1e-6):
         raise RuntimeError(
             f"resistor-divider operating point mismatch: expected 2.5 V, got {measured_mid_voltage}"
