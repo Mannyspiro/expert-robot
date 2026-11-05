@@ -153,6 +153,64 @@ class RepairSupervisorTests(unittest.TestCase):
         self.assertEqual(self.registry.get_artifact_bytes(original), b"canonical")
         self.assertFalse(result["result"]["canonical_mutation"])
 
+    def test_avrea_test_result_must_receive_independent_cace_receipt(self):
+        from merlin.avrea_adapter import AvreaAdapter
+        from merlin.repair_supervisor import avrea_repair_test_runner
+
+        job = {
+            "schema": "merlin-research-task/1", "task_id": "avrea-cace-1",
+            "approval_ref": "approved", "lease_ref": "lease",
+            "resource_budget": {"cpu_cores": 1, "memory_bytes": 1024},
+            "promotion_authority": False,
+        }
+        avrea = AvreaAdapter(
+            dispatch_transport=lambda payload: {
+                "runner_id": "runner-test", "job_id": "job-test", "status": "accepted",
+            },
+            collect_transport=lambda job_id: {
+                "runner_id": "runner-test", "job_id": job_id, "status": "completed",
+                "artifacts": [{"name": "pytest.json", "content": b'{"passed":true}'}],
+            },
+            approval_validator=lambda ref, payload: ref == "approved",
+            lease_validator=lambda ref, budget: ref == "lease",
+            registry=self.registry, outbox=self.outbox,
+        )
+
+        class Cace:
+            def __init__(self, status):
+                self.status = status
+                self.requests = []
+            def verify_artifact(self, **kwargs):
+                self.requests.append(kwargs)
+                return {"verification_status": self.status,
+                        "artifact_sha256": kwargs["artifact_sha256"]}
+
+        verified = Cace("verified")
+        runner = avrea_repair_test_runner(
+            avrea, job_factory=lambda refs, payload: job,
+            result_evaluator=lambda collected, refs, payload: {"passed": True},
+            cace_adapter=verified, repository="Mannyspiro/expert-robot",
+            requester_id="hermes-repair",
+        )
+        task_payload = {"project_id": "p", "commit_sha": "f" * 40}
+        result = runner([], task_payload)
+        self.assertTrue(result["passed"])
+        self.assertEqual(result["cace_verification_status"], "verified")
+        self.assertEqual(len(verified.requests), 1)
+        self.assertEqual(verified.requests[0]["commit_sha"], "f" * 40)
+        self.assertEqual(verified.requests[0]["artifact_kind"], "avrea_test_result")
+
+        inconclusive = Cace("inconclusive")
+        runner = avrea_repair_test_runner(
+            avrea, job_factory=lambda refs, payload: job,
+            result_evaluator=lambda collected, refs, payload: {"passed": True},
+            cace_adapter=inconclusive, repository="Mannyspiro/expert-robot",
+            requester_id="hermes-repair",
+        )
+        rejected_result = runner([], task_payload)
+        self.assertFalse(rejected_result["passed"])
+        self.assertEqual(rejected_result["cace_verification_status"], "inconclusive")
+
     def test_non_failure_event_is_ignored(self):
         supervisor = RepairSupervisor(
             registry=self.registry, outbox=self.outbox,
