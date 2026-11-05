@@ -344,3 +344,14 @@ if __name__ == "__main__":
         self.assertEqual(recommendation["state"], "recommended")
         self.assertEqual(recommendation["authority"], "recommendation_only")
         self.assertIn("reason", recommendation)
+
+
+    def test_b2b_curriculum_starts_with_ml_foundations(self):
+        learner = "api-learner-b2b-test"
+        with urlopen(self.base + "/api/learning/recommendation?learner_id=" + learner +
+                     "&curriculum_id=b2b-ml-agentic-ai", timeout=5) as response:
+            recommendation = json.loads(response.read())
+        self.assertEqual(recommendation["state"], "recommended")
+        self.assertEqual(recommendation["idea_id"], "B2B-ML-001")
+        self.assertEqual(recommendation["lesson_id"], "b2b-ml-foundations-v0.1")
+        self.assertEqual(recommendation["authority"], "recommendation_only")
