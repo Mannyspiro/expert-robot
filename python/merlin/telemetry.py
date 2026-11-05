@@ -6,7 +6,7 @@ from math import isfinite
 from typing import Any, Mapping
 from uuid import uuid4
 
-SOURCES = {"runtime", "simulation", "model_output", "verifier", "operator"}
+SOURCES = {"runtime", "simulation", "model_output", "verifier", "operator", "hermes", "mcfc", "avrea", "cace"}
 KINDS = {
     "task.started", "task.progress", "task.completed", "agent.status",
     "model.inference", "verification.completed", "resource.sample",
@@ -104,6 +104,38 @@ def loader_event_sink(store: Any):
                      {"event_id": event["event_id"], "source": "runtime"},
                      {"event": event})
     return sink
+
+
+SERVICE_SOURCES = frozenset({"hermes", "mcfc", "avrea", "cace"})
+
+
+def agent_event_sink(outbox: Any, service: str):
+    """Create a source-bound publisher for observable service events."""
+    if service not in SERVICE_SOURCES:
+        raise ValueError("service must be hermes, mcfc, avrea, or cace")
+    sink = telemetry_outbox_sink(outbox)
+
+    def publish(*, kind: str, run_id: str, payload: Mapping[str, Any],
+                task_id: str | None = None,
+                evidence_refs: tuple[str, ...] | list[str] = (),
+                duration_ms: float | None = None,
+                cpu_percent: float | None = None,
+                memory_bytes: int | None = None) -> dict[str, Any]:
+        if not isinstance(payload, Mapping):
+            raise ValueError("payload must be an object")
+        body = dict(payload)
+        if kind == "agent.status":
+            body.setdefault("agent_id", service)
+        normalized = normalize_event({
+            "source": service, "kind": kind, "run_id": run_id,
+            "task_id": task_id, "payload": body,
+            "evidence_refs": list(evidence_refs),
+            "duration_ms": duration_ms, "cpu_percent": cpu_percent,
+            "memory_bytes": memory_bytes,
+        })
+        return sink(normalized)
+
+    return publish
 
 def telemetry_view(events: list[dict[str, Any]]) -> dict[str, Any]:
     grouped = {source: [] for source in sorted(SOURCES)}
