@@ -92,7 +92,15 @@ class MerlinKnowledgeGraph:
             raise ValueError(f"unsupported relation: {edge.relation}")
         payload = json.dumps(edge.payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
         with self._connect() as db:
-            db.execute("INSERT OR REPLACE INTO graph_edges VALUES(?,?,?,?,?)",
+            existing = db.execute(
+                "SELECT payload_json FROM graph_edges WHERE source_id=? AND relation=? AND target_id=?",
+                (edge.source_id, edge.relation, edge.target_id),
+            ).fetchone()
+            if existing is not None:
+                if existing[0] != payload:
+                    raise ValueError("graph edge already exists with different payload")
+                return
+            db.execute("INSERT INTO graph_edges VALUES(?,?,?,?,?)",
                        (edge.source_id,edge.relation,edge.target_id,payload,time.time()))
 
     def get_node(self, node_id: str) -> GraphNode | None:
