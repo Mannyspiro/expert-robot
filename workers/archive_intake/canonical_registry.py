@@ -66,7 +66,6 @@ def initialize(path):
           net_name TEXT NOT NULL, metadata_json TEXT NOT NULL,
           PRIMARY KEY(project_id,connection_id));
         CREATE INDEX IF NOT EXISTS idx_project_intakes_project ON project_intakes(project_id);
-        CREATE INDEX IF NOT EXISTS idx_github_receipt_project ON github_commit_receipts(project_id);
         CREATE INDEX IF NOT EXISTS idx_receipts_artifact ON verification_receipts(artifact_sha256);
         CREATE INDEX IF NOT EXISTS idx_graph_project ON graph_nodes(project_id,node_type);
         CREATE INDEX IF NOT EXISTS idx_wiring_net ON wiring_connections(project_id,net_name);
@@ -75,6 +74,7 @@ def initialize(path):
         columns={row[1] for row in db.execute("PRAGMA table_info(github_commit_receipts)")}
         if "project_id" not in columns:
             db.execute("ALTER TABLE github_commit_receipts ADD COLUMN project_id TEXT")
+        db.execute("CREATE INDEX IF NOT EXISTS idx_github_receipt_project ON github_commit_receipts(project_id)")
     return str(path)
 
 def register_project(path, project_id, name, description=""):
