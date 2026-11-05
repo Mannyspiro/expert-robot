@@ -85,7 +85,9 @@ class PromptTask:
         if (self.source_repository is None) != (self.source_commit_sha is None):
             raise ValueError("source_repository and source_commit_sha must be supplied together")
         if self.source_repository is not None:
-            if not isinstance(self.source_repository, str) or not re.fullmatch(r"[^/\\s]+/[^/\\s]+", self.source_repository):
+            if (not isinstance(self.source_repository, str) or self.source_repository.count("/") != 1
+                    or any(character.isspace() for character in self.source_repository)
+                    or not all(self.source_repository.split("/"))):
                 raise ValueError("source_repository must be owner/name")
             if not isinstance(self.source_commit_sha, str) or not re.fullmatch(r"[0-9a-f]{40}", self.source_commit_sha):
                 raise ValueError("source_commit_sha must be a lowercase 40-character Git SHA")
@@ -130,7 +132,9 @@ class CompiledPrompt:
         if (self.source_repository is None) != (self.source_commit_sha is None):
             raise ValueError("source_repository and source_commit_sha must be supplied together")
         if self.source_repository is not None:
-            if not isinstance(self.source_repository, str) or not re.fullmatch(r"[^/\\s]+/[^/\\s]+", self.source_repository):
+            if (not isinstance(self.source_repository, str) or self.source_repository.count("/") != 1
+                    or any(character.isspace() for character in self.source_repository)
+                    or not all(self.source_repository.split("/"))):
                 raise ValueError("source_repository must be owner/name")
             if not isinstance(self.source_commit_sha, str) or not re.fullmatch(r"[0-9a-f]{40}", self.source_commit_sha):
                 raise ValueError("source_commit_sha must be a lowercase 40-character Git SHA")
@@ -322,7 +326,9 @@ class PromptResult:
         if (self.source_repository is None) != (self.source_commit_sha is None):
             raise ValueError("source_repository and source_commit_sha must be supplied together")
         if self.source_repository is not None:
-            if not isinstance(self.source_repository, str) or not re.fullmatch(r"[^/\\s]+/[^/\\s]+", self.source_repository):
+            if (not isinstance(self.source_repository, str) or self.source_repository.count("/") != 1
+                    or any(character.isspace() for character in self.source_repository)
+                    or not all(self.source_repository.split("/"))):
                 raise ValueError("source_repository must be owner/name")
             if not isinstance(self.source_commit_sha, str) or not re.fullmatch(r"[0-9a-f]{40}", self.source_commit_sha):
                 raise ValueError("source_commit_sha must be a lowercase 40-character Git SHA")
