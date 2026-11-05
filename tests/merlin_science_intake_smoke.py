@@ -23,7 +23,6 @@ with tempfile.TemporaryDirectory() as td:
     record=Path(td)/"record.json"; record.write_text(json.dumps(base))
     content=Path(td)/"source.txt"; content.write_bytes(b"small public domain source text")
     out=staging_root/"book.json"
-    cmd=[sys.executable,str(root_repo/"scripts/merlin_science_intake.py")] if False else None
     cmd=[sys.executable,str(repo_root/"scripts/merlin_science_intake.py"),"--record",str(record),"--content",str(content),"--out",str(out),"--staging-root",str(staging_root),"--free-disk-reserve-bytes","0"]
     done=subprocess.run(cmd,capture_output=True,text=True)
     assert done.returncode==0, done.stderr
