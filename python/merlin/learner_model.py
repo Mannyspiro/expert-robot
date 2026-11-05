@@ -191,9 +191,11 @@ def select_next_lesson(learner_id: str, store: LearnerStore,
         unobserved=sum(x.state=="unobserved" for x in target)
         weak=sum(x.mean<0.75 for x in target if x.observations)
         uncertain=sum(x.uncertainty for x in target)
-        blocked=sum(x!="ready" for x in prereq_states)
-        # Favor ready prerequisites, unobserved/weak target skills and uncertainty reduction.
-        score=(2.0*unobserved+1.5*weak+uncertain)-3.0*blocked
+        # Do not recommend a lesson whose declared prerequisites are not demonstrated.
+        if any(state != "ready" for state in prereq_states):
+            continue
+        # Favor unobserved/weak target skills and uncertainty reduction.
+        score=2.0*unobserved+1.5*weak+uncertain
         candidates.append((score,lesson_id,idea_id,prereq_states,target))
     if not candidates:
         return {"state":"no_candidate","learner_id":learner_id}
@@ -220,8 +222,10 @@ def hermes_learning_handler(store: LearnerStore, graph: Mapping[str,Any],
         if topic=="merlin.learning.recommendation":
             learner=payload.get("learner_id")
             LearnerStore._required(learner,"learner_id")
+            curriculum_id=payload.get("curriculum_id")
             return {"kind":"learner.lesson.recommended",
-                    **select_next_lesson(learner,store,graph,lessons)}
+                    **select_next_lesson(learner,store,graph,lessons,
+                                         curriculum_id=curriculum_id)}
         raise ValueError("unsupported learning event topic")
     return handle
 
