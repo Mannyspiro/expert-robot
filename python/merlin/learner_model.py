@@ -159,7 +159,8 @@ class LearnerStore:
 
 def select_next_lesson(learner_id: str, store: LearnerStore,
                        idea_graph: Mapping[str,Any],
-                       lesson_catalog: list[Mapping[str,Any]]) -> dict[str,Any]:
+                       lesson_catalog: list[Mapping[str,Any]],
+                       curriculum_id: str | None = None) -> dict[str,Any]:
     """Select an evidence-grounded lesson; never infer mastery from missing data."""
     if not isinstance(idea_graph,Mapping) or not isinstance(lesson_catalog,list):
         raise ValueError("idea graph and lesson catalog are required")
@@ -169,6 +170,8 @@ def select_next_lesson(learner_id: str, store: LearnerStore,
         estimates[idea_id]={d:store.estimate(learner_id,idea_id,d) for d in dims}
     candidates=[]
     for lesson in lesson_catalog:
+        if curriculum_id is not None and lesson.get("curriculum_id") != curriculum_id:
+            continue
         lesson_id=lesson.get("lesson_id")
         idea_id=lesson.get("idea_id")
         if not isinstance(lesson_id,str) or idea_id not in idea_graph:
