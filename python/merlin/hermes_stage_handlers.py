@@ -208,7 +208,10 @@ def build_hermes_stage_handlers(
                  "artifact_sha256": digest, "artifact_verified": True,
                  "cace_status": cace_result.get("verification_status")},
             )
-            context.emit_progress(_contract["label"] + " artifact and CACE receipt recorded")
+            if cace_result.get("verification_status") == "blocked_missing_credentials":
+                context.emit_progress(_contract["label"] + " artifact recorded; independent CACE verification is blocked because credentials are not configured")
+            else:
+                context.emit_progress(_contract["label"] + " artifact and CACE receipt recorded")
             return {
                 "schema": "merlin-hermes-stage-result/1",
                 "stage": _stage,
