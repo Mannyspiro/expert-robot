@@ -47,7 +47,11 @@ class HudActivityWSGI:
                 if not node_id or len(node_id) > 160:
                     return self._respond(start_response, "400 Bad Request",
                                          {"error": "node_id_required"})
-                node = self.read_api.graph_store.get_node(node_id)
+                graph_store = getattr(self.read_api, "graph_store", None)
+                if graph_store is None:
+                    return self._respond(start_response, "503 Service Unavailable",
+                                         {"error": "knowledge_graph_not_configured"})
+                node = graph_store.get_node(node_id)
                 if node is None:
                     return self._respond(start_response, "404 Not Found",
                                          {"error": "node_not_found"})
