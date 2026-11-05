@@ -46,7 +46,7 @@ The CACE bridge branch is a persistent transport/work branch. CACE owns the cano
 - The runner checks the archive, extracts to a temporary directory, checks formal-source safety, verifies exact Lean/Mathlib pins, then runs the Lean root and axiom audit.
 - Current pinned formal toolchain in this bridge: `leanprover/lean4:v4.34.0`; Mathlib commit `5ed2965256430c3649e86755f9576b54eca72435`.
 - The script checks for at least 2 GiB free disk before installing Lean. A configured cache is not proof that the exact toolchain is present.
-- The job has `contents: read` and checkout uses `persist-credentials: false`. It is not the publisher and does not receive the Expert Robot reverse deploy key.
+- The CACE `qualify` job has `contents: read` and checkout uses `persist-credentials: false`. It is not the publisher and does not receive the Expert Robot reverse deploy key.
 - An observed qualification failure was caused by insufficient free disk for the pinned Lean installation. Do not delete unrelated caches or data to force a run; first inspect `df -h`, the exact cache path, and the approved cleanup scope.
 
 ### C. CACE GitHub-hosted publisher
@@ -60,7 +60,7 @@ The CACE bridge branch is a persistent transport/work branch. CACE owns the cano
 
 Canonical source: `Mannyspiro/expert-robot/.github/workflows/external-free-runner-bridge.yml`.
 
-1. The Avrea hosted dispatcher checks out the exact Expert Robot source with `persist-credentials: false`.
+1. The Avrea hosted dispatcher checks out the exact Expert Robot source with `persist-credentials: true` and job-level `contents: write`, because its final evidence-persistence step pushes the validated evidence directory back to the same Expert Robot branch using the job's `GITHUB_TOKEN`. This is separate from the SSH deploy key used only for CACE-app transport.
 2. It prepares a repository-scoped SSH transport key. It prefers `CACE_BRIDGE_SSH_PRIVATE_KEY`; if absent, it falls back to the already-installed legacy secret `RAILWAY_SSH_PRIVATE_KEY`.
 3. It packages the current source snapshot (maximum 25 MiB; build directories, `.git`, and formal dependency cache excluded).
 4. It creates `bridge/request.json` with schema version 2, request ID, full Expert Robot commit SHA, source branch, return repository, requested lane, and `qualification-only` authority.
