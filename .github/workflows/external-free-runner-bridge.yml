@@ -190,7 +190,7 @@ jobs:
         shell: bash
         env:
           RUNNER_REPO_SSH: git@github.com:morganaspim/Cace-app.git
-          BRIDGE_BRANCH: ${{ steps.install.outputs.bridge_branch }}
+          RESULT_BRANCH: cace-result/${{ steps.package.outputs.request_id }}
           REQUEST_ID: ${{ steps.package.outputs.request_id }}
         run: |
           set -euo pipefail
@@ -206,13 +206,13 @@ jobs:
           found=false
           for _ in $(seq 1 120); do
             GIT_SSH_COMMAND='ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new' \
-              git -C "$poll" fetch -q --force origin "$BRIDGE_BRANCH:refs/remotes/origin/bridge"
+              git -C "$poll" fetch -q --force origin "refs/heads/$RESULT_BRANCH:refs/remotes/origin/result" 2>/dev/null || true
 
-            if git -C "$poll" show refs/remotes/origin/bridge:bridge/result.json > "$evidence/result.json" 2>/dev/null; then
+            if git -C "$poll" show refs/remotes/origin/result:bridge/result.json > "$evidence/result.json" 2>/dev/null; then
               got="$(python3 -c 'import json; print(json.load(open("'"$evidence"'/result.json"))["request_id"])' 2>/dev/null || true)"
               if [ "$got" = "$REQUEST_ID" ]; then
-                git -C "$poll" show refs/remotes/origin/bridge:bridge/result.log > "$evidence/result.log" 2>/dev/null || true
-                git -C "$poll" show refs/remotes/origin/bridge:bridge/request.json > "$evidence/request.json"
+                git -C "$poll" show refs/remotes/origin/result:bridge/result.log > "$evidence/result.log" 2>/dev/null || true
+                git -C "$poll" show refs/remotes/origin/result:bridge/request.json > "$evidence/request.json"
                 python3 - "$evidence/result.json" "$evidence/result.log" "$REQUEST_ID" "$GITHUB_SHA" <<'PY'
           import hashlib
           import json
