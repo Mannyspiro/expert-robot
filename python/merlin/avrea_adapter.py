@@ -10,6 +10,7 @@ from typing import Any, Callable, Mapping
 
 from merlin.event_outbox import MerlinEventOutbox
 from merlin.project_registry import MerlinRegistry
+from merlin.telemetry import agent_event_sink
 
 
 class AvreaAdapter:
@@ -24,6 +25,7 @@ class AvreaAdapter:
         self.lease_validator = lease_validator
         self.registry = registry
         self.outbox = outbox
+        self.emit_event = agent_event_sink(outbox, "avrea")
 
     def dispatch(self, job: Mapping[str, Any]) -> dict[str, Any]:
         if self.dispatch_transport is None:
@@ -67,6 +69,18 @@ class AvreaAdapter:
             _canonical(receipt).encode("utf-8")
         ).hexdigest()
         self.outbox.enqueue("avrea-dispatch:" + job_id, "merlin.avrea.dispatch.accepted", receipt)
+        self.emit_event(
+            kind="task.started", run_id=job_id, task_id=str(payload.get("task_id", job_id)),
+            payload={"agent_id": runner_id, "role": "Avrea runner",
+                     "status": "accepted", "activity": "bounded job accepted",
+                     "job_id": job_id, "resource_budget": budget},
+        )
+        self.emit_event(
+            kind="agent.status", run_id=job_id, task_id=str(payload.get("task_id", job_id)),
+            payload={"agent_id": runner_id, "role": "Avrea runner",
+                     "status": "accepted", "activity": "runner accepted job",
+                     "job_id": job_id},
+        )
         return receipt
 
     def collect(self, job_id: str, *, project_id: str,
@@ -109,6 +123,32 @@ class AvreaAdapter:
         }
         result["receipt_sha256"] = hashlib.sha256(_canonical(result).encode("utf-8")).hexdigest()
         self.outbox.enqueue("avrea-result:" + job_id, "merlin.avrea.result.collected", result)
+        task_id = str(response.get("task_id") or job_id)
+        metrics = response.get("resource_metrics")
+        if isinstance(metrics, Mapping):
+            observed = {key: metrics[key] for key in (
+                "cpu_percent", "memory_bytes", "gpu_percent", "gpu_memory_bytes",
+                "wall_seconds", "cpu_seconds", "peak_memory_bytes",
+            ) if key in metrics}
+            observed["measurement_kind"] = "observed"
+            observed["runner_id"] = runner_id
+            observed["job_id"] = job_id
+            self.emit_event(kind="resource.sample", run_id=job_id, task_id=task_id,
+                            payload=observed,
+                            duration_ms=response.get("duration_ms"))
+        self.emit_event(
+            kind="task.completed", run_id=job_id, task_id=task_id,
+            payload={"agent_id": runner_id, "status": result["status"],
+                     "activity": "runner results collected",
+                     "artifact_count": len(saved)},
+            evidence_refs=["sha256:" + result["receipt_sha256"]],
+        )
+        self.emit_event(
+            kind="agent.status", run_id=job_id, task_id=task_id,
+            payload={"agent_id": runner_id, "role": "Avrea runner",
+                     "status": "completed", "activity": "results collected",
+                     "job_id": job_id},
+        )
         return result
 
 
