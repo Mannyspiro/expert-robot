@@ -16,6 +16,9 @@ for needle in (
     "lemma_decomposition.schema.json",
     "--model",
     "--claim",
+    "--plan",
+    "validate_merlin_plan",
+    "merlin_engineering_plan.py",
 ):
     assert needle in src, needle
 
