@@ -61,20 +61,27 @@ jobs:
         env:
           PYTHONPATH: python
         run: |
-          python3 -m pip install pytest
-          python3 -m pytest -q tests/test_hermes_claim_routing.py
+          set -euo pipefail
+          mkdir -p artifacts
+          python3 -m pip install pytest 2>&1 | tee artifacts/pytest-install.log
+          python3 -m pytest -q tests/test_hermes_claim_routing.py 2>&1 | tee artifacts/focused-python-group-1.log
 
       - name: Focused Python group 2 — proof orchestrator and CACE adapter
         env:
           PYTHONPATH: python
         run: |
-          python3 -m pytest -q tests/test_hermes_proof_orchestrator.py tests/test_cace_adapter.py
-          python3 tests/cace_optional_verifier_smoke.py
+          set -euo pipefail
+          mkdir -p artifacts
+          python3 -m pytest -q tests/test_hermes_proof_orchestrator.py tests/test_cace_adapter.py 2>&1 | tee artifacts/focused-python-group-2.log
+          python3 tests/cace_optional_verifier_smoke.py 2>&1 | tee artifacts/cace-optional-verifier-smoke.log
 
       - name: Focused Python group 3 — research lifecycle
         env:
           PYTHONPATH: python
-        run: python3 -m pytest -q tests/test_research_lifecycle.py
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          python3 -m pytest -q tests/test_research_lifecycle.py 2>&1 | tee artifacts/focused-python-group-3.log
 
 
       - name: Restore C++ compiler cache
@@ -259,6 +266,15 @@ jobs:
           if [ "${EXPERT_ROBOT_CCACHE:-0}" = "1" ]; then
             ccache --show-stats || true
           fi
+
+      - name: Upload CI diagnostics and runner identity
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: expert-robot-ci-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Save C++ compiler cache
         if: ${{ success() && env.EXPERT_ROBOT_CCACHE == '1' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
