@@ -21,6 +21,9 @@ def _safe_relative(path: str) -> str:
 
 
 def _verify(data: bytes, expected_sha256: str) -> bytes:
+    if (not isinstance(expected_sha256, str) or len(expected_sha256) != 64
+            or any(char not in "0123456789abcdef" for char in expected_sha256)):
+        raise ValueError("expected SHA-256 must be 64 lowercase hexadecimal characters")
     actual = hashlib.sha256(data).hexdigest()
     if actual != expected_sha256:
         raise ValueError(f"recovered bytes do not match expected SHA-256: {actual}")
