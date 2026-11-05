@@ -61,6 +61,37 @@ class HudActivityTests(unittest.TestCase):
         self.assertEqual(hud.snapshot()["event_count"], 0)
 
 
+    def test_projects_avrea_execution_cace_receipt_and_quarantined_recovery(self):
+        hud = HudActivityProjector()
+        hud.ingest_many([
+            event("avrea-start", "task.started",
+                  {"agent_id": "runner-7", "job_id": "job-7", "status": "accepted"},
+                  source="avrea", run_id="job-7"),
+            event("avrea-done", "task.completed",
+                  {"agent_id": "runner-7", "job_id": "job-7", "status": "completed"},
+                  source="avrea", run_id="job-7",
+                  refs=("sha256:" + "a" * 64,)),
+            event("cace-verified", "verification.completed",
+                  {"agent_id": "cace:verifier-1", "status": "verified",
+                   "independent": True, "artifact_sha256": "b" * 64,
+                   "receipt_artifact_sha256": "c" * 64, "source_commit": "d" * 40},
+                  source="cace", refs=("sha256:" + "c" * 64,)),
+            event("recovery-quarantine", "artifact.registered",
+                  {"status": "quarantined_unverified",
+                   "recovery_path": "_recovery/task-1/source.bin",
+                   "sha256": "e" * 64},
+                  source="hermes", refs=("sha256:" + "e" * 64,)),
+        ])
+        view = hud.snapshot()
+        self.assertEqual(view["executions"][0]["job_id"], "job-7")
+        self.assertEqual(view["executions"][0]["status"], "completed")
+        self.assertEqual(view["executions"][0]["receipt_ref"], "sha256:" + "a" * 64)
+        self.assertEqual(view["verification"]["verifier_id"], "cace:verifier-1")
+        self.assertEqual(view["verification"]["source_commit"], "d" * 40)
+        self.assertEqual(view["verification"]["receipt_ref"], "sha256:" + "c" * 64)
+        self.assertEqual(view["recoveries"][0]["status"], "quarantined_unverified")
+        self.assertFalse(view["recoveries"][0]["promotion_authority"])
+
     def test_outbox_consumer_projects_and_acknowledges_telemetry(self):
         import tempfile
         from pathlib import Path
