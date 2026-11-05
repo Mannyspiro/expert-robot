@@ -205,7 +205,7 @@ def _netlist(data: dict[str, Any]) -> Netlist:
     return Netlist(components=components, nets=nets)
 
 
-def make_handler(store: EventStore):
+def make_handler(store: EventStore, hud_runtime: Any | None = None):
     simulation = MerlinSimulation()
     # Rebuild simulation state from the durable action ledger on process restart.
     replay_rows = store.by_kind("/api/sim/step")
@@ -252,7 +252,27 @@ def make_handler(store: EventStore):
 
         def do_GET(self) -> None:
             self._request_started = perf_counter()
-            path = urlparse(self.path).path
+            parsed = urlparse(self.path)
+            path = parsed.path
+            if path in {"/api/hud/activity", "/api/hud/graph", "/api/hud/node"}:
+                if hud_runtime is None:
+                    self._send(503, {"error": "hud_runtime_not_configured",
+                                     "mode": "labelled_demonstration_fallback"})
+                    return
+                environ = {
+                    "PATH_INFO": path,
+                    "QUERY_STRING": parsed.query,
+                    "REQUEST_METHOD": "GET",
+                }
+                response_meta: dict[str, Any] = {}
+                def start_response(status: str, headers: list[tuple[str, str]]):
+                    response_meta["status"] = status
+                    response_meta["headers"] = headers
+                body = b"".join(hud_runtime.application(environ, start_response))
+                status = int(response_meta.get("status", "503").split(" ", 1)[0])
+                headers = dict(response_meta.get("headers", []))
+                self._send_bytes(status, body, headers.get("Content-Type", "application/json; charset=utf-8"))
+                return
             if path == "/hud":
                 hud_path = Path(__file__).resolve().parents[2] / "web" / "merlin_hud.html"
                 if not hud_path.is_file():
@@ -522,20 +542,52 @@ def make_handler(store: EventStore):
     return Handler
 
 
+def _build_optional_hud_runtime():
+    """Bind only explicitly configured, pre-existing canonical Merlin stores."""
+    registry_root = os.environ.get("MERLIN_REGISTRY_ROOT", "").strip()
+    graph_path = os.environ.get("MERLIN_GRAPH_DB_PATH", "").strip()
+    outbox_path = os.environ.get("MERLIN_OUTBOX_DB_PATH", "").strip()
+    if not registry_root or not graph_path or not outbox_path:
+        return None
+    registry_db = Path(registry_root) / "merlin.sqlite3"
+    if not registry_db.is_file() or not Path(graph_path).is_file() or not Path(outbox_path).is_file():
+        return None
+    from .project_registry import MerlinRegistry
+    from .knowledge_graph import MerlinKnowledgeGraph
+    from .event_outbox import MerlinEventOutbox
+    from .hypothesis_ledger import HypothesisLedger
+    from .hud_runtime import build_hud_runtime
+    hypotheses_path = os.environ.get("MERLIN_HYPOTHESES_DB_PATH", "").strip()
+    hypotheses = HypothesisLedger(hypotheses_path) if hypotheses_path and Path(hypotheses_path).is_file() else None
+    return build_hud_runtime(
+        registry=MerlinRegistry(registry_root),
+        graph=MerlinKnowledgeGraph(graph_path),
+        outbox=MerlinEventOutbox(outbox_path),
+        hypotheses=hypotheses,
+    )
+
+
 def serve(port: int = 8765, db_path: str | None = None) -> None:
     target = db_path or os.environ.get(
         "MERLIN_DB_PATH",
         str(Path.home() / ".local" / "share" / "merlin" / "events.sqlite3"),
     )
     store = EventStore(target)
-    server = ThreadingHTTPServer(("127.0.0.1", port), make_handler(store))
+    hud_runtime = _build_optional_hud_runtime()
+    if hud_runtime is not None:
+        hud_runtime.start()
+    server = ThreadingHTTPServer(("127.0.0.1", port), make_handler(store, hud_runtime))
     print(f"Merlin MVP API listening on http://127.0.0.1:{port}")
+    print("Merlin HUD: canonical graph/event stores connected" if hud_runtime
+          else "Merlin HUD: labelled demonstration fallback (canonical store paths not configured)")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
         pass
     finally:
         server.server_close()
+        if hud_runtime is not None:
+            hud_runtime.stop()
 
 
 if __name__ == "__main__":
