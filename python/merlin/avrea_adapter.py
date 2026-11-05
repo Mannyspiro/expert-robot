@@ -64,6 +64,8 @@ class AvreaAdapter:
             "resource_budget": budget,
             "approval_ref": approval_ref,
             "lease_ref": lease_ref,
+            "worker_image_digest": payload.get("worker_image_digest"),
+            "tool_versions": payload.get("tool_versions"),
         }
         receipt["receipt_sha256"] = hashlib.sha256(
             _canonical(receipt).encode("utf-8")
