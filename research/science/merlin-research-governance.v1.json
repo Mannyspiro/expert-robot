@@ -11,7 +11,9 @@
     "disconfirmation_and_alternative_explanations",
     "resource_and_storage_budget",
     "verification_and_rollback",
-    "problem_decomposition_and_reframing"
+    "problem_decomposition_and_reframing",
+    "fuzzy_and_n_valued_logic_lens_review",
+    "bounded_ideonomy_and_hypothesis_enumeration"
   ],
   "engineering_lifecycle": [
     "intake_and_classify",
@@ -39,7 +41,13 @@
     "multiple_representations": "Generate multiple useful formulations of the same mathematical object across equation systems, coordinate frames, geometric constructions, graphs, combinatorics, logic/type theory, categories, dynamics, probability, optimization, topology, information theory and algorithms. Choose representations relevant to the object, not a fixed checklist.",
     "exact_vs_analogical_mapping": "Classify every translation as exact isomorphism, mathematical equivalence, embedding, structural analogy or heuristic reframing. State mapping, preserved invariants, lost information, validity conditions, non-transferable properties and validation method.",
     "adaptive_reframing": "Reframe when search stagnates, assumptions fail, complexity overwhelms the current form, independent formulations disagree, or a new invariant appears. Return to the original problem and verify translated results.",
-    "no_false_transfer": "Only transfer proofs through a demonstrated structure-preserving map and required hypotheses. Analogies and heuristics generate candidates, never proofs."
+    "no_false_transfer": "Only transfer proofs through a demonstrated structure-preserving map and required hypotheses. Analogies and heuristics generate candidates, never proofs.",
+    "fuzzy_logic": "For research questions where graded membership or partial truth is meaningful, compare suitable fuzzy semantics (including Gödel/min, product and Łukasiewicz t-norms and their residua). State membership functions, calibration, aggregation semantics and sensitivity. Do not conflate truth degree with probability.",
+    "n_valued_logic": "Where more than two discrete truth states are useful, declare the finite truth domain and designated truth values, define every connective, generate bounded truth tables, and test algebraic properties. Distinguish truth-value cardinality (n-valued) from connective arity (n-ary). Do not assume one canonical n-valued logic.",
+    "logic_composition": "Treat logics as mathematical structures and candidate lenses. Rank useful compositions with algebra, geometry, topology, category theory, combinatorics, dynamics, probability, optimization, information theory and computation by semantic fit, invariant preservation, expressiveness, compositionality, proof support, complexity and cost. Include 'not useful' when a lens adds no explanatory or predictive value.",
+    "ideonomy": "For every research task, declare an idea-space by dimensions and operators, enumerate a bounded but systematically sampled set of combinations, rank by relevance, novelty, explanatory value, testability, formalizability and cost, and retain the coverage limits. Generate competing hypotheses, analogies, constructions, counterexamples and research questions; every candidate must include a disconfirmation path. A finite sample is not an exhaustive enumeration of all possible ideas.",
+    "lean_bridge": "Convert selected mathematical candidates into Lean definitions, structures, maps, invariant lemmas and theorem statements. Keep conjectures separate from proved theorems. Run the pinned Lean toolchain; capture imports, mathlib revision, assumptions and axiom dependencies. No promotion without checker success and independent review.",
+    "truth_table_budget": "Bound truth-table rows by n^arity and enforce a configurable hard cap before allocation; expand incrementally only when useful."
   },
   "epistemic_labels": [
     "direct_observation",
