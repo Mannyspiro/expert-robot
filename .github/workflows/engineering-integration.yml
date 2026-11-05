@@ -28,43 +28,57 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install ngspice and FreeCAD command-line tools when absent
+      - name: Install ngspice when absent
         shell: bash
         run: |
           set -euo pipefail
-          need_install=0
-          command -v ngspice >/dev/null 2>&1 || need_install=1
-          command -v FreeCADCmd >/dev/null 2>&1 || command -v freecadcmd >/dev/null 2>&1 || need_install=1
-          if [ "$need_install" = "1" ]; then
+          if ! command -v ngspice >/dev/null 2>&1; then
             sudo apt-get update
-            sudo apt-get install -y ngspice freecad
+            sudo apt-get install -y ngspice
           fi
           command -v ngspice
           command -v prlimit
           ngspice --version | head -n 4
-          freecad_cmd="$(command -v FreeCADCmd || command -v freecadcmd || true)"
-          if [ -z "$freecad_cmd" ]; then
-            freecad_cmd="$(find /usr/lib/freecad /usr/bin -type f \\( -name FreeCADCmd -o -name freecadcmd \\) -print -quit 2>/dev/null || true)"
-          fi
-          if [ -z "$freecad_cmd" ]; then
-            echo "::error::FreeCADCmd/freecadcmd was not installed."
+
+      - name: Install checksum-pinned FreeCAD 1.1.4 AppImage
+        shell: bash
+        run: |
+          set -euo pipefail
+          available_kb="$(df -Pk "$RUNNER_TEMP" | awk 'NR==2 {print $4}')"
+          if [ "$available_kb" -lt 4194304 ]; then
+            echo "::error::At least 4 GiB free is required for the verified FreeCAD AppImage runtime."
             exit 1
           fi
-          echo "FREECAD_CMD=$freecad_cmd" >> "$GITHUB_ENV"
-          echo "FreeCAD command: $freecad_cmd"
-          if ! command -v FreeCADCmd >/dev/null 2>&1 && ! command -v freecadcmd >/dev/null 2>&1; then
-            available_kb="$(df -Pk / | awk 'NR==2 {print $4}')"
-            if [ "$available_kb" -ge 4194304 ]; then
-              sudo apt-get install -y freecad || echo "FreeCAD package installation failed; macro generation remains enabled"
-            else
-              echo "FreeCAD runtime install skipped: less than 4 GiB free on Avrea runner"
-            fi
-          fi
-          if command -v FreeCADCmd >/dev/null 2>&1 || command -v freecadcmd >/dev/null 2>&1; then
-            echo "FreeCAD command-line runtime available"
-          else
-            echo "FreeCAD runtime unavailable; macro generation will be verified"
-          fi
+          case "$(uname -m)" in
+            x86_64)
+              asset="FreeCAD_1.1.4-Linux-x86_64-py311.AppImage"
+              expected="f6dc6ba676e5ac96a565ebc8d657232f94c6158e85b4352141bd1a46f6b43434"
+              ;;
+            aarch64|arm64)
+              asset="FreeCAD_1.1.4-Linux-aarch64-py311.AppImage"
+              expected="675d1a4295b2183e0e1d816a4b5557dcb63aeced4e60aaa28d6c3686f4c71dc9"
+              ;;
+            *)
+              echo "::error::Unsupported FreeCAD architecture: $(uname -m)"
+              exit 1
+              ;;
+          esac
+          appimage="$RUNNER_TEMP/$asset"
+          curl --fail --location --retry 3 "https://github.com/FreeCAD/FreeCAD/releases/download/1.1.4/$asset" --output "$appimage"
+          echo "$expected  $appimage" | sha256sum --check -
+          chmod +x "$appimage"
+          cat > "$RUNNER_TEMP/freecadcmd" <<'SH'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          export QT_QPA_PLATFORM=offscreen
+          export FREECAD_USER_HOME="${RUNNER_TEMP:-/tmp}/freecad-user"
+          mkdir -p "$FREECAD_USER_HOME"
+          exec "$MERLIN_FREECAD_APPIMAGE" --appimage-extract-and-run --console "$@"
+          SH
+          chmod +x "$RUNNER_TEMP/freecadcmd"
+          echo "MERLIN_FREECAD_APPIMAGE=$appimage" >> "$GITHUB_ENV"
+          echo "FREECAD_CMD=$RUNNER_TEMP/freecadcmd" >> "$GITHUB_ENV"
+          echo "FreeCAD 1.1.4 AppImage checksum verified: $asset"
 
       - name: Run Engineering IR, FreeCAD macro and bounded ngspice integration
         shell: bash
