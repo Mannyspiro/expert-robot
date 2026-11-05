@@ -13,3 +13,7 @@ assert "Never create placeholder secrets" in guide
 assert "artifact_verifier=None" in guide
 assert "blocked_missing_credentials" in guide
 print("CACE optional-verifier fail-closed contract: PASS")
+
+assert "artifact_verifier: Callable[..., Mapping[str, Any]] | None = None" in source
+assert '"registry_verified": True' in source
+assert '"artifact_verified": True' not in source
