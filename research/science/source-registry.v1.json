@@ -153,6 +153,38 @@
       "api": "https://www.ncbi.nlm.nih.gov/pmc/tools/developers/",
       "access": "public; article-level license",
       "ingest": "full text only where article license permits reuse"
+    },
+    {
+      "id": "smithsonian-libraries",
+      "name": "Smithsonian Libraries and Archives Digital Library",
+      "kind": "digitized public-domain primary sources",
+      "url": "https://library.si.edu/digital-library",
+      "access": "item-level rights; CC0/public-domain records clearly labeled",
+      "ingest": "capture item-level rights statement and exact edition metadata"
+    },
+    {
+      "id": "science-history-institute",
+      "name": "Science History Institute Digital Collections",
+      "kind": "history of chemistry and scientific instruments",
+      "url": "https://digital.sciencehistory.org/",
+      "access": "item-level rights; public-domain records available",
+      "ingest": "record provenance, contributors, object context and rights URI"
+    },
+    {
+      "id": "wellcome",
+      "name": "Wellcome Collection",
+      "kind": "history of medicine and science books",
+      "url": "https://wellcomecollection.org/works",
+      "access": "item-level Public Domain Mark or license",
+      "ingest": "only acquire whole-item PDFs where item license explicitly permits reuse"
+    },
+    {
+      "id": "bhl",
+      "name": "Biodiversity Heritage Library",
+      "kind": "historical natural history literature",
+      "url": "https://www.biodiversitylibrary.org/",
+      "access": "item-level copyright status and contributing library",
+      "ingest": "capture holding institution, copy-specific annotations and rights statement"
     }
   ],
   "search_patterns": [
