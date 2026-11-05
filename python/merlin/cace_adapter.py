@@ -11,6 +11,7 @@ from typing import Any, Callable, Mapping
 
 from merlin.event_outbox import MerlinEventOutbox
 from merlin.project_registry import MerlinRegistry
+from merlin.telemetry import agent_event_sink
 
 
 def _canonical(value: Any) -> str:
@@ -24,6 +25,7 @@ class CaceVerificationAdapter:
         self.verify_transport = verify_transport
         self.registry = registry
         self.outbox = outbox
+        self.emit_event = agent_event_sink(outbox, "cace")
 
     def verify(self, *, project_id: str, repository: str, commit_sha: str,
                artifact_sha256: str, theorem: str, requester_id: str,
@@ -103,6 +105,31 @@ class CaceVerificationAdapter:
         }
         self.outbox.enqueue("cace-verification:" + digest,
                             "merlin.cace.verification.completed", result)
+        evidence_ref = "sha256:" + digest
+        self.emit_event(
+            kind="proof.checked", run_id=commit_sha, task_id=artifact_sha256,
+            payload={"agent_id": verifier_id, "role": "independent verifier",
+                     "status": status, "activity": "proof receipt checked",
+                     "theorem": theorem, "kernel_checked": receipt.get("kernel_checked"),
+                     "axiom_audit_passed": receipt.get("axiom_audit_passed"),
+                     "contains_sorry": receipt.get("contains_sorry"),
+                     "axiom_dependencies": axioms},
+            evidence_refs=[evidence_ref],
+        )
+        self.emit_event(
+            kind="verification.completed", run_id=commit_sha, task_id=artifact_sha256,
+            payload={"agent_id": verifier_id, "status": status,
+                     "independent": True, "source_commit": commit_sha,
+                     "artifact_sha256": artifact_sha256,
+                     "receipt_artifact_sha256": digest},
+            evidence_refs=[evidence_ref],
+        )
+        self.emit_event(
+            kind="agent.status", run_id=commit_sha, task_id=artifact_sha256,
+            payload={"agent_id": verifier_id, "role": "CACE verifier",
+                     "status": "completed", "activity": "independent verification receipt stored"},
+            evidence_refs=[evidence_ref],
+        )
         return result
 
 
