@@ -234,8 +234,11 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             if not isinstance(idea_id, str) or not isinstance(lesson_id, str):
                 continue
             learning_graph[idea_id] = {"prerequisites": prerequisites, "dimensions": dimensions}
+            art_math_ids = {"MATH-ART-001", "MATH-TESS-001", "MATH-PROJ-001",
+                            "MATH-POLY-001", "MATH-PARA-001", "MATH-FRACT-002",
+                            "MATH-SIG-001", "MATH-GEN-001", "MATH-DATA-001"}
             learning_lessons.append({"lesson_id": lesson_id, "idea_id": idea_id,
-                                     "curriculum_id": "mathematics"})
+                                     "curriculum_id": "art-math-studio" if idea_id in art_math_ids else "mathematics"})
     # B2B competencies are a separate, versioned curriculum graph.
     b2b_graph_path = repo_root / "docs" / "merlin" / "MERLIN_B2B_LEARNING_GRAPH_V0_1.json"
     if b2b_graph_path.is_file():
@@ -248,6 +251,21 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                                        "dimensions": node.get("dimensions", [])}
             learning_lessons.append({"lesson_id": lesson_id, "idea_id": idea_id,
                                      "curriculum_id": b2b_graph.get("curriculum_id")})
+    # Artistic competencies are a separate graph, linked to math ideas by explicit curriculum mappings.
+    art_graph_path = repo_root / "docs" / "merlin" / "MERLIN_ART_SKILL_GRAPH_V0_1.json"
+    if art_graph_path.is_file():
+        art_graph = json.loads(art_graph_path.read_text(encoding="utf-8"))
+        for skill in art_graph.get("skills", []):
+            skill_id = skill.get("id")
+            dimensions = skill.get("dimensions", [])
+            if not isinstance(skill_id, str) or not isinstance(dimensions, list):
+                continue
+            learning_graph[skill_id] = {"prerequisites": skill.get("prerequisites", []),
+                                        "dimensions": dimensions}
+            lesson_id = skill.get("lesson_id")
+            if isinstance(lesson_id, str):
+                learning_lessons.append({"lesson_id": lesson_id, "idea_id": skill_id,
+                                         "curriculum_id": "art-math-studio"})
     learning_router = HermesLearningRouter(learning_outbox, learner_store, learning_graph,
                                            learning_lessons) if learning_outbox is not None else None
     # Rebuild simulation state from the durable action ledger on process restart.
