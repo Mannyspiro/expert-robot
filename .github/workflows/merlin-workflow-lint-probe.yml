@@ -20,22 +20,40 @@ jobs:
       - name: Lint workflow syntax
         shell: bash
         run: |
-          set -euo pipefail
-          echo "runner=$RUNNER_NAME"
-          echo "go=$(command -v go || true)"
-          echo "ruby=$(command -v ruby || true)"
-          echo "python=$(command -v python3 || true)"
-          if command -v go >/dev/null 2>&1; then
-            go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.7 -oneline .github/workflows/ci.yml .github/workflows/external-free-runner-bridge.yml
-          elif command -v ruby >/dev/null 2>&1; then
-            ruby -e 'require "yaml"; ARGV.each { |p| YAML.load_file(p); puts "YAML PASS: #{p}" }' .github/workflows/ci.yml .github/workflows/external-free-runner-bridge.yml
-          else
-            python3 -m pip install --user pyyaml
-            python3 - <<'PY'
+          set +e
+          mkdir -p artifacts
+          {
+            echo "runner=$RUNNER_NAME"
+            echo "go=$(command -v go || true)"
+            echo "ruby=$(command -v ruby || true)"
+            echo "python=$(command -v python3 || true)"
+            if command -v go >/dev/null 2>&1; then
+              go version
+              go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.7 -oneline .github/workflows/ci.yml .github/workflows/external-free-runner-bridge.yml
+              echo "actionlint_exit=$?"
+            elif command -v ruby >/dev/null 2>&1; then
+              ruby -e 'require "yaml"; ARGV.each { |p| YAML.load_file(p); puts "YAML PASS: #{p}" }' .github/workflows/ci.yml .github/workflows/external-free-runner-bridge.yml
+              echo "ruby_yaml_exit=$?"
+            else
+              python3 -m pip install --user pyyaml
+              python3 - <<'PY'
           import yaml
           for path in (".github/workflows/ci.yml", ".github/workflows/external-free-runner-bridge.yml"):
               with open(path, encoding="utf-8") as handle:
                   yaml.safe_load(handle)
               print("YAML PASS:", path)
           PY
-          fi
+              echo "pyyaml_exit=$?"
+            fi
+          } 2>&1 | tee artifacts/workflow-lint.log
+          rc=${PIPESTATUS[0]}
+          echo "lint_process_exit=$rc" | tee -a artifacts/workflow-lint.log
+          exit "$rc"
+      - name: Upload lint diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-workflow-lint-diagnostics
+          path: artifacts/workflow-lint.log
+          if-no-files-found: warn
+          retention-days: 3
