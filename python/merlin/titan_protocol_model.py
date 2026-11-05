@@ -175,11 +175,19 @@ def build_titan_protocol_bundle(kem: str | None = "ML-KEM-768") -> dict[str, Any
 def verify_bundle(bundle: Mapping[str, Any]) -> dict[str, Any]:
     if bundle.get("schema") != "titan-protocol-bundle/1":
         raise ValueError("unsupported Titan bundle schema")
+    import base64
     model_bytes = canonical_json_bytes(bundle["model"])
     vector_bytes = canonical_json_bytes(bundle["vectors"])
     model_digest, vector_digest = sha256_hex(model_bytes), sha256_hex(vector_bytes)
     if model_digest != bundle.get("model_sha256") or vector_digest != bundle.get("vectors_sha256"):
         raise ValueError("Titan bundle digest mismatch")
+    try:
+        embedded_model = base64.b64decode(bundle["model_bytes_b64"], validate=True)
+        embedded_vectors = base64.b64decode(bundle["vectors_bytes_b64"], validate=True)
+    except (KeyError, ValueError) as exc:
+        raise ValueError("Titan bundle embedded canonical bytes are invalid") from exc
+    if embedded_model != model_bytes or embedded_vectors != vector_bytes:
+        raise ValueError("Titan bundle embedded bytes do not match canonical content")
     outcomes = []
     for vector in bundle["vectors"]["vectors"]:
         actual = not validate_envelope_structure(vector["input"])
