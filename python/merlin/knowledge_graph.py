@@ -20,7 +20,7 @@ NODE_TYPES = frozenset({
     "equation", "theorem", "experiment", "dataset", "model", "simulation",
     "cad_model", "equation_atlas", "proof_receipt", "freecad_model",
     "freecad_assembly", "electrical_net", "simulation_result",
-    "artifact_reference", "object_view", "media", "worker", "session", "review",
+    "object_view", "media", "worker", "session", "review",
 })
 EDGE_TYPES = frozenset({
     "contains", "derived_from", "supports", "contradicts", "depends_on",
