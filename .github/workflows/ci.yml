@@ -33,7 +33,7 @@ jobs:
           printf '\\n===== CI RUN STEP %s =====\\n' "${GITHUB_ACTION:-unknown}" >> "$GITHUB_WORKSPACE/artifacts/ci-step-logs.log"
           exec > >(tee -a "$GITHUB_WORKSPACE/artifacts/ci-step-logs.log") 2>&1
           SH
-          printf 'BASH_ENV=%s\\n' "$RUNNER_TEMP/expert-robot-ci-capture.sh" >> "$GITHUB_ENV"
+          printf 'BASH_ENV=%s\n' "$RUNNER_TEMP/expert-robot-ci-capture.sh" >> "$GITHUB_ENV"
 
       - name: Restore C++ compiler cache
         id: ccache-restore
@@ -154,7 +154,7 @@ jobs:
           payload = {key.lower(): os.environ.get(key, "") for key in keys}
           with open("artifacts/pr-test-evidence.json", "w", encoding="utf-8") as handle:
               json.dump(payload, handle, sort_keys=True, indent=2)
-              handle.write("\\n")
+              handle.write("\n")
           PY
 
       - name: Upload complete CI logs and test evidence
