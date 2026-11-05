@@ -35,6 +35,9 @@ class MerlinRegistry:
         db.execute("PRAGMA busy_timeout=30000")
         return db
 
+    def _migration_checkpoint(self, stage: str) -> None:
+        """Private no-op seam for deterministic migration interruption tests."""
+
     def _initialize(self):
         with self._connect() as db:
             db.execute("PRAGMA journal_mode=WAL")
@@ -87,6 +90,7 @@ class MerlinRegistry:
                 version_columns = {row["name"] for row in db.execute("PRAGMA table_info(artifact_versions)")}
                 if "pre_change_recovery_id" not in version_columns:
                     db.execute("ALTER TABLE artifact_versions ADD COLUMN pre_change_recovery_id TEXT")
+                self._migration_checkpoint("after_schema_columns")
                 # Validate every legacy head's exact blob before changing migration metadata.
                 # A missing/corrupt source blob aborts the complete versioning migration.
                 legacy_heads = db.execute("""
@@ -118,6 +122,8 @@ class MerlinRegistry:
                     SELECT 1 FROM artifact_versions av
                     WHERE av.project_id=pa.project_id AND av.logical_path=pa.logical_path)
                 """, (time.time(),))
+                self._migration_checkpoint("after_legacy_history")
+                self._migration_checkpoint("before_guard_triggers")
                 trigger_statements = [
                     "DROP TRIGGER IF EXISTS project_artifacts_guard_update",
                     "DROP TRIGGER IF EXISTS project_artifacts_guard_insert",
