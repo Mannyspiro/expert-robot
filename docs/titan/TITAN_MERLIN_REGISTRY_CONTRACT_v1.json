@@ -55,5 +55,14 @@
     "production_eligible_default": false,
     "authority_expansion": false
   },
-  "projection": "Read-only dashboard projection over canonical records; never accept dashboard edits as evidence or promotion."
+  "projection": "Read-only dashboard projection over canonical records; never accept dashboard edits as evidence or promotion.",
+  "optional_fields": [
+    "evidence_type",
+    "test_suites",
+    "workflow_name",
+    "workflow_url",
+    "verification_workflow_run_id",
+    "verification_artifact_sha256",
+    "limitations"
+  ]
 }
