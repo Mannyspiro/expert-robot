@@ -733,6 +733,9 @@ jobs:
           assert re.fullmatch(r"[0-9a-f]{40}", result.get("cace_commit", ""))
           assert isinstance(result.get("cace_workflow_run_id"), int) and result["cace_workflow_run_id"] > 0
           assert isinstance(result.get("cace_run_attempt"), int) and result["cace_run_attempt"] > 0
+          assert result.get("cace_workflow_sha") == result.get("cace_commit"), "CACE workflow SHA must equal the recorded CACE commit"
+          assert result.get("cace_workflow_ref") == "morganaspim/Cace-app/.github/workflows/expert-robot-bridge.yml@refs/heads/executor/expert-robot-bridge"
+          assert result.get("cace_workflow_name") == "Expert Robot Free Runner Bridge"
           assert result.get("status") in ("pass", "fail")
           assert isinstance(result.get("exit_code"), int)
           assert (result["status"] == "pass") == (result["exit_code"] == 0)
