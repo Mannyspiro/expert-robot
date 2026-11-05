@@ -1,0 +1,57 @@
+name: Merlin Engineering Integration
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "repair/cace-bridge-request-isolation-20261105"
+    paths:
+      - "python/merlin/engineering_ir.py"
+      - "python/merlin/freecad_bridge.py"
+      - "python/merlin/ngspice_engine.py"
+      - "scripts/run_engineering_ngspice_smoke.py"
+      - ".github/workflows/engineering-integration.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  engineering-smoke:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 15
+    steps:
+      - name: Check out exact Expert Robot commit
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install ngspice when absent
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v ngspice >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y ngspice
+          fi
+          command -v ngspice
+          command -v prlimit
+          ngspice --version | head -n 4
+
+      - name: Run Engineering IR, FreeCAD macro and bounded ngspice integration
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH=python python3 scripts/run_engineering_ngspice_smoke.py artifacts/engineering-ngspice
+          python3 -m json.tool artifacts/engineering-ngspice/manifest.json >/dev/null
+          test -s artifacts/engineering-ngspice/merlin_import.FCMacro
+          test -s artifacts/engineering-ngspice/ngspice-result.json
+          echo "engineering_integration=PASS"
+
+      - name: Upload reproducible engineering evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-engineering-integration-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/engineering-ngspice/
+          if-no-files-found: warn
+          retention-days: 14
