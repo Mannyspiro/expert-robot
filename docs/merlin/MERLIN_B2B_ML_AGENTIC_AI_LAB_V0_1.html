@@ -60,7 +60,7 @@ el("check").addEventListener("click",()=>{
 });
 el("save").addEventListener("click",async()=>{
  const attempt={learner_id:el("learner").value.trim(),attempt_id:crypto.randomUUID?crypto.randomUUID():"b2b-attempt-"+Date.now(),
- idea_id:"agentic-workflows",problem_id:"invoice-approval-boundary",problem_version:"1",
+ idea_id:"B2B-AI-001",problem_id:"invoice-approval-boundary",problem_version:"1",
  dimension:"recognition",score:correct?1:0,session_id:el("session").value.trim(),
  rubric_version:"b2b-agentic-r1",response:{choice:selected.value,correct,
  coverage:+el("coverage").value,threshold:+el("threshold").value,verification_depth:+el("verify").value},
