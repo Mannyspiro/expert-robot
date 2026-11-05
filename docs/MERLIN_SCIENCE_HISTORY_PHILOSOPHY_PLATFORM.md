@@ -170,3 +170,10 @@ An analogy is not an equivalence. A visual resemblance is not a theorem. Proofs 
 Merlin should reframe when a search stagnates, the current representation becomes unwieldy, assumptions fail, independent formulations disagree, a useful invariant appears, or another discipline offers a productive model. It should compare candidate frames by invariant preservation, tractability, information loss, assumption burden, independent verifiability and resource cost. It should retain failed reframings and counterexamples as evidence rather than repeatedly rediscovering them.
 
 The Python orchestrator plan gate now requires this representation contract for all non-health-check tasks. The science-history ideonomy bridge creates its own decomposition and source-evidence/discipline-graph representations. CI includes validator tests for decomposition, exact/analogical distinctions, missing non-transferable properties and the explicitly justified no-decomposition case.
+
+
+## Video and transcript research index
+
+`research/science/video-transcript-index.v1.json` records four MIT OpenCourseWare YouTube lectures with English transcript availability: requirements definition, verification and validation, classification/statistical fallacies, and statistical sins. It also records a cognitive-bias transcript PDF discovered through Pressbooks, but leaves its rights status unknown.
+
+The catalog stores video IDs, official source pages, transcript availability, language, license conditions and concise original research notes. It does not store video/audio files or full transcript text. MIT OCW material is generally CC BY-NC-SA 4.0; its terms require attribution, noncommercial use and share-alike, and item-level exceptions must be checked. Merlin's transcript intake therefore blocks CC BY-NC-SA text unless the intended use is explicitly noncommercial. Unknown-rights sources remain metadata-only. The official OCW terms also state that AI use must comply with those license restrictions.
