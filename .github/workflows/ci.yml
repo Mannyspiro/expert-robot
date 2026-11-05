@@ -330,7 +330,7 @@ jobs:
           server_pid=$!
           trap 'kill "$server_pid" 2>/dev/null || true' EXIT
           ready=0
-          for i in $(seq 1 180); do
+          for _ in $(seq 1 180); do
             if curl --fail --silent http://127.0.0.1:8080/health >/dev/null; then ready=1; break; fi
             if ! kill -0 "$server_pid" 2>/dev/null; then cat /tmp/nouscoder-llama-server.log; exit 5; fi
             sleep 2
