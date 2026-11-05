@@ -41,7 +41,9 @@ class AvreaAdapter:
             raise PermissionError("operator approval was not validated")
         if not self.lease_validator(lease_ref, budget):
             raise PermissionError("active MCFC lease was not validated")
-        response = self.dispatch_transport(payload)
+        dispatch_request = dict(payload)
+        dispatch_request["idempotency_key"] = "merlin-avrea:" + str(payload.get("task_id", ""))
+        response = self.dispatch_transport(dispatch_request)
         if not isinstance(response, Mapping):
             raise TypeError("Avrea dispatch transport must return a mapping")
         runner_id, job_id, status = response.get("runner_id"), response.get("job_id"), response.get("status")
@@ -77,6 +79,12 @@ class AvreaAdapter:
         runner_id = response.get("runner_id")
         if not isinstance(runner_id, str) or not runner_id.strip():
             raise ValueError("Avrea result is missing runner identity")
+        dispatch_event_id = "evt_" + hashlib.sha256(
+            ("avrea-dispatch:" + job_id).encode("utf-8")
+        ).hexdigest()
+        dispatch_record = self.outbox.get(dispatch_event_id)
+        if dispatch_record is None or dispatch_record["payload"].get("runner_id") != runner_id:
+            raise ValueError("Avrea result runner does not match the accepted dispatch receipt")
         raw_artifacts = response.get("artifacts")
         if not isinstance(raw_artifacts, list):
             raise ValueError("Avrea result artifacts must be a list")
