@@ -21,7 +21,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: external-free-runner-bridge-${{ github.ref_name }}
@@ -37,7 +37,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 2
-          persist-credentials: false
+          persist-credentials: true
 
       - name: Prepare deploy key
         id: key
@@ -369,9 +369,21 @@ jobs:
           git config user.name "expert-robot-evidence-return"
           git config user.email "noreply@github.com"
           git commit -m "Persist CACE evidence: $REQUEST_ID"
-          git fetch origin "$GITHUB_REF_NAME"
-          git rebase "origin/$GITHUB_REF_NAME"
-          git push origin "HEAD:$GITHUB_REF_NAME"
+          for attempt in 1 2 3 4 5; do
+            git fetch origin "$GITHUB_REF_NAME"
+            git rebase "origin/$GITHUB_REF_NAME"
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then
+              echo "evidence_persisted=true attempt=$attempt"
+              exit 0
+            fi
+            echo "Evidence commit raced with a newer branch commit; retry=$attempt" >&2
+            git rebase --abort || true
+            if [ "$attempt" -eq 5 ]; then
+              echo "::error::Could not persist CACE evidence after five fast-forward-safe attempts."
+              exit 1
+            fi
+            sleep "$attempt"
+          done
 
       - name: Remove key material
         if: always()
