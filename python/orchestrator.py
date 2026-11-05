@@ -35,7 +35,7 @@ class RuntimeProcess:
         if self._proc.stdin is None or self._proc.stdout is None:
             raise RuntimeError("runtime pipes unavailable")
         payload = {"id": str(uuid.uuid4()), "role": role, "task": task}
-        self._proc.stdin.write(json.dumps(payload, separators=(",", ":")) + "\\n")
+        self._proc.stdin.write(json.dumps(payload, separators=(",", ":")) + "\n")
         self._proc.stdin.flush()
         line = self._proc.stdout.readline()
         if not line:
@@ -75,11 +75,11 @@ def main() -> int:
         plan_raw = json.dumps(plan, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
         digest = hashlib.sha256(plan_raw).hexdigest()
         args.task = (
-            "MANDATORY MERLIN ENGINEERING PLAN (validated; sha256=" + digest + ")\\n"
+            "MANDATORY MERLIN ENGINEERING PLAN (validated; sha256=" + digest + ")\n"
             + json.dumps(plan, ensure_ascii=False, indent=2)
-            + "\\nFollow this plan. Do not silently change scope, requirements, assumptions, budgets, or acceptance criteria. "
-              "If the plan is infeasible or incomplete, stop and return the discrepancy rather than improvising.\\n\\n"
-            + "TASK:\\n" + args.task
+            + "\nFollow this plan. Do not silently change scope, requirements, assumptions, budgets, or acceptance criteria. "
+              "If the plan is infeasible or incomplete, stop and return the discrepancy rather than improvising.\n\n"
+            + "TASK:\n" + args.task
         )
 
     runtime = RuntimeProcess(args.runtime)
