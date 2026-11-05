@@ -1,3 +1,5 @@
+import unittest
+
 from merlin.hermes_proof_orchestrator import dispatch_eligible_claim
 
 
@@ -25,43 +27,45 @@ def run(value, calls):
     )
 
 
-def test_valid_claim_is_recorded_then_dispatched_exactly_once():
-    calls = []
-    receipt = run(claim(), calls)
-    assert [item[0] for item in calls] == ["record", "lean"]
-    assert calls[1][1]["source_sha256"] == calls[0][1]["artifact_sha256"]
-    assert receipt.compilation_status == "compiled"
-    assert receipt.verification_status == "pending_independent_cace_verification"
-    assert receipt.promotion_authority is False
-
-
-def test_malformed_ambiguous_and_rejected_claims_never_reach_lean():
-    samples = [
-        None,
-        {},
-        claim(ambiguity=True),
-        claim(previously_rejected=True),
-        claim(lean_source=""),
-        claim(source_ids=[]),
-    ]
-    for sample in samples:
+class HermesProofOrchestratorTests(unittest.TestCase):
+    def test_valid_claim_is_recorded_then_dispatched_exactly_once(self):
         calls = []
-        receipt = run(sample, calls)
-        assert calls == []
-        assert receipt.compilation_status == "not_dispatched"
+        receipt = run(claim(), calls)
+        self.assertEqual([item[0] for item in calls], ["record", "lean"])
+        self.assertEqual(calls[1][1]["source_sha256"], calls[0][1]["artifact_sha256"])
+        self.assertEqual(receipt.compilation_status, "compiled")
+        self.assertEqual(receipt.verification_status, "pending_independent_cace_verification")
+        self.assertFalse(receipt.promotion_authority)
+
+    def test_malformed_ambiguous_and_rejected_claims_never_reach_lean(self):
+        samples = [
+            None,
+            {},
+            claim(ambiguity=True),
+            claim(previously_rejected=True),
+            claim(lean_source=""),
+            claim(source_ids=[]),
+        ]
+        for sample in samples:
+            with self.subTest(sample=sample):
+                calls = []
+                receipt = run(sample, calls)
+                self.assertEqual(calls, [])
+                self.assertEqual(receipt.compilation_status, "not_dispatched")
+
+    def test_untrusted_registry_result_blocks_lean(self):
+        calls = []
+        with self.assertRaises(RuntimeError):
+            dispatch_eligible_claim(
+                claim(), repository="owner/repo", commit_sha="a" * 40,
+                lean_tool_version="Lean 4.32.1",
+                lean_dispatcher=lambda **kw: calls.append(kw) or {"compilation_status": "compiled"},
+                artifact_recorder=lambda **kw: {
+                    "artifact_sha256": "0" * 64, "registry_verified": False
+                },
+            )
+        self.assertEqual(calls, [])
 
 
-def test_untrusted_registry_result_blocks_lean():
-    calls = []
-    try:
-        dispatch_eligible_claim(
-            claim(), repository="owner/repo", commit_sha="a" * 40,
-            lean_tool_version="Lean 4.32.1",
-            lean_dispatcher=lambda **kw: calls.append(kw) or {"compilation_status": "compiled"},
-            artifact_recorder=lambda **kw: {"artifact_sha256": "0" * 64, "registry_verified": False},
-        )
-    except RuntimeError:
-        pass
-    else:
-        raise AssertionError("untrusted registry result accepted")
-    assert calls == []
+if __name__ == "__main__":
+    unittest.main()
