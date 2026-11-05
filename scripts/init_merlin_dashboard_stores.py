@@ -61,12 +61,23 @@ def initialize(data_dir: str | Path, *, project_id: str = "merlin-main",
     except OSError:
         pass
 
+    inventory = registry.inventory(project_id)
+    snapshot = graph.export_snapshot()
     return {
         "schema": "merlin-dashboard-bootstrap/1",
         "data_dir": str(root),
         "project_id": project_id,
-        "project": registry.inventory(project_id),
-        "graph_summary": graph.export_snapshot(),
+        "project": {
+            "project_id": project_id,
+            "name": inventory["project"]["name"],
+            "version": inventory["project"]["version"],
+            "artifact_count": len(inventory["artifacts"]),
+        },
+        "graph_summary": {
+            "node_count": len(snapshot["nodes"]),
+            "edge_count": len(snapshot["edges"]),
+            "snapshot_sha256": snapshot["snapshot_sha256"],
+        },
         "outbox_counts": outbox.counts(),
         "hypothesis_count": len(hypotheses.list_hypotheses()),
         "environment_file": str(env_file),
