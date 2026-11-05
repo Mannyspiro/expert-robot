@@ -274,7 +274,10 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None):
                 self._send_bytes(status, body, headers.get("Content-Type", "application/json; charset=utf-8"))
                 return
             if path == "/hud":
-                hud_path = Path(__file__).resolve().parents[2] / "web" / "merlin_hud.html"
+                repo_root = Path(__file__).resolve().parents[2]
+                hud_path = repo_root / "ui" / "merlin-hud" / "index.html"
+                if not hud_path.is_file():
+                    hud_path = repo_root / "web" / "merlin_hud.html"
                 if not hud_path.is_file():
                     self._send(404, {"error": "hud_not_found"})
                     return
