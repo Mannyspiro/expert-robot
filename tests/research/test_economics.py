@@ -87,7 +87,7 @@ class OpportunityFrontierTests(unittest.TestCase):
         self.assertEqual(len(result["frontier"]), 2)
 
     def test_missing_dimensions_are_rejected(self):
-        with self.assertRaisesRegex(ValueError, "missing liquidity"):
+        with self.assertRaisesRegex(ValueError, "liquidity must be numeric"):
             opportunity_frontier([self.candidate("A", liquidity=None) | {"liquidity": None}])
 
     def test_duplicate_candidate_ids_are_rejected(self):
