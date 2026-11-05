@@ -1,0 +1,367 @@
+{
+  "schema_version": 1,
+  "ontology": "merlin.science.math.knowledge-map.v1",
+  "principle": "A discipline is represented by objects of study, questions, methods, evidence standards, historical lineage and relationships; labels are revisable.",
+  "status_vocabulary": [
+    "established",
+    "active_research",
+    "interdisciplinary",
+    "historical",
+    "obsolete_or_superseded",
+    "emerging",
+    "speculative"
+  ],
+  "domains": [
+    {
+      "id": "mathematics",
+      "name": "Mathematical sciences",
+      "status": "established",
+      "branches": [
+        "logic and foundations",
+        "number theory",
+        "algebra",
+        "geometry",
+        "topology",
+        "analysis",
+        "differential equations",
+        "dynamical systems",
+        "probability",
+        "statistics",
+        "combinatorics",
+        "graph theory",
+        "optimization",
+        "numerical analysis",
+        "information theory",
+        "category theory",
+        "computational mathematics",
+        "mathematical physics",
+        "mathematics education",
+        "history and philosophy of mathematics"
+      ]
+    },
+    {
+      "id": "physical",
+      "name": "Physical sciences",
+      "status": "established",
+      "branches": [
+        "classical mechanics",
+        "quantum mechanics",
+        "quantum field theory",
+        "particle physics",
+        "nuclear physics",
+        "atomic and molecular physics",
+        "condensed matter",
+        "optics and photonics",
+        "thermodynamics",
+        "statistical mechanics",
+        "relativity and gravitation",
+        "astrophysics",
+        "cosmology",
+        "plasma physics",
+        "acoustics",
+        "biophysics"
+      ]
+    },
+    {
+      "id": "chemical",
+      "name": "Chemical sciences",
+      "status": "established",
+      "branches": [
+        "organic chemistry",
+        "inorganic chemistry",
+        "physical chemistry",
+        "analytical chemistry",
+        "theoretical chemistry",
+        "biochemistry",
+        "electrochemistry",
+        "materials chemistry",
+        "chemical biology",
+        "astrochemistry",
+        "geochemistry",
+        "chemical engineering"
+      ]
+    },
+    {
+      "id": "life",
+      "name": "Life sciences",
+      "status": "established",
+      "branches": [
+        "molecular biology",
+        "cell biology",
+        "genetics",
+        "genomics",
+        "evolutionary biology",
+        "ecology",
+        "microbiology",
+        "immunology",
+        "developmental biology",
+        "botany",
+        "zoology",
+        "physiology",
+        "systems biology",
+        "synthetic biology",
+        "bioinformatics",
+        "conservation biology"
+      ]
+    },
+    {
+      "id": "earth-space",
+      "name": "Earth, climate and space sciences",
+      "status": "established",
+      "branches": [
+        "geology",
+        "geophysics",
+        "geochemistry",
+        "meteorology",
+        "climatology",
+        "oceanography",
+        "hydrology",
+        "glaciology",
+        "paleontology",
+        "planetary science",
+        "solar physics",
+        "space weather",
+        "astrobiology",
+        "remote sensing"
+      ]
+    },
+    {
+      "id": "computer-information",
+      "name": "Computer and information sciences",
+      "status": "established",
+      "branches": [
+        "computer science",
+        "algorithms",
+        "programming languages",
+        "computer architecture",
+        "distributed systems",
+        "databases",
+        "artificial intelligence",
+        "machine learning",
+        "information retrieval",
+        "cybernetics",
+        "human-computer interaction",
+        "information science",
+        "computational social science",
+        "scientific computing"
+      ]
+    },
+    {
+      "id": "engineering",
+      "name": "Engineering and design sciences",
+      "status": "established",
+      "branches": [
+        "mechanical engineering",
+        "electrical engineering",
+        "civil engineering",
+        "chemical engineering",
+        "aerospace engineering",
+        "biomedical engineering",
+        "materials engineering",
+        "control systems",
+        "robotics",
+        "systems engineering",
+        "manufacturing",
+        "CAD and computational design",
+        "reliability engineering"
+      ]
+    },
+    {
+      "id": "medical-health",
+      "name": "Medical and health sciences",
+      "status": "established",
+      "branches": [
+        "anatomy",
+        "physiology",
+        "pathology",
+        "pharmacology",
+        "epidemiology",
+        "public health",
+        "clinical medicine",
+        "neuroscience",
+        "nutrition science",
+        "rehabilitation science",
+        "health services research",
+        "medical imaging",
+        "translational medicine"
+      ]
+    },
+    {
+      "id": "mind-behavior",
+      "name": "Mind, cognition and behavioral sciences",
+      "status": "established",
+      "branches": [
+        "psychology",
+        "cognitive science",
+        "neuroscience",
+        "linguistics",
+        "behavioral economics",
+        "decision science",
+        "learning sciences",
+        "psychometrics",
+        "consciousness studies",
+        "computational psychiatry"
+      ]
+    },
+    {
+      "id": "social",
+      "name": "Social and political sciences",
+      "status": "established",
+      "branches": [
+        "anthropology",
+        "sociology",
+        "economics",
+        "political science",
+        "human geography",
+        "archaeology",
+        "communication",
+        "education research",
+        "demography",
+        "law and society",
+        "science and technology studies",
+        "social network analysis"
+      ]
+    },
+    {
+      "id": "environment-agriculture",
+      "name": "Environmental, agricultural and food sciences",
+      "status": "established",
+      "branches": [
+        "environmental science",
+        "agronomy",
+        "soil science",
+        "forestry",
+        "animal science",
+        "food science",
+        "food systems",
+        "agroecology",
+        "environmental economics",
+        "sustainability science",
+        "landscape ecology"
+      ]
+    },
+    {
+      "id": "humanities-philosophy",
+      "name": "Humanities, history and philosophy of inquiry",
+      "status": "established",
+      "branches": [
+        "history of science",
+        "philosophy of science",
+        "philosophy of mathematics",
+        "epistemology",
+        "metaphysics",
+        "logic",
+        "ethics of science",
+        "history of technology",
+        "history of medicine",
+        "philology",
+        "archaeometry",
+        "scientific communication"
+      ]
+    },
+    {
+      "id": "interdisciplinary",
+      "name": "Interdisciplinary and systems sciences",
+      "status": "interdisciplinary",
+      "branches": [
+        "complex systems",
+        "network science",
+        "systems biology",
+        "computational humanities",
+        "digital history",
+        "biogeochemistry",
+        "cognitive robotics",
+        "quantum information science",
+        "science of science",
+        "operations research",
+        "risk analysis",
+        "socio-technical systems"
+      ]
+    },
+    {
+      "id": "emerging",
+      "name": "Emerging and prospective research spaces",
+      "status": "speculative",
+      "branches": [
+        "computational epistemology (formal models of how claims gain or lose warrant)",
+        "cross-scale causal science (methods linking molecular, organismal, ecological and social scales)",
+        "machine-assisted experimental design as a distinct methodology",
+        "multi-modal mathematics (formal relations among symbolic, geometric, visual and embodied representations)",
+        "reproducibility engineering (science of executable provenance and independent replication)",
+        "planetary systems observability (integrated Earth, infrastructure and ecological measurement)",
+        "synthetic cognitive ecology (interactions among human, machine and institutional cognition)",
+        "xenomathematics (user-proposed exploratory program; definitions and theorems required)",
+        "glyph and n-ality mathematics (exploratory representation-theoretic program; formal objects required)",
+        "temporal structure science (cross-disciplinary study of time, periodicity, memory and phase)",
+        "quantum-enabled metrology and information science (bounded by demonstrated physical effects)"
+      ]
+    }
+  ],
+  "historical_programs": [
+    {
+      "id": "alchemy",
+      "label": "Alchemy",
+      "status": "historical",
+      "lesson": "Preserved experimental practices and material knowledge while its theoretical framework was transformed by modern chemistry."
+    },
+    {
+      "id": "phlogiston",
+      "label": "Phlogiston theory",
+      "status": "obsolete_or_superseded",
+      "lesson": "A useful case for studying how measurement, mass balance and new explanatory frameworks displaced a dominant theory."
+    },
+    {
+      "id": "caloric",
+      "label": "Caloric theory",
+      "status": "obsolete_or_superseded",
+      "lesson": "Shows how heat moved from a material-fluid picture toward energy and statistical mechanics."
+    },
+    {
+      "id": "vitalism",
+      "label": "Vitalism",
+      "status": "historical",
+      "lesson": "Useful for tracing disputes about mechanism, emergence and biological explanation; not a current substitute for biochemical accounts."
+    },
+    {
+      "id": "ether",
+      "label": "Luminiferous ether",
+      "status": "obsolete_or_superseded",
+      "lesson": "Shows how a background medium was motivated, tested and abandoned as relativity and experiment changed the problem."
+    },
+    {
+      "id": "phrenology",
+      "label": "Phrenology",
+      "status": "obsolete_or_superseded",
+      "lesson": "A cautionary example of weak measurement, confirmation bias and social prejudice dressed as scientific certainty."
+    },
+    {
+      "id": "humoral",
+      "label": "Humoral medicine",
+      "status": "historical",
+      "lesson": "Study as a historical explanatory system, not as a modern clinical guide."
+    },
+    {
+      "id": "miasma",
+      "label": "Miasma theory",
+      "status": "obsolete_or_superseded",
+      "lesson": "Contrasts environmental observation with later microbial causal evidence."
+    }
+  ],
+  "research_lenses": [
+    "historical context",
+    "primary-source reading",
+    "experimental method",
+    "mathematical formalization",
+    "measurement and instrumentation",
+    "causal inference",
+    "model comparison",
+    "replication",
+    "philosophy of explanation",
+    "sociology of knowledge",
+    "ethics and institutions",
+    "negative results",
+    "cross-disciplinary analogy",
+    "formal proof",
+    "computational reproducibility"
+  ]
+}
