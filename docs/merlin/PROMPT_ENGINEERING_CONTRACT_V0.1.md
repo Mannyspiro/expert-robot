@@ -65,6 +65,9 @@ A worker result must echo the same repository and commit. Output artifacts must 
 
 A CACE artifact-verification PASS means the declared artifact schema/content and provenance checks passed under the configured independent verifier. It is not a Lean theorem proof, not a scientific truth claim, and not production qualification. Missing CACE transport, missing artifact bytes, mismatched hashes or incomplete descriptors must fail closed.
 
+**Authentication gap:** the current `CaceVerificationAdapter` v1 receipt contract validates a canonical `receipt_sha256` and a distinct `verifier_id`, but does not yet verify an Ed25519 signature against a pinned/revocable trusted signer key. A digest is tamper detection, not signer authentication. Therefore this bridge is an integration candidate, not an authenticated production attestation path. Before production, add a signed receipt profile binding `key_id`, verifier identity, repository/commit, artifact digest/kind/schema/path, producer and verifier tool versions, policy digest, verification status and explicit nonclaims; validate key trust, revocation and signature before accepting `verified`.
+
+
 ## Authority model
 
 - `draft_only` is the default.
