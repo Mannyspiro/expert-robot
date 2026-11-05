@@ -116,6 +116,16 @@ def attach_intake(path, project_id, intake_id):
           (project_id,intake_id,datetime.now(timezone.utc).isoformat()))
     return {"project_id":project_id,"intake_id":intake_id,"status":"attached"}
 
+def get_github_receipt(path, receipt_id, project_id):
+    with connect(path) as db:
+        row=db.execute("SELECT * FROM github_commit_receipts WHERE receipt_id=? AND project_id=?",
+          (receipt_id,project_id)).fetchone()
+        if not row: raise ValueError("verified GitHub receipt not found for this project")
+        return {"receipt_id":row["receipt_id"],"repository":row["repository"],
+          "canonical_sha":row["canonical_sha"],"api_response_sha256":row["api_response_sha256"],
+          "signature_verified":bool(row["signature_verified"]),
+          "verification_source":"github_rest_commit_endpoint"}
+
 def query_projects(path, limit=100, offset=0):
     with connect(path) as db:
         rows=db.execute("""SELECT p.*,COUNT(DISTINCT pi.intake_id) intake_count,
