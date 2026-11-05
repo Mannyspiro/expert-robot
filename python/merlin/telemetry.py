@@ -51,6 +51,21 @@ def normalize_event(data: Mapping[str, Any]) -> dict[str, Any]:
     payload = data.get("payload", {})
     if not isinstance(payload, dict):
         raise ValueError("payload must be an object")
+    if kind == "resource.sample":
+        for key in (
+            "gpu_percent", "gpu_memory_bytes", "wall_seconds", "cpu_seconds",
+            "peak_memory_bytes", "cpu_cores_reserved", "memory_bytes_reserved",
+            "max_wall_seconds_reserved", "gpu_count_reserved",
+            "compute_budget_units_reserved",
+        ):
+            value = payload.get(key)
+            if value is not None and (
+                isinstance(value, bool) or not isinstance(value, (int, float))
+                or not isfinite(value) or value < 0
+            ):
+                raise ValueError(key + " must be finite and non-negative")
+        if payload.get("gpu_percent", 0) > 100:
+            raise ValueError("gpu_percent cannot exceed 100")
     refs = data.get("evidence_refs", [])
     if not isinstance(refs, (list, tuple)) or len(refs) > 100 or any(not isinstance(x, str) or not x or len(x) > 512 for x in refs):
         raise ValueError("evidence_refs must contain at most 100 non-empty strings")
