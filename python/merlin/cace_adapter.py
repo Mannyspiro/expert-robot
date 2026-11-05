@@ -103,33 +103,36 @@ class CaceVerificationAdapter:
             "receipt_artifact_sha256": digest,
             "promotion_authority": False,
         }
-        self.outbox.enqueue("cace-verification:" + digest,
-                            "merlin.cace.verification.completed", result)
-        evidence_ref = "sha256:" + digest
-        self.emit_event(
-            kind="proof.checked", run_id=commit_sha, task_id=artifact_sha256,
-            payload={"agent_id": verifier_id, "role": "independent verifier",
-                     "status": status, "activity": "proof receipt checked",
-                     "theorem": theorem, "kernel_checked": receipt.get("kernel_checked"),
-                     "axiom_audit_passed": receipt.get("axiom_audit_passed"),
-                     "contains_sorry": receipt.get("contains_sorry"),
-                     "axiom_dependencies": axioms},
-            evidence_refs=[evidence_ref],
-        )
-        self.emit_event(
-            kind="verification.completed", run_id=commit_sha, task_id=artifact_sha256,
-            payload={"agent_id": verifier_id, "status": status,
-                     "independent": True, "source_commit": commit_sha,
-                     "artifact_sha256": artifact_sha256,
-                     "receipt_artifact_sha256": digest},
-            evidence_refs=[evidence_ref],
-        )
-        self.emit_event(
-            kind="agent.status", run_id=commit_sha, task_id=artifact_sha256,
-            payload={"agent_id": verifier_id, "role": "CACE verifier",
-                     "status": "completed", "activity": "independent verification receipt stored"},
-            evidence_refs=[evidence_ref],
-        )
+        verification_key = "cace-verification:" + digest
+        verification_event_id = "evt_" + hashlib.sha256(verification_key.encode()).hexdigest()
+        already_recorded = self.outbox.get(verification_event_id) is not None
+        self.outbox.enqueue(verification_key, "merlin.cace.verification.completed", result)
+        if not already_recorded:
+            evidence_ref = "sha256:" + digest
+            self.emit_event(
+                kind="proof.checked", run_id=commit_sha, task_id=artifact_sha256,
+                payload={"agent_id": verifier_id, "role": "independent verifier",
+                         "status": status, "activity": "proof receipt checked",
+                         "theorem": theorem, "kernel_checked": receipt.get("kernel_checked"),
+                         "axiom_audit_passed": receipt.get("axiom_audit_passed"),
+                         "contains_sorry": receipt.get("contains_sorry"),
+                         "axiom_dependencies": axioms},
+                evidence_refs=[evidence_ref],
+            )
+            self.emit_event(
+                kind="verification.completed", run_id=commit_sha, task_id=artifact_sha256,
+                payload={"agent_id": verifier_id, "status": status,
+                         "independent": True, "source_commit": commit_sha,
+                         "artifact_sha256": artifact_sha256,
+                         "receipt_artifact_sha256": digest},
+                evidence_refs=[evidence_ref],
+            )
+            self.emit_event(
+                kind="agent.status", run_id=commit_sha, task_id=artifact_sha256,
+                payload={"agent_id": verifier_id, "role": "CACE verifier",
+                         "status": "completed", "activity": "independent verification receipt stored"},
+                evidence_refs=[evidence_ref],
+            )
         return result
 
 
