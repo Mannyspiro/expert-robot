@@ -375,7 +375,7 @@ class MerlinApiTests(unittest.TestCase):
         with urlopen(self.base + "/api/learning/learner?learner_id=" + learner, timeout=5) as response:
             state = json.loads(response.read())
         self.assertIn("ART-PAT-001", state["skills"])
-        self.assertIn("artistic_composition", state["skills"]["ART-PAT-001"])
+        self.assertIn("self_reflection", state["skills"]["ART-PAT-001"])
 
 
 if __name__ == "__main__":
