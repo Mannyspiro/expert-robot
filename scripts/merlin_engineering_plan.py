@@ -4,7 +4,7 @@ import argparse, json, re, sys
 from pathlib import Path
 
 REQUIRED = ("task_id","objective","domain_scope","requirements","assumptions",
-            "reasoning_plan","design","resource_budget,"verification","rollback")
+            "reasoning_plan","design","resource_budget","verification","rollback")
 def validate(plan):
     errors=[]
     if not isinstance(plan,dict): return ["plan must be a JSON object"]
