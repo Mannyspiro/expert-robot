@@ -180,6 +180,8 @@ class ObservatoryGraphBridgeTests(unittest.TestCase):
     def test_invalid_dag_does_not_leave_a_benchmark_receipt_behind(self):
         broken = make_dag()
         broken["nodes"][0]["dependencies"] = ["missing"]
+        dag_payload = {key: value for key, value in broken.items() if key != "dag_sha256"}
+        broken["dag_sha256"] = sha256_text(canonical_json(dag_payload))
         part_id = self.views["part_object_views"]["U1"]
         with self.assertRaisesRegex(ValueError, "DAG failed integrity checks"):
             link_observatory_to_graph(
