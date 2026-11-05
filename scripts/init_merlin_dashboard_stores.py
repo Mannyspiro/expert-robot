@@ -72,8 +72,8 @@ def initialize(data_dir: str | Path, *, project_id: str = "merlin-main",
         "project_id": project_id,
         "project": {
             "project_id": project_id,
-            "name": inventory["project"]["name"],
-            "version": inventory["project"]["version"],
+            "name": inventory["name"],
+            "version": inventory["version"],
             "artifact_count": len(inventory["artifacts"]),
         },
         "graph_summary": {
