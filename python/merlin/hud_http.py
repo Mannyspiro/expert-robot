@@ -58,11 +58,12 @@ class HudActivityWSGI:
                 detail = {"schema": "merlin-hud-node/1",
                           "node": asdict(node),
                           "neighbors": self.read_api.graph_store.neighbors(node_id)}
-                if node.node_type == "artifact":
-                    project_id = node.payload.get("project_id")
-                    logical_path = node.payload.get("logical_path")
-                    if isinstance(project_id, str) and isinstance(logical_path, str):
-                        detail["artifact"] = self.read_api.artifact(project_id, logical_path)
+                project_id = node.payload.get("project_id")
+                logical_path = node.payload.get("logical_path")
+                if isinstance(project_id, str) and isinstance(logical_path, str):
+                    detail["artifact"] = self.read_api.artifact(project_id, logical_path)
+                from merlin.hud_objects import render_descriptor
+                detail["workspace"] = render_descriptor(node, detail.get("artifact"))
                 return self._respond(start_response, "200 OK", detail)
             if self.consumer is not None:
                 for _ in range(self.max_drain_per_request):
