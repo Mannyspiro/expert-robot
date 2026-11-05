@@ -117,6 +117,12 @@ class IdeonomyConjectureAdapter:
                 generated = self.claim_factory(proposal)
                 if not isinstance(generated, Mapping):
                     raise TypeError("Ideonomy claim_factory must return one mapping per proposal")
+                if generated is None:
+                    # A simplex without a defensible mathematical bridge is
+                    # retained as Ideonomy provenance, not promoted into a claim.
+                    proposal["epistemic_status"] = "ideonomy_proposal_no_grounded_claim"
+                    output.append(proposal)
+                    continue
                 proposal.update(dict(generated))
                 proposal = _validate_hypothesis(proposal)
             output.append(proposal)
