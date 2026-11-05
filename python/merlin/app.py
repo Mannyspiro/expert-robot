@@ -24,7 +24,7 @@ from .council_runtime import run_local_council
 from .simulation import MerlinSimulation
 from .telemetry import normalize_event, telemetry_view, record_runtime_event
 from .telemetry_graph import build_telemetry_graph
-from .learner_model import LearnerStore, select_next_lesson
+from .learner_model import LearnerStore, select_next_lesson, HermesLearningRouter
 from .event_outbox import MerlinEventOutbox
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
@@ -226,6 +226,8 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
         {"lesson_id": "b2b-ml-foundations-v0.1", "idea_id": "ml-foundations"},
         {"lesson_id": "b2b-agentic-workflows-v0.1", "idea_id": "agentic-workflows"},
     ]
+    learning_router = HermesLearningRouter(learning_outbox, learner_store, learning_graph,
+                                           learning_lessons) if learning_outbox is not None else None
     # Rebuild simulation state from the durable action ledger on process restart.
     replay_rows = store.by_kind("/api/sim/step")
     replayed = 0
@@ -340,11 +342,14 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     self._send(400, {"error": "learner_id_required"})
                     return
                 if path == "/api/learning/recommendation":
-                    result = select_next_lesson(learner_id, learner_store, learning_graph, learning_lessons)
-                    if learning_outbox is not None:
+                    if learning_router is not None:
                         minute = int(datetime.now(timezone.utc).timestamp() // 60)
                         learning_outbox.enqueue("learning-recommendation:" + learner_id + ":" + str(minute),
                             "merlin.learning.recommendation", {"learner_id": learner_id})
+                        routed = learning_router.run_once()
+                        result = routed.get("result", {}) if routed else {}
+                    else:
+                        result = select_next_lesson(learner_id, learner_store, learning_graph, learning_lessons)
                     self._send(200, {"schema": "merlin-learning-recommendation/1", **result})
                 else:
                     estimates = {}
@@ -376,13 +381,16 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     raise ValueError("request body must be a JSON object")
 
                 if path == "/api/learning/attempt":
-                    result = learner_store.record_attempt(data)
-                    if learning_outbox is not None:
+                    if learning_router is not None:
                         learning_outbox.enqueue("learning-attempt:" + str(data.get("attempt_id", "")),
                             "merlin.learning.attempt", data)
+                        routed = learning_router.run_once()
+                        result = routed.get("result", {}) if routed else {"state": "queued"}
+                    else:
+                        result = learner_store.record_attempt(data)
                     store.append(path, {"attempt_id": data.get("attempt_id"),
                                         "learner_id": data.get("learner_id")},
-                                 {"state": result["state"], "idea_id": data.get("idea_id"),
+                                 {"state": result.get("state"), "idea_id": data.get("idea_id"),
                                   "dimension": data.get("dimension")})
                     self._send(202, {"schema": "merlin-learning-attempt/1", "accepted": True, **result})
                     return
