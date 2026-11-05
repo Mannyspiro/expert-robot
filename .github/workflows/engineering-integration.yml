@@ -73,7 +73,7 @@ jobs:
             "$appimage" --appimage-extract >/dev/null
           )
           appdir="$RUNNER_TEMP/squashfs-root"
-          freecad_cmd_real="$(find "$appdir" \\( -type f -o -type l \\) \\( -name FreeCADCmd -o -name freecadcmd \\) -print -quit 2>/dev/null || true)"
+          freecad_cmd_real="$(find "$appdir" \( -type f -o -type l \) \( -name FreeCADCmd -o -name freecadcmd \) -print -quit 2>/dev/null || true)"
           if [ -n "$freecad_cmd_real" ]; then
             echo "Found FreeCAD command-line executable: $freecad_cmd_real"
           else
