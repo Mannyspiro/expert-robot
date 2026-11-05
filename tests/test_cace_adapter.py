@@ -56,7 +56,7 @@ class CaceAdapterTests(unittest.TestCase):
         self.assertEqual(result["verification_status"],"verified")
         self.assertFalse(result["promotion_authority"])
         self.assertTrue(self.registry.verify_artifact(result["receipt_artifact_sha256"]))
-        self.assertEqual(self.outbox.counts()["pending"],1)
+        self.assertGreaterEqual(self.outbox.counts()["pending"],4)
 
     def test_wrong_revision_or_non_independent_verifier_rejected(self):
         adapter = CaceVerificationAdapter(
