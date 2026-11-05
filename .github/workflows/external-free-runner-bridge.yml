@@ -786,41 +786,64 @@ jobs:
           retention-days: 14
 
       - name: Persist CACE evidence in Expert Robot
-        if: ${{ always() && steps.await.outputs.evidence_validated == 'true' }}
+        if: always()
         shell: bash
         env:
           REQUEST_ID: ${{ steps.package.outputs.request_id }}
           SOURCE_SHA: ${{ github.sha }}
-          RESULT_STATUS: ${{ steps.await.outputs.result_status }}
-          CACE_COMMIT: ${{ steps.await.outputs.cace_commit }}
-          CACE_RUN_ID: ${{ steps.await.outputs.cace_run_id }}
-          CACE_RUN_ATTEMPT: ${{ steps.await.outputs.cace_run_attempt }}
         run: |
           set -euo pipefail
+          source_dir="$RUNNER_TEMP/external-free-runner-evidence"
+          if [ ! -s "$source_dir/result.json" ] || [ ! -s "$source_dir/result.log" ] || [ ! -s "$source_dir/request.json" ]; then
+            echo "No complete validated CACE evidence to persist."
+            exit 0
+          fi
+          python3 - "$source_dir/result.json" "$source_dir/result.log" "$source_dir/request.json" "$REQUEST_ID" "$SOURCE_SHA" <<'PY'
+          import hashlib
+          import json
+          import re
+          import sys
+
+          result_path, log_path, request_path, expected_id, expected_source = sys.argv[1:]
+          result = json.load(open(result_path, encoding="utf-8"))
+          request = json.load(open(request_path, encoding="utf-8"))
+          log = open(log_path, "rb").read()
+          assert request.get("request_id") == expected_id
+          assert request.get("expert_robot_commit") == expected_source
+          assert result.get("schema_version") == 3
+          assert result.get("request_id") == expected_id
+          assert result.get("expert_robot_commit") == expected_source
+          assert result.get("cace_repository") == "morganaspim/Cace-app"
+          assert re.fullmatch(r"[0-9a-f]{40}", result.get("cace_commit", ""))
+          assert isinstance(result.get("cace_workflow_run_id"), int)
+          assert result.get("log_sha256") == hashlib.sha256(log).hexdigest()
+          assert result.get("log_size_bytes") == len(log)
+          assert result.get("authority") == "qualification-only"
+          assert result.get("promotion_authority") is False
+          PY
           evidence_dir=".cace/evidence/$REQUEST_ID"
           mkdir -p "$evidence_dir"
-          cp "$RUNNER_TEMP/external-free-runner-evidence/result.json" "$evidence_dir/result.json"
-          cp "$RUNNER_TEMP/external-free-runner-evidence/result.log" "$evidence_dir/result.log"
-          cp "$RUNNER_TEMP/external-free-runner-evidence/request.json" "$evidence_dir/request.json"
-          python3 - "$REQUEST_ID" "$SOURCE_SHA" "$RESULT_STATUS" "$CACE_COMMIT" "$CACE_RUN_ID" "$CACE_RUN_ATTEMPT" "$evidence_dir" > "$evidence_dir/return-manifest.json" <<'PY'
+          cp "$source_dir/result.json" "$evidence_dir/result.json"
+          cp "$source_dir/result.log" "$evidence_dir/result.log"
+          cp "$source_dir/request.json" "$evidence_dir/request.json"
+          python3 - "$evidence_dir" <<'PY'
           import hashlib
           import json
           import pathlib
           import sys
 
-          request_id, source_sha, status, cace_commit, run_id, attempt, directory = sys.argv[1:]
-          root = pathlib.Path(directory)
+          root = pathlib.Path(sys.argv[1])
           result = json.loads((root / "result.json").read_text(encoding="utf-8"))
+          request = json.loads((root / "request.json").read_text(encoding="utf-8"))
           manifest = {
               "schema_version": 1,
-              "request_id": request_id,
-              "expert_robot_repository": "Mannyspiro/expert-robot",
-              "expert_robot_commit": source_sha,
-              "cace_repository": "morganaspim/Cace-app",
-              "cace_commit": cace_commit,
-              "cace_workflow_run_id": int(run_id),
-              "cace_run_attempt": int(attempt),
-              "qualification_status": status,
+              "request_id": request["request_id"],
+              "expert_robot_commit": request["expert_robot_commit"],
+              "cace_repository": result["cace_repository"],
+              "cace_commit": result["cace_commit"],
+              "cace_workflow_run_id": result["cace_workflow_run_id"],
+              "cace_run_attempt": result["cace_run_attempt"],
+              "qualification_status": result["status"],
               "result_sha256": hashlib.sha256((root / "result.json").read_bytes()).hexdigest(),
               "result_log_sha256": hashlib.sha256((root / "result.log").read_bytes()).hexdigest(),
               "request_sha256": hashlib.sha256((root / "request.json").read_bytes()).hexdigest(),
