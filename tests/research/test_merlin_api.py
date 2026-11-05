@@ -354,3 +354,28 @@ if __name__ == "__main__":
         self.assertEqual(recommendation["idea_id"], "B2B-ML-001")
         self.assertEqual(recommendation["lesson_id"], "b2b-ml-foundations-v0.1")
         self.assertEqual(recommendation["authority"], "recommendation_only")
+
+
+    def test_art_math_curriculum_routes_from_linked_math_and_art_graphs(self):
+        learner = "api-learner-art-math-test"
+        with urlopen(self.base + "/api/learning/recommendation?learner_id=" + learner +
+                     "&curriculum_id=art-math-studio", timeout=5) as response:
+            recommendation = json.loads(response.read())
+        self.assertEqual(recommendation["state"], "recommended")
+        self.assertEqual(recommendation["lesson_id"], "art-math-symmetry-studio-v0.1")
+        self.assertIn(recommendation["idea_id"], {"MATH-ART-001", "ART-PAT-001"})
+        self.assertEqual(recommendation["authority"], "recommendation_only")
+
+        event = {
+            "learner_id": learner, "attempt_id": "art-math-composition-1",
+            "session_id": "art-session-1", "idea_id": "ART-PAT-001",
+            "problem_id": "radial-pattern-composition", "problem_version": "1",
+            "dimension": "artistic_composition", "score": 0.75,
+            "rubric_version": "art-math-studio-r1",
+            "response": {"reflection": "Repeated forms create visual rhythm."},
+        }
+        self.post("/api/learning/attempt", event)
+        with urlopen(self.base + "/api/learning/learner?learner_id=" + learner, timeout=5) as response:
+            state = json.loads(response.read())
+        self.assertIn("ART-PAT-001", state["skills"])
+        self.assertIn("artistic_composition", state["skills"]["ART-PAT-001"])
