@@ -51,6 +51,20 @@ def verify_attestation(cace_root, attestation_path, timeout=60):
       "exit_code":proc.returncode,"stdout_tail":proc.stdout[-4000:],"stderr_tail":proc.stderr[-4000:],
       "authority_effect":"none"}
 
+def persist_attestation_receipt(database, verification):
+    receipt={"receipt_version":"1.0","subject_sha256":verification["attestation_sha256"],
+      "verifier_id":"cace-attest","verifier_version":"installed-CACE-toolchain",
+      "result":verification["verification_result"],"evidence_class":"cace_attestation_signature_verification",
+      "log_sha256":hashlib.sha256((verification["stdout_tail"]+verification["stderr_tail"]).encode()).hexdigest(),
+      "completed_at":datetime.now(timezone.utc).isoformat(),"formal_qualification":"not_asserted",
+      "authority_effect":"none"}
+    rid="sha256:"+hashlib.sha256(json.dumps(receipt,sort_keys=True,separators=(",",":")).encode()).hexdigest()
+    with connect(database) as db:
+        db.execute("INSERT OR IGNORE INTO verification_receipts VALUES(?,?,?,?,?,?,?,?)",
+          (rid,receipt["subject_sha256"],receipt["verifier_id"],receipt["verifier_version"],
+           receipt["result"],receipt["evidence_class"],json.dumps(receipt,sort_keys=True),receipt["completed_at"]))
+    return {"receipt_id":rid,**receipt}
+
 def persist_receipt(database, artifact_sha256, run, verifier_version):
     receipt={"receipt_version":"1.0","subject_sha256":artifact_sha256,"verifier_id":"CACE Studio CLI",
       "verifier_version":verifier_version,"result":run["result"],"evidence_class":"cace_executed_verification",
@@ -75,7 +89,9 @@ def main():
     p.add_argument("--seed",type=int,default=0); p.add_argument("--version",default="unreported"); a=p.parse_args()
     if a.verify_attestation:
         result=verify_attestation(a.cace_root,a.verify_attestation,a.timeout)
-        print(json.dumps(result,indent=2))
+        initialize(a.database)
+        receipt=persist_attestation_receipt(a.database,result)
+        print(json.dumps(receipt,indent=2))
         if result["verification_result"]!="passed": raise SystemExit(1)
         return
     if not a.artifact_sha256 or not a.experiment: raise SystemExit("artifact SHA and experiment path are required")
