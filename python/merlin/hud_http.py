@@ -55,15 +55,32 @@ class HudActivityWSGI:
                 if node is None:
                     return self._respond(start_response, "404 Not Found",
                                          {"error": "node_not_found"})
+                neighbors = graph_store.neighbors(node_id)
                 detail = {"schema": "merlin-hud-node/1",
-                          "node": asdict(node),
-                          "neighbors": self.read_api.graph_store.neighbors(node_id)}
-                project_id = node.payload.get("project_id")
-                logical_path = node.payload.get("logical_path")
-                if isinstance(project_id, str) and isinstance(logical_path, str):
-                    detail["artifact"] = self.read_api.artifact(project_id, logical_path)
+                          "node": asdict(node), "neighbors": neighbors}
+                linked_artifacts = []
+                candidates = [(node.node_id, node)]
+                for edge in neighbors:
+                    other_id = (edge["target_id"] if edge["source_id"] == node_id
+                                else edge["source_id"])
+                    other = graph_store.get_node(other_id)
+                    if other is not None:
+                        candidates.append((other_id, other))
+                for _candidate_id, candidate in candidates:
+                    project_id = candidate.payload.get("project_id")
+                    logical_path = candidate.payload.get("logical_path")
+                    if (candidate.node_type == "artifact"
+                            and isinstance(project_id, str)
+                            and isinstance(logical_path, str)):
+                        linked_artifacts.append(
+                            self.read_api.artifact(project_id, logical_path)
+                        )
+                if linked_artifacts:
+                    detail["linked_artifacts"] = linked_artifacts
+                primary_artifact = linked_artifacts[0] if linked_artifacts else None
                 from merlin.hud_objects import render_descriptor
-                detail["workspace"] = render_descriptor(node, detail.get("artifact"))
+                detail["workspace"] = render_descriptor(node, primary_artifact)
+                detail["workspace"]["linked_artifacts"] = linked_artifacts
                 return self._respond(start_response, "200 OK", detail)
             run_id = environ.get("QUERY_STRING", "")
             selected_run = None
