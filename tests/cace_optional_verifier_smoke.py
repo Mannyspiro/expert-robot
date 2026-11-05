@@ -9,7 +9,7 @@ assert '"verification_status": "blocked_missing_credentials"' in source
 assert '"reason_code": "cace_verifier_not_configured"' in source
 assert "artifact_verifier is None" in source
 assert "CACE receipt" in source
-assert "Never create placeholder secrets" in guide
+assert "Do not create placeholder secrets" in guide
 assert "artifact_verifier=None" in guide
 assert "blocked_missing_credentials" in guide
 print("CACE optional-verifier fail-closed contract: PASS")
