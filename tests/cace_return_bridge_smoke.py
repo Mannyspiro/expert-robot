@@ -21,6 +21,9 @@ assert 'git checkout -B "$BRIDGE_BRANCH" "refs/remotes/origin/$BRIDGE_BRANCH"' i
 assert "cat > .github/workflows/expert-robot-bridge.yml" not in external
 assert "BRIDGE_YAML" not in external
 assert 'git add bridge/request.json bridge/expert-robot-source.tar.gz' in external
+assert "RESULT_BRANCH: cace-result/${{ steps.package.outputs.request_id }}" in external
+assert 'refs/heads/$RESULT_BRANCH:refs/remotes/origin/result' in external
+assert 'refs/remotes/origin/result:bridge/result.json' in external
 
 # Producer/consumer contract: schema v3, exact request and both CACE commits,
 # exact workflow/run identity, log integrity, and pass/fail as valid outcomes.
