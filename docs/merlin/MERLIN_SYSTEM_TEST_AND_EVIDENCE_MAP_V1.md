@@ -100,3 +100,18 @@ Audit method: GitHub commit metadata for every commit in the first-parent PR ran
 ### First activation status
 
 The workflow definition has been committed to the PR branch, but GitHub has not yet produced an execution result for that workflow at the time this policy was added. Treat the workflow itself as implemented, not as tested or proven operational, until a run on the exact head yields a job and a retained evidence artifact.
+
+
+### First exact-head execution: PR #82
+
+- Tested PR head: `e07595b57054ef6d88542c6490366c7624eb4ba6`
+- Workflow run: [42104813032](https://github.com/Mannyspiro/expert-robot/actions/runs/42104813032)
+- Job: `Hosted Python test evidence` (job ID `127516707173`), GitHub-hosted Ubuntu 26.04, Python 3.12.16.
+- Pinned baseline dependency installation: exit 0.
+- `python -m compileall -q python tests`: exit 0.
+- `python -m unittest discover -s tests -v`: 481 tests, 4 failures and 7 errors; exit 1. Overall result: failed; do not treat as qualified.
+- Failed tests: `test_result_collection_registers_and_verifies_artifacts` (Avrea adapter), `test_node_route_returns_node_and_typed_neighbors` (HUD HTTP), `test_change_manifest_marks_deletion_unresolved_and_fails_closed` (preservation recovery), `test_emits_deterministic_matrix_as_research_artifact` (Titan Hermes executor).
+- Error tests: four `test_academic_graph` cases, two `test_module_catalog` cases, and `test_rejects_a_project_node_with_a_mismatched_identity` (observatory graph bridge).
+- Retained artifact: [pr-test-evidence-42104813032-1](https://github.com/Mannyspiro/expert-robot/actions/runs/42104813032/artifacts/13450798285), artifact SHA-256 `485978483dbac37dc4a26c1497762ce03d911b3e994c7af54302a2272f2e3c41`, 30-day retention.
+- The complete job log is available from the run page. The artifact contains environment metadata, dependency-install output, compile log, unittest stdout/stderr, result file and JSON manifest.
+- This confirms the hosted evidence workflow itself executed and retained evidence. It does not qualify the PR: the broad suite has concrete failures/errors, and the existing custom-runner CI workflow remains separately failed/no-job for its earlier runs.
