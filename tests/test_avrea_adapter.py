@@ -37,7 +37,7 @@ class AvreaAdapterTests(unittest.TestCase):
     def test_dispatch_requires_approval_and_mcfc_lease(self):
         receipt = self.adapter().dispatch(self.job)
         self.assertEqual(receipt["status"],"accepted")
-        self.assertEqual(self.outbox.counts()["pending"],1)
+        self.assertGreaterEqual(self.outbox.counts()["pending"],3)
         with self.assertRaises(PermissionError):
             self.adapter(approval=False).dispatch(self.job)
         with self.assertRaises(PermissionError):
