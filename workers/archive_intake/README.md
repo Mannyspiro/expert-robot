@@ -141,3 +141,11 @@ This image has not been built or deployed to Avrea. No Avrea runner connector is
 The pinned FreeCAD runtime now includes `freecad-runtime/run_geometry_job.py`. It accepts a JSON contract and CAD input from a dedicated input workspace, invokes the explicit FreeCAD adapter, validates output artifact paths and SHA-256 digests through the geometry backend contract, and atomically writes `geometry-receipt.json`. The request file must itself be inside the mounted input workspace; input and output workspaces must be separate and non-nested.
 
 See [freecad-runtime/README.md](freecad-runtime/README.md) for the build, module probe and isolated container invocation. Host/Avrea policy must enforce resource ceilings and network/filesystem isolation. The job runner is implemented and has mocked regression tests, but neither the tests nor the FreeCAD image have been executed in this session. No live Avrea dispatch or real CAD processing is claimed.
+
+## Geometry receipt registration
+
+After a worker returns `geometry-receipt.json`, Merlin can register it against the input artifact already attached to a project:
+
+    python3 workers/archive_intake/geometry_receipt_registry.py --database data/merlin.sqlite3 --project-id PROJECT_ID --receipt /path/to/geometry-receipt.json
+
+The adapter verifies the canonical receipt digest, terminal result, backend identity/version, output artifact records and project-bound input artifact before inserting an idempotent `geometry_execution` receipt into `verification_receipts`. Re-registering identical content is idempotent; receipt-ID collisions with different content are rejected. The receipt is execution/provenance evidence only: it does not assert geometry correctness, engineering safety, manufacturability, solver validity or formal qualification. Schema: `schemas/cad-geometry-receipt-v1.schema.json`.
