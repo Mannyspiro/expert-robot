@@ -84,7 +84,10 @@ class CaceVerificationAdapter:
         if supplied_digest != expected_digest:
             raise ValueError("CACE receipt SHA-256 mismatch")
         receipt_bytes = (_canonical(receipt) + "\n").encode("utf-8")
-        digest = self.registry.put_artifact(project_id, logical_path, receipt_bytes,
+        selected_path = logical_path or (
+            "cace-receipts/" + commit_sha + "/" + artifact_sha256 + ".json"
+        )
+        digest = self.registry.put_artifact(project_id, selected_path, receipt_bytes,
                                             "application/vnd.merlin.cace-receipt+json")
         if not self.registry.verify_artifact(digest):
             raise RuntimeError("stored CACE receipt failed registry digest verification")
