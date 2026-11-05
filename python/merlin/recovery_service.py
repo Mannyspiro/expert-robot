@@ -161,7 +161,8 @@ class RecoveryCoordinator:
         common = {"expected_sha256": payload["expected_sha256"], "project_id": project_id}
         if source == "registry":
             result = RegistryRecoveryAdapter(self.registry).recover(
-                digest=payload["expected_sha256"], original_path=payload["original_path"], **common)
+                digest=payload["expected_sha256"], project_id=project_id,
+                original_path=payload["original_path"])
         elif source == "git":
             result = GitRecoveryAdapter(self.git_repository).recover(
                 commit=payload["commit_sha"], path=payload["original_path"],
