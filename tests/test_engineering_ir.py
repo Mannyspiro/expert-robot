@@ -83,7 +83,8 @@ class EngineeringIRTests(unittest.TestCase):
         self.assertIn("R1 SUPPLY MID 1k\\n", output)
         self.assertIn("R2 MID 0 1k\\n", output)
         self.assertIn("V1 SUPPLY 0 DC 5\\n", output)
-        self.assertIn(".meas op v_mid FIND v(MID)\\n", output)
+        self.assertIn("* requested operating-point voltage: MID\\n", output)
+        self.assertNotIn(".meas", output)
         self.assertTrue(output.endswith(".end\\n"))
 
     def test_spice_export_rejects_injected_values_and_unknown_refs(self):
