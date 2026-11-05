@@ -30,17 +30,16 @@
   ],
   "note": "Evidence was mirrored using the authenticated GitHub repository connector after the CACE workflow reverse-key step proved unavailable. This does not verify the workflow's reverse SSH transport.",
   "reverse_transport_followup": {
-    "cace_workflow_run_id": 42055683481,
-    "cace_commit": "08ddb15b55e1f127264c93b5bd4e913a0a8c8c5e",
-    "attempted_secret_aliases": [
+    "cace_workflow_run_id": 42056170049,
+    "reverse_key_step": "failure",
+    "aliases_checked": [
       "EXPERT_ROBOT_SSH_PRIVATE_KEY",
       "EXPERT_ROBOT_DEPLOY_KEY",
       "CACE_TO_EXPERT_ROBOT_SSH_KEY",
       "EXPERT_ROBOT_DEPLOY_PRIVATE_KEY",
       "RAILWAY_SSH_PRIVATE_KEY"
     ],
-    "observed": "all five secret environment values were empty",
-    "outcome": "reverse SSH authentication unavailable; return step skipped"
+    "outcome": "no CACE repository secret was populated; workflow reverse SSH return skipped"
   },
   "result_mirror_correction_commit": "a712a36c33b40213ba1e4774231460da24faa36f",
   "disk_diagnostic_followup": {
@@ -61,5 +60,26 @@
       "huggingface_model_cache_gb": 2.5
     },
     "outcome": "pinned Lean 4.34.0 absent; no cache was deleted; exact qualification blocked by disk reserve"
+  },
+  "latest_diagnostic": {
+    "cace_run_id": 42056170049,
+    "cace_run_attempt": 1,
+    "cace_commit": "d548e60be9bd5490e50444b35e88efd1a094a174",
+    "artifact_id": 13430265917,
+    "artifact_sha256": "dc5542ff275733b46e463572be5cb470b96ee6b7f1bd0390ef29178fd890ab7f",
+    "result_json_sha256": "aa855166fa9bf6eae55e41b8086a567b7476cf5e3a81df025bf62a0a06a2714d",
+    "result_log_sha256": "2764f15f487a86c8784a759c1784ec9e792484e3fe35d4ea45f9c28cb975708e",
+    "mirrored_result": "docs/evidence/cace-roundtrip-42054029936-diagnostic-result.json",
+    "mirrored_log": "docs/evidence/cace-roundtrip-42054029936-diagnostic-result.log",
+    "result_log_hash_matches": true,
+    "disk_free_kb": 1162936,
+    "required_kb": 2097152,
+    "installed_toolchains": [
+      "leanprover/lean4:v4.32.1"
+    ],
+    "requested_toolchain": "leanprover/lean4:v4.34.0",
+    "cace_cache_gb": 19,
+    "huggingface_cache_gb": 2.5,
+    "outcome": "qualification failure, structured result envelope valid"
   }
 }
