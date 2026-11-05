@@ -28,3 +28,11 @@ Labelled corpora: tests/fixtures/hermes-routing-train.json and tests/fixtures/he
 
 ## Discovery for all project chats
 Read this page at the start of Merlin/Hermes/Avrea/CACE work. AGENTS.md points agents here. robot.txt is not a standard coding-agent instruction file.
+
+## When CACE credentials are not available
+
+Do not create placeholder secrets such as `pending`, `none`, or `TODO`. GitHub requires non-empty values, but placeholder values do not authenticate a verifier.
+
+Merlin's research, numerical experiment and proof-search stages must remain usable without an independent CACE endpoint. Register the Hermes handlers with `artifact_verifier=None` until a real verifier transport is configured. The stage still stores its exact output in the canonical registry and returns the explicit status `blocked_missing_credentials`; it must not emit a CACE receipt, claim independent verification, or permit promotion. A failed configured verifier is a real verification failure and must not be downgraded to this missing-configuration status.
+
+When an authorized CACE service operator provides the real endpoint and credential, an administrator can add them under GitHub Settings → Secrets and variables → Actions → Environments → `cace-independent-verifier`. Save `CACE_VERIFY_URL` and `CACE_VERIFY_TOKEN` only with values issued by that service. Optional mutual-TLS values must also be issued by the service. Do not paste credentials into chat, commits, issues, PR comments, or logs. If no CACE operator has issued credentials, leave the environment without these secrets; no manual placeholder is needed.
