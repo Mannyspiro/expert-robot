@@ -40,6 +40,10 @@ class CaceVerificationAdapter:
             raise ValueError("artifact_sha256 must be a lowercase SHA-256 digest")
         if not theorem.strip() or not requester_id.strip():
             raise ValueError("theorem and requester identity are required")
+        # Refuse to ask an independent verifier to attest to an artifact that
+        # the canonical registry cannot currently re-hash from stored bytes.
+        if not self.registry.verify_artifact(artifact_sha256):
+            raise ValueError("CACE input artifact is absent from the registry or failed digest verification")
         request = {
             "schema": "merlin-cace-verification-request/1",
             "repository": repository,
@@ -47,6 +51,7 @@ class CaceVerificationAdapter:
             "artifact_sha256": artifact_sha256,
             "theorem": theorem,
             "requester_id": requester_id,
+            "artifact_registry_verified": True,
         }
         response = self.verify_transport(request)
         if not isinstance(response, Mapping):
