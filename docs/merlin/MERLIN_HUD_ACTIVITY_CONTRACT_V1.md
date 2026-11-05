@@ -29,6 +29,12 @@ The animation layer may interpolate movement between events for readability. Int
 - python/merlin/event_outbox.py: durable event delivery with idempotency, topic-filtered claims, leases and acknowledgements.
 - python/merlin/hud_activity.py: bounded event projection and HudOutboxConsumer.
 - python/merlin/hud_http.py: read-only WSGI endpoint.
+- python/merlin/registry_queries.py: read-only cross-store query facade.
+- python/merlin/research_evidence.py: content-addressed experiment/proof/counterexample evidence linked to the canonical hypothesis ledger and graph.
+- python/merlin/research_dispatch.py: optimizer-ranked tasks enter Hermes only after approval and MCFC lease validators pass.
+- python/merlin/avrea_adapter.py and cace_adapter.py: injected provider boundaries with result/proof receipt validation; live provider transports remain deployment configuration.
+- python/merlin/freecad_bridge.py: FreeCAD macro and netlist export from Engineering IR.
+- python/merlin/hud_http.py: read-only WSGI endpoint.
 - ui/merlin-hud/index.html: minimal full-screen shell with upper event visualization, adaptive stage canvas and bottom chat/voice controls.
 - tests/test_hud_activity.py, tests/test_hud_http.py: projection and endpoint tests.
 
