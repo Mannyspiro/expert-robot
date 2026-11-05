@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://merlin.local/schemas/titan-experiment-v1.json",
+  "title": "Titan reproducible experiment",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "experiment_id", "candidate_id", "source", "runner", "execution", "inputs", "outputs", "result", "authority"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "experiment_id": {"type": "string", "pattern": "^titan-run:[A-Za-z0-9._-]{3,120}$"},
+    "candidate_id": {"type": "string", "pattern": "^titan:[a-z0-9][a-z0-9._-]{2,95}$"},
+    "source": {"type": "object", "required": ["repository", "commit_sha", "dirty"], "properties": {"repository": {"type": "string"}, "commit_sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"}, "dirty": {"type": "boolean"}}, "additionalProperties": false},
+    "runner": {"type": "object", "required": ["identity", "toolchain"], "properties": {"identity": {"type": "string"}, "toolchain": {"type": "string"}, "image_digest": {"type": "string"}}, "additionalProperties": false},
+    "execution": {"type": "object", "required": ["command", "started_at", "finished_at", "exit_code"], "properties": {"command": {"type": "array", "minItems": 1, "items": {"type": "string"}}, "started_at": {"type": "string", "format": "date-time"}, "finished_at": {"type": "string", "format": "date-time"}, "exit_code": {"type": "integer"}, "timeout_seconds": {"type": "integer", "minimum": 1}}, "additionalProperties": false},
+    "inputs": {"type": "array", "items": {"$ref": "#/$defs/artifact"}},
+    "outputs": {"type": "array", "items": {"$ref": "#/$defs/artifact"}},
+    "result": {"type": "object", "required": ["status", "summary"], "properties": {"status": {"enum": ["pass", "fail", "inconclusive"]}, "summary": {"type": "string"}, "test_vector_count": {"type": "integer", "minimum": 0}, "benchmark": {"type": "object"}}, "additionalProperties": false},
+    "authority": {"const": "qualification-only"},
+    "promotion_authority": {"const": false},
+    "secret_material_included": {"const": false}
+  },
+  "$defs": {
+    "artifact": {"type": "object", "required": ["name", "sha256", "media_type"], "properties": {"name": {"type": "string"}, "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}, "media_type": {"type": "string"}}, "additionalProperties": false}
+  }
+}
