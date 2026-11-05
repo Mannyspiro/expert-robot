@@ -225,4 +225,133 @@ class PromptOutboxPublisher:
         )
 
 
-__all__ = ["PromptTask", "CompiledPrompt", "PromptCompiler", "PromptOutboxPublisher"]
+
+@dataclass(frozen=True)
+class PromptResult:
+    """Worker return envelope bound to the exact compiled task and prompt."""
+
+    schema: str
+    task_id: str
+    recipient: str
+    prompt_sha256: str
+    task_sha256: str
+    worker_id: str
+    status: str
+    outputs: dict[str, Any]
+    tests_run: tuple[str, ...] = ()
+    test_results: dict[str, str] | None = None
+    evidence_refs: tuple[str, ...] = ()
+    artifact_sha256: dict[str, str] | None = None
+    tool_versions: dict[str, str] | None = None
+    limitations: tuple[str, ...] = ()
+    next_required_approval: str | None = None
+
+    def validate(self) -> None:
+        if self.schema != "merlin-engineered-result/1":
+            raise ValueError("unsupported prompt result schema")
+        _bounded_text(self.task_id, "task_id", 200)
+        if not isinstance(self.recipient, str) or not _RECIPIENT.fullmatch(self.recipient):
+            raise ValueError("recipient must be a stable lowercase subsystem identifier")
+        _bounded_text(self.worker_id, "worker_id", 128)
+        for label, digest in (("prompt_sha256", self.prompt_sha256), ("task_sha256", self.task_sha256)):
+            if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
+                raise ValueError(f"{label} must be a lowercase SHA-256 digest")
+        if self.status not in {"completed", "partial", "blocked"}:
+            raise ValueError("status must be completed, partial or blocked")
+        if not isinstance(self.outputs, dict):
+            raise ValueError("outputs must be an object")
+        encoded_outputs = _canonical(self.outputs)
+        if len(encoded_outputs) > 500000:
+            raise ValueError("outputs exceed the 500 KB envelope limit")
+        if self.status == "completed" and not self.outputs:
+            raise ValueError("completed results must contain outputs")
+        tests = _string_tuple(self.tests_run, "tests_run", limit=100)
+        results = self.test_results or {}
+        if not isinstance(results, dict) or set(results) != set(tests):
+            raise ValueError("test_results must provide one result for every test in tests_run")
+        if any(value not in {"passed", "failed", "skipped", "not_run"} for value in results.values()):
+            raise ValueError("test result values must be passed, failed, skipped or not_run")
+        _string_tuple(self.evidence_refs, "evidence_refs", limit=100, item_limit=512)
+        _string_tuple(self.limitations, "limitations", limit=100)
+        hashes = self.artifact_sha256 or {}
+        if not isinstance(hashes, dict):
+            raise ValueError("artifact_sha256 must be an object")
+        for name, digest in hashes.items():
+            _bounded_text(name, "artifact name", 256)
+            if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
+                raise ValueError("every artifact hash must be a lowercase SHA-256 digest")
+        versions = self.tool_versions or {}
+        if not isinstance(versions, dict):
+            raise ValueError("tool_versions must be an object")
+        for name, version in versions.items():
+            _bounded_text(name, "tool name", 128)
+            _bounded_text(version, "tool version", 256)
+        if self.next_required_approval is not None:
+            _bounded_text(self.next_required_approval, "next_required_approval", 256)
+
+    def to_payload(self) -> dict[str, Any]:
+        self.validate()
+        payload = asdict(self)
+        payload["tests_run"] = list(self.tests_run)
+        payload["evidence_refs"] = list(self.evidence_refs)
+        payload["limitations"] = list(self.limitations)
+        payload["test_results"] = dict(self.test_results or {})
+        payload["artifact_sha256"] = dict(self.artifact_sha256 or {})
+        payload["tool_versions"] = dict(self.tool_versions or {})
+        payload["result_sha256"] = hashlib.sha256(_canonical(payload).encode("utf-8")).hexdigest()
+        return payload
+
+
+class PromptResultReceiver:
+    """Validate a worker return against its leased prompt event, then acknowledge it."""
+
+    def __init__(self, outbox: MerlinEventOutbox):
+        if not isinstance(outbox, MerlinEventOutbox):
+            raise ValueError("outbox must be a MerlinEventOutbox")
+        self.outbox = outbox
+
+    def accept(
+        self, event_id: str, worker_id: str, lease_token: str, result: PromptResult
+    ) -> dict[str, Any]:
+        event = self.outbox.get(event_id)
+        if event is None:
+            raise KeyError(event_id)
+        if event["state"] == "acknowledged":
+            payload = result.to_payload()
+            if event.get("result") == payload:
+                return event
+            raise ValueError("prompt event was already acknowledged with a different result")
+        if event["state"] != "leased" or event.get("lease_owner") != worker_id or event.get("lease_token") != lease_token:
+            raise PermissionError("result submission requires the current worker lease")
+        if not isinstance(result, PromptResult) or result.worker_id != worker_id:
+            raise PermissionError("result worker identity does not match the active lease")
+        try:
+            result.validate()
+            prompt = event.get("payload")
+            if not isinstance(prompt, dict) or prompt.get("schema") != PromptCompiler.schema:
+                raise ValueError("leased event is not a supported engineered prompt")
+            if event.get("topic") != f"merlin.prompt.{prompt.get('recipient')}":
+                raise ValueError("prompt topic and recipient do not match")
+            prompt_text = prompt.get("prompt_text")
+            if not isinstance(prompt_text, str):
+                raise ValueError("prompt text is missing")
+            actual_prompt_hash = hashlib.sha256(prompt_text.encode("utf-8")).hexdigest()
+            if actual_prompt_hash != prompt.get("prompt_sha256"):
+                raise ValueError("stored prompt text does not match its hash")
+            for field in ("task_id", "recipient", "prompt_sha256", "task_sha256"):
+                if getattr(result, field) != prompt.get(field):
+                    raise ValueError(f"worker result {field} does not match the dispatched prompt")
+        except (TypeError, ValueError) as exc:
+            self.outbox.retry(
+                event_id, worker_id, lease_token, str(exc), max_attempts=1
+            )
+            raise ValueError(str(exc)) from exc
+        return self.outbox.acknowledge(
+            event_id, worker_id, lease_token, result=result.to_payload()
+        )
+
+
+__all__ = [
+    "PromptTask", "CompiledPrompt", "PromptCompiler", "PromptOutboxPublisher",
+    "PromptResult", "PromptResultReceiver",
+]
