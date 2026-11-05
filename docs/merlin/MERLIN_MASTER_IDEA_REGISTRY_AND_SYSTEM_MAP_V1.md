@@ -405,3 +405,22 @@ When adding a new idea:
 - never rewrite a historical status without preserving the prior evidence;
 - maintain a separate list of unknowns and unresolved contradictions;
 - keep this document a map, not a substitute for detailed subsystem specifications.
+
+
+## 2A. Existing mathematical idea infrastructure discovered during repository audit
+
+The repository already contains a more detailed mathematical idea system. This registry must extend and link to it, not duplicate or replace it:
+
+- `docs/research/MERLIN_MATHEMATICAL_IDEA_LEDGER_V0.1.md`: representation-first mathematics, multiple coordinate frames, complex/geometric algebras, eigenstructure, spacetime/time crystals, Xenomaths/glyph-native formalism, ideonomy, fractals/lacunarity, collective mathematics, CAD/MCFC bridges, XMG rewrite/confluence proof obligations, transition graphs, holonomy distinctions, archived-claim audit, and a four-representation rotation example.
+- `docs/research/MERLIN_MATHEMATICAL_IDEA_INTAKE.md`: stable IDs, typed relations, provenance, status discipline and non-authority intake rules.
+- `docs/research/merlin-mathematical-idea-catalog.v1.json`: structured idea catalog with controlled status and relation vocabularies.
+- `scripts/merlin_math_idea_validate.py` and `tests/test_merlin_math_idea_validate.py`: standard-library catalog validation and tests.
+- `merlin/representation_graph.py` and its tests: exact rational frame transformations, path composition, cycles, similarity invariants and eigenvector coordinate transport.
+- `MERLIN_ARCHIVED_MATH_CLAIM_AUDIT_V0.1.md`: corrections to earlier speculative blow-up, Parrondo and PGA/CGA/QGA claims.
+- Prior PR #2: [Build hybrid verified math research engine from refactored-fishstick](https://github.com/Mannyspiro/expert-robot/pull/2).
+- PR #72: [Equation Atlas 001–080 and XMG Simulation Engine](https://github.com/Mannyspiro/expert-robot/pull/72).
+- PR #75: [Lean proof optimization atlas and tactic profiles](https://github.com/Mannyspiro/expert-robot/pull/75).
+
+**Important audit note:** the current CI workflow has `paths-ignore` entries for the mathematical ledger, intake, JSON catalog, validator and its test. Therefore changes limited to those files may not trigger the standard PR workflow. This must be reviewed and corrected so mathematical idea changes receive automated validation and retained test logs. The current registry PR includes the math program as a cross-linked inventory; it does not claim that the catalog is fully exhaustive or that every idea is formally established.
+
+The existing catalog's statuses are scoped to individual claims. Keep that rule. The ledger already correctly distinguishes coordinate transition consistency from geometric holonomy and records that the finite XMG rewrite explorer does not prove global confluence.
