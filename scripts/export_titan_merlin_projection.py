@@ -61,6 +61,7 @@ def main() -> int:
                 "workflow_name": workflow.get("name"),
                 "workflow_url": workflow.get("run_url") or workflow.get("url"),
                 "runner_identity": runner.get("name") or runner.get("runner_name") or runner.get("label"),
+                "test_suites": ["FIPS203", "FIPS204", "FIPS205"] if known_answer else [],
                 "test_result": test_result,
                 "artifact_sha256": artifact_digest,
                 "cace_verification_status": item.get("cace_independent_verification", "not_run"),
