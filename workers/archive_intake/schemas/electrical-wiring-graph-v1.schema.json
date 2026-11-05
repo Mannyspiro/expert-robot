@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Merlin Electrical Wiring Graph v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "wiring_version",
+    "connections",
+    "nets"
+  ],
+  "properties": {
+    "wiring_version": {
+      "const": "1.0"
+    },
+    "connections": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "connection_id",
+          "from_node",
+          "from_pin",
+          "to_node",
+          "to_pin",
+          "net_name"
+        ],
+        "properties": {
+          "connection_id": {
+            "type": "string"
+          },
+          "from_node": {
+            "type": "string"
+          },
+          "from_pin": {
+            "type": "string"
+          },
+          "to_node": {
+            "type": "string"
+          },
+          "to_pin": {
+            "type": "string"
+          },
+          "net_name": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "nets": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
