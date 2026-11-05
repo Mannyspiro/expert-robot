@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from typing import Any
+import hashlib
 
 from merlin.hypothesis_ledger import HypothesisLedger
 from merlin.knowledge_graph import GraphEdge, GraphNode, MerlinKnowledgeGraph
@@ -35,7 +36,7 @@ class ResearchEvidenceRecorder:
             hypothesis_id, evidence_kind, description,
             source_url=source_url, artifact_hash=digest,
         )
-        claim_node_id = "hypothesis:" + hypothesis_id
+        claim_node_id = "hypothesis:" + hashlib.sha256(hypothesis_id.encode("utf-8")).hexdigest()[:32]
         artifact_node_id = "artifact:" + digest
         self.graph.add_node(GraphNode(
             claim_node_id, "claim", hypothesis.claim,
