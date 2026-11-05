@@ -159,6 +159,32 @@ class RepresentationGraph:
         return trace(represented), determinant(represented)
 
 
+
+def characteristic_polynomial(a: Matrix) -> tuple[Scalar, ...]:
+    """Return det(lambda I - A) coefficients, highest degree first.
+
+    Uses the Faddeev-LeVerrier recurrence with exact Fraction arithmetic.
+    The result is (1, c1, ..., cn), representing
+    lambda**n + c1*lambda**(n-1) + ... + cn.
+    """
+    n = len(a)
+    if n == 0 or any(len(row) != n for row in a):
+        raise ValueError("characteristic polynomial requires a non-empty square matrix")
+    # Newton identities: c_k = -(1/k) * sum(c_(k-i) tr(A**i), i=1..k).
+    coefficients: list[Scalar] = [Fraction(1)]
+    power = identity(n)
+    traces: list[Scalar] = []
+    for k in range(1, n + 1):
+        power = multiply(power, a)
+        traces.append(trace(power))
+        weighted_sum = sum(
+            (coefficients[k - i] * traces[i - 1] for i in range(1, k + 1)),
+            Fraction(0),
+        )
+        coefficients.append(-weighted_sum / k)
+    return tuple(coefficients)
+
+
 def cycle_is_identity(graph: RepresentationGraph, cycle: Sequence[str]) -> bool:
     if len(cycle) < 2 or cycle[0] != cycle[-1]:
         raise ValueError("cycle must start and end at the same frame")
