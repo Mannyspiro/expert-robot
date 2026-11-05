@@ -26,8 +26,12 @@ def validate_task(task,approval,policy):
         raise DispatchRejected("explicit matching approval is required")
     if approval.get("task_contract_sha256")!=digest: raise DispatchRejected("approval does not bind exact task contract")
     caps=task.get("capability_allowlist")
-    if not isinstance(caps,list) or not caps or len(caps)!=len(set(caps)): raise DispatchRejected("invalid capability allowlist")
-    if not set(caps).issubset(set(policy["allowed_capabilities"])): raise DispatchRejected("capability outside policy")
+    allowed=policy.get("allowed_capabilities")
+    if not isinstance(caps,list) or not caps or any(not isinstance(x,str) or not x for x in caps) or len(caps)!=len(set(caps)):
+        raise DispatchRejected("invalid capability allowlist")
+    if not isinstance(allowed,list) or any(not isinstance(x,str) or not x for x in allowed):
+        raise DispatchRejected("policy allowed_capabilities must be a string array")
+    if not set(caps).issubset(set(allowed)): raise DispatchRejected("capability outside policy")
     budget=task.get("resource_budget",{})
     if not isinstance(budget,dict) or not isinstance(policy.get("resource_maxima"),dict):
         raise DispatchRejected("resource budget and policy maxima must be objects")
@@ -37,7 +41,7 @@ def validate_task(task,approval,policy):
             raise DispatchRejected("resource budget invalid or above policy: "+key)
     if task.get("network_access","none")!="none": raise DispatchRejected("network disabled unless a separately reviewed policy enables it")
     if task.get("result_manifest_required") is not True: raise DispatchRejected("result manifest is mandatory")
-    if not isinstance(task.get("timeout_seconds"),int) or isinstance(task.get("timeout_seconds"),bool) or not isinstance(policy.get("max_timeout_seconds"),int) or not 1<=task["timeout_seconds"]<=policy["max_timeout_seconds"]:
+    if not isinstance(task.get("timeout_seconds"),int) or isinstance(task.get("timeout_seconds"),bool) or not isinstance(policy.get("max_timeout_seconds"),int) or isinstance(policy.get("max_timeout_seconds"),bool) or not 1<=task["timeout_seconds"]<=policy["max_timeout_seconds"]:
         raise DispatchRejected("timeout outside policy")
     return digest
 
