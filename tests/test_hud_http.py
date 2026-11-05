@@ -41,8 +41,9 @@ class HudActivityWSGITests(unittest.TestCase):
         self.assertEqual(response["status"], "200 OK")
         self.assertEqual(response["headers"]["Content-Type"], "text/html; charset=utf-8")
         self.assertEqual(response["headers"]["X-Frame-Options"], "DENY")
-        self.assertIn('fetch("/api/hud/activity"', body)
-        self.assertIn('fetch("/api/hud/graph"', body)
+        self.assertIn('"/api/hud/activity"', body)
+        self.assertIn('"/api/hud/graph"', body)
+        self.assertIn('"/api/hud/projects"', body)
         self.assertNotIn('method:"POST"', body)
 
     def test_dashboard_rejects_mutating_methods(self):
