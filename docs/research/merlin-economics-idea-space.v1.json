@@ -1,0 +1,314 @@
+{
+  "schema_version": 1,
+  "graph_id": "merlin.economics.ideonomy",
+  "status": "candidate",
+  "node_types": [
+    "primitive",
+    "definition",
+    "mechanism",
+    "institution",
+    "model",
+    "equation",
+    "empirical_regularity",
+    "hypothesis",
+    "measurement",
+    "dataset",
+    "historical_episode",
+    "counterexample",
+    "open_question"
+  ],
+  "relation_types": [
+    "derives_from",
+    "assumes",
+    "predicts",
+    "measured_by",
+    "contradicted_by",
+    "equivalent_under",
+    "applies_to",
+    "historically_preceded_by",
+    "tested_on",
+    "depends_on"
+  ],
+  "dimensions": [
+    "actor",
+    "objective",
+    "constraint",
+    "resource",
+    "technology",
+    "institution",
+    "information",
+    "uncertainty",
+    "time",
+    "geography",
+    "market_design",
+    "distribution"
+  ],
+  "status_vocabulary": [
+    "candidate",
+    "source_checked",
+    "data_reproduced",
+    "counterexample_checked",
+    "empirically_supported",
+    "formally_derived",
+    "contradicted",
+    "unresolved"
+  ],
+  "primitives": [
+    {
+      "id": "ECO-001",
+      "title": "Agents and objectives",
+      "questions": [
+        "Who chooses?",
+        "What do they control?",
+        "What objective is observed versus assumed?"
+      ]
+    },
+    {
+      "id": "ECO-002",
+      "title": "Constraints and opportunity cost",
+      "questions": [
+        "What is scarce?",
+        "Which alternatives are excluded?",
+        "Who bears the constraint?"
+      ]
+    },
+    {
+      "id": "ECO-003",
+      "title": "Production and transformation",
+      "questions": [
+        "Which inputs become which outputs?",
+        "Where are bottlenecks and waste?"
+      ]
+    },
+    {
+      "id": "ECO-004",
+      "title": "Property, control and enforcement",
+      "questions": [
+        "Who owns, controls, can exclude, or bears liability?"
+      ]
+    },
+    {
+      "id": "ECO-005",
+      "title": "Information and uncertainty",
+      "questions": [
+        "Who knows what, when, and at what cost?",
+        "Which unknowns are measurable?"
+      ]
+    },
+    {
+      "id": "ECO-006",
+      "title": "Time, money and credit",
+      "questions": [
+        "How are obligations settled across time?",
+        "What creates liquidity or maturity mismatch?"
+      ]
+    },
+    {
+      "id": "ECO-007",
+      "title": "Institutions and rules",
+      "questions": [
+        "Which rules shape feasible choices?",
+        "How are rules enforced and changed?"
+      ]
+    },
+    {
+      "id": "ECO-008",
+      "title": "Networks and geography",
+      "questions": [
+        "Which relationships, routes, clusters and distances constrain activity?"
+      ]
+    }
+  ],
+  "mechanisms": [
+    {
+      "id": "ECO-MECH-001",
+      "title": "Marginal trade-off",
+      "derives_from": [
+        "ECO-001",
+        "ECO-002"
+      ],
+      "mathematics": [
+        "constrained_optimization",
+        "shadow_prices"
+      ],
+      "test": "Observe responses to a change in the binding constraint."
+    },
+    {
+      "id": "ECO-MECH-002",
+      "title": "Specialization and coordination",
+      "derives_from": [
+        "ECO-003",
+        "ECO-007"
+      ],
+      "mathematics": [
+        "comparative_advantage",
+        "transaction_costs",
+        "network_flow"
+      ],
+      "test": "Compare coordination and production costs across organizational forms."
+    },
+    {
+      "id": "ECO-MECH-003",
+      "title": "Price formation and bargaining",
+      "derives_from": [
+        "ECO-001",
+        "ECO-005",
+        "ECO-007"
+      ],
+      "mathematics": [
+        "auction_theory",
+        "matching",
+        "game_theory"
+      ],
+      "test": "Compare bids, accepted transactions, failed matches and bargaining outcomes."
+    },
+    {
+      "id": "ECO-MECH-004",
+      "title": "Credit creation and balance-sheet expansion",
+      "derives_from": [
+        "ECO-004",
+        "ECO-006",
+        "ECO-007"
+      ],
+      "mathematics": [
+        "double_entry_accounting",
+        "stock_flow_consistency",
+        "network_contagion"
+      ],
+      "test": "Reconcile assets, liabilities, collateral, cash flows and settlement."
+    },
+    {
+      "id": "ECO-MECH-005",
+      "title": "Market power and entry",
+      "derives_from": [
+        "ECO-001",
+        "ECO-003",
+        "ECO-007"
+      ],
+      "mathematics": [
+        "industrial_organization",
+        "game_theory",
+        "survival_analysis"
+      ],
+      "test": "Study margins, concentration, entry, exit, switching and capacity."
+    },
+    {
+      "id": "ECO-MECH-006",
+      "title": "External costs and public goods",
+      "derives_from": [
+        "ECO-002",
+        "ECO-004",
+        "ECO-007"
+      ],
+      "mathematics": [
+        "mechanism_design",
+        "welfare_analysis",
+        "causal_inference"
+      ],
+      "test": "Identify affected parties, counterfactuals and who pays."
+    },
+    {
+      "id": "ECO-MECH-007",
+      "title": "Risk transfer and liquidity",
+      "derives_from": [
+        "ECO-005",
+        "ECO-006"
+      ],
+      "mathematics": [
+        "probability",
+        "insurance",
+        "option_pricing",
+        "duration_convexity"
+      ],
+      "test": "Compare promised payoff, collateral, liquidity and realized loss."
+    }
+  ],
+  "model_families": [
+    {
+      "id": "ECO-MOD-001",
+      "title": "Constrained choice",
+      "assumptions": [
+        "objective is specified",
+        "feasible set is measured"
+      ],
+      "candidate_derivations": [
+        "Lagrange multipliers",
+        "KKT conditions"
+      ],
+      "failure_questions": [
+        "Are preferences stable?",
+        "Are constraints endogenous?"
+      ]
+    },
+    {
+      "id": "ECO-MOD-002",
+      "title": "Double-entry and stock-flow consistency",
+      "assumptions": [
+        "relevant sectors and counterparties are represented"
+      ],
+      "candidate_derivations": [
+        "balance-sheet identities",
+        "sectoral flow identities"
+      ],
+      "failure_questions": [
+        "Are off-balance-sheet claims omitted?",
+        "Are valuation changes confused with transactions?"
+      ]
+    },
+    {
+      "id": "ECO-MOD-003",
+      "title": "Strategic interaction",
+      "assumptions": [
+        "players, actions, payoffs and information are explicit"
+      ],
+      "candidate_derivations": [
+        "Nash equilibrium",
+        "mechanism design"
+      ],
+      "failure_questions": [
+        "Is equilibrium unique or reached?",
+        "Are players and rules misidentified?"
+      ]
+    },
+    {
+      "id": "ECO-MOD-004",
+      "title": "Dynamic stochastic systems",
+      "assumptions": [
+        "state variables and transition process are specified"
+      ],
+      "candidate_derivations": [
+        "Markov processes",
+        "optimal control",
+        "Bayesian updating"
+      ],
+      "failure_questions": [
+        "Are regimes stable?",
+        "Are tails and feedback under-modeled?"
+      ]
+    },
+    {
+      "id": "ECO-MOD-005",
+      "title": "Causal inference",
+      "assumptions": [
+        "estimand and identification strategy are explicit"
+      ],
+      "candidate_derivations": [
+        "potential outcomes",
+        "instrumental variables",
+        "difference-in-differences"
+      ],
+      "failure_questions": [
+        "Do assumptions survive institutional and temporal changes?"
+      ]
+    }
+  ],
+  "research_rules": [
+    "Never equate accounting identity with causal explanation.",
+    "Never equate equilibrium with observed market clearing.",
+    "Never treat a forecast as a fact.",
+    "Require a counterexample search for every promoted general claim.",
+    "Preserve original data vintages and the information set available at forecast time.",
+    "Compare competing model families using common observations and explicit assumptions.",
+    "Mark novel hypotheses as candidate until independently tested."
+  ]
+}
