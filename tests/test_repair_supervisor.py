@@ -66,7 +66,6 @@ class RepairSupervisorTests(unittest.TestCase):
             lease_validator=lambda ref, budget: ref == "lease",
             repository="Mannyspiro/expert-robot", requester_id="test-agent",
         )
-        base = time.time()
         queued = supervisor.submit(
             task_id="crash-retry", project_id="p", commit_sha="b" * 40,
             failure_event={"event_id": "crash-1", "kind": "system.error"},
@@ -74,6 +73,7 @@ class RepairSupervisorTests(unittest.TestCase):
             resource_budget={"cpu_cores": 1, "memory_bytes": 1024,
                              "max_wall_seconds": 30, "compute_budget_units": 1},
         )
+        base = time.time() + 1
         first = supervisor.consume_one(now=base)
         self.assertEqual(first["state"], "pending")
         self.assertIn("injected worker crash", first["error"])
