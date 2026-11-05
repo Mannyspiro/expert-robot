@@ -74,19 +74,20 @@ def build_hermes_stage_handlers(
     research_executor: Callable[[Mapping[str, Any], Any], Mapping[str, Any]],
     numerical_experiment_executor: Callable[[Mapping[str, Any], Any], Mapping[str, Any]],
     proof_search_executor: Callable[[Mapping[str, Any], Any], Mapping[str, Any]],
-    artifact_verifier: Callable[..., Mapping[str, Any]],
+    artifact_verifier: Callable[..., Mapping[str, Any]] | None,
     repository: str,
     commit_sha: str,
     requester_id: str,
     electrical_executor: Callable[[Mapping[str, Any], Any], Mapping[str, Any]] | None = None,
     theorem_verifier: Callable[..., Mapping[str, Any]] | None = None,
 ) -> dict[str, Callable[[Mapping[str, Any], Any], Mapping[str, Any]]]:
-    """Build stage handlers that record artifacts and obtain independent CACE receipts.
+    """Build stage handlers that record artifacts and optionally obtain CACE receipts.
 
-    Research, numerical and proof-search executors are mandatory. Electrical
-    analysis is registered when its ngspice executor is supplied. The verifier
-    should be CaceVerificationAdapter.verify_artifact; no handler silently
-    treats registry hashing as independent verification.
+    Research, numerical and proof-search executors are mandatory. If the CACE
+    verifier is not configured, artifacts are still recorded and returned with
+    verification_status=blocked_missing_credentials. This is never verification
+    and cannot authorize promotion. Electrical analysis is registered when its
+    ngspice executor is supplied.
     """
     if not isinstance(evidence_recorder, ResearchEvidenceRecorder):
         raise ValueError("the canonical ResearchEvidenceRecorder is required")
@@ -101,8 +102,8 @@ def build_hermes_stage_handlers(
         executors["electrical_analysis"] = electrical_executor
     if any(not callable(executor) for executor in executors.values()):
         raise ValueError("all registered stage executors must be callable")
-    if not callable(artifact_verifier):
-        raise ValueError("an independent CACE artifact verifier is required")
+    if artifact_verifier is not None and not callable(artifact_verifier):
+        raise ValueError("artifact_verifier must be callable or None")
     if not isinstance(repository, str) or "/" not in repository:
         raise ValueError("repository must be owner/name")
     if not isinstance(commit_sha, str) or len(commit_sha) != 40 or any(c not in "0123456789abcdef" for c in commit_sha):
@@ -141,25 +142,38 @@ def build_hermes_stage_handlers(
             if recorded.get("artifact_verified") is not True:
                 raise RuntimeError("canonical registry did not verify the recorded artifact")
             digest = recorded["artifact_sha256"]
-            context.emit_progress(_contract["label"] + " artifact stored; requesting independent CACE verification")
-            cace_result = artifact_verifier(
-                project_id=project_id,
-                repository=repository,
-                commit_sha=commit_sha,
-                artifact_sha256=digest,
-                artifact_kind=_stage,
-                artifact_schema=str(output["metadata"].get("artifact_schema") or output["media_type"]),
-                requester_id=requester_id,
-                logical_path=logical_path,
-            )
-            if not isinstance(cace_result, Mapping):
-                raise TypeError("CACE artifact verifier must return a receipt result")
-            cace_result = dict(cace_result)
-            if cace_result.get("artifact_sha256") != digest:
-                raise ValueError("CACE result does not bind the submitted artifact digest")
             theorem_receipts = []
             theorem_claims = output["metadata"].get("theorem_claims", [])
-            if theorem_claims:
+            if artifact_verifier is None:
+                # Missing verifier credentials must not block independent research
+                # and artifact capture, but must never be reported as verified.
+                cace_result = {
+                    "schema": "merlin-cace-verification-result/1",
+                    "verification_status": "blocked_missing_credentials",
+                    "reason_code": "cace_verifier_not_configured",
+                    "artifact_sha256": digest,
+                    "promotion_authority": False,
+                }
+            else:
+                context.emit_progress(_contract["label"] + " artifact stored; requesting independent CACE verification")
+                cace_result = artifact_verifier(
+                    project_id=project_id,
+                    repository=repository,
+                    commit_sha=commit_sha,
+                    artifact_sha256=digest,
+                    artifact_kind=_stage,
+                    artifact_schema=str(output["metadata"].get("artifact_schema") or output["media_type"]),
+                    requester_id=requester_id,
+                    logical_path=logical_path,
+                )
+                if not isinstance(cace_result, Mapping):
+                    raise TypeError("CACE artifact verifier must return a receipt result")
+                cace_result = dict(cace_result)
+                if cace_result.get("artifact_sha256") != digest:
+                    raise ValueError("CACE result does not bind the submitted artifact digest")
+            if theorem_claims and cace_result.get("verification_status") == "blocked_missing_credentials":
+                cace_result["theorem_verification_status"] = "blocked_missing_credentials"
+            elif theorem_claims:
                 if theorem_verifier is None:
                     raise RuntimeError("compiled theorem claims require an independent CACE theorem verifier")
                 if not isinstance(theorem_claims, list):
