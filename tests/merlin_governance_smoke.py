@@ -35,6 +35,8 @@ assert result["duplicate_primary_assignments"]==[]
 storage=load("merlin_storage_guard.py")
 r=storage.check(root/"state"/"merlin-storage-smoke",10**9,1000,0)
 assert r["ok"]
+projected=storage.check(root/"state"/"merlin-storage-projection-smoke",10,1000,0,additional_bytes=11,additional_files=1)
+assert not projected["ok"] and any("byte quota" in e for e in projected["errors"])
 yt=load("merlin_youtube_discover.py")
 try: yt.validate_transcript(Path("x.vtt"),"unknown")
 except ValueError: pass
