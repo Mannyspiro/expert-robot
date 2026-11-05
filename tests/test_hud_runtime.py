@@ -66,6 +66,15 @@ class HudRuntimeTests(unittest.TestCase):
         self.assertEqual(outbox["status"], "200 OK")
         self.assertIn("pending", outbox["body"]["counts"])
 
+    def test_optional_hypothesis_and_outbox_views_are_explicit(self):
+        runtime = build_hud_runtime(registry=self.registry, graph=self.graph)
+        hypotheses = self.request(runtime.application, "/api/hud/hypotheses")
+        self.assertEqual(hypotheses["status"], "200 OK")
+        self.assertFalse(hypotheses["body"]["configured"])
+        outbox = self.request(runtime.application, "/api/hud/outbox")
+        self.assertEqual(outbox["status"], "200 OK")
+        self.assertFalse(outbox["body"]["configured"])
+
     def test_activity_get_does_not_acknowledge_outbox_events(self):
         self.outbox.enqueue(
             "test-telemetry", "merlin.telemetry.task.progress",
