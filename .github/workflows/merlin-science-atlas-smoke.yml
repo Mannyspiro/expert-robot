@@ -73,6 +73,9 @@ jobs:
   smoke:
     runs-on: avrea-ubuntu-latest-8-vcpu
     timeout-minutes: 8
+    env:
+      PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      PR_BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -84,7 +87,9 @@ jobs:
           mkdir -p artifacts
           {
             echo "repository=$GITHUB_REPOSITORY"
-            echo "commit=$GITHUB_SHA"
+            echo "merge_sha=$GITHUB_SHA"
+            echo "head_sha=$PR_HEAD_SHA"
+            echo "base_sha=$PR_BASE_SHA"
             echo "event=$GITHUB_EVENT_NAME"
             echo "run_id=$GITHUB_RUN_ID"
             echo "run_attempt=$GITHUB_RUN_ATTEMPT"
@@ -104,7 +109,7 @@ jobs:
             name="$1"; shift
             "$@" 2>&1 | tee "artifacts/$name.log"
             rc=${PIPESTATUS[0]}
-            printf '{"suite":"%s","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$name" "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$rc" > "artifacts/$name-result.json"
+            printf '{"suite":"%s","head_sha":"%s","merge_sha":"%s","base_sha":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$name" "$PR_HEAD_SHA" "$GITHUB_SHA" "$PR_BASE_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$rc" > "artifacts/$name-result.json"
             if [ "$rc" -ne 0 ]; then failed=1; fi
           }
           run_check "discipline-taxonomy-json" python3 -m json.tool research/science/discipline-taxonomy.v1.json
@@ -135,7 +140,7 @@ jobs:
           python3 - <<'PY'
           import json, os
           keys = ("GITHUB_REPOSITORY", "GITHUB_SHA", "GITHUB_REF", "GITHUB_EVENT_NAME",
-                  "GITHUB_RUN_ID", "GITHUB_RUN_ATTEMPT", "GITHUB_WORKFLOW", "RUNNER_NAME")
+                  "GITHUB_RUN_ID", "GITHUB_RUN_ATTEMPT", "GITHUB_WORKFLOW", "RUNNER_NAME", "PR_HEAD_SHA", "PR_BASE_SHA")
           payload = {key.lower(): os.environ.get(key, "") for key in keys}
           payload["job_status"] = os.environ.get("JOB_STATUS", "unknown")
           with open("artifacts/science-atlas-evidence.json", "w", encoding="utf-8") as handle:
