@@ -152,6 +152,33 @@ def build_hermes_stage_handlers(
             if recorded.get("artifact_verified") is not True:
                 raise RuntimeError("canonical registry did not verify the recorded artifact")
             digest = recorded["artifact_sha256"]
+            if artifact_verifier is None:
+                # Missing verifier credentials must not block independent research
+                # and artifact capture, but must never be reported as verified.
+                cace_result = {
+                    "schema": "merlin-cace-verification-result/1",
+                    "verification_status": "blocked_missing_credentials",
+                    "reason_code": "cace_verifier_not_configured",
+                    "artifact_sha256": digest,
+                    "promotion_authority": False,
+                }
+            else:
+                context.emit_progress(_contract["label"] + " artifact stored; requesting independent CACE verification")
+                cace_result = artifact_verifier(
+                    project_id=project_id,
+                    repository=repository,
+                    commit_sha=commit_sha,
+                    artifact_sha256=digest,
+                    artifact_kind=_stage,
+                    artifact_schema=str(output["metadata"].get("artifact_schema") or output["media_type"]),
+                    requester_id=requester_id,
+                    logical_path=logical_path,
+                )
+                if not isinstance(cace_result, Mapping):
+                    raise TypeError("CACE artifact verifier must return a receipt result")
+                cace_result = dict(cace_result)
+                if cace_result.get("artifact_sha256") != digest:
+                    raise ValueError("CACE result does not bind the submitted artifact digest")
             theorem_receipts = []
             lean_dispatch_receipts = []
             theorem_claims = output["metadata"].get("theorem_claims", [])
