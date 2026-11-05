@@ -46,7 +46,7 @@ Enqueue it:
 
     python3 workers/archive_intake/hermes_outbox.py enqueue ./data/hermes-outbox/event.json --database ./data/merlin.sqlite3
 
-The outbox supports lease, retry and acknowledgement. Acknowledgements must accept the exact event ID and be returned by the worker that owns the lease. `HermesTransport` is the integration interface for a real Hermes client. No Hermes endpoint or credentials are configured here, so this PR does not claim live event delivery.
+The outbox supports lease, retry and acknowledgement. Acknowledgements must accept the exact event ID and be returned by the worker that owns the lease. `HermesTransport` is the integration interface for a real Hermes client. Delivery is at-least-once; the receiving Hermes service must deduplicate by event ID. No Hermes endpoint or credentials are configured here, so this PR does not claim live event delivery.
 
 ## 5. Avrea approval and dispatch gate
 
@@ -58,7 +58,7 @@ Then submit:
 
     python3 workers/archive_intake/avrea_dispatch.py submit task.json --approval approval.json --policy workers/archive_intake/avrea-policy.example.json --database ./data/merlin.sqlite3
 
-Without a configured Avrea provider, the task remains `approved_waiting_for_provider`; it is not executed. A provider adapter must implement submit/result retrieval and return a result manifest whose artifacts each have a SHA-256 and retrieval URI. This repository currently has no Avrea connector or provider credentials, so no Avrea job has been dispatched. Approval records are operator-entered local records; production must add authenticated identity and signed approval receipts before multi-user use.
+Without a configured Avrea provider, the task remains `approved_waiting_for_provider`; it is not executed. A provider adapter must implement submit/result retrieval and return a result manifest whose artifacts each have a SHA-256 and retrieval URI. The adapter must enforce the supplied CPU, memory, timeout and output limits at the worker/container boundary; the Merlin queue validates and records these limits but cannot enforce a remote worker's OS quotas itself. This repository currently has no Avrea connector or provider credentials, so no Avrea job has been dispatched. Approval records are operator-entered local records; production must add authenticated identity and signed approval receipts before multi-user use.
 
 ## 6. CACE verification
 
