@@ -112,6 +112,46 @@ class CaceAdapterTests(unittest.TestCase):
                             edge["source_id"] == result["receipt_graph_node_id"]
                             for edge in snapshot["edges"]))
 
+    def test_generic_cace_artifact_receipt_binds_cad_or_simulation_output(self):
+        graph = MerlinKnowledgeGraph(Path(self.temp.name) / "artifact-graph.sqlite3")
+        artifact_path = "engineering/assembly.json"
+        artifact_digest = self.registry.put_artifact(
+            "merlin", artifact_path, b'{"schema":"merlin-freecad-document-mesh/1"}',
+            "application/json",
+        )
+        def transport(request):
+            receipt = {
+                "schema": "cace-artifact-verification/1",
+                "repository": request["repository"],
+                "commit_sha": request["commit_sha"],
+                "artifact_sha256": request["artifact_sha256"],
+                "artifact_kind": request["artifact_kind"],
+                "artifact_schema": request["artifact_schema"],
+                "logical_path": request["logical_path"],
+                "verifier_id": "cace:independent-artifact-checker",
+                "source_commit_verified": True,
+                "artifact_digest_verified": True,
+                "verification_status": "verified",
+            }
+            body = json.dumps(receipt, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+            receipt["receipt_sha256"] = hashlib.sha256(body.encode()).hexdigest()
+            return receipt
+        adapter = CaceVerificationAdapter(
+            verify_transport=transport, registry=self.registry,
+            outbox=self.outbox, graph=graph,
+        )
+        result = adapter.verify_artifact(
+            project_id="merlin", repository="owner/repo", commit_sha=self.commit,
+            artifact_sha256=artifact_digest, artifact_kind="cad_assembly",
+            artifact_schema="merlin-freecad-document-mesh/1",
+            requester_id="merlin-agent", logical_path=artifact_path,
+        )
+        self.assertEqual(result["verification_status"], "verified")
+        self.assertFalse(result["promotion_authority"])
+        self.assertTrue(self.registry.verify_artifact(result["receipt_artifact_sha256"]))
+        self.assertTrue(any(edge["relation"] == "reviews"
+                            for edge in graph.export_snapshot()["edges"]))
+
     def test_missing_cace_transport_fails_closed(self):
         adapter = CaceVerificationAdapter(verify_transport=None,
                                           registry=self.registry,outbox=self.outbox)
