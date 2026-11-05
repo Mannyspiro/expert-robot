@@ -66,6 +66,16 @@ class MerlinReadAPI:
             raise RuntimeError("knowledge graph is not configured")
         return self.graph_store.export_snapshot()
 
+    def graph_summary(self) -> dict[str, Any]:
+        snapshot = self.graph()
+        return {
+            "schema": snapshot["schema_version"],
+            "snapshot_sha256": snapshot["snapshot_sha256"],
+            "node_count": len(snapshot["nodes"]),
+            "edge_count": len(snapshot["edges"]),
+            "epistemic_notice": snapshot["epistemic_notice"],
+        }
+
     def outbox_status(self) -> dict[str, Any]:
         if self.outbox is None:
             raise RuntimeError("event outbox is not configured")
@@ -83,7 +93,7 @@ class MerlinReadAPI:
         if self.hypotheses is not None:
             result["hypotheses"] = self.list_hypotheses(limit=100)
         if self.graph_store is not None:
-            result["graph"] = self.graph_store.export_snapshot()
+            result["graph"] = self.graph_summary()
         if self.outbox is not None:
             result["outbox"] = self.outbox_status()
         return result
