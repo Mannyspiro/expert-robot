@@ -57,7 +57,7 @@ assert 'result.get("status") in ("pass", "fail")' in external
 assert "valid structured FAIL result" in external
 assert 'echo "qualification_passed=false"' in external
 assert "Persist CACE evidence in Expert Robot" in external
-assert '"verification_level": "integrity-checked; Ed25519 signer trust not established"' in external
+assert '"verification_level": "integrity-checked; source archive, request, commit, workflow and toolchain bound; signer key not yet configured"' in external
 assert "EXPERT_ROBOT_SSH_PRIVATE_KEY" not in external
 
 # A failed qualification remains valid evidence, but it must not create a PR
