@@ -42,6 +42,7 @@ jobs:
           test "$(git -C /tmp/liboqs rev-parse HEAD)" = "5a1a854b0dc9f2141bdc771c555ee60c37950183"
           ACVP_TAG_SHA="$(git ls-remote https://github.com/usnistgov/ACVP-Server.git refs/tags/v1.1.0.41 | awk '{print $1}')"
           test "$ACVP_TAG_SHA" = "b121fee031dc65d32c96f4109a42a10dacbe2076"
+          echo "ACVP_TAG_SHA=$ACVP_TAG_SHA" >> "$GITHUB_ENV"
           {
             echo "liboqs_commit=$(git -C /tmp/liboqs rev-parse HEAD)"
             echo "acvp_server_commit=$ACVP_TAG_SHA"
@@ -76,9 +77,13 @@ jobs:
           set -euo pipefail
           cd /tmp/liboqs
           export OQS_BUILD_DIR=build
+          set +e
           /tmp/titan-pqc-venv/bin/python -m pytest -q tests/test_acvp_vectors.py \
             --junitxml="$GITHUB_WORKSPACE/titan-acvp-junit.xml" \
             | tee "$GITHUB_WORKSPACE/titan-acvp-test.log"
+          rc=${PIPESTATUS[0]}
+          echo "$rc" > "$GITHUB_WORKSPACE/titan-acvp-exit-code.txt"
+          exit "$rc"
 
       - name: Record exact source and vector evidence
         if: always()
@@ -86,7 +91,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 - <<'PY'
-          import hashlib, json, os, pathlib, subprocess, sys
+          import hashlib, json, os, pathlib, subprocess, xml.etree.ElementTree as ET
           root=pathlib.Path(os.environ["GITHUB_WORKSPACE"])
           def sha(p):
               p=pathlib.Path(p)
@@ -94,6 +99,28 @@ jobs:
           def git(path,*args):
               try:return subprocess.check_output(["git","-C",path,*args],text=True).strip()
               except Exception:return None
+          rc_path=root/"titan-acvp-exit-code.txt"
+          rc_text=rc_path.read_text().strip() if rc_path.exists() else None
+          junit_path=root/"titan-acvp-junit.xml"
+          suites={}
+          counts={"tests":0,"passed":0,"skipped":0,"failed":0}
+          if junit_path.exists():
+              tree=ET.parse(junit_path)
+              for case in tree.iter("testcase"):
+                  name=case.attrib.get("name","")
+                  suite=("FIPS203" if "ML-KEM" in name else
+                         "FIPS204" if "ML-DSA" in name else
+                         "FIPS205" if "SLH_DSA" in name else None)
+                  if suite is None: continue
+                  row=suites.setdefault(suite,{"tests":0,"passed":0,"skipped":0,"failed":0})
+                  row["tests"]+=1
+                  counts["tests"]+=1
+                  if case.find("skipped") is not None:
+                      row["skipped"]+=1; counts["skipped"]+=1
+                  elif case.find("failure") is not None or case.find("error") is not None:
+                      row["failed"]+=1; counts["failed"]+=1
+                  else:
+                      row["passed"]+=1; counts["passed"]+=1
           report={
             "schema_version":1,
             "evidence_type":"titan-pqc-acvp-test",
@@ -101,11 +128,16 @@ jobs:
             "workflow_run_attempt":os.environ.get("GITHUB_RUN_ATTEMPT"),
             "titan_source_commit":os.environ.get("GITHUB_SHA"),
             "provider":{"repository":"https://github.com/open-quantum-safe/liboqs","release":"0.16.0","commit":git("/tmp/liboqs","rev-parse","HEAD")},
-            "vectors":{"repository":"https://github.com/usnistgov/ACVP-Server","tag":"v1.1.0.41","commit":git("/tmp/acvp-server","rev-parse","v1.1.0.41^{commit}")},
+            "vectors":{"repository":"https://github.com/usnistgov/ACVP-Server","tag":"v1.1.0.41","commit":os.environ.get("ACVP_TAG_SHA")},
+            "test_suites":["FIPS203","FIPS204","FIPS205"],
+            "suite_results":suites,
+            "test_counts":counts,
+            "test_exit_code":int(rc_text) if rc_text and rc_text.isdigit() else None,
+            "known_answer_tests_run":junit_path.exists(),
+            "test_result":"pass" if rc_text=="0" else ("fail" if rc_text else "not_completed"),
             "test_log_sha256":sha(root/"titan-acvp-test.log"),
-            "junit_sha256":sha(root/"titan-acvp-junit.xml"),
+            "junit_sha256":sha(junit_path),
             "runner_name":os.environ.get("RUNNER_NAME"),
-            "status":"see_workflow_job_conclusion",
             "fips_validation_claim":False,
             "production_eligible":False
           }
