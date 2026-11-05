@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from pathlib import Path, PurePosixPath
 import subprocess
 from typing import Any
@@ -115,6 +116,82 @@ class GitRecoveryAdapter:
             if len(entries) > max_entries:
                 raise ValueError("Git manifest exceeds configured entry-count limit")
         return {"schema": "merlin-git-tree-manifest/1", "commit": commit, "artifacts": entries}
+
+    def audit_history(self, base_commit: str, head_commit: str, *,
+                      max_commits: int = 500) -> dict[str, Any]:
+        """Audit every first-parent commit in a pinned range, not only its net diff.
+
+        Each commit receives a full tracked-tree digest inventory plus Git's
+        rename/copy-aware per-commit change records. Untracked and ignored
+        filesystem entries are deliberately outside this Git-tree audit.
+        """
+        base = self._pinned_commit(base_commit)
+        head = self._pinned_commit(head_commit)
+        commits = subprocess.run(
+            ["git", "-C", str(self.repository), "rev-list", "--reverse",
+             "--first-parent", f"{base}..{head}"],
+            check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            text=True,
+        ).stdout.splitlines()
+        if len(commits) > max_commits:
+            raise ValueError("Git history audit exceeds configured commit limit")
+        # Ensure the requested base is an ancestor of the requested head.
+        subprocess.run(
+            ["git", "-C", str(self.repository), "merge-base", "--is-ancestor", base, head],
+            check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        )
+        entries = []
+        previous = base
+        for commit in commits:
+            changes = subprocess.run(
+                ["git", "-C", str(self.repository), "diff-tree", "--no-commit-id",
+                 "--name-status", "-r", "-M", "-C", "-z", previous, commit],
+                check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            ).stdout.split(b"\\0")
+            records = []
+            index = 0
+            while index < len(changes) and changes[index]:
+                status = changes[index].decode("ascii")
+                index += 1
+                if status.startswith(("R", "C")):
+                    if index + 1 >= len(changes):
+                        raise RuntimeError("truncated Git rename/copy record")
+                    old_path = changes[index].decode("utf-8", errors="surrogateescape")
+                    new_path = changes[index + 1].decode("utf-8", errors="surrogateescape")
+                    index += 2
+                    records.append({"status": status, "old_path": old_path, "new_path": new_path})
+                else:
+                    if index >= len(changes):
+                        raise RuntimeError("truncated Git path record")
+                    path = changes[index].decode("utf-8", errors="surrogateescape")
+                    index += 1
+                    records.append({"status": status, "path": path})
+            before_tree = self.tree_manifest(previous)
+            after_tree = self.tree_manifest(commit)
+            entries.append({
+                "commit": commit,
+                "parent": previous,
+                "change_records": records,
+                "before_tree_sha256": hashlib.sha256(
+                    json.dumps(before_tree, sort_keys=True, separators=(",", ":")).encode()
+                ).hexdigest(),
+                "after_tree_sha256": hashlib.sha256(
+                    json.dumps(after_tree, sort_keys=True, separators=(",", ":")).encode()
+                ).hexdigest(),
+                "before_entry_count": len(before_tree["artifacts"]),
+                "after_entry_count": len(after_tree["artifacts"]),
+            })
+            previous = commit
+        if previous != head:
+            raise ValueError("head commit is not on the requested first-parent range")
+        return {
+            "schema": "merlin-git-history-audit/1",
+            "base_commit": base,
+            "head_commit": head,
+            "commit_count": len(entries),
+            "commits": entries,
+            "untracked_and_ignored_included": False,
+        }
 
     def compare_commits(self, before_commit: str, after_commit: str, *,
                         operation_id: str, actor: str, reason: str) -> dict[str, Any]:
