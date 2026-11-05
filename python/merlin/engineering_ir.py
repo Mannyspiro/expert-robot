@@ -186,6 +186,7 @@ def export_spice_netlist(
     *,
     ground_net: str,
     analysis: str = ".op",
+    measure_nets: tuple[str, ...] = (),
 ) -> str:
     """Export an explicit, deterministic two-terminal SPICE model.
 
@@ -208,6 +209,12 @@ def export_spice_netlist(
         raise ValueError("component_specs contains unknown part references")
     if ground_net not in nets:
         raise ValueError("ground_net must name an existing engineering net")
+    if not isinstance(measure_nets, (tuple, list)) or any(
+        not isinstance(name, str) or name not in nets for name in measure_nets
+    ):
+        raise ValueError("measure_nets must contain existing engineering net names")
+    if len(measure_nets) != len(set(measure_nets)):
+        raise ValueError("measure_nets must not contain duplicates")
 
     endpoint_to_net = {
         endpoint: net.name for net in project.nets for endpoint in net.endpoints
@@ -259,7 +266,12 @@ def export_spice_netlist(
 
     if not used_refs:
         raise ValueError("no explicitly modelled two-terminal components were exported")
-    lines.extend([analysis, ".end"])
+    lines.append(analysis)
+    for net_name in measure_nets:
+        node_name = node_names[net_name]
+        measure_name = "v_" + re.sub(r"[^A-Za-z0-9_]", "_", node_name).lower()
+        lines.append(f".meas op {measure_name} FIND v({node_name})")
+    lines.append(".end")
     return "\n".join(lines) + "\n"
 
 
