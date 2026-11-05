@@ -19,8 +19,11 @@ class HermesOutboxConsumer:
 
     def consume_one(self, worker_id: str, handler: Callable[[dict[str, Any]], Mapping[str, Any]],
                     *, lease_seconds: float = 60, retry_delay_seconds: float = 5,
-                    max_attempts: int = 5, now: float | None = None) -> dict[str, Any] | None:
-        lease = self.outbox.claim_next(worker_id, lease_seconds=lease_seconds, now=now)
+                    max_attempts: int = 5,
+                    topics: tuple[str, ...] = ("merlin.hermes.task",),
+                    now: float | None = None) -> dict[str, Any] | None:
+        lease = self.outbox.claim_next(worker_id, lease_seconds=lease_seconds,
+                                       topics=topics, now=now)
         if lease is None:
             return None
         event = {key: value for key, value in lease.items() if key != "lease_token"}
