@@ -230,7 +230,6 @@ class ProofObservatory:
         domain_to_registry_domains: dict[str, tuple[str, ...]] | None = None,
     ) -> list[str]:
         """Link benchmark receipts to explicit theorem-DAG nodes and Engineering IR revision."""
-        receipt_hash = self.record_benchmark_receipt(receipt)
         if theorem_dag.get("schema") != "merlin-theorem-dependency-dag-v1":
             raise ValueError("unsupported theorem DAG schema")
         dag_payload = {key: value for key, value in theorem_dag.items() if key != "dag_sha256"}
@@ -245,6 +244,7 @@ class ProofObservatory:
             "cad": ("manufacturing", "electrical", "thermal"),
         }
         nodes = theorem_dag.get("nodes", [])
+        receipt_hash = self.record_benchmark_receipt(receipt)
         created = []
         for benchmark_domain, benchmark in receipt["domains"].items():
             if not benchmark.get("passed"):
