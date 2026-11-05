@@ -7,6 +7,8 @@ def load(name):
 policy=json.loads((root/"research/science/merlin-research-governance.v1.json").read_text())
 assert "engineering_plan_before_creation" in policy["non_bypassable_gates"]
 assert "problem_decomposition_and_reframing" in policy["non_bypassable_gates"]
+assert "fuzzy_and_n_valued_logic_lens_review" in policy["non_bypassable_gates"]
+assert "bounded_ideonomy_and_hypothesis_enumeration" in policy["non_bypassable_gates"]
 assert "confirmation_bias" in policy["bias_and_fallacy_review"]["cognitive_biases"]
 assert "affirming_the_consequent" in policy["bias_and_fallacy_review"]["logical_fallacies"]
 assert policy["youtube_policy"]["cc_by_nc_sa_requires_explicit_noncommercial_use"] is True
@@ -18,6 +20,11 @@ sample["requirements"][0]["acceptance"]="The fixture returns no validation error
 sample["domain_scope"]["primary_domain"]="computer-information"
 sample["design"]["method"]="contract test"
 sample["design"]["limitations"]="smoke-test only"
+sample["research_methods"]["applicable"]=True
+sample["research_methods"]["ideonomy"]["enumeration_scope"]="domain x operation x relation"
+sample["research_methods"]["logic_lenses"]["include_fuzzy"]=True
+sample["research_methods"]["ranking_criteria"]=["semantic_fit","testability"]
+sample["research_methods"]["hypothesis_disconfirmation"]="Construct a counterexample"
 sample["problem_representation"]["original_problem"]="Test governance plan"
 sample["problem_representation"]["decomposition"]["subproblems"][0].update(objective="Define the test",interface="Test input",acceptance="Input defined")
 sample["problem_representation"]["decomposition"]["subproblems"][1].update(objective="Validate the test",interface="Validation output",acceptance="Output checked")
