@@ -326,3 +326,19 @@ cognition stack, swarm, skill governance, recursive lemma search, and bounded
 research engine are now implemented behind C++ interfaces. The next milestones
 are benchmark corpus expansion, real local-model qualification runs, and
 measured promotion of only the capabilities that improve Lean-verified results.
+
+
+## Merlin science and mathematics atlas
+
+The first responsive Atlas of Inquiry web app is under `apps/merlin-web/`. Its extensible ontology, rights-aware source registry and ingestion contracts are under `research/science/`.
+
+- Platform method and integration: `docs/MERLIN_SCIENCE_HISTORY_PHILOSOPHY_PLATFORM.md`
+- Discipline ontology: `research/science/discipline-taxonomy.v1.json`
+- Public/open source directory: `research/science/source-registry.v1.json`
+- Rights-aware intake contract: `research/science/ingestion-contract.v1.json`
+- Pioneer dossiers: `research/science/reading-notes/`
+- Google Books metadata discovery: `scripts/merlin_google_books_discover.py`
+- Rights-aware source staging: `scripts/merlin_science_intake.py`
+- Primary-source to Merlin runtime bridge: `scripts/merlin_science_ideonomy_packet.py`
+
+The web app is currently a static, read-only first release; persistent storage, authenticated remote ingestion and production deployment remain separate gates. Public visibility is not assumed to grant reuse rights: full text is accepted only when the exact item/edition is public domain or explicitly open-licensed. Generated research remains unreviewed until independent domain review.
