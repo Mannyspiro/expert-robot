@@ -16,7 +16,7 @@ for secret_name in (
 ):
     assert secret_name not in external
 
-assert 'BRIDGE_BASE_BRANCH: executor/expert-robot-bridge' in external
+assert 'BRIDGE_BASE_BRANCH: repair/oci-disk-diagnostics-20261105' in external
 assert 'REQUEST_BRANCH: cace-request/${{ steps.package.outputs.request_id }}' in external
 assert 'git fetch origin "$BRIDGE_BASE_BRANCH:refs/remotes/origin/$BRIDGE_BASE_BRANCH"' in external
 assert 'git checkout -b "$REQUEST_BRANCH" "refs/remotes/origin/$BRIDGE_BASE_BRANCH"' in external
