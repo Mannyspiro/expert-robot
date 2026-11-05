@@ -20,6 +20,15 @@ with tempfile.TemporaryDirectory() as td:
       "verification":{"tests":["planless rejection","planned dispatch"],"independent_check":"Avrea CI runner."},
       "rollback":"Temporary directory is removed after test."
     }
+    sys.path.insert(0,str(root/"scripts"))
+    from merlin_problem_reframing import template as reframe_template
+    rp=reframe_template("dispatch-gate-smoke")
+    rp["original_problem"]="Test plan dispatch"
+    rp["decomposition"]["subproblems"][0].update(objective="Define the task",interface="Input contract",acceptance="Task is defined")
+    rp["decomposition"]["subproblems"][1].update(objective="Validate dispatch",interface="Plan object",acceptance="Dispatch is validated")
+    rp["representations"][0].update(encoding="Task specification",mapping="Identity",preserved_invariants=["requirements"],lost_information=[],validity_conditions=["same task"],validation_method="Compare requirements")
+    rp["representations"][1].update(encoding="Dependency graph",mapping="Subtasks map to nodes and dependencies to edges",preserved_invariants=["dependency order"],lost_information=["narrative detail"],validity_conditions=["dependencies explicit"],validation_method="Topological consistency")
+    plan["problem_representation"]=rp
     plan_path=tmp/"plan.json"; plan_path.write_text(json.dumps(plan))
     accepted=subprocess.run(task+["--plan",str(plan_path)],capture_output=True,text=True,timeout=20)
     assert accepted.returncode==0, accepted.stderr
