@@ -111,6 +111,7 @@ class CaceAdapterTests(unittest.TestCase):
         self.assertTrue(any(edge["relation"] == "reviews" and
                             edge["source_id"] == result["receipt_graph_node_id"]
                             for edge in snapshot["edges"]))
+        self.assertEqual(self.registry.get_artifact_bytes(self.artifact), self.artifact_bytes)
 
     def test_generic_cace_artifact_receipt_binds_cad_or_simulation_output(self):
         graph = MerlinKnowledgeGraph(Path(self.temp.name) / "artifact-graph.sqlite3")
@@ -153,6 +154,10 @@ class CaceAdapterTests(unittest.TestCase):
         self.assertTrue(self.registry.verify_artifact(result["receipt_artifact_sha256"]))
         self.assertTrue(any(edge["relation"] == "reviews"
                             for edge in graph.export_snapshot()["edges"]))
+        self.assertEqual(
+            self.registry.get_artifact_bytes(artifact_digest),
+            b'{"schema":"merlin-freecad-document-mesh/1"}',
+        )
 
     def test_missing_cace_transport_fails_closed(self):
         adapter = CaceVerificationAdapter(verify_transport=None,
