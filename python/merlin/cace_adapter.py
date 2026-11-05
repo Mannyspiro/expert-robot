@@ -225,6 +225,11 @@ class CaceVerificationAdapter:
         status = receipt.get("verification_status")
         if status not in {"verified", "rejected", "inconclusive"}:
             raise ValueError("unsupported CACE artifact verification status")
+        if status == "verified":
+            if receipt.get("artifact_schema_validated") is not True:
+                raise ValueError("verified artifact receipt requires artifact_schema_validated=true")
+            if receipt.get("artifact_content_verified") is not True:
+                raise ValueError("verified artifact receipt requires artifact_content_verified=true")
         supplied_digest = receipt.get("receipt_sha256")
         body = {key: value for key, value in receipt.items() if key != "receipt_sha256"}
         expected_digest = hashlib.sha256(_canonical(body).encode("utf-8")).hexdigest()
