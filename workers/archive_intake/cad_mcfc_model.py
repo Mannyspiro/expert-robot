@@ -31,6 +31,24 @@ def multiply(a,b):
     validate_matrix(a); validate_matrix(b)
     return [[sum(a[i][k]*b[k][j] for k in range(4)) for j in range(4)] for i in range(4)]
 
+def inverse_affine(m):
+    validate_matrix(m)
+    a=[row[:3] for row in m[:3]]; det=determinant3(a)
+    if abs(det)<1e-12: raise ValueError("affine transform is singular")
+    inv=[
+      [(a[1][1]*a[2][2]-a[1][2]*a[2][1])/det,(a[0][2]*a[2][1]-a[0][1]*a[2][2])/det,(a[0][1]*a[1][2]-a[0][2]*a[1][1])/det],
+      [(a[1][2]*a[2][0]-a[1][0]*a[2][2])/det,(a[0][0]*a[2][2]-a[0][2]*a[2][0])/det,(a[0][2]*a[1][0]-a[0][0]*a[1][2])/det],
+      [(a[1][0]*a[2][1]-a[1][1]*a[2][0])/det,(a[0][1]*a[2][0]-a[0][0]*a[2][1])/det,(a[0][0]*a[1][1]-a[0][1]*a[1][0])/det]
+    ]
+    t=[m[i][3] for i in range(3)]
+    return [inv[i]+[-sum(inv[i][j]*t[j] for j in range(3))] for i in range(3)]+[[0,0,0,1]]
+
+def compose_frames(parent_from_child,child_from_local):
+    return multiply(parent_from_child,child_from_local)
+
+def transform_points(m,points):
+    return [transform_point(m,p) for p in points]
+
 def transform_point(m,p):
     validate_matrix(m)
     if len(p)!=3 or any(not isinstance(x,(int,float)) or isinstance(x,bool) or not math.isfinite(x) for x in p):
@@ -44,6 +62,8 @@ def validate_simulation(meta):
     if any(k not in meta for k in required): raise ValueError("simulation metadata missing required fields")
     for k in ("model_sha256","input_sha256"):
         if not isinstance(meta[k],str) or len(meta[k])!=64 or any(c not in "0123456789abcdef" for c in meta[k]): raise ValueError("invalid "+k)
+    if not isinstance(meta["units"],dict) or not isinstance(meta["parameters"],dict) or not isinstance(meta["boundary_conditions"],dict):
+        raise ValueError("units, parameters and boundary_conditions must be objects")
     return {**meta,"metadata_version":"1.0","status":"not_verified"}
 
 def validate_wiring(connections):
