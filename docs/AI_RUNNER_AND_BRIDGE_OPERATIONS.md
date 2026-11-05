@@ -33,6 +33,7 @@ The CACE bridge branch is a persistent transport/work branch. CACE owns the cano
 - Observed runner identity: `avrea-exe-01a1ac6b4ea176b9a41efe2383196a5e`.
 - Observed platform: Linux x86_64 / amd64; the CI workflow records `RUNNER_NAME`, `RUNNER_OS`, `RUNNER_ARCH`, `RUNNER_ENVIRONMENT`, `uname`, and `nproc`.
 - Used by Expert Robot CI, workflow lint, and the forward bridge dispatcher.
+- The forward bridge workflow uses its repository-scoped `GITHUB_TOKEN` with `contents: write` only to persist validated CACE request/result/log/manifest evidence on the Expert Robot branch. Checkout retains that token for the final fast-forward-only evidence commit. The SSH agent key is used only for CACE-app transport.
 - This is a GitHub Actions runner label, not evidence of a direct Avrea API integration. The bridge does not require an Avrea API token.
 - Do not assume that a different repository or GitHub account can use the label; verify that the target repository has access to the runner group.
 
