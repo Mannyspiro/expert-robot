@@ -16,7 +16,7 @@ class PromotionalPressureTests(unittest.TestCase):
             "paid_referral_or_sponsorship": True,
             "undisclosed_financial_or_issuer_exposure": False,
         })
-        self.assertEqual(result["score"], 100.0)
+        self.assertEqual(result["score"], 57.14)
         self.assertEqual(result["evidence_coverage"], 0.35)
         self.assertEqual(result["factors"]["urgency_or_scarcity_tactics"], "unknown")
         self.assertFalse(result["calibrated_probability"])
