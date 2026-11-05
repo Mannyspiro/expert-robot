@@ -40,7 +40,7 @@ output{font-weight:700}.muted{opacity:.75}.question{padding:.8rem;background:#88
 <label>Learner ID <input id="learner" value="demo-art-math-learner" maxlength="100"></label>
 <label>Session ID <input id="session" maxlength="100"></label>
 <button id="save" disabled>Save math and art evidence</button>
-<p id="saveStatus" aria-live="polite">Complete the mathematical check and add an artistic reflection to enable saving.</p>
+<p id="saveStatus" aria-live="polite">Submit an answer (right or wrong) and add an artistic reflection to save both kinds of evidence.</p>
 <p class="muted">The lesson records separate mathematical and artistic competency events. Use a pseudonymous learner ID in this local prototype.</p></section>
 <script>
 const el=id=>document.getElementById(id),ns="http://www.w3.org/2000/svg";
@@ -62,24 +62,24 @@ function render(){
 }
 ["n","twist","length","color"].forEach(k=>el(k).addEventListener("input",render));render();
 el("session").value=crypto.randomUUID?crypto.randomUUID():"art-session-"+Date.now();
-let mathCorrect=false;
+let mathCorrect=false,mathAttempted=false,mathScore=0;
 el("check").addEventListener("click",()=>{
  const n=+el("n").value,expected=360/n,answer=Number(el("answer").value);
- mathCorrect=Number.isFinite(answer)&&Math.abs(answer-expected)<1e-9;
+ mathAttempted=true;mathCorrect=Number.isFinite(answer)&&Math.abs(answer-expected)<1e-9;mathScore=mathCorrect?1:0;
  el("feedback").textContent=mathCorrect?"Correct: 360° ÷ "+n+" = "+expected+"°. Each smallest step maps the ideal pattern onto itself.":"Try dividing one full turn (360°) into "+n+" equal parts.";
- el("save").disabled=!mathCorrect||!el("reflection").value.trim();
+ el("save").disabled=!mathAttempted||!el("reflection").value.trim();
 });
-el("reflection").addEventListener("input",()=>{el("save").disabled=!mathCorrect||!el("reflection").value.trim();});
+el("reflection").addEventListener("input",()=>{el("save").disabled=!mathAttempted||!el("reflection").value.trim();});
 el("save").addEventListener("click",async()=>{
  const learner=el("learner").value.trim(),session=el("session").value.trim();
  if(!learner||!session){el("saveStatus").textContent="Enter learner and session IDs.";return;}
- const shared={learner_id:learner,session_id:session,problem_version:"1",rubric_version:"art-math-studio-r1",transfer:false,delayed:false};
+ const shared={learner_id:learner,session_id:session,problem_version:"1",rubric_version:"art-intent-submission-r1",transfer:false,delayed:false};
  const events=[
- {...shared,attempt_id:crypto.randomUUID(),idea_id:"MATH-ART-001",problem_id:"radial-symmetry-step-angle",dimension:"recognition",score:1,response:{n:+el("n").value,answer:Number(el("answer").value),expected:360/+el("n").value}},
- {...shared,attempt_id:crypto.randomUUID(),idea_id:"ART-PAT-001",problem_id:"radial-pattern-composition",dimension:"artistic_composition",score:.75,response:{choice:el("choice").value,reflection:el("reflection").value,parameters:{n:+el("n").value,twist:+el("twist").value,length:+el("length").value,color:+el("color").value}}}
+ {...shared,attempt_id:crypto.randomUUID(),idea_id:"MATH-ART-001",problem_id:"radial-symmetry-step-angle",dimension:"recognition",score:mathScore,response:{n:+el("n").value,answer:Number(el("answer").value),expected:360/+el("n").value}},
+ {...shared,attempt_id:crypto.randomUUID(),idea_id:"ART-PAT-001",problem_id:"radial-pattern-composition",dimension:"artistic_intent",score:1,response:{choice:el("choice").value,reflection:el("reflection").value,parameters:{n:+el("n").value,twist:+el("twist").value,length:+el("length").value,color:+el("color").value}}}
  ];
  try{for(const event of events){const r=await fetch("/api/learning/attempt",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(event)});const body=await r.json();if(!r.ok)throw Error(body.detail||body.error||"save failed");}
- el("saveStatus").textContent="Saved two separate events: mathematical recognition and artistic composition.";
+ el("saveStatus").textContent="Saved two separate events: mathematical recognition and artistic-intent explanation. Aesthetic quality is not automatically scored.";
  }catch(e){el("saveStatus").textContent="Not saved: run the local Merlin API with the art-math learner schema enabled. No mastery claim was made.";}
 });
 el("download").addEventListener("click",()=>{const clone=el("art").cloneNode(true),source=new XMLSerializer().serializeToString(clone),blob=new Blob([source],{type:"image/svg+xml"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="merlin-symmetry-studio.svg";a.click();URL.revokeObjectURL(url);});
