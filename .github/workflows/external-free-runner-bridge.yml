@@ -38,6 +38,10 @@ on:
       - "tests/test_hud_http.py"
       - "tests/test_hud_runtime.py"
       - "tests/test_registry_queries.py"
+      - "tests/test_merlin_dashboard_bootstrap.py"
+      - "scripts/init_merlin_dashboard_stores.py"
+      - "scripts/run_merlin_hud.sh"
+      - "ui/merlin-hud/index.html"
   workflow_dispatch:
 
 permissions:
