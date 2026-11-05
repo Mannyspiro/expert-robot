@@ -1,0 +1,129 @@
+[
+  {
+    "id": "tr-eligible-01",
+    "expected_route": "lean_compile",
+    "claim": {
+      "claim_id": "cyclic-translation",
+      "formal_statement": "Function.Bijective (fun x : ZMod n => x + k)",
+      "lean_source": "theorem cyclicTranslation_bijective : Function.Bijective (fun x : ZMod n => x + k) := by\n  exact h",
+      "assumptions": [
+        "n natural"
+      ],
+      "falsifiability": [
+        "Lean compile failure"
+      ],
+      "source_ids": [
+        "ideonomy:cpu-locality",
+        "ideonomy:event-queue"
+      ]
+    }
+  },
+  {
+    "id": "tr-ineligible-01",
+    "expected_route": "research_only",
+    "claim": {
+      "claim_id": "analogy",
+      "formal_statement": "True",
+      "lean_source": "-- no formal statement supplied",
+      "assumptions": [
+        "analogy only"
+      ],
+      "falsifiability": [
+        "counterexample"
+      ],
+      "source_ids": [
+        "idea:1"
+      ]
+    }
+  },
+  {
+    "id": "tr-ambiguous-01",
+    "expected_route": "research_only",
+    "claim": {
+      "claim_id": "unclear",
+      "formal_statement": "True",
+      "lean_source": "theorem t : True := by trivial",
+      "assumptions": [
+        "scope unclear"
+      ],
+      "falsifiability": [
+        "clarify scope"
+      ],
+      "source_ids": [
+        "proposal:1"
+      ],
+      "ambiguity": true
+    }
+  },
+  {
+    "id": "tr-malformed-01",
+    "expected_route": "reject",
+    "claim": {
+      "claim_id": "broken",
+      "formal_statement": "True",
+      "lean_source": "theorem t : True := by trivial",
+      "assumptions": [],
+      "falsifiability": [
+        "counterexample"
+      ],
+      "source_ids": [
+        "paper:1"
+      ]
+    }
+  },
+  {
+    "id": "tr-rejected-01",
+    "expected_route": "quarantine",
+    "claim": {
+      "claim_id": "rejected",
+      "formal_statement": "True",
+      "lean_source": "theorem t : True := by trivial",
+      "assumptions": [
+        "none"
+      ],
+      "falsifiability": [
+        "counterexample"
+      ],
+      "source_ids": [
+        "review:reject"
+      ],
+      "previously_rejected": true
+    }
+  },
+  {
+    "id": "tr-eligible-02",
+    "expected_route": "lean_compile",
+    "claim": {
+      "claim_id": "identity",
+      "formal_statement": "Function.Bijective (fun x : Nat => x)",
+      "lean_source": "theorem id_nat : Function.Bijective (fun x : Nat => x) := by exact h",
+      "assumptions": [
+        "Nat"
+      ],
+      "falsifiability": [
+        "kernel rejects"
+      ],
+      "source_ids": [
+        "logic:identity"
+      ]
+    }
+  },
+  {
+    "id": "tr-placeholder-01",
+    "expected_route": "research_only",
+    "claim": {
+      "claim_id": "placeholder",
+      "formal_statement": "True",
+      "lean_source": "theorem t : True := by sorry",
+      "assumptions": [
+        "none"
+      ],
+      "falsifiability": [
+        "compile failure"
+      ],
+      "source_ids": [
+        "draft:1"
+      ]
+    }
+  }
+]
