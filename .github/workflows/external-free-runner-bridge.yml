@@ -569,7 +569,7 @@ jobs:
                     fi
                     cp "$GITHUB_WORKSPACE/bridge/request.json" "$evidence_dir/request.json"
 
-                    python3 - "$REQUEST_ID" "$SOURCE_SHA" "$source_branch" "$evidence_dir" > .cace-return.json <<'PY'
+                    python3 - "$REQUEST_ID" "$GITHUB_SHA" "$source_branch" "$evidence_dir" > .cace-return.json <<'PY'
                     import json
                     import sys
 
@@ -654,7 +654,6 @@ jobs:
           RUNNER_REPO_SSH: git@github.com:morganaspim/Cace-app.git
           BRIDGE_BRANCH: ${{ steps.install.outputs.bridge_branch }}
           REQUEST_ID: ${{ steps.package.outputs.request_id }}
-          SOURCE_SHA: ${{ steps.package.outputs.source_sha }}
         run: |
           set -euo pipefail
 
@@ -675,7 +674,7 @@ jobs:
               got="$(python3 -c 'import json; print(json.load(open("'"$evidence"'/result.json"))["request_id"])' 2>/dev/null || true)"
               if [ "$got" = "$REQUEST_ID" ]; then
                 git -C "$poll" show refs/remotes/origin/bridge:bridge/result.log > "$evidence/result.log" 2>/dev/null || true
-                python3 - "$evidence/result.json" "$evidence/result.log" "$REQUEST_ID" "$SOURCE_SHA" <<'PY'
+                python3 - "$evidence/result.json" "$evidence/result.log" "$REQUEST_ID" "$GITHUB_SHA" <<'PY'
           import hashlib
           import json
           import re
