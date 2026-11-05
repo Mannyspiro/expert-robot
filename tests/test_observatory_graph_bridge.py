@@ -148,7 +148,8 @@ class ObservatoryGraphBridgeTests(unittest.TestCase):
     def test_rejects_a_project_node_with_a_mismatched_identity(self):
         node_id = self.views["project_node_id"]
         node = self.graph.get_node(node_id)
-        self.graph.add_node(GraphNode(
+        tampered_graph = MerlinKnowledgeGraph(self.tmp.name + "/tampered-knowledge.sqlite3")
+        tampered_graph.add_node(GraphNode(
             node_id=node_id,
             node_type="project",
             label=node.label,
@@ -161,7 +162,7 @@ class ObservatoryGraphBridgeTests(unittest.TestCase):
         part_id = self.views["part_object_views"]["U1"]
         with self.assertRaisesRegex(ValueError, "exact Engineering IR revision"):
             link_observatory_to_graph(
-                self.graph, self.project_store, self.observatory,
+                tampered_graph, self.project_store, self.observatory,
                 make_receipt(), make_dag(),
                 project_id="robot-controller", revision=1,
                 object_view_ids_by_domain={"geometry": [part_id]},
