@@ -72,6 +72,7 @@ def main() -> int:
                 "test_suites": ["FIPS203", "FIPS204", "FIPS205"] if known_answer else [],
                 "test_result": test_result,
                 "artifact_sha256": artifact_digest,
+                "verification_artifact_sha256": item.get("cace_verification_artifact_sha256"),
                 "cace_verification_status": item.get("cace_independent_verification")
                     or item.get("cace_bundle_verification", "not_run"),
                 "receipt_profile": "cace-signed-attestation-v2/ML-DSA-65",
