@@ -162,7 +162,7 @@ jobs:
           git config user.name "expert-robot-dispatcher"
           git config user.email "noreply@github.com"
           # Stage removal of the previous bridge-branch result as well as the new request.
-          git add bridge/request.json bridge/expert-robot-source.tar.gz bridge/result.json bridge/result.log
+          git add -A bridge
           git commit -m "Dispatch Expert Robot request: $REQUEST_ID"
 
           # Preserve concurrent CACE result commits. Rebase and fast-forward only;
