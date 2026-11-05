@@ -245,8 +245,10 @@ class RepairSupervisor:
         )
         return result
 
-    def consume_one(self, worker_id: str = "hermes-repair") -> dict[str, Any] | None:
+    def consume_one(self, worker_id: str = "hermes-repair", *,
+                    now: float | None = None) -> dict[str, Any] | None:
+        """Consume one repair event; optional clock injection supports deterministic fault drills."""
         return self.consumer.consume_one(
             worker_id, self._execute, topics=(self.TOPIC,), lease_seconds=180,
-            retry_delay_seconds=10, max_attempts=3,
+            retry_delay_seconds=10, max_attempts=3, now=now,
         )
