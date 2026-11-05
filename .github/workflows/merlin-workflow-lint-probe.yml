@@ -24,7 +24,8 @@ jobs:
         run: |
           set +e
           mkdir -p artifacts
-          {
+          (
+            set +e
             echo "runner=$RUNNER_NAME"
             echo "go=$(command -v go || true)"
             echo "ruby=$(command -v ruby || true)"
@@ -32,10 +33,12 @@ jobs:
             if command -v go >/dev/null 2>&1; then
               go version
               go run github.com/rhysd/actionlint/cmd/actionlint@v1.7.7 -oneline .github/workflows/ci.yml .github/workflows/external-free-runner-bridge.yml
-              echo "actionlint_exit=$?"
+              lint_rc=$?
+              echo "actionlint_exit=$lint_rc"
             elif command -v ruby >/dev/null 2>&1; then
               ruby -e 'require "yaml"; ARGV.each { |p| YAML.load_file(p); puts "YAML PASS: #{p}" }' .github/workflows/ci.yml .github/workflows/external-free-runner-bridge.yml
-              echo "ruby_yaml_exit=$?"
+              lint_rc=$?
+              echo "ruby_yaml_exit=$lint_rc"
             else
               python3 -m pip install --user pyyaml
               python3 - <<'PY'
@@ -45,9 +48,11 @@ jobs:
                   yaml.safe_load(handle)
               print("YAML PASS:", path)
           PY
-              echo "pyyaml_exit=$?"
+              lint_rc=$?
+              echo "pyyaml_exit=$lint_rc"
             fi
-          } 2>&1 | tee artifacts/workflow-lint.log
+            exit "$lint_rc"
+          ) 2>&1 | tee artifacts/workflow-lint.log
           rc=${PIPESTATUS[0]}
           echo "lint_process_exit=$rc" | tee -a artifacts/workflow-lint.log
           exit "$rc"
