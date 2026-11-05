@@ -659,5 +659,120 @@
       "relationship": "Nervous systems, cognition and clinical translation",
       "scope_rationale": "The primary home is the study of nervous systems and behavior; clinical neuroscience is a secondary medical context."
     }
+  ],
+  "video_sources": [
+    {
+      "id": "mit-16842-session-2-requirements",
+      "title": "Session 2: Requirements Definition",
+      "provider": "MIT OpenCourseWare",
+      "course": "16.842 Fundamentals of Systems Engineering (Fall 2015)",
+      "instructor": "Olivier de Weck",
+      "youtube_url": "https://www.youtube.com/watch?v=J_y2I09rj_I",
+      "source_page": "https://ocw.mit.edu/courses/16-842-fundamentals-of-systems-engineering-fall-2015/resources/session-2-requirements-definition/",
+      "transcript_status": "official_page_shows_english_transcript",
+      "rights_status": "open_license_verified_with_restrictions",
+      "license": "CC BY-NC-SA 4.0",
+      "notes": [
+        "Requirements should state what is expected before detailed design begins, then be refined iteratively as design decisions expose lower-level needs.",
+        "Vague or unachievable requirements and missing requirements create downstream cost and schedule risk.",
+        "The Mars Climate Orbiter example illustrates that written interface requirements are not enough: units and interface conformance must be verified in implementation."
+      ],
+      "relevance": [
+        "engineering_plan",
+        "requirements_traceability",
+        "acceptance_criteria",
+        "interface_assumptions",
+        "verification"
+      ]
+    },
+    {
+      "id": "mit-16842-session-9-verification-validation",
+      "title": "Session 9: Verification and Validation",
+      "provider": "MIT OpenCourseWare",
+      "course": "16.842 Fundamentals of Systems Engineering (Fall 2015)",
+      "instructor": "Olivier de Weck",
+      "youtube_url": "https://www.youtube.com/watch?v=-63JXElqPaY",
+      "source_page": "https://ocw.mit.edu/courses/16-842-fundamentals-of-systems-engineering-fall-2015/resources/session-9-verification-and-validation/",
+      "transcript_status": "official_page_shows_english_transcript",
+      "rights_status": "open_license_verified_with_restrictions",
+      "license": "CC BY-NC-SA 4.0",
+      "notes": [
+        "The lecture explicitly covers design verification and validation, design testing, technical risk management and flight-readiness review.",
+        "Use it to distinguish whether an artifact was built according to specification (verification) from whether it satisfies the intended need (validation)."
+      ],
+      "relevance": [
+        "verification",
+        "validation",
+        "test_design",
+        "technical_risk",
+        "release_gates"
+      ]
+    },
+    {
+      "id": "mit-60002-lecture-14-statistical-sins",
+      "title": "Lecture 14: Classification and Statistical Sins",
+      "provider": "MIT OpenCourseWare",
+      "course": "6.0002 Introduction to Computational Thinking and Data Science (Fall 2016)",
+      "instructor": "John Guttag",
+      "youtube_url": "https://www.youtube.com/watch?v=K2SC-WPdT6k",
+      "source_page": "https://ocw.mit.edu/courses/6-0002-introduction-to-computational-thinking-and-data-science-fall-2016/resources/lecture-14-classification-and-statistical-sins/",
+      "transcript_status": "official_page_shows_english_transcript",
+      "rights_status": "open_license_verified_with_restrictions",
+      "license": "CC BY-NC-SA 4.0",
+      "notes": [
+        "The course description identifies statistical fallacies and pitfalls as the focus.",
+        "Candidate extraction topics include classification error, misleading statistical presentation, sampling and interpretation; detailed transcript coding remains pending."
+      ],
+      "relevance": [
+        "statistics",
+        "classification",
+        "data_bias",
+        "statistical_fallacies",
+        "measurement"
+      ]
+    },
+    {
+      "id": "mit-60002-lecture-15-statistical-sins",
+      "title": "Lecture 15: Statistical Sins and Wrap Up",
+      "provider": "MIT OpenCourseWare",
+      "course": "6.0002 Introduction to Computational Thinking and Data Science (Fall 2016)",
+      "instructor": "John Guttag",
+      "youtube_url": "https://www.youtube.com/watch?v=iOZVbILaIZc",
+      "source_page": "https://ocw.mit.edu/courses/6-0002-introduction-to-computational-thinking-and-data-science-fall-2016/resources/lecture-15-statistical-sins-and-wrap-up/",
+      "transcript_status": "official_page_shows_english_transcript",
+      "rights_status": "open_license_verified_with_restrictions",
+      "license": "CC BY-NC-SA 4.0",
+      "notes": [
+        "A chart can mislead through inappropriate axis scaling; the correct scale depends on the phenomenon and the question, not a rigid rule that every axis must start at zero.",
+        "Short-term fluctuations must not be confused with long-term trends; the analysis window should match the timescale of the phenomenon.",
+        "Cherry-picking endpoints or observations can manufacture a desired trend in either direction; inspect the full series and disclose selection choices."
+      ],
+      "relevance": [
+        "cherry_picking",
+        "visualization_bias",
+        "time_series",
+        "measurement",
+        "falsification"
+      ]
+    },
+    {
+      "id": "pressbooks-cognitive-bias-video",
+      "title": "Cognitive Bias",
+      "provider": "Pressbooks-hosted educational transcript",
+      "course": "",
+      "instructor": "",
+      "youtube_url": "https://www.youtube.com/watch?v=TlOUnOWfw3M",
+      "source_page": "https://pressbooks.pub/app/uploads/sites/16016/2024/06/Cognitive-Bias-Ethics-Defined_Transcript.pdf",
+      "transcript_status": "public_transcript_pdf_discovered",
+      "rights_status": "unknown_metadata_only",
+      "license": "unknown",
+      "notes": [],
+      "relevance": [
+        "confirmation_bias",
+        "anchoring",
+        "overconfidence",
+        "cognitive_bias"
+      ]
+    }
   ]
 }
