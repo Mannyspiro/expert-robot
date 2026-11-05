@@ -24,7 +24,7 @@ def build_event(manifest: dict, project_id: str, repository: str | None = None,
       "intake_id":manifest["intake_id"],"manifest_sha256":manifest_sha,"source":source}
     event_id = "sha256:" + hashlib.sha256(
         json.dumps(identity,sort_keys=True,separators=(",",":")).encode()).hexdigest()
-    body = {**identity,"event_id":event_id,"created_at":datetime.now(timezone.utc).isoformat(),
+    body = {**identity,"event_id":event_id,"created_at":manifest.get("finished_at"),
       "archive_sha256":manifest["archive"]["sha256"],"file_count":manifest["file_count"]}
     if source is None:
         body.pop("source")
