@@ -387,7 +387,7 @@ jobs:
               "result_log_sha256": hashlib.sha256((root / "result.log").read_bytes()).hexdigest(),
               "request_sha256": hashlib.sha256((root / "request.json").read_bytes()).hexdigest(),
               "signature_status": result.get("signature_status", "missing"),
-              "verification_level": "integrity-checked; Ed25519 signer trust not established",
+              "verification_level": "integrity-checked; source archive, request, commit, workflow and toolchain bound; signer key not yet configured",
               "authority": "qualification-only",
               "promotion_authority": False,
           }
