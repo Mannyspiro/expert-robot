@@ -85,3 +85,37 @@ def build_research_matrix() -> dict[str, Any]:
             "promotion_rule":"No custom cipher promotion. Use published primitives; require independent cryptographic review and CACE verification."}
 
 __all__=["TitanProfile","Scenario","validate_profile","default_scenarios","simulate_lifecycle","build_research_matrix"]
+
+
+def register_titan_research(registry, graph, project_id: str,
+                            logical_path: str = "research/titan/initial-matrix.json") -> dict[str, Any]:
+    """Persist deterministic research output and provenance graph as unreviewed artifacts."""
+    import hashlib
+    import json
+    from merlin.knowledge_graph import GraphEdge, GraphNode
+
+    report = build_research_matrix()
+    encoded = json.dumps(report, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
+    digest = registry.put_artifact(project_id, logical_path, encoded, "application/json")
+    if not registry.verify_artifact(digest):
+        raise RuntimeError("Titan research artifact failed canonical registry verification")
+
+    artifact_id = f"artifact:titan:{digest[:24]}"
+    module_id = "module:merlin:titan-crypto-lab"
+    registry.relate(module_id, "produces", artifact_id, {"sha256": digest, "status": "unreviewed"})
+    graph.add_node(GraphNode(module_id, "module", "Titan Cryptographic Research Lab",
+                             {"scope": "protocol-state simulation only", "status": "unreviewed"}))
+    graph.add_node(GraphNode(artifact_id, "artifact", "Titan initial cryptographic research matrix",
+                             {"sha256": digest, "logical_path": logical_path,
+                              "schema": report["schema"], "status": "unreviewed"}))
+    graph.add_edge(GraphEdge(module_id, "produces", artifact_id,
+                             {"sha256": digest, "status": "unreviewed"}))
+    return {"artifact_sha256": digest, "artifact_verified": True,
+            "artifact_node_id": artifact_id, "module_node_id": module_id,
+            "scenario_count": len(report["scenarios"]),
+            "research_track_count": len(report["research_tracks"]),
+            "evidence_class": "unreviewed",
+            "claim": "Protocol lifecycle model generated; no cryptographic security claim."}
+
+
+__all__.append("register_titan_research")
