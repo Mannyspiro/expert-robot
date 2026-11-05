@@ -125,6 +125,41 @@ class MerlinRegistry:
             db.execute("INSERT INTO relations VALUES(?,?,?,?)",
                        (source_id, relation, target_id, encoded))
 
+    def list_projects(self, *, limit: int = 100, offset: int = 0) -> dict[str, Any]:
+        """Return a bounded, read-only project index with artifact counts."""
+        if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 500:
+            raise ValueError("limit must be between 1 and 500")
+        if isinstance(offset, bool) or not isinstance(offset, int) or offset < 0:
+            raise ValueError("offset must be a non-negative integer")
+        with self._connect() as db:
+            total = db.execute("SELECT COUNT(*) FROM projects").fetchone()[0]
+            rows = db.execute(
+                "SELECT p.project_id,p.name,p.version,p.metadata_json,"
+                "COUNT(pa.logical_path) AS artifact_count "
+                "FROM projects p LEFT JOIN project_artifacts pa "
+                "ON pa.project_id=p.project_id "
+                "GROUP BY p.project_id ORDER BY p.created_at DESC,p.project_id "
+                "LIMIT ? OFFSET ?",
+                (limit, offset),
+            ).fetchall()
+        return {
+            "schema": "merlin-project-index/1",
+            "items": [
+                {
+                    "project_id": row["project_id"],
+                    "name": row["name"],
+                    "version": row["version"],
+                    "metadata": json.loads(row["metadata_json"]),
+                    "artifact_count": row["artifact_count"],
+                }
+                for row in rows
+            ],
+            "limit": limit,
+            "offset": offset,
+            "total": total,
+        }
+
+
     def inventory(self, project_id: str) -> dict[str, Any]:
         with self._connect() as db:
             project = db.execute("SELECT * FROM projects WHERE project_id=?", (project_id,)).fetchone()
