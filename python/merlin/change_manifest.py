@@ -45,7 +45,15 @@ def build_change_manifest(before: dict[str, Any], after: dict[str, Any],
         raise ValueError("operation_id, actor and reason are required")
 
     def indexed(snapshot):
-        return {item["path"]: item for item in snapshot.get("artifacts", [])}
+        result = {}
+        for item in snapshot.get("artifacts", []):
+            path = item.get("path")
+            if not isinstance(path, str) or not path or path in result:
+                raise ValueError("snapshot contains a missing or duplicate artifact path")
+            if not isinstance(item.get("sha256"), str) or len(item["sha256"]) != 64:
+                raise ValueError("snapshot artifact is missing its SHA-256 digest")
+            result[path] = item
+        return result
 
     old, new = indexed(before), indexed(after)
     items = []
@@ -90,9 +98,15 @@ def validate_change_manifest(manifest: dict[str, Any]) -> None:
         if not path or path in seen or not item.get("disposition"):
             raise ValueError("change manifest has missing or duplicate path disposition")
         seen.add(path)
-        if item.get("change_kind") == "deleted" and item["disposition"] != "approved-retirement":
-            raise ValueError(f"deletion is not approved; preserve artifact: {path}")
+        if item.get("change_kind") == "deleted":
+            if (item["disposition"] != "approved-retirement"
+                    or not item.get("approval_ref")
+                    or item.get("approval_verified") is not True):
+                raise ValueError(f"deletion lacks independently validated approval; preserve artifact: {path}")
         if item.get("change_kind") == "modified" and item["disposition"] not in {
             "superseded-recoverably", "approved-retirement"
         }:
             raise ValueError(f"modified artifact lacks recoverable predecessor: {path}")
+        if item.get("change_kind") == "modified" and item["disposition"] == "superseded-recoverably":
+            if not item.get("before") or not item.get("after"):
+                raise ValueError(f"modified artifact lacks both predecessor and successor: {path}")
