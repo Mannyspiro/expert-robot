@@ -95,6 +95,20 @@ def main() -> int:
     (output / "assembly.scad").write_text(export_openscad(project), encoding="utf-8")
     (output / "divider.cir").write_text(spice, encoding="utf-8")
 
+    # Run the electrical simulation first so its result survives a later CAD
+    # runtime failure and remains independently inspectable in the Actions artifact.
+    (output / "ngspice-measurement.json").write_text(
+        json.dumps({
+            "node": "MID",
+            "expected_voltage_v": 2.5,
+            "measured_voltage_v": measured_mid_voltage,
+            "status": "PASS",
+            "netlist_sha256": hashlib.sha256(spice.encode("utf-8")).hexdigest(),
+            "result_sha256": hashlib.sha256(result["artifact_bytes"]).hexdigest(),
+        }, sort_keys=True, indent=2) + "\\n",
+        encoding="utf-8",
+    )
+
     cad = write_freecad_bundle(project, output)
     freecad_cmd = find_freecad_command()
     import_macro_log = run_freecad_macro(freecad_cmd, Path(cad["macro"]), output)
