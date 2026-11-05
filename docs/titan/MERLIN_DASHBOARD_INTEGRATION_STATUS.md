@@ -11,12 +11,12 @@
 
 ## Verified projection run
 
-- Workflow run: 42087869863
+- Workflow run: 42091141572
 - Conclusion: success
-- Artifact: `titan-merlin-projection-42087869863`
-- Artifact SHA-256: `42c315e75e4b0ef186cf189b5308793d075c748e37ab00c8f26bf61715264ee3`
-- Projection JSON SHA-256 after extraction: `d058a5fdb49d4bda5a50a4b432480555d18392475baeab27dde0a332a8161eb5`
-- Records: 2 (one contract-smoke record and one provider-inventory record)
+- Artifact: `titan-merlin-projection-42091141572`
+- Artifact SHA-256: `0daa4843d75a7f9015f7ec78153a5644c669a2289b4455513139e8711e3ebe75`
+- Projection JSON SHA-256 after extraction: `9f1c4699495a8cda783b1cff733469b15b7d352413867eab0734082a4b06dff7`
+- Records: 4 (contract smoke, provider inventory, FIPS 203/204/205 ACVP run, and CACE independent verification)
 
 The provider-inventory record is explicitly `blocked` for PQC testing, and both records remain `research_only`, unsigned, and without promotion authority.
 
@@ -25,3 +25,10 @@ The provider-inventory record is explicitly `blocked` for PQC testing, and both 
 The connected GitHub repositories and Vercel projects inspected in this work did not expose a Merlin-named dashboard repository or Vercel project. No dashboard endpoint or write API has been inferred or fabricated. The projection artifact is therefore a validated handoff format, not a claim that Merlin's live dashboard has been updated.
 
 To finish the live connection, the exact Merlin dashboard repository or its canonical registry API must be identified. Once identified, the integration should be read-only from the dashboard perspective: ingest canonical records, render evidence and verification status, and never accept dashboard edits as proof or promotion authorization.
+
+
+The latest projection includes the completed Avrea ACVP run `42090360334`:
+54/54 selected standardized parameter-set vectors passed (9 ML-KEM, 9 ML-DSA,
+36 SLH-DSA), with zero failures. The NIST ACVP source commit is pinned to
+`b121fee031dc65d32c96f4109a42a10dacbe2076`; its upstream commit is unsigned,
+which is recorded rather than overstated.
