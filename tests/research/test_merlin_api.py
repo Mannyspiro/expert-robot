@@ -324,9 +324,9 @@ if __name__ == "__main__":
     def test_learning_attempt_storage_and_hermes_recommendation_api(self):
         learner = "api-learner-rotation-test"
         base = {
-            "learner_id": learner, "idea_id": "planar-rotation",
+            "learner_id": learner, "idea_id": "MATH-REP-001",
             "problem_id": "rotation-predict-90", "problem_version": "1",
-            "dimension": "recognition", "score": 1.0, "rubric_version": "rotation-r1",
+            "dimension": "conceptual_explanation", "score": 1.0, "rubric_version": "rotation-r1",
             "response": {"answer": "(0,1)"}, "transfer": False, "delayed": False,
         }
         for attempt_id, session in (("rotation-attempt-1", "session-a"),
@@ -337,9 +337,9 @@ if __name__ == "__main__":
         with urlopen(self.base + "/api/learning/learner?learner_id=" + learner, timeout=5) as response:
             state = json.loads(response.read())
         self.assertEqual(state["attempts"], 2)
-        self.assertEqual(state["skills"]["planar-rotation"]["recognition"]["state"],
+        self.assertEqual(state["skills"]["MATH-REP-001"]["conceptual_explanation"]["state"],
                          "provisionally_mastered")
-        with urlopen(self.base + "/api/learning/recommendation?learner_id=" + learner, timeout=5) as response:
+        with urlopen(self.base + "/api/learning/recommendation?learner_id=" + learner + "&curriculum_id=mathematics", timeout=5) as response:
             recommendation = json.loads(response.read())
         self.assertEqual(recommendation["state"], "recommended")
         self.assertEqual(recommendation["authority"], "recommendation_only")
