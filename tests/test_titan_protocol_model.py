@@ -35,6 +35,9 @@ class TitanProtocolModelTests(unittest.TestCase):
         tampered = dict(bundle, model_sha256="0" * 64)
         with self.assertRaisesRegex(ValueError, "digest mismatch"):
             verify_bundle(tampered)
+        tampered_bytes = dict(bundle, model_bytes_b64="eA==")
+        with self.assertRaisesRegex(ValueError, "embedded bytes"):
+            verify_bundle(tampered_bytes)
 
     def test_rotor_data_is_rejected_from_production_envelope(self):
         valid = generate_structural_test_vectors()["vectors"][0]["input"]
