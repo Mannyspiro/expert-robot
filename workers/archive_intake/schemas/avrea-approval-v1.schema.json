@@ -8,7 +8,8 @@
     "task_contract_sha256",
     "approved_by",
     "approval_source",
-    "approved_at"
+    "approved_at",
+    "status"
   ],
   "properties": {
     "approval_id": {
@@ -33,6 +34,9 @@
     },
     "approval_note": {
       "type": "string"
+    },
+    "status": {
+      "const": "approved"
     }
   }
 }
