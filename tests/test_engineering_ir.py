@@ -63,21 +63,28 @@ class EngineeringIRTests(unittest.TestCase):
             "divider", "mm",
             parts=(
                 Part("V1", "supply", (Pin("1", "positive"), Pin("2", "negative"))),
-                Part("R1", "resistor", (Pin("1", "input"), Pin("2", "return"))),
+                Part("R1", "upper resistor", (Pin("1", "input"), Pin("2", "output"))),
+                Part("R2", "lower resistor", (Pin("1", "input"), Pin("2", "return"))),
             ),
             nets=(
                 Net("SUPPLY", ("V1.1", "R1.1"), nominal_voltage_v=5.0),
-                Net("GND", ("V1.2", "R1.2"), nominal_voltage_v=0.0),
+                Net("MID", ("R1.2", "R2.1"), nominal_voltage_v=2.5),
+                Net("GND", ("V1.2", "R2.2"), nominal_voltage_v=0.0),
             ),
         )
         output = export_spice_netlist(
-            project, {"V1": {"kind": "V", "value": "5"},
-                      "R1": {"kind": "R", "value": "1k"}},
+            project,
+            {"V1": {"kind": "V", "value": "5"},
+             "R1": {"kind": "R", "value": "1k"},
+             "R2": {"kind": "R", "value": "1k"}},
             ground_net="GND",
+            measure_nets=("MID",),
         )
-        self.assertIn("R1 SUPPLY 0 1k\n", output)
-        self.assertIn("V1 SUPPLY 0 DC 5\n", output)
-        self.assertTrue(output.endswith(".op\n.end\n"))
+        self.assertIn("R1 SUPPLY MID 1k\\n", output)
+        self.assertIn("R2 MID 0 1k\\n", output)
+        self.assertIn("V1 SUPPLY 0 DC 5\\n", output)
+        self.assertIn(".meas op v_mid FIND v(MID)\\n", output)
+        self.assertTrue(output.endswith(".end\\n"))
 
     def test_spice_export_rejects_injected_values_and_unknown_refs(self):
         project = EngineeringProject(
