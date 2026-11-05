@@ -119,10 +119,31 @@ class AvreaAdapter:
                 raise RuntimeError("collected Avrea artifact failed digest verification")
             saved.append({"name": name, "logical_path": logical_path,
                           "sha256": digest, "size_bytes": len(content)})
+        exit_code = response.get("exit_code")
+        if exit_code is not None and (
+            isinstance(exit_code, bool) or not isinstance(exit_code, int)
+        ):
+            raise ValueError("Avrea exit_code must be an integer when supplied")
+        worker_image_digest = response.get("worker_image_digest")
+        if worker_image_digest is not None and (
+            not isinstance(worker_image_digest, str) or len(worker_image_digest) != 64
+            or any(char not in "0123456789abcdef" for char in worker_image_digest)
+        ):
+            raise ValueError("Avrea worker_image_digest must be a lowercase SHA-256 digest")
+        tool_versions = response.get("tool_versions", {})
+        if not isinstance(tool_versions, Mapping) or any(
+            not isinstance(key, str) or not key.strip()
+            or not isinstance(value, str) or not value.strip()
+            for key, value in tool_versions.items()
+        ):
+            raise ValueError("Avrea tool_versions must be a string-to-string mapping")
         result = {
             "schema": "merlin-avrea-result-receipt/1",
             "provider": "avrea", "runner_id": runner_id, "job_id": job_id,
             "status": str(response.get("status", "completed")),
+            "exit_code": exit_code,
+            "worker_image_digest": worker_image_digest,
+            "tool_versions": dict(tool_versions),
             "artifacts": saved,
         }
         result["receipt_sha256"] = hashlib.sha256(_canonical(result).encode("utf-8")).hexdigest()
