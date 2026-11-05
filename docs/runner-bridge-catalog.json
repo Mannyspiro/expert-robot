@@ -117,5 +117,33 @@
       "signer_authentication": "not established"
     }
   },
-  "refresh_rule": "Treat this JSON as a starting map only. Re-query GitHub for live branches, workflow content, runner access, current secrets by step outcome (never value), and exact run evidence."
+  "refresh_rule": "Treat this JSON as a starting map only. Re-query GitHub for live branches, workflow content, runner access, current secrets by step outcome (never value), and exact run evidence.",
+  "current_observed_state": {
+    "reviewed_on": "2026-11-05",
+    "latest_v3_dispatch": {
+      "expert_robot_run_id": 42060896619,
+      "expert_robot_commit": "63781028911d459ac5dc8988e86b7506dc652ab2",
+      "key_preparation": "success",
+      "cace_clone_and_checkout": "success",
+      "remote_push": "rejected: fatal error in commit_refs",
+      "cace_qualification_triggered": false,
+      "root_cause": "not established; do not infer read-only deploy key versus repository branch/rules restriction"
+    },
+    "workflow_lint": {
+      "run_id": 42061294025,
+      "conclusion": "success",
+      "artifact_id": 13432386714,
+      "actionlint_exit": 0
+    },
+    "ci": {
+      "run_id": 42060905047,
+      "conclusion": "failure after tests",
+      "focused_python_groups": "all three passed",
+      "cpp_build": "passed",
+      "ctest": "33/33 passed",
+      "blocker": "known-failure regression guard expected the old duplicated CACE workflow design; guard has since been updated and needs a confirming run"
+    },
+    "latest_ci_run_id": 42061473457,
+    "latest_ci_run_status": "pending at last inspection"
+  }
 }
