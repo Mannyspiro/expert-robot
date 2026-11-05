@@ -37,7 +37,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: merlin-google-books-discovery-\${{ github.run_id }}
+          name: merlin-google-books-discovery-${{ github.run_id }}
           path: google-books-discovery.json
           if-no-files-found: warn
           retention-days: 14
