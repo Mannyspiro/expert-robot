@@ -91,3 +91,26 @@ kernel-visible axiom dependencies for review.
 
 #check MathAI.Geometry.cross_orthogonal_right
 #print axioms MathAI.Geometry.cross_orthogonal_right
+
+
+/- Logic lens foundations: finite n-valued and fuzzy t-norm properties. -/
+#check MathAI.LogicLenses.nAnd_comm
+#print axioms MathAI.LogicLenses.nAnd_comm
+
+#check MathAI.LogicLenses.nOr_comm
+#print axioms MathAI.LogicLenses.nOr_comm
+
+#check MathAI.LogicLenses.nAnd_idempotent
+#print axioms MathAI.LogicLenses.nAnd_idempotent
+
+#check MathAI.LogicLenses.nOr_idempotent
+#print axioms MathAI.LogicLenses.nOr_idempotent
+
+#check MathAI.LogicLenses.fuzzyGodelAnd_comm
+#print axioms MathAI.LogicLenses.fuzzyGodelAnd_comm
+
+#check MathAI.LogicLenses.fuzzyProductAnd_comm
+#print axioms MathAI.LogicLenses.fuzzyProductAnd_comm
+
+#check MathAI.LogicLenses.fuzzyLukasiewiczAnd_comm
+#print axioms MathAI.LogicLenses.fuzzyLukasiewiczAnd_comm
