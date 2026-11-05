@@ -68,6 +68,31 @@ class CadGeometryContractTests(unittest.TestCase):
         _, path = validate_request(self.request, self.workspace)
         self.assertEqual(path, self.input.resolve())
 
+    def test_declared_format_must_match_file_extension(self):
+        self.request["input_format"] = "stl"
+        with self.assertRaisesRegex(GeometryContractError, "does not match"):
+            validate_request(self.request, self.workspace)
+
+    def test_mesh_job_requires_explicit_positive_tolerances(self):
+        self.request["operation"] = "tessellate"
+        self.request["requested_outputs"] = ["mesh"]
+        with self.assertRaisesRegex(GeometryContractError, "explicitly set"):
+            validate_request(self.request, self.workspace)
+        self.request["mesh_parameters"] = {
+            "linear_deflection": 0.1,
+            "angular_deflection": 0.5,
+        }
+        _, path = validate_request(self.request, self.workspace)
+        self.assertEqual(path, self.input.resolve())
+
+    def test_non_finite_mesh_tolerance_rejected(self):
+        self.request["mesh_parameters"] = {
+            "linear_deflection": float("inf"),
+            "angular_deflection": 0.5,
+        }
+        with self.assertRaisesRegex(GeometryContractError, "finite positive"):
+            validate_request(self.request, self.workspace)
+
     def test_input_digest_mismatch_rejected(self):
         self.request["input_sha256"] = "0" * 64
         with self.assertRaises(GeometryContractError):
