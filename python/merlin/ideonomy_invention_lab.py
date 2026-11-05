@@ -209,6 +209,73 @@ def seed_candidates() -> tuple[InventionCandidate, ...]:
     )
 
 
+IDEONOMY_PRIMITIVES = (
+    {"id": "cpu-locality", "domain": "compute", "function": "place bounded jobs near their data", "readiness": 9.0, "testability": 9.0},
+    {"id": "event-queue", "domain": "orchestration", "function": "dispatch work from typed events", "readiness": 9.0, "testability": 9.0},
+    {"id": "artifact-proof", "domain": "verification", "function": "bind outputs to immutable evidence and independent checks", "readiness": 8.0, "testability": 9.0},
+    {"id": "event-vision", "domain": "sensing", "function": "detect changes and motion from sensor events", "readiness": 7.0, "testability": 8.0},
+    {"id": "robot-kinematics", "domain": "actuation", "function": "move a tool through calibrated coordinate frames", "readiness": 8.0, "testability": 9.0},
+    {"id": "soft-tendon", "domain": "mechanics", "function": "transmit force through compliant cable routing", "readiness": 7.0, "testability": 8.0},
+    {"id": "force-sensing", "domain": "sensing", "function": "measure load and interaction force", "readiness": 9.0, "testability": 9.0},
+    {"id": "sensor-fusion", "domain": "computation", "function": "combine calibrated channels with uncertainty", "readiness": 8.0, "testability": 9.0},
+    {"id": "cad-scene-graph", "domain": "design", "function": "represent assemblies and part relationships", "readiness": 9.0, "testability": 9.0},
+    {"id": "coordinate-tracking", "domain": "sensing", "function": "register measured poses into a shared frame", "readiness": 8.0, "testability": 8.0},
+    {"id": "current-limited-drive", "domain": "power-control", "function": "deliver bounded electrical actuation", "readiness": 9.0, "testability": 9.0},
+    {"id": "calibration-reference", "domain": "metrology", "function": "compare outputs to a documented reference", "readiness": 9.0, "testability": 9.0},
+)
+
+_COMPATIBLE_PAIRS = frozenset({
+    frozenset(("cpu-locality", "event-queue")),
+    frozenset(("cpu-locality", "artifact-proof")),
+    frozenset(("event-queue", "artifact-proof")),
+    frozenset(("event-vision", "robot-kinematics")),
+    frozenset(("event-vision", "coordinate-tracking")),
+    frozenset(("robot-kinematics", "coordinate-tracking")),
+    frozenset(("soft-tendon", "force-sensing")),
+    frozenset(("soft-tendon", "current-limited-drive")),
+    frozenset(("force-sensing", "current-limited-drive")),
+    frozenset(("sensor-fusion", "calibration-reference")),
+    frozenset(("sensor-fusion", "event-vision")),
+    frozenset(("cad-scene-graph", "coordinate-tracking")),
+    frozenset(("cad-scene-graph", "robot-kinematics")),
+    frozenset(("cad-scene-graph", "artifact-proof")),
+    frozenset(("calibration-reference", "force-sensing")),
+    frozenset(("calibration-reference", "coordinate-tracking")),
+})
+
+
+def enumerate_simplex_combinations(max_size: int = 3) -> list[dict[str, Any]]:
+    """Enumerate bounded cross-domain primitive cliques, not arbitrary pairings."""
+    from itertools import combinations
+    if isinstance(max_size, bool) or not isinstance(max_size, int) or not 2 <= max_size <= 3:
+        raise ValueError("max_size must be 2 or 3")
+    by_id = {p["id"]: p for p in IDEONOMY_PRIMITIVES}
+    output = []
+    for size in range(2, max_size + 1):
+        for group in combinations(IDEONOMY_PRIMITIVES, size):
+            ids = tuple(p["id"] for p in group)
+            if len({p["domain"] for p in group}) < 2:
+                continue
+            if not all(frozenset(pair) in _COMPATIBLE_PAIRS for pair in combinations(ids, 2)):
+                continue
+            readiness = sum(p["readiness"] for p in group) / size
+            testability = sum(p["testability"] for p in group) / size
+            domain_count = len({p["domain"] for p in group})
+            cross_domain_bonus = min(1.0, (domain_count - 1) * 0.5)
+            score = round(0.55 * readiness + 0.35 * testability + 0.10 * (10 * cross_domain_bonus), 2)
+            output.append({
+                "simplex_id": "simplex-" + "-".join(ids),
+                "primitive_ids": list(ids),
+                "domains": sorted({p["domain"] for p in group}),
+                "functions": [p["function"] for p in group],
+                "readiness_mean": round(readiness, 2),
+                "testability_mean": round(testability, 2),
+                "cross_domain_score": score,
+                "epistemic_status": "hypothesis_combination",
+            })
+    return sorted(output, key=lambda item: (-item["cross_domain_score"], item["simplex_id"]))
+
+
 def build_ideonomy_report() -> dict[str, Any]:
     candidates = sorted(seed_candidates(), key=lambda item: (-item.weighted_score, item.candidate_id))
     return {
@@ -232,6 +299,11 @@ def build_ideonomy_report() -> dict[str, Any]:
             "boundary": "No GPU-equivalence claim; no unverified photonic or neuromorphic hardware assumed.",
         },
         "sources": [asdict(source) for source in SOURCES],
+        "ideonomy_simplex": {
+            "primitive_count": len(IDEONOMY_PRIMITIVES),
+            "compatibility_rule": "only explicit compatible pairs; at least two domains; groups of two or three",
+            "combinations": enumerate_simplex_combinations(3),
+        },
         "candidates": [candidate.as_dict() for candidate in candidates],
     }
 
@@ -282,4 +354,5 @@ def register_ideonomy_report(
 
 
 __all__ = ["ResearchSource", "InventionCandidate", "seed_candidates",
-           "build_ideonomy_report", "register_ideonomy_report", "SOURCES"]
+           "enumerate_simplex_combinations", "build_ideonomy_report",
+           "register_ideonomy_report", "SOURCES", "IDEONOMY_PRIMITIVES"]
