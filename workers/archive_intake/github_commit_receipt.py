@@ -29,20 +29,24 @@ def fetch_commit(repository, requested_sha, token=None):
       "author_date":commit.get("author",{}).get("date"),"committer_date":commit.get("committer",{}).get("date"),
       "verification_source":"github_rest_commit_endpoint"}
 
-def store_receipt(database, receipt):
+def store_receipt(database, receipt, project_id=None):
     rid="sha256:"+hashlib.sha256(json.dumps(receipt,sort_keys=True,separators=(",",":")).encode()).hexdigest()
     with connect(database) as db:
+        if project_id and not db.execute("SELECT 1 FROM projects WHERE project_id=?",(project_id,)).fetchone():
+            raise ValueError("unknown project_id")
         db.execute("""INSERT OR IGNORE INTO github_commit_receipts
-          VALUES(?,?,?,?,?,?,?,?,?)""",(rid,receipt["repository"],receipt["requested_sha"],
+          (receipt_id,project_id,repository,requested_sha,canonical_sha,commit_url,api_response_sha256,
+           signature_verified,signature_reason,retrieved_at)
+          VALUES(?,?,?,?,?,?,?,?,?,?)""",(rid,project_id,receipt["repository"],receipt["requested_sha"],
           receipt["canonical_sha"],receipt["commit_url"],receipt["api_response_sha256"],
           int(receipt["signature_verified"]),receipt["signature_reason"],receipt["retrieved_at"]))
     return {**receipt,"receipt_id":rid}
 
 def main():
     p=argparse.ArgumentParser(); p.add_argument("repository"); p.add_argument("commit_sha")
-    p.add_argument("--database",default="data/merlin.sqlite3"); p.add_argument("--require-signed",action="store_true")
+    p.add_argument("--database",default="data/merlin.sqlite3"); p.add_argument("--project-id"); p.add_argument("--require-signed",action="store_true")
     a=p.parse_args(); initialize(a.database)
     receipt=fetch_commit(a.repository,a.commit_sha,os.environ.get("GITHUB_TOKEN"))
     if a.require_signed and not receipt["signature_verified"]: raise SystemExit("GitHub did not report a verified commit signature")
-    print(json.dumps(store_receipt(a.database,receipt),indent=2))
+    print(json.dumps(store_receipt(a.database,receipt,a.project_id),indent=2))
 if __name__=="__main__": main()
