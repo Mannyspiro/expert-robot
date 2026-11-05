@@ -96,7 +96,7 @@ assert 'result.get("authority") == "qualification-only"' in external
 assert 'result.get("promotion_authority") is False' in external
 assert 'result.get("result_log_sha256")' in external
 assert 'result.get("result_log_size_bytes")' in external
-assert "permissions:\\n  contents: write" in external
+assert "permissions:\n  contents: write" in external
 assert "persist-credentials: true" in external
 assert "cmake --build" not in external
 
