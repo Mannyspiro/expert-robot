@@ -81,5 +81,34 @@
     "cace_cache_gb": 19,
     "huggingface_cache_gb": 2.5,
     "outcome": "qualification failure, structured result envelope valid"
-  }
+  },
+  "confirmed_failure_round_trip": {
+    "request_id": "expert-robot-42054029936-e9e0e4312d61db3a758bbcae6c46dd144649fc55",
+    "expert_robot_source_commit": "e9e0e4312d61db3a758bbcae6c46dd144649fc55",
+    "expert_robot_workflow_run_id": 42054029936,
+    "expert_robot_run_attempt": 2,
+    "cace_workflow_run_id": 42057717591,
+    "cace_run_attempt": 1,
+    "cace_workflow_commit": "479867e0753e6802dbafce8e5b129bb8e16d87ea",
+    "cace_artifact_id": 13428874392,
+    "cace_artifact_sha256": "4fe8a71a992b9bcdb049c57a94d88b58697b0705d9f9426b1e5db90356b21555",
+    "expert_robot_return_artifact_id": 13429153697,
+    "expert_robot_return_artifact_sha256": "efe82a6d14d8c8c0ab0ca18eb3f47070b4615705108b47760a044c94993ad8fd",
+    "result_json_sha256": "ba84ff550e4607a84a4c58905ea98cbd24bff7dad31ad11dc4c4b384119d670b",
+    "result_log_sha256": "875aebd82f9753447c43b9a572f1e1a52c9a2d46a2f84cd96807e38232d75b45",
+    "result_status": "fail",
+    "qualification_exit_code": 50,
+    "publisher_envelope_validation": "passed",
+    "expert_robot_return": "passed: identical result.json and result.log bytes are present in the Expert Robot Actions artifact",
+    "qualification_failure_reason": "OCI runner did not have sufficient free disk to install pinned Lean 4.34.0",
+    "authentication": "not yet complete: result is unsigned; CACE Ed25519 signer is not provisioned",
+    "reverse_deploy_key": "not available; reverse SSH key preparation failed",
+    "authority": "qualification-only",
+    "promotion_authority": false
+  },
+  "next_blockers": [
+    "Provide an approved trusted CACE Ed25519 signing key to the CACE workflow without exposing private key material in source or logs.",
+    "Provision the reverse Expert Robot deploy key in CACE Actions secrets, or explicitly adopt the verified artifact-polling return channel.",
+    "Make exact Lean 4.34.0 and pinned Mathlib available on OCI without deleting the existing 4.32.1 cache or unrelated data."
+  ]
 }
