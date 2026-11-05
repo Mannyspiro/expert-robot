@@ -42,7 +42,7 @@ else: raise AssertionError("unlicensed transcript accepted")
 import tempfile
 with tempfile.TemporaryDirectory() as td:
     vtt=Path(td)/"captions.vtt"
-    vtt.write_text("WEBVTT\\n\\n00:00:00.000 --> 00:00:01.000\\nA short authorized caption.\\n")
+    vtt.write_text("WEBVTT\n\n00:00:00.000 --> 00:00:01.000\nA short authorized caption.\n")
     try: yt.validate_transcript(vtt,"open_license_verified","CC-BY-NC-SA-4.0","unknown")
     except ValueError: pass
     else: raise AssertionError("NC-SA transcript accepted without noncommercial use context")
