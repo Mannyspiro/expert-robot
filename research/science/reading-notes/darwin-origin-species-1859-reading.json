@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "dossier_id": "merlin.pioneer.darwin.origin-species.1859-reading.v1",
+  "person": {
+    "name": "Charles Darwin",
+    "dates": "1809–1882",
+    "field": [
+      "evolutionary biology",
+      "natural history",
+      "geology",
+      "biogeography"
+    ]
+  },
+  "work": {
+    "title": "On the Origin of Species by Means of Natural Selection",
+    "first_edition": 1859,
+    "repository": "Project Gutenberg",
+    "ebook_id": 1228,
+    "url": "https://www.gutenberg.org/files/1228/1228-h/1228-h.htm",
+    "rights": "Project Gutenberg identifies the 1859 first edition as public domain in the USA."
+  },
+  "scope_read": "First-edition title page, introduction, contents, and opening section on variation under domestication. Compared with the sixth edition's retrospective historical sketch.",
+  "historical_context": [
+    "Darwin's introduction locates the problem in observations of the geographical distribution of South American organisms and geological relations between living and fossil forms during the Beagle voyage.",
+    "Darwin states that he began systematic accumulation and reflection on relevant facts in 1837, drafted notes after five years, expanded a sketch in 1844, and continued the investigation before publishing in 1859.",
+    "He describes Alfred Russel Wallace's independently reached near-similar conclusions and the role of Charles Lyell and Joseph Dalton Hooker in arranging joint communication of the 1858 papers.",
+    "Darwin situates the theory among existing disputes about species immutability and earlier proposals of species modification; the sixth edition later expands this history and acknowledges additional predecessors.",
+    "Darwin explicitly says the 1859 volume is an abstract, that it cannot provide all references or balance every fact in detail, and that further publication of evidence is needed."
+  ],
+  "what_darwin_did": [
+    "Combined observations from biogeography, geology, domestication, variation, classification, embryology and the fossil record into a common explanatory framework.",
+    "Used domestic breeding as an accessible analogue for selection and cumulative inherited variation, then asked how selection could operate in nature.",
+    "Applied the struggle-for-existence argument associated with Malthus to population growth and differential survival and reproduction.",
+    "Organized the book to address difficult objections, including transitional forms, instinct, hybridism and gaps in the geological record.",
+    "Named collaborators and predecessors and acknowledged the limits of his short-form presentation."
+  ],
+  "methodological_reading": [
+    {
+      "section": "Introduction",
+      "location": "opening paragraphs",
+      "note": "Darwin gives a research chronology and explains why he is publishing an abstract before the full evidential treatment is complete."
+    },
+    {
+      "section": "Introduction",
+      "location": "Wallace and joint publication",
+      "note": "The account makes scientific priority and communication part of the historical record, rather than presenting discovery as an isolated event."
+    },
+    {
+      "section": "Introduction",
+      "location": "scope and uncertainty",
+      "note": "Darwin openly states that facts may appear to support opposite conclusions and that the short book cannot fully balance every side."
+    },
+    {
+      "section": "Introduction",
+      "location": "cross-disciplinary evidence",
+      "note": "He links geographical distribution, embryology, geological succession, mutual affinities and domestication."
+    },
+    {
+      "section": "Chapter I",
+      "location": "Variation under domestication",
+      "note": "He begins with breeders' observations, inherited differences, selection and the complexity of variation before moving to natural populations."
+    },
+    {
+      "section": "Sixth-edition historical sketch",
+      "location": "1872 edition, opening section",
+      "note": "Darwin retrospectively discusses earlier thinkers including Buffon, Lamarck, Wells, Matthew and Wallace. This later account must not be confused with the 1859 first-edition text."
+    }
+  ],
+  "pioneer_questions": [
+    "What observation first made the origin of species a live research problem for Darwin?",
+    "Why did he spend years collecting evidence before publishing?",
+    "How did domestication and breeding provide a model for thinking about natural selection?",
+    "Which neighboring disciplines supplied independent evidence?",
+    "How did he handle priority, collaboration, uncertainty and objections?",
+    "What changed between the first and sixth editions, and why is edition history scientifically informative?"
+  ],
+  "cautions": [
+    "Darwin's 1859 terminology and Victorian social context require historical analysis; do not treat period language as current scientific or ethical categories.",
+    "The theory's historical development involved predecessors and independent work, including Wallace; avoid lone-genius simplification.",
+    "Later genetics, molecular biology and the modern evolutionary synthesis were not available to Darwin in 1859."
+  ],
+  "citations": [
+    {
+      "section": "First-edition introduction and Chapter I",
+      "url": "https://www.gutenberg.org/files/1228/1228-h/1228-h.htm",
+      "lines": "204–230"
+    },
+    {
+      "section": "Sixth-edition historical sketch",
+      "url": "https://dev.gutenberg.org/cache/epub/2009/pg2009-images.html",
+      "lines": "48–112"
+    }
+  ],
+  "epistemic_status": "historical_interpretation_grounded_in_primary_text",
+  "review_status": "seed_notes_not_peer_reviewed"
+}
