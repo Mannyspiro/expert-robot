@@ -1,0 +1,138 @@
+name: Merlin Engineered Prompt to Hermes Bridge
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "python/merlin/prompt_contract.py"
+      - "python/merlin/prompt_hermes_adapter.py"
+      - "python/merlin/event_outbox.py"
+      - "python/merlin/hermes_worker.py"
+      - "python/merlin/hermes_stage_handlers.py"
+      - "python/merlin/cace_adapter.py"
+      - "python/merlin/project_registry.py"
+      - "tests/test_merlin_prompt_contract.py"
+      - "tests/test_merlin_prompt_hermes_adapter.py"
+      - "tests/test_hermes_worker.py"
+      - "tests/test_hermes_stage_handlers.py"
+      - "docs/merlin/PROMPT_ENGINEERING_CONTRACT_V0.1.md"
+      - ".github/workflows/merlin-prompt-hermes.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: merlin-prompt-hermes-${{ github.event.pull_request.head.ref || github.ref_name }}-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  prompt-hermes-roundtrip:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    env:
+      PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      PR_BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Record runner and source identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          {
+            echo "repository=$GITHUB_REPOSITORY"
+            echo "merge_sha=$GITHUB_SHA"
+            echo "head_sha=$PR_HEAD_SHA"
+            echo "base_sha=$PR_BASE_SHA"
+            echo "event=$GITHUB_EVENT_NAME"
+            echo "run_id=$GITHUB_RUN_ID"
+            echo "run_attempt=$GITHUB_RUN_ATTEMPT"
+            echo "runner_name=$RUNNER_NAME"
+            echo "runner_os=$RUNNER_OS"
+            echo "runner_arch=$RUNNER_ARCH"
+            uname -a
+            nproc
+          } | tee artifacts/runner-identity.log
+      - name: Test deterministic prompt contracts
+        if: always()
+        env:
+          PYTHONPATH: python
+        shell: bash
+        run: |
+          set +e
+          mkdir -p artifacts
+          python3 -m unittest discover -s tests -p "test_merlin_prompt_contract.py" -v 2>&1 | tee artifacts/prompt-contract-tests.log
+          rc=${PIPESTATUS[0]}
+          printf '{"suite":"prompt-contract-tests","head_sha":"%s","merge_sha":"%s","base_sha":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$PR_HEAD_SHA" "$GITHUB_SHA" "$PR_BASE_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$rc" > artifacts/prompt-contract-tests-result.json
+          exit "$rc"
+      - name: Test prompt to Hermes worker round trip
+        if: always()
+        env:
+          PYTHONPATH: python
+        shell: bash
+        run: |
+          set +e
+          python3 -m unittest discover -s tests -p "test_merlin_prompt_hermes_adapter.py" -v 2>&1 | tee artifacts/prompt-hermes-adapter-tests.log
+          rc=${PIPESTATUS[0]}
+          printf '{"suite":"prompt-hermes-adapter-tests","head_sha":"%s","merge_sha":"%s","base_sha":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$PR_HEAD_SHA" "$GITHUB_SHA" "$PR_BASE_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$rc" > artifacts/prompt-hermes-adapter-tests-result.json
+          exit "$rc"
+      - name: Test existing Hermes worker lifecycle
+        if: always()
+        env:
+          PYTHONPATH: python
+        shell: bash
+        run: |
+          set +e
+          python3 -m unittest discover -s tests -p "test_hermes_worker.py" -v 2>&1 | tee artifacts/hermes-worker-tests.log
+          rc=${PIPESTATUS[0]}
+          printf '{"suite":"hermes-worker-tests","head_sha":"%s","merge_sha":"%s","base_sha":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$PR_HEAD_SHA" "$GITHUB_SHA" "$PR_BASE_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$rc" > artifacts/hermes-worker-tests-result.json
+          exit "$rc"
+      - name: Test canonical Hermes stage handlers
+        if: always()
+        env:
+          PYTHONPATH: python
+        shell: bash
+        run: |
+          set +e
+          python3 -m unittest discover -s tests -p "test_hermes_stage_handlers.py" -v 2>&1 | tee artifacts/hermes-stage-handler-tests.log
+          rc=${PIPESTATUS[0]}
+          printf '{"suite":"hermes-stage-handler-tests","head_sha":"%s","merge_sha":"%s","base_sha":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$PR_HEAD_SHA" "$GITHUB_SHA" "$PR_BASE_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$rc" > artifacts/hermes-stage-handler-tests-result.json
+          exit "$rc"
+      - name: Compile prompt and Hermes bridge modules
+        if: always()
+        env:
+          PYTHONPATH: python
+        shell: bash
+        run: |
+          set +e
+          python3 -m py_compile python/merlin/prompt_contract.py python/merlin/prompt_hermes_adapter.py python/merlin/hermes_worker.py python/merlin/hermes_stage_handlers.py 2>&1 | tee artifacts/prompt-hermes-compile.log
+          rc=${PIPESTATUS[0]}
+          printf '{"suite":"prompt-hermes-compile","head_sha":"%s","merge_sha":"%s","base_sha":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$PR_HEAD_SHA" "$GITHUB_SHA" "$PR_BASE_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$rc" > artifacts/prompt-hermes-compile-result.json
+          exit "$rc"
+      - name: Record evidence manifest
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          python3 - <<'PY'
+          import json, os
+          keys = ("GITHUB_REPOSITORY", "GITHUB_SHA", "GITHUB_REF", "GITHUB_EVENT_NAME",
+                  "GITHUB_RUN_ID", "GITHUB_RUN_ATTEMPT", "GITHUB_WORKFLOW", "RUNNER_NAME", "PR_HEAD_SHA", "PR_BASE_SHA")
+          payload = {key.lower(): os.environ.get(key, "") for key in keys}
+          payload["job_status"] = os.environ.get("JOB_STATUS", "unknown")
+          with open("artifacts/prompt-hermes-evidence.json", "w", encoding="utf-8") as handle:
+              json.dump(payload, handle, sort_keys=True, indent=2)
+              handle.write("\\n")
+          PY
+      - name: Upload prompt and Hermes logs/results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-prompt-hermes-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/
+          if-no-files-found: warn
+          retention-days: 14
