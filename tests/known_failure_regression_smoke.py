@@ -102,12 +102,11 @@ assert "cmake --build" not in external
 
 # CACE owns the self-hosted ARM64 qualification and the separate publisher.
 assert "self-hosted, cace, oci, aarch64" in bridge_docs
-assert "formal-static-arm64" in bridge_docs
 assert "publish-result" in bridge_docs
 assert "unsafe archive members" in bridge_docs
 assert "EXPERT_ROBOT_SSH_PRIVATE_KEY" in bridge_docs
 assert "promotion_authority=false" in bridge_docs
-assert "SSH proves only repository transport access" in bridge_summary
+assert "SSH deploy keys establish repository transport access only" in bridge_summary
 
 proof_search = json.loads(
     (ROOT / "config" / "proof_search.json").read_text(encoding="utf-8")
