@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Merlin Avrea Worker Policy v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "policy_version",
+    "allowed_capabilities",
+    "resource_maxima",
+    "max_timeout_seconds",
+    "network_access",
+    "approval_required",
+    "result_manifest_required"
+  ],
+  "properties": {
+    "policy_version": {
+      "const": "1.0"
+    },
+    "allowed_capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "uniqueItems": true
+    },
+    "resource_maxima": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_cpu_seconds",
+        "max_memory_mb",
+        "max_output_bytes"
+      ],
+      "properties": {
+        "max_cpu_seconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_memory_mb": {
+          "type": "integer",
+          "minimum": 64
+        },
+        "max_output_bytes": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "max_timeout_seconds": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "network_access": {
+      "const": "none"
+    },
+    "approval_required": {
+      "const": true
+    },
+    "result_manifest_required": {
+      "const": true
+    }
+  }
+}
