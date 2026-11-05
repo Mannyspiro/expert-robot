@@ -110,5 +110,45 @@
     "Provide an approved trusted CACE Ed25519 signing key to the CACE workflow without exposing private key material in source or logs.",
     "Provision the reverse Expert Robot deploy key in CACE Actions secrets, or explicitly adopt the verified artifact-polling return channel.",
     "Make exact Lean 4.34.0 and pinned Mathlib available on OCI without deleting the existing 4.32.1 cache or unrelated data."
-  ]
+  ],
+  "schema_reconciliation": {
+    "executed_round_trip": {
+      "producer_schema_version": 2,
+      "consumer_behavior": "request_id and source commit checked; result status fail retained in workflow artifact",
+      "cace_run_id": 42057717591,
+      "expert_robot_run_id": 42054029936,
+      "expert_robot_attempt": 2
+    },
+    "current_source_template": {
+      "expert_robot_workflow_blob_sha": "01538063b806a40d99d8e71984f11a6bee5bd047",
+      "producer_schema_version": 3,
+      "consumer_schema_version": 3,
+      "producer_binds": [
+        "request_id",
+        "Expert Robot full commit",
+        "CACE repository",
+        "CACE commit",
+        "CACE workflow ref and SHA",
+        "CACE workflow run ID and attempt",
+        "status and exit code",
+        "runner identity",
+        "Lean and Mathlib pins",
+        "log SHA-256 and byte length",
+        "qualification-only authority",
+        "unsigned signature status"
+      ],
+      "consumer_checks": [
+        "schema version",
+        "request and source commit",
+        "CACE repository and exact workflow commit",
+        "run ID and attempt",
+        "pass/fail versus exit code",
+        "qualification-only authority",
+        "promotion authority false",
+        "log digest and length"
+      ],
+      "status": "implemented in source template, not yet exercised by a new workflow run"
+    },
+    "latest_workflow_execution_issue": "GitHub created push runs with zero jobs on the feature branch; therefore the new v3 template has not yet been executed. CI also has zero jobs and no tests ran."
+  }
 }
