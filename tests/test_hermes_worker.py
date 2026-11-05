@@ -39,6 +39,8 @@ class HermesWorkerTests(unittest.TestCase):
     def test_executes_handler_reports_progress_and_acknowledges_receipt(self):
         events = []
         def handler(task, context):
+            self.assertEqual(context.idempotency_key, "hermes-task-handler:task-1")
+            self.assertGreater(context.deadline_epoch, 0)
             context.emit_progress("Numerical experiment started", {"seed": 7})
             context.emit_tool_event("agent.tool.started", "python", {"operation": "bounded"})
             context.emit_tool_event("agent.tool.completed", "python", {"status": "ok"})
