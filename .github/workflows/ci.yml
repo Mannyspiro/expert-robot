@@ -128,6 +128,8 @@ jobs:
           python3 -m unittest discover -s tests -p "test_media_and_drafting.py" -v
           python3 -m unittest discover -s tests -p "test_research_council.py" -v
           python3 -m unittest discover -s tests -p "test_project_registry.py" -v
+          python3 -m unittest discover -s tests -p "test_cace_adapter.py" -v
+          python3 -m unittest discover -s tests -p "test_avrea_adapter.py" -v
           python3 -m unittest discover -s tests -p "test_preservation_recovery.py" -v
           python3 -m unittest discover -s tests -p "test_repair_supervisor.py" -v
           python3 -m pip install pytest
