@@ -99,9 +99,12 @@ class HudActivityProjector:
             if kind == "resource.sample":
                 resources = {
                     key: payload[key] for key in (
-                        "cpu_percent", "memory_bytes", "gpu_percent",
+                        "cpu_percent", "memory_bytes", "gpu_percent", "gpu_memory_bytes",
+                        "wall_seconds", "cpu_seconds", "peak_memory_bytes",
+                        "measurement_kind", "runner_id", "job_id",
                         "cpu_cores_reserved", "memory_bytes_reserved",
-                        "gpu_count_reserved", "compute_budget_units_reserved",
+                        "max_wall_seconds_reserved", "gpu_count_reserved",
+                        "compute_budget_units_reserved",
                     ) if key in payload
                 }
             evidence_refs.extend(event["evidence_refs"])
