@@ -95,20 +95,37 @@ class MerlinEventOutbox:
                 "SELECT * FROM event_outbox WHERE event_id=?", (event_id,)).fetchone())
 
     def claim_next(self, worker_id: str, *, lease_seconds: float = 60,
+                   topics: tuple[str, ...] | list[str] | None = None,
                    now: float | None = None) -> dict[str, Any] | None:
         worker = self._text(worker_id, "worker_id", 128)
         if isinstance(lease_seconds, bool) or not isinstance(lease_seconds, (int,float)) or lease_seconds <= 0:
             raise ValueError("lease_seconds must be positive")
         timestamp = time.time() if now is None else float(now)
+        if topics is not None:
+            if not isinstance(topics, (tuple, list)) or any(
+                not isinstance(topic, str) or not topic.strip() for topic in topics
+            ):
+                raise ValueError("topics must be a list of non-empty topic strings")
+            topics = tuple(dict.fromkeys(topic.strip() for topic in topics))
+            if not topics:
+                return None
         token = str(uuid4())
         with self._connect() as db:
             db.execute("BEGIN IMMEDIATE")
             db.execute("""UPDATE event_outbox SET state='pending',lease_owner=NULL,
                 lease_token=NULL,lease_expires_at=NULL,updated_at=?
                 WHERE state='leased' AND lease_expires_at<=?""", (timestamp,timestamp))
-            row = db.execute("""SELECT event_id FROM event_outbox
-                WHERE state='pending' AND available_at<=?
-                ORDER BY created_at,event_id LIMIT 1""", (timestamp,)).fetchone()
+            if topics is None:
+                row = db.execute("""SELECT event_id FROM event_outbox
+                    WHERE state='pending' AND available_at<=?
+                    ORDER BY created_at,event_id LIMIT 1""", (timestamp,)).fetchone()
+            else:
+                placeholders = ",".join("?" for _ in topics)
+                row = db.execute(
+                    "SELECT event_id FROM event_outbox WHERE state='pending' AND available_at<=? "
+                    f"AND topic IN ({placeholders}) ORDER BY created_at,event_id LIMIT 1",
+                    (timestamp, *topics),
+                ).fetchone()
             if row is None:
                 return None
             event_id = row["event_id"]
