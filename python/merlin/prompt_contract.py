@@ -256,7 +256,7 @@ class PromptResult:
         for label, digest in (("prompt_sha256", self.prompt_sha256), ("task_sha256", self.task_sha256)):
             if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
                 raise ValueError(f"{label} must be a lowercase SHA-256 digest")
-        if self.status not in {"completed", "partial", "blocked"}:
+        if not isinstance(self.status, str) or self.status not in {"completed", "partial", "blocked"}:
             raise ValueError("status must be completed, partial or blocked")
         if not isinstance(self.outputs, dict):
             raise ValueError("outputs must be an object")
@@ -266,10 +266,10 @@ class PromptResult:
         if self.status == "completed" and not self.outputs:
             raise ValueError("completed results must contain outputs")
         tests = _string_tuple(self.tests_run, "tests_run", limit=100)
-        results = self.test_results or {}
+        results = {} if self.test_results is None else self.test_results
         if not isinstance(results, dict) or set(results) != set(tests):
             raise ValueError("test_results must provide one result for every test in tests_run")
-        if any(value not in {"passed", "failed", "skipped", "not_run"} for value in results.values()):
+        if any(not isinstance(value, str) or value not in {"passed", "failed", "skipped", "not_run"} for value in results.values()):
             raise ValueError("test result values must be passed, failed, skipped or not_run")
         _string_tuple(self.evidence_refs, "evidence_refs", limit=100, item_limit=512)
         _string_tuple(self.limitations, "limitations", limit=100)
@@ -313,6 +313,12 @@ class PromptResultReceiver:
     def accept(
         self, event_id: str, worker_id: str, lease_token: str, result: PromptResult
     ) -> dict[str, Any]:
+        if not isinstance(result, PromptResult):
+            raise TypeError("result must be a PromptResult")
+        _bounded_text(worker_id, "worker_id", 128)
+        _bounded_text(lease_token, "lease_token", 256)
+        if result.worker_id != worker_id:
+            raise PermissionError("result worker identity does not match the submitted worker")
         event = self.outbox.get(event_id)
         if event is None:
             raise KeyError(event_id)
@@ -323,8 +329,6 @@ class PromptResultReceiver:
             raise ValueError("prompt event was already acknowledged with a different result")
         if event["state"] != "leased" or event.get("lease_owner") != worker_id or event.get("lease_token") != lease_token:
             raise PermissionError("result submission requires the current worker lease")
-        if not isinstance(result, PromptResult) or result.worker_id != worker_id:
-            raise PermissionError("result worker identity does not match the active lease")
         try:
             result.validate()
             prompt = event.get("payload")
@@ -338,6 +342,11 @@ class PromptResultReceiver:
             actual_prompt_hash = hashlib.sha256(prompt_text.encode("utf-8")).hexdigest()
             if actual_prompt_hash != prompt.get("prompt_sha256"):
                 raise ValueError("stored prompt text does not match its hash")
+            task_hash = prompt.get("task_sha256")
+            if not isinstance(task_hash, str) or not re.fullmatch(r"[0-9a-f]{64}", task_hash):
+                raise ValueError("stored task hash is malformed")
+            if f"Task specification SHA-256: {task_hash}" not in prompt_text:
+                raise ValueError("stored task hash is not bound into the prompt text")
             for field in ("task_id", "recipient", "prompt_sha256", "task_sha256"):
                 if getattr(result, field) != prompt.get(field):
                     raise ValueError(f"worker result {field} does not match the dispatched prompt")
