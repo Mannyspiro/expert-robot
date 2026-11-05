@@ -85,6 +85,25 @@ class MerlinRegistry:
             version_columns = {row["name"] for row in db.execute("PRAGMA table_info(artifact_versions)")}
             if "pre_change_recovery_id" not in version_columns:
                 db.execute("ALTER TABLE artifact_versions ADD COLUMN pre_change_recovery_id TEXT")
+            # Validate every legacy head's exact blob before changing migration metadata.
+            # A missing/corrupt source blob aborts migration rather than creating a false history.
+            legacy_heads = db.execute("""
+              SELECT pa.digest, a.size_bytes, a.relative_path
+              FROM project_artifacts pa JOIN artifacts a USING(digest)
+            """).fetchall()
+            for legacy in legacy_heads:
+                legacy_path = self.root / legacy["relative_path"]
+                try:
+                    legacy_bytes = legacy_path.read_bytes()
+                except OSError as exc:
+                    raise RuntimeError(
+                        f"legacy registry migration blocked: blob unavailable for {legacy['digest']}"
+                    ) from exc
+                if (len(legacy_bytes) != legacy["size_bytes"]
+                        or hashlib.sha256(legacy_bytes).hexdigest() != legacy["digest"]):
+                    raise RuntimeError(
+                        f"legacy registry migration blocked: blob integrity failure for {legacy['digest']}"
+                    )
             # Migrate pre-versioning heads once. Existing blob bytes are not modified.
             db.execute("""
               INSERT INTO artifact_versions(
