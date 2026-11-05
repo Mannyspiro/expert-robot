@@ -131,6 +131,8 @@ class CaceAdapterTests(unittest.TestCase):
                 "verifier_id": "cace:independent-artifact-checker",
                 "source_commit_verified": True,
                 "artifact_digest_verified": True,
+                "artifact_schema_validated": True,
+                "artifact_content_verified": True,
                 "verification_status": "verified",
             }
             body = json.dumps(receipt, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
