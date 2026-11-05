@@ -86,6 +86,66 @@ class MerlinRegistryTests(unittest.TestCase):
                 db.execute("UPDATE project_artifacts SET digest=? WHERE project_id='p' AND logical_path='protected.txt'",
                            (first,))
 
+    def test_database_rejects_head_update_without_matching_version_row(self):
+        first = self.registry.put_artifact("p", "guarded.txt", b"v1")
+        second = self.registry._store_blob(b"v2", "application/octet-stream")
+        with self.registry._connect() as db:
+            with self.assertRaises(sqlite3.IntegrityError):
+                db.execute(
+                    "UPDATE project_artifacts SET digest=?, generation=2 "
+                    "WHERE project_id='p' AND logical_path='guarded.txt'",
+                    (second,),
+                )
+        self.assertEqual(self.registry.get_artifact_head("p", "guarded.txt")["digest"], first)
+        self.assertEqual(self.registry.artifact_history("p", "guarded.txt")[-1]["digest"], first)
+
+    def test_database_rejects_initial_head_without_version_row(self):
+        digest = self.registry._store_blob(b"unversioned", "application/octet-stream")
+        with self.registry._connect() as db:
+            with self.assertRaises(sqlite3.IntegrityError):
+                db.execute(
+                    "INSERT INTO project_artifacts(project_id,digest,logical_path,generation) "
+                    "VALUES('p',?,'unversioned.txt',1)", (digest,),
+                )
+        self.assertIsNone(self.registry.get_artifact_head("p", "unversioned.txt"))
+
+    def test_concurrent_writers_only_one_cas_wins(self):
+        import threading
+        first = self.registry.put_artifact("p", "race.txt", b"base")
+        barrier = threading.Barrier(2)
+        outcomes = []
+        lock = threading.Lock()
+
+        def writer(payload, operation):
+            barrier.wait()
+            try:
+                result = self.registry.replace_artifact(
+                    "p", "race.txt", payload,
+                    expected_digest=first, expected_generation=1,
+                    actor="concurrency-test", operation_id=operation,
+                )
+                outcome = ("won", result)
+            except ArtifactConflict:
+                outcome = ("conflict", None)
+            with lock:
+                outcomes.append(outcome)
+
+        workers = [
+            threading.Thread(target=writer, args=(b"writer-a", "race-a")),
+            threading.Thread(target=writer, args=(b"writer-b", "race-b")),
+        ]
+        for worker in workers:
+            worker.start()
+        for worker in workers:
+            worker.join(timeout=10)
+        self.assertTrue(all(not worker.is_alive() for worker in workers))
+        self.assertEqual(sorted(kind for kind, _ in outcomes), ["conflict", "won"])
+        history = self.registry.artifact_history("p", "race.txt")
+        self.assertEqual([row["generation"] for row in history], [1, 2])
+        head = self.registry.get_artifact_head("p", "race.txt")
+        self.assertEqual(head["generation"], 2)
+        self.assertEqual(head["digest"], next(value for kind, value in outcomes if kind == "won"))
+
     def test_replace_requires_existing_head(self):
         with self.assertRaises(ArtifactConflict):
             self.registry.replace_artifact(
