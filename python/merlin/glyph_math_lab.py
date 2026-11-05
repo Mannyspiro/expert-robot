@@ -97,7 +97,7 @@ def hermes_glyph_math_research_executor(task, context):
         "promotion_authority": False,
     }
     payload = (json.dumps(report, sort_keys=True, separators=(",", ":"),
-                          ensure_ascii=False, allow_nan=False) + "\\n").encode("utf-8")
+                          ensure_ascii=False, allow_nan=False) + "\n").encode("utf-8")
     return {
         "artifact_bytes": payload,
         "media_type": "application/vnd.merlin.glyph-math+json",
