@@ -123,7 +123,8 @@
         "motif_design",
         "repeat_structure",
         "variation",
-        "visual_coherence"
+        "visual_coherence",
+        "self_reflection"
       ],
       "prerequisites": [],
       "lesson_id": "art-math-symmetry-studio-v0.1"
