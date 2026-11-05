@@ -67,6 +67,72 @@ class Expr:
             return result
         raise FoundryError(f"unknown AST operation: {self.op}")
 
+
+class ExprArena:
+    """Bounded hash-consing arena that shares structurally identical Expr nodes.
+
+    The arena is opt-in: existing tree-based callers keep their current
+    behavior. Interning preserves operator IDs, argument order, and exact
+    input/output types. The capacity is a hard bound on unique resident nodes.
+    """
+
+    def __init__(self, max_nodes: int = 100_000):
+        if isinstance(max_nodes, bool) or not isinstance(max_nodes, int) or max_nodes < 1:
+            raise FoundryError("max_nodes must be a positive integer")
+        self.max_nodes = max_nodes
+        self._nodes: dict[str, Expr] = {}
+
+    @property
+    def unique_node_count(self) -> int:
+        return len(self._nodes)
+
+    def intern(self, expression: Expr) -> Expr:
+        if not isinstance(expression, Expr):
+            raise FoundryError("only Expr nodes can be interned")
+        args = tuple(
+            self.intern(value) if isinstance(value, Expr) else value
+            for value in expression.args
+        )
+        canonical = Expr(
+            expression.op, args, expression.input_type, expression.output_type
+        )
+        fingerprint = canonical.fingerprint()
+        existing = self._nodes.get(fingerprint)
+        if existing is not None:
+            if existing.canonical() != canonical.canonical():
+                raise FoundryError("expression fingerprint collision")
+            return existing
+        if len(self._nodes) >= self.max_nodes:
+            raise FoundryError("expression arena node budget exhausted")
+        self._nodes[fingerprint] = canonical
+        return canonical
+
+    def stats(self, expression: Expr) -> dict[str, float | int]:
+        """Count expanded tree occurrences versus unique reachable DAG nodes."""
+        occurrence_nodes = 0
+        reachable: set[str] = set()
+
+        def visit(node: Expr) -> None:
+            nonlocal occurrence_nodes
+            occurrence_nodes += 1
+            reachable.add(node.fingerprint())
+            for child in node.args:
+                if isinstance(child, Expr):
+                    visit(child)
+
+        visit(expression)
+        unique_nodes = len(reachable)
+        return {
+            "occurrence_nodes": occurrence_nodes,
+            "unique_nodes": unique_nodes,
+            "shared_occurrences": occurrence_nodes - unique_nodes,
+            "sharing_ratio": (
+                (occurrence_nodes - unique_nodes) / occurrence_nodes
+                if occurrence_nodes else 0.0
+            ),
+            "arena_resident_nodes": self.unique_node_count,
+        }
+
 class GlyphRegistry:
     def __init__(self): self.primitives={}; self.predicates={}; self.promoted={}
     def register_primitive(self,p):
