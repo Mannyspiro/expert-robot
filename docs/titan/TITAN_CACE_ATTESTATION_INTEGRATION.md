@@ -70,3 +70,31 @@ The adapter is not production-eligible until:
 - the authority-nonexpansion and rollback gates pass.
 
 A valid signature authenticates the statement; it does not prove that the cryptographic construction is secure or that a research result is mathematically correct.
+
+
+## Implementation progress (2026-11-05)
+
+CACE implementation is isolated on `morganaspim/Cace-app`, branch
+`feat/titan-mldsa-attestation-v2-20261105`:
+
+- `schema/signed-attestation-v2-mldsa.schema.json`: additive ML-DSA-65 v2 envelope.
+- `cace_studio/core/pqc_attestation.py`: canonical, domain-separated ML-DSA signing and verification; exact provenance binding checks; key-ID binding; key-pair consistency check.
+- `cace_studio/attest_cli.py`: `pqc-keygen`, `pqc-sign`, and `pqc-verify` commands. Signing requires an artifact root and verifies the actual artifact bytes before signing.
+- `scripts/verify_titan_bundle.py`: independent CACE bundle and artifact-byte verifier.
+- Tests cover signature roundtrip, tampering, malformed public-key input, mismatched keypairs, CLI roundtrip, bundle integrity, and actual Avrea artifact reproduction.
+
+The pinned Python binding is liboqs-python 0.16.0.2 at commit
+`64c76ad0a80d6c69f2003219eb27b253782a3d68`. This patch release is selected
+because upstream documents fixes for malformed short-key handling affecting
+ML-DSA verification and ML-KEM decapsulation. Its commit is GitHub-verified;
+the tag itself is lightweight, not signed.
+
+The Avrea ACVP workflow passed the selected FIPS 203/204/205 parameter-set
+tests. CACE's separate OCI runner `cace-oci-a1` passed independent verification
+of the original Avrea artifact archive and its extracted log, JUnit report,
+provider provenance, and evidence manifest. The CACE verification run is
+`42090006059`; its verification artifact is retained for 30 days.
+
+The ML-DSA v2 Avrea sign/verify workflow is still pending. Until that workflow
+passes and an authorized production key is provisioned, the profile remains
+implemented-but-unqualified and no production signed receipt is claimed.
