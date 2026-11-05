@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "request_id": "expert-robot-42054029936-e9e0e4312d61db3a758bbcae6c46dd144649fc55",
+  "expert_robot_commit": "e9e0e4312d61db3a758bbcae6c46dd144649fc55",
+  "cace_repository": "morganaspim/Cace-app",
+  "cace_workflow_run_id": 42055104542,
+  "cace_run_attempt": 1,
+  "cace_commit": "d166699cad2b46f429aa9f317f3938e27d0764bd",
+  "cace_artifact_id": 13429480525,
+  "cace_artifact_sha256": "e259f423177df337c47854678f9a1d8de101bd375b4b4b1e3a2d364f783a0626",
+  "result_status": "fail",
+  "exit_code": 50,
+  "log_sha256": "e3f767ee3faf2855781e7b20894ff000db95277d8b0de524802689c050c2c07f",
+  "integrity_verification": "passed",
+  "signature_status": "unsigned",
+  "reverse_transport_status": "blocked_missing_secret",
+  "authority": "qualification-only",
+  "promotion_authority": false
+}
