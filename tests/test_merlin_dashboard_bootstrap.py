@@ -17,8 +17,8 @@ class MerlinDashboardBootstrapTests(unittest.TestCase):
             )
             initialize(directory, project_id="merlin-existing", project_name="Do Not Replace")
             inventory = registry.inventory("merlin-existing")
-            self.assertEqual(inventory["project"]["name"], "Existing Project")
-            self.assertEqual(inventory["project"]["metadata"], {"owner": "preserve-me"})
+            self.assertEqual(inventory["name"], "Existing Project")
+            self.assertEqual(inventory["metadata"], {"owner": "preserve-me"})
 
     def test_initializes_canonical_read_only_dashboard_stores_idempotently(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -41,7 +41,7 @@ class MerlinDashboardBootstrapTests(unittest.TestCase):
             self.assertIn("MERLIN_OUTBOX_DB_PATH=", env)
             self.assertIn("MERLIN_HYPOTHESES_DB_PATH=", env)
             inventory = MerlinRegistry(root / "registry").inventory("merlin-test")
-            self.assertEqual(inventory["project"]["project_id"], "merlin-test")
+            self.assertEqual(inventory["project_id"], "merlin-test")
 
 
 if __name__ == "__main__":
