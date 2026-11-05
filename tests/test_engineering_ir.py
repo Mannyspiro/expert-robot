@@ -80,7 +80,7 @@ class EngineeringIRTests(unittest.TestCase):
             ground_net="GND",
             measure_nets=("MID",),
         )
-        self.assertIn("R1 SUPPLY MID 1k\\n", output)
+        self.assertIn("R1 SUPPLY MID 1k\n", output)
         self.assertIn("R2 MID 0 1k\\n", output)
         self.assertIn("V1 SUPPLY 0 DC 5\\n", output)
         self.assertIn("* requested operating-point voltage: MID\\n", output)
