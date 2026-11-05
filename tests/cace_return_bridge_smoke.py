@@ -23,6 +23,11 @@ assert 'dollar + "{{ secrets.EXPERT_ROBOT_SSH_PRIVATE_KEY }}"' in external
 qualify = external.split("            publish-result:", 1)[0]
 publisher = external.split("            publish-result:", 1)[1]
 assert "runs-on: [self-hosted, cace, oci, aarch64]" in qualify
+assert "cace_workflow_sha" in external
+assert "cace_workflow_ref" in external
+assert "Persist CACE evidence in Expert Robot" in external
+assert "steps.await.outputs.evidence_validated == 'true'" in external
+assert '"verification_level": "integrity-checked; Ed25519 signer trust not established"' in external
 assert "permissions:\n                contents: read" in qualify
 assert "persist-credentials: false" in qualify
 assert "EXPERT_ROBOT_SSH_PRIVATE_KEY" not in qualify
