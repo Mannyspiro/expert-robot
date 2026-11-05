@@ -60,7 +60,18 @@ def _validate_hypothesis(item: Mapping[str, Any]) -> dict[str, Any]:
     ):
         raise ValueError("Ideonomy output requires explicit non-empty assumptions")
     _required_text(statement, "falsifiable_statement")
-    _required_text(result.get("formal_statement"), "formal_statement")
+    formal_statement = _required_text(result.get("formal_statement"), "formal_statement")
+    lean_source = _required_text(result.get("lean_source"), "lean_source")
+    source_identity = result.get("source_identity")
+    if not isinstance(source_identity, Mapping):
+        raise ValueError("Ideonomy output requires explicit source_identity metadata")
+    source_ids = result.get("source_ids")
+    if not isinstance(source_ids, list) or not source_ids or set(source_ids) != set(source_identity.get("primitive_ids", [])):
+        raise ValueError("claim source identity must exactly match its Ideonomy primitive IDs")
+    if formal_statement not in lean_source:
+        raise ValueError("Lean source must contain the exact declared formal statement")
+    if PLACEHOLDER_RE.search(lean_source):
+        raise ValueError("Lean source contains a placeholder and is not eligible")
     result["epistemic_status"] = "proposed_unproved_conjecture"
     result["lean_translation_eligible"] = True
     result["promotion_authority"] = False
@@ -319,6 +330,11 @@ def build_integrated_math_discovery_handlers(
 ) -> dict[str, Callable[..., Mapping[str, Any]]]:
     """Construct the complete adapter stack and register one canonical Hermes path."""
     lean_project = discover_lean_project(repository_root)
+    from merlin.cace_adapter import CaceVerificationAdapter
+    if not isinstance(cace_adapter, CaceVerificationAdapter):
+        raise TypeError("a real CaceVerificationAdapter is required")
+    if cace_adapter.verify_transport is None:
+        raise RuntimeError("CACE independent verification transport is not configured; refusing to register Hermes handlers")
     ideonomy = IdeonomyConjectureAdapter(ideonomy_claim_factory)
     lean = LeanCompilerAdapter(lean_project)
     numerical = ReproducibleNumericalAdapter(
@@ -352,8 +368,22 @@ def build_integrated_math_discovery_handlers(
                 raise ValueError("atlas candidate failed validation")
             conjectures = engine.ideonomy_expand(candidate)
             eligible = [c for c in conjectures if c.get("lean_translation_eligible") is True]
-            lean_results = [engine.lean_scaffold(c) for c in eligible]
-            # Never submit a Lean scaffold or compiler transcript as a verified proof.
+            # Compile only the exact Lean source supplied by the validated claim.
+            # Do not call engine.lean_scaffold(): that method deliberately emits
+            # an incomplete sorry scaffold and is never a proof input.
+            lean_results = [
+                dict(lean({"conjecture": dict(claim)}))
+                for claim in eligible
+            ]
+            for claim, lean_result in zip(eligible, lean_results):
+                lean_result["conjecture_id"] = claim["conjecture_id"]
+                lean_result["formal_statement"] = claim["formal_statement"]
+                lean_result["source_identity"] = dict(claim["source_identity"])
+                lean_result["proof_verified"] = False
+                if lean_result.get("status") == "compiled_unverified":
+                    lean_result["compilation_status"] = "compiled"
+                    lean_result["verification_status"] = "not_independently_verified"
+            # Compilation and independent proof verification remain separate.
             experiments = [engine.run_numerical(s) for s in task.get("experiment_specs", [])]
             searches = [engine.search_counterexamples(s) for s in task.get("counterexample_specs", [])]
             results.append({
