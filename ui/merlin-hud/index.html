@@ -46,7 +46,7 @@ const labels={"intake":"Request intake","hypothesis":"Hypothesis","representatio
 let lastSnapshot=null;let demoTimer=null;let demoIndex=0;
 const $=id=>document.getElementById(id);
 function drawPhases(phase){const ix=Math.max(0,PHASES.indexOf(phase));$("phases").innerHTML=PHASES.map((p,i)=>'<span class="phase '+(i<ix?"done":i===ix?"active":"")+'">'+p+'</span>').join("");}
-function drawFlow(phase){
+function drawFlow(phase,data={}){
  const ix=Math.max(0,PHASES.indexOf(phase));
  const layers=[
   [{x:42,y:28},{x:42,y:65},{x:42,y:102}],
@@ -73,10 +73,23 @@ function drawFlow(phase){
  }));
  const a=layers[Math.min(stageLayer,3)][0],b=layers[Math.min(stageLayer+1,4)][0];
  const pulse='<circle class="signal" r="3"><animateMotion dur="2.4s" repeatCount="indefinite" path="M'+a.x+' '+a.y+' L'+b.x+' '+b.y+'"/></circle>';
+ const agents=Array.isArray(data.agents)?data.agents.slice(0,5):[];
+ agents.forEach((agent,i)=>{
+  const angle=(-Math.PI/2)+(Math.PI*2*i/Math.max(agents.length,1));
+  const x=280+Math.cos(angle)*34,y=65+Math.sin(angle)*34;
+  edges+='<path class="synapse live" d="M280 65 L'+x.toFixed(1)+' '+y.toFixed(1)+'"/>';
+  nodes+='<circle class="neuron active" cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3.5"><title>'+escapeHtml(agent.role||"Agent")+': '+escapeHtml(agent.activity||"active")+'</title></circle>';
+ });
+ const evidenceCount=Array.isArray(data.evidence_refs)?data.evidence_refs.length:0;
+ for(let i=0;i<Math.min(evidenceCount,5);i++){
+  const y=31+i*17;
+  nodes+='<circle class="neuron verified" cx="548" cy="'+y+'" r="3"/>';
+  edges+='<path class="synapse verified" d="M518 65 L548 '+y+'"/>';
+ }
  $("neuralEdges").innerHTML=edges+pulse;
  $("flowNodes").innerHTML=nodes;
 }
-function render(data){lastSnapshot=data;const phase=PHASES.includes(data.phase)?data.phase:"intake";$("phaseMetric").textContent=phase.toUpperCase();$("agentMetric").textContent=(data.agents||[]).length;$("eventMetric").textContent=data.event_count||0;$("evidenceMetric").textContent=(data.evidence_refs||[]).length;$("runid").textContent="RUN "+(data.active_run_id||"—");$("activityTitle").textContent=labels[phase]||"Research active";$("activitySub").textContent=(data.agents||[]).map(a=>a.role+": "+a.activity).join(" · ")||"No active agent event recorded";drawPhases(phase);drawFlow(phase);const events=(data.timeline||[]).slice(-8).reverse();$("eventFeed").innerHTML=events.map(e=>'<div class="event"><i></i><div><strong>'+escapeHtml(e.label)+'</strong>'+escapeHtml(e.summary||e.kind)+'</div><time>'+escapeHtml((e.timestamp||"").slice(11,19))+'</time></div>').join("")||'<div class="event"><i></i><div><strong>No events</strong>Waiting for event stream</div><time>—</time></div>';if(data.canvas){$("canvasTitle").textContent=data.canvas.title||"Adaptive research canvas";$("canvasType").textContent=(data.canvas.kind||"ACTIVE WORKSPACE").toUpperCase();}renderCanvas(data);}
+function render(data){lastSnapshot=data;const phase=PHASES.includes(data.phase)?data.phase:"intake";$("phaseMetric").textContent=phase.toUpperCase();$("agentMetric").textContent=(data.agents||[]).length;$("eventMetric").textContent=data.event_count||0;$("evidenceMetric").textContent=(data.evidence_refs||[]).length;$("runid").textContent="RUN "+(data.active_run_id||"—");$("activityTitle").textContent=labels[phase]||"Research active";$("activitySub").textContent=(data.agents||[]).map(a=>a.role+": "+a.activity).join(" · ")||"No active agent event recorded";drawPhases(phase);drawFlow(phase,data);const events=(data.timeline||[]).slice(-8).reverse();$("eventFeed").innerHTML=events.map(e=>'<div class="event"><i></i><div><strong>'+escapeHtml(e.label)+'</strong>'+escapeHtml(e.summary||e.kind)+'</div><time>'+escapeHtml((e.timestamp||"").slice(11,19))+'</time></div>').join("")||'<div class="event"><i></i><div><strong>No events</strong>Waiting for event stream</div><time>—</time></div>';if(data.canvas){$("canvasTitle").textContent=data.canvas.title||"Adaptive research canvas";$("canvasType").textContent=(data.canvas.kind||"ACTIVE WORKSPACE").toUpperCase();}renderCanvas(data);}
 function renderCanvas(data){const phase=PHASES.includes(data.phase)?data.phase:"intake";const title={"intake":"Research question and scope","hypothesis":"Hypothesis relationship map","representation":"Coordinate and representation transform","experiment":"Numerical experiment trace","counterexample":"Counterexample search space","formalization":"Theorem dependency graph","verification":"Independent verification evidence","artifact":"Verified artifact lineage"}[phase];$("canvasTitle").textContent=title;$("canvasType").textContent=phase.toUpperCase()+" / EVENT-DERIVED VIEW";const p=phase;let shapes="";
 if(p==="representation"){shapes='<ellipse class="orbit" cx="360" cy="150" rx="220" ry="82"/><ellipse class="orbit" cx="360" cy="150" rx="220" ry="82" transform="rotate(58 360 150)"/><ellipse class="orbit" cx="360" cy="150" rx="220" ry="82" transform="rotate(-58 360 150)"/><path class="vector" d="M140 150 Q250 35 360 150 T580 150"/><circle class="sphere" cx="360" cy="150" r="30"/><path class="basis" d="M360 150 L490 150 M360 150 L300 72 M360 150 L360 45"/><circle class="point" cx="490" cy="150" r="4"/><circle class="point" cx="300" cy="72" r="4"/><circle class="point" cx="360" cy="45" r="4"/><text x="360" y="205" text-anchor="middle">Basis change · preserved invariants · conversion maps</text>';}
 else if(p==="experiment"){shapes='<path class="orbit" d="M100 235 H620 M100 35 V235"/><path class="vector" d="M110 205 C160 185 175 50 245 92 S330 190 390 115 S490 35 610 62"/><path class="basis" d="M110 205 C160 185 175 50 245 92 S330 190 390 115 S490 35 610 62"/><text x="360" y="270" text-anchor="middle">Measured samples · tolerance band · reproducible seed</text>';}
