@@ -571,6 +571,51 @@
         "How does a new nomenclature change what can be reasoned about?",
         "Who contributed to the work beyond the named author?"
       ]
+    },
+    {
+      "id": "bacon-novum-organum",
+      "title": "Novum Organum",
+      "creator": "Francis Bacon; English edition edited by Joseph Devey",
+      "date": "1620 original; 1902 edition read",
+      "domain": "philosophy of science / methodology",
+      "url": "https://www.gutenberg.org/ebooks/45988",
+      "context": "Bacon argues for disciplined inquiry aided by intellectual instruments, gradual induction from particulars, and awareness of systematic sources of error. The text read is a 1902 English edition, not Bacon's original-language text.",
+      "questions": [
+        "How does Bacon distinguish dogmatism from disciplined uncertainty?",
+        "What are the four idols and how do they distort inquiry?",
+        "Why does he compare intellectual aids to mechanical instruments?",
+        "Which parts of his method survive in modern research, and which need revision?"
+      ]
+    },
+    {
+      "id": "hume-enquiry",
+      "title": "An Enquiry Concerning Human Understanding",
+      "creator": "David Hume; edited by L. A. Selby-Bigge",
+      "date": "1748 original; 1902 edition read",
+      "domain": "epistemology / philosophy of science",
+      "url": "https://www.gutenberg.org/ebooks/9662",
+      "context": "Hume studies how impressions, ideas, custom and repeated experience shape belief. His analysis of causal inference and induction is a foundation for asking what scientific evidence can justify. The digital text is a later edited edition.",
+      "questions": [
+        "How do ideas relate to impressions?",
+        "Why does custom shape expectations about cause and effect?",
+        "Why doesn't repeated past experience deductively prove future regularity?",
+        "What does this imply for model validation and prediction?"
+      ]
+    },
+    {
+      "id": "euclid-elements-1570",
+      "title": "The Elements of Geometrie",
+      "creator": "Euclid; translated by Henry Billingsley, with contributions by John Dee and others",
+      "date": "1570 English edition",
+      "domain": "mathematics / geometry / history of mathematical transmission",
+      "url": "https://library.si.edu/digital-library/book/elementsgeometr00eucl",
+      "context": "A CC0 digitized 1570 English edition that shows how Euclid's geometry was transmitted and taught in early modern England. It is a historical translation and reception artifact, not the ancient Greek original.",
+      "questions": [
+        "How are definitions, postulates and propositions organized?",
+        "How did the 1570 translation and its paratext shape the reception of Greek geometry?",
+        "What role did commentary, diagrams and printing play in mathematical education?",
+        "How does an axiomatic proof structure differ from experimental evidence?"
+      ]
     }
   ]
 }
