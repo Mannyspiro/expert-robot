@@ -308,6 +308,17 @@ jobs:
                       fi
                       export PATH="$ELAN_HOME/bin:$PATH"
 
+                      # Recover only incomplete Lean installations left by interrupted runs.
+                      toolchains_dir="$ELAN_HOME/toolchains"
+                      mkdir -p "$toolchains_dir"
+                      find "$toolchains_dir" -maxdepth 1 -mindepth 1 -type d -name '*.tmp' -prune -exec rm -rf -- {} +
+                      echo "Disk before Lean install:" | tee -a "$log"
+                      df -h "$ELAN_HOME" "$RUNNER_TEMP" | tee -a "$log" || true
+                      free_kb="$(df -Pk "$ELAN_HOME" | awk 'NR==2 {print $4}')"
+                      if [ -z "$free_kb" ] || [ "$free_kb" -lt 2097152 ]; then
+                        echo "insufficient disk space for pinned Lean toolchain: available_kb=${free_kb:-unknown}, required_kb=2097152" | tee -a "$log"
+                        return 50
+                      fi
                       elan toolchain install "$toolchain"
 
                       cache_key="v4.34.0-$mathlib_commit"
@@ -315,6 +326,10 @@ jobs:
                       package_cache="$cache_root/packages"
                       cache_lock="$cache_root.lock"
                       mkdir -p "$cache_root"
+                      # Remove only abandoned temporary copies for this exact pinned cache.
+                      find "$cache_root" -maxdepth 1 -mindepth 1 -type d -name 'packages.tmp-*' -prune -exec rm -rf -- {} +
+                      echo "Disk before Mathlib dependency/cache work:" | tee -a "$log"
+                      df -h "$cache_root" | tee -a "$log" || true
 
                       cd "$formal_dir"
                       manifest_before="$(sha256sum lake-manifest.json | awk '{print $1}')"
