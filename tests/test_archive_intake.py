@@ -1,3 +1,4 @@
+import hashlib
 import json
 import zipfile
 
@@ -35,6 +36,25 @@ def test_zip_intake_detects_duplicate_content_across_archives(tmp_path):
     store.register_project("merlin", "Merlin")
     receipt = ingest_archives(store, "merlin", [one, two])
     assert len(receipt["duplicate_content"]) == 1
+    assert receipt["registry_reconciliation"]["consistent"] is True
+
+    digest = hashlib.sha256(b"identical").hexdigest()
+    snapshot = store.graph.export_snapshot()
+    member_refs = [
+        node for node in snapshot["nodes"]
+        if node["node_type"] == "artifact_reference"
+        and node["payload"]["artifact_sha256"] == digest
+    ]
+    assert len(member_refs) == 2
+    assert {node["payload"]["logical_path"] for node in member_refs} == {
+        f"intake/members/{receipt['archives'][0]['archive_sha256']}/a.txt",
+        f"intake/members/{receipt['archives'][1]['archive_sha256']}/b.txt",
+    }
+    content_nodes = [
+        node for node in snapshot["nodes"]
+        if node["node_id"] == f"artifact:sha256:{digest}"
+    ]
+    assert len(content_nodes) == 1
     assert receipt["registry_reconciliation"]["consistent"] is True
 
     digest = next(iter(receipt["duplicate_content"]))
