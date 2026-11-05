@@ -50,15 +50,15 @@ The outbox supports lease, retry and acknowledgement. Acknowledgements must acce
 
 ## 5. Avrea approval and dispatch gate
 
-A task must be bound to a canonical approval record, a capability allowlist, resource maxima, timeout and a result manifest. Record an operator approval:
+A task must be bound to a canonical approval record, a capability allowlist, resource maxima, timeout and a result manifest. The task's `task_contract_sha256` is computed from canonical JSON with that self-referential field excluded; the approval must bind that exact digest. The approval file must contain `status: approved`. Record an operator approval:
 
     python3 workers/archive_intake/avrea_dispatch.py record-approval approval.json --database ./data/merlin.sqlite3
 
 Then submit:
 
-    python3 workers/archive_intake/avrea_dispatch.py submit task.json --approval approval.json --policy avrea-policy.json --database ./data/merlin.sqlite3
+    python3 workers/archive_intake/avrea_dispatch.py submit task.json --approval approval.json --policy workers/archive_intake/avrea-policy.example.json --database ./data/merlin.sqlite3
 
-Without a configured Avrea provider, the task remains `approved_waiting_for_provider`; it is not executed. A provider adapter must implement submit/result retrieval and return a result manifest. This repository currently has no Avrea connector or provider credentials, so no Avrea job has been dispatched. Approval records are operator-entered local records; production must add authenticated identity and signed approval receipts before multi-user use.
+Without a configured Avrea provider, the task remains `approved_waiting_for_provider`; it is not executed. A provider adapter must implement submit/result retrieval and return a result manifest whose artifacts each have a SHA-256 and retrieval URI. This repository currently has no Avrea connector or provider credentials, so no Avrea job has been dispatched. Approval records are operator-entered local records; production must add authenticated identity and signed approval receipts before multi-user use.
 
 ## 6. CACE verification
 
@@ -82,7 +82,7 @@ The graph links project artifacts, GitHub commit receipts, CACE verification rec
 
 ## 8. CAD/MCFC geometry, simulation and wiring
 
-The `cad_mcfc_model.py` module validates homogeneous 4x4 affine transforms, transforms 3D points, composes frames, validates rigid rotations, checks simulation provenance metadata and normalizes wiring/net relationships. `engineering_registry.py` persists validated metadata and wiring only for registered project artifacts. CAD formats are classified during intake but are never opened or executed by the intake worker.
+The `cad_mcfc_model.py` module validates homogeneous 4x4 affine transforms, transforms 3D points, composes frames, validates rigid rotations, checks simulation provenance metadata and normalizes wiring/net relationships. Use `engineering_registry.py PROJECT_ID INPUT.json --database ./data/merlin.sqlite3` to persist a `kind: wiring` graph, or add `--artifact-sha256` for `kind: cad` / `kind: simulation` metadata. Wiring pins may fan out on one net but may not be assigned to multiple nets. `engineering_registry.py` persists validated metadata and wiring only for registered project artifacts. CAD formats are classified during intake but are never opened or executed by the intake worker.
 
 Example transform input:
     {"kind":"transform","matrix":[[1,0,0,10],[0,1,0,0],[0,0,1,0],[0,0,0,1]],"point":[1,2,3]}
