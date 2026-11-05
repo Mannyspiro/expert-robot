@@ -175,4 +175,129 @@ class CaceVerificationAdapter:
         return result
 
 
+    def verify_artifact(self, *, project_id: str, repository: str, commit_sha: str,
+                        artifact_sha256: str, artifact_kind: str,
+                        artifact_schema: str, requester_id: str,
+                        logical_path: str) -> dict[str, Any]:
+        """Independently attest a non-theorem artifact and store its signed receipt."""
+        if self.verify_transport is None:
+            raise RuntimeError("CACE verification transport is not configured")
+        if not repository or "/" not in repository:
+            raise ValueError("repository must be owner/name")
+        if len(commit_sha) != 40 or any(c not in "0123456789abcdef" for c in commit_sha):
+            raise ValueError("commit_sha must be a lowercase 40-character Git SHA")
+        if len(artifact_sha256) != 64 or any(c not in "0123456789abcdef" for c in artifact_sha256):
+            raise ValueError("artifact_sha256 must be a lowercase SHA-256 digest")
+        for value, label in ((artifact_kind, "artifact_kind"),
+                             (artifact_schema, "artifact_schema"),
+                             (requester_id, "requester_id"),
+                             (logical_path, "logical_path")):
+            if not isinstance(value, str) or not value.strip() or len(value) > 500:
+                raise ValueError(label + " is required")
+        if not self.registry.verify_artifact(artifact_sha256):
+            raise ValueError("CACE input artifact is absent from the registry or failed digest verification")
+        request = {
+            "schema": "merlin-cace-artifact-verification-request/1",
+            "repository": repository,
+            "commit_sha": commit_sha,
+            "artifact_sha256": artifact_sha256,
+            "artifact_kind": artifact_kind,
+            "artifact_schema": artifact_schema,
+            "logical_path": logical_path,
+            "requester_id": requester_id,
+            "artifact_registry_verified": True,
+        }
+        response = self.verify_transport(request)
+        if not isinstance(response, Mapping):
+            raise TypeError("CACE artifact verifier must return a mapping receipt")
+        receipt = dict(response)
+        if receipt.get("schema") != "cace-artifact-verification/1":
+            raise ValueError("unsupported CACE artifact receipt schema")
+        for key in ("repository", "commit_sha", "artifact_sha256",
+                    "artifact_kind", "artifact_schema", "logical_path"):
+            if receipt.get(key) != request[key]:
+                raise ValueError("CACE artifact receipt is bound to a different " + key)
+        verifier_id = receipt.get("verifier_id")
+        if not isinstance(verifier_id, str) or not verifier_id.strip() or verifier_id == requester_id:
+            raise ValueError("CACE artifact verifier must have an independent identity")
+        if receipt.get("source_commit_verified") is not True or receipt.get("artifact_digest_verified") is not True:
+            raise ValueError("CACE did not independently authenticate the source commit and artifact digest")
+        status = receipt.get("verification_status")
+        if status not in {"verified", "rejected", "inconclusive"}:
+            raise ValueError("unsupported CACE artifact verification status")
+        supplied_digest = receipt.get("receipt_sha256")
+        body = {key: value for key, value in receipt.items() if key != "receipt_sha256"}
+        expected_digest = hashlib.sha256(_canonical(body).encode("utf-8")).hexdigest()
+        if supplied_digest != expected_digest:
+            raise ValueError("CACE artifact receipt SHA-256 mismatch")
+        receipt_bytes = (_canonical(receipt) + "\\n").encode("utf-8")
+        receipt_path = ("cace-artifact-receipts/" + commit_sha + "/" +
+                        artifact_sha256 + "/" + hashlib.sha256(
+                            artifact_kind.encode("utf-8")).hexdigest() + ".json")
+        receipt_digest = self.registry.put_artifact(
+            project_id, receipt_path, receipt_bytes,
+            "application/vnd.merlin.cace-artifact-receipt+json",
+        )
+        if not self.registry.verify_artifact(receipt_digest):
+            raise RuntimeError("stored CACE artifact receipt failed registry digest verification")
+        receipt_node_id = None
+        if self.graph is not None:
+            artifact_identity = project_id + "|" + logical_path + "|" + artifact_sha256
+            artifact_node_id = "artifact:" + hashlib.sha256(
+                artifact_identity.encode("utf-8")).hexdigest()[:32]
+            if self.graph.get_node(artifact_node_id) is None:
+                self.graph.add_node(GraphNode(
+                    artifact_node_id, "artifact", logical_path,
+                    {"sha256": artifact_sha256, "project_id": project_id,
+                     "logical_path": logical_path, "artifact_kind": artifact_kind,
+                     "artifact_schema": artifact_schema},
+                    evidence_class="submitted_for_verification",
+                    source_uri="registry://sha256/" + artifact_sha256,
+                ))
+            receipt_node_id = "cace-receipt:" + receipt_digest[:40]
+            self.graph.add_node(GraphNode(
+                receipt_node_id, "proof_receipt", "CACE artifact " + status,
+                {"receipt_sha256": receipt_digest,
+                 "subject_artifact_sha256": artifact_sha256,
+                 "artifact_kind": artifact_kind, "artifact_schema": artifact_schema,
+                 "repository": repository, "commit_sha": commit_sha,
+                 "verifier_id": verifier_id, "verification_status": status,
+                 "promotion_authority": False},
+                evidence_class="independent_verification",
+                source_uri="registry://sha256/" + receipt_digest,
+            ))
+            self.graph.add_edge(GraphEdge(
+                receipt_node_id, "reviews", artifact_node_id,
+                {"receipt_sha256": receipt_digest,
+                 "subject_artifact_sha256": artifact_sha256,
+                 "verification_status": status, "independent": True},
+            ))
+        result = {
+            "schema": "merlin-cace-artifact-verification-result/1",
+            "verification_status": status,
+            "verifier_id": verifier_id,
+            "source_commit": commit_sha,
+            "artifact_sha256": artifact_sha256,
+            "receipt_artifact_sha256": receipt_digest,
+            "receipt_graph_node_id": receipt_node_id,
+            "promotion_authority": False,
+        }
+        key = "cace-artifact-verification:" + receipt_digest
+        event_id = "evt_" + hashlib.sha256(key.encode()).hexdigest()
+        already_recorded = self.outbox.get(event_id) is not None
+        self.outbox.enqueue(key, "merlin.cace.verification.completed", result)
+        if not already_recorded:
+            evidence_ref = "sha256:" + receipt_digest
+            self.emit_event(
+                kind="verification.completed", run_id=commit_sha,
+                task_id=artifact_sha256,
+                payload={"agent_id": verifier_id, "status": status,
+                         "independent": True, "artifact_kind": artifact_kind,
+                         "artifact_sha256": artifact_sha256,
+                         "receipt_artifact_sha256": receipt_digest},
+                evidence_refs=[evidence_ref],
+            )
+        return result
+
+
 __all__ = ["CaceVerificationAdapter"]
