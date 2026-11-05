@@ -36,6 +36,19 @@ jobs:
           command -v ngspice
           command -v prlimit
           ngspice --version | head -n 4
+          if ! command -v FreeCADCmd >/dev/null 2>&1 && ! command -v freecadcmd >/dev/null 2>&1; then
+            available_kb="$(df -Pk / | awk 'NR==2 {print $4}')"
+            if [ "$available_kb" -ge 4194304 ]; then
+              sudo apt-get install -y freecad || echo "FreeCAD package installation failed; macro generation remains enabled"
+            else
+              echo "FreeCAD runtime install skipped: less than 4 GiB free on Avrea runner"
+            fi
+          fi
+          if command -v FreeCADCmd >/dev/null 2>&1 || command -v freecadcmd >/dev/null 2>&1; then
+            echo "FreeCAD command-line runtime available"
+          else
+            echo "FreeCAD runtime unavailable; macro generation will be verified"
+          fi
 
       - name: Run Engineering IR, FreeCAD macro and bounded ngspice integration
         shell: bash
