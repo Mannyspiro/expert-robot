@@ -197,6 +197,7 @@ jobs:
           RUNNER_REPO_SSH: git@github.com:morganaspim/Cace-app.git
           RESULT_BRANCH: cace-result/${{ steps.package.outputs.request_id }}
           REQUEST_ID: ${{ steps.package.outputs.request_id }}
+          ARCHIVE: ${{ steps.package.outputs.archive }}
         run: |
           set -euo pipefail
 
@@ -218,18 +219,29 @@ jobs:
               if [ "$got" = "$REQUEST_ID" ]; then
                 git -C "$poll" show refs/remotes/origin/result:bridge/result.log > "$evidence/result.log" 2>/dev/null || true
                 git -C "$poll" show refs/remotes/origin/result:bridge/request.json > "$evidence/request.json"
-                python3 - "$evidence/result.json" "$evidence/result.log" "$REQUEST_ID" "$GITHUB_SHA" <<'PY'
+                if ! git -C "$poll" show refs/remotes/origin/result:bridge/result.json.sig > "$evidence/result.json.sig" 2>/dev/null; then continue; fi
+                if ! git -C "$poll" show refs/remotes/origin/result:bridge/cace-signer.pub > "$evidence/cace-signer.pub" 2>/dev/null; then continue; fi
+                python3 - "$evidence/result.json" "$evidence/result.log" "$evidence/request.json" "$ARCHIVE" "$REQUEST_ID" "$GITHUB_SHA" <<'PY'
           import hashlib
           import json
           import re
           import sys
 
-          result_path, log_path, expected_request, expected_source = sys.argv[1:]
+          result_path, log_path, request_path, archive_path, expected_request, expected_source = sys.argv[1:]
           result = json.load(open(result_path, encoding="utf-8"))
+          request_bytes = open(request_path, "rb").read()
+          request = json.loads(request_bytes)
           log = open(log_path, "rb").read()
+          archive = open(archive_path, "rb").read()
+          assert request.get("schema_version") == 3, "unsupported request schema"
+          assert request.get("request_id") == expected_request
+          assert request.get("expert_robot_commit") == expected_source
           assert result.get("schema_version") == 3, "unsupported result schema"
           assert result.get("request_id") == expected_request
           assert result.get("expert_robot_commit") == expected_source
+          assert result.get("source_archive_sha256") == request.get("source_archive_sha256")
+          assert result.get("source_archive_sha256") == hashlib.sha256(archive).hexdigest()
+          assert result.get("request_sha256") == hashlib.sha256(request_bytes).hexdigest()
           assert result.get("cace_repository") == "morganaspim/Cace-app"
           assert re.fullmatch(r"[0-9a-f]{40}", result.get("cace_commit", ""))
           assert re.fullmatch(r"[0-9a-f]{40}", result.get("cace_workflow_sha", ""))
@@ -247,9 +259,11 @@ jobs:
           assert (result["status"] == "pass") == (result["exit_code"] == 0)
           assert result.get("authority") == "qualification-only"
           assert result.get("promotion_authority") is False
+          assert result.get("toolchain", {}).get("lean_image") == "leanprover/lean4:v4.34.0"
+          assert result.get("toolchain", {}).get("mathlib_commit") == "5ed2965256430c3649e86755f9576b54eca72435"
           assert result.get("result_log_sha256") == hashlib.sha256(log).hexdigest()
           assert result.get("result_log_size_bytes") == len(log)
-          print("validated CACE result: " + result["status"])
+          print("validated CACE result and source archive binding: " + result["status"])
           print("cace_commit=" + result["cace_commit"])
           print("cace_workflow_run_id=" + str(result["cace_workflow_run_id"]))
           PY
