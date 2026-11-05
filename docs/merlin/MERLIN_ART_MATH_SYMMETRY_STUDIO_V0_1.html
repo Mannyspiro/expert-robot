@@ -73,13 +73,13 @@ el("reflection").addEventListener("input",()=>{el("save").disabled=!mathAttempte
 el("save").addEventListener("click",async()=>{
  const learner=el("learner").value.trim(),session=el("session").value.trim();
  if(!learner||!session){el("saveStatus").textContent="Enter learner and session IDs.";return;}
- const shared={learner_id:learner,session_id:session,problem_version:"1",rubric_version:"art-intent-submission-r1",transfer:false,delayed:false};
+ const shared={learner_id:learner,session_id:session,problem_version:"1",transfer:false,delayed:false};
  const events=[
- {...shared,attempt_id:crypto.randomUUID(),idea_id:"MATH-ART-001",problem_id:"radial-symmetry-step-angle",dimension:"recognition",score:mathScore,response:{n:+el("n").value,answer:Number(el("answer").value),expected:360/+el("n").value}},
- {...shared,attempt_id:crypto.randomUUID(),idea_id:"ART-PAT-001",problem_id:"radial-pattern-composition",dimension:"artistic_intent",score:1,response:{choice:el("choice").value,reflection:el("reflection").value,parameters:{n:+el("n").value,twist:+el("twist").value,length:+el("length").value,color:+el("color").value}}}
+ {...shared,rubric_version:"math-recognition-r1",attempt_id:crypto.randomUUID(),idea_id:"MATH-ART-001",problem_id:"radial-symmetry-step-angle",dimension:"recognition",score:mathScore,response:{n:+el("n").value,answer:Number(el("answer").value),expected:360/+el("n").value}},
+ {...shared,rubric_version:"reflection-completion-r1",attempt_id:crypto.randomUUID(),idea_id:"ART-PAT-001",problem_id:"radial-pattern-composition",dimension:"self_reflection",score:1,response:{choice:el("choice").value,reflection:el("reflection").value,parameters:{n:+el("n").value,twist:+el("twist").value,length:+el("length").value,color:+el("color").value}}}
  ];
  try{for(const event of events){const r=await fetch("/api/learning/attempt",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(event)});const body=await r.json();if(!r.ok)throw Error(body.detail||body.error||"save failed");}
- el("saveStatus").textContent="Saved two separate events: mathematical recognition and artistic-intent explanation. Aesthetic quality is not automatically scored.";
+ el("saveStatus").textContent="Saved two separate events: mathematical recognition and artistic self-reflection completion. Aesthetic quality is not automatically scored.";
  }catch(e){el("saveStatus").textContent="Not saved: run the local Merlin API with the art-math learner schema enabled. No mastery claim was made.";}
 });
 el("download").addEventListener("click",()=>{const clone=el("art").cloneNode(true),source=new XMLSerializer().serializeToString(clone),blob=new Blob([source],{type:"image/svg+xml"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="merlin-symmetry-studio.svg";a.click();URL.revokeObjectURL(url);});
