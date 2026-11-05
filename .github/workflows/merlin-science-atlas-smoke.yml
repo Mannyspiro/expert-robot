@@ -19,6 +19,7 @@ on:
       - "scripts/merlin_storage_guard.py"
       - "scripts/merlin_youtube_discover.py"
       - "tests/merlin_governance_smoke.py"
+      - "tests/merlin_orchestrator_plan_gate_smoke.py"
       - "research/science/reading-notes/**"
       - ".github/workflows/merlin-science-atlas-smoke.yml"
   workflow_dispatch:
@@ -45,6 +46,7 @@ jobs:
           python3 tests/merlin_science_intake_smoke.py
           python3 tests/merlin_science_ideonomy_bridge_smoke.py
           python3 tests/merlin_governance_smoke.py
+          python3 tests/merlin_orchestrator_plan_gate_smoke.py
           python3 scripts/merlin_domain_audit.py --taxonomy research/science/discipline-taxonomy.v1.json --governance research/science/merlin-research-governance.v1.json > domain-audit.json
           python3 scripts/merlin_storage_guard.py --root state/merlin-ingestion-staging --reserve-bytes 0
           python3 scripts/merlin_google_books_discover.py --query "subject:history of science" --max-results 5 > google-books-discovery.json
@@ -53,6 +55,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: merlin-google-books-discovery
-          path: google-books-discovery.json
+          path: |\n            google-books-discovery.json\n            domain-audit.json
           if-no-files-found: warn
           retention-days: 14
