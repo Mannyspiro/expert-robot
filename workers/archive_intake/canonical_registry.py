@@ -62,8 +62,9 @@ def initialize(path):
           source_id TEXT NOT NULL, relation TEXT NOT NULL, target_id TEXT NOT NULL,
           edge_json TEXT NOT NULL);
         CREATE TABLE IF NOT EXISTS engineering_metadata(
-          artifact_sha256 TEXT PRIMARY KEY, project_id TEXT NOT NULL REFERENCES projects(project_id),
-          metadata_json TEXT NOT NULL, created_at TEXT NOT NULL);
+          artifact_sha256 TEXT NOT NULL, project_id TEXT NOT NULL REFERENCES projects(project_id),
+          metadata_json TEXT NOT NULL, created_at TEXT NOT NULL,
+          PRIMARY KEY(project_id,artifact_sha256));
         CREATE TABLE IF NOT EXISTS wiring_connections(
           project_id TEXT NOT NULL REFERENCES projects(project_id), connection_id TEXT NOT NULL,
           from_node TEXT NOT NULL, from_pin TEXT NOT NULL, to_node TEXT NOT NULL, to_pin TEXT NOT NULL,
@@ -74,6 +75,20 @@ def initialize(path):
         CREATE INDEX IF NOT EXISTS idx_graph_project ON graph_nodes(project_id,node_type);
         CREATE INDEX IF NOT EXISTS idx_wiring_net ON wiring_connections(project_id,net_name);
         """)
+    with connect(path) as db:
+        emcols=list(db.execute("PRAGMA table_info(engineering_metadata)"))
+        pk=[row[1] for row in sorted((x for x in emcols if x[5]),key=lambda x:x[5])]
+        if pk!=["project_id","artifact_sha256"]:
+            db.execute("BEGIN IMMEDIATE")
+            db.execute("""CREATE TABLE engineering_metadata_v2(
+              artifact_sha256 TEXT NOT NULL, project_id TEXT NOT NULL REFERENCES projects(project_id),
+              metadata_json TEXT NOT NULL, created_at TEXT NOT NULL,
+              PRIMARY KEY(project_id,artifact_sha256))""")
+            db.execute("""INSERT OR IGNORE INTO engineering_metadata_v2
+              SELECT artifact_sha256,project_id,metadata_json,created_at FROM engineering_metadata""")
+            db.execute("DROP TABLE engineering_metadata")
+            db.execute("ALTER TABLE engineering_metadata_v2 RENAME TO engineering_metadata")
+            db.commit()
     with connect(path) as db:
         columns={row[1] for row in db.execute("PRAGMA table_info(github_commit_receipts)")}
         if "project_id" not in columns:
@@ -138,9 +153,10 @@ def make_handler(db_path):
             if token and self.headers.get("Authorization")!="Bearer "+token:
                 return self.send_json(401,{"error":"unauthorized"})
             parsed=urlparse(self.path); parts=[x for x in parsed.path.split("/") if x]
-            q=parse_qs(parsed.query); limit=min(max(int(q.get("limit",["100"])[0]),1),500)
-            offset=max(int(q.get("offset",["0"])[0]),0)
+            q=parse_qs(parsed.query)
             try:
+                limit=min(max(int(q.get("limit",["100"])[0]),1),500)
+                offset=max(int(q.get("offset",["0"])[0]),0)
                 if parts==["health"]: return self.send_json(200,{"status":"ok","service":"merlin-registry-read-api","api_version":"1"})
                 if parts==["v1","projects"]: return self.send_json(200,{"items":query_projects(db_path,limit,offset),"limit":limit,"offset":offset})
                 if len(parts)==3 and parts[:2]==["v1","projects"]:
