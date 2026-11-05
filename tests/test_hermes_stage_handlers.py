@@ -9,6 +9,15 @@ from merlin.research_evidence import ResearchEvidenceRecorder
 from merlin.hermes_stage_handlers import build_hermes_stage_handlers
 
 
+def fake_cace_verifier(**request):
+    return {
+        "verification_status": "verified",
+        "artifact_sha256": request["artifact_sha256"],
+        "receipt_artifact_sha256": "d" * 64,
+        "promotion_authority": False,
+    }
+
+
 class Context:
     task_id = "task-17"
     hypothesis_id = "H-17"
@@ -62,6 +71,10 @@ class HermesStageHandlerTests(unittest.TestCase):
             research_executor=executor_for("research"),
             numerical_experiment_executor=executor_for("numerical_experiment"),
             proof_search_executor=executor_for("proof_search"),
+            artifact_verifier=fake_cace_verifier,
+            repository="owner/repo",
+            commit_sha="a" * 40,
+            requester_id="merlin-worker",
         )
         self.assertEqual(set(handlers), {"research", "numerical_experiment", "proof_search"})
         expected_relations = {
@@ -75,6 +88,8 @@ class HermesStageHandlerTests(unittest.TestCase):
             self.assertTrue(result["artifact"]["registry_verified"])
             self.assertEqual(result["evidence_refs"][0], "sha256:" + result["artifact"]["sha256"])
             self.assertEqual(result["graph_edge"]["relation"], expected_relations[stage])
+            self.assertEqual(result["cace_verification"]["verification_status"], "verified")
+            self.assertEqual(len(result["evidence_refs"]), 2)
             self.assertFalse(result["promotion_authority"])
             self.assertEqual(result["hypothesis_status_unchanged"], True)
             self.assertTrue(any(event[0] == "agent.tool.started" for event in context.events))
@@ -102,6 +117,10 @@ class HermesStageHandlerTests(unittest.TestCase):
             research_executor=lambda task, context: {"artifact_bytes": b"x", "summary": "ok"},
             numerical_experiment_executor=lambda task, context: {"artifact_bytes": b"x", "summary": "ok"},
             proof_search_executor=lambda task, context: {"artifact_bytes": b"x", "summary": "ok"},
+            artifact_verifier=fake_cace_verifier,
+            repository="owner/repo",
+            commit_sha="a" * 40,
+            requester_id="merlin-worker",
         )
         with self.assertRaisesRegex(ValueError, "non-empty immutable artifact_bytes"):
             handlers["research"]({"stage": "research"}, Context())
