@@ -281,6 +281,8 @@ jobs:
 
       - name: Record PR test evidence manifest
         if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
         shell: bash
         run: |
           mkdir -p artifacts
