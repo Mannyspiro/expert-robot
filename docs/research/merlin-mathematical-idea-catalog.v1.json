@@ -58,7 +58,16 @@
       ],
       "next_steps": [
         "Specify typed representation interface and commuting-diagram checker."
-      ]
+      ],
+      "learning": {
+        "lesson_id": "rotation-four-representations-v0.1",
+        "dimensions": [
+          "conceptual_explanation",
+          "representation_translation",
+          "transfer"
+        ],
+        "prerequisites": []
+      }
     },
     {
       "id": "MATH-COORD-001",
@@ -95,7 +104,19 @@
       ],
       "next_steps": [
         "Build typed transition-map registry and path-consistency tests."
-      ]
+      ],
+      "learning": {
+        "lesson_id": "coordinate-frames-intro-v0.1",
+        "dimensions": [
+          "recognition",
+          "conceptual_explanation",
+          "procedure",
+          "representation_translation"
+        ],
+        "prerequisites": [
+          "MATH-REP-001"
+        ]
+      }
     },
     {
       "id": "MATH-CALG-001",
@@ -129,7 +150,19 @@
       ],
       "next_steps": [
         "Prove matrix/complex rotation correspondence in Lean."
-      ]
+      ],
+      "learning": {
+        "lesson_id": "complex-multiplication-rotation-v0.1",
+        "dimensions": [
+          "recognition",
+          "conceptual_explanation",
+          "procedure",
+          "representation_translation"
+        ],
+        "prerequisites": [
+          "MATH-REP-001"
+        ]
+      }
     },
     {
       "id": "MATH-ALG-001",
@@ -165,7 +198,18 @@
       ],
       "next_steps": [
         "Create algebra capability matrix and typed homomorphism catalog."
-      ]
+      ],
+      "learning": {
+        "lesson_id": "quaternion-ga-rotors-v0.1",
+        "dimensions": [
+          "conceptual_explanation",
+          "representation_translation",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-CALG-001"
+        ]
+      }
     },
     {
       "id": "MATH-LIN-001",
@@ -201,7 +245,20 @@
       ],
       "next_steps": [
         "Implement basis-aware operator identity and spectral test suite."
-      ]
+      ],
+      "learning": {
+        "lesson_id": "spectral-invariants-intro-v0.1",
+        "dimensions": [
+          "conceptual_explanation",
+          "procedure",
+          "representation_translation",
+          "proof_justification",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-REP-001"
+        ]
+      }
     },
     {
       "id": "MATH-ST-001",
