@@ -211,6 +211,7 @@ jobs:
           assert result.get("expert_robot_commit") == expected_source
           assert result.get("cace_repository") == "morganaspim/Cace-app"
           assert re.fullmatch(r"[0-9a-f]{40}", result.get("cace_commit", ""))
+          assert re.fullmatch(r"[0-9a-f]{40}", result.get("cace_workflow_sha", ""))
           assert result.get("cace_workflow_id") == 367390621
           assert isinstance(result.get("cace_workflow_run_id"), int) and result["cace_workflow_run_id"] > 0
           assert isinstance(result.get("cace_run_attempt"), int) and result["cace_run_attempt"] > 0
@@ -300,6 +301,7 @@ jobs:
           assert result.get("expert_robot_commit") == expected_source
           assert result.get("cace_repository") == "morganaspim/Cace-app"
           assert re.fullmatch(r"[0-9a-f]{40}", result.get("cace_commit", ""))
+          assert re.fullmatch(r"[0-9a-f]{40}", result.get("cace_workflow_sha", ""))
           assert result.get("cace_workflow_id") == 367390621
           assert isinstance(result.get("cace_workflow_run_id"), int)
           assert isinstance(result.get("cace_run_attempt"), int)
@@ -334,6 +336,7 @@ jobs:
               "qualification_status": result["status"],
               "qualification_passed": result["status"] == "pass",
               "cace_workflow_id": result["cace_workflow_id"],
+              "cace_workflow_sha": result["cace_workflow_sha"],
               "cace_workflow_ref": result["cace_workflow_ref"],
               "cace_workflow_name": result["cace_workflow_name"],
               "result_sha256": hashlib.sha256((root / "result.json").read_bytes()).hexdigest(),
