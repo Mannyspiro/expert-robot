@@ -43,17 +43,28 @@ jobs:
         id: key
         shell: bash
         env:
+          # Preserve the already-installed cross-repository credential. Prefer the
+          # dedicated name when present; fall back to the established legacy name.
           CACE_BRIDGE_SSH_PRIVATE_KEY: ${{ secrets.CACE_BRIDGE_SSH_PRIVATE_KEY }}
+          LEGACY_CACE_BRIDGE_SSH_PRIVATE_KEY: ${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}
         run: |
           set -euo pipefail
-          if [ -z "$CACE_BRIDGE_SSH_PRIVATE_KEY" ]; then
-            echo "::error::CACE_BRIDGE_SSH_PRIVATE_KEY is not configured."
+          bridge_key="${CACE_BRIDGE_SSH_PRIVATE_KEY:-}"
+          bridge_key_source="CACE_BRIDGE_SSH_PRIVATE_KEY"
+          if [ -z "$bridge_key" ]; then
+            bridge_key="${LEGACY_CACE_BRIDGE_SSH_PRIVATE_KEY:-}"
+            bridge_key_source="RAILWAY_SSH_PRIVATE_KEY (legacy bridge alias)"
+          fi
+          if [ -z "$bridge_key" ]; then
+            echo "::error::No existing CACE bridge key secret was found."
+            echo "::error::Checked CACE_BRIDGE_SSH_PRIVATE_KEY and legacy RAILWAY_SSH_PRIVATE_KEY."
             exit 1
           fi
 
           umask 077
           key_file="$RUNNER_TEMP/cace_bridge_key"
-          printf '%s\n' "$CACE_BRIDGE_SSH_PRIVATE_KEY" > "$key_file"
+          printf '%s\n' "$bridge_key" > "$key_file"
+          unset bridge_key LEGACY_CACE_BRIDGE_SSH_PRIVATE_KEY CACE_BRIDGE_SSH_PRIVATE_KEY
           chmod 600 "$key_file"
 
           ssh-keygen -y -f "$key_file" > "$RUNNER_TEMP/cace_bridge_key.pub"
