@@ -12,7 +12,7 @@ on:
       - "tests/merlin_science_ideonomy_bridge_smoke.py"
       - "scripts/merlin_science_ideonomy_packet.py"
       - "scripts/merlin_science_intake.py"
-      - "scripts/merlin_google_books_discover.py"
+      - "scripts/merlin_google_books_discover.py"\n      - "scripts/merlin_engineering_plan.py"\n      - "scripts/merlin_domain_audit.py"\n      - "scripts/merlin_storage_guard.py"\n      - "scripts/merlin_youtube_discover.py"\n      - "tests/merlin_governance_smoke.py"
       - "research/science/reading-notes/**"
       - ".github/workflows/merlin-science-atlas-smoke.yml"
   workflow_dispatch:
@@ -37,7 +37,7 @@ jobs:
           python3 tests/merlin_science_atlas_smoke.py
           python3 tests/merlin_google_books_contract_smoke.py
           python3 tests/merlin_science_intake_smoke.py
-          python3 tests/merlin_science_ideonomy_bridge_smoke.py
+          python3 tests/merlin_science_ideonomy_bridge_smoke.py\n          python3 tests/merlin_governance_smoke.py\n          python3 scripts/merlin_domain_audit.py --taxonomy research/science/discipline-taxonomy.v1.json --governance research/science/merlin-research-governance.v1.json > domain-audit.json\n          python3 scripts/merlin_storage_guard.py --root state/merlin-ingestion-staging --reserve-bytes 0
           python3 scripts/merlin_google_books_discover.py --query "subject:history of science" --max-results 5 > google-books-discovery.json
       - name: Upload discovery results
         if: always()
