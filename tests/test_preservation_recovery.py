@@ -9,6 +9,8 @@ from merlin.change_manifest import (
     build_change_manifest, create_recovery_snapshot, validate_change_manifest,
 )
 from merlin.project_registry import MerlinRegistry
+from merlin.event_outbox import MerlinEventOutbox
+from merlin.recovery_service import RecoveryCoordinator, mcfc_lease_validator
 from merlin.recovery_adapters import (
     GitRecoveryAdapter, RegistryRecoveryAdapter, ZipRecoveryAdapter,
 )
