@@ -59,12 +59,18 @@ def avrea_repair_test_runner(avrea_adapter, *, job_factory, result_evaluator,
             return result
         image_digest = collected.get("worker_image_digest")
         tool_versions = collected.get("tool_versions")
+        expected_image_digest = job.get("worker_image_digest")
+        expected_tool_versions = job.get("tool_versions")
         provider_qualified = (
             collected.get("status") in {"completed", "success", "succeeded"}
             and collected.get("exit_code") == 0
-            and isinstance(image_digest, str) and len(image_digest) == 64
-            and all(char in "0123456789abcdef" for char in image_digest)
+            and isinstance(expected_image_digest, str)
+            and len(expected_image_digest) == 64
+            and all(char in "0123456789abcdef" for char in expected_image_digest)
+            and image_digest == expected_image_digest
             and isinstance(tool_versions, Mapping) and bool(tool_versions)
+            and isinstance(expected_tool_versions, Mapping) and bool(expected_tool_versions)
+            and dict(tool_versions) == dict(expected_tool_versions)
             and all(isinstance(key, str) and key.strip()
                     and isinstance(value, str) and value.strip()
                     for key, value in tool_versions.items())
