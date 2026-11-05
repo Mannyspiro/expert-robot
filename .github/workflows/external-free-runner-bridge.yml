@@ -311,7 +311,7 @@ jobs:
                       # Recover only incomplete Lean installations left by interrupted runs.
                       toolchains_dir="$ELAN_HOME/toolchains"
                       mkdir -p "$toolchains_dir"
-                      find "$toolchains_dir" -maxdepth 1 -mindepth 1 -type d -name '*.tmp' -prune -exec rm -rf -- {} +
+                      rm -rf -- "$toolchains_dir/leanprover--lean4---v4.34.tmp"
                       echo "Disk before Lean install:" | tee -a "$log"
                       df -h "$ELAN_HOME" "$RUNNER_TEMP" | tee -a "$log" || true
                       free_kb="$(df -Pk "$ELAN_HOME" | awk 'NR==2 {print $4}')"
