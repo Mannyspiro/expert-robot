@@ -35,8 +35,8 @@ def main() -> int:
 
     if payload["schema_version"] != 1:
         fail("unsupported return schema")
-    if payload["status"] != "pass":
-        fail("only passed qualification may open a return PR")
+    if payload["status"] not in {"pass", "fail"}:
+        fail("return status must be a structured pass or fail result")
     if payload["authority"] != "qualification-only":
         fail("invalid return authority")
     if payload["promotion_authority"] is not False:
@@ -70,6 +70,7 @@ def main() -> int:
 
     normalized = {
         "request_id": request_id,
+        "status": payload["status"],
         "source_sha": source_sha,
         "base_branch": base_branch,
         "evidence_dir": expected_evidence_dir,
