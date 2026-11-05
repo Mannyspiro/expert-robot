@@ -12,6 +12,7 @@ on:
       - "tests/merlin_science_ideonomy_bridge_smoke.py"
       - "scripts/merlin_science_ideonomy_packet.py"
       - "python/orchestrator.py"
+      - "cpp/src/research_cli_main.cpp"
       - "scripts/merlin_science_intake.py"
       - "scripts/merlin_google_books_discover.py"
       - "scripts/merlin_engineering_plan.py"
