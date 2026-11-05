@@ -133,7 +133,7 @@ class PreservationRecoveryTests(unittest.TestCase):
         unusual = "folder/name\twith-tab.txt"
         payload = b"exact bytes from retained commit"
         (repo / "folder").mkdir()
-        (repo / unusual.split("/", 1)[1]).write_bytes(payload)
+        (repo / unusual).write_bytes(payload)
         subprocess.run(["git", "-C", str(repo), "add", "-A"], check=True)
         subprocess.run(["git", "-C", str(repo), "commit", "-m", "retain unusual path"],
                        check=True, capture_output=True)
