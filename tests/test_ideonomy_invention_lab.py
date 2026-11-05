@@ -33,9 +33,12 @@ class IdeonomyInventionLabTests(unittest.TestCase):
 
     def test_titan_is_top_level_research_context_and_candidate(self):
         report = build_ideonomy_report()
-        self.assertIn("CACE-MCFC", report["titan_context"]["role"])
+        self.assertIn("Cryptographic", report["titan_context"]["role"])
+        self.assertIn("AES-256-GCM-SIV", report["titan_context"]["baseline"])
+        self.assertIn("not replacement ciphers", report["titan_context"]["boundary"])
         titan = next(c for c in report["candidates"] if c["candidate_id"] == "titan-adaptive-compute-loom")
         self.assertIn("CPU-based", titan["real_world_translation"])
+        self.assertNotEqual(titan["candidate_id"], "titan-cryptographic-envelope")
         self.assertIn("12 V", " ".join(titan["electrical_scope"]))
 
     def test_report_registers_canonical_artifact_and_graph_nodes(self):
