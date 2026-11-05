@@ -6,6 +6,7 @@ This module creates no shadow databases and starts no workers or external jobs.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from threading import Event, Thread
 from typing import Any, Callable
 
 from merlin.hud_activity import HudActivityProjector, HudOutboxConsumer
@@ -18,12 +19,58 @@ HUD_PATHS = frozenset({
 })
 
 
-@dataclass(frozen=True)
+class HudEventPump:
+    """Background outbox consumer; HTTP GET routes never acknowledge events."""
+
+    def __init__(self, consumer: HudOutboxConsumer, *, interval_seconds: float = 0.5):
+        if interval_seconds <= 0:
+            raise ValueError("interval_seconds must be positive")
+        self.consumer = consumer
+        self.interval_seconds = interval_seconds
+        self._stop = Event()
+        self._thread: Thread | None = None
+
+    def start(self) -> None:
+        if self._thread is not None and self._thread.is_alive():
+            return
+        self._stop.clear()
+        self._thread = Thread(target=self._run, name="merlin-hud-outbox", daemon=True)
+        self._thread.start()
+
+    def _run(self) -> None:
+        while not self._stop.is_set():
+            try:
+                drained = False
+                for _ in range(50):
+                    if self.consumer.drain_one() is None:
+                        break
+                    drained = True
+                if not drained:
+                    self._stop.wait(self.interval_seconds)
+            except Exception:
+                self._stop.wait(self.interval_seconds)
+
+    def stop(self, timeout: float = 2.0) -> None:
+        self._stop.set()
+        if self._thread is not None:
+            self._thread.join(timeout=timeout)
+
+
+@dataclass
 class HudRuntime:
     read_api: MerlinReadAPI
     projector: HudActivityProjector
     consumer: HudOutboxConsumer | None
     application: HudActivityWSGI
+    event_pump: HudEventPump | None = None
+
+    def start(self) -> None:
+        if self.event_pump is not None:
+            self.event_pump.start()
+
+    def stop(self) -> None:
+        if self.event_pump is not None:
+            self.event_pump.stop()
 
 
 def build_hud_runtime(*, registry: Any, hypotheses: Any = None,
@@ -49,7 +96,8 @@ def build_hud_runtime(*, registry: Any, hypotheses: Any = None,
         projector, consumer, read_api=read_api,
         max_drain_per_request=max_drain_per_request,
     )
-    return HudRuntime(read_api, projector, consumer, application)
+    pump = HudEventPump(consumer) if consumer is not None else None
+    return HudRuntime(read_api, projector, consumer, application, pump)
 
 
 def mount_hud_runtime(application: Callable[..., Any],
@@ -70,4 +118,4 @@ def mount_hud_runtime(application: Callable[..., Any],
     return mounted
 
 
-__all__ = ["HudRuntime", "build_hud_runtime", "mount_hud_runtime", "HUD_PATHS"]
+__all__ = ["HudRuntime", "HudEventPump", "build_hud_runtime", "mount_hud_runtime", "HUD_PATHS"]
