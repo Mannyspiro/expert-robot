@@ -123,6 +123,9 @@ class HudActivityProjector:
                     "artifact_sha256": payload.get("artifact_sha256"),
                     "receipt_artifact_sha256": payload.get("receipt_artifact_sha256"),
                     "source_commit": payload.get("source_commit"),
+                    "logical_path": payload.get("logical_path"),
+                    "artifact_kind": payload.get("artifact_kind"),
+                    "artifact_schema": payload.get("artifact_schema"),
                 }
             if event["source"] == "avrea" and kind in {"task.started", "task.completed", "agent.status"}:
                 job_id = payload.get("job_id") or event["run_id"]
