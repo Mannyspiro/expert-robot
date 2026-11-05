@@ -4,6 +4,8 @@ from __future__ import annotations
 import argparse, hashlib, json, re, subprocess, sys
 from datetime import datetime, timezone
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from merlin_problem_reframing import template as reframe_template
 
 MAX_DOSSIER_BYTES=256_000
 MAX_RESPONSE_CHARS=24_000
@@ -42,8 +44,14 @@ def build_engineering_plan(dossier: dict) -> dict:
     domain_text=str(work.get("domain","mathematics and science history"))
     raw_id=str(dossier.get("dossier_id") or "source").lower()
     task_id="science-ideonomy-"+re.sub(r"[^a-z0-9-]+","-",raw_id).strip("-")[:64]
+    rp=reframe_template(task_id)
+    rp["original_problem"]="Analyze the source dossier and identify defensible cross-disciplinary connections."
+    rp["decomposition"]["subproblems"][0].update(objective="Extract source-grounded claims, methods and context",interface="Cited evidence ledger",acceptance="Claims are labeled and traceable to supplied citations")
+    rp["decomposition"]["subproblems"][1].update(objective="Compare candidate cross-disciplinary mappings",interface="Evidence ledger plus candidate concepts",acceptance="Each mapping has a transfer class and disconfirmation test")
+    rp["representations"][0].update(encoding="Primary-source evidence and historical analysis",mapping="Identity with the dossier's cited claims",preserved_invariants=["source attribution","edition context"],lost_information=[],validity_conditions=["citations resolve"],validation_method="Verify source spans")
+    rp["representations"][1].update(encoding="Discipline and concept graph",mapping="Concepts map to nodes; cited relations map to typed edges",preserved_invariants=["explicit relations","provenance links"],lost_information=["narrative sequence"],validity_conditions=["edges retain citations"],non_transferable_properties=["Graph adjacency does not prove conceptual equivalence or causation."],validation_method="Check every edge against cited source evidence")
     return {
-      "plan_version":1,"task_id":task_id,
+      "plan_version":1,"task_id":task_id,"problem_representation":rp,
       "objective":"Produce a source-grounded historical and ideonomy analysis without promoting claims.",
       "domain_scope":{"primary_domain":"humanities-philosophy","secondary_domains":["mathematics","physical","life"],"subsystems":["history of science","philosophy of science","primary-source analysis","ideonomy"],"excluded_domains":["unrelated operational systems"],"scope_rationale":"Primary scope is history and philosophy of inquiry; neighboring fields are contextual. Source domain label: "+domain_text},
       "requirements":[
