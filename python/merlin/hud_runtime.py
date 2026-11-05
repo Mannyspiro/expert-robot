@@ -1,7 +1,8 @@
 """Composition root for mounting the read-only Merlin HUD into a WSGI runtime.
 
 The caller supplies the same canonical stores used by project/research services.
-This module creates no shadow databases and starts no workers or external jobs.
+This module creates no shadow databases or external execution jobs. Its optional
+background pump only projects and acknowledges local telemetry outbox records.
 """
 from __future__ import annotations
 
