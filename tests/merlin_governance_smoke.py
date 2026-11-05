@@ -9,6 +9,7 @@ assert "engineering_plan_before_creation" in policy["non_bypassable_gates"]
 assert "problem_decomposition_and_reframing" in policy["non_bypassable_gates"]
 assert "confirmation_bias" in policy["bias_and_fallacy_review"]["cognitive_biases"]
 assert "affirming_the_consequent" in policy["bias_and_fallacy_review"]["logical_fallacies"]
+assert policy["youtube_policy"]["cc_by_nc_sa_requires_explicit_noncommercial_use"] is True
 plan=load("merlin_engineering_plan.py")
 sample=plan.template("smoke")
 sample["objective"]="Verify the plan gate"
@@ -38,4 +39,17 @@ yt=load("merlin_youtube_discover.py")
 try: yt.validate_transcript(Path("x.vtt"),"unknown")
 except ValueError: pass
 else: raise AssertionError("unlicensed transcript accepted")
-print("Merlin governance, plan gate, domain audit, storage guard and YouTube contract smoke passed.")
+import tempfile
+with tempfile.TemporaryDirectory() as td:
+    vtt=Path(td)/"captions.vtt"
+    vtt.write_text("WEBVTT\\n\\n00:00:00.000 --> 00:00:01.000\\nA short authorized caption.\\n")
+    try: yt.validate_transcript(vtt,"open_license_verified","CC-BY-NC-SA-4.0","unknown")
+    except ValueError: pass
+    else: raise AssertionError("NC-SA transcript accepted without noncommercial use context")
+    licensed=yt.validate_transcript(vtt,"open_license_verified","CC-BY-NC-SA-4.0","noncommercial")
+    assert licensed["license_id"]=="CC-BY-NC-SA-4.0"
+video=json.loads((root/"research/science/video-transcript-index.v1.json").read_text())
+assert len(video["items"])>=4
+assert all(not x["media_downloaded"] for x in video["items"])
+assert all(x["transcript_text_stored"] is False for x in video["items"] if x["provider"]=="MIT OpenCourseWare")
+print("Merlin governance, plan gate, domain audit, storage guard and YouTube transcript rights smoke passed.")
