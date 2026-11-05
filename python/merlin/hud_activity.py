@@ -83,7 +83,7 @@ class HudActivityProjector:
         verification: dict[str, Any] | None = None
         for event in events:
             kind, payload = event["kind"], event["payload"]
-            stage = payload.get("stage") if kind == "research.stage" else None
+            stage = payload.get("stage") if kind in {"research.stage", "task.progress"} else None
             if stage in PHASES:
                 current_phase = stage
             elif kind in PHASE_BY_KIND and PHASE_BY_KIND[kind]:
