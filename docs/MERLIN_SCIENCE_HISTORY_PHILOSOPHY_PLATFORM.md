@@ -194,3 +194,6 @@ Logic frameworks may be composed with algebraic, geometric, topological, categor
 
 
 The current composition generator declares a bounded combinatorial space of 14 logic families × 15 mathematical systems × 14 composition modes (2,940 combinations). Modes include semantic structure, graded membership, constraint semantics, proof systems, categorical semantics, state transitions, optimization objectives, probabilistic inference, topological locality, information updates, game payoffs, visualization encodings, dual representations and model checking. It returns a ranked bounded shortlist, explains potential utility and when a composition is not useful, and records a validation obligation. Scores are transparent heuristic priors, not empirical measurements; Merlin must rerank after understanding the actual problem and may reject every candidate.
+
+
+For mathematical research, the exported dispatch plan contains the actual bounded ideonomy candidates, ranked logic-composition candidates, fuzzy operator examples and finite n-valued truth-table sample—not only a statement that these methods should be used. The direct C++ CLI receives this validated plan as context for both Lean statement intake and the research episode. The plan is size-bounded at the dispatch boundary.
