@@ -322,7 +322,7 @@ class MerlinApiTests(unittest.TestCase):
         base = {
             "learner_id": learner, "idea_id": "MATH-REP-001",
             "problem_id": "rotation-coordinate-90", "problem_version": "1",
-            "dimension": "procedure", "score": 1.0, "rubric_version": "rotation-r1",
+            "dimension": "conceptual_explanation", "score": 1.0, "rubric_version": "rotation-r1",
             "response": {"x": 0, "y": 1}, "transfer": False, "delayed": False,
         }
         for attempt_id, session in (("rotation-attempt-1", "session-a"),
@@ -333,7 +333,7 @@ class MerlinApiTests(unittest.TestCase):
         with urlopen(self.base + "/api/learning/learner?learner_id=" + learner, timeout=5) as response:
             state = json.loads(response.read())
         self.assertEqual(state["attempts"], 2)
-        self.assertEqual(state["skills"]["MATH-REP-001"]["procedure"]["state"],
+        self.assertEqual(state["skills"]["MATH-REP-001"]["conceptual_explanation"]["state"],
                          "provisionally_mastered")
         with urlopen(self.base + "/api/learning/recommendation?learner_id=" + learner + "&curriculum_id=mathematics", timeout=5) as response:
             recommendation = json.loads(response.read())
