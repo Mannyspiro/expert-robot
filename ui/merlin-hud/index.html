@@ -135,12 +135,12 @@ const num=(v,d=0)=>typeof v==="number"&&Number.isFinite(v)?v:d;
 const pt=(v)=>Array.isArray(v)?{x:num(v[0]),y:num(v[1])}:{x:num(v?.x),y:num(v?.y)};
 function cadParts(node,workspace){const p=node.payload||{},cad=workspace.cad||p.cad||p.model||p;let rows=cad.parts||p.parts||cad.geometry||p.geometry||[];if(!Array.isArray(rows)&&Array.isArray(rows.objects))rows=rows.objects;if(!Array.isArray(rows)&&rows&&typeof rows==="object"&&(rows.size_mm||rows.size))rows=[rows];return Array.isArray(rows)?rows.filter(x=>x&&typeof x==="object").slice(0,100):[];}
 function cadSvg(parts,rotation,zoom){
- const W=600,H=290,rx=rotation[0],ry=rotation[1],objects=[];
+ const W=600,H=290,rx=rotation[0],ry=rotation[1],objects=[];let remainingVertices=20000,remainingFaces=40000;
  parts.forEach((part,i)=>{
   const mesh=part.mesh||part.geometry||{},vertices=Array.isArray(mesh.vertices)?mesh.vertices.slice(0,20000):[],faces=Array.isArray(mesh.faces)?mesh.faces.slice(0,40000):[];
   if(vertices.length>=3&&faces.length){
-   const clean=vertices.filter(v=>Array.isArray(v)&&v.length>=3&&v.slice(0,3).every(Number.isFinite));
-   if(clean.length>=3){objects.push({label:part.ref||part.name||("Part "+(i+1)),vertices:clean,faces:faces.filter(face=>Array.isArray(face)&&face.length>=3&&face.length<=8&&face.every(n=>Number.isInteger(n)&&n>=0&&n<clean.length)).slice(0,5000)});return;}
+   const clean=vertices.filter(v=>Array.isArray(v)&&v.length>=3&&v.slice(0,3).every(Number.isFinite)).slice(0,remainingVertices);
+   if(clean.length>=3){const validFaces=faces.filter(face=>Array.isArray(face)&&face.length>=3&&face.length<=8&&face.every(n=>Number.isInteger(n)&&n>=0&&n<clean.length)).slice(0,Math.min(5000,remainingFaces));objects.push({label:part.ref||part.name||("Part "+(i+1)),vertices:clean,faces:validFaces});remainingVertices-=clean.length;remainingFaces-=validFaces.length;return;}
   }
   const size=part.size_mm||part.size||[10,10,10],pos=part.position_mm||part.position||[i*18,0,0];
   if(!Array.isArray(size)||!Array.isArray(pos)||size.length<3||pos.length<3)return;
