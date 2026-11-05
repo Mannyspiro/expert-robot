@@ -319,3 +319,67 @@ class MerlinApiTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+    def test_learning_attempt_storage_and_hermes_recommendation_api(self):
+        learner = "api-learner-rotation-test"
+        base = {
+            "learner_id": learner, "idea_id": "MATH-REP-001",
+            "problem_id": "rotation-coordinate-90", "problem_version": "1",
+            "response": {"x": 0, "y": 1}, "transfer": False, "delayed": False,
+        }
+        for attempt_id, session in (("rotation-attempt-1", "session-a"),
+                                    ("rotation-attempt-2", "session-b")):
+            self.post("/api/learning/attempt", {
+                **base, "attempt_id": attempt_id, "session_id": session,
+            })
+        with urlopen(self.base + "/api/learning/learner?learner_id=" + learner, timeout=5) as response:
+            state = json.loads(response.read())
+        self.assertEqual(state["attempts"], 2)
+        self.assertEqual(state["skills"]["MATH-REP-001"]["procedure"]["state"],
+                         "provisionally_mastered")
+        with urlopen(self.base + "/api/learning/recommendation?learner_id=" + learner + "&curriculum_id=mathematics", timeout=5) as response:
+            recommendation = json.loads(response.read())
+        self.assertEqual(recommendation["state"], "recommended")
+        self.assertEqual(recommendation["authority"], "recommendation_only")
+        self.assertIn("reason", recommendation)
+
+
+    def test_b2b_curriculum_starts_with_ml_foundations(self):
+        learner = "api-learner-b2b-test"
+        with urlopen(self.base + "/api/learning/recommendation?learner_id=" + learner +
+                     "&curriculum_id=b2b-ml-agentic-ai", timeout=5) as response:
+            recommendation = json.loads(response.read())
+        self.assertEqual(recommendation["state"], "recommended")
+        self.assertEqual(recommendation["idea_id"], "B2B-ML-001")
+        self.assertEqual(recommendation["lesson_id"], "b2b-ml-foundations-v0.1")
+        self.assertEqual(recommendation["authority"], "recommendation_only")
+
+
+    def test_b2b_metrics_problem_is_scored_by_server_rubric(self):
+        learner = "api-learner-b2b-scoring-test"
+        self.post("/api/learning/attempt", {
+            "learner_id": learner, "attempt_id": "b2b-metric-1",
+            "problem_id": "b2b-precision-recall", "problem_version": "1",
+            "session_id": "b2b-session-1",
+            "score": 0.0, "idea_id": "CLIENT-CLAIMED-ID",
+            "response": {"precision_percent": 80.0, "recall_percent": 88.9},
+        })
+        with urlopen(self.base + "/api/learning/learner?learner_id=" + learner, timeout=5) as response:
+            state = json.loads(response.read())
+        estimate = state["skills"]["B2B-ML-001"]["procedure"]
+        self.assertAlmostEqual(estimate["mean"], 2/3, places=4)
+        self.assertEqual(estimate["observations"], 1)
+
+
+    def test_interactive_lessons_are_served_from_same_origin_as_attempt_api(self):
+        for path, marker in (
+            ("/lessons/math-rotation", b"rotation-coordinate-90"),
+            ("/lessons/b2b-ml-agentic-ai", b"b2b-precision-recall"),
+        ):
+            with urlopen(self.base + path, timeout=5) as response:
+                self.assertEqual(response.status, 200)
+                self.assertIn("text/html", response.headers.get("Content-Type", ""))
+                body = response.read()
+            self.assertIn(marker, body)
+            self.assertIn(b"/api/learning/attempt", body)

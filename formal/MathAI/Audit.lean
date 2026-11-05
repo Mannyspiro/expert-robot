@@ -160,3 +160,9 @@ kernel-visible axiom dependencies for review.
 
 #check MathAI.RepresentationInvariants.charpoly_conjugate_by_unit
 #print axioms MathAI.RepresentationInvariants.charpoly_conjugate_by_unit
+
+#check MathAI.RepresentationComposition.transition_compose_apply
+#print axioms MathAI.RepresentationComposition.transition_compose_apply
+
+#check MathAI.RepresentationComposition.transition_round_trip
+#print axioms MathAI.RepresentationComposition.transition_round_trip

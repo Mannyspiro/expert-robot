@@ -4,6 +4,7 @@ import MathAI.Geometry.Derived
 import MathAI.Geometry.VectorDerived
 import MathAI.EquationAtlas
 import MathAI.RepresentationInvariants
+import MathAI.RepresentationComposition
 import MathAI.WireQualification
 import MathAI.FractalEngineering
 import MathAI.XMGComposition

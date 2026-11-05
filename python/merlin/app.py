@@ -14,7 +14,7 @@ import os
 from pathlib import Path
 import sqlite3
 from typing import Any
-from urllib.parse import urlparse, urlsplit
+from urllib.parse import urlparse, urlsplit, parse_qs
 from urllib.request import Request, urlopen
 from urllib.error import URLError, HTTPError
 from time import perf_counter
@@ -24,6 +24,8 @@ from .council_runtime import run_local_council
 from .simulation import MerlinSimulation
 from .telemetry import normalize_event, telemetry_view, record_runtime_event
 from .telemetry_graph import build_telemetry_graph
+from .learner_model import LearnerStore, select_next_lesson, HermesLearningRouter, score_attempt_event
+from .event_outbox import MerlinEventOutbox
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
     validate_analogy,
@@ -132,6 +134,10 @@ CAPABILITIES = [
     {"id": "research.ideonomy.rank", "status": "AVAILABLE", "evidence": "unit-tested deterministic candidate ranking"},
     {"id": "research.analogy.validate", "status": "AVAILABLE", "evidence": "unit-tested invariant and boundary checks"},
     {"id": "research.rsi.qualify", "status": "AVAILABLE", "evidence": "fail-closed qualification contract"},
+    {"id": "learning.attempts.persist", "status": "AVAILABLE", "evidence": "append-only SQLite learner attempt ledger with idempotent event IDs"},
+    {"id": "learning.mastery.estimate", "status": "AVAILABLE", "evidence": "per-idea, per-dimension Beta-binomial estimates and independent-session checks"},
+    {"id": "learning.hermes.route", "status": "AVAILABLE_WITH_OUTBOX", "evidence": "learner attempt and recommendation events published to Hermes learning topics"},
+    {"id": "learning.lesson.recommend", "status": "AVAILABLE", "evidence": "canonical prerequisite graph and transparent learner-evidence routing"},
     {"id": "engineering.geometry.validate", "status": "AVAILABLE", "evidence": "unit-tested structural mesh checks"},
     {"id": "engineering.geometry.openscad", "status": "AVAILABLE", "evidence": "typed geometry exporter"},
     {"id": "engineering.netlist.validate", "status": "AVAILABLE", "evidence": "unit-tested structural/rating preflight"},
@@ -205,8 +211,45 @@ def _netlist(data: dict[str, Any]) -> Netlist:
     return Netlist(components=components, nets=nets)
 
 
-def make_handler(store: EventStore, hud_runtime: Any | None = None):
+def make_handler(store: EventStore, hud_runtime: Any | None = None,
+                 learner_store: LearnerStore | None = None,
+                 learning_outbox: MerlinEventOutbox | None = None):
     simulation = MerlinSimulation()
+    learner_store = learner_store or LearnerStore(store.path)
+    repo_root = Path(__file__).resolve().parents[2]
+    catalog_path = Path(os.environ.get("MERLIN_MATH_IDEA_CATALOG",
+        str(repo_root / "docs" / "research" / "merlin-mathematical-idea-catalog.v1.json")))
+    learning_graph: dict[str, Any] = {}
+    learning_lessons: list[dict[str, Any]] = []
+    if catalog_path.is_file():
+        catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+        for idea in catalog.get("ideas", []):
+            learning = idea.get("learning")
+            if not isinstance(learning, dict):
+                continue
+            idea_id = idea.get("id")
+            lesson_id = learning.get("lesson_id")
+            dimensions = learning.get("dimensions", [])
+            prerequisites = learning.get("prerequisites", [])
+            if not isinstance(idea_id, str) or not isinstance(lesson_id, str):
+                continue
+            learning_graph[idea_id] = {"prerequisites": prerequisites, "dimensions": dimensions}
+            learning_lessons.append({"lesson_id": lesson_id, "idea_id": idea_id,
+                                     "curriculum_id": "mathematics"})
+    # B2B competencies are a separate, versioned curriculum graph.
+    b2b_graph_path = repo_root / "docs" / "merlin" / "MERLIN_B2B_LEARNING_GRAPH_V0_1.json"
+    if b2b_graph_path.is_file():
+        b2b_graph = json.loads(b2b_graph_path.read_text(encoding="utf-8"))
+        for node in b2b_graph.get("nodes", []):
+            idea_id, lesson_id = node.get("idea_id"), node.get("lesson_id")
+            if not isinstance(idea_id, str) or not isinstance(lesson_id, str):
+                continue
+            learning_graph[idea_id] = {"prerequisites": node.get("prerequisites", []),
+                                       "dimensions": node.get("dimensions", [])}
+            learning_lessons.append({"lesson_id": lesson_id, "idea_id": idea_id,
+                                     "curriculum_id": b2b_graph.get("curriculum_id")})
+    learning_router = HermesLearningRouter(learning_outbox, learner_store, learning_graph,
+                                           learning_lessons) if learning_outbox is not None else None
     # Rebuild simulation state from the durable action ledger on process restart.
     replay_rows = store.by_kind("/api/sim/step")
     replayed = 0
@@ -254,7 +297,17 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None):
             self._request_started = perf_counter()
             parsed = urlparse(self.path)
             path = parsed.path
-            if path in {"/api/hud/activity", "/api/hud/graph", "/api/hud/node"}:
+            if path in {"/lessons/math-rotation", "/lessons/b2b-ml-agentic-ai"}:
+                repo_root = Path(__file__).resolve().parents[2]
+                lesson_name = ("MATH_KUNG_FU_ROTATION_LESSON_V0_1.html"
+                               if path == "/lessons/math-rotation"
+                               else "MERLIN_B2B_ML_AGENTIC_AI_LAB_V0_1.html")
+                lesson_path = repo_root / "docs" / "merlin" / lesson_name
+                if not lesson_path.is_file():
+                    self._send(404, {"error": "lesson_not_found"})
+                    return
+                self._send_bytes(200, lesson_path.read_bytes(), "text/html; charset=utf-8")
+            elif path in {"/api/hud/activity", "/api/hud/graph", "/api/hud/node"}:
                 if hud_runtime is None:
                     self._send(503, {"error": "hud_runtime_not_configured",
                                      "mode": "labelled_demonstration_fallback"})
@@ -314,6 +367,34 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None):
                 self._send(200, {"schema": "merlin-capabilities/1", "capabilities": CAPABILITIES})
             elif path == "/api/events":
                 self._send(200, {"schema": "merlin-events/1", "events": store.recent()})
+            elif path in {"/api/learning/learner", "/api/learning/recommendation"}:
+                query = parse_qs(parsed.query)
+                learner_id = (query.get("learner_id") or [""])[0]
+                if not learner_id or len(learner_id) > 200:
+                    self._send(400, {"error": "learner_id_required"})
+                    return
+                if path == "/api/learning/recommendation":
+                    curriculum_id = (query.get("curriculum_id") or [None])[0]
+                    if curriculum_id not in {None, "mathematics", "b2b-ml-agentic-ai"}:
+                        self._send(400, {"error": "unsupported_curriculum"})
+                        return
+                    result = select_next_lesson(learner_id, learner_store, learning_graph,
+                                                learning_lessons, curriculum_id=curriculum_id)
+                    if learning_outbox is not None:
+                        minute = int(datetime.now(timezone.utc).timestamp() // 60)
+                        learning_outbox.enqueue("learning-recommendation:" + learner_id + ":" + str(minute),
+                            "merlin.learning.recommendation", {"learner_id": learner_id,
+                            "curriculum_id": curriculum_id})
+                        if learning_router is not None:
+                            learning_router.run_once()
+                    self._send(200, {"schema": "merlin-learning-recommendation/1", **result})
+                else:
+                    estimates = {}
+                    for idea_id, idea in learning_graph.items():
+                        estimates[idea_id] = {dimension: learner_store.estimate(
+                            learner_id, idea_id, dimension).__dict__ for dimension in idea["dimensions"]}
+                    self._send(200, {"schema": "merlin-learner-state/1", "learner_id": learner_id,
+                                     "skills": estimates, "attempts": len(learner_store.attempts(learner_id))})
             elif path == "/api/council/roles":
                 self._send(200, {"schema": "merlin-council-roles/1",
                                  "roles": [{"id": p.persona_id, "title": p.title,
@@ -336,6 +417,21 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None):
                 if not isinstance(data, dict):
                     raise ValueError("request body must be a JSON object")
 
+                if path == "/api/learning/attempt":
+                    scored_event = score_attempt_event(data)
+                    result = learner_store.record_attempt(scored_event)
+                    if learning_outbox is not None:
+                        learning_outbox.enqueue("learning-attempt:" + str(scored_event.get("attempt_id", "")),
+                            "merlin.learning.attempt", scored_event)
+                        if learning_router is not None:
+                            learning_router.run_once()
+                    store.append(path, {"attempt_id": scored_event.get("attempt_id"),
+                                        "learner_id": scored_event.get("learner_id")},
+                                 {"state": result.get("state"), "idea_id": scored_event.get("idea_id"),
+                                  "dimension": scored_event.get("dimension"),
+                                  "scoring_source": scored_event.get("scoring_source")})
+                    self._send(202, {"schema": "merlin-learning-attempt/1", "accepted": True, **result})
+                    return
                 if path == "/api/telemetry/ingest":
                     event = normalize_event(data)
                     store.append(path, {"event_id": event["event_id"], "source": event["source"]},
@@ -580,10 +676,14 @@ def serve(port: int = 8765, db_path: str | None = None) -> None:
         str(Path.home() / ".local" / "share" / "merlin" / "events.sqlite3"),
     )
     store = EventStore(target)
+    learner_db = os.environ.get("MERLIN_LEARNER_DB_PATH", target)
+    learner_store = LearnerStore(learner_db)
+    outbox_path = os.environ.get("MERLIN_OUTBOX_DB_PATH", "").strip()
+    learning_outbox = MerlinEventOutbox(outbox_path) if outbox_path else None
     hud_runtime = _build_optional_hud_runtime()
     if hud_runtime is not None:
         hud_runtime.start()
-    server = ThreadingHTTPServer(("127.0.0.1", port), make_handler(store, hud_runtime))
+    server = ThreadingHTTPServer(("127.0.0.1", port), make_handler(store, hud_runtime, learner_store, learning_outbox))
     print(f"Merlin MVP API listening on http://127.0.0.1:{port}")
     print("Merlin HUD: canonical graph/event stores connected" if hud_runtime
           else "Merlin HUD: labelled demonstration fallback (canonical store paths not configured)")

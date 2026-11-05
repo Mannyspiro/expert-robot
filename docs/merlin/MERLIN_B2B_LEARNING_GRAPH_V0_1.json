@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "curriculum_id": "b2b-ml-agentic-ai",
+  "title": "B2B machine learning and agentic AI competency graph",
+  "nodes": [
+    {
+      "idea_id": "B2B-ML-001",
+      "title": "Machine-learning foundations for business",
+      "prerequisites": [],
+      "dimensions": [
+        "recognition",
+        "conceptual_explanation",
+        "procedure",
+        "transfer"
+      ],
+      "lesson_id": "b2b-ml-foundations-v0.1"
+    },
+    {
+      "idea_id": "B2B-AI-001",
+      "title": "Bounded agentic AI workflows and optimization",
+      "prerequisites": [
+        "B2B-ML-001"
+      ],
+      "dimensions": [
+        "conceptual_explanation",
+        "procedure",
+        "transfer",
+        "proof_justification"
+      ],
+      "lesson_id": "b2b-agentic-workflows-v0.1"
+    }
+  ]
+}

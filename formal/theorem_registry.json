@@ -643,6 +643,32 @@
         "candidate"
       ],
       "uses": []
+    },
+    {
+      "name": "MathAI.RepresentationComposition.transition_compose_apply",
+      "source": "MathAI/RepresentationComposition.lean",
+      "status": "verified",
+      "statement": "Coordinate transition through two equivalences agrees with their composed equivalence.",
+      "domain": "representation_theory",
+      "tags": [
+        "representation_invariants",
+        "transition_composition",
+        "lean_verified"
+      ],
+      "uses": []
+    },
+    {
+      "name": "MathAI.RepresentationComposition.transition_round_trip",
+      "source": "MathAI/RepresentationComposition.lean",
+      "status": "verified",
+      "statement": "Applying a coordinate equivalence and its inverse returns the original coordinate.",
+      "domain": "representation_theory",
+      "tags": [
+        "representation_invariants",
+        "transition_inverse",
+        "lean_verified"
+      ],
+      "uses": []
     }
   ]
 }
