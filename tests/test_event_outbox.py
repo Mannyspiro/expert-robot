@@ -42,3 +42,11 @@ class MerlinEventOutboxTests(unittest.TestCase):
         second = self.outbox.claim_next("worker",lease_seconds=10,now=4)
         final = self.outbox.retry(event["event_id"],"worker",second["lease_token"],"failed",max_attempts=2,now=5)
         self.assertEqual(final["state"],"quarantined")
+
+    def test_claim_can_filter_topics_without_leasing_unrelated_events(self):
+        outbox = MerlinEventOutbox(self.temp / "topics.sqlite3")
+        outbox.enqueue("telemetry:1", "merlin.telemetry.task.progress", {"kind": "task.progress"}, now=1)
+        outbox.enqueue("hermes:1", "merlin.hermes.task", {"task": "research"}, now=2)
+        claimed = outbox.claim_next("hud", topics=["merlin.telemetry.task.progress"], now=3)
+        self.assertEqual(claimed["topic"], "merlin.telemetry.task.progress")
+        self.assertEqual(outbox.counts()["pending"], 1)
