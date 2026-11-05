@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "deploy": true,
+  "target": "oci-preview",
+  "public_host": "merlin.129.146.160.46.nip.io",
+  "exposure": "read-only",
+  "authority": "qualification-only",
+  "promotion_authority": false
+}
