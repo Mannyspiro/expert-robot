@@ -169,6 +169,8 @@ class RepairSupervisorTests(unittest.TestCase):
             },
             collect_transport=lambda job_id: {
                 "runner_id": "runner-test", "job_id": job_id, "status": "completed",
+                "exit_code": 0, "worker_image_digest": "1" * 64,
+                "tool_versions": {"pytest": "8.4.2"},
                 "artifacts": [{"name": "pytest.json", "content": b'{"passed":true}'}],
             },
             approval_validator=lambda ref, payload: ref == "approved",
@@ -196,6 +198,8 @@ class RepairSupervisorTests(unittest.TestCase):
         result = runner([], task_payload)
         self.assertTrue(result["passed"])
         self.assertEqual(result["cace_verification_status"], "verified")
+        self.assertTrue(result["provider_execution_qualified"])
+        self.assertEqual(result["exit_code"], 0)
         self.assertEqual(len(verified.requests), 1)
         self.assertEqual(verified.requests[0]["commit_sha"], "f" * 40)
         self.assertEqual(verified.requests[0]["artifact_kind"], "avrea_test_result")
