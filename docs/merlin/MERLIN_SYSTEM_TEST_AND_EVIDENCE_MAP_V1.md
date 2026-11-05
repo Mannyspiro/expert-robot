@@ -50,6 +50,19 @@ Policy: consult this file and the subsystem's current tests before proposing, di
 9. Publish the receipt and lifecycle state to the read-only HUD.
 10. Keep the PR draft/unmerged until evidence is complete and a human approves promotion.
 
+## PR #82 tracked-history audit record
+
+Audit method: GitHub commit metadata for every commit in the first-parent PR range, inspecting each commit's changed-file records rather than relying only on the net branch diff.
+
+- Base: `694b34722a337fc2a7cc51321d6aedab8f16d5b2`
+- Audited head: `391a209882cc5b329e263e94927095a52d660649`
+- Range: 67 commits
+- Per-commit file records inspected: each commit's complete changed-file list
+- Observed statuses: additions and modifications only; no `removed` or `renamed` file status was returned in this range.
+- Net compare reports 16 changed paths.
+- This is a tracked Git history audit only. It does not inspect an Avrea/OCI worker filesystem, untracked files, ignored files, external volumes, or runtime-generated artifacts.
+- The in-repository `GitRecoveryAdapter.audit_history(base, head)` implementation and rename/delete fixture tests provide a reproducible local audit path, but have not yet been executed by CI in this session.
+
 ## Recovery-specific acceptance criteria
 
 - Git: pinned full commit SHA; enumerate every tree entry; compare every commit in the audit range; report additions/modifications/deletions/renames/mode changes; restore a deleted file from its pinned source commit and verify exact SHA-256.
@@ -61,7 +74,7 @@ Policy: consult this file and the subsystem's current tests before proposing, di
 
 ## Current known limitations to carry forward
 
-- PR #82 remains draft and unmerged. GitHub Actions runs #42101528061 and #42102299010 both ended `failure` with zero job records and zero check runs; there are no job logs to inspect. The workflow's primary job requests `avrea-ubuntu-latest-8-vcpu`. The available GitHub connection cannot read the repository runner-registration/permissions endpoints, so the exact reason for the no-job failure is not yet established. Do not label CI as a test failure or a pass.
+- PR #82 remains draft and unmerged. GitHub Actions runs #42101528061, #42102299010 and the subsequent exact-head runs ended `failure` with zero job records and zero check runs; there are no job logs to inspect. Adding this branch to the push filter did not change the no-job symptom. The workflow's primary job requests `avrea-ubuntu-latest-8-vcpu`. The available GitHub connection cannot read the repository runner-registration/permissions endpoints, so the exact reason for the no-job failure is not yet established. Do not label CI as a test failure or a pass.
 - Avrea dispatch/collection still use injected transport interfaces. No live provider dispatch, runner identity, worker exit status or retained output bundle has been evidenced in this session.
 - CACE adapter checks receipt fields and a canonical `receipt_sha256` content hash. That hash is not a cryptographic signature and does not authenticate the verifier identity. A production signed-receipt profile still needs a pinned verifier key/identity and signature verification. No live independent CACE invocation has been evidenced.
 - The Git adapter inventories tracked tree entries. Untracked/ignored files require a separate filesystem inventory with explicit scope and permissions.
