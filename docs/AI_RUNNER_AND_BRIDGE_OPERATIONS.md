@@ -127,6 +127,10 @@ This is a separate deploy key scoped to Expert Robot. It is not the forward CACE
 
 The reverse-key preparation was observed to fail because none of the supported secret values was configured. The reverse path is therefore **not currently confirmed working**. Do not create placeholder secrets and do not ask an agent to print private material. The Avrea polling/artifact route remains the return path to use until an authorized maintainer provisions and tests a real reverse key.
 
+**Latest v3 dispatch attempt:** Expert Robot run `42060896619` on source commit `63781028911d459ac5dc8988e86b7506dc652ab2` successfully prepared the existing forward key, packaged the source, cloned CACE-app, and checked out `executor/expert-robot-bridge`. The remote rejected the push with `fatal error in commit_refs`; the poll step was skipped and no CACE qualification run was triggered. This proves key preparation and repository read/clone worked, but does not establish write permission. The exact cause (deploy-key write scope, branch rules, or repository-side rejection) remains unverified; do not label the key invalid or change it without maintainer evidence.
+
+The current result schema v3 producer/consumer has therefore **not yet completed a new round trip**. The earlier recorded round trip used the prior v2 envelope and returned a structured qualification FAIL. Preserve that distinction.
+
 The CACE workflow also publishes the result on `executor/expert-robot-bridge`. That branch publication is not the same thing as returning it to the Expert Robot repository.
 
 ## 7. CI and workflow validation
@@ -142,7 +146,9 @@ Canonical file: `.github/workflows/ci.yml`.
 - C++ configure/build and CTest follow the focused groups; later research, engineering, CAD, proof-observatory and guardrail suites follow.
 - Runner identity and `artifacts/` diagnostics are uploaded with `if: always()` at the end of the job. If an early step fails, later tests are skipped; read the job step list before reporting test counts.
 - The recent zero-job runs were not test failures. A malformed multiline `printf` in the workflow YAML was corrected; CI subsequently created real jobs.
-- One observed real test failure was a stale phrase assertion in `tests/cace_optional_verifier_smoke.py`; it was aligned with the current no-placeholder-secrets wording. A later complete CI pass has not yet been established by this document.
+- One observed real test failure was a stale phrase assertion in `tests/cace_optional_verifier_smoke.py`; it was aligned with the current no-placeholder-secrets wording. A later complete CI pass has not yet been established by this document. On run `42060905047`, all three focused Python groups, CMake configure/build, and CTest (33/33) passed; the run stopped at the stale bridge regression assertion. The assertion was updated to reflect canonical CACE workflow ownership; the next CI run must verify that correction and continue through later suites.
+
+Workflow lint run `42061294025` completed successfully. Its retained artifact `13432386714` records `lint_exit=0` from actionlint on the CI and external bridge workflows.
 
 ### Workflow lint probe
 
