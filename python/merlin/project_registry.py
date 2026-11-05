@@ -81,7 +81,7 @@ class MerlinRegistry:
             columns = {row["name"] for row in db.execute("PRAGMA table_info(project_artifacts)")}
             if "generation" not in columns:
                 db.execute("ALTER TABLE project_artifacts ADD COLUMN generation INTEGER NOT NULL DEFAULT 1")
-            # Migrate pre-versioning heads once. Existing blob bytes are not modified.
+            version_columns = {row["name"] for row in db.execute("PRAGMA table_info(artifact_versions)")}\n            if "pre_change_recovery_id" not in version_columns:\n                db.execute("ALTER TABLE artifact_versions ADD COLUMN pre_change_recovery_id TEXT")\n            # Migrate pre-versioning heads once. Existing blob bytes are not modified.
             db.execute("""
               INSERT INTO artifact_versions(
                 version_id, project_id, logical_path, digest, parent_version_id,
