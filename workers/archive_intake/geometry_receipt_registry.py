@@ -98,3 +98,20 @@ def register_geometry_receipt(database: str | Path, project_id: str, receipt: di
 def register_geometry_receipt_file(database: str | Path, project_id: str, receipt_path: str | Path) -> dict:
     receipt = json.loads(Path(receipt_path).read_text(encoding="utf-8"))
     return register_geometry_receipt(database, project_id, receipt)
+
+def main() -> int:
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--database", required=True, type=Path)
+    parser.add_argument("--project-id", required=True)
+    parser.add_argument("--receipt", required=True, type=Path)
+    args = parser.parse_args()
+    print(json.dumps(
+        register_geometry_receipt_file(args.database, args.project_id, args.receipt),
+        sort_keys=True,
+    ))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
