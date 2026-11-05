@@ -17,7 +17,6 @@ RUN apt-get update \
 
 WORKDIR /opt/merlin
 COPY verify_runtime.py /opt/merlin/verify_runtime.py
-COPY ../../ /opt/merlin/repository-workers/
 RUN python3 /opt/merlin/verify_runtime.py --check-only
 
 RUN useradd --create-home --uid 10001 merlin \
