@@ -62,7 +62,8 @@ class MerlinRegistry:
               generation INTEGER NOT NULL,
               actor TEXT NOT NULL,
               operation_id TEXT NOT NULL,
-              created_at REAL NOT NULL);
+              created_at REAL NOT NULL,
+              pre_change_recovery_id TEXT);
             CREATE INDEX IF NOT EXISTS artifact_versions_path
               ON artifact_versions(project_id, logical_path, generation);
             CREATE TABLE IF NOT EXISTS recovery_points(
@@ -81,7 +82,10 @@ class MerlinRegistry:
             columns = {row["name"] for row in db.execute("PRAGMA table_info(project_artifacts)")}
             if "generation" not in columns:
                 db.execute("ALTER TABLE project_artifacts ADD COLUMN generation INTEGER NOT NULL DEFAULT 1")
-            version_columns = {row["name"] for row in db.execute("PRAGMA table_info(artifact_versions)")}\n            if "pre_change_recovery_id" not in version_columns:\n                db.execute("ALTER TABLE artifact_versions ADD COLUMN pre_change_recovery_id TEXT")\n            # Migrate pre-versioning heads once. Existing blob bytes are not modified.
+            version_columns = {row["name"] for row in db.execute("PRAGMA table_info(artifact_versions)")}
+            if "pre_change_recovery_id" not in version_columns:
+                db.execute("ALTER TABLE artifact_versions ADD COLUMN pre_change_recovery_id TEXT")
+            # Migrate pre-versioning heads once. Existing blob bytes are not modified.
             db.execute("""
               INSERT INTO artifact_versions(
                 version_id, project_id, logical_path, digest, parent_version_id,
@@ -248,11 +252,28 @@ class MerlinRegistry:
             if updated.rowcount != 1:
                 db.rollback()
                 raise ArtifactConflict("compare-and-swap failed")
+            recovery_id = "rp_" + uuid4().hex
+            recovery_manifest = {
+                "schema": "merlin-recovery-manifest/1",
+                "project_id": project_id,
+                "reason": "pre-change snapshot",
+                "operation_id": operation_id,
+                "artifacts": [{
+                    "path": logical_path, "sha256": old["digest"],
+                    "generation": expected_generation, "disposition": "retained",
+                }],
+            }
+            encoded_manifest = json.dumps(
+                recovery_manifest, sort_keys=True, separators=(",", ":"),
+                ensure_ascii=False, allow_nan=False)
+            manifest_digest = hashlib.sha256(encoded_manifest.encode("utf-8")).hexdigest()
+            db.execute("INSERT INTO recovery_points VALUES(?,?,?,?,?,?)",
+                       (recovery_id, project_id, manifest_digest, encoded_manifest, timestamp, actor))
             db.execute("""INSERT INTO artifact_versions(
-              version_id,project_id,logical_path,digest,parent_version_id,generation,actor,operation_id,created_at
-              ) VALUES(?,?,?,?,?,?,?,?,?)""",
+              version_id,project_id,logical_path,digest,parent_version_id,generation,actor,operation_id,created_at,pre_change_recovery_id
+              ) VALUES(?,?,?,?,?,?,?,?,?,?)""",
               (version_id, project_id, logical_path, digest, parent["version_id"],
-               next_generation, actor, operation_id, timestamp))
+               next_generation, actor, operation_id, timestamp, recovery_id))
             db.commit()
         return digest
 
@@ -260,7 +281,7 @@ class MerlinRegistry:
         logical_path = self._validate_path(logical_path)
         with self._connect() as db:
             rows = db.execute("""
-              SELECT version_id,digest,parent_version_id,generation,actor,operation_id,created_at
+              SELECT version_id,digest,parent_version_id,generation,actor,operation_id,created_at,pre_change_recovery_id
               FROM artifact_versions WHERE project_id=? AND logical_path=? ORDER BY generation
             """, (project_id, logical_path)).fetchall()
         return [dict(row) for row in rows]
