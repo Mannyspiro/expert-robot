@@ -124,7 +124,7 @@ The command is deliberately not run in CI because the hosted Avrea smoke runner 
 
 `research/science/merlin-research-governance.v1.json` is the machine-readable policy for every Merlin build and research task. A task must not create or modify an artifact until it has a validated plan from `scripts/merlin_engineering_plan.py`. The plan records primary and secondary domains, in-scope subsystems, exclusions, requirements with acceptance tests, assumptions, constraints, inductive/deductive/abductive reasoning, disconfirmation paths, design alternatives, bias/fallacy review, resource budgets, independent verification and rollback.
 
-The plan gate is a validator/template foundation. Existing workers must be wired to call it at their actual task-creation boundary before it can be described as globally enforced. CI validates the contract and test fixture; it does not yet prove every runtime path is gated.
+The Python orchestrator now rejects every non-health-check task unless a plan file is supplied and passes validation. It injects the exact plan and digest into the runtime task. The science ideonomy bridge generates and persists a plan sidecar, validates it, and dispatches with that plan. This enforces the current Python dispatch boundary. Direct C++ protocol callers and other independent worker/dispatch paths still require their own equivalent gate before the policy can be called universal. CI tests the plan validator and the science bridge's generated plan.
 
 ### Skeptical reasoning
 
