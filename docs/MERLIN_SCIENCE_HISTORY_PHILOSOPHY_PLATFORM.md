@@ -118,3 +118,31 @@ python3 scripts/merlin_science_ideonomy_packet.py \
 ```
 
 The command is deliberately not run in CI because the hosted Avrea smoke runner does not have the user's local model weights or runtime configuration. The smoke test validates packet construction only. Runtime output is stored as an unreviewed candidate with source digest and citation links; it cannot write to the canonical theorem graph or promote claims.
+
+
+## Mandatory research and engineering governance
+
+`research/science/merlin-research-governance.v1.json` is the machine-readable policy for every Merlin build and research task. A task must not create or modify an artifact until it has a validated plan from `scripts/merlin_engineering_plan.py`. The plan records primary and secondary domains, in-scope subsystems, exclusions, requirements with acceptance tests, assumptions, constraints, inductive/deductive/abductive reasoning, disconfirmation paths, design alternatives, bias/fallacy review, resource budgets, independent verification and rollback.
+
+The plan gate is a validator/template foundation. Existing workers must be wired to call it at their actual task-creation boundary before it can be described as globally enforced. CI validates the contract and test fixture; it does not yet prove every runtime path is gated.
+
+### Skeptical reasoning
+
+For each material claim, Merlin must distinguish observations, measurements, source reports, derived results, theorems, models, hypotheses, interpretations, analogies and conjectures. It must:
+- state premises and inference rules for deduction;
+- state sample, coverage, exceptions and generalization limits for induction;
+- compare alternative explanations for abduction;
+- identify counterexamples, disconfirming evidence and failure conditions;
+- inspect cognitive bias, research-design bias, logical fallacies, assumptions, confounders, incentives and measurement limitations;
+- treat bias flags as hypotheses to investigate, not as accusations or proof;
+- retain contradictions and uncertainty rather than forcing consensus.
+
+### Domain and subsystem scope
+
+Every research or engineering item has one primary domain and may have explicitly justified secondary domains. The domain audit reports duplicate labels and cross-domain overlaps; it does not automatically reassign an item based on its name. Unmapped overlaps are review candidates. Emerging fields remain speculative until definitions, formal objects, methods and independent evaluation justify a status change.
+
+### Storage and transcript intake
+
+The governance contract sets conservative staging defaults: 256 MiB total staging, 10 MiB per source, 2 MiB per transcript, 5,000 staged files, and a 1 GiB free-disk reserve. These are defaults, not guarantees about the machine's actual disk. Workers must preflight actual free space, stop before quotas are exceeded, deduplicate by canonical URL and content hash, avoid storing video/audio media, compress permitted text, and never prune canonical or verified evidence automatically.
+
+`scripts/merlin_youtube_discover.py` discovers metadata only when an explicitly configured YouTube Data API key is available. Transcript intake accepts authorized VTT/SRT exports or explicitly open-licensed material, with a 2 MiB cap and rights declaration. The official YouTube captions API is owner-authorized; arbitrary public transcript retrieval is not assumed. Every transcript record should preserve video URL, caption language/type, retrieval date, rights basis, timestamps and content hash.
