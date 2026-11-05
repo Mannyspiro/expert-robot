@@ -7,10 +7,12 @@ those bytes, links them to the canonical hypothesis graph, and returns refs.
 """
 from __future__ import annotations
 
+from dataclasses import asdict
 import re
 from typing import Any, Callable, Mapping
 
 from merlin.research_evidence import ResearchEvidenceRecorder
+from merlin.hermes_proof_orchestrator import dispatch_eligible_claim
 
 _STAGE_CONTRACTS = {
     "research": {
@@ -80,6 +82,8 @@ def build_hermes_stage_handlers(
     requester_id: str,
     electrical_executor: Callable[[Mapping[str, Any], Any], Mapping[str, Any]] | None = None,
     theorem_verifier: Callable[..., Mapping[str, Any]] | None = None,
+    lean_dispatcher: Callable[..., Mapping[str, Any]] | None = None,
+    lean_tool_version: str | None = None,
 ) -> dict[str, Callable[[Mapping[str, Any], Any], Mapping[str, Any]]]:
     """Build stage handlers that record artifacts and optionally obtain CACE receipts.
 
@@ -104,6 +108,12 @@ def build_hermes_stage_handlers(
         raise ValueError("all registered stage executors must be callable")
     if artifact_verifier is not None and not callable(artifact_verifier):
         raise ValueError("artifact_verifier must be callable or None")
+    if lean_dispatcher is not None and not callable(lean_dispatcher):
+        raise ValueError("lean_dispatcher must be callable or None")
+    if lean_dispatcher is not None and (
+        not isinstance(lean_tool_version, str) or not lean_tool_version.strip()
+    ):
+        raise ValueError("lean_tool_version is required when a Lean dispatcher is configured")
     if not isinstance(repository, str) or "/" not in repository:
         raise ValueError("repository must be owner/name")
     if not isinstance(commit_sha, str) or len(commit_sha) != 40 or any(c not in "0123456789abcdef" for c in commit_sha):
@@ -143,65 +153,119 @@ def build_hermes_stage_handlers(
                 raise RuntimeError("canonical registry did not verify the recorded artifact")
             digest = recorded["artifact_sha256"]
             theorem_receipts = []
+            lean_dispatch_receipts = []
             theorem_claims = output["metadata"].get("theorem_claims", [])
-            if artifact_verifier is None:
-                # Missing verifier credentials must not block independent research
-                # and artifact capture, but must never be reported as verified.
-                cace_result = {
-                    "schema": "merlin-cace-verification-result/1",
-                    "verification_status": "blocked_missing_credentials",
-                    "reason_code": "cace_verifier_not_configured",
-                    "artifact_sha256": digest,
-                    "promotion_authority": False,
-                }
-            else:
-                context.emit_progress(_contract["label"] + " artifact stored; requesting independent CACE verification")
-                cace_result = artifact_verifier(
-                    project_id=project_id,
-                    repository=repository,
-                    commit_sha=commit_sha,
-                    artifact_sha256=digest,
-                    artifact_kind=_stage,
-                    artifact_schema=str(output["metadata"].get("artifact_schema") or output["media_type"]),
-                    requester_id=requester_id,
-                    logical_path=logical_path,
-                )
-                if not isinstance(cace_result, Mapping):
-                    raise TypeError("CACE artifact verifier must return a receipt result")
-                cace_result = dict(cace_result)
-                if cace_result.get("artifact_sha256") != digest:
-                    raise ValueError("CACE result does not bind the submitted artifact digest")
-            if theorem_claims and cace_result.get("verification_status") == "blocked_missing_credentials":
-                cace_result["theorem_verification_status"] = "blocked_missing_credentials"
-            elif theorem_claims:
-                if theorem_verifier is None:
-                    raise RuntimeError("compiled theorem claims require an independent CACE theorem verifier")
-                if not isinstance(theorem_claims, list):
-                    raise TypeError("theorem_claims metadata must be a list")
-                for claim in theorem_claims:
-                    if not isinstance(claim, Mapping):
-                        raise TypeError("each theorem claim must be an object")
-                    if claim.get("compilation_status") != "compiled":
-                        continue
-                    theorem = claim.get("formal_statement")
-                    if not isinstance(theorem, str) or not theorem.strip():
-                        raise ValueError("compiled theorem claim is missing its exact formal statement")
-                    theorem_result = theorem_verifier(
-                        project_id=project_id, repository=repository,
-                        commit_sha=commit_sha, artifact_sha256=digest,
-                        theorem=theorem, requester_id=requester_id,
-                        logical_path=logical_path,
+            if theorem_claims and _stage != "proof_search":
+                raise ValueError("theorem_claims are only accepted from the proof_search stage")
+            if not isinstance(theorem_claims, list):
+                raise TypeError("theorem_claims metadata must be a list")
+
+            for claim in theorem_claims:
+                if not isinstance(claim, Mapping):
+                    raise TypeError("each theorem claim must be an object")
+                claim_id = claim.get("claim_id", "")
+                if lean_dispatcher is None:
+                    lean_receipt = {
+                        "schema": "merlin-hermes-proof-dispatch/1",
+                        "claim_id": str(claim_id),
+                        "route": "not_dispatched",
+                        "reason_codes": ["lean_dispatcher_not_configured"],
+                        "repository": repository,
+                        "commit_sha": commit_sha,
+                        "source_sha256": None,
+                        "tool_version": lean_tool_version,
+                        "compilation_status": "not_dispatched",
+                        "verification_status": "blocked_missing_lean_dispatcher",
+                        "promotion_authority": False,
+                    }
+                else:
+                    safe_task = _safe_segment(context.task_id)
+                    safe_claim = _safe_segment(str(claim_id))
+
+                    def record_lean_source(
+                        *, claim_id: str, artifact_bytes: bytes,
+                        artifact_sha256: str, **_unused: Any,
+                    ) -> Mapping[str, Any]:
+                        source_path = (
+                            "proof-sources/" + safe_task + "/" + safe_claim + ".lean"
+                        )
+                        source_record = evidence_recorder.record(
+                            project_id=project_id,
+                            hypothesis_id=context.hypothesis_id,
+                            logical_path=source_path,
+                            content=artifact_bytes,
+                            evidence_kind="proof",
+                            description="Exact Lean source recorded before Hermes dispatch: " + claim_id,
+                        )
+                        return {
+                            "artifact_sha256": source_record["artifact_sha256"],
+                            "registry_verified": source_record["artifact_verified"],
+                        }
+
+                    dispatch = dispatch_eligible_claim(
+                        claim,
+                        repository=repository,
+                        commit_sha=commit_sha,
+                        lean_tool_version=lean_tool_version,
+                        lean_dispatcher=lean_dispatcher,
+                        artifact_recorder=record_lean_source,
                     )
-                    if not isinstance(theorem_result, Mapping):
-                        raise TypeError("CACE theorem verifier must return a receipt result")
-                    theorem_result = dict(theorem_result)
-                    if theorem_result.get("artifact_sha256") != digest:
-                        raise ValueError("CACE theorem receipt is not bound to the exact stored artifact")
-                    theorem_receipts.append(theorem_result)
+                    lean_receipt = asdict(dispatch)
+
+                # A research executor's claimed compilation_status is never trusted.
+                # Only the exact-input dispatcher result can establish compilation.
+                if lean_receipt["compilation_status"] == "compiled":
+                    if theorem_verifier is None:
+                        lean_receipt["verification_status"] = "pending_independent_cace_verification"
+                    else:
+                        theorem = claim.get("formal_statement")
+                        if not isinstance(theorem, str) or not theorem.strip():
+                            raise ValueError("compiled theorem claim is missing its exact formal statement")
+                        source_digest = lean_receipt.get("source_sha256")
+                        if not isinstance(source_digest, str) or len(source_digest) != 64:
+                            raise ValueError("compiled theorem claim is missing its exact Lean source digest")
+                        theorem_result = theorem_verifier(
+                            project_id=project_id,
+                            repository=repository,
+                            commit_sha=commit_sha,
+                            artifact_sha256=source_digest,
+                            theorem=theorem,
+                            requester_id=requester_id,
+                            logical_path=(
+                                "proof-sources/" + _safe_segment(context.task_id) + "/"
+                                + _safe_segment(str(claim_id)) + ".lean"
+                            ),
+                        )
+                        if not isinstance(theorem_result, Mapping):
+                            raise TypeError("CACE theorem verifier must return a receipt result")
+                        theorem_result = dict(theorem_result)
+                        if theorem_result.get("artifact_sha256") != source_digest:
+                            raise ValueError("CACE theorem receipt is not bound to the exact stored Lean source")
+                        theorem_receipts.append(theorem_result)
+                        lean_receipt["verification_status"] = str(
+                            theorem_result.get("verification_status", "unknown")
+                        )
+                elif lean_receipt["verification_status"] == "pending_independent_cace_verification":
+                    lean_receipt["verification_status"] = "blocked_missing_lean_dispatcher"
+                lean_dispatch_receipts.append(lean_receipt)
+
+            result_metadata = dict(output["metadata"])
+            result_metadata["lean_dispatch_receipts"] = lean_dispatch_receipts
+            if theorem_claims and artifact_verifier is None and theorem_verifier is None:
+                cace_result["theorem_verification_status"] = "blocked_missing_credentials"
             receipt_digest = cace_result.get("receipt_artifact_sha256")
             evidence_refs = ["sha256:" + digest]
             if isinstance(receipt_digest, str) and len(receipt_digest) == 64:
                 evidence_refs.append("sha256:" + receipt_digest)
+            for lean_receipt in lean_dispatch_receipts:
+                source_digest = lean_receipt.get("source_sha256")
+                if isinstance(source_digest, str) and len(source_digest) == 64:
+                    evidence_refs.append("sha256:" + source_digest)
+            for theorem_receipt in theorem_receipts:
+                theorem_receipt_digest = theorem_receipt.get("receipt_artifact_sha256")
+                if isinstance(theorem_receipt_digest, str) and len(theorem_receipt_digest) == 64:
+                    evidence_refs.append("sha256:" + theorem_receipt_digest)
+            evidence_refs = list(dict.fromkeys(evidence_refs))
             context.emit_tool_event(
                 "agent.tool.completed", _contract["tool"],
                 {"stage": _stage, "task_id": context.task_id,
@@ -216,7 +280,7 @@ def build_hermes_stage_handlers(
                 "schema": "merlin-hermes-stage-result/1",
                 "stage": _stage,
                 "summary": output["summary"],
-                "metadata": output["metadata"],
+                "metadata": result_metadata,
                 "artifact": {
                     "project_id": project_id,
                     "logical_path": logical_path,
@@ -248,6 +312,9 @@ def build_merlin_hermes_handlers(
     commit_sha: str,
     requester_id: str,
     include_ngspice: bool = True,
+    lean_dispatcher: Callable[..., Mapping[str, Any]] | None = None,
+    lean_tool_version: str | None = None,
+    theorem_verifier: Callable[..., Mapping[str, Any]] | None = None,
 ) -> dict[str, Callable[[Mapping[str, Any], Any], Mapping[str, Any]]]:
     """Register built-in numerical/electrical engines plus real injected research/proof engines."""
     from merlin.linear_simulation import linear_ode_task_executor
@@ -264,6 +331,9 @@ def build_merlin_hermes_handlers(
         repository=repository,
         commit_sha=commit_sha,
         requester_id=requester_id,
+        theorem_verifier=theorem_verifier,
+        lean_dispatcher=lean_dispatcher,
+        lean_tool_version=lean_tool_version,
     )
 
 
