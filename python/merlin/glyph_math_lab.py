@@ -76,3 +76,38 @@ def validate_expression(expression: dict[str, Any]) -> list[str]:
 
 __all__ = ["Glyph", "GLYPHS", "glyph_grammar", "canonical_glyph_bytes",
            "glyph_grammar_digest", "validate_expression"]
+
+def hermes_glyph_math_research_executor(task, context):
+    """Emit canonical glyph grammar as a Hermes research artifact."""
+    import json
+    objective = str(task.get("objective", "")).strip()
+    if task.get("stage") != "research" or not any(
+        term in objective.lower() for term in ("glyph", "alien mathematics", "symbolic mathematics")
+    ):
+        raise ValueError("task must be a glyph-mathematics research task")
+    grammar = glyph_grammar()
+    report = {
+        "schema": "merlin-glyph-math-research/1",
+        "task_id": context.task_id,
+        "hypothesis_id": context.hypothesis_id,
+        "objective": objective,
+        "grammar": grammar,
+        "grammar_sha256": glyph_grammar_digest(),
+        "scope": "formal notation and type constraints only; no cryptographic security claim",
+        "promotion_authority": False,
+    }
+    payload = (json.dumps(report, sort_keys=True, separators=(",", ":"),
+                          ensure_ascii=False, allow_nan=False) + "\\n").encode("utf-8")
+    return {
+        "artifact_bytes": payload,
+        "media_type": "application/vnd.merlin.glyph-math+json",
+        "summary": "Generated typed glyph-mathematics grammar and deterministic identity.",
+        "metadata": {
+            "artifact_schema": report["schema"],
+            "grammar_sha256": report["grammar_sha256"],
+            "glyph_count": len(grammar["tokens"]),
+            "promotion_authority": False,
+        },
+    }
+
+__all__.append("hermes_glyph_math_research_executor")
