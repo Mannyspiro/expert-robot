@@ -1,0 +1,30 @@
+name: Merlin Science Atlas Smoke
+on:
+  push:
+    branches: ["feat/merlin-science-knowledge-webapp-20261105"]
+    paths:
+      - "apps/merlin-web/**"
+      - "research/science/**"
+      - "docs/MERLIN_SCIENCE_HISTORY_PHILOSOPHY_PLATFORM.md"
+      - "tests/merlin_science_atlas_smoke.py"
+      - ".github/workflows/merlin-science-atlas-smoke.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: merlin-science-atlas-${{ github.ref_name }}
+  cancel-in-progress: true
+jobs:
+  smoke:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Validate atlas data and web shell
+        run: |
+          python3 -m json.tool research/science/discipline-taxonomy.v1.json >/dev/null
+          python3 -m json.tool research/science/source-registry.v1.json >/dev/null
+          python3 -m json.tool research/science/ingestion-contract.v1.json >/dev/null
+          python3 tests/merlin_science_atlas_smoke.py
