@@ -68,7 +68,7 @@ class GitRecoveryAdapter:
         ).stdout
         entries = []
         total_bytes = 0
-        for record in listing.split(b"\\0"):
+        for record in listing.split(b"\0"):
             if not record:
                 continue
             metadata, raw_path = record.split(b"\\t", 1)
