@@ -193,7 +193,14 @@ class AcademicGraphStore:
         with self._connect() as db:
             counts = {table: db.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
                       for table in tables}
-        return GraphStats(**counts)
+        return GraphStats(
+            works=counts["works"],
+            researchers=counts["researchers"],
+            institutions=counts["institutions"],
+            authorship_edges=counts["authorship_edges"],
+            topics=counts["topics"],
+            work_topic_edges=counts["work_topics"],
+        )
 
     def researcher_works(self, openalex_author_id: str) -> list[dict[str, Any]]:
         with self._connect() as db:
