@@ -11,10 +11,10 @@
 
 ## Verified projection run
 
-- Workflow run: 42091592409
+- Workflow run: 42092648922
 - Conclusion: success
-- Artifact: `titan-merlin-projection-42091592409`
-- Artifact SHA-256: `250b876926594502978069805783b525c42c0692a882c67e5086c913c5971b71`
+- Artifact: `titan-merlin-projection-42092648922`
+- Artifact SHA-256: `009680c2c3b39a986f09bbac674b1cc74f6095ff76cae9f6e8068fe42bb799d9`
 - Projection JSON SHA-256 after extraction: `d493270314e3abc699c8efe10db105aefb45a4c62577b1ee1d9c556c25b5d46a`
 - Records: 4 (contract smoke, provider inventory, FIPS 203/204/205 ACVP run, and CACE independent verification)
 
