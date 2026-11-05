@@ -9,6 +9,8 @@ on:
       - "tests/merlin_science_atlas_smoke.py"
       - "tests/merlin_google_books_contract_smoke.py"
       - "tests/merlin_science_intake_smoke.py"
+      - "tests/merlin_science_ideonomy_bridge_smoke.py"
+      - "scripts/merlin_science_ideonomy_packet.py"
       - "scripts/merlin_science_intake.py"
       - "scripts/merlin_google_books_discover.py"
       - "research/science/reading-notes/**"
@@ -35,6 +37,7 @@ jobs:
           python3 tests/merlin_science_atlas_smoke.py
           python3 tests/merlin_google_books_contract_smoke.py
           python3 tests/merlin_science_intake_smoke.py
+          python3 tests/merlin_science_ideonomy_bridge_smoke.py
           python3 scripts/merlin_google_books_discover.py --query "subject:history of science" --max-results 5 > google-books-discovery.json
       - name: Upload discovery results
         if: always()
