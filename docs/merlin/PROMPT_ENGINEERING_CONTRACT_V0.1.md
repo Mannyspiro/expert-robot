@@ -87,3 +87,21 @@ A CACE artifact-verification PASS means the declared artifact schema/content and
 ## Validation
 
 The PR adds deterministic compilation, hash-binding, recipient validation, approval gating and idempotent outbox tests. CI must publish the test log and machine-readable test result artifact even when a test fails. No live worker execution, CACE qualification or production deployment is claimed by this change.
+
+
+## Hermes engineered-prompt bridge
+
+`PromptHermesDispatcher` compiles a `PromptTask` and translates it into the existing `merlin-research-task/1` event consumed by `HermesWorker`. It does not create a second worker protocol.
+
+The bridge requires:
+- an explicit recipient-to-stage mapping (`hermes.research`, `hermes.numerical_experiment`, `hermes.proof_search`, or `hermes.electrical_analysis`);
+- `bounded_execution` scope and a validated operator approval reference;
+- an independently validated MCFC lease and the task's resource budget;
+- a declared hypothesis ID and lease reference;
+- an idempotent outbox key bound to task ID and compiled prompt SHA-256.
+
+The full compiled prompt payload, required outputs, constraints, acceptance criteria, evidence requirements and tool allowlist are embedded in the Hermes task's `experiment_spec`. The task objective is separately bounded to the Hermes worker's 2,000-character envelope limit.
+
+The existing Hermes worker then revalidates approval and lease at execution time, dispatches only to an explicitly injected stage handler, emits telemetry, stores a result receipt and acknowledges the leased event. A result-correlation helper checks task ID, prompt hash, task hash and source repository/commit against the compiled prompt.
+
+**Boundary:** the bridge and worker test establish a local outbox-to-injected-handler round trip. They do not prove that a production Hermes process is deployed, that concrete research/solver handlers are configured, or that a live Avrea/CACE service transport is connected. CACE verification, Lean proof, independent assessment and human approval remain separate gates.
