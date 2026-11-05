@@ -70,6 +70,16 @@
       "verification_reason": "valid",
       "verified_by": "GitHub commit verification API"
     },
-    "commit_pinned": true
+    "commit_pinned": true,
+    "pypi_provenance": {
+      "package": "liboqs-python",
+      "version": "0.16.0.2",
+      "trusted_publishing_verified": true,
+      "publishing_repository": "open-quantum-safe/liboqs-python",
+      "publishing_commit": "64c76ad0a80d6c69f2003219eb27b253782a3d68",
+      "sdist_sha256": "7ab4dee5f84536417a8d0ff0c37238ef440ce22cd8f62d3236370320894c92e7",
+      "wheel_sha256": "8e80da56cd409600a8366c5cf5099acd08eea4c031e4af225b63ba0c53433d76",
+      "verified_by": "PyPI publish attestation"
+    }
   }
 }
