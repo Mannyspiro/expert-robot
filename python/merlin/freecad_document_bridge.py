@@ -21,7 +21,7 @@ def build_document_export_macro(
     output_json: str | Path,
     *,
     mesh_deflection_mm: float = 0.5,
-    max_objects: int = 500,
+    max_objects: int = 100,
     max_vertices_per_object: int = 20000,
     max_faces_per_object: int = 40000,
 ) -> str:
@@ -32,7 +32,7 @@ def build_document_export_macro(
     if not isinstance(mesh_deflection_mm, (int, float)) or isinstance(mesh_deflection_mm, bool) or not 0.01 <= mesh_deflection_mm <= 20:
         raise ValueError("mesh_deflection_mm must be between 0.01 and 20")
     for value, label, maximum in (
-        (max_objects, "max_objects", 500),
+        (max_objects, "max_objects", 100),
         (max_vertices_per_object, "max_vertices_per_object", 20000),
         (max_faces_per_object, "max_faces_per_object", 40000),
     ):
@@ -59,6 +59,8 @@ else:
 DOC.recompute()
 
 objects = []
+TOTAL_VERTICES = 0
+TOTAL_FACES = 0
 by_name = {{obj.Name: obj for obj in DOC.Objects}}
 shape_objects = [obj for obj in DOC.Objects if hasattr(obj, "Shape") and not obj.Shape.isNull()]
 if len(shape_objects) > MAX_OBJECTS:
@@ -74,6 +76,10 @@ for obj in shape_objects:
     vertices, facets = shape.tessellate(DEFLECTION)
     if len(vertices) > MAX_VERTICES or len(facets) > MAX_FACES:
         raise RuntimeError("Object mesh exceeds configured vertex/face bounds: " + obj.Name)
+    TOTAL_VERTICES += len(vertices)
+    TOTAL_FACES += len(facets)
+    if TOTAL_VERTICES > 20000 or TOTAL_FACES > 40000:
+        raise RuntimeError("Assembly exceeds aggregate Merlin HUD mesh budget")
     mesh_vertices = [[float(v.x), float(v.y), float(v.z)] for v in vertices]
     mesh_faces = [[int(i) for i in face] for face in facets]
     box = shape.BoundBox
