@@ -17,4 +17,20 @@ open_license=dict(base,rights_status="open_license_verified",license_uri=None)
 try: mod.stage(open_license,b"no license URI")
 except mod.IntakeError: pass
 else: raise AssertionError("open license must have license URI")
-print("Merlin rights-aware source intake smoke passed.")
+import gzip, json, subprocess, sys, tempfile
+with tempfile.TemporaryDirectory() as td:
+    root=Path(td)/"staging"; root.mkdir()
+    record=Path(td)/"record.json"; record.write_text(json.dumps(base))
+    content=Path(td)/"source.txt"; content.write_bytes(b"small public domain source text")
+    out=root/"book.json"
+    cmd=[sys.executable,str(root_repo/"scripts/merlin_science_intake.py")] if False else None
+    cmd=[sys.executable,str(root.parents[1]/"scripts/merlin_science_intake.py"),"--record",str(record),"--content",str(content),"--out",str(out),"--staging-root",str(root),"--free-disk-reserve-bytes","0"]
+    done=subprocess.run(cmd,capture_output=True,text=True)
+    assert done.returncode==0, done.stderr
+    staged=json.loads(out.read_text())
+    stored=root/staged["content_storage"]["path"]
+    assert stored.exists() and gzip.decompress(stored.read_bytes())==content.read_bytes()
+    assert staged["content_storage"]["compression"]=="gzip"
+    blocked=subprocess.run(cmd+["--max-staging-bytes","1"],capture_output=True,text=True)
+    assert blocked.returncode==2
+print("Merlin rights-aware source intake and bounded compressed storage smoke passed.")
