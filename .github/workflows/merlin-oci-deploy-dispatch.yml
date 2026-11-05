@@ -73,12 +73,12 @@ jobs:
       - name: Prepare existing CACE repository transport key
         shell: bash
         env:
-          CACE_BRIDGE_SSH_PRIVATE_KEY: \${{ secrets.CACE_BRIDGE_SSH_PRIVATE_KEY }}
-          LEGACY_CACE_BRIDGE_SSH_PRIVATE_KEY: \${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}
+          CACE_BRIDGE_SSH_PRIVATE_KEY: ${{ secrets.CACE_BRIDGE_SSH_PRIVATE_KEY }}
+          LEGACY_CACE_BRIDGE_SSH_PRIVATE_KEY: ${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}
         run: |
           set -euo pipefail
-          bridge_key="\${CACE_BRIDGE_SSH_PRIVATE_KEY:-}"
-          if [ -z "$bridge_key" ]; then bridge_key="\${LEGACY_CACE_BRIDGE_SSH_PRIVATE_KEY:-}"; fi
+          bridge_key="${CACE_BRIDGE_SSH_PRIVATE_KEY:-}"
+          if [ -z "$bridge_key" ]; then bridge_key="${LEGACY_CACE_BRIDGE_SSH_PRIVATE_KEY:-}"; fi
           if [ -z "$bridge_key" ]; then
             echo "::error::The existing CACE repository transport key is unavailable."
             exit 1
@@ -97,11 +97,11 @@ jobs:
       - name: Publish immutable Merlin deployment request to CACE
         shell: bash
         env:
-          ARCHIVE: \${{ steps.package.outputs.archive }}
-          ARCHIVE_SIZE: \${{ steps.package.outputs.size }}
-          ARCHIVE_SHA: \${{ steps.package.outputs.digest }}
-          REQUEST_ID: \${{ steps.package.outputs.request_id }}
-          SOURCE_SHA: \${{ github.sha }}
+          ARCHIVE: ${{ steps.package.outputs.archive }}
+          ARCHIVE_SIZE: ${{ steps.package.outputs.size }}
+          ARCHIVE_SHA: ${{ steps.package.outputs.digest }}
+          REQUEST_ID: ${{ steps.package.outputs.request_id }}
+          SOURCE_SHA: ${{ github.sha }}
           PUBLIC_HOST: merlin.129.146.160.46.nip.io
           CACE_BASE_BRANCH: deploy/merlin-oci-preview-20261105
         run: |
@@ -143,7 +143,7 @@ jobs:
         id: await
         shell: bash
         env:
-          REQUEST_ID: \${{ steps.package.outputs.request_id }}
+          REQUEST_ID: ${{ steps.package.outputs.request_id }}
         run: |
           set -euo pipefail
           poll="$RUNNER_TEMP/cace-merlin-result"
@@ -186,10 +186,10 @@ jobs:
       - name: Verify external Merlin GUI and run browser interaction suite
         shell: bash
         env:
-          DEPLOYMENT_URL: \${{ steps.await.outputs.deployment_url }}
+          DEPLOYMENT_URL: ${{ steps.await.outputs.deployment_url }}
         run: |
           set -euo pipefail
-          origin="\${DEPLOYMENT_URL%/hud}"
+          origin="${DEPLOYMENT_URL%/hud}"
           curl --fail --silent --show-error "$origin/health"
           curl --fail --silent --show-error "$origin/hud" | grep -q "MERLIN"
           curl --fail --silent --show-error "$origin/api/hud/graph" | python3 -c 'import json,sys; assert json.load(sys.stdin)["schema_version"]=="1.0"'
@@ -201,12 +201,12 @@ jobs:
         if: always()
         shell: bash
         env:
-          DEPLOYMENT_URL: \${{ steps.await.outputs.deployment_url }}
+          DEPLOYMENT_URL: ${{ steps.await.outputs.deployment_url }}
         run: |
           {
             echo "## Merlin OCI preview"
             echo ""
-            echo "- URL: \${DEPLOYMENT_URL:-not verified}"
+            echo "- URL: ${DEPLOYMENT_URL:-not verified}"
             echo "- Source commit: $GITHUB_SHA"
             echo "- Exposure: GET/HEAD only"
             echo "- CACE promotion authority: disabled"
