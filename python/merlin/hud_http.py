@@ -208,9 +208,20 @@ class HudActivityWSGI:
                     limit = bounded_int("limit", 100, 500)
                     offset = bounded_int("offset", 0, 100000000)
                     status = (params.get("status") or [None])[0]
+                    if self.read_api.hypotheses is None:
+                        return self._respond(start_response, "200 OK", {
+                            "schema": "merlin-hypothesis-page/1",
+                            "items": [], "limit": limit, "offset": offset,
+                            "total": 0, "configured": False,
+                        })
                     return self._respond(start_response, "200 OK",
                                          self.read_api.list_hypotheses(
                                              status=status, limit=limit, offset=offset))
+                if self.read_api.outbox is None:
+                    return self._respond(start_response, "200 OK", {
+                        "schema": "merlin-outbox-status/1",
+                        "counts": {}, "configured": False,
+                    })
                 return self._respond(start_response, "200 OK",
                                      self.read_api.outbox_status())
             if path in {"/api/hud/graph", "/api/hud/node"}:
