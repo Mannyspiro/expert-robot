@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Merlin GitHub Commit Receipt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "receipt_version",
+    "repository",
+    "requested_sha",
+    "canonical_sha",
+    "commit_url",
+    "api_response_sha256",
+    "signature_verified",
+    "retrieved_at",
+    "verification_source"
+  ],
+  "properties": {
+    "receipt_version": {
+      "const": "1.0"
+    },
+    "repository": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+    },
+    "requested_sha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "canonical_sha": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "commit_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "api_response_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "signature_verified": {
+      "type": "boolean"
+    },
+    "signature_reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "retrieved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "verification_source": {
+      "const": "github_rest_commit_endpoint"
+    }
+  }
+}
