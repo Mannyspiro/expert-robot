@@ -148,14 +148,16 @@ class FreeCADBackend:
                 total_area += _finite(shape.Area)
 
             requested = set(request["requested_outputs"])
-            if "topology_report" in requested or "validate_topology" == request["operation"]:
+            all_shapes_valid = all(x["shape_valid"] for x in topology)
+            metrics["all_shapes_valid"] = all_shapes_valid
+            if "topology_report" in requested or request["operation"] == "validate_topology":
                 path = output_dir / "topology-report.json"
                 path.write_text(json.dumps({
                     "backend": self.backend_id,
                     "backend_version": self.backend_version,
                     "input_sha256": request["input_sha256"],
                     "objects": topology,
-                    "all_shapes_valid": all(x["shape_valid"] for x in topology),
+                    "all_shapes_valid": all_shapes_valid,
                 }, sort_keys=True, indent=2) + "\n", encoding="utf-8")
                 artifacts.append({"path": path.name, "sha256": sha256_file(path)})
 
@@ -206,7 +208,11 @@ class FreeCADBackend:
                 "input_sha256": request["input_sha256"],
                 "backend_id": self.backend_id,
                 "backend_version": self.backend_version,
-                "status": "completed",
+                "status": (
+                    "failed"
+                    if request["operation"] == "validate_topology" and not all_shapes_valid
+                    else "completed"
+                ),
                 "artifacts": artifacts,
                 "metrics": metrics,
                 "limitations": limitations,
