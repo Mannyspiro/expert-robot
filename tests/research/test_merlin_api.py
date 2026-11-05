@@ -370,3 +370,16 @@ if __name__ == "__main__":
         estimate = state["skills"]["B2B-ML-001"]["procedure"]
         self.assertAlmostEqual(estimate["mean"], 2/3, places=4)
         self.assertEqual(estimate["observations"], 1)
+
+
+    def test_interactive_lessons_are_served_from_same_origin_as_attempt_api(self):
+        for path, marker in (
+            ("/lessons/math-rotation", b"rotation-coordinate-90"),
+            ("/lessons/b2b-ml-agentic-ai", b"b2b-precision-recall"),
+        ):
+            with urlopen(self.base + path, timeout=5) as response:
+                self.assertEqual(response.status, 200)
+                self.assertIn("text/html", response.headers.get("Content-Type", ""))
+                body = response.read()
+            self.assertIn(marker, body)
+            self.assertIn(b"/api/learning/attempt", body)
