@@ -230,7 +230,7 @@ class CaceVerificationAdapter:
         expected_digest = hashlib.sha256(_canonical(body).encode("utf-8")).hexdigest()
         if supplied_digest != expected_digest:
             raise ValueError("CACE artifact receipt SHA-256 mismatch")
-        receipt_bytes = (_canonical(receipt) + "\\n").encode("utf-8")
+        receipt_bytes = (_canonical(receipt) + "\n").encode("utf-8")
         receipt_path = ("cace-artifact-receipts/" + commit_sha + "/" +
                         artifact_sha256 + "/" + hashlib.sha256(
                             artifact_kind.encode("utf-8")).hexdigest() + ".json")
