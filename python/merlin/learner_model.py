@@ -245,3 +245,60 @@ class HermesLearningRouter:
             self.worker_id, self.handler,
             topics=(ATTEMPT_TOPIC,"merlin.learning.recommendation"),
             lease_seconds=30,retry_delay_seconds=2,max_attempts=3)
+
+
+# Server-owned scoring contracts. Browser-supplied scores are never trusted by the API.
+SCORING_RUBRICS = {
+    "rotor-half-angle": {
+        "idea_id": "MATH-ALG-001", "dimension": "recognition",
+        "rubric_version": "rotation-rubric-0.1",
+    },
+    "rotation-coordinate-90": {
+        "idea_id": "MATH-REP-001", "dimension": "procedure",
+        "rubric_version": "rotation-coordinate-rubric-0.1",
+    },
+    "invoice-approval-boundary": {
+        "idea_id": "B2B-AI-001", "dimension": "recognition",
+        "rubric_version": "b2b-agentic-r1",
+    },
+    "b2b-precision-recall": {
+        "idea_id": "B2B-ML-001", "dimension": "procedure",
+        "rubric_version": "b2b-metrics-r1",
+    },
+}
+
+
+def score_attempt_event(event: Mapping[str,Any]) -> dict[str,Any]:
+    """Apply a server-owned objective rubric; ignore client score/idea/dimension claims."""
+    if not isinstance(event,Mapping):
+        raise ValueError("attempt event must be an object")
+    problem_id=LearnerStore._required(event.get("problem_id"),"problem_id")
+    rubric=SCORING_RUBRICS.get(problem_id)
+    if rubric is None:
+        raise ValueError("no server scoring rubric is registered for this problem")
+    response=event.get("response",{})
+    if not isinstance(response,Mapping):
+        raise ValueError("response must be an object")
+    if problem_id=="rotor-half-angle":
+        score=1.0 if response.get("selected_option")=="a" else 0.0
+    elif problem_id=="rotation-coordinate-90":
+        try:
+            x,y=float(response.get("x")),float(response.get("y"))
+            score=1.0 if math.isfinite(x) and math.isfinite(y) and abs(x)<=0.01 and abs(y-1)<=0.01 else 0.0
+        except (TypeError,ValueError):
+            score=0.0
+    elif problem_id=="invoice-approval-boundary":
+        score=1.0 if response.get("choice")=="b" else 0.0
+    else:
+        try:
+            precision=float(response.get("precision_percent"))
+            recall=float(response.get("recall_percent"))
+            score=1.0 if (math.isfinite(precision) and math.isfinite(recall)
+                          and abs(precision-80.0)<=0.5
+                          and abs(recall-88.8888889)<=0.5) else 0.0
+        except (TypeError,ValueError):
+            score=0.0
+    return {**dict(event), "idea_id":rubric["idea_id"],
+            "dimension":rubric["dimension"], "score":score,
+            "rubric_version":rubric["rubric_version"],
+            "scoring_source":"server_rubric"}
