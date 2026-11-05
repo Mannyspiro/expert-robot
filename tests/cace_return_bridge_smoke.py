@@ -29,6 +29,8 @@ assert 'refs/remotes/origin/result:bridge/result.json' in external
 # exact workflow/run identity, log integrity, and pass/fail as valid outcomes.
 assert 'result.get("schema_version") == 3' in external
 assert "cace_workflow_sha" in external
+assert 'json.dumps(manifest, sort_keys=True, indent=2) + "\\n"' in external
+assert 'json.dumps(manifest, sort_keys=True, indent=2) + "\\\\n"' not in external
 assert "cace_workflow_id" in external
 assert "cace_workflow_run_id" in external
 assert "cace_run_attempt" in external
