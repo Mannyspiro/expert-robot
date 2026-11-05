@@ -56,17 +56,18 @@ function drawFlow(phase,data={}){
   [{x:518,y:28},{x:518,y:65},{x:518,y:102}]
  ];
  const stageLayer=Math.min(4,Math.floor(ix*4/7));
+ const verifiedReceipt=!!(data.verification&&data.verification.status==="verified"&&data.verification.independent===true&&!(data.visualization_policy&&data.visualization_policy.simulation_is_not_runtime===true));
  let edges="",nodes="";
  for(let l=0;l<layers.length-1;l++){
   layers[l].forEach((a,ai)=>layers[l+1].forEach((b,bi)=>{
    if(Math.abs(a.y-b.y)<75 || (ai+bi+l)%3===0){
-    const verified=(phase==="verification"||phase==="artifact");
+    const verified=verifiedReceipt&&(phase==="verification"||phase==="artifact");
     edges+='<path class="synapse '+(verified&&l<stageLayer?'verified':l<=stageLayer?'live':'')+'" d="M'+a.x+' '+a.y+' Q'+((a.x+b.x)/2)+' '+((a.y+b.y)/2-((ai+bi)%2?10:-10))+' '+b.x+' '+b.y+'"/>';
    }
   }));
  }
  layers.forEach((layer,l)=>layer.forEach((p,j)=>{
-  const active=l===stageLayer,verified=(phase==="verification"||phase==="artifact")&&l<stageLayer;
+  const active=l===stageLayer,verified=verifiedReceipt&&(phase==="verification"||phase==="artifact")&&l<stageLayer;
   const r=(l===2&&j===1)?7:4.2;
   nodes+='<circle class="neuron '+(verified?'verified':active?'active':'')+'" cx="'+p.x+'" cy="'+p.y+'" r="'+r+'"/>';
   if(j===Math.floor(layer.length/2))nodes+='<text class="neuron-label" x="'+p.x+'" y="'+(p.y+(p.y<65?-9:14))+'">'+(l===0?'INPUT':l===1?'HYPOTHESIS':l===2?'MODEL':l===3?'PROOF':'RESULT')+'</text>';
@@ -83,8 +84,8 @@ function drawFlow(phase,data={}){
  const evidenceCount=Array.isArray(data.evidence_refs)?data.evidence_refs.length:0;
  for(let i=0;i<Math.min(evidenceCount,5);i++){
   const y=31+i*17;
-  nodes+='<circle class="neuron verified" cx="548" cy="'+y+'" r="3"/>';
-  edges+='<path class="synapse verified" d="M518 65 L548 '+y+'"/>';
+  nodes+='<circle class="neuron '+(verifiedReceipt?"verified":"active")+'" cx="548" cy="'+y+'" r="3"/>';
+  edges+='<path class="synapse '+(verifiedReceipt?"verified":"live")+'" d="M518 65 L548 '+y+'"/>';
  }
  $("neuralEdges").innerHTML=edges+pulse;
  $("flowNodes").innerHTML=nodes;
