@@ -30,26 +30,32 @@ def main() -> int:
             item = load(path)
             workflow = item.get("workflow", {})
             source = item.get("source", {})
-            commit = workflow.get("commit_sha") or source.get("commit_sha")
+            commit = (workflow.get("commit_sha") or source.get("commit_sha")
+                      or item.get("titan_source_commit") or item.get("source_commit_sha"))
             if not isinstance(commit, str) or not SHA.fullmatch(commit):
                 raise ValueError(f"{path}: missing full source commit")
-            run_id = workflow.get("run_id")
+            run_id = workflow.get("run_id") or item.get("workflow_run_id") or item.get("source_workflow_run_id")
             if not isinstance(run_id, int):
                 raise ValueError(f"{path}: missing workflow run_id")
             artifact = item.get("artifact", {})
-            artifact_digest = artifact.get("sha256") or artifact.get("zip_sha256")
+            artifact_digest = (artifact.get("sha256") or artifact.get("zip_sha256")
+                               or item.get("source_workflow_artifact_sha256"))
             runner = item.get("runner", {})
+            evidence_type = item.get("evidence_type", "titan-evidence")
             known_answer = item.get("known_answer_tests_run", False)
             conclusion = workflow.get("conclusion")
             if known_answer:
                 test_result = "pass" if conclusion == "success" else "fail"
-            elif item.get("evidence_type") == "titan-provider-inventory":
+            elif evidence_type == "titan-provider-inventory":
                 test_result = "blocked"
+            elif evidence_type == "cace-independent-titan-avrea-verification":
+                test_result = item.get("cace_bundle_verification", "not_run")
             else:
                 test_result = "pass" if conclusion == "success" else "not_run"
             records.append({
                 "record_type": "merlin.research.titan-pqc",
-                "record_id": f"titan-pqc:{commit}:{run_id}",
+                "record_id": f"titan-pqc:{commit}:{run_id}:{evidence_type}",
+                "evidence_type": evidence_type,
                 "candidate_id": "titan:pqc-standard-baselines",
                 "source_repository": "Mannyspiro/expert-robot",
                 "source_commit": commit,
@@ -58,13 +64,16 @@ def main() -> int:
                 "vector_source_tag": lock["vectors"]["tag"],
                 "vector_source_commit": lock["vectors"]["commit"],
                 "workflow_run_id": run_id,
-                "workflow_name": workflow.get("name"),
-                "workflow_url": workflow.get("run_url") or workflow.get("url"),
-                "runner_identity": runner.get("name") or runner.get("runner_name") or runner.get("label"),
+                "workflow_name": workflow.get("name") or item.get("workflow_name") or evidence_type,
+                "workflow_url": workflow.get("run_url") or workflow.get("url") or item.get("workflow_url"),
+                "verification_workflow_run_id": item.get("verification_workflow_run_id"),
+                "runner_identity": (runner.get("name") or runner.get("runner_name") or runner.get("label")
+                                    or item.get("runner_name") or item.get("runner_host")),
                 "test_suites": ["FIPS203", "FIPS204", "FIPS205"] if known_answer else [],
                 "test_result": test_result,
                 "artifact_sha256": artifact_digest,
-                "cace_verification_status": item.get("cace_independent_verification", "not_run"),
+                "cace_verification_status": item.get("cace_independent_verification")
+                    or item.get("cace_bundle_verification", "not_run"),
                 "receipt_profile": "cace-signed-attestation-v2/ML-DSA-65",
                 "signature_status": item.get("signature_status", "unsigned"),
                 "qualification_status": "research_only",
