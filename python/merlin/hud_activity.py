@@ -154,7 +154,8 @@ class HudOutboxConsumer:
             return None
         try:
             accepted = self.projector.ingest(lease["payload"])
-            result = {"projected": accepted, "event_id": lease["payload"]["event_id"]}
+            result = {"projected": accepted, "event_id": lease["event_id"],
+                      "telemetry_event_id": lease["payload"]["event_id"]}
             self.outbox.acknowledge(lease["event_id"], worker_id, lease["lease_token"],
                                     result=result, now=now)
             return result
