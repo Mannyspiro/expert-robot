@@ -317,15 +317,12 @@ class MerlinApiTests(unittest.TestCase):
         self.assertGreaterEqual(model_events[-1]["duration_ms"], 0)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
-
     def test_learning_attempt_storage_and_hermes_recommendation_api(self):
         learner = "api-learner-rotation-test"
         base = {
             "learner_id": learner, "idea_id": "MATH-REP-001",
             "problem_id": "rotation-coordinate-90", "problem_version": "1",
+            "dimension": "procedure", "score": 1.0, "rubric_version": "rotation-r1",
             "response": {"x": 0, "y": 1}, "transfer": False, "delayed": False,
         }
         for attempt_id, session in (("rotation-attempt-1", "session-a"),
@@ -379,3 +376,7 @@ if __name__ == "__main__":
             state = json.loads(response.read())
         self.assertIn("ART-PAT-001", state["skills"])
         self.assertIn("artistic_composition", state["skills"]["ART-PAT-001"])
+
+
+if __name__ == "__main__":
+    unittest.main()
