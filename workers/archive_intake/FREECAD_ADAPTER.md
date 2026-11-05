@@ -19,3 +19,13 @@ Important limitations:
 - Volume and surface area are sums over imported shapes; overlapping solids may therefore be double-counted.
 - STL export is tessellated output, not a lossless CAD representation. Record the exact FreeCAD build and mesh parameters with every run.
 - This adapter does not run an MCFC solver, electrical solver, collision detection, mating/joint solver, or independent topology qualification.
+
+
+## Assembly graph export
+
+`build_assembly_graph(...)` exports physical objects and their explicit FreeCAD `Group` hierarchy into Merlin's single-root assembly graph. The caller must supply:
+- a resolver binding each FreeCAD object to a registered artifact SHA-256;
+- a resolver returning the exact parent-relative 4x4 transform for each object;
+- explicit length and angle units and a digest for the source assembly artifact.
+
+This is intentional: FreeCAD placement semantics vary across object types and importers, so Merlin does not silently reinterpret global placements as parent-relative transforms. The graph is validated through `cad_assembly_graph.resolve_assembly`. It does not establish that the source hierarchy is semantically complete or that the assembly is mechanically correct.
