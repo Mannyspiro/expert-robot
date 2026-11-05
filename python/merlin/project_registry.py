@@ -118,6 +118,8 @@ class MerlinRegistry:
                 WHERE av.project_id=pa.project_id AND av.logical_path=pa.logical_path)
             """, (time.time(),))
             db.executescript("""
+            DROP TRIGGER IF EXISTS project_artifacts_guard_update;
+            DROP TRIGGER IF EXISTS project_artifacts_guard_insert;
             CREATE TRIGGER IF NOT EXISTS artifact_blobs_no_update
               BEFORE UPDATE ON artifacts
               BEGIN SELECT RAISE(ABORT, 'artifact blob metadata is append-only'); END;
