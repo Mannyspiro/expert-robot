@@ -1,9 +1,10 @@
 import tempfile
 import unittest
+from dataclasses import replace
 from pathlib import Path
 
 from merlin.event_outbox import MerlinEventOutbox
-from merlin.prompt_contract import PromptCompiler, PromptOutboxPublisher, PromptTask
+from merlin.prompt_contract import CompiledPrompt, PromptCompiler, PromptOutboxPublisher, PromptTask
 
 
 def make_task(**overrides):
@@ -92,6 +93,30 @@ class PromptContractTests(unittest.TestCase):
             )
             with self.assertRaises(PermissionError):
                 publisher.publish(compiled)
+
+    def test_publisher_rejects_tampered_prompt_hash(self):
+        with tempfile.TemporaryDirectory() as directory:
+            outbox = MerlinEventOutbox(Path(directory) / "outbox.sqlite3")
+            compiled = PromptCompiler().compile(make_task())
+            tampered = replace(compiled, prompt_text=compiled.prompt_text + "\\nInjected change")
+            publisher = PromptOutboxPublisher(
+                outbox, recipient_validator=lambda _: True,
+                approval_validator=lambda ref, prompt: True,
+            )
+            with self.assertRaises(ValueError):
+                publisher.publish(tampered)
+
+    def test_publisher_rejects_forged_authority_scope(self):
+        with tempfile.TemporaryDirectory() as directory:
+            outbox = MerlinEventOutbox(Path(directory) / "outbox.sqlite3")
+            compiled = PromptCompiler().compile(make_task())
+            forged = replace(compiled, authority_scope="admin")
+            publisher = PromptOutboxPublisher(
+                outbox, recipient_validator=lambda _: True,
+                approval_validator=lambda ref, prompt: True,
+            )
+            with self.assertRaises(ValueError):
+                publisher.publish(forged)
 
     def test_bounded_execution_requires_independent_approval(self):
         with tempfile.TemporaryDirectory() as directory:
