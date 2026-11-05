@@ -45,3 +45,24 @@ Merlin validates contracts and receipts; it cannot impose remote OS-level resour
 ## Current integration state
 
 The repository now contains a runnable job entry point and mocked contract tests. The image has **not** been built, downloaded, uploaded or dispatched to Avrea in this session. No CAD model has been processed by a real FreeCAD runtime. The pinned version is a reproducibility target, not an installed/verified runtime. The next operator step is to build the image in the authorized worker, report the immutable image digest and module-probe result, then run a benign public fixture under strict external limits.
+
+## Deterministic qualification fixture
+
+`generate_fixture.py` creates a small three-solid test assembly inside the exact FreeCAD Python runtime:
+
+- 20 × 10 × 2 mm base plate;
+- 5 × 5 × 8 mm upper block;
+- radius-2 mm, height-6 mm round post;
+- nested native document groups (`MerlinAssembly` → `UpperSubassembly`);
+- native `.FCStd`, neutral `.step`, and a SHA-256 fixture manifest.
+
+The manifest records the declared units/frame, source component/group names, artifact hashes and analytic reference values:
+- overall bounds: 20 × 10 × 10 mm;
+- sum of source-solid volumes: (600 + 24\pi) mm³;
+- sum of source-solid surface areas: (730 + 32\pi) mm².
+
+These are analytic references for the generated primitives. They are not proof of STEP round-trip fidelity or independent CAD correctness. STEP export may flatten or alter assembly hierarchy; compare the native FCStd hierarchy and STEP geometry separately.
+
+Use the generated STEP file as the input to a job contract with `input_format: "step"`, explicit units/frame, and requested outputs such as `topology_report`, `bounding_box`, `volume`, `surface_area`, and `mesh`. A mesh request must include positive finite `linear_deflection` and `angular_deflection` values. The geometry backend now rejects a declared format that does not match the actual extension and rejects missing/non-finite mesh tolerances.
+
+The fixture generator and its mocked manifest test are committed but have not been executed in FreeCAD. The mocked test checks the generated manifest plumbing, not FreeCAD kernel behavior.
