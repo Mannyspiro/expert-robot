@@ -470,3 +470,20 @@ The new program's source/case-study records should attach to the existing scienc
 - Broad CI run #2556 on the current head was still pending at this snapshot; do not report it as passed.
 
 Next math sequence: formalize similarity/characteristic-polynomial invariance in Lean; add typed scalar-field and partial-domain metadata; then generalized eigenspace transport. Keep Math Kung Fu as the learner-facing route through the same canonical mathematical objects, proofs, experiments and history—not as a parallel mathematics engine.
+
+
+## 20. New implementation PRs from the latest iteration
+
+- PR #92 — [Add source-grounded logic lens case schema and Avrea validation](https://github.com/Mannyspiro/expert-robot/pull/92), based on PR #80's science/history/philosophy atlas. Adds a JSON Schema, stdlib validator, source/claim/interpretation cross-reference checks, scope boundaries, translation-loss records, rights checks and specialist-review gates. Extends the existing source-ingestion contract and Avrea science smoke workflow. First attempt (run #99 / ID `42120613610`) failed one test: the validator accepted an overly broad scope note. The exact failure was retained in the uploaded artifact. The validator was corrected to require a concrete scope boundary and reject unsupported whole-culture generalizations. Rerun: science-atlas workflow #101 / ID `42121269147` completed success; the new case-validator suite reported **8 passed**; full CI run #2564 / ID `42121269233` completed success. Evidence artifact ID `13458596528`.
+- PR #94 — [Connect engineered prompts to the existing Hermes worker](https://github.com/Mannyspiro/expert-robot/pull/94), based on PR #77's Hermes worker/outbox/evidence architecture. Adds a deterministic PromptTask-to-Hermes task adapter, recipient/stage mapping, approval and MCFC lease checks, prompt/task/source hash correlation on returned receipts, and a test that dispatches a compiled prompt through the existing HermesWorker to an injected handler and acknowledges the result. Avrea workflow #2 / ID `42121248360` completed success on exact PR head `bbf274d20c5bc85f73706dd216cd206e65721a1a`; tests: prompt contract **18 passed**, prompt/Hermes bridge **6 passed**, Hermes worker **5 passed**, stage handlers **4 passed**, plus module compilation. Evidence artifact ID `13458721406`, SHA-256 `070cc3dd65c49710821fd6b9569584a13fa42c78e3604406a0b7644e2c936496`.
+
+PR #94 proves a local, deterministic outbox-to-injected-Hermes-handler round trip. It does **not** yet prove a deployed Hermes daemon, production research/solver executors, live remote Avrea transport, cryptographically authenticated CACE signer identity, or independent scientific correctness. Those remain explicit P0/P1 integration gates.
+
+### PR dependency topology
+
+- Research school and LMS chain: #85 -> #87 -> #88 -> #89 -> #90 -> #91.
+- Science/history/logic case-study chain: #80 -> #92.
+- Hermes worker and engineered prompt bridge chain: #77 -> #94.
+- The mathematics catalog and representation tests have their own Avrea workflow in #91; the cultural case-study schema and science source pipeline are tested in #92; prompt dispatch and Hermes worker lifecycle are tested in #94.
+
+These are parallel draft branches, not one merged release. Before production release, reconcile the branches against a common integration base, resolve duplicate/overlapping files, run the full exact-head CI matrix, and only then request human merge/deployment approval.
