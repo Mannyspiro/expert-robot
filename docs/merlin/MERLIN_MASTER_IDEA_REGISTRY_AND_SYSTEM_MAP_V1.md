@@ -442,3 +442,20 @@ The math-catalog workflow now captures runner identity, per-suite stdout/stderr,
 - Spherical holonomy has its own tests and must remain conceptually separate from arbitrary frame-graph cycle consistency.
 - The existing CI main workflow had ignored math-ledger/catalog/validator paths. PR #91 adds a dedicated Avrea workflow for those paths rather than duplicating the catalog or relying on the broad CI workflow alone.
 - The new logic-as-cultural-lenses program is deliberately a research protocol. It must become a source-backed catalog and schema before comparative case studies are generated at scale.
+
+
+## 19. Existing logic-lens and science-atlas foundation discovered in PR #80
+
+The logic-as-cultural-lenses program is not a greenfield subsystem. PR #80 already includes:
+- `scripts/merlin_logic_lenses.py`: 14 candidate logic families, 15 mathematical systems, 14 composition modes, bounded finite truth tables, fuzzy operators and heuristic composition ranking.
+- `formal/MathAI/LogicLenses.lean`: finite n-valued min/max operators and fuzzy Gödel/product/Łukasiewicz conjunctions with selected algebraic lemmas.
+- `research/science/merlin-research-governance.v1.json`: inductive/deductive/abductive reasoning, falsification, epistemic labels, fuzzy/n-valued review, logic composition, ideonomy, multiple representations, bias/fallacy review and non-bypassable plan gates.
+- `docs/MERLIN_SCIENCE_HISTORY_PHILOSOPHY_PLATFORM.md`: source-grounded science/history/philosophy atlas, pioneer dossier and historical context framework.
+- `research/science/source-registry.v1.json`, discipline taxonomy, ingestion contract, reading notes and video transcript index.
+- `tests/merlin_logic_ideonomy_smoke.py`: checks bounded logic/ideonomy packet generation and validation.
+
+PR #80 [Science, mathematics, history and philosophy atlas](https://github.com/Mannyspiro/expert-robot/pull/80) reported Avrea workflow run `42088542852` successful. This is a historical run reported in that PR; re-check exact branch/commit evidence before treating it as current deployment status.
+
+**Relationship:** PR #90 adds the distinct historical, linguistic, epistemic, translation and specialist-review layer. It must reuse PR #80's logic profiles, formal definitions and governance policy. Heuristic ranking scores are not measured usefulness or truth; finite truth tables are bounded examples; Lean lemmas about operators do not validate cultural/historical interpretations. Do not create a duplicate logic engine or duplicate science atlas.
+
+The new program's source/case-study records should attach to the existing science source registry and canonical knowledge graph, then export reviewed material to Merlin Learning.
