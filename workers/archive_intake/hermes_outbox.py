@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse, hashlib, json, sqlite3, uuid
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
+from typing import Protocol
 from canonical_registry import connect, initialize
 
 def now(): return datetime.now(timezone.utc)
@@ -43,6 +44,19 @@ def acknowledge(database,event_id,worker,ack):
         db.execute("""UPDATE hermes_outbox SET state='acked',acknowledged_at=?,acknowledgement_json=?,
           lease_owner=NULL,lease_until=NULL WHERE event_id=?""",(now().isoformat(),json.dumps(ack,sort_keys=True),event_id))
     return {"event_id":event_id,"state":"acked","ack_sha256":ack["ack_sha256"]}
+
+class HermesTransport(Protocol):
+    def send(self,event: dict) -> dict: ...
+
+def deliver_once(database,worker,transport):
+    lease=claim(database,worker)
+    if lease is None: return {"state":"empty"}
+    try:
+        ack=transport.send(lease["event"])
+        return acknowledge(database,lease["event_id"],worker,ack)
+    except Exception as exc:
+        retry(database,lease["event_id"],worker,exc)
+        return {"event_id":lease["event_id"],"state":"pending","delivery_error":str(exc)[:500]}
 
 def retry(database,event_id,worker,error):
     with connect(database) as db:
