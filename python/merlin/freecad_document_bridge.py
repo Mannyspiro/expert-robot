@@ -6,8 +6,14 @@ payload suitable for the Merlin CAD workspace. It does not execute here.
 """
 from __future__ import annotations
 
+import hashlib
 import json
+import math
 from pathlib import Path
+from typing import Any
+
+from merlin.knowledge_graph import GraphEdge, GraphNode, MerlinKnowledgeGraph
+from merlin.project_registry import MerlinRegistry
 
 
 def build_document_export_macro(
@@ -107,4 +113,117 @@ print("Merlin FreeCAD document export complete: " + OUTPUT)
 '''
  
  
-__all__ = ["build_document_export_macro"]
+
+
+def register_freecad_document_artifact(
+    *,
+    registry: MerlinRegistry,
+    graph: MerlinKnowledgeGraph,
+    project_id: str,
+    logical_path: str,
+    content: bytes,
+) -> dict[str, Any]:
+    """Validate a FreeCAD mesh export, store it, and create its canonical graph nodes."""
+    if not isinstance(registry, MerlinRegistry) or not isinstance(graph, MerlinKnowledgeGraph):
+        raise ValueError("canonical MerlinRegistry and MerlinKnowledgeGraph instances are required")
+    if not isinstance(content, bytes) or not content or len(content) > 25 * 1024 * 1024:
+        raise ValueError("FreeCAD document JSON must be non-empty and at most 25 MiB")
+    try:
+        payload = json.loads(content.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError("FreeCAD document export must be valid UTF-8 JSON") from exc
+    if not isinstance(payload, dict) or payload.get("schema") != "merlin-freecad-document-mesh/1":
+        raise ValueError("unsupported FreeCAD document mesh schema")
+    if payload.get("units") != "mm":
+        raise ValueError("FreeCAD document mesh must declare millimetre units")
+    objects = payload.get("objects")
+    assemblies = payload.get("assemblies", [])
+    if not isinstance(objects, list) or not 1 <= len(objects) <= 100:
+        raise ValueError("FreeCAD export must contain between 1 and 100 objects")
+    if not isinstance(assemblies, list) or len(assemblies) > 500:
+        raise ValueError("FreeCAD assembly hierarchy exceeds its bound")
+    refs = set()
+    total_vertices = 0
+    total_faces = 0
+    normalized_objects = []
+    for obj in objects:
+        if not isinstance(obj, dict):
+            raise ValueError("FreeCAD object record must be an object")
+        ref, name, mesh = obj.get("ref"), obj.get("name"), obj.get("mesh")
+        if not isinstance(ref, str) or not ref.strip() or ref in refs:
+            raise ValueError("FreeCAD object references must be unique non-empty strings")
+        refs.add(ref)
+        if not isinstance(name, str) or not isinstance(mesh, dict):
+            raise ValueError("FreeCAD object requires a name and mesh")
+        vertices, faces = mesh.get("vertices"), mesh.get("faces")
+        if not isinstance(vertices, list) or not isinstance(faces, list):
+            raise ValueError("FreeCAD mesh requires vertex and face arrays")
+        total_vertices += len(vertices)
+        total_faces += len(faces)
+        if total_vertices > 20000 or total_faces > 40000:
+            raise ValueError("aggregate FreeCAD mesh exceeds the workspace geometry budget")
+        clean_vertices = []
+        for vertex in vertices:
+            if (not isinstance(vertex, list) or len(vertex) != 3 or
+                    any(isinstance(v, bool) or not isinstance(v, (int, float)) or not math.isfinite(v)
+                        for v in vertex)):
+                raise ValueError("FreeCAD mesh contains an invalid vertex")
+            clean_vertices.append([float(v) for v in vertex])
+        clean_faces = []
+        for face in faces:
+            if (not isinstance(face, list) or not 3 <= len(face) <= 8 or
+                    any(isinstance(index, bool) or not isinstance(index, int) or
+                        index < 0 or index >= len(clean_vertices) for index in face)):
+                raise ValueError("FreeCAD mesh contains an invalid face index")
+            clean_faces.append(list(face))
+        normalized_objects.append({
+            "ref": ref, "name": name, "type_id": str(obj.get("type_id", "")),
+            "assembly_children": [str(child) for child in obj.get("assembly_children", [])][:100],
+            "bounds_mm": obj.get("bounds_mm"),
+            "position_mm": obj.get("position_mm"),
+            "size_mm": obj.get("size_mm"),
+            "mesh": {"vertices": clean_vertices, "faces": clean_faces},
+        })
+    digest = registry.put_artifact(project_id, logical_path, content,
+                                   "application/vnd.merlin.freecad-mesh+json")
+    if not registry.verify_artifact(digest):
+        raise RuntimeError("registered FreeCAD document failed registry digest verification")
+    identity = project_id + "|" + logical_path + "|" + digest
+    artifact_node_id = "artifact:" + hashlib.sha256(identity.encode("utf-8")).hexdigest()[:32]
+    if graph.get_node(artifact_node_id) is None:
+        graph.add_node(GraphNode(
+            artifact_node_id, "artifact", logical_path,
+            {"sha256": digest, "project_id": project_id,
+             "logical_path": logical_path, "size_bytes": len(content),
+             "artifact_kind": "cad_assembly"},
+            evidence_class="unreviewed",
+            source_uri="registry://sha256/" + digest,
+        ))
+    document_name = str(payload.get("document_name") or "FreeCAD document")[:200]
+    cad_node_id = "cad:" + digest[:32]
+    graph.add_node(GraphNode(
+        cad_node_id, "freecad_assembly", document_name,
+        {"format": "merlin-freecad-document-mesh/1",
+         "document": document_name, "units": "mm",
+         "objects": normalized_objects, "assemblies": assemblies[:500],
+         "artifact_sha256": digest, "artifact_path": logical_path},
+        evidence_class="unreviewed",
+        source_uri="registry://sha256/" + digest,
+    ))
+    graph.add_edge(GraphEdge(
+        cad_node_id, "produces", artifact_node_id,
+        {"artifact_sha256": digest, "logical_path": logical_path,
+         "object_count": len(normalized_objects),
+         "vertex_count": total_vertices, "face_count": total_faces},
+    ))
+    return {
+        "schema": "merlin-freecad-registration/1",
+        "project_id": project_id, "logical_path": logical_path,
+        "artifact_sha256": digest, "artifact_verified": True,
+        "cad_node_id": cad_node_id, "artifact_node_id": artifact_node_id,
+        "object_count": len(normalized_objects),
+        "vertex_count": total_vertices, "face_count": total_faces,
+    }
+
+
+__all__ = ["build_document_export_macro", "register_freecad_document_artifact"]
