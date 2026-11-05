@@ -72,9 +72,11 @@ class HudActivityTests(unittest.TestCase):
                   source="avrea", run_id="job-7",
                   refs=("sha256:" + "a" * 64,)),
             event("cace-verified", "verification.completed",
-                  {"agent_id": "cace:verifier-1", "status": "verified",
-                   "independent": True, "artifact_sha256": "b" * 64,
-                   "receipt_artifact_sha256": "c" * 64, "source_commit": "d" * 40,
+                  {"agent_id": "cace:verifier-1", "verifier_id": "cace:verifier-1",
+                   "status": "verified", "independent": True,
+                   "artifact_sha256": "b" * 64, "receipt_artifact_sha256": "c" * 64,
+                   "source_commit": "d" * 40, "repository": "Mannyspiro/expert-robot",
+                   "theorem": "Example.target",
                    "logical_path": "engineering/assembly.json",
                    "artifact_kind": "cad_assembly",
                    "artifact_schema": "merlin-freecad-document-mesh/1"},
@@ -91,6 +93,8 @@ class HudActivityTests(unittest.TestCase):
         self.assertEqual(view["executions"][0]["receipt_ref"], "sha256:" + "a" * 64)
         self.assertEqual(view["verification"]["verifier_id"], "cace:verifier-1")
         self.assertEqual(view["verification"]["source_commit"], "d" * 40)
+        self.assertEqual(view["verification"]["repository"], "Mannyspiro/expert-robot")
+        self.assertEqual(view["verification"]["theorem"], "Example.target")
         self.assertEqual(view["verification"]["repository"], "Mannyspiro/expert-robot")
         self.assertEqual(view["verification"]["theorem"], "Example.target")
         self.assertEqual(view["verification"]["logical_path"], "engineering/assembly.json")
