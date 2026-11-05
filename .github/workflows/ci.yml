@@ -123,6 +123,7 @@ jobs:
           python3 tests/merlin_science_ideonomy_bridge_smoke.py
           python3 tests/merlin_governance_smoke.py
           python3 tests/merlin_problem_reframing_smoke.py
+          python3 tests/merlin_logic_ideonomy_smoke.py
           python3 tests/merlin_orchestrator_plan_gate_smoke.py
           python3 scripts/merlin_domain_audit.py --taxonomy research/science/discipline-taxonomy.v1.json --governance research/science/merlin-research-governance.v1.json >/dev/null
           python3 scripts/merlin_storage_guard.py --root state/merlin-ci-staging --reserve-bytes 0 >/dev/null
