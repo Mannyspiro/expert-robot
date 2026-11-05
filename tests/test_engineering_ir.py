@@ -80,11 +80,11 @@ class EngineeringIRTests(unittest.TestCase):
             ground_net="GND",
             measure_nets=("MID",),
         )
-        self.assertIn("R1 SUPPLY MID 1k\\n", output)
-        self.assertIn("R2 MID 0 1k\\n", output)
-        self.assertIn("V1 SUPPLY 0 DC 5\\n", output)
-        self.assertIn(".meas op v_mid FIND v(MID)\\n", output)
-        self.assertTrue(output.endswith(".end\\n"))
+        self.assertIn("R1 SUPPLY MID 1k", output.splitlines())
+        self.assertIn("R2 MID 0 1k", output.splitlines())
+        self.assertIn("V1 SUPPLY 0 DC 5", output.splitlines())
+        self.assertIn(".meas op v_mid FIND v(MID)", output.splitlines())
+        self.assertEqual(output.splitlines()[-1], ".end")
 
     def test_spice_export_rejects_injected_values_and_unknown_refs(self):
         project = EngineeringProject(
