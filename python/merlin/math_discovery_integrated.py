@@ -435,9 +435,40 @@ def build_integrated_math_discovery_handlers(
     )
 
 
+def build_default_local_math_discovery_handlers(
+    *, repository_root: str | Path, evidence_recorder: ResearchEvidenceRecorder,
+    project_id: str, repository: str, commit_sha: str, requester_id: str,
+    cace_adapter: Any,
+) -> dict[str, Callable[..., Mapping[str, Any]]]:
+    """Wire the repository's actual RK4 and finite cyclic search implementations."""
+    from merlin.math_discovery_backends import (
+        COUNTEREXAMPLE_ENGINE, COUNTEREXAMPLE_ENGINE_VERSION,
+        RK4_ENGINE, RK4_ENGINE_VERSION, default_runtime_environment,
+        finite_cyclic_translation_search, rk4_solver, round_robin_ideonomy_claim,
+    )
+    return build_integrated_math_discovery_handlers(
+        repository_root=repository_root,
+        evidence_recorder=evidence_recorder,
+        project_id=project_id,
+        repository=repository,
+        commit_sha=commit_sha,
+        requester_id=requester_id,
+        cace_adapter=cace_adapter,
+        numerical_solver=rk4_solver,
+        counterexample_searcher=finite_cyclic_translation_search,
+        ideonomy_claim_factory=round_robin_ideonomy_claim,
+        numerical_environment=default_runtime_environment(),
+        numerical_engine_version=RK4_ENGINE_VERSION,
+        numerical_tool_version="python-standard-library",
+        counterexample_engine_version=COUNTEREXAMPLE_ENGINE_VERSION,
+        counterexample_tool_version="python-integer-enumeration/1",
+    )
+
+
 __all__ = [
     "INTEGRATION_SCHEMA", "IdeonomyConjectureAdapter", "LeanProject",
     "discover_lean_project", "LeanCompilerAdapter",
     "ReproducibleNumericalAdapter", "BoundedCounterexampleAdapter",
     "build_integrated_math_discovery_handlers",
+    "build_default_local_math_discovery_handlers",
 ]
