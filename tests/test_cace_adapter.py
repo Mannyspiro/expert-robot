@@ -7,6 +7,7 @@ from pathlib import Path
 from merlin.cace_adapter import CaceVerificationAdapter
 from merlin.event_outbox import MerlinEventOutbox
 from merlin.project_registry import MerlinRegistry
+from merlin.knowledge_graph import MerlinKnowledgeGraph
 
 
 def signed_receipt(request, **overrides):
@@ -81,6 +82,35 @@ class CaceAdapterTests(unittest.TestCase):
             adapter.verify(project_id="merlin",repository="owner/repo",
                            commit_sha=self.commit,artifact_sha256=self.artifact,
                            theorem="T",requester_id="merlin-agent")
+
+    def test_unregistered_input_artifact_is_rejected_before_transport(self):
+        called = []
+        adapter = CaceVerificationAdapter(
+            verify_transport=lambda request: called.append(request),
+            registry=self.registry, outbox=self.outbox,
+        )
+        with self.assertRaisesRegex(ValueError, "absent from the registry"):
+            adapter.verify(project_id="merlin", repository="owner/repo",
+                           commit_sha=self.commit, artifact_sha256="c"*64,
+                           theorem="T", requester_id="merlin-agent")
+        self.assertEqual(called, [])
+
+    def test_receipt_is_linked_to_subject_artifact_in_canonical_graph(self):
+        graph = MerlinKnowledgeGraph(Path(self.temp.name) / "graph.sqlite3")
+        adapter = CaceVerificationAdapter(
+            verify_transport=lambda request: signed_receipt(request),
+            registry=self.registry, outbox=self.outbox, graph=graph,
+        )
+        result = adapter.verify(project_id="merlin", repository="owner/repo",
+                                commit_sha=self.commit, artifact_sha256=self.artifact,
+                                theorem="MyNamespace.target", requester_id="merlin-agent",
+                                logical_path="proofs/target.lean")
+        snapshot = graph.export_snapshot()
+        self.assertTrue(any(node["node_id"] == result["receipt_graph_node_id"]
+                            for node in snapshot["nodes"]))
+        self.assertTrue(any(edge["relation"] == "reviews" and
+                            edge["source_id"] == result["receipt_graph_node_id"]
+                            for edge in snapshot["edges"]))
 
     def test_missing_cace_transport_fails_closed(self):
         adapter = CaceVerificationAdapter(verify_transport=None,
