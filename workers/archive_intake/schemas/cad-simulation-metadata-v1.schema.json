@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Merlin CAD MCFC Simulation Metadata v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "metadata_version",
+    "solver",
+    "solver_version",
+    "model_sha256",
+    "input_sha256",
+    "units",
+    "parameters",
+    "boundary_conditions",
+    "status"
+  ],
+  "properties": {
+    "metadata_version": {
+      "const": "1.0"
+    },
+    "solver": {
+      "type": "string",
+      "minLength": 1
+    },
+    "solver_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "model_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "input_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "units": {
+      "type": "object"
+    },
+    "parameters": {
+      "type": "object"
+    },
+    "boundary_conditions": {
+      "type": "object"
+    },
+    "status": {
+      "enum": [
+        "not_verified",
+        "pending",
+        "passed",
+        "failed",
+        "inconclusive"
+      ]
+    },
+    "result_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "solver_log_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+"""Export a deterministic, provenance-aware Merlin project graph as JSON."""
+from __future__ import annotations
+import argparse, hashlib, json, sys
+from pathlib import Path
+from register_inventory import RegistryError, validate_manifest
+from canonical_registry import get_github_receipt
+
+def _id(kind: str, value: str) -> str:
+    digest=hashlib.sha256((kind+"\0"+value).encode("utf-8")).hexdigest()
+    return "urn:merlin:"+kind+":"+digest
+
+def build_graph(manifest: dict, project_id: str, commit_receipt: dict | None = None) -> dict:
+    validate_manifest(manifest)
+    if not isinstance(project_id,str) or not project_id.strip():
+        raise RegistryError("project_id is required")
+    project_node=_id("project",project_id)
+    if commit_receipt is not None:
+        required=("receipt_id","repository","canonical_sha","api_response_sha256","verification_source")
+        if any(not commit_receipt.get(k) for k in required):
+            raise RegistryError("GitHub provenance must be a complete fetched commit receipt")
+        if not commit_receipt["receipt_id"].startswith("sha256:") or len(commit_receipt["canonical_sha"])!=40:
+            raise RegistryError("invalid GitHub commit receipt identity")
+    intake_node=_id("intake",manifest["intake_id"])
+    nodes=[
+      {"id":project_node,"type":"Project","project_id":project_id},
+      {"id":intake_node,"type":"Intake","intake_id":manifest["intake_id"],
+       "archive_sha256":manifest["archive"]["sha256"],"manifest_version":manifest["manifest_version"]}
+    ]
+    edges=[{"id":_id("edge",project_node+"|hasIntake|"+intake_node),
+            "from":project_node,"relation":"hasIntake","to":intake_node}]
+    if commit_receipt:
+        repository=commit_receipt["repository"]; commit_sha=commit_receipt["canonical_sha"].lower()
+        source_node=_id("git-commit",repository+"@"+commit_sha)
+        nodes.append({"id":source_node,"type":"GitCommit","repository_full_name":repository,
+                      "commit_sha":commit_sha,"receipt_id":commit_receipt["receipt_id"],
+                      "signature_verified":bool(commit_receipt.get("signature_verified"))})
+        edges.append({"id":_id("edge",project_node+"|hasSource|"+source_node),
+                      "from":project_node,"relation":"hasSource","to":source_node})
+    for item in manifest["files"]:
+        occurrence_key=manifest["intake_id"]+"|"+item["path"]
+        occurrence_node=_id("occurrence",occurrence_key)
+        artifact_node=_id("artifact",item["sha256"])
+        nodes.append({"id":occurrence_node,"type":"ArtifactOccurrence","path":item["path"],
+          "size_bytes":item["size_bytes"],"classification":item["classification"]})
+        nodes.append({"id":artifact_node,"type":"Artifact","sha256":item["sha256"]})
+        edges.extend([
+          {"id":_id("edge",intake_node+"|contains|"+occurrence_node),
+           "from":intake_node,"relation":"contains","to":occurrence_node},
+          {"id":_id("edge",occurrence_node+"|hasContent|"+artifact_node),
+           "from":occurrence_node,"relation":"hasContent","to":artifact_node}
+        ])
+    unique={node["id"]:node for node in nodes}
+    return {"graph_version":"1.0","project_id":project_id,"nodes":list(unique.values()),"edges":edges}
+
+def main():
+    parser=argparse.ArgumentParser(description="Export a local Merlin provenance graph; no graph service is contacted.")
+    parser.add_argument("manifest",type=Path); parser.add_argument("--project-id",required=True)
+    parser.add_argument("--github-receipt-id"); parser.add_argument("--database",default="data/merlin.sqlite3")
+    parser.add_argument("--out",type=Path,required=True)
+    args=parser.parse_args()
+    try:
+        data=json.loads(args.manifest.read_text(encoding="utf-8"))
+        receipt=get_github_receipt(args.database,args.github_receipt_id,args.project_id) if args.github_receipt_id else None
+        graph=build_graph(data,args.project_id,receipt)
+        args.out.parent.mkdir(parents=True,exist_ok=True)
+        args.out.write_text(json.dumps(graph,indent=2,sort_keys=True)+"\n",encoding="utf-8")
+        print(json.dumps({"status":"exported","nodes":len(graph["nodes"]),"edges":len(graph["edges"]),"out":str(args.out)},indent=2))
+        return 0
+    except (OSError,ValueError,RegistryError) as exc:
+        print(json.dumps({"status":"rejected","error":str(exc)},indent=2),file=sys.stderr); return 1
+if __name__=="__main__": raise SystemExit(main())

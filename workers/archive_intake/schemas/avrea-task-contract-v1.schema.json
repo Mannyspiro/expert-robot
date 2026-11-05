@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Merlin Avrea Worker Task Contract v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "task_id",
+    "approval_id",
+    "task_contract_sha256",
+    "capability_allowlist",
+    "resource_budget",
+    "timeout_seconds",
+    "input_artifacts",
+    "result_manifest_required"
+  ],
+  "properties": {
+    "contract_version": {
+      "const": "1.0"
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "approval_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_contract_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "capability_allowlist": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "resource_budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_cpu_seconds",
+        "max_memory_mb",
+        "max_output_bytes"
+      ],
+      "properties": {
+        "max_cpu_seconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "max_memory_mb": {
+          "type": "integer",
+          "minimum": 64
+        },
+        "max_output_bytes": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "timeout_seconds": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "input_artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "sha256",
+          "uri"
+        ],
+        "properties": {
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "uri": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "result_manifest_required": {
+      "const": true
+    },
+    "network_access": {
+      "enum": [
+        "none",
+        "explicitly_allowlisted"
+      ],
+      "default": "none"
+    },
+    "state": {
+      "const": "approved_for_dispatch"
+    }
+  }
+}

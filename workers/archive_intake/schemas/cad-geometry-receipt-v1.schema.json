@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://merlin.local/schemas/cad-geometry-receipt-v1.schema.json",
+  "title": "Merlin CAD Geometry Execution Receipt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version", "job_id", "input_sha256", "backend_id",
+    "backend_version", "status", "artifacts", "metrics", "limitations",
+    "verification", "receipt_sha256"
+  ],
+  "properties": {
+    "contract_version": { "const": "1.0" },
+    "job_id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$" },
+    "input_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "backend_id": { "type": "string", "minLength": 1 },
+    "backend_version": { "type": "string", "minLength": 1 },
+    "status": { "enum": ["completed", "rejected", "failed"] },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256", "size_bytes"],
+        "properties": {
+          "path": { "type": "string", "minLength": 1 },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "size_bytes": { "type": "integer", "minimum": 0 }
+        }
+      }
+    },
+    "metrics": { "type": "object" },
+    "limitations": { "type": "array", "items": { "type": "string" } },
+    "verification": {
+      "const": "artifact_hashes_checked;geometry_correctness_not_independently_verified"
+    },
+    "receipt_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  }
+}

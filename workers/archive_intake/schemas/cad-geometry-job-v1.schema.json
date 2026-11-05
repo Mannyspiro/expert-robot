@@ -1,0 +1,170 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://merlin.local/schemas/cad-geometry-job-v1.schema.json",
+  "title": "Merlin CAD Geometry Job Contract v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "job_id",
+    "operation",
+    "input_path",
+    "input_sha256",
+    "input_format",
+    "units",
+    "coordinate_frame",
+    "requested_outputs"
+  ],
+  "properties": {
+    "contract_version": {
+      "const": "1.0"
+    },
+    "job_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$"
+    },
+    "operation": {
+      "enum": [
+        "inspect",
+        "tessellate",
+        "validate_topology",
+        "export_mesh"
+      ]
+    },
+    "input_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "input_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "input_format": {
+      "enum": [
+        "step",
+        "stp",
+        "iges",
+        "igs",
+        "stl",
+        "obj",
+        "3mf"
+      ]
+    },
+    "units": {
+      "type": "object",
+      "required": [
+        "length",
+        "angle"
+      ],
+      "properties": {
+        "length": {
+          "type": "string",
+          "minLength": 1
+        },
+        "angle": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "coordinate_frame": {
+      "type": "object",
+      "required": [
+        "frame_id",
+        "handedness",
+        "axis_convention"
+      ],
+      "properties": {
+        "frame_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "handedness": {
+          "enum": [
+            "right",
+            "left"
+          ]
+        },
+        "axis_convention": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "requested_outputs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "topology_report",
+          "mesh",
+          "bounding_box",
+          "volume",
+          "surface_area"
+        ]
+      }
+    },
+    "mesh_parameters": {
+      "type": "object",
+      "properties": {
+        "linear_deflection": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "angular_deflection": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "additionalProperties": false,
+      "required": [
+        "linear_deflection",
+        "angular_deflection"
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "operation": {
+            "enum": [
+              "tessellate",
+              "export_mesh"
+            ]
+          }
+        },
+        "required": [
+          "operation"
+        ]
+      },
+      "then": {
+        "required": [
+          "mesh_parameters"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "requested_outputs": {
+            "contains": {
+              "const": "mesh"
+            }
+          }
+        },
+        "required": [
+          "requested_outputs"
+        ]
+      },
+      "then": {
+        "required": [
+          "mesh_parameters"
+        ]
+      }
+    }
+  ]
+}

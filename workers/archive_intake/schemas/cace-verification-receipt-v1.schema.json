@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Merlin CACE Verification Receipt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "receipt_version",
+    "subject_sha256",
+    "verifier_id",
+    "verifier_version",
+    "assumptions",
+    "axioms",
+    "result",
+    "log_sha256",
+    "completed_at",
+    "evidence_class",
+    "assumptions_complete",
+    "axioms_complete",
+    "report_sha256",
+    "experiment_sha256",
+    "formal_qualification",
+    "authority_effect"
+  ],
+  "properties": {
+    "receipt_version": {
+      "const": "1.0"
+    },
+    "subject_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "verifier_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "verifier_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "axioms": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "result": {
+      "enum": [
+        "passed",
+        "failed",
+        "inconclusive"
+      ]
+    },
+    "log_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "toolchain": {
+      "type": "object"
+    },
+    "reproducibility": {
+      "type": "object"
+    },
+    "authority_effect": {
+      "const": "none"
+    },
+    "evidence_class": {
+      "const": "cace_executed_verification"
+    },
+    "assumptions_complete": {
+      "type": "boolean"
+    },
+    "axioms_complete": {
+      "type": "boolean"
+    },
+    "report_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "experiment_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "formal_qualification": {
+      "const": "not_asserted"
+    }
+  }
+}
