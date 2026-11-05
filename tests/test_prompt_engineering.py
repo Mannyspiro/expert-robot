@@ -64,7 +64,7 @@ class PromptEngineeringTests(unittest.TestCase):
         self.assertFalse(compiled.promotion_authority)
 
     def test_invalid_or_authority_expanding_request_rejected(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaises(PermissionError):
             self.compiler.compile(PromptRequest(**{**request().__dict__, "authority": "admin"}))
         with self.assertRaises(ValueError):
             self.compiler.compile(PromptRequest(**{**request().__dict__, "instructions": ()}))
