@@ -7,6 +7,7 @@ possible only through explicitly injected, stage-scoped handlers.
 from __future__ import annotations
 
 from dataclasses import dataclass
+import time
 from typing import Any, Callable, Mapping
 
 from merlin.event_outbox import MerlinEventOutbox
@@ -22,6 +23,8 @@ class TaskExecutionContext:
     resource_budget: Mapping[str, int]
     approval_ref: str
     lease_ref: str
+    idempotency_key: str
+    deadline_epoch: float
     emit_progress: Callable[[str, Mapping[str, Any] | None], None]
     emit_tool_event: Callable[[str, str, Mapping[str, Any]], None]
 
@@ -122,6 +125,10 @@ class HermesWorker:
                 raise PermissionError("operator approval is not valid at execution time")
             if not self.lease_validator(task["lease_ref"], task["resource_budget"]):
                 raise PermissionError("MCFC lease is not valid at execution time")
+            if task["resource_budget"]["max_wall_seconds"] > self.lease_seconds:
+                raise PermissionError("task wall-time budget exceeds the worker lease duration")
+            deadline_epoch = time.time() + task["resource_budget"]["max_wall_seconds"]
+            idempotency_key = "hermes-task-handler:" + task["task_id"]
             self.emit_event(
                 kind="agent.status", run_id=task_id, task_id=task_id,
                 payload={"agent_id": "hermes", "role": "research orchestrator",
@@ -131,6 +138,8 @@ class HermesWorker:
             self._progress(task_id, task["hypothesis_id"], stage, "Execution handler started")
 
             def progress(summary: str, details: Mapping[str, Any] | None = None) -> None:
+                if time.time() > deadline_epoch:
+                    raise TimeoutError("task execution exceeded its declared wall-time budget")
                 self._progress(task_id, task["hypothesis_id"], stage, summary, details)
 
             def tool_event(kind: str, tool_name: str, details: Mapping[str, Any]) -> None:
@@ -138,13 +147,14 @@ class HermesWorker:
                     raise ValueError("unsupported tool lifecycle event")
                 if not isinstance(tool_name, str) or not tool_name.strip() or len(tool_name) > 120:
                     raise ValueError("tool name is invalid")
-                body = {"agent_id": "hermes", "tool": tool_name, **dict(details)}
+                body = {**dict(details), "agent_id": "hermes", "tool": tool_name}
                 self.emit_event(kind=kind, run_id=task_id, task_id=task_id, payload=body)
 
             context = TaskExecutionContext(
                 task_id=task_id, hypothesis_id=task["hypothesis_id"],
                 resource_budget=dict(task["resource_budget"]),
                 approval_ref=task["approval_ref"], lease_ref=task["lease_ref"],
+                idempotency_key=idempotency_key, deadline_epoch=deadline_epoch,
                 emit_progress=progress, emit_tool_event=tool_event,
             )
             result = handler(task, context)
