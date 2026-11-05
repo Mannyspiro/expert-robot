@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from merlin.ideonomy_invention_lab import build_ideonomy_report, register_ideonomy_report
+from merlin.ideonomy_invention_lab import (build_ideonomy_report, enumerate_simplex_combinations, register_ideonomy_report)
 from merlin.knowledge_graph import MerlinKnowledgeGraph
 from merlin.project_registry import MerlinRegistry
 
@@ -21,6 +21,15 @@ class IdeonomyInventionLabTests(unittest.TestCase):
             self.assertTrue(candidate["evidence"])
             self.assertGreaterEqual(candidate["weighted_score"], 0)
             self.assertLessEqual(candidate["weighted_score"], 10)
+
+    def test_simplex_enumerator_only_returns_explicit_cross_domain_compatible_sets(self):
+        combinations = enumerate_simplex_combinations(3)
+        self.assertGreater(len(combinations), 0)
+        self.assertTrue(all(2 <= len(item["primitive_ids"]) <= 3 for item in combinations))
+        self.assertTrue(all(len(item["domains"]) >= 2 for item in combinations))
+        self.assertTrue(all(item["epistemic_status"] == "hypothesis_combination" for item in combinations))
+        with self.assertRaises(ValueError):
+            enumerate_simplex_combinations(4)
 
     def test_titan_is_top_level_research_context_and_candidate(self):
         report = build_ideonomy_report()
