@@ -74,6 +74,19 @@ def validate_case(data: dict[str, Any]) -> list[str]:
     scope = _obj(root["scope"], "scope", errors)
     for key in ("tradition_or_school", "community_or_context", "region", "scope_note"):
         _text(scope.get(key), f"scope.{key}", errors, 2 if key != "scope_note" else 20)
+    scope_note = scope.get("scope_note")
+    if isinstance(scope_note, str):
+        note = scope_note.lower()
+        boundary_markers = ("specific", "named", "texts", "community", "school",
+                            "period", "corpus", "case", "documented", "subset", "bounded")
+        if not any(marker in note for marker in boundary_markers):
+            errors.append("scope.scope_note must state a concrete boundary for the case")
+        broad_claims = ("all members of", "all people in", "the entire culture believes",
+                        "everyone in this culture", "a culture thinks")
+        if any(marker in note for marker in broad_claims) and not any(
+            phrase in note for phrase in ("does not generalize", "not representative", "not a claim about")
+        ):
+            errors.append("scope.scope_note must not make an unsupported whole-culture generalization")
     languages = _list(scope.get("languages"), "scope.languages", errors, 1)
     for i, lang in enumerate(languages):
         _text(lang, f"scope.languages[{i}]", errors, 2)
