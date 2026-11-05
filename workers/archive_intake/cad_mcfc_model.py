@@ -87,7 +87,15 @@ def main():
     elif data.get("kind")=="wiring": result=validate_wiring(data["connections"])
     elif data.get("kind")=="transform":
         m=validate_matrix(data["matrix"]); result={"transform":m,"mapped_point":transform_point(m,data["point"])}
-    else: raise SystemExit("kind must be simulation, wiring or transform")
+    elif data.get("kind")=="transform_points":
+        m=validate_matrix(data["matrix"]); result={"transformed_points":transform_points(m,data["points"])}
+    elif data.get("kind")=="compose":
+        result={"composed_transform":compose_frames(data["parent_from_child"],data["child_from_local"])}
+    elif data.get("kind")=="inverse":
+        result={"inverse_transform":inverse_affine(data["matrix"])}
+    elif data.get("kind")=="rigid_check":
+        result={"rigid_transform":validate_rigid(data["matrix"]),"status":"valid"}
+    else: raise SystemExit("kind must be simulation, wiring, transform, transform_points, compose, inverse or rigid_check")
     a.out.parent.mkdir(parents=True,exist_ok=True); a.out.write_text(json.dumps(result,indent=2,sort_keys=True)+"\n")
     print(json.dumps({"status":"validated_metadata_only","out":str(a.out)}))
 if __name__=="__main__": main()
