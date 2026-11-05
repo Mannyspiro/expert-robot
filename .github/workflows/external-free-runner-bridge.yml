@@ -200,8 +200,15 @@ jobs:
                       name="$1"
                       shift
                       echo "=== $name ===" | tee -a "$log"
-                      "$@" 2>&1 | tee -a "$log"
+
+                      # The exact-pin check enables errexit internally. Isolate
+                      # each check so a failure cannot terminate this dispatcher
+                      # before the structured result envelope is written.
+                      set +e
+                      ( "$@" ) 2>&1 | tee -a "$log"
                       rc=${PIPESTATUS[0]}
+                      set +e
+
                       if [ "$rc" -ne 0 ]; then
                         record_failure "$rc"
                       fi
@@ -550,6 +557,7 @@ jobs:
                     EXPERT_ROBOT_DEPLOY_KEY: __ER_SECRET_DEPLOY_KEY__
                     CACE_TO_EXPERT_ROBOT_SSH_KEY: __ER_SECRET_CACE_TO_ER__
                     EXPERT_ROBOT_DEPLOY_PRIVATE_KEY: __ER_SECRET_DEPLOY_PRIVATE__
+                    RAILWAY_SSH_PRIVATE_KEY: ${{ secrets.RAILWAY_SSH_PRIVATE_KEY }}
                   run: |
                     set -euo pipefail
 
@@ -557,6 +565,7 @@ jobs:
                     if [ -z "$key" ]; then key="${EXPERT_ROBOT_DEPLOY_KEY:-}"; fi
                     if [ -z "$key" ]; then key="${CACE_TO_EXPERT_ROBOT_SSH_KEY:-}"; fi
                     if [ -z "$key" ]; then key="${EXPERT_ROBOT_DEPLOY_PRIVATE_KEY:-}"; fi
+                    if [ -z "$key" ]; then key="${RAILWAY_SSH_PRIVATE_KEY:-}"; fi
 
                     if [ -z "$key" ]; then
                       echo "::error::No supported Expert Robot reverse deploy-key secret is configured."
@@ -653,7 +662,7 @@ jobs:
           dollar = chr(36)
           replacements = {
               "__ER_IF_RESULT_PASS__":
-                  dollar + "{{ steps.result.outputs.status == 'pass' }}",
+                  dollar + "{{ steps.result.outcome == 'success' }}",
               "__ER_SECRET_SSH_PRIVATE_KEY__":
                   dollar + "{{ secrets.EXPERT_ROBOT_SSH_PRIVATE_KEY }}",
               "__ER_SECRET_DEPLOY_KEY__":
