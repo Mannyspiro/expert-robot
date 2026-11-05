@@ -47,13 +47,15 @@ def validate_simulation(meta):
     return {**meta,"metadata_version":"1.0","status":"not_verified"}
 
 def validate_wiring(connections):
-    seen=set(); nets={}
+    pin_nets={}; nets={}
     for c in connections:
         for k in ("connection_id","from_node","from_pin","to_node","to_pin","net_name"):
             if not isinstance(c.get(k),str) or not c[k].strip(): raise ValueError("missing wiring field "+k)
-        key=(c["from_node"],c["from_pin"])
-        if key in seen: raise ValueError("output/input pin reused; declare a junction or bus explicitly")
-        seen.add(key); nets.setdefault(c["net_name"],[]).append([c["from_node"],c["from_pin"],c["to_node"],c["to_pin"]])
+        for key in ((c["from_node"],c["from_pin"]),(c["to_node"],c["to_pin"])):
+            if key in pin_nets and pin_nets[key]!=c["net_name"]:
+                raise ValueError("a component pin cannot belong to multiple nets")
+            pin_nets[key]=c["net_name"]
+        nets.setdefault(c["net_name"],[]).append([c["from_node"],c["from_pin"],c["to_node"],c["to_pin"]])
     return {"wiring_version":"1.0","connections":connections,"nets":nets}
 
 def main():
