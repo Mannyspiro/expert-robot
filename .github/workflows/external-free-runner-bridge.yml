@@ -808,7 +808,7 @@ jobs:
           retention-days: 14
 
       - name: Persist CACE evidence in Expert Robot
-        if: always()
+        if: ${{ always() && steps.await.outputs.evidence_validated == 'true' }}
         shell: bash
         env:
           REQUEST_ID: ${{ steps.package.outputs.request_id }}
