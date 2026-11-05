@@ -1,0 +1,83 @@
+name: Merlin Representation Graph Mathematics
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - ".github/workflows/merlin-representation-graph.yml"
+      - "merlin/representation_graph.py"
+      - "tests/test_merlin_representation_graph.py"
+      - "merlin/rotation_representations.py"
+      - "tests/test_merlin_rotation_representations.py"
+      - "merlin/spherical_holonomy.py"
+      - "tests/test_merlin_spherical_holonomy.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: merlin-representation-math-${{ github.event.pull_request.head.ref || github.ref_name }}-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  exact-math:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    steps:
+      - uses: actions/checkout@v4
+      - name: Record runner and commit identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          {
+            echo "repository=$GITHUB_REPOSITORY"
+            echo "commit=$GITHUB_SHA"
+            echo "run_id=$GITHUB_RUN_ID"
+            echo "run_attempt=$GITHUB_RUN_ATTEMPT"
+            echo "runner_name=$RUNNER_NAME"
+            echo "runner_os=$RUNNER_OS"
+            echo "runner_arch=$RUNNER_ARCH"
+            uname -a
+            nproc
+          } | tee artifacts/runner-identity.log
+      - name: Exact rational representation graph tests
+        shell: bash
+        run: |
+          set +e
+          python3 -m unittest discover -s tests -p "test_merlin_representation_graph.py" -v 2>&1 | tee artifacts/representation-graph-tests.log
+          code=${PIPESTATUS[0]}
+          printf '{"suite":"representation-graph","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$code" > artifacts/representation-graph-result.json
+          exit "$code"
+      - name: Rotation representation correspondence tests
+        shell: bash
+        run: |
+          set +e
+          python3 -m unittest discover -s tests -p "test_merlin_rotation_representations.py" -v 2>&1 | tee artifacts/rotation-representation-tests.log
+          code=${PIPESTATUS[0]}
+          printf '{"suite":"rotation-representations","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$code" > artifacts/rotation-representation-result.json
+          exit "$code"
+      - name: Spherical connection and holonomy tests
+        shell: bash
+        run: |
+          set +e
+          python3 -m unittest discover -s tests -p "test_merlin_spherical_holonomy.py" -v 2>&1 | tee artifacts/spherical-holonomy-tests.log
+          code=${PIPESTATUS[0]}
+          printf '{"suite":"spherical-holonomy","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$code" > artifacts/spherical-holonomy-result.json
+          exit "$code"
+      - name: Compile mathematical modules
+        shell: bash
+        run: |
+          set +e
+          python3 -m py_compile merlin/representation_graph.py merlin/rotation_representations.py merlin/spherical_holonomy.py 2>&1 | tee artifacts/math-module-compile.log
+          code=${PIPESTATUS[0]}
+          printf '{"suite":"math-module-compile","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$code" > artifacts/math-module-compile-result.json
+          exit "$code"
+      - name: Upload all test logs and results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-representation-math-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/
+          if-no-files-found: warn
+          retention-days: 14

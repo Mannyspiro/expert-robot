@@ -157,3 +157,6 @@ kernel-visible axiom dependencies for review.
 
 #check MathAI.XMG.wellFounded_of_nat_measure_decrease
 #print axioms MathAI.XMG.wellFounded_of_nat_measure_decrease
+
+#check MathAI.RepresentationInvariants.charpoly_conjugate_by_unit
+#print axioms MathAI.RepresentationInvariants.charpoly_conjugate_by_unit

@@ -3,7 +3,7 @@ from fractions import Fraction as F
 
 from merlin.representation_graph import (
     Frame, RepresentationGraph, cycle_is_identity, determinant, matrix,
-    multiply, inverse, identity,
+    multiply, inverse, identity, characteristic_polynomial,
 )
 
 
@@ -96,6 +96,26 @@ class RepresentationGraphTests(unittest.TestCase):
         self.assertTrue(cycle_is_identity(
             graph, ["canonical5", "shear5", "reverse5", "canonical5"]
         ))
+
+
+    def test_characteristic_polynomial_is_exact_and_basis_invariant(self):
+        operator = matrix([[2, 1, 0], [0, 2, 1], [0, 0, 3]])
+        expected = (F(1), F(-7), F(16), F(-12))
+        self.assertEqual(characteristic_polynomial(operator), expected)
+        frames = RepresentationGraph([
+            Frame("canonical3", identity(3)),
+            Frame("shear3", matrix([[1, 1, 0], [0, 1, 1], [0, 0, 1]])),
+            Frame("reverse3", matrix([[0, 0, 1], [0, 1, 0], [1, 0, 0]])),
+        ])
+        for frame_id in frames.frames:
+            represented = frames.represented_operator(operator, frame_id)
+            self.assertEqual(characteristic_polynomial(represented), expected)
+
+    def test_characteristic_polynomial_rejects_invalid_shapes(self):
+        with self.assertRaises(ValueError):
+            characteristic_polynomial(())
+        with self.assertRaises(ValueError):
+            characteristic_polynomial(((F(1), F(2)),))
 
     def test_mixed_dimensions_are_rejected(self):
         with self.assertRaises(ValueError):

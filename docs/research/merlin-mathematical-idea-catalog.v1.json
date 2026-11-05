@@ -619,7 +619,8 @@
         "MERLIN_MULTI_REPRESENTATION_GEOMETRY_V0.1.md",
         "merlin/representation_graph.py",
         "tests/test_merlin_representation_graph.py",
-        "Avrea run 41888718729 passed catalog validation, representation graph tests including the 5D case, and Python compile at the recorded PR-head snapshot."
+        "Avrea run 41888718729 passed catalog validation, representation graph tests including the 5D case, and Python compile at the recorded PR-head snapshot.",
+        "PR #93: exact Fraction characteristic-polynomial implementation and Avrea basis-invariance tests"
       ],
       "relations": [
         {
@@ -641,8 +642,9 @@
         "The current Avrea run checked trace/determinant invariance only in 2D; the later 5D test source has not yet been qualified."
       ],
       "next_steps": [
-        "Add exact characteristic-polynomial calculation.",
-        "Prove similarity invariance in Lean for finite matrices."
+        "Prove similarity invariance of the characteristic polynomial in Lean for finite matrices over a commutative field.",
+        "Extend the exact implementation to generalized eigenspace transport and record field-extension semantics.",
+        "Add typed real/complex field metadata and partial-domain support before claiming a general coordinate engine."
       ]
     },
     {
