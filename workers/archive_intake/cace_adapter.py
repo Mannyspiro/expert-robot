@@ -23,13 +23,14 @@ def _statuses(value):
         for item in value: found.extend(_statuses(item))
     return found
 
-def run_cace(cace_root, experiment, timeout=300, seed=0):
+def run_cace(cace_root, experiment, timeout=300, seed=0, python_executable=None):
     root=Path(cace_root).resolve(strict=True); source=Path(experiment).resolve(strict=True)
     if not source.is_file() or source.suffix.lower()!=".cace": raise ValueError("experiment must be an existing .cace file")
+    python_executable=python_executable or sys.executable
     with tempfile.TemporaryDirectory(prefix="merlin-cace-") as tmp:
         report=Path(tmp)/"report.json"
-        command=[sys.executable,"-m","cace_studio.cli","run",str(source),"--seed",str(seed),"--output",str(report)]
-        env={"PATH":os.environ.get("PATH",""),"HOME":tmp,"PYTHONPATH":str(root),
+        command=[python_executable,"-m","cace_studio.cli","run",str(source),"--seed",str(seed),"--output",str(report)]
+        env={"PATH":str(Path(python_executable).resolve().parent)+os.pathsep+os.environ.get("PATH",""),"HOME":tmp,"PYTHONPATH":str(root),
              "PYTHONNOUSERSITE":"1","LANG":"C.UTF-8"}
         proc=subprocess.run(command,cwd=root,env=env,capture_output=True,text=True,timeout=timeout,
                             check=False)
@@ -42,10 +43,11 @@ def run_cace(cace_root, experiment, timeout=300, seed=0):
           "experiment_sha256":sha256_file(source),"report_sha256":hashlib.sha256(
           json.dumps(data,sort_keys=True,separators=(",",":")).encode()).hexdigest()}
 
-def verify_attestation(cace_root, attestation_path, timeout=60):
+def verify_attestation(cace_root, attestation_path, timeout=60, python_executable=None):
     root=Path(cace_root).resolve(strict=True); source=Path(attestation_path).resolve(strict=True)
+    python_executable=python_executable or sys.executable
     command=["cace-attest","verify",str(source)]
-    env={"PATH":os.environ.get("PATH",""),"HOME":str(root),"PYTHONNOUSERSITE":"1","LANG":"C.UTF-8"}
+    env={"PATH":str(Path(python_executable).resolve().parent)+os.pathsep+os.environ.get("PATH",""),"HOME":str(root),"PYTHONNOUSERSITE":"1","LANG":"C.UTF-8"}
     proc=subprocess.run(command,cwd=root,env=env,capture_output=True,text=True,timeout=timeout,check=False)
     return {"attestation_sha256":sha256_file(source),"verification_result":"passed" if proc.returncode==0 else "failed",
       "exit_code":proc.returncode,"stdout_tail":proc.stdout[-4000:],"stderr_tail":proc.stderr[-4000:],
@@ -82,13 +84,13 @@ def persist_receipt(database, artifact_sha256, run, verifier_version):
     return {"receipt_id":rid,**receipt}
 
 def main():
-    p=argparse.ArgumentParser(); p.add_argument("--cace-root",required=True)
+    p=argparse.ArgumentParser(); p.add_argument("--cace-root",required=True); p.add_argument("--python",default=sys.executable)
     p.add_argument("--database",default="data/merlin.sqlite3"); p.add_argument("--timeout",type=int,default=300)
     p.add_argument("--verify-attestation",type=Path)
     p.add_argument("artifact_sha256",nargs="?"); p.add_argument("experiment",type=Path,nargs="?")
     p.add_argument("--seed",type=int,default=0); p.add_argument("--version",default="unreported"); a=p.parse_args()
     if a.verify_attestation:
-        result=verify_attestation(a.cace_root,a.verify_attestation,a.timeout)
+        result=verify_attestation(a.cace_root,a.verify_attestation,a.timeout,a.python)
         initialize(a.database)
         receipt=persist_attestation_receipt(a.database,result)
         print(json.dumps(receipt,indent=2))
@@ -96,7 +98,7 @@ def main():
         return
     if not a.artifact_sha256 or not a.experiment: raise SystemExit("artifact SHA and experiment path are required")
     if len(a.artifact_sha256)!=64: raise SystemExit("artifact SHA-256 required")
-    initialize(a.database); run=run_cace(a.cace_root,a.experiment,a.timeout,a.seed)
+    initialize(a.database); run=run_cace(a.cace_root,a.experiment,a.timeout,a.seed,a.python)
     if a.artifact_sha256!=run["experiment_sha256"]:
         raise SystemExit("subject artifact SHA must equal the exact CACE experiment file hash; no indirect binding is assumed")
     print(json.dumps(persist_receipt(a.database,a.artifact_sha256,run,a.version),indent=2))
