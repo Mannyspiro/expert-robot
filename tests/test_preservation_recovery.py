@@ -83,6 +83,60 @@ class PreservationRecoveryTests(unittest.TestCase):
         self.assertEqual(result["confidence"], "exact")
         self.assertEqual(self.registry.get_artifact_bytes(digest), data)
 
+    def test_hermes_recovery_queue_uses_approval_lease_and_quarantine(self):
+        outbox = MerlinEventOutbox(self.root / "outbox.sqlite3")
+        data = b"source bytes to recover"
+        digest = self.registry.put_artifact("p", "source.txt", data)
+        coordinator = RecoveryCoordinator(
+            registry=self.registry, outbox=outbox,
+            approval_validator=lambda ref, payload: ref == "approved",
+            lease_validator=lambda ref, budget: ref == "lease-1",
+            repository="Mannyspiro/expert-robot", requester_id="test-agent",
+        )
+        queued = coordinator.request(
+            task_id="restore-1", project_id="p", source="registry",
+            expected_sha256=digest, original_path="deleted/source.txt",
+            approval_ref="approved", lease_ref="lease-1",
+            resource_budget={"cpu_cores": 1, "memory_bytes": 1024,
+                             "max_wall_seconds": 30, "compute_budget_units": 1},
+        )
+        self.assertEqual(queued["state"], "pending")
+        consumed = coordinator.consume_one()
+        self.assertEqual(consumed["state"], "acknowledged")
+        result = consumed["result"]
+        self.assertEqual(result["status"], "quarantined_unverified")
+        self.assertTrue(result["recovery_path"].startswith("_recovery/"))
+        self.assertEqual(self.registry.get_artifact_bytes(digest), data)
+        self.assertEqual(
+            self.registry.get_artifact_bytes(self.registry.get_artifact_head(
+                "p", result["recovery_path"])["digest"]), data)
+
+    def test_mcfc_validator_checks_live_lease_and_budget(self):
+        from types import SimpleNamespace
+        from datetime import datetime, timezone
+        lease = SimpleNamespace(
+            resources=SimpleNamespace(cpu_cores=2, memory_bytes=4096),
+            max_wall_seconds=60, compute_budget_units=10,
+            promotion_authority=False, authority="execution_only",
+        )
+        class LeaseBook:
+            def get(self, lease_id):
+                if lease_id != "lease":
+                    raise KeyError(lease_id)
+                return lease
+            def validate_start(self, lease_id, *, now):
+                return lease_id == "lease"
+        validator = mcfc_lease_validator(
+            LeaseBook(), clock=lambda: datetime.now(timezone.utc))
+        self.assertTrue(validator("lease", {
+            "cpu_cores": 1, "memory_bytes": 1024,
+            "max_wall_seconds": 30, "compute_budget_units": 2,
+        }))
+        self.assertFalse(validator("lease", {
+            "cpu_cores": 3, "memory_bytes": 1024,
+            "max_wall_seconds": 30, "compute_budget_units": 2,
+        }))
+
     def test_wrong_digest_never_restores(self):
         archive_path = self.root / "bundle.zip"
         with zipfile.ZipFile(archive_path, "w") as archive:
