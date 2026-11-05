@@ -138,7 +138,7 @@ def main() -> int:
     result = run_ngspice(spice, timeout_seconds=30, max_memory_bytes=512 * 1024 * 1024)
     result_payload = json.loads(result["artifact_bytes"].decode("utf-8"))
     measurement = re.search(
-        r"(?im)^\s*v_mid\s*=\s*([-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?)\s*$",
+        r"(?im)^\s*mid\s+([-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?)\s*$",
         result_payload.get("log", ""),
     )
     if measurement is None:
