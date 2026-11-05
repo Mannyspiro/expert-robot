@@ -97,7 +97,7 @@ def seed_candidates() -> tuple[InventionCandidate, ...]:
     return (
         InventionCandidate(
             "titan-adaptive-compute-loom",
-            "Titan Adaptive Compute Loom",
+            "Merlin Ideonomy Invention Lab",
             "A ship computer that distributes work across specialized subsystems.",
             "A software-first, CPU-based compute fabric with a typed task graph, locality-aware scheduling, vectorized kernels, telemetry and optional accelerator adapters. Photonics and neuromorphic hardware remain future plug-in research paths.",
             ("Merlin Hermes task graph", "CPU SIMD/vector kernels", "memory-local work queues",
@@ -294,9 +294,11 @@ def build_ideonomy_report() -> dict[str, Any]:
             "score_notice": "Heuristic triage only; not a patentability, novelty, safety or performance certification.",
         },
         "titan_context": {
-            "role": "CPU-first heterogeneous compute fabric orchestrated by Merlin Hermes and governed by CACE-MCFC",
+            "role": "Cryptographic envelope and protocol research system; Merlin generates hypotheses and CACE independently verifies scoped evidence.",
             "principle": "Capability grows, authority never expands.",
-            "boundary": "No GPU-equivalence claim; no unverified photonic or neuromorphic hardware assumed.",
+            "boundary": "Published cryptographic primitives remain inside the trusted boundary; rotor, permutation and graph concepts are research models, not replacement ciphers.",
+            "baseline": ["HKDF-SHA-256", "AES-256-GCM-SIV", "authenticated canonical context metadata"],
+            "post_quantum_track": "ML-KEM integration is exploratory and must follow current NIST guidance and a published hybrid construction."
         },
         "sources": [asdict(source) for source in SOURCES],
         "ideonomy_simplex": {
@@ -312,7 +314,7 @@ def register_ideonomy_report(
     *, registry: MerlinRegistry, graph: MerlinKnowledgeGraph,
     project_id: str, logical_path: str = "research/ideonomy/future-tech-v1.json",
 ) -> dict[str, Any]:
-    """Persist the reproducible report and graph its concepts to the Titan module."""
+    """Persist the reproducible Ideonomy report and graph it to the Ideonomy module."""
     report = build_ideonomy_report()
     encoded = (json.dumps(report, sort_keys=True, separators=(",", ":"), allow_nan=False) + "\n").encode()
     digest = registry.put_artifact(project_id, logical_path, encoded,
@@ -326,7 +328,7 @@ def register_ideonomy_report(
          "schema": report["schema"]},
         evidence_class="unreviewed", source_uri="registry://sha256/" + digest,
     ))
-    titan_id = "module:titan-adaptive-compute-loom"
+    titan_id = "module:merlin:ideonomy-invention-lab"
     graph.add_node(GraphNode(
         titan_id, "module", "Titan Adaptive Compute Loom",
         {"role": report["titan_context"]["role"],
@@ -345,8 +347,8 @@ def register_ideonomy_report(
         graph.add_edge(GraphEdge(node_id, "derived_from", artifact_id,
                                  {"method": report["method"]["name"]}))
         if candidate["candidate_id"] == "titan-adaptive-compute-loom":
-            graph.add_edge(GraphEdge(titan_id, "implements", node_id,
-                                     {"relationship": "candidate architecture"}))
+            graph.add_edge(GraphEdge(titan_id, "produces", node_id,
+                                     {"relationship": "separate compute-fabric research candidate"}))
     return {"schema": "merlin-ideonomy-registration/1", "artifact_sha256": digest,
             "artifact_verified": True, "artifact_node_id": artifact_id,
             "titan_node_id": titan_id, "candidate_count": len(report["candidates"]),
