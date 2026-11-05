@@ -55,7 +55,7 @@ def verify_attestation(cace_root, attestation_path, timeout=60, python_executabl
 
 def persist_attestation_receipt(database, verification):
     receipt={"receipt_version":"1.0","subject_sha256":verification["attestation_sha256"],
-      "verifier_id":"cace-attest","verifier_version":"installed-CACE-toolchain",
+      "verifier_id":"cace-attest","verifier_version":"unreported",
       "result":verification["verification_result"],"evidence_class":"cace_attestation_signature_verification",
       "log_sha256":hashlib.sha256((verification["stdout_tail"]+verification["stderr_tail"]).encode()).hexdigest(),
       "completed_at":datetime.now(timezone.utc).isoformat(),"formal_qualification":"not_asserted",
