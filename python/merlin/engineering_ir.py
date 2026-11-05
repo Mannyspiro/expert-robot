@@ -179,6 +179,86 @@ def export_netlist(project: EngineeringProject) -> dict:
     }
 
 
+
+def export_spice_netlist(
+    project: EngineeringProject,
+    component_specs: dict[str, dict[str, str]],
+    *,
+    ground_net: str,
+    analysis: str = ".op",
+) -> str:
+    """Export an explicit, deterministic two-terminal SPICE model.
+
+    Geometry and pin connectivity never imply electrical component values.
+    Callers must provide a value and kind for every simulated part; the
+    reference designator and two IR pins define the SPICE element terminals.
+    """
+    import re
+
+    issues = validate_project(project)
+    if any(issue.severity == "error" for issue in issues):
+        raise ValueError("cannot export an invalid engineering project")
+    if analysis not in {".op", ".tran", ".ac", ".dc"}:
+        raise ValueError("unsupported SPICE analysis directive")
+    if not isinstance(component_specs, dict) or not component_specs:
+        raise ValueError("explicit component_specs are required")
+    nets = {net.name: net for net in project.nets}
+    if ground_net not in nets:
+        raise ValueError("ground_net must name an existing engineering net")
+
+    endpoint_to_net = {
+        endpoint: net.name for net in project.nets for endpoint in net.endpoints
+    }
+    node_names: dict[str, str] = {ground_net: "0"}
+    used_nodes = {"0"}
+    for net_name in sorted(nets):
+        if net_name == ground_net:
+            continue
+        base = re.sub(r"[^A-Za-z0-9_]", "_", net_name)
+        if not base or not base[0].isalpha():
+            base = "N_" + base
+        candidate = base
+        suffix = 2
+        while candidate.lower() in used_nodes:
+            candidate = f"{base}_{suffix}"
+            suffix += 1
+        node_names[net_name] = candidate
+        used_nodes.add(candidate.lower())
+
+    lines = [f"Merlin {project.name} — explicit Engineering IR SPICE export"]
+    used_refs: set[str] = set()
+    for part in sorted(project.parts, key=lambda item: item.ref):
+        spec = component_specs.get(part.ref)
+        if spec is None:
+            continue
+        if len(part.pins) != 2:
+            raise ValueError(f"{part.ref} must have exactly two pins for this SPICE exporter")
+        if not isinstance(spec, dict):
+            raise ValueError(f"{part.ref} component specification must be an object")
+        kind = spec.get("kind", "").upper()
+        value = spec.get("value", "")
+        if kind not in {"R", "C", "L", "V", "I"}:
+            raise ValueError(f"{part.ref} has unsupported SPICE component kind")
+        if not re.fullmatch(r"[0-9]+(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?(?:[TGMKmunpf]|meg)?", value):
+            raise ValueError(f"{part.ref} has an invalid SPICE value")
+        if not part.ref.upper().startswith(kind) or not re.fullmatch(r"[A-Za-z][A-Za-z0-9_]*", part.ref):
+            raise ValueError(f"{part.ref} reference must begin with its SPICE component kind")
+        if part.ref.lower() in used_refs:
+            raise ValueError("SPICE reference designators must be unique")
+        used_refs.add(part.ref.lower())
+        endpoints = [f"{part.ref}.{pin.number}" for pin in part.pins]
+        if any(endpoint not in endpoint_to_net for endpoint in endpoints):
+            raise ValueError(f"{part.ref} pins must both be assigned to engineering nets")
+        node_a, node_b = (node_names[endpoint_to_net[item]] for item in endpoints)
+        suffix = f" DC {value}" if kind in {"V", "I"} else f" {value}"
+        lines.append(f"{part.ref} {node_a} {node_b}{suffix}")
+
+    if not used_refs:
+        raise ValueError("no explicitly modelled two-terminal components were exported")
+    lines.extend([analysis, ".end"])
+    return "\\n".join(lines) + "\\n"
+
+
 def export_openscad(project: EngineeringProject) -> str:
     issues = validate_project(project)
     if any(issue.severity == "error" for issue in issues):
