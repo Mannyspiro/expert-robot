@@ -1,4 +1,4 @@
-"""Versioned, source-separated telemetry contracts for Merlin."""
+""""Versioned, source-separated telemetry contracts for Merlin."""
 from __future__ import annotations
 from dataclasses import dataclass, asdict
 from datetime import datetime, timezone
@@ -7,9 +7,14 @@ from typing import Any, Mapping
 from uuid import uuid4
 
 SOURCES = {"runtime", "simulation", "model_output", "verifier", "operator"}
-KINDS = {"task.started", "task.progress", "task.completed", "agent.status",
-         "model.inference", "verification.completed", "resource.sample",
-         "decision.trace", "operator.action", "system.error"}
+KINDS = {
+    "task.started", "task.progress", "task.completed", "agent.status",
+    "model.inference", "verification.completed", "resource.sample",
+    "decision.trace", "operator.action", "system.error",
+    "research.stage", "agent.tool.started", "agent.tool.completed",
+    "artifact.registered", "experiment.completed", "proof.checked",
+    "hypothesis.updated", "outbox.acknowledged",
+}
 
 @dataclass(frozen=True)
 class TelemetryEvent:
