@@ -24,11 +24,19 @@ def _canonical(value: Any) -> str:
 class CaceVerificationAdapter:
     def __init__(self, *, verify_transport: Callable[[dict[str, Any]], Mapping[str, Any]] | None,
                  registry: MerlinRegistry, outbox: MerlinEventOutbox,
-                 graph: MerlinKnowledgeGraph | None = None):
+                 graph: MerlinKnowledgeGraph | None = None,
+                 signed_artifact_receipt_verifier: Callable[[Mapping[str, Any], Mapping[str, Any]], Mapping[str, Any]] | None = None,
+                 require_signed_artifact_receipts: bool = False):
         self.verify_transport = verify_transport
         self.registry = registry
         self.outbox = outbox
+        if not isinstance(require_signed_artifact_receipts, bool):
+            raise ValueError("require_signed_artifact_receipts must be boolean")
+        if require_signed_artifact_receipts and not callable(signed_artifact_receipt_verifier):
+            raise ValueError("production artifact verification requires a signed CACE receipt verifier")
         self.graph = graph
+        self.signed_artifact_receipt_verifier = signed_artifact_receipt_verifier
+        self.require_signed_artifact_receipts = require_signed_artifact_receipts
         self.emit_event = agent_event_sink(outbox, "cace")
 
     def _verified_artifact_bytes(self, digest: str) -> bytes:
@@ -191,7 +199,12 @@ class CaceVerificationAdapter:
     def verify_artifact(self, *, project_id: str, repository: str, commit_sha: str,
                         artifact_sha256: str, artifact_kind: str,
                         artifact_schema: str, requester_id: str,
-                        logical_path: str) -> dict[str, Any]:
+                        logical_path: str,
+                        workflow_run_id: int | None = None,
+                        provider_commit: str | None = None,
+                        vector_source_commit: str | None = None,
+                        verification_scope: str | None = None,
+                        claim_id: str | None = None) -> dict[str, Any]:
         """Independently attest a non-theorem artifact and store its signed receipt."""
         if self.verify_transport is None:
             raise RuntimeError("CACE verification transport is not configured")
@@ -221,9 +234,33 @@ class CaceVerificationAdapter:
             "artifact_size_bytes": len(artifact_bytes),
             "artifact_content_base64": base64.b64encode(artifact_bytes).decode("ascii"),
         }
+        if self.signed_artifact_receipt_verifier is not None or self.require_signed_artifact_receipts:
+            if not isinstance(workflow_run_id, int) or isinstance(workflow_run_id, bool) or workflow_run_id <= 0:
+                raise ValueError("signed CACE receipts require a positive workflow_run_id")
+            for value, label in ((provider_commit, "provider_commit"),
+                                 (vector_source_commit, "vector_source_commit")):
+                if not isinstance(value, str) or len(value) != 40 or any(c not in "0123456789abcdef" for c in value):
+                    raise ValueError(label + " must be a lowercase 40-character Git SHA")
+            for value, label in ((verification_scope, "verification_scope"),
+                                 (claim_id, "claim_id")):
+                if not isinstance(value, str) or not value.strip():
+                    raise ValueError(label + " is required for signed CACE receipts")
+            request.update({
+                "workflow_run_id": workflow_run_id,
+                "provider_commit": provider_commit,
+                "vector_source_commit": vector_source_commit,
+                "verification_scope": verification_scope,
+                "claim_id": claim_id,
+            })
         response = self.verify_transport(request)
         if not isinstance(response, Mapping):
             raise TypeError("CACE artifact verifier must return a mapping receipt")
+        if self.signed_artifact_receipt_verifier is not None:
+            response = self.signed_artifact_receipt_verifier(request, response)
+            if not isinstance(response, Mapping):
+                raise TypeError("signed CACE receipt verifier must return a mapping receipt")
+        elif self.require_signed_artifact_receipts:
+            raise RuntimeError("signed CACE artifact receipt verifier is required")
         receipt = dict(response)
         if receipt.get("schema") != "cace-artifact-verification/1":
             raise ValueError("unsupported CACE artifact receipt schema")
