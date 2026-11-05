@@ -171,16 +171,18 @@ It runs actionlint against the CI and external bridge workflows and uploads the 
 
 **Engineering IR and CAD**
 - `engineering_ir.py` is the typed source of truth for parts, pin geometry, pin ratings, nets and endpoint connectivity. Invalid or out-of-range projects cannot be exported.
-- `freecad_bridge.py` creates a FreeCAD macro, FCStd/STEP output targets, and a validated wiring sidecar. `freecad_document_bridge.py` creates bounded FCStd/STEP import macros that export provenance-labelled meshes and can register those artifacts into the canonical registry and knowledge graph.
-- `export_spice_netlist` requires explicit per-component kind/value mappings and a declared ground net; it does not infer electrical values from CAD geometry. The current deterministic exporter supports two-terminal R/C/L/V/I components and operating-point analysis.
-- `ngspice_engine.py` rejects shell/control/include/external-file directives, applies a wall-time timeout, and now requires `prlimit` to enforce the configured virtual address-space limit.
-- `.github/workflows/engineering-integration.yml` runs a deterministic Engineering IR → FreeCAD macro/netlist → ngspice smoke on the Avrea runner and uploads the netlist, result, macro and SHA-256 manifest. Macro generation is covered by CI; FreeCAD desktop runtime execution is not yet claimed.
+- `freecad_bridge.py` creates a FreeCAD macro, FCStd/STEP output targets, and a validated wiring sidecar. `freecad_document_bridge.py` imports the generated STEP file in headless FreeCAD, exports a bounded provenance-labelled mesh, and registers that artifact into the canonical registry and knowledge graph.
+- `export_spice_netlist` requires explicit per-component kind/value mappings and a declared ground net; it does not infer electrical values from CAD geometry. The deterministic exporter supports two-terminal R/C/L/V/I components and operating-point analysis. Requested operating-point node values are checked against ngspice's native result table.
+- `ngspice_engine.py` rejects shell/control/include/external-file directives, applies a wall-time timeout, and requires `prlimit` to enforce the configured virtual address-space limit.
+- **Verified full engineering integration (2026-11-05):** workflow run `42069240351` installed checksum-pinned FreeCAD 1.1.4 AppImage and ngspice 42 on Avrea; generated `merlin_project.FCStd` and `merlin_project.step`, imported the STEP file, produced a mesh (32 vertices / 72 faces), and registered it in the canonical registry/graph as `artifact:2a7e6c495e3693e91ac93d203678030e`. ngspice returned exit 0 and measured the divider midpoint as exactly `2.5 V` (expected 2.5 V). Netlist SHA-256: `0708de6ef700121adacf0b1f799acc0a677da2a6bba53704bd4959c5913ea9fe`; ngspice result SHA-256: `3a5e01e70fc5fe8d3ce33d89208178908a936a907bf7be7107c00322363c23cc`. Evidence artifact `13433224922`, SHA-256 `14fe49cca132007ce4f1fd9e1e3507bb82f5c7e693f556916c4ea35786a374e8`. Promotion authority remains false.
+- `.github/workflows/engineering-integration.yml` runs the reproducible Engineering IR → FreeCAD → SPICE → ngspice smoke on Avrea and uploads the source netlist, FCStd/STEP files, imported mesh, registry/graph snapshots, result and SHA-256 manifest.
 
 **Read-only research dashboard**
 - `MerlinReadAPI` composes the canonical project registry, hypothesis ledger, knowledge graph and event outbox; it does not create shadow stores or mutate research state.
-- `HudActivityWSGI` exposes GET-only `/api/hud/activity`, `/api/hud/graph` and `/api/hud/node` endpoints. HTTP reads do not acknowledge outbox events. The optional event pump is a separate local projection consumer.
+- `HudActivityWSGI` serves a browser view at `/dashboard` and GET-only APIs: `/api/hud/activity`, `/api/hud/graph`, `/api/hud/node`, `/api/hud/projects`, `/api/hud/project`, `/api/hud/hypotheses`, and `/api/hud/outbox`. The browser uses GET requests only and renders data with text nodes, not injected HTML. HTTP reads do not acknowledge outbox events; the optional event pump is a separate local projection consumer.
+- The project index is bounded and includes canonical artifact counts; project detail verifies artifact content hashes before displaying metadata. The graph, hypotheses and outbox views are all sourced from the same injected canonical stores.
 - `build_hud_runtime` must receive the actual canonical store instances. The host application remains responsible for authentication, authorization, TLS and loopback/network binding; do not expose the HUD publicly without those controls.
-- Registry query, HUD runtime, node/graph and outbox read-only contracts are covered by the Expert Robot CI suite.
+- Registry query, HUD runtime, node/graph, dashboard and outbox read-only contracts are covered by the Expert Robot CI suite.
 
 ## 8. How an AI agent should operate this system
 
