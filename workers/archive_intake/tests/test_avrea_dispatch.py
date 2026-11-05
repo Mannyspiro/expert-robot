@@ -1,3 +1,6 @@
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import hashlib, json, unittest
 from avrea_dispatch import validate_task,DispatchRejected,canonical_sha
 class AvreaDispatchTests(unittest.TestCase):
