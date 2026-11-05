@@ -30,7 +30,7 @@ jobs:
           mkdir -p artifacts
           cat > "$RUNNER_TEMP/expert-robot-ci-capture.sh" <<'SH'
           mkdir -p "$GITHUB_WORKSPACE/artifacts"
-          printf '\\n===== CI RUN STEP %s =====\\n' "${GITHUB_ACTION:-unknown}" >> "$GITHUB_WORKSPACE/artifacts/ci-step-logs.log"
+          printf '\n===== CI RUN STEP %s =====\\n' "${GITHUB_ACTION:-unknown}" >> "$GITHUB_WORKSPACE/artifacts/ci-step-logs.log"
           exec > >(tee -a "$GITHUB_WORKSPACE/artifacts/ci-step-logs.log") 2>&1
           SH
           printf 'BASH_ENV=%s\n' "$RUNNER_TEMP/expert-robot-ci-capture.sh" >> "$GITHUB_ENV"
