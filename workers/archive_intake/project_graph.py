@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse, hashlib, json, sys
 from pathlib import Path
 from register_inventory import RegistryError, validate_manifest
+from canonical_registry import get_github_receipt
 
 def _id(kind: str, value: str) -> str:
     digest=hashlib.sha256((kind+"\0"+value).encode("utf-8")).hexdigest()
@@ -55,11 +56,12 @@ def build_graph(manifest: dict, project_id: str, commit_receipt: dict | None = N
 def main():
     parser=argparse.ArgumentParser(description="Export a local Merlin provenance graph; no graph service is contacted.")
     parser.add_argument("manifest",type=Path); parser.add_argument("--project-id",required=True)
-    parser.add_argument("--github-receipt",type=Path); parser.add_argument("--out",type=Path,required=True)
+    parser.add_argument("--github-receipt-id"); parser.add_argument("--database",default="data/merlin.sqlite3")
+    parser.add_argument("--out",type=Path,required=True)
     args=parser.parse_args()
     try:
         data=json.loads(args.manifest.read_text(encoding="utf-8"))
-        receipt=json.loads(args.github_receipt.read_text(encoding="utf-8")) if args.github_receipt else None
+        receipt=get_github_receipt(args.database,args.github_receipt_id,args.project_id) if args.github_receipt_id else None
         graph=build_graph(data,args.project_id,receipt)
         args.out.parent.mkdir(parents=True,exist_ok=True)
         args.out.write_text(json.dumps(graph,indent=2,sort_keys=True)+"\n",encoding="utf-8")
