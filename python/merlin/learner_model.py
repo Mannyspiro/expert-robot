@@ -215,3 +215,20 @@ def hermes_learning_handler(store: LearnerStore, graph: Mapping[str,Any],
                     **select_next_lesson(learner,store,graph,lessons)}
         raise ValueError("unsupported learning event topic")
     return handle
+
+
+class HermesLearningRouter:
+    """Route durable learner events through Hermes' existing leased outbox protocol."""
+    def __init__(self, outbox: Any, store: LearnerStore,
+                 graph: Mapping[str,Any], lessons: list[Mapping[str,Any]],
+                 worker_id: str = "hermes-learning"):
+        from .hermes_outbox import HermesOutboxConsumer
+        self.consumer=HermesOutboxConsumer(outbox)
+        self.handler=hermes_learning_handler(store,graph,lessons)
+        self.worker_id=worker_id
+
+    def run_once(self) -> dict[str,Any] | None:
+        return self.consumer.consume_one(
+            self.worker_id, self.handler,
+            topics=(ATTEMPT_TOPIC,"merlin.learning.recommendation"),
+            lease_seconds=30,retry_delay_seconds=2,max_attempts=3)
