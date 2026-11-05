@@ -68,16 +68,35 @@ jobs:
           curl --fail --location --retry 3 "https://github.com/FreeCAD/FreeCAD/releases/download/1.1.4/$asset" --output "$appimage"
           echo "$expected  $appimage" | sha256sum --check -
           chmod +x "$appimage"
+          (
+            cd "$RUNNER_TEMP"
+            "$appimage" --appimage-extract >/dev/null
+          )
+          appdir="$RUNNER_TEMP/squashfs-root"
+          freecad_cmd_real="$(find "$appdir" \\( -type f -o -type l \\) \\( -name FreeCADCmd -o -name freecadcmd \\) -print -quit 2>/dev/null || true)"
+          if [ -n "$freecad_cmd_real" ]; then
+            echo "Found FreeCAD command-line executable: $freecad_cmd_real"
+          else
+            echo "No separate FreeCADCmd binary in AppImage; using AppImage console mode."
+          fi
           cat > "$RUNNER_TEMP/freecadcmd" <<'SH'
           #!/usr/bin/env bash
           set -euo pipefail
           export QT_QPA_PLATFORM=offscreen
           export FREECAD_USER_HOME="${RUNNER_TEMP:-/tmp}/freecad-user"
           mkdir -p "$FREECAD_USER_HOME"
+          if [ -n "${MERLIN_FREECAD_CMD_REAL:-}" ]; then
+            export APPDIR="${MERLIN_FREECAD_APPDIR}"
+            export LD_LIBRARY_PATH="$APPDIR/usr/lib:$APPDIR/usr/lib/freecad/lib:${LD_LIBRARY_PATH:-}"
+            export PYTHONPATH="$APPDIR/usr/lib/freecad/lib:$APPDIR/usr/lib/freecad/Mod:${PYTHONPATH:-}"
+            exec "$MERLIN_FREECAD_CMD_REAL" "$@"
+          fi
           exec "$MERLIN_FREECAD_APPIMAGE" --appimage-extract-and-run --console --platform offscreen "$@"
           SH
           chmod +x "$RUNNER_TEMP/freecadcmd"
           echo "MERLIN_FREECAD_APPIMAGE=$appimage" >> "$GITHUB_ENV"
+          echo "MERLIN_FREECAD_APPDIR=$appdir" >> "$GITHUB_ENV"
+          echo "MERLIN_FREECAD_CMD_REAL=$freecad_cmd_real" >> "$GITHUB_ENV"
           echo "FREECAD_CMD=$RUNNER_TEMP/freecadcmd" >> "$GITHUB_ENV"
           echo "FreeCAD 1.1.4 AppImage checksum verified: $asset"
 
@@ -94,6 +113,7 @@ jobs:
           test -s artifacts/engineering-ngspice/freecad-mesh.json
           test -s artifacts/engineering-ngspice/freecad-registration.json
           test -s artifacts/engineering-ngspice/ngspice-result.json
+          test -s artifacts/engineering-ngspice/ngspice-measurement.json
           test -s artifacts/engineering-ngspice/canonical-registry/merlin.sqlite3
           test -s artifacts/engineering-ngspice/canonical-graph.sqlite3
           echo "engineering_integration=PASS"
