@@ -36,7 +36,7 @@ def fuzzyGodelAnd (a b : FuzzyDegree) : FuzzyDegree :=
 def fuzzyProductAnd (a b : FuzzyDegree) : FuzzyDegree :=
   ⟨a.1 * b.1,
     ⟨mul_nonneg a.2.1 b.2.1,
-      by nlinarith [mul_nonneg (1 - a.1) (1 - b.1)]⟩⟩
+      by nlinarith [mul_nonneg a.2.1 (1 - b.1)]⟩⟩
 
 /-- Łukasiewicz t-norm: max(0, a + b - 1). -/
 def fuzzyLukasiewiczAnd (a b : FuzzyDegree) : FuzzyDegree :=
