@@ -65,6 +65,25 @@ class HudRuntimeTests(unittest.TestCase):
         self.assertEqual(response["status"], "200 OK")
         self.assertEqual(self.outbox.counts()["pending"], before)
 
+    def test_mounted_dashboard_serves_read_only_browser_view(self):
+        runtime = build_hud_runtime(
+            registry=self.registry, graph=self.graph, outbox=self.outbox,
+        )
+        def host(environ, start_response):
+            start_response("200 OK", [("Content-Type", "text/plain")])
+            return [b"host"]
+        mounted = mount_hud_runtime(host, runtime)
+        response = {}
+        def start(status, headers):
+            response["status"] = status
+            response["headers"] = dict(headers)
+        body = b"".join(mounted(
+            {"PATH_INFO": "/dashboard", "REQUEST_METHOD": "GET"}, start
+        )).decode("utf-8")
+        self.assertEqual(response["status"], "200 OK")
+        self.assertIn("Merlin Research HUD", body)
+        self.assertIn("/api/hud/node?node_id=", body)
+
     def test_mount_preserves_host_routes(self):
         runtime = build_hud_runtime(
             registry=self.registry, graph=self.graph, outbox=self.outbox,
