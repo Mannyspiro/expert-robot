@@ -342,14 +342,13 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     self._send(400, {"error": "learner_id_required"})
                     return
                 if path == "/api/learning/recommendation":
-                    if learning_router is not None:
+                    result = select_next_lesson(learner_id, learner_store, learning_graph, learning_lessons)
+                    if learning_outbox is not None:
                         minute = int(datetime.now(timezone.utc).timestamp() // 60)
                         learning_outbox.enqueue("learning-recommendation:" + learner_id + ":" + str(minute),
                             "merlin.learning.recommendation", {"learner_id": learner_id})
-                        routed = learning_router.run_once()
-                        result = routed.get("result", {}) if routed else {}
-                    else:
-                        result = select_next_lesson(learner_id, learner_store, learning_graph, learning_lessons)
+                        if learning_router is not None:
+                            learning_router.run_once()
                     self._send(200, {"schema": "merlin-learning-recommendation/1", **result})
                 else:
                     estimates = {}
@@ -381,13 +380,12 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     raise ValueError("request body must be a JSON object")
 
                 if path == "/api/learning/attempt":
-                    if learning_router is not None:
+                    result = learner_store.record_attempt(data)
+                    if learning_outbox is not None:
                         learning_outbox.enqueue("learning-attempt:" + str(data.get("attempt_id", "")),
                             "merlin.learning.attempt", data)
-                        routed = learning_router.run_once()
-                        result = routed.get("result", {}) if routed else {"state": "queued"}
-                    else:
-                        result = learner_store.record_attempt(data)
+                        if learning_router is not None:
+                            learning_router.run_once()
                     store.append(path, {"attempt_id": data.get("attempt_id"),
                                         "learner_id": data.get("learner_id")},
                                  {"state": result.get("state"), "idea_id": data.get("idea_id"),
