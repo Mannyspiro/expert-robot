@@ -69,8 +69,30 @@ def main() -> int:
 
     dag, dag_current, dag_peak, dag_seconds = retained_bytes(build_dag)
     dag_stats = arena_holder["arena"].stats(dag)
+    direct_arena_holder = {}
+
+    def build_direct_dag():
+        arena = ExprArena(max_nodes=args.depth + 2)
+
+        def build(depth):
+            if depth == 0:
+                return arena.make("identity", (), INT, INT)
+            child = build(depth - 1)
+            return arena.make("compose", (child, child), INT, INT)
+
+        result = build(args.depth)
+        direct_arena_holder["arena"] = arena
+        return result
+
+    direct_dag, direct_current, direct_peak, direct_seconds = retained_bytes(
+        build_direct_dag
+    )
+    direct_stats = direct_arena_holder["arena"].stats(direct_dag)
     reduction = (
         1.0 - dag_current / raw_current if raw_current else 0.0
+    )
+    direct_reduction = (
+        1.0 - direct_current / raw_current if raw_current else 0.0
     )
     payload = {
         "schema": "merlin.mir-dag-benchmark/1",
@@ -88,7 +110,15 @@ def main() -> int:
             "construction_seconds": dag_seconds,
             "arena_capacity": args.depth + 2,
         },
+        "direct_dag": {
+            **direct_stats,
+            "retained_tracemalloc_bytes": direct_current,
+            "peak_tracemalloc_bytes": direct_peak,
+            "construction_seconds": direct_seconds,
+            "arena_capacity": args.depth + 2,
+        },
         "retained_memory_reduction_fraction": reduction,
+        "direct_dag_retained_memory_reduction_fraction": direct_reduction,
         "interpretation": (
             "Synthetic repeated-subexpression benchmark only. It measures "
             "Python allocation behavior for this constructed workload; it "
