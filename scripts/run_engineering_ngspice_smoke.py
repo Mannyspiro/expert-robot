@@ -137,10 +137,9 @@ def main() -> int:
 
     result = run_ngspice(spice, timeout_seconds=30, max_memory_bytes=512 * 1024 * 1024)
     result_payload = json.loads(result["artifact_bytes"].decode("utf-8"))
-    ngspice_log = re.sub(r"\\x1b\\[[0-9;]*m", "", result_payload.get("log", ""))
     measurement = re.search(
-        r"(?im)^\\s*mid\\s+([-+]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:e[+-]?\\d+)?)",
-        ngspice_log,
+        r"(?im)^\s*mid\s+([-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?)\s*$",
+        result_payload.get("log", ""),
     )
     if measurement is None:
         raise RuntimeError("ngspice did not emit the expected MID node voltage in ngspice operating-point table")
