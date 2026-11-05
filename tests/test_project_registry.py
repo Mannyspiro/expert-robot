@@ -100,6 +100,38 @@ class MerlinRegistryTests(unittest.TestCase):
         self.assertEqual(result["manifest_digest"], manifest_digest)
         self.assertEqual(result["manifest"], manifest)
 
+    def test_legacy_registry_migrates_without_losing_existing_artifact_heads(self):
+        root = Path(self.temp.name) / "legacy"
+        blob = b"legacy preserved bytes"
+        digest = __import__("hashlib").sha256(blob).hexdigest()
+        relative = f"blobs/sha256/{digest[:2]}/{digest[2:]}"
+        target = root / relative
+        target.parent.mkdir(parents=True)
+        target.write_bytes(blob)
+        database = root / "merlin.sqlite3"
+        database.parent.mkdir(parents=True, exist_ok=True)
+        with sqlite3.connect(database) as db:
+            db.executescript("""
+                CREATE TABLE projects(project_id TEXT PRIMARY KEY, name TEXT NOT NULL,
+                  version TEXT NOT NULL, metadata_json TEXT NOT NULL, created_at REAL NOT NULL);
+                CREATE TABLE artifacts(digest TEXT PRIMARY KEY, media_type TEXT NOT NULL,
+                  size_bytes INTEGER NOT NULL, relative_path TEXT NOT NULL, created_at REAL NOT NULL);
+                CREATE TABLE project_artifacts(project_id TEXT NOT NULL, digest TEXT NOT NULL,
+                  logical_path TEXT NOT NULL, PRIMARY KEY(project_id, logical_path));
+            """)
+            db.execute("INSERT INTO projects VALUES(?,?,?,?,?)",
+                       ("legacy", "Legacy", "0.1.0", "{}", 1.0))
+            db.execute("INSERT INTO artifacts VALUES(?,?,?,?,?)",
+                       (digest, "text/plain", len(blob), relative, 1.0))
+            db.execute("INSERT INTO project_artifacts VALUES(?,?,?)",
+                       ("legacy", digest, "keep.txt"))
+        migrated = MerlinRegistry(root)
+        self.assertEqual(migrated.get_artifact_bytes(digest), blob)
+        head = migrated.get_artifact_head("legacy", "keep.txt")
+        self.assertEqual(head["digest"], digest)
+        self.assertEqual(head["generation"], 1)
+        self.assertEqual(migrated.artifact_history("legacy", "keep.txt")[0]["actor"], "migration")
+
     def test_relation_identity_is_idempotent_and_immutable(self):
         self.registry.relate("p", "contains", "artifact:x", {"scope": "v1"})
         self.registry.relate("p", "contains", "artifact:x", {"scope": "v1"})
