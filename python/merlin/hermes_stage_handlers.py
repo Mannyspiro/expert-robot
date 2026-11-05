@@ -79,6 +79,7 @@ def build_hermes_stage_handlers(
     commit_sha: str,
     requester_id: str,
     electrical_executor: Callable[[Mapping[str, Any], Any], Mapping[str, Any]] | None = None,
+    theorem_verifier: Callable[..., Mapping[str, Any]] | None = None,
 ) -> dict[str, Callable[[Mapping[str, Any], Any], Mapping[str, Any]]]:
     """Build stage handlers that record artifacts and obtain independent CACE receipts.
 
@@ -156,6 +157,33 @@ def build_hermes_stage_handlers(
             cace_result = dict(cace_result)
             if cace_result.get("artifact_sha256") != digest:
                 raise ValueError("CACE result does not bind the submitted artifact digest")
+            theorem_receipts = []
+            theorem_claims = output["metadata"].get("theorem_claims", [])
+            if theorem_claims:
+                if theorem_verifier is None:
+                    raise RuntimeError("compiled theorem claims require an independent CACE theorem verifier")
+                if not isinstance(theorem_claims, list):
+                    raise TypeError("theorem_claims metadata must be a list")
+                for claim in theorem_claims:
+                    if not isinstance(claim, Mapping):
+                        raise TypeError("each theorem claim must be an object")
+                    if claim.get("compilation_status") != "compiled":
+                        continue
+                    theorem = claim.get("formal_statement")
+                    if not isinstance(theorem, str) or not theorem.strip():
+                        raise ValueError("compiled theorem claim is missing its exact formal statement")
+                    theorem_result = theorem_verifier(
+                        project_id=project_id, repository=repository,
+                        commit_sha=commit_sha, artifact_sha256=digest,
+                        theorem=theorem, requester_id=requester_id,
+                        logical_path=logical_path,
+                    )
+                    if not isinstance(theorem_result, Mapping):
+                        raise TypeError("CACE theorem verifier must return a receipt result")
+                    theorem_result = dict(theorem_result)
+                    if theorem_result.get("artifact_sha256") != digest:
+                        raise ValueError("CACE theorem receipt is not bound to the exact stored artifact")
+                    theorem_receipts.append(theorem_result)
             receipt_digest = cace_result.get("receipt_artifact_sha256")
             evidence_refs = ["sha256:" + digest]
             if isinstance(receipt_digest, str) and len(receipt_digest) == 64:
@@ -182,6 +210,7 @@ def build_hermes_stage_handlers(
                 },
                 "graph_edge": recorded["graph_edge"],
                 "cace_verification": cace_result,
+                "cace_theorem_receipts": theorem_receipts,
                 "evidence_refs": evidence_refs,
                 "hypothesis_status_unchanged": recorded["hypothesis_status_unchanged"],
                 "promotion_authority": False,
