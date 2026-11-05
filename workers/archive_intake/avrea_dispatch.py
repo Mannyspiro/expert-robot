@@ -12,10 +12,14 @@ class AvreaProvider(Protocol):
     def submit(self, task: dict, approval: dict) -> dict: ...
     def fetch_result(self, provider_job_id: str) -> dict: ...
 
-def canonical_sha(value): return hashlib.sha256(json.dumps(value,sort_keys=True,separators=(",",":")).encode()).hexdigest()
+def canonical_sha(value):
+    payload=dict(value) if isinstance(value,dict) else value
+    if isinstance(payload,dict): payload.pop("task_contract_sha256",None)
+    return hashlib.sha256(json.dumps(payload,sort_keys=True,separators=(",",":")).encode()).hexdigest()
 def validate_task(task,approval,policy):
     if task.get("contract_version")!="1.0": raise DispatchRejected("unsupported task contract")
     digest=canonical_sha(task)
+    if task.get("task_contract_sha256")!=digest: raise DispatchRejected("task_contract_sha256 does not match canonical task body")
     if approval.get("status")!="approved" or approval.get("approval_id")!=task.get("approval_id"):
         raise DispatchRejected("explicit matching approval is required")
     if approval.get("task_contract_sha256")!=digest: raise DispatchRejected("approval does not bind exact task contract")
@@ -36,6 +40,8 @@ def record_approval(database,approval):
     required=("approval_id","task_contract_sha256","approved_by","approval_source","approved_at")
     if any(not isinstance(approval.get(k),str) or not approval[k].strip() for k in required):
         raise DispatchRejected("approval record is incomplete")
+    if approval.get("status")!="approved":
+        raise DispatchRejected("approval status must be approved")
     if len(approval["task_contract_sha256"])!=64:
         raise DispatchRejected("approval must bind a SHA-256 task contract digest")
     with connect(database) as db:
@@ -55,6 +61,9 @@ def submit(database,task,approval,policy,provider=None):
         db.execute("INSERT OR IGNORE INTO avrea_tasks VALUES(?,?,?,?,?,?,?,?)",
           (task_id,digest,approval["approval_id"],"approved",json.dumps(task,sort_keys=True),None,now,now))
     if provider is None:
+        with connect(database) as db:
+            db.execute("UPDATE avrea_tasks SET state='approved_waiting_for_provider',updated_at=? WHERE task_id=?",
+              (datetime.now(timezone.utc).isoformat(),task_id))
         return {"task_id":task_id,"state":"approved_waiting_for_provider","task_contract_sha256":digest}
     response=provider.submit(task,approval)
     if not response.get("provider_job_id"): raise DispatchRejected("provider omitted job identity")
@@ -72,6 +81,12 @@ def collect(database,task_id,provider):
     manifest=result.get("result_manifest")
     if not isinstance(manifest,dict) or not isinstance(manifest.get("artifacts"),list):
         raise DispatchRejected("provider result must include artifact manifest")
+    for artifact in manifest["artifacts"]:
+        sha=artifact.get("sha256") if isinstance(artifact,dict) else None
+        if not isinstance(sha,str) or not re.fullmatch(r"[0-9a-f]{64}",sha):
+            raise DispatchRejected("result artifact is missing a valid SHA-256")
+        if not isinstance(artifact.get("uri"),str) or not artifact["uri"]:
+            raise DispatchRejected("result artifact is missing its retrieval URI")
     digest=canonical_sha(result)
     with connect(database) as db:
         db.execute("UPDATE avrea_tasks SET state='completed',result_json=?,updated_at=? WHERE task_id=?",
