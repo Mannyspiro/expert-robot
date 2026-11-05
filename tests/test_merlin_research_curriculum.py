@@ -2,8 +2,9 @@ import unittest
 
 from merlin.research_curriculum import (
     DOMAIN_FAMILIES, ROLES, CurriculumUnit, build_training_plan,
-    validate_training_record,
+    curriculum_unit_to_prompt_task, validate_training_record,
 )
+from merlin.prompt_contract import PromptCompiler
 
 
 class UniversalResearchCurriculumTests(unittest.TestCase):
@@ -30,6 +31,20 @@ class UniversalResearchCurriculumTests(unittest.TestCase):
         self.assertIn("research.teaching", ids)
         self.assertIn("research.project_management", ids)
         self.assertIn("research.interdisciplinary_translation", ids)
+
+    def test_curriculum_unit_compiles_to_existing_merlin_prompt_contract(self):
+        unit = build_training_plan("coder_teacher", "computer_science_ai")[0]
+        task = curriculum_unit_to_prompt_task(
+            unit, task_id="curriculum-coder-001", recipient="hermes.research",
+            resource_limits={"cpu_cores": 1, "memory_bytes": 268435456,
+                             "max_wall_seconds": 90, "compute_budget_units": 50},
+            tool_allowlist=("read_only_repository",),
+        )
+        compiled = PromptCompiler().compile(task)
+        self.assertEqual(compiled.schema, "merlin-engineered-prompt/1")
+        self.assertEqual(compiled.authority_scope, "draft_only")
+        self.assertIn(unit.unit_id, compiled.prompt_text)
+        self.assertIn("Do not claim competency mastery", compiled.prompt_text)
 
     def test_unknown_role_and_domain_are_rejected(self):
         with self.assertRaises(ValueError):
