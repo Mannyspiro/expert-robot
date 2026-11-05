@@ -216,20 +216,35 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                  learning_outbox: MerlinEventOutbox | None = None):
     simulation = MerlinSimulation()
     learner_store = learner_store or LearnerStore(store.path)
-    learning_graph = {
-        "planar-rotation": {"prerequisites": [], "dimensions": ["recognition", "conceptual_explanation", "procedure", "representation_translation", "transfer"]},
-        "complex-multiplication": {"prerequisites": ["planar-rotation"], "dimensions": ["conceptual_explanation", "procedure", "representation_translation"]},
-        "rotor-representations": {"prerequisites": ["planar-rotation"], "dimensions": ["conceptual_explanation", "representation_translation", "transfer"]},
-        "ml-foundations": {"prerequisites": [], "dimensions": ["recognition", "conceptual_explanation", "procedure", "transfer"]},
-        "agentic-workflows": {"prerequisites": ["ml-foundations"], "dimensions": ["conceptual_explanation", "procedure", "transfer", "proof_justification"]},
-    }
-    learning_lessons = [
-        {"lesson_id": "rotation-four-representations-v0.1", "idea_id": "planar-rotation"},
-        {"lesson_id": "complex-multiplication-rotation-v0.1", "idea_id": "complex-multiplication"},
-        {"lesson_id": "quaternion-ga-rotors-v0.1", "idea_id": "rotor-representations"},
-        {"lesson_id": "b2b-ml-foundations-v0.1", "idea_id": "ml-foundations"},
-        {"lesson_id": "b2b-agentic-workflows-v0.1", "idea_id": "agentic-workflows"},
-    ]
+    repo_root = Path(__file__).resolve().parents[2]
+    catalog_path = Path(os.environ.get("MERLIN_MATH_IDEA_CATALOG",
+        str(repo_root / "docs" / "research" / "merlin-mathematical-idea-catalog.v1.json")))
+    learning_graph: dict[str, Any] = {}
+    learning_lessons: list[dict[str, Any]] = []
+    if catalog_path.is_file():
+        catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+        for idea in catalog.get("ideas", []):
+            learning = idea.get("learning")
+            if not isinstance(learning, dict):
+                continue
+            idea_id = idea.get("id")
+            lesson_id = learning.get("lesson_id")
+            dimensions = learning.get("dimensions", [])
+            prerequisites = learning.get("prerequisites", [])
+            if not isinstance(idea_id, str) or not isinstance(lesson_id, str):
+                continue
+            learning_graph[idea_id] = {"prerequisites": prerequisites, "dimensions": dimensions}
+            learning_lessons.append({"lesson_id": lesson_id, "idea_id": idea_id,
+                                     "curriculum_id": "mathematics"})
+    # B2B competency nodes are separate from mathematical idea records.
+    learning_graph.update({
+        "B2B-ML-001": {"prerequisites": [], "dimensions": ["recognition", "conceptual_explanation", "procedure", "transfer"]},
+        "B2B-AI-001": {"prerequisites": ["B2B-ML-001"], "dimensions": ["conceptual_explanation", "procedure", "transfer", "proof_justification"]},
+    })
+    learning_lessons.extend([
+        {"lesson_id": "b2b-ml-foundations-v0.1", "idea_id": "B2B-ML-001", "curriculum_id": "b2b-ml-agentic-ai"},
+        {"lesson_id": "b2b-agentic-workflows-v0.1", "idea_id": "B2B-AI-001", "curriculum_id": "b2b-ml-agentic-ai"},
+    ])
     learning_router = HermesLearningRouter(learning_outbox, learner_store, learning_graph,
                                            learning_lessons) if learning_outbox is not None else None
     # Rebuild simulation state from the durable action ledger on process restart.
@@ -346,11 +361,17 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     self._send(400, {"error": "learner_id_required"})
                     return
                 if path == "/api/learning/recommendation":
-                    result = select_next_lesson(learner_id, learner_store, learning_graph, learning_lessons)
+                    curriculum_id = (query.get("curriculum_id") or [None])[0]
+                    if curriculum_id not in {None, "mathematics", "b2b-ml-agentic-ai"}:
+                        self._send(400, {"error": "unsupported_curriculum"})
+                        return
+                    result = select_next_lesson(learner_id, learner_store, learning_graph,
+                                                learning_lessons, curriculum_id=curriculum_id)
                     if learning_outbox is not None:
                         minute = int(datetime.now(timezone.utc).timestamp() // 60)
                         learning_outbox.enqueue("learning-recommendation:" + learner_id + ":" + str(minute),
-                            "merlin.learning.recommendation", {"learner_id": learner_id})
+                            "merlin.learning.recommendation", {"learner_id": learner_id,
+                            "curriculum_id": curriculum_id})
                         if learning_router is not None:
                             learning_router.run_once()
                     self._send(200, {"schema": "merlin-learning-recommendation/1", **result})
