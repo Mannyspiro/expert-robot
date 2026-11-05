@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "dossier_id": "merlin.pioneer.newton.principia.1846-reading.v1",
+  "person": {
+    "name": "Isaac Newton",
+    "dates": "1642–1727",
+    "field": [
+      "mathematics",
+      "mechanics",
+      "astronomy",
+      "natural philosophy"
+    ]
+  },
+  "work": {
+    "title": "Philosophiæ Naturalis Principia Mathematica",
+    "original_publication": 1687,
+    "edition_read": "Newton's Principia: The Mathematical Principles of Natural Philosophy",
+    "translation": "Andrew Motte",
+    "edition_publication": 1846,
+    "repository": "Project Gutenberg",
+    "ebook_id": 76404,
+    "url": "https://www.gutenberg.org/cache/epub/76404/pg76404-images.html",
+    "rights": "Project Gutenberg states public domain in the USA; this 1846 edition is openly available there."
+  },
+  "scope_read": "Book III preface, Rules of Reasoning in Philosophy, Phenomena and selected propositions; 1846 edition introductory matter was distinguished from Newton's own text.",
+  "historical_context": [
+    "Newton's synthesis followed and depended on a long chain of mathematical astronomy and observational work associated with Copernicus, Tycho Brahe, Kepler, Galileo, Huygens, Cassini and others.",
+    "The work connects mathematical laws of motion with astronomical phenomena, rather than treating celestial and terrestrial motion as unrelated domains.",
+    "The English text read is an 1846 edition/translation. Its introductory biography and educational introduction are later editorial material, not Newton's own words; the body of the Principia is Newton's work in Motte's translation."
+  ],
+  "what_newton_did": [
+    "Stated mathematical principles of motion and forces and used them to derive consequences for the system of the world.",
+    "Organized Book III around propositions and mathematical demonstrations, explaining that readers should first master the definitions, laws of motion and early sections of Book I.",
+    "Compared observations of planetary and satellite motion with mathematical predictions, including data from astronomical observations and telescope measurements.",
+    "Used a quantitative comparison between the Moon's orbital deflection and terrestrial falling bodies to argue that the same gravitational cause accounts for both.",
+    "Critiqued Cartesian vortex explanations by deriving observational consequences and comparing them with astronomical phenomena."
+  ],
+  "methodological_reading": [
+    {
+      "section": "Book III preface",
+      "pages": "384–385",
+      "note": "Newton says the earlier books establish mathematical principles for philosophical inquiry, then applies them to the system of the world. He explains his choice to present Book III in propositions after considering the difficulty of readers bringing old prejudices."
+    },
+    {
+      "section": "Rules I–II",
+      "pages": "384–385",
+      "note": "Favor causes that are true and sufficient; seek the same causes for similar natural effects. These are methodological rules for explanation, not a guarantee that nature always has one simple cause."
+    },
+    {
+      "section": "Rule III",
+      "pages": "384–385",
+      "note": "Treat qualities found consistently in experiments as candidates for universal qualities, while distinguishing observed evidence from speculative additions."
+    },
+    {
+      "section": "Rule IV",
+      "pages": "385–386",
+      "note": "General inductions from phenomena are held as accurate or nearly accurate until further phenomena refine them or reveal exceptions. This is a historically important account of empirical generalization, not identical to every modern philosophy of science."
+    },
+    {
+      "section": "Phenomena and propositions",
+      "pages": "386–392",
+      "note": "The text uses astronomical observations, telescope measurements, orbital periods, distances and calculations to connect planetary regularities with gravitational explanations."
+    },
+    {
+      "section": "Vortex critique",
+      "pages": "381–382",
+      "note": "The argument compares predictions of vortex motion with observed orbital behavior and claims the vortex account conflicts with astronomical phenomena."
+    }
+  ],
+  "pioneer_questions": [
+    "What earlier work did Newton use rather than invent from nothing?",
+    "Which propositions are derived mathematically, and which premises come from measurement or astronomical records?",
+    "How does he handle disagreement between a model and observed phenomena?",
+    "What does he treat as a sufficient explanation, and how does that differ from modern standards?",
+    "How does the 1846 translator/editor frame Newton for nineteenth-century readers, and where must that framing be separated from Newton's own voice?"
+  ],
+  "cautions": [
+    "Do not attribute the 1846 editor's biography or rhetoric to Newton.",
+    "Do not read Newton's seventeenth-century methodological rules as a complete statement of modern scientific method.",
+    "Historical claims about private motives require correspondence or manuscript evidence; this dossier summarizes published text and documented context only."
+  ],
+  "citations": [
+    {
+      "section": "Book III preface and Rules I–IV",
+      "url": "https://www.gutenberg.org/cache/epub/76404/pg76404-images.html",
+      "pages": "384–386"
+    },
+    {
+      "section": "Phenomena and astronomical observations",
+      "url": "https://www.gutenberg.org/cache/epub/76404/pg76404-images.html",
+      "pages": "386–390"
+    },
+    {
+      "section": "Vortex critique",
+      "url": "https://www.gutenberg.org/cache/epub/76404/pg76404-images.html",
+      "pages": "381–382"
+    }
+  ],
+  "epistemic_status": "historical_interpretation_grounded_in_primary_text",
+  "review_status": "seed_notes_not_peer_reviewed"
+}
