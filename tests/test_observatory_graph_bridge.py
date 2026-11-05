@@ -194,5 +194,26 @@ class ObservatoryGraphBridgeTests(unittest.TestCase):
         self.assertEqual(report["counts"]["benchmark_receipts"], 0)
 
 
+
+    def test_immutable_node_rejects_conflicting_provenance(self):
+        from merlin.observatory_graph_bridge import _add_immutable_node
+        node_id = "immutable:provenance-check"
+        original = GraphNode(node_id, "source", "Source", {"record": "same"},
+                             "primary", "https://example.org/a")
+        _add_immutable_node(self.graph, original)
+        conflict = GraphNode(node_id, "source", "Source", {"record": "same"},
+                             "reviewed", "https://example.org/a")
+        with self.assertRaisesRegex(ValueError, "content or provenance"):
+            _add_immutable_node(self.graph, conflict)
+
+    def test_immutable_edge_rejects_conflicting_payload(self):
+        from merlin.knowledge_graph import GraphEdge
+        source, target = "provenance:source", "provenance:target"
+        self.graph.add_node(GraphNode(source, "source", "Source", {}))
+        self.graph.add_node(GraphNode(target, "claim", "Claim", {}))
+        self.graph.add_edge(GraphEdge(source, "supports", target, {"basis": "A"}))
+        with self.assertRaisesRegex(ValueError, "different payload"):
+            self.graph.add_edge(GraphEdge(source, "supports", target, {"basis": "B"}))
+
 if __name__ == "__main__":
     unittest.main()
