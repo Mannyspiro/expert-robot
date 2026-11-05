@@ -496,3 +496,17 @@ These are parallel draft branches, not one merged release. Before production rel
 - Defines a non-linear prerequisite graph, history-driven first-principles lesson arc, visual/interactive representations, adaptive mastery, spaced retrieval, misconception recovery and initial lesson pilots.
 - This is a specification, not an implemented/deployed learning application. PR-triggered broad CI run #42121434608 was still in progress at the time of this index update.
 - Architecture rule: Math Kung Fu is the learning interface over the canonical math catalog. It must not fork a parallel mathematics knowledge base or promote research claims.
+
+
+## 21. Latest exact-head CI reconciliation
+
+- PR #91 current head: `fe773793e53ae3a5760dfe6bbbff91b32b33fc98`. Dedicated Avrea math-catalog run #80 / ID `42121290865`: success; evidence artifact ID `13458401775`, digest `9a0ae22514c319770774659800e0ad1698f7748fb1e934491b0166281faeb0bc`. Full CI #2565 / ID `42121290974`: success; diagnostics artifact ID `13458921280`, digest `2eda6c53c2d2be2b7bc43e42029823dc0eff8c85e5645097efec4d0a09f5e509`. The dedicated workflow's log/results are retained and now record both PR head SHA and synthetic merge SHA.
+- PR #92 current head: `d0342bd36e5ec1774f18507c2df3edd5560c2e56`. Science-atlas Avrea run #101 / ID `42121269147`: success; **8 logic-case validator tests passed**. Full CI #2564 / ID `42121269233`: success. The earlier failing attempt is intentionally preserved as regression history, not erased.
+- PR #94 current head: `bbf274d20c5bc85f73706dd216cd206e65721a1a`. Avrea run #2 / ID `42121248360`: success; **18 prompt-contract + 6 prompt/Hermes bridge + 5 worker + 4 stage-handler tests passed**, compilation passed, and artifact uploaded. The evidence manifest records exact PR head, base and synthetic merge SHA.
+- PR #89 registry branch latest observed head: `5aa7cbc4eef2fb7a70b0de2812cd8ecb6e625a2d`. Full CI run #2571 / ID `42121537891` was in progress at the time this note was prepared; re-check before treating the latest registry text as CI-qualified.
+
+Evidence links:
+- [PR #91 math catalog run](https://github.com/Mannyspiro/expert-robot/actions/runs/42121290865)
+- [PR #92 science atlas run](https://github.com/Mannyspiro/expert-robot/actions/runs/42121269147)
+- [PR #94 prompt/Hermes bridge run](https://github.com/Mannyspiro/expert-robot/actions/runs/42121248360)
+- [PR #89 latest registry CI](https://github.com/Mannyspiro/expert-robot/actions/runs/42121537891)
