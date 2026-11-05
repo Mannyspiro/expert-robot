@@ -1,5 +1,5 @@
 import unittest
-from merlin.glyph_foundry import EvidenceState, GlyphFoundry, PromotionError, TypeMismatch, TypeRef, build_default_registry
+from merlin.glyph_foundry import Expr, ExprArena, EvidenceState, GlyphFoundry, FoundryError, PromotionError, TypeMismatch, TypeRef, build_default_registry
 
 class GlyphFoundryTests(unittest.TestCase):
     def setUp(self):
@@ -69,5 +69,41 @@ class GlyphFoundryTests(unittest.TestCase):
         self.foundry.record_independent_review(c,"review")
         self.foundry.record_value(c,1.0,1.0,"benchmark")
         with self.assertRaises(PromotionError): self.foundry.promote(c)
+
+
+    def test_expr_arena_hash_conses_repeated_subexpressions(self):
+        leaf = self.registry.primitive_expr("NEGATE_INT")
+        tree = Expr("compose", (leaf, leaf), TypeRef("Int"), TypeRef("Int"))
+        arena = ExprArena()
+        dag = arena.intern(tree)
+        self.assertIs(dag.args[0], dag.args[1])
+        stats = arena.stats(dag)
+        self.assertEqual(stats["occurrence_nodes"], 3)
+        self.assertEqual(stats["unique_nodes"], 2)
+        self.assertEqual(stats["shared_occurrences"], 1)
+        self.assertAlmostEqual(stats["sharing_ratio"], 1 / 3)
+
+    def test_expr_arena_is_idempotent_and_type_sensitive(self):
+        arena = ExprArena()
+        first = arena.intern(self.registry.primitive_expr("NEGATE_INT"))
+        second = arena.intern(self.registry.primitive_expr("NEGATE_INT"))
+        self.assertIs(first, second)
+        self.assertEqual(arena.unique_node_count, 1)
+        int_identity = self.registry.identity(TypeRef("Int"))
+        float_identity = self.registry.identity(TypeRef("Float"))
+        self.assertNotEqual(arena.intern(int_identity), arena.intern(float_identity))
+        self.assertEqual(arena.unique_node_count, 3)
+
+    def test_expr_arena_enforces_hard_node_budget(self):
+        leaf = self.registry.primitive_expr("NEGATE_INT")
+        tree = Expr("compose", (leaf, leaf), TypeRef("Int"), TypeRef("Int"))
+        arena = ExprArena(max_nodes=1)
+        with self.assertRaises(FoundryError):
+            arena.intern(tree)
+
+    def test_expr_arena_rejects_invalid_capacity(self):
+        for value in (0, -1, True, 1.5):
+            with self.assertRaises(FoundryError):
+                ExprArena(max_nodes=value)
 
 if __name__=="__main__": unittest.main()
