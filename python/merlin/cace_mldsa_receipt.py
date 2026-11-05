@@ -6,11 +6,13 @@ is added at the CACE boundary.
 """
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 from pathlib import Path
 import re
 import subprocess
+import tempfile
 from typing import Any, Callable, Mapping
 
 _SHA256 = re.compile(r"^[0-9a-f]{64}$")
@@ -104,6 +106,83 @@ class CaceMldsaReceiptVerifier:
         )
         if result.returncode != 0 or result.stdout.strip() != self.cace_commit_sha:
             raise ValueError("CACE checkout does not match the configured exact commit")
+
+    def verify_transport_response(
+        self,
+        request: Mapping[str, Any],
+        response: Mapping[str, Any],
+    ) -> dict[str, Any]:
+        """Verify a CACE transport response and return Merlin's canonical receipt.
+
+        The transport returns the CACE bundle document and signed attestation as
+        base64 JSON. The artifact bytes are taken from Merlin's exact request,
+        never from a caller-supplied path or an unrelated file.
+        """
+        if not isinstance(request, Mapping) or not isinstance(response, Mapping):
+            raise TypeError("CACE signed transport request and response must be objects")
+        if response.get("schema") != "cace-mldsa-signed-artifact-response/1":
+            raise ValueError("unsupported CACE ML-DSA transport response schema")
+        if response.get("proof_effect") != "none":
+            raise ValueError("CACE ML-DSA transport response proof_effect must be none")
+        if response.get("cace_source_commit") != self.cace_commit_sha:
+            raise ValueError("CACE transport used a different source commit")
+
+        def decode_field(name: str) -> bytes:
+            encoded = response.get(name)
+            if not isinstance(encoded, str) or not encoded:
+                raise ValueError(name + " is missing")
+            try:
+                raw = base64.b64decode(encoded, validate=True)
+            except Exception as exc:
+                raise ValueError(name + " is not valid base64") from exc
+            if base64.b64encode(raw).decode("ascii") != encoded:
+                raise ValueError(name + " is not canonical base64")
+            return raw
+
+        try:
+            artifact_bytes = base64.b64decode(
+                request["artifact_content_base64"], validate=True
+            )
+        except Exception as exc:
+            raise ValueError("request artifact_content_base64 is invalid") from exc
+        artifact_digest = hashlib.sha256(artifact_bytes).hexdigest()
+        if artifact_digest != request.get("artifact_sha256"):
+            raise ValueError("request artifact bytes do not match artifact_sha256")
+
+        logical_path = request.get("logical_path")
+        if not isinstance(logical_path, str) or not logical_path.strip():
+            raise ValueError("request logical_path is required")
+        relative = Path(logical_path)
+        if relative.is_absolute() or ".." in relative.parts or not relative.parts:
+            raise ValueError("request logical_path is unsafe")
+
+        with tempfile.TemporaryDirectory(prefix="merlin-cace-mldsa-") as temporary:
+            root = Path(temporary)
+            artifact_root = root / "artifact-root"
+            target = artifact_root / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(artifact_bytes)
+            bundle_path = root / "bundle.json"
+            attestation_path = root / "attestation.json"
+            bundle_path.write_bytes(decode_field("bundle_document_base64"))
+            attestation_path.write_bytes(decode_field("attestation_document_base64"))
+            return self.verify_artifact_receipt(
+                bundle_path=bundle_path,
+                artifact_root=artifact_root,
+                attestation_path=attestation_path,
+                repository=str(request["repository"]),
+                commit_sha=str(request["commit_sha"]),
+                workflow_run_id=request["workflow_run_id"],
+                provider_commit=str(request["provider_commit"]),
+                vector_source_commit=str(request["vector_source_commit"]),
+                verification_scope=str(request["verification_scope"]),
+                claim_id=str(request["claim_id"]),
+                artifact_sha256=artifact_digest,
+                artifact_kind=str(request["artifact_kind"]),
+                artifact_schema=str(request["artifact_schema"]),
+                logical_path=logical_path,
+                requester_id=str(request["requester_id"]),
+            )
 
     def verify_artifact_receipt(
         self,
