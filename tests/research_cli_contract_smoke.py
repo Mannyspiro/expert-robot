@@ -39,7 +39,7 @@ with tempfile.TemporaryDirectory() as td:
     from merlin_engineering_plan import template
     plan=template("cpp-dispatch-smoke")
     plan["objective"]="Test direct C++ dispatch gate"
-    plan["domain_scope"]["primary_domain"]="mathematics"
+    plan["domain_scope"]["primary_domain"]="computer-information"
     plan["requirements"][0].update(statement="A valid plan passes the gate",acceptance="CLI reaches model-file validation.")
     plan["design"]["method"]="Direct CLI contract test"
     plan["design"]["limitations"]="No model execution is attempted."
