@@ -7,7 +7,7 @@ def load(name,path):
 logic=load("logic","merlin_logic_lenses.py")
 assert logic.fuzzy_ops(0.4,0.7)["godel_and"]==0.4
 assert abs(logic.fuzzy_ops(0.4,0.7)["product_and"]-0.28)<1e-12
-assert logic.fuzzy_ops(0.4,0.7)["lukasiewicz_and"]==0.1
+assert abs(logic.fuzzy_ops(0.4,0.7)["lukasiewicz_and"]-0.1)<1e-12
 table=logic.finite_table(3,2)
 assert table["row_count"]==9 and len(table["rows"])==9
 try: logic.finite_table(10,4,4096)
