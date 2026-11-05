@@ -81,6 +81,8 @@ class HudActivityProjector:
         timeline = []
         evidence_refs: list[str] = []
         verification: dict[str, Any] | None = None
+        executions: dict[str, dict[str, Any]] = {}
+        recoveries: dict[str, dict[str, Any]] = {}
         for event in events:
             kind, payload = event["kind"], event["payload"]
             stage = payload.get("stage") if kind in {"research.stage", "task.progress"} else None
@@ -117,6 +119,35 @@ class HudActivityProjector:
                     "independent": True,
                     "receipt_ref": event["evidence_refs"][0],
                     "event_id": event["event_id"],
+                    "verifier_id": payload.get("agent_id"),
+                    "artifact_sha256": payload.get("artifact_sha256"),
+                    "receipt_artifact_sha256": payload.get("receipt_artifact_sha256"),
+                    "source_commit": payload.get("source_commit"),
+                }
+            if event["source"] == "avrea" and kind in {"task.started", "task.completed", "agent.status"}:
+                job_id = payload.get("job_id") or event["run_id"]
+                if isinstance(job_id, str) and job_id:
+                    executions[job_id] = {
+                        "provider": "avrea",
+                        "job_id": job_id,
+                        "runner_id": payload.get("agent_id") or payload.get("worker_id"),
+                        "status": payload.get("status", "unknown"),
+                        "activity": payload.get("activity", EVENT_LABELS[kind]),
+                        "receipt_ref": event["evidence_refs"][0] if event["evidence_refs"] else None,
+                        "event_id": event["event_id"],
+                    }
+            if kind == "artifact.registered" and (
+                payload.get("status") == "quarantined_unverified"
+                or isinstance(payload.get("recovery_path"), str)
+            ):
+                recovery_id = str(payload.get("task_id") or event["task_id"] or event["event_id"])
+                recoveries[recovery_id] = {
+                    "status": payload.get("status", "recovery_recorded"),
+                    "recovery_path": payload.get("recovery_path"),
+                    "sha256": payload.get("sha256"),
+                    "evidence_refs": list(event["evidence_refs"]),
+                    "event_id": event["event_id"],
+                    "promotion_authority": False,
                 }
             evidence_refs.extend(event["evidence_refs"])
             timeline.append({
@@ -141,6 +172,8 @@ class HudActivityProjector:
             "agents": list(agents.values()),
             "resources": resources,
             "verification": verification,
+            "executions": list(executions.values())[-50:],
+            "recoveries": list(recoveries.values())[-50:],
             "timeline": timeline[-60:],
             "evidence_refs": list(dict.fromkeys(evidence_refs))[-100:],
             "event_count": len(events),
