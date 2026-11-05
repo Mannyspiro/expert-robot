@@ -214,7 +214,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for pattern in test_engineering_ir.py test_engineering_project_store.py test_cad_assembly.py test_coordinate_frames.py test_physical_connectivity.py test_wire_routing.py test_wire_qualification.py test_wiring_exports.py test_media_and_drafting.py test_route_evidence.py test_workload_leases.py test_workload_scheduler.py test_resource_probe.py test_lean_proof_receipt.py test_proof_observatory.py test_observatory_benchmarks.py test_theorem_dag.py test_observatory_benchmark_links.py test_observatory_graph_bridge.py; do
+          for pattern in test_engineering_ir.py test_engineering_project_store.py test_cad_assembly.py test_freecad_bridge.py test_freecad_document_bridge.py test_coordinate_frames.py test_physical_connectivity.py test_wire_routing.py test_wire_qualification.py test_wiring_exports.py test_media_and_drafting.py test_route_evidence.py test_workload_leases.py test_workload_scheduler.py test_resource_probe.py test_lean_proof_receipt.py test_proof_observatory.py test_observatory_benchmarks.py test_theorem_dag.py test_observatory_benchmark_links.py test_observatory_graph_bridge.py; do
             python3 -m unittest discover -s tests -p "$pattern" -v
           done
           mkdir -p artifacts
