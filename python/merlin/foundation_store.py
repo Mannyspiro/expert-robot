@@ -7,6 +7,8 @@ distributed transaction across the two SQLite databases.
 """
 from __future__ import annotations
 
+import hashlib
+import json
 from pathlib import Path
 from typing import Any
 
@@ -46,14 +48,41 @@ class MerlinFoundationStore:
             inventory = self.registry.inventory(project_id)
             self.graph.add_node(GraphNode(project_node_id, "project", inventory["name"],
                                           {"version": inventory["version"]}, "registry"))
+        # The artifact node is content identity only. Do not put logical paths,
+        # archive provenance, media labels, or project metadata on this node:
+        # identical bytes may arrive through many paths and projects.
         self.graph.add_node(GraphNode(
-            artifact_id, artifact_type, logical_path,
-            {"sha256": digest, "media_type": media_type, "size_bytes": len(content),
-             "project_id": project_id, **(metadata or {})},
-            evidence_class,
+            artifact_id, "artifact", f"sha256:{digest}",
+            {"sha256": digest, "size_bytes": len(content)},
+            "unreviewed",
         ))
-        self.graph.add_edge(GraphEdge(project_node_id, "contains", artifact_id,
-                                      {"logical_path": logical_path}))
+        self.graph.add_edge(GraphEdge(project_node_id, "contains", artifact_id, {}))
+
+        # Preserve each source path and its provenance as a separate immutable node.
+        # This keeps duplicate content deduplicated without losing where it came from.
+        source_record = {
+            "project_id": project_id,
+            "logical_path": logical_path,
+            "artifact_sha256": digest,
+            "artifact_type": artifact_type,
+            "media_type": media_type,
+            "size_bytes": len(content),
+            "evidence_class": evidence_class,
+            "metadata": metadata or {},
+        }
+        source_bytes = json.dumps(
+            source_record, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+        ).encode("utf-8")
+        source_node_id = (
+            f"source:{project_id}:{hashlib.sha256(source_bytes).hexdigest()}"
+        )
+        self.graph.add_node(GraphNode(
+            source_node_id, "source", logical_path, source_record, evidence_class,
+        ))
+        self.graph.add_edge(GraphEdge(
+            project_node_id, "contains", source_node_id, {"logical_path": logical_path},
+        ))
+        self.graph.add_edge(GraphEdge(source_node_id, "derived_from", artifact_id, {}))
         return digest
 
     def add_claim(self, claim_id: str, statement: str, evidence_class: str,
