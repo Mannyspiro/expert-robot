@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 
 import argparse
+import hashlib
 import json
 import subprocess
 import sys
 import uuid
+from pathlib import Path
 from dataclasses import dataclass
 
 
@@ -62,7 +64,32 @@ def main() -> int:
     parser.add_argument("--runtime", required=True, help="Path to C++ expert_robot_runtime")
     parser.add_argument("--role", choices=sorted(ROLES), default="controller")
     parser.add_argument("--task", default="health check")
+    parser.add_argument("--plan", type=Path, help="Validated Merlin engineering/research plan JSON; required for every non-health-check task")
     args = parser.parse_args()
+
+    # The sole planless exception is the exact, non-mutating runtime health check.
+    if args.task.strip().lower() != "health check" and args.plan is None:
+        parser.error("--plan is required for every task other than the exact 'health check'")
+
+    if args.plan is not None:
+        plan_path = Path(__file__).resolve().parents[1] / "scripts" / "merlin_engineering_plan.py"
+        validation = subprocess.run(
+            [sys.executable, str(plan_path), "--validate", str(args.plan)],
+            capture_output=True, text=True, check=False,
+        )
+        if validation.returncode != 0:
+            print(validation.stdout or validation.stderr, file=sys.stderr)
+            return 2
+        plan = json.loads(args.plan.read_text(encoding="utf-8"))
+        plan_raw = json.dumps(plan, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
+        plan_digest = hashlib.sha256(plan_raw).hexdigest()
+        args.task = (
+            "MANDATORY MERLIN ENGINEERING PLAN (validated; sha256=" + plan_digest + ")\\n"
+            + json.dumps(plan, ensure_ascii=False, indent=2)
+            + "\\nFollow this plan. Do not silently change scope, requirements, assumptions, budgets, or acceptance criteria. "
+              "If the plan is infeasible or incomplete, stop and return the discrepancy rather than improvising.\\n\\n"
+            + "TASK:\\n" + args.task
+        )
 
     runtime = RuntimeProcess(args.runtime)
     try:
