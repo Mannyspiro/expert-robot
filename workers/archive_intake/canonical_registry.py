@@ -16,6 +16,17 @@ def initialize(path):
     Path(path).parent.mkdir(parents=True,exist_ok=True)
     with connect(path) as db:
         db.executescript("""
+        CREATE TABLE IF NOT EXISTS intakes (
+          intake_id TEXT PRIMARY KEY, archive_sha256 TEXT NOT NULL,
+          archive_filename TEXT NOT NULL, archive_size_bytes INTEGER NOT NULL DEFAULT 0,
+          manifest_sha256 TEXT NOT NULL, registered_at TEXT NOT NULL,
+          file_count INTEGER NOT NULL, total_uncompressed_bytes INTEGER NOT NULL);
+        CREATE TABLE IF NOT EXISTS artifacts (
+          intake_id TEXT NOT NULL REFERENCES intakes(intake_id) ON DELETE CASCADE,
+          path TEXT NOT NULL, sha256 TEXT NOT NULL, size_bytes INTEGER NOT NULL,
+          classification TEXT NOT NULL, PRIMARY KEY(intake_id,path));
+        CREATE INDEX IF NOT EXISTS idx_artifacts_sha256 ON artifacts(sha256);
+        CREATE INDEX IF NOT EXISTS idx_artifacts_classification ON artifacts(classification);
         CREATE TABLE IF NOT EXISTS projects(
           project_id TEXT PRIMARY KEY, name TEXT NOT NULL, description TEXT NOT NULL DEFAULT '',
           created_at TEXT NOT NULL, status TEXT NOT NULL DEFAULT 'active');
@@ -114,6 +125,9 @@ def make_handler(db_path):
             self.send_response(status); self.send_header("Content-Type","application/json")
             self.send_header("Content-Length",str(len(raw))); self.send_header("Cache-Control","no-store"); self.end_headers(); self.wfile.write(raw)
         def do_GET(self):
+            token=os.environ.get("MERLIN_REGISTRY_READ_TOKEN")
+            if token and self.headers.get("Authorization")!="Bearer "+token:
+                return self.send_json(401,{"error":"unauthorized"})
             parsed=urlparse(self.path); parts=[x for x in parsed.path.split("/") if x]
             q=parse_qs(parsed.query); limit=min(max(int(q.get("limit",["100"])[0]),1),500)
             offset=max(int(q.get("offset",["0"])[0]),0)
@@ -148,6 +162,9 @@ def main():
     elif a.command=="create-project": initialize(a.database); print(json.dumps(register_project(a.database,a.project_id,a.name,a.description)))
     elif a.command=="attach-intake": print(json.dumps(attach_intake(a.database,a.project_id,a.intake_id)))
     else:
-        initialize(a.database); server=ThreadingHTTPServer((a.host,a.port),make_handler(a.database))
+        initialize(a.database)
+        if a.host not in ("127.0.0.1","localhost","::1") and not os.environ.get("MERLIN_REGISTRY_READ_TOKEN"):
+            raise SystemExit("non-loopback binding requires MERLIN_REGISTRY_READ_TOKEN")
+        server=ThreadingHTTPServer((a.host,a.port),make_handler(a.database))
         print("Merlin read-only registry listening on %s:%s"%(a.host,a.port)); server.serve_forever()
 if __name__=="__main__": main()
