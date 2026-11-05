@@ -10,6 +10,19 @@ from cad_mcfc_model import validate_matrix, validate_simulation, validate_wiring
 def store_metadata(database,project_id,artifact_sha256,metadata):
     if len(artifact_sha256)!=64 or any(c not in "0123456789abcdef" for c in artifact_sha256):
         raise ValueError("artifact SHA-256 required")
+    if "solver" in metadata:
+        metadata=validate_simulation(metadata)
+    else:
+        required=("metadata_version","artifact_sha256","artifact_family","units","coordinate_frame","revision","provenance")
+        if any(k not in metadata for k in required): raise ValueError("CAD metadata missing required fields")
+        if metadata["metadata_version"]!="1.0" or metadata["artifact_sha256"]!=artifact_sha256:
+            raise ValueError("CAD metadata version or artifact identity mismatch")
+        if metadata["artifact_family"] not in ("cad_model","cad_drawing","cad_native_project","mesh_model","simulation_mesh","simulation_input","simulation_result","electrical_netlist","electrical_schematic","pcb_layout","manufacturing_data"):
+            raise ValueError("unsupported engineering artifact family")
+        if not isinstance(metadata["units"],dict) or not isinstance(metadata["coordinate_frame"],dict):
+            raise ValueError("units and coordinate_frame must be objects")
+        if not isinstance(metadata["provenance"],dict) or not metadata["provenance"].get("operation"):
+            raise ValueError("engineering provenance operation is required")
     if "coordinate_frame" in metadata and "transform_to_parent" in metadata["coordinate_frame"]:
         validate_matrix([metadata["coordinate_frame"]["transform_to_parent"][i:i+4] for i in range(0,16,4)])
     payload=json.dumps(metadata,sort_keys=True,separators=(",",":"))
