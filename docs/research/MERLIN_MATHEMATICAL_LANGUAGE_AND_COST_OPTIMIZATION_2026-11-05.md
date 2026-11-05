@@ -269,6 +269,12 @@ Use warm and cold cache runs separately. Fix seeds and versions. Run repeated tr
 - Display resource savings and epistemic status separately.
 - Do not automatically promote a hypothesis or authorize execution.
 
+## Prototype update (2026-11-05)
+
+A first bounded, opt-in `ExprArena` prototype has now been added to `merlin/glyph_foundry.py`. It hash-conses immutable typed `Expr` nodes by canonical fingerprint, preserves input/output types and operator order, exposes expanded-occurrence versus unique-DAG statistics, and fails closed at a configurable unique-node limit. Existing tree-based callers are unchanged unless they opt into the arena.
+
+Four tests were added for repeated-subexpression sharing, idempotent interning, type-sensitive identity, and hard node-budget enforcement. A deterministic synthetic tree-versus-DAG `tracemalloc` benchmark script and a focused Avrea workflow definition were also added. The new implementation's CI run is still in progress; the benchmark has not yet produced a runner artifact. Therefore no Merlin RAM/CPU improvement is claimed yet.
+
 ## Evidence status and next executable tasks
 
 This document is a research synthesis and implementation plan. It does **not** claim that:
