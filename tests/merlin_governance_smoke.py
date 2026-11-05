@@ -22,7 +22,9 @@ assert any("inductive" in x for x in plan.validate(bad))
 audit=load("merlin_domain_audit.py")
 tax=json.loads((root/"research/science/discipline-taxonomy.v1.json").read_text())
 result=audit.audit(tax,policy)
-assert result["domain_count"]>=10 and result["ok"]\nassert len(result["cross_domain_relationships"])==5\nassert result["duplicate_primary_assignments"]==[]
+assert result["domain_count"]>=10 and result["ok"]
+assert len(result["cross_domain_relationships"])==5
+assert result["duplicate_primary_assignments"]==[]
 storage=load("merlin_storage_guard.py")
 r=storage.check(root/"state"/"merlin-storage-smoke",10**9,1000,0)
 assert r["ok"]
