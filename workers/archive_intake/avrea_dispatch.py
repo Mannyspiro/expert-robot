@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+"""Fail-closed Avrea dispatch gate. Provider execution is an explicit adapter, never implicit."""
+from __future__ import annotations
+import argparse, hashlib, json, re
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Protocol
+from canonical_registry import connect, initialize
+
+class DispatchRejected(Exception): pass
+class AvreaProvider(Protocol):
+    def submit(self, task: dict, approval: dict) -> dict: ...
+    def fetch_result(self, provider_job_id: str) -> dict: ...
+
+def canonical_sha(value): return hashlib.sha256(json.dumps(value,sort_keys=True,separators=(",",":")).encode()).hexdigest()
+def validate_task(task,approval,policy):
+    if task.get("contract_version")!="1.0": raise DispatchRejected("unsupported task contract")
+    digest=canonical_sha(task)
+    if approval.get("status")!="approved" or approval.get("approval_id")!=task.get("approval_id"):
+        raise DispatchRejected("explicit matching approval is required")
+    if approval.get("task_contract_sha256")!=digest: raise DispatchRejected("approval does not bind exact task contract")
+    caps=task.get("capability_allowlist")
+    if not isinstance(caps,list) or not caps or len(caps)!=len(set(caps)): raise DispatchRejected("invalid capability allowlist")
+    if not set(caps).issubset(set(policy["allowed_capabilities"])): raise DispatchRejected("capability outside policy")
+    budget=task.get("resource_budget",{})
+    for key,maximum in policy["resource_maxima"].items():
+        if not isinstance(budget.get(key),int) or isinstance(budget.get(key),bool) or budget[key]<1 or budget[key]>maximum:
+            raise DispatchRejected("resource budget invalid or above policy: "+key)
+    if task.get("network_access","none")!="none": raise DispatchRejected("network disabled unless a separately reviewed policy enables it")
+    if task.get("result_manifest_required") is not True: raise DispatchRejected("result manifest is mandatory")
+    if not isinstance(task.get("timeout_seconds"),int) or not 1<=task["timeout_seconds"]<=policy["max_timeout_seconds"]:
+        raise DispatchRejected("timeout outside policy")
+    return digest
+
+def submit(database,task,approval,policy,provider=None):
+    digest=validate_task(task,approval,policy)
+    task_id=task["task_id"]; now=datetime.now(timezone.utc).isoformat()
+    with connect(database) as db:
+        db.execute("INSERT OR IGNORE INTO avrea_tasks VALUES(?,?,?,?,?,?,?,?)",
+          (task_id,digest,approval["approval_id"],"approved",json.dumps(task,sort_keys=True),None,now,now))
+    if provider is None:
+        return {"task_id":task_id,"state":"approved_waiting_for_provider","task_contract_sha256":digest}
+    response=provider.submit(task,approval)
+    if not response.get("provider_job_id"): raise DispatchRejected("provider omitted job identity")
+    with connect(database) as db:
+        db.execute("UPDATE avrea_tasks SET state='submitted',result_json=?,updated_at=? WHERE task_id=?",
+          (json.dumps({"provider_job_id":response["provider_job_id"]}),datetime.now(timezone.utc).isoformat(),task_id))
+    return {"task_id":task_id,"state":"submitted","provider_job_id":response["provider_job_id"]}
+
+def collect(database,task_id,provider):
+    with connect(database) as db:
+        row=db.execute("SELECT state,result_json FROM avrea_tasks WHERE task_id=?",(task_id,)).fetchone()
+    if not row or row["state"]!="submitted": raise DispatchRejected("task is not submitted")
+    provider_job_id=json.loads(row["result_json"])["provider_job_id"]
+    result=provider.fetch_result(provider_job_id)
+    manifest=result.get("result_manifest")
+    if not isinstance(manifest,dict) or not isinstance(manifest.get("artifacts"),list):
+        raise DispatchRejected("provider result must include artifact manifest")
+    digest=canonical_sha(result)
+    with connect(database) as db:
+        db.execute("UPDATE avrea_tasks SET state='completed',result_json=?,updated_at=? WHERE task_id=?",
+          (json.dumps({"provider_job_id":provider_job_id,"result":result,"result_sha256":digest},sort_keys=True),
+           datetime.now(timezone.utc).isoformat(),task_id))
+    return {"task_id":task_id,"state":"completed","result_sha256":digest,"artifact_count":len(manifest["artifacts"])}
+
+def main():
+    p=argparse.ArgumentParser(); p.add_argument("task",type=Path); p.add_argument("--approval",type=Path,required=True)
+    p.add_argument("--policy",type=Path,required=True); p.add_argument("--database",default="data/merlin.sqlite3")
+    a=p.parse_args(); initialize(a.database)
+    task=json.loads(a.task.read_text()); approval=json.loads(a.approval.read_text()); policy=json.loads(a.policy.read_text())
+    print(json.dumps(submit(a.database,task,approval,policy),indent=2))
+if __name__=="__main__": main()
