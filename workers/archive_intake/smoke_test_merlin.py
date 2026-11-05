@@ -44,7 +44,7 @@ def main() -> int:
 
         # 1. Safe intake, manifest registration and project attachment.
         with zipfile.ZipFile(archive, "w", zipfile.ZIP_DEFLATED) as zf:
-            zf.writestr("README.md", "# Merlin fixture\\n")
+            zf.writestr("README.md", "# Merlin fixture\n")
             zf.writestr("data/sample.json", json.dumps({"fixture": True}))
         manifest = intake_archive(archive, extracted)
         manifest_path = extracted / "merlin-intake-manifest.json"
@@ -131,7 +131,7 @@ def main() -> int:
         check(any(node["type"] == "ElectricalNet" for node in graph["nodes"]),
               "research graph omitted electrical net")
         graph_path = root / "research-graph.json"
-        graph_path.write_text(json.dumps(graph, indent=2, sort_keys=True) + "\\n")
+        graph_path.write_text(json.dumps(graph, indent=2, sort_keys=True) + "\n")
 
         print(json.dumps({
             "status": "passed",
