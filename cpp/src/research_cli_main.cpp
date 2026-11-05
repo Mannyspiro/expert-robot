@@ -7,6 +7,9 @@
 #include "expert_robot/research/state_machine.hpp"
 
 #include <filesystem>
+#include <fstream>
+#include <cstdlib>
+#include <sstream>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
@@ -20,6 +23,7 @@ struct Options {
     std::filesystem::path repo_root{"."};
     std::filesystem::path state_dir{"state/research-cli"};
     std::filesystem::path model;
+    std::filesystem::path plan;
     std::filesystem::path llama_cli{"llama-cli"};
     std::filesystem::path llama_server;
     std::string claim;
@@ -31,7 +35,7 @@ struct Options {
 [[noreturn]] void usage() {
     throw std::invalid_argument(
         "usage: expert_robot_research --model MODEL.gguf --claim TEXT "
-        "[--repo-root DIR] [--state-dir DIR] [--domain NAME] "
+        "--plan VALIDATED_MERLIN_PLAN.json [--repo-root DIR] [--state-dir DIR] [--domain NAME] "
         "[--name-hint NAME] [--llama-cli PATH] "
         "[--llama-server PATH] [--server-port PORT]");
 }
@@ -46,6 +50,7 @@ Options parse_args(int argc, char** argv) {
         };
         if (arg == "--model") o.model = value();
         else if (arg == "--claim") o.claim = value();
+        else if (arg == "--plan") o.plan = value();
         else if (arg == "--repo-root") o.repo_root = value();
         else if (arg == "--state-dir") o.state_dir = value();
         else if (arg == "--domain") o.domain = value();
@@ -55,7 +60,7 @@ Options parse_args(int argc, char** argv) {
         else if (arg == "--server-port") o.server_port = std::stoi(value());
         else usage();
     }
-    if (o.model.empty() || o.claim.empty()) usage();
+    if (o.model.empty() || o.claim.empty() || o.plan.empty()) usage();
     if (o.server_port <= 0 || o.server_port > 65535) {
         throw std::invalid_argument("server port must be in 1..65535");
     }
@@ -84,6 +89,35 @@ expert_robot::LlamaCliConfig backend_config(
     c.max_output_bytes = 262144;
     c.max_diagnostic_bytes = 32768;
     return c;
+}
+
+std::string shell_quote(const std::string& value) {
+    std::string out = "'";
+    for (const char ch : value) {
+        if (ch == '\'') out += "'\\''";
+        else out += ch;
+    }
+    return out + "'";
+}
+
+std::string read_text_file(const std::filesystem::path& path) {
+    std::ifstream input(path, std::ios::binary);
+    if (!input) throw std::invalid_argument("cannot read Merlin plan file");
+    std::ostringstream contents;
+    contents << input.rdbuf();
+    if (contents.str().empty()) throw std::invalid_argument("Merlin plan file is empty");
+    return contents.str();
+}
+
+void validate_merlin_plan(const std::filesystem::path& repo, const std::filesystem::path& plan) {
+    const auto validator = repo / "scripts/merlin_engineering_plan.py";
+    if (!std::filesystem::exists(validator)) {
+        throw std::invalid_argument("repo-root does not contain the Merlin plan validator");
+    }
+    const std::string command = "python3 " + shell_quote(validator.string()) +
+        " --validate " + shell_quote(std::filesystem::absolute(plan).string());
+    const int status = std::system(command.c_str());
+    if (status != 0) throw std::invalid_argument("Merlin plan validation failed; research dispatch blocked");
 }
 
 expert_robot::cognition::InteroceptiveSensors default_sensors() {
@@ -168,6 +202,8 @@ int main(int argc, char** argv) {
         const Options o = parse_args(argc, argv);
         const auto repo = std::filesystem::absolute(o.repo_root);
         const auto formal_root = repo / "formal";
+        validate_merlin_plan(repo, o.plan);
+        const std::string validated_plan = read_text_file(o.plan);
         const auto formal_schema =
             repo / "config/schemas/formalization_proposal.schema.json";
         const auto lemma_schema =
@@ -216,7 +252,8 @@ int main(int argc, char** argv) {
                 .imports = {"MathAI"},
                 .context = {
                     "Use only the supplied mathematical claim and non-evaluation context.",
-                    "Do not assume any validation or holdout target."
+                    "Do not assume any validation or holdout target.",
+                    "Validated Merlin engineering, representation, logic-lens and ideonomy plan:\\n" + validated_plan
                 }
             });
 
@@ -254,7 +291,8 @@ int main(int argc, char** argv) {
                 .focus_theorem = proposed.proposal.qualified_name(),
                 .context = {
                     "intake_claim=" + o.claim,
-                    "domain=" + o.domain
+                    "domain=" + o.domain,
+                    "validated_merlin_plan=" + validated_plan
                 },
                 .sensors = default_sensors(),
                 .logic = default_logic(),
