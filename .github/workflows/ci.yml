@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: ["main", "feat/merlin-lean-proof-optimization-atlas-20261104", "feat/hermes-routing-eval-avrea-discovery-20261105", "repair/cace-bridge-request-isolation-20261105", "repair/merlin-full-integration-20261105"]
+    branches: ["main", "feat/merlin-lean-proof-optimization-atlas-20261104", "feat/hermes-routing-eval-avrea-discovery-20261105", "repair/cace-bridge-request-isolation-20261105", "repair/merlin-full-integration-20261105", "feat/merlin-universal-research-school-v01-20261105"]
     paths-ignore:
       - "formal/**"
       - ".github/workflows/formal-qualification.yml"
@@ -94,6 +94,18 @@ jobs:
           python3 -m unittest discover -s tests -p "test_merlin_prompt_contract.py" -v 2>&1 | tee artifacts/merlin-prompt-contract.log
           test_exit=${PIPESTATUS[0]}
           printf '{"suite":"merlin-prompt-contract","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$test_exit" > artifacts/merlin-prompt-contract-result.json
+          exit "$test_exit"
+
+      - name: Merlin universal research curriculum tests
+        env:
+          PYTHONPATH: python
+        shell: bash
+        run: |
+          set +e
+          mkdir -p artifacts
+          python3 -m pytest -q tests/test_merlin_research_curriculum.py -v 2>&1 | tee artifacts/merlin-research-curriculum.log
+          test_exit=${PIPESTATUS[0]}
+          printf '{"suite":"merlin-research-curriculum","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$test_exit" > artifacts/merlin-research-curriculum-result.json
           exit "$test_exit"
 
       - name: Restore C++ compiler cache
