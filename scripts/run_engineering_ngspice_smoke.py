@@ -37,7 +37,7 @@ def main() -> int:
         ground_net="GND",
     )
     (output / "engineering-ir.json").write_text(
-        json.dumps(export_netlist(project), sort_keys=True, indent=2) + "\\n",
+        json.dumps(export_netlist(project), sort_keys=True, indent=2) + "\n",
         encoding="utf-8",
     )
     (output / "assembly.scad").write_text(export_openscad(project), encoding="utf-8")
@@ -59,7 +59,7 @@ def main() -> int:
         "promotion_authority": False,
     }
     (output / "manifest.json").write_text(
-        json.dumps(manifest, sort_keys=True, indent=2) + "\\n", encoding="utf-8"
+        json.dumps(manifest, sort_keys=True, indent=2) + "\n", encoding="utf-8"
     )
     print(json.dumps(manifest, sort_keys=True))
     return 0
