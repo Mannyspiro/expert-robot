@@ -45,5 +45,13 @@
     "Not a FIPS 140 validation or CMVP certificate.",
     "Passing ACVP vector tests is not a complete implementation security assessment.",
     "No production deployment or key material."
-  ]
+  ],
+  "python_binding": {
+    "name": "liboqs-python",
+    "repository": "https://github.com/open-quantum-safe/liboqs-python",
+    "release": "0.16.0.2",
+    "commit": "64c76ad0a80d6c69f2003219eb27b253782a3d68",
+    "upstream_verified_tag": true,
+    "security_note": "0.16.0.2 includes a fix for ML-DSA signature forgery and ML-KEM shared-secret recovery caused by short key inputs; do not use earlier binding releases."
+  }
 }
