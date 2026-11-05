@@ -28,5 +28,19 @@
     "e064557bb2a34774284d04dd74c80cd6b33684cf",
     "afde7f6c76a853d5553326696d7a17c4088a6e64"
   ],
-  "note": "Evidence was mirrored using the authenticated GitHub repository connector after the CACE workflow reverse-key step proved unavailable. This does not verify the workflow's reverse SSH transport."
+  "note": "Evidence was mirrored using the authenticated GitHub repository connector after the CACE workflow reverse-key step proved unavailable. This does not verify the workflow's reverse SSH transport.",
+  "reverse_transport_followup": {
+    "cace_workflow_run_id": 42055683481,
+    "cace_commit": "08ddb15b55e1f127264c93b5bd4e913a0a8c8c5e",
+    "attempted_secret_aliases": [
+      "EXPERT_ROBOT_SSH_PRIVATE_KEY",
+      "EXPERT_ROBOT_DEPLOY_KEY",
+      "CACE_TO_EXPERT_ROBOT_SSH_KEY",
+      "EXPERT_ROBOT_DEPLOY_PRIVATE_KEY",
+      "RAILWAY_SSH_PRIVATE_KEY"
+    ],
+    "observed": "all five secret environment values were empty",
+    "outcome": "reverse SSH authentication unavailable; return step skipped"
+  },
+  "result_mirror_correction_commit": "a712a36c33b40213ba1e4774231460da24faa36f"
 }
