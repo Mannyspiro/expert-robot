@@ -108,9 +108,9 @@ jobs:
               tree=ET.parse(junit_path)
               for case in tree.iter("testcase"):
                   name=case.attrib.get("name","")
-                  suite=("FIPS203" if "[ML-KEM-" in name else
-                         "FIPS204" if "[ML-DSA-" in name else
-                         "FIPS205" if "[SLH_DSA_PURE_" in name else None)
+                  suite=("FIPS203" if name.startswith("test_acvp_vec_kem_") and "[ML-KEM-" in name else
+                         "FIPS204" if name.startswith("test_acvp_vec_ml_dsa_") and "[ML-DSA-" in name else
+                         "FIPS205" if name.startswith("test_acvp_vec_slh_dsa_") and "[SLH_DSA_PURE_" in name else None)
                   if suite is None: continue
                   row=suites.setdefault(suite,{"tests":0,"passed":0,"skipped":0,"failed":0})
                   row["tests"]+=1
