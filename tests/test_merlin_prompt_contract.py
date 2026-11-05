@@ -1,10 +1,14 @@
+import hashlib
+import json
 import tempfile
 import unittest
 from dataclasses import replace
 from pathlib import Path
 
+from merlin.cace_adapter import CaceVerificationAdapter
 from merlin.event_outbox import MerlinEventOutbox
-from merlin.prompt_contract import (CompiledPrompt, PromptCompiler, PromptOutboxPublisher, PromptResult, PromptResultReceiver, PromptTask)
+from merlin.project_registry import MerlinRegistry
+from merlin.prompt_contract import (CompiledPrompt, PromptCaceEvidenceBridge, PromptCompiler, PromptOutboxPublisher, PromptResult, PromptResultReceiver, PromptTask)
 
 
 def make_task(**overrides):
@@ -141,6 +145,8 @@ class PromptContractTests(unittest.TestCase):
             task_sha256=compiled.task_sha256,
             worker_id="hermes-worker-1",
             status="completed",
+            source_repository=compiled.source_repository,
+            source_commit_sha=compiled.source_commit_sha,
             outputs={"experiment_plan": "Run deterministic test with seed 42."},
             tests_run=("test_reproducibility",),
             test_results={"test_reproducibility": "passed"},
@@ -196,6 +202,74 @@ class PromptContractTests(unittest.TestCase):
             self._result_for(compiled, outputs={}).validate()
         with self.assertRaises(ValueError):
             self._result_for(compiled, artifact_sha256={"result.json": "not-a-hash"}).validate()
+
+    def test_cace_bridge_verifies_result_artifact_against_exact_source_revision(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            registry = MerlinRegistry(root / "registry")
+            registry.register_project("merlin", "Merlin")
+            outbox = MerlinEventOutbox(root / "outbox.sqlite3")
+            artifact_bytes = b'{"schema":"merlin-research-result/1","status":"complete"}'
+            digest = registry.put_artifact(
+                "merlin", "results/result.json", artifact_bytes, "application/json"
+            )
+
+            def transport(request):
+                receipt = {
+                    "schema": "cace-artifact-verification/1",
+                    "repository": request["repository"],
+                    "commit_sha": request["commit_sha"],
+                    "artifact_sha256": request["artifact_sha256"],
+                    "artifact_kind": request["artifact_kind"],
+                    "artifact_schema": request["artifact_schema"],
+                    "logical_path": request["logical_path"],
+                    "verifier_id": "cace:independent-artifact-checker",
+                    "source_commit_verified": True,
+                    "artifact_digest_verified": True,
+                    "artifact_schema_validated": True,
+                    "artifact_content_verified": True,
+                    "verification_status": "verified",
+                }
+                body = json.dumps(
+                    receipt, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+                )
+                receipt["receipt_sha256"] = hashlib.sha256(body.encode("utf-8")).hexdigest()
+                return receipt
+
+            cace = CaceVerificationAdapter(
+                verify_transport=transport, registry=registry, outbox=outbox
+            )
+            compiled = PromptCompiler().compile(make_task(
+                source_repository="Mannyspiro/expert-robot",
+                source_commit_sha="a" * 40,
+            ))
+            result = self._result_for(
+                compiled,
+                artifact_sha256={"result.json": digest},
+                artifact_metadata={"result.json": {
+                    "logical_path": "results/result.json",
+                    "artifact_kind": "research_result",
+                    "artifact_schema": "merlin-research-result/1",
+                }},
+            )
+            verified = PromptCaceEvidenceBridge(cace).verify_artifacts(
+                result, project_id="merlin", requester_id="merlin-hermes-worker"
+            )
+            self.assertEqual(verified["verification_status"], "verified")
+            self.assertEqual(verified["source_commit_sha"], "a" * 40)
+            self.assertFalse(verified["promotion_authority"])
+            self.assertFalse(verified["mathematical_proof"])
+            self.assertTrue(registry.verify_artifact(
+                verified["artifact_receipts"][0]["receipt_artifact_sha256"]
+            ))
+
+    def test_cace_bridge_fails_closed_without_source_commit_or_artifact_metadata(self):
+        compiled = PromptCompiler().compile(make_task())
+        result = self._result_for(compiled, artifact_sha256={"result.json": "a" * 64})
+        adapter = type("Adapter", (), {"verify_artifact": lambda self, **kwargs: None})()
+        bridge = PromptCaceEvidenceBridge(adapter)
+        with self.assertRaises(ValueError):
+            bridge.verify_artifacts(result, project_id="merlin", requester_id="worker")
 
     def test_bounded_execution_requires_independent_approval(self):
         with tempfile.TemporaryDirectory() as directory:

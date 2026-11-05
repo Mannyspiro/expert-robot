@@ -55,6 +55,8 @@ class PromptTask:
     resource_limits: dict[str, int]
     authority_scope: str = "draft_only"
     approval_ref: str | None = None
+    source_repository: str | None = None
+    source_commit_sha: str | None = None
 
     def validate(self) -> None:
         _bounded_text(self.task_id, "task_id", 200)
@@ -80,6 +82,15 @@ class PromptTask:
             raise ValueError("bounded execution requires an approval reference")
         if self.approval_ref is not None:
             _bounded_text(self.approval_ref, "approval_ref", 256)
+        if (self.source_repository is None) != (self.source_commit_sha is None):
+            raise ValueError("source_repository and source_commit_sha must be supplied together")
+        if self.source_repository is not None:
+            if (not isinstance(self.source_repository, str) or self.source_repository.count("/") != 1
+                    or any(character.isspace() for character in self.source_repository)
+                    or not all(self.source_repository.split("/"))):
+                raise ValueError("source_repository must be owner/name")
+            if not isinstance(self.source_commit_sha, str) or not re.fullmatch(r"[0-9a-f]{40}", self.source_commit_sha):
+                raise ValueError("source_commit_sha must be a lowercase 40-character Git SHA")
 
 
 @dataclass(frozen=True)
@@ -92,6 +103,8 @@ class CompiledPrompt:
     prompt_text: str
     prompt_sha256: str
     task_sha256: str
+    source_repository: str | None = None
+    source_commit_sha: str | None = None
 
     def validate(self) -> None:
         _bounded_text(self.task_id, "task_id", 200)
@@ -108,8 +121,23 @@ class CompiledPrompt:
         actual = hashlib.sha256(self.prompt_text.encode("utf-8")).hexdigest()
         if actual != self.prompt_sha256:
             raise ValueError("compiled prompt text does not match prompt_sha256")
+        expected_repository = self.source_repository or "unspecified"
+        expected_commit = self.source_commit_sha or "unspecified"
+        if f"Source repository: {expected_repository}" not in self.prompt_text:
+            raise ValueError("source repository is not bound into prompt text")
+        if f"Source commit SHA: {expected_commit}" not in self.prompt_text:
+            raise ValueError("source commit is not bound into prompt text")
         if self.approval_ref is not None:
             _bounded_text(self.approval_ref, "approval_ref", 256)
+        if (self.source_repository is None) != (self.source_commit_sha is None):
+            raise ValueError("source_repository and source_commit_sha must be supplied together")
+        if self.source_repository is not None:
+            if (not isinstance(self.source_repository, str) or self.source_repository.count("/") != 1
+                    or any(character.isspace() for character in self.source_repository)
+                    or not all(self.source_repository.split("/"))):
+                raise ValueError("source_repository must be owner/name")
+            if not isinstance(self.source_commit_sha, str) or not re.fullmatch(r"[0-9a-f]{40}", self.source_commit_sha):
+                raise ValueError("source_commit_sha must be a lowercase 40-character Git SHA")
         if self.authority_scope == "bounded_execution" and not self.approval_ref:
             raise ValueError("bounded execution requires an approval reference")
 
@@ -134,6 +162,8 @@ class PromptCompiler:
             f"Task ID: {task.task_id}",
             f"Recipient subsystem: {task.recipient}",
             f"Task specification SHA-256: {task_sha}",
+            f"Source repository: {task.source_repository or 'unspecified'}",
+            f"Source commit SHA: {task.source_commit_sha or 'unspecified'}",
             f"Authority scope: {task.authority_scope}",
             "",
             "ROLE AND TRUST BOUNDARY",
@@ -187,6 +217,8 @@ class PromptCompiler:
             prompt_text=prompt,
             prompt_sha256=prompt_sha,
             task_sha256=task_sha,
+            source_repository=task.source_repository,
+            source_commit_sha=task.source_commit_sha,
         )
 
 
@@ -245,6 +277,9 @@ class PromptResult:
     tool_versions: dict[str, str] | None = None
     limitations: tuple[str, ...] = ()
     next_required_approval: str | None = None
+    source_repository: str | None = None
+    source_commit_sha: str | None = None
+    artifact_metadata: dict[str, dict[str, str]] | None = None
 
     def validate(self) -> None:
         if self.schema != "merlin-engineered-result/1":
@@ -288,6 +323,23 @@ class PromptResult:
             _bounded_text(version, "tool version", 256)
         if self.next_required_approval is not None:
             _bounded_text(self.next_required_approval, "next_required_approval", 256)
+        if (self.source_repository is None) != (self.source_commit_sha is None):
+            raise ValueError("source_repository and source_commit_sha must be supplied together")
+        if self.source_repository is not None:
+            if (not isinstance(self.source_repository, str) or self.source_repository.count("/") != 1
+                    or any(character.isspace() for character in self.source_repository)
+                    or not all(self.source_repository.split("/"))):
+                raise ValueError("source_repository must be owner/name")
+            if not isinstance(self.source_commit_sha, str) or not re.fullmatch(r"[0-9a-f]{40}", self.source_commit_sha):
+                raise ValueError("source_commit_sha must be a lowercase 40-character Git SHA")
+        metadata = {} if self.artifact_metadata is None else self.artifact_metadata
+        if not isinstance(metadata, dict) or not set(metadata).issubset(set(hashes)):
+            raise ValueError("artifact_metadata must describe known artifact_sha256 entries")
+        for name, descriptor in metadata.items():
+            if not isinstance(descriptor, dict):
+                raise ValueError("each artifact metadata entry must be an object")
+            for key in ("logical_path", "artifact_kind", "artifact_schema"):
+                _bounded_text(descriptor.get(key), f"artifact_metadata.{name}.{key}", 500)
 
     def to_payload(self) -> dict[str, Any]:
         self.validate()
@@ -298,6 +350,9 @@ class PromptResult:
         payload["test_results"] = dict(self.test_results or {})
         payload["artifact_sha256"] = dict(self.artifact_sha256 or {})
         payload["tool_versions"] = dict(self.tool_versions or {})
+        payload["artifact_metadata"] = {
+            name: dict(descriptor) for name, descriptor in (self.artifact_metadata or {}).items()
+        }
         payload["result_sha256"] = hashlib.sha256(_canonical(payload).encode("utf-8")).hexdigest()
         return payload
 
@@ -342,12 +397,17 @@ class PromptResultReceiver:
             actual_prompt_hash = hashlib.sha256(prompt_text.encode("utf-8")).hexdigest()
             if actual_prompt_hash != prompt.get("prompt_sha256"):
                 raise ValueError("stored prompt text does not match its hash")
+            if f"Source repository: {prompt.get('source_repository') or 'unspecified'}" not in prompt_text:
+                raise ValueError("stored source repository is not bound into prompt text")
+            if f"Source commit SHA: {prompt.get('source_commit_sha') or 'unspecified'}" not in prompt_text:
+                raise ValueError("stored source commit is not bound into prompt text")
             task_hash = prompt.get("task_sha256")
             if not isinstance(task_hash, str) or not re.fullmatch(r"[0-9a-f]{64}", task_hash):
                 raise ValueError("stored task hash is malformed")
             if f"Task specification SHA-256: {task_hash}" not in prompt_text:
                 raise ValueError("stored task hash is not bound into the prompt text")
-            for field in ("task_id", "recipient", "prompt_sha256", "task_sha256"):
+            for field in ("task_id", "recipient", "prompt_sha256", "task_sha256",
+                          "source_repository", "source_commit_sha"):
                 if getattr(result, field) != prompt.get(field):
                     raise ValueError(f"worker result {field} does not match the dispatched prompt")
         except (TypeError, ValueError) as exc:
@@ -360,7 +420,75 @@ class PromptResultReceiver:
         )
 
 
+class PromptCaceEvidenceBridge:
+    """Submit worker artifacts to CACE's independent artifact-verification adapter."""
+
+    def __init__(self, cace_adapter: Any):
+        if not callable(getattr(cace_adapter, "verify_artifact", None)):
+            raise ValueError("cace_adapter must expose verify_artifact")
+        self.cace_adapter = cace_adapter
+
+    def verify_artifacts(
+        self, result: PromptResult, *, project_id: str, requester_id: str
+    ) -> dict[str, Any]:
+        if not isinstance(result, PromptResult):
+            raise TypeError("result must be a PromptResult")
+        result.validate()
+        _bounded_text(project_id, "project_id", 200)
+        _bounded_text(requester_id, "requester_id", 200)
+        if result.source_repository is None or result.source_commit_sha is None:
+            raise ValueError("CACE verification requires an exact source repository and commit")
+        hashes = result.artifact_sha256 or {}
+        metadata = result.artifact_metadata or {}
+        if not hashes:
+            raise ValueError("CACE verification requires at least one output artifact")
+        if set(hashes) != set(metadata):
+            raise ValueError("every output artifact must have kind, schema and logical-path metadata")
+        receipts = []
+        for name in sorted(hashes):
+            descriptor = metadata[name]
+            receipt = self.cace_adapter.verify_artifact(
+                project_id=project_id,
+                repository=result.source_repository,
+                commit_sha=result.source_commit_sha,
+                artifact_sha256=hashes[name],
+                artifact_kind=descriptor["artifact_kind"],
+                artifact_schema=descriptor["artifact_schema"],
+                requester_id=requester_id,
+                logical_path=descriptor["logical_path"],
+            )
+            if not isinstance(receipt, Mapping):
+                raise TypeError("CACE artifact verifier returned a non-mapping result")
+            receipt = dict(receipt)
+            if receipt.get("schema") != "merlin-cace-artifact-verification-result/1":
+                raise ValueError("unsupported CACE artifact verification result schema")
+            if receipt.get("source_commit") != result.source_commit_sha:
+                raise ValueError("CACE result is bound to a different source commit")
+            if receipt.get("artifact_sha256") != hashes[name]:
+                raise ValueError("CACE result is bound to a different output artifact")
+            if receipt.get("promotion_authority") is not False:
+                raise ValueError("CACE artifact result must not carry promotion authority")
+            if receipt.get("verification_status") not in {"verified", "rejected", "inconclusive"}:
+                raise ValueError("CACE returned an unsupported artifact verification status")
+            receipts.append({"artifact_name": name, **receipt})
+        statuses = {receipt["verification_status"] for receipt in receipts}
+        overall = "rejected" if "rejected" in statuses else (
+            "verified" if statuses == {"verified"} else "inconclusive"
+        )
+        return {
+            "schema": "merlin-prompt-cace-verification/1",
+            "task_id": result.task_id,
+            "prompt_sha256": result.prompt_sha256,
+            "source_repository": result.source_repository,
+            "source_commit_sha": result.source_commit_sha,
+            "verification_status": overall,
+            "artifact_receipts": receipts,
+            "promotion_authority": False,
+            "mathematical_proof": False,
+        }
+
+
 __all__ = [
     "PromptTask", "CompiledPrompt", "PromptCompiler", "PromptOutboxPublisher",
-    "PromptResult", "PromptResultReceiver",
+    "PromptResult", "PromptResultReceiver", "PromptCaceEvidenceBridge",
 ]
