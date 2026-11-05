@@ -269,8 +269,10 @@ def export_spice_netlist(
     lines.append(analysis)
     for net_name in measure_nets:
         node_name = node_names[net_name]
-        measure_name = "v_" + re.sub(r"[^A-Za-z0-9_]", "_", node_name).lower()
-        lines.append(f".meas op {measure_name} FIND v({node_name})")
+        # ngspice .meas does not support operating-point analysis. The .op
+        # result table already reports each node voltage; keep the request as
+        # a comment so downstream qualification can parse that native output.
+        lines.append(f"* requested operating-point voltage: {node_name}")
     lines.append(".end")
     return "\n".join(lines) + "\n"
 
