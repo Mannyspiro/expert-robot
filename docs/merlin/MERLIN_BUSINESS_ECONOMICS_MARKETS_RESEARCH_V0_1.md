@@ -51,6 +51,8 @@ Do not use a single opaque credibility score. Keep four separate assessments.
 
 **Claim support (0–100):** independent corroboration, primary evidence, reproducible calculation, out-of-sample evidence and consistency with contrary evidence. A high authority score does not make every claim true; an official source can be wrong or incomplete.
 
+For an initial explainable 0–100 promotional-pressure score, use provisional weights: paid referral/affiliate or sponsorship evidence 20; undisclosed financial or issuer exposure 15; urgency/scarcity or fear-of-missing-out tactics 15; guaranteed or implausibly certain outcome claims 15; unverifiable performance or testimonials 10; selective or non-reproducible backtests 10; no independent corroboration 10; repeated calls to transact or upgrade 5. Each factor is scored only when evidence is present. Also report evidence coverage and unknown factors; never silently treat unknown as absent. These weights are a starting rubric, not a calibrated probability, and require human review and later calibration against labeled examples.
+
 Never let promotional content silently enter the evidence base as neutral fact. Preserve original text, extraction, normalized claim, source hash, retrieval time, source author, commercial disclosures and model interpretation. Search for disconfirming evidence.
 
 ## 5. Public local-demand intelligence
@@ -107,6 +109,9 @@ Backtests must address look-ahead bias, survivorship and delisting bias, revised
 
 ## 10. Governance boundary
 Initial implementation is research-only and read-only. No brokerage credentials, order submission, account transfers, automated recommendations personalized to a person's financial circumstances, or trade execution. Any future market connection requires a separately reviewed adapter, explicit user approval, documented permissions, independent risk limits and a kill switch. Never store brokerage secrets in source control or research artifacts.
+
+## 11. Fit with existing Merlin components
+Do not create a parallel research platform. Reuse the existing research candidate and claim concepts in python/merlin/research.py, and connect the ideonomy graph to the canonical mathematical/research graph rather than maintaining disconnected vocabularies. The current EvidenceLedger is in-memory, so production promotion needs a persistent, append-only implementation with hashed source artifacts and revision history. The existing AcademicSourceStore is specialized for scholarly sources and restricts source types; generalize provenance through a domain-neutral source record with a backward-compatible migration rather than forcing financial, government and market records into the academic-only schema. Keep one canonical source identity and one canonical claim identity across all domains.
 
 ## First implementation milestones
 1. Validate source registry and event/claim schemas.
