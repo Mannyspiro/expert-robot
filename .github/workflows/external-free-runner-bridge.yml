@@ -176,6 +176,7 @@ jobs:
                 - name: Validate and run bounded Expert Robot formal checks
                   shell: bash
                   run: |
+                    set +e
                     set -u
 
                     request_id="$(python3 -c 'import json; print(json.load(open("bridge/request.json"))["request_id"])')"
@@ -325,12 +326,16 @@ jobs:
                       rm -rf -- "$toolchains_dir/leanprover--lean4---v4.34.tmp"
                       echo "Disk before Lean install:" | tee -a "$log"
                       df -h "$ELAN_HOME" "$RUNNER_TEMP" | tee -a "$log" || true
-                      free_kb="$(df -Pk "$ELAN_HOME" | awk 'NR==2 {print $4}')"
-                      if [ -z "$free_kb" ] || [ "$free_kb" -lt 2097152 ]; then
-                        echo "insufficient disk space for pinned Lean toolchain: available_kb=${free_kb:-unknown}, required_kb=2097152" | tee -a "$log"
-                        return 50
+                      if elan toolchain list | grep -Fx "$toolchain" >/dev/null; then
+                        echo "pinned Lean toolchain already installed: $toolchain" | tee -a "$log"
+                      else
+                        free_kb="$(df -Pk "$ELAN_HOME" | awk 'NR==2 {print $4}')"
+                        if [ -z "$free_kb" ] || [ "$free_kb" -lt 2097152 ]; then
+                          echo "insufficient disk space for pinned Lean toolchain: available_kb=${free_kb:-unknown}, required_kb=2097152" | tee -a "$log"
+                          return 50
+                        fi
+                        elan toolchain install "$toolchain"
                       fi
-                      elan toolchain install "$toolchain"
 
                       cache_key="v4.34.0-$mathlib_commit"
                       cache_root="$persistent_root/mathlib/$cache_key"
@@ -387,30 +392,51 @@ jobs:
 
                     cd "$GITHUB_WORKSPACE"
 
-                    python3 - "$request_id" "$source_sha" "$overall" > bridge/result.json <<'PY'
+                    python3 - "$request_id" "$source_sha" "$overall" "$log" > bridge/result.json <<'PY'
+                    import hashlib
                     import json
+                    import os
                     import platform
                     import sys
+                    from datetime import datetime, timezone
 
                     rc = int(sys.argv[3])
+                    log_bytes = open(sys.argv[4], "rb").read()
                     print(json.dumps({
-                        "schema_version": 2,
+                        "schema_version": 3,
+                        "result_type": "cace-external-qualification",
                         "request_id": sys.argv[1],
                         "expert_robot_commit": sys.argv[2],
+                        "cace_repository": os.environ["GITHUB_REPOSITORY"],
+                        "cace_commit": os.environ["GITHUB_SHA"],
+                        "cace_workflow_name": os.environ["GITHUB_WORKFLOW"],
+                        "cace_workflow_ref": os.environ["GITHUB_WORKFLOW_REF"],
+                        "cace_workflow_sha": os.environ["GITHUB_WORKFLOW_SHA"],
+                        "cace_workflow_run_id": int(os.environ["GITHUB_RUN_ID"]),
+                        "cace_run_attempt": int(os.environ["GITHUB_RUN_ATTEMPT"]),
                         "status": "pass" if rc == 0 else "fail",
                         "exit_code": rc,
+                        "failure_code": None if rc == 0 else rc,
+                        "completed_at": datetime.now(timezone.utc).isoformat(),
                         "runner_labels": ["self-hosted", "cace", "oci", "aarch64"],
                         "machine": platform.node(),
                         "architecture": platform.machine(),
+                        "runner_os": platform.platform(),
+                        "log_sha256": hashlib.sha256(log_bytes).hexdigest(),
+                        "log_size_bytes": len(log_bytes),
                         "authority": "qualification-only",
                         "promotion_authority": False,
                         "qualification_lane": "formal-static-arm64",
-                        "lean_toolchain": "leanprover/lean4:v4.34.0",
-                        "mathlib_commit": "5ed2965256430c3649e86755f9576b54eca72435",
+                        "lean_toolchain_pin": "leanprover/lean4:v4.34.0",
+                        "mathlib_commit_pin": "5ed2965256430c3649e86755f9576b54eca72435",
+                        "signature_status": "unsigned",
+                        "signature_algorithm": None,
+                        "signer_id": None,
+                        "proof_effect": "none",
                         "cxx_required": False,
                         "self_hosted_contents_write": False,
                         "monetary_cost": "free",
-                    }, indent=2))
+                    }, sort_keys=True, indent=2))
                     PY
 
                 - name: Upload read-only runner evidence
@@ -422,7 +448,7 @@ jobs:
                       bridge/result.json
                       bridge/result.log
                     if-no-files-found: error
-                    retention-days: 1
+                    retention-days: 14
 
                 - name: Enforce qualification result
                   if: always()
@@ -457,27 +483,42 @@ jobs:
                   run: |
                     set -euo pipefail
 
-                    expected="$(python3 -c 'import json; print(json.load(open("bridge/request.json"))["request_id"])')"
-                    expected_sha="$(python3 -c 'import json; print(json.load(open("bridge/request.json"))["expert_robot_commit"])')"
                     result="$RUNNER_TEMP/expert-robot-bridge-result/result.json"
                     log="$RUNNER_TEMP/expert-robot-bridge-result/result.log"
-
                     test -f "$result"
-                    got="$(python3 -c 'import json; print(json.load(open("'"$result"'"))["request_id"])')"
-                    got_sha="$(python3 -c 'import json; print(json.load(open("'"$result"'"))["expert_robot_commit"])')"
-                    status="$(python3 -c 'import json; print(json.load(open("'"$result"'"))["status"])')"
+                    test -f "$log"
+                    python3 - "$result" "$log" "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" >> "$GITHUB_OUTPUT" <<'PY'
+                    import hashlib
+                    import json
+                    import sys
 
-                    test "$got" = "$expected"
-                    test "$got_sha" = "$expected_sha"
-
-                    if [ -f "$log" ]; then
-                      size="$(stat -c %s "$log")"
-                      test "$size" -le $((1024 * 1024))
-                    fi
-
-                    echo "request_id=$expected" >> "$GITHUB_OUTPUT"
-                    echo "source_sha=$expected_sha" >> "$GITHUB_OUTPUT"
-                    echo "status=$status" >> "$GITHUB_OUTPUT"
+                    result_path, log_path, cace_sha, run_id, attempt = sys.argv[1:]
+                    request = json.load(open("bridge/request.json", encoding="utf-8"))
+                    result = json.load(open(result_path, encoding="utf-8"))
+                    log = open(log_path, "rb").read()
+                    assert result.get("schema_version") == 3
+                    assert result.get("result_type") == "cace-external-qualification"
+                    assert result.get("request_id") == request["request_id"]
+                    assert result.get("expert_robot_commit") == request["expert_robot_commit"]
+                    assert result.get("cace_repository") == "morganaspim/Cace-app"
+                    assert result.get("cace_commit") == cace_sha
+                    assert str(result.get("cace_workflow_run_id")) == run_id
+                    assert str(result.get("cace_run_attempt")) == attempt
+                    assert result.get("status") in ("pass", "fail")
+                    assert isinstance(result.get("exit_code"), int)
+                    assert (result["status"] == "pass") == (result["exit_code"] == 0)
+                    assert result.get("authority") == "qualification-only"
+                    assert result.get("promotion_authority") is False
+                    assert result.get("signature_status") == "unsigned"
+                    assert result.get("proof_effect") == "none"
+                    assert result.get("log_sha256") == hashlib.sha256(log).hexdigest()
+                    assert result.get("log_size_bytes") == len(log)
+                    assert len(log) <= 1024 * 1024
+                    print("request_id=" + request["request_id"])
+                    print("source_sha=" + request["expert_robot_commit"])
+                    print("status=" + result["status"])
+                    print("cace_commit=" + cace_sha)
+                    PY
 
                 - name: Publish result inside Cace-app bridge branch
                   shell: bash
