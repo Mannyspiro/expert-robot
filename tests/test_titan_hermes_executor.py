@@ -14,7 +14,8 @@ class TitanHermesExecutorTests(unittest.TestCase):
         result = hermes_titan_research_executor(task, Context())
         report = json.loads(result["artifact_bytes"])
         self.assertEqual(report["schema"], "titan-hermes-research-output/1")
-        self.assertEqual(report["task"]["task_id"], "titan-task-001")
+        self.assertEqual(report["task_id"], "titan-task-001")
+        self.assertEqual(report["hypothesis_id"], "H-TITAN-001")
         self.assertFalse(result["metadata"]["cryptographic_operations_performed"])
         self.assertIn("no cryptographic operations", result["summary"])
 
