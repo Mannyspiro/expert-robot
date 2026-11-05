@@ -203,6 +203,9 @@ def export_spice_netlist(
     if not isinstance(component_specs, dict) or not component_specs:
         raise ValueError("explicit component_specs are required")
     nets = {net.name: net for net in project.nets}
+    known_refs = {part.ref for part in project.parts}
+    if set(component_specs) - known_refs:
+        raise ValueError("component_specs contains unknown part references")
     if ground_net not in nets:
         raise ValueError("ground_net must name an existing engineering net")
 
