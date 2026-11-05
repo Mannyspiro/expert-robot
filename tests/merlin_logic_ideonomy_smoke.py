@@ -30,4 +30,12 @@ assert p["logic_lenses"]["finite_logic"]["row_count"]==9
 assert p["logic_lenses"]["ranked_compositions"]["total_combinations"]==14*15*14
 assert len(p["ideonomy"]["ideas"])==24
 assert p["lean_bridge"]["status"]=="candidate_generation_only"
+assert len(p["engineering_plan"]["research_methods"]["ideonomy"]["ranked_candidates"])==24
+assert len(p["engineering_plan"]["research_methods"]["logic_lenses"]["ranked_compositions"])==24
+validator=load("validator","merlin_engineering_plan.py")
+incomplete=p["engineering_plan"].copy()
+incomplete["research_methods"]=dict(incomplete["research_methods"])
+incomplete["research_methods"]["ideonomy"]=dict(incomplete["research_methods"]["ideonomy"])
+incomplete["research_methods"]["ideonomy"].pop("ranked_candidates")
+assert any("ranked ideonomy candidates" in e for e in validator.validate(incomplete))
 print("Fuzzy operators, finite n-valued truth tables, ranked logic lenses, bounded ideonomy and Lean research packet smoke passed.")
