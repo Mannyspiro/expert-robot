@@ -124,6 +124,46 @@ class PreservationRecoveryTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "independently validated approval"):
             validate_change_manifest(manifest)
 
+    def test_git_tree_manifest_handles_tab_and_newline_paths_and_exact_restore_after_delete(self):
+        repo = self.root / "git-delimited-paths"
+        repo.mkdir()
+        subprocess.run(["git", "init", str(repo)], check=True, capture_output=True)
+        subprocess.run(["git", "-C", str(repo), "config", "user.email", "test@example.invalid"], check=True)
+        subprocess.run(["git", "-C", str(repo), "config", "user.name", "Test"], check=True)
+        unusual = "folder/name\twith-tab.txt"
+        payload = b"exact bytes from retained commit"
+        (repo / "folder").mkdir()
+        (repo / unusual.split("/", 1)[1]).write_bytes(payload)
+        subprocess.run(["git", "-C", str(repo), "add", "-A"], check=True)
+        subprocess.run(["git", "-C", str(repo), "commit", "-m", "retain unusual path"],
+                       check=True, capture_output=True)
+        pinned = subprocess.run(["git", "-C", str(repo), "rev-parse", "HEAD"],
+                                check=True, capture_output=True, text=True).stdout.strip()
+        adapter = GitRecoveryAdapter(repo)
+        manifest = adapter.tree_manifest(pinned)
+        self.assertEqual([item["path"] for item in manifest["artifacts"]], [unusual])
+        (repo / unusual).unlink()
+        subprocess.run(["git", "-C", str(repo), "add", "-A"], check=True)
+        subprocess.run(["git", "-C", str(repo), "commit", "-m", "delete unusual path"],
+                       check=True, capture_output=True)
+        digest = hashlib.sha256(payload).hexdigest()
+        restored = adapter.recover(
+            commit=pinned, path=unusual, expected_sha256=digest,
+            project_id="p", registry=self.registry)
+        self.assertEqual(self.registry.get_artifact_bytes(digest), payload)
+        self.assertTrue(restored["recovery_path"].startswith("_recovery/"))
+
+    def test_zip_duplicate_member_name_is_rejected_as_ambiguous(self):
+        archive_path = self.root / "duplicate.zip"
+        with zipfile.ZipFile(archive_path, "w") as archive:
+            archive.writestr("same.txt", b"first")
+            archive.writestr("same.txt", b"second")
+        with self.assertRaisesRegex(KeyError, "ambiguous"):
+            ZipRecoveryAdapter().recover(
+                archive_path=archive_path, member_path="same.txt",
+                expected_sha256=hashlib.sha256(b"first").hexdigest(),
+                project_id="p", registry=self.registry)
+
     def test_hermes_recovery_queue_uses_approval_lease_and_quarantine(self):
         outbox = MerlinEventOutbox(self.root / "outbox.sqlite3")
         data = b"source bytes to recover"
