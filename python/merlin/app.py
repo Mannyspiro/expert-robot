@@ -236,15 +236,18 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             learning_graph[idea_id] = {"prerequisites": prerequisites, "dimensions": dimensions}
             learning_lessons.append({"lesson_id": lesson_id, "idea_id": idea_id,
                                      "curriculum_id": "mathematics"})
-    # B2B competency nodes are separate from mathematical idea records.
-    learning_graph.update({
-        "B2B-ML-001": {"prerequisites": [], "dimensions": ["recognition", "conceptual_explanation", "procedure", "transfer"]},
-        "B2B-AI-001": {"prerequisites": ["B2B-ML-001"], "dimensions": ["conceptual_explanation", "procedure", "transfer", "proof_justification"]},
-    })
-    learning_lessons.extend([
-        {"lesson_id": "b2b-ml-foundations-v0.1", "idea_id": "B2B-ML-001", "curriculum_id": "b2b-ml-agentic-ai"},
-        {"lesson_id": "b2b-agentic-workflows-v0.1", "idea_id": "B2B-AI-001", "curriculum_id": "b2b-ml-agentic-ai"},
-    ])
+    # B2B competencies are a separate, versioned curriculum graph.
+    b2b_graph_path = repo_root / "docs" / "merlin" / "MERLIN_B2B_LEARNING_GRAPH_V0_1.json"
+    if b2b_graph_path.is_file():
+        b2b_graph = json.loads(b2b_graph_path.read_text(encoding="utf-8"))
+        for node in b2b_graph.get("nodes", []):
+            idea_id, lesson_id = node.get("idea_id"), node.get("lesson_id")
+            if not isinstance(idea_id, str) or not isinstance(lesson_id, str):
+                continue
+            learning_graph[idea_id] = {"prerequisites": node.get("prerequisites", []),
+                                       "dimensions": node.get("dimensions", [])}
+            learning_lessons.append({"lesson_id": lesson_id, "idea_id": idea_id,
+                                     "curriculum_id": b2b_graph.get("curriculum_id")})
     learning_router = HermesLearningRouter(learning_outbox, learner_store, learning_graph,
                                            learning_lessons) if learning_outbox is not None else None
     # Rebuild simulation state from the durable action ledger on process restart.
