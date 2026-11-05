@@ -16,7 +16,7 @@ from merlin.registry_queries import MerlinReadAPI
 
 
 HUD_PATHS = frozenset({
-    "/api/hud/activity", "/api/hud/graph", "/api/hud/node",
+    "/dashboard", "/api/hud/activity", "/api/hud/graph", "/api/hud/node",
 })
 
 
