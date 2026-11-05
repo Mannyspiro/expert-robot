@@ -23,7 +23,7 @@ def export_graph(database,project_id):
             c=node("GitCommitReceipt",commit["receipt_id"],repository=commit["repository"],
               canonical_sha=commit["canonical_sha"],commit_url=commit["commit_url"],
               signature_verified=bool(commit["signature_verified"]))
-            edge(p,"hasVerifiedGitCommit",c)
+            edge(p,"hasGitHubCommitReceipt",c)
         for a in rows:
             artifact=node("Artifact",a["sha256"],sha256=a["sha256"])
             occurrence=node("ArtifactOccurrence",a["intake_id"]+"|"+a["path"],path=a["path"],classification=a["classification"])
@@ -38,7 +38,7 @@ def export_graph(database,project_id):
         for meta in metadata_rows:
             mdata=json.loads(meta["metadata_json"])
             m=node("EngineeringMetadata",meta["artifact_sha256"],artifact_sha256=meta["artifact_sha256"],metadata=mdata)
-            edge(nid("artifact",meta["artifact_sha256"]),"hasEngineeringMetadata",m)
+            edge(nid("Artifact",meta["artifact_sha256"]),"hasEngineeringMetadata",m)
         wiring=db.execute("SELECT * FROM wiring_connections WHERE project_id=?",(project_id,)).fetchall()
         for w in wiring:
             net=node("ElectricalNet",project_id+"|"+w["net_name"],net_name=w["net_name"])
@@ -46,7 +46,9 @@ def export_graph(database,project_id):
             target=node("ComponentPin",w["to_node"]+"|"+w["to_pin"],component=w["to_node"],pin=w["to_pin"])
             edge(source,"connectedThrough",net); edge(target,"connectedThrough",net)
     unique={x["id"]:x for x in nodes}
-    return {"graph_version":"1.0","project_id":project_id,"nodes":list(unique.values()),"edges":edges}
+    known=set(unique)
+    unique_edges={x["id"]:x for x in edges if x["from"] in known and x["to"] in known}
+    return {"graph_version":"1.0","project_id":project_id,"nodes":list(unique.values()),"edges":list(unique_edges.values())}
 def main():
     p=argparse.ArgumentParser(); p.add_argument("project_id"); p.add_argument("--database",default="data/merlin.sqlite3"); p.add_argument("--out",required=True)
     a=p.parse_args(); initialize(a.database); g=export_graph(a.database,a.project_id)
