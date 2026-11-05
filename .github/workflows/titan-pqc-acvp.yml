@@ -1,0 +1,126 @@
+name: Titan PQC ACVP Reference Tests
+
+on:
+  push:
+    branches:
+      - "feat/titan-pqc-foundation-20261105"
+    paths:
+      - "config/titan/provider-lock.v1.json"
+      - "formal/MathAI/Titan/Protocol.lean"
+      - ".github/workflows/titan-pqc-acvp.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: titan-pqc-acvp-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  acvp-reference:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 25
+    steps:
+      - name: Checkout Titan source
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Install build prerequisites
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends cmake ninja-build gcc g++ git python3 python3-venv
+
+      - name: Verify pinned upstream provider and vector release
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --filter=blob:none https://github.com/open-quantum-safe/liboqs.git /tmp/liboqs
+          git -C /tmp/liboqs checkout --detach 5a1a854b0dc9f2141bdc771c555ee60c37950183
+          test "$(git -C /tmp/liboqs rev-parse HEAD)" = "5a1a854b0dc9f2141bdc771c555ee60c37950183"
+          git -C /tmp/liboqs clone --filter=blob:none https://github.com/usnistgov/ACVP-Server.git /tmp/acvp-server
+          test "$(git -C /tmp/acvp-server rev-parse 'v1.1.0.41^{commit}')" = "b121fee031dc65d32c96f4109a42a10dacbe2076"
+          {
+            echo "liboqs_commit=$(git -C /tmp/liboqs rev-parse HEAD)"
+            echo "acvp_server_commit=$(git -C /tmp/acvp-server rev-parse 'v1.1.0.41^{commit}')"
+            echo "python=$(python3 --version)"
+            echo "cmake=$(cmake --version | head -1)"
+            echo "gcc=$(gcc --version | head -1)"
+            echo "runner=$RUNNER_NAME"
+          } | tee titan-provider-provenance.txt
+
+      - name: Build only standardized algorithms
+        shell: bash
+        run: |
+          set -euo pipefail
+          cmake -S /tmp/liboqs -B /tmp/liboqs/build -GNinja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DOQS_ALGS_ENABLED=STD \
+            -DOQS_BUILD_TESTS=ON \
+            -DOQS_BUILD_ONLY_LIB=OFF
+          cmake --build /tmp/liboqs/build --parallel 4
+
+      - name: Install pinned upstream test requirements
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m venv /tmp/titan-pqc-venv
+          /tmp/titan-pqc-venv/bin/python -m pip install --upgrade "pip==25.2"
+          /tmp/titan-pqc-venv/bin/python -m pip install --require-hashes -r /tmp/liboqs/.github/workflows/requirements.txt
+
+      - name: Execute official NIST ACVP projection-vector tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd /tmp/liboqs
+          export OQS_BUILD_DIR=build
+          /tmp/titan-pqc-venv/bin/python -m pytest -q tests/test_acvp_vectors.py \
+            --junitxml="$GITHUB_WORKSPACE/titan-acvp-junit.xml" \
+            | tee "$GITHUB_WORKSPACE/titan-acvp-test.log"
+
+      - name: Record exact source and vector evidence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import hashlib, json, os, pathlib, subprocess, sys
+          root=pathlib.Path(os.environ["GITHUB_WORKSPACE"])
+          def sha(p):
+              p=pathlib.Path(p)
+              return hashlib.sha256(p.read_bytes()).hexdigest() if p.exists() else None
+          def git(path,*args):
+              try:return subprocess.check_output(["git","-C",path,*args],text=True).strip()
+              except Exception:return None
+          report={
+            "schema_version":1,
+            "evidence_type":"titan-pqc-acvp-test",
+            "workflow_run_id":os.environ.get("GITHUB_RUN_ID"),
+            "workflow_run_attempt":os.environ.get("GITHUB_RUN_ATTEMPT"),
+            "titan_source_commit":os.environ.get("GITHUB_SHA"),
+            "provider":{"repository":"https://github.com/open-quantum-safe/liboqs","release":"0.16.0","commit":git("/tmp/liboqs","rev-parse","HEAD")},
+            "vectors":{"repository":"https://github.com/usnistgov/ACVP-Server","tag":"v1.1.0.41","commit":git("/tmp/acvp-server","rev-parse","v1.1.0.41^{commit}")},
+            "test_log_sha256":sha(root/"titan-acvp-test.log"),
+            "junit_sha256":sha(root/"titan-acvp-junit.xml"),
+            "runner_name":os.environ.get("RUNNER_NAME"),
+            "status":"see_workflow_job_conclusion",
+            "fips_validation_claim":False,
+            "production_eligible":False
+          }
+          (root/"titan-pqc-acvp-evidence.json").write_text(json.dumps(report,indent=2,sort_keys=True)+"\n")
+          PY
+
+      - name: Upload test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: titan-pqc-acvp-${{ github.run_id }}
+          path: |
+            titan-provider-provenance.txt
+            titan-acvp-test.log
+            titan-acvp-junit.xml
+            titan-pqc-acvp-evidence.json
+          if-no-files-found: warn
+          retention-days: 30
