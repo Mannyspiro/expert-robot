@@ -31,24 +31,111 @@ on:
       - ".github/workflows/merlin-math-catalog.yml"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
-  group: merlin-math-catalog-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  group: merlin-math-catalog-${{ github.workflow }}-${{ github.ref }}-${{ github.run_id }}
+  cancel-in-progress: false
 
 jobs:
   validate-catalog:
     runs-on: avrea-ubuntu-latest-8-vcpu
+    env:
+      PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      PR_BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
     steps:
       - uses: actions/checkout@v4
+      - name: Record runner and source identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          {
+            echo "repository=$GITHUB_REPOSITORY"
+            echo "merge_sha=$GITHUB_SHA"
+            echo "head_sha=$PR_HEAD_SHA"
+            echo "base_sha=$PR_BASE_SHA"
+            echo "event=$GITHUB_EVENT_NAME"
+            echo "run_id=$GITHUB_RUN_ID"
+            echo "run_attempt=$GITHUB_RUN_ATTEMPT"
+            echo "runner_name=$RUNNER_NAME"
+            echo "runner_os=$RUNNER_OS"
+            echo "runner_arch=$RUNNER_ARCH"
+            uname -a
+            nproc
+          } | tee artifacts/runner-identity.log
       - name: Validate stable IDs and typed relations
-        run: python3 scripts/merlin_math_idea_validate.py
+        shell: bash
+        run: |
+          set +e
+          mkdir -p artifacts
+          python3 scripts/merlin_math_idea_validate.py 2>&1 | tee artifacts/math-catalog-validation.log
+          test_exit=${PIPESTATUS[0]}
+          printf '{"suite":"math-catalog-validation","head_sha":"%s","merge_sha":"%s","base_sha":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$PR_HEAD_SHA" "$GITHUB_SHA" "$PR_BASE_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$test_exit" > artifacts/math-catalog-validation-result.json
+          exit "$test_exit"
       - name: Test catalog validator
-        run: python3 -m unittest discover -s tests -p "test_merlin_math_idea_validate.py" -v
+        shell: bash
+        run: |
+          set +e
+          python3 -m unittest discover -s tests -p "test_merlin_math_idea_validate.py" -v 2>&1 | tee artifacts/math-catalog-validator-tests.log
+          test_exit=${PIPESTATUS[0]}
+          printf '{"suite":"math-catalog-validator-tests","head_sha":"%s","merge_sha":"%s","base_sha":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$PR_HEAD_SHA" "$GITHUB_SHA" "$PR_BASE_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$test_exit" > artifacts/math-catalog-validator-tests-result.json
+          exit "$test_exit"
       - name: Test exact multi-representation algebra
-        run: python3 -m unittest discover -s tests -p "test_merlin_representation_graph.py" -v
+        shell: bash
+        run: |
+          set +e
+          python3 -m unittest discover -s tests -p "test_merlin_representation_graph.py" -v 2>&1 | tee artifacts/math-representation-graph-tests.log
+          test_exit=${PIPESTATUS[0]}
+          printf '{"suite":"math-representation-graph-tests","head_sha":"%s","merge_sha":"%s","base_sha":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$PR_HEAD_SHA" "$GITHUB_SHA" "$PR_BASE_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$test_exit" > artifacts/math-representation-graph-tests-result.json
+          exit "$test_exit"
       - name: Test quaternion and Cl(3,0) rotor correspondence
-        run: python3 -m unittest discover -s tests -p "test_merlin_rotation_representations.py" -v
+        shell: bash
+        run: |
+          set +e
+          python3 -m unittest discover -s tests -p "test_merlin_rotation_representations.py" -v 2>&1 | tee artifacts/math-rotation-representations-tests.log
+          test_exit=${PIPESTATUS[0]}
+          printf '{"suite":"math-rotation-representations-tests","head_sha":"%s","merge_sha":"%s","base_sha":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$PR_HEAD_SHA" "$GITHUB_SHA" "$PR_BASE_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$test_exit" > artifacts/math-rotation-representations-tests-result.json
+          exit "$test_exit"
       - name: Test spherical curvature and holonomy
-        run: python3 -m unittest discover -s tests -p "test_merlin_spherical_holonomy.py" -v
+        shell: bash
+        run: |
+          set +e
+          python3 -m unittest discover -s tests -p "test_merlin_spherical_holonomy.py" -v 2>&1 | tee artifacts/math-spherical-holonomy-tests.log
+          test_exit=${PIPESTATUS[0]}
+          printf '{"suite":"math-spherical-holonomy-tests","head_sha":"%s","merge_sha":"%s","base_sha":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$PR_HEAD_SHA" "$GITHUB_SHA" "$PR_BASE_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$test_exit" > artifacts/math-spherical-holonomy-tests-result.json
+          exit "$test_exit"
       - name: Compile mathematical representation modules
-        run: python3 -m py_compile merlin/representation_graph.py merlin/rotation_representations.py merlin/spherical_holonomy.py
+        shell: bash
+        run: |
+          set +e
+          python3 -m py_compile merlin/representation_graph.py merlin/rotation_representations.py merlin/spherical_holonomy.py 2>&1 | tee artifacts/math-representation-compile.log
+          test_exit=${PIPESTATUS[0]}
+          printf '{"suite":"math-representation-compile","head_sha":"%s","merge_sha":"%s","base_sha":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$PR_HEAD_SHA" "$GITHUB_SHA" "$PR_BASE_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$test_exit" > artifacts/math-representation-compile-result.json
+          exit "$test_exit"
+      - name: Record workflow evidence manifest
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          python3 - <<'PY'
+          import json, os
+          keys = ("GITHUB_REPOSITORY", "GITHUB_SHA", "GITHUB_REF", "GITHUB_EVENT_NAME",
+                  "GITHUB_RUN_ID", "GITHUB_RUN_ATTEMPT", "GITHUB_WORKFLOW", "RUNNER_NAME", "PR_HEAD_SHA", "PR_BASE_SHA")
+          payload = {key.lower(): os.environ.get(key, "") for key in keys}
+          payload["job_status"] = os.environ.get("JOB_STATUS", "unknown")
+          with open("artifacts/math-catalog-evidence.json", "w", encoding="utf-8") as handle:
+              json.dump(payload, handle, sort_keys=True, indent=2)
+              handle.write("\\n")
+          PY
+      - name: Upload mathematical catalog logs and results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-math-catalog-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/
+          if-no-files-found: warn
+          retention-days: 14
