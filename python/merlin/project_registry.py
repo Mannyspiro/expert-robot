@@ -79,97 +79,104 @@ class MerlinRegistry:
               metadata_json TEXT NOT NULL,
               PRIMARY KEY(source_id, relation, target_id));
             """)
-            columns = {row["name"] for row in db.execute("PRAGMA table_info(project_artifacts)")}
-            if "generation" not in columns:
-                db.execute("ALTER TABLE project_artifacts ADD COLUMN generation INTEGER NOT NULL DEFAULT 1")
-            version_columns = {row["name"] for row in db.execute("PRAGMA table_info(artifact_versions)")}
-            if "pre_change_recovery_id" not in version_columns:
-                db.execute("ALTER TABLE artifact_versions ADD COLUMN pre_change_recovery_id TEXT")
-            # Validate every legacy head's exact blob before changing migration metadata.
-            # A missing/corrupt source blob aborts migration rather than creating a false history.
-            legacy_heads = db.execute("""
-              SELECT pa.digest, a.size_bytes, a.relative_path
-              FROM project_artifacts pa JOIN artifacts a USING(digest)
-            """).fetchall()
-            for legacy in legacy_heads:
-                legacy_path = self.root / legacy["relative_path"]
-                try:
-                    legacy_bytes = legacy_path.read_bytes()
-                except OSError as exc:
-                    raise RuntimeError(
-                        f"legacy registry migration blocked: blob unavailable for {legacy['digest']}"
-                    ) from exc
-                if (len(legacy_bytes) != legacy["size_bytes"]
-                        or hashlib.sha256(legacy_bytes).hexdigest() != legacy["digest"]):
-                    raise RuntimeError(
-                        f"legacy registry migration blocked: blob integrity failure for {legacy['digest']}"
-                    )
-            # Migrate pre-versioning heads once. Existing blob bytes are not modified.
-            db.execute("""
-              INSERT INTO artifact_versions(
-                version_id, project_id, logical_path, digest, parent_version_id,
-                generation, actor, operation_id, created_at)
-              SELECT 'legacy:' || pa.project_id || ':' || pa.logical_path,
-                     pa.project_id, pa.logical_path, pa.digest, NULL,
-                     COALESCE(pa.generation, 1), 'migration', 'legacy-import', ?
-              FROM project_artifacts pa
-              WHERE NOT EXISTS (
-                SELECT 1 FROM artifact_versions av
-                WHERE av.project_id=pa.project_id AND av.logical_path=pa.logical_path)
-            """, (time.time(),))
-            db.executescript("""
-            DROP TRIGGER IF EXISTS project_artifacts_guard_update;
-            DROP TRIGGER IF EXISTS project_artifacts_guard_insert;
-            CREATE TRIGGER IF NOT EXISTS artifact_blobs_no_update
-              BEFORE UPDATE ON artifacts
-              BEGIN SELECT RAISE(ABORT, 'artifact blob metadata is append-only'); END;
-            CREATE TRIGGER IF NOT EXISTS artifact_blobs_no_delete
-              BEFORE DELETE ON artifacts
-              BEGIN SELECT RAISE(ABORT, 'artifact blobs cannot be deleted'); END;
-            CREATE TRIGGER IF NOT EXISTS artifact_versions_no_update
-              BEFORE UPDATE ON artifact_versions
-              BEGIN SELECT RAISE(ABORT, 'artifact versions are append-only'); END;
-            CREATE TRIGGER IF NOT EXISTS artifact_versions_no_delete
-              BEFORE DELETE ON artifact_versions
-              BEGIN SELECT RAISE(ABORT, 'artifact versions cannot be deleted'); END;
-            CREATE TRIGGER IF NOT EXISTS recovery_points_no_update
-              BEFORE UPDATE ON recovery_points
-              BEGIN SELECT RAISE(ABORT, 'recovery points are append-only'); END;
-            CREATE TRIGGER IF NOT EXISTS recovery_points_no_delete
-              BEFORE DELETE ON recovery_points
-              BEGIN SELECT RAISE(ABORT, 'recovery points cannot be deleted'); END;
-            CREATE TRIGGER IF NOT EXISTS project_artifacts_no_delete
-              BEFORE DELETE ON project_artifacts
-              BEGIN SELECT RAISE(ABORT, 'artifact heads cannot be deleted; tombstone instead'); END;
-            CREATE TRIGGER IF NOT EXISTS project_artifacts_guard_insert
-              BEFORE INSERT ON project_artifacts
-              WHEN NOT EXISTS (
-                SELECT 1 FROM artifact_versions av
-                WHERE av.project_id=NEW.project_id AND av.logical_path=NEW.logical_path
-                  AND av.digest=NEW.digest AND av.generation=NEW.generation
-                  AND av.parent_version_id IS NULL
-              )
-              BEGIN SELECT RAISE(ABORT, 'artifact head insert requires a matching initial version row'); END;
-            CREATE TRIGGER IF NOT EXISTS project_artifacts_guard_update
-              BEFORE UPDATE ON project_artifacts
-              WHEN NEW.project_id != OLD.project_id
-                OR NEW.logical_path != OLD.logical_path
-                OR NEW.generation != OLD.generation + 1
-                OR NEW.digest = OLD.digest
-                OR NOT EXISTS (
-                  SELECT 1 FROM artifact_versions parent
-                  JOIN artifact_versions next ON next.parent_version_id=parent.version_id
-                  WHERE parent.project_id=OLD.project_id
-                    AND parent.logical_path=OLD.logical_path
-                    AND parent.digest=OLD.digest
-                    AND parent.generation=OLD.generation
-                    AND next.project_id=NEW.project_id
-                    AND next.logical_path=NEW.logical_path
-                    AND next.digest=NEW.digest
-                    AND next.generation=NEW.generation
-                )
-              BEGIN SELECT RAISE(ABORT, 'artifact head update requires a matching append-only version row'); END;
-            """)
+            db.execute("BEGIN IMMEDIATE")
+            try:
+                columns = {row["name"] for row in db.execute("PRAGMA table_info(project_artifacts)")}
+                if "generation" not in columns:
+                    db.execute("ALTER TABLE project_artifacts ADD COLUMN generation INTEGER NOT NULL DEFAULT 1")
+                version_columns = {row["name"] for row in db.execute("PRAGMA table_info(artifact_versions)")}
+                if "pre_change_recovery_id" not in version_columns:
+                    db.execute("ALTER TABLE artifact_versions ADD COLUMN pre_change_recovery_id TEXT")
+                # Validate every legacy head's exact blob before changing migration metadata.
+                # A missing/corrupt source blob aborts the complete versioning migration.
+                legacy_heads = db.execute("""
+                  SELECT pa.digest, a.size_bytes, a.relative_path
+                  FROM project_artifacts pa JOIN artifacts a USING(digest)
+                """).fetchall()
+                for legacy in legacy_heads:
+                    legacy_path = self.root / legacy["relative_path"]
+                    try:
+                        legacy_bytes = legacy_path.read_bytes()
+                    except OSError as exc:
+                        raise RuntimeError(
+                            f"legacy registry migration blocked: blob unavailable for {legacy['digest']}"
+                        ) from exc
+                    if (len(legacy_bytes) != legacy["size_bytes"]
+                            or hashlib.sha256(legacy_bytes).hexdigest() != legacy["digest"]):
+                        raise RuntimeError(
+                            f"legacy registry migration blocked: blob integrity failure for {legacy['digest']}"
+                        )
+                db.execute("""
+                  INSERT INTO artifact_versions(
+                    version_id, project_id, logical_path, digest, parent_version_id,
+                    generation, actor, operation_id, created_at)
+                  SELECT 'legacy:' || pa.project_id || ':' || pa.logical_path,
+                         pa.project_id, pa.logical_path, pa.digest, NULL,
+                         COALESCE(pa.generation, 1), 'migration', 'legacy-import', ?
+                  FROM project_artifacts pa
+                  WHERE NOT EXISTS (
+                    SELECT 1 FROM artifact_versions av
+                    WHERE av.project_id=pa.project_id AND av.logical_path=pa.logical_path)
+                """, (time.time(),))
+                trigger_statements = [
+                    "DROP TRIGGER IF EXISTS project_artifacts_guard_update",
+                    "DROP TRIGGER IF EXISTS project_artifacts_guard_insert",
+                    """CREATE TRIGGER IF NOT EXISTS artifact_blobs_no_update
+                       BEFORE UPDATE ON artifacts
+                       BEGIN SELECT RAISE(ABORT, 'artifact blob metadata is append-only'); END""",
+                    """CREATE TRIGGER IF NOT EXISTS artifact_blobs_no_delete
+                       BEFORE DELETE ON artifacts
+                       BEGIN SELECT RAISE(ABORT, 'artifact blobs cannot be deleted'); END""",
+                    """CREATE TRIGGER IF NOT EXISTS artifact_versions_no_update
+                       BEFORE UPDATE ON artifact_versions
+                       BEGIN SELECT RAISE(ABORT, 'artifact versions are append-only'); END""",
+                    """CREATE TRIGGER IF NOT EXISTS artifact_versions_no_delete
+                       BEFORE DELETE ON artifact_versions
+                       BEGIN SELECT RAISE(ABORT, 'artifact versions cannot be deleted'); END""",
+                    """CREATE TRIGGER IF NOT EXISTS recovery_points_no_update
+                       BEFORE UPDATE ON recovery_points
+                       BEGIN SELECT RAISE(ABORT, 'recovery points are append-only'); END""",
+                    """CREATE TRIGGER IF NOT EXISTS recovery_points_no_delete
+                       BEFORE DELETE ON recovery_points
+                       BEGIN SELECT RAISE(ABORT, 'recovery points cannot be deleted'); END""",
+                    """CREATE TRIGGER IF NOT EXISTS project_artifacts_no_delete
+                       BEFORE DELETE ON project_artifacts
+                       BEGIN SELECT RAISE(ABORT, 'artifact heads cannot be deleted; tombstone instead'); END""",
+                    """CREATE TRIGGER IF NOT EXISTS project_artifacts_guard_insert
+                       BEFORE INSERT ON project_artifacts
+                       WHEN NOT EXISTS (
+                         SELECT 1 FROM artifact_versions av
+                         WHERE av.project_id=NEW.project_id AND av.logical_path=NEW.logical_path
+                           AND av.digest=NEW.digest AND av.generation=NEW.generation
+                           AND av.parent_version_id IS NULL
+                       )
+                       BEGIN SELECT RAISE(ABORT, 'artifact head insert requires a matching initial version row'); END""",
+                    """CREATE TRIGGER IF NOT EXISTS project_artifacts_guard_update
+                       BEFORE UPDATE ON project_artifacts
+                       WHEN NEW.project_id != OLD.project_id
+                         OR NEW.logical_path != OLD.logical_path
+                         OR NEW.generation != OLD.generation + 1
+                         OR NEW.digest = OLD.digest
+                         OR NOT EXISTS (
+                           SELECT 1 FROM artifact_versions parent
+                           JOIN artifact_versions next ON next.parent_version_id=parent.version_id
+                           WHERE parent.project_id=OLD.project_id
+                             AND parent.logical_path=OLD.logical_path
+                             AND parent.digest=OLD.digest
+                             AND parent.generation=OLD.generation
+                             AND next.project_id=NEW.project_id
+                             AND next.logical_path=NEW.logical_path
+                             AND next.digest=NEW.digest
+                             AND next.generation=NEW.generation
+                         )
+                       BEGIN SELECT RAISE(ABORT, 'artifact head update requires a matching append-only version row'); END""",
+                ]
+                for statement in trigger_statements:
+                    db.execute(statement)
+                db.commit()
+            except Exception:
+                db.rollback()
+                raise
 
     @staticmethod
     def _validate_path(logical_path: str) -> str:
