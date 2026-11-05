@@ -122,28 +122,48 @@ __all__.append("register_titan_research")
 
 
 def hermes_titan_research_executor(task, context):
-    """Injected Hermes research-stage executor; emits deterministic matrix bytes."""
+    """Emit exact deterministic Titan model/vector bytes for Hermes evidence handling."""
     import json
+    from merlin.titan_protocol_model import build_titan_protocol_bundle, verify_bundle
+
     if task.get("stage") != "research":
         raise ValueError("Titan executor only accepts the research stage")
     objective = str(task.get("objective", "")).strip()
     if not objective or "titan" not in objective.lower():
         raise ValueError("task objective must explicitly identify Titan research")
-    report = build_research_matrix()
-    report["task"] = {
+
+    bundle = build_titan_protocol_bundle(kem="ML-KEM-768")
+    verification = verify_bundle(bundle)
+    report = {
+        "schema": "titan-hermes-research-output/1",
+        "objective": objective,
         "task_id": context.task_id,
         "hypothesis_id": context.hypothesis_id,
-        "objective": objective,
+        "bundle": bundle,
+        "deterministic_model_verification": verification,
+        "evidence_scope": {
+            "registry": "stores and re-hashes the exact emitted bytes",
+            "cace": "independent artifact verification is requested by the Hermes stage handler",
+            "not_verified": ["cryptographic primitive correctness", "cryptographic security", "production readiness"],
+        },
+        "promotion_authority": False,
     }
     payload = (json.dumps(report, sort_keys=True, separators=(",", ":"),
-                          ensure_ascii=False, allow_nan=False) + "\n").encode()
+                          ensure_ascii=False, allow_nan=False) + "\\n").encode("utf-8")
     return {
         "artifact_bytes": payload,
-        "media_type": "application/vnd.merlin.titan-research+json",
-        "summary": "Generated deterministic Titan protocol research matrix; no cryptographic operations performed.",
-        "metadata": {"artifact_schema": report["schema"],
-                     "execution_mode": "deterministic_protocol_model",
-                     "cryptographic_operations_performed": False},
+        "media_type": "application/vnd.merlin.titan-protocol-bundle+json",
+        "summary": "Generated deterministic Titan protocol model and structural vectors; no cryptographic operations performed.",
+        "metadata": {
+            "artifact_schema": report["schema"],
+            "bundle_schema": bundle["schema"],
+            "model_sha256": bundle["model_sha256"],
+            "vectors_sha256": bundle["vectors_sha256"],
+            "vector_count": verification["vector_count"],
+            "vectors_passed": verification["vectors_passed"],
+            "cryptographic_operations_performed": False,
+            "promotion_authority": False,
+        },
     }
 
 
