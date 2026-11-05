@@ -11,6 +11,10 @@ on:
       - "tests/test_learner_model.py"
       - "tests/research/test_merlin_api.py"
       - "docs/merlin/MATH_KUNG_FU_ROTATION_LESSON_V0_1.html"
+      - "docs/merlin/MERLIN_ART_MATH_STUDIO_CURRICULUM_V0_1.md"
+      - "docs/merlin/MERLIN_ART_SKILL_GRAPH_V0_1.json"
+      - "docs/merlin/MERLIN_ART_MATH_SYMMETRY_STUDIO_V0_1.html"
+      - "docs/research/merlin-mathematical-idea-catalog.v1.json"
       - ".github/workflows/merlin-representation-spectrum.yml"
   workflow_dispatch:
 
