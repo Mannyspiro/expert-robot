@@ -17,6 +17,11 @@ label{display:block;margin:.6rem 0}button{padding:.5rem 1rem;font:inherit}
 <section><h2>Complex numbers</h2><p class="math">z′ = (cos θ + i sin θ)z</p><p id="complex" class="math"></p></section>
 <section><h2>Quaternions</h2><p>For rotation about the z-axis, q = cos(θ/2) + k sin(θ/2), and v′ = qvq⁻¹.</p><p id="quat" class="math"></p></section>
 <section><h2>Geometric algebra</h2><p>With B = e₁e₂ and B² = −1, rotor R = cos(θ/2) − B sin(θ/2), and v′ = RvR̃.</p><p id="rotor" class="math"></p></section>
+<section><h2>Save a practice attempt</h2>
+<p>Use a pseudonymous learner ID supplied by your course or keep this local demo ID. Attempts are sent only to the Merlin API on the same origin.</p>
+<label>Learner ID <input id="learner" maxlength="100" value="demo-learner"></label>
+<label>Session ID <input id="session" maxlength="100"></label>
+<p id="save-status" aria-live="polite">No attempt submitted yet.</p></section>
 <section><h2>Check your understanding</h2><p>Why do the quaternion and geometric-algebra rotors use half the angle?</p>
 <label><input type="radio" name="answer" value="a"> Their two-sided sandwich action produces the full vector rotation.</label>
 <label><input type="radio" name="answer" value="b"> The 3D rotation is only half as large.</label>
@@ -38,11 +43,25 @@ function update(){
  ctx.fillStyle="#d97706";ctx.beginPath();ctx.arc(110*c,110*s,6,0,Math.PI*2);ctx.fill();ctx.restore();
 }
 angle.addEventListener("input",update);update();
+el("session").value=(crypto.randomUUID?crypto.randomUUID():"session-"+Date.now());
 el("check").addEventListener("click",()=>{
  const chosen=document.querySelector('input[name="answer"]:checked');
  if(!chosen){el("feedback").textContent="Choose an answer first.";return;}
  const correct=chosen.value==="a";
  el("feedback").textContent=correct?"Correct: the sandwich action doubles the rotor angle in the vector rotation.":"Try again: focus on the two-sided action qvq⁻¹ or RvR̃.";
- el("attempt").textContent=JSON.stringify({lesson_id:"rotation-four-representations-v0.1",item_id:"rotor-half-angle",response:chosen.value,correct,recorded_at:new Date().toISOString()},null,2);
+ const attempt={
+  learner_id:el("learner").value.trim(),
+  attempt_id:(crypto.randomUUID?crypto.randomUUID():"attempt-"+Date.now()+"-"+Math.random().toString(16).slice(2)),
+  idea_id:"rotor-representations",problem_id:"rotor-half-angle",
+  problem_version:"1",dimension:"recognition",score:correct?1:0,
+  session_id:el("session").value.trim(),rubric_version:"rotation-rubric-0.1",
+  response:{selected_option:chosen.value,correct,angle_degrees:Number(angle.value)},
+  transfer:false,delayed:false,submitted_at:Date.now()/1000
+ };
+ el("attempt").textContent=JSON.stringify(attempt,null,2);
+ if(!attempt.learner_id||!attempt.session_id){el("save-status").textContent="Enter a learner ID and session ID to save this attempt.";return;}
+ fetch("/api/learning/attempt",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(attempt)})
+  .then(async response=>{const body=await response.json();if(!response.ok)throw new Error(body.detail||body.error||"save failed");el("save-status").textContent="Saved to Merlin learner evidence store ("+body.state+").";})
+  .catch(()=>{el("save-status").textContent="Not saved: serve this lesson from the local Merlin API to persist attempts. The attempt JSON above remains available for export.";});
 });
 </script>
