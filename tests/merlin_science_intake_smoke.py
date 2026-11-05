@@ -30,6 +30,9 @@ with tempfile.TemporaryDirectory() as td:
     stored=staging_root/staged["content_storage"]["path"]
     assert stored.exists() and gzip.decompress(stored.read_bytes())==content.read_bytes()
     assert staged["content_storage"]["compression"]=="gzip"
-    blocked=subprocess.run(cmd+["--max-staging-bytes","1"],capture_output=True,text=True)
+    blocked_record=Path(td)/"blocked.json"
+    blocked_record.write_text(json.dumps(dict(base,source_id="book:blocked",canonical_url="https://example.org/blocked")))
+    blocked_cmd=[sys.executable,str(repo_root/"scripts/merlin_science_intake.py"),"--record",str(blocked_record),"--content",str(content),"--out",str(staging_root/"blocked.json"),"--staging-root",str(staging_root),"--free-disk-reserve-bytes","0","--max-staging-bytes","1"]
+    blocked=subprocess.run(blocked_cmd,capture_output=True,text=True)
     assert blocked.returncode==2
 print("Merlin rights-aware source intake and bounded compressed storage smoke passed.")
