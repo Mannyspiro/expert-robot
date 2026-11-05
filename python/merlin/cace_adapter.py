@@ -105,9 +105,11 @@ class CaceVerificationAdapter:
         if supplied_digest != expected_digest:
             raise ValueError("CACE receipt SHA-256 mismatch")
         receipt_bytes = (_canonical(receipt) + "\n").encode("utf-8")
-        selected_path = logical_path or (
+        subject_path = logical_path or ("registry://sha256/" + artifact_sha256)
+        selected_path = (
             "cace-receipts/" + commit_sha + "/" + artifact_sha256 + "/" +
-            hashlib.sha256(theorem.encode("utf-8")).hexdigest() + ".json"
+            hashlib.sha256(theorem.encode("utf-8")).hexdigest() + "/" +
+            supplied_digest + ".json"
         )
         digest = self.registry.put_artifact(project_id, selected_path, receipt_bytes,
                                             "application/vnd.merlin.cace-receipt+json")
@@ -115,15 +117,15 @@ class CaceVerificationAdapter:
             raise RuntimeError("stored CACE receipt failed registry digest verification")
         receipt_graph_node = None
         if self.graph is not None:
-            artifact_identity = project_id + "|" + (logical_path or selected_path) + "|" + artifact_sha256
+            artifact_identity = project_id + "|" + subject_path + "|" + artifact_sha256
             artifact_node_id = "artifact:" + hashlib.sha256(
                 artifact_identity.encode("utf-8")
             ).hexdigest()[:32]
             if self.graph.get_node(artifact_node_id) is None:
                 self.graph.add_node(GraphNode(
-                    artifact_node_id, "artifact", logical_path or selected_path,
+                    artifact_node_id, "artifact", subject_path,
                     {"sha256": artifact_sha256, "project_id": project_id,
-                     "logical_path": logical_path or selected_path,
+                     "logical_path": subject_path,
                      "independently_submitted_to_cace": True},
                     evidence_class="submitted_for_verification",
                     source_uri="registry://sha256/" + artifact_sha256,
@@ -250,7 +252,8 @@ class CaceVerificationAdapter:
         receipt_bytes = (_canonical(receipt) + "\n").encode("utf-8")
         receipt_path = ("cace-artifact-receipts/" + commit_sha + "/" +
                         artifact_sha256 + "/" + hashlib.sha256(
-                            artifact_kind.encode("utf-8")).hexdigest() + ".json")
+                            artifact_kind.encode("utf-8")).hexdigest() + "/" +
+                        supplied_digest + ".json")
         receipt_digest = self.registry.put_artifact(
             project_id, receipt_path, receipt_bytes,
             "application/vnd.merlin.cace-artifact-receipt+json",
