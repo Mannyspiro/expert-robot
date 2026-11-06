@@ -11,7 +11,7 @@
       "id": "independent_insurance_agency",
       "applicant_type": "for_profit_business",
       "jurisdictions": ["Arizona"],
-      "ownership_profile": {"women_owned_at_least_51_percent_and_controlled": true, "citizenship_and_direct_ownership_still_to_verify": true},
+      "ownership_profile": {"status": "private_profile_reference", "certification_and_eligibility": "verify_against_official_program_rules"},
       "producer_license": {"state": "Arizona", "line": "Property and Casualty", "user_confirmed": true, "agency_entity_license_and_appointments_still_to_verify": true},
       "keywords": [
         "insurance broker", "insurance brokerage", "insurance agent",
@@ -35,7 +35,6 @@
       ],
       "partners_to_consider": ["eligible nonprofit", "amateur radio club", "school", "library", "community arts organization"],
       "grant_policy": "Record whether a fiscal sponsor or nonprofit applicant is mandatory."
-    },
     },
     {
       "id": "luxury_brand_authorized_dealer_and_distribution",
@@ -90,9 +89,9 @@
         "amateur radio operator"
       ],
       "identity_matching": {
-        "enabled_only_with_user_opt_in": true,
-        "attributes": ["woman", "Latina", "trans"],
-        "privacy": "Use only to test explicit eligibility criteria; do not infer, disclose, or log identity attributes."
+        "enabled_only_with_user_opt_in": false,
+        "attributes": [],
+        "privacy": "Identity attributes must remain in a private encrypted profile and may be loaded only after explicit opt-in for a specific program; never store them in this public example or telemetry."
       }
     }
   ],
