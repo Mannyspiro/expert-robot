@@ -62,6 +62,19 @@ class InteractionLearningApiTests(unittest.TestCase):
         rows = self.store.by_kind("/api/interaction/feedback", 20)
         self.assertNotIn("this raw text must not be stored", json.dumps(rows))
 
+    def test_improvement_evaluation_is_persisted_and_retrievable(self):
+        _, evaluated = self.request("POST", "/api/learning/improvements/evaluate", {})
+        self.assertEqual(evaluated["schema"], "merlin-interaction-improvement-result/1")
+        receipt = evaluated["receipt"]
+        self.assertEqual(len(receipt["analysis_sha256"]), 64)
+        self.assertFalse(evaluated["promotion_authorized"])
+        _, latest = self.request("GET", "/api/learning/improvements")
+        self.assertEqual(latest["latest"]["analysis_sha256"], receipt["analysis_sha256"])
+        self.assertEqual(latest["analysis"], evaluated["analysis"])
+        rows = self.store.by_kind("/api/learning/improvements/evaluate", 20)
+        self.assertTrue(rows)
+        self.assertNotIn("raw_prompt", json.dumps(rows))
+
     def test_feedback_learning_can_be_disabled(self):
         self.request("POST", "/api/learning/preferences", {
             "explicit_feedback_learning": False,
