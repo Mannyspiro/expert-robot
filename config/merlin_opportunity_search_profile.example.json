@@ -11,6 +11,8 @@
       "id": "independent_insurance_agency",
       "applicant_type": "for_profit_business",
       "jurisdictions": ["Arizona"],
+      "ownership_profile": {"women_owned_at_least_51_percent_and_controlled": true, "citizenship_and_direct_ownership_still_to_verify": true},
+      "producer_license": {"state": "Arizona", "line": "Property and Casualty", "user_confirmed": true, "agency_entity_license_and_appointments_still_to_verify": true},
       "keywords": [
         "insurance broker", "insurance brokerage", "insurance agent",
         "property and casualty", "commercial insurance", "employee benefits",
@@ -33,6 +35,41 @@
       ],
       "partners_to_consider": ["eligible nonprofit", "amateur radio club", "school", "library", "community arts organization"],
       "grant_policy": "Record whether a fiscal sponsor or nonprofit applicant is mandatory."
+    },
+    },
+    {
+      "id": "luxury_brand_authorized_dealer_and_distribution",
+      "applicant_type": "for_profit_business",
+      "jurisdictions": ["Arizona", "United States"],
+      "channels": [
+        "direct_brand_authorized_dealer",
+        "authorized_wholesale_retailer",
+        "regional_distributor",
+        "brand_licensee",
+        "authorized_reseller",
+        "authenticated_preowned_reseller"
+      ],
+      "categories": [
+        "luxury watches", "fine jewelry", "designer fashion", "handbags",
+        "eyewear", "beauty and fragrance", "premium home and lifestyle",
+        "luxury automotive", "art and collectibles"
+      ],
+      "keywords": [
+        "authorized dealer application", "retail partner application",
+        "wholesale account", "brand distribution agreement",
+        "territory distributor", "luxury retailer onboarding",
+        "authorized stockist", "brand licensing"
+      ],
+      "qualification_checks": [
+        "direct authorization from brand owner or documented authorized distributor",
+        "territory and channel rights, including online marketplace restrictions",
+        "opening order, minimum annual purchase, inventory and display requirements",
+        "storefront, ecommerce, customer service and after-sales requirements",
+        "business credit, working capital, insurance and trade references",
+        "MAP policy, returns, warranty, repair and product authenticity rules",
+        "exclusivity, termination, sell-off and geographic restrictions"
+      ],
+      "risk_policy": "Do not describe wholesale access or authenticated resale as manufacturer-authorized dealership. Verify authorization chain and territory in writing; flag gray-market inventory, counterfeit risk, and unauthorized marketplace restrictions."
     },
     {
       "id": "individual_education_and_creative",
