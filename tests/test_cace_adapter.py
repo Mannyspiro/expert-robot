@@ -23,7 +23,7 @@ _TEST_RAW_PUBLIC = _TEST_PRIVATE_KEY.public_key().public_bytes(
     format=serialization.PublicFormat.Raw,
 )
 _TEST_KEY_ID = "ed25519:" + hashlib.sha256(_TEST_RAW_PUBLIC).hexdigest()
-_TEST_TRUST = {_TEST_KEY_ID: _TEST_PUBLIC_PEM}
+_TEST_TRUST = {_TEST_KEY_ID: {"verifier_id": "cace:independent-kernel", "public_key_pem": _TEST_PUBLIC_PEM}}
 _CACE_DOMAIN = b"CACE:SIGNED-ATTESTATION:v1\\0"
 
 
