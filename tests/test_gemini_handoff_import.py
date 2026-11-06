@@ -20,6 +20,8 @@ HANDOFF = (
     "Chat 2 — c_abcdef1234567890: Personal nutrition (2026-11-01 13:00:00 UTC · COMPLETED · 1 Turn)\n"
     "* User Prompt: \"Create a personal meal plan.\"\n"
     "* Execution & Synthesis: A private personal plan was summarized.\n"
+    "3. Master Chronological Ledger of All Historical Milestones (Iterations 1–3054)\n"
+    "Technical appendix must not be attached to the final conversation.\n"
 )
 
 
