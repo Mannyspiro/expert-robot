@@ -79,7 +79,7 @@ class HermesOutbox:
                              ("step_id", step_id), ("idempotency_key", idempotency_key)):
             if not isinstance(value, str) or not value.strip():
                 raise ValueError(f"{field} is required")
-        self._time(created_at, "created_at")
+        created_at = self._time(created_at, "created_at").isoformat()
         if not isinstance(payload, Mapping) or max_attempts < 1:
             raise ValueError("payload must be a mapping and max_attempts positive")
         payload_json = self._json(payload)
