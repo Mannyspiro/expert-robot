@@ -93,3 +93,18 @@ Tests cover persistence across store reopen, exact replay, key conflict, event o
 **Scope limitation:** this is a single-node SQLite persistence adapter. It is not yet a multi-process distributed queue, a lease manager, a transactional outbox, or a production deployment. Before multi-runner concurrency, add explicit outbox/inbox tables, lease ownership and expiry, worker heartbeats, and a tested migration path; then move to a shared transactional database if deployment topology requires it.
 
 The next implementation priority is now the transactional outbox/inbox and Hermes dispatch lifecycle, followed by MCFC leases and worker recovery.
+
+
+## SQLite registry CI verification — workflow #2759
+
+The updated GitHub-hosted partner/runtime job passed after adding the SQLite persistence adapter:
+
+- [Workflow run #2759](https://github.com/Mannyspiro/expert-robot/actions/runs/42174272836), attempt 2.
+- Partner evidence and proposal pipeline job: `success`.
+- Seven suites passed: 13 opportunity, 6 procurement readiness, 5 source status, 7 partner qualification, 8 partner evidence, 9 runtime contracts, and 7 SQLite registry tests — **55 tests total**.
+- Every suite exit code is `0`; aggregate JSON `exit_code: 0`.
+- Artifact ID: `13482805948`.
+- Artifact digest: `sha256:992799b8fbe4e55de4173452880a6e626bd796e1f70b1bba95ea19a8ab035ede`.
+- The ZIP was downloaded and inspected; it contains the verbose test log, seven-suite exit-code file, and result JSON. The result JSON reports tested PR merge ref `b4ded6716a0a167d39a6ed2748914c6b0279284b`.
+
+The overall workflow remains cancelled because the separate Avrea `build-and-smoke` job did not execute. This is a passing result for the seven Python suites, not a complete Avrea/C++/CACE integration pass.
