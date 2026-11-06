@@ -119,7 +119,7 @@ class IntentCompileApiTests(unittest.TestCase):
             capabilities = json.loads(response.read())["capabilities"]
         row = next(item for item in capabilities if item["id"] == "intent.compile.preview")
         self.assertEqual(row["status"], "AVAILABLE")
-        self.assertIn("no persistence or external execution authority", row["evidence"])
+        self.assertIn("optional canonical-registry artifact persistence", row["evidence"])
 
 
 if __name__ == "__main__":
