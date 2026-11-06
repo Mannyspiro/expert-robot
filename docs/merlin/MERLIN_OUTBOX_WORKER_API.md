@@ -17,7 +17,7 @@ Set `MERLIN_WORKER_TOKENS` in the trusted server environment to a JSON object ma
 }
 ```
 
-Generate tokens with a cryptographically secure generator such as `python -c "import secrets; print(secrets.token_urlsafe(48))"`. Never commit real tokens, include them in a browser bundle, or place them in task payloads. Rotate by updating the server environment and restarting the service. A missing, malformed or empty map denies all worker requests.
+Generate tokens with a cryptographically secure generator such as `python -c "import secrets; print(secrets.token_urlsafe(48))"`. Never commit real tokens, include them in a browser bundle, or place them in task payloads. Rotate by updating the server environment and restarting the service. A missing, malformed or empty map denies all worker requests. Set a separate `MERLIN_OUTBOX_ADMIN_TOKEN` to an independent high-entropy ASCII token (at least 32 characters) for administrative cancellation; do not reuse a worker token.
 
 Every request supplies both:
 
@@ -37,8 +37,9 @@ All writes are JSON POST requests. The service is loopback-bound by default. A p
 | `POST /api/internal/outbox/heartbeat` | Extend the active lease |
 | `POST /api/internal/outbox/acknowledge` | Acknowledge with an optional JSON result |
 | `POST /api/internal/outbox/retry` | Release the lease and retry or quarantine after the attempt limit |
+| `POST /api/internal/outbox/cancel` | Administrative cancellation using the separate admin bearer token |
 
-Claim response includes the lease token only for the authenticated worker. Heartbeat, acknowledgement and retry require the exact event ID, worker-bound lease and active lease token. Stale, expired or cross-worker leases return HTTP 409. Missing worker credentials return 401. A missing outbox returns 503.
+Administrative cancellation is authenticated only by `MERLIN_OUTBOX_ADMIN_TOKEN` and records the actor as `merlin-admin`; worker credentials cannot cancel tasks. Claim response includes the lease token only for the authenticated worker. Heartbeat, acknowledgement and retry require the exact event ID, worker-bound lease and active lease token. Stale, expired or cross-worker leases return HTTP 409. Missing worker credentials return 401. A missing outbox returns 503.
 
 ## Operational semantics
 
