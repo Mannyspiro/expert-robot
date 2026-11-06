@@ -1,4 +1,6 @@
 import tempfile
+import threading
+import time
 import unittest
 from pathlib import Path
 
@@ -28,12 +30,12 @@ class HermesWorkerTests(unittest.TestCase):
     def tearDown(self):
         self.temp.cleanup()
 
-    def worker(self, handler, approval=True, lease=True, max_attempts=3):
+    def worker(self, handler, approval=True, lease=True, max_attempts=3, lease_seconds=120):
         return HermesWorker(
             self.outbox, handlers={"experiment": handler},
             approval_validator=lambda ref, task: approval and ref == "approval:1",
             lease_validator=lambda ref, budget: lease and ref == "lease:1",
-            max_attempts=max_attempts, retry_delay_seconds=0,
+            max_attempts=max_attempts, retry_delay_seconds=0, lease_seconds=lease_seconds,
         )
 
     def test_executes_handler_reports_progress_and_acknowledges_receipt(self):
@@ -93,6 +95,45 @@ class HermesWorkerTests(unittest.TestCase):
         result = self.worker(lambda task, ctx: {}).run_once(now=2)
         self.assertIsNone(result)
         self.assertEqual(self.outbox.counts()["pending"], 1)
+
+
+    def test_long_handler_keeps_lease_alive_with_background_heartbeat(self):
+        event = self.outbox.enqueue("research-task:heartbeat", "merlin.hermes.task",
+                                    task_payload("heartbeat"))
+        def handler(task, context):
+            time.sleep(0.35)
+            context.check_cancelled()
+            return {"summary": "completed after multiple lease intervals"}
+        result = self.worker(handler, lease_seconds=0.12).run_once()
+        self.assertEqual(result["status"], "completed")
+        self.assertEqual(self.outbox.get(event["event_id"])["state"], "acknowledged")
+
+    def test_worker_observes_cancellation_cooperatively(self):
+        event = self.outbox.enqueue("research-task:cancel", "merlin.hermes.task",
+                                    task_payload("cancel"))
+        started = threading.Event()
+        result_box = []
+        def handler(task, context):
+            started.set()
+            while True:
+                context.check_cancelled()
+                time.sleep(0.01)
+        worker = self.worker(handler, lease_seconds=0.15)
+        thread = threading.Thread(target=lambda: result_box.append(worker.run_once()))
+        thread.start()
+        self.assertTrue(started.wait(2))
+        self.outbox.cancel(event["event_id"], "operator", "stop requested")
+        thread.join(timeout=3)
+        self.assertFalse(thread.is_alive())
+        self.assertEqual(result_box[0]["status"], "cancelled")
+        self.assertEqual(self.outbox.get(event["event_id"])["state"], "cancelled")
+
+    def test_resource_budget_rejects_unbounded_or_undeclared_fields(self):
+        event = task_payload("budget")
+        event["resource_budget"]["max_wall_seconds"] = 86401
+        self.outbox.enqueue("research-task:bad-budget", "merlin.hermes.task", event)
+        result = self.worker(lambda task, context: {}).run_once()
+        self.assertEqual(result["status"], "quarantined")
 
     def _all_rows(self):
         import sqlite3
