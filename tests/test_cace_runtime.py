@@ -77,6 +77,7 @@ class CaceRuntimeCompositionTests(unittest.TestCase):
         self.assertIsInstance(adapter, CaceVerificationAdapter)
         self.assertEqual(adapter.trusted_verifier_keys, {self.key_id: self.public_pem})
         self.assertEqual(adapter.verify_transport.endpoint, "https://cace.example/verify")
+        self.assertEqual(adapter.verify_transport.max_request_bytes, 36_000_000)
 
     def test_trusted_key_id_must_match_the_pinned_public_key(self):
         env = {
