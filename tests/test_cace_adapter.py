@@ -113,6 +113,8 @@ class CaceAdapterTests(unittest.TestCase):
                                 commit_sha=self.commit,artifact_sha256=self.artifact,
                                 theorem="MyNamespace.target",requester_id="merlin-agent",tool_version="Lean 4.32.1")
         self.assertEqual(result["verification_status"],"verified")
+        self.assertEqual(result["verifier_key_id"], _TEST_KEY_ID)
+        self.assertEqual(result["tool_version"], "Lean 4.32.1")
         self.assertFalse(result["promotion_authority"])
         self.assertTrue(self.registry.verify_artifact(result["receipt_artifact_sha256"]))
         self.assertGreaterEqual(self.outbox.counts()["pending"],4)
@@ -218,6 +220,8 @@ class CaceAdapterTests(unittest.TestCase):
             tool_identity="FreeCAD 1.0.0",
         )
         self.assertEqual(result["verification_status"], "verified")
+        self.assertEqual(result["verifier_key_id"], _TEST_KEY_ID)
+        self.assertEqual(result["tool_identity"], "FreeCAD 1.0.0")
         self.assertFalse(result["promotion_authority"])
         self.assertTrue(self.registry.verify_artifact(result["receipt_artifact_sha256"]))
         self.assertTrue(any(edge["relation"] == "reviews"
