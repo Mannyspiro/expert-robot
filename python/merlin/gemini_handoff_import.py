@@ -220,7 +220,7 @@ def ingest_gemini_handoff(
 
     # This lookup both validates the project and avoids guessing project ownership.
     inventory = store.registry.inventory(project_id)
-    source_name = Path(source_filename).name[:255]
+    source_name = source_filename.replace("\\\\", "/").split("/")[-1][:255]
     archive_sha256 = hashlib.sha256(archive_bytes).hexdigest()
     selected = [
         item for item in parsed["conversations"]
@@ -228,14 +228,17 @@ def ingest_gemini_handoff(
     ]
     selected.sort(key=lambda item: item.ordinal)
 
+    project_key = hashlib.sha256(project_id.encode("utf-8")).hexdigest()[:12]
     policy_payload = {
+        "project_id": project_id,
+        "source_filename": source_name,
         "mode": "explicit_allowlist_only",
         "included_conversation_ids": sorted(selected_ids),
         "parser_version": PARSER_VERSION,
     }
     policy_sha256 = hashlib.sha256(_canonical_json(policy_payload)).hexdigest()
     intake_root = f"intake/gemini/{archive_sha256}/{policy_sha256[:12]}"
-    source_node_id = f"source:gemini-handoff:{archive_sha256}:{policy_sha256[:12]}"
+    source_node_id = f"source:gemini-handoff:{project_key}:{archive_sha256}:{policy_sha256[:12]}"
 
     source_payload = {
         "source_type": "gemini_master_handoff",
@@ -307,7 +310,7 @@ def ingest_gemini_handoff(
             raise RuntimeError("stored conversation section digest does not match its source bytes")
 
         session_id = (
-            f"session:gemini:{section.conversation_id}:"
+            f"session:gemini:{project_key}:{section.conversation_id}:"
             f"{archive_sha256[:12]}:{policy_sha256[:12]}"
         )
         index_payload = {
@@ -378,6 +381,7 @@ def ingest_gemini_handoff(
         imported.append(
             {
                 "conversation_id": section.conversation_id,
+                "session_node_id": session_id,
                 "ordinal": section.ordinal,
                 "title": section.title,
                 "status": section.status,
