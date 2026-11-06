@@ -14,7 +14,7 @@ import os
 from pathlib import Path
 import sqlite3
 from typing import Any
-from urllib.parse import urlparse, urlsplit, parse_qs
+from urllib.parse import urlparse, urlsplit, parse_qs, unquote
 from urllib.request import Request, urlopen
 from urllib.error import URLError, HTTPError
 from time import perf_counter
@@ -30,6 +30,7 @@ from .intent_compiler import Asset, IntentSpec, ContinuityState, compile_directi
 from .math_transfer import preview_transfers
 from .interaction_learning import InteractionLearningStore, analyze_interactions
 from .memory_vault import MerlinMemoryVault
+from .learning_platform import Actor as LearningActor, LearningPlatform
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
     validate_analogy,
@@ -267,9 +268,14 @@ def _netlist(data: dict[str, Any]) -> Netlist:
 def make_handler(store: EventStore, hud_runtime: Any | None = None,
                  learner_store: LearnerStore | None = None,
                  learning_outbox: MerlinEventOutbox | None = None,
-                 canonical_registry: Any | None = None):
+                 canonical_registry: Any | None = None,
+                 learning_platform: LearningPlatform | None = None,
+                 learning_identity_resolver: Any | None = None):
     simulation = MerlinSimulation()
     learner_store = learner_store or LearnerStore(store.path)
+    learning_db = os.environ.get("MERLIN_LEARNING_DB_PATH",
+        str(Path(store.path).with_name("learning.sqlite3")))
+    learning_platform = learning_platform or LearningPlatform(learning_db)
     interaction_store = InteractionLearningStore(store.path)
     memory_path = os.environ.get("MERLIN_MEMORY_DB_PATH", str(Path(store.path).with_name("memory.sqlite3")))
     memory_vault = MerlinMemoryVault(memory_path)
@@ -395,10 +401,44 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             except (TypeError, ValueError):
                 return False
 
+        def _learning_actor(self):
+            # Resolver must validate a signed session/token and return server-derived
+            # identity, tenant and role. Never trust role/tenant headers or JSON fields.
+            if learning_identity_resolver is None:
+                return None
+            actor = learning_identity_resolver(self.headers)
+            return actor if isinstance(actor, LearningActor) else None
+
         def do_GET(self) -> None:
             self._request_started = perf_counter()
             parsed = urlparse(self.path)
             path = parsed.path
+            if path.startswith("/api/learning/courses/"):
+                actor = self._learning_actor()
+                if actor is None:
+                    self._send(503, {"error": "learning_identity_provider_not_configured"})
+                    return
+                try:
+                    parts = [unquote(part) for part in path.split("/") if part]
+                    if len(parts) == 5 and parts[4] == "recommendation":
+                        result = learning_platform.recommend_next_lesson(actor, parts[3], learner_store)
+                        self._send(200, result)
+                        return
+                    if len(parts) != 4:
+                        self._send(404, {"error": "not_found"})
+                        return
+                    query = parse_qs(parsed.query)
+                    version_value = (query.get("version") or [None])[0]
+                    version = int(version_value) if version_value is not None else None
+                    self._send(200, learning_platform.get_course(actor, parts[3], version))
+                except PermissionError as exc:
+                    self._send(403, {"error": "forbidden", "detail": str(exc)[:200]})
+                except KeyError:
+                    # Hide whether a course exists outside the caller's tenant.
+                    self._send(404, {"error": "course_not_found"})
+                except (ValueError, TypeError) as exc:
+                    self._send(400, {"error": "invalid_request", "detail": str(exc)[:200]})
+                return
             if path in {"/api/hud/activity", "/api/hud/graph", "/api/hud/node"}:
                 if hud_runtime is None:
                     self._send(503, {"error": "hud_runtime_not_configured",
@@ -527,6 +567,46 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 if not isinstance(data, dict):
                     raise ValueError("request body must be a JSON object")
 
+                if path == "/api/learning/courses":
+                    actor = self._learning_actor()
+                    if actor is None:
+                        self._send(503, {"error": "learning_identity_provider_not_configured"})
+                        return
+                    result = learning_platform.create_course(
+                        actor, data.get("slug"), data.get("title"), data.get("description", ""))
+                    store.append(path, {"course_id": result["course_id"]},
+                                 {"action": "course.created", "version": result["version"],
+                                  "manifest_sha256": result["manifest_sha256"]})
+                    self._send(201, result)
+                    return
+                if path.startswith("/api/learning/courses/"):
+                    actor = self._learning_actor()
+                    if actor is None:
+                        self._send(503, {"error": "learning_identity_provider_not_configured"})
+                        return
+                    parts = [unquote(part) for part in path.split("/") if part]
+                    if len(parts) != 5:
+                        self._send(404, {"error": "not_found"})
+                        return
+                    course_id, action = parts[3], parts[4]
+                    if action == "manifest":
+                        result = learning_platform.update_manifest(actor, course_id, data.get("manifest"))
+                    elif action == "review":
+                        result = learning_platform.review_course(
+                            actor, course_id, data.get("version"), data.get("decision"), data.get("notes", ""))
+                    elif action == "publish":
+                        result = learning_platform.publish_course(actor, course_id)
+                    elif action == "revisions":
+                        result = learning_platform.create_revision(actor, course_id)
+                    elif action == "enroll":
+                        result = learning_platform.enroll(actor, course_id, data.get("learner_id"))
+                    else:
+                        self._send(404, {"error": "not_found"})
+                        return
+                    store.append(path, {"course_id": course_id, "action": action},
+                                 {"result_sha256": sha256(_json_bytes(result)).hexdigest()})
+                    self._send(200, result)
+                    return
                 if path == "/api/learning/improvements/evaluate":
                     analysis = current_interaction_analysis()
                     receipt = interaction_store.save_analysis(analysis)
@@ -1064,7 +1144,8 @@ def _build_optional_hud_runtime(canonical_registry: Any | None = None):
         return None
 
 
-def serve(port: int = 8765, db_path: str | None = None) -> None:
+def serve(port: int = 8765, db_path: str | None = None,
+          learning_identity_resolver: Any | None = None) -> None:
     target = db_path or os.environ.get(
         "MERLIN_DB_PATH",
         str(Path.home() / ".local" / "share" / "merlin" / "events.sqlite3"),
@@ -1084,7 +1165,8 @@ def serve(port: int = 8765, db_path: str | None = None) -> None:
     if hud_runtime is not None:
         hud_runtime.start()
     server = ThreadingHTTPServer(("127.0.0.1", port),
-        make_handler(store, hud_runtime, learner_store, learning_outbox, canonical_registry))
+        make_handler(store, hud_runtime, learner_store, learning_outbox,
+                     canonical_registry, learning_identity_resolver=learning_identity_resolver))
     print(f"Merlin MVP API listening on http://127.0.0.1:{port}")
     print("Merlin HUD: canonical graph/event stores connected" if hud_runtime
           else "Merlin HUD: labelled demonstration fallback (canonical store paths not configured)")
