@@ -124,7 +124,8 @@ class MerlinLearningHttpTests(unittest.TestCase):
                                  {"slug": "tenant-course", "title": "Tenant Course"})
         with self.assertRaises(HTTPError) as denied:
             self.request("GET", f"/api/learning/courses/{course['course_id']}", "Bearer outsider")
-        self.assertEqual(denied.exception.code, 403)
+        self.assertEqual(denied.exception.code, 404)
+        self.assertEqual(json.loads(denied.exception.read())["error"], "course_not_found")
 
     def test_learner_cannot_create_or_publish_courses(self):
         request = Request(self.base + "/api/learning/courses",
