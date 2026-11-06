@@ -9,6 +9,7 @@ from urllib.request import Request, urlopen
 
 from python.merlin.app import EventStore, make_handler
 from python.merlin.learning_platform import Actor, LearningPlatform
+from python.merlin.learner_model import LearnerStore
 
 
 class MerlinLearningHttpTests(unittest.TestCase):
@@ -18,6 +19,7 @@ class MerlinLearningHttpTests(unittest.TestCase):
         root = Path(cls.temp.name)
         cls.store = EventStore(root / "events.sqlite3")
         cls.platform = LearningPlatform(root / "learning.sqlite3")
+        cls.learner_store = LearnerStore(root / "learner.sqlite3")
         cls.actors = {
             "Bearer faculty": Actor("tenant-a", "faculty-1", "instructor"),
             "Bearer reviewer": Actor("tenant-a", "reviewer-1", "reviewer"),
@@ -31,8 +33,8 @@ class MerlinLearningHttpTests(unittest.TestCase):
 
         cls.server = ThreadingHTTPServer(
             ("127.0.0.1", 0),
-            make_handler(cls.store, learning_platform=cls.platform,
-                         learning_identity_resolver=resolve),
+            make_handler(cls.store, learner_store=cls.learner_store,
+                         learning_platform=cls.platform, learning_identity_resolver=resolve),
         )
         cls.thread = threading.Thread(target=cls.server.serve_forever, daemon=True)
         cls.thread.start()
@@ -63,7 +65,11 @@ class MerlinLearningHttpTests(unittest.TestCase):
         self.assertEqual(status, 201)
         cid = course["course_id"]
         manifest = course["manifest"]
-        manifest["objectives"] = [{"id": "PHY-1", "title": "Describe motion", "prerequisites": []}]
+        manifest["objectives"] = [{"id": "PHY-1", "title": "Describe motion", "prerequisites": [],
+                                  "dimensions": ["conceptual_explanation"]},
+                                 {"id": "PHY-2", "title": "Model acceleration",
+                                  "prerequisites": ["PHY-1"],
+                                  "dimensions": ["conceptual_explanation"]}]
         manifest["lessons"] = [{"id": "lesson-1", "title": "Motion", "objective_id": "PHY-1",
                                 "body": "Position changes over time."}]
         manifest["resources"] = [{"id": "resource-1", "title": "Open resource",
@@ -88,6 +94,22 @@ class MerlinLearningHttpTests(unittest.TestCase):
                                             "Bearer learner")
         self.assertEqual(status, 200)
         self.assertEqual(learner_view["manifest"]["objectives"][0]["id"], "PHY-1")
+        for attempt_id, session_id in (("phy-attempt-1", "phy-session-a"),
+                                       ("phy-attempt-2", "phy-session-b")):
+            self.learner_store.record_attempt({
+                "learner_id": "student-1", "attempt_id": attempt_id,
+                "idea_id": "PHY-1", "problem_id": "motion-explain",
+                "problem_version": "1", "dimension": "conceptual_explanation",
+                "score": 1.0, "session_id": session_id,
+                "response": {"explanation": "Position changes over time."},
+                "rubric_version": "motion-r1", "delayed": True, "transfer": True,
+            })
+        status, recommendation = self.request(
+            "GET", f"/api/learning/courses/{cid}/recommendation", "Bearer learner")
+        self.assertEqual(status, 200)
+        self.assertEqual(recommendation["state"], "recommended")
+        self.assertEqual(recommendation["lesson_id"], "lesson-2")
+        self.assertEqual(recommendation["authority"], "recommendation_only")
 
     def test_unauthenticated_and_cross_tenant_access_fail_closed(self):
         request = Request(self.base + "/api/learning/courses", data=b'{"slug":"x","title":"X"}',
