@@ -4,7 +4,7 @@ import unittest
 from merlin.partner_evidence_pipeline import (
     LicenseObservation, PublicContractEvidence, PartnerSignal, rank_partners,
     ingest_rfp_text, ProposalClaim, ProposalEvidenceVault,
-    LearningObservation, aggregate_learning,
+    LearningObservation, aggregate_learning, ingest_difi_normalized_csv,
 )
 
 
@@ -24,12 +24,12 @@ class PartnerEvidencePipelineTests(unittest.TestCase):
             )
 
     def test_difi_normalized_export_imports_entity_and_individual_observations(self):
-        source = (
-            "subject_id,subject_type,legal_name,license_number,license_type,"
-            "lines_of_authority,status,source_record_id,effective_on\\n"
-            "e1,entity,Example LLC,123,producer_entity,property;casualty,active,SBS-E1,2026-01-01\\n"
-            "i1,individual,Jane Producer,456,producer,property;casualty,active,SBS-I1,2026-01-01\\n"
-        )
+        source = "\n".join([
+            "subject_id,subject_type,legal_name,license_number,license_type,",
+            "lines_of_authority,status,source_record_id,effective_on",
+            "e1,entity,Example LLC,123,producer_entity,property;casualty,active,SBS-E1,2026-01-01",
+            "i1,individual,Jane Producer,456,producer,property;casualty,active,SBS-I1,2026-01-01",
+        ])
         rows = ingest_difi_normalized_csv(
             source, "2026-11-05", "https://difi.az.gov/license-search"
         )
