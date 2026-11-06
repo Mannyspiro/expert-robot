@@ -22,12 +22,7 @@ class LearningPlatformTests(unittest.TestCase):
     def _publish(self, course):
         self.store.review_course(self.reviewer, course["course_id"], course["version"],
                                  "approved", "Independent content and assessment review.")
-        return self._publish(course)
-
-    def _publish(self, course):
-        self.store.review_course(self.reviewer, course["course_id"], course["version"],
-                                 "approved", "Independent content and assessment review.")
-        return self._publish(course)
+        return self.store.publish_course(self.teacher, course["course_id"])
 
     def _course(self):
         course = self.store.create_course(
@@ -62,7 +57,7 @@ class LearningPlatformTests(unittest.TestCase):
     def test_publish_enroll_and_learner_scope(self):
         course = self._course()
         self.assertEqual(course["status"], "draft")
-        published = self.store.publish_course(self.teacher, course["course_id"])
+        published = self._publish(course)
         self.assertEqual(published["status"], "published")
         enrollment = self.store.enroll(self.learner, course["course_id"])
         self.assertEqual(enrollment["status"], "active")
