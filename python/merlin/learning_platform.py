@@ -15,6 +15,8 @@ import time
 from pathlib import Path
 from typing import Any, Mapping
 
+from .learner_model import LearnerStore, select_next_lesson
+
 SCHEMA = "merlin-learning-platform/1"
 SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]{1,62}$")
 ROLES = {"tenant_admin", "instructor", "learner", "reviewer"}
@@ -370,6 +372,33 @@ class LearningPlatform:
                 "version": row["version"], "current_version": row["current_version"],
                 "status": row["status"], "manifest_sha256": row["manifest_sha256"],
                 "manifest": manifest}
+
+    def recommend_next_lesson(self, actor: Actor, course_id: str,
+                              learner_store: LearnerStore) -> dict[str, Any]:
+        """Use the shared evidence model to recommend a course lesson; never grade or advance."""
+        self._authorize(actor, {"learner"})
+        course = self.get_course(actor, course_id)
+        manifest = course["manifest"]
+        graph = {}
+        for objective in manifest["objectives"]:
+            dimensions = objective.get("dimensions", ["conceptual_explanation", "procedure"])
+            if not isinstance(dimensions, list) or not dimensions:
+                raise ValueError("objective dimensions must be a non-empty list")
+            graph[objective["id"]] = {
+                "prerequisites": objective.get("prerequisites", []),
+                "dimensions": dimensions,
+            }
+        lessons = [{
+            "lesson_id": lesson["id"], "idea_id": lesson["objective_id"],
+            "curriculum_id": course_id,
+        } for lesson in manifest["lessons"]]
+        recommendation = select_next_lesson(
+            actor.actor_id, learner_store, graph, lessons, curriculum_id=course_id)
+        return {
+            "schema": "merlin-learning-course-recommendation/1",
+            "course_id": course_id, "course_version": course["version"],
+            **recommendation,
+        }
 
     def audit_events(self, actor: Actor, limit: int = 100) -> list[dict[str, Any]]:
         self._authorize(actor, {"tenant_admin", "reviewer"})
