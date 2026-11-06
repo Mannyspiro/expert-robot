@@ -13,6 +13,18 @@
       "jurisdictions": ["Arizona"],
       "ownership_profile": {"status": "private_profile_reference", "certification_and_eligibility": "verify_against_official_program_rules"},
       "producer_license": {"state": "Arizona", "line": "Property and Casualty", "user_confirmed": true, "agency_entity_license_and_appointments_still_to_verify": true},
+      "procurement_readiness": {
+        "app_registration_complete": null,
+        "sam_registration_active": null,
+        "agency_entity_license_verified": null,
+        "producer_appointments_verified": null,
+        "lines_of_authority_verified": null,
+        "professional_liability_verified": null,
+        "cyber_coverage_verified": null,
+        "public_sector_references_verified": null,
+        "delivery_capacity_verified": null,
+        "required_certifications_verified": null
+      },
       "keywords": [
         "insurance broker", "insurance brokerage", "insurance agent",
         "property and casualty", "commercial insurance", "employee benefits",
