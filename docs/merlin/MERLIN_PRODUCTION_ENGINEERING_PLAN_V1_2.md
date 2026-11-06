@@ -99,6 +99,15 @@ Updated unified evidence on exact code head `06ece19e01b115a8d10da7e919b91ba1312
 - Identity-focused run [42257763347](https://github.com/Mannyspiro/expert-robot/actions/runs/42257763347) passed **30 tests in 1.13 seconds**. Artifact [13523781333](https://github.com/Mannyspiro/expert-robot/actions/runs/42257763347/artifacts/13523781333), SHA-256 `fdc35b86d36842450ada2c21481cea3f95539ab94a3f54e4f33d2e6b35f9808d`.
 - These tests use generated RSA keys and a fake JWKS client to exercise PyJWT signature and claim validation; they do not contact a real identity provider. The combined 82-test run is the authoritative integration suite.
 
+### Outbox lease/cancellation lifecycle advanced
+
+- Added lease heartbeat with strict worker/token/expiry checks.
+- Added terminal cooperative cancellation for pending or leased events; cancellation records actor, time and reason, invalidates any active lease, and cannot cancel an acknowledged event.
+- Added schema migration from the prior four-state outbox to the new five-state schema while preserving existing rows and indexes.
+- Added tests for heartbeat extension, stale/expired lease rejection, pending/leased cancellation, acknowledged-event protection, idempotent cancellation and migration preservation.
+- Latest combined evidence on exact code head `1eae19845a5c5883f08bf0664a02ace943d3ebd9`: run [42258138670](https://github.com/Mannyspiro/expert-robot/actions/runs/42258138670) compiled all integrated modules and passed **88 tests in 4.14 seconds**. Artifact [13522943632](https://github.com/Mannyspiro/expert-robot/actions/runs/42258138670/artifacts/13522943632), SHA-256 `c32fd2ce5353b6fbb20911e07078d46319a5c11377352dcee6cb2fe4bdf07a90`.
+- Cancellation is cooperative: a worker already executing an external process must check its lease/cancellation state and stop that process; the outbox cannot forcibly terminate arbitrary provider work. The current app does not yet expose an authenticated cancellation endpoint or a continuously running Hermes worker service.
+
 ## Ranked next implementation steps
 
 1. **Finish PR #112 hosted evidence.** Inspect the dedicated Learning identity job logs and artifact. Resolve any test failures before adding further identity behavior.
