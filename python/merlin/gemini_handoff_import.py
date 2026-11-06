@@ -167,12 +167,20 @@ def parse_gemini_handoff(
 
     expected_match = _EXPECTED_COUNT_RE.search(text)
     expected_count = int(expected_match.group(1)) if expected_match else None
+    detail_end_index = next(
+        (index for index, line in enumerate(lines)
+         if _CONVERSATION_DETAIL_END_RE.match(line.rstrip("\\r\\n"))),
+        len(lines),
+    )
 
     conversations: list[GeminiHandoffConversation] = []
     seen_ids: set[str] = set()
     seen_ordinals: set[int] = set()
     for position, (start_index, match) in enumerate(headers):
-        end_index = headers[position + 1][0] if position + 1 < len(headers) else len(lines)
+        if position + 1 < len(headers):
+            end_index = headers[position + 1][0]
+        else:
+            end_index = detail_end_index if detail_end_index > start_index else len(lines)
         conversation_id = match.group("conversation_id")
         ordinal = int(match.group("ordinal"))
         if conversation_id in seen_ids:
