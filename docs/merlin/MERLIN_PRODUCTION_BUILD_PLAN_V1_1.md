@@ -58,7 +58,7 @@ Changes:
 ## Resource and release constraints
 
 - Avrea is preferred when available, but the latest Avrea workflow was cancelled and no direct Avrea runner action is exposed in the current tool session. Do not claim it was used.
-- The OCI runner has not yet been located or qualified in the connected `morganaspim` account.
+- The OCI runner workflow has been located in `morganaspim/Cace-app`: `.github/workflows/cace-batch-exact-pin-lean-preflight.yml` targets `[self-hosted, cace, oci, aarch64]` with a 90-minute timeout and pinned Lean 4.32.1/Mathlib. This confirms a configured workflow target, not that a runner is currently online or that a run succeeded. No workflow-dispatch action is exposed in this session, so it has not been triggered or qualified.
 - Do not introduce paid providers or claim new paid execution capacity. Do not merge or deploy draft PRs. Preserve the user's approval boundary for hosted Actions usage.
 - Phone, headphones, smart-TV and general IoT remain future concepts only.
 - Production is complete only after all critical paths have reproducible evidence, real identity and policy are configured, independent verification works, deployment/restore/monitoring are tested, and the acceptance gates are met.
