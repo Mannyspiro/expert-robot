@@ -99,30 +99,31 @@ Updated unified evidence on exact code head `06ece19e01b115a8d10da7e919b91ba1312
 - Identity-focused run [42257763347](https://github.com/Mannyspiro/expert-robot/actions/runs/42257763347) passed **30 tests in 1.13 seconds**. Artifact [13523781333](https://github.com/Mannyspiro/expert-robot/actions/runs/42257763347/artifacts/13523781333), SHA-256 `fdc35b86d36842450ada2c21481cea3f95539ab94a3f54e4f33d2e6b35f9808d`.
 - These tests use generated RSA keys and a fake JWKS client to exercise PyJWT signature and claim validation; they do not contact a real identity provider. The combined 82-test run is the authoritative integration suite.
 
-### Outbox lease/cancellation lifecycle advanced
+### Outbox worker API and Hermes integration advanced
 
-- Added lease heartbeat with strict worker/token/expiry checks.
-- Added terminal cooperative cancellation for pending or leased events; cancellation records actor, time and reason, invalidates any active lease, and cannot cancel an acknowledged event.
-- Added schema migration from the prior four-state outbox to the new five-state schema while preserving existing rows and indexes.
-- Added tests for heartbeat extension, stale/expired lease rejection, pending/leased cancellation, acknowledged-event protection, idempotent cancellation and migration preservation.
-- Latest combined evidence on exact code head `1eae19845a5c5883f08bf0664a02ace943d3ebd9`: run [42258138670](https://github.com/Mannyspiro/expert-robot/actions/runs/42258138670) compiled all integrated modules and passed **88 tests in 4.14 seconds**. Artifact [13522943632](https://github.com/Mannyspiro/expert-robot/actions/runs/42258138670/artifacts/13522943632), SHA-256 `c32fd2ce5353b6fbb20911e07078d46319a5c11377352dcee6cb2fe4bdf07a90`.
-- Cancellation is cooperative: a worker already executing an external process must check its lease/cancellation state and stop that process; the outbox cannot forcibly terminate arbitrary provider work. The current app does not yet expose an authenticated cancellation endpoint or a continuously running Hermes worker service.
+- Added authenticated HTTP endpoints for per-worker claim, heartbeat, acknowledgement, retry/quarantine and status. Worker identity is bound to an independent high-entropy token from the trusted server environment; comparisons are constant-time and the worker ID cannot be changed independently of its token.
+- Added durable metadata audit records for worker claim and lifecycle actions without storing bearer or lease tokens.
+- Added six HTTP integration tests covering unauthenticated access, token/worker binding, claim-heartbeat-acknowledgement round trip, cross-worker lease rejection, retry/quarantine and fail-closed missing outbox.
+- The first run [42268148088](https://github.com/Mannyspiro/expert-robot/actions/runs/42268148088) exposed six failures: Hermes imported the same outbox module under a second package namespace, causing a Python class-identity mismatch. The fix changed the import to package-relative form. This failed run is retained as engineering evidence.
+- Exact passing head `89b19250ef99b2277694eb1dc0d48070a790aae8`: [run 42268417875](https://github.com/Mannyspiro/expert-robot/actions/runs/42268417875) compiled the integrated modules and passed **94 tests in 8.30 seconds**. Artifact [13528675991](https://github.com/Mannyspiro/expert-robot/actions/runs/42268417875/artifacts/13528675991), SHA-256 `a57d74ec67e89135fede3196e4ed98ff0e2e789abf3b1febc8548654d8560858`.
+- Worker API guide: `docs/merlin/MERLIN_OUTBOX_WORKER_API.md`.
+- The API is still loopback-hosted and uses a server-side credential map; no production secrets, HTTPS gateway, shared multi-host database or continuously running Hermes worker supervisor is configured.
+- Outbox cancellation remains cooperative and there is no authenticated administrative cancellation endpoint. External processes must check their lease and stop themselves. Do not claim process-level cancellation until this is implemented and fault-tested.
 
-## Ranked next implementation steps
+## Ranked next implementation steps (updated from measured requirements)
 
-1. **Finish PR #112 hosted evidence.** Inspect the dedicated Learning identity job logs and artifact. Resolve any test failures before adding further identity behavior.
-2. **Qualify a real OIDC provider adapter.** Select a maintained library after dependency inventory; configure trusted issuer, audience/client, JWKS discovery, permitted algorithms, token profiles, session/cookie or bearer policy, state/nonce, logout/revocation and tenant/role mapping. Keep routes fail-closed until real configuration is supplied. Never invent secrets or issuer values.
-3. **Reconcile PR branches.** PR #108 Learning, PR #109 core registry and PR #110 persisted graph are sibling branches. Create a deliberate integration branch, reconcile `app.py` and tests, then rerun the combined suite. Do not merge sibling PRs independently if their application files conflict.
-4. **Persist capability qualification receipts** and bind them to registry identity, provider/model revision, held-out test suite, environment, signer and digest.
-5. **Unify canonical project/artifact/graph identity** and add provenance-aware graph mutations and snapshots.
-6. **Complete Hermes event lifecycle** with idempotency, leases, acknowledgements, retry, dead-letter, cancellation and fault injection.
-7. **Qualify Avrea and OCI** with real isolated jobs, pinned dependencies, resource budgets, complete logs and independently checked results.
-8. **Complete CACE bridge** with signer identity, exact commit/artifact/toolchain binding and verifier-originated receipts.
-9. **Connect research loop:** ideonomy, engineered prompts, literature sources, hypotheses, equation atlas, Lean, numerical solvers and finite counterexample search.
-10. **Complete engineering virtual lab:** FreeCAD import/assemblies, engineering IR, units/constraints/materials, wiring/netlist generation, pinned ngspice and simulation receipts.
-11. **Complete Learning product:** learner/faculty UI, assessments/rubrics, accessibility, privacy/export/deletion, cohort governance and LTI/QTI/Caliper/CASE/Edu-API integration.
-12. **Governed self-improvement:** interaction learning with consent/purpose limits, aggregation/redaction, held-out evaluation, independent review, staged promotion and rollback.
-13. **Production operations:** deployment, database migrations/backups/restore drills, observability, rate limits, incident response, disaster recovery and formal acceptance.
+1. **Run a real end-to-end Hermes task through a worker process.** Add a supervised worker executable with bounded concurrency, topic allowlists, deadlines, heartbeat, graceful shutdown, child-process cancellation and durable result receipts. Start with a deterministic no-shell task handler, then a bounded provider adapter.
+2. **Make worker execution evidence complete.** Bind every attempt to event ID, exact source commit, artifact digest, command/adapter version, environment, resource limits, timestamps, exit status, stdout/stderr digests, output digest, retry/cancel state and worker identity.
+3. **Connect Avrea and OCI as separately qualified runners.** Discover the actual runner APIs and credentials from the connected repositories; run harmless capability probes first. Never equate hosted GitHub Actions with Avrea/OCI qualification. Record unavailable/no-credit/cancelled states accurately.
+4. **Complete independent CACE verification.** Establish the real verifier service contract and authenticated transport, verify signer identity and exact artifact/commit/toolchain binding, then require CACE-originated receipts. Injected test transports do not count as live qualification.
+5. **Finish OIDC/SSO deployment.** Configure a real issuer, audience, JWKS URL, tenant/role mapping and token policy; validate a provider-issued token and test key rotation, revocation, tenant isolation and account lifecycle. No production provider is configured yet.
+6. **Persist qualification and provider receipts in the canonical registry.** Bind provider/model revision, immutable test suite, environment, exact evidence digest, signer, reviewer and expiry; distinguish configured, unavailable, unqualified and qualified.
+7. **Complete canonical project/artifact/graph integration.** Ensure every artifact, graph edge, prompt, experiment and execution result resolves to one canonical project identity and provenance chain; add migration/restore tests.
+8. **Connect the research loop.** Ideonomy must enumerate candidate spaces and attach assumptions, mechanisms, observables, constraints, falsifiers and experiment plans; connect literature, equation atlas, Lean, numerical solvers and finite counterexample search without promoting unverified conjectures.
+9. **Complete engineering virtual lab.** Real FreeCAD import/assemblies, engineering IR, units/constraints/materials, wiring/netlist generation, pinned ngspice and reproducible simulation receipts.
+10. **Complete Merlin Learning product.** Learner/faculty UI, server-owned assessments/rubrics, accessibility, privacy/export/deletion, cohort governance and LTI/QTI/Caliper/CASE/Edu-API integration.
+11. **Govern self-improvement.** User interaction data is purpose-limited and privacy-preserving; derived hypotheses need held-out evaluation, independent review, staged promotion and rollback. Capability may grow; authority must not automatically expand.
+12. **Production operations and release acceptance.** Deployment, database migrations/backups/restore drills, observability, rate limits, incident response, disaster recovery, load tests, accessibility and documented acceptance criteria.
 
 ## Product and release constraints
 
