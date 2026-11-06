@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 import hashlib
-from typing import Iterable
+from typing import Callable, Iterable
 from urllib.parse import urlsplit
 
 
@@ -82,7 +82,8 @@ class TestResult:
 
 def verify_claims(claims: Iterable[ResearchClaim], sources: Iterable[SourceSnapshot],
                   *, producing_agent_id: str,
-                  independent_review: IndependentReview | None = None) -> dict[str, object]:
+                  independent_review: IndependentReview | None = None,
+                  review_authenticator: Callable[[IndependentReview], bool] | None = None) -> dict[str, object]:
     claims, sources = tuple(claims), tuple(sources)
     source_map = {source.source_id: source for source in sources}
     source_errors = {key: source.errors() for key, source in source_map.items()}
@@ -110,7 +111,7 @@ def verify_claims(claims: Iterable[ResearchClaim], sources: Iterable[SourceSnaps
                      "semantic_truth": "not_established_by_provenance_check"})
     canonical = "\n".join(sorted(
         row["claim_id"] + "|" + row["text"] + "|" +
-        "|".join(e.source_id + ":" + e.excerpt for e in claim.evidence)
+        "|".join(e.source_id + ":" + e.excerpt + ":" + (source_map[e.source_id].declared_sha256 if e.source_id in source_map else "missing") + ":" + (source_map[e.source_id].url if e.source_id in source_map else "missing") + ":" + (source_map[e.source_id].captured_at if e.source_id in source_map else "missing") for e in claim.evidence)
         for row, claim in zip(rows, claims)
     ))
     subject_digest = sha256_bytes(canonical.encode())
@@ -124,6 +125,8 @@ def verify_claims(claims: Iterable[ResearchClaim], sources: Iterable[SourceSnaps
             review_status = "review_digest_mismatch"
         elif independent_review.verdict not in {"supported", "rejected", "inconclusive"}:
             review_status = "invalid_verdict"
+        elif review_authenticator is None or not review_authenticator(independent_review):
+            review_status = "review_not_authenticated"
         else:
             review_status = independent_review.verdict
     return {
