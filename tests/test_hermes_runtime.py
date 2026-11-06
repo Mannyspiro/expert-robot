@@ -94,6 +94,29 @@ class HermesRuntimeCompositionTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "no trusted verifier keys"):
                 self.build()
 
+    def test_api_server_owns_and_stops_injected_runtime(self):
+        runtime = self.build()
+        class FakeServer:
+            def __init__(self, address, handler):
+                self.address = address
+                self.handler = handler
+                self.closed = False
+
+            def serve_forever(self):
+                raise KeyboardInterrupt()
+
+            def server_close(self):
+                self.closed = True
+
+        with patch("python.merlin.app.ThreadingHTTPServer", FakeServer), \\
+             patch("python.merlin.app._build_optional_hud_runtime", return_value=None):
+            serve(
+                port=0,
+                db_path=str(runtime.root / "events.sqlite3"),
+                hermes_runtime=runtime,
+            )
+        self.assertEqual(runtime.health()["worker"]["status"], "stopped")
+
     def test_complete_cace_configuration_pins_verifier_identity(self):
         env = {
             "CACE_VERIFY_URL": "https://cace.example/verify",
