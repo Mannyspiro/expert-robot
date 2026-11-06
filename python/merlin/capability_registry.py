@@ -56,9 +56,17 @@ def capability_snapshot(rows: Sequence[Mapping[str, Any]],
             raise ValueError("capability IDs must be non-empty and unique")
         seen.add(ident)
         state = _legacy_state(row, runtime, outbox_configured)
+        # Keep the legacy status field for existing clients while exposing
+        # the canonical three-state model. New code must use state.
+        legacy_status = {
+            "configured": "AVAILABLE",
+            "unavailable": "UNAVAILABLE",
+            "unqualified": "QUALIFICATION_GATED",
+        }[state]
         records.append({
             "id": ident,
             "state": state,
+            "status": legacy_status,
             "evidence": str(row.get("evidence", "No qualification evidence recorded.")),
             "provider": row.get("provider"),
             "authority": "declaration_and_runtime_configuration_only",
