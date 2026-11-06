@@ -65,6 +65,17 @@ class InteractionLearningTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.store.record_feedback({**event, "outcome": "failure"})
 
+    def test_analysis_snapshots_are_content_addressed_and_retrievable(self):
+        from python.merlin.interaction_learning import analyze_interactions
+        analysis = analyze_interactions([], [], min_samples=5)
+        first = self.store.save_analysis(analysis)
+        second = self.store.save_analysis(analysis)
+        self.assertEqual(first["analysis_sha256"], second["analysis_sha256"])
+        self.assertEqual(first["analysis_id"], second["analysis_id"])
+        latest = self.store.latest_analysis()
+        self.assertEqual(latest["analysis_sha256"], first["analysis_sha256"])
+        self.assertEqual(latest["analysis"], analysis)
+
     def test_retention_purge_removes_expired_feedback(self):
         self.store.record_feedback({
             "event_id": "old-feedback", "session_id": "session-3",
