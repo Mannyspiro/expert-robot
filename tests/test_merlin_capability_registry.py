@@ -20,6 +20,12 @@ class CapabilityRegistryTests(unittest.TestCase):
             "media": "unavailable",
         })
         self.assertEqual(set(snapshot["states"]), {"configured", "unavailable", "unqualified"})
+        legacy_status = {item["id"]: item["status"] for item in snapshot["capabilities"]}
+        self.assertEqual(legacy_status, {
+            "geometry": "AVAILABLE", "council": "QUALIFICATION_GATED",
+            "provider": "QUALIFICATION_GATED", "outbox": "UNAVAILABLE",
+            "media": "UNAVAILABLE",
+        })
         self.assertEqual(len(snapshot["registry_sha256"]), 64)
 
     def test_runtime_provider_status_is_not_promoted_without_qualification(self):
