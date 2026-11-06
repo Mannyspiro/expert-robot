@@ -985,6 +985,26 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
         def do_DELETE(self) -> None:
             self._request_started = perf_counter()
             parsed = urlparse(self.path)
+            if parsed.path == "/api/memory":
+                query = parse_qs(parsed.query)
+                category = (query.get("category") or [""])[0]
+                key = (query.get("key") or [""])[0]
+                try:
+                    if category == "preference":
+                        deleted = memory_vault.delete_preference(key)
+                    elif category == "project":
+                        deleted = memory_vault.delete_project(key)
+                    else:
+                        raise ValueError("category must be preference or project")
+                    key_digest = sha256(key.encode("utf-8")).hexdigest()
+                    store.append("/api/memory/delete",
+                                 {"category": category, "key_sha256": key_digest},
+                                 {"deleted": deleted})
+                    self._send(200, {"schema": "merlin-memory-vault-delete/1",
+                                     "deleted": deleted, "category": category})
+                except ValueError as exc:
+                    self._send(400, {"error": "invalid_request", "detail": str(exc)[:200]})
+                return
             if parsed.path != "/api/interaction/feedback":
                 self._send(404, {"error": "not_found"})
                 return
