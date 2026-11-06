@@ -81,7 +81,7 @@ class SQLiteRunStore:
                 "CREATE INDEX IF NOT EXISTS idx_approvals_run_status ON approvals(run_id, status)",
             )
             for statement in statements:
-                db.execute(statement))
+                db.execute(statement)
 
     @staticmethod
     def _run_from_row(row: sqlite3.Row) -> RunRecord:
