@@ -160,3 +160,35 @@ jobs:
         with:
           path: ~/.cache/ccache
           key: ccache-v1-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
+
+  partner-evidence-tests:
+    name: Partner evidence and proposal pipeline tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run partner suites and retain evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          set +e
+          rc=0
+          for pattern in test_opportunity_intelligence.py test_procurement_readiness.py test_source_status.py test_partner_qualification.py test_partner_evidence_pipeline.py; do
+            echo "===== $pattern =====" | tee -a artifacts/merlin-partner-evidence-tests.log
+            PYTHONPATH=python python -m unittest discover -s tests -p "$pattern" -v 2>&1 | tee -a artifacts/merlin-partner-evidence-tests.log
+            suite_rc=${PIPESTATUS[0]}
+            printf '%s=%s\\n' "$pattern" "$suite_rc" >> artifacts/merlin-partner-evidence-exit-codes.txt
+            if [ "$suite_rc" -ne 0 ]; then rc=1; fi
+          done
+          printf '{"suite":"merlin-partner-evidence-pipeline","exit_code":%s,"commit":"%s"}\\n' "$rc" "$GITHUB_SHA" > artifacts/merlin-partner-evidence-result.json
+          exit "$rc"
+      - name: Upload partner test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-partner-evidence-${{ github.run_id }}
+          path: artifacts/merlin-partner-evidence-*
+          if-no-files-found: warn
