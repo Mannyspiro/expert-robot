@@ -88,7 +88,7 @@ class MerlinApiTests(unittest.TestCase):
             self.assertIn("text/html", response.headers.get("Content-Type", ""))
             hud = response.read().decode("utf-8")
             self.assertIn("MERLIN", hud)
-            self.assertIn("data-feedback=\\"success\\"", hud)
+            self.assertIn('data-feedback="success"', hud)
             self.assertIn("recordUiInteraction", hud)
             self.assertIn("task_submitted", hud)
             self.assertIn("feedback_submitted", hud)
