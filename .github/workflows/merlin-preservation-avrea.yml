@@ -1,0 +1,160 @@
+name: Merlin preservation and recovery qualification (Avrea)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "python/merlin/**"
+      - "tests/**"
+      - ".github/workflows/merlin-preservation-avrea.yml"
+      - ".github/workflows/ci.yml"
+      - "docs/merlin/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: merlin-preservation-avrea-${{ github.event.pull_request.head.ref || github.ref_name }}-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  exact-head-qualification:
+    name: Exact-head Python and preservation suites
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 45
+    env:
+      PR_HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      PR_BASE_SHA: ${{ github.event.pull_request.base.sha || '' }}
+    steps:
+      - name: Check out exact PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Record runner and exact source identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/merlin-preservation
+          {
+            echo "repository=$GITHUB_REPOSITORY"
+            echo "tested_sha=$(git rev-parse HEAD)"
+            echo "pr_head_sha=$PR_HEAD_SHA"
+            echo "pr_base_sha=$PR_BASE_SHA"
+            echo "event=$GITHUB_EVENT_NAME"
+            echo "run_id=$GITHUB_RUN_ID"
+            echo "run_attempt=$GITHUB_RUN_ATTEMPT"
+            echo "runner_name=$RUNNER_NAME"
+            echo "runner_os=$RUNNER_OS"
+            echo "runner_arch=$RUNNER_ARCH"
+            uname -a
+            nproc
+            python3 --version
+          } | tee artifacts/merlin-preservation/runner-identity.log
+          test "$(git rev-parse HEAD)" = "$PR_HEAD_SHA"
+
+      - name: Install pinned Python test dependencies and run exact-head suites
+        id: qualification
+        shell: bash
+        env:
+          PYTHONPATH: python
+        run: |
+          set +e
+          set -o pipefail
+          mkdir -p artifacts/merlin-preservation
+          start_utc="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+          python3 -m pip install --disable-pip-version-check             numpy==2.2.6 sympy==1.14.0 jsonschema==4.25.1 pytest==8.4.2             > artifacts/merlin-preservation/dependency-install.log 2>&1
+          dependency_rc=$?
+
+          compile_rc=125
+          unittest_rc=125
+          pytest_rc=125
+          if [ "$dependency_rc" -eq 0 ]; then
+            python3 -m compileall -q python tests               > artifacts/merlin-preservation/compileall.log 2>&1
+            compile_rc=$?
+
+            python3 -m unittest discover -s tests -v               > artifacts/merlin-preservation/unittest.log 2>&1
+            unittest_rc=$?
+
+            python3 -m pytest -q               tests/test_knowledge_graph.py               tests/test_foundation_store.py               tests/test_foundation_store_cas.py               tests/test_archive_intake.py               tests/test_preservation_recovery.py               tests/test_repair_supervisor.py               > artifacts/merlin-preservation/pytest.log 2>&1
+            pytest_rc=$?
+          else
+            echo "Tests not run because dependency installation failed."               > artifacts/merlin-preservation/not-run.txt
+          fi
+
+          end_utc="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          export DEPENDENCY_RC="$dependency_rc" COMPILE_RC="$compile_rc"
+          export UNITTEST_RC="$unittest_rc" PYTEST_RC="$pytest_rc"
+          export START_UTC="$start_utc" END_UTC="$end_utc"
+          python3 - <<'PY'
+          import json, os, subprocess
+          codes = {
+              "dependency_install": int(os.environ["DEPENDENCY_RC"]),
+              "compileall": int(os.environ["COMPILE_RC"]),
+              "unittest": int(os.environ["UNITTEST_RC"]),
+              "pytest_preservation": int(os.environ["PYTEST_RC"]),
+          }
+          payload = {
+              "schema": "merlin-avrea-preservation-evidence/1",
+              "repository": os.environ["GITHUB_REPOSITORY"],
+              "tested_commit": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
+              "pr_head_sha": os.environ.get("PR_HEAD_SHA", ""),
+              "pr_base_sha": os.environ.get("PR_BASE_SHA", ""),
+              "run_id": os.environ["GITHUB_RUN_ID"],
+              "run_attempt": os.environ["GITHUB_RUN_ATTEMPT"],
+              "workflow": os.environ["GITHUB_WORKFLOW"],
+              "runner_name": os.environ.get("RUNNER_NAME", ""),
+              "runner_os": os.environ.get("RUNNER_OS", ""),
+              "runner_arch": os.environ.get("RUNNER_ARCH", ""),
+              "started_utc": os.environ["START_UTC"],
+              "ended_utc": os.environ["END_UTC"],
+              "commands": codes,
+              "overall": "passed" if all(value == 0 for value in codes.values()) else "failed",
+              "qualification_scope": "Python syntax, full unittest discovery, and focused preservation/recovery pytest suites only",
+              "live_avrea_provider": False,
+              "live_cace_signer_transport": False,
+              "promotion_authority": False,
+          }
+          with open("artifacts/merlin-preservation/evidence-manifest.json", "w", encoding="utf-8") as f:
+              json.dump(payload, f, sort_keys=True, indent=2)
+              f.write("\n")
+          PY
+
+          printf 'dependency_install=%s\ncompileall=%s\nunittest=%s\npytest_preservation=%s\n'             "$dependency_rc" "$compile_rc" "$unittest_rc" "$pytest_rc"             | tee artifacts/merlin-preservation/result.txt
+
+          if [ "$dependency_rc" -ne 0 ] || [ "$compile_rc" -ne 0 ]             || [ "$unittest_rc" -ne 0 ] || [ "$pytest_rc" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Upload exact-head Avrea logs and results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-preservation-avrea-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/merlin-preservation/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Publish run summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Merlin preservation qualification"
+            echo
+            echo "- Tested PR head: $PR_HEAD_SHA"
+            echo "- Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            echo "- Runner: $RUNNER_NAME ($RUNNER_OS/$RUNNER_ARCH)"
+            if [ -f artifacts/merlin-preservation/result.txt ]; then
+              echo
+              echo '~~~text'
+              cat artifacts/merlin-preservation/result.txt
+              echo '~~~'
+            else
+              echo "- No test result manifest was produced; inspect job setup."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
