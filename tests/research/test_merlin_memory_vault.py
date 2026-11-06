@@ -43,6 +43,10 @@ class MerlinMemoryVaultTests(unittest.TestCase):
         self.assertNotEqual(second["value_sha256"], first["value_sha256"])
         with self.assertRaises(ValueError):
             self.vault.set_preference("api_key", "do-not-store", consent=True)
+        with self.assertRaises(ValueError):
+            self.vault.set_preference("integration", "api_key=example-secret", consent=True)
+        with self.assertRaises(ValueError):
+            self.vault.set_project("Project", "token=example-secret", consent=True)
 
     def test_memory_context_requires_a_separate_opt_in(self):
         self.vault.set_preference("preferred_format", "ranked steps", consent=True)
