@@ -253,7 +253,7 @@ class CaceVerificationAdapter:
         if receipt.get("schema") != "cace-artifact-verification/1":
             raise ValueError("unsupported CACE artifact receipt schema")
         for key in ("repository", "commit_sha", "artifact_sha256",
-                    "artifact_kind", "artifact_schema", "logical_path"):
+                    "artifact_kind", "artifact_schema", "logical_path", "tool_identity"):
             if receipt.get(key) != request[key]:
                 raise ValueError("CACE artifact receipt is bound to a different " + key)
         verifier_id = receipt.get("verifier_id")
