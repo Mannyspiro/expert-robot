@@ -39,6 +39,35 @@ class MerlinApiTests(unittest.TestCase):
             payload = json.loads(response.read())
         self.assertIn("engineering.geometry.validate", {row["id"] for row in payload["capabilities"]})
 
+    def test_capability_registry_uses_three_states_and_graph_validator_is_read_only(self):
+        with urlopen(self.base + "/api/capabilities", timeout=5) as response:
+            payload = json.loads(response.read())
+        self.assertEqual(payload["schema"], "merlin-capability-registry/1")
+        self.assertEqual(set(payload["states"]), {"configured", "unavailable", "unqualified"})
+        self.assertIn("engineering.geometry.validate",
+                      {row["id"] for row in payload["capabilities"]})
+        self.assertTrue(all(row["state"] in payload["states"]
+                            for row in payload["capabilities"]))
+
+        valid = self.post("/api/graphs/validate", {
+            "nodes": [{"id": "question"}, {"id": "model"}, {"id": "evidence"}],
+            "edges": [
+                {"source": "question", "target": "model", "relation": "requires"},
+                {"source": "model", "target": "evidence", "relation": "prerequisite"},
+            ],
+        })
+        self.assertTrue(valid["valid"])
+        self.assertEqual(valid["topological_order"], ["question", "model", "evidence"])
+        invalid = self.post("/api/graphs/validate", {
+            "nodes": [{"id": "a"}, {"id": "b"}],
+            "edges": [
+                {"source": "a", "target": "b", "relation": "requires"},
+                {"source": "b", "target": "a", "relation": "requires"},
+            ],
+        })
+        self.assertFalse(invalid["valid"])
+        self.assertIn("dependency_cycle", {row["code"] for row in invalid["errors"]})
+
     def test_council_roles_and_prepare_endpoint(self):
         with urlopen(self.base + "/api/council/roles", timeout=5) as response:
             roles = json.loads(response.read())["roles"]
