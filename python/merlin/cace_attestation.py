@@ -62,7 +62,7 @@ def _public_key(pem: str):
     return key, raw, key_id
 
 
-def trusted_cace_verifier_keys_from_environment() -> dict[str, str]:
+def trusted_cace_verifier_keys_from_environment() -> dict[str, dict[str, str]]:
     """Load pinned signer PEMs from CACE_VERIFY_TRUSTED_KEYS_JSON.
 
     The variable must map CACE key IDs to objects containing the pinned verifier_id
