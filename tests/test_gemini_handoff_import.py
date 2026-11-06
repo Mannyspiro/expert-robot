@@ -71,6 +71,12 @@ class GeminiHandoffImportTests(unittest.TestCase):
                 self.store, "merlin", archive, source_filename="handoff.txt",
                 included_conversation_ids=("c_0000000000000000",),
             )
+        with self.assertRaises(GeminiHandoffError):
+            ingest_gemini_handoff(
+                self.store, "merlin", archive, source_filename="handoff.txt",
+                included_conversation_ids=("c_1234567890abcdef",),
+                conversation_metadata={"c_1234567890abcdef": {"domain": "core", "unknown": "value"}},
+            )
         self.assertEqual(self.store.registry.inventory("merlin")["artifacts"], [])
 
     def test_import_stores_only_allowlisted_sections_and_links_the_graph(self):
@@ -81,6 +87,14 @@ class GeminiHandoffImportTests(unittest.TestCase):
             archive,
             source_filename="Full Chats Master Handoff.txt",
             included_conversation_ids=("c_1234567890abcdef",),
+            conversation_metadata={
+                "c_1234567890abcdef": {
+                    "domain": "merlin_architecture",
+                    "relevance": "core_architecture",
+                    "merlin_capabilities": ["registry", "knowledge_graph", "provenance"],
+                    "evidence_handling": "source_context_unverified",
+                }
+            },
         )
 
         self.assertEqual(result["parsed_conversation_count"], 2)
@@ -119,6 +133,7 @@ class GeminiHandoffImportTests(unittest.TestCase):
         session = self.store.graph.get_node(imported["session_node_id"])
         self.assertIsNotNone(session)
         self.assertEqual(session.payload["source_granularity"], "handoff_summary_not_raw_transcript")
+        self.assertEqual(session.payload["classification"]["domain"], "merlin_architecture")
         self.assertTrue(self.store.graph.neighbors(imported["session_node_id"], "out"))
 
     def test_import_is_idempotent_for_same_source_and_allowlist(self):
