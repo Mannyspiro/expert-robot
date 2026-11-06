@@ -29,6 +29,7 @@ from .event_outbox import MerlinEventOutbox
 from .intent_compiler import Asset, IntentSpec, ContinuityState, compile_directive
 from .math_transfer import preview_transfers
 from .interaction_learning import InteractionLearningStore, analyze_interactions
+from .memory_vault import MerlinMemoryVault
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
     validate_analogy,
@@ -270,6 +271,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
     simulation = MerlinSimulation()
     learner_store = learner_store or LearnerStore(store.path)
     interaction_store = InteractionLearningStore(store.path)
+    memory_vault = MerlinMemoryVault(store.path)
     repo_root = Path(__file__).resolve().parents[2]
     catalog_path = Path(os.environ.get("MERLIN_MATH_IDEA_CATALOG",
         str(repo_root / "docs" / "research" / "merlin-mathematical-idea-catalog.v1.json")))
@@ -427,6 +429,8 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                           and isinstance(row.get("summary"), dict)
                           and isinstance(row["summary"].get("event"), dict)]
                 self._send(200, telemetry_view(events))
+            elif path == "/api/memory":
+                self._send(200, memory_vault.snapshot())
             elif path == "/api/learning/preferences":
                 self._send(200, {"schema": "merlin-interaction-preferences/1",
                                  "preferences": interaction_store.preferences()})
