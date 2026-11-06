@@ -16,7 +16,7 @@ VALID_RELATIONSHIPS = {
 VALID_STATUSES = {"verified", "not_met", "unknown", "conflicting", "not_applicable"}
 VALID_SOURCE_KINDS = {
     "official_registry", "contracting_authority", "client_reference",
-    "partner_written", "partner_claim", "directory",
+    "partner_written", "partner_claim", "directory", "carrier_confirmation",
 }
 REQUIRED_EVIDENCE = (
     "entity_license", "individual_license", "lines_of_authority",
