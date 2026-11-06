@@ -101,6 +101,11 @@ class MerlinApiTests(unittest.TestCase):
             self.assertIn("providerMode", hud)
             self.assertIn("councilPrepare", hud)
             self.assertIn("chatTranscript", hud)
+            self.assertIn("memoryVault", hud)
+            self.assertIn("useMemory", hud)
+            self.assertIn("merlinApprovedMemoryContext", hud)
+            self.assertIn("/api/memory/preferences", hud)
+            self.assertIn("/forget-project", hud)
         with urlopen(self.base + "/api/sim/state", timeout=5) as response:
             initial = json.loads(response.read())
         self.assertTrue(initial["simulation_only"])
