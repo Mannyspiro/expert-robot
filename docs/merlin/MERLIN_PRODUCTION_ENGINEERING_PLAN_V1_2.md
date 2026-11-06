@@ -110,6 +110,14 @@ Updated unified evidence on exact code head `06ece19e01b115a8d10da7e919b91ba1312
 - The API is still loopback-hosted and uses a server-side credential map; no production secrets, HTTPS gateway, shared multi-host database or continuously running Hermes worker supervisor is configured.
 - Outbox cancellation remains cooperative and there is no authenticated administrative cancellation endpoint. External processes must check their lease and stop themselves. Do not claim process-level cancellation until this is implemented and fault-tested.
 
+### Hermes/Avrea adapter package integration and expanded regression
+
+- Normalized package-local imports in Hermes worker, stage-handler, Avrea, CACE and Lean proof-orchestration adapters. This prevents duplicate Python module identities when code is loaded through either `merlin.*` or `python.merlin.*`.
+- Expanded the integrated CI suite to include Hermes worker, stage handlers, proof dispatch, Hermes outbox, Avrea adapter and authenticated worker API tests.
+- Run [42269357807](https://github.com/Mannyspiro/expert-robot/actions/runs/42269357807) compiled but reported **113 passed, 1 failed**. The failure was a stale Avrea test assumption that counted only the result event and ignored the adapter's intentional telemetry events. The test now asserts the stable result-event ID, artifact digest binding and idempotent repeat collection rather than an incorrect total queue count.
+- Exact passing code head `8df03c168ed269bc36585e399b52168a5dfb9087`: [run 42269724438](https://github.com/Mannyspiro/expert-robot/actions/runs/42269724438) compiled all integrated modules and passed **114 tests in 8.20 seconds**. Artifact [13529385202](https://github.com/Mannyspiro/expert-robot/actions/runs/42269724438/artifacts/13529385202), SHA-256 `1704ab8159ff37278416365a20deb9d7c0105e67ed125f342a2bba83a43e5046`.
+- These tests exercise injected Avrea transports and local registries; they do not qualify a live Avrea runner or OCI service. The actual adapter still needs stronger runner-originated binding for source commit, toolchain, command, environment and raw stdout/stderr evidence before production execution claims.
+
 ## Ranked next implementation steps (updated from measured requirements)
 
 1. **Run a real end-to-end Hermes task through a worker process.** Add a supervised worker executable with bounded concurrency, topic allowlists, deadlines, heartbeat, graceful shutdown, child-process cancellation and durable result receipts. Start with a deterministic no-shell task handler, then a bounded provider adapter.
