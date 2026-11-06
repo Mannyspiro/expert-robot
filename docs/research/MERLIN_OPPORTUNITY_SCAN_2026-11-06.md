@@ -18,6 +18,16 @@ This is a source-led research snapshot, not an eligibility determination or appl
 - Disposition: INCUMBENT / COOPERATIVE CONTRACT INTELLIGENCE, NOT AN OPEN BID. Use this to understand buyer scope, likely experience expectations, and future re-compete timing. Do not suggest the current award can be displaced through a direct application or that it is an open subcontract.
 - Source review date: 2026-11-06.
 
+### City of Maricopa — Employee Benefits Consulting Services
+- Official City bid-posting portal: https://www.egovlink.com/maricopa/postings_info.asp?dlistid=1067&listtype=BID&posting_id=5761&sc_category_id=&sc_show_expired=Y&sc_status_id=122
+- Solicitation: 26-102626-RFP-HR. The City's posting showed Status: Open when checked November 5, 2026.
+- Official posting deadline: November 23, 2026 at 5:00 PM Arizona time. Pre-proposal meeting: November 10, 2026 at 10:00 AM Arizona time. The City portal listing is authoritative for these dates; some secondary aggregators show different dates, so use the City's page and any addenda.
+- Scope: broker of record / consultant for the City's employee group health benefits program, including medical, dental, prescription, vision, life/AD&D, long-term disability, stop loss, and voluntary benefits. Services expected to begin January 2027; initial one-year term with annual renewals by mutual agreement.
+- Full specifications require vendor login/registration on the City's bid portal. Do not infer full qualifications, pricing format, required limits, or reference rules from the summary notice.
+- Disposition: OFFICIAL OPEN SOLICITATION; DIRECT FIT NOT ESTABLISHED. The user's confirmed authority is Arizona P&C, not employee-benefits/health lines. Treat the opportunity as a potential benefits-specialist teaming lead unless the full RFP confirms a permissible P&C-only role. Verify agency/entity licensing, individual producer lines, carrier appointments, healthcare/benefits experience, references, required coverages, and all addenda before any go/no-go.
+- Do not submit, register, contact the buyer, or represent qualifications without explicit user approval.
+- Source review date: 2026-11-05.
+
 ### City of Tucson Small Business Enterprise
 - Official page: https://www.tucsonaz.gov/Departments/Business-Services-Department/Procurement/Contract-Compliance-DBE-SBE/Small-Business-Enterprise
 - Program may provide bid preferences and subcontracting goals for eligible businesses.
