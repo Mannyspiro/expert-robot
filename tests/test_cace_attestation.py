@@ -121,6 +121,14 @@ class CaceAttestationTests(unittest.TestCase):
         with self.assertRaisesRegex(CaceAttestationError, "proof_effect"):
             self.verify(envelope=envelope)
 
+    def test_pinned_signer_identity_cannot_be_relabelled(self):
+        envelope, _, _ = make_attestation(
+            self.private, claim_id=self.claim, bundle_sha256=self.bundle,
+            bindings=self.bindings, verifier_id="cace:impostor",
+        )
+        with self.assertRaisesRegex(CaceAttestationError, "pinned signer identity"):
+            self.verify(envelope=envelope)
+
     def test_verifier_must_be_independent_of_requester(self):
         envelope, _, _ = make_attestation(
             self.private, claim_id=self.claim, bundle_sha256=self.bundle,
