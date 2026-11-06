@@ -75,3 +75,21 @@ GitHub-hosted fallback job completed successfully on workflow run [#2752](https:
 - Artifact ID: `13482995327`; artifact digest: `sha256:1409d394424f4d5d0694eb65fb60efb2a40683a97fcc50891191017f301daa8d`.
 - The job tested the pull-request merge ref `c79b335a54df0a5f363e7e338792e786070f76dc`; the workflow run's PR head was `845a644bc6001f29356db21ddaad5565b8da61ec`.
 - The separate `build-and-smoke` job remains cancelled because Avrea has no available credits. Therefore the fallback's 48 tests pass, but the complete Avrea/C++/CACE pipeline is not yet green.
+
+
+## SQLite persistence adapter — implementation added
+
+`python/merlin/sqlite_registry.py` now persists the runtime contracts in a transactional SQLite database:
+
+- Versioned schema metadata.
+- Immutable run identity, capability version, policy hash, budgets, and unique idempotency key.
+- Append-only ordered event rows with hash-chain verification on reads and before appends.
+- Approval records bound to exact run, step, action digest, and policy hash.
+- Atomic idempotency replay: same key + same request digest returns the original run; same key + different digest is rejected.
+- Approval decisions can transition only from pending, and only to approved or rejected.
+
+Tests cover persistence across store reopen, exact replay, key conflict, event ordering and verification, unknown-run rejection, and one-time approval decisions. CI now includes `test_sqlite_registry.py`.
+
+**Scope limitation:** this is a single-node SQLite persistence adapter. It is not yet a multi-process distributed queue, a lease manager, a transactional outbox, or a production deployment. Before multi-runner concurrency, add explicit outbox/inbox tables, lease ownership and expiry, worker heartbeats, and a tested migration path; then move to a shared transactional database if deployment topology requires it.
+
+The next implementation priority is now the transactional outbox/inbox and Hermes dispatch lifecycle, followed by MCFC leases and worker recovery.
