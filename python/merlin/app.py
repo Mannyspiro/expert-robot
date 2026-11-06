@@ -864,6 +864,18 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                         selected_model = os.environ.get("MERLIN_LOCAL_MODEL", os.environ.get("MERLIN_MODEL_NAME", "")).strip()
                     upstream_payload = dict(data)
                     upstream_payload.pop("provider", None)
+                    if memory_vault.context_enabled():
+                        memory_context = memory_vault.context()
+                        if memory_context:
+                            messages = upstream_payload.get("messages")
+                            if not isinstance(messages, list):
+                                raise ValueError("messages must be a list when approved memory context is enabled")
+                            insertion = 0
+                            while (insertion < len(messages)
+                                   and isinstance(messages[insertion], dict)
+                                   and messages[insertion].get("role") == "system"):
+                                insertion += 1
+                            messages.insert(insertion, {"role": "system", "content": memory_context})
                     if not upstream_payload.get("model"):
                         upstream_payload["model"] = selected_model
                     if not upstream_payload.get("model"):
