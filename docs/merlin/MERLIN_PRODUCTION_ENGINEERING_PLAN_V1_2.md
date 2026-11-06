@@ -88,6 +88,17 @@ Updated unified evidence on exact code head `06ece19e01b115a8d10da7e919b91ba1312
 - Latest combined evidence on exact code head `4875501ea93de14405f553a2b6b14f13a492800c`: run [42256655592](https://github.com/Mannyspiro/expert-robot/actions/runs/42256655592), compile succeeded; **73 tests passed in 4.12 seconds**. Artifact [13522158574](https://github.com/Mannyspiro/expert-robot/actions/runs/42256655592/artifacts/13522158574), SHA-256 `487f1984fd6014f207982103ae07e93ab7f2e7f4801d1752e149c757de72508d`.
 - CACE repository observation: `morganaspim/Cace-app` describes itself as a research/development system and explicitly says production readiness is not established. Its `docs/STATUS.md` says the canonical v3.30 continuum-proof claim is not current-head qualified and the v3.36 candidate is intentionally unqualified pending exact-head qualification. The inspected repository documents a CLI/portable qualification path; a production HTTP verifier endpoint and authenticated transport contract have not yet been established in this integration. Therefore CACE remains unqualified as a live remote service.
 
+### OIDC/JWKS verifier advanced and tested
+
+- Added a production JWT verifier using pinned `PyJWT[crypto]==2.15.1` and `PyJWKClient`, with an explicit asymmetric algorithm allowlist, HTTPS-only issuer/JWKS URLs (loopback HTTP only for development), signature/issuer/audience/exp/iat/nbf validation, required subject and maximum token lifetime.
+- Added environment-based construction through `MERLIN_OIDC_ISSUER`, `MERLIN_OIDC_AUDIENCE`, `MERLIN_OIDC_JWKS_URL` and optional policy variables. The standalone server remains fail-closed if required settings are absent or invalid.
+- Added an append-only SQLite `jti` revocation store for single-instance use. Multi-instance deployment must inject a shared revocation checker.
+- Configuration guide: `docs/merlin/MERLIN_OIDC_CONFIGURATION.md`.
+- No real provider issuer, audience, JWKS URL, tenant claim or role claim is configured. No live provider token has been validated. This is a tested integration mechanism, not production SSO completion.
+- Exact tested code head `8d6335acb491ad3b02f91da9dc3a2d69c5b69e39`: unified run [42257763371](https://github.com/Mannyspiro/expert-robot/actions/runs/42257763371) compiled the integrated modules and passed **82 tests in 4.69 seconds**. Artifact [13522923401](https://github.com/Mannyspiro/expert-robot/actions/runs/42257763371/artifacts/13522923401), SHA-256 `a407e86eb360be7dee37c2b3cb3601233872adcf1baaa7ce8bdc2a919dea3eab`.
+- Identity-focused run [42257763347](https://github.com/Mannyspiro/expert-robot/actions/runs/42257763347) passed **30 tests in 1.13 seconds**. Artifact [13523781333](https://github.com/Mannyspiro/expert-robot/actions/runs/42257763347/artifacts/13523781333), SHA-256 `fdc35b86d36842450ada2c21481cea3f95539ab94a3f54e4f33d2e6b35f9808d`.
+- These tests use generated RSA keys and a fake JWKS client to exercise PyJWT signature and claim validation; they do not contact a real identity provider. The combined 82-test run is the authoritative integration suite.
+
 ## Ranked next implementation steps
 
 1. **Finish PR #112 hosted evidence.** Inspect the dedicated Learning identity job logs and artifact. Resolve any test failures before adding further identity behavior.
