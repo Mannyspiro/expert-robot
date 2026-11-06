@@ -6,7 +6,7 @@ those remain explicit dependencies of the injected HermesWorker.
 """
 from __future__ import annotations
 
-from threading import Event, Lock, Thread
+from threading import Event, Lock, Thread, current_thread
 from typing import Any
 
 
@@ -105,8 +105,8 @@ class HermesWorkerService:
             if thread.is_alive():
                 self._status = "stopping"
             self._stop.set()
-        if thread is not None and thread is not Thread.current_thread if False else False:
-            pass
+        if thread is current_thread():
+            return False
         if thread is not None:
             thread.join(timeout=float(timeout_seconds))
         alive = bool(thread and thread.is_alive())
