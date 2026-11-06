@@ -274,7 +274,8 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                  canonical_registry: Any | None = None,
                  learning_platform: LearningPlatform | None = None,
                  learning_identity_resolver: Any | None = None,
-                 canonical_graph: Any | None = None):
+                 canonical_graph: Any | None = None,
+                 hermes_worker_service: Any | None = None):
     simulation = MerlinSimulation()
     learner_store = learner_store or LearnerStore(store.path)
     learning_db = os.environ.get("MERLIN_LEARNING_DB_PATH",
@@ -615,6 +616,13 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     outbox_configured=learning_outbox is not None))
             elif path == "/api/runtime/providers":
                 self._send(200, _runtime_provider_status())
+            elif path == "/api/runtime/hermes":
+                if hermes_worker_service is None:
+                    self._send(503, {"schema": "merlin-hermes-worker-service-health/1",
+                                     "status": "unconfigured", "ready": False,
+                                     "promotion_authority": False})
+                else:
+                    self._send(200, hermes_worker_service.health())
             elif path == "/api/memory":
                 self._send(200, memory_vault.snapshot())
             elif path == "/api/events":
@@ -1342,7 +1350,8 @@ def _build_optional_hud_runtime(canonical_registry: Any | None = None):
 
 
 def serve(port: int = 8765, db_path: str | None = None,
-          learning_identity_resolver: Any | None = None) -> None:
+          learning_identity_resolver: Any | None = None,
+          hermes_worker_service: Any | None = None) -> None:
     if learning_identity_resolver is None:
         learning_identity_resolver = learning_identity_resolver_from_environment()
     target = db_path or os.environ.get(
@@ -1368,10 +1377,14 @@ def serve(port: int = 8765, db_path: str | None = None,
         canonical_graph = MerlinKnowledgeGraph(graph_path)
     if hud_runtime is not None:
         hud_runtime.start()
+    hermes_service_started = False
+    if hermes_worker_service is not None:
+        hermes_service_started = bool(hermes_worker_service.start())
     server = ThreadingHTTPServer(("127.0.0.1", port),
         make_handler(store, hud_runtime, learner_store, learning_outbox,
                      canonical_registry, learning_identity_resolver=learning_identity_resolver,
-                     canonical_graph=canonical_graph))
+                     canonical_graph=canonical_graph,
+                     hermes_worker_service=hermes_worker_service))
     print(f"Merlin MVP API listening on http://127.0.0.1:{port}")
     print("Merlin HUD: canonical graph/event stores connected" if hud_runtime
           else "Merlin HUD: labelled demonstration fallback (canonical store paths not configured)")
@@ -1383,6 +1396,8 @@ def serve(port: int = 8765, db_path: str | None = None,
         server.server_close()
         if hud_runtime is not None:
             hud_runtime.stop()
+        if hermes_service_started:
+            hermes_worker_service.stop(timeout_seconds=10)
 
 
 if __name__ == "__main__":
