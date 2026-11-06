@@ -26,6 +26,7 @@ from .telemetry import normalize_event, telemetry_view, record_runtime_event
 from .telemetry_graph import build_telemetry_graph
 from .learner_model import LearnerStore, select_next_lesson, HermesLearningRouter, score_attempt_event
 from .event_outbox import MerlinEventOutbox
+from .intent_compiler import Asset, IntentSpec, ContinuityState, compile_directive
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
     validate_analogy,
@@ -126,6 +127,7 @@ class EventStore:
 
 
 CAPABILITIES = [
+    {"id": "intent.compile.preview", "status": "AVAILABLE", "evidence": "deterministic typed directive preview; no persistence or external execution authority"},
     {"id": "simulation.world", "status": "AVAILABLE", "evidence": "deterministic bounded world state, actions, and event telemetry"},
     {"id": "simulation.hud", "status": "AVAILABLE", "evidence": "responsive HUD renders live simulation API data"},
     {"id": "council.roles", "status": "AVAILABLE", "evidence": "deterministic simulated persona registry"},
@@ -424,6 +426,67 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 data = json.loads(raw.decode("utf-8"))
                 if not isinstance(data, dict):
                     raise ValueError("request body must be a JSON object")
+
+                if path == "/api/intents/compile":
+                    intent_data = data.get("intent", data)
+                    assets_data = data.get("assets", [])
+                    continuity_data = data.get("continuity")
+                    if not isinstance(intent_data, dict) or not isinstance(assets_data, list):
+                        raise ValueError("intent must be an object and assets must be a list")
+
+                    def string_list(value: Any, field_name: str) -> tuple[str, ...]:
+                        if not isinstance(value, list) or any(not isinstance(item, str) for item in value):
+                            raise ValueError(field_name + " must be a list of strings")
+                        return tuple(value)
+
+                    intent = IntentSpec(
+                        goal=intent_data.get("goal", ""),
+                        domain=intent_data.get("domain", ""),
+                        deliverable=intent_data.get("deliverable", ""),
+                        constraints=string_list(intent_data.get("constraints", []), "constraints"),
+                        exclusions=string_list(intent_data.get("exclusions", []), "exclusions"),
+                        success_criteria=string_list(intent_data.get("success_criteria", []), "success_criteria"),
+                        audience=intent_data.get("audience", ""),
+                        target_backend=intent_data.get("target_backend", "generic"),
+                        duration_seconds=intent_data.get("duration_seconds"),
+                    )
+                    assets = []
+                    for row in assets_data:
+                        if not isinstance(row, dict):
+                            raise ValueError("each asset must be an object")
+                        metadata = row.get("metadata", {})
+                        if not isinstance(metadata, dict):
+                            raise ValueError("asset metadata must be an object")
+                        assets.append(Asset(
+                            asset_id=row.get("asset_id", ""), name=row.get("name", ""),
+                            kind=row.get("kind", ""), sha256=row.get("sha256", ""),
+                            role=row.get("role", "reference"),
+                            authority=row.get("authority", "user_supplied"),
+                            locator=row.get("locator", ""), metadata=metadata,
+                        ))
+                    continuity = None
+                    if continuity_data is not None:
+                        if not isinstance(continuity_data, dict):
+                            raise ValueError("continuity must be an object")
+                        continuity = ContinuityState(
+                            checkpoint_id=continuity_data.get("checkpoint_id", ""),
+                            prior_state=continuity_data.get("prior_state", ""),
+                            stable_entity_ids=string_list(
+                                continuity_data.get("stable_entity_ids", []), "stable_entity_ids"),
+                            next_step=continuity_data.get("next_step", ""),
+                        )
+                    bundle = compile_directive(intent, assets, continuity)
+                    store.append(path, {"directive_sha256": bundle["directive_sha256"],
+                                        "domain": bundle["domain"]},
+                                 {"directive_sha256": bundle["directive_sha256"],
+                                  "asset_count": len(assets), "preview_only": True,
+                                  "execution_authorized": False})
+                    self._send(200, {
+                        "schema": "merlin-directive-bundle/1", "bundle": bundle,
+                        "storage_status": "preview_only",
+                        "execution_authorized": False, "promotion_authorized": False,
+                    })
+                    return
 
                 if path == "/api/learning/attempt":
                     scored_event = score_attempt_event(data)
