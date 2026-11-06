@@ -17,7 +17,7 @@ EVENT_TYPES = {
     "run.created", "run.started", "run.paused", "run.resumed",
     "run.completed", "run.failed", "run.cancelled",
     "step.started", "step.completed", "step.failed",
-    "tool.requested", "tool.completed", "approval.required",
+    "tool.requested", "tool.completed", "tool.lease_renewed", "tool.requeued", "approval.required",
     "approval.granted", "approval.denied", "artifact.created",
 }
 TERMINAL_STATES = {"succeeded", "failed", "cancelled"}
