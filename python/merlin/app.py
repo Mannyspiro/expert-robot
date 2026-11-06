@@ -27,6 +27,7 @@ from .telemetry_graph import build_telemetry_graph
 from .learner_model import LearnerStore, select_next_lesson, HermesLearningRouter, score_attempt_event
 from .event_outbox import MerlinEventOutbox
 from .intent_compiler import Asset, IntentSpec, ContinuityState, compile_directive
+from .math_transfer import preview_transfers
 from .interaction_learning import InteractionLearningStore, analyze_interactions
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
@@ -128,6 +129,7 @@ class EventStore:
 
 
 CAPABILITIES = [
+    {"id": "research.math_transfer.preview", "status": "AVAILABLE", "evidence": "deterministic, provenance-aware transfer hypotheses; no automatic promotion"},
     {"id": "intent.compile.preview", "status": "AVAILABLE", "evidence": "deterministic typed directive preview; optional canonical-registry artifact persistence; no external execution authority"},
     {"id": "learning.interaction.observe", "status": "AVAILABLE", "evidence": "metadata-only operational telemetry plus explicit categorical outcome feedback"},
     {"id": "learning.interaction.analyze", "status": "AVAILABLE", "evidence": "aggregate improvement proposals with minimum sample thresholds; recommendation-only"},
@@ -488,6 +490,52 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     self._send(202, {"schema": "merlin-interaction-feedback/1", **result,
                                      "raw_conversation_content_stored": False})
                     return
+                if path == "/api/research/transfers/preview":
+                    discovery = data.get("discovery", data)
+                    requested_targets = data.get("requested_targets")
+                    if not isinstance(discovery, dict):
+                        raise ValueError("discovery must be an object")
+                    if requested_targets is not None and (
+                        not isinstance(requested_targets, list)
+                        or any(not isinstance(item, str) for item in requested_targets)
+                    ):
+                        raise ValueError("requested_targets must be a list of subsystem identifiers")
+                    preview = preview_transfers(discovery, requested_targets)
+                    storage_status = "preview_only"
+                    artifact_ref = None
+                    project_id = data.get("project_id")
+                    if project_id is not None:
+                        if not isinstance(project_id, str) or not project_id.strip():
+                            raise ValueError("project_id must be a nonblank string")
+                        if canonical_registry is None:
+                            self._send(503, {"error": "canonical_registry_unavailable",
+                                             "storage_status": "not_persisted"})
+                            return
+                        canonical_registry.inventory(project_id)
+                        artifact_bytes = _json_bytes(preview)
+                        logical_path = "math-transfers/" + preview["preview_sha256"] + ".json"
+                        digest = canonical_registry.put_artifact(
+                            project_id, logical_path, artifact_bytes,
+                            "application/vnd.merlin.math-transfer-preview+json")
+                        verified = canonical_registry.verify_artifact(digest)
+                        if not verified:
+                            self._send(503, {"error": "canonical_registry_verification_failed",
+                                             "storage_status": "not_verified"})
+                            return
+                        artifact_ref = {"project_id": project_id, "logical_path": logical_path,
+                                        "sha256": digest, "verified": True}
+                        storage_status = "canonical_registry"
+                    store.append(path, {"preview_sha256": preview["preview_sha256"],
+                                        "discovery_id": preview["discovery"]["discovery_id"],
+                                        "project_id": project_id},
+                                 {"candidate_count": preview["candidate_count"],
+                                  "storage_status": storage_status,
+                                  "promotion_authorized": False})
+                    self._send(200, {"schema": preview["schema"], "preview": preview,
+                                     "storage_status": storage_status, "artifact_ref": artifact_ref,
+                                     "promotion_authorized": False})
+                    return
+
                 if path == "/api/intents/compile":
                     intent_data = data.get("intent", data)
                     assets_data = data.get("assets", [])
