@@ -24,6 +24,11 @@ class LearningPlatformTests(unittest.TestCase):
                                  "approved", "Independent content and assessment review.")
         return self._publish(course)
 
+    def _publish(self, course):
+        self.store.review_course(self.reviewer, course["course_id"], course["version"],
+                                 "approved", "Independent content and assessment review.")
+        return self._publish(course)
+
     def _course(self):
         course = self.store.create_course(
             self.teacher, "intro-to-mathematics", "Introduction to Mathematics",
