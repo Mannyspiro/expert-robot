@@ -170,6 +170,14 @@ class PyJWTJWKSVerifier:
         algorithms = frozenset(allowed_algorithms)
         if not self.issuer or not self.audience:
             raise ValueError("OIDC issuer and audience are required")
+        issuer_url = urlsplit(self.issuer)
+        local_hosts = {"localhost", "127.0.0.1", "::1"}
+        if issuer_url.scheme != "https" and not (
+            issuer_url.scheme == "http" and issuer_url.hostname in local_hosts
+        ):
+            raise ValueError("OIDC issuer must use HTTPS except for loopback development")
+        if not issuer_url.hostname or issuer_url.username or issuer_url.password or issuer_url.query or issuer_url.fragment:
+            raise ValueError("OIDC issuer URL is invalid")
         if not algorithms or not algorithms.issubset(self._ASYMMETRIC_ALGORITHMS):
             raise ValueError("OIDC algorithms must be a non-empty asymmetric allowlist")
         parsed = urlsplit(self.jwks_url)
