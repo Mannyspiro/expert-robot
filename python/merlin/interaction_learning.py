@@ -87,6 +87,8 @@ class InteractionLearningStore:
             raise ValueError("only telemetry, explicit feedback and personalization preferences can be changed")
         if any(not isinstance(v, bool) for v in changes.values()):
             raise ValueError("interaction preferences must be booleans")
+        if changes.get("personalization") is True:
+            raise ValueError("cross-session personalization is not implemented or qualified yet")
         with self._connect() as db:
             for key, value in changes.items():
                 db.execute(
@@ -152,6 +154,13 @@ class InteractionLearningStore:
                 "FROM interaction_feedback ORDER BY created_at DESC LIMIT ?", (limit,)
             ).fetchall()
         return {"count": len(rows), "events": [dict(row) for row in rows]}
+
+    def delete_session_feedback(self, session_id: str) -> int:
+        if not isinstance(session_id, str) or not _ID.fullmatch(session_id):
+            raise ValueError("session_id must be an opaque identifier")
+        with self._connect() as db:
+            cursor = db.execute("DELETE FROM interaction_feedback WHERE session_id=?", (session_id,))
+            return cursor.rowcount
 
     def purge_feedback_before(self, timestamp: float) -> int:
         if isinstance(timestamp, bool) or not isinstance(timestamp, (int, float)) or not math.isfinite(timestamp):
