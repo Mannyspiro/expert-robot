@@ -10,8 +10,8 @@ from dataclasses import dataclass
 import time
 from typing import Any, Callable, Mapping
 
-from merlin.event_outbox import MerlinEventOutbox
-from merlin.telemetry import agent_event_sink
+from .event_outbox import MerlinEventOutbox
+from .telemetry import agent_event_sink
 
 HERMES_TASK_TOPIC = "merlin.hermes.task"
 
