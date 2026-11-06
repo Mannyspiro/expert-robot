@@ -29,6 +29,7 @@ from .event_outbox import MerlinEventOutbox
 from .intent_compiler import Asset, IntentSpec, ContinuityState, compile_directive
 from .math_transfer import preview_transfers
 from .interaction_learning import InteractionLearningStore, analyze_interactions
+from .memory_vault import MerlinMemoryVault
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
     validate_analogy,
@@ -270,6 +271,8 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
     simulation = MerlinSimulation()
     learner_store = learner_store or LearnerStore(store.path)
     interaction_store = InteractionLearningStore(store.path)
+    memory_path = os.environ.get("MERLIN_MEMORY_DB_PATH", str(Path(store.path).with_name("memory.sqlite3")))
+    memory_vault = MerlinMemoryVault(memory_path)
     repo_root = Path(__file__).resolve().parents[2]
     catalog_path = Path(os.environ.get("MERLIN_MATH_IDEA_CATALOG",
         str(repo_root / "docs" / "research" / "merlin-mathematical-idea-catalog.v1.json")))
@@ -450,6 +453,8 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 self._send(200, {"schema": "merlin-capabilities/1", "capabilities": CAPABILITIES})
             elif path == "/api/runtime/providers":
                 self._send(200, _runtime_provider_status())
+            elif path == "/api/memory":
+                self._send(200, memory_vault.snapshot())
             elif path == "/api/events":
                 self._send(200, {"schema": "merlin-events/1", "events": store.recent()})
             elif path in {"/api/learning/learner", "/api/learning/recommendation"}:
@@ -522,6 +527,30 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                                  {"preferences": preferences, "raw_content_stored": False})
                     self._send(200, {"schema": "merlin-interaction-preferences/1",
                                      "preferences": preferences})
+                    return
+                if path in {"/api/memory/preferences", "/api/memory/projects"}:
+                    if data.get("approved") is not True:
+                        self._send(403, {"error": "explicit_approval_required",
+                                         "detail": "Saving long-term memory requires an explicit user action."})
+                        return
+                    if path == "/api/memory/preferences":
+                        receipt = memory_vault.set_preference(data.get("key"), data.get("value"))
+                        store.append(path, {"key": receipt["key"],
+                                            "value_sha256": receipt["value_sha256"]},
+                                     {"saved": True, "version": receipt["version"],
+                                      "raw_memory_value_in_event_ledger": False})
+                        self._send(201, {"schema": "merlin-memory-save/1",
+                                         "kind": "preference", "key": receipt["key"],
+                                         "version": receipt["version"]})
+                    else:
+                        receipt = memory_vault.set_project(data.get("name"), data.get("status"))
+                        store.append(path, {"name": receipt["name"],
+                                            "status_sha256": receipt["status_sha256"]},
+                                     {"saved": True, "version": receipt["version"],
+                                      "raw_memory_value_in_event_ledger": False})
+                        self._send(201, {"schema": "merlin-memory-save/1",
+                                         "kind": "project", "name": receipt["name"],
+                                         "version": receipt["version"]})
                     return
                 if path == "/api/interaction/feedback":
                     result = interaction_store.record_feedback(data)
@@ -944,11 +973,27 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
         def do_DELETE(self) -> None:
             self._request_started = perf_counter()
             parsed = urlparse(self.path)
-            if parsed.path != "/api/interaction/feedback":
-                self._send(404, {"error": "not_found"})
-                return
             try:
                 query = parse_qs(parsed.query)
+                if parsed.path == "/api/memory/preferences":
+                    key = (query.get("key") or [""])[0]
+                    deleted = memory_vault.delete_preference(key)
+                    store.append("/api/memory/preferences/delete", {"key": key},
+                                 {"deleted": deleted, "raw_memory_value_in_event_ledger": False})
+                    self._send(200, {"schema": "merlin-memory-delete/1",
+                                     "kind": "preference", "deleted": deleted})
+                    return
+                if parsed.path == "/api/memory/projects":
+                    name = (query.get("name") or [""])[0]
+                    deleted = memory_vault.delete_project(name)
+                    store.append("/api/memory/projects/delete", {"name": name},
+                                 {"deleted": deleted, "raw_memory_value_in_event_ledger": False})
+                    self._send(200, {"schema": "merlin-memory-delete/1",
+                                     "kind": "project", "deleted": deleted})
+                    return
+                if parsed.path != "/api/interaction/feedback":
+                    self._send(404, {"error": "not_found"})
+                    return
                 session_id = (query.get("session_id") or [""])[0]
                 deleted = interaction_store.delete_session_feedback(session_id)
                 store.append("/api/interaction/feedback/delete", {"session_id": session_id},
