@@ -1,12 +1,16 @@
 import unittest
 
 from merlin.insurance_intelligence import (
-    AGENCY_SCOPE, JURISDICTIONS, InsurerProductEvidence, InsuranceEvidence,
+    AGENCY_SCOPE, CONDUCT_PATTERNS, JURISDICTIONS, InsurerProductEvidence, InsuranceEvidence,
     agency_scope_for, compare_insurer_products,
 )
 
 
 class InsuranceEvidenceTests(unittest.TestCase):
+    def test_conduct_pattern_ids_are_machine_normalized(self):
+        self.assertTrue(CONDUCT_PATTERNS)
+        self.assertTrue(all(item == item.lower() and " " not in item and item.replace("_", "").isalnum() for item in CONDUCT_PATTERNS))
+
     def test_full_us_jurisdiction_coverage(self):
         self.assertEqual(len(JURISDICTIONS), 51)
         self.assertEqual(len(set(JURISDICTIONS)), 51)
