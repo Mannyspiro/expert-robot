@@ -1,6 +1,13 @@
 import unittest
+import os
+import time
+from types import SimpleNamespace
+from unittest.mock import patch
 
-from python.merlin.identity import OIDCIdentityResolver
+import jwt
+from cryptography.hazmat.primitives.asymmetric import rsa
+
+from python.merlin.identity import (OIDCIdentityResolver, PyJWTJWKSVerifier, learning_identity_resolver_from_environment)
 from python.merlin.learning_platform import Actor
 
 
@@ -106,6 +113,111 @@ class OIDCIdentityResolverTests(unittest.TestCase):
         self.assertIsNone(self.resolver(self.headers()))
         self.claims["exp"] = True
         self.assertIsNone(self.resolver(self.headers()))
+
+
+
+class FakeJWKSClient:
+    def __init__(self, public_key):
+        self.public_key = public_key
+        self.lookups = 0
+
+    def get_signing_key_from_jwt(self, token):
+        self.lookups += 1
+        return SimpleNamespace(key=self.public_key)
+
+
+class PyJWTJWKSVerifierTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        cls.other_private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+        cls.public_key = cls.private_key.public_key()
+
+    def token(self, private_key=None, **overrides):
+        now = time.time()
+        claims = {
+            "iss": ISSUER,
+            "aud": AUDIENCE,
+            "sub": "faculty-17",
+            "tenant_id": "tenant-north",
+            "role": "instructor",
+            "exp": now + 600,
+            "nbf": now - 5,
+            "jti": "oidc-token-17",
+        }
+        claims.update(overrides)
+        return jwt.encode(
+            claims,
+            private_key or self.private_key,
+            algorithm="RS256",
+            headers={"kid": "merlin-signing-key-1"},
+        )
+
+    def verifier(self, public_key=None, algorithms=("RS256",), **kwargs):
+        return PyJWTJWKSVerifier(
+            issuer=ISSUER,
+            audience=AUDIENCE,
+            jwks_url="https://identity.example.test/.well-known/jwks.json",
+            allowed_algorithms=list(algorithms),
+            jwks_client=FakeJWKSClient(public_key or self.public_key),
+            **kwargs,
+        )
+
+    def test_real_rsa_signature_and_registered_claims_produce_actor(self):
+        verifier = self.verifier()
+        resolver = OIDCIdentityResolver(
+            issuer=ISSUER, audience=AUDIENCE, token_verifier=verifier,
+            clock=time.time,
+        )
+        actor = resolver({"Authorization": "Bearer " + self.token()})
+        self.assertEqual(actor, Actor("tenant-north", "faculty-17", "instructor"))
+
+    def test_wrong_signature_is_rejected(self):
+        verifier = self.verifier()
+        with self.assertRaises(jwt.InvalidSignatureError):
+            verifier(self.token(self.other_private_key), ISSUER, AUDIENCE)
+
+    def test_issuer_audience_and_expiry_are_verified_by_pyjwt(self):
+        verifier = self.verifier()
+        with self.assertRaises(jwt.InvalidIssuerError):
+            verifier(self.token(iss="https://wrong.example/"), ISSUER, AUDIENCE)
+        with self.assertRaises(jwt.InvalidAudienceError):
+            verifier(self.token(aud="different-api"), ISSUER, AUDIENCE)
+        with self.assertRaises(jwt.ExpiredSignatureError):
+            verifier(self.token(exp=time.time() - 10), ISSUER, AUDIENCE)
+
+    def test_algorithm_allowlist_rejects_hmac_and_none(self):
+        with self.assertRaisesRegex(ValueError, "asymmetric allowlist"):
+            self.verifier(algorithms=("HS256",))
+        hmac_token = jwt.encode(
+            {"iss": ISSUER, "aud": AUDIENCE, "sub": "x",
+             "exp": time.time() + 60},
+            "not-a-production-secret",
+            algorithm="HS256",
+        )
+        with self.assertRaises(jwt.InvalidAlgorithmError):
+            self.verifier()(hmac_token, ISSUER, AUDIENCE)
+
+    def test_external_http_jwks_and_invalid_issuer_are_rejected(self):
+        with self.assertRaisesRegex(ValueError, "HTTPS"):
+            PyJWTJWKSVerifier(
+                issuer=ISSUER, audience=AUDIENCE,
+                jwks_url="http://identity.example.test/jwks.json",
+                allowed_algorithms=["RS256"],
+                jwks_client=FakeJWKSClient(self.public_key),
+            )
+        with self.assertRaisesRegex(ValueError, "issuer"):
+            PyJWTJWKSVerifier(
+                issuer="http://identity.example.test/",
+                audience=AUDIENCE,
+                jwks_url="https://identity.example.test/jwks.json",
+                allowed_algorithms=["RS256"],
+                jwks_client=FakeJWKSClient(self.public_key),
+            )
+
+    def test_environment_factory_stays_unconfigured_without_trusted_settings(self):
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertIsNone(learning_identity_resolver_from_environment())
 
 
 if __name__ == "__main__":
