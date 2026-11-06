@@ -86,3 +86,7 @@ class SQLiteRunStoreTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# Keep the Hermes lifecycle suite in the established SQLite CI test invocation.
+from test_hermes_outbox import HermesOutboxTests  # noqa: F401
