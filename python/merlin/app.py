@@ -30,6 +30,7 @@ from .intent_compiler import Asset, IntentSpec, ContinuityState, compile_directi
 from .math_transfer import preview_transfers
 from .interaction_learning import InteractionLearningStore, analyze_interactions
 from .memory_vault import MerlinMemoryVault
+from .capability_registry import capability_snapshot, validate_graph
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
     validate_analogy,
@@ -467,7 +468,9 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             elif path == "/health":
                 self._send(200, {"ok": True, "service": "merlin", "version": "0.4"})
             elif path == "/api/capabilities":
-                self._send(200, {"schema": "merlin-capabilities/1", "capabilities": CAPABILITIES})
+                self._send(200, capability_snapshot(
+                    CAPABILITIES, _runtime_provider_status(),
+                    outbox_configured=learning_outbox is not None))
             elif path == "/api/runtime/providers":
                 self._send(200, _runtime_provider_status())
             elif path == "/api/memory":
@@ -527,6 +530,14 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 if not isinstance(data, dict):
                     raise ValueError("request body must be a JSON object")
 
+                if path == "/api/graphs/validate":
+                    graph = data.get("graph", data)
+                    result = validate_graph(graph)
+                    store.append(path, {"graph_sha256": result["graph_sha256"]},
+                                 {"valid": result["valid"], "node_count": result["node_count"],
+                                  "edge_count": result["edge_count"], "errors": result["errors"]})
+                    self._send(200, result)
+                    return
                 if path == "/api/learning/improvements/evaluate":
                     analysis = current_interaction_analysis()
                     receipt = interaction_store.save_analysis(analysis)
