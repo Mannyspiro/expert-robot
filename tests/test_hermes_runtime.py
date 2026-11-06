@@ -147,13 +147,13 @@ class HermesRuntimeCompositionTests(unittest.TestCase):
             def server_close(self):
                 self.closed = True
 
-        with patch("python.merlin.app.ThreadingHTTPServer", FakeServer), \\
-             patch("python.merlin.app._build_optional_hud_runtime", return_value=None):
-            serve(
-                port=0,
-                db_path=str(runtime.root / "events.sqlite3"),
-                hermes_runtime=runtime,
-            )
+        with patch("python.merlin.app.ThreadingHTTPServer", FakeServer):
+            with patch("python.merlin.app._build_optional_hud_runtime", return_value=None):
+                serve(
+                    port=0,
+                    db_path=str(runtime.root / "events.sqlite3"),
+                    hermes_runtime=runtime,
+                )
         self.assertEqual(runtime.health()["worker"]["status"], "stopped")
 
     def test_complete_cace_configuration_pins_verifier_identity(self):
