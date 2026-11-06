@@ -23,6 +23,20 @@ class PartnerEvidencePipelineTests(unittest.TestCase):
                 "not-a-date", None, "https://example.gov", "record",
             )
 
+    def test_difi_normalized_export_imports_entity_and_individual_observations(self):
+        source = (
+            "subject_id,subject_type,legal_name,license_number,license_type,"
+            "lines_of_authority,status,source_record_id,effective_on\\n"
+            "e1,entity,Example LLC,123,producer_entity,property;casualty,active,SBS-E1,2026-01-01\\n"
+            "i1,individual,Jane Producer,456,producer,property;casualty,active,SBS-I1,2026-01-01\\n"
+        )
+        rows = ingest_difi_normalized_csv(
+            source, "2026-11-05", "https://difi.az.gov/license-search"
+        )
+        self.assertEqual([x.subject_type for x in rows], ["entity", "individual"])
+        self.assertEqual(rows[0].lines_of_authority, ("property", "casualty"))
+        self.assertTrue(rows[0].raw_record_sha256)
+
     def test_contract_award_and_coop_are_linked_as_distinct_evidence(self):
         award = PublicContractEvidence(
             "award-1", "partner-1", "award", "City", "RFP-1", "Broker services",
