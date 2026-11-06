@@ -25,7 +25,7 @@ This implementation imports the useful parts of the JARVIS desktop-assistant arc
 - `MERLIN_TTS_QUALIFIED=1`: local speech sidecar has completed its qualification process.
 - `MERLIN_TTS_URL`: loopback-only TTS endpoint; defaults to `http://127.0.0.1:8880/v1/audio/speech`.
 
-The provider-status endpoint returns only status, transport class and qualified model identifiers. It never returns credentials or provider URLs. An endpoint being reachable or installed is not sufficient to mark a provider available.
+The provider-status endpoint returns only status, transport class and qualified model identifiers. It never returns credentials or provider URLs. Its state is QUALIFIED_CONFIGURED, not a live health claim: reachability is not probed until a request is made. An endpoint being reachable or installed is not sufficient to mark a provider qualified.
 
 ## JARVIS concepts retained
 
