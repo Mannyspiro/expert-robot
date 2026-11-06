@@ -300,9 +300,10 @@ class MerlinApiTests(unittest.TestCase):
         def fake_urlopen(request, timeout=0):
             captured["authorization"] = request.get_header("Authorization")
             captured["url"] = request.full_url
+            captured["payload"] = json.loads(request.data.decode("utf-8"))
             return FakeResponse()
 
-        payload = {"model": "test-model", "messages": [{"role": "user", "content": "say hello"}], "stream": True}
+        payload = {"provider": "cloud", "model": "test-model", "messages": [{"role": "user", "content": "say hello"}], "stream": True}
         request = Request(self.base + "/api/chat", data=json.dumps(payload).encode(),
                           headers={"Content-Type": "application/json"})
         with patch.dict(os.environ, {
@@ -321,6 +322,7 @@ class MerlinApiTests(unittest.TestCase):
         self.assertEqual(captured["authorization"], "Bearer private-test-key")
         self.assertNotIn(b"private-test-key", streamed)
         self.assertEqual(captured["url"], "https://api.example.test/v1/chat/completions")
+        self.assertNotIn("provider", captured["payload"])
         rows = self.store.by_kind("/api/telemetry/ingest", 10000)
         model_events = [row["summary"]["event"] for row in rows
                         if row.get("summary", {}).get("event", {}).get("payload", {}).get("component") == "chat_adapter"]
