@@ -342,7 +342,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
         worker_tokens = {
             key: value for key, value in configured_worker_tokens.items()
             if isinstance(key, str) and key and len(key) <= 100
-            and isinstance(value, str) and len(value) >= 32
+            and isinstance(value, str) and value.isascii() and len(value) >= 32
         } if isinstance(configured_worker_tokens, dict) else {}
     except (TypeError, ValueError, json.JSONDecodeError):
         worker_tokens = {}
@@ -432,7 +432,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 return None
             supplied = authorization[7:].strip()
             expected = worker_tokens.get(worker_id, "")
-            if not supplied or not hmac.compare_digest(supplied, expected):
+            if not supplied or not hmac.compare_digest(supplied.encode("utf-8"), expected.encode("utf-8")):
                 return None
             return worker_id
 
@@ -651,6 +651,10 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                             raise ValueError("topics must be a list of at most 20 topic names")
                         lease = learning_outbox.claim_next(
                             worker_id, lease_seconds=data.get("lease_seconds", 60), topics=topics)
+                        if lease is not None:
+                            store.append(path, {"worker_id": worker_id, "event_id": lease["event_id"]},
+                                         {"action": "claimed", "state": lease["state"],
+                                          "attempts": lease["attempts"]})
                         self._send(200, {"schema": "merlin-outbox-claim/1", "lease": lease})
                         return
                     event_id = data.get("event_id")
@@ -678,6 +682,9 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     else:
                         self._send(404, {"error": "not_found"})
                         return
+                    store.append(path, {"worker_id": worker_id, "event_id": event_id},
+                                 {"action": action, "state": result["state"],
+                                  "attempts": result["attempts"]})
                     self._send(200, {"schema": "merlin-outbox-worker-action/1",
                                      "event": result})
                     return
