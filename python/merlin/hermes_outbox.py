@@ -90,7 +90,9 @@ class HermesOutbox:
             if prior:
                 if prior["payload_digest"] != digest or prior["run_id"] != run_id:
                     raise ValueError("task idempotency key conflicts with prior payload")
-                return dict(prior)
+                replay = dict(prior)
+                replay["payload"] = json.loads(replay.pop("payload_json"))
+                return replay
             run = db.execute("SELECT * FROM runs WHERE run_id=?", (run_id,)).fetchone()
             if run is None:
                 raise ValueError("unknown run_id")
@@ -109,7 +111,9 @@ class HermesOutbox:
                  idempotency_key, payload_json, digest, max_attempts,
                  created_at, created_at, created_at))
             row = db.execute("SELECT * FROM hermes_outbox WHERE task_id=?", (task_id,)).fetchone()
-            return dict(row)
+            item = dict(row)
+            item["payload"] = json.loads(item.pop("payload_json"))
+            return item
 
     def claim(self, *, worker_id: str, now: str, lease_seconds: int = 60,
               limit: int = 1) -> tuple[dict[str, Any], ...]:
@@ -120,6 +124,11 @@ class HermesOutbox:
         expiry = (now_dt + timedelta(seconds=lease_seconds)).isoformat()
         claimed = []
         with self.registry._transaction() as db:
+            db.execute("""UPDATE hermes_outbox SET status='dead_letter', updated_at=?,
+                lease_owner=NULL, lease_token=NULL, lease_expires_at=NULL,
+                last_error=COALESCE(last_error, 'lease expired after final attempt')
+                WHERE status='leased' AND lease_expires_at <= ?
+                  AND attempts >= max_attempts""", (now_s, now_s))
             rows = db.execute("""SELECT * FROM hermes_outbox
                 WHERE attempts < max_attempts AND next_attempt_at <= ?
                   AND (status IN ('pending','retry') OR
