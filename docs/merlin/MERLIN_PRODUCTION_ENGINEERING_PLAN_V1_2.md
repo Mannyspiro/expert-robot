@@ -65,6 +65,21 @@ One shared Merlin platform, not separate product stacks:
 - HUD focused workflow [42255514220](https://github.com/Mannyspiro/expert-robot/actions/runs/42255514220) was still running at last observation; do not claim it passed until its logs and result artifact are available.
 - General CI and Avrea qualification were cancelled. Neither is a pass. No real identity provider or verifier is configured, so the resolver remains host-injected and the standalone server fails closed.
 
+### Qualification evidence persistence added
+
+The integration branch now extends `MerlinRegistry` with an append-only capability qualification receipt table.
+
+- Receipt records bind capability ID/version, provider/model revision, held-out suite, environment digest, evidence artifact digest, result, signer and signed time.
+- Evidence artifact bytes are verified against the content-addressed SHA-256 blob before receipt insertion.
+- SQLite triggers reject updates and deletes; same-receipt replay is idempotent and reusing an ID with changed content is rejected.
+- A newly stored receipt always returns `pending_independent_verification` and `qualified: false`. This is deliberate: storage of a runner's claim is not CACE verification and cannot promote a capability.
+- CACE-originated verification receipts and a trusted verifier transport remain future work.
+
+Updated unified evidence on exact code head `06ece19e01b115a8d10da7e919b91ba131296267`:
+- Run [42256217705](https://github.com/Mannyspiro/expert-robot/actions/runs/42256217705): compile succeeded; **61 tests passed in 3.66 seconds**.
+- Artifact [13523455717](https://github.com/Mannyspiro/expert-robot/actions/runs/42256217705/artifacts/13523455717), SHA-256 `e45c237705ff2dda29f15536063f4bef71ab870b728330a41a7be84f566919f5`.
+- This replaces the earlier 56-test run as the latest combined regression signal for this branch.
+
 ## Ranked next implementation steps
 
 1. **Finish PR #112 hosted evidence.** Inspect the dedicated Learning identity job logs and artifact. Resolve any test failures before adding further identity behavior.
