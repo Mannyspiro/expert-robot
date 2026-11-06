@@ -342,6 +342,49 @@ class LearningPlatform:
         return {"course_id": course_id, "version": course["current_version"],
                 "learner_id": target, "status": "active"}
 
+    def list_courses(self, actor: Actor) -> dict[str, Any]:
+        """Return tenant-scoped course summaries appropriate to the actor's role."""
+        self._authorize(actor, ROLES)
+        clauses = ["c.tenant_id=?"]
+        params: list[Any] = [actor.tenant_id]
+        if actor.role == "instructor":
+            clauses.append("c.owner_id=?")
+            params.append(actor.actor_id)
+        elif actor.role == "learner":
+            clauses.append("v.status='published'")
+        elif actor.role == "reviewer":
+            clauses.extend(["v.status='draft'", "c.owner_id<>?"])
+            params.append(actor.actor_id)
+        where = " AND ".join(clauses)
+        with self._connect() as db:
+            rows = db.execute(f"""SELECT c.course_id,c.slug,c.title,c.description,
+                c.owner_id,c.current_version,v.status,v.manifest_sha256,v.manifest_json,
+                e.status AS enrollment_status
+              FROM learning_courses c JOIN learning_course_versions v
+                ON v.tenant_id=c.tenant_id AND v.course_id=c.course_id
+                AND v.version=c.current_version
+              LEFT JOIN learning_enrollments e
+                ON e.tenant_id=c.tenant_id AND e.course_id=c.course_id
+                AND e.version=c.current_version AND e.learner_id=?
+              WHERE {where}
+              ORDER BY c.title COLLATE NOCASE,c.course_id""",
+              (actor.actor_id, *params)).fetchall()
+        courses = []
+        for row in rows:
+            manifest = json.loads(row["manifest_json"])
+            courses.append({
+                "course_id": row["course_id"], "slug": row["slug"],
+                "title": row["title"], "description": row["description"],
+                "owner_id": row["owner_id"], "version": row["current_version"],
+                "status": row["status"], "manifest_sha256": row["manifest_sha256"],
+                "objective_count": len(manifest.get("objectives", [])),
+                "lesson_count": len(manifest.get("lessons", [])),
+                "enrollment_status": row["enrollment_status"],
+            })
+        return {"schema": "merlin-learning-course-list/1",
+                "tenant_id": actor.tenant_id, "role": actor.role,
+                "courses": courses, "count": len(courses)}
+
     def get_course(self, actor: Actor, course_id: str, version: int | None = None) -> dict[str, Any]:
         self._authorize(actor, ROLES)
         with self._connect() as db:
