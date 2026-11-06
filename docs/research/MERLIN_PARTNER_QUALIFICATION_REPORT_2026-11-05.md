@@ -119,3 +119,17 @@ The Avrea-backed `build-and-smoke` job was not started because the Avrea organiz
 - The overall workflow run remains marked cancelled because the separate Avrea job did not start; the GitHub-hosted partner test job's steps completed successfully and the evidence artifact was uploaded.
 
 This is a passing result for the partner evidence suites only. It does **not** certify the full C++/Avrea CI pipeline.
+
+
+## Latest verification after contract-importer fix — CI #2747
+
+The normalized contract-record importer was corrected and its test added. The rerun of the GitHub-hosted partner job completed the test step successfully:
+
+- [CI run #2747](https://github.com/Mannyspiro/expert-robot/actions/runs/42173547085)
+- Commit tested: `39e932b16c042f9830859cd699b3b9b5dcd5b46e`
+- 39 total tests passed across the five suites: 13 + 6 + 5 + 7 + 8.
+- All five suite exit codes and the aggregate result JSON are zero.
+- Artifact ID: `13482370509`; artifact SHA-256: `434ef90109e307efc00e34f019f92f9d061539da0d940ae006f34adf09983ab5`.
+- The artifact includes the verbose log, exit-code file, and valid JSON result.
+
+The full workflow remains cancelled because Avrea's runner had no available credits; the GitHub-hosted partner test job and its artifact completed. The report's licensing limitation remains unchanged: no candidate DIFI entity or responsible-individual record has yet been imported, so no candidate is license-qualified.
