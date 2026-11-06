@@ -275,6 +275,15 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                                          "curriculum_id": "art-math-studio"})
     learning_router = HermesLearningRouter(learning_outbox, learner_store, learning_graph,
                                            learning_lessons) if learning_outbox is not None else None
+    def current_interaction_analysis():
+        preferences = interaction_store.preferences()
+        telemetry_rows = store.by_kind("/api/telemetry/ingest", 100000) if preferences["aggregate_telemetry"] else []
+        telemetry_events = [row["summary"]["event"] for row in telemetry_rows
+            if isinstance(row.get("summary"), dict)
+            and isinstance(row["summary"].get("event"), dict)]
+        feedback = interaction_store.feedback_summary()["events"] if preferences["explicit_feedback_learning"] else []
+        return analyze_interactions(telemetry_events, feedback)
+
     # Rebuild simulation state from the durable action ledger on process restart.
     replay_rows = store.by_kind("/api/sim/step")
     replayed = 0
@@ -375,13 +384,13 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 self._send(200, {"schema": "merlin-interaction-preferences/1",
                                  "preferences": interaction_store.preferences()})
             elif path == "/api/learning/improvements":
-                preferences = interaction_store.preferences()
-                telemetry_rows = store.by_kind("/api/telemetry/ingest", 100000) if preferences["aggregate_telemetry"] else []
-                telemetry_events = [row["summary"]["event"] for row in telemetry_rows
-                    if isinstance(row.get("summary"), dict)
-                    and isinstance(row["summary"].get("event"), dict)]
-                feedback = interaction_store.feedback_summary()["events"] if preferences["explicit_feedback_learning"] else []
-                self._send(200, analyze_interactions(telemetry_events, feedback))
+                latest = interaction_store.latest_analysis()
+                if latest is None:
+                    self._send(200, current_interaction_analysis())
+                else:
+                    self._send(200, {"schema": "merlin-interaction-improvement-result/1",
+                                     "latest": latest,
+                                     "analysis": latest["analysis"]})
             elif path == "/api/telemetry/graph":
                 rows = store.by_kind("/api/telemetry/ingest", 10000)
                 events = [row["summary"]["event"] for row in rows
@@ -444,6 +453,20 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 if not isinstance(data, dict):
                     raise ValueError("request body must be a JSON object")
 
+                if path == "/api/learning/improvements/evaluate":
+                    analysis = current_interaction_analysis()
+                    receipt = interaction_store.save_analysis(analysis)
+                    store.append(path, {"analysis_sha256": receipt["analysis_sha256"]},
+                                 {"analysis_id": receipt["analysis_id"],
+                                  "analysis_sha256": receipt["analysis_sha256"],
+                                  "telemetry_samples": receipt["telemetry_samples"],
+                                  "feedback_samples": receipt["feedback_samples"],
+                                  "proposal_count": len(analysis["proposals"]),
+                                  "promotion_authorized": False})
+                    self._send(201, {"schema": "merlin-interaction-improvement-result/1",
+                                     "receipt": receipt, "analysis": analysis,
+                                     "promotion_authorized": False})
+                    return
                 if path == "/api/learning/preferences":
                     preferences = interaction_store.set_preferences(data)
                     store.append(path, {"changed_preferences": sorted(data)},
