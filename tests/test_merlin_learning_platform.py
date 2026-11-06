@@ -72,8 +72,8 @@ class LearningPlatformTests(unittest.TestCase):
         with self.assertRaisesRegex(LearningConflictError, "independent reviewer"):
             self.store.publish_course(self.teacher, course["course_id"])
         with self.assertRaises(LearningPermissionError):
-            self.store.review_course(self.reviewer, course["course_id"], course["version"],
-                                     "approved", "review")
+            self.store.review_course(self.teacher, course["course_id"], course["version"],
+                                     "approved", "author cannot self-review")
         self.store.review_course(self.reviewer, course["course_id"], course["version"],
                                  "approved", "independent review")
         published = self.store.publish_course(self.teacher, course["course_id"])
