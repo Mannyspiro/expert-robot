@@ -127,7 +127,7 @@ class EventStore:
 
 
 CAPABILITIES = [
-    {"id": "intent.compile.preview", "status": "AVAILABLE", "evidence": "deterministic typed directive preview; no persistence or external execution authority"},
+    {"id": "intent.compile.preview", "status": "AVAILABLE", "evidence": "deterministic typed directive preview; optional canonical-registry artifact persistence; no external execution authority"},
     {"id": "simulation.world", "status": "AVAILABLE", "evidence": "deterministic bounded world state, actions, and event telemetry"},
     {"id": "simulation.hud", "status": "AVAILABLE", "evidence": "responsive HUD renders live simulation API data"},
     {"id": "council.roles", "status": "AVAILABLE", "evidence": "deterministic simulated persona registry"},
@@ -512,7 +512,9 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                             "sha256": artifact_digest, "verified": canonical_registry.verify_artifact(artifact_digest),
                         }
                         if not artifact_ref["verified"]:
-                            raise RuntimeError("canonical registry artifact failed read-after-write verification")
+                            self._send(503, {"error": "canonical_registry_verification_failed",
+                                             "storage_status": "not_verified"})
+                            return
                         storage_status = "canonical_registry"
                     store.append(path, {"directive_sha256": bundle["directive_sha256"],
                                         "domain": bundle["domain"], "project_id": project_id},
