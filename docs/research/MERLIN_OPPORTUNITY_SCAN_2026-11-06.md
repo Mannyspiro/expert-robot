@@ -10,6 +10,14 @@ This is a source-led research snapshot, not an eligibility determination or appl
 - Merlin action: create a registration-readiness checklist; do not claim the agency is registered until confirmed.
 - Source: Arizona.gov, "Doing Business With The State" (accessed 2026-11-06).
 
+
+### City of Phoenix insurance brokerage incumbent
+- Official City Council record: https://phoenix.legistar.com/LegislationDetail.aspx?GUID=29F6308F-FD58-4DB0-862B-10AFE82BAC8E&ID=7513695&Options=&Search=
+- On August 27, 2025, City Council adopted an award authorizing a contract with Alliant Insurance Services under COOP 26-0019 for City insurance brokerage services. The record states a not-to-exceed value of $1,576,000 and a term beginning on or about September 1, 2025 through January 31, 2029, with a one-year extension option. It says the City relied on State contract CTR069812 after a competitive state procurement and waived a separate standard competition.
+- The earlier Phoenix RFP PS-24-0412 sought property/casualty placement and surety-bond services; the official solicitation document described a five-year agreement. That RFP is historical, not open: https://solicitations.phoenix.gov/Solicitations/GetSolicitationAttachment?attachmentId=16407
+- Disposition: INCUMBENT / COOPERATIVE CONTRACT INTELLIGENCE, NOT AN OPEN BID. Use this to understand buyer scope, likely experience expectations, and future re-compete timing. Do not suggest the current award can be displaced through a direct application or that it is an open subcontract.
+- Source review date: 2026-11-06.
+
 ### City of Tucson Small Business Enterprise
 - Official page: https://www.tucsonaz.gov/Departments/Business-Services-Department/Procurement/Contract-Compliance-DBE-SBE/Small-Business-Enterprise
 - Program may provide bid preferences and subcontracting goals for eligible businesses.
