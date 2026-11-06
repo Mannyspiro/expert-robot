@@ -163,6 +163,9 @@ def build_hermes_stage_handlers(
                     "promotion_authority": False,
                 }
             else:
+                tool_identity = output["metadata"].get("tool_identity")
+                if not isinstance(tool_identity, str) or not tool_identity.strip():
+                    raise ValueError("stage executor must report its exact tool_identity before CACE verification")
                 context.emit_progress(_contract["label"] + " artifact stored; requesting independent CACE verification")
                 cace_result = artifact_verifier(
                     project_id=project_id,
@@ -173,6 +176,7 @@ def build_hermes_stage_handlers(
                     artifact_schema=str(output["metadata"].get("artifact_schema") or output["media_type"]),
                     requester_id=requester_id,
                     logical_path=logical_path,
+                    tool_identity=tool_identity,
                 )
                 if not isinstance(cace_result, Mapping):
                     raise TypeError("CACE artifact verifier must return a receipt result")
@@ -258,6 +262,7 @@ def build_hermes_stage_handlers(
                             artifact_sha256=source_digest,
                             theorem=theorem,
                             requester_id=requester_id,
+                            tool_version=lean_tool_version,
                             logical_path=(
                                 "proof-sources/" + _safe_segment(context.task_id) + "/"
                                 + _safe_segment(str(claim_id)) + ".lean"
