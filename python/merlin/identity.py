@@ -241,6 +241,8 @@ class PyJWTJWKSVerifier:
         if (isinstance(issued_at, bool) or not isinstance(issued_at, (int, float))
                 or isinstance(expires_at, bool) or not isinstance(expires_at, (int, float))):
             raise self._jwt.InvalidTokenError("OIDC access token requires numeric iat and exp")
+        if float(expires_at) <= float(issued_at):
+            raise self._jwt.InvalidTokenError("OIDC access token exp must be later than iat")
         if float(expires_at) - float(issued_at) > self.max_token_lifetime_seconds:
             raise self._jwt.InvalidTokenError("OIDC access token exceeds configured maximum lifetime")
         return claims
