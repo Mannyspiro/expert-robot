@@ -135,7 +135,7 @@ class CaceAdapterTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,"passing axiom audit"):
             adapter.verify(project_id="merlin",repository="owner/repo",
                            commit_sha=self.commit,artifact_sha256=self.artifact,
-                           theorem="T",requester_id="merlin-agent")
+                           theorem="T",requester_id="merlin-agent",tool_version="Lean 4.32.1")
 
     def test_unregistered_input_artifact_is_rejected_before_transport(self):
         called = []
@@ -227,7 +227,7 @@ class CaceAdapterTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             adapter.verify(project_id="merlin",repository="owner/repo",
                            commit_sha=self.commit,artifact_sha256=self.artifact,
-                           theorem="T",requester_id="merlin-agent")
+                           theorem="T",requester_id="merlin-agent",tool_version="Lean 4.32.1")
 
 
 if __name__ == "__main__":
