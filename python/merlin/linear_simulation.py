@@ -115,7 +115,9 @@ def linear_ode_task_executor(task: Mapping[str, Any], context: Any) -> dict[str,
         "artifact_bytes": encoded,
         "media_type": "application/vnd.merlin.linear-ode+json",
         "summary": "RK4 integration completed in " + str(result["steps"]) + " steps",
-        "metadata": {"engine": result["engine"], "steps": result["steps"],
+        "metadata": {"engine": result["engine"],
+                     "tool_identity": result["engine"],
+                     "steps": result["steps"],
                      "state_dimension": len(result["initial_state"])},
     }
 
