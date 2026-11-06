@@ -75,6 +75,16 @@ def run_ngspice(
     prlimit = shutil.which("prlimit")
     if not prlimit:
         raise RuntimeError("prlimit is required to enforce the configured ngspice address-space limit")
+    version_probe = subprocess.run(
+        [executable, "-v"], capture_output=True, text=True,
+        timeout=5, check=False,
+        env={"PATH": str(Path(executable).parent), "HOME": "/tmp", "LANG": "C"},
+    )
+    version_text = (version_probe.stdout or "") + "\\n" + (version_probe.stderr or "")
+    version_match = re.search(r"ngspice[- ](\\d+(?:\\.\\d+)*)", version_text, re.I)
+    if version_probe.returncode != 0 or version_match is None:
+        raise RuntimeError("ngspice exact version could not be established")
+    tool_version = version_match.group(1)
     with tempfile.TemporaryDirectory(prefix="merlin-ngspice-") as temp:
         root = Path(temp)
         net_path, log_path = root / "input.cir", root / "ngspice.log"
@@ -98,6 +108,7 @@ def run_ngspice(
         artifact = {
             "schema": "merlin-ngspice-result/1",
             "engine": "ngspice",
+            "tool_version": tool_version,
             "netlist": validated,
             "log": combined[-100000:],
             "returncode": completed.returncode,
@@ -111,7 +122,10 @@ def run_ngspice(
             "artifact_bytes": encoded,
             "media_type": "application/vnd.merlin.ngspice-result+json",
             "summary": "ngspice batch analysis completed",
-            "metadata": {"engine": "ngspice", "wall_seconds": elapsed,
+            "metadata": {"engine": "ngspice",
+                         "tool_identity": "ngspice@" + tool_version,
+                         "tool_version": tool_version,
+                         "wall_seconds": elapsed,
                          "returncode": completed.returncode},
         }
 
