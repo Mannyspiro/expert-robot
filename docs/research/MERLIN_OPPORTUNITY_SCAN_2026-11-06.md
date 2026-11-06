@@ -123,3 +123,58 @@ These are exploratory commercial leads. Wholesale account approval is not equiva
 6. Luxury authorization must be verified at the brand, territory, channel, and product level. Distinguish authorized dealer, authorized wholesale retailer, distributor, licensee, reseller, and authenticated pre-owned seller.
 7. No application submission, vendor registration, purchase, deposit, exclusivity commitment, or contract acceptance without explicit user approval.
 8. Every live lead should be independently rechecked before being presented as currently open.
+
+
+## Follow-on qualification matrix — City of Maricopa 26-102626-RFP-HR
+Review date: 2026-11-05 (Arizona local date). Official posting:
+https://www.egovlink.com/maricopa/postings_info.asp?dlistid=1067&listtype=BID&posting_id=5761&sc_category_id=&sc_show_expired=Y&sc_status_id=122
+
+| Requirement / question | Current evidence | State | Next action / owner |
+|---|---|---|---|
+| Solicitation identity and live status | Official City portal lists 26-102626-RFP-HR as Open | VERIFIED OPEN at review time | Recheck official posting before any bid action — Merlin |
+| Proposal deadline | Official portal: Nov 23, 2026, 5:00 PM Arizona time | VERIFIED | Add date-scoped amendment/deadline watch — Merlin |
+| Pre-proposal meeting | Official portal: Nov 10, 2026, 10:00 AM Arizona time | VERIFIED | Obtain attendance/registration instructions from full specs — user/authorized representative |
+| Full RFP and attachments | Portal requires sign-in or account registration to view specifications | BLOCKED / NOT RETRIEVED | User or authorized representative obtains files; do not claim review complete |
+| Contract role | Broker of record / consultant for employee group health benefits and ancillary lines | VERIFIED SCOPE | Determine whether subcontracting/teaming is permitted — full RFP |
+| Health / life / disability producer authority | User-known credential context establishes Arizona P&C only | NOT ESTABLISHED | Obtain actual individual and entity license/line-of-authority evidence; benefits partner supplies its own proof |
+| Carrier appointments / BOR capability | No appointment or carrier authority evidence supplied | UNKNOWN | Require partner's carrier/appointment matrix and BOR references |
+| Public-sector benefits references | No qualifying references supplied | UNKNOWN | Require named comparable-client references, with permission |
+| Compliance / ACA / plan administration | Scope includes ongoing regulatory support; applicant experience not evidenced | UNKNOWN | Partner must document qualified compliance staff and service methodology |
+| Staffing / implementation capacity | No RFP-specific capacity evidence | UNKNOWN | Request staffing plan, transition timeline, service-level coverage |
+| Insurance / indemnity / COI | Full specification unavailable; aggregator claims COI requirement but official full text not retrieved | UNKNOWN | Verify exact limits, endorsements, and timing from official RFP |
+| Pricing format / fee rules | Full specification unavailable | UNKNOWN | Do not price until official instructions and exhibits are obtained |
+| Addenda / questions / submission format | Not visible without portal access | UNKNOWN | Retrieve full RFP and every addendum; official page currently says email electronic copy to Procurement@Maricopa-AZ.gov |
+| Direct-bid disposition | Multiple material authority and performance facts unknown | HOLD — NO DIRECT BID RECOMMENDATION | No representation of qualifications; reassess only after documents/evidence |
+| Teaming disposition | Plausible if permitted and specialist assumes benefits scope with documented authority | CONDITIONAL PARTNER PATH | Confirm RFP subcontracting rules, prime/sub roles, responsibility and disclosures |
+
+### Potential Phoenix-area benefits specialists — discovery leads, not approved partners
+These businesses were surfaced in local search because their public profiles describe employee-benefits or group-health work. Listings do not establish Arizona producer/entity licensing, current appointments, public-sector references, willingness to team, or qualification for this specific RFP. Merlin must not rank them as eligible partners until evidence is obtained.
+
+- Arizona Benefit Consultants — Phoenix; local employee-benefits consultancy. Business listing: 4222 E Thomas Rd, Suite 225, Phoenix, AZ 85018; phone 602-956-5515. Public site: https://azbenefitco.com/
+- Strunk Insurance Group — Phoenix; employee-benefits brokerage / HR consulting lead. Verify official website and contact before use.
+- Pomeroy Group — Phoenix; employee-benefits brokerage / consulting lead. Phone surfaced as 602-265-8900; verify current details and legal entity before outreach.
+- Hynes Benefits Consulting — Phoenix; group/employee benefits consultancy lead. Verify official website and current contact before use.
+- Focus Benefits Group — Phoenix; independent benefits consultancy lead. Verify official website and current contact before use.
+
+No business has been contacted. These are discovery candidates only; do not send personal information, credentials, agency records, or proposal materials without explicit approval.
+
+### Recommended partner qualification packet
+For each candidate, collect only after user-authorized outreach:
+1. Exact legal entity name, Arizona DIFI license status, NPN/entity and producer identifiers, lines of authority, and good-standing evidence.
+2. Carrier appointments and group-benefits BOR capability relevant to the RFP.
+3. Public-sector employee-benefits references and documented experience with groups of comparable size.
+4. Named benefits, compliance, actuarial, implementation, enrollment, and account-service personnel.
+5. ACA/compliance support model, privacy/security controls, subcontractor disclosures, and conflict checks.
+6. Professional liability, cyber, general liability, workers' compensation and other insurance evidence required by the actual RFP.
+7. Written teaming interest, role split, fee arrangement, responsibility matrix, data handling, and consent to use references.
+8. Confirmation that the solicitation permits the proposed prime/subcontractor structure.
+
+## Product requirements added for Merlin
+- Add qualification_matrix as a first-class artifact linked to an opportunity, applicant, source observations, evidence items, and named evidence owners.
+- Represent each criterion as verified, not_met, unknown, conflicting, or not_applicable; never coerce unknown to pass.
+- Separate direct_bid, team_bid, subcontract, partner_referral, and no_bid dispositions.
+- Gate bid readiness on authoritative RFP files and all addenda, verified legal entity/producer authority, references, staffing, insurance, conflicts, and submission rules.
+- Partner discovery must track candidate status separately from verified licensing and qualification; public directory data is discovery evidence only.
+- Add date-scoped source monitoring for the November 10 meeting and November 23 deadline; capture each official page snapshot/hash and every addendum as a new immutable source observation.
+- Any generated proposal must cite the exact RFP clause and evidence item for each assertion. Unsupported claims are blocked from export.
+- Require explicit human approval before outreach, portal registration, document upload, proposal submission, pricing commitment, or contract acceptance.
