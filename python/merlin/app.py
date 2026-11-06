@@ -599,6 +599,10 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     self._send(202, {"schema": "merlin-learning-attempt/1", "accepted": True, **result})
                     return
                 if path == "/api/telemetry/ingest":
+                    if not interaction_store.preferences()["aggregate_telemetry"]:
+                        self._send(202, {"accepted": False, "reason": "telemetry_disabled",
+                                         "promotion_authorized": False})
+                        return
                     event = normalize_event(data)
                     store.append(path, {"event_id": event["event_id"], "source": event["source"]},
                                  {"event": event})
