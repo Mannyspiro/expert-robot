@@ -1,5 +1,6 @@
 import unittest
 import os
+import sqlite3
 import time
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -7,7 +8,7 @@ from unittest.mock import patch
 import jwt
 from cryptography.hazmat.primitives.asymmetric import rsa
 
-from python.merlin.identity import (OIDCIdentityResolver, PyJWTJWKSVerifier, learning_identity_resolver_from_environment)
+from python.merlin.identity import (OIDCIdentityResolver, PyJWTJWKSVerifier, SQLiteTokenRevocationStore, learning_identity_resolver_from_environment)
 from python.merlin.learning_platform import Actor
 
 
@@ -141,6 +142,7 @@ class PyJWTJWKSVerifierTests(unittest.TestCase):
             "sub": "faculty-17",
             "tenant_id": "tenant-north",
             "role": "instructor",
+            "iat": now,
             "exp": now + 600,
             "nbf": now - 5,
             "jti": "oidc-token-17",
@@ -198,6 +200,28 @@ class PyJWTJWKSVerifierTests(unittest.TestCase):
         with self.assertRaises(jwt.InvalidAlgorithmError):
             self.verifier()(hmac_token, ISSUER, AUDIENCE)
 
+
+    def test_revocation_store_is_durable_idempotent_and_append_only(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = SQLiteTokenRevocationStore(Path(tmp) / "revocations.sqlite3")
+            self.assertFalse(store.is_revoked(ISSUER, "jti-1"))
+            self.assertTrue(store.revoke(ISSUER, "jti-1", "logout"))
+            self.assertFalse(store.revoke(ISSUER, "jti-1", "duplicate"))
+            self.assertTrue(store.is_revoked(ISSUER, "jti-1"))
+            with sqlite3.connect(store.database_path) as db:
+                with self.assertRaises(sqlite3.IntegrityError):
+                    db.execute("DELETE FROM revoked_tokens WHERE issuer=? AND token_id=?",
+                               (ISSUER, "jti-1"))
+                with self.assertRaises(sqlite3.IntegrityError):
+                    db.execute("UPDATE revoked_tokens SET reason='changed' WHERE issuer=? AND token_id=?",
+                               (ISSUER, "jti-1"))
+
+    def test_maximum_access_token_lifetime_is_enforced(self):
+        now = time.time()
+        verifier = self.verifier(max_token_lifetime_seconds=600)
+        with self.assertRaises(jwt.InvalidTokenError):
+            verifier(self.token(exp=now + 1200, iat=now), ISSUER, AUDIENCE)
+
     def test_external_http_jwks_and_invalid_issuer_are_rejected(self):
         with self.assertRaisesRegex(ValueError, "HTTPS"):
             PyJWTJWKSVerifier(
@@ -227,6 +251,7 @@ class PyJWTJWKSVerifierTests(unittest.TestCase):
             "MERLIN_OIDC_ALLOWED_ALGORITHMS": "RS256",
             "MERLIN_OIDC_TENANT_CLAIM": "organization_id",
             "MERLIN_OIDC_ROLE_CLAIM": "merlin_role",
+            "MERLIN_OIDC_REVOCATION_DB": str(Path(self.id()) if False else Path(os.environ.get("TMPDIR", "/tmp")) / "merlin-oidc-revocations.sqlite3"),
         }
         token = self.token(
             organization_id="tenant-from-idp",
