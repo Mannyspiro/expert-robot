@@ -5,6 +5,7 @@ on:
     paths:
       - "python/merlin/app.py"
       - "python/merlin/identity.py"
+      - "requirements-merlin-auth.txt"
       - "python/merlin/learning_platform.py"
       - "python/merlin/capability_registry.py"
       - "python/merlin/knowledge_graph.py"
@@ -46,7 +47,7 @@ jobs:
       - name: Install pinned test runner
         run: |
           python -m pip install --upgrade pip
-          python -m pip install pytest==8.3.5
+          python -m pip install -r requirements-merlin-auth.txt pytest==8.3.5
 
       - name: Compile unified Merlin modules
         shell: bash
