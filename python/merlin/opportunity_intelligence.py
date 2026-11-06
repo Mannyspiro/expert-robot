@@ -87,6 +87,15 @@ class ApplicantProfile:
     # Identity attributes are opt-in matching inputs; never infer or log them.
     identity_attributes: tuple[str, ...] = ()
     priorities: tuple[str, ...] = ()
+    # Explicitly known unmet requirements; absence from credentials/licenses means unknown.
+    unmet_credentials: tuple[str, ...] = ()
+    unmet_licenses: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        if self.applicant_type not in VALID_APPLICANT_TYPES:
+            raise ValueError("unsupported applicant_type")
+        if self.age is not None and self.age < 0:
+            raise ValueError("age cannot be negative")
 
 
 @dataclass(frozen=True)
@@ -119,8 +128,11 @@ def evaluate_opportunity(
             verify.append("fiscal sponsor status not verified")
         elif not applicant.has_fiscal_sponsor:
             blockers.append("eligible fiscal sponsor or qualifying organization required")
-    if opportunity.jurisdictions and not set(applicant.jurisdictions).intersection(opportunity.jurisdictions):
-        blockers.append("applicant jurisdiction does not match listed eligibility")
+    if opportunity.jurisdictions:
+        if not applicant.jurisdictions:
+            verify.append("applicant jurisdiction not verified")
+        elif not set(applicant.jurisdictions).intersection(opportunity.jurisdictions):
+            blockers.append("applicant jurisdiction does not match listed eligibility")
     if opportunity.age_min is not None:
         if applicant.age is None:
             verify.append("minimum age not verified")
@@ -138,10 +150,17 @@ def evaluate_opportunity(
             blockers.append("current or planned enrollment is required")
     missing_credentials = set(opportunity.required_credentials) - set(applicant.credentials)
     if missing_credentials:
-        verify.extend("credential not confirmed: " + x for x in sorted(missing_credentials))
+        verify.extend("credential not confirmed: " + x for x in sorted(missing_credentials - set(applicant.unmet_credentials)))
+    if applicant.unmet_credentials:
+        blockers.extend("required credential not held: " + x for x in sorted(set(opportunity.required_credentials).intersection(applicant.unmet_credentials)))
     missing_licenses = set(opportunity.license_jurisdictions) - set(applicant.licenses)
     if missing_licenses:
-        blockers.append("required insurance or professional license not confirmed: " + ", ".join(sorted(missing_licenses)))
+        known_unmet = missing_licenses.intersection(applicant.unmet_licenses)
+        unknown = missing_licenses - known_unmet
+        if known_unmet:
+            blockers.append("required insurance or professional license not held: " + ", ".join(sorted(known_unmet)))
+        if unknown:
+            verify.append("required insurance or professional license not verified: " + ", ".join(sorted(unknown)))
     if opportunity.eligible_fields and applicant.fields:
         if not set(opportunity.eligible_fields).intersection(applicant.fields):
             blockers.append("field of study or project does not match")
