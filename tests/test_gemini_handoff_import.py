@@ -37,6 +37,7 @@ class GeminiHandoffImportTests(unittest.TestCase):
         self.assertEqual(parsed["expected_count"], 2)
         self.assertEqual(parsed["parsed_count"], 2)
         self.assertEqual(parsed["completeness"], "complete")
+        self.assertNotIn("Technical appendix", parsed["conversations"][-1].raw_text)
 
         first = parsed["conversations"][0]
         self.assertEqual(first.conversation_id, "c_1234567890abcdef")
