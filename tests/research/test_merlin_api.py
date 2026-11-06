@@ -461,5 +461,29 @@ class MerlinApiTests(unittest.TestCase):
         self.assertEqual(caught.exception.code,503)
         self.assertEqual(json.loads(caught.exception.read())["error"],"tts_not_qualified")
 
+    def test_provider_qualification_is_not_reported_as_live_health(self):
+        import os
+        from unittest.mock import patch
+        with patch.dict(os.environ, {
+            "MERLIN_MODEL_QUALIFIED": "1",
+            "MERLIN_LOCAL_MODEL": "qwen3.5-4b",
+            "MERLIN_MODEL_URL": "http://127.0.0.1:8080/v1/chat/completions",
+            "MERLIN_REMOTE_MODEL_QUALIFIED": "1",
+            "MERLIN_REMOTE_MODEL_NAME": "cloud-test-model",
+            "MERLIN_REMOTE_MODEL_URL": "https://api.example.test/v1/chat/completions",
+            "MERLIN_REMOTE_API_KEY": "private-test-key",
+            "MERLIN_REMOTE_ALLOWED_HOSTS": "api.example.test",
+            "MERLIN_TTS_QUALIFIED": "1",
+            "MERLIN_TTS_MODEL": "kokoro-test",
+            "MERLIN_TTS_URL": "http://127.0.0.1:8880/v1/audio/speech",
+        }, clear=False):
+            with urlopen(self.base + "/api/runtime/providers", timeout=5) as response:
+                payload = json.loads(response.read())
+        for key in ("local", "cloud", "speech_output"):
+            self.assertEqual(payload["providers"][key]["status"], "QUALIFIED_CONFIGURED")
+            self.assertEqual(payload["providers"][key]["health"], "not_probed")
+        self.assertNotIn("private-test-key", json.dumps(payload))
+        self.assertNotIn("api.example.test", json.dumps(payload))
+
 if __name__ == "__main__":
     unittest.main()
