@@ -7,6 +7,8 @@ code, policies, permissions, or execution authority.
 """
 from __future__ import annotations
 
+from contextlib import closing
+
 from collections import defaultdict
 import hashlib
 from datetime import datetime, timezone
@@ -44,7 +46,7 @@ class InteractionLearningStore:
     def __init__(self, database: str | Path):
         self.path = str(database)
         Path(self.path).parent.mkdir(parents=True, exist_ok=True)
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.executescript("""
             CREATE TABLE IF NOT EXISTS interaction_feedback(
               event_id TEXT PRIMARY KEY, session_id TEXT NOT NULL,
@@ -81,7 +83,7 @@ class InteractionLearningStore:
             "raw_conversation_retention": False,
             "automatic_self_modification": False,
         }
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             rows = db.execute("SELECT preference_key,preference_value FROM interaction_preferences").fetchall()
         for row in rows:
             defaults[row["preference_key"]] = json.loads(row["preference_value"])
@@ -95,7 +97,7 @@ class InteractionLearningStore:
             raise ValueError("interaction preferences must be booleans")
         if changes.get("personalization") is True:
             raise ValueError("cross-session personalization is not implemented or qualified yet")
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             for key, value in changes.items():
                 db.execute(
                     "INSERT INTO interaction_preferences VALUES(?,?,?) "
@@ -139,7 +141,7 @@ class InteractionLearningStore:
             raise ValueError("created_at must be a finite timestamp")
         row = (event_id, session_id, domain, task_type, outcome, friction,
                correction, satisfaction, float(created_at))
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             old = db.execute("SELECT * FROM interaction_feedback WHERE event_id=?", (event_id,)).fetchone()
             if old is not None:
                 previous = tuple(old[k] for k in (
@@ -158,7 +160,7 @@ class InteractionLearningStore:
     def feedback_summary(self, limit: int = 10000) -> dict[str, Any]:
         if not 1 <= limit <= 100000:
             raise ValueError("limit out of range")
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             rows = db.execute(
                 "SELECT domain,task_type,outcome,friction_code,correction_type,satisfaction,created_at "
                 "FROM interaction_feedback ORDER BY created_at DESC LIMIT ?", (limit,)
@@ -174,7 +176,7 @@ class InteractionLearningStore:
         telemetry_samples = int(analysis.get("telemetry", {}).get("sample_count", 0))
         feedback_samples = int(analysis.get("feedback", {}).get("sample_count", 0))
         created_at = time.time()
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.execute(
                 "INSERT OR IGNORE INTO interaction_analysis_runs VALUES(?,?,?,?,?,?)",
                 (analysis_id, digest, encoded, telemetry_samples, feedback_samples, created_at),
@@ -188,7 +190,7 @@ class InteractionLearningStore:
                 "created_at": row["created_at"]}
 
     def latest_analysis(self) -> dict[str, Any] | None:
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             row = db.execute(
                 "SELECT analysis_id,analysis_sha256,analysis_json,telemetry_samples,feedback_samples,created_at "
                 "FROM interaction_analysis_runs ORDER BY created_at DESC LIMIT 1"
@@ -203,14 +205,14 @@ class InteractionLearningStore:
     def delete_session_feedback(self, session_id: str) -> int:
         if not isinstance(session_id, str) or not _ID.fullmatch(session_id):
             raise ValueError("session_id must be an opaque identifier")
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             cursor = db.execute("DELETE FROM interaction_feedback WHERE session_id=?", (session_id,))
             return cursor.rowcount
 
     def purge_feedback_before(self, timestamp: float) -> int:
         if isinstance(timestamp, bool) or not isinstance(timestamp, (int, float)) or not math.isfinite(timestamp):
             raise ValueError("timestamp must be finite")
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             cursor = db.execute("DELETE FROM interaction_feedback WHERE created_at < ?", (timestamp,))
             return cursor.rowcount
 

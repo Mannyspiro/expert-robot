@@ -1,6 +1,8 @@
 """Versioned persistence and deterministic diffs for Merlin engineering projects."""
 from __future__ import annotations
 
+from contextlib import closing
+
 from dataclasses import asdict
 from datetime import datetime, timezone
 import hashlib
@@ -111,7 +113,7 @@ class EngineeringProjectStore:
     def __init__(self, database: str | Path):
         self.database = str(database)
         Path(self.database).parent.mkdir(parents=True, exist_ok=True)
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.executescript("""
                 PRAGMA foreign_keys=ON;
                 CREATE TABLE IF NOT EXISTS engineering_projects (
@@ -146,7 +148,7 @@ class EngineeringProjectStore:
                              ensure_ascii=False, allow_nan=False)
         digest = hashlib.sha256(encoded.encode("utf-8")).hexdigest()
         now = datetime.now(timezone.utc).isoformat(timespec="seconds")
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.execute("INSERT OR IGNORE INTO engineering_projects VALUES (?, ?, ?)",
                        (identifier, project.name, now))
             latest = db.execute(
@@ -164,7 +166,7 @@ class EngineeringProjectStore:
                 "parent_hash": parent_hash, "unchanged": False}
 
     def load(self, project_id: str, revision: int | None = None) -> EngineeringProject:
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             if revision is None:
                 row = db.execute(
                     "SELECT content_json FROM engineering_revisions WHERE project_id=? ORDER BY revision DESC LIMIT 1",
@@ -180,7 +182,7 @@ class EngineeringProjectStore:
         return project_from_dict(json.loads(row["content_json"]))
 
     def history(self, project_id: str) -> list[dict[str, Any]]:
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             rows = db.execute(
                 "SELECT revision, content_hash, parent_hash, created_at FROM engineering_revisions WHERE project_id=? ORDER BY revision",
                 (project_id,),

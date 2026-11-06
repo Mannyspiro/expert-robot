@@ -5,6 +5,8 @@ appropriate evidence records; no automatic promotion occurs from topic similarit
 """
 from __future__ import annotations
 
+from contextlib import closing
+
 from dataclasses import dataclass
 from datetime import datetime, timezone
 import json
@@ -59,7 +61,7 @@ class HypothesisLedger:
     def __init__(self, database: str | Path):
         self.database = str(database)
         Path(self.database).parent.mkdir(parents=True, exist_ok=True)
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.executescript("""
                 PRAGMA foreign_keys=ON;
                 CREATE TABLE IF NOT EXISTS hypotheses (
@@ -101,7 +103,7 @@ class HypothesisLedger:
         objects = tuple(_clean(x, "mathematical object", 300) for x in mathematical_objects)
         assumptions_clean = tuple(_clean(x, "assumption", 1000) for x in assumptions)
         now = _now()
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.execute("""
                 INSERT INTO hypotheses VALUES (?, ?, ?, ?, ?, 'proposed', ?, ?)
             """, (hid, statement, json.dumps(objects), rel,
@@ -109,7 +111,7 @@ class HypothesisLedger:
         return self.get(hid)
 
     def get(self, hypothesis_id: str) -> Hypothesis:
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             row = db.execute("SELECT * FROM hypotheses WHERE hypothesis_id=?",
                              (hypothesis_id,)).fetchone()
         if row is None:
@@ -132,7 +134,7 @@ class HypothesisLedger:
         digest = (artifact_hash or "").strip()
         if digest and (len(digest) < 16 or len(digest) > 128):
             raise ValueError("artifact_hash must be 16 to 128 characters")
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             if db.execute("SELECT 1 FROM hypotheses WHERE hypothesis_id=?",
                           (hypothesis_id,)).fetchone() is None:
                 raise KeyError(hypothesis_id)
@@ -148,7 +150,7 @@ class HypothesisLedger:
                         row["created_at"])
 
     def evidence(self, hypothesis_id: str) -> list[Evidence]:
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             rows = db.execute("""
                 SELECT * FROM hypothesis_evidence WHERE hypothesis_id=?
                 ORDER BY evidence_id
@@ -181,7 +183,7 @@ class HypothesisLedger:
             assumptions = [e for e in self.evidence(hypothesis_id) if e.kind == "assumption"]
             if not assumptions:
                 raise ValueError("conditional status requires explicit assumptions")
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.execute("UPDATE hypotheses SET status=?, updated_at=? WHERE hypothesis_id=?",
                        (status, _now(), hypothesis_id))
         return self.get(hypothesis_id)
@@ -189,7 +191,7 @@ class HypothesisLedger:
     def list_hypotheses(self, status: str | None = None) -> list[Hypothesis]:
         if status is not None and status not in STATUSES:
             raise ValueError("unknown hypothesis status")
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             if status:
                 rows = db.execute("SELECT hypothesis_id FROM hypotheses WHERE status=? ORDER BY created_at",
                                   (status,)).fetchall()

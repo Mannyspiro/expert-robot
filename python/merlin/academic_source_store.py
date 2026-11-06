@@ -6,6 +6,8 @@ professor homepages may live on another public domain.
 """
 from __future__ import annotations
 
+from contextlib import closing
+
 import argparse
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
@@ -95,7 +97,7 @@ class AcademicSourceStore:
     def __init__(self, database: str | Path):
         self.database = str(database)
         Path(self.database).parent.mkdir(parents=True, exist_ok=True)
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.execute("""
                 CREATE TABLE IF NOT EXISTS academic_sources (
                     canonical_url TEXT PRIMARY KEY,
@@ -162,7 +164,7 @@ class AcademicSourceStore:
             evidence_status=status,
             captured_at=_utc_now(),
         )
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.execute("""
                 INSERT INTO academic_sources VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(canonical_url) DO UPDATE SET
@@ -191,7 +193,7 @@ class AcademicSourceStore:
             sql += " WHERE institution_domain = ?"
             args = (_valid_domain(institution_domain),)
         sql += " ORDER BY institution_domain, researcher_name, canonical_url"
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             rows = db.execute(sql, args).fetchall()
         return [
             AcademicSource(

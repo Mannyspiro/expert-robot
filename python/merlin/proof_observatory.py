@@ -153,6 +153,13 @@ class ProofObservatory:
     def close(self) -> None:
         self.db.close()
 
+    def __enter__(self) -> "ProofObservatory":
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback) -> bool:
+        self.close()
+        return False
+
     def record_attempt(self, attempt: ProofAttempt) -> str:
         attempt.validate()
         payload = canonical_json(asdict(attempt))
