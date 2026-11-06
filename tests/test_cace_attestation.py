@@ -68,7 +68,7 @@ class CaceAttestationTests(unittest.TestCase):
             self.private, claim_id=self.claim, bundle_sha256=self.bundle,
             bindings=self.bindings,
         )
-        self.trust = {self.key_id: self.public_pem}
+        self.trust = {self.key_id: {"verifier_id": "cace:production-verifier", "public_key_pem": self.public_pem}}
 
     def verify(self, envelope=None, trust=None, **kwargs):
         return verify_cace_signed_attestation(
