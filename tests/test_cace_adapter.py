@@ -146,7 +146,7 @@ class CaceAdapterTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "absent from the registry"):
             adapter.verify(project_id="merlin", repository="owner/repo",
                            commit_sha=self.commit, artifact_sha256="c"*64,
-                           theorem="T", requester_id="merlin-agent")
+                           theorem="T", requester_id="merlin-agent",tool_version="Lean 4.32.1")
         self.assertEqual(called, [])
 
     def test_receipt_is_linked_to_subject_artifact_in_canonical_graph(self):
