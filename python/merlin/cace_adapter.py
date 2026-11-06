@@ -10,10 +10,10 @@ import hashlib
 import json
 from typing import Any, Callable, Mapping
 
-from merlin.event_outbox import MerlinEventOutbox
-from merlin.project_registry import MerlinRegistry
-from merlin.knowledge_graph import GraphEdge, GraphNode, MerlinKnowledgeGraph
-from merlin.telemetry import agent_event_sink
+from .event_outbox import MerlinEventOutbox
+from .project_registry import MerlinRegistry
+from .knowledge_graph import GraphEdge, GraphNode, MerlinKnowledgeGraph
+from .telemetry import agent_event_sink
 
 
 def _canonical(value: Any) -> str:
