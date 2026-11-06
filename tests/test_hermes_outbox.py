@@ -106,6 +106,43 @@ class HermesOutboxTests(unittest.TestCase):
             now="2026-11-06T12:00:33Z"), ())
         self.assertEqual(self.queue.get("task-1")["status"], "dead_letter")
 
+    def test_lease_renewal_extends_expiry_and_fences_stale_workers(self):
+        self.publish()
+        task = self.claim()
+        expiry = self.queue.renew_lease(task_id="task-1", worker_id="worker-a",
+            lease_token=task["lease_token"], now="2026-11-06T12:00:10Z", lease_seconds=90)
+        self.assertEqual(expiry, "2026-11-06T12:01:40+00:00")
+        with self.assertRaises(ValueError):
+            self.queue.renew_lease(task_id="task-1", worker_id="worker-b",
+                lease_token=task["lease_token"], now="2026-11-06T12:00:11Z")
+
+    def test_expired_lease_cannot_be_renewed(self):
+        self.publish()
+        task = self.claim()
+        with self.assertRaises(ValueError):
+            self.queue.renew_lease(task_id="task-1", worker_id="worker-a",
+                lease_token=task["lease_token"], now="2026-11-06T12:00:33Z")
+
+    def test_retry_delay_is_deterministic_and_capped(self):
+        delay = self.queue.retry_delay_seconds(task_id="task-1", attempt=3)
+        self.assertEqual(delay, self.queue.retry_delay_seconds(task_id="task-1", attempt=3))
+        self.assertGreaterEqual(delay, 0)
+        self.assertLessEqual(delay, 900)
+        self.assertLessEqual(self.queue.retry_delay_seconds(task_id="task-1", attempt=50), 900)
+
+    def test_operator_can_inspect_and_requeue_dead_letter(self):
+        self.queue.publish_task(task_id="task-1", run_id="run-1", step_id="step-1",
+            idempotency_key="task-idem", payload={}, created_at="2026-11-06T12:00:01Z",
+            max_attempts=1)
+        task = self.claim()
+        self.queue.retry(task_id="task-1", lease_token=task["lease_token"],
+            now="2026-11-06T12:00:03Z", error="terminal", backoff_seconds=0)
+        self.assertEqual(len(self.queue.list_dead_letters()), 1)
+        self.assertTrue(self.queue.requeue_dead_letter(task_id="task-1",
+            operator_id="operator-1", now="2026-11-06T12:00:04Z"))
+        self.assertEqual(self.queue.get("task-1")["status"], "pending")
+        self.assertEqual(self.queue.get("task-1")["attempts"], 0)
+        self.assertEqual(self.queue.list_dead_letters(), ())
     def test_cancelled_task_is_not_claimed(self):
         self.publish()
         self.assertTrue(self.queue.cancel(task_id="task-1", now="2026-11-06T12:00:02Z"))
