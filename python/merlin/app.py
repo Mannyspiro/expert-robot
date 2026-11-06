@@ -488,6 +488,18 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     self._send(503, {"error": "canonical_graph_validation_unavailable",
                                      "source": "canonical_knowledge_graph"})
                 return
+            if path == "/api/learning/courses":
+                actor = self._learning_actor()
+                if actor is None:
+                    self._send(503, {"error": "learning_identity_provider_not_configured"})
+                    return
+                try:
+                    self._send(200, learning_platform.list_courses(actor))
+                except PermissionError as exc:
+                    self._send(403, {"error": "forbidden", "detail": str(exc)[:200]})
+                except (ValueError, TypeError) as exc:
+                    self._send(400, {"error": "invalid_request", "detail": str(exc)[:200]})
+                return
             if path.startswith("/api/learning/courses/"):
                 actor = self._learning_actor()
                 if actor is None:
