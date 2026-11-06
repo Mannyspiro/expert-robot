@@ -27,6 +27,7 @@ from .telemetry_graph import build_telemetry_graph
 from .learner_model import LearnerStore, select_next_lesson, HermesLearningRouter, score_attempt_event
 from .event_outbox import MerlinEventOutbox
 from .intent_compiler import Asset, IntentSpec, ContinuityState, compile_directive
+from .interaction_learning import InteractionLearningStore, analyze_interactions
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
     validate_analogy,
@@ -128,6 +129,8 @@ class EventStore:
 
 CAPABILITIES = [
     {"id": "intent.compile.preview", "status": "AVAILABLE", "evidence": "deterministic typed directive preview; optional canonical-registry artifact persistence; no external execution authority"},
+    {"id": "learning.interaction.observe", "status": "AVAILABLE", "evidence": "metadata-only operational telemetry plus explicit categorical outcome feedback"},
+    {"id": "learning.interaction.analyze", "status": "AVAILABLE", "evidence": "aggregate improvement proposals with minimum sample thresholds; recommendation-only"},
     {"id": "simulation.world", "status": "AVAILABLE", "evidence": "deterministic bounded world state, actions, and event telemetry"},
     {"id": "simulation.hud", "status": "AVAILABLE", "evidence": "responsive HUD renders live simulation API data"},
     {"id": "council.roles", "status": "AVAILABLE", "evidence": "deterministic simulated persona registry"},
@@ -219,6 +222,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                  canonical_registry: Any | None = None):
     simulation = MerlinSimulation()
     learner_store = learner_store or LearnerStore(store.path)
+    interaction_store = InteractionLearningStore(store.path)
     repo_root = Path(__file__).resolve().parents[2]
     catalog_path = Path(os.environ.get("MERLIN_MATH_IDEA_CATALOG",
         str(repo_root / "docs" / "research" / "merlin-mathematical-idea-catalog.v1.json")))
@@ -287,10 +291,11 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             if started is None:
                 return
             try:
-                record_runtime_event(store, path=urlparse(self.path).path,
-                    method=self.command, status=status,
-                    duration_ms=(perf_counter() - started) * 1000.0,
-                    response_bytes=response_bytes)
+                if interaction_store.preferences()["aggregate_telemetry"]:
+                    record_runtime_event(store, path=urlparse(self.path).path,
+                        method=self.command, status=status,
+                        duration_ms=(perf_counter() - started) * 1000.0,
+                        response_bytes=response_bytes)
             except Exception:
                 # Observability must never change the underlying API result.
                 return
@@ -366,6 +371,17 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                           and isinstance(row.get("summary"), dict)
                           and isinstance(row["summary"].get("event"), dict)]
                 self._send(200, telemetry_view(events))
+            elif path == "/api/learning/preferences":
+                self._send(200, {"schema": "merlin-interaction-preferences/1",
+                                 "preferences": interaction_store.preferences()})
+            elif path == "/api/learning/improvements":
+                preferences = interaction_store.preferences()
+                telemetry_rows = store.by_kind("/api/telemetry/ingest", 100000) if preferences["aggregate_telemetry"] else []
+                telemetry_events = [row["summary"]["event"] for row in telemetry_rows
+                    if isinstance(row.get("summary"), dict)
+                    and isinstance(row["summary"].get("event"), dict)]
+                feedback = interaction_store.feedback_summary()["events"] if preferences["explicit_feedback_learning"] else []
+                self._send(200, analyze_interactions(telemetry_events, feedback))
             elif path == "/api/telemetry/graph":
                 rows = store.by_kind("/api/telemetry/ingest", 10000)
                 events = [row["summary"]["event"] for row in rows
@@ -428,6 +444,27 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 if not isinstance(data, dict):
                     raise ValueError("request body must be a JSON object")
 
+                if path == "/api/learning/preferences":
+                    preferences = interaction_store.set_preferences(data)
+                    store.append(path, {"changed_preferences": sorted(data)},
+                                 {"preferences": preferences, "raw_content_stored": False})
+                    self._send(200, {"schema": "merlin-interaction-preferences/1",
+                                     "preferences": preferences})
+                    return
+                if path == "/api/interaction/feedback":
+                    result = interaction_store.record_feedback(data)
+                    # Store only the event ID and categorical outcome summary; never free text.
+                    store.append(path, {"event_id": result["event_id"]},
+                                 {"accepted": True, "duplicate": result["duplicate"],
+                                  "domain": data.get("domain", "general"),
+                                  "task_type": data.get("task_type"),
+                                  "outcome": data.get("outcome"),
+                                  "friction_code": data.get("friction_code"),
+                                  "correction_type": data.get("correction_type"),
+                                  "satisfaction": data.get("satisfaction")})
+                    self._send(202, {"schema": "merlin-interaction-feedback/1", **result,
+                                     "raw_conversation_content_stored": False})
+                    return
                 if path == "/api/intents/compile":
                     intent_data = data.get("intent", data)
                     assets_data = data.get("assets", [])
