@@ -791,6 +791,8 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
 
                 store.append(path, data, summary)
                 self._send(200, result)
+            except PermissionError as exc:
+                self._send(403, {"error": "learning_disabled", "detail": str(exc)[:200]})
             except (ValueError, TypeError, KeyError, json.JSONDecodeError) as exc:
                 self._send(400, {"error": "invalid_request", "detail": str(exc)[:300]})
             except RuntimeError as exc:
