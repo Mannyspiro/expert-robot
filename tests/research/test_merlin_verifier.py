@@ -47,6 +47,13 @@ class MerlinVerifierTests(unittest.TestCase):
         result = verify_claims([self.claim], [self.source], producing_agent_id="agent-a", independent_review=review)
         self.assertEqual(result["independent_semantic_review"], "review_digest_mismatch")
 
+    def test_independent_reviewer_without_authenticated_receipt_is_not_accepted(self):
+        first = verify_claims([self.claim], [self.source], producing_agent_id="agent-a")
+        review = IndependentReview("reviewer-b", "agent-a", first["subject_digest"], "supported")
+        result = verify_claims([self.claim], [self.source], producing_agent_id="agent-a", independent_review=review)
+        self.assertEqual(result["independent_semantic_review"], "review_not_authenticated")
+        self.assertFalse(result["truth_gate_passed"])
+
     def test_work_requires_real_artifacts_acceptance_and_logs(self):
         log = Artifact("log", b"2 tests passed", sha256_bytes(b"2 tests passed"))
         output = Artifact("dossier", b"Arizona dossier", sha256_bytes(b"Arizona dossier"))
