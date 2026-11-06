@@ -17,6 +17,15 @@ from typing import Any
 _KEY = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_. -]{0,79}$")
 _FORBIDDEN_KEY_PARTS = ("password", "passwd", "secret", "token", "credential",
                         "api_key", "private_key", "recovery_code")
+_FORBIDDEN_VALUE_PATTERNS = (
+    re.compile(r"(?i)\b(?:api[_ -]?key|password|passwd|secret|token)\s*[:=]\s*\S+"),
+    re.compile(r"\b(?:sk-[A-Za-z0-9_-]{20,}|gh[pousr]_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16})\b"),
+    re.compile(r"-----BEGIN (?:RSA |OPENSSH )?PRIVATE KEY-----"),
+)
+
+
+def _contains_secret_like_value(value: str) -> bool:
+    return any(pattern.search(value) for pattern in _FORBIDDEN_VALUE_PATTERNS)
 
 
 def _now() -> str:
@@ -72,6 +81,8 @@ class MerlinMemoryVault:
         if not isinstance(value, str) or not value.strip() or len(value) > 2000:
             raise ValueError("preference value must be nonblank and at most 2000 characters")
         value = value.strip()
+        if _contains_secret_like_value(value):
+            raise ValueError("credential-like values must never be saved in memory")
         return normalized, value, hashlib.sha256(value.encode("utf-8")).hexdigest()
 
     def set_preference(self, key: str, value: str, *, consent: bool = False) -> dict[str, Any]:
@@ -101,6 +112,8 @@ class MerlinMemoryVault:
         if not isinstance(status, str) or not status.strip() or len(status) > 1000:
             raise ValueError("project status must be nonblank and at most 1000 characters")
         name, status = name.strip(), status.strip()
+        if _contains_secret_like_value(status):
+            raise ValueError("credential-like project values must never be saved in memory")
         digest = hashlib.sha256(status.encode("utf-8")).hexdigest()
         now = _now()
         with self._connect() as db:
