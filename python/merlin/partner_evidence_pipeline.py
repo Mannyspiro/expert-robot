@@ -333,7 +333,7 @@ def aggregate_learning(observations: Iterable[LearningObservation]) -> dict:
         ),
         "authority_change": "none",
         "human_approval_required": True,
-        "private_rows_excluded": sum(1 for o in observations if o.private_data_included),
+        "private_rows_excluded": sum(1 for o in all_rows if o.private_data_included),
     }
 
 
