@@ -205,3 +205,21 @@ eligibility or the ability to bid.
 7. Qualify matching against a held-out set of known eligible/ineligible
    examples; CACE independently verifies source snapshots, parser versions,
    and ranking inputs before production claims.
+
+
+## Procurement readiness and bid/no-bid gates
+
+The separate `merlin.procurement_readiness` module evaluates only requirements
+that apply to a particular solicitation and pursuit route. Supported gates
+include Arizona Procurement Portal completion, active SAM.gov registration,
+agency/entity license, producer appointments, lines of authority, professional
+liability, cyber coverage, public-sector references, delivery capacity, and
+required certifications.
+
+Each gate is tri-state: verified (`true`), explicitly unmet (`false`), or
+unknown (`null`). Unknown evidence produces `hold_for_evidence`; an explicit
+failure of a mandatory requirement produces `no_bid`; all configured gates
+verified produces only `proceed_to_human_review`. It never submits a bid or
+treats readiness as legal authorization. The solicitation determines which
+gates are mandatory; do not require federal SAM registration for every local
+subcontract or unrelated opportunity.
