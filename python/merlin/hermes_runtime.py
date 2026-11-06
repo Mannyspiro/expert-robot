@@ -18,6 +18,7 @@ from .research_evidence import ResearchEvidenceRecorder
 
 @dataclass
 class MerlinHermesRuntime:
+    root: Path
     registry: MerlinRegistry
     ledger: HypothesisLedger
     graph: MerlinKnowledgeGraph
@@ -131,6 +132,7 @@ def build_merlin_hermes_runtime(
     )
     service = HermesWorkerService(worker)
     return MerlinHermesRuntime(
+        root=root_path,
         registry=registry,
         ledger=ledger,
         graph=graph,
