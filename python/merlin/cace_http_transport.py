@@ -28,7 +28,7 @@ class CaceHTTPTransport:
         bearer_token: str,
         *,
         timeout_seconds: float = 15,
-        max_request_bytes: int = 256_000,
+        max_request_bytes: int = 36_000_000,
         max_response_bytes: int = 1_000_000,
         opener: Any | None = None,
         allow_loopback_http: bool = False,
@@ -48,7 +48,7 @@ class CaceHTTPTransport:
         if isinstance(timeout_seconds, bool) or not isinstance(timeout_seconds, (int, float)) or not 1 <= timeout_seconds <= 60:
             raise ValueError("CACE timeout must be between 1 and 60 seconds")
         for value, label, maximum in (
-            (max_request_bytes, "max_request_bytes", 1_000_000),
+            (max_request_bytes, "max_request_bytes", 40_000_000),
             (max_response_bytes, "max_response_bytes", 4_000_000),
         ):
             if isinstance(value, bool) or not isinstance(value, int) or not 1 <= value <= maximum:
@@ -116,7 +116,7 @@ def cace_transport_from_environment(*, opener: Any | None = None) -> CaceHTTPTra
         raise ValueError("CACE_VERIFY_URL and CACE_VERIFY_TOKEN must be configured together")
     try:
         timeout = float(os.environ.get("CACE_VERIFY_TIMEOUT_SECONDS", "15"))
-        max_request = int(os.environ.get("CACE_VERIFY_MAX_REQUEST_BYTES", "256000"))
+        max_request = int(os.environ.get("CACE_VERIFY_MAX_REQUEST_BYTES", "36000000"))
         max_response = int(os.environ.get("CACE_VERIFY_MAX_RESPONSE_BYTES", "1000000"))
     except ValueError as exc:
         raise ValueError("CACE verifier transport limits must be numeric integers/seconds") from exc
