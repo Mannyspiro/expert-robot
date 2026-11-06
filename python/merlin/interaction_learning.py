@@ -8,6 +8,7 @@ code, policies, permissions, or execution authority.
 from __future__ import annotations
 
 from collections import defaultdict
+import hashlib
 from datetime import datetime, timezone
 import json
 import math
@@ -57,6 +58,11 @@ class InteractionLearningStore:
             CREATE TABLE IF NOT EXISTS interaction_preferences(
               preference_key TEXT PRIMARY KEY, preference_value TEXT NOT NULL,
               updated_at REAL NOT NULL
+            );
+            CREATE TABLE IF NOT EXISTS interaction_analysis_runs(
+              analysis_id TEXT PRIMARY KEY, analysis_sha256 TEXT NOT NULL UNIQUE,
+              analysis_json TEXT NOT NULL, telemetry_samples INTEGER NOT NULL,
+              feedback_samples INTEGER NOT NULL, created_at REAL NOT NULL
             );
             """)
 
@@ -158,6 +164,41 @@ class InteractionLearningStore:
                 "FROM interaction_feedback ORDER BY created_at DESC LIMIT ?", (limit,)
             ).fetchall()
         return {"count": len(rows), "events": [dict(row) for row in rows]}
+
+    def save_analysis(self, analysis: Mapping[str, Any]) -> dict[str, Any]:
+        if not isinstance(analysis, Mapping) or analysis.get("schema") != "merlin-interaction-improvement/1":
+            raise ValueError("unsupported interaction analysis schema")
+        encoded = json.dumps(dict(analysis), sort_keys=True, separators=(",", ":"), allow_nan=False)
+        digest = hashlib.sha256(encoded.encode("utf-8")).hexdigest()
+        analysis_id = "interaction-analysis-" + digest[:24]
+        telemetry_samples = int(analysis.get("telemetry", {}).get("sample_count", 0))
+        feedback_samples = int(analysis.get("feedback", {}).get("sample_count", 0))
+        created_at = time.time()
+        with self._connect() as db:
+            db.execute(
+                "INSERT OR IGNORE INTO interaction_analysis_runs VALUES(?,?,?,?,?,?)",
+                (analysis_id, digest, encoded, telemetry_samples, feedback_samples, created_at),
+            )
+            row = db.execute(
+                "SELECT created_at FROM interaction_analysis_runs WHERE analysis_id=?",
+                (analysis_id,),
+            ).fetchone()
+        return {"analysis_id": analysis_id, "analysis_sha256": digest,
+                "telemetry_samples": telemetry_samples, "feedback_samples": feedback_samples,
+                "created_at": row["created_at"]}
+
+    def latest_analysis(self) -> dict[str, Any] | None:
+        with self._connect() as db:
+            row = db.execute(
+                "SELECT analysis_id,analysis_sha256,analysis_json,telemetry_samples,feedback_samples,created_at "
+                "FROM interaction_analysis_runs ORDER BY created_at DESC LIMIT 1"
+            ).fetchone()
+        if row is None:
+            return None
+        return {"analysis_id": row["analysis_id"], "analysis_sha256": row["analysis_sha256"],
+                "analysis": json.loads(row["analysis_json"]),
+                "telemetry_samples": row["telemetry_samples"],
+                "feedback_samples": row["feedback_samples"], "created_at": row["created_at"]}
 
     def delete_session_feedback(self, session_id: str) -> int:
         if not isinstance(session_id, str) or not _ID.fullmatch(session_id):
