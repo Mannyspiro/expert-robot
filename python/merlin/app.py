@@ -802,6 +802,25 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             except Exception:
                 self._send(500, {"error": "internal_error"})
 
+        def do_DELETE(self) -> None:
+            self._request_started = perf_counter()
+            parsed = urlparse(self.path)
+            if parsed.path != "/api/interaction/feedback":
+                self._send(404, {"error": "not_found"})
+                return
+            try:
+                query = parse_qs(parsed.query)
+                session_id = (query.get("session_id") or [""])[0]
+                deleted = interaction_store.delete_session_feedback(session_id)
+                store.append("/api/interaction/feedback/delete", {"session_id": session_id},
+                             {"deleted_feedback_events": deleted})
+                self._send(200, {"schema": "merlin-interaction-feedback-deletion/1",
+                                 "deleted_feedback_events": deleted,
+                                 "scope": "categorical feedback for this opaque session only",
+                                 "raw_conversation_content_stored": False})
+            except ValueError as exc:
+                self._send(400, {"error": "invalid_request", "detail": str(exc)[:200]})
+
         def log_message(self, fmt: str, *args: Any) -> None:
             # Do not log request bodies, prompts, or voice content.
             return
