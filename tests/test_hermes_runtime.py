@@ -2,6 +2,9 @@ import json
 import os
 import tempfile
 import time
+import threading
+from http.server import ThreadingHTTPServer
+from urllib.request import urlopen
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -93,6 +96,42 @@ class HermesRuntimeCompositionTests(unittest.TestCase):
         }, clear=True):
             with self.assertRaisesRegex(ValueError, "no trusted verifier keys"):
                 self.build()
+
+    def test_runtime_health_endpoint_reports_cace_configuration_state(self):
+        with patch.dict(os.environ, {}, clear=True):
+            runtime = self.build()
+        self.assertTrue(runtime.start())
+        deadline = time.monotonic() + 1
+        while not runtime.health()["worker"]["ready"] and time.monotonic() < deadline:
+            time.sleep(0.01)
+        store = EventStore(runtime.root / "events.sqlite3")
+        server = ThreadingHTTPServer(
+            ("127.0.0.1", 0),
+            make_handler(
+                store,
+                learning_outbox=runtime.outbox,
+                canonical_registry=runtime.registry,
+                canonical_graph=runtime.graph,
+                hermes_worker_service=runtime.service,
+                hermes_runtime=runtime,
+            ),
+        )
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            with urlopen(
+                f"http://127.0.0.1:{server.server_port}/api/runtime/hermes",
+                timeout=5,
+            ) as response:
+                health = json.loads(response.read())
+            self.assertEqual(health["cace_verification"], "unavailable")
+            self.assertTrue(health["worker"]["ready"])
+            self.assertFalse(health["promotion_authority"])
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
+            self.assertTrue(runtime.stop(timeout_seconds=1))
 
     def test_api_server_owns_and_stops_injected_runtime(self):
         runtime = self.build()
