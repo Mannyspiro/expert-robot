@@ -169,7 +169,7 @@ def parse_gemini_handoff(
     expected_count = int(expected_match.group(1)) if expected_match else None
     detail_end_index = next(
         (index for index, line in enumerate(lines)
-         if _CONVERSATION_DETAIL_END_RE.match(line.rstrip("\\r\\n"))),
+         if _CONVERSATION_DETAIL_END_RE.match(line.rstrip("\r\n"))),
         len(lines),
     )
 
