@@ -24,6 +24,21 @@ This is a source-led research snapshot, not an eligibility determination or appl
 - The State says APP is the source for real-time open solicitations; the public active-contract listing is updated monthly until further notice.
 - Source: Arizona SPO cooperative contracts and contracts pages (accessed 2026-11-06).
 
+
+### Pima County risk-management procurement intelligence
+- FY2026–27 buying plan: https://www.pima.gov/buying-plan-fiscal-year-2026-2027
+- Materials & Services forecast: https://www.pima.gov/materials-services-division-buying-forecast
+- The forecast covers anticipated purchases and projected advertisement periods; it is a planning tool, not a solicitation. The current forecast page identifies the fiscal year as July 1, 2026–June 30, 2027 and warns that schedules may change.
+- Pima County's Finance & Risk Management budget describes a Risk Management program that manages insurance procurement, trust fund management, risk analysis, and the County's self-insurance program. Official program description: https://www.pima.gov/1807/~/-567628168.js
+- Historical procurement record: the County approved a 2019 amendment to Master Agreement MA-PO-17-273 with Alliant Insurance Services for insurance broker services, including stop-loss and employee-benefits broker services. The amendment stated three renewal options remained at that time. This is historical evidence only; it does not establish the current vendor, current contract term, or an open procurement: https://pima.legistar.com/LegislationDetail.aspx?GUID=4AC74D94-7CF1-4C10-8DF0-0BCF511DEC09&ID=3909710&Options=&Search=
+- Pima County states its official contract database is Pima County Public Access (OnBase); records before July 1, 2024 are in the prior contract repository, while fully executed contracts posted after that date are in Workday contract records. Search both by vendor (Alliant), contract number (MA-PO-17-273), department (Finance & Risk Management), and descriptions (insurance broker, employee benefits, stop loss): https://www.pima.gov/167/Contracts
+- Disposition: DEPARTMENT SIGNAL + HISTORICAL INCUMBENT RESEARCH, NOT AN OPEN RFP. The next task is to inspect post-July-2024 contract records and the FY2026–27 forecast for an insurance broker, employee-benefits, risk consulting, claims, or self-insurance procurement entry. Do not contact County stakeholders as if a solicitation is open.
+- Sources accessed 2026-11-06: Pima County buying plan and forecast, County Risk Management, official contract database, and 2019 Legistar award amendment.
+
+### Insurance licensing gate — Arizona
+- Arizona DIFI explains that both individuals and business entities can be insurance producers; when an established business entity name is used in insurance transactions, the entity must also hold an insurance license. Official guidance: https://difi.az.gov/licensing/insurance-professionals
+- Disposition: PROCUREMENT READINESS GATE. For each insurance solicitation, separately verify the individual producer license, agency/entity license, applicable lines, carrier appointments, and scope required. Do not infer entity licensing from the user's individual P&C license.
+
 ### Valleywise Health insurance brokerage solicitation — unverified candidate
 - A third-party listing surfaced solicitation 90-27-017-RFP, described as Insurance Broker/Consultant Services, with a claimed November 25, 2026 deadline and extensive qualifications/insurance requirements: https://bidscopeai.com/opportunities/5afcb6be-27ec-470d-ad5d-f1a59c970a50
 - Official Valleywise procurement search did not return this solicitation in the official awarded-solicitations page or in the search performed on 2026-11-06. The official page located is https://valleywisehealth.org/about/procurement/open-solicitations/bid-and-award-tabulations/awarded-solicitations/
