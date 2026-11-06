@@ -1385,7 +1385,7 @@ def serve(port: int = 8765, db_path: str | None = None,
     canonical_registry = hermes_runtime.registry if hermes_runtime is not None else None
     registry_root = os.environ.get("MERLIN_REGISTRY_ROOT", "").strip()
     registry_db = Path(registry_root) / "merlin.sqlite3" if registry_root else None
-    if registry_db is not None and registry_db.is_file():
+    if hermes_runtime is None and registry_db is not None and registry_db.is_file():
         from .project_registry import MerlinRegistry
         canonical_registry = MerlinRegistry(registry_root)
     canonical_graph = hermes_runtime.graph if hermes_runtime is not None else None
@@ -1402,16 +1402,16 @@ def serve(port: int = 8765, db_path: str | None = None,
     )
     if hud_runtime is not None:
         hud_runtime.start()
-    hermes_service_started = False
-    if hermes_runtime is not None:
-        hermes_service_started = bool(hermes_runtime.start())
-    elif hermes_worker_service is not None:
-        hermes_service_started = bool(hermes_worker_service.start())
     server = ThreadingHTTPServer(("127.0.0.1", port),
         make_handler(store, hud_runtime, learner_store, learning_outbox,
                      canonical_registry, learning_identity_resolver=learning_identity_resolver,
                      canonical_graph=canonical_graph,
                      hermes_worker_service=hermes_worker_service))
+    hermes_service_started = False
+    if hermes_runtime is not None:
+        hermes_service_started = bool(hermes_runtime.start())
+    elif hermes_worker_service is not None:
+        hermes_service_started = bool(hermes_worker_service.start())
     print(f"Merlin MVP API listening on http://127.0.0.1:{port}")
     print("Merlin HUD: canonical graph/event stores connected" if hud_runtime
           else "Merlin HUD: labelled demonstration fallback (canonical store paths not configured)")
