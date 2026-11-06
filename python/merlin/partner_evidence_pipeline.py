@@ -84,6 +84,48 @@ class PublicContractEvidence:
             raise ValueError("contract identity and provenance are required")
 
 
+def ingest_difi_normalized_csv(
+    csv_text: str, observed_on: str, source_url: str,
+) -> tuple[LicenseObservation, ...]:
+    """Import a user/agent-exported DIFI/SBS public lookup CSV.
+
+    The CSV must be normalized to the explicit field names below. This is
+    intentionally not a guessed scraper for the interactive SBS website.
+    """
+    _date(observed_on)
+    _https(source_url)
+    required = {
+        "subject_id", "subject_type", "legal_name", "license_number",
+        "license_type", "lines_of_authority", "status", "source_record_id",
+    }
+    reader = csv.DictReader(io.StringIO(csv_text))
+    if not reader.fieldnames or not required.issubset(set(reader.fieldnames)):
+        raise ValueError("DIFI export missing required normalized columns")
+    rows = []
+    for row in reader:
+        lines = tuple(x.strip() for x in (row.get("lines_of_authority") or "").split(";") if x.strip())
+        rows.append(LicenseObservation(
+            subject_id=row["subject_id"].strip(),
+            subject_type=row["subject_type"].strip().lower(),
+            legal_name=row["legal_name"].strip(),
+            license_number=row["license_number"].strip(),
+            license_type=row["license_type"].strip(),
+            lines_of_authority=lines,
+            status=row["status"].strip().lower(),
+            observed_on=observed_on,
+            effective_on=(row.get("effective_on") or "").strip() or None,
+            source_url=source_url,
+            source_record_id=row["source_record_id"].strip(),
+            raw_record_sha256=sha256(",".join(row.get(k, "") or "" for k in reader.fieldnames).encode("utf-8")).hexdigest(),
+        ))
+    return tuple(rows)
+
+
+def ingest_public_contract_records(records: Iterable[dict]) -> tuple[PublicContractEvidence, ...]:
+    """Convert normalized official award/co-op records to graph evidence."""
+    return tuple(PublicContractEvidence(**record) for record in records)
+
+
 RELATIONSHIP_TYPES = {
     "competitor", "capability_benchmark", "potential_prime",
     "potential_subcontractor", "referral_source",
