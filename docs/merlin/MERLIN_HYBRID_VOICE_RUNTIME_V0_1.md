@@ -13,6 +13,7 @@ This implementation imports the useful parts of the JARVIS desktop-assistant arc
 5. The response is rendered as text in the HUD. The browser keeps a bounded in-tab history; this PR does not claim persistence across reloads.
 6. Optional speech output calls the loopback TTS sidecar only after the TTS qualification flag is set.
 7. Browser speech recognition is feature-detected and remains subject to browser support and microphone permission.
+8. Explicitly approved preferences and project notes are stored in a separate local SQLite memory vault. The browser includes them in model context only when the operator enables **Use memory**.
 
 ## Runtime configuration
 
@@ -24,8 +25,21 @@ This implementation imports the useful parts of the JARVIS desktop-assistant arc
 - `MERLIN_REMOTE_MODEL_NAME`: required cloud model identifier; falls back to `MERLIN_MODEL_NAME`.
 - `MERLIN_TTS_QUALIFIED=1`: local speech sidecar has completed its qualification process.
 - `MERLIN_TTS_URL`: loopback-only TTS endpoint; defaults to `http://127.0.0.1:8880/v1/audio/speech`.
+- `MERLIN_MEMORY_DB_PATH`: optional path for the explicit memory vault; defaults to `memory.sqlite3` beside the configured Merlin event database.
 
 The provider-status endpoint returns only status, transport class and qualified model identifiers. It never returns credentials or provider URLs. Its state is QUALIFIED_CONFIGURED, not a live health claim: reachability is not probed until a request is made. An endpoint being reachable or installed is not sufficient to mark a provider qualified.
+
+## User-approved memory vault
+
+The local API exposes `GET /api/memory`, `POST /api/memory/preferences`, `POST /api/memory/projects`, and matching DELETE routes. Saving requires an explicit UI confirmation and an `approved: true` API field. The HUD commands are:
+
+- `/remember key = value`
+- `/project name | current status`
+- `/memory`
+- `/forget key`
+- `/forget-project name`
+
+Memory records are versioned and transactionally stored in SQLite. The event ledger receives only entry identifiers and content digests, not raw memory values. Conversation transcripts are not retained. The opt-in context toggle is off by default. Do not save passwords, API keys, tokens, private keys, or sensitive personal information. The vault is a convenience memory store, not an authorization or verification source.
 
 ## JARVIS concepts retained
 
@@ -40,7 +54,7 @@ The provider-status endpoint returns only status, transport class and qualified 
 
 - Wake-word detection or always-on microphone capture.
 - Desktop application/file control.
-- Cross-session conversation memory or user preference vault in the canonical registry.
+- Cross-session transcript retention. The separate user-approved preference/project vault is implemented, but it is not automatically included in chat context.
 - Piper/Kokoro deployment, voice identity qualification or measured speech latency.
 - A native desktop shell or OS login startup.
 - Merlin composer-to-Hermes/Avrea dispatch.
