@@ -67,9 +67,21 @@ class LearningPlatformTests(unittest.TestCase):
             self.store.get_course(Actor("college-a", "other-student", "learner"),
                                   course["course_id"])
 
+    def test_publication_requires_independent_review(self):
+        course = self._course()
+        with self.assertRaisesRegex(LearningConflictError, "independent reviewer"):
+            self.store.publish_course(self.teacher, course["course_id"])
+        with self.assertRaises(LearningPermissionError):
+            self.store.review_course(self.reviewer, course["course_id"], course["version"],
+                                     "approved", "review")
+        self.store.review_course(self.reviewer, course["course_id"], course["version"],
+                                 "approved", "independent review")
+        published = self.store.publish_course(self.teacher, course["course_id"])
+        self.assertEqual(published["status"], "published")
+
     def test_published_version_is_immutable_and_revision_is_new_version(self):
         course = self._course()
-        self.store.publish_course(self.teacher, course["course_id"])
+        self._publish(course)
         with self.assertRaises(LearningConflictError):
             self.store.update_manifest(self.teacher, course["course_id"], course["manifest"])
         revision = self.store.create_revision(self.teacher, course["course_id"])
@@ -124,7 +136,7 @@ class LearningPlatformTests(unittest.TestCase):
 
     def test_audit_is_append_only_metadata_and_role_gated(self):
         course = self._course()
-        self.store.publish_course(self.teacher, course["course_id"])
+        self._publish(course)
         events = self.store.audit_events(self.admin)
         self.assertGreaterEqual(len(events), 3)
         self.assertTrue(all("payload_sha256" in event for event in events))
