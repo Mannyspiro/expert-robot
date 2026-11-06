@@ -8,6 +8,7 @@ from http.server import ThreadingHTTPServer
 from pathlib import Path
 
 from python.merlin.app import EventStore, make_handler
+from python.merlin.knowledge_graph import MerlinKnowledgeGraph, GraphNode, GraphEdge
 
 
 class MerlinApiTests(unittest.TestCase):
@@ -38,6 +39,81 @@ class MerlinApiTests(unittest.TestCase):
         with urlopen(self.base + "/api/capabilities", timeout=5) as response:
             payload = json.loads(response.read())
         self.assertIn("engineering.geometry.validate", {row["id"] for row in payload["capabilities"]})
+
+    def test_capability_registry_uses_three_states_and_graph_validator_is_read_only(self):
+        with urlopen(self.base + "/api/capabilities", timeout=5) as response:
+            payload = json.loads(response.read())
+        self.assertEqual(payload["schema"], "merlin-capability-registry/1")
+        self.assertEqual(set(payload["states"]), {"configured", "unavailable", "unqualified"})
+        self.assertIn("engineering.geometry.validate",
+                      {row["id"] for row in payload["capabilities"]})
+        self.assertTrue(all(row["state"] in payload["states"]
+                            for row in payload["capabilities"]))
+
+        valid = self.post("/api/graphs/validate", {
+            "nodes": [{"id": "question"}, {"id": "model"}, {"id": "evidence"}],
+            "edges": [
+                {"source": "question", "target": "model", "relation": "requires"},
+                {"source": "model", "target": "evidence", "relation": "prerequisite"},
+            ],
+        })
+        self.assertTrue(valid["valid"])
+        self.assertEqual(valid["topological_order"], ["question", "model", "evidence"])
+        invalid = self.post("/api/graphs/validate", {
+            "nodes": [{"id": "a"}, {"id": "b"}],
+            "edges": [
+                {"source": "a", "target": "b", "relation": "requires"},
+                {"source": "b", "target": "a", "relation": "requires"},
+            ],
+        })
+        self.assertFalse(invalid["valid"])
+        self.assertIn("dependency_cycle", {row["code"] for row in invalid["errors"]})
+
+    def test_canonical_graph_validation_reads_persisted_snapshot(self):
+        graph_path = Path(self.temp.name) / "canonical-graph.sqlite3"
+        graph = MerlinKnowledgeGraph(graph_path)
+        graph.add_node(GraphNode("research-question", "claim", "Research question", {}))
+        graph.add_node(GraphNode("equation", "equation", "Equation", {}))
+        graph.add_edge(GraphEdge("research-question", "depends_on", "equation", {}))
+
+        event_store = EventStore(Path(self.temp.name) / "canonical-graph-events.sqlite3")
+        server = ThreadingHTTPServer(
+            ("127.0.0.1", 0),
+            make_handler(event_store, canonical_graph=graph),
+        )
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        base = f"http://127.0.0.1:{server.server_port}"
+        try:
+            with urlopen(base + "/api/graphs/validate", timeout=5) as response:
+                valid = json.loads(response.read())
+            self.assertTrue(valid["valid"])
+            self.assertEqual(valid["source"], "canonical_knowledge_graph")
+            self.assertEqual(valid["node_count"], 2)
+            self.assertEqual(valid["topological_order"],
+                             ["research-question", "equation"])
+            self.assertEqual(len(valid["snapshot_sha256"]), 64)
+            self.assertFalse(valid["promotion_authorized"])
+
+            graph.add_edge(GraphEdge("equation", "depends_on", "research-question", {}))
+            with urlopen(base + "/api/graphs/validate", timeout=5) as response:
+                invalid = json.loads(response.read())
+            self.assertFalse(invalid["valid"])
+            self.assertIn("dependency_cycle",
+                          {item["code"] for item in invalid["errors"]})
+            self.assertNotEqual(valid["snapshot_sha256"], invalid["snapshot_sha256"])
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
+
+    def test_canonical_graph_validation_fails_closed_when_store_not_configured(self):
+        request = Request(self.base + "/api/graphs/validate")
+        with self.assertRaises(HTTPError) as caught:
+            urlopen(request, timeout=5)
+        self.assertEqual(caught.exception.code, 503)
+        self.assertEqual(json.loads(caught.exception.read())["error"],
+                         "canonical_graph_not_configured")
 
     def test_council_roles_and_prepare_endpoint(self):
         with urlopen(self.base + "/api/council/roles", timeout=5) as response:
