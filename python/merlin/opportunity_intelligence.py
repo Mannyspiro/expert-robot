@@ -83,6 +83,7 @@ class ApplicantProfile:
     fields: tuple[str, ...] = ()
     credentials: tuple[str, ...] = ()
     licenses: tuple[str, ...] = ()
+    has_fiscal_sponsor: bool | None = None
     # Identity attributes are opt-in matching inputs; never infer or log them.
     identity_attributes: tuple[str, ...] = ()
     priorities: tuple[str, ...] = ()
@@ -113,8 +114,11 @@ def evaluate_opportunity(
         blockers.append("applicant type is not accepted")
     if opportunity.organization_required and applicant.applicant_type == "individual":
         blockers.append("an eligible organization is required")
-    if opportunity.requires_fiscal_sponsor and applicant.applicant_type != "fiscal_sponsor":
-        blockers.append("eligible fiscal sponsor or qualifying organization required")
+    if opportunity.requires_fiscal_sponsor:
+        if applicant.has_fiscal_sponsor is None:
+            verify.append("fiscal sponsor status not verified")
+        elif not applicant.has_fiscal_sponsor:
+            blockers.append("eligible fiscal sponsor or qualifying organization required")
     if opportunity.jurisdictions and not set(applicant.jurisdictions).intersection(opportunity.jurisdictions):
         blockers.append("applicant jurisdiction does not match listed eligibility")
     if opportunity.age_min is not None:
@@ -148,7 +152,7 @@ def evaluate_opportunity(
     if opportunity.identity_criteria:
         if not applicant.identity_attributes:
             verify.append("identity-based eligibility not evaluated")
-        elif not set(opportunity.identity_criteria).intersection(applicant.identity_attributes):
+        elif not set(opportunity.identity_criteria).issubset(applicant.identity_attributes):
             blockers.append("explicit identity eligibility criterion not met")
 
     if opportunity.status == "closed":
