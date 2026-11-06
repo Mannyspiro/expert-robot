@@ -75,6 +75,27 @@ class OpportunityIntelligenceTests(unittest.TestCase):
         self.assertEqual(result.eligibility, "conditional")
         self.assertIn("identity-based eligibility not evaluated", result.verification_required)
 
+    def test_all_explicit_identity_criteria_must_match(self):
+        item = self.make_opportunity(identity_criteria=("Latina", "trans"))
+        partial = ApplicantProfile(applicant_type="individual", jurisdictions=("Arizona",),
+                                   enrolled=True, fields=("technology",),
+                                   identity_attributes=("Latina",))
+        result = evaluate_opportunity(item, partial, date(2026, 11, 5))
+        self.assertEqual(result.eligibility, "ineligible")
+
+    def test_fiscal_sponsor_is_a_verifiable_requirement(self):
+        item = self.make_opportunity(opportunity_type="grant",
+                                     requires_fiscal_sponsor=True)
+        unknown = ApplicantProfile(applicant_type="individual", jurisdictions=("Arizona",),
+                                   enrolled=True, fields=("technology",))
+        result = evaluate_opportunity(item, unknown, date(2026, 11, 5))
+        self.assertEqual(result.eligibility, "conditional")
+        sponsored = ApplicantProfile(applicant_type="individual", jurisdictions=("Arizona",),
+                                     enrolled=True, fields=("technology",),
+                                     has_fiscal_sponsor=True)
+        result = evaluate_opportunity(item, sponsored, date(2026, 11, 5))
+        self.assertEqual(result.eligibility, "eligible")
+
     def test_unverified_source_never_becomes_eligible(self):
         result = evaluate_opportunity(
             self.make_opportunity(source_confidence="unverified", last_verified=None),
