@@ -92,7 +92,7 @@ class CatalogTests(unittest.TestCase):
         manager.register(self.manifest)
         manager.activate("math-specialist")
         manager.deactivate("math-specialist")
-        self.assertEqual([event["operation"] for event in events], ["load", "unload"])
+        self.assertEqual([event["payload"]["operation"] for event in events], ["load", "unload"])
         self.assertTrue(all(event["source"] == "runtime" for event in events))
         self.assertTrue(all(event["run_id"] == "loader-test-run" for event in events))
         self.assertEqual(events[0]["payload"]["artifact_bytes"], len(self.artifact.read_bytes()))
@@ -114,8 +114,8 @@ class CatalogTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             manager.activate("math-specialist")
         self.assertEqual(manager.resident_ids(), ())
-        self.assertEqual(events[-1]["outcome"], "failed")
-        self.assertEqual(events[-1]["error_type"], "RuntimeError")
+        self.assertEqual(events[-1]["payload"]["outcome"], "failed")
+        self.assertEqual(events[-1]["payload"]["error_type"], "RuntimeError")
 
     def test_telemetry_sink_failure_does_not_break_loader(self):
         def broken_sink(event):

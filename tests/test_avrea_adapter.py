@@ -17,6 +17,7 @@ class AvreaAdapterTests(unittest.TestCase):
         self.job = {"schema":"merlin-research-task/1","task_id":"t1",
                     "approval_ref":"approval:1","lease_ref":"lease:1",
                     "resource_budget":{"cpu_cores":1,"memory_bytes":1024},
+                    "worker_image_digest":"1"*64,"tool_versions":{"pytest":"8.4.2"},
                     "promotion_authority":False}
 
     def tearDown(self):
@@ -27,7 +28,8 @@ class AvreaAdapterTests(unittest.TestCase):
             dispatch_transport=lambda payload: {"runner_id":"avrea-runner-1",
                                                   "job_id":"job-1","status":"accepted"},
             collect_transport=lambda job_id: {"runner_id":"avrea-runner-1","job_id":job_id,
-                                                "status":"completed",
+                                                "status":"completed","exit_code":0,"worker_image_digest":"1"*64,
+                                                "tool_versions":{"pytest":"8.4.2"},
                                                 "artifacts":[{"name":"result.json","content":b'{"ok":true}'}]},
             approval_validator=lambda ref, payload: approval and ref=="approval:1",
             lease_validator=lambda ref, budget: lease and ref=="lease:1",
@@ -37,6 +39,8 @@ class AvreaAdapterTests(unittest.TestCase):
     def test_dispatch_requires_approval_and_mcfc_lease(self):
         receipt = self.adapter().dispatch(self.job)
         self.assertEqual(receipt["status"],"accepted")
+        self.assertEqual(receipt["worker_image_digest"],"1"*64)
+        self.assertEqual(receipt["tool_versions"],{"pytest":"8.4.2"})
         self.assertGreaterEqual(self.outbox.counts()["pending"],3)
         with self.assertRaises(PermissionError):
             self.adapter(approval=False).dispatch(self.job)
@@ -46,10 +50,17 @@ class AvreaAdapterTests(unittest.TestCase):
     def test_result_collection_registers_and_verifies_artifacts(self):
         adapter = self.adapter()
         adapter.dispatch(self.job)
+        pending_after_dispatch = self.outbox.counts()["pending"]
         result = adapter.collect("job-1",project_id="merlin")
         self.assertEqual(result["artifacts"][0]["name"],"result.json")
         self.assertTrue(self.registry.verify_artifact(result["artifacts"][0]["sha256"]))
-        self.assertEqual(self.outbox.counts()["pending"],1)
+        result_event_id = "evt_" + __import__("hashlib").sha256(
+            b"avrea-result:job-1"
+        ).hexdigest()
+        result_event = self.outbox.get(result_event_id)
+        self.assertIsNotNone(result_event)
+        self.assertEqual(result_event["topic"], "merlin.avrea.result.collected")
+        self.assertGreater(self.outbox.counts()["pending"], pending_after_dispatch)
 
     def test_missing_transport_fails_closed(self):
         adapter = AvreaAdapter(dispatch_transport=None,collect_transport=None,

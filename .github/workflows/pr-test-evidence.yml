@@ -1,0 +1,114 @@
+name: PR test evidence
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pr-test-evidence:
+    name: Hosted Python test evidence
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out exact tested commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Capture syntax and unit-test logs
+        id: tests
+        shell: bash
+        run: |
+          set +e
+          mkdir -p artifacts/pr-test-evidence
+          export PYTHONPATH="$GITHUB_WORKSPACE/python${PYTHONPATH:+:$PYTHONPATH}"
+          printf 'repository=%s\ncommit=%s\nref=%s\nevent=%s\nrunner=%s\npython=%s\n' \
+            "$GITHUB_REPOSITORY" "$GITHUB_SHA" "$GITHUB_REF" "$GITHUB_EVENT_NAME" \
+            "$RUNNER_NAME" "$(python --version 2>&1)" \
+            | tee artifacts/pr-test-evidence/environment.txt
+
+          start_utc="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          python -m pip install numpy==2.2.6 sympy==1.14.0 jsonschema==4.25.1 pytest==8.4.2 \
+            > artifacts/pr-test-evidence/dependency-install.log 2>&1
+          dependency_status=$?
+          python -m compileall -q python tests \
+            > >(tee artifacts/pr-test-evidence/compileall.log) \
+            2> >(tee -a artifacts/pr-test-evidence/compileall.log >&2)
+          compile_status=$?
+
+          python -m unittest discover -s tests -v \
+            > >(tee artifacts/pr-test-evidence/unittest.log) \
+            2> >(tee -a artifacts/pr-test-evidence/unittest.log >&2)
+          unittest_status=$?
+          end_utc="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+          printf 'start_utc=%s\nend_utc=%s\ndependency_install_exit_code=%s\ncompileall_exit_code=%s\nunittest_exit_code=%s\n' \
+            "$start_utc" "$end_utc" "$dependency_status" "$compile_status" "$unittest_status" \
+            | tee artifacts/pr-test-evidence/result.txt
+
+          python - "$dependency_status" "$compile_status" "$unittest_status" "$start_utc" "$end_utc" <<'PY'
+          import json, os, sys
+          dependency_status, compile_status, unittest_status = map(int, sys.argv[1:4])
+          result = {
+              "repository": os.environ["GITHUB_REPOSITORY"],
+              "commit": os.environ["GITHUB_SHA"],
+              "ref": os.environ["GITHUB_REF"],
+              "event": os.environ["GITHUB_EVENT_NAME"],
+              "runner": os.environ.get("RUNNER_NAME"),
+              "python": sys.version,
+              "commands": [
+                  {"command": "python -m pip install numpy==2.2.6 sympy==1.14.0 jsonschema==4.25.1 pytest==8.4.2", "exit_code": dependency_status},
+                  {"command": "python -m compileall -q python tests", "exit_code": compile_status},
+                  {"command": "python -m unittest discover -s tests -v", "exit_code": unittest_status},
+              ],
+              "start_utc": sys.argv[4],
+              "end_utc": sys.argv[5],
+              "overall": "passed" if dependency_status == 0 and compile_status == 0 and unittest_status == 0 else "failed",
+          }
+          with open("artifacts/pr-test-evidence/manifest.json", "w", encoding="utf-8") as f:
+              json.dump(result, f, indent=2, sort_keys=True)
+              f.write("\n")
+          PY
+
+          if [ "$dependency_status" -ne 0 ] || [ "$compile_status" -ne 0 ] || [ "$unittest_status" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Publish test logs and result manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr-test-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/pr-test-evidence/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Publish concise run summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## PR test evidence"
+            echo
+            echo "- Repository: $GITHUB_REPOSITORY"
+            echo "- Exact commit: $GITHUB_SHA"
+            echo "- Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID (attempt $GITHUB_RUN_ATTEMPT)"
+            echo "- Evidence artifact: pr-test-evidence-$GITHUB_RUN_ID-$GITHUB_RUN_ATTEMPT"
+            if [ -f artifacts/pr-test-evidence/result.txt ]; then
+              echo
+              echo '~~~text'
+              cat artifacts/pr-test-evidence/result.txt
+              echo '~~~'
+            else
+              echo "- Test commands did not start; inspect the job-level failure."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

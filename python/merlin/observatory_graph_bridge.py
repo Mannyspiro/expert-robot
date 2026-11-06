@@ -49,7 +49,10 @@ def _add_immutable_node(graph: MerlinKnowledgeGraph, node: GraphNode) -> None:
             node.node_type, node.label, node.payload,
             node.evidence_class, node.source_uri,
         )):
-            raise ValueError("graph node ID already exists with different content or provenance: " + node.node_id)
+            raise ValueError(
+                "graph node ID already exists with different content or provenance; "
+                "it cannot represent the exact Engineering IR revision: " + node.node_id
+            )
         return
     graph.add_node(node)
 

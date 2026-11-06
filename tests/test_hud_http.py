@@ -52,9 +52,14 @@ class HudActivityWSGITests(unittest.TestCase):
 
     def test_node_route_returns_node_and_typed_neighbors(self):
         node = GraphNode("claim:1", "claim", "Claim", {"text": "test"})
+        neighbor = GraphNode("claim:2", "claim", "Supporting claim", {"text": "related"})
+        nodes = {"claim:1": node, "claim:2": neighbor}
         graph = SimpleNamespace(
-            get_node=lambda node_id: node if node_id == "claim:1" else None,
-            neighbors=lambda node_id: [{"relation": "supports"}],
+            get_node=lambda node_id: nodes.get(node_id),
+            neighbors=lambda node_id: [{
+                "source_id": "claim:1", "target_id": "claim:2",
+                "relation": "supports", "payload": {},
+            }],
         )
         app = HudActivityWSGI(HudActivityProjector(),
                               read_api=SimpleNamespace(graph_store=graph))

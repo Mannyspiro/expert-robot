@@ -56,6 +56,45 @@ class MerlinFoundationStore:
                                       {"logical_path": logical_path}))
         return digest
 
+    def replace_artifact(self, project_id: str, logical_path: str, content: bytes,
+                         *, expected_digest: str, expected_generation: int,
+                         media_type: str = "application/octet-stream",
+                         artifact_type: str = "artifact",
+                         evidence_class: str = "unreviewed",
+                         metadata: dict[str, Any] | None = None,
+                         actor: str, operation_id: str) -> str:
+        """Explicitly advance an artifact head with CAS; predecessor remains addressable."""
+        if artifact_type not in {"artifact", "source", "dataset", "model", "simulation",
+                                 "cad_model", "media", "theorem", "equation"}:
+            raise ValueError(f"unsupported artifact graph type: {artifact_type}")
+        digest = self.registry.replace_artifact(
+            project_id, logical_path, content,
+            expected_digest=expected_digest, expected_generation=expected_generation,
+            media_type=media_type, actor=actor, operation_id=operation_id,
+        )
+        artifact_id = f"artifact:sha256:{digest}"
+        project_node_id = f"project:{project_id}"
+        if self.graph.get_node(project_node_id) is None:
+            inventory = self.registry.inventory(project_id)
+            self.graph.add_node(GraphNode(
+                project_node_id, "project", inventory["name"],
+                {"version": inventory["version"]}, "registry",
+            ))
+        head = self.registry.get_artifact_head(project_id, logical_path)
+        self.graph.add_node(GraphNode(
+            artifact_id, artifact_type, logical_path,
+            {"sha256": digest, "media_type": media_type, "size_bytes": len(content),
+             "project_id": project_id, "generation": head["generation"],
+             "parent_digest": expected_digest, **(metadata or {})},
+            evidence_class,
+        ))
+        self.graph.add_edge(GraphEdge(
+            project_node_id, "contains", artifact_id,
+            {"logical_path": logical_path, "generation": head["generation"],
+             "parent_digest": expected_digest},
+        ))
+        return digest
+
     def add_claim(self, claim_id: str, statement: str, evidence_class: str,
                   assumptions: tuple[str, ...] = (), status: str = "unreviewed",
                   project_id: str | None = None,
