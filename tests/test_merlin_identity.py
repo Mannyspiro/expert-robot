@@ -1,6 +1,8 @@
 import unittest
 import os
 import sqlite3
+import tempfile
+from pathlib import Path
 import time
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -244,28 +246,32 @@ class PyJWTJWKSVerifierTests(unittest.TestCase):
             self.assertIsNone(learning_identity_resolver_from_environment())
 
     def test_environment_factory_builds_verifier_with_claim_mapping(self):
-        env = {
-            "MERLIN_OIDC_ISSUER": ISSUER,
-            "MERLIN_OIDC_AUDIENCE": AUDIENCE,
-            "MERLIN_OIDC_JWKS_URL": "https://identity.example.test/.well-known/jwks.json",
-            "MERLIN_OIDC_ALLOWED_ALGORITHMS": "RS256",
-            "MERLIN_OIDC_TENANT_CLAIM": "organization_id",
-            "MERLIN_OIDC_ROLE_CLAIM": "merlin_role",
-            "MERLIN_OIDC_REVOCATION_DB": str(Path(self.id()) if False else Path(os.environ.get("TMPDIR", "/tmp")) / "merlin-oidc-revocations.sqlite3"),
-        }
         token = self.token(
             organization_id="tenant-from-idp",
             merlin_role="instructor",
         )
         fake_jwks = FakeJWKSClient(self.public_key)
-        with patch.dict(os.environ, env, clear=True), patch(
-            "jwt.PyJWKClient", return_value=fake_jwks
-        ):
-            resolver = learning_identity_resolver_from_environment()
-            self.assertIsNotNone(resolver)
-            actor = resolver({"Authorization": "Bearer " + token})
-        self.assertEqual(actor, Actor("tenant-from-idp", "faculty-17", "instructor"))
-        self.assertEqual(fake_jwks.lookups, 1)
+        with tempfile.TemporaryDirectory() as tmp:
+            env = {
+                "MERLIN_OIDC_ISSUER": ISSUER,
+                "MERLIN_OIDC_AUDIENCE": AUDIENCE,
+                "MERLIN_OIDC_JWKS_URL": "https://identity.example.test/.well-known/jwks.json",
+                "MERLIN_OIDC_ALLOWED_ALGORITHMS": "RS256",
+                "MERLIN_OIDC_TENANT_CLAIM": "organization_id",
+                "MERLIN_OIDC_ROLE_CLAIM": "merlin_role",
+                "MERLIN_OIDC_REVOCATION_DB": str(Path(tmp) / "revocations.sqlite3"),
+            }
+            with patch.dict(os.environ, env, clear=True), patch(
+                "jwt.PyJWKClient", return_value=fake_jwks
+            ):
+                resolver = learning_identity_resolver_from_environment()
+                self.assertIsNotNone(resolver)
+                actor = resolver({"Authorization": "Bearer " + token})
+                self.assertEqual(actor, Actor("tenant-from-idp", "faculty-17", "instructor"))
+                store = SQLiteTokenRevocationStore(env["MERLIN_OIDC_REVOCATION_DB"])
+                self.assertTrue(store.revoke(ISSUER, "oidc-token-17", "logout"))
+                self.assertIsNone(resolver({"Authorization": "Bearer " + token}))
+        self.assertEqual(fake_jwks.lookups, 2)
 
 
 if __name__ == "__main__":
