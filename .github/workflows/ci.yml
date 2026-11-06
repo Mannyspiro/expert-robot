@@ -86,6 +86,26 @@ jobs:
       - name: Compute policy guardrails
         run: python3 tests/compute_policy_smoke.py
 
+      - name: Merlin opportunity intelligence tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          set +e
+          PYTHONPATH=python python3 -m unittest discover -s tests -p "test_opportunity_intelligence.py" -v 2>&1 | tee artifacts/merlin-opportunity-intelligence-tests.log
+          rc=${PIPESTATUS[0]}
+          set -e
+          printf '{"suite":"merlin-opportunity-intelligence","exit_code":%s,"commit":"%s"}\n' "$rc" "$GITHUB_SHA" > artifacts/merlin-opportunity-intelligence-result.json
+          exit "$rc"
+
+      - name: Upload opportunity intelligence test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-opportunity-intelligence-${{ github.run_id }}
+          path: artifacts/merlin-opportunity-intelligence-*
+          if-no-files-found: warn
+
       - name: Known failure regression guardrails
         run: python3 tests/known_failure_regression_smoke.py
 
