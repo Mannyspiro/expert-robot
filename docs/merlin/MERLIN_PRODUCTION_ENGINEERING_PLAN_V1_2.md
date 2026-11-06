@@ -110,6 +110,16 @@ Updated unified evidence on exact code head `06ece19e01b115a8d10da7e919b91ba1312
 - The API is still loopback-hosted and uses a server-side credential map; no production secrets, HTTPS gateway, shared multi-host database or continuously running Hermes worker supervisor is configured.
 - Outbox cancellation remains cooperative and there is no authenticated administrative cancellation endpoint. External processes must check their lease and stop themselves. Do not claim process-level cancellation until this is implemented and fault-tested.
 
+### Authenticated operator cancellation and long-running worker lifecycle
+
+- Added a separately authenticated `MERLIN_OUTBOX_ADMIN_TOKEN` for administrative cancellation; worker credentials cannot cancel tasks. The endpoint records a fixed server-derived actor (`merlin-admin`), reason and terminal event state.
+- Added HTTP tests for unauthenticated worker cancellation rejection, authorized pending/leased cancellation and stale lease rejection after cancellation.
+- Extended Hermes execution with background lease heartbeats, cooperative cancellation checks, explicit heartbeat/check-cancelled callbacks for stage handlers, lease-loss detection, and strict resource-budget field/range validation.
+- Added worker tests for a handler that runs across multiple lease intervals, cancellation while executing, and out-of-range resource budget quarantine.
+- Run [42270868738](https://github.com/Mannyspiro/expert-robot/actions/runs/42270868738) compiled but failed one cooperative-cancellation test because the worker emitted an event kind absent from Merlin's versioned telemetry contract. The implementation was corrected to emit the existing `agent.status` kind with `status=cancelled`; the failed run is retained.
+- Exact passing code head `424d9a5692a6af655a0b7005ca357ac423956302`: [run 42271495649](https://github.com/Mannyspiro/expert-robot/actions/runs/42271495649) compiled the integrated modules and passed **118 tests in 9.44 seconds**. Artifact [13528269547](https://github.com/Mannyspiro/expert-robot/actions/runs/42271495649/artifacts/13528269547), SHA-256 `2c44675fb33b8393bf5c5f54143f68ca3d793a6931679920a26b70d140758bae`.
+- Provider audit: `docs/merlin/MERLIN_EXECUTION_PROVIDER_QUALIFICATION_MATRIX.md`. The connected CACE repository's `ops/oci_mcp` is a narrow loopback OCI control plane, not a compute job runner; its OCI provisioning/runner-health workflows are archived. The Avrea workflow uses an Avrea-labelled self-hosted runner, but the latest run [42271495542](https://github.com/Mannyspiro/expert-robot/actions/runs/42271495542) was cancelled before any job steps; no runner identity or execution artifact was produced. Do not report Avrea or OCI as qualified.
+
 ### Hermes/Avrea adapter package integration and expanded regression
 
 - Normalized package-local imports in Hermes worker, stage-handler, Avrea, CACE and Lean proof-orchestration adapters. This prevents duplicate Python module identities when code is loaded through either `merlin.*` or `python.merlin.*`.
