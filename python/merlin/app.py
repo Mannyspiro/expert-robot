@@ -128,6 +128,48 @@ class EventStore:
                  "summary": json.loads(row[3]), "created_at": row[4]} for row in rows]
 
 
+def _runtime_provider_status() -> dict[str, Any]:
+    """Expose qualification state without leaking endpoint URLs or credentials."""
+    local_model = os.environ.get("MERLIN_LOCAL_MODEL", os.environ.get("MERLIN_MODEL_NAME", "")).strip()
+    remote_model = os.environ.get("MERLIN_REMOTE_MODEL_NAME", os.environ.get("MERLIN_MODEL_NAME", "")).strip()
+    local_ready = os.environ.get("MERLIN_MODEL_QUALIFIED") == "1" and bool(local_model)
+    if local_ready:
+        try:
+            _loopback_endpoint("MERLIN_MODEL_URL", "http://127.0.0.1:8080/v1/chat/completions")
+        except ValueError:
+            local_ready = False
+    remote_ready = os.environ.get("MERLIN_REMOTE_MODEL_QUALIFIED") == "1" and bool(remote_model)
+    if remote_ready:
+        try:
+            _remote_model_endpoint()
+        except ValueError:
+            remote_ready = False
+    tts_ready = os.environ.get("MERLIN_TTS_QUALIFIED") == "1"
+    if tts_ready:
+        try:
+            _loopback_endpoint("MERLIN_TTS_URL", "http://127.0.0.1:8880/v1/audio/speech")
+        except ValueError:
+            tts_ready = False
+    return {
+        "schema": "merlin-runtime-providers/1",
+        "providers": {
+            "local": {"status": "AVAILABLE" if local_ready else "UNAVAILABLE",
+                      "model": local_model if local_ready else None,
+                      "transport": "loopback OpenAI-compatible API"},
+            "cloud": {"status": "AVAILABLE" if remote_ready else "UNAVAILABLE",
+                      "model": remote_model if remote_ready else None,
+                      "transport": "allowlisted HTTPS OpenAI-compatible API"},
+            "speech_output": {"status": "AVAILABLE" if tts_ready else "UNAVAILABLE",
+                              "model": os.environ.get("MERLIN_TTS_MODEL") if tts_ready else None,
+                              "transport": "loopback TTS sidecar"},
+            "speech_input": {"status": "BROWSER_DEPENDENT",
+                             "transport": "browser SpeechRecognition API; permission required"},
+        },
+        "raw_conversation_retention": False,
+        "provider_credentials_exposed": False,
+    }
+
+
 CAPABILITIES = [
     {"id": "research.math_transfer.preview", "status": "AVAILABLE", "evidence": "deterministic, provenance-aware transfer hypotheses; no automatic promotion"},
     {"id": "intent.compile.preview", "status": "AVAILABLE", "evidence": "deterministic typed directive preview; optional canonical-registry artifact persistence; no external execution authority"},
@@ -403,6 +445,8 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 self._send(200, {"ok": True, "service": "merlin", "version": "0.4"})
             elif path == "/api/capabilities":
                 self._send(200, {"schema": "merlin-capabilities/1", "capabilities": CAPABILITIES})
+            elif path == "/api/runtime/providers":
+                self._send(200, _runtime_provider_status())
             elif path == "/api/events":
                 self._send(200, {"schema": "merlin-events/1", "events": store.recent()})
             elif path in {"/api/learning/learner", "/api/learning/recommendation"}:
@@ -748,6 +792,9 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     self._send(200, result)
                     return
                 if path == "/api/speech":
+                    if os.environ.get("MERLIN_TTS_QUALIFIED") != "1":
+                        self._send(503, {"error": "tts_not_qualified"})
+                        return
                     endpoint = _loopback_endpoint("MERLIN_TTS_URL", "http://127.0.0.1:8880/v1/audio/speech")
                     request = Request(endpoint, data=raw, headers={"Content-Type": "application/json"}, method="POST")
                     with urlopen(request, timeout=60) as response:
@@ -765,22 +812,36 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     self._send_bytes(200, audio, content_type)
                     return
                 if path == "/api/chat":
+                    provider = data.get("provider", "auto")
+                    if provider not in {"auto", "local", "cloud"}:
+                        raise ValueError("provider must be auto, local, or cloud")
                     remote_url = os.environ.get("MERLIN_REMOTE_MODEL_URL", "").strip()
-                    if remote_url:
+                    use_cloud = provider == "cloud" or (provider == "auto" and bool(remote_url))
+                    if use_cloud:
                         if os.environ.get("MERLIN_REMOTE_MODEL_QUALIFIED") != "1":
                             self._send(503, {"error": "remote_model_not_qualified"})
                             return
                         endpoint, api_key = _remote_model_endpoint()
+                        selected_model = os.environ.get("MERLIN_REMOTE_MODEL_NAME", os.environ.get("MERLIN_MODEL_NAME", "")).strip()
                     else:
                         if os.environ.get("MERLIN_MODEL_QUALIFIED") != "1":
-                            self._send(503, {"error": "model_not_qualified", "detail": "No qualified remote provider or local model is configured."})
+                            self._send(503, {"error": "model_not_qualified", "detail": "The local model is not qualified or configured."})
                             return
                         endpoint = _loopback_endpoint("MERLIN_MODEL_URL", "http://127.0.0.1:8080/v1/chat/completions")
                         api_key = ""
+                        selected_model = os.environ.get("MERLIN_LOCAL_MODEL", os.environ.get("MERLIN_MODEL_NAME", "")).strip()
+                    upstream_payload = dict(data)
+                    upstream_payload.pop("provider", None)
+                    if not upstream_payload.get("model"):
+                        upstream_payload["model"] = selected_model
+                    if not upstream_payload.get("model"):
+                        self._send(503, {"error": "model_name_not_configured"})
+                        return
+                    upstream_raw = _json_bytes(upstream_payload)
                     headers = {"Content-Type": "application/json", "Accept": "text/event-stream, application/json"}
                     if api_key:
                         headers["Authorization"] = "Bearer " + api_key
-                    request = Request(endpoint, data=raw, headers=headers, method="POST")
+                    request = Request(endpoint, data=upstream_raw, headers=headers, method="POST")
                     with urlopen(request, timeout=180) as response:
                         content_type = response.headers.get("Content-Type", "application/json")
                         wants_stream = bool(data.get("stream")) and "text/event-stream" in content_type.lower()
