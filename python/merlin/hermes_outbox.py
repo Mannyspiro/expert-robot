@@ -203,10 +203,48 @@ class HermesOutbox:
                 (expiry, now_s, task_id, worker_id, lease_token))
             self._append_event(db, row["run_id"], "tool.lease_renewed", now_s, worker_id, {"task_id": task_id, "lease_expires_at": expiry})
         return expiry
+    def list_dead_letters(self, *, limit: int = 50) -> tuple[dict[str, Any], ...]:
+        if not 1 <= limit <= 500:
+            raise ValueError("limit must be between 1 and 500")
+        with self.registry._transaction() as db:
+            rows = db.execute("SELECT * FROM hermes_outbox WHERE status='dead_letter' ORDER BY updated_at, task_id LIMIT ?", (limit,)).fetchall()
+        items = []
+        for row in rows:
+            item = dict(row)
+            item["payload"] = json.loads(item.pop("payload_json"))
+            items.append(item)
+        return tuple(items)
+
+    def requeue_dead_letter(self, *, task_id: str, operator_id: str, now: str) -> bool:
+        now_s = self._time(now, "now").isoformat()
+        if not operator_id.strip():
+            raise ValueError("operator_id is required")
+        with self.registry._transaction() as db:
+            row = db.execute("SELECT * FROM hermes_outbox WHERE task_id=?", (task_id,)).fetchone()
+            if row is None:
+                raise ValueError("unknown task_id")
+            if row["status"] != "dead_letter":
+                return False
+            db.execute("UPDATE hermes_outbox SET status='pending', attempts=0, next_attempt_at=?, updated_at=?, last_error=NULL, lease_owner=NULL, lease_token=NULL, lease_expires_at=NULL WHERE task_id=? AND status='dead_letter'", (now_s, now_s, task_id))
+            self._append_event(db, row["run_id"], "tool.requeued", now_s, operator_id, {"task_id": task_id, "previous_attempts": row["attempts"]})
+            return True
+
+    @staticmethod
+    def retry_delay_seconds(*, task_id: str, attempt: int, base_seconds: int = 15,
+                             max_seconds: int = 900, jitter_percent: int = 20) -> int:
+        if not task_id.strip() or attempt < 1 or base_seconds < 0 or max_seconds < 0:
+            raise ValueError("task_id, positive attempt, and non-negative delay bounds required")
+        if not 0 <= jitter_percent <= 100:
+            raise ValueError("jitter_percent must be between 0 and 100")
+        ceiling = min(max_seconds, base_seconds * (2 ** min(attempt - 1, 30)))
+        span = ceiling * jitter_percent // 100
+        seed = int(sha256((task_id + ":" + str(attempt)).encode("utf-8")).hexdigest()[:8], 16)
+        offset = (seed % (2 * span + 1)) - span if span else 0
+        return max(0, min(max_seconds, ceiling + offset))
     def retry(self, *, task_id: str, lease_token: str, now: str,
-              error: str, backoff_seconds: int = 30) -> str:
+              error: str, backoff_seconds: int | None = None) -> str:
         now_dt = self._time(now, "now")
-        if backoff_seconds < 0:
+        if backoff_seconds is not None and backoff_seconds < 0:
             raise ValueError("backoff_seconds cannot be negative")
         with self.registry._transaction() as db:
             row = db.execute("SELECT * FROM hermes_outbox WHERE task_id=?", (task_id,)).fetchone()
@@ -215,7 +253,9 @@ class HermesOutbox:
             if row["status"] != "leased" or row["lease_token"] != lease_token:
                 raise ValueError("worker lease is stale")
             status = "dead_letter" if row["attempts"] >= row["max_attempts"] else "retry"
-            due = (now_dt + timedelta(seconds=backoff_seconds)).isoformat()
+            delay = (self.retry_delay_seconds(task_id=task_id, attempt=row["attempts"])
+                     if backoff_seconds is None else backoff_seconds)
+            due = (now_dt + timedelta(seconds=delay)).isoformat()
             db.execute("""UPDATE hermes_outbox SET status=?, next_attempt_at=?, updated_at=?,
                 last_error=?, lease_owner=NULL, lease_token=NULL, lease_expires_at=NULL
                 WHERE task_id=?""", (status, due, now_dt.isoformat(), str(error)[:2000], task_id))
