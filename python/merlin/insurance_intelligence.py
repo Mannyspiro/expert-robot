@@ -99,7 +99,7 @@ CONDUCT_PATTERNS = (
     "unfair_claim_vendor_or_network_pressure",
     "unfair_underwriting_or_rating",
     "unreasonable_rescission_or_reformation",
-    "failure_to_pay undisputed_amounts",
+    "failure_to_pay_undisputed_amounts",
 )
 
 # International comparison is descriptive; local custom is not a substitute
