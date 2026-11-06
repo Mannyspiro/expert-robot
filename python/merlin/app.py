@@ -30,6 +30,7 @@ from .intent_compiler import Asset, IntentSpec, ContinuityState, compile_directi
 from .math_transfer import preview_transfers
 from .interaction_learning import InteractionLearningStore, analyze_interactions
 from .memory_vault import MerlinMemoryVault
+from .capability_registry import capability_snapshot, validate_graph
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
     validate_analogy,
@@ -267,7 +268,8 @@ def _netlist(data: dict[str, Any]) -> Netlist:
 def make_handler(store: EventStore, hud_runtime: Any | None = None,
                  learner_store: LearnerStore | None = None,
                  learning_outbox: MerlinEventOutbox | None = None,
-                 canonical_registry: Any | None = None):
+                 canonical_registry: Any | None = None,
+                 canonical_graph: Any | None = None):
     simulation = MerlinSimulation()
     learner_store = learner_store or LearnerStore(store.path)
     interaction_store = InteractionLearningStore(store.path)
@@ -399,6 +401,31 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             self._request_started = perf_counter()
             parsed = urlparse(self.path)
             path = parsed.path
+            if path == "/api/graphs/validate":
+                if canonical_graph is None:
+                    self._send(503, {"error": "canonical_graph_not_configured",
+                                     "source": "canonical_knowledge_graph"})
+                    return
+                try:
+                    snapshot = canonical_graph.export_snapshot()
+                    graph = {
+                        "nodes": [{"id": node["node_id"]} for node in snapshot["nodes"]],
+                        "edges": [{"source": edge["source_id"],
+                                   "target": edge["target_id"],
+                                   "relation": edge["relation"]}
+                                  for edge in snapshot["edges"]],
+                    }
+                    result = validate_graph(graph)
+                    self._send(200, {
+                        **result,
+                        "source": "canonical_knowledge_graph",
+                        "snapshot_sha256": snapshot["snapshot_sha256"],
+                        "promotion_authorized": False,
+                    })
+                except Exception:
+                    self._send(503, {"error": "canonical_graph_validation_unavailable",
+                                     "source": "canonical_knowledge_graph"})
+                return
             if path in {"/api/hud/activity", "/api/hud/graph", "/api/hud/node"}:
                 if hud_runtime is None:
                     self._send(503, {"error": "hud_runtime_not_configured",
@@ -467,7 +494,9 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             elif path == "/health":
                 self._send(200, {"ok": True, "service": "merlin", "version": "0.4"})
             elif path == "/api/capabilities":
-                self._send(200, {"schema": "merlin-capabilities/1", "capabilities": CAPABILITIES})
+                self._send(200, capability_snapshot(
+                    CAPABILITIES, _runtime_provider_status(),
+                    outbox_configured=learning_outbox is not None))
             elif path == "/api/runtime/providers":
                 self._send(200, _runtime_provider_status())
             elif path == "/api/memory":
@@ -527,6 +556,15 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 if not isinstance(data, dict):
                     raise ValueError("request body must be a JSON object")
 
+                if path == "/api/graphs/validate":
+                    graph = data.get("graph", data)
+                    result = validate_graph(graph)
+                    store.append(path, {"graph_sha256": result["graph_sha256"]},
+                                 {"valid": result["valid"], "node_count": result["node_count"],
+                                  "edge_count": result["edge_count"], "errors": result["errors"]})
+                    self._send(200, {**result, "source": "request_preview",
+                                     "promotion_authorized": False})
+                    return
                 if path == "/api/learning/improvements/evaluate":
                     analysis = current_interaction_analysis()
                     receipt = interaction_store.save_analysis(analysis)
@@ -1081,10 +1119,16 @@ def serve(port: int = 8765, db_path: str | None = None) -> None:
         from .project_registry import MerlinRegistry
         canonical_registry = MerlinRegistry(registry_root)
     hud_runtime = _build_optional_hud_runtime(canonical_registry)
+    canonical_graph = None
+    graph_path = os.environ.get("MERLIN_GRAPH_DB_PATH", "").strip()
+    if graph_path and Path(graph_path).is_file():
+        from .knowledge_graph import MerlinKnowledgeGraph
+        canonical_graph = MerlinKnowledgeGraph(graph_path)
     if hud_runtime is not None:
         hud_runtime.start()
     server = ThreadingHTTPServer(("127.0.0.1", port),
-        make_handler(store, hud_runtime, learner_store, learning_outbox, canonical_registry))
+        make_handler(store, hud_runtime, learner_store, learning_outbox,
+                     canonical_registry, canonical_graph))
     print(f"Merlin MVP API listening on http://127.0.0.1:{port}")
     print("Merlin HUD: canonical graph/event stores connected" if hud_runtime
           else "Merlin HUD: labelled demonstration fallback (canonical store paths not configured)")
