@@ -96,9 +96,11 @@ jobs:
           rc_opportunity=${PIPESTATUS[0]}
           PYTHONPATH=python python3 -m unittest discover -s tests -p "test_procurement_readiness.py" -v 2>&1 | tee -a artifacts/merlin-opportunity-intelligence-tests.log
           rc_readiness=${PIPESTATUS[0]}
+          PYTHONPATH=python python3 -m unittest discover -s tests -p "test_source_status.py" -v 2>&1 | tee -a artifacts/merlin-opportunity-intelligence-tests.log
+          rc_source_status=${PIPESTATUS[0]}
           set -e
-          if [ "$rc_opportunity" -ne 0 ] || [ "$rc_readiness" -ne 0 ]; then rc=1; else rc=0; fi
-          printf '{"suite":"merlin-opportunity-intelligence-and-procurement-readiness","opportunity_exit_code":%s,"readiness_exit_code":%s,"exit_code":%s,"commit":"%s"}\n' "$rc_opportunity" "$rc_readiness" "$rc" "$GITHUB_SHA" > artifacts/merlin-opportunity-intelligence-result.json
+          if [ "$rc_opportunity" -ne 0 ] || [ "$rc_readiness" -ne 0 ] || [ "$rc_source_status" -ne 0 ]; then rc=1; else rc=0; fi
+          printf '{"suite":"merlin-opportunity-intelligence-procurement-readiness-source-status","opportunity_exit_code":%s,"readiness_exit_code":%s,"source_status_exit_code":%s,"exit_code":%s,"commit":"%s"}\n' "$rc_opportunity" "$rc_readiness" "$rc_source_status" "$rc" "$GITHUB_SHA" > artifacts/merlin-opportunity-intelligence-result.json
           exit "$rc"
 
       - name: Upload opportunity intelligence test evidence
