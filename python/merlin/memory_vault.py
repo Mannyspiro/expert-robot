@@ -6,6 +6,7 @@ automatically retained or promoted into memory.
 """
 from __future__ import annotations
 
+from contextlib import contextmanager
 from datetime import datetime, timezone
 import hashlib
 import re
@@ -28,7 +29,7 @@ class MerlinMemoryVault:
     def __init__(self, path: str | Path):
         self.path = str(path)
         Path(self.path).parent.mkdir(parents=True, exist_ok=True)
-        with self._connect() as db:
+        with self._transaction() as db:
             db.executescript("""
             CREATE TABLE IF NOT EXISTS memory_preferences(
               key TEXT PRIMARY KEY,
@@ -53,6 +54,18 @@ class MerlinMemoryVault:
         db.row_factory = sqlite3.Row
         return db
 
+    @contextmanager
+    def _transaction(self):
+        db = self._connect()
+        try:
+            yield db
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
+
     @staticmethod
     def _preference(key: Any, value: Any) -> tuple[str, str, str]:
         if not isinstance(key, str) or not _KEY.fullmatch(key.strip()):
@@ -69,7 +82,7 @@ class MerlinMemoryVault:
     def set_preference(self, key: str, value: str) -> dict[str, Any]:
         key, value, digest = self._preference(key, value)
         now = _now()
-        with self._connect() as db:
+        with self._transaction() as db:
             db.execute("""
               INSERT INTO memory_preferences(key,value,value_sha256,version,created_at,updated_at)
               VALUES(?,?,?,1,?,?)
@@ -91,7 +104,7 @@ class MerlinMemoryVault:
         name, status = name.strip(), status.strip()
         digest = hashlib.sha256(status.encode("utf-8")).hexdigest()
         now = _now()
-        with self._connect() as db:
+        with self._transaction() as db:
             db.execute("""
               INSERT INTO memory_projects(name,status,status_sha256,version,created_at,updated_at)
               VALUES(?,?,?,1,?,?)
@@ -106,7 +119,7 @@ class MerlinMemoryVault:
         return dict(row)
 
     def snapshot(self) -> dict[str, Any]:
-        with self._connect() as db:
+        with self._transaction() as db:
             preferences = db.execute(
                 "SELECT key,value,value_sha256,version,created_at,updated_at "
                 "FROM memory_preferences ORDER BY key"
@@ -130,13 +143,13 @@ class MerlinMemoryVault:
     def delete_preference(self, key: str) -> bool:
         if not isinstance(key, str) or not key.strip():
             raise ValueError("preference key is required")
-        with self._connect() as db:
+        with self._transaction() as db:
             cursor = db.execute("DELETE FROM memory_preferences WHERE key=?", (key.strip(),))
         return cursor.rowcount > 0
 
     def delete_project(self, name: str) -> bool:
         if not isinstance(name, str) or not name.strip():
             raise ValueError("project name is required")
-        with self._connect() as db:
+        with self._transaction() as db:
             cursor = db.execute("DELETE FROM memory_projects WHERE name=?", (name.strip(),))
         return cursor.rowcount > 0
