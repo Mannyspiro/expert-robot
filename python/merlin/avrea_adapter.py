@@ -8,9 +8,9 @@ from __future__ import annotations
 import hashlib
 from typing import Any, Callable, Mapping
 
-from merlin.event_outbox import MerlinEventOutbox
-from merlin.project_registry import MerlinRegistry
-from merlin.telemetry import agent_event_sink
+from .event_outbox import MerlinEventOutbox
+from .project_registry import MerlinRegistry
+from .telemetry import agent_event_sink
 
 
 class AvreaAdapter:
