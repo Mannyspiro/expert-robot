@@ -5,6 +5,8 @@ artifact bytes. Hashes establish identity/integrity, not truth or approval.
 """
 from __future__ import annotations
 
+from contextlib import closing
+
 import hashlib
 import json
 import os
@@ -29,7 +31,7 @@ class MerlinRegistry:
         return db
 
     def _initialize(self):
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.executescript("""
             CREATE TABLE IF NOT EXISTS projects(
               project_id TEXT PRIMARY KEY, name TEXT NOT NULL,
@@ -74,7 +76,7 @@ class MerlinRegistry:
         if not project_id.strip() or not name.strip():
             raise ValueError("project ID and name are required")
         payload = json.dumps(metadata or {}, sort_keys=True, separators=(",", ":"))
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.execute(
                 "INSERT INTO projects VALUES(?,?,?,?,?) "
                 "ON CONFLICT(project_id) DO UPDATE SET name=excluded.name, "
@@ -96,7 +98,7 @@ class MerlinRegistry:
             temp = target.with_suffix(".tmp")
             temp.write_bytes(content)
             os.replace(temp, target)
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             if not db.execute("SELECT 1 FROM projects WHERE project_id=?", (project_id,)).fetchone():
                 raise KeyError(f"unknown project: {project_id}")
             db.execute("INSERT OR IGNORE INTO artifacts VALUES(?,?,?,?,?)",
@@ -107,7 +109,7 @@ class MerlinRegistry:
         return digest
 
     def verify_artifact(self, digest: str) -> bool:
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             row = db.execute("SELECT relative_path FROM artifacts WHERE digest=?", (digest,)).fetchone()
         if row is None:
             return False
@@ -118,7 +120,7 @@ class MerlinRegistry:
                   assumptions: tuple[str, ...] = (), status: str = "unreviewed") -> None:
         if not claim_id.strip() or not statement.strip() or not evidence_class.strip():
             raise ValueError("claim identity, statement and evidence class are required")
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.execute("INSERT INTO claims VALUES(?,?,?,?,?,?)",
                        (claim_id, statement, evidence_class,
                         json.dumps(list(assumptions), sort_keys=True), status, time.time()))
@@ -128,7 +130,7 @@ class MerlinRegistry:
         if not source_id.strip() or not relation.strip() or not target_id.strip():
             raise ValueError("relation endpoints and type are required")
         encoded = json.dumps(metadata or {}, sort_keys=True, separators=(",", ":"))
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             existing = db.execute(
                 "SELECT metadata_json FROM relations WHERE source_id=? AND relation=? AND target_id=?",
                 (source_id, relation, target_id),
@@ -192,7 +194,7 @@ class MerlinRegistry:
         artifact_digest = normalized["artifact_digest"]
         if not self.verify_artifact(artifact_digest):
             raise ValueError("qualification evidence artifact is missing or fails digest verification")
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             existing = db.execute(
                 "SELECT receipt_sha256 FROM capability_qualification_receipts WHERE receipt_id=?",
                 (normalized["receipt_id"],),
@@ -225,7 +227,7 @@ class MerlinRegistry:
     def capability_qualification_receipts(self, capability_id: str) -> list[dict[str, Any]]:
         if not isinstance(capability_id, str) or not capability_id.strip():
             raise ValueError("capability_id is required")
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             rows = db.execute(
                 "SELECT receipt_id,receipt_json,receipt_sha256,created_at "
                 "FROM capability_qualification_receipts WHERE capability_id=? "
@@ -242,7 +244,7 @@ class MerlinRegistry:
         } for row in rows]
 
     def inventory(self, project_id: str) -> dict[str, Any]:
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             project = db.execute("SELECT * FROM projects WHERE project_id=?", (project_id,)).fetchone()
             if project is None:
                 raise KeyError(project_id)
