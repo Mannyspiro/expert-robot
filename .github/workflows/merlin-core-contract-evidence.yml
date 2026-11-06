@@ -5,7 +5,9 @@ on:
     paths:
       - "python/merlin/app.py"
       - "python/merlin/capability_registry.py"
+      - "python/merlin/identity.py"
       - "tests/test_merlin_capability_registry.py"
+      - "tests/test_merlin_identity.py"
       - "tests/research/test_merlin_api.py"
       - ".github/workflows/merlin-core-contract-evidence.yml"
   workflow_dispatch:
@@ -42,7 +44,7 @@ jobs:
         run: |
           set +e
           mkdir -p artifacts
-          python -m compileall -q python/merlin/app.py python/merlin/capability_registry.py 2>&1 | tee artifacts/compile.log
+          python -m compileall -q python/merlin/app.py python/merlin/capability_registry.py python/merlin/identity.py 2>&1 | tee artifacts/compile.log
           rc=${PIPESTATUS[0]}
           printf '{"suite":"merlin-core-compile","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/compile-result.json
           exit "$rc"
@@ -54,7 +56,7 @@ jobs:
         run: |
           set +e
           mkdir -p artifacts
-          python -m pytest -q -v tests/test_merlin_capability_registry.py tests/research/test_merlin_api.py 2>&1 | tee artifacts/core-tests.log
+          python -m pytest -q -v tests/test_merlin_capability_registry.py tests/test_merlin_identity.py tests/research/test_merlin_api.py 2>&1 | tee artifacts/core-tests.log
           rc=${PIPESTATUS[0]}
           printf '{"suite":"merlin-core-contract-tests","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/core-tests-result.json
           exit "$rc"
