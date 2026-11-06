@@ -431,6 +431,8 @@ class MerlinApiTests(unittest.TestCase):
             captured["url"] = request.full_url
             captured["payload"] = json.loads(request.data.decode("utf-8"))
             return FakeResponse()
+        self.post("/api/memory", {"category":"preference","key":"merlin_test_context","value":"Use evidence-linked ranked steps","consent":True})
+        self.post("/api/memory/context", {"enabled":True,"consent":True})
         request = Request(self.base + "/api/chat",
             data=json.dumps({"provider":"local","messages":[{"role":"user","content":"hello"}],"stream":False}).encode(),
             headers={"Content-Type":"application/json"})
@@ -446,6 +448,17 @@ class MerlinApiTests(unittest.TestCase):
         self.assertEqual(captured["url"],"http://127.0.0.1:8080/v1/chat/completions")
         self.assertEqual(captured["payload"]["model"],"qwen2.5:3b")
         self.assertNotIn("provider",captured["payload"])
+        self.assertTrue(any(
+            message.get("role") == "system" and "merlin_test_context" in message.get("content", "")
+            for message in captured["payload"]["messages"]
+        ))
+        self.post("/api/memory/context", {"enabled":False,"consent":True})
+        delete_request = Request(
+            self.base + "/api/memory?category=preference&key=merlin_test_context",
+            method="DELETE",
+        )
+        with urlopen(delete_request, timeout=5) as response:
+            self.assertTrue(json.loads(response.read())["deleted"])
 
     def test_speech_output_fails_closed_before_contacting_unqualified_sidecar(self):
         import os
@@ -484,6 +497,42 @@ class MerlinApiTests(unittest.TestCase):
             self.assertEqual(payload["providers"][key]["health"], "not_probed")
         self.assertNotIn("private-test-key", json.dumps(payload))
         self.assertNotIn("api.example.test", json.dumps(payload))
+
+
+    def test_memory_vault_api_requires_consent_and_supports_delete(self):
+        with self.assertRaises(HTTPError) as caught:
+            self.post("/api/memory", {
+                "category":"preference", "key":"voice_style",
+                "value":"calm", "consent":False,
+            })
+        self.assertEqual(caught.exception.code, 403)
+
+        saved = self.post("/api/memory", {
+            "category":"preference", "key":"voice_style",
+            "value":"calm British English", "consent":True,
+        })
+        self.assertTrue(saved["saved"])
+        self.assertEqual(saved["entry"]["key"], "voice_style")
+        with urlopen(self.base + "/api/memory", timeout=5) as response:
+            snapshot = json.loads(response.read())
+        self.assertTrue(snapshot["policy"]["user_approved_only"])
+        self.assertFalse(snapshot["policy"]["raw_conversation_retention"])
+        self.assertFalse(snapshot["policy"]["memory_context_enabled"])
+        self.assertEqual(snapshot["preferences"][0]["value"], "calm British English")
+
+        enabled = self.post("/api/memory/context", {"enabled":True,"consent":True})
+        self.assertTrue(enabled["memory_context_enabled"])
+        disabled = self.post("/api/memory/context", {"enabled":False,"consent":True})
+        self.assertFalse(disabled["memory_context_enabled"])
+
+        delete_request = Request(
+            self.base + "/api/memory?category=preference&key=voice_style",
+            method="DELETE",
+        )
+        with urlopen(delete_request, timeout=5) as response:
+            self.assertTrue(json.loads(response.read())["deleted"])
+        with urlopen(self.base + "/api/memory", timeout=5) as response:
+            self.assertEqual(json.loads(response.read())["preferences"], [])
 
 if __name__ == "__main__":
     unittest.main()
