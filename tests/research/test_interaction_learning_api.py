@@ -89,6 +89,34 @@ class InteractionLearningApiTests(unittest.TestCase):
         _, improvements = self.request("GET", "/api/learning/improvements")
         self.assertEqual(improvements["telemetry"]["sample_count"], 0)
 
+    def test_feedback_can_be_deleted_by_opaque_session_id(self):
+        for i in range(2):
+            self.request("POST", "/api/interaction/feedback", {
+                "event_id": f"delete-{i}", "session_id": "opaque-session-delete",
+                "domain": "general", "task_type": "chat", "outcome": "success",
+            })
+        request = Request(
+            self.base + "/api/interaction/feedback?session_id=opaque-session-delete",
+            method="DELETE",
+        )
+        with urlopen(request, timeout=5) as response:
+            result = json.loads(response.read())
+        self.assertEqual(result["deleted_feedback_events"], 2)
+        self.assertEqual(result["scope"], "categorical feedback for this opaque session only")
+        _, improvements = self.request("GET", "/api/learning/improvements")
+        self.assertEqual(improvements["feedback"]["sample_count"], 0)
+
+    def test_unqualified_personalization_cannot_be_enabled(self):
+        request = Request(
+            self.base + "/api/learning/preferences",
+            data=json.dumps({"personalization": True}).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        with self.assertRaises(HTTPError) as caught:
+            urlopen(request, timeout=5)
+        self.assertEqual(caught.exception.code, 400)
+        self.assertIn("not implemented or qualified", json.loads(caught.exception.read())["detail"])
+
     def test_invalid_feedback_is_rejected_without_raw_text_storage(self):
         request = Request(
             self.base + "/api/interaction/feedback",
