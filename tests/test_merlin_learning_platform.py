@@ -54,6 +54,28 @@ class LearningPlatformTests(unittest.TestCase):
         ]
         return self.store.update_manifest(self.teacher, course["course_id"], manifest)
 
+    def test_course_catalog_is_role_scoped_and_tenant_scoped(self):
+        course = self._course()
+        instructor_list = self.store.list_courses(self.teacher)
+        self.assertEqual(instructor_list["count"], 1)
+        self.assertEqual(instructor_list["courses"][0]["status"], "draft")
+        self.assertEqual(self.store.list_courses(self.reviewer)["count"], 1)
+        self.assertEqual(self.store.list_courses(self.learner)["count"], 0)
+
+        self._publish(course)
+        learner_catalog = self.store.list_courses(self.learner)
+        self.assertEqual(learner_catalog["count"], 1)
+        self.assertIsNone(learner_catalog["courses"][0]["enrollment_status"])
+        self.store.enroll(self.learner, course["course_id"])
+        enrolled_catalog = self.store.list_courses(self.learner)
+        self.assertEqual(enrolled_catalog["courses"][0]["enrollment_status"], "active")
+
+        other_teacher = Actor("college-a", "faculty-2", "instructor")
+        self.assertEqual(self.store.list_courses(other_teacher)["count"], 0)
+        other_tenant = Actor("college-b", "admin-b", "tenant_admin")
+        self.assertEqual(self.store.list_courses(other_tenant)["count"], 0)
+        self.assertEqual(self.store.list_courses(self.admin)["count"], 1)
+
     def test_publish_enroll_and_learner_scope(self):
         course = self._course()
         self.assertEqual(course["status"], "draft")
