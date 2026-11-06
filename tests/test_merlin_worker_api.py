@@ -20,7 +20,9 @@ class MerlinWorkerApiTests(unittest.TestCase):
         self.root = Path(self.temp.name)
         self.outbox = MerlinEventOutbox(self.root / "outbox.sqlite3")
         self.tokens = {"hermes": "h" * 48, "mcfc": "m" * 48}
-        self.env = {"MERLIN_WORKER_TOKENS": json.dumps(self.tokens)}
+        self.admin_token = "a" * 48
+        self.env = {"MERLIN_WORKER_TOKENS": json.dumps(self.tokens),
+                    "MERLIN_OUTBOX_ADMIN_TOKEN": self.admin_token}
         self.patch = patch.dict(os.environ, self.env, clear=False)
         self.patch.start()
         handler = make_handler(
@@ -120,6 +122,47 @@ class MerlinWorkerApiTests(unittest.TestCase):
         })
         self.assertEqual(status, 200)
         self.assertEqual(final["event"]["state"], "quarantined")
+
+    def request_admin(self, path, payload):
+        request = Request(
+            self.base + path, data=json.dumps(payload).encode(),
+            headers={"Content-Type": "application/json",
+                     "Authorization": "Bearer " + self.admin_token})
+        try:
+            with urlopen(request, timeout=5) as response:
+                return response.status, json.loads(response.read())
+        except HTTPError as error:
+            return error.code, json.loads(error.read())
+
+    def test_admin_can_cancel_pending_and_leased_events_but_worker_cannot(self):
+        pending = self.outbox.enqueue("admin-cancel-pending", "merlin.hermes.task", {})
+        status, denied = self.request(
+            "/api/internal/outbox/cancel",
+            {"event_id": pending["event_id"], "reason": "operator stop"},
+            worker="hermes",
+        )
+        self.assertEqual(status, 401)
+        self.assertEqual(denied["error"], "outbox_admin_authentication_required")
+        status, cancelled = self.request_admin("/api/internal/outbox/cancel", {
+            "event_id": pending["event_id"], "reason": "operator stop",
+        })
+        self.assertEqual(status, 200)
+        self.assertEqual(cancelled["event"]["state"], "cancelled")
+        self.assertEqual(cancelled["event"]["cancelled_by"], "merlin-admin")
+
+        leased = self.outbox.enqueue("admin-cancel-leased", "merlin.hermes.task", {})
+        _, claim = self.request("/api/internal/outbox/claim", {})
+        lease = claim["lease"]
+        status, cancelled_lease = self.request_admin("/api/internal/outbox/cancel", {
+            "event_id": leased["event_id"], "reason": "deadline exceeded",
+        })
+        self.assertEqual(status, 200)
+        self.assertEqual(cancelled_lease["event"]["state"], "cancelled")
+        status, stale = self.request("/api/internal/outbox/heartbeat", {
+            "event_id": leased["event_id"], "lease_token": lease["lease_token"],
+        })
+        self.assertEqual(status, 409)
+        self.assertEqual(stale["error"], "outbox_lease_conflict")
 
     def test_status_is_authenticated_and_exposes_only_counts(self):
         self.outbox.enqueue("status-event", "merlin.hermes.task", {})
