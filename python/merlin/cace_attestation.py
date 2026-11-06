@@ -97,7 +97,7 @@ def trusted_cace_verifier_keys_from_environment() -> dict[str, str]:
 def verify_cace_signed_attestation(
     envelope: Mapping[str, Any],
     *,
-    trusted_verifier_keys: Mapping[str, str],
+    trusted_verifier_keys: Mapping[str, Mapping[str, str]],
     expected_claim_id: str,
     expected_bundle_sha256: str,
     expected_bindings: Mapping[str, Any],
