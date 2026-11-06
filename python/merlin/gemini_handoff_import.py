@@ -28,6 +28,10 @@ _EXPECTED_COUNT_RE = re.compile(
     r"Detailed Full-Context Breakdown of All\s+(\d+)\s+Conversations",
     re.IGNORECASE,
 )
+_CONVERSATION_DETAIL_END_RE = re.compile(
+    r"^\s*3\.\s+Master Chronological Ledger\b", re.IGNORECASE
+)
+
 _PROMPT_MARKER_RE = re.compile(
     r"^\*\s*(?:User Prompts?:|Turn\s+\d+\b)", re.IGNORECASE
 )
