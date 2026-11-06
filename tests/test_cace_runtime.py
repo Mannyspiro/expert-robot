@@ -81,7 +81,7 @@ class CaceRuntimeCompositionTests(unittest.TestCase):
 
     def test_trusted_key_id_must_match_the_pinned_public_key(self):
         env = {
-            "CACE_VERIFY_TRUSTED_KEYS_JSON": json.dumps({"ed25519:" + "0" * 64: self.public_pem}),
+            "CACE_VERIFY_TRUSTED_KEYS_JSON": json.dumps({"ed25519:" + "0" * 64: {"verifier_id": "cace:production-verifier", "public_key_pem": self.public_pem}}),
         }
         with patch.dict(os.environ, env, clear=True):
             with self.assertRaisesRegex(ValueError, "does not match"):
