@@ -43,12 +43,20 @@ main{overflow:auto;padding:12px clamp(12px,2vw,26px) 16px;display:grid;grid-temp
 <section class="workspace" aria-label="Adaptive research canvas"><div class="workspace-head"><div><div class="workspace-title" id="canvasTitle">Adaptive research canvas</div><div class="workspace-hint" id="canvasHint">Research graph, evidence-linked engineering previews and recorded activity.</div></div><div class="workspace-tools"><div class="view-tabs"><button type="button" class="view-tab active" data-view="graph">Research graph</button><button type="button" class="view-tab" data-view="council">Skeptic council</button><button type="button" class="view-tab" data-view="capabilities">Capabilities</button></div><div class="workspace-hint" id="canvasType">GRAPH / EVIDENCE-LINKED</div></div></div>
 <div class="canvas"><svg viewBox="0 0 720 300" role="img" aria-label="Illustrative coordinate transformation visualization"><ellipse class="orbit" cx="360" cy="150" rx="220" ry="82"/><ellipse class="orbit" cx="360" cy="150" rx="220" ry="82" transform="rotate(58 360 150)"/><ellipse class="orbit" cx="360" cy="150" rx="220" ry="82" transform="rotate(-58 360 150)"/><path class="vector" d="M140 150 Q250 35 360 150 T580 150"/><circle class="sphere" cx="360" cy="150" r="30"/><path class="basis" d="M360 150 L490 150 M360 150 L300 72 M360 150 L360 45"/><path class="basis" d="M490 150 l-8 -4 v8z M300 72 l1 9 7 -5z M360 45 l-4 8 h8z"/><circle class="point" cx="490" cy="150" r="4"/><circle class="point" cx="300" cy="72" r="4"/><circle class="point" cx="360" cy="45" r="4"/><text x="505" y="145">x′</text><text x="285" y="64">y′</text><text x="370" y="43">z′</text><text x="360" y="205" text-anchor="middle">Coordinate transform / representation space</text></svg></div></section>
 </main>
-<footer class="chat"><form class="chatbar" id="chatForm"><button type="button" id="mic" aria-label="Voice input" title="Voice input">◉</button><input id="prompt" autocomplete="off" placeholder="Ask Merlin to investigate, model, prove, or design…" aria-label="Message Merlin"><button type="button" id="attach" title="Attach context" aria-label="Attach context">＋</button><button class="send" type="submit">Send ↗</button></form><div class="note" id="chatNote">Council packet preparation is connected; actual model inference, code execution and worker dispatch remain qualification-gated.</div></footer>
+<footer class="chat"><form class="chatbar" id="chatForm"><button type="button" id="mic" aria-label="Voice input" title="Voice input">◉</button><input id="prompt" autocomplete="off" placeholder="Ask Merlin to investigate, model, prove, or design…" aria-label="Message Merlin"><button type="button" id="attach" title="Attach context" aria-label="Attach context">＋</button><button class="send" type="submit">Send ↗</button></form><div class="note" id="chatNote">Council packet preparation is connected; actual model inference, code execution and worker dispatch remain qualification-gated.</div><div class="note" id="interactionFeedback">Help Merlin improve: <button type="button" class="view-tab" data-feedback="success">Worked</button> <button type="button" class="view-tab" data-feedback="partial">Partly</button> <button type="button" class="view-tab" data-feedback="failure">Did not work</button> <span id="feedbackStatus">Categorical feedback only; no prompt text is collected here.</span></div></footer>
 <script>
 const PHASES=["intake","hypothesis","representation","experiment","counterexample","formalization","verification","artifact"];
 const labels={"intake":"Request intake","hypothesis":"Hypothesis","representation":"Representation","experiment":"Experiment","counterexample":"Counterexample search","formalization":"Formalization","verification":"Verification","artifact":"Artifact"};
 let lastSnapshot=null;let demoTimer=null;let demoIndex=0;let graphSnapshot=null;let selectedGraphNode=null;let activeView="graph";let councilPackets=[];let graphRotation=[0.35,-0.45];let graphZoom=1;let graphDrag=null;
 const $=id=>document.getElementById(id);
+const interactionSessionId=(window.crypto&&crypto.randomUUID)?crypto.randomUUID():("session-"+Date.now()+"-"+Math.floor(Math.random()*1e9));
+let lastInteractionTask="general_task";
+async function recordUiInteraction(action,detail={}){
+ try{await fetch("/api/telemetry/ingest",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+  source:"operator",kind:"operator.action",run_id:interactionSessionId,task_id:"merlin-hud",
+  payload:{action,...detail}
+ })});}catch(_error){}
+}
 function drawPhases(phase){const ix=Math.max(0,PHASES.indexOf(phase));$("phases").innerHTML=PHASES.map((p,i)=>'<span class="phase '+(i<ix?"done":i===ix?"active":"")+'">'+p+'</span>').join("");}
 function drawFlow(phase,data={}){
  const ix=Math.max(0,PHASES.indexOf(phase));
@@ -178,6 +186,7 @@ async function pollLoop(){await poll();if($("connection").textContent.includes("
 
 function setWorkspaceView(view){
  activeView=view;
+ recordUiInteraction("view_change",{view});
  document.querySelectorAll("[data-view]").forEach(button=>button.classList.toggle("active",button.getAttribute("data-view")===view));
  const title=$("canvasTitle"),hint=$("canvasHint"),type=$("canvasType");
  if(view==="graph"){
@@ -239,6 +248,7 @@ async function renderCapabilitiesView(){
 
 $("chatForm").addEventListener("submit",async e=>{
  e.preventDefault();const value=$("prompt").value.trim();if(!value)return;
+ lastInteractionTask="council_prepare";recordUiInteraction("task_submitted",{task_type:lastInteractionTask,view:activeView});
  $("chatNote").textContent="Preparing six skeptic-council prompt packets. No model inference will run.";
  try{
   const response=await fetch("/api/council/prepare",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:value,context:"",verbosity:"lively"})});
@@ -248,8 +258,14 @@ $("chatForm").addEventListener("submit",async e=>{
  }catch(error){$("chatNote").textContent="Council preparation failed: "+error.message;}
  $("prompt").value="";
 });
-$("mic").addEventListener("click",()=>{const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){$("chatNote").textContent="Speech recognition is not supported in this browser.";return;}const rec=new SR();rec.lang=navigator.language||"en-US";rec.interimResults=false;rec.onresult=e=>{$("prompt").value=e.results[0][0].transcript;};rec.onerror=e=>$("chatNote").textContent="Voice input: "+e.error;rec.start();$("chatNote").textContent="Listening…";});
-$("attach").addEventListener("click",()=>$("chatNote").textContent="Context attachment requires the authenticated Merlin artifact API.");
+$("mic").addEventListener("click",()=>{recordUiInteraction("voice_input_started",{task_type:"voice_input"});const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){$("chatNote").textContent="Speech recognition is not supported in this browser.";return;}const rec=new SR();rec.lang=navigator.language||"en-US";rec.interimResults=false;rec.onresult=e=>{$("prompt").value=e.results[0][0].transcript;};rec.onerror=e=>$("chatNote").textContent="Voice input: "+e.error;rec.start();$("chatNote").textContent="Listening…";});
+$("attach").addEventListener("click",()=>{recordUiInteraction("attachment_requested",{task_type:"context_attachment"});$("chatNote").textContent="Context attachment requires the authenticated Merlin artifact API.";});
+document.querySelectorAll("[data-feedback]").forEach(button=>button.addEventListener("click",async()=>{
+ const outcome=button.getAttribute("data-feedback");const friction=outcome==="partial"?"incomplete_answer":outcome==="failure"?"incorrect_answer":null;
+ try{const response=await fetch("/api/interaction/feedback",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({session_id:interactionSessionId,domain:"general",task_type:lastInteractionTask,outcome,friction_code:friction,satisfaction:outcome==="success"?5:outcome==="partial"?3:1})});
+  if(!response.ok)throw Error("HTTP "+response.status);$("feedbackStatus").textContent="Feedback recorded as a categorical signal.";recordUiInteraction("feedback_submitted",{task_type:lastInteractionTask,outcome});
+ }catch(error){$("feedbackStatus").textContent="Feedback unavailable: "+error.message;}
+}));
 document.querySelectorAll("[data-view]").forEach(button=>button.addEventListener("click",()=>setWorkspaceView(button.getAttribute("data-view"))));
 startDemo();pollLoop();loadGraph();
 </script></body></html>
