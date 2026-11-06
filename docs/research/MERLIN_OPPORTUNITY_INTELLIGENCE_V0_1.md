@@ -34,6 +34,56 @@ are opt-in eligibility filters only. They must not be inferred, copied into
 public application drafts, or exposed in telemetry. The user should be able to
 disable identity-based matching independently of the other profile facts.
 
+## Confirmed applicant facts and luxury dealer track
+
+The user confirmed that she owns and controls at least 51% of the independent
+agency and holds an Arizona property-and-casualty producer license. Treat these
+as user-supplied facts, not independently verified certification evidence.
+Before any WOSB representation, separately verify U.S. citizenship, direct
+ownership, control, size standard, and the SBA certification status. Before
+insurance procurement bids, verify the agency/entity license, appointments,
+lines of authority, and the exact scope required by each solicitation; an
+individual producer license does not by itself establish every entity-level
+authorization.
+
+Add a distinct luxury brand partnership track. Normalize the commercial
+relationship type precisely:
+- manufacturer-authorized dealer / stockist;
+- authorized wholesale retailer;
+- regional distributor / importer;
+- brand licensee or franchisee;
+- authorized reseller through a documented distribution chain;
+- authenticated pre-owned luxury reseller (not manufacturer-authorized unless
+  separately documented).
+
+Search luxury watches, jewelry, designer fashion, handbags, eyewear, beauty,
+fragrance, premium home/lifestyle, luxury automotive, art, and collectibles.
+For each candidate, verify the brand owner or authorized distributor, US and
+Arizona territory rights, online and marketplace channel restrictions, opening
+order and annual minimums, store/display requirements, credit and working
+capital, insurance, trade references, MAP/pricing rules, returns, warranties,
+repairs, authenticity, exclusivity, termination, and inventory sell-off terms.
+Never conflate a wholesaler that sells branded merchandise with an appointment
+directly from the brand. Do not recommend grey-market or counterfeit sourcing.
+
+First-pass public application leads found during research include:
+- AMARRA retailer application for formalwear / bridal / quinceañera boutiques:
+  https://www.amarra.com/pages/retailer-application
+- Dean Davidson jewelry wholesale application:
+  https://www.deandavidson.ca/pages/wholesale-application
+- Terani Couture retailer application:
+  https://teranicouture.com/pages/become-a-retailer
+- Ashford wholesale account for qualified watch, eyewear, jewelry and accessory
+  retailers; this is a wholesale account, not proof of direct brand authorization:
+  https://www.ashford.com/pages/become-a-wholesale-customer
+- The Rare Look authenticated pre-owned designer wholesale program; it states
+  it is independent and not affiliated with the brands represented:
+  https://therarelook.com/pages/wholesale
+
+These are discovery leads, not endorsements or proof that any specific brand
+will grant a new Arizona territory. Confirm minimums, territory availability,
+authorization chain, and current terms directly before purchasing inventory.
+
 ## Opportunity classes
 
 - Government contract: paid procurement with solicitation, scope, NAICS,
