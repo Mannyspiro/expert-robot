@@ -1,0 +1,86 @@
+name: Merlin hybrid voice HUD hosted evidence
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "python/merlin/app.py"
+      - "ui/merlin-hud/index.html"
+      - "tests/research/test_merlin_api.py"
+      - ".github/workflows/merlin-jarvis-hosted-evidence.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: merlin-jarvis-hosted-${{ github.event.pull_request.head.ref || github.ref_name }}-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  focused-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+      PYTHONPATH: python
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Record identity
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/merlin-jarvis-hosted
+          {
+            echo "repository=$GITHUB_REPOSITORY"
+            echo "tested_sha=$(git rev-parse HEAD)"
+            echo "expected_head=$EXPECTED_HEAD"
+            echo "run_id=$GITHUB_RUN_ID"
+            echo "runner=$RUNNER_NAME"
+            python3 --version
+            node --version
+          } | tee artifacts/merlin-jarvis-hosted/identity.log
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+
+      - name: Install pinned test dependencies
+        run: |
+          python3 -m pip install --disable-pip-version-check pytest==8.4.2 numpy==2.2.6 sympy==1.14.0 jsonschema==4.25.1 2>&1 | tee artifacts/merlin-jarvis-hosted/dependencies.log
+
+      - name: Python compile and focused API tests
+        shell: bash
+        run: |
+          set +e
+          python3 -m compileall -q python tests 2>&1 | tee artifacts/merlin-jarvis-hosted/compileall.log
+          compile_rc=${PIPESTATUS[0]}
+          python3 -m unittest discover -s tests/research -p "test_merlin_api.py" -v 2>&1 | tee artifacts/merlin-jarvis-hosted/api-tests.log
+          tests_rc=${PIPESTATUS[0]}
+          printf 'compileall=%s\napi_tests=%s\n' "$compile_rc" "$tests_rc" | tee artifacts/merlin-jarvis-hosted/result.txt
+          if [ "$compile_rc" -ne 0 ] || [ "$tests_rc" -ne 0 ]; then exit 1; fi
+
+      - name: HUD JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html = Path("ui/merlin-hud/index.html").read_text(encoding="utf-8")
+          scripts = re.findall(r"<script>(.*?)</script>", html, flags=re.S)
+          if not scripts:
+              raise SystemExit("No inline script found")
+          Path("artifacts/merlin-jarvis-hosted/hud.js").write_text(scripts[-1], encoding="utf-8")
+          PY
+          node --check artifacts/merlin-jarvis-hosted/hud.js 2>&1 | tee artifacts/merlin-jarvis-hosted/hud-syntax.log
+
+      - name: Upload logs and results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-jarvis-hosted-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/merlin-jarvis-hosted/
+          if-no-files-found: warn
+          retention-days: 30
