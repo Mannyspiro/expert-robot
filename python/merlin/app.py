@@ -1400,28 +1400,30 @@ def serve(port: int = 8765, db_path: str | None = None,
         outbox=learning_outbox,
         hypotheses=hermes_runtime.ledger if hermes_runtime is not None else None,
     )
-    if hud_runtime is not None:
-        hud_runtime.start()
     server = ThreadingHTTPServer(("127.0.0.1", port),
         make_handler(store, hud_runtime, learner_store, learning_outbox,
                      canonical_registry, learning_identity_resolver=learning_identity_resolver,
                      canonical_graph=canonical_graph,
                      hermes_worker_service=hermes_worker_service))
+    hud_runtime_started = False
     hermes_service_started = False
-    if hermes_runtime is not None:
-        hermes_service_started = bool(hermes_runtime.start())
-    elif hermes_worker_service is not None:
-        hermes_service_started = bool(hermes_worker_service.start())
-    print(f"Merlin MVP API listening on http://127.0.0.1:{port}")
-    print("Merlin HUD: canonical graph/event stores connected" if hud_runtime
-          else "Merlin HUD: labelled demonstration fallback (canonical store paths not configured)")
     try:
+        if hud_runtime is not None:
+            hud_runtime.start()
+            hud_runtime_started = True
+        if hermes_runtime is not None:
+            hermes_service_started = bool(hermes_runtime.start())
+        elif hermes_worker_service is not None:
+            hermes_service_started = bool(hermes_worker_service.start())
+        print(f"Merlin MVP API listening on http://127.0.0.1:{port}")
+        print("Merlin HUD: canonical graph/event stores connected" if hud_runtime
+              else "Merlin HUD: labelled demonstration fallback (canonical store paths not configured)")
         server.serve_forever()
     except KeyboardInterrupt:
         pass
     finally:
         server.server_close()
-        if hud_runtime is not None:
+        if hud_runtime_started:
             hud_runtime.stop()
         if hermes_service_started:
             if hermes_runtime is not None:
