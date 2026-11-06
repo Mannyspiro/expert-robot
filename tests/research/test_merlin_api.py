@@ -9,6 +9,7 @@ from pathlib import Path
 
 from python.merlin.app import EventStore, make_handler
 from python.merlin.knowledge_graph import MerlinKnowledgeGraph, GraphNode, GraphEdge
+from python.merlin.hermes_service import HermesWorkerService
 
 
 class MerlinApiTests(unittest.TestCase):
@@ -42,6 +43,39 @@ class MerlinApiTests(unittest.TestCase):
         self.assertEqual(set(payload["states"]), {"configured", "unavailable", "unqualified"})
         self.assertIn("engineering.geometry.validate", {row["id"] for row in payload["capabilities"]})
         self.assertTrue(all(row["state"] in payload["states"] for row in payload["capabilities"]))
+
+    def test_hermes_worker_service_is_visible_when_injected(self):
+        class IdleWorker:
+            def __init__(self):
+                self.called = threading.Event()
+
+            def run_once(self):
+                self.called.set()
+                return None
+
+        worker = IdleWorker()
+        service = HermesWorkerService(worker, idle_seconds=0.01)
+        service.start()
+        self.assertTrue(worker.called.wait(timeout=1))
+        store = EventStore(Path(self.temp.name) / "hermes-health-events.sqlite3")
+        server = ThreadingHTTPServer(
+            ("127.0.0.1", 0),
+            make_handler(store, hermes_worker_service=service),
+        )
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        base = f"http://127.0.0.1:{server.server_port}"
+        try:
+            with urlopen(base + "/api/runtime/hermes", timeout=5) as response:
+                health = json.loads(response.read())
+            self.assertTrue(health["ready"])
+            self.assertEqual(health["authority"], "bounded_execution_only")
+            self.assertFalse(health["promotion_authority"])
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
+            self.assertTrue(service.stop(timeout_seconds=1))
 
     def test_request_graph_validation_is_preview_only(self):
         payload = self.post("/api/graphs/validate", {
