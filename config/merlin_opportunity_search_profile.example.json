@@ -1,0 +1,73 @@
+{
+  "profile_version": "0.1",
+  "default_location": {
+    "city": "Tucson",
+    "county": "Pima",
+    "state": "Arizona",
+    "country": "United States"
+  },
+  "tracks": [
+    {
+      "id": "independent_insurance_agency",
+      "applicant_type": "for_profit_business",
+      "jurisdictions": ["Arizona"],
+      "keywords": [
+        "insurance broker", "insurance brokerage", "insurance agent",
+        "property and casualty", "commercial insurance", "employee benefits",
+        "risk management", "insurance administration", "surety",
+        "government contractor insurance", "broker of record"
+      ],
+      "naics_candidates": ["524210", "524292", "524298"],
+      "procurement_sources": ["SAM.gov", "Arizona Procurement Portal", "City of Tucson", "Pima County"],
+      "grant_policy": "Do not assume ordinary insurance agencies qualify for grants; verify business eligibility and permitted uses."
+    },
+    {
+      "id": "community",
+      "applicant_types": ["nonprofit", "club", "school", "fiscal_sponsor", "public_entity"],
+      "jurisdictions": ["Tucson", "Pima County", "Arizona", "United States"],
+      "keywords": [
+        "community resilience", "digital inclusion", "technology access",
+        "adult digital skills", "STEM education", "amateur radio",
+        "public art", "arts education", "neighborhood improvement",
+        "emergency preparedness", "open source", "wireless communications"
+      ],
+      "partners_to_consider": ["eligible nonprofit", "amateur radio club", "school", "library", "community arts organization"],
+      "grant_policy": "Record whether a fiscal sponsor or nonprofit applicant is mandatory."
+    },
+    {
+      "id": "individual_education_and_creative",
+      "applicant_type": "individual",
+      "jurisdictions": ["Arizona", "United States"],
+      "keywords": [
+        "adult learner scholarship", "women in technology scholarship",
+        "Latina scholarship", "LGBTQ scholarship", "trans scholarship",
+        "STEM scholarship", "computer science scholarship",
+        "artist opportunity grant", "creative technology grant",
+        "entrepreneurship fellowship", "career development fellowship",
+        "amateur radio scholarship", "electronics communications scholarship"
+      ],
+      "user_supplied_qualifications": [
+        "Bloomberg Terminal certification",
+        "Google coursework completed",
+        "Harvard CS50 completed",
+        "amateur radio operator"
+      ],
+      "identity_matching": {
+        "enabled_only_with_user_opt_in": true,
+        "attributes": ["woman", "Latina", "trans"],
+        "privacy": "Use only to test explicit eligibility criteria; do not infer, disclose, or log identity attributes."
+      }
+    }
+  ],
+  "global_rules": [
+    "Separate grants, contracts, scholarships, fellowships, prizes, and loans.",
+    "Prefer official program and procurement sources; label secondary aggregators.",
+    "Store source URL, retrieval time, last verified date, deadline, award range, applicant type, jurisdiction, eligibility requirements, and status.",
+    "Never infer eligibility from identity, credentials, age, or location when a program rule is unclear.",
+    "Do not represent a closed or expired opportunity as open.",
+    "Do not represent a federal, state, or local contract as a grant.",
+    "For insurance procurements, enforce the agency's actual licensing and appointment scope.",
+    "Require human review before applications, certifications, registrations, representations, or bids are submitted.",
+    "Do not pay an application fee or share tax, banking, identity, or credential documents without explicit approval."
+  ]
+}
