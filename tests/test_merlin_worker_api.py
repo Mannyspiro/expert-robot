@@ -21,8 +21,14 @@ class MerlinWorkerApiTests(unittest.TestCase):
         self.outbox = MerlinEventOutbox(self.root / "outbox.sqlite3")
         self.tokens = {"hermes": "h" * 48, "mcfc": "m" * 48}
         self.admin_token = "a" * 48
-        self.env = {"MERLIN_WORKER_TOKENS": json.dumps(self.tokens),
-                    "MERLIN_OUTBOX_ADMIN_TOKEN": self.admin_token}
+        self.env = {
+            "MERLIN_WORKER_TOKENS": json.dumps(self.tokens),
+            "MERLIN_WORKER_TOPIC_ALLOWLIST": json.dumps({
+                "hermes": ["merlin.worker.test"],
+                "mcfc": ["merlin.worker.test"],
+            }),
+            "MERLIN_OUTBOX_ADMIN_TOKEN": self.admin_token,
+        }
         self.patch = patch.dict(os.environ, self.env, clear=False)
         self.patch.start()
         handler = make_handler(
@@ -60,7 +66,7 @@ class MerlinWorkerApiTests(unittest.TestCase):
             return error.code, json.loads(error.read())
 
     def test_worker_authentication_is_required_and_identity_is_bound_to_token(self):
-        self.outbox.enqueue("auth-event", "merlin.hermes.task", {"task": "research"})
+        self.outbox.enqueue("auth-event", "merlin.worker.test", {"task": "research"})
         status, body = self.request("/api/internal/outbox/claim", {}, worker=None)
         self.assertEqual(status, 401)
         self.assertEqual(body["error"], "worker_authentication_required")
@@ -73,9 +79,9 @@ class MerlinWorkerApiTests(unittest.TestCase):
 
     def test_claim_heartbeat_acknowledge_round_trip(self):
         queued = self.outbox.enqueue(
-            "round-trip", "merlin.hermes.task", {"task": "research", "budget": 3})
+            "round-trip", "merlin.worker.test", {"task": "research", "budget": 3})
         status, response = self.request(
-            "/api/internal/outbox/claim", {"topics": ["merlin.hermes.task"], "lease_seconds": 30})
+            "/api/internal/outbox/claim", {"topics": ["merlin.worker.test"], "lease_seconds": 30})
         self.assertEqual(status, 200)
         lease = response["lease"]
         self.assertEqual(lease["event_id"], queued["event_id"])
@@ -95,8 +101,8 @@ class MerlinWorkerApiTests(unittest.TestCase):
         self.assertEqual(ack["event"]["result"]["receipt_id"], "receipt-1")
 
     def test_worker_cannot_acknowledge_another_workers_lease(self):
-        queued = self.outbox.enqueue("worker-isolation", "merlin.hermes.task", {})
-        status, response = self.request("/api/internal/outbox/claim", {})
+        queued = self.outbox.enqueue("worker-isolation", "merlin.worker.test", {})
+        status, response = self.request("/api/internal/outbox/claim", {"topics": ["merlin.worker.test"]})
         lease = response["lease"]
         status, body = self.request("/api/internal/outbox/acknowledge", {
             "event_id": queued["event_id"], "lease_token": lease["lease_token"],
@@ -106,8 +112,8 @@ class MerlinWorkerApiTests(unittest.TestCase):
         self.assertEqual(self.outbox.get(queued["event_id"])["state"], "leased")
 
     def test_retry_returns_event_to_pending_then_quarantines(self):
-        queued = self.outbox.enqueue("retry-api", "merlin.hermes.task", {})
-        _, first = self.request("/api/internal/outbox/claim", {})
+        queued = self.outbox.enqueue("retry-api", "merlin.worker.test", {})
+        _, first = self.request("/api/internal/outbox/claim", {"topics": ["merlin.worker.test"]})
         lease = first["lease"]
         status, retry = self.request("/api/internal/outbox/retry", {
             "event_id": queued["event_id"], "lease_token": lease["lease_token"],
@@ -115,7 +121,7 @@ class MerlinWorkerApiTests(unittest.TestCase):
         })
         self.assertEqual(status, 200)
         self.assertEqual(retry["event"]["state"], "pending")
-        _, second = self.request("/api/internal/outbox/claim", {})
+        _, second = self.request("/api/internal/outbox/claim", {"topics": ["merlin.worker.test"]})
         status, final = self.request("/api/internal/outbox/retry", {
             "event_id": queued["event_id"], "lease_token": second["lease"]["lease_token"],
             "error": "provider still unavailable", "max_attempts": 2,
@@ -135,7 +141,7 @@ class MerlinWorkerApiTests(unittest.TestCase):
             return error.code, json.loads(error.read())
 
     def test_admin_can_cancel_pending_and_leased_events_but_worker_cannot(self):
-        pending = self.outbox.enqueue("admin-cancel-pending", "merlin.hermes.task", {})
+        pending = self.outbox.enqueue("admin-cancel-pending", "merlin.worker.test", {})
         status, denied = self.request(
             "/api/internal/outbox/cancel",
             {"event_id": pending["event_id"], "reason": "operator stop"},
@@ -150,8 +156,8 @@ class MerlinWorkerApiTests(unittest.TestCase):
         self.assertEqual(cancelled["event"]["state"], "cancelled")
         self.assertEqual(cancelled["event"]["cancelled_by"], "merlin-admin")
 
-        leased = self.outbox.enqueue("admin-cancel-leased", "merlin.hermes.task", {})
-        _, claim = self.request("/api/internal/outbox/claim", {})
+        leased = self.outbox.enqueue("admin-cancel-leased", "merlin.worker.test", {})
+        _, claim = self.request("/api/internal/outbox/claim", {"topics": ["merlin.worker.test"]})
         lease = claim["lease"]
         status, cancelled_lease = self.request_admin("/api/internal/outbox/cancel", {
             "event_id": leased["event_id"], "reason": "deadline exceeded",
@@ -165,7 +171,7 @@ class MerlinWorkerApiTests(unittest.TestCase):
         self.assertEqual(stale["error"], "outbox_lease_conflict")
 
     def test_status_is_authenticated_and_exposes_only_counts(self):
-        self.outbox.enqueue("status-event", "merlin.hermes.task", {})
+        self.outbox.enqueue("status-event", "merlin.worker.test", {})
         status, body = self.request("/api/internal/outbox/status", method="GET")
         self.assertEqual(status, 200)
         self.assertEqual(body["worker_id"], "hermes")
@@ -194,6 +200,30 @@ class MerlinWorkerApiTests(unittest.TestCase):
             server.server_close()
             thread.join(timeout=2)
 
+
+
+    def test_generic_worker_cannot_claim_hermes_task_topic(self):
+        self.outbox.enqueue("hermes-isolated", "merlin.hermes.task", {"stage": "research"})
+        status, body = self.request("/api/internal/outbox/claim", {
+            "topics": ["merlin.hermes.task"],
+        })
+        self.assertEqual(status, 403)
+        self.assertEqual(body["error"], "worker_topic_not_authorized")
+        self.assertEqual(self.outbox.counts()["pending"], 1)
+
+    def test_worker_cannot_claim_topic_outside_explicit_grant(self):
+        self.outbox.enqueue("not-granted", "merlin.private.admin", {})
+        status, body = self.request("/api/internal/outbox/claim", {
+            "topics": ["merlin.private.admin"],
+        })
+        self.assertEqual(status, 403)
+        self.assertEqual(body["error"], "worker_topic_not_authorized")
+        self.assertEqual(self.outbox.counts()["pending"], 1)
+
+    def test_worker_claim_requires_explicit_nonempty_topics(self):
+        status, body = self.request("/api/internal/outbox/claim", {})
+        self.assertEqual(status, 400)
+        self.assertIn("topics", body.get("detail", ""))
 
 if __name__ == "__main__":
     unittest.main()
