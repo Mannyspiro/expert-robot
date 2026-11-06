@@ -195,6 +195,15 @@ jobs:
           test_exit=${PIPESTATUS[0]}
           printf '{"suite":"merlin-legal-intelligence","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$test_exit" > artifacts/merlin-legal-intelligence-result.json
           exit "$test_exit"
+      - name: Merlin GovInfo XML parser fixture tests
+        shell: bash
+        run: |
+          set +e
+          mkdir -p artifacts
+          PYTHONPATH=python python3 -m unittest discover -s tests/research -p "test_legal_xml_parsers.py" -v 2>&1 | tee artifacts/merlin-govinfo-xml-parser-tests.log
+          test_exit=${PIPESTATUS[0]}
+          printf '{"suite":"merlin-govinfo-xml-parser","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$test_exit" > artifacts/merlin-govinfo-xml-parser-result.json
+          exit "$test_exit"
       - name: Merlin legal source ingestion policy tests
         shell: bash
         run: |
