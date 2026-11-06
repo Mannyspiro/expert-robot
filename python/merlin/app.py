@@ -434,21 +434,29 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     if not isinstance(intent_data, dict) or not isinstance(assets_data, list):
                         raise ValueError("intent must be an object and assets must be a list")
 
+                    def string_field(value: Any, field_name: str) -> str:
+                        if not isinstance(value, str):
+                            raise ValueError(field_name + " must be a string")
+                        return value
+
                     def string_list(value: Any, field_name: str) -> tuple[str, ...]:
                         if not isinstance(value, list) or any(not isinstance(item, str) for item in value):
                             raise ValueError(field_name + " must be a list of strings")
                         return tuple(value)
 
+                    duration = intent_data.get("duration_seconds")
+                    if duration is not None and (isinstance(duration, bool) or not isinstance(duration, int)):
+                        raise ValueError("duration_seconds must be an integer")
                     intent = IntentSpec(
-                        goal=intent_data.get("goal", ""),
-                        domain=intent_data.get("domain", ""),
-                        deliverable=intent_data.get("deliverable", ""),
+                        goal=string_field(intent_data.get("goal", ""), "goal"),
+                        domain=string_field(intent_data.get("domain", ""), "domain"),
+                        deliverable=string_field(intent_data.get("deliverable", ""), "deliverable"),
                         constraints=string_list(intent_data.get("constraints", []), "constraints"),
                         exclusions=string_list(intent_data.get("exclusions", []), "exclusions"),
                         success_criteria=string_list(intent_data.get("success_criteria", []), "success_criteria"),
-                        audience=intent_data.get("audience", ""),
-                        target_backend=intent_data.get("target_backend", "generic"),
-                        duration_seconds=intent_data.get("duration_seconds"),
+                        audience=string_field(intent_data.get("audience", ""), "audience"),
+                        target_backend=string_field(intent_data.get("target_backend", "generic"), "target_backend"),
+                        duration_seconds=duration,
                     )
                     assets = []
                     for row in assets_data:
@@ -458,22 +466,25 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                         if not isinstance(metadata, dict):
                             raise ValueError("asset metadata must be an object")
                         assets.append(Asset(
-                            asset_id=row.get("asset_id", ""), name=row.get("name", ""),
-                            kind=row.get("kind", ""), sha256=row.get("sha256", ""),
-                            role=row.get("role", "reference"),
-                            authority=row.get("authority", "user_supplied"),
-                            locator=row.get("locator", ""), metadata=metadata,
+                            asset_id=string_field(row.get("asset_id", ""), "asset_id"),
+                            name=string_field(row.get("name", ""), "asset name"),
+                            kind=string_field(row.get("kind", ""), "asset kind"),
+                            sha256=string_field(row.get("sha256", ""), "asset sha256"),
+                            role=string_field(row.get("role", "reference"), "asset role"),
+                            authority=string_field(row.get("authority", "user_supplied"), "asset authority"),
+                            locator=string_field(row.get("locator", ""), "asset locator"),
+                            metadata=metadata,
                         ))
                     continuity = None
                     if continuity_data is not None:
                         if not isinstance(continuity_data, dict):
                             raise ValueError("continuity must be an object")
                         continuity = ContinuityState(
-                            checkpoint_id=continuity_data.get("checkpoint_id", ""),
-                            prior_state=continuity_data.get("prior_state", ""),
+                            checkpoint_id=string_field(continuity_data.get("checkpoint_id", ""), "checkpoint_id"),
+                            prior_state=string_field(continuity_data.get("prior_state", ""), "prior_state"),
                             stable_entity_ids=string_list(
                                 continuity_data.get("stable_entity_ids", []), "stable_entity_ids"),
-                            next_step=continuity_data.get("next_step", ""),
+                            next_step=string_field(continuity_data.get("next_step", ""), "next_step"),
                         )
                     bundle = compile_directive(intent, assets, continuity)
                     store.append(path, {"directive_sha256": bundle["directive_sha256"],
