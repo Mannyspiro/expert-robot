@@ -132,7 +132,7 @@ class HermesWorkerTests(unittest.TestCase):
         event = task_payload("budget")
         event["resource_budget"]["max_wall_seconds"] = 86401
         self.outbox.enqueue("research-task:bad-budget", "merlin.hermes.task", event)
-        result = self.worker(lambda task, context: {}).run_once()
+        result = self.worker(lambda task, context: {}, max_attempts=1).run_once()
         self.assertEqual(result["status"], "quarantined")
 
     def _all_rows(self):
