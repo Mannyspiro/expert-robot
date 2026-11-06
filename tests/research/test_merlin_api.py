@@ -485,5 +485,62 @@ class MerlinApiTests(unittest.TestCase):
         self.assertNotIn("private-test-key", json.dumps(payload))
         self.assertNotIn("api.example.test", json.dumps(payload))
 
+    def test_memory_vault_requires_approval_and_keeps_values_out_of_event_ledger(self):
+        request = Request(self.base + "/api/memory/preferences",
+            data=json.dumps({"key": "preferred_language", "value": "Japanese"}).encode(),
+            headers={"Content-Type": "application/json"})
+        with self.assertRaises(HTTPError) as denied:
+            urlopen(request, timeout=5)
+        self.assertEqual(denied.exception.code, 403)
+        self.assertEqual(json.loads(denied.exception.read())["error"],
+                         "explicit_approval_required")
+
+        saved = self.post("/api/memory/preferences", {
+            "key": "preferred_language", "value": "Japanese", "approved": True,
+        })
+        self.assertEqual(saved["kind"], "preference")
+        self.assertEqual(saved["version"], 1)
+        project = self.post("/api/memory/projects", {
+            "name": "Merlin", "status": "Build the hybrid voice and research runtime.",
+            "approved": True,
+        })
+        self.assertEqual(project["kind"], "project")
+
+        with urlopen(self.base + "/api/memory", timeout=5) as response:
+            vault = json.loads(response.read())
+        self.assertTrue(vault["policy"]["user_approved_only"])
+        self.assertTrue(vault["policy"]["memory_context_opt_in_required"])
+        self.assertEqual(vault["preferences"][0]["value"], "Japanese")
+        self.assertEqual(vault["projects"][0]["name"], "Merlin")
+
+        with urlopen(self.base + "/api/events", timeout=5) as response:
+            events = json.loads(response.read())["events"]
+        encoded_events = json.dumps(events)
+        self.assertNotIn("Japanese", encoded_events)
+        self.assertNotIn("Build the hybrid voice", encoded_events)
+
+        delete_pref = Request(self.base + "/api/memory/preferences?key=preferred_language",
+                              method="DELETE")
+        with urlopen(delete_pref, timeout=5) as response:
+            self.assertTrue(json.loads(response.read())["deleted"])
+        delete_project = Request(self.base + "/api/memory/projects?name=Merlin",
+                                 method="DELETE")
+        with urlopen(delete_project, timeout=5) as response:
+            self.assertTrue(json.loads(response.read())["deleted"])
+        with urlopen(self.base + "/api/memory", timeout=5) as response:
+            empty = json.loads(response.read())
+        self.assertEqual(empty["preferences"], [])
+        self.assertEqual(empty["projects"], [])
+
+    def test_memory_vault_rejects_secret_like_preference_keys(self):
+        request = Request(self.base + "/api/memory/preferences",
+            data=json.dumps({"key": "api_key", "value": "not-a-real-secret",
+                             "approved": True}).encode(),
+            headers={"Content-Type": "application/json"})
+        with self.assertRaises(HTTPError) as caught:
+            urlopen(request, timeout=5)
+        self.assertEqual(caught.exception.code, 400)
+        self.assertEqual(json.loads(caught.exception.read())["error"], "invalid_request")
+
 if __name__ == "__main__":
     unittest.main()
