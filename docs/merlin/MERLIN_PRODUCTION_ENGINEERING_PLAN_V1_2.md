@@ -54,6 +54,17 @@ One shared Merlin platform, not separate product stacks:
 - No CACE production transport receipt is yet established. Local test doubles are not independent CACE verification.
 - Do not assume old Avrea quota, machine capacity, cache persistence or provider health without a fresh run.
 
+## Unified integration branch
+
+- PR #113: [unified Learning, identity, capability and canonical graph](https://github.com/Mannyspiro/expert-robot/pull/113), draft/unmerged/undeployed.
+- Exact tested code head: `6e7c754b4da9045caebf36f267919c39eee4b211`.
+- Unified workflow [42255514469](https://github.com/Mannyspiro/expert-robot/actions/runs/42255514469): compile succeeded; **56 tests passed in 4.03 seconds**. Artifact [13523195538](https://github.com/Mannyspiro/expert-robot/actions/runs/42255514469/artifacts/13523195538), SHA-256 `1b1db57657d86d0ed70ea888daeae3749e8414a3a4111b8b34b1d694b4237e84`.
+- Identity workflow [42255514208](https://github.com/Mannyspiro/expert-robot/actions/runs/42255514208): **21 tests passed in 0.89 seconds**. Artifact [13522666381](https://github.com/Mannyspiro/expert-robot/actions/runs/42255514208/artifacts/13522666381), SHA-256 `f16f2f0ee1b4db72affd62ff75ff8ec2f0b27c05775347992cd0860442383f4c`.
+- Learning workflow [42255514264](https://github.com/Mannyspiro/expert-robot/actions/runs/42255514264): **20 tests passed in 0.91 seconds**. Artifact [13522416740](https://github.com/Mannyspiro/expert-robot/actions/runs/42255514264/artifacts/13522416740), SHA-256 `b0ddf36194f51e15498370b6d36a7b9a7a420d9e18cdf0d08535aa428c64d878`.
+- These suites overlap by design; do not sum them as unique tests. The unified suite is the authoritative combined regression signal for the listed contracts.
+- HUD focused workflow [42255514220](https://github.com/Mannyspiro/expert-robot/actions/runs/42255514220) was still running at last observation; do not claim it passed until its logs and result artifact are available.
+- General CI and Avrea qualification were cancelled. Neither is a pass. No real identity provider or verifier is configured, so the resolver remains host-injected and the standalone server fails closed.
+
 ## Ranked next implementation steps
 
 1. **Finish PR #112 hosted evidence.** Inspect the dedicated Learning identity job logs and artifact. Resolve any test failures before adding further identity behavior.
