@@ -130,7 +130,7 @@ class CaceAdapterTests(unittest.TestCase):
     def test_unverified_or_incomplete_proof_never_promoted(self):
         adapter = CaceVerificationAdapter(
             verify_transport=lambda request: signed_receipt(request, axiom_audit_passed=False),
-            registry=self.registry,outbox=self.outbox,
+            registry=self.registry,outbox=self.outbox,trusted_verifier_keys=_TEST_TRUST,
         )
         with self.assertRaisesRegex(ValueError,"passing axiom audit"):
             adapter.verify(project_id="merlin",repository="owner/repo",
@@ -141,7 +141,7 @@ class CaceAdapterTests(unittest.TestCase):
         called = []
         adapter = CaceVerificationAdapter(
             verify_transport=lambda request: called.append(request),
-            registry=self.registry, outbox=self.outbox,
+            registry=self.registry, outbox=self.outbox, trusted_verifier_keys=_TEST_TRUST,
         )
         with self.assertRaisesRegex(ValueError, "absent from the registry"):
             adapter.verify(project_id="merlin", repository="owner/repo",
@@ -153,12 +153,12 @@ class CaceAdapterTests(unittest.TestCase):
         graph = MerlinKnowledgeGraph(Path(self.temp.name) / "graph.sqlite3")
         adapter = CaceVerificationAdapter(
             verify_transport=lambda request: signed_receipt(request),
-            registry=self.registry, outbox=self.outbox, graph=graph,
+            registry=self.registry, outbox=self.outbox, graph=graph, trusted_verifier_keys=_TEST_TRUST,
         )
         result = adapter.verify(project_id="merlin", repository="owner/repo",
                                 commit_sha=self.commit, artifact_sha256=self.artifact,
                                 theorem="MyNamespace.target", requester_id="merlin-agent",
-                                logical_path="proofs/target.lean")
+                                tool_version="Lean 4.32.1", logical_path="proofs/target.lean")
         snapshot = graph.export_snapshot()
         self.assertTrue(any(node["node_id"] == result["receipt_graph_node_id"]
                             for node in snapshot["nodes"]))
@@ -182,6 +182,7 @@ class CaceAdapterTests(unittest.TestCase):
                 "artifact_kind": request["artifact_kind"],
                 "artifact_schema": request["artifact_schema"],
                 "logical_path": request["logical_path"],
+                "tool_identity": request["tool_identity"],
                 "verifier_id": "cace:independent-kernel",
                 "source_commit_verified": True,
                 "artifact_digest_verified": True,
@@ -214,6 +215,7 @@ class CaceAdapterTests(unittest.TestCase):
             artifact_sha256=artifact_digest, artifact_kind="cad_assembly",
             artifact_schema="merlin-freecad-document-mesh/1",
             requester_id="merlin-agent", logical_path=artifact_path,
+            tool_identity="FreeCAD 1.0.0",
         )
         self.assertEqual(result["verification_status"], "verified")
         self.assertFalse(result["promotion_authority"])
