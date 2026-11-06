@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "python/merlin/app.py"
+      - "tests/test_merlin_worker_api.py"
       - "python/merlin/identity.py"
       - "requirements-merlin-auth.txt"
       - "python/merlin/learning_platform.py"
@@ -18,6 +19,7 @@ on:
       - "tests/test_merlin_project_registry.py"
       - "tests/test_cace_adapter.py"
       - "tests/test_event_outbox.py"
+      - "tests/test_merlin_worker_api.py"
       - "tests/research/test_merlin_api.py"
       - "tests/research/test_merlin_learning_http.py"
       - ".github/workflows/merlin-unified-platform-evidence.yml"
@@ -66,7 +68,7 @@ jobs:
         run: |
           set +e
           mkdir -p artifacts
-          python -m pytest -q -v tests/test_merlin_identity.py tests/test_merlin_learning_platform.py tests/test_merlin_capability_registry.py tests/test_merlin_project_registry.py tests/test_cace_adapter.py tests/test_event_outbox.py tests/research/test_merlin_learning_http.py tests/research/test_merlin_api.py 2>&1 | tee artifacts/unified-platform-tests.log
+          python -m pytest -q -v tests/test_merlin_identity.py tests/test_merlin_learning_platform.py tests/test_merlin_capability_registry.py tests/test_merlin_project_registry.py tests/test_cace_adapter.py tests/test_event_outbox.py tests/test_merlin_worker_api.py tests/research/test_merlin_learning_http.py tests/research/test_merlin_api.py 2>&1 | tee artifacts/unified-platform-tests.log
           rc=${PIPESTATUS[0]}
           printf '{"suite":"merlin-unified-platform-tests","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/unified-platform-tests-result.json
           exit "$rc"
