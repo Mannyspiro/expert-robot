@@ -134,7 +134,8 @@ def verify_claims(claims: Iterable[ResearchClaim], sources: Iterable[SourceSnaps
         "unsubstantiated_claim_count": sum(r["status"] != "traceable" for r in rows),
         "claims": rows, "subject_digest": subject_digest,
         "independent_semantic_review": review_status,
-        "truth_gate_passed": bool(rows) and all(r["status"] == "traceable" for r in rows) and review_status == "supported",
+        "truth_gate_passed": False,
+        "promotion_blocked_reason": "CACE-authenticated independent reviewer receipt is not yet integrated",
         "note": "Traceability does not prove semantic entailment; independent review must bind this exact claim set."
     }
 
