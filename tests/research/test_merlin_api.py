@@ -96,6 +96,11 @@ class MerlinApiTests(unittest.TestCase):
             self.assertIn("feedbackOpt", hud)
             self.assertIn("deleteSessionFeedback", hud)
             self.assertIn("loadLearningPreferences", hud)
+            self.assertIn("/api/chat", hud)
+            self.assertIn("/api/speech", hud)
+            self.assertIn("providerMode", hud)
+            self.assertIn("councilPrepare", hud)
+            self.assertIn("chatTranscript", hud)
         with urlopen(self.base + "/api/sim/state", timeout=5) as response:
             initial = json.loads(response.read())
         self.assertTrue(initial["simulation_only"])
@@ -386,6 +391,73 @@ class MerlinApiTests(unittest.TestCase):
         self.assertIn("ART-PAT-001", state["skills"])
         self.assertIn("self_reflection", state["skills"]["ART-PAT-001"])
 
+
+
+    def test_runtime_provider_status_is_explicit_and_never_exposes_credentials(self):
+        import os
+        from unittest.mock import patch
+        with patch.dict(os.environ, {
+            "MERLIN_MODEL_QUALIFIED": "0",
+            "MERLIN_REMOTE_MODEL_QUALIFIED": "0",
+            "MERLIN_TTS_QUALIFIED": "0",
+            "MERLIN_REMOTE_API_KEY": "must-not-leak",
+            "MERLIN_REMOTE_MODEL_URL": "https://private.example.test/v1/chat/completions",
+        }, clear=False):
+            with urlopen(self.base + "/api/runtime/providers", timeout=5) as response:
+                payload = json.loads(response.read())
+        self.assertEqual(payload["schema"], "merlin-runtime-providers/1")
+        self.assertEqual(payload["providers"]["local"]["status"], "UNAVAILABLE")
+        self.assertEqual(payload["providers"]["cloud"]["status"], "UNAVAILABLE")
+        self.assertEqual(payload["providers"]["speech_output"]["status"], "UNAVAILABLE")
+        self.assertEqual(payload["providers"]["speech_input"]["status"], "BROWSER_DEPENDENT")
+        self.assertFalse(payload["raw_conversation_retention"])
+        self.assertNotIn("must-not-leak", json.dumps(payload))
+        self.assertNotIn("private.example.test", json.dumps(payload))
+
+    def test_local_model_provider_can_be_selected_only_when_qualified(self):
+        import os
+        from unittest.mock import patch
+        import python.merlin.app as merlin_app
+        captured = {}
+        class FakeResponse:
+            headers = {"Content-Type": "application/json"}
+            def __enter__(self): return self
+            def __exit__(self, *args): return False
+            def read(self, size=-1):
+                return b'{"model":"qwen2.5:3b","choices":[{"message":{"content":"Local response"}}]}'
+        def fake_urlopen(request, timeout=0):
+            captured["url"] = request.full_url
+            captured["payload"] = json.loads(request.data.decode("utf-8"))
+            return FakeResponse()
+        request = Request(self.base + "/api/chat",
+            data=json.dumps({"provider":"local","messages":[{"role":"user","content":"hello"}],"stream":False}).encode(),
+            headers={"Content-Type":"application/json"})
+        with patch.dict(os.environ, {
+            "MERLIN_MODEL_QUALIFIED":"1",
+            "MERLIN_LOCAL_MODEL":"qwen2.5:3b",
+            "MERLIN_REMOTE_MODEL_URL":"",
+            "MERLIN_REMOTE_MODEL_QUALIFIED":"0",
+        }, clear=False), patch.object(merlin_app,"urlopen",side_effect=fake_urlopen):
+            with urlopen(request,timeout=5) as response:
+                payload=json.loads(response.read())
+        self.assertEqual(payload["choices"][0]["message"]["content"],"Local response")
+        self.assertEqual(captured["url"],"http://127.0.0.1:8080/v1/chat/completions")
+        self.assertEqual(captured["payload"]["model"],"qwen2.5:3b")
+        self.assertNotIn("provider",captured["payload"])
+
+    def test_speech_output_fails_closed_before_contacting_unqualified_sidecar(self):
+        import os
+        from unittest.mock import patch
+        import python.merlin.app as merlin_app
+        request = Request(self.base + "/api/speech",
+            data=json.dumps({"input":"hello"}).encode(),
+            headers={"Content-Type":"application/json"})
+        with patch.dict(os.environ, {"MERLIN_TTS_QUALIFIED":"0"}, clear=False), \
+             patch.object(merlin_app,"urlopen",side_effect=AssertionError("must not contact sidecar")):
+            with self.assertRaises(HTTPError) as caught:
+                urlopen(request,timeout=5)
+        self.assertEqual(caught.exception.code,503)
+        self.assertEqual(json.loads(caught.exception.read())["error"],"tts_not_qualified")
 
 if __name__ == "__main__":
     unittest.main()
