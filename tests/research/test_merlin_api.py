@@ -547,5 +547,22 @@ class MerlinApiTests(unittest.TestCase):
         self.assertEqual(caught.exception.code, 400)
         self.assertEqual(json.loads(caught.exception.read())["error"], "invalid_request")
 
+    def test_memory_write_rejects_cross_origin_browser_requests(self):
+        body = json.dumps({"key": "theme", "value": "dark", "approved": True}).encode()
+        hostile = Request(self.base + "/api/memory/preferences", data=body,
+                          headers={"Content-Type": "text/plain",
+                                   "Origin": "http://attacker.example"})
+        with self.assertRaises(HTTPError) as denied:
+            urlopen(hostile, timeout=5)
+        self.assertEqual(denied.exception.code, 403)
+        self.assertEqual(json.loads(denied.exception.read())["error"],
+                         "cross_origin_request_blocked")
+
+        local = Request(self.base + "/api/memory/preferences", data=body,
+                        headers={"Content-Type": "application/json",
+                                 "Origin": self.base})
+        with urlopen(local, timeout=5) as response:
+            self.assertEqual(response.status, 201)
+
 if __name__ == "__main__":
     unittest.main()
