@@ -70,6 +70,14 @@ class LearningPlatform:
               created_by TEXT NOT NULL, created_at REAL NOT NULL, published_at REAL,
               PRIMARY KEY(tenant_id,course_id,version),
               FOREIGN KEY(tenant_id,course_id) REFERENCES learning_courses(tenant_id,course_id));
+            CREATE TABLE IF NOT EXISTS learning_course_reviews(
+              tenant_id TEXT NOT NULL, course_id TEXT NOT NULL, version INTEGER NOT NULL,
+              reviewer_id TEXT NOT NULL, decision TEXT NOT NULL
+                CHECK(decision IN ('approved','changes_requested')),
+              notes_sha256 TEXT NOT NULL, reviewed_at REAL NOT NULL,
+              PRIMARY KEY(tenant_id,course_id,version,reviewer_id),
+              FOREIGN KEY(tenant_id,course_id,version)
+                REFERENCES learning_course_versions(tenant_id,course_id,version));
             CREATE TABLE IF NOT EXISTS learning_enrollments(
               tenant_id TEXT NOT NULL, course_id TEXT NOT NULL, version INTEGER NOT NULL,
               learner_id TEXT NOT NULL, enrolled_at REAL NOT NULL, status TEXT NOT NULL,
@@ -220,8 +228,41 @@ class LearningPlatform:
             if assessment.get("high_stakes") is True and assessment.get("human_review_required") is not True:
                 raise ValueError("high-stakes assessments require human review")
 
+    def review_course(self, actor: Actor, course_id: str, version: int,
+                      decision: str, notes: str = "") -> dict[str, Any]:
+        self._authorize(actor, {"reviewer"})
+        if decision not in {"approved", "changes_requested"}:
+            raise ValueError("decision must be approved or changes_requested")
+        if not isinstance(version, int) or isinstance(version, bool) or version < 1:
+            raise ValueError("version must be a positive integer")
+        if not isinstance(notes, str) or len(notes) > 4000:
+            raise ValueError("review notes must be text of at most 4000 characters")
+        with self._connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            row = db.execute("""SELECT c.owner_id,v.status FROM learning_courses c
+              JOIN learning_course_versions v ON v.tenant_id=c.tenant_id
+              AND v.course_id=c.course_id WHERE c.tenant_id=? AND c.course_id=? AND v.version=?""",
+              (actor.tenant_id, course_id, version)).fetchone()
+            if row is None:
+                raise KeyError("course version not found")
+            if row["owner_id"] == actor.actor_id:
+                raise LearningPermissionError("course authors cannot independently review their own course")
+            if row["status"] != "draft":
+                raise LearningConflictError("only draft versions can be reviewed")
+            notes_hash = sha256(notes.encode("utf-8")).hexdigest()
+            db.execute("""INSERT INTO learning_course_reviews VALUES(?,?,?,?,?,?,?)
+              ON CONFLICT(tenant_id,course_id,version,reviewer_id) DO UPDATE SET
+              decision=excluded.decision,notes_sha256=excluded.notes_sha256,
+              reviewed_at=excluded.reviewed_at""",
+              (actor.tenant_id, course_id, version, actor.actor_id, decision,
+               notes_hash, time.time()))
+            self._audit(db, actor, "course.reviewed", course_id,
+                        {"version": version, "decision": decision, "notes_sha256": notes_hash})
+        return {"course_id": course_id, "version": version, "decision": decision,
+                "reviewer_id": actor.actor_id, "notes_sha256": notes_hash}
+
     def publish_course(self, actor: Actor, course_id: str) -> dict[str, Any]:
-        self._authorize(actor, {"tenant_admin", "instructor", "reviewer"})
+        self._authorize(actor, {"tenant_admin", "instructor"})
         with self._connect() as db:
             db.execute("BEGIN IMMEDIATE")
             row = db.execute("""SELECT c.owner_id,c.current_version,v.status,v.manifest_json
@@ -237,6 +278,12 @@ class LearningPlatform:
                 raise LearningConflictError("only a draft course version can be published")
             manifest = json.loads(row["manifest_json"])
             self._validate_manifest(manifest)
+            approved = db.execute("""SELECT 1 FROM learning_course_reviews
+              WHERE tenant_id=? AND course_id=? AND version=? AND decision='approved'
+              AND reviewer_id<>? LIMIT 1""",
+              (actor.tenant_id, course_id, row["current_version"], row["owner_id"])).fetchone()
+            if approved is None:
+                raise LearningConflictError("independent reviewer approval is required before publication")
             now = time.time()
             db.execute("""UPDATE learning_course_versions SET status='published',published_at=?
               WHERE tenant_id=? AND course_id=? AND version=?""",
