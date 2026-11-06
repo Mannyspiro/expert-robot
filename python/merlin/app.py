@@ -472,7 +472,9 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                             kind=string_field(row.get("kind", ""), "asset kind"),
                             sha256=string_field(row.get("sha256", ""), "asset sha256"),
                             role=string_field(row.get("role", "reference"), "asset role"),
-                            authority=string_field(row.get("authority", "user_supplied"), "asset authority"),
+                            # Trust level is server-assigned below; never accept a caller's
+                            # assertion that an uploaded/reference asset is authoritative.
+                            authority="user_supplied",
                             locator=string_field(row.get("locator", ""), "asset locator"),
                             metadata=metadata,
                         ))
@@ -501,7 +503,22 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                             return
                         # inventory() verifies that the target project already exists;
                         # the compiler must not silently create a new project namespace.
-                        canonical_registry.inventory(project_id)
+                        project_inventory = canonical_registry.inventory(project_id)
+                        project_digests = {item["digest"] for item in project_inventory["artifacts"]}
+                        verified_assets = []
+                        for asset in assets:
+                            if asset.sha256 not in project_digests or not canonical_registry.verify_artifact(asset.sha256):
+                                raise ValueError("asset sha256 must reference a verified artifact in the target project registry")
+                            verified_assets.append(Asset(
+                                asset_id=asset.asset_id, name=asset.name, kind=asset.kind,
+                                sha256=asset.sha256, role=asset.role,
+                                authority="canonical_registry_verified",
+                                locator=asset.locator, metadata=asset.metadata,
+                            ))
+                        assets = verified_assets
+                        # Recompile so the persisted directive records server-verified
+                        # provenance, not caller-supplied trust labels.
+                        bundle = compile_directive(intent, assets, continuity)
                         artifact_bytes = _json_bytes(bundle)
                         logical_path = "intents/" + bundle["directive_sha256"] + ".json"
                         artifact_digest = canonical_registry.put_artifact(
