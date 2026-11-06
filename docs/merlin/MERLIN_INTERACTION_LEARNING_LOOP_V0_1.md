@@ -17,6 +17,7 @@ Merlin should improve from real use: which tasks people attempt, where they succ
 - POST /api/learning/preferences
 - POST /api/interaction/feedback
 - GET /api/learning/improvements
+- DELETE /api/interaction/feedback?session_id=OPAQUE_SESSION_ID (removes categorical feedback for that session only)
 
 Preferences: aggregate_telemetry controls metadata-only HTTP-boundary measurement; explicit_feedback_learning controls acceptance of voluntary categorical feedback; personalization is reserved and defaults off; raw conversation retention and automatic code/policy modification remain disabled.
 
