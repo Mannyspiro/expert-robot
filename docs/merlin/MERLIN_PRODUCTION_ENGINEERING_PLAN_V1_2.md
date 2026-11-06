@@ -80,6 +80,14 @@ Updated unified evidence on exact code head `06ece19e01b115a8d10da7e919b91ba1312
 - Artifact [13523455717](https://github.com/Mannyspiro/expert-robot/actions/runs/42256217705/artifacts/13523455717), SHA-256 `e45c237705ff2dda29f15536063f4bef71ab870b728330a41a7be84f566919f5`.
 - This replaces the earlier 56-test run as the latest combined regression signal for this branch.
 
+### CACE adapter and outbox regression added
+
+- The unified workflow now also compiles `cace_adapter.py` and `event_outbox.py`, and runs the existing CACE adapter and outbox suites.
+- The CACE adapter contract tests exercise exact repository/commit/artifact/theorem binding, independent verifier identity, proof receipt checks, generic artifact verification, graph linkage, outbox events and fail-closed missing transport. They use injected test transports; they do **not** establish a live CACE service connection.
+- The outbox tests cover idempotency, payload conflicts, lease/acknowledgement, expired-lease recovery, stale-token rejection, retry/quarantine and topic filtering.
+- Latest combined evidence on exact code head `4875501ea93de14405f553a2b6b14f13a492800c`: run [42256655592](https://github.com/Mannyspiro/expert-robot/actions/runs/42256655592), compile succeeded; **73 tests passed in 4.12 seconds**. Artifact [13522158574](https://github.com/Mannyspiro/expert-robot/actions/runs/42256655592/artifacts/13522158574), SHA-256 `487f1984fd6014f207982103ae07e93ab7f2e7f4801d1752e149c757de72508d`.
+- CACE repository observation: `morganaspim/Cace-app` describes itself as a research/development system and explicitly says production readiness is not established. Its `docs/STATUS.md` says the canonical v3.30 continuum-proof claim is not current-head qualified and the v3.36 candidate is intentionally unqualified pending exact-head qualification. The inspected repository documents a CLI/portable qualification path; a production HTTP verifier endpoint and authenticated transport contract have not yet been established in this integration. Therefore CACE remains unqualified as a live remote service.
+
 ## Ranked next implementation steps
 
 1. **Finish PR #112 hosted evidence.** Inspect the dedicated Learning identity job logs and artifact. Resolve any test failures before adding further identity behavior.
