@@ -277,7 +277,8 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                  learning_platform: LearningPlatform | None = None,
                  learning_identity_resolver: Any | None = None,
                  canonical_graph: Any | None = None,
-                 hermes_worker_service: Any | None = None):
+                 hermes_worker_service: Any | None = None,
+                 hermes_runtime: Any | None = None):
     simulation = MerlinSimulation()
     learner_store = learner_store or LearnerStore(store.path)
     learning_db = os.environ.get("MERLIN_LEARNING_DB_PATH",
@@ -619,7 +620,9 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             elif path == "/api/runtime/providers":
                 self._send(200, _runtime_provider_status())
             elif path == "/api/runtime/hermes":
-                if hermes_worker_service is None:
+                if hermes_runtime is not None:
+                    self._send(200, hermes_runtime.health())
+                elif hermes_worker_service is None:
                     self._send(503, {"schema": "merlin-hermes-worker-service-health/1",
                                      "status": "unconfigured", "ready": False,
                                      "promotion_authority": False})
@@ -1406,7 +1409,8 @@ def serve(port: int = 8765, db_path: str | None = None,
         make_handler(store, hud_runtime, learner_store, learning_outbox,
                      canonical_registry, learning_identity_resolver=learning_identity_resolver,
                      canonical_graph=canonical_graph,
-                     hermes_worker_service=hermes_worker_service))
+                     hermes_worker_service=hermes_worker_service,
+                     hermes_runtime=hermes_runtime))
     hud_runtime_started = False
     hermes_service_started = False
     shutdown_requested = Event()
