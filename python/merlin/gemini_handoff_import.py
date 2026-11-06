@@ -12,7 +12,7 @@ from dataclasses import dataclass
 import hashlib
 import json
 import re
-from typing import Any, Sequence
+from typing import Any, Mapping, Sequence
 
 from merlin.knowledge_graph import GraphEdge, GraphNode
 
@@ -91,6 +91,46 @@ def _canonical_json(value: Any) -> bytes:
         ensure_ascii=False,
         allow_nan=False,
     ).encode("utf-8")
+
+
+def _normalize_conversation_metadata(
+    metadata: Mapping[str, Mapping[str, Any]] | None,
+    selected_ids: set[str],
+) -> dict[str, dict[str, Any]]:
+    if metadata is None:
+        return {}
+    if not isinstance(metadata, Mapping):
+        raise GeminiHandoffError("conversation_metadata must be a mapping")
+    unknown_ids = sorted(set(metadata) - selected_ids)
+    if unknown_ids:
+        raise GeminiHandoffError("conversation metadata references IDs outside the allowlist")
+    normalized: dict[str, dict[str, Any]] = {}
+    allowed = {"domain", "relevance", "merlin_capabilities", "evidence_handling"}
+    for conversation_id, item in metadata.items():
+        if not isinstance(item, Mapping) or set(item) - allowed:
+            raise GeminiHandoffError("conversation metadata has an invalid shape")
+        domain = item.get("domain")
+        relevance = item.get("relevance", "supporting_research")
+        capabilities = item.get("merlin_capabilities", [])
+        evidence_handling = item.get("evidence_handling", "source_context_unverified")
+        if not isinstance(domain, str) or not domain.strip() or len(domain) > 80:
+            raise GeminiHandoffError("conversation metadata requires a short domain")
+        if not isinstance(relevance, str) or not relevance.strip() or len(relevance) > 80:
+            raise GeminiHandoffError("conversation metadata relevance must be a short string")
+        if not isinstance(capabilities, (list, tuple)) or any(
+            not isinstance(value, str) or not value.strip() or len(value) > 80
+            for value in capabilities
+        ):
+            raise GeminiHandoffError("merlin_capabilities must be a list of short strings")
+        if not isinstance(evidence_handling, str) or not evidence_handling.strip() or len(evidence_handling) > 120:
+            raise GeminiHandoffError("evidence_handling must be a short string")
+        normalized[conversation_id] = {
+            "domain": domain.strip(),
+            "relevance": relevance.strip(),
+            "merlin_capabilities": list(capabilities),
+            "evidence_handling": evidence_handling.strip(),
+        }
+    return dict(sorted(normalized.items()))
 
 
 def _header_parts(metadata: str) -> tuple[str, str, str]:
@@ -184,6 +224,7 @@ def ingest_gemini_handoff(
     *,
     source_filename: str,
     included_conversation_ids: Sequence[str],
+    conversation_metadata: Mapping[str, Mapping[str, Any]] | None = None,
     max_archive_bytes: int = MAX_ARCHIVE_BYTES,
 ) -> dict[str, Any]:
     """Import explicitly selected handoff sections into the canonical Merlin store.
@@ -216,6 +257,7 @@ def ingest_gemini_handoff(
     unknown = sorted(set(selected_ids) - set(by_id))
     if unknown:
         raise GeminiHandoffError("allowlist contains IDs absent from the supplied handoff")
+    normalized_metadata = _normalize_conversation_metadata(conversation_metadata, set(selected_ids))
 
     # This lookup both validates the project and avoids guessing project ownership.
     inventory = store.registry.inventory(project_id)
@@ -233,6 +275,7 @@ def ingest_gemini_handoff(
         "source_filename": source_name,
         "mode": "explicit_allowlist_only",
         "included_conversation_ids": sorted(selected_ids),
+        "conversation_metadata": normalized_metadata,
         "parser_version": PARSER_VERSION,
     }
     policy_sha256 = hashlib.sha256(_canonical_json(policy_payload)).hexdigest()
@@ -330,6 +373,7 @@ def ingest_gemini_handoff(
             "raw_section_logical_path": raw_path,
             "prompt_excerpts": list(section.prompt_excerpts),
             "response_markers": list(section.response_markers),
+            "classification": normalized_metadata.get(section.conversation_id, {}),
             "index_notice": "Excerpts are navigation hints; the complete raw section artifact is authoritative.",
         }
         index_bytes = _canonical_json(index_payload)
@@ -361,6 +405,7 @@ def ingest_gemini_handoff(
                     "source_archive_sha256": archive_sha256,
                     "raw_section_sha256": raw_digest,
                     "index_artifact_sha256": index_digest,
+                    "classification": normalized_metadata.get(section.conversation_id, {}),
                     "source_granularity": "handoff_summary_not_raw_transcript",
                 },
                 evidence_class="unreviewed",
@@ -384,6 +429,7 @@ def ingest_gemini_handoff(
                 "ordinal": section.ordinal,
                 "title": section.title,
                 "status": section.status,
+                "classification": normalized_metadata.get(section.conversation_id, {}),
                 "raw_section_sha256": raw_digest,
                 "raw_section_logical_path": raw_path,
                 "index_artifact_sha256": index_digest,
