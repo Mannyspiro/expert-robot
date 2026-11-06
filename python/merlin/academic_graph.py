@@ -5,6 +5,8 @@ not verified claims. This module performs no network access.
 """
 from __future__ import annotations
 
+from contextlib import closing
+
 import argparse
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
@@ -43,7 +45,7 @@ class AcademicGraphStore:
     def __init__(self, database: str | Path):
         self.database = str(database)
         Path(self.database).parent.mkdir(parents=True, exist_ok=True)
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.executescript("""
                 PRAGMA foreign_keys = ON;
                 CREATE TABLE IF NOT EXISTS researchers (
@@ -116,7 +118,7 @@ class AcademicGraphStore:
             raise ValueError("work title is required")
         timestamp = _now()
         source = _text(work.source, "source", 100)
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             try:
                 db.execute("""
                     INSERT INTO works VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -190,13 +192,13 @@ class AcademicGraphStore:
     def stats(self) -> GraphStats:
         tables = ("works", "researchers", "institutions", "authorship_edges",
                   "topics", "work_topics")
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             counts = {table: db.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
                       for table in tables}
         return GraphStats(**counts)
 
     def researcher_works(self, openalex_author_id: str) -> list[dict[str, Any]]:
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             rows = db.execute("""
                 SELECT w.openalex_id, w.doi, w.title, w.publication_year,
                        w.landing_page_url, w.cited_by_count, e.author_position
@@ -208,7 +210,7 @@ class AcademicGraphStore:
 
     def topic_works(self, openalex_topic_id: str) -> list[dict[str, Any]]:
         """Return works assigned to a topic; score is classification metadata."""
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             rows = db.execute("""
                 SELECT w.openalex_id, w.title, w.publication_year,
                        w.landing_page_url, wt.score, t.display_name AS topic
