@@ -49,7 +49,7 @@ class CaceRuntimeCompositionTests(unittest.TestCase):
                     registry=self.registry, outbox=self.outbox
                 )
         with patch.dict(os.environ, {
-            "CACE_VERIFY_TRUSTED_KEYS_JSON": json.dumps({self.key_id: self.public_pem})
+            "CACE_VERIFY_TRUSTED_KEYS_JSON": json.dumps({self.key_id: {"verifier_id": "cace:production-verifier", "public_key_pem": self.public_pem}})
         }, clear=True):
             with self.assertRaisesRegex(ValueError, "transport is absent"):
                 cace_verification_adapter_from_environment(
@@ -75,7 +75,7 @@ class CaceRuntimeCompositionTests(unittest.TestCase):
                 registry=self.registry, outbox=self.outbox, opener=object()
             )
         self.assertIsInstance(adapter, CaceVerificationAdapter)
-        self.assertEqual(adapter.trusted_verifier_keys, {self.key_id: self.public_pem})
+        self.assertEqual(adapter.trusted_verifier_keys, {self.key_id: {"verifier_id": "cace:production-verifier", "public_key_pem": self.public_pem}})
         self.assertEqual(adapter.verify_transport.endpoint, "https://cace.example/verify")
         self.assertEqual(adapter.verify_transport.max_request_bytes, 36_000_000)
 
