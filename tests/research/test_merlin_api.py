@@ -92,6 +92,10 @@ class MerlinApiTests(unittest.TestCase):
             self.assertIn("recordUiInteraction", hud)
             self.assertIn("task_submitted", hud)
             self.assertIn("feedback_submitted", hud)
+            self.assertIn("telemetryOpt", hud)
+            self.assertIn("feedbackOpt", hud)
+            self.assertIn("deleteSessionFeedback", hud)
+            self.assertIn("loadLearningPreferences", hud)
         with urlopen(self.base + "/api/sim/state", timeout=5) as response:
             initial = json.loads(response.read())
         self.assertTrue(initial["simulation_only"])
