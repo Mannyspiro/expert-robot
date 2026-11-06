@@ -19,6 +19,7 @@ Merlin should improve from real use: which tasks people attempt, where they succ
 - POST /api/interaction/feedback
 - DELETE /api/interaction/feedback?session_id=OPAQUE_SESSION_ID (removes categorical feedback for that session only)
 - GET /api/learning/improvements
+- POST /api/learning/improvements/evaluate (stores a content-addressed, aggregate-only evaluation snapshot)
 - DELETE /api/interaction/feedback?session_id=OPAQUE_SESSION_ID (removes categorical feedback for that session only)
 
 Preferences: aggregate_telemetry controls metadata-only HTTP-boundary measurement; explicit_feedback_learning controls acceptance of voluntary categorical feedback; personalization is reserved and defaults off; raw conversation retention and automatic code/policy modification remain disabled.
@@ -54,4 +55,4 @@ The analyzer only emits proposals. It cannot edit source, deploy, alter policy, 
 
 ## Known implementation boundary
 
-v0.1 provides metadata telemetry, explicit categorical feedback, configurable opt-outs, aggregate quality/performance analysis and recommendation-only proposals. The HUD now emits metadata-only view/task/voice/attachment events and exposes Worked / Partly / Did not work feedback controls. It does not yet implement cross-session personalization, raw-content learning, automated model fine-tuning, automatic prompt/code changes, a canary deployment controller, or user-facing data export/deletion workflows. These remain separately gated engineering work.
+v0.1 provides metadata telemetry, explicit categorical feedback, configurable opt-outs, aggregate quality/performance analysis, content-addressed evaluation snapshots and recommendation-only proposals. The HUD now emits metadata-only view/task/voice/attachment events and exposes Worked / Partly / Did not work feedback controls. It does not yet implement cross-session personalization, raw-content learning, automated model fine-tuning, automatic prompt/code changes, a canary deployment controller, or user-facing data export/deletion workflows. These remain separately gated engineering work.
