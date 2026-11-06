@@ -11,9 +11,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 import hashlib
 import json
-from pathlib import Path
 import re
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any, Sequence
 
 from merlin.knowledge_graph import GraphEdge, GraphNode
 
@@ -220,7 +219,7 @@ def ingest_gemini_handoff(
 
     # This lookup both validates the project and avoids guessing project ownership.
     inventory = store.registry.inventory(project_id)
-    source_name = source_filename.replace("\\\\", "/").split("/")[-1][:255]
+    source_name = source_filename.replace(chr(92), "/").split("/")[-1][:255]
     archive_sha256 = hashlib.sha256(archive_bytes).hexdigest()
     selected = [
         item for item in parsed["conversations"]
