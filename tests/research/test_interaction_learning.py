@@ -54,6 +54,10 @@ class InteractionLearningTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 self.store.set_preferences(change)
 
+    def test_personalization_cannot_be_enabled_before_qualification(self):
+        with self.assertRaises(ValueError):
+            self.store.set_preferences({"personalization": True})
+
     def test_feedback_event_id_cannot_be_reused_with_different_content(self):
         event = {"event_id": "feedback-002", "session_id": "session-2",
                  "task_type": "chat", "outcome": "success"}
