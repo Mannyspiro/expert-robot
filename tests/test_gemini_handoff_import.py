@@ -106,7 +106,7 @@ class GeminiHandoffImportTests(unittest.TestCase):
         self.assertFalse(result["source_archive_bytes_retained"])
         self.assertEqual(
             result["source_granularity"],
-            "conversation_handoff_summary_not_raw_transcript",
+            "handoff_summary_and_selected_technical_appendices",
         )
         self.assertTrue(result["registry_reconciliation"]["consistent"])
 
