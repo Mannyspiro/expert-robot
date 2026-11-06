@@ -227,6 +227,42 @@ class CaceAdapterTests(unittest.TestCase):
         self.assertTrue(any(edge["relation"] == "reviews"
                             for edge in graph.export_snapshot()["edges"]))
 
+    def test_unsigned_receipt_is_rejected_even_when_outer_digest_matches(self):
+        def unsigned_transport(request):
+            receipt = signed_receipt(request)
+            receipt.pop("signed_attestation")
+            body = json.dumps(receipt, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+            receipt["receipt_sha256"] = hashlib.sha256(body.encode()).hexdigest()
+            return receipt
+
+        adapter = CaceVerificationAdapter(
+            verify_transport=unsigned_transport,
+            registry=self.registry, outbox=self.outbox,
+            trusted_verifier_keys=_TEST_TRUST,
+        )
+        with self.assertRaisesRegex(ValueError, "missing or extra fields"):
+            adapter.verify(
+                project_id="merlin", repository="owner/repo",
+                commit_sha=self.commit, artifact_sha256=self.artifact,
+                theorem="T", requester_id="merlin-agent",
+                tool_version="Lean 4.32.1",
+            )
+
+    def test_missing_cace_trust_store_fails_closed_before_transport(self):
+        called = []
+        adapter = CaceVerificationAdapter(
+            verify_transport=lambda request: called.append(request),
+            registry=self.registry, outbox=self.outbox,
+        )
+        with self.assertRaisesRegex(RuntimeError, "trust store is not configured"):
+            adapter.verify(
+                project_id="merlin", repository="owner/repo",
+                commit_sha=self.commit, artifact_sha256=self.artifact,
+                theorem="T", requester_id="merlin-agent",
+                tool_version="Lean 4.32.1",
+            )
+        self.assertEqual(called, [])
+
     def test_missing_cace_transport_fails_closed(self):
         adapter = CaceVerificationAdapter(verify_transport=None,
                                           registry=self.registry,outbox=self.outbox)
