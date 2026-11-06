@@ -65,8 +65,8 @@ def _public_key(pem: str):
 def trusted_cace_verifier_keys_from_environment() -> dict[str, str]:
     """Load pinned signer PEMs from CACE_VERIFY_TRUSTED_KEYS_JSON.
 
-    The variable must be a JSON object mapping CACE key IDs to public-key PEM
-    strings. Private keys must never be placed in Merlin's environment.
+    The variable must map CACE key IDs to objects containing the pinned verifier_id
+    and public_key_pem. Private keys must never be placed in Merlin's environment.
     """
     raw = os.environ.get("CACE_VERIFY_TRUSTED_KEYS_JSON", "").strip()
     if not raw:
@@ -77,14 +77,20 @@ def trusted_cace_verifier_keys_from_environment() -> dict[str, str]:
         raise ValueError("CACE_VERIFY_TRUSTED_KEYS_JSON must be valid JSON") from exc
     if not isinstance(payload, dict) or not payload:
         raise ValueError("CACE trusted key configuration must be a non-empty object")
-    trusted: dict[str, str] = {}
-    for key_id, pem in payload.items():
-        if not isinstance(key_id, str) or not isinstance(pem, str):
-            raise ValueError("CACE trusted key entries must map key IDs to PEM strings")
+    trusted: dict[str, dict[str, str]] = {}
+    for key_id, entry in payload.items():
+        if not isinstance(key_id, str) or not isinstance(entry, Mapping):
+            raise ValueError("CACE trusted key entries must be objects")
+        if set(entry) != {"verifier_id", "public_key_pem"}:
+            raise ValueError("CACE trusted key entries require verifier_id and public_key_pem")
+        verifier_id = entry.get("verifier_id")
+        pem = entry.get("public_key_pem")
+        if not isinstance(verifier_id, str) or not verifier_id.strip() or not isinstance(pem, str):
+            raise ValueError("CACE trusted key verifier identity and PEM are required")
         _, _, actual_id = _public_key(pem)
         if key_id != actual_id:
             raise ValueError("CACE trusted key ID does not match its public key")
-        trusted[key_id] = pem
+        trusted[key_id] = {"verifier_id": verifier_id, "public_key_pem": pem}
     return trusted
 
 
@@ -145,9 +151,14 @@ def verify_cace_signed_attestation(
         raise CaceAttestationError("CACE verifier key ID does not match embedded public key")
     if not isinstance(trusted_verifier_keys, Mapping) or not trusted_verifier_keys:
         raise RuntimeError("CACE verifier trust store is not configured")
-    pinned_pem = trusted_verifier_keys.get(key_id)
-    if not isinstance(pinned_pem, str):
+    pinned_entry = trusted_verifier_keys.get(key_id)
+    if not isinstance(pinned_entry, Mapping):
         raise CaceAttestationError("CACE verifier signing key is not trusted")
+    if set(pinned_entry) != {"verifier_id", "public_key_pem"}:
+        raise CaceAttestationError("CACE pinned signer identity record is malformed")
+    if pinned_entry.get("verifier_id") != verifier_id:
+        raise CaceAttestationError("CACE verifier identity differs from the pinned signer identity")
+    pinned_pem = pinned_entry.get("public_key_pem")
     _, pinned_raw, pinned_id = _public_key(pinned_pem)
     if pinned_id != key_id or pinned_raw != embedded_raw:
         raise CaceAttestationError("CACE embedded public key differs from pinned trust anchor")
