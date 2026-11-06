@@ -64,6 +64,11 @@ class MerlinLearningHttpTests(unittest.TestCase):
         })
         self.assertEqual(status, 201)
         cid = course["course_id"]
+        status, faculty_catalog = self.request("GET", "/api/learning/courses", "Bearer faculty")
+        self.assertEqual(status, 200)
+        self.assertEqual(faculty_catalog["count"], 1)
+        self.assertEqual(faculty_catalog["courses"][0]["course_id"], cid)
+        self.assertEqual(faculty_catalog["courses"][0]["status"], "draft")
         manifest = course["manifest"]
         manifest["objectives"] = [{"id": "PHY-1", "title": "Describe motion", "prerequisites": [],
                                   "dimensions": ["conceptual_explanation"]},
@@ -90,10 +95,17 @@ class MerlinLearningHttpTests(unittest.TestCase):
                                           "Bearer faculty", {})
         self.assertEqual(status, 200)
         self.assertEqual(published["status"], "published")
+        status, learner_catalog = self.request("GET", "/api/learning/courses", "Bearer learner")
+        self.assertEqual(status, 200)
+        self.assertEqual(learner_catalog["count"], 1)
+        self.assertIsNone(learner_catalog["courses"][0]["enrollment_status"])
         status, enrollment = self.request("POST", f"/api/learning/courses/{cid}/enroll",
                                           "Bearer learner", {})
         self.assertEqual(status, 200)
         self.assertEqual(enrollment["learner_id"], "student-1")
+        status, enrolled_catalog = self.request("GET", "/api/learning/courses", "Bearer learner")
+        self.assertEqual(status, 200)
+        self.assertEqual(enrolled_catalog["courses"][0]["enrollment_status"], "active")
         status, learner_view = self.request("GET", f"/api/learning/courses/{cid}",
                                             "Bearer learner")
         self.assertEqual(status, 200)
