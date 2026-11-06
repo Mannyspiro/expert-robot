@@ -86,7 +86,12 @@ class MerlinApiTests(unittest.TestCase):
     def test_simulation_hud_and_control_api(self):
         with urlopen(self.base + "/hud", timeout=5) as response:
             self.assertIn("text/html", response.headers.get("Content-Type", ""))
-            self.assertIn(b"MERLIN", response.read())
+            hud = response.read().decode("utf-8")
+            self.assertIn("MERLIN", hud)
+            self.assertIn("data-feedback=\\"success\\"", hud)
+            self.assertIn("recordUiInteraction", hud)
+            self.assertIn("task_submitted", hud)
+            self.assertIn("feedback_submitted", hud)
         with urlopen(self.base + "/api/sim/state", timeout=5) as response:
             initial = json.loads(response.read())
         self.assertTrue(initial["simulation_only"])
