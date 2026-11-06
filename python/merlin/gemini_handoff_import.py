@@ -43,6 +43,45 @@ _RESPONSE_MARKER_RE = re.compile(
 )
 
 
+APPENDIX_SPECS = {
+    "milestone_ledger": {
+        "title": "Master Chronological Ledger of Historical Milestones",
+        "start": "3. Master Chronological Ledger of All Historical Milestones",
+        "end": "4. Active Custom Skills, Long-Term Personalization Context & Google Drive Inventory",
+    },
+    "custom_skill_inventory": {
+        "title": "Active Custom Skills Inventory",
+        "start": "4.1 Complete Inventory of Your 7 Active Custom User Skills",
+        "end": "4.2 Recovered Long-Term Personalization & Commercial/Personal Context",
+    },
+    "math_kung_fu_master_prompt": {
+        "title": "Math Kung Fu Master Prompt",
+        "start": "5.1 Ready-to-Use \\"Math Kung Fu\\" Master Prompt",
+        "end": "5.2 Complete Adaptive Beginner-to-Master Freestyle Rap Training System & Toolbox",
+    },
+    "freestyle_rap_training_system": {
+        "title": "Adaptive Beginner-to-Master Freestyle Rap Training System",
+        "start": "5.2 Complete Adaptive Beginner-to-Master Freestyle Rap Training System & Toolbox",
+        "end": "6. Next-Session Quick-Start Commands & Recommended Continuation Tracks",
+    },
+    "quick_start_merlin_studio": {
+        "title": "Merlin Studio Quick Start",
+        "start": "1. Launch M.E.R.L.I.N. × Sui × CACE-MCFC v34.0 Studio Locally:",
+        "end": "2. Run the 20-Module M.E.R.L.I.N. v27 Self-Improving Engine",
+    },
+    "quick_start_self_improvement_engine": {
+        "title": "Merlin Self-Improvement Engine Quick Start",
+        "start": "2. Run the 20-Module M.E.R.L.I.N. v27 Self-Improving Engine",
+        "end": "3. Launch Your Local Atrix Natal, Witch & Psychometric Suite",
+    },
+    "research_frontiers": {
+        "title": "Prioritized Next Research and Engineering Frontiers",
+        "start": "4. Prioritized Next Research & Engineering Frontiers:",
+        "end": None,
+    },
+}
+
+
 class GeminiHandoffError(ValueError):
     """The supplied Gemini handoff cannot be safely indexed or imported."""
 
@@ -87,6 +126,19 @@ class GeminiHandoffConversation:
         )
 
 
+@dataclass(frozen=True)
+class GeminiHandoffAppendix:
+    appendix_id: str
+    title: str
+    raw_text: str
+    start_line: int
+    end_line: int
+
+    @property
+    def raw_sha256(self) -> str:
+        return hashlib.sha256(self.raw_text.encode("utf-8")).hexdigest()
+
+
 def _canonical_json(value: Any) -> bytes:
     return json.dumps(
         value,
@@ -97,30 +149,31 @@ def _canonical_json(value: Any) -> bytes:
     ).encode("utf-8")
 
 
-def _normalize_conversation_metadata(
+def _normalize_context_metadata(
     metadata: Mapping[str, Mapping[str, Any]] | None,
-    selected_ids: set[str],
+    allowed_ids: set[str],
+    context_label: str,
 ) -> dict[str, dict[str, Any]]:
     if metadata is None:
         return {}
     if not isinstance(metadata, Mapping):
-        raise GeminiHandoffError("conversation_metadata must be a mapping")
-    unknown_ids = sorted(set(metadata) - selected_ids)
+        raise GeminiHandoffError(f"{context_label}_metadata must be a mapping")
+    unknown_ids = sorted(set(metadata) - allowed_ids)
     if unknown_ids:
-        raise GeminiHandoffError("conversation metadata references IDs outside the allowlist")
+        raise GeminiHandoffError(f"{context_label} metadata references IDs outside its allowlist")
     normalized: dict[str, dict[str, Any]] = {}
     allowed = {"domain", "relevance", "merlin_capabilities", "evidence_handling"}
-    for conversation_id, item in metadata.items():
+    for context_id, item in metadata.items():
         if not isinstance(item, Mapping) or set(item) - allowed:
-            raise GeminiHandoffError("conversation metadata has an invalid shape")
+            raise GeminiHandoffError(f"{context_label} metadata has an invalid shape")
         domain = item.get("domain")
         relevance = item.get("relevance", "supporting_research")
         capabilities = item.get("merlin_capabilities", [])
         evidence_handling = item.get("evidence_handling", "source_context_unverified")
         if not isinstance(domain, str) or not domain.strip() or len(domain) > 80:
-            raise GeminiHandoffError("conversation metadata requires a short domain")
+            raise GeminiHandoffError(f"{context_label} metadata requires a short domain")
         if not isinstance(relevance, str) or not relevance.strip() or len(relevance) > 80:
-            raise GeminiHandoffError("conversation metadata relevance must be a short string")
+            raise GeminiHandoffError(f"{context_label} metadata relevance must be a short string")
         if not isinstance(capabilities, (list, tuple)) or any(
             not isinstance(value, str) or not value.strip() or len(value) > 80
             for value in capabilities
@@ -128,7 +181,7 @@ def _normalize_conversation_metadata(
             raise GeminiHandoffError("merlin_capabilities must be a list of short strings")
         if not isinstance(evidence_handling, str) or not evidence_handling.strip() or len(evidence_handling) > 120:
             raise GeminiHandoffError("evidence_handling must be a short string")
-        normalized[conversation_id] = {
+        normalized[context_id] = {
             "domain": domain.strip(),
             "relevance": relevance.strip(),
             "merlin_capabilities": list(capabilities),
@@ -229,6 +282,56 @@ def parse_gemini_handoff(
     }
 
 
+def extract_gemini_appendices(
+    text: str,
+    included_appendix_ids: Sequence[str],
+) -> tuple[GeminiHandoffAppendix, ...]:
+    """Extract only named technical appendices; personal-context sections are not allowlisted."""
+    if not isinstance(included_appendix_ids, (list, tuple)):
+        raise GeminiHandoffError("included_appendix_ids must be a list or tuple")
+    if len(set(included_appendix_ids)) != len(included_appendix_ids):
+        raise GeminiHandoffError("appendix allowlist contains duplicates")
+    unknown = sorted(set(included_appendix_ids) - set(APPENDIX_SPECS))
+    if unknown:
+        raise GeminiHandoffError("appendix allowlist contains unsupported section IDs")
+
+    lines = text.splitlines(keepends=True)
+
+    def locate(marker: str, after: int = 0) -> int | None:
+        for index in range(after, len(lines)):
+            if lines[index].strip().startswith(marker):
+                return index
+        return None
+
+    extracted = []
+    for appendix_id in included_appendix_ids:
+        spec = APPENDIX_SPECS[appendix_id]
+        start_index = locate(spec["start"])
+        if start_index is None:
+            raise GeminiHandoffError(f"requested technical appendix is missing: {appendix_id}")
+        end_marker = spec["end"]
+        if end_marker is None:
+            end_index = len(lines)
+        else:
+            end_index = locate(end_marker, start_index + 1)
+            if end_index is None:
+                raise GeminiHandoffError(f"technical appendix boundary is missing: {appendix_id}")
+        if end_index <= start_index:
+            raise GeminiHandoffError(f"technical appendix has an invalid range: {appendix_id}")
+        raw_text = "".join(lines[start_index:end_index])
+        extracted.append(
+            GeminiHandoffAppendix(
+                appendix_id=appendix_id,
+                title=spec["title"],
+                raw_text=raw_text,
+                start_line=start_index + 1,
+                end_line=end_index,
+            )
+        )
+    extracted.sort(key=lambda item: item.start_line)
+    return tuple(extracted)
+
+
 def ingest_gemini_handoff(
     store: Any,
     project_id: str,
@@ -237,6 +340,8 @@ def ingest_gemini_handoff(
     source_filename: str,
     included_conversation_ids: Sequence[str],
     conversation_metadata: Mapping[str, Mapping[str, Any]] | None = None,
+    included_appendix_ids: Sequence[str] = (),
+    appendix_metadata: Mapping[str, Mapping[str, Any]] | None = None,
     max_archive_bytes: int = MAX_ARCHIVE_BYTES,
 ) -> dict[str, Any]:
     """Import explicitly selected handoff sections into the canonical Merlin store.
@@ -269,7 +374,15 @@ def ingest_gemini_handoff(
     unknown = sorted(set(selected_ids) - set(by_id))
     if unknown:
         raise GeminiHandoffError("allowlist contains IDs absent from the supplied handoff")
-    normalized_metadata = _normalize_conversation_metadata(conversation_metadata, set(selected_ids))
+    normalized_metadata = _normalize_context_metadata(conversation_metadata, set(selected_ids), "conversation")
+    if not isinstance(included_appendix_ids, (list, tuple)):
+        raise GeminiHandoffError("included_appendix_ids must be a list or tuple")
+    if len(set(included_appendix_ids)) != len(included_appendix_ids):
+        raise GeminiHandoffError("appendix allowlist contains duplicates")
+    appendices = extract_gemini_appendices(text, included_appendix_ids)
+    normalized_appendix_metadata = _normalize_context_metadata(
+        appendix_metadata, set(included_appendix_ids), "appendix"
+    )
 
     # This lookup both validates the project and avoids guessing project ownership.
     inventory = store.registry.inventory(project_id)
@@ -288,6 +401,8 @@ def ingest_gemini_handoff(
         "mode": "explicit_allowlist_only",
         "included_conversation_ids": sorted(selected_ids),
         "conversation_metadata": normalized_metadata,
+        "included_appendix_ids": sorted(included_appendix_ids),
+        "appendix_metadata": normalized_appendix_metadata,
         "parser_version": PARSER_VERSION,
     }
     policy_sha256 = hashlib.sha256(_canonical_json(policy_payload)).hexdigest()
@@ -300,11 +415,14 @@ def ingest_gemini_handoff(
         "source_archive_sha256": archive_sha256,
         "source_archive_size_bytes": len(archive_bytes),
         "source_archive_bytes_retained": False,
-        "source_granularity": "conversation_handoff_summary_not_raw_transcript",
+        "source_granularity": "handoff_summary_and_selected_technical_appendices",
         "expected_conversation_count": parsed["expected_count"],
         "parsed_conversation_count": parsed["parsed_count"],
         "imported_conversation_count": len(selected),
         "excluded_conversation_count": parsed["parsed_count"] - len(selected),
+        "available_appendix_count": len(APPENDIX_SPECS),
+        "imported_appendix_count": len(appendices),
+        "not_imported_appendix_count": len(APPENDIX_SPECS) - len(appendices),
         "policy_sha256": policy_sha256,
         "parser_version": PARSER_VERSION,
     }
@@ -452,6 +570,79 @@ def ingest_gemini_handoff(
             }
         )
 
+    imported_appendices: list[dict[str, Any]] = []
+    for appendix in appendices:
+        classification = normalized_appendix_metadata.get(appendix.appendix_id, {})
+        raw_bytes = appendix.raw_text.encode("utf-8")
+        raw_digest = appendix.raw_sha256
+        logical_path = f"{intake_root}/appendices/{appendix.appendix_id}.txt"
+        stored_digest = store.put_artifact(
+            project_id,
+            logical_path,
+            raw_bytes,
+            "text/plain; charset=utf-8",
+            artifact_type="source",
+            evidence_class="unreviewed",
+            metadata={
+                "source_type": "gemini_handoff_technical_appendix",
+                "source_archive_sha256": archive_sha256,
+                "appendix_id": appendix.appendix_id,
+                "section_sha256": raw_digest,
+                "source_start_line": appendix.start_line,
+                "source_end_line": appendix.end_line,
+                "source_granularity": "technical_handoff_appendix",
+            },
+        )
+        if stored_digest != raw_digest:
+            raise RuntimeError("stored appendix digest does not match its source bytes")
+        appendix_node_id = (
+            f"source:gemini-appendix:{project_key}:{archive_sha256[:12]}:"
+            f"{policy_sha256[:12]}:{appendix.appendix_id}"
+        )
+        store.graph.add_node(
+            GraphNode(
+                node_id=appendix_node_id,
+                node_type="source",
+                label=appendix.title,
+                payload={
+                    "appendix_id": appendix.appendix_id,
+                    "title": appendix.title,
+                    "source_archive_sha256": archive_sha256,
+                    "raw_section_sha256": raw_digest,
+                    "logical_path": logical_path,
+                    "source_start_line": appendix.start_line,
+                    "source_end_line": appendix.end_line,
+                    "source_granularity": "technical_handoff_appendix",
+                    "classification": classification,
+                },
+                evidence_class="unreviewed",
+                source_uri=f"artifact:sha256:{stored_digest}",
+            )
+        )
+        store.graph.add_edge(
+            GraphEdge(source_node_id, "contains", appendix_node_id, {"appendix_id": appendix.appendix_id})
+        )
+        store.graph.add_edge(
+            GraphEdge(
+                appendix_node_id,
+                "contains",
+                f"artifact:sha256:{stored_digest}",
+                {"role": "raw_handoff_appendix"},
+            )
+        )
+        imported_appendices.append(
+            {
+                "appendix_id": appendix.appendix_id,
+                "title": appendix.title,
+                "appendix_node_id": appendix_node_id,
+                "raw_section_sha256": raw_digest,
+                "logical_path": logical_path,
+                "source_start_line": appendix.start_line,
+                "source_end_line": appendix.end_line,
+                "classification": classification,
+            }
+        )
+
     manifest = {
         "schema": "merlin-gemini-handoff-intake/1",
         "parser_version": PARSER_VERSION,
@@ -465,6 +656,10 @@ def ingest_gemini_handoff(
         "parsed_conversation_count": parsed["parsed_count"],
         "imported_conversation_count": len(imported),
         "excluded_conversation_count": parsed["parsed_count"] - len(imported),
+        "available_appendix_count": len(APPENDIX_SPECS),
+        "imported_appendix_count": len(imported_appendices),
+        "not_imported_appendix_count": len(APPENDIX_SPECS) - len(imported_appendices),
+        "imported_appendices": imported_appendices,
         "policy": policy_payload,
         "policy_sha256": policy_sha256,
         "imported_conversations": imported,
@@ -497,5 +692,6 @@ def ingest_gemini_handoff(
         "source_node_id": source_node_id,
         "manifest_artifact_sha256": manifest_digest,
         "manifest_logical_path": manifest_path,
+        "imported_appendices": imported_appendices,
         "registry_reconciliation": store.reconcile_project(project_id),
     }
