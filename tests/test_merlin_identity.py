@@ -219,6 +219,29 @@ class PyJWTJWKSVerifierTests(unittest.TestCase):
         with patch.dict(os.environ, {}, clear=True):
             self.assertIsNone(learning_identity_resolver_from_environment())
 
+    def test_environment_factory_builds_verifier_with_claim_mapping(self):
+        env = {
+            "MERLIN_OIDC_ISSUER": ISSUER,
+            "MERLIN_OIDC_AUDIENCE": AUDIENCE,
+            "MERLIN_OIDC_JWKS_URL": "https://identity.example.test/.well-known/jwks.json",
+            "MERLIN_OIDC_ALLOWED_ALGORITHMS": "RS256",
+            "MERLIN_OIDC_TENANT_CLAIM": "organization_id",
+            "MERLIN_OIDC_ROLE_CLAIM": "merlin_role",
+        }
+        token = self.token(
+            organization_id="tenant-from-idp",
+            merlin_role="instructor",
+        )
+        fake_jwks = FakeJWKSClient(self.public_key)
+        with patch.dict(os.environ, env, clear=True), patch(
+            "jwt.PyJWKClient", return_value=fake_jwks
+        ):
+            resolver = learning_identity_resolver_from_environment()
+            self.assertIsNotNone(resolver)
+            actor = resolver({"Authorization": "Bearer " + token})
+        self.assertEqual(actor, Actor("tenant-from-idp", "faculty-17", "instructor"))
+        self.assertEqual(fake_jwks.lookups, 1)
+
 
 if __name__ == "__main__":
     unittest.main()
