@@ -506,6 +506,31 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 if not isinstance(data, dict):
                     raise ValueError("request body must be a JSON object")
 
+                if path == "/api/memory":
+                    category = data.get("category")
+                    consent = data.get("consent")
+                    if category == "preference":
+                        entry = memory_vault.set_preference(data.get("key"), data.get("value"), consent=consent)
+                    elif category == "project":
+                        entry = memory_vault.set_project(data.get("key"), data.get("value"), consent=consent)
+                    else:
+                        raise ValueError("category must be preference or project")
+                    key_digest = sha256(str(data.get("key", "")).encode("utf-8")).hexdigest()
+                    store.append(path, {"category": category, "key_sha256": key_digest},
+                                 {"saved": True, "category": category,
+                                  "memory_context_enabled": memory_vault.context_enabled()})
+                    self._send(201, {"schema": "merlin-memory-vault-write/1",
+                                     "saved": True, "entry": entry,
+                                     "policy": memory_vault.snapshot()["policy"]})
+                    return
+                if path == "/api/memory/context":
+                    enabled = memory_vault.set_context_enabled(data.get("enabled"), consent=data.get("consent"))
+                    store.append(path, {"enabled": enabled},
+                                 {"memory_context_enabled": enabled, "raw_conversation_retention": False})
+                    self._send(200, {"schema": "merlin-memory-context-policy/1",
+                                     "memory_context_enabled": enabled,
+                                     "raw_conversation_retention": False})
+                    return
                 if path == "/api/learning/improvements/evaluate":
                     analysis = current_interaction_analysis()
                     receipt = interaction_store.save_analysis(analysis)
