@@ -86,8 +86,8 @@ class CaceAttestationTests(unittest.TestCase):
         self.assertEqual(result["verifier_key_id"], self.key_id)
         self.assertEqual(result["purpose"], "independent-reproduction")
 
-    def test_embedded_key_without_trust_anchor_is_rejected(self):
-        with self.assertRaisesRegex(CaceAttestationError, "not trusted"):
+    def test_missing_trust_store_is_a_configuration_error(self):
+        with self.assertRaisesRegex(RuntimeError, "trust store is not configured"):
             self.verify(trust={})
 
     def test_wrong_artifact_claim_or_commit_binding_is_rejected(self):
