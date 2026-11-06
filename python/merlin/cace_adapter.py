@@ -26,7 +26,7 @@ class CaceVerificationAdapter:
     def __init__(self, *, verify_transport: Callable[[dict[str, Any]], Mapping[str, Any]] | None,
                  registry: MerlinRegistry, outbox: MerlinEventOutbox,
                  graph: MerlinKnowledgeGraph | None = None,
-                 trusted_verifier_keys: Mapping[str, str] | None = None):
+                 trusted_verifier_keys: Mapping[str, Mapping[str, str]] | None = None):
         self.verify_transport = verify_transport
         self.registry = registry
         self.outbox = outbox
