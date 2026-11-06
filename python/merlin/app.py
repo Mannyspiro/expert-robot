@@ -32,6 +32,7 @@ from .interaction_learning import InteractionLearningStore, analyze_interactions
 from .memory_vault import MerlinMemoryVault
 from .capability_registry import capability_snapshot, validate_graph
 from .learning_platform import Actor as LearningActor, LearningPlatform
+from .identity import learning_identity_resolver_from_environment
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
     validate_analogy,
@@ -1184,6 +1185,8 @@ def _build_optional_hud_runtime(canonical_registry: Any | None = None):
 
 def serve(port: int = 8765, db_path: str | None = None,
           learning_identity_resolver: Any | None = None) -> None:
+    if learning_identity_resolver is None:
+        learning_identity_resolver = learning_identity_resolver_from_environment()
     target = db_path or os.environ.get(
         "MERLIN_DB_PATH",
         str(Path.home() / ".local" / "share" / "merlin" / "events.sqlite3"),
