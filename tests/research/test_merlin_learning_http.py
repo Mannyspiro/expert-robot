@@ -70,8 +70,12 @@ class MerlinLearningHttpTests(unittest.TestCase):
                                  {"id": "PHY-2", "title": "Model acceleration",
                                   "prerequisites": ["PHY-1"],
                                   "dimensions": ["conceptual_explanation"]}]
-        manifest["lessons"] = [{"id": "lesson-1", "title": "Motion", "objective_id": "PHY-1",
-                                "body": "Position changes over time."}]
+        manifest["lessons"] = [
+            {"id": "lesson-1", "title": "Motion", "objective_id": "PHY-1",
+             "body": "Position changes over time."},
+            {"id": "lesson-2", "title": "Acceleration", "objective_id": "PHY-2",
+             "body": "Acceleration is the rate of change of velocity."},
+        ]
         manifest["resources"] = [{"id": "resource-1", "title": "Open resource",
                                   "source_uri": "https://example.org/physics",
                                   "license": "CC-BY-4.0", "creator": "Faculty"}]
