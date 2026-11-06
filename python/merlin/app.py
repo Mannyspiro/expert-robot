@@ -346,6 +346,10 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
         } if isinstance(configured_worker_tokens, dict) else {}
     except (TypeError, ValueError, json.JSONDecodeError):
         worker_tokens = {}
+    configured_admin_token = os.environ.get("MERLIN_OUTBOX_ADMIN_TOKEN", "")
+    admin_token = (configured_admin_token if isinstance(configured_admin_token, str)
+                   and configured_admin_token.isascii() and len(configured_admin_token) >= 32
+                   else "")
 
     def current_interaction_analysis():
         preferences = interaction_store.preferences()
@@ -435,6 +439,14 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             if not supplied or not hmac.compare_digest(supplied.encode("utf-8"), expected.encode("utf-8")):
                 return None
             return worker_id
+
+        def _outbox_admin_authenticated(self):
+            authorization = self.headers.get("Authorization", "")
+            if not admin_token or not authorization.startswith("Bearer "):
+                return False
+            supplied = authorization[7:].strip()
+            return bool(supplied) and hmac.compare_digest(
+                supplied.encode("utf-8"), admin_token.encode("utf-8"))
 
         def do_GET(self) -> None:
             self._request_started = perf_counter()
@@ -633,6 +645,26 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     raise ValueError("request body must be a JSON object")
 
                 if path.startswith("/api/internal/outbox/"):
+                    action = path.rsplit("/", 1)[-1]
+                    if action == "cancel":
+                        if not self._outbox_admin_authenticated():
+                            self._send(401, {"error": "outbox_admin_authentication_required"})
+                            return
+                        if learning_outbox is None:
+                            self._send(503, {"error": "outbox_not_configured"})
+                            return
+                        event_id = data.get("event_id")
+                        reason = data.get("reason", "")
+                        if not isinstance(event_id, str) or not event_id:
+                            raise ValueError("event_id is required")
+                        if not isinstance(reason, str) or len(reason) > 500:
+                            raise ValueError("reason must be a string of at most 500 characters")
+                        result = learning_outbox.cancel(event_id, "merlin-admin", reason)
+                        store.append(path, {"actor": "merlin-admin", "event_id": event_id},
+                                     {"action": "cancel", "state": result["state"]})
+                        self._send(200, {"schema": "merlin-outbox-admin-action/1",
+                                         "event": result})
+                        return
                     worker_id = self._worker_actor()
                     if worker_id is None:
                         self._send(401, {"error": "worker_authentication_required"})
@@ -640,7 +672,6 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     if learning_outbox is None:
                         self._send(503, {"error": "outbox_not_configured"})
                         return
-                    action = path.rsplit("/", 1)[-1]
                     if action == "claim":
                         topics = data.get("topics")
                         if topics is not None and (
