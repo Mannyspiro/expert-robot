@@ -84,6 +84,13 @@ class InteractionLearningApiTests(unittest.TestCase):
         })
         before = len(self.store.by_kind("/api/telemetry/ingest", 10000))
         self.request("GET", "/health")
+        _, rejected = self.request("POST", "/api/telemetry/ingest", {
+            "source": "operator", "kind": "operator.action",
+            "run_id": "opted-out-session", "task_id": "hud",
+            "payload": {"action": "view_change", "view": "graph"},
+        })
+        self.assertFalse(rejected["accepted"])
+        self.assertEqual(rejected["reason"], "telemetry_disabled")
         after = len(self.store.by_kind("/api/telemetry/ingest", 10000))
         self.assertEqual(before, after)
         _, improvements = self.request("GET", "/api/learning/improvements")
