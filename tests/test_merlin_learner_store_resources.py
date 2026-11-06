@@ -16,6 +16,7 @@ from python.merlin.hypothesis_ledger import HypothesisLedger
 from python.merlin.interaction_learning import InteractionLearningStore
 from python.merlin.learner_model import LearnerStore
 from python.merlin.project_registry import MerlinRegistry
+from python.merlin.proof_observatory import ProofObservatory
 
 
 class TrackingConnection(sqlite3.Connection):
@@ -104,6 +105,9 @@ class MerlinSQLiteLifecycleTests(unittest.TestCase):
                         "event_id": "feedback-1",
                     })
                     interactions.feedback_summary()
+
+                    with ProofObservatory(root / "proof-observatory.sqlite3") as proof:
+                        self.assertTrue(proof.verify_chain())
 
                     outbox = MerlinEventOutbox(root / "outbox.sqlite3")
                     event = outbox.enqueue("key-1", "merlin.test", {"value": 1})
