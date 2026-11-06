@@ -115,6 +115,34 @@ class OpportunityIntelligenceTests(unittest.TestCase):
         self.assertEqual(result.eligibility, "ineligible")
         self.assertTrue(any("license" in x for x in result.blockers))
 
+    def test_missing_license_is_conditional_not_assumed_absent(self):
+        item = self.make_opportunity(
+            opportunity_type="government_contract",
+            applicant_types=("for_profit_business",),
+            license_jurisdictions=("Arizona", "California"),
+        )
+        profile = ApplicantProfile(applicant_type="for_profit_business",
+                                   licenses=("Arizona",))
+        result = evaluate_opportunity(item, profile, date(2026, 11, 5))
+        self.assertEqual(result.eligibility, "conditional")
+        self.assertTrue(any("California" in x for x in result.verification_required))
+
+    def test_explicitly_unheld_license_blocks(self):
+        item = self.make_opportunity(
+            opportunity_type="government_contract",
+            applicant_types=("for_profit_business",),
+            license_jurisdictions=("California",),
+        )
+        profile = ApplicantProfile(applicant_type="for_profit_business",
+                                   unmet_licenses=("California",))
+        result = evaluate_opportunity(item, profile, date(2026, 11, 5))
+        self.assertEqual(result.eligibility, "ineligible")
+        self.assertTrue(any("not held" in x for x in result.blockers))
+
+    def test_invalid_applicant_type_rejected(self):
+        with self.assertRaises(ValueError):
+            ApplicantProfile(applicant_type="unknown")
+
     def test_ranking_puts_eligible_before_conditional_and_closed(self):
         good = self.make_opportunity(opportunity_id="a", title="A")
         uncertain = self.make_opportunity(opportunity_id="b", title="B",
