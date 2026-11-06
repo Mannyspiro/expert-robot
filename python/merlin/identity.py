@@ -16,6 +16,7 @@ from collections.abc import Callable, Mapping
 from math import isfinite
 import re
 import time
+from urllib.parse import urlsplit
 from typing import Any
 
 from .learning_platform import Actor, ROLES
@@ -44,6 +45,8 @@ class OIDCIdentityResolver:
         revocation_checker: RevocationChecker | None = None,
         clock: Callable[[], float] = time.time,
         clock_skew_seconds: int = 60,
+        tenant_claim: str = "tenant_id",
+        role_claim: str = "role",
     ) -> None:
         self.issuer = issuer.strip() if isinstance(issuer, str) else ""
         self.audience = audience.strip() if isinstance(audience, str) else ""
@@ -51,6 +54,8 @@ class OIDCIdentityResolver:
         self.allowed_roles = frozenset(allowed_roles) & frozenset(ROLES)
         self.revocation_checker = revocation_checker
         self.clock = clock
+        self.tenant_claim = tenant_claim
+        self.role_claim = role_claim
         self.clock_skew_seconds = max(0, min(int(clock_skew_seconds), 300))
 
     @property
@@ -115,8 +120,8 @@ class OIDCIdentityResolver:
                 return None
 
             subject = self._text(claims, "sub")
-            tenant_id = self._text(claims, "tenant_id")
-            role = self._text(claims, "role", 64)
+            tenant_id = self._text(claims, self.tenant_claim)
+            role = self._text(claims, self.role_claim, 64)
             if not subject or not tenant_id or not role:
                 return None
             if role not in self.allowed_roles:
@@ -131,3 +136,125 @@ class OIDCIdentityResolver:
         except Exception:
             # Do not leak verifier exceptions or token material into HTTP output.
             return None
+
+
+class PyJWTJWKSVerifier:
+    """Production JWT signature/claim verifier backed by PyJWT and a JWKS endpoint.
+
+    Issuer, audience, JWKS URL and the fixed asymmetric algorithm allowlist are
+    trusted deployment configuration. The token's unverified header is used
+    only by PyJWKClient to select a candidate key; jwt.decode then verifies
+    the signature and registered claims using the configured allowlist.
+    """
+
+    _ASYMMETRIC_ALGORITHMS = frozenset({
+        "RS256", "RS384", "RS512", "PS256", "PS384", "PS512",
+        "ES256", "ES384", "ES512", "EdDSA",
+    })
+
+    def __init__(
+        self,
+        *,
+        issuer: str,
+        audience: str,
+        jwks_url: str,
+        allowed_algorithms: tuple[str, ...] | list[str],
+        leeway_seconds: int = 60,
+        timeout_seconds: float = 5,
+        jwks_cache_seconds: int = 300,
+        jwks_client: Any | None = None,
+    ) -> None:
+        self.issuer = issuer.strip()
+        self.audience = audience.strip()
+        self.jwks_url = jwks_url.strip()
+        algorithms = frozenset(allowed_algorithms)
+        if not self.issuer or not self.audience:
+            raise ValueError("OIDC issuer and audience are required")
+        if not algorithms or not algorithms.issubset(self._ASYMMETRIC_ALGORITHMS):
+            raise ValueError("OIDC algorithms must be a non-empty asymmetric allowlist")
+        parsed = urlsplit(self.jwks_url)
+        local_hosts = {"localhost", "127.0.0.1", "::1"}
+        if parsed.scheme != "https" and not (
+            parsed.scheme == "http" and parsed.hostname in local_hosts
+        ):
+            raise ValueError("JWKS URL must use HTTPS except for loopback development")
+        if not parsed.hostname or parsed.username or parsed.password or parsed.fragment:
+            raise ValueError("JWKS URL is invalid")
+        if isinstance(leeway_seconds, bool) or not 0 <= leeway_seconds <= 300:
+            raise ValueError("OIDC clock leeway must be between 0 and 300 seconds")
+        if timeout_seconds <= 0 or timeout_seconds > 30:
+            raise ValueError("JWKS timeout must be greater than 0 and at most 30 seconds")
+        if isinstance(jwks_cache_seconds, bool) or not 1 <= jwks_cache_seconds <= 3600:
+            raise ValueError("JWKS cache lifetime must be between 1 and 3600 seconds")
+        try:
+            import jwt
+        except ImportError as exc:
+            raise RuntimeError("PyJWT[crypto] is required for OIDC JWKS verification") from exc
+        self._jwt = jwt
+        self.algorithms = tuple(sorted(algorithms))
+        self.leeway_seconds = int(leeway_seconds)
+        self._jwks = jwks_client or jwt.PyJWKClient(
+            self.jwks_url,
+            cache_jwk_set=True,
+            lifespan=jwks_cache_seconds,
+            timeout=timeout_seconds,
+            cooldown_duration=0,
+        )
+
+    def __call__(self, token: str, expected_issuer: str, expected_audience: str) -> Mapping[str, Any]:
+        if expected_issuer != self.issuer or expected_audience != self.audience:
+            raise ValueError("OIDC verifier configuration does not match resolver policy")
+        signing_key = self._jwks.get_signing_key_from_jwt(token)
+        return self._jwt.decode(
+            token,
+            signing_key.key,
+            algorithms=list(self.algorithms),
+            issuer=self.issuer,
+            audience=self.audience,
+            leeway=self.leeway_seconds,
+            options={
+                "require": ["exp", "iss", "aud", "sub"],
+                "verify_signature": True,
+                "verify_exp": True,
+                "verify_iss": True,
+                "verify_aud": True,
+                "verify_nbf": True,
+            },
+        )
+
+
+def learning_identity_resolver_from_environment() -> OIDCIdentityResolver | None:
+    """Create the production JWKS resolver only when all trusted settings exist."""
+    import os
+
+    issuer = os.environ.get("MERLIN_OIDC_ISSUER", "").strip()
+    audience = os.environ.get("MERLIN_OIDC_AUDIENCE", "").strip()
+    jwks_url = os.environ.get("MERLIN_OIDC_JWKS_URL", "").strip()
+    if not issuer or not audience or not jwks_url:
+        return None
+    algorithms = tuple(
+        item.strip() for item in os.environ.get(
+            "MERLIN_OIDC_ALLOWED_ALGORITHMS", "RS256"
+        ).split(",") if item.strip()
+    )
+    try:
+        verifier = PyJWTJWKSVerifier(
+            issuer=issuer,
+            audience=audience,
+            jwks_url=jwks_url,
+            allowed_algorithms=algorithms,
+            leeway_seconds=int(os.environ.get("MERLIN_OIDC_LEEWAY_SECONDS", "60")),
+            timeout_seconds=float(os.environ.get("MERLIN_OIDC_JWKS_TIMEOUT_SECONDS", "5")),
+            jwks_cache_seconds=int(os.environ.get("MERLIN_OIDC_JWKS_CACHE_SECONDS", "300")),
+        )
+        return OIDCIdentityResolver(
+            issuer=issuer,
+            audience=audience,
+            token_verifier=verifier,
+            tenant_claim=os.environ.get("MERLIN_OIDC_TENANT_CLAIM", "tenant_id"),
+            role_claim=os.environ.get("MERLIN_OIDC_ROLE_CLAIM", "role"),
+        )
+    except Exception as exc:
+        print("Merlin Learning OIDC verifier unavailable: " + type(exc).__name__)
+        return None
+
