@@ -34,6 +34,19 @@ class PartnerQualificationTests(unittest.TestCase):
         self.assertEqual(len(result.verified_evidence), 7)
         self.assertTrue(any("human selection" in reason for reason in result.reasons))
 
+    def test_carrier_confirmation_can_verify_appointments(self):
+        candidate = self.complete_candidate()
+        items = tuple(
+            evidence(x.evidence_type,
+                     "carrier_confirmation" if x.evidence_type == "appointments" else x.source_kind)
+            for x in candidate.evidence
+        )
+        result = evaluate_partner(PartnerCandidate(
+            candidate.partner_id, candidate.legal_name, candidate.relationship, items,
+        ))
+        self.assertEqual(result.decision, "qualified_for_human_review")
+        self.assertIn("appointments", result.verified_evidence)
+
     def test_directory_listing_cannot_verify_license(self):
         candidate = PartnerCandidate(
             "p-2", "Directory Benefits LLC", "potential_subcontractor",
