@@ -178,3 +178,48 @@ For each candidate, collect only after user-authorized outreach:
 - Add date-scoped source monitoring for the November 10 meeting and November 23 deadline; capture each official page snapshot/hash and every addendum as a new immutable source observation.
 - Any generated proposal must cite the exact RFP clause and evidence item for each assertion. Unsupported claims are blocked from export.
 - Require explicit human approval before outreach, portal registration, document upload, proposal submission, pricing commitment, or contract acceptance.
+
+
+## Partner discovery update — Arizona public-sector benefits specialists
+Review date: 2026-11-05. This is discovery evidence only, not a recommendation to contact or an endorsement.
+
+### Highest-relevance public-sector capability leads
+- **VSMG** — https://vsmg.org/ . Its own website describes an Arizona nonprofit employee-benefits consultant focused on school districts, municipalities, and other public entities, with Phoenix and Tucson offices and more than 20 years of public-sector focus. It describes an independent third-party specialist model. This makes VSMG a strong capability benchmark and possible specialist conversation lead, but it may also compete for the same work. Its willingness to team on this RFP, its precise legal/licensing structure, and its conflict position are unknown.
+- **CapFi Consulting** — https://capficonsulting.com/ . Its own team page describes a public-sector practice lead advising Arizona municipalities and school districts. The 1GPA vendor page lists CapFi Consulting under employee benefits broker/consultant services, contract 24-05P-02, with listed expiration December 4, 2028. This is evidence of public-sector channel experience, not evidence that CapFi is available to subcontract or that it is eligible/appropriate for this City solicitation. It may be a competitor or an incumbent under a cooperative contract.
+
+### Phoenix-area discovery candidates
+- **Arizona Benefit Consultants** — https://azbenefitco.com/ ; Phoenix group-benefits and employer plan support lead. Public business listing: 4222 E Thomas Rd Ste 225, Phoenix, AZ 85018; 602-956-5515.
+- **Strunk Insurance Group** — Phoenix benefits brokerage / HR consulting lead. Public business listing: 14425 N 7th St #102, Phoenix, AZ 85022; 602-978-4414.
+- **Hynes Benefits Consulting** — Phoenix boutique employee-benefits consulting lead. Public business listing: 3200 N Central Ave Ste 1170, Phoenix, AZ 85012; 520-317-4967.
+- **Pomeroy Group** — Phoenix benefits brokerage / consulting lead. Public business listing: 3134 N 7th St, Phoenix, AZ 85014; 602-265-8900.
+- **Reseco Insurance Advisors** — Phoenix commercial insurance, employee-benefits, and risk advisory lead. Public business listing: 7901 N 16th St #100, Phoenix, AZ 85020; 602-753-4250.
+- **Focus Benefits Group** — Phoenix employee-benefits consulting lead. Public business listing: 11022 S 51st St Ste 104, Phoenix, AZ 85044; 602-381-9900.
+- **AZ Health Insurance Brokers** — Phoenix health-insurance / employer group benefits lead. Public business listing: 11225 N 28th Dr B246, Phoenix, AZ 85029; 602-617-4107.
+- **KB Benefits** — Phoenix-area health and employee-benefits lead. Public business listing: 3930 E Ray Rd Ste 155, Phoenix, AZ 85044; 480-582-5528.
+
+Business directory descriptions and ratings are not license verification, proof of public-sector performance, appointment evidence, or willingness to team. No outreach has been made.
+
+### Licensing verification source and required evidence
+- Arizona DIFI license search: https://difi.az.gov/license-search
+- DIFI insurance professional licensing guidance: https://difi.az.gov/licensing/insurance-professionals
+- DIFI explains that both individuals and business entities may need producer licensing when selling, soliciting, or negotiating insurance, and its search distinguishes licensees (individuals/entities) from companies/administrators.
+- Before classifying any candidate as a qualified benefits partner, verify the exact legal entity and each responsible individual, active status, relevant accident-and-health / life lines of authority, designated responsible licensed producer where applicable, and carrier appointments for the required lines. Verify third-party administrator or other company authorization separately where the service model requires it.
+- Evidence should be captured as dated official registry observations with legal name, license type, lines, status, source URL, retrieval date, and artifact hash. A directory listing, NPN supplied by a candidate, or website claim alone is not authoritative verification.
+
+### Revised partner assessment
+- **Capability benchmark / potential competitor:** VSMG and CapFi, because public materials or cooperative-contract records specifically identify public-sector employee-benefits work.
+- **Local discovery candidates:** Arizona Benefit Consultants, Strunk, Hynes, Pomeroy, Reseco, Focus, AZ Health Insurance Brokers, and KB Benefits.
+- **No partner approved:** no licensing/appointment evidence, RFP subcontracting permission, conflict review, reference checks, or written teaming interest has been verified.
+- **No direct bid recommendation:** maintain HOLD pending the full RFP package and the user's own verified authority/capacity evidence. Do not state that the user can perform health/life/disability brokerage based on P&C authority.
+
+### Solicitation freshness observation
+The official City E-Gov posting still reported 26-102626-RFP-HR as Open on 2026-11-05, with proposal close 2026-11-23 at 5:00 PM Arizona time and pre-proposal meeting 2026-11-10 at 10:00 AM Arizona time. The specifications remain login-gated. A secondary listing shows a conflicting midnight/Nov 24 timestamp; the official City portal controls. No addendum was displayed in the public listing at this review. Recheck the official posting and portal documents before relying on this observation.
+Official source: https://www.egovlink.com/maricopa/postings_info.asp?dlistid=1067&listtype=BID&posting_id=5761&sc_category_id=&sc_show_expired=Y&sc_status_id=122
+
+### Merlin partner intelligence requirements
+- Add a partner relationship class: capability_benchmark, potential_competitor, potential_prime, potential_subcontractor, referral_source, or unqualified.
+- Store license verification separately for each individual and entity; store lines of authority, status, designated producer, appointments, and source observation.
+- Store public-sector experience as evidence-backed claims with named public award/contract references, period, role, scope, and source—not a free-text score.
+- Add conflict-of-interest and incumbent/cooperative-contract checks before recommending a partner.
+- Rank partners by evidence completeness and RFP fit, not directory ratings, advertising claims, proximity, or inferred willingness.
+- Do not send contact requests or share user/agency information without explicit approval.
