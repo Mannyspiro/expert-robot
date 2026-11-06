@@ -346,6 +346,22 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
         } if isinstance(configured_worker_tokens, dict) else {}
     except (TypeError, ValueError, json.JSONDecodeError):
         worker_tokens = {}
+    # Generic HTTP workers receive explicit per-worker topic grants. The
+    # Hermes task topic is intentionally excluded: only HermesWorker performs
+    # approval/MCFC-lease revalidation before executing those tasks.
+    try:
+        configured_topic_allowlist = json.loads(
+            os.environ.get("MERLIN_WORKER_TOPIC_ALLOWLIST", "{}"))
+        worker_topic_allowlist = {}
+        if isinstance(configured_topic_allowlist, dict):
+            for worker_id, topics in configured_topic_allowlist.items():
+                if (isinstance(worker_id, str) and worker_id in worker_tokens
+                        and isinstance(topics, list) and len(topics) <= 50
+                        and all(isinstance(topic, str) and topic and len(topic) <= 200
+                                and topic != "merlin.hermes.task" for topic in topics)):
+                    worker_topic_allowlist[worker_id] = frozenset(topics)
+    except (TypeError, ValueError, json.JSONDecodeError):
+        worker_topic_allowlist = {}
     configured_admin_token = os.environ.get("MERLIN_OUTBOX_ADMIN_TOKEN", "")
     admin_token = (configured_admin_token if isinstance(configured_admin_token, str)
                    and configured_admin_token.isascii() and len(configured_admin_token) >= 32
@@ -686,12 +702,17 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                         return
                     if action == "claim":
                         topics = data.get("topics")
-                        if topics is not None and (
-                            not isinstance(topics, list) or len(topics) > 20
-                            or any(not isinstance(topic, str) or not topic or len(topic) > 200
-                                   for topic in topics)
-                        ):
-                            raise ValueError("topics must be a list of at most 20 topic names")
+                        allowed_topics = worker_topic_allowlist.get(worker_id, frozenset())
+                        if not allowed_topics:
+                            self._send(403, {"error": "worker_has_no_topic_grants"})
+                            return
+                        if (not isinstance(topics, list) or not topics or len(topics) > 20
+                                or any(not isinstance(topic, str) or not topic or len(topic) > 200
+                                       for topic in topics)):
+                            raise ValueError("topics must be a non-empty list of at most 20 topic names")
+                        if any(topic not in allowed_topics for topic in topics):
+                            self._send(403, {"error": "worker_topic_not_authorized"})
+                            return
                         lease = learning_outbox.claim_next(
                             worker_id, lease_seconds=data.get("lease_seconds", 60), topics=topics)
                         if lease is not None:
