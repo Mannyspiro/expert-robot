@@ -24,6 +24,14 @@ This is a source-led research snapshot, not an eligibility determination or appl
 - The State says APP is the source for real-time open solicitations; the public active-contract listing is updated monthly until further notice.
 - Source: Arizona SPO cooperative contracts and contracts pages (accessed 2026-11-06).
 
+### Valleywise Health insurance brokerage solicitation — unverified candidate
+- A third-party listing surfaced solicitation 90-27-017-RFP, described as Insurance Broker/Consultant Services, with a claimed November 25, 2026 deadline and extensive qualifications/insurance requirements: https://bidscopeai.com/opportunities/5afcb6be-27ec-470d-ad5d-f1a59c970a50
+- Official Valleywise procurement search did not return this solicitation in the official awarded-solicitations page or in the search performed on 2026-11-06. The official page located is https://valleywisehealth.org/about/procurement/open-solicitations/bid-and-award-tabulations/awarded-solicitations/
+- Official historical documents show prior insurance broker solicitations 90-20-015-RFP and 90-20-023-RFP, and a board packet says the 90-20-015 contract was extended through December 31, 2026. These are historical facts, not confirmation of the new listing: https://valleywisehealth.org/wp-content/plugins/plugin_files/php/board_meetings/formal_meeting/packets/SHCD_BOD_012225_packet_as_of_012125.pdf
+- Disposition: UNVERIFIED THIRD-PARTY LEAD. Do not describe as open, do not contact using unverified listing details, and do not spend bid-preparation resources until Valleywise confirms the solicitation number, official RFP package, deadline, addenda, submission channel, and contracting officer directly.
+- If confirmed, evaluate the full RFP against agency/entity licensing, insurer appointments, healthcare-sector experience, references, professional liability, cyber coverage, workers' compensation, independence/conflict disclosures, and dedicated service capacity. User's individual P&C producer license alone does not establish these qualifications.
+- Source review date: 2026-11-06.
+
 ## Amateur radio / technology / community grants
 
 ### Amateur Radio Digital Communications (ARDC)
