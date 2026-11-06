@@ -25,8 +25,7 @@ class PartnerEvidencePipelineTests(unittest.TestCase):
 
     def test_difi_normalized_export_imports_entity_and_individual_observations(self):
         source = "\n".join([
-            "subject_id,subject_type,legal_name,license_number,license_type,",
-            "lines_of_authority,status,source_record_id,effective_on",
+            "subject_id,subject_type,legal_name,license_number,license_type,lines_of_authority,status,source_record_id,effective_on",
             "e1,entity,Example LLC,123,producer_entity,property;casualty,active,SBS-E1,2026-01-01",
             "i1,individual,Jane Producer,456,producer,property;casualty,active,SBS-I1,2026-01-01",
         ])
@@ -70,7 +69,7 @@ class PartnerEvidencePipelineTests(unittest.TestCase):
     def test_rfp_text_is_split_into_clause_linked_document_evidence(self):
         clauses = ingest_rfp_text(
             "RFP-26", "official-rfp.txt", "https://city.gov/rfp",
-            "1 Scope\\nProvide benefits consulting.\\n2.1 Licensing\\nShow required licenses.",
+            "\n".join(["1 Scope", "Provide benefits consulting.", "2.1 Licensing", "Show required licenses."]),
             "2026-11-05",
         )
         self.assertEqual(len(clauses), 2)
