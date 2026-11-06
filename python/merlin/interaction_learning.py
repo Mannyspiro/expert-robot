@@ -139,7 +139,11 @@ class InteractionLearningStore:
                 previous = tuple(old[k] for k in (
                     "event_id", "session_id", "domain", "task_type", "outcome",
                     "friction_code", "correction_type", "satisfaction", "created_at"))
-                if previous != row:
+                same = previous == row
+                # Server-generated receipt time must not make a network retry conflict.
+                if "created_at" not in event:
+                    same = previous[:-1] == row[:-1]
+                if not same:
                     raise ValueError("event_id reused with different feedback")
                 return {"accepted": True, "duplicate": True, "event_id": event_id}
             db.execute("INSERT INTO interaction_feedback VALUES(?,?,?,?,?,?,?,?,?)", row)
