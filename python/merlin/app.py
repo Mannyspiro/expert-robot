@@ -1144,7 +1144,8 @@ def _build_optional_hud_runtime(canonical_registry: Any | None = None):
         return None
 
 
-def serve(port: int = 8765, db_path: str | None = None,\n          learning_identity_resolver: Any | None = None) -> None:
+def serve(port: int = 8765, db_path: str | None = None,
+          learning_identity_resolver: Any | None = None) -> None:
     target = db_path or os.environ.get(
         "MERLIN_DB_PATH",
         str(Path.home() / ".local" / "share" / "merlin" / "events.sqlite3"),
