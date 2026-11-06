@@ -186,6 +186,15 @@ jobs:
 
       - name: Merlin deterministic research and API contracts
         run: python3 -m unittest discover -s tests/research -v
+      - name: Merlin legal intelligence schema and graph tests
+        shell: bash
+        run: |
+          set +e
+          mkdir -p artifacts
+          python3 -m unittest discover -s tests/research -p "test_legal_intelligence.py" -v 2>&1 | tee artifacts/merlin-legal-intelligence-tests.log
+          test_exit=${PIPESTATUS[0]}
+          printf '{"suite":"merlin-legal-intelligence","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$test_exit" > artifacts/merlin-legal-intelligence-result.json
+          exit "$test_exit"
       - name: Merlin glyph Foundry, normalizer and confluence tests
         run: |
           python3 -m unittest discover -s tests -p "test_glyph_foundry.py" -v
