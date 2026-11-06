@@ -184,7 +184,7 @@ class PyJWTJWKSVerifierTests(unittest.TestCase):
         with self.assertRaises(jwt.InvalidAudienceError):
             verifier(self.token(aud="different-api"), ISSUER, AUDIENCE)
         with self.assertRaises(jwt.ExpiredSignatureError):
-            verifier(self.token(exp=time.time() - 10), ISSUER, AUDIENCE)
+            verifier(self.token(exp=time.time() - 120), ISSUER, AUDIENCE)
 
     def test_algorithm_allowlist_rejects_hmac_and_none(self):
         with self.assertRaisesRegex(ValueError, "asymmetric allowlist"):
@@ -192,7 +192,7 @@ class PyJWTJWKSVerifierTests(unittest.TestCase):
         hmac_token = jwt.encode(
             {"iss": ISSUER, "aud": AUDIENCE, "sub": "x",
              "exp": time.time() + 60},
-            "not-a-production-secret",
+            "not-a-production-secret-with-more-than-thirty-two-bytes",
             algorithm="HS256",
         )
         with self.assertRaises(jwt.InvalidAlgorithmError):
