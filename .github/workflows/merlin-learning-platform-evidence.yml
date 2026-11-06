@@ -7,6 +7,9 @@ on:
       - "python/merlin/app.py"
       - "python/merlin/research_curriculum.py"
       - "python/merlin/learner_model.py"
+      - "python/merlin/knowledge_graph.py"
+      - "python/merlin/project_registry.py"
+      - "python/merlin/event_outbox.py"
       - "tests/test_merlin_learning_platform.py"
       - "tests/research/test_merlin_learning_http.py"
       - "tests/test_merlin_research_curriculum.py"
@@ -48,7 +51,7 @@ jobs:
         run: |
           set +e
           mkdir -p artifacts
-          python -m compileall -q python/merlin/app.py python/merlin/learning_platform.py python/merlin/research_curriculum.py python/merlin/learner_model.py 2>&1 | tee artifacts/compile.log
+          python -m compileall -q python/merlin/app.py python/merlin/learning_platform.py python/merlin/research_curriculum.py python/merlin/learner_model.py python/merlin/knowledge_graph.py python/merlin/project_registry.py python/merlin/event_outbox.py 2>&1 | tee artifacts/compile.log
           rc=${PIPESTATUS[0]}
           printf '{"suite":"learning-platform-compile","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/compile-result.json
           exit "$rc"
