@@ -24,7 +24,7 @@ def _legacy_state(row: Mapping[str, Any], runtime: Mapping[str, Any],
     legacy = str(row.get("status", "")).upper()
     if ident == "model.remote_openai_compatible":
         state = runtime.get("providers", {}).get("cloud", {}).get("status")
-        return "configured" if state == "QUALIFIED_CONFIGURED" else "unqualified"
+        return "configured" if state == "QUALIFIED_CONFIGURED" else "unavailable"
     if ident == "model.nouscoder":
         state = runtime.get("providers", {}).get("local", {}).get("status")
         return "configured" if state == "QUALIFIED_CONFIGURED" else "unqualified"
