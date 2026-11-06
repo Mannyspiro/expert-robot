@@ -96,6 +96,16 @@ class HermesOutboxTests(unittest.TestCase):
         self.assertEqual(self.queue.retry(task_id="task-1", lease_token=second["lease_token"],
             now="2026-11-06T12:00:05Z", error="still failing"), "dead_letter")
 
+
+    def test_final_attempt_lease_expiry_moves_task_to_dead_letter(self):
+        self.queue.publish_task(task_id="task-1", run_id="run-1", step_id="step-1",
+            idempotency_key="task-idem", payload={}, created_at="2026-11-06T12:00:01Z",
+            max_attempts=1)
+        self.claim()
+        self.assertEqual(self.queue.claim(worker_id="worker-b",
+            now="2026-11-06T12:00:33Z"), ())
+        self.assertEqual(self.queue.get("task-1")["status"], "dead_letter")
+
     def test_cancelled_task_is_not_claimed(self):
         self.publish()
         self.assertTrue(self.queue.cancel(task_id="task-1", now="2026-11-06T12:00:02Z"))
