@@ -258,3 +258,27 @@ A complete, successful vertical slice requires all of the following on a single 
 - [ ] No automatic merge, theorem promotion, or authority expansion.
 
 Until every required box is evidenced, describe the bridge as partially operational and name the missing step. A valid `fail` round trip is a transport/schema success and a qualification failure—not an end-to-end qualification pass.
+
+
+## 9. Merlin local worker boundary
+
+The Merlin application exposes a generic internal outbox HTTP API only for explicitly provisioned service workers. It is not a replacement for the dedicated Hermes task worker.
+
+- `MERLIN_WORKER_TOKENS` is a server-side JSON object mapping immutable worker IDs to independently generated high-entropy bearer tokens (minimum 32 ASCII characters). Never put tokens in request bodies, source files or logs.
+- `MERLIN_WORKER_TOPIC_ALLOWLIST` is a server-side JSON object mapping each configured worker ID to an explicit array of topic names. Example shape (illustrative names and values only):
+
+  ```json
+  {
+    "artifact-indexer": ["merlin.artifact.index.requested"],
+    "metrics-worker": ["merlin.metrics.aggregate.requested"]
+  }
+  ```
+
+- Every claim request must supply a non-empty topic list. The API rejects topics outside the authenticated worker's configured allowlist.
+- `merlin.hermes.task` is always excluded from generic HTTP claims. The dedicated `HermesWorker` is the only consumer for that topic because it revalidates operator approval and MCFC leases, checks bounded budgets and cancellation, renews leases and emits its task result without promotion authority.
+- Worker status exposes aggregate counts only. Heartbeat, acknowledge and retry require the active worker identity and lease token. Cancellation is an administrator action using `MERLIN_OUTBOX_ADMIN_TOKEN`; this token must also be high entropy and remain server-side.
+- Empty/malformed configuration grants no worker topics. Do not set a broad wildcard or use a shared token for multiple worker identities.
+- The HTTP API is loopback-only in the current `serve()` entry point. For remote workers, use an authenticated HTTPS gateway/service mesh with explicit network policy; do not bind the app directly to a public interface.
+
+This contract was covered by the integrated worker API tests in workflow [42276381857](https://github.com/Mannyspiro/expert-robot/actions/runs/42276381857), alongside the dedicated Hermes worker tests. It is not a live deployment or provider qualification.
+
