@@ -110,7 +110,8 @@ class OpportunityIntelligenceTests(unittest.TestCase):
             license_jurisdictions=("Arizona", "California"),
         )
         profile = ApplicantProfile(applicant_type="for_profit_business",
-                                   licenses=("Arizona",))
+                                   licenses=("Arizona",),
+                                   unmet_licenses=("California",))
         result = evaluate_opportunity(item, profile, date(2026, 11, 5))
         self.assertEqual(result.eligibility, "ineligible")
         self.assertTrue(any("license" in x for x in result.blockers))
