@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "registry_id": "merlin.us.local-demand-geography",
+  "status": "candidate",
+  "scope": {
+    "primary": ["50 US states", "District of Columbia", "Puerto Rico"],
+    "territory_extension": ["American Samoa", "Guam", "Northern Mariana Islands", "US Virgin Islands"],
+    "jurisdiction_types": ["incorporated_place", "county_or_equivalent", "county_subdivision", "consolidated_city", "metropolitan_statistical_area", "micropolitan_statistical_area", "combined_statistical_area", "independent_city", "tribal_government", "school_district", "special_district", "state"],
+    "coverage_rule": "Ingest every available official Census place and county-equivalent record; do not restrict ingestion to a manually curated top-city list. Add CBSA/CSA relationships and municipal-jurisdiction crosswalks. The major-market tier is a prioritization overlay, never a coverage boundary.",
+    "major_market_overlay": {
+      "ranking_basis": "latest available official Census population estimate, retain vintage",
+      "tiers": ["top_50_metro_areas", "top_100_metro_areas", "all_other_metro_and_micropolitan_areas", "all_places_over_configured_population_threshold"],
+      "default_place_population_threshold": 50000,
+      "threshold_is_configurable": true
+    }
+  },
+  "authoritative_geography_sources": [
+    {"id":"GEO-CENSUS-GAZETTEER","owner":"US Census Bureau","coverage":["places","counties","county_subdivisions","core_based_statistical_areas","states","coordinates"],"url":"https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.html","cadence":"annual_vintage","limitations":["2026 Gazetteer files do not include Island Areas; territory coverage requires supplemental official geography sources"]},
+    {"id":"GEO-CENSUS-CBSA-DELINEATIONS","owner":"US Census Bureau and Office of Management and Budget","coverage":["metro_micro_county_membership","combined_statistical_areas","metropolitan_divisions"],"url":"https://www.census.gov/programs-surveys/metro-micro/about/delineation-files.html","cadence":"published_delineation_vintage","limitations":["statistical areas are not municipal governments and must not be treated as the legal jurisdiction for procurement or meeting records"]},
+    {"id":"GEO-CENSUS-ACS","owner":"US Census Bureau","coverage":["population","income","housing","industry","commuting","demographics"],"url":"https://www.census.gov/programs-surveys/acs/geography-acs/geography-boundaries-by-year.html","cadence":"annual_estimates_and_vintages","limitations":["estimates have sampling error, release lag and geography-vintage dependencies"]},
+    {"id":"GEO-CENSUS-TIGER","owner":"US Census Bureau","coverage":["boundary_geometry","place_county_crosswalks","roads_and_geospatial_join"],"url":"https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html","cadence":"annual_vintage","limitations":["geometry vintages must be retained and not silently mixed"]}
+  ],
+  "demand_sources_to_join": ["municipal_council_agendas_minutes_and_video","county_board_agendas_minutes_and_video","municipal_budgets_and_capital_improvement_plans","procurement_portals_and_bid_tabs","contract_awards_amendments_and_change_orders","permits_and_planning_commissions","utility_rate_cases_and_capital_plans","transportation_and_transit_authorities","water_districts_and_special_districts","school_district_budgets_and_procurement","state_procurement_and_grants","federal_USAspending_awards_and_obligations","Census_business_patterns_and_building_permits","BEA_regional_accounts","BLS_local_area_statistics"],
+  "event_stage_model": ["proposal","public_discussion","staff_recommendation","authorization","appropriation","solicitation","bid_opening","award","contract_execution","obligation","invoice","payment","delivery","cancellation","amendment"],
+  "deduplication": {"canonical_project_key":["jurisdiction_id","normalized_project_name","location_or_asset_id"],"retain_all_source_events":true,"never_sum_across_stages_as_new_demand":true,"track_award_ceiling_separately_from_obligations_and_payments":true,"track_amendments_and_cancellations":true},
+  "required_provenance": ["jurisdiction_id","jurisdiction_type","geography_vintage","source_url","retrieved_at","published_at","meeting_date","source_sha256","page_or_item_locator","extraction_version","human_review_status"],
+  "governance": {"public_records_are_demand_signals_not_guaranteed_revenue":true,"proposal_is_not_approved_demand":true,"statistical_metro_area_is_not_legal_procurement_authority":true,"missing_data_is_unknown_not_zero":true,"retain_original_source_and_corrections":true}
+}
