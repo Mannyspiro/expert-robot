@@ -418,18 +418,26 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 if actor is None:
                     self._send(503, {"error": "learning_identity_provider_not_configured"})
                     return
-                parts = [unquote(part) for part in path.split("/") if part]
-                if len(parts) == 5 and parts[4] == "recommendation":
-                    result = learning_platform.recommend_next_lesson(actor, parts[3], learner_store)
-                    self._send(200, result)
-                    return
-                if len(parts) != 4:
-                    self._send(404, {"error": "not_found"})
-                    return
-                query = parse_qs(parsed.query)
-                version_value = (query.get("version") or [None])[0]
-                version = int(version_value) if version_value is not None else None
-                self._send(200, learning_platform.get_course(actor, parts[3], version))
+                try:
+                    parts = [unquote(part) for part in path.split("/") if part]
+                    if len(parts) == 5 and parts[4] == "recommendation":
+                        result = learning_platform.recommend_next_lesson(actor, parts[3], learner_store)
+                        self._send(200, result)
+                        return
+                    if len(parts) != 4:
+                        self._send(404, {"error": "not_found"})
+                        return
+                    query = parse_qs(parsed.query)
+                    version_value = (query.get("version") or [None])[0]
+                    version = int(version_value) if version_value is not None else None
+                    self._send(200, learning_platform.get_course(actor, parts[3], version))
+                except PermissionError as exc:
+                    self._send(403, {"error": "forbidden", "detail": str(exc)[:200]})
+                except KeyError:
+                    # Hide whether a course exists outside the caller's tenant.
+                    self._send(404, {"error": "course_not_found"})
+                except (ValueError, TypeError) as exc:
+                    self._send(400, {"error": "invalid_request", "detail": str(exc)[:200]})
                 return
             if path in {"/api/hud/activity", "/api/hud/graph", "/api/hud/node"}:
                 if hud_runtime is None:
