@@ -27,20 +27,21 @@ in those states. Contract matching must verify business registration, actual
 producer/entity licensing, appointments, lines of authority, and solicitation
 requirements before recommending a bid.
 
-Individual qualifications supplied for matching include: age 30; woman;
-Latina; transgender; amateur-radio operator; Bloomberg Terminal certification;
-completed Google coursework; and completed Harvard CS50. Identity attributes
-are opt-in eligibility filters only. They must not be inferred, copied into
-public application drafts, or exposed in telemetry. The user should be able to
-disable identity-based matching independently of the other profile facts.
+Individual qualifications supplied for matching include adult age, amateur-radio
+operation, Bloomberg Terminal certification, completed Google coursework, and
+completed Harvard CS50. Sensitive identity attributes must not be stored in
+this public repository, copied into public application drafts, or exposed in
+telemetry. Identity matching is disabled by default and may be evaluated only
+from a private profile after explicit opt-in for a specific program.
 
 ## Confirmed applicant facts and luxury dealer track
 
-The user confirmed that she owns and controls at least 51% of the independent
-agency and holds an Arizona property-and-casualty producer license. Treat these
-as user-supplied facts, not independently verified certification evidence.
-Before any WOSB representation, separately verify U.S. citizenship, direct
-ownership, control, size standard, and the SBA certification status. Before
+The user has confirmed majority woman ownership and control of the independent
+agency and an Arizona property-and-casualty producer license. Treat these as
+user-supplied facts, not independently verified certification evidence. Keep
+ownership and identity details in a private applicant profile rather than
+public repository examples. Before any WOSB representation, separately verify
+U.S. citizenship, direct ownership, control, size standard, and SBA certification. Before
 insurance procurement bids, verify the agency/entity license, appointments,
 lines of authority, and the exact scope required by each solicitation; an
 individual producer license does not by itself establish every entity-level
