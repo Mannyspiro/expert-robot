@@ -61,7 +61,7 @@ class HermesStageHandlerTests(unittest.TestCase):
                     "artifact_bytes": outputs[stage][0],
                     "media_type": "application/octet-stream",
                     "summary": outputs[stage][1],
-                    "metadata": {"engine": "test-injected:" + stage},
+                    "metadata": {"engine": "test-injected:" + stage, "tool_identity": "test-injected:" + stage + "@1.0"},
                 }
             return execute
 
@@ -163,7 +163,7 @@ class HermesStageHandlerTests(unittest.TestCase):
             return {
                 "artifact_bytes": b"proof-search transcript",
                 "summary": "Proof candidate emitted.",
-                "metadata": {"theorem_claims": [claim]},
+                "metadata": {"theorem_claims": [claim], "tool_identity": "lean-proof-search@1.0"},
             }
 
         def lean_dispatcher(**request):
@@ -183,10 +183,10 @@ class HermesStageHandlerTests(unittest.TestCase):
             evidence_recorder=self.recorder,
             project_id="merlin",
             research_executor=lambda task, context: {
-                "artifact_bytes": b"research", "summary": "Research complete."
+                "artifact_bytes": b"research", "summary": "Research complete.", "metadata": {"tool_identity": "research-engine@1.0"}
             },
             numerical_experiment_executor=lambda task, context: {
-                "artifact_bytes": b"experiment", "summary": "Experiment complete."
+                "artifact_bytes": b"experiment", "summary": "Experiment complete.", "metadata": {"tool_identity": "numerical-engine@1.0"}
             },
             proof_search_executor=proof_executor,
             artifact_verifier=fake_cace_verifier,
