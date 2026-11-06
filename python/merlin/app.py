@@ -11,6 +11,8 @@ from hashlib import sha256
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 import os
+import signal
+from threading import Event, Thread
 import hmac
 from pathlib import Path
 import sqlite3
@@ -1407,6 +1409,25 @@ def serve(port: int = 8765, db_path: str | None = None,
                      hermes_worker_service=hermes_worker_service))
     hud_runtime_started = False
     hermes_service_started = False
+    shutdown_requested = Event()
+    previous_signal_handlers = {}
+
+    def _request_shutdown(signum, frame):
+        if not shutdown_requested.is_set():
+            shutdown_requested.set()
+            Thread(
+                target=server.shutdown,
+                name="merlin-api-signal-shutdown",
+                daemon=True,
+            ).start()
+
+    for signum in (signal.SIGINT, signal.SIGTERM):
+        try:
+            previous_signal_handlers[signum] = signal.signal(signum, _request_shutdown)
+        except ValueError:
+            # serve() may be embedded from a non-main thread; the process manager
+            # can still stop it through the returned/injected service lifecycle.
+            break
     try:
         if hud_runtime is not None:
             hud_runtime.start()
@@ -1423,6 +1444,8 @@ def serve(port: int = 8765, db_path: str | None = None,
         pass
     finally:
         server.server_close()
+        for signum, previous_handler in previous_signal_handlers.items():
+            signal.signal(signum, previous_handler)
         if hud_runtime_started:
             hud_runtime.stop()
         if hermes_service_started:
