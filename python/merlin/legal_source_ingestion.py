@@ -90,7 +90,7 @@ class CaptureManifest:
     def validate(self) -> None:
         validate_source_url(self.canonical_url)
         validate_source_url(self.final_url)
-        datetime.fromisoformat(self.retrieved_at.replace("Z", "+00:00"))
+        timestamp = datetime.fromisoformat(self.retrieved_at.replace("Z", "+00:00"))\n        if timestamp.tzinfo is None:\n            raise ValueError("retrieved_at must include a timezone")
         if len(self.sha256) != 64 or any(c not in "0123456789abcdef" for c in self.sha256):
             raise ValueError("invalid content SHA-256")
         if self.byte_length < 0:
@@ -128,7 +128,7 @@ def govinfo_bulk_index_urls(year: int | None = None) -> tuple[SourceCandidate, .
             collection=collection,
             title=f"GovInfo {slug.replace('_', ' ').title()} bulk data",
             url="https://www.govinfo.gov" + path,
-            source_type="regulation" if collection == "CFR" else "statute",
+            source_type=("regulation" if collection in {"FR", "CFR"} else\n                         "legislative_history" if collection in {"BILLSTATUS", "BILLS"} else "statute"),
             acquisition_mode="bulk_xml",
             notes="Discovery index only; select packages after metadata and licensing review.",
         ))
