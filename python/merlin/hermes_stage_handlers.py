@@ -11,8 +11,8 @@ from dataclasses import asdict
 import re
 from typing import Any, Callable, Mapping
 
-from merlin.research_evidence import ResearchEvidenceRecorder
-from merlin.hermes_proof_orchestrator import dispatch_eligible_claim
+from .research_evidence import ResearchEvidenceRecorder
+from .hermes_proof_orchestrator import dispatch_eligible_claim
 
 _STAGE_CONTRACTS = {
     "research": {
