@@ -1144,7 +1144,7 @@ def _build_optional_hud_runtime(canonical_registry: Any | None = None):
         return None
 
 
-def serve(port: int = 8765, db_path: str | None = None) -> None:
+def serve(port: int = 8765, db_path: str | None = None,\n          learning_identity_resolver: Any | None = None) -> None:
     target = db_path or os.environ.get(
         "MERLIN_DB_PATH",
         str(Path.home() / ".local" / "share" / "merlin" / "events.sqlite3"),
@@ -1164,7 +1164,7 @@ def serve(port: int = 8765, db_path: str | None = None) -> None:
     if hud_runtime is not None:
         hud_runtime.start()
     server = ThreadingHTTPServer(("127.0.0.1", port),
-        make_handler(store, hud_runtime, learner_store, learning_outbox, canonical_registry))
+        make_handler(store, hud_runtime, learner_store, learning_outbox,\n                     canonical_registry, learning_identity_resolver=learning_identity_resolver))
     print(f"Merlin MVP API listening on http://127.0.0.1:{port}")
     print("Merlin HUD: canonical graph/event stores connected" if hud_runtime
           else "Merlin HUD: labelled demonstration fallback (canonical store paths not configured)")
