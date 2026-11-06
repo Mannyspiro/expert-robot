@@ -378,6 +378,23 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             self.end_headers()
             self.wfile.write(body)
 
+        def _origin_allowed(self) -> bool:
+            """Block cross-site browser writes to the loopback API; allow CLI clients without Origin."""
+            origin = self.headers.get("Origin")
+            if not origin:
+                return True
+            try:
+                parsed_origin = urlsplit(origin)
+                return (
+                    parsed_origin.scheme == "http"
+                    and parsed_origin.hostname in {"127.0.0.1", "localhost", "::1"}
+                    and parsed_origin.port == int(self.server.server_address[1])
+                    and parsed_origin.username is None
+                    and parsed_origin.password is None
+                )
+            except (TypeError, ValueError):
+                return False
+
         def do_GET(self) -> None:
             self._request_started = perf_counter()
             parsed = urlparse(self.path)
@@ -497,6 +514,9 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
         def do_POST(self) -> None:
             self._request_started = perf_counter()
             path = urlparse(self.path).path
+            if not self._origin_allowed():
+                self._send(403, {"error": "cross_origin_request_blocked"})
+                return
             try:
                 length = int(self.headers.get("Content-Length", "0"))
                 if length <= 0 or length > MAX_BODY:
@@ -973,6 +993,9 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
         def do_DELETE(self) -> None:
             self._request_started = perf_counter()
             parsed = urlparse(self.path)
+            if not self._origin_allowed():
+                self._send(403, {"error": "cross_origin_request_blocked"})
+                return
             try:
                 query = parse_qs(parsed.query)
                 if parsed.path == "/api/memory/preferences":
