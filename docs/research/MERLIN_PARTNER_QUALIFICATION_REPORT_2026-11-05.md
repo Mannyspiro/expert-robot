@@ -102,3 +102,20 @@ Learning may adjust source reliability estimates, retrieval ordering, and rankin
 - `data/merlin/partner_contract_evidence_2026-11-05.json`
 - `data/merlin/partner_graph_2026-11-05.json`
 - CI artifact pattern: `merlin-opportunity-intelligence-*`, uploaded with `if: always()`.
+
+
+## CI evidence update — 2026-11-06
+
+The Avrea-backed `build-and-smoke` job was not started because the Avrea organization reported **no credits available**. This is an infrastructure/billing block, not a test failure. The new independent GitHub-hosted partner test job was therefore rerun directly.
+
+- Workflow run: [CI #2747](https://github.com/Mannyspiro/expert-robot/actions/runs/42173547085)
+- Commit under test: `39e932b16c042f9830859cd699b3b9b5dcd5b46e`
+- Partner evidence job: all five suites passed.
+- Test totals: opportunity 13, procurement readiness 6, source status 5, partner qualification 7, partner evidence pipeline 8 — **39 tests passed**.
+- All five suite exit codes: `0`; aggregate exit code: `0`.
+- Retained artifact: `merlin-partner-evidence-42173547085`, artifact ID `13482370509`.
+- Artifact SHA-256: `434ef90109e307efc00e34f019f92f9d061539da0d940ae006f34adf09983ab5`.
+- Artifact contents: verbose test log, per-suite exit-code file, and valid machine-readable JSON result.
+- The overall workflow run remains marked cancelled because the separate Avrea job did not start; the GitHub-hosted partner test job's steps completed successfully and the evidence artifact was uploaded.
+
+This is a passing result for the partner evidence suites only. It does **not** certify the full C++/Avrea CI pipeline.
