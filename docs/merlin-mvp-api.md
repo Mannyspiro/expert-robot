@@ -26,7 +26,7 @@ The server binds only to 127.0.0.1. It uses Python's standard library and SQLite
 - POST /api/geometry/validate
 - POST /api/netlist/validate
 
-Request and response bodies are JSON. Requests are limited to 1 MB. The event store records request hashes and result summaries, not raw request text. Database path defaults to ~/.local/share/merlin/events.sqlite3 and can be overridden with MERLIN_DB_PATH or --db.
+Request and response bodies are JSON. Requests are limited to 1 MB. The event store records request hashes and result summaries, not raw request text. Database path defaults to ~/.local/share/merlin/events.sqlite3 and can be overridden with MERLIN_DB_PATH or --db. Explicit user-approved preferences and project notes use a separate memory.sqlite3 file beside the event database by default; override with MERLIN_MEMORY_DB_PATH. Saved memory is only sent to a model when the HUD's Use memory control is enabled. The API blocks cross-origin browser writes; clients without an Origin header remain supported.
 
 Model chat, Hermes execution, image/video generation, and biochemistry remain explicitly unconfigured until real adapters are qualified. The capability endpoint distinguishes these from implemented deterministic endpoints. Kokoro and NousCoder services are optional local sidecars; the model is not inference-qualified yet.
 

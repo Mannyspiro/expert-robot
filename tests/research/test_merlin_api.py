@@ -96,6 +96,16 @@ class MerlinApiTests(unittest.TestCase):
             self.assertIn("feedbackOpt", hud)
             self.assertIn("deleteSessionFeedback", hud)
             self.assertIn("loadLearningPreferences", hud)
+            self.assertIn("/api/chat", hud)
+            self.assertIn("/api/speech", hud)
+            self.assertIn("providerMode", hud)
+            self.assertIn("councilPrepare", hud)
+            self.assertIn("chatTranscript", hud)
+            self.assertIn("memoryVault", hud)
+            self.assertIn("useMemory", hud)
+            self.assertIn("merlinApprovedMemoryContext", hud)
+            self.assertIn("/api/memory/preferences", hud)
+            self.assertIn("/forget-project", hud)
         with urlopen(self.base + "/api/sim/state", timeout=5) as response:
             initial = json.loads(response.read())
         self.assertTrue(initial["simulation_only"])
@@ -295,9 +305,10 @@ class MerlinApiTests(unittest.TestCase):
         def fake_urlopen(request, timeout=0):
             captured["authorization"] = request.get_header("Authorization")
             captured["url"] = request.full_url
+            captured["payload"] = json.loads(request.data.decode("utf-8"))
             return FakeResponse()
 
-        payload = {"model": "test-model", "messages": [{"role": "user", "content": "say hello"}], "stream": True}
+        payload = {"provider": "cloud", "model": "test-model", "messages": [{"role": "user", "content": "say hello"}], "stream": True}
         request = Request(self.base + "/api/chat", data=json.dumps(payload).encode(),
                           headers={"Content-Type": "application/json"})
         with patch.dict(os.environ, {
@@ -316,6 +327,7 @@ class MerlinApiTests(unittest.TestCase):
         self.assertEqual(captured["authorization"], "Bearer private-test-key")
         self.assertNotIn(b"private-test-key", streamed)
         self.assertEqual(captured["url"], "https://api.example.test/v1/chat/completions")
+        self.assertNotIn("provider", captured["payload"])
         rows = self.store.by_kind("/api/telemetry/ingest", 10000)
         model_events = [row["summary"]["event"] for row in rows
                         if row.get("summary", {}).get("event", {}).get("payload", {}).get("component") == "chat_adapter"]
@@ -386,6 +398,171 @@ class MerlinApiTests(unittest.TestCase):
         self.assertIn("ART-PAT-001", state["skills"])
         self.assertIn("self_reflection", state["skills"]["ART-PAT-001"])
 
+
+
+    def test_runtime_provider_status_is_explicit_and_never_exposes_credentials(self):
+        import os
+        from unittest.mock import patch
+        with patch.dict(os.environ, {
+            "MERLIN_MODEL_QUALIFIED": "0",
+            "MERLIN_REMOTE_MODEL_QUALIFIED": "0",
+            "MERLIN_TTS_QUALIFIED": "0",
+            "MERLIN_REMOTE_API_KEY": "must-not-leak",
+            "MERLIN_REMOTE_MODEL_URL": "https://private.example.test/v1/chat/completions",
+        }, clear=False):
+            with urlopen(self.base + "/api/runtime/providers", timeout=5) as response:
+                payload = json.loads(response.read())
+        self.assertEqual(payload["schema"], "merlin-runtime-providers/1")
+        self.assertEqual(payload["providers"]["local"]["status"], "UNAVAILABLE")
+        self.assertEqual(payload["providers"]["cloud"]["status"], "UNAVAILABLE")
+        self.assertEqual(payload["providers"]["speech_output"]["status"], "UNAVAILABLE")
+        self.assertEqual(payload["providers"]["speech_input"]["status"], "BROWSER_DEPENDENT")
+        self.assertFalse(payload["raw_conversation_retention"])
+        self.assertNotIn("must-not-leak", json.dumps(payload))
+        self.assertNotIn("private.example.test", json.dumps(payload))
+
+    def test_local_model_provider_can_be_selected_only_when_qualified(self):
+        import os
+        from unittest.mock import patch
+        import python.merlin.app as merlin_app
+        captured = {}
+        class FakeResponse:
+            headers = {"Content-Type": "application/json"}
+            def __enter__(self): return self
+            def __exit__(self, *args): return False
+            def read(self, size=-1):
+                return b'{"model":"qwen2.5:3b","choices":[{"message":{"content":"Local response"}}]}'
+        def fake_urlopen(request, timeout=0):
+            captured["url"] = request.full_url
+            captured["payload"] = json.loads(request.data.decode("utf-8"))
+            return FakeResponse()
+        request = Request(self.base + "/api/chat",
+            data=json.dumps({"provider":"local","messages":[{"role":"user","content":"hello"}],"stream":False}).encode(),
+            headers={"Content-Type":"application/json"})
+        with patch.dict(os.environ, {
+            "MERLIN_MODEL_QUALIFIED":"1",
+            "MERLIN_LOCAL_MODEL":"qwen2.5:3b",
+            "MERLIN_REMOTE_MODEL_URL":"",
+            "MERLIN_REMOTE_MODEL_QUALIFIED":"0",
+        }, clear=False), patch.object(merlin_app,"urlopen",side_effect=fake_urlopen):
+            with urlopen(request,timeout=5) as response:
+                payload=json.loads(response.read())
+        self.assertEqual(payload["choices"][0]["message"]["content"],"Local response")
+        self.assertEqual(captured["url"],"http://127.0.0.1:8080/v1/chat/completions")
+        self.assertEqual(captured["payload"]["model"],"qwen2.5:3b")
+        self.assertNotIn("provider",captured["payload"])
+
+    def test_speech_output_fails_closed_before_contacting_unqualified_sidecar(self):
+        import os
+        from unittest.mock import patch
+        import python.merlin.app as merlin_app
+        request = Request(self.base + "/api/speech",
+            data=json.dumps({"input":"hello"}).encode(),
+            headers={"Content-Type":"application/json"})
+        with patch.dict(os.environ, {"MERLIN_TTS_QUALIFIED":"0"}, clear=False), \
+             patch.object(merlin_app,"urlopen",side_effect=AssertionError("must not contact sidecar")):
+            with self.assertRaises(HTTPError) as caught:
+                urlopen(request,timeout=5)
+        self.assertEqual(caught.exception.code,503)
+        self.assertEqual(json.loads(caught.exception.read())["error"],"tts_not_qualified")
+
+    def test_provider_qualification_is_not_reported_as_live_health(self):
+        import os
+        from unittest.mock import patch
+        with patch.dict(os.environ, {
+            "MERLIN_MODEL_QUALIFIED": "1",
+            "MERLIN_LOCAL_MODEL": "qwen3.5-4b",
+            "MERLIN_MODEL_URL": "http://127.0.0.1:8080/v1/chat/completions",
+            "MERLIN_REMOTE_MODEL_QUALIFIED": "1",
+            "MERLIN_REMOTE_MODEL_NAME": "cloud-test-model",
+            "MERLIN_REMOTE_MODEL_URL": "https://api.example.test/v1/chat/completions",
+            "MERLIN_REMOTE_API_KEY": "private-test-key",
+            "MERLIN_REMOTE_ALLOWED_HOSTS": "api.example.test",
+            "MERLIN_TTS_QUALIFIED": "1",
+            "MERLIN_TTS_MODEL": "kokoro-test",
+            "MERLIN_TTS_URL": "http://127.0.0.1:8880/v1/audio/speech",
+        }, clear=False):
+            with urlopen(self.base + "/api/runtime/providers", timeout=5) as response:
+                payload = json.loads(response.read())
+        for key in ("local", "cloud", "speech_output"):
+            self.assertEqual(payload["providers"][key]["status"], "QUALIFIED_CONFIGURED")
+            self.assertEqual(payload["providers"][key]["health"], "not_probed")
+        self.assertNotIn("private-test-key", json.dumps(payload))
+        self.assertNotIn("api.example.test", json.dumps(payload))
+
+    def test_memory_vault_requires_approval_and_keeps_values_out_of_event_ledger(self):
+        request = Request(self.base + "/api/memory/preferences",
+            data=json.dumps({"key": "preferred_language", "value": "Japanese"}).encode(),
+            headers={"Content-Type": "application/json"})
+        with self.assertRaises(HTTPError) as denied:
+            urlopen(request, timeout=5)
+        self.assertEqual(denied.exception.code, 403)
+        self.assertEqual(json.loads(denied.exception.read())["error"],
+                         "explicit_approval_required")
+
+        saved = self.post("/api/memory/preferences", {
+            "key": "preferred_language", "value": "Japanese", "approved": True,
+        })
+        self.assertEqual(saved["kind"], "preference")
+        self.assertEqual(saved["version"], 1)
+        project = self.post("/api/memory/projects", {
+            "name": "Merlin", "status": "Build the hybrid voice and research runtime.",
+            "approved": True,
+        })
+        self.assertEqual(project["kind"], "project")
+
+        with urlopen(self.base + "/api/memory", timeout=5) as response:
+            vault = json.loads(response.read())
+        self.assertTrue(vault["policy"]["user_approved_only"])
+        self.assertTrue(vault["policy"]["memory_context_opt_in_required"])
+        self.assertEqual(vault["preferences"][0]["value"], "Japanese")
+        self.assertEqual(vault["projects"][0]["name"], "Merlin")
+
+        with urlopen(self.base + "/api/events", timeout=5) as response:
+            events = json.loads(response.read())["events"]
+        encoded_events = json.dumps(events)
+        self.assertNotIn("Japanese", encoded_events)
+        self.assertNotIn("Build the hybrid voice", encoded_events)
+
+        delete_pref = Request(self.base + "/api/memory/preferences?key=preferred_language",
+                              method="DELETE")
+        with urlopen(delete_pref, timeout=5) as response:
+            self.assertTrue(json.loads(response.read())["deleted"])
+        delete_project = Request(self.base + "/api/memory/projects?name=Merlin",
+                                 method="DELETE")
+        with urlopen(delete_project, timeout=5) as response:
+            self.assertTrue(json.loads(response.read())["deleted"])
+        with urlopen(self.base + "/api/memory", timeout=5) as response:
+            empty = json.loads(response.read())
+        self.assertEqual(empty["preferences"], [])
+        self.assertEqual(empty["projects"], [])
+
+    def test_memory_vault_rejects_secret_like_preference_keys(self):
+        request = Request(self.base + "/api/memory/preferences",
+            data=json.dumps({"key": "api_key", "value": "not-a-real-secret",
+                             "approved": True}).encode(),
+            headers={"Content-Type": "application/json"})
+        with self.assertRaises(HTTPError) as caught:
+            urlopen(request, timeout=5)
+        self.assertEqual(caught.exception.code, 400)
+        self.assertEqual(json.loads(caught.exception.read())["error"], "invalid_request")
+
+    def test_memory_write_rejects_cross_origin_browser_requests(self):
+        body = json.dumps({"key": "theme", "value": "dark", "approved": True}).encode()
+        hostile = Request(self.base + "/api/memory/preferences", data=body,
+                          headers={"Content-Type": "text/plain",
+                                   "Origin": "http://attacker.example"})
+        with self.assertRaises(HTTPError) as denied:
+            urlopen(hostile, timeout=5)
+        self.assertEqual(denied.exception.code, 403)
+        self.assertEqual(json.loads(denied.exception.read())["error"],
+                         "cross_origin_request_blocked")
+
+        local = Request(self.base + "/api/memory/preferences", data=body,
+                        headers={"Content-Type": "application/json",
+                                 "Origin": self.base})
+        with urlopen(local, timeout=5) as response:
+            self.assertEqual(response.status, 201)
 
 if __name__ == "__main__":
     unittest.main()

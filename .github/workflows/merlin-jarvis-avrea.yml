@@ -1,0 +1,111 @@
+name: Merlin hybrid voice and HUD qualification (Avrea)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "python/merlin/app.py"
+      - "ui/merlin-hud/index.html"
+      - "tests/research/test_merlin_api.py"
+      - ".github/workflows/merlin-jarvis-avrea.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: merlin-jarvis-avrea-${{ github.event.pull_request.head.ref || github.ref_name }}-${{ github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  hybrid-voice-hud:
+    runs-on: avrea-ubuntu-latest-8-vcpu
+    timeout-minutes: 25
+    env:
+      EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+      PYTHONPATH: python
+    steps:
+      - name: Check out exact source revision
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Record runner and source identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/merlin-jarvis
+          {
+            echo "repository=$GITHUB_REPOSITORY"
+            echo "tested_sha=$(git rev-parse HEAD)"
+            echo "expected_head=$EXPECTED_HEAD"
+            echo "run_id=$GITHUB_RUN_ID"
+            echo "run_attempt=$GITHUB_RUN_ATTEMPT"
+            echo "runner_name=$RUNNER_NAME"
+            echo "runner_os=$RUNNER_OS"
+            echo "runner_arch=$RUNNER_ARCH"
+            uname -a
+            nproc
+            python3 --version
+            node --version
+          } | tee artifacts/merlin-jarvis/runner-identity.log
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+
+      - name: Install pinned test dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check pytest==8.4.2 numpy==2.2.6 sympy==1.14.0 jsonschema==4.25.1 2>&1 | tee artifacts/merlin-jarvis/dependencies.log
+
+      - name: Python syntax and focused API tests
+        id: python-tests
+        shell: bash
+        run: |
+          set +e
+          python3 -m compileall -q python tests 2>&1 | tee artifacts/merlin-jarvis/compileall.log
+          compile_rc=${PIPESTATUS[0]}
+          python3 -m unittest discover -s tests/research -p "test_merlin_api.py" -v 2>&1 | tee artifacts/merlin-jarvis/api-tests.log
+          tests_rc=${PIPESTATUS[0]}
+          printf 'compileall=%s\napi_tests=%s\n' "$compile_rc" "$tests_rc" | tee artifacts/merlin-jarvis/result.txt
+          if [ "$compile_rc" -ne 0 ] || [ "$tests_rc" -ne 0 ]; then exit 1; fi
+
+      - name: Browser HUD JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          html = Path("ui/merlin-hud/index.html").read_text(encoding="utf-8")
+          scripts = re.findall(r"<script>(.*?)</script>", html, flags=re.S)
+          if not scripts:
+              raise SystemExit("No inline HUD script found")
+          Path("artifacts/merlin-jarvis/hud-inline.js").write_text(scripts[-1], encoding="utf-8")
+          PY
+          node --check artifacts/merlin-jarvis/hud-inline.js 2>&1 | tee artifacts/merlin-jarvis/hud-js-syntax.log
+
+      - name: Upload Avrea logs and machine-readable result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-jarvis-avrea-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/merlin-jarvis/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Publish qualification summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Merlin hybrid voice/HUD qualification"
+            echo "- Tested source: $EXPECTED_HEAD"
+            echo "- Runner: $RUNNER_NAME ($RUNNER_OS/$RUNNER_ARCH)"
+            echo "- Evidence: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+            if [ -f artifacts/merlin-jarvis/result.txt ]; then
+              echo
+              cat artifacts/merlin-jarvis/result.txt
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

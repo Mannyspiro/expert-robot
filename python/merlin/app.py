@@ -29,6 +29,7 @@ from .event_outbox import MerlinEventOutbox
 from .intent_compiler import Asset, IntentSpec, ContinuityState, compile_directive
 from .math_transfer import preview_transfers
 from .interaction_learning import InteractionLearningStore, analyze_interactions
+from .memory_vault import MerlinMemoryVault
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
     validate_analogy,
@@ -128,6 +129,51 @@ class EventStore:
                  "summary": json.loads(row[3]), "created_at": row[4]} for row in rows]
 
 
+def _runtime_provider_status() -> dict[str, Any]:
+    """Expose qualification state without leaking endpoint URLs or credentials."""
+    local_model = os.environ.get("MERLIN_LOCAL_MODEL", os.environ.get("MERLIN_MODEL_NAME", "")).strip()
+    remote_model = os.environ.get("MERLIN_REMOTE_MODEL_NAME", os.environ.get("MERLIN_MODEL_NAME", "")).strip()
+    local_ready = os.environ.get("MERLIN_MODEL_QUALIFIED") == "1" and bool(local_model)
+    if local_ready:
+        try:
+            _loopback_endpoint("MERLIN_MODEL_URL", "http://127.0.0.1:8080/v1/chat/completions")
+        except ValueError:
+            local_ready = False
+    remote_ready = os.environ.get("MERLIN_REMOTE_MODEL_QUALIFIED") == "1" and bool(remote_model)
+    if remote_ready:
+        try:
+            _remote_model_endpoint()
+        except ValueError:
+            remote_ready = False
+    tts_ready = os.environ.get("MERLIN_TTS_QUALIFIED") == "1"
+    if tts_ready:
+        try:
+            _loopback_endpoint("MERLIN_TTS_URL", "http://127.0.0.1:8880/v1/audio/speech")
+        except ValueError:
+            tts_ready = False
+    return {
+        "schema": "merlin-runtime-providers/1",
+        "providers": {
+            "local": {"status": "QUALIFIED_CONFIGURED" if local_ready else "UNAVAILABLE",
+                      "health": "not_probed",
+                      "model": local_model if local_ready else None,
+                      "transport": "loopback OpenAI-compatible API"},
+            "cloud": {"status": "QUALIFIED_CONFIGURED" if remote_ready else "UNAVAILABLE",
+                      "health": "not_probed",
+                      "model": remote_model if remote_ready else None,
+                      "transport": "allowlisted HTTPS OpenAI-compatible API"},
+            "speech_output": {"status": "QUALIFIED_CONFIGURED" if tts_ready else "UNAVAILABLE",
+                              "health": "not_probed",
+                              "model": os.environ.get("MERLIN_TTS_MODEL") if tts_ready else None,
+                              "transport": "loopback TTS sidecar"},
+            "speech_input": {"status": "BROWSER_DEPENDENT",
+                             "transport": "browser SpeechRecognition API; permission required"},
+        },
+        "raw_conversation_retention": False,
+        "provider_credentials_exposed": False,
+    }
+
+
 CAPABILITIES = [
     {"id": "research.math_transfer.preview", "status": "AVAILABLE", "evidence": "deterministic, provenance-aware transfer hypotheses; no automatic promotion"},
     {"id": "intent.compile.preview", "status": "AVAILABLE", "evidence": "deterministic typed directive preview; optional canonical-registry artifact persistence; no external execution authority"},
@@ -225,6 +271,8 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
     simulation = MerlinSimulation()
     learner_store = learner_store or LearnerStore(store.path)
     interaction_store = InteractionLearningStore(store.path)
+    memory_path = os.environ.get("MERLIN_MEMORY_DB_PATH", str(Path(store.path).with_name("memory.sqlite3")))
+    memory_vault = MerlinMemoryVault(memory_path)
     repo_root = Path(__file__).resolve().parents[2]
     catalog_path = Path(os.environ.get("MERLIN_MATH_IDEA_CATALOG",
         str(repo_root / "docs" / "research" / "merlin-mathematical-idea-catalog.v1.json")))
@@ -330,6 +378,23 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             self.end_headers()
             self.wfile.write(body)
 
+        def _origin_allowed(self) -> bool:
+            """Block cross-site browser writes to the loopback API; allow CLI clients without Origin."""
+            origin = self.headers.get("Origin")
+            if not origin:
+                return True
+            try:
+                parsed_origin = urlsplit(origin)
+                return (
+                    parsed_origin.scheme == "http"
+                    and parsed_origin.hostname in {"127.0.0.1", "localhost", "::1"}
+                    and parsed_origin.port == int(self.server.server_address[1])
+                    and parsed_origin.username is None
+                    and parsed_origin.password is None
+                )
+            except (TypeError, ValueError):
+                return False
+
         def do_GET(self) -> None:
             self._request_started = perf_counter()
             parsed = urlparse(self.path)
@@ -403,6 +468,10 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 self._send(200, {"ok": True, "service": "merlin", "version": "0.4"})
             elif path == "/api/capabilities":
                 self._send(200, {"schema": "merlin-capabilities/1", "capabilities": CAPABILITIES})
+            elif path == "/api/runtime/providers":
+                self._send(200, _runtime_provider_status())
+            elif path == "/api/memory":
+                self._send(200, memory_vault.snapshot())
             elif path == "/api/events":
                 self._send(200, {"schema": "merlin-events/1", "events": store.recent()})
             elif path in {"/api/learning/learner", "/api/learning/recommendation"}:
@@ -445,6 +514,9 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
         def do_POST(self) -> None:
             self._request_started = perf_counter()
             path = urlparse(self.path).path
+            if not self._origin_allowed():
+                self._send(403, {"error": "cross_origin_request_blocked"})
+                return
             try:
                 length = int(self.headers.get("Content-Length", "0"))
                 if length <= 0 or length > MAX_BODY:
@@ -475,6 +547,30 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                                  {"preferences": preferences, "raw_content_stored": False})
                     self._send(200, {"schema": "merlin-interaction-preferences/1",
                                      "preferences": preferences})
+                    return
+                if path in {"/api/memory/preferences", "/api/memory/projects"}:
+                    if data.get("approved") is not True:
+                        self._send(403, {"error": "explicit_approval_required",
+                                         "detail": "Saving long-term memory requires an explicit user action."})
+                        return
+                    if path == "/api/memory/preferences":
+                        receipt = memory_vault.set_preference(data.get("key"), data.get("value"))
+                        store.append(path, {"key": receipt["key"],
+                                            "value_sha256": receipt["value_sha256"]},
+                                     {"saved": True, "version": receipt["version"],
+                                      "raw_memory_value_in_event_ledger": False})
+                        self._send(201, {"schema": "merlin-memory-save/1",
+                                         "kind": "preference", "key": receipt["key"],
+                                         "version": receipt["version"]})
+                    else:
+                        receipt = memory_vault.set_project(data.get("name"), data.get("status"))
+                        store.append(path, {"name": receipt["name"],
+                                            "status_sha256": receipt["status_sha256"]},
+                                     {"saved": True, "version": receipt["version"],
+                                      "raw_memory_value_in_event_ledger": False})
+                        self._send(201, {"schema": "merlin-memory-save/1",
+                                         "kind": "project", "name": receipt["name"],
+                                         "version": receipt["version"]})
                     return
                 if path == "/api/interaction/feedback":
                     result = interaction_store.record_feedback(data)
@@ -748,6 +844,9 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     self._send(200, result)
                     return
                 if path == "/api/speech":
+                    if os.environ.get("MERLIN_TTS_QUALIFIED") != "1":
+                        self._send(503, {"error": "tts_not_qualified"})
+                        return
                     endpoint = _loopback_endpoint("MERLIN_TTS_URL", "http://127.0.0.1:8880/v1/audio/speech")
                     request = Request(endpoint, data=raw, headers={"Content-Type": "application/json"}, method="POST")
                     with urlopen(request, timeout=60) as response:
@@ -765,22 +864,36 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     self._send_bytes(200, audio, content_type)
                     return
                 if path == "/api/chat":
+                    provider = data.get("provider", "auto")
+                    if provider not in {"auto", "local", "cloud"}:
+                        raise ValueError("provider must be auto, local, or cloud")
                     remote_url = os.environ.get("MERLIN_REMOTE_MODEL_URL", "").strip()
-                    if remote_url:
+                    use_cloud = provider == "cloud" or (provider == "auto" and bool(remote_url))
+                    if use_cloud:
                         if os.environ.get("MERLIN_REMOTE_MODEL_QUALIFIED") != "1":
                             self._send(503, {"error": "remote_model_not_qualified"})
                             return
                         endpoint, api_key = _remote_model_endpoint()
+                        selected_model = os.environ.get("MERLIN_REMOTE_MODEL_NAME", os.environ.get("MERLIN_MODEL_NAME", "")).strip()
                     else:
                         if os.environ.get("MERLIN_MODEL_QUALIFIED") != "1":
-                            self._send(503, {"error": "model_not_qualified", "detail": "No qualified remote provider or local model is configured."})
+                            self._send(503, {"error": "model_not_qualified", "detail": "The local model is not qualified or configured."})
                             return
                         endpoint = _loopback_endpoint("MERLIN_MODEL_URL", "http://127.0.0.1:8080/v1/chat/completions")
                         api_key = ""
+                        selected_model = os.environ.get("MERLIN_LOCAL_MODEL", os.environ.get("MERLIN_MODEL_NAME", "")).strip()
+                    upstream_payload = dict(data)
+                    upstream_payload.pop("provider", None)
+                    if not upstream_payload.get("model"):
+                        upstream_payload["model"] = selected_model
+                    if not upstream_payload.get("model"):
+                        self._send(503, {"error": "model_name_not_configured"})
+                        return
+                    upstream_raw = _json_bytes(upstream_payload)
                     headers = {"Content-Type": "application/json", "Accept": "text/event-stream, application/json"}
                     if api_key:
                         headers["Authorization"] = "Bearer " + api_key
-                    request = Request(endpoint, data=raw, headers=headers, method="POST")
+                    request = Request(endpoint, data=upstream_raw, headers=headers, method="POST")
                     with urlopen(request, timeout=180) as response:
                         content_type = response.headers.get("Content-Type", "application/json")
                         wants_stream = bool(data.get("stream")) and "text/event-stream" in content_type.lower()
@@ -880,11 +993,30 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
         def do_DELETE(self) -> None:
             self._request_started = perf_counter()
             parsed = urlparse(self.path)
-            if parsed.path != "/api/interaction/feedback":
-                self._send(404, {"error": "not_found"})
+            if not self._origin_allowed():
+                self._send(403, {"error": "cross_origin_request_blocked"})
                 return
             try:
                 query = parse_qs(parsed.query)
+                if parsed.path == "/api/memory/preferences":
+                    key = (query.get("key") or [""])[0]
+                    deleted = memory_vault.delete_preference(key)
+                    store.append("/api/memory/preferences/delete", {"key": key},
+                                 {"deleted": deleted, "raw_memory_value_in_event_ledger": False})
+                    self._send(200, {"schema": "merlin-memory-delete/1",
+                                     "kind": "preference", "deleted": deleted})
+                    return
+                if parsed.path == "/api/memory/projects":
+                    name = (query.get("name") or [""])[0]
+                    deleted = memory_vault.delete_project(name)
+                    store.append("/api/memory/projects/delete", {"name": name},
+                                 {"deleted": deleted, "raw_memory_value_in_event_ledger": False})
+                    self._send(200, {"schema": "merlin-memory-delete/1",
+                                     "kind": "project", "deleted": deleted})
+                    return
+                if parsed.path != "/api/interaction/feedback":
+                    self._send(404, {"error": "not_found"})
+                    return
                 session_id = (query.get("session_id") or [""])[0]
                 deleted = interaction_store.delete_session_feedback(session_id)
                 store.append("/api/interaction/feedback/delete", {"session_id": session_id},
