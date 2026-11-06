@@ -56,7 +56,7 @@ APPENDIX_SPECS = {
     },
     "math_kung_fu_master_prompt": {
         "title": "Math Kung Fu Master Prompt",
-        "start": "5.1 Ready-to-Use \\"Math Kung Fu\\" Master Prompt",
+        "start": "5.1 Ready-to-Use",
         "end": "5.2 Complete Adaptive Beginner-to-Master Freestyle Rap Training System & Toolbox",
     },
     "freestyle_rap_training_system": {
@@ -287,8 +287,12 @@ def extract_gemini_appendices(
     included_appendix_ids: Sequence[str],
 ) -> tuple[GeminiHandoffAppendix, ...]:
     """Extract only named technical appendices; personal-context sections are not allowlisted."""
+    if not isinstance(text, str) or not text.strip():
+        raise GeminiHandoffError("appendix source text must be non-empty")
     if not isinstance(included_appendix_ids, (list, tuple)):
         raise GeminiHandoffError("included_appendix_ids must be a list or tuple")
+    if any(not isinstance(item, str) for item in included_appendix_ids):
+        raise GeminiHandoffError("appendix IDs must be strings")
     if len(set(included_appendix_ids)) != len(included_appendix_ids):
         raise GeminiHandoffError("appendix allowlist contains duplicates")
     unknown = sorted(set(included_appendix_ids) - set(APPENDIX_SPECS))
@@ -377,6 +381,8 @@ def ingest_gemini_handoff(
     normalized_metadata = _normalize_context_metadata(conversation_metadata, set(selected_ids), "conversation")
     if not isinstance(included_appendix_ids, (list, tuple)):
         raise GeminiHandoffError("included_appendix_ids must be a list or tuple")
+    if any(not isinstance(item, str) for item in included_appendix_ids):
+        raise GeminiHandoffError("appendix IDs must be strings")
     if len(set(included_appendix_ids)) != len(included_appendix_ids):
         raise GeminiHandoffError("appendix allowlist contains duplicates")
     appendices = extract_gemini_appendices(text, included_appendix_ids)
@@ -651,7 +657,7 @@ def ingest_gemini_handoff(
         "source_archive_sha256": archive_sha256,
         "source_archive_size_bytes": len(archive_bytes),
         "source_archive_bytes_retained": False,
-        "source_granularity": "conversation_handoff_summary_not_raw_transcript",
+        "source_granularity": "handoff_summary_and_selected_technical_appendices",
         "expected_conversation_count": parsed["expected_count"],
         "parsed_conversation_count": parsed["parsed_count"],
         "imported_conversation_count": len(imported),
