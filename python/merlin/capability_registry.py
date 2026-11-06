@@ -107,7 +107,7 @@ def validate_graph(graph: Mapping[str, Any], max_nodes: int = 5000,
             continue
         source, target = edge.get("source"), edge.get("target")
         relation = edge.get("relation", "related")
-        if source not in node_set or target not in node_set:
+        if not isinstance(source, str) or not isinstance(target, str) or source not in node_set or target not in node_set:
             errors.append({"code": "dangling_edge", "path": f"edges[{index}]"})
             continue
         if not isinstance(relation, str) or not relation.strip():
