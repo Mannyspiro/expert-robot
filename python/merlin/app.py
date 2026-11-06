@@ -215,7 +215,8 @@ def _netlist(data: dict[str, Any]) -> Netlist:
 
 def make_handler(store: EventStore, hud_runtime: Any | None = None,
                  learner_store: LearnerStore | None = None,
-                 learning_outbox: MerlinEventOutbox | None = None):
+                 learning_outbox: MerlinEventOutbox | None = None,
+                 canonical_registry: Any | None = None):
     simulation = MerlinSimulation()
     learner_store = learner_store or LearnerStore(store.path)
     repo_root = Path(__file__).resolve().parents[2]
@@ -487,14 +488,41 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                             next_step=string_field(continuity_data.get("next_step", ""), "next_step"),
                         )
                     bundle = compile_directive(intent, assets, continuity)
+                    storage_status = "preview_only"
+                    artifact_ref = None
+                    project_id = data.get("project_id")
+                    if project_id is not None:
+                        project_id = string_field(project_id, "project_id")
+                        if not project_id.strip():
+                            raise ValueError("project_id cannot be blank")
+                        if canonical_registry is None:
+                            self._send(503, {"error": "canonical_registry_unavailable",
+                                             "storage_status": "not_persisted"})
+                            return
+                        # inventory() verifies that the target project already exists;
+                        # the compiler must not silently create a new project namespace.
+                        canonical_registry.inventory(project_id)
+                        artifact_bytes = _json_bytes(bundle)
+                        logical_path = "intents/" + bundle["directive_sha256"] + ".json"
+                        artifact_digest = canonical_registry.put_artifact(
+                            project_id, logical_path, artifact_bytes,
+                            "application/vnd.merlin.directive-bundle+json")
+                        artifact_ref = {
+                            "project_id": project_id, "logical_path": logical_path,
+                            "sha256": artifact_digest, "verified": canonical_registry.verify_artifact(artifact_digest),
+                        }
+                        if not artifact_ref["verified"]:
+                            raise RuntimeError("canonical registry artifact failed read-after-write verification")
+                        storage_status = "canonical_registry"
                     store.append(path, {"directive_sha256": bundle["directive_sha256"],
-                                        "domain": bundle["domain"]},
+                                        "domain": bundle["domain"], "project_id": project_id},
                                  {"directive_sha256": bundle["directive_sha256"],
-                                  "asset_count": len(assets), "preview_only": True,
+                                  "asset_count": len(assets), "storage_status": storage_status,
+                                  "artifact_sha256": artifact_ref["sha256"] if artifact_ref else None,
                                   "execution_authorized": False})
                     self._send(200, {
                         "schema": "merlin-directive-bundle/1", "bundle": bundle,
-                        "storage_status": "preview_only",
+                        "storage_status": storage_status, "artifact_ref": artifact_ref,
                         "execution_authorized": False, "promotion_authorized": False,
                     })
                     return
@@ -723,7 +751,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
     return Handler
 
 
-def _build_optional_hud_runtime():
+def _build_optional_hud_runtime(canonical_registry: Any | None = None):
     """Bind only explicitly configured, pre-existing canonical Merlin stores."""
     registry_root = os.environ.get("MERLIN_REGISTRY_ROOT", "").strip()
     graph_path = os.environ.get("MERLIN_GRAPH_DB_PATH", "").strip()
@@ -742,7 +770,7 @@ def _build_optional_hud_runtime():
     try:
         hypotheses = HypothesisLedger(hypotheses_path) if hypotheses_path and Path(hypotheses_path).is_file() else None
         return build_hud_runtime(
-            registry=MerlinRegistry(registry_root),
+            registry=canonical_registry or MerlinRegistry(registry_root),
             graph=MerlinKnowledgeGraph(graph_path),
             outbox=MerlinEventOutbox(outbox_path),
             hypotheses=hypotheses,
@@ -762,10 +790,17 @@ def serve(port: int = 8765, db_path: str | None = None) -> None:
     learner_store = LearnerStore(learner_db)
     outbox_path = os.environ.get("MERLIN_OUTBOX_DB_PATH", "").strip()
     learning_outbox = MerlinEventOutbox(outbox_path) if outbox_path else None
-    hud_runtime = _build_optional_hud_runtime()
+    canonical_registry = None
+    registry_root = os.environ.get("MERLIN_REGISTRY_ROOT", "").strip()
+    registry_db = Path(registry_root) / "merlin.sqlite3" if registry_root else None
+    if registry_db is not None and registry_db.is_file():
+        from .project_registry import MerlinRegistry
+        canonical_registry = MerlinRegistry(registry_root)
+    hud_runtime = _build_optional_hud_runtime(canonical_registry)
     if hud_runtime is not None:
         hud_runtime.start()
-    server = ThreadingHTTPServer(("127.0.0.1", port), make_handler(store, hud_runtime, learner_store, learning_outbox))
+    server = ThreadingHTTPServer(("127.0.0.1", port),
+        make_handler(store, hud_runtime, learner_store, learning_outbox, canonical_registry))
     print(f"Merlin MVP API listening on http://127.0.0.1:{port}")
     print("Merlin HUD: canonical graph/event stores connected" if hud_runtime
           else "Merlin HUD: labelled demonstration fallback (canonical store paths not configured)")
