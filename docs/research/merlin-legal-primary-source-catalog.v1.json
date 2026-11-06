@@ -1,0 +1,161 @@
+{
+  "schema": "merlin-legal-source-catalog/1",
+  "status": "seed_catalog_not_ingested",
+  "captured_at": "2026-11-06",
+  "policy": "Prefer official primary sources. Store source URLs and metadata; capture bytes only when permitted. Verify effective dates and current status per source. No entry here establishes a complete corpus.",
+  "sources": [
+    {
+      "id": "US-CONSTITUTION",
+      "jurisdiction": "US-FEDERAL",
+      "type": "constitution",
+      "title": "U.S. Constitution",
+      "url": "https://constitution.congress.gov/constitution/",
+      "role": "constitutional text and annotated constitutional analysis",
+      "note": "Annotations are secondary explanation; distinguish constitutional text from editorial analysis."
+    },
+    {
+      "id": "USCODE-GOVINFO",
+      "jurisdiction": "US-FEDERAL",
+      "type": "statute",
+      "title": "United States Code",
+      "url": "https://www.govinfo.gov/app/collection/USCODE",
+      "role": "federal statutory codification",
+      "note": "GovInfo explains positive-law titles are legal evidence; for non-positive-law titles, Statutes at Large remain controlling evidence. Verify source and edition."
+    },
+    {
+      "id": "USCODE-HOUSE",
+      "jurisdiction": "US-FEDERAL",
+      "type": "statute",
+      "title": "Office of the Law Revision Counsel — U.S. Code",
+      "url": "https://uscode.house.gov/",
+      "role": "official House-maintained U.S. Code resource",
+      "note": "Track annual supplements and source notes."
+    },
+    {
+      "id": "CFR-GOVINFO",
+      "jurisdiction": "US-FEDERAL",
+      "type": "regulation",
+      "title": "Code of Federal Regulations",
+      "url": "https://www.govinfo.gov/help/cfr",
+      "role": "annual CFR editions and regulatory research",
+      "note": "CFR annual volumes are staggered by title; use Federal Register for promulgation and amendment history."
+    },
+    {
+      "id": "ECFR",
+      "jurisdiction": "US-FEDERAL",
+      "type": "regulation",
+      "title": "Electronic Code of Federal Regulations",
+      "url": "https://www.ecfr.gov/",
+      "role": "daily updated editorial compilation",
+      "note": "Useful current research view; GovInfo notes eCFR is not the official legal edition. Verify against Federal Register and official CFR editions."
+    },
+    {
+      "id": "FEDERAL-REGISTER",
+      "jurisdiction": "US-FEDERAL",
+      "type": "agency_guidance",
+      "title": "Federal Register",
+      "url": "https://www.federalregister.gov/",
+      "role": "proposed and final federal agency rules, notices and presidential documents",
+      "note": "Capture publication date, effective date, agency, docket and CFR amendments."
+    },
+    {
+      "id": "CONGRESS-GOV",
+      "jurisdiction": "US-FEDERAL",
+      "type": "legislative_history",
+      "title": "Congress.gov",
+      "url": "https://www.congress.gov/",
+      "role": "bills, public laws, legislative actions and selected history",
+      "note": "A bill is not enacted law; preserve bill version and enactment status."
+    },
+    {
+      "id": "SUPREME-COURT",
+      "jurisdiction": "US-FEDERAL",
+      "type": "court_opinion",
+      "title": "U.S. Supreme Court opinions",
+      "url": "https://www.supremecourt.gov/opinions/opinions.aspx",
+      "role": "official opinions and orders",
+      "note": "Capture slip opinion, docket, decision date, later corrections and subsequent treatment."
+    },
+    {
+      "id": "US-COURTS",
+      "jurisdiction": "US-FEDERAL",
+      "type": "court_opinion",
+      "title": "United States Courts",
+      "url": "https://www.uscourts.gov/",
+      "role": "federal judiciary, court rules and court-system resources",
+      "note": "Court opinions and local rules may be distributed by individual courts."
+    },
+    {
+      "id": "AZ-CONSTITUTION",
+      "jurisdiction": "US-AZ",
+      "type": "constitution",
+      "title": "Arizona Constitution",
+      "url": "https://www.azleg.gov/constitution/",
+      "role": "state constitutional text",
+      "note": "Record amendment history and effective dates."
+    },
+    {
+      "id": "AZ-ARS",
+      "jurisdiction": "US-AZ",
+      "type": "statute",
+      "title": "Arizona Revised Statutes",
+      "url": "https://www.azleg.gov/arsDetail/",
+      "role": "Arizona statutory research",
+      "note": "Arizona Legislature says its online compilation reflects law effective January 1 following the latest session and is maintained primarily for legislative drafting; official version is published by Thomson Reuters. Verify historical versions and session laws."
+    },
+    {
+      "id": "AZ-LEG-SESSION-LAWS",
+      "jurisdiction": "US-AZ",
+      "type": "statute",
+      "title": "Arizona Legislature session laws and bills",
+      "url": "https://www.azleg.gov/",
+      "role": "enacted legislation and legislative history discovery",
+      "note": "Confirm enactment, chapter number, effective date and codification."
+    },
+    {
+      "id": "AZ-ADMIN-CODE",
+      "jurisdiction": "US-AZ",
+      "type": "regulation",
+      "title": "Arizona Administrative Code",
+      "url": "https://apps.azsos.gov/public_services/Title_20/",
+      "role": "Arizona agency regulations",
+      "note": "Capture register history, rulemaking docket and effective date."
+    },
+    {
+      "id": "AZ-COURTS-SOURCES",
+      "jurisdiction": "US-AZ",
+      "type": "court_opinion",
+      "title": "Arizona Courts — Sources of Law",
+      "url": "https://www.azcourts.gov/selfservicecenter/Resources/Understanding-Legal-References/Sources-of-Law",
+      "role": "official guide to Arizona and federal legal source families",
+      "note": "Guide distinguishes constitutions, statutes, CFR/AAC, court rules and published opinions; Arizona is in Ninth Circuit."
+    },
+    {
+      "id": "AZ-SUPREME-COURT",
+      "jurisdiction": "US-AZ",
+      "type": "court_opinion",
+      "title": "Arizona Supreme Court opinions",
+      "url": "https://www.azcourts.gov/opinions",
+      "role": "state high-court opinions",
+      "note": "Verify publication status and precedential treatment."
+    },
+    {
+      "id": "AZ-COURT-RULES",
+      "jurisdiction": "US-AZ",
+      "type": "court_rule",
+      "title": "Arizona Court Rules",
+      "url": "https://www.azcourts.gov/rules",
+      "role": "procedural and evidentiary rules",
+      "note": "Identify court and case-type applicability; record amendment/effective dates."
+    },
+    {
+      "id": "AZ-COURT-APPEALS",
+      "jurisdiction": "US-AZ",
+      "type": "court_opinion",
+      "title": "Arizona Court of Appeals opinions",
+      "url": "https://www.azcourts.gov/coa",
+      "role": "published appellate decisions",
+      "note": "Capture division, publication designation, decision date and later treatment."
+    }
+  ]
+}

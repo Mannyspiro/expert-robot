@@ -1,0 +1,229 @@
+{
+  "schema": "merlin-legal-field-taxonomy/1",
+  "status": "research_scope",
+  "initial_jurisdiction_strategy": [
+    "US-FEDERAL",
+    "US-AZ",
+    "US-50-STATES-AND-DC",
+    "US-TRIBAL",
+    "INTERNATIONAL-COMPARATIVE"
+  ],
+  "fields": {
+    "legal_foundations": [
+      "sources_of_law",
+      "jurisdiction",
+      "precedent",
+      "interpretation",
+      "legal_theory"
+    ],
+    "constitutional": [
+      "federalism",
+      "separation_of_powers",
+      "individual_rights",
+      "judicial_review",
+      "remedies"
+    ],
+    "jurisprudence": [
+      "natural_law",
+      "legal_positivism",
+      "legal_realism",
+      "interpretivism",
+      "critical_theories"
+    ],
+    "contracts": [
+      "formation",
+      "interpretation",
+      "performance",
+      "breach",
+      "remedies",
+      "commercial_contracts"
+    ],
+    "property": [
+      "ownership",
+      "estates",
+      "land_use",
+      "transfers",
+      "mortgages",
+      "landlord_tenant"
+    ],
+    "torts": [
+      "negligence",
+      "causation",
+      "strict_liability",
+      "intentional_torts",
+      "damages",
+      "defenses"
+    ],
+    "criminal_law": [
+      "offense_elements",
+      "culpability",
+      "defenses",
+      "sentencing",
+      "criminal_responsibility"
+    ],
+    "civil_procedure": [
+      "jurisdiction",
+      "pleadings",
+      "discovery",
+      "motions",
+      "trial",
+      "appeal",
+      "preclusion"
+    ],
+    "criminal_procedure": [
+      "search_seizure",
+      "interrogation",
+      "due_process",
+      "suppression",
+      "trial_rights"
+    ],
+    "evidence": [
+      "relevance",
+      "hearsay",
+      "privilege",
+      "authentication",
+      "experts",
+      "burdens"
+    ],
+    "administrative": [
+      "agency_authority",
+      "rulemaking",
+      "adjudication",
+      "judicial_review",
+      "delegation"
+    ],
+    "business": [
+      "entities",
+      "fiduciary_duties",
+      "securities",
+      "bankruptcy",
+      "secured_transactions",
+      "governance"
+    ],
+    "employment": [
+      "wages",
+      "discrimination",
+      "workplace_safety",
+      "labor_relations",
+      "benefits"
+    ],
+    "family_estates": [
+      "marriage",
+      "dissolution",
+      "custody",
+      "support",
+      "trusts",
+      "estates"
+    ],
+    "tax": [
+      "individual",
+      "corporate",
+      "partnership",
+      "estate_gift",
+      "international",
+      "state_local"
+    ],
+    "intellectual_property": [
+      "patents",
+      "copyright",
+      "trademarks",
+      "trade_secrets",
+      "licensing"
+    ],
+    "environmental": [
+      "pollution",
+      "water",
+      "public_lands",
+      "zoning",
+      "permitting",
+      "natural_resources"
+    ],
+    "insurance": [
+      "coverage",
+      "underwriting",
+      "claims",
+      "bad_faith",
+      "regulation",
+      "reinsurance",
+      "solvency"
+    ],
+    "health_bioethics": [
+      "healthcare_regulation",
+      "privacy",
+      "consent",
+      "liability",
+      "biotechnology"
+    ],
+    "international": [
+      "treaties",
+      "customary_law",
+      "state_responsibility",
+      "jurisdiction",
+      "international_courts"
+    ],
+    "comparative": [
+      "common_law",
+      "civil_law",
+      "mixed_systems",
+      "customary_law",
+      "religious_law"
+    ],
+    "remedies_disputes": [
+      "damages",
+      "injunctions",
+      "restitution",
+      "arbitration",
+      "mediation",
+      "enforcement"
+    ],
+    "professional_responsibility": [
+      "confidentiality",
+      "conflicts",
+      "competence",
+      "candor",
+      "client_funds"
+    ],
+    "legal_history": [
+      "legal_institutions",
+      "historical_doctrine",
+      "codification",
+      "constitutional_development"
+    ]
+  },
+  "dossier_sections": [
+    "definition_and_purpose",
+    "history",
+    "elements_and_tests",
+    "exceptions",
+    "primary_authority",
+    "secondary_scholarship",
+    "jurisdictional_comparison",
+    "application",
+    "current_status",
+    "uncertainty_register"
+  ],
+  "authority_status": [
+    "binding",
+    "persuasive",
+    "nonbinding",
+    "vacated",
+    "overruled",
+    "superseded",
+    "repealed",
+    "historical",
+    "unknown"
+  ],
+  "claim_status": [
+    "research_lead",
+    "source_supported",
+    "contested",
+    "inconclusive",
+    "rejected",
+    "independently_verified"
+  ],
+  "notes": [
+    "Taxonomy is a coverage plan, not evidence of corpus ingestion.",
+    "Legal rules are jurisdiction- and time-dependent.",
+    "CACE-authenticated review is required before verified promotion."
+  ]
+}
