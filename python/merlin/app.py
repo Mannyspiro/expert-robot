@@ -26,6 +26,9 @@ from .telemetry import normalize_event, telemetry_view, record_runtime_event
 from .telemetry_graph import build_telemetry_graph
 from .learner_model import LearnerStore, select_next_lesson, HermesLearningRouter, score_attempt_event
 from .event_outbox import MerlinEventOutbox
+from .intent_compiler import Asset, IntentSpec, ContinuityState, compile_directive
+from .math_transfer import preview_transfers
+from .interaction_learning import InteractionLearningStore, analyze_interactions
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
     validate_analogy,
@@ -126,6 +129,10 @@ class EventStore:
 
 
 CAPABILITIES = [
+    {"id": "research.math_transfer.preview", "status": "AVAILABLE", "evidence": "deterministic, provenance-aware transfer hypotheses; no automatic promotion"},
+    {"id": "intent.compile.preview", "status": "AVAILABLE", "evidence": "deterministic typed directive preview; optional canonical-registry artifact persistence; no external execution authority"},
+    {"id": "learning.interaction.observe", "status": "AVAILABLE", "evidence": "metadata-only operational telemetry plus explicit categorical outcome feedback"},
+    {"id": "learning.interaction.analyze", "status": "AVAILABLE", "evidence": "aggregate improvement proposals with minimum sample thresholds; recommendation-only"},
     {"id": "simulation.world", "status": "AVAILABLE", "evidence": "deterministic bounded world state, actions, and event telemetry"},
     {"id": "simulation.hud", "status": "AVAILABLE", "evidence": "responsive HUD renders live simulation API data"},
     {"id": "council.roles", "status": "AVAILABLE", "evidence": "deterministic simulated persona registry"},
@@ -213,9 +220,11 @@ def _netlist(data: dict[str, Any]) -> Netlist:
 
 def make_handler(store: EventStore, hud_runtime: Any | None = None,
                  learner_store: LearnerStore | None = None,
-                 learning_outbox: MerlinEventOutbox | None = None):
+                 learning_outbox: MerlinEventOutbox | None = None,
+                 canonical_registry: Any | None = None):
     simulation = MerlinSimulation()
     learner_store = learner_store or LearnerStore(store.path)
+    interaction_store = InteractionLearningStore(store.path)
     repo_root = Path(__file__).resolve().parents[2]
     catalog_path = Path(os.environ.get("MERLIN_MATH_IDEA_CATALOG",
         str(repo_root / "docs" / "research" / "merlin-mathematical-idea-catalog.v1.json")))
@@ -268,6 +277,15 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                                          "curriculum_id": "art-math-studio"})
     learning_router = HermesLearningRouter(learning_outbox, learner_store, learning_graph,
                                            learning_lessons) if learning_outbox is not None else None
+    def current_interaction_analysis():
+        preferences = interaction_store.preferences()
+        telemetry_rows = store.by_kind("/api/telemetry/ingest", 100000) if preferences["aggregate_telemetry"] else []
+        telemetry_events = [row["summary"]["event"] for row in telemetry_rows
+            if isinstance(row.get("summary"), dict)
+            and isinstance(row["summary"].get("event"), dict)]
+        feedback = interaction_store.feedback_summary()["events"] if preferences["explicit_feedback_learning"] else []
+        return analyze_interactions(telemetry_events, feedback)
+
     # Rebuild simulation state from the durable action ledger on process restart.
     replay_rows = store.by_kind("/api/sim/step")
     replayed = 0
@@ -284,10 +302,11 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             if started is None:
                 return
             try:
-                record_runtime_event(store, path=urlparse(self.path).path,
-                    method=self.command, status=status,
-                    duration_ms=(perf_counter() - started) * 1000.0,
-                    response_bytes=response_bytes)
+                if interaction_store.preferences()["aggregate_telemetry"]:
+                    record_runtime_event(store, path=urlparse(self.path).path,
+                        method=self.command, status=status,
+                        duration_ms=(perf_counter() - started) * 1000.0,
+                        response_bytes=response_bytes)
             except Exception:
                 # Observability must never change the underlying API result.
                 return
@@ -363,6 +382,17 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                           and isinstance(row.get("summary"), dict)
                           and isinstance(row["summary"].get("event"), dict)]
                 self._send(200, telemetry_view(events))
+            elif path == "/api/learning/preferences":
+                self._send(200, {"schema": "merlin-interaction-preferences/1",
+                                 "preferences": interaction_store.preferences()})
+            elif path == "/api/learning/improvements":
+                latest = interaction_store.latest_analysis()
+                if latest is None:
+                    self._send(200, current_interaction_analysis())
+                else:
+                    self._send(200, {"schema": "merlin-interaction-improvement-result/1",
+                                     "latest": latest,
+                                     "analysis": latest["analysis"]})
             elif path == "/api/telemetry/graph":
                 rows = store.by_kind("/api/telemetry/ingest", 10000)
                 events = [row["summary"]["event"] for row in rows
@@ -425,6 +455,205 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 if not isinstance(data, dict):
                     raise ValueError("request body must be a JSON object")
 
+                if path == "/api/learning/improvements/evaluate":
+                    analysis = current_interaction_analysis()
+                    receipt = interaction_store.save_analysis(analysis)
+                    store.append(path, {"analysis_sha256": receipt["analysis_sha256"]},
+                                 {"analysis_id": receipt["analysis_id"],
+                                  "analysis_sha256": receipt["analysis_sha256"],
+                                  "telemetry_samples": receipt["telemetry_samples"],
+                                  "feedback_samples": receipt["feedback_samples"],
+                                  "proposal_count": len(analysis["proposals"]),
+                                  "promotion_authorized": False})
+                    self._send(201, {"schema": "merlin-interaction-improvement-result/1",
+                                     "receipt": receipt, "analysis": analysis,
+                                     "promotion_authorized": False})
+                    return
+                if path == "/api/learning/preferences":
+                    preferences = interaction_store.set_preferences(data)
+                    store.append(path, {"changed_preferences": sorted(data)},
+                                 {"preferences": preferences, "raw_content_stored": False})
+                    self._send(200, {"schema": "merlin-interaction-preferences/1",
+                                     "preferences": preferences})
+                    return
+                if path == "/api/interaction/feedback":
+                    result = interaction_store.record_feedback(data)
+                    # Store only the event ID and categorical outcome summary; never free text.
+                    store.append(path, {"event_id": result["event_id"]},
+                                 {"accepted": True, "duplicate": result["duplicate"],
+                                  "domain": data.get("domain", "general"),
+                                  "task_type": data.get("task_type"),
+                                  "outcome": data.get("outcome"),
+                                  "friction_code": data.get("friction_code"),
+                                  "correction_type": data.get("correction_type"),
+                                  "satisfaction": data.get("satisfaction")})
+                    self._send(202, {"schema": "merlin-interaction-feedback/1", **result,
+                                     "raw_conversation_content_stored": False})
+                    return
+                if path == "/api/research/transfers/preview":
+                    discovery = data.get("discovery", data)
+                    requested_targets = data.get("requested_targets")
+                    if not isinstance(discovery, dict):
+                        raise ValueError("discovery must be an object")
+                    if requested_targets is not None and (
+                        not isinstance(requested_targets, list)
+                        or any(not isinstance(item, str) for item in requested_targets)
+                    ):
+                        raise ValueError("requested_targets must be a list of subsystem identifiers")
+                    preview = preview_transfers(discovery, requested_targets)
+                    storage_status = "preview_only"
+                    artifact_ref = None
+                    project_id = data.get("project_id")
+                    if project_id is not None:
+                        if not isinstance(project_id, str) or not project_id.strip():
+                            raise ValueError("project_id must be a nonblank string")
+                        if canonical_registry is None:
+                            self._send(503, {"error": "canonical_registry_unavailable",
+                                             "storage_status": "not_persisted"})
+                            return
+                        canonical_registry.inventory(project_id)
+                        artifact_bytes = _json_bytes(preview)
+                        logical_path = "math-transfers/" + preview["preview_sha256"] + ".json"
+                        digest = canonical_registry.put_artifact(
+                            project_id, logical_path, artifact_bytes,
+                            "application/vnd.merlin.math-transfer-preview+json")
+                        verified = canonical_registry.verify_artifact(digest)
+                        if not verified:
+                            self._send(503, {"error": "canonical_registry_verification_failed",
+                                             "storage_status": "not_verified"})
+                            return
+                        artifact_ref = {"project_id": project_id, "logical_path": logical_path,
+                                        "sha256": digest, "verified": True}
+                        storage_status = "canonical_registry"
+                    store.append(path, {"preview_sha256": preview["preview_sha256"],
+                                        "discovery_id": preview["discovery"]["discovery_id"],
+                                        "project_id": project_id},
+                                 {"candidate_count": preview["candidate_count"],
+                                  "storage_status": storage_status,
+                                  "promotion_authorized": False})
+                    self._send(200, {"schema": preview["schema"], "preview": preview,
+                                     "storage_status": storage_status, "artifact_ref": artifact_ref,
+                                     "promotion_authorized": False})
+                    return
+
+                if path == "/api/intents/compile":
+                    intent_data = data.get("intent", data)
+                    assets_data = data.get("assets", [])
+                    continuity_data = data.get("continuity")
+                    if not isinstance(intent_data, dict) or not isinstance(assets_data, list):
+                        raise ValueError("intent must be an object and assets must be a list")
+
+                    def string_field(value: Any, field_name: str) -> str:
+                        if not isinstance(value, str):
+                            raise ValueError(field_name + " must be a string")
+                        return value
+
+                    def string_list(value: Any, field_name: str) -> tuple[str, ...]:
+                        if not isinstance(value, list) or any(not isinstance(item, str) for item in value):
+                            raise ValueError(field_name + " must be a list of strings")
+                        return tuple(value)
+
+                    duration = intent_data.get("duration_seconds")
+                    if duration is not None and (isinstance(duration, bool) or not isinstance(duration, int)):
+                        raise ValueError("duration_seconds must be an integer")
+                    intent = IntentSpec(
+                        goal=string_field(intent_data.get("goal", ""), "goal"),
+                        domain=string_field(intent_data.get("domain", ""), "domain"),
+                        deliverable=string_field(intent_data.get("deliverable", ""), "deliverable"),
+                        constraints=string_list(intent_data.get("constraints", []), "constraints"),
+                        exclusions=string_list(intent_data.get("exclusions", []), "exclusions"),
+                        success_criteria=string_list(intent_data.get("success_criteria", []), "success_criteria"),
+                        audience=string_field(intent_data.get("audience", ""), "audience"),
+                        target_backend=string_field(intent_data.get("target_backend", "generic"), "target_backend"),
+                        duration_seconds=duration,
+                    )
+                    assets = []
+                    for row in assets_data:
+                        if not isinstance(row, dict):
+                            raise ValueError("each asset must be an object")
+                        metadata = row.get("metadata", {})
+                        if not isinstance(metadata, dict):
+                            raise ValueError("asset metadata must be an object")
+                        assets.append(Asset(
+                            asset_id=string_field(row.get("asset_id", ""), "asset_id"),
+                            name=string_field(row.get("name", ""), "asset name"),
+                            kind=string_field(row.get("kind", ""), "asset kind"),
+                            sha256=string_field(row.get("sha256", ""), "asset sha256"),
+                            role=string_field(row.get("role", "reference"), "asset role"),
+                            # Trust level is server-assigned below; never accept a caller's
+                            # assertion that an uploaded/reference asset is authoritative.
+                            authority="user_supplied",
+                            locator=string_field(row.get("locator", ""), "asset locator"),
+                            metadata=metadata,
+                        ))
+                    continuity = None
+                    if continuity_data is not None:
+                        if not isinstance(continuity_data, dict):
+                            raise ValueError("continuity must be an object")
+                        continuity = ContinuityState(
+                            checkpoint_id=string_field(continuity_data.get("checkpoint_id", ""), "checkpoint_id"),
+                            prior_state=string_field(continuity_data.get("prior_state", ""), "prior_state"),
+                            stable_entity_ids=string_list(
+                                continuity_data.get("stable_entity_ids", []), "stable_entity_ids"),
+                            next_step=string_field(continuity_data.get("next_step", ""), "next_step"),
+                        )
+                    bundle = compile_directive(intent, assets, continuity)
+                    storage_status = "preview_only"
+                    artifact_ref = None
+                    project_id = data.get("project_id")
+                    if project_id is not None:
+                        project_id = string_field(project_id, "project_id")
+                        if not project_id.strip():
+                            raise ValueError("project_id cannot be blank")
+                        if canonical_registry is None:
+                            self._send(503, {"error": "canonical_registry_unavailable",
+                                             "storage_status": "not_persisted"})
+                            return
+                        # inventory() verifies that the target project already exists;
+                        # the compiler must not silently create a new project namespace.
+                        project_inventory = canonical_registry.inventory(project_id)
+                        project_digests = {item["digest"] for item in project_inventory["artifacts"]}
+                        verified_assets = []
+                        for asset in assets:
+                            if asset.sha256 not in project_digests or not canonical_registry.verify_artifact(asset.sha256):
+                                raise ValueError("asset sha256 must reference a verified artifact in the target project registry")
+                            verified_assets.append(Asset(
+                                asset_id=asset.asset_id, name=asset.name, kind=asset.kind,
+                                sha256=asset.sha256, role=asset.role,
+                                authority="canonical_registry_verified",
+                                locator=asset.locator, metadata=asset.metadata,
+                            ))
+                        assets = verified_assets
+                        # Recompile so the persisted directive records server-verified
+                        # provenance, not caller-supplied trust labels.
+                        bundle = compile_directive(intent, assets, continuity)
+                        artifact_bytes = _json_bytes(bundle)
+                        logical_path = "intents/" + bundle["directive_sha256"] + ".json"
+                        artifact_digest = canonical_registry.put_artifact(
+                            project_id, logical_path, artifact_bytes,
+                            "application/vnd.merlin.directive-bundle+json")
+                        artifact_ref = {
+                            "project_id": project_id, "logical_path": logical_path,
+                            "sha256": artifact_digest, "verified": canonical_registry.verify_artifact(artifact_digest),
+                        }
+                        if not artifact_ref["verified"]:
+                            self._send(503, {"error": "canonical_registry_verification_failed",
+                                             "storage_status": "not_verified"})
+                            return
+                        storage_status = "canonical_registry"
+                    store.append(path, {"directive_sha256": bundle["directive_sha256"],
+                                        "domain": bundle["domain"], "project_id": project_id},
+                                 {"directive_sha256": bundle["directive_sha256"],
+                                  "asset_count": len(assets), "storage_status": storage_status,
+                                  "artifact_sha256": artifact_ref["sha256"] if artifact_ref else None,
+                                  "execution_authorized": False})
+                    self._send(200, {
+                        "schema": "merlin-directive-bundle/1", "bundle": bundle,
+                        "storage_status": storage_status, "artifact_ref": artifact_ref,
+                        "execution_authorized": False, "promotion_authorized": False,
+                    })
+                    return
+
                 if path == "/api/learning/attempt":
                     scored_event = score_attempt_event(data)
                     result = learner_store.record_attempt(scored_event)
@@ -441,6 +670,10 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     self._send(202, {"schema": "merlin-learning-attempt/1", "accepted": True, **result})
                     return
                 if path == "/api/telemetry/ingest":
+                    if not interaction_store.preferences()["aggregate_telemetry"]:
+                        self._send(202, {"accepted": False, "reason": "telemetry_disabled",
+                                         "promotion_authorized": False})
+                        return
                     event = normalize_event(data)
                     store.append(path, {"event_id": event["event_id"], "source": event["source"]},
                                  {"event": event})
@@ -633,6 +866,8 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
 
                 store.append(path, data, summary)
                 self._send(200, result)
+            except PermissionError as exc:
+                self._send(403, {"error": "learning_disabled", "detail": str(exc)[:200]})
             except (ValueError, TypeError, KeyError, json.JSONDecodeError) as exc:
                 self._send(400, {"error": "invalid_request", "detail": str(exc)[:300]})
             except RuntimeError as exc:
@@ -642,6 +877,25 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             except Exception:
                 self._send(500, {"error": "internal_error"})
 
+        def do_DELETE(self) -> None:
+            self._request_started = perf_counter()
+            parsed = urlparse(self.path)
+            if parsed.path != "/api/interaction/feedback":
+                self._send(404, {"error": "not_found"})
+                return
+            try:
+                query = parse_qs(parsed.query)
+                session_id = (query.get("session_id") or [""])[0]
+                deleted = interaction_store.delete_session_feedback(session_id)
+                store.append("/api/interaction/feedback/delete", {"session_id": session_id},
+                             {"deleted_feedback_events": deleted})
+                self._send(200, {"schema": "merlin-interaction-feedback-deletion/1",
+                                 "deleted_feedback_events": deleted,
+                                 "scope": "categorical feedback for this opaque session only",
+                                 "raw_conversation_content_stored": False})
+            except ValueError as exc:
+                self._send(400, {"error": "invalid_request", "detail": str(exc)[:200]})
+
         def log_message(self, fmt: str, *args: Any) -> None:
             # Do not log request bodies, prompts, or voice content.
             return
@@ -649,7 +903,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
     return Handler
 
 
-def _build_optional_hud_runtime():
+def _build_optional_hud_runtime(canonical_registry: Any | None = None):
     """Bind only explicitly configured, pre-existing canonical Merlin stores."""
     registry_root = os.environ.get("MERLIN_REGISTRY_ROOT", "").strip()
     graph_path = os.environ.get("MERLIN_GRAPH_DB_PATH", "").strip()
@@ -668,7 +922,7 @@ def _build_optional_hud_runtime():
     try:
         hypotheses = HypothesisLedger(hypotheses_path) if hypotheses_path and Path(hypotheses_path).is_file() else None
         return build_hud_runtime(
-            registry=MerlinRegistry(registry_root),
+            registry=canonical_registry or MerlinRegistry(registry_root),
             graph=MerlinKnowledgeGraph(graph_path),
             outbox=MerlinEventOutbox(outbox_path),
             hypotheses=hypotheses,
@@ -688,10 +942,17 @@ def serve(port: int = 8765, db_path: str | None = None) -> None:
     learner_store = LearnerStore(learner_db)
     outbox_path = os.environ.get("MERLIN_OUTBOX_DB_PATH", "").strip()
     learning_outbox = MerlinEventOutbox(outbox_path) if outbox_path else None
-    hud_runtime = _build_optional_hud_runtime()
+    canonical_registry = None
+    registry_root = os.environ.get("MERLIN_REGISTRY_ROOT", "").strip()
+    registry_db = Path(registry_root) / "merlin.sqlite3" if registry_root else None
+    if registry_db is not None and registry_db.is_file():
+        from .project_registry import MerlinRegistry
+        canonical_registry = MerlinRegistry(registry_root)
+    hud_runtime = _build_optional_hud_runtime(canonical_registry)
     if hud_runtime is not None:
         hud_runtime.start()
-    server = ThreadingHTTPServer(("127.0.0.1", port), make_handler(store, hud_runtime, learner_store, learning_outbox))
+    server = ThreadingHTTPServer(("127.0.0.1", port),
+        make_handler(store, hud_runtime, learner_store, learning_outbox, canonical_registry))
     print(f"Merlin MVP API listening on http://127.0.0.1:{port}")
     print("Merlin HUD: canonical graph/event stores connected" if hud_runtime
           else "Merlin HUD: labelled demonstration fallback (canonical store paths not configured)")
