@@ -1320,8 +1320,19 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
     return Handler
 
 
-def _build_optional_hud_runtime(canonical_registry: Any | None = None):
-    """Bind only explicitly configured, pre-existing canonical Merlin stores."""
+def _build_optional_hud_runtime(
+    canonical_registry: Any | None = None,
+    canonical_graph: Any | None = None,
+    outbox: Any | None = None,
+    hypotheses: Any | None = None,
+):
+    """Bind explicit canonical stores; never substitute demo stores for configured ones."""
+    from .hud_runtime import build_hud_runtime
+    if canonical_registry is not None and canonical_graph is not None and outbox is not None:
+        return build_hud_runtime(
+            registry=canonical_registry, graph=canonical_graph,
+            outbox=outbox, hypotheses=hypotheses,
+        )
     registry_root = os.environ.get("MERLIN_REGISTRY_ROOT", "").strip()
     graph_path = os.environ.get("MERLIN_GRAPH_DB_PATH", "").strip()
     outbox_path = os.environ.get("MERLIN_OUTBOX_DB_PATH", "").strip()
@@ -1334,7 +1345,6 @@ def _build_optional_hud_runtime(canonical_registry: Any | None = None):
     from .knowledge_graph import MerlinKnowledgeGraph
     from .event_outbox import MerlinEventOutbox
     from .hypothesis_ledger import HypothesisLedger
-    from .hud_runtime import build_hud_runtime
     hypotheses_path = os.environ.get("MERLIN_HYPOTHESES_DB_PATH", "").strip()
     try:
         hypotheses = HypothesisLedger(hypotheses_path) if hypotheses_path and Path(hypotheses_path).is_file() else None
@@ -1351,34 +1361,51 @@ def _build_optional_hud_runtime(canonical_registry: Any | None = None):
 
 def serve(port: int = 8765, db_path: str | None = None,
           learning_identity_resolver: Any | None = None,
-          hermes_worker_service: Any | None = None) -> None:
+          hermes_worker_service: Any | None = None,
+          hermes_runtime: Any | None = None) -> None:
+    if hermes_runtime is not None and hermes_worker_service is not None:
+        raise ValueError("pass hermes_runtime or hermes_worker_service, not both")
+    if hermes_runtime is not None:
+        hermes_worker_service = hermes_runtime.service
     if learning_identity_resolver is None:
         learning_identity_resolver = learning_identity_resolver_from_environment()
-    target = db_path or os.environ.get(
-        "MERLIN_DB_PATH",
-        str(Path.home() / ".local" / "share" / "merlin" / "events.sqlite3"),
+    runtime_default_db = (
+        str(hermes_runtime.root / "events.sqlite3") if hermes_runtime is not None else
+        str(Path.home() / ".local" / "share" / "merlin" / "events.sqlite3")
     )
+    target = db_path or os.environ.get("MERLIN_DB_PATH", runtime_default_db)
     store = EventStore(target)
     learner_db = os.environ.get("MERLIN_LEARNER_DB_PATH", target)
     learner_store = LearnerStore(learner_db)
     outbox_path = os.environ.get("MERLIN_OUTBOX_DB_PATH", "").strip()
-    learning_outbox = MerlinEventOutbox(outbox_path) if outbox_path else None
-    canonical_registry = None
+    learning_outbox = (
+        hermes_runtime.outbox if hermes_runtime is not None else
+        MerlinEventOutbox(outbox_path) if outbox_path else None
+    )
+    canonical_registry = hermes_runtime.registry if hermes_runtime is not None else None
     registry_root = os.environ.get("MERLIN_REGISTRY_ROOT", "").strip()
     registry_db = Path(registry_root) / "merlin.sqlite3" if registry_root else None
     if registry_db is not None and registry_db.is_file():
         from .project_registry import MerlinRegistry
         canonical_registry = MerlinRegistry(registry_root)
-    hud_runtime = _build_optional_hud_runtime(canonical_registry)
-    canonical_graph = None
-    graph_path = os.environ.get("MERLIN_GRAPH_DB_PATH", "").strip()
-    if graph_path and Path(graph_path).is_file():
-        from .knowledge_graph import MerlinKnowledgeGraph
-        canonical_graph = MerlinKnowledgeGraph(graph_path)
+    canonical_graph = hermes_runtime.graph if hermes_runtime is not None else None
+    if canonical_graph is None:
+        graph_path = os.environ.get("MERLIN_GRAPH_DB_PATH", "").strip()
+        if graph_path and Path(graph_path).is_file():
+            from .knowledge_graph import MerlinKnowledgeGraph
+            canonical_graph = MerlinKnowledgeGraph(graph_path)
+    hud_runtime = _build_optional_hud_runtime(
+        canonical_registry=canonical_registry,
+        canonical_graph=canonical_graph,
+        outbox=learning_outbox,
+        hypotheses=hermes_runtime.ledger if hermes_runtime is not None else None,
+    )
     if hud_runtime is not None:
         hud_runtime.start()
     hermes_service_started = False
-    if hermes_worker_service is not None:
+    if hermes_runtime is not None:
+        hermes_service_started = bool(hermes_runtime.start())
+    elif hermes_worker_service is not None:
         hermes_service_started = bool(hermes_worker_service.start())
     server = ThreadingHTTPServer(("127.0.0.1", port),
         make_handler(store, hud_runtime, learner_store, learning_outbox,
@@ -1397,7 +1424,10 @@ def serve(port: int = 8765, db_path: str | None = None,
         if hud_runtime is not None:
             hud_runtime.stop()
         if hermes_service_started:
-            hermes_worker_service.stop(timeout_seconds=10)
+            if hermes_runtime is not None:
+                hermes_runtime.stop(timeout_seconds=10)
+            else:
+                hermes_worker_service.stop(timeout_seconds=10)
 
 
 if __name__ == "__main__":
