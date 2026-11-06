@@ -72,7 +72,7 @@ jobs:
         run: |
           set +e
           mkdir -p artifacts
-          python -m compileall -q python/merlin/app.py python/merlin/identity.py python/merlin/learning_platform.py python/merlin/capability_registry.py python/merlin/knowledge_graph.py python/merlin/project_registry.py python/merlin/cace_adapter.py python/merlin/cace_attestation.py python/merlin/cace_runtime.py python/merlin/event_outbox.py python/merlin/hermes_outbox.py python/merlin/hermes_worker.py python/merlin/hermes_service.py python/merlin/hermes_stage_handlers.py python/merlin/avrea_adapter.py python/merlin/cace_adapter.py python/merlin/hermes_proof_orchestrator.py 2>&1 | tee artifacts/compile.log
+          python -m compileall -q python/merlin/app.py python/merlin/identity.py python/merlin/learning_platform.py python/merlin/capability_registry.py python/merlin/knowledge_graph.py python/merlin/project_registry.py python/merlin/cace_adapter.py python/merlin/cace_attestation.py python/merlin/cace_runtime.py python/merlin/cace_http_transport.py python/merlin/event_outbox.py python/merlin/hermes_outbox.py python/merlin/hermes_worker.py python/merlin/hermes_service.py python/merlin/hermes_stage_handlers.py python/merlin/avrea_adapter.py python/merlin/cace_adapter.py python/merlin/hermes_proof_orchestrator.py 2>&1 | tee artifacts/compile.log
           rc=${PIPESTATUS[0]}
           printf '{"suite":"merlin-unified-platform-compile","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/compile-result.json
           exit "$rc"
