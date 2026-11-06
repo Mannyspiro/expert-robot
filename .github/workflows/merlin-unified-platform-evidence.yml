@@ -7,6 +7,7 @@ on:
       - "tests/test_merlin_worker_api.py"
       - "tests/test_hermes_worker.py"
       - "tests/test_hermes_worker_service.py"
+      - "tests/test_hermes_runtime.py"
       - "tests/test_hermes_stage_handlers.py"
       - "tests/test_hermes_proof_orchestrator.py"
       - "tests/test_avrea_adapter.py"
@@ -24,6 +25,7 @@ on:
       - "python/merlin/hermes_outbox.py"
       - "python/merlin/hermes_worker.py"
       - "python/merlin/hermes_service.py"
+      - "python/merlin/hermes_runtime.py"
       - "python/merlin/hermes_stage_handlers.py"
       - "python/merlin/avrea_adapter.py"
       - "python/merlin/hermes_proof_orchestrator.py"
@@ -73,7 +75,7 @@ jobs:
         run: |
           set +e
           mkdir -p artifacts
-          python -m compileall -q python/merlin/app.py python/merlin/identity.py python/merlin/learning_platform.py python/merlin/capability_registry.py python/merlin/knowledge_graph.py python/merlin/project_registry.py python/merlin/cace_adapter.py python/merlin/cace_attestation.py python/merlin/cace_runtime.py python/merlin/cace_http_transport.py python/merlin/linear_simulation.py python/merlin/ngspice_engine.py python/merlin/event_outbox.py python/merlin/hermes_outbox.py python/merlin/hermes_worker.py python/merlin/hermes_service.py python/merlin/hermes_stage_handlers.py python/merlin/avrea_adapter.py python/merlin/cace_adapter.py python/merlin/hermes_proof_orchestrator.py 2>&1 | tee artifacts/compile.log
+          python -m compileall -q python/merlin/app.py python/merlin/identity.py python/merlin/learning_platform.py python/merlin/capability_registry.py python/merlin/knowledge_graph.py python/merlin/project_registry.py python/merlin/cace_adapter.py python/merlin/cace_attestation.py python/merlin/cace_runtime.py python/merlin/cace_http_transport.py python/merlin/linear_simulation.py python/merlin/ngspice_engine.py python/merlin/event_outbox.py python/merlin/hermes_outbox.py python/merlin/hermes_worker.py python/merlin/hermes_service.py python/merlin/hermes_runtime.py python/merlin/hermes_stage_handlers.py python/merlin/avrea_adapter.py python/merlin/cace_adapter.py python/merlin/hermes_proof_orchestrator.py 2>&1 | tee artifacts/compile.log
           rc=${PIPESTATUS[0]}
           printf '{"suite":"merlin-unified-platform-compile","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/compile-result.json
           exit "$rc"
@@ -85,7 +87,7 @@ jobs:
         run: |
           set +e
           mkdir -p artifacts
-          python -m pytest -q -v tests/test_merlin_identity.py tests/test_merlin_learning_platform.py tests/test_merlin_capability_registry.py tests/test_merlin_project_registry.py tests/test_cace_adapter.py tests/test_cace_attestation.py tests/test_cace_runtime.py tests/test_ngspice_engine.py tests/test_event_outbox.py tests/test_merlin_worker_api.py tests/test_hermes_worker.py tests/test_hermes_worker_service.py tests/test_hermes_stage_handlers.py tests/test_hermes_proof_orchestrator.py tests/test_avrea_adapter.py tests/test_hermes_outbox.py tests/research/test_merlin_learning_http.py tests/research/test_merlin_api.py 2>&1 | tee artifacts/unified-platform-tests.log
+          python -m pytest -q -v tests/test_merlin_identity.py tests/test_merlin_learning_platform.py tests/test_merlin_capability_registry.py tests/test_merlin_project_registry.py tests/test_cace_adapter.py tests/test_cace_attestation.py tests/test_cace_runtime.py tests/test_ngspice_engine.py tests/test_event_outbox.py tests/test_merlin_worker_api.py tests/test_hermes_worker.py tests/test_hermes_worker_service.py tests/test_hermes_runtime.py tests/test_hermes_stage_handlers.py tests/test_hermes_proof_orchestrator.py tests/test_avrea_adapter.py tests/test_hermes_outbox.py tests/research/test_merlin_learning_http.py tests/research/test_merlin_api.py 2>&1 | tee artifacts/unified-platform-tests.log
           rc=${PIPESTATUS[0]}
           printf '{"suite":"merlin-unified-platform-tests","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/unified-platform-tests-result.json
           exit "$rc"
