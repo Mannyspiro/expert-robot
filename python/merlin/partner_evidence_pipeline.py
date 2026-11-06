@@ -6,7 +6,9 @@ records and preserves the exact source URL and record identifier.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+import csv
+import io
+from dataclasses import dataclass
 from datetime import date, datetime, timezone
 from hashlib import sha256
 import re
@@ -242,14 +244,14 @@ def ingest_rfp_text(
     clauses = []
     current_id, heading, body = "document-intro", document_name, []
     def flush():
-        if body and "\\n".join(body).strip():
+        if body and "\n".join(body).strip():
             clauses.append(RfpClause(
-                solicitation_id, current_id, heading, "\\n".join(body).strip(),
+                solicitation_id, current_id, heading, "\n".join(body).strip(),
                 source_url, digest, document_name, observed_on, is_addendum,
             ))
     for line in lines:
         s = line.strip()
-        m = re.match(r"^(?:section\\s+)?([0-9]+(?:\\.[0-9]+)*|[A-Z]\\.?[0-9]+)\\s+(.+)$", s, re.I)
+        m = re.match(r"^(?:section\s+)?([0-9]+(?:\.[0-9]+)*|[A-Z]\.?[0-9]+)\s+(.+)$", s, re.I)
         if m:
             flush()
             current_id, heading, body = m.group(1), m.group(2), [s]
@@ -319,7 +321,8 @@ class LearningObservation:
 
 def aggregate_learning(observations: Iterable[LearningObservation]) -> dict:
     """Aggregate only non-private outcomes; never persist raw applicant/person data."""
-    rows = [o for o in observations if not o.private_data_included]
+    all_rows = tuple(observations)
+    rows = [o for o in all_rows if not o.private_data_included]
     source_rows = [o.source_correct for o in rows if o.source_correct is not None]
     return {
         "observations_count": len(rows),
