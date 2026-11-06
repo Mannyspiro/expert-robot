@@ -467,7 +467,9 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             elif path == "/health":
                 self._send(200, {"ok": True, "service": "merlin", "version": "0.4"})
             elif path == "/api/capabilities":
-                self._send(200, {"schema": "merlin-capabilities/1", "capabilities": CAPABILITIES})
+                self._send(200, capability_snapshot(
+                    CAPABILITIES, _runtime_provider_status(),
+                    outbox_configured=learning_outbox is not None))
             elif path == "/api/runtime/providers":
                 self._send(200, _runtime_provider_status())
             elif path == "/api/memory":
