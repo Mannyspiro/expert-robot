@@ -556,7 +556,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 if not isinstance(data, dict):
                     raise ValueError("request body must be a JSON object")
 
-                if path == "/api/graphs/validate-preview":
+                if path == "/api/graphs/validate":
                     graph = data.get("graph", data)
                     result = validate_graph(graph)
                     store.append(path, {"graph_sha256": result["graph_sha256"]},
