@@ -56,50 +56,32 @@ class SQLiteRunStore:
                            (SCHEMA_VERSION,))
             elif row["version"] != SCHEMA_VERSION:
                 raise RuntimeError("unsupported Merlin registry schema version")
-            db.executescript("""
-                CREATE TABLE IF NOT EXISTS runs (
-                    run_id TEXT PRIMARY KEY,
-                    conversation_id TEXT NOT NULL,
-                    request_id TEXT NOT NULL,
-                    idempotency_key TEXT NOT NULL UNIQUE,
-                    request_digest TEXT NOT NULL,
-                    capability_id TEXT NOT NULL,
-                    capability_version TEXT NOT NULL,
-                    policy_hash TEXT NOT NULL,
-                    state TEXT NOT NULL,
-                    created_at TEXT NOT NULL,
-                    max_steps INTEGER NOT NULL,
-                    max_runtime_seconds INTEGER NOT NULL,
-                    max_cost_units INTEGER NOT NULL
-                );
-                CREATE TABLE IF NOT EXISTS run_events (
+            statements = (
+                """CREATE TABLE IF NOT EXISTS runs (
+                    run_id TEXT PRIMARY KEY, conversation_id TEXT NOT NULL,
+                    request_id TEXT NOT NULL, idempotency_key TEXT NOT NULL UNIQUE,
+                    request_digest TEXT NOT NULL, capability_id TEXT NOT NULL,
+                    capability_version TEXT NOT NULL, policy_hash TEXT NOT NULL,
+                    state TEXT NOT NULL, created_at TEXT NOT NULL,
+                    max_steps INTEGER NOT NULL, max_runtime_seconds INTEGER NOT NULL,
+                    max_cost_units INTEGER NOT NULL)""",
+                """CREATE TABLE IF NOT EXISTS run_events (
                     run_id TEXT NOT NULL REFERENCES runs(run_id),
-                    sequence INTEGER NOT NULL,
-                    event_type TEXT NOT NULL,
-                    occurred_at TEXT NOT NULL,
-                    actor TEXT NOT NULL,
-                    payload_json TEXT NOT NULL,
-                    previous_hash TEXT NOT NULL,
-                    event_hash TEXT NOT NULL,
-                    PRIMARY KEY (run_id, sequence),
-                    UNIQUE (run_id, event_hash)
-                );
-                CREATE TABLE IF NOT EXISTS approvals (
-                    approval_id TEXT PRIMARY KEY,
-                    run_id TEXT NOT NULL REFERENCES runs(run_id),
-                    step_id TEXT NOT NULL,
-                    action_digest TEXT NOT NULL,
-                    policy_hash TEXT NOT NULL,
-                    status TEXT NOT NULL,
-                    requested_at TEXT NOT NULL,
-                    decided_at TEXT,
-                    approver_id TEXT
-                );
-                CREATE INDEX IF NOT EXISTS idx_run_events_run_type
-                    ON run_events(run_id, event_type);
-                CREATE INDEX IF NOT EXISTS idx_approvals_run_status
-                    ON approvals(run_id, status);
-            """)
+                    sequence INTEGER NOT NULL, event_type TEXT NOT NULL,
+                    occurred_at TEXT NOT NULL, actor TEXT NOT NULL,
+                    payload_json TEXT NOT NULL, previous_hash TEXT NOT NULL,
+                    event_hash TEXT NOT NULL, PRIMARY KEY (run_id, sequence),
+                    UNIQUE (run_id, event_hash))""",
+                """CREATE TABLE IF NOT EXISTS approvals (
+                    approval_id TEXT PRIMARY KEY, run_id TEXT NOT NULL REFERENCES runs(run_id),
+                    step_id TEXT NOT NULL, action_digest TEXT NOT NULL,
+                    policy_hash TEXT NOT NULL, status TEXT NOT NULL,
+                    requested_at TEXT NOT NULL, decided_at TEXT, approver_id TEXT)""",
+                "CREATE INDEX IF NOT EXISTS idx_run_events_run_type ON run_events(run_id, event_type)",
+                "CREATE INDEX IF NOT EXISTS idx_approvals_run_status ON approvals(run_id, status)",
+            )
+            for statement in statements:
+                db.execute(statement))
 
     @staticmethod
     def _run_from_row(row: sqlite3.Row) -> RunRecord:
