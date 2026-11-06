@@ -125,7 +125,15 @@ def ingest_difi_normalized_csv(
 
 def ingest_public_contract_records(records: Iterable[dict]) -> tuple[PublicContractEvidence, ...]:
     """Convert normalized official award/co-op records to graph evidence."""
-    allowed = {\n        "evidence_id", "partner_id", "evidence_kind", "buyer", "contract_number",\n        "title", "status", "start_date", "end_date", "observed_on", "source_url",\n        "source_record_id", "supplier_legal_name", "scope_summary", "performance_verified",\n    }\n    return tuple(PublicContractEvidence(**{k: v for k, v in record.items() if k in allowed})\n                 for record in records)
+    allowed = {
+        "evidence_id", "partner_id", "evidence_kind", "buyer", "contract_number",
+        "title", "status", "start_date", "end_date", "observed_on", "source_url",
+        "source_record_id", "supplier_legal_name", "scope_summary", "performance_verified",
+    }
+    return tuple(
+        PublicContractEvidence(**{k: v for k, v in record.items() if k in allowed})
+        for record in records
+    )
 
 
 RELATIONSHIP_TYPES = {
