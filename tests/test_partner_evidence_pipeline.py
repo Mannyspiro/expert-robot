@@ -4,7 +4,7 @@ import unittest
 from merlin.partner_evidence_pipeline import (
     LicenseObservation, PublicContractEvidence, PartnerSignal, rank_partners,
     ingest_rfp_text, ProposalClaim, ProposalEvidenceVault,
-    LearningObservation, aggregate_learning, ingest_difi_normalized_csv,
+    LearningObservation, aggregate_learning, ingest_difi_normalized_csv, ingest_public_contract_records,
 )
 
 
@@ -54,6 +54,27 @@ class PartnerEvidencePipelineTests(unittest.TestCase):
         self.assertEqual(ranks[0].relationship, "potential_subcontractor")
         self.assertGreater(ranks[0].score, 0)
         self.assertEqual(ranks[0].qualification_state, "unqualified_pending_evidence")
+
+    def test_public_contract_importer_preserves_contract_record_and_ignores_notes(self):
+        records = [{
+            "evidence_id": "award-2",
+            "partner_id": "partner-2",
+            "evidence_kind": "award",
+            "buyer": "Public agency",
+            "contract_number": "CTR-2",
+            "title": "Insurance services",
+            "status": "awarded",
+            "start_date": None,
+            "end_date": None,
+            "observed_on": "2026-11-05",
+            "source_url": "https://agency.gov/contracts/2",
+            "source_record_id": "record-2",
+            "supplier_legal_name": "Example LLC",
+            "notes": "descriptive metadata not part of typed record",
+        }]
+        imported = ingest_public_contract_records(records)
+        self.assertEqual(imported[0].contract_number, "CTR-2")
+        self.assertEqual(imported[0].supplier_legal_name, "Example LLC")
 
     def test_competitor_and_benchmark_cohorts_stay_distinct(self):
         rows = rank_partners(
