@@ -9,7 +9,10 @@ def test_lifecycle_requires_order_and_full_provenance():
     flow = ResearchLifecycle("hyp-1")
     for stage in STAGES[1:]:
         status = "compiled" if stage == "formalization" else "verified" if stage == "independent_verification" else "completed"
-        flow = flow.advance(evidence(stage, status))
+        if stage == "independent_verification":
+            flow = flow.advance(evidence(stage, status), independent_receipt_verifier=lambda item: item == evidence(stage, status))
+        else:
+            flow = flow.advance(evidence(stage, status))
     assert flow.terminal_status == "independently_verified"
     assert flow.to_dict()["promotion_authority"] is False
 

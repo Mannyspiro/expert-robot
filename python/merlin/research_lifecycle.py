@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, asdict
-from typing import Any, Mapping
+from typing import Any, Callable, Mapping
 
 STAGES = (
     "hypothesis", "literature_evidence", "experiment",
@@ -29,7 +29,7 @@ class ResearchLifecycle:
     evidence: tuple[StageEvidence, ...] = ()
     terminal_status: str = "active"
 
-    def advance(self, evidence: StageEvidence) -> "ResearchLifecycle":
+    def advance(self, evidence: StageEvidence, *, independent_receipt_verifier: Callable[[StageEvidence], bool] | None = None) -> "ResearchLifecycle":
         expected = _ALLOWED.get(self.current_stage)
         if self.terminal_status != "active":
             raise ValueError("terminal research lifecycle cannot advance")
@@ -43,8 +43,11 @@ class ResearchLifecycle:
             raise ValueError("commit, tool name and tool version are mandatory provenance")
         if evidence.status not in {"recorded", "completed", "compiled", "verified", "rejected", "blocked"}:
             raise ValueError("unsupported evidence status")
-        if evidence.stage == "independent_verification" and evidence.status != "verified":
-            return ResearchLifecycle(self.hypothesis_id, evidence.stage, self.evidence + (evidence,), "verification_blocked")
+        if evidence.stage == "independent_verification":
+            if evidence.status != "verified":
+                return ResearchLifecycle(self.hypothesis_id, evidence.stage, self.evidence + (evidence,), "verification_blocked")
+            if independent_receipt_verifier is None or not independent_receipt_verifier(evidence):
+                return ResearchLifecycle(self.hypothesis_id, evidence.stage, self.evidence + (evidence,), "verification_blocked")
         if evidence.stage == "formalization" and evidence.status != "compiled":
             raise ValueError("formalization stage must carry a compiled Lean result")
         if evidence.stage == "independent_verification" and evidence.status == "verified":

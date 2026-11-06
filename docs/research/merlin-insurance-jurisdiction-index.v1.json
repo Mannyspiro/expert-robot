@@ -1,0 +1,1101 @@
+{
+  "schema": "merlin-insurance-jurisdiction-index/1",
+  "jurisdiction_count": 51,
+  "coverage": "All 50 US states and the District of Columbia",
+  "agency_scope": {
+    "AZ": [
+      "personal_p_and_c",
+      "commercial_p_and_c"
+    ],
+    "CA": [
+      "personal_p_and_c"
+    ],
+    "FL": [
+      "personal_p_and_c"
+    ],
+    "GA": [
+      "personal_p_and_c"
+    ],
+    "NY": [
+      "personal_p_and_c"
+    ],
+    "TX": [
+      "personal_p_and_c"
+    ]
+  },
+  "research_only_elsewhere": true,
+  "regulator_directory": "https://content.naic.org/state-insurance-departments",
+  "jurisdictions": [
+    {
+      "code": "AL",
+      "name": "Alabama",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "AK",
+      "name": "Alaska",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "AZ",
+      "name": "Arizona",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "AR",
+      "name": "Arkansas",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "CA",
+      "name": "California",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "CO",
+      "name": "Colorado",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "CT",
+      "name": "Connecticut",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "DE",
+      "name": "Delaware",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "FL",
+      "name": "Florida",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "GA",
+      "name": "Georgia",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "HI",
+      "name": "Hawaii",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "ID",
+      "name": "Idaho",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "IL",
+      "name": "Illinois",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "IN",
+      "name": "Indiana",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "IA",
+      "name": "Iowa",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "KS",
+      "name": "Kansas",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "KY",
+      "name": "Kentucky",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "LA",
+      "name": "Louisiana",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "ME",
+      "name": "Maine",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "MD",
+      "name": "Maryland",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "MA",
+      "name": "Massachusetts",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "MI",
+      "name": "Michigan",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "MN",
+      "name": "Minnesota",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "MS",
+      "name": "Mississippi",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "MO",
+      "name": "Missouri",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "MT",
+      "name": "Montana",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "NE",
+      "name": "Nebraska",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "NV",
+      "name": "Nevada",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "NH",
+      "name": "New Hampshire",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "NJ",
+      "name": "New Jersey",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "NM",
+      "name": "New Mexico",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "NY",
+      "name": "New York",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "NC",
+      "name": "North Carolina",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "ND",
+      "name": "North Dakota",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "OH",
+      "name": "Ohio",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "OK",
+      "name": "Oklahoma",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "OR",
+      "name": "Oregon",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "PA",
+      "name": "Pennsylvania",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "RI",
+      "name": "Rhode Island",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "SC",
+      "name": "South Carolina",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "SD",
+      "name": "South Dakota",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "TN",
+      "name": "Tennessee",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "TX",
+      "name": "Texas",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "UT",
+      "name": "Utah",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "VT",
+      "name": "Vermont",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "VA",
+      "name": "Virginia",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "WA",
+      "name": "Washington",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "WV",
+      "name": "West Virginia",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "WI",
+      "name": "Wisconsin",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "WY",
+      "name": "Wyoming",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    },
+    {
+      "code": "DC",
+      "name": "District of Columbia",
+      "regulator_profile_status": "to_be_retrieved_from_official_primary_source",
+      "required_dossiers": [
+        "producer_licensing",
+        "company_authorization",
+        "auto_limits",
+        "personal_lines",
+        "commercial_lines",
+        "claims_practices",
+        "cancellation_nonrenewal",
+        "rate_form_filing",
+        "surplus_lines",
+        "guaranty_association",
+        "workers_compensation",
+        "residual_markets"
+      ],
+      "last_verified_at": null,
+      "official_sources": []
+    }
+  ]
+}
