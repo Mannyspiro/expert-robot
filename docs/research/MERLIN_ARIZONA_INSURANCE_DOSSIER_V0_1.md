@@ -89,3 +89,20 @@ If any material dimension is missing, mark the comparison **incomplete / unranke
 4. Add Arizona commercial class dossiers: contractors/trades, habitational, restaurants, retail, property owners, fleets, agriculture, hospitality, nonprofits and technology.
 5. Add complaint/market-conduct datasets only where terms permit, and retain source limitations.
 6. Connect these records to Merlin's canonical source/artifact registry and knowledge graph rather than creating a parallel insurance-only registry. CACE should verify source bytes, form editions, parser version and derived comparisons before any record becomes verified.
+
+
+## 9. Additional Arizona homeowners form-checklist findings (2026 checklist; verify underlying law)
+
+The DIFI 2026 homeowners form-filing checklist is a valuable research map, but it is a regulator filing checklist, not a substitute for the statute, administrative rule, case law or an issued policy. The following entries should be stored as **regulator-checklist statements pending independent primary-law verification**:
+
+- **Homeowners form filing:** checklist says forms must be filed before use and references A.R.S. §20-398, including a 30-day DIFI approval/disapproval period.
+- **Standard fire policy:** checklist references A.R.S. §§20-1503 through 20-1507 and the Arizona Standard Fire Policy framework. This can affect how additional property perils and endorsements are drafted.
+- **Renewal:** checklist states a 30-day notice requirement for nonrenewal or certain reductions/eliminations of coverage under A.R.S. §20-1654.
+- **Cancellation:** checklist describes restrictions during the first 59 days and enumerated grounds for cancellation after the policy has been in force less than 60 days, with additional notice/cure details for certain premises conditions under A.R.S. §20-1652.
+- **First-party claims payment:** checklist states that first-party claims must be payable within 30 days after receipt of acceptable proof of loss and cites A.R.S. §20-461 and A.A.C. R20-6-801. Do not turn this into a universal claim deadline without checking the exact rule text, triggering event, exceptions and applicable claim context.
+- **Actual cash value:** checklist says forms using ACV must define it, citing A.R.S. §20-1111(2).
+- **Vacancy:** checklist says the definition must conform to the Standard Fire Policy and references 60 consecutive days.
+
+These are high-value extraction targets for the Arizona policyholder-rights notebook. For each, Merlin should fetch and hash the underlying current statute/rule, record the effective date and exact subsection, then compare actual policy language. If the checklist and statute/rule diverge, the primary legal text controls and the discrepancy must be retained as a review item.
+
+Source: DIFI, *Form Filing — Homeowners, Mobile Homeowners and Renters Insurance*, checklist PFC_4.0HO_RF_0326, https://difi.az.gov/sites/default/files/2026-03/PFC_4.0HO_FF_Checklist_0326_%281%29.pdf
