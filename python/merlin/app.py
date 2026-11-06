@@ -11,6 +11,7 @@ from hashlib import sha256
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 import os
+import hmac
 from pathlib import Path
 import sqlite3
 from typing import Any
@@ -25,7 +26,7 @@ from .simulation import MerlinSimulation
 from .telemetry import normalize_event, telemetry_view, record_runtime_event
 from .telemetry_graph import build_telemetry_graph
 from .learner_model import LearnerStore, select_next_lesson, HermesLearningRouter, score_attempt_event
-from .event_outbox import MerlinEventOutbox
+from .event_outbox import MerlinEventOutbox, LeaseConflict
 from .intent_compiler import Asset, IntentSpec, ContinuityState, compile_directive
 from .math_transfer import preview_transfers
 from .interaction_learning import InteractionLearningStore, analyze_interactions
@@ -334,6 +335,18 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                                          "curriculum_id": "art-math-studio"})
     learning_router = HermesLearningRouter(learning_outbox, learner_store, learning_graph,
                                            learning_lessons) if learning_outbox is not None else None
+    # Worker credentials are server-side only. Each worker receives its own
+    # high-entropy token and an immutable worker identity from this map.
+    try:
+        configured_worker_tokens = json.loads(os.environ.get("MERLIN_WORKER_TOKENS", "{}"))
+        worker_tokens = {
+            key: value for key, value in configured_worker_tokens.items()
+            if isinstance(key, str) and key and len(key) <= 100
+            and isinstance(value, str) and len(value) >= 32
+        } if isinstance(configured_worker_tokens, dict) else {}
+    except (TypeError, ValueError, json.JSONDecodeError):
+        worker_tokens = {}
+
     def current_interaction_analysis():
         preferences = interaction_store.preferences()
         telemetry_rows = store.by_kind("/api/telemetry/ingest", 100000) if preferences["aggregate_telemetry"] else []
@@ -412,10 +425,32 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             actor = learning_identity_resolver(self.headers)
             return actor if isinstance(actor, LearningActor) else None
 
+        def _worker_actor(self):
+            worker_id = self.headers.get("X-Merlin-Worker-ID", "")
+            authorization = self.headers.get("Authorization", "")
+            if not worker_id or worker_id not in worker_tokens or not authorization.startswith("Bearer "):
+                return None
+            supplied = authorization[7:].strip()
+            expected = worker_tokens.get(worker_id, "")
+            if not supplied or not hmac.compare_digest(supplied, expected):
+                return None
+            return worker_id
+
         def do_GET(self) -> None:
             self._request_started = perf_counter()
             parsed = urlparse(self.path)
             path = parsed.path
+            if path == "/api/internal/outbox/status":
+                worker_id = self._worker_actor()
+                if worker_id is None:
+                    self._send(401, {"error": "worker_authentication_required"})
+                    return
+                if learning_outbox is None:
+                    self._send(503, {"error": "outbox_not_configured"})
+                    return
+                self._send(200, {"schema": "merlin-outbox-worker-status/1",
+                                 "worker_id": worker_id, "counts": learning_outbox.counts()})
+                return
             if path == "/api/graphs/validate":
                 if canonical_graph is None:
                     self._send(503, {"error": "canonical_graph_not_configured",
@@ -596,6 +631,56 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 data = json.loads(raw.decode("utf-8"))
                 if not isinstance(data, dict):
                     raise ValueError("request body must be a JSON object")
+
+                if path.startswith("/api/internal/outbox/"):
+                    worker_id = self._worker_actor()
+                    if worker_id is None:
+                        self._send(401, {"error": "worker_authentication_required"})
+                        return
+                    if learning_outbox is None:
+                        self._send(503, {"error": "outbox_not_configured"})
+                        return
+                    action = path.rsplit("/", 1)[-1]
+                    if action == "claim":
+                        topics = data.get("topics")
+                        if topics is not None and (
+                            not isinstance(topics, list) or len(topics) > 20
+                            or any(not isinstance(topic, str) or not topic or len(topic) > 200
+                                   for topic in topics)
+                        ):
+                            raise ValueError("topics must be a list of at most 20 topic names")
+                        lease = learning_outbox.claim_next(
+                            worker_id, lease_seconds=data.get("lease_seconds", 60), topics=topics)
+                        self._send(200, {"schema": "merlin-outbox-claim/1", "lease": lease})
+                        return
+                    event_id = data.get("event_id")
+                    lease_token = data.get("lease_token")
+                    if not isinstance(event_id, str) or not isinstance(lease_token, str):
+                        raise ValueError("event_id and lease_token are required")
+                    if action == "heartbeat":
+                        result = learning_outbox.heartbeat(
+                            event_id, worker_id, lease_token,
+                            lease_seconds=data.get("lease_seconds", 60))
+                    elif action == "acknowledge":
+                        payload = data.get("result")
+                        if payload is not None and not isinstance(payload, dict):
+                            raise ValueError("result must be an object")
+                        result = learning_outbox.acknowledge(
+                            event_id, worker_id, lease_token, result=payload)
+                    elif action == "retry":
+                        error = data.get("error")
+                        if not isinstance(error, str) or not error:
+                            raise ValueError("error is required")
+                        result = learning_outbox.retry(
+                            event_id, worker_id, lease_token, error,
+                            delay_seconds=data.get("delay_seconds", 0),
+                            max_attempts=data.get("max_attempts", 5))
+                    else:
+                        self._send(404, {"error": "not_found"})
+                        return
+                    self._send(200, {"schema": "merlin-outbox-worker-action/1",
+                                     "event": result})
+                    return
 
                 if path == "/api/graphs/validate":
                     graph = data.get("graph", data)
@@ -1102,6 +1187,8 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 self._send(403, {"error": "learning_disabled", "detail": str(exc)[:200]})
             except (ValueError, TypeError, KeyError, json.JSONDecodeError) as exc:
                 self._send(400, {"error": "invalid_request", "detail": str(exc)[:300]})
+            except LeaseConflict as exc:
+                self._send(409, {"error": "outbox_lease_conflict", "detail": str(exc)[:200]})
             except RuntimeError as exc:
                 self._send(503, {"error": "council_model_unavailable", "detail": str(exc)[:200]})
             except (URLError, HTTPError, TimeoutError, OSError) as exc:
