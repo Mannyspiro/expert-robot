@@ -176,7 +176,7 @@ jobs:
           mkdir -p artifacts
           set +e
           rc=0
-          for pattern in test_opportunity_intelligence.py test_procurement_readiness.py test_source_status.py test_partner_qualification.py test_partner_evidence_pipeline.py; do
+          for pattern in test_opportunity_intelligence.py test_procurement_readiness.py test_source_status.py test_partner_qualification.py test_partner_evidence_pipeline.py test_runtime_contracts.py; do
             echo "===== $pattern =====" | tee -a artifacts/merlin-partner-evidence-tests.log
             PYTHONPATH=python python -m unittest discover -s tests -p "$pattern" -v 2>&1 | tee -a artifacts/merlin-partner-evidence-tests.log
             suite_rc=${PIPESTATUS[0]}
