@@ -62,3 +62,16 @@ The initial allow-list includes run lifecycle events, step lifecycle events, too
 ## CI contract
 
 `.github/workflows/ci.yml` runs the opportunity, procurement, source-status, partner-qualification, partner-evidence, and runtime-contract suites. It captures verbose output, per-suite exit codes, and machine-readable result JSON; artifact upload uses `if: always()`. A green partner test job is not a substitute for the Avrea/C++/CACE end-to-end pipeline.
+
+
+## CI verification — partner + runtime contracts
+
+GitHub-hosted fallback job completed successfully on workflow run [#2752](https://github.com/Mannyspiro/expert-robot/actions/runs/42174071127), attempt 2.
+
+- Partner/runtime test job: `success`.
+- Six suites passed: 13 opportunity, 6 procurement-readiness, 5 source-status, 7 partner-qualification, 8 partner-evidence, and 9 runtime-contract tests — **48 tests total**.
+- Every per-suite exit code is `0`; aggregate result JSON is `exit_code: 0`.
+- The retained artifact includes verbose logs, exit-code file, and result JSON.
+- Artifact ID: `13482995327`; artifact digest: `sha256:1409d394424f4d5d0694eb65fb60efb2a40683a97fcc50891191017f301daa8d`.
+- The job tested the pull-request merge ref `c79b335a54df0a5f363e7e338792e786070f76dc`; the workflow run's PR head was `845a644bc6001f29356db21ddaad5565b8da61ec`.
+- The separate `build-and-smoke` job remains cancelled because Avrea has no available credits. Therefore the fallback's 48 tests pass, but the complete Avrea/C++/CACE pipeline is not yet green.
