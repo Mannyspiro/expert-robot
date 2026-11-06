@@ -1,4 +1,5 @@
 import gc
+import hashlib
 import sqlite3
 import tempfile
 import unittest
@@ -6,8 +7,13 @@ import warnings
 from pathlib import Path
 from unittest.mock import patch
 
+from python.merlin.academic_graph import AcademicGraphStore
+from python.merlin.academic_source_store import AcademicSourceStore
+from python.merlin.engineering_project_store import EngineeringProjectStore
 from python.merlin.event_outbox import MerlinEventOutbox
 from python.merlin.knowledge_graph import GraphEdge, GraphNode, MerlinKnowledgeGraph
+from python.merlin.hypothesis_ledger import HypothesisLedger
+from python.merlin.interaction_learning import InteractionLearningStore
 from python.merlin.learner_model import LearnerStore
 from python.merlin.project_registry import MerlinRegistry
 
@@ -61,12 +67,43 @@ class MerlinSQLiteLifecycleTests(unittest.TestCase):
                     registry = MerlinRegistry(root / "registry")
                     registry.register_project("project-1", "Project")
                     registry.put_artifact("project-1", "notes.txt", b"evidence")
-                    registry.verify_artifact(
-                        __import__("hashlib").sha256(b"evidence").hexdigest()
-                    )
+                    registry.verify_artifact(hashlib.sha256(b"evidence").hexdigest())
                     registry.add_claim("claim-1", "A test claim", "unreviewed")
                     registry.relate("project-1", "contains", "claim-1")
                     registry.inventory("project-1")
+
+                    academic_sources = AcademicSourceStore(root / "academic-sources.sqlite3")
+                    academic_sources.add(
+                        source_url="https://example.edu/research",
+                        institution="Example University",
+                        institution_domain="example.edu",
+                        source_type="research_group",
+                        discovered_from="https://example.edu",
+                    )
+                    academic_sources.list()
+
+                    academic_graph = AcademicGraphStore(root / "academic-graph.sqlite3")
+                    academic_graph.stats()
+
+                    engineering = EngineeringProjectStore(root / "engineering.sqlite3")
+                    engineering.history("project-1")
+
+                    hypotheses = HypothesisLedger(root / "hypotheses.sqlite3")
+                    hypotheses.create("hypothesis-1", "A testable claim")
+                    hypotheses.add_evidence("hypothesis-1", "assumption", "Assumption recorded")
+                    hypotheses.evidence("hypothesis-1")
+                    hypotheses.list_hypotheses()
+
+                    interactions = InteractionLearningStore(root / "interactions.sqlite3")
+                    interactions.preferences()
+                    interactions.record_feedback({
+                        "session_id": "session-1",
+                        "task_type": "research",
+                        "domain": "research",
+                        "outcome": "success",
+                        "event_id": "feedback-1",
+                    })
+                    interactions.feedback_summary()
 
                     outbox = MerlinEventOutbox(root / "outbox.sqlite3")
                     event = outbox.enqueue("key-1", "merlin.test", {"value": 1})
