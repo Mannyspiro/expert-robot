@@ -253,7 +253,7 @@ class HermesWorker:
             current = self.outbox.get(event_id)
             if current is not None and current.get("state") == "cancelled":
                 self.emit_event(
-                    kind="task.cancelled", run_id=task_id, task_id=task_id,
+                    kind="agent.status", run_id=task_id, task_id=task_id,
                     payload={"agent_id": "hermes", "status": "cancelled",
                              "activity": "worker observed cooperative cancellation"},
                 )
