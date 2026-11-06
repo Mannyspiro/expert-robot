@@ -184,6 +184,25 @@ class HermesOutbox:
             })
             return "acknowledged"
 
+    def renew_lease(self, *, task_id: str, worker_id: str, lease_token: str,
+                    now: str, lease_seconds: int = 60) -> str:
+        now_dt = self._time(now, "now")
+        if not worker_id.strip() or not lease_token.strip() or lease_seconds < 1:
+            raise ValueError("worker_id, lease_token, and positive lease_seconds required")
+        now_s = now_dt.isoformat()
+        expiry = (now_dt + timedelta(seconds=lease_seconds)).isoformat()
+        with self.registry._transaction() as db:
+            row = db.execute("SELECT * FROM hermes_outbox WHERE task_id=?", (task_id,)).fetchone()
+            if row is None:
+                raise ValueError("unknown task_id")
+            if (row["status"] != "leased" or row["lease_owner"] != worker_id
+                    or row["lease_token"] != lease_token
+                    or self._time(row["lease_expires_at"], "lease_expires_at") <= now_dt):
+                raise ValueError("worker lease is stale or not owned by worker")
+            db.execute("UPDATE hermes_outbox SET lease_expires_at=?, updated_at=? WHERE task_id=? AND status='leased' AND lease_owner=? AND lease_token=?",
+                (expiry, now_s, task_id, worker_id, lease_token))
+            self._append_event(db, row["run_id"], "tool.lease_renewed", now_s, worker_id, {"task_id": task_id, "lease_expires_at": expiry})
+        return expiry
     def retry(self, *, task_id: str, lease_token: str, now: str,
               error: str, backoff_seconds: int = 30) -> str:
         now_dt = self._time(now, "now")
