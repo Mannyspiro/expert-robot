@@ -16,6 +16,14 @@ class GeographyNormalizationTests(unittest.TestCase):
         self.assertEqual(result["geography_vintage"], 2026)
         self.assertEqual(result["population_vintage"], 2025)
 
+    def test_official_gazetteer_geoid_supplies_state_and_place_codes(self):
+        result = normalize_place(
+            {"GEOID":"0644000","NAME":"Example city"},
+            vintage=2026,
+        )
+        self.assertEqual(result["state_fips"], "06")
+        self.assertEqual(result["place_fips"], "44000")
+
     def test_population_requires_its_own_vintage(self):
         with self.assertRaisesRegex(ValueError, "population_vintage"):
             normalize_place(
