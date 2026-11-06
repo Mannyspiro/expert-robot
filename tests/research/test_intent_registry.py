@@ -76,6 +76,43 @@ class IntentRegistryPersistenceTests(unittest.TestCase):
         self.assertEqual(first["artifact_ref"]["sha256"], second["artifact_ref"]["sha256"])
         self.assertEqual(len(self.registry.inventory("merlin-test-project")["artifacts"]), 1)
 
+    def test_asset_trust_is_derived_from_registry_not_caller_assertion(self):
+        asset_digest = self.registry.put_artifact(
+            "merlin-test-project", "references/source.txt", b"registry verified source")
+        result = self.post({
+            "project_id": "merlin-test-project",
+            "goal": "Analyze the supplied source",
+            "domain": "research",
+            "deliverable": "A provenance-bound research directive",
+            "assets": [{
+                "asset_id": "source-1", "name": "Source file", "kind": "text",
+                "sha256": asset_digest, "authority": "caller_claims_official",
+            }],
+        })
+        self.assertEqual(result["storage_status"], "canonical_registry")
+        self.assertIn("authority=canonical_registry_verified", result["bundle"]["directive"])
+        self.assertNotIn("caller_claims_official", result["bundle"]["directive"])
+
+    def test_unregistered_asset_digest_is_rejected_for_persisted_directive(self):
+        request = Request(
+            self.base + "/api/intents/compile",
+            data=json.dumps({
+                "project_id": "merlin-test-project",
+                "goal": "Analyze a source",
+                "domain": "research",
+                "deliverable": "A report",
+                "assets": [{
+                    "asset_id": "unverified", "name": "Unverified source",
+                    "kind": "text", "sha256": "b" * 64,
+                }],
+            }).encode(),
+            headers={"Content-Type": "application/json"},
+        )
+        with self.assertRaises(HTTPError) as caught:
+            urlopen(request, timeout=5)
+        self.assertEqual(caught.exception.code, 400)
+        self.assertIn("verified artifact", json.loads(caught.exception.read())["detail"])
+
     def test_unknown_project_is_rejected_without_creating_project(self):
         request = Request(
             self.base + "/api/intents/compile",
