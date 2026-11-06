@@ -25,11 +25,17 @@ def normalize_place(
     """Normalize a Census place record without confusing places and metros."""
     geoid = _required(row, "GEOID", "GEO_ID")
     name = _required(row, "NAME", "name")
-    statefp = _required(row, "STATE", "STATEFP", "STATEFP20")
-    placefp = _required(row, "PLACE", "PLACEFP", "PLACEFP20")
-    if not geoid.isdigit() or len(geoid) < 5:
-        raise ValueError("place GEOID must be a numeric Census geographic identifier")
-    if population is not None and (isinstance(population, bool) or population < 0):
+    if not geoid.isdigit() or len(geoid) != 7:
+        raise ValueError("place GEOID must be a 7-digit Census place identifier")
+    statefp = str(row.get("STATE") or row.get("STATEFP") or geoid[:2]).strip()
+    placefp = str(row.get("PLACE") or row.get("PLACEFP") or geoid[2:]).strip()
+    if not (statefp.isdigit() and placefp.isdigit()):
+        raise ValueError("state and place FIPS codes must be numeric")
+    if vintage < 1900:
+        raise ValueError("geography vintage is invalid")
+    if population is not None and (
+        isinstance(population, bool) or not isinstance(population, int) or population < 0
+    ):
         raise ValueError("population must be a non-negative integer")
     if population is not None and population_vintage is None:
         raise ValueError("population_vintage is required when population is supplied")
