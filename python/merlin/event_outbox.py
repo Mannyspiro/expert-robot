@@ -1,5 +1,6 @@
 """Durable idempotent outbox for Merlin service boundaries (at-least-once delivery)."""
 from __future__ import annotations
+from contextlib import closing
 import hashlib
 import json
 import sqlite3
@@ -27,7 +28,7 @@ class MerlinEventOutbox:
     def __init__(self, database: str | Path):
         self.path = Path(database)
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.execute("PRAGMA journal_mode=WAL")
             existing = db.execute(
                 "SELECT sql FROM sqlite_master WHERE type='table' AND name='event_outbox'"
@@ -109,7 +110,7 @@ class MerlinEventOutbox:
         encoded = _canonical(dict(payload))
         timestamp = time.time() if now is None else float(now)
         event_id = "evt_" + hashlib.sha256(key.encode()).hexdigest()
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.execute("BEGIN IMMEDIATE")
             old = db.execute("SELECT * FROM event_outbox WHERE idempotency_key=?", (key,)).fetchone()
             if old:
@@ -140,7 +141,7 @@ class MerlinEventOutbox:
             if not topics:
                 return None
         token = str(uuid4())
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.execute("BEGIN IMMEDIATE")
             db.execute("""UPDATE event_outbox SET state='pending',lease_owner=NULL,
                 lease_token=NULL,lease_expires_at=NULL,updated_at=?
@@ -178,7 +179,7 @@ class MerlinEventOutbox:
         if isinstance(lease_seconds, bool) or not isinstance(lease_seconds, (int, float)) or not 0 < lease_seconds <= 3600:
             raise ValueError("heartbeat lease_seconds must be greater than 0 and at most 3600")
         timestamp = time.time() if now is None else float(now)
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.execute("BEGIN IMMEDIATE")
             row = db.execute("SELECT * FROM event_outbox WHERE event_id=?", (event_id,)).fetchone()
             if row is None:
@@ -198,7 +199,7 @@ class MerlinEventOutbox:
         if not isinstance(reason, str) or len(reason) > 500:
             raise ValueError("cancel reason must be a string of at most 500 characters")
         timestamp = time.time() if now is None else float(now)
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.execute("BEGIN IMMEDIATE")
             row = db.execute("SELECT * FROM event_outbox WHERE event_id=?", (event_id,)).fetchone()
             if row is None:
@@ -221,7 +222,7 @@ class MerlinEventOutbox:
                     now: float | None = None) -> dict[str, Any]:
         timestamp = time.time() if now is None else float(now)
         result_json = None if result is None else _canonical(dict(result))
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.execute("BEGIN IMMEDIATE")
             row = db.execute("SELECT * FROM event_outbox WHERE event_id=?", (event_id,)).fetchone()
             if row is None:
@@ -243,7 +244,7 @@ class MerlinEventOutbox:
             raise ValueError("max_attempts must be a positive integer")
         if isinstance(delay_seconds,bool) or not isinstance(delay_seconds,(int,float)) or delay_seconds < 0:
             raise ValueError("delay_seconds must be non-negative")
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.execute("BEGIN IMMEDIATE")
             row = db.execute("SELECT * FROM event_outbox WHERE event_id=?", (event_id,)).fetchone()
             if row is None:
@@ -259,7 +260,7 @@ class MerlinEventOutbox:
 
     def recover_expired(self, *, now: float | None = None) -> int:
         timestamp = time.time() if now is None else float(now)
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.execute("BEGIN IMMEDIATE")
             cur = db.execute("""UPDATE event_outbox SET state='pending',lease_owner=NULL,
                 lease_token=NULL,lease_expires_at=NULL,updated_at=?
@@ -267,13 +268,13 @@ class MerlinEventOutbox:
             return cur.rowcount
 
     def get(self, event_id: str) -> dict[str, Any] | None:
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             row = db.execute("SELECT * FROM event_outbox WHERE event_id=?", (event_id,)).fetchone()
         return self._row(row) if row else None
 
     def counts(self) -> dict[str, int]:
         states = ("pending","leased","acknowledged","quarantined","cancelled")
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             rows = db.execute("SELECT state,COUNT(*) AS n FROM event_outbox GROUP BY state").fetchall()
         result = {state:0 for state in states}
         result.update({row["state"]:row["n"] for row in rows})
