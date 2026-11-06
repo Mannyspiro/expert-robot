@@ -6,9 +6,11 @@ on:
       - "python/merlin/learning_platform.py"
       - "python/merlin/app.py"
       - "python/merlin/research_curriculum.py"
+      - "python/merlin/learner_model.py"
       - "tests/test_merlin_learning_platform.py"
       - "tests/research/test_merlin_learning_http.py"
       - "tests/test_merlin_research_curriculum.py"
+      - "tests/test_merlin_learner_store_resources.py"
       - ".github/workflows/merlin-learning-platform-evidence.yml"
   workflow_dispatch:
 
@@ -46,7 +48,7 @@ jobs:
         run: |
           set +e
           mkdir -p artifacts
-          python -m compileall -q python/merlin/app.py python/merlin/learning_platform.py python/merlin/research_curriculum.py 2>&1 | tee artifacts/compile.log
+          python -m compileall -q python/merlin/app.py python/merlin/learning_platform.py python/merlin/research_curriculum.py python/merlin/learner_model.py 2>&1 | tee artifacts/compile.log
           rc=${PIPESTATUS[0]}
           printf '{"suite":"learning-platform-compile","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/compile-result.json
           exit "$rc"
@@ -59,7 +61,7 @@ jobs:
         run: |
           set +e
           mkdir -p artifacts
-          python -m pytest -q -v tests/test_merlin_learning_platform.py tests/research/test_merlin_learning_http.py tests/test_merlin_research_curriculum.py 2>&1 | tee artifacts/learning-tests.log
+          python -m pytest -q -v tests/test_merlin_learning_platform.py tests/research/test_merlin_learning_http.py tests/test_merlin_research_curriculum.py tests/test_merlin_learner_store_resources.py 2>&1 | tee artifacts/learning-tests.log
           rc=${PIPESTATUS[0]}
           printf '{"suite":"learning-platform-tests","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/learning-tests-result.json
           exit "$rc"
