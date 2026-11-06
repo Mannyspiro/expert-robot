@@ -419,6 +419,10 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     self._send(503, {"error": "learning_identity_provider_not_configured"})
                     return
                 parts = [unquote(part) for part in path.split("/") if part]
+                if len(parts) == 5 and parts[4] == "recommendation":
+                    result = learning_platform.recommend_next_lesson(actor, parts[3], learner_store)
+                    self._send(200, result)
+                    return
                 if len(parts) != 4:
                     self._send(404, {"error": "not_found"})
                     return
