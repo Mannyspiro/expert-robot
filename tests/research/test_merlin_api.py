@@ -43,6 +43,9 @@ class MerlinApiTests(unittest.TestCase):
         self.assertEqual(set(payload["states"]), {"configured", "unavailable", "unqualified"})
         self.assertIn("engineering.geometry.validate", {row["id"] for row in payload["capabilities"]})
         self.assertTrue(all(row["state"] in payload["states"] for row in payload["capabilities"]))
+        with self.assertRaises(HTTPError) as caught:
+            urlopen(self.base + "/api/runtime/hermes", timeout=5)
+        self.assertEqual(caught.exception.code, 503)
 
     def test_hermes_worker_service_is_visible_when_injected(self):
         class IdleWorker:
