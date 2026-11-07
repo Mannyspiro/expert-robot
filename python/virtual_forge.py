@@ -152,6 +152,19 @@ class VirtualForge:
             FOREIGN KEY(job_id) REFERENCES jobs(job_id)
         );
         """)
+        existing_columns = {
+            row["name"] for row in self.db.execute("PRAGMA table_info(jobs)").fetchall()
+        }
+        migrations = {
+            "max_attempts": "INTEGER NOT NULL DEFAULT 3",
+            "source_commit": "TEXT",
+            "timeout_seconds": "INTEGER NOT NULL DEFAULT 300",
+            "memory_mb": "INTEGER NOT NULL DEFAULT 2048",
+            "cpu_count": "INTEGER NOT NULL DEFAULT 1",
+        }
+        for column, declaration in migrations.items():
+            if column not in existing_columns:
+                self.db.execute(f"ALTER TABLE jobs ADD COLUMN {column} {declaration}")
         if not self.db.execute("SELECT 1 FROM branches WHERE name='main'").fetchone():
             self.db.execute("BEGIN IMMEDIATE")
             try:
