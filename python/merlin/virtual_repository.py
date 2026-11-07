@@ -257,6 +257,18 @@ class VirtualRepository:
                 WHERE commit_id=? ORDER BY recorded_at,check_id""", (commit_id,)).fetchall()
         return [dict(row) for row in rows]
 
+    def read_check_log(self, check_id: int) -> bytes:
+        with closing(self._connect()) as db:
+            row = db.execute("""SELECT b.content,cr.log_digest FROM check_results cr
+                JOIN blobs b ON b.digest=cr.log_digest WHERE cr.check_id=?""",
+                (check_id,)).fetchone()
+        if row is None:
+            raise KeyError(f"unknown check result: {check_id}")
+        content = bytes(row["content"])
+        if sha256(content).hexdigest() != row["log_digest"]:
+            raise RuntimeError("virtual CI log integrity failure")
+        return content
+
     def create_branch(self, name: str, from_ref: str = "main") -> dict[str, Any]:
         name = self._name(name, "branch")
         with closing(self._connect()) as db, db:
