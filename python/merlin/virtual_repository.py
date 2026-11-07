@@ -251,9 +251,16 @@ class VirtualRepository:
     def check_results(self, commit_id: str) -> list[dict[str, Any]]:
         with closing(self._connect()) as db:
             rows = db.execute("""SELECT check_id,commit_id,check_name,conclusion,run_id,
-                runner_id,log_digest,recorded_at FROM check_results
+                runner_id,log_digest,result_json,recorded_at FROM check_results
                 WHERE commit_id=? ORDER BY recorded_at,check_id""", (commit_id,)).fetchall()
-        return [dict(row) for row in rows]
+        results = []
+        for row in rows:
+            item = dict(row)
+            metadata = json.loads(item.pop("result_json"))
+            item["verification_status"] = metadata["verification_status"]
+            item["promotion_authorized"] = metadata["promotion_authorized"]
+            results.append(item)
+        return results
 
     def read_check_log(self, check_id: int) -> bytes:
         with closing(self._connect()) as db:
