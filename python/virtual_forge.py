@@ -468,10 +468,11 @@ class VirtualForge:
         self.db.execute("BEGIN IMMEDIATE")
         try:
             self.db.execute(
-                "UPDATE jobs SET status='queued',worker_id=NULL,lease_expires=NULL,updated_at=? "
+                "UPDATE jobs SET status=CASE WHEN attempts>=max_attempts THEN 'failed' ELSE 'queued' END,"
+                "worker_id=NULL,lease_expires=NULL,updated_at=? "
                 "WHERE status='leased' AND lease_expires<?", (now, now),
             )
-            query = "SELECT * FROM jobs WHERE status='queued'"
+            query = "SELECT * FROM jobs WHERE status='queued' AND attempts<max_attempts"
             args: list[Any] = []
             if allowed_kinds:
                 query += " AND kind IN (" + ",".join("?" for _ in allowed_kinds) + ")"
@@ -492,7 +493,11 @@ class VirtualForge:
             self.db.commit()
             return {"job_id": row["job_id"], "kind": row["kind"],
                     "payload": json.loads(row["payload_json"]), "worker_id": worker_id,
-                    "lease_expires": expires, "attempt": row["attempts"] + 1}
+                    "source_commit": row["source_commit"],
+                    "limits": {"timeout_seconds": row["timeout_seconds"],
+                               "memory_mb": row["memory_mb"], "cpu_count": row["cpu_count"]},
+                    "lease_expires": expires, "attempt": row["attempts"] + 1,
+                    "max_attempts": row["max_attempts"]}
         except Exception:
             self.db.rollback()
             raise
