@@ -539,6 +539,19 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             parsed = urlparse(self.path)
             path = parsed.path
             if path == "/api/forge/status":
+                source_snapshot = None
+                try:
+                    manifest_bytes = forge.read_file("main", "merlin/SEED_MANIFEST.json")
+                    manifest = json.loads(manifest_bytes.decode("utf-8"))
+                    source_snapshot = {
+                        "file_count": manifest.get("file_count"),
+                        "total_bytes": manifest.get("total_bytes"),
+                        "tree_sha256": manifest.get("tree_sha256"),
+                        "source_commit_verified": manifest.get("source_commit_verified") is True,
+                        "sensitive_files_included": manifest.get("sensitive_files_included") is True,
+                    }
+                except (KeyError, ValueError, UnicodeDecodeError):
+                    pass
                 self._send(200, {"schema": "merlin-forge-status/1",
                     "storage": "sqlite_content_addressed",
                     "execution_mode": "virtual_git_with_leased_ci_queue_no_executor",
@@ -547,6 +560,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     "required_checks": {"main": forge.required_checks("main")},
                     "recent_events": forge.events(30),
                     "virtual_job_counts": forge.job_counts(),
+                    "source_snapshot": source_snapshot,
                     "runner_execution": "not_performed",
                     "promotion_authorized": False})
                 return
