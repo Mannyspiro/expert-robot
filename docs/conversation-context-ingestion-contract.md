@@ -41,6 +41,24 @@ versions. A hash establishes identity/integrity of the imported bytes, not the
 truth of the content. Keep original source records immutable; append corrections
 and supersession links.
 
+## Known related continuity sources
+
+Initial source discovery found relevant project material in the user's Library:
+- `expert_robot_cross_chat_handoff_2026-10-09.md`: Expert Robot research and
+  cross-chat continuity snapshot; treat its runner states as historical.
+- `CACE_CROSS_CHAT_HANDOFF.md`: source-of-truth hierarchy and continuity
+  operating rules.
+- `CACE_CHAT_IDEA_LEDGER.md`: preserved research/product ideas, including
+  operator memory, procedural reasoning, graph/coordinate transformations,
+  and evidence boundaries.
+- `CACE_LOCAL_AI_REASONING_CURRICULUM_2026-09-19.md`: operator-sequence
+  learning, paired counterfactual/perturbation evaluation, geometric
+  representations, and anti-memorization testing.
+
+These are related context sources, not proof evidence and not substitutes for
+the original Merlin prompts and responses. Import only relevant portions with
+source references and preserve their historical dates.
+
 ## Operational boundary
 
 Only import conversations and attachments available through an authorized
