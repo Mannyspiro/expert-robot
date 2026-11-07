@@ -541,7 +541,11 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     "sha256": sha256(content).hexdigest()})
                 return
             if path.startswith("/api/forge/jobs/"):
-                job_id = unquote(path.rsplit("/", 1)[-1])
+                parts = path.strip("/").split("/")
+                if len(parts) != 4:
+                    self._send(400, {"error": "invalid_virtual_job_path"})
+                    return
+                job_id = unquote(parts[3])
                 self._send(200, {"schema": "merlin-forge-job/1", "job": forge.get_job(job_id)})
                 return
             if path.startswith("/api/forge/checks/") and path.endswith("/log"):
