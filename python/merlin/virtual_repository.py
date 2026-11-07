@@ -187,8 +187,9 @@ class VirtualRepository:
 
     def set_branch_policy(self, branch: str, required_checks: list[str]) -> dict[str, Any]:
         branch = self._name(branch, "branch")
-        if not isinstance(required_checks, list) or len(required_checks) > len(self.CHECK_NAMES):
-            raise VirtualGitError("required checks must be a bounded list")
+        if (not isinstance(required_checks, list) or len(required_checks) > len(self.CHECK_NAMES)
+                or any(not isinstance(name, str) for name in required_checks)):
+            raise VirtualGitError("required checks must be a bounded list of names")
         if len(set(required_checks)) != len(required_checks) or any(
             name not in self.CHECK_NAMES for name in required_checks
         ):
@@ -208,9 +209,9 @@ class VirtualRepository:
 
     def record_check_result(self, commit_id: str, check_name: str, conclusion: str,
                             run_id: str, runner_id: str, log: str) -> dict[str, Any]:
-        if check_name not in self.CHECK_NAMES:
+        if not isinstance(check_name, str) or check_name not in self.CHECK_NAMES:
             raise VirtualGitError("unknown check name")
-        if conclusion not in {"success", "failure", "cancelled"}:
+        if not isinstance(conclusion, str) or conclusion not in {"success", "failure", "cancelled"}:
             raise VirtualGitError("invalid check conclusion")
         if not isinstance(run_id, str) or not run_id.strip() or len(run_id) > 200:
             raise VirtualGitError("run_id must be 1-200 characters")
