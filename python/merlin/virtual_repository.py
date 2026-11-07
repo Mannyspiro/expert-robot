@@ -256,10 +256,14 @@ class VirtualRepository:
             raise VirtualGitError("workspace byte limit is outside the allowed range")
         with closing(self._connect()) as db:
             tree = self._tree(db, commit_id)
+            if not isinstance(tree, dict):
+                raise RuntimeError("commit tree is not a path-to-digest object")
             files: list[tuple[str, str, bytes]] = []
             total_bytes = 0
             for path, digest in sorted(tree.items()):
                 safe_path = self._path(path)
+                if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
+                    raise RuntimeError("commit tree contains an invalid blob digest: " + safe_path)
                 row = db.execute("SELECT content,size_bytes FROM blobs WHERE digest=?", (digest,)).fetchone()
                 if row is None:
                     raise RuntimeError("commit references a missing blob: " + safe_path)
