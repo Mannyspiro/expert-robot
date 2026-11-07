@@ -799,6 +799,14 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     self._send(200 if result["status"] == "merged" else 409,
                         {"schema": "merlin-forge-merge/1", **result})
                     return
+                if path.startswith("/api/forge/branches/") and path.endswith("/rebase"):
+                    parts = path.strip("/").split("/")
+                    if len(parts) != 5:
+                        raise ValueError("invalid rebase path")
+                    result = forge.rebase_branch(unquote(parts[3]), data.get("onto_ref", "main"))
+                    self._send(200 if result["status"] != "conflict" else 409,
+                        {"schema": "merlin-forge-rebase/1", **result})
+                    return
                 if path.startswith("/api/forge/branches/") and path.endswith("/rollback"):
                     parts = path.strip("/").split("/")
                     if len(parts) != 5:
