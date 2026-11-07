@@ -303,6 +303,30 @@ bash ./scripts/railway-preflight.sh --bootstrap
 The 2 GB worker defaults to one build job and sequential focused tests. See
 `docs/railway-free-worker.md` for the operating model.
 
+## Merlin Virtual GitHub Forge
+
+Merlin's primary development control plane is the local SQLite-backed Virtual
+Forge, not GitHub pull requests. It provides content-addressed commits,
+branches, internal pull requests, three-way merge/conflict detection, rollback,
+a hash-chained event log, and a leased worker-job queue. GitHub is an optional
+remote adapter for exchange and provenance.
+
+The initial Forge implementation and command interface are:
+
+- `python/virtual_forge.py`
+- `python/forge_cli.py`
+- `docs/virtual-github-forge.md`
+
+Run the Forge contract tests with:
+
+```bash
+python3 -m unittest discover -s tests -p 'test_virtual_forge.py' -v
+```
+
+The Forge records jobs and evidence but does not execute untrusted code in its
+database process. A dedicated, resource-limited worker runtime and independent
+CACE verification remain required before worker results can be promoted.
+
 ## IPC
 
 Python and C++ communicate over newline-delimited JSON on stdin/stdout.
