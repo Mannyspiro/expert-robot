@@ -12,14 +12,14 @@ Merlin Forge is a local, durable repository service. It is intentionally indepen
 - Linear branches can be rebased onto another branch/commit. Rebase preserves original commits, creates replacement commits on the new base, and leaves the branch unchanged on conflict. Merge-commit rebases are rejected rather than guessed.
 - Rollbacks move a branch reference to an existing immutable commit and append an audit event.
 - The main branch is protected by default and requires exact-head `python.compile`, `python.unified_tests` and `hud.javascript_syntax` receipts before a virtual PR can merge. A successful check for an older commit does not satisfy the current PR head.
-- CI results bind the exact commit, check name, runner identity, run ID and SHA-256 of the retained log. Check records and their log blobs are immutable. `cace.independent_receipt` is a separate supported check for proof-bearing changes.
+- Local CI records bind the exact commit, check name, declared runner ID, run ID and SHA-256 of the retained log. Check records and their log blobs are immutable, but the records are explicitly `UNVERIFIED` and have no promotion authority until authenticated CI/CACE receipt import is implemented. The declared runner ID is not an authenticated signer identity. CACE proof verification remains a separate independent gate and cannot be asserted through this generic local-check endpoint.
 - SQLite writes serialize with BEGIN IMMEDIATE; branch updates compare the expected prior ref to prevent lost updates.
 
 Hashes establish byte identity only. They do not prove code correctness, test success, safety or authorization.
 
 ## HTTP API
 
-The API is served by Merlin's existing loopback-only application boundary. Check receipt writes are local-only in this initial implementation; a qualified runner/CACE transport is still needed to import remote receipts safely.
+The API is served by Merlin's existing loopback-only application boundary. Check receipt writes are local-only in this initial implementation; a qualified runner/CACE transport is still needed to import remote receipts safely. Local receipts are an audit aid and merge guardrail, not cryptographic attestation.
 
 | Method | Path | Purpose |
 |---|---|---|
