@@ -111,6 +111,7 @@ class VirtualRepository:
         if not isinstance(files, Mapping) or not files:
             raise VirtualGitError("initial repository requires at least one file")
         with closing(self._connect()) as db, db:
+            db.execute("BEGIN IMMEDIATE")
             if db.execute("SELECT 1 FROM branches LIMIT 1").fetchone():
                 raise VirtualGitError("repository is already initialized")
             tree = {}
@@ -134,6 +135,9 @@ class VirtualRepository:
     def create_branch(self, name: str, from_ref: str = "main") -> dict[str, Any]:
         name = self._name(name, "branch")
         with closing(self._connect()) as db, db:
+            db.execute("BEGIN IMMEDIATE")
+            if db.execute("SELECT 1 FROM branches WHERE name=?", (name,)).fetchone():
+                raise VirtualGitError("branch already exists")
             source = db.execute("SELECT commit_id FROM branches WHERE name=?", (from_ref,)).fetchone()
             if source is None:
                 source = db.execute("SELECT commit_id FROM commits WHERE commit_id=?", (from_ref,)).fetchone()
@@ -151,6 +155,7 @@ class VirtualRepository:
         if not isinstance(changes, Mapping) or not changes or len(changes) > 500:
             raise VirtualGitError("commit requires 1-500 file changes")
         with closing(self._connect()) as db, db:
+            db.execute("BEGIN IMMEDIATE")
             ref = db.execute("SELECT commit_id FROM branches WHERE name=?", (branch,)).fetchone()
             if ref is None:
                 raise KeyError(f"unknown branch: {branch}")
@@ -167,8 +172,10 @@ class VirtualRepository:
                     tree[path] = self._put_blob(db, raw)
                 changed.append(path)
             commit_id = self._put_commit(db, tree, message, ref["commit_id"])
-            db.execute("UPDATE branches SET commit_id=?,updated_at=? WHERE name=?",
-                       (commit_id, time.time(), branch))
+            updated = db.execute("UPDATE branches SET commit_id=?,updated_at=? WHERE name=? AND commit_id=?",
+                       (commit_id, time.time(), branch, ref["commit_id"]))
+            if updated.rowcount != 1:
+                raise VirtualGitError("branch advanced concurrently; retry the commit")
             self._event(db, "commit.created", {"branch": branch, "commit": commit_id,
                                                 "parent": ref["commit_id"],
                                                 "paths": sorted(changed)})
@@ -194,6 +201,9 @@ class VirtualRepository:
         if not isinstance(title, str) or not title.strip() or len(title) > 200:
             raise VirtualGitError("pull request title must be 1-200 characters")
         with closing(self._connect()) as db, db:
+            db.execute("BEGIN IMMEDIATE")
+            if source_branch == target_branch:
+                raise VirtualGitError("source and target branches must differ")
             source = db.execute("SELECT commit_id FROM branches WHERE name=?", (source_branch,)).fetchone()
             target = db.execute("SELECT commit_id FROM branches WHERE name=?", (target_branch,)).fetchone()
             if source is None or target is None:
@@ -230,6 +240,7 @@ class VirtualRepository:
 
     def merge_pull_request(self, pr_id: int) -> dict[str, Any]:
         with closing(self._connect()) as db, db:
+            db.execute("BEGIN IMMEDIATE")
             pr = db.execute("SELECT * FROM pull_requests WHERE pr_id=?", (pr_id,)).fetchone()
             if pr is None:
                 raise KeyError(f"unknown pull request: {pr_id}")
@@ -273,8 +284,10 @@ class VirtualRepository:
                         "target_commit": target_head}
             merge_id = self._put_commit(db, merged, f"Merge virtual PR #{pr_id}",
                                         target_head, source_head)
-            db.execute("UPDATE branches SET commit_id=?,updated_at=? WHERE name=?",
-                       (merge_id, time.time(), pr["target_branch"]))
+            updated = db.execute("UPDATE branches SET commit_id=?,updated_at=? WHERE name=? AND commit_id=?",
+                       (merge_id, time.time(), pr["target_branch"], target_head))
+            if updated.rowcount != 1:
+                raise VirtualGitError("target branch advanced concurrently; retry the merge")
             db.execute("UPDATE pull_requests SET status='merged',merge_commit=?,updated_at=? WHERE pr_id=?",
                        (merge_id, time.time(), pr_id))
             self._event(db, "pull_request.merged", {"pr_id": pr_id, "merge_commit": merge_id,
@@ -285,6 +298,7 @@ class VirtualRepository:
     def rollback_branch(self, branch: str, commit_id: str) -> dict[str, Any]:
         branch = self._name(branch, "branch")
         with closing(self._connect()) as db, db:
+            db.execute("BEGIN IMMEDIATE")
             if not db.execute("SELECT 1 FROM branches WHERE name=?", (branch,)).fetchone():
                 raise KeyError(branch)
             self._tree(db, commit_id)
