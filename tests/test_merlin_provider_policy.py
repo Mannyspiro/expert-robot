@@ -1,12 +1,12 @@
 import unittest
 
-from merlin.app import _select_chat_provider
+from merlin.provider_policy import select_chat_provider
 
 
 class ChatProviderPolicyTests(unittest.TestCase):
     def test_auto_is_local_even_when_cloud_is_configured(self):
         # Provider selection is independent of remote endpoint configuration.
-        self.assertEqual(_select_chat_provider("auto"), "local")
+        self.assertEqual(select_chat_provider("auto"), "local")
 
     def test_local_is_local(self):
         self.assertEqual(_select_chat_provider("local"), "local")
