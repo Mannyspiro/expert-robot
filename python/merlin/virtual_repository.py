@@ -650,7 +650,8 @@ class VirtualRepository:
                                    (branch,)).fetchone()
             if protected and not allow_protected:
                 raise VirtualGitError("protected branch can only advance through a verified pull-request merge")
-            tree = self._tree(db, ref["commit_id"])
+            base_tree = self._tree(db, ref["commit_id"])
+            tree = dict(base_tree)
             changed = []
             for raw_path, content in changes.items():
                 path = self._path(raw_path)
@@ -662,6 +663,9 @@ class VirtualRepository:
                         raise VirtualGitError("file content must be bytes/text under 10 MB")
                     tree[path] = self._put_blob(db, raw)
                 changed.append(path)
+            if tree == base_tree:
+                return {"branch": branch, "commit_id": ref["commit_id"],
+                        "changed_paths": [], "no_op": True}
             commit_id = self._put_commit(db, tree, message, ref["commit_id"])
             updated = db.execute("UPDATE branches SET commit_id=?,updated_at=? WHERE name=? AND commit_id=?",
                        (commit_id, time.time(), branch, ref["commit_id"]))
@@ -699,6 +703,14 @@ class VirtualRepository:
             target = db.execute("SELECT commit_id FROM branches WHERE name=?", (target_branch,)).fetchone()
             if source is None or target is None:
                 raise KeyError("source and target branches must exist")
+            existing = db.execute("""SELECT * FROM pull_requests
+                WHERE source_branch=? AND target_branch=? AND status='open'
+                ORDER BY pr_id DESC LIMIT 1""", (source_branch, target_branch)).fetchone()
+            if existing is not None:
+                return {"pr_id": existing["pr_id"], "title": existing["title"],
+                        "source_branch": source_branch, "target_branch": target_branch,
+                        "base_commit": existing["base_commit"], "head_commit": existing["head_commit"],
+                        "status": "open", "idempotent_replay": True}
             cursor = db.execute("""INSERT INTO pull_requests
                 (title,source_branch,target_branch,base_commit,head_commit,status,created_at,updated_at)
                 VALUES(?,?,?,?,?,'open',?,?)""",
