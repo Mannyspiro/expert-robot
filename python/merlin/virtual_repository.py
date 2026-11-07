@@ -389,6 +389,8 @@ class VirtualRepository:
         except (TypeError, ValueError):
             item["result"] = None
         item.pop("lease_token_hash", None)
+        item["verification_status"] = "UNVERIFIED"
+        item["promotion_authorized"] = False
         item["idempotent_replay"] = idempotent_replay
         return item
 
@@ -453,7 +455,7 @@ class VirtualRepository:
                       *, lease_seconds: int = 120) -> dict[str, Any]:
         if not isinstance(lease_token, str) or not lease_token:
             raise VirtualGitError("lease token is required")
-        if not isinstance(runner_id, str) or not runner_id.strip():
+        if not isinstance(runner_id, str) or not runner_id.strip() or len(runner_id) > 200:
             raise VirtualGitError("runner identity is required")
         if isinstance(lease_seconds, bool) or not isinstance(lease_seconds, int) or not 15 <= lease_seconds <= 900:
             raise VirtualGitError("lease_seconds must be between 15 and 900")
