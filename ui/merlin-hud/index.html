@@ -269,7 +269,7 @@ async async function renderForgeView(){
   message.textContent="";
   try{
    const data=await api("/api/forge/status");
-   $("forgeStatus").innerHTML='<span>Storage: <b>'+escapeHtml(data.storage)+'</b></span><span>Branches: <b>'+data.branches.length+'</b></span><span>Open PRs: <b>'+data.open_pull_requests.length+'</b></span><span>Runner: <b>'+escapeHtml(data.runner_execution)+'</b></span>';
+   $("forgeStatus").innerHTML='<span>Storage: <b>'+escapeHtml(data.storage)+'</b></span><span>Branches: <b>'+data.branches.length+'</b></span><span>Open PRs: <b>'+data.open_pull_requests.length+'</b></span><span>Main required checks: <b>'+escapeHtml((data.required_checks?.main||[]).join(", ")||"none")+'</b></span><span>Runner: <b>'+escapeHtml(data.runner_execution)+'</b></span>';
    $("forgeBranches").innerHTML=(data.branches||[]).map(row=>'<div class="forge-row"><strong>'+escapeHtml(row.name)+'</strong><span>'+escapeHtml(row.commit_id)+'</span>'+(row.name==="main"?"":'<br><button class="forge-action" data-forge-rebase="'+escapeHtml(row.name)+'">Rebase onto main</button>')+'</div>').join("")||'<div class="forge-muted">No branches</div>';
    $("forgePulls").innerHTML=(data.open_pull_requests||[]).map(row=>'<div class="forge-row"><strong>#'+row.pr_id+' · '+escapeHtml(row.title)+'</strong><span>'+escapeHtml(row.source_branch)+' → '+escapeHtml(row.target_branch)+'</span><br><button class="forge-action" data-forge-merge="'+row.pr_id+'">Merge if conflict-free</button></div>').join("")||'<div class="forge-muted">No open pull requests</div>';
    $("forgeEvents").innerHTML=(data.recent_events||[]).slice(0,20).map(row=>'<div class="forge-row"><strong>'+escapeHtml(row.kind)+'</strong><span>'+escapeHtml(JSON.stringify(row.payload))+'</span></div>').join("")||'<div class="forge-muted">No events yet</div>';
@@ -298,7 +298,7 @@ async async function renderForgeView(){
  });
  $("forgePulls").addEventListener("click",async e=>{
   const button=e.target.closest("[data-forge-merge]");if(!button)return;
-  try{const result=await api("/api/forge/pulls/"+button.getAttribute("data-forge-merge")+"/merge","POST",{});message.textContent=result.status==="merged"?"Merged as "+result.merge_commit:"Merge conflict: "+(result.conflicts||[]).join(", ");await refresh();}
+  try{const result=await api("/api/forge/pulls/"+button.getAttribute("data-forge-merge")+"/merge","POST",{});if(result.status==="merged")message.textContent="Merged as "+result.merge_commit;else if(result.status==="blocked")message.textContent="Merge blocked. Missing checks: "+(result.missing_checks||[]).join(", ")+"; failed checks: "+(result.failed_checks||[]).map(x=>x.check+"="+x.conclusion).join(", ");else message.textContent="Merge conflict: "+(result.conflicts||[]).join(", ");await refresh();}
   catch(error){message.textContent="Merge failed: "+error.message;}
  });
  $("forgeRefresh").addEventListener("click",refresh);
