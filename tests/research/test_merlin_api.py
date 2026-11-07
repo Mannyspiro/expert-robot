@@ -378,6 +378,64 @@ class MerlinApiTests(unittest.TestCase):
                 _remote_model_endpoint()
 
 
+    def test_free_gemini_and_groq_profiles_use_pinned_https_hosts(self):
+        import os
+        from unittest.mock import patch
+        from python.merlin.app import _remote_model_endpoint, _runtime_provider_status
+
+        profiles = {
+            "gemini": (
+                "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+                "generativelanguage.googleapis.com",
+            ),
+            "groq": (
+                "https://api.groq.com/openai/v1/chat/completions",
+                "api.groq.com",
+            ),
+        }
+        for provider, (endpoint, host) in profiles.items():
+            with self.subTest(provider=provider), patch.dict(os.environ, {
+                "MERLIN_REMOTE_PROVIDER": provider,
+                "MERLIN_REMOTE_API_KEY": "test-secret",
+                "MERLIN_REMOTE_MODEL_NAME": "test-free-model",
+                "MERLIN_REMOTE_MODEL_QUALIFIED": "1",
+            }, clear=True):
+                self.assertEqual(_remote_model_endpoint(), (endpoint, "test-secret"))
+                status = _runtime_provider_status()["providers"]["cloud"]
+                self.assertEqual(status["status"], "QUALIFIED_CONFIGURED")
+                self.assertEqual(status["provider"], provider)
+                self.assertNotIn("test-secret", json.dumps(status))
+                self.assertNotIn(host, json.dumps(status))
+
+    def test_free_provider_profile_rejects_endpoint_host_override(self):
+        import os
+        from unittest.mock import patch
+        from python.merlin.app import _remote_model_endpoint
+
+        with patch.dict(os.environ, {
+            "MERLIN_REMOTE_PROVIDER": "gemini",
+            "MERLIN_REMOTE_MODEL_URL": "https://attacker.example/v1/chat/completions",
+            "MERLIN_REMOTE_API_KEY": "test-secret",
+            "MERLIN_REMOTE_MODEL_NAME": "test-model",
+        }, clear=True):
+            with self.assertRaisesRegex(ValueError, "does not match"):
+                _remote_model_endpoint()
+
+    def test_unknown_remote_provider_profile_is_rejected(self):
+        import os
+        from unittest.mock import patch
+        from python.merlin.app import _remote_model_endpoint
+
+        with patch.dict(os.environ, {
+            "MERLIN_REMOTE_PROVIDER": "unknown",
+            "MERLIN_REMOTE_API_KEY": "test-secret",
+            "MERLIN_REMOTE_MODEL_NAME": "test-model",
+            "MERLIN_REMOTE_MODEL_URL": "https://api.example.test/v1/chat/completions",
+            "MERLIN_REMOTE_ALLOWED_HOSTS": "api.example.test",
+        }, clear=True):
+            with self.assertRaisesRegex(ValueError, "unsupported"):
+                _remote_model_endpoint()
+
     def test_remote_sse_stream_is_forwarded_and_secret_is_not_returned(self):
         import os
         from unittest.mock import patch
