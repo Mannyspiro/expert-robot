@@ -2,7 +2,7 @@ import json
 import sqlite3
 import tempfile
 import threading
-import threading
+import time
 import unittest
 from http.server import ThreadingHTTPServer
 from urllib.request import Request, urlopen
@@ -26,12 +26,28 @@ class VirtualRepositoryTests(unittest.TestCase):
         self.temp.cleanup()
 
     def pass_main_checks(self, commit_id):
+        # Test-only trusted-receipt fixture. Production code has no public
+        # method to elevate local check records to VERIFIED.
         for check_name in ("python.compile", "python.unified_tests", "hud.javascript_syntax"):
-            self.repo.record_check_result(
+            local = self.repo.record_check_result(
                 commit_id, check_name, "success",
-                "test-" + commit_id[:10] + "-" + check_name,
+                "local-" + commit_id[:10] + "-" + check_name,
                 "unit-test-runner", "PASS: " + check_name,
             )
+            receipt = {
+                "commit_id": commit_id, "check_name": check_name,
+                "conclusion": "success", "run_id": "cace-test-" + commit_id[:10] + "-" + check_name,
+                "runner_id": "cace-test-signer", "log_sha256": local["log_sha256"],
+                "verification_status": "VERIFIED", "promotion_authorized": True,
+                "cace_receipt_id": "test-receipt-" + check_name,
+            }
+            with sqlite3.connect(self.db) as db:
+                db.execute("""INSERT INTO check_results
+                    (commit_id,check_name,conclusion,run_id,runner_id,log_digest,result_json,recorded_at)
+                    VALUES(?,?,?,?,?,?,?,?)""",
+                    (commit_id, check_name, "success", receipt["run_id"],
+                     receipt["runner_id"], local["log_sha256"],
+                     json.dumps(receipt, sort_keys=True), time.time() + 1))
 
     def test_concurrent_first_start_initialization_is_idempotent(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -97,6 +113,22 @@ class VirtualRepositoryTests(unittest.TestCase):
         self.pass_main_checks(pr["head_commit"])
         merged = self.repo.merge_pull_request(pr["pr_id"])
         self.assertEqual(merged["status"], "merged")
+
+    def test_unverified_local_success_cannot_satisfy_protected_merge(self):
+        self.repo.create_branch("feature/unverified")
+        self.repo.commit("feature/unverified", "local-only checks", {"README.md": "# local\\n"})
+        pr = self.repo.open_pull_request("feature/unverified", "main", "Unverified checks")
+        for check_name in ("python.compile", "python.unified_tests", "hud.javascript_syntax"):
+            self.repo.record_check_result(
+                pr["head_commit"], check_name, "success",
+                "unverified-" + check_name, "local-runner", "success",
+            )
+        result = self.repo.merge_pull_request(pr["pr_id"])
+        self.assertEqual(result["status"], "blocked")
+        self.assertEqual(set(result["unverified_checks"]), {
+            "python.compile", "python.unified_tests", "hud.javascript_syntax",
+        })
+        self.assertEqual(self.repo.pull_requests("open")[0]["status"], "open")
 
     def test_check_receipts_are_idempotent_and_immutable(self):
         result = self.repo.record_check_result(
