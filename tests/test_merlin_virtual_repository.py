@@ -1,4 +1,5 @@
 import json
+import os
 import sqlite3
 import tempfile
 import threading
@@ -6,6 +7,8 @@ import time
 import unittest
 from http.server import ThreadingHTTPServer
 from urllib.request import Request, urlopen
+from urllib.error import HTTPError
+from unittest.mock import patch
 from pathlib import Path
 
 from python.merlin.virtual_repository import VirtualGitError, VirtualRepository
@@ -398,7 +401,10 @@ class VirtualRepositoryTests(unittest.TestCase):
 
     def test_forge_http_api_exposes_status_branch_commit_pr_and_merge(self):
         event_store = EventStore(Path(self.temp.name) / "api-events.sqlite3")
-        server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(event_store))
+        worker_token = "w" * 40
+        with patch.dict(os.environ, {"MERLIN_WORKER_TOKENS": json.dumps({"test-worker": worker_token})}):
+            handler = make_handler(event_store)
+        server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
         thread = threading.Thread(target=server.serve_forever, daemon=True)
         thread.start()
         base = f"http://127.0.0.1:{server.server_port}"
@@ -410,6 +416,14 @@ class VirtualRepositoryTests(unittest.TestCase):
         def post(path, payload):
             request = Request(base + path, data=json.dumps(payload).encode("utf-8"),
                               headers={"Content-Type": "application/json"})
+            with urlopen(request, timeout=5) as response:
+                return json.loads(response.read())
+
+        def worker_post(path, payload):
+            request = Request(base + path, data=json.dumps(payload).encode("utf-8"),
+                headers={"Content-Type": "application/json",
+                         "X-Merlin-Worker-ID": "test-worker",
+                         "Authorization": "Bearer " + worker_token})
             with urlopen(request, timeout=5) as response:
                 return json.loads(response.read())
 
@@ -450,10 +464,39 @@ class VirtualRepositoryTests(unittest.TestCase):
             self.assertTrue(all(row["promotion_authorized"] is False for row in check_payload["check_results"]))
             log_payload = get("/api/forge/checks/" + str(check_payload["check_results"][0]["check_id"]) + "/log")
             self.assertTrue(log_payload["log_utf8"].startswith("PASS "))
-            merged = post(f"/api/forge/pulls/{pr['pr_id']}/merge", {})
-            self.assertEqual(merged["status"], "merged")
+            try:
+                post(f"/api/forge/pulls/{pr['pr_id']}/merge", {})
+                self.fail("unverified local CI must not merge")
+            except HTTPError as exc:
+                blocked = json.loads(exc.read())
+            self.assertEqual(blocked["status"], "blocked")
+            self.assertEqual(len(blocked["unverified_checks"]), 3)
+
+            main_commit = next(row["commit_id"] for row in status["branches"] if row["name"] == "main")
+            queued = post("/api/forge/jobs", {
+                "commit_id": main_commit, "job_type": "python.compile",
+                "idempotency_key": "api-compile-job",
+            })
+            self.assertEqual(queued["status"], "queued")
+            self.assertEqual(queued["verification_status"], "UNVERIFIED")
+            claimed = worker_post("/api/internal/forge/jobs/claim", {
+                "job_types": ["python.compile"], "lease_seconds": 30,
+            })["lease"]
+            self.assertEqual(claimed["job_id"], queued["job_id"])
+            worker_post("/api/internal/forge/jobs/" + queued["job_id"] + "/heartbeat", {
+                "lease_token": claimed["lease_token"], "lease_seconds": 30,
+            })
+            completed = worker_post("/api/internal/forge/jobs/" + queued["job_id"] + "/complete", {
+                "lease_token": claimed["lease_token"], "conclusion": "succeeded",
+                "result": {"exit_code": 0}, "log": "compile complete",
+            })
+            self.assertEqual(completed["status"], "succeeded")
+            self.assertEqual(completed["verification_status"], "UNVERIFIED")
+            self.assertEqual(get("/api/forge/jobs/" + queued["job_id"])["job"]["status"], "succeeded")
+            job_log = get("/api/forge/jobs/" + queued["job_id"] + "/log")
+            self.assertEqual(job_log["log_utf8"], "compile complete")
             file_result = get("/api/forge/file?ref=main&path=README.md")
-            self.assertEqual(file_result["content_utf8"], "# Merlin Forge API\n")
+            self.assertEqual(file_result["content_utf8"], "# Merlin\n")
         finally:
             server.shutdown()
             server.server_close()
