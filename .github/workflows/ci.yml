@@ -96,6 +96,71 @@ jobs:
           printf '{"suite":"merlin-prompt-contract","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$test_exit" > artifacts/merlin-prompt-contract-result.json
           exit "$test_exit"
 
+      - name: Merlin local-first provider policy tests
+        env:
+          PYTHONPATH: python
+        shell: bash
+        run: |
+          set +e
+          mkdir -p artifacts
+          python3 -m unittest discover -s tests -p "test_merlin_provider_policy.py" -v 2>&1 | tee artifacts/merlin-provider-policy.log
+          test_exit=${PIPESTATUS[0]}
+          printf '{"suite":"merlin-provider-policy","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$test_exit" > artifacts/merlin-provider-policy-result.json
+          exit "$test_exit"
+
+      - name: Merlin HUD inline JavaScript syntax
+        shell: bash
+        run: |
+          set +e
+          mkdir -p artifacts
+          python3 - <<'PY' 2>&1 | tee artifacts/merlin-hud-js-extract.log
+          from html.parser import HTMLParser
+          from pathlib import Path
+
+          class Scripts(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.active = False
+                  self.parts = []
+                  self.current = []
+              def handle_starttag(self, tag, attrs):
+                  if tag == "script" and not dict(attrs).get("src"):
+                      self.active = True
+                      self.current = []
+              def handle_data(self, data):
+                  if self.active:
+                      self.current.append(data)
+              def handle_endtag(self, tag):
+                  if tag == "script" and self.active:
+                      self.parts.append("".join(self.current))
+                      self.active = False
+
+          parser = Scripts()
+          parser.feed(Path("ui/merlin-hud/index.html").read_text(encoding="utf-8"))
+          if not parser.parts:
+              raise SystemExit("no inline JavaScript blocks found")
+          Path("artifacts/merlin-hud-inline.js").write_text("\n".join(parser.parts), encoding="utf-8")
+          print(f"extracted {len(parser.parts)} inline script block(s)")
+          PY
+          extract_exit=${PIPESTATUS[0]}
+          if [ "$extract_exit" -ne 0 ]; then exit "$extract_exit"; fi
+          node --check artifacts/merlin-hud-inline.js 2>&1 | tee artifacts/merlin-hud-js-syntax.log
+          test_exit=${PIPESTATUS[0]}
+          printf '{"suite":"merlin-hud-inline-js-syntax","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$test_exit" > artifacts/merlin-hud-js-syntax-result.json
+          exit "$test_exit"
+
+      - name: Merlin deterministic intent compiler tests
+        env:
+          PYTHONPATH: python
+        shell: bash
+        run: |
+          set +e
+          mkdir -p artifacts
+          python3 -m unittest discover -s tests -p "test_merlin_intent_compiler.py" -v 2>&1 | tee artifacts/merlin-intent-compiler.log
+          test_exit=${PIPESTATUS[0]}
+          printf '{"suite":"merlin-intent-compiler","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$test_exit" > artifacts/merlin-intent-compiler-result.json
+          exit "$test_exit"
+
       - name: Merlin universal research curriculum tests
         env:
           PYTHONPATH: python
