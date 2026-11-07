@@ -6,6 +6,7 @@ on:
       - "python/merlin/learning_platform.py"
       - "python/merlin/app.py"
       - "python/merlin/research_curriculum.py"
+      - "ui/merlin-learning/index.html"
       - "tests/test_merlin_learning_platform.py"
       - "tests/research/test_merlin_learning_http.py"
       - "tests/test_merlin_research_curriculum.py"
@@ -57,6 +58,20 @@ jobs:
           rc=${PIPESTATUS[0]}
           printf '{"suite":"learning-platform-compile","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/compile-result.json
           exit "$rc"
+
+      - name: Validate Merlin Learning inline JavaScript
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          html = Path("ui/merlin-learning/index.html").read_text(encoding="utf-8")
+          if html.count("<script>") != 1 or html.count("</script>") != 1:
+              raise SystemExit("expected exactly one inline script block")
+          script = html.split("<script>", 1)[1].split("</script>", 1)[0]
+          Path("artifacts/merlin-learning-inline.js").write_text(script, encoding="utf-8")
+          PY
+          node --check artifacts/merlin-learning-inline.js 2>&1 | tee artifacts/merlin-learning-js.log
 
       - name: Run Merlin Learning tests
         id: tests
