@@ -24,6 +24,14 @@ class VirtualRepositoryTests(unittest.TestCase):
     def tearDown(self):
         self.temp.cleanup()
 
+    def pass_main_checks(self, commit_id):
+        for check_name in ("python.compile", "python.unified_tests", "hud.javascript_syntax"):
+            self.repo.record_check_result(
+                commit_id, check_name, "success",
+                "test-" + commit_id[:10] + "-" + check_name,
+                "unit-test-runner", "PASS: " + check_name,
+            )
+
     def test_content_addressed_commit_and_restart_persistence(self):
         branch = self.repo.create_branch("feature/one")
         commit = self.repo.commit("feature/one", "add feature", {
@@ -41,11 +49,49 @@ class VirtualRepositoryTests(unittest.TestCase):
         self.repo.commit("feature/docs", "update docs", {"README.md": "# Merlin Forge\n"})
         self.repo.commit("main", "add runtime module", {"src/runtime.py": "READY = True\n"})
         pr = self.repo.open_pull_request("feature/docs", "main", "Merge docs")
+        self.pass_main_checks(pr["head_commit"])
         merged = self.repo.merge_pull_request(pr["pr_id"])
         self.assertEqual(merged["status"], "merged")
         self.assertEqual(self.repo.read_file("main", "README.md"), b"# Merlin Forge\n")
         self.assertEqual(self.repo.read_file("main", "src/runtime.py"), b"READY = True\n")
         self.assertEqual(self.repo.pull_requests()[0]["status"], "merged")
+
+    def test_main_merge_requires_successful_checks_for_exact_pr_head(self):
+        self.repo.create_branch("feature/protected")
+        self.repo.commit("feature/protected", "protected change", {"README.md": "# protected\\n"})
+        pr = self.repo.open_pull_request("feature/protected", "main", "Protected merge")
+        blocked = self.repo.merge_pull_request(pr["pr_id"])
+        self.assertEqual(blocked["status"], "blocked")
+        self.assertEqual(set(blocked["missing_checks"]), {
+            "python.compile", "python.unified_tests", "hud.javascript_syntax",
+        })
+        self.pass_main_checks(self.initial["commit_id"])
+        still_blocked = self.repo.merge_pull_request(pr["pr_id"])
+        self.assertEqual(still_blocked["status"], "blocked")
+        self.pass_main_checks(pr["head_commit"])
+        merged = self.repo.merge_pull_request(pr["pr_id"])
+        self.assertEqual(merged["status"], "merged")
+
+    def test_check_receipts_are_idempotent_and_immutable(self):
+        result = self.repo.record_check_result(
+            self.initial["commit_id"], "python.compile", "success",
+            "run-check-1", "runner-1", "compile passed",
+        )
+        replay = self.repo.record_check_result(
+            self.initial["commit_id"], "python.compile", "success",
+            "run-check-1", "runner-1", "compile passed",
+        )
+        self.assertTrue(replay["idempotent_replay"])
+        self.assertEqual(result["log_sha256"], replay["log_sha256"])
+        with self.assertRaises(VirtualGitError):
+            self.repo.record_check_result(
+                self.initial["commit_id"], "python.compile", "failure",
+                "run-check-1", "runner-1", "different outcome",
+            )
+        with sqlite3.connect(self.db) as db:
+            with self.assertRaises(sqlite3.IntegrityError):
+                db.execute("UPDATE check_results SET conclusion='failure' WHERE check_id=?",
+                           (result["check_id"],))
 
     def test_three_way_merge_reports_same_path_conflict_without_moving_target(self):
         self.repo.create_branch("feature/conflict")
@@ -110,6 +156,7 @@ class VirtualRepositoryTests(unittest.TestCase):
         self.repo.create_branch("feature/remove")
         self.repo.commit("feature/remove", "remove source", {"src/core.py": None})
         pr = self.repo.open_pull_request("feature/remove", "main", "Remove file")
+        self.pass_main_checks(pr["head_commit"])
         self.assertEqual(self.repo.merge_pull_request(pr["pr_id"])["status"], "merged")
         with self.assertRaises(KeyError):
             self.repo.read_file("main", "src/core.py")
@@ -159,6 +206,12 @@ class VirtualRepositoryTests(unittest.TestCase):
                 "source_branch": "feature/api", "target_branch": "main",
                 "title": "Forge API integration",
             })
+            for check_name in ("python.compile", "python.unified_tests", "hud.javascript_syntax"):
+                post("/api/forge/checks", {
+                    "commit_id": pr["head_commit"], "check_name": check_name,
+                    "conclusion": "success", "run_id": "api-test-" + check_name,
+                    "runner_id": "test-runner", "log": "PASS " + check_name,
+                })
             merged = post(f"/api/forge/pulls/{pr['pr_id']}/merge", {})
             self.assertEqual(merged["status"], "merged")
             file_result = get("/api/forge/file?ref=main&path=README.md")
