@@ -182,6 +182,20 @@ MathSkillCatalog MathSkillCatalog::builtins() {
             true,
             SkillStage::Qualified
         },
+        {
+            "math.lacuna.cross_domain",
+            "Useful cross-domain lacuna exploration",
+            L::Lacuna,
+            R::Analogist,
+            "Identify missing explanatory links and under-modeled mechanisms "
+            "across relevant disciplines. Enumerate combinations only when "
+            "their mechanism is coherent, they respect known constraints, "
+            "they have a plausible application, and they admit a falsifiable "
+            "test. Mark unfamiliar or speculative science as hypotheses; "
+            "never invent supporting evidence or treat novelty as truth.",
+            true,
+            SkillStage::Qualified
+        },
     });
 }
 
