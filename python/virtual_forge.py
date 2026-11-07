@@ -37,7 +37,7 @@ def _sha(data: bytes) -> str:
 
 def _safe_path(path: str) -> str:
     p = PurePosixPath(path)
-    if not path or p.is_absolute() or any(part in {"", ".", ".."} for part in p.parts):
+    if not path or p.as_posix() == "." or p.is_absolute() or any(part in {"", ".", ".."} for part in p.parts):
         raise ForgeError(f"unsafe repository path: {path!r}")
     if "\\" in path or "\x00" in path:
         raise ForgeError(f"unsafe repository path: {path!r}")
@@ -65,6 +65,8 @@ def _three_way_text(base_text: str, ours_text: str, theirs_text: str) -> str | N
     theirs = _edits(base, theirs_text.splitlines(keepends=True))
     combined = list(ours)
     for edit in theirs:
+        if edit in ours:
+            continue
         a1, a2, _ = edit
         conflict = False
         for b1, b2, _ in ours:
