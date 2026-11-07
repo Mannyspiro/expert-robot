@@ -83,6 +83,7 @@ class VirtualRepositoryTests(unittest.TestCase):
         )
         self.assertTrue(replay["idempotent_replay"])
         self.assertEqual(result["log_sha256"], replay["log_sha256"])
+        self.assertEqual(self.repo.read_check_log(result["check_id"]), b"compile passed")
         with self.assertRaises(VirtualGitError):
             self.repo.record_check_result(
                 self.initial["commit_id"], "python.compile", "failure",
@@ -217,6 +218,8 @@ class VirtualRepositoryTests(unittest.TestCase):
                 })
             check_payload = get("/api/forge/checks?commit=" + pr["head_commit"])
             self.assertEqual(len(check_payload["check_results"]), 3)
+            log_payload = get("/api/forge/checks/" + str(check_payload["check_results"][0]["check_id"]) + "/log")
+            self.assertTrue(log_payload["log_utf8"].startswith("PASS "))
             merged = post(f"/api/forge/pulls/{pr['pr_id']}/merge", {})
             self.assertEqual(merged["status"], "merged")
             file_result = get("/api/forge/file?ref=main&path=README.md")
