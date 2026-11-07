@@ -7,6 +7,7 @@ acknowledgement. Stable insert IDs make retries deduplicable.
 from __future__ import annotations
 
 from hashlib import sha256
+from math import isfinite
 import json
 import os
 from threading import Event, Lock, Thread
@@ -82,9 +83,11 @@ class PostHogTelemetrySink:
         safe = {}
         for key in _SAFE_SUMMARY_KEYS:
             value = summary.get(key)
-            if isinstance(value, (str, int, float, bool)) and not isinstance(value, str) or (
-                isinstance(value, str) and len(value) <= 128
-            ):
+            if isinstance(value, str) and len(value) <= 128:
+                safe[key] = value
+            elif isinstance(value, (int, bool)):
+                safe[key] = value
+            elif isinstance(value, float) and isfinite(value):
                 safe[key] = value
         return safe
 
