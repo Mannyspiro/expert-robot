@@ -9,10 +9,12 @@ from __future__ import annotations
 from contextlib import closing
 from hashlib import sha256
 import json
+import os
 from pathlib import Path
 import re
 import sqlite3
 import time
+import uuid
 from typing import Any, Mapping
 
 
@@ -222,18 +224,21 @@ class VirtualRepository:
         target.parent.mkdir(parents=True, exist_ok=True)
         if target.exists():
             raise VirtualGitError("backup destination already exists")
+        temporary = target.with_name("." + target.name + "." + uuid.uuid4().hex + ".tmp")
         try:
-            with closing(self._connect()) as source, closing(sqlite3.connect(target)) as backup:
+            with closing(self._connect()) as source, closing(sqlite3.connect(temporary)) as backup:
                 source.backup(backup)
-            report = VirtualRepository(target).integrity_report()
+            report = VirtualRepository(temporary).integrity_report()
             if not report["ok"]:
-                target.unlink(missing_ok=True)
                 raise RuntimeError("backup integrity verification failed: " + repr(report["problems"]))
-            return {"path": str(target), "integrity": report}
-        except Exception:
-            if target.exists():
-                target.unlink(missing_ok=True)
-            raise
+            # A same-directory hard link publishes the verified backup atomically
+            # and fails rather than replacing a destination created concurrently.
+            os.link(temporary, target)
+            return {"path": str(target.resolve()), "integrity": report}
+        finally:
+            temporary.unlink(missing_ok=True)
+            Path(str(temporary) + "-wal").unlink(missing_ok=True)
+            Path(str(temporary) + "-shm").unlink(missing_ok=True)
 
     def branches(self) -> list[dict[str, Any]]:
         with closing(self._connect()) as db:
