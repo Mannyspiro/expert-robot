@@ -514,6 +514,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     "open_pull_requests": forge.pull_requests("open"),
                     "required_checks": {"main": forge.required_checks("main")},
                     "recent_events": forge.events(30),
+                    "virtual_job_counts": forge.job_counts(),
                     "runner_execution": "not_performed",
                     "promotion_authorized": False})
                 return
