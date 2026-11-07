@@ -157,6 +157,8 @@ class VirtualRepositoryTests(unittest.TestCase):
             "run-check-1", "runner-1", "compile passed",
         )
         self.assertTrue(replay["idempotent_replay"])
+        self.assertEqual(replay["verification_status"], "UNVERIFIED")
+        self.assertFalse(replay["promotion_authorized"])
         self.assertEqual(result["log_sha256"], replay["log_sha256"])
         self.assertEqual(self.repo.read_check_log(result["check_id"]), b"compile passed")
         with self.assertRaises(VirtualGitError):
@@ -168,6 +170,24 @@ class VirtualRepositoryTests(unittest.TestCase):
             with self.assertRaises(sqlite3.IntegrityError):
                 db.execute("UPDATE check_results SET conclusion='failure' WHERE check_id=?",
                            (result["check_id"],))
+
+    def test_legacy_or_malformed_check_metadata_fails_closed(self):
+        local = self.repo.record_check_result(
+            self.initial["commit_id"], "hud.javascript_syntax", "success",
+            "legacy-source", "legacy-runner", "old log",
+        )
+        with sqlite3.connect(self.db) as db:
+            for run_id, raw in (("legacy-json", "{}"), ("malformed-json", "not-json")):
+                db.execute("""INSERT INTO check_results
+                    (commit_id,check_name,conclusion,run_id,runner_id,log_digest,result_json,recorded_at)
+                    VALUES(?,?,?,?,?,?,?,?)""",
+                    (self.initial["commit_id"], "hud.javascript_syntax", "success",
+                     run_id, "legacy-runner", local["log_sha256"], raw, time.time() + 1))
+        rows = self.repo.check_results(self.initial["commit_id"])
+        legacy_rows = [row for row in rows if row["run_id"] in {"legacy-json", "malformed-json"}]
+        self.assertEqual(len(legacy_rows), 2)
+        self.assertTrue(all(row["verification_status"] == "UNVERIFIED" for row in legacy_rows))
+        self.assertTrue(all(row["promotion_authorized"] is False for row in legacy_rows))
 
     def test_pull_request_reports_current_head_after_branch_advances(self):
         self.repo.create_branch("feature/moving-head")
