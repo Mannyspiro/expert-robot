@@ -188,6 +188,9 @@ class VirtualRepositoryTests(unittest.TestCase):
             status = get("/api/forge/status")
             self.assertEqual(status["schema"], "merlin-forge-status/1")
             self.assertEqual(status["runner_execution"], "not_performed")
+            self.assertEqual(set(status["required_checks"]["main"]), {
+                "python.compile", "python.unified_tests", "hud.javascript_syntax",
+            })
             self.assertTrue(any(item["name"] == "main" for item in status["branches"]))
 
             post("/api/forge/branches", {"name": "feature/api"})
@@ -212,6 +215,8 @@ class VirtualRepositoryTests(unittest.TestCase):
                     "conclusion": "success", "run_id": "api-test-" + check_name,
                     "runner_id": "test-runner", "log": "PASS " + check_name,
                 })
+            check_payload = get("/api/forge/checks?commit=" + pr["head_commit"])
+            self.assertEqual(len(check_payload["check_results"]), 3)
             merged = post(f"/api/forge/pulls/{pr['pr_id']}/merge", {})
             self.assertEqual(merged["status"], "merged")
             file_result = get("/api/forge/file?ref=main&path=README.md")
