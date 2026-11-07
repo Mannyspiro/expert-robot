@@ -44,6 +44,7 @@ from .research import (
 from .engineering.geometry import GeometrySpec, Point3D, validate_geometry, bounding_box
 from .engineering.netlist import Component, Connection, Net, Netlist, validate_netlist
 from .public_literature import PublicLiteratureSearch
+from .virtual_repository import VirtualRepository
 
 MAX_BODY = 1_000_000
 MAX_PROXY_RESPONSE = 16_000_000
@@ -201,6 +202,7 @@ def _runtime_provider_status() -> dict[str, Any]:
 CAPABILITIES = [
     {"id": "research.math_transfer.preview", "status": "AVAILABLE", "evidence": "deterministic, provenance-aware transfer hypotheses; no automatic promotion"},
     {"id": "research.literature.search", "status": "AVAILABLE", "evidence": "zero-configuration Crossref and arXiv discovery; source-hashed documents remain unverified"},
+    {"id": "forge.virtual_repository", "status": "AVAILABLE", "evidence": "SQLite content-addressed commits, branches, pull requests, three-way merge, rollback and append-only events; no external Git host required"},
     {"id": "intent.compile.preview", "status": "AVAILABLE", "evidence": "deterministic typed directive preview; optional canonical-registry artifact persistence; no external execution authority"},
     {"id": "learning.interaction.observe", "status": "AVAILABLE", "evidence": "metadata-only operational telemetry plus explicit categorical outcome feedback"},
     {"id": "learning.interaction.analyze", "status": "AVAILABLE", "evidence": "aggregate improvement proposals with minimum sample thresholds; recommendation-only"},
@@ -308,6 +310,14 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
     memory_path = os.environ.get("MERLIN_MEMORY_DB_PATH", str(Path(store.path).with_name("memory.sqlite3")))
     memory_vault = MerlinMemoryVault(memory_path)
     repo_root = Path(__file__).resolve().parents[2]
+    forge = VirtualRepository(Path(store.path).with_name("merlin-forge.sqlite3"))
+    if not forge.branches():
+        seed = {"README.md": "# Merlin virtual repository\\n"}
+        for relative in ("python/merlin/app.py", "python/merlin/virtual_repository.py"):
+            source = repo_root / relative
+            if source.is_file():
+                seed[relative] = source.read_bytes()
+        forge.initialize(seed)
     catalog_path = Path(os.environ.get("MERLIN_MATH_IDEA_CATALOG",
         str(repo_root / "docs" / "research" / "merlin-mathematical-idea-catalog.v1.json")))
     learning_graph: dict[str, Any] = {}
@@ -492,6 +502,38 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             self._request_started = perf_counter()
             parsed = urlparse(self.path)
             path = parsed.path
+            if path == "/api/forge/status":
+                self._send(200, {"schema": "merlin-forge-status/1",
+                    "storage": "sqlite_content_addressed",
+                    "execution_mode": "repository_only_no_runner_claim",
+                    "branches": forge.branches(),
+                    "open_pull_requests": forge.pull_requests("open"),
+                    "recent_events": forge.events(30),
+                    "runner_execution": "not_performed",
+                    "promotion_authorized": False})
+                return
+            if path == "/api/forge/branches":
+                self._send(200, {"schema": "merlin-forge-branches/1",
+                                 "branches": forge.branches()})
+                return
+            if path == "/api/forge/pulls":
+                self._send(200, {"schema": "merlin-forge-pull-requests/1",
+                                 "pull_requests": forge.pull_requests()})
+                return
+            if path == "/api/forge/events":
+                limit = int((parse_qs(parsed.query).get("limit") or ["100"])[0])
+                self._send(200, {"schema": "merlin-forge-events/1",
+                                 "events": forge.events(limit)})
+                return
+            if path == "/api/forge/file":
+                params = parse_qs(parsed.query)
+                ref = (params.get("ref") or ["main"])[0]
+                logical_path = (params.get("path") or [""])[0]
+                content = forge.read_file(ref, logical_path)
+                self._send(200, {"schema": "merlin-forge-file/1", "ref": ref,
+                    "path": logical_path, "content_utf8": content.decode("utf-8"),
+                    "sha256": sha256(content).hexdigest()})
+                return
             if path == "/api/internal/outbox/status":
                 worker_id = self._worker_actor()
                 if worker_id is None:
@@ -726,6 +768,40 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 if not isinstance(data, dict):
                     raise ValueError("request body must be a JSON object")
 
+                if path == "/api/forge/branches":
+                    result = forge.create_branch(data.get("name"), data.get("from_ref", "main"))
+                    self._send(201, {"schema": "merlin-forge-branch-created/1", **result})
+                    return
+                if path == "/api/forge/commits":
+                    changes = data.get("changes")
+                    if not isinstance(changes, dict):
+                        raise ValueError("changes must be an object mapping paths to text or null")
+                    result = forge.commit(data.get("branch"), data.get("message"), changes)
+                    store.append(path, {"branch": result["branch"], "commit_id": result["commit_id"]},
+                                 {"changed_paths": result["changed_paths"],
+                                  "virtual_repository": True, "execution_performed": False})
+                    self._send(201, {"schema": "merlin-forge-commit/1", **result})
+                    return
+                if path == "/api/forge/pulls":
+                    result = forge.open_pull_request(data.get("source_branch"),
+                        data.get("target_branch", "main"), data.get("title", "Untitled change"))
+                    self._send(201, {"schema": "merlin-forge-pull-request/1", **result})
+                    return
+                if path.startswith("/api/forge/pulls/") and path.endswith("/merge"):
+                    parts = path.strip("/").split("/")
+                    if len(parts) != 4 or not parts[2].isdigit():
+                        raise ValueError("pull request path must contain an integer ID")
+                    result = forge.merge_pull_request(int(parts[2]))
+                    self._send(200 if result["status"] == "merged" else 409,
+                        {"schema": "merlin-forge-merge/1", **result})
+                    return
+                if path.startswith("/api/forge/branches/") and path.endswith("/rollback"):
+                    parts = path.strip("/").split("/")
+                    if len(parts) != 4:
+                        raise ValueError("invalid rollback path")
+                    result = forge.rollback_branch(unquote(parts[2]), data.get("commit_id"))
+                    self._send(200, {"schema": "merlin-forge-rollback/1", **result})
+                    return
                 if path.startswith("/api/internal/outbox/"):
                     action = path.rsplit("/", 1)[-1]
                     if action == "cancel":
