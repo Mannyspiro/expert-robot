@@ -77,7 +77,10 @@ def activation_reason(task: str, mode: str = "auto") -> str | None:
 
 
 def prepare_research_task(
-    task: str, mode: str = "auto", protocol_path: Path = DEFAULT_PROTOCOL_PATH
+    task: str,
+    mode: str = "auto",
+    protocol_path: Path = DEFAULT_PROTOCOL_PATH,
+    method_registry_path: Path = DEFAULT_METHOD_REGISTRY_PATH,
 ) -> tuple[str, dict[str, Any]]:
     reason = activation_reason(task, mode)
     if reason is None:
