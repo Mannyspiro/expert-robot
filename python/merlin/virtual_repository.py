@@ -313,6 +313,89 @@ class VirtualRepository:
             return {"pr_id": pr_id, "status": "merged", "merge_commit": merge_id,
                     "target_branch": pr["target_branch"], "source_head": source_head}
 
+    def rebase_branch(self, branch: str, onto_ref: str = "main") -> dict[str, Any]:
+        """Replay a linear branch delta onto another branch/commit; conflicts never move refs."""
+        branch = self._name(branch, "branch")
+        with closing(self._connect()) as db, db:
+            db.execute("BEGIN IMMEDIATE")
+            source_row = db.execute("SELECT commit_id FROM branches WHERE name=?", (branch,)).fetchone()
+            if source_row is None:
+                raise KeyError(f"unknown branch: {branch}")
+            target_row = db.execute("SELECT commit_id FROM branches WHERE name=?", (onto_ref,)).fetchone()
+            if target_row is None:
+                target_row = db.execute("SELECT commit_id FROM commits WHERE commit_id=?", (onto_ref,)).fetchone()
+            if target_row is None:
+                raise KeyError(f"unknown branch or commit: {onto_ref}")
+            source_head, target_head = source_row["commit_id"], target_row["commit_id"]
+            if source_head == target_head:
+                return {"branch": branch, "status": "up_to_date", "commit_id": source_head}
+            source_ancestors = self._ancestors(db, source_head)
+            target_ancestors = self._ancestors(db, target_head)
+            if target_head in source_ancestors:
+                return {"branch": branch, "status": "up_to_date", "commit_id": source_head}
+            common = set(source_ancestors) & set(target_ancestors)
+            if not common:
+                raise VirtualGitError("branches have no common ancestor")
+            base_id = min(common, key=lambda item: (
+                source_ancestors[item] + target_ancestors[item],
+                max(source_ancestors[item], target_ancestors[item]), item))
+            replay = []
+            cursor = source_head
+            while cursor != base_id:
+                row = db.execute("SELECT parent1,parent2,message FROM commits WHERE commit_id=?",
+                                 (cursor,)).fetchone()
+                if row is None or row["parent1"] is None:
+                    raise VirtualGitError("cannot determine linear commits to rebase")
+                if row["parent2"] is not None:
+                    raise VirtualGitError("rebase of merge commits is not supported")
+                replay.append((cursor, row["parent1"], row["message"]))
+                cursor = row["parent1"]
+            replay.reverse()
+            rebased_tree = self._tree(db, target_head)
+            planned = []
+            for old_commit, old_parent, message in replay:
+                parent_tree = self._tree(db, old_parent)
+                old_tree = self._tree(db, old_commit)
+                next_tree = dict(rebased_tree)
+                conflicts = []
+                for logical_path in sorted(set(parent_tree) | set(old_tree) | set(rebased_tree)):
+                    before = parent_tree.get(logical_path)
+                    desired = old_tree.get(logical_path)
+                    current = rebased_tree.get(logical_path)
+                    if desired == before:
+                        continue
+                    if current == before or current == desired:
+                        if desired is None:
+                            next_tree.pop(logical_path, None)
+                        else:
+                            next_tree[logical_path] = desired
+                    else:
+                        conflicts.append(logical_path)
+                if conflicts:
+                    self._event(db, "branch.rebase_conflict", {
+                        "branch": branch, "onto": onto_ref, "base": base_id,
+                        "source_head": source_head, "target_head": target_head,
+                        "conflicts": conflicts})
+                    return {"branch": branch, "status": "conflict",
+                            "conflicts": conflicts, "base_commit": base_id,
+                            "source_head": source_head, "target_head": target_head}
+                planned.append((next_tree, message))
+                rebased_tree = next_tree
+            new_head = target_head
+            for tree, message in planned:
+                new_head = self._put_commit(db, tree, message, new_head)
+            updated = db.execute(
+                "UPDATE branches SET commit_id=?,updated_at=? WHERE name=? AND commit_id=?",
+                (new_head, time.time(), branch, source_head))
+            if updated.rowcount != 1:
+                raise VirtualGitError("branch advanced concurrently; retry the rebase")
+            self._event(db, "branch.rebased", {"branch": branch, "onto": onto_ref,
+                "old_head": source_head, "new_head": new_head, "base_commit": base_id,
+                "replayed_commits": len(planned)})
+            return {"branch": branch, "status": "rebased", "previous_head": source_head,
+                    "commit_id": new_head, "base_commit": base_id,
+                    "replayed_commits": len(planned)}
+
     def rollback_branch(self, branch: str, commit_id: str) -> dict[str, Any]:
         branch = self._name(branch, "branch")
         with closing(self._connect()) as db, db:
