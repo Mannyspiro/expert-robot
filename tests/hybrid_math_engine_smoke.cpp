@@ -284,6 +284,7 @@ int main() {
     assert(
         !skill_catalog.for_lens(ImaginationLens::Lacuna).empty());
     assert(lens_name(ImaginationLens::Lacuna) == "lacuna");
+    assert(role_for_lens(ImaginationLens::Lacuna) == AgentRole::Analogist);
     assert(
         lens_instruction(ImaginationLens::Lacuna).find(
             "falsifiable test") != std::string::npos);
