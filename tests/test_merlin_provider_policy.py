@@ -9,14 +9,14 @@ class ChatProviderPolicyTests(unittest.TestCase):
         self.assertEqual(select_chat_provider("auto"), "local")
 
     def test_local_is_local(self):
-        self.assertEqual(_select_chat_provider("local"), "local")
+        self.assertEqual(select_chat_provider("local"), "local")
 
     def test_cloud_requires_explicit_selection(self):
-        self.assertEqual(_select_chat_provider("cloud"), "cloud")
+        self.assertEqual(select_chat_provider("cloud"), "cloud")
 
     def test_unknown_provider_is_rejected(self):
         with self.assertRaises(ValueError):
-            _select_chat_provider("fallback")
+            select_chat_provider("fallback")
 
 
 if __name__ == "__main__":
