@@ -262,7 +262,7 @@ async async function renderForgeView(){
  async function api(path,method,payload){
   const response=await fetch(path,{method:method||"GET",headers:payload?{"Content-Type":"application/json"}:undefined,body:payload?JSON.stringify(payload):undefined,cache:"no-store"});
   const data=await response.json();
-  if(!response.ok&&!(response.status===409&&data.schema==="merlin-forge-merge/1"))throw Error(data.detail||data.error||data.status||("HTTP "+response.status));
+  if(!response.ok&&!(response.status===409&&(data.schema==="merlin-forge-merge/1"||data.schema==="merlin-forge-rebase/1")))throw Error(data.detail||data.error||data.status||("HTTP "+response.status));
   return data;
  }
  async function refresh(){
@@ -270,7 +270,7 @@ async async function renderForgeView(){
   try{
    const data=await api("/api/forge/status");
    $("forgeStatus").innerHTML='<span>Storage: <b>'+escapeHtml(data.storage)+'</b></span><span>Branches: <b>'+data.branches.length+'</b></span><span>Open PRs: <b>'+data.open_pull_requests.length+'</b></span><span>Runner: <b>'+escapeHtml(data.runner_execution)+'</b></span>';
-   $("forgeBranches").innerHTML=(data.branches||[]).map(row=>'<div class="forge-row"><strong>'+escapeHtml(row.name)+'</strong><span>'+escapeHtml(row.commit_id)+'</span></div>').join("")||'<div class="forge-muted">No branches</div>';
+   $("forgeBranches").innerHTML=(data.branches||[]).map(row=>'<div class="forge-row"><strong>'+escapeHtml(row.name)+'</strong><span>'+escapeHtml(row.commit_id)+'</span>'+(row.name==="main"?"":'<br><button class="forge-action" data-forge-rebase="'+escapeHtml(row.name)+'">Rebase onto main</button>')+'</div>').join("")||'<div class="forge-muted">No branches</div>';
    $("forgePulls").innerHTML=(data.open_pull_requests||[]).map(row=>'<div class="forge-row"><strong>#'+row.pr_id+' · '+escapeHtml(row.title)+'</strong><span>'+escapeHtml(row.source_branch)+' → '+escapeHtml(row.target_branch)+'</span><br><button class="forge-action" data-forge-merge="'+row.pr_id+'">Merge if conflict-free</button></div>').join("")||'<div class="forge-muted">No open pull requests</div>';
    $("forgeEvents").innerHTML=(data.recent_events||[]).slice(0,20).map(row=>'<div class="forge-row"><strong>'+escapeHtml(row.kind)+'</strong><span>'+escapeHtml(JSON.stringify(row.payload))+'</span></div>').join("")||'<div class="forge-muted">No events yet</div>';
   }catch(error){message.textContent="Forge status unavailable: "+error.message;}
@@ -289,6 +289,12 @@ async async function renderForgeView(){
   e.preventDefault();const d=new FormData(e.currentTarget);
   try{const result=await api("/api/forge/pulls","POST",{source_branch:d.get("source_branch"),target_branch:d.get("target_branch"),title:d.get("title")});message.textContent="Opened virtual PR #"+result.pr_id;await refresh();}
   catch(error){message.textContent="PR creation failed: "+error.message;}
+ });
+ $("forgeBranches").addEventListener("click",async e=>{
+  const button=e.target.closest("[data-forge-rebase]");if(!button)return;
+  const name=button.getAttribute("data-forge-rebase");
+  try{const result=await api("/api/forge/branches/"+encodeURIComponent(name)+"/rebase","POST",{onto_ref:"main"});message.textContent=result.status==="rebased"?"Rebased "+name+" onto main":"Rebase conflict: "+(result.conflicts||[]).join(", ");await refresh();}
+  catch(error){message.textContent="Rebase failed: "+error.message;}
  });
  $("forgePulls").addEventListener("click",async e=>{
   const button=e.target.closest("[data-forge-merge]");if(!button)return;
