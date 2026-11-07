@@ -209,7 +209,7 @@ class VirtualRepositoryTests(unittest.TestCase):
     def test_three_way_merge_combines_non_overlapping_changes(self):
         self.repo.create_branch("feature/docs")
         self.repo.commit("feature/docs", "update docs", {"README.md": "# Merlin Forge\n"})
-        self.repo.commit("main", "add runtime module", {"src/runtime.py": "READY = True\n"})
+        self.repo.commit("main", "add runtime module", {"src/runtime.py": "READY = True\n"}, allow_protected=True)
         pr = self.repo.open_pull_request("feature/docs", "main", "Merge docs")
         self.pass_main_checks(pr["head_commit"])
         merged = self.repo.merge_pull_request(pr["pr_id"])
@@ -328,7 +328,7 @@ class VirtualRepositoryTests(unittest.TestCase):
     def test_three_way_merge_reports_same_path_conflict_without_moving_target(self):
         self.repo.create_branch("feature/conflict")
         self.repo.commit("feature/conflict", "feature edit", {"src/core.py": "VERSION = 2\n"})
-        self.repo.commit("main", "main edit", {"src/core.py": "VERSION = 3\n"})
+        self.repo.commit("main", "main edit", {"src/core.py": "VERSION = 3\n"}, allow_protected=True)
         pr = self.repo.open_pull_request("feature/conflict", "main", "Conflicting edit")
         before = {row["name"]: row["commit_id"] for row in self.repo.branches()}["main"]
         result = self.repo.merge_pull_request(pr["pr_id"])
@@ -341,7 +341,7 @@ class VirtualRepositoryTests(unittest.TestCase):
     def test_rebase_replays_nonconflicting_changes_onto_updated_target(self):
         self.repo.create_branch("feature/rebase")
         self.repo.commit("feature/rebase", "feature docs", {"README.md": "# Feature docs\n"})
-        target = self.repo.commit("main", "target adds module", {"src/runtime.py": "READY = True\n"})
+        target = self.repo.commit("main", "target adds module", {"src/runtime.py": "READY = True\n"}, allow_protected=True)
         result = self.repo.rebase_branch("feature/rebase", "main")
         self.assertEqual(result["status"], "rebased")
         self.assertEqual(result["replayed_commits"], 1)
@@ -356,7 +356,7 @@ class VirtualRepositoryTests(unittest.TestCase):
     def test_rebase_conflict_preserves_original_branch_ref(self):
         self.repo.create_branch("feature/rebase-conflict")
         self.repo.commit("feature/rebase-conflict", "feature version", {"src/core.py": "VERSION = 2\n"})
-        self.repo.commit("main", "target version", {"src/core.py": "VERSION = 3\n"})
+        self.repo.commit("main", "target version", {"src/core.py": "VERSION = 3\n"}, allow_protected=True)
         before = {row["name"]: row["commit_id"] for row in self.repo.branches()}["feature/rebase-conflict"]
         result = self.repo.rebase_branch("feature/rebase-conflict", "main")
         after = {row["name"]: row["commit_id"] for row in self.repo.branches()}["feature/rebase-conflict"]
@@ -365,8 +365,11 @@ class VirtualRepositoryTests(unittest.TestCase):
         self.assertEqual(after, before)
 
     def test_rebase_rejects_unknown_ref_and_merge_commit_replay(self):
-        with self.assertRaises(KeyError):
+        with self.assertRaises(VirtualGitError):
             self.repo.rebase_branch("main", "missing")
+        self.repo.create_branch("feature/unknown-ref")
+        with self.assertRaises(KeyError):
+            self.repo.rebase_branch("feature/unknown-ref", "missing")
         self.repo.create_branch("feature/merge-rebase")
         self.repo.create_branch("other/merge-rebase")
         self.repo.commit("feature/merge-rebase", "feature commit", {"a.txt": "a"})
@@ -378,11 +381,14 @@ class VirtualRepositoryTests(unittest.TestCase):
 
     def test_branch_rollback_is_audited_and_restores_content(self):
         first = self.initial["commit_id"]
-        self.repo.commit("main", "temporary edit", {"src/core.py": "VERSION = 9\n"})
-        result = self.repo.rollback_branch("main", first)
+        self.repo.create_branch("feature/rollback")
+        self.repo.commit("feature/rollback", "temporary edit", {"src/core.py": "VERSION = 9\n"})
+        result = self.repo.rollback_branch("feature/rollback", first)
         self.assertEqual(result["commit_id"], first)
-        self.assertEqual(self.repo.read_file("main", "src/core.py"), b"VERSION = 1\n")
+        self.assertEqual(self.repo.read_file("feature/rollback", "src/core.py"), b"VERSION = 1\n")
         self.assertEqual(self.repo.events()[0]["kind"], "branch.rollback")
+        with self.assertRaises(VirtualGitError):
+            self.repo.rollback_branch("main", first)
 
     def test_deletions_are_merged_and_recorded(self):
         self.repo.create_branch("feature/remove")
@@ -395,7 +401,7 @@ class VirtualRepositoryTests(unittest.TestCase):
 
     def test_rejects_path_traversal_and_oversized_event_queries(self):
         with self.assertRaises(VirtualGitError):
-            self.repo.commit("main", "bad path", {"../outside.txt": "no"})
+            self.repo.commit("main", "bad path", {"../outside.txt": "no"}, allow_protected=True)
         with self.assertRaises(VirtualGitError):
             self.repo.events(1001)
 
