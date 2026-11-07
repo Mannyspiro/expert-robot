@@ -31,6 +31,8 @@ _SENSITIVE_PARTS = {
     "access_token", "client_secret",
 }
 _SENSITIVE_SUFFIXES = {".pem", ".key", ".p12", ".pfx", ".env"}
+_SENSITIVE_NAME_TOKENS = {"secret", "secrets", "token", "tokens", "password",
+                          "credential", "credentials", "private", "apikey"}
 
 
 def _canonical(value: Any) -> bytes:
@@ -46,7 +48,7 @@ def _excluded_reason(relative: str, path: Path) -> str | None:
     name_tokens = set(re.split(r"[^a-z0-9]+", Path(name).stem))
     if name == ".env" or name.startswith(".env.") or any(
         part in _SENSITIVE_PARTS or Path(part).stem in _SENSITIVE_PARTS
-        or bool(name_tokens & _SENSITIVE_PARTS)
+        or bool(name_tokens & _SENSITIVE_NAME_TOKENS)
         for part in parts
     ):
         return "sensitive_name"
