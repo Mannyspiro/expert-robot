@@ -107,6 +107,20 @@ class ConversationContextStore:
                     REFERENCES context_messages(source_system, conversation_id, message_id)
             )
         """)
+        self.db.executescript("""
+            CREATE TRIGGER IF NOT EXISTS context_messages_no_update
+            BEFORE UPDATE ON context_messages
+            BEGIN SELECT RAISE(ABORT, 'context messages are append-only'); END;
+            CREATE TRIGGER IF NOT EXISTS context_messages_no_delete
+            BEFORE DELETE ON context_messages
+            BEGIN SELECT RAISE(ABORT, 'context messages are append-only'); END;
+            CREATE TRIGGER IF NOT EXISTS context_attachments_no_update
+            BEFORE UPDATE ON context_attachments
+            BEGIN SELECT RAISE(ABORT, 'context attachments are append-only'); END;
+            CREATE TRIGGER IF NOT EXISTS context_attachments_no_delete
+            BEFORE DELETE ON context_attachments
+            BEGIN SELECT RAISE(ABORT, 'context attachments are append-only'); END;
+        """)
         self.db.commit()
 
     def close(self) -> None:
@@ -156,7 +170,7 @@ class ConversationContextStore:
 
     def coverage(self) -> dict[str, Any]:
         conversations = self.db.execute(
-            "SELECT COUNT(DISTINCT source_system || ':' || conversation_id) FROM context_messages"
+            "SELECT COUNT(*) FROM (SELECT DISTINCT source_system, conversation_id FROM context_messages)"
         ).fetchone()[0]
         messages = self.db.execute("SELECT COUNT(*) FROM context_messages").fetchone()[0]
         attachments = self.db.execute("SELECT COUNT(*) FROM context_attachments").fetchone()[0]
