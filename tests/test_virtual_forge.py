@@ -97,6 +97,34 @@ class VirtualForgeTests(unittest.TestCase):
         self.assertEqual(reclaimed["job_id"], job)
         self.assertEqual(reclaimed["attempt"], 2)
 
+    def test_workspace_export_and_escape_rejection(self):
+        import os
+
+        self.forge.commit("main", {"src/module.py": "value = 42\\n"}, "workspace")
+        destination = Path(self.tmp.name) / "workspace"
+        self.assertEqual(self.forge.export_snapshot("main", str(destination)), 1)
+        self.assertEqual((destination / "src" / "module.py").read_text(), "value = 42\\n")
+        with self.assertRaisesRegex(ForgeError, "must be empty"):
+            self.forge.export_snapshot("main", str(destination))
+        outside = Path(self.tmp.name) / "outside"
+        outside.mkdir()
+        (destination / "escape").symlink_to(outside, target_is_directory=True)
+        self.forge.commit("main", {"escape/file.txt": "bad"}, "symlink escape")
+        target = Path(self.tmp.name) / "workspace2"
+        target.mkdir()
+        (target / "escape").symlink_to(outside, target_is_directory=True)
+        with self.assertRaisesRegex(ForgeError, "escapes destination"):
+            self.forge.export_snapshot("main", str(target))
+
+    def test_identical_shared_patch_is_not_a_merge_conflict(self):
+        base = "alpha\\nbeta\\ngamma\\n"
+        ours = "ALPHA\\nbeta\\ngamma\\n"
+        theirs = "ALPHA\\nbeta\\nGAMMA\\n"
+        self.assertEqual(
+            _three_way_text(base, ours, theirs),
+            "ALPHA\\nbeta\\nGAMMA\\n",
+        )
+
     def test_event_chain_and_path_validation(self):
         self.forge.commit("main", {"src/a.py": "a"}, "add")
         self.assertTrue(self.forge.verify_event_chain())
