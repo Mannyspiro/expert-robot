@@ -527,6 +527,14 @@ class VirtualRepository:
                               (limit,)).fetchall()
         return [self._job_payload(row) for row in rows]
 
+    def job_counts(self) -> dict[str, int]:
+        counts = {status: 0 for status in ("queued", "running", "succeeded", "failed", "cancelled")}
+        with closing(self._connect()) as db:
+            rows = db.execute("SELECT status,COUNT(*) AS count FROM virtual_jobs GROUP BY status").fetchall()
+        for row in rows:
+            counts[row["status"]] = row["count"]
+        return counts
+
     def read_job_log(self, job_id: str) -> bytes:
         with closing(self._connect()) as db:
             row = db.execute("""SELECT b.content,j.log_digest FROM virtual_jobs j
