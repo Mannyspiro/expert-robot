@@ -554,11 +554,16 @@ class VirtualRepository:
             return {"branch": branch, "previous_commit": old, "commit_id": commit_id}
 
     def pull_requests(self, status: str | None = None) -> list[dict[str, Any]]:
+        query = """SELECT p.*,s.commit_id AS current_head_commit,
+                   t.commit_id AS current_target_commit
+                   FROM pull_requests p
+                   LEFT JOIN branches s ON s.name=p.source_branch
+                   LEFT JOIN branches t ON t.name=p.target_branch"""
         with closing(self._connect()) as db:
             if status is None:
-                rows = db.execute("SELECT * FROM pull_requests ORDER BY pr_id DESC").fetchall()
+                rows = db.execute(query + " ORDER BY p.pr_id DESC").fetchall()
             else:
-                rows = db.execute("SELECT * FROM pull_requests WHERE status=? ORDER BY pr_id DESC",
+                rows = db.execute(query + " WHERE p.status=? ORDER BY p.pr_id DESC",
                                   (status,)).fetchall()
         return [dict(row) for row in rows]
 
