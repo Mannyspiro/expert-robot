@@ -292,9 +292,13 @@ class VirtualRepository:
                 if (existing["commit_id"], existing["conclusion"], existing["runner_id"],
                     existing["log_digest"]) != (commit_id, conclusion, runner_id, log_digest):
                     raise VirtualGitError("run_id already records a different check result")
+                metadata = json.loads(existing["result_json"])
                 return {"check_id": existing["check_id"], "commit_id": commit_id,
                         "check_name": check_name, "conclusion": conclusion,
-                        "log_sha256": log_digest, "idempotent_replay": True}
+                        "log_sha256": log_digest,
+                        "verification_status": metadata.get("verification_status", "UNVERIFIED"),
+                        "promotion_authorized": metadata.get("promotion_authorized") is True,
+                        "idempotent_replay": True}
             result = {"commit_id": commit_id, "check_name": check_name,
                       "conclusion": conclusion, "run_id": run_id, "runner_id": runner_id,
                       "log_sha256": log_digest, "verification_status": "UNVERIFIED",
@@ -316,9 +320,12 @@ class VirtualRepository:
         results = []
         for row in rows:
             item = dict(row)
-            metadata = json.loads(item.pop("result_json"))
-            item["verification_status"] = metadata["verification_status"]
-            item["promotion_authorized"] = metadata["promotion_authorized"]
+            try:
+                metadata = json.loads(item.pop("result_json"))
+            except (TypeError, ValueError):
+                metadata = {}
+            item["verification_status"] = metadata.get("verification_status", "UNVERIFIED")
+            item["promotion_authorized"] = metadata.get("promotion_authorized") is True
             results.append(item)
         return results
 
