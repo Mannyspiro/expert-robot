@@ -62,7 +62,7 @@ class LearnerStoreResourceTests(unittest.TestCase):
 
                 registry = MerlinRegistry(root / "registry")
                 registry.register_project("project-1", "Merlin")
-                self.assertEqual(registry.inventory("project-1")["project"]["project_id"], "project-1")
+                self.assertEqual(registry.inventory("project-1")["project_id"], "project-1")
 
                 outbox = MerlinEventOutbox(root / "outbox.sqlite3")
                 outbox.enqueue("idempotency-1", "merlin.test", {"value": 1})
