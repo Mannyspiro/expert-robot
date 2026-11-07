@@ -12,6 +12,7 @@ import json
 import os
 from pathlib import Path
 import re
+import secrets
 import shutil
 import sqlite3
 import time
@@ -67,6 +68,23 @@ class VirtualRepository:
             CREATE INDEX IF NOT EXISTS events_kind_id ON events(kind,event_id);
             CREATE INDEX IF NOT EXISTS commits_parent1 ON commits(parent1);
             CREATE INDEX IF NOT EXISTS commits_parent2 ON commits(parent2);
+            CREATE TABLE IF NOT EXISTS virtual_jobs(
+              job_id TEXT PRIMARY KEY,
+              commit_id TEXT NOT NULL REFERENCES commits(commit_id),
+              job_type TEXT NOT NULL,
+              idempotency_key TEXT NOT NULL UNIQUE,
+              status TEXT NOT NULL CHECK(status IN ('queued','running','succeeded','failed','cancelled')),
+              attempts INTEGER NOT NULL DEFAULT 0,
+              max_attempts INTEGER NOT NULL DEFAULT 2,
+              runner_id TEXT,
+              lease_token_hash TEXT,
+              lease_expires_at REAL,
+              result_json TEXT,
+              log_digest TEXT REFERENCES blobs(digest),
+              created_at REAL NOT NULL,
+              updated_at REAL NOT NULL);
+            CREATE INDEX IF NOT EXISTS virtual_jobs_queue
+              ON virtual_jobs(status,created_at,job_id);
             CREATE TRIGGER IF NOT EXISTS virtual_blobs_no_update
               BEFORE UPDATE ON blobs
               BEGIN SELECT RAISE(ABORT, 'virtual repository blobs are immutable'); END;
