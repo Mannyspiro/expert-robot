@@ -7,16 +7,17 @@ required. Search results are untrusted observations, never verified claims.
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from email.utils import parsedate_to_datetime
 from hashlib import sha256
 from threading import Lock
 from time import monotonic, sleep
 from typing import Any, Callable
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlsplit
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
 import json
+import re
 import xml.etree.ElementTree as ET
+from html import unescape
 
 
 _ENDPOINTS = {
@@ -88,13 +89,15 @@ def _record(
     *, source: str, source_id: str, title: str, authors: list[str],
     published: str | None, abstract: str | None, url: str,
 ) -> dict[str, Any]:
+    clean_abstract = re.sub(r"<[^>]*>", " ", abstract or "")
+    clean_abstract = unescape(clean_abstract)
     return {
         "source": source,
         "source_id": source_id,
         "title": " ".join(title.split())[:1000],
         "authors": authors[:20],
         "published": published,
-        "abstract": " ".join((abstract or "").split())[:4000] or None,
+        "abstract": " ".join(clean_abstract.split())[:4000] or None,
         "url": url,
         "evidence_class": "OBSERVED_DOCUMENT",
         "claim_verification": "NOT_VERIFIED",
@@ -114,6 +117,9 @@ def _crossref(query: str, limit: int, opener: Callable[..., Any], timeout: float
         title = item.get("title") or []
         doi = item.get("DOI")
         if not title or not isinstance(doi, str):
+            continue
+        doi = doi.strip()
+        if not re.fullmatch(r"10\.\d{4,9}/[-._;()/:A-Z0-9]+", doi, re.IGNORECASE):
             continue
         authors = []
         for author in item.get("author", [])[:20]:
@@ -149,7 +155,12 @@ def _arxiv(query: str, limit: int, opener: Callable[..., Any], timeout: float):
         title = entry.findtext("atom:title", default="", namespaces=_NS)
         if not ident or not title:
             continue
+        parsed_id = urlsplit(ident)
+        if parsed_id.scheme != "https" or parsed_id.hostname != "arxiv.org":
+            continue
         source_id = ident.rstrip("/").split("/")[-1]
+        if not re.fullmatch(r"(?:\d{4}\.\d{4,5}|[a-z.-]+/\d{7})(?:v\d+)?", source_id, re.IGNORECASE):
+            continue
         authors = [
             (node.findtext("atom:name", default="", namespaces=_NS) or "").strip()
             for node in entry.findall("atom:author", _NS)
