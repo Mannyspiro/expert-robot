@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -26,7 +27,8 @@ _EXCLUDED_DIRS = {
 }
 _SENSITIVE_PARTS = {
     "secret", "secrets", "credential", "credentials", "token", "tokens",
-    "password", "private", "private_key",
+    "password", "private", "private_key", "api_key", "apikey",
+    "access_token", "client_secret",
 }
 _SENSITIVE_SUFFIXES = {".pem", ".key", ".p12", ".pfx", ".env"}
 
@@ -41,8 +43,10 @@ def _excluded_reason(relative: str, path: Path) -> str | None:
     name = path.name.lower()
     if any(part in _EXCLUDED_DIRS for part in parts):
         return "generated_or_dependency_directory"
+    name_tokens = set(re.split(r"[^a-z0-9]+", Path(name).stem))
     if name == ".env" or name.startswith(".env.") or any(
         part in _SENSITIVE_PARTS or Path(part).stem in _SENSITIVE_PARTS
+        or bool(name_tokens & _SENSITIVE_PARTS)
         for part in parts
     ):
         return "sensitive_name"
@@ -92,31 +96,37 @@ def build_repository_seed(
     files: dict[str, bytes] = {}
     included: list[dict[str, Any]] = []
     excluded: list[dict[str, str]] = []
+    excluded_total = 0
     total = 0
+
+    def record_excluded(relative: str, reason: str) -> None:
+        nonlocal excluded_total
+        excluded_total += 1
+        if len(excluded) < 500:
+            excluded.append({"path": relative, "reason": reason})
     for path in sorted(candidates, key=lambda item: item.as_posix()):
         try:
             relative = path.relative_to(root).as_posix()
         except ValueError:
             continue
         if path.is_symlink():
-            excluded.append({"path": relative, "reason": "symlink"})
+            record_excluded(relative, "symlink")
             continue
         reason = _excluded_reason(relative, path)
         if reason:
-            if len(excluded) < 500:
-                excluded.append({"path": relative, "reason": reason})
+            record_excluded(relative, reason)
             continue
         if not path.is_file():
             continue
         size = path.stat().st_size
         if size > max_file_bytes:
-            excluded.append({"path": relative, "reason": "file_size_limit"})
+            record_excluded(relative, "file_size_limit")
             continue
         raw = path.read_bytes()
         try:
             raw.decode("utf-8")
         except UnicodeDecodeError:
-            excluded.append({"path": relative, "reason": "invalid_utf8"})
+            record_excluded(relative, "invalid_utf8")
             continue
         if len(files) >= max_files:
             raise ValueError("repository seed exceeds max_files; refusing partial snapshot")
@@ -136,7 +146,7 @@ def build_repository_seed(
         "file_count": len(included),
         "total_bytes": total,
         "included": included,
-        "excluded_count": len(excluded),
+        "excluded_count": excluded_total,
         "excluded": excluded,
         "sensitive_files_included": False,
         "execution_performed": False,
