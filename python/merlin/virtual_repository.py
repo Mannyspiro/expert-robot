@@ -89,6 +89,12 @@ class VirtualRepository:
               BEFORE DELETE ON check_results
               BEGIN SELECT RAISE(ABORT, 'virtual repository check results are immutable'); END;
             """)
+            if db.execute("SELECT 1 FROM branches WHERE name='main'").fetchone():
+                default_checks = self._canonical([
+                    "python.compile", "python.unified_tests", "hud.javascript_syntax",
+                ])
+                db.execute("INSERT OR IGNORE INTO branch_policies VALUES(?,?,?)",
+                           ("main", default_checks, time.time()))
 
     def _connect(self):
         db = sqlite3.connect(self.path, timeout=30)
