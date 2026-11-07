@@ -83,6 +83,9 @@ jobs:
         run: |
           ctest             --test-dir build             --parallel "${CTEST_PARALLEL_LEVEL}"             --output-on-failure
 
+      - name: Research protocol and reasoning taxonomy
+        run: python3 tests/test_research_protocol_contract.py
+
       - name: Compute policy guardrails
         run: python3 tests/compute_policy_smoke.py
 
