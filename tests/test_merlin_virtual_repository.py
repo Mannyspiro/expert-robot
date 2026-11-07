@@ -27,7 +27,7 @@ class VirtualRepositoryTests(unittest.TestCase):
         reopened = VirtualRepository(self.db)
         self.assertEqual(reopened.read_file("feature/one", "src/feature.py"),
                          b"FEATURE = True\n")
-        self.assertEqual(reopened.branches()[1]["commit_id"], digest)
+        self.assertEqual({row["name"]: row["commit_id"] for row in reopened.branches()}["feature/one"], digest)
         self.assertEqual(branch["commit_id"], self.initial["commit_id"])
 
     def test_three_way_merge_combines_non_overlapping_changes(self):
@@ -46,7 +46,7 @@ class VirtualRepositoryTests(unittest.TestCase):
         self.repo.commit("feature/conflict", "feature edit", {"src/core.py": "VERSION = 2\n"})
         self.repo.commit("main", "main edit", {"src/core.py": "VERSION = 3\n"})
         pr = self.repo.open_pull_request("feature/conflict", "main", "Conflicting edit")
-        before = self.repo.branches()[0]["commit_id"]
+        before = {row["name"]: row["commit_id"] for row in self.repo.branches()}["main"]
         result = self.repo.merge_pull_request(pr["pr_id"])
         self.assertEqual(result["status"], "conflict")
         self.assertEqual(result["conflicts"], ["src/core.py"])
