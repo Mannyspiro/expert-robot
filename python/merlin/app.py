@@ -521,6 +521,16 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 self._send(200, {"schema": "merlin-forge-pull-requests/1",
                                  "pull_requests": forge.pull_requests()})
                 return
+            if path.startswith("/api/forge/checks/") and path.endswith("/log"):
+                parts = path.strip("/").split("/")
+                if len(parts) != 5 or not parts[3].isdigit():
+                    self._send(400, {"error": "invalid_check_id"})
+                    return
+                content = forge.read_check_log(int(parts[3]))
+                self._send(200, {"schema": "merlin-forge-check-log/1",
+                    "check_id": int(parts[3]), "log_utf8": content.decode("utf-8"),
+                    "sha256": sha256(content).hexdigest()})
+                return
             if path == "/api/forge/checks":
                 params = parse_qs(parsed.query)
                 commit_id = (params.get("commit") or [""])[0]
