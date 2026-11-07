@@ -1,0 +1,382 @@
+{
+  "schema_version": 1,
+  "id": "MERLIN-REASONING-CHECKS-001",
+  "purpose": "Preloaded reference taxonomy and active review prompts for skeptical research.",
+  "usage": "Use as a checklist and retrieval taxonomy, not as a detector that automatically declares an argument invalid. A label requires a quoted or precisely referenced reasoning step.",
+  "logical_fallacies": [
+    [
+      "affirming_the_consequent",
+      "If P then Q; Q; therefore P."
+    ],
+    [
+      "denying_the_antecedent",
+      "If P then Q; not P; therefore not Q."
+    ],
+    [
+      "affirming_a_disjunct",
+      "Treating one disjunct as false from a true disjunction without excluding other possibilities."
+    ],
+    [
+      "false_dilemma",
+      "Presenting too few options when relevant alternatives exist."
+    ],
+    [
+      "begging_the_question",
+      "Using the conclusion as a premise, explicitly or implicitly."
+    ],
+    [
+      "circular_reasoning",
+      "A conclusion is supported only by a chain that returns to the same unsupported claim."
+    ],
+    [
+      "equivocation",
+      "Shifting the meaning of a key term during an argument."
+    ],
+    [
+      "composition",
+      "Assuming what is true of parts must be true of the whole."
+    ],
+    [
+      "division",
+      "Assuming what is true of the whole must be true of every part."
+    ],
+    [
+      "hasty_generalization",
+      "Generalizing from an inadequate or unrepresentative sample."
+    ],
+    [
+      "sweeping_generalization",
+      "Applying a general rule where relevant exceptions or boundary conditions apply."
+    ],
+    [
+      "false_cause",
+      "Inferring causation without adequate causal evidence."
+    ],
+    [
+      "post_hoc",
+      "Treating temporal succession as sufficient evidence of causation."
+    ],
+    [
+      "correlation_causation",
+      "Treating association as proof of a causal relationship."
+    ],
+    [
+      "slippery_slope",
+      "Asserting an inevitable chain of consequences without establishing its links."
+    ],
+    [
+      "straw_man",
+      "Replacing an argument with a weaker or distorted version."
+    ],
+    [
+      "steelman_omission",
+      "Ignoring the strongest plausible opposing argument."
+    ],
+    [
+      "ad_hominem",
+      "Attacking a person instead of addressing the argument."
+    ],
+    [
+      "appeal_to_authority",
+      "Treating authority as decisive without checking relevant expertise and evidence."
+    ],
+    [
+      "appeal_to_popularity",
+      "Treating popularity or consensus as sufficient proof."
+    ],
+    [
+      "appeal_to_ignorance",
+      "Treating lack of disproof as proof, or lack of proof as disproof."
+    ],
+    [
+      "red_herring",
+      "Introducing an irrelevant point that distracts from the claim."
+    ],
+    [
+      "non_sequitur",
+      "The conclusion does not follow from the stated premises."
+    ],
+    [
+      "loaded_question",
+      "Embedding an unestablished assumption in a question."
+    ],
+    [
+      "special_pleading",
+      "Applying standards asymmetrically without a relevant justification."
+    ],
+    [
+      "moving_goalposts",
+      "Changing acceptance criteria after evidence meets the original criteria."
+    ],
+    [
+      "tu_quoque",
+      "Rejecting a claim by pointing to alleged inconsistency of its proponent."
+    ],
+    [
+      "anecdotal_evidence",
+      "Using isolated stories as if they establish a general effect."
+    ],
+    [
+      "false_analogy",
+      "Transferring a conclusion despite failure of relevant structural similarities."
+    ],
+    [
+      "scope_shift",
+      "Changing the population, timeframe, unit, or meaning under discussion."
+    ]
+  ],
+  "cognitive_biases": [
+    [
+      "confirmation_bias",
+      "Seeking or interpreting evidence to favor an existing belief."
+    ],
+    [
+      "anchoring",
+      "Overweighting an initial number, proposal, or framing."
+    ],
+    [
+      "availability_heuristic",
+      "Estimating likelihood from how easily examples come to mind."
+    ],
+    [
+      "representativeness_heuristic",
+      "Judging probability by resemblance while neglecting base rates."
+    ],
+    [
+      "base_rate_neglect",
+      "Ignoring prior prevalence when interpreting specific evidence."
+    ],
+    [
+      "survivorship_bias",
+      "Studying visible successes while missing failures or excluded cases."
+    ],
+    [
+      "selection_bias",
+      "Using a sample selected in a way that distorts inference."
+    ],
+    [
+      "sampling_bias",
+      "A sample does not represent the target population."
+    ],
+    [
+      "motivated_reasoning",
+      "Applying different evidentiary standards to preferred and disfavored conclusions."
+    ],
+    [
+      "overconfidence_effect",
+      "Expressing more certainty than calibration or evidence warrants."
+    ],
+    [
+      "hindsight_bias",
+      "Treating an outcome as more predictable after it is known."
+    ],
+    [
+      "outcome_bias",
+      "Judging decision quality mainly by the eventual outcome."
+    ],
+    [
+      "sunk_cost_fallacy",
+      "Continuing because of past investment rather than future expected value."
+    ],
+    [
+      "status_quo_bias",
+      "Favoring the existing state without adequate comparison."
+    ],
+    [
+      "loss_aversion",
+      "Weighting losses more heavily than comparable gains."
+    ],
+    [
+      "planning_fallacy",
+      "Underestimating time, cost, or complexity."
+    ],
+    [
+      "halo_effect",
+      "Allowing one positive trait to influence unrelated judgments."
+    ],
+    [
+      "horn_effect",
+      "Allowing one negative trait to influence unrelated judgments."
+    ],
+    [
+      "bandwagon_effect",
+      "Adopting a belief because others do."
+    ],
+    [
+      "groupthink",
+      "Suppressing dissent to preserve apparent group agreement."
+    ],
+    [
+      "authority_bias",
+      "Overweighting statements from perceived authority."
+    ],
+    [
+      "automation_bias",
+      "Over-trusting automated recommendations."
+    ],
+    [
+      "anthropomorphism",
+      "Attributing human understanding or intent without evidence."
+    ],
+    [
+      "recency_bias",
+      "Overweighting recent observations."
+    ],
+    [
+      "novelty_bias",
+      "Overvaluing new ideas because they are new."
+    ],
+    [
+      "familiarity_bias",
+      "Overvaluing familiar methods or explanations."
+    ],
+    [
+      "negativity_bias",
+      "Overweighting negative evidence relative to its diagnostic value."
+    ],
+    [
+      "default_effect",
+      "Treating defaults as recommendations or evidence."
+    ],
+    [
+      "survivor_memory_bias",
+      "Retrieving remembered successful cases more readily than failed attempts."
+    ]
+  ],
+  "research_and_statistical_errors": [
+    [
+      "confounding",
+      "A third variable distorts an observed relationship."
+    ],
+    [
+      "p_hacking",
+      "Trying many analyses and selectively reporting favorable results."
+    ],
+    [
+      "multiple_comparisons",
+      "Ignoring inflated false-positive risk from many tests."
+    ],
+    [
+      "publication_bias",
+      "Positive or striking findings are more likely to be published."
+    ],
+    [
+      "regression_to_mean",
+      "Extreme measurements tend to be less extreme on repetition."
+    ],
+    [
+      "measurement_error",
+      "Observed values differ from the quantity intended to be measured."
+    ],
+    [
+      "construct_validity_failure",
+      "The measurement does not adequately represent the concept."
+    ],
+    [
+      "ecological_fallacy",
+      "Inferring individual-level relationships from aggregate data."
+    ],
+    [
+      "atomistic_fallacy",
+      "Inferring group-level relationships from individual-level data."
+    ],
+    [
+      "Simpson_paradox",
+      "An aggregate association reverses or changes across subgroups."
+    ],
+    [
+      "data_leakage",
+      "Evaluation data or target information improperly influences training or selection."
+    ],
+    [
+      "overfitting",
+      "A method captures sample-specific patterns that do not generalize."
+    ],
+    [
+      "underpowered_study",
+      "The study has insufficient sensitivity for the effect of interest."
+    ],
+    [
+      "non_independence",
+      "Observations are treated as independent when they are not."
+    ],
+    [
+      "false_precision",
+      "Reporting more digits or certainty than measurement supports."
+    ],
+    [
+      "post_selection_inference",
+      "Ignoring that hypotheses or models were chosen after seeing the data."
+    ]
+  ],
+  "engineering_and_ai_failure_modes": [
+    [
+      "unstated_assumption",
+      "A necessary premise is not documented or tested."
+    ],
+    [
+      "premature_optimization",
+      "Optimizing before measuring the actual bottleneck."
+    ],
+    [
+      "happy_path_bias",
+      "Testing normal operation while neglecting failure and boundary cases."
+    ],
+    [
+      "false_completion",
+      "Treating queued, generated, or syntactically valid work as completed and verified."
+    ],
+    [
+      "self_certification",
+      "A generator or implementer approves its own output without independent checks."
+    ],
+    [
+      "authority_confusion",
+      "A model suggestion is mistaken for permission or trusted state."
+    ],
+    [
+      "prompt_injection_susceptibility",
+      "Untrusted content is followed as instructions instead of treated as data."
+    ],
+    [
+      "hallucinated_provenance",
+      "A source, test, tool result, or citation is claimed without evidence."
+    ],
+    [
+      "benchmark_contamination",
+      "Evaluation cases leak into training, prompting, or tuning."
+    ],
+    [
+      "reward_hacking",
+      "Optimizing a proxy metric while degrading the real objective."
+    ],
+    [
+      "sycophancy",
+      "Agreeing with a user or evaluator instead of evaluating evidence."
+    ],
+    [
+      "tool_misuse",
+      "A tool is called outside its documented contract or capability."
+    ],
+    [
+      "silent_fallback",
+      "A failed qualified path silently switches to an unqualified path."
+    ],
+    [
+      "capability_authority_coupling",
+      "Adding capability unintentionally expands permission."
+    ]
+  ],
+  "review_questions": [
+    "What evidence would change this conclusion?",
+    "What is the strongest competing explanation?",
+    "Is the sample representative and are base rates included?",
+    "Are causal claims supported by an appropriate design?",
+    "Were metrics, thresholds, and acceptance criteria fixed before evaluation?",
+    "Could the result be reproduced independently from retained inputs and versions?",
+    "Does the conclusion exceed the scope of the evidence?",
+    "Is uncertainty stated and calibrated?",
+    "Is the same standard applied to favored and disfavored hypotheses?",
+    "Could an agent be certifying its own generated work?"
+  ]
+}
