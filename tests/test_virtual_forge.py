@@ -98,6 +98,13 @@ class VirtualForgeTests(unittest.TestCase):
         self.forge.finish_job(job, "worker-A", {"ok": True}, "2 tests passed", ["a" * 64])
         self.assertEqual(self.forge.job(job)["status"], "succeeded")
 
+    def test_expired_job_fails_after_max_attempts(self):
+        job = self.forge.enqueue_job("build", {}, "build:bounded", max_attempts=1)
+        self.forge.claim_job("worker-A", lease_seconds=1)
+        self.forge.db.execute("UPDATE jobs SET lease_expires=0 WHERE job_id=?", (job,))
+        self.assertIsNone(self.forge.claim_job("worker-B", lease_seconds=30))
+        self.assertEqual(self.forge.job(job)["status"], "failed")
+
     def test_job_lease_expiry_allows_reclaim(self):
         job = self.forge.enqueue_job("build", {}, "build:v1")
         self.forge.claim_job("worker-A", lease_seconds=1)
