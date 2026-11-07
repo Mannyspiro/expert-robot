@@ -19,7 +19,7 @@ _TEXT_SUFFIXES = {
 }
 _EXCLUDED_DIRS = {
     ".git", ".venv", "venv", "node_modules", "__pycache__", "dist",
-    "build", ".cace", ".pytest_cache", ".mypy_cache", ".ruff_cache",
+    "build", ".cace", ".lake", ".cache", ".next", "target", "out", ".pytest_cache", ".mypy_cache", ".ruff_cache",
     "site-packages", "coverage",
 }
 _SENSITIVE_PARTS = {
@@ -40,7 +40,8 @@ def _excluded_reason(relative: str, path: Path) -> str | None:
     if any(part in _EXCLUDED_DIRS for part in parts):
         return "generated_or_dependency_directory"
     if name == ".env" or name.startswith(".env.") or any(
-        part in _SENSITIVE_PARTS for part in parts
+        part in _SENSITIVE_PARTS or Path(part).stem in _SENSITIVE_PARTS
+        for part in parts
     ):
         return "sensitive_name"
     if path.suffix.lower() in _SENSITIVE_SUFFIXES:
