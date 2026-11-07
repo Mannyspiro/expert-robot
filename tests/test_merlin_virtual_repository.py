@@ -107,7 +107,7 @@ class VirtualRepositoryTests(unittest.TestCase):
             post("/api/forge/branches", {"name": "feature/api"})
             commit = post("/api/forge/commits", {
                 "branch": "feature/api", "message": "update forge API",
-                "changes": {"README.md": "# Merlin Forge API\\n"},
+                "changes": {"README.md": "# Merlin Forge API\n"},
             })
             self.assertEqual(commit["schema"], "merlin-forge-commit/1")
             pr = post("/api/forge/pulls", {
