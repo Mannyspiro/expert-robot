@@ -8,7 +8,7 @@ Merlin Forge is a local, durable repository service. It is intentionally indepen
 - File bytes are stored as content-addressed SHA-256 blobs.
 - A commit records a canonical tree and one or two parent commits.
 - Pull requests capture source/target refs and are merged using a three-way comparison against the nearest common ancestor.
-- Non-overlapping edits merge automatically. Conflicting edits return the exact paths and leave the target branch unchanged.
+- Non-overlapping edits merge automatically. Conflicting edits return the exact paths and leave the target branch unchanged.\n- Linear branches can be rebased onto another branch/commit. Rebase preserves original commits, creates replacement commits on the new base, and leaves the branch unchanged on conflict. Merge-commit rebases are rejected rather than guessed.
 - Rollbacks move a branch reference to an existing immutable commit and append an audit event.
 - SQLite writes serialize with BEGIN IMMEDIATE; branch updates compare the expected prior ref to prevent lost updates.
 
@@ -27,7 +27,7 @@ The API is served by Merlin's existing local application boundary.
 | GET | /api/forge/file?ref=main&path=README.md | Read UTF-8 file and verify digest |
 | POST | /api/forge/branches | Create branch from branch or commit |
 | POST | /api/forge/commits | Commit path-to-content changes |
-| POST | /api/forge/pulls | Open a pull request |
+| POST | /api/forge/pulls | Open a pull request |\n| POST | /api/forge/branches/{name}/rebase | Replay a linear branch onto another ref with conflict detection |
 | POST | /api/forge/pulls/{id}/merge | Three-way merge or return conflict paths |
 | POST | /api/forge/branches/{name}/rollback | Restore an existing commit ref |
 
@@ -41,4 +41,4 @@ CI must check out the exact commit, execute the pinned test suite, retain raw lo
 
 ## Current limitations
 
-This first implementation is a local single-node repository core. It is not yet a distributed Git replacement and does not yet include rebase, patch review comments, signed commit identities, multi-tenant authorization, artifact retention/garbage collection, or isolated headless CI job scheduling. Those are subsequent acceptance gates; they must not be implied by the current API.
+This first implementation is a local single-node repository core. It is not yet a distributed Git replacement and does not yet include patch review comments, signed commit identities, multi-tenant authorization, artifact retention/garbage collection, or isolated headless CI job scheduling. Those are subsequent acceptance gates; they must not be implied by the current API.
