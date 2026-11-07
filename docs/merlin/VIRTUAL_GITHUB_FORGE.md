@@ -1,0 +1,44 @@
+# Merlin Forge: virtual GitHub
+
+Merlin Forge is a local, durable repository service. It is intentionally independent of GitHub Actions, external repository accounts and remote Git hosting.
+
+## Storage model
+
+- SQLite stores immutable commit objects, mutable branch references, pull-request state and append-only event history.
+- File bytes are stored as content-addressed SHA-256 blobs.
+- A commit records a canonical tree and one or two parent commits.
+- Pull requests capture source/target refs and are merged using a three-way comparison against the nearest common ancestor.
+- Non-overlapping edits merge automatically. Conflicting edits return the exact paths and leave the target branch unchanged.
+- Rollbacks move a branch reference to an existing immutable commit and append an audit event.
+- SQLite writes serialize with BEGIN IMMEDIATE; branch updates compare the expected prior ref to prevent lost updates.
+
+Hashes establish byte identity only. They do not prove code correctness, test success, safety or authorization.
+
+## HTTP API
+
+The API is served by Merlin's existing local application boundary.
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | /api/forge/status | Branches, open PRs, recent events and runner state |
+| GET | /api/forge/branches | Branch refs |
+| GET | /api/forge/pulls | Pull-request records |
+| GET | /api/forge/events?limit=100 | Append-only event history |
+| GET | /api/forge/file?ref=main&path=README.md | Read UTF-8 file and verify digest |
+| POST | /api/forge/branches | Create branch from branch or commit |
+| POST | /api/forge/commits | Commit path-to-content changes |
+| POST | /api/forge/pulls | Open a pull request |
+| POST | /api/forge/pulls/{id}/merge | Three-way merge or return conflict paths |
+| POST | /api/forge/branches/{name}/rollback | Restore an existing commit ref |
+
+The application initializes the virtual repository from the source files present at startup when no repository exists. The database is stored beside the configured event database as merlin-forge.sqlite3.
+
+## CI and runner separation
+
+Forge repository operations do not execute code. The status response explicitly reports runner_execution=not_performed. A virtual commit or merge is never represented as a test pass.
+
+CI must check out the exact commit, execute the pinned test suite, retain raw logs and machine-readable exit results, and upload evidence even on failure. Runner identity and qualification remain separate from repository state. CACE must independently verify execution receipts before any scientific/proof result is promoted.
+
+## Current limitations
+
+This first implementation is a local single-node repository core. It is not yet a distributed Git replacement and does not yet include rebase, patch review comments, signed commit identities, multi-tenant authorization, artifact retention/garbage collection, or isolated headless CI job scheduling. Those are subsequent acceptance gates; they must not be implied by the current API.
