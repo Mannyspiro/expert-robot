@@ -32,25 +32,32 @@ The API is served by Merlin's existing loopback-only application boundary. Check
 | GET | /api/forge/branches | Branch refs |
 | GET | /api/forge/pulls | Pull-request records |
 | GET | /api/forge/checks?commit=... | Check receipts for an exact commit |
+| GET | /api/forge/jobs | Durable virtual CI queue |
+| GET | /api/forge/jobs/{id} | Job state and unverified result |
+| GET | /api/forge/jobs/{id}/log | Retrieve a retained job log and SHA-256 digest |
 | GET | /api/forge/checks/{id}/log | Retrieve a retained CI log after SHA-256 verification |
 | GET | /api/forge/events?limit=100 | Append-only event history |
 | GET | /api/forge/file?ref=main&path=README.md | Read UTF-8 file and verify digest |
 | POST | /api/forge/branches | Create branch from branch or commit |
-| POST | /api/forge/commits | Commit path-to-content changes |
-| POST | /api/forge/checks | Record immutable commit-bound CI evidence |
+| POST | /api/forge/commits | Commit path-to-content changes on unprotected branches; direct protected-main writes are rejected |
+| POST | /api/forge/checks | Record immutable commit-bound local CI evidence, always unverified |
+| POST | /api/forge/jobs | Enqueue an allowlisted check for an exact commit |
+| POST | /api/internal/forge/jobs/claim | Authenticated worker claims a leased job |
+| POST | /api/internal/forge/jobs/{id}/heartbeat | Authenticated worker renews its lease |
+| POST | /api/internal/forge/jobs/{id}/complete | Authenticated worker returns result and retained log; remains unverified |
 | POST | /api/forge/pulls | Open a pull request |
 | POST | /api/forge/branches/{name}/rebase | Replay a linear branch onto another ref with conflict detection |
 | POST | /api/forge/pulls/{id}/merge | Three-way merge or return conflict paths |
-| POST | /api/forge/branches/{name}/rollback | Restore an existing commit ref |
+| POST | /api/forge/branches/{name}/rollback | Restore an existing commit ref on an unprotected branch; protected main requires a reviewed revert PR |
 
-The application initializes the virtual repository from the source files present at startup when no repository exists. The database is stored beside the configured event database as merlin-forge.sqlite3.
+The application initializes the virtual repository from a bounded, secret-excluding source snapshot when no repository exists. Existing older databases receive a new source snapshot through a bootstrap PR rather than a direct protected-main write. The database is stored beside the configured event database as merlin-forge.sqlite3.
 
 ## CI and runner separation
 
-Forge repository operations do not execute code. The status response explicitly reports runner_execution=not_performed. A virtual commit or merge is never represented as a test pass.
+Forge repository operations and queue operations do not execute code. The status response explicitly reports runner_execution=not_performed. A queued job or a worker's completed result is never represented as a test pass. The queue is durable and lease/fencing protected, but no sandboxed executor is currently connected.
 
 CI must check out the exact commit, execute the pinned test suite, retain raw logs and machine-readable exit results, and upload evidence even on failure. Runner identity and qualification remain separate from repository state. CACE must independently verify execution receipts before any scientific/proof result is promoted.
 
 ## Current limitations
 
-This first implementation is a local single-node repository core. It is not yet a distributed Git replacement and does not yet include patch review comments, signed commit identities, multi-tenant authorization, artifact retention/garbage collection, or isolated headless CI job scheduling. CI receipt ingestion is loopback-only and not yet bridged to GitHub Actions/OCI automatically. Those are subsequent acceptance gates; they must not be implied by the current API.
+This implementation is a local single-node repository and durable CI queue, not yet a distributed Git replacement. It does not yet include patch review comments, signed commit identities, multi-tenant authorization, artifact retention/garbage collection, a sandboxed headless executor, scheduled backup retention or production restore drills. CI receipt ingestion is loopback-only and not yet bridged to GitHub Actions/OCI automatically. CACE independent receipt import remains unavailable. Those are subsequent acceptance gates; they must not be implied by the current API.
