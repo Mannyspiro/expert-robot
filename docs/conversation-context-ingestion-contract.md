@@ -59,6 +59,13 @@ These are related context sources, not proof evidence and not substitutes for
 the original Merlin prompts and responses. Import only relevant portions with
 source references and preserve their historical dates.
 
+The machine-readable inventory is
+`config/research/context_source_manifest_v1.json`. It explicitly marks this
+discovery as partial: original message-level Merlin transcripts and attachments
+have not yet been located/imported. The manifest must be extended as more
+authorized source records are found; it must never mark full coverage based
+only on handoff documents.
+
 ## Operational boundary
 
 Only import conversations and attachments available through an authorized
