@@ -94,6 +94,7 @@ class VirtualRepositoryTests(unittest.TestCase):
         backup_path = Path(self.temp.name) / "backups" / "merlin-backup.sqlite3"
         result = self.repo.backup_to(backup_path)
         self.assertTrue(result["integrity"]["ok"])
+        self.assertEqual(list(backup_path.parent.glob(".*.tmp")), [])
         restored = VirtualRepository(backup_path)
         self.assertTrue(restored.integrity_report()["ok"])
         self.assertEqual(
