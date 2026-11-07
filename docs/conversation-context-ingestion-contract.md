@@ -66,6 +66,29 @@ have not yet been located/imported. The manifest must be extended as more
 authorized source records are found; it must never mark full coverage based
 only on handoff documents.
 
+## Initial importer implementation
+
+`python/conversation_context.py` provides an append-only SQLite store and
+JSONL export intake. It currently:
+- requires stable source system, conversation, and message IDs;
+- preserves role, timestamp, exact text or content reference, content digest,
+  attachment references/digests, project tags, privacy classification, and
+  explicit supersession metadata;
+- rejects restricted records and rejects personal records unless the caller
+  explicitly opts in;
+- makes duplicate imports idempotent and rejects identity collisions where the
+  same source message ID is presented with different content;
+- prevents updates/deletes to imported message and attachment rows;
+- reports source/conversation/message/attachment coverage without claiming
+  complete history;
+- supports retrieval by project tag.
+
+This is a storage/import primitive, not yet connected to an authorized ChatGPT
+conversation export or to the live C++ research engine. Attachment bytes remain
+external; the importer preserves their identifiers and digests rather than
+silently copying or modifying them. The actual historical Merlin transcripts
+must still be obtained from an authorized export before they can be imported.
+
 ## Operational boundary
 
 Only import conversations and attachments available through an authorized
