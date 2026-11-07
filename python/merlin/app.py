@@ -534,7 +534,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             if path == "/api/forge/status":
                 self._send(200, {"schema": "merlin-forge-status/1",
                     "storage": "sqlite_content_addressed",
-                    "execution_mode": "repository_only_no_runner_claim",
+                    "execution_mode": "virtual_git_with_leased_ci_queue_no_executor",
                     "branches": forge.branches(),
                     "open_pull_requests": forge.pull_requests("open"),
                     "required_checks": {"main": forge.required_checks("main")},
