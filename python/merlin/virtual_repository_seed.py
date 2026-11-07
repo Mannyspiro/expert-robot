@@ -8,10 +8,12 @@ from typing import Any
 
 _ALLOWED_ROOTS = (
     "python", "tests", "ui", "docs/merlin", "formal", "scripts",
+    "docs/research/real-world-equation-atlas", "research/merlin",
     ".github/workflows",
 )
 _ROOT_FILES = (
     "README.md", "pyproject.toml", "Makefile", ".gitignore",
+    "docs/research/merlin-mathematical-idea-catalog.v1.json",
 )
 _TEXT_SUFFIXES = {
     ".py", ".md", ".json", ".yml", ".yaml", ".toml", ".txt", ".sh",
