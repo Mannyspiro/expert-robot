@@ -45,6 +45,7 @@ from .engineering.geometry import GeometrySpec, Point3D, validate_geometry, boun
 from .engineering.netlist import Component, Connection, Net, Netlist, validate_netlist
 from .public_literature import PublicLiteratureSearch
 from .virtual_repository import VirtualRepository, VirtualGitError
+from .virtual_repository_seed import build_repository_seed
 
 MAX_BODY = 1_000_000
 MAX_PROXY_RESPONSE = 16_000_000
@@ -311,17 +312,41 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
     memory_vault = MerlinMemoryVault(memory_path)
     repo_root = Path(__file__).resolve().parents[2]
     forge = VirtualRepository(Path(store.path).with_name("merlin-forge.sqlite3"))
-    if not forge.branches():
-        seed = {"README.md": "# Merlin virtual repository\n"}
-        for relative in ("python/merlin/app.py", "python/merlin/virtual_repository.py"):
-            source = repo_root / relative
-            if source.is_file():
-                seed[relative] = source.read_bytes()
+    seed, seed_manifest = build_repository_seed(repo_root)
+    branches = {row["name"] for row in forge.branches()}
+    if not branches:
         try:
             forge.initialize(seed)
         except VirtualGitError:
             if not forge.branches():
                 raise
+    else:
+        try:
+            current_manifest = forge.read_file("main", "merlin/SEED_MANIFEST.json")
+        except KeyError:
+            current_manifest = None
+        expected_manifest = seed["merlin/SEED_MANIFEST.json"]
+        if current_manifest != expected_manifest:
+            bootstrap_branch = "bootstrap/runtime-source-" + seed_manifest["tree_sha256"][:12]
+            if bootstrap_branch not in branches:
+                forge.create_branch(bootstrap_branch, "main")
+            branch_manifest = None
+            try:
+                branch_manifest = forge.read_file(bootstrap_branch, "merlin/SEED_MANIFEST.json")
+            except KeyError:
+                pass
+            if branch_manifest != expected_manifest:
+                entries = list(seed.items())
+                for offset in range(0, len(entries), 500):
+                    forge.commit(bootstrap_branch, "Import runtime source snapshot batch " +
+                                 str(offset // 500 + 1),
+                                 dict(entries[offset:offset + 500]))
+            existing_pr = next((row for row in forge.pull_requests("open")
+                                if row["source_branch"] == bootstrap_branch
+                                and row["target_branch"] == "main"), None)
+            if existing_pr is None:
+                forge.open_pull_request(bootstrap_branch, "main",
+                    "Import verified runtime source snapshot " + seed_manifest["tree_sha256"][:12])
     catalog_path = Path(os.environ.get("MERLIN_MATH_IDEA_CATALOG",
         str(repo_root / "docs" / "research" / "merlin-mathematical-idea-catalog.v1.json")))
     learning_graph: dict[str, Any] = {}
