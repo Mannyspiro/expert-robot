@@ -44,7 +44,7 @@ class VirtualRepositoryTests(unittest.TestCase):
                 barrier.wait(timeout=5)
                 if not repo.branches():
                     try:
-                        repo.initialize({"README.md": "# concurrent\\n"})
+                        repo.initialize({"README.md": "# concurrent\n"})
                     except VirtualGitError:
                         if not repo.branches():
                             failures.append("initialization failed without a winner")
