@@ -129,7 +129,8 @@
       "nonredundancy_or_complementarity",
       "plausible_application",
       "testability",
-      "resource_feasibility"
+      "resource_feasibility",
+      "falsifiable_test_path"
     ],
     "scoring_dimensions": [
       "expected_utility",
@@ -142,7 +143,9 @@
     ],
     "retain_rejected_ideas_with_reason": true,
     "do_not_optimize_for_idea_count": true,
-    "separate_hypothesis_from_fact": true
+    "separate_hypothesis_from_fact": true,
+    "dedicated_imagination_lens": "lacuna",
+    "implementation_reference": "expert_robot::imagination::ImaginationLens::Lacuna"
   },
   "analogy": {
     "procedure": [
