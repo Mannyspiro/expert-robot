@@ -789,17 +789,17 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     return
                 if path.startswith("/api/forge/pulls/") and path.endswith("/merge"):
                     parts = path.strip("/").split("/")
-                    if len(parts) != 4 or not parts[2].isdigit():
+                    if len(parts) != 5 or not parts[3].isdigit():
                         raise ValueError("pull request path must contain an integer ID")
-                    result = forge.merge_pull_request(int(parts[2]))
+                    result = forge.merge_pull_request(int(parts[3]))
                     self._send(200 if result["status"] == "merged" else 409,
                         {"schema": "merlin-forge-merge/1", **result})
                     return
                 if path.startswith("/api/forge/branches/") and path.endswith("/rollback"):
                     parts = path.strip("/").split("/")
-                    if len(parts) != 4:
+                    if len(parts) != 5:
                         raise ValueError("invalid rollback path")
-                    result = forge.rollback_branch(unquote(parts[2]), data.get("commit_id"))
+                    result = forge.rollback_branch(unquote(parts[3]), data.get("commit_id"))
                     self._send(200, {"schema": "merlin-forge-rollback/1", **result})
                     return
                 if path.startswith("/api/internal/outbox/"):
