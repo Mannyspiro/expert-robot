@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - "python/merlin/app.py"
+      - "python/merlin/public_literature.py"
+      - "tests/test_public_literature.py"
       - "tests/test_merlin_worker_api.py"
       - "tests/test_hermes_worker.py"
       - "tests/test_hermes_worker_service.py"
