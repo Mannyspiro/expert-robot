@@ -7,6 +7,7 @@ unconfigured until a real adapter is connected.
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from contextlib import closing
 from hashlib import sha256
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
@@ -128,7 +129,7 @@ class EventStore:
     def __init__(self, path: str | Path):
         self.path = str(path)
         Path(self.path).parent.mkdir(parents=True, exist_ok=True)
-        with sqlite3.connect(self.path) as db:
+        with closing(sqlite3.connect(self.path)) as db, db:
             db.execute("""CREATE TABLE IF NOT EXISTS events (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 kind TEXT NOT NULL,
@@ -136,6 +137,13 @@ class EventStore:
                 summary_json TEXT NOT NULL,
                 created_at TEXT NOT NULL
             )""")
+            db.execute("""CREATE TABLE IF NOT EXISTS posthog_export_state (
+                singleton INTEGER PRIMARY KEY CHECK(singleton = 1),
+                cursor INTEGER NOT NULL DEFAULT 0
+            )""")
+            db.execute(
+                "INSERT OR IGNORE INTO posthog_export_state(singleton, cursor) VALUES(1, 0)"
+            )
 
     def append(self, kind: str, request: dict[str, Any], summary: dict[str, Any]) -> None:
         digest = sha256(_json_bytes(request)).hexdigest()
@@ -168,6 +176,40 @@ class EventStore:
             ).fetchall()
         return [{"id": row[0], "kind": row[1], "request_sha256": row[2],
                  "summary": json.loads(row[3]), "created_at": row[4]} for row in rows]
+
+    def get_posthog_export_cursor(self) -> int:
+        """Return the durable cursor for optional analytics export."""
+        with closing(sqlite3.connect(self.path)) as db, db:
+            row = db.execute(
+                "SELECT cursor FROM posthog_export_state WHERE singleton=1"
+            ).fetchone()
+        return int(row[0]) if row else 0
+
+    def export_batch(self, *, cursor: int, limit: int = 100) -> list[dict[str, Any]]:
+        """Export event metadata only; original request bodies are never stored."""
+        if not isinstance(cursor, int) or cursor < 0 or not 1 <= limit <= 500:
+            raise ValueError("PostHog export cursor or batch limit is invalid")
+        with closing(sqlite3.connect(self.path)) as db, db:
+            rows = db.execute(
+                "SELECT id,kind,request_sha256,summary_json,created_at "
+                "FROM events WHERE id > ? ORDER BY id ASC LIMIT ?",
+                (cursor, limit),
+            ).fetchall()
+        return [
+            {"id": row[0], "kind": row[1], "request_sha256": row[2],
+             "summary": json.loads(row[3]), "created_at": row[4]}
+            for row in rows
+        ]
+
+    def advance_posthog_export_cursor(self, cursor: int) -> None:
+        """Advance monotonically after the remote batch has been accepted."""
+        if not isinstance(cursor, int) or cursor < 0:
+            raise ValueError("PostHog export cursor must be a non-negative integer")
+        with closing(sqlite3.connect(self.path)) as db, db:
+            db.execute(
+                "UPDATE posthog_export_state SET cursor = MAX(cursor, ?) WHERE singleton=1",
+                (cursor,),
+            )
 
 
 def _runtime_provider_status() -> dict[str, Any]:
