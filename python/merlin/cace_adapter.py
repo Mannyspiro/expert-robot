@@ -10,10 +10,11 @@ import hashlib
 import json
 from typing import Any, Callable, Mapping
 
-from merlin.event_outbox import MerlinEventOutbox
-from merlin.project_registry import MerlinRegistry
-from merlin.knowledge_graph import GraphEdge, GraphNode, MerlinKnowledgeGraph
-from merlin.telemetry import agent_event_sink
+from .event_outbox import MerlinEventOutbox
+from .project_registry import MerlinRegistry
+from .knowledge_graph import GraphEdge, GraphNode, MerlinKnowledgeGraph
+from .telemetry import agent_event_sink
+from .cace_attestation import verify_cace_signed_attestation
 
 
 def _canonical(value: Any) -> str:
@@ -24,11 +25,13 @@ def _canonical(value: Any) -> str:
 class CaceVerificationAdapter:
     def __init__(self, *, verify_transport: Callable[[dict[str, Any]], Mapping[str, Any]] | None,
                  registry: MerlinRegistry, outbox: MerlinEventOutbox,
-                 graph: MerlinKnowledgeGraph | None = None):
+                 graph: MerlinKnowledgeGraph | None = None,
+                 trusted_verifier_keys: Mapping[str, Mapping[str, str]] | None = None):
         self.verify_transport = verify_transport
         self.registry = registry
         self.outbox = outbox
         self.graph = graph
+        self.trusted_verifier_keys = dict(trusted_verifier_keys or {})
         self.emit_event = agent_event_sink(outbox, "cace")
 
     def _verified_artifact_bytes(self, digest: str) -> bytes:
@@ -42,9 +45,13 @@ class CaceVerificationAdapter:
 
     def verify(self, *, project_id: str, repository: str, commit_sha: str,
                artifact_sha256: str, theorem: str, requester_id: str,
-               logical_path: str | None = None) -> dict[str, Any]:
+               tool_version: str, logical_path: str | None = None) -> dict[str, Any]:
         if self.verify_transport is None:
             raise RuntimeError("CACE verification transport is not configured")
+        if not self.trusted_verifier_keys:
+            raise RuntimeError("CACE verifier trust store is not configured")
+        if not isinstance(tool_version, str) or not tool_version.strip() or len(tool_version) > 200:
+            raise ValueError("tool_version must identify the exact verifier toolchain")
         if not repository or "/" not in repository:
             raise ValueError("repository must be owner/name")
         if len(commit_sha) != 40 or any(c not in "0123456789abcdef" for c in commit_sha):
@@ -62,6 +69,7 @@ class CaceVerificationAdapter:
             "commit_sha": commit_sha,
             "artifact_sha256": artifact_sha256,
             "theorem": theorem,
+            "tool_version": tool_version,
             "requester_id": requester_id,
             "artifact_registry_verified": True,
             "artifact_size_bytes": len(artifact_bytes),
@@ -80,6 +88,19 @@ class CaceVerificationAdapter:
         verifier_id = receipt.get("verifier_id")
         if not isinstance(verifier_id, str) or not verifier_id.strip() or verifier_id == requester_id:
             raise ValueError("CACE verifier must have an independent identity")
+        signed = verify_cace_signed_attestation(
+            receipt.get("signed_attestation"),
+            trusted_verifier_keys=self.trusted_verifier_keys,
+            expected_claim_id=theorem,
+            expected_bundle_sha256=artifact_sha256,
+            expected_bindings={
+                "repository": repository, "commit_sha": commit_sha,
+                "theorem": theorem, "tool_version": tool_version,
+            },
+            requester_id=requester_id,
+        )
+        if signed["verifier_id"] != verifier_id or signed["purpose"] != "independent-reproduction":
+            raise ValueError("CACE signed attestation identity or purpose mismatch")
         if receipt.get("source_commit_verified") is not True:
             raise ValueError("CACE did not authenticate the source commit")
         if receipt.get("artifact_digest_verified") is not True:
@@ -134,6 +155,8 @@ class CaceVerificationAdapter:
                 {"receipt_sha256": digest, "subject_artifact_sha256": artifact_sha256,
                  "repository": repository, "commit_sha": commit_sha,
                  "theorem": theorem, "verifier_id": verifier_id,
+                 "verifier_key_id": signed["verifier_key_id"],
+                 "tool_version": tool_version,
                  "verification_status": status, "promotion_authority": False},
                 evidence_class="independent_verification",
                 source_uri="registry://sha256/" + digest,
@@ -147,6 +170,8 @@ class CaceVerificationAdapter:
             "schema": "merlin-cace-verification-result/1",
             "verification_status": status,
             "verifier_id": verifier_id,
+            "verifier_key_id": signed["verifier_key_id"],
+            "tool_version": tool_version,
             "source_commit": commit_sha,
             "artifact_sha256": artifact_sha256,
             "receipt_artifact_sha256": digest,
@@ -189,10 +214,12 @@ class CaceVerificationAdapter:
     def verify_artifact(self, *, project_id: str, repository: str, commit_sha: str,
                         artifact_sha256: str, artifact_kind: str,
                         artifact_schema: str, requester_id: str,
-                        logical_path: str) -> dict[str, Any]:
+                        logical_path: str, tool_identity: str) -> dict[str, Any]:
         """Independently attest a non-theorem artifact and store its signed receipt."""
         if self.verify_transport is None:
             raise RuntimeError("CACE verification transport is not configured")
+        if not self.trusted_verifier_keys:
+            raise RuntimeError("CACE verifier trust store is not configured")
         if not repository or "/" not in repository:
             raise ValueError("repository must be owner/name")
         if len(commit_sha) != 40 or any(c not in "0123456789abcdef" for c in commit_sha):
@@ -202,7 +229,8 @@ class CaceVerificationAdapter:
         for value, label in ((artifact_kind, "artifact_kind"),
                              (artifact_schema, "artifact_schema"),
                              (requester_id, "requester_id"),
-                             (logical_path, "logical_path")):
+                             (logical_path, "logical_path"),
+                             (tool_identity, "tool_identity")):
             if not isinstance(value, str) or not value.strip() or len(value) > 500:
                 raise ValueError(label + " is required")
         artifact_bytes = self._verified_artifact_bytes(artifact_sha256)
@@ -214,6 +242,7 @@ class CaceVerificationAdapter:
             "artifact_kind": artifact_kind,
             "artifact_schema": artifact_schema,
             "logical_path": logical_path,
+            "tool_identity": tool_identity,
             "requester_id": requester_id,
             "artifact_registry_verified": True,
             "artifact_size_bytes": len(artifact_bytes),
@@ -226,12 +255,26 @@ class CaceVerificationAdapter:
         if receipt.get("schema") != "cace-artifact-verification/1":
             raise ValueError("unsupported CACE artifact receipt schema")
         for key in ("repository", "commit_sha", "artifact_sha256",
-                    "artifact_kind", "artifact_schema", "logical_path"):
+                    "artifact_kind", "artifact_schema", "logical_path", "tool_identity"):
             if receipt.get(key) != request[key]:
                 raise ValueError("CACE artifact receipt is bound to a different " + key)
         verifier_id = receipt.get("verifier_id")
         if not isinstance(verifier_id, str) or not verifier_id.strip() or verifier_id == requester_id:
             raise ValueError("CACE artifact verifier must have an independent identity")
+        signed = verify_cace_signed_attestation(
+            receipt.get("signed_attestation"),
+            trusted_verifier_keys=self.trusted_verifier_keys,
+            expected_claim_id="artifact:" + artifact_kind,
+            expected_bundle_sha256=artifact_sha256,
+            expected_bindings={
+                "repository": repository, "commit_sha": commit_sha,
+                "artifact_kind": artifact_kind, "artifact_schema": artifact_schema,
+                "logical_path": logical_path, "tool_identity": tool_identity,
+            },
+            requester_id=requester_id,
+        )
+        if signed["verifier_id"] != verifier_id or signed["purpose"] != "artifact-integrity":
+            raise ValueError("CACE signed artifact attestation identity or purpose mismatch")
         if receipt.get("source_commit_verified") is not True or receipt.get("artifact_digest_verified") is not True:
             raise ValueError("CACE did not independently authenticate the source commit and artifact digest")
         status = receipt.get("verification_status")
@@ -278,7 +321,8 @@ class CaceVerificationAdapter:
                  "subject_artifact_sha256": artifact_sha256,
                  "artifact_kind": artifact_kind, "artifact_schema": artifact_schema,
                  "repository": repository, "commit_sha": commit_sha,
-                 "verifier_id": verifier_id, "verification_status": status,
+                 "verifier_id": verifier_id, "verifier_key_id": signed["verifier_key_id"],
+                 "tool_identity": tool_identity, "verification_status": status,
                  "promotion_authority": False},
                 evidence_class="independent_verification",
                 source_uri="registry://sha256/" + receipt_digest,
@@ -293,6 +337,8 @@ class CaceVerificationAdapter:
             "schema": "merlin-cace-artifact-verification-result/1",
             "verification_status": status,
             "verifier_id": verifier_id,
+            "verifier_key_id": signed["verifier_key_id"],
+            "tool_identity": tool_identity,
             "source_commit": commit_sha,
             "artifact_sha256": artifact_sha256,
             "receipt_artifact_sha256": receipt_digest,

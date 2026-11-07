@@ -8,6 +8,8 @@ from http.server import ThreadingHTTPServer
 from pathlib import Path
 
 from python.merlin.app import EventStore, make_handler
+from python.merlin.knowledge_graph import MerlinKnowledgeGraph, GraphNode, GraphEdge
+from python.merlin.hermes_service import HermesWorkerService
 
 
 class MerlinApiTests(unittest.TestCase):
@@ -37,7 +39,104 @@ class MerlinApiTests(unittest.TestCase):
             self.assertTrue(json.loads(response.read())["ok"])
         with urlopen(self.base + "/api/capabilities", timeout=5) as response:
             payload = json.loads(response.read())
+        self.assertEqual(payload["schema"], "merlin-capability-registry/1")
+        self.assertEqual(set(payload["states"]), {"configured", "unavailable", "unqualified"})
         self.assertIn("engineering.geometry.validate", {row["id"] for row in payload["capabilities"]})
+        self.assertIn("forge.virtual_repository", {row["id"] for row in payload["capabilities"]})
+        self.assertTrue(all(row["state"] in payload["states"] for row in payload["capabilities"]))
+        with self.assertRaises(HTTPError) as caught:
+            urlopen(self.base + "/api/runtime/hermes", timeout=5)
+        self.assertEqual(caught.exception.code, 503)
+
+    def test_hermes_worker_service_is_visible_when_injected(self):
+        class IdleWorker:
+            def __init__(self):
+                self.called = threading.Event()
+
+            def run_once(self):
+                self.called.set()
+                return None
+
+        worker = IdleWorker()
+        service = HermesWorkerService(worker, idle_seconds=0.01)
+        service.start()
+        self.assertTrue(worker.called.wait(timeout=1))
+        store = EventStore(Path(self.temp.name) / "hermes-health-events.sqlite3")
+        server = ThreadingHTTPServer(
+            ("127.0.0.1", 0),
+            make_handler(store, hermes_worker_service=service),
+        )
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        base = f"http://127.0.0.1:{server.server_port}"
+        try:
+            with urlopen(base + "/api/runtime/hermes", timeout=5) as response:
+                health = json.loads(response.read())
+            self.assertTrue(health["ready"])
+            self.assertEqual(health["authority"], "bounded_execution_only")
+            self.assertFalse(health["promotion_authority"])
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
+            self.assertTrue(service.stop(timeout_seconds=1))
+
+    def test_request_graph_validation_is_preview_only(self):
+        payload = self.post("/api/graphs/validate", {
+            "nodes": [{"id": "question"}, {"id": "model"}, {"id": "evidence"}],
+            "edges": [
+                {"source": "question", "target": "model", "relation": "requires"},
+                {"source": "model", "target": "evidence", "relation": "prerequisite"},
+            ],
+        })
+        self.assertTrue(payload["valid"])
+        self.assertEqual(payload["source"], "request_preview")
+        self.assertFalse(payload["promotion_authorized"])
+        self.assertEqual(payload["topological_order"], ["question", "model", "evidence"])
+
+    def test_canonical_graph_validation_reads_persisted_snapshot(self):
+        graph_path = Path(self.temp.name) / "canonical-graph.sqlite3"
+        graph = MerlinKnowledgeGraph(graph_path)
+        graph.add_node(GraphNode("research-question", "claim", "Research question", {}))
+        graph.add_node(GraphNode("equation", "equation", "Equation", {}))
+        graph.add_edge(GraphEdge("research-question", "depends_on", "equation", {}))
+
+        event_store = EventStore(Path(self.temp.name) / "canonical-graph-events.sqlite3")
+        server = ThreadingHTTPServer(
+            ("127.0.0.1", 0),
+            make_handler(event_store, canonical_graph=graph),
+        )
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        base = f"http://127.0.0.1:{server.server_port}"
+        try:
+            with urlopen(base + "/api/graphs/validate", timeout=5) as response:
+                valid = json.loads(response.read())
+            self.assertTrue(valid["valid"])
+            self.assertEqual(valid["source"], "canonical_knowledge_graph")
+            self.assertEqual(valid["node_count"], 2)
+            self.assertEqual(valid["topological_order"], ["research-question", "equation"])
+            self.assertEqual(len(valid["snapshot_sha256"]), 64)
+            self.assertFalse(valid["promotion_authorized"])
+
+            graph.add_edge(GraphEdge("equation", "depends_on", "research-question", {}))
+            with urlopen(base + "/api/graphs/validate", timeout=5) as response:
+                invalid = json.loads(response.read())
+            self.assertFalse(invalid["valid"])
+            self.assertIn("dependency_cycle", {item["code"] for item in invalid["errors"]})
+            self.assertNotEqual(valid["snapshot_sha256"], invalid["snapshot_sha256"])
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
+
+    def test_canonical_graph_validation_fails_closed_when_store_not_configured(self):
+        request = Request(self.base + "/api/graphs/validate")
+        with self.assertRaises(HTTPError) as caught:
+            urlopen(request, timeout=5)
+        self.assertEqual(caught.exception.code, 503)
+        self.assertEqual(json.loads(caught.exception.read())["error"],
+                         "canonical_graph_not_configured")
 
     def test_council_roles_and_prepare_endpoint(self):
         with urlopen(self.base + "/api/council/roles", timeout=5) as response:
@@ -563,6 +662,48 @@ class MerlinApiTests(unittest.TestCase):
                                  "Origin": self.base})
         with urlopen(local, timeout=5) as response:
             self.assertEqual(response.status, 201)
+
+
+    def test_public_literature_api_returns_unverified_records_and_hashes_query(self):
+        from unittest.mock import patch
+
+        class FakeSearch:
+            def search(self, query, *, source="all", limit=10):
+                return {
+                    "schema": "merlin-public-literature-search/1",
+                    "query": query,
+                    "sources_requested": [source],
+                    "results": [{
+                        "source": "crossref", "source_id": "doi:10.5555/test",
+                        "title": "Test paper", "evidence_class": "OBSERVED_DOCUMENT",
+                        "claim_verification": "NOT_VERIFIED",
+                    }],
+                    "source_response_sha256": {"crossref": "a" * 64},
+                    "errors": [], "credentials_required": False,
+                }
+
+        store = EventStore(Path(self.temp.name) / "literature-api-events.sqlite3")
+        with patch("python.merlin.app.PublicLiteratureSearch", return_value=FakeSearch()):
+            server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(store))
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        base = f"http://127.0.0.1:{server.server_port}"
+        try:
+            with urlopen(base + "/api/research/literature?q=graph+theory&source=crossref&limit=3", timeout=5) as response:
+                payload = json.loads(response.read())
+            self.assertFalse(payload["credentials_required"])
+            self.assertEqual(payload["results"][0]["claim_verification"], "NOT_VERIFIED")
+            self.assertEqual(payload["source_response_sha256"]["crossref"], "a" * 64)
+            with urlopen(base + "/api/events", timeout=5) as response:
+                events = json.loads(response.read())["events"]
+            encoded = json.dumps(events)
+            self.assertNotIn("graph theory", encoded)
+            self.assertIn("query_sha256", encoded)
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
+
 
 if __name__ == "__main__":
     unittest.main()

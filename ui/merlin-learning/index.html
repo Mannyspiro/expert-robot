@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>Merlin Learning</title>
+<style>
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:#edf1fa;background:#0d1220;line-height:1.5}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 10% 0%,#202b49 0,transparent 42%),#0d1220}
+header{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:1.25rem clamp(1rem,4vw,3rem);border-bottom:1px solid #303a51;background:#0d1220d9;position:sticky;top:0;z-index:2;backdrop-filter:blur(12px)}
+.brand{display:flex;align-items:center;gap:.8rem}.mark{width:2.5rem;height:2.5rem;border-radius:.8rem;background:linear-gradient(135deg,#9e8bff,#4c77d9);display:grid;place-items:center;font-weight:800;color:white}
+h1,h2,h3,p{margin-top:0}h1{font-size:1.25rem;margin:0}.muted{color:#aab5cc}.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.72rem;color:#9eaff0;font-weight:700}
+main{width:min(1200px,100%);margin:0 auto;padding:2rem clamp(1rem,4vw,3rem) 5rem}
+.toolbar{display:flex;align-items:end;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem}
+h2{font-size:1.6rem;margin-bottom:.25rem}.actions{display:flex;gap:.65rem;flex-wrap:wrap}
+button,input,textarea{font:inherit}button{border:1px solid #596a91;background:#253454;color:#f3f6ff;padding:.65rem .95rem;border-radius:.7rem;cursor:pointer}
+button:hover{background:#344a78}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #a7b8ff;outline-offset:2px}
+button.primary{background:#526ed0;border-color:#8195ef}button.ghost{background:transparent}button:disabled{opacity:.5;cursor:not-allowed}
+input,textarea{width:100%;border:1px solid #44516c;border-radius:.6rem;background:#111a2d;color:#f2f5ff;padding:.7rem}
+label{display:block;font-weight:650;font-size:.9rem;margin:.8rem 0 .35rem}
+.notice{padding:.9rem 1rem;border:1px solid #52658b;background:#17233a;border-radius:.75rem;margin:1rem 0;color:#e5ebff}
+.notice.error{border-color:#9b5b67;background:#351c29}.notice.success{border-color:#507f71;background:#183229}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:1rem}
+.card{border:1px solid #303c56;background:#151e31;border-radius:1rem;padding:1.1rem;min-width:0}
+.card h3{margin-bottom:.35rem}.meta{font-size:.84rem;color:#aab5cc}.card p{color:#c2cce0}.card .actions{margin-top:1rem}
+.pill{display:inline-block;border:1px solid #50658f;border-radius:99px;padding:.12rem .55rem;font-size:.75rem;color:#cdd7ff;margin-right:.3rem}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,.85fr);gap:1rem;align-items:start}
+section{margin-top:2rem}.hidden{display:none!important}
+.list{padding-left:1.2rem}.list li{margin:.45rem 0}
+pre,code{white-space:pre-wrap;overflow-wrap:anywhere}
+textarea{min-height:260px;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.84rem}
+footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6bf;font-size:.82rem}
+@media(max-width:760px){header{position:static}.layout{grid-template-columns:1fr}.toolbar{align-items:start}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="mark" aria-hidden="true">M</div><div><div class="eyebrow">Merlin</div><h1>Learning</h1></div></div>
+  <div class="actions"><span id="rolePill" class="pill">Identity pending</span><button class="ghost" id="refreshBtn" type="button">Refresh</button></div>
+</header>
+<main>
+  <div class="toolbar">
+    <div><div class="eyebrow">Adaptive university learning</div><h2>Courses and learning paths</h2><p class="muted">Explore courses, follow prerequisite paths, and see why a lesson is recommended.</p></div>
+    <div class="actions"><input id="search" type="search" aria-label="Search courses" placeholder="Search courses…" style="width:min(260px,70vw)"></div>
+  </div>
+  <div id="notice" class="notice" role="status" aria-live="polite">Connecting to Merlin Learning…</div>
+  <section id="catalogSection" aria-labelledby="catalogTitle">
+    <div class="toolbar"><div><h2 id="catalogTitle">Course catalog</h2><p id="catalogSummary" class="muted">Loading tenant-scoped courses…</p></div></div>
+    <div id="catalog" class="grid"></div>
+  </section>
+  <section id="createSection" class="card hidden" aria-labelledby="createTitle">
+    <h2 id="createTitle">Create a course</h2>
+    <form id="createForm">
+      <label for="slug">Course slug</label><input id="slug" name="slug" required pattern="[a-z0-9][a-z0-9-]{1,62}" placeholder="linear-algebra">
+      <label for="courseTitle">Title</label><input id="courseTitle" name="title" required maxlength="240">
+      <label for="description">Description</label><textarea id="description" name="description" rows="3" style="min-height:90px"></textarea>
+      <div class="actions" style="margin-top:1rem"><button class="primary" type="submit">Create draft</button></div>
+    </form>
+  </section>
+  <section id="detailSection" class="hidden" aria-labelledby="detailTitle">
+    <div class="toolbar"><div><div class="eyebrow">Course workspace</div><h2 id="detailTitle">Course</h2><p id="detailMeta" class="muted"></p></div><div class="actions"><button class="ghost" id="backBtn" type="button">Back to catalog</button></div></div>
+    <div class="layout">
+      <div class="card"><h3>Learning objectives</h3><ul id="objectives" class="list"></ul><h3>Lessons</h3><div id="lessons"></div><h3>Resources</h3><ul id="resources" class="list"></ul></div>
+      <div class="card"><h3>Course actions</h3><div id="courseActions" class="actions"></div><div id="recommendation" class="notice hidden" aria-live="polite"></div><div id="editorWrap" class="hidden"><h3>Draft manifest</h3><p class="muted">Edit the structured course manifest. Published versions remain immutable; create a new revision to change them.</p><label for="manifestEditor">Manifest JSON</label><textarea id="manifestEditor" spellcheck="false"></textarea><button id="saveManifest" class="primary" type="button">Save draft manifest</button></div><div id="reviewWrap" class="hidden"><h3>Independent review</h3><label for="reviewNotes">Review notes</label><textarea id="reviewNotes" rows="3" style="min-height:90px"></textarea><button id="approveBtn" type="button">Approve version</button><button id="changesBtn" class="ghost" type="button">Request changes</button></div></div>
+    </div>
+  </section>
+  <footer>
+    Merlin Learning uses tenant-scoped identity, versioned course manifests and independent review before publication. Recommendations are advisory; the learner model does not self-certify mastery or grade high-stakes work. Institution SSO must be configured by the deployment gateway. No bearer token is stored in browser storage.
+  </footer>
+</main>
+<script>
+(() => {
+  "use strict";
+  const $ = id => document.getElementById(id);
+  let catalog = [];
+  let role = null;
+  let current = null;
+  let currentSummary = null;
+  const notice = (message, kind="") => {
+    $("notice").textContent = message;
+    $("notice").className = "notice" + (kind ? " " + kind : "");
+  };
+  async function api(path, method="GET", payload) {
+    const options = {method, credentials:"same-origin", headers:{"Accept":"application/json"}};
+    if (payload !== undefined) {
+      options.headers["Content-Type"] = "application/json";
+      options.body = JSON.stringify(payload);
+    }
+    const response = await fetch(path, options);
+    let body = {};
+    try { body = await response.json(); } catch (_) {}
+    if (!response.ok) {
+      const message = body.detail || body.error || ("HTTP " + response.status);
+      throw new Error(message);
+    }
+    return body;
+  }
+  function el(tag, text, className) {
+    const node = document.createElement(tag);
+    if (text !== undefined) node.textContent = text;
+    if (className) node.className = className;
+    return node;
+  }
+  function actionButton(label, handler, primary=false) {
+    const button = el("button", label, primary ? "primary" : "");
+    button.type = "button";
+    button.addEventListener("click", handler);
+    return button;
+  }
+  function renderCatalog() {
+    const host = $("catalog");
+    host.replaceChildren();
+    const term = $("search").value.trim().toLowerCase();
+    const rows = catalog.filter(course =>
+      (course.title + " " + course.description + " " + course.slug).toLowerCase().includes(term));
+    $("catalogSummary").textContent = rows.length + " course" + (rows.length === 1 ? "" : "s") + " visible";
+    for (const course of rows) {
+      const card = el("article", undefined, "card");
+      card.append(el("h3", course.title));
+      card.append(el("p", course.description || "No description yet."));
+      const meta = el("div", "v" + course.version + " · " + course.status +
+        " · " + course.objective_count + " objectives · " + course.lesson_count + " lessons", "meta");
+      card.append(meta);
+      if (course.enrollment_status) card.append(el("p", "Enrollment: " + course.enrollment_status, "meta"));
+      const actions = el("div", undefined, "actions");
+      actions.append(actionButton("Open course", () => openCourse(course.course_id), true));
+      if (role === "learner" && course.status === "published" && !course.enrollment_status) {
+        actions.append(actionButton("Enroll", () => enroll(course.course_id)));
+      }
+      card.append(actions);
+      host.append(card);
+    }
+    if (!rows.length) host.append(el("p", "No matching courses."));
+  }
+  async function loadCatalog() {
+    try {
+      const data = await api("/api/learning/courses");
+      catalog = data.courses || [];
+      role = data.role;
+      $("rolePill").textContent = role;
+      $("createSection").classList.toggle("hidden", !["instructor","tenant_admin"].includes(role));
+      renderCatalog();
+      notice("Connected to tenant-scoped course catalog.", "success");
+    } catch (error) {
+      catalog = [];
+      role = null;
+      $("rolePill").textContent = "Identity unavailable";
+      $("createSection").classList.add("hidden");
+      renderCatalog();
+      notice("Learning identity is unavailable: " + error.message +
+        ". Configure institution SSO or the authenticated gateway before using this workspace.", "error");
+    }
+  }
+  async function openCourse(courseId) {
+    try {
+      current = await api("/api/learning/courses/" + encodeURIComponent(courseId));
+      currentSummary = catalog.find(row => row.course_id === courseId) || null;
+      renderCourse();
+      $("catalogSection").classList.add("hidden");
+      $("createSection").classList.add("hidden");
+      $("detailSection").classList.remove("hidden");
+    } catch (error) { notice("Could not open course: " + error.message, "error"); }
+  }
+  function renderCourse() {
+    const course = current;
+    $("detailTitle").textContent = course.title;
+    $("detailMeta").textContent = "Version " + course.version + " · " + course.status +
+      " · " + course.manifest_sha256;
+    const manifest = course.manifest;
+    $("objectives").replaceChildren();
+    for (const objective of manifest.objectives || []) {
+      const prereqs = objective.prerequisites?.length ? " · Prerequisites: " + objective.prerequisites.join(", ") : "";
+      $("objectives").append(el("li", objective.title + prereqs));
+    }
+    $("lessons").replaceChildren();
+    for (const lesson of manifest.lessons || []) {
+      const block = el("article", undefined, "card");
+      block.append(el("h3", lesson.title));
+      block.append(el("p", lesson.body || "Lesson content has not been added."));
+      $("lessons").append(block);
+    }
+    $("resources").replaceChildren();
+    for (const resource of manifest.resources || []) {
+      $("resources").append(el("li", resource.title + " · " + resource.creator + " · " + resource.license));
+    }
+    const actions = $("courseActions");
+    actions.replaceChildren();
+    $("recommendation").classList.add("hidden");
+    const summary = currentSummary || {};
+    if (role === "learner" && course.status === "published" && !summary.enrollment_status) {
+      actions.append(actionButton("Enroll in course", () => enroll(course.course_id), true));
+    }
+    if (role === "learner" && summary.enrollment_status === "active") {
+      actions.append(actionButton("Recommend next lesson", recommend, true));
+    }
+    const canEdit = ["tenant_admin","instructor"].includes(role) &&
+      course.status === "draft";
+    $("editorWrap").classList.toggle("hidden", !canEdit);
+    if (canEdit) $("manifestEditor").value = JSON.stringify(manifest, null, 2);
+    const canReview = role === "reviewer" && course.status === "draft";
+    $("reviewWrap").classList.toggle("hidden", !canReview);
+    if (canEdit) {
+      actions.append(actionButton("Publish after review", publish));
+      if (course.status === "published") actions.append(actionButton("Create revision", createRevision));
+    }
+  }
+  async function enroll(courseId) {
+    try {
+      await api("/api/learning/courses/" + encodeURIComponent(courseId) + "/enroll", "POST", {});
+      notice("Enrollment recorded.", "success");
+      await loadCatalog();
+      await openCourse(courseId);
+    } catch (error) { notice("Enrollment failed: " + error.message, "error"); }
+  }
+  async function recommend() {
+    try {
+      const result = await api("/api/learning/courses/" + encodeURIComponent(current.course_id) + "/recommendation");
+      $("recommendation").classList.remove("hidden");
+      if (result.state === "recommended" && result.lesson_id) {
+        $("recommendation").textContent =
+          "Recommended next lesson: " + result.lesson_id +
+          ". This is advisory and based on the learner's recorded evidence and prerequisites.";
+      } else {
+        $("recommendation").textContent = "No lesson is currently eligible.";
+      }
+    } catch (error) { notice("Recommendation unavailable: " + error.message, "error"); }
+  }
+  async function createRevision() {
+    try {
+      current = await api("/api/learning/courses/" + encodeURIComponent(current.course_id) + "/revisions", "POST", {});
+      await loadCatalog(); renderCourse(); notice("New draft revision created.", "success");
+    } catch (error) { notice("Revision failed: " + error.message, "error"); }
+  }
+  async function publish() {
+    try {
+      current = await api("/api/learning/courses/" + encodeURIComponent(current.course_id) + "/publish", "POST", {});
+      await loadCatalog(); renderCourse(); notice("Course published.", "success");
+    } catch (error) { notice("Publication blocked: " + error.message, "error"); }
+  }
+  $("createForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    try {
+      const course = await api("/api/learning/courses", "POST", {
+        slug:$("slug").value, title:$("courseTitle").value, description:$("description").value
+      });
+      $("createForm").reset();
+      await loadCatalog();
+      await openCourse(course.course_id);
+      notice("Draft course created. Add objectives, lessons and licensed resources before review.", "success");
+    } catch (error) { notice("Course creation failed: " + error.message, "error"); }
+  });
+  $("saveManifest").addEventListener("click", async () => {
+    try {
+      const manifest = JSON.parse($("manifestEditor").value);
+      current = await api("/api/learning/courses/" + encodeURIComponent(current.course_id) + "/manifest",
+                          "POST", {manifest});
+      await loadCatalog(); renderCourse(); notice("Draft manifest saved.", "success");
+    } catch (error) { notice("Manifest was not saved: " + error.message, "error"); }
+  });
+  $("approveBtn").addEventListener("click", async () => review("approved"));
+  $("changesBtn").addEventListener("click", async () => review("changes_requested"));
+  async function review(decision) {
+    try {
+      await api("/api/learning/courses/" + encodeURIComponent(current.course_id) + "/review",
+        "POST", {version:current.version, decision, notes:$("reviewNotes").value});
+      notice("Review recorded: " + decision + ".", "success");
+      await loadCatalog(); await openCourse(current.course_id);
+    } catch (error) { notice("Review failed: " + error.message, "error"); }
+  }
+  $("backBtn").addEventListener("click", () => {
+    $("detailSection").classList.add("hidden");
+    $("catalogSection").classList.remove("hidden");
+    if (["instructor","tenant_admin"].includes(role)) $("createSection").classList.remove("hidden");
+    loadCatalog();
+  });
+  $("refreshBtn").addEventListener("click", loadCatalog);
+  $("search").addEventListener("input", renderCatalog);
+  loadCatalog();
+})();
+</script>
+</body>
+</html>

@@ -1,4 +1,5 @@
 import tempfile
+import sqlite3
 import unittest
 from pathlib import Path
 from merlin.event_outbox import MerlinEventOutbox, OutboxConflict, LeaseConflict
@@ -50,3 +51,88 @@ class MerlinEventOutboxTests(unittest.TestCase):
         claimed = outbox.claim_next("hud", topics=["merlin.telemetry.task.progress"], now=3)
         self.assertEqual(claimed["topic"], "merlin.telemetry.task.progress")
         self.assertEqual(outbox.counts()["pending"], 1)
+
+    def test_heartbeat_extends_lease_and_preserves_current_token(self):
+        event = self.outbox.enqueue("heartbeat-key", "worker.event", {}, now=1)
+        lease = self.outbox.claim_next("worker", lease_seconds=2, now=2)
+        renewed = self.outbox.heartbeat(
+            event["event_id"], "worker", lease["lease_token"],
+            lease_seconds=10, now=3,
+        )
+        self.assertEqual(renewed["lease_expires_at"], 13)
+        ack = self.outbox.acknowledge(
+            event["event_id"], "worker", lease["lease_token"], now=10,
+        )
+        self.assertEqual(ack["state"], "acknowledged")
+
+    def test_heartbeat_rejects_stale_or_expired_lease(self):
+        event = self.outbox.enqueue("heartbeat-expired", "worker.event", {}, now=1)
+        lease = self.outbox.claim_next("worker-a", lease_seconds=2, now=2)
+        with self.assertRaises(LeaseConflict):
+            self.outbox.heartbeat(
+                event["event_id"], "worker-b", lease["lease_token"],
+                lease_seconds=10, now=3,
+            )
+        with self.assertRaises(LeaseConflict):
+            self.outbox.heartbeat(
+                event["event_id"], "worker-a", lease["lease_token"],
+                lease_seconds=10, now=5,
+            )
+
+    def test_cancel_pending_event_is_terminal_and_not_claimable(self):
+        event = self.outbox.enqueue("cancel-pending", "worker.event", {}, now=1)
+        cancelled = self.outbox.cancel(event["event_id"], "hermes", "user requested", now=2)
+        self.assertEqual(cancelled["state"], "cancelled")
+        self.assertEqual(cancelled["cancelled_by"], "hermes")
+        self.assertEqual(cancelled["cancel_reason"], "user requested")
+        self.assertIsNone(self.outbox.claim_next("worker", now=3))
+        self.assertEqual(self.outbox.counts()["cancelled"], 1)
+        replay = self.outbox.cancel(event["event_id"], "another-worker", "different", now=4)
+        self.assertEqual(replay["cancelled_by"], "hermes")
+
+    def test_cancel_leased_event_invalidates_worker_lease(self):
+        event = self.outbox.enqueue("cancel-leased", "worker.event", {}, now=1)
+        lease = self.outbox.claim_next("worker", lease_seconds=20, now=2)
+        self.outbox.cancel(event["event_id"], "scheduler", "deadline exceeded", now=3)
+        with self.assertRaises(LeaseConflict):
+            self.outbox.heartbeat(
+                event["event_id"], "worker", lease["lease_token"], now=4,
+            )
+        with self.assertRaises(LeaseConflict):
+            self.outbox.acknowledge(
+                event["event_id"], "worker", lease["lease_token"], now=4,
+            )
+
+    def test_acknowledged_event_cannot_be_cancelled(self):
+        event = self.outbox.enqueue("cancel-acked", "worker.event", {}, now=1)
+        lease = self.outbox.claim_next("worker", now=2)
+        self.outbox.acknowledge(event["event_id"], "worker", lease["lease_token"], now=3)
+        with self.assertRaisesRegex(ValueError, "acknowledged"):
+            self.outbox.cancel(event["event_id"], "scheduler", now=4)
+
+    def test_migration_preserves_existing_outbox_rows_and_adds_cancel_state(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            database = Path(tmp) / "legacy.sqlite3"
+            with sqlite3.connect(database) as db:
+                db.execute("""CREATE TABLE event_outbox (
+                    event_id TEXT PRIMARY KEY, idempotency_key TEXT NOT NULL UNIQUE,
+                    topic TEXT NOT NULL, payload_json TEXT NOT NULL,
+                    state TEXT NOT NULL CHECK(state IN
+                      ('pending','leased','acknowledged','quarantined')),
+                    attempts INTEGER NOT NULL DEFAULT 0, available_at REAL NOT NULL,
+                    lease_owner TEXT, lease_token TEXT, lease_expires_at REAL,
+                    last_error TEXT, created_at REAL NOT NULL, updated_at REAL NOT NULL,
+                    acknowledged_at REAL, result_json TEXT)""")
+                db.execute("CREATE INDEX outbox_ready ON event_outbox(state, available_at, created_at)")
+                db.execute("CREATE INDEX outbox_expiry ON event_outbox(state, lease_expires_at)")
+                db.execute("""INSERT INTO event_outbox(
+                    event_id,idempotency_key,topic,payload_json,state,attempts,
+                    available_at,created_at,updated_at)
+                    VALUES('evt-legacy','legacy-key','legacy.topic','{}','pending',0,1,1,1)""")
+            migrated = MerlinEventOutbox(database)
+            preserved = migrated.get("evt-legacy")
+            self.assertEqual(preserved["state"], "pending")
+            self.assertEqual(preserved["payload"], {})
+            cancelled = migrated.cancel("evt-legacy", "migration-test", now=2)
+            self.assertEqual(cancelled["state"], "cancelled")
+            self.assertEqual(migrated.counts()["cancelled"], 1)

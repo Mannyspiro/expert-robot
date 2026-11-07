@@ -7,7 +7,7 @@ from __future__ import annotations
 from collections.abc import Callable, Mapping
 from typing import Any
 
-from merlin.event_outbox import MerlinEventOutbox
+from .event_outbox import MerlinEventOutbox
 
 
 class HermesOutboxConsumer:

@@ -30,12 +30,17 @@ R2 out 0 1k
             return { "ngspice": "/usr/bin/ngspice", "prlimit": "/usr/bin/prlimit" }.get(name)
         with patch("merlin.ngspice_engine.shutil.which", side_effect=which), \
              patch("merlin.ngspice_engine.subprocess.run",
-                   return_value=subprocess.CompletedProcess([], 0, "", "")) as run:
+                   side_effect=[
+                       subprocess.CompletedProcess(["ngspice", "-v"], 0, "ngspice-42", ""),
+                       subprocess.CompletedProcess([], 0, "", ""),
+                   ]) as run:
             result = run_ngspice(netlist, max_memory_bytes=268435456)
-        command = run.call_args.args[0]
+        command = run.call_args_list[1].args[0]
         self.assertEqual(command[:3], ["/usr/bin/prlimit", "--as=268435456", "--"])
         payload = json.loads(result["artifact_bytes"])
         self.assertIn("address-space limit enforced by prlimit", payload["resource_note"])
+        self.assertEqual(payload["tool_version"], "42")
+        self.assertEqual(result["metadata"]["tool_identity"], "ngspice@42")
 
     def test_run_refuses_to_claim_memory_bounded_execution_without_prlimit(self):
         with patch("merlin.ngspice_engine.shutil.which",

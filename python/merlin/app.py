@@ -7,14 +7,18 @@ unconfigured until a real adapter is connected.
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from contextlib import closing
 from hashlib import sha256
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 import os
+import signal
+from threading import Event, Thread
+import hmac
 from pathlib import Path
 import sqlite3
 from typing import Any
-from urllib.parse import urlparse, urlsplit, parse_qs
+from urllib.parse import urlparse, urlsplit, parse_qs, unquote
 from urllib.request import Request, urlopen
 from urllib.error import URLError, HTTPError
 from time import perf_counter
@@ -25,17 +29,23 @@ from .simulation import MerlinSimulation
 from .telemetry import normalize_event, telemetry_view, record_runtime_event
 from .telemetry_graph import build_telemetry_graph
 from .learner_model import LearnerStore, select_next_lesson, HermesLearningRouter, score_attempt_event
-from .event_outbox import MerlinEventOutbox
+from .event_outbox import MerlinEventOutbox, LeaseConflict
 from .intent_compiler import Asset, IntentSpec, ContinuityState, compile_directive
 from .math_transfer import preview_transfers
 from .interaction_learning import InteractionLearningStore, analyze_interactions
 from .memory_vault import MerlinMemoryVault
+from .capability_registry import capability_snapshot, validate_graph
+from .learning_platform import Actor as LearningActor, LearningPlatform
+from .identity import learning_identity_resolver_from_environment
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
     validate_analogy,
 )
 from .engineering.geometry import GeometrySpec, Point3D, validate_geometry, bounding_box
 from .engineering.netlist import Component, Connection, Net, Netlist, validate_netlist
+from .public_literature import PublicLiteratureSearch
+from .virtual_repository import VirtualRepository, VirtualGitError
+from .virtual_repository_seed import build_repository_seed
 
 MAX_BODY = 1_000_000
 MAX_PROXY_RESPONSE = 16_000_000
@@ -71,15 +81,25 @@ def _append_component_event(store: EventStore, *, source: str, kind: str,
 
 
 def _remote_model_endpoint() -> tuple[str, str]:
-    """Return an explicitly allowlisted HTTPS OpenAI-compatible endpoint."""
+    """Return a HTTPS endpoint pinned to a built-in or explicit custom host."""
     endpoint = os.environ.get("MERLIN_REMOTE_MODEL_URL", "").strip()
     api_key = os.environ.get("MERLIN_REMOTE_API_KEY", "").strip()
-    allowed = {host.strip().lower() for host in os.environ.get("MERLIN_REMOTE_ALLOWED_HOSTS", "").split(",") if host.strip()}
-    if not endpoint or not api_key or not allowed:
-        raise ValueError("remote model requires URL, API key, and explicit allowed-host list")
+    allowed = {
+        host.strip().lower()
+        for host in os.environ.get("MERLIN_REMOTE_ALLOWED_HOSTS", "").split(",")
+        if host.strip()
+    }
+    if not endpoint or not api_key:
+        raise ValueError("remote model requires an endpoint and API key")
     parsed = urlsplit(endpoint)
-    if parsed.scheme != "https" or not parsed.hostname or parsed.hostname.lower() not in allowed or parsed.username or parsed.password or parsed.fragment:
-        raise ValueError("remote model URL must use HTTPS and an explicitly allowlisted host")
+    if (
+        parsed.scheme != "https" or not parsed.hostname
+        or parsed.username or parsed.password or parsed.fragment
+    ):
+        raise ValueError("remote model URL must use HTTPS without embedded credentials")
+    hostname = parsed.hostname.lower()
+    if hostname not in allowed:
+        raise ValueError("custom remote model URL requires an explicitly allowlisted host")
     return endpoint, api_key
 
 
@@ -87,7 +107,7 @@ class EventStore:
     def __init__(self, path: str | Path):
         self.path = str(path)
         Path(self.path).parent.mkdir(parents=True, exist_ok=True)
-        with sqlite3.connect(self.path) as db:
+        with closing(sqlite3.connect(self.path)) as db, db:
             db.execute("""CREATE TABLE IF NOT EXISTS events (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 kind TEXT NOT NULL,
@@ -98,14 +118,14 @@ class EventStore:
 
     def append(self, kind: str, request: dict[str, Any], summary: dict[str, Any]) -> None:
         digest = sha256(_json_bytes(request)).hexdigest()
-        with sqlite3.connect(self.path) as db:
+        with closing(sqlite3.connect(self.path)) as db, db:
             db.execute(
                 "INSERT INTO events(kind,request_sha256,summary_json,created_at) VALUES(?,?,?,?)",
                 (kind, digest, json.dumps(summary, sort_keys=True), datetime.now(timezone.utc).isoformat()),
             )
 
     def recent(self, limit: int = 20) -> list[dict[str, Any]]:
-        with sqlite3.connect(self.path) as db:
+        with closing(sqlite3.connect(self.path)) as db, db:
             rows = db.execute(
                 "SELECT id,kind,request_sha256,summary_json,created_at FROM events ORDER BY id DESC LIMIT ?",
                 (limit,),
@@ -120,13 +140,14 @@ class EventStore:
         """Return oldest-first event metadata for deterministic replay."""
         if not 1 <= limit <= 100000:
             raise ValueError("event limit out of range")
-        with sqlite3.connect(self.path) as db:
+        with closing(sqlite3.connect(self.path)) as db, db:
             rows = db.execute(
                 "SELECT id,kind,request_sha256,summary_json,created_at FROM events WHERE kind=? ORDER BY id ASC LIMIT ?",
                 (kind, limit),
             ).fetchall()
         return [{"id": row[0], "kind": row[1], "request_sha256": row[2],
                  "summary": json.loads(row[3]), "created_at": row[4]} for row in rows]
+
 
 
 def _runtime_provider_status() -> dict[str, Any]:
@@ -139,7 +160,11 @@ def _runtime_provider_status() -> dict[str, Any]:
             _loopback_endpoint("MERLIN_MODEL_URL", "http://127.0.0.1:8080/v1/chat/completions")
         except ValueError:
             local_ready = False
-    remote_ready = os.environ.get("MERLIN_REMOTE_MODEL_QUALIFIED") == "1" and bool(remote_model)
+    remote_ready = (
+        os.environ.get("MERLIN_REMOTE_MODEL_QUALIFIED") == "1"
+        and bool(remote_model)
+        and bool(os.environ.get("MERLIN_REMOTE_MODEL_URL", "").strip())
+    )
     if remote_ready:
         try:
             _remote_model_endpoint()
@@ -160,8 +185,9 @@ def _runtime_provider_status() -> dict[str, Any]:
                       "transport": "loopback OpenAI-compatible API"},
             "cloud": {"status": "QUALIFIED_CONFIGURED" if remote_ready else "UNAVAILABLE",
                       "health": "not_probed",
+                      "provider": "custom" if remote_ready else None,
                       "model": remote_model if remote_ready else None,
-                      "transport": "allowlisted HTTPS OpenAI-compatible API"},
+                      "transport": "explicitly allowlisted HTTPS OpenAI-compatible API"},
             "speech_output": {"status": "QUALIFIED_CONFIGURED" if tts_ready else "UNAVAILABLE",
                               "health": "not_probed",
                               "model": os.environ.get("MERLIN_TTS_MODEL") if tts_ready else None,
@@ -176,6 +202,11 @@ def _runtime_provider_status() -> dict[str, Any]:
 
 CAPABILITIES = [
     {"id": "research.math_transfer.preview", "status": "AVAILABLE", "evidence": "deterministic, provenance-aware transfer hypotheses; no automatic promotion"},
+    {"id": "research.literature.search", "status": "AVAILABLE", "evidence": "zero-configuration Crossref and arXiv discovery; source-hashed documents remain unverified"},
+    {"id": "forge.virtual_repository", "status": "AVAILABLE", "evidence": "SQLite content-addressed commits, branches, pull requests, three-way merge, rollback and append-only events; no external Git host required"},
+    {"id": "forge.virtual_ci_queue", "status": "AVAILABLE", "evidence": "idempotent durable jobs, authenticated worker claims, fencing leases, heartbeats, retry recovery and retained logs; results remain unverified"},
+    {"id": "forge.virtual_ci_executor", "status": "UNAVAILABLE", "evidence": "no authenticated worker currently claims and executes Forge jobs; queueing is not execution"},
+    {"id": "forge.cace_receipt_import", "status": "UNAVAILABLE", "evidence": "independent signed CACE receipt transport is not connected; local CI/job results cannot promote protected branches"},
     {"id": "intent.compile.preview", "status": "AVAILABLE", "evidence": "deterministic typed directive preview; optional canonical-registry artifact persistence; no external execution authority"},
     {"id": "learning.interaction.observe", "status": "AVAILABLE", "evidence": "metadata-only operational telemetry plus explicit categorical outcome feedback"},
     {"id": "learning.interaction.analyze", "status": "AVAILABLE", "evidence": "aggregate improvement proposals with minimum sample thresholds; recommendation-only"},
@@ -267,13 +298,62 @@ def _netlist(data: dict[str, Any]) -> Netlist:
 def make_handler(store: EventStore, hud_runtime: Any | None = None,
                  learner_store: LearnerStore | None = None,
                  learning_outbox: MerlinEventOutbox | None = None,
-                 canonical_registry: Any | None = None):
+                 canonical_registry: Any | None = None,
+                 learning_platform: LearningPlatform | None = None,
+                 learning_identity_resolver: Any | None = None,
+                 canonical_graph: Any | None = None,
+                 hermes_worker_service: Any | None = None,
+                 hermes_runtime: Any | None = None):
     simulation = MerlinSimulation()
+    literature_search = PublicLiteratureSearch()
     learner_store = learner_store or LearnerStore(store.path)
+    learning_db = os.environ.get("MERLIN_LEARNING_DB_PATH",
+        str(Path(store.path).with_name("learning.sqlite3")))
+    learning_platform = learning_platform or LearningPlatform(learning_db)
     interaction_store = InteractionLearningStore(store.path)
     memory_path = os.environ.get("MERLIN_MEMORY_DB_PATH", str(Path(store.path).with_name("memory.sqlite3")))
     memory_vault = MerlinMemoryVault(memory_path)
     repo_root = Path(__file__).resolve().parents[2]
+    forge = VirtualRepository(Path(store.path).with_name("merlin-forge.sqlite3"))
+    seed, seed_manifest = build_repository_seed(repo_root)
+    branches = {row["name"] for row in forge.branches()}
+    if not branches:
+        try:
+            forge.initialize(seed)
+        except VirtualGitError:
+            if not forge.branches():
+                raise
+    else:
+        try:
+            current_manifest = forge.read_file("main", "merlin/SEED_MANIFEST.json")
+        except KeyError:
+            current_manifest = None
+        expected_manifest = seed["merlin/SEED_MANIFEST.json"]
+        if current_manifest != expected_manifest:
+            bootstrap_branch = "bootstrap/runtime-source-" + seed_manifest["tree_sha256"][:12]
+            if bootstrap_branch not in branches:
+                try:
+                    forge.create_branch(bootstrap_branch, "main")
+                except VirtualGitError:
+                    if not any(row["name"] == bootstrap_branch for row in forge.branches()):
+                        raise
+            branch_manifest = None
+            try:
+                branch_manifest = forge.read_file(bootstrap_branch, "merlin/SEED_MANIFEST.json")
+            except KeyError:
+                pass
+            if branch_manifest != expected_manifest:
+                entries = list(seed.items())
+                for offset in range(0, len(entries), 500):
+                    forge.commit(bootstrap_branch, "Import runtime source snapshot batch " +
+                                 str(offset // 500 + 1),
+                                 dict(entries[offset:offset + 500]))
+            existing_pr = next((row for row in forge.pull_requests("open")
+                                if row["source_branch"] == bootstrap_branch
+                                and row["target_branch"] == "main"), None)
+            if existing_pr is None:
+                forge.open_pull_request(bootstrap_branch, "main",
+                    "Import verified runtime source snapshot " + seed_manifest["tree_sha256"][:12])
     catalog_path = Path(os.environ.get("MERLIN_MATH_IDEA_CATALOG",
         str(repo_root / "docs" / "research" / "merlin-mathematical-idea-catalog.v1.json")))
     learning_graph: dict[str, Any] = {}
@@ -325,6 +405,38 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                                          "curriculum_id": "art-math-studio"})
     learning_router = HermesLearningRouter(learning_outbox, learner_store, learning_graph,
                                            learning_lessons) if learning_outbox is not None else None
+    # Worker credentials are server-side only. Each worker receives its own
+    # high-entropy token and an immutable worker identity from this map.
+    try:
+        configured_worker_tokens = json.loads(os.environ.get("MERLIN_WORKER_TOKENS", "{}"))
+        worker_tokens = {
+            key: value for key, value in configured_worker_tokens.items()
+            if isinstance(key, str) and key and len(key) <= 100
+            and isinstance(value, str) and value.isascii() and len(value) >= 32
+        } if isinstance(configured_worker_tokens, dict) else {}
+    except (TypeError, ValueError, json.JSONDecodeError):
+        worker_tokens = {}
+    # Generic HTTP workers receive explicit per-worker topic grants. The
+    # Hermes task topic is intentionally excluded: only HermesWorker performs
+    # approval/MCFC-lease revalidation before executing those tasks.
+    try:
+        configured_topic_allowlist = json.loads(
+            os.environ.get("MERLIN_WORKER_TOPIC_ALLOWLIST", "{}"))
+        worker_topic_allowlist = {}
+        if isinstance(configured_topic_allowlist, dict):
+            for worker_id, topics in configured_topic_allowlist.items():
+                if (isinstance(worker_id, str) and worker_id in worker_tokens
+                        and isinstance(topics, list) and len(topics) <= 50
+                        and all(isinstance(topic, str) and topic and len(topic) <= 200
+                                and topic != "merlin.hermes.task" for topic in topics)):
+                    worker_topic_allowlist[worker_id] = frozenset(topics)
+    except (TypeError, ValueError, json.JSONDecodeError):
+        worker_topic_allowlist = {}
+    configured_admin_token = os.environ.get("MERLIN_OUTBOX_ADMIN_TOKEN", "")
+    admin_token = (configured_admin_token if isinstance(configured_admin_token, str)
+                   and configured_admin_token.isascii() and len(configured_admin_token) >= 32
+                   else "")
+
     def current_interaction_analysis():
         preferences = interaction_store.preferences()
         telemetry_rows = store.by_kind("/api/telemetry/ingest", 100000) if preferences["aggregate_telemetry"] else []
@@ -395,10 +507,230 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             except (TypeError, ValueError):
                 return False
 
+        def _learning_actor(self):
+            # Resolver must validate a signed session/token and return server-derived
+            # identity, tenant and role. Never trust role/tenant headers or JSON fields.
+            if learning_identity_resolver is None:
+                return None
+            actor = learning_identity_resolver(self.headers)
+            return actor if isinstance(actor, LearningActor) else None
+
+        def _worker_actor(self):
+            worker_id = self.headers.get("X-Merlin-Worker-ID", "")
+            authorization = self.headers.get("Authorization", "")
+            if not worker_id or worker_id not in worker_tokens or not authorization.startswith("Bearer "):
+                return None
+            supplied = authorization[7:].strip()
+            expected = worker_tokens.get(worker_id, "")
+            if not supplied or not hmac.compare_digest(supplied.encode("utf-8"), expected.encode("utf-8")):
+                return None
+            return worker_id
+
+        def _outbox_admin_authenticated(self):
+            authorization = self.headers.get("Authorization", "")
+            if not admin_token or not authorization.startswith("Bearer "):
+                return False
+            supplied = authorization[7:].strip()
+            return bool(supplied) and hmac.compare_digest(
+                supplied.encode("utf-8"), admin_token.encode("utf-8"))
+
         def do_GET(self) -> None:
             self._request_started = perf_counter()
             parsed = urlparse(self.path)
             path = parsed.path
+            if path == "/api/forge/status":
+                source_snapshot = None
+                try:
+                    manifest_bytes = forge.read_file("main", "merlin/SEED_MANIFEST.json")
+                    manifest = json.loads(manifest_bytes.decode("utf-8"))
+                    if not isinstance(manifest, dict):
+                        raise ValueError("source snapshot manifest is not an object")
+                    source_snapshot = {
+                        "file_count": manifest.get("file_count"),
+                        "total_bytes": manifest.get("total_bytes"),
+                        "tree_sha256": manifest.get("tree_sha256"),
+                        "source_commit_verified": manifest.get("source_commit_verified") is True,
+                        "sensitive_files_included": manifest.get("sensitive_files_included") is True,
+                    }
+                except (KeyError, ValueError, UnicodeDecodeError):
+                    pass
+                self._send(200, {"schema": "merlin-forge-status/1",
+                    "storage": "sqlite_content_addressed",
+                    "execution_mode": "virtual_git_with_leased_ci_queue_no_executor",
+                    "branches": forge.branches(),
+                    "open_pull_requests": forge.pull_requests("open"),
+                    "required_checks": {"main": forge.required_checks("main")},
+                    "recent_events": forge.events(30),
+                    "virtual_job_counts": forge.job_counts(),
+                    "source_snapshot": source_snapshot,
+                    "runner_execution": "not_performed",
+                    "promotion_authorized": False})
+                return
+            if path == "/api/forge/branches":
+                self._send(200, {"schema": "merlin-forge-branches/1",
+                                 "branches": forge.branches()})
+                return
+            if path == "/api/forge/pulls":
+                self._send(200, {"schema": "merlin-forge-pull-requests/1",
+                                 "pull_requests": forge.pull_requests()})
+                return
+            if path == "/api/forge/jobs":
+                self._send(200, {"schema": "merlin-forge-jobs/1",
+                                 "jobs": forge.jobs(limit=100)})
+                return
+            if path.startswith("/api/forge/jobs/") and path.endswith("/log"):
+                parts = path.strip("/").split("/")
+                if len(parts) != 5:
+                    self._send(400, {"error": "invalid_virtual_job_log_path"})
+                    return
+                content = forge.read_job_log(unquote(parts[3]))
+                self._send(200, {"schema": "merlin-forge-job-log/1",
+                    "job_id": unquote(parts[3]), "log_utf8": content.decode("utf-8"),
+                    "sha256": sha256(content).hexdigest()})
+                return
+            if path.startswith("/api/forge/jobs/"):
+                parts = path.strip("/").split("/")
+                if len(parts) != 4:
+                    self._send(400, {"error": "invalid_virtual_job_path"})
+                    return
+                job_id = unquote(parts[3])
+                self._send(200, {"schema": "merlin-forge-job/1", "job": forge.get_job(job_id)})
+                return
+            if path.startswith("/api/forge/checks/") and path.endswith("/log"):
+                parts = path.strip("/").split("/")
+                if len(parts) != 5 or not parts[3].isdigit():
+                    self._send(400, {"error": "invalid_check_id"})
+                    return
+                content = forge.read_check_log(int(parts[3]))
+                self._send(200, {"schema": "merlin-forge-check-log/1",
+                    "check_id": int(parts[3]), "log_utf8": content.decode("utf-8"),
+                    "sha256": sha256(content).hexdigest()})
+                return
+            if path == "/api/forge/checks":
+                params = parse_qs(parsed.query)
+                commit_id = (params.get("commit") or [""])[0]
+                if not commit_id:
+                    main = next((row for row in forge.branches() if row["name"] == "main"), None)
+                    if main is None:
+                        raise ValueError("main branch is not initialized")
+                    commit_id = main["commit_id"]
+                self._send(200, {"schema": "merlin-forge-checks/1",
+                    "commit_id": commit_id, "required_checks": forge.required_checks("main"),
+                    "check_results": forge.check_results(commit_id)})
+                return
+            if path == "/api/forge/events":
+                try:
+                    limit = int((parse_qs(parsed.query).get("limit") or ["100"])[0])
+                    result = forge.events(limit)
+                except (ValueError, TypeError) as exc:
+                    self._send(400, {"error": "invalid_event_limit", "detail": str(exc)[:200]})
+                    return
+                self._send(200, {"schema": "merlin-forge-events/1", "events": result})
+                return
+            if path == "/api/forge/file":
+                params = parse_qs(parsed.query)
+                ref = (params.get("ref") or ["main"])[0]
+                logical_path = (params.get("path") or [""])[0]
+                content = forge.read_file(ref, logical_path)
+                self._send(200, {"schema": "merlin-forge-file/1", "ref": ref,
+                    "path": logical_path, "content_utf8": content.decode("utf-8"),
+                    "sha256": sha256(content).hexdigest()})
+                return
+            if path == "/api/internal/outbox/status":
+                worker_id = self._worker_actor()
+                if worker_id is None:
+                    self._send(401, {"error": "worker_authentication_required"})
+                    return
+                if learning_outbox is None:
+                    self._send(503, {"error": "outbox_not_configured"})
+                    return
+                self._send(200, {"schema": "merlin-outbox-worker-status/1",
+                                 "worker_id": worker_id, "counts": learning_outbox.counts()})
+                return
+            if path == "/api/research/literature":
+                query_params = parse_qs(parsed.query)
+                query = (query_params.get("q") or [""])[0]
+                source = (query_params.get("source") or ["all"])[0]
+                limit_value = (query_params.get("limit") or ["10"])[0]
+                try:
+                    limit = int(limit_value)
+                    result = literature_search.search(query, source=source, limit=limit)
+                    query_digest = sha256(query.encode("utf-8")).hexdigest()
+                    store.append(
+                        "/api/research/literature",
+                        {"query_sha256": query_digest, "source": source, "limit": limit},
+                        {"query_sha256": query_digest, "sources": result["sources_requested"],
+                         "result_count": len(result["results"]),
+                         "error_sources": [item["source"] for item in result["errors"]]},
+                    )
+                    self._send(200, result)
+                except (ValueError, TypeError) as exc:
+                    self._send(400, {"error": "invalid_literature_search",
+                                     "detail": str(exc)[:200]})
+                return
+            if path == "/api/graphs/validate":
+                if canonical_graph is None:
+                    self._send(503, {"error": "canonical_graph_not_configured",
+                                     "source": "canonical_knowledge_graph"})
+                    return
+                try:
+                    snapshot = canonical_graph.export_snapshot()
+                    graph = {
+                        "nodes": [{"id": node["node_id"]} for node in snapshot["nodes"]],
+                        "edges": [{"source": edge["source_id"],
+                                   "target": edge["target_id"],
+                                   "relation": edge["relation"]}
+                                  for edge in snapshot["edges"]],
+                    }
+                    result = validate_graph(graph)
+                    self._send(200, {
+                        **result,
+                        "source": "canonical_knowledge_graph",
+                        "snapshot_sha256": snapshot["snapshot_sha256"],
+                        "promotion_authorized": False,
+                    })
+                except Exception:
+                    self._send(503, {"error": "canonical_graph_validation_unavailable",
+                                     "source": "canonical_knowledge_graph"})
+                return
+            if path == "/api/learning/courses":
+                actor = self._learning_actor()
+                if actor is None:
+                    self._send(503, {"error": "learning_identity_provider_not_configured"})
+                    return
+                try:
+                    self._send(200, learning_platform.list_courses(actor))
+                except PermissionError as exc:
+                    self._send(403, {"error": "forbidden", "detail": str(exc)[:200]})
+                except (ValueError, TypeError) as exc:
+                    self._send(400, {"error": "invalid_request", "detail": str(exc)[:200]})
+                return
+            if path.startswith("/api/learning/courses/"):
+                actor = self._learning_actor()
+                if actor is None:
+                    self._send(503, {"error": "learning_identity_provider_not_configured"})
+                    return
+                try:
+                    parts = [unquote(part) for part in path.split("/") if part]
+                    if len(parts) == 5 and parts[4] == "recommendation":
+                        result = learning_platform.recommend_next_lesson(actor, parts[3], learner_store)
+                        self._send(200, result)
+                        return
+                    if len(parts) != 4:
+                        self._send(404, {"error": "not_found"})
+                        return
+                    query = parse_qs(parsed.query)
+                    version_value = (query.get("version") or [None])[0]
+                    version = int(version_value) if version_value is not None else None
+                    self._send(200, learning_platform.get_course(actor, parts[3], version))
+                except PermissionError as exc:
+                    self._send(403, {"error": "forbidden", "detail": str(exc)[:200]})
+                except KeyError:
+                    # Hide whether a course exists outside the caller's tenant.
+                    self._send(404, {"error": "course_not_found"})
+                except (ValueError, TypeError) as exc:
+                    self._send(400, {"error": "invalid_request", "detail": str(exc)[:200]})
+                return
             if path in {"/api/hud/activity", "/api/hud/graph", "/api/hud/node"}:
                 if hud_runtime is None:
                     self._send(503, {"error": "hud_runtime_not_configured",
@@ -467,9 +799,20 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             elif path == "/health":
                 self._send(200, {"ok": True, "service": "merlin", "version": "0.4"})
             elif path == "/api/capabilities":
-                self._send(200, {"schema": "merlin-capabilities/1", "capabilities": CAPABILITIES})
+                self._send(200, capability_snapshot(
+                    CAPABILITIES, _runtime_provider_status(),
+                    outbox_configured=learning_outbox is not None))
             elif path == "/api/runtime/providers":
                 self._send(200, _runtime_provider_status())
+            elif path == "/api/runtime/hermes":
+                if hermes_runtime is not None:
+                    self._send(200, hermes_runtime.health())
+                elif hermes_worker_service is None:
+                    self._send(503, {"schema": "merlin-hermes-worker-service-health/1",
+                                     "status": "unconfigured", "ready": False,
+                                     "promotion_authority": False})
+                else:
+                    self._send(200, hermes_worker_service.health())
             elif path == "/api/memory":
                 self._send(200, memory_vault.snapshot())
             elif path == "/api/events":
@@ -527,6 +870,233 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 if not isinstance(data, dict):
                     raise ValueError("request body must be a JSON object")
 
+                if path == "/api/forge/branches":
+                    result = forge.create_branch(data.get("name"), data.get("from_ref", "main"))
+                    self._send(201, {"schema": "merlin-forge-branch-created/1", **result})
+                    return
+                if path == "/api/forge/jobs":
+                    result = forge.enqueue_job(
+                        data.get("commit_id"), data.get("job_type"), data.get("idempotency_key"),
+                        max_attempts=data.get("max_attempts", 2),
+                    )
+                    self._send(202, {"schema": "merlin-forge-job-enqueued/1", **result})
+                    return
+                if path.startswith("/api/internal/forge/jobs/"):
+                    worker_id = self._worker_actor()
+                    if worker_id is None:
+                        self._send(401, {"error": "worker_authentication_required"})
+                        return
+                    action = path.rsplit("/", 1)[-1]
+                    if action == "claim":
+                        lease = forge.claim_job(
+                            worker_id, lease_seconds=data.get("lease_seconds", 120),
+                            job_types=data.get("job_types"),
+                        )
+                        if lease is not None:
+                            store.append(path, {"worker_id": worker_id, "job_id": lease["job_id"]},
+                                         {"action": "claimed", "attempts": lease["attempts"]})
+                        self._send(200, {"schema": "merlin-forge-job-claim/1", "lease": lease})
+                        return
+                    parts = path.strip("/").split("/")
+                    if len(parts) != 6:
+                        raise ValueError("virtual job worker path must include job ID and action")
+                    job_id = unquote(parts[4])
+                    lease_token = data.get("lease_token")
+                    if not isinstance(lease_token, str) or not lease_token:
+                        raise ValueError("lease_token is required")
+                    if action == "heartbeat":
+                        result = forge.heartbeat_job(
+                            job_id, worker_id, lease_token,
+                            lease_seconds=data.get("lease_seconds", 120),
+                        )
+                    elif action == "complete":
+                        result = forge.complete_job(
+                            job_id, worker_id, lease_token, data.get("conclusion"),
+                            data.get("result", {}), data.get("log", ""),
+                        )
+                    else:
+                        self._send(404, {"error": "unknown_virtual_job_worker_action"})
+                        return
+                    store.append(path, {"worker_id": worker_id, "job_id": job_id},
+                                 {"action": action, "status": result.get("status", "running"),
+                                  "verification_status": result.get("verification_status", "UNVERIFIED"),
+                                  "promotion_authorized": False})
+                    self._send(200, {"schema": "merlin-forge-job-worker-action/1", **result})
+                    return
+                if path == "/api/forge/checks":
+                    result = forge.record_check_result(data.get("commit_id"), data.get("check_name"),
+                        data.get("conclusion"), data.get("run_id"), data.get("runner_id"),
+                        data.get("log", ""))
+                    self._send(201, {"schema": "merlin-forge-check-result/1", **result})
+                    return
+                if path == "/api/forge/commits":
+                    changes = data.get("changes")
+                    if not isinstance(changes, dict):
+                        raise ValueError("changes must be an object mapping paths to text or null")
+                    result = forge.commit(data.get("branch"), data.get("message"), changes)
+                    store.append(path, {"branch": result["branch"], "commit_id": result["commit_id"]},
+                                 {"changed_paths": result["changed_paths"],
+                                  "virtual_repository": True, "execution_performed": False})
+                    self._send(201, {"schema": "merlin-forge-commit/1", **result})
+                    return
+                if path == "/api/forge/pulls":
+                    result = forge.open_pull_request(data.get("source_branch"),
+                        data.get("target_branch", "main"), data.get("title", "Untitled change"))
+                    self._send(201, {"schema": "merlin-forge-pull-request/1", **result})
+                    return
+                if path.startswith("/api/forge/pulls/") and path.endswith("/merge"):
+                    parts = path.strip("/").split("/")
+                    if len(parts) != 5 or not parts[3].isdigit():
+                        raise ValueError("pull request path must contain an integer ID")
+                    result = forge.merge_pull_request(int(parts[3]))
+                    self._send(200 if result["status"] == "merged" else 409,
+                        {"schema": "merlin-forge-merge/1", **result})
+                    return
+                if path.startswith("/api/forge/branches/") and path.endswith("/rebase"):
+                    parts = path.strip("/").split("/")
+                    if len(parts) != 5:
+                        raise ValueError("invalid rebase path")
+                    result = forge.rebase_branch(unquote(parts[3]), data.get("onto_ref", "main"))
+                    self._send(200 if result["status"] != "conflict" else 409,
+                        {"schema": "merlin-forge-rebase/1", **result})
+                    return
+                if path.startswith("/api/forge/branches/") and path.endswith("/rollback"):
+                    parts = path.strip("/").split("/")
+                    if len(parts) != 5:
+                        raise ValueError("invalid rollback path")
+                    result = forge.rollback_branch(unquote(parts[3]), data.get("commit_id"))
+                    self._send(200, {"schema": "merlin-forge-rollback/1", **result})
+                    return
+                if path.startswith("/api/internal/outbox/"):
+                    action = path.rsplit("/", 1)[-1]
+                    if action == "cancel":
+                        if not self._outbox_admin_authenticated():
+                            self._send(401, {"error": "outbox_admin_authentication_required"})
+                            return
+                        if learning_outbox is None:
+                            self._send(503, {"error": "outbox_not_configured"})
+                            return
+                        event_id = data.get("event_id")
+                        reason = data.get("reason", "")
+                        if not isinstance(event_id, str) or not event_id:
+                            raise ValueError("event_id is required")
+                        if not isinstance(reason, str) or len(reason) > 500:
+                            raise ValueError("reason must be a string of at most 500 characters")
+                        result = learning_outbox.cancel(event_id, "merlin-admin", reason)
+                        store.append(path, {"actor": "merlin-admin", "event_id": event_id},
+                                     {"action": "cancel", "state": result["state"]})
+                        self._send(200, {"schema": "merlin-outbox-admin-action/1",
+                                         "event": result})
+                        return
+                    worker_id = self._worker_actor()
+                    if worker_id is None:
+                        self._send(401, {"error": "worker_authentication_required"})
+                        return
+                    if learning_outbox is None:
+                        self._send(503, {"error": "outbox_not_configured"})
+                        return
+                    if action == "claim":
+                        topics = data.get("topics")
+                        allowed_topics = worker_topic_allowlist.get(worker_id, frozenset())
+                        if not allowed_topics:
+                            self._send(403, {"error": "worker_has_no_topic_grants"})
+                            return
+                        if (not isinstance(topics, list) or not topics or len(topics) > 20
+                                or any(not isinstance(topic, str) or not topic or len(topic) > 200
+                                       for topic in topics)):
+                            raise ValueError("topics must be a non-empty list of at most 20 topic names")
+                        if any(topic not in allowed_topics for topic in topics):
+                            self._send(403, {"error": "worker_topic_not_authorized"})
+                            return
+                        lease = learning_outbox.claim_next(
+                            worker_id, lease_seconds=data.get("lease_seconds", 60), topics=topics)
+                        if lease is not None:
+                            store.append(path, {"worker_id": worker_id, "event_id": lease["event_id"]},
+                                         {"action": "claimed", "state": lease["state"],
+                                          "attempts": lease["attempts"]})
+                        self._send(200, {"schema": "merlin-outbox-claim/1", "lease": lease})
+                        return
+                    event_id = data.get("event_id")
+                    lease_token = data.get("lease_token")
+                    if not isinstance(event_id, str) or not isinstance(lease_token, str):
+                        raise ValueError("event_id and lease_token are required")
+                    if action == "heartbeat":
+                        result = learning_outbox.heartbeat(
+                            event_id, worker_id, lease_token,
+                            lease_seconds=data.get("lease_seconds", 60))
+                    elif action == "acknowledge":
+                        payload = data.get("result")
+                        if payload is not None and not isinstance(payload, dict):
+                            raise ValueError("result must be an object")
+                        result = learning_outbox.acknowledge(
+                            event_id, worker_id, lease_token, result=payload)
+                    elif action == "retry":
+                        error = data.get("error")
+                        if not isinstance(error, str) or not error:
+                            raise ValueError("error is required")
+                        result = learning_outbox.retry(
+                            event_id, worker_id, lease_token, error,
+                            delay_seconds=data.get("delay_seconds", 0),
+                            max_attempts=data.get("max_attempts", 5))
+                    else:
+                        self._send(404, {"error": "not_found"})
+                        return
+                    store.append(path, {"worker_id": worker_id, "event_id": event_id},
+                                 {"action": action, "state": result["state"],
+                                  "attempts": result["attempts"]})
+                    self._send(200, {"schema": "merlin-outbox-worker-action/1",
+                                     "event": result})
+                    return
+
+                if path == "/api/graphs/validate":
+                    graph = data.get("graph", data)
+                    result = validate_graph(graph)
+                    store.append(path, {"graph_sha256": result["graph_sha256"]},
+                                 {"valid": result["valid"], "node_count": result["node_count"],
+                                  "edge_count": result["edge_count"], "errors": result["errors"]})
+                    self._send(200, {**result, "source": "request_preview",
+                                     "promotion_authorized": False})
+                    return
+                if path == "/api/learning/courses":
+                    actor = self._learning_actor()
+                    if actor is None:
+                        self._send(503, {"error": "learning_identity_provider_not_configured"})
+                        return
+                    result = learning_platform.create_course(
+                        actor, data.get("slug"), data.get("title"), data.get("description", ""))
+                    store.append(path, {"course_id": result["course_id"]},
+                                 {"action": "course.created", "version": result["version"],
+                                  "manifest_sha256": result["manifest_sha256"]})
+                    self._send(201, result)
+                    return
+                if path.startswith("/api/learning/courses/"):
+                    actor = self._learning_actor()
+                    if actor is None:
+                        self._send(503, {"error": "learning_identity_provider_not_configured"})
+                        return
+                    parts = [unquote(part) for part in path.split("/") if part]
+                    if len(parts) != 5:
+                        self._send(404, {"error": "not_found"})
+                        return
+                    course_id, action = parts[3], parts[4]
+                    if action == "manifest":
+                        result = learning_platform.update_manifest(actor, course_id, data.get("manifest"))
+                    elif action == "review":
+                        result = learning_platform.review_course(
+                            actor, course_id, data.get("version"), data.get("decision"), data.get("notes", ""))
+                    elif action == "publish":
+                        result = learning_platform.publish_course(actor, course_id)
+                    elif action == "revisions":
+                        result = learning_platform.create_revision(actor, course_id)
+                    elif action == "enroll":
+                        result = learning_platform.enroll(actor, course_id, data.get("learner_id"))
+                    else:
+                        self._send(404, {"error": "not_found"})
+                        return
+                    store.append(path, {"course_id": course_id, "action": action},
+                                 {"result_sha256": sha256(_json_bytes(result)).hexdigest()})
+                    self._send(200, result)
+                    return
                 if path == "/api/learning/improvements/evaluate":
                     analysis = current_interaction_analysis()
                     receipt = interaction_store.save_analysis(analysis)
@@ -868,7 +1438,8 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     if provider not in {"auto", "local", "cloud"}:
                         raise ValueError("provider must be auto, local, or cloud")
                     remote_url = os.environ.get("MERLIN_REMOTE_MODEL_URL", "").strip()
-                    use_cloud = provider == "cloud" or (provider == "auto" and bool(remote_url))
+                    remote_configured = bool(remote_url)
+                    use_cloud = provider == "cloud" or (provider == "auto" and remote_configured)
                     if use_cloud:
                         if os.environ.get("MERLIN_REMOTE_MODEL_QUALIFIED") != "1":
                             self._send(503, {"error": "remote_model_not_qualified"})
@@ -983,6 +1554,8 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 self._send(403, {"error": "learning_disabled", "detail": str(exc)[:200]})
             except (ValueError, TypeError, KeyError, json.JSONDecodeError) as exc:
                 self._send(400, {"error": "invalid_request", "detail": str(exc)[:300]})
+            except LeaseConflict as exc:
+                self._send(409, {"error": "outbox_lease_conflict", "detail": str(exc)[:200]})
             except RuntimeError as exc:
                 self._send(503, {"error": "council_model_unavailable", "detail": str(exc)[:200]})
             except (URLError, HTTPError, TimeoutError, OSError) as exc:
@@ -1035,8 +1608,19 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
     return Handler
 
 
-def _build_optional_hud_runtime(canonical_registry: Any | None = None):
-    """Bind only explicitly configured, pre-existing canonical Merlin stores."""
+def _build_optional_hud_runtime(
+    canonical_registry: Any | None = None,
+    canonical_graph: Any | None = None,
+    outbox: Any | None = None,
+    hypotheses: Any | None = None,
+):
+    """Bind explicit canonical stores; never substitute demo stores for configured ones."""
+    from .hud_runtime import build_hud_runtime
+    if canonical_registry is not None and canonical_graph is not None and outbox is not None:
+        return build_hud_runtime(
+            registry=canonical_registry, graph=canonical_graph,
+            outbox=outbox, hypotheses=hypotheses,
+        )
     registry_root = os.environ.get("MERLIN_REGISTRY_ROOT", "").strip()
     graph_path = os.environ.get("MERLIN_GRAPH_DB_PATH", "").strip()
     outbox_path = os.environ.get("MERLIN_OUTBOX_DB_PATH", "").strip()
@@ -1049,7 +1633,6 @@ def _build_optional_hud_runtime(canonical_registry: Any | None = None):
     from .knowledge_graph import MerlinKnowledgeGraph
     from .event_outbox import MerlinEventOutbox
     from .hypothesis_ledger import HypothesisLedger
-    from .hud_runtime import build_hud_runtime
     hypotheses_path = os.environ.get("MERLIN_HYPOTHESES_DB_PATH", "").strip()
     try:
         hypotheses = HypothesisLedger(hypotheses_path) if hypotheses_path and Path(hypotheses_path).is_file() else None
@@ -1063,39 +1646,99 @@ def _build_optional_hud_runtime(canonical_registry: Any | None = None):
         print("Merlin HUD integration unavailable: " + type(exc).__name__)
         return None
 
-
-def serve(port: int = 8765, db_path: str | None = None) -> None:
-    target = db_path or os.environ.get(
-        "MERLIN_DB_PATH",
-        str(Path.home() / ".local" / "share" / "merlin" / "events.sqlite3"),
+def serve(port: int = 8765, db_path: str | None = None,
+          learning_identity_resolver: Any | None = None,
+          hermes_worker_service: Any | None = None,
+          hermes_runtime: Any | None = None) -> None:
+    if hermes_runtime is not None and hermes_worker_service is not None:
+        raise ValueError("pass hermes_runtime or hermes_worker_service, not both")
+    if hermes_runtime is not None:
+        hermes_worker_service = hermes_runtime.service
+    if learning_identity_resolver is None:
+        learning_identity_resolver = learning_identity_resolver_from_environment()
+    runtime_default_db = (
+        str(hermes_runtime.root / "events.sqlite3") if hermes_runtime is not None else
+        str(Path.home() / ".local" / "share" / "merlin" / "events.sqlite3")
     )
+    target = db_path or os.environ.get("MERLIN_DB_PATH", runtime_default_db)
     store = EventStore(target)
     learner_db = os.environ.get("MERLIN_LEARNER_DB_PATH", target)
     learner_store = LearnerStore(learner_db)
     outbox_path = os.environ.get("MERLIN_OUTBOX_DB_PATH", "").strip()
-    learning_outbox = MerlinEventOutbox(outbox_path) if outbox_path else None
-    canonical_registry = None
+    learning_outbox = (
+        hermes_runtime.outbox if hermes_runtime is not None else
+        MerlinEventOutbox(outbox_path) if outbox_path else None
+    )
+    canonical_registry = hermes_runtime.registry if hermes_runtime is not None else None
     registry_root = os.environ.get("MERLIN_REGISTRY_ROOT", "").strip()
     registry_db = Path(registry_root) / "merlin.sqlite3" if registry_root else None
-    if registry_db is not None and registry_db.is_file():
+    if hermes_runtime is None and registry_db is not None and registry_db.is_file():
         from .project_registry import MerlinRegistry
         canonical_registry = MerlinRegistry(registry_root)
-    hud_runtime = _build_optional_hud_runtime(canonical_registry)
-    if hud_runtime is not None:
-        hud_runtime.start()
+    canonical_graph = hermes_runtime.graph if hermes_runtime is not None else None
+    if canonical_graph is None:
+        graph_path = os.environ.get("MERLIN_GRAPH_DB_PATH", "").strip()
+        if graph_path and Path(graph_path).is_file():
+            from .knowledge_graph import MerlinKnowledgeGraph
+            canonical_graph = MerlinKnowledgeGraph(graph_path)
+    hud_runtime = _build_optional_hud_runtime(
+        canonical_registry=canonical_registry,
+        canonical_graph=canonical_graph,
+        outbox=learning_outbox,
+        hypotheses=hermes_runtime.ledger if hermes_runtime is not None else None,
+    )
     server = ThreadingHTTPServer(("127.0.0.1", port),
-        make_handler(store, hud_runtime, learner_store, learning_outbox, canonical_registry))
-    print(f"Merlin MVP API listening on http://127.0.0.1:{port}")
-    print("Merlin HUD: canonical graph/event stores connected" if hud_runtime
-          else "Merlin HUD: labelled demonstration fallback (canonical store paths not configured)")
+        make_handler(store, hud_runtime, learner_store, learning_outbox,
+                     canonical_registry, learning_identity_resolver=learning_identity_resolver,
+                     canonical_graph=canonical_graph,
+                     hermes_worker_service=hermes_worker_service,
+                     hermes_runtime=hermes_runtime))
+    hud_runtime_started = False
+    hermes_service_started = False
+    shutdown_requested = Event()
+    previous_signal_handlers = {}
+
+    def _request_shutdown(signum, frame):
+        if not shutdown_requested.is_set():
+            shutdown_requested.set()
+            Thread(
+                target=server.shutdown,
+                name="merlin-api-signal-shutdown",
+                daemon=True,
+            ).start()
+
+    for signum in (signal.SIGINT, signal.SIGTERM):
+        try:
+            previous_signal_handlers[signum] = signal.signal(signum, _request_shutdown)
+        except ValueError:
+            # serve() may be embedded from a non-main thread; the process manager
+            # can still stop it through the returned/injected service lifecycle.
+            break
     try:
+        if hud_runtime is not None:
+            hud_runtime.start()
+            hud_runtime_started = True
+        if hermes_runtime is not None:
+            hermes_service_started = bool(hermes_runtime.start())
+        elif hermes_worker_service is not None:
+            hermes_service_started = bool(hermes_worker_service.start())
+        print(f"Merlin MVP API listening on http://127.0.0.1:{port}")
+        print("Merlin HUD: canonical graph/event stores connected" if hud_runtime
+              else "Merlin HUD: labelled demonstration fallback (canonical store paths not configured)")
         server.serve_forever()
     except KeyboardInterrupt:
         pass
     finally:
         server.server_close()
-        if hud_runtime is not None:
+        for signum, previous_handler in previous_signal_handlers.items():
+            signal.signal(signum, previous_handler)
+        if hud_runtime_started:
             hud_runtime.stop()
+        if hermes_service_started:
+            if hermes_runtime is not None:
+                hermes_runtime.stop(timeout_seconds=10)
+            else:
+                hermes_worker_service.stop(timeout_seconds=10)
 
 
 if __name__ == "__main__":

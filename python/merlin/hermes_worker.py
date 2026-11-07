@@ -7,11 +7,12 @@ possible only through explicitly injected, stage-scoped handlers.
 from __future__ import annotations
 
 from dataclasses import dataclass
+import threading
 import time
 from typing import Any, Callable, Mapping
 
-from merlin.event_outbox import MerlinEventOutbox
-from merlin.telemetry import agent_event_sink
+from .event_outbox import MerlinEventOutbox, LeaseConflict
+from .telemetry import agent_event_sink
 
 HERMES_TASK_TOPIC = "merlin.hermes.task"
 
@@ -27,6 +28,8 @@ class TaskExecutionContext:
     deadline_epoch: float
     emit_progress: Callable[[str, Mapping[str, Any] | None], None]
     emit_tool_event: Callable[[str, str, Mapping[str, Any]], None]
+    heartbeat: Callable[[], None]
+    check_cancelled: Callable[[], None]
 
 
 class HermesWorker:
@@ -55,8 +58,8 @@ class HermesWorker:
             raise ValueError("approval and lease validators are required")
         if not isinstance(worker_id, str) or not worker_id.strip():
             raise ValueError("worker_id is required")
-        if isinstance(lease_seconds, bool) or not isinstance(lease_seconds, (int, float)) or lease_seconds <= 0:
-            raise ValueError("lease_seconds must be positive")
+        if isinstance(lease_seconds, bool) or not isinstance(lease_seconds, (int, float)) or not 0.05 <= lease_seconds <= 3600:
+            raise ValueError("lease_seconds must be between 0.05 and 3600 seconds")
         if isinstance(max_attempts, bool) or not isinstance(max_attempts, int) or max_attempts < 1:
             raise ValueError("max_attempts must be a positive integer")
         if isinstance(retry_delay_seconds, bool) or not isinstance(retry_delay_seconds, (int, float)) or retry_delay_seconds < 0:
@@ -83,9 +86,13 @@ class HermesWorker:
         required = {"cpu_cores", "memory_bytes", "max_wall_seconds", "compute_budget_units"}
         if not isinstance(budget, dict) or not required.issubset(budget):
             raise ValueError("task resource budget is incomplete")
+        if set(budget) != required:
+            raise ValueError("task resource budget must contain only the four declared fields")
+        limits = {"cpu_cores": 256, "memory_bytes": 1 << 50,
+                  "max_wall_seconds": 86400, "compute_budget_units": 1_000_000_000}
         for key, value in budget.items():
-            if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
-                raise ValueError("task resource budget values must be positive integers")
+            if isinstance(value, bool) or not isinstance(value, int) or not 1 <= value <= limits[key]:
+                raise ValueError("task resource budget value is outside its bounded range: " + key)
         if payload.get("promotion_authority") is not False:
             raise PermissionError("Hermes tasks cannot carry hypothesis-promotion authority")
         if payload.get("authority") != "bounded_execution_only":
@@ -115,6 +122,40 @@ class HermesWorker:
         event_id, token = lease["event_id"], lease["lease_token"]
         payload = lease["payload"]
         task_id = str(payload.get("task_id") or event_id) if isinstance(payload, dict) else event_id
+        heartbeat_stop = threading.Event()
+        lease_lost = threading.Event()
+        heartbeat_thread = None
+
+        def stop_heartbeat() -> None:
+            heartbeat_stop.set()
+            if heartbeat_thread is not None and heartbeat_thread.is_alive():
+                heartbeat_thread.join(timeout=2)
+
+        def heartbeat_once() -> None:
+            row = self.outbox.get(event_id)
+            if row is None or row.get("state") != "leased" or row.get("lease_token") != token:
+                lease_lost.set()
+                raise LeaseConflict("Hermes worker no longer owns the task lease")
+            self.outbox.heartbeat(
+                event_id, self.worker_id, token, lease_seconds=self.lease_seconds,
+            )
+
+        # Explicit clocks are used by deterministic tests. Production calls
+        # use real time and keep the lease alive in a supervisor thread.
+        if now is None:
+            def heartbeat_loop() -> None:
+                interval = max(0.05, min(30.0, self.lease_seconds / 3.0))
+                while not heartbeat_stop.wait(interval):
+                    try:
+                        heartbeat_once()
+                    except Exception:
+                        lease_lost.set()
+                        return
+            heartbeat_thread = threading.Thread(
+                target=heartbeat_loop, name="merlin-hermes-lease-heartbeat", daemon=True,
+            )
+            heartbeat_thread.start()
+
         try:
             task = self._validate_payload(payload)
             stage = task["stage"]
@@ -125,10 +166,24 @@ class HermesWorker:
                 raise PermissionError("operator approval is not valid at execution time")
             if not self.lease_validator(task["lease_ref"], task["resource_budget"]):
                 raise PermissionError("MCFC lease is not valid at execution time")
-            if task["resource_budget"]["max_wall_seconds"] > self.lease_seconds:
-                raise PermissionError("task wall-time budget exceeds the worker lease duration")
             deadline_epoch = time.time() + task["resource_budget"]["max_wall_seconds"]
-            idempotency_key = "hermes-task-handler:" + task["task_id"]
+
+            def check_cancelled() -> None:
+                if time.time() > deadline_epoch:
+                    raise TimeoutError("task execution exceeded its declared wall-time budget")
+                if lease_lost.is_set():
+                    raise LeaseConflict("Hermes worker lost its task lease")
+                current = self.outbox.get(event_id)
+                if current is None or current.get("state") == "cancelled":
+                    raise InterruptedError("task was cancelled")
+                if current.get("state") != "leased" or current.get("lease_token") != token:
+                    lease_lost.set()
+                    raise LeaseConflict("Hermes worker no longer owns the task lease")
+
+            def renew_lease() -> None:
+                check_cancelled()
+                heartbeat_once()
+
             self.emit_event(
                 kind="agent.status", run_id=task_id, task_id=task_id,
                 payload={"agent_id": "hermes", "role": "research orchestrator",
@@ -138,11 +193,11 @@ class HermesWorker:
             self._progress(task_id, task["hypothesis_id"], stage, "Execution handler started")
 
             def progress(summary: str, details: Mapping[str, Any] | None = None) -> None:
-                if time.time() > deadline_epoch:
-                    raise TimeoutError("task execution exceeded its declared wall-time budget")
+                check_cancelled()
                 self._progress(task_id, task["hypothesis_id"], stage, summary, details)
 
             def tool_event(kind: str, tool_name: str, details: Mapping[str, Any]) -> None:
+                check_cancelled()
                 if kind not in {"agent.tool.started", "agent.tool.completed"}:
                     raise ValueError("unsupported tool lifecycle event")
                 if not isinstance(tool_name, str) or not tool_name.strip() or len(tool_name) > 120:
@@ -154,10 +209,13 @@ class HermesWorker:
                 task_id=task_id, hypothesis_id=task["hypothesis_id"],
                 resource_budget=dict(task["resource_budget"]),
                 approval_ref=task["approval_ref"], lease_ref=task["lease_ref"],
-                idempotency_key=idempotency_key, deadline_epoch=deadline_epoch,
+                idempotency_key="hermes-task-handler:" + task["task_id"],
+                deadline_epoch=deadline_epoch,
                 emit_progress=progress, emit_tool_event=tool_event,
+                heartbeat=renew_lease, check_cancelled=check_cancelled,
             )
             result = handler(task, context)
+            check_cancelled()
             if not isinstance(result, Mapping):
                 raise ValueError("Hermes handler must return a result object")
             result = dict(result)
@@ -185,11 +243,30 @@ class HermesWorker:
                 payload={"agent_id": "hermes", "role": "research orchestrator",
                          "status": "completed", "activity": "result receipt stored"},
             )
+            stop_heartbeat()
             ack = self.outbox.acknowledge(event_id, self.worker_id, token,
                                           result=receipt, now=now)
             return {"status": "completed", "event_id": event_id,
                     "receipt": receipt, "outbox_state": ack["state"]}
+        except InterruptedError as exc:
+            stop_heartbeat()
+            current = self.outbox.get(event_id)
+            if current is not None and current.get("state") == "cancelled":
+                self.emit_event(
+                    kind="agent.status", run_id=task_id, task_id=task_id,
+                    payload={"agent_id": "hermes", "status": "cancelled",
+                             "activity": "worker observed cooperative cancellation"},
+                )
+                return {"status": "cancelled", "event_id": event_id}
+            if current is None or current.get("state") != "leased" or current.get("lease_token") != token:
+                return {"status": "lease_lost", "event_id": event_id}
+            retried = self.outbox.retry(
+                event_id, self.worker_id, token, str(exc),
+                delay_seconds=0, max_attempts=self.max_attempts, now=now,
+            )
+            return {"status": retried["state"], "event_id": event_id}
         except PermissionError as exc:
+            stop_heartbeat()
             rejection = {"schema": "merlin-hermes-task-result/1",
                          "task_id": task_id, "status": "rejected",
                          "reason": str(exc), "promotion_authority": False}
@@ -199,11 +276,25 @@ class HermesWorker:
                          "status": "rejected", "error_type": type(exc).__name__,
                          "summary": str(exc)[:300]},
             )
-            ack = self.outbox.acknowledge(event_id, self.worker_id, token,
-                                          result=rejection, now=now)
+            try:
+                ack = self.outbox.acknowledge(event_id, self.worker_id, token,
+                                              result=rejection, now=now)
+            except LeaseConflict:
+                return {"status": "lease_lost", "event_id": event_id}
             return {"status": "rejected", "event_id": event_id,
                     "outbox_state": ack["state"]}
+        except LeaseConflict:
+            stop_heartbeat()
+            current = self.outbox.get(event_id)
+            return {"status": "cancelled" if current and current.get("state") == "cancelled"
+                    else "lease_lost", "event_id": event_id}
         except Exception as exc:
+            stop_heartbeat()
+            current = self.outbox.get(event_id)
+            if current is not None and current.get("state") == "cancelled":
+                return {"status": "cancelled", "event_id": event_id}
+            if current is None or current.get("state") != "leased" or current.get("lease_token") != token:
+                return {"status": "lease_lost", "event_id": event_id}
             self.emit_event(
                 kind="system.error", run_id=task_id, task_id=task_id,
                 payload={"agent_id": "hermes", "component": "worker_execution",
@@ -224,6 +315,8 @@ class HermesWorker:
             )
             return {"status": retried["state"], "event_id": event_id,
                     "error": type(exc).__name__}
+        finally:
+            stop_heartbeat()
 
     def run_forever(self, stop_event: Any, *, idle_seconds: float = 0.5) -> None:
         if not hasattr(stop_event, "is_set") or not hasattr(stop_event, "wait"):

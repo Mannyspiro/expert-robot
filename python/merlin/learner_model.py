@@ -5,6 +5,7 @@ idempotent; estimates are transparent Beta-binomial summaries, not diagnoses.
 """
 from __future__ import annotations
 from dataclasses import dataclass
+from contextlib import closing
 import json
 import math
 import sqlite3
@@ -45,7 +46,7 @@ class LearnerStore:
     def __init__(self, database: str | Path):
         self.path = str(database)
         Path(self.path).parent.mkdir(parents=True, exist_ok=True)
-        with self._connect() as db:
+        with closing(self._connect()) as db:
             db.executescript("""
             CREATE TABLE IF NOT EXISTS learner_attempts(
               attempt_id TEXT PRIMARY KEY, learner_id TEXT NOT NULL,
@@ -104,7 +105,7 @@ class LearnerStore:
             raise ValueError("response artifact exceeds 100 KB")
         row=(attempt,learner,idea,problem,version,dimension,float(score),session,
              submitted,response_json,evidence,rubric,int(delayed),int(transfer))
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.execute("BEGIN IMMEDIATE")
             old=db.execute("SELECT * FROM learner_attempts WHERE attempt_id=?",(attempt,)).fetchone()
             if old:
@@ -126,7 +127,7 @@ class LearnerStore:
     def estimate(self, learner_id: str, idea_id: str, dimension: str) -> SkillEstimate:
         if dimension not in DIMENSIONS:
             raise ValueError("unsupported learner evidence dimension")
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             rows=db.execute("""SELECT score,session_id,delayed,transfer
               FROM learner_attempts WHERE learner_id=? AND idea_id=? AND dimension=?
               ORDER BY submitted_at""",(learner_id,idea_id,dimension)).fetchall()
@@ -147,7 +148,7 @@ class LearnerStore:
         return SkillEstimate(idea_id,dimension,mean,uncertainty,len(rows),sessions,state)
 
     def attempts(self, learner_id: str, idea_id: str | None=None) -> list[dict[str,Any]]:
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             if idea_id:
                 rows=db.execute("SELECT * FROM learner_attempts WHERE learner_id=? AND idea_id=? ORDER BY submitted_at",
                                 (learner_id,idea_id)).fetchall()

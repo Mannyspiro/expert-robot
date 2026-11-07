@@ -1,5 +1,6 @@
 """Durable idempotent outbox for Merlin service boundaries (at-least-once delivery)."""
 from __future__ import annotations
+from contextlib import closing
 import hashlib
 import json
 import sqlite3
@@ -27,29 +28,59 @@ class MerlinEventOutbox:
     def __init__(self, database: str | Path):
         self.path = Path(database)
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.execute("PRAGMA journal_mode=WAL")
-            db.executescript("""
-            CREATE TABLE IF NOT EXISTS event_outbox (
-              event_id TEXT PRIMARY KEY, idempotency_key TEXT NOT NULL UNIQUE,
-              topic TEXT NOT NULL, payload_json TEXT NOT NULL,
-              state TEXT NOT NULL CHECK(state IN ('pending','leased','acknowledged','quarantined')),
-              attempts INTEGER NOT NULL DEFAULT 0, available_at REAL NOT NULL,
-              lease_owner TEXT, lease_token TEXT, lease_expires_at REAL,
-              last_error TEXT, created_at REAL NOT NULL, updated_at REAL NOT NULL,
-              acknowledged_at REAL, result_json TEXT);
-            CREATE INDEX IF NOT EXISTS outbox_ready
-              ON event_outbox(state, available_at, created_at);
-            CREATE INDEX IF NOT EXISTS outbox_expiry
-              ON event_outbox(state, lease_expires_at);
-            """)
-            columns = {row[1] for row in self._connect().execute(
-                "PRAGMA table_info(event_outbox)"
-            )}
-            if "result_json" not in columns:
-                with self._connect() as db:
-                    db.execute("ALTER TABLE event_outbox ADD COLUMN result_json TEXT")
-
+            existing = db.execute(
+                "SELECT sql FROM sqlite_master WHERE type='table' AND name='event_outbox'"
+            ).fetchone()
+            if existing is None:
+                db.execute("""CREATE TABLE event_outbox (
+                  event_id TEXT PRIMARY KEY, idempotency_key TEXT NOT NULL UNIQUE,
+                  topic TEXT NOT NULL, payload_json TEXT NOT NULL,
+                  state TEXT NOT NULL CHECK(state IN
+                    ('pending','leased','acknowledged','quarantined','cancelled')),
+                  attempts INTEGER NOT NULL DEFAULT 0, available_at REAL NOT NULL,
+                  lease_owner TEXT, lease_token TEXT, lease_expires_at REAL,
+                  last_error TEXT, created_at REAL NOT NULL, updated_at REAL NOT NULL,
+                  acknowledged_at REAL, result_json TEXT,
+                  cancelled_at REAL, cancelled_by TEXT, cancel_reason TEXT)""")
+            elif "'cancelled'" not in (existing["sql"] or ""):
+                columns = {row[1] for row in db.execute("PRAGMA table_info(event_outbox)")}
+                db.execute("DROP INDEX IF EXISTS outbox_ready")
+                db.execute("DROP INDEX IF EXISTS outbox_expiry")
+                db.execute("ALTER TABLE event_outbox RENAME TO event_outbox_legacy")
+                db.execute("""CREATE TABLE event_outbox (
+                  event_id TEXT PRIMARY KEY, idempotency_key TEXT NOT NULL UNIQUE,
+                  topic TEXT NOT NULL, payload_json TEXT NOT NULL,
+                  state TEXT NOT NULL CHECK(state IN
+                    ('pending','leased','acknowledged','quarantined','cancelled')),
+                  attempts INTEGER NOT NULL DEFAULT 0, available_at REAL NOT NULL,
+                  lease_owner TEXT, lease_token TEXT, lease_expires_at REAL,
+                  last_error TEXT, created_at REAL NOT NULL, updated_at REAL NOT NULL,
+                  acknowledged_at REAL, result_json TEXT,
+                  cancelled_at REAL, cancelled_by TEXT, cancel_reason TEXT)""")
+                result_expr = "result_json" if "result_json" in columns else "NULL"
+                db.execute(f"""INSERT INTO event_outbox(
+                    event_id,idempotency_key,topic,payload_json,state,attempts,
+                    available_at,lease_owner,lease_token,lease_expires_at,last_error,
+                    created_at,updated_at,acknowledged_at,result_json)
+                    SELECT event_id,idempotency_key,topic,payload_json,state,attempts,
+                    available_at,lease_owner,lease_token,lease_expires_at,last_error,
+                    created_at,updated_at,acknowledged_at,{result_expr}
+                    FROM event_outbox_legacy""")
+                db.execute("DROP TABLE event_outbox_legacy")
+            else:
+                columns = {row[1] for row in db.execute("PRAGMA table_info(event_outbox)")}
+                for name, declaration in (
+                    ("result_json", "TEXT"),
+                    ("cancelled_at", "REAL"),
+                    ("cancelled_by", "TEXT"),
+                    ("cancel_reason", "TEXT"),
+                ):
+                    if name not in columns:
+                        db.execute(f"ALTER TABLE event_outbox ADD COLUMN {name} {declaration}")
+            db.execute("CREATE INDEX IF NOT EXISTS outbox_ready ON event_outbox(state, available_at, created_at)")
+            db.execute("CREATE INDEX IF NOT EXISTS outbox_expiry ON event_outbox(state, lease_expires_at)")
     def _connect(self):
         db = sqlite3.connect(self.path, timeout=30)
         db.row_factory = sqlite3.Row
@@ -79,7 +110,7 @@ class MerlinEventOutbox:
         encoded = _canonical(dict(payload))
         timestamp = time.time() if now is None else float(now)
         event_id = "evt_" + hashlib.sha256(key.encode()).hexdigest()
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.execute("BEGIN IMMEDIATE")
             old = db.execute("SELECT * FROM event_outbox WHERE idempotency_key=?", (key,)).fetchone()
             if old:
@@ -110,7 +141,7 @@ class MerlinEventOutbox:
             if not topics:
                 return None
         token = str(uuid4())
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.execute("BEGIN IMMEDIATE")
             db.execute("""UPDATE event_outbox SET state='pending',lease_owner=NULL,
                 lease_token=NULL,lease_expires_at=NULL,updated_at=?
@@ -143,12 +174,55 @@ class MerlinEventOutbox:
         if row["state"] != "leased" or row["lease_owner"] != worker_id or row["lease_token"] != lease_token or row["lease_expires_at"] is None or row["lease_expires_at"] <= now:
             raise LeaseConflict("operation requires the current unexpired lease")
 
+    def heartbeat(self, event_id: str, worker_id: str, lease_token: str,
+                  *, lease_seconds: float = 60, now: float | None = None) -> dict[str, Any]:
+        if isinstance(lease_seconds, bool) or not isinstance(lease_seconds, (int, float)) or not 0 < lease_seconds <= 3600:
+            raise ValueError("heartbeat lease_seconds must be greater than 0 and at most 3600")
+        timestamp = time.time() if now is None else float(now)
+        with closing(self._connect()) as db, db:
+            db.execute("BEGIN IMMEDIATE")
+            row = db.execute("SELECT * FROM event_outbox WHERE event_id=?", (event_id,)).fetchone()
+            if row is None:
+                raise KeyError(event_id)
+            self._require_lease(row, worker_id, lease_token, timestamp)
+            db.execute(
+                "UPDATE event_outbox SET lease_expires_at=?,updated_at=? WHERE event_id=?",
+                (timestamp + lease_seconds, timestamp, event_id),
+            )
+            return self._row(db.execute(
+                "SELECT * FROM event_outbox WHERE event_id=?", (event_id,)
+            ).fetchone())
+
+    def cancel(self, event_id: str, cancelled_by: str, reason: str = "",
+               *, now: float | None = None) -> dict[str, Any]:
+        actor = self._text(cancelled_by, "cancelled_by", 200)
+        if not isinstance(reason, str) or len(reason) > 500:
+            raise ValueError("cancel reason must be a string of at most 500 characters")
+        timestamp = time.time() if now is None else float(now)
+        with closing(self._connect()) as db, db:
+            db.execute("BEGIN IMMEDIATE")
+            row = db.execute("SELECT * FROM event_outbox WHERE event_id=?", (event_id,)).fetchone()
+            if row is None:
+                raise KeyError(event_id)
+            if row["state"] == "acknowledged":
+                raise ValueError("acknowledged events cannot be cancelled")
+            if row["state"] == "cancelled":
+                return self._row(row)
+            db.execute("""UPDATE event_outbox SET state='cancelled',
+                lease_owner=NULL,lease_token=NULL,lease_expires_at=NULL,
+                cancelled_at=?,cancelled_by=?,cancel_reason=?,updated_at=?
+                WHERE event_id=?""",
+                (timestamp, actor, reason, timestamp, event_id))
+            return self._row(db.execute(
+                "SELECT * FROM event_outbox WHERE event_id=?", (event_id,)
+            ).fetchone())
+
     def acknowledge(self, event_id: str, worker_id: str, lease_token: str,
                     *, result: Mapping[str, Any] | None = None,
                     now: float | None = None) -> dict[str, Any]:
         timestamp = time.time() if now is None else float(now)
         result_json = None if result is None else _canonical(dict(result))
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.execute("BEGIN IMMEDIATE")
             row = db.execute("SELECT * FROM event_outbox WHERE event_id=?", (event_id,)).fetchone()
             if row is None:
@@ -170,7 +244,7 @@ class MerlinEventOutbox:
             raise ValueError("max_attempts must be a positive integer")
         if isinstance(delay_seconds,bool) or not isinstance(delay_seconds,(int,float)) or delay_seconds < 0:
             raise ValueError("delay_seconds must be non-negative")
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.execute("BEGIN IMMEDIATE")
             row = db.execute("SELECT * FROM event_outbox WHERE event_id=?", (event_id,)).fetchone()
             if row is None:
@@ -186,7 +260,7 @@ class MerlinEventOutbox:
 
     def recover_expired(self, *, now: float | None = None) -> int:
         timestamp = time.time() if now is None else float(now)
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.execute("BEGIN IMMEDIATE")
             cur = db.execute("""UPDATE event_outbox SET state='pending',lease_owner=NULL,
                 lease_token=NULL,lease_expires_at=NULL,updated_at=?
@@ -194,13 +268,13 @@ class MerlinEventOutbox:
             return cur.rowcount
 
     def get(self, event_id: str) -> dict[str, Any] | None:
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             row = db.execute("SELECT * FROM event_outbox WHERE event_id=?", (event_id,)).fetchone()
         return self._row(row) if row else None
 
     def counts(self) -> dict[str, int]:
-        states = ("pending","leased","acknowledged","quarantined")
-        with self._connect() as db:
+        states = ("pending","leased","acknowledged","quarantined","cancelled")
+        with closing(self._connect()) as db, db:
             rows = db.execute("SELECT state,COUNT(*) AS n FROM event_outbox GROUP BY state").fetchall()
         result = {state:0 for state in states}
         result.update({row["state"]:row["n"] for row in rows})

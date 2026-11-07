@@ -1,0 +1,78 @@
+name: Merlin Learning identity evidence
+
+on:
+  pull_request:
+    paths:
+      - "python/merlin/app.py"
+      - "python/merlin/identity.py"
+      - "requirements-merlin-auth.txt"
+      - "python/merlin/learning_platform.py"
+      - "tests/test_merlin_identity.py"
+      - "tests/test_merlin_learning_platform.py"
+      - "tests/research/test_merlin_learning_http.py"
+      - ".github/workflows/merlin-learning-identity-evidence.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: merlin-learning-identity-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  learning-identity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout exact PR head
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Prepare evidence directory
+        run: mkdir -p artifacts
+
+      - name: Install pinned test runner
+        shell: bash
+        run: |
+          set +e
+          python -m pip install -r requirements-merlin-auth.txt pytest==8.3.5 2>&1 | tee artifacts/pip-install.log
+          rc=${PIPESTATUS[0]}
+          printf '{"suite":"merlin-learning-identity-install","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/install-result.json
+          exit "$rc"
+
+      - name: Compile Learning and identity modules
+        shell: bash
+        run: |
+          set +e
+          mkdir -p artifacts
+          python -m compileall -q python/merlin/app.py python/merlin/identity.py python/merlin/learning_platform.py 2>&1 | tee artifacts/compile.log
+          rc=${PIPESTATUS[0]}
+          printf '{"suite":"merlin-learning-identity-compile","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/compile-result.json
+          exit "$rc"
+
+      - name: Run Learning and identity tests
+        shell: bash
+        env:
+          PYTHONPATH: .
+        run: |
+          set +e
+          mkdir -p artifacts
+          python -m pytest -q -v tests/test_merlin_identity.py tests/test_merlin_learning_platform.py tests/research/test_merlin_learning_http.py 2>&1 | tee artifacts/learning-identity-tests.log
+          rc=${PIPESTATUS[0]}
+          printf '{"suite":"merlin-learning-identity-tests","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/learning-identity-tests-result.json
+          exit "$rc"
+
+      - name: Upload logs and machine-readable results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-learning-identity-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/
+          if-no-files-found: warn
+          retention-days: 30

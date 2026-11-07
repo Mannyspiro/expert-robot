@@ -10,7 +10,7 @@ from dataclasses import dataclass
 import hashlib
 from typing import Any, Callable, Mapping
 
-from merlin.hermes_claim_routing import Route, route_claim
+from .hermes_claim_routing import Route, route_claim
 
 
 @dataclass(frozen=True)
