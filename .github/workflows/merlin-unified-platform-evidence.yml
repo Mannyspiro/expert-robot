@@ -49,7 +49,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: merlin-unified-platform-${{ github.event.pull_request.number || github.ref }}
+  group: merlin-unified-platform-${{ github.event.pull_request.head.sha || github.sha }}
   cancel-in-progress: false
 
 jobs:
@@ -67,16 +67,27 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Prepare evidence directory
+        run: mkdir -p artifacts
+
       - name: Install pinned test runner
+        shell: bash
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -r requirements-merlin-auth.txt pytest==8.3.5
+          set +e
+          python -m pip install --upgrade pip 2>&1 | tee artifacts/pip-upgrade.log
+          rc=${PIPESTATUS[0]}
+          if [ "$rc" -eq 0 ]; then
+            python -m pip install -r requirements-merlin-auth.txt pytest==8.3.5 2>&1 | tee artifacts/pip-install.log
+            rc=${PIPESTATUS[0]}
+          fi
+          printf '{"suite":"merlin-unified-platform-install","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/install-result.json
+          exit "$rc"
 
       - name: Compile unified Merlin modules
         shell: bash
         run: |
+          set +e
           set -o pipefail
-          mkdir -p artifacts
           python -m compileall -q python/merlin 2>&1 | tee artifacts/compile.log
           rc=${PIPESTATUS[0]}
           printf '{"suite":"merlin-unified-platform-compile","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/compile-result.json
@@ -87,8 +98,8 @@ jobs:
         env:
           PYTHONPATH: python:.
         run: |
+          set +e
           set -o pipefail
-          mkdir -p artifacts
           pytest -q tests/research/test_merlin_api.py tests/research/test_merlin_learning_http.py tests/test_merlin_identity.py tests/test_merlin_learning_platform.py tests/test_merlin_capability_registry.py tests/test_merlin_project_registry.py tests/test_cace_adapter.py tests/test_cace_attestation.py tests/test_cace_runtime.py tests/test_ngspice_engine.py tests/test_event_outbox.py tests/test_merlin_worker_api.py tests/test_hermes_worker.py tests/test_hermes_worker_service.py tests/test_hermes_runtime.py tests/test_hermes_stage_handlers.py tests/test_hermes_proof_orchestrator.py tests/test_avrea_adapter.py tests/test_hermes_outbox.py tests/test_public_literature.py 2>&1 | tee artifacts/unified-platform-tests.log
           rc=${PIPESTATUS[0]}
           printf '{"suite":"merlin-unified-platform-tests","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/unified-platform-tests-result.json
