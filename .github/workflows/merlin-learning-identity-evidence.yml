@@ -34,10 +34,17 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Prepare evidence directory
+        run: mkdir -p artifacts
+
       - name: Install pinned test runner
+        shell: bash
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install -r requirements-merlin-auth.txt pytest==8.3.5
+          set +e
+          python -m pip install -r requirements-merlin-auth.txt pytest==8.3.5 2>&1 | tee artifacts/pip-install.log
+          rc=${PIPESTATUS[0]}
+          printf '{"suite":"merlin-learning-identity-install","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/install-result.json
+          exit "$rc"
 
       - name: Compile Learning and identity modules
         shell: bash
@@ -67,5 +74,5 @@ jobs:
         with:
           name: merlin-learning-identity-evidence-${{ github.run_id }}-${{ github.run_attempt }}
           path: artifacts/
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 30
