@@ -543,6 +543,8 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 try:
                     manifest_bytes = forge.read_file("main", "merlin/SEED_MANIFEST.json")
                     manifest = json.loads(manifest_bytes.decode("utf-8"))
+                    if not isinstance(manifest, dict):
+                        raise ValueError("source snapshot manifest is not an object")
                     source_snapshot = {
                         "file_count": manifest.get("file_count"),
                         "total_bytes": manifest.get("total_bytes"),
