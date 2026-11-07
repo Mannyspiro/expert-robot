@@ -139,5 +139,50 @@
       ],
       "terminal_state": "rsi_ready"
     }
+  ],
+  "cross_cutting_workstreams": [
+    {
+      "id": "continuous_research_protocol",
+      "rank": 1,
+      "status": "in_progress",
+      "contract": "config/research/reasoning_protocol_v1.json",
+      "documentation": "docs/continuous-research-protocol.md",
+      "taxonomy": "config/research/reasoning_checks_v1.json",
+      "exit": [
+        "protocol loader validates schema and version",
+        "research intake invokes protocol when relevant",
+        "Ideonomy records useful combinations and rejected ideas with reasons",
+        "inductive observations and deductive derivations are linked to requirements and tests",
+        "analogy transfer records preserved and non-preserved properties",
+        "fallacy and bias checks cite the reasoning step rather than applying labels mechanically",
+        "math method selection records assumptions, cost, and measured benefit",
+        "all significant updates retain artifact revision, logs, test results, and uncertainty"
+      ]
+    },
+    {
+      "id": "conversation_context_ingestion",
+      "rank": 2,
+      "status": "specified_not_implemented",
+      "contract": "docs/conversation-context-ingestion-contract.md",
+      "exit": [
+        "authorized source inventory and coverage manifest",
+        "idempotent prompt/response/attachment import",
+        "source-linked requirement and decision extraction",
+        "contradiction and supersession tracking",
+        "privacy and relevance filtering",
+        "retrieval tests reconstruct a project handoff from original source messages"
+      ]
+    },
+    {
+      "id": "mathematical_method_fabric",
+      "rank": 3,
+      "status": "specified_existing_math_engine_needs_mapping",
+      "exit": [
+        "map existing math services and Lean boundaries to protocol method registry",
+        "add method applicability and assumption checks",
+        "benchmark method selection against baseline",
+        "record error bounds, resource cost, and outcomes"
+      ]
+    }
   ]
 }
