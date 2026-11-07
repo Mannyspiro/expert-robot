@@ -77,29 +77,9 @@ def _append_component_event(store: EventStore, *, source: str, kind: str,
                  {"event": event})
 
 
-FREE_OPENAI_COMPATIBLE_PROFILES = {
-    "gemini": {
-        "endpoint": "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
-        "host": "generativelanguage.googleapis.com",
-        "transport": "Google Gemini API OpenAI-compatible endpoint",
-    },
-    "groq": {
-        "endpoint": "https://api.groq.com/openai/v1/chat/completions",
-        "host": "api.groq.com",
-        "transport": "Groq OpenAI-compatible endpoint",
-    },
-}
-
-
 def _remote_model_endpoint() -> tuple[str, str]:
     """Return a HTTPS endpoint pinned to a built-in or explicit custom host."""
-    provider = os.environ.get("MERLIN_REMOTE_PROVIDER", "custom").strip().lower()
-    profile = FREE_OPENAI_COMPATIBLE_PROFILES.get(provider)
-    if provider != "custom" and profile is None:
-        raise ValueError("unsupported remote model provider profile")
     endpoint = os.environ.get("MERLIN_REMOTE_MODEL_URL", "").strip()
-    if not endpoint and profile is not None:
-        endpoint = profile["endpoint"]
     api_key = os.environ.get("MERLIN_REMOTE_API_KEY", "").strip()
     allowed = {
         host.strip().lower()
@@ -115,12 +95,7 @@ def _remote_model_endpoint() -> tuple[str, str]:
     ):
         raise ValueError("remote model URL must use HTTPS without embedded credentials")
     hostname = parsed.hostname.lower()
-    if profile is not None:
-        if hostname != profile["host"]:
-            raise ValueError("remote model URL does not match the selected provider profile")
-        if allowed and hostname not in allowed:
-            raise ValueError("remote model host is not in the explicit allowed-host list")
-    elif hostname not in allowed:
+    if hostname not in allowed:
         raise ValueError("custom remote model URL requires an explicitly allowlisted host")
     return endpoint, api_key
 
@@ -137,13 +112,6 @@ class EventStore:
                 summary_json TEXT NOT NULL,
                 created_at TEXT NOT NULL
             )""")
-            db.execute("""CREATE TABLE IF NOT EXISTS posthog_export_state (
-                singleton INTEGER PRIMARY KEY CHECK(singleton = 1),
-                cursor INTEGER NOT NULL DEFAULT 0
-            )""")
-            db.execute(
-                "INSERT OR IGNORE INTO posthog_export_state(singleton, cursor) VALUES(1, 0)"
-            )
 
     def append(self, kind: str, request: dict[str, Any], summary: dict[str, Any]) -> None:
         digest = sha256(_json_bytes(request)).hexdigest()
@@ -177,39 +145,6 @@ class EventStore:
         return [{"id": row[0], "kind": row[1], "request_sha256": row[2],
                  "summary": json.loads(row[3]), "created_at": row[4]} for row in rows]
 
-    def get_posthog_export_cursor(self) -> int:
-        """Return the durable cursor for optional analytics export."""
-        with closing(sqlite3.connect(self.path)) as db, db:
-            row = db.execute(
-                "SELECT cursor FROM posthog_export_state WHERE singleton=1"
-            ).fetchone()
-        return int(row[0]) if row else 0
-
-    def export_batch(self, *, cursor: int, limit: int = 100) -> list[dict[str, Any]]:
-        """Export event metadata only; original request bodies are never stored."""
-        if not isinstance(cursor, int) or cursor < 0 or not 1 <= limit <= 500:
-            raise ValueError("PostHog export cursor or batch limit is invalid")
-        with closing(sqlite3.connect(self.path)) as db, db:
-            rows = db.execute(
-                "SELECT id,kind,request_sha256,summary_json,created_at "
-                "FROM events WHERE id > ? ORDER BY id ASC LIMIT ?",
-                (cursor, limit),
-            ).fetchall()
-        return [
-            {"id": row[0], "kind": row[1], "request_sha256": row[2],
-             "summary": json.loads(row[3]), "created_at": row[4]}
-            for row in rows
-        ]
-
-    def advance_posthog_export_cursor(self, cursor: int) -> None:
-        """Advance monotonically after the remote batch has been accepted."""
-        if not isinstance(cursor, int) or cursor < 0:
-            raise ValueError("PostHog export cursor must be a non-negative integer")
-        with closing(sqlite3.connect(self.path)) as db, db:
-            db.execute(
-                "UPDATE posthog_export_state SET cursor = MAX(cursor, ?) WHERE singleton=1",
-                (cursor,),
-            )
 
 
 def _runtime_provider_status() -> dict[str, Any]:
@@ -222,12 +157,10 @@ def _runtime_provider_status() -> dict[str, Any]:
             _loopback_endpoint("MERLIN_MODEL_URL", "http://127.0.0.1:8080/v1/chat/completions")
         except ValueError:
             local_ready = False
-    remote_provider = os.environ.get("MERLIN_REMOTE_PROVIDER", "custom").strip().lower()
     remote_ready = (
         os.environ.get("MERLIN_REMOTE_MODEL_QUALIFIED") == "1"
         and bool(remote_model)
-        and (bool(os.environ.get("MERLIN_REMOTE_MODEL_URL", "").strip())
-             or remote_provider in FREE_OPENAI_COMPATIBLE_PROFILES)
+        and bool(os.environ.get("MERLIN_REMOTE_MODEL_URL", "").strip())
     )
     if remote_ready:
         try:
@@ -249,13 +182,9 @@ def _runtime_provider_status() -> dict[str, Any]:
                       "transport": "loopback OpenAI-compatible API"},
             "cloud": {"status": "QUALIFIED_CONFIGURED" if remote_ready else "UNAVAILABLE",
                       "health": "not_probed",
-                      "provider": remote_provider if remote_ready else None,
+                      "provider": "custom" if remote_ready else None,
                       "model": remote_model if remote_ready else None,
-                      "transport": (
-                          FREE_OPENAI_COMPATIBLE_PROFILES[remote_provider]["transport"]
-                          if remote_ready and remote_provider in FREE_OPENAI_COMPATIBLE_PROFILES
-                          else "explicitly allowlisted HTTPS OpenAI-compatible API"
-                      )},
+                      "transport": "explicitly allowlisted HTTPS OpenAI-compatible API"},
             "speech_output": {"status": "QUALIFIED_CONFIGURED" if tts_ready else "UNAVAILABLE",
                               "health": "not_probed",
                               "model": os.environ.get("MERLIN_TTS_MODEL") if tts_ready else None,
@@ -366,8 +295,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                  learning_identity_resolver: Any | None = None,
                  canonical_graph: Any | None = None,
                  hermes_worker_service: Any | None = None,
-                 hermes_runtime: Any | None = None,
-                 posthog_service: Any | None = None):
+                 hermes_runtime: Any | None = None):
     simulation = MerlinSimulation()
     learner_store = learner_store or LearnerStore(store.path)
     learning_db = os.environ.get("MERLIN_LEARNING_DB_PATH",
@@ -708,16 +636,6 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     outbox_configured=learning_outbox is not None))
             elif path == "/api/runtime/providers":
                 self._send(200, _runtime_provider_status())
-            elif path == "/api/runtime/analytics":
-                if posthog_service is None:
-                    self._send(503, {
-                        "schema": "merlin-posthog-export-health/1",
-                        "status": "unavailable",
-                        "promotion_authority": False,
-                        "raw_conversation_export": False,
-                    })
-                else:
-                    self._send(200, posthog_service.health())
             elif path == "/api/runtime/hermes":
                 if hermes_runtime is not None:
                     self._send(200, hermes_runtime.health())
@@ -1255,8 +1173,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     if provider not in {"auto", "local", "cloud"}:
                         raise ValueError("provider must be auto, local, or cloud")
                     remote_url = os.environ.get("MERLIN_REMOTE_MODEL_URL", "").strip()
-                    remote_profile = os.environ.get("MERLIN_REMOTE_PROVIDER", "custom").strip().lower()
-                    remote_configured = bool(remote_url) or remote_profile in FREE_OPENAI_COMPATIBLE_PROFILES
+                    remote_configured = bool(remote_url)
                     use_cloud = provider == "cloud" or (provider == "auto" and remote_configured)
                     if use_cloud:
                         if os.environ.get("MERLIN_REMOTE_MODEL_QUALIFIED") != "1":
@@ -1464,20 +1381,6 @@ def _build_optional_hud_runtime(
         print("Merlin HUD integration unavailable: " + type(exc).__name__)
         return None
 
-def _build_optional_posthog_service(store: EventStore):
-    """Create an opt-in analytics exporter; no token means no external traffic."""
-    from .posthog_telemetry import PostHogExportService, PostHogTelemetrySink
-    sink = PostHogTelemetrySink.from_environment()
-    if sink is None:
-        return None
-    return PostHogExportService(
-        event_store=store,
-        sink=sink,
-        poll_seconds=float(os.environ.get("MERLIN_POSTHOG_POLL_SECONDS", "5")),
-        batch_size=int(os.environ.get("MERLIN_POSTHOG_BATCH_SIZE", "100")),
-    )
-
-
 def serve(port: int = 8765, db_path: str | None = None,
           learning_identity_resolver: Any | None = None,
           hermes_worker_service: Any | None = None,
@@ -1494,7 +1397,6 @@ def serve(port: int = 8765, db_path: str | None = None,
     )
     target = db_path or os.environ.get("MERLIN_DB_PATH", runtime_default_db)
     store = EventStore(target)
-    posthog_service = _build_optional_posthog_service(store)
     learner_db = os.environ.get("MERLIN_LEARNER_DB_PATH", target)
     learner_store = LearnerStore(learner_db)
     outbox_path = os.environ.get("MERLIN_OUTBOX_DB_PATH", "").strip()
@@ -1525,11 +1427,9 @@ def serve(port: int = 8765, db_path: str | None = None,
                      canonical_registry, learning_identity_resolver=learning_identity_resolver,
                      canonical_graph=canonical_graph,
                      hermes_worker_service=hermes_worker_service,
-                     hermes_runtime=hermes_runtime,
-                     posthog_service=posthog_service))
+                     hermes_runtime=hermes_runtime))
     hud_runtime_started = False
     hermes_service_started = False
-    posthog_service_started = False
     shutdown_requested = Event()
     previous_signal_handlers = {}
 
@@ -1557,8 +1457,6 @@ def serve(port: int = 8765, db_path: str | None = None,
             hermes_service_started = bool(hermes_runtime.start())
         elif hermes_worker_service is not None:
             hermes_service_started = bool(hermes_worker_service.start())
-        if posthog_service is not None:
-            posthog_service_started = bool(posthog_service.start())
         print(f"Merlin MVP API listening on http://127.0.0.1:{port}")
         print("Merlin HUD: canonical graph/event stores connected" if hud_runtime
               else "Merlin HUD: labelled demonstration fallback (canonical store paths not configured)")
@@ -1569,8 +1467,6 @@ def serve(port: int = 8765, db_path: str | None = None,
         server.server_close()
         for signum, previous_handler in previous_signal_handlers.items():
             signal.signal(signum, previous_handler)
-        if posthog_service_started:
-            posthog_service.stop(timeout_seconds=5)
         if hud_runtime_started:
             hud_runtime.stop()
         if hermes_service_started:
