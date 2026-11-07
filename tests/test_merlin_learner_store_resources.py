@@ -1,4 +1,5 @@
 import gc
+import sqlite3
 import tempfile
 import unittest
 import warnings
@@ -9,6 +10,16 @@ from python.merlin.interaction_learning import InteractionLearningStore
 from python.merlin.knowledge_graph import MerlinKnowledgeGraph, GraphNode, GraphEdge
 from python.merlin.project_registry import MerlinRegistry
 from python.merlin.event_outbox import MerlinEventOutbox
+
+
+class TrackingConnection(sqlite3.Connection):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.was_closed = False
+
+    def close(self):
+        self.was_closed = True
+        super().close()
 
 
 class LearnerStoreResourceTests(unittest.TestCase):
@@ -72,6 +83,80 @@ class LearnerStoreResourceTests(unittest.TestCase):
                 gc.collect()
             leaks = [item for item in caught if issubclass(item.category, ResourceWarning)]
             self.assertEqual(leaks, [])
+
+
+
+    def test_storage_contexts_explicitly_close_every_connection(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            opened = []
+
+            def tracked(path, **kwargs):
+                connection = sqlite3.connect(path, factory=TrackingConnection, **kwargs)
+                opened.append(connection)
+                return connection
+
+            learner = LearnerStore(root / "learner-tracked.sqlite3")
+            def learner_connect():
+                db = tracked(learner.path, timeout=30)
+                db.row_factory = sqlite3.Row
+                db.execute("PRAGMA busy_timeout=30000")
+                db.execute("PRAGMA journal_mode=WAL")
+                return db
+            learner._connect = learner_connect
+            learner.record_attempt({
+                "attempt_id": "a1", "learner_id": "l1", "idea_id": "i1",
+                "problem_id": "p1", "dimension": "recognition", "score": 1,
+                "session_id": "s1",
+            })
+            learner.estimate("l1", "i1", "recognition")
+            learner.attempts("l1", "i1")
+
+            interactions = InteractionLearningStore(root / "interactions-tracked.sqlite3")
+            def interaction_connect():
+                db = tracked(interactions.path, timeout=30)
+                db.row_factory = sqlite3.Row
+                db.execute("PRAGMA busy_timeout=30000")
+                db.execute("PRAGMA journal_mode=WAL")
+                return db
+            interactions._connect = interaction_connect
+            interactions.record_feedback({
+                "event_id": "f1", "session_id": "s1",
+                "task_type": "api_call", "domain": "software", "outcome": "success",
+            })
+            interactions.feedback_summary()
+
+            graph = MerlinKnowledgeGraph(root / "graph-tracked.sqlite3")
+            def graph_connect():
+                db = tracked(graph.path)
+                db.execute("PRAGMA foreign_keys=ON")
+                return db
+            graph._connect = graph_connect
+            graph.add_node(GraphNode("node-1", "source", "Source", {}))
+            graph.export_snapshot()
+
+            registry = MerlinRegistry(root / "registry-tracked")
+            def registry_connect():
+                db = tracked(registry.db_path)
+                db.row_factory = sqlite3.Row
+                db.execute("PRAGMA foreign_keys=ON")
+                return db
+            registry._connect = registry_connect
+            registry.register_project("project-1", "Merlin")
+            registry.inventory("project-1")
+
+            outbox = MerlinEventOutbox(root / "outbox-tracked.sqlite3")
+            def outbox_connect():
+                db = tracked(outbox.path, timeout=30)
+                db.row_factory = sqlite3.Row
+                db.execute("PRAGMA busy_timeout=30000")
+                return db
+            outbox._connect = outbox_connect
+            outbox.enqueue("key-1", "merlin.test", {"value": 1})
+            outbox.counts()
+
+            self.assertGreater(len(opened), 10)
+            self.assertTrue(all(connection.was_closed for connection in opened))
 
 
 
