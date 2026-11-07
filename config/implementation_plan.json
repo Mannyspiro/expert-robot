@@ -181,13 +181,16 @@
     {
       "id": "mathematical_method_fabric",
       "rank": 3,
-      "status": "specified_existing_math_engine_needs_mapping",
+      "status": "capability_registry_mapped_runtime_context",
       "exit": [
         "map existing math services and Lean boundaries to protocol method registry",
-        "add method applicability and assumption checks",
+        "add method applicability and assumption checks before dispatch",
         "benchmark method selection against baseline",
-        "record error bounds, resource cost, and outcomes"
-      ]
+        "record error bounds, resource cost, and outcomes",
+        "implement and independently qualify methods currently marked research-only"
+      ],
+      "registry": "config/research/math_method_registry_v1.json",
+      "runtime_adapter": "python/research_protocol.py"
     }
   ]
 }
