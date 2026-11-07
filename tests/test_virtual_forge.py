@@ -97,21 +97,21 @@ class VirtualForgeTests(unittest.TestCase):
         self.assertEqual(reclaimed["job_id"], job)
         self.assertEqual(reclaimed["attempt"], 2)
 
-    def test_workspace_export_and_escape_rejection(self):
-        self.forge.commit("main", {"src/module.py": "value = 42\\n"}, "workspace")
+    def test_workspace_export_requires_clean_destination(self):
+        self.forge.commit("main", {"src/module.py": "value = 42\n"}, "workspace")
         destination = Path(self.tmp.name) / "workspace"
         self.assertEqual(self.forge.export_snapshot("main", str(destination)), 1)
-        self.assertEqual((destination / "src" / "module.py").read_text(), "value = 42\\n")
+        self.assertEqual((destination / "src" / "module.py").read_text(), "value = 42\n")
         with self.assertRaisesRegex(ForgeError, "must be empty"):
             self.forge.export_snapshot("main", str(destination))
 
     def test_identical_shared_patch_is_not_a_merge_conflict(self):
-        base = "alpha\\nbeta\\ngamma\\n"
-        ours = "ALPHA\\nbeta\\ngamma\\n"
-        theirs = "ALPHA\\nbeta\\nGAMMA\\n"
+        base = "alpha\nbeta\ngamma\n"
+        ours = "ALPHA\nbeta\ngamma\n"
+        theirs = "ALPHA\nbeta\nGAMMA\n"
         self.assertEqual(
             _three_way_text(base, ours, theirs),
-            "ALPHA\\nbeta\\nGAMMA\\n",
+            "ALPHA\nbeta\nGAMMA\n",
         )
 
     def test_event_chain_and_path_validation(self):
