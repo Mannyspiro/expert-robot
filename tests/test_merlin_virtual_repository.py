@@ -58,7 +58,7 @@ class VirtualRepositoryTests(unittest.TestCase):
 
     def test_main_merge_requires_successful_checks_for_exact_pr_head(self):
         self.repo.create_branch("feature/protected")
-        self.repo.commit("feature/protected", "protected change", {"README.md": "# protected\\n"})
+        self.repo.commit("feature/protected", "protected change", {"README.md": "# protected\n"})
         pr = self.repo.open_pull_request("feature/protected", "main", "Protected merge")
         blocked = self.repo.merge_pull_request(pr["pr_id"])
         self.assertEqual(blocked["status"], "blocked")
