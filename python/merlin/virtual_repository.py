@@ -634,7 +634,8 @@ class VirtualRepository:
                                                 "commit": source["commit_id"]})
             return {"branch": name, "commit_id": source["commit_id"]}
 
-    def commit(self, branch: str, message: str, changes: Mapping[str, str | bytes | None]) -> dict[str, Any]:
+    def commit(self, branch: str, message: str, changes: Mapping[str, str | bytes | None],
+               *, allow_protected: bool = False) -> dict[str, Any]:
         branch = self._name(branch, "branch")
         if not isinstance(message, str) or not message.strip() or len(message) > 500:
             raise VirtualGitError("commit message must be 1-500 characters")
@@ -645,6 +646,10 @@ class VirtualRepository:
             ref = db.execute("SELECT commit_id FROM branches WHERE name=?", (branch,)).fetchone()
             if ref is None:
                 raise KeyError(f"unknown branch: {branch}")
+            protected = db.execute("SELECT 1 FROM branch_policies WHERE branch=?",
+                                   (branch,)).fetchone()
+            if protected and not allow_protected:
+                raise VirtualGitError("protected branch can only advance through a verified pull-request merge")
             tree = self._tree(db, ref["commit_id"])
             changed = []
             for raw_path, content in changes.items():
@@ -821,6 +826,8 @@ class VirtualRepository:
             source_row = db.execute("SELECT commit_id FROM branches WHERE name=?", (branch,)).fetchone()
             if source_row is None:
                 raise KeyError(f"unknown branch: {branch}")
+            if db.execute("SELECT 1 FROM branch_policies WHERE branch=?", (branch,)).fetchone():
+                raise VirtualGitError("protected branch cannot be rebased directly; use a verified pull-request merge")
             target_row = db.execute("SELECT commit_id FROM branches WHERE name=?", (onto_ref,)).fetchone()
             if target_row is None:
                 target_row = db.execute("SELECT commit_id FROM commits WHERE commit_id=?", (onto_ref,)).fetchone()
@@ -902,6 +909,8 @@ class VirtualRepository:
             db.execute("BEGIN IMMEDIATE")
             if not db.execute("SELECT 1 FROM branches WHERE name=?", (branch,)).fetchone():
                 raise KeyError(branch)
+            if db.execute("SELECT 1 FROM branch_policies WHERE branch=?", (branch,)).fetchone():
+                raise VirtualGitError("protected branch cannot be rolled back directly; use a reviewed revert commit")
             self._tree(db, commit_id)
             old = db.execute("SELECT commit_id FROM branches WHERE name=?", (branch,)).fetchone()["commit_id"]
             db.execute("UPDATE branches SET commit_id=?,updated_at=? WHERE name=?",
