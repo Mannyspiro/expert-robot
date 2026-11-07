@@ -219,13 +219,13 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
     try {
       const result = await api("/api/learning/courses/" + encodeURIComponent(current.course_id) + "/recommendation");
       $("recommendation").classList.remove("hidden");
-      $("recommendation").textContent = result.state === "recommended"
-        ? "Recommended next: " + result.lesson_id + " · " + result.reason.target_skills
-          ? "Recommendation generated from prerequisite and learner evidence."
-          : "No lesson is currently eligible.";
-      if (result.state === "recommended") $("recommendation").textContent =
-        "Recommended next lesson: " + result.lesson_id +
-        ". This is advisory and based on the learner's recorded evidence and prerequisites.";
+      if (result.state === "recommended" && result.lesson_id) {
+        $("recommendation").textContent =
+          "Recommended next lesson: " + result.lesson_id +
+          ". This is advisory and based on the learner's recorded evidence and prerequisites.";
+      } else {
+        $("recommendation").textContent = "No lesson is currently eligible.";
+      }
     } catch (error) { notice("Recommendation unavailable: " + error.message, "error"); }
   }
   async function createRevision() {
