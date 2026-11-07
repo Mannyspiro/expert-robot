@@ -1,8 +1,13 @@
+import json
 import tempfile
+import threading
 import unittest
+from http.server import ThreadingHTTPServer
+from urllib.request import Request, urlopen
 from pathlib import Path
 
 from python.merlin.virtual_repository import VirtualGitError, VirtualRepository
+from python.merlin.app import EventStore, make_handler
 
 
 class VirtualRepositoryTests(unittest.TestCase):
@@ -75,6 +80,48 @@ class VirtualRepositoryTests(unittest.TestCase):
             self.repo.commit("main", "bad path", {"../outside.txt": "no"})
         with self.assertRaises(VirtualGitError):
             self.repo.events(1001)
+
+    def test_forge_http_api_exposes_status_branch_commit_pr_and_merge(self):
+        event_store = EventStore(Path(self.temp.name) / "api-events.sqlite3")
+        server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(event_store))
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        base = f"http://127.0.0.1:{server.server_port}"
+
+        def get(path):
+            with urlopen(base + path, timeout=5) as response:
+                return json.loads(response.read())
+
+        def post(path, payload):
+            request = Request(base + path, data=json.dumps(payload).encode("utf-8"),
+                              headers={"Content-Type": "application/json"})
+            with urlopen(request, timeout=5) as response:
+                return json.loads(response.read())
+
+        try:
+            status = get("/api/forge/status")
+            self.assertEqual(status["schema"], "merlin-forge-status/1")
+            self.assertEqual(status["runner_execution"], "not_performed")
+            self.assertTrue(any(item["name"] == "main" for item in status["branches"]))
+
+            post("/api/forge/branches", {"name": "feature/api"})
+            commit = post("/api/forge/commits", {
+                "branch": "feature/api", "message": "update forge API",
+                "changes": {"README.md": "# Merlin Forge API\\n"},
+            })
+            self.assertEqual(commit["schema"], "merlin-forge-commit/1")
+            pr = post("/api/forge/pulls", {
+                "source_branch": "feature/api", "target_branch": "main",
+                "title": "Forge API integration",
+            })
+            merged = post(f"/api/forge/pulls/{pr['pr_id']}/merge", {})
+            self.assertEqual(merged["status"], "merged")
+            file_result = get("/api/forge/file?ref=main&path=README.md")
+            self.assertEqual(file_result["content_utf8"], "# Merlin Forge API\\n")
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
 
     def test_commit_history_is_append_only_and_auditable(self):
         self.repo.create_branch("feature/audit")
