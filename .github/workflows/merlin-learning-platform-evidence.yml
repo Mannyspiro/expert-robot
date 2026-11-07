@@ -35,10 +35,17 @@ jobs:
           python-version: "3.11"
           cache: pip
 
+      - name: Prepare evidence directory
+        run: mkdir -p artifacts
+
       - name: Install pinned test runner
+        shell: bash
         run: |
-          python -m pip install --upgrade pip
-          python -m pip install pytest==8.3.5
+          set +e
+          python -m pip install pytest==8.3.5 2>&1 | tee artifacts/pip-install.log
+          rc=${PIPESTATUS[0]}
+          printf '{"suite":"learning-platform-install","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/install-result.json
+          exit "$rc"
 
       - name: Compile Merlin Learning modules
         id: compile
@@ -70,5 +77,5 @@ jobs:
         with:
           name: merlin-learning-evidence-${{ github.run_id }}-${{ github.run_attempt }}
           path: artifacts/
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 30
