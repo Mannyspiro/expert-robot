@@ -720,5 +720,47 @@ class MerlinApiTests(unittest.TestCase):
         with urlopen(local, timeout=5) as response:
             self.assertEqual(response.status, 201)
 
+
+    def test_public_literature_api_returns_unverified_records_and_hashes_query(self):
+        from unittest.mock import patch
+
+        class FakeSearch:
+            def search(self, query, *, source="all", limit=10):
+                return {
+                    "schema": "merlin-public-literature-search/1",
+                    "query": query,
+                    "sources_requested": [source],
+                    "results": [{
+                        "source": "crossref", "source_id": "doi:10.5555/test",
+                        "title": "Test paper", "evidence_class": "OBSERVED_DOCUMENT",
+                        "claim_verification": "NOT_VERIFIED",
+                    }],
+                    "source_response_sha256": {"crossref": "a" * 64},
+                    "errors": [], "credentials_required": False,
+                }
+
+        store = EventStore(Path(self.temp.name) / "literature-api-events.sqlite3")
+        with patch("python.merlin.app.PublicLiteratureSearch", return_value=FakeSearch()):
+            server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(store))
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        base = f"http://127.0.0.1:{server.server_port}"
+        try:
+            with urlopen(base + "/api/research/literature?q=graph+theory&source=crossref&limit=3", timeout=5) as response:
+                payload = json.loads(response.read())
+            self.assertFalse(payload["credentials_required"])
+            self.assertEqual(payload["results"][0]["claim_verification"], "NOT_VERIFIED")
+            self.assertEqual(payload["source_response_sha256"]["crossref"], "a" * 64)
+            with urlopen(base + "/api/events", timeout=5) as response:
+                events = json.loads(response.read())["events"]
+            encoded = json.dumps(events)
+            self.assertNotIn("graph theory", encoded)
+            self.assertIn("query_sha256", encoded)
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
+
+
 if __name__ == "__main__":
     unittest.main()
