@@ -176,12 +176,18 @@ class VirtualRepositoryTests(unittest.TestCase):
         self.repo.commit("feature/backup", "backup candidate", {
             "src/backup.py": "BACKUP_READY = True\\n",
         })
+        job = self.repo.enqueue_job(self.initial["commit_id"], "python.compile", "backup-job")
+        claim = self.repo.claim_job("backup-runner", job_types=["python.compile"])
+        self.repo.complete_job(job["job_id"], "backup-runner", claim["lease_token"],
+                               "succeeded", {"exit_code": 0}, "backup log")
         backup_path = Path(self.temp.name) / "backups" / "merlin-backup.sqlite3"
         result = self.repo.backup_to(backup_path)
         self.assertTrue(result["integrity"]["ok"])
         self.assertEqual(list(backup_path.parent.glob(".*.tmp")), [])
         restored = VirtualRepository(backup_path)
         self.assertTrue(restored.integrity_report()["ok"])
+        self.assertEqual(restored.get_job(job["job_id"])["status"], "succeeded")
+        self.assertEqual(restored.read_job_log(job["job_id"]), b"backup log")
         self.assertEqual(
             restored.read_file("feature/backup", "src/backup.py"),
             b"BACKUP_READY = True\\n",
