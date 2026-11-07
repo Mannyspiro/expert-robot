@@ -63,6 +63,8 @@ def activation_reason(task: str, mode: str = "auto") -> str | None:
     normalized = re.sub(r"\s+", " ", task.casefold()).strip()
     if any(phrase in normalized for phrase in EXPLICIT_ACTIVATORS):
         return "explicit_user_instruction"
+    if any(phrase in normalized for phrase in SKIP_PHRASES):
+        return None
     triggers = (
         "research", "engineering", "design", "debug", "debugging",
         "plan", "planning", "model selection", "scientific claim",
@@ -71,8 +73,6 @@ def activation_reason(task: str, mode: str = "auto") -> str | None:
     )
     if any(trigger in normalized for trigger in triggers):
         return "relevant_task_trigger"
-    if any(phrase in normalized for phrase in SKIP_PHRASES):
-        return None
     return None
 
 
@@ -90,6 +90,28 @@ def prepare_research_task(
     method_registry = json.loads(registry_raw)
     if method_registry.get("id") != "MERLIN-MATH-METHOD-REGISTRY-001":
         raise ValueError("mathematical method registry identity is invalid")
+    methods = method_registry.get("methods")
+    if not isinstance(methods, list) or not methods:
+        raise ValueError("mathematical method registry must contain methods")
+    method_ids = [item.get("id") for item in methods]
+    if any(not item for item in method_ids) or len(method_ids) != len(set(method_ids)):
+        raise ValueError("mathematical method registry IDs must be non-empty and unique")
+    allowed_statuses = {
+        "implemented_verified_boundary",
+        "implemented_bounded_navigation",
+        "qualified_prompt_skill",
+        "qualified_prompt_skills",
+        "implemented_bounded_empirical_ranking",
+        "implemented_hash_chained_ledger",
+        "partial_evaluation_metrics",
+        "not_implemented_as_runtime_solver",
+        "not_implemented_as_general_runtime_solver",
+        "specified_evaluation_research",
+    }
+    if any(item.get("status") not in allowed_statuses for item in methods):
+        raise ValueError("mathematical method registry contains an unknown capability status")
+    if not method_registry.get("promotion_rule"):
+        raise ValueError("mathematical method registry promotion rule is required")
     registry_digest = hashlib.sha256(registry_raw).hexdigest()
     context = {
         "protocol_id": protocol["id"],
