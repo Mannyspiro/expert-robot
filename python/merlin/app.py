@@ -329,7 +329,11 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
         if current_manifest != expected_manifest:
             bootstrap_branch = "bootstrap/runtime-source-" + seed_manifest["tree_sha256"][:12]
             if bootstrap_branch not in branches:
-                forge.create_branch(bootstrap_branch, "main")
+                try:
+                    forge.create_branch(bootstrap_branch, "main")
+                except VirtualGitError:
+                    if not any(row["name"] == bootstrap_branch for row in forge.branches()):
+                        raise
             branch_manifest = None
             try:
                 branch_manifest = forge.read_file(bootstrap_branch, "merlin/SEED_MANIFEST.json")
