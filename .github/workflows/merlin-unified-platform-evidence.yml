@@ -80,12 +80,8 @@ jobs:
         shell: bash
         run: |
           set +e
-          python -m pip install --upgrade pip 2>&1 | tee artifacts/pip-upgrade.log
+          python -m pip install -r requirements-merlin-auth.txt pytest==8.3.5 2>&1 | tee artifacts/pip-install.log
           rc=${PIPESTATUS[0]}
-          if [ "$rc" -eq 0 ]; then
-            python -m pip install -r requirements-merlin-auth.txt pytest==8.3.5 2>&1 | tee artifacts/pip-install.log
-            rc=${PIPESTATUS[0]}
-          fi
           printf '{"suite":"merlin-unified-platform-install","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/install-result.json
           exit "$rc"
 
