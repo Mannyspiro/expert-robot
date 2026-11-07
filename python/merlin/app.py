@@ -44,7 +44,7 @@ from .research import (
 from .engineering.geometry import GeometrySpec, Point3D, validate_geometry, bounding_box
 from .engineering.netlist import Component, Connection, Net, Netlist, validate_netlist
 from .public_literature import PublicLiteratureSearch
-from .virtual_repository import VirtualRepository
+from .virtual_repository import VirtualRepository, VirtualGitError
 
 MAX_BODY = 1_000_000
 MAX_PROXY_RESPONSE = 16_000_000
@@ -317,7 +317,11 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             source = repo_root / relative
             if source.is_file():
                 seed[relative] = source.read_bytes()
-        forge.initialize(seed)
+        try:
+            forge.initialize(seed)
+        except VirtualGitError:
+            if not forge.branches():
+                raise
     catalog_path = Path(os.environ.get("MERLIN_MATH_IDEA_CATALOG",
         str(repo_root / "docs" / "research" / "merlin-mathematical-idea-catalog.v1.json")))
     learning_graph: dict[str, Any] = {}
