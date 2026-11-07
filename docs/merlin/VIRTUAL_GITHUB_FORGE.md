@@ -8,7 +8,8 @@ Merlin Forge is a local, durable repository service. It is intentionally indepen
 - File bytes are stored as content-addressed SHA-256 blobs.
 - A commit records a canonical tree and one or two parent commits.
 - Pull requests capture source/target refs and are merged using a three-way comparison against the nearest common ancestor.
-- Non-overlapping edits merge automatically. Conflicting edits return the exact paths and leave the target branch unchanged.\n- Linear branches can be rebased onto another branch/commit. Rebase preserves original commits, creates replacement commits on the new base, and leaves the branch unchanged on conflict. Merge-commit rebases are rejected rather than guessed.
+- Non-overlapping edits merge automatically. Conflicting edits return the exact paths and leave the target branch unchanged.
+- Linear branches can be rebased onto another branch/commit. Rebase preserves original commits, creates replacement commits on the new base, and leaves the branch unchanged on conflict. Merge-commit rebases are rejected rather than guessed.
 - Rollbacks move a branch reference to an existing immutable commit and append an audit event.
 - The main branch is protected by default and requires exact-head `python.compile`, `python.unified_tests` and `hud.javascript_syntax` receipts before a virtual PR can merge. A successful check for an older commit does not satisfy the current PR head.
 - CI results bind the exact commit, check name, runner identity, run ID and SHA-256 of the retained log. Check records and their log blobs are immutable. `cace.independent_receipt` is a separate supported check for proof-bearing changes.
@@ -24,13 +25,16 @@ The API is served by Merlin's existing loopback-only application boundary. Check
 |---|---|---|
 | GET | /api/forge/status | Branches, open PRs, recent events and runner state |
 | GET | /api/forge/branches | Branch refs |
-| GET | /api/forge/pulls | Pull-request records |\n| GET | /api/forge/checks?commit=... | Check receipts for an exact commit |
+| GET | /api/forge/pulls | Pull-request records |
+| GET | /api/forge/checks?commit=... | Check receipts for an exact commit |
 | GET | /api/forge/checks/{id}/log | Retrieve a retained CI log after SHA-256 verification |
 | GET | /api/forge/events?limit=100 | Append-only event history |
 | GET | /api/forge/file?ref=main&path=README.md | Read UTF-8 file and verify digest |
 | POST | /api/forge/branches | Create branch from branch or commit |
-| POST | /api/forge/commits | Commit path-to-content changes |\n| POST | /api/forge/checks | Record immutable commit-bound CI evidence |
-| POST | /api/forge/pulls | Open a pull request |\n| POST | /api/forge/branches/{name}/rebase | Replay a linear branch onto another ref with conflict detection |
+| POST | /api/forge/commits | Commit path-to-content changes |
+| POST | /api/forge/checks | Record immutable commit-bound CI evidence |
+| POST | /api/forge/pulls | Open a pull request |
+| POST | /api/forge/branches/{name}/rebase | Replay a linear branch onto another ref with conflict detection |
 | POST | /api/forge/pulls/{id}/merge | Three-way merge or return conflict paths |
 | POST | /api/forge/branches/{name}/rollback | Restore an existing commit ref |
 
