@@ -80,6 +80,18 @@ The browser is a client, not an authority boundary. It may request an operation;
 - Do not synthesize or claim a British voice until a specific voice asset and output have been tested.
 - Do not start background microphone capture. Listening begins only after a user gesture and visibly indicates active capture.
 
+### Voice session implementation gate
+
+The HUD voice control is a user-started, continuous browser recognition session:
+- Recognition starts only from the microphone button click and stops on a second click or when the user submits the message.
+- The control exposes pressed/listening state to assistive technology and reports permission, unsupported-browser, recognition-error and stopped states.
+- Interim and final recognition text is kept in the editable message field; recognition never submits a message automatically.
+- The browser's speech-recognition implementation may use a remote service. The HUD states this limitation and must not label recognition as local unless the browser provides a verifiable local-processing guarantee.
+- The browser session does not persist audio or transcript to durable memory by itself. Normal chat submission policy still applies, including explicit cloud-provider selection and confirmation.
+- Speech output remains an optional, separately qualified TTS operation. Failure to synthesize or play audio must not discard the text response.
+
+Acceptance checks: verify start/stop through a real microphone permission grant, deny permission and confirm visible error state, confirm continuous interim/final transcript behavior, submit while listening and confirm recognition stops before the chat request, and verify no microphone starts on page load or reload. These require browser/device execution; JavaScript syntax validation alone is not acceptance.
+
 ### Memory and preferences
 
 - Reuse `MerlinMemoryVault`; no separate `jarvis_memory.db`.
