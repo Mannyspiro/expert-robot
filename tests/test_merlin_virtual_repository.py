@@ -218,6 +218,8 @@ class VirtualRepositoryTests(unittest.TestCase):
                 })
             check_payload = get("/api/forge/checks?commit=" + pr["head_commit"])
             self.assertEqual(len(check_payload["check_results"]), 3)
+            self.assertTrue(all(row["verification_status"] == "UNVERIFIED" for row in check_payload["check_results"]))
+            self.assertTrue(all(row["promotion_authorized"] is False for row in check_payload["check_results"]))
             log_payload = get("/api/forge/checks/" + str(check_payload["check_results"][0]["check_id"]) + "/log")
             self.assertTrue(log_payload["log_utf8"].startswith("PASS "))
             merged = post(f"/api/forge/pulls/{pr['pr_id']}/merge", {})
