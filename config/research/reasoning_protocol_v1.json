@@ -191,12 +191,22 @@
       "geometry",
       "game_theory",
       "category_theory",
-      "formal_methods"
+      "formal_methods",
+      "typed_operator_program_induction",
+      "symmetry_and_equivariance",
+      "counterfactual_intervention_testing",
+      "geometric_algebra"
     ],
     "require_assumptions_and_domain_check": true,
     "compare_against_baseline_when_measurable": true,
     "record_computational_cost_and_error_bounds": true,
-    "never_apply_method_by_name_only": true
+    "never_apply_method_by_name_only": true,
+    "transformation_evaluation": [
+      "preserve_output_under_semantics_preserving_transform",
+      "flip_output_under_load_bearing_intervention",
+      "hold_out_entire_operator_compositions",
+      "compare_against_simple_baseline"
+    ]
   },
   "authority": {
     "models_may": [
@@ -227,6 +237,15 @@
     "preserve_disagreement_and_uncertainty": true,
     "append_only_decision_history": true,
     "corrections_supersede_but_do_not_erase_prior_decisions": true,
-    "user_context_relevance_filter": true
+    "user_context_relevance_filter": true,
+    "source_classes_to_ingest": [
+      "original_user_prompts",
+      "assistant_responses",
+      "tool_observations",
+      "attachments",
+      "decisions_and_corrections",
+      "cross_chat_handoffs",
+      "research_idea_ledgers"
+    ]
   }
 }
