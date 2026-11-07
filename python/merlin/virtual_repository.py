@@ -12,6 +12,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import sqlite3
 import time
 import uuid
@@ -244,6 +245,51 @@ class VirtualRepository:
             temporary.unlink(missing_ok=True)
             Path(str(temporary) + "-wal").unlink(missing_ok=True)
             Path(str(temporary) + "-shm").unlink(missing_ok=True)
+
+    def export_commit(self, commit_id: str, destination: str | Path,
+                     *, max_total_bytes: int = 100_000_000) -> dict[str, Any]:
+        """Materialize a verified commit into a new, isolated workspace directory."""
+        target = Path(destination)
+        if target.exists():
+            raise VirtualGitError("workspace destination already exists")
+        if isinstance(max_total_bytes, bool) or not isinstance(max_total_bytes, int) or not 1 <= max_total_bytes <= 500_000_000:
+            raise VirtualGitError("workspace byte limit is outside the allowed range")
+        with closing(self._connect()) as db:
+            tree = self._tree(db, commit_id)
+            files: list[tuple[str, str, bytes]] = []
+            total_bytes = 0
+            for path, digest in sorted(tree.items()):
+                safe_path = self._path(path)
+                row = db.execute("SELECT content,size_bytes FROM blobs WHERE digest=?", (digest,)).fetchone()
+                if row is None:
+                    raise RuntimeError("commit references a missing blob: " + safe_path)
+                content = bytes(row["content"])
+                if sha256(content).hexdigest() != digest or len(content) != row["size_bytes"]:
+                    raise RuntimeError("commit blob integrity failure: " + safe_path)
+                total_bytes += len(content)
+                if total_bytes > max_total_bytes:
+                    raise VirtualGitError("commit exceeds the workspace materialization byte limit")
+                files.append((safe_path, digest, content))
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.mkdir(parents=False, exist_ok=False)
+        try:
+            manifest_files = []
+            for path, digest, content in files:
+                output = target / Path(*path.split("/"))
+                output.parent.mkdir(parents=True, exist_ok=True)
+                output.write_bytes(content)
+                manifest_files.append({"path": path, "sha256": digest, "size_bytes": len(content)})
+            return {
+                "commit_id": commit_id,
+                "workspace": str(target.resolve()),
+                "file_count": len(manifest_files),
+                "total_bytes": total_bytes,
+                "tree_sha256": sha256(self._canonical(tree).encode("utf-8")).hexdigest(),
+                "files": manifest_files,
+            }
+        except Exception:
+            shutil.rmtree(target, ignore_errors=True)
+            raise
 
     def branches(self) -> list[dict[str, Any]]:
         with closing(self._connect()) as db:
