@@ -60,6 +60,44 @@ class VirtualRepositoryTests(unittest.TestCase):
         self.assertEqual(after["main"], before)
         self.assertEqual(self.repo.pull_requests()[0]["status"], "open")
 
+    def test_rebase_replays_nonconflicting_changes_onto_updated_target(self):
+        self.repo.create_branch("feature/rebase")
+        self.repo.commit("feature/rebase", "feature docs", {"README.md": "# Feature docs\\n"})
+        target = self.repo.commit("main", "target adds module", {"src/runtime.py": "READY = True\\n"})
+        result = self.repo.rebase_branch("feature/rebase", "main")
+        self.assertEqual(result["status"], "rebased")
+        self.assertEqual(result["replayed_commits"], 1)
+        self.assertEqual(self.repo.read_file("feature/rebase", "README.md"), b"# Feature docs\\n")
+        self.assertEqual(self.repo.read_file("feature/rebase", "src/runtime.py"), b"READY = True\\n")
+        with sqlite3.connect(self.db) as db:
+            parent = db.execute("SELECT parent1 FROM commits WHERE commit_id=?",
+                                (result["commit_id"],)).fetchone()[0]
+        self.assertEqual(parent, target["commit_id"])
+        self.assertEqual(self.repo.events()[0]["kind"], "branch.rebased")
+
+    def test_rebase_conflict_preserves_original_branch_ref(self):
+        self.repo.create_branch("feature/rebase-conflict")
+        self.repo.commit("feature/rebase-conflict", "feature version", {"src/core.py": "VERSION = 2\\n"})
+        self.repo.commit("main", "target version", {"src/core.py": "VERSION = 3\\n"})
+        before = {row["name"]: row["commit_id"] for row in self.repo.branches()}["feature/rebase-conflict"]
+        result = self.repo.rebase_branch("feature/rebase-conflict", "main")
+        after = {row["name"]: row["commit_id"] for row in self.repo.branches()}["feature/rebase-conflict"]
+        self.assertEqual(result["status"], "conflict")
+        self.assertEqual(result["conflicts"], ["src/core.py"])
+        self.assertEqual(after, before)
+
+    def test_rebase_rejects_unknown_ref_and_merge_commit_replay(self):
+        with self.assertRaises(KeyError):
+            self.repo.rebase_branch("main", "missing")
+        self.repo.create_branch("feature/merge-rebase")
+        self.repo.create_branch("other/merge-rebase")
+        self.repo.commit("feature/merge-rebase", "feature commit", {"a.txt": "a"})
+        self.repo.commit("other/merge-rebase", "other commit", {"b.txt": "b"})
+        pr = self.repo.open_pull_request("other/merge-rebase", "feature/merge-rebase", "make merge commit")
+        self.assertEqual(self.repo.merge_pull_request(pr["pr_id"])["status"], "merged")
+        with self.assertRaises(VirtualGitError):
+            self.repo.rebase_branch("feature/merge-rebase", "main")
+
     def test_branch_rollback_is_audited_and_restores_content(self):
         first = self.initial["commit_id"]
         self.repo.commit("main", "temporary edit", {"src/core.py": "VERSION = 9\n"})
