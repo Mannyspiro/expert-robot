@@ -508,6 +508,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     "execution_mode": "repository_only_no_runner_claim",
                     "branches": forge.branches(),
                     "open_pull_requests": forge.pull_requests("open"),
+                    "required_checks": {"main": forge.required_checks("main")},
                     "recent_events": forge.events(30),
                     "runner_execution": "not_performed",
                     "promotion_authorized": False})
@@ -519,6 +520,18 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             if path == "/api/forge/pulls":
                 self._send(200, {"schema": "merlin-forge-pull-requests/1",
                                  "pull_requests": forge.pull_requests()})
+                return
+            if path == "/api/forge/checks":
+                params = parse_qs(parsed.query)
+                commit_id = (params.get("commit") or [""])[0]
+                if not commit_id:
+                    main = next((row for row in forge.branches() if row["name"] == "main"), None)
+                    if main is None:
+                        raise ValueError("main branch is not initialized")
+                    commit_id = main["commit_id"]
+                self._send(200, {"schema": "merlin-forge-checks/1",
+                    "commit_id": commit_id, "required_checks": forge.required_checks("main"),
+                    "check_results": forge.check_results(commit_id)})
                 return
             if path == "/api/forge/events":
                 try:
@@ -775,6 +788,12 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 if path == "/api/forge/branches":
                     result = forge.create_branch(data.get("name"), data.get("from_ref", "main"))
                     self._send(201, {"schema": "merlin-forge-branch-created/1", **result})
+                    return
+                if path == "/api/forge/checks":
+                    result = forge.record_check_result(data.get("commit_id"), data.get("check_name"),
+                        data.get("conclusion"), data.get("run_id"), data.get("runner_id"),
+                        data.get("log", ""))
+                    self._send(201, {"schema": "merlin-forge-check-result/1", **result})
                     return
                 if path == "/api/forge/commits":
                     changes = data.get("changes")
