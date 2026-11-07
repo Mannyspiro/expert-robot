@@ -156,6 +156,28 @@ class VirtualRepositoryTests(unittest.TestCase):
         })
         self.assertEqual(self.repo.pull_requests("open")[0]["status"], "open")
 
+    def test_malformed_latest_receipt_cannot_satisfy_merge(self):
+        self.repo.create_branch("feature/malformed")
+        self.repo.commit("feature/malformed", "malformed check metadata", {"README.md": "# malformed\\n"})
+        pr = self.repo.open_pull_request("feature/malformed", "main", "Malformed receipt")
+        first = None
+        for check_name in ("python.compile", "python.unified_tests", "hud.javascript_syntax"):
+            result = self.repo.record_check_result(
+                pr["head_commit"], check_name, "success",
+                "malformed-base-" + check_name, "local-runner", "success",
+            )
+            if check_name == "python.compile":
+                first = result
+        with sqlite3.connect(self.db) as db:
+            db.execute("""INSERT INTO check_results
+                (commit_id,check_name,conclusion,run_id,runner_id,log_digest,result_json,recorded_at)
+                VALUES(?,?,?,?,?,?,?,?)""",
+                (pr["head_commit"], "python.compile", "success", "malformed-latest",
+                 "unknown-runner", first["log_sha256"], "not-json", time.time() + 10))
+        result = self.repo.merge_pull_request(pr["pr_id"])
+        self.assertEqual(result["status"], "blocked")
+        self.assertIn("python.compile", result["unverified_checks"])
+
     def test_check_receipts_are_idempotent_and_immutable(self):
         result = self.repo.record_check_result(
             self.initial["commit_id"], "python.compile", "success",
