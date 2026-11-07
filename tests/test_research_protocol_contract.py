@@ -61,10 +61,30 @@ class ResearchProtocolContractTests(unittest.TestCase):
         self.assertTrue(status["active"])
         self.assertIn(digest, enriched)
         self.assertIn("authority", enriched)
+        self.assertIn("math_method_registry", enriched)
+        self.assertEqual(len(status["math_method_registry_sha256"]), 64)
         self.assertEqual(
             prepare_research_task("hello", mode="off"),
             ("hello", {"active": False, "reason": "not_research_scope"}),
         )
+
+    def test_math_method_registry_distinguishes_capability_from_research(self):
+        registry = self.load_json("config/research/math_method_registry_v1.json")
+        self.assertEqual(registry["id"], "MERLIN-MATH-METHOD-REGISTRY-001")
+        methods = {item["id"]: item for item in registry["methods"]}
+        self.assertEqual(
+            methods["formal_logic_and_type_theory"]["status"],
+            "implemented_verified_boundary",
+        )
+        self.assertEqual(
+            methods["probability_bayesian_inference"]["status"],
+            "not_implemented_as_runtime_solver",
+        )
+        self.assertEqual(
+            methods["cross_domain_lacuna_search"]["status"],
+            "qualified_prompt_skill",
+        )
+        self.assertIn("not truth", methods["research_episode_lineage"]["limits"][0])
 
     def test_reasoning_taxonomy_has_unique_ids_and_review_prompts(self):
         taxonomy = self.load_json("config/research/reasoning_checks_v1.json")
