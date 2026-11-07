@@ -31,6 +31,21 @@ main{overflow:auto;padding:12px clamp(12px,2vw,26px) 16px;display:grid;grid-temp
 /* Navigable knowledge constellation */
 .canvas{position:relative}.constellation{position:absolute;inset:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,26%);background:radial-gradient(ellipse at 50% 48%,#15243a88,transparent 70%)}.constellation svg{width:100%;height:100%;touch-action:none;cursor:grab}.constellation svg:active{cursor:grabbing}.constellation .edge{stroke:#55718e;stroke-width:1;opacity:.55;fill:none}.constellation .edge.supports{stroke:#6ed9ae}.constellation .edge.contradicts{stroke:#e6a16b;stroke-dasharray:4 4}.constellation .graph-node{stroke:#8aa4c3;stroke-width:1.3;cursor:pointer}.constellation .graph-node.selected{stroke:#fff;stroke-width:2.5;filter:drop-shadow(0 0 8px #66e4ed)}.constellation .node-label{font-size:9px;fill:#c3d3e7;pointer-events:none}.constellation aside{border-left:1px solid #30445d;background:#09111ddd;padding:12px;overflow:auto;color:#dce8f8;font-size:10px}.constellation aside h3{font-size:12px;margin:3px 0 10px}.constellation aside pre{white-space:pre-wrap;overflow-wrap:anywhere;color:#9fb3ca;font-size:9px}.graph-tools{position:absolute;z-index:2;top:8px;left:10px;display:flex;gap:6px}.graph-tools button{background:#0b1625dd;border:1px solid #405671;color:#b9d5ec;border-radius:8px;padding:5px 8px;font-size:10px}.graph-tools .mode{color:#75e2ad}@media(max-width:760px){.constellation{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) 105px}.constellation aside{border-left:0;border-top:1px solid #30445d}.constellation aside pre{max-height:55px;overflow:auto}}
 .domain-workspace{margin:10px 0;padding:9px;border:1px solid #30445d;border-radius:10px;background:#07111e}.domain-toolbar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:7px}.domain-toolbar button{background:#102238;border:1px solid #46617e;color:#cde4f5;border-radius:7px;padding:5px 8px;font-size:10px}.domain-toolbar .hint{color:#8198b2;font-size:9px}.domain-workspace svg{display:block;width:100%;height:auto;max-height:280px;background:radial-gradient(ellipse at center,#102237,#08111c 72%);border-radius:7px;touch-action:none}.domain-workspace .cad-edge{stroke:#77d8e6;stroke-width:1.5;fill:none;opacity:.9}.domain-workspace .cad-face{fill:#2b7182;fill-opacity:.12;stroke:#75dce8;stroke-width:1}.domain-workspace .electrical-wire{stroke:#dfc477;stroke-width:2;fill:none;opacity:.8}.domain-workspace .electrical-node{fill:#142d42;stroke:#8bc7dc;stroke-width:1.4;cursor:pointer}.domain-workspace .electrical-node.active{fill:#a17a36;stroke:#fff}.domain-workspace .domain-label{fill:#d2e2f0;font-size:10px}.domain-workspace .chart-axis{stroke:#71879d;stroke-width:1}.domain-workspace .chart-line{fill:none;stroke-width:2}.domain-workspace .chart-grid{stroke:#31485e;stroke-width:.7;stroke-dasharray:3 4}.domain-workspace .series-button.active{border-color:#75e2ad;color:#75e2ad}.domain-workspace .domain-empty{padding:22px 8px;color:#93a9bf;text-align:center;font-size:10px}
+
+.forge-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin-top:12px}
+.forge-card{border:1px solid #30445d;border-radius:12px;background:#111d2c;padding:12px;min-width:0}
+.forge-card h3{margin:0 0 8px;font-size:12px;color:#e5f0fb}
+.forge-card p,.forge-muted{font-size:10px;color:#9fb2c8;line-height:1.5}
+.forge-list{display:flex;flex-direction:column;gap:7px;max-height:240px;overflow:auto}
+.forge-row{border:1px solid #263b52;border-radius:8px;padding:8px;font-size:10px;overflow-wrap:anywhere}
+.forge-row strong{display:block;color:#dce8f8;margin-bottom:3px}
+.forge-form{display:grid;gap:7px}
+.forge-form input,.forge-form textarea,.forge-form select{width:100%;border:1px solid #344b64;border-radius:7px;background:#091321;color:#e8f0ff;padding:7px;font:inherit;font-size:10px}
+.forge-form textarea{min-height:62px;resize:vertical}
+.forge-form button,.forge-action{border:1px solid #3d7780;border-radius:7px;background:#15303a;color:#dffcff;padding:7px 10px;font:inherit;font-size:10px;cursor:pointer}
+.forge-status{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0;color:#a9bdd2;font-size:10px}
+.forge-status b{color:#e8f0ff}
+.forge-error{color:#ffaaaa;font-size:10px;white-space:pre-wrap}
 </style></head>
 <body>
 <header><div class="top"><div class="brand"><span class="sigil"></span> MERLIN <span style="font-size:9px;color:var(--muted);font-weight:500;letter-spacing:.1em">RESEARCH SYSTEM</span></div><div class="status"><span id="connection"><i class="dot"></i>DEMO MODE</span><span class="wide" id="runid">RUN —</span><span>v0.2 NEURAL HUD</span></div></div><div class="metrics"><span>PHASE <b id="phaseMetric">INTAKE</b></span><span>AGENTS <b id="agentMetric">0</b></span><span>EVENTS <b id="eventMetric">0</b></span><span>EVIDENCE <b id="evidenceMetric">0</b></span><span>RESOURCES <b id="resourceMetric">—</b></span></div></header>
@@ -40,7 +55,7 @@ main{overflow:auto;padding:12px clamp(12px,2vw,26px) 16px;display:grid;grid-temp
 <div class="flow-wrap"><div class="section-label">Neural activity field · live event topology</div><svg class="flow" viewBox="0 0 560 140" role="img" aria-label="Animated research network showing observable agent and evidence relationships"><g id="neuralEdges"></g><g id="flowNodes"></g><circle class="core-ring" cx="280" cy="65" r="17"/><circle class="core" cx="280" cy="65" r="8"/><text x="280" y="99" text-anchor="middle" style="font-size:8px;fill:#b8aaff">MERLIN CORE</text></svg></div>
 <div class="feed"><div class="section-label">Event stream · newest first</div><div class="feed-list" id="eventFeed"><div class="event"><i></i><div><strong>HUD ready</strong>Event-driven display awaiting backend telemetry</div><time>—</time></div></div></div>
 </section>
-<section class="workspace" aria-label="Adaptive research canvas"><div class="workspace-head"><div><div class="workspace-title" id="canvasTitle">Adaptive research canvas</div><div class="workspace-hint" id="canvasHint">Research graph, evidence-linked engineering previews and recorded activity.</div></div><div class="workspace-tools"><div class="view-tabs"><button type="button" class="view-tab active" data-view="graph">Research graph</button><button type="button" class="view-tab" data-view="council">Skeptic council</button><button type="button" class="view-tab" data-view="capabilities">Capabilities</button></div><div class="workspace-hint" id="canvasType">GRAPH / EVIDENCE-LINKED</div></div></div>
+<section class="workspace" aria-label="Adaptive research canvas"><div class="workspace-head"><div><div class="workspace-title" id="canvasTitle">Adaptive research canvas</div><div class="workspace-hint" id="canvasHint">Research graph, evidence-linked engineering previews and recorded activity.</div></div><div class="workspace-tools"><div class="view-tabs"><button type="button" class="view-tab active" data-view="graph">Research graph</button><button type="button" class="view-tab" data-view="council">Skeptic council</button><button type="button" class="view-tab" data-view="capabilities">Capabilities</button><button type="button" class="view-tab" data-view="forge">Virtual GitHub</button></div><div class="workspace-hint" id="canvasType">GRAPH / EVIDENCE-LINKED</div></div></div>
 <div class="canvas"><svg viewBox="0 0 720 300" role="img" aria-label="Illustrative coordinate transformation visualization"><ellipse class="orbit" cx="360" cy="150" rx="220" ry="82"/><ellipse class="orbit" cx="360" cy="150" rx="220" ry="82" transform="rotate(58 360 150)"/><ellipse class="orbit" cx="360" cy="150" rx="220" ry="82" transform="rotate(-58 360 150)"/><path class="vector" d="M140 150 Q250 35 360 150 T580 150"/><circle class="sphere" cx="360" cy="150" r="30"/><path class="basis" d="M360 150 L490 150 M360 150 L300 72 M360 150 L360 45"/><path class="basis" d="M490 150 l-8 -4 v8z M300 72 l1 9 7 -5z M360 45 l-4 8 h8z"/><circle class="point" cx="490" cy="150" r="4"/><circle class="point" cx="300" cy="72" r="4"/><circle class="point" cx="360" cy="45" r="4"/><text x="505" y="145">x′</text><text x="285" y="64">y′</text><text x="370" y="43">z′</text><text x="360" y="205" text-anchor="middle">Coordinate transform / representation space</text></svg></div></section>
 </main>
 <footer class="chat"><div class="chat-transcript" id="chatTranscript" aria-live="polite"></div><form class="chatbar" id="chatForm"><select id="providerMode" aria-label="Intelligence provider"><option value="local">Local / Offline</option><option value="cloud">Online / Cloud</option></select><label><input type="checkbox" id="voiceOutput" disabled> Voice</label><label title="Saved memory is only sent when this is enabled"><input type="checkbox" id="useMemory"> Use memory</label><button type="button" id="mic" aria-label="Voice input" title="Voice input">◉</button><input id="prompt" autocomplete="off" placeholder="Ask Merlin to investigate, model, prove, or design…" aria-label="Message Merlin"><button type="button" id="attach" title="Attach context" aria-label="Attach context">＋</button><button type="button" id="memoryVault" class="view-tab">Memory</button><button type="button" id="councilPrepare" class="view-tab">Council</button><button class="send" type="submit">Send ↗</button></form><div class="note" id="memoryNote">Commands: /remember key = value · /project name | status · /memory · /forget key · /forget-project name. Saved memory is only used when enabled above.</div><div class="note" id="chatNote">Select a qualified local or cloud model. Chat history remains in this browser session only.</div><div class="note" id="interactionFeedback">Help Merlin improve: <button type="button" class="view-tab" data-feedback="success">Worked</button> <button type="button" class="view-tab" data-feedback="partial">Partly</button> <button type="button" class="view-tab" data-feedback="failure">Did not work</button> <span id="feedbackStatus">Categorical feedback only; no prompt text is collected here.</span></div><div class="note" id="learningControls"><label><input type="checkbox" id="telemetryOpt" checked> Anonymous performance and interaction metrics</label> <label><input type="checkbox" id="feedbackOpt" checked> Use my categorical feedback</label> <button type="button" class="view-tab" id="deleteSessionFeedback">Delete this session’s feedback</button> <span id="learningPreferenceStatus">Loading learning preferences…</span> <span>Personalization is not enabled.</span></div></footer>
@@ -218,6 +233,11 @@ function setWorkspaceView(view){
   hint.textContent="Live API capabilities plus explicit status for unconnected research subsystems.";
   type.textContent="STATUS / AUTHORITY REMAINS FIXED";
   renderCapabilitiesView();
+ }else if(view==="forge"){
+  title.textContent="Merlin virtual GitHub";
+  hint.textContent="Local content-addressed commits, branches, pull requests, merges and event history.";
+  type.textContent="SQLITE FORGE / NO RUNNER CLAIM";
+  renderForgeView();
  }
 }
 function renderCouncilView(){
@@ -235,7 +255,50 @@ function renderCouncilView(){
  }).join("");
  host.innerHTML='<div class="workbench-panel"><div class="workbench-intro">Prepared '+councilPackets.length+' role-specific packets. These are instructions for a future qualified model call, not council votes, evidence, or a consensus decision. Promotion authority remains disabled.</div><div class="council-grid">'+cards+'</div></div>';
 }
-async function renderCapabilitiesView(){
+async async function renderForgeView(){
+ const host=document.querySelector(".canvas");if(!host)return;
+ host.innerHTML='<div class="workbench-panel"><div class="workbench-intro">Merlin Forge stores source snapshots locally. Branch and merge operations do not execute code. Runner results appear only when a real CI or OCI job returns retained evidence.</div><div id="forgeStatus" class="forge-status">Loading virtual repository…</div><div class="forge-grid"><section class="forge-card"><h3>Create branch</h3><form class="forge-form" id="forgeBranchForm"><input name="name" placeholder="feature/my-change" required maxlength="120"><input name="from_ref" placeholder="main" value="main"><button>Create branch</button></form></section><section class="forge-card"><h3>Commit file change</h3><form class="forge-form" id="forgeCommitForm"><input name="branch" placeholder="feature/my-change" required><input name="message" placeholder="Commit message" required maxlength="500"><input name="path" placeholder="src/module.py" required><textarea name="content" placeholder="Complete UTF-8 file content"></textarea><button>Commit change</button></form></section><section class="forge-card"><h3>Open pull request</h3><form class="forge-form" id="forgePullForm"><input name="source_branch" placeholder="feature/my-change" required><input name="target_branch" placeholder="main" value="main" required><input name="title" placeholder="Change title" required maxlength="200"><button>Open pull request</button></form></section></div><div class="forge-grid"><section class="forge-card"><h3>Branches</h3><div id="forgeBranches" class="forge-list"></div></section><section class="forge-card"><h3>Pull requests</h3><div id="forgePulls" class="forge-list"></div></section><section class="forge-card"><h3>Event history</h3><div id="forgeEvents" class="forge-list"></div></section></div><div id="forgeMessage" class="forge-error" role="status"></div><button type="button" class="forge-action" id="forgeRefresh">Refresh Forge</button></div>';
+ const message=$("forgeMessage");
+ async function api(path,method,payload){
+  const response=await fetch(path,{method:method||"GET",headers:payload?{"Content-Type":"application/json"}:undefined,body:payload?JSON.stringify(payload):undefined,cache:"no-store"});
+  const data=await response.json();
+  if(!response.ok)throw Error(data.detail||data.error||data.status||("HTTP "+response.status));
+  return data;
+ }
+ async function refresh(){
+  message.textContent="";
+  try{
+   const data=await api("/api/forge/status");
+   $("forgeStatus").innerHTML='<span>Storage: <b>'+escapeHtml(data.storage)+'</b></span><span>Branches: <b>'+data.branches.length+'</b></span><span>Open PRs: <b>'+data.open_pull_requests.length+'</b></span><span>Runner: <b>'+escapeHtml(data.runner_execution)+'</b></span>';
+   $("forgeBranches").innerHTML=(data.branches||[]).map(row=>'<div class="forge-row"><strong>'+escapeHtml(row.name)+'</strong><span>'+escapeHtml(row.commit_id)+'</span></div>').join("")||'<div class="forge-muted">No branches</div>';
+   $("forgePulls").innerHTML=(data.open_pull_requests||[]).map(row=>'<div class="forge-row"><strong>#'+row.pr_id+' · '+escapeHtml(row.title)+'</strong><span>'+escapeHtml(row.source_branch)+' → '+escapeHtml(row.target_branch)+'</span><br><button class="forge-action" data-forge-merge="'+row.pr_id+'">Merge if conflict-free</button></div>').join("")||'<div class="forge-muted">No open pull requests</div>';
+   $("forgeEvents").innerHTML=(data.recent_events||[]).slice(0,20).map(row=>'<div class="forge-row"><strong>'+escapeHtml(row.kind)+'</strong><span>'+escapeHtml(JSON.stringify(row.payload))+'</span></div>').join("")||'<div class="forge-muted">No events yet</div>';
+  }catch(error){message.textContent="Forge status unavailable: "+error.message;}
+ }
+ $("forgeBranchForm").addEventListener("submit",async e=>{
+  e.preventDefault();const d=new FormData(e.currentTarget);
+  try{const result=await api("/api/forge/branches","POST",{name:d.get("name"),from_ref:d.get("from_ref")||"main"});message.textContent="Created branch "+result.branch+" at "+result.commit_id;await refresh();}
+  catch(error){message.textContent="Branch creation failed: "+error.message;}
+ });
+ $("forgeCommitForm").addEventListener("submit",async e=>{
+  e.preventDefault();const d=new FormData(e.currentTarget);
+  try{const result=await api("/api/forge/commits","POST",{branch:d.get("branch"),message:d.get("message"),changes:{[d.get("path")]:d.get("content")}});message.textContent="Committed "+result.commit_id;await refresh();}
+  catch(error){message.textContent="Commit failed: "+error.message;}
+ });
+ $("forgePullForm").addEventListener("submit",async e=>{
+  e.preventDefault();const d=new FormData(e.currentTarget);
+  try{const result=await api("/api/forge/pulls","POST",{source_branch:d.get("source_branch"),target_branch:d.get("target_branch"),title:d.get("title")});message.textContent="Opened virtual PR #"+result.pr_id;await refresh();}
+  catch(error){message.textContent="PR creation failed: "+error.message;}
+ });
+ $("forgePulls").addEventListener("click",async e=>{
+  const button=e.target.closest("[data-forge-merge]");if(!button)return;
+  try{const result=await api("/api/forge/pulls/"+button.getAttribute("data-forge-merge")+"/merge","POST",{});message.textContent=result.status==="merged"?"Merged as "+result.merge_commit:"Merge conflict: "+(result.conflicts||[]).join(", ");await refresh();}
+  catch(error){message.textContent="Merge failed: "+error.message;}
+ });
+ $("forgeRefresh").addEventListener("click",refresh);
+ await refresh();
+}
+function renderCapabilitiesView(){
  const host=document.querySelector(".canvas");if(!host)return;
  host.innerHTML='<div class="workbench-panel"><div class="workbench-intro">Loading canonical capability registry…</div></div>';
  let data={capabilities:[]};
