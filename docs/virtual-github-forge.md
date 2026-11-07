@@ -21,8 +21,9 @@ Python's standard library and SQLite:
 - merge commits with both parent identities;
 - rollback by creating a new commit that restores a prior snapshot;
 - append-only, hash-chained Forge event history;
-- idempotent worker-job enqueueing, priorities, leases, expiry/reclaim,
-  attempt counts, worker ownership, result records, logs and artifact digests;
+- idempotent worker-job enqueueing, priorities, source-commit binding, explicit
+  CPU/memory/time budgets, bounded retries, lease renewal/expiry/reclaim, worker
+  ownership, result records, logs and artifact digests;
 - workspace snapshot export with path traversal checks.
 
 The CLI is `python/forge_cli.py`. It supports status, branch creation,
@@ -63,7 +64,9 @@ separate from the Forge transaction layer. A worker must use a dedicated,
 resource-limited execution environment and must not inherit repository
 credentials or unrelated host authority. The queue and lease protocol are
 implemented; a production sandboxed worker runtime is still a qualification
-gate.
+gate. Job payloads are bound to a source commit when supplied, and claimed jobs
+receive declared resource budgets; the Forge does not itself enforce OS-level
+CPU, memory, network or filesystem isolation.
 
 ## Current boundaries
 
