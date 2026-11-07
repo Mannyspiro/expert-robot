@@ -348,6 +348,183 @@ class VirtualRepository:
                                                         "required_checks": required_checks})
         return {"branch": branch, "required_checks": required_checks}
 
+    def enqueue_job(self, commit_id: str, job_type: str, idempotency_key: str,
+                    *, max_attempts: int = 2) -> dict[str, Any]:
+        if job_type not in self.CHECK_NAMES:
+            raise VirtualGitError("unsupported virtual CI job type")
+        if not isinstance(idempotency_key, str) or not idempotency_key.strip() or len(idempotency_key) > 200:
+            raise VirtualGitError("idempotency_key must be 1-200 characters")
+        if isinstance(max_attempts, bool) or not isinstance(max_attempts, int) or not 1 <= max_attempts <= 5:
+            raise VirtualGitError("max_attempts must be between 1 and 5")
+        with closing(self._connect()) as db, db:
+            db.execute("BEGIN IMMEDIATE")
+            self._tree(db, commit_id)
+            existing = db.execute("SELECT * FROM virtual_jobs WHERE idempotency_key=?",
+                                  (idempotency_key,)).fetchone()
+            if existing is not None:
+                if (existing["commit_id"], existing["job_type"]) != (commit_id, job_type):
+                    raise VirtualGitError("idempotency key already belongs to a different job")
+                return self._job_payload(existing, idempotent_replay=True)
+            job_id = "vjob_" + uuid.uuid4().hex
+            now = time.time()
+            db.execute("""INSERT INTO virtual_jobs
+                (job_id,commit_id,job_type,idempotency_key,status,attempts,max_attempts,
+                 created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?)""",
+                (job_id, commit_id, job_type, idempotency_key, "queued", 0,
+                 max_attempts, now, now))
+            self._event(db, "virtual_job.enqueued", {
+                "job_id": job_id, "commit_id": commit_id, "job_type": job_type,
+                "idempotency_key": idempotency_key, "max_attempts": max_attempts,
+            })
+            row = db.execute("SELECT * FROM virtual_jobs WHERE job_id=?", (job_id,)).fetchone()
+            return self._job_payload(row, idempotent_replay=False)
+
+    @staticmethod
+    def _job_payload(row, *, idempotent_replay: bool = False) -> dict[str, Any]:
+        item = dict(row)
+        raw = item.pop("result_json", None)
+        try:
+            item["result"] = json.loads(raw) if raw else None
+        except (TypeError, ValueError):
+            item["result"] = None
+        item.pop("lease_token_hash", None)
+        item["idempotent_replay"] = idempotent_replay
+        return item
+
+    def claim_job(self, runner_id: str, *, lease_seconds: int = 120,
+                  job_types: list[str] | None = None) -> dict[str, Any] | None:
+        if not isinstance(runner_id, str) or not runner_id.strip() or len(runner_id) > 200:
+            raise VirtualGitError("runner_id must be 1-200 characters")
+        if isinstance(lease_seconds, bool) or not isinstance(lease_seconds, int) or not 15 <= lease_seconds <= 900:
+            raise VirtualGitError("lease_seconds must be between 15 and 900")
+        supported = sorted(self.CHECK_NAMES if job_types is None else set(job_types))
+        if not supported or any(name not in self.CHECK_NAMES for name in supported):
+            raise VirtualGitError("runner job types are empty or unsupported")
+        now = time.time()
+        token = secrets.token_urlsafe(32)
+        token_hash = sha256(token.encode("ascii")).hexdigest()
+        placeholders = ",".join("?" for _ in supported)
+        with closing(self._connect()) as db, db:
+            db.execute("BEGIN IMMEDIATE")
+            expired = db.execute("""SELECT job_id,attempts,max_attempts FROM virtual_jobs
+                WHERE status='running' AND lease_expires_at<=?""", (now,)).fetchall()
+            for row in expired:
+                if row["attempts"] < row["max_attempts"]:
+                    db.execute("""UPDATE virtual_jobs SET status='queued',runner_id=NULL,
+                        lease_token_hash=NULL,lease_expires_at=NULL,updated_at=? WHERE job_id=?""",
+                        (now, row["job_id"]))
+                else:
+                    result = self._canonical({"error": "lease_expired",
+                                              "attempts": row["attempts"]})
+                    db.execute("""UPDATE virtual_jobs SET status='failed',result_json=?,
+                        runner_id=NULL,lease_token_hash=NULL,lease_expires_at=NULL,updated_at=?
+                        WHERE job_id=?""", (result, now, row["job_id"]))
+                self._event(db, "virtual_job.lease_expired", {
+                    "job_id": row["job_id"], "attempts": row["attempts"],
+                    "max_attempts": row["max_attempts"],
+                })
+            row = db.execute(f"""SELECT * FROM virtual_jobs WHERE status='queued'
+                AND job_type IN ({placeholders}) ORDER BY created_at,job_id LIMIT 1""",
+                tuple(supported)).fetchone()
+            if row is None:
+                return None
+            expires = now + lease_seconds
+            updated = db.execute("""UPDATE virtual_jobs SET status='running',
+                attempts=attempts+1,runner_id=?,lease_token_hash=?,lease_expires_at=?,updated_at=?
+                WHERE job_id=? AND status='queued'""",
+                (runner_id, token_hash, expires, now, row["job_id"]))
+            if updated.rowcount != 1:
+                raise VirtualGitError("virtual job claim raced; retry")
+            self._event(db, "virtual_job.claimed", {
+                "job_id": row["job_id"], "runner_id": runner_id,
+                "attempt": row["attempts"] + 1, "lease_expires_at": expires,
+            })
+            claimed = db.execute("SELECT * FROM virtual_jobs WHERE job_id=?",
+                                 (row["job_id"],)).fetchone()
+            return {**self._job_payload(claimed), "lease_token": token}
+
+    def heartbeat_job(self, job_id: str, runner_id: str, lease_token: str,
+                      *, lease_seconds: int = 120) -> dict[str, Any]:
+        if not isinstance(lease_token, str) or not lease_token:
+            raise VirtualGitError("lease token is required")
+        if isinstance(lease_seconds, bool) or not isinstance(lease_seconds, int) or not 15 <= lease_seconds <= 900:
+            raise VirtualGitError("lease_seconds must be between 15 and 900")
+        token_hash = sha256(lease_token.encode("utf-8")).hexdigest()
+        now = time.time()
+        expires = now + lease_seconds
+        with closing(self._connect()) as db, db:
+            db.execute("BEGIN IMMEDIATE")
+            row = db.execute("SELECT * FROM virtual_jobs WHERE job_id=?", (job_id,)).fetchone()
+            if (row is None or row["status"] != "running" or row["runner_id"] != runner_id
+                    or row["lease_expires_at"] is None or row["lease_expires_at"] <= now
+                    or not secrets.compare_digest(row["lease_token_hash"] or "", token_hash)):
+                raise VirtualGitError("virtual job lease is stale or not owned by this runner")
+            db.execute("UPDATE virtual_jobs SET lease_expires_at=?,updated_at=? WHERE job_id=?",
+                       (expires, now, job_id))
+            self._event(db, "virtual_job.heartbeat", {
+                "job_id": job_id, "runner_id": runner_id, "lease_expires_at": expires,
+            })
+        return {"job_id": job_id, "runner_id": runner_id, "lease_expires_at": expires}
+
+    def complete_job(self, job_id: str, runner_id: str, lease_token: str,
+                     conclusion: str, result: Mapping[str, Any], log: str) -> dict[str, Any]:
+        if conclusion not in {"succeeded", "failed", "cancelled"}:
+            raise VirtualGitError("invalid virtual job conclusion")
+        if not isinstance(result, Mapping):
+            raise VirtualGitError("virtual job result must be an object")
+        if not isinstance(log, str) or len(log.encode("utf-8")) > 5_000_000:
+            raise VirtualGitError("virtual job log must be UTF-8 text under 5 MB")
+        encoded = self._canonical(dict(result))
+        if len(encoded.encode("utf-8")) > 1_000_000:
+            raise VirtualGitError("virtual job result exceeds 1 MB")
+        token_hash = sha256(lease_token.encode("utf-8")).hexdigest()
+        now = time.time()
+        with closing(self._connect()) as db, db:
+            db.execute("BEGIN IMMEDIATE")
+            row = db.execute("SELECT * FROM virtual_jobs WHERE job_id=?", (job_id,)).fetchone()
+            if (row is None or row["status"] != "running" or row["runner_id"] != runner_id
+                    or row["lease_expires_at"] is None or row["lease_expires_at"] <= now
+                    or not secrets.compare_digest(row["lease_token_hash"] or "", token_hash)):
+                raise VirtualGitError("virtual job lease is stale or not owned by this runner")
+            digest = self._put_blob(db, log.encode("utf-8"))
+            db.execute("""UPDATE virtual_jobs SET status=?,result_json=?,log_digest=?,
+                runner_id=NULL,lease_token_hash=NULL,lease_expires_at=NULL,updated_at=?
+                WHERE job_id=?""", (conclusion, encoded, digest, now, job_id))
+            self._event(db, "virtual_job.completed", {
+                "job_id": job_id, "runner_id": runner_id, "conclusion": conclusion,
+                "log_sha256": digest, "verification_status": "UNVERIFIED",
+                "promotion_authorized": False,
+            })
+            final = db.execute("SELECT * FROM virtual_jobs WHERE job_id=?", (job_id,)).fetchone()
+            return self._job_payload(final)
+
+    def get_job(self, job_id: str) -> dict[str, Any]:
+        with closing(self._connect()) as db:
+            row = db.execute("SELECT * FROM virtual_jobs WHERE job_id=?", (job_id,)).fetchone()
+        if row is None:
+            raise KeyError(job_id)
+        return self._job_payload(row)
+
+    def jobs(self, *, limit: int = 100) -> list[dict[str, Any]]:
+        if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 500:
+            raise VirtualGitError("job limit must be between 1 and 500")
+        with closing(self._connect()) as db:
+            rows = db.execute("SELECT * FROM virtual_jobs ORDER BY created_at DESC,job_id DESC LIMIT ?",
+                              (limit,)).fetchall()
+        return [self._job_payload(row) for row in rows]
+
+    def read_job_log(self, job_id: str) -> bytes:
+        with closing(self._connect()) as db:
+            row = db.execute("""SELECT b.content,j.log_digest FROM virtual_jobs j
+                JOIN blobs b ON b.digest=j.log_digest WHERE j.job_id=?""",
+                (job_id,)).fetchone()
+        if row is None:
+            raise KeyError("job log is not available: " + job_id)
+        content = bytes(row["content"])
+        if sha256(content).hexdigest() != row["log_digest"]:
+            raise RuntimeError("virtual job log integrity failure")
+        return content
+
     def record_check_result(self, commit_id: str, check_name: str, conclusion: str,
                             run_id: str, runner_id: str, log: str) -> dict[str, Any]:
         if not isinstance(check_name, str) or check_name not in self.CHECK_NAMES:
