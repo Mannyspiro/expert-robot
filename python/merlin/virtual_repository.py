@@ -175,6 +175,66 @@ class VirtualRepository:
                                                         "file_count": len(tree)})
             return {"branch": branch, "commit_id": commit_id, "file_count": len(tree)}
 
+    def integrity_report(self) -> dict[str, Any]:
+        """Verify SQLite structure, foreign keys, blob hashes and commit identities."""
+        problems: list[str] = []
+        with closing(self._connect()) as db:
+            integrity = [row[0] for row in db.execute("PRAGMA integrity_check").fetchall()]
+            if integrity != ["ok"]:
+                problems.extend("sqlite:" + str(item) for item in integrity)
+            foreign_keys = [tuple(row) for row in db.execute("PRAGMA foreign_key_check").fetchall()]
+            if foreign_keys:
+                problems.append("foreign_key_violations")
+            blob_rows = db.execute("SELECT digest,content,size_bytes FROM blobs").fetchall()
+            for row in blob_rows:
+                raw = bytes(row["content"])
+                if sha256(raw).hexdigest() != row["digest"] or len(raw) != row["size_bytes"]:
+                    problems.append("blob:" + row["digest"])
+            commits = db.execute("""SELECT commit_id,parent1,parent2,tree_json,message
+                FROM commits""").fetchall()
+            for row in commits:
+                try:
+                    tree = json.loads(row["tree_json"])
+                    payload = {"tree": dict(sorted(tree.items())), "message": row["message"],
+                               "parent1": row["parent1"], "parent2": row["parent2"]}
+                    expected = sha256(self._canonical(payload).encode("utf-8")).hexdigest()
+                    if expected != row["commit_id"]:
+                        problems.append("commit:" + row["commit_id"])
+                    for path, digest in tree.items():
+                        if not db.execute("SELECT 1 FROM blobs WHERE digest=?", (digest,)).fetchone():
+                            problems.append("missing_blob:" + str(path))
+                except (TypeError, ValueError, json.JSONDecodeError):
+                    problems.append("invalid_commit_tree:" + row["commit_id"])
+            counts = {
+                "blobs": db.execute("SELECT COUNT(*) FROM blobs").fetchone()[0],
+                "commits": db.execute("SELECT COUNT(*) FROM commits").fetchone()[0],
+                "branches": db.execute("SELECT COUNT(*) FROM branches").fetchone()[0],
+                "pull_requests": db.execute("SELECT COUNT(*) FROM pull_requests").fetchone()[0],
+            }
+        return {"ok": not problems, "problems": problems, "counts": counts,
+                "integrity_check": integrity, "foreign_key_violations": foreign_keys}
+
+    def backup_to(self, destination: str | Path) -> dict[str, Any]:
+        """Create a transactionally consistent SQLite backup without overwriting files."""
+        target = Path(destination)
+        if target.resolve() == self.path.resolve():
+            raise VirtualGitError("backup destination must differ from the live repository")
+        target.parent.mkdir(parents=True, exist_ok=True)
+        if target.exists():
+            raise VirtualGitError("backup destination already exists")
+        try:
+            with closing(self._connect()) as source, closing(sqlite3.connect(target)) as backup:
+                source.backup(backup)
+            report = VirtualRepository(target).integrity_report()
+            if not report["ok"]:
+                target.unlink(missing_ok=True)
+                raise RuntimeError("backup integrity verification failed: " + repr(report["problems"]))
+            return {"path": str(target), "integrity": report}
+        except Exception:
+            if target.exists():
+                target.unlink(missing_ok=True)
+            raise
+
     def branches(self) -> list[dict[str, Any]]:
         with closing(self._connect()) as db:
             rows = db.execute("SELECT name,commit_id,updated_at FROM branches ORDER BY name").fetchall()
