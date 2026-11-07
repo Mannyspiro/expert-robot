@@ -2,6 +2,7 @@ import json
 import sqlite3
 import tempfile
 import threading
+import threading
 import unittest
 from http.server import ThreadingHTTPServer
 from urllib.request import Request, urlopen
@@ -31,6 +32,31 @@ class VirtualRepositoryTests(unittest.TestCase):
                 "test-" + commit_id[:10] + "-" + check_name,
                 "unit-test-runner", "PASS: " + check_name,
             )
+
+    def test_concurrent_first_start_initialization_is_idempotent(self):
+        with tempfile.TemporaryDirectory() as temp:
+            database = Path(temp) / "concurrent-forge.sqlite3"
+            repositories = [VirtualRepository(database), VirtualRepository(database)]
+            barrier = threading.Barrier(2)
+            failures = []
+
+            def initialize(repo):
+                barrier.wait(timeout=5)
+                if not repo.branches():
+                    try:
+                        repo.initialize({"README.md": "# concurrent\\n"})
+                    except VirtualGitError:
+                        if not repo.branches():
+                            failures.append("initialization failed without a winner")
+
+            threads = [threading.Thread(target=initialize, args=(repo,)) for repo in repositories]
+            for thread in threads:
+                thread.start()
+            for thread in threads:
+                thread.join(timeout=10)
+            self.assertTrue(all(not thread.is_alive() for thread in threads))
+            self.assertEqual(failures, [])
+            self.assertEqual([row["name"] for row in repositories[0].branches()], ["main"])
 
     def test_content_addressed_commit_and_restart_persistence(self):
         branch = self.repo.create_branch("feature/one")
