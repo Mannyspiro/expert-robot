@@ -13,6 +13,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_PROTOCOL_PATH = ROOT / "config" / "research" / "reasoning_protocol_v1.json"
+DEFAULT_METHOD_REGISTRY_PATH = ROOT / "config" / "research" / "math_method_registry_v1.json"
 EXPECTED_STEPS = (
     "context_intake",
     "problem_formalization",
@@ -82,9 +83,17 @@ def prepare_research_task(
     if reason is None:
         return task, {"active": False, "reason": "not_research_scope"}
     protocol, digest = load_protocol(protocol_path)
+    registry_raw = method_registry_path.read_bytes()
+    method_registry = json.loads(registry_raw)
+    if method_registry.get("id") != "MERLIN-MATH-METHOD-REGISTRY-001":
+        raise ValueError("mathematical method registry identity is invalid")
+    registry_digest = hashlib.sha256(registry_raw).hexdigest()
     context = {
         "protocol_id": protocol["id"],
         "protocol_sha256": digest,
+        "math_method_registry_id": method_registry["id"],
+        "math_method_registry_sha256": registry_digest,
+        "math_method_registry": method_registry,
         "pipeline": protocol["pipeline"],
         "ideonomy": protocol["ideonomy"],
         "analogy": protocol["analogy"],
@@ -110,4 +119,5 @@ def prepare_research_task(
         "reason": reason,
         "protocol_id": protocol["id"],
         "protocol_sha256": digest,
+        "math_method_registry_sha256": registry_digest,
     }
