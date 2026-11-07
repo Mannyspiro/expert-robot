@@ -50,6 +50,18 @@ The endpoint and allowed host are pinned by the profile. A caller cannot overrid
 
 The model remains unavailable until its model ID, endpoint, rate-limit behavior, privacy review and held-out task results have been recorded in a qualification receipt. The environment flag is a deployment gate, not evidence that a model passed qualification. There is no automatic fallback between providers: a provider switch is explicit and logged.
 
+PostHog export is now implemented as an optional background service. It reads only Merlin's stored event metadata, advances a durable export cursor only after a successful batch response, uses stable insert IDs for retries, and exposes health at `/api/runtime/analytics`. It is disabled unless a project token is configured.
+
+```bash
+MERLIN_POSTHOG_PROJECT_TOKEN=<project-write-token>
+MERLIN_POSTHOG_REGION=us
+MERLIN_INSTANCE_ID=<non-identifying-instance-label>
+MERLIN_POSTHOG_POLL_SECONDS=5
+MERLIN_POSTHOG_BATCH_SIZE=100
+```
+
+Only the US and EU public capture hosts are supported. The exporter does not transmit request bodies, prompts, learner answers, raw artifact content, request hashes, user IDs or credentials. It exports allowlisted event kind and operational summary fields only. A token is not currently configured in the deployment, so the adapter is implemented and testable but live PostHog delivery is not yet active.
+
 ## Integration sequence (ranked)
 
 1. **Provider qualification, no new infrastructure.** Configure one free provider at a time in a non-production environment. Run held-out tasks for instruction following, structured JSON, code patch quality, multilingual handling, latency, token limits, prompt injection resistance and refusal behavior. Record provider/model/revision, exact limits, test set digest, score, latency distribution and privacy approval. Keep \`MERLIN_REMOTE_MODEL_QUALIFIED=0\` until independently reviewed.
