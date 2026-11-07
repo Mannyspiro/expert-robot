@@ -124,6 +124,48 @@ class ResearchProtocolContractTests(unittest.TestCase):
         self.assertEqual(len(identifiers), len(set(identifiers)))
         self.assertGreaterEqual(len(taxonomy["review_questions"]), 8)
 
+    def test_conversation_context_import_is_idempotent_and_append_only(self):
+        import sqlite3
+        import sys
+        import tempfile
+
+        sys.path.insert(0, str(ROOT / "python"))
+        from conversation_context import (
+            ContextRecordError,
+            ConversationContextStore,
+        )
+
+        record = {
+            "source_system": "chatgpt_export",
+            "conversation_id": "conversation-001",
+            "message_id": "message-001",
+            "role": "user",
+            "created_at": "2026-11-07T17:00:00Z",
+            "privacy": "project",
+            "content": "Continue the Merlin research protocol.",
+            "project_tags": ["merlin", "research"],
+            "attachments": [
+                {"attachment_id": "attachment-001", "sha256": "a" * 64}
+            ],
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            store = ConversationContextStore(Path(directory) / "context.sqlite3")
+            try:
+                self.assertEqual(store.ingest([record]), {"inserted": 1, "duplicates": 0})
+                self.assertEqual(store.ingest([record]), {"inserted": 0, "duplicates": 1})
+                self.assertEqual(store.coverage()["messages"], 1)
+                self.assertEqual(store.coverage()["attachments"], 1)
+                self.assertEqual(len(store.search("merlin")), 1)
+                with self.assertRaises(sqlite3.IntegrityError):
+                    store.db.execute("DELETE FROM context_messages")
+                changed = dict(record, content="changed content")
+                with self.assertRaisesRegex(ContextRecordError, "collision"):
+                    store.ingest([changed])
+                with self.assertRaisesRegex(ContextRecordError, "allow_personal"):
+                    store.ingest([dict(record, message_id="personal-001", privacy="personal")])
+            finally:
+                store.close()
+
     def test_context_contract_requires_source_traceability(self):
         text = (ROOT / "docs/conversation-context-ingestion-contract.md").read_text(
             encoding="utf-8"
