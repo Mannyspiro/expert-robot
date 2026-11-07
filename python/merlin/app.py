@@ -76,16 +76,51 @@ def _append_component_event(store: EventStore, *, source: str, kind: str,
                  {"event": event})
 
 
+FREE_OPENAI_COMPATIBLE_PROFILES = {
+    "gemini": {
+        "endpoint": "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+        "host": "generativelanguage.googleapis.com",
+        "transport": "Google Gemini API OpenAI-compatible endpoint",
+    },
+    "groq": {
+        "endpoint": "https://api.groq.com/openai/v1/chat/completions",
+        "host": "api.groq.com",
+        "transport": "Groq OpenAI-compatible endpoint",
+    },
+}
+
+
 def _remote_model_endpoint() -> tuple[str, str]:
-    """Return an explicitly allowlisted HTTPS OpenAI-compatible endpoint."""
+    """Return a HTTPS endpoint pinned to a built-in or explicit custom host."""
+    provider = os.environ.get("MERLIN_REMOTE_PROVIDER", "custom").strip().lower()
+    profile = FREE_OPENAI_COMPATIBLE_PROFILES.get(provider)
+    if provider != "custom" and profile is None:
+        raise ValueError("unsupported remote model provider profile")
     endpoint = os.environ.get("MERLIN_REMOTE_MODEL_URL", "").strip()
+    if not endpoint and profile is not None:
+        endpoint = profile["endpoint"]
     api_key = os.environ.get("MERLIN_REMOTE_API_KEY", "").strip()
-    allowed = {host.strip().lower() for host in os.environ.get("MERLIN_REMOTE_ALLOWED_HOSTS", "").split(",") if host.strip()}
-    if not endpoint or not api_key or not allowed:
-        raise ValueError("remote model requires URL, API key, and explicit allowed-host list")
+    allowed = {
+        host.strip().lower()
+        for host in os.environ.get("MERLIN_REMOTE_ALLOWED_HOSTS", "").split(",")
+        if host.strip()
+    }
+    if not endpoint or not api_key:
+        raise ValueError("remote model requires an endpoint and API key")
     parsed = urlsplit(endpoint)
-    if parsed.scheme != "https" or not parsed.hostname or parsed.hostname.lower() not in allowed or parsed.username or parsed.password or parsed.fragment:
-        raise ValueError("remote model URL must use HTTPS and an explicitly allowlisted host")
+    if (
+        parsed.scheme != "https" or not parsed.hostname
+        or parsed.username or parsed.password or parsed.fragment
+    ):
+        raise ValueError("remote model URL must use HTTPS without embedded credentials")
+    hostname = parsed.hostname.lower()
+    if profile is not None:
+        if hostname != profile["host"]:
+            raise ValueError("remote model URL does not match the selected provider profile")
+        if allowed and hostname not in allowed:
+            raise ValueError("remote model host is not in the explicit allowed-host list")
+    elif hostname not in allowed:
+        raise ValueError("custom remote model URL requires an explicitly allowlisted host")
     return endpoint, api_key
 
 
@@ -145,7 +180,13 @@ def _runtime_provider_status() -> dict[str, Any]:
             _loopback_endpoint("MERLIN_MODEL_URL", "http://127.0.0.1:8080/v1/chat/completions")
         except ValueError:
             local_ready = False
-    remote_ready = os.environ.get("MERLIN_REMOTE_MODEL_QUALIFIED") == "1" and bool(remote_model)
+    remote_provider = os.environ.get("MERLIN_REMOTE_PROVIDER", "custom").strip().lower()
+    remote_ready = (
+        os.environ.get("MERLIN_REMOTE_MODEL_QUALIFIED") == "1"
+        and bool(remote_model)
+        and (bool(os.environ.get("MERLIN_REMOTE_MODEL_URL", "").strip())
+             or remote_provider in FREE_OPENAI_COMPATIBLE_PROFILES)
+    )
     if remote_ready:
         try:
             _remote_model_endpoint()
@@ -166,8 +207,13 @@ def _runtime_provider_status() -> dict[str, Any]:
                       "transport": "loopback OpenAI-compatible API"},
             "cloud": {"status": "QUALIFIED_CONFIGURED" if remote_ready else "UNAVAILABLE",
                       "health": "not_probed",
+                      "provider": remote_provider if remote_ready else None,
                       "model": remote_model if remote_ready else None,
-                      "transport": "allowlisted HTTPS OpenAI-compatible API"},
+                      "transport": (
+                          FREE_OPENAI_COMPATIBLE_PROFILES[remote_provider]["transport"]
+                          if remote_ready and remote_provider in FREE_OPENAI_COMPATIBLE_PROFILES
+                          else "explicitly allowlisted HTTPS OpenAI-compatible API"
+                      )},
             "speech_output": {"status": "QUALIFIED_CONFIGURED" if tts_ready else "UNAVAILABLE",
                               "health": "not_probed",
                               "model": os.environ.get("MERLIN_TTS_MODEL") if tts_ready else None,
@@ -1156,7 +1202,9 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     if provider not in {"auto", "local", "cloud"}:
                         raise ValueError("provider must be auto, local, or cloud")
                     remote_url = os.environ.get("MERLIN_REMOTE_MODEL_URL", "").strip()
-                    use_cloud = provider == "cloud" or (provider == "auto" and bool(remote_url))
+                    remote_profile = os.environ.get("MERLIN_REMOTE_PROVIDER", "custom").strip().lower()
+                    remote_configured = bool(remote_url) or remote_profile in FREE_OPENAI_COMPATIBLE_PROFILES
+                    use_cloud = provider == "cloud" or (provider == "auto" and remote_configured)
                     if use_cloud:
                         if os.environ.get("MERLIN_REMOTE_MODEL_QUALIFIED") != "1":
                             self._send(503, {"error": "remote_model_not_qualified"})
