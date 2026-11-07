@@ -463,6 +463,10 @@ class VirtualRepositoryTests(unittest.TestCase):
             status = get("/api/forge/status")
             self.assertEqual(status["schema"], "merlin-forge-status/1")
             self.assertEqual(status["runner_execution"], "not_performed")
+            self.assertGreater(status["source_snapshot"]["file_count"], 0)
+            self.assertFalse(status["source_snapshot"]["sensitive_files_included"])
+            self.assertFalse(status["source_snapshot"]["source_commit_verified"])
+            self.assertEqual(status["virtual_job_counts"]["queued"], 0)
             self.assertEqual(set(status["required_checks"]["main"]), {
                 "python.compile", "python.unified_tests", "hud.javascript_syntax",
             })
