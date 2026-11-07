@@ -29,6 +29,7 @@ std::string_view lens_name(ImaginationLens lens) {
         case ImaginationLens::Counterfactual: return "counterfactual";
         case ImaginationLens::Construction: return "construction";
         case ImaginationLens::Lemma: return "lemma";
+        case ImaginationLens::Lacuna: return "lacuna";
         case ImaginationLens::Count: break;
     }
     return "unknown";
@@ -53,6 +54,8 @@ swarm::AgentRole role_for_lens(ImaginationLens lens) {
         case ImaginationLens::Spectral:
         case ImaginationLens::Topological:
         case ImaginationLens::Construction:
+        case ImaginationLens::Lacuna:
+            return swarm::AgentRole::Analogist;
         case ImaginationLens::Count:
             return swarm::AgentRole::Mathematician;
     }
@@ -87,6 +90,8 @@ std::string lens_instruction(ImaginationLens lens) {
             return "Construct an explicit object, witness, canonical normal form, or algorithm that exposes the theorem mechanism.";
         case ImaginationLens::Lemma:
             return "Identify one high-leverage helper lemma whose proof would substantially reduce the target.";
+        case ImaginationLens::Lacuna:
+            return "Explore useful cross-domain lacunae: identify a missing explanatory link, under-modeled mechanism, or unexplored combination across relevant disciplines. Propose only combinations with a coherent mechanism, compatibility with known constraints, a plausible use, and a falsifiable test. Mark speculative or unfamiliar-science ideas as hypotheses, never as established facts; do not invent evidence.";
         case ImaginationLens::Count:
             break;
     }
