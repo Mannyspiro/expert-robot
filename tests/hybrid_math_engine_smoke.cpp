@@ -487,6 +487,11 @@ int main() {
     assert(!run.skipped);
     assert(run.imagination_drive >= 0.18);
     assert(run.selected_lenses.size() == 4);
+    assert(
+        std::find(
+            run.selected_lenses.begin(),
+            run.selected_lenses.end(),
+            ImaginationLens::Lacuna) != run.selected_lenses.end());
     assert(run.generated.size() == 4);
     assert(!run.archive_elites.empty());
     assert(!run.shortlisted.empty());
