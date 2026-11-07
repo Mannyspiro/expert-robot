@@ -86,6 +86,24 @@ class VirtualRepositoryTests(unittest.TestCase):
         self.assertEqual({row["name"]: row["commit_id"] for row in reopened.branches()}["feature/one"], digest)
         self.assertEqual(branch["commit_id"], self.initial["commit_id"])
 
+    def test_export_commit_materializes_verified_read_only_source_tree(self):
+        branch = self.repo.create_branch("feature/export")
+        commit = self.repo.commit("feature/export", "export workspace", {
+            "src/main.py": "print('merlin')\\n",
+            "docs/README.md": "# export\\n",
+        })
+        workspace = Path(self.temp.name) / "workspace"
+        manifest = self.repo.export_commit(commit["commit_id"], workspace)
+        self.assertEqual(manifest["commit_id"], commit["commit_id"])
+        self.assertEqual(manifest["file_count"], 4)
+        self.assertEqual((workspace / "src/main.py").read_text(), "print('merlin')\\n")
+        self.assertEqual((workspace / "docs/README.md").read_text(), "# export\\n")
+        with self.assertRaises(VirtualGitError):
+            self.repo.export_commit(commit["commit_id"], workspace)
+        with self.assertRaises(VirtualGitError):
+            self.repo.export_commit(commit["commit_id"], Path(self.temp.name) / "limited",
+                                    max_total_bytes=1)
+
     def test_integrity_checked_backup_restores_repository_state(self):
         self.repo.create_branch("feature/backup")
         self.repo.commit("feature/backup", "backup candidate", {
