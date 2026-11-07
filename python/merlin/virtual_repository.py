@@ -47,6 +47,20 @@ class VirtualRepository:
             CREATE TABLE IF NOT EXISTS events(
               event_id INTEGER PRIMARY KEY AUTOINCREMENT, kind TEXT NOT NULL,
               payload_json TEXT NOT NULL, created_at REAL NOT NULL);
+            CREATE TABLE IF NOT EXISTS branch_policies(
+              branch TEXT PRIMARY KEY, required_checks_json TEXT NOT NULL,
+              updated_at REAL NOT NULL);
+            CREATE TABLE IF NOT EXISTS check_results(
+              check_id INTEGER PRIMARY KEY AUTOINCREMENT,
+              commit_id TEXT NOT NULL REFERENCES commits(commit_id),
+              check_name TEXT NOT NULL, conclusion TEXT NOT NULL
+                CHECK(conclusion IN ('success','failure','cancelled')),
+              run_id TEXT NOT NULL, runner_id TEXT NOT NULL,
+              log_digest TEXT NOT NULL REFERENCES blobs(digest),
+              result_json TEXT NOT NULL, recorded_at REAL NOT NULL,
+              UNIQUE(run_id, check_name));
+            CREATE INDEX IF NOT EXISTS check_results_commit_name
+              ON check_results(commit_id,check_name,recorded_at);
             CREATE INDEX IF NOT EXISTS events_kind_id ON events(kind,event_id);
             CREATE INDEX IF NOT EXISTS commits_parent1 ON commits(parent1);
             CREATE INDEX IF NOT EXISTS commits_parent2 ON commits(parent2);
@@ -68,6 +82,12 @@ class VirtualRepository:
             CREATE TRIGGER IF NOT EXISTS virtual_events_no_delete
               BEFORE DELETE ON events
               BEGIN SELECT RAISE(ABORT, 'virtual repository events are append-only'); END;
+            CREATE TRIGGER IF NOT EXISTS virtual_check_results_no_update
+              BEFORE UPDATE ON check_results
+              BEGIN SELECT RAISE(ABORT, 'virtual repository check results are immutable'); END;
+            CREATE TRIGGER IF NOT EXISTS virtual_check_results_no_delete
+              BEFORE DELETE ON check_results
+              BEGIN SELECT RAISE(ABORT, 'virtual repository check results are immutable'); END;
             """)
 
     def _connect(self):
@@ -141,6 +161,10 @@ class VirtualRepository:
                 tree[path] = self._put_blob(db, raw)
             commit_id = self._put_commit(db, tree, "Initialize Merlin virtual repository", None)
             db.execute("INSERT INTO branches VALUES(?,?,?)", (branch, commit_id, time.time()))
+            if branch == "main":
+                required = ["python.compile", "python.unified_tests", "hud.javascript_syntax"]
+                db.execute("INSERT INTO branch_policies VALUES(?,?,?)",
+                           (branch, self._canonical(required), time.time()))
             self._event(db, "repository.initialized", {"branch": branch, "commit": commit_id,
                                                         "file_count": len(tree)})
             return {"branch": branch, "commit_id": commit_id, "file_count": len(tree)}
