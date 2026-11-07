@@ -110,7 +110,6 @@ class PostHogTelemetrySink:
             "$process_person_profile": False,
             "merlin_event_id": row_id,
             "merlin_event_kind": kind,
-            "merlin_request_sha256": request_digest,
             **self._safe_properties(row),
         }
         event = {
