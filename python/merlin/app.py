@@ -312,7 +312,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
     repo_root = Path(__file__).resolve().parents[2]
     forge = VirtualRepository(Path(store.path).with_name("merlin-forge.sqlite3"))
     if not forge.branches():
-        seed = {"README.md": "# Merlin virtual repository\\n"}
+        seed = {"README.md": "# Merlin virtual repository\n"}
         for relative in ("python/merlin/app.py", "python/merlin/virtual_repository.py"):
             source = repo_root / relative
             if source.is_file():
@@ -521,9 +521,13 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                                  "pull_requests": forge.pull_requests()})
                 return
             if path == "/api/forge/events":
-                limit = int((parse_qs(parsed.query).get("limit") or ["100"])[0])
-                self._send(200, {"schema": "merlin-forge-events/1",
-                                 "events": forge.events(limit)})
+                try:
+                    limit = int((parse_qs(parsed.query).get("limit") or ["100"])[0])
+                    result = forge.events(limit)
+                except (ValueError, TypeError) as exc:
+                    self._send(400, {"error": "invalid_event_limit", "detail": str(exc)[:200]})
+                    return
+                self._send(200, {"schema": "merlin-forge-events/1", "events": result})
                 return
             if path == "/api/forge/file":
                 params = parse_qs(parsed.query)
