@@ -366,7 +366,8 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                  learning_identity_resolver: Any | None = None,
                  canonical_graph: Any | None = None,
                  hermes_worker_service: Any | None = None,
-                 hermes_runtime: Any | None = None):
+                 hermes_runtime: Any | None = None,
+                 posthog_service: Any | None = None):
     simulation = MerlinSimulation()
     learner_store = learner_store or LearnerStore(store.path)
     learning_db = os.environ.get("MERLIN_LEARNING_DB_PATH",
@@ -707,6 +708,16 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     outbox_configured=learning_outbox is not None))
             elif path == "/api/runtime/providers":
                 self._send(200, _runtime_provider_status())
+            elif path == "/api/runtime/analytics":
+                if posthog_service is None:
+                    self._send(503, {
+                        "schema": "merlin-posthog-export-health/1",
+                        "status": "unavailable",
+                        "promotion_authority": False,
+                        "raw_conversation_export": False,
+                    })
+                else:
+                    self._send(200, posthog_service.health())
             elif path == "/api/runtime/hermes":
                 if hermes_runtime is not None:
                     self._send(200, hermes_runtime.health())
@@ -1453,6 +1464,19 @@ def _build_optional_hud_runtime(
         print("Merlin HUD integration unavailable: " + type(exc).__name__)
         return None
 
+def _build_optional_posthog_service(store: EventStore):
+    """Create an opt-in analytics exporter; no token means no external traffic."""
+    from .posthog_telemetry import PostHogExportService, PostHogTelemetrySink
+    sink = PostHogTelemetrySink.from_environment()
+    if sink is None:
+        return None
+    return PostHogExportService(
+        event_store=store,
+        sink=sink,
+        poll_seconds=float(os.environ.get("MERLIN_POSTHOG_POLL_SECONDS", "5")),
+        batch_size=int(os.environ.get("MERLIN_POSTHOG_BATCH_SIZE", "100")),
+    )
+
 
 def serve(port: int = 8765, db_path: str | None = None,
           learning_identity_resolver: Any | None = None,
@@ -1470,6 +1494,7 @@ def serve(port: int = 8765, db_path: str | None = None,
     )
     target = db_path or os.environ.get("MERLIN_DB_PATH", runtime_default_db)
     store = EventStore(target)
+    posthog_service = _build_optional_posthog_service(store)
     learner_db = os.environ.get("MERLIN_LEARNER_DB_PATH", target)
     learner_store = LearnerStore(learner_db)
     outbox_path = os.environ.get("MERLIN_OUTBOX_DB_PATH", "").strip()
@@ -1500,9 +1525,11 @@ def serve(port: int = 8765, db_path: str | None = None,
                      canonical_registry, learning_identity_resolver=learning_identity_resolver,
                      canonical_graph=canonical_graph,
                      hermes_worker_service=hermes_worker_service,
-                     hermes_runtime=hermes_runtime))
+                     hermes_runtime=hermes_runtime,
+                     posthog_service=posthog_service))
     hud_runtime_started = False
     hermes_service_started = False
+    posthog_service_started = False
     shutdown_requested = Event()
     previous_signal_handlers = {}
 
@@ -1530,6 +1557,8 @@ def serve(port: int = 8765, db_path: str | None = None,
             hermes_service_started = bool(hermes_runtime.start())
         elif hermes_worker_service is not None:
             hermes_service_started = bool(hermes_worker_service.start())
+        if posthog_service is not None:
+            posthog_service_started = bool(posthog_service.start())
         print(f"Merlin MVP API listening on http://127.0.0.1:{port}")
         print("Merlin HUD: canonical graph/event stores connected" if hud_runtime
               else "Merlin HUD: labelled demonstration fallback (canonical store paths not configured)")
@@ -1540,6 +1569,8 @@ def serve(port: int = 8765, db_path: str | None = None,
         server.server_close()
         for signum, previous_handler in previous_signal_handlers.items():
             signal.signal(signum, previous_handler)
+        if posthog_service_started:
+            posthog_service.stop(timeout_seconds=5)
         if hud_runtime_started:
             hud_runtime.stop()
         if hermes_service_started:
