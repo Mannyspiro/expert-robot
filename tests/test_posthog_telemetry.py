@@ -54,6 +54,24 @@ class PostHogTelemetryTests(unittest.TestCase):
         with patch.dict(os.environ, {}, clear=True):
             self.assertIsNone(PostHogTelemetrySink.from_environment())
 
+    def test_environment_requires_instance_identity_when_export_is_enabled(self):
+        import os
+        from unittest.mock import patch
+
+        with patch.dict(os.environ, {
+            "MERLIN_POSTHOG_PROJECT_TOKEN": "phc-test",
+        }, clear=True):
+            with self.assertRaisesRegex(ValueError, "INSTANCE_ID"):
+                PostHogTelemetrySink.from_environment()
+
+        with patch.dict(os.environ, {
+            "MERLIN_POSTHOG_PROJECT_TOKEN": "phc-test",
+            "MERLIN_INSTANCE_ID": "merlin-production-instance",
+        }, clear=True):
+            sink = PostHogTelemetrySink.from_environment()
+            self.assertTrue(sink.distinct_id.startswith("merlin:"))
+            self.assertNotIn("merlin-production-instance", sink.distinct_id)
+
     def test_export_contains_only_allowlisted_metadata(self):
         self.store.append(
             "/api/chat",
