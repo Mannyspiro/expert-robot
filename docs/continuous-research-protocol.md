@@ -63,6 +63,28 @@ For each selected method, record why it applies, assumptions, expected benefit,
 cost, error bounds, and a baseline comparison when measurable. Avoid adding
 mathematics that does not improve the result.
 
+### Operator-learning and transformation tests
+
+For problems involving learned procedures or transferable reasoning, represent
+a solution as a typed sequence of operations rather than only a final answer.
+Use procedural task generation, symbol/label renaming, coordinate transforms,
+irrelevant perturbations, inverse tasks, and load-bearing counterfactual pairs.
+A valid method should preserve outputs under transformations that preserve the
+problem and change outputs under interventions that change a load-bearing
+condition. Hold out entire operation compositions to test generalization.
+
+Candidate objectives include equivariance, invariant agreement, contrastive
+structural consistency, executable program validity, counterfactual consistency,
+and simplicity of valid operation sequences. These are evaluation signals,
+not proof of general intelligence.
+
+Geometric algebra, symmetry groups, typed graphs, spectral structure,
+multiscale coordinates, and topological summaries are candidate representations
+when they preserve the task's semantics and can be benchmarked against simpler
+baselines. A cellular-automaton-inspired heartbeat may help scheduling or
+visualization, but it remains orchestration metadata and cannot certify
+scientific truth.
+
 ## Engineering loop
 
 For each meaningful project change, preserve:
