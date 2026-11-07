@@ -86,6 +86,70 @@ class VirtualRepositoryTests(unittest.TestCase):
         self.assertEqual({row["name"]: row["commit_id"] for row in reopened.branches()}["feature/one"], digest)
         self.assertEqual(branch["commit_id"], self.initial["commit_id"])
 
+    def test_virtual_ci_queue_idempotency_lease_fencing_and_logs(self):
+        job = self.repo.enqueue_job(self.initial["commit_id"], "python.compile", "compile-once")
+        replay = self.repo.enqueue_job(self.initial["commit_id"], "python.compile", "compile-once")
+        self.assertEqual(job["job_id"], replay["job_id"])
+        self.assertTrue(replay["idempotent_replay"])
+        first = self.repo.claim_job("runner-a", lease_seconds=15,
+                                    job_types=["python.compile"])
+        self.assertEqual(first["job_id"], job["job_id"])
+        self.assertEqual(first["attempts"], 1)
+        self.assertIsNone(self.repo.claim_job("runner-b", job_types=["python.compile"]))
+        with sqlite3.connect(self.db) as db:
+            db.execute("UPDATE virtual_jobs SET lease_expires_at=? WHERE job_id=?",
+                       (time.time() - 1, job["job_id"]))
+        second = self.repo.claim_job("runner-b", lease_seconds=30,
+                                     job_types=["python.compile"])
+        self.assertEqual(second["job_id"], job["job_id"])
+        self.assertEqual(second["attempts"], 2)
+        with self.assertRaises(VirtualGitError):
+            self.repo.heartbeat_job(job["job_id"], "runner-a", first["lease_token"])
+        with self.assertRaises(VirtualGitError):
+            self.repo.complete_job(job["job_id"], "runner-a", first["lease_token"],
+                                   "succeeded", {"exit_code": 0}, "stale")
+        self.repo.heartbeat_job(job["job_id"], "runner-b", second["lease_token"])
+        completed = self.repo.complete_job(
+            job["job_id"], "runner-b", second["lease_token"],
+            "succeeded", {"exit_code": 0, "test_count": 0}, "compile complete",
+        )
+        self.assertEqual(completed["status"], "succeeded")
+        self.assertEqual(self.repo.read_job_log(job["job_id"]), b"compile complete")
+        self.assertEqual(self.repo.get_job(job["job_id"])["result"]["exit_code"], 0)
+        self.assertEqual(self.repo.check_results(self.initial["commit_id"]), [])
+
+    def test_virtual_ci_queue_serializes_competing_claims(self):
+        job = self.repo.enqueue_job(self.initial["commit_id"], "python.unified_tests",
+                                    "unified-tests-once")
+        barrier = threading.Barrier(2)
+        claimed = []
+
+        def claim(runner_id):
+            barrier.wait(timeout=5)
+            claimed.append(self.repo.claim_job(runner_id, job_types=["python.unified_tests"]))
+
+        threads = [threading.Thread(target=claim, args=("runner-" + str(i),)) for i in range(2)]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join(timeout=10)
+        self.assertTrue(all(not thread.is_alive() for thread in threads))
+        winners = [item for item in claimed if item is not None]
+        self.assertEqual(len(winners), 1)
+        self.assertEqual(winners[0]["job_id"], job["job_id"])
+
+    def test_virtual_ci_job_fails_after_maximum_expired_leases(self):
+        job = self.repo.enqueue_job(self.initial["commit_id"], "hud.javascript_syntax",
+                                    "hud-once", max_attempts=1)
+        claim = self.repo.claim_job("runner-a", job_types=["hud.javascript_syntax"])
+        with sqlite3.connect(self.db) as db:
+            db.execute("UPDATE virtual_jobs SET lease_expires_at=? WHERE job_id=?",
+                       (time.time() - 1, job["job_id"]))
+        self.assertIsNone(self.repo.claim_job("runner-b", job_types=["hud.javascript_syntax"]))
+        failed = self.repo.get_job(job["job_id"])
+        self.assertEqual(failed["status"], "failed")
+        self.assertEqual(failed["result"]["error"], "lease_expired")
+
     def test_export_commit_materializes_verified_workspace(self):
         branch = self.repo.create_branch("feature/export")
         commit = self.repo.commit("feature/export", "export workspace", {
