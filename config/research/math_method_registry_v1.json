@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "id": "MERLIN-MATH-METHOD-REGISTRY-001",
+  "status": "capability_inventory_not_a_qualification",
+  "rule": "A method may be selected only when its preconditions are checked; registry presence does not imply execution capability or mathematical correctness.",
+  "methods": [
+    {
+      "id": "formal_logic_and_type_theory",
+      "status": "implemented_verified_boundary",
+      "executor": "cpp::MathResearchEngine + ILeanRunner + formalize + CandidateVerifier",
+      "preconditions": [
+        "well-formed FormalizationProposal",
+        "pinned Lean toolchain and dependency lock",
+        "proof search resource budget"
+      ],
+      "verification": [
+        "Lean compiler result",
+        "exact source revision and source digest",
+        "independent CACE receipt where required"
+      ],
+      "limits": [
+        "model-proposed statements remain untrusted",
+        "Lean success proves only the encoded statement under imported assumptions"
+      ]
+    },
+    {
+      "id": "theorem_graph_and_dependency_reasoning",
+      "status": "implemented_bounded_navigation",
+      "executor": "KnowledgeGraph::bounded_paths + VerifiedKnowledgeConsolidator",
+      "preconditions": [
+        "known theorem nodes and directional edges",
+        "bounded depth and path count"
+      ],
+      "verification": [
+        "graph schema validation",
+        "source/status checks",
+        "directional dependency regression tests"
+      ],
+      "limits": [
+        "graph connectivity is not proof",
+        "only verified theorem nodes may be treated as proof evidence"
+      ]
+    },
+    {
+      "id": "analogy_and_structural_reframing",
+      "status": "qualified_prompt_skill",
+      "executor": "MathSkillCatalog + ImaginationController + skeptic gate",
+      "preconditions": [
+        "explicit relation mapping",
+        "preserved and non-preserved properties"
+      ],
+      "verification": [
+        "formalization and Lean candidate verification"
+      ],
+      "limits": [
+        "analogy is not proof; transferred assumptions require independent checking"
+      ]
+    },
+    {
+      "id": "geometry_algebra_duality_spectral_topology",
+      "status": "qualified_prompt_skills",
+      "executor": "ImaginationLens and qualified MathSkillCatalog procedures",
+      "preconditions": [
+        "domain objects and applicable definitions identified",
+        "method-specific assumptions stated"
+      ],
+      "verification": [
+        "candidate formalization and Lean when formalizable"
+      ],
+      "limits": [
+        "skills are generation procedures, not specialized certified solvers"
+      ]
+    },
+    {
+      "id": "counterfactual_and_boundary_analysis",
+      "status": "qualified_prompt_skill",
+      "executor": "Skeptic and counterfactual/boundary imagination lenses",
+      "preconditions": [
+        "one load-bearing assumption or boundary condition isolated"
+      ],
+      "verification": [
+        "explicit counterexample, executable test, or formal derivation"
+      ],
+      "limits": [
+        "language-only counterexamples require validation"
+      ]
+    },
+    {
+      "id": "cross_domain_lacuna_search",
+      "status": "qualified_prompt_skill",
+      "executor": "ImaginationLens::Lacuna and math.lacuna.cross_domain",
+      "preconditions": [
+        "coherent mechanism",
+        "constraint compatibility",
+        "plausible application",
+        "falsifiable test path"
+      ],
+      "verification": [
+        "skeptic gate then candidate formalization/Lean or a domain-specific experiment"
+      ],
+      "limits": [
+        "novelty and unfamiliarity are not evidence; speculative mechanisms remain hypotheses"
+      ]
+    },
+    {
+      "id": "empirical_strategy_optimization",
+      "status": "implemented_bounded_empirical_ranking",
+      "executor": "ResearchStrategyPlanner + RouteOutcomeLedger",
+      "preconditions": [
+        "defined route candidates",
+        "domain/context and resource observations"
+      ],
+      "verification": [
+        "held-out baseline comparison",
+        "recorded downstream verified outcomes and cost"
+      ],
+      "limits": [
+        "heuristic ranking is not a general-purpose mathematical optimizer"
+      ]
+    },
+    {
+      "id": "research_episode_lineage",
+      "status": "implemented_hash_chained_ledger",
+      "executor": "ResearchEpisodeLedger SQLite",
+      "preconditions": [
+        "stable episode ID and event payload"
+      ],
+      "verification": [
+        "recompute event/payload hashes and previous-event chain"
+      ],
+      "limits": [
+        "hash integrity proves record identity/integrity, not truth of event payload"
+      ]
+    },
+    {
+      "id": "statistics_and_benchmark_evaluation",
+      "status": "partial_evaluation_metrics",
+      "executor": "existing research/evaluation benchmark ledgers and smoke tests",
+      "preconditions": [
+        "prespecified metrics",
+        "separated baseline and held-out cases",
+        "repeatable environment"
+      ],
+      "verification": [
+        "replayable test results and paired comparisons"
+      ],
+      "limits": [
+        "not a general statistical inference package; report sample size and uncertainty"
+      ]
+    },
+    {
+      "id": "probability_bayesian_inference",
+      "status": "not_implemented_as_runtime_solver",
+      "executor": null,
+      "preconditions": [
+        "explicit probabilistic model",
+        "prior and likelihood provenance",
+        "calibration data"
+      ],
+      "verification": [
+        "proper scoring rules and calibration on held-out data"
+      ],
+      "limits": [
+        "may be proposed conceptually; do not claim executable Bayesian inference capability"
+      ]
+    },
+    {
+      "id": "information_theory",
+      "status": "not_implemented_as_runtime_solver",
+      "executor": null,
+      "preconditions": [
+        "defined random variables and estimand",
+        "sampling/measurement assumptions"
+      ],
+      "verification": [
+        "independent numerical implementation and analytic checks"
+      ],
+      "limits": [
+        "do not infer entropy or information gain from labels alone"
+      ]
+    },
+    {
+      "id": "control_dynamical_and_numerical_methods",
+      "status": "not_implemented_as_general_runtime_solver",
+      "executor": null,
+      "preconditions": [
+        "typed state, units, equations, solver assumptions and stability conditions"
+      ],
+      "verification": [
+        "independent numerical solver, convergence/error bounds, counterexample tests"
+      ],
+      "limits": [
+        "no general certified solver is implied by this registry"
+      ]
+    },
+    {
+      "id": "symmetry_equivariance_and_operator_program_evaluation",
+      "status": "specified_evaluation_research",
+      "executor": "protocol task-generation/evaluation design; runtime adapter supplies procedure",
+      "preconditions": [
+        "explicit transformation group/action",
+        "declared invariant/equivariant output relation",
+        "held-out operator compositions"
+      ],
+      "verification": [
+        "paired invariance and load-bearing answer-flip tests",
+        "executable operator sequence validity"
+      ],
+      "limits": [
+        "not yet integrated as a production training or evaluation service"
+      ]
+    }
+  ],
+  "promotion_rule": "Capability status may change only after implementation and measured qualification. Registry labels never grant authority or upgrade evidence."
+}
