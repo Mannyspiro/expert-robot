@@ -7,6 +7,8 @@ import sys
 import uuid
 from dataclasses import dataclass
 
+from research_protocol import prepare_research_task
+
 
 @dataclass(frozen=True)
 class AgentRole:
@@ -62,11 +64,22 @@ def main() -> int:
     parser.add_argument("--runtime", required=True, help="Path to C++ expert_robot_runtime")
     parser.add_argument("--role", choices=sorted(ROLES), default="controller")
     parser.add_argument("--task", default="health check")
+    parser.add_argument(
+        "--research-protocol", choices=("auto", "always", "off"),
+        default="auto", help="Apply the versioned research protocol automatically, always, or never",
+    )
     args = parser.parse_args()
 
     runtime = RuntimeProcess(args.runtime)
     try:
-        response = runtime.request(args.role, args.task)
+        runtime_task, protocol_status = prepare_research_task(
+            args.task, mode=args.research_protocol
+        )
+        print(
+            json.dumps({"event": "research_protocol_activation", **protocol_status}),
+            file=sys.stderr,
+        )
+        response = runtime.request(args.role, runtime_task)
         print(json.dumps(response, indent=2))
         return 0 if response.get("ok") else 1
     finally:
