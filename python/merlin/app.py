@@ -51,6 +51,17 @@ MAX_BODY = 1_000_000
 MAX_PROXY_RESPONSE = 16_000_000
 
 
+def _select_chat_provider(provider: str) -> str:
+    """Select a provider without allowing configuration to imply cloud consent.
+
+    Auto is deliberately local-first. Cloud inference requires an explicit
+    provider='cloud' request; unavailable local inference fails closed.
+    """
+    if provider not in {"auto", "local", "cloud"}:
+        raise ValueError("provider must be auto, local, or cloud")
+    return "cloud" if provider == "cloud" else "local"
+
+
 def _loopback_endpoint(env_name: str, default: str) -> str:
     value = os.environ.get(env_name, default)
     parsed = urlsplit(value)
@@ -1435,11 +1446,8 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     return
                 if path == "/api/chat":
                     provider = data.get("provider", "auto")
-                    if provider not in {"auto", "local", "cloud"}:
-                        raise ValueError("provider must be auto, local, or cloud")
-                    remote_url = os.environ.get("MERLIN_REMOTE_MODEL_URL", "").strip()
-                    remote_configured = bool(remote_url)
-                    use_cloud = provider == "cloud" or (provider == "auto" and remote_configured)
+                    selected_provider = _select_chat_provider(provider)
+                    use_cloud = selected_provider == "cloud"
                     if use_cloud:
                         if os.environ.get("MERLIN_REMOTE_MODEL_QUALIFIED") != "1":
                             self._send(503, {"error": "remote_model_not_qualified"})
