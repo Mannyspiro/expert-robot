@@ -1,4 +1,5 @@
 import json
+import sqlite3
 import tempfile
 import threading
 import unittest
@@ -122,6 +123,22 @@ class VirtualRepositoryTests(unittest.TestCase):
             server.shutdown()
             server.server_close()
             thread.join(timeout=2)
+
+    def test_blobs_commits_and_events_are_immutable(self):
+        commit_id = self.initial["commit_id"]
+        event_id = self.repo.events()[0]["event_id"]
+        with sqlite3.connect(self.db) as db:
+            with self.assertRaises(sqlite3.IntegrityError):
+                db.execute("UPDATE commits SET message='tampered' WHERE commit_id=?", (commit_id,))
+            with self.assertRaises(sqlite3.IntegrityError):
+                db.execute("DELETE FROM commits WHERE commit_id=?", (commit_id,))
+            with self.assertRaises(sqlite3.IntegrityError):
+                db.execute("UPDATE events SET kind='tampered' WHERE event_id=?", (event_id,))
+            with self.assertRaises(sqlite3.IntegrityError):
+                db.execute("DELETE FROM events WHERE event_id=?", (event_id,))
+            blob = db.execute("SELECT digest FROM blobs LIMIT 1").fetchone()[0]
+            with self.assertRaises(sqlite3.IntegrityError):
+                db.execute("DELETE FROM blobs WHERE digest=?", (blob,))
 
     def test_commit_history_is_append_only_and_auditable(self):
         self.repo.create_branch("feature/audit")
