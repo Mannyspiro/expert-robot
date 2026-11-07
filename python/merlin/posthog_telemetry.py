@@ -66,10 +66,13 @@ class PostHogTelemetrySink:
         token = os.environ.get("MERLIN_POSTHOG_PROJECT_TOKEN", "").strip()
         if not token:
             return None
+        instance_id = os.environ.get("MERLIN_INSTANCE_ID", "").strip()
+        if not instance_id:
+            raise ValueError("MERLIN_INSTANCE_ID is required when PostHog export is enabled")
         return cls(
             project_token=token,
             region=os.environ.get("MERLIN_POSTHOG_REGION", "us").strip().lower(),
-            instance_id=os.environ.get("MERLIN_INSTANCE_ID", "default"),
+            instance_id=instance_id,
             timeout_seconds=float(os.environ.get("MERLIN_POSTHOG_TIMEOUT_SECONDS", "5")),
             max_batch_size=int(os.environ.get("MERLIN_POSTHOG_BATCH_SIZE", "100")),
             opener=opener,
