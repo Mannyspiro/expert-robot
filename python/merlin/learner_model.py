@@ -127,7 +127,7 @@ class LearnerStore:
     def estimate(self, learner_id: str, idea_id: str, dimension: str) -> SkillEstimate:
         if dimension not in DIMENSIONS:
             raise ValueError("unsupported learner evidence dimension")
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             rows=db.execute("""SELECT score,session_id,delayed,transfer
               FROM learner_attempts WHERE learner_id=? AND idea_id=? AND dimension=?
               ORDER BY submitted_at""",(learner_id,idea_id,dimension)).fetchall()
@@ -148,7 +148,7 @@ class LearnerStore:
         return SkillEstimate(idea_id,dimension,mean,uncertainty,len(rows),sessions,state)
 
     def attempts(self, learner_id: str, idea_id: str | None=None) -> list[dict[str,Any]]:
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             if idea_id:
                 rows=db.execute("SELECT * FROM learner_attempts WHERE learner_id=? AND idea_id=? ORDER BY submitted_at",
                                 (learner_id,idea_id)).fetchall()
