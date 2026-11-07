@@ -86,6 +86,23 @@ class VirtualRepositoryTests(unittest.TestCase):
         self.assertEqual({row["name"]: row["commit_id"] for row in reopened.branches()}["feature/one"], digest)
         self.assertEqual(branch["commit_id"], self.initial["commit_id"])
 
+    def test_integrity_checked_backup_restores_repository_state(self):
+        self.repo.create_branch("feature/backup")
+        self.repo.commit("feature/backup", "backup candidate", {
+            "src/backup.py": "BACKUP_READY = True\\n",
+        })
+        backup_path = Path(self.temp.name) / "backups" / "merlin-backup.sqlite3"
+        result = self.repo.backup_to(backup_path)
+        self.assertTrue(result["integrity"]["ok"])
+        restored = VirtualRepository(backup_path)
+        self.assertTrue(restored.integrity_report()["ok"])
+        self.assertEqual(
+            restored.read_file("feature/backup", "src/backup.py"),
+            b"BACKUP_READY = True\\n",
+        )
+        with self.assertRaises(VirtualGitError):
+            self.repo.backup_to(backup_path)
+
     def test_three_way_merge_combines_non_overlapping_changes(self):
         self.repo.create_branch("feature/docs")
         self.repo.commit("feature/docs", "update docs", {"README.md": "# Merlin Forge\n"})
