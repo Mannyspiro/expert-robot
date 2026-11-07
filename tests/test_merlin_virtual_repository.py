@@ -230,6 +230,14 @@ class VirtualRepositoryTests(unittest.TestCase):
         self.assertEqual(self.repo.read_file("main", "src/runtime.py"), b"READY = True\n")
         self.assertEqual(self.repo.pull_requests()[0]["status"], "merged")
 
+    def test_main_required_checks_cannot_be_weakened(self):
+        baseline = set(self.repo.required_checks("main"))
+        with self.assertRaises(VirtualGitError):
+            self.repo.set_branch_policy("main", [])
+        with self.assertRaises(VirtualGitError):
+            self.repo.set_branch_policy("main", ["python.compile"])
+        self.assertEqual(set(self.repo.required_checks("main")), baseline)
+
     def test_main_merge_requires_successful_checks_for_exact_pr_head(self):
         self.repo.create_branch("feature/protected")
         self.repo.commit("feature/protected", "protected change", {"README.md": "# protected\n"})
