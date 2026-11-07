@@ -34,6 +34,9 @@ class ResearchProtocolContractTests(unittest.TestCase):
         self.assertTrue(protocol["ideonomy"]["separate_hypothesis_from_fact"])
         self.assertTrue(protocol["scientific_skepticism"]["require_falsifiable_predictions"])
         self.assertTrue(protocol["authority"]["generated_claims_are_untrusted_until_verified"])
+        self.assertEqual(protocol["ideonomy"]["dedicated_imagination_lens"], "lacuna")
+        self.assertIn("falsifiable_test_path", protocol["ideonomy"]["combination_filters"])
+        self.assertIn("Lacuna", (ROOT / "cpp/include/expert_robot/imagination/idea.hpp").read_text(encoding="utf-8"))
 
     def test_reasoning_taxonomy_has_unique_ids_and_review_prompts(self):
         taxonomy = self.load_json("config/research/reasoning_checks_v1.json")
