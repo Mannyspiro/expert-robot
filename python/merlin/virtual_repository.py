@@ -236,6 +236,7 @@ class VirtualRepository:
                 "commits": db.execute("SELECT COUNT(*) FROM commits").fetchone()[0],
                 "branches": db.execute("SELECT COUNT(*) FROM branches").fetchone()[0],
                 "pull_requests": db.execute("SELECT COUNT(*) FROM pull_requests").fetchone()[0],
+                "jobs": db.execute("SELECT COUNT(*) FROM virtual_jobs").fetchone()[0],
             }
         return {"ok": not problems, "problems": problems, "counts": counts,
                 "integrity_check": integrity, "foreign_key_violations": foreign_keys}
@@ -350,7 +351,7 @@ class VirtualRepository:
 
     def enqueue_job(self, commit_id: str, job_type: str, idempotency_key: str,
                     *, max_attempts: int = 2) -> dict[str, Any]:
-        if job_type not in self.CHECK_NAMES:
+        if not isinstance(job_type, str) or job_type not in self.CHECK_NAMES:
             raise VirtualGitError("unsupported virtual CI job type")
         if not isinstance(idempotency_key, str) or not idempotency_key.strip() or len(idempotency_key) > 200:
             raise VirtualGitError("idempotency_key must be 1-200 characters")
@@ -397,6 +398,11 @@ class VirtualRepository:
             raise VirtualGitError("runner_id must be 1-200 characters")
         if isinstance(lease_seconds, bool) or not isinstance(lease_seconds, int) or not 15 <= lease_seconds <= 900:
             raise VirtualGitError("lease_seconds must be between 15 and 900")
+        if job_types is not None and (
+            not isinstance(job_types, list)
+            or any(not isinstance(name, str) for name in job_types)
+        ):
+            raise VirtualGitError("runner job types must be a list of supported names")
         supported = sorted(self.CHECK_NAMES if job_types is None else set(job_types))
         if not supported or any(name not in self.CHECK_NAMES for name in supported):
             raise VirtualGitError("runner job types are empty or unsupported")
@@ -447,6 +453,8 @@ class VirtualRepository:
                       *, lease_seconds: int = 120) -> dict[str, Any]:
         if not isinstance(lease_token, str) or not lease_token:
             raise VirtualGitError("lease token is required")
+        if not isinstance(runner_id, str) or not runner_id.strip():
+            raise VirtualGitError("runner identity is required")
         if isinstance(lease_seconds, bool) or not isinstance(lease_seconds, int) or not 15 <= lease_seconds <= 900:
             raise VirtualGitError("lease_seconds must be between 15 and 900")
         token_hash = sha256(lease_token.encode("utf-8")).hexdigest()
@@ -468,7 +476,11 @@ class VirtualRepository:
 
     def complete_job(self, job_id: str, runner_id: str, lease_token: str,
                      conclusion: str, result: Mapping[str, Any], log: str) -> dict[str, Any]:
-        if conclusion not in {"succeeded", "failed", "cancelled"}:
+        if not isinstance(lease_token, str) or not lease_token:
+            raise VirtualGitError("lease token is required")
+        if not isinstance(runner_id, str) or not runner_id.strip():
+            raise VirtualGitError("runner identity is required")
+        if not isinstance(conclusion, str) or conclusion not in {"succeeded", "failed", "cancelled"}:
             raise VirtualGitError("invalid virtual job conclusion")
         if not isinstance(result, Mapping):
             raise VirtualGitError("virtual job result must be an object")
