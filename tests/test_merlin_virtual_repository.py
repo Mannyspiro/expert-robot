@@ -448,12 +448,17 @@ class VirtualRepositoryTests(unittest.TestCase):
                 "changes": {"README.md": "# Merlin Forge API\n"},
             })
             self.assertEqual(commit["schema"], "merlin-forge-commit/1")
-            post("/api/forge/commits", {
-                "branch": "main", "message": "advance target",
-                "changes": {"src/runtime.py": "READY = True\n"},
-            })
+            try:
+                post("/api/forge/commits", {
+                    "branch": "main", "message": "direct protected mutation",
+                    "changes": {"src/runtime.py": "READY = True\n"},
+                })
+                self.fail("direct commit to protected main must be rejected")
+            except HTTPError as exc:
+                protected = json.loads(exc.read())
+            self.assertIn("protected branch", protected["detail"])
             rebased = post("/api/forge/branches/feature%2Fapi/rebase", {"onto_ref": "main"})
-            self.assertEqual(rebased["status"], "rebased")
+            self.assertEqual(rebased["status"], "up_to_date")
             pr = post("/api/forge/pulls", {
                 "source_branch": "feature/api", "target_branch": "main",
                 "title": "Forge API integration",
