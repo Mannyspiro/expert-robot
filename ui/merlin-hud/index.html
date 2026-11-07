@@ -262,7 +262,7 @@ async async function renderForgeView(){
  async function api(path,method,payload){
   const response=await fetch(path,{method:method||"GET",headers:payload?{"Content-Type":"application/json"}:undefined,body:payload?JSON.stringify(payload):undefined,cache:"no-store"});
   const data=await response.json();
-  if(!response.ok)throw Error(data.detail||data.error||data.status||("HTTP "+response.status));
+  if(!response.ok&&!(response.status===409&&data.schema==="merlin-forge-merge/1"))throw Error(data.detail||data.error||data.status||("HTTP "+response.status));
   return data;
  }
  async function refresh(){
