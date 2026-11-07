@@ -441,12 +441,19 @@ class VirtualForge:
                 return existing[0]
             self.db.execute(
                 """INSERT INTO jobs(job_id,idempotency_key,kind,payload_json,status,priority,
-                   created_at,updated_at) VALUES(?,?,?,?,?,?,?,?)""",
-                (job_id, idempotency_key, kind, _json(payload), "queued", priority, now, now),
+                   created_at,updated_at,max_attempts,source_commit,timeout_seconds,memory_mb,cpu_count)
+                   VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                (job_id, idempotency_key, kind, _json(payload), "queued", priority, now, now,
+                 max_attempts, source_commit, timeout_seconds, memory_mb, cpu_count),
             )
             self.db.execute("INSERT INTO job_events(job_id,kind,payload_json,created_at) VALUES(?,?,?,?)",
                             (job_id, "queued", _json({"kind": kind}), now))
-            self._event("job.queued", {"job_id": job_id, "kind": kind, "priority": priority})
+            self._event("job.queued", {"job_id": job_id, "kind": kind, "priority": priority,
+                                       "source_commit": source_commit,
+                                       "limits": {"timeout_seconds": timeout_seconds,
+                                                  "memory_mb": memory_mb,
+                                                  "cpu_count": cpu_count,
+                                                  "max_attempts": max_attempts}})
             self.db.commit()
             return job_id
         except Exception:
