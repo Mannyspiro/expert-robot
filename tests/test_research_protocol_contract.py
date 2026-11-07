@@ -158,6 +158,7 @@ class ResearchProtocolContractTests(unittest.TestCase):
                 self.assertEqual(len(store.search("merlin")), 1)
                 with self.assertRaises(sqlite3.IntegrityError):
                     store.db.execute("DELETE FROM context_messages")
+                store.db.rollback()
                 changed = dict(record, content="changed content")
                 with self.assertRaisesRegex(ContextRecordError, "collision"):
                     store.ingest([changed])
