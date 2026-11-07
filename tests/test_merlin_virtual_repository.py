@@ -94,6 +94,17 @@ class VirtualRepositoryTests(unittest.TestCase):
                 db.execute("UPDATE check_results SET conclusion='failure' WHERE check_id=?",
                            (result["check_id"],))
 
+    def test_pull_request_reports_current_head_after_branch_advances(self):
+        self.repo.create_branch("feature/moving-head")
+        self.repo.commit("feature/moving-head", "first", {"a.txt": "one"})
+        pr = self.repo.open_pull_request("feature/moving-head", "main", "Moving head")
+        original_head = pr["head_commit"]
+        next_commit = self.repo.commit("feature/moving-head", "second", {"b.txt": "two"})
+        current = self.repo.pull_requests("open")[0]
+        self.assertEqual(current["head_commit"], original_head)
+        self.assertEqual(current["current_head_commit"], next_commit["commit_id"])
+        self.assertNotEqual(current["current_head_commit"], current["head_commit"])
+
     def test_three_way_merge_reports_same_path_conflict_without_moving_target(self):
         self.repo.create_branch("feature/conflict")
         self.repo.commit("feature/conflict", "feature edit", {"src/core.py": "VERSION = 2\n"})
