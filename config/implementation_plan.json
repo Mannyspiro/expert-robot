@@ -196,6 +196,27 @@
       ],
       "registry": "config/research/math_method_registry_v1.json",
       "runtime_adapter": "python/research_protocol.py"
+    },
+    {
+      "id": "virtual_github_forge",
+      "status": "sqlite_core_and_cli_implemented_tests_pending",
+      "implementation": [
+        "python/virtual_forge.py",
+        "python/forge_cli.py"
+      ],
+      "documentation": "docs/virtual-github-forge.md",
+      "tests": "tests/test_virtual_forge.py",
+      "exit": [
+        "execute transactional, ancestry, merge, rollback and worker-lease tests on a real local runtime",
+        "integrate Forge branches and artifacts with the universal artifact registry",
+        "build an isolated worker runtime with explicit resource/network/filesystem limits",
+        "bind worker jobs to immutable commit and artifact digests",
+        "collect complete logs, test outputs, environment identity and reproducibility metadata",
+        "CACE independently verifies worker evidence and exact output digests",
+        "build Merlin Forge HUD/editor for branch, job, diff, conflict, review and evidence status",
+        "add authenticated remote worker protocol and multi-host replication only if measured need justifies it",
+        "retain GitHub as optional exchange/provenance adapter, not the primary workflow"
+      ]
     }
   ]
 }
