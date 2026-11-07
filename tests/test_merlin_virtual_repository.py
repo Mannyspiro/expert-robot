@@ -62,13 +62,13 @@ class VirtualRepositoryTests(unittest.TestCase):
 
     def test_rebase_replays_nonconflicting_changes_onto_updated_target(self):
         self.repo.create_branch("feature/rebase")
-        self.repo.commit("feature/rebase", "feature docs", {"README.md": "# Feature docs\\n"})
-        target = self.repo.commit("main", "target adds module", {"src/runtime.py": "READY = True\\n"})
+        self.repo.commit("feature/rebase", "feature docs", {"README.md": "# Feature docs\n"})
+        target = self.repo.commit("main", "target adds module", {"src/runtime.py": "READY = True\n"})
         result = self.repo.rebase_branch("feature/rebase", "main")
         self.assertEqual(result["status"], "rebased")
         self.assertEqual(result["replayed_commits"], 1)
-        self.assertEqual(self.repo.read_file("feature/rebase", "README.md"), b"# Feature docs\\n")
-        self.assertEqual(self.repo.read_file("feature/rebase", "src/runtime.py"), b"READY = True\\n")
+        self.assertEqual(self.repo.read_file("feature/rebase", "README.md"), b"# Feature docs\n")
+        self.assertEqual(self.repo.read_file("feature/rebase", "src/runtime.py"), b"READY = True\n")
         with sqlite3.connect(self.db) as db:
             parent = db.execute("SELECT parent1 FROM commits WHERE commit_id=?",
                                 (result["commit_id"],)).fetchone()[0]
@@ -77,8 +77,8 @@ class VirtualRepositoryTests(unittest.TestCase):
 
     def test_rebase_conflict_preserves_original_branch_ref(self):
         self.repo.create_branch("feature/rebase-conflict")
-        self.repo.commit("feature/rebase-conflict", "feature version", {"src/core.py": "VERSION = 2\\n"})
-        self.repo.commit("main", "target version", {"src/core.py": "VERSION = 3\\n"})
+        self.repo.commit("feature/rebase-conflict", "feature version", {"src/core.py": "VERSION = 2\n"})
+        self.repo.commit("main", "target version", {"src/core.py": "VERSION = 3\n"})
         before = {row["name"]: row["commit_id"] for row in self.repo.branches()}["feature/rebase-conflict"]
         result = self.repo.rebase_branch("feature/rebase-conflict", "main")
         after = {row["name"]: row["commit_id"] for row in self.repo.branches()}["feature/rebase-conflict"]
@@ -156,7 +156,7 @@ class VirtualRepositoryTests(unittest.TestCase):
             merged = post(f"/api/forge/pulls/{pr['pr_id']}/merge", {})
             self.assertEqual(merged["status"], "merged")
             file_result = get("/api/forge/file?ref=main&path=README.md")
-            self.assertEqual(file_result["content_utf8"], "# Merlin Forge API\\n")
+            self.assertEqual(file_result["content_utf8"], "# Merlin Forge API\n")
         finally:
             server.shutdown()
             server.server_close()
