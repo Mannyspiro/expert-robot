@@ -1,9 +1,12 @@
 import json
 import tempfile
+import threading
 import unittest
+from http.server import ThreadingHTTPServer
+from urllib.request import urlopen
 from pathlib import Path
 
-from python.merlin.app import EventStore
+from python.merlin.app import EventStore, make_handler
 from python.merlin.posthog_telemetry import PostHogExportService, PostHogTelemetrySink
 
 
@@ -135,6 +138,29 @@ class PostHogTelemetryTests(unittest.TestCase):
         self.assertEqual(service.run_once(), 1)
         self.assertEqual(len(event_ids), 2)
         self.assertEqual(event_ids[0], event_ids[1])
+
+    def test_runtime_analytics_endpoint_exposes_exporter_health(self):
+        service = PostHogExportService(event_store=self.store, sink=self.sink)
+        server = ThreadingHTTPServer(
+            ("127.0.0.1", 0),
+            make_handler(self.store, posthog_service=service),
+        )
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            with urlopen(
+                f"http://127.0.0.1:{server.server_port}/api/runtime/analytics",
+                timeout=5,
+            ) as response:
+                health = json.loads(response.read())
+            self.assertEqual(health["schema"], "merlin-posthog-export-health/1")
+            self.assertEqual(health["status"], "stopped")
+            self.assertFalse(health["raw_conversation_export"])
+            self.assertFalse(health["promotion_authority"])
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
 
     def test_eu_region_is_selected_from_fixed_endpoint_map(self):
         sink = PostHogTelemetrySink(project_token="phc-test", region="eu")
