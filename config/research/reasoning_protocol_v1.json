@@ -1,0 +1,229 @@
+{
+  "schema_version": 1,
+  "id": "MERLIN-RESEARCH-001",
+  "title": "Continuous Ideonomic, Inductive-Deductive and Skeptical Research Protocol",
+  "status": "proposed_implementation",
+  "invariant": "Capability grows; authority never expands.",
+  "activation": {
+    "default": "automatic_when_relevant",
+    "triggers": [
+      "research",
+      "engineering",
+      "design",
+      "debugging",
+      "planning",
+      "model_selection",
+      "scientific_claim",
+      "self_improvement",
+      "cross_domain_problem"
+    ],
+    "skip_when": [
+      "simple factual lookup",
+      "format-only transformation",
+      "creative task where analysis adds no value"
+    ],
+    "explicit_user_instruction_overrides_default_scope": true
+  },
+  "pipeline": [
+    {
+      "step": "context_intake",
+      "required": [
+        "problem_statement",
+        "relevant_conversation_sources",
+        "existing_specifications",
+        "repository_observations",
+        "constraints",
+        "unknowns"
+      ]
+    },
+    {
+      "step": "problem_formalization",
+      "required": [
+        "goal",
+        "scope",
+        "assumptions",
+        "success_criteria",
+        "failure_conditions",
+        "resource_limits"
+      ]
+    },
+    {
+      "step": "ideonomy_enumeration",
+      "required": [
+        "relevant_concepts",
+        "useful_combinations",
+        "cross_domain_analogies",
+        "lacuna_map",
+        "rejected_combinations_with_reasons"
+      ]
+    },
+    {
+      "step": "inductive_inference",
+      "required": [
+        "observations",
+        "measurements",
+        "patterns",
+        "hypotheses",
+        "confidence",
+        "alternative_explanations"
+      ]
+    },
+    {
+      "step": "deductive_derivation",
+      "required": [
+        "premises",
+        "inferences",
+        "derived_requirements",
+        "predictions",
+        "acceptance_tests"
+      ]
+    },
+    {
+      "step": "skeptical_review",
+      "required": [
+        "fallacy_checks",
+        "bias_checks",
+        "counterarguments",
+        "falsification_tests",
+        "uncertainty"
+      ]
+    },
+    {
+      "step": "implementation_plan",
+      "required": [
+        "ranked_steps",
+        "dependencies",
+        "owners_or_agents",
+        "resource_budget",
+        "rollback",
+        "evidence_requirements"
+      ]
+    },
+    {
+      "step": "execution_and_measurement",
+      "required": [
+        "exact_artifact_revision",
+        "commands_or_actions",
+        "logs",
+        "test_results",
+        "measurements",
+        "limitations"
+      ]
+    },
+    {
+      "step": "plan_update",
+      "required": [
+        "observed_delta",
+        "hypothesis_update",
+        "requirement_change_or_no_change",
+        "next_ranked_step"
+      ]
+    }
+  ],
+  "ideonomy": {
+    "objective": "Enumerate a bounded space of ideas and retain only combinations with a coherent mechanism, a plausible use, and a test path.",
+    "lacuna_alien_science": "Explore missing links, unmodeled mechanisms, unexplained observations, and useful combinations across distant disciplines. Treat alien or unfamiliar science as a search heuristic for conceptual blind spots, never as evidence that an unsupported phenomenon exists.",
+    "combination_filters": [
+      "mechanistic_coherence",
+      "constraint_compatibility",
+      "nonredundancy_or_complementarity",
+      "plausible_application",
+      "testability",
+      "resource_feasibility"
+    ],
+    "scoring_dimensions": [
+      "expected_utility",
+      "novelty",
+      "explanatory_power",
+      "testability",
+      "feasibility",
+      "risk",
+      "evidence_quality"
+    ],
+    "retain_rejected_ideas_with_reason": true,
+    "do_not_optimize_for_idea_count": true,
+    "separate_hypothesis_from_fact": true
+  },
+  "analogy": {
+    "procedure": [
+      "identify_source_problem_structure",
+      "map_relations_not_surface_words",
+      "state_preserved_properties",
+      "state_nonpreserved_properties",
+      "derive_candidate_transfer",
+      "test_transfer_against_original_constraints"
+    ],
+    "fallback_decomposition": [
+      "isolate_failure",
+      "identify_minimal_reproducible_case",
+      "split_into_independent_subproblems",
+      "solve_and_verify_subproblems",
+      "recompose_and_test_original"
+    ],
+    "analogy_is_not_proof": true
+  },
+  "scientific_skepticism": {
+    "require_competing_hypotheses": true,
+    "require_disconfirming_evidence_search": true,
+    "require_falsifiable_predictions": true,
+    "confidence_must_track_evidence": true,
+    "consensus_is_not_proof": true,
+    "absence_of_counterevidence_is_not_confirmation": true,
+    "model_output_is_not_verification": true
+  },
+  "math_method_selection": {
+    "candidate_methods": [
+      "logic_and_type_theory",
+      "linear_algebra",
+      "graph_theory",
+      "optimization",
+      "probability_and_bayesian_inference",
+      "statistics",
+      "information_theory",
+      "control_theory",
+      "dynamical_systems",
+      "numerical_analysis",
+      "dimensional_analysis",
+      "topology",
+      "geometry",
+      "game_theory",
+      "category_theory",
+      "formal_methods"
+    ],
+    "require_assumptions_and_domain_check": true,
+    "compare_against_baseline_when_measurable": true,
+    "record_computational_cost_and_error_bounds": true,
+    "never_apply_method_by_name_only": true
+  },
+  "authority": {
+    "models_may": [
+      "propose",
+      "summarize",
+      "enumerate",
+      "translate",
+      "draft_tests"
+    ],
+    "agents_may": [
+      "investigate",
+      "implement_within_leases",
+      "run_authorized_tests"
+    ],
+    "independent_verifiers_may": [
+      "evaluate_artifacts",
+      "report_findings"
+    ],
+    "only_explicit_policy_boundaries_may": [
+      "promote_trusted_state",
+      "approve_merges",
+      "grant_capabilities"
+    ],
+    "generated_claims_are_untrusted_until_verified": true
+  },
+  "memory": {
+    "store_source_references_and_hashes": true,
+    "preserve_disagreement_and_uncertainty": true,
+    "append_only_decision_history": true,
+    "corrections_supersede_but_do_not_erase_prior_decisions": true,
+    "user_context_relevance_filter": true
+  }
+}
