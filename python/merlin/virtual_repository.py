@@ -180,10 +180,7 @@ class VirtualRepository:
             rows = db.execute("SELECT name,commit_id,updated_at FROM branches ORDER BY name").fetchall()
         return [dict(row) for row in rows]
 
-    CHECK_NAMES = {
-        "python.compile", "python.unified_tests", "hud.javascript_syntax",
-        "cace.independent_receipt",
-    }
+    CHECK_NAMES = {"python.compile", "python.unified_tests", "hud.javascript_syntax"}
 
     def required_checks(self, branch: str) -> list[str]:
         with closing(self._connect()) as db:
@@ -240,7 +237,8 @@ class VirtualRepository:
                         "log_sha256": log_digest, "idempotent_replay": True}
             result = {"commit_id": commit_id, "check_name": check_name,
                       "conclusion": conclusion, "run_id": run_id, "runner_id": runner_id,
-                      "log_sha256": log_digest}
+                      "log_sha256": log_digest, "verification_status": "UNVERIFIED",
+                      "promotion_authorized": False}
             cursor = db.execute("""INSERT INTO check_results
                 (commit_id,check_name,conclusion,run_id,runner_id,log_digest,result_json,recorded_at)
                 VALUES(?,?,?,?,?,?,?,?)""",
