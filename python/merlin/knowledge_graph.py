@@ -4,6 +4,7 @@ The graph records assertions and relationships; it does not infer that a claim
 is true merely because it is present or linked to evidence.
 """
 from __future__ import annotations
+from contextlib import closing
 
 from dataclasses import dataclass, asdict
 import hashlib
@@ -47,7 +48,7 @@ class MerlinKnowledgeGraph:
     def __init__(self, database: str | Path):
         self.path = Path(database)
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             db.executescript("""
             CREATE TABLE IF NOT EXISTS graph_nodes(
               node_id TEXT PRIMARY KEY, node_type TEXT NOT NULL, label TEXT NOT NULL,
@@ -79,7 +80,7 @@ class MerlinKnowledgeGraph:
         if not node.label.strip() or not node.evidence_class.strip():
             raise ValueError("label and evidence class are required")
         payload = json.dumps(node.payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             existing = db.execute(
                 "SELECT node_type,label,payload_json,evidence_class,source_uri "
                 "FROM graph_nodes WHERE node_id=?", (node.node_id,)
@@ -99,7 +100,7 @@ class MerlinKnowledgeGraph:
         if edge.relation not in EDGE_TYPES:
             raise ValueError(f"unsupported relation: {edge.relation}")
         payload = json.dumps(edge.payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             existing = db.execute(
                 "SELECT payload_json FROM graph_edges WHERE source_id=? AND relation=? AND target_id=?",
                 (edge.source_id, edge.relation, edge.target_id),
@@ -112,7 +113,7 @@ class MerlinKnowledgeGraph:
                        (edge.source_id,edge.relation,edge.target_id,payload,time.time()))
 
     def get_node(self, node_id: str) -> GraphNode | None:
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             row = db.execute("SELECT node_id,node_type,label,payload_json,evidence_class,source_uri "
                              "FROM graph_nodes WHERE node_id=?", (node_id,)).fetchone()
         return GraphNode(row[0],row[1],row[2],json.loads(row[3]),row[4],row[5]) if row else None
@@ -131,13 +132,13 @@ class MerlinKnowledgeGraph:
                  JOIN graph_nodes s ON s.node_id=e.source_id
                  JOIN graph_nodes t ON t.node_id=e.target_id
                  WHERE """ + " OR ".join(clauses) + " ORDER BY e.source_id,e.relation,e.target_id"
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             rows = db.execute(sql, args).fetchall()
         return [{"source_id":r[0],"relation":r[1],"target_id":r[2],
                  "payload":json.loads(r[3]),"source_label":r[4],"target_label":r[5]} for r in rows]
 
     def export_snapshot(self) -> dict[str, Any]:
-        with self._connect() as db:
+        with closing(self._connect()) as db, db:
             nodes = db.execute("SELECT node_id,node_type,label,payload_json,evidence_class,source_uri "
                                "FROM graph_nodes ORDER BY node_id").fetchall()
             edges = db.execute("SELECT source_id,relation,target_id,payload_json FROM graph_edges "
