@@ -336,6 +336,8 @@ class VirtualRepository:
             name not in self.CHECK_NAMES for name in required_checks
         ):
             raise VirtualGitError("unknown or duplicate required check")
+        if branch == "main" and set(required_checks) != self.CHECK_NAMES:
+            raise VirtualGitError("main branch must retain every baseline required check")
         with closing(self._connect()) as db, db:
             db.execute("BEGIN IMMEDIATE")
             if not db.execute("SELECT 1 FROM branches WHERE name=?", (branch,)).fetchone():
