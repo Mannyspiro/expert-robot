@@ -5,6 +5,7 @@ on:
     paths:
       - "python/merlin/app.py"
       - "python/merlin/learner_model.py"
+      - "python/merlin/interaction_learning.py"
       - "tests/test_merlin_learner_store_resources.py"
       - "python/merlin/public_literature.py"
       - "tests/test_public_literature.py"
