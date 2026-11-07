@@ -24,7 +24,7 @@ class IntentCompilerTests(unittest.TestCase):
         self.assertEqual(first, second)
         self.assertEqual(len(first["directive_sha256"]), 64)
         self.assertIn("Do not execute external actions", first["directive"])
-        self.assertIn("No supplied", first["directive"])
+        self.assertIn("None supplied", first["directive"])
 
     def test_changed_goal_changes_directive_digest(self):
         first = compile_directive(self.make_intent(), [])
