@@ -525,6 +525,24 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 self._send(200, {"schema": "merlin-forge-pull-requests/1",
                                  "pull_requests": forge.pull_requests()})
                 return
+            if path == "/api/forge/jobs":
+                self._send(200, {"schema": "merlin-forge-jobs/1",
+                                 "jobs": forge.jobs(limit=100)})
+                return
+            if path.startswith("/api/forge/jobs/") and path.endswith("/log"):
+                parts = path.strip("/").split("/")
+                if len(parts) != 5:
+                    self._send(400, {"error": "invalid_virtual_job_log_path"})
+                    return
+                content = forge.read_job_log(unquote(parts[3]))
+                self._send(200, {"schema": "merlin-forge-job-log/1",
+                    "job_id": unquote(parts[3]), "log_utf8": content.decode("utf-8"),
+                    "sha256": sha256(content).hexdigest()})
+                return
+            if path.startswith("/api/forge/jobs/"):
+                job_id = unquote(path.rsplit("/", 1)[-1])
+                self._send(200, {"schema": "merlin-forge-job/1", "job": forge.get_job(job_id)})
+                return
             if path.startswith("/api/forge/checks/") and path.endswith("/log"):
                 parts = path.strip("/").split("/")
                 if len(parts) != 5 or not parts[3].isdigit():
@@ -802,6 +820,55 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 if path == "/api/forge/branches":
                     result = forge.create_branch(data.get("name"), data.get("from_ref", "main"))
                     self._send(201, {"schema": "merlin-forge-branch-created/1", **result})
+                    return
+                if path == "/api/forge/jobs":
+                    result = forge.enqueue_job(
+                        data.get("commit_id"), data.get("job_type"), data.get("idempotency_key"),
+                        max_attempts=data.get("max_attempts", 2),
+                    )
+                    self._send(202, {"schema": "merlin-forge-job-enqueued/1", **result})
+                    return
+                if path.startswith("/api/internal/forge/jobs/"):
+                    worker_id = self._worker_actor()
+                    if worker_id is None:
+                        self._send(401, {"error": "worker_authentication_required"})
+                        return
+                    action = path.rsplit("/", 1)[-1]
+                    if action == "claim":
+                        lease = forge.claim_job(
+                            worker_id, lease_seconds=data.get("lease_seconds", 120),
+                            job_types=data.get("job_types"),
+                        )
+                        if lease is not None:
+                            store.append(path, {"worker_id": worker_id, "job_id": lease["job_id"]},
+                                         {"action": "claimed", "attempts": lease["attempts"]})
+                        self._send(200, {"schema": "merlin-forge-job-claim/1", "lease": lease})
+                        return
+                    parts = path.strip("/").split("/")
+                    if len(parts) != 6:
+                        raise ValueError("virtual job worker path must include job ID and action")
+                    job_id = unquote(parts[4])
+                    lease_token = data.get("lease_token")
+                    if not isinstance(lease_token, str) or not lease_token:
+                        raise ValueError("lease_token is required")
+                    if action == "heartbeat":
+                        result = forge.heartbeat_job(
+                            job_id, worker_id, lease_token,
+                            lease_seconds=data.get("lease_seconds", 120),
+                        )
+                    elif action == "complete":
+                        result = forge.complete_job(
+                            job_id, worker_id, lease_token, data.get("conclusion"),
+                            data.get("result", {}), data.get("log", ""),
+                        )
+                    else:
+                        self._send(404, {"error": "unknown_virtual_job_worker_action"})
+                        return
+                    store.append(path, {"worker_id": worker_id, "job_id": job_id},
+                                 {"action": action, "status": result.get("status", "running"),
+                                  "verification_status": result.get("verification_status", "UNVERIFIED"),
+                                  "promotion_authorized": False})
+                    self._send(200, {"schema": "merlin-forge-job-worker-action/1", **result})
                     return
                 if path == "/api/forge/checks":
                     result = forge.record_check_result(data.get("commit_id"), data.get("check_name"),
