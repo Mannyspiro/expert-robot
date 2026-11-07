@@ -43,6 +43,7 @@ from .research import (
 )
 from .engineering.geometry import GeometrySpec, Point3D, validate_geometry, bounding_box
 from .engineering.netlist import Component, Connection, Net, Netlist, validate_netlist
+from .public_literature import PublicLiteratureSearch
 
 MAX_BODY = 1_000_000
 MAX_PROXY_RESPONSE = 16_000_000
@@ -297,6 +298,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                  hermes_worker_service: Any | None = None,
                  hermes_runtime: Any | None = None):
     simulation = MerlinSimulation()
+    literature_search = PublicLiteratureSearch()
     learner_store = learner_store or LearnerStore(store.path)
     learning_db = os.environ.get("MERLIN_LEARNING_DB_PATH",
         str(Path(store.path).with_name("learning.sqlite3")))
@@ -499,6 +501,27 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     return
                 self._send(200, {"schema": "merlin-outbox-worker-status/1",
                                  "worker_id": worker_id, "counts": learning_outbox.counts()})
+                return
+            if path == "/api/research/literature":
+                query_params = parse_qs(parsed.query)
+                query = (query_params.get("q") or [""])[0]
+                source = (query_params.get("source") or ["all"])[0]
+                limit_value = (query_params.get("limit") or ["10"])[0]
+                try:
+                    limit = int(limit_value)
+                    result = literature_search.search(query, source=source, limit=limit)
+                    query_digest = sha256(query.encode("utf-8")).hexdigest()
+                    store.append(
+                        "/api/research/literature",
+                        {"query_sha256": query_digest, "source": source, "limit": limit},
+                        {"query_sha256": query_digest, "sources": result["sources_requested"],
+                         "result_count": len(result["results"]),
+                         "error_sources": [item["source"] for item in result["errors"]]},
+                    )
+                    self._send(200, result)
+                except (ValueError, TypeError) as exc:
+                    self._send(400, {"error": "invalid_literature_search",
+                                     "detail": str(exc)[:200]})
                 return
             if path == "/api/graphs/validate":
                 if canonical_graph is None:
