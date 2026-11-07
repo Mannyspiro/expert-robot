@@ -25,6 +25,7 @@ The API is served by Merlin's existing loopback-only application boundary. Check
 | GET | /api/forge/status | Branches, open PRs, recent events and runner state |
 | GET | /api/forge/branches | Branch refs |
 | GET | /api/forge/pulls | Pull-request records |\n| GET | /api/forge/checks?commit=... | Check receipts for an exact commit |
+| GET | /api/forge/checks/{id}/log | Retrieve a retained CI log after SHA-256 verification |
 | GET | /api/forge/events?limit=100 | Append-only event history |
 | GET | /api/forge/file?ref=main&path=README.md | Read UTF-8 file and verify digest |
 | POST | /api/forge/branches | Create branch from branch or commit |
