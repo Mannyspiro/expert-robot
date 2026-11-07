@@ -206,6 +206,18 @@ class VirtualRepositoryTests(unittest.TestCase):
         self.assertFalse(report["ok"])
         self.assertTrue(any(item.startswith("blob:") for item in report["problems"]))
 
+    def test_noop_commit_and_duplicate_open_pull_request_are_idempotent(self):
+        self.repo.create_branch("feature/idempotent")
+        first = self.repo.commit("feature/idempotent", "add file", {"src/idempotent.py": "READY = True\\n"})
+        noop = self.repo.commit("feature/idempotent", "repeat same file", {"src/idempotent.py": "READY = True\\n"})
+        self.assertTrue(noop["no_op"])
+        self.assertEqual(noop["commit_id"], first["commit_id"])
+        pr = self.repo.open_pull_request("feature/idempotent", "main", "Idempotent PR")
+        replay = self.repo.open_pull_request("feature/idempotent", "main", "Duplicate PR title")
+        self.assertEqual(replay["pr_id"], pr["pr_id"])
+        self.assertTrue(replay["idempotent_replay"])
+        self.assertEqual(len(self.repo.pull_requests("open")), 1)
+
     def test_three_way_merge_combines_non_overlapping_changes(self):
         self.repo.create_branch("feature/docs")
         self.repo.commit("feature/docs", "update docs", {"README.md": "# Merlin Forge\n"})
