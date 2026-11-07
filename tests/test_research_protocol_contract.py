@@ -53,6 +53,7 @@ class ResearchProtocolContractTests(unittest.TestCase):
         self.assertEqual(len(digest), 64)
         self.assertEqual(activation_reason("Design a new research engine"), "relevant_task_trigger")
         self.assertIsNone(activation_reason("simple factual lookup: capital of France"))
+        self.assertIsNone(activation_reason("format-only transformation of research notes"))
         self.assertEqual(
             activation_reason("translate this", mode="always"),
             "explicit_runtime_mode",
@@ -85,6 +86,24 @@ class ResearchProtocolContractTests(unittest.TestCase):
             "qualified_prompt_skill",
         )
         self.assertIn("not truth", methods["research_episode_lineage"]["limits"][0])
+
+    def test_runtime_rejects_duplicate_method_registry_ids(self):
+        import sys
+        import tempfile
+
+        sys.path.insert(0, str(ROOT / "python"))
+        from research_protocol import prepare_research_task
+
+        registry = self.load_json("config/research/math_method_registry_v1.json")
+        registry["methods"].append(dict(registry["methods"][0]))
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "duplicate-registry.json"
+            path.write_text(json.dumps(registry), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "unique"):
+                prepare_research_task(
+                    "research a mathematical claim",
+                    method_registry_path=path,
+                )
 
     def test_reasoning_taxonomy_has_unique_ids_and_review_prompts(self):
         taxonomy = self.load_json("config/research/reasoning_checks_v1.json")
