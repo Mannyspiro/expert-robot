@@ -167,16 +167,21 @@
     {
       "id": "conversation_context_ingestion",
       "rank": 2,
-      "status": "specified_not_implemented",
+      "status": "append_only_jsonl_importer_implemented_tests_pending",
       "contract": "docs/conversation-context-ingestion-contract.md",
       "exit": [
-        "authorized source inventory and coverage manifest",
-        "idempotent prompt/response/attachment import",
+        "obtain authorized original conversation export and inventory covered sources",
+        "idempotent prompt/response/attachment import with source-level hashes",
         "source-linked requirement and decision extraction",
-        "contradiction and supersession tracking",
-        "privacy and relevance filtering",
-        "retrieval tests reconstruct a project handoff from original source messages"
-      ]
+        "contradiction and supersession tracking without deleting prior records",
+        "privacy and relevance filtering, with restricted content rejected by default",
+        "connect retrieval to research intake using project tags and provenance",
+        "retrieval tests reconstruct a project handoff from original source messages",
+        "coverage manifest accounts for missing conversations, messages and attachments"
+      ],
+      "implementation": "python/conversation_context.py",
+      "validation_test": "tests/test_research_protocol_contract.py",
+      "source_manifest": "config/research/context_source_manifest_v1.json"
     },
     {
       "id": "mathematical_method_fabric",
