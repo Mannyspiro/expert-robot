@@ -50,6 +50,24 @@ class VirtualRepository:
             CREATE INDEX IF NOT EXISTS events_kind_id ON events(kind,event_id);
             CREATE INDEX IF NOT EXISTS commits_parent1 ON commits(parent1);
             CREATE INDEX IF NOT EXISTS commits_parent2 ON commits(parent2);
+            CREATE TRIGGER IF NOT EXISTS virtual_blobs_no_update
+              BEFORE UPDATE ON blobs
+              BEGIN SELECT RAISE(ABORT, 'virtual repository blobs are immutable'); END;
+            CREATE TRIGGER IF NOT EXISTS virtual_blobs_no_delete
+              BEFORE DELETE ON blobs
+              BEGIN SELECT RAISE(ABORT, 'virtual repository blobs are immutable'); END;
+            CREATE TRIGGER IF NOT EXISTS virtual_commits_no_update
+              BEFORE UPDATE ON commits
+              BEGIN SELECT RAISE(ABORT, 'virtual repository commits are immutable'); END;
+            CREATE TRIGGER IF NOT EXISTS virtual_commits_no_delete
+              BEFORE DELETE ON commits
+              BEGIN SELECT RAISE(ABORT, 'virtual repository commits are immutable'); END;
+            CREATE TRIGGER IF NOT EXISTS virtual_events_no_update
+              BEFORE UPDATE ON events
+              BEGIN SELECT RAISE(ABORT, 'virtual repository events are append-only'); END;
+            CREATE TRIGGER IF NOT EXISTS virtual_events_no_delete
+              BEFORE DELETE ON events
+              BEGIN SELECT RAISE(ABORT, 'virtual repository events are append-only'); END;
             """)
 
     def _connect(self):
