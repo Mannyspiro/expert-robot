@@ -475,7 +475,12 @@ class VirtualRepository:
                 if result["conclusion"] != "success":
                     failed_checks.append({"check": check_name, "conclusion": result["conclusion"]})
                     continue
-                metadata = json.loads(result["result_json"])
+                try:
+                    metadata = json.loads(result["result_json"])
+                except (TypeError, ValueError):
+                    metadata = {}
+                if not isinstance(metadata, Mapping):
+                    metadata = {}
                 if (metadata.get("verification_status") != "VERIFIED"
                         or metadata.get("promotion_authorized") is not True):
                     unverified_checks.append(check_name)
