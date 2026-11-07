@@ -552,6 +552,10 @@ ImaginationController::choose_lenses(
             case ImaginationLens::Construction:
                 score += 0.10 * request.personality.persistence;
                 break;
+            case ImaginationLens::Lacuna:
+                score += 0.20 * request.personality.openness +
+                         0.10 * request.personality.novelty_seeking;
+                break;
             case ImaginationLens::Count:
                 break;
         }
