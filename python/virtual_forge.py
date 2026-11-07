@@ -213,6 +213,42 @@ class VirtualForge:
         tree = self._tree(self._head(branch))
         return {path: self._content(digest) for path, digest in sorted(tree.items())}
 
+    def export_snapshot(self, branch: str, destination: str) -> int:
+        """Materialize a branch snapshot into a new/empty workspace directory."""
+        from pathlib import Path
+
+        root = Path(destination).resolve()
+        root.mkdir(parents=True, exist_ok=True)
+        if any(root.iterdir()):
+            raise ForgeError("workspace destination must be empty")
+        files = self.snapshot(branch)
+        for relative, content in files.items():
+            target = (root / relative).resolve()
+            if root not in target.parents:
+                raise ForgeError(f"workspace path escapes destination: {relative}")
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text(content, encoding="utf-8", newline="")
+        return len(files)
+
+    def branches(self) -> list[dict[str, Any]]:
+        rows = self.db.execute(
+            "SELECT name,head,updated_at FROM branches ORDER BY name"
+        ).fetchall()
+        return [dict(row) for row in rows]
+
+    def pull_requests(self, state: str | None = None) -> list[dict[str, Any]]:
+        if state is not None and state not in {"open", "merged", "closed"}:
+            raise ForgeError("invalid pull request state")
+        if state:
+            rows = self.db.execute(
+                "SELECT * FROM pull_requests WHERE state=? ORDER BY created_at DESC", (state,)
+            ).fetchall()
+        else:
+            rows = self.db.execute(
+                "SELECT * FROM pull_requests ORDER BY created_at DESC"
+            ).fetchall()
+        return [dict(row) for row in rows]
+
     def create_branch(self, name: str, from_branch: str = "main") -> str:
         if not name or name == "main":
             raise ForgeError("branch name must be non-empty and cannot replace main")
