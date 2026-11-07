@@ -46,20 +46,10 @@ from .engineering.netlist import Component, Connection, Net, Netlist, validate_n
 from .public_literature import PublicLiteratureSearch
 from .virtual_repository import VirtualRepository, VirtualGitError
 from .virtual_repository_seed import build_repository_seed
+from .provider_policy import select_chat_provider
 
 MAX_BODY = 1_000_000
 MAX_PROXY_RESPONSE = 16_000_000
-
-
-def _select_chat_provider(provider: str) -> str:
-    """Select a provider without allowing configuration to imply cloud consent.
-
-    Auto is deliberately local-first. Cloud inference requires an explicit
-    provider='cloud' request; unavailable local inference fails closed.
-    """
-    if provider not in {"auto", "local", "cloud"}:
-        raise ValueError("provider must be auto, local, or cloud")
-    return "cloud" if provider == "cloud" else "local"
 
 
 def _loopback_endpoint(env_name: str, default: str) -> str:
@@ -1446,7 +1436,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     return
                 if path == "/api/chat":
                     provider = data.get("provider", "auto")
-                    selected_provider = _select_chat_provider(provider)
+                    selected_provider = select_chat_provider(provider)
                     use_cloud = selected_provider == "cloud"
                     if use_cloud:
                         if os.environ.get("MERLIN_REMOTE_MODEL_QUALIFIED") != "1":
