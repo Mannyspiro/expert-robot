@@ -86,7 +86,7 @@ class VirtualRepositoryTests(unittest.TestCase):
         self.assertEqual({row["name"]: row["commit_id"] for row in reopened.branches()}["feature/one"], digest)
         self.assertEqual(branch["commit_id"], self.initial["commit_id"])
 
-    def test_export_commit_materializes_verified_read_only_source_tree(self):
+    def test_export_commit_materializes_verified_workspace(self):
         branch = self.repo.create_branch("feature/export")
         commit = self.repo.commit("feature/export", "export workspace", {
             "src/main.py": "print('merlin')\\n",
