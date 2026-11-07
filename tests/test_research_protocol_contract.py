@@ -38,6 +38,34 @@ class ResearchProtocolContractTests(unittest.TestCase):
         self.assertIn("falsifiable_test_path", protocol["ideonomy"]["combination_filters"])
         self.assertIn("Lacuna", (ROOT / "cpp/include/expert_robot/imagination/idea.hpp").read_text(encoding="utf-8"))
 
+    def test_runtime_adapter_activates_and_binds_protocol_digest(self):
+        import sys
+
+        sys.path.insert(0, str(ROOT / "python"))
+        from research_protocol import (
+            activation_reason,
+            load_protocol,
+            prepare_research_task,
+        )
+
+        protocol, digest = load_protocol()
+        self.assertEqual(protocol["id"], "MERLIN-RESEARCH-001")
+        self.assertEqual(len(digest), 64)
+        self.assertEqual(activation_reason("Design a new research engine"), "relevant_task_trigger")
+        self.assertIsNone(activation_reason("simple factual lookup: capital of France"))
+        self.assertEqual(
+            activation_reason("translate this", mode="always"),
+            "explicit_runtime_mode",
+        )
+        enriched, status = prepare_research_task("Develop a research plan")
+        self.assertTrue(status["active"])
+        self.assertIn(digest, enriched)
+        self.assertIn("authority", enriched)
+        self.assertEqual(
+            prepare_research_task("hello", mode="off"),
+            ("hello", {"active": False, "reason": "not_research_scope"}),
+        )
+
     def test_reasoning_taxonomy_has_unique_ids_and_review_prompts(self):
         taxonomy = self.load_json("config/research/reasoning_checks_v1.json")
         groups = [
