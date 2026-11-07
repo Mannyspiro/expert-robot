@@ -9,7 +9,9 @@ Merlin Forge is a local, durable repository service. It is intentionally indepen
 - A commit records a canonical tree and one or two parent commits.
 - Pull requests capture source/target refs and are merged using a three-way comparison against the nearest common ancestor.
 - Non-overlapping edits merge automatically. Conflicting edits return the exact paths and leave the target branch unchanged.\n- Linear branches can be rebased onto another branch/commit. Rebase preserves original commits, creates replacement commits on the new base, and leaves the branch unchanged on conflict. Merge-commit rebases are rejected rather than guessed.
-- Rollbacks move a branch reference to an existing immutable commit and append an audit event.\n- The main branch is protected by default and requires exact-head `python.compile`, `python.unified_tests` and `hud.javascript_syntax` receipts before a virtual PR can merge. A successful check for an older commit does not satisfy the current PR head.\n- CI results bind the exact commit, check name, runner identity, run ID and SHA-256 of the retained log. Check records and their log blobs are immutable. `cace.independent_receipt` is a separate supported check for proof-bearing changes.
+- Rollbacks move a branch reference to an existing immutable commit and append an audit event.
+- The main branch is protected by default and requires exact-head `python.compile`, `python.unified_tests` and `hud.javascript_syntax` receipts before a virtual PR can merge. A successful check for an older commit does not satisfy the current PR head.
+- CI results bind the exact commit, check name, runner identity, run ID and SHA-256 of the retained log. Check records and their log blobs are immutable. `cace.independent_receipt` is a separate supported check for proof-bearing changes.
 - SQLite writes serialize with BEGIN IMMEDIATE; branch updates compare the expected prior ref to prevent lost updates.
 
 Hashes establish byte identity only. They do not prove code correctness, test success, safety or authorization.
