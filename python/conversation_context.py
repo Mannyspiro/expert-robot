@@ -72,6 +72,26 @@ def validate_record(record: dict[str, Any], allow_personal: bool = False) -> dic
     return normalized
 
 
+def read_jsonl(path: Path) -> list[dict[str, Any]]:
+    records = []
+    with Path(path).open(encoding="utf-8") as handle:
+        for line_number, line in enumerate(handle, start=1):
+            if not line.strip():
+                continue
+            try:
+                record = json.loads(line)
+            except json.JSONDecodeError as exc:
+                raise ContextRecordError(
+                    f"invalid JSON on line {line_number}: {exc.msg}"
+                ) from exc
+            if not isinstance(record, dict):
+                raise ContextRecordError(
+                    f"line {line_number} must contain a JSON object"
+                )
+            records.append(record)
+    return records
+
+
 class ConversationContextStore:
     def __init__(self, path: Path):
         self.path = Path(path)
@@ -167,6 +187,13 @@ class ConversationContextStore:
             self.db.rollback()
             raise
         return {"inserted": inserted, "duplicates": duplicates}
+
+    def ingest_jsonl_file(
+        self, path: Path, allow_personal: bool = False
+    ) -> dict[str, int]:
+        return self.ingest(
+            read_jsonl(path), allow_personal=allow_personal
+        )
 
     def coverage(self) -> dict[str, Any]:
         conversations = self.db.execute(
