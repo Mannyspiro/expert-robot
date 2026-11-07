@@ -42,6 +42,7 @@ class MerlinApiTests(unittest.TestCase):
         self.assertEqual(payload["schema"], "merlin-capability-registry/1")
         self.assertEqual(set(payload["states"]), {"configured", "unavailable", "unqualified"})
         self.assertIn("engineering.geometry.validate", {row["id"] for row in payload["capabilities"]})
+        self.assertIn("forge.virtual_repository", {row["id"] for row in payload["capabilities"]})
         self.assertTrue(all(row["state"] in payload["states"] for row in payload["capabilities"]))
         with self.assertRaises(HTTPError) as caught:
             urlopen(self.base + "/api/runtime/hermes", timeout=5)
