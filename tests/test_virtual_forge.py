@@ -76,14 +76,23 @@ class VirtualForgeTests(unittest.TestCase):
         self.assertEqual(self.forge.read_file("main", "state.txt"), "original")
 
     def test_job_queue_is_idempotent_leased_and_worker_owned(self):
-        job = self.forge.enqueue_job("python_tests", {"suite": "unit"}, "tests:unit:v1", 10)
+        source = self.forge.commit("main", {"src/test.py": "pass\\n"}, "test source")
+        job = self.forge.enqueue_job(
+            "python_tests", {"suite": "unit"}, "tests:unit:v1", 10,
+            source_commit=source, timeout_seconds=120, memory_mb=512,
+            cpu_count=1, max_attempts=2,
+        )
         self.assertEqual(
             self.forge.enqueue_job("python_tests", {"suite": "unit"}, "tests:unit:v1"),
             job,
         )
         claimed = self.forge.claim_job("worker-A", allowed_kinds=["python_tests"])
         self.assertEqual(claimed["job_id"], job)
+        self.assertEqual(claimed["source_commit"], source)
+        self.assertEqual(claimed["limits"]["memory_mb"], 512)
+        self.assertEqual(claimed["max_attempts"], 2)
         self.assertIsNone(self.forge.claim_job("worker-B"))
+        self.forge.renew_job_lease(job, "worker-A", lease_seconds=600)
         with self.assertRaisesRegex(ForgeError, "owned by another worker"):
             self.forge.finish_job(job, "worker-B", {"ok": True}, "forged")
         self.forge.finish_job(job, "worker-A", {"ok": True}, "2 tests passed", ["a" * 64])
