@@ -104,6 +104,14 @@ class VirtualRepositoryTests(unittest.TestCase):
         with self.assertRaises(VirtualGitError):
             self.repo.backup_to(backup_path)
 
+    def test_integrity_report_rejects_malformed_commit_tree(self):
+        with sqlite3.connect(self.db) as db:
+            db.execute("INSERT INTO commits VALUES(?,?,?,?,?,?)",
+                       ("0" * 64, None, None, "[]", "corrupt tree", time.time()))
+        report = self.repo.integrity_report()
+        self.assertFalse(report["ok"])
+        self.assertIn("invalid_commit_tree:" + "0" * 64, report["problems"])
+
     def test_integrity_report_detects_blob_tampering(self):
         with sqlite3.connect(self.db) as db:
             db.execute("DROP TRIGGER virtual_blobs_no_update")
