@@ -197,6 +197,11 @@ class VirtualRepository:
             for row in commits:
                 try:
                     tree = json.loads(row["tree_json"])
+                    if not isinstance(tree, dict) or any(
+                        not isinstance(path, str) or not isinstance(digest, str)
+                        for path, digest in tree.items()
+                    ):
+                        raise ValueError("commit tree must map text paths to text digests")
                     payload = {"tree": dict(sorted(tree.items())), "message": row["message"],
                                "parent1": row["parent1"], "parent2": row["parent2"]}
                     expected = sha256(self._canonical(payload).encode("utf-8")).hexdigest()
@@ -205,7 +210,7 @@ class VirtualRepository:
                     for path, digest in tree.items():
                         if not db.execute("SELECT 1 FROM blobs WHERE digest=?", (digest,)).fetchone():
                             problems.append("missing_blob:" + str(path))
-                except (TypeError, ValueError, json.JSONDecodeError):
+                except (AttributeError, TypeError, ValueError):
                     problems.append("invalid_commit_tree:" + row["commit_id"])
             counts = {
                 "blobs": db.execute("SELECT COUNT(*) FROM blobs").fetchone()[0],
