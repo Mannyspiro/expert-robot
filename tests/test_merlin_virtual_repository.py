@@ -149,6 +149,12 @@ class VirtualRepositoryTests(unittest.TestCase):
                 "changes": {"README.md": "# Merlin Forge API\n"},
             })
             self.assertEqual(commit["schema"], "merlin-forge-commit/1")
+            post("/api/forge/commits", {
+                "branch": "main", "message": "advance target",
+                "changes": {"src/runtime.py": "READY = True\n"},
+            })
+            rebased = post("/api/forge/branches/feature%2Fapi/rebase", {"onto_ref": "main"})
+            self.assertEqual(rebased["status"], "rebased")
             pr = post("/api/forge/pulls", {
                 "source_branch": "feature/api", "target_branch": "main",
                 "title": "Forge API integration",
