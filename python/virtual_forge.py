@@ -502,6 +502,30 @@ class VirtualForge:
             self.db.rollback()
             raise
 
+    def renew_job_lease(self, job_id: str, worker_id: str,
+                        lease_seconds: int = 300) -> float:
+        if lease_seconds < 1:
+            raise ForgeError("lease duration must be positive")
+        now = time.time()
+        expires = now + lease_seconds
+        self.db.execute("BEGIN IMMEDIATE")
+        try:
+            row = self.db.execute("SELECT * FROM jobs WHERE job_id=?", (job_id,)).fetchone()
+            if not row or row["status"] != "leased" or row["worker_id"] != worker_id:
+                raise ForgeError("job lease is missing or owned by another worker")
+            if row["lease_expires"] < now:
+                raise ForgeError("job lease has expired")
+            self.db.execute("UPDATE jobs SET lease_expires=?,updated_at=? WHERE job_id=?",
+                            (expires, now, job_id))
+            self.db.execute("INSERT INTO job_events(job_id,kind,payload_json,created_at) VALUES(?,?,?,?)",
+                            (job_id, "lease_renewed", _json({"worker_id": worker_id,
+                                                            "lease_expires": expires}), now))
+            self.db.commit()
+            return expires
+        except Exception:
+            self.db.rollback()
+            raise
+
     def finish_job(self, job_id: str, worker_id: str, result: dict[str, Any],
                    log_text: str, artifact_digests: list[str] | None = None,
                    success: bool = True) -> None:
