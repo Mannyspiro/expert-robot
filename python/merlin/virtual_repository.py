@@ -174,6 +174,82 @@ class VirtualRepository:
             rows = db.execute("SELECT name,commit_id,updated_at FROM branches ORDER BY name").fetchall()
         return [dict(row) for row in rows]
 
+    CHECK_NAMES = {
+        "python.compile", "python.unified_tests", "hud.javascript_syntax",
+        "cace.independent_receipt",
+    }
+
+    def required_checks(self, branch: str) -> list[str]:
+        with closing(self._connect()) as db:
+            row = db.execute("SELECT required_checks_json FROM branch_policies WHERE branch=?",
+                             (branch,)).fetchone()
+        return json.loads(row["required_checks_json"]) if row else []
+
+    def set_branch_policy(self, branch: str, required_checks: list[str]) -> dict[str, Any]:
+        branch = self._name(branch, "branch")
+        if not isinstance(required_checks, list) or len(required_checks) > len(self.CHECK_NAMES):
+            raise VirtualGitError("required checks must be a bounded list")
+        if len(set(required_checks)) != len(required_checks) or any(
+            name not in self.CHECK_NAMES for name in required_checks
+        ):
+            raise VirtualGitError("unknown or duplicate required check")
+        with closing(self._connect()) as db, db:
+            db.execute("BEGIN IMMEDIATE")
+            if not db.execute("SELECT 1 FROM branches WHERE name=?", (branch,)).fetchone():
+                raise KeyError(branch)
+            encoded = self._canonical(required_checks)
+            db.execute("""INSERT INTO branch_policies(branch,required_checks_json,updated_at)
+                VALUES(?,?,?) ON CONFLICT(branch) DO UPDATE SET
+                required_checks_json=excluded.required_checks_json,updated_at=excluded.updated_at""",
+                (branch, encoded, time.time()))
+            self._event(db, "branch.policy_updated", {"branch": branch,
+                                                        "required_checks": required_checks})
+        return {"branch": branch, "required_checks": required_checks}
+
+    def record_check_result(self, commit_id: str, check_name: str, conclusion: str,
+                            run_id: str, runner_id: str, log: str) -> dict[str, Any]:
+        if check_name not in self.CHECK_NAMES:
+            raise VirtualGitError("unknown check name")
+        if conclusion not in {"success", "failure", "cancelled"}:
+            raise VirtualGitError("invalid check conclusion")
+        if not isinstance(run_id, str) or not run_id.strip() or len(run_id) > 200:
+            raise VirtualGitError("run_id must be 1-200 characters")
+        if not isinstance(runner_id, str) or not runner_id.strip() or len(runner_id) > 200:
+            raise VirtualGitError("runner_id must be 1-200 characters")
+        if not isinstance(log, str) or len(log.encode("utf-8")) > 5_000_000:
+            raise VirtualGitError("check log must be UTF-8 text under 5 MB")
+        with closing(self._connect()) as db, db:
+            db.execute("BEGIN IMMEDIATE")
+            self._tree(db, commit_id)
+            log_digest = self._put_blob(db, log.encode("utf-8"))
+            existing = db.execute("SELECT * FROM check_results WHERE run_id=? AND check_name=?",
+                                  (run_id, check_name)).fetchone()
+            if existing is not None:
+                if (existing["commit_id"], existing["conclusion"], existing["runner_id"],
+                    existing["log_digest"]) != (commit_id, conclusion, runner_id, log_digest):
+                    raise VirtualGitError("run_id already records a different check result")
+                return {"check_id": existing["check_id"], "commit_id": commit_id,
+                        "check_name": check_name, "conclusion": conclusion,
+                        "log_sha256": log_digest, "idempotent_replay": True}
+            result = {"commit_id": commit_id, "check_name": check_name,
+                      "conclusion": conclusion, "run_id": run_id, "runner_id": runner_id,
+                      "log_sha256": log_digest}
+            cursor = db.execute("""INSERT INTO check_results
+                (commit_id,check_name,conclusion,run_id,runner_id,log_digest,result_json,recorded_at)
+                VALUES(?,?,?,?,?,?,?,?)""",
+                (commit_id, check_name, conclusion, run_id, runner_id, log_digest,
+                 self._canonical(result), time.time()))
+            check_id = cursor.lastrowid
+            self._event(db, "check.recorded", {"check_id": check_id, **result})
+            return {"check_id": check_id, **result, "idempotent_replay": False}
+
+    def check_results(self, commit_id: str) -> list[dict[str, Any]]:
+        with closing(self._connect()) as db:
+            rows = db.execute("""SELECT check_id,commit_id,check_name,conclusion,run_id,
+                runner_id,log_digest,recorded_at FROM check_results
+                WHERE commit_id=? ORDER BY recorded_at,check_id""", (commit_id,)).fetchall()
+        return [dict(row) for row in rows]
+
     def create_branch(self, name: str, from_ref: str = "main") -> dict[str, Any]:
         name = self._name(name, "branch")
         with closing(self._connect()) as db, db:
