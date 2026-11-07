@@ -147,14 +147,14 @@ class EventStore:
 
     def append(self, kind: str, request: dict[str, Any], summary: dict[str, Any]) -> None:
         digest = sha256(_json_bytes(request)).hexdigest()
-        with sqlite3.connect(self.path) as db:
+        with closing(sqlite3.connect(self.path)) as db, db:
             db.execute(
                 "INSERT INTO events(kind,request_sha256,summary_json,created_at) VALUES(?,?,?,?)",
                 (kind, digest, json.dumps(summary, sort_keys=True), datetime.now(timezone.utc).isoformat()),
             )
 
     def recent(self, limit: int = 20) -> list[dict[str, Any]]:
-        with sqlite3.connect(self.path) as db:
+        with closing(sqlite3.connect(self.path)) as db, db:
             rows = db.execute(
                 "SELECT id,kind,request_sha256,summary_json,created_at FROM events ORDER BY id DESC LIMIT ?",
                 (limit,),
@@ -169,7 +169,7 @@ class EventStore:
         """Return oldest-first event metadata for deterministic replay."""
         if not 1 <= limit <= 100000:
             raise ValueError("event limit out of range")
-        with sqlite3.connect(self.path) as db:
+        with closing(sqlite3.connect(self.path)) as db, db:
             rows = db.execute(
                 "SELECT id,kind,request_sha256,summary_json,created_at FROM events WHERE kind=? ORDER BY id ASC LIMIT ?",
                 (kind, limit),
