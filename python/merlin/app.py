@@ -200,6 +200,7 @@ def _runtime_provider_status() -> dict[str, Any]:
 
 CAPABILITIES = [
     {"id": "research.math_transfer.preview", "status": "AVAILABLE", "evidence": "deterministic, provenance-aware transfer hypotheses; no automatic promotion"},
+    {"id": "research.literature.search", "status": "AVAILABLE", "evidence": "zero-configuration Crossref and arXiv discovery; source-hashed documents remain unverified"},
     {"id": "intent.compile.preview", "status": "AVAILABLE", "evidence": "deterministic typed directive preview; optional canonical-registry artifact persistence; no external execution authority"},
     {"id": "learning.interaction.observe", "status": "AVAILABLE", "evidence": "metadata-only operational telemetry plus explicit categorical outcome feedback"},
     {"id": "learning.interaction.analyze", "status": "AVAILABLE", "evidence": "aggregate improvement proposals with minimum sample thresholds; recommendation-only"},
