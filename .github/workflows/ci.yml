@@ -96,6 +96,18 @@ jobs:
           printf '{"suite":"merlin-prompt-contract","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$test_exit" > artifacts/merlin-prompt-contract-result.json
           exit "$test_exit"
 
+      - name: Merlin local-first provider policy tests
+        env:
+          PYTHONPATH: python
+        shell: bash
+        run: |
+          set +e
+          mkdir -p artifacts
+          python3 -m unittest discover -s tests -p "test_merlin_provider_policy.py" -v 2>&1 | tee artifacts/merlin-provider-policy.log
+          test_exit=${PIPESTATUS[0]}
+          printf '{"suite":"merlin-provider-policy","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$test_exit" > artifacts/merlin-provider-policy-result.json
+          exit "$test_exit"
+
       - name: Merlin universal research curriculum tests
         env:
           PYTHONPATH: python
