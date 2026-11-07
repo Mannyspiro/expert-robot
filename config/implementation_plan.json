@@ -144,20 +144,25 @@
     {
       "id": "continuous_research_protocol",
       "rank": 1,
-      "status": "in_progress",
+      "status": "runtime_adapter_implemented_tests_pending",
       "contract": "config/research/reasoning_protocol_v1.json",
       "documentation": "docs/continuous-research-protocol.md",
       "taxonomy": "config/research/reasoning_checks_v1.json",
       "exit": [
-        "protocol loader validates schema and version",
-        "research intake invokes protocol when relevant",
+        "protocol loader validates identity, ordered stages, and authority invariants",
+        "Python orchestrator automatically activates protocol for relevant research/engineering tasks",
+        "activation mode supports auto, always, and off",
+        "activation event records protocol ID and exact SHA-256 digest without logging task contents",
         "Ideonomy records useful combinations and rejected ideas with reasons",
         "inductive observations and deductive derivations are linked to requirements and tests",
         "analogy transfer records preserved and non-preserved properties",
         "fallacy and bias checks cite the reasoning step rather than applying labels mechanically",
         "math method selection records assumptions, cost, and measured benefit",
         "all significant updates retain artifact revision, logs, test results, and uncertainty"
-      ]
+      ],
+      "runtime_adapter": "python/research_protocol.py",
+      "integration": "python/orchestrator.py",
+      "validation_test": "tests/test_research_protocol_contract.py"
     },
     {
       "id": "conversation_context_ingestion",
