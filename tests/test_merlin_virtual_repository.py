@@ -103,6 +103,15 @@ class VirtualRepositoryTests(unittest.TestCase):
         with self.assertRaises(VirtualGitError):
             self.repo.backup_to(backup_path)
 
+    def test_integrity_report_detects_blob_tampering(self):
+        with sqlite3.connect(self.db) as db:
+            db.execute("DROP TRIGGER virtual_blobs_no_update")
+            db.execute("UPDATE blobs SET content=? WHERE digest=(SELECT digest FROM blobs LIMIT 1)",
+                       (b"tampered",))
+        report = self.repo.integrity_report()
+        self.assertFalse(report["ok"])
+        self.assertTrue(any(item.startswith("blob:") for item in report["problems"]))
+
     def test_three_way_merge_combines_non_overlapping_changes(self):
         self.repo.create_branch("feature/docs")
         self.repo.commit("feature/docs", "update docs", {"README.md": "# Merlin Forge\n"})
