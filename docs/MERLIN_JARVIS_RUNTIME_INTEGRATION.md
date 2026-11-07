@@ -80,6 +80,18 @@ The browser is a client, not an authority boundary. It may request an operation;
 - Do not synthesize or claim a British voice until a specific voice asset and output have been tested.
 - Do not start background microphone capture. Listening begins only after a user gesture and visibly indicates active capture.
 
+### HUD prompt engineering
+
+The HUD's Engineer control calls the existing deterministic `/api/intents/compile` endpoint using the selected domain and current user request. The resulting directive is shown in the transcript and retained only in the current browser chat context. Without an explicit existing project ID and registry-verified assets, the compiler reports a preview-only result.
+
+This action is intentionally separate from dispatch:
+- Compiling a directive does not enqueue Hermes work, call an external model, create a file, or execute a subsystem.
+- The user can inspect the generated directive and then decide whether to send it to Merlin as conversation context.
+- Future dispatch must use the existing approval validator, MCFC lease validator, Hermes outbox and worker evidence path; a generated prompt is never an approval token.
+- Domain selection is explicit in the HUD. Asset provenance is not inferred from a filename or caller-supplied trust label.
+
+Acceptance checks: compile requests across supported domains, verify deterministic digest stability for identical inputs, confirm preview-only storage when no project is selected, confirm that the response states execution_authorized=false, and verify no Hermes event or worker job is created by compilation.
+
 ### Voice session implementation gate
 
 The HUD voice control is a user-started, continuous browser recognition session:
