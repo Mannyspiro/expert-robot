@@ -23,6 +23,7 @@ enum class ImaginationLens : std::size_t {
     Counterfactual,
     Construction,
     Lemma,
+    Lacuna,
     Count
 };
 
