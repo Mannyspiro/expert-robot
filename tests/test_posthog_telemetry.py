@@ -81,6 +81,7 @@ class PostHogTelemetryTests(unittest.TestCase):
         self.assertEqual(props["response_bytes"], 123)
         self.assertEqual(props["distinct_id"], self.sink.distinct_id)
         self.assertNotIn("email", props)
+        self.assertNotIn("merlin_request_sha256", props)
         self.assertNotIn("private_text", props)
         self.assertNotIn("content", props)
         self.assertFalse(props["$process_person_profile"])
