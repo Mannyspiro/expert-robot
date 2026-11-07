@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - "python/merlin/app.py"
+      - "ui/merlin-hud/index.html"
       - "python/merlin/virtual_repository.py"
       - "tests/test_merlin_virtual_repository.py"
       - "python/merlin/learner_model.py"
@@ -96,6 +97,28 @@ jobs:
           python -m compileall -q python/merlin 2>&1 | tee artifacts/compile.log
           rc=${PIPESTATUS[0]}
           printf '{"suite":"merlin-unified-platform-compile","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/compile-result.json
+          exit "$rc"
+
+      - name: Validate Merlin HUD inline JavaScript
+        shell: bash
+        run: |
+          set +e
+          python - <<'PY'
+          from pathlib import Path
+          html = Path("ui/merlin-hud/index.html").read_text(encoding="utf-8")
+          if html.count("<script>") != 1 or html.count("</script>") != 1:
+              raise SystemExit("expected exactly one inline script block")
+          script = html.split("<script>", 1)[1].split("</script>", 1)[0]
+          Path("artifacts/merlin-hud-inline.js").write_text(script, encoding="utf-8")
+          PY
+          extract_rc=$?
+          if [ "$extract_rc" -eq 0 ]; then
+            node --check artifacts/merlin-hud-inline.js 2>&1 | tee artifacts/merlin-hud-js.log
+            rc=${PIPESTATUS[0]}
+          else
+            rc="$extract_rc"
+          fi
+          printf '{"suite":"merlin-hud-js-syntax","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/merlin-hud-js-result.json
           exit "$rc"
 
       - name: Run unified platform tests
