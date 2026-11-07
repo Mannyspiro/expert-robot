@@ -11,6 +11,43 @@ debugging, planning, scientific claims, model selection, cross-domain reasoning,
 or self-improvement. Do not force the full pipeline onto simple lookups or
 format-only tasks.
 
+## Runtime adapter
+
+The Python entry point `python/orchestrator.py` calls
+`python/research_protocol.py` before forwarding a task to the existing C++
+runtime. Activation modes are:
+
+- `auto`: activate for research/engineering/design/debugging/planning and
+  related triggers;
+- `always`: force the protocol context;
+- `off`: do not attach it.
+
+The adapter validates the protocol identity, ordered nine-stage pipeline, and
+authority invariant. It binds the protocol and mathematical method registry
+SHA-256 digests into the context and emits an activation event to stderr
+without logging the task text.
+
+This is a runtime prompt/context adapter, not yet a full C++ state-machine
+implementation of every protocol stage. It does not import conversation
+archives, invoke new mathematical solvers, verify claims, or produce CACE
+receipts. Those are separate implementation gates.
+
+## Mathematical capability registry
+
+`config/research/math_method_registry_v1.json` distinguishes:
+- existing executable and verified boundaries (Lean formalization, theorem
+  graph, hash-chained episode ledger);
+- qualified prompt procedures (analogy, geometry/algebra/duality/spectral/
+  topology, skeptic/counterfactual, and lacuna);
+- partial evaluation infrastructure (strategy ranking and benchmark metrics);
+- methods that remain research-only or not implemented as runtime solvers
+  (general Bayesian inference, information theory, control/dynamical/
+  numerical solvers).
+
+A registry entry is not a qualification. The runtime must not claim an
+unimplemented method was executed. Promotion requires implementation,
+assumption checks, independent tests, and measured results.
+
 ## Ideonomy and useful lacuna exploration
 
 Enumerate a bounded idea space. Search for missing links, unexplained observations,
