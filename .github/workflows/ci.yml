@@ -86,6 +86,9 @@ jobs:
       - name: Research protocol and reasoning taxonomy
         run: python3 tests/test_research_protocol_contract.py
 
+      - name: Virtual Forge transactional and merge tests
+        run: python3 -m unittest discover -s tests -p 'test_virtual_forge.py' -v
+
       - name: Compute policy guardrails
         run: python3 tests/compute_policy_smoke.py
 
