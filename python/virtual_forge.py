@@ -138,7 +138,11 @@ class VirtualForge:
             status TEXT NOT NULL, priority INTEGER NOT NULL,
             created_at REAL NOT NULL, updated_at REAL NOT NULL,
             worker_id TEXT, lease_expires REAL, attempts INTEGER NOT NULL DEFAULT 0,
-            result_json TEXT, log_text TEXT, artifact_digests_json TEXT
+            max_attempts INTEGER NOT NULL DEFAULT 3,
+            source_commit TEXT, timeout_seconds INTEGER NOT NULL DEFAULT 300,
+            memory_mb INTEGER NOT NULL DEFAULT 2048, cpu_count INTEGER NOT NULL DEFAULT 1,
+            result_json TEXT, log_text TEXT, artifact_digests_json TEXT,
+            FOREIGN KEY(source_commit) REFERENCES commits(commit_id)
         );
         CREATE INDEX IF NOT EXISTS jobs_ready ON jobs(status, priority DESC, created_at);
         CREATE TABLE IF NOT EXISTS job_events(
@@ -417,9 +421,16 @@ class VirtualForge:
             raise
 
     def enqueue_job(self, kind: str, payload: dict[str, Any],
-                    idempotency_key: str, priority: int = 0) -> str:
+                    idempotency_key: str, priority: int = 0,
+                    source_commit: str | None = None, timeout_seconds: int = 300,
+                    memory_mb: int = 2048, cpu_count: int = 1,
+                    max_attempts: int = 3) -> str:
         if not kind or not idempotency_key:
             raise ForgeError("job kind and idempotency key are required")
+        if timeout_seconds < 1 or memory_mb < 128 or cpu_count < 1 or max_attempts < 1:
+            raise ForgeError("job resource limits and max attempts must be positive")
+        if source_commit is not None:
+            self._tree(source_commit)
         now, job_id = time.time(), str(uuid.uuid4())
         self.db.execute("BEGIN IMMEDIATE")
         try:
