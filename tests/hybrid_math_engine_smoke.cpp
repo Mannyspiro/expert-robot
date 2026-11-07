@@ -70,7 +70,7 @@ public:
                  "analogy", "geometry", "algebra", "duality",
                  "inversion", "generalization", "simplification",
                  "boundary_case", "spectral", "topological",
-                 "counterfactual", "construction", "lemma"}) {
+                 "counterfactual", "construction", "lemma", "lacuna"}) {
             if (request.user_prompt.find(
                     "Imagination lens: " + candidate) !=
                 std::string::npos) {
@@ -281,6 +281,12 @@ int main() {
     assert(
         skill_catalog.get(
             "math.lemma.high_leverage").requires_lean_verification);
+    assert(
+        !skill_catalog.for_lens(ImaginationLens::Lacuna).empty());
+    assert(lens_name(ImaginationLens::Lacuna) == "lacuna");
+    assert(
+        lens_instruction(ImaginationLens::Lacuna).find(
+            "falsifiable test") != std::string::npos);
 
     ConcurrencyBackend concurrency_backend;
     SwarmSupervisor serialized_swarm(
