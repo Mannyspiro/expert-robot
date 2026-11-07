@@ -369,6 +369,26 @@ class VirtualRepository:
             if source is None or target is None:
                 raise VirtualGitError("pull request branch no longer exists")
             source_head, target_head = source["commit_id"], target["commit_id"]
+            policy = db.execute("SELECT required_checks_json FROM branch_policies WHERE branch=?",
+                                (pr["target_branch"],)).fetchone()
+            required = json.loads(policy["required_checks_json"]) if policy else []
+            missing_checks, failed_checks = [], []
+            for check_name in required:
+                result = db.execute("""SELECT conclusion FROM check_results
+                    WHERE commit_id=? AND check_name=?
+                    ORDER BY recorded_at DESC,check_id DESC LIMIT 1""",
+                    (source_head, check_name)).fetchone()
+                if result is None:
+                    missing_checks.append(check_name)
+                elif result["conclusion"] != "success":
+                    failed_checks.append({"check": check_name, "conclusion": result["conclusion"]})
+            if missing_checks or failed_checks:
+                self._event(db, "pull_request.merge_blocked", {"pr_id": pr_id,
+                    "source_head": source_head, "target": pr["target_branch"],
+                    "missing_checks": missing_checks, "failed_checks": failed_checks})
+                return {"pr_id": pr_id, "status": "blocked", "source_head": source_head,
+                        "missing_checks": missing_checks, "failed_checks": failed_checks,
+                        "required_checks": required}
             source_ancestors, target_ancestors = self._ancestors(db, source_head), self._ancestors(db, target_head)
             common = set(source_ancestors) & set(target_ancestors)
             if not common:
