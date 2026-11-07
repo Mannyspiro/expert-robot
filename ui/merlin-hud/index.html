@@ -305,7 +305,7 @@ async async function renderForgeView(){
   if(queueButton){
    const commit=queueButton.getAttribute("data-forge-commit");
    try{
-    const checks=(dataForRequiredChecks||[]);
+    const checks=(window.dataForRequiredChecks||[]);
     for(const check of checks){await api("/api/forge/jobs","POST",{commit_id:commit,job_type:check,idempotency_key:commit+":"+check,max_attempts:2});}
     message.textContent="Queued "+checks.length+" exact-head checks. No execution is claimed until an authenticated worker completes them.";
     await refresh();
