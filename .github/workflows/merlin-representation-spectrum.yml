@@ -23,7 +23,7 @@ permissions:
 
 jobs:
   rational-generalized-eigenspaces:
-    runs-on: avrea-ubuntu-latest-8-vcpu
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - name: Record runner and commit
