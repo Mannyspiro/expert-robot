@@ -39,7 +39,7 @@ jobs:
   dispatch-to-railway:
     # This runner only packages/relays the checkout. Build/test compute runs on
     # Railway, so this lane does not consume an Avrea runner.
-    runs-on: ubuntu-latest
+    runs-on: namespace-profile-merlin
     timeout-minutes: 65
 
     steps:

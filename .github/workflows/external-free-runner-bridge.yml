@@ -409,7 +409,7 @@ jobs:
             publish-result:
               if: always()
               needs: qualify
-              runs-on: ubuntu-latest
+              runs-on: namespace-profile-merlin
               timeout-minutes: 10
               permissions:
                 contents: write

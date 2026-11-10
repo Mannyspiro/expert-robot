@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   open-pr:
-    runs-on: ubuntu-latest
+    runs-on: namespace-profile-merlin
     timeout-minutes: 5
 
     steps:
