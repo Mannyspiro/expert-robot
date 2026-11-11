@@ -80,8 +80,17 @@ class MerlinLearningHttpTests(unittest.TestCase):
             {"id": "lesson-1", "title": "Motion", "objective_id": "PHY-1",
              "body": "Position changes over time."},
             {"id": "lesson-2", "title": "Acceleration", "objective_id": "PHY-2",
-             "body": "Acceleration is the rate of change of velocity."},
+             "body": "Acceleration is the rate of change of velocity.",
+             "exercise": {"task_id": "acceleration-explain",
+                          "prompt": "Explain acceleration in your own words."}},
         ]
+        manifest["assessments"] = [{
+            "id": "assessment-phy-2", "title": "Acceleration explanation",
+            "objective_id": "PHY-2", "high_stakes": False,
+            "human_review_required": True,
+            "rubric": [{"dimension": "conceptual_explanation",
+                        "description": "Explains change in velocity.", "points": 2}],
+        }]
         manifest["resources"] = [{"id": "resource-1", "title": "Open resource",
                                   "source_uri": "https://example.org/physics",
                                   "license": "CC-BY-4.0", "creator": "Faculty"}]
@@ -104,6 +113,33 @@ class MerlinLearningHttpTests(unittest.TestCase):
                                           "Bearer learner", {})
         self.assertEqual(status, 200)
         self.assertEqual(enrollment["learner_id"], "student-1")
+        status, submission = self.request(
+            "POST", f"/api/learning/courses/{cid}/submissions", "Bearer learner", {
+                "submission_id": "physics-submission-1",
+                "lesson_id": "lesson-2",
+                "task_id": "acceleration-explain",
+                "response": {"explanation": "Acceleration measures how velocity changes over time."},
+            },
+        )
+        self.assertEqual(status, 201)
+        self.assertEqual(submission["status"], "pending_review")
+        self.assertFalse(submission["mastery_updated"])
+        status, queue = self.request(
+            "GET", f"/api/learning/courses/{cid}/submissions", "Bearer reviewer"
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(queue["count"], 1)
+        status, review_result = self.request(
+            "POST", f"/api/learning/courses/{cid}/submissions/physics-submission-1/review",
+            "Bearer reviewer", {
+                "decision": "accepted",
+                "feedback": "The explanation correctly identifies change in velocity.",
+                "rubric_scores": {"conceptual_explanation": 1.0},
+            },
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(review_result["decision"], "accepted")
+        self.assertFalse(review_result["mastery_updated"])
         status, enrolled_catalog = self.request("GET", "/api/learning/courses", "Bearer learner")
         self.assertEqual(status, 200)
         self.assertEqual(enrolled_catalog["courses"][0]["enrollment_status"], "active")
