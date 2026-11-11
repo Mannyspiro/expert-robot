@@ -553,6 +553,83 @@ def ingest_hermes_failure(
     })
 
 
+def dispatch_rsi_induction_seed(
+    ledger: AppendOnlyLedger,
+    seed_event_hash: str,
+    transport: Any,
+    trusted_worker_keys: Mapping[str, str],
+) -> dict[str, Any]:
+    """Dispatch one authenticated Hermes seed and persist a signed worker ACK.
+
+    The transport is deliberately injected at the boundary. No endpoint,
+    credentials, or worker capability is assumed to exist. Missing transport
+    fails closed; the ACK must be signed by a separately trusted RSI worker.
+    """
+    if not _is_sha256(seed_event_hash):
+        raise ValueError("seed_event_hash must be lowercase SHA-256")
+    if transport is None:
+        raise RuntimeError("RSI induction transport is unavailable")
+    seed_row = None
+    with ledger._connect() as db:
+        seed_row = db.execute(
+            "SELECT episode_id,event_type,payload,event_hash "
+            "FROM research_episode_events WHERE event_hash=?",
+            (seed_event_hash,),
+        ).fetchone()
+    if seed_row is None or seed_row["event_type"] != "rsi.induction_seeded":
+        raise ValueError("dispatch target is not an authenticated Hermes induction seed")
+    episode_id = str(seed_row["episode_id"])
+    if not ledger.verify_chain(episode_id)["valid"]:
+        raise RuntimeError("refusing RSI dispatch from an invalid episode chain")
+    seed_payload = json.loads(seed_row["payload"])
+    existing = next(
+        (event for event in ledger.events(episode_id)
+         if event["event_type"] == "rsi.induction_dispatched"
+         and json.loads(event["payload"]).get("seed_event_hash") == seed_event_hash),
+        None,
+    )
+    if existing is not None:
+        return {
+            "seq": existing["sequence"], "event_hash": existing["event_hash"],
+            "episode_id": episode_id, "idempotent_replay": True,
+        }
+    idempotency_key = "merlin-rsi-seed:" + seed_event_hash
+    acknowledgement = transport.submit_induction(
+        seed_event_hash=seed_event_hash,
+        episode_id=episode_id,
+        idempotency_key=idempotency_key,
+        seed=seed_payload,
+    )
+    if not isinstance(acknowledgement, SignedReceipt):
+        raise PermissionError("RSI worker must return a signed receipt envelope")
+    expected = {
+        "seed_event_hash": seed_event_hash,
+        "episode_id": episode_id,
+        "idempotency_key": idempotency_key,
+        "status": "accepted",
+    }
+    if not verify_signed_receipt(
+        acknowledgement, trusted_worker_keys,
+        expected_issuer="merlin-rsi-worker", expected_claims=expected,
+    ):
+        raise PermissionError("RSI worker acknowledgement is unauthenticated or mismatched")
+    worker_id = acknowledgement.claims.get("worker_id")
+    task_id = acknowledgement.claims.get("task_id")
+    if not isinstance(worker_id, str) or not worker_id.strip():
+        raise PermissionError("RSI worker acknowledgement omitted worker_id")
+    if not isinstance(task_id, str) or not task_id.strip():
+        raise PermissionError("RSI worker acknowledgement omitted task_id")
+    return ledger.append("rsi.induction_dispatched", episode_id, {
+        "seed_event_hash": seed_event_hash,
+        "idempotency_key": idempotency_key,
+        "worker_id": worker_id,
+        "task_id": task_id,
+        "acknowledgement_receipt_digest": acknowledgement.receipt_digest,
+        "status": "accepted",
+        "promotion_authority": False,
+    })
+
+
 class ResearchMetadataCache:
     """Persistent Crossref/arXiv cache with cross-process host rate limits."""
 
