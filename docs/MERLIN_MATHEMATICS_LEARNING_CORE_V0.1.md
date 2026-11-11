@@ -94,3 +94,5 @@ The comparison tracks immediate accuracy, delayed retention, transfer and indepe
 6. Canonical learner registry integration after schema inspection; do not fork the source of truth.
 7. Video/resource discovery with provenance, accessibility and rights metadata.
 8. Held-out evaluation of delayed retention, transfer, independent solving and time-to-mastery.
+
+The review queue supports a per-request limit and learner-controlled deferral by whole days. Deferral changes the due date without fabricating a recall result or changing mastery. A reproducible hash-based learner/concept cluster allocator now assigns experiment arms from a preregistered seed and arm list; allocation still needs balance checks and persisted study receipts in a production experiment.
