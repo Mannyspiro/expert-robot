@@ -85,4 +85,76 @@ class LearnerModelTests(unittest.TestCase):
         self.assertEqual(scored["scoring_source"],"server_rubric")
 
 
+    def test_profile_defaults_persist_and_normalize_preferences(self):
+        default = self.store.get_profile("learner-test")
+        self.assertAlmostEqual(sum(default["pathway_weights"].values()), 1.0)
+        self.assertEqual(default["interests"], [])
+        self.assertIsNone(default["max_minutes"])
+
+        updated = self.store.update_profile("learner-test", {
+            "pathway_weights": {
+                "mathematician": 1.0,
+                "mathematics_programmer": 0.0,
+                "computational_hacker": 0.0,
+            },
+            "interests": ["Number Theory", "proof"],
+            "pace": "gentle",
+        })
+        self.assertEqual(updated["pathway_weights"]["mathematician"], 1.0)
+        self.assertEqual(updated["interests"], ["number_theory", "proof"])
+        self.assertEqual(updated["max_minutes"], 20)
+        self.assertEqual(self.store.get_profile("learner-test")["interests"], ["number_theory", "proof"])
+
+    def test_profile_updates_merge_and_reject_invalid_values(self):
+        self.store.update_profile("learner-test", {"interests": ["python"]})
+        updated = self.store.update_profile("learner-test", {"pace": "standard"})
+        self.assertEqual(updated["interests"], ["python"])
+        self.assertEqual(updated["max_minutes"], 35)
+        with self.assertRaisesRegex(ValueError, "at least one pathway"):
+            self.store.update_profile("learner-test", {
+                "pathway_weights": {
+                    "mathematician": 0.0,
+                    "mathematics_programmer": 0.0,
+                    "computational_hacker": 0.0,
+                }
+            })
+        with self.assertRaisesRegex(ValueError, "unsupported learner profile fields"):
+            self.store.update_profile("learner-test", {"learner_id": "someone-else"})
+        with self.assertRaisesRegex(ValueError, "interests must be a list"):
+            self.store.update_profile("learner-test", {"interests": "python"})
+
+    def test_next_lesson_respects_path_interest_and_time_preferences(self):
+        graph = {
+            "math-idea": {"prerequisites": [], "dimensions": ["conceptual_explanation"]},
+            "code-idea": {"prerequisites": [], "dimensions": ["conceptual_explanation"]},
+        }
+        lessons = [
+            {"lesson_id": "math-proof", "idea_id": "math-idea",
+             "pathways": ["mathematician"], "interest_tags": ["proof", "history"],
+             "estimated_minutes": 25, "learning_value": 0.8, "transfer_value": 0.9},
+            {"lesson_id": "code-loop", "idea_id": "code-idea",
+             "pathways": ["computational_hacker"], "interest_tags": ["python"],
+             "estimated_minutes": 15, "learning_value": 0.9, "transfer_value": 0.8},
+        ]
+        math_result = select_next_lesson(
+            "learner-test", self.store, graph, lessons,
+            path_weights={"mathematician": 1.0}, interests=["proof"],
+        )
+        self.assertEqual(math_result["lesson_id"], "math-proof")
+        self.assertIn("matches_learner_interests", math_result["reason_codes"])
+
+        code_result = select_next_lesson(
+            "learner-test", self.store, graph, lessons,
+            path_weights={"computational_hacker": 1.0},
+        )
+        self.assertEqual(code_result["lesson_id"], "code-loop")
+
+        blocked = select_next_lesson(
+            "learner-test", self.store, graph, lessons,
+            path_weights={"mathematician": 1.0}, max_minutes=10,
+        )
+        self.assertEqual(blocked["state"], "no_candidate")
+        self.assertEqual(blocked["blocked_lessons"][0]["blocked_reason"], "exceeds_time_budget")
+
+
 if __name__=="__main__": unittest.main()
