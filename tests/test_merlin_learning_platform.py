@@ -41,7 +41,8 @@ class LearningPlatformTests(unittest.TestCase):
             {"id": "lesson-1", "title": "Coordinate foundations", "objective_id": "OBJ-1",
              "body": "Coordinates locate points in a reference frame."},
             {"id": "lesson-2", "title": "Quarter-turn rotation", "objective_id": "OBJ-2",
-             "body": "A positive quarter turn maps (x,y) to (-y,x)."},
+             "body": "A positive quarter turn maps (x,y) to (-y,x).",
+             "exercise": {"task_id": "rotation-check", "prompt": "Explain the quarter-turn rule."}},
         ]
         manifest["assessments"] = [
             {"id": "assessment-1", "title": "Rotation check", "objective_id": "OBJ-2",
