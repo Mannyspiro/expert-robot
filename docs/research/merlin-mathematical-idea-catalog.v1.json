@@ -1946,7 +1946,7 @@
         "Identify invalid transformations and extraneous solutions."
       ],
       "learning": {
-        "lesson_id": null,
+        "lesson_id": "math-equations-inequalities-v1",
         "dimensions": [
           "conceptual_explanation",
           "procedure",
@@ -1998,7 +1998,7 @@
         "Construct examples where an inverse does and does not exist."
       ],
       "learning": {
-        "lesson_id": null,
+        "lesson_id": "math-functions-composition-v1",
         "dimensions": [
           "conceptual_explanation",
           "procedure",
