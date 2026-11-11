@@ -20,6 +20,11 @@ The first Parrondo-focused design space is the Cartesian product of six axes:
 
 The paths are mathematician, mathematics programmer, and computational hacker. Representations range from concrete objects to executable models. Activities include prediction, simulation, transition-rule derivation, and implementation. Evidence includes concept checks, independent transfer, formal proof, and reflection.
 
+
+## Current curriculum integration
+
+The canonical learning core now registers the Parrondo prerequisites (randomization, conditional probability, and long-run behavior) and exposes a zero-first `PARRONDO_DISCOVERY` lesson for all three paths. It begins with playing and predicting, then visual/state inspection and tabulation, and only later names the formal probability/Markov-chain model. The final coding stage supports reproducibility. The lesson is eligible for zero-history learners on each path; eligibility is not mastery, and the simulation itself supplies no mastery score.
+
 ## Coherence constraints
 
 The enumerator rejects, with named reasons, combinations such as:
