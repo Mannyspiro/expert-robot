@@ -21,6 +21,7 @@ from merlin.learning_core import (
     backward_difference,
     select_next_lesson,
     validate_expression,
+    parrondo_lesson_for_path,
 )
 
 
@@ -51,10 +52,32 @@ class ConceptRegistryTests(unittest.TestCase):
             "mathematician", "mathematics_programmer", "computational_hacker"
         })
 
-    def test_parrondo_lesson_is_selectable_for_all_three_paths(self):
-        for path in ("mathematician", "mathematics_programmer", "computational_hacker"):
-            selected = select_next_lesson("new-" + path, self.store, (PARRONDO_DISCOVERY,), path=path)
-            self.assertEqual(selected.lesson_id, PARRONDO_DISCOVERY.lesson_id)
+    def test_path_specific_capstones_are_distinct_and_zero_first(self):
+        lessons = {
+            path: parrondo_lesson_for_path(path)
+            for path in ("mathematician", "mathematics_programmer", "computational_hacker")
+        }
+        self.assertEqual(len({lesson.lesson_id for lesson in lessons.values()}), 3)
+        self.assertEqual(lessons["mathematician"].stages[-1].stage_id, "formulate-and-audit")
+        self.assertEqual(lessons["mathematics_programmer"].stages[-1].stage_id, "verify-the-implementation")
+        self.assertEqual(lessons["computational_hacker"].stages[-1].stage_id, "break-the-model")
+        for lesson in lessons.values():
+            lesson.validate()
+            self.assertEqual(lesson.stages[0].mode, "concrete")
+            self.assertTrue(lesson.path_tags)
+            self.assertEqual(len(lesson.stages), len(PARRONDO_DISCOVERY.stages) + 1)
+
+    def test_path_specific_lessons_are_selectable(self):
+        with tempfile.TemporaryDirectory() as directory:
+            store = LearnerStore(Path(directory) / "selection.sqlite")
+            for path in ("mathematician", "mathematics_programmer", "computational_hacker"):
+                lesson = parrondo_lesson_for_path(path)
+                selected = select_next_lesson("new-" + path, store, (lesson,), path=path)
+                self.assertEqual(selected.lesson_id, lesson.lesson_id)
+
+    def test_unknown_path_is_rejected(self):
+        with self.assertRaisesRegex(ValueError, "unknown mathematics learning path"):
+            parrondo_lesson_for_path("casual-observer")
 
     def test_unknown_prerequisite_fails_closed(self):
         registry = ConceptRegistry((Concept("a", "A", "A", ("missing",)),))
