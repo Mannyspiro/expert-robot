@@ -403,6 +403,8 @@ class LearningPlatform:
                 "SELECT * FROM learning_submissions WHERE tenant_id=? AND submission_id=?",
                 (actor.tenant_id, submission_id)).fetchone()
             if existing is not None:
+                if existing["learner_id"] != actor.actor_id:
+                    raise LearningPermissionError("submission belongs to another learner")
                 same = (existing["course_id"] == course_id
                         and existing["lesson_id"] == lesson_id
                         and existing["response_sha256"] == response_sha)
@@ -567,7 +569,11 @@ class LearningPlatform:
         elif actor.role == "learner":
             clauses.append("v.status='published'")
         elif actor.role == "reviewer":
-            clauses.extend(["v.status='draft'", "c.owner_id<>?"])
+            clauses.append("""((v.status='draft' AND c.owner_id<>?)
+              OR (v.status='published' AND EXISTS(
+                SELECT 1 FROM learning_submissions s
+                WHERE s.tenant_id=c.tenant_id AND s.course_id=c.course_id
+                  AND s.status='pending_review')) )""")
             params.append(actor.actor_id)
         where = " AND ".join(clauses)
         with self._connect() as db:
