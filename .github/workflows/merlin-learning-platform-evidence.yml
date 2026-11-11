@@ -73,7 +73,7 @@ jobs:
         run: |
           set +e
           mkdir -p artifacts
-          python -m compileall -q python/merlin/app.py python/merlin/learning_platform.py python/merlin/learner_model.py python/merlin/research_curriculum.py python/merlin/math_foundations_course.py python/merlin/math_logic_discrete_course.py python/merlin/math_algebra_functions_course.py python/merlin/math_algebra_functions_course.py 2>&1 | tee artifacts/compile.log
+          python -m compileall -q python/merlin/app.py python/merlin/learning_platform.py python/merlin/learner_model.py python/merlin/research_curriculum.py python/merlin/math_foundations_course.py python/merlin/math_logic_discrete_course.py python/merlin/math_algebra_functions_course.py 2>&1 | tee artifacts/compile.log
           rc=${PIPESTATUS[0]}
           printf '{"suite":"learning-platform-compile","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/compile-result.json
           exit "$rc"
