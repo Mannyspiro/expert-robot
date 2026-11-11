@@ -64,6 +64,12 @@ jobs:
           printf '{"suite":"learning-platform-compile","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/compile-result.json
           exit "$rc"
 
+      - name: Validate canonical mathematical idea catalog
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/merlin_math_idea_validate.py
+
       - name: Validate Merlin Learning inline JavaScript
         shell: bash
         run: |
