@@ -14,7 +14,7 @@ import os
 from pathlib import Path
 import sqlite3
 from typing import Any
-from urllib.parse import urlparse, urlsplit
+from urllib.parse import parse_qs, urlparse, urlsplit
 from urllib.request import Request, urlopen
 from urllib.error import URLError, HTTPError
 from time import perf_counter
@@ -131,6 +131,7 @@ CAPABILITIES = [
     {"id": "council.deliberation.prepare", "status": "AVAILABLE", "evidence": "role-specific prompt packets and auditable self-map contract"},
     {"id": "council.deliberation.run_local", "status": "QUALIFICATION_GATED", "evidence": "six bounded concurrent local model openings with per-seat failure isolation; optional cross-examination"},
     {"id": "research.ideonomy.rank", "status": "AVAILABLE", "evidence": "unit-tested deterministic candidate ranking"},
+    {"id": "learning.math.lesson_progress", "status": "AVAILABLE", "evidence": "canonical path-specific lessons with server-owned SQLite sequential progress; progress is not mastery evidence"},
     {"id": "research.analogy.validate", "status": "AVAILABLE", "evidence": "unit-tested invariant and boundary checks"},
     {"id": "research.rsi.qualify", "status": "AVAILABLE", "evidence": "fail-closed qualification contract"},
     {"id": "engineering.geometry.validate", "status": "AVAILABLE", "evidence": "unit-tested structural mesh checks"},
@@ -287,7 +288,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None):
                     return
                 self._send_bytes(200, hud_path.read_bytes(), "text/html; charset=utf-8")
             elif path == "/api/math/lesson":
-                query = __import__("urllib.parse", fromlist=["parse_qs"]).parse_qs(parsed.query)
+                query = parse_qs(parsed.query)
                 lesson_path = query.get("path", ["mathematician"])[0]
                 self._send(200, math_learning.snapshot(lesson_path))
             elif path == "/api/sim/state":
