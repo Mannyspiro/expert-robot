@@ -2190,7 +2190,7 @@
         "Construct an epsilon-delta argument for a simple function."
       ],
       "learning": {
-        "lesson_id": null,
+        "lesson_id": "math-limits-continuity-v1",
         "dimensions": [
           "conceptual_explanation",
           "procedure",
@@ -2237,7 +2237,7 @@
         "Differentiate simple functions and compare with numerical estimates."
       ],
       "learning": {
-        "lesson_id": null,
+        "lesson_id": "math-derivatives-rates-v1",
         "dimensions": [
           "conceptual_explanation",
           "procedure",
@@ -2284,7 +2284,7 @@
         "Connect antiderivatives to the fundamental theorem of calculus."
       ],
       "learning": {
-        "lesson_id": null,
+        "lesson_id": "math-integration-accumulation-v1",
         "dimensions": [
           "conceptual_explanation",
           "procedure",
@@ -2332,7 +2332,7 @@
         "Use Bayes rule on a worked diagnostic example."
       ],
       "learning": {
-        "lesson_id": null,
+        "lesson_id": "math-probability-bayes-v1",
         "dimensions": [
           "conceptual_explanation",
           "procedure",
@@ -2379,7 +2379,7 @@
         "Explain uncertainty and identify confounding in a simple study."
       ],
       "learning": {
-        "lesson_id": null,
+        "lesson_id": "math-statistical-inference-v1",
         "dimensions": [
           "data_reasoning",
           "uncertainty",
