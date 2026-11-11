@@ -8,6 +8,7 @@ from merlin.learning_core import (
     Concept,
     ConceptRegistry,
     DERIVATIVE_DISCOVERY,
+    PARRONDO_DISCOVERY,
     Expr,
     LearnerStore,
     LessonSpec,
@@ -34,6 +35,26 @@ class ConceptRegistryTests(unittest.TestCase):
         from merlin.learning_core import DEFAULT_CONCEPTS
         DEFAULT_CONCEPTS.validate()
         self.assertEqual(DEFAULT_CONCEPTS.get("derivative").prerequisites, ("function", "limit", "slope"))
+
+    def test_parrondo_concepts_are_registered_and_acyclic(self):
+        from merlin.learning_core import DEFAULT_CONCEPTS
+        DEFAULT_CONCEPTS.validate()
+        self.assertEqual(DEFAULT_CONCEPTS.get("long_run_behavior").prerequisites, ("expected_value", "markov_chain"))
+        self.assertIn("conditional_probability", {concept.concept_id for concept in DEFAULT_CONCEPTS.all()})
+
+    def test_parrondo_lesson_is_zero_first_and_shared_across_three_paths(self):
+        PARRONDO_DISCOVERY.validate()
+        self.assertEqual(PARRONDO_DISCOVERY.stages[0].mode, "concrete")
+        symbol_index = next(i for i, stage in enumerate(PARRONDO_DISCOVERY.stages) if stage.introduces_symbols)
+        self.assertIn("visual", {stage.mode for stage in PARRONDO_DISCOVERY.stages[:symbol_index]})
+        self.assertEqual(set(PARRONDO_DISCOVERY.path_tags), {
+            "mathematician", "mathematics_programmer", "computational_hacker"
+        })
+
+    def test_parrondo_lesson_is_selectable_for_all_three_paths(self):
+        for path in ("mathematician", "mathematics_programmer", "computational_hacker"):
+            selected = select_next_lesson("new-" + path, self.store, (PARRONDO_DISCOVERY,), path=path)
+            self.assertEqual(selected.lesson_id, PARRONDO_DISCOVERY.lesson_id)
 
     def test_unknown_prerequisite_fails_closed(self):
         registry = ConceptRegistry((Concept("a", "A", "A", ("missing",)),))
