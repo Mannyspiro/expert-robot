@@ -211,6 +211,7 @@ class SpacedRepetitionTests(unittest.TestCase):
     def test_review_schedule_grows_after_successful_recall(self):
         first = self.srs.review("srs-1", "quantity", 5, now=self.now)
         self.assertEqual(first.card.interval_days, 1)
+        self.assertAlmostEqual(self.store.mastery("srs-1", "quantity")["retention"], 0.35)
         second = self.srs.review("srs-1", "quantity", 5, now=self.now + __import__("datetime").timedelta(days=1))
         self.assertEqual(second.card.interval_days, 6)
         third = self.srs.review("srs-1", "quantity", 5, now=self.now + __import__("datetime").timedelta(days=7))
