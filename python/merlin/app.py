@@ -14,7 +14,7 @@ import os
 from pathlib import Path
 import sqlite3
 from typing import Any
-from urllib.parse import urlparse, urlsplit
+from urllib.parse import parse_qs, urlparse, urlsplit
 from urllib.request import Request, urlopen
 from urllib.error import URLError, HTTPError
 from time import perf_counter
@@ -24,6 +24,8 @@ from .council_runtime import run_local_council
 from .simulation import MerlinSimulation
 from .telemetry import normalize_event, telemetry_view, record_runtime_event
 from .telemetry_graph import build_telemetry_graph
+from .math_learning_api import MathLearningService
+from .rsi import (CaseOutcome, EvalCase, EvaluationEvidence, FailureTrajectory, SkillProcedure, compare_skill_evaluations, induce_skill_candidate)
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
     validate_analogy,
@@ -128,21 +130,70 @@ CAPABILITIES = [
     {"id": "simulation.hud", "status": "AVAILABLE", "evidence": "responsive HUD renders live simulation API data"},
     {"id": "council.roles", "status": "AVAILABLE", "evidence": "deterministic simulated persona registry"},
     {"id": "council.deliberation.prepare", "status": "AVAILABLE", "evidence": "role-specific prompt packets and auditable self-map contract"},
-    {"id": "council.deliberation.run_local", "status": "QUALIFICATION_GATED", "evidence": "six isolated local model openings; optional bounded cross-examination"},
+    {"id": "council.deliberation.run_local", "status": "QUALIFICATION_GATED", "evidence": "six bounded concurrent local model openings with per-seat failure isolation; optional cross-examination"},
     {"id": "research.ideonomy.rank", "status": "AVAILABLE", "evidence": "unit-tested deterministic candidate ranking"},
+    {"id": "learning.math.lesson_progress", "status": "AVAILABLE", "evidence": "canonical path-specific lessons with server-owned SQLite sequential progress; progress is not mastery evidence"},
     {"id": "research.analogy.validate", "status": "AVAILABLE", "evidence": "unit-tested invariant and boundary checks"},
     {"id": "research.rsi.qualify", "status": "AVAILABLE", "evidence": "fail-closed qualification contract"},
+    {"id": "research.rsi.skill_evaluation", "status": "AVAILABLE", "evidence": "same-suite held-out comparison; fixed evaluator and runner; no automatic promotion"},
+    {"id": "research.rsi.skill_induction", "status": "AVAILABLE", "evidence": "declarative skill proposals require repeated same-signature failures and convergent corrective steps"},
     {"id": "engineering.geometry.validate", "status": "AVAILABLE", "evidence": "unit-tested structural mesh checks"},
     {"id": "engineering.geometry.openscad", "status": "AVAILABLE", "evidence": "typed geometry exporter"},
     {"id": "engineering.netlist.validate", "status": "AVAILABLE", "evidence": "unit-tested structural/rating preflight"},
     {"id": "voice.kokoro", "status": "OPTIONAL_LOCAL_SERVICE", "endpoint": "http://127.0.0.1:8880"},
     {"id": "model.remote_openai_compatible", "status": "CONFIGURED_AT_RUNTIME", "transport": "HTTPS + SSE", "credential_source": "MERLIN_REMOTE_API_KEY"},
+    {"id": "model.fabric.routing_contract", "status": "IMPLEMENTED_NOT_CONNECTED", "evidence": "fail-closed task-specific routing contract; live model inventory and qualification receipts not yet connected"},
     {"id": "model.nouscoder", "status": "NOT_QUALIFIED", "endpoint": "http://127.0.0.1:8080/v1"},
     {"id": "agent.hermes", "status": "SOURCE_DOWNLOADED_NOT_CONNECTED", "path": ".tools/hermes-agent"},
     {"id": "media.image", "status": "NOT_CONFIGURED"},
     {"id": "media.video", "status": "NOT_CONFIGURED"},
     {"id": "biology.biochemistry", "status": "NOT_CONFIGURED"},
 ]
+
+
+def _rsi_string_tuple(value: Any, field: str) -> tuple[str, ...]:
+    if not isinstance(value, (list, tuple)) or any(not isinstance(item, str) for item in value):
+        raise ValueError(f"{field} must be an array of strings")
+    return tuple(value)
+
+
+def _rsi_skill(raw: dict[str, Any]) -> SkillProcedure:
+    if not isinstance(raw, dict):
+        raise ValueError("skill procedure must be an object")
+    return SkillProcedure(
+        skill_id=raw.get("skill_id", ""), version=raw.get("version", 0),
+        purpose=raw.get("purpose", ""),
+        trigger_conditions=_rsi_string_tuple(raw.get("trigger_conditions", []), "trigger_conditions"),
+        steps=_rsi_string_tuple(raw.get("steps", []), "steps"),
+        guardrails=_rsi_string_tuple(raw.get("guardrails", []), "guardrails"),
+        source_failure_ids=_rsi_string_tuple(raw.get("source_failure_ids", []), "source_failure_ids"),
+    )
+
+
+def _rsi_trajectory(raw: dict[str, Any]) -> FailureTrajectory:
+    if not isinstance(raw, dict):
+        raise ValueError("failure trajectory must be an object")
+    return FailureTrajectory(
+        failure_id=raw.get("failure_id", ""),
+        failure_signature=raw.get("failure_signature", ""),
+        trigger_condition=raw.get("trigger_condition", ""),
+        corrective_steps=_rsi_string_tuple(raw.get("corrective_steps", []), "corrective_steps"),
+        source_commit_sha=raw.get("source_commit_sha", ""),
+        source_artifact_sha256=raw.get("source_artifact_sha256", ""),
+    )
+
+
+def _rsi_evidence(raw: dict[str, Any]) -> EvaluationEvidence:
+    if not isinstance(raw, dict):
+        raise ValueError("evaluation evidence must be an object")
+    return EvaluationEvidence(
+        skill_sha256=raw.get("skill_sha256", ""),
+        suite_sha256=raw.get("suite_sha256", ""),
+        evaluator_sha256=raw.get("evaluator_sha256", ""),
+        runner_id=raw.get("runner_id", ""),
+        runner_revision=raw.get("runner_revision", ""),
+        outcomes=tuple(CaseOutcome(**item) for item in raw.get("outcomes", [])),
+    )
 
 
 def _idea(row: dict[str, Any]) -> Idea:
@@ -207,6 +258,8 @@ def _netlist(data: dict[str, Any]) -> Netlist:
 
 def make_handler(store: EventStore, hud_runtime: Any | None = None):
     simulation = MerlinSimulation()
+    learner_db = os.environ.get("MERLIN_LEARNER_DB_PATH", str(Path(store.path).with_suffix(".learners.sqlite3")))
+    math_learning = MathLearningService(learner_db, learner_id=os.environ.get("MERLIN_LEARNER_ID", "local-default"))
     # Rebuild simulation state from the durable action ledger on process restart.
     replay_rows = store.by_kind("/api/sim/step")
     replayed = 0
@@ -282,6 +335,13 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None):
                     self._send(404, {"error": "hud_not_found"})
                     return
                 self._send_bytes(200, hud_path.read_bytes(), "text/html; charset=utf-8")
+            elif path == "/api/math/lesson":
+                query = parse_qs(parsed.query)
+                lesson_path = query.get("path", ["mathematician"])[0]
+                try:
+                    self._send(200, math_learning.snapshot(lesson_path))
+                except ValueError as exc:
+                    self._send(400, {"error": "invalid_request", "detail": str(exc)[:300]})
             elif path == "/api/sim/state":
                 self._send(200, simulation.snapshot())
             elif path == "/api/sim/events":
@@ -336,6 +396,10 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None):
                 if not isinstance(data, dict):
                     raise ValueError("request body must be a JSON object")
 
+                if path == "/api/math/lesson/complete":
+                    result = math_learning.complete_stage(data.get("path", "mathematician"), data.get("stage_id"))
+                    self._send(200, result)
+                    return
                 if path == "/api/telemetry/ingest":
                     event = normalize_event(data)
                     store.append(path, {"event_id": event["event_id"], "source": event["source"]},
@@ -387,7 +451,25 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None):
                     if not isinstance(question, str) or not isinstance(context, str):
                         raise ValueError("question and context must be strings")
                     council_started = perf_counter()
-                    result = run_local_council(question, context, verbosity, rounds)
+                    council_run_id = sha256(os.urandom(16)).hexdigest()
+
+                    def record_council_seat(seat_event: dict[str, Any]) -> None:
+                        event = normalize_event({
+                            "source": "model_output", "kind": "model.inference",
+                            "run_id": council_run_id,
+                            "task_id": "council-seat-" + str(seat_event.get("persona_id", "unknown")),
+                            "model_id": os.environ.get("MERLIN_MODEL_NAME", "local-unidentified"),
+                            "duration_ms": seat_event.get("duration_ms"),
+                            "payload": {"component": "council_runtime", **seat_event},
+                        })
+                        store.append("/api/telemetry/ingest",
+                                     {"event_id": event["event_id"], "source": "model_output"},
+                                     {"event": event})
+
+                    result = run_local_council(
+                        question, context, verbosity, rounds,
+                        event_sink=record_council_seat,
+                    )
                     council_duration_ms = (perf_counter() - council_started) * 1000.0
                     transcript_digest = sha256(_json_bytes(result)).hexdigest()
                     result["transcript_sha256"] = transcript_digest
@@ -502,6 +584,33 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None):
                 elif path == "/api/analogy/validate":
                     result = validate_analogy(_analogy(data))
                     summary = {"accepted": result["accepted"], "reasons": len(result["reasons"])}
+                elif path == "/api/rsi/induce":
+                    trajectories = tuple(_rsi_trajectory(row) for row in data.get("trajectories", []))
+                    candidate = induce_skill_candidate(
+                        skill_id=data.get("skill_id", ""),
+                        version=data.get("version", 0),
+                        purpose=data.get("purpose", ""),
+                        trajectories=trajectories,
+                        guardrails=tuple(data.get("guardrails", [])),
+                    )
+                    result = {**candidate.__dict__, "sha256": candidate.sha256,
+                              "status": "PROPOSAL_ONLY", "executable": False}
+                    summary = {"status": "PROPOSAL_ONLY", "skill_sha256": candidate.sha256,
+                               "source_failures": len(candidate.source_failure_ids)}
+                elif path == "/api/rsi/compare":
+                    cases = tuple(EvalCase(**row) for row in data.get("cases", []))
+                    decision = compare_skill_evaluations(
+                        baseline_skill=_rsi_skill(data.get("baseline_skill")),
+                        candidate_skill=_rsi_skill(data.get("candidate_skill")),
+                        cases=cases,
+                        baseline=_rsi_evidence(data.get("baseline_evaluation")),
+                        candidate=_rsi_evidence(data.get("candidate_evaluation")),
+                        max_resource_units=data.get("max_resource_units", 0),
+                    )
+                    result = decision.__dict__
+                    summary = {"status": decision.status, "reason": decision.reason,
+                               "heldout_delta": decision.heldout_delta,
+                               "automatic_promotion": False}
                 elif path == "/api/rsi/qualify":
                     result = qualify_rsi_candidate(PromotionPacket(**data))
                     summary = {"status": result["status"], "failed_gates": result["failed_gates"]}

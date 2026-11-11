@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: ["main", "feat/merlin-lean-proof-optimization-atlas-20261104", "feat/hermes-routing-eval-avrea-discovery-20261105", "repair/cace-bridge-request-isolation-20261105", "repair/merlin-full-integration-20261105", "feat/merlin-universal-research-school-v01-20261105"]
+    branches: ["main", "feat/merlin-lean-proof-optimization-atlas-20261104", "feat/hermes-routing-eval-avrea-discovery-20261105", "repair/cace-bridge-request-isolation-20261105", "repair/merlin-full-integration-20261105", "feat/merlin-universal-research-school-v01-20261105", "feat/merlin-zero-first-math-learning-core-20261111"]
     paths-ignore:
       - "formal/**"
       - ".github/workflows/formal-qualification.yml"
@@ -32,7 +32,7 @@ concurrency:
 
 jobs:
   build-and-smoke:
-    runs-on: avrea-ubuntu-latest-8-vcpu
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -107,6 +107,78 @@ jobs:
           test_exit=${PIPESTATUS[0]}
           printf '{"suite":"merlin-research-curriculum","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$test_exit" > artifacts/merlin-research-curriculum-result.json
           exit "$test_exit"
+
+      - name: Merlin RSI API integration
+        env:
+          PYTHONPATH: python
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tests -p "test_merlin_rsi_api.py" -v
+
+      - name: Merlin RSI skill evolution evaluation
+        env:
+          PYTHONPATH: python
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tests -p "test_merlin_rsi.py" -v
+
+      - name: Merlin learner-facing mathematics progress API
+        env:
+          PYTHONPATH: python
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tests -p "test_merlin_math_learning_api.py" -v
+
+      - name: Merlin zero-first mathematics learning core
+        env:
+          PYTHONPATH: python
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tests -p "test_merlin_learning_core.py" -v
+
+      - name: Merlin combinatorial mathematics Ideonomy
+        env:
+          PYTHONPATH: python
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tests -p "test_merlin_ideonomy.py" -v
+
+      - name: Merlin browser mathematics lab contract
+        env:
+          PYTHONPATH: python
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tests -p "test_merlin_math_hud.py" -v
+
+      - name: Merlin Parrondo paradox lesson
+        env:
+          PYTHONPATH: python
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tests -p "test_merlin_parrondo_lesson.py" -v
+
+      - name: Merlin Parrondo reproducible simulation and learner session
+        env:
+          PYTHONPATH: python
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tests -p "test_merlin_parrondo_simulation.py" -v
+
+      - name: Merlin concurrent council runtime tests
+        env:
+          PYTHONPATH: python
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tests -p "test_council_runtime.py" -v
+
+
+
+      - name: Merlin measured model fabric routing contracts
+        env:
+          PYTHONPATH: python
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tests -p "test_model_fabric.py" -v
 
       - name: Restore C++ compiler cache
         id: ccache-restore

@@ -1,6 +1,7 @@
 import json
 import os
 import unittest
+from threading import Barrier
 from unittest.mock import patch
 
 from python.merlin import council_runtime
@@ -54,6 +55,51 @@ class CouncilRuntimeTests(unittest.TestCase):
         self.assertTrue(all("OTHER COUNCIL OPENING POSITIONS" in call for call in calls[6:]))
         self.assertFalse(result["promotion_authorized"])
         self.assertFalse(result["authority_expansion"])
+
+    def test_opening_seats_execute_concurrently(self):
+        barrier = Barrier(6)
+
+        def fake_urlopen(request, timeout=0):
+            barrier.wait(timeout=2)
+            payload = json.loads(request.data)
+            persona_name = payload["messages"][0]["content"].split('"title": "')[1].split('"')[0]
+            return FakeResponse(persona_name)
+
+        with patch.dict(os.environ, {
+            "MERLIN_MODEL_QUALIFIED": "1",
+            "MERLIN_MODEL_URL": "http://127.0.0.1:8080/v1/chat/completions",
+            "MERLIN_MODEL_NAME": "test-local-model",
+        }, clear=False), patch.object(council_runtime, "urlopen", side_effect=fake_urlopen):
+            result = council_runtime.run_local_council("Test", max_concurrency=6)
+
+        self.assertEqual(len(result["opening_positions"]), 6)
+        self.assertTrue(all(row["status"] == "completed" for row in result["opening_positions"]))
+
+    def test_one_failed_seat_does_not_erase_other_openings(self):
+        def fake_urlopen(request, timeout=0):
+            payload = json.loads(request.data)
+            title = payload["messages"][0]["content"].split('"title": "')[1].split('"')[0]
+            if "Friendly Skeptic" in title:
+                raise OSError("simulated provider failure")
+            return FakeResponse(title)
+
+        events = []
+        with patch.dict(os.environ, {
+            "MERLIN_MODEL_QUALIFIED": "1",
+            "MERLIN_MODEL_URL": "http://127.0.0.1:8080/v1/chat/completions",
+            "MERLIN_MODEL_NAME": "test-local-model",
+        }, clear=False), patch.object(council_runtime, "urlopen", side_effect=fake_urlopen):
+            result = council_runtime.run_local_council("Test", event_sink=events.append)
+
+        self.assertEqual(len(result["opening_positions"]), 6)
+        self.assertEqual(result["failed_seats"], 1)
+        self.assertEqual(sum(row["status"] == "completed" for row in result["opening_positions"]), 5)
+        self.assertTrue(any(event["kind"] == "seat.failed" for event in events))
+
+    def test_concurrency_is_bounded(self):
+        with patch.dict(os.environ, {"MERLIN_MODEL_QUALIFIED": "1"}, clear=False):
+            with self.assertRaises(ValueError):
+                council_runtime.run_local_council("Test", max_concurrency=7)
 
     def test_remote_endpoint_is_rejected(self):
         with patch.dict(os.environ, {
