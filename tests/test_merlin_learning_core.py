@@ -10,6 +10,8 @@ from merlin.learning_core import (
     DERIVATIVE_DISCOVERY,
     Expr,
     LearnerStore,
+    LessonSpec,
+    LessonStage,
     MASTERY_DIMENSIONS,
     central_difference,
     evaluate_expression,
@@ -125,6 +127,56 @@ class LearnerStoreTests(unittest.TestCase):
             "new-learner", self.store, (DERIVATIVE_DISCOVERY,), path="computational_hacker"
         )
         self.assertEqual(selected.lesson_id, DERIVATIVE_DISCOVERY.lesson_id)
+
+    def test_prerequisite_uses_core_learning_dimensions_not_proof_or_retention(self):
+        follow_on = LessonSpec(
+            lesson_id="lesson.after.quantity",
+            title="Next lesson",
+            target_concepts=("change",),
+            prerequisites=("quantity",),
+            stages=(LessonStage("concrete", "concrete", "Explore another everyday example."),),
+        )
+        self.store.record_attempt(
+            Attempt(
+                "learner-3", "intro", "quantity-check",
+                {"conceptual": 0.9, "procedural": 0.9, "representational": 0.9},
+                True,
+            ),
+            ("quantity",),
+        )
+        selected = select_next_lesson("learner-3", self.store, (follow_on,))
+        self.assertEqual(selected.lesson_id, follow_on.lesson_id)
+
+    def test_prerequisite_blocks_when_core_mastery_is_below_threshold(self):
+        follow_on = LessonSpec(
+            lesson_id="lesson.after.quantity",
+            title="Next lesson",
+            target_concepts=("change",),
+            prerequisites=("quantity",),
+            stages=(LessonStage("concrete", "concrete", "Explore another everyday example."),),
+        )
+        selected = select_next_lesson("learner-4", self.store, (follow_on,))
+        self.assertIsNone(selected)
+
+    def test_unknown_prerequisite_concept_is_rejected(self):
+        invalid = LessonSpec(
+            lesson_id="lesson.invalid",
+            title="Invalid",
+            target_concepts=("quantity",),
+            prerequisites=("not-in-registry",),
+            stages=(LessonStage("concrete", "concrete", "Start with an object."),),
+        )
+        with self.assertRaisesRegex(ValueError, "unknown concepts"):
+            select_next_lesson("learner", self.store, (invalid,))
+
+    def test_attempt_history_survives_reopening_database(self):
+        scores = {"conceptual": 0.7}
+        self.store.record_attempt(
+            Attempt("learner-5", "lesson", "task", scores, True), ("quantity",)
+        )
+        reopened = LearnerStore(Path(self.temp.name) / "learner.sqlite")
+        self.assertEqual(reopened.attempt_count("learner-5"), 1)
+        self.assertAlmostEqual(reopened.mastery("learner-5", "quantity")["conceptual"], 0.245)
 
 
 if __name__ == "__main__":
