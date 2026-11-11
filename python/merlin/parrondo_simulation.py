@@ -11,27 +11,7 @@ import math
 import random
 
 from .parrondo_lesson import Game, make_canonical_games
-from .learning_core import LessonSession, LessonSpec, LessonStage
-
-
-PARRONDO_LESSON_SPEC = LessonSpec(
-    lesson_id="math.parrondo.discovery.zero_first.v1",
-    title="Can two losing games make a winning mixture?",
-    target_concepts=("quantity", "state", "probability", "expected_value", "state_transition", "markov_chain"),
-    prerequisites=(),
-    path_tags=("mathematician", "mathematics_programmer", "computational_hacker"),
-    priority=1.0,
-    stages=(
-        LessonStage("notice", "concrete", "Imagine two games that each tend to lose. Could mixing them ever help?"),
-        LessonStage("play_a", "interactive", "Play Game A and observe what happens to your running total."),
-        LessonStage("play_b", "interactive", "Play Game B. Notice that its coin depends on your position modulo three."),
-        LessonStage("mix", "interactive", "Randomly choose A or B each turn. Compare the three experiences."),
-        LessonStage("explain_state", "visual", "Explore how the mixture changes the time spent in each position."),
-        LessonStage("probabilities", "symbol", "Now introduce probabilities and calculate long-run expected gain.", True),
-    ),
-)
-PARRONDO_LESSON_SPEC.validate()
-
+from .learning_core import PARRONDO_DISCOVERY as PARRONDO_LESSON_SPEC
 
 @dataclass(frozen=True)
 class SimulationResult:
