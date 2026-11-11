@@ -4,6 +4,7 @@ import unittest
 
 from merlin.rsi import (
     CaseOutcome, EvalCase, EvaluationEvidence, SkillProcedure,
+    FailureTrajectory, induce_skill_candidate,
     compare_skill_evaluations, suite_digest,
 )
 
@@ -128,6 +129,36 @@ class RSIEvaluationTests(unittest.TestCase):
                 baseline_skill=skill(1), candidate_skill=skill(2), cases=cases(),
                 baseline=baseline, candidate=duplicate, max_resource_units=20,
             )
+
+    def test_induces_candidate_from_repeated_failure_with_convergent_repairs(self):
+        trajectories = (
+            FailureTrajectory("failure-a", "invalid-equality", "invalid algebra equality",
+                              ("locate invalid step", "construct counterexample", "request retry"),
+                              "1" * 40, "a" * 64),
+            FailureTrajectory("failure-b", "invalid-equality", "learner submits invalid equality",
+                              ("locate invalid step", "construct counterexample", "request retry"),
+                              "2" * 40, "b" * 64),
+        )
+        candidate = induce_skill_candidate(
+            skill_id="math.error-triage", version=3,
+            purpose="Repair invalid equality transformations.",
+            trajectories=trajectories,
+            guardrails=("do not award mastery from hints",),
+        )
+        self.assertEqual(candidate.source_failure_ids, ("failure-a", "failure-b"))
+        self.assertEqual(candidate.steps, ("locate invalid step", "construct counterexample", "request retry"))
+
+    def test_skill_induction_rejects_single_or_divergent_failures(self):
+        one = FailureTrajectory("failure-a", "invalid-equality", "invalid algebra equality",
+                                ("locate invalid step",), "1" * 40, "a" * 64)
+        other = FailureTrajectory("failure-b", "different-error", "different issue",
+                                  ("try a different repair",), "2" * 40, "b" * 64)
+        with self.assertRaisesRegex(ValueError, "at least two"):
+            induce_skill_candidate(skill_id="x", version=1, purpose="test",
+                                   trajectories=(one,), guardrails=("stay safe",))
+        with self.assertRaisesRegex(ValueError, "share one normalized signature"):
+            induce_skill_candidate(skill_id="x", version=1, purpose="test",
+                                   trajectories=(one, other), guardrails=("stay safe",))
 
     def test_candidate_must_be_newer_version_of_same_skill(self):
         with self.assertRaisesRegex(ValueError, "newer version"):
