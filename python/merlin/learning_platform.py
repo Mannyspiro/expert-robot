@@ -570,11 +570,11 @@ class LearningPlatform:
             clauses.append("v.status='published'")
         elif actor.role == "reviewer":
             clauses.append("""((v.status='draft' AND c.owner_id<>?)
-              OR (v.status='published' AND EXISTS(
+              OR (v.status='published' AND c.owner_id<>? AND EXISTS(
                 SELECT 1 FROM learning_submissions s
                 WHERE s.tenant_id=c.tenant_id AND s.course_id=c.course_id
                   AND s.status='pending_review')) )""")
-            params.append(actor.actor_id)
+            params.extend([actor.actor_id, actor.actor_id])
         where = " AND ".join(clauses)
         with self._connect() as db:
             rows = db.execute(f"""SELECT c.course_id,c.slug,c.title,c.description,
