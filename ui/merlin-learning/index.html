@@ -328,6 +328,7 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
     if (canViewOwnSubmissions) void loadMySubmissionHistory();
     if (canEdit && !(manifest.objectives || []).length && !(manifest.lessons || []).length) {
       actions.append(actionButton("Apply Math Foundations template", applyMathTemplate, true));
+      actions.append(actionButton("Apply Logic & Discrete Math template", applyMathLogicTemplate));
     }
     if (canEdit) {
       actions.append(actionButton("Publish after review", publish));
@@ -415,6 +416,18 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
       renderCourse();
       notice("Mathematics foundations template applied. Submit this draft for independent review before publication.", "success");
     } catch (error) { notice("Template could not be applied: " + error.message, "error"); }
+  }
+  async function applyMathLogicTemplate() {
+    try {
+      await api("/api/learning/courses/" + encodeURIComponent(current.course_id) +
+        "/templates/math-logic-discrete", "POST", {});
+      current = await api("/api/learning/courses/" + encodeURIComponent(current.course_id));
+      await loadCatalog();
+      renderCourse();
+      notice("Logic and discrete mathematics template applied. Submit this draft for independent review before publication.", "success");
+    } catch (error) {
+      notice("Logic and discrete mathematics template could not be applied: " + error.message, "error");
+    }
   }
   function startLesson(lesson) {
     activeLesson = lesson;
