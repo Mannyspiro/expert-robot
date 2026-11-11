@@ -390,6 +390,14 @@ class LearnerStore:
                     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     PRIMARY KEY (learner_id, concept_id, dimension)
                 );
+                CREATE TABLE IF NOT EXISTS lesson_progress (
+                    learner_id TEXT NOT NULL,
+                    lesson_id TEXT NOT NULL,
+                    stage_index INTEGER NOT NULL CHECK (stage_index >= 0),
+                    completed_stage_ids_json TEXT NOT NULL,
+                    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (learner_id, lesson_id)
+                );
                 """
             )
 
@@ -467,6 +475,49 @@ class LearnerStore:
                         (attempt.learner_id, concept_id, dimension, estimate, count + 1),
                     )
             return attempt_id
+
+    def save_lesson_session(self, learner_id: str, session: LessonSession) -> None:
+        """Persist sequential lesson progress without creating assessment evidence."""
+        if not learner_id:
+            raise ValueError("learner_id is required")
+        # Reconstructing validates the stage index and exact completed prefix.
+        validated = LessonSession(
+            session.lesson, session.stage_index, list(session.completed_stage_ids)
+        )
+        with self._connect() as connection:
+            connection.execute(
+                """INSERT INTO lesson_progress
+                (learner_id, lesson_id, stage_index, completed_stage_ids_json)
+                VALUES (?, ?, ?, ?)
+                ON CONFLICT(learner_id, lesson_id) DO UPDATE SET
+                    stage_index=excluded.stage_index,
+                    completed_stage_ids_json=excluded.completed_stage_ids_json,
+                    updated_at=CURRENT_TIMESTAMP""",
+                (
+                    learner_id, validated.lesson.lesson_id, validated.stage_index,
+                    json.dumps(validated.completed_stage_ids),
+                ),
+            )
+
+    def load_lesson_session(
+        self, learner_id: str, lesson: LessonSpec
+    ) -> LessonSession | None:
+        """Restore a saved session against the caller's current canonical lesson."""
+        if not learner_id:
+            raise ValueError("learner_id is required")
+        lesson.validate()
+        with self._connect() as connection:
+            row = connection.execute(
+                """SELECT stage_index, completed_stage_ids_json
+                FROM lesson_progress WHERE learner_id=? AND lesson_id=?""",
+                (learner_id, lesson.lesson_id),
+            ).fetchone()
+        if row is None:
+            return None
+        completed = json.loads(row["completed_stage_ids_json"])
+        if not isinstance(completed, list) or not all(isinstance(item, str) for item in completed):
+            raise ValueError("stored lesson progress is malformed")
+        return LessonSession(lesson, int(row["stage_index"]), completed)
 
     def mastery(self, learner_id: str, concept_id: str) -> dict[str, float]:
         with self._connect() as connection:
