@@ -79,7 +79,7 @@ def validate(catalog: dict[str, Any], plan: dict[str, Any]) -> list[str]:
                 assigned[pathway_id].add(idea_id)
 
     expected_assignments = {
-        idea_id: sorted(pathway_id for pathway_id, ids in assigned.items() if idea_id in ids)
+        idea_id: [pathway_id for pathway_id, ids in assigned.items() if idea_id in ids]
         for idea_id in idea_by_id
     }
     if set(expected_assignments) != set(idea_by_id):
@@ -151,7 +151,8 @@ def main() -> int:
         for error in errors:
             print("ERROR:", error)
         return 1
-    print("Merlin math pathways valid: 41 canonical ideas mapped across 3 pathways.")
+    catalog = _read(CATALOG_PATH)
+    print(f"Merlin math pathways valid: {len(catalog['ideas'])} canonical ideas mapped across 3 pathways.")
     return 0
 
 
