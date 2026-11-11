@@ -89,7 +89,7 @@ def validate(catalog: dict[str, Any], backlog: dict[str, Any]) -> list[str]:
                 errors.append(f"{idea_id}: refuted idea must remain audit_only")
             if "never present" not in blueprint.get("epistemic_guardrail", ""):
                 errors.append(f"{idea_id}: refutation guardrail missing")
-        if idea.get("kind") in {"open_question", "conjecture"} or idea.get("status") == "unresolved":
+        if idea.get("status") != "refuted" and (idea.get("kind") in {"open_question", "conjecture"} or idea.get("status") == "unresolved"):
             if blueprint.get("delivery_state") != "research_laboratory":
                 errors.append(f"{idea_id}: open or unresolved idea must remain research_laboratory")
         stages = blueprint.get("stages")
