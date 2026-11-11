@@ -432,8 +432,14 @@ class LearningPlatform:
                 "dimensions": dimensions,
             }
         lessons = [{
-            "lesson_id": lesson["id"], "idea_id": lesson["objective_id"],
+            "lesson_id": lesson["id"],
+            "idea_id": lesson["objective_id"],
             "curriculum_id": course_id,
+            "pathways": lesson.get("pathways", []),
+            "interest_tags": lesson.get("interest_tags", []),
+            "estimated_minutes": lesson.get("estimated_minutes", 20),
+            "learning_value": lesson.get("learning_value", 0.5),
+            "transfer_value": lesson.get("transfer_value", 0.5),
         } for lesson in manifest["lessons"]]
         profile = learner_store.get_profile(actor.actor_id)
         recommendation = select_next_lesson(
