@@ -18,6 +18,10 @@ from typing import Any, Mapping
 from .learner_model import LearnerStore, select_next_lesson, learner_subject_id
 
 SCHEMA = "merlin-learning-platform/1"
+REVIEWER_CALIBRATION_VERSION = "merlin-assessment-review-v1"
+REVIEWER_CALIBRATION_MIN_CASES = 10
+REVIEWER_CALIBRATION_MIN_AGREEMENT = 0.90
+REVIEWER_CALIBRATION_VALIDITY_SECONDS = 90 * 24 * 60 * 60
 SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]{1,62}$")
 ROLES = {"tenant_admin", "instructor", "learner", "reviewer"}
 
@@ -104,6 +108,14 @@ class LearningPlatform:
               feedback TEXT NOT NULL, rubric_json TEXT NOT NULL, created_at REAL NOT NULL,
               FOREIGN KEY(tenant_id,submission_id)
                 REFERENCES learning_submissions(tenant_id,submission_id));
+            CREATE TABLE IF NOT EXISTS learning_reviewer_calibrations(
+              calibration_id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, reviewer_id TEXT NOT NULL,
+              calibration_version TEXT NOT NULL, calibration_sha256 TEXT NOT NULL,
+              case_count INTEGER NOT NULL, agreement_score REAL NOT NULL,
+              status TEXT NOT NULL CHECK(status IN ('qualified','not_qualified')),
+              qualified_by TEXT NOT NULL, created_at REAL NOT NULL, expires_at REAL NOT NULL);
+            CREATE INDEX IF NOT EXISTS learning_reviewer_calibration_latest
+              ON learning_reviewer_calibrations(tenant_id,reviewer_id,created_at);
             CREATE TABLE IF NOT EXISTS learning_audit(
               event_id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, actor_id TEXT NOT NULL,
               action TEXT NOT NULL, target_id TEXT NOT NULL, payload_sha256 TEXT NOT NULL,
@@ -135,6 +147,77 @@ class LearningPlatform:
         db.execute("INSERT INTO learning_audit VALUES(?,?,?,?,?,?,?)",
                    (event_id, actor.tenant_id, actor.actor_id, action, target_id,
                     _digest(payload), time.time()))
+
+    def _require_reviewer_calibration(self, db: sqlite3.Connection, actor: Actor) -> dict[str, Any]:
+        row = db.execute(
+            """SELECT calibration_version,calibration_sha256,case_count,agreement_score,
+                      status,qualified_by,created_at,expires_at
+               FROM learning_reviewer_calibrations
+               WHERE tenant_id=? AND reviewer_id=?
+               ORDER BY created_at DESC,calibration_id DESC LIMIT 1""",
+            (actor.tenant_id, actor.actor_id),
+        ).fetchone()
+        if (
+            row is None
+            or row["status"] != "qualified"
+            or row["calibration_version"] != REVIEWER_CALIBRATION_VERSION
+            or float(row["expires_at"]) <= time.time()
+        ):
+            raise LearningPermissionError("reviewer requires a current tenant-attested calibration")
+        return dict(row)
+
+    def record_reviewer_calibration(
+        self,
+        actor: Actor,
+        reviewer_id: str,
+        calibration_sha256: str,
+        case_count: int,
+        agreement_score: float,
+        calibration_version: str = REVIEWER_CALIBRATION_VERSION,
+    ) -> dict[str, Any]:
+        """Append a tenant-admin-attested calibration receipt; never self-certify."""
+        self._authorize(actor, {"tenant_admin"})
+        reviewer_id = _required(reviewer_id, "reviewer_id", 120)
+        if reviewer_id == actor.actor_id:
+            raise LearningPermissionError("tenant admins cannot certify themselves as reviewers")
+        if calibration_version != REVIEWER_CALIBRATION_VERSION:
+            raise ValueError("unsupported reviewer calibration version")
+        if not isinstance(calibration_sha256, str) or not re.fullmatch(r"[0-9a-f]{64}", calibration_sha256):
+            raise ValueError("calibration_sha256 must be a lowercase SHA-256 digest")
+        if isinstance(case_count, bool) or not isinstance(case_count, int) or case_count < REVIEWER_CALIBRATION_MIN_CASES:
+            raise ValueError(f"calibration requires at least {REVIEWER_CALIBRATION_MIN_CASES} scored cases")
+        if isinstance(agreement_score, bool) or not isinstance(agreement_score, (int, float)):
+            raise ValueError("agreement_score must be a finite number from 0 to 1")
+        score = float(agreement_score)
+        if not (0.0 <= score <= 1.0) or score != score or score in (float("inf"), float("-inf")):
+            raise ValueError("agreement_score must be a finite number from 0 to 1")
+        status = "qualified" if score >= REVIEWER_CALIBRATION_MIN_AGREEMENT else "not_qualified"
+        calibration_id = sha256(
+            f"{actor.tenant_id}:{reviewer_id}:{calibration_version}:{calibration_sha256}:{time.time_ns()}".encode()
+        ).hexdigest()
+        now = time.time()
+        expires = now + REVIEWER_CALIBRATION_VALIDITY_SECONDS
+        with self._connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            db.execute(
+                """INSERT INTO learning_reviewer_calibrations
+                   VALUES(?,?,?,?,?,?,?,?,?,?,?)""",
+                (calibration_id, actor.tenant_id, reviewer_id, calibration_version,
+                 calibration_sha256, case_count, score, status, actor.actor_id, now, expires),
+            )
+            self._audit(
+                db, actor, "reviewer.calibration.recorded", reviewer_id,
+                {"calibration_id": calibration_id, "calibration_version": calibration_version,
+                 "calibration_sha256": calibration_sha256, "case_count": case_count,
+                 "agreement_score": score, "status": status, "expires_at": expires},
+            )
+        return {
+            "calibration_id": calibration_id, "reviewer_id": reviewer_id,
+            "calibration_version": calibration_version, "calibration_sha256": calibration_sha256,
+            "case_count": case_count, "agreement_score": score, "status": status,
+            "qualified_by": actor.actor_id, "created_at": now, "expires_at": expires,
+            "qualification_authority": "tenant_admin_attestation",
+        }
 
     @staticmethod
     def _empty_manifest(title: str, description: str) -> dict[str, Any]:
@@ -468,6 +551,8 @@ class LearningPlatform:
     def list_submissions(self, actor: Actor, course_id: str) -> dict[str, Any]:
         self._authorize(actor, {"reviewer", "tenant_admin", "instructor"})
         with self._connect() as db:
+            if actor.role == "reviewer":
+                self._require_reviewer_calibration(db, actor)
             course = db.execute("""SELECT owner_id,current_version FROM learning_courses
               WHERE tenant_id=? AND course_id=?""",
               (actor.tenant_id, course_id)).fetchone()
@@ -562,6 +647,7 @@ class LearningPlatform:
             clean_scores[dimension] = score
         with self._connect() as db:
             db.execute("BEGIN IMMEDIATE")
+            self._require_reviewer_calibration(db, actor)
             row = db.execute("""SELECT s.*,c.owner_id,v.manifest_json
               FROM learning_submissions s JOIN learning_courses c
                 ON c.tenant_id=s.tenant_id AND c.course_id=s.course_id
