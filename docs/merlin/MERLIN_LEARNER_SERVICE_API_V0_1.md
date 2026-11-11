@@ -86,3 +86,8 @@ Both routes require the authenticated actor to have the `learner` role. The API 
 Supported pathways are `mathematician`, `mathematics_programmer`, and `computational_hacker`. Pathway weights are validated and normalized. Interest tags are normalized to lowercase underscore form. Pace presets map to bounded study windows (gentle: 20 minutes, standard: 35, intensive: 60, adaptive: no fixed cap).
 
 Course and Hermes recommendations now use the persisted pathway weights, interests, and time budget in addition to the existing mastery/prerequisite evidence. Preference matching changes ranking only; it cannot change mastery estimates, lesson completion, or proof status. Score components and blocked-task reasons are returned for inspection.
+
+
+The Merlin Learning web workspace exposes these controls without storing bearer tokens in browser storage: learners can adjust the three pathway weights, interest tags, and pace; instructors can apply the built-in mathematics foundations template only to an empty draft. Applying the template does not publish it.
+
+The legacy `GET /api/learning/learner` and `GET /api/learning/recommendation` routes are also identity-scoped. They derive the learner ID from the trusted actor resolver; a supplied `learner_id` must match that actor or the request is rejected. These routes now use the same stored preferences as the course recommendation route.
