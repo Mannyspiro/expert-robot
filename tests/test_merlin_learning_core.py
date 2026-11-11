@@ -273,7 +273,7 @@ class ParrondoStrategyTests(unittest.TestCase):
             experiment.assign("learner", "concept", i).strategy for i in range(6)
         ]
         self.assertEqual(len(set(assignments)), 6)
-        self.assertEqual(assignments[0], assignments[1 + len(assignments) - 1 - 5])
+        self.assertEqual(experiment.assign("learner", "concept", 6).strategy, assignments[0])
 
     def test_single_strategy_control_is_stable(self):
         from merlin.learning_core import ParrondoLearningExperiment
