@@ -136,6 +136,7 @@ CAPABILITIES = [
     {"id": "research.analogy.validate", "status": "AVAILABLE", "evidence": "unit-tested invariant and boundary checks"},
     {"id": "research.rsi.qualify", "status": "AVAILABLE", "evidence": "fail-closed qualification contract"},
     {"id": "research.rsi.skill_evaluation", "status": "AVAILABLE", "evidence": "same-suite held-out comparison; fixed evaluator and runner; no automatic promotion"},
+    {"id": "research.rsi.skill_induction", "status": "AVAILABLE", "evidence": "declarative skill proposals require repeated same-signature failures and convergent corrective steps"},
     {"id": "engineering.geometry.validate", "status": "AVAILABLE", "evidence": "unit-tested structural mesh checks"},
     {"id": "engineering.geometry.openscad", "status": "AVAILABLE", "evidence": "typed geometry exporter"},
     {"id": "engineering.netlist.validate", "status": "AVAILABLE", "evidence": "unit-tested structural/rating preflight"},
@@ -159,6 +160,19 @@ def _rsi_skill(raw: dict[str, Any]) -> SkillProcedure:
         trigger_conditions=tuple(raw.get("trigger_conditions", [])),
         steps=tuple(raw.get("steps", [])), guardrails=tuple(raw.get("guardrails", [])),
         source_failure_ids=tuple(raw.get("source_failure_ids", [])),
+    )
+
+
+def _rsi_trajectory(raw: dict[str, Any]) -> FailureTrajectory:
+    if not isinstance(raw, dict):
+        raise ValueError("failure trajectory must be an object")
+    return FailureTrajectory(
+        failure_id=raw.get("failure_id", ""),
+        failure_signature=raw.get("failure_signature", ""),
+        trigger_condition=raw.get("trigger_condition", ""),
+        corrective_steps=tuple(raw.get("corrective_steps", [])),
+        source_commit_sha=raw.get("source_commit_sha", ""),
+        source_artifact_sha256=raw.get("source_artifact_sha256", ""),
     )
 
 
@@ -564,14 +578,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None):
                     result = validate_analogy(_analogy(data))
                     summary = {"accepted": result["accepted"], "reasons": len(result["reasons"])}
                 elif path == "/api/rsi/induce":
-                    trajectories = tuple(FailureTrajectory(
-                        failure_id=row.get("failure_id", ""),
-                        failure_signature=row.get("failure_signature", ""),
-                        trigger_condition=row.get("trigger_condition", ""),
-                        corrective_steps=tuple(row.get("corrective_steps", [])),
-                        source_commit_sha=row.get("source_commit_sha", ""),
-                        source_artifact_sha256=row.get("source_artifact_sha256", ""),
-                    ) for row in data.get("trajectories", []))
+                    trajectories = tuple(_rsi_trajectory(row) for row in data.get("trajectories", []))
                     candidate = induce_skill_candidate(
                         skill_id=data.get("skill_id", ""),
                         version=data.get("version", 0),
