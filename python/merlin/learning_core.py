@@ -605,6 +605,21 @@ class SpacedRepetition:
             float(r["ease_factor"]), r["last_quality"],
         ) for r in rows)
 
+    def defer(self, learner_id: str, concept_id: str, days: int, *, now: datetime | None = None) -> ReviewCard:
+        if isinstance(days, bool) or not isinstance(days, int) or days < 1:
+            raise ValueError("deferral must be a positive whole number of days")
+        current = now or datetime.now(timezone.utc)
+        if current.tzinfo is None:
+            raise ValueError("now must be timezone-aware")
+        self.ensure_card(learner_id, concept_id, now=current)
+        due = (current.astimezone(timezone.utc) + timedelta(days=days)).isoformat()
+        with self.store._connect() as connection:
+            connection.execute(
+                "UPDATE review_cards SET due_at=?, updated_at=CURRENT_TIMESTAMP WHERE learner_id=? AND concept_id=?",
+                (due, learner_id, concept_id),
+            )
+        return self.get_card(learner_id, concept_id)
+
     def review(
         self, learner_id: str, concept_id: str, quality: int,
         *, now: datetime | None = None,
