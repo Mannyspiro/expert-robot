@@ -107,6 +107,7 @@ def validate_math_logic_discrete_manifest(
         "computational-hacker": "computational_hacker",
     }
     covered = set()
+    covered_by_pathway = {}
     module_pathways = set()
     for module in manifest["modules"]:
         module_id = module.get("id")
@@ -121,7 +122,9 @@ def validate_math_logic_discrete_manifest(
             if pathway not in lesson_by_id[lesson_id].get("pathways", []):
                 raise ValueError(f"{module_id}: lesson {lesson_id} is not assigned to its pathway")
         covered.update(refs)
-    if set(pathway_modules) != module_pathways or covered != lesson_ids:
+        covered_by_pathway[pathway] = set(refs)
+    if (set(pathway_modules) != module_pathways or covered != lesson_ids
+            or any(covered_by_pathway.get(pathway, set()) != lesson_ids for pathway in PATHWAYS)):
         raise ValueError("all three pathways must cover every lesson")
     assessment_ids = set()
     for assessment in manifest["assessments"]:
