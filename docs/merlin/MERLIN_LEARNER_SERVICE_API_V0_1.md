@@ -25,6 +25,20 @@ Returns per-idea, per-dimension estimates, uncertainty, observation counts, inde
 
 Returns a lesson recommendation and reason trace: prerequisite readiness, target-skill estimates, uncertainty and recommendation-only authority. Optional curriculum_id scopes selection to mathematics or b2b-ml-agentic-ai.
 
+### Course templates
+
+Instructor/admin template endpoints return versioned manifests; they do not publish a course:
+- `GET /api/learning/templates/math-foundations`
+- `GET /api/learning/templates/math-logic-discrete`
+- `GET /api/learning/templates/math-algebra-functions`
+
+Apply a selected template to a draft course:
+- `PUT /api/learning/courses/{course_id}/templates/math-foundations`
+- `PUT /api/learning/courses/{course_id}/templates/math-logic-discrete`
+- `PUT /api/learning/courses/{course_id}/templates/math-algebra-functions`
+
+All three curricula use the same canonical idea catalog and the three shared learner pathways. Cross-course prerequisite IDs are represented explicitly by the idea graph; the course-local manifest validator still requires its own objective graph to be internally coherent. Template application creates or updates a draft only. Independent human review and explicit publication remain separate steps.
+
 ## Evidence model
 
 A uniform Beta(1,1) prior is combined with server-scored rubric results as fractional evidence. This is a transparent baseline estimator, not a validated cognitive diagnosis or calibrated psychometric model. A skill is unobserved until evidence exists. Provisional mastery requires multiple observations across at least two sessions and a minimum posterior mean. Retention additionally requires delayed and transfer evidence.
