@@ -1,0 +1,927 @@
+{
+  "schema": "merlin-learning-platform/1",
+  "title": "Mathematics Foundations: Discover, Prove, Compute",
+  "description": "A first-principles mathematics course with connected mathematician, mathematics programmer, and computational hacker pathways. Learners move from concrete examples to representations, conjectures, code, counterexamples, and proof.",
+  "modules": [
+    {
+      "id": "mathematician",
+      "title": "Mathematician pathway",
+      "description": "Conjecture, counterexample, proof, generalization.",
+      "lesson_ids": [
+        "math-foundations-counting-v1",
+        "math-foundations-divisibility-v1",
+        "math-foundations-primes-v1",
+        "math-foundations-euclid-proof-v1",
+        "math-foundations-counterexample-v1"
+      ]
+    },
+    {
+      "id": "mathematics-programmer",
+      "title": "Mathematics programmer pathway",
+      "description": "Represent ideas as algorithms, tests, and reproducible computation.",
+      "lesson_ids": [
+        "math-foundations-counting-v1",
+        "math-foundations-variables-v1",
+        "math-foundations-divisibility-v1",
+        "math-foundations-primes-v1",
+        "math-foundations-loops-v1",
+        "math-foundations-counterexample-v1"
+      ]
+    },
+    {
+      "id": "computational-hacker",
+      "title": "Computational hacker pathway",
+      "description": "Decompose a problem, build a minimal implementation, debug, test, and explain.",
+      "lesson_ids": [
+        "math-foundations-counting-v1",
+        "math-foundations-variables-v1",
+        "math-foundations-primes-v1",
+        "math-foundations-loops-v1",
+        "math-foundations-counterexample-v1"
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "MATH-NT-001",
+      "title": "Whole-number structure and additive patterns",
+      "description": "Recognize order, parity, and additive sequences; state the domain of a general pattern.",
+      "prerequisites": [],
+      "dimensions": [
+        "recognition",
+        "conceptual_explanation",
+        "representation_translation",
+        "transfer"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "patterns",
+        "puzzles"
+      ]
+    },
+    {
+      "id": "MATH-ALG-002",
+      "title": "Variables and algebraic expressions",
+      "description": "Represent changing quantities and relationships with variables and expressions.",
+      "prerequisites": [
+        "MATH-NT-001"
+      ],
+      "dimensions": [
+        "conceptual_explanation",
+        "representation_translation",
+        "procedure",
+        "transfer"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "modeling",
+        "real_world"
+      ]
+    },
+    {
+      "id": "MATH-NT-002",
+      "title": "Divisibility and factor pairs",
+      "description": "Use exact grouping and factor pairs to reason about divisibility.",
+      "prerequisites": [
+        "MATH-NT-001"
+      ],
+      "dimensions": [
+        "conceptual_explanation",
+        "procedure",
+        "representation_translation"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer"
+      ],
+      "interest_tags": [
+        "number_theory",
+        "tables"
+      ]
+    },
+    {
+      "id": "MATH-NT-003",
+      "title": "Prime numbers and primality",
+      "description": "Classify prime numbers, form conjectures, and implement bounded primality checks.",
+      "prerequisites": [
+        "MATH-NT-002"
+      ],
+      "dimensions": [
+        "recognition",
+        "conceptual_explanation",
+        "procedure",
+        "algorithm_design",
+        "transfer"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer"
+      ],
+      "interest_tags": [
+        "number_theory",
+        "python",
+        "patterns"
+      ]
+    },
+    {
+      "id": "MATH-COMP-001",
+      "title": "Algorithmic loops and repeated computation",
+      "description": "Model repeated operations with state, update rules, and termination conditions.",
+      "prerequisites": [
+        "MATH-ALG-002"
+      ],
+      "dimensions": [
+        "procedure",
+        "algorithm_design",
+        "reproducibility",
+        "transfer"
+      ],
+      "pathways": [
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "python",
+        "programming"
+      ]
+    },
+    {
+      "id": "MATH-LOG-001",
+      "title": "Euclid's proof of the infinitude of primes",
+      "description": "Construct a proof by contradiction using a finite list and a product-plus-one argument.",
+      "prerequisites": [
+        "MATH-NT-003"
+      ],
+      "dimensions": [
+        "conceptual_explanation",
+        "proof_justification",
+        "transfer"
+      ],
+      "pathways": [
+        "mathematician"
+      ],
+      "interest_tags": [
+        "number_theory",
+        "history",
+        "proof"
+      ]
+    },
+    {
+      "id": "MATH-EXP-002",
+      "title": "Finite experiments and counterexamples",
+      "description": "Use bounded computation to discover patterns and refute universal conjectures without mistaking finite tests for proof.",
+      "prerequisites": [
+        "MATH-COMP-001"
+      ],
+      "dimensions": [
+        "algorithm_design",
+        "procedure",
+        "uncertainty",
+        "transfer"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "python",
+        "puzzles",
+        "experiments"
+      ]
+    }
+  ],
+  "lessons": [
+    {
+      "id": "math-foundations-counting-v1",
+      "title": "Discover counting patterns",
+      "objective_id": "MATH-NT-001",
+      "body": "Begin with concrete groups and growing arrangements. Compare 1, 3, 5, 7, 9; notice the constant difference before writing a general rule.",
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Arrange objects in a row, then add one more pair. What changes?"
+        },
+        {
+          "mode": "observation",
+          "prompt": "Compare 1, 3, 5, 7, and 9. Describe the change from one term to the next."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Draw the growing groups and identify what remains unchanged."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain why each new odd number is two more than the previous one."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "Only after explaining the pattern, state the nth odd number as 2n − 1."
+        }
+      ],
+      "exercise": {
+        "task_id": "discover-counting-patterns",
+        "objective": "Recognize additive structure and express a pattern in general form.",
+        "prompt": "Find the 10th term of 1, 3, 5, 7, 9, ... State a rule for the nth odd number and verify it at three positions.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Compare consecutive terms.",
+          "The difference is constant.",
+          "Start at 1 and add 2 for every step after the first."
+        ],
+        "rubric": [
+          {
+            "dimension": "pattern",
+            "description": "Identifies the constant difference of two.",
+            "points": 2
+          },
+          {
+            "dimension": "general_rule",
+            "description": "States a correct nth-term rule.",
+            "points": 3
+          },
+          {
+            "dimension": "verification",
+            "description": "Checks at least three positions.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Start at 4 and add 3 each time. Give the nth-term rule and compare it with the odd-number rule.",
+        "allowed_tools": [
+          "paper",
+          "calculator"
+        ]
+      },
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "patterns",
+        "puzzles"
+      ],
+      "estimated_minutes": 20,
+      "learning_value": 0.9,
+      "transfer_value": 0.8
+    },
+    {
+      "id": "math-foundations-variables-v1",
+      "title": "Model a changing quantity",
+      "objective_id": "MATH-ALG-002",
+      "body": "A jar begins with four coins and receives three more coins each minute. Build a table and describe the relationship before using a variable.",
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Imagine a jar receiving one or more coins at a constant rate."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record the amount after zero, one, two, three, and four minutes."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Plot elapsed time against the number of coins."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the starting amount and the repeated increase."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "Represent the relationship as 4 + 3m, defining m."
+        }
+      ],
+      "exercise": {
+        "task_id": "introduce-variables",
+        "objective": "Interpret a variable as a name for a changing or unknown quantity.",
+        "prompt": "A jar starts with 4 coins and receives 3 more coins each minute. Make a table for the first five minutes and write a rule for the number of coins after m minutes.",
+        "answer_format": "table_and_explanation",
+        "hints": [
+          "Separate the starting amount from the repeated increase.",
+          "The amount added is the same each minute.",
+          "A letter can stand for any allowed number of minutes."
+        ],
+        "rubric": [
+          {
+            "dimension": "table",
+            "description": "Builds an accurate table.",
+            "points": 2
+          },
+          {
+            "dimension": "interpretation",
+            "description": "Explains the starting amount and repeated increase.",
+            "points": 2
+          },
+          {
+            "dimension": "expression",
+            "description": "Writes and interprets 4 + 3m.",
+            "points": 3
+          }
+        ],
+        "transfer_prompt": "Change the jar so it starts with 7 coins and receives 2 coins per minute. Write and explain the new rule.",
+        "allowed_tools": [
+          "paper",
+          "calculator"
+        ]
+      },
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "modeling",
+        "real_world"
+      ],
+      "estimated_minutes": 20,
+      "learning_value": 0.8,
+      "transfer_value": 0.8
+    },
+    {
+      "id": "math-foundations-divisibility-v1",
+      "title": "Build a factor table",
+      "objective_id": "MATH-NT-002",
+      "body": "Arrange 12 counters into equal groups. Compare with 13 and 18, then use factor pairs to describe exact divisibility.",
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Arrange 12 counters into equal rows without leftovers."
+        },
+        {
+          "mode": "observation",
+          "prompt": "List row and column counts that use all 12 counters."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Repeat for 13 and 18 and compare the available arrangements."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain what it means for one number to divide another exactly."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "Use factor-pair notation only after explaining the equal-group idea."
+        }
+      ],
+      "exercise": {
+        "task_id": "build-factor-table",
+        "objective": "Use divisibility and factor pairs to classify whole numbers.",
+        "prompt": "For each integer from 1 through 30, list all positive factor pairs. Classify each number greater than 1 as prime or composite, and explain why 1 is neither.",
+        "answer_format": "table_and_explanation",
+        "hints": [
+          "A factor pair multiplies to the target number.",
+          "Test possible divisors up to the square root; pairs then repeat in reverse.",
+          "A prime has exactly two positive factors."
+        ],
+        "rubric": [
+          {
+            "dimension": "factor_pairs",
+            "description": "Lists correct factor pairs.",
+            "points": 4
+          },
+          {
+            "dimension": "classification",
+            "description": "Correctly classifies primes and composites.",
+            "points": 3
+          },
+          {
+            "dimension": "definition",
+            "description": "Explains why 1 is neither prime nor composite.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Choose a composite number between 31 and 50, list all factor pairs, and justify that the list is complete.",
+        "allowed_tools": [
+          "paper",
+          "calculator"
+        ]
+      },
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer"
+      ],
+      "interest_tags": [
+        "number_theory",
+        "tables"
+      ],
+      "estimated_minutes": 25,
+      "learning_value": 0.8,
+      "transfer_value": 0.7
+    },
+    {
+      "id": "math-foundations-primes-v1",
+      "title": "Discover and test prime numbers",
+      "objective_id": "MATH-NT-003",
+      "body": "Explore prime numbers from factor pairs. Choose a mathematician activity (conjecture about remainders) or a programmer activity (implement a bounded prime checker), then compare what each kind of evidence establishes.",
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Sort small-number cards into prime and composite groups using factor pairs."
+        },
+        {
+          "mode": "observation",
+          "prompt": "List primes greater than 3 and below 50. Look for a repeated pattern."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Place each prime on a remainder wheel for division by 6."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain why a prime greater than 3 cannot be divisible by 2 or 3."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the necessary form 6k − 1 or 6k + 1; explain why it is not sufficient."
+        },
+        {
+          "mode": "code",
+          "prompt": "For the programmer path, implement and test a divisor search bounded by the square root."
+        }
+      ],
+      "exercise": {
+        "task_id": "prime-pathway-exercise",
+        "objective": "Classify primes, form a conjecture, and implement a bounded primality test.",
+        "prompt": "Choose one pathway activity: (A) list primes greater than 3 and below 50, compute remainders mod 6, and explain why finite examples are not a proof; or (B) write Python is_prime(n), handle n < 2, test 0, 1, 2, 9, 17, 49, and justify the square-root bound.",
+        "answer_format": "conjecture_or_python_code",
+        "hints": [
+          "A prime is greater than 1 and has no divisors other than 1 and itself.",
+          "If n has a factor larger than its square root, it has a paired factor below it.",
+          "For primes greater than 3, divisibility by 2 or 3 is impossible."
+        ],
+        "rubric": [
+          {
+            "dimension": "definition",
+            "description": "Uses the correct definition of prime and composite.",
+            "points": 2
+          },
+          {
+            "dimension": "reasoning",
+            "description": "Explains the remainder condition or square-root factor-pair bound.",
+            "points": 3
+          },
+          {
+            "dimension": "evidence",
+            "description": "Uses accurate examples and states the limits of finite tests.",
+            "points": 3
+          }
+        ],
+        "transfer_prompt": "Find a composite number of the form 6k + 1 and explain why 6k ± 1 is necessary but not sufficient for primes greater than 3.",
+        "allowed_tools": [
+          "paper",
+          "python",
+          "calculator"
+        ]
+      },
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer"
+      ],
+      "interest_tags": [
+        "number_theory",
+        "python",
+        "patterns"
+      ],
+      "estimated_minutes": 30,
+      "learning_value": 0.9,
+      "transfer_value": 0.9
+    },
+    {
+      "id": "math-foundations-loops-v1",
+      "title": "Build multiplication from repeated addition",
+      "objective_id": "MATH-COMP-001",
+      "body": "Use equal groups and a running total to see multiplication as repeated addition, then implement a bounded loop.",
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Make several equal groups of objects and count the total."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Write the same addend repeatedly and compare with the total."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Draw a counter that increases once for each group."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the initial state, repeated update, and stopping condition."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "Name the running total and number of repetitions."
+        },
+        {
+          "mode": "code",
+          "prompt": "Implement repeated addition with a loop, including zero and negative inputs."
+        }
+      ],
+      "exercise": {
+        "task_id": "implement-repeated-addition",
+        "objective": "Represent multiplication as repeated addition and implement it with a loop.",
+        "prompt": "Write multiply_by_addition(a, b) using a loop and repeated addition. Do not use the multiplication operator inside the function. Define behavior for zero and negative inputs and test at least five cases.",
+        "answer_format": "python_code_and_tests",
+        "hints": [
+          "For positive b, add a to a running total b times.",
+          "Start the running total at zero.",
+          "For negative b, count abs(b) repetitions and apply the sign."
+        ],
+        "rubric": [
+          {
+            "dimension": "implementation",
+            "description": "Uses repeated addition and a loop.",
+            "points": 3
+          },
+          {
+            "dimension": "edge_cases",
+            "description": "Handles zero and negative inputs.",
+            "points": 3
+          },
+          {
+            "dimension": "tests",
+            "description": "Includes at least five meaningful tests.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Explain how repeated addition relates to the distributive property and count the additions performed.",
+        "allowed_tools": [
+          "python"
+        ]
+      },
+      "pathways": [
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "python",
+        "programming"
+      ],
+      "estimated_minutes": 20,
+      "learning_value": 0.8,
+      "transfer_value": 0.8
+    },
+    {
+      "id": "math-foundations-euclid-proof-v1",
+      "title": "Prove there are infinitely many primes",
+      "objective_id": "MATH-LOG-001",
+      "body": "Study Euclid's product-plus-one argument. The constructed number need not be prime: if it is composite, one of its prime divisors still lies outside the assumed complete list.",
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Imagine someone claims to have written down every prime number."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Multiply the listed primes and add one. Examine the remainder when any listed prime divides the result."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the product and the extra unit as a remainder argument."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain why no listed prime divides the new number."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "Write N = p₁p₂...pₙ + 1 and derive the contradiction."
+        }
+      ],
+      "exercise": {
+        "task_id": "prove-infinite-primes",
+        "objective": "Construct and explain Euclid's proof that there are infinitely many prime numbers.",
+        "prompt": "Assume there are finitely many primes p₁ through pₙ. Construct N as their product plus one. Explain why no listed prime divides N, and why a prime divisor of N contradicts the complete-list assumption. Do not assume N itself is prime.",
+        "answer_format": "proof",
+        "hints": [
+          "Assume a finite complete list p₁, p₂, ..., pₙ.",
+          "Consider N = p₁p₂...pₙ + 1.",
+          "If N is composite, it still has a prime divisor; none of the listed primes divides it."
+        ],
+        "rubric": [
+          {
+            "dimension": "assumption",
+            "description": "States the finite complete-list assumption.",
+            "points": 2
+          },
+          {
+            "dimension": "construction",
+            "description": "Constructs the product-plus-one number.",
+            "points": 2
+          },
+          {
+            "dimension": "divisibility",
+            "description": "Shows no listed prime divides the new number.",
+            "points": 3
+          },
+          {
+            "dimension": "conclusion",
+            "description": "Uses a prime divisor to derive a contradiction.",
+            "points": 3
+          }
+        ],
+        "transfer_prompt": "Explain why the argument still works when the product-plus-one number is composite.",
+        "allowed_tools": [
+          "paper"
+        ]
+      },
+      "pathways": [
+        "mathematician"
+      ],
+      "interest_tags": [
+        "number_theory",
+        "history",
+        "proof"
+      ],
+      "estimated_minutes": 35,
+      "learning_value": 1,
+      "transfer_value": 1
+    },
+    {
+      "id": "math-foundations-counterexample-v1",
+      "title": "Find a counterexample to a conjecture",
+      "objective_id": "MATH-EXP-002",
+      "body": "Search the Euler polynomial n² + n + 41 in increasing order. The first 40 values are prime, but n = 40 gives 1681 = 41². A single valid counterexample refutes the universal claim.",
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Calculate n² + n + 41 for a few small values of n."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record n, the polynomial value, and whether the value is prime."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Mark the first composite value on a number line or table."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain what a finite search can disprove and what it cannot prove."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the tested domain and the universal claim precisely."
+        },
+        {
+          "mode": "code",
+          "prompt": "Write a bounded search that stops at the first counterexample and records its factorization."
+        }
+      ],
+      "exercise": {
+        "task_id": "search-small-counterexamples",
+        "objective": "Use a finite computational search to find a counterexample and explain its scope.",
+        "prompt": "Investigate the conjecture that n² + n + 41 is prime for every non-negative integer n. Search upward from zero, find the first counterexample, factor it, and state exactly what the finite search establishes.",
+        "answer_format": "python_experiment_and_explanation",
+        "hints": [
+          "Start at n = 0 and increase by one.",
+          "Use the earlier primality checker or a separate divisor search.",
+          "At n = 40, the value is 1681 = 41 × 41."
+        ],
+        "rubric": [
+          {
+            "dimension": "experiment",
+            "description": "Runs a reproducible finite search.",
+            "points": 3
+          },
+          {
+            "dimension": "counterexample",
+            "description": "Finds n = 40 and factors 1681 as 41 × 41.",
+            "points": 3
+          },
+          {
+            "dimension": "interpretation",
+            "description": "Explains the logical scope of the counterexample.",
+            "points": 3
+          }
+        ],
+        "transfer_prompt": "Replace 41 with 43 and search the first 50 non-negative integers. Explain what the result does and does not prove.",
+        "allowed_tools": [
+          "python",
+          "calculator"
+        ]
+      },
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "python",
+        "puzzles",
+        "experiments"
+      ],
+      "estimated_minutes": 30,
+      "learning_value": 0.9,
+      "transfer_value": 1
+    }
+  ],
+  "assessments": [
+    {
+      "id": "assessment-math-nt-001",
+      "title": "Evidence check: Whole-number structure and additive patterns",
+      "objective_id": "MATH-NT-001",
+      "high_stakes": false,
+      "human_review_required": true,
+      "answer_format": "written_explanation",
+      "rubric": [
+        {
+          "dimension": "pattern",
+          "description": "Identifies the constant difference of two.",
+          "points": 2
+        },
+        {
+          "dimension": "general_rule",
+          "description": "States a correct nth-term rule.",
+          "points": 3
+        },
+        {
+          "dimension": "verification",
+          "description": "Checks at least three positions.",
+          "points": 2
+        }
+      ],
+      "transfer_required": true
+    },
+    {
+      "id": "assessment-math-alg-002",
+      "title": "Evidence check: Variables and algebraic expressions",
+      "objective_id": "MATH-ALG-002",
+      "high_stakes": false,
+      "human_review_required": true,
+      "answer_format": "table_and_explanation",
+      "rubric": [
+        {
+          "dimension": "table",
+          "description": "Builds an accurate table.",
+          "points": 2
+        },
+        {
+          "dimension": "interpretation",
+          "description": "Explains the starting amount and repeated increase.",
+          "points": 2
+        },
+        {
+          "dimension": "expression",
+          "description": "Writes and interprets 4 + 3m.",
+          "points": 3
+        }
+      ],
+      "transfer_required": true
+    },
+    {
+      "id": "assessment-math-nt-002",
+      "title": "Evidence check: Divisibility and factor pairs",
+      "objective_id": "MATH-NT-002",
+      "high_stakes": false,
+      "human_review_required": true,
+      "answer_format": "table_and_explanation",
+      "rubric": [
+        {
+          "dimension": "factor_pairs",
+          "description": "Lists correct factor pairs.",
+          "points": 4
+        },
+        {
+          "dimension": "classification",
+          "description": "Correctly classifies primes and composites.",
+          "points": 3
+        },
+        {
+          "dimension": "definition",
+          "description": "Explains why 1 is neither prime nor composite.",
+          "points": 2
+        }
+      ],
+      "transfer_required": true
+    },
+    {
+      "id": "assessment-math-nt-003",
+      "title": "Evidence check: Prime numbers and primality",
+      "objective_id": "MATH-NT-003",
+      "high_stakes": false,
+      "human_review_required": true,
+      "answer_format": "conjecture_or_python_code",
+      "rubric": [
+        {
+          "dimension": "definition",
+          "description": "Uses the correct definition of prime and composite.",
+          "points": 2
+        },
+        {
+          "dimension": "reasoning",
+          "description": "Explains the remainder condition or square-root factor-pair bound.",
+          "points": 3
+        },
+        {
+          "dimension": "evidence",
+          "description": "Uses accurate examples and states the limits of finite tests.",
+          "points": 3
+        }
+      ],
+      "transfer_required": true
+    },
+    {
+      "id": "assessment-math-comp-001",
+      "title": "Evidence check: Algorithmic loops and repeated computation",
+      "objective_id": "MATH-COMP-001",
+      "high_stakes": false,
+      "human_review_required": true,
+      "answer_format": "python_code_and_tests",
+      "rubric": [
+        {
+          "dimension": "implementation",
+          "description": "Uses repeated addition and a loop.",
+          "points": 3
+        },
+        {
+          "dimension": "edge_cases",
+          "description": "Handles zero and negative inputs.",
+          "points": 3
+        },
+        {
+          "dimension": "tests",
+          "description": "Includes at least five meaningful tests.",
+          "points": 2
+        }
+      ],
+      "transfer_required": true
+    },
+    {
+      "id": "assessment-math-log-001",
+      "title": "Evidence check: Euclid's proof of the infinitude of primes",
+      "objective_id": "MATH-LOG-001",
+      "high_stakes": false,
+      "human_review_required": true,
+      "answer_format": "proof",
+      "rubric": [
+        {
+          "dimension": "assumption",
+          "description": "States the finite complete-list assumption.",
+          "points": 2
+        },
+        {
+          "dimension": "construction",
+          "description": "Constructs the product-plus-one number.",
+          "points": 2
+        },
+        {
+          "dimension": "divisibility",
+          "description": "Shows no listed prime divides the new number.",
+          "points": 3
+        },
+        {
+          "dimension": "conclusion",
+          "description": "Uses a prime divisor to derive a contradiction.",
+          "points": 3
+        }
+      ],
+      "transfer_required": true
+    },
+    {
+      "id": "assessment-math-exp-002",
+      "title": "Evidence check: Finite experiments and counterexamples",
+      "objective_id": "MATH-EXP-002",
+      "high_stakes": false,
+      "human_review_required": true,
+      "answer_format": "python_experiment_and_explanation",
+      "rubric": [
+        {
+          "dimension": "experiment",
+          "description": "Runs a reproducible finite search.",
+          "points": 3
+        },
+        {
+          "dimension": "counterexample",
+          "description": "Finds n = 40 and factors 1681 as 41 × 41.",
+          "points": 3
+        },
+        {
+          "dimension": "interpretation",
+          "description": "Explains the logical scope of the counterexample.",
+          "points": 3
+        }
+      ],
+      "transfer_required": true
+    }
+  ],
+  "resources": [],
+  "grading_policy": {
+    "automated_high_stakes": false,
+    "mastery_requires_multiple_demonstrations": true,
+    "transfer_demonstration_required": true,
+    "proof_requires_human_review": true,
+    "code_requires_execution_evidence": true,
+    "ai_only_mastery_promotion": false
+  }
+}
