@@ -12,7 +12,7 @@ Observed implementation facts:
 - `python/merlin/app.py` serves `/hud`, exposes `/api/chat`, `/api/council/prepare`, `/api/council/run`, telemetry and simulation endpoints.
 - The HUD's composer currently calls `/api/council/prepare`; it does not call `/api/chat` or `/api/council/run`.
 - The HUD script starts a synthetic demo loop. The demo is useful as a clearly labelled fallback, but it must never be presented as live runtime telemetry.
-- `run_local_council` makes six independent local model calls, then optionally a second round; it is not yet a streamed council transcript and its calls are sequential.
+- `run_local_council` now runs up to six independent local model calls concurrently, isolates per-seat failures, optionally runs a second round, and persists seat-completion telemetry. The HTTP council response still returns a completed transcript; per-token/per-seat live browser streaming remains a follow-on.
 - `/api/chat` can pass through upstream SSE, but its current synchronous HTTP implementation reads chunks in 8192-byte blocks and is not a bounded, async, high-concurrency gateway.
 - `docs/merlin/MERLIN_HUD_RUNTIME_INTEGRATION_V1.md` documents canonical registry, graph and outbox injection, a bounded HUD event pump and existing service event producers.
 - `python/merlin/event_outbox.py` provides durable enqueue, idempotency, leases, acknowledgement, retry, quarantine and recovery primitives.
@@ -41,7 +41,7 @@ This translates the coupling problem into three controlled planes: event/telemet
 1. Remove unconditional `startDemo()` as the default when live APIs are reachable. Use an explicit connection state: LIVE, DEMO, DEGRADED or OFFLINE.
 2. Keep demo mode available only as a user-visible preview with a persistent DEMO watermark. Demo events must never be mixed with real event counts, resource measurements or verification.
 3. Poll or stream canonical HUD activity, graph and capability endpoints. Display endpoint health, last successful update and staleness.
-4. Change chat submit from `/api/council/prepare` to an explicit interaction mode:
+4. The HUD composer now uses `/api/chat` for streamed single-model responses and has a separate Council action that calls `/api/council/run`. The council UI renders completed seat responses and failures. Change chat submit to preserve the explicit interaction modes:
    - Ask Merlin: `/api/chat` streamed answer.
    - Convene council: `/api/council/run` streamed multi-role transcript.
    - Prepare prompts: retain `/api/council/prepare` as a distinct, non-inference action.
@@ -49,7 +49,7 @@ This translates the coupling problem into three controlled planes: event/telemet
 6. Keep the existing research canvas, graph, workspaces and capability registry; do not rebuild them before connecting them to canonical data.
 
 Acceptance:
-- A browser test proves a user message reaches the intended endpoint and visible response chunks appear before completion.
+- The chat client reads the `/api/chat` SSE stream and renders incremental response deltas. Browser-level integration tests and a live qualified provider check remain required.
 - Council preparation is never described as a council response.
 - No synthetic event can create a runtime-active agent, measured resource metric or verified state.
 - A missing canonical store produces a clearly labelled unavailable/degraded state, not fake live telemetry.
@@ -140,8 +140,8 @@ Recommended browser transport:
 ### P4 — Stream a real council
 
 1. Keep the six existing persona definitions and independent opening-prompt boundary.
-2. Run eligible seats concurrently with a bounded semaphore, per-seat deadlines and cancellation.
-3. Stream typed events: `council.started`, `seat.started`, `seat.delta`, `seat.completed`, `seat.failed`, `cross_exam.started`, `cross_exam.completed`, `council.synthesis`, `council.completed`.
+2. Run eligible seats concurrently with a bounded worker pool, per-seat deadlines and cancellation. The first implementation now bounds concurrency at six and isolates failures; provider-level deadlines and cancellation propagation remain to be completed.
+3. The current implementation persists per-seat completion/failure telemetry during execution. Next, expose those events over SSE and add token deltas: `council.started`, `seat.started`, `seat.delta`, `seat.completed`, `seat.failed`, `cross_exam.started`, `cross_exam.completed`, `council.synthesis`, `council.completed`.
 4. The chair/synthesizer must distinguish agreement, disagreement, unknowns, assumptions and evidence. It cannot turn vote count into truth.
 5. Keep separate roles for architect, builder, skeptic, empiricist, mathematician and other configured personas; role diversity is a prompt configuration, not six independent people.
 6. A simulated council mode may generate scripted illustrative content only if clearly marked SIMULATED. Never label canned output as model inference.
