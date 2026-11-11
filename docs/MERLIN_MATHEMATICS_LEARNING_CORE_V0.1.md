@@ -15,6 +15,7 @@ The first lesson is deliberately zero-first. It begins with a concrete bicycle-d
 ## Implemented in this slice
 
 - `python/merlin/learning_core.py`: canonical concept registry, prerequisite DAG validation, typed real-scalar expression IR, beginner-first derivative lesson specification, forward/backward/central finite differences, SQLite learner evidence, dimension-specific mastery estimates and deterministic next-lesson selection.
+- `LessonSession` enforces sequential stage completion, so symbolic notation cannot be reached by skipping the concrete and visual stages.
 - `tests/test_merlin_learning_core.py`: unit tests for graph integrity, expression evaluation, numerical differentiation, zero-first sequencing, persistent attempts and adaptive selection.
 - No external package is required by the learning core.
 
