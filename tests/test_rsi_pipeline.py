@@ -171,7 +171,6 @@ class RSIPipelineTests(unittest.TestCase):
         seed = ingest_hermes_failure(
             self.ledger, failure,
             sign_receipt("hermes", claims, "hermes-key", self.hermes_private),
-            self.hermes_keys,
         )
 
         worker_private = Ed25519PrivateKey.generate()
@@ -231,7 +230,6 @@ class RSIPipelineTests(unittest.TestCase):
         seed = ingest_hermes_failure(
             self.ledger, failure,
             sign_receipt("hermes", claims, "hermes-key", self.hermes_private),
-            self.hermes_keys,
         )
         worker_private = Ed25519PrivateKey.generate()
         worker_keys = {"worker-key": public_pem(worker_private)}
@@ -284,7 +282,7 @@ class RSIPipelineTests(unittest.TestCase):
                 candidate_id=candidate_id, parent_candidate_id=None,
                 source_receipt=self.source_receipt(candidate_id),
                 artifact_sha256=ARTIFACT, generator="rsi",
-                mutation={"origin": "hermes-failure"}
+                mutation={"origin": "hermes-failure"},
                 induction_seed_event_hash=seed["event_hash"],
             )
         signed_source = sign_receipt(
