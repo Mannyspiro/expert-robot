@@ -273,7 +273,8 @@
       ],
       "estimated_minutes": 20,
       "learning_value": 0.9,
-      "transfer_value": 0.8
+      "transfer_value": 0.8,
+      "resource_ids": []
     },
     {
       "id": "math-foundations-variables-v1",
@@ -346,7 +347,8 @@
       ],
       "estimated_minutes": 20,
       "learning_value": 0.8,
-      "transfer_value": 0.8
+      "transfer_value": 0.8,
+      "resource_ids": []
     },
     {
       "id": "math-foundations-divisibility-v1",
@@ -418,7 +420,8 @@
       ],
       "estimated_minutes": 25,
       "learning_value": 0.8,
-      "transfer_value": 0.7
+      "transfer_value": 0.7,
+      "resource_ids": []
     },
     {
       "id": "math-foundations-primes-v1",
@@ -497,7 +500,11 @@
       ],
       "estimated_minutes": 30,
       "learning_value": 0.9,
-      "transfer_value": 0.9
+      "transfer_value": 0.9,
+      "resource_ids": [
+        "video-khan-prime-numbers-01",
+        "video-numberphile-infinite-primes-01"
+      ]
     },
     {
       "id": "math-foundations-loops-v1",
@@ -572,7 +579,10 @@
       ],
       "estimated_minutes": 20,
       "learning_value": 0.8,
-      "transfer_value": 0.8
+      "transfer_value": 0.8,
+      "resource_ids": [
+        "video-cs50p-loops-01"
+      ]
     },
     {
       "id": "math-foundations-euclid-proof-v1",
@@ -648,7 +658,10 @@
       ],
       "estimated_minutes": 35,
       "learning_value": 1,
-      "transfer_value": 1
+      "transfer_value": 1,
+      "resource_ids": [
+        "video-numberphile-infinite-primes-01"
+      ]
     },
     {
       "id": "math-foundations-counterexample-v1",
@@ -726,7 +739,8 @@
       ],
       "estimated_minutes": 30,
       "learning_value": 0.9,
-      "transfer_value": 1
+      "transfer_value": 1,
+      "resource_ids": []
     }
   ],
   "assessments": [
@@ -918,7 +932,50 @@
       "transfer_required": true
     }
   ],
-  "resources": [],
+  "resources": [
+    {
+      "id": "video-khan-prime-numbers-01",
+      "title": "Recognizing prime and composite numbers",
+      "source_uri": "https://www.youtube.com/watch?v=3h4UK62Qrbo",
+      "license": "YouTube Standard License; link-only reference",
+      "creator": "Khan Academy",
+      "resource_type": "video",
+      "supplementary": true,
+      "interest_tags": [
+        "number_theory",
+        "patterns",
+        "visual"
+      ]
+    },
+    {
+      "id": "video-numberphile-infinite-primes-01",
+      "title": "Infinite Primes — James Grime and Euclid",
+      "source_uri": "https://www.youtube.com/watch?v=ctC33JAV4FI",
+      "license": "YouTube Standard License; link-only reference",
+      "creator": "Numberphile (videos by Brady Haran)",
+      "resource_type": "video",
+      "supplementary": true,
+      "interest_tags": [
+        "number_theory",
+        "history",
+        "proof"
+      ]
+    },
+    {
+      "id": "video-cs50p-loops-01",
+      "title": "CS50P Lecture 2 — Loops",
+      "source_uri": "https://www.youtube.com/watch?v=-7xg8pGcP6w",
+      "license": "CC BY-NC-SA 4.0; link-only reference",
+      "creator": "CS50 / Harvard University",
+      "resource_type": "video",
+      "supplementary": true,
+      "interest_tags": [
+        "python",
+        "programming",
+        "computational_hacker"
+      ]
+    }
+  ],
   "grading_policy": {
     "automated_high_stakes": false,
     "mastery_requires_multiple_demonstrations": true,
