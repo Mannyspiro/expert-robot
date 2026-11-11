@@ -96,7 +96,7 @@ class LearnerStore:
                 (learner,),
             ).fetchone()
         if row is None:
-            return {**DEFAULT_LEARNER_PROFILE, "updated_at": None}
+            return {**json.loads(json.dumps(DEFAULT_LEARNER_PROFILE)), "updated_at": None}
         try:
             profile = json.loads(row["profile_json"])
         except (TypeError, json.JSONDecodeError) as exc:
@@ -123,7 +123,7 @@ class LearnerStore:
                 raise ValueError("pathway_weights must be a non-empty object")
             unknown_paths = set(raw) - PATHWAYS
             if unknown_paths:
-                raise ValueError(f"unsupported learning pathways: {sorted(unknown_paths)}")
+                raise ValueError(f"unsupported learning pathways: {sorted(str(path) for path in unknown_paths)}")
             weights = dict(profile["pathway_weights"])
             for path, value in raw.items():
                 if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or not 0 <= value <= 1:
