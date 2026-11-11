@@ -1,10 +1,29 @@
 name: Merlin RSI Evidence Bridge
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "python/merlin/rsi_pipeline.py"
+      - "tests/test_rsi_pipeline.py"
+      - "config/benchmarks/merlin_rsi_multidomain_holdout_v1.json"
+      - "cpp/src/research/episode_ledger.cpp"
+      - "cpp/src/growth/generation_lineage.cpp"
+      - "tests/research_episode_ledger_smoke.cpp"
+      - "tests/generation_lineage_smoke.cpp"
+      - ".github/workflows/merlin-rsi-evidence.yml"
+  push:
+    branches:
+      - "math/parrondo-renderer-clean"
+    paths:
+      - "python/merlin/rsi_pipeline.py"
+      - "tests/test_rsi_pipeline.py"
+      - "config/benchmarks/merlin_rsi_multidomain_holdout_v1.json"
+      - ".github/workflows/merlin-rsi-evidence.yml"
   workflow_dispatch:
 
 concurrency:
-  group: merlin-rsi-evidence-manual
+  group: merlin-rsi-evidence-\${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: false
 
 permissions:
@@ -15,9 +34,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install cryptographic verification dependency
+        run: python -m pip install --disable-pip-version-check "cryptography>=42,<47"
       - name: Validate frozen benchmark manifest
         run: |
           python3 -m json.tool config/benchmarks/merlin_rsi_multidomain_holdout_v1.json >/dev/null
@@ -41,7 +65,7 @@ jobs:
         env:
           PYTHONPATH: python
         run: python3 -m py_compile python/merlin/rsi_pipeline.py
-      - name: Run RSI evidence tests
+      - name: Run RSI and real Ed25519 CACE gate tests
         env:
           PYTHONPATH: python
         run: python3 -m unittest discover -s tests -p "test_rsi_pipeline.py" -v
@@ -50,7 +74,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/checkout@v4
         with:
           persist-credentials: false
       - name: Configure C++ project
