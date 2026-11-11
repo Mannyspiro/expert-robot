@@ -204,6 +204,6 @@ Current learner estimation is an inspectable Beta(1,1) baseline, not a validated
 
 ## Current implementation boundary
 
-Implemented in the current mathematics LMS branch: seven-objective foundations course; three pathway modules; tenant-scoped learner profiles; prerequisite-aware recommendations; independent course publication review; optional supplementary video links; append-only exercise submissions; reviewer queue and feedback; learner-visible review history.
+Implemented in the current mathematics LMS branch: seven-objective foundations course; a second three-objective logic/discrete mathematics course (quantifiers, sets/relations/functions, graphs/trees); three pathway modules for each course; tenant-scoped learner profiles; prerequisite-aware recommendations; independent course publication review; optional supplementary video links; append-only exercise submissions; reviewer queue and feedback; learner-visible review history; a 57-idea canonical curriculum map and pathway validator.
 
 Not yet qualified: executable hosted CI for the current branch, production institution SSO and hosted tenancy, reviewer qualification/calibration, validated psychometrics, spaced retrieval scheduler, full curriculum coverage, Lean/CACE course evidence bridge, and production operations controls.
