@@ -219,6 +219,43 @@ DERIVATIVE_DISCOVERY = LessonSpec(
 DERIVATIVE_DISCOVERY.validate()
 
 
+@dataclass
+class LessonSession:
+    """Sequential lesson runner; later stages cannot be skipped."""
+
+    lesson: LessonSpec
+    stage_index: int = 0
+    completed_stage_ids: list[str] = field(default_factory=list)
+
+    def __post_init__(self) -> None:
+        self.lesson.validate()
+        if self.stage_index < 0 or self.stage_index > len(self.lesson.stages):
+            raise ValueError("stage_index is outside the lesson")
+        expected = [stage.stage_id for stage in self.lesson.stages[: self.stage_index]]
+        if self.completed_stage_ids != expected:
+            raise ValueError("completed stages must be the exact sequential lesson prefix")
+
+    @property
+    def current_stage(self) -> LessonStage | None:
+        if self.stage_index >= len(self.lesson.stages):
+            return None
+        return self.lesson.stages[self.stage_index]
+
+    @property
+    def is_complete(self) -> bool:
+        return self.stage_index == len(self.lesson.stages)
+
+    def complete_current_stage(self, stage_id: str) -> LessonStage | None:
+        current = self.current_stage
+        if current is None:
+            raise ValueError("lesson is already complete")
+        if stage_id != current.stage_id:
+            raise ValueError(f"expected current stage {current.stage_id}, got {stage_id}")
+        self.completed_stage_ids.append(current.stage_id)
+        self.stage_index += 1
+        return self.current_stage
+
+
 @dataclass(frozen=True)
 class DifferenceEstimate:
     method: str
