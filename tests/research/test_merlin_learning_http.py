@@ -9,7 +9,7 @@ from urllib.request import Request, urlopen
 
 from python.merlin.app import EventStore, make_handler
 from python.merlin.learning_platform import Actor, LearningPlatform
-from python.merlin.learner_model import LearnerStore
+from python.merlin.learner_model import LearnerStore, learner_subject_id
 
 
 class MerlinLearningHttpTests(unittest.TestCase):
@@ -57,6 +57,7 @@ class MerlinLearningHttpTests(unittest.TestCase):
             return response.status, json.loads(response.read())
 
     def test_course_authoring_review_publish_enroll_and_read_flow(self):
+        learner_ref = learner_subject_id("tenant-a", "student-1")
         status, course = self.request("POST", "/api/learning/courses", "Bearer faculty", {
             "slug": "physics-foundations", "title": "Physics Foundations",
             "description": "A first course.",
@@ -113,7 +114,7 @@ class MerlinLearningHttpTests(unittest.TestCase):
         for attempt_id, session_id in (("phy-attempt-1", "phy-session-a"),
                                        ("phy-attempt-2", "phy-session-b")):
             self.learner_store.record_attempt({
-                "learner_id": "student-1", "attempt_id": attempt_id,
+                "learner_id": learner_ref, "attempt_id": attempt_id,
                 "idea_id": "PHY-1", "problem_id": "motion-explain",
                 "problem_version": "1", "dimension": "conceptual_explanation",
                 "score": 1.0, "session_id": session_id,
@@ -131,7 +132,7 @@ class MerlinLearningHttpTests(unittest.TestCase):
         for dimension in ["recognition", "conceptual_explanation", "representation_translation", "transfer"]:
             for session_number in (1, 2):
                 self.learner_store.record_attempt({
-                    "learner_id": "student-1",
+                    "learner_id": learner_ref,
                     "attempt_id": f"math-foundations-{dimension}-{session_number}",
                     "idea_id": "MATH-NT-001",
                     "problem_id": "math-foundations-whole-number-diagnostic",
