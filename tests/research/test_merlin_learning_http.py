@@ -145,6 +145,11 @@ class MerlinLearningHttpTests(unittest.TestCase):
         )
         self.assertEqual(status, 200)
         self.assertEqual(queue["count"], 1)
+        self.assertEqual(
+            queue["submissions"][0]["assessment_rubric"][0]["dimension"],
+            "conceptual_explanation",
+        )
+        self.assertTrue(queue["submissions"][0]["assessment_title"])
         status, review_result = self.request(
             "POST", f"/api/learning/courses/{cid}/submissions/physics-submission-1/review",
             "Bearer reviewer", {
