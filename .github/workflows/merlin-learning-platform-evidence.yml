@@ -25,12 +25,14 @@ on:
       - "scripts/merlin_math_idea_validate.py"
       - "scripts/merlin_math_pathways_validate.py"
       - "scripts/merlin_math_lesson_backlog_validate.py"
+      - "scripts/merlin_math_portfolio_validate.py"
       - "tests/test_merlin_math_foundations_course.py"
       - "tests/test_merlin_math_logic_discrete_course.py"
       - "tests/test_merlin_math_algebra_functions_course.py"
       - "tests/test_merlin_math_calculus_probability_course.py"
       - "tests/test_merlin_math_numerical_scientific_computing_course.py"
       - "tests/test_merlin_math_lesson_backlog.py"
+      - "tests/test_merlin_math_portfolio.py"
       - "ui/merlin-learning/index.html"
       - "tests/test_merlin_learning_platform.py"
       - "tests/research/test_merlin_learning_http.py"
@@ -136,6 +138,12 @@ jobs:
           set -euo pipefail
           python scripts/merlin_math_pathways_validate.py
 
+      - name: Validate cross-course mathematics portfolio
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH=. python scripts/merlin_math_portfolio_validate.py
+
       - name: Validate review-gated mathematics lesson backlog
         shell: bash
         run: |
@@ -164,7 +172,7 @@ jobs:
         run: |
           set +e
           mkdir -p artifacts
-          python -m pytest -q -v tests/test_merlin_learning_platform.py tests/research/test_merlin_learning_http.py tests/test_merlin_research_curriculum.py tests/test_merlin_math_foundations_course.py tests/test_merlin_math_logic_discrete_course.py tests/test_merlin_math_algebra_functions_course.py tests/test_merlin_math_calculus_probability_course.py tests/test_merlin_math_numerical_scientific_computing_course.py tests/test_merlin_math_lesson_backlog.py tests/test_learner_model.py 2>&1 | tee artifacts/learning-tests.log
+          python -m pytest -q -v tests/test_merlin_learning_platform.py tests/research/test_merlin_learning_http.py tests/test_merlin_research_curriculum.py tests/test_merlin_math_foundations_course.py tests/test_merlin_math_logic_discrete_course.py tests/test_merlin_math_algebra_functions_course.py tests/test_merlin_math_calculus_probability_course.py tests/test_merlin_math_numerical_scientific_computing_course.py tests/test_merlin_math_lesson_backlog.py tests/test_merlin_math_portfolio.py tests/test_learner_model.py 2>&1 | tee artifacts/learning-tests.log
           rc=${PIPESTATUS[0]}
           printf '{"suite":"learning-platform-tests","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/learning-tests-result.json
           exit "$rc"
