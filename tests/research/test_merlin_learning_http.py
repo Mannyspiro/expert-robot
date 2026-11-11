@@ -353,5 +353,58 @@ class MerlinLearningHttpTests(unittest.TestCase):
         self.assertEqual(mismatched_state.exception.code, 403)
 
 
+    def test_logic_discrete_template_publish_enroll_and_submit(self):
+        status, preview = self.request(
+            "GET", "/api/learning/templates/math-logic-discrete", "Bearer faculty"
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(preview["curriculum_id"], "math-logic-discrete-v1")
+        self.assertEqual(preview["objective_count"], 3)
+        with self.assertRaises(HTTPError) as denied:
+            self.request("GET", "/api/learning/templates/math-logic-discrete", "Bearer learner")
+        self.assertEqual(denied.exception.code, 403)
+
+        status, draft = self.request("POST", "/api/learning/courses", "Bearer faculty", {
+            "slug": "math-logic-discrete-bridge",
+            "title": preview["title"],
+            "description": "Logic, sets, relations and graph structures.",
+        })
+        self.assertEqual(status, 201)
+        course_id = draft["course_id"]
+        status, applied = self.request(
+            "POST", f"/api/learning/courses/{course_id}/templates/math-logic-discrete",
+            "Bearer faculty", {},
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(len(applied["manifest"]["lessons"]), 3)
+
+        status, review = self.request(
+            "POST", f"/api/learning/courses/{course_id}/review", "Bearer reviewer",
+            {"version": 1, "decision": "approved", "notes": "Reviewed concrete-first sequence."},
+        )
+        self.assertEqual(status, 200)
+        status, published = self.request(
+            "POST", f"/api/learning/courses/{course_id}/publish", "Bearer faculty", {}
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(published["status"], "published")
+        status, enrollment = self.request(
+            "POST", f"/api/learning/courses/{course_id}/enroll", "Bearer learner", {}
+        )
+        self.assertEqual(status, 200)
+
+        status, submitted = self.request(
+            "POST", f"/api/learning/courses/{course_id}/submissions", "Bearer learner", {
+                "submission_id": "logic-bridge-submission-1",
+                "lesson_id": "math-logic-quantifiers-v1",
+                "task_id": "logic-quantifier-scope",
+                "response": "Some elements satisfy the predicate; the universal claim is false.",
+            },
+        )
+        self.assertEqual(status, 201)
+        self.assertEqual(submitted["status"], "pending_review")
+        self.assertFalse(submitted["mastery_updated"])
+
+
 if __name__ == "__main__":
     unittest.main()
