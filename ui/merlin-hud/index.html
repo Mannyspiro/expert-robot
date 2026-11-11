@@ -25,6 +25,14 @@ main{overflow:auto;padding:12px clamp(12px,2vw,26px) 16px;display:grid;grid-temp
 .workspace{display:grid;grid-template-rows:auto minmax(0,1fr)}.workspace-head{padding:11px 15px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}.workspace-title{font-size:13px;font-weight:650}.workspace-hint{font-size:10px;color:var(--muted)}.workspace-tools{display:flex;flex-direction:column;align-items:flex-end;gap:6px;min-width:0}.view-tabs{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end}.view-tab{border:1px solid #344b64;background:#101a29;color:#9eb2c8;border-radius:8px;padding:6px 9px;font:inherit;font-size:10px;cursor:pointer}.view-tab.active{border-color:var(--cyan);color:#e7fbff;background:#15303a}.workbench-panel{width:100%;height:100%;min-height:0;overflow:auto;display:block;padding:14px;box-sizing:border-box;background:linear-gradient(135deg,#0b1420ee,#101a29ee)}.workbench-intro{color:var(--muted);font-size:11px;line-height:1.5;margin-bottom:12px}.council-grid,.capability-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}.council-card,.capability-card{border:1px solid #30445d;border-radius:12px;background:#111d2c;padding:12px;min-width:0}.council-card h3,.capability-card h3{margin:0 0 6px;color:#e5f0fb;font-size:12px}.council-card p,.capability-card p{margin:5px 0;color:#9fb2c8;font-size:10px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}.capability-status{display:inline-block;border:1px solid #38546b;border-radius:20px;padding:3px 7px;color:#b9dbe5;font-size:9px;letter-spacing:.04em}.capability-status.blocked{border-color:#805c43;color:#f2c49b}.capability-status.ready{border-color:#367d69;color:#9be2c7}.council-empty{border:1px dashed #3a5068;border-radius:12px;padding:20px;color:#9fb2c8;font-size:11px;line-height:1.6}.canvas{position:relative;min-height:0;overflow:hidden;background-image:linear-gradient(#26374a22 1px,transparent 1px),linear-gradient(90deg,#26374a22 1px,transparent 1px);background-size:32px 32px;display:grid;place-items:center}.canvas svg{width:min(90%,720px);height:90%;max-height:360px}.canvas text{fill:#aebfd2;font-size:11px}.canvas .orbit{fill:none;stroke:#526b8a;stroke-opacity:.5}.canvas .vector{stroke:var(--violet);stroke-width:2;fill:none;stroke-dasharray:5 6;animation:dash 2s linear infinite}.canvas .sphere{fill:#17263a;stroke:var(--cyan);stroke-width:1.4;filter:drop-shadow(0 0 14px #66e4ed33)}.canvas .basis{stroke:#66e4ed99;stroke-width:1.4}.canvas .point{fill:var(--cyan);filter:drop-shadow(0 0 7px var(--cyan))}
 .chat{padding:10px max(12px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left));border-top:1px solid var(--line);background:#080d16ee;backdrop-filter:blur(16px)}
 .chatbar{max-width:1100px;margin:auto;display:flex;align-items:center;gap:10px;border:1px solid #30445d;border-radius:16px;background:#101a29;padding:8px 10px}.chatbar input{min-width:0;flex:1;background:transparent;border:0;outline:0;color:var(--text);font:inherit}.chatbar button{border:0;background:transparent;color:var(--muted);font-size:18px;padding:4px 7px;cursor:pointer}.chatbar button:hover{color:var(--cyan)}.send{background:#26465b!important;border-radius:10px;color:#fff!important;font-size:13px!important}.note{text-align:center;color:#63758d;font-size:9px;margin-top:5px}
+.chat-transcript{max-width:1100px;margin:0 auto 8px;max-height:150px;overflow:auto;display:flex;flex-direction:column;gap:6px}
+.chat-message{max-width:88%;padding:8px 11px;border:1px solid #30445d;border-radius:12px;background:#101a29;font-size:12px;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}
+.chat-message.user{align-self:flex-end;background:#192b3c;border-color:#42617d}
+.chat-message.assistant{align-self:flex-start}
+.chat-message .speaker{display:block;color:var(--cyan);font-size:9px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+.council-card .response{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.5}
+.council-card .seat-state{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.convene{border:1px solid #51617b!important;border-radius:10px;font-size:12px!important;padding:7px 9px!important;color:#d9e4f2!important}
 @media(max-width:760px){.workspace-head{align-items:flex-start;flex-direction:column}.workspace-tools{align-items:flex-start;width:100%}.view-tabs{justify-content:flex-start}.workbench-panel{padding:10px}main{grid-template-rows:minmax(190px,35vh) minmax(260px,1fr);padding:8px;gap:8px}.hud{grid-template-columns:1fr 1fr;gap:8px;padding:10px}.flow-wrap{grid-column:1/-1;grid-row:2;min-height:82px}.flow{min-height:76px}.feed{grid-column:2;grid-row:1}.phase-list{margin-top:9px}.metrics{gap:10px}.status .wide{display:none}.state-title{font-size:15px}.workspace-head{padding:9px 11px}.workspace-hint{display:none}}
 @media(max-height:620px){main{grid-template-rows:minmax(145px,30vh) minmax(190px,1fr)}.hud{padding:8px 12px}.phase-list{margin-top:8px}}
 
@@ -43,11 +51,11 @@ main{overflow:auto;padding:12px clamp(12px,2vw,26px) 16px;display:grid;grid-temp
 <section class="workspace" aria-label="Adaptive research canvas"><div class="workspace-head"><div><div class="workspace-title" id="canvasTitle">Adaptive research canvas</div><div class="workspace-hint" id="canvasHint">Research graph, evidence-linked engineering previews and recorded activity.</div></div><div class="workspace-tools"><div class="view-tabs"><button type="button" class="view-tab active" data-view="graph">Research graph</button><button type="button" class="view-tab" data-view="council">Skeptic council</button><button type="button" class="view-tab" data-view="capabilities">Capabilities</button></div><div class="workspace-hint" id="canvasType">GRAPH / EVIDENCE-LINKED</div></div></div>
 <div class="canvas"><svg viewBox="0 0 720 300" role="img" aria-label="Illustrative coordinate transformation visualization"><ellipse class="orbit" cx="360" cy="150" rx="220" ry="82"/><ellipse class="orbit" cx="360" cy="150" rx="220" ry="82" transform="rotate(58 360 150)"/><ellipse class="orbit" cx="360" cy="150" rx="220" ry="82" transform="rotate(-58 360 150)"/><path class="vector" d="M140 150 Q250 35 360 150 T580 150"/><circle class="sphere" cx="360" cy="150" r="30"/><path class="basis" d="M360 150 L490 150 M360 150 L300 72 M360 150 L360 45"/><path class="basis" d="M490 150 l-8 -4 v8z M300 72 l1 9 7 -5z M360 45 l-4 8 h8z"/><circle class="point" cx="490" cy="150" r="4"/><circle class="point" cx="300" cy="72" r="4"/><circle class="point" cx="360" cy="45" r="4"/><text x="505" y="145">x′</text><text x="285" y="64">y′</text><text x="370" y="43">z′</text><text x="360" y="205" text-anchor="middle">Coordinate transform / representation space</text></svg></div></section>
 </main>
-<footer class="chat"><form class="chatbar" id="chatForm"><button type="button" id="mic" aria-label="Voice input" title="Voice input">◉</button><input id="prompt" autocomplete="off" placeholder="Ask Merlin to investigate, model, prove, or design…" aria-label="Message Merlin"><button type="button" id="attach" title="Attach context" aria-label="Attach context">＋</button><button class="send" type="submit">Send ↗</button></form><div class="note" id="chatNote">Council packet preparation is connected; actual model inference, code execution and worker dispatch remain qualification-gated.</div></footer>
+<footer class="chat"><div class="chat-transcript" id="chatTranscript" aria-live="polite"></div><form class="chatbar" id="chatForm"><button type="button" id="mic" aria-label="Voice input" title="Voice input">◉</button><input id="prompt" autocomplete="off" placeholder="Ask Merlin to investigate, model, prove, or design…" aria-label="Message Merlin"><button type="button" id="attach" title="Attach context" aria-label="Attach context">＋</button><button class="convene" type="button" id="convene">Council</button><button class="send" type="submit">Ask Merlin ↗</button></form><div class="note" id="chatNote">Chat and council use qualified model endpoints only. Worker dispatch and verification remain separately gated.</div></footer>
 <script>
 const PHASES=["intake","hypothesis","representation","experiment","counterexample","formalization","verification","artifact"];
 const labels={"intake":"Request intake","hypothesis":"Hypothesis","representation":"Representation","experiment":"Experiment","counterexample":"Counterexample search","formalization":"Formalization","verification":"Verification","artifact":"Artifact"};
-let lastSnapshot=null;let demoTimer=null;let demoIndex=0;let graphSnapshot=null;let selectedGraphNode=null;let activeView="graph";let councilPackets=[];let graphRotation=[0.35,-0.45];let graphZoom=1;let graphDrag=null;
+let lastSnapshot=null;let demoTimer=null;let demoIndex=0;let graphSnapshot=null;let selectedGraphNode=null;let activeView="graph";let councilPackets=[];let councilTranscript=null;let chatMessages=[];let graphRotation=[0.35,-0.45];let graphZoom=1;let graphDrag=null;
 const $=id=>document.getElementById(id);
 function drawPhases(phase){const ix=Math.max(0,PHASES.indexOf(phase));$("phases").innerHTML=PHASES.map((p,i)=>'<span class="phase '+(i<ix?"done":i===ix?"active":"")+'">'+p+'</span>').join("");}
 function drawFlow(phase,data={}){
@@ -187,8 +195,8 @@ function setWorkspaceView(view){
   if(graphSnapshot)renderGraph();else loadGraph();
  }else if(view==="council"){
   title.textContent="Skeptic council";
-  hint.textContent="Six distinct roles prepare adversarial prompts; this does not claim model responses.";
-  type.textContent="COUNCIL / PROMPT PREPARATION ONLY";
+  hint.textContent="Six role-specific model perspectives, independent openings and optional cross-examination. Qualification is required.";
+  type.textContent="COUNCIL / MODEL EXECUTION WHEN QUALIFIED";
   renderCouncilView();
  }else if(view==="capabilities"){
   title.textContent="Capability registry";
@@ -199,8 +207,18 @@ function setWorkspaceView(view){
 }
 function renderCouncilView(){
  const host=document.querySelector(".canvas");if(!host)return;
+ if(councilTranscript){
+  const renderSeats=(rows,label)=>'<section class="workbench-panel"><div class="workbench-intro">'+escapeHtml(label)+'</div><div class="council-grid">'+rows.map(row=>{
+   const ok=row.status==="completed";
+   return '<article class="council-card"><h3>'+escapeHtml(row.persona_title||row.persona_id||"Council seat")+'</h3><div class="seat-state">'+(ok?"Response received":"Seat unavailable: "+escapeHtml(row.error_type||"unknown error"))+'</div><p class="response">'+escapeHtml(row.content||"No response returned.")+'</p>'+(row.response_sha256?'<p class="seat-state">Response SHA-256: '+escapeHtml(row.response_sha256)+'</p>':'')+'</article>';
+  }).join("")+'</div></section>';
+  const opening=renderSeats(councilTranscript.opening_positions||[],"Independent opening responses. Each seat received the shared question and its own role instructions.");
+  const debate=(councilTranscript.cross_examination||[]).length?renderSeats(councilTranscript.cross_examination,"Cross-examination after the opening round."):"";
+  host.innerHTML='<div class="workbench-panel"><div class="workbench-intro">Council transcript · '+escapeHtml(councilTranscript.model||"local model")+' · '+(councilTranscript.failed_seats||0)+' failed seats. Role perspectives are simulated model outputs, not independent people, proof, or authorization.</div></div>'+opening+debate;
+  return;
+ }
  if(!councilPackets.length){
-  host.innerHTML='<div class="workbench-panel"><div class="workbench-intro">Enter a research question in the composer below. Merlin will prepare role-specific skeptic prompts for the six council perspectives. This step does not call an LLM, generate answers, execute code, or approve a capability.</div><div class="council-empty">No council packets prepared in this session yet.<br><br>Try a falsifiable research question, such as: “Can a glyph-based n-ary state representation reduce the complexity of a specified simulation without losing invariants?”</div></div>';
+  host.innerHTML='<div class="workbench-panel"><div class="workbench-intro">Use “Council” in the composer to convene the six model perspectives. This requires a qualified local model. Use “Ask Merlin” for a streamed single-model chat response.</div><div class="council-empty">No council session has run in this browser session yet.<br><br>Model availability and qualification are shown in the capability registry.</div></div>';
   return;
  }
  const cards=councilPackets.map(packet=>{
@@ -210,8 +228,9 @@ function renderCouncilView(){
   const blind=(persona.blind_spots||[]).map(q=>'<li>'+escapeHtml(q)+'</li>').join("");
   return '<article class="council-card"><h3>'+escapeHtml(title)+'</h3><p><strong>Reasoning:</strong> '+escapeHtml(persona.reasoning_style||"Role-specific critique")+'</p><p><strong>Priorities:</strong> '+escapeHtml((persona.primary_values||[]).join(", "))+'</p><p><strong>Questions:</strong></p><ul>'+questions+'</ul><p><strong>Blind spots to watch:</strong></p><ul>'+blind+'</ul><p>'+escapeHtml(packet.instructions||"Prepared role prompt; no response has been generated.")+'</p></article>';
  }).join("");
- host.innerHTML='<div class="workbench-panel"><div class="workbench-intro">Prepared '+councilPackets.length+' role-specific packets. These are instructions for a future qualified model call, not council votes, evidence, or a consensus decision. Promotion authority remains disabled.</div><div class="council-grid">'+cards+'</div></div>';
+ host.innerHTML='<div class="workbench-panel"><div class="workbench-intro">Prepared '+councilPackets.length+' role-specific packets. These are prompt previews, not model responses, votes, evidence or consensus.</div><div class="council-grid">'+cards+'</div></div>';
 }
+
 async function renderCapabilitiesView(){
  const host=document.querySelector(".canvas");if(!host)return;
  host.innerHTML='<div class="workbench-panel"><div class="workbench-intro">Loading canonical capability registry…</div></div>';
@@ -237,17 +256,66 @@ async function renderCapabilitiesView(){
  host.innerHTML='<div class="workbench-panel"><div class="workbench-intro">Capability states are deliberately conservative. “Available” means an implemented bounded API, not a scientific claim or authority to promote. Research artifacts remain unreviewed until independent verification is attached.</div><div class="capability-grid">'+rows+extraHtml+'</div></div>';
 }
 
+function renderChatTranscript(){
+ const host=$("chatTranscript");if(!host)return;
+ host.innerHTML=chatMessages.slice(-12).map(message=>'<div class="chat-message '+(message.role==="user"?"user":"assistant")+'"><span class="speaker">'+(message.role==="user"?"You":"Merlin")+'</span>'+escapeHtml(message.content||"")+'</div>').join("");
+ host.scrollTop=host.scrollHeight;
+}
+async function askMerlin(value){
+ chatMessages.push({role:"user",content:value});
+ const answer={role:"assistant",content:""};
+ chatMessages.push(answer);renderChatTranscript();
+ $("chatNote").textContent="Connecting to the qualified model and streaming the response…";
+ const messages=[{role:"system",content:"You are Merlin, a research and engineering assistant. Distinguish measured facts, hypotheses, assumptions and unknowns. Never claim tools, tests, proofs or execution that did not occur. Propose safe, bounded next steps."},...chatMessages.slice(-16).map(({role,content})=>({role,content}))];
+ try{
+  const response=await fetch("/api/chat",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({messages,stream:true,temperature:0.4,max_tokens:1400})});
+  if(!response.ok){let detail="HTTP "+response.status;try{const err=await response.json();detail=err.detail||err.error||detail;}catch(_){}throw Error(detail);}
+  const contentType=(response.headers.get("content-type")||"").toLowerCase();
+  if(contentType.includes("text/event-stream")){
+   const reader=response.body.getReader(),decoder=new TextDecoder();let buffer="";
+   while(true){
+    const {value,done}=await reader.read();if(done)break;
+    buffer+=decoder.decode(value,{stream:true});
+    const lines=buffer.split(/\r?\n/);buffer=lines.pop()||"";
+    for(const line of lines){
+     if(!line.startsWith("data:"))continue;
+     const data=line.slice(5).trim();if(!data||data==="[DONE]")continue;
+     let packet;try{packet=JSON.parse(data);}catch(_){continue;}
+     const delta=packet.choices&&packet.choices[0]&&packet.choices[0].delta;
+     if(delta&&typeof delta.content==="string"){answer.content+=delta.content;renderChatTranscript();}
+    }
+   }
+  }else{
+   const data=await response.json();
+   answer.content=data.choices&&data.choices[0]&&data.choices[0].message&&data.choices[0].message.content||JSON.stringify(data);
+   renderChatTranscript();
+  }
+  if(!answer.content)answer.content="The model connection closed without returning response text.";
+  $("chatNote").textContent="Response complete. Model execution is separate from worker dispatch and CACE verification.";
+ }catch(error){
+  answer.content="Model request unavailable: "+error.message;
+  renderChatTranscript();
+  $("chatNote").textContent="Chat unavailable. Check the model capability status; no simulated answer was substituted.";
+ }
+}
+async function conveneCouncil(){
+ const value=$("prompt").value.trim()||(chatMessages.filter(m=>m.role==="user").slice(-1)[0]||{}).content||"";
+ if(!value)return;
+ $("chatNote").textContent="Running six bounded council seats. Each opening is isolated; failed seats will be reported.";
+ try{
+  const response=await fetch("/api/council/run",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:value,context:chatMessages.slice(-8).map(m=>m.role+": "+m.content).join("\n"),verbosity:"lively",rounds:2})});
+  const data=await response.json();if(!response.ok)throw Error(data.detail||data.error||("HTTP "+response.status));
+  councilTranscript=data;councilPackets=[];setWorkspaceView("council");
+  $("chatNote").textContent="Council complete: "+(data.opening_positions||[]).filter(x=>x.status==="completed").length+" opening responses; "+(data.failed_seats||0)+" failed seats.";
+ }catch(error){
+  $("chatNote").textContent="Council unavailable: "+error.message+". No synthetic council response was substituted.";
+ }
+}
 $("chatForm").addEventListener("submit",async e=>{
  e.preventDefault();const value=$("prompt").value.trim();if(!value)return;
- $("chatNote").textContent="Preparing six skeptic-council prompt packets. No model inference will run.";
- try{
-  const response=await fetch("/api/council/prepare",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question:value,context:"",verbosity:"lively"})});
-  const data=await response.json();if(!response.ok)throw Error(data.detail||data.error||("HTTP "+response.status));
-  councilPackets=data.packets||[];setWorkspaceView("council");
-  $("chatNote").textContent="Prepared "+councilPackets.length+" role packets. No model responses or approvals were generated.";
- }catch(error){$("chatNote").textContent="Council preparation failed: "+error.message;}
- $("prompt").value="";
+ $("prompt").value="";await askMerlin(value);
 });
+$("convene").addEventListener("click",conveneCouncil);
 $("mic").addEventListener("click",()=>{const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){$("chatNote").textContent="Speech recognition is not supported in this browser.";return;}const rec=new SR();rec.lang=navigator.language||"en-US";rec.interimResults=false;rec.onresult=e=>{$("prompt").value=e.results[0][0].transcript;};rec.onerror=e=>$("chatNote").textContent="Voice input: "+e.error;rec.start();$("chatNote").textContent="Listening…";});
 $("attach").addEventListener("click",()=>$("chatNote").textContent="Context attachment requires the authenticated Merlin artifact API.");
 document.querySelectorAll("[data-view]").forEach(button=>button.addEventListener("click",()=>setWorkspaceView(button.getAttribute("data-view"))));
