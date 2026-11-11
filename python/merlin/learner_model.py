@@ -510,9 +510,15 @@ def hermes_learning_handler(store: LearnerStore, graph: Mapping[str,Any],
             learner=payload.get("learner_id")
             LearnerStore._required(learner,"learner_id")
             curriculum_id=payload.get("curriculum_id")
+            profile = store.get_profile(learner)
             return {"kind":"learner.lesson.recommended",
-                    **select_next_lesson(learner,store,graph,lessons,
-                                         curriculum_id=curriculum_id)}
+                    **select_next_lesson(
+                        learner, store, graph, lessons,
+                        curriculum_id=curriculum_id,
+                        path_weights=profile["pathway_weights"],
+                        interests=profile["interests"],
+                        max_minutes=profile["max_minutes"],
+                    )}
         raise ValueError("unsupported learning event topic")
     return handle
 
