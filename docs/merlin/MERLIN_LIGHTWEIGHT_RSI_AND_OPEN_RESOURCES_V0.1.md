@@ -41,6 +41,33 @@ The API verifies the integrity and consistency of submitted evaluation metadata;
 
 License checks above refer to the upstream LICENSE files inspected during this work for EvoSkill, GEPA, Inspect AI, EMRG, and OpenProof. Re-check exact revision, transitive dependencies, model weights, and dataset terms before vendoring or redistribution. A public repository does not automatically mean every model or dataset it references is open-licensed.
 
+## Free public research and engineering resources
+
+These are candidate source integrations that can be queried or browsed without purchasing a subscription. Public access is not a blanket license to redistribute full text, datasets, or model weights.
+
+| Resource | Public access | Merlin use | Guardrail |
+|---|---|---|---|
+| [arXiv public API](https://info.arxiv.org/help/api/index.html) | Public API | Preprint discovery, abstracts, authors, categories, version tracking | Respect API usage policy; commercial products should review arXiv's stated requirements; full-text reuse is license-specific |
+| [Crossref REST API](https://www.crossref.org/documentation/retrieve-metadata/rest-api/) | No registration or authentication for public access | DOI metadata, references, publication updates, license metadata | Cache, use polite identification, back off, and preserve DOI/source provenance |
+| [OpenAlex API](https://help.openalex.org/api/) | Basic casual queries without a key; free key raises quota for larger use | Scholarly works, authors, institutions, topics, open-access metadata, citation graph | Treat quotas as bounded; no paid usage; don't assume every linked full-text item is reusable |
+| [Hugging Face Hub](https://huggingface.co/docs/hub/index) | Public model, dataset, and demo repositories | Discover model/dataset candidates and model cards | Inspect each repository's license, data provenance, model restrictions, and card before use; public availability is not equivalent to open license |
+| [Lean / mathlib](https://mathlib.org/) | Free open-source proof ecosystem | Machine-check mathematical statements and reuse formal results | Pin Lean toolchain, mathlib revision, and source hashes |
+| [GitHub public repositories](https://github.com/) | Public source browsing; API quotas apply | Discover tools, issue history, tests, releases, and dependency provenance | Preserve exact commit and license; do not infer a license from public visibility |
+
+Crossref explicitly offers anonymous public REST access without registration; OpenAlex documents free basic access and a free-key tier for higher budgets; Hugging Face explicitly distinguishes public availability from open-source licensing. The arXiv API is public, but its policy asks commercial products to review the relevant terms. These distinctions must be recorded in Merlin's source registry.
+
+## Open-resource intake contract
+
+Every external resource should enter through a typed intake record containing:
+- canonical URL, publisher/repository, DOI or commit where applicable;
+- retrieval timestamp, version, content hash, and source type;
+- license identifier and license-evidence URL, or `UNKNOWN` until verified;
+- allowed operations: browse, quote within limits, analyze, transform, redistribute;
+- attribution and rate-limit requirements;
+- model/dataset card and upstream provenance when applicable.
+
+Default policy: **discover and index metadata first**. Download full text, model weights, or datasets only when their license, size, privacy implications, and resource budget are acceptable. Unknown rights mean no redistribution and no training use. All source-derived claims remain linked to their source record.
+
 ## Why not let an RSI agent rewrite itself continuously?
 
 An optimizer can overfit its evaluator, exploit scoring bugs, degrade unmeasured capabilities, or modify the very tests used to judge it. Merlin therefore separates:
