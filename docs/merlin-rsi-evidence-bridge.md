@@ -115,6 +115,34 @@ rate, and reproducibility before a controlled trial.
 6. Add key rotation/revocation and durable evidence retention before enabling
    production promotion.
 
-The workflow added with this change validates the Python bridge, benchmark
-manifest, and C++ append-only stores on hosted CI. It does not claim a live
-CACE verification or production promotion.
+## OCI verification results (2026-11-11)
+
+The CACE OCI runner was used through fixed, schema-validated operations. The
+source snapshots were pinned by Git blob SHA before execution.
+
+- RSI Python bridge: 9/9 unit tests passed on runner cace-oci-a1, Python 3.9.25.
+- CACE EvidenceBundle v1: Merlin's bundle digest matched the pinned CACE library
+  implementation exactly. This was a synthetic fixture identity test.
+- C++ GenerationLineageStore and ResearchEpisodeLedger smoke tests: both
+  compiled with GCC 11.5.0 and passed on the OCI ARM64 runner.
+- Cross-language ledger test: a Python AppendOnlyLedger event was read and
+  independently hash-chain-verified by the C++ ResearchEpisodeLedger. The
+  verified episode root was
+  31aae78850b712ed505c569acb408f1a00c42c307d80e50d1d7d12f4d4a6a27d.
+- The OCI runner had approximately 451 MB free after the C++ test run. No
+  packages or system libraries were installed; a small declaration-only
+  SQLite ABI shim was used to compile against the preinstalled SQLite runtime.
+
+Evidence records:
+- config/evidence/merlin_rsi_cace_bundle_contract_20261111.json
+- config/evidence/merlin_rsi_cpp_ledger_oci_20261111.json
+
+These are authenticated GitHub Actions execution and artifact records, not
+CACE-signed attestations. The tests establish code and serialization
+compatibility; they do not establish that a real research claim is true, that a
+real candidate artifact has been independently verified, or that promotion is
+authorized.
+
+The hosted validation workflow remains manual because the repository's
+GitHub-hosted runner allocation did not start the earlier automatic run. The
+OCI fixed-profile jobs above are the validation actually executed.
