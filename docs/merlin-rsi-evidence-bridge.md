@@ -31,8 +31,12 @@ is rejected.
 An accepted event creates an induction seed that requests generalization,
 counterexample generation, regression-test proposals, and alternative
 representation search. It grants no candidate, evaluator, or promotion
-authority. The current bridge persists the seed; dispatching the seed into a
-live model-backed RSI worker remains a separate orchestration integration.
+authority. The append-only ledger acts as the durable outbox. The
+dispatch_rsi_induction_seed boundary submits the seed with an idempotency key
+and records dispatch only after a separately trusted merlin-rsi-worker Ed25519
+acknowledgement binds the exact seed event and episode. Missing transport or
+trust anchors fail closed. A live worker transport and its production key
+distribution remain unconfigured.
 
 ## Candidate lineage and evaluation
 
