@@ -34,6 +34,15 @@ class LearnerModelTests(unittest.TestCase):
             "unobserved",
         )
 
+    def test_tenant_scoped_learner_subject_is_stable_and_isolated(self):
+        first = learner_subject_id("tenant-a", "learner-1")
+        self.assertEqual(first, learner_subject_id("tenant-a", "learner-1"))
+        self.assertNotEqual(first, learner_subject_id("tenant-b", "learner-1"))
+        self.assertNotEqual(first, learner_subject_id("tenant-a", "learner-2"))
+        self.assertNotIn("learner-1", first)
+        with self.assertRaises(ValueError):
+            learner_subject_id("", "learner-1")
+
     def test_append_and_idempotent_replay(self):
         e=self.event("a1","s1")
         self.assertEqual(self.store.record_attempt(e)["state"],"recorded")
