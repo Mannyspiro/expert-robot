@@ -103,6 +103,10 @@ The seven objectives map to canonical idea IDs `MATH-NT-001`, `MATH-NT-002`, `MA
 All assessments in this initial template are low-stakes and require human review. No learner answer, AI explanation, finite experiment, or lesson completion is promoted to formal proof or mastery by the template.
 
 
+## Calculus, probability and statistics course template
+
+The instructor-only template is available at `GET /api/learning/templates/math-calculus-probability` and can be applied to an empty draft with `POST /api/learning/courses/{course_id}/templates/math-calculus-probability`. It includes concrete-first lessons for limits/continuity, derivatives/rates, integration/accumulation, conditional probability/Bayes' rule, and statistical inference. Prerequisites that live in the algebra/functions or logic/sets courses are declared explicitly as external prerequisites. Assessments remain low-stakes and require independent human review before publication.
+
 ## Logic and discrete mathematics course template
 
 A second instructor-only template is available at `GET /api/learning/templates/math-logic-discrete` and can be applied to an empty draft using `POST /api/learning/courses/{course_id}/templates/math-logic-discrete`. It introduces propositional logic and quantifiers, sets/relations/functions, and graphs/trees. Each objective is checked against the canonical Ideonomy catalog, each lesson follows a concrete-first sequence, and all three pathways receive the lessons. The template remains low-stakes and requires independent course review before publication.
