@@ -77,6 +77,10 @@ def validate_math_foundations_manifest(
         minutes = lesson.get("estimated_minutes")
         if isinstance(minutes, bool) or not isinstance(minutes, int) or minutes < 1:
             raise ValueError(f"{lesson_id}: estimated_minutes must be a positive integer")
+        for value_name in ("learning_value", "transfer_value"):
+            value = lesson.get(value_name, 0.5)
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or not 0 <= value <= 1:
+                raise ValueError(f"{lesson_id}: {value_name} must be between zero and one")
 
         stages = lesson.get("stages")
         if not isinstance(stages, list) or not stages:
