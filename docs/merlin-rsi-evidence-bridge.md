@@ -129,13 +129,31 @@ not expose get_github_runner_status or an artifact-verification operation.
 The gateway currently allowlists inventory_snapshot and mcp_readonly_probe;
 it does not execute arbitrary repository tests or shell commands.
 
-The Avrea check for the Expert Robot build reported that no Avrea credits were
-available. The dedicated GitHub Actions RSI validation jobs also returned
-failure before exposing step logs. Consequently, the latest Python and C++
-test suite has not yet been independently executed on a working CI runner.
-The test workflow is committed, but its checks must be rerun on a functioning
-runner before this work is considered validated. Do not infer test success from
-a successful OCI inventory/MCP health probe.
+The pinned RSI Python bridge was subsequently executed on the OCI runner
+without package installation or persistent host changes:
+
+- run 43122831275, runner cace-oci-a1 (Oracle Linux 9.8, ARM64);
+- source commit fce180371c006debd8916b4a2be7f9b75bb0b03c;
+- 10/10 Python tests passed, including real Ed25519 receipts, Hermes seed-to-
+  candidate lineage, cache integrity, frozen-suite coverage, and CACE
+  EvidenceBundle digest compatibility;
+- Python 3.9.25 and preinstalled cryptography 36.0.1;
+- uploaded artifact SHA-256:
+  eaed9cd1bf9162c393764ab0a2f5305707b58c8ae71cb521302ee53a3eb9733a.
+
+A separate OCI CACE contract run (43121546574) matched the CACE EvidenceBundle
+v1 identity implementation. It produced bundle digest
+0898289d4c6267dbc8de6e595e56f8f035ad0344b65431f8deb11be0972b0272 and
+manifest digest
+75a55dcb8d863afb50f2d9614444f36424049598cb243727ba51c11795bb8c74.
+Its scope was bundle identity only, not a signed attestation or candidate
+verification.
+
+The C++ ledger test profile was attempted on OCI (run 43122690856) but returned
+unavailable because the runner has no SQLite development header. No packages
+were installed. The Avrea build check also reports no Avrea credits; the
+dedicated hosted GitHub Actions jobs have not provided usable execution logs.
+The C++ smoke tests therefore remain unverified on a live compiler.
 
 No live CACE artifact attestation has been obtained for an Expert Robot
 candidate. The CACE verification adapter remains fail-closed until a real
