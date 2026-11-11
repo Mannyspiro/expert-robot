@@ -1815,7 +1815,7 @@
         "Construct negations and counterexamples for quantified statements."
       ],
       "learning": {
-        "lesson_id": null,
+        "lesson_id": "math-logic-quantifiers-v1",
         "dimensions": [
           "conceptual_explanation",
           "proof_justification",
@@ -1854,7 +1854,7 @@
         "Connect function composition to typed program interfaces."
       ],
       "learning": {
-        "lesson_id": null,
+        "lesson_id": "math-sets-relations-v1",
         "dimensions": [
           "conceptual_explanation",
           "representation_translation",
@@ -1900,7 +1900,7 @@
         "Implement breadth-first and depth-first traversal with tests."
       ],
       "learning": {
-        "lesson_id": null,
+        "lesson_id": "math-graphs-trees-v1",
         "dimensions": [
           "representation_translation",
           "algorithm_design",
