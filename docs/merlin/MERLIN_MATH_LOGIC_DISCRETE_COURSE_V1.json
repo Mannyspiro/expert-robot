@@ -1,0 +1,429 @@
+{
+  "schema": "merlin-learning-platform/1",
+  "curriculum_id": "math-logic-discrete-v1",
+  "title": "Mathematical Logic and Discrete Structures",
+  "description": "A concrete-first bridge from precise mathematical language to sets, relations, graphs, and computational structure.",
+  "modules": [
+    {
+      "id": "mathematician",
+      "title": "Mathematician pathway",
+      "description": "Define objects, quantify claims, and prove structural properties.",
+      "lesson_ids": [
+        "math-logic-quantifiers-v1",
+        "math-sets-relations-v1",
+        "math-graphs-trees-v1"
+      ]
+    },
+    {
+      "id": "mathematics-programmer",
+      "title": "Mathematics programmer pathway",
+      "description": "Translate definitions into typed data, relations, and graph algorithms.",
+      "lesson_ids": [
+        "math-logic-quantifiers-v1",
+        "math-sets-relations-v1",
+        "math-graphs-trees-v1"
+      ]
+    },
+    {
+      "id": "computational-hacker",
+      "title": "Computational hacker pathway",
+      "description": "Decompose statements, build small models, and test graph behavior.",
+      "lesson_ids": [
+        "math-logic-quantifiers-v1",
+        "math-sets-relations-v1",
+        "math-graphs-trees-v1"
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "MATH-LOG-002",
+      "title": "Propositional logic, predicates and quantifiers",
+      "description": "Express claims with connectives and quantifiers while preserving domain and scope.",
+      "prerequisites": [],
+      "dimensions": [
+        "conceptual_explanation",
+        "proof_justification",
+        "transfer"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "logic",
+        "proofs",
+        "programming"
+      ]
+    },
+    {
+      "id": "MATH-SET-001",
+      "title": "Sets, relations and functions",
+      "description": "Use sets and relations to define objects, mappings, domains and codomains.",
+      "prerequisites": [],
+      "dimensions": [
+        "conceptual_explanation",
+        "representation_translation",
+        "proof_justification",
+        "transfer"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "sets",
+        "data_structures",
+        "logic"
+      ]
+    },
+    {
+      "id": "MATH-DISC-001",
+      "title": "Graphs, trees and network structure",
+      "description": "Model relationships with vertices, edges, paths, cycles and traversal rules.",
+      "prerequisites": [
+        "MATH-SET-001"
+      ],
+      "dimensions": [
+        "representation_translation",
+        "algorithm_design",
+        "proof_justification",
+        "transfer"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "graphs",
+        "algorithms",
+        "networks"
+      ]
+    }
+  ],
+  "lessons": [
+    {
+      "id": "math-logic-quantifiers-v1",
+      "title": "Say exactly what you mean: logic and quantifiers",
+      "objective_id": "MATH-LOG-002",
+      "body": "Start with ordinary claims about a small group. The meaning changes when we switch from 'every' to 'at least one'. Learn to preserve the domain and the order of quantifiers before using symbols.",
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "logic",
+        "proofs",
+        "programming"
+      ],
+      "estimated_minutes": 25,
+      "learning_value": 0.95,
+      "transfer_value": 0.9,
+      "resource_ids": [],
+      "historical_context": "Euclid's definitions and propositions show why mathematical arguments depend on precise statements. Modern predicate logic makes quantifier scope explicit.",
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Imagine a group containing two people: one owns a bicycle and one does not. Decide whether 'everyone owns a bicycle' and 'someone owns a bicycle' are true."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Compare 'every student solved a problem' with 'there is a problem every student solved'. Do these say the same thing? Explain the difference."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Draw a small domain of objects and mark which satisfy a predicate. Show how 'all' and 'some' select different patterns."
+        },
+        {
+          "mode": "language",
+          "prompt": "Rewrite a claim using 'for every' or 'there exists'. State the domain and the property being tested."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "Represent 'every x in D has property P' and 'some x in D has property P' using quantifier notation. Then negate each statement."
+        }
+      ],
+      "exercise": {
+        "task_id": "logic-quantifier-scope",
+        "objective": "Translate quantified statements and preserve their logical scope.",
+        "prompt": "Let D = {1,2,3,4} and P(x) mean 'x is even'. State whether (1) every x in D satisfies P, (2) some x in D satisfies P, and (3) no x in D satisfies P. Write each claim symbolically and negate the second claim correctly.",
+        "answer_format": "written_explanation",
+        "allowed_tools": [
+          "paper"
+        ],
+        "hints": [
+          "List the elements of D and evaluate P for each one.",
+          "'Every' fails if even one counterexample exists; 'some' succeeds if at least one witness exists.",
+          "To negate 'there exists x such that P(x)', write 'for every x, not P(x)'."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Correctly distinguishes universal and existential claims.",
+            "points": 2
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Gives correct truth values and a valid witness or counterexample.",
+            "points": 2
+          },
+          {
+            "dimension": "transfer",
+            "description": "Negates the existential statement with the correct quantifier and predicate.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Write and negate a statement about every node in a network having at least one neighbor. State what an isolated node would show."
+      }
+    },
+    {
+      "id": "math-sets-relations-v1",
+      "title": "Sets, relations and functions",
+      "objective_id": "MATH-SET-001",
+      "body": "Use collections of objects to distinguish membership, subset, relation and function. A function is a special relation: each input in its declared domain has exactly one output in its codomain.",
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "sets",
+        "data_structures",
+        "logic"
+      ],
+      "estimated_minutes": 25,
+      "learning_value": 0.95,
+      "transfer_value": 0.9,
+      "resource_ids": [],
+      "historical_context": "Set language became a shared foundation for modern mathematics. The lesson focuses on the practical distinction between a general relation and a single-valued mapping.",
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Make two groups of cards: students and books. Draw arrows from each student to the books they borrowed."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Can one student point to two books? Can one student point to no book? What changes if the arrows represent a function assigning each student exactly one locker?"
+        },
+        {
+          "mode": "visual",
+          "prompt": "Draw a mapping diagram with a domain on the left and codomain on the right. Compare a many-to-one function with a relation that gives one input two outputs."
+        },
+        {
+          "mode": "language",
+          "prompt": "Define domain, codomain, image, relation and function in your own words. Give one example that is a relation but not a function."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "Represent a function f from A to B and state the condition that each element of A has exactly one image in B."
+        }
+      ],
+      "exercise": {
+        "task_id": "sets-relations-functions",
+        "objective": "Classify relations and explain when a relation is a function.",
+        "prompt": "Let A = {a,b,c} and B = {1,2,3}. Consider R = {(a,1),(b,2),(c,2)} and S = {(a,1),(a,2),(b,3)}. Decide whether each is a function from A to B. Explain using the domain rule, then give one relation that is not a function because an input has no output.",
+        "answer_format": "table_and_explanation",
+        "allowed_tools": [
+          "paper"
+        ],
+        "hints": [
+          "Check every element of A, not only the elements that appear in the ordered pairs.",
+          "A function cannot assign two different outputs to the same input.",
+          "A relation can be incomplete or multi-valued; those are not functions from the full declared domain."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "States the one-output rule for every domain element.",
+            "points": 2
+          },
+          {
+            "dimension": "representation_translation",
+            "description": "Correctly classifies R and S from their ordered pairs.",
+            "points": 2
+          },
+          {
+            "dimension": "transfer",
+            "description": "Constructs a valid non-function example and explains why it fails.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Model a program that maps each user ID to a single account record. Give an example of data that violates the function contract."
+      }
+    },
+    {
+      "id": "math-graphs-trees-v1",
+      "title": "Graphs, paths and trees",
+      "objective_id": "MATH-DISC-001",
+      "body": "A graph models relationships. Vertices represent objects and edges represent connections. Paths describe movement through the graph; cycles return to a previously visited vertex. A tree is a connected graph with no cycles.",
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "graphs",
+        "algorithms",
+        "networks"
+      ],
+      "estimated_minutes": 30,
+      "learning_value": 0.95,
+      "transfer_value": 0.9,
+      "resource_ids": [],
+      "historical_context": "Graph theory grew from concrete route and network problems, including Euler's work on the bridges of Königsberg. The lesson turns a map into a precise combinatorial object.",
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Draw four places as dots and connect pairs that have a direct road. Do not worry about distances yet."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Find a route from one place to another. Does any route revisit a place? Can you find a closed route that returns to its start?"
+        },
+        {
+          "mode": "visual",
+          "prompt": "Label vertices and edges. Draw one path, one cycle, and a connected graph with no cycle."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the difference between a path, a cycle, a connected graph and a tree. State whether every tree is connected."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "Represent the graph as a vertex set V and edge set E. Write an adjacency list for your example."
+        },
+        {
+          "mode": "code",
+          "prompt": "Implement a small graph traversal or manually trace breadth-first search from a chosen start vertex. Record the visited order."
+        }
+      ],
+      "exercise": {
+        "task_id": "graph-path-tree-model",
+        "objective": "Represent a network as a graph and reason about paths, cycles and trees.",
+        "prompt": "Use V = {A,B,C,D} and E = {{A,B},{B,C},{C,D}}. Write an adjacency list, give a path from A to D, and explain why this graph is a tree. Then add edge {A,D} and identify the cycle created.",
+        "answer_format": "written_explanation",
+        "allowed_tools": [
+          "paper",
+          "python"
+        ],
+        "hints": [
+          "An undirected edge appears in both endpoint adjacency lists.",
+          "The original graph is connected and has no closed path with distinct intermediate vertices.",
+          "The added edge connects the two ends of the existing path and closes a cycle."
+        ],
+        "rubric": [
+          {
+            "dimension": "representation_translation",
+            "description": "Builds the correct adjacency list and path.",
+            "points": 2
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Explains connectedness and absence of cycles in the original graph.",
+            "points": 2
+          },
+          {
+            "dimension": "algorithm_design",
+            "description": "Identifies the cycle after adding the new edge.",
+            "points": 2
+          },
+          {
+            "dimension": "transfer",
+            "description": "Explains how the model could represent a real network.",
+            "points": 1
+          }
+        ],
+        "transfer_prompt": "Model a dependency network between software modules. Explain what a cycle would mean and why it may block a valid build order."
+      }
+    }
+  ],
+  "assessments": [
+    {
+      "id": "assessment-math-logic-002",
+      "title": "Logic and quantifier evidence check",
+      "objective_id": "MATH-LOG-002",
+      "high_stakes": false,
+      "human_review_required": true,
+      "rubric": [
+        {
+          "dimension": "conceptual_explanation",
+          "description": "Distinguishes quantifiers and scope.",
+          "points": 2
+        },
+        {
+          "dimension": "proof_justification",
+          "description": "Correctly reasons with witnesses and counterexamples.",
+          "points": 2
+        },
+        {
+          "dimension": "transfer",
+          "description": "Negates a quantified statement correctly.",
+          "points": 2
+        }
+      ]
+    },
+    {
+      "id": "assessment-math-set-001",
+      "title": "Sets and functions evidence check",
+      "objective_id": "MATH-SET-001",
+      "high_stakes": false,
+      "human_review_required": true,
+      "rubric": [
+        {
+          "dimension": "conceptual_explanation",
+          "description": "Explains relation and function conditions.",
+          "points": 2
+        },
+        {
+          "dimension": "representation_translation",
+          "description": "Classifies mappings from ordered pairs.",
+          "points": 2
+        },
+        {
+          "dimension": "transfer",
+          "description": "Applies the function contract to a new example.",
+          "points": 2
+        }
+      ]
+    },
+    {
+      "id": "assessment-math-disc-001",
+      "title": "Graph structures evidence check",
+      "objective_id": "MATH-DISC-001",
+      "high_stakes": false,
+      "human_review_required": true,
+      "rubric": [
+        {
+          "dimension": "representation_translation",
+          "description": "Represents a graph with vertices, edges and adjacency lists.",
+          "points": 2
+        },
+        {
+          "dimension": "algorithm_design",
+          "description": "Reasons about paths and cycles.",
+          "points": 2
+        },
+        {
+          "dimension": "proof_justification",
+          "description": "Justifies tree properties.",
+          "points": 2
+        },
+        {
+          "dimension": "transfer",
+          "description": "Maps the graph idea to a dependency network.",
+          "points": 1
+        }
+      ]
+    }
+  ],
+  "resources": [],
+  "grading_policy": {
+    "automated_high_stakes": false,
+    "proof_requires_human_review": true,
+    "ai_only_mastery_promotion": false
+  }
+}
