@@ -1,6 +1,6 @@
 # Parrondo simulation and learner-session integration
 
-The Parrondo discovery activity is now represented as a native Merlin `LessonSpec`, so the existing sequential `LessonSession` runtime can advance it without a parallel lesson-state implementation. The first five stages are concrete play, observation and visual explanation; symbols appear only at the final stage.
+The Parrondo discovery activity is now represented as a native Merlin `LessonSpec`, so the existing sequential `LessonSession` runtime can advance it without a parallel lesson-state implementation. Its target concepts are registered in the prerequisite graph: state, probability, expected value, state transitions and Markov chains, building from quantity. The first five stages are concrete play, observation and visual explanation; symbols appear only at the final stage.
 
 `python/merlin/parrondo_simulation.py` adds reproducible finite-run experiments:
 - a seeded game trajectory with every visited integer total;
