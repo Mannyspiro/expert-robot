@@ -124,12 +124,17 @@ class RSIPipelineTests(unittest.TestCase):
 
     def test_candidate_lineage_requires_signed_source_and_valid_parent(self):
         source = self.source_receipt("candidate-root")
-        with self.assertRaises(PermissionError):
-            self.ledger.record_candidate(
-                candidate_id="candidate-root", parent_candidate_id=None,
-                source_receipt=source, artifact_sha256=ARTIFACT,
-                generator="hermes", mutation={}
-            )
+        from unittest.mock import patch
+        with patch.dict(os.environ, {
+            "MERLIN_ISSUER_TRUST_STORE_JSON": "",
+            "MERLIN_ISSUER_TRUST_STORE_SHA256": "",
+        }):
+            with self.assertRaises(PermissionError):
+                self.ledger.record_candidate(
+                    candidate_id="candidate-root", parent_candidate_id=None,
+                    source_receipt=source, artifact_sha256=ARTIFACT,
+                    generator="hermes", mutation={}
+                )
         with self.assertRaises(ValueError):
             self.ledger.record_candidate(
                 candidate_id="candidate-child", parent_candidate_id="missing-parent",
@@ -389,12 +394,19 @@ class RSIPipelineTests(unittest.TestCase):
                 "cace_attestation_sha256": attestation_digest,
                 "action": "promote", "target": "qualified",
             }, "approver-key", self.approver_private)
-            with self.assertRaises(PermissionError):
-                self.ledger.record_promotion(
-                    candidate_id=candidate, artifact_sha256=ARTIFACT,
-                    suite_sha256=SUITE, attestation=attestation,
-                    approval_receipt=approval
-                )
+            issuer_store = json.loads(os.environ["MERLIN_ISSUER_TRUST_STORE_JSON"])
+            issuer_store["issuers"].pop("merlin-approver")
+            unapproved_raw = json.dumps(issuer_store, sort_keys=True, separators=(",", ":"))
+            with patch.dict(os.environ, {
+                "MERLIN_ISSUER_TRUST_STORE_JSON": unapproved_raw,
+                "MERLIN_ISSUER_TRUST_STORE_SHA256": rsi.sha256_hex(unapproved_raw.encode("utf-8")),
+            }):
+                with self.assertRaises(PermissionError):
+                    self.ledger.record_promotion(
+                        candidate_id=candidate, artifact_sha256=ARTIFACT,
+                        suite_sha256=SUITE, attestation=attestation,
+                        approval_receipt=approval
+                    )
             promoted = self.ledger.record_promotion(
                 candidate_id=candidate, artifact_sha256=ARTIFACT,
                 suite_sha256=SUITE, attestation=attestation,
