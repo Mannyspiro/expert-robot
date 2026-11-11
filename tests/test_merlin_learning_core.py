@@ -195,9 +195,6 @@ class LearnerStoreTests(unittest.TestCase):
         self.assertAlmostEqual(reopened.mastery("learner-5", "quantity")["conceptual"], 0.245)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
 
 class SpacedRepetitionTests(unittest.TestCase):
     def setUp(self):
@@ -295,3 +292,7 @@ class ParrondoStrategyTests(unittest.TestCase):
         from merlin.learning_core import compare_strategy_policies
         with self.assertRaises(ValueError):
             compare_strategy_policies({"mixed": [{"transfer": 1.5}]})
+
+
+if __name__ == "__main__":
+    unittest.main()
