@@ -103,6 +103,26 @@ class ModelFabricTests(unittest.TestCase):
         self.assertIsNone(decision.selected_backend_id)
         self.assertIn(("vllm", "data_class_not_permitted"), decision.excluded)
 
+    def test_measured_memory_peaks_must_fit_budget(self):
+        decision = route_model(
+            ModelRouteRequest(task_scope="council", max_vram_bytes=1),
+            [backend(estimated_vram_bytes=0)],
+            [measurement(peak_vram_bytes=2)],
+            [receipt()],
+        )
+        self.assertIsNone(decision.selected_backend_id)
+        self.assertIn(("vllm", "measured_vram_exceeds_budget"), decision.excluded)
+
+    def test_latest_task_measurement_is_selected_deterministically(self):
+        older = measurement(measured_at="2026-11-10T12:00:00Z", quality_score=0.99)
+        newer = measurement(measured_at="2026-11-11T12:00:00Z", quality_score=0.90)
+        decision = route_model(
+            ModelRouteRequest(task_scope="council", min_quality=0.95),
+            [backend()], [newer, older], [receipt()],
+        )
+        self.assertIsNone(decision.selected_backend_id)
+        self.assertEqual(decision.excluded[0][1], "quality_below_threshold")
+
     def test_task_specific_measurement_required(self):
         decision = route_model(
             ModelRouteRequest(task_scope="chat"),
