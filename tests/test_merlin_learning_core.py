@@ -234,6 +234,17 @@ class SpacedRepetitionTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.srs.review("srs-4", "quantity", 6, now=self.now)
 
+    def test_learner_can_defer_review_and_it_leaves_due_queue(self):
+        from datetime import timedelta
+        self.srs.ensure_card("srs-5", "quantity", now=self.now - timedelta(days=1))
+        deferred = self.srs.defer("srs-5", "quantity", 2, now=self.now)
+        self.assertEqual(deferred.interval_days, 0)
+        self.assertEqual(self.srs.due_cards("srs-5", now=self.now), ())
+
+    def test_deferral_must_be_positive_whole_days(self):
+        with self.assertRaises(ValueError):
+            self.srs.defer("srs-6", "quantity", 0, now=self.now)
+
 
 class ComprehensiveInputTests(unittest.TestCase):
     def setUp(self):
@@ -297,3 +308,27 @@ class ParrondoStrategyTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class StrategyArmAllocatorTests(unittest.TestCase):
+    def test_assignment_is_reproducible_for_learner_concept_cluster(self):
+        from merlin.learning_core import StrategyArmAllocator
+        arms = ("mixed", "retrieval_only", "worked_example_only")
+        first = StrategyArmAllocator.assign_arm("learner-a", "concept-a", "study-1", arms, seed="seed-v1")
+        second = StrategyArmAllocator.assign_arm("learner-a", "concept-a", "study-1", arms, seed="seed-v1")
+        self.assertEqual(first, second)
+        self.assertIn(first, arms)
+
+    def test_distinct_clusters_can_be_allocated(self):
+        from merlin.learning_core import StrategyArmAllocator
+        arms = ("mixed", "single")
+        assignments = {
+            StrategyArmAllocator.assign_arm(f"learner-{i}", "concept", "study", arms, seed="seed")
+            for i in range(100)
+        }
+        self.assertEqual(assignments, set(arms))
+
+    def test_allocator_rejects_invalid_arms(self):
+        from merlin.learning_core import StrategyArmAllocator
+        with self.assertRaises(ValueError):
+            StrategyArmAllocator.assign_arm("l", "c", "e", ("mixed", "mixed"), seed="s")
