@@ -9,6 +9,7 @@ independent CACE verification.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+import hashlib
 import json
 import math
 import sqlite3
@@ -774,7 +775,7 @@ class StrategyArmAllocator:
         unique_arms = tuple(dict.fromkeys(arms))
         if len(unique_arms) < 2 or any(not arm for arm in unique_arms):
             raise ValueError("at least two distinct non-empty experiment arms are required")
-        payload = "\\x1f".join((seed, experiment_id, learner_id, concept_id)).encode("utf-8")
+        payload = "\x1f".join((seed, experiment_id, learner_id, concept_id)).encode("utf-8")
         digest = hashlib.sha256(payload).digest()
         index = int.from_bytes(digest[:8], "big") % len(unique_arms)
         return unique_arms[index]
