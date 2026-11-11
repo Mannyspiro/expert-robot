@@ -23,6 +23,17 @@ class ParrondoLessonTests(unittest.TestCase):
         distribution = stationary_distribution(game_b)
         self.assertAlmostEqual(sum(distribution), 1.0, places=12)
         self.assertTrue(all(value > 0 for value in distribution))
+    def test_stationary_distribution_is_invariant_under_transition(self):
+        _, game_b, _ = make_canonical_games()
+        distribution = stationary_distribution(game_b)
+        transitioned = [0.0, 0.0, 0.0]
+        for state, mass in enumerate(distribution):
+            p = game_b.probabilities_by_state[state]
+            transitioned[(state + 1) % 3] += mass * p
+            transitioned[(state - 1) % 3] += mass * (1.0 - p)
+        for actual, expected in zip(transitioned, distribution):
+            self.assertAlmostEqual(actual, expected, places=12)
+
     def test_invalid_epsilon_and_probabilities_rejected(self):
         from merlin.parrondo_lesson import Game
         for epsilon in (0, 0.05, -0.1, 1):
