@@ -657,6 +657,8 @@ class LearningPlatform:
               (actor.tenant_id, course_id, submission_id)).fetchone()
             if row is None:
                 raise KeyError("submission not found")
+            if row["status"] != "pending_review":
+                raise LearningConflictError("submission has already received a review; create a new submission for another attempt")
             if row["owner_id"] == actor.actor_id:
                 raise LearningPermissionError("course authors cannot independently review learner work")
             manifest = json.loads(row["manifest_json"])
