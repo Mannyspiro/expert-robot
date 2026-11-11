@@ -6,10 +6,12 @@ cannot access remote providers, tools, promotion, or merge authority.
 """
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from hashlib import sha256
 import json
 import os
-from typing import Any
+from time import perf_counter
+from typing import Any, Callable
 from urllib.request import Request, urlopen
 
 from .council import build_deliberation_packets
@@ -67,11 +69,24 @@ def _model_call(endpoint: str, model: str, packet: dict[str, Any],
     }
 
 
-def run_local_council(question: str, context: str = "", verbosity: str = "lively",
-                      rounds: int = 1) -> dict[str, Any]:
-    """Run six independent local openings, optionally followed by one debate round."""
+def run_local_council(
+    question: str,
+    context: str = "",
+    verbosity: str = "lively",
+    rounds: int = 1,
+    *,
+    max_concurrency: int = 6,
+    event_sink: Callable[[dict[str, Any]], None] | None = None,
+) -> dict[str, Any]:
+    """Run bounded independent council seats and isolate individual failures.
+
+    Seat completion events are emitted as each request finishes. The callback
+    is best-effort telemetry only; it cannot authorize tools or execution.
+    """
     if type(rounds) is not int or rounds not in (1, 2):
         raise ValueError("rounds must be 1 or 2")
+    if type(max_concurrency) is not int or not 1 <= max_concurrency <= 6:
+        raise ValueError("max_concurrency must be between 1 and 6")
     if os.environ.get("MERLIN_MODEL_QUALIFIED") != "1":
         raise RuntimeError("local model is not qualified; council execution is disabled")
     from urllib.parse import urlsplit
@@ -81,19 +96,76 @@ def run_local_council(question: str, context: str = "", verbosity: str = "lively
         raise ValueError("council model endpoint must be loopback-only")
     model = os.environ.get("MERLIN_MODEL_NAME", "local-model").strip() or "local-model"
     packets = build_deliberation_packets(question, context, verbosity)
-    openings = [_model_call(endpoint, model, packet) for packet in packets]
+
+    def run_seat(index: int, packet: dict[str, Any],
+                 prior: list[dict[str, str]] | None = None) -> tuple[int, dict[str, Any]]:
+        persona = packet["persona"]
+        started = perf_counter()
+        try:
+            result = _model_call(endpoint, model, packet, prior)
+            result["status"] = "completed"
+        except Exception as exc:
+            result = {
+                "persona_id": persona["persona_id"],
+                "persona_title": persona["title"],
+                "status": "failed",
+                "error_type": type(exc).__name__,
+                "provider": "local_openai_compatible",
+                "model": model,
+            }
+        elapsed_ms = max(0.0, (perf_counter() - started) * 1000.0)
+        if event_sink is not None:
+            event = {
+                "schema": "merlin-council-seat-event/1",
+                "kind": "seat.completed" if result["status"] == "completed" else "seat.failed",
+                "persona_id": persona["persona_id"],
+                "persona_title": persona["title"],
+                "status": result["status"],
+                "duration_ms": elapsed_ms,
+                "response_sha256": result.get("response_sha256"),
+                "error_type": result.get("error_type"),
+            }
+            try:
+                event_sink(event)
+            except Exception:
+                pass
+        return index, result
+
+    def run_round(round_packets: list[tuple[int, dict[str, Any], list[dict[str, str]] | None]]) -> list[dict[str, Any]]:
+        rows: list[dict[str, Any] | None] = [None] * len(round_packets)
+        with ThreadPoolExecutor(max_workers=max_concurrency,
+                                thread_name_prefix="merlin-council") as pool:
+            futures = [
+                pool.submit(run_seat, index, packet, prior)
+                for index, packet, prior in round_packets
+            ]
+            for future in as_completed(futures):
+                index, result = future.result()
+                rows[index] = result
+        return [row for row in rows if row is not None]
+
+    openings = run_round([(i, packet, None) for i, packet in enumerate(packets)])
+    successful_openings = [row for row in openings if row.get("status") == "completed"]
     debates: list[dict[str, Any]] = []
-    if rounds == 2:
-        for packet in packets:
-            others = [row for row in openings if row["persona_id"] != packet["persona"]["persona_id"]]
-            debates.append(_model_call(endpoint, model, packet, others))
+    if rounds == 2 and successful_openings:
+        debate_packets = []
+        for index, packet in enumerate(packets):
+            others = [row for row in successful_openings
+                      if row["persona_id"] != packet["persona"]["persona_id"]]
+            if any(row["persona_id"] == packet["persona"]["persona_id"] for row in successful_openings):
+                debate_packets.append((len(debate_packets), packet, others))
+        debates = run_round(debate_packets)
+
     return {
         "schema": "merlin-council-transcript/1",
         "provider": "local_openai_compatible",
         "model": model,
         "rounds_requested": rounds,
+        "max_concurrency": max_concurrency,
         "opening_positions": openings,
         "cross_examination": debates,
+        "failed_seats": sum(row.get("status") != "completed" for row in openings)
+                        + sum(row.get("status") != "completed" for row in debates),
         "opening_independence": "Each opening call received only the shared question/context and its own role packet.",
         "promotion_authorized": False,
         "authority_expansion": False,
