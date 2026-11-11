@@ -108,12 +108,15 @@ jobs:
           printf '{"suite":"merlin-research-curriculum","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$test_exit" > artifacts/merlin-research-curriculum-result.json
           exit "$test_exit"
 
-      - name: Merlin zero-first mathematics learning core
+      - name: Merlin zero-first mathematics learning core and interactive lessons
         env:
           PYTHONPATH: python
         run: |
           set -euo pipefail
           python3 -m unittest discover -s tests -p "test_merlin_learning_core.py" -v
+          python3 -m unittest discover -s tests -p "test_parrondo*.py" -v
+          python3 -m unittest discover -s tests -p "test_lesson_renderer.py" -v
+          python3 -m unittest discover -s tests -p "test_learning_schedule.py" -v
 
       - name: Restore C++ compiler cache
         id: ccache-restore
