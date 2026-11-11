@@ -77,7 +77,7 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
     <div class="toolbar"><div><div class="eyebrow">Course workspace</div><h2 id="detailTitle">Course</h2><p id="detailMeta" class="muted"></p></div><div class="actions"><button class="ghost" id="backBtn" type="button">Back to catalog</button></div></div>
     <div class="layout">
       <div class="card"><h3>Learning objectives</h3><ul id="objectives" class="list"></ul><h3>Lessons</h3><div id="lessons"></div><h3>Resources</h3><ul id="resources" class="list"></ul></div>
-      <div class="card"><h3>Course actions</h3><div id="courseActions" class="actions"></div><div id="recommendation" class="notice hidden" aria-live="polite"></div><div id="editorWrap" class="hidden"><h3>Draft manifest</h3><p class="muted">Edit the structured course manifest. Published versions remain immutable; create a new revision to change them.</p><label for="manifestEditor">Manifest JSON</label><textarea id="manifestEditor" spellcheck="false"></textarea><button id="saveManifest" class="primary" type="button">Save draft manifest</button></div><div id="reviewWrap" class="hidden"><h3>Independent review</h3><label for="reviewNotes">Review notes</label><textarea id="reviewNotes" rows="3" style="min-height:90px"></textarea><button id="approveBtn" type="button">Approve version</button><button id="changesBtn" class="ghost" type="button">Request changes</button></div></div>
+      <div class="card"><h3>Course actions</h3><div id="courseActions" class="actions"></div><div id="recommendation" class="notice hidden" aria-live="polite"></div><div id="editorWrap" class="hidden"><h3>Draft manifest</h3><p class="muted">Edit the structured course manifest. Published versions remain immutable; create a new revision to change them.</p><label for="manifestEditor">Manifest JSON</label><textarea id="manifestEditor" spellcheck="false"></textarea><button id="saveManifest" class="primary" type="button">Save draft manifest</button></div><div id="reviewWrap" class="hidden"><h3>Independent review</h3><label for="reviewNotes">Review notes</label><textarea id="reviewNotes" rows="3" style="min-height:90px"></textarea><button id="approveBtn" type="button">Approve version</button><button id="changesBtn" class="ghost" type="button">Request changes</button></div><div id="submissionReviewWrap" class="hidden"><h3>Assessment submissions</h3><p class="meta">Review learner work independently. Review decisions are recorded separately and do not automatically update mastery or proof status.</p><div id="submissionQueue"></div></div></div>
     </div>
   </section>
   <section id="lessonPlayerSection" class="card hidden" aria-labelledby="playerTitle">
@@ -319,12 +319,64 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
     if (canEdit) $("manifestEditor").value = JSON.stringify(manifest, null, 2);
     const canReview = role === "reviewer" && course.status === "draft";
     $("reviewWrap").classList.toggle("hidden", !canReview);
+    const canReviewSubmissions = role === "reviewer" && course.status === "published";
+    $("submissionReviewWrap").classList.toggle("hidden", !canReviewSubmissions);
+    if (canReviewSubmissions) void loadSubmissionQueue();
     if (canEdit && !(manifest.objectives || []).length && !(manifest.lessons || []).length) {
       actions.append(actionButton("Apply Math Foundations template", applyMathTemplate, true));
     }
     if (canEdit) {
       actions.append(actionButton("Publish after review", publish));
       if (course.status === "published") actions.append(actionButton("Create revision", createRevision));
+    }
+  }
+  async function loadSubmissionQueue() {
+    const host = $("submissionQueue");
+    host.replaceChildren();
+    try {
+      const result = await api("/api/learning/courses/" + encodeURIComponent(current.course_id) +
+        "/submissions");
+      if (!result.submissions?.length) {
+        host.append(el("p", "No submissions are waiting in this course.", "meta"));
+        return;
+      }
+      for (const submission of result.submissions) {
+        const card = el("article", undefined, "card");
+        card.append(el("h4", "Submission " + submission.submission_id));
+        card.append(el("p", "Learner " + submission.learner_id + " · " +
+          submission.lesson_id + " · " + submission.status, "meta"));
+        const answer = el("pre", JSON.stringify(submission.response, null, 2), "submission-response");
+        card.append(answer);
+        if (submission.status === "pending_review") {
+          const feedback = document.createElement("textarea");
+          feedback.rows = 3;
+          feedback.maxLength = 8000;
+          feedback.placeholder = "Constructive feedback for the learner";
+          card.append(feedback);
+          const actions = el("div", undefined, "actions");
+          actions.append(actionButton("Accept work", () =>
+            reviewSubmission(submission.submission_id, "accepted", feedback.value), true));
+          actions.append(actionButton("Request revision", () =>
+            reviewSubmission(submission.submission_id, "needs_revision", feedback.value)));
+          card.append(actions);
+        }
+        host.append(card);
+      }
+    } catch (error) {
+      host.append(el("p", "Submission queue unavailable: " + error.message, "meta"));
+    }
+  }
+  async function reviewSubmission(submissionId, decision, feedback) {
+    try {
+      await api("/api/learning/courses/" + encodeURIComponent(current.course_id) +
+        "/submissions/" + encodeURIComponent(submissionId) + "/review", "POST", {
+          decision, feedback, rubric_scores: {}
+        });
+      notice("Human review recorded. Learner mastery and proof status remain unchanged.", "success");
+      await loadSubmissionQueue();
+      await loadCatalog();
+    } catch (error) {
+      notice("Review could not be recorded: " + error.message, "error");
     }
   }
   async function applyMathTemplate() {
