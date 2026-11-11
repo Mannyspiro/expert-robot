@@ -51,6 +51,16 @@ def validate_math_foundations_manifest(
             raise ValueError(f"{objective_id}: objective dimensions differ from canonical learning metadata")
         if objective.get("prerequisites") != learning.get("prerequisites"):
             raise ValueError(f"{objective_id}: objective prerequisites differ from canonical learning metadata")
+        pathways = objective.get("pathways")
+        if not isinstance(pathways, list) or not pathways or any(
+            not isinstance(pathway, str) or pathway not in PATHWAYS for pathway in pathways
+        ):
+            raise ValueError(f"{objective_id}: pathways must contain known learning paths")
+        interests = objective.get("interest_tags", [])
+        if not isinstance(interests, list) or any(
+            not isinstance(tag, str) or not tag.strip() for tag in interests
+        ):
+            raise ValueError(f"{objective_id}: interest_tags must contain non-empty strings")
 
     lesson_ids: set[str] = set()
     task_ids: set[str] = set()
@@ -169,14 +179,39 @@ def validate_math_foundations_manifest(
     if len(order) != len(objective_by_id):
         raise ValueError("math foundations prerequisite graph contains a cycle")
 
+    module_pathways = {
+        "mathematician": "mathematician",
+        "mathematics-programmer": "mathematics_programmer",
+        "computational-hacker": "computational_hacker",
+    }
+    covered_pathways: set[str] = set()
+    covered_lessons: set[str] = set()
+    module_ids: set[str] = set()
     for module in manifest["modules"]:
         if not isinstance(module, dict):
             raise ValueError("course modules must be objects")
+        module_id = module.get("id")
+        if not isinstance(module_id, str) or module_id not in module_pathways or module_id in module_ids:
+            raise ValueError(f"unknown or duplicate course module id: {module_id!r}")
+        module_ids.add(module_id)
+        pathway = module_pathways[module_id]
+        covered_pathways.add(pathway)
         lesson_refs = module.get("lesson_ids", [])
-        if not isinstance(lesson_refs, list) or any(
+        if not isinstance(lesson_refs, list) or not lesson_refs or any(
             not isinstance(ref, str) or ref not in lesson_ids for ref in lesson_refs
         ):
-            raise ValueError(f"module {module.get('id')!r} references an unknown lesson")
+            raise ValueError(f"module {module_id!r} must reference known lessons")
+        if len(set(lesson_refs)) != len(lesson_refs):
+            raise ValueError(f"module {module_id!r} contains duplicate lesson references")
+        covered_lessons.update(lesson_refs)
+        for lesson_id in lesson_refs:
+            lesson = next(item for item in manifest["lessons"] if item["id"] == lesson_id)
+            if pathway not in lesson.get("pathways", []):
+                raise ValueError(f"module {module_id!r} includes lesson {lesson_id!r} outside its pathway")
+    if covered_pathways != set(PATHWAYS):
+        raise ValueError("course modules must cover all three learning pathways")
+    if covered_lessons != lesson_ids:
+        raise ValueError("every course lesson must appear in at least one pathway module")
 
     assessment_objectives = set()
     for assessment in manifest["assessments"]:
