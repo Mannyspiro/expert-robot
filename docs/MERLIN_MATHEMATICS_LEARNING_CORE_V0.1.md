@@ -69,3 +69,28 @@ These are numerical estimates, not symbolic derivatives or proofs. The derivativ
 ```bash
 PYTHONPATH=python python3 -m unittest discover -s tests -p 'test_merlin_learning_core.py' -v
 ```
+
+## Spaced repetition and retrieval scheduling
+
+The core now includes an SM-2-inspired review scheduler with per-learner/per-concept cards, due dates, intervals, ease factors, repetition counts, and recall quality. Successful recall expands intervals; difficult recall schedules an early retry. Reviews write explicit retention evidence back to the learner attempt store. This is a practical initial scheduler, not a claim that SM-2 is universally optimal; interval policy should be evaluated against delayed recall and learner burden.
+
+## Comprehensive learner input
+
+`LearningInput` and `LearningInputStore` normalize text, choice, numeric, expression, code, proof, graph, audio, video and mixed-mode responses. The envelope also captures confidence, hints, elapsed time, accessibility metadata and source references. Large audio/video payloads are deliberately stored outside this table; the record retains references and structured response metadata. Input metadata must be JSON-serializable and finite.
+
+## Parrondo-inspired teaching strategy optimization
+
+The implementation treats the paradox as a hypothesis about strategy portfolios, not as course content and not as a guarantee. A mixed policy cycles through retrieval practice, worked examples, interleaving, visual exploration, self-explanation and spaced review. Single-strategy control assignments and a comparison summarizer are included.
+
+The comparison tracks immediate accuracy, delayed retention, transfer and independent solving. The intended test is whether a measured mixture can outperform the best individual strategy on durable learning outcomes, even if some individual sessions or component strategies look worse. This requires randomized learner/concept-level assignment, comparable tasks, delayed assessments, adequate sample sizes and held-out replication before making causal or optimization claims. The current cycling policy is an experiment primitive, not yet an adaptive causal policy.
+
+## Next implementation increments
+
+1. Browser-based interactive lesson player with graph manipulation, equation/number-line visualizations, keyboard and screen-reader alternatives.
+2. Daily review queue integrated into lesson selection, with a bounded review load and learner-controlled deferral.
+3. Strategy experiment allocator with reproducible randomization, baseline arms, assignment logs, outcome capture and confidence intervals.
+4. Curriculum compiler for the three learning paths with explicit prerequisite, representation and assessment coverage.
+5. Hermes tutoring adapter that proposes hints/questions but cannot mark mastery without assessed evidence.
+6. Canonical learner registry integration after schema inspection; do not fork the source of truth.
+7. Video/resource discovery with provenance, accessibility and rights metadata.
+8. Held-out evaluation of delayed retention, transfer, independent solving and time-to-mastery.
