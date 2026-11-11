@@ -22,6 +22,22 @@ DIMENSIONS = {
     "cultural_context", "creative_iteration", "authorship_provenance",
     "construction", "classification", "artistic_variation", "spatial_reasoning", "visualization", "scaling_analysis", "modeling", "interpretation", "algorithm_design", "parameter_reasoning", "reproducibility", "data_reasoning", "visual_encoding", "uncertainty", "critical_interpretation", "negative_space", "proportion", "composition", "balance", "rhythm", "contrast", "intentional_choice", "tool_control", "material_experiment", "craft_precision", "motif_design", "repeat_structure", "variation", "visual_coherence", "source_attribution", "contextual_interpretation", "ethical_representation", "spatial_composition", "viewpoint", "material_constraints", "material_selection", "structural_iteration", "fabrication_accuracy", "temporal_rhythm", "motion_design", "sequence", "sound_light_mapping", "artist_statement", "critique", "audience_awareness", "rule_design", "parameter_exploration", "creative_control", "iteration", "data_selection", "uncertainty_disclosure", "interpretive_integrity", "authorship_disclosure", "source_provenance", "licensing_awareness", "model_critique", "question_formulation", "literature_context", "artifact_iteration", "research_notebook", "formal_analysis", "revision_rationale", "self_reflection", "curation", "communication", "evidence_presentation", "limitations",
 }
+PATHWAYS = frozenset({"mathematician", "mathematics_programmer", "computational_hacker"})
+EXPLANATION_MODES = frozenset({"visual", "worked_example", "socratic", "historical", "textual", "video", "interactive", "code"})
+PACE_MAX_MINUTES = {"gentle": 20, "standard": 35, "intensive": 60, "adaptive": None}
+DEFAULT_LEARNER_PROFILE = {
+    "schema_version": 1,
+    "pathway_weights": {
+        "mathematician": 1 / 3,
+        "mathematics_programmer": 1 / 3,
+        "computational_hacker": 1 / 3,
+    },
+    "interests": [],
+    "explanation_modes": ["worked_example", "visual", "socratic"],
+    "pace": "adaptive",
+    "max_minutes": None,
+}
+
 ATTEMPT_TOPIC = "merlin.learning.attempt"
 
 
@@ -58,6 +74,10 @@ class LearnerStore:
               delayed INTEGER NOT NULL, transfer INTEGER NOT NULL);
             CREATE INDEX IF NOT EXISTS learner_attempt_lookup
               ON learner_attempts(learner_id,idea_id,dimension,submitted_at);
+            CREATE TABLE IF NOT EXISTS learner_profiles(
+              learner_id TEXT PRIMARY KEY,
+              profile_json TEXT NOT NULL,
+              updated_at REAL NOT NULL);
             """)
     
     def _connect(self):
@@ -66,6 +86,106 @@ class LearnerStore:
         db.execute("PRAGMA busy_timeout=30000")
         db.execute("PRAGMA journal_mode=WAL")
         return db
+
+    def get_profile(self, learner_id: str) -> dict[str, Any]:
+        """Return persisted learner preferences or a safe, balanced default."""
+        learner = self._required(learner_id, "learner_id")
+        with closing(self._connect()) as db:
+            row = db.execute(
+                "SELECT profile_json,updated_at FROM learner_profiles WHERE learner_id=?",
+                (learner,),
+            ).fetchone()
+        if row is None:
+            return {**DEFAULT_LEARNER_PROFILE, "updated_at": None}
+        try:
+            profile = json.loads(row["profile_json"])
+        except (TypeError, json.JSONDecodeError) as exc:
+            raise ValueError("stored learner profile is invalid") from exc
+        if not isinstance(profile, dict) or profile.get("schema_version") != 1:
+            raise ValueError("stored learner profile has an unsupported schema")
+        return {**profile, "updated_at": row["updated_at"]}
+
+    def update_profile(self, learner_id: str, updates: Mapping[str, Any]) -> dict[str, Any]:
+        """Persist learner-controlled preferences in the existing evidence database."""
+        learner = self._required(learner_id, "learner_id")
+        if not isinstance(updates, Mapping):
+            raise ValueError("profile updates must be an object")
+        allowed = {"pathway_weights", "interests", "explanation_modes", "pace", "max_minutes"}
+        unknown = set(updates) - allowed
+        if unknown:
+            raise ValueError(f"unsupported learner profile fields: {sorted(unknown)}")
+        current = self.get_profile(learner)
+        profile = {key: current[key] for key in DEFAULT_LEARNER_PROFILE}
+
+        if "pathway_weights" in updates:
+            raw = updates["pathway_weights"]
+            if not isinstance(raw, Mapping) or not raw:
+                raise ValueError("pathway_weights must be a non-empty object")
+            unknown_paths = set(raw) - PATHWAYS
+            if unknown_paths:
+                raise ValueError(f"unsupported learning pathways: {sorted(unknown_paths)}")
+            weights = dict(profile["pathway_weights"])
+            for path, value in raw.items():
+                if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or not 0 <= value <= 1:
+                    raise ValueError(f"pathway weight for {path} must be between zero and one")
+                weights[path] = float(value)
+            total = sum(weights.values())
+            if total <= 0:
+                raise ValueError("at least one pathway weight must be greater than zero")
+            profile["pathway_weights"] = {
+                path: round(value / total, 8) for path, value in weights.items()
+            }
+
+        if "interests" in updates:
+            raw_interests = updates["interests"]
+            if not isinstance(raw_interests, list) or len(raw_interests) > 30:
+                raise ValueError("interests must be a list of at most 30 strings")
+            normalized = []
+            for value in raw_interests:
+                if not isinstance(value, str) or not value.strip() or len(value.strip()) > 64:
+                    raise ValueError("each interest must be a non-empty string of at most 64 characters")
+                tag = value.strip().lower().replace(" ", "_")
+                if tag not in normalized:
+                    normalized.append(tag)
+            profile["interests"] = normalized
+
+        if "explanation_modes" in updates:
+            modes = updates["explanation_modes"]
+            if not isinstance(modes, list) or not modes or any(
+                not isinstance(mode, str) or mode not in EXPLANATION_MODES for mode in modes
+            ):
+                raise ValueError("explanation_modes must contain supported modes")
+            if len(set(modes)) != len(modes):
+                raise ValueError("explanation_modes must be unique")
+            profile["explanation_modes"] = modes
+
+        if "pace" in updates:
+            pace = updates["pace"]
+            if not isinstance(pace, str) or pace not in PACE_MAX_MINUTES:
+                raise ValueError("pace must be gentle, standard, intensive, or adaptive")
+            profile["pace"] = pace
+            if "max_minutes" not in updates:
+                profile["max_minutes"] = PACE_MAX_MINUTES[pace]
+
+        if "max_minutes" in updates:
+            minutes = updates["max_minutes"]
+            if minutes is not None and (
+                isinstance(minutes, bool) or not isinstance(minutes, int) or not 1 <= minutes <= 180
+            ):
+                raise ValueError("max_minutes must be null or an integer from 1 to 180")
+            profile["max_minutes"] = minutes
+
+        encoded = json.dumps(profile, sort_keys=True, ensure_ascii=False, allow_nan=False)
+        updated_at = time.time()
+        with closing(self._connect()) as db, db:
+            db.execute("BEGIN IMMEDIATE")
+            db.execute(
+                """INSERT INTO learner_profiles(learner_id,profile_json,updated_at)
+                   VALUES(?,?,?) ON CONFLICT(learner_id) DO UPDATE SET
+                   profile_json=excluded.profile_json,updated_at=excluded.updated_at""",
+                (learner, encoded, updated_at),
+            )
+        return {**profile, "updated_at": updated_at}
 
     @staticmethod
     def _required(value: Any, name: str, limit: int=200) -> str:
