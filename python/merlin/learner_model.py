@@ -282,57 +282,218 @@ class LearnerStore:
         return result
 
 
-def select_next_lesson(learner_id: str, store: LearnerStore,
-                       idea_graph: Mapping[str,Any],
-                       lesson_catalog: list[Mapping[str,Any]],
-                       curriculum_id: str | None = None) -> dict[str,Any]:
-    """Select an evidence-grounded lesson; never infer mastery from missing data."""
-    if not isinstance(idea_graph,Mapping) or not isinstance(lesson_catalog,list):
+def select_next_lesson(
+    learner_id: str,
+    store: LearnerStore,
+    idea_graph: Mapping[str, Any],
+    lesson_catalog: list[Mapping[str, Any]],
+    curriculum_id: str | None = None,
+    *,
+    path_weights: Mapping[str, float] | None = None,
+    interests: list[str] | tuple[str, ...] = (),
+    max_minutes: int | None = None,
+    completed_lesson_ids: list[str] | tuple[str, ...] = (),
+) -> dict[str, Any]:
+    """Select an evidence-grounded lesson using mastery and learner preferences.
+
+    Path and interest preferences only rank/filter pedagogical recommendations;
+    they never change evidence, mastery, or proof status.
+    """
+    if not isinstance(idea_graph, Mapping) or not isinstance(lesson_catalog, list):
         raise ValueError("idea graph and lesson catalog are required")
-    estimates={}
-    for idea_id,idea in idea_graph.items():
-        dims=idea.get("dimensions",["conceptual_explanation","procedure"])
-        estimates[idea_id]={d:store.estimate(learner_id,idea_id,d) for d in dims}
-    candidates=[]
+    normalized_paths: dict[str, float] | None = None
+    if path_weights is not None:
+        if not isinstance(path_weights, Mapping) or not path_weights:
+            raise ValueError("path_weights must be a non-empty mapping")
+        unknown = set(path_weights) - PATHWAYS
+        if unknown:
+            raise ValueError(f"unsupported learning pathways: {sorted(str(path) for path in unknown)}")
+        normalized_paths = {}
+        for path, value in path_weights.items():
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or not 0 <= value <= 1:
+                raise ValueError(f"pathway weight for {path} must be between zero and one")
+            normalized_paths[path] = float(value)
+        total = sum(normalized_paths.values())
+        if total <= 0:
+            raise ValueError("at least one pathway weight must be greater than zero")
+        normalized_paths = {path: value / total for path, value in normalized_paths.items()}
+
+    if isinstance(interests, str) or not isinstance(interests, (list, tuple)):
+        raise ValueError("interests must be a list or tuple of strings")
+    if any(not isinstance(tag, str) or not tag.strip() for tag in interests):
+        raise ValueError("interests must contain non-empty strings")
+    interest_set = {tag.strip().lower().replace(" ", "_") for tag in interests}
+
+    if max_minutes is not None and (
+        isinstance(max_minutes, bool) or not isinstance(max_minutes, int) or not 1 <= max_minutes <= 180
+    ):
+        raise ValueError("max_minutes must be an integer from 1 to 180")
+    if isinstance(completed_lesson_ids, str) or not isinstance(completed_lesson_ids, (list, tuple)):
+        raise ValueError("completed_lesson_ids must be a list or tuple")
+    if any(not isinstance(item, str) or not item for item in completed_lesson_ids):
+        raise ValueError("completed_lesson_ids must contain non-empty strings")
+    completed = set(completed_lesson_ids)
+
+    ranked: list[dict[str, Any]] = []
+    blocked: list[dict[str, Any]] = []
     for lesson in lesson_catalog:
+        if not isinstance(lesson, Mapping):
+            raise ValueError("lesson catalog entries must be objects")
         if curriculum_id is not None and lesson.get("curriculum_id") != curriculum_id:
             continue
-        lesson_id=lesson.get("lesson_id")
-        idea_id=lesson.get("idea_id")
-        if not isinstance(lesson_id,str) or idea_id not in idea_graph:
+        lesson_id = lesson.get("lesson_id")
+        idea_id = lesson.get("idea_id")
+        if not isinstance(lesson_id, str) or not lesson_id or idea_id not in idea_graph:
             continue
-        prerequisites=idea_graph[idea_id].get("prerequisites",[])
-        prereq_states=[]
-        for p in prerequisites:
-            if p not in idea_graph:
+        if lesson_id in completed:
+            continue
+
+        minutes = lesson.get("estimated_minutes", 20)
+        if isinstance(minutes, bool) or not isinstance(minutes, int) or minutes < 1:
+            raise ValueError(f"{lesson_id}: estimated_minutes must be a positive integer")
+        if max_minutes is not None and minutes > max_minutes:
+            blocked.append({"lesson_id": lesson_id, "blocked_reason": "exceeds_time_budget",
+                            "estimated_minutes": minutes})
+            continue
+
+        lesson_paths = lesson.get("pathways", lesson.get("path_tags", []))
+        if not isinstance(lesson_paths, (list, tuple)) or any(
+            not isinstance(path, str) or path not in PATHWAYS for path in lesson_paths
+        ):
+            raise ValueError(f"{lesson_id}: pathways must contain supported path IDs")
+        if normalized_paths is None or not lesson_paths:
+            pathway_fit = 1.0
+        else:
+            pathway_fit = sum(weight for path, weight in normalized_paths.items() if path in lesson_paths)
+            if pathway_fit <= 0:
+                blocked.append({"lesson_id": lesson_id, "blocked_reason": "pathway_not_selected"})
+                continue
+
+        lesson_interests = lesson.get("interest_tags", [])
+        if not isinstance(lesson_interests, (list, tuple)) or any(
+            not isinstance(tag, str) or not tag for tag in lesson_interests
+        ):
+            raise ValueError(f"{lesson_id}: interest_tags must be strings")
+        interest_fit = (
+            len(interest_set.intersection(lesson_interests)) / len(lesson_interests)
+            if lesson_interests else 0.0
+        )
+
+        prerequisites = idea_graph[idea_id].get("prerequisites", [])
+        if not isinstance(prerequisites, list):
+            raise ValueError(f"{idea_id}: prerequisites must be a list")
+        prereq_states = []
+        missing_prerequisites = []
+        for prerequisite in prerequisites:
+            if prerequisite not in idea_graph:
                 prereq_states.append("unknown")
-            else:
-                p_dims=idea_graph[p].get("dimensions",["conceptual_explanation"])
-                p_est=[store.estimate(learner_id,p,d) for d in p_dims]
-                prereq_states.append("ready" if p_est and all(x.state in
-                    {"provisionally_mastered","retained"} for x in p_est) else "needs_practice")
-        target_dims=idea_graph[idea_id].get("dimensions",["conceptual_explanation","procedure"])
-        target=[store.estimate(learner_id,idea_id,d) for d in target_dims]
-        unobserved=sum(x.state=="unobserved" for x in target)
-        weak=sum(x.mean<0.75 for x in target if x.observations)
-        uncertain=sum(x.uncertainty for x in target)
-        # Do not recommend a lesson whose declared prerequisites are not demonstrated.
-        if any(state != "ready" for state in prereq_states):
+                missing_prerequisites.append(prerequisite)
+                continue
+            prerequisite_dimensions = idea_graph[prerequisite].get(
+                "dimensions", ["conceptual_explanation"]
+            )
+            prerequisite_estimates = [
+                store.estimate(learner_id, prerequisite, dimension)
+                for dimension in prerequisite_dimensions
+            ]
+            ready = bool(prerequisite_estimates) and all(
+                estimate.state in {"provisionally_mastered", "retained"}
+                for estimate in prerequisite_estimates
+            )
+            prereq_states.append("ready" if ready else "needs_practice")
+            if not ready:
+                missing_prerequisites.append(prerequisite)
+        if missing_prerequisites:
+            blocked.append({
+                "lesson_id": lesson_id,
+                "blocked_reason": "prerequisites_not_yet_demonstrated",
+                "missing_prerequisites": sorted(missing_prerequisites),
+            })
             continue
-        # Favor unobserved/weak target skills and uncertainty reduction.
-        score=2.0*unobserved+1.5*weak+uncertain
-        candidates.append((score,lesson_id,idea_id,prereq_states,target))
-    if not candidates:
-        return {"state":"no_candidate","learner_id":learner_id}
-    candidates.sort(key=lambda x:(-x[0],x[1]))
-    score,lesson_id,idea_id,prereqs,target=candidates[0]
-    return {"state":"recommended","learner_id":learner_id,"lesson_id":lesson_id,
-      "idea_id":idea_id,"score":round(score,4),
-      "reason":{"prerequisites":prereqs,
-        "target_skills":{x.dimension:{"state":x.state,"mean":round(x.mean,4),
-          "uncertainty":round(x.uncertainty,4),"observations":x.observations}
-          for x in target}},
-      "authority":"recommendation_only"}
+
+        target_dimensions = idea_graph[idea_id].get(
+            "dimensions", ["conceptual_explanation", "procedure"]
+        )
+        target = [
+            store.estimate(learner_id, idea_id, dimension)
+            for dimension in target_dimensions
+        ]
+        unobserved = sum(estimate.state == "unobserved" for estimate in target)
+        weak = sum(estimate.mean < 0.75 for estimate in target if estimate.observations)
+        uncertainty = sum(estimate.uncertainty for estimate in target)
+        mastery_gap_score = 2.0 * unobserved + 1.5 * weak + uncertainty
+
+        learning_value = lesson.get("learning_value", 0.5)
+        transfer_value = lesson.get("transfer_value", 0.5)
+        for label, value in (("learning_value", learning_value), ("transfer_value", transfer_value)):
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or not 0 <= value <= 1:
+                raise ValueError(f"{lesson_id}: {label} must be between zero and one")
+        time_fit = 0.5 if max_minutes is None else max(0.0, 1.0 - minutes / max_minutes)
+        score = (
+            mastery_gap_score
+            + 1.0 * pathway_fit
+            + 0.75 * interest_fit
+            + 0.25 * learning_value
+            + 0.25 * transfer_value
+            + 0.10 * time_fit
+        )
+        components = {
+            "mastery_gap": round(mastery_gap_score, 6),
+            "pathway_fit": round(pathway_fit, 6),
+            "interest_fit": round(interest_fit, 6),
+            "learning_value": round(float(learning_value), 6),
+            "transfer_value": round(float(transfer_value), 6),
+            "time_fit": round(time_fit, 6),
+        }
+        reasons = []
+        if pathway_fit > 0:
+            reasons.append("matches_selected_learning_paths")
+        if interest_fit > 0:
+            reasons.append("matches_learner_interests")
+        if unobserved or weak:
+            reasons.append("addresses_unsettled_skills")
+        if transfer_value >= 0.8:
+            reasons.append("supports_transfer")
+        if max_minutes is not None:
+            reasons.append("fits_time_budget")
+        ranked.append({
+            "lesson_id": lesson_id,
+            "idea_id": idea_id,
+            "score": round(score, 6),
+            "score_components": components,
+            "reason_codes": reasons,
+            "reason": {
+                "prerequisites": prereq_states,
+                "target_skills": {
+                    estimate.dimension: {
+                        "state": estimate.state,
+                        "mean": round(estimate.mean, 4),
+                        "uncertainty": round(estimate.uncertainty, 4),
+                        "observations": estimate.observations,
+                    }
+                    for estimate in target
+                },
+            },
+            "estimated_minutes": minutes,
+        })
+
+    ranked.sort(key=lambda item: (-item["score"], item["lesson_id"]))
+    blocked.sort(key=lambda item: (item["lesson_id"], item["blocked_reason"]))
+    if not ranked:
+        return {
+            "state": "no_candidate",
+            "learner_id": learner_id,
+            "blocked_lessons": blocked,
+            "authority": "recommendation_only",
+        }
+    selected = ranked[0]
+    return {
+        "state": "recommended",
+        "learner_id": learner_id,
+        **selected,
+        "blocked_lessons": blocked,
+        "authority": "recommendation_only",
+    }
 
 
 def hermes_learning_handler(store: LearnerStore, graph: Mapping[str,Any],
