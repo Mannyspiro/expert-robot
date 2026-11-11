@@ -412,7 +412,8 @@ class LearningPlatform:
                     raise LearningConflictError("submission_id was already used for different work")
                 return {"submission_id": submission_id, "course_id": course_id,
                         "version": existing["version"], "status": existing["status"],
-                        "duplicate": True, "mastery_updated": False}
+                        "duplicate": True, "mastery_updated": False,
+                        "proof_qualified": False}
             course = db.execute("""SELECT c.current_version,v.status,v.manifest_json
               FROM learning_courses c JOIN learning_course_versions v
               ON v.tenant_id=c.tenant_id AND v.course_id=c.course_id AND v.version=c.current_version
@@ -466,6 +467,8 @@ class LearningPlatform:
                 raise KeyError("course not found")
             if actor.role == "instructor" and course["owner_id"] != actor.actor_id:
                 raise LearningPermissionError("instructor may view submissions only for their own course")
+            if actor.role == "reviewer" and course["owner_id"] == actor.actor_id:
+                raise LearningPermissionError("course authors cannot independently review their own learner work")
             rows = db.execute("""SELECT submission_id,course_id,version,lesson_id,assessment_id,
               learner_id,response_json,response_sha256,submitted_at,status
               FROM learning_submissions WHERE tenant_id=? AND course_id=?
