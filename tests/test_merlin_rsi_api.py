@@ -101,6 +101,43 @@ class RSIApiTests(unittest.TestCase):
                 server.server_close()
                 thread.join(timeout=2)
 
+    def test_induce_route_returns_non_executable_proposal(self):
+        with tempfile.TemporaryDirectory() as directory:
+            store = EventStore(Path(directory) / "events.sqlite3")
+            server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(store))
+            thread = threading.Thread(target=server.serve_forever, daemon=True)
+            thread.start()
+            try:
+                body = {
+                    "skill_id": "math.error-triage", "version": 1,
+                    "purpose": "Repair invalid equality transformations.",
+                    "guardrails": ["do not award mastery from hints"],
+                    "trajectories": [
+                        {"failure_id": "f-1", "failure_signature": "invalid-equality",
+                         "trigger_condition": "learner submits invalid equality",
+                         "corrective_steps": ["locate invalid step", "construct counterexample"],
+                         "source_commit_sha": "1" * 40, "source_artifact_sha256": "a" * 64},
+                        {"failure_id": "f-2", "failure_signature": "invalid-equality",
+                         "trigger_condition": "learner equality is invalid",
+                         "corrective_steps": ["locate invalid step", "construct counterexample"],
+                         "source_commit_sha": "2" * 40, "source_artifact_sha256": "b" * 64},
+                    ],
+                }
+                request = Request(
+                    f"http://127.0.0.1:{server.server_port}/api/rsi/induce",
+                    data=json.dumps(body).encode(),
+                    headers={"Content-Type": "application/json"}, method="POST",
+                )
+                with urlopen(request, timeout=5) as response:
+                    result = json.loads(response.read())
+                self.assertEqual(result["status"], "PROPOSAL_ONLY")
+                self.assertFalse(result["executable"])
+                self.assertEqual(result["source_failure_ids"], ["f-1", "f-2"])
+            finally:
+                server.shutdown()
+                server.server_close()
+                thread.join(timeout=2)
+
     def test_invalid_evaluation_is_a_client_error(self):
         with tempfile.TemporaryDirectory() as directory:
             store = EventStore(Path(directory) / "events.sqlite3")
