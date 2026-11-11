@@ -74,6 +74,14 @@ def validate_math_foundations_manifest(
         interests = lesson.get("interest_tags", [])
         if not isinstance(interests, list) or any(not isinstance(tag, str) or not tag for tag in interests):
             raise ValueError(f"{lesson_id}: interest_tags must be non-empty strings")
+        source_refs = lesson.get("source_refs", [])
+        if not isinstance(source_refs, list) or any(
+            not isinstance(source, str) or not source.startswith("https://") for source in source_refs
+        ):
+            raise ValueError(f"{lesson_id}: source_refs must be HTTPS URLs")
+        historical_context = lesson.get("historical_context", "")
+        if not isinstance(historical_context, str):
+            raise ValueError(f"{lesson_id}: historical_context must be text")
         minutes = lesson.get("estimated_minutes")
         if isinstance(minutes, bool) or not isinstance(minutes, int) or minutes < 1:
             raise ValueError(f"{lesson_id}: estimated_minutes must be a positive integer")
