@@ -128,7 +128,7 @@ CAPABILITIES = [
     {"id": "simulation.hud", "status": "AVAILABLE", "evidence": "responsive HUD renders live simulation API data"},
     {"id": "council.roles", "status": "AVAILABLE", "evidence": "deterministic simulated persona registry"},
     {"id": "council.deliberation.prepare", "status": "AVAILABLE", "evidence": "role-specific prompt packets and auditable self-map contract"},
-    {"id": "council.deliberation.run_local", "status": "QUALIFICATION_GATED", "evidence": "six isolated local model openings; optional bounded cross-examination"},
+    {"id": "council.deliberation.run_local", "status": "QUALIFICATION_GATED", "evidence": "six bounded concurrent local model openings with per-seat failure isolation; optional cross-examination"},
     {"id": "research.ideonomy.rank", "status": "AVAILABLE", "evidence": "unit-tested deterministic candidate ranking"},
     {"id": "research.analogy.validate", "status": "AVAILABLE", "evidence": "unit-tested invariant and boundary checks"},
     {"id": "research.rsi.qualify", "status": "AVAILABLE", "evidence": "fail-closed qualification contract"},
