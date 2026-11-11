@@ -108,9 +108,16 @@ def validate(catalog: dict[str, Any], plan: dict[str, Any]) -> list[str]:
         lesson_id = (idea.get("learning") or {}).get("lesson_id")
         if item.get("lesson_id") != lesson_id:
             errors.append(f"lesson reference drift for {idea_id}")
-        expected_state = "lesson_reference_present" if lesson_id else "lesson_not_yet_linked"
+        legacy_lesson_id = (idea.get("learning") or {}).get("legacy_lesson_id")
+        expected_state = (
+            "lesson_reference_present" if lesson_id
+            else "legacy_reference_unverified" if legacy_lesson_id
+            else "lesson_not_yet_linked"
+        )
         if item.get("lesson_state") != expected_state:
             errors.append(f"lesson state drift for {idea_id}")
+        if item.get("legacy_lesson_id") != legacy_lesson_id:
+            errors.append(f"legacy lesson reference drift for {idea_id}")
         if item.get("pathways") != expected_assignments.get(idea_id):
             errors.append(f"pathway assignment drift for {idea_id}")
 
