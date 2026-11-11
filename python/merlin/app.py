@@ -388,7 +388,25 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None):
                     if not isinstance(question, str) or not isinstance(context, str):
                         raise ValueError("question and context must be strings")
                     council_started = perf_counter()
-                    result = run_local_council(question, context, verbosity, rounds)
+                    council_run_id = sha256(os.urandom(16)).hexdigest()
+
+                    def record_council_seat(seat_event: dict[str, Any]) -> None:
+                        event = normalize_event({
+                            "source": "model_output", "kind": "model.inference",
+                            "run_id": council_run_id,
+                            "task_id": "council-seat-" + str(seat_event.get("persona_id", "unknown")),
+                            "model_id": os.environ.get("MERLIN_MODEL_NAME", "local-unidentified"),
+                            "duration_ms": seat_event.get("duration_ms"),
+                            "payload": {"component": "council_runtime", **seat_event},
+                        })
+                        store.append("/api/telemetry/ingest",
+                                     {"event_id": event["event_id"], "source": "model_output"},
+                                     {"event": event})
+
+                    result = run_local_council(
+                        question, context, verbosity, rounds,
+                        event_sink=record_council_seat,
+                    )
                     council_duration_ms = (perf_counter() - council_started) * 1000.0
                     transcript_digest = sha256(_json_bytes(result)).hexdigest()
                     result["transcript_sha256"] = transcript_digest
