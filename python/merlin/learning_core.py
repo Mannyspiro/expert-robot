@@ -634,6 +634,16 @@ class SpacedRepetition:
                 WHERE learner_id=? AND concept_id=?""",
                 (due, interval, repetitions, ease, quality, learner_id, concept_id),
             )
+        # Delayed retrieval is direct evidence about retention, not merely completion.
+        self.store.record_attempt(
+            Attempt(
+                learner_id, "spaced-repetition", f"review:{concept_id}",
+                {"retention": quality / 5.0}, independent=True, hints_used=0,
+                outcome="recalled" if quality >= 3 else "needs_relearning",
+                evidence={"quality_0_to_5": quality, "interval_days_before_review": card.interval_days},
+            ),
+            (concept_id,),
+        )
         return ReviewResult(self.get_card(learner_id, concept_id), quality, due)
 
 
