@@ -56,6 +56,7 @@ The course-scoped assessment workflow now exposes:
 
 - `POST /api/learning/courses/{course_id}/submissions` — learner-only submission of a lesson exercise. The authenticated learner identity is resolved by the server; request-body learner IDs and scores are not accepted. The server verifies active enrollment, published course version, lesson ID, exercise task ID, and a matching assessment that requires human review.
 - `GET /api/learning/courses/{course_id}/submissions` — reviewer queue and course-owner/tenant-admin audit view. Reviewers see draft courses awaiting course review and published courses with pending submissions.
+- `GET /api/learning/courses/{course_id}/submissions/mine` — authenticated learner's own submission history and all recorded reviewer feedback.
 - `POST /api/learning/courses/{course_id}/submissions/{submission_id}/review` — independent reviewer decision (`accepted` or `needs_revision`), feedback, and optional rubric metadata.
 
 Submission IDs provide idempotency: replaying the same ID and content returns the original submission; reusing the ID for different work is rejected. A submission is append-only, and each review is a separate append-only record. The submission status is a current summary of the latest review decision.
