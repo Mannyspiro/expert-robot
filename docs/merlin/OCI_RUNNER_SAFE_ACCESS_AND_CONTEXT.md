@@ -149,3 +149,17 @@ When an authenticated read-only OCI route is made available, inventory in bounde
 The Expert Robot mathematics learning work includes the zero-first Parrondo lesson, typed lesson schema and renderer, three learner paths, concept registry and persistent SQLite spaced retrieval. The existing draft mathematics PR #123 is separate; check live status and do not merge it. Prior CI attempts were cancelled, not passed. Do not describe those tests as successful until a fresh exact-head result exists.
 
 For every continuation, re-check live branch, PR, workflow and commit status. Do not infer current state from this handoff.
+
+
+## Additional historical OCI access context recovered from prior work
+
+The following is historical context recovered from earlier conversations, not a live OCI observation:
+- The runner was previously identified as `cace-runner-a1`; another earlier handoff called it `cace-oci-a1`. Treat the hostname discrepancy as unresolved until instance identity is read directly.
+- Historical region was Phoenix (`us-phoenix-1`), availability domain 3, fault domain 2.
+- Historical shape was `VM.Standard.A1.Flex`, Oracle Linux 8, AArch64, 2 OCPU and 12 GB RAM.
+- The prior SSH account was `opc`. A Cloud Shell RSA identity was previously kept at `~/.ssh/cace_oci_runner_rsa`; its private key must never be copied into GitHub or printed. Historical notes also refer to a public IP and instance OCID, intentionally omitted from this public repository handoff.
+- Earlier notes said OCI Run Command was RUNNING and that the Cloud Shell user was `morganaspi`; neither condition is confirmed now.
+- Historical candidate runner roots included `/opt/actions-runner` and `/home/morganaspi/actions-runner`. Do not assume either exists.
+- Historical notes described a runner service and watchdog with a 60-second heartbeat. Current service names, state, heartbeat, disk, and filesystem are unverified.
+
+The only acceptable next action is a read-only, bounded inspection using a currently authenticated path. Never use the stale public IP/OCID or guessed hostname as sufficient identity. Verify the returned instance ID, hostname, architecture, and account before collecting any further metadata. The first remote reads should report filesystem free blocks/inodes and active runner jobs. If free disk is below an agreed safe threshold or cannot be measured, stop before recursive traversal. Keep file inventory metadata-only initially; do not copy runner files or cache contents into the VM, and do not read credentials.
