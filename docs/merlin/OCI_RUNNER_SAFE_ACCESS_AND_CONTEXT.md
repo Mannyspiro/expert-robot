@@ -163,3 +163,44 @@ The following is historical context recovered from earlier conversations, not a 
 - Historical notes described a runner service and watchdog with a 60-second heartbeat. Current service names, state, heartbeat, disk, and filesystem are unverified.
 
 The only acceptable next action is a read-only, bounded inspection using a currently authenticated path. Never use the stale public IP/OCID or guessed hostname as sufficient identity. Verify the returned instance ID, hostname, architecture, and account before collecting any further metadata. The first remote reads should report filesystem free blocks/inodes and active runner jobs. If free disk is below an agreed safe threshold or cannot be measured, stop before recursive traversal. Keep file inventory metadata-only initially; do not copy runner files or cache contents into the VM, and do not read credentials.
+
+## Expanded repository path inventory (exhaustive path match on inspected main trees)
+
+A recursive Git tree query on the inspected `main` revisions returned the following OCI/runner/Avrea path matches. This is exhaustive for those repository tree snapshots, not for the VM filesystem.
+
+### CACE OCI MCP source files
+- `ops/oci_mcp/README.md`
+- `ops/oci_mcp/__init__.py`
+- `ops/oci_mcp/server.py`
+- `ops/oci_mcp/policy.py`
+- `ops/oci_mcp/cace-oci-mcp.service`
+- `ops/oci_mcp/cace-oci-mcp.sudoers`
+- `ops/oci_mcp/requirements.txt`
+- `ops/oci_mcp/install.sh`
+- `tests/test_oci_mcp_policy.py`
+
+### CACE historical OCI/runner workflow archive
+- `.github/workflow-archive/cace-oci-cleanup-a1.yml`
+- `.github/workflow-archive/cace-oci-compute-probe.yml`
+- `.github/workflow-archive/cace-oci-cutover-verify.yml`
+- `.github/workflow-archive/cace-oci-formal-cache-prewarm.yml`
+- `.github/workflow-archive/cace-oci-provision-durable-vm-v2.yml`
+- `.github/workflow-archive/cace-oci-provision-durable-vm.yml`
+- `.github/workflow-archive/cace-oci-register-cutover.yml`
+- `.github/workflow-archive/cace-oci-runner-health.yml`
+- `.github/workflow-archive/cace-oci-ssh-cutover.yml`
+- `.github/workflow-archive/cace-oci-vm-start-inspect.yml`
+- `.github/workflow-archive/cace-runner-diagnostics.yml`
+- `.github/workflow-archive/cace-runner-persistence-probe.yml`
+- `.github/workflow-archive/cace-runner-service-install.yml`
+- `.github/workflow-archive/cace-runner-watchdog.yml`
+
+### Expert Robot external runner workflows
+- `.github/workflows/external-free-runner-bridge.yml`
+- `.github/workflows/free-runner-capability-probe.yml`
+
+The Expert Robot capability-probe workflow targets `avrea-ubuntu-latest-8-vcpu`, not the OCI runner. It requires a Railway SSH deploy-key secret, clones CACE into the Avrea runner's temporary directory, inspects CACE workflow metadata, and uploads a short-retention artifact. It has a `workflow_dispatch` trigger and deletes its own temporary work/evidence directories. Do not confuse this with OCI inventory, and do not dispatch it as an OCI substitute. Its presence does not prove Avrea availability or credential configuration.
+
+### Inventory completeness statement
+
+The GitHub source path inventory above is complete for the two inspected `main` tree snapshots at the time queried. The live OCI filesystem inventory remains **NOT_RUN / UNAVAILABLE**. No files from the VM have been read, copied, renamed, overwritten, or deleted.
