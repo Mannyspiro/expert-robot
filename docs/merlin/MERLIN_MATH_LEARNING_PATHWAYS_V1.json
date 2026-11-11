@@ -175,7 +175,12 @@
             "MATH-REP-003",
             "MATH-ROT-001",
             "MATH-ROT-002",
-            "MATH-LIN-002"
+            "MATH-LIN-002",
+            "MATH-CALC-001",
+            "MATH-CALC-002",
+            "MATH-CALC-003",
+            "MATH-PROB-001",
+            "MATH-STAT-001"
           ],
           "evidence": [
             "exact arithmetic where appropriate",
@@ -229,7 +234,12 @@
             "MATH-ST-001",
             "MATH-COL-001",
             "MATH-PARR-001",
-            "MATH-LOG-002"
+            "MATH-LOG-002",
+            "MATH-CALC-001",
+            "MATH-CALC-002",
+            "MATH-CALC-003",
+            "MATH-PROB-001",
+            "MATH-STAT-001"
           ],
           "evidence": [
             "versioned implementation",
@@ -1077,8 +1087,8 @@
       "title": "Limits and continuity",
       "kind": "concept",
       "status": "candidate",
-      "lesson_id": null,
-      "lesson_state": "lesson_not_yet_linked",
+      "lesson_id": "math-limits-continuity-v1",
+      "lesson_state": "lesson_reference_present",
       "prerequisites": [
         "MATH-FUNC-001"
       ],
@@ -1093,8 +1103,8 @@
       "title": "Derivatives and rates of change",
       "kind": "concept",
       "status": "candidate",
-      "lesson_id": null,
-      "lesson_state": "lesson_not_yet_linked",
+      "lesson_id": "math-derivatives-rates-v1",
+      "lesson_state": "lesson_reference_present",
       "prerequisites": [
         "MATH-CALC-001"
       ],
@@ -1109,8 +1119,8 @@
       "title": "Integration and accumulation",
       "kind": "concept",
       "status": "candidate",
-      "lesson_id": null,
-      "lesson_state": "lesson_not_yet_linked",
+      "lesson_id": "math-integration-accumulation-v1",
+      "lesson_state": "lesson_reference_present",
       "prerequisites": [
         "MATH-CALC-001"
       ],
@@ -1125,8 +1135,8 @@
       "title": "Probability and conditional probability",
       "kind": "concept",
       "status": "candidate",
-      "lesson_id": null,
-      "lesson_state": "lesson_not_yet_linked",
+      "lesson_id": "math-probability-bayes-v1",
+      "lesson_state": "lesson_reference_present",
       "prerequisites": [
         "MATH-SET-001"
       ],
@@ -1141,8 +1151,8 @@
       "title": "Statistical models, inference and uncertainty",
       "kind": "concept",
       "status": "candidate",
-      "lesson_id": null,
-      "lesson_state": "lesson_not_yet_linked",
+      "lesson_id": "math-statistical-inference-v1",
+      "lesson_state": "lesson_reference_present",
       "prerequisites": [
         "MATH-PROB-001"
       ],
