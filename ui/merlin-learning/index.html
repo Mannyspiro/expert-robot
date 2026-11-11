@@ -100,7 +100,14 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
       <h3>Transfer challenge</h3><p id="exerciseTransfer"></p>
       <div id="exerciseHistorical" class="notice hidden"></div>
       <ul id="exerciseSources" class="list"></ul>
-      <p class="meta">This version presents the exercise content. Answer submission, reviewer feedback, and evidence recording are the next integration slice.</p>
+      <div id="submissionControls" class="submission-controls hidden">
+        <label for="answerInput">Your work</label>
+        <textarea id="answerInput" rows="6" maxlength="65536"
+          placeholder="Show your reasoning, calculations, code, or proof attempt."></textarea>
+        <div class="actions"><button id="submitAnswer" class="primary" type="button">Submit for human review</button></div>
+        <p id="submissionStatus" class="notice hidden" role="status" aria-live="polite"></p>
+        <p class="meta">Submissions are stored as immutable attempts. A reviewer evaluates the work; submission and review do not automatically award mastery or constitute a formal proof.</p>
+      </div>
     </div>
     <div class="actions" style="margin-top:1rem">
       <button id="prevStage" type="button">Previous</button>
@@ -124,6 +131,7 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
   let activeLesson = null;
   let activeStageIndex = 0;
   let activeHintIndex = 0;
+  let pendingSubmissionId = null;
   const notice = (message, kind="") => {
     $("notice").textContent = message;
     $("notice").className = "notice" + (kind ? " " + kind : "");
@@ -333,6 +341,10 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
     activeLesson = lesson;
     activeStageIndex = 0;
     activeHintIndex = 0;
+    pendingSubmissionId = null;
+    $("answerInput").value = "";
+    $("submissionStatus").classList.add("hidden");
+    $("submitAnswer").disabled = false;
     renderLessonPlayer();
     $("lessonPlayerSection").scrollIntoView({block:"start"});
   }
@@ -372,6 +384,8 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
           criterion.dimension + " · " + criterion.points + " points · " + criterion.description));
       }
       $("exerciseTransfer").textContent = exercise.transfer_prompt || "No transfer prompt supplied.";
+      $("submissionControls").classList.toggle("hidden", role !== "learner");
+      $("submitAnswer").disabled = false;
       const historical = activeLesson.historical_context;
       $("exerciseHistorical").classList.toggle("hidden", !historical);
       $("exerciseHistorical").textContent = historical || "";
@@ -392,6 +406,41 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
       }
     }
   }
+  $("answerInput").addEventListener("input", () => {
+    pendingSubmissionId = null;
+    $("submissionStatus").classList.add("hidden");
+    $("submitAnswer").disabled = false;
+  });
+  $("submitAnswer").addEventListener("click", async () => {
+    if (!activeLesson || role !== "learner") return;
+    const answer = $("answerInput").value;
+    if (!answer.trim()) {
+      $("submissionStatus").textContent = "Add your work before submitting.";
+      $("submissionStatus").classList.remove("hidden");
+      return;
+    }
+    if (!pendingSubmissionId) pendingSubmissionId = crypto.randomUUID();
+    $("submitAnswer").disabled = true;
+    try {
+      const result = await api("/api/learning/courses/" + encodeURIComponent(current.course_id) +
+        "/submissions", "POST", {
+          submission_id: pendingSubmissionId,
+          lesson_id: activeLesson.id,
+          task_id: activeLesson.exercise?.task_id,
+          response: answer
+        });
+      $("submissionStatus").textContent = result.status === "pending_review"
+        ? "Submitted. Your work is awaiting independent human review. Mastery and proof status are unchanged."
+        : "Submission received. Mastery and proof status are unchanged.";
+      $("submissionStatus").classList.remove("hidden");
+      notice("Exercise submitted for human review.", "success");
+    } catch (error) {
+      $("submissionStatus").textContent = "Submission was not confirmed: " + error.message +
+        ". You can retry without changing your answer.";
+      $("submissionStatus").classList.remove("hidden");
+      $("submitAnswer").disabled = false;
+    }
+  });
   $("prevStage").addEventListener("click", () => {
     if (!activeLesson || activeStageIndex <= 0) return;
     activeStageIndex -= 1;
