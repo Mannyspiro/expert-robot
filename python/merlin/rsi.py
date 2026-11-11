@@ -54,6 +54,71 @@ class SkillProcedure:
 
 
 @dataclass(frozen=True)
+class FailureTrajectory:
+    """Redacted, content-addressed summary of one failed task and its repair."""
+    failure_id: str
+    failure_signature: str
+    trigger_condition: str
+    corrective_steps: tuple[str, ...]
+    source_commit_sha: str
+    source_artifact_sha256: str
+
+    def validate(self) -> None:
+        if not self.failure_id or not self.failure_signature.strip() or not self.trigger_condition.strip():
+            raise ValueError("failure trajectory requires identity, signature, and trigger")
+        if len(self.failure_signature) > 160 or len(self.trigger_condition) > 300:
+            raise ValueError("failure signature or trigger exceeds bounds")
+        if not self.corrective_steps or len(self.corrective_steps) > 10:
+            raise ValueError("failure trajectory requires 1 to 10 corrective steps")
+        if any(not step.strip() or len(step) > 300 for step in self.corrective_steps):
+            raise ValueError("corrective steps must be non-empty and bounded")
+        if len(self.source_commit_sha) != 40 or any(c not in "0123456789abcdef" for c in self.source_commit_sha):
+            raise ValueError("source commit must be a lowercase 40-character Git SHA")
+        if not _is_sha(self.source_artifact_sha256):
+            raise ValueError("source artifact must have a SHA-256 digest")
+
+
+def induce_skill_candidate(
+    *,
+    skill_id: str,
+    version: int,
+    purpose: str,
+    trajectories: Iterable[FailureTrajectory],
+    guardrails: tuple[str, ...],
+) -> SkillProcedure:
+    """Induce a declarative candidate only from repeated, convergent failures.
+
+    It keeps the ordered intersection of corrective steps across all supplied
+    trajectories. It does not invent missing steps or execute generated text.
+    """
+    rows = tuple(trajectories)
+    if len(rows) < 2:
+        raise ValueError("at least two independent failure trajectories are required")
+    for row in rows:
+        row.validate()
+    ids = [row.failure_id for row in rows]
+    if len(ids) != len(set(ids)):
+        raise ValueError("failure trajectory IDs must be unique")
+    signatures = {row.failure_signature for row in rows}
+    if len(signatures) != 1:
+        raise ValueError("failure trajectories must share one normalized signature")
+    common = set(rows[0].corrective_steps)
+    for row in rows[1:]:
+        common.intersection_update(row.corrective_steps)
+    ordered_steps = tuple(step for step in rows[0].corrective_steps if step in common)
+    if not ordered_steps:
+        raise ValueError("failure trajectories have no convergent corrective steps")
+    candidate = SkillProcedure(
+        skill_id=skill_id, version=version, purpose=purpose,
+        trigger_conditions=tuple(sorted({row.trigger_condition for row in rows})),
+        steps=ordered_steps, guardrails=guardrails,
+        source_failure_ids=tuple(sorted(ids)),
+    )
+    candidate.validate()
+    return candidate
+
+
+@dataclass(frozen=True)
 class EvalCase:
     case_id: str
     split: str
