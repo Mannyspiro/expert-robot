@@ -186,7 +186,8 @@ class LearningPlatform:
 
     @staticmethod
     def _validate_manifest(manifest: Mapping[str, Any]) -> None:
-        objective_ids = set()
+        objective_ids: set[str] = set()
+        prerequisites_by_id: dict[str, list[str]] = {}
         for objective in manifest["objectives"]:
             if not isinstance(objective, dict):
                 raise ValueError("objective entries must be objects")
@@ -198,36 +199,81 @@ class LearningPlatform:
             if not isinstance(objective.get("description", ""), str):
                 raise ValueError("objective description must be text")
             prereqs = objective.get("prerequisites", [])
-            if not isinstance(prereqs, list) or any(not isinstance(x, str) for x in prereqs):
-                raise ValueError("objective prerequisites must be a list of IDs")
-        for objective in manifest["objectives"]:
-            if any(p not in objective_ids for p in objective.get("prerequisites", [])):
+            if not isinstance(prereqs, list) or any(
+                not isinstance(item, str) or not item.strip() for item in prereqs
+            ):
+                raise ValueError("objective prerequisites must be a list of non-empty IDs")
+            if len(set(prereqs)) != len(prereqs):
+                raise ValueError("objective prerequisites must be unique")
+            if oid in prereqs:
+                raise ValueError("objective cannot depend on itself")
+            prerequisites_by_id[oid] = prereqs
+
+        for oid, prereqs in prerequisites_by_id.items():
+            if any(item not in objective_ids for item in prereqs):
                 raise ValueError("objective prerequisite references an unknown objective")
+
+        visiting: set[str] = set()
+        visited: set[str] = set()
+
+        def visit(oid: str) -> None:
+            if oid in visiting:
+                raise ValueError("objective prerequisite graph contains a cycle")
+            if oid in visited:
+                return
+            visiting.add(oid)
+            for prerequisite in prerequisites_by_id[oid]:
+                visit(prerequisite)
+            visiting.remove(oid)
+            visited.add(oid)
+
+        for oid in sorted(objective_ids):
+            visit(oid)
+
+        def unique_ids(items: list[Any], kind: str) -> set[str]:
+            ids: set[str] = set()
+            for item in items:
+                if not isinstance(item, dict):
+                    raise ValueError(f"{kind} entries must be objects")
+                identifier = _required(item.get("id"), f"{kind}.id", 100)
+                if identifier in ids:
+                    raise ValueError(f"{kind} IDs must be unique")
+                ids.add(identifier)
+            return ids
+
+        lesson_ids = unique_ids(manifest["lessons"], "lesson")
         for lesson in manifest["lessons"]:
-            if not isinstance(lesson, dict):
-                raise ValueError("lesson entries must be objects")
-            _required(lesson.get("id"), "lesson.id", 100)
             _required(lesson.get("title"), "lesson.title", 240)
             if lesson.get("objective_id") not in objective_ids:
                 raise ValueError("lesson must reference a known objective")
             if not isinstance(lesson.get("body", ""), str):
                 raise ValueError("lesson body must be text")
+            for field in ("pathways", "interest_tags"):
+                if field in lesson and (
+                    not isinstance(lesson[field], list)
+                    or any(not isinstance(value, str) or not value.strip() for value in lesson[field])
+                ):
+                    raise ValueError(f"lesson {field} must be a list of non-empty strings")
+
+        unique_ids(manifest["resources"], "resource")
         for resource in manifest["resources"]:
-            if not isinstance(resource, dict):
-                raise ValueError("resource entries must be objects")
-            _required(resource.get("id"), "resource.id", 100)
             _required(resource.get("title"), "resource.title", 240)
-            _required(resource.get("source_uri"), "resource.source_uri", 2048)
+            uri = _required(resource.get("source_uri"), "resource.source_uri", 2048)
+            if not uri.startswith("https://"):
+                raise ValueError("learning resources must use HTTPS source URIs")
             _required(resource.get("license"), "resource.license", 120)
             _required(resource.get("creator"), "resource.creator", 240)
+
+        unique_ids(manifest["assessments"], "assessment")
         for assessment in manifest["assessments"]:
-            if not isinstance(assessment, dict):
-                raise ValueError("assessment entries must be objects")
-            _required(assessment.get("id"), "assessment.id", 100)
             _required(assessment.get("title"), "assessment.title", 240)
             if assessment.get("objective_id") not in objective_ids:
                 raise ValueError("assessment must reference a known objective")
-            if assessment.get("high_stakes") is True and assessment.get("human_review_required") is not True:
+            high_stakes = assessment.get("high_stakes", False)
+            human_review = assessment.get("human_review_required", False)
+            if not isinstance(high_stakes, bool) or not isinstance(human_review, bool):
+                raise ValueError("assessment review flags must be boolean")
+            if high_stakes and not human_review:
                 raise ValueError("high-stakes assessments require human review")
 
     def review_course(self, actor: Actor, course_id: str, version: int,
