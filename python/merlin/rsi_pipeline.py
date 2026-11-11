@@ -17,6 +17,7 @@ import hashlib
 import importlib.util
 import json
 import math
+import os
 import sqlite3
 import statistics
 import time
@@ -156,6 +157,41 @@ def cace_rsi_bundle_sha256(
         "notes": ["Merlin RSI exact-artifact independent verification"],
     }
     return sha256_hex(_CACE_BUNDLE_DOMAIN + canonical_json(bundle))
+
+
+def _load_approved_cace_keys() -> dict[str, str]:
+    """Load a server-pinned CACE key allowlist; never accept caller-supplied trust."""
+    raw = os.environ.get("MERLIN_CACE_TRUST_STORE_JSON", "")
+    expected_digest = os.environ.get("MERLIN_CACE_TRUST_STORE_SHA256", "")
+    if not raw or not _is_sha256(expected_digest):
+        raise PermissionError("independent CACE trust store is not configured")
+    if sha256_hex(raw.encode("utf-8")) != expected_digest:
+        raise PermissionError("independent CACE trust store digest mismatch")
+    try:
+        document = json.loads(raw)
+    except (TypeError, ValueError) as exc:
+        raise PermissionError("independent CACE trust store is invalid JSON") from exc
+    if (not isinstance(document, Mapping)
+        or set(document) != {"schema", "keys"}
+        or document.get("schema") != "merlin-cace-trust-store-v1"
+        or not isinstance(document.get("keys"), list)):
+        raise PermissionError("independent CACE trust store schema mismatch")
+    approved: dict[str, str] = {}
+    for entry in document["keys"]:
+        if (not isinstance(entry, Mapping)
+            or set(entry) != {"key_id", "verifier_id", "status"}
+            or entry.get("verifier_id") != "cace"
+            or entry.get("status") != "active"):
+            raise PermissionError("CACE trust store contains an invalid or inactive key")
+        key_id = entry.get("key_id")
+        if not isinstance(key_id, str) or not re.fullmatch(r"ed25519:[0-9a-f]{64}", key_id):
+            raise PermissionError("CACE trust store key ID is invalid")
+        if key_id in approved:
+            raise PermissionError("CACE trust store contains duplicate key IDs")
+        approved[key_id] = "cace"
+    if not approved:
+        raise PermissionError("CACE trust store contains no active verifier keys")
+    return approved
 
 
 def verify_cace_attestation(
@@ -453,12 +489,13 @@ class AppendOnlyLedger:
 
     def record_cace_verification(
         self, *, candidate_id: str, attestation: Mapping[str, Any],
-        approved_keys: Mapping[str, str], artifact_sha256: str,
-        suite_sha256: str, episode_id: str | None = None,
+        artifact_sha256: str, suite_sha256: str,
+        episode_id: str | None = None,
     ) -> dict[str, Any]:
         episode = episode_id or candidate_id
         _, _, bundle_sha, bindings = self._cace_evidence(
             episode, candidate_id, artifact_sha256, suite_sha256)
+        approved_keys = _load_approved_cace_keys()
         verified = verify_cace_attestation(
             attestation, approved_keys, expected_claim_id=candidate_id,
             expected_bundle_sha256=bundle_sha, expected_bindings=bindings)
@@ -475,13 +512,13 @@ class AppendOnlyLedger:
     def record_promotion(
         self, *, candidate_id: str, artifact_sha256: str,
         suite_sha256: str, attestation: Mapping[str, Any],
-        cace_approved_keys: Mapping[str, str],
         approval_receipt: SignedReceipt, approval_keys: Mapping[str, str],
         episode_id: str | None = None,
     ) -> dict[str, Any]:
         episode = episode_id or candidate_id
         _, _, bundle_sha, bindings = self._cace_evidence(
             episode, candidate_id, artifact_sha256, suite_sha256)
+        cace_approved_keys = _load_approved_cace_keys()
         verified = verify_cace_attestation(
             attestation, cace_approved_keys, expected_claim_id=candidate_id,
             expected_bundle_sha256=bundle_sha, expected_bindings=bindings)
