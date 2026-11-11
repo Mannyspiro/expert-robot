@@ -272,6 +272,10 @@ class LearningPlatformTests(unittest.TestCase):
         self.assertFalse(review["proof_qualified"])
         queue = self.store.list_submissions(self.admin, course["course_id"])
         self.assertEqual(queue["submissions"][0]["status"], "accepted")
+        learner_history = self.store.list_my_submissions(self.learner, course["course_id"])
+        self.assertEqual(learner_history["submissions"][0]["reviews"][0]["feedback"],
+                         "Clear explanation.")
+        self.assertFalse(learner_history["mastery_updated"])
         with self.assertRaises(LearningPermissionError):
             self.store.list_submissions(self.learner, course["course_id"])
 
