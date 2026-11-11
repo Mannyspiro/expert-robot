@@ -3,6 +3,8 @@
 **Status:** architecture and implementation plan; not a production qualification.
 **Canonical inputs:** `docs/research/merlin-mathematical-idea-catalog.v1.json`, `docs/merlin/MERLIN_MATH_FOUNDATIONS_COURSE_V1.json`, and the tenant-scoped Merlin Learning service.
 
+The machine-readable mapping is maintained in `docs/merlin/MERLIN_MATH_LEARNING_PATHWAYS_V1.json`. It maps all 41 current catalog ideas into the three pathways and labels whether a lesson reference already exists. `scripts/merlin_math_pathways_validate.py` checks catalog identity, idea coverage, pathway membership, lesson-reference consistency, and prerequisite integrity; the LMS evidence workflow runs this validator.
+
 ## Product objective
 
 Build one adaptive mathematics environment with three mutually reinforcing routes:
