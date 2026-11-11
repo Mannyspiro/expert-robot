@@ -39,6 +39,7 @@ from .learning_platform import Actor as LearningActor, LearningPlatform
 from .math_foundations_course import load_math_foundations_manifest
 from .math_logic_discrete_course import load_math_logic_discrete_manifest
 from .math_calculus_probability_course import load_math_calculus_probability_manifest
+from .math_numerical_scientific_computing_course import load_math_numerical_scientific_computing_manifest
 from .math_algebra_functions_course import load_math_algebra_functions_manifest
 from .identity import learning_identity_resolver_from_environment
 from .research import (
@@ -728,6 +729,24 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     "manifest": manifest,
                 })
                 return
+            if path == "/api/learning/templates/math-numerical-scientific-computing":
+                actor = self._learning_actor()
+                if actor is None:
+                    self._send(503, {"error": "learning_identity_provider_not_configured"})
+                    return
+                if actor.role not in {"tenant_admin", "instructor"}:
+                    self._send(403, {"error": "instructor_role_required"})
+                    return
+                manifest = load_math_numerical_scientific_computing_manifest()
+                self._send(200, {
+                    "schema": "merlin-learning-course-template/1",
+                    "curriculum_id": manifest["curriculum_id"],
+                    "title": manifest["title"],
+                    "objective_count": len(manifest["objectives"]),
+                    "lesson_count": len(manifest["lessons"]),
+                    "manifest": manifest,
+                })
+                return
             if path == "/api/learning/templates/math-calculus-probability":
                 actor = self._learning_actor()
                 if actor is None:
@@ -1217,6 +1236,17 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                         manifest = load_math_algebra_functions_manifest()
                         result = learning_platform.update_manifest(actor, parts[3], manifest)
                         store.append(path, {"course_id": parts[3], "template_id": "math-algebra-functions-v1"},
+                                     {"version": result["version"],
+                                      "manifest_sha256": result["manifest_sha256"]})
+                        self._send(200, result)
+                        return
+                    if len(parts) == 6 and parts[4] == "templates" and parts[5] == "math-numerical-scientific-computing":
+                        if actor.role not in {"tenant_admin", "instructor"}:
+                            self._send(403, {"error": "instructor_role_required"})
+                            return
+                        manifest = load_math_numerical_scientific_computing_manifest()
+                        result = learning_platform.update_manifest(actor, parts[3], manifest)
+                        store.append(path, {"course_id": parts[3], "template_id": "math-numerical-scientific-computing-v1"},
                                      {"version": result["version"],
                                       "manifest_sha256": result["manifest_sha256"]})
                         self._send(200, result)
