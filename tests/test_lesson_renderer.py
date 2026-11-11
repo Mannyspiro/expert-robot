@@ -84,6 +84,18 @@ class RendererTests(unittest.TestCase):
             )
             self.assertGreater(store.mastery("learner-1", "quantity")["conceptual"], 0)
 
+    def test_invalid_assessment_does_not_persist_partial_interaction(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            store = LearnerStore(Path(tmp) / "learner.sqlite")
+            with self.assertRaises(ValueError):
+                record_interaction(
+                    store, learner_id="learner-1", lesson=sample_lesson(),
+                    block_id="assess", event_type="assessment_submitted",
+                    response={"explanation": "invalid score"},
+                    scores={"conceptual": 1.5},
+                )
+            self.assertEqual(interaction_count(store, "learner-1"), 0)
+
 
 if __name__ == "__main__":
     unittest.main()
