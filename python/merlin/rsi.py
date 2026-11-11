@@ -220,6 +220,8 @@ def compare_skill_evaluations(
     case_list = tuple(cases)
     if len(case_list) < 3 or len({c.case_id for c in case_list}) != len(case_list):
         raise ValueError("evaluation suite requires unique cases and at least three cases")
+    if not any(c.split == "train" for c in case_list) or sum(c.split == "heldout" for c in case_list) < 2:
+        raise ValueError("evaluation suite requires training cases and at least two held-out cases")
     expected_suite = suite_digest(case_list)
     baseline.validate(case_list)
     candidate.validate(case_list)
