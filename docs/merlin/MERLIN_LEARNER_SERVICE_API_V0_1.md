@@ -72,3 +72,17 @@ The apply operation uses the normal tenant-scoped `LearningPlatform.update_manif
 The seven objectives map to canonical idea IDs `MATH-NT-001`, `MATH-NT-002`, `MATH-NT-003`, `MATH-ALG-002`, `MATH-COMP-001`, `MATH-LOG-001`, and `MATH-EXP-002`. The shared learner model therefore sees the same prerequisite graph whether recommendations are requested through the course endpoint or the global mathematics recommendation endpoint.
 
 All assessments in this initial template are low-stakes and require human review. No learner answer, AI explanation, finite experiment, or lesson completion is promoted to formal proof or mastery by the template.
+
+
+## Learner-controlled pathway and study preferences
+
+Preferences are persisted in the existing `LearnerStore` database, in a separate `learner_profiles` table. They do not create a second learner database and are keyed only by the authenticated actor ID.
+
+- `GET /api/learning/profile` — return the current learner's profile and safe defaults.
+- `POST /api/learning/profile` — update pathway weights, interest tags, explanation modes, pace, and optional time budget.
+
+Both routes require the authenticated actor to have the `learner` role. The API does not accept a learner ID in the request body; attempts to select another learner's profile are rejected. Profile changes are recorded in the event ledger using a hashed learner reference and profile digest, not raw preference content.
+
+Supported pathways are `mathematician`, `mathematics_programmer`, and `computational_hacker`. Pathway weights are validated and normalized. Interest tags are normalized to lowercase underscore form. Pace presets map to bounded study windows (gentle: 20 minutes, standard: 35, intensive: 60, adaptive: no fixed cap).
+
+Course and Hermes recommendations now use the persisted pathway weights, interests, and time budget in addition to the existing mastery/prerequisite evidence. Preference matching changes ranking only; it cannot change mastery estimates, lesson completion, or proof status. Score components and blocked-task reasons are returned for inspection.
