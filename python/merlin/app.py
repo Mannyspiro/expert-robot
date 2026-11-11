@@ -25,6 +25,7 @@ from .simulation import MerlinSimulation
 from .telemetry import normalize_event, telemetry_view, record_runtime_event
 from .telemetry_graph import build_telemetry_graph
 from .math_learning_api import MathLearningService
+from .rsi import (CaseOutcome, EvalCase, EvaluationEvidence, SkillProcedure, compare_skill_evaluations)
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
     validate_analogy,
@@ -134,6 +135,7 @@ CAPABILITIES = [
     {"id": "learning.math.lesson_progress", "status": "AVAILABLE", "evidence": "canonical path-specific lessons with server-owned SQLite sequential progress; progress is not mastery evidence"},
     {"id": "research.analogy.validate", "status": "AVAILABLE", "evidence": "unit-tested invariant and boundary checks"},
     {"id": "research.rsi.qualify", "status": "AVAILABLE", "evidence": "fail-closed qualification contract"},
+    {"id": "research.rsi.skill_evaluation", "status": "AVAILABLE", "evidence": "same-suite held-out comparison; fixed evaluator and runner; no automatic promotion"},
     {"id": "engineering.geometry.validate", "status": "AVAILABLE", "evidence": "unit-tested structural mesh checks"},
     {"id": "engineering.geometry.openscad", "status": "AVAILABLE", "evidence": "typed geometry exporter"},
     {"id": "engineering.netlist.validate", "status": "AVAILABLE", "evidence": "unit-tested structural/rating preflight"},
@@ -146,6 +148,31 @@ CAPABILITIES = [
     {"id": "media.video", "status": "NOT_CONFIGURED"},
     {"id": "biology.biochemistry", "status": "NOT_CONFIGURED"},
 ]
+
+
+def _rsi_skill(raw: dict[str, Any]) -> SkillProcedure:
+    if not isinstance(raw, dict):
+        raise ValueError("skill procedure must be an object")
+    return SkillProcedure(
+        skill_id=raw.get("skill_id", ""), version=raw.get("version", 0),
+        purpose=raw.get("purpose", ""),
+        trigger_conditions=tuple(raw.get("trigger_conditions", [])),
+        steps=tuple(raw.get("steps", [])), guardrails=tuple(raw.get("guardrails", [])),
+        source_failure_ids=tuple(raw.get("source_failure_ids", [])),
+    )
+
+
+def _rsi_evidence(raw: dict[str, Any]) -> EvaluationEvidence:
+    if not isinstance(raw, dict):
+        raise ValueError("evaluation evidence must be an object")
+    return EvaluationEvidence(
+        skill_sha256=raw.get("skill_sha256", ""),
+        suite_sha256=raw.get("suite_sha256", ""),
+        evaluator_sha256=raw.get("evaluator_sha256", ""),
+        runner_id=raw.get("runner_id", ""),
+        runner_revision=raw.get("runner_revision", ""),
+        outcomes=tuple(CaseOutcome(**item) for item in raw.get("outcomes", [])),
+    )
 
 
 def _idea(row: dict[str, Any]) -> Idea:
@@ -536,6 +563,20 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None):
                 elif path == "/api/analogy/validate":
                     result = validate_analogy(_analogy(data))
                     summary = {"accepted": result["accepted"], "reasons": len(result["reasons"])}
+                elif path == "/api/rsi/compare":
+                    cases = tuple(EvalCase(**row) for row in data.get("cases", []))
+                    decision = compare_skill_evaluations(
+                        baseline_skill=_rsi_skill(data.get("baseline_skill")),
+                        candidate_skill=_rsi_skill(data.get("candidate_skill")),
+                        cases=cases,
+                        baseline=_rsi_evidence(data.get("baseline_evaluation")),
+                        candidate=_rsi_evidence(data.get("candidate_evaluation")),
+                        max_resource_units=data.get("max_resource_units", 0),
+                    )
+                    result = decision.__dict__
+                    summary = {"status": decision.status, "reason": decision.reason,
+                               "heldout_delta": decision.heldout_delta,
+                               "automatic_promotion": False}
                 elif path == "/api/rsi/qualify":
                     result = qualify_rsi_candidate(PromotionPacket(**data))
                     summary = {"status": result["status"], "failed_gates": result["failed_gates"]}
