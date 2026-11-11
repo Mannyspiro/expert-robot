@@ -1,6 +1,7 @@
 """A zero-first, auditable introduction to Parrondo's paradox."""
 from __future__ import annotations
 from dataclasses import dataclass
+import math
 
 @dataclass(frozen=True)
 class LessonStage:
