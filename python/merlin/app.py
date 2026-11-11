@@ -37,6 +37,7 @@ from .memory_vault import MerlinMemoryVault
 from .capability_registry import capability_snapshot, validate_graph
 from .learning_platform import Actor as LearningActor, LearningPlatform
 from .math_foundations_course import load_math_foundations_manifest
+from .math_logic_discrete_course import load_math_logic_discrete_manifest
 from .identity import learning_identity_resolver_from_environment
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
@@ -707,6 +708,24 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     return
                 self._send(200, learner_store.get_profile(learner_subject_id(actor.tenant_id, actor.actor_id)))
                 return
+            if path == "/api/learning/templates/math-logic-discrete":
+                actor = self._learning_actor()
+                if actor is None:
+                    self._send(503, {"error": "learning_identity_provider_not_configured"})
+                    return
+                if actor.role not in {"tenant_admin", "instructor"}:
+                    self._send(403, {"error": "instructor_role_required"})
+                    return
+                manifest = load_math_logic_discrete_manifest()
+                self._send(200, {
+                    "schema": "merlin-learning-course-template/1",
+                    "curriculum_id": manifest["curriculum_id"],
+                    "title": manifest["title"],
+                    "objective_count": len(manifest["objectives"]),
+                    "lesson_count": len(manifest["lessons"]),
+                    "manifest": manifest,
+                })
+                return
             if path == "/api/learning/templates/math-foundations":
                 actor = self._learning_actor()
                 if actor is None:
@@ -1153,6 +1172,17 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                         self._send(503, {"error": "learning_identity_provider_not_configured"})
                         return
                     parts = [unquote(part) for part in path.split("/") if part]
+                    if len(parts) == 6 and parts[4] == "templates" and parts[5] == "math-logic-discrete":
+                        if actor.role not in {"tenant_admin", "instructor"}:
+                            self._send(403, {"error": "instructor_role_required"})
+                            return
+                        manifest = load_math_logic_discrete_manifest()
+                        result = learning_platform.update_manifest(actor, parts[3], manifest)
+                        store.append(path, {"course_id": parts[3], "template_id": "math-logic-discrete-v1"},
+                                     {"version": result["version"],
+                                      "manifest_sha256": result["manifest_sha256"]})
+                        self._send(200, result)
+                        return
                     if len(parts) == 6 and parts[4] == "templates" and parts[5] == "math-foundations":
                         if actor.role not in {"tenant_admin", "instructor"}:
                             self._send(403, {"error": "instructor_role_required"})
