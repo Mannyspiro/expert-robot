@@ -35,12 +35,27 @@ def validate_math_curriculum_manifest(
         learning = idea["learning"]
         if objective.get("dimensions") != learning.get("dimensions"):
             raise ValueError(f"{objective_id}: dimensions differ from canonical idea")
+        if objective.get("title") != idea.get("title"):
+            raise ValueError(f"{objective_id}: title differs from canonical idea")
         if objective.get("prerequisites") != learning.get("prerequisites"):
             raise ValueError(f"{objective_id}: prerequisites differ from canonical idea")
-        if not isinstance(objective.get("pathways"), list) or not objective["pathways"] or any(
-            path not in PATHWAYS for path in objective["pathways"]
-        ):
-            raise ValueError(f"{objective_id}: invalid pathway mapping")
+        external = objective.get("external_prerequisites", [])
+        expected_external = [
+            prerequisite for prerequisite in learning.get("prerequisites", [])
+            if prerequisite not in objective_by_id
+        ]
+        if set(external) != set(expected_external):
+            raise ValueError(f"{objective_id}: external prerequisites must exactly cover prerequisites outside this course")
+        for prerequisite in external:
+            external_idea = idea_by_id.get(prerequisite)
+            if (
+                external_idea is None
+                or not isinstance(external_idea.get("learning"), dict)
+                or not external_idea["learning"].get("lesson_id")
+            ):
+                raise ValueError(f"{objective_id}: external prerequisite {prerequisite} has no canonical lesson")
+        if not isinstance(objective.get("pathways"), list) or set(objective["pathways"]) != PATHWAYS:
+            raise ValueError(f"{objective_id}: objective must be assigned to all three pathways")
     lesson_ids: set[str] = set()
     task_ids: set[str] = set()
     lesson_by_id = {}
@@ -53,10 +68,8 @@ def validate_math_curriculum_manifest(
         idea = idea_by_id[lesson["objective_id"]]
         if lesson_id != idea["learning"].get("lesson_id"):
             raise ValueError(f"{lesson['objective_id']}: lesson ID differs from canonical catalog")
-        if not isinstance(lesson.get("pathways"), list) or not lesson["pathways"] or any(
-            path not in PATHWAYS for path in lesson["pathways"]
-        ):
-            raise ValueError(f"{lesson_id}: invalid pathways")
+        if not isinstance(lesson.get("pathways"), list) or set(lesson["pathways"]) != PATHWAYS:
+            raise ValueError(f"{lesson_id}: lesson must be assigned to all three pathways")
         stages = lesson.get("stages")
         if not isinstance(stages, list) or not stages or stages[0].get("mode") != "concrete":
             raise ValueError(f"{lesson_id}: first stage must be concrete")
