@@ -41,6 +41,13 @@ class MathCalculusProbabilityCourseTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "all three pathways"):
             validate_math_calculus_probability_manifest(manifest, self.catalog)
 
+    def test_external_prerequisite_must_have_a_canonical_lesson(self):
+        catalog = copy.deepcopy(self.catalog)
+        function_idea = next(x for x in catalog["ideas"] if x["id"] == "MATH-FUNC-001")
+        function_idea["learning"]["lesson_id"] = None
+        with self.assertRaisesRegex(ValueError, "has no canonical lesson"):
+            validate_math_calculus_probability_manifest(self.manifest, catalog)
+
     def test_all_assessments_require_independent_human_review(self):
         manifest = copy.deepcopy(self.manifest)
         manifest["assessments"][0]["human_review_required"] = False
