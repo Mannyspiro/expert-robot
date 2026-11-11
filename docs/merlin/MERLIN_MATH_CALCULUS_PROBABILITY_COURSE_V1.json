@@ -1,0 +1,771 @@
+{
+  "schema": "merlin-learning-platform/1",
+  "curriculum_id": "math-calculus-probability-v1",
+  "title": "Calculus, Probability and Statistical Reasoning",
+  "description": "A concrete-first bridge from limits and rates to accumulation, conditional probability, and evidence-based inference.",
+  "modules": [
+    {
+      "id": "mathematician",
+      "title": "Mathematician pathway",
+      "description": "Build definitions, derive results, and justify conclusions.",
+      "lesson_ids": [
+        "math-limits-continuity-v1",
+        "math-derivatives-rates-v1",
+        "math-integration-accumulation-v1",
+        "math-probability-bayes-v1",
+        "math-statistical-inference-v1"
+      ]
+    },
+    {
+      "id": "mathematics-programmer",
+      "title": "Mathematics programmer pathway",
+      "description": "Translate models into algorithms and reproducible numerical experiments.",
+      "lesson_ids": [
+        "math-limits-continuity-v1",
+        "math-derivatives-rates-v1",
+        "math-integration-accumulation-v1",
+        "math-probability-bayes-v1",
+        "math-statistical-inference-v1"
+      ]
+    },
+    {
+      "id": "computational-hacker",
+      "title": "Computational hacker pathway",
+      "description": "Explore data, challenge assumptions, and test claims with small experiments.",
+      "lesson_ids": [
+        "math-limits-continuity-v1",
+        "math-derivatives-rates-v1",
+        "math-integration-accumulation-v1",
+        "math-probability-bayes-v1",
+        "math-statistical-inference-v1"
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "MATH-CALC-001",
+      "title": "Limits and continuity",
+      "description": "A limit asks what value a function approaches as its input approaches a point. Continuity adds the requirement that the function is defined there and agrees with that limiting value. Tables and graphs help us notice a pattern; a proof explains why the pattern must hold.",
+      "prerequisites": [
+        "MATH-FUNC-001"
+      ],
+      "external_prerequisites": [
+        "MATH-FUNC-001"
+      ],
+      "dimensions": [
+        "conceptual_explanation",
+        "procedure",
+        "proof_justification",
+        "modeling",
+        "transfer"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "calculus",
+        "functions",
+        "analysis"
+      ]
+    },
+    {
+      "id": "MATH-CALC-002",
+      "title": "Derivatives and rates of change",
+      "description": "A derivative measures instantaneous rate of change. It emerges from the limit of average rates over shorter intervals and can be interpreted as the slope of a tangent line or the sensitivity of an output to a small input change.",
+      "prerequisites": [
+        "MATH-CALC-001"
+      ],
+      "external_prerequisites": [],
+      "dimensions": [
+        "conceptual_explanation",
+        "procedure",
+        "proof_justification",
+        "modeling",
+        "transfer"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "calculus",
+        "derivatives",
+        "physics",
+        "optimization"
+      ]
+    },
+    {
+      "id": "MATH-CALC-003",
+      "title": "Integration and accumulation",
+      "description": "An integral adds up continuously varying quantities. Riemann sums approximate accumulation by adding small pieces; the definite integral is the limit of these sums when suitable conditions hold. The fundamental theorem connects accumulation to antiderivatives.",
+      "prerequisites": [
+        "MATH-CALC-001"
+      ],
+      "external_prerequisites": [],
+      "dimensions": [
+        "conceptual_explanation",
+        "procedure",
+        "proof_justification",
+        "modeling",
+        "transfer"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "calculus",
+        "integration",
+        "area",
+        "accumulation"
+      ]
+    },
+    {
+      "id": "MATH-PROB-001",
+      "title": "Probability and conditional probability",
+      "description": "Probability quantifies uncertainty within an explicit sample space. Conditional probability restricts attention to cases where some event is known to have occurred. Bayes' rule reverses the direction of conditioning while preserving the base rates.",
+      "prerequisites": [
+        "MATH-SET-001"
+      ],
+      "external_prerequisites": [
+        "MATH-SET-001"
+      ],
+      "dimensions": [
+        "conceptual_explanation",
+        "procedure",
+        "uncertainty",
+        "transfer"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "probability",
+        "uncertainty",
+        "bayes",
+        "decision-making"
+      ]
+    },
+    {
+      "id": "MATH-STAT-001",
+      "title": "Statistical models, inference and uncertainty",
+      "description": "Statistics uses samples to reason about populations or processes. An estimator varies across samples, so inference must account for sampling uncertainty, study design, and model assumptions. A confidence interval and a hypothesis test answer specific questions; neither automatically establishes causation or practical importance.",
+      "prerequisites": [
+        "MATH-PROB-001"
+      ],
+      "external_prerequisites": [],
+      "dimensions": [
+        "data_reasoning",
+        "uncertainty",
+        "conceptual_explanation",
+        "transfer"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "statistics",
+        "data",
+        "inference",
+        "uncertainty"
+      ]
+    }
+  ],
+  "lessons": [
+    {
+      "id": "math-limits-continuity-v1",
+      "title": "Limits and continuity",
+      "objective_id": "MATH-CALC-001",
+      "body": "A limit asks what value a function approaches as its input approaches a point. Continuity adds the requirement that the function is defined there and agrees with that limiting value. Tables and graphs help us notice a pattern; a proof explains why the pattern must hold.",
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "calculus",
+        "functions",
+        "analysis"
+      ],
+      "estimated_minutes": 30,
+      "learning_value": 0.95,
+      "transfer_value": 0.9,
+      "resource_ids": [],
+      "historical_context": "The development of calculus involved debates about infinitesimals and rigorous foundations. Cauchy and Weierstrass helped make limits and continuity precise.",
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Track the average temperature in a room as time approaches noon. The readings get closer to a value even if no reading is taken at exactly noon."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Compare f(x)=x² near x=2 with a function that has a hole at x=2. What does the nearby behavior tell you, and what does the value at the point tell you?"
+        },
+        {
+          "mode": "visual",
+          "prompt": "Make a table for x=1.9, 1.99, 2.01, and 2.1. Plot the points and mark the target x-value."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the difference between the value f(a), the limit as x approaches a, and continuity at a."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the epsilon-delta definition of a finite limit. For continuity at a, connect the limit to f(a)."
+        },
+        {
+          "mode": "code",
+          "prompt": "Write a small numerical experiment that samples points around a. Explain why finite samples can suggest but cannot prove a limit."
+        }
+      ],
+      "exercise": {
+        "task_id": "limits-continuity-evidence",
+        "objective": "Distinguish a function's point value from its limiting behavior and test continuity.",
+        "prompt": "Let f(x)=(x²-4)/(x-2) for x≠2 and f(2)=5. Build a table near x=2, simplify the expression for x≠2, state the limit, and decide whether f is continuous at 2. Explain what value would make it continuous.",
+        "answer_format": "table_and_explanation",
+        "hints": [
+          "Factor x²-4 as (x-2)(x+2), but keep the original domain restriction.",
+          "For x not equal to 2, compare the function with x+2.",
+          "Continuity requires the point value to equal the limit."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Distinguishes limit and point value.",
+            "points": 2
+          },
+          {
+            "dimension": "procedure",
+            "description": "Simplifies the expression while preserving the domain restriction.",
+            "points": 2
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Correctly evaluates the limit and continuity condition.",
+            "points": 2
+          },
+          {
+            "dimension": "transfer",
+            "description": "Identifies the required replacement value.",
+            "points": 1
+          }
+        ],
+        "transfer_prompt": "Construct a different function with a removable hole at x=3 and explain how to make it continuous.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      }
+    },
+    {
+      "id": "math-derivatives-rates-v1",
+      "title": "Derivatives and rates of change",
+      "objective_id": "MATH-CALC-002",
+      "body": "A derivative measures instantaneous rate of change. It emerges from the limit of average rates over shorter intervals and can be interpreted as the slope of a tangent line or the sensitivity of an output to a small input change.",
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "calculus",
+        "derivatives",
+        "physics",
+        "optimization"
+      ],
+      "estimated_minutes": 30,
+      "learning_value": 0.95,
+      "transfer_value": 0.9,
+      "resource_ids": [],
+      "historical_context": "Newton and Leibniz developed calculus independently in the seventeenth century. Their notations emphasize complementary views: rates of change and infinitesimal differentials.",
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "A car travels 100 metres in 5 seconds. Its average speed is 20 metres per second, but its speedometer can change from moment to moment."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Compute average slopes over progressively shorter intervals around t=2 for s(t)=t². Notice what value the slopes approach."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Draw the curve y=x² and secant lines through (2,4) and nearby points. Observe the secant lines approach a tangent."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain average rate, instantaneous rate, tangent slope, and derivative in your own words."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "Use the difference quotient f'(a)=lim(h→0)[f(a+h)-f(a)]/h and derive the derivative of x²."
+        },
+        {
+          "mode": "code",
+          "prompt": "Approximate a derivative with finite differences at several step sizes. Record the step size and error against the exact derivative."
+        }
+      ],
+      "exercise": {
+        "task_id": "derivative-rate-evidence",
+        "objective": "Derive and interpret a derivative as an instantaneous rate of change.",
+        "prompt": "For s(t)=t²+3t, compute the average rate of change from t=1 to t=1+h, simplify the quotient, take the limit as h approaches 0, and interpret the result at t=1.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Start with [s(1+h)-s(1)]/h.",
+          "Expand (1+h)² before simplifying.",
+          "After cancelling h, take the limit and state the units if s is distance and t is time."
+        ],
+        "rubric": [
+          {
+            "dimension": "procedure",
+            "description": "Correctly expands and simplifies the difference quotient.",
+            "points": 2
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Evaluates the limit without dividing by zero.",
+            "points": 2
+          },
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Interprets the derivative as instantaneous rate.",
+            "points": 2
+          },
+          {
+            "dimension": "transfer",
+            "description": "Explains how the rate changes at a different time.",
+            "points": 1
+          }
+        ],
+        "transfer_prompt": "Repeat the reasoning for s(t)=t³ and explain why the instantaneous rate depends on t.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      }
+    },
+    {
+      "id": "math-integration-accumulation-v1",
+      "title": "Integration and accumulation",
+      "objective_id": "MATH-CALC-003",
+      "body": "An integral adds up continuously varying quantities. Riemann sums approximate accumulation by adding small pieces; the definite integral is the limit of these sums when suitable conditions hold. The fundamental theorem connects accumulation to antiderivatives.",
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "calculus",
+        "integration",
+        "area",
+        "accumulation"
+      ],
+      "estimated_minutes": 30,
+      "learning_value": 0.95,
+      "transfer_value": 0.9,
+      "resource_ids": [],
+      "historical_context": "Archimedes used exhaustion methods to compare areas and volumes. Newton and Leibniz connected differentiation and integration into a unified calculus.",
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Imagine filling a tank at a changing flow rate. Total water added depends on the rate throughout the time interval, not just the final rate."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Approximate the area under y=x on [0,2] using left-endpoint rectangles. Double the number of rectangles and compare the totals."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Draw the curve, partition the interval, and shade the rectangles. Label each width and height."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the difference between a rate, an accumulated total, signed area, and geometric area."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "Write a Riemann sum and its limiting definite integral. Connect the integral of f' to the net change in f."
+        },
+        {
+          "mode": "code",
+          "prompt": "Implement a left Riemann sum and compare it with an exact integral. Record partition count and approximation error."
+        }
+      ],
+      "exercise": {
+        "task_id": "integration-accumulation-evidence",
+        "objective": "Approximate and interpret a definite integral as accumulated change.",
+        "prompt": "A tank fills at rate r(t)=2t+1 litres per minute from t=0 to t=3. Estimate the total using three equal left-endpoint rectangles, compute the exact integral, and explain the difference.",
+        "answer_format": "table_and_explanation",
+        "hints": [
+          "The interval width is 1 minute.",
+          "Use left endpoints t=0,1,2 and multiply each rate by the width.",
+          "Integrate 2t+1 from 0 to 3 and interpret the units as litres."
+        ],
+        "rubric": [
+          {
+            "dimension": "procedure",
+            "description": "Computes the left Riemann sum correctly.",
+            "points": 2
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Evaluates the exact definite integral correctly.",
+            "points": 2
+          },
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains approximation versus exact accumulation.",
+            "points": 2
+          },
+          {
+            "dimension": "transfer",
+            "description": "Interprets the units and approximation error.",
+            "points": 1
+          }
+        ],
+        "transfer_prompt": "Change the rate to r(t)=4-t on [0,3]. Explain why the same partition method still works and whether the left sum over- or underestimates.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      }
+    },
+    {
+      "id": "math-probability-bayes-v1",
+      "title": "Probability and conditional probability",
+      "objective_id": "MATH-PROB-001",
+      "body": "Probability quantifies uncertainty within an explicit sample space. Conditional probability restricts attention to cases where some event is known to have occurred. Bayes' rule reverses the direction of conditioning while preserving the base rates.",
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "probability",
+        "uncertainty",
+        "bayes",
+        "decision-making"
+      ],
+      "estimated_minutes": 30,
+      "learning_value": 0.95,
+      "transfer_value": 0.9,
+      "resource_ids": [],
+      "historical_context": "Pascal and Fermat exchanged letters about games of chance; Laplace later systematized probability. Modern probability theory formalizes events and measures.",
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Draw two red and three blue tokens from a bag. Before drawing, list the equally likely outcomes and calculate the chance of red."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Now draw two tokens without replacement. Compare the chance that the second is red with and without knowing the first was red."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Use a tree diagram with branches for the first and second draw. Label each branch with its conditional probability."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain sample space, event, independence, conditional probability, and base rate."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "Write P(A|B)=P(A∩B)/P(B) for P(B)>0 and derive Bayes' rule."
+        },
+        {
+          "mode": "code",
+          "prompt": "Simulate repeated draws with a fixed seed. Compare empirical frequencies with exact probabilities and report sampling variability."
+        }
+      ],
+      "exercise": {
+        "task_id": "probability-bayes-evidence",
+        "objective": "Calculate conditional probability and explain how base rates affect an updated probability.",
+        "prompt": "A condition affects 1% of a population. A test is positive for 90% of people with the condition and for 5% of people without it. Calculate the probability that a randomly selected person has the condition given a positive test. Show the calculation with a natural-frequency table of 10,000 people.",
+        "answer_format": "table_and_explanation",
+        "hints": [
+          "Start with 10,000 people: 1% have the condition.",
+          "Of the 100 people with the condition, 90 test positive.",
+          "Of the 9,900 without the condition, 5% test positive. Divide true positives by all positives."
+        ],
+        "rubric": [
+          {
+            "dimension": "procedure",
+            "description": "Builds correct true-positive and false-positive counts.",
+            "points": 2
+          },
+          {
+            "dimension": "uncertainty",
+            "description": "Uses the correct denominator of all positive tests.",
+            "points": 2
+          },
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains why a 90% sensitivity is not a 90% posterior probability.",
+            "points": 2
+          },
+          {
+            "dimension": "transfer",
+            "description": "Identifies how changing the base rate changes the posterior.",
+            "points": 1
+          }
+        ],
+        "transfer_prompt": "Repeat the calculation for a population where prevalence is 10%. Explain why the result changes even though test performance is unchanged.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      }
+    },
+    {
+      "id": "math-statistical-inference-v1",
+      "title": "Statistical models, inference and uncertainty",
+      "objective_id": "MATH-STAT-001",
+      "body": "Statistics uses samples to reason about populations or processes. An estimator varies across samples, so inference must account for sampling uncertainty, study design, and model assumptions. A confidence interval and a hypothesis test answer specific questions; neither automatically establishes causation or practical importance.",
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "statistics",
+        "data",
+        "inference",
+        "uncertainty"
+      ],
+      "estimated_minutes": 30,
+      "learning_value": 0.95,
+      "transfer_value": 0.9,
+      "resource_ids": [],
+      "historical_context": "Florence Nightingale used data visualization to argue for public-health reform. Fisher, Neyman, and Pearson helped shape modern statistical inference, while their approaches differ in interpretation.",
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Measure the heights of ten plants from one garden. Ask whether this sample represents all plants in the region."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Take repeated samples from a small population and calculate each sample mean. Notice that the means vary."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Plot the sample means as a histogram and mark the population mean if it is known."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain population, sample, estimator, sampling distribution, confidence interval, and confounding."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "Define an estimator and its sampling distribution. Interpret a 95% confidence procedure in terms of repeated samples."
+        },
+        {
+          "mode": "code",
+          "prompt": "Simulate repeated samples with a recorded seed and sample size. Compare empirical coverage with the nominal interval coverage."
+        }
+      ],
+      "exercise": {
+        "task_id": "statistical-inference-evidence",
+        "objective": "Interpret sampling uncertainty and distinguish association from causal evidence.",
+        "prompt": "A poll of 400 randomly selected voters reports 52% support with a stated margin of error of ±5 percentage points. Explain what the interval communicates, list two assumptions behind it, and explain why the poll alone does not establish that a campaign caused support to increase.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Separate the sample estimate from the population quantity being estimated.",
+          "Ask how the sample was selected and whether responses are independent and representative.",
+          "A before/after change or association does not isolate causation without a suitable design."
+        ],
+        "rubric": [
+          {
+            "dimension": "data_reasoning",
+            "description": "Correctly interprets the estimate and margin of error.",
+            "points": 2
+          },
+          {
+            "dimension": "uncertainty",
+            "description": "Explains sampling uncertainty and relevant assumptions.",
+            "points": 2
+          },
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Distinguishes inference from causal identification.",
+            "points": 2
+          },
+          {
+            "dimension": "transfer",
+            "description": "Names a design feature that would strengthen causal evidence.",
+            "points": 1
+          }
+        ],
+        "transfer_prompt": "Imagine the poll was conducted only among people who attended a campaign rally. Explain how selection bias could change the interpretation.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      }
+    }
+  ],
+  "assessments": [
+    {
+      "id": "assessment-math-calc-001",
+      "title": "Evidence check: Limits and continuity",
+      "objective_id": "MATH-CALC-001",
+      "high_stakes": false,
+      "human_review_required": true,
+      "rubric": [
+        {
+          "dimension": "conceptual_explanation",
+          "description": "Distinguishes limit and point value.",
+          "points": 2
+        },
+        {
+          "dimension": "procedure",
+          "description": "Simplifies the expression while preserving the domain restriction.",
+          "points": 2
+        },
+        {
+          "dimension": "proof_justification",
+          "description": "Correctly evaluates the limit and continuity condition.",
+          "points": 2
+        },
+        {
+          "dimension": "transfer",
+          "description": "Identifies the required replacement value.",
+          "points": 1
+        }
+      ]
+    },
+    {
+      "id": "assessment-math-calc-002",
+      "title": "Evidence check: Derivatives and rates of change",
+      "objective_id": "MATH-CALC-002",
+      "high_stakes": false,
+      "human_review_required": true,
+      "rubric": [
+        {
+          "dimension": "procedure",
+          "description": "Correctly expands and simplifies the difference quotient.",
+          "points": 2
+        },
+        {
+          "dimension": "proof_justification",
+          "description": "Evaluates the limit without dividing by zero.",
+          "points": 2
+        },
+        {
+          "dimension": "conceptual_explanation",
+          "description": "Interprets the derivative as instantaneous rate.",
+          "points": 2
+        },
+        {
+          "dimension": "transfer",
+          "description": "Explains how the rate changes at a different time.",
+          "points": 1
+        }
+      ]
+    },
+    {
+      "id": "assessment-math-calc-003",
+      "title": "Evidence check: Integration and accumulation",
+      "objective_id": "MATH-CALC-003",
+      "high_stakes": false,
+      "human_review_required": true,
+      "rubric": [
+        {
+          "dimension": "procedure",
+          "description": "Computes the left Riemann sum correctly.",
+          "points": 2
+        },
+        {
+          "dimension": "proof_justification",
+          "description": "Evaluates the exact definite integral correctly.",
+          "points": 2
+        },
+        {
+          "dimension": "conceptual_explanation",
+          "description": "Explains approximation versus exact accumulation.",
+          "points": 2
+        },
+        {
+          "dimension": "transfer",
+          "description": "Interprets the units and approximation error.",
+          "points": 1
+        }
+      ]
+    },
+    {
+      "id": "assessment-math-prob-001",
+      "title": "Evidence check: Probability and conditional probability",
+      "objective_id": "MATH-PROB-001",
+      "high_stakes": false,
+      "human_review_required": true,
+      "rubric": [
+        {
+          "dimension": "procedure",
+          "description": "Builds correct true-positive and false-positive counts.",
+          "points": 2
+        },
+        {
+          "dimension": "uncertainty",
+          "description": "Uses the correct denominator of all positive tests.",
+          "points": 2
+        },
+        {
+          "dimension": "conceptual_explanation",
+          "description": "Explains why a 90% sensitivity is not a 90% posterior probability.",
+          "points": 2
+        },
+        {
+          "dimension": "transfer",
+          "description": "Identifies how changing the base rate changes the posterior.",
+          "points": 1
+        }
+      ]
+    },
+    {
+      "id": "assessment-math-stat-001",
+      "title": "Evidence check: Statistical models, inference and uncertainty",
+      "objective_id": "MATH-STAT-001",
+      "high_stakes": false,
+      "human_review_required": true,
+      "rubric": [
+        {
+          "dimension": "data_reasoning",
+          "description": "Correctly interprets the estimate and margin of error.",
+          "points": 2
+        },
+        {
+          "dimension": "uncertainty",
+          "description": "Explains sampling uncertainty and relevant assumptions.",
+          "points": 2
+        },
+        {
+          "dimension": "conceptual_explanation",
+          "description": "Distinguishes inference from causal identification.",
+          "points": 2
+        },
+        {
+          "dimension": "transfer",
+          "description": "Names a design feature that would strengthen causal evidence.",
+          "points": 1
+        }
+      ]
+    }
+  ],
+  "resources": [],
+  "grading_policy": {
+    "automated_high_stakes": false,
+    "proof_requires_human_review": true,
+    "ai_only_mastery_promotion": false
+  }
+}
