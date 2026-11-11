@@ -28,7 +28,7 @@ from .council_runtime import run_local_council
 from .simulation import MerlinSimulation
 from .telemetry import normalize_event, telemetry_view, record_runtime_event
 from .telemetry_graph import build_telemetry_graph
-from .learner_model import LearnerStore, select_next_lesson, HermesLearningRouter, score_attempt_event
+from .learner_model import (LearnerStore, select_next_lesson, HermesLearningRouter, score_attempt_event, learner_subject_id)
 from .event_outbox import MerlinEventOutbox, LeaseConflict
 from .intent_compiler import Asset, IntentSpec, ContinuityState, compile_directive
 from .math_transfer import preview_transfers
@@ -36,6 +36,11 @@ from .interaction_learning import InteractionLearningStore, analyze_interactions
 from .memory_vault import MerlinMemoryVault
 from .capability_registry import capability_snapshot, validate_graph
 from .learning_platform import Actor as LearningActor, LearningPlatform
+from .math_foundations_course import load_math_foundations_manifest
+from .math_logic_discrete_course import load_math_logic_discrete_manifest
+from .math_calculus_probability_course import load_math_calculus_probability_manifest
+from .math_numerical_scientific_computing_course import load_math_numerical_scientific_computing_manifest
+from .math_algebra_functions_course import load_math_algebra_functions_manifest
 from .identity import learning_identity_resolver_from_environment
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
@@ -693,6 +698,109 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     self._send(503, {"error": "canonical_graph_validation_unavailable",
                                      "source": "canonical_knowledge_graph"})
                 return
+            if path == "/api/learning/profile":
+                actor = self._learning_actor()
+                if actor is None:
+                    self._send(503, {"error": "learning_identity_provider_not_configured"})
+                    return
+                if actor.role != "learner":
+                    self._send(403, {"error": "learner_role_required"})
+                    return
+                if learner_store is None:
+                    self._send(503, {"error": "learner_store_unavailable"})
+                    return
+                self._send(200, learner_store.get_profile(learner_subject_id(actor.tenant_id, actor.actor_id)))
+                return
+            if path == "/api/learning/templates/math-algebra-functions":
+                actor = self._learning_actor()
+                if actor is None:
+                    self._send(503, {"error": "learning_identity_provider_not_configured"})
+                    return
+                if actor.role not in {"tenant_admin", "instructor"}:
+                    self._send(403, {"error": "instructor_role_required"})
+                    return
+                manifest = load_math_algebra_functions_manifest()
+                self._send(200, {
+                    "schema": "merlin-learning-course-template/1",
+                    "curriculum_id": manifest["curriculum_id"],
+                    "title": manifest["title"],
+                    "objective_count": len(manifest["objectives"]),
+                    "lesson_count": len(manifest["lessons"]),
+                    "manifest": manifest,
+                })
+                return
+            if path == "/api/learning/templates/math-numerical-scientific-computing":
+                actor = self._learning_actor()
+                if actor is None:
+                    self._send(503, {"error": "learning_identity_provider_not_configured"})
+                    return
+                if actor.role not in {"tenant_admin", "instructor"}:
+                    self._send(403, {"error": "instructor_role_required"})
+                    return
+                manifest = load_math_numerical_scientific_computing_manifest()
+                self._send(200, {
+                    "schema": "merlin-learning-course-template/1",
+                    "curriculum_id": manifest["curriculum_id"],
+                    "title": manifest["title"],
+                    "objective_count": len(manifest["objectives"]),
+                    "lesson_count": len(manifest["lessons"]),
+                    "manifest": manifest,
+                })
+                return
+            if path == "/api/learning/templates/math-calculus-probability":
+                actor = self._learning_actor()
+                if actor is None:
+                    self._send(503, {"error": "learning_identity_provider_not_configured"})
+                    return
+                if actor.role not in {"tenant_admin", "instructor"}:
+                    self._send(403, {"error": "instructor_role_required"})
+                    return
+                manifest = load_math_calculus_probability_manifest()
+                self._send(200, {
+                    "schema": "merlin-learning-course-template/1",
+                    "curriculum_id": manifest["curriculum_id"],
+                    "title": manifest["title"],
+                    "objective_count": len(manifest["objectives"]),
+                    "lesson_count": len(manifest["lessons"]),
+                    "manifest": manifest,
+                })
+                return
+            if path == "/api/learning/templates/math-logic-discrete":
+                actor = self._learning_actor()
+                if actor is None:
+                    self._send(503, {"error": "learning_identity_provider_not_configured"})
+                    return
+                if actor.role not in {"tenant_admin", "instructor"}:
+                    self._send(403, {"error": "instructor_role_required"})
+                    return
+                manifest = load_math_logic_discrete_manifest()
+                self._send(200, {
+                    "schema": "merlin-learning-course-template/1",
+                    "curriculum_id": manifest["curriculum_id"],
+                    "title": manifest["title"],
+                    "objective_count": len(manifest["objectives"]),
+                    "lesson_count": len(manifest["lessons"]),
+                    "manifest": manifest,
+                })
+                return
+            if path == "/api/learning/templates/math-foundations":
+                actor = self._learning_actor()
+                if actor is None:
+                    self._send(503, {"error": "learning_identity_provider_not_configured"})
+                    return
+                if actor.role not in {"tenant_admin", "instructor"}:
+                    self._send(403, {"error": "instructor_role_required"})
+                    return
+                manifest = load_math_foundations_manifest()
+                self._send(200, {
+                    "schema": "merlin-learning-course-template/1",
+                    "curriculum_id": manifest["curriculum_id"],
+                    "title": manifest["title"],
+                    "objective_count": len(manifest["objectives"]),
+                    "lesson_count": len(manifest["lessons"]),
+                    "manifest": manifest,
+                })
+                return
             if path == "/api/learning/courses":
                 actor = self._learning_actor()
                 if actor is None:
@@ -712,6 +820,14 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     return
                 try:
                     parts = [unquote(part) for part in path.split("/") if part]
+                    if len(parts) == 6 and parts[4] == "submissions" and parts[5] == "mine":
+                        result = learning_platform.list_my_submissions(actor, parts[3])
+                        self._send(200, result)
+                        return
+                    if len(parts) == 5 and parts[4] == "submissions":
+                        result = learning_platform.list_submissions(actor, parts[3])
+                        self._send(200, result)
+                        return
                     if len(parts) == 5 and parts[4] == "recommendation":
                         result = learning_platform.recommend_next_lesson(actor, parts[3], learner_store)
                         self._send(200, result)
@@ -818,18 +934,38 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             elif path == "/api/events":
                 self._send(200, {"schema": "merlin-events/1", "events": store.recent()})
             elif path in {"/api/learning/learner", "/api/learning/recommendation"}:
-                query = parse_qs(parsed.query)
-                learner_id = (query.get("learner_id") or [""])[0]
-                if not learner_id or len(learner_id) > 200:
-                    self._send(400, {"error": "learner_id_required"})
+                actor = self._learning_actor()
+                if actor is None:
+                    self._send(503, {"error": "learning_identity_provider_not_configured"})
                     return
+                if actor.role != "learner":
+                    self._send(403, {"error": "learner_role_required"})
+                    return
+                if learner_store is None:
+                    self._send(503, {"error": "learner_store_unavailable"})
+                    return
+                query = parse_qs(parsed.query)
+                requested_learner_id = (query.get("learner_id") or [None])[0]
+                if requested_learner_id is not None and len(requested_learner_id) > 200:
+                    self._send(400, {"error": "learner_id_invalid"})
+                    return
+                if requested_learner_id is not None and requested_learner_id != actor.actor_id:
+                    self._send(403, {"error": "learner_identity_mismatch"})
+                    return
+                learner_id = learner_subject_id(actor.tenant_id, actor.actor_id)
                 if path == "/api/learning/recommendation":
                     curriculum_id = (query.get("curriculum_id") or [None])[0]
                     if curriculum_id not in {None, "mathematics", "b2b-ml-agentic-ai", "art-math-studio"}:
                         self._send(400, {"error": "unsupported_curriculum"})
                         return
-                    result = select_next_lesson(learner_id, learner_store, learning_graph,
-                                                learning_lessons, curriculum_id=curriculum_id)
+                    profile = learner_store.get_profile(learner_id)
+                    result = select_next_lesson(
+                        learner_id, learner_store, learning_graph, learning_lessons,
+                        curriculum_id=curriculum_id,
+                        path_weights=profile["pathway_weights"],
+                        interests=profile["interests"],
+                        max_minutes=profile["max_minutes"],
+                    )
                     if learning_outbox is not None:
                         minute = int(datetime.now(timezone.utc).timestamp() // 60)
                         learning_outbox.enqueue("learning-recommendation:" + learner_id + ":" + str(minute),
@@ -1057,6 +1193,24 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     self._send(200, {**result, "source": "request_preview",
                                      "promotion_authorized": False})
                     return
+                if path == "/api/learning/profile":
+                    actor = self._learning_actor()
+                    if actor is None:
+                        self._send(503, {"error": "learning_identity_provider_not_configured"})
+                        return
+                    if actor.role != "learner":
+                        self._send(403, {"error": "learner_role_required"})
+                        return
+                    if learner_store is None:
+                        self._send(503, {"error": "learner_store_unavailable"})
+                        return
+                    profile = learner_store.update_profile(learner_subject_id(actor.tenant_id, actor.actor_id), data)
+                    learner_ref = learner_subject_id(actor.tenant_id, actor.actor_id)
+                    profile_hash = sha256(_json_bytes(profile)).hexdigest()
+                    store.append(path, {"learner_ref_sha256": learner_ref},
+                                 {"profile_sha256": profile_hash})
+                    self._send(200, profile)
+                    return
                 if path == "/api/learning/courses":
                     actor = self._learning_actor()
                     if actor is None:
@@ -1069,12 +1223,117 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                                   "manifest_sha256": result["manifest_sha256"]})
                     self._send(201, result)
                     return
+                if path.startswith("/api/learning/reviewers/"):
+                    actor = self._learning_actor()
+                    if actor is None:
+                        self._send(503, {"error": "learning_identity_provider_not_configured"})
+                        return
+                    parts = [unquote(part) for part in path.split("/") if part]
+                    if len(parts) != 5 or parts[4] != "calibration":
+                        self._send(404, {"error": "not_found"})
+                        return
+                    result = learning_platform.record_reviewer_calibration(
+                        actor,
+                        parts[3],
+                        data.get("calibration_sha256"),
+                        data.get("case_count"),
+                        data.get("agreement_score"),
+                        data.get("calibration_version", "merlin-assessment-review-v1"),
+                    )
+                    store.append(path, {"reviewer_id": parts[3],
+                                        "calibration_id": result["calibration_id"]},
+                                 {"status": result["status"],
+                                  "calibration_sha256": result["calibration_sha256"],
+                                  "expires_at": result["expires_at"]})
+                    self._send(201, result)
+                    return
                 if path.startswith("/api/learning/courses/"):
                     actor = self._learning_actor()
                     if actor is None:
                         self._send(503, {"error": "learning_identity_provider_not_configured"})
                         return
                     parts = [unquote(part) for part in path.split("/") if part]
+                    if len(parts) == 6 and parts[4] == "templates" and parts[5] == "math-algebra-functions":
+                        if actor.role not in {"tenant_admin", "instructor"}:
+                            self._send(403, {"error": "instructor_role_required"})
+                            return
+                        manifest = load_math_algebra_functions_manifest()
+                        result = learning_platform.update_manifest(actor, parts[3], manifest)
+                        store.append(path, {"course_id": parts[3], "template_id": "math-algebra-functions-v1"},
+                                     {"version": result["version"],
+                                      "manifest_sha256": result["manifest_sha256"]})
+                        self._send(200, result)
+                        return
+                    if len(parts) == 6 and parts[4] == "templates" and parts[5] == "math-numerical-scientific-computing":
+                        if actor.role not in {"tenant_admin", "instructor"}:
+                            self._send(403, {"error": "instructor_role_required"})
+                            return
+                        manifest = load_math_numerical_scientific_computing_manifest()
+                        result = learning_platform.update_manifest(actor, parts[3], manifest)
+                        store.append(path, {"course_id": parts[3], "template_id": "math-numerical-scientific-computing-v1"},
+                                     {"version": result["version"],
+                                      "manifest_sha256": result["manifest_sha256"]})
+                        self._send(200, result)
+                        return
+                    if len(parts) == 6 and parts[4] == "templates" and parts[5] == "math-calculus-probability":
+                        if actor.role not in {"tenant_admin", "instructor"}:
+                            self._send(403, {"error": "instructor_role_required"})
+                            return
+                        manifest = load_math_calculus_probability_manifest()
+                        result = learning_platform.update_manifest(actor, parts[3], manifest)
+                        store.append(path, {"course_id": parts[3], "template_id": "math-calculus-probability-v1"},
+                                     {"version": result["version"],
+                                      "manifest_sha256": result["manifest_sha256"]})
+                        self._send(200, result)
+                        return
+                    if len(parts) == 6 and parts[4] == "templates" and parts[5] == "math-logic-discrete":
+                        if actor.role not in {"tenant_admin", "instructor"}:
+                            self._send(403, {"error": "instructor_role_required"})
+                            return
+                        manifest = load_math_logic_discrete_manifest()
+                        result = learning_platform.update_manifest(actor, parts[3], manifest)
+                        store.append(path, {"course_id": parts[3], "template_id": "math-logic-discrete-v1"},
+                                     {"version": result["version"],
+                                      "manifest_sha256": result["manifest_sha256"]})
+                        self._send(200, result)
+                        return
+                    if len(parts) == 6 and parts[4] == "templates" and parts[5] == "math-foundations":
+                        if actor.role not in {"tenant_admin", "instructor"}:
+                            self._send(403, {"error": "instructor_role_required"})
+                            return
+                        manifest = load_math_foundations_manifest()
+                        result = learning_platform.update_manifest(actor, parts[3], manifest)
+                        store.append(path, {"course_id": parts[3], "template_id": "math-foundations-v1"},
+                                     {"version": result["version"],
+                                      "manifest_sha256": result["manifest_sha256"]})
+                        self._send(200, result)
+                        return
+                    if len(parts) == 5 and parts[4] == "submissions":
+                        result = learning_platform.submit_assessment(
+                            actor, parts[3], data.get("submission_id"), data.get("lesson_id"),
+                            data.get("task_id"), data.get("response"))
+                        store.append(path, {"course_id": parts[3],
+                                            "submission_id": result["submission_id"]},
+                                     {"status": result["status"],
+                                      "response_sha256": result.get("response_sha256"),
+                                      "rubric_sha256": result.get("rubric_sha256"),
+                                      "mastery_updated": False})
+                        self._send(200 if result.get("duplicate") else 201, result)
+                        return
+                    if (len(parts) == 7 and parts[4] == "submissions"
+                            and parts[6] == "review"):
+                        result = learning_platform.review_submission(
+                            actor, parts[3], parts[5], data.get("decision"),
+                            data.get("feedback", ""), data.get("rubric_scores", {}))
+                        store.append(path, {"course_id": parts[3],
+                                            "submission_id": parts[5],
+                                            "review_id": result["review_id"]},
+                                     {"decision": result["decision"],
+                                      "rubric_sha256": result.get("rubric_sha256"),
+                                      "mastery_updated": False,
+                                      "proof_qualified": False})
+                        self._send(200, result)
+                        return
                     if len(parts) != 5:
                         self._send(404, {"error": "not_found"})
                         return

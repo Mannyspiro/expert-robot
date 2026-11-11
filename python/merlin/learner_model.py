@@ -7,6 +7,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from contextlib import closing
 import json
+import hashlib
 import math
 import sqlite3
 import time
@@ -22,6 +23,32 @@ DIMENSIONS = {
     "cultural_context", "creative_iteration", "authorship_provenance",
     "construction", "classification", "artistic_variation", "spatial_reasoning", "visualization", "scaling_analysis", "modeling", "interpretation", "algorithm_design", "parameter_reasoning", "reproducibility", "data_reasoning", "visual_encoding", "uncertainty", "critical_interpretation", "negative_space", "proportion", "composition", "balance", "rhythm", "contrast", "intentional_choice", "tool_control", "material_experiment", "craft_precision", "motif_design", "repeat_structure", "variation", "visual_coherence", "source_attribution", "contextual_interpretation", "ethical_representation", "spatial_composition", "viewpoint", "material_constraints", "material_selection", "structural_iteration", "fabrication_accuracy", "temporal_rhythm", "motion_design", "sequence", "sound_light_mapping", "artist_statement", "critique", "audience_awareness", "rule_design", "parameter_exploration", "creative_control", "iteration", "data_selection", "uncertainty_disclosure", "interpretive_integrity", "authorship_disclosure", "source_provenance", "licensing_awareness", "model_critique", "question_formulation", "literature_context", "artifact_iteration", "research_notebook", "formal_analysis", "revision_rationale", "self_reflection", "curation", "communication", "evidence_presentation", "limitations",
 }
+PATHWAYS = frozenset({"mathematician", "mathematics_programmer", "computational_hacker"})
+EXPLANATION_MODES = frozenset({"visual", "worked_example", "socratic", "historical", "textual", "video", "interactive", "code"})
+PACE_MAX_MINUTES = {"gentle": 20, "standard": 35, "intensive": 60, "adaptive": None}
+DEFAULT_LEARNER_PROFILE = {
+    "schema_version": 1,
+    "pathway_weights": {
+        "mathematician": 1 / 3,
+        "mathematics_programmer": 1 / 3,
+        "computational_hacker": 1 / 3,
+    },
+    "interests": [],
+    "explanation_modes": ["worked_example", "visual", "socratic"],
+    "pace": "adaptive",
+    "max_minutes": None,
+}
+
+
+def learner_subject_id(tenant_id: str, actor_id: str) -> str:
+    """Derive a stable opaque learner key scoped to a tenant boundary."""
+    tenant = LearnerStore._required(tenant_id, "tenant_id")
+    actor = LearnerStore._required(actor_id, "actor_id")
+    return hashlib.sha256(
+        f"merlin-learner-subject/1\\0{tenant}\\0{actor}".encode("utf-8")
+    ).hexdigest()
+
+
 ATTEMPT_TOPIC = "merlin.learning.attempt"
 
 
@@ -58,6 +85,10 @@ class LearnerStore:
               delayed INTEGER NOT NULL, transfer INTEGER NOT NULL);
             CREATE INDEX IF NOT EXISTS learner_attempt_lookup
               ON learner_attempts(learner_id,idea_id,dimension,submitted_at);
+            CREATE TABLE IF NOT EXISTS learner_profiles(
+              learner_id TEXT PRIMARY KEY,
+              profile_json TEXT NOT NULL,
+              updated_at REAL NOT NULL);
             """)
     
     def _connect(self):
@@ -66,6 +97,106 @@ class LearnerStore:
         db.execute("PRAGMA busy_timeout=30000")
         db.execute("PRAGMA journal_mode=WAL")
         return db
+
+    def get_profile(self, learner_id: str) -> dict[str, Any]:
+        """Return persisted learner preferences or a safe, balanced default."""
+        learner = self._required(learner_id, "learner_id")
+        with closing(self._connect()) as db:
+            row = db.execute(
+                "SELECT profile_json,updated_at FROM learner_profiles WHERE learner_id=?",
+                (learner,),
+            ).fetchone()
+        if row is None:
+            return {**json.loads(json.dumps(DEFAULT_LEARNER_PROFILE)), "updated_at": None}
+        try:
+            profile = json.loads(row["profile_json"])
+        except (TypeError, json.JSONDecodeError) as exc:
+            raise ValueError("stored learner profile is invalid") from exc
+        if not isinstance(profile, dict) or profile.get("schema_version") != 1:
+            raise ValueError("stored learner profile has an unsupported schema")
+        return {**profile, "updated_at": row["updated_at"]}
+
+    def update_profile(self, learner_id: str, updates: Mapping[str, Any]) -> dict[str, Any]:
+        """Persist learner-controlled preferences in the existing evidence database."""
+        learner = self._required(learner_id, "learner_id")
+        if not isinstance(updates, Mapping):
+            raise ValueError("profile updates must be an object")
+        allowed = {"pathway_weights", "interests", "explanation_modes", "pace", "max_minutes"}
+        unknown = set(updates) - allowed
+        if unknown:
+            raise ValueError(f"unsupported learner profile fields: {sorted(unknown)}")
+        current = self.get_profile(learner)
+        profile = {key: current[key] for key in DEFAULT_LEARNER_PROFILE}
+
+        if "pathway_weights" in updates:
+            raw = updates["pathway_weights"]
+            if not isinstance(raw, Mapping) or not raw:
+                raise ValueError("pathway_weights must be a non-empty object")
+            unknown_paths = set(raw) - PATHWAYS
+            if unknown_paths:
+                raise ValueError(f"unsupported learning pathways: {sorted(str(path) for path in unknown_paths)}")
+            weights = dict(profile["pathway_weights"])
+            for path, value in raw.items():
+                if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or not 0 <= value <= 1:
+                    raise ValueError(f"pathway weight for {path} must be between zero and one")
+                weights[path] = float(value)
+            total = sum(weights.values())
+            if total <= 0:
+                raise ValueError("at least one pathway weight must be greater than zero")
+            profile["pathway_weights"] = {
+                path: round(value / total, 8) for path, value in weights.items()
+            }
+
+        if "interests" in updates:
+            raw_interests = updates["interests"]
+            if not isinstance(raw_interests, list) or len(raw_interests) > 30:
+                raise ValueError("interests must be a list of at most 30 strings")
+            normalized = []
+            for value in raw_interests:
+                if not isinstance(value, str) or not value.strip() or len(value.strip()) > 64:
+                    raise ValueError("each interest must be a non-empty string of at most 64 characters")
+                tag = value.strip().lower().replace(" ", "_")
+                if tag not in normalized:
+                    normalized.append(tag)
+            profile["interests"] = normalized
+
+        if "explanation_modes" in updates:
+            modes = updates["explanation_modes"]
+            if not isinstance(modes, list) or not modes or any(
+                not isinstance(mode, str) or mode not in EXPLANATION_MODES for mode in modes
+            ):
+                raise ValueError("explanation_modes must contain supported modes")
+            if len(set(modes)) != len(modes):
+                raise ValueError("explanation_modes must be unique")
+            profile["explanation_modes"] = modes
+
+        if "pace" in updates:
+            pace = updates["pace"]
+            if not isinstance(pace, str) or pace not in PACE_MAX_MINUTES:
+                raise ValueError("pace must be gentle, standard, intensive, or adaptive")
+            profile["pace"] = pace
+            if "max_minutes" not in updates:
+                profile["max_minutes"] = PACE_MAX_MINUTES[pace]
+
+        if "max_minutes" in updates:
+            minutes = updates["max_minutes"]
+            if minutes is not None and (
+                isinstance(minutes, bool) or not isinstance(minutes, int) or not 1 <= minutes <= 180
+            ):
+                raise ValueError("max_minutes must be null or an integer from 1 to 180")
+            profile["max_minutes"] = minutes
+
+        encoded = json.dumps(profile, sort_keys=True, ensure_ascii=False, allow_nan=False)
+        updated_at = time.time()
+        with closing(self._connect()) as db, db:
+            db.execute("BEGIN IMMEDIATE")
+            db.execute(
+                """INSERT INTO learner_profiles(learner_id,profile_json,updated_at)
+                   VALUES(?,?,?) ON CONFLICT(learner_id) DO UPDATE SET
+                   profile_json=excluded.profile_json,updated_at=excluded.updated_at""",
+                (learner, encoded, updated_at),
+            )
+        return {**profile, "updated_at": updated_at}
 
     @staticmethod
     def _required(value: Any, name: str, limit: int=200) -> str:
@@ -85,8 +216,9 @@ class LearnerStore:
         if dimension not in DIMENSIONS:
             raise ValueError("unsupported learner evidence dimension")
         score=event.get("score")
-        if isinstance(score,bool) or not isinstance(score,(int,float)) or not 0<=score<=1:
-            raise ValueError("score must be a number from 0 to 1")
+        if (isinstance(score,bool) or not isinstance(score,(int,float))
+                or not math.isfinite(score) or not 0<=score<=1):
+            raise ValueError("score must be a finite number from 0 to 1")
         session=self._required(event.get("session_id"),"session_id")
         rubric=self._required(event.get("rubric_version","1"),"rubric_version")
         response=event.get("response",{})
@@ -95,12 +227,20 @@ class LearnerStore:
         evidence=event.get("evidence_ref")
         if evidence is not None:
             evidence=self._required(evidence,"evidence_ref",512)
-        submitted=float(event.get("submitted_at",time.time()))
+        raw_submitted=event.get("submitted_at",time.time())
+        if isinstance(raw_submitted,bool) or not isinstance(raw_submitted,(int,float)):
+            raise ValueError("submitted_at must be a finite positive number")
+        submitted=float(raw_submitted)
         if not math.isfinite(submitted) or submitted<=0:
-            raise ValueError("submitted_at must be finite and positive")
-        delayed=bool(event.get("delayed",False))
-        transfer=bool(event.get("transfer",False))
-        response_json=json.dumps(dict(response),sort_keys=True,allow_nan=False)
+            raise ValueError("submitted_at must be a finite positive number")
+        delayed=event.get("delayed",False)
+        transfer=event.get("transfer",False)
+        if not isinstance(delayed,bool) or not isinstance(transfer,bool):
+            raise ValueError("delayed and transfer flags must be booleans")
+        try:
+            response_json=json.dumps(dict(response),sort_keys=True,allow_nan=False)
+        except (TypeError,ValueError) as exc:
+            raise ValueError("response must contain finite JSON-serializable data") from exc
         if len(response_json)>100_000:
             raise ValueError("response artifact exceeds 100 KB")
         row=(attempt,learner,idea,problem,version,dimension,float(score),session,
@@ -162,57 +302,218 @@ class LearnerStore:
         return result
 
 
-def select_next_lesson(learner_id: str, store: LearnerStore,
-                       idea_graph: Mapping[str,Any],
-                       lesson_catalog: list[Mapping[str,Any]],
-                       curriculum_id: str | None = None) -> dict[str,Any]:
-    """Select an evidence-grounded lesson; never infer mastery from missing data."""
-    if not isinstance(idea_graph,Mapping) or not isinstance(lesson_catalog,list):
+def select_next_lesson(
+    learner_id: str,
+    store: LearnerStore,
+    idea_graph: Mapping[str, Any],
+    lesson_catalog: list[Mapping[str, Any]],
+    curriculum_id: str | None = None,
+    *,
+    path_weights: Mapping[str, float] | None = None,
+    interests: list[str] | tuple[str, ...] = (),
+    max_minutes: int | None = None,
+    completed_lesson_ids: list[str] | tuple[str, ...] = (),
+) -> dict[str, Any]:
+    """Select an evidence-grounded lesson using mastery and learner preferences.
+
+    Path and interest preferences only rank/filter pedagogical recommendations;
+    they never change evidence, mastery, or proof status.
+    """
+    if not isinstance(idea_graph, Mapping) or not isinstance(lesson_catalog, list):
         raise ValueError("idea graph and lesson catalog are required")
-    estimates={}
-    for idea_id,idea in idea_graph.items():
-        dims=idea.get("dimensions",["conceptual_explanation","procedure"])
-        estimates[idea_id]={d:store.estimate(learner_id,idea_id,d) for d in dims}
-    candidates=[]
+    normalized_paths: dict[str, float] | None = None
+    if path_weights is not None:
+        if not isinstance(path_weights, Mapping) or not path_weights:
+            raise ValueError("path_weights must be a non-empty mapping")
+        unknown = set(path_weights) - PATHWAYS
+        if unknown:
+            raise ValueError(f"unsupported learning pathways: {sorted(str(path) for path in unknown)}")
+        normalized_paths = {}
+        for path, value in path_weights.items():
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or not 0 <= value <= 1:
+                raise ValueError(f"pathway weight for {path} must be between zero and one")
+            normalized_paths[path] = float(value)
+        total = sum(normalized_paths.values())
+        if total <= 0:
+            raise ValueError("at least one pathway weight must be greater than zero")
+        normalized_paths = {path: value / total for path, value in normalized_paths.items()}
+
+    if isinstance(interests, str) or not isinstance(interests, (list, tuple)):
+        raise ValueError("interests must be a list or tuple of strings")
+    if any(not isinstance(tag, str) or not tag.strip() for tag in interests):
+        raise ValueError("interests must contain non-empty strings")
+    interest_set = {tag.strip().lower().replace(" ", "_") for tag in interests}
+
+    if max_minutes is not None and (
+        isinstance(max_minutes, bool) or not isinstance(max_minutes, int) or not 1 <= max_minutes <= 180
+    ):
+        raise ValueError("max_minutes must be an integer from 1 to 180")
+    if isinstance(completed_lesson_ids, str) or not isinstance(completed_lesson_ids, (list, tuple)):
+        raise ValueError("completed_lesson_ids must be a list or tuple")
+    if any(not isinstance(item, str) or not item for item in completed_lesson_ids):
+        raise ValueError("completed_lesson_ids must contain non-empty strings")
+    completed = set(completed_lesson_ids)
+
+    ranked: list[dict[str, Any]] = []
+    blocked: list[dict[str, Any]] = []
     for lesson in lesson_catalog:
+        if not isinstance(lesson, Mapping):
+            raise ValueError("lesson catalog entries must be objects")
         if curriculum_id is not None and lesson.get("curriculum_id") != curriculum_id:
             continue
-        lesson_id=lesson.get("lesson_id")
-        idea_id=lesson.get("idea_id")
-        if not isinstance(lesson_id,str) or idea_id not in idea_graph:
+        lesson_id = lesson.get("lesson_id")
+        idea_id = lesson.get("idea_id")
+        if not isinstance(lesson_id, str) or not lesson_id or idea_id not in idea_graph:
             continue
-        prerequisites=idea_graph[idea_id].get("prerequisites",[])
-        prereq_states=[]
-        for p in prerequisites:
-            if p not in idea_graph:
+        if lesson_id in completed:
+            continue
+
+        minutes = lesson.get("estimated_minutes", 20)
+        if isinstance(minutes, bool) or not isinstance(minutes, int) or minutes < 1:
+            raise ValueError(f"{lesson_id}: estimated_minutes must be a positive integer")
+        if max_minutes is not None and minutes > max_minutes:
+            blocked.append({"lesson_id": lesson_id, "blocked_reason": "exceeds_time_budget",
+                            "estimated_minutes": minutes})
+            continue
+
+        lesson_paths = lesson.get("pathways", lesson.get("path_tags", []))
+        if not isinstance(lesson_paths, (list, tuple)) or any(
+            not isinstance(path, str) or path not in PATHWAYS for path in lesson_paths
+        ):
+            raise ValueError(f"{lesson_id}: pathways must contain supported path IDs")
+        if normalized_paths is None or not lesson_paths:
+            pathway_fit = 1.0
+        else:
+            pathway_fit = sum(weight for path, weight in normalized_paths.items() if path in lesson_paths)
+            if pathway_fit <= 0:
+                blocked.append({"lesson_id": lesson_id, "blocked_reason": "pathway_not_selected"})
+                continue
+
+        lesson_interests = lesson.get("interest_tags", [])
+        if not isinstance(lesson_interests, (list, tuple)) or any(
+            not isinstance(tag, str) or not tag for tag in lesson_interests
+        ):
+            raise ValueError(f"{lesson_id}: interest_tags must be strings")
+        interest_fit = (
+            len(interest_set.intersection(lesson_interests)) / len(lesson_interests)
+            if lesson_interests else 0.0
+        )
+
+        prerequisites = idea_graph[idea_id].get("prerequisites", [])
+        if not isinstance(prerequisites, list):
+            raise ValueError(f"{idea_id}: prerequisites must be a list")
+        prereq_states = []
+        missing_prerequisites = []
+        for prerequisite in prerequisites:
+            if prerequisite not in idea_graph:
                 prereq_states.append("unknown")
-            else:
-                p_dims=idea_graph[p].get("dimensions",["conceptual_explanation"])
-                p_est=[store.estimate(learner_id,p,d) for d in p_dims]
-                prereq_states.append("ready" if p_est and all(x.state in
-                    {"provisionally_mastered","retained"} for x in p_est) else "needs_practice")
-        target_dims=idea_graph[idea_id].get("dimensions",["conceptual_explanation","procedure"])
-        target=[store.estimate(learner_id,idea_id,d) for d in target_dims]
-        unobserved=sum(x.state=="unobserved" for x in target)
-        weak=sum(x.mean<0.75 for x in target if x.observations)
-        uncertain=sum(x.uncertainty for x in target)
-        # Do not recommend a lesson whose declared prerequisites are not demonstrated.
-        if any(state != "ready" for state in prereq_states):
+                missing_prerequisites.append(prerequisite)
+                continue
+            prerequisite_dimensions = idea_graph[prerequisite].get(
+                "dimensions", ["conceptual_explanation"]
+            )
+            prerequisite_estimates = [
+                store.estimate(learner_id, prerequisite, dimension)
+                for dimension in prerequisite_dimensions
+            ]
+            ready = bool(prerequisite_estimates) and all(
+                estimate.state in {"provisionally_mastered", "retained"}
+                for estimate in prerequisite_estimates
+            )
+            prereq_states.append("ready" if ready else "needs_practice")
+            if not ready:
+                missing_prerequisites.append(prerequisite)
+        if missing_prerequisites:
+            blocked.append({
+                "lesson_id": lesson_id,
+                "blocked_reason": "prerequisites_not_yet_demonstrated",
+                "missing_prerequisites": sorted(missing_prerequisites),
+            })
             continue
-        # Favor unobserved/weak target skills and uncertainty reduction.
-        score=2.0*unobserved+1.5*weak+uncertain
-        candidates.append((score,lesson_id,idea_id,prereq_states,target))
-    if not candidates:
-        return {"state":"no_candidate","learner_id":learner_id}
-    candidates.sort(key=lambda x:(-x[0],x[1]))
-    score,lesson_id,idea_id,prereqs,target=candidates[0]
-    return {"state":"recommended","learner_id":learner_id,"lesson_id":lesson_id,
-      "idea_id":idea_id,"score":round(score,4),
-      "reason":{"prerequisites":prereqs,
-        "target_skills":{x.dimension:{"state":x.state,"mean":round(x.mean,4),
-          "uncertainty":round(x.uncertainty,4),"observations":x.observations}
-          for x in target}},
-      "authority":"recommendation_only"}
+
+        target_dimensions = idea_graph[idea_id].get(
+            "dimensions", ["conceptual_explanation", "procedure"]
+        )
+        target = [
+            store.estimate(learner_id, idea_id, dimension)
+            for dimension in target_dimensions
+        ]
+        unobserved = sum(estimate.state == "unobserved" for estimate in target)
+        weak = sum(estimate.mean < 0.75 for estimate in target if estimate.observations)
+        uncertainty = sum(estimate.uncertainty for estimate in target)
+        mastery_gap_score = 2.0 * unobserved + 1.5 * weak + uncertainty
+
+        learning_value = lesson.get("learning_value", 0.5)
+        transfer_value = lesson.get("transfer_value", 0.5)
+        for label, value in (("learning_value", learning_value), ("transfer_value", transfer_value)):
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or not 0 <= value <= 1:
+                raise ValueError(f"{lesson_id}: {label} must be between zero and one")
+        time_fit = 0.5 if max_minutes is None else max(0.0, 1.0 - minutes / max_minutes)
+        score = (
+            mastery_gap_score
+            + 1.0 * pathway_fit
+            + 0.75 * interest_fit
+            + 0.25 * learning_value
+            + 0.25 * transfer_value
+            + 0.10 * time_fit
+        )
+        components = {
+            "mastery_gap": round(mastery_gap_score, 6),
+            "pathway_fit": round(pathway_fit, 6),
+            "interest_fit": round(interest_fit, 6),
+            "learning_value": round(float(learning_value), 6),
+            "transfer_value": round(float(transfer_value), 6),
+            "time_fit": round(time_fit, 6),
+        }
+        reasons = []
+        if pathway_fit > 0:
+            reasons.append("matches_selected_learning_paths")
+        if interest_fit > 0:
+            reasons.append("matches_learner_interests")
+        if unobserved or weak:
+            reasons.append("addresses_unsettled_skills")
+        if transfer_value >= 0.8:
+            reasons.append("supports_transfer")
+        if max_minutes is not None:
+            reasons.append("fits_time_budget")
+        ranked.append({
+            "lesson_id": lesson_id,
+            "idea_id": idea_id,
+            "score": round(score, 6),
+            "score_components": components,
+            "reason_codes": reasons,
+            "reason": {
+                "prerequisites": prereq_states,
+                "target_skills": {
+                    estimate.dimension: {
+                        "state": estimate.state,
+                        "mean": round(estimate.mean, 4),
+                        "uncertainty": round(estimate.uncertainty, 4),
+                        "observations": estimate.observations,
+                    }
+                    for estimate in target
+                },
+            },
+            "estimated_minutes": minutes,
+        })
+
+    ranked.sort(key=lambda item: (-item["score"], item["lesson_id"]))
+    blocked.sort(key=lambda item: (item["lesson_id"], item["blocked_reason"]))
+    if not ranked:
+        return {
+            "state": "no_candidate",
+            "learner_id": learner_id,
+            "blocked_lessons": blocked,
+            "authority": "recommendation_only",
+        }
+    selected = ranked[0]
+    return {
+        "state": "recommended",
+        "learner_id": learner_id,
+        **selected,
+        "blocked_lessons": blocked,
+        "authority": "recommendation_only",
+    }
 
 
 def hermes_learning_handler(store: LearnerStore, graph: Mapping[str,Any],
@@ -229,9 +530,15 @@ def hermes_learning_handler(store: LearnerStore, graph: Mapping[str,Any],
             learner=payload.get("learner_id")
             LearnerStore._required(learner,"learner_id")
             curriculum_id=payload.get("curriculum_id")
+            profile = store.get_profile(learner)
             return {"kind":"learner.lesson.recommended",
-                    **select_next_lesson(learner,store,graph,lessons,
-                                         curriculum_id=curriculum_id)}
+                    **select_next_lesson(
+                        learner, store, graph, lessons,
+                        curriculum_id=curriculum_id,
+                        path_weights=profile["pathway_weights"],
+                        interests=profile["interests"],
+                        max_minutes=profile["max_minutes"],
+                    )}
         raise ValueError("unsupported learning event topic")
     return handle
 

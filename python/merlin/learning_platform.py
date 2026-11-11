@@ -15,9 +15,13 @@ import time
 from pathlib import Path
 from typing import Any, Mapping
 
-from .learner_model import LearnerStore, select_next_lesson
+from .learner_model import LearnerStore, select_next_lesson, learner_subject_id
 
 SCHEMA = "merlin-learning-platform/1"
+REVIEWER_CALIBRATION_VERSION = "merlin-assessment-review-v1"
+REVIEWER_CALIBRATION_MIN_CASES = 10
+REVIEWER_CALIBRATION_MIN_AGREEMENT = 0.90
+REVIEWER_CALIBRATION_VALIDITY_SECONDS = 90 * 24 * 60 * 60
 SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]{1,62}$")
 ROLES = {"tenant_admin", "instructor", "learner", "reviewer"}
 
@@ -86,6 +90,32 @@ class LearningPlatform:
               PRIMARY KEY(tenant_id,course_id,version,learner_id),
               FOREIGN KEY(tenant_id,course_id,version)
                 REFERENCES learning_course_versions(tenant_id,course_id,version));
+            CREATE TABLE IF NOT EXISTS learning_submissions(
+              tenant_id TEXT NOT NULL, submission_id TEXT NOT NULL, course_id TEXT NOT NULL,
+              version INTEGER NOT NULL, lesson_id TEXT NOT NULL, assessment_id TEXT NOT NULL,
+              learner_id TEXT NOT NULL, response_json TEXT NOT NULL, response_sha256 TEXT NOT NULL,
+              submitted_at REAL NOT NULL, status TEXT NOT NULL
+                CHECK(status IN ('pending_review','accepted','needs_revision')),
+              PRIMARY KEY(tenant_id,submission_id),
+              FOREIGN KEY(tenant_id,course_id,version)
+                REFERENCES learning_course_versions(tenant_id,course_id,version));
+            CREATE INDEX IF NOT EXISTS learning_submissions_queue
+              ON learning_submissions(tenant_id,course_id,version,status,submitted_at);
+            CREATE TABLE IF NOT EXISTS learning_submission_reviews(
+              review_id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, submission_id TEXT NOT NULL,
+              reviewer_id TEXT NOT NULL, decision TEXT NOT NULL
+                CHECK(decision IN ('accepted','needs_revision')),
+              feedback TEXT NOT NULL, rubric_json TEXT NOT NULL, created_at REAL NOT NULL,
+              FOREIGN KEY(tenant_id,submission_id)
+                REFERENCES learning_submissions(tenant_id,submission_id));
+            CREATE TABLE IF NOT EXISTS learning_reviewer_calibrations(
+              calibration_id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, reviewer_id TEXT NOT NULL,
+              calibration_version TEXT NOT NULL, calibration_sha256 TEXT NOT NULL,
+              case_count INTEGER NOT NULL, agreement_score REAL NOT NULL,
+              status TEXT NOT NULL CHECK(status IN ('qualified','not_qualified')),
+              qualified_by TEXT NOT NULL, created_at REAL NOT NULL, expires_at REAL NOT NULL);
+            CREATE INDEX IF NOT EXISTS learning_reviewer_calibration_latest
+              ON learning_reviewer_calibrations(tenant_id,reviewer_id,created_at);
             CREATE TABLE IF NOT EXISTS learning_audit(
               event_id TEXT PRIMARY KEY, tenant_id TEXT NOT NULL, actor_id TEXT NOT NULL,
               action TEXT NOT NULL, target_id TEXT NOT NULL, payload_sha256 TEXT NOT NULL,
@@ -117,6 +147,77 @@ class LearningPlatform:
         db.execute("INSERT INTO learning_audit VALUES(?,?,?,?,?,?,?)",
                    (event_id, actor.tenant_id, actor.actor_id, action, target_id,
                     _digest(payload), time.time()))
+
+    def _require_reviewer_calibration(self, db: sqlite3.Connection, actor: Actor) -> dict[str, Any]:
+        row = db.execute(
+            """SELECT calibration_version,calibration_sha256,case_count,agreement_score,
+                      status,qualified_by,created_at,expires_at
+               FROM learning_reviewer_calibrations
+               WHERE tenant_id=? AND reviewer_id=?
+               ORDER BY created_at DESC,calibration_id DESC LIMIT 1""",
+            (actor.tenant_id, actor.actor_id),
+        ).fetchone()
+        if (
+            row is None
+            or row["status"] != "qualified"
+            or row["calibration_version"] != REVIEWER_CALIBRATION_VERSION
+            or float(row["expires_at"]) <= time.time()
+        ):
+            raise LearningPermissionError("reviewer requires a current tenant-attested calibration")
+        return dict(row)
+
+    def record_reviewer_calibration(
+        self,
+        actor: Actor,
+        reviewer_id: str,
+        calibration_sha256: str,
+        case_count: int,
+        agreement_score: float,
+        calibration_version: str = REVIEWER_CALIBRATION_VERSION,
+    ) -> dict[str, Any]:
+        """Append a tenant-admin-attested calibration receipt; never self-certify."""
+        self._authorize(actor, {"tenant_admin"})
+        reviewer_id = _required(reviewer_id, "reviewer_id", 120)
+        if reviewer_id == actor.actor_id:
+            raise LearningPermissionError("tenant admins cannot certify themselves as reviewers")
+        if calibration_version != REVIEWER_CALIBRATION_VERSION:
+            raise ValueError("unsupported reviewer calibration version")
+        if not isinstance(calibration_sha256, str) or not re.fullmatch(r"[0-9a-f]{64}", calibration_sha256):
+            raise ValueError("calibration_sha256 must be a lowercase SHA-256 digest")
+        if isinstance(case_count, bool) or not isinstance(case_count, int) or case_count < REVIEWER_CALIBRATION_MIN_CASES:
+            raise ValueError(f"calibration requires at least {REVIEWER_CALIBRATION_MIN_CASES} scored cases")
+        if isinstance(agreement_score, bool) or not isinstance(agreement_score, (int, float)):
+            raise ValueError("agreement_score must be a finite number from 0 to 1")
+        score = float(agreement_score)
+        if not (0.0 <= score <= 1.0) or score != score or score in (float("inf"), float("-inf")):
+            raise ValueError("agreement_score must be a finite number from 0 to 1")
+        status = "qualified" if score >= REVIEWER_CALIBRATION_MIN_AGREEMENT else "not_qualified"
+        calibration_id = sha256(
+            f"{actor.tenant_id}:{reviewer_id}:{calibration_version}:{calibration_sha256}:{time.time_ns()}".encode()
+        ).hexdigest()
+        now = time.time()
+        expires = now + REVIEWER_CALIBRATION_VALIDITY_SECONDS
+        with self._connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            db.execute(
+                """INSERT INTO learning_reviewer_calibrations
+                   VALUES(?,?,?,?,?,?,?,?,?,?,?)""",
+                (calibration_id, actor.tenant_id, reviewer_id, calibration_version,
+                 calibration_sha256, case_count, score, status, actor.actor_id, now, expires),
+            )
+            self._audit(
+                db, actor, "reviewer.calibration.recorded", reviewer_id,
+                {"calibration_id": calibration_id, "calibration_version": calibration_version,
+                 "calibration_sha256": calibration_sha256, "case_count": case_count,
+                 "agreement_score": score, "status": status, "expires_at": expires},
+            )
+        return {
+            "calibration_id": calibration_id, "reviewer_id": reviewer_id,
+            "calibration_version": calibration_version, "calibration_sha256": calibration_sha256,
+            "case_count": case_count, "agreement_score": score, "status": status,
+            "qualified_by": actor.actor_id, "created_at": now, "expires_at": expires,
+            "qualification_authority": "tenant_admin_attestation",
+        }
 
     @staticmethod
     def _empty_manifest(title: str, description: str) -> dict[str, Any]:
@@ -186,7 +287,8 @@ class LearningPlatform:
 
     @staticmethod
     def _validate_manifest(manifest: Mapping[str, Any]) -> None:
-        objective_ids = set()
+        objective_ids: set[str] = set()
+        prerequisites_by_id: dict[str, list[str]] = {}
         for objective in manifest["objectives"]:
             if not isinstance(objective, dict):
                 raise ValueError("objective entries must be objects")
@@ -198,36 +300,87 @@ class LearningPlatform:
             if not isinstance(objective.get("description", ""), str):
                 raise ValueError("objective description must be text")
             prereqs = objective.get("prerequisites", [])
-            if not isinstance(prereqs, list) or any(not isinstance(x, str) for x in prereqs):
-                raise ValueError("objective prerequisites must be a list of IDs")
-        for objective in manifest["objectives"]:
-            if any(p not in objective_ids for p in objective.get("prerequisites", [])):
+            if not isinstance(prereqs, list) or any(
+                not isinstance(item, str) or not item.strip() for item in prereqs
+            ):
+                raise ValueError("objective prerequisites must be a list of non-empty IDs")
+            if len(set(prereqs)) != len(prereqs):
+                raise ValueError("objective prerequisites must be unique")
+            if oid in prereqs:
+                raise ValueError("objective cannot depend on itself")
+            external = objective.get("external_prerequisites", [])
+            if not isinstance(external, list) or any(
+                not isinstance(item, str) or not item.strip() for item in external
+            ) or len(set(external)) != len(external):
+                raise ValueError("external_prerequisites must be unique non-empty objective IDs")
+            if any(item in objective_ids or item not in prereqs for item in external):
+                raise ValueError("external_prerequisites must be declared prerequisites outside this course")
+            local_prerequisites = [item for item in prereqs if item not in external]
+            if any(item not in objective_ids for item in local_prerequisites):
                 raise ValueError("objective prerequisite references an unknown objective")
+            prerequisites_by_id[oid] = local_prerequisites
+
+        visiting: set[str] = set()
+        visited: set[str] = set()
+
+        def visit(oid: str) -> None:
+            if oid in visiting:
+                raise ValueError("objective prerequisite graph contains a cycle")
+            if oid in visited:
+                return
+            visiting.add(oid)
+            for prerequisite in prerequisites_by_id[oid]:
+                visit(prerequisite)
+            visiting.remove(oid)
+            visited.add(oid)
+
+        for oid in sorted(objective_ids):
+            visit(oid)
+
+        def unique_ids(items: list[Any], kind: str) -> set[str]:
+            ids: set[str] = set()
+            for item in items:
+                if not isinstance(item, dict):
+                    raise ValueError(f"{kind} entries must be objects")
+                identifier = _required(item.get("id"), f"{kind}.id", 100)
+                if identifier in ids:
+                    raise ValueError(f"{kind} IDs must be unique")
+                ids.add(identifier)
+            return ids
+
+        lesson_ids = unique_ids(manifest["lessons"], "lesson")
         for lesson in manifest["lessons"]:
-            if not isinstance(lesson, dict):
-                raise ValueError("lesson entries must be objects")
-            _required(lesson.get("id"), "lesson.id", 100)
             _required(lesson.get("title"), "lesson.title", 240)
             if lesson.get("objective_id") not in objective_ids:
                 raise ValueError("lesson must reference a known objective")
             if not isinstance(lesson.get("body", ""), str):
                 raise ValueError("lesson body must be text")
+            for field in ("pathways", "interest_tags"):
+                if field in lesson and (
+                    not isinstance(lesson[field], list)
+                    or any(not isinstance(value, str) or not value.strip() for value in lesson[field])
+                ):
+                    raise ValueError(f"lesson {field} must be a list of non-empty strings")
+
+        unique_ids(manifest["resources"], "resource")
         for resource in manifest["resources"]:
-            if not isinstance(resource, dict):
-                raise ValueError("resource entries must be objects")
-            _required(resource.get("id"), "resource.id", 100)
             _required(resource.get("title"), "resource.title", 240)
-            _required(resource.get("source_uri"), "resource.source_uri", 2048)
+            uri = _required(resource.get("source_uri"), "resource.source_uri", 2048)
+            if not uri.startswith("https://"):
+                raise ValueError("learning resources must use HTTPS source URIs")
             _required(resource.get("license"), "resource.license", 120)
             _required(resource.get("creator"), "resource.creator", 240)
+
+        unique_ids(manifest["assessments"], "assessment")
         for assessment in manifest["assessments"]:
-            if not isinstance(assessment, dict):
-                raise ValueError("assessment entries must be objects")
-            _required(assessment.get("id"), "assessment.id", 100)
             _required(assessment.get("title"), "assessment.title", 240)
             if assessment.get("objective_id") not in objective_ids:
                 raise ValueError("assessment must reference a known objective")
-            if assessment.get("high_stakes") is True and assessment.get("human_review_required") is not True:
+            high_stakes = assessment.get("high_stakes", False)
+            human_review = assessment.get("human_review_required", False)
+            if not isinstance(high_stakes, bool) or not isinstance(human_review, bool):
+                raise ValueError("assessment review flags must be boolean")
+            if high_stakes and not human_review:
                 raise ValueError("high-stakes assessments require human review")
 
     def review_course(self, actor: Actor, course_id: str, version: int,
@@ -320,6 +473,254 @@ class LearningPlatform:
                         {"from_version": old["version"], "to_version": version})
         return self.get_course(actor, course_id)
 
+    def submit_assessment(self, actor: Actor, course_id: str, submission_id: str,
+                          lesson_id: str, task_id: str, response: Any) -> dict[str, Any]:
+        """Append learner work for independent human review; never award mastery."""
+        self._authorize(actor, {"learner"})
+        submission_id = _required(submission_id, "submission_id", 120)
+        lesson_id = _required(lesson_id, "lesson_id", 100)
+        task_id = _required(task_id, "task_id", 120)
+        if not isinstance(response, (str, dict, list)):
+            raise ValueError("response must be text, an object, or a list")
+        response_json = _json(response)
+        if len(response_json.encode("utf-8")) > 65536:
+            raise ValueError("response exceeds the 64 KiB submission limit")
+        response_sha = sha256(response_json.encode("utf-8")).hexdigest()
+        with self._connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            existing = db.execute(
+                "SELECT * FROM learning_submissions WHERE tenant_id=? AND submission_id=?",
+                (actor.tenant_id, submission_id)).fetchone()
+            if existing is not None:
+                if existing["learner_id"] != actor.actor_id:
+                    raise LearningPermissionError("submission belongs to another learner")
+                same = (existing["course_id"] == course_id
+                        and existing["lesson_id"] == lesson_id
+                        and existing["response_sha256"] == response_sha)
+                if not same:
+                    raise LearningConflictError("submission_id was already used for different work")
+                version_row = db.execute(
+                    """SELECT manifest_json FROM learning_course_versions
+                       WHERE tenant_id=? AND course_id=? AND version=?""",
+                    (actor.tenant_id, existing["course_id"], existing["version"]),
+                ).fetchone()
+                if version_row is None:
+                    raise LearningConflictError("original submission course version is unavailable")
+                original_manifest = json.loads(version_row["manifest_json"])
+                original_lesson = next(
+                    (item for item in original_manifest["lessons"] if item.get("id") == existing["lesson_id"]),
+                    None,
+                )
+                if not isinstance(original_lesson, dict) or (original_lesson.get("exercise") or {}).get("task_id") != task_id:
+                    raise LearningConflictError("submission_id was replayed with a different task")
+                original_assessment = next(
+                    (item for item in original_manifest["assessments"]
+                     if item.get("id") == existing["assessment_id"]),
+                    None,
+                )
+                if original_assessment is None:
+                    raise LearningConflictError("original submission assessment is unavailable")
+                rubric_sha256 = _digest(original_assessment.get("rubric", []))
+                return {"submission_id": submission_id, "course_id": course_id,
+                        "version": existing["version"], "status": existing["status"],
+                        "rubric_sha256": rubric_sha256, "duplicate": True,
+                        "mastery_updated": False, "proof_qualified": False}
+            course = db.execute("""SELECT c.current_version,v.status,v.manifest_json
+              FROM learning_courses c JOIN learning_course_versions v
+              ON v.tenant_id=c.tenant_id AND v.course_id=c.course_id AND v.version=c.current_version
+              WHERE c.tenant_id=? AND c.course_id=?""",
+              (actor.tenant_id, course_id)).fetchone()
+            if course is None:
+                raise KeyError("course not found")
+            if course["status"] != "published":
+                raise LearningConflictError("submissions require a published course version")
+            version = int(course["current_version"])
+            enrolled = db.execute("""SELECT 1 FROM learning_enrollments
+              WHERE tenant_id=? AND course_id=? AND version=? AND learner_id=? AND status='active'""",
+              (actor.tenant_id, course_id, version, actor.actor_id)).fetchone()
+            if enrolled is None:
+                raise LearningPermissionError("learner is not enrolled in this course version")
+            manifest = json.loads(course["manifest_json"])
+            lesson = next((item for item in manifest["lessons"] if item["id"] == lesson_id), None)
+            if lesson is None or not isinstance(lesson.get("exercise"), dict):
+                raise ValueError("lesson does not contain a configured exercise")
+            if lesson["exercise"].get("task_id") != task_id:
+                raise ValueError("task_id does not match the selected lesson exercise")
+            assessment = next((item for item in manifest["assessments"]
+                               if item.get("objective_id") == lesson.get("objective_id")), None)
+            if assessment is None:
+                raise ValueError("lesson objective has no configured assessment")
+            if assessment.get("human_review_required") is not True:
+                raise LearningConflictError("this submission route requires a human-reviewed assessment")
+            rubric_sha256 = _digest(assessment.get("rubric", []))
+            now = time.time()
+            db.execute("""INSERT INTO learning_submissions
+              VALUES(?,?,?,?,?,?,?,?,?,?,?)""",
+              (actor.tenant_id, submission_id, course_id, version, lesson_id,
+               assessment["id"], actor.actor_id, response_json, response_sha,
+               now, "pending_review"))
+            self._audit(db, actor, "assessment.submitted", submission_id,
+                        {"course_id": course_id, "version": version,
+                         "lesson_id": lesson_id, "assessment_id": assessment["id"],
+                         "response_sha256": response_sha,
+                         "rubric_sha256": rubric_sha256})
+        return {"submission_id": submission_id, "course_id": course_id,
+                "version": version, "lesson_id": lesson_id,
+                "assessment_id": assessment["id"], "status": "pending_review",
+                "response_sha256": response_sha, "rubric_sha256": rubric_sha256,
+                "duplicate": False, "mastery_updated": False, "proof_qualified": False}
+
+    def list_submissions(self, actor: Actor, course_id: str) -> dict[str, Any]:
+        self._authorize(actor, {"reviewer", "tenant_admin", "instructor"})
+        with self._connect() as db:
+            if actor.role == "reviewer":
+                self._require_reviewer_calibration(db, actor)
+            course = db.execute("""SELECT owner_id,current_version FROM learning_courses
+              WHERE tenant_id=? AND course_id=?""",
+              (actor.tenant_id, course_id)).fetchone()
+            if course is None:
+                raise KeyError("course not found")
+            if actor.role == "instructor" and course["owner_id"] != actor.actor_id:
+                raise LearningPermissionError("instructor may view submissions only for their own course")
+            if actor.role == "reviewer" and course["owner_id"] == actor.actor_id:
+                raise LearningPermissionError("course authors cannot independently review their own learner work")
+            rows = db.execute("""SELECT s.submission_id,s.course_id,s.version,s.lesson_id,s.assessment_id,
+              s.learner_id,s.response_json,s.response_sha256,s.submitted_at,s.status,v.manifest_json
+              FROM learning_submissions s JOIN learning_course_versions v
+                ON v.tenant_id=s.tenant_id AND v.course_id=s.course_id AND v.version=s.version
+              WHERE s.tenant_id=? AND s.course_id=?
+              ORDER BY s.submitted_at,s.submission_id""",
+              (actor.tenant_id, course_id)).fetchall()
+        submissions = []
+        for row in rows:
+            item = dict(row)
+            manifest = json.loads(item.pop("manifest_json"))
+            assessment = next((entry for entry in manifest.get("assessments", [])
+                               if entry.get("id") == item["assessment_id"]), None)
+            item["assessment_rubric"] = assessment.get("rubric", []) if assessment else []
+            item["assessment_title"] = assessment.get("title", "") if assessment else ""
+            item["response"] = json.loads(item.pop("response_json"))
+            submissions.append(item)
+        return {"schema": "merlin-learning-submission-queue/1",
+                "submissions": submissions, "count": len(submissions)}
+
+    def list_my_submissions(self, actor: Actor, course_id: str) -> dict[str, Any]:
+        """Return a learner's own submissions and append-only reviewer feedback."""
+        self._authorize(actor, {"learner"})
+        with self._connect() as db:
+            course = db.execute("""SELECT current_version FROM learning_courses
+              WHERE tenant_id=? AND course_id=?""",
+              (actor.tenant_id, course_id)).fetchone()
+            if course is None:
+                raise KeyError("course not found")
+            enrolled = db.execute("""SELECT 1 FROM learning_enrollments
+              WHERE tenant_id=? AND course_id=? AND learner_id=? AND status='active'""",
+              (actor.tenant_id, course_id, actor.actor_id)).fetchone()
+            if enrolled is None:
+                raise LearningPermissionError("learner is not enrolled in this course")
+            rows = db.execute("""SELECT submission_id,version,lesson_id,assessment_id,
+              response_sha256,submitted_at,status FROM learning_submissions
+              WHERE tenant_id=? AND course_id=? AND learner_id=?
+              ORDER BY submitted_at DESC,submission_id""",
+              (actor.tenant_id, course_id, actor.actor_id)).fetchall()
+            result = []
+            for row in rows:
+                reviews = db.execute("""SELECT decision,feedback,rubric_json,created_at
+                  FROM learning_submission_reviews
+                  WHERE tenant_id=? AND submission_id=? ORDER BY created_at,review_id""",
+                  (actor.tenant_id, row["submission_id"])).fetchall()
+                result.append({
+                    **dict(row),
+                    "reviews": [
+                        {
+                            **dict(review),
+                            "rubric_scores": (
+                                json.loads(review["rubric_json"]).get("scores", {})
+                                if isinstance(json.loads(review["rubric_json"]), dict)
+                                and "scores" in json.loads(review["rubric_json"])
+                                else json.loads(review["rubric_json"])
+                            ),
+                            "rubric_sha256": (
+                                json.loads(review["rubric_json"]).get("rubric_sha256")
+                                if isinstance(json.loads(review["rubric_json"]), dict)
+                                and "scores" in json.loads(review["rubric_json"])
+                                else None
+                            ),
+                        }
+                        for review in reviews
+                    ],
+                })
+        return {"schema": "merlin-learning-my-submissions/1",
+                "submissions": result, "count": len(result),
+                "mastery_updated": False, "proof_qualified": False}
+
+    def review_submission(self, actor: Actor, course_id: str, submission_id: str,
+                          decision: str, feedback: str = "",
+                          rubric_scores: Mapping[str, Any] | None = None) -> dict[str, Any]:
+        """Append an independent human review; scores remain review metadata only."""
+        self._authorize(actor, {"reviewer"})
+        submission_id = _required(submission_id, "submission_id", 120)
+        if decision not in {"accepted", "needs_revision"}:
+            raise ValueError("decision must be accepted or needs_revision")
+        if not isinstance(feedback, str) or len(feedback) > 8000:
+            raise ValueError("feedback must be text of at most 8000 characters")
+        if rubric_scores is None:
+            rubric_scores = {}
+        if not isinstance(rubric_scores, Mapping):
+            raise ValueError("rubric_scores must be an object")
+        clean_scores: dict[str, float] = {}
+        for key, value in rubric_scores.items():
+            dimension = _required(key, "rubric dimension", 120)
+            if isinstance(value, bool) or not isinstance(value, (int, float)):
+                raise ValueError("rubric scores must be finite numbers from 0 to 1")
+            score = float(value)
+            if not (0.0 <= score <= 1.0) or score != score or score in (float("inf"), float("-inf")):
+                raise ValueError("rubric scores must be finite numbers from 0 to 1")
+            clean_scores[dimension] = score
+        with self._connect() as db:
+            db.execute("BEGIN IMMEDIATE")
+            self._require_reviewer_calibration(db, actor)
+            row = db.execute("""SELECT s.*,c.owner_id,v.manifest_json
+              FROM learning_submissions s JOIN learning_courses c
+                ON c.tenant_id=s.tenant_id AND c.course_id=s.course_id
+              JOIN learning_course_versions v
+                ON v.tenant_id=s.tenant_id AND v.course_id=s.course_id AND v.version=s.version
+              WHERE s.tenant_id=? AND s.course_id=? AND s.submission_id=?""",
+              (actor.tenant_id, course_id, submission_id)).fetchone()
+            if row is None:
+                raise KeyError("submission not found")
+            if row["status"] != "pending_review":
+                raise LearningConflictError("submission has already received a review; create a new submission for another attempt")
+            if row["owner_id"] == actor.actor_id:
+                raise LearningPermissionError("course authors cannot independently review learner work")
+            manifest = json.loads(row["manifest_json"])
+            assessment = next((item for item in manifest["assessments"]
+                               if item.get("id") == row["assessment_id"]), None)
+            if assessment is None:
+                raise ValueError("submission assessment is missing from its immutable course version")
+            rubric_sha256 = _digest(assessment.get("rubric", []))
+            allowed_dimensions = {item.get("dimension") for item in assessment.get("rubric", [])
+                                  if isinstance(item, dict) and isinstance(item.get("dimension"), str)}
+            if set(clean_scores) - allowed_dimensions:
+                raise ValueError("rubric score references an unknown assessment dimension")
+            review_id = sha256(f"{actor.tenant_id}:{submission_id}:{actor.actor_id}:{time.time_ns()}".encode()).hexdigest()
+            now = time.time()
+            db.execute("INSERT INTO learning_submission_reviews VALUES(?,?,?,?,?,?,?,?)",
+              (review_id, actor.tenant_id, submission_id, actor.actor_id, decision,
+               feedback, _json({"rubric_sha256": rubric_sha256, "scores": clean_scores}), now))
+            db.execute("""UPDATE learning_submissions SET status=?
+              WHERE tenant_id=? AND submission_id=?""",
+              (decision, actor.tenant_id, submission_id))
+            self._audit(db, actor, "assessment.reviewed", submission_id,
+                        {"review_id": review_id, "decision": decision,
+                         "feedback_sha256": sha256(feedback.encode("utf-8")).hexdigest(),
+                         "rubric_scores": clean_scores,
+                         "rubric_sha256": rubric_sha256})
+        return {"review_id": review_id, "submission_id": submission_id,
+                "decision": decision, "reviewer_id": actor.actor_id,
+                "rubric_scores": clean_scores, "rubric_sha256": rubric_sha256,
+                "mastery_updated": False, "proof_qualified": False}
+
     def enroll(self, actor: Actor, course_id: str, learner_id: str | None = None) -> dict[str, Any]:
         self._authorize(actor, {"tenant_admin", "instructor", "learner"})
         target = actor.actor_id if actor.role == "learner" else _required(learner_id, "learner_id")
@@ -353,8 +754,12 @@ class LearningPlatform:
         elif actor.role == "learner":
             clauses.append("v.status='published'")
         elif actor.role == "reviewer":
-            clauses.extend(["v.status='draft'", "c.owner_id<>?"])
-            params.append(actor.actor_id)
+            clauses.append("""((v.status='draft' AND c.owner_id<>?)
+              OR (v.status='published' AND c.owner_id<>? AND EXISTS(
+                SELECT 1 FROM learning_submissions s
+                WHERE s.tenant_id=c.tenant_id AND s.course_id=c.course_id
+                  AND s.status='pending_review')) )""")
+            params.extend([actor.actor_id, actor.actor_id])
         where = " AND ".join(clauses)
         with self._connect() as db:
             rows = db.execute(f"""SELECT c.course_id,c.slug,c.title,c.description,
@@ -432,11 +837,27 @@ class LearningPlatform:
                 "dimensions": dimensions,
             }
         lessons = [{
-            "lesson_id": lesson["id"], "idea_id": lesson["objective_id"],
+            "lesson_id": lesson["id"],
+            "idea_id": lesson["objective_id"],
             "curriculum_id": course_id,
+            "pathways": lesson.get("pathways", []),
+            "interest_tags": lesson.get("interest_tags", []),
+            "estimated_minutes": lesson.get("estimated_minutes", 20),
+            "learning_value": lesson.get("learning_value", 0.5),
+            "transfer_value": lesson.get("transfer_value", 0.5),
         } for lesson in manifest["lessons"]]
+        learner_id = learner_subject_id(actor.tenant_id, actor.actor_id)
+        profile = learner_store.get_profile(learner_id)
         recommendation = select_next_lesson(
-            actor.actor_id, learner_store, graph, lessons, curriculum_id=course_id)
+            learner_id,
+            learner_store,
+            graph,
+            lessons,
+            curriculum_id=course_id,
+            path_weights=profile["pathway_weights"],
+            interests=profile["interests"],
+            max_minutes=profile["max_minutes"],
+        )
         return {
             "schema": "merlin-learning-course-recommendation/1",
             "course_id": course_id, "course_version": course["version"],

@@ -41,11 +41,13 @@ class LearningPlatformTests(unittest.TestCase):
             {"id": "lesson-1", "title": "Coordinate foundations", "objective_id": "OBJ-1",
              "body": "Coordinates locate points in a reference frame."},
             {"id": "lesson-2", "title": "Quarter-turn rotation", "objective_id": "OBJ-2",
-             "body": "A positive quarter turn maps (x,y) to (-y,x)."},
+             "body": "A positive quarter turn maps (x,y) to (-y,x).",
+             "exercise": {"task_id": "rotation-check", "prompt": "Explain the quarter-turn rule."}},
         ]
         manifest["assessments"] = [
             {"id": "assessment-1", "title": "Rotation check", "objective_id": "OBJ-2",
-             "high_stakes": False, "human_review_required": False},
+             "high_stakes": False, "human_review_required": True,
+             "rubric": [{"dimension": "procedure", "description": "Applies the rotation.", "points": 2}]},
         ]
         manifest["resources"] = [
             {"id": "resource-1", "title": "Open notes", "source_uri": "https://example.org/notes",
@@ -101,6 +103,31 @@ class LearningPlatformTests(unittest.TestCase):
         published = self.store.publish_course(self.teacher, course["course_id"])
         self.assertEqual(published["status"], "published")
 
+    def test_cross_course_prerequisites_must_be_explicit(self):
+        course = self.store.create_course(self.teacher, "advanced-math", "Advanced Mathematics")
+        manifest = course["manifest"]
+        manifest["objectives"] = [
+            {"id": "ADV-1", "title": "Advanced topic",
+             "prerequisites": ["FOUNDATION-1"],
+             "external_prerequisites": ["FOUNDATION-1"]},
+        ]
+        manifest["lessons"] = [
+            {"id": "ADV-L1", "title": "Advanced lesson", "objective_id": "ADV-1"},
+        ]
+        manifest["assessments"] = [
+            {"id": "ADV-A1", "title": "Advanced check", "objective_id": "ADV-1",
+             "high_stakes": False, "human_review_required": True},
+        ]
+        saved = self.store.update_manifest(self.teacher, course["course_id"], manifest)
+        self.assertEqual(saved["manifest"]["objectives"][0]["external_prerequisites"],
+                         ["FOUNDATION-1"])
+        manifest["objectives"][0]["external_prerequisites"] = []
+        with self.assertRaisesRegex(ValueError, "unknown objective"):
+            self.store.update_manifest(self.teacher, course["course_id"], manifest)
+        manifest["objectives"][0]["external_prerequisites"] = ["ADV-LOCAL"]
+        with self.assertRaisesRegex(ValueError, "outside this course"):
+            self.store.update_manifest(self.teacher, course["course_id"], manifest)
+
     def test_published_version_is_immutable_and_revision_is_new_version(self):
         course = self._course()
         self._publish(course)
@@ -145,6 +172,55 @@ class LearningPlatformTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "known objective"):
             self.store.update_manifest(self.teacher, course["course_id"], manifest)
 
+    def test_objective_graph_rejects_cycles_and_duplicate_prerequisites(self):
+        course = self.store.create_course(self.teacher, "cycle-101", "Cycle 101")
+        manifest = course["manifest"]
+        manifest["objectives"] = [
+            {"id": "A", "title": "A", "prerequisites": ["B"]},
+            {"id": "B", "title": "B", "prerequisites": ["A"]},
+        ]
+        with self.assertRaisesRegex(ValueError, "cycle"):
+            self.store.update_manifest(self.teacher, course["course_id"], manifest)
+        manifest["objectives"][0]["prerequisites"] = ["B", "B"]
+        with self.assertRaisesRegex(ValueError, "unique"):
+            self.store.update_manifest(self.teacher, course["course_id"], manifest)
+
+    def test_duplicate_lesson_and_assessment_ids_are_rejected(self):
+        course = self.store.create_course(self.teacher, "duplicate-ids", "Duplicate IDs")
+        manifest = course["manifest"]
+        manifest["objectives"] = [{"id": "A", "title": "A"}]
+        manifest["lessons"] = [
+            {"id": "L", "title": "Lesson one", "objective_id": "A"},
+            {"id": "L", "title": "Lesson two", "objective_id": "A"},
+        ]
+        with self.assertRaisesRegex(ValueError, "lesson IDs must be unique"):
+            self.store.update_manifest(self.teacher, course["course_id"], manifest)
+        manifest["lessons"] = []
+        manifest["assessments"] = [
+            {"id": "Q", "title": "Quiz one", "objective_id": "A"},
+            {"id": "Q", "title": "Quiz two", "objective_id": "A"},
+        ]
+        with self.assertRaisesRegex(ValueError, "assessment IDs must be unique"):
+            self.store.update_manifest(self.teacher, course["course_id"], manifest)
+
+    def test_resources_require_https_and_boolean_review_flags(self):
+        course = self.store.create_course(self.teacher, "resource-policy", "Resource Policy")
+        manifest = course["manifest"]
+        manifest["objectives"] = [{"id": "A", "title": "A"}]
+        manifest["resources"] = [
+            {"id": "R", "title": "Resource", "source_uri": "http://example.org",
+             "license": "CC-BY-4.0", "creator": "Author"}
+        ]
+        with self.assertRaisesRegex(ValueError, "HTTPS"):
+            self.store.update_manifest(self.teacher, course["course_id"], manifest)
+        manifest["resources"] = []
+        manifest["assessments"] = [
+            {"id": "Q", "title": "Quiz", "objective_id": "A",
+             "high_stakes": "false", "human_review_required": False}
+        ]
+        with self.assertRaisesRegex(ValueError, "must be boolean"):
+            self.store.update_manifest(self.teacher, course["course_id"], manifest)
+
     def test_resource_requires_rights_and_provenance_metadata(self):
         course = self.store.create_course(self.teacher, "media-101", "Media 101")
         manifest = course["manifest"]
@@ -165,12 +241,106 @@ class LearningPlatformTests(unittest.TestCase):
         with self.assertRaises(LearningPermissionError):
             self.store.audit_events(self.learner)
 
+    def test_reviewer_calibration_is_tenant_admin_attested_and_thresholded(self):
+        with self.assertRaises(LearningPermissionError):
+            self.store.record_reviewer_calibration(
+                self.reviewer, self.reviewer.actor_id, "b" * 64, 10, 0.99
+            )
+        with self.assertRaises(ValueError):
+            self.store.record_reviewer_calibration(
+                self.admin, self.reviewer.actor_id, "b" * 64, 9, 0.99
+            )
+        result = self.store.record_reviewer_calibration(
+            self.admin, self.reviewer.actor_id, "c" * 64, 10, 0.85
+        )
+        self.assertEqual(result["status"], "not_qualified")
+        with self.assertRaises(LearningPermissionError):
+            self.store.list_submissions(self.reviewer, "course-does-not-matter")
+
     def test_slug_validation_and_duplicate_detection(self):
         with self.assertRaises(ValueError):
             self.store.create_course(self.teacher, "../course", "Invalid")
         self.store.create_course(self.teacher, "valid-course", "Valid")
         with self.assertRaises(Exception):
             self.store.create_course(self.teacher, "valid-course", "Duplicate")
+
+
+    def test_assessment_submissions_are_append_only_idempotent_and_human_reviewed(self):
+        course = self._course()
+        self._publish(course)
+        self.store.enroll(self.learner, course["course_id"])
+        with self.assertRaises(LearningPermissionError):
+            self.store.submit_assessment(
+                self.learner, course["course_id"], "submission-1", "lesson-2",
+                "wrong-task", {"answer": "x"},
+            )
+        submitted = self.store.submit_assessment(
+            self.learner, course["course_id"], "submission-1", "lesson-2",
+            "rotation-check", {"explanation": "A quarter turn maps (x,y) to (-y,x)."},
+        )
+        self.assertEqual(submitted["status"], "pending_review")
+        self.assertFalse(submitted["mastery_updated"])
+        self.assertFalse(submitted["proof_qualified"])
+        replay = self.store.submit_assessment(
+            self.learner, course["course_id"], "submission-1", "lesson-2",
+            "rotation-check", {"explanation": "A quarter turn maps (x,y) to (-y,x)."},
+        )
+        self.assertTrue(replay["duplicate"])
+        self.assertEqual(replay["rubric_sha256"], submitted["rubric_sha256"])
+        with self.assertRaises(LearningConflictError):
+            self.store.submit_assessment(
+                self.learner, course["course_id"], "submission-1", "lesson-2",
+                "different-task", {"explanation": "A quarter turn maps (x,y) to (-y,x)."},
+            )
+        other_learner = Actor("college-a", "student-2", "learner")
+        with self.assertRaises(LearningPermissionError):
+            self.store.submit_assessment(
+                other_learner, course["course_id"], "submission-1", "lesson-2",
+                "rotation-check", {"explanation": "A quarter turn maps (x,y) to (-y,x)."},
+            )
+        with self.assertRaises(LearningConflictError):
+            self.store.submit_assessment(
+                self.learner, course["course_id"], "submission-1", "lesson-2",
+                "rotation-check", {"explanation": "Different answer"},
+            )
+        with self.assertRaises(LearningPermissionError):
+            self.store.list_submissions(self.reviewer, course["course_id"])
+        with self.assertRaises(LearningPermissionError):
+            self.store.review_submission(
+                self.reviewer, course["course_id"], "submission-1", "accepted", "not calibrated"
+            )
+        calibration = self.store.record_reviewer_calibration(
+            self.admin, self.reviewer.actor_id, "a" * 64, 10, 0.95
+        )
+        self.assertEqual(calibration["status"], "qualified")
+        self.assertEqual(calibration["qualification_authority"], "tenant_admin_attestation")
+        queue = self.store.list_submissions(self.reviewer, course["course_id"])
+        self.assertEqual(queue["count"], 1)
+        self.assertEqual(queue["submissions"][0]["response"]["explanation"],
+                         "A quarter turn maps (x,y) to (-y,x).")
+        with self.assertRaises(LearningPermissionError):
+            self.store.review_submission(
+                self.teacher, course["course_id"], "submission-1", "accepted", "self-review"
+            )
+        review = self.store.review_submission(
+            self.reviewer, course["course_id"], "submission-1", "accepted",
+            "Clear explanation.", {"procedure": 1.0},
+        )
+        self.assertFalse(review["mastery_updated"])
+        self.assertFalse(review["proof_qualified"])
+        self.assertTrue(review["rubric_sha256"])
+        queue = self.store.list_submissions(self.admin, course["course_id"])
+        self.assertEqual(queue["submissions"][0]["status"], "accepted")
+        learner_history = self.store.list_my_submissions(self.learner, course["course_id"])
+        self.assertEqual(learner_history["submissions"][0]["reviews"][0]["feedback"],
+                         "Clear explanation.")
+        self.assertEqual(
+            learner_history["submissions"][0]["reviews"][0]["rubric_sha256"],
+            review["rubric_sha256"],
+        )
+        self.assertFalse(learner_history["mastery_updated"])
+        with self.assertRaises(LearningPermissionError):
+            self.store.list_submissions(self.learner, course["course_id"])
 
 
 if __name__ == "__main__":

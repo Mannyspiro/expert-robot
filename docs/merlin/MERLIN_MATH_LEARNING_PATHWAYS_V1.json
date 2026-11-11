@@ -1,0 +1,1292 @@
+{
+  "schema": "merlin-math-learning-pathways/1",
+  "catalog_id": "merlin.mathematics",
+  "catalog_schema": 1,
+  "version": "1.5.0",
+  "status": "planned_curriculum_map",
+  "principle": "All pathways share the same mathematical idea graph; pathway weights change ordering and examples, not truth, mastery, or proof status.",
+  "shared_learning_cycle": [
+    "curiosity_hook",
+    "concrete_model",
+    "observation",
+    "conjecture",
+    "adversarial_test",
+    "abstraction",
+    "justification",
+    "proof_or_experiment",
+    "implementation",
+    "transfer_and_reflection"
+  ],
+  "pathways": [
+    {
+      "id": "mathematician",
+      "title": "Mathematician",
+      "goal": "Discover, define, conjecture, refute, prove, generalize, and formalize.",
+      "stages": [
+        {
+          "id": "M1",
+          "title": "Pattern and structure",
+          "idea_ids": [
+            "MATH-NT-001",
+            "MATH-REP-001",
+            "MATH-ART-001",
+            "MATH-SET-001"
+          ],
+          "evidence": [
+            "observations across examples",
+            "invariant explanation",
+            "representation translation"
+          ]
+        },
+        {
+          "id": "M2",
+          "title": "Definitions and conjectures",
+          "idea_ids": [
+            "MATH-NT-002",
+            "MATH-NT-003",
+            "MATH-COORD-001",
+            "MATH-CALG-001",
+            "MATH-FRACT-001",
+            "MATH-LOG-002",
+            "MATH-ALG-003",
+            "MATH-FUNC-001",
+            "MATH-MOD-001"
+          ],
+          "evidence": [
+            "precise domain and definitions",
+            "falsifiable conjecture",
+            "explicit assumptions"
+          ]
+        },
+        {
+          "id": "M3",
+          "title": "Counterexample and proof",
+          "idea_ids": [
+            "MATH-EXP-002",
+            "MATH-LOG-001",
+            "MATH-SPEC-001",
+            "MATH-DYN-001",
+            "MATH-HOL-002",
+            "MATH-DISC-001",
+            "MATH-COMP-002",
+            "MATH-LIN-002",
+            "MATH-CALC-001",
+            "MATH-CALC-002",
+            "MATH-CALC-003",
+            "MATH-PROB-001",
+            "MATH-STAT-001",
+            "MATH-NUM-001",
+            "MATH-ODE-001",
+            "MATH-OPT-001"
+          ],
+          "evidence": [
+            "valid counterexample or proof",
+            "quantifier and scope audit",
+            "proof strategy explanation"
+          ]
+        },
+        {
+          "id": "M4",
+          "title": "Generalization and research",
+          "idea_ids": [
+            "MATH-ALG-001",
+            "MATH-LIN-001",
+            "MATH-ST-001",
+            "MATH-XMG-002",
+            "MATH-IDEA-001",
+            "MATH-NULL-001",
+            "MATH-REP-002",
+            "MATH-HOL-001",
+            "MATH-GA-001",
+            "MATH-PARR-001",
+            "MATH-REP-003",
+            "MATH-ROT-001",
+            "MATH-ROT-002",
+            "MATH-COL-001",
+            "MATH-CAD-001",
+            "MATH-TESS-001",
+            "MATH-PROJ-001",
+            "MATH-POLY-001",
+            "MATH-PARA-001",
+            "MATH-FRACT-002",
+            "MATH-SIG-001",
+            "MATH-GEN-001",
+            "MATH-DATA-001",
+            "MATH-LIN-002",
+            "MATH-NUM-001",
+            "MATH-ODE-001",
+            "MATH-OPT-001"
+          ],
+          "evidence": [
+            "assumption sensitivity",
+            "generalization or counterexample",
+            "research claim with provenance and epistemic status"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mathematics_programmer",
+      "title": "Mathematics programmer",
+      "goal": "Translate mathematics into algorithms, exact and numerical code, tests, and reproducible models.",
+      "stages": [
+        {
+          "id": "P1",
+          "title": "Represent the problem",
+          "idea_ids": [
+            "MATH-NT-001",
+            "MATH-ALG-002",
+            "MATH-REP-001",
+            "MATH-COORD-001",
+            "MATH-CALG-001",
+            "MATH-SET-001",
+            "MATH-ALG-003",
+            "MATH-FUNC-001"
+          ],
+          "evidence": [
+            "typed inputs and outputs",
+            "two correct representations",
+            "unit/domain declarations"
+          ]
+        },
+        {
+          "id": "P2",
+          "title": "Design algorithms",
+          "idea_ids": [
+            "MATH-NT-002",
+            "MATH-NT-003",
+            "MATH-COMP-001",
+            "MATH-EXP-002",
+            "MATH-LOG-002",
+            "MATH-DISC-001",
+            "MATH-MOD-001",
+            "MATH-COMP-002"
+          ],
+          "evidence": [
+            "algorithm and termination condition",
+            "edge-case tests",
+            "complexity estimate"
+          ]
+        },
+        {
+          "id": "P3",
+          "title": "Exact structures and transforms",
+          "idea_ids": [
+            "MATH-ALG-001",
+            "MATH-LIN-001",
+            "MATH-SPEC-001",
+            "MATH-REP-002",
+            "MATH-REP-003",
+            "MATH-ROT-001",
+            "MATH-ROT-002",
+            "MATH-LIN-002",
+            "MATH-CALC-001",
+            "MATH-CALC-002",
+            "MATH-CALC-003",
+            "MATH-PROB-001",
+            "MATH-STAT-001"
+          ],
+          "evidence": [
+            "exact arithmetic where appropriate",
+            "invariant/property tests",
+            "basis and field semantics"
+          ]
+        },
+        {
+          "id": "P4",
+          "title": "Applied computational labs",
+          "idea_ids": [
+            "MATH-FRACT-001",
+            "MATH-FRACT-002",
+            "MATH-SIG-001",
+            "MATH-DATA-001",
+            "MATH-CAD-001",
+            "MATH-PARA-001",
+            "MATH-TESS-001",
+            "MATH-PROJ-001",
+            "MATH-POLY-001",
+            "MATH-GEN-001",
+            "MATH-DYN-001",
+            "MATH-HOL-002",
+            "MATH-CALC-001",
+            "MATH-CALC-002",
+            "MATH-CALC-003",
+            "MATH-PROB-001",
+            "MATH-STAT-001",
+            "MATH-NUM-001",
+            "MATH-ODE-001",
+            "MATH-OPT-001"
+          ],
+          "evidence": [
+            "reproducible experiment",
+            "precision and error report",
+            "model limitations"
+          ]
+        },
+        {
+          "id": "P5",
+          "title": "Formal and research bridge",
+          "idea_ids": [
+            "MATH-XMG-001",
+            "MATH-XMG-002",
+            "MATH-IDEA-001",
+            "MATH-IDEA-002",
+            "MATH-EXP-001",
+            "MATH-NULL-001",
+            "MATH-GA-001",
+            "MATH-HOL-001",
+            "MATH-ST-001",
+            "MATH-COL-001",
+            "MATH-PARR-001",
+            "MATH-LOG-002",
+            "MATH-CALC-001",
+            "MATH-CALC-002",
+            "MATH-CALC-003",
+            "MATH-PROB-001",
+            "MATH-STAT-001",
+            "MATH-LIN-002",
+            "MATH-NUM-001",
+            "MATH-ODE-001",
+            "MATH-OPT-001"
+          ],
+          "evidence": [
+            "versioned implementation",
+            "test receipt",
+            "formal claim separated from experimental evidence"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "computational_hacker",
+      "title": "Computational hacker",
+      "goal": "Decompose unfamiliar problems, run minimal discriminating experiments, debug, measure, and explain.",
+      "stages": [
+        {
+          "id": "H1",
+          "title": "Decompose and model",
+          "idea_ids": [
+            "MATH-IDEA-001",
+            "MATH-IDEA-002",
+            "MATH-NT-001",
+            "MATH-ALG-002",
+            "MATH-COMP-001",
+            "MATH-REP-001",
+            "MATH-LOG-002",
+            "MATH-SET-001"
+          ],
+          "evidence": [
+            "subproblem graph",
+            "assumptions list",
+            "minimal testable question"
+          ]
+        },
+        {
+          "id": "H2",
+          "title": "Prototype and attack",
+          "idea_ids": [
+            "MATH-NT-003",
+            "MATH-XMG-001",
+            "MATH-EXP-002",
+            "MATH-EXP-001",
+            "MATH-PARR-001",
+            "MATH-DISC-001",
+            "MATH-ALG-003",
+            "MATH-FUNC-001",
+            "MATH-MOD-001",
+            "MATH-COMP-002"
+          ],
+          "evidence": [
+            "working minimal prototype",
+            "positive and negative controls",
+            "counterexample retained as regression test"
+          ]
+        },
+        {
+          "id": "H3",
+          "title": "Measure and validate",
+          "idea_ids": [
+            "MATH-NULL-001",
+            "MATH-DYN-001",
+            "MATH-REP-002",
+            "MATH-REP-003",
+            "MATH-LIN-001",
+            "MATH-SPEC-001",
+            "MATH-HOL-002",
+            "MATH-FRACT-001",
+            "MATH-FRACT-002",
+            "MATH-SIG-001",
+            "MATH-DATA-001",
+            "MATH-LIN-002",
+            "MATH-CALC-001",
+            "MATH-CALC-002",
+            "MATH-CALC-003",
+            "MATH-PROB-001",
+            "MATH-STAT-001",
+            "MATH-NUM-001",
+            "MATH-ODE-001",
+            "MATH-OPT-001"
+          ],
+          "evidence": [
+            "seeded reproducible run",
+            "precision/runtime/error metadata",
+            "baseline comparison"
+          ]
+        },
+        {
+          "id": "H4",
+          "title": "Build useful systems",
+          "idea_ids": [
+            "MATH-CAD-001",
+            "MATH-COL-001",
+            "MATH-ST-001",
+            "MATH-GA-001",
+            "MATH-HOL-001",
+            "MATH-COORD-001",
+            "MATH-CALG-001",
+            "MATH-ALG-001",
+            "MATH-ROT-001",
+            "MATH-ROT-002",
+            "MATH-ART-001",
+            "MATH-TESS-001",
+            "MATH-PROJ-001",
+            "MATH-POLY-001",
+            "MATH-PARA-001",
+            "MATH-GEN-001",
+            "MATH-LIN-002",
+            "MATH-NUM-001",
+            "MATH-ODE-001",
+            "MATH-OPT-001"
+          ],
+          "evidence": [
+            "integrated artifact",
+            "limitations and safety assumptions",
+            "reproducible handoff"
+          ]
+        }
+      ]
+    }
+  ],
+  "idea_index": [
+    {
+      "id": "MATH-REP-001",
+      "title": "Representation-first mathematical objects",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "legacy_reference_unverified",
+      "legacy_lesson_id": "rotation-four-representations-v0.1",
+      "prerequisites": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-COORD-001",
+      "title": "Simultaneous coordinate frames",
+      "kind": "representation",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "legacy_reference_unverified",
+      "legacy_lesson_id": "coordinate-frames-intro-v0.1",
+      "prerequisites": [
+        "MATH-REP-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-CALG-001",
+      "title": "Complex and trigonometric representation bridge",
+      "kind": "representation",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "legacy_reference_unverified",
+      "legacy_lesson_id": "complex-multiplication-rotation-v0.1",
+      "prerequisites": [
+        "MATH-REP-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-ALG-001",
+      "title": "Geometric number systems",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "legacy_reference_unverified",
+      "legacy_lesson_id": "quaternion-ga-rotors-v0.1",
+      "prerequisites": [
+        "MATH-CALG-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-LIN-001",
+      "title": "Eigenstructure and higher-dimensional transforms",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "legacy_reference_unverified",
+      "legacy_lesson_id": "spectral-invariants-intro-v0.1",
+      "prerequisites": [
+        "MATH-REP-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-ST-001",
+      "title": "Spacetime projections and periodic time structure",
+      "kind": "open_question",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
+      "prerequisites": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-XMG-001",
+      "title": "Glyph-native typed mathematical language",
+      "kind": "concept",
+      "status": "finite_tested",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
+      "prerequisites": [],
+      "pathways": [
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-XMG-002",
+      "title": "XMG termination and confluence",
+      "kind": "conjecture",
+      "status": "unresolved",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
+      "prerequisites": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer"
+      ]
+    },
+    {
+      "id": "MATH-IDEA-001",
+      "title": "Ideonomy as a typed idea hypergraph",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
+      "prerequisites": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-IDEA-002",
+      "title": "Mathematical idea intake and evidence ledger",
+      "kind": "experiment",
+      "status": "finite_tested",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
+      "prerequisites": [],
+      "pathways": [
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-FRACT-001",
+      "title": "Lacunarity and multiscale morphology",
+      "kind": "concept",
+      "status": "literature_checked",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
+      "prerequisites": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-CAD-001",
+      "title": "Mathematical-to-CAD/MCFC engineering bridge",
+      "kind": "engineering_mapping",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
+      "prerequisites": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-COL-001",
+      "title": "Superorganism and collective mathematics",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
+      "prerequisites": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-EXP-001",
+      "title": "XMG-1E deterministic confluence benchmark",
+      "kind": "experiment",
+      "status": "unresolved",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
+      "prerequisites": [],
+      "pathways": [
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-NULL-001",
+      "title": "Null-model anomaly scoring for idea-space gaps",
+      "kind": "conjecture",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
+      "prerequisites": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-REP-002",
+      "title": "Exact multi-frame transition graph",
+      "kind": "representation",
+      "status": "finite_tested",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
+      "prerequisites": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-SPEC-001",
+      "title": "Spectral invariants under basis change",
+      "kind": "theorem",
+      "status": "finite_tested",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
+      "prerequisites": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-HOL-001",
+      "title": "Coordinate cocycles versus connection holonomy",
+      "kind": "open_question",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
+      "prerequisites": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-GA-001",
+      "title": "Audit of proposed Clifford embeddings and quadric intersections",
+      "kind": "open_question",
+      "status": "refuted",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
+      "prerequisites": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-DYN-001",
+      "title": "Integral criterion for finite-time blow-up",
+      "kind": "theorem",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
+      "prerequisites": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-PARR-001",
+      "title": "Audit of archived Parrondo capability demonstration",
+      "kind": "experiment",
+      "status": "refuted",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
+      "prerequisites": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-REP-003",
+      "title": "N-dimensional exact frame graph",
+      "kind": "representation",
+      "status": "finite_tested",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
+      "prerequisites": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-ROT-001",
+      "title": "Complex, quaternion, matrix and rotor views of 3D rotations",
+      "kind": "representation",
+      "status": "finite_tested",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
+      "prerequisites": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-ROT-002",
+      "title": "Complex plane as the perpendicular subspace of an axis rotation",
+      "kind": "representation",
+      "status": "finite_tested",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
+      "prerequisites": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-HOL-002",
+      "title": "Spherical triangle holonomy equals enclosed area",
+      "kind": "experiment",
+      "status": "finite_tested",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
+      "prerequisites": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-ART-001",
+      "title": "Planar transformations and symmetry groups",
+      "kind": "representation",
+      "status": "finite_tested",
+      "lesson_id": null,
+      "lesson_state": "legacy_reference_unverified",
+      "legacy_lesson_id": "art-math-symmetry-studio-v0.1",
+      "prerequisites": [],
+      "pathways": [
+        "mathematician",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-TESS-001",
+      "title": "Tessellations and wallpaper groups",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "legacy_reference_unverified",
+      "legacy_lesson_id": "art-math-tessellation-v0.1",
+      "prerequisites": [
+        "MATH-ART-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-PROJ-001",
+      "title": "Projective geometry and perspective drawing",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "legacy_reference_unverified",
+      "legacy_lesson_id": "art-math-perspective-v0.1",
+      "prerequisites": [
+        "MATH-COORD-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-POLY-001",
+      "title": "Polyhedral geometry and topological invariants",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "legacy_reference_unverified",
+      "legacy_lesson_id": "art-math-sculpture-v0.1",
+      "prerequisites": [
+        "MATH-COORD-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-PARA-001",
+      "title": "Parametric curves and differential geometry",
+      "kind": "representation",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "legacy_reference_unverified",
+      "legacy_lesson_id": "art-math-parametric-curves-v0.1",
+      "prerequisites": [
+        "MATH-CALG-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-FRACT-002",
+      "title": "Iterated systems, fractals and dimension",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "legacy_reference_unverified",
+      "legacy_lesson_id": "art-math-fractal-studio-v0.1",
+      "prerequisites": [
+        "MATH-FRACT-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-SIG-001",
+      "title": "Fourier representations for sound and image",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "legacy_reference_unverified",
+      "legacy_lesson_id": "art-math-sound-image-v0.1",
+      "prerequisites": [
+        "MATH-CALG-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-GEN-001",
+      "title": "Procedural and generative composition",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "legacy_reference_unverified",
+      "legacy_lesson_id": "art-math-generative-studio-v0.1",
+      "prerequisites": [
+        "MATH-REP-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-DATA-001",
+      "title": "Statistical visual encoding and uncertainty",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "legacy_reference_unverified",
+      "legacy_lesson_id": "art-math-data-portrait-v0.1",
+      "prerequisites": [
+        "MATH-IDEA-002"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-NT-001",
+      "title": "Whole-number structure and additive patterns",
+      "kind": "concept",
+      "status": "literature_checked",
+      "lesson_id": "math-foundations-counting-v1",
+      "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
+      "prerequisites": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-NT-002",
+      "title": "Divisibility and factor pairs",
+      "kind": "concept",
+      "status": "literature_checked",
+      "lesson_id": "math-foundations-divisibility-v1",
+      "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
+      "prerequisites": [
+        "MATH-NT-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer"
+      ]
+    },
+    {
+      "id": "MATH-NT-003",
+      "title": "Prime numbers and primality",
+      "kind": "concept",
+      "status": "literature_checked",
+      "lesson_id": "math-foundations-primes-v1",
+      "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
+      "prerequisites": [
+        "MATH-NT-002"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-ALG-002",
+      "title": "Variables and algebraic expressions",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": "math-foundations-variables-v1",
+      "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
+      "prerequisites": [
+        "MATH-NT-001"
+      ],
+      "pathways": [
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-COMP-001",
+      "title": "Algorithmic loops and repeated computation",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": "math-foundations-loops-v1",
+      "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
+      "prerequisites": [
+        "MATH-ALG-002"
+      ],
+      "pathways": [
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-LOG-001",
+      "title": "Euclid's proof of the infinitude of primes",
+      "kind": "theorem",
+      "status": "literature_checked",
+      "lesson_id": "math-foundations-euclid-proof-v1",
+      "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
+      "prerequisites": [
+        "MATH-NT-003"
+      ],
+      "pathways": [
+        "mathematician"
+      ]
+    },
+    {
+      "id": "MATH-EXP-002",
+      "title": "Finite experiments and counterexamples",
+      "kind": "experiment",
+      "status": "literature_checked",
+      "lesson_id": "math-foundations-counterexample-v1",
+      "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
+      "prerequisites": [
+        "MATH-COMP-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-LOG-002",
+      "title": "Propositional logic, predicates and quantifiers",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": "math-logic-quantifiers-v1",
+      "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
+      "prerequisites": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-SET-001",
+      "title": "Sets, relations and functions",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": "math-sets-relations-v1",
+      "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
+      "prerequisites": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-DISC-001",
+      "title": "Graphs, trees and network structure",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": "math-graphs-trees-v1",
+      "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
+      "prerequisites": [
+        "MATH-SET-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-ALG-003",
+      "title": "Equations and inequalities",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": "math-equations-inequalities-v1",
+      "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
+      "prerequisites": [
+        "MATH-ALG-002"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-FUNC-001",
+      "title": "Functions, composition and inverse mappings",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": "math-functions-composition-v1",
+      "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
+      "prerequisites": [
+        "MATH-ALG-003",
+        "MATH-SET-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-MOD-001",
+      "title": "Modular arithmetic and congruences",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
+      "prerequisites": [
+        "MATH-NT-002"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-COMP-002",
+      "title": "Complexity, invariants and termination",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
+      "prerequisites": [
+        "MATH-COMP-001",
+        "MATH-LOG-002"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-LIN-002",
+      "title": "Linear systems and Gaussian elimination",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": "math-linear-systems-gaussian-v1",
+      "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
+      "prerequisites": [
+        "MATH-ALG-003"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-CALC-001",
+      "title": "Limits and continuity",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": "math-limits-continuity-v1",
+      "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
+      "prerequisites": [
+        "MATH-FUNC-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-CALC-002",
+      "title": "Derivatives and rates of change",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": "math-derivatives-rates-v1",
+      "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
+      "prerequisites": [
+        "MATH-CALC-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-CALC-003",
+      "title": "Integration and accumulation",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": "math-integration-accumulation-v1",
+      "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
+      "prerequisites": [
+        "MATH-CALC-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-PROB-001",
+      "title": "Probability and conditional probability",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": "math-probability-bayes-v1",
+      "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
+      "prerequisites": [
+        "MATH-SET-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-STAT-001",
+      "title": "Statistical models, inference and uncertainty",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": "math-statistical-inference-v1",
+      "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
+      "prerequisites": [
+        "MATH-PROB-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-NUM-001",
+      "title": "Floating-point error and numerical stability",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": "math-floating-point-stability-v1",
+      "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
+      "prerequisites": [
+        "MATH-ALG-003"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-ODE-001",
+      "title": "Differential equations and numerical integration",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": "math-ode-numerical-integration-v1",
+      "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
+      "prerequisites": [
+        "MATH-CALC-002",
+        "MATH-CALC-003",
+        "MATH-NUM-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-OPT-001",
+      "title": "Optimization and gradient methods",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": "math-optimization-gradient-v1",
+      "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
+      "prerequisites": [
+        "MATH-CALC-002",
+        "MATH-LIN-002"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    }
+  ],
+  "epistemic_rules": {
+    "finite_experiment": "May refute a universal claim when a valid counterexample is found; cannot establish a universal theorem by finite sampling.",
+    "numerical_result": "Must record solver, precision, seed, domain, assumptions, environment, and output digest.",
+    "formal_proof": "Requires a complete proof artifact and pinned Lean compiler/dependency receipt.",
+    "reviewed_assessment": "Human feedback is instructional evidence; it does not automatically certify mastery or proof."
+  }
+}

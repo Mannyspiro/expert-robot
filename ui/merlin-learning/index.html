@@ -15,10 +15,10 @@ h1,h2,h3,p{margin-top:0}h1{font-size:1.25rem;margin:0}.muted{color:#aab5cc}.eyeb
 main{width:min(1200px,100%);margin:0 auto;padding:2rem clamp(1rem,4vw,3rem) 5rem}
 .toolbar{display:flex;align-items:end;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem}
 h2{font-size:1.6rem;margin-bottom:.25rem}.actions{display:flex;gap:.65rem;flex-wrap:wrap}
-button,input,textarea{font:inherit}button{border:1px solid #596a91;background:#253454;color:#f3f6ff;padding:.65rem .95rem;border-radius:.7rem;cursor:pointer}
+button,input,textarea,select{font:inherit}button{border:1px solid #596a91;background:#253454;color:#f3f6ff;padding:.65rem .95rem;border-radius:.7rem;cursor:pointer}
 button:hover{background:#344a78}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #a7b8ff;outline-offset:2px}
 button.primary{background:#526ed0;border-color:#8195ef}button.ghost{background:transparent}button:disabled{opacity:.5;cursor:not-allowed}
-input,textarea{width:100%;border:1px solid #44516c;border-radius:.6rem;background:#111a2d;color:#f2f5ff;padding:.7rem}
+input,textarea,select{width:100%;border:1px solid #44516c;border-radius:.6rem;background:#111a2d;color:#f2f5ff;padding:.7rem}
 label{display:block;font-weight:650;font-size:.9rem;margin:.8rem 0 .35rem}
 .notice{padding:.9rem 1rem;border:1px solid #52658b;background:#17233a;border-radius:.75rem;margin:1rem 0;color:#e5ebff}
 .notice.error{border-color:#9b5b67;background:#351c29}.notice.success{border-color:#507f71;background:#183229}
@@ -47,6 +47,19 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
     <div class="actions"><input id="search" type="search" aria-label="Search courses" placeholder="Search courses…" style="width:min(260px,70vw)"></div>
   </div>
   <div id="notice" class="notice" role="status" aria-live="polite">Connecting to Merlin Learning…</div>
+  <section id="profileSection" class="card hidden" aria-labelledby="profileTitle">
+    <div class="toolbar"><div><h2 id="profileTitle">My learning preferences</h2><p class="muted">Choose how Merlin balances mathematical discovery, programming, and computational problem solving. These preferences affect recommendations, not mastery or proof status.</p></div></div>
+    <form id="profileForm">
+      <div class="grid">
+        <div><label for="mathWeight">Mathematician path <span id="mathWeightLabel" class="muted"></span></label><input id="mathWeight" type="range" min="0" max="1" step="0.05" value="0.33"></div>
+        <div><label for="programmerWeight">Mathematics programmer path <span id="programmerWeightLabel" class="muted"></span></label><input id="programmerWeight" type="range" min="0" max="1" step="0.05" value="0.33"></div>
+        <div><label for="hackerWeight">Computational hacker path <span id="hackerWeightLabel" class="muted"></span></label><input id="hackerWeight" type="range" min="0" max="1" step="0.05" value="0.33"></div>
+      </div>
+      <label for="interests">Interests (comma-separated)</label><input id="interests" maxlength="500" placeholder="number theory, python, proofs, puzzles">
+      <label for="pace">Study pace</label><select id="pace"><option value="gentle">Gentle · about 20 minutes</option><option value="standard">Standard · about 35 minutes</option><option value="intensive">Intensive · about 60 minutes</option><option value="adaptive">Adaptive · no fixed time cap</option></select>
+      <div class="actions" style="margin-top:1rem"><button class="primary" type="submit">Save preferences</button><button class="ghost" id="reloadProfile" type="button">Reload</button></div>
+    </form>
+  </section>
   <section id="catalogSection" aria-labelledby="catalogTitle">
     <div class="toolbar"><div><h2 id="catalogTitle">Course catalog</h2><p id="catalogSummary" class="muted">Loading tenant-scoped courses…</p></div></div>
     <div id="catalog" class="grid"></div>
@@ -64,8 +77,44 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
     <div class="toolbar"><div><div class="eyebrow">Course workspace</div><h2 id="detailTitle">Course</h2><p id="detailMeta" class="muted"></p></div><div class="actions"><button class="ghost" id="backBtn" type="button">Back to catalog</button></div></div>
     <div class="layout">
       <div class="card"><h3>Learning objectives</h3><ul id="objectives" class="list"></ul><h3>Lessons</h3><div id="lessons"></div><h3>Resources</h3><ul id="resources" class="list"></ul></div>
-      <div class="card"><h3>Course actions</h3><div id="courseActions" class="actions"></div><div id="recommendation" class="notice hidden" aria-live="polite"></div><div id="editorWrap" class="hidden"><h3>Draft manifest</h3><p class="muted">Edit the structured course manifest. Published versions remain immutable; create a new revision to change them.</p><label for="manifestEditor">Manifest JSON</label><textarea id="manifestEditor" spellcheck="false"></textarea><button id="saveManifest" class="primary" type="button">Save draft manifest</button></div><div id="reviewWrap" class="hidden"><h3>Independent review</h3><label for="reviewNotes">Review notes</label><textarea id="reviewNotes" rows="3" style="min-height:90px"></textarea><button id="approveBtn" type="button">Approve version</button><button id="changesBtn" class="ghost" type="button">Request changes</button></div></div>
+      <div class="card"><h3>Course actions</h3><div id="courseActions" class="actions"></div><div id="recommendation" class="notice hidden" aria-live="polite"></div><div id="editorWrap" class="hidden"><h3>Draft manifest</h3><p class="muted">Edit the structured course manifest. Published versions remain immutable; create a new revision to change them.</p><label for="manifestEditor">Manifest JSON</label><textarea id="manifestEditor" spellcheck="false"></textarea><button id="saveManifest" class="primary" type="button">Save draft manifest</button></div><div id="reviewWrap" class="hidden"><h3>Independent review</h3><label for="reviewNotes">Review notes</label><textarea id="reviewNotes" rows="3" style="min-height:90px"></textarea><button id="approveBtn" type="button">Approve version</button><button id="changesBtn" class="ghost" type="button">Request changes</button></div><div id="submissionReviewWrap" class="hidden"><h3>Assessment submissions</h3><p class="meta">Review learner work independently. Review decisions are recorded separately and do not automatically update mastery or proof status.</p><div id="submissionQueue"></div></div><div id="reviewerCalibrationWrap" class="hidden"><h3>Reviewer calibration</h3><p class="meta">Tenant-admin attestation only. Supply the digest of the calibration evidence set; at least 10 scored cases and 0.90 agreement are required. Attestations expire after 90 days.</p><label for="calibrationReviewerId">Reviewer actor ID</label><input id="calibrationReviewerId" type="text" autocomplete="off" maxlength="120"><label for="calibrationDigest">Calibration evidence SHA-256</label><input id="calibrationDigest" type="text" inputmode="text" autocomplete="off" maxlength="64"><label for="calibrationCaseCount">Scored cases</label><input id="calibrationCaseCount" type="number" min="10" step="1" value="10"><label for="calibrationAgreement">Agreement score (0–1)</label><input id="calibrationAgreement" type="number" min="0" max="1" step="0.01" value="0.95"><button id="recordReviewerCalibration" type="button">Record reviewer calibration</button><div id="reviewerCalibrationNotice" class="notice hidden" aria-live="polite"></div></div><div id="learnerSubmissionHistoryWrap" class="hidden"><h3>My submitted work and feedback</h3><div id="learnerSubmissionHistory"></div></div></div>
     </div>
+  </section>
+  <section id="lessonPlayerSection" class="card hidden" aria-labelledby="playerTitle">
+    <div class="toolbar">
+      <div><div class="eyebrow">Guided lesson</div><h2 id="playerTitle">Lesson</h2><p id="playerMeta" class="muted"></p></div>
+      <button class="ghost" id="closeLesson" type="button">Close lesson</button>
+    </div>
+    <div id="playerProgress" class="notice" aria-live="polite"></div>
+    <div id="playerStageView">
+      <span id="playerStageMode" class="pill"></span>
+      <p id="playerStagePrompt"></p>
+    </div>
+    <div id="playerExerciseView" class="hidden">
+      <h3>Exercise</h3>
+      <p id="exerciseObjective" class="muted"></p>
+      <p id="exercisePrompt"></p>
+      <p id="exerciseFormat" class="meta"></p>
+      <p id="exerciseTools" class="meta"></p>
+      <h3>Rubric</h3><ul id="exerciseRubric" class="list"></ul>
+      <h3>Transfer challenge</h3><p id="exerciseTransfer"></p>
+      <div id="exerciseHistorical" class="notice hidden"></div>
+      <ul id="exerciseSources" class="list"></ul>
+      <div id="submissionControls" class="submission-controls hidden">
+        <label for="answerInput">Your work</label>
+        <textarea id="answerInput" rows="6" maxlength="65536"
+          placeholder="Show your reasoning, calculations, code, or proof attempt."></textarea>
+        <div class="actions"><button id="submitAnswer" class="primary" type="button">Submit for human review</button></div>
+        <p id="submissionStatus" class="notice hidden" role="status" aria-live="polite"></p>
+        <p class="meta">Submissions are stored as immutable attempts. A reviewer evaluates the work; submission and review do not automatically award mastery or constitute a formal proof.</p>
+      </div>
+    </div>
+    <div class="actions" style="margin-top:1rem">
+      <button id="prevStage" type="button">Previous</button>
+      <button id="showHint" type="button">Show hint</button>
+      <button id="nextStage" class="primary" type="button">Next stage</button>
+    </div>
+    <div id="playerHint" class="notice hidden" aria-live="polite"></div>
   </section>
   <footer>
     Merlin Learning uses tenant-scoped identity, versioned course manifests and independent review before publication. Recommendations are advisory; the learner model does not self-certify mastery or grade high-stakes work. Institution SSO must be configured by the deployment gateway. No bearer token is stored in browser storage.
@@ -79,6 +128,10 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
   let role = null;
   let current = null;
   let currentSummary = null;
+  let activeLesson = null;
+  let activeStageIndex = 0;
+  let activeHintIndex = 0;
+  let pendingSubmissionId = null;
   const notice = (message, kind="") => {
     $("notice").textContent = message;
     $("notice").className = "notice" + (kind ? " " + kind : "");
@@ -135,6 +188,24 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
     }
     if (!rows.length) host.append(el("p", "No matching courses."));
   }
+  function renderProfile(profile) {
+    const weights = profile.pathway_weights || {};
+    $("mathWeight").value = weights.mathematician ?? 0.33;
+    $("programmerWeight").value = weights.mathematics_programmer ?? 0.33;
+    $("hackerWeight").value = weights.computational_hacker ?? 0.33;
+    $("mathWeightLabel").textContent = Math.round(Number($("mathWeight").value) * 100) + "%";
+    $("programmerWeightLabel").textContent = Math.round(Number($("programmerWeight").value) * 100) + "%";
+    $("hackerWeightLabel").textContent = Math.round(Number($("hackerWeight").value) * 100) + "%";
+    $("interests").value = (profile.interests || []).join(", ");
+    $("pace").value = profile.pace || "adaptive";
+  }
+  async function loadProfile() {
+    try {
+      renderProfile(await api("/api/learning/profile"));
+    } catch (error) {
+      notice("Could not load learning preferences: " + error.message, "error");
+    }
+  }
   async function loadCatalog() {
     try {
       const data = await api("/api/learning/courses");
@@ -142,13 +213,16 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
       role = data.role;
       $("rolePill").textContent = role;
       $("createSection").classList.toggle("hidden", !["instructor","tenant_admin"].includes(role));
+      $("profileSection").classList.toggle("hidden", role !== "learner");
       renderCatalog();
       notice("Connected to tenant-scoped course catalog.", "success");
+      if (role === "learner") await loadProfile();
     } catch (error) {
       catalog = [];
       role = null;
       $("rolePill").textContent = "Identity unavailable";
       $("createSection").classList.add("hidden");
+      $("profileSection").classList.add("hidden");
       renderCatalog();
       notice("Learning identity is unavailable: " + error.message +
         ". Configure institution SSO or the authenticated gateway before using this workspace.", "error");
@@ -156,6 +230,8 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
   }
   async function openCourse(courseId) {
     try {
+      activeLesson = null;
+      $("lessonPlayerSection").classList.add("hidden");
       current = await api("/api/learning/courses/" + encodeURIComponent(courseId));
       currentSummary = catalog.find(row => row.course_id === courseId) || null;
       renderCourse();
@@ -164,12 +240,35 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
       $("detailSection").classList.remove("hidden");
     } catch (error) { notice("Could not open course: " + error.message, "error"); }
   }
+  function appendSupplementaryResource(parent, resource) {
+    const item = el("li", undefined, "resource-item");
+    let parsed;
+    try { parsed = new URL(resource.source_uri); } catch (_) { parsed = null; }
+    if (!parsed || parsed.protocol !== "https:") {
+      item.textContent = (resource.title || "External resource") + " · secure link unavailable";
+    } else {
+      const link = document.createElement("a");
+      link.href = parsed.href;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = resource.title || "Open supplementary resource";
+      item.append(link);
+      item.append(document.createTextNode(
+        " · " + (resource.creator || "Creator not listed") +
+        " · " + (resource.license || "License not listed") +
+        " · optional supplement"
+      ));
+    }
+    parent.append(item);
+  }
+
   function renderCourse() {
     const course = current;
     $("detailTitle").textContent = course.title;
     $("detailMeta").textContent = "Version " + course.version + " · " + course.status +
       " · " + course.manifest_sha256;
     const manifest = course.manifest;
+    const resourceById = new Map((manifest.resources || []).map(resource => [resource.id, resource]));
     $("objectives").replaceChildren();
     for (const objective of manifest.objectives || []) {
       const prereqs = objective.prerequisites?.length ? " · Prerequisites: " + objective.prerequisites.join(", ") : "";
@@ -180,11 +279,29 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
       const block = el("article", undefined, "card");
       block.append(el("h3", lesson.title));
       block.append(el("p", lesson.body || "Lesson content has not been added."));
+      block.append(el("div",
+        (lesson.estimated_minutes || 20) + " min · " +
+        (lesson.pathways || []).join(" / "), "meta"));
+      const lessonResourceIds = lesson.resource_ids || [];
+      if (lessonResourceIds.length) {
+        const supplements = el("div", undefined, "supplementary-resources");
+        supplements.append(el("p", "Optional video supplements", "meta"));
+        const supplementList = el("ul", undefined, "list");
+        for (const resourceId of lessonResourceIds) {
+          const resource = resourceById.get(resourceId);
+          if (resource) appendSupplementaryResource(supplementList, resource);
+        }
+        supplements.append(supplementList);
+        block.append(supplements);
+      }
+      const lessonActions = el("div", undefined, "actions");
+      lessonActions.append(actionButton("Start lesson", () => startLesson(lesson), true));
+      block.append(lessonActions);
       $("lessons").append(block);
     }
     $("resources").replaceChildren();
     for (const resource of manifest.resources || []) {
-      $("resources").append(el("li", resource.title + " · " + resource.creator + " · " + resource.license));
+      appendSupplementaryResource($("resources"), resource);
     }
     const actions = $("courseActions");
     actions.replaceChildren();
@@ -196,17 +313,343 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
     if (role === "learner" && summary.enrollment_status === "active") {
       actions.append(actionButton("Recommend next lesson", recommend, true));
     }
+    $("reviewerCalibrationWrap").classList.toggle("hidden", role !== "tenant_admin");
     const canEdit = ["tenant_admin","instructor"].includes(role) &&
       course.status === "draft";
     $("editorWrap").classList.toggle("hidden", !canEdit);
     if (canEdit) $("manifestEditor").value = JSON.stringify(manifest, null, 2);
     const canReview = role === "reviewer" && course.status === "draft";
     $("reviewWrap").classList.toggle("hidden", !canReview);
+    const canReviewSubmissions = role === "reviewer" && course.status === "published";
+    $("submissionReviewWrap").classList.toggle("hidden", !canReviewSubmissions);
+    if (canReviewSubmissions) void loadSubmissionQueue();
+    const canViewOwnSubmissions = role === "learner" && course.status === "published" &&
+      summary.enrollment_status === "active";
+    $("learnerSubmissionHistoryWrap").classList.toggle("hidden", !canViewOwnSubmissions);
+    if (canViewOwnSubmissions) void loadMySubmissionHistory();
+    if (canEdit && !(manifest.objectives || []).length && !(manifest.lessons || []).length) {
+      actions.append(actionButton("Apply Math Foundations template", applyMathTemplate, true));
+      actions.append(actionButton("Apply Logic & Discrete Math template", applyMathLogicTemplate));
+      actions.append(actionButton("Apply Algebra & Functions template", applyMathAlgebraTemplate));
+      actions.append(actionButton("Apply Calculus, Probability & Statistics template", applyMathCalculusProbabilityTemplate));
+      actions.append(actionButton("Apply Numerical Methods & Scientific Computing template", applyMathNumericalScientificComputingTemplate));
+    }
     if (canEdit) {
       actions.append(actionButton("Publish after review", publish));
       if (course.status === "published") actions.append(actionButton("Create revision", createRevision));
     }
   }
+  async function loadMySubmissionHistory() {
+    const host = $("learnerSubmissionHistory");
+    host.replaceChildren();
+    try {
+      const result = await api("/api/learning/courses/" + encodeURIComponent(current.course_id) +
+        "/submissions/mine");
+      if (!result.submissions?.length) {
+        host.append(el("p", "No submitted exercises yet.", "meta"));
+        return;
+      }
+      for (const submission of result.submissions) {
+        const card = el("article", undefined, "card");
+        card.append(el("p", submission.lesson_id + " · " + submission.status, "meta"));
+        for (const review of submission.reviews || []) {
+          card.append(el("p", "Reviewer decision: " + review.decision, "meta"));
+          if (review.feedback) card.append(el("p", review.feedback));
+        }
+        host.append(card);
+      }
+    } catch (error) {
+      host.append(el("p", "Submission history unavailable: " + error.message, "meta"));
+    }
+  }
+  async function loadSubmissionQueue() {
+    const host = $("submissionQueue");
+    host.replaceChildren();
+    try {
+      const result = await api("/api/learning/courses/" + encodeURIComponent(current.course_id) +
+        "/submissions");
+      if (!result.submissions?.length) {
+        host.append(el("p", "No submissions are waiting in this course.", "meta"));
+        return;
+      }
+      for (const submission of result.submissions) {
+        const card = el("article", undefined, "card");
+        card.append(el("h4", "Submission " + submission.submission_id));
+        card.append(el("p", "Learner " + submission.learner_id + " · " +
+          submission.lesson_id + " · " + submission.status, "meta"));
+        const answer = el("pre", JSON.stringify(submission.response, null, 2), "submission-response");
+        card.append(answer);
+        if (submission.status === "pending_review") {
+          const rubricScores = {};
+          const rubricPanel = el("div", undefined, "review-rubric");
+          rubricPanel.append(el("h5", submission.assessment_title || "Assessment rubric"));
+          for (const criterion of submission.assessment_rubric || []) {
+            const row = el("div", undefined, "review-rubric-row");
+            const label = el("label", criterion.dimension + " · " + criterion.points +
+              " points · " + criterion.description);
+            const score = document.createElement("input");
+            score.type = "number";
+            score.min = "0";
+            score.max = "1";
+            score.step = "0.25";
+            score.inputMode = "decimal";
+            score.placeholder = "0–1";
+            score.setAttribute("aria-label", "Score for " + criterion.dimension);
+            score.addEventListener("input", () => {
+              if (score.value === "") delete rubricScores[criterion.dimension];
+              else rubricScores[criterion.dimension] = Number(score.value);
+            });
+            label.append(score);
+            row.append(label);
+            rubricPanel.append(row);
+          }
+          card.append(rubricPanel);
+          const feedback = document.createElement("textarea");
+          feedback.rows = 3;
+          feedback.maxLength = 8000;
+          feedback.placeholder = "Constructive feedback for the learner";
+          card.append(feedback);
+          const actions = el("div", undefined, "actions");
+          actions.append(actionButton("Accept work", () =>
+            reviewSubmission(submission.submission_id, "accepted", feedback.value, {...rubricScores}), true));
+          actions.append(actionButton("Request revision", () =>
+            reviewSubmission(submission.submission_id, "needs_revision", feedback.value, {...rubricScores})));
+          card.append(actions);
+        }
+        host.append(card);
+      }
+    } catch (error) {
+      host.append(el("p", "Submission queue unavailable: " + error.message, "meta"));
+    }
+  }
+  async function reviewSubmission(submissionId, decision, feedback, rubricScores = {}) {
+    try {
+      await api("/api/learning/courses/" + encodeURIComponent(current.course_id) +
+        "/submissions/" + encodeURIComponent(submissionId) + "/review", "POST", {
+          decision, feedback, rubric_scores: rubricScores
+        });
+      notice("Human review recorded. Learner mastery and proof status remain unchanged.", "success");
+      await loadSubmissionQueue();
+      await loadCatalog();
+    } catch (error) {
+      notice("Review could not be recorded: " + error.message, "error");
+    }
+  }
+  async function applyMathTemplate() {
+    try {
+      await api("/api/learning/courses/" + encodeURIComponent(current.course_id) +
+        "/templates/math-foundations", "POST", {});
+      current = await api("/api/learning/courses/" + encodeURIComponent(current.course_id));
+      await loadCatalog();
+      renderCourse();
+      notice("Mathematics foundations template applied. Submit this draft for independent review before publication.", "success");
+    } catch (error) { notice("Template could not be applied: " + error.message, "error"); }
+  }
+  async function applyMathAlgebraTemplate() {
+    try {
+      await api("/api/learning/courses/" + encodeURIComponent(current.course_id) +
+        "/templates/math-algebra-functions", "POST", {});
+      current = await api("/api/learning/courses/" + encodeURIComponent(current.course_id));
+      await loadCatalog();
+      renderCourse();
+      notice("Algebra and functions template applied. Submit this draft for independent review before publication.", "success");
+    } catch (error) {
+      notice("Algebra and functions template could not be applied: " + error.message, "error");
+    }
+  }
+  async function recordReviewerCalibration() {
+    const noticeHost = $("reviewerCalibrationNotice");
+    noticeHost.classList.remove("hidden");
+    noticeHost.textContent = "Recording calibration attestation…";
+    try {
+      const reviewerId = $("calibrationReviewerId").value.trim();
+      const calibrationSha256 = $("calibrationDigest").value.trim();
+      const caseCount = Number($("calibrationCaseCount").value);
+      const agreementScore = Number($("calibrationAgreement").value);
+      const result = await api("/api/learning/reviewers/" + encodeURIComponent(reviewerId) +
+        "/calibration", "POST", {
+          calibration_sha256: calibrationSha256,
+          case_count: caseCount,
+          agreement_score: agreementScore,
+          calibration_version: "merlin-assessment-review-v1"
+        });
+      noticeHost.textContent = "Calibration recorded: " + result.status +
+        " · expires " + new Date(result.expires_at * 1000).toLocaleDateString();
+      noticeHost.dataset.status = result.status;
+    } catch (error) {
+      noticeHost.textContent = "Calibration was not recorded: " + error.message;
+      noticeHost.dataset.status = "error";
+    }
+  }
+  async function applyMathNumericalScientificComputingTemplate() {
+    try {
+      await api("/api/learning/courses/" + encodeURIComponent(current.course_id) +
+        "/templates/math-numerical-scientific-computing", "POST", {});
+      current = await api("/api/learning/courses/" + encodeURIComponent(current.course_id));
+      await loadCatalog();
+      renderCourse();
+      notice("Numerical methods and scientific computing template applied. Submit this draft for independent review before publication.", "success");
+    } catch (error) {
+      notice("Numerical methods template could not be applied: " + error.message, "error");
+    }
+  }
+  async function applyMathCalculusProbabilityTemplate() {
+    try {
+      await api("/api/learning/courses/" + encodeURIComponent(current.course_id) +
+        "/templates/math-calculus-probability", "POST", {});
+      current = await api("/api/learning/courses/" + encodeURIComponent(current.course_id));
+      await loadCatalog();
+      renderCourse();
+      notice("Calculus, probability and statistics template applied. Submit this draft for independent review before publication.", "success");
+    } catch (error) {
+      notice("Calculus, probability and statistics template could not be applied: " + error.message, "error");
+    }
+  }
+  async function applyMathLogicTemplate() {
+    try {
+      await api("/api/learning/courses/" + encodeURIComponent(current.course_id) +
+        "/templates/math-logic-discrete", "POST", {});
+      current = await api("/api/learning/courses/" + encodeURIComponent(current.course_id));
+      await loadCatalog();
+      renderCourse();
+      notice("Logic and discrete mathematics template applied. Submit this draft for independent review before publication.", "success");
+    } catch (error) {
+      notice("Logic and discrete mathematics template could not be applied: " + error.message, "error");
+    }
+  }
+  function startLesson(lesson) {
+    activeLesson = lesson;
+    activeStageIndex = 0;
+    activeHintIndex = 0;
+    pendingSubmissionId = null;
+    $("answerInput").value = "";
+    $("submissionStatus").classList.add("hidden");
+    $("submitAnswer").disabled = false;
+    renderLessonPlayer();
+    $("lessonPlayerSection").scrollIntoView({block:"start"});
+  }
+  function renderLessonPlayer() {
+    if (!activeLesson) return;
+    const stages = activeLesson.stages || [];
+    const exercise = activeLesson.exercise || {};
+    const inExercise = activeStageIndex >= stages.length;
+    $("lessonPlayerSection").classList.remove("hidden");
+    $("playerTitle").textContent = activeLesson.title;
+    $("playerMeta").textContent = (activeLesson.estimated_minutes || 20) +
+      " minutes · " + (activeLesson.pathways || []).join(" / ");
+    $("playerStageView").classList.toggle("hidden", inExercise);
+    $("playerExerciseView").classList.toggle("hidden", !inExercise);
+    $("playerHint").classList.add("hidden");
+    activeHintIndex = 0;
+    $("showHint").disabled = !(exercise.hints || []).length;
+    $("prevStage").disabled = activeStageIndex === 0;
+    $("nextStage").disabled = inExercise;
+    $("nextStage").textContent = inExercise ? "Exercise ready" :
+      (activeStageIndex === stages.length - 1 ? "Open exercise" : "Next stage");
+    if (!inExercise) {
+      const stage = stages[activeStageIndex];
+      $("playerProgress").textContent = "Stage " + (activeStageIndex + 1) +
+        " of " + stages.length + " · " + stage.mode;
+      $("playerStageMode").textContent = stage.mode;
+      $("playerStagePrompt").textContent = stage.prompt;
+    } else {
+      $("playerProgress").textContent = "Exercise · " + exercise.task_id;
+      $("exerciseObjective").textContent = exercise.objective || "";
+      $("exercisePrompt").textContent = exercise.prompt || "";
+      $("exerciseFormat").textContent = "Response format: " + (exercise.answer_format || "written response");
+      $("exerciseTools").textContent = "Allowed tools: " + ((exercise.allowed_tools || []).join(", ") || "none specified");
+      $("exerciseRubric").replaceChildren();
+      for (const criterion of exercise.rubric || []) {
+        $("exerciseRubric").append(el("li",
+          criterion.dimension + " · " + criterion.points + " points · " + criterion.description));
+      }
+      $("exerciseTransfer").textContent = exercise.transfer_prompt || "No transfer prompt supplied.";
+      $("submissionControls").classList.toggle("hidden", role !== "learner");
+      $("submitAnswer").disabled = false;
+      const historical = activeLesson.historical_context;
+      $("exerciseHistorical").classList.toggle("hidden", !historical);
+      $("exerciseHistorical").textContent = historical || "";
+      $("exerciseSources").replaceChildren();
+      for (const source of activeLesson.source_refs || []) {
+        const item = el("li");
+        if (typeof source === "string" && /^https:\/\//i.test(source)) {
+          const link = document.createElement("a");
+          link.href = source;
+          link.textContent = source;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          item.append(link);
+        } else {
+          item.textContent = String(source);
+        }
+        $("exerciseSources").append(item);
+      }
+    }
+  }
+  $("answerInput").addEventListener("input", () => {
+    pendingSubmissionId = null;
+    $("submissionStatus").classList.add("hidden");
+    $("submitAnswer").disabled = false;
+  });
+  $("submitAnswer").addEventListener("click", async () => {
+    if (!activeLesson || role !== "learner") return;
+    const answer = $("answerInput").value;
+    if (!answer.trim()) {
+      $("submissionStatus").textContent = "Add your work before submitting.";
+      $("submissionStatus").classList.remove("hidden");
+      return;
+    }
+    if (!pendingSubmissionId) pendingSubmissionId = crypto.randomUUID();
+    $("submitAnswer").disabled = true;
+    try {
+      const result = await api("/api/learning/courses/" + encodeURIComponent(current.course_id) +
+        "/submissions", "POST", {
+          submission_id: pendingSubmissionId,
+          lesson_id: activeLesson.id,
+          task_id: activeLesson.exercise?.task_id,
+          response: answer
+        });
+      $("submissionStatus").textContent = result.status === "pending_review"
+        ? "Submitted. Your work is awaiting independent human review. Mastery and proof status are unchanged."
+        : "Submission received. Mastery and proof status are unchanged.";
+      $("submissionStatus").classList.remove("hidden");
+      notice("Exercise submitted for human review.", "success");
+      await loadMySubmissionHistory();
+    } catch (error) {
+      $("submissionStatus").textContent = "Submission was not confirmed: " + error.message +
+        ". You can retry without changing your answer.";
+      $("submissionStatus").classList.remove("hidden");
+      $("submitAnswer").disabled = false;
+    }
+  });
+  $("prevStage").addEventListener("click", () => {
+    if (!activeLesson || activeStageIndex <= 0) return;
+    activeStageIndex -= 1;
+    renderLessonPlayer();
+  });
+  $("nextStage").addEventListener("click", () => {
+    if (!activeLesson || activeStageIndex >= (activeLesson.stages || []).length) return;
+    activeStageIndex += 1;
+    renderLessonPlayer();
+  });
+  $("showHint").addEventListener("click", () => {
+    if (!activeLesson) return;
+    const hints = activeLesson.exercise?.hints || [];
+    if (activeHintIndex >= hints.length) {
+      $("playerHint").textContent = "No more hints are available.";
+      $("playerHint").classList.remove("hidden");
+      $("showHint").disabled = true;
+      return;
+    }
+    $("playerHint").textContent = "Hint " + (activeHintIndex + 1) + ": " + hints[activeHintIndex];
+    $("playerHint").classList.remove("hidden");
+    activeHintIndex += 1;
+    if (activeHintIndex >= hints.length) $("showHint").disabled = true;
+  });
+  $("closeLesson").addEventListener("click", () => {
+    activeLesson = null;
+    $("lessonPlayerSection").classList.add("hidden");
+  });
   async function enroll(courseId) {
     try {
       await api("/api/learning/courses/" + encodeURIComponent(courseId) + "/enroll", "POST", {});
@@ -240,6 +683,38 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
       await loadCatalog(); renderCourse(); notice("Course published.", "success");
     } catch (error) { notice("Publication blocked: " + error.message, "error"); }
   }
+  for (const [inputId, labelId] of [
+    ["mathWeight","mathWeightLabel"],
+    ["programmerWeight","programmerWeightLabel"],
+    ["hackerWeight","hackerWeightLabel"]
+  ]) {
+    $(inputId).addEventListener("input", () => {
+      $(labelId).textContent = Math.round(Number($(inputId).value) * 100) + "%";
+    });
+  }
+  $("profileForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    const weights = {
+      mathematician: Number($("mathWeight").value),
+      mathematics_programmer: Number($("programmerWeight").value),
+      computational_hacker: Number($("hackerWeight").value)
+    };
+    if (Object.values(weights).every(value => value === 0)) {
+      notice("Select at least one learning path.", "error");
+      return;
+    }
+    const interests = $("interests").value.split(",").map(value => value.trim()).filter(Boolean);
+    try {
+      const profile = await api("/api/learning/profile", "POST", {
+        pathway_weights: weights,
+        interests,
+        pace: $("pace").value
+      });
+      renderProfile(profile);
+      notice("Learning preferences saved. Your next recommendation will use them.", "success");
+    } catch (error) { notice("Preferences were not saved: " + error.message, "error"); }
+  });
+  $("reloadProfile").addEventListener("click", loadProfile);
   $("createForm").addEventListener("submit", async event => {
     event.preventDefault();
     try {
@@ -252,6 +727,7 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
       notice("Draft course created. Add objectives, lessons and licensed resources before review.", "success");
     } catch (error) { notice("Course creation failed: " + error.message, "error"); }
   });
+  $("recordReviewerCalibration").addEventListener("click", recordReviewerCalibration);
   $("saveManifest").addEventListener("click", async () => {
     try {
       const manifest = JSON.parse($("manifestEditor").value);
@@ -271,6 +747,8 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
     } catch (error) { notice("Review failed: " + error.message, "error"); }
   }
   $("backBtn").addEventListener("click", () => {
+    activeLesson = null;
+    $("lessonPlayerSection").classList.add("hidden");
     $("detailSection").classList.add("hidden");
     $("catalogSection").classList.remove("hidden");
     if (["instructor","tenant_admin"].includes(role)) $("createSection").classList.remove("hidden");

@@ -60,14 +60,16 @@
         "Specify typed representation interface and commuting-diagram checker."
       ],
       "learning": {
-        "lesson_id": "rotation-four-representations-v0.1",
+        "lesson_id": null,
         "dimensions": [
           "conceptual_explanation",
           "representation_translation",
           "transfer",
           "procedure"
         ],
-        "prerequisites": []
+        "prerequisites": [],
+        "legacy_lesson_id": "rotation-four-representations-v0.1",
+        "lesson_state": "legacy_reference_unverified"
       }
     },
     {
@@ -107,7 +109,7 @@
         "Build typed transition-map registry and path-consistency tests."
       ],
       "learning": {
-        "lesson_id": "coordinate-frames-intro-v0.1",
+        "lesson_id": null,
         "dimensions": [
           "recognition",
           "conceptual_explanation",
@@ -116,7 +118,9 @@
         ],
         "prerequisites": [
           "MATH-REP-001"
-        ]
+        ],
+        "legacy_lesson_id": "coordinate-frames-intro-v0.1",
+        "lesson_state": "legacy_reference_unverified"
       }
     },
     {
@@ -153,7 +157,7 @@
         "Prove matrix/complex rotation correspondence in Lean."
       ],
       "learning": {
-        "lesson_id": "complex-multiplication-rotation-v0.1",
+        "lesson_id": null,
         "dimensions": [
           "recognition",
           "conceptual_explanation",
@@ -162,7 +166,9 @@
         ],
         "prerequisites": [
           "MATH-REP-001"
-        ]
+        ],
+        "legacy_lesson_id": "complex-multiplication-rotation-v0.1",
+        "lesson_state": "legacy_reference_unverified"
       }
     },
     {
@@ -201,7 +207,7 @@
         "Create algebra capability matrix and typed homomorphism catalog."
       ],
       "learning": {
-        "lesson_id": "quaternion-ga-rotors-v0.1",
+        "lesson_id": null,
         "dimensions": [
           "conceptual_explanation",
           "representation_translation",
@@ -209,7 +215,9 @@
         ],
         "prerequisites": [
           "MATH-CALG-001"
-        ]
+        ],
+        "legacy_lesson_id": "quaternion-ga-rotors-v0.1",
+        "lesson_state": "legacy_reference_unverified"
       }
     },
     {
@@ -248,7 +256,7 @@
         "Implement basis-aware operator identity and spectral test suite."
       ],
       "learning": {
-        "lesson_id": "spectral-invariants-intro-v0.1",
+        "lesson_id": null,
         "dimensions": [
           "conceptual_explanation",
           "procedure",
@@ -258,7 +266,9 @@
         ],
         "prerequisites": [
           "MATH-REP-001"
-        ]
+        ],
+        "legacy_lesson_id": "spectral-invariants-intro-v0.1",
+        "lesson_state": "legacy_reference_unverified"
       }
     },
     {
@@ -1067,7 +1077,7 @@
         "Formalize precise claims in Lean where suitable."
       ],
       "learning": {
-        "lesson_id": "art-math-symmetry-studio-v0.1",
+        "lesson_id": null,
         "dimensions": [
           "recognition",
           "construction",
@@ -1075,7 +1085,9 @@
           "proof_justification",
           "transfer"
         ],
-        "prerequisites": []
+        "prerequisites": [],
+        "legacy_lesson_id": "art-math-symmetry-studio-v0.1",
+        "lesson_state": "legacy_reference_unverified"
       }
     },
     {
@@ -1114,7 +1126,7 @@
         "Formalize precise claims in Lean where suitable."
       ],
       "learning": {
-        "lesson_id": "art-math-tessellation-v0.1",
+        "lesson_id": null,
         "dimensions": [
           "construction",
           "classification",
@@ -1123,7 +1135,9 @@
         ],
         "prerequisites": [
           "MATH-ART-001"
-        ]
+        ],
+        "legacy_lesson_id": "art-math-tessellation-v0.1",
+        "lesson_state": "legacy_reference_unverified"
       }
     },
     {
@@ -1162,7 +1176,7 @@
         "Formalize precise claims in Lean where suitable."
       ],
       "learning": {
-        "lesson_id": "art-math-perspective-v0.1",
+        "lesson_id": null,
         "dimensions": [
           "construction",
           "representation_translation",
@@ -1171,7 +1185,9 @@
         ],
         "prerequisites": [
           "MATH-COORD-001"
-        ]
+        ],
+        "legacy_lesson_id": "art-math-perspective-v0.1",
+        "lesson_state": "legacy_reference_unverified"
       }
     },
     {
@@ -1210,7 +1226,7 @@
         "Formalize precise claims in Lean where suitable."
       ],
       "learning": {
-        "lesson_id": "art-math-sculpture-v0.1",
+        "lesson_id": null,
         "dimensions": [
           "construction",
           "spatial_reasoning",
@@ -1219,7 +1235,9 @@
         ],
         "prerequisites": [
           "MATH-COORD-001"
-        ]
+        ],
+        "legacy_lesson_id": "art-math-sculpture-v0.1",
+        "lesson_state": "legacy_reference_unverified"
       }
     },
     {
@@ -1258,7 +1276,7 @@
         "Formalize precise claims in Lean where suitable."
       ],
       "learning": {
-        "lesson_id": "art-math-parametric-curves-v0.1",
+        "lesson_id": null,
         "dimensions": [
           "procedure",
           "visualization",
@@ -1267,7 +1285,9 @@
         ],
         "prerequisites": [
           "MATH-CALG-001"
-        ]
+        ],
+        "legacy_lesson_id": "art-math-parametric-curves-v0.1",
+        "lesson_state": "legacy_reference_unverified"
       }
     },
     {
@@ -1306,7 +1326,7 @@
         "Formalize precise claims in Lean where suitable."
       ],
       "learning": {
-        "lesson_id": "art-math-fractal-studio-v0.1",
+        "lesson_id": null,
         "dimensions": [
           "procedure",
           "scaling_analysis",
@@ -1315,7 +1335,9 @@
         ],
         "prerequisites": [
           "MATH-FRACT-001"
-        ]
+        ],
+        "legacy_lesson_id": "art-math-fractal-studio-v0.1",
+        "lesson_state": "legacy_reference_unverified"
       }
     },
     {
@@ -1354,7 +1376,7 @@
         "Formalize precise claims in Lean where suitable."
       ],
       "learning": {
-        "lesson_id": "art-math-sound-image-v0.1",
+        "lesson_id": null,
         "dimensions": [
           "representation_translation",
           "procedure",
@@ -1363,7 +1385,9 @@
         ],
         "prerequisites": [
           "MATH-CALG-001"
-        ]
+        ],
+        "legacy_lesson_id": "art-math-sound-image-v0.1",
+        "lesson_state": "legacy_reference_unverified"
       }
     },
     {
@@ -1402,7 +1426,7 @@
         "Formalize precise claims in Lean where suitable."
       ],
       "learning": {
-        "lesson_id": "art-math-generative-studio-v0.1",
+        "lesson_id": null,
         "dimensions": [
           "algorithm_design",
           "parameter_reasoning",
@@ -1411,7 +1435,9 @@
         ],
         "prerequisites": [
           "MATH-REP-001"
-        ]
+        ],
+        "legacy_lesson_id": "art-math-generative-studio-v0.1",
+        "lesson_state": "legacy_reference_unverified"
       }
     },
     {
@@ -1450,7 +1476,7 @@
         "Formalize precise claims in Lean where suitable."
       ],
       "learning": {
-        "lesson_id": "art-math-data-portrait-v0.1",
+        "lesson_id": null,
         "dimensions": [
           "data_reasoning",
           "visual_encoding",
@@ -1459,6 +1485,1092 @@
         ],
         "prerequisites": [
           "MATH-IDEA-002"
+        ],
+        "legacy_lesson_id": "art-math-data-portrait-v0.1",
+        "lesson_state": "legacy_reference_unverified"
+      }
+    },
+    {
+      "id": "MATH-NT-001",
+      "title": "Whole-number structure and additive patterns",
+      "kind": "concept",
+      "claim": "Whole numbers can be explored through order, parity, repeated addition, and additive patterns; conjectures about such patterns must be stated with an explicit domain.",
+      "definitions": [
+        "whole-number domain",
+        "successor",
+        "odd and even",
+        "constant difference",
+        "sequence index"
+      ],
+      "assumptions": [
+        "The lesson states whether zero is included in the chosen whole-number convention.",
+        "Sequence indices are positive integers unless stated otherwise."
+      ],
+      "status": "literature_checked",
+      "provenance": [
+        "Clay Mathematics Institute, Euclid's Elements, Book VII Definitions 1–7: https://www.claymath.org/euclid_index/fundamentals-of-number-theory/"
+      ],
+      "relations": [
+        {
+          "type": "generalizes",
+          "target": "MATH-NT-002"
+        }
+      ],
+      "objections": [
+        "Natural-number and whole-number conventions differ across texts; each lesson must state its domain."
+      ],
+      "next_steps": [
+        "Add parity and arithmetic-sequence transfer exercises.",
+        "Connect sequence rules to algebraic representations."
+      ],
+      "learning": {
+        "lesson_id": "math-foundations-counting-v1",
+        "dimensions": [
+          "recognition",
+          "conceptual_explanation",
+          "representation_translation",
+          "transfer"
+        ],
+        "prerequisites": []
+      }
+    },
+    {
+      "id": "MATH-NT-002",
+      "title": "Divisibility and factor pairs",
+      "kind": "concept",
+      "claim": "Divisibility can be represented through exact equal groups and factor pairs, providing a basis for classifying integers and reasoning about primes.",
+      "definitions": [
+        "divisor",
+        "multiple",
+        "factor pair",
+        "exact division",
+        "positive divisor"
+      ],
+      "assumptions": [
+        "The initial curriculum uses positive integer divisors.",
+        "Factor pairs are listed without duplicate reversed pairs."
+      ],
+      "status": "literature_checked",
+      "provenance": [
+        "Clay Mathematics Institute, Euclid's Elements, Book VII Definitions 3–5: https://www.claymath.org/euclid_index/fundamentals-of-number-theory/"
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-NT-001"
+        },
+        {
+          "type": "generalizes",
+          "target": "MATH-NT-003"
+        }
+      ],
+      "objections": [
+        "The factor-pair method must state whether negative divisors are in scope."
+      ],
+      "next_steps": [
+        "Add a divisor-completeness exercise using the square-root bound.",
+        "Introduce greatest common divisors after factor-pair fluency."
+      ],
+      "learning": {
+        "lesson_id": "math-foundations-divisibility-v1",
+        "dimensions": [
+          "conceptual_explanation",
+          "procedure",
+          "representation_translation",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-NT-001"
+        ]
+      }
+    },
+    {
+      "id": "MATH-NT-003",
+      "title": "Prime numbers and primality",
+      "kind": "concept",
+      "claim": "A prime number is a positive integer greater than one whose only positive divisors are one and itself; primality can be explored through factor pairs and tested by bounded divisor search.",
+      "definitions": [
+        "prime number",
+        "composite number",
+        "unit",
+        "positive divisor",
+        "square-root divisor bound"
+      ],
+      "assumptions": [
+        "The lesson uses positive integers and treats one as neither prime nor composite.",
+        "The square-root bound is used only with a proof of the factor-pair argument."
+      ],
+      "status": "literature_checked",
+      "provenance": [
+        "Clay Mathematics Institute, Euclid's Elements, Book VII Definition 11: https://www.claymath.org/euclid_index/fundamentals-of-number-theory/",
+        "Euclid's Elements, Book IX Proposition 20: https://www.euclids-elements.org/elements/books/bookIX/propositions/propIX20/"
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-NT-002"
+        },
+        {
+          "type": "motivated_by",
+          "target": "MATH-LOG-001"
+        }
+      ],
+      "objections": [
+        "Primality testing by finite trial division is not the same as a formal proof of a general number-theoretic theorem."
+      ],
+      "next_steps": [
+        "Prove the square-root divisor bound.",
+        "Implement a deterministic small-integer primality checker and test edge cases."
+      ],
+      "learning": {
+        "lesson_id": "math-foundations-primes-v1",
+        "dimensions": [
+          "recognition",
+          "conceptual_explanation",
+          "procedure",
+          "algorithm_design",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-NT-002"
+        ]
+      }
+    },
+    {
+      "id": "MATH-ALG-002",
+      "title": "Variables and algebraic expressions",
+      "kind": "concept",
+      "claim": "A variable can represent a changing or unknown quantity, allowing a relationship observed in concrete cases to be expressed as a general rule.",
+      "definitions": [
+        "variable",
+        "constant",
+        "coefficient",
+        "expression",
+        "input-output relation"
+      ],
+      "assumptions": [
+        "The domain and meaning of each variable are stated before manipulating an expression."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin-authored instructional sequence: concrete changing-quantity model, table, graph, and general expression."
+      ],
+      "relations": [],
+      "objections": [
+        "A symbolic expression is only meaningful after its variables and domains are defined."
+      ],
+      "next_steps": [
+        "Add multiple representations of linear relationships.",
+        "Connect variables to function notation and simple algorithms."
+      ],
+      "learning": {
+        "lesson_id": "math-foundations-variables-v1",
+        "dimensions": [
+          "conceptual_explanation",
+          "representation_translation",
+          "procedure",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-NT-001"
+        ]
+      }
+    },
+    {
+      "id": "MATH-COMP-001",
+      "title": "Algorithmic loops and repeated computation",
+      "kind": "concept",
+      "claim": "A loop expresses a repeated operation with explicit state, update, and stopping condition; repeated addition gives a concrete computational model of multiplication.",
+      "definitions": [
+        "loop",
+        "iteration",
+        "state",
+        "update",
+        "termination condition",
+        "invariant"
+      ],
+      "assumptions": [
+        "The first exercises use finite, bounded loops with an explicit termination condition."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin-authored instructional sequence connecting repeated addition, counters, and bounded Python loops."
+      ],
+      "relations": [],
+      "objections": [
+        "A loop that lacks a justified termination condition may not finish."
+      ],
+      "next_steps": [
+        "Add loop invariants and off-by-one counterexamples.",
+        "Compare iterative and recursive formulations."
+      ],
+      "learning": {
+        "lesson_id": "math-foundations-loops-v1",
+        "dimensions": [
+          "procedure",
+          "algorithm_design",
+          "reproducibility",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-ALG-002"
+        ]
+      }
+    },
+    {
+      "id": "MATH-LOG-001",
+      "title": "Euclid's proof of the infinitude of primes",
+      "kind": "theorem",
+      "claim": "There are more prime numbers than any assigned finite multitude of primes; the product-plus-one construction yields a prime divisor outside any proposed finite complete list.",
+      "definitions": [
+        "finite complete list",
+        "least common multiple",
+        "product-plus-one construction",
+        "prime divisor",
+        "contradiction"
+      ],
+      "assumptions": [
+        "Every integer greater than one has a prime divisor.",
+        "The proof distinguishes the constructed number from a prime divisor of that number."
+      ],
+      "status": "literature_checked",
+      "provenance": [
+        "Euclid's Elements, Book IX Proposition 20: https://www.euclids-elements.org/elements/books/bookIX/propositions/propIX20/",
+        "Clay Mathematics Institute, Euclid Index, Book IX Proposition 20: https://www.claymath.org/euclid_index/"
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-NT-003"
+        }
+      ],
+      "objections": [
+        "The product-plus-one number need not itself be prime; the argument requires selecting one of its prime divisors."
+      ],
+      "next_steps": [
+        "Write a fully explicit modern proof with all quantifiers.",
+        "Formalize the theorem and its hypotheses in Lean."
+      ],
+      "learning": {
+        "lesson_id": "math-foundations-euclid-proof-v1",
+        "dimensions": [
+          "conceptual_explanation",
+          "proof_justification",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-NT-003"
+        ]
+      }
+    },
+    {
+      "id": "MATH-EXP-002",
+      "title": "Finite experiments and counterexamples",
+      "kind": "experiment",
+      "claim": "Finite computation can reveal patterns and disprove universal conjectures by finding a counterexample, but a finite run alone cannot establish a universal statement.",
+      "definitions": [
+        "conjecture",
+        "finite domain",
+        "counterexample",
+        "universal quantifier",
+        "reproducible experiment"
+      ],
+      "assumptions": [
+        "The tested domain, program, and stopping condition are recorded.",
+        "A negative result is scoped to the tested finite domain."
+      ],
+      "status": "literature_checked",
+      "provenance": [
+        "MIT OpenCourseWare, 6.042J Mathematics for Computer Science, Lecture 1: https://ocw.mit.edu/courses/6-042j-mathematics-for-computer-science-fall-2010/35948f025420c52f2c6c18d2da9e266b_L3LMbpZIKhQ.pdf",
+        "OEIS A145294, Euler polynomial x^2+x+41 first counterexample n=40: https://oeis.org/A145294"
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-COMP-001"
+        },
+        {
+          "type": "contrasts_with",
+          "target": "MATH-LOG-001"
+        }
+      ],
+      "objections": [
+        "A counterexample refutes the exact universal claim tested; it does not imply nearby conjectures are false."
+      ],
+      "next_steps": [
+        "Store random seeds, bounds, solver versions, and output hashes for computational tasks.",
+        "Pair finite searches with proof prompts and adversarial counterexample generation."
+      ],
+      "learning": {
+        "lesson_id": "math-foundations-counterexample-v1",
+        "dimensions": [
+          "algorithm_design",
+          "procedure",
+          "uncertainty",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-COMP-001"
+        ]
+      }
+    },
+    {
+      "id": "MATH-LOG-002",
+      "title": "Propositional logic, predicates and quantifiers",
+      "kind": "concept",
+      "claim": "Logic supplies explicit connectives, predicates and quantifiers for expressing and checking mathematical claims.",
+      "definitions": [
+        "proposition",
+        "predicate",
+        "connective",
+        "universal quantifier",
+        "existential quantifier"
+      ],
+      "assumptions": [
+        "The interpretation domain and variable binding are declared.",
+        "Negation and quantifier scope are preserved when rewriting statements."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin Mathematics Learning Pathways v1 curriculum expansion; candidate content requiring instructional and mathematical review."
+      ],
+      "relations": [],
+      "objections": [
+        "Informal language can hide quantifier scope and domain restrictions."
+      ],
+      "next_steps": [
+        "Translate natural-language claims into symbolic form.",
+        "Construct negations and counterexamples for quantified statements."
+      ],
+      "learning": {
+        "lesson_id": "math-logic-quantifiers-v1",
+        "dimensions": [
+          "conceptual_explanation",
+          "proof_justification",
+          "transfer"
+        ],
+        "prerequisites": []
+      }
+    },
+    {
+      "id": "MATH-SET-001",
+      "title": "Sets, relations and functions",
+      "kind": "concept",
+      "claim": "Sets, relations and functions provide a common language for defining mathematical objects, mappings and domains.",
+      "definitions": [
+        "set",
+        "membership",
+        "subset",
+        "Cartesian product",
+        "relation",
+        "function"
+      ],
+      "assumptions": [
+        "Set membership and equality follow the declared foundational convention.",
+        "A function has an explicit domain and codomain."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin Mathematics Learning Pathways v1 curriculum expansion; candidate content requiring instructional and mathematical review."
+      ],
+      "relations": [],
+      "objections": [
+        "A relation is not necessarily a function; an inverse relation need not be an inverse function."
+      ],
+      "next_steps": [
+        "Build examples separating relations from functions.",
+        "Connect function composition to typed program interfaces."
+      ],
+      "learning": {
+        "lesson_id": "math-sets-relations-v1",
+        "dimensions": [
+          "conceptual_explanation",
+          "representation_translation",
+          "proof_justification",
+          "transfer"
+        ],
+        "prerequisites": []
+      }
+    },
+    {
+      "id": "MATH-DISC-001",
+      "title": "Graphs, trees and network structure",
+      "kind": "concept",
+      "claim": "Graphs and trees model pairwise relationships and hierarchical structure with explicit vertices, edges and traversal rules.",
+      "definitions": [
+        "vertex",
+        "edge",
+        "directed graph",
+        "path",
+        "cycle",
+        "tree",
+        "connectedness"
+      ],
+      "assumptions": [
+        "The graph is finite unless infinitude is explicitly specified.",
+        "Directedness, multiplicity and edge weights are declared."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin Mathematics Learning Pathways v1 curriculum expansion; candidate content requiring instructional and mathematical review."
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-SET-001"
+        }
+      ],
+      "objections": [
+        "A tree's properties depend on whether the graph is directed and whether connectivity is assumed."
+      ],
+      "next_steps": [
+        "Prove basic tree edge-count results.",
+        "Implement breadth-first and depth-first traversal with tests."
+      ],
+      "learning": {
+        "lesson_id": "math-graphs-trees-v1",
+        "dimensions": [
+          "representation_translation",
+          "algorithm_design",
+          "proof_justification",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-SET-001"
+        ]
+      }
+    },
+    {
+      "id": "MATH-ALG-003",
+      "title": "Equations and inequalities",
+      "kind": "concept",
+      "claim": "Equations and inequalities express constraints on unknown quantities; valid transformations preserve the solution set under stated conditions.",
+      "definitions": [
+        "equation",
+        "inequality",
+        "solution set",
+        "equivalent transformation",
+        "domain"
+      ],
+      "assumptions": [
+        "Every transformation is valid over the declared number system and domain.",
+        "Division and squaring steps account for excluded values and sign conditions."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin Mathematics Learning Pathways v1 curriculum expansion; candidate content requiring instructional and mathematical review."
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-ALG-002"
+        }
+      ],
+      "objections": [
+        "Algebraic manipulation can introduce or remove solutions when domain conditions are ignored."
+      ],
+      "next_steps": [
+        "Solve linear and quadratic examples using multiple methods.",
+        "Identify invalid transformations and extraneous solutions."
+      ],
+      "learning": {
+        "lesson_id": "math-equations-inequalities-v1",
+        "dimensions": [
+          "conceptual_explanation",
+          "procedure",
+          "representation_translation",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-ALG-002"
+        ]
+      }
+    },
+    {
+      "id": "MATH-FUNC-001",
+      "title": "Functions, composition and inverse mappings",
+      "kind": "concept",
+      "claim": "Functions map each element of a declared domain to exactly one codomain element; composition and inverses obey domain and range constraints.",
+      "definitions": [
+        "domain",
+        "codomain",
+        "image",
+        "composition",
+        "injective",
+        "surjective",
+        "inverse"
+      ],
+      "assumptions": [
+        "Composition is defined only when codomain and domain align.",
+        "An inverse function exists only under suitable bijectivity or restricted-domain conditions."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin Mathematics Learning Pathways v1 curriculum expansion; candidate content requiring instructional and mathematical review."
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-ALG-003"
+        },
+        {
+          "type": "depends_on",
+          "target": "MATH-SET-001"
+        }
+      ],
+      "objections": [
+        "A graph or formula alone may not specify the full domain and codomain."
+      ],
+      "next_steps": [
+        "Translate between formula, table, graph and program.",
+        "Construct examples where an inverse does and does not exist."
+      ],
+      "learning": {
+        "lesson_id": "math-functions-composition-v1",
+        "dimensions": [
+          "conceptual_explanation",
+          "procedure",
+          "representation_translation",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-ALG-003",
+          "MATH-SET-001"
+        ]
+      }
+    },
+    {
+      "id": "MATH-MOD-001",
+      "title": "Modular arithmetic and congruences",
+      "kind": "concept",
+      "claim": "Congruence modulo a positive integer partitions integers into residue classes and supports exact reasoning about divisibility and periodicity.",
+      "definitions": [
+        "modulus",
+        "congruence",
+        "residue class",
+        "modular inverse",
+        "periodicity"
+      ],
+      "assumptions": [
+        "The modulus is a positive integer.",
+        "Cancellation and modular division require appropriate coprimality conditions."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin Mathematics Learning Pathways v1 curriculum expansion; candidate content requiring instructional and mathematical review."
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-NT-002"
+        }
+      ],
+      "objections": [
+        "Congruence modulo n does not permit ordinary division by arbitrary residues."
+      ],
+      "next_steps": [
+        "Prove basic congruence laws.",
+        "Implement modular exponentiation and test edge cases."
+      ],
+      "learning": {
+        "lesson_id": null,
+        "dimensions": [
+          "conceptual_explanation",
+          "procedure",
+          "proof_justification",
+          "algorithm_design",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-NT-002"
+        ]
+      }
+    },
+    {
+      "id": "MATH-COMP-002",
+      "title": "Complexity, invariants and termination",
+      "kind": "concept",
+      "claim": "Algorithm analysis relates resource use to input size, while invariants and termination arguments explain why a procedure behaves correctly and finishes.",
+      "definitions": [
+        "input size",
+        "asymptotic growth",
+        "loop invariant",
+        "termination measure",
+        "worst-case complexity"
+      ],
+      "assumptions": [
+        "The input-size model and computational cost model are stated.",
+        "Asymptotic bounds describe families of inputs, not a single timing run."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin Mathematics Learning Pathways v1 curriculum expansion; candidate content requiring instructional and mathematical review."
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-COMP-001"
+        },
+        {
+          "type": "depends_on",
+          "target": "MATH-LOG-002"
+        }
+      ],
+      "objections": [
+        "Empirical runtime alone does not establish an asymptotic bound."
+      ],
+      "next_steps": [
+        "Prove a loop invariant and termination measure.",
+        "Compare two algorithms over controlled input sizes."
+      ],
+      "learning": {
+        "lesson_id": null,
+        "dimensions": [
+          "algorithm_design",
+          "proof_justification",
+          "procedure",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-COMP-001",
+          "MATH-LOG-002"
+        ]
+      }
+    },
+    {
+      "id": "MATH-LIN-002",
+      "title": "Linear systems and Gaussian elimination",
+      "kind": "concept",
+      "claim": "A finite linear system can be represented as a matrix equation and transformed by row operations that preserve its solution set.",
+      "definitions": [
+        "linear system",
+        "augmented matrix",
+        "row operation",
+        "pivot",
+        "rank",
+        "solution set"
+      ],
+      "assumptions": [
+        "Row operations are invertible equivalence transformations on the system.",
+        "The coefficient field and numerical precision are declared."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin Mathematics Learning Pathways v1 curriculum expansion; candidate content requiring instructional and mathematical review."
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-ALG-003"
+        }
+      ],
+      "objections": [
+        "Floating-point elimination may be numerically unstable without pivoting and error analysis."
+      ],
+      "next_steps": [
+        "Solve exact rational systems by row reduction.",
+        "Compare exact and floating-point results on ill-conditioned examples."
+      ],
+      "learning": {
+        "lesson_id": "math-linear-systems-gaussian-v1",
+        "dimensions": [
+          "algorithm_design",
+          "procedure",
+          "uncertainty",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-ALG-003"
+        ]
+      }
+    },
+    {
+      "id": "MATH-CALC-001",
+      "title": "Limits and continuity",
+      "kind": "concept",
+      "claim": "Limits describe behavior near a point and continuity connects local limiting behavior to function values.",
+      "definitions": [
+        "limit",
+        "neighborhood",
+        "one-sided limit",
+        "continuity",
+        "epsilon-delta"
+      ],
+      "assumptions": [
+        "The function domain and limiting approach are explicit.",
+        "A finite numerical sample is not a proof of a limit."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin Mathematics Learning Pathways v1 curriculum expansion; candidate content requiring instructional and mathematical review."
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-FUNC-001"
+        }
+      ],
+      "objections": [
+        "Visual or numerical convergence can conceal discontinuity or oscillation."
+      ],
+      "next_steps": [
+        "Explore limits with graphs and tables.",
+        "Construct an epsilon-delta argument for a simple function."
+      ],
+      "learning": {
+        "lesson_id": "math-limits-continuity-v1",
+        "dimensions": [
+          "conceptual_explanation",
+          "procedure",
+          "proof_justification",
+          "modeling",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-FUNC-001"
+        ]
+      }
+    },
+    {
+      "id": "MATH-CALC-002",
+      "title": "Derivatives and rates of change",
+      "kind": "concept",
+      "claim": "The derivative formalizes local rate of change and supports tangent, sensitivity and optimization reasoning.",
+      "definitions": [
+        "difference quotient",
+        "derivative",
+        "tangent",
+        "chain rule",
+        "local linearization"
+      ],
+      "assumptions": [
+        "Differentiability is evaluated on a declared domain.",
+        "The chain rule is applied only where the component derivatives exist."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin Mathematics Learning Pathways v1 curriculum expansion; candidate content requiring instructional and mathematical review."
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-CALC-001"
+        }
+      ],
+      "objections": [
+        "Continuity does not imply differentiability; numerical finite differences introduce error."
+      ],
+      "next_steps": [
+        "Connect secant slopes to a limiting tangent slope.",
+        "Differentiate simple functions and compare with numerical estimates."
+      ],
+      "learning": {
+        "lesson_id": "math-derivatives-rates-v1",
+        "dimensions": [
+          "conceptual_explanation",
+          "procedure",
+          "proof_justification",
+          "modeling",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-CALC-001"
+        ]
+      }
+    },
+    {
+      "id": "MATH-CALC-003",
+      "title": "Integration and accumulation",
+      "kind": "concept",
+      "claim": "Definite integration formalizes accumulation and signed area under suitable integrability conditions.",
+      "definitions": [
+        "Riemann sum",
+        "integral",
+        "antiderivative",
+        "accumulation",
+        "fundamental theorem"
+      ],
+      "assumptions": [
+        "Integrability conditions and orientation are stated.",
+        "Geometric area and signed integral are distinguished."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin Mathematics Learning Pathways v1 curriculum expansion; candidate content requiring instructional and mathematical review."
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-CALC-001"
+        }
+      ],
+      "objections": [
+        "An integral is not always the unsigned geometric area."
+      ],
+      "next_steps": [
+        "Approximate accumulation with Riemann sums.",
+        "Connect antiderivatives to the fundamental theorem of calculus."
+      ],
+      "learning": {
+        "lesson_id": "math-integration-accumulation-v1",
+        "dimensions": [
+          "conceptual_explanation",
+          "procedure",
+          "proof_justification",
+          "modeling",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-CALC-001"
+        ]
+      }
+    },
+    {
+      "id": "MATH-PROB-001",
+      "title": "Probability and conditional probability",
+      "kind": "concept",
+      "claim": "Probability assigns measures to events in a declared sample space and conditional probability updates event likelihood under given information.",
+      "definitions": [
+        "sample space",
+        "event",
+        "probability measure",
+        "independence",
+        "conditional probability",
+        "Bayes rule"
+      ],
+      "assumptions": [
+        "The sample space and event model are explicit.",
+        "Independence is not inferred from lack of observed association."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin Mathematics Learning Pathways v1 curriculum expansion; candidate content requiring instructional and mathematical review."
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-SET-001"
+        }
+      ],
+      "objections": [
+        "Base-rate neglect and incorrect independence assumptions can reverse conclusions."
+      ],
+      "next_steps": [
+        "Solve finite counting models before continuous distributions.",
+        "Use Bayes rule on a worked diagnostic example."
+      ],
+      "learning": {
+        "lesson_id": "math-probability-bayes-v1",
+        "dimensions": [
+          "conceptual_explanation",
+          "procedure",
+          "uncertainty",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-SET-001"
+        ]
+      }
+    },
+    {
+      "id": "MATH-STAT-001",
+      "title": "Statistical models, inference and uncertainty",
+      "kind": "concept",
+      "claim": "Statistical inference uses sample data and an explicit model to quantify uncertainty about a target population or process.",
+      "definitions": [
+        "population",
+        "sample",
+        "estimator",
+        "sampling distribution",
+        "confidence interval",
+        "hypothesis test"
+      ],
+      "assumptions": [
+        "Sampling design, missingness and model assumptions are documented.",
+        "Uncertainty intervals are interpreted according to their statistical definition."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin Mathematics Learning Pathways v1 curriculum expansion; candidate content requiring instructional and mathematical review."
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-PROB-001"
+        }
+      ],
+      "objections": [
+        "A statistically significant result does not by itself establish practical importance or causality."
+      ],
+      "next_steps": [
+        "Compare sampling distributions by simulation.",
+        "Explain uncertainty and identify confounding in a simple study."
+      ],
+      "learning": {
+        "lesson_id": "math-statistical-inference-v1",
+        "dimensions": [
+          "data_reasoning",
+          "uncertainty",
+          "conceptual_explanation",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-PROB-001"
+        ]
+      }
+    },
+    {
+      "id": "MATH-NUM-001",
+      "title": "Floating-point error and numerical stability",
+      "kind": "concept",
+      "claim": "Finite-precision arithmetic introduces rounding and representation error; numerical stability concerns how errors propagate through an algorithm.",
+      "definitions": [
+        "floating-point representation",
+        "rounding error",
+        "conditioning",
+        "stability",
+        "tolerance"
+      ],
+      "assumptions": [
+        "Precision, rounding mode and error metric are recorded.",
+        "Conditioning of the problem is distinguished from stability of the algorithm."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin Mathematics Learning Pathways v1 curriculum expansion; candidate content requiring instructional and mathematical review."
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-ALG-003"
+        }
+      ],
+      "objections": [
+        "More precision does not automatically repair a poorly conditioned model or unstable algorithm."
+      ],
+      "next_steps": [
+        "Construct cancellation and overflow examples.",
+        "Compare stable and unstable formulations against exact rational references."
+      ],
+      "learning": {
+        "lesson_id": "math-floating-point-stability-v1",
+        "dimensions": [
+          "algorithm_design",
+          "procedure",
+          "uncertainty",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-ALG-003"
+        ]
+      }
+    },
+    {
+      "id": "MATH-ODE-001",
+      "title": "Differential equations and numerical integration",
+      "kind": "concept",
+      "claim": "Differential equations describe relationships between a state and its rates of change; numerical solvers approximate trajectories under explicit initial conditions and error controls.",
+      "definitions": [
+        "ordinary differential equation",
+        "initial value problem",
+        "step size",
+        "local error",
+        "global error",
+        "stability"
+      ],
+      "assumptions": [
+        "Existence and uniqueness assumptions are stated for the model.",
+        "A numerical trajectory is an approximation, not an exact symbolic solution."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin Mathematics Learning Pathways v1 curriculum expansion; candidate content requiring instructional and mathematical review."
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-CALC-002"
+        },
+        {
+          "type": "depends_on",
+          "target": "MATH-CALC-003"
+        },
+        {
+          "type": "depends_on",
+          "target": "MATH-NUM-001"
+        }
+      ],
+      "objections": [
+        "Solver stability and convergence depend on the equation, method and step size."
+      ],
+      "next_steps": [
+        "Solve a simple separable ODE analytically.",
+        "Compare Euler and RK4 trajectories against a known solution."
+      ],
+      "learning": {
+        "lesson_id": "math-ode-numerical-integration-v1",
+        "dimensions": [
+          "modeling",
+          "procedure",
+          "algorithm_design",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-CALC-002",
+          "MATH-CALC-003",
+          "MATH-NUM-001"
+        ]
+      }
+    },
+    {
+      "id": "MATH-OPT-001",
+      "title": "Optimization and gradient methods",
+      "kind": "concept",
+      "claim": "Optimization selects decision variables to minimize or maximize an objective subject to declared constraints.",
+      "definitions": [
+        "objective function",
+        "feasible set",
+        "local optimum",
+        "global optimum",
+        "gradient",
+        "constraint"
+      ],
+      "assumptions": [
+        "The objective, feasible set and differentiability assumptions are explicit.",
+        "A local optimum is not claimed to be global without sufficient conditions."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin Mathematics Learning Pathways v1 curriculum expansion; candidate content requiring instructional and mathematical review."
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-CALC-002"
+        },
+        {
+          "type": "depends_on",
+          "target": "MATH-LIN-002"
+        }
+      ],
+      "objections": [
+        "Gradient descent may converge to a local stationary point and is sensitive to scaling and step size."
+      ],
+      "next_steps": [
+        "Solve a convex quadratic analytically.",
+        "Compare gradient descent runs with recorded initialization and step size."
+      ],
+      "learning": {
+        "lesson_id": "math-optimization-gradient-v1",
+        "dimensions": [
+          "modeling",
+          "procedure",
+          "algorithm_design",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-CALC-002",
+          "MATH-LIN-002"
         ]
       }
     }
