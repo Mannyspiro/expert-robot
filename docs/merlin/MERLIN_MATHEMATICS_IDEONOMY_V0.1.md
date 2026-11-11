@@ -61,6 +61,10 @@ for design in report.retained:
     print(*design.rationale, sep="; ")
 ```
 
+## Durable learner progress
+
+The existing SQLite learner store now persists sequential lesson sessions separately from attempts and mastery. A saved session records learner ID, canonical lesson ID, stage index, and the exact completed-stage prefix. Restore validates that prefix against the current lesson definition. Saving or restoring progress creates no assessment attempt and grants no mastery. This gives the next UI integration step a local persistence primitive without adding a hosted service or account dependency.
+
 ## Next empirical loop
 
 1. Convert top-ranked designs into lesson variants only after checking prerequisite coverage.
