@@ -46,7 +46,8 @@ class LearningPlatformTests(unittest.TestCase):
         ]
         manifest["assessments"] = [
             {"id": "assessment-1", "title": "Rotation check", "objective_id": "OBJ-2",
-             "high_stakes": False, "human_review_required": False},
+             "high_stakes": False, "human_review_required": True,
+             "rubric": [{"dimension": "procedure", "description": "Applies the rotation.", "points": 2}]},
         ]
         manifest["resources"] = [
             {"id": "resource-1", "title": "Open notes", "source_uri": "https://example.org/notes",
