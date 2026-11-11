@@ -193,7 +193,7 @@ class SQLiteRetrievalScheduler:
                      lapses=excluded.lapses,
                      representation_index=excluded.representation_index,
                      updated_at=CURRENT_TIMESTAMP""",
-                (learner_id, concept_id, state.due_at.isoformat(), state.interval_days,
+                (learner_id, concept_id, state.due_at.astimezone(timezone.utc).isoformat(), state.interval_days,
                  state.ease_factor, state.repetitions, state.lapses,
                  state.representation_index),
             )
@@ -209,7 +209,7 @@ class SQLiteRetrievalScheduler:
                           lapses, representation_index
                    FROM retrieval_schedule
                    WHERE learner_id=? AND due_at<=? ORDER BY due_at, concept_id""",
-                (learner_id, as_of.isoformat()),
+                (learner_id, as_of.astimezone(timezone.utc).isoformat()),
             ).fetchall()
         states = tuple(
             RetrievalState(
