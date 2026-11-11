@@ -23,6 +23,7 @@ class MerlinLearningHttpTests(unittest.TestCase):
         cls.actors = {
             "Bearer faculty": Actor("tenant-a", "faculty-1", "instructor"),
             "Bearer reviewer": Actor("tenant-a", "reviewer-1", "reviewer"),
+            "Bearer admin": Actor("tenant-a", "admin-1", "tenant_admin"),
             "Bearer learner": Actor("tenant-a", "student-1", "learner"),
             "Bearer outsider": Actor("tenant-b", "student-2", "learner"),
         }
@@ -125,6 +126,20 @@ class MerlinLearningHttpTests(unittest.TestCase):
         self.assertEqual(submission["status"], "pending_review")
         self.assertTrue(submission["rubric_sha256"])
         self.assertFalse(submission["mastery_updated"])
+        with self.assertRaises(HTTPError) as unqualified:
+            self.request(
+                "GET", f"/api/learning/courses/{cid}/submissions", "Bearer reviewer"
+            )
+        self.assertEqual(unqualified.exception.code, 403)
+        status, calibration = self.request(
+            "POST", "/api/learning/reviewers/reviewer-1/calibration", "Bearer admin", {
+                "calibration_sha256": "a" * 64,
+                "case_count": 10,
+                "agreement_score": 0.95,
+            },
+        )
+        self.assertEqual(status, 201)
+        self.assertEqual(calibration["status"], "qualified")
         status, queue = self.request(
             "GET", f"/api/learning/courses/{cid}/submissions", "Bearer reviewer"
         )
