@@ -93,6 +93,10 @@ All assessments in this initial template are low-stakes and require human review
 
 A second instructor-only template is available at `GET /api/learning/templates/math-logic-discrete` and can be applied to an empty draft using `POST /api/learning/courses/{course_id}/templates/math-logic-discrete`. It introduces propositional logic and quantifiers, sets/relations/functions, and graphs/trees. Each objective is checked against the canonical Ideonomy catalog, each lesson follows a concrete-first sequence, and all three pathways receive the lessons. The template remains low-stakes and requires independent course review before publication.
 
+## Algebra and functions course template
+
+An instructor-only course template is available at `GET /api/learning/templates/math-algebra-functions` and can be applied to an empty draft using `POST /api/learning/courses/{course_id}/templates/math-algebra-functions`. It connects whole-number patterns, variables, sets/functions, equations/inequalities, and function composition/inverses. It reuses the canonical foundations and sets lessons and adds concrete-first equation and function-composition lessons. Prerequisites, dimensions, task rubrics, and all three pathway modules are checked against the canonical mathematical idea catalog before the template is returned or applied.
+
 ## Learner-controlled pathway and study preferences
 
 Preferences are persisted in the existing `LearnerStore` database, in a separate `learner_profiles` table. They do not create a second learner database and are keyed only by the authenticated actor ID.
