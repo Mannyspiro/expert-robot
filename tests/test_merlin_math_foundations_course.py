@@ -90,10 +90,12 @@ class MathFoundationsCourseTests(unittest.TestCase):
 
     def test_rejects_prerequisite_cycles(self):
         manifest = copy.deepcopy(self.manifest)
-        manifest["objectives"][0]["prerequisites"] = ["MATH-NT-001"]
+        catalog = copy.deepcopy(self.catalog)
         manifest["objectives"][0]["prerequisites"] = ["MATH-NT-002"]
+        idea = next(item for item in catalog["ideas"] if item["id"] == "MATH-NT-001")
+        idea["learning"]["prerequisites"] = ["MATH-NT-002"]
         with self.assertRaisesRegex(ValueError, "cycle"):
-            validate_math_foundations_manifest(manifest, self.catalog)
+            validate_math_foundations_manifest(manifest, catalog)
 
     def test_rejects_symbolic_stage_before_observation_or_visualization(self):
         manifest = copy.deepcopy(self.manifest)
