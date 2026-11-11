@@ -142,6 +142,12 @@ class MerlinLearningHttpTests(unittest.TestCase):
         self.assertEqual(review_result["decision"], "accepted")
         self.assertEqual(review_result["rubric_sha256"], submission["rubric_sha256"])
         self.assertFalse(review_result["mastery_updated"])
+        with self.assertRaises(HTTPError) as duplicate_review:
+            self.request(
+                "POST", f"/api/learning/courses/{cid}/submissions/physics-submission-1/review",
+                "Bearer reviewer", {"decision": "needs_revision", "feedback": "A second final decision must not overwrite the first."},
+            )
+        self.assertEqual(duplicate_review.exception.code, 409)
         status, my_work = self.request(
             "GET", f"/api/learning/courses/{cid}/submissions/mine", "Bearer learner"
         )
