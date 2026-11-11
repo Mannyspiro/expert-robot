@@ -10,7 +10,6 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from hashlib import sha256
 import json
-import math
 from typing import Iterable
 
 
@@ -170,7 +169,6 @@ def compare_skill_evaluations(
     if type(max_resource_units) is not int or max_resource_units < 0:
         raise ValueError("max_resource_units must be a nonnegative integer")
 
-    case_by_id = {case.case_id: case for case in case_list}
     base = {item.case_id: item for item in baseline.outcomes}
     cand = {item.case_id: item for item in candidate.outcomes}
     heldout_ids = sorted(c.case_id for c in case_list if c.split == "heldout")
