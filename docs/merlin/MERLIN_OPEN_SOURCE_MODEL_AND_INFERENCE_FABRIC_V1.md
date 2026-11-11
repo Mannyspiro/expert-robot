@@ -7,7 +7,7 @@ Repository integration target: `python/merlin/model_fabric.py` and the existing 
 
 Build a provider- and engine-neutral Model Fabric. Do not make AirLLM the universal runtime.
 
-AirLLM is an important capacity experiment: layer/expert streaming can make very large checkpoints addressable on constrained VRAM. The cost is repeated storage/host-to-device movement, potentially long initialization and very low tokens/sec. It is best treated as an offline, low-concurrency, capacity fallback and research backend. Benchmark it against a smaller quantized model that fits in memory; fitting a checkpoint is not the same as practical inference.
+AirLLM is an important capacity experiment: layer/expert streaming can make very large checkpoints addressable on constrained VRAM. Its own release notes report a 2.8T sparse-MoE example at 3.72 GB peak VRAM, but also report roughly 900 seconds of one-time initialization and 292 seconds per generated token on the stated hardware. Those are project-reported results for that specific configuration, not general performance guarantees. AirLLM v4.0.0 also describes streamed LoRA training with frozen weights on disk and adapters on GPU. This makes it interesting for constrained capacity and research/fine-tuning experiments, but not the default interactive chat engine. Benchmark it against a smaller quantized model that fits in memory; fitting a checkpoint is not the same as practical inference.
 
 Recommended candidate roles:
 
@@ -25,7 +25,12 @@ Recommended candidate roles:
 
 Sources:
 - AirLLM releases and usage: https://github.com/lyogavin/airllm/releases
-- AirLLM project: https://github.com/IRIADA/airllm
+- AirLLM releases (including v4.0.0 and reported low-VRAM measurements): https://github.com/lyogavin/airllm/releases
+- AirLLM project: https://github.com/lyogavin/airllm
+- SGLang serving framework: https://sgl-project.github.io/
+- llama.cpp inference and server: https://github.com/ggml-org/llama.cpp
+- MLX Apple Silicon framework: https://github.com/ml-explore/mlx
+- Inspect AI evaluation framework: https://inspect.aisi.org.uk/
 - vLLM parallel serving: https://docs.vllm.ai/en/latest/serving/parallelism_scaling/
 - Ray Serve LLM architecture: https://docs.ray.io/en/latest/serve/llm/architecture/overview.html
 - LiteLLM routing: https://docs.litellm.ai/docs/routing
