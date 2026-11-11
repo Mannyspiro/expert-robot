@@ -60,14 +60,16 @@
         "Specify typed representation interface and commuting-diagram checker."
       ],
       "learning": {
-        "lesson_id": "rotation-four-representations-v0.1",
+        "lesson_id": null,
         "dimensions": [
           "conceptual_explanation",
           "representation_translation",
           "transfer",
           "procedure"
         ],
-        "prerequisites": []
+        "prerequisites": [],
+        "legacy_lesson_id": "rotation-four-representations-v0.1",
+        "lesson_state": "legacy_reference_unverified"
       }
     },
     {
@@ -107,7 +109,7 @@
         "Build typed transition-map registry and path-consistency tests."
       ],
       "learning": {
-        "lesson_id": "coordinate-frames-intro-v0.1",
+        "lesson_id": null,
         "dimensions": [
           "recognition",
           "conceptual_explanation",
@@ -116,7 +118,9 @@
         ],
         "prerequisites": [
           "MATH-REP-001"
-        ]
+        ],
+        "legacy_lesson_id": "coordinate-frames-intro-v0.1",
+        "lesson_state": "legacy_reference_unverified"
       }
     },
     {
@@ -153,7 +157,7 @@
         "Prove matrix/complex rotation correspondence in Lean."
       ],
       "learning": {
-        "lesson_id": "complex-multiplication-rotation-v0.1",
+        "lesson_id": null,
         "dimensions": [
           "recognition",
           "conceptual_explanation",
@@ -162,7 +166,9 @@
         ],
         "prerequisites": [
           "MATH-REP-001"
-        ]
+        ],
+        "legacy_lesson_id": "complex-multiplication-rotation-v0.1",
+        "lesson_state": "legacy_reference_unverified"
       }
     },
     {
@@ -201,7 +207,7 @@
         "Create algebra capability matrix and typed homomorphism catalog."
       ],
       "learning": {
-        "lesson_id": "quaternion-ga-rotors-v0.1",
+        "lesson_id": null,
         "dimensions": [
           "conceptual_explanation",
           "representation_translation",
@@ -209,7 +215,9 @@
         ],
         "prerequisites": [
           "MATH-CALG-001"
-        ]
+        ],
+        "legacy_lesson_id": "quaternion-ga-rotors-v0.1",
+        "lesson_state": "legacy_reference_unverified"
       }
     },
     {
@@ -248,7 +256,7 @@
         "Implement basis-aware operator identity and spectral test suite."
       ],
       "learning": {
-        "lesson_id": "spectral-invariants-intro-v0.1",
+        "lesson_id": null,
         "dimensions": [
           "conceptual_explanation",
           "procedure",
@@ -258,7 +266,9 @@
         ],
         "prerequisites": [
           "MATH-REP-001"
-        ]
+        ],
+        "legacy_lesson_id": "spectral-invariants-intro-v0.1",
+        "lesson_state": "legacy_reference_unverified"
       }
     },
     {
@@ -1067,7 +1077,7 @@
         "Formalize precise claims in Lean where suitable."
       ],
       "learning": {
-        "lesson_id": "art-math-symmetry-studio-v0.1",
+        "lesson_id": null,
         "dimensions": [
           "recognition",
           "construction",
@@ -1075,7 +1085,9 @@
           "proof_justification",
           "transfer"
         ],
-        "prerequisites": []
+        "prerequisites": [],
+        "legacy_lesson_id": "art-math-symmetry-studio-v0.1",
+        "lesson_state": "legacy_reference_unverified"
       }
     },
     {
@@ -1114,7 +1126,7 @@
         "Formalize precise claims in Lean where suitable."
       ],
       "learning": {
-        "lesson_id": "art-math-tessellation-v0.1",
+        "lesson_id": null,
         "dimensions": [
           "construction",
           "classification",
@@ -1123,7 +1135,9 @@
         ],
         "prerequisites": [
           "MATH-ART-001"
-        ]
+        ],
+        "legacy_lesson_id": "art-math-tessellation-v0.1",
+        "lesson_state": "legacy_reference_unverified"
       }
     },
     {
@@ -1162,7 +1176,7 @@
         "Formalize precise claims in Lean where suitable."
       ],
       "learning": {
-        "lesson_id": "art-math-perspective-v0.1",
+        "lesson_id": null,
         "dimensions": [
           "construction",
           "representation_translation",
@@ -1171,7 +1185,9 @@
         ],
         "prerequisites": [
           "MATH-COORD-001"
-        ]
+        ],
+        "legacy_lesson_id": "art-math-perspective-v0.1",
+        "lesson_state": "legacy_reference_unverified"
       }
     },
     {
@@ -1210,7 +1226,7 @@
         "Formalize precise claims in Lean where suitable."
       ],
       "learning": {
-        "lesson_id": "art-math-sculpture-v0.1",
+        "lesson_id": null,
         "dimensions": [
           "construction",
           "spatial_reasoning",
@@ -1219,7 +1235,9 @@
         ],
         "prerequisites": [
           "MATH-COORD-001"
-        ]
+        ],
+        "legacy_lesson_id": "art-math-sculpture-v0.1",
+        "lesson_state": "legacy_reference_unverified"
       }
     },
     {
@@ -1258,7 +1276,7 @@
         "Formalize precise claims in Lean where suitable."
       ],
       "learning": {
-        "lesson_id": "art-math-parametric-curves-v0.1",
+        "lesson_id": null,
         "dimensions": [
           "procedure",
           "visualization",
@@ -1267,7 +1285,9 @@
         ],
         "prerequisites": [
           "MATH-CALG-001"
-        ]
+        ],
+        "legacy_lesson_id": "art-math-parametric-curves-v0.1",
+        "lesson_state": "legacy_reference_unverified"
       }
     },
     {
@@ -1306,7 +1326,7 @@
         "Formalize precise claims in Lean where suitable."
       ],
       "learning": {
-        "lesson_id": "art-math-fractal-studio-v0.1",
+        "lesson_id": null,
         "dimensions": [
           "procedure",
           "scaling_analysis",
@@ -1315,7 +1335,9 @@
         ],
         "prerequisites": [
           "MATH-FRACT-001"
-        ]
+        ],
+        "legacy_lesson_id": "art-math-fractal-studio-v0.1",
+        "lesson_state": "legacy_reference_unverified"
       }
     },
     {
@@ -1354,7 +1376,7 @@
         "Formalize precise claims in Lean where suitable."
       ],
       "learning": {
-        "lesson_id": "art-math-sound-image-v0.1",
+        "lesson_id": null,
         "dimensions": [
           "representation_translation",
           "procedure",
@@ -1363,7 +1385,9 @@
         ],
         "prerequisites": [
           "MATH-CALG-001"
-        ]
+        ],
+        "legacy_lesson_id": "art-math-sound-image-v0.1",
+        "lesson_state": "legacy_reference_unverified"
       }
     },
     {
@@ -1402,7 +1426,7 @@
         "Formalize precise claims in Lean where suitable."
       ],
       "learning": {
-        "lesson_id": "art-math-generative-studio-v0.1",
+        "lesson_id": null,
         "dimensions": [
           "algorithm_design",
           "parameter_reasoning",
@@ -1411,7 +1435,9 @@
         ],
         "prerequisites": [
           "MATH-REP-001"
-        ]
+        ],
+        "legacy_lesson_id": "art-math-generative-studio-v0.1",
+        "lesson_state": "legacy_reference_unverified"
       }
     },
     {
@@ -1450,7 +1476,7 @@
         "Formalize precise claims in Lean where suitable."
       ],
       "learning": {
-        "lesson_id": "art-math-data-portrait-v0.1",
+        "lesson_id": null,
         "dimensions": [
           "data_reasoning",
           "visual_encoding",
@@ -1459,7 +1485,9 @@
         ],
         "prerequisites": [
           "MATH-IDEA-002"
-        ]
+        ],
+        "legacy_lesson_id": "art-math-data-portrait-v0.1",
+        "lesson_state": "legacy_reference_unverified"
       }
     },
     {
