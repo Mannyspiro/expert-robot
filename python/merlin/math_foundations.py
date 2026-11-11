@@ -109,6 +109,8 @@ class FoundationLesson:
             raise ValueError(f"{self.lesson.lesson_id}: source refs must be non-empty strings")
         if any(not isinstance(tag, str) or not tag.strip() for tag in self.interest_tags):
             raise ValueError(f"{self.lesson.lesson_id}: interest tags must be non-empty strings")
+        if len(set(self.interest_tags)) != len(self.interest_tags):
+            raise ValueError(f"{self.lesson.lesson_id}: interest tags must be unique")
         if isinstance(self.estimated_minutes, bool) or not isinstance(self.estimated_minutes, int) or self.estimated_minutes < 1:
             raise ValueError(f"{self.lesson.lesson_id}: estimated_minutes must be a positive integer")
         for label, value in (("learning_value", self.learning_value), ("transfer_value", self.transfer_value)):
@@ -160,7 +162,7 @@ FOUNDATION_LESSONS: tuple[FoundationLesson, ...] = (
             "Start at 4 and add 3 each time. Give the nth-term rule and compare it with the odd-number rule.",
             ("paper", "calculator"),
         ),
-        interest_tags=["patterns","puzzles"],
+        interest_tags=("patterns","puzzles"),
         estimated_minutes=20,
         learning_value=0.9,
         transfer_value=0.8,
@@ -192,7 +194,7 @@ FOUNDATION_LESSONS: tuple[FoundationLesson, ...] = (
             "Change the jar so it starts with 7 coins and receives 2 coins per minute. Write and explain the new rule.",
             ("paper", "calculator"),
         ),
-        interest_tags=["modeling","real_world"],
+        interest_tags=("modeling","real_world"),
         estimated_minutes=20,
         learning_value=0.8,
         transfer_value=0.8,
@@ -224,7 +226,7 @@ FOUNDATION_LESSONS: tuple[FoundationLesson, ...] = (
             "Choose a composite number between 31 and 50, list all factor pairs, and justify that the list is complete.",
             ("paper", "calculator"),
         ),
-        interest_tags=["number_theory","tables"],
+        interest_tags=("number_theory","tables"),
         estimated_minutes=25,
         learning_value=0.8,
         transfer_value=0.7,
@@ -256,7 +258,7 @@ FOUNDATION_LESSONS: tuple[FoundationLesson, ...] = (
             "Find a composite number of the form 6k + 1. Explain why the form is necessary but not sufficient for primes greater than 3.",
             ("paper", "python"),
         ),
-        interest_tags=["number_theory","patterns"],
+        interest_tags=("number_theory","patterns"),
         estimated_minutes=25,
         learning_value=0.9,
         transfer_value=0.8,
@@ -289,7 +291,7 @@ FOUNDATION_LESSONS: tuple[FoundationLesson, ...] = (
             "Return the smallest non-trivial factor for composite n, or None when n is prime.",
             ("python", "calculator"),
         ),
-        interest_tags=["python","number_theory"],
+        interest_tags=("python","number_theory"),
         estimated_minutes=30,
         learning_value=0.9,
         transfer_value=0.9,
@@ -322,7 +324,7 @@ FOUNDATION_LESSONS: tuple[FoundationLesson, ...] = (
             "Explain why the argument still works when the product-plus-one number is composite.",
             ("paper",),
         ),
-        interest_tags=["number_theory","history"],
+        interest_tags=("number_theory","history"),
         estimated_minutes=35,
         learning_value=1,
         transfer_value=1,
@@ -357,7 +359,7 @@ FOUNDATION_LESSONS: tuple[FoundationLesson, ...] = (
             "Explain how repeated addition relates to the distributive property and count the additions performed.",
             ("python",),
         ),
-        interest_tags=["python","programming"],
+        interest_tags=("python","programming"),
         estimated_minutes=20,
         learning_value=0.8,
         transfer_value=0.8,
@@ -390,7 +392,7 @@ FOUNDATION_LESSONS: tuple[FoundationLesson, ...] = (
             "Replace 41 with 43 and search the first 50 non-negative integers. Explain what the result does and does not prove.",
             ("python", "calculator"),
         ),
-        interest_tags=["python","puzzles","experiments"],
+        interest_tags=("python","puzzles","experiments"),
         estimated_minutes=30,
         learning_value=0.9,
         transfer_value=1,
@@ -468,9 +470,10 @@ def recommend_foundation_lessons(
 
     if isinstance(interests, str):
         raise ValueError("interests must be an iterable of strings, not a string")
-    interest_set = set(interests)
-    if any(not isinstance(tag, str) or not tag.strip() for tag in interest_set):
+    interest_values = list(interests)
+    if any(not isinstance(tag, str) or not tag.strip() for tag in interest_values):
         raise ValueError("interests must contain non-empty strings")
+    interest_set = set(interest_values)
     if max_minutes is not None and (
         isinstance(max_minutes, bool) or not isinstance(max_minutes, int) or max_minutes < 1
     ):
@@ -479,9 +482,12 @@ def recommend_foundation_lessons(
         raise ValueError("limit must be a positive integer")
     if isinstance(mastery_threshold, bool) or not isinstance(mastery_threshold, (int, float)) or not math.isfinite(mastery_threshold) or not 0 <= mastery_threshold <= 1:
         raise ValueError("mastery_threshold must be between zero and one")
-    completed = set(completed_task_ids)
-    if any(not isinstance(task_id, str) or not task_id for task_id in completed):
+    if isinstance(completed_task_ids, str):
+        raise ValueError("completed_task_ids must be an iterable of IDs, not a string")
+    completed_values = list(completed_task_ids)
+    if any(not isinstance(task_id, str) or not task_id for task_id in completed_values):
         raise ValueError("completed_task_ids must contain non-empty strings")
+    completed = set(completed_values)
 
     catalogue = validate_foundation_curriculum()
     max_priority = max(item.lesson.priority for item in catalogue.values())
