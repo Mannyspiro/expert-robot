@@ -159,7 +159,12 @@ class AppendOnlyLedger:
         self, *, candidate_id: str, parent_candidate_id: str | None,
         source_receipt: SignedReceipt, artifact_sha256: str,
         generator: str, mutation: Mapping[str, Any],
+        trusted_keys: Mapping[str, str], verifier=None,
     ) -> dict[str, Any]:
+        if not verify_signed_receipt(source_receipt, trusted_keys,
+            expected_claims={"candidate_id": candidate_id, "artifact_sha256": artifact_sha256},
+            verifier=verifier):
+            raise PermissionError("candidate source receipt is missing, untrusted, or mismatched")
         if len(artifact_sha256) != 64 or any(c not in "0123456789abcdef" for c in artifact_sha256):
             raise ValueError("artifact_sha256 must be lowercase SHA-256")
         if not candidate_id or not generator:
@@ -215,6 +220,19 @@ class AppendOnlyLedger:
             raise PermissionError("explicit promotion approval receipt is missing or invalid")
         if not self.verify_chain()["valid"]:
             raise RuntimeError("ledger integrity check failed")
+        with self._connect() as db:
+            events = db.execute("SELECT event_type,payload_json FROM rsi_events WHERE entity_id=? ORDER BY seq",
+                                (candidate_id,)).fetchall()
+        decoded = [(row["event_type"], json.loads(row["payload_json"])) for row in events]
+        if not any(kind == "candidate.created" and payload.get("artifact_sha256") == artifact_sha256
+                   for kind,payload in decoded):
+            raise PermissionError("candidate lineage is absent or does not bind this artifact")
+        if not any(kind == "candidate.evaluated" and payload.get("passed") is True
+                   and payload.get("suite_sha256") == suite_sha256 for kind,payload in decoded):
+            raise PermissionError("passing fixed-suite evaluation is absent")
+        if not any(kind == "candidate.cace_verified" and payload.get("artifact_sha256") == artifact_sha256
+                   and payload.get("suite_sha256") == suite_sha256 for kind,payload in decoded):
+            raise PermissionError("independent CACE verification event is absent")
         return self.append("candidate.promoted", candidate_id, {
             "candidate_id": candidate_id, "artifact_sha256": artifact_sha256,
             "suite_sha256": suite_sha256, "cace_receipt_digest": cace_receipt.receipt_digest,
