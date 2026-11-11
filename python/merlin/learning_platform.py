@@ -15,7 +15,7 @@ import time
 from pathlib import Path
 from typing import Any, Mapping
 
-from .learner_model import LearnerStore, select_next_lesson
+from .learner_model import LearnerStore, select_next_lesson, learner_subject_id
 
 SCHEMA = "merlin-learning-platform/1"
 SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]{1,62}$")
