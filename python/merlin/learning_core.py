@@ -12,6 +12,7 @@ from dataclasses import dataclass, field
 import json
 import math
 import sqlite3
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
@@ -286,10 +287,18 @@ class LearnerStore:
                 """
             )
 
+    @contextmanager
     def _connect(self):
         connection = sqlite3.connect(self.database)
         connection.row_factory = sqlite3.Row
-        return connection
+        try:
+            yield connection
+            connection.commit()
+        except Exception:
+            connection.rollback()
+            raise
+        finally:
+            connection.close()
 
     def record_attempt(
         self,
@@ -307,6 +316,8 @@ class LearnerStore:
         unknown = set(attempt.scores) - set(MASTERY_DIMENSIONS)
         if unknown:
             raise ValueError(f"unknown mastery dimensions: {sorted(unknown)}")
+        if not attempt.scores:
+            raise ValueError("at least one mastery dimension must be assessed")
         for dimension, score in attempt.scores.items():
             if not math.isfinite(float(score)) or not 0 <= float(score) <= 1:
                 raise ValueError(f"{dimension} score must be between 0 and 1")
@@ -388,7 +399,10 @@ def select_next_lesson(
         if any(concept not in {c.concept_id for c in concepts.all()} for concept in lesson.target_concepts):
             raise ValueError(f"lesson {lesson.lesson_id} references an unknown concept")
         if any(
-            min(store.mastery(learner_id, prerequisite).values()) < mastery_threshold
+            sum(
+                store.mastery(learner_id, prerequisite)[dimension]
+                for dimension in ("conceptual", "procedural", "representational")
+            ) / 3.0 < mastery_threshold
             for prerequisite in lesson.prerequisites
         ):
             continue
