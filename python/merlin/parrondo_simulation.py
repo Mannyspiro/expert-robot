@@ -17,7 +17,7 @@ from .learning_core import LessonSession, LessonSpec, LessonStage
 PARRONDO_LESSON_SPEC = LessonSpec(
     lesson_id="math.parrondo.discovery.zero_first.v1",
     title="Can two losing games make a winning mixture?",
-    target_concepts=("quantity", "change", "rate"),
+    target_concepts=("quantity", "state", "probability", "expected_value", "state_transition", "markov_chain"),
     prerequisites=(),
     path_tags=("mathematician", "mathematics_programmer", "computational_hacker"),
     priority=1.0,
