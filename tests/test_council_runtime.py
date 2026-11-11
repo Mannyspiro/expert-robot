@@ -79,7 +79,7 @@ class CouncilRuntimeTests(unittest.TestCase):
         def fake_urlopen(request, timeout=0):
             payload = json.loads(request.data)
             title = payload["messages"][0]["content"].split('"title": "')[1].split('"')[0]
-            if title == "Skeptic":
+            if "Friendly Skeptic" in title:
                 raise OSError("simulated provider failure")
             return FakeResponse(title)
 
