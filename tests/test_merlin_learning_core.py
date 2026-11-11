@@ -12,6 +12,7 @@ from merlin.learning_core import (
     LearnerStore,
     LessonSpec,
     LessonStage,
+    LessonSession,
     MASTERY_DIMENSIONS,
     central_difference,
     evaluate_expression,
@@ -83,6 +84,20 @@ class BeginnerLessonTests(unittest.TestCase):
         prior_modes = {stage.mode for stage in DERIVATIVE_DISCOVERY.stages[:symbol_index]}
         self.assertIn("concrete", prior_modes)
         self.assertIn("visual", prior_modes)
+
+    def test_lesson_session_enforces_sequential_zero_first_progression(self):
+        session = LessonSession(DERIVATIVE_DISCOVERY)
+        self.assertEqual(session.current_stage.stage_id, "everyday-story")
+        with self.assertRaisesRegex(ValueError, "expected current stage"):
+            session.complete_current_stage("introduce-notation")
+        session.complete_current_stage("everyday-story")
+        self.assertEqual(session.current_stage.stage_id, "build-a-table")
+        while session.current_stage is not None:
+            session.complete_current_stage(session.current_stage.stage_id)
+        self.assertTrue(session.is_complete)
+        self.assertIsNone(session.current_stage)
+        with self.assertRaisesRegex(ValueError, "already complete"):
+            session.complete_current_stage("introduce-notation")
 
 
 class LearnerStoreTests(unittest.TestCase):
