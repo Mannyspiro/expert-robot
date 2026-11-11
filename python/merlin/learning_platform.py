@@ -476,6 +476,40 @@ class LearningPlatform:
                                 for row in rows],
                 "count": len(rows)}
 
+    def list_my_submissions(self, actor: Actor, course_id: str) -> dict[str, Any]:
+        """Return a learner's own submissions and append-only reviewer feedback."""
+        self._authorize(actor, {"learner"})
+        with self._connect() as db:
+            course = db.execute("""SELECT current_version FROM learning_courses
+              WHERE tenant_id=? AND course_id=?""",
+              (actor.tenant_id, course_id)).fetchone()
+            if course is None:
+                raise KeyError("course not found")
+            enrolled = db.execute("""SELECT 1 FROM learning_enrollments
+              WHERE tenant_id=? AND course_id=? AND learner_id=? AND status='active'""",
+              (actor.tenant_id, course_id, actor.actor_id)).fetchone()
+            if enrolled is None:
+                raise LearningPermissionError("learner is not enrolled in this course")
+            rows = db.execute("""SELECT submission_id,version,lesson_id,assessment_id,
+              response_sha256,submitted_at,status FROM learning_submissions
+              WHERE tenant_id=? AND course_id=? AND learner_id=?
+              ORDER BY submitted_at DESC,submission_id""",
+              (actor.tenant_id, course_id, actor.actor_id)).fetchall()
+            result = []
+            for row in rows:
+                reviews = db.execute("""SELECT decision,feedback,rubric_json,created_at
+                  FROM learning_submission_reviews
+                  WHERE tenant_id=? AND submission_id=? ORDER BY created_at,review_id""",
+                  (actor.tenant_id, row["submission_id"])).fetchall()
+                result.append({
+                    **dict(row),
+                    "reviews": [{**dict(review), "rubric_scores": json.loads(review["rubric_json"])}
+                                for review in reviews],
+                })
+        return {"schema": "merlin-learning-my-submissions/1",
+                "submissions": result, "count": len(result),
+                "mastery_updated": False, "proof_qualified": False}
+
     def review_submission(self, actor: Actor, course_id: str, submission_id: str,
                           decision: str, feedback: str = "",
                           rubric_scores: Mapping[str, Any] | None = None) -> dict[str, Any]:
