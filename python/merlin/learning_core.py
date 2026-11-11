@@ -467,7 +467,8 @@ def select_next_lesson(
 
 # --- Spaced repetition, comprehensive input, and strategy-mix experiments ---
 
-from datetime import datetime, timedelta, timezone\nimport hashlib
+from datetime import datetime, timedelta, timezone
+import hashlib
 from typing import Literal
 
 
