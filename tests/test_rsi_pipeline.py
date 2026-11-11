@@ -84,6 +84,15 @@ class RSIPipelineTests(unittest.TestCase):
         self._trust_patcher.start()
         self.addCleanup(self._trust_patcher.stop)
 
+    def _issuer_env_with(self, issuer, keys):
+        document = json.loads(os.environ["MERLIN_ISSUER_TRUST_STORE_JSON"])
+        document["issuers"][issuer] = keys
+        raw = json.dumps(document, sort_keys=True, separators=(",", ":"))
+        return {
+            "MERLIN_ISSUER_TRUST_STORE_JSON": raw,
+            "MERLIN_ISSUER_TRUST_STORE_SHA256": rsi.sha256_hex(raw.encode("utf-8")),
+        }
+
     def source_receipt(self, candidate):
         return sign_receipt("merlin-source", {
             "candidate_id": candidate,
@@ -200,14 +209,16 @@ class RSIPipelineTests(unittest.TestCase):
 
         transport = FakeTransport()
         with self.assertRaises(RuntimeError):
-            dispatch_rsi_induction_seed(self.ledger, seed["event_hash"], None, worker_keys)
-        first = dispatch_rsi_induction_seed(
-            self.ledger, seed["event_hash"], transport, worker_keys
-        )
-        replay = dispatch_rsi_induction_seed(
-            self.ledger, seed["event_hash"], transport, worker_keys
-        )
-        self.assertEqual(first["seq"], 1)
+            dispatch_rsi_induction_seed(self.ledger, seed["event_hash"], None)
+        from unittest.mock import patch
+        with patch.dict(os.environ, self._issuer_env_with("merlin-rsi-worker", worker_keys)):
+            first = dispatch_rsi_induction_seed(
+                self.ledger, seed["event_hash"], transport
+            )
+            replay = dispatch_rsi_induction_seed(
+                self.ledger, seed["event_hash"], transport, worker_keys
+            )
+            self.assertEqual(first["seq"], 1)
         self.assertTrue(replay["idempotent_replay"])
         self.assertEqual(first["event_hash"], replay["event_hash"])
         self.assertEqual(transport.calls, 1)
@@ -250,9 +261,11 @@ class RSIPipelineTests(unittest.TestCase):
                     "task_id": "task-wrong",
                 }, "worker-key", worker_private)
 
-        with self.assertRaises(PermissionError):
-            dispatch_rsi_induction_seed(
-                self.ledger, seed["event_hash"], MismatchedTransport(), worker_keys
+        from unittest.mock import patch
+        with patch.dict(os.environ, self._issuer_env_with("merlin-rsi-worker", worker_keys)):
+            with self.assertRaises(PermissionError):
+                dispatch_rsi_induction_seed(
+                    self.ledger, seed["event_hash"], MismatchedTransport()
             )
 
     def test_rsi_candidate_binds_authenticated_hermes_seed(self):
