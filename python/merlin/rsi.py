@@ -32,9 +32,9 @@ class SkillProcedure:
     source_failure_ids: tuple[str, ...]
 
     def validate(self) -> None:
-        if not self.skill_id or len(self.skill_id) > 100 or type(self.version) is not int or self.version < 1:
+        if not isinstance(self.skill_id, str) or not self.skill_id.strip() or len(self.skill_id) > 100 or type(self.version) is not int or self.version < 1:
             raise ValueError("skill identity or version is invalid")
-        if not self.purpose.strip() or len(self.purpose) > 500:
+        if not isinstance(self.purpose, str) or not self.purpose.strip() or len(self.purpose) > 500:
             raise ValueError("skill purpose is required and bounded")
         for name, values in (
             ("trigger_conditions", self.trigger_conditions),
@@ -42,7 +42,7 @@ class SkillProcedure:
             ("guardrails", self.guardrails),
             ("source_failure_ids", self.source_failure_ids),
         ):
-            if not values or any(not isinstance(v, str) or not v.strip() or len(v) > 500 for v in values):
+            if not isinstance(values, tuple) or not values or any(not isinstance(v, str) or not v.strip() or len(v) > 500 for v in values):
                 raise ValueError(f"{name} must contain non-empty bounded strings")
         if len(self.steps) > 20 or len(self.guardrails) > 20 or len(self.source_failure_ids) > 100:
             raise ValueError("skill procedure exceeds bounded collection size")
@@ -64,11 +64,13 @@ class FailureTrajectory:
     source_artifact_sha256: str
 
     def validate(self) -> None:
-        if not self.failure_id or not self.failure_signature.strip() or not self.trigger_condition.strip():
+        if (not isinstance(self.failure_id, str) or not self.failure_id.strip()
+                or not isinstance(self.failure_signature, str) or not self.failure_signature.strip()
+                or not isinstance(self.trigger_condition, str) or not self.trigger_condition.strip()):
             raise ValueError("failure trajectory requires identity, signature, and trigger")
         if len(self.failure_signature) > 160 or len(self.trigger_condition) > 300:
             raise ValueError("failure signature or trigger exceeds bounds")
-        if not self.corrective_steps or len(self.corrective_steps) > 10:
+        if not isinstance(self.corrective_steps, tuple) or not self.corrective_steps or len(self.corrective_steps) > 10:
             raise ValueError("failure trajectory requires 1 to 10 corrective steps")
         if any(not step.strip() or len(step) > 300 for step in self.corrective_steps):
             raise ValueError("corrective steps must be non-empty and bounded")
@@ -125,7 +127,7 @@ class EvalCase:
     input_sha256: str
 
     def validate(self) -> None:
-        if not self.case_id or self.split not in {"train", "heldout"} or not _is_sha(self.input_sha256):
+        if not isinstance(self.case_id, str) or not self.case_id.strip() or len(self.case_id) > 128 or self.split not in {"train", "heldout"} or not _is_sha(self.input_sha256):
             raise ValueError("invalid evaluation case identity, split, or input digest")
 
 
@@ -136,7 +138,7 @@ class CaseOutcome:
     resource_units: int = 0
 
     def validate(self) -> None:
-        if not self.case_id or type(self.passed) is not bool or type(self.resource_units) is not int or self.resource_units < 0:
+        if not isinstance(self.case_id, str) or not self.case_id.strip() or type(self.passed) is not bool or type(self.resource_units) is not int or self.resource_units < 0:
             raise ValueError("invalid case outcome")
 
 
@@ -153,7 +155,7 @@ class EvaluationEvidence:
         for digest in (self.skill_sha256, self.suite_sha256, self.evaluator_sha256):
             if not _is_sha(digest):
                 raise ValueError("evaluation evidence requires SHA-256 digests")
-        if not self.runner_id.strip() or not self.runner_revision.strip():
+        if not isinstance(self.runner_id, str) or not self.runner_id.strip() or not isinstance(self.runner_revision, str) or not self.runner_revision.strip():
             raise ValueError("runner identity and revision are required")
         case_list = tuple(cases)
         for case in case_list:
