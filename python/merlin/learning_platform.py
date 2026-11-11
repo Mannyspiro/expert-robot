@@ -499,10 +499,32 @@ class LearningPlatform:
                         and existing["response_sha256"] == response_sha)
                 if not same:
                     raise LearningConflictError("submission_id was already used for different work")
+                version_row = db.execute(
+                    """SELECT manifest_json FROM learning_course_versions
+                       WHERE tenant_id=? AND course_id=? AND version=?""",
+                    (actor.tenant_id, existing["course_id"], existing["version"]),
+                ).fetchone()
+                if version_row is None:
+                    raise LearningConflictError("original submission course version is unavailable")
+                original_manifest = json.loads(version_row["manifest_json"])
+                original_lesson = next(
+                    (item for item in original_manifest["lessons"] if item.get("id") == existing["lesson_id"]),
+                    None,
+                )
+                if not isinstance(original_lesson, dict) or (original_lesson.get("exercise") or {}).get("task_id") != task_id:
+                    raise LearningConflictError("submission_id was replayed with a different task")
+                original_assessment = next(
+                    (item for item in original_manifest["assessments"]
+                     if item.get("id") == existing["assessment_id"]),
+                    None,
+                )
+                if original_assessment is None:
+                    raise LearningConflictError("original submission assessment is unavailable")
+                rubric_sha256 = _digest(original_assessment.get("rubric", []))
                 return {"submission_id": submission_id, "course_id": course_id,
                         "version": existing["version"], "status": existing["status"],
-                        "duplicate": True, "mastery_updated": False,
-                        "proof_qualified": False}
+                        "rubric_sha256": rubric_sha256, "duplicate": True,
+                        "mastery_updated": False, "proof_qualified": False}
             course = db.execute("""SELECT c.current_version,v.status,v.manifest_json
               FROM learning_courses c JOIN learning_course_versions v
               ON v.tenant_id=c.tenant_id AND v.course_id=c.course_id AND v.version=c.current_version
