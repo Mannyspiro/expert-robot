@@ -406,5 +406,51 @@ class MerlinLearningHttpTests(unittest.TestCase):
         self.assertFalse(submitted["mastery_updated"])
 
 
+    def test_algebra_functions_template_lifecycle_and_exercise_submission(self):
+        status, preview = self.request(
+            "GET", "/api/learning/templates/math-algebra-functions", "Bearer faculty"
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(preview["curriculum_id"], "math-algebra-functions-v1")
+        self.assertEqual(preview["objective_count"], 5)
+        status, draft = self.request("POST", "/api/learning/courses", "Bearer faculty", {
+            "slug": "math-algebra-functions-bridge",
+            "title": preview["title"],
+            "description": "From patterns and variables to equations and mappings.",
+        })
+        self.assertEqual(status, 201)
+        course_id = draft["course_id"]
+        status, applied = self.request(
+            "POST", f"/api/learning/courses/{course_id}/templates/math-algebra-functions",
+            "Bearer faculty", {},
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(len(applied["manifest"]["objectives"]), 5)
+        status, review = self.request(
+            "POST", f"/api/learning/courses/{course_id}/review", "Bearer reviewer",
+            {"version": 1, "decision": "approved", "notes": "Reviewed algebra bridge."},
+        )
+        self.assertEqual(status, 200)
+        status, published = self.request(
+            "POST", f"/api/learning/courses/{course_id}/publish", "Bearer faculty", {}
+        )
+        self.assertEqual(status, 200)
+        status, enrollment = self.request(
+            "POST", f"/api/learning/courses/{course_id}/enroll", "Bearer learner", {}
+        )
+        self.assertEqual(status, 200)
+        status, submitted = self.request(
+            "POST", f"/api/learning/courses/{course_id}/submissions", "Bearer learner", {
+                "submission_id": "algebra-bridge-submission-1",
+                "lesson_id": "math-equations-inequalities-v1",
+                "task_id": "solve-equations-preserve-solutions",
+                "response": "3x + 5 = 20 gives x = 5; the inequality solution is x >= -3.",
+            },
+        )
+        self.assertEqual(status, 201)
+        self.assertEqual(submitted["status"], "pending_review")
+        self.assertFalse(submitted["proof_qualified"])
+
+
 if __name__ == "__main__":
     unittest.main()
