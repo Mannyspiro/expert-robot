@@ -17,7 +17,7 @@ The first lesson is deliberately zero-first. It begins with a concrete bicycle-d
 - `python/merlin/learning_core.py`: canonical concept registry, prerequisite DAG validation, typed real-scalar expression IR, beginner-first derivative lesson specification, forward/backward/central finite differences, SQLite learner evidence, dimension-specific mastery estimates and deterministic next-lesson selection.
 - `LessonSession` enforces sequential stage completion, so symbolic notation cannot be reached by skipping the concrete and visual stages.
 - `tests/test_merlin_learning_core.py`: unit tests for graph integrity, expression evaluation, numerical differentiation, zero-first sequencing, persistent attempts and adaptive selection.
-- `python/merlin/math_foundations.py`: an eight-lesson starter sequence covering number patterns, variables, divisibility, prime conjectures, primality code, Euclid's proof, repeated-addition algorithms and counterexample search. Each lesson has progressive hints, a rubric, a transfer prompt and explicit path tags.
+- `python/merlin/math_foundations.py`: an eight-lesson starter sequence covering number patterns, variables, divisibility, prime conjectures, primality code, Euclid's proof, repeated-addition algorithms and counterexample search. Each lesson has progressive hints, a rubric, a transfer prompt, interest tags, estimated effort and explicit path tags. Its deterministic recommender ranks eligible lessons using pathway weights, learner interests, existing concept mastery, transfer value and time budget.
 - `tests/test_merlin_math_foundations.py`: validates the lesson graph, zero-first sequencing, exercise completeness, historical source note and new-learner path selection.
 - No external package is required by the learning core.
 
@@ -40,6 +40,18 @@ The starter curriculum is an extension of the existing learning core, not a seco
 Each lesson begins with a concrete, symbol-free stage. Observation or visual exploration precedes symbolic notation. Exercises include progressive hints, rubric dimensions, and a new-context transfer prompt. The Euclid lesson links its historical note to *Elements*, Book IX, Proposition 20.
 
 The content layer deliberately does not award mastery or formal proof. Attempts and dimension-specific learning evidence continue through the existing `LearnerStore`; delayed retrieval continues through `SpacedRepetition`. Formal verification remains outside this pedagogical subsystem.
+
+### Adaptive lesson recommendations
+
+`recommend_foundation_lessons` uses the existing learner store rather than a second learner model. It:
+- filters lessons by weighted pathway selection;
+- blocks prerequisites until conceptual, procedural and representational evidence reaches the configured threshold;
+- ranks eligible lessons by interest fit, learning value, transfer value, concept-level evidence gaps, estimated effort and authored priority;
+- returns score components and reason codes, plus explicit blocked-task reasons;
+- supports a learner time budget and exclusion of completed task IDs.
+
+The ranking is deterministic for the same learner record, curriculum version and input constraints. Its weights are a transparent initial policy, not a validated learning-outcome model; held-out evaluation is still required before tuning or production claims.
+
 
 ## Learner evidence model
 
