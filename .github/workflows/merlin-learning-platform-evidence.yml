@@ -7,9 +7,11 @@ on:
       - "python/merlin/app.py"
       - "python/merlin/research_curriculum.py"
       - "python/merlin/math_foundations_course.py"
+      - "python/merlin/math_logic_discrete_course.py"
       - "python/merlin/learner_model.py"
       - "tests/test_learner_model.py"
       - "docs/merlin/MERLIN_MATH_FOUNDATIONS_COURSE_V1.json"
+      - "docs/merlin/MERLIN_MATH_LOGIC_DISCRETE_COURSE_V1.json"
       - "docs/merlin/MERLIN_MATH_LEARNING_PATHWAYS_V1.json"
       - "docs/merlin/MERLIN_MATH_LEARNING_PATHWAYS_V1.md"
       - "docs/merlin/MERLIN_MATH_LESSON_BACKLOG_V1.json"
@@ -18,6 +20,7 @@ on:
       - "scripts/merlin_math_pathways_validate.py"
       - "scripts/merlin_math_lesson_backlog_validate.py"
       - "tests/test_merlin_math_foundations_course.py"
+      - "tests/test_merlin_math_logic_discrete_course.py"
       - "ui/merlin-learning/index.html"
       - "tests/test_merlin_learning_platform.py"
       - "tests/research/test_merlin_learning_http.py"
@@ -66,7 +69,7 @@ jobs:
         run: |
           set +e
           mkdir -p artifacts
-          python -m compileall -q python/merlin/app.py python/merlin/learning_platform.py python/merlin/learner_model.py python/merlin/research_curriculum.py python/merlin/math_foundations_course.py 2>&1 | tee artifacts/compile.log
+          python -m compileall -q python/merlin/app.py python/merlin/learning_platform.py python/merlin/learner_model.py python/merlin/research_curriculum.py python/merlin/math_foundations_course.py python/merlin/math_logic_discrete_course.py 2>&1 | tee artifacts/compile.log
           rc=${PIPESTATUS[0]}
           printf '{"suite":"learning-platform-compile","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/compile-result.json
           exit "$rc"
@@ -111,7 +114,7 @@ jobs:
         run: |
           set +e
           mkdir -p artifacts
-          python -m pytest -q -v tests/test_merlin_learning_platform.py tests/research/test_merlin_learning_http.py tests/test_merlin_research_curriculum.py tests/test_merlin_math_foundations_course.py tests/test_learner_model.py 2>&1 | tee artifacts/learning-tests.log
+          python -m pytest -q -v tests/test_merlin_learning_platform.py tests/research/test_merlin_learning_http.py tests/test_merlin_research_curriculum.py tests/test_merlin_math_foundations_course.py tests/test_merlin_math_logic_discrete_course.py tests/test_learner_model.py 2>&1 | tee artifacts/learning-tests.log
           rc=${PIPESTATUS[0]}
           printf '{"suite":"learning-platform-tests","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/learning-tests-result.json
           exit "$rc"
