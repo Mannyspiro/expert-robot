@@ -286,6 +286,12 @@ class LearningPlatformTests(unittest.TestCase):
             "rotation-check", {"explanation": "A quarter turn maps (x,y) to (-y,x)."},
         )
         self.assertTrue(replay["duplicate"])
+        self.assertEqual(replay["rubric_sha256"], submitted["rubric_sha256"])
+        with self.assertRaises(LearningConflictError):
+            self.store.submit_assessment(
+                self.learner, course["course_id"], "submission-1", "lesson-2",
+                "different-task", {"explanation": "A quarter turn maps (x,y) to (-y,x)."},
+            )
         other_learner = Actor("college-a", "student-2", "learner")
         with self.assertRaises(LearningPermissionError):
             self.store.submit_assessment(
