@@ -16,9 +16,9 @@ from merlin.parrondo_simulation import (
 class ParrondoSimulationTests(unittest.TestCase):
     def test_lesson_is_compatible_with_persistent_lesson_session(self):
         session = LessonSession(PARRONDO_LESSON_SPEC)
-        self.assertEqual(session.current_stage.stage_id, "notice")
+        self.assertEqual(session.current_stage.stage_id, "play-the-games")
         with self.assertRaisesRegex(ValueError, "expected current stage"):
-            session.complete_current_stage("probabilities")
+            session.complete_current_stage("name-the-model")
         while session.current_stage is not None:
             session.complete_current_stage(session.current_stage.stage_id)
         self.assertTrue(session.is_complete)
