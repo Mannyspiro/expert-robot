@@ -702,6 +702,9 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 if actor.role != "learner":
                     self._send(403, {"error": "learner_role_required"})
                     return
+                if learner_store is None:
+                    self._send(503, {"error": "learner_store_unavailable"})
+                    return
                 self._send(200, learner_store.get_profile(actor.actor_id))
                 return
             if path == "/api/learning/templates/math-foundations":
@@ -1093,6 +1096,9 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                         return
                     if actor.role != "learner":
                         self._send(403, {"error": "learner_role_required"})
+                        return
+                    if learner_store is None:
+                        self._send(503, {"error": "learner_store_unavailable"})
                         return
                     profile = learner_store.update_profile(actor.actor_id, data)
                     learner_ref = sha256(actor.actor_id.encode("utf-8")).hexdigest()
