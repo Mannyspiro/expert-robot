@@ -132,6 +132,56 @@ class RSIPipelineTests(unittest.TestCase):
         child_event = self.ledger.events("candidate-child")[0]
         self.assertEqual(json.loads(child_event["payload"])["parent_candidate_id"], "candidate-root")
 
+    def test_rsi_candidate_binds_authenticated_hermes_seed(self):
+        failure = {
+            "event_id": "hermes-seed-42",
+            "failure_class": "formalization-timeout",
+            "summary": "Lean proof search timed out",
+            "source_repo": "Mannyspiro/expert-robot",
+            "source_commit": SOURCE_COMMIT,
+            "artifact_sha256": ARTIFACT,
+        }
+        hermes_receipt = sign_receipt("hermes", {
+            "subject": "hermes-failure:hermes-seed-42",
+            "source_repo": failure["source_repo"],
+            "source_commit": SOURCE_COMMIT,
+            "artifact_sha256": ARTIFACT,
+            "failure_class": failure["failure_class"],
+        }, "hermes-key", self.hermes_private)
+        seed = ingest_hermes_failure(
+            self.ledger, failure, hermes_receipt, self.hermes_keys
+        )
+        candidate_id = "candidate-from-hermes-seed"
+        claims = {
+            "candidate_id": candidate_id,
+            "artifact_sha256": ARTIFACT,
+            "source_repo": "Mannyspiro/expert-robot",
+            "source_commit": SOURCE_COMMIT,
+            "induction_seed_event_hash": seed["event_hash"],
+        }
+        with self.assertRaises(PermissionError):
+            self.ledger.record_candidate(
+                candidate_id=candidate_id, parent_candidate_id=None,
+                source_receipt=self.source_receipt(candidate_id),
+                artifact_sha256=ARTIFACT, generator="rsi",
+                mutation={"origin": "hermes-failure"},
+                trusted_keys=self.source_keys,
+                induction_seed_event_hash=seed["event_hash"],
+            )
+        signed_source = sign_receipt(
+            "merlin-source", claims, "source-key", self.source_private
+        )
+        created = self.ledger.record_candidate(
+            candidate_id=candidate_id, parent_candidate_id=None,
+            source_receipt=signed_source, artifact_sha256=ARTIFACT,
+            generator="rsi", mutation={"origin": "hermes-failure"},
+            trusted_keys=self.source_keys,
+            induction_seed_event_hash=seed["event_hash"],
+        )
+        payload = json.loads(self.ledger.events(candidate_id)[0]["payload"])
+        self.assertEqual(created["seq"], 0)
+        self.assertEqual(payload["induction_seed_event_hash"], seed["event_hash"])
+
     def _record_candidate_and_evaluation(self, candidate):
         self.ledger.record_candidate(
             candidate_id=candidate, parent_candidate_id=None,
