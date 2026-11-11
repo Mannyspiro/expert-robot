@@ -46,7 +46,7 @@ class MathLearningServiceTests(unittest.TestCase):
     def test_unknown_path_and_client_supplied_lesson_are_rejected(self):
         with self.assertRaisesRegex(ValueError, "canonical mathematics"):
             self.service.snapshot("invented_path")
-        with self.assertRaises(TypeError):
+        with self.assertRaisesRegex(ValueError, "canonical mathematics"):
             self.service.complete_stage({"lesson": "attacker-controlled"}, "stage")
 
     def test_learning_paths_have_distinct_canonical_lesson_ids(self):
