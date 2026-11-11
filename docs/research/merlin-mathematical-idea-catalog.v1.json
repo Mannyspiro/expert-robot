@@ -1548,7 +1548,8 @@
         "dimensions": [
           "conceptual_explanation",
           "procedure",
-          "representation_translation"
+          "representation_translation",
+          "transfer"
         ],
         "prerequisites": [
           "MATH-NT-001"
