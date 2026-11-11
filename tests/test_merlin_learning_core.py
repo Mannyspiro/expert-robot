@@ -143,6 +143,7 @@ class LearnerStoreTests(unittest.TestCase):
                 True,
             ),
             ("quantity",),
+            learning_rate=1.0,
         )
         selected = select_next_lesson("learner-3", self.store, (follow_on,))
         self.assertEqual(selected.lesson_id, follow_on.lesson_id)
