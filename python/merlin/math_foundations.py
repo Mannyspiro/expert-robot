@@ -7,7 +7,8 @@ remain in merlin.learning_core.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Sequence
+import math
+from typing import Iterable, Mapping, Sequence
 
 from merlin.learning_core import (
     Concept,
@@ -16,6 +17,7 @@ from merlin.learning_core import (
     LessonSpec,
     LessonStage,
     LearnerStore,
+    MASTERY_DIMENSIONS,
     select_next_lesson,
 )
 
@@ -89,6 +91,10 @@ class FoundationLesson:
     exercise: ExerciseSpec
     historical_context: str = ""
     source_refs: tuple[str, ...] = ()
+    interest_tags: tuple[str, ...] = ()
+    estimated_minutes: int = 20
+    learning_value: float = 0.5
+    transfer_value: float = 0.5
 
     def validate(self, concepts: ConceptRegistry) -> None:
         self.lesson.validate()
@@ -101,6 +107,13 @@ class FoundationLesson:
             raise ValueError(f"{self.lesson.lesson_id}: unknown learning path")
         if any(not isinstance(ref, str) or not ref.strip() for ref in self.source_refs):
             raise ValueError(f"{self.lesson.lesson_id}: source refs must be non-empty strings")
+        if any(not isinstance(tag, str) or not tag.strip() for tag in self.interest_tags):
+            raise ValueError(f"{self.lesson.lesson_id}: interest tags must be non-empty strings")
+        if isinstance(self.estimated_minutes, bool) or not isinstance(self.estimated_minutes, int) or self.estimated_minutes < 1:
+            raise ValueError(f"{self.lesson.lesson_id}: estimated_minutes must be a positive integer")
+        for label, value in (("learning_value", self.learning_value), ("transfer_value", self.transfer_value)):
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or not 0 <= value <= 1:
+                raise ValueError(f"{self.lesson.lesson_id}: {label} must be between zero and one")
 
 
 FOUNDATION_CONCEPTS = ConceptRegistry((
@@ -147,6 +160,10 @@ FOUNDATION_LESSONS: tuple[FoundationLesson, ...] = (
             "Start at 4 and add 3 each time. Give the nth-term rule and compare it with the odd-number rule.",
             ("paper", "calculator"),
         ),
+        interest_tags=["patterns","puzzles"],
+        estimated_minutes=20,
+        learning_value=0.9,
+        transfer_value=0.8,
     ),
     FoundationLesson(
         LessonSpec(
@@ -175,6 +192,10 @@ FOUNDATION_LESSONS: tuple[FoundationLesson, ...] = (
             "Change the jar so it starts with 7 coins and receives 2 coins per minute. Write and explain the new rule.",
             ("paper", "calculator"),
         ),
+        interest_tags=["modeling","real_world"],
+        estimated_minutes=20,
+        learning_value=0.8,
+        transfer_value=0.8,
     ),
     FoundationLesson(
         LessonSpec(
@@ -203,6 +224,10 @@ FOUNDATION_LESSONS: tuple[FoundationLesson, ...] = (
             "Choose a composite number between 31 and 50, list all factor pairs, and justify that the list is complete.",
             ("paper", "calculator"),
         ),
+        interest_tags=["number_theory","tables"],
+        estimated_minutes=25,
+        learning_value=0.8,
+        transfer_value=0.7,
     ),
     FoundationLesson(
         LessonSpec(
@@ -231,6 +256,10 @@ FOUNDATION_LESSONS: tuple[FoundationLesson, ...] = (
             "Find a composite number of the form 6k + 1. Explain why the form is necessary but not sufficient for primes greater than 3.",
             ("paper", "python"),
         ),
+        interest_tags=["number_theory","patterns"],
+        estimated_minutes=25,
+        learning_value=0.9,
+        transfer_value=0.8,
     ),
     FoundationLesson(
         LessonSpec(
@@ -260,6 +289,10 @@ FOUNDATION_LESSONS: tuple[FoundationLesson, ...] = (
             "Return the smallest non-trivial factor for composite n, or None when n is prime.",
             ("python", "calculator"),
         ),
+        interest_tags=["python","number_theory"],
+        estimated_minutes=30,
+        learning_value=0.9,
+        transfer_value=0.9,
     ),
     FoundationLesson(
         LessonSpec(
@@ -289,6 +322,10 @@ FOUNDATION_LESSONS: tuple[FoundationLesson, ...] = (
             "Explain why the argument still works when the product-plus-one number is composite.",
             ("paper",),
         ),
+        interest_tags=["number_theory","history"],
+        estimated_minutes=35,
+        learning_value=1,
+        transfer_value=1,
         historical_context="Euclid's Elements, Book IX, Proposition 20, gives the classical proof that prime numbers are more than any assigned multitude.",
         source_refs=("Euclid, Elements, Book IX, Proposition 20",),
     ),
@@ -320,6 +357,10 @@ FOUNDATION_LESSONS: tuple[FoundationLesson, ...] = (
             "Explain how repeated addition relates to the distributive property and count the additions performed.",
             ("python",),
         ),
+        interest_tags=["python","programming"],
+        estimated_minutes=20,
+        learning_value=0.8,
+        transfer_value=0.8,
     ),
     FoundationLesson(
         LessonSpec(
@@ -349,6 +390,10 @@ FOUNDATION_LESSONS: tuple[FoundationLesson, ...] = (
             "Replace 41 with 43 and search the first 50 non-negative integers. Explain what the result does and does not prove.",
             ("python", "calculator"),
         ),
+        interest_tags=["python","puzzles","experiments"],
+        estimated_minutes=30,
+        learning_value=0.9,
+        transfer_value=1,
     ),
 )
 
@@ -386,3 +431,161 @@ def select_foundation_lesson(
         path=path,
         mastery_threshold=mastery_threshold,
     )
+
+
+def recommend_foundation_lessons(
+    learner_id: str,
+    store: LearnerStore,
+    *,
+    path_weights: Mapping[str, float],
+    interests: Iterable[str] = (),
+    max_minutes: int | None = None,
+    mastery_threshold: float = 0.70,
+    limit: int = 5,
+    completed_task_ids: Iterable[str] = (),
+) -> dict[str, object]:
+    """Rank eligible foundation lessons using learner history and interests.
+
+    This is a deterministic pedagogical recommendation, not a mastery or proof
+    decision. Prerequisites use the existing learner store's core dimensions.
+    """
+    if not isinstance(learner_id, str) or not learner_id:
+        raise ValueError("learner_id is required")
+    if not isinstance(path_weights, Mapping) or not path_weights:
+        raise ValueError("path_weights must be a non-empty mapping")
+    unknown_paths = set(path_weights) - PATHS
+    if unknown_paths:
+        raise ValueError(f"unknown learning paths: {sorted(unknown_paths)}")
+    normalized: dict[str, float] = {}
+    for path, value in path_weights.items():
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or not 0 <= value <= 1:
+            raise ValueError(f"path weight for {path} must be between zero and one")
+        normalized[path] = float(value)
+    total_weight = sum(normalized.values())
+    if total_weight <= 0:
+        raise ValueError("at least one path weight must be greater than zero")
+    normalized = {path: value / total_weight for path, value in normalized.items()}
+
+    if isinstance(interests, str):
+        raise ValueError("interests must be an iterable of strings, not a string")
+    interest_set = set(interests)
+    if any(not isinstance(tag, str) or not tag.strip() for tag in interest_set):
+        raise ValueError("interests must contain non-empty strings")
+    if max_minutes is not None and (
+        isinstance(max_minutes, bool) or not isinstance(max_minutes, int) or max_minutes < 1
+    ):
+        raise ValueError("max_minutes must be a positive integer")
+    if isinstance(limit, bool) or not isinstance(limit, int) or limit < 1:
+        raise ValueError("limit must be a positive integer")
+    if isinstance(mastery_threshold, bool) or not isinstance(mastery_threshold, (int, float)) or not math.isfinite(mastery_threshold) or not 0 <= mastery_threshold <= 1:
+        raise ValueError("mastery_threshold must be between zero and one")
+    completed = set(completed_task_ids)
+    if any(not isinstance(task_id, str) or not task_id for task_id in completed):
+        raise ValueError("completed_task_ids must contain non-empty strings")
+
+    catalogue = validate_foundation_curriculum()
+    max_priority = max(item.lesson.priority for item in catalogue.values())
+    ranked: list[dict[str, object]] = []
+    blocked: list[dict[str, object]] = []
+    for item in catalogue.values():
+        task_id = item.exercise.task_id
+        if task_id in completed:
+            continue
+        if max_minutes is not None and item.estimated_minutes > max_minutes:
+            blocked.append({
+                "task_id": task_id,
+                "lesson_id": item.lesson.lesson_id,
+                "blocked_reason": "exceeds_time_budget",
+                "estimated_minutes": item.estimated_minutes,
+            })
+            continue
+        pathway_fit = sum(
+            weight for path, weight in normalized.items()
+            if path in item.lesson.path_tags
+        )
+        if pathway_fit <= 0:
+            continue
+        missing_prerequisites = []
+        for prerequisite in item.lesson.prerequisites:
+            mastery = store.mastery(learner_id, prerequisite)
+            core_average = sum(
+                mastery[dimension]
+                for dimension in ("conceptual", "procedural", "representational")
+            ) / 3.0
+            if core_average < mastery_threshold:
+                missing_prerequisites.append(prerequisite)
+        if missing_prerequisites:
+            blocked.append({
+                "task_id": task_id,
+                "lesson_id": item.lesson.lesson_id,
+                "blocked_reason": "prerequisites_not_yet_demonstrated",
+                "missing_prerequisites": sorted(missing_prerequisites),
+            })
+            continue
+
+        target_gaps = []
+        for concept_id in item.lesson.target_concepts:
+            mastery = store.mastery(learner_id, concept_id)
+            target_gaps.append(
+                1.0 - sum(mastery[dimension] for dimension in MASTERY_DIMENSIONS) / len(MASTERY_DIMENSIONS)
+            )
+        concept_need = sum(target_gaps) / len(target_gaps) if target_gaps else 0.0
+        interest_fit = (
+            len(interest_set.intersection(item.interest_tags)) / len(item.interest_tags)
+            if item.interest_tags else 0.0
+        )
+        time_fit = (
+            0.5 if max_minutes is None
+            else max(0.0, 1.0 - item.estimated_minutes / max_minutes)
+        )
+        priority_fit = min(item.lesson.priority / max_priority, 1.0)
+        components = {
+            "pathway_fit": round(pathway_fit, 6),
+            "interest_fit": round(interest_fit, 6),
+            "learning_value": round(item.learning_value, 6),
+            "transfer_value": round(item.transfer_value, 6),
+            "concept_need": round(concept_need, 6),
+            "time_fit": round(time_fit, 6),
+            "priority_fit": round(priority_fit, 6),
+        }
+        score = (
+            0.30 * pathway_fit
+            + 0.20 * interest_fit
+            + 0.15 * item.learning_value
+            + 0.15 * item.transfer_value
+            + 0.10 * concept_need
+            + 0.05 * time_fit
+            + 0.05 * priority_fit
+        )
+        reasons = []
+        if pathway_fit > 0:
+            reasons.append("matches_selected_learning_paths")
+        if interest_fit > 0:
+            reasons.append("matches_learner_interests")
+        if concept_need >= 0.7:
+            reasons.append("addresses_unsettled_concepts")
+        if item.learning_value >= 0.8:
+            reasons.append("high_learning_value")
+        if item.transfer_value >= 0.8:
+            reasons.append("supports_transfer")
+        if max_minutes is not None:
+            reasons.append("fits_time_budget")
+        ranked.append({
+            "task_id": task_id,
+            "lesson_id": item.lesson.lesson_id,
+            "score": round(score, 6),
+            "score_components": components,
+            "reason_codes": reasons,
+            "estimated_minutes": item.estimated_minutes,
+            "planner_version": "1.0.0",
+        })
+
+    ranked.sort(key=lambda entry: (-float(entry["score"]), str(entry["task_id"])))
+    blocked.sort(key=lambda entry: (str(entry["task_id"]), str(entry["blocked_reason"])))
+    return {
+        "planner_version": "1.0.0",
+        "ranked_lessons": ranked[:limit],
+        "blocked_lessons": blocked,
+        "eligible_count": len(ranked),
+        "returned_count": min(len(ranked), limit),
+    }
