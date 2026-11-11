@@ -1,7 +1,7 @@
 """Reproducible finite-run experiments for the Parrondo discovery lesson.
 
 Finite trajectories are observations, not proofs of long-run expectation.
-The exact stationary calculation remains in parrondo_lesson.py.
+The closed-form stationary distribution calculation remains in parrondo_lesson.py.
 """
 from __future__ import annotations
 
