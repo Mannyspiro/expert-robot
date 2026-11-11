@@ -452,5 +452,38 @@ class MerlinLearningHttpTests(unittest.TestCase):
         self.assertFalse(submitted["proof_qualified"])
 
 
+    def test_calculus_probability_template_is_instructor_only_and_applies(self):
+        status, preview = self.request(
+            "GET", "/api/learning/templates/math-calculus-probability", "Bearer faculty"
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(preview["curriculum_id"], "math-calculus-probability-v1")
+        self.assertEqual(preview["lesson_count"], 5)
+        with self.assertRaises(HTTPError) as denied:
+            self.request(
+                "GET", "/api/learning/templates/math-calculus-probability", "Bearer learner"
+            )
+        self.assertEqual(denied.exception.code, 403)
+
+        status, draft = self.request("POST", "/api/learning/courses", "Bearer faculty", {
+            "slug": "math-calculus-probability",
+            "title": preview["title"],
+            "description": "Calculus, probability and statistical reasoning.",
+        })
+        self.assertEqual(status, 201)
+        course_id = draft["course_id"]
+        status, applied = self.request(
+            "POST", f"/api/learning/courses/{course_id}/templates/math-calculus-probability",
+            "Bearer faculty", {},
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(len(applied["manifest"]["lessons"]), 5)
+        calc = next(
+            item for item in applied["manifest"]["objectives"]
+            if item["id"] == "MATH-CALC-001"
+        )
+        self.assertEqual(calc["external_prerequisites"], ["MATH-FUNC-001"])
+
+
 if __name__ == "__main__":
     unittest.main()
