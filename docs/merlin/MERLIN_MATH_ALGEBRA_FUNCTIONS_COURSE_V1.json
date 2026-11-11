@@ -1,0 +1,688 @@
+{
+  "schema": "merlin-learning-platform/1",
+  "curriculum_id": "math-algebra-functions-v1",
+  "title": "Algebra and Functions: From Patterns to Mappings",
+  "description": "A connected course from concrete number patterns through variables, sets, equations, function composition and inverse mappings.",
+  "modules": [
+    {
+      "id": "mathematician",
+      "title": "Mathematician pathway",
+      "description": "Develop algebraic reasoning through proof, representation and computation.",
+      "lesson_ids": [
+        "math-foundations-counting-v1",
+        "math-foundations-variables-v1",
+        "math-sets-relations-v1",
+        "math-equations-inequalities-v1",
+        "math-functions-composition-v1"
+      ]
+    },
+    {
+      "id": "mathematics-programmer",
+      "title": "Mathematics programmer pathway",
+      "description": "Develop algebraic reasoning through proof, representation and computation.",
+      "lesson_ids": [
+        "math-foundations-counting-v1",
+        "math-foundations-variables-v1",
+        "math-sets-relations-v1",
+        "math-equations-inequalities-v1",
+        "math-functions-composition-v1"
+      ]
+    },
+    {
+      "id": "computational-hacker",
+      "title": "Computational hacker pathway",
+      "description": "Develop algebraic reasoning through proof, representation and computation.",
+      "lesson_ids": [
+        "math-foundations-counting-v1",
+        "math-foundations-variables-v1",
+        "math-sets-relations-v1",
+        "math-equations-inequalities-v1",
+        "math-functions-composition-v1"
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "MATH-NT-001",
+      "title": "Whole-number structure and additive patterns",
+      "description": "Whole numbers can be explored through order, parity, repeated addition, and additive patterns; conjectures about such patterns must be stated with an explicit domain.",
+      "prerequisites": [],
+      "dimensions": [
+        "recognition",
+        "conceptual_explanation",
+        "representation_translation",
+        "transfer"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "algebra",
+        "functions",
+        "problem_solving"
+      ]
+    },
+    {
+      "id": "MATH-ALG-002",
+      "title": "Variables and algebraic expressions",
+      "description": "A variable can represent a changing or unknown quantity, allowing a relationship observed in concrete cases to be expressed as a general rule.",
+      "prerequisites": [
+        "MATH-NT-001"
+      ],
+      "dimensions": [
+        "conceptual_explanation",
+        "representation_translation",
+        "procedure",
+        "transfer"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "algebra",
+        "functions",
+        "problem_solving"
+      ]
+    },
+    {
+      "id": "MATH-SET-001",
+      "title": "Sets, relations and functions",
+      "description": "Sets, relations and functions provide a common language for defining mathematical objects, mappings and domains.",
+      "prerequisites": [],
+      "dimensions": [
+        "conceptual_explanation",
+        "representation_translation",
+        "proof_justification",
+        "transfer"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "algebra",
+        "functions",
+        "problem_solving"
+      ]
+    },
+    {
+      "id": "MATH-ALG-003",
+      "title": "Equations and inequalities",
+      "description": "Equations and inequalities express constraints on unknown quantities; valid transformations preserve the solution set under stated conditions.",
+      "prerequisites": [
+        "MATH-ALG-002"
+      ],
+      "dimensions": [
+        "conceptual_explanation",
+        "procedure",
+        "representation_translation",
+        "transfer"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "algebra",
+        "functions",
+        "problem_solving"
+      ]
+    },
+    {
+      "id": "MATH-FUNC-001",
+      "title": "Functions, composition and inverse mappings",
+      "description": "Functions map each element of a declared domain to exactly one codomain element; composition and inverses obey domain and range constraints.",
+      "prerequisites": [
+        "MATH-ALG-003",
+        "MATH-SET-001"
+      ],
+      "dimensions": [
+        "conceptual_explanation",
+        "procedure",
+        "representation_translation",
+        "transfer"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "algebra",
+        "functions",
+        "problem_solving"
+      ]
+    }
+  ],
+  "lessons": [
+    {
+      "id": "math-foundations-counting-v1",
+      "title": "Discover counting patterns",
+      "objective_id": "MATH-NT-001",
+      "body": "Begin with concrete groups and growing arrangements. Compare 1, 3, 5, 7, 9; notice the constant difference before writing a general rule.",
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Arrange objects in a row, then add one more pair. What changes?"
+        },
+        {
+          "mode": "observation",
+          "prompt": "Compare 1, 3, 5, 7, and 9. Describe the change from one term to the next."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Draw the growing groups and identify what remains unchanged."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain why each new odd number is two more than the previous one."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "Only after explaining the pattern, state the nth odd number as 2n − 1."
+        }
+      ],
+      "exercise": {
+        "task_id": "discover-counting-patterns",
+        "objective": "Recognize additive structure and express a pattern in general form.",
+        "prompt": "Find the 10th term of 1, 3, 5, 7, 9, ... State a rule for the nth odd number and verify it at three positions.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Compare consecutive terms.",
+          "The difference is constant.",
+          "Start at 1 and add 2 for every step after the first."
+        ],
+        "rubric": [
+          {
+            "dimension": "pattern",
+            "description": "Identifies the constant difference of two.",
+            "points": 2
+          },
+          {
+            "dimension": "general_rule",
+            "description": "States a correct nth-term rule.",
+            "points": 3
+          },
+          {
+            "dimension": "verification",
+            "description": "Checks at least three positions.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Start at 4 and add 3 each time. Give the nth-term rule and compare it with the odd-number rule.",
+        "allowed_tools": [
+          "paper",
+          "calculator"
+        ]
+      },
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "patterns",
+        "puzzles"
+      ],
+      "estimated_minutes": 20,
+      "learning_value": 0.9,
+      "transfer_value": 0.8,
+      "resource_ids": []
+    },
+    {
+      "id": "math-foundations-variables-v1",
+      "title": "Model a changing quantity",
+      "objective_id": "MATH-ALG-002",
+      "body": "A jar begins with four coins and receives three more coins each minute. Build a table and describe the relationship before using a variable.",
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Imagine a jar receiving one or more coins at a constant rate."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record the amount after zero, one, two, three, and four minutes."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Plot elapsed time against the number of coins."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the starting amount and the repeated increase."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "Represent the relationship as 4 + 3m, defining m."
+        }
+      ],
+      "exercise": {
+        "task_id": "introduce-variables",
+        "objective": "Interpret a variable as a name for a changing or unknown quantity.",
+        "prompt": "A jar starts with 4 coins and receives 3 more coins each minute. Make a table for the first five minutes and write a rule for the number of coins after m minutes.",
+        "answer_format": "table_and_explanation",
+        "hints": [
+          "Separate the starting amount from the repeated increase.",
+          "The amount added is the same each minute.",
+          "A letter can stand for any allowed number of minutes."
+        ],
+        "rubric": [
+          {
+            "dimension": "table",
+            "description": "Builds an accurate table.",
+            "points": 2
+          },
+          {
+            "dimension": "interpretation",
+            "description": "Explains the starting amount and repeated increase.",
+            "points": 2
+          },
+          {
+            "dimension": "expression",
+            "description": "Writes and interprets 4 + 3m.",
+            "points": 3
+          }
+        ],
+        "transfer_prompt": "Change the jar so it starts with 7 coins and receives 2 coins per minute. Write and explain the new rule.",
+        "allowed_tools": [
+          "paper",
+          "calculator"
+        ]
+      },
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "modeling",
+        "real_world"
+      ],
+      "estimated_minutes": 20,
+      "learning_value": 0.8,
+      "transfer_value": 0.8,
+      "resource_ids": []
+    },
+    {
+      "id": "math-sets-relations-v1",
+      "title": "Sets, relations and functions",
+      "objective_id": "MATH-SET-001",
+      "body": "Use collections of objects to distinguish membership, subset, relation and function. A function is a special relation: each input in its declared domain has exactly one output in its codomain.",
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "sets",
+        "data_structures",
+        "logic"
+      ],
+      "estimated_minutes": 25,
+      "learning_value": 0.95,
+      "transfer_value": 0.9,
+      "resource_ids": [],
+      "historical_context": "Set language became a shared foundation for modern mathematics. The lesson focuses on the practical distinction between a general relation and a single-valued mapping.",
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Make two groups of cards: students and books. Draw arrows from each student to the books they borrowed."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Can one student point to two books? Can one student point to no book? What changes if the arrows represent a function assigning each student exactly one locker?"
+        },
+        {
+          "mode": "visual",
+          "prompt": "Draw a mapping diagram with a domain on the left and codomain on the right. Compare a many-to-one function with a relation that gives one input two outputs."
+        },
+        {
+          "mode": "language",
+          "prompt": "Define domain, codomain, image, relation and function in your own words. Give one example that is a relation but not a function."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "Represent a function f from A to B and state the condition that each element of A has exactly one image in B."
+        }
+      ],
+      "exercise": {
+        "task_id": "sets-relations-functions",
+        "objective": "Classify relations and explain when a relation is a function.",
+        "prompt": "Let A = {a,b,c} and B = {1,2,3}. Consider R = {(a,1),(b,2),(c,2)} and S = {(a,1),(a,2),(b,3)}. Decide whether each is a function from A to B. Explain using the domain rule, then give one relation that is not a function because an input has no output.",
+        "answer_format": "table_and_explanation",
+        "allowed_tools": [
+          "paper"
+        ],
+        "hints": [
+          "Check every element of A, not only the elements that appear in the ordered pairs.",
+          "A function cannot assign two different outputs to the same input.",
+          "A relation can be incomplete or multi-valued; those are not functions from the full declared domain."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "States the one-output rule for every domain element.",
+            "points": 2
+          },
+          {
+            "dimension": "representation_translation",
+            "description": "Correctly classifies R and S from their ordered pairs.",
+            "points": 2
+          },
+          {
+            "dimension": "transfer",
+            "description": "Constructs a valid non-function example and explains why it fails.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Model a program that maps each user ID to a single account record. Give an example of data that violates the function contract."
+      }
+    },
+    {
+      "id": "math-equations-inequalities-v1",
+      "title": "Equations and inequalities as constraints",
+      "objective_id": "MATH-ALG-003",
+      "body": "An equation describes values that make two expressions equal. An inequality describes an ordered constraint. Valid transformations preserve the solution set, but dividing by zero or multiplying an inequality by a negative number requires special care.",
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "algebra",
+        "equations",
+        "logic"
+      ],
+      "estimated_minutes": 25,
+      "learning_value": 0.95,
+      "transfer_value": 0.9,
+      "resource_ids": [],
+      "historical_context": "Algebra developed as a systematic language for unknown quantities and transformations. The key idea here is not symbol manipulation alone: each step must preserve the set of valid solutions.",
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Imagine a balanced scale. If both sides have the same amount added, does the balance change? What if one side is divided by zero?"
+        },
+        {
+          "mode": "observation",
+          "prompt": "Try several values in 2x + 3 = 11. Notice which value makes both sides equal and how the balance changes under the same operation on each side."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Place x values on a number line. Show the solution set of x > 2 and compare it with the single solution of x = 2."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the difference between an equation and an inequality. Describe why multiplying an inequality by a negative number reverses its direction."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "Solve 3x + 5 = 20 and -2x + 4 ≤ 10. State the solution set and justify each transformation."
+        }
+      ],
+      "exercise": {
+        "task_id": "solve-equations-preserve-solutions",
+        "objective": "Solve equations and inequalities while preserving their solution sets.",
+        "prompt": "Solve 3x + 5 = 20 and -2x + 4 ≤ 10. For each step, name the operation and explain why it preserves equivalence. Verify one solution and one non-solution for the inequality.",
+        "answer_format": "written_explanation",
+        "allowed_tools": [
+          "paper",
+          "calculator"
+        ],
+        "hints": [
+          "Undo addition or subtraction before undoing multiplication.",
+          "When dividing an inequality by a negative number, reverse the inequality symbol.",
+          "Substitute a proposed solution into the original statement, not only the transformed one."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains equations and inequalities as solution-set constraints.",
+            "points": 2
+          },
+          {
+            "dimension": "procedure",
+            "description": "Performs valid transformations and obtains correct solutions.",
+            "points": 2
+          },
+          {
+            "dimension": "representation_translation",
+            "description": "Represents the inequality solution set on a number line or interval.",
+            "points": 2
+          },
+          {
+            "dimension": "transfer",
+            "description": "Checks a solution and a non-solution in the original inequality.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "A sensor must stay between 18 and 24 units inclusive. Express the constraint as an inequality and explain how a calibration offset changes the allowed raw readings."
+      }
+    },
+    {
+      "id": "math-functions-composition-v1",
+      "title": "Functions, composition and inverse mappings",
+      "objective_id": "MATH-FUNC-001",
+      "body": "A function is a mapping from a declared domain to a codomain in which every input has exactly one output. Composition chains mappings; an inverse reverses a mapping only when the relevant one-to-one and onto conditions hold, or when the domain is restricted appropriately.",
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "functions",
+        "programming",
+        "modeling"
+      ],
+      "estimated_minutes": 30,
+      "learning_value": 0.95,
+      "transfer_value": 0.9,
+      "resource_ids": [],
+      "historical_context": "Coordinate geometry and modern function notation helped unify algebraic rules with geometric and computational representations. A function is more than a formula: its domain and codomain are part of the object.",
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Use an input-output machine: put in a number, double it, then add one. Record several inputs and outputs."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Compare two machines. Does each input always produce exactly one output? Can two different inputs produce the same output and still form a function?"
+        },
+        {
+          "mode": "visual",
+          "prompt": "Build a table and graph for f(x) = 2x + 1. Mark the input domain and output values."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain domain, codomain, image, composition, injective and inverse. Give an example where an inverse function does not exist on the original domain."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "Let f(x)=2x+1 and g(x)=x². Compare (g∘f)(2) with (f∘g)(2). Find the inverse of f and state its domain and codomain."
+        }
+      ],
+      "exercise": {
+        "task_id": "function-composition-inverse",
+        "objective": "Translate functions between rules and mappings, compose them, and identify inverse conditions.",
+        "prompt": "Let f(x)=2x+1 and g(x)=x² over the real numbers. Compute (g∘f)(2) and (f∘g)(2). Find f⁻¹ and verify both inverse compositions. Explain why g has no inverse function over all real numbers without restricting its domain.",
+        "answer_format": "written_explanation",
+        "allowed_tools": [
+          "paper",
+          "calculator"
+        ],
+        "hints": [
+          "Composition order matters: (g∘f)(x) means apply f first, then g.",
+          "For f(x)=2x+1, undo the addition before undoing multiplication.",
+          "The square function maps x and -x to the same output, so it is not injective over all real numbers."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains function contracts and inverse conditions.",
+            "points": 2
+          },
+          {
+            "dimension": "representation_translation",
+            "description": "Correctly expresses composition as ordered mapping operations.",
+            "points": 2
+          },
+          {
+            "dimension": "procedure",
+            "description": "Computes compositions and inverse correctly.",
+            "points": 2
+          },
+          {
+            "dimension": "transfer",
+            "description": "Identifies why domain restriction is needed for the square function.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Model a Celsius-to-Fahrenheit conversion and its inverse. State the domain and codomain and explain whether the conversion is one-to-one."
+      }
+    }
+  ],
+  "assessments": [
+    {
+      "id": "assessment-math-nt-001",
+      "title": "Evidence check: Whole-number structure and additive patterns",
+      "objective_id": "MATH-NT-001",
+      "high_stakes": false,
+      "human_review_required": true,
+      "rubric": [
+        {
+          "dimension": "pattern",
+          "description": "Identifies the constant difference of two.",
+          "points": 2
+        },
+        {
+          "dimension": "general_rule",
+          "description": "States a correct nth-term rule.",
+          "points": 3
+        },
+        {
+          "dimension": "verification",
+          "description": "Checks at least three positions.",
+          "points": 2
+        }
+      ]
+    },
+    {
+      "id": "assessment-math-alg-002",
+      "title": "Evidence check: Variables and algebraic expressions",
+      "objective_id": "MATH-ALG-002",
+      "high_stakes": false,
+      "human_review_required": true,
+      "rubric": [
+        {
+          "dimension": "table",
+          "description": "Builds an accurate table.",
+          "points": 2
+        },
+        {
+          "dimension": "interpretation",
+          "description": "Explains the starting amount and repeated increase.",
+          "points": 2
+        },
+        {
+          "dimension": "expression",
+          "description": "Writes and interprets 4 + 3m.",
+          "points": 3
+        }
+      ]
+    },
+    {
+      "id": "assessment-math-set-001",
+      "title": "Evidence check: Sets, relations and functions",
+      "objective_id": "MATH-SET-001",
+      "high_stakes": false,
+      "human_review_required": true,
+      "rubric": [
+        {
+          "dimension": "conceptual_explanation",
+          "description": "States the one-output rule for every domain element.",
+          "points": 2
+        },
+        {
+          "dimension": "representation_translation",
+          "description": "Correctly classifies R and S from their ordered pairs.",
+          "points": 2
+        },
+        {
+          "dimension": "transfer",
+          "description": "Constructs a valid non-function example and explains why it fails.",
+          "points": 2
+        }
+      ]
+    },
+    {
+      "id": "assessment-math-alg-003",
+      "title": "Evidence check: Equations and inequalities",
+      "objective_id": "MATH-ALG-003",
+      "high_stakes": false,
+      "human_review_required": true,
+      "rubric": [
+        {
+          "dimension": "conceptual_explanation",
+          "description": "Explains equations and inequalities as solution-set constraints.",
+          "points": 2
+        },
+        {
+          "dimension": "procedure",
+          "description": "Performs valid transformations and obtains correct solutions.",
+          "points": 2
+        },
+        {
+          "dimension": "representation_translation",
+          "description": "Represents the inequality solution set on a number line or interval.",
+          "points": 2
+        },
+        {
+          "dimension": "transfer",
+          "description": "Checks a solution and a non-solution in the original inequality.",
+          "points": 2
+        }
+      ]
+    },
+    {
+      "id": "assessment-math-func-001",
+      "title": "Evidence check: Functions, composition and inverse mappings",
+      "objective_id": "MATH-FUNC-001",
+      "high_stakes": false,
+      "human_review_required": true,
+      "rubric": [
+        {
+          "dimension": "conceptual_explanation",
+          "description": "Explains function contracts and inverse conditions.",
+          "points": 2
+        },
+        {
+          "dimension": "representation_translation",
+          "description": "Correctly expresses composition as ordered mapping operations.",
+          "points": 2
+        },
+        {
+          "dimension": "procedure",
+          "description": "Computes compositions and inverse correctly.",
+          "points": 2
+        },
+        {
+          "dimension": "transfer",
+          "description": "Identifies why domain restriction is needed for the square function.",
+          "points": 2
+        }
+      ]
+    }
+  ],
+  "resources": [],
+  "grading_policy": {
+    "automated_high_stakes": false,
+    "proof_requires_human_review": true,
+    "ai_only_mastery_promotion": false
+  }
+}
