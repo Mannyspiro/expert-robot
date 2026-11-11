@@ -2,7 +2,7 @@
   "schema": "merlin-math-learning-pathways/1",
   "catalog_id": "merlin.mathematics",
   "catalog_schema": 1,
-  "version": "1.4.0",
+  "version": "1.5.0",
   "status": "planned_curriculum_map",
   "principle": "All pathways share the same mathematical idea graph; pathway weights change ordering and examples, not truth, mastery, or proof status.",
   "shared_learning_cycle": [
@@ -373,8 +373,9 @@
       "title": "Representation-first mathematical objects",
       "kind": "concept",
       "status": "candidate",
-      "lesson_id": "rotation-four-representations-v0.1",
-      "lesson_state": "lesson_reference_present",
+      "lesson_id": null,
+      "lesson_state": "legacy_reference_unverified",
+      "legacy_lesson_id": "rotation-four-representations-v0.1",
       "prerequisites": [],
       "pathways": [
         "mathematician",
@@ -387,8 +388,9 @@
       "title": "Simultaneous coordinate frames",
       "kind": "representation",
       "status": "candidate",
-      "lesson_id": "coordinate-frames-intro-v0.1",
-      "lesson_state": "lesson_reference_present",
+      "lesson_id": null,
+      "lesson_state": "legacy_reference_unverified",
+      "legacy_lesson_id": "coordinate-frames-intro-v0.1",
       "prerequisites": [
         "MATH-REP-001"
       ],
@@ -403,8 +405,9 @@
       "title": "Complex and trigonometric representation bridge",
       "kind": "representation",
       "status": "candidate",
-      "lesson_id": "complex-multiplication-rotation-v0.1",
-      "lesson_state": "lesson_reference_present",
+      "lesson_id": null,
+      "lesson_state": "legacy_reference_unverified",
+      "legacy_lesson_id": "complex-multiplication-rotation-v0.1",
       "prerequisites": [
         "MATH-REP-001"
       ],
@@ -419,8 +422,9 @@
       "title": "Geometric number systems",
       "kind": "concept",
       "status": "candidate",
-      "lesson_id": "quaternion-ga-rotors-v0.1",
-      "lesson_state": "lesson_reference_present",
+      "lesson_id": null,
+      "lesson_state": "legacy_reference_unverified",
+      "legacy_lesson_id": "quaternion-ga-rotors-v0.1",
       "prerequisites": [
         "MATH-CALG-001"
       ],
@@ -435,8 +439,9 @@
       "title": "Eigenstructure and higher-dimensional transforms",
       "kind": "concept",
       "status": "candidate",
-      "lesson_id": "spectral-invariants-intro-v0.1",
-      "lesson_state": "lesson_reference_present",
+      "lesson_id": null,
+      "lesson_state": "legacy_reference_unverified",
+      "legacy_lesson_id": "spectral-invariants-intro-v0.1",
       "prerequisites": [
         "MATH-REP-001"
       ],
@@ -453,6 +458,7 @@
       "status": "candidate",
       "lesson_id": null,
       "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
       "prerequisites": [],
       "pathways": [
         "mathematician",
@@ -467,6 +473,7 @@
       "status": "finite_tested",
       "lesson_id": null,
       "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
       "prerequisites": [],
       "pathways": [
         "mathematics_programmer",
@@ -480,6 +487,7 @@
       "status": "unresolved",
       "lesson_id": null,
       "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
       "prerequisites": [],
       "pathways": [
         "mathematician",
@@ -493,6 +501,7 @@
       "status": "candidate",
       "lesson_id": null,
       "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
       "prerequisites": [],
       "pathways": [
         "mathematician",
@@ -507,6 +516,7 @@
       "status": "finite_tested",
       "lesson_id": null,
       "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
       "prerequisites": [],
       "pathways": [
         "mathematics_programmer",
@@ -520,6 +530,7 @@
       "status": "literature_checked",
       "lesson_id": null,
       "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
       "prerequisites": [],
       "pathways": [
         "mathematician",
@@ -534,6 +545,7 @@
       "status": "candidate",
       "lesson_id": null,
       "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
       "prerequisites": [],
       "pathways": [
         "mathematician",
@@ -548,6 +560,7 @@
       "status": "candidate",
       "lesson_id": null,
       "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
       "prerequisites": [],
       "pathways": [
         "mathematician",
@@ -562,6 +575,7 @@
       "status": "unresolved",
       "lesson_id": null,
       "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
       "prerequisites": [],
       "pathways": [
         "mathematics_programmer",
@@ -575,6 +589,7 @@
       "status": "candidate",
       "lesson_id": null,
       "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
       "prerequisites": [],
       "pathways": [
         "mathematician",
@@ -589,6 +604,7 @@
       "status": "finite_tested",
       "lesson_id": null,
       "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
       "prerequisites": [],
       "pathways": [
         "mathematician",
@@ -603,6 +619,7 @@
       "status": "finite_tested",
       "lesson_id": null,
       "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
       "prerequisites": [],
       "pathways": [
         "mathematician",
@@ -617,6 +634,7 @@
       "status": "candidate",
       "lesson_id": null,
       "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
       "prerequisites": [],
       "pathways": [
         "mathematician",
@@ -631,6 +649,7 @@
       "status": "refuted",
       "lesson_id": null,
       "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
       "prerequisites": [],
       "pathways": [
         "mathematician",
@@ -645,6 +664,7 @@
       "status": "candidate",
       "lesson_id": null,
       "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
       "prerequisites": [],
       "pathways": [
         "mathematician",
@@ -659,6 +679,7 @@
       "status": "refuted",
       "lesson_id": null,
       "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
       "prerequisites": [],
       "pathways": [
         "mathematician",
@@ -673,6 +694,7 @@
       "status": "finite_tested",
       "lesson_id": null,
       "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
       "prerequisites": [],
       "pathways": [
         "mathematician",
@@ -687,6 +709,7 @@
       "status": "finite_tested",
       "lesson_id": null,
       "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
       "prerequisites": [],
       "pathways": [
         "mathematician",
@@ -701,6 +724,7 @@
       "status": "finite_tested",
       "lesson_id": null,
       "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
       "prerequisites": [],
       "pathways": [
         "mathematician",
@@ -715,6 +739,7 @@
       "status": "finite_tested",
       "lesson_id": null,
       "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
       "prerequisites": [],
       "pathways": [
         "mathematician",
@@ -727,8 +752,9 @@
       "title": "Planar transformations and symmetry groups",
       "kind": "representation",
       "status": "finite_tested",
-      "lesson_id": "art-math-symmetry-studio-v0.1",
-      "lesson_state": "lesson_reference_present",
+      "lesson_id": null,
+      "lesson_state": "legacy_reference_unverified",
+      "legacy_lesson_id": "art-math-symmetry-studio-v0.1",
       "prerequisites": [],
       "pathways": [
         "mathematician",
@@ -740,8 +766,9 @@
       "title": "Tessellations and wallpaper groups",
       "kind": "concept",
       "status": "candidate",
-      "lesson_id": "art-math-tessellation-v0.1",
-      "lesson_state": "lesson_reference_present",
+      "lesson_id": null,
+      "lesson_state": "legacy_reference_unverified",
+      "legacy_lesson_id": "art-math-tessellation-v0.1",
       "prerequisites": [
         "MATH-ART-001"
       ],
@@ -756,8 +783,9 @@
       "title": "Projective geometry and perspective drawing",
       "kind": "concept",
       "status": "candidate",
-      "lesson_id": "art-math-perspective-v0.1",
-      "lesson_state": "lesson_reference_present",
+      "lesson_id": null,
+      "lesson_state": "legacy_reference_unverified",
+      "legacy_lesson_id": "art-math-perspective-v0.1",
       "prerequisites": [
         "MATH-COORD-001"
       ],
@@ -772,8 +800,9 @@
       "title": "Polyhedral geometry and topological invariants",
       "kind": "concept",
       "status": "candidate",
-      "lesson_id": "art-math-sculpture-v0.1",
-      "lesson_state": "lesson_reference_present",
+      "lesson_id": null,
+      "lesson_state": "legacy_reference_unverified",
+      "legacy_lesson_id": "art-math-sculpture-v0.1",
       "prerequisites": [
         "MATH-COORD-001"
       ],
@@ -788,8 +817,9 @@
       "title": "Parametric curves and differential geometry",
       "kind": "representation",
       "status": "candidate",
-      "lesson_id": "art-math-parametric-curves-v0.1",
-      "lesson_state": "lesson_reference_present",
+      "lesson_id": null,
+      "lesson_state": "legacy_reference_unverified",
+      "legacy_lesson_id": "art-math-parametric-curves-v0.1",
       "prerequisites": [
         "MATH-CALG-001"
       ],
@@ -804,8 +834,9 @@
       "title": "Iterated systems, fractals and dimension",
       "kind": "concept",
       "status": "candidate",
-      "lesson_id": "art-math-fractal-studio-v0.1",
-      "lesson_state": "lesson_reference_present",
+      "lesson_id": null,
+      "lesson_state": "legacy_reference_unverified",
+      "legacy_lesson_id": "art-math-fractal-studio-v0.1",
       "prerequisites": [
         "MATH-FRACT-001"
       ],
@@ -820,8 +851,9 @@
       "title": "Fourier representations for sound and image",
       "kind": "concept",
       "status": "candidate",
-      "lesson_id": "art-math-sound-image-v0.1",
-      "lesson_state": "lesson_reference_present",
+      "lesson_id": null,
+      "lesson_state": "legacy_reference_unverified",
+      "legacy_lesson_id": "art-math-sound-image-v0.1",
       "prerequisites": [
         "MATH-CALG-001"
       ],
@@ -836,8 +868,9 @@
       "title": "Procedural and generative composition",
       "kind": "concept",
       "status": "candidate",
-      "lesson_id": "art-math-generative-studio-v0.1",
-      "lesson_state": "lesson_reference_present",
+      "lesson_id": null,
+      "lesson_state": "legacy_reference_unverified",
+      "legacy_lesson_id": "art-math-generative-studio-v0.1",
       "prerequisites": [
         "MATH-REP-001"
       ],
@@ -852,8 +885,9 @@
       "title": "Statistical visual encoding and uncertainty",
       "kind": "concept",
       "status": "candidate",
-      "lesson_id": "art-math-data-portrait-v0.1",
-      "lesson_state": "lesson_reference_present",
+      "lesson_id": null,
+      "lesson_state": "legacy_reference_unverified",
+      "legacy_lesson_id": "art-math-data-portrait-v0.1",
       "prerequisites": [
         "MATH-IDEA-002"
       ],
@@ -870,6 +904,7 @@
       "status": "literature_checked",
       "lesson_id": "math-foundations-counting-v1",
       "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
       "prerequisites": [],
       "pathways": [
         "mathematician",
@@ -884,6 +919,7 @@
       "status": "literature_checked",
       "lesson_id": "math-foundations-divisibility-v1",
       "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
       "prerequisites": [
         "MATH-NT-001"
       ],
@@ -899,6 +935,7 @@
       "status": "literature_checked",
       "lesson_id": "math-foundations-primes-v1",
       "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
       "prerequisites": [
         "MATH-NT-002"
       ],
@@ -915,6 +952,7 @@
       "status": "candidate",
       "lesson_id": "math-foundations-variables-v1",
       "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
       "prerequisites": [
         "MATH-NT-001"
       ],
@@ -930,6 +968,7 @@
       "status": "candidate",
       "lesson_id": "math-foundations-loops-v1",
       "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
       "prerequisites": [
         "MATH-ALG-002"
       ],
@@ -945,6 +984,7 @@
       "status": "literature_checked",
       "lesson_id": "math-foundations-euclid-proof-v1",
       "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
       "prerequisites": [
         "MATH-NT-003"
       ],
@@ -959,6 +999,7 @@
       "status": "literature_checked",
       "lesson_id": "math-foundations-counterexample-v1",
       "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
       "prerequisites": [
         "MATH-COMP-001"
       ],
@@ -975,6 +1016,7 @@
       "status": "candidate",
       "lesson_id": "math-logic-quantifiers-v1",
       "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
       "prerequisites": [],
       "pathways": [
         "mathematician",
@@ -989,6 +1031,7 @@
       "status": "candidate",
       "lesson_id": "math-sets-relations-v1",
       "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
       "prerequisites": [],
       "pathways": [
         "mathematician",
@@ -1003,6 +1046,7 @@
       "status": "candidate",
       "lesson_id": "math-graphs-trees-v1",
       "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
       "prerequisites": [
         "MATH-SET-001"
       ],
@@ -1019,6 +1063,7 @@
       "status": "candidate",
       "lesson_id": "math-equations-inequalities-v1",
       "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
       "prerequisites": [
         "MATH-ALG-002"
       ],
@@ -1035,6 +1080,7 @@
       "status": "candidate",
       "lesson_id": "math-functions-composition-v1",
       "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
       "prerequisites": [
         "MATH-ALG-003",
         "MATH-SET-001"
@@ -1052,6 +1098,7 @@
       "status": "candidate",
       "lesson_id": null,
       "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
       "prerequisites": [
         "MATH-NT-002"
       ],
@@ -1068,6 +1115,7 @@
       "status": "candidate",
       "lesson_id": null,
       "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
       "prerequisites": [
         "MATH-COMP-001",
         "MATH-LOG-002"
@@ -1085,6 +1133,7 @@
       "status": "candidate",
       "lesson_id": "math-linear-systems-gaussian-v1",
       "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
       "prerequisites": [
         "MATH-ALG-003"
       ],
@@ -1101,6 +1150,7 @@
       "status": "candidate",
       "lesson_id": "math-limits-continuity-v1",
       "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
       "prerequisites": [
         "MATH-FUNC-001"
       ],
@@ -1117,6 +1167,7 @@
       "status": "candidate",
       "lesson_id": "math-derivatives-rates-v1",
       "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
       "prerequisites": [
         "MATH-CALC-001"
       ],
@@ -1133,6 +1184,7 @@
       "status": "candidate",
       "lesson_id": "math-integration-accumulation-v1",
       "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
       "prerequisites": [
         "MATH-CALC-001"
       ],
@@ -1149,6 +1201,7 @@
       "status": "candidate",
       "lesson_id": "math-probability-bayes-v1",
       "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
       "prerequisites": [
         "MATH-SET-001"
       ],
@@ -1165,6 +1218,7 @@
       "status": "candidate",
       "lesson_id": "math-statistical-inference-v1",
       "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
       "prerequisites": [
         "MATH-PROB-001"
       ],
@@ -1181,6 +1235,7 @@
       "status": "candidate",
       "lesson_id": "math-floating-point-stability-v1",
       "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
       "prerequisites": [
         "MATH-ALG-003"
       ],
@@ -1197,6 +1252,7 @@
       "status": "candidate",
       "lesson_id": "math-ode-numerical-integration-v1",
       "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
       "prerequisites": [
         "MATH-CALC-002",
         "MATH-CALC-003",
@@ -1215,6 +1271,7 @@
       "status": "candidate",
       "lesson_id": "math-optimization-gradient-v1",
       "lesson_state": "lesson_reference_present",
+      "legacy_lesson_id": null,
       "prerequisites": [
         "MATH-CALC-002",
         "MATH-LIN-002"
