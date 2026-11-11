@@ -63,3 +63,93 @@ class MathFoundationsCurriculumTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class AdaptiveFoundationPlannerTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.store = LearnerStore(Path(self.temp.name) / "adaptive.sqlite")
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def test_interest_fit_changes_the_top_recommendation(self):
+        from merlin.math_foundations import recommend_foundation_lessons
+
+        result = recommend_foundation_lessons(
+            "learner", self.store,
+            path_weights={"mathematician": 1.0},
+            interests=["modeling"],
+        )
+        self.assertEqual(result["ranked_lessons"][0]["task_id"], "introduce-variables")
+        self.assertIn("matches_learner_interests", result["ranked_lessons"][0]["reason_codes"])
+
+    def test_prerequisite_is_blocked_until_core_learning_dimensions_are_demonstrated(self):
+        from merlin.learning_core import Attempt
+        from merlin.math_foundations import recommend_foundation_lessons
+
+        before = recommend_foundation_lessons(
+            "learner", self.store,
+            path_weights={"mathematician": 1.0},
+            interests=["number_theory"],
+        )
+        blocked_ids = {item["task_id"] for item in before["blocked_lessons"]}
+        self.assertIn("build-factor-table", blocked_ids)
+
+        self.store.record_attempt(
+            Attempt(
+                "learner", "foundation-diagnostic", "whole-number-check",
+                {"conceptual": 1.0, "procedural": 1.0, "representational": 1.0},
+                independent=True,
+            ),
+            ("whole-number-structure",),
+            learning_rate=1.0,
+        )
+        after = recommend_foundation_lessons(
+            "learner", self.store,
+            path_weights={"mathematician": 1.0},
+            interests=["number_theory"],
+        )
+        ranked_ids = {item["task_id"] for item in after["ranked_lessons"]}
+        self.assertIn("build-factor-table", ranked_ids)
+
+    def test_time_budget_and_completed_task_filters_are_explicit(self):
+        from merlin.math_foundations import recommend_foundation_lessons
+
+        over_budget = recommend_foundation_lessons(
+            "learner", self.store,
+            path_weights={
+                "mathematician": 1 / 3,
+                "mathematics_programmer": 1 / 3,
+                "computational_hacker": 1 / 3,
+            },
+            max_minutes=15,
+        )
+        self.assertEqual(over_budget["eligible_count"], 0)
+        self.assertEqual(len(over_budget["blocked_lessons"]), 8)
+
+        completed = recommend_foundation_lessons(
+            "learner", self.store,
+            path_weights={"mathematician": 1.0},
+            completed_task_ids=["discover-counting-patterns"],
+        )
+        self.assertNotIn(
+            "discover-counting-patterns",
+            {item["task_id"] for item in completed["ranked_lessons"]},
+        )
+
+    def test_planner_is_deterministic_and_rejects_invalid_weights(self):
+        from merlin.math_foundations import recommend_foundation_lessons
+
+        kwargs = {
+            "path_weights": {"mathematician": 0.5, "mathematics_programmer": 0.5},
+            "interests": ["patterns", "python"],
+        }
+        first = recommend_foundation_lessons("learner", self.store, **kwargs)
+        second = recommend_foundation_lessons("learner", self.store, **kwargs)
+        self.assertEqual(first, second)
+        with self.assertRaisesRegex(ValueError, "at least one path weight"):
+            recommend_foundation_lessons(
+                "learner", self.store,
+                path_weights={"mathematician": 0.0},
+            )
