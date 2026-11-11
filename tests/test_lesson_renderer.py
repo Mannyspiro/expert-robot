@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 
 from merlin.lesson_schema import LessonBlock, LessonDocument, lesson_to_dict
-from merlin.renderer import interaction_count, record_interaction, render_lesson
+from merlin.renderer import interaction_count, record_interaction, record_retrieval_review, render_lesson
 from merlin.learning_core import LearnerStore
 
 
@@ -95,6 +95,22 @@ class RendererTests(unittest.TestCase):
                     scores={"conceptual": 1.5},
                 )
             self.assertEqual(interaction_count(store, "learner-1"), 0)
+
+    def test_retrieval_review_persists_event_mastery_and_next_due_date(self):
+        from datetime import datetime, timezone, timedelta
+        with tempfile.TemporaryDirectory() as tmp:
+            store = LearnerStore(Path(tmp) / "learner.sqlite")
+            now = datetime(2026, 11, 11, 12, tzinfo=timezone.utc)
+            event_id, schedule = record_retrieval_review(
+                store, learner_id="learner-1", lesson=sample_lesson(),
+                block_id="recall", concept_id="change", quality=5,
+                response="State-dependent rules change state frequencies.",
+                reviewed_at=now,
+            )
+            self.assertGreater(event_id, 0)
+            self.assertEqual(interaction_count(store, "learner-1"), 1)
+            self.assertEqual(schedule.state.due_at, now + timedelta(days=1))
+            self.assertGreater(store.mastery("learner-1", "change")["retention"], 0)
 
 
 if __name__ == "__main__":
