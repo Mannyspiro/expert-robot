@@ -201,11 +201,16 @@ def route_model(
             reason = "estimated_vram_exceeds_budget"
 
         evidence = measurements_by_id.get(backend.backend_id, [])
-        metric = next((m for m in reversed(evidence) if m.task_scope == request.task_scope), None)
+        matching = [m for m in evidence if m.task_scope == request.task_scope]
+        metric = max(matching, key=lambda m: m.measured_at) if matching else None
         if reason is None and metric is None:
             reason = "no_task_specific_measurement"
         if reason is None and metric.quality_score < request.min_quality:
             reason = "quality_below_threshold"
+        if reason is None and not _within(metric.peak_ram_bytes, request.max_ram_bytes):
+            reason = "measured_ram_exceeds_budget"
+        if reason is None and not _within(metric.peak_vram_bytes, request.max_vram_bytes):
+            reason = "measured_vram_exceeds_budget"
         if reason is None and request.max_p95_latency_ms is not None and metric.p95_latency_ms > request.max_p95_latency_ms:
             reason = "latency_exceeds_budget"
         if reason is None and request.max_cost_per_1k_tokens is not None and metric.cost_per_1k_tokens > request.max_cost_per_1k_tokens:
@@ -213,7 +218,8 @@ def route_model(
 
         valid_receipt = None
         if reason is None:
-            for receipt in reversed(receipts_by_id.get(backend.backend_id, [])):
+            for receipt in sorted(receipts_by_id.get(backend.backend_id, []),
+                                  key=lambda item: item.issued_at, reverse=True):
                 if (receipt.approved and receipt.model_revision == backend.model_revision
                         and receipt.engine_revision == backend.engine_revision
                         and receipt.heldout_eval_sha256 == metric.eval_suite_sha256
