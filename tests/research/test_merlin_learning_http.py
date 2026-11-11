@@ -209,6 +209,41 @@ class MerlinLearningHttpTests(unittest.TestCase):
         self.assertEqual(recommendation["lesson_id"], "math-foundations-counting-v1")
         self.assertEqual(recommendation["authority"], "recommendation_only")
 
+    def test_learner_profile_is_identity_scoped_and_persisted(self):
+        status, default = self.request("GET", "/api/learning/profile", "Bearer learner")
+        self.assertEqual(status, 200)
+        self.assertAlmostEqual(sum(default["pathway_weights"].values()), 1.0)
+        self.assertEqual(default["interests"], [])
+
+        status, updated = self.request("POST", "/api/learning/profile", "Bearer learner", {
+            "pathway_weights": {
+                "mathematician": 0.0,
+                "mathematics_programmer": 1.0,
+                "computational_hacker": 0.0,
+            },
+            "interests": ["Number Theory", "python"],
+            "pace": "gentle",
+        })
+        self.assertEqual(status, 200)
+        self.assertEqual(updated["interests"], ["number_theory", "python"])
+        self.assertEqual(updated["max_minutes"], 20)
+
+        status, persisted = self.request("GET", "/api/learning/profile", "Bearer learner")
+        self.assertEqual(status, 200)
+        self.assertEqual(persisted["pathway_weights"], updated["pathway_weights"])
+        self.assertEqual(persisted["interests"], updated["interests"])
+
+        with self.assertRaises(HTTPError) as instructor_denied:
+            self.request("POST", "/api/learning/profile", "Bearer faculty", {"interests": ["proof"]})
+        self.assertEqual(instructor_denied.exception.code, 403)
+
+        with self.assertRaises(HTTPError) as identity_denied:
+            self.request("POST", "/api/learning/profile", "Bearer learner", {
+                "learner_id": "another-learner", "interests": ["proof"]
+            })
+        self.assertEqual(identity_denied.exception.code, 400)
+
+
 if __name__ == "__main__":
     unittest.main()
 
