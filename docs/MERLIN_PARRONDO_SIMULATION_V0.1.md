@@ -7,7 +7,7 @@ The Parrondo discovery activity is now represented as a native Merlin `LessonSpe
 - equal-turn A/B/mixture comparisons;
 - independent repeated trials with sample standard deviation, standard error and a descriptive normal-approximation 95% interval.
 
-The simulation does not establish the long-run theorem. The exact stationary expectation is computed separately by `parrondo_lesson.py`. A finite trajectory may lose even when the stationary expected gain is positive. The approximate interval is descriptive and should not be treated as an exact finite-sample guarantee.
+The simulation does not establish the long-run theorem. The stationary expectation is computed separately from finite simulation using a closed-form Markov chain tree calculation in `parrondo_lesson.py`. A finite trajectory may lose even when the stationary expected gain is positive. The approximate interval is descriptive and should not be treated as an exact finite-sample guarantee.
 
 Run the focused tests with:
 
