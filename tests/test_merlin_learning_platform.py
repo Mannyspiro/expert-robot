@@ -103,6 +103,31 @@ class LearningPlatformTests(unittest.TestCase):
         published = self.store.publish_course(self.teacher, course["course_id"])
         self.assertEqual(published["status"], "published")
 
+    def test_cross_course_prerequisites_must_be_explicit(self):
+        course = self.store.create_course(self.teacher, "advanced-math", "Advanced Mathematics")
+        manifest = course["manifest"]
+        manifest["objectives"] = [
+            {"id": "ADV-1", "title": "Advanced topic",
+             "prerequisites": ["FOUNDATION-1"],
+             "external_prerequisites": ["FOUNDATION-1"]},
+        ]
+        manifest["lessons"] = [
+            {"id": "ADV-L1", "title": "Advanced lesson", "objective_id": "ADV-1"},
+        ]
+        manifest["assessments"] = [
+            {"id": "ADV-A1", "title": "Advanced check", "objective_id": "ADV-1",
+             "high_stakes": False, "human_review_required": True},
+        ]
+        saved = self.store.update_manifest(self.teacher, course["course_id"], manifest)
+        self.assertEqual(saved["manifest"]["objectives"][0]["external_prerequisites"],
+                         ["FOUNDATION-1"])
+        manifest["objectives"][0]["external_prerequisites"] = []
+        with self.assertRaisesRegex(ValueError, "unknown objective"):
+            self.store.update_manifest(self.teacher, course["course_id"], manifest)
+        manifest["objectives"][0]["external_prerequisites"] = ["ADV-LOCAL"]
+        with self.assertRaisesRegex(ValueError, "outside this course"):
+            self.store.update_manifest(self.teacher, course["course_id"], manifest)
+
     def test_published_version_is_immutable_and_revision_is_new_version(self):
         course = self._course()
         self._publish(course)
