@@ -124,7 +124,8 @@
       ],
       "pathways": [
         "mathematician",
-        "mathematics_programmer"
+        "mathematics_programmer",
+        "computational_hacker"
       ],
       "interest_tags": [
         "number_theory",
@@ -486,7 +487,8 @@
       },
       "pathways": [
         "mathematician",
-        "mathematics_programmer"
+        "mathematics_programmer",
+        "computational_hacker"
       ],
       "interest_tags": [
         "number_theory",
