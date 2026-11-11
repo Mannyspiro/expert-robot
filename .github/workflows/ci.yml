@@ -108,6 +108,13 @@ jobs:
           printf '{"suite":"merlin-research-curriculum","commit":"%s","run_id":"%s","run_attempt":"%s","exit_code":%s}\\n' "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$test_exit" > artifacts/merlin-research-curriculum-result.json
           exit "$test_exit"
 
+      - name: Merlin RSI skill evolution evaluation
+        env:
+          PYTHONPATH: python
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tests -p "test_merlin_rsi.py" -v
+
       - name: Merlin learner-facing mathematics progress API
         env:
           PYTHONPATH: python
