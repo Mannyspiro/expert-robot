@@ -16,11 +16,11 @@ ANSWER_FORMATS = {
 }
 
 
-def validate_math_logic_discrete_manifest(
-    manifest: Mapping[str, Any], catalog: Mapping[str, Any]
+def validate_math_curriculum_manifest(
+    manifest: Mapping[str, Any], catalog: Mapping[str, Any], expected_curriculum_id: str
 ) -> dict[str, Any]:
-    if not isinstance(manifest, Mapping) or manifest.get("curriculum_id") != CURRICULUM_ID:
-        raise ValueError("unsupported logic/discrete curriculum")
+    if not isinstance(manifest, Mapping) or manifest.get("curriculum_id") != expected_curriculum_id:
+        raise ValueError(f"unsupported curriculum: expected {expected_curriculum_id}")
     LearningPlatform._validate_manifest(manifest)
     ideas = catalog.get("ideas") if isinstance(catalog, Mapping) else None
     if not isinstance(ideas, list):
@@ -154,8 +154,14 @@ def validate_math_logic_discrete_manifest(
             seen_dimensions.add(dimension)
     if assessment_ids != set(objective_by_id):
         raise ValueError("each objective must have exactly one assessment")
-    return {"curriculum_id": CURRICULUM_ID, "objective_count": len(objectives),
+    return {"curriculum_id": expected_curriculum_id, "objective_count": len(objectives),
             "lesson_count": len(lesson_ids), "exercise_count": len(task_ids)}
+
+
+def validate_math_logic_discrete_manifest(
+    manifest: Mapping[str, Any], catalog: Mapping[str, Any]
+) -> dict[str, Any]:
+    return validate_math_curriculum_manifest(manifest, catalog, CURRICULUM_ID)
 
 
 def load_math_logic_discrete_manifest(repo_root: str | Path | None = None) -> dict[str, Any]:
