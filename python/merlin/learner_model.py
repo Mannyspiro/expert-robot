@@ -205,8 +205,9 @@ class LearnerStore:
         if dimension not in DIMENSIONS:
             raise ValueError("unsupported learner evidence dimension")
         score=event.get("score")
-        if isinstance(score,bool) or not isinstance(score,(int,float)) or not 0<=score<=1:
-            raise ValueError("score must be a number from 0 to 1")
+        if (isinstance(score,bool) or not isinstance(score,(int,float))
+                or not math.isfinite(score) or not 0<=score<=1):
+            raise ValueError("score must be a finite number from 0 to 1")
         session=self._required(event.get("session_id"),"session_id")
         rubric=self._required(event.get("rubric_version","1"),"rubric_version")
         response=event.get("response",{})
@@ -215,12 +216,20 @@ class LearnerStore:
         evidence=event.get("evidence_ref")
         if evidence is not None:
             evidence=self._required(evidence,"evidence_ref",512)
-        submitted=float(event.get("submitted_at",time.time()))
+        raw_submitted=event.get("submitted_at",time.time())
+        if isinstance(raw_submitted,bool) or not isinstance(raw_submitted,(int,float)):
+            raise ValueError("submitted_at must be a finite positive number")
+        submitted=float(raw_submitted)
         if not math.isfinite(submitted) or submitted<=0:
-            raise ValueError("submitted_at must be finite and positive")
-        delayed=bool(event.get("delayed",False))
-        transfer=bool(event.get("transfer",False))
-        response_json=json.dumps(dict(response),sort_keys=True,allow_nan=False)
+            raise ValueError("submitted_at must be a finite positive number")
+        delayed=event.get("delayed",False)
+        transfer=event.get("transfer",False)
+        if not isinstance(delayed,bool) or not isinstance(transfer,bool):
+            raise ValueError("delayed and transfer flags must be booleans")
+        try:
+            response_json=json.dumps(dict(response),sort_keys=True,allow_nan=False)
+        except (TypeError,ValueError) as exc:
+            raise ValueError("response must contain finite JSON-serializable data") from exc
         if len(response_json)>100_000:
             raise ValueError("response artifact exceeds 100 KB")
         row=(attempt,learner,idea,problem,version,dimension,float(score),session,
