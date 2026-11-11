@@ -467,7 +467,7 @@ def select_next_lesson(
 
 # --- Spaced repetition, comprehensive input, and strategy-mix experiments ---
 
-from datetime import date, datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone\nimport hashlib
 from typing import Literal
 
 
@@ -755,3 +755,26 @@ def compare_strategy_policies(
                 summary[policy][metric] = sum(values) / len(values)
         summary[policy]["sample_count"] = float(len(rows))
     return summary
+
+
+class StrategyArmAllocator:
+    """Reproducible cluster-level arm assignment for controlled learning studies.
+
+    Hash-based allocation is deterministic for audit/replay. It is not a
+    substitute for checking balance, preregistering outcomes, or estimating
+    uncertainty; production studies should preserve the allocation receipt.
+    """
+    @staticmethod
+    def assign_arm(
+        learner_id: str, concept_id: str, experiment_id: str,
+        arms: Sequence[str], *, seed: str,
+    ) -> str:
+        if not learner_id or not concept_id or not experiment_id or not seed:
+            raise ValueError("learner, concept, experiment and seed are required")
+        unique_arms = tuple(dict.fromkeys(arms))
+        if len(unique_arms) < 2 or any(not arm for arm in unique_arms):
+            raise ValueError("at least two distinct non-empty experiment arms are required")
+        payload = "\\x1f".join((seed, experiment_id, learner_id, concept_id)).encode("utf-8")
+        digest = hashlib.sha256(payload).digest()
+        index = int.from_bytes(digest[:8], "big") % len(unique_arms)
+        return unique_arms[index]
