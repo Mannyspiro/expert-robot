@@ -175,6 +175,8 @@ def validate_math_foundations_manifest(
         objective_id = assessment.get("objective_id")
         if objective_id in assessment_objectives:
             raise ValueError(f"duplicate assessment for objective {objective_id}")
+        if objective_id not in objective_by_id:
+            raise ValueError(f"assessment references unknown objective {objective_id!r}")
         assessment_objectives.add(objective_id)
         if assessment.get("high_stakes") is not False or assessment.get("human_review_required") is not True:
             raise ValueError("foundation assessments must remain low-stakes and human-reviewed")
