@@ -289,5 +289,19 @@ class RSIPipelineTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             cache.crossref_doi("10.1234/example")
 
+    def test_cace_bundle_digest_matches_pinned_oci_implementation(self):
+        actual = rsi.cace_rsi_bundle_sha256(
+            candidate_id="merlin-rsi-bridge-contract-test-1",
+            candidate_digest="a" * 64,
+            benchmark_manifest_sha256="b" * 64,
+            evaluator_receipt_sha256="c" * 64,
+            source_repo="Mannyspiro/expert-robot",
+            source_commit="d" * 40,
+        )
+        self.assertEqual(
+            actual,
+            "0898289d4c6267dbc8de6e595e56f8f035ad0344b65431f8deb11be0972b0272",
+        )
+
 if __name__ == "__main__":
     unittest.main()
