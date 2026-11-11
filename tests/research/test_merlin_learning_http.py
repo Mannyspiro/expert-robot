@@ -280,5 +280,34 @@ class MerlinLearningHttpTests(unittest.TestCase):
         self.assertEqual(identity_denied.exception.code, 400)
 
 
+    def test_legacy_learner_endpoints_are_identity_scoped(self):
+        with self.assertRaises(HTTPError) as unauthenticated:
+            self.request("GET", "/api/learning/recommendation?learner_id=student-1")
+        self.assertEqual(unauthenticated.exception.code, 503)
+
+        status, recommendation = self.request(
+            "GET", "/api/learning/recommendation?learner_id=student-1", "Bearer learner"
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(recommendation["learner_id"], "student-1")
+
+        with self.assertRaises(HTTPError) as mismatched_recommendation:
+            self.request(
+                "GET", "/api/learning/recommendation?learner_id=another-learner", "Bearer learner"
+            )
+        self.assertEqual(mismatched_recommendation.exception.code, 403)
+
+        status, state = self.request(
+            "GET", "/api/learning/learner?learner_id=student-1", "Bearer learner"
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(state["learner_id"], "student-1")
+        with self.assertRaises(HTTPError) as mismatched_state:
+            self.request(
+                "GET", "/api/learning/learner?learner_id=another-learner", "Bearer learner"
+            )
+        self.assertEqual(mismatched_state.exception.code, 403)
+
+
 if __name__ == "__main__":
     unittest.main()
