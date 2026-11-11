@@ -25,7 +25,7 @@ from .simulation import MerlinSimulation
 from .telemetry import normalize_event, telemetry_view, record_runtime_event
 from .telemetry_graph import build_telemetry_graph
 from .math_learning_api import MathLearningService
-from .rsi import (CaseOutcome, EvalCase, EvaluationEvidence, SkillProcedure, compare_skill_evaluations)
+from .rsi import (CaseOutcome, EvalCase, EvaluationEvidence, FailureTrajectory, SkillProcedure, compare_skill_evaluations, induce_skill_candidate)
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
     validate_analogy,
@@ -563,6 +563,26 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None):
                 elif path == "/api/analogy/validate":
                     result = validate_analogy(_analogy(data))
                     summary = {"accepted": result["accepted"], "reasons": len(result["reasons"])}
+                elif path == "/api/rsi/induce":
+                    trajectories = tuple(FailureTrajectory(
+                        failure_id=row.get("failure_id", ""),
+                        failure_signature=row.get("failure_signature", ""),
+                        trigger_condition=row.get("trigger_condition", ""),
+                        corrective_steps=tuple(row.get("corrective_steps", [])),
+                        source_commit_sha=row.get("source_commit_sha", ""),
+                        source_artifact_sha256=row.get("source_artifact_sha256", ""),
+                    ) for row in data.get("trajectories", []))
+                    candidate = induce_skill_candidate(
+                        skill_id=data.get("skill_id", ""),
+                        version=data.get("version", 0),
+                        purpose=data.get("purpose", ""),
+                        trajectories=trajectories,
+                        guardrails=tuple(data.get("guardrails", [])),
+                    )
+                    result = {**candidate.__dict__, "sha256": candidate.sha256,
+                              "status": "PROPOSAL_ONLY", "executable": False}
+                    summary = {"status": "PROPOSAL_ONLY", "skill_sha256": candidate.sha256,
+                               "source_failures": len(candidate.source_failure_ids)}
                 elif path == "/api/rsi/compare":
                     cases = tuple(EvalCase(**row) for row in data.get("cases", []))
                     decision = compare_skill_evaluations(
