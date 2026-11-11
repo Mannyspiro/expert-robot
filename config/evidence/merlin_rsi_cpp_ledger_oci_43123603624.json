@@ -1,0 +1,70 @@
+{
+  "schema": "merlin-cpp-oci-ledger-evidence-v1",
+  "result": "passed",
+  "observed_at_utc": "2026-11-11T23:56:56Z",
+  "source": {
+    "repository": "Mannyspiro/expert-robot",
+    "commit": "a538bf074874403fe8a3a8ece53311763d585a0c",
+    "files": {
+      "cpp/src/growth/generation_lineage.cpp": "046f9f6884cb1e1bc58397249b97ef0480a3e82d",
+      "cpp/src/research/episode_ledger.cpp": "0f21fcff46b9167f6c42c07826d42e3a68803959",
+      "cpp/src/research/state_machine.cpp": "a2c5dc1c04383662b3751167207482e08476be99",
+      "cpp/src/sha256.cpp": "74d91a042f0a5132e34960d03035dca6b485633a",
+      "tests/generation_lineage_smoke.cpp": "edbd0cd44ae64e9445357521f2c4b343d1716a61",
+      "tests/research_episode_ledger_smoke.cpp": "1593d641f3a0f59a18c85b470c797cc0a8fe8057",
+      "python/merlin/rsi_pipeline.py": "56d72fe862acebd1ae6102ea21995fd4cb44a04e"
+    }
+  },
+  "oci": {
+    "repository": "morganaspim/Cace-app",
+    "branch": "merlin/oci-jobs/merlin-cpp-ledger-tests-20261111",
+    "workflow_run_id": 43123603624,
+    "workflow_commit": "2dae91d8016b8caff78907b1fec5de4998b09f15",
+    "job_id": 130869979786,
+    "runner_id": 22,
+    "runner_name": "cace-oci-a1",
+    "architecture": "aarch64",
+    "operating_system": "Oracle Linux Server 9.8",
+    "free_bytes_after_tests": 450465792,
+    "artifact_id": 13902276040,
+    "artifact_sha256": "f708fd8e68dc65fe8b5ee6d67531d9d6652a0aed6fe087e54dee10704c4c9572",
+    "job_receipt_sha256": "92170be49af7dc8e65e5d4dcb8a0c2df0701b795335b053e3a604df04518a706",
+    "runner_inventory_sha256": "d11a8b503acf8478bea142ddcc01c6f20d1a90cc4ab042279114700152c1bc65",
+    "command_progress_sha256": "2d297e1650d2b0a871fe46df3c4d64ee77cc62d67ff7b3949a90d4fe97e10ea7"
+  },
+  "toolchain": {
+    "compiler": "/usr/bin/g++",
+    "compiler_version": "GCC 11.5.0",
+    "sqlite_runtime": "libsqlite3.so.0",
+    "sqlite_header_mode": "vendored minimal ABI declarations for test-only stable API subset",
+    "package_installation": false,
+    "system_package_changes": false
+  },
+  "checks": {
+    "generation_lineage_smoke": {
+      "compile": 0,
+      "run": 0
+    },
+    "research_episode_ledger_smoke": {
+      "compile": 0,
+      "run": 0
+    },
+    "python_cpp_interop": {
+      "compile": 0,
+      "run": 0,
+      "episode_id": "merlin-rsi-python-cpp-interop",
+      "verified_root_sha256": "698d66bd34fde44650268c53663096cf0295bfc1ffdb648dca85a6a3cb534792",
+      "database_sha256": "a2aa32ded4f01a2eded9f54d286770c16e3ab0d5d4142660128c88411a14bee4"
+    }
+  },
+  "scope": {
+    "append_only_generation_and_evaluation_triggers": "tested",
+    "append_only_research_episode_triggers": "tested",
+    "hash_chain_tamper_detection": "tested",
+    "latest_python_to_cpp_episode_hash_compatibility": "tested",
+    "real_candidate_artifact_verification": false,
+    "signed_cace_candidate_attestation": false,
+    "production_promotion": false
+  },
+  "authentication": "GitHub Actions run and artifact hashes provide execution provenance. This record is not a CACE-signed attestation."
+}

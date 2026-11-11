@@ -130,8 +130,12 @@ read-only MCP probe on runner cace-oci-a1. The probe confirmed the local MCP
 endpoint at 127.0.0.1:8765 and successful read-only responses from
 get_control_capabilities and get_cace_runtime_status. The live registry did
 not expose get_github_runner_status or an artifact-verification operation.
-The gateway currently allowlists inventory_snapshot and mcp_readonly_probe;
-it does not execute arbitrary repository tests or shell commands.
+The default gateway profiles are inventory_snapshot and mcp_readonly_probe.
+A separate CACE feature branch added three further fixed, data-only profiles:
+CACE EvidenceBundle identity comparison, pinned RSI Python tests, and pinned
+C++ ledger tests. Those profiles were executed successfully on the same OCI
+runner; their request schemas and source hashes are recorded in the CACE
+feature branch. They do not accept arbitrary commands or request-supplied code.
 
 The pinned RSI Python bridge was subsequently executed on the OCI runner
 without package installation or persistent host changes:
@@ -145,6 +149,22 @@ without package installation or persistent host changes:
 - uploaded artifact SHA-256:
   eaed9cd1bf9162c393764ab0a2f5305707b58c8ae71cb521302ee53a3eb9733a.
 
+The latest Expert Robot RSI source snapshot was then tested on OCI:
+
+- run 43123528598, source commit
+  a538bf074874403fe8a3a8ece53311763d585a0c;
+- 15/15 Python tests passed on Python 3.9.25 in 0.429 seconds;
+- coverage included authenticated Hermes failures, seed-bound candidate
+  provenance, signed worker acknowledgements, idempotent dispatch, CACE trust
+  store integrity, separate approval, Crossref/arXiv cache behavior, rate
+  limiting, and the five-domain benchmark contract;
+- benchmark manifest SHA-256:
+  543dbb105d6baf62dbfee54cdd8c7e483f2a9ab799e651dddda8066ce0f5a36f;
+- artifact SHA-256:
+  cbaabae8d8004c7488b7a1ed0c8455c23b3a9b61436e0d0f6573d17e888b6f8c.
+
+Evidence: config/evidence/merlin_rsi_python_oci_43123528598.json.
+
 A separate OCI CACE contract run (43121546574) matched the CACE EvidenceBundle
 v1 identity implementation. It produced bundle digest
 0898289d4c6267dbc8de6e595e56f8f035ad0344b65431f8deb11be0972b0272 and
@@ -153,11 +173,32 @@ manifest digest
 Its scope was bundle identity only, not a signed attestation or candidate
 verification.
 
-The C++ ledger test profile was attempted on OCI (run 43122690856) but returned
-unavailable because the runner has no SQLite development header. No packages
-were installed. The Avrea build check also reports no Avrea credits; the
-dedicated hosted GitHub Actions jobs have not provided usable execution logs.
-The C++ smoke tests therefore remain unverified on a live compiler.
+The C++ ledger profile first identified that the runner had no SQLite
+development header. Instead of installing packages, a declaration-only,
+test-scoped SQLite ABI shim was added and linked to the runner's preinstalled
+libsqlite3.so.0. The subsequent run 43123039660 passed:
+
+- GCC 11.5.0 compiled and ran generation_lineage_smoke successfully.
+- GCC 11.5.0 compiled and ran research_episode_ledger_smoke successfully.
+- A Python-created RSI episode was read and hash-chain-verified by the C++
+  ResearchEpisodeLedger; the verified root was
+  31aae78850b712ed505c569acb408f1a00c42c307d80e50d1d7d12f4d4a6a27d.
+- No system packages or libraries were installed. The runner retained about
+  451 MB free after the run.
+
+The C++ smoke tests and cross-language check were then repeated against
+the same latest RSI source commit a538bf074874403fe8a3a8ece53311763d585a0c
+(run 43123603624). Both C++ smoke tests passed again, and the updated Python
+AppendOnlyLedger event was independently verified by the C++ ledger. The
+latest verified episode root was
+698d66bd34fde44650268c53663096cf0295bfc1ffdb648dca85a6a3cb534792.
+The runner retained about 450 MB free; no system packages were installed.
+
+Evidence: config/evidence/merlin_rsi_cpp_ledger_oci_43123603624.json.
+
+The Avrea build check still reports no Avrea credits, and the automatic
+GitHub-hosted workflow did not provide a usable runner allocation. The
+successful CACE OCI results are therefore the actual C++ execution evidence.
 
 No live CACE artifact attestation has been obtained for an Expert Robot
 candidate. The CACE verification adapter remains fail-closed until a real

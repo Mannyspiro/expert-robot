@@ -1,0 +1,66 @@
+{
+  "schema": "merlin-rsi-python-oci-evidence-v1",
+  "result": "passed",
+  "observed_at_utc": "2026-11-11T23:56:08Z",
+  "source": {
+    "repository": "Mannyspiro/expert-robot",
+    "commit": "a538bf074874403fe8a3a8ece53311763d585a0c",
+    "files": {
+      "python/merlin/rsi_pipeline.py": "56d72fe862acebd1ae6102ea21995fd4cb44a04e",
+      "tests/test_rsi_pipeline.py": "d86b8766e92eab38f73397de6a411112d4b92cbb",
+      "config/benchmarks/merlin_rsi_multidomain_holdout_v1.json": "e38004514228b84ac052dace756d00f3022524b6"
+    }
+  },
+  "oci": {
+    "repository": "morganaspim/Cace-app",
+    "branch": "merlin/oci-jobs/merlin-cpp-ledger-tests-20261111",
+    "workflow_run_id": 43123528598,
+    "workflow_commit": "f43361baf10889d2388346deac610f3265d4bc62",
+    "job_id": 130869716496,
+    "runner_id": 22,
+    "runner_name": "cace-oci-a1",
+    "architecture": "aarch64",
+    "operating_system": "Oracle Linux Server 9.8",
+    "python_version": "3.9.25",
+    "free_bytes": 450646016,
+    "artifact_id": 13902210483,
+    "artifact_sha256": "cbaabae8d8004c7488b7a1ed0c8455c23b3a9b61436e0d0f6573d17e888b6f8c",
+    "job_receipt_sha256": "4f541645ce08047b206d75c61f87cd6eca59adf5c29640378d75127a543e5a87",
+    "runner_inventory_sha256": "d20628082ce836fc51982bde936c478d2592675c7644b07293e724c75773fd05"
+  },
+  "results": {
+    "tests_passed": 15,
+    "tests_failed": 0,
+    "duration_seconds": 0.429,
+    "benchmark_cases": 25,
+    "benchmark_domains": [
+      "mathematics",
+      "lean",
+      "research",
+      "coding",
+      "engineering"
+    ],
+    "benchmark_manifest_sha256": "543dbb105d6baf62dbfee54cdd8c7e483f2a9ab799e651dddda8066ce0f5a36f",
+    "coverage": [
+      "authenticated Hermes failure receipts and idempotent ingestion",
+      "Hermes induction seed bound to candidate provenance",
+      "signed RSI worker acknowledgement and idempotent dispatch",
+      "rejection of worker acknowledgement for another seed",
+      "CACE trust-store digest integrity and self-approval rejection",
+      "separate CACE verification and promotion approval",
+      "Crossref DOI and arXiv metadata caching and rate limiting",
+      "append-only SQLite ledger and tamper detection",
+      "fixed five-domain held-out manifest",
+      "paired multidomain GEPA/Inspect eligibility gate"
+    ]
+  },
+  "safety": {
+    "package_installation": false,
+    "system_package_changes": false,
+    "host_mutation": false,
+    "production_worker_transport_configured": false,
+    "cace_production_private_key_used": false,
+    "production_promotion": false
+  },
+  "scope": "Fifteen tests passed against the exact pinned source snapshot on the OCI runner. Ed25519 tests used ephemeral test keypairs; this validates the cryptographic boundary implementation, not the availability of production trust anchors or a live RSI worker transport."
+}
