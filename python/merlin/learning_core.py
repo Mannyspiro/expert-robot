@@ -89,6 +89,12 @@ DEFAULT_CONCEPTS = ConceptRegistry(
         Concept("function", "Input-output rule", "A rule that assigns an output to an input.", ("quantity",)),
         Concept("limit", "Approaching a value", "What a quantity gets close to as we approach a point.", ("rate", "slope")),
         Concept("derivative", "Derivative", "The instantaneous rate of change of a function.", ("function", "limit", "slope")),
+        Concept("probability", "Probability", "A mathematical model for uncertainty and long-run frequencies.", ("quantity",)),
+        Concept("state", "State", "The information about a system needed to describe its current condition.", ("quantity",)),
+        Concept("transition", "State transition", "A rule describing how a system moves from one state to another.", ("state",)),
+        Concept("expected_value", "Expected value", "The probability-weighted average outcome of a random process.", ("probability", "change")),
+        Concept("markov_chain", "Markov chain", "A model of state changes whose next step depends on the current state.", ("transition", "probability")),
+        Concept("stationary_distribution", "Stationary distribution", "A stable long-run distribution over states of a stochastic process.", ("markov_chain", "expected_value")),
     )
 )
 
