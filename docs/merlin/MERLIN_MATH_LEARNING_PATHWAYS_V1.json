@@ -2,7 +2,7 @@
   "schema": "merlin-math-learning-pathways/1",
   "catalog_id": "merlin.mathematics",
   "catalog_schema": 1,
-  "version": "1.3.0",
+  "version": "1.4.0",
   "status": "planned_curriculum_map",
   "principle": "All pathways share the same mathematical idea graph; pathway weights change ordering and examples, not truth, mastery, or proof status.",
   "shared_learning_cycle": [
@@ -111,7 +111,11 @@
             "MATH-FRACT-002",
             "MATH-SIG-001",
             "MATH-GEN-001",
-            "MATH-DATA-001"
+            "MATH-DATA-001",
+            "MATH-LIN-002",
+            "MATH-NUM-001",
+            "MATH-ODE-001",
+            "MATH-OPT-001"
           ],
           "evidence": [
             "assumption sensitivity",
@@ -239,7 +243,11 @@
             "MATH-CALC-002",
             "MATH-CALC-003",
             "MATH-PROB-001",
-            "MATH-STAT-001"
+            "MATH-STAT-001",
+            "MATH-LIN-002",
+            "MATH-NUM-001",
+            "MATH-ODE-001",
+            "MATH-OPT-001"
           ],
           "evidence": [
             "versioned implementation",
@@ -344,7 +352,11 @@
             "MATH-PROJ-001",
             "MATH-POLY-001",
             "MATH-PARA-001",
-            "MATH-GEN-001"
+            "MATH-GEN-001",
+            "MATH-LIN-002",
+            "MATH-NUM-001",
+            "MATH-ODE-001",
+            "MATH-OPT-001"
           ],
           "evidence": [
             "integrated artifact",
@@ -1071,8 +1083,8 @@
       "title": "Linear systems and Gaussian elimination",
       "kind": "concept",
       "status": "candidate",
-      "lesson_id": null,
-      "lesson_state": "lesson_not_yet_linked",
+      "lesson_id": "math-linear-systems-gaussian-v1",
+      "lesson_state": "lesson_reference_present",
       "prerequisites": [
         "MATH-ALG-003"
       ],
@@ -1167,8 +1179,8 @@
       "title": "Floating-point error and numerical stability",
       "kind": "concept",
       "status": "candidate",
-      "lesson_id": null,
-      "lesson_state": "lesson_not_yet_linked",
+      "lesson_id": "math-floating-point-stability-v1",
+      "lesson_state": "lesson_reference_present",
       "prerequisites": [
         "MATH-ALG-003"
       ],
@@ -1183,8 +1195,8 @@
       "title": "Differential equations and numerical integration",
       "kind": "concept",
       "status": "candidate",
-      "lesson_id": null,
-      "lesson_state": "lesson_not_yet_linked",
+      "lesson_id": "math-ode-numerical-integration-v1",
+      "lesson_state": "lesson_reference_present",
       "prerequisites": [
         "MATH-CALC-002",
         "MATH-CALC-003",
@@ -1201,8 +1213,8 @@
       "title": "Optimization and gradient methods",
       "kind": "concept",
       "status": "candidate",
-      "lesson_id": null,
-      "lesson_state": "lesson_not_yet_linked",
+      "lesson_id": "math-optimization-gradient-v1",
+      "lesson_state": "lesson_reference_present",
       "prerequisites": [
         "MATH-CALC-002",
         "MATH-LIN-002"
