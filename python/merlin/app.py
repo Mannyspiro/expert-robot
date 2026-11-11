@@ -850,18 +850,38 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             elif path == "/api/events":
                 self._send(200, {"schema": "merlin-events/1", "events": store.recent()})
             elif path in {"/api/learning/learner", "/api/learning/recommendation"}:
-                query = parse_qs(parsed.query)
-                learner_id = (query.get("learner_id") or [""])[0]
-                if not learner_id or len(learner_id) > 200:
-                    self._send(400, {"error": "learner_id_required"})
+                actor = self._learning_actor()
+                if actor is None:
+                    self._send(503, {"error": "learning_identity_provider_not_configured"})
                     return
+                if actor.role != "learner":
+                    self._send(403, {"error": "learner_role_required"})
+                    return
+                if learner_store is None:
+                    self._send(503, {"error": "learner_store_unavailable"})
+                    return
+                query = parse_qs(parsed.query)
+                requested_learner_id = (query.get("learner_id") or [None])[0]
+                if requested_learner_id is not None and len(requested_learner_id) > 200:
+                    self._send(400, {"error": "learner_id_invalid"})
+                    return
+                if requested_learner_id is not None and requested_learner_id != actor.actor_id:
+                    self._send(403, {"error": "learner_identity_mismatch"})
+                    return
+                learner_id = actor.actor_id
                 if path == "/api/learning/recommendation":
                     curriculum_id = (query.get("curriculum_id") or [None])[0]
                     if curriculum_id not in {None, "mathematics", "b2b-ml-agentic-ai", "art-math-studio"}:
                         self._send(400, {"error": "unsupported_curriculum"})
                         return
-                    result = select_next_lesson(learner_id, learner_store, learning_graph,
-                                                learning_lessons, curriculum_id=curriculum_id)
+                    profile = learner_store.get_profile(learner_id)
+                    result = select_next_lesson(
+                        learner_id, learner_store, learning_graph, learning_lessons,
+                        curriculum_id=curriculum_id,
+                        path_weights=profile["pathway_weights"],
+                        interests=profile["interests"],
+                        max_minutes=profile["max_minutes"],
+                    )
                     if learning_outbox is not None:
                         minute = int(datetime.now(timezone.utc).timestamp() // 60)
                         learning_outbox.enqueue("learning-recommendation:" + learner_id + ":" + str(minute),
