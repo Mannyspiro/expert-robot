@@ -6,6 +6,11 @@ on:
       - "python/merlin/learning_platform.py"
       - "python/merlin/app.py"
       - "python/merlin/research_curriculum.py"
+      - "python/merlin/math_foundations_course.py"
+      - "docs/merlin/MERLIN_MATH_FOUNDATIONS_COURSE_V1.json"
+      - "docs/research/merlin-mathematical-idea-catalog.v1.json"
+      - "scripts/merlin_math_idea_validate.py"
+      - "tests/test_merlin_math_foundations_course.py"
       - "ui/merlin-learning/index.html"
       - "tests/test_merlin_learning_platform.py"
       - "tests/research/test_merlin_learning_http.py"
@@ -54,7 +59,7 @@ jobs:
         run: |
           set +e
           mkdir -p artifacts
-          python -m compileall -q python/merlin/app.py python/merlin/learning_platform.py python/merlin/research_curriculum.py 2>&1 | tee artifacts/compile.log
+          python -m compileall -q python/merlin/app.py python/merlin/learning_platform.py python/merlin/research_curriculum.py python/merlin/math_foundations_course.py 2>&1 | tee artifacts/compile.log
           rc=${PIPESTATUS[0]}
           printf '{"suite":"learning-platform-compile","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/compile-result.json
           exit "$rc"
@@ -81,7 +86,7 @@ jobs:
         run: |
           set +e
           mkdir -p artifacts
-          python -m pytest -q -v tests/test_merlin_learning_platform.py tests/research/test_merlin_learning_http.py tests/test_merlin_research_curriculum.py 2>&1 | tee artifacts/learning-tests.log
+          python -m pytest -q -v tests/test_merlin_learning_platform.py tests/research/test_merlin_learning_http.py tests/test_merlin_research_curriculum.py tests/test_merlin_math_foundations_course.py 2>&1 | tee artifacts/learning-tests.log
           rc=${PIPESTATUS[0]}
           printf '{"suite":"learning-platform-tests","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/learning-tests-result.json
           exit "$rc"
