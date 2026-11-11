@@ -157,7 +157,7 @@ class MerlinLearningHttpTests(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertEqual(preferences["max_minutes"], 35)
         status, personalized = self.request(
-            "GET", f"/api/learning/courses/{course_id}/recommendation", "Bearer learner"
+            "GET", f"/api/learning/courses/{course["course_id"]}/recommendation", "Bearer learner"
         )
         self.assertEqual(status, 200)
         self.assertEqual(personalized["lesson_id"], "math-foundations-divisibility-v1")
