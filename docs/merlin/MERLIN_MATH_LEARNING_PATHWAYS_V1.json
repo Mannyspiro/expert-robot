@@ -2,7 +2,7 @@
   "schema": "merlin-math-learning-pathways/1",
   "catalog_id": "merlin.mathematics",
   "catalog_schema": 1,
-  "version": "1.1.0",
+  "version": "1.2.0",
   "status": "planned_curriculum_map",
   "principle": "All pathways share the same mathematical idea graph; pathway weights change ordering and examples, not truth, mastery, or proof status.",
   "shared_learning_cycle": [
@@ -951,8 +951,8 @@
       "title": "Propositional logic, predicates and quantifiers",
       "kind": "concept",
       "status": "candidate",
-      "lesson_id": null,
-      "lesson_state": "lesson_not_yet_linked",
+      "lesson_id": "math-logic-quantifiers-v1",
+      "lesson_state": "lesson_reference_present",
       "prerequisites": [],
       "pathways": [
         "mathematician",
@@ -965,8 +965,8 @@
       "title": "Sets, relations and functions",
       "kind": "concept",
       "status": "candidate",
-      "lesson_id": null,
-      "lesson_state": "lesson_not_yet_linked",
+      "lesson_id": "math-sets-relations-v1",
+      "lesson_state": "lesson_reference_present",
       "prerequisites": [],
       "pathways": [
         "mathematician",
@@ -979,8 +979,8 @@
       "title": "Graphs, trees and network structure",
       "kind": "concept",
       "status": "candidate",
-      "lesson_id": null,
-      "lesson_state": "lesson_not_yet_linked",
+      "lesson_id": "math-graphs-trees-v1",
+      "lesson_state": "lesson_reference_present",
       "prerequisites": [
         "MATH-SET-001"
       ],
