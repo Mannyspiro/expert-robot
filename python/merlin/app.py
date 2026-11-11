@@ -1223,6 +1223,30 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                                   "manifest_sha256": result["manifest_sha256"]})
                     self._send(201, result)
                     return
+                if path.startswith("/api/learning/reviewers/"):
+                    actor = self._learning_actor()
+                    if actor is None:
+                        self._send(503, {"error": "learning_identity_provider_not_configured"})
+                        return
+                    parts = [unquote(part) for part in path.split("/") if part]
+                    if len(parts) != 5 or parts[4] != "calibration":
+                        self._send(404, {"error": "not_found"})
+                        return
+                    result = learning_platform.record_reviewer_calibration(
+                        actor,
+                        parts[3],
+                        data.get("calibration_sha256"),
+                        data.get("case_count"),
+                        data.get("agreement_score"),
+                        data.get("calibration_version", "merlin-assessment-review-v1"),
+                    )
+                    store.append(path, {"reviewer_id": parts[3],
+                                        "calibration_id": result["calibration_id"]},
+                                 {"status": result["status"],
+                                  "calibration_sha256": result["calibration_sha256"],
+                                  "expires_at": result["expires_at"]})
+                    self._send(201, result)
+                    return
                 if path.startswith("/api/learning/courses/"):
                     actor = self._learning_actor()
                     if actor is None:
