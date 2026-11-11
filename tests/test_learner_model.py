@@ -54,6 +54,33 @@ class LearnerModelTests(unittest.TestCase):
         self.assertEqual(result["lesson_id"],"basics-intro")
         self.assertEqual(result["authority"],"recommendation_only")
 
+    def test_rejects_boolean_and_nonfinite_scores(self):
+        import math
+        for score in (True, False, math.nan, math.inf, -math.inf):
+            with self.subTest(score=score), self.assertRaises(ValueError):
+                self.store.record_attempt(self.event("bad-score", "s1", score=score))
+
+    def test_rejects_non_boolean_delay_and_transfer_flags(self):
+        for field, value in (("delayed", "false"), ("transfer", 1)):
+            event = self.event("bad-flag-" + field, "s1")
+            event[field] = value
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError, "must be booleans"):
+                self.store.record_attempt(event)
+
+    def test_rejects_boolean_or_nonfinite_submission_timestamp(self):
+        import math
+        for submitted_at in (True, math.nan, math.inf, 0, -1):
+            event = self.event("bad-time-" + str(submitted_at), "s1")
+            event["submitted_at"] = submitted_at
+            with self.subTest(submitted_at=submitted_at), self.assertRaisesRegex(ValueError, "submitted_at"):
+                self.store.record_attempt(event)
+
+    def test_rejects_non_json_response_values(self):
+        event = self.event("bad-response", "s1")
+        event["response"] = {"answer": float("nan")}
+        with self.assertRaisesRegex(ValueError, "finite JSON"):
+            self.store.record_attempt(event)
+
     def test_invalid_score_rejected(self):
         with self.assertRaises(ValueError):
             self.store.record_attempt(self.event("a1","s1",score=1.5))
