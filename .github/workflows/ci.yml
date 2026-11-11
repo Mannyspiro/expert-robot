@@ -115,6 +115,13 @@ jobs:
           set -euo pipefail
           python3 -m unittest discover -s tests -p "test_merlin_learning_core.py" -v
 
+      - name: Merlin Parrondo paradox lesson
+        env:
+          PYTHONPATH: python
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tests -p "test_merlin_parrondo_lesson.py" -v
+
       - name: Restore C++ compiler cache
         id: ccache-restore
         uses: actions/cache/restore@v4
