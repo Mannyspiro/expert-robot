@@ -72,9 +72,9 @@ class FailureTrajectory:
             raise ValueError("failure signature or trigger exceeds bounds")
         if not isinstance(self.corrective_steps, tuple) or not self.corrective_steps or len(self.corrective_steps) > 10:
             raise ValueError("failure trajectory requires 1 to 10 corrective steps")
-        if any(not step.strip() or len(step) > 300 for step in self.corrective_steps):
+        if any(not isinstance(step, str) or not step.strip() or len(step) > 300 for step in self.corrective_steps):
             raise ValueError("corrective steps must be non-empty and bounded")
-        if len(self.source_commit_sha) != 40 or any(c not in "0123456789abcdef" for c in self.source_commit_sha):
+        if not isinstance(self.source_commit_sha, str) or len(self.source_commit_sha) != 40 or any(c not in "0123456789abcdef" for c in self.source_commit_sha):
             raise ValueError("source commit must be a lowercase 40-character Git SHA")
         if not _is_sha(self.source_artifact_sha256):
             raise ValueError("source artifact must have a SHA-256 digest")
