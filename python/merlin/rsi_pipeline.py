@@ -349,6 +349,7 @@ class AppendOnlyLedger:
         source_receipt: SignedReceipt, artifact_sha256: str,
         generator: str, mutation: Mapping[str, Any],
         trusted_keys: Mapping[str, str], episode_id: str | None = None,
+        induction_seed_event_hash: str | None = None,
     ) -> dict[str, Any]:
         episode = episode_id or candidate_id
         if not _is_sha256(artifact_sha256):
@@ -356,6 +357,18 @@ class AppendOnlyLedger:
         if not candidate_id or not generator:
             raise ValueError("candidate_id and generator are required")
         required = {"candidate_id": candidate_id, "artifact_sha256": artifact_sha256}
+        if induction_seed_event_hash is not None:
+            if not _is_sha256(induction_seed_event_hash):
+                raise ValueError("induction_seed_event_hash must be lowercase SHA-256")
+            with self._connect() as db:
+                seed = db.execute(
+                    "SELECT episode_id FROM research_episode_events "
+                    "WHERE event_hash=? AND event_type='rsi.induction_seeded'",
+                    (induction_seed_event_hash,),
+                ).fetchone()
+            if seed is None:
+                raise ValueError("candidate induction seed is absent from authenticated Hermes failure history")
+            required["induction_seed_event_hash"] = induction_seed_event_hash
         if not verify_signed_receipt(source_receipt, trusted_keys,
             expected_issuer="merlin-source", expected_claims=required):
             raise PermissionError("candidate source receipt is missing, untrusted, or mismatched")
@@ -377,6 +390,7 @@ class AppendOnlyLedger:
             "source_claims": dict(source_receipt.claims),
             "source_repo": source_repo, "source_commit": source_commit,
             "artifact_sha256": artifact_sha256, "generator": generator,
+            "induction_seed_event_hash": induction_seed_event_hash,
             "mutation": dict(mutation),
         })
 
