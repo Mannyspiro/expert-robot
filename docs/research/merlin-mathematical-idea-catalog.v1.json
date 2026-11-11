@@ -1461,6 +1461,358 @@
           "MATH-IDEA-002"
         ]
       }
+    },
+    {
+      "id": "MATH-NT-001",
+      "title": "Whole-number structure and additive patterns",
+      "kind": "concept",
+      "claim": "Whole numbers can be explored through order, parity, repeated addition, and additive patterns; conjectures about such patterns must be stated with an explicit domain.",
+      "definitions": [
+        "whole-number domain",
+        "successor",
+        "odd and even",
+        "constant difference",
+        "sequence index"
+      ],
+      "assumptions": [
+        "The lesson states whether zero is included in the chosen whole-number convention.",
+        "Sequence indices are positive integers unless stated otherwise."
+      ],
+      "status": "literature_checked",
+      "provenance": [
+        "Clay Mathematics Institute, Euclid's Elements, Book VII Definitions 1–7: https://www.claymath.org/euclid_index/fundamentals-of-number-theory/"
+      ],
+      "relations": [
+        {
+          "type": "generalizes",
+          "target": "MATH-NT-002"
+        },
+        {
+          "type": "maps_to",
+          "target": "MATH-ALG-002"
+        }
+      ],
+      "objections": [
+        "Natural-number and whole-number conventions differ across texts; each lesson must state its domain."
+      ],
+      "next_steps": [
+        "Add parity and arithmetic-sequence transfer exercises.",
+        "Connect sequence rules to algebraic representations."
+      ],
+      "learning": {
+        "lesson_id": "math-foundations-counting-v1",
+        "dimensions": [
+          "recognition",
+          "conceptual_explanation",
+          "representation_translation",
+          "transfer"
+        ],
+        "prerequisites": []
+      }
+    },
+    {
+      "id": "MATH-NT-002",
+      "title": "Divisibility and factor pairs",
+      "kind": "concept",
+      "claim": "Divisibility can be represented through exact equal groups and factor pairs, providing a basis for classifying integers and reasoning about primes.",
+      "definitions": [
+        "divisor",
+        "multiple",
+        "factor pair",
+        "exact division",
+        "positive divisor"
+      ],
+      "assumptions": [
+        "The initial curriculum uses positive integer divisors.",
+        "Factor pairs are listed without duplicate reversed pairs."
+      ],
+      "status": "literature_checked",
+      "provenance": [
+        "Clay Mathematics Institute, Euclid's Elements, Book VII Definitions 3–5: https://www.claymath.org/euclid_index/fundamentals-of-number-theory/"
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-NT-001"
+        },
+        {
+          "type": "generalizes",
+          "target": "MATH-NT-003"
+        }
+      ],
+      "objections": [
+        "The factor-pair method must state whether negative divisors are in scope."
+      ],
+      "next_steps": [
+        "Add a divisor-completeness exercise using the square-root bound.",
+        "Introduce greatest common divisors after factor-pair fluency."
+      ],
+      "learning": {
+        "lesson_id": "math-foundations-divisibility-v1",
+        "dimensions": [
+          "conceptual_explanation",
+          "procedure",
+          "representation_translation"
+        ],
+        "prerequisites": [
+          "MATH-NT-001"
+        ]
+      }
+    },
+    {
+      "id": "MATH-NT-003",
+      "title": "Prime numbers and primality",
+      "kind": "concept",
+      "claim": "A prime number is a positive integer greater than one whose only positive divisors are one and itself; primality can be explored through factor pairs and tested by bounded divisor search.",
+      "definitions": [
+        "prime number",
+        "composite number",
+        "unit",
+        "positive divisor",
+        "square-root divisor bound"
+      ],
+      "assumptions": [
+        "The lesson uses positive integers and treats one as neither prime nor composite.",
+        "The square-root bound is used only with a proof of the factor-pair argument."
+      ],
+      "status": "literature_checked",
+      "provenance": [
+        "Clay Mathematics Institute, Euclid's Elements, Book VII Definition 11: https://www.claymath.org/euclid_index/fundamentals-of-number-theory/",
+        "Euclid's Elements, Book IX Proposition 20: https://www.euclids-elements.org/elements/books/bookIX/propositions/propIX20/"
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-NT-002"
+        },
+        {
+          "type": "motivated_by",
+          "target": "MATH-LOG-001"
+        }
+      ],
+      "objections": [
+        "Primality testing by finite trial division is not the same as a formal proof of a general number-theoretic theorem."
+      ],
+      "next_steps": [
+        "Prove the square-root divisor bound.",
+        "Implement a deterministic small-integer primality checker and test edge cases."
+      ],
+      "learning": {
+        "lesson_id": "math-foundations-primes-v1",
+        "dimensions": [
+          "recognition",
+          "conceptual_explanation",
+          "procedure",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-NT-002"
+        ]
+      }
+    },
+    {
+      "id": "MATH-ALG-002",
+      "title": "Variables and algebraic expressions",
+      "kind": "concept",
+      "claim": "A variable can represent a changing or unknown quantity, allowing a relationship observed in concrete cases to be expressed as a general rule.",
+      "definitions": [
+        "variable",
+        "constant",
+        "coefficient",
+        "expression",
+        "input-output relation"
+      ],
+      "assumptions": [
+        "The domain and meaning of each variable are stated before manipulating an expression."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin-authored instructional sequence: concrete changing-quantity model, table, graph, and general expression."
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-NT-001"
+        },
+        {
+          "type": "maps_to",
+          "target": "MATH-COMP-001"
+        }
+      ],
+      "objections": [
+        "A symbolic expression is only meaningful after its variables and domains are defined."
+      ],
+      "next_steps": [
+        "Add multiple representations of linear relationships.",
+        "Connect variables to function notation and simple algorithms."
+      ],
+      "learning": {
+        "lesson_id": "math-foundations-variables-v1",
+        "dimensions": [
+          "conceptual_explanation",
+          "representation_translation",
+          "procedure",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-NT-001"
+        ]
+      }
+    },
+    {
+      "id": "MATH-COMP-001",
+      "title": "Algorithmic loops and repeated computation",
+      "kind": "concept",
+      "claim": "A loop expresses a repeated operation with explicit state, update, and stopping condition; repeated addition gives a concrete computational model of multiplication.",
+      "definitions": [
+        "loop",
+        "iteration",
+        "state",
+        "update",
+        "termination condition",
+        "invariant"
+      ],
+      "assumptions": [
+        "The first exercises use finite, bounded loops with an explicit termination condition."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Merlin-authored instructional sequence connecting repeated addition, counters, and bounded Python loops."
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-ALG-002"
+        },
+        {
+          "type": "implemented_by",
+          "target": "MATH-IDEA-002"
+        }
+      ],
+      "objections": [
+        "A loop that lacks a justified termination condition may not finish."
+      ],
+      "next_steps": [
+        "Add loop invariants and off-by-one counterexamples.",
+        "Compare iterative and recursive formulations."
+      ],
+      "learning": {
+        "lesson_id": "math-foundations-loops-v1",
+        "dimensions": [
+          "procedure",
+          "algorithm_design",
+          "reproducibility",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-ALG-002"
+        ]
+      }
+    },
+    {
+      "id": "MATH-LOG-001",
+      "title": "Euclid's proof of the infinitude of primes",
+      "kind": "theorem",
+      "claim": "There are more prime numbers than any assigned finite multitude of primes; the product-plus-one construction yields a prime divisor outside any proposed finite complete list.",
+      "definitions": [
+        "finite complete list",
+        "least common multiple",
+        "product-plus-one construction",
+        "prime divisor",
+        "contradiction"
+      ],
+      "assumptions": [
+        "Every integer greater than one has a prime divisor.",
+        "The proof distinguishes the constructed number from a prime divisor of that number."
+      ],
+      "status": "literature_checked",
+      "provenance": [
+        "Euclid's Elements, Book IX Proposition 20: https://www.euclids-elements.org/elements/books/bookIX/propositions/propIX20/",
+        "Clay Mathematics Institute, Euclid Index, Book IX Proposition 20: https://www.claymath.org/euclid_index/"
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-NT-003"
+        },
+        {
+          "type": "formalized_by",
+          "target": "MATH-IDEA-002"
+        }
+      ],
+      "objections": [
+        "The product-plus-one number need not itself be prime; the argument requires selecting one of its prime divisors."
+      ],
+      "next_steps": [
+        "Write a fully explicit modern proof with all quantifiers.",
+        "Formalize the theorem and its hypotheses in Lean."
+      ],
+      "learning": {
+        "lesson_id": "math-foundations-euclid-proof-v1",
+        "dimensions": [
+          "conceptual_explanation",
+          "proof_justification",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-NT-003"
+        ]
+      }
+    },
+    {
+      "id": "MATH-EXP-002",
+      "title": "Finite experiments and counterexamples",
+      "kind": "experiment",
+      "claim": "Finite computation can reveal patterns and disprove universal conjectures by finding a counterexample, but a finite run alone cannot establish a universal statement.",
+      "definitions": [
+        "conjecture",
+        "finite domain",
+        "counterexample",
+        "universal quantifier",
+        "reproducible experiment"
+      ],
+      "assumptions": [
+        "The tested domain, program, and stopping condition are recorded.",
+        "A negative result is scoped to the tested finite domain."
+      ],
+      "status": "literature_checked",
+      "provenance": [
+        "MIT OpenCourseWare, 6.042J Mathematics for Computer Science, Lecture 1: https://ocw.mit.edu/courses/6-042j-mathematics-for-computer-science-fall-2010/35948f025420c52f2c6c18d2da9e266b_L3LMbpZIKhQ.pdf",
+        "OEIS A145294, Euler polynomial x^2+x+41 first counterexample n=40: https://oeis.org/A145294"
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-COMP-001"
+        },
+        {
+          "type": "tested_by",
+          "target": "MATH-IDEA-002"
+        },
+        {
+          "type": "contrasts_with",
+          "target": "MATH-LOG-001"
+        }
+      ],
+      "objections": [
+        "A counterexample refutes the exact universal claim tested; it does not imply nearby conjectures are false."
+      ],
+      "next_steps": [
+        "Store random seeds, bounds, solver versions, and output hashes for computational tasks.",
+        "Pair finite searches with proof prompts and adversarial counterexample generation."
+      ],
+      "learning": {
+        "lesson_id": "math-foundations-counterexample-v1",
+        "dimensions": [
+          "algorithm_design",
+          "procedure",
+          "uncertainty",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-COMP-001"
+        ]
+      }
     }
   ]
 }
