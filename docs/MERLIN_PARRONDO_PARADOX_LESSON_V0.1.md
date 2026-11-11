@@ -17,6 +17,6 @@ These are long-run stationary expected gains for this parameterization, not guar
 
 ## Implementation boundaries
 
-The Python module computes the modulo-3 stationary distribution by iterating the finite Markov chain and calculates stationary expected gain. It does not claim that simulation proves the result. Tests check the sign and expected values for the stated parameterization.
+The Python module computes the modulo-3 stationary distribution in closed form using the Markov chain tree theorem and calculates stationary expected gain. It does not claim that simulation proves the result. Tests check the sign and expected values for the stated parameterization.
 
 The strategy-portfolio experiment in the learning core is a separate educational-policy hypothesis. It must not be conflated with the mathematical paradox: evidence that a mixed teaching strategy helps learners requires randomized studies, delayed outcomes, uncertainty intervals, and replication.
