@@ -106,6 +106,29 @@ class MathFoundationsCourseTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "outside its pathway"):
             validate_math_foundations_manifest(manifest, self.catalog)
 
+    def test_video_supplements_are_linked_to_relevant_lessons(self):
+        resources = {item["id"]: item for item in self.manifest["resources"]}
+        self.assertEqual(len(resources), 3)
+        prime = next(item for item in self.manifest["lessons"] if item["objective_id"] == "MATH-NT-003")
+        euclid = next(item for item in self.manifest["lessons"] if item["objective_id"] == "MATH-LOG-001")
+        loops = next(item for item in self.manifest["lessons"] if item["objective_id"] == "MATH-COMP-001")
+        self.assertIn("video-khan-prime-numbers-01", prime["resource_ids"])
+        self.assertIn("video-numberphile-infinite-primes-01", euclid["resource_ids"])
+        self.assertIn("video-cs50p-loops-01", loops["resource_ids"])
+        self.assertTrue(all(item["supplementary"] is True for item in resources.values()))
+
+    def test_rejects_non_https_supplementary_resource(self):
+        manifest = copy.deepcopy(self.manifest)
+        manifest["resources"][0]["source_uri"] = "http://example.org/video"
+        with self.assertRaisesRegex(ValueError, "must use HTTPS"):
+            validate_math_foundations_manifest(manifest, self.catalog)
+
+    def test_rejects_unknown_lesson_supplement_reference(self):
+        manifest = copy.deepcopy(self.manifest)
+        manifest["lessons"][0]["resource_ids"] = ["missing-video"]
+        with self.assertRaisesRegex(ValueError, "unknown supplementary resource"):
+            validate_math_foundations_manifest(manifest, self.catalog)
+
     def test_rejects_objective_dimensions_that_drift_from_canonical_graph(self):
         manifest = copy.deepcopy(self.manifest)
         manifest["objectives"][0]["dimensions"].append("invented_dimension")
