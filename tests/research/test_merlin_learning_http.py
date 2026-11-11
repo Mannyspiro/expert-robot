@@ -123,6 +123,7 @@ class MerlinLearningHttpTests(unittest.TestCase):
         )
         self.assertEqual(status, 201)
         self.assertEqual(submission["status"], "pending_review")
+        self.assertTrue(submission["rubric_sha256"])
         self.assertFalse(submission["mastery_updated"])
         status, queue = self.request(
             "GET", f"/api/learning/courses/{cid}/submissions", "Bearer reviewer"
@@ -139,6 +140,7 @@ class MerlinLearningHttpTests(unittest.TestCase):
         )
         self.assertEqual(status, 200)
         self.assertEqual(review_result["decision"], "accepted")
+        self.assertEqual(review_result["rubric_sha256"], submission["rubric_sha256"])
         self.assertFalse(review_result["mastery_updated"])
         status, my_work = self.request(
             "GET", f"/api/learning/courses/{cid}/submissions/mine", "Bearer learner"
@@ -146,6 +148,14 @@ class MerlinLearningHttpTests(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertEqual(my_work["submissions"][0]["reviews"][0]["feedback"],
                          "The explanation correctly identifies change in velocity.")
+        self.assertEqual(
+            my_work["submissions"][0]["reviews"][0]["rubric_sha256"],
+            submission["rubric_sha256"],
+        )
+        self.assertEqual(
+            my_work["submissions"][0]["reviews"][0]["rubric_scores"],
+            {"conceptual_explanation": 1.0},
+        )
         self.assertFalse(my_work["mastery_updated"])
         status, enrolled_catalog = self.request("GET", "/api/learning/courses", "Bearer learner")
         self.assertEqual(status, 200)
