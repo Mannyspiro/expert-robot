@@ -1599,6 +1599,7 @@
           "recognition",
           "conceptual_explanation",
           "procedure",
+          "algorithm_design",
           "transfer"
         ],
         "prerequisites": [
