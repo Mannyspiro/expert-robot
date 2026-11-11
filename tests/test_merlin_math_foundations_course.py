@@ -82,6 +82,30 @@ class MathFoundationsCourseTests(unittest.TestCase):
             self.assertEqual(recommendation["authority"], "recommendation_only")
 
 
+    def test_all_three_pathways_have_aligned_module_and_lesson_membership(self):
+        modules = {item["id"]: item["lesson_ids"] for item in self.manifest["modules"]}
+        expected = {
+            "mathematician": "mathematician",
+            "mathematics-programmer": "mathematics_programmer",
+            "computational-hacker": "computational_hacker",
+        }
+        for module_id, pathway in expected.items():
+            for lesson_id in modules[module_id]:
+                lesson = next(item for item in self.manifest["lessons"] if item["id"] == lesson_id)
+                self.assertIn(pathway, lesson["pathways"])
+
+    def test_rejects_unknown_objective_pathway(self):
+        manifest = copy.deepcopy(self.manifest)
+        manifest["objectives"][0]["pathways"] = ["invented_path"]
+        with self.assertRaisesRegex(ValueError, "known learning paths"):
+            validate_math_foundations_manifest(manifest, self.catalog)
+
+    def test_rejects_module_lesson_pathway_mismatch(self):
+        manifest = copy.deepcopy(self.manifest)
+        manifest["lessons"][0]["pathways"].remove("mathematician")
+        with self.assertRaisesRegex(ValueError, "outside its pathway"):
+            validate_math_foundations_manifest(manifest, self.catalog)
+
     def test_rejects_objective_dimensions_that_drift_from_canonical_graph(self):
         manifest = copy.deepcopy(self.manifest)
         manifest["objectives"][0]["dimensions"].append("invented_dimension")
