@@ -82,6 +82,11 @@ class ConceptRegistry:
 DEFAULT_CONCEPTS = ConceptRegistry(
     (
         Concept("quantity", "Amount", "How much of something there is."),
+        Concept("state", "Current situation", "A description of the current condition or position of a system.", ("quantity",)),
+        Concept("probability", "Chance", "A numerical description of how likely an outcome is.", ("quantity",)),
+        Concept("expected_value", "Long-run average", "The average outcome expected over many repetitions.", ("probability", "quantity")),
+        Concept("state_transition", "Change of state", "A rule describing how a system moves from one state to another.", ("state", "probability")),
+        Concept("markov_chain", "State-transition process", "A model that moves among states according to transition probabilities.", ("state_transition", "probability")),
         Concept("change", "Change", "How an amount becomes larger or smaller.", ("quantity",)),
         Concept("rate", "Rate", "How much something changes per unit of something else.", ("change",)),
         Concept("graph", "Graph", "A visual picture of how two quantities relate.", ("quantity",)),
