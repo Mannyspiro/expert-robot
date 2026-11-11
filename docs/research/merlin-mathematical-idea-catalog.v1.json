@@ -1486,10 +1486,6 @@
         {
           "type": "generalizes",
           "target": "MATH-NT-002"
-        },
-        {
-          "type": "maps_to",
-          "target": "MATH-ALG-002"
         }
       ],
       "objections": [
@@ -1679,16 +1675,7 @@
       "provenance": [
         "Merlin-authored instructional sequence connecting repeated addition, counters, and bounded Python loops."
       ],
-      "relations": [
-        {
-          "type": "depends_on",
-          "target": "MATH-ALG-002"
-        },
-        {
-          "type": "implemented_by",
-          "target": "MATH-IDEA-002"
-        }
-      ],
+      "relations": [],
       "objections": [
         "A loop that lacks a justified termination condition may not finish."
       ],
@@ -1734,10 +1721,6 @@
         {
           "type": "depends_on",
           "target": "MATH-NT-003"
-        },
-        {
-          "type": "formalized_by",
-          "target": "MATH-IDEA-002"
         }
       ],
       "objections": [
@@ -1784,10 +1767,6 @@
         {
           "type": "depends_on",
           "target": "MATH-COMP-001"
-        },
-        {
-          "type": "tested_by",
-          "target": "MATH-IDEA-002"
         },
         {
           "type": "contrasts_with",
