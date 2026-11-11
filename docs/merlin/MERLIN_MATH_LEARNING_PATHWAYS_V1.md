@@ -3,7 +3,7 @@
 **Status:** architecture and implementation plan; not a production qualification.
 **Canonical inputs:** `docs/research/merlin-mathematical-idea-catalog.v1.json`, `docs/merlin/MERLIN_MATH_FOUNDATIONS_COURSE_V1.json`, and the tenant-scoped Merlin Learning service.
 
-The machine-readable mapping is maintained in `docs/merlin/MERLIN_MATH_LEARNING_PATHWAYS_V1.json`. It maps all 41 current catalog ideas into the three pathways and labels whether a lesson reference already exists. `scripts/merlin_math_pathways_validate.py` checks catalog identity, idea coverage, pathway membership, lesson-reference consistency, and prerequisite integrity; the LMS evidence workflow runs this validator.
+The machine-readable mapping is maintained in `docs/merlin/MERLIN_MATH_LEARNING_PATHWAYS_V1.json`. It maps all 57 current catalog ideas into the three pathways and labels whether a lesson reference already exists. `scripts/merlin_math_pathways_validate.py` checks catalog identity, idea coverage, pathway membership, lesson-reference consistency, and prerequisite integrity; the LMS evidence workflow runs this validator.
 
 ## Product objective
 
@@ -89,7 +89,7 @@ The current canonical course supplies the first seven-objective foundation. Expa
 | Applied and visual mathematics | Fractals, Fourier representations, tessellations, data visualization | Art, sound, image, physical design |
 | Research mathematics | Conjecture graphs, proof obligations, open questions, null models | Ideonomy, formal verification, research workflow |
 
-The idea catalog currently contains 41 typed idea records. Use it as a seed graph, not as a complete syllabus. Before publishing a module, validate every prerequisite against the canonical catalog and label each node as taught, planned, research-only, refuted, or unresolved. Research-only and unresolved ideas must not be presented as established facts.
+The idea catalog currently contains 57 typed idea records, including a newly added core spine for logic, sets, graph theory, equations, functions, modular arithmetic, complexity, linear algebra, calculus, probability, statistics, numerical analysis, differential equations, and optimization. Use it as a seed graph, not as a complete syllabus. Before publishing a module, validate every prerequisite against the canonical catalog and label each node as taught, planned, research-only, refuted, or unresolved. Research-only and unresolved ideas must not be presented as established facts.
 
 ## Ideonomy and useful lacuna search
 
