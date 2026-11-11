@@ -1316,6 +1316,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                                             "submission_id": result["submission_id"]},
                                      {"status": result["status"],
                                       "response_sha256": result.get("response_sha256"),
+                                      "rubric_sha256": result.get("rubric_sha256"),
                                       "mastery_updated": False})
                         self._send(200 if result.get("duplicate") else 201, result)
                         return
@@ -1328,6 +1329,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                                             "submission_id": parts[5],
                                             "review_id": result["review_id"]},
                                      {"decision": result["decision"],
+                                      "rubric_sha256": result.get("rubric_sha256"),
                                       "mastery_updated": False,
                                       "proof_qualified": False})
                         self._send(200, result)
