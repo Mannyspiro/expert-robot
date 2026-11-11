@@ -115,6 +115,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 -m unittest discover -s tests -p "test_merlin_math_foundations_course.py" -v
+          python3 -m unittest discover -s tests -p "test_learner_model.py" -v
           python3 scripts/merlin_math_idea_validate.py
 
       - name: Restore C++ compiler cache
