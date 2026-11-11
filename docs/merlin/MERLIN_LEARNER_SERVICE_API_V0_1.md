@@ -50,6 +50,20 @@ The current Merlin API binds to loopback only. Configure:
 
 Start the existing Merlin API process and use the lesson from the same origin. Do not expose this local MVP directly to a network or customer tenants. Add authentication, tenant isolation, authorization, rate limiting, data retention/deletion controls, encrypted storage, audit review and security qualification before B2B deployment.
 
+## Course assessment submissions and human review
+
+The course-scoped assessment workflow now exposes:
+
+- `POST /api/learning/courses/{course_id}/submissions` — learner-only submission of a lesson exercise. The authenticated learner identity is resolved by the server; request-body learner IDs and scores are not accepted. The server verifies active enrollment, published course version, lesson ID, exercise task ID, and a matching assessment that requires human review.
+- `GET /api/learning/courses/{course_id}/submissions` — reviewer queue and course-owner/tenant-admin audit view. Reviewers see draft courses awaiting course review and published courses with pending submissions.
+- `POST /api/learning/courses/{course_id}/submissions/{submission_id}/review` — independent reviewer decision (`accepted` or `needs_revision`), feedback, and optional rubric metadata.
+
+Submission IDs provide idempotency: replaying the same ID and content returns the original submission; reusing the ID for different work is rejected. A submission is append-only, and each review is a separate append-only record. The submission status is a current summary of the latest review decision.
+
+**Evidence boundary:** learner submissions and human rubric scores are not automatically written into the learner mastery estimator. The response explicitly reports `mastery_updated: false` and `proof_qualified: false`. Review is instructional feedback, not formal mathematical proof. A later evidence-bridge implementation must define task calibration, reviewer qualification, rubric versioning, and independent verification before any reviewed result can influence mastery estimates. Lean compilation and CACE verification remain separate proof-qualification stages.
+
+The UI includes learner answer submission and a reviewer queue with feedback and accept/request-revision actions. Institution identity, hosted deployment, privacy/retention controls, and executable hosted test evidence remain deployment requirements; this work does not claim production qualification.
+
 ## Design boundaries
 
 - The learner model recommends instruction; it does not grade employees for HR purposes.
