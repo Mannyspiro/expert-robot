@@ -562,15 +562,25 @@ class LearningPlatform:
                 raise LearningPermissionError("instructor may view submissions only for their own course")
             if actor.role == "reviewer" and course["owner_id"] == actor.actor_id:
                 raise LearningPermissionError("course authors cannot independently review their own learner work")
-            rows = db.execute("""SELECT submission_id,course_id,version,lesson_id,assessment_id,
-              learner_id,response_json,response_sha256,submitted_at,status
-              FROM learning_submissions WHERE tenant_id=? AND course_id=?
-              ORDER BY submitted_at,submission_id""",
+            rows = db.execute("""SELECT s.submission_id,s.course_id,s.version,s.lesson_id,s.assessment_id,
+              s.learner_id,s.response_json,s.response_sha256,s.submitted_at,s.status,v.manifest_json
+              FROM learning_submissions s JOIN learning_course_versions v
+                ON v.tenant_id=s.tenant_id AND v.course_id=s.course_id AND v.version=s.version
+              WHERE s.tenant_id=? AND s.course_id=?
+              ORDER BY s.submitted_at,s.submission_id""",
               (actor.tenant_id, course_id)).fetchall()
+        submissions = []
+        for row in rows:
+            item = dict(row)
+            manifest = json.loads(item.pop("manifest_json"))
+            assessment = next((entry for entry in manifest.get("assessments", [])
+                               if entry.get("id") == item["assessment_id"]), None)
+            item["assessment_rubric"] = assessment.get("rubric", []) if assessment else []
+            item["assessment_title"] = assessment.get("title", "") if assessment else ""
+            item["response"] = json.loads(item.pop("response_json"))
+            submissions.append(item)
         return {"schema": "merlin-learning-submission-queue/1",
-                "submissions": [{**dict(row), "response": json.loads(row["response_json"])}
-                                for row in rows],
-                "count": len(rows)}
+                "submissions": submissions, "count": len(submissions)}
 
     def list_my_submissions(self, actor: Actor, course_id: str) -> dict[str, Any]:
         """Return a learner's own submissions and append-only reviewer feedback."""
