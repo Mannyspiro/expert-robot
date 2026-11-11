@@ -182,6 +182,12 @@ class LessonSpec:
     priority: float = 1.0
 
     def validate(self) -> None:
+        if not self.lesson_id or not self.title:
+            raise ValueError("lesson id and title are required")
+        if not math.isfinite(self.priority) or self.priority <= 0:
+            raise ValueError("lesson priority must be finite and greater than zero")
+        if len({stage.stage_id for stage in self.stages}) != len(self.stages):
+            raise ValueError("lesson stage ids must be unique")
         if not self.stages:
             raise ValueError("lesson must contain at least one stage")
         if self.stages[0].mode != "concrete" or self.stages[0].introduces_symbols:
@@ -396,8 +402,12 @@ def select_next_lesson(
         lesson.validate()
         if path not in lesson.path_tags:
             continue
-        if any(concept not in {c.concept_id for c in concepts.all()} for concept in lesson.target_concepts):
-            raise ValueError(f"lesson {lesson.lesson_id} references an unknown concept")
+        known_concepts = {concept.concept_id for concept in concepts.all()}
+        unknown_concepts = (set(lesson.target_concepts) | set(lesson.prerequisites)) - known_concepts
+        if unknown_concepts:
+            raise ValueError(
+                f"lesson {lesson.lesson_id} references unknown concepts: {sorted(unknown_concepts)}"
+            )
         if any(
             sum(
                 store.mastery(learner_id, prerequisite)[dimension]
