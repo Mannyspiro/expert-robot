@@ -7,6 +7,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from contextlib import closing
 import json
+import hashlib
 import math
 import sqlite3
 import time
@@ -37,6 +38,16 @@ DEFAULT_LEARNER_PROFILE = {
     "pace": "adaptive",
     "max_minutes": None,
 }
+
+
+def learner_subject_id(tenant_id: str, actor_id: str) -> str:
+    """Derive a stable opaque learner key scoped to a tenant boundary."""
+    tenant = LearnerStore._required(tenant_id, "tenant_id")
+    actor = LearnerStore._required(actor_id, "actor_id")
+    return hashlib.sha256(
+        f"merlin-learner-subject/1\\0{tenant}\\0{actor}".encode("utf-8")
+    ).hexdigest()
+
 
 ATTEMPT_TOPIC = "merlin.learning.attempt"
 
