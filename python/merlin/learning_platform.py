@@ -435,8 +435,17 @@ class LearningPlatform:
             "lesson_id": lesson["id"], "idea_id": lesson["objective_id"],
             "curriculum_id": course_id,
         } for lesson in manifest["lessons"]]
+        profile = learner_store.get_profile(actor.actor_id)
         recommendation = select_next_lesson(
-            actor.actor_id, learner_store, graph, lessons, curriculum_id=course_id)
+            actor.actor_id,
+            learner_store,
+            graph,
+            lessons,
+            curriculum_id=course_id,
+            path_weights=profile["pathway_weights"],
+            interests=profile["interests"],
+            max_minutes=profile["max_minutes"],
+        )
         return {
             "schema": "merlin-learning-course-recommendation/1",
             "course_id": course_id, "course_version": course["version"],
