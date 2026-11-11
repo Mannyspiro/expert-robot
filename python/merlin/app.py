@@ -744,6 +744,10 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     return
                 try:
                     parts = [unquote(part) for part in path.split("/") if part]
+                    if len(parts) == 5 and parts[4] == "submissions":
+                        result = learning_platform.list_submissions(actor, parts[3])
+                        self._send(200, result)
+                        return
                     if len(parts) == 5 and parts[4] == "recommendation":
                         result = learning_platform.recommend_next_lesson(actor, parts[3], learner_store)
                         self._send(200, result)
@@ -1154,6 +1158,30 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                         store.append(path, {"course_id": parts[3], "template_id": "math-foundations-v1"},
                                      {"version": result["version"],
                                       "manifest_sha256": result["manifest_sha256"]})
+                        self._send(200, result)
+                        return
+                    if len(parts) == 5 and parts[4] == "submissions":
+                        result = learning_platform.submit_assessment(
+                            actor, parts[3], data.get("submission_id"), data.get("lesson_id"),
+                            data.get("task_id"), data.get("response"))
+                        store.append(path, {"course_id": parts[3],
+                                            "submission_id": result["submission_id"]},
+                                     {"status": result["status"],
+                                      "response_sha256": result.get("response_sha256"),
+                                      "mastery_updated": False})
+                        self._send(200 if result.get("duplicate") else 201, result)
+                        return
+                    if (len(parts) == 7 and parts[4] == "submissions"
+                            and parts[6] == "review"):
+                        result = learning_platform.review_submission(
+                            actor, parts[3], parts[5], data.get("decision"),
+                            data.get("feedback", ""), data.get("rubric_scores", {}))
+                        store.append(path, {"course_id": parts[3],
+                                            "submission_id": parts[5],
+                                            "review_id": result["review_id"]},
+                                     {"decision": result["decision"],
+                                      "mastery_updated": False,
+                                      "proof_qualified": False})
                         self._send(200, result)
                         return
                     if len(parts) != 5:
