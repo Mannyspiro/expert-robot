@@ -379,6 +379,30 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
         const answer = el("pre", JSON.stringify(submission.response, null, 2), "submission-response");
         card.append(answer);
         if (submission.status === "pending_review") {
+          const rubricScores = {};
+          const rubricPanel = el("div", undefined, "review-rubric");
+          rubricPanel.append(el("h5", submission.assessment_title || "Assessment rubric"));
+          for (const criterion of submission.assessment_rubric || []) {
+            const row = el("div", undefined, "review-rubric-row");
+            const label = el("label", criterion.dimension + " · " + criterion.points +
+              " points · " + criterion.description);
+            const score = document.createElement("input");
+            score.type = "number";
+            score.min = "0";
+            score.max = "1";
+            score.step = "0.25";
+            score.inputMode = "decimal";
+            score.placeholder = "0–1";
+            score.setAttribute("aria-label", "Score for " + criterion.dimension);
+            score.addEventListener("input", () => {
+              if (score.value === "") delete rubricScores[criterion.dimension];
+              else rubricScores[criterion.dimension] = Number(score.value);
+            });
+            label.append(score);
+            row.append(label);
+            rubricPanel.append(row);
+          }
+          card.append(rubricPanel);
           const feedback = document.createElement("textarea");
           feedback.rows = 3;
           feedback.maxLength = 8000;
@@ -386,9 +410,9 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
           card.append(feedback);
           const actions = el("div", undefined, "actions");
           actions.append(actionButton("Accept work", () =>
-            reviewSubmission(submission.submission_id, "accepted", feedback.value), true));
+            reviewSubmission(submission.submission_id, "accepted", feedback.value, {...rubricScores}), true));
           actions.append(actionButton("Request revision", () =>
-            reviewSubmission(submission.submission_id, "needs_revision", feedback.value)));
+            reviewSubmission(submission.submission_id, "needs_revision", feedback.value, {...rubricScores})));
           card.append(actions);
         }
         host.append(card);
@@ -397,11 +421,11 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
       host.append(el("p", "Submission queue unavailable: " + error.message, "meta"));
     }
   }
-  async function reviewSubmission(submissionId, decision, feedback) {
+  async function reviewSubmission(submissionId, decision, feedback, rubricScores = {}) {
     try {
       await api("/api/learning/courses/" + encodeURIComponent(current.course_id) +
         "/submissions/" + encodeURIComponent(submissionId) + "/review", "POST", {
-          decision, feedback, rubric_scores: {}
+          decision, feedback, rubric_scores: rubricScores
         });
       notice("Human review recorded. Learner mastery and proof status remain unchanged.", "success");
       await loadSubmissionQueue();
