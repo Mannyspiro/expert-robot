@@ -197,3 +197,101 @@ class LearnerStoreTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SpacedRepetitionTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.store = LearnerStore(Path(self.temp.name) / "srs.sqlite")
+        from merlin.learning_core import SpacedRepetition
+        self.srs = SpacedRepetition(self.store)
+        from datetime import datetime, timezone
+        self.now = datetime(2026, 11, 11, 12, 0, tzinfo=timezone.utc)
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def test_review_schedule_grows_after_successful_recall(self):
+        first = self.srs.review("srs-1", "quantity", 5, now=self.now)
+        self.assertEqual(first.card.interval_days, 1)
+        second = self.srs.review("srs-1", "quantity", 5, now=self.now + __import__("datetime").timedelta(days=1))
+        self.assertEqual(second.card.interval_days, 6)
+        third = self.srs.review("srs-1", "quantity", 5, now=self.now + __import__("datetime").timedelta(days=7))
+        self.assertGreater(third.card.interval_days, 6)
+
+    def test_failed_recall_resets_repetition(self):
+        self.srs.review("srs-2", "change", 5, now=self.now)
+        failed = self.srs.review("srs-2", "change", 1, now=self.now + __import__("datetime").timedelta(days=1))
+        self.assertEqual(failed.card.repetitions, 0)
+        self.assertEqual(failed.card.interval_days, 1)
+
+    def test_due_cards_only_returns_due_items(self):
+        from datetime import timedelta
+        self.srs.ensure_card("srs-3", "due", now=self.now - timedelta(days=2))
+        self.srs.ensure_card("srs-3", "future", now=self.now + timedelta(days=2))
+        due = self.srs.due_cards("srs-3", now=self.now)
+        self.assertEqual([card.concept_id for card in due], ["due"])
+
+    def test_invalid_quality_rejected(self):
+        with self.assertRaises(ValueError):
+            self.srs.review("srs-4", "quantity", 6, now=self.now)
+
+
+class ComprehensiveInputTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.store = LearnerStore(Path(self.temp.name) / "input.sqlite")
+        from merlin.learning_core import LearningInputStore
+        self.inputs = LearningInputStore(self.store)
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def test_accepts_multiple_input_modes_and_persists_references(self):
+        from merlin.learning_core import LearningInput
+        item = LearningInput(
+            "learner", "lesson", "task", "mixed",
+            {"transcript": "The graph gets steeper", "numeric": 3.0},
+            confidence=0.8, hints_used=1, elapsed_seconds=12.5,
+            accessibility={"captions": True}, source_refs=("media://lesson-1",),
+        )
+        self.assertGreater(self.inputs.record(item), 0)
+
+    def test_rejects_unsupported_mode_and_bad_confidence(self):
+        from merlin.learning_core import LearningInput
+        with self.assertRaises(ValueError):
+            self.inputs.record(LearningInput("l", "s", "t", "telepathy", {"answer": 1}))
+        with self.assertRaises(ValueError):
+            self.inputs.record(LearningInput("l", "s", "t", "text", {"answer": "x"}, confidence=2))
+
+
+class ParrondoStrategyTests(unittest.TestCase):
+    def test_mixed_policy_alternates_methods(self):
+        from merlin.learning_core import ParrondoLearningExperiment
+        experiment = ParrondoLearningExperiment()
+        assignments = [
+            experiment.assign("learner", "concept", i).strategy for i in range(6)
+        ]
+        self.assertEqual(len(set(assignments)), 6)
+        self.assertEqual(assignments[0], assignments[1 + len(assignments) - 1 - 5])
+
+    def test_single_strategy_control_is_stable(self):
+        from merlin.learning_core import ParrondoLearningExperiment
+        experiment = ParrondoLearningExperiment()
+        a = experiment.assign("learner", "concept", 0, policy="single:retrieval_practice")
+        b = experiment.assign("learner", "concept", 9, policy="single:retrieval_practice")
+        self.assertEqual(a.strategy, b.strategy)
+
+    def test_outcome_summary_compares_retention_and_transfer(self):
+        from merlin.learning_core import compare_strategy_policies
+        summary = compare_strategy_policies({
+            "mixed": [{"immediate_accuracy": 0.7, "delayed_retention": 0.9, "transfer": 0.8, "independent_solve": 0.8}],
+            "single": [{"immediate_accuracy": 0.9, "delayed_retention": 0.6, "transfer": 0.5, "independent_solve": 0.6}],
+        })
+        self.assertGreater(summary["mixed"]["delayed_retention"], summary["single"]["delayed_retention"])
+        self.assertGreater(summary["single"]["immediate_accuracy"], summary["mixed"]["immediate_accuracy"])
+
+    def test_invalid_outcome_scores_rejected(self):
+        from merlin.learning_core import compare_strategy_policies
+        with self.assertRaises(ValueError):
+            compare_strategy_policies({"mixed": [{"transfer": 1.5}]})
