@@ -129,6 +129,13 @@ jobs:
           set -euo pipefail
           python3 -m unittest discover -s tests -p "test_merlin_parrondo_simulation.py" -v
 
+      - name: Merlin measured model fabric routing contracts
+        env:
+          PYTHONPATH: python
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tests -p "test_model_fabric.py" -v
+
       - name: Restore C++ compiler cache
         id: ccache-restore
         uses: actions/cache/restore@v4
