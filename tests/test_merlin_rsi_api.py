@@ -13,17 +13,6 @@ from merlin.app import EventStore, make_handler
 from merlin.rsi import EvalCase, SkillProcedure, suite_digest
 
 
-def skill_payload(version):
-    return {
-        "skill_id": "math.error-triage", "version": version,
-        "purpose": "Diagnose an invalid algebra transformation.",
-        "trigger_conditions": ["learner submits an invalid equality"],
-        "steps": ["locate the first invalid step", "show a counterexample", "ask for a retry"],
-        "guardrails": ["do not reveal the full solution", "do not award mastery from hints"],
-        "source_failure_ids": ["failure-001"],
-    }
-
-
 def payload():
     baseline = SkillProcedure(
         skill_id="math.error-triage", version=1,
