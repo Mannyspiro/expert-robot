@@ -244,6 +244,28 @@ class LearnerStoreTests(unittest.TestCase):
         self.assertEqual(reopened.attempt_count("learner-5"), 1)
         self.assertAlmostEqual(reopened.mastery("learner-5", "quantity")["conceptual"], 0.245)
 
+    def test_lesson_progress_survives_reopening_without_awarding_mastery(self):
+        session = LessonSession(PARRONDO_DISCOVERY)
+        session.complete_current_stage("play-the-games")
+        session.complete_current_stage("make-a-prediction")
+        self.store.save_lesson_session("learner-progress", session)
+        reopened = LearnerStore(Path(self.temp.name) / "learner.sqlite")
+        restored = reopened.load_lesson_session("learner-progress", PARRONDO_DISCOVERY)
+        self.assertIsNotNone(restored)
+        self.assertEqual(restored.stage_index, 2)
+        self.assertEqual(restored.completed_stage_ids, ["play-the-games", "make-a-prediction"])
+        self.assertEqual(reopened.attempt_count("learner-progress"), 0)
+        self.assertEqual(reopened.mastery("learner-progress", "probability")["conceptual"], 0.0)
+
+    def test_missing_lesson_progress_returns_none(self):
+        self.assertIsNone(self.store.load_lesson_session("new-learner", PARRONDO_DISCOVERY))
+
+    def test_invalid_session_prefix_cannot_be_persisted(self):
+        invalid = LessonSession(PARRONDO_DISCOVERY)
+        invalid.stage_index = 1
+        with self.assertRaisesRegex(ValueError, "exact sequential lesson prefix"):
+            self.store.save_lesson_session("learner-invalid", invalid)
+
 
 
 class SpacedRepetitionTests(unittest.TestCase):
