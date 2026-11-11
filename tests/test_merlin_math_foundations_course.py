@@ -83,3 +83,9 @@ class MathFoundationsCourseTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+    def test_canonical_idea_catalog_has_no_dangling_relations(self):
+        from scripts.merlin_math_idea_validate import validate_catalog
+
+        self.assertEqual(validate_catalog(self.catalog), [])
