@@ -24,6 +24,12 @@ from merlin.learning_core import (
 
 
 class ConceptRegistryTests(unittest.TestCase):
+    def test_probability_and_state_transition_concepts_are_registered(self):
+        from merlin.learning_core import DEFAULT_CONCEPTS
+        DEFAULT_CONCEPTS.validate()
+        self.assertEqual(DEFAULT_CONCEPTS.get("markov_chain").prerequisites, ("state_transition", "probability"))
+        self.assertIn("expected_value", {concept.concept_id for concept in DEFAULT_CONCEPTS.all()})
+
     def test_default_graph_is_valid(self):
         from merlin.learning_core import DEFAULT_CONCEPTS
         DEFAULT_CONCEPTS.validate()
