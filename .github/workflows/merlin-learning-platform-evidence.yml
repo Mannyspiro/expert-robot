@@ -10,8 +10,11 @@ on:
       - "python/merlin/learner_model.py"
       - "tests/test_learner_model.py"
       - "docs/merlin/MERLIN_MATH_FOUNDATIONS_COURSE_V1.json"
+      - "docs/merlin/MERLIN_MATH_LEARNING_PATHWAYS_V1.json"
+      - "docs/merlin/MERLIN_MATH_LEARNING_PATHWAYS_V1.md"
       - "docs/research/merlin-mathematical-idea-catalog.v1.json"
       - "scripts/merlin_math_idea_validate.py"
+      - "scripts/merlin_math_pathways_validate.py"
       - "tests/test_merlin_math_foundations_course.py"
       - "ui/merlin-learning/index.html"
       - "tests/test_merlin_learning_platform.py"
@@ -71,6 +74,12 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/merlin_math_idea_validate.py
+
+      - name: Validate three-path mathematics learning map
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/merlin_math_pathways_validate.py
 
       - name: Validate Merlin Learning inline JavaScript
         shell: bash
