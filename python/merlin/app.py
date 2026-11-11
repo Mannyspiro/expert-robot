@@ -28,7 +28,7 @@ from .council_runtime import run_local_council
 from .simulation import MerlinSimulation
 from .telemetry import normalize_event, telemetry_view, record_runtime_event
 from .telemetry_graph import build_telemetry_graph
-from .learner_model import LearnerStore, select_next_lesson, HermesLearningRouter, score_attempt_event
+from .learner_model import (LearnerStore, select_next_lesson, HermesLearningRouter, score_attempt_event, learner_subject_id)
 from .event_outbox import MerlinEventOutbox, LeaseConflict
 from .intent_compiler import Asset, IntentSpec, ContinuityState, compile_directive
 from .math_transfer import preview_transfers
@@ -705,7 +705,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 if learner_store is None:
                     self._send(503, {"error": "learner_store_unavailable"})
                     return
-                self._send(200, learner_store.get_profile(actor.actor_id))
+                self._send(200, learner_store.get_profile(learner_subject_id(actor.tenant_id, actor.actor_id)))
                 return
             if path == "/api/learning/templates/math-foundations":
                 actor = self._learning_actor()
@@ -868,7 +868,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 if requested_learner_id is not None and requested_learner_id != actor.actor_id:
                     self._send(403, {"error": "learner_identity_mismatch"})
                     return
-                learner_id = actor.actor_id
+                learner_id = learner_subject_id(actor.tenant_id, actor.actor_id)
                 if path == "/api/learning/recommendation":
                     curriculum_id = (query.get("curriculum_id") or [None])[0]
                     if curriculum_id not in {None, "mathematics", "b2b-ml-agentic-ai", "art-math-studio"}:
@@ -1120,8 +1120,8 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     if learner_store is None:
                         self._send(503, {"error": "learner_store_unavailable"})
                         return
-                    profile = learner_store.update_profile(actor.actor_id, data)
-                    learner_ref = sha256(actor.actor_id.encode("utf-8")).hexdigest()
+                    profile = learner_store.update_profile(learner_subject_id(actor.tenant_id, actor.actor_id), data)
+                    learner_ref = learner_subject_id(actor.tenant_id, actor.actor_id)
                     profile_hash = sha256(_json_bytes(profile)).hexdigest()
                     store.append(path, {"learner_ref_sha256": learner_ref},
                                  {"profile_sha256": profile_hash})
