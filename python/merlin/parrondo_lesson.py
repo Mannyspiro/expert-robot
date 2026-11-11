@@ -33,23 +33,24 @@ class ParrondoResult:
     stationary_distribution: tuple[float, float, float]
     expected_gain_per_turn: float
 
-def stationary_distribution(game: Game, *, tolerance: float = 1e-14, max_iterations: int = 1_000_000) -> tuple[float, float, float]:
-    """Find the stationary distribution of the modulo-3 random walk."""
+def stationary_distribution(game: Game) -> tuple[float, float, float]:
+    """Compute the modulo-3 stationary distribution by the Markov chain tree theorem.
+
+    Each unnormalized weight is the sum of directed spanning-tree weights
+    whose edges point toward that state. This is a closed-form calculation,
+    avoiding convergence thresholds or a finite-run simulation.
+    """
     game.validate()
-    if tolerance <= 0 or max_iterations < 1:
-        raise ValueError("positive tolerance and iteration limit are required")
-    distribution = [1.0 / 3.0] * 3
-    for _ in range(max_iterations):
-        updated = [0.0, 0.0, 0.0]
-        for state, mass in enumerate(distribution):
-            p = game.probabilities_by_state[state]
-            updated[(state + 1) % 3] += mass * p
-            updated[(state - 1) % 3] += mass * (1.0 - p)
-        if max(abs(a - b) for a, b in zip(updated, distribution)) < tolerance:
-            total = sum(updated)
-            return tuple(value / total for value in updated)
-        distribution = updated
-    raise RuntimeError("stationary distribution did not converge")
+    p0, p1, p2 = game.probabilities_by_state
+    q0, q1, q2 = 1.0 - p0, 1.0 - p1, 1.0 - p2
+
+    weight_0 = q1 * p2 + q1 * q2 + p1 * p2
+    weight_1 = p0 * q2 + p0 * p2 + q0 * q2
+    weight_2 = q0 * p1 + q0 * q1 + p0 * p1
+    total = weight_0 + weight_1 + weight_2
+    if not math.isfinite(total) or total <= 0.0:
+        raise ArithmeticError("stationary distribution normalization failed")
+    return (weight_0 / total, weight_1 / total, weight_2 / total)
 
 def expected_gain(game: Game) -> ParrondoResult:
     distribution = stationary_distribution(game)
