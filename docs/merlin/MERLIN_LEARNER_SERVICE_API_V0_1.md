@@ -89,6 +89,10 @@ The seven objectives map to canonical idea IDs `MATH-NT-001`, `MATH-NT-002`, `MA
 All assessments in this initial template are low-stakes and require human review. No learner answer, AI explanation, finite experiment, or lesson completion is promoted to formal proof or mastery by the template.
 
 
+## Logic and discrete mathematics course template
+
+A second instructor-only template is available at `GET /api/learning/templates/math-logic-discrete` and can be applied to an empty draft using `POST /api/learning/courses/{course_id}/templates/math-logic-discrete`. It introduces propositional logic and quantifiers, sets/relations/functions, and graphs/trees. Each objective is checked against the canonical Ideonomy catalog, each lesson follows a concrete-first sequence, and all three pathways receive the lessons. The template remains low-stakes and requires independent course review before publication.
+
 ## Learner-controlled pathway and study preferences
 
 Preferences are persisted in the existing `LearnerStore` database, in a separate `learner_profiles` table. They do not create a second learner database and are keyed only by the authenticated actor ID.
