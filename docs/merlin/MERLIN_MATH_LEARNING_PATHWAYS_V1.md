@@ -7,12 +7,13 @@ The machine-readable mapping is maintained in `docs/merlin/MERLIN_MATH_LEARNING_
 
 ## Current curriculum artifacts
 
-The canonical catalog currently contains 57 mathematical ideas, with 26 catalog lesson references. The authored course manifests now cover:
+The canonical catalog currently contains 57 mathematical ideas, with 31 catalog lesson references. The authored course manifests now cover:
 - **Mathematics foundations:** whole-number patterns, variables, divisibility, primes, loops, Euclid's proof, and counterexamples.
 - **Logic and discrete mathematics:** quantifiers, sets and relations, and graphs and trees.
 - **Algebra and functions:** patterns, variables, sets, equations and inequalities, function composition, and inverse mappings.
+- **Calculus, probability and statistics:** limits and continuity, derivatives and rates, integration and accumulation, conditional probability/Bayes' rule, and statistical inference.
 
-The lesson backlog contains 31 additional review-gated blueprints for ideas without a catalog lesson reference. These are authoring specifications, not completed lessons. A lesson reference is only promoted after its manifest, exercise, rubric, pathway coverage, and validator are present. The LMS evidence workflow checks the catalog graph, three-path mapping, and backlog's epistemic gates.
+The lesson backlog contains 26 additional review-gated blueprints for ideas without a catalog lesson reference. These are authoring specifications, not completed lessons. A lesson reference is only promoted after its manifest, exercise, rubric, pathway coverage, and validator are present. The LMS evidence workflow checks the catalog graph, three-path mapping, and backlog's epistemic gates.
 
 ## Product objective
 
@@ -184,7 +185,7 @@ Current learner estimation is an inspectable Beta(1,1) baseline, not a validated
 - **Acceptance:** repeated, delayed, transfer evidence changes only the intended skill estimates, with a traceable source and no cross-tenant leakage.
 
 ### P2 — Expand the curriculum graph
-- Convert the 41-node idea catalog into a staged, prerequisite-validated program map.
+- Convert the 57-node idea catalog into a staged, prerequisite-validated program map.
 - Add discrete mathematics, logic, algebra/functions, geometry, linear algebra, calculus, probability/statistics, numerical methods, and research labs.
 - Map each module to all three pathways, with alternate examples and assessments.
 - **Acceptance:** every published lesson has validated prerequisites, pathway coverage, objective mapping, task, rubric, transfer prompt, and source provenance.
@@ -213,6 +214,6 @@ Current learner estimation is an inspectable Beta(1,1) baseline, not a validated
 
 ## Current implementation boundary
 
-Implemented in the current mathematics LMS branch: seven-objective foundations course; a three-objective logic/discrete mathematics course (quantifiers, sets/relations/functions, graphs/trees); a five-objective algebra/functions course (patterns, variables, sets, equations/inequalities, function composition/inverses); three pathway modules per course, with lesson coverage validated; the logic/discrete and algebra/functions courses currently include all lessons in each pathway; tenant-scoped learner profiles; prerequisite-aware recommendations; independent course publication review; optional supplementary video links; append-only exercise submissions; reviewer queue and feedback; learner-visible review history; a 57-idea canonical curriculum map and pathway validator.
+Implemented in the current mathematics LMS branch: seven-objective foundations course; a three-objective logic/discrete mathematics course (quantifiers, sets/relations/functions, graphs/trees); a five-objective algebra/functions course (patterns, variables, sets, equations/inequalities, function composition/inverses); a five-objective calculus/probability/statistics course (limits, derivatives, integration, conditional probability/Bayes, statistical inference); three pathway modules per course, with lesson coverage validated; the logic/discrete and algebra/functions courses currently include all lessons in each pathway; tenant-scoped learner profiles; prerequisite-aware recommendations; independent course publication review; optional supplementary video links; append-only exercise submissions; reviewer queue and feedback; learner-visible review history; a 57-idea canonical curriculum map and pathway validator.
 
 Not yet qualified: executable hosted CI for the current branch, production institution SSO and hosted tenancy, reviewer qualification/calibration, validated psychometrics, spaced retrieval scheduler, full curriculum coverage, Lean/CACE course evidence bridge, and production operations controls.
