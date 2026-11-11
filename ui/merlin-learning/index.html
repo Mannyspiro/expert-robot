@@ -299,7 +299,7 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
     activeStageIndex = 0;
     activeHintIndex = 0;
     renderLessonPlayer();
-    $("lessonPlayerSection").scrollIntoView({behavior:"smooth", block:"start"});
+    $("lessonPlayerSection").scrollIntoView({block:"start"});
   }
   function renderLessonPlayer() {
     if (!activeLesson) return;
@@ -343,12 +343,16 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
       $("exerciseSources").replaceChildren();
       for (const source of activeLesson.source_refs || []) {
         const item = el("li");
-        const link = document.createElement("a");
-        link.href = source;
-        link.textContent = source;
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
-        item.append(link);
+        if (typeof source === "string" && /^https:\/\//i.test(source)) {
+          const link = document.createElement("a");
+          link.href = source;
+          link.textContent = source;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          item.append(link);
+        } else {
+          item.textContent = String(source);
+        }
         $("exerciseSources").append(item);
       }
     }
