@@ -17,7 +17,29 @@ The first lesson is deliberately zero-first. It begins with a concrete bicycle-d
 - `python/merlin/learning_core.py`: canonical concept registry, prerequisite DAG validation, typed real-scalar expression IR, beginner-first derivative lesson specification, forward/backward/central finite differences, SQLite learner evidence, dimension-specific mastery estimates and deterministic next-lesson selection.
 - `LessonSession` enforces sequential stage completion, so symbolic notation cannot be reached by skipping the concrete and visual stages.
 - `tests/test_merlin_learning_core.py`: unit tests for graph integrity, expression evaluation, numerical differentiation, zero-first sequencing, persistent attempts and adaptive selection.
+- `python/merlin/math_foundations.py`: an eight-lesson starter sequence covering number patterns, variables, divisibility, prime conjectures, primality code, Euclid's proof, repeated-addition algorithms and counterexample search. Each lesson has progressive hints, a rubric, a transfer prompt and explicit path tags.
+- `tests/test_merlin_math_foundations.py`: validates the lesson graph, zero-first sequencing, exercise completeness, historical source note and new-learner path selection.
 - No external package is required by the learning core.
+
+
+## First-principles foundations sequence
+
+The starter curriculum is an extension of the existing learning core, not a second learner store or planner. It reuses `ConceptRegistry`, `LessonSpec`, `LessonSession`, `LearnerStore` and `select_next_lesson`.
+
+| Learning unit | Primary work | Pathways |
+|---|---|---|
+| Counting patterns | Discover odd-number structure and generalize | All three |
+| Variables | Build a rule from a concrete changing quantity | All three |
+| Divisibility | Construct factor pairs and classify numbers | Mathematician, programmer |
+| Prime conjectures | Observe remainders and distinguish conjecture from proof | Mathematician, programmer |
+| Prime checker | Implement and test a divisor-bound algorithm | Programmer, hacker |
+| Infinite primes | Reconstruct Euclid's product-plus-one proof | Mathematician |
+| Repeated addition | Implement a loop with edge-case tests | Programmer, hacker |
+| Counterexample search | Find the first counterexample to a finite-tested conjecture | All three |
+
+Each lesson begins with a concrete, symbol-free stage. Observation or visual exploration precedes symbolic notation. Exercises include progressive hints, rubric dimensions, and a new-context transfer prompt. The Euclid lesson links its historical note to *Elements*, Book IX, Proposition 20.
+
+The content layer deliberately does not award mastery or formal proof. Attempts and dimension-specific learning evidence continue through the existing `LearnerStore`; delayed retrieval continues through `SpacedRepetition`. Formal verification remains outside this pedagogical subsystem.
 
 ## Learner evidence model
 
