@@ -485,5 +485,35 @@ class MerlinLearningHttpTests(unittest.TestCase):
         self.assertEqual(calc["external_prerequisites"], ["MATH-FUNC-001"])
 
 
+    def test_numerical_methods_template_declares_external_prerequisites(self):
+        status, preview = self.request(
+            "GET", "/api/learning/templates/math-numerical-scientific-computing", "Bearer faculty"
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(preview["curriculum_id"], "math-numerical-scientific-computing-v1")
+        self.assertEqual(preview["lesson_count"], 4)
+        status, draft = self.request("POST", "/api/learning/courses", "Bearer faculty", {
+            "slug": "math-numerical-scientific-computing",
+            "title": preview["title"],
+            "description": "Numerical methods and scientific computing.",
+        })
+        self.assertEqual(status, 201)
+        status, applied = self.request(
+            "POST",
+            f"/api/learning/courses/{draft['course_id']}/templates/math-numerical-scientific-computing",
+            "Bearer faculty",
+            {},
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(len(applied["manifest"]["lessons"]), 4)
+        ode = next(
+            item for item in applied["manifest"]["objectives"]
+            if item["id"] == "MATH-ODE-001"
+        )
+        self.assertEqual(
+            ode["external_prerequisites"], ["MATH-CALC-002", "MATH-CALC-003"]
+        )
+
+
 if __name__ == "__main__":
     unittest.main()
