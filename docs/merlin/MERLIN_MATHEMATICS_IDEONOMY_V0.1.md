@@ -25,6 +25,15 @@ The paths are mathematician, mathematics programmer, and computational hacker. R
 
 The canonical learning core now registers the Parrondo prerequisites (randomization, conditional probability, and long-run behavior) and exposes a zero-first `PARRONDO_DISCOVERY` lesson for all three paths. It begins with playing and predicting, then visual/state inspection and tabulation, and only later names the formal probability/Markov-chain model. The final coding stage supports reproducibility. The lesson is eligible for zero-history learners on each path; eligibility is not mastery, and the simulation itself supplies no mastery score.
 
+## Path-specific capstones
+
+The canonical Parrondo discovery is now the shared zero-first foundation, with one additional capstone selected by learner path:
+- **Mathematician:** formulate a conjecture, state assumptions, and identify proof obligations. This is not itself a proof receipt.
+- **Mathematics programmer:** implement the transition model, add deterministic tests, and compare finite seeded runs with the stationary prediction.
+- **Computational hacker:** probe seeds, initial states, policies, and budgets; search for counterexamples to overconfident claims.
+
+The variants have distinct lesson identifiers and path tags. Their common stages remain identical so outcomes can be compared without conflating path-specific capstone work with the shared discovery sequence.
+
 ## Coherence constraints
 
 The enumerator rejects, with named reasons, combinations such as:
