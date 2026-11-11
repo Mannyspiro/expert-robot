@@ -140,6 +140,13 @@ class MerlinLearningHttpTests(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertEqual(review_result["decision"], "accepted")
         self.assertFalse(review_result["mastery_updated"])
+        status, my_work = self.request(
+            "GET", f"/api/learning/courses/{cid}/submissions/mine", "Bearer learner"
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(my_work["submissions"][0]["reviews"][0]["feedback"],
+                         "The explanation correctly identifies change in velocity.")
+        self.assertFalse(my_work["mastery_updated"])
         status, enrolled_catalog = self.request("GET", "/api/learning/courses", "Bearer learner")
         self.assertEqual(status, 200)
         self.assertEqual(enrolled_catalog["courses"][0]["enrollment_status"], "active")
