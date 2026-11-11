@@ -2144,7 +2144,7 @@
         "Compare exact and floating-point results on ill-conditioned examples."
       ],
       "learning": {
-        "lesson_id": null,
+        "lesson_id": "math-linear-systems-gaussian-v1",
         "dimensions": [
           "algorithm_design",
           "procedure",
@@ -2425,7 +2425,7 @@
         "Compare stable and unstable formulations against exact rational references."
       ],
       "learning": {
-        "lesson_id": null,
+        "lesson_id": "math-floating-point-stability-v1",
         "dimensions": [
           "algorithm_design",
           "procedure",
@@ -2480,7 +2480,7 @@
         "Compare Euler and RK4 trajectories against a known solution."
       ],
       "learning": {
-        "lesson_id": null,
+        "lesson_id": "math-ode-numerical-integration-v1",
         "dimensions": [
           "modeling",
           "procedure",
@@ -2533,7 +2533,7 @@
         "Compare gradient descent runs with recorded initialization and step size."
       ],
       "learning": {
-        "lesson_id": null,
+        "lesson_id": "math-optimization-gradient-v1",
         "dimensions": [
           "modeling",
           "procedure",
