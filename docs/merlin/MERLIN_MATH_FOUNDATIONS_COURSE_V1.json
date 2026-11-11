@@ -923,5 +923,6 @@
     "proof_requires_human_review": true,
     "code_requires_execution_evidence": true,
     "ai_only_mastery_promotion": false
-  }
+  },
+  "curriculum_id": "math-foundations-v1"
 }
