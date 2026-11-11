@@ -42,8 +42,8 @@ def payload():
         "runner_revision": "test-1",
     }
     return {
-        "baseline_skill": skill_payload(1),
-        "candidate_skill": skill_payload(2),
+        "baseline_skill": baseline.__dict__,
+        "candidate_skill": candidate.__dict__,
         "cases": cases,
         "baseline_evaluation": {
             **common, "skill_sha256": baseline.sha256,
