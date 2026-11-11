@@ -149,6 +149,22 @@ without package installation or persistent host changes:
 - uploaded artifact SHA-256:
   eaed9cd1bf9162c393764ab0a2f5305707b58c8ae71cb521302ee53a3eb9733a.
 
+The latest Expert Robot RSI source snapshot was then tested on OCI:
+
+- run 43123528598, source commit
+  a538bf074874403fe8a3a8ece53311763d585a0c;
+- 15/15 Python tests passed on Python 3.9.25 in 0.429 seconds;
+- coverage included authenticated Hermes failures, seed-bound candidate
+  provenance, signed worker acknowledgements, idempotent dispatch, CACE trust
+  store integrity, separate approval, Crossref/arXiv cache behavior, rate
+  limiting, and the five-domain benchmark contract;
+- benchmark manifest SHA-256:
+  543dbb105d6baf62dbfee54cdd8c7e483f2a9ab799e651dddda8066ce0f5a36f;
+- artifact SHA-256:
+  cbaabae8d8004c7488b7a1ed0c8455c23b3a9b61436e0d0f6573d17e888b6f8c.
+
+Evidence: config/evidence/merlin_rsi_python_oci_43123528598.json.
+
 A separate OCI CACE contract run (43121546574) matched the CACE EvidenceBundle
 v1 identity implementation. It produced bundle digest
 0898289d4c6267dbc8de6e595e56f8f035ad0344b65431f8deb11be0972b0272 and
@@ -169,6 +185,16 @@ libsqlite3.so.0. The subsequent run 43123039660 passed:
   31aae78850b712ed505c569acb408f1a00c42c307d80e50d1d7d12f4d4a6a27d.
 - No system packages or libraries were installed. The runner retained about
   451 MB free after the run.
+
+The C++ smoke tests and cross-language check were then repeated against
+the same latest RSI source commit a538bf074874403fe8a3a8ece53311763d585a0c
+(run 43123603624). Both C++ smoke tests passed again, and the updated Python
+AppendOnlyLedger event was independently verified by the C++ ledger. The
+latest verified episode root was
+698d66bd34fde44650268c53663096cf0295bfc1ffdb648dca85a6a3cb534792.
+The runner retained about 450 MB free; no system packages were installed.
+
+Evidence: config/evidence/merlin_rsi_cpp_ledger_oci_43123603624.json.
 
 The Avrea build check still reports no Avrea credits, and the automatic
 GitHub-hosted workflow did not provide a usable runner allocation. The
