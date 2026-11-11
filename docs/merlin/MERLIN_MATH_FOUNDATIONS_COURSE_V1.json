@@ -96,7 +96,8 @@
       "dimensions": [
         "conceptual_explanation",
         "procedure",
-        "representation_translation"
+        "representation_translation",
+        "transfer"
       ],
       "pathways": [
         "mathematician",
