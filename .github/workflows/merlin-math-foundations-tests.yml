@@ -1,0 +1,40 @@
+name: Merlin Mathematics Learning Tests
+
+on:
+  push:
+    branches:
+      - 'repair/merlin-math-learning-core-allocator-20261111'
+      - 'feat/merlin-zero-first-math-learning-core-20261111'
+    paths:
+      - 'python/merlin/learning_core.py'
+      - 'python/merlin/math_foundations.py'
+      - 'tests/test_merlin_learning_core.py'
+      - 'tests/test_merlin_math_foundations.py'
+      - '.github/workflows/merlin-math-foundations-tests.yml'
+  pull_request:
+    paths:
+      - 'python/merlin/learning_core.py'
+      - 'python/merlin/math_foundations.py'
+      - 'tests/test_merlin_learning_core.py'
+      - 'tests/test_merlin_math_foundations.py'
+      - '.github/workflows/merlin-math-foundations-tests.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  math-learning:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Run existing learning core and new foundations tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}/python
+        run: |
+          set -euo pipefail
+          python3 --version
+          python3 -m unittest discover -s tests -p 'test_merlin_learning_core.py' -v
+          python3 -m unittest discover -s tests -p 'test_merlin_math_foundations.py' -v

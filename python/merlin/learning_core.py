@@ -9,6 +9,7 @@ independent CACE verification.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+import hashlib
 import json
 import math
 import sqlite3
@@ -350,22 +351,49 @@ class LearnerStore:
         *,
         learning_rate: float = 0.35,
     ) -> int:
-        if not attempt.learner_id or not attempt.lesson_id or not attempt.task_id:
-            raise ValueError("learner, lesson, and task identifiers are required")
-        if not 0 < learning_rate <= 1:
-            raise ValueError("learning_rate must be in (0, 1]")
-        if attempt.hints_used < 0:
-            raise ValueError("hints_used cannot be negative")
+        """Persist one validated learner attempt and update mastery atomically."""
+        if not isinstance(attempt, Attempt):
+            raise TypeError("attempt must be an Attempt")
+        for field_name in ("learner_id", "lesson_id", "task_id"):
+            value = getattr(attempt, field_name)
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError(f"{field_name} must be a non-empty string")
+        if isinstance(learning_rate, bool) or not isinstance(learning_rate, (int, float)):
+            raise ValueError("learning_rate must be a finite number in (0, 1]")
+        learning_rate = float(learning_rate)
+        if not math.isfinite(learning_rate) or not 0 < learning_rate <= 1:
+            raise ValueError("learning_rate must be a finite number in (0, 1]")
+        if not isinstance(attempt.independent, bool):
+            raise ValueError("independent must be boolean")
+        if isinstance(attempt.hints_used, bool) or not isinstance(attempt.hints_used, int) or attempt.hints_used < 0:
+            raise ValueError("hints_used must be a non-negative integer")
+        if not isinstance(attempt.outcome, str) or not attempt.outcome.strip():
+            raise ValueError("outcome must be a non-empty string")
+        if not isinstance(attempt.scores, Mapping) or not attempt.scores:
+            raise ValueError("at least one mastery dimension must be assessed")
         unknown = set(attempt.scores) - set(MASTERY_DIMENSIONS)
         if unknown:
             raise ValueError(f"unknown mastery dimensions: {sorted(unknown)}")
-        if not attempt.scores:
-            raise ValueError("at least one mastery dimension must be assessed")
-        for dimension, score in attempt.scores.items():
-            if not math.isfinite(float(score)) or not 0 <= float(score) <= 1:
-                raise ValueError(f"{dimension} score must be between 0 and 1")
-        if not concept_ids:
-            raise ValueError("at least one concept must receive evidence")
+        normalized_scores: dict[str, float] = {}
+        for dimension, raw_score in attempt.scores.items():
+            if isinstance(raw_score, bool) or not isinstance(raw_score, (int, float)):
+                raise ValueError(f"{dimension} score must be a finite number between 0 and 1")
+            score = float(raw_score)
+            if not math.isfinite(score) or not 0 <= score <= 1:
+                raise ValueError(f"{dimension} score must be a finite number between 0 and 1")
+            normalized_scores[dimension] = score
+        if not isinstance(attempt.evidence, Mapping):
+            raise ValueError("evidence must be a mapping")
+        try:
+            scores_json = json.dumps(normalized_scores, sort_keys=True, allow_nan=False)
+            evidence_json = json.dumps(dict(attempt.evidence), sort_keys=True, allow_nan=False)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("attempt evidence must be finite JSON-serializable data") from exc
+        if isinstance(concept_ids, (str, bytes)) or not isinstance(concept_ids, Sequence) or not concept_ids:
+            raise ValueError("concept_ids must be a non-empty sequence of identifiers")
+        if any(not isinstance(item, str) or not item.strip() for item in concept_ids):
+            raise ValueError("concept identifiers must be non-empty strings")
+        unique_concepts = tuple(sorted(set(concept_ids)))
 
         evidence_weight = 1.0 if attempt.independent and attempt.hints_used == 0 else 0.75
         with self._connect() as connection:
@@ -375,20 +403,19 @@ class LearnerStore:
                  hints_used, outcome, evidence_json)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
                 (
-                    attempt.learner_id, attempt.lesson_id, attempt.task_id,
-                    json.dumps(dict(attempt.scores), sort_keys=True),
-                    int(attempt.independent), attempt.hints_used, attempt.outcome,
-                    json.dumps(dict(attempt.evidence), sort_keys=True),
+                    attempt.learner_id.strip(), attempt.lesson_id.strip(), attempt.task_id.strip(),
+                    scores_json, int(attempt.independent), attempt.hints_used, attempt.outcome.strip(),
+                    evidence_json,
                 ),
             )
             attempt_id = int(cursor.lastrowid)
-            for concept_id in sorted(set(concept_ids)):
-                for dimension, raw_score in attempt.scores.items():
-                    score = float(raw_score) * evidence_weight
+            for concept_id in unique_concepts:
+                for dimension, raw_score in normalized_scores.items():
+                    score = raw_score * evidence_weight
                     row = connection.execute(
                         """SELECT estimate, evidence_count FROM mastery
                         WHERE learner_id=? AND concept_id=? AND dimension=?""",
-                        (attempt.learner_id, concept_id, dimension),
+                        (attempt.learner_id.strip(), concept_id, dimension),
                     ).fetchone()
                     previous = float(row["estimate"]) if row else 0.0
                     count = int(row["evidence_count"]) if row else 0
@@ -401,7 +428,7 @@ class LearnerStore:
                         DO UPDATE SET estimate=excluded.estimate,
                                       evidence_count=excluded.evidence_count,
                                       updated_at=CURRENT_TIMESTAMP""",
-                        (attempt.learner_id, concept_id, dimension, estimate, count + 1),
+                        (attempt.learner_id.strip(), concept_id, dimension, estimate, count + 1),
                     )
             return attempt_id
 
@@ -467,7 +494,7 @@ def select_next_lesson(
 
 # --- Spaced repetition, comprehensive input, and strategy-mix experiments ---
 
-from datetime import datetime, timedelta, timezone\nimport hashlib
+from datetime import datetime, timedelta, timezone
 from typing import Literal
 
 
@@ -774,7 +801,7 @@ class StrategyArmAllocator:
         unique_arms = tuple(dict.fromkeys(arms))
         if len(unique_arms) < 2 or any(not arm for arm in unique_arms):
             raise ValueError("at least two distinct non-empty experiment arms are required")
-        payload = "\\x1f".join((seed, experiment_id, learner_id, concept_id)).encode("utf-8")
+        payload = "\x1f".join((seed, experiment_id, learner_id, concept_id)).encode("utf-8")
         digest = hashlib.sha256(payload).digest()
         index = int.from_bytes(digest[:8], "big") % len(unique_arms)
         return unique_arms[index]

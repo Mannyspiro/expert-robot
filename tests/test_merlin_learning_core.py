@@ -332,3 +332,73 @@ class StrategyArmAllocatorTests(unittest.TestCase):
         from merlin.learning_core import StrategyArmAllocator
         with self.assertRaises(ValueError):
             StrategyArmAllocator.assign_arm("l", "c", "e", ("mixed", "mixed"), seed="s")
+
+class LearnerStoreInputHardeningTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.store = LearnerStore(Path(self.temp.name) / "hardening.sqlite")
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def test_rejects_nan_and_infinite_mastery_scores(self):
+        for score in (math.nan, math.inf, -math.inf):
+            with self.subTest(score=score), self.assertRaisesRegex(ValueError, "finite number"):
+                self.store.record_attempt(
+                    Attempt("learner", "lesson", "task", {"conceptual": score}, True),
+                    ("quantity",),
+                )
+
+    def test_rejects_boolean_scores_and_learning_rate(self):
+        with self.assertRaisesRegex(ValueError, "finite number"):
+            self.store.record_attempt(
+                Attempt("learner", "lesson", "task", {"conceptual": True}, True),
+                ("quantity",),
+            )
+        with self.assertRaisesRegex(ValueError, "learning_rate"):
+            self.store.record_attempt(
+                Attempt("learner", "lesson", "task", {"conceptual": 0.8}, True),
+                ("quantity",),
+                learning_rate=True,
+            )
+
+    def test_rejects_non_json_or_nonfinite_evidence(self):
+        for evidence in ({"confidence": math.nan}, {"opaque": object()}):
+            with self.subTest(evidence=evidence), self.assertRaisesRegex(ValueError, "JSON-serializable"):
+                self.store.record_attempt(
+                    Attempt("learner", "lesson", "task", {"conceptual": 0.8}, True, evidence=evidence),
+                    ("quantity",),
+                )
+        self.assertEqual(self.store.attempt_count("learner"), 0)
+
+    def test_rejects_invalid_attempt_flags_and_concept_ids(self):
+        with self.assertRaisesRegex(ValueError, "independent"):
+            self.store.record_attempt(
+                Attempt("learner", "lesson", "task", {"conceptual": 0.8}, 1),
+                ("quantity",),
+            )
+        with self.assertRaisesRegex(ValueError, "concept identifiers"):
+            self.store.record_attempt(
+                Attempt("learner", "lesson", "task", {"conceptual": 0.8}, True),
+                ("quantity", ""),
+            )
+
+    def test_rejects_nonfinite_learning_rate(self):
+        for rate in (math.nan, math.inf, 0, -0.1, 1.1):
+            with self.subTest(rate=rate), self.assertRaisesRegex(ValueError, "learning_rate"):
+                self.store.record_attempt(
+                    Attempt("learner", "lesson", "task", {"conceptual": 0.8}, True),
+                    ("quantity",),
+                    learning_rate=rate,
+                )
+        self.assertEqual(self.store.attempt_count("learner"), 0)
+
+    def test_duplicate_concept_ids_update_once(self):
+        self.store.record_attempt(
+            Attempt("learner", "lesson", "task", {"conceptual": 1.0}, True),
+            ("quantity", "quantity"),
+            learning_rate=1.0,
+        )
+        self.assertEqual(self.store.mastery("learner", "quantity")["conceptual"], 1.0)
+
+
