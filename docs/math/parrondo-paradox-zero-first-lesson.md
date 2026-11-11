@@ -8,7 +8,7 @@ Design rule: concrete experience first; notation only after the learner can expl
 
 A learner should be able to:
 1. Describe a game that tends to lose money and another game that also tends to lose money.
-2. Observe that switching between the games in a particular pattern can produce a positive long-run average.
+2. Observe that randomly mixing the games can produce a positive long-run average.
 3. Explain why this is not a contradiction: the games change the state-dependent conditions encountered by later turns.
 4. Distinguish a mathematical possibility from a guarantee about every finite run.
 5. Form a hypothesis, test it with repeated simulations, inspect counterexamples, and explain the mechanism in their own words.
@@ -19,7 +19,7 @@ Do not require prior arithmetic fluency. Offer manipulable counters and spoken/v
 
 ### Stage 0 — story, no numbers or symbols
 
-A character plays two coin games. Each game, when played by itself for a long time, tends to leave the character with less money. The character discovers that alternating the games can sometimes make the balance grow.
+A character plays two coin games. Each game, when played by itself for a long time, tends to leave the character with less money. The character discovers that randomly choosing between the games can make the long-run average balance grow.
 
 Ask: “Does that sound impossible, or could the order of the games matter?”
 
@@ -30,7 +30,7 @@ Accept any answer. Do not grade intuition as right or wrong.
 Render a starting pile of 30 tokens. Each turn animates one token being added or removed. Provide three modes:
 - Game A only
 - Game B only
-- Alternate A and B
+- Random mixture: choose A or B independently on each turn, with equal probability
 
 Use a reproducible seed and show the seed. Let the learner replay with another seed. Keep the same number of turns when comparing modes. Explain that a short run can go either way.
 
@@ -38,15 +38,16 @@ Use a reproducible seed and show the seed. Let the learner replay with another s
 
 Introduce a three-position track representing the current token count's remainder when grouped in threes. Do not call it a modulus yet. Highlight the current position.
 
-Rules for the canonical teaching example:
-- Game A: each turn has an equal chance of gaining one token or losing one token. Its expected change is zero.
-- Game B: when the balance is divisible into groups of three with nothing left over, the chance of gaining one token is 1/10; otherwise the chance is 3/4. A loss happens on the complementary outcome.
+Rules for the canonical both-losing example (use epsilon = 0.005 and an equal random mixture):
+- Game A: chance of gaining one token is 0.495; otherwise lose one token.
+- Game B: if the balance is divisible by three, chance of gaining one token is 0.095; otherwise it is 0.745. A loss happens on the complementary outcome.
+- Mixture: independently choose Game A or Game B with probability 1/2 on every turn.
 
-Important precision: this canonical Game A is fair, not losing. Game B is losing in the standard parameterization. The paradoxical result is that a suitable mixture can outperform either game. A second, optional parameterized variant may make both games strictly losing; label it as a variant and numerically verify its parameters before presenting it.
+Both games are losing in the long run when played alone with these parameters, while the equal random mixture has positive long-run expected gain. These probabilities are deliberately slightly shifted from the boundary case. Show the epsilon adjustment explicitly once notation is introduced.
 
 ### Stage 3 — experiment before equations
 
-Offer side-by-side repeated trials for A-only, B-only, and alternating A/B. Use the same starting balance and trial length. Show:
+Offer side-by-side repeated trials for A-only, B-only, and the equal random mixture. Use the same starting balance and trial length. Show:
 - balance over time,
 - distribution of ending balances over many independent runs,
 - fraction of runs that end above the starting balance,
@@ -61,7 +62,7 @@ Default simulation controls: 30 starting tokens, 3,000 turns, 1,000 trials. Let 
 
 Prompt before revealing results:
 - “Which game do you predict will do best alone?”
-- “What do you predict will happen when we alternate?”
+- “What do you predict will happen when we randomly mix the games?”
 - “What changed when the balance moved between the three positions?”
 
 Capture the prediction, confidence, explanation, selected strategy, simulation seed, and observed result as separate evidence fields. A wrong prediction is useful evidence, not a penalty.
@@ -79,7 +80,7 @@ Reveal equations progressively, with a plain-language translation beside each on
 
 ### Stage 6 — deeper mathematical explanation
 
-Explain that Game B's favorable and unfavorable probabilities depend on the current state. Game A moves the balance between states; alternating changes how often Game B is encountered in each state. The combined process therefore has a different stationary distribution from either isolated process. The gains and losses are weighted by the state frequencies, so the combined expected behavior can be positive.
+Explain that Game B's favorable and unfavorable probabilities depend on the current state. Game A and Game B have different state-transition effects. Random mixing changes the long-run frequency of the three remainder states, so Game B is encountered in a different state distribution than when played alone. The combined process therefore has a different stationary distribution from either isolated process. The gains and losses are weighted by the state frequencies, so the combined expected behavior can be positive.
 
 For the formal track, derive the transition matrix over the three remainder states, compute its stationary distribution, and calculate the expected gain per turn. Show all assumptions and use a numerical check. For the mathematician track, ask the learner to derive and justify the stationary distribution. For the mathematics-programmer track, implement the simulator and validate it against the analytic result. For the computational-hacker track, investigate seeds, state encodings, random-number generators, and statistical error.
 
@@ -129,7 +130,7 @@ These are initial scheduling defaults. Adapt using recall quality, response late
 
 Prompts should progressively vary:
 1. Explain the paradox without symbols.
-2. Predict what happens when the order of games changes.
+2. Predict what happens when the games are mixed in a different proportion.
 3. Identify the state that controls Game B's rule.
 4. Explain why a short losing run does not refute a positive long-run expectation.
 5. Transfer the idea to another state-dependent system.
@@ -140,7 +141,7 @@ Prompts should progressively vary:
 - The simulator is deterministic for a fixed seed and parameters.
 - A-only and B-only outcomes, and the combined strategy, are reported with trial counts and uncertainty; no claim is made from a single path.
 - The analytic transition model agrees with simulation within a documented statistical tolerance.
-- The lesson explicitly says that the canonical Game A is fair, while Game B is losing.
+- The lesson explicitly states the exact epsilon-adjusted parameters and verifies that A-only and B-only have negative long-run expected gain while the equal random mixture has positive long-run expected gain.
 - Every learner interaction produces a typed attempt event; events persist and can be replayed/audited.
 - Spaced repetition schedules retrieval rather than merely repeating the original video.
 - The three learning paths share the same canonical concept and evidence records; they vary activities, not duplicated learner databases.
