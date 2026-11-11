@@ -128,3 +128,42 @@ def canonical_simulations(
     """Return same-budget A, B, and mixture trajectories for side-by-side play."""
     games = make_canonical_games()
     return tuple(simulate_game(game, turns=turns, seed=seed) for game in games)
+
+
+def record_simulation_input(input_store, learner_id: str, result: SimulationResult, *, task_id: str | None = None) -> int:
+    """Persist reproducible run metadata without awarding mastery.
+
+    The trajectory digest plus seed and game parameters makes the run
+    independently reproducible. A game outcome is not treated as proof of
+    understanding; assessment and mastery updates remain separate operations.
+    """
+    from .learning_core import LearningInput
+
+    if not learner_id:
+        raise ValueError("learner_id is required")
+    trajectory_bytes = ",".join(str(value) for value in result.trajectory).encode("ascii")
+    trajectory_digest = hashlib.sha256(trajectory_bytes).hexdigest()
+    payload = {
+        "game_name": result.game_name,
+        "seed": result.seed,
+        "turns": result.turns,
+        "wins": result.wins,
+        "losses": result.losses,
+        "final_total": result.final_total,
+        "empirical_gain_per_turn": result.empirical_gain_per_turn,
+        "trajectory_sha256": trajectory_digest,
+        "mastery_awarded": False,
+    }
+    item = LearningInput(
+        learner_id=learner_id,
+        lesson_id=PARRONDO_LESSON_SPEC.lesson_id,
+        task_id=task_id or f"parrondo-simulation:{trajectory_digest[:16]}",
+        mode="mixed",
+        response=payload,
+        confidence=None,
+        hints_used=0,
+        elapsed_seconds=None,
+        accessibility={},
+        source_refs=(f"simulation-run:sha256:{trajectory_digest}",),
+    )
+    return input_store.record(item)
