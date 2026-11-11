@@ -744,6 +744,10 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     return
                 try:
                     parts = [unquote(part) for part in path.split("/") if part]
+                    if len(parts) == 6 and parts[4] == "submissions" and parts[5] == "mine":
+                        result = learning_platform.list_my_submissions(actor, parts[3])
+                        self._send(200, result)
+                        return
                     if len(parts) == 5 and parts[4] == "submissions":
                         result = learning_platform.list_submissions(actor, parts[3])
                         self._send(200, result)
