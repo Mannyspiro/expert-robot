@@ -1,0 +1,625 @@
+{
+  "schema": "merlin-learning-platform/1",
+  "curriculum_id": "math-numerical-scientific-computing-v1",
+  "title": "Numerical Methods and Scientific Computing",
+  "description": "A concrete-first bridge from linear systems and finite precision to differential equations and optimization.",
+  "modules": [
+    {
+      "id": "mathematician",
+      "title": "Mathematician pathway",
+      "description": "Derive algorithms, justify transformations, and analyze error.",
+      "lesson_ids": [
+        "math-linear-systems-gaussian-v1",
+        "math-floating-point-stability-v1",
+        "math-ode-numerical-integration-v1",
+        "math-optimization-gradient-v1"
+      ]
+    },
+    {
+      "id": "mathematics-programmer",
+      "title": "Mathematics programmer pathway",
+      "description": "Implement exact and numerical methods with reproducible tests.",
+      "lesson_ids": [
+        "math-linear-systems-gaussian-v1",
+        "math-floating-point-stability-v1",
+        "math-ode-numerical-integration-v1",
+        "math-optimization-gradient-v1"
+      ]
+    },
+    {
+      "id": "computational-hacker",
+      "title": "Computational hacker pathway",
+      "description": "Experiment with solver behavior, boundary cases, and measured performance.",
+      "lesson_ids": [
+        "math-linear-systems-gaussian-v1",
+        "math-floating-point-stability-v1",
+        "math-ode-numerical-integration-v1",
+        "math-optimization-gradient-v1"
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "MATH-LIN-002",
+      "title": "Linear systems and Gaussian elimination",
+      "description": "A linear system describes several constraints on unknown quantities. Matrix notation makes the structure visible, and Gaussian elimination applies row operations that preserve the solution set. Exact arithmetic clarifies the mathematics; floating-point arithmetic adds numerical considerations.",
+      "prerequisites": [
+        "MATH-ALG-003"
+      ],
+      "external_prerequisites": [
+        "MATH-ALG-003"
+      ],
+      "dimensions": [
+        "algorithm_design",
+        "procedure",
+        "uncertainty",
+        "transfer"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "linear algebra",
+        "systems",
+        "algorithms"
+      ]
+    },
+    {
+      "id": "MATH-NUM-001",
+      "title": "Floating-point error and numerical stability",
+      "description": "Computers represent most real numbers with finite precision. Rounding error can accumulate or cancel significant digits. Conditioning describes sensitivity of the mathematical problem; stability describes how an algorithm behaves in the presence of finite-precision error.",
+      "prerequisites": [
+        "MATH-ALG-003"
+      ],
+      "external_prerequisites": [
+        "MATH-ALG-003"
+      ],
+      "dimensions": [
+        "algorithm_design",
+        "procedure",
+        "uncertainty",
+        "transfer"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "numerical analysis",
+        "programming",
+        "precision"
+      ]
+    },
+    {
+      "id": "MATH-ODE-001",
+      "title": "Differential equations and numerical integration",
+      "description": "A differential equation links a system's state to its rate of change. An initial value problem specifies a starting state. Numerical methods such as Euler and Runge-Kutta approximate a trajectory; step size, stability, and error controls determine whether the approximation is useful.",
+      "prerequisites": [
+        "MATH-CALC-002",
+        "MATH-CALC-003",
+        "MATH-NUM-001"
+      ],
+      "external_prerequisites": [
+        "MATH-CALC-002",
+        "MATH-CALC-003"
+      ],
+      "dimensions": [
+        "modeling",
+        "procedure",
+        "algorithm_design",
+        "transfer"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "differential equations",
+        "simulation",
+        "numerical methods"
+      ]
+    },
+    {
+      "id": "MATH-OPT-001",
+      "title": "Optimization and gradient methods",
+      "description": "Optimization chooses decision variables to improve an objective while respecting constraints. Gradients indicate local directions of increase; gradient descent moves in the opposite direction. Convergence depends on the objective's geometry, step size, initialization, and constraints.",
+      "prerequisites": [
+        "MATH-CALC-002",
+        "MATH-LIN-002"
+      ],
+      "external_prerequisites": [
+        "MATH-CALC-002"
+      ],
+      "dimensions": [
+        "modeling",
+        "procedure",
+        "algorithm_design",
+        "transfer"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "optimization",
+        "machine learning",
+        "operations research"
+      ]
+    }
+  ],
+  "lessons": [
+    {
+      "id": "math-linear-systems-gaussian-v1",
+      "title": "Linear systems and Gaussian elimination",
+      "objective_id": "MATH-LIN-002",
+      "body": "A linear system describes several constraints on unknown quantities. Matrix notation makes the structure visible, and Gaussian elimination applies row operations that preserve the solution set. Exact arithmetic clarifies the mathematics; floating-point arithmetic adds numerical considerations.",
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "linear algebra",
+        "systems",
+        "algorithms"
+      ],
+      "estimated_minutes": 35,
+      "learning_value": 0.95,
+      "transfer_value": 0.9,
+      "resource_ids": [],
+      "historical_context": "Gaussian elimination is named for Carl Friedrich Gauss, though systematic elimination methods have older roots. Matrix notation later made linear systems a central language for geometry, physics, and computation.",
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Three products have prices that satisfy two budget equations. Ask whether the equations determine one combination, many combinations, or none."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Solve a small two-equation system by substitution, then compare with elimination. Notice which operations preserve the solutions."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the system as intersecting lines and as an augmented matrix. Label pivots and free variables."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain pivot, row operation, rank, inconsistent system, and free variable."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "Write an augmented matrix and justify each elementary row operation as an equivalence-preserving transformation."
+        },
+        {
+          "mode": "code",
+          "prompt": "Implement exact rational Gaussian elimination and test unique, infinite, and no-solution cases."
+        }
+      ],
+      "exercise": {
+        "task_id": "linear-systems-elimination",
+        "objective": "Solve and classify a linear system using row reduction.",
+        "prompt": "Solve 2x+y=5 and x-y=1 using an augmented matrix. Show each row operation, state the solution, and explain how the pivot structure would change if the second equation were 2x+y=7.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Write the augmented matrix with one row per equation.",
+          "Use a row operation to eliminate x or y from one row.",
+          "Compare the final contradiction or pivot structure in the modified system."
+        ],
+        "rubric": [
+          {
+            "dimension": "procedure",
+            "description": "Performs valid row operations and obtains the solution.",
+            "points": 2
+          },
+          {
+            "dimension": "algorithm_design",
+            "description": "Explains pivot structure and classification.",
+            "points": 2
+          },
+          {
+            "dimension": "uncertainty",
+            "description": "Distinguishes exact rational solving from numerical rounding.",
+            "points": 2
+          },
+          {
+            "dimension": "transfer",
+            "description": "Classifies the modified system.",
+            "points": 1
+          }
+        ],
+        "transfer_prompt": "Give a 3-variable system with infinitely many solutions and identify its free variable.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      }
+    },
+    {
+      "id": "math-floating-point-stability-v1",
+      "title": "Floating-point error and numerical stability",
+      "objective_id": "MATH-NUM-001",
+      "body": "Computers represent most real numbers with finite precision. Rounding error can accumulate or cancel significant digits. Conditioning describes sensitivity of the mathematical problem; stability describes how an algorithm behaves in the presence of finite-precision error.",
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "numerical analysis",
+        "programming",
+        "precision"
+      ],
+      "estimated_minutes": 35,
+      "learning_value": 0.95,
+      "transfer_value": 0.9,
+      "resource_ids": [],
+      "historical_context": "Numerical analysis grew alongside scientific computing. Wilkinson's work on numerical stability helped establish why a mathematically equivalent formula may behave very differently on a computer.",
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Try to store one third as a finite decimal. Multiplying the stored approximation by three may not return exactly one."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Compare two algebraically equivalent expressions for a small difference of squares when x is large and y is close to x."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Draw a number line with representable floating-point values becoming farther apart as magnitude grows."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain rounding error, cancellation, conditioning, stability, precision, and tolerance."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "Distinguish forward error from backward error and relate problem conditioning to algorithm stability."
+        },
+        {
+          "mode": "code",
+          "prompt": "Run a reproducible cancellation experiment against exact rational arithmetic. Record precision, inputs, and error."
+        }
+      ],
+      "exercise": {
+        "task_id": "floating-point-stability",
+        "objective": "Identify cancellation and distinguish conditioning from algorithmic stability.",
+        "prompt": "Compare (sqrt(x+1)-sqrt(x)) with 1/(sqrt(x+1)+sqrt(x)) for x=10^16 using floating-point arithmetic. Explain why the second form is more stable, and describe how you would compare both against a higher-precision reference.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Rationalize the first expression by multiplying numerator and denominator by the conjugate.",
+          "The exact expressions are equal, but the subtraction may lose significant digits.",
+          "State the reference precision and error metric before comparing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains cancellation and why algebraic equivalence does not imply equal numerical behavior.",
+            "points": 2
+          },
+          {
+            "dimension": "procedure",
+            "description": "Derives the rationalized expression correctly.",
+            "points": 2
+          },
+          {
+            "dimension": "uncertainty",
+            "description": "Distinguishes conditioning from algorithm stability and names an error metric.",
+            "points": 2
+          },
+          {
+            "dimension": "transfer",
+            "description": "Suggests a reproducible precision-controlled comparison.",
+            "points": 1
+          }
+        ],
+        "transfer_prompt": "Find another pair of equivalent formulas where one is numerically more stable and explain why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      }
+    },
+    {
+      "id": "math-ode-numerical-integration-v1",
+      "title": "Differential equations and numerical integration",
+      "objective_id": "MATH-ODE-001",
+      "body": "A differential equation links a system's state to its rate of change. An initial value problem specifies a starting state. Numerical methods such as Euler and Runge-Kutta approximate a trajectory; step size, stability, and error controls determine whether the approximation is useful.",
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "differential equations",
+        "simulation",
+        "numerical methods"
+      ],
+      "estimated_minutes": 35,
+      "learning_value": 0.95,
+      "transfer_value": 0.9,
+      "resource_ids": [],
+      "historical_context": "Euler developed early numerical methods for differential equations. Runge and Kutta later developed higher-order methods that are widely used in scientific simulation.",
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Model a growing bacterial population whose growth rate is proportional to its current size. The state changes continuously, but a computer advances in finite steps."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Use a small step to estimate y'=y with y(0)=1. Compare the first Euler step with the exact value e^h."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Plot Euler and RK4 approximations against y=e^t. Show how reducing step size changes the trajectory."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain initial condition, derivative function, step size, local truncation error, global error, and stability."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "Write the Euler update and the four RK4 slope evaluations. State the assumptions needed for the initial value problem."
+        },
+        {
+          "mode": "code",
+          "prompt": "Implement Euler and RK4 with a fixed step grid. Record solver, step size, seed if used, runtime, and error against the exact solution."
+        }
+      ],
+      "exercise": {
+        "task_id": "ode-euler-rk4",
+        "objective": "Compare numerical ODE methods against a known solution.",
+        "prompt": "For y'=y with y(0)=1 on [0,1], compute one Euler step and one RK4 step with h=1. Compare both with e, then explain why this single large step is illustrative rather than a convergence study.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Euler uses y1=y0+h f(t0,y0).",
+          "RK4 combines four slope estimates at the beginning, midpoint, and end of the interval.",
+          "Compare absolute errors and state that convergence requires a sequence of step sizes."
+        ],
+        "rubric": [
+          {
+            "dimension": "modeling",
+            "description": "States the initial value problem and exact solution.",
+            "points": 2
+          },
+          {
+            "dimension": "procedure",
+            "description": "Computes Euler and RK4 updates correctly.",
+            "points": 2
+          },
+          {
+            "dimension": "algorithm_design",
+            "description": "Explains the role of step size and method order.",
+            "points": 2
+          },
+          {
+            "dimension": "transfer",
+            "description": "Designs a step-refinement experiment.",
+            "points": 1
+          }
+        ],
+        "transfer_prompt": "Repeat with h=1/2 and h=1/4. Predict how the global errors should change for Euler and RK4.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      }
+    },
+    {
+      "id": "math-optimization-gradient-v1",
+      "title": "Optimization and gradient methods",
+      "objective_id": "MATH-OPT-001",
+      "body": "Optimization chooses decision variables to improve an objective while respecting constraints. Gradients indicate local directions of increase; gradient descent moves in the opposite direction. Convergence depends on the objective's geometry, step size, initialization, and constraints.",
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "interest_tags": [
+        "optimization",
+        "machine learning",
+        "operations research"
+      ],
+      "estimated_minutes": 35,
+      "learning_value": 0.95,
+      "transfer_value": 0.9,
+      "resource_ids": [],
+      "historical_context": "Lagrange developed methods for constrained optimization. Cauchy introduced an early gradient method; modern optimization connects calculus, linear algebra, statistics, and machine learning.",
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Choose a point on a hilly landscape and try to walk downhill. The local slope suggests a direction, but the route depends on step length."
+        },
+        {
+          "mode": "observation",
+          "prompt": "For f(x)=(x-3)^2, start at x=0 and take repeated steps opposite the derivative. Compare small and large step sizes."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Plot the objective and mark successive iterates. Show overshooting when the step size is too large."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain objective, feasible set, gradient, stationary point, local optimum, and global optimum."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "Write x_(k+1)=x_k-η∇f(x_k). State conditions under which a convex quadratic has a unique global minimizer."
+        },
+        {
+          "mode": "code",
+          "prompt": "Implement gradient descent with recorded initialization, step size, stopping tolerance, and iteration limit. Compare against the analytic solution."
+        }
+      ],
+      "exercise": {
+        "task_id": "gradient-descent-quadratic",
+        "objective": "Apply gradient descent and explain the effect of step size.",
+        "prompt": "For f(x)=(x-3)^2, derive the gradient update and perform three iterations from x0=0 with η=0.1. Repeat conceptually with η=1.1 and explain the difference in behavior.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Differentiate f to obtain 2(x-3).",
+          "Substitute the derivative into the update rule and compute each iterate.",
+          "For this quadratic, η=1 reaches the minimizer in one step; larger values may overshoot or oscillate."
+        ],
+        "rubric": [
+          {
+            "dimension": "modeling",
+            "description": "Defines the objective and minimizer correctly.",
+            "points": 2
+          },
+          {
+            "dimension": "procedure",
+            "description": "Computes the three updates accurately.",
+            "points": 2
+          },
+          {
+            "dimension": "algorithm_design",
+            "description": "Explains step-size effects on convergence.",
+            "points": 2
+          },
+          {
+            "dimension": "transfer",
+            "description": "Identifies what changes for a non-convex objective.",
+            "points": 1
+          }
+        ],
+        "transfer_prompt": "Change the objective to f(x)=x^4-2x^2. Explain why a local gradient method may depend on its starting point.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      }
+    }
+  ],
+  "assessments": [
+    {
+      "id": "assessment-math-lin-002",
+      "title": "Evidence check: Linear systems and Gaussian elimination",
+      "objective_id": "MATH-LIN-002",
+      "high_stakes": false,
+      "human_review_required": true,
+      "rubric": [
+        {
+          "dimension": "procedure",
+          "description": "Performs valid row operations and obtains the solution.",
+          "points": 2
+        },
+        {
+          "dimension": "algorithm_design",
+          "description": "Explains pivot structure and classification.",
+          "points": 2
+        },
+        {
+          "dimension": "uncertainty",
+          "description": "Distinguishes exact rational solving from numerical rounding.",
+          "points": 2
+        },
+        {
+          "dimension": "transfer",
+          "description": "Classifies the modified system.",
+          "points": 1
+        }
+      ]
+    },
+    {
+      "id": "assessment-math-num-001",
+      "title": "Evidence check: Floating-point error and numerical stability",
+      "objective_id": "MATH-NUM-001",
+      "high_stakes": false,
+      "human_review_required": true,
+      "rubric": [
+        {
+          "dimension": "conceptual_explanation",
+          "description": "Explains cancellation and why algebraic equivalence does not imply equal numerical behavior.",
+          "points": 2
+        },
+        {
+          "dimension": "procedure",
+          "description": "Derives the rationalized expression correctly.",
+          "points": 2
+        },
+        {
+          "dimension": "uncertainty",
+          "description": "Distinguishes conditioning from algorithm stability and names an error metric.",
+          "points": 2
+        },
+        {
+          "dimension": "transfer",
+          "description": "Suggests a reproducible precision-controlled comparison.",
+          "points": 1
+        }
+      ]
+    },
+    {
+      "id": "assessment-math-ode-001",
+      "title": "Evidence check: Differential equations and numerical integration",
+      "objective_id": "MATH-ODE-001",
+      "high_stakes": false,
+      "human_review_required": true,
+      "rubric": [
+        {
+          "dimension": "modeling",
+          "description": "States the initial value problem and exact solution.",
+          "points": 2
+        },
+        {
+          "dimension": "procedure",
+          "description": "Computes Euler and RK4 updates correctly.",
+          "points": 2
+        },
+        {
+          "dimension": "algorithm_design",
+          "description": "Explains the role of step size and method order.",
+          "points": 2
+        },
+        {
+          "dimension": "transfer",
+          "description": "Designs a step-refinement experiment.",
+          "points": 1
+        }
+      ]
+    },
+    {
+      "id": "assessment-math-opt-001",
+      "title": "Evidence check: Optimization and gradient methods",
+      "objective_id": "MATH-OPT-001",
+      "high_stakes": false,
+      "human_review_required": true,
+      "rubric": [
+        {
+          "dimension": "modeling",
+          "description": "Defines the objective and minimizer correctly.",
+          "points": 2
+        },
+        {
+          "dimension": "procedure",
+          "description": "Computes the three updates accurately.",
+          "points": 2
+        },
+        {
+          "dimension": "algorithm_design",
+          "description": "Explains step-size effects on convergence.",
+          "points": 2
+        },
+        {
+          "dimension": "transfer",
+          "description": "Identifies what changes for a non-convex objective.",
+          "points": 1
+        }
+      ]
+    }
+  ],
+  "resources": [],
+  "grading_policy": {
+    "automated_high_stakes": false,
+    "proof_requires_human_review": true,
+    "ai_only_mastery_promotion": false
+  }
+}
