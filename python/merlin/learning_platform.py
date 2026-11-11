@@ -225,11 +225,17 @@ class LearningPlatform:
                 raise ValueError("objective prerequisites must be unique")
             if oid in prereqs:
                 raise ValueError("objective cannot depend on itself")
-            prerequisites_by_id[oid] = prereqs
-
-        for oid, prereqs in prerequisites_by_id.items():
-            if any(item not in objective_ids for item in prereqs):
+            external = objective.get("external_prerequisites", [])
+            if not isinstance(external, list) or any(
+                not isinstance(item, str) or not item.strip() for item in external
+            ) or len(set(external)) != len(external):
+                raise ValueError("external_prerequisites must be unique non-empty objective IDs")
+            if any(item in objective_ids or item not in prereqs for item in external):
+                raise ValueError("external_prerequisites must be declared prerequisites outside this course")
+            local_prerequisites = [item for item in prereqs if item not in external]
+            if any(item not in objective_ids for item in local_prerequisites):
                 raise ValueError("objective prerequisite references an unknown objective")
+            prerequisites_by_id[oid] = local_prerequisites
 
         visiting: set[str] = set()
         visited: set[str] = set()
