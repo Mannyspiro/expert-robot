@@ -182,7 +182,8 @@ Current learner estimation is an inspectable Beta(1,1) baseline, not a validated
 
 ### P1 — Evidence and rubric qualification
 - Version assessment rubrics and attach exact assessment/rubric hashes to submissions and reviews.
-- Add reviewer qualification records and independent-review policy.
+- Implement tenant-admin-attested reviewer calibration records, a minimum-case/agreement threshold, 90-day expiry, and a hard gate on learner submission review.
+- Still require a controlled calibration corpus, inter-rater analysis, reviewer drift monitoring, and independent audit before production qualification.
 - Define a calibrated mapping from rubric evidence to skill dimensions; preserve uncertainty and session independence.
 - Add explicit evidence-ingestion policy; no ingestion before calibration tests pass.
 - **Acceptance:** repeated, delayed, transfer evidence changes only the intended skill estimates, with a traceable source and no cross-tenant leakage.
@@ -219,4 +220,4 @@ Current learner estimation is an inspectable Beta(1,1) baseline, not a validated
 
 Implemented in the current mathematics LMS branch: seven-objective foundations course; a three-objective logic/discrete mathematics course (quantifiers, sets/relations/functions, graphs/trees); a five-objective algebra/functions course (patterns, variables, sets, equations/inequalities, function composition/inverses); a five-objective calculus/probability/statistics course (limits, derivatives, integration, conditional probability/Bayes, statistical inference); a four-objective numerical methods/scientific computing course (linear systems, floating-point stability, ODE solvers, optimization); three pathway modules per course, with lesson coverage validated; the logic/discrete and algebra/functions courses currently include all lessons in each pathway; tenant-scoped learner profiles; prerequisite-aware recommendations; independent course publication review; optional supplementary video links; append-only exercise submissions; reviewer queue and feedback; learner-visible review history; a 57-idea canonical curriculum map and pathway validator.
 
-Not yet qualified: executable hosted CI for the current branch, production institution SSO and hosted tenancy, reviewer qualification/calibration, validated psychometrics, spaced retrieval scheduler, full curriculum coverage, Lean/CACE course evidence bridge, and production operations controls.
+Not yet qualified: executable hosted CI for the current branch, production institution SSO and hosted tenancy, independent reviewer calibration audit, validated psychometrics, spaced retrieval scheduler, full curriculum coverage, Lean/CACE course evidence bridge, and production operations controls.
