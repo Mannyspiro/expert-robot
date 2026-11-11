@@ -85,6 +85,20 @@ def validate_math_logic_discrete_manifest(
             raise ValueError(f"{lesson_id}: at least two progressive hints are required")
         if not isinstance(exercise.get("rubric"), list) or not exercise["rubric"]:
             raise ValueError(f"{lesson_id}: rubric is required")
+        allowed_dimensions = set(idea["learning"]["dimensions"])
+        exercise_dimensions = set()
+        for criterion in exercise["rubric"]:
+            if not isinstance(criterion, dict):
+                raise ValueError(f"{lesson_id}: malformed exercise rubric")
+            dimension = criterion.get("dimension")
+            points = criterion.get("points")
+            if dimension not in allowed_dimensions or dimension in exercise_dimensions:
+                raise ValueError(f"{lesson_id}: rubric dimension is unknown or duplicated")
+            if isinstance(points, bool) or not isinstance(points, int) or points < 1:
+                raise ValueError(f"{lesson_id}: rubric points must be positive integers")
+            if not isinstance(criterion.get("description"), str) or not criterion["description"].strip():
+                raise ValueError(f"{lesson_id}: rubric description is required")
+            exercise_dimensions.add(dimension)
     if set(objective_by_id) != {lesson["objective_id"] for lesson in manifest["lessons"]}:
         raise ValueError("every objective must have a lesson")
     pathway_modules = {
@@ -118,6 +132,23 @@ def validate_math_logic_discrete_manifest(
         assessment_ids.add(assessment["objective_id"])
         if assessment.get("high_stakes") is not False or assessment.get("human_review_required") is not True:
             raise ValueError("course assessments must be low-stakes and human-reviewed")
+        rubric = assessment.get("rubric")
+        if not isinstance(rubric, list) or not rubric:
+            raise ValueError("every assessment requires a versioned rubric")
+        allowed_dimensions = set(objective_by_id[assessment["objective_id"]]["dimensions"])
+        seen_dimensions = set()
+        for criterion in rubric:
+            if not isinstance(criterion, dict):
+                raise ValueError("assessment rubric criteria must be objects")
+            dimension = criterion.get("dimension")
+            points = criterion.get("points")
+            if dimension not in allowed_dimensions or dimension in seen_dimensions:
+                raise ValueError("assessment rubric dimensions must be known and unique")
+            if isinstance(points, bool) or not isinstance(points, int) or points < 1:
+                raise ValueError("assessment rubric points must be positive integers")
+            if not isinstance(criterion.get("description"), str) or not criterion["description"].strip():
+                raise ValueError("assessment rubric descriptions are required")
+            seen_dimensions.add(dimension)
     if assessment_ids != set(objective_by_id):
         raise ValueError("each objective must have exactly one assessment")
     return {"curriculum_id": CURRICULUM_ID, "objective_count": len(objectives),
