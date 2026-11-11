@@ -64,6 +64,26 @@ class RSIPipelineTests(unittest.TestCase):
         self.cace_key_id = "ed25519:" + rsi.sha256_hex(cace_raw)
         self.cace_keys = {self.cace_key_id: "cace"}
 
+        from unittest.mock import patch
+        issuer_store = {
+            "schema": "merlin-issuer-trust-store-v1",
+            "issuers": {
+                "hermes": self.hermes_keys,
+                "merlin-source": self.source_keys,
+                "merlin-evaluator": self.evaluator_keys,
+                "merlin-approver": self.approver_keys,
+            },
+        }
+        issuer_raw = json.dumps(issuer_store, sort_keys=True, separators=(",", ":"))
+        issuer_env = {
+            "MERLIN_ISSUER_TRUST_STORE_JSON": issuer_raw,
+            "MERLIN_ISSUER_TRUST_STORE_SHA256": rsi.sha256_hex(issuer_raw.encode("utf-8")),
+            **self._cace_trust_env(),
+        }
+        self._trust_patcher = patch.dict(os.environ, issuer_env)
+        self._trust_patcher.start()
+        self.addCleanup(self._trust_patcher.stop)
+
     def source_receipt(self, candidate):
         return sign_receipt("merlin-source", {
             "candidate_id": candidate,
@@ -89,9 +109,9 @@ class RSIPipelineTests(unittest.TestCase):
             **claims, "source_commit": "d" * 40
         }, "hermes-key", self.hermes_private)
         with self.assertRaises(PermissionError):
-            ingest_hermes_failure(self.ledger, record, forged, self.hermes_keys)
+            ingest_hermes_failure(self.ledger, record, forged)
         signed = sign_receipt("hermes", claims, "hermes-key", self.hermes_private)
-        first = ingest_hermes_failure(self.ledger, record, signed, self.hermes_keys)
+        first = ingest_hermes_failure(self.ledger, record, signed)
         replay = ingest_hermes_failure(self.ledger, record, signed, self.hermes_keys)
         self.assertEqual(first["seq"], 0)
         self.assertTrue(replay["idempotent_replay"])
@@ -108,25 +128,24 @@ class RSIPipelineTests(unittest.TestCase):
             self.ledger.record_candidate(
                 candidate_id="candidate-root", parent_candidate_id=None,
                 source_receipt=source, artifact_sha256=ARTIFACT,
-                generator="hermes", mutation={}, trusted_keys={},
+                generator="hermes", mutation={}
             )
         with self.assertRaises(ValueError):
             self.ledger.record_candidate(
                 candidate_id="candidate-child", parent_candidate_id="missing-parent",
                 source_receipt=self.source_receipt("candidate-child"),
-                artifact_sha256=ARTIFACT, generator="rsi", mutation={},
-                trusted_keys=self.source_keys,
+                artifact_sha256=ARTIFACT, generator="rsi", mutation={}
             )
         root = self.ledger.record_candidate(
             candidate_id="candidate-root", parent_candidate_id=None,
             source_receipt=source, artifact_sha256=ARTIFACT,
-            generator="hermes", mutation={}, trusted_keys=self.source_keys,
+            generator="hermes", mutation={}
         )
         child = self.ledger.record_candidate(
             candidate_id="candidate-child", parent_candidate_id="candidate-root",
             source_receipt=self.source_receipt("candidate-child"),
             artifact_sha256=ARTIFACT, generator="rsi",
-            mutation={"fix": "bounded-search"}, trusted_keys=self.source_keys,
+            mutation={"fix": "bounded-search"}
         )
         self.assertEqual(root["seq"], 0)
         self.assertEqual(child["seq"], 0)
@@ -250,7 +269,7 @@ class RSIPipelineTests(unittest.TestCase):
             "failure_class": failure["failure_class"],
         }, "hermes-key", self.hermes_private)
         seed = ingest_hermes_failure(
-            self.ledger, failure, hermes_receipt, self.hermes_keys
+            self.ledger, failure, hermes_receipt
         )
         candidate_id = "candidate-from-hermes-seed"
         claims = {
@@ -265,8 +284,7 @@ class RSIPipelineTests(unittest.TestCase):
                 candidate_id=candidate_id, parent_candidate_id=None,
                 source_receipt=self.source_receipt(candidate_id),
                 artifact_sha256=ARTIFACT, generator="rsi",
-                mutation={"origin": "hermes-failure"},
-                trusted_keys=self.source_keys,
+                mutation={"origin": "hermes-failure"}
                 induction_seed_event_hash=seed["event_hash"],
             )
         signed_source = sign_receipt(
@@ -275,8 +293,7 @@ class RSIPipelineTests(unittest.TestCase):
         created = self.ledger.record_candidate(
             candidate_id=candidate_id, parent_candidate_id=None,
             source_receipt=signed_source, artifact_sha256=ARTIFACT,
-            generator="rsi", mutation={"origin": "hermes-failure"},
-            trusted_keys=self.source_keys,
+            generator="rsi", mutation={"origin": "hermes-failure"}
             induction_seed_event_hash=seed["event_hash"],
         )
         payload = json.loads(self.ledger.events(candidate_id)[0]["payload"])
@@ -288,8 +305,7 @@ class RSIPipelineTests(unittest.TestCase):
             candidate_id=candidate, parent_candidate_id=None,
             source_receipt=self.source_receipt(candidate),
             artifact_sha256=ARTIFACT, generator="rsi",
-            mutation={"failure_class": "lean-timeout"},
-            trusted_keys=self.source_keys,
+            mutation={"failure_class": "lean-timeout"}
         )
         metrics = {"overall": 0.9, "lean": 0.95}
         metrics_sha = rsi.sha256_hex(rsi.canonical_json(metrics))
@@ -301,7 +317,7 @@ class RSIPipelineTests(unittest.TestCase):
         self.ledger.record_evaluation(
             candidate_id=candidate, artifact_sha256=ARTIFACT,
             suite_sha256=SUITE, metrics=metrics, passed=True,
-            evaluator_receipt=evaluator, trusted_keys=self.evaluator_keys,
+            evaluator_receipt=evaluator
         )
         return evaluator
 
@@ -379,12 +395,12 @@ class RSIPipelineTests(unittest.TestCase):
                 self.ledger.record_promotion(
                     candidate_id=candidate, artifact_sha256=ARTIFACT,
                     suite_sha256=SUITE, attestation=attestation,
-                    approval_receipt=approval, approval_keys={},
+                    approval_receipt=approval
                 )
             promoted = self.ledger.record_promotion(
                 candidate_id=candidate, artifact_sha256=ARTIFACT,
                 suite_sha256=SUITE, attestation=attestation,
-                approval_receipt=approval, approval_keys=self.approver_keys,
+                approval_receipt=approval
             )
         self.assertEqual(cace_event["seq"], 2)
         self.assertEqual(promoted["seq"], 3)
@@ -429,8 +445,7 @@ class RSIPipelineTests(unittest.TestCase):
         self.ledger.record_candidate(
             candidate_id=candidate, parent_candidate_id=None,
             source_receipt=self.source_receipt(candidate),
-            artifact_sha256=ARTIFACT, generator="rsi", mutation={},
-            trusted_keys=self.source_keys,
+            artifact_sha256=ARTIFACT, generator="rsi", mutation={}
         )
         metrics = {"overall": 0.1}
         evaluator = sign_receipt("merlin-evaluator", {
@@ -442,7 +457,7 @@ class RSIPipelineTests(unittest.TestCase):
         self.ledger.record_evaluation(
             candidate_id=candidate, artifact_sha256=ARTIFACT,
             suite_sha256=SUITE, metrics=metrics, passed=False,
-            evaluator_receipt=evaluator, trusted_keys=self.evaluator_keys,
+            evaluator_receipt=evaluator
         )
         with self.assertRaises(PermissionError):
             self.ledger._cace_evidence(candidate, candidate, ARTIFACT, SUITE)
