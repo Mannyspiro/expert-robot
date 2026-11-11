@@ -634,7 +634,6 @@ def dispatch_rsi_induction_seed(
     ledger: AppendOnlyLedger,
     seed_event_hash: str,
     transport: Any,
-    trusted_worker_keys: Mapping[str, str],
 ) -> dict[str, Any]:
     """Dispatch one authenticated Hermes seed and persist a signed worker ACK.
 
@@ -686,7 +685,7 @@ def dispatch_rsi_induction_seed(
         "status": "accepted",
     }
     if not verify_signed_receipt(
-        acknowledgement, trusted_worker_keys,
+        acknowledgement, _load_issuer_trusted_keys("merlin-rsi-worker"),
         expected_issuer="merlin-rsi-worker", expected_claims=expected,
     ):
         raise PermissionError("RSI worker acknowledgement is unauthenticated or mismatched")
