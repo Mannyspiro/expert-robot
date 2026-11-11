@@ -248,6 +248,39 @@ PARRONDO_DISCOVERY = LessonSpec(
 )
 PARRONDO_DISCOVERY.validate()
 
+def parrondo_lesson_for_path(path: str) -> LessonSpec:
+    """Return a zero-first Parrondo lesson with a distinct path-specific capstone."""
+    capstones = {
+        "mathematician": LessonStage(
+            "formulate-and-audit", "symbol",
+            "State a precise conjecture about the mixture, list its assumptions, "
+            "and identify what a proof must establish."
+        ),
+        "mathematics_programmer": LessonStage(
+            "verify-the-implementation", "code",
+            "Implement the transition model, add deterministic tests, and compare "
+            "the computed stationary prediction with repeated seeded experiments."
+        ),
+        "computational_hacker": LessonStage(
+            "break-the-model", "code",
+            "Probe edge cases: change the seed, initial capital, game-selection "
+            "policy, and turn budget. Find a counterexample to an overconfident claim."
+        ),
+    }
+    if path not in capstones:
+        raise ValueError(f"unknown mathematics learning path: {path}")
+    lesson = LessonSpec(
+        lesson_id=f"{PARRONDO_DISCOVERY.lesson_id}.{path}",
+        title=f"{PARRONDO_DISCOVERY.title} — {path.replace('_', ' ')}",
+        target_concepts=PARRONDO_DISCOVERY.target_concepts,
+        prerequisites=PARRONDO_DISCOVERY.prerequisites,
+        stages=PARRONDO_DISCOVERY.stages + (capstones[path],),
+        path_tags=(path,),
+        priority=PARRONDO_DISCOVERY.priority,
+    )
+    lesson.validate()
+    return lesson
+
 
 @dataclass
 class LessonSession:
