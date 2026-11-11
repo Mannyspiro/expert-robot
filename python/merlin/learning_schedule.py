@@ -105,3 +105,121 @@ def initial_retrieval_state(concept_id: str, learned_at: datetime) -> RetrievalS
     )
     state.validate()
     return state
+
+
+class SQLiteRetrievalScheduler:
+    """Persist retrieval state in the same SQLite database used by LearnerStore."""
+
+    def __init__(self, database: str) -> None:
+        import sqlite3
+        self.database = str(database)
+        with sqlite3.connect(self.database) as connection:
+            connection.execute(
+                """CREATE TABLE IF NOT EXISTS retrieval_schedule (
+                    learner_id TEXT NOT NULL,
+                    concept_id TEXT NOT NULL,
+                    due_at TEXT NOT NULL,
+                    interval_days INTEGER NOT NULL,
+                    ease_factor REAL NOT NULL,
+                    repetitions INTEGER NOT NULL,
+                    lapses INTEGER NOT NULL,
+                    representation_index INTEGER NOT NULL,
+                    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (learner_id, concept_id)
+                )"""
+            )
+
+    def get(self, learner_id: str, concept_id: str) -> RetrievalState | None:
+        import sqlite3
+        with sqlite3.connect(self.database) as connection:
+            row = connection.execute(
+                """SELECT due_at, interval_days, ease_factor, repetitions, lapses,
+                          representation_index
+                   FROM retrieval_schedule WHERE learner_id=? AND concept_id=?""",
+                (learner_id, concept_id),
+            ).fetchone()
+        if row is None:
+            return None
+        state = RetrievalState(
+            concept_id=concept_id,
+            due_at=datetime.fromisoformat(row[0]),
+            interval_days=int(row[1]),
+            ease_factor=float(row[2]),
+            repetitions=int(row[3]),
+            lapses=int(row[4]),
+            representation_index=int(row[5]),
+        )
+        state.validate()
+        return state
+
+    def review(
+        self,
+        learner_id: str,
+        concept_id: str,
+        *,
+        quality: int,
+        reviewed_at: datetime,
+    ) -> RetrievalResult:
+        import sqlite3
+        if not learner_id:
+            raise ValueError("learner_id is required")
+        previous = self.get(learner_id, concept_id)
+        if previous is None:
+            previous = initial_retrieval_state(concept_id, reviewed_at)
+            # The first retrieval is the immediate lesson review, so make its
+            # due time now before applying the recall outcome.
+            previous = RetrievalState(
+                concept_id=previous.concept_id,
+                due_at=reviewed_at,
+                interval_days=0,
+                ease_factor=previous.ease_factor,
+                repetitions=0,
+                lapses=0,
+                representation_index=0,
+            )
+        result = schedule_retrieval(previous, quality=quality, reviewed_at=reviewed_at)
+        state = result.state
+        with sqlite3.connect(self.database) as connection:
+            connection.execute(
+                """INSERT INTO retrieval_schedule
+                   (learner_id, concept_id, due_at, interval_days, ease_factor,
+                    repetitions, lapses, representation_index)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                   ON CONFLICT(learner_id, concept_id) DO UPDATE SET
+                     due_at=excluded.due_at,
+                     interval_days=excluded.interval_days,
+                     ease_factor=excluded.ease_factor,
+                     repetitions=excluded.repetitions,
+                     lapses=excluded.lapses,
+                     representation_index=excluded.representation_index,
+                     updated_at=CURRENT_TIMESTAMP""",
+                (learner_id, concept_id, state.due_at.isoformat(), state.interval_days,
+                 state.ease_factor, state.repetitions, state.lapses,
+                 state.representation_index),
+            )
+        return result
+
+    def due(self, learner_id: str, *, as_of: datetime) -> tuple[RetrievalState, ...]:
+        import sqlite3
+        if as_of.tzinfo is None or as_of.utcoffset() is None:
+            raise ValueError("as_of must be timezone-aware")
+        with sqlite3.connect(self.database) as connection:
+            rows = connection.execute(
+                """SELECT concept_id, due_at, interval_days, ease_factor, repetitions,
+                          lapses, representation_index
+                   FROM retrieval_schedule
+                   WHERE learner_id=? AND due_at<=? ORDER BY due_at, concept_id""",
+                (learner_id, as_of.isoformat()),
+            ).fetchall()
+        states = tuple(
+            RetrievalState(
+                concept_id=row[0], due_at=datetime.fromisoformat(row[1]),
+                interval_days=int(row[2]), ease_factor=float(row[3]),
+                repetitions=int(row[4]), lapses=int(row[5]),
+                representation_index=int(row[6]),
+            )
+            for row in rows
+        )
+        for state in states:
+            state.validate()
+        return states
