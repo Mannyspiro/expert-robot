@@ -93,6 +93,13 @@ class RSIPipelineTests(unittest.TestCase):
             "MERLIN_ISSUER_TRUST_STORE_SHA256": rsi.sha256_hex(raw.encode("utf-8")),
         }
 
+    def _trust_issuer(self, issuer, keys):
+        document = json.loads(os.environ["MERLIN_ISSUER_TRUST_STORE_JSON"])
+        document["issuers"][issuer] = keys
+        raw = json.dumps(document, sort_keys=True, separators=(",", ":"))
+        os.environ["MERLIN_ISSUER_TRUST_STORE_JSON"] = raw
+        os.environ["MERLIN_ISSUER_TRUST_STORE_SHA256"] = rsi.sha256_hex(raw.encode("utf-8"))
+
     def source_receipt(self, candidate):
         return sign_receipt("merlin-source", {
             "candidate_id": candidate,
@@ -189,6 +196,7 @@ class RSIPipelineTests(unittest.TestCase):
 
         worker_private = Ed25519PrivateKey.generate()
         worker_keys = {"worker-key": public_pem(worker_private)}
+        self._trust_issuer("merlin-rsi-worker", worker_keys)
 
         class FakeTransport:
             def __init__(self):
@@ -216,7 +224,7 @@ class RSIPipelineTests(unittest.TestCase):
                 self.ledger, seed["event_hash"], transport
             )
             replay = dispatch_rsi_induction_seed(
-                self.ledger, seed["event_hash"], transport, worker_keys
+                self.ledger, seed["event_hash"], transport
             )
             self.assertEqual(first["seq"], 1)
         self.assertTrue(replay["idempotent_replay"])
@@ -249,6 +257,7 @@ class RSIPipelineTests(unittest.TestCase):
         )
         worker_private = Ed25519PrivateKey.generate()
         worker_keys = {"worker-key": public_pem(worker_private)}
+        self._trust_issuer("merlin-rsi-worker", worker_keys)
 
         class MismatchedTransport:
             def submit_induction(self, *, seed_event_hash, episode_id, idempotency_key, seed):
