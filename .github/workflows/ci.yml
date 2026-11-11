@@ -115,6 +115,13 @@ jobs:
           set -euo pipefail
           python3 -m unittest discover -s tests -p "test_merlin_learning_core.py" -v
 
+      - name: Merlin browser mathematics lab contract
+        env:
+          PYTHONPATH: python
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tests -p "test_merlin_math_hud.py" -v
+
       - name: Merlin Parrondo paradox lesson
         env:
           PYTHONPATH: python
