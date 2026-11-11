@@ -222,5 +222,51 @@ class LearningPlatformTests(unittest.TestCase):
             self.store.create_course(self.teacher, "valid-course", "Duplicate")
 
 
+    def test_assessment_submissions_are_append_only_idempotent_and_human_reviewed(self):
+        course = self._course()
+        self._publish(course)
+        self.store.enroll(self.learner, course["course_id"])
+        with self.assertRaises(LearningPermissionError):
+            self.store.submit_assessment(
+                self.learner, course["course_id"], "submission-1", "lesson-2",
+                "wrong-task", {"answer": "x"},
+            )
+        submitted = self.store.submit_assessment(
+            self.learner, course["course_id"], "submission-1", "lesson-2",
+            "rotation-check", {"explanation": "A quarter turn maps (x,y) to (-y,x)."},
+        )
+        self.assertEqual(submitted["status"], "pending_review")
+        self.assertFalse(submitted["mastery_updated"])
+        self.assertFalse(submitted["proof_qualified"])
+        replay = self.store.submit_assessment(
+            self.learner, course["course_id"], "submission-1", "lesson-2",
+            "rotation-check", {"explanation": "A quarter turn maps (x,y) to (-y,x)."},
+        )
+        self.assertTrue(replay["duplicate"])
+        with self.assertRaises(LearningConflictError):
+            self.store.submit_assessment(
+                self.learner, course["course_id"], "submission-1", "lesson-2",
+                "rotation-check", {"explanation": "Different answer"},
+            )
+        queue = self.store.list_submissions(self.reviewer, course["course_id"])
+        self.assertEqual(queue["count"], 1)
+        self.assertEqual(queue["submissions"][0]["response"]["explanation"],
+                         "A quarter turn maps (x,y) to (-y,x).")
+        with self.assertRaises(LearningPermissionError):
+            self.store.review_submission(
+                self.teacher, course["course_id"], "submission-1", "accepted", "self-review"
+            )
+        review = self.store.review_submission(
+            self.reviewer, course["course_id"], "submission-1", "accepted",
+            "Clear explanation.", {"procedure": 1.0},
+        )
+        self.assertFalse(review["mastery_updated"])
+        self.assertFalse(review["proof_qualified"])
+        queue = self.store.list_submissions(self.admin, course["course_id"])
+        self.assertEqual(queue["submissions"][0]["status"], "accepted")
+        with self.assertRaises(LearningPermissionError):
+            self.store.list_submissions(self.learner, course["course_id"])
+
+
 if __name__ == "__main__":
     unittest.main()
