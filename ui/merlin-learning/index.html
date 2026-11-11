@@ -232,12 +232,35 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
       $("detailSection").classList.remove("hidden");
     } catch (error) { notice("Could not open course: " + error.message, "error"); }
   }
+  function appendSupplementaryResource(parent, resource) {
+    const item = el("li", undefined, "resource-item");
+    let parsed;
+    try { parsed = new URL(resource.source_uri); } catch (_) { parsed = null; }
+    if (!parsed || parsed.protocol !== "https:") {
+      item.textContent = (resource.title || "External resource") + " · secure link unavailable";
+    } else {
+      const link = document.createElement("a");
+      link.href = parsed.href;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      link.textContent = resource.title || "Open supplementary resource";
+      item.append(link);
+      item.append(document.createTextNode(
+        " · " + (resource.creator || "Creator not listed") +
+        " · " + (resource.license || "License not listed") +
+        " · optional supplement"
+      ));
+    }
+    parent.append(item);
+  }
+
   function renderCourse() {
     const course = current;
     $("detailTitle").textContent = course.title;
     $("detailMeta").textContent = "Version " + course.version + " · " + course.status +
       " · " + course.manifest_sha256;
     const manifest = course.manifest;
+    const resourceById = new Map((manifest.resources || []).map(resource => [resource.id, resource]));
     $("objectives").replaceChildren();
     for (const objective of manifest.objectives || []) {
       const prereqs = objective.prerequisites?.length ? " · Prerequisites: " + objective.prerequisites.join(", ") : "";
@@ -251,6 +274,18 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
       block.append(el("div",
         (lesson.estimated_minutes || 20) + " min · " +
         (lesson.pathways || []).join(" / "), "meta"));
+      const lessonResourceIds = lesson.resource_ids || [];
+      if (lessonResourceIds.length) {
+        const supplements = el("div", undefined, "supplementary-resources");
+        supplements.append(el("p", "Optional video supplements", "meta"));
+        const supplementList = el("ul", undefined, "list");
+        for (const resourceId of lessonResourceIds) {
+          const resource = resourceById.get(resourceId);
+          if (resource) appendSupplementaryResource(supplementList, resource);
+        }
+        supplements.append(supplementList);
+        block.append(supplements);
+      }
       const lessonActions = el("div", undefined, "actions");
       lessonActions.append(actionButton("Start lesson", () => startLesson(lesson), true));
       block.append(lessonActions);
@@ -258,7 +293,7 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
     }
     $("resources").replaceChildren();
     for (const resource of manifest.resources || []) {
-      $("resources").append(el("li", resource.title + " · " + resource.creator + " · " + resource.license));
+      appendSupplementaryResource($("resources"), resource);
     }
     const actions = $("courseActions");
     actions.replaceChildren();
