@@ -103,6 +103,10 @@ The seven objectives map to canonical idea IDs `MATH-NT-001`, `MATH-NT-002`, `MA
 All assessments in this initial template are low-stakes and require human review. No learner answer, AI explanation, finite experiment, or lesson completion is promoted to formal proof or mastery by the template.
 
 
+## Numerical methods and scientific computing course template
+
+The instructor-only template is available at `GET /api/learning/templates/math-numerical-scientific-computing` and can be applied to an empty draft with `POST /api/learning/courses/{course_id}/templates/math-numerical-scientific-computing`. It includes linear systems/Gaussian elimination, floating-point error and numerical stability, differential equations with Euler/RK4, and gradient-based optimization. Algebra and calculus prerequisites outside this course are explicitly declared. Each assessment is low-stakes and requires independent human review before publication.
+
 ## Calculus, probability and statistics course template
 
 The instructor-only template is available at `GET /api/learning/templates/math-calculus-probability` and can be applied to an empty draft with `POST /api/learning/courses/{course_id}/templates/math-calculus-probability`. It includes concrete-first lessons for limits/continuity, derivatives/rates, integration/accumulation, conditional probability/Bayes' rule, and statistical inference. Prerequisites that live in the algebra/functions or logic/sets courses are declared explicitly as external prerequisites. Assessments remain low-stakes and require independent human review before publication.
