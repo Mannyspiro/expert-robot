@@ -1,0 +1,77 @@
+{
+  "schema": "merlin-cace-oci-contract-evidence-v1",
+  "fixture_only": true,
+  "observed_at_utc": "2026-11-11T23:40:03Z",
+  "result": "matched",
+  "operation": "cace_rsi_bundle_contract",
+  "request": {
+    "request_id": "2a8f3c61-7b9d-4e20-a156-3c9d7f1a5b82",
+    "repository": "morganaspim/Cace-app",
+    "commit_sha": "db044a5cb512fd1b0f48d2b0fb608b22af04f8e3",
+    "blob_sha": "7a9cfab1cccf63016c4fbdb37d388ea248061dd0",
+    "request_sha256": "09cfa9c6fc50ade7bcdb91e34a28f963ad4cd8c53be0d433895766ee2d5d0a66"
+  },
+  "github_actions": {
+    "repository": "morganaspim/Cace-app",
+    "workflow": "Merlin OCI typed job gateway",
+    "run_id": 43121546574,
+    "run_attempt": 1,
+    "job_id": 130863004468,
+    "runner_id": 22,
+    "runner_name": "cace-oci-a1",
+    "runner_labels": [
+      "self-hosted",
+      "cace",
+      "oci",
+      "aarch64"
+    ],
+    "conclusion": "success",
+    "artifact_id": 13900897396,
+    "artifact_name": "merlin-oci-job-43121546574-1",
+    "artifact_sha256": "5ad163e72ab66300d48d3229d774a9d4098c74da62193815e23460beebba47b5",
+    "job_receipt_sha256": "94c0d40d63b8aaf751ad8141944e216ce8565a257fd63ed96602efc0d60819d0",
+    "runner_inventory_sha256": "276d5bc26f12d457c7acfdc52a48a8b72c473658c206248f6ad93209f023829c"
+  },
+  "cace_library_source_blobs": {
+    "cace_studio/core/graph.py": "cffb146a6be9becc45f0c6789707766b7c8e4222",
+    "cace_studio/core/reproducibility.py": "8c6e7cfe7204ee557a112091a9d451e300e43210",
+    "cace_studio/core/evidence_ledger.py": "25104f432bb50339d980754a58cbc4a004f504ec"
+  },
+  "fixture": {
+    "candidate_id": "merlin-rsi-bridge-contract-test-1",
+    "candidate_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "benchmark_manifest_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "evaluator_receipt_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "source_repo": "Mannyspiro/expert-robot",
+    "source_commit": "dddddddddddddddddddddddddddddddddddddddd"
+  },
+  "digest_results": {
+    "evidence_manifest_sha256": "75a55dcb8d863afb50f2d9614444f36424049598cb243727ba51c11795bb8c74",
+    "artifact_leaf_sha256": "0e6689e1ec8ec35e60f8516f4b9654f9ba715fb8200bece19e448539d4aaef35",
+    "expected_bundle_sha256": "0898289d4c6267dbc8de6e595e56f8f035ad0344b65431f8deb11be0972b0272",
+    "actual_bundle_sha256": "0898289d4c6267dbc8de6e595e56f8f035ad0344b65431f8deb11be0972b0272"
+  },
+  "runner_observation": {
+    "os": "Oracle Linux Server 9.8",
+    "architecture": "aarch64",
+    "cpu_count": 2,
+    "memory_total_bytes": 11427774464,
+    "filesystem_total_bytes": 31608274944,
+    "filesystem_free_bytes": 497819648,
+    "oci_mcp_service": "active",
+    "oci_mcp_listener": "loopback"
+  },
+  "safety": {
+    "host_mutations": false,
+    "arbitrary_shell_enabled": false,
+    "package_installation": false,
+    "cache_mutation": false,
+    "proof_implication": "none",
+    "qualification": false,
+    "cace_signed_attestation": false,
+    "production_candidate_verified": false,
+    "promotion_authorized": false
+  },
+  "scope": "The OCI runner loaded pinned CACE source modules and confirmed that Merlin's one-artifact RSI evidence-bundle digest exactly matches CACE EvidenceBundle v1. This is an identity-compatibility test using synthetic fixture values. It did not fetch or verify a real candidate artifact, did not issue a CACE Ed25519 attestation, and does not qualify or promote a candidate.",
+  "authentication": "GitHub Actions run and artifact identity are recorded. This JSON file is an audit record, not a CACE-signed receipt."
+}
