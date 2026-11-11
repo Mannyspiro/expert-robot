@@ -487,9 +487,10 @@ class LearningPlatform:
             "learning_value": lesson.get("learning_value", 0.5),
             "transfer_value": lesson.get("transfer_value", 0.5),
         } for lesson in manifest["lessons"]]
-        profile = learner_store.get_profile(actor.actor_id)
+        learner_id = learner_subject_id(actor.tenant_id, actor.actor_id)
+        profile = learner_store.get_profile(learner_id)
         recommendation = select_next_lesson(
-            actor.actor_id,
+            learner_id,
             learner_store,
             graph,
             lessons,
