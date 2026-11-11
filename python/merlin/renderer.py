@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timezone
 import json
+import math
 from typing import Any, Mapping
 
 from .lesson_schema import LessonBlock, LessonDocument
@@ -95,6 +96,16 @@ def record_interaction(
         raise KeyError(f"unknown block_id: {block_id}")
     if not event_type:
         raise ValueError("event_type is required")
+    if hints_used < 0:
+        raise ValueError("hints_used cannot be negative")
+    if scores is not None:
+        if block.kind not in {"assessment", "retrieval", "reflection"}:
+            raise ValueError("only assessment, retrieval, or reflection blocks can update mastery")
+        unknown = set(scores) - set(MASTERY_DIMENSIONS)
+        if unknown:
+            raise ValueError(f"unknown mastery dimensions: {sorted(unknown)}")
+        if any(not math.isfinite(float(value)) or not 0 <= float(value) <= 1 for value in scores.values()):
+            raise ValueError("mastery scores must be finite values between 0 and 1")
     now = timestamp or datetime.now(timezone.utc)
     if now.tzinfo is None or now.utcoffset() is None:
         raise ValueError("timestamp must be timezone-aware")
@@ -133,13 +144,7 @@ def record_interaction(
         event_id = int(cursor.lastrowid)
 
     # Mastery is updated only for an explicitly scored assessment event.
-    if scores is not None:
-        if block.kind not in {"assessment", "retrieval", "reflection"}:
-            raise ValueError("only assessment, retrieval, or reflection blocks can update mastery")
-        unknown = set(scores) - set(MASTERY_DIMENSIONS)
-        if unknown:
-            raise ValueError(f"unknown mastery dimensions: {sorted(unknown)}")
-        if scores:
+    if scores:
             store.record_attempt(
                 Attempt(
                     learner_id=learner_id,
