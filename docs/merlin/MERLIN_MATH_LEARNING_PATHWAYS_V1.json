@@ -2,7 +2,7 @@
   "schema": "merlin-math-learning-pathways/1",
   "catalog_id": "merlin.mathematics",
   "catalog_schema": 1,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "status": "planned_curriculum_map",
   "principle": "All pathways share the same mathematical idea graph; pathway weights change ordering and examples, not truth, mastery, or proof status.",
   "shared_learning_cycle": [
@@ -29,7 +29,8 @@
           "idea_ids": [
             "MATH-NT-001",
             "MATH-REP-001",
-            "MATH-ART-001"
+            "MATH-ART-001",
+            "MATH-SET-001"
           ],
           "evidence": [
             "observations across examples",
@@ -45,7 +46,11 @@
             "MATH-NT-003",
             "MATH-COORD-001",
             "MATH-CALG-001",
-            "MATH-FRACT-001"
+            "MATH-FRACT-001",
+            "MATH-LOG-002",
+            "MATH-ALG-003",
+            "MATH-FUNC-001",
+            "MATH-MOD-001"
           ],
           "evidence": [
             "precise domain and definitions",
@@ -61,7 +66,18 @@
             "MATH-LOG-001",
             "MATH-SPEC-001",
             "MATH-DYN-001",
-            "MATH-HOL-002"
+            "MATH-HOL-002",
+            "MATH-DISC-001",
+            "MATH-COMP-002",
+            "MATH-LIN-002",
+            "MATH-CALC-001",
+            "MATH-CALC-002",
+            "MATH-CALC-003",
+            "MATH-PROB-001",
+            "MATH-STAT-001",
+            "MATH-NUM-001",
+            "MATH-ODE-001",
+            "MATH-OPT-001"
           ],
           "evidence": [
             "valid counterexample or proof",
@@ -118,7 +134,10 @@
             "MATH-ALG-002",
             "MATH-REP-001",
             "MATH-COORD-001",
-            "MATH-CALG-001"
+            "MATH-CALG-001",
+            "MATH-SET-001",
+            "MATH-ALG-003",
+            "MATH-FUNC-001"
           ],
           "evidence": [
             "typed inputs and outputs",
@@ -133,7 +152,11 @@
             "MATH-NT-002",
             "MATH-NT-003",
             "MATH-COMP-001",
-            "MATH-EXP-002"
+            "MATH-EXP-002",
+            "MATH-LOG-002",
+            "MATH-DISC-001",
+            "MATH-MOD-001",
+            "MATH-COMP-002"
           ],
           "evidence": [
             "algorithm and termination condition",
@@ -151,7 +174,8 @@
             "MATH-REP-002",
             "MATH-REP-003",
             "MATH-ROT-001",
-            "MATH-ROT-002"
+            "MATH-ROT-002",
+            "MATH-LIN-002"
           ],
           "evidence": [
             "exact arithmetic where appropriate",
@@ -174,7 +198,15 @@
             "MATH-POLY-001",
             "MATH-GEN-001",
             "MATH-DYN-001",
-            "MATH-HOL-002"
+            "MATH-HOL-002",
+            "MATH-CALC-001",
+            "MATH-CALC-002",
+            "MATH-CALC-003",
+            "MATH-PROB-001",
+            "MATH-STAT-001",
+            "MATH-NUM-001",
+            "MATH-ODE-001",
+            "MATH-OPT-001"
           ],
           "evidence": [
             "reproducible experiment",
@@ -196,7 +228,8 @@
             "MATH-HOL-001",
             "MATH-ST-001",
             "MATH-COL-001",
-            "MATH-PARR-001"
+            "MATH-PARR-001",
+            "MATH-LOG-002"
           ],
           "evidence": [
             "versioned implementation",
@@ -220,7 +253,9 @@
             "MATH-NT-001",
             "MATH-ALG-002",
             "MATH-COMP-001",
-            "MATH-REP-001"
+            "MATH-REP-001",
+            "MATH-LOG-002",
+            "MATH-SET-001"
           ],
           "evidence": [
             "subproblem graph",
@@ -236,7 +271,12 @@
             "MATH-XMG-001",
             "MATH-EXP-002",
             "MATH-EXP-001",
-            "MATH-PARR-001"
+            "MATH-PARR-001",
+            "MATH-DISC-001",
+            "MATH-ALG-003",
+            "MATH-FUNC-001",
+            "MATH-MOD-001",
+            "MATH-COMP-002"
           ],
           "evidence": [
             "working minimal prototype",
@@ -258,7 +298,16 @@
             "MATH-FRACT-001",
             "MATH-FRACT-002",
             "MATH-SIG-001",
-            "MATH-DATA-001"
+            "MATH-DATA-001",
+            "MATH-LIN-002",
+            "MATH-CALC-001",
+            "MATH-CALC-002",
+            "MATH-CALC-003",
+            "MATH-PROB-001",
+            "MATH-STAT-001",
+            "MATH-NUM-001",
+            "MATH-ODE-001",
+            "MATH-OPT-001"
           ],
           "evidence": [
             "seeded reproducible run",
@@ -890,6 +939,263 @@
       "lesson_state": "lesson_reference_present",
       "prerequisites": [
         "MATH-COMP-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-LOG-002",
+      "title": "Propositional logic, predicates and quantifiers",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "prerequisites": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-SET-001",
+      "title": "Sets, relations and functions",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "prerequisites": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-DISC-001",
+      "title": "Graphs, trees and network structure",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "prerequisites": [
+        "MATH-SET-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-ALG-003",
+      "title": "Equations and inequalities",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "prerequisites": [
+        "MATH-ALG-002"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-FUNC-001",
+      "title": "Functions, composition and inverse mappings",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "prerequisites": [
+        "MATH-ALG-003",
+        "MATH-SET-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-MOD-001",
+      "title": "Modular arithmetic and congruences",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "prerequisites": [
+        "MATH-NT-002"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-COMP-002",
+      "title": "Complexity, invariants and termination",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "prerequisites": [
+        "MATH-COMP-001",
+        "MATH-LOG-002"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-LIN-002",
+      "title": "Linear systems and Gaussian elimination",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "prerequisites": [
+        "MATH-ALG-003"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-CALC-001",
+      "title": "Limits and continuity",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "prerequisites": [
+        "MATH-FUNC-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-CALC-002",
+      "title": "Derivatives and rates of change",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "prerequisites": [
+        "MATH-CALC-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-CALC-003",
+      "title": "Integration and accumulation",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "prerequisites": [
+        "MATH-CALC-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-PROB-001",
+      "title": "Probability and conditional probability",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "prerequisites": [
+        "MATH-SET-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-STAT-001",
+      "title": "Statistical models, inference and uncertainty",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "prerequisites": [
+        "MATH-PROB-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-NUM-001",
+      "title": "Floating-point error and numerical stability",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "prerequisites": [
+        "MATH-ALG-003"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-ODE-001",
+      "title": "Differential equations and numerical integration",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "prerequisites": [
+        "MATH-CALC-002",
+        "MATH-CALC-003",
+        "MATH-NUM-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-OPT-001",
+      "title": "Optimization and gradient methods",
+      "kind": "concept",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "prerequisites": [
+        "MATH-CALC-002",
+        "MATH-LIN-002"
       ],
       "pathways": [
         "mathematician",
