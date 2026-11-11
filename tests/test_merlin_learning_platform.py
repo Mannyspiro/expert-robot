@@ -145,6 +145,55 @@ class LearningPlatformTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "known objective"):
             self.store.update_manifest(self.teacher, course["course_id"], manifest)
 
+    def test_objective_graph_rejects_cycles_and_duplicate_prerequisites(self):
+        course = self.store.create_course(self.teacher, "cycle-101", "Cycle 101")
+        manifest = course["manifest"]
+        manifest["objectives"] = [
+            {"id": "A", "title": "A", "prerequisites": ["B"]},
+            {"id": "B", "title": "B", "prerequisites": ["A"]},
+        ]
+        with self.assertRaisesRegex(ValueError, "cycle"):
+            self.store.update_manifest(self.teacher, course["course_id"], manifest)
+        manifest["objectives"][0]["prerequisites"] = ["B", "B"]
+        with self.assertRaisesRegex(ValueError, "unique"):
+            self.store.update_manifest(self.teacher, course["course_id"], manifest)
+
+    def test_duplicate_lesson_and_assessment_ids_are_rejected(self):
+        course = self.store.create_course(self.teacher, "duplicate-ids", "Duplicate IDs")
+        manifest = course["manifest"]
+        manifest["objectives"] = [{"id": "A", "title": "A"}]
+        manifest["lessons"] = [
+            {"id": "L", "title": "Lesson one", "objective_id": "A"},
+            {"id": "L", "title": "Lesson two", "objective_id": "A"},
+        ]
+        with self.assertRaisesRegex(ValueError, "lesson IDs must be unique"):
+            self.store.update_manifest(self.teacher, course["course_id"], manifest)
+        manifest["lessons"] = []
+        manifest["assessments"] = [
+            {"id": "Q", "title": "Quiz one", "objective_id": "A"},
+            {"id": "Q", "title": "Quiz two", "objective_id": "A"},
+        ]
+        with self.assertRaisesRegex(ValueError, "assessment IDs must be unique"):
+            self.store.update_manifest(self.teacher, course["course_id"], manifest)
+
+    def test_resources_require_https_and_boolean_review_flags(self):
+        course = self.store.create_course(self.teacher, "resource-policy", "Resource Policy")
+        manifest = course["manifest"]
+        manifest["objectives"] = [{"id": "A", "title": "A"}]
+        manifest["resources"] = [
+            {"id": "R", "title": "Resource", "source_uri": "http://example.org",
+             "license": "CC-BY-4.0", "creator": "Author"}
+        ]
+        with self.assertRaisesRegex(ValueError, "HTTPS"):
+            self.store.update_manifest(self.teacher, course["course_id"], manifest)
+        manifest["resources"] = []
+        manifest["assessments"] = [
+            {"id": "Q", "title": "Quiz", "objective_id": "A",
+             "high_stakes": "false", "human_review_required": False}
+        ]
+        with self.assertRaisesRegex(ValueError, "must be boolean"):
+            self.store.update_manifest(self.teacher, course["course_id"], manifest)
+
     def test_resource_requires_rights_and_provenance_metadata(self):
         course = self.store.create_course(self.teacher, "media-101", "Media 101")
         manifest = course["manifest"]
