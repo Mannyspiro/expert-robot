@@ -24,6 +24,7 @@ from .council_runtime import run_local_council
 from .simulation import MerlinSimulation
 from .telemetry import normalize_event, telemetry_view, record_runtime_event
 from .telemetry_graph import build_telemetry_graph
+from .math_learning_api import MathLearningService
 from .research import (
     AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
     validate_analogy,
@@ -208,6 +209,8 @@ def _netlist(data: dict[str, Any]) -> Netlist:
 
 def make_handler(store: EventStore, hud_runtime: Any | None = None):
     simulation = MerlinSimulation()
+    learner_db = os.environ.get("MERLIN_LEARNER_DB_PATH", str(Path(store.path).with_suffix(".learners.sqlite3")))
+    math_learning = MathLearningService(learner_db, learner_id=os.environ.get("MERLIN_LEARNER_ID", "local-default"))
     # Rebuild simulation state from the durable action ledger on process restart.
     replay_rows = store.by_kind("/api/sim/step")
     replayed = 0
@@ -283,6 +286,10 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None):
                     self._send(404, {"error": "hud_not_found"})
                     return
                 self._send_bytes(200, hud_path.read_bytes(), "text/html; charset=utf-8")
+            elif path == "/api/math/lesson":
+                query = __import__("urllib.parse", fromlist=["parse_qs"]).parse_qs(parsed.query)
+                lesson_path = query.get("path", ["mathematician"])[0]
+                self._send(200, math_learning.snapshot(lesson_path))
             elif path == "/api/sim/state":
                 self._send(200, simulation.snapshot())
             elif path == "/api/sim/events":
@@ -337,6 +344,10 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None):
                 if not isinstance(data, dict):
                     raise ValueError("request body must be a JSON object")
 
+                if path == "/api/math/lesson/complete":
+                    result = math_learning.complete_stage(data.get("path", "mathematician"), data.get("stage_id"))
+                    self._send(200, result)
+                    return
                 if path == "/api/telemetry/ingest":
                     event = normalize_event(data)
                     store.append(path, {"event_id": event["event_id"], "source": event["source"]},
