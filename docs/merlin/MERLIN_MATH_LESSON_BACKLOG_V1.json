@@ -1,0 +1,3818 @@
+{
+  "schema": "merlin-math-lesson-backlog/1",
+  "version": "1.0.0",
+  "status": "draft_blueprints_not_published_lessons",
+  "catalog_id": "merlin.mathematics",
+  "catalog_schema": 1,
+  "generated_from_catalog_count": 57,
+  "existing_catalog_lesson_count": 21,
+  "blueprint_count": 36,
+  "publication_policy": "These records are authoring blueprints, not released course lessons. Every blueprint requires instructor review and content validation. Refuted, unresolved, conjectural, and open-question ideas retain explicit epistemic labels.",
+  "blueprints": [
+    {
+      "blueprint_id": "lesson-math-st-001-v1",
+      "idea_id": "MATH-ST-001",
+      "title": "Spacetime projections and periodic time structure",
+      "kind": "open_question",
+      "catalog_status": "candidate",
+      "delivery_state": "research_laboratory",
+      "publication_gate": "research_review_required_before_core_curriculum",
+      "prerequisite_idea_ids": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "representation_translation",
+        "transfer"
+      ],
+      "learning_objective": "Define a precise model and observable, then identify what is known, unknown, and testable.",
+      "epistemic_guardrail": "Label as candidate or unresolved; separate conjecture, evidence, and proof.",
+      "source_claim": "Spacetime trajectories, observer frames, time slices and periodic dynamics can be represented with explicit projection and information-loss semantics.",
+      "definitions": [
+        "spacetime metric",
+        "worldline/world-tube",
+        "observer frame",
+        "Floquet operator"
+      ],
+      "assumptions": [
+        "Physical claims require a specified model and observable."
+      ],
+      "known_objections": [
+        "Time-crystal definitions differ between equilibrium and driven settings."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Spacetime projections and periodic time structure observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: spacetime metric, worldline/world-tube, observer frame, Floquet operator."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Physical claims require a specified model and observable."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-st-001-v1",
+        "objective": "Define a precise model and observable, then identify what is known, unknown, and testable.",
+        "prompt": "For Spacetime projections and periodic time structure, define a bounded model, list assumptions and observables, construct one discriminating test, and state what result would change your conclusion.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Spacetime projections and periodic time structure.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Spacetime projections and periodic time structure. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-xmg-001-v1",
+      "idea_id": "MATH-XMG-001",
+      "title": "Glyph-native typed mathematical language",
+      "kind": "concept",
+      "catalog_status": "finite_tested",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [],
+      "pathways": [
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "representation_translation",
+        "transfer"
+      ],
+      "learning_objective": "Explain Glyph-native typed mathematical language using its declared definitions, assumptions, and limitations.",
+      "epistemic_guardrail": "Preserve the catalog status and scope; finite tests do not establish universal claims.",
+      "source_claim": "A glyph can denote a typed operation with a canonical AST identity; its visual glyph is a rendering, not semantic authority.",
+      "definitions": [
+        "typed AST",
+        "operator signature",
+        "domain",
+        "assumptions",
+        "rendering"
+      ],
+      "assumptions": [
+        "Glyph IDs and semantics are versioned."
+      ],
+      "known_objections": [
+        "Current language and operators are limited; not a general discovery system."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Glyph-native typed mathematical language observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: typed AST, operator signature, domain, assumptions, rendering."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Glyph IDs and semantics are versioned."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-xmg-001-v1",
+        "objective": "Explain Glyph-native typed mathematical language using its declared definitions, assumptions, and limitations.",
+        "prompt": "Build two representations or examples of Glyph-native typed mathematical language, explain the connection, test an edge case, and state one limitation of the model.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Glyph-native typed mathematical language.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Glyph-native typed mathematical language. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-xmg-002-v1",
+      "idea_id": "MATH-XMG-002",
+      "title": "XMG termination and confluence",
+      "kind": "conjecture",
+      "catalog_status": "unresolved",
+      "delivery_state": "research_laboratory",
+      "publication_gate": "research_review_required_before_core_curriculum",
+      "prerequisite_idea_ids": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "representation_translation",
+        "transfer"
+      ],
+      "learning_objective": "State the conjecture with explicit assumptions and attempt to prove or refute it.",
+      "epistemic_guardrail": "Label as candidate or unresolved; separate conjecture, evidence, and proof.",
+      "source_claim": "A terminating typed rewrite system with locally joinable critical pairs is confluent; current implementation explores a bounded subset.",
+      "definitions": [
+        "rewrite relation",
+        "AST size",
+        "critical pair",
+        "Newman lemma"
+      ],
+      "assumptions": [
+        "Every rewrite strictly decreases a well-founded measure; local confluence covers all overlaps."
+      ],
+      "known_objections": [
+        "Finite expression probes do not establish global confluence; Lean compilation remains to be confirmed."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes XMG termination and confluence observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: rewrite relation, AST size, critical pair, Newman lemma."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Every rewrite strictly decreases a well-founded measure; local confluence covers all overlaps."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-xmg-002-v1",
+        "objective": "State the conjecture with explicit assumptions and attempt to prove or refute it.",
+        "prompt": "For XMG termination and confluence, define a bounded model, list assumptions and observables, construct one discriminating test, and state what result would change your conclusion.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for XMG termination and confluence.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in XMG termination and confluence. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-idea-001-v1",
+      "idea_id": "MATH-IDEA-001",
+      "title": "Ideonomy as a typed idea hypergraph",
+      "kind": "concept",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "representation_translation",
+        "transfer"
+      ],
+      "learning_objective": "Explain Ideonomy as a typed idea hypergraph using its declared definitions, assumptions, and limitations.",
+      "epistemic_guardrail": "Label as candidate or unresolved; separate conjecture, evidence, and proof.",
+      "source_claim": "Mathematical ideas and multi-way relations can be represented as a typed hypergraph with explicit epistemic status.",
+      "definitions": [
+        "vertices",
+        "hyperedges",
+        "type maps",
+        "provenance",
+        "gap classes"
+      ],
+      "assumptions": [
+        "Missing catalog entries are not evidence of novelty."
+      ],
+      "known_objections": [
+        "Null-model scores require calibration and multiple-testing controls."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Ideonomy as a typed idea hypergraph observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: vertices, hyperedges, type maps, provenance, gap classes."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Missing catalog entries are not evidence of novelty."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-idea-001-v1",
+        "objective": "Explain Ideonomy as a typed idea hypergraph using its declared definitions, assumptions, and limitations.",
+        "prompt": "Build two representations or examples of Ideonomy as a typed idea hypergraph, explain the connection, test an edge case, and state one limitation of the model.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Ideonomy as a typed idea hypergraph.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Ideonomy as a typed idea hypergraph. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-idea-002-v1",
+      "idea_id": "MATH-IDEA-002",
+      "title": "Mathematical idea intake and evidence ledger",
+      "kind": "experiment",
+      "catalog_status": "finite_tested",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [],
+      "pathways": [
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "representation_translation",
+        "transfer"
+      ],
+      "learning_objective": "Reproduce and critique the recorded experiment, including controls, scope, and limitations.",
+      "epistemic_guardrail": "Preserve the catalog status and scope; finite tests do not establish universal claims.",
+      "source_claim": "Stable idea IDs, controlled status vocabulary and typed relations make research accumulation auditable.",
+      "definitions": [
+        "catalog schema",
+        "stable IDs",
+        "status vocabulary",
+        "relation vocabulary"
+      ],
+      "assumptions": [
+        "Repository intake protocol is followed by agents and contributors."
+      ],
+      "known_objections": [
+        "Conversation-to-repository capture still requires an authorized workflow."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Mathematical idea intake and evidence ledger observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: catalog schema, stable IDs, status vocabulary, relation vocabulary."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Repository intake protocol is followed by agents and contributors."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-idea-002-v1",
+        "objective": "Reproduce and critique the recorded experiment, including controls, scope, and limitations.",
+        "prompt": "Reproduce or design a minimal controlled experiment for Mathematical idea intake and evidence ledger. Include a positive control, negative control, recorded parameters, and a limitation statement.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Mathematical idea intake and evidence ledger.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Mathematical idea intake and evidence ledger. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-fract-001-v1",
+      "idea_id": "MATH-FRACT-001",
+      "title": "Lacunarity and multiscale morphology",
+      "kind": "concept",
+      "catalog_status": "literature_checked",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "representation_translation",
+        "transfer"
+      ],
+      "learning_objective": "Explain Lacunarity and multiscale morphology using its declared definitions, assumptions, and limitations.",
+      "epistemic_guardrail": "Preserve the catalog status and scope; finite tests do not establish universal claims.",
+      "source_claim": "Lacunarity describes scale-dependent mass heterogeneity and can distinguish structures with similar fractal dimension.",
+      "definitions": [
+        "window mass",
+        "mean mass",
+        "second moment",
+        "scale",
+        "mask"
+      ],
+      "assumptions": [
+        "Mean window mass is positive; sampling metadata is recorded."
+      ],
+      "known_objections": [
+        "Not a universal engineering quality score."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Lacunarity and multiscale morphology observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: window mass, mean mass, second moment, scale, mask."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Mean window mass is positive; sampling metadata is recorded."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-fract-001-v1",
+        "objective": "Explain Lacunarity and multiscale morphology using its declared definitions, assumptions, and limitations.",
+        "prompt": "Build two representations or examples of Lacunarity and multiscale morphology, explain the connection, test an edge case, and state one limitation of the model.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Lacunarity and multiscale morphology.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Lacunarity and multiscale morphology. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-cad-001-v1",
+      "idea_id": "MATH-CAD-001",
+      "title": "Mathematical-to-CAD/MCFC engineering bridge",
+      "kind": "engineering_mapping",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "representation_translation",
+        "transfer"
+      ],
+      "learning_objective": "Translate the mathematical model into typed engineering artifacts while preserving physical and verification boundaries.",
+      "epistemic_guardrail": "Label as candidate or unresolved; separate conjecture, evidence, and proof.",
+      "source_claim": "CAD and wiring artifacts can be represented as typed geometry, frames, connectivity, physical fields, constraints and evidence.",
+      "definitions": [
+        "geometry",
+        "ports",
+        "connectivity graph",
+        "materials",
+        "loads",
+        "solver receipts"
+      ],
+      "assumptions": [
+        "Simulation is conditional on model assumptions and requires independent validation."
+      ],
+      "known_objections": [
+        "A rendered diagram is not a verified physical design."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Mathematical-to-CAD/MCFC engineering bridge observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: geometry, ports, connectivity graph, materials, loads."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Simulation is conditional on model assumptions and requires independent validation."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-cad-001-v1",
+        "objective": "Translate the mathematical model into typed engineering artifacts while preserving physical and verification boundaries.",
+        "prompt": "Build two representations or examples of Mathematical-to-CAD/MCFC engineering bridge, explain the connection, test an edge case, and state one limitation of the model.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Mathematical-to-CAD/MCFC engineering bridge.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Mathematical-to-CAD/MCFC engineering bridge. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-col-001-v1",
+      "idea_id": "MATH-COL-001",
+      "title": "Superorganism and collective mathematics",
+      "kind": "concept",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "representation_translation",
+        "transfer"
+      ],
+      "learning_objective": "Explain Superorganism and collective mathematics using its declared definitions, assumptions, and limitations.",
+      "epistemic_guardrail": "Label as candidate or unresolved; separate conjecture, evidence, and proof.",
+      "source_claim": "Collective systems can be modeled through interacting agents, network dynamics and multiscale observables.",
+      "definitions": [
+        "agents",
+        "state",
+        "interaction graph",
+        "update rule",
+        "emergence"
+      ],
+      "assumptions": [
+        "Specify causal and measurement assumptions."
+      ],
+      "known_objections": [
+        "Analogy alone does not establish a shared mathematical mechanism."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Superorganism and collective mathematics observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: agents, state, interaction graph, update rule, emergence."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Specify causal and measurement assumptions."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-col-001-v1",
+        "objective": "Explain Superorganism and collective mathematics using its declared definitions, assumptions, and limitations.",
+        "prompt": "Build two representations or examples of Superorganism and collective mathematics, explain the connection, test an edge case, and state one limitation of the model.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Superorganism and collective mathematics.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Superorganism and collective mathematics. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-exp-001-v1",
+      "idea_id": "MATH-EXP-001",
+      "title": "XMG-1E deterministic confluence benchmark",
+      "kind": "experiment",
+      "catalog_status": "unresolved",
+      "delivery_state": "research_laboratory",
+      "publication_gate": "research_review_required_before_core_curriculum",
+      "prerequisite_idea_ids": [],
+      "pathways": [
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "representation_translation",
+        "transfer"
+      ],
+      "learning_objective": "Reproduce and critique the recorded experiment, including controls, scope, and limitations.",
+      "epistemic_guardrail": "Label as candidate or unresolved; separate conjecture, evidence, and proof.",
+      "source_claim": "The benchmark includes a deliberately divergent positive control and a bounded default-rule probe.",
+      "definitions": [
+        "positive control",
+        "pair counts",
+        "normal forms",
+        "truncation"
+      ],
+      "assumptions": [
+        "Only the recorded expressions and rule set are tested."
+      ],
+      "known_objections": [
+        "Prior run failed import resolution; path fix committed but rerun not yet confirmed."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes XMG-1E deterministic confluence benchmark observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: positive control, pair counts, normal forms, truncation."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Only the recorded expressions and rule set are tested."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-exp-001-v1",
+        "objective": "Reproduce and critique the recorded experiment, including controls, scope, and limitations.",
+        "prompt": "For XMG-1E deterministic confluence benchmark, define a bounded model, list assumptions and observables, construct one discriminating test, and state what result would change your conclusion.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for XMG-1E deterministic confluence benchmark.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in XMG-1E deterministic confluence benchmark. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-null-001-v1",
+      "idea_id": "MATH-NULL-001",
+      "title": "Null-model anomaly scoring for idea-space gaps",
+      "kind": "conjecture",
+      "catalog_status": "candidate",
+      "delivery_state": "research_laboratory",
+      "publication_gate": "research_review_required_before_core_curriculum",
+      "prerequisite_idea_ids": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "representation_translation",
+        "transfer"
+      ],
+      "learning_objective": "State the conjecture with explicit assumptions and attempt to prove or refute it.",
+      "epistemic_guardrail": "Label as candidate or unresolved; separate conjecture, evidence, and proof.",
+      "source_claim": "A calibrated null model may help identify structurally unusual regions of an idea graph.",
+      "definitions": [
+        "observed statistic",
+        "null distribution",
+        "standard deviation",
+        "multiple testing"
+      ],
+      "assumptions": [
+        "Null constraints, seed, sample size and correction method are declared."
+      ],
+      "known_objections": [
+        "Zero variance is not calibrated; anomaly does not imply novelty or truth."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Null-model anomaly scoring for idea-space gaps observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: observed statistic, null distribution, standard deviation, multiple testing."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Null constraints, seed, sample size and correction method are declared."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-null-001-v1",
+        "objective": "State the conjecture with explicit assumptions and attempt to prove or refute it.",
+        "prompt": "Build two representations or examples of Null-model anomaly scoring for idea-space gaps, explain the connection, test an edge case, and state one limitation of the model.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Null-model anomaly scoring for idea-space gaps.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Null-model anomaly scoring for idea-space gaps. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-rep-002-v1",
+      "idea_id": "MATH-REP-002",
+      "title": "Exact multi-frame transition graph",
+      "kind": "representation",
+      "catalog_status": "finite_tested",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "representation_translation",
+        "transfer"
+      ],
+      "learning_objective": "Explain Exact multi-frame transition graph using its declared definitions, assumptions, and limitations.",
+      "epistemic_guardrail": "Preserve the catalog status and scope; finite tests do not establish universal claims.",
+      "source_claim": "For a fixed two-dimensional vector space and invertible rational frame maps P_i, coordinate transitions T_i_to_j = P_j P_i^{-1} compose path-independently and closed frame cycles are identity.",
+      "definitions": [
+        "canonical coordinate map P_i",
+        "invertible n×n frame matrix",
+        "transition map",
+        "path composition"
+      ],
+      "assumptions": [
+        "All frames describe the same vector space over the same field.",
+        "All frame maps are invertible and share the declared canonical reference."
+      ],
+      "known_objections": [
+        "The Avrea receipt applies to the 2D implementation at the recorded commit; the later n-dimensional extension has not yet been rerun on Avrea.",
+        "This does not prove consistency of arbitrary independently supplied graph edges or connection holonomy."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Exact multi-frame transition graph observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: canonical coordinate map P_i, invertible n×n frame matrix, transition map, path composition."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: All frames describe the same vector space over the same field. All frame maps are invertible and share the declared canonical reference."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-rep-002-v1",
+        "objective": "Explain Exact multi-frame transition graph using its declared definitions, assumptions, and limitations.",
+        "prompt": "Build two representations or examples of Exact multi-frame transition graph, explain the connection, test an edge case, and state one limitation of the model.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Exact multi-frame transition graph.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Exact multi-frame transition graph. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-spec-001-v1",
+      "idea_id": "MATH-SPEC-001",
+      "title": "Spectral invariants under basis change",
+      "kind": "theorem",
+      "catalog_status": "finite_tested",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "representation_translation",
+        "transfer"
+      ],
+      "learning_objective": "Test the stated theorem against its exact assumptions and distinguish proof from finite evidence.",
+      "epistemic_guardrail": "Preserve the catalog status and scope; finite tests do not establish universal claims.",
+      "source_claim": "If A_i = P_i A P_i^{-1} for an invertible basis-change matrix over a fixed field, then A_i is similar to A and has the same characteristic polynomial, trace, determinant and eigenvalue multiset with algebraic multiplicity.",
+      "definitions": [
+        "linear operator",
+        "similar matrices",
+        "characteristic polynomial",
+        "eigenspace"
+      ],
+      "assumptions": [
+        "Finite-dimensional vector space.",
+        "P_i is invertible.",
+        "The scalar field is held fixed."
+      ],
+      "known_objections": [
+        "The real-versus-complex scalar field distinction changes which eigenvalues and eigenvectors are visible.",
+        "Current prototype tests trace and determinant invariance in dimensions 2 and 5; full characteristic-polynomial identity is not yet implemented.",
+        "The current Avrea run checked trace/determinant invariance only in 2D; the later 5D test source has not yet been qualified."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Spectral invariants under basis change observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: linear operator, similar matrices, characteristic polynomial, eigenspace."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Finite-dimensional vector space. P_i is invertible. The scalar field is held fixed."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-spec-001-v1",
+        "objective": "Test the stated theorem against its exact assumptions and distinguish proof from finite evidence.",
+        "prompt": "For the stated result about Spectral invariants under basis change, write the quantified claim and assumptions, test boundary cases, then provide a proof or clearly label the proof obligation that remains.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Spectral invariants under basis change.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Spectral invariants under basis change. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-hol-001-v1",
+      "idea_id": "MATH-HOL-001",
+      "title": "Coordinate cocycles versus connection holonomy",
+      "kind": "open_question",
+      "catalog_status": "candidate",
+      "delivery_state": "research_laboratory",
+      "publication_gate": "research_review_required_before_core_curriculum",
+      "prerequisite_idea_ids": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "representation_translation",
+        "transfer"
+      ],
+      "learning_objective": "Define a precise model and observable, then identify what is known, unknown, and testable.",
+      "epistemic_guardrail": "Label as candidate or unresolved; separate conjecture, evidence, and proof.",
+      "source_claim": "Merlin must distinguish overlap-consistent coordinate transition maps from parallel transport defined by a connection; non-identity products of arbitrary graph edges alone do not establish curvature.",
+      "definitions": [
+        "coordinate chart",
+        "transition cocycle",
+        "connection",
+        "parallel transport",
+        "curvature",
+        "holonomy"
+      ],
+      "assumptions": [
+        "Domains and overlap maps are explicitly recorded.",
+        "Connection transport is separately defined along paths."
+      ],
+      "known_objections": [
+        "A graph-cycle discrepancy may be inconsistent edge data, not geometric holonomy.",
+        "Nontrivial holonomy requires a specified connection and path transport."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Coordinate cocycles versus connection holonomy observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: coordinate chart, transition cocycle, connection, parallel transport, curvature."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Domains and overlap maps are explicitly recorded. Connection transport is separately defined along paths."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-hol-001-v1",
+        "objective": "Define a precise model and observable, then identify what is known, unknown, and testable.",
+        "prompt": "For Coordinate cocycles versus connection holonomy, define a bounded model, list assumptions and observables, construct one discriminating test, and state what result would change your conclusion.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Coordinate cocycles versus connection holonomy.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Coordinate cocycles versus connection holonomy. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-ga-001-v1",
+      "idea_id": "MATH-GA-001",
+      "title": "Audit of proposed Clifford embeddings and quadric intersections",
+      "kind": "open_question",
+      "catalog_status": "refuted",
+      "delivery_state": "audit_only",
+      "publication_gate": "instructor_review_required_refutation_preserved",
+      "prerequisite_idea_ids": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "representation_translation",
+        "transfer"
+      ],
+      "learning_objective": "Define a precise model and observable, then identify what is known, unknown, and testable.",
+      "epistemic_guardrail": "Teach as a critique of the refuted archived claim; never present the claim as established.",
+      "source_claim": "Archived PGA/CGA/QGA embedding, projection and exact quadric-intersection claims require explicit signature-preserving algebra homomorphisms and an algebraic-geometric intersection construction; outer product alone is not a general intersection-ideal operation.",
+      "definitions": [
+        "Clifford algebra Cl(p,q)",
+        "metric signature",
+        "algebra homomorphism",
+        "exterior product",
+        "algebraic variety",
+        "intersection ideal"
+      ],
+      "assumptions": [
+        "Each algebra uses a declared basis and metric convention.",
+        "Every generator relation must be preserved by an embedding."
+      ],
+      "known_objections": [
+        "The archived text conflates basis labels, metric relations and geometric interpretations.",
+        "The outer product of blades is not, in general, the ideal-theoretic intersection of arbitrary quadric zero sets."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Audit of proposed Clifford embeddings and quadric intersections observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: Clifford algebra Cl(p,q), metric signature, algebra homomorphism, exterior product, algebraic variety."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Each algebra uses a declared basis and metric convention. Every generator relation must be preserved by an embedding."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-ga-001-v1",
+        "objective": "Define a precise model and observable, then identify what is known, unknown, and testable.",
+        "prompt": "Audit the archived claim for Audit of proposed Clifford embeddings and quadric intersections. Identify the invalid inference or counterexample, write a corrected statement if possible, and explain what remains unestablished.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Audit of proposed Clifford embeddings and quadric intersections.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Audit of proposed Clifford embeddings and quadric intersections. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-dyn-001-v1",
+      "idea_id": "MATH-DYN-001",
+      "title": "Integral criterion for finite-time blow-up",
+      "kind": "theorem",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "representation_translation",
+        "transfer"
+      ],
+      "learning_objective": "Test the stated theorem against its exact assumptions and distinguish proof from finite evidence.",
+      "epistemic_guardrail": "Label as candidate or unresolved; separate conjecture, evidence, and proof.",
+      "source_claim": "For a positive scalar autonomous ODE dI/dt = f(I)I, finite-time escape to infinity is governed by convergence of the separation integral from I0 to infinity, not merely by f(I) being bounded below by a positive constant.",
+      "definitions": [
+        "positive solution",
+        "autonomous ODE",
+        "maximal solution",
+        "separation integral"
+      ],
+      "assumptions": [
+        "f is sufficiently regular and positive on [I0,infinity).",
+        "A local solution exists and remains in the stated domain.",
+        "The maximal-solution and escape-time argument is supplied."
+      ],
+      "known_objections": [
+        "The archived lower-bound condition f(I)>=1 only yields at least exponential growth and does not imply finite-time blow-up.",
+        "A rigorous Lean statement must quantify a solution trajectory and non-vacuous maximal time."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Integral criterion for finite-time blow-up observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: positive solution, autonomous ODE, maximal solution, separation integral."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: f is sufficiently regular and positive on [I0,infinity). A local solution exists and remains in the stated domain. The maximal-solution and escape-time argument is supplied."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-dyn-001-v1",
+        "objective": "Test the stated theorem against its exact assumptions and distinguish proof from finite evidence.",
+        "prompt": "For the stated result about Integral criterion for finite-time blow-up, write the quantified claim and assumptions, test boundary cases, then provide a proof or clearly label the proof obligation that remains.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Integral criterion for finite-time blow-up.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Integral criterion for finite-time blow-up. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-parr-001-v1",
+      "idea_id": "MATH-PARR-001",
+      "title": "Audit of archived Parrondo capability demonstration",
+      "kind": "experiment",
+      "catalog_status": "refuted",
+      "delivery_state": "audit_only",
+      "publication_gate": "instructor_review_required_refutation_preserved",
+      "prerequisite_idea_ids": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "representation_translation",
+        "transfer"
+      ],
+      "learning_objective": "Reproduce and critique the recorded experiment, including controls, scope, and limitations.",
+      "epistemic_guardrail": "Teach as a critique of the refuted archived claim; never present the claim as established.",
+      "source_claim": "The archived Python example does not demonstrate two individually losing operators producing net gain under alternation because operator A is assigned a positive capability increment.",
+      "definitions": [
+        "operator increment",
+        "isolated baseline",
+        "switching policy",
+        "resource budget"
+      ],
+      "assumptions": [
+        "The code's delta_I is interpreted as its deterministic per-step capability change.",
+        "The resource subtraction convention is retained."
+      ],
+      "known_objections": [
+        "A corrected stochastic Parrondo model may still be possible but is a separate experiment."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Audit of archived Parrondo capability demonstration observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: operator increment, isolated baseline, switching policy, resource budget."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: The code's delta_I is interpreted as its deterministic per-step capability change. The resource subtraction convention is retained."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-parr-001-v1",
+        "objective": "Reproduce and critique the recorded experiment, including controls, scope, and limitations.",
+        "prompt": "Audit the archived claim for Audit of archived Parrondo capability demonstration. Identify the invalid inference or counterexample, write a corrected statement if possible, and explain what remains unestablished.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Audit of archived Parrondo capability demonstration.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Audit of archived Parrondo capability demonstration. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-rep-003-v1",
+      "idea_id": "MATH-REP-003",
+      "title": "N-dimensional exact frame graph",
+      "kind": "representation",
+      "catalog_status": "finite_tested",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "representation_translation",
+        "transfer"
+      ],
+      "learning_objective": "Explain N-dimensional exact frame graph using its declared definitions, assumptions, and limitations.",
+      "epistemic_guardrail": "Preserve the catalog status and scope; finite tests do not establish universal claims.",
+      "source_claim": "The transition-graph construction extends to arbitrary finite dimension n when each frame is represented by an invertible n×n matrix over a common field.",
+      "definitions": [
+        "n-dimensional vector space",
+        "invertible frame matrix",
+        "matrix inverse",
+        "typed coordinate transition"
+      ],
+      "assumptions": [
+        "All frames have equal dimension and describe the same vector space.",
+        "The common scalar field and exact or approximate arithmetic model are declared."
+      ],
+      "known_objections": [
+        "The current implementation is limited to exact rational matrices.",
+        "Partial charts, affine transforms, tensors and nonlinear maps are not implemented.",
+        "The added 5D test has not yet been confirmed by a current Avrea run."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes N-dimensional exact frame graph observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: n-dimensional vector space, invertible frame matrix, matrix inverse, typed coordinate transition."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: All frames have equal dimension and describe the same vector space. The common scalar field and exact or approximate arithmetic model are declared."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-rep-003-v1",
+        "objective": "Explain N-dimensional exact frame graph using its declared definitions, assumptions, and limitations.",
+        "prompt": "Build two representations or examples of N-dimensional exact frame graph, explain the connection, test an edge case, and state one limitation of the model.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for N-dimensional exact frame graph.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in N-dimensional exact frame graph. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-rot-001-v1",
+      "idea_id": "MATH-ROT-001",
+      "title": "Complex, quaternion, matrix and rotor views of 3D rotations",
+      "kind": "representation",
+      "catalog_status": "finite_tested",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "representation_translation",
+        "transfer"
+      ],
+      "learning_objective": "Explain Complex, quaternion, matrix and rotor views of 3D rotations using its declared definitions, assumptions, and limitations.",
+      "epistemic_guardrail": "Preserve the catalog status and scope; finite tests do not establish universal claims.",
+      "source_claim": "For the tested exact 180-degree rotations about coordinate axes and 120-degree rotation about the (1,1,1) axis, unit-quaternion sandwich action, SO(3) matrix action and Cl(3,0) rotor sandwich action agree.",
+      "definitions": [
+        "SO(3) rotation matrix",
+        "unit quaternion",
+        "pure quaternion vector",
+        "Cl(3,0) rotor",
+        "axis-angle representation",
+        "double cover S3 to SO(3)"
+      ],
+      "assumptions": [
+        "Rotation axis is unit length.",
+        "Quaternion and rotor multiplication conventions are fixed.",
+        "The same active/passive and handedness conventions are used across representations."
+      ],
+      "known_objections": [
+        "The current tests cover selected exact rotations, not all unit quaternions.",
+        "The complex-plane representation is specified but not implemented in the prototype.",
+        "Quaternion q and -q encode the same spatial rotation."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Complex, quaternion, matrix and rotor views of 3D rotations observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: SO(3) rotation matrix, unit quaternion, pure quaternion vector, Cl(3,0) rotor, axis-angle representation."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Rotation axis is unit length. Quaternion and rotor multiplication conventions are fixed. The same active/passive and handedness conventions are used across representations."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-rot-001-v1",
+        "objective": "Explain Complex, quaternion, matrix and rotor views of 3D rotations using its declared definitions, assumptions, and limitations.",
+        "prompt": "Build two representations or examples of Complex, quaternion, matrix and rotor views of 3D rotations, explain the connection, test an edge case, and state one limitation of the model.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Complex, quaternion, matrix and rotor views of 3D rotations.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Complex, quaternion, matrix and rotor views of 3D rotations. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-rot-002-v1",
+      "idea_id": "MATH-ROT-002",
+      "title": "Complex plane as the perpendicular subspace of an axis rotation",
+      "kind": "representation",
+      "catalog_status": "finite_tested",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "representation_translation",
+        "transfer"
+      ],
+      "learning_objective": "Explain Complex plane as the perpendicular subspace of an axis rotation using its declared definitions, assumptions, and limitations.",
+      "epistemic_guardrail": "Preserve the catalog status and scope; finite tests do not establish universal claims.",
+      "source_claim": "For a fixed unit axis u in three-dimensional Euclidean space, the orthogonal plane u-perp is a two-dimensional invariant subspace on which the rotation acts as multiplication by e^(i theta) after choosing an oriented orthonormal basis.",
+      "definitions": [
+        "unit axis",
+        "orthogonal complement",
+        "oriented orthonormal plane basis",
+        "complex structure J with J^2=-I",
+        "rotation angle"
+      ],
+      "assumptions": [
+        "The ambient metric is Euclidean.",
+        "The axis and orientation are fixed.",
+        "The complex structure is defined by the chosen oriented orthonormal basis of u-perp."
+      ],
+      "known_objections": [
+        "The implementation tests exact rational rotations and fixed coordinate axes; arbitrary axes require a declared orthonormal frame.",
+        "The complex coordinate is only for the perpendicular plane; the axial component is stored separately."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Complex plane as the perpendicular subspace of an axis rotation observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: unit axis, orthogonal complement, oriented orthonormal plane basis, complex structure J with J^2=-I, rotation angle."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: The ambient metric is Euclidean. The axis and orientation are fixed. The complex structure is defined by the chosen oriented orthonormal basis of u-perp."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-rot-002-v1",
+        "objective": "Explain Complex plane as the perpendicular subspace of an axis rotation using its declared definitions, assumptions, and limitations.",
+        "prompt": "Build two representations or examples of Complex plane as the perpendicular subspace of an axis rotation, explain the connection, test an edge case, and state one limitation of the model.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Complex plane as the perpendicular subspace of an axis rotation.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Complex plane as the perpendicular subspace of an axis rotation. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-hol-002-v1",
+      "idea_id": "MATH-HOL-002",
+      "title": "Spherical triangle holonomy equals enclosed area",
+      "kind": "experiment",
+      "catalog_status": "finite_tested",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "representation_translation",
+        "transfer"
+      ],
+      "learning_objective": "Reproduce and critique the recorded experiment, including controls, scope, and limitations.",
+      "epistemic_guardrail": "Preserve the catalog status and scope; finite tests do not establish universal claims.",
+      "source_claim": "For the unit sphere's Levi-Civita connection, numerical parallel transport around the positively oriented octant geodesic triangle rotates a tangent vector by pi/2, matching its spherical area; reversing the loop reverses the sign.",
+      "definitions": [
+        "unit sphere",
+        "Levi-Civita connection",
+        "great-circle geodesic",
+        "parallel transport",
+        "signed holonomy angle",
+        "spherical excess"
+      ],
+      "assumptions": [
+        "The ambient sphere has unit radius and induced metric.",
+        "Edges follow the shorter great-circle arcs.",
+        "The loop orientation and tangent-plane orientation are fixed.",
+        "Numerical comparisons use declared floating-point tolerances."
+      ],
+      "known_objections": [
+        "Floating-point tests do not constitute a formal proof of Gauss-Bonnet.",
+        "The ambient Rodrigues-rotation implementation is specialized to the unit sphere's shorter great-circle arcs."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Spherical triangle holonomy equals enclosed area observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: unit sphere, Levi-Civita connection, great-circle geodesic, parallel transport, signed holonomy angle."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: The ambient sphere has unit radius and induced metric. Edges follow the shorter great-circle arcs. The loop orientation and tangent-plane orientation are fixed. Numerical comparisons use declared floating-point tolerances."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-hol-002-v1",
+        "objective": "Reproduce and critique the recorded experiment, including controls, scope, and limitations.",
+        "prompt": "Reproduce or design a minimal controlled experiment for Spherical triangle holonomy equals enclosed area. Include a positive control, negative control, recorded parameters, and a limitation statement.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Spherical triangle holonomy equals enclosed area.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Spherical triangle holonomy equals enclosed area. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-log-002-v1",
+      "idea_id": "MATH-LOG-002",
+      "title": "Propositional logic, predicates and quantifiers",
+      "kind": "concept",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "proof_justification",
+        "transfer"
+      ],
+      "learning_objective": "Explain Propositional logic, predicates and quantifiers using its declared definitions, assumptions, and limitations.",
+      "epistemic_guardrail": "Label as candidate or unresolved; separate conjecture, evidence, and proof.",
+      "source_claim": "Logic supplies explicit connectives, predicates and quantifiers for expressing and checking mathematical claims.",
+      "definitions": [
+        "proposition",
+        "predicate",
+        "connective",
+        "universal quantifier",
+        "existential quantifier"
+      ],
+      "assumptions": [
+        "The interpretation domain and variable binding are declared.",
+        "Negation and quantifier scope are preserved when rewriting statements."
+      ],
+      "known_objections": [
+        "Informal language can hide quantifier scope and domain restrictions."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Propositional logic, predicates and quantifiers observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: proposition, predicate, connective, universal quantifier, existential quantifier."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: The interpretation domain and variable binding are declared. Negation and quantifier scope are preserved when rewriting statements."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-log-002-v1",
+        "objective": "Explain Propositional logic, predicates and quantifiers using its declared definitions, assumptions, and limitations.",
+        "prompt": "Build two representations or examples of Propositional logic, predicates and quantifiers, explain the connection, test an edge case, and state one limitation of the model.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Propositional logic, predicates and quantifiers.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Propositional logic, predicates and quantifiers. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-set-001-v1",
+      "idea_id": "MATH-SET-001",
+      "title": "Sets, relations and functions",
+      "kind": "concept",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "representation_translation",
+        "proof_justification",
+        "transfer"
+      ],
+      "learning_objective": "Explain Sets, relations and functions using its declared definitions, assumptions, and limitations.",
+      "epistemic_guardrail": "Label as candidate or unresolved; separate conjecture, evidence, and proof.",
+      "source_claim": "Sets, relations and functions provide a common language for defining mathematical objects, mappings and domains.",
+      "definitions": [
+        "set",
+        "membership",
+        "subset",
+        "Cartesian product",
+        "relation",
+        "function"
+      ],
+      "assumptions": [
+        "Set membership and equality follow the declared foundational convention.",
+        "A function has an explicit domain and codomain."
+      ],
+      "known_objections": [
+        "A relation is not necessarily a function; an inverse relation need not be an inverse function."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Sets, relations and functions observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: set, membership, subset, Cartesian product, relation."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Set membership and equality follow the declared foundational convention. A function has an explicit domain and codomain."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-set-001-v1",
+        "objective": "Explain Sets, relations and functions using its declared definitions, assumptions, and limitations.",
+        "prompt": "Build two representations or examples of Sets, relations and functions, explain the connection, test an edge case, and state one limitation of the model.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Sets, relations and functions.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Sets, relations and functions. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-disc-001-v1",
+      "idea_id": "MATH-DISC-001",
+      "title": "Graphs, trees and network structure",
+      "kind": "concept",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [
+        "MATH-SET-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "representation_translation",
+        "algorithm_design",
+        "proof_justification",
+        "transfer"
+      ],
+      "learning_objective": "Explain Graphs, trees and network structure using its declared definitions, assumptions, and limitations.",
+      "epistemic_guardrail": "Label as candidate or unresolved; separate conjecture, evidence, and proof.",
+      "source_claim": "Graphs and trees model pairwise relationships and hierarchical structure with explicit vertices, edges and traversal rules.",
+      "definitions": [
+        "vertex",
+        "edge",
+        "directed graph",
+        "path",
+        "cycle",
+        "tree",
+        "connectedness"
+      ],
+      "assumptions": [
+        "The graph is finite unless infinitude is explicitly specified.",
+        "Directedness, multiplicity and edge weights are declared."
+      ],
+      "known_objections": [
+        "A tree's properties depend on whether the graph is directed and whether connectivity is assumed."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Graphs, trees and network structure observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: vertex, edge, directed graph, path, cycle."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: The graph is finite unless infinitude is explicitly specified. Directedness, multiplicity and edge weights are declared."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-disc-001-v1",
+        "objective": "Explain Graphs, trees and network structure using its declared definitions, assumptions, and limitations.",
+        "prompt": "Build two representations or examples of Graphs, trees and network structure, explain the connection, test an edge case, and state one limitation of the model.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Graphs, trees and network structure.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Graphs, trees and network structure. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-alg-003-v1",
+      "idea_id": "MATH-ALG-003",
+      "title": "Equations and inequalities",
+      "kind": "concept",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [
+        "MATH-ALG-002"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "procedure",
+        "representation_translation",
+        "transfer"
+      ],
+      "learning_objective": "Explain Equations and inequalities using its declared definitions, assumptions, and limitations.",
+      "epistemic_guardrail": "Label as candidate or unresolved; separate conjecture, evidence, and proof.",
+      "source_claim": "Equations and inequalities express constraints on unknown quantities; valid transformations preserve the solution set under stated conditions.",
+      "definitions": [
+        "equation",
+        "inequality",
+        "solution set",
+        "equivalent transformation",
+        "domain"
+      ],
+      "assumptions": [
+        "Every transformation is valid over the declared number system and domain.",
+        "Division and squaring steps account for excluded values and sign conditions."
+      ],
+      "known_objections": [
+        "Algebraic manipulation can introduce or remove solutions when domain conditions are ignored."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Equations and inequalities observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: equation, inequality, solution set, equivalent transformation, domain."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Every transformation is valid over the declared number system and domain. Division and squaring steps account for excluded values and sign conditions."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-alg-003-v1",
+        "objective": "Explain Equations and inequalities using its declared definitions, assumptions, and limitations.",
+        "prompt": "Build two representations or examples of Equations and inequalities, explain the connection, test an edge case, and state one limitation of the model.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Equations and inequalities.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Equations and inequalities. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-func-001-v1",
+      "idea_id": "MATH-FUNC-001",
+      "title": "Functions, composition and inverse mappings",
+      "kind": "concept",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [
+        "MATH-ALG-003",
+        "MATH-SET-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "procedure",
+        "representation_translation",
+        "transfer"
+      ],
+      "learning_objective": "Explain Functions, composition and inverse mappings using its declared definitions, assumptions, and limitations.",
+      "epistemic_guardrail": "Label as candidate or unresolved; separate conjecture, evidence, and proof.",
+      "source_claim": "Functions map each element of a declared domain to exactly one codomain element; composition and inverses obey domain and range constraints.",
+      "definitions": [
+        "domain",
+        "codomain",
+        "image",
+        "composition",
+        "injective",
+        "surjective",
+        "inverse"
+      ],
+      "assumptions": [
+        "Composition is defined only when codomain and domain align.",
+        "An inverse function exists only under suitable bijectivity or restricted-domain conditions."
+      ],
+      "known_objections": [
+        "A graph or formula alone may not specify the full domain and codomain."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Functions, composition and inverse mappings observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: domain, codomain, image, composition, injective."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Composition is defined only when codomain and domain align. An inverse function exists only under suitable bijectivity or restricted-domain conditions."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-func-001-v1",
+        "objective": "Explain Functions, composition and inverse mappings using its declared definitions, assumptions, and limitations.",
+        "prompt": "Build two representations or examples of Functions, composition and inverse mappings, explain the connection, test an edge case, and state one limitation of the model.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Functions, composition and inverse mappings.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Functions, composition and inverse mappings. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-mod-001-v1",
+      "idea_id": "MATH-MOD-001",
+      "title": "Modular arithmetic and congruences",
+      "kind": "concept",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [
+        "MATH-NT-002"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "procedure",
+        "proof_justification",
+        "algorithm_design",
+        "transfer"
+      ],
+      "learning_objective": "Explain Modular arithmetic and congruences using its declared definitions, assumptions, and limitations.",
+      "epistemic_guardrail": "Label as candidate or unresolved; separate conjecture, evidence, and proof.",
+      "source_claim": "Congruence modulo a positive integer partitions integers into residue classes and supports exact reasoning about divisibility and periodicity.",
+      "definitions": [
+        "modulus",
+        "congruence",
+        "residue class",
+        "modular inverse",
+        "periodicity"
+      ],
+      "assumptions": [
+        "The modulus is a positive integer.",
+        "Cancellation and modular division require appropriate coprimality conditions."
+      ],
+      "known_objections": [
+        "Congruence modulo n does not permit ordinary division by arbitrary residues."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Modular arithmetic and congruences observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: modulus, congruence, residue class, modular inverse, periodicity."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: The modulus is a positive integer. Cancellation and modular division require appropriate coprimality conditions."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-mod-001-v1",
+        "objective": "Explain Modular arithmetic and congruences using its declared definitions, assumptions, and limitations.",
+        "prompt": "Build two representations or examples of Modular arithmetic and congruences, explain the connection, test an edge case, and state one limitation of the model.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Modular arithmetic and congruences.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Modular arithmetic and congruences. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-comp-002-v1",
+      "idea_id": "MATH-COMP-002",
+      "title": "Complexity, invariants and termination",
+      "kind": "concept",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [
+        "MATH-COMP-001",
+        "MATH-LOG-002"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "algorithm_design",
+        "proof_justification",
+        "procedure",
+        "transfer"
+      ],
+      "learning_objective": "Explain Complexity, invariants and termination using its declared definitions, assumptions, and limitations.",
+      "epistemic_guardrail": "Label as candidate or unresolved; separate conjecture, evidence, and proof.",
+      "source_claim": "Algorithm analysis relates resource use to input size, while invariants and termination arguments explain why a procedure behaves correctly and finishes.",
+      "definitions": [
+        "input size",
+        "asymptotic growth",
+        "loop invariant",
+        "termination measure",
+        "worst-case complexity"
+      ],
+      "assumptions": [
+        "The input-size model and computational cost model are stated.",
+        "Asymptotic bounds describe families of inputs, not a single timing run."
+      ],
+      "known_objections": [
+        "Empirical runtime alone does not establish an asymptotic bound."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Complexity, invariants and termination observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: input size, asymptotic growth, loop invariant, termination measure, worst-case complexity."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: The input-size model and computational cost model are stated. Asymptotic bounds describe families of inputs, not a single timing run."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-comp-002-v1",
+        "objective": "Explain Complexity, invariants and termination using its declared definitions, assumptions, and limitations.",
+        "prompt": "Build two representations or examples of Complexity, invariants and termination, explain the connection, test an edge case, and state one limitation of the model.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Complexity, invariants and termination.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Complexity, invariants and termination. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-lin-002-v1",
+      "idea_id": "MATH-LIN-002",
+      "title": "Linear systems and Gaussian elimination",
+      "kind": "concept",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [
+        "MATH-ALG-003"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "algorithm_design",
+        "procedure",
+        "uncertainty",
+        "transfer"
+      ],
+      "learning_objective": "Explain Linear systems and Gaussian elimination using its declared definitions, assumptions, and limitations.",
+      "epistemic_guardrail": "Label as candidate or unresolved; separate conjecture, evidence, and proof.",
+      "source_claim": "A finite linear system can be represented as a matrix equation and transformed by row operations that preserve its solution set.",
+      "definitions": [
+        "linear system",
+        "augmented matrix",
+        "row operation",
+        "pivot",
+        "rank",
+        "solution set"
+      ],
+      "assumptions": [
+        "Row operations are invertible equivalence transformations on the system.",
+        "The coefficient field and numerical precision are declared."
+      ],
+      "known_objections": [
+        "Floating-point elimination may be numerically unstable without pivoting and error analysis."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Linear systems and Gaussian elimination observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: linear system, augmented matrix, row operation, pivot, rank."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Row operations are invertible equivalence transformations on the system. The coefficient field and numerical precision are declared."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-lin-002-v1",
+        "objective": "Explain Linear systems and Gaussian elimination using its declared definitions, assumptions, and limitations.",
+        "prompt": "Build two representations or examples of Linear systems and Gaussian elimination, explain the connection, test an edge case, and state one limitation of the model.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Linear systems and Gaussian elimination.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Linear systems and Gaussian elimination. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-calc-001-v1",
+      "idea_id": "MATH-CALC-001",
+      "title": "Limits and continuity",
+      "kind": "concept",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [
+        "MATH-FUNC-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "procedure",
+        "proof_justification",
+        "modeling",
+        "transfer"
+      ],
+      "learning_objective": "Explain Limits and continuity using its declared definitions, assumptions, and limitations.",
+      "epistemic_guardrail": "Label as candidate or unresolved; separate conjecture, evidence, and proof.",
+      "source_claim": "Limits describe behavior near a point and continuity connects local limiting behavior to function values.",
+      "definitions": [
+        "limit",
+        "neighborhood",
+        "one-sided limit",
+        "continuity",
+        "epsilon-delta"
+      ],
+      "assumptions": [
+        "The function domain and limiting approach are explicit.",
+        "A finite numerical sample is not a proof of a limit."
+      ],
+      "known_objections": [
+        "Visual or numerical convergence can conceal discontinuity or oscillation."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Limits and continuity observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: limit, neighborhood, one-sided limit, continuity, epsilon-delta."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: The function domain and limiting approach are explicit. A finite numerical sample is not a proof of a limit."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-calc-001-v1",
+        "objective": "Explain Limits and continuity using its declared definitions, assumptions, and limitations.",
+        "prompt": "Build two representations or examples of Limits and continuity, explain the connection, test an edge case, and state one limitation of the model.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Limits and continuity.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Limits and continuity. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-calc-002-v1",
+      "idea_id": "MATH-CALC-002",
+      "title": "Derivatives and rates of change",
+      "kind": "concept",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [
+        "MATH-CALC-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "procedure",
+        "proof_justification",
+        "modeling",
+        "transfer"
+      ],
+      "learning_objective": "Explain Derivatives and rates of change using its declared definitions, assumptions, and limitations.",
+      "epistemic_guardrail": "Label as candidate or unresolved; separate conjecture, evidence, and proof.",
+      "source_claim": "The derivative formalizes local rate of change and supports tangent, sensitivity and optimization reasoning.",
+      "definitions": [
+        "difference quotient",
+        "derivative",
+        "tangent",
+        "chain rule",
+        "local linearization"
+      ],
+      "assumptions": [
+        "Differentiability is evaluated on a declared domain.",
+        "The chain rule is applied only where the component derivatives exist."
+      ],
+      "known_objections": [
+        "Continuity does not imply differentiability; numerical finite differences introduce error."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Derivatives and rates of change observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: difference quotient, derivative, tangent, chain rule, local linearization."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Differentiability is evaluated on a declared domain. The chain rule is applied only where the component derivatives exist."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-calc-002-v1",
+        "objective": "Explain Derivatives and rates of change using its declared definitions, assumptions, and limitations.",
+        "prompt": "Build two representations or examples of Derivatives and rates of change, explain the connection, test an edge case, and state one limitation of the model.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Derivatives and rates of change.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Derivatives and rates of change. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-calc-003-v1",
+      "idea_id": "MATH-CALC-003",
+      "title": "Integration and accumulation",
+      "kind": "concept",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [
+        "MATH-CALC-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "procedure",
+        "proof_justification",
+        "modeling",
+        "transfer"
+      ],
+      "learning_objective": "Explain Integration and accumulation using its declared definitions, assumptions, and limitations.",
+      "epistemic_guardrail": "Label as candidate or unresolved; separate conjecture, evidence, and proof.",
+      "source_claim": "Definite integration formalizes accumulation and signed area under suitable integrability conditions.",
+      "definitions": [
+        "Riemann sum",
+        "integral",
+        "antiderivative",
+        "accumulation",
+        "fundamental theorem"
+      ],
+      "assumptions": [
+        "Integrability conditions and orientation are stated.",
+        "Geometric area and signed integral are distinguished."
+      ],
+      "known_objections": [
+        "An integral is not always the unsigned geometric area."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Integration and accumulation observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: Riemann sum, integral, antiderivative, accumulation, fundamental theorem."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Integrability conditions and orientation are stated. Geometric area and signed integral are distinguished."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-calc-003-v1",
+        "objective": "Explain Integration and accumulation using its declared definitions, assumptions, and limitations.",
+        "prompt": "Build two representations or examples of Integration and accumulation, explain the connection, test an edge case, and state one limitation of the model.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Integration and accumulation.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Integration and accumulation. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-prob-001-v1",
+      "idea_id": "MATH-PROB-001",
+      "title": "Probability and conditional probability",
+      "kind": "concept",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [
+        "MATH-SET-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "procedure",
+        "uncertainty",
+        "transfer"
+      ],
+      "learning_objective": "Explain Probability and conditional probability using its declared definitions, assumptions, and limitations.",
+      "epistemic_guardrail": "Label as candidate or unresolved; separate conjecture, evidence, and proof.",
+      "source_claim": "Probability assigns measures to events in a declared sample space and conditional probability updates event likelihood under given information.",
+      "definitions": [
+        "sample space",
+        "event",
+        "probability measure",
+        "independence",
+        "conditional probability",
+        "Bayes rule"
+      ],
+      "assumptions": [
+        "The sample space and event model are explicit.",
+        "Independence is not inferred from lack of observed association."
+      ],
+      "known_objections": [
+        "Base-rate neglect and incorrect independence assumptions can reverse conclusions."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Probability and conditional probability observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: sample space, event, probability measure, independence, conditional probability."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: The sample space and event model are explicit. Independence is not inferred from lack of observed association."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-prob-001-v1",
+        "objective": "Explain Probability and conditional probability using its declared definitions, assumptions, and limitations.",
+        "prompt": "Build two representations or examples of Probability and conditional probability, explain the connection, test an edge case, and state one limitation of the model.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Probability and conditional probability.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Probability and conditional probability. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-stat-001-v1",
+      "idea_id": "MATH-STAT-001",
+      "title": "Statistical models, inference and uncertainty",
+      "kind": "concept",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [
+        "MATH-PROB-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "data_reasoning",
+        "uncertainty",
+        "conceptual_explanation",
+        "transfer"
+      ],
+      "learning_objective": "Explain Statistical models, inference and uncertainty using its declared definitions, assumptions, and limitations.",
+      "epistemic_guardrail": "Label as candidate or unresolved; separate conjecture, evidence, and proof.",
+      "source_claim": "Statistical inference uses sample data and an explicit model to quantify uncertainty about a target population or process.",
+      "definitions": [
+        "population",
+        "sample",
+        "estimator",
+        "sampling distribution",
+        "confidence interval",
+        "hypothesis test"
+      ],
+      "assumptions": [
+        "Sampling design, missingness and model assumptions are documented.",
+        "Uncertainty intervals are interpreted according to their statistical definition."
+      ],
+      "known_objections": [
+        "A statistically significant result does not by itself establish practical importance or causality."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Statistical models, inference and uncertainty observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: population, sample, estimator, sampling distribution, confidence interval."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Sampling design, missingness and model assumptions are documented. Uncertainty intervals are interpreted according to their statistical definition."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-stat-001-v1",
+        "objective": "Explain Statistical models, inference and uncertainty using its declared definitions, assumptions, and limitations.",
+        "prompt": "Build two representations or examples of Statistical models, inference and uncertainty, explain the connection, test an edge case, and state one limitation of the model.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Statistical models, inference and uncertainty.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Statistical models, inference and uncertainty. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-num-001-v1",
+      "idea_id": "MATH-NUM-001",
+      "title": "Floating-point error and numerical stability",
+      "kind": "concept",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [
+        "MATH-ALG-003"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "algorithm_design",
+        "procedure",
+        "uncertainty",
+        "transfer"
+      ],
+      "learning_objective": "Explain Floating-point error and numerical stability using its declared definitions, assumptions, and limitations.",
+      "epistemic_guardrail": "Label as candidate or unresolved; separate conjecture, evidence, and proof.",
+      "source_claim": "Finite-precision arithmetic introduces rounding and representation error; numerical stability concerns how errors propagate through an algorithm.",
+      "definitions": [
+        "floating-point representation",
+        "rounding error",
+        "conditioning",
+        "stability",
+        "tolerance"
+      ],
+      "assumptions": [
+        "Precision, rounding mode and error metric are recorded.",
+        "Conditioning of the problem is distinguished from stability of the algorithm."
+      ],
+      "known_objections": [
+        "More precision does not automatically repair a poorly conditioned model or unstable algorithm."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Floating-point error and numerical stability observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: floating-point representation, rounding error, conditioning, stability, tolerance."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Precision, rounding mode and error metric are recorded. Conditioning of the problem is distinguished from stability of the algorithm."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-num-001-v1",
+        "objective": "Explain Floating-point error and numerical stability using its declared definitions, assumptions, and limitations.",
+        "prompt": "Build two representations or examples of Floating-point error and numerical stability, explain the connection, test an edge case, and state one limitation of the model.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Floating-point error and numerical stability.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Floating-point error and numerical stability. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-ode-001-v1",
+      "idea_id": "MATH-ODE-001",
+      "title": "Differential equations and numerical integration",
+      "kind": "concept",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [
+        "MATH-CALC-002",
+        "MATH-CALC-003",
+        "MATH-NUM-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "modeling",
+        "procedure",
+        "algorithm_design",
+        "transfer"
+      ],
+      "learning_objective": "Explain Differential equations and numerical integration using its declared definitions, assumptions, and limitations.",
+      "epistemic_guardrail": "Label as candidate or unresolved; separate conjecture, evidence, and proof.",
+      "source_claim": "Differential equations describe relationships between a state and its rates of change; numerical solvers approximate trajectories under explicit initial conditions and error controls.",
+      "definitions": [
+        "ordinary differential equation",
+        "initial value problem",
+        "step size",
+        "local error",
+        "global error",
+        "stability"
+      ],
+      "assumptions": [
+        "Existence and uniqueness assumptions are stated for the model.",
+        "A numerical trajectory is an approximation, not an exact symbolic solution."
+      ],
+      "known_objections": [
+        "Solver stability and convergence depend on the equation, method and step size."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Differential equations and numerical integration observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: ordinary differential equation, initial value problem, step size, local error, global error."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Existence and uniqueness assumptions are stated for the model. A numerical trajectory is an approximation, not an exact symbolic solution."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-ode-001-v1",
+        "objective": "Explain Differential equations and numerical integration using its declared definitions, assumptions, and limitations.",
+        "prompt": "Build two representations or examples of Differential equations and numerical integration, explain the connection, test an edge case, and state one limitation of the model.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Differential equations and numerical integration.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Differential equations and numerical integration. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-opt-001-v1",
+      "idea_id": "MATH-OPT-001",
+      "title": "Optimization and gradient methods",
+      "kind": "concept",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [
+        "MATH-CALC-002",
+        "MATH-LIN-002"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "modeling",
+        "procedure",
+        "algorithm_design",
+        "transfer"
+      ],
+      "learning_objective": "Explain Optimization and gradient methods using its declared definitions, assumptions, and limitations.",
+      "epistemic_guardrail": "Label as candidate or unresolved; separate conjecture, evidence, and proof.",
+      "source_claim": "Optimization selects decision variables to minimize or maximize an objective subject to declared constraints.",
+      "definitions": [
+        "objective function",
+        "feasible set",
+        "local optimum",
+        "global optimum",
+        "gradient",
+        "constraint"
+      ],
+      "assumptions": [
+        "The objective, feasible set and differentiability assumptions are explicit.",
+        "A local optimum is not claimed to be global without sufficient conditions."
+      ],
+      "known_objections": [
+        "Gradient descent may converge to a local stationary point and is sensitive to scaling and step size."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, diagram, or small data set that makes Optimization and gradient methods observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea using a diagram, table, graph, symbolic object, or small executable model. Label its domain and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: objective function, feasible set, local optimum, global optimum, gradient."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: The objective, feasible set and differentiability assumptions are explicit. A local optimum is not claimed to be global without sufficient conditions."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-opt-001-v1",
+        "objective": "Explain Optimization and gradient methods using its declared definitions, assumptions, and limitations.",
+        "prompt": "Build two representations or examples of Optimization and gradient methods, explain the connection, test an edge case, and state one limitation of the model.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin by writing the domain and definitions for Optimization and gradient methods.",
+          "Check the stated assumptions and try a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption or representation in Optimization and gradient methods. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    }
+  ]
+}
