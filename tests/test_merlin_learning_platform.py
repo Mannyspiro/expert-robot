@@ -241,6 +241,22 @@ class LearningPlatformTests(unittest.TestCase):
         with self.assertRaises(LearningPermissionError):
             self.store.audit_events(self.learner)
 
+    def test_reviewer_calibration_is_tenant_admin_attested_and_thresholded(self):
+        with self.assertRaises(LearningPermissionError):
+            self.store.record_reviewer_calibration(
+                self.reviewer, self.reviewer.actor_id, "b" * 64, 10, 0.99
+            )
+        with self.assertRaises(ValueError):
+            self.store.record_reviewer_calibration(
+                self.admin, self.reviewer.actor_id, "b" * 64, 9, 0.99
+            )
+        result = self.store.record_reviewer_calibration(
+            self.admin, self.reviewer.actor_id, "c" * 64, 10, 0.85
+        )
+        self.assertEqual(result["status"], "not_qualified")
+        with self.assertRaises(LearningPermissionError):
+            self.store.list_submissions(self.reviewer, "course-does-not-matter")
+
     def test_slug_validation_and_duplicate_detection(self):
         with self.assertRaises(ValueError):
             self.store.create_course(self.teacher, "../course", "Invalid")
@@ -281,6 +297,17 @@ class LearningPlatformTests(unittest.TestCase):
                 self.learner, course["course_id"], "submission-1", "lesson-2",
                 "rotation-check", {"explanation": "Different answer"},
             )
+        with self.assertRaises(LearningPermissionError):
+            self.store.list_submissions(self.reviewer, course["course_id"])
+        with self.assertRaises(LearningPermissionError):
+            self.store.review_submission(
+                self.reviewer, course["course_id"], "submission-1", "accepted", "not calibrated"
+            )
+        calibration = self.store.record_reviewer_calibration(
+            self.admin, self.reviewer.actor_id, "a" * 64, 10, 0.95
+        )
+        self.assertEqual(calibration["status"], "qualified")
+        self.assertEqual(calibration["qualification_authority"], "tenant_admin_attestation")
         queue = self.store.list_submissions(self.reviewer, course["course_id"])
         self.assertEqual(queue["count"], 1)
         self.assertEqual(queue["submissions"][0]["response"]["explanation"],
@@ -295,11 +322,16 @@ class LearningPlatformTests(unittest.TestCase):
         )
         self.assertFalse(review["mastery_updated"])
         self.assertFalse(review["proof_qualified"])
+        self.assertTrue(review["rubric_sha256"])
         queue = self.store.list_submissions(self.admin, course["course_id"])
         self.assertEqual(queue["submissions"][0]["status"], "accepted")
         learner_history = self.store.list_my_submissions(self.learner, course["course_id"])
         self.assertEqual(learner_history["submissions"][0]["reviews"][0]["feedback"],
                          "Clear explanation.")
+        self.assertEqual(
+            learner_history["submissions"][0]["reviews"][0]["rubric_sha256"],
+            review["rubric_sha256"],
+        )
         self.assertFalse(learner_history["mastery_updated"])
         with self.assertRaises(LearningPermissionError):
             self.store.list_submissions(self.learner, course["course_id"])
