@@ -1,5 +1,5 @@
 import unittest
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone, timedelta, timedelta
 
 from merlin.learning_schedule import (
     RetrievalState, SQLiteRetrievalScheduler, initial_retrieval_state, schedule_retrieval,
