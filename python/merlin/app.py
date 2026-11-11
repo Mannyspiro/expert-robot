@@ -137,6 +137,7 @@ CAPABILITIES = [
     {"id": "engineering.netlist.validate", "status": "AVAILABLE", "evidence": "unit-tested structural/rating preflight"},
     {"id": "voice.kokoro", "status": "OPTIONAL_LOCAL_SERVICE", "endpoint": "http://127.0.0.1:8880"},
     {"id": "model.remote_openai_compatible", "status": "CONFIGURED_AT_RUNTIME", "transport": "HTTPS + SSE", "credential_source": "MERLIN_REMOTE_API_KEY"},
+    {"id": "model.fabric.routing_contract", "status": "IMPLEMENTED_NOT_CONNECTED", "evidence": "fail-closed task-specific routing contract; live model inventory and qualification receipts not yet connected"},
     {"id": "model.nouscoder", "status": "NOT_QUALIFIED", "endpoint": "http://127.0.0.1:8080/v1"},
     {"id": "agent.hermes", "status": "SOURCE_DOWNLOADED_NOT_CONNECTED", "path": ".tools/hermes-agent"},
     {"id": "media.image", "status": "NOT_CONFIGURED"},
