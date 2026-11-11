@@ -14,6 +14,7 @@ PATHWAYS = frozenset({
     "computational_hacker",
 })
 STAGE_MODES = frozenset({"concrete", "observation", "visual", "language", "symbol", "code"})
+ANSWER_FORMATS = frozenset({"written_explanation", "table_and_explanation", "conjecture_or_python_code", "proof", "python_code_and_tests", "python_experiment_and_explanation"})
 
 
 def validate_math_foundations_manifest(
@@ -37,6 +38,8 @@ def validate_math_foundations_manifest(
 
     objectives = manifest["objectives"]
     objective_by_id = {item["id"]: item for item in objectives}
+    if len(objective_by_id) != len(objectives):
+        raise ValueError("course objective IDs must be unique")
     for objective_id, objective in objective_by_id.items():
         idea = idea_by_id.get(objective_id)
         if idea is None:
@@ -78,7 +81,7 @@ def validate_math_foundations_manifest(
         stages = lesson.get("stages")
         if not isinstance(stages, list) or not stages:
             raise ValueError(f"{lesson_id}: stages must be a non-empty array")
-        if stages[0].get("mode") != "concrete":
+        if not isinstance(stages[0], dict) or stages[0].get("mode") != "concrete":
             raise ValueError(f"{lesson_id}: first stage must be concrete")
         seen_exploration = False
         for stage in stages:
@@ -101,6 +104,11 @@ def validate_math_foundations_manifest(
         for field in ("objective", "prompt", "answer_format", "transfer_prompt"):
             if not isinstance(exercise.get(field), str) or not exercise[field].strip():
                 raise ValueError(f"{lesson_id}: exercise {field} is required")
+        if exercise.get("answer_format") not in ANSWER_FORMATS:
+            raise ValueError(f"{lesson_id}: unsupported answer format")
+        tools = exercise.get("allowed_tools", [])
+        if not isinstance(tools, list) or any(not isinstance(tool, str) or not tool for tool in tools):
+            raise ValueError(f"{lesson_id}: allowed_tools must be non-empty strings")
         hints = exercise.get("hints")
         if not isinstance(hints, list) or len(hints) < 2 or any(
             not isinstance(hint, str) or not hint.strip() for hint in hints
@@ -153,8 +161,24 @@ def validate_math_foundations_manifest(
         if not isinstance(module, dict):
             raise ValueError("course modules must be objects")
         lesson_refs = module.get("lesson_ids", [])
-        if not isinstance(lesson_refs, list) or any(ref not in lesson_ids for ref in lesson_refs):
+        if not isinstance(lesson_refs, list) or any(
+            not isinstance(ref, str) or ref not in lesson_ids for ref in lesson_refs
+        ):
             raise ValueError(f"module {module.get('id')!r} references an unknown lesson")
+
+    assessment_objectives = set()
+    for assessment in manifest["assessments"]:
+        objective_id = assessment.get("objective_id")
+        if objective_id in assessment_objectives:
+            raise ValueError(f"duplicate assessment for objective {objective_id}")
+        assessment_objectives.add(objective_id)
+        if assessment.get("high_stakes") is not False or assessment.get("human_review_required") is not True:
+            raise ValueError("foundation assessments must remain low-stakes and human-reviewed")
+    if assessment_objectives != set(objective_by_id):
+        raise ValueError("each objective must have exactly one assessment")
+    grading = manifest.get("grading_policy", {})
+    if grading.get("automated_high_stakes") is not False or grading.get("proof_requires_human_review") is not True or grading.get("ai_only_mastery_promotion") is not False:
+        raise ValueError("unsafe grading policy for mathematics foundations")
 
     return {
         "curriculum_id": CURRICULUM_ID,
