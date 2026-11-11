@@ -77,7 +77,7 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
     <div class="toolbar"><div><div class="eyebrow">Course workspace</div><h2 id="detailTitle">Course</h2><p id="detailMeta" class="muted"></p></div><div class="actions"><button class="ghost" id="backBtn" type="button">Back to catalog</button></div></div>
     <div class="layout">
       <div class="card"><h3>Learning objectives</h3><ul id="objectives" class="list"></ul><h3>Lessons</h3><div id="lessons"></div><h3>Resources</h3><ul id="resources" class="list"></ul></div>
-      <div class="card"><h3>Course actions</h3><div id="courseActions" class="actions"></div><div id="recommendation" class="notice hidden" aria-live="polite"></div><div id="editorWrap" class="hidden"><h3>Draft manifest</h3><p class="muted">Edit the structured course manifest. Published versions remain immutable; create a new revision to change them.</p><label for="manifestEditor">Manifest JSON</label><textarea id="manifestEditor" spellcheck="false"></textarea><button id="saveManifest" class="primary" type="button">Save draft manifest</button></div><div id="reviewWrap" class="hidden"><h3>Independent review</h3><label for="reviewNotes">Review notes</label><textarea id="reviewNotes" rows="3" style="min-height:90px"></textarea><button id="approveBtn" type="button">Approve version</button><button id="changesBtn" class="ghost" type="button">Request changes</button></div><div id="submissionReviewWrap" class="hidden"><h3>Assessment submissions</h3><p class="meta">Review learner work independently. Review decisions are recorded separately and do not automatically update mastery or proof status.</p><div id="submissionQueue"></div></div></div>
+      <div class="card"><h3>Course actions</h3><div id="courseActions" class="actions"></div><div id="recommendation" class="notice hidden" aria-live="polite"></div><div id="editorWrap" class="hidden"><h3>Draft manifest</h3><p class="muted">Edit the structured course manifest. Published versions remain immutable; create a new revision to change them.</p><label for="manifestEditor">Manifest JSON</label><textarea id="manifestEditor" spellcheck="false"></textarea><button id="saveManifest" class="primary" type="button">Save draft manifest</button></div><div id="reviewWrap" class="hidden"><h3>Independent review</h3><label for="reviewNotes">Review notes</label><textarea id="reviewNotes" rows="3" style="min-height:90px"></textarea><button id="approveBtn" type="button">Approve version</button><button id="changesBtn" class="ghost" type="button">Request changes</button></div><div id="submissionReviewWrap" class="hidden"><h3>Assessment submissions</h3><p class="meta">Review learner work independently. Review decisions are recorded separately and do not automatically update mastery or proof status.</p><div id="submissionQueue"></div></div><div id="learnerSubmissionHistoryWrap" class="hidden"><h3>My submitted work and feedback</h3><div id="learnerSubmissionHistory"></div></div></div>
     </div>
   </section>
   <section id="lessonPlayerSection" class="card hidden" aria-labelledby="playerTitle">
@@ -322,12 +322,39 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
     const canReviewSubmissions = role === "reviewer" && course.status === "published";
     $("submissionReviewWrap").classList.toggle("hidden", !canReviewSubmissions);
     if (canReviewSubmissions) void loadSubmissionQueue();
+    const canViewOwnSubmissions = role === "learner" && course.status === "published" &&
+      summary.enrollment_status === "active";
+    $("learnerSubmissionHistoryWrap").classList.toggle("hidden", !canViewOwnSubmissions);
+    if (canViewOwnSubmissions) void loadMySubmissionHistory();
     if (canEdit && !(manifest.objectives || []).length && !(manifest.lessons || []).length) {
       actions.append(actionButton("Apply Math Foundations template", applyMathTemplate, true));
     }
     if (canEdit) {
       actions.append(actionButton("Publish after review", publish));
       if (course.status === "published") actions.append(actionButton("Create revision", createRevision));
+    }
+  }
+  async function loadMySubmissionHistory() {
+    const host = $("learnerSubmissionHistory");
+    host.replaceChildren();
+    try {
+      const result = await api("/api/learning/courses/" + encodeURIComponent(current.course_id) +
+        "/submissions/mine");
+      if (!result.submissions?.length) {
+        host.append(el("p", "No submitted exercises yet.", "meta"));
+        return;
+      }
+      for (const submission of result.submissions) {
+        const card = el("article", undefined, "card");
+        card.append(el("p", submission.lesson_id + " · " + submission.status, "meta"));
+        for (const review of submission.reviews || []) {
+          card.append(el("p", "Reviewer decision: " + review.decision, "meta"));
+          if (review.feedback) card.append(el("p", review.feedback));
+        }
+        host.append(card);
+      }
+    } catch (error) {
+      host.append(el("p", "Submission history unavailable: " + error.message, "meta"));
     }
   }
   async function loadSubmissionQueue() {
@@ -486,6 +513,7 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
         : "Submission received. Mastery and proof status are unchanged.";
       $("submissionStatus").classList.remove("hidden");
       notice("Exercise submitted for human review.", "success");
+      await loadMySubmissionHistory();
     } catch (error) {
       $("submissionStatus").textContent = "Submission was not confirmed: " + error.message +
         ". You can retry without changing your answer.";
