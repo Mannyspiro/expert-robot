@@ -167,7 +167,7 @@ class MerlinLearningHttpTests(unittest.TestCase):
                 "POST", f"/api/learning/courses/{cid}/submissions/physics-submission-1/review",
                 "Bearer reviewer", {"decision": "needs_revision", "feedback": "A second final decision must not overwrite the first."},
             )
-        self.assertEqual(duplicate_review.exception.code, 409)
+        self.assertEqual(duplicate_review.exception.code, 400)
         status, my_work = self.request(
             "GET", f"/api/learning/courses/{cid}/submissions/mine", "Bearer learner"
         )
