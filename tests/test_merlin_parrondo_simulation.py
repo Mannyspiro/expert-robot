@@ -1,12 +1,15 @@
 import unittest
+import tempfile
+from pathlib import Path
 
-from merlin.learning_core import LessonSession
+from merlin.learning_core import LearnerStore, LearningInputStore, LessonSession
 from merlin.parrondo_lesson import make_canonical_games
 from merlin.parrondo_simulation import (
     PARRONDO_LESSON_SPEC,
     canonical_simulations,
     simulate_game,
     summarize_trials,
+    record_simulation_input,
 )
 
 
@@ -48,6 +51,16 @@ class ParrondoSimulationTests(unittest.TestCase):
         self.assertGreaterEqual(first.sample_standard_deviation, 0)
         self.assertGreaterEqual(first.standard_error, 0)
         self.assertLess(first.approximate_95_percent_interval[0], first.approximate_95_percent_interval[1])
+
+    def test_simulation_metadata_persists_without_awarding_mastery(self):
+        with tempfile.TemporaryDirectory() as directory:
+            store = LearnerStore(Path(directory) / "learner.sqlite")
+            inputs = LearningInputStore(store)
+            result = simulate_game(make_canonical_games()[2], turns=100, seed=19)
+            input_id = record_simulation_input(inputs, "learner-1", result)
+            self.assertGreater(input_id, 0)
+            self.assertEqual(store.attempt_count("learner-1"), 0)
+            self.assertEqual(store.mastery("learner-1", "change")["conceptual"], 0.0)
 
     def test_invalid_simulation_inputs_fail_closed(self):
         game = make_canonical_games()[0]
