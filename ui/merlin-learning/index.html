@@ -15,10 +15,10 @@ h1,h2,h3,p{margin-top:0}h1{font-size:1.25rem;margin:0}.muted{color:#aab5cc}.eyeb
 main{width:min(1200px,100%);margin:0 auto;padding:2rem clamp(1rem,4vw,3rem) 5rem}
 .toolbar{display:flex;align-items:end;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem}
 h2{font-size:1.6rem;margin-bottom:.25rem}.actions{display:flex;gap:.65rem;flex-wrap:wrap}
-button,input,textarea{font:inherit}button{border:1px solid #596a91;background:#253454;color:#f3f6ff;padding:.65rem .95rem;border-radius:.7rem;cursor:pointer}
+button,input,textarea,select{font:inherit}button{border:1px solid #596a91;background:#253454;color:#f3f6ff;padding:.65rem .95rem;border-radius:.7rem;cursor:pointer}
 button:hover{background:#344a78}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #a7b8ff;outline-offset:2px}
 button.primary{background:#526ed0;border-color:#8195ef}button.ghost{background:transparent}button:disabled{opacity:.5;cursor:not-allowed}
-input,textarea{width:100%;border:1px solid #44516c;border-radius:.6rem;background:#111a2d;color:#f2f5ff;padding:.7rem}
+input,textarea,select{width:100%;border:1px solid #44516c;border-radius:.6rem;background:#111a2d;color:#f2f5ff;padding:.7rem}
 label{display:block;font-weight:650;font-size:.9rem;margin:.8rem 0 .35rem}
 .notice{padding:.9rem 1rem;border:1px solid #52658b;background:#17233a;border-radius:.75rem;margin:1rem 0;color:#e5ebff}
 .notice.error{border-color:#9b5b67;background:#351c29}.notice.success{border-color:#507f71;background:#183229}
@@ -47,6 +47,19 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
     <div class="actions"><input id="search" type="search" aria-label="Search courses" placeholder="Search courses…" style="width:min(260px,70vw)"></div>
   </div>
   <div id="notice" class="notice" role="status" aria-live="polite">Connecting to Merlin Learning…</div>
+  <section id="profileSection" class="card hidden" aria-labelledby="profileTitle">
+    <div class="toolbar"><div><h2 id="profileTitle">My learning preferences</h2><p class="muted">Choose how Merlin balances mathematical discovery, programming, and computational problem solving. These preferences affect recommendations, not mastery or proof status.</p></div></div>
+    <form id="profileForm">
+      <div class="grid">
+        <div><label for="mathWeight">Mathematician path <span id="mathWeightLabel" class="muted"></span></label><input id="mathWeight" type="range" min="0" max="1" step="0.05" value="0.33"></div>
+        <div><label for="programmerWeight">Mathematics programmer path <span id="programmerWeightLabel" class="muted"></span></label><input id="programmerWeight" type="range" min="0" max="1" step="0.05" value="0.33"></div>
+        <div><label for="hackerWeight">Computational hacker path <span id="hackerWeightLabel" class="muted"></span></label><input id="hackerWeight" type="range" min="0" max="1" step="0.05" value="0.33"></div>
+      </div>
+      <label for="interests">Interests (comma-separated)</label><input id="interests" maxlength="500" placeholder="number theory, python, proofs, puzzles">
+      <label for="pace">Study pace</label><select id="pace"><option value="gentle">Gentle · about 20 minutes</option><option value="standard">Standard · about 35 minutes</option><option value="intensive">Intensive · about 60 minutes</option><option value="adaptive">Adaptive · no fixed time cap</option></select>
+      <div class="actions" style="margin-top:1rem"><button class="primary" type="submit">Save preferences</button><button class="ghost" id="reloadProfile" type="button">Reload</button></div>
+    </form>
+  </section>
   <section id="catalogSection" aria-labelledby="catalogTitle">
     <div class="toolbar"><div><h2 id="catalogTitle">Course catalog</h2><p id="catalogSummary" class="muted">Loading tenant-scoped courses…</p></div></div>
     <div id="catalog" class="grid"></div>
@@ -135,6 +148,24 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
     }
     if (!rows.length) host.append(el("p", "No matching courses."));
   }
+  function renderProfile(profile) {
+    const weights = profile.pathway_weights || {};
+    $("mathWeight").value = weights.mathematician ?? 0.33;
+    $("programmerWeight").value = weights.mathematics_programmer ?? 0.33;
+    $("hackerWeight").value = weights.computational_hacker ?? 0.33;
+    $("mathWeightLabel").textContent = Math.round(Number($("mathWeight").value) * 100) + "%";
+    $("programmerWeightLabel").textContent = Math.round(Number($("programmerWeight").value) * 100) + "%";
+    $("hackerWeightLabel").textContent = Math.round(Number($("hackerWeight").value) * 100) + "%";
+    $("interests").value = (profile.interests || []).join(", ");
+    $("pace").value = profile.pace || "adaptive";
+  }
+  async function loadProfile() {
+    try {
+      renderProfile(await api("/api/learning/profile"));
+    } catch (error) {
+      notice("Could not load learning preferences: " + error.message, "error");
+    }
+  }
   async function loadCatalog() {
     try {
       const data = await api("/api/learning/courses");
@@ -142,8 +173,10 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
       role = data.role;
       $("rolePill").textContent = role;
       $("createSection").classList.toggle("hidden", !["instructor","tenant_admin"].includes(role));
+      $("profileSection").classList.toggle("hidden", role !== "learner");
       renderCatalog();
       notice("Connected to tenant-scoped course catalog.", "success");
+      if (role === "learner") await loadProfile();
     } catch (error) {
       catalog = [];
       role = null;
@@ -202,10 +235,23 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
     if (canEdit) $("manifestEditor").value = JSON.stringify(manifest, null, 2);
     const canReview = role === "reviewer" && course.status === "draft";
     $("reviewWrap").classList.toggle("hidden", !canReview);
+    if (canEdit && !(manifest.objectives || []).length && !(manifest.lessons || []).length) {
+      actions.append(actionButton("Apply Math Foundations template", applyMathTemplate, true));
+    }
     if (canEdit) {
       actions.append(actionButton("Publish after review", publish));
       if (course.status === "published") actions.append(actionButton("Create revision", createRevision));
     }
+  }
+  async function applyMathTemplate() {
+    try {
+      await api("/api/learning/courses/" + encodeURIComponent(current.course_id) +
+        "/templates/math-foundations", "POST", {});
+      current = await api("/api/learning/courses/" + encodeURIComponent(current.course_id));
+      await loadCatalog();
+      renderCourse();
+      notice("Mathematics foundations template applied. Submit this draft for independent review before publication.", "success");
+    } catch (error) { notice("Template could not be applied: " + error.message, "error"); }
   }
   async function enroll(courseId) {
     try {
@@ -240,6 +286,38 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
       await loadCatalog(); renderCourse(); notice("Course published.", "success");
     } catch (error) { notice("Publication blocked: " + error.message, "error"); }
   }
+  for (const [inputId, labelId] of [
+    ["mathWeight","mathWeightLabel"],
+    ["programmerWeight","programmerWeightLabel"],
+    ["hackerWeight","hackerWeightLabel"]
+  ]) {
+    $(inputId).addEventListener("input", () => {
+      $(labelId).textContent = Math.round(Number($(inputId).value) * 100) + "%";
+    });
+  }
+  $("profileForm").addEventListener("submit", async event => {
+    event.preventDefault();
+    const weights = {
+      mathematician: Number($("mathWeight").value),
+      mathematics_programmer: Number($("programmerWeight").value),
+      computational_hacker: Number($("hackerWeight").value)
+    };
+    if (Object.values(weights).every(value => value === 0)) {
+      notice("Select at least one learning path.", "error");
+      return;
+    }
+    const interests = $("interests").value.split(",").map(value => value.trim()).filter(Boolean);
+    try {
+      const profile = await api("/api/learning/profile", "POST", {
+        pathway_weights: weights,
+        interests,
+        pace: $("pace").value
+      });
+      renderProfile(profile);
+      notice("Learning preferences saved. Your next recommendation will use them.", "success");
+    } catch (error) { notice("Preferences were not saved: " + error.message, "error"); }
+  });
+  $("reloadProfile").addEventListener("click", loadProfile);
   $("createForm").addEventListener("submit", async event => {
     event.preventDefault();
     try {
