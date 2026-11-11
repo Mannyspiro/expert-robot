@@ -80,6 +80,35 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
       <div class="card"><h3>Course actions</h3><div id="courseActions" class="actions"></div><div id="recommendation" class="notice hidden" aria-live="polite"></div><div id="editorWrap" class="hidden"><h3>Draft manifest</h3><p class="muted">Edit the structured course manifest. Published versions remain immutable; create a new revision to change them.</p><label for="manifestEditor">Manifest JSON</label><textarea id="manifestEditor" spellcheck="false"></textarea><button id="saveManifest" class="primary" type="button">Save draft manifest</button></div><div id="reviewWrap" class="hidden"><h3>Independent review</h3><label for="reviewNotes">Review notes</label><textarea id="reviewNotes" rows="3" style="min-height:90px"></textarea><button id="approveBtn" type="button">Approve version</button><button id="changesBtn" class="ghost" type="button">Request changes</button></div></div>
     </div>
   </section>
+  <section id="lessonPlayerSection" class="card hidden" aria-labelledby="playerTitle">
+    <div class="toolbar">
+      <div><div class="eyebrow">Guided lesson</div><h2 id="playerTitle">Lesson</h2><p id="playerMeta" class="muted"></p></div>
+      <button class="ghost" id="closeLesson" type="button">Close lesson</button>
+    </div>
+    <div id="playerProgress" class="notice" aria-live="polite"></div>
+    <div id="playerStageView">
+      <span id="playerStageMode" class="pill"></span>
+      <p id="playerStagePrompt"></p>
+    </div>
+    <div id="playerExerciseView" class="hidden">
+      <h3>Exercise</h3>
+      <p id="exerciseObjective" class="muted"></p>
+      <p id="exercisePrompt"></p>
+      <p id="exerciseFormat" class="meta"></p>
+      <p id="exerciseTools" class="meta"></p>
+      <h3>Rubric</h3><ul id="exerciseRubric" class="list"></ul>
+      <h3>Transfer challenge</h3><p id="exerciseTransfer"></p>
+      <div id="exerciseHistorical" class="notice hidden"></div>
+      <ul id="exerciseSources" class="list"></ul>
+      <p class="meta">This version presents the exercise content. Answer submission, reviewer feedback, and evidence recording are the next integration slice.</p>
+    </div>
+    <div class="actions" style="margin-top:1rem">
+      <button id="prevStage" type="button">Previous</button>
+      <button id="showHint" type="button">Show hint</button>
+      <button id="nextStage" class="primary" type="button">Next stage</button>
+    </div>
+    <div id="playerHint" class="notice hidden" aria-live="polite"></div>
+  </section>
   <footer>
     Merlin Learning uses tenant-scoped identity, versioned course manifests and independent review before publication. Recommendations are advisory; the learner model does not self-certify mastery or grade high-stakes work. Institution SSO must be configured by the deployment gateway. No bearer token is stored in browser storage.
   </footer>
@@ -92,6 +121,9 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
   let role = null;
   let current = null;
   let currentSummary = null;
+  let activeLesson = null;
+  let activeStageIndex = 0;
+  let activeHintIndex = 0;
   const notice = (message, kind="") => {
     $("notice").textContent = message;
     $("notice").className = "notice" + (kind ? " " + kind : "");
@@ -190,6 +222,8 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
   }
   async function openCourse(courseId) {
     try {
+      activeLesson = null;
+      $("lessonPlayerSection").classList.add("hidden");
       current = await api("/api/learning/courses/" + encodeURIComponent(courseId));
       currentSummary = catalog.find(row => row.course_id === courseId) || null;
       renderCourse();
@@ -214,6 +248,12 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
       const block = el("article", undefined, "card");
       block.append(el("h3", lesson.title));
       block.append(el("p", lesson.body || "Lesson content has not been added."));
+      block.append(el("div",
+        (lesson.estimated_minutes || 20) + " min · " +
+        (lesson.pathways || []).join(" / "), "meta"));
+      const lessonActions = el("div", undefined, "actions");
+      lessonActions.append(actionButton("Start lesson", () => startLesson(lesson), true));
+      block.append(lessonActions);
       $("lessons").append(block);
     }
     $("resources").replaceChildren();
@@ -254,6 +294,93 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
       notice("Mathematics foundations template applied. Submit this draft for independent review before publication.", "success");
     } catch (error) { notice("Template could not be applied: " + error.message, "error"); }
   }
+  function startLesson(lesson) {
+    activeLesson = lesson;
+    activeStageIndex = 0;
+    activeHintIndex = 0;
+    renderLessonPlayer();
+    $("lessonPlayerSection").scrollIntoView({behavior:"smooth", block:"start"});
+  }
+  function renderLessonPlayer() {
+    if (!activeLesson) return;
+    const stages = activeLesson.stages || [];
+    const exercise = activeLesson.exercise || {};
+    const inExercise = activeStageIndex >= stages.length;
+    $("lessonPlayerSection").classList.remove("hidden");
+    $("playerTitle").textContent = activeLesson.title;
+    $("playerMeta").textContent = (activeLesson.estimated_minutes || 20) +
+      " minutes · " + (activeLesson.pathways || []).join(" / ");
+    $("playerStageView").classList.toggle("hidden", inExercise);
+    $("playerExerciseView").classList.toggle("hidden", !inExercise);
+    $("playerHint").classList.add("hidden");
+    activeHintIndex = 0;
+    $("showHint").disabled = !(exercise.hints || []).length;
+    $("prevStage").disabled = activeStageIndex === 0;
+    $("nextStage").disabled = inExercise;
+    $("nextStage").textContent = inExercise ? "Exercise ready" :
+      (activeStageIndex === stages.length - 1 ? "Open exercise" : "Next stage");
+    if (!inExercise) {
+      const stage = stages[activeStageIndex];
+      $("playerProgress").textContent = "Stage " + (activeStageIndex + 1) +
+        " of " + stages.length + " · " + stage.mode;
+      $("playerStageMode").textContent = stage.mode;
+      $("playerStagePrompt").textContent = stage.prompt;
+    } else {
+      $("playerProgress").textContent = "Exercise · " + exercise.task_id;
+      $("exerciseObjective").textContent = exercise.objective || "";
+      $("exercisePrompt").textContent = exercise.prompt || "";
+      $("exerciseFormat").textContent = "Response format: " + (exercise.answer_format || "written response");
+      $("exerciseTools").textContent = "Allowed tools: " + ((exercise.allowed_tools || []).join(", ") || "none specified");
+      $("exerciseRubric").replaceChildren();
+      for (const criterion of exercise.rubric || []) {
+        $("exerciseRubric").append(el("li",
+          criterion.dimension + " · " + criterion.points + " points · " + criterion.description));
+      }
+      $("exerciseTransfer").textContent = exercise.transfer_prompt || "No transfer prompt supplied.";
+      const historical = activeLesson.historical_context;
+      $("exerciseHistorical").classList.toggle("hidden", !historical);
+      $("exerciseHistorical").textContent = historical || "";
+      $("exerciseSources").replaceChildren();
+      for (const source of activeLesson.source_refs || []) {
+        const item = el("li");
+        const link = document.createElement("a");
+        link.href = source;
+        link.textContent = source;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        item.append(link);
+        $("exerciseSources").append(item);
+      }
+    }
+  }
+  $("prevStage").addEventListener("click", () => {
+    if (!activeLesson || activeStageIndex <= 0) return;
+    activeStageIndex -= 1;
+    renderLessonPlayer();
+  });
+  $("nextStage").addEventListener("click", () => {
+    if (!activeLesson || activeStageIndex >= (activeLesson.stages || []).length) return;
+    activeStageIndex += 1;
+    renderLessonPlayer();
+  });
+  $("showHint").addEventListener("click", () => {
+    if (!activeLesson) return;
+    const hints = activeLesson.exercise?.hints || [];
+    if (activeHintIndex >= hints.length) {
+      $("playerHint").textContent = "No more hints are available.";
+      $("playerHint").classList.remove("hidden");
+      $("showHint").disabled = true;
+      return;
+    }
+    $("playerHint").textContent = "Hint " + (activeHintIndex + 1) + ": " + hints[activeHintIndex];
+    $("playerHint").classList.remove("hidden");
+    activeHintIndex += 1;
+    if (activeHintIndex >= hints.length) $("showHint").disabled = true;
+  });
+  $("closeLesson").addEventListener("click", () => {
+    activeLesson = null;
+    $("lessonPlayerSection").classList.add("hidden");
+  });
   async function enroll(courseId) {
     try {
       await api("/api/learning/courses/" + encodeURIComponent(courseId) + "/enroll", "POST", {});
@@ -350,6 +477,8 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
     } catch (error) { notice("Review failed: " + error.message, "error"); }
   }
   $("backBtn").addEventListener("click", () => {
+    activeLesson = null;
+    $("lessonPlayerSection").classList.add("hidden");
     $("detailSection").classList.add("hidden");
     $("catalogSection").classList.remove("hidden");
     if (["instructor","tenant_admin"].includes(role)) $("createSection").classList.remove("hidden");
