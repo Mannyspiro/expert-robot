@@ -2,7 +2,7 @@ import unittest
 from datetime import datetime, timezone, timedelta
 
 from merlin.learning_schedule import (
-    RetrievalState, initial_retrieval_state, schedule_retrieval,
+    RetrievalState, SQLiteRetrievalScheduler, initial_retrieval_state, schedule_retrieval,
 )
 
 
@@ -39,6 +39,41 @@ class RetrievalScheduleTests(unittest.TestCase):
     def test_naive_timestamps_rejected(self):
         with self.assertRaises(ValueError):
             initial_retrieval_state("x", datetime(2026, 11, 11))
+
+    def test_persistent_scheduler_survives_reconstruction(self):
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as tmp:
+            database = str(Path(tmp) / "learner.sqlite")
+            scheduler = SQLiteRetrievalScheduler(database)
+            first = scheduler.review("learner-1", "parrondo.state", quality=5, reviewed_at=self.now)
+            self.assertEqual(first.state.interval_days, 1)
+            restored = SQLiteRetrievalScheduler(database)
+            state = restored.get("learner-1", "parrondo.state")
+            self.assertIsNotNone(state)
+            self.assertEqual(state.repetitions, 1)
+            self.assertEqual(state.due_at, self.now + timedelta(days=1))
+
+    def test_due_retrievals_are_selected_by_utc_time(self):
+        import tempfile
+        from pathlib import Path
+        from datetime import timedelta
+        with tempfile.TemporaryDirectory() as tmp:
+            scheduler = SQLiteRetrievalScheduler(str(Path(tmp) / "learner.sqlite"))
+            scheduler.review("learner-1", "parrondo.state", quality=5, reviewed_at=self.now)
+            due = scheduler.due("learner-1", as_of=self.now + timedelta(days=1))
+            self.assertEqual([state.concept_id for state in due], ["parrondo.state"])
+
+    def test_failed_persistent_recall_increments_lapses(self):
+        import tempfile
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as tmp:
+            scheduler = SQLiteRetrievalScheduler(str(Path(tmp) / "learner.sqlite"))
+            scheduler.review("learner-1", "parrondo.state", quality=2, reviewed_at=self.now)
+            state = scheduler.get("learner-1", "parrondo.state")
+            self.assertEqual(state.lapses, 1)
+            self.assertEqual(state.repetitions, 0)
+            self.assertEqual(state.representation_index, 1)
 
 
 if __name__ == "__main__":
