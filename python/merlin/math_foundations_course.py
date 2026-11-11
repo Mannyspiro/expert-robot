@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from typing import Any, Mapping
+from urllib.parse import urlsplit
 
 from .learning_platform import LearningPlatform
 
@@ -62,6 +63,25 @@ def validate_math_foundations_manifest(
         ):
             raise ValueError(f"{objective_id}: interest_tags must contain non-empty strings")
 
+    resource_ids: set[str] = set()
+    for resource in manifest.get("resources", []):
+        resource_id = resource.get("id")
+        if not isinstance(resource_id, str) or not resource_id or resource_id in resource_ids:
+            raise ValueError(f"resource IDs must be unique non-empty strings: {resource_id!r}")
+        resource_ids.add(resource_id)
+        parsed_uri = urlsplit(resource.get("source_uri", ""))
+        if parsed_uri.scheme != "https" or not parsed_uri.netloc:
+            raise ValueError(f"{resource_id}: supplementary resource URI must use HTTPS")
+        if resource.get("resource_type", "link") not in {"video", "article", "interactive", "dataset", "link"}:
+            raise ValueError(f"{resource_id}: unsupported resource_type")
+        if resource.get("supplementary", False) is not True:
+            raise ValueError(f"{resource_id}: external resources must remain supplementary")
+        resource_interests = resource.get("interest_tags", [])
+        if not isinstance(resource_interests, list) or any(
+            not isinstance(tag, str) or not tag.strip() for tag in resource_interests
+        ):
+            raise ValueError(f"{resource_id}: resource interest_tags must be non-empty strings")
+
     lesson_ids: set[str] = set()
     task_ids: set[str] = set()
     lessons_by_objective: dict[str, int] = {}
@@ -115,6 +135,15 @@ def validate_math_foundations_manifest(
                 seen_exploration = True
             if stage["mode"] == "symbol" and not seen_exploration:
                 raise ValueError(f"{lesson_id}: symbolic notation precedes exploration")
+
+        lesson_resource_ids = lesson.get("resource_ids", [])
+        if not isinstance(lesson_resource_ids, list) or any(
+            not isinstance(resource_id, str) or resource_id not in resource_ids
+            for resource_id in lesson_resource_ids
+        ):
+            raise ValueError(f"{lesson_id}: lesson references an unknown supplementary resource")
+        if len(set(lesson_resource_ids)) != len(lesson_resource_ids):
+            raise ValueError(f"{lesson_id}: duplicate supplementary resource references")
 
         exercise = lesson.get("exercise")
         if not isinstance(exercise, dict):
