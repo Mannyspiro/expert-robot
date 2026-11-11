@@ -151,15 +151,22 @@ CAPABILITIES = [
 ]
 
 
+def _rsi_string_tuple(value: Any, field: str) -> tuple[str, ...]:
+    if not isinstance(value, (list, tuple)) or any(not isinstance(item, str) for item in value):
+        raise ValueError(f"{field} must be an array of strings")
+    return tuple(value)
+
+
 def _rsi_skill(raw: dict[str, Any]) -> SkillProcedure:
     if not isinstance(raw, dict):
         raise ValueError("skill procedure must be an object")
     return SkillProcedure(
         skill_id=raw.get("skill_id", ""), version=raw.get("version", 0),
         purpose=raw.get("purpose", ""),
-        trigger_conditions=tuple(raw.get("trigger_conditions", [])),
-        steps=tuple(raw.get("steps", [])), guardrails=tuple(raw.get("guardrails", [])),
-        source_failure_ids=tuple(raw.get("source_failure_ids", [])),
+        trigger_conditions=_rsi_string_tuple(raw.get("trigger_conditions", []), "trigger_conditions"),
+        steps=_rsi_string_tuple(raw.get("steps", []), "steps"),
+        guardrails=_rsi_string_tuple(raw.get("guardrails", []), "guardrails"),
+        source_failure_ids=_rsi_string_tuple(raw.get("source_failure_ids", []), "source_failure_ids"),
     )
 
 
@@ -170,7 +177,7 @@ def _rsi_trajectory(raw: dict[str, Any]) -> FailureTrajectory:
         failure_id=raw.get("failure_id", ""),
         failure_signature=raw.get("failure_signature", ""),
         trigger_condition=raw.get("trigger_condition", ""),
-        corrective_steps=tuple(raw.get("corrective_steps", [])),
+        corrective_steps=_rsi_string_tuple(raw.get("corrective_steps", []), "corrective_steps"),
         source_commit_sha=raw.get("source_commit_sha", ""),
         source_artifact_sha256=raw.get("source_artifact_sha256", ""),
     )
