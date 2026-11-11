@@ -1,3 +1,4 @@
+import copy
 import json
 import tempfile
 import unittest
@@ -79,6 +80,49 @@ class MathFoundationsCourseTests(unittest.TestCase):
                 {"math-foundations-counting-v1", "math-foundations-variables-v1"},
             )
             self.assertEqual(recommendation["authority"], "recommendation_only")
+
+
+    def test_rejects_objective_dimensions_that_drift_from_canonical_graph(self):
+        manifest = copy.deepcopy(self.manifest)
+        manifest["objectives"][0]["dimensions"].append("invented_dimension")
+        with self.assertRaisesRegex(ValueError, "dimensions differ"):
+            validate_math_foundations_manifest(manifest, self.catalog)
+
+    def test_rejects_prerequisite_cycles(self):
+        manifest = copy.deepcopy(self.manifest)
+        manifest["objectives"][0]["prerequisites"] = ["MATH-NT-001"]
+        manifest["objectives"][0]["prerequisites"] = ["MATH-NT-002"]
+        with self.assertRaisesRegex(ValueError, "cycle"):
+            validate_math_foundations_manifest(manifest, self.catalog)
+
+    def test_rejects_symbolic_stage_before_observation_or_visualization(self):
+        manifest = copy.deepcopy(self.manifest)
+        lesson = manifest["lessons"][0]
+        lesson["stages"] = [
+            {"mode": "concrete", "prompt": "Start with objects."},
+            {"mode": "symbol", "prompt": "Write the formula."},
+        ]
+        with self.assertRaisesRegex(ValueError, "precedes exploration"):
+            validate_math_foundations_manifest(manifest, self.catalog)
+
+    def test_rejects_duplicate_exercise_task_ids(self):
+        manifest = copy.deepcopy(self.manifest)
+        manifest["lessons"][1]["exercise"]["task_id"] = manifest["lessons"][0]["exercise"]["task_id"]
+        with self.assertRaisesRegex(ValueError, "task_id must be unique"):
+            validate_math_foundations_manifest(manifest, self.catalog)
+
+    def test_rejects_ai_only_or_high_stakes_foundation_grading(self):
+        manifest = copy.deepcopy(self.manifest)
+        manifest["grading_policy"]["ai_only_mastery_promotion"] = True
+        with self.assertRaisesRegex(ValueError, "unsafe grading policy"):
+            validate_math_foundations_manifest(manifest, self.catalog)
+
+    def test_rejects_missing_human_review_for_proof_assessment(self):
+        manifest = copy.deepcopy(self.manifest)
+        proof = next(item for item in manifest["assessments"] if item["objective_id"] == "MATH-LOG-001")
+        proof["human_review_required"] = False
+        with self.assertRaisesRegex(ValueError, "low-stakes and human-reviewed"):
+            validate_math_foundations_manifest(manifest, self.catalog)
 
 
 if __name__ == "__main__":
