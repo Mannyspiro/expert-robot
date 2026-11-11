@@ -330,6 +330,7 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
       actions.append(actionButton("Apply Math Foundations template", applyMathTemplate, true));
       actions.append(actionButton("Apply Logic & Discrete Math template", applyMathLogicTemplate));
       actions.append(actionButton("Apply Algebra & Functions template", applyMathAlgebraTemplate));
+      actions.append(actionButton("Apply Calculus, Probability & Statistics template", applyMathCalculusProbabilityTemplate));
     }
     if (canEdit) {
       actions.append(actionButton("Publish after review", publish));
@@ -428,6 +429,18 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
       notice("Algebra and functions template applied. Submit this draft for independent review before publication.", "success");
     } catch (error) {
       notice("Algebra and functions template could not be applied: " + error.message, "error");
+    }
+  }
+  async function applyMathCalculusProbabilityTemplate() {
+    try {
+      await api("/api/learning/courses/" + encodeURIComponent(current.course_id) +
+        "/templates/math-calculus-probability", "POST", {});
+      current = await api("/api/learning/courses/" + encodeURIComponent(current.course_id));
+      await loadCatalog();
+      renderCourse();
+      notice("Calculus, probability and statistics template applied. Submit this draft for independent review before publication.", "success");
+    } catch (error) {
+      notice("Calculus, probability and statistics template could not be applied: " + error.message, "error");
     }
   }
   async function applyMathLogicTemplate() {
