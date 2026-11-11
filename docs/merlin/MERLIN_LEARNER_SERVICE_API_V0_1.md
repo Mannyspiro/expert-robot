@@ -56,3 +56,19 @@ Start the existing Merlin API process and use the lesson from the same origin. D
 - Hermes lesson routing has recommendation-only authority.
 - No lesson event grants tools, credentials, compute or production action authority.
 - Business scenario values are synthetic training data unless separately sourced and labeled.
+
+
+## Mathematics foundations course template
+
+The canonical mathematics foundations course is versioned as `math-foundations-v1` and is loaded from `docs/merlin/MERLIN_MATH_FOUNDATIONS_COURSE_V1.json`. The loader cross-checks its objective IDs, prerequisite edges, dimensions, and lesson IDs against the canonical mathematical idea catalog before the API returns or applies the manifest.
+
+Instructor-only endpoints:
+
+- `GET /api/learning/templates/math-foundations` — preview the validated course template.
+- `POST /api/learning/courses/{course_id}/templates/math-foundations` — apply the template to an existing draft course.
+
+The apply operation uses the normal tenant-scoped `LearningPlatform.update_manifest` path. It does not create a course, approve it, publish it, enroll learners, or bypass independent review. The instructor must create the draft through `POST /api/learning/courses`; a separate reviewer must approve the version before publication.
+
+The seven objectives map to canonical idea IDs `MATH-NT-001`, `MATH-NT-002`, `MATH-NT-003`, `MATH-ALG-002`, `MATH-COMP-001`, `MATH-LOG-001`, and `MATH-EXP-002`. The shared learner model therefore sees the same prerequisite graph whether recommendations are requested through the course endpoint or the global mathematics recommendation endpoint.
+
+All assessments in this initial template are low-stakes and require human review. No learner answer, AI explanation, finite experiment, or lesson completion is promoted to formal proof or mastery by the template.
