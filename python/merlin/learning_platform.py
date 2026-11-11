@@ -447,6 +447,7 @@ class LearningPlatform:
                 raise ValueError("lesson objective has no configured assessment")
             if assessment.get("human_review_required") is not True:
                 raise LearningConflictError("this submission route requires a human-reviewed assessment")
+            rubric_sha256 = _digest(assessment.get("rubric", []))
             now = time.time()
             db.execute("""INSERT INTO learning_submissions
               VALUES(?,?,?,?,?,?,?,?,?,?,?)""",
@@ -456,12 +457,13 @@ class LearningPlatform:
             self._audit(db, actor, "assessment.submitted", submission_id,
                         {"course_id": course_id, "version": version,
                          "lesson_id": lesson_id, "assessment_id": assessment["id"],
-                         "response_sha256": response_sha})
+                         "response_sha256": response_sha,
+                         "rubric_sha256": rubric_sha256})
         return {"submission_id": submission_id, "course_id": course_id,
                 "version": version, "lesson_id": lesson_id,
                 "assessment_id": assessment["id"], "status": "pending_review",
-                "response_sha256": response_sha, "duplicate": False,
-                "mastery_updated": False, "proof_qualified": False}
+                "response_sha256": response_sha, "rubric_sha256": rubric_sha256,
+                "duplicate": False, "mastery_updated": False, "proof_qualified": False}
 
     def list_submissions(self, actor: Actor, course_id: str) -> dict[str, Any]:
         self._authorize(actor, {"reviewer", "tenant_admin", "instructor"})
@@ -512,8 +514,24 @@ class LearningPlatform:
                   (actor.tenant_id, row["submission_id"])).fetchall()
                 result.append({
                     **dict(row),
-                    "reviews": [{**dict(review), "rubric_scores": json.loads(review["rubric_json"])}
-                                for review in reviews],
+                    "reviews": [
+                        {
+                            **dict(review),
+                            "rubric_scores": (
+                                json.loads(review["rubric_json"]).get("scores", {})
+                                if isinstance(json.loads(review["rubric_json"]), dict)
+                                and "scores" in json.loads(review["rubric_json"])
+                                else json.loads(review["rubric_json"])
+                            ),
+                            "rubric_sha256": (
+                                json.loads(review["rubric_json"]).get("rubric_sha256")
+                                if isinstance(json.loads(review["rubric_json"]), dict)
+                                and "scores" in json.loads(review["rubric_json"])
+                                else None
+                            ),
+                        }
+                        for review in reviews
+                    ],
                 })
         return {"schema": "merlin-learning-my-submissions/1",
                 "submissions": result, "count": len(result),
@@ -558,7 +576,10 @@ class LearningPlatform:
             manifest = json.loads(row["manifest_json"])
             assessment = next((item for item in manifest["assessments"]
                                if item.get("id") == row["assessment_id"]), None)
-            allowed_dimensions = {item.get("dimension") for item in (assessment or {}).get("rubric", [])
+            if assessment is None:
+                raise ValueError("submission assessment is missing from its immutable course version")
+            rubric_sha256 = _digest(assessment.get("rubric", []))
+            allowed_dimensions = {item.get("dimension") for item in assessment.get("rubric", [])
                                   if isinstance(item, dict) and isinstance(item.get("dimension"), str)}
             if set(clean_scores) - allowed_dimensions:
                 raise ValueError("rubric score references an unknown assessment dimension")
@@ -566,18 +587,19 @@ class LearningPlatform:
             now = time.time()
             db.execute("INSERT INTO learning_submission_reviews VALUES(?,?,?,?,?,?,?,?)",
               (review_id, actor.tenant_id, submission_id, actor.actor_id, decision,
-               feedback, _json(clean_scores), now))
+               feedback, _json({"rubric_sha256": rubric_sha256, "scores": clean_scores}), now))
             db.execute("""UPDATE learning_submissions SET status=?
               WHERE tenant_id=? AND submission_id=?""",
               (decision, actor.tenant_id, submission_id))
             self._audit(db, actor, "assessment.reviewed", submission_id,
                         {"review_id": review_id, "decision": decision,
                          "feedback_sha256": sha256(feedback.encode("utf-8")).hexdigest(),
-                         "rubric_scores": clean_scores})
+                         "rubric_scores": clean_scores,
+                         "rubric_sha256": rubric_sha256})
         return {"review_id": review_id, "submission_id": submission_id,
                 "decision": decision, "reviewer_id": actor.actor_id,
-                "rubric_scores": clean_scores, "mastery_updated": False,
-                "proof_qualified": False}
+                "rubric_scores": clean_scores, "rubric_sha256": rubric_sha256,
+                "mastery_updated": False, "proof_qualified": False}
 
     def enroll(self, actor: Actor, course_id: str, learner_id: str | None = None) -> dict[str, Any]:
         self._authorize(actor, {"tenant_admin", "instructor", "learner"})
