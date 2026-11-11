@@ -331,6 +331,7 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
       actions.append(actionButton("Apply Logic & Discrete Math template", applyMathLogicTemplate));
       actions.append(actionButton("Apply Algebra & Functions template", applyMathAlgebraTemplate));
       actions.append(actionButton("Apply Calculus, Probability & Statistics template", applyMathCalculusProbabilityTemplate));
+      actions.append(actionButton("Apply Numerical Methods & Scientific Computing template", applyMathNumericalScientificComputingTemplate));
     }
     if (canEdit) {
       actions.append(actionButton("Publish after review", publish));
@@ -429,6 +430,18 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
       notice("Algebra and functions template applied. Submit this draft for independent review before publication.", "success");
     } catch (error) {
       notice("Algebra and functions template could not be applied: " + error.message, "error");
+    }
+  }
+  async function applyMathNumericalScientificComputingTemplate() {
+    try {
+      await api("/api/learning/courses/" + encodeURIComponent(current.course_id) +
+        "/templates/math-numerical-scientific-computing", "POST", {});
+      current = await api("/api/learning/courses/" + encodeURIComponent(current.course_id));
+      await loadCatalog();
+      renderCourse();
+      notice("Numerical methods and scientific computing template applied. Submit this draft for independent review before publication.", "success");
+    } catch (error) {
+      notice("Numerical methods template could not be applied: " + error.message, "error");
     }
   }
   async function applyMathCalculusProbabilityTemplate() {
