@@ -36,9 +36,13 @@ live model-backed RSI worker remains a separate orchestration integration.
 
 ## Candidate lineage and evaluation
 
-Candidate creation requires a signed merlin-source receipt binding candidate
-ID, artifact digest, source repository, and exact source commit. Parent IDs must
-already exist in the canonical episode history.
+Candidate creation requires a real Ed25519 merlin-source receipt binding
+candidate ID, artifact digest, source repository, and exact source commit.
+When a candidate originates from a Hermes failure, the receipt must additionally
+bind the exact authenticated induction-seed event hash; the seed must already
+exist in the canonical episode history. Parent candidate IDs must already exist.
+Production APIs do not accept caller-injected signature verifiers. Tests use
+ephemeral Ed25519 keypairs and exercise the same cryptographic verification path.
 
 Evaluation requires a signed merlin-evaluator receipt binding candidate ID,
 candidate digest, frozen benchmark manifest digest, metrics digest, and
@@ -115,6 +119,25 @@ rate, and reproducibility before a controlled trial.
 6. Add key rotation/revocation and durable evidence retention before enabling
    production promotion.
 
-The workflow added with this change validates the Python bridge, benchmark
-manifest, and C++ append-only stores on hosted CI. It does not claim a live
-CACE verification or production promotion.
+## OCI and CI validation status (2026-11-11)
+
+The Cace-app repository's typed OCI gateway successfully executed the fixed
+read-only MCP probe on runner cace-oci-a1. The probe confirmed the local MCP
+endpoint at 127.0.0.1:8765 and successful read-only responses from
+get_control_capabilities and get_cace_runtime_status. The live registry did
+not expose get_github_runner_status or an artifact-verification operation.
+The gateway currently allowlists inventory_snapshot and mcp_readonly_probe;
+it does not execute arbitrary repository tests or shell commands.
+
+The Avrea check for the Expert Robot build reported that no Avrea credits were
+available. The dedicated GitHub Actions RSI validation jobs also returned
+failure before exposing step logs. Consequently, the latest Python and C++
+test suite has not yet been independently executed on a working CI runner.
+The test workflow is committed, but its checks must be rerun on a functioning
+runner before this work is considered validated. Do not infer test success from
+a successful OCI inventory/MCP health probe.
+
+No live CACE artifact attestation has been obtained for an Expert Robot
+candidate. The CACE verification adapter remains fail-closed until a real
+independent attestation and its independently distributed public-key pin are
+available. No production promotion has occurred.
