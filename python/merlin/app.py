@@ -694,6 +694,16 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     self._send(503, {"error": "canonical_graph_validation_unavailable",
                                      "source": "canonical_knowledge_graph"})
                 return
+            if path == "/api/learning/profile":
+                actor = self._learning_actor()
+                if actor is None:
+                    self._send(503, {"error": "learning_identity_provider_not_configured"})
+                    return
+                if actor.role != "learner":
+                    self._send(403, {"error": "learner_role_required"})
+                    return
+                self._send(200, learner_store.get_profile(actor.actor_id))
+                return
             if path == "/api/learning/templates/math-foundations":
                 actor = self._learning_actor()
                 if actor is None:
@@ -1075,6 +1085,21 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                                   "edge_count": result["edge_count"], "errors": result["errors"]})
                     self._send(200, {**result, "source": "request_preview",
                                      "promotion_authorized": False})
+                    return
+                if path == "/api/learning/profile":
+                    actor = self._learning_actor()
+                    if actor is None:
+                        self._send(503, {"error": "learning_identity_provider_not_configured"})
+                        return
+                    if actor.role != "learner":
+                        self._send(403, {"error": "learner_role_required"})
+                        return
+                    profile = learner_store.update_profile(actor.actor_id, data)
+                    learner_ref = sha256(actor.actor_id.encode("utf-8")).hexdigest()
+                    profile_hash = sha256(_json_bytes(profile)).hexdigest()
+                    store.append(path, {"learner_ref_sha256": learner_ref},
+                                 {"profile_sha256": profile_hash})
+                    self._send(200, profile)
                     return
                 if path == "/api/learning/courses":
                     actor = self._learning_actor()
