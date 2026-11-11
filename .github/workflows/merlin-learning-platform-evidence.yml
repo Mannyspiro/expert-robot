@@ -69,7 +69,7 @@ jobs:
         run: |
           set +e
           mkdir -p artifacts
-          python -m compileall -q python/merlin/app.py python/merlin/learning_platform.py python/merlin/learner_model.py python/merlin/research_curriculum.py python/merlin/math_foundations_course.py python/merlin/math_logic_discrete_course.py 2>&1 | tee artifacts/compile.log
+          python -m compileall -q python/merlin/app.py python/merlin/learning_platform.py python/merlin/learner_model.py python/merlin/research_curriculum.py python/merlin/math_foundations_course.py python/merlin/math_logic_discrete_course.py python/merlin/math_logic_discrete_course.py 2>&1 | tee artifacts/compile.log
           rc=${PIPESTATUS[0]}
           printf '{"suite":"learning-platform-compile","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/compile-result.json
           exit "$rc"
@@ -79,6 +79,16 @@ jobs:
         run: |
           set -euo pipefail
           python scripts/merlin_math_idea_validate.py
+
+      - name: Validate logic and discrete mathematics course template
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH=. python - <<'PY'
+          from python.merlin.math_logic_discrete_course import load_math_logic_discrete_manifest
+          manifest = load_math_logic_discrete_manifest()
+          print("Validated", manifest["curriculum_id"], len(manifest["objectives"]), "objectives")
+          PY
 
       - name: Validate three-path mathematics learning map
         shell: bash
