@@ -14,6 +14,8 @@ The canonical catalog currently contains 57 mathematical ideas, with 35 catalog 
 - **Calculus, probability and statistics:** limits and continuity, derivatives and rates, integration and accumulation, conditional probability/Bayes' rule, and statistical inference.
 - **Numerical methods and scientific computing:** linear systems/Gaussian elimination, floating-point stability, ODE solvers (Euler/RK4), and gradient-based optimization.
 
+The cross-course validator `scripts/merlin_math_portfolio_validate.py` checks objective metadata consistency, shared lesson identity, and that every external prerequisite is actually taught in another authored course. It runs alongside the individual course, pathway-map, and lesson-backlog validators in the LMS evidence workflow.
+
 The lesson backlog contains 22 additional review-gated blueprints for ideas without a catalog lesson reference. These are authoring specifications, not completed lessons. A lesson reference is only promoted after its manifest, exercise, rubric, pathway coverage, and validator are present. The LMS evidence workflow checks the catalog graph, three-path mapping, and backlog's epistemic gates.
 
 ## Product objective
