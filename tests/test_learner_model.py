@@ -5,6 +5,7 @@ from pathlib import Path
 from merlin.event_outbox import MerlinEventOutbox
 from merlin.learner_model import (
     LearnerStore, LearnerEventConflict, HermesLearningRouter, select_next_lesson, score_attempt_event,
+    learner_subject_id,
 )
 
 
@@ -19,6 +20,19 @@ class LearnerModelTests(unittest.TestCase):
         return {"learner_id":"learner-test","attempt_id":attempt,"idea_id":"rotation",
           "problem_id":attempt,"problem_version":"1","dimension":dimension,"score":score,
           "session_id":session,"response":{"work":"shown"},"rubric_version":"r1",**extra}
+
+    def test_tenant_scoped_subject_ids_prevent_cross_tenant_learner_collisions(self):
+        from_a = learner_subject_id("college-a", "student-1")
+        from_b = learner_subject_id("college-b", "student-1")
+        self.assertNotEqual(from_a, from_b)
+        event = self.event("tenant-a-attempt", "s1")
+        event["learner_id"] = from_a
+        self.store.record_attempt(event)
+        self.assertEqual(len(self.store.attempts(from_b)), 0)
+        self.assertEqual(
+            self.store.estimate(from_b, "rotation", "conceptual_explanation").state,
+            "unobserved",
+        )
 
     def test_append_and_idempotent_replay(self):
         e=self.event("a1","s1")
