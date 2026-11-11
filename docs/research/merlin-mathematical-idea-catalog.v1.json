@@ -1625,16 +1625,7 @@
       "provenance": [
         "Merlin-authored instructional sequence: concrete changing-quantity model, table, graph, and general expression."
       ],
-      "relations": [
-        {
-          "type": "depends_on",
-          "target": "MATH-NT-001"
-        },
-        {
-          "type": "maps_to",
-          "target": "MATH-COMP-001"
-        }
-      ],
+      "relations": [],
       "objections": [
         "A symbolic expression is only meaningful after its variables and domains are defined."
       ],
