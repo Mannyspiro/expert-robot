@@ -77,7 +77,7 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
     <div class="toolbar"><div><div class="eyebrow">Course workspace</div><h2 id="detailTitle">Course</h2><p id="detailMeta" class="muted"></p></div><div class="actions"><button class="ghost" id="backBtn" type="button">Back to catalog</button></div></div>
     <div class="layout">
       <div class="card"><h3>Learning objectives</h3><ul id="objectives" class="list"></ul><h3>Lessons</h3><div id="lessons"></div><h3>Resources</h3><ul id="resources" class="list"></ul></div>
-      <div class="card"><h3>Course actions</h3><div id="courseActions" class="actions"></div><div id="recommendation" class="notice hidden" aria-live="polite"></div><div id="editorWrap" class="hidden"><h3>Draft manifest</h3><p class="muted">Edit the structured course manifest. Published versions remain immutable; create a new revision to change them.</p><label for="manifestEditor">Manifest JSON</label><textarea id="manifestEditor" spellcheck="false"></textarea><button id="saveManifest" class="primary" type="button">Save draft manifest</button></div><div id="reviewWrap" class="hidden"><h3>Independent review</h3><label for="reviewNotes">Review notes</label><textarea id="reviewNotes" rows="3" style="min-height:90px"></textarea><button id="approveBtn" type="button">Approve version</button><button id="changesBtn" class="ghost" type="button">Request changes</button></div><div id="submissionReviewWrap" class="hidden"><h3>Assessment submissions</h3><p class="meta">Review learner work independently. Review decisions are recorded separately and do not automatically update mastery or proof status.</p><div id="submissionQueue"></div></div><div id="learnerSubmissionHistoryWrap" class="hidden"><h3>My submitted work and feedback</h3><div id="learnerSubmissionHistory"></div></div></div>
+      <div class="card"><h3>Course actions</h3><div id="courseActions" class="actions"></div><div id="recommendation" class="notice hidden" aria-live="polite"></div><div id="editorWrap" class="hidden"><h3>Draft manifest</h3><p class="muted">Edit the structured course manifest. Published versions remain immutable; create a new revision to change them.</p><label for="manifestEditor">Manifest JSON</label><textarea id="manifestEditor" spellcheck="false"></textarea><button id="saveManifest" class="primary" type="button">Save draft manifest</button></div><div id="reviewWrap" class="hidden"><h3>Independent review</h3><label for="reviewNotes">Review notes</label><textarea id="reviewNotes" rows="3" style="min-height:90px"></textarea><button id="approveBtn" type="button">Approve version</button><button id="changesBtn" class="ghost" type="button">Request changes</button></div><div id="submissionReviewWrap" class="hidden"><h3>Assessment submissions</h3><p class="meta">Review learner work independently. Review decisions are recorded separately and do not automatically update mastery or proof status.</p><div id="submissionQueue"></div></div><div id="reviewerCalibrationWrap" class="hidden"><h3>Reviewer calibration</h3><p class="meta">Tenant-admin attestation only. Supply the digest of the calibration evidence set; at least 10 scored cases and 0.90 agreement are required. Attestations expire after 90 days.</p><label for="calibrationReviewerId">Reviewer actor ID</label><input id="calibrationReviewerId" type="text" autocomplete="off" maxlength="120"><label for="calibrationDigest">Calibration evidence SHA-256</label><input id="calibrationDigest" type="text" inputmode="text" autocomplete="off" maxlength="64"><label for="calibrationCaseCount">Scored cases</label><input id="calibrationCaseCount" type="number" min="10" step="1" value="10"><label for="calibrationAgreement">Agreement score (0–1)</label><input id="calibrationAgreement" type="number" min="0" max="1" step="0.01" value="0.95"><button id="recordReviewerCalibration" type="button">Record reviewer calibration</button><div id="reviewerCalibrationNotice" class="notice hidden" aria-live="polite"></div></div><div id="learnerSubmissionHistoryWrap" class="hidden"><h3>My submitted work and feedback</h3><div id="learnerSubmissionHistory"></div></div></div>
     </div>
   </section>
   <section id="lessonPlayerSection" class="card hidden" aria-labelledby="playerTitle">
@@ -313,6 +313,7 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
     if (role === "learner" && summary.enrollment_status === "active") {
       actions.append(actionButton("Recommend next lesson", recommend, true));
     }
+    $("reviewerCalibrationWrap").classList.toggle("hidden", role !== "tenant_admin");
     const canEdit = ["tenant_admin","instructor"].includes(role) &&
       course.status === "draft";
     $("editorWrap").classList.toggle("hidden", !canEdit);
@@ -454,6 +455,30 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
       notice("Algebra and functions template applied. Submit this draft for independent review before publication.", "success");
     } catch (error) {
       notice("Algebra and functions template could not be applied: " + error.message, "error");
+    }
+  }
+  async function recordReviewerCalibration() {
+    const noticeHost = $("reviewerCalibrationNotice");
+    noticeHost.classList.remove("hidden");
+    noticeHost.textContent = "Recording calibration attestation…";
+    try {
+      const reviewerId = $("calibrationReviewerId").value.trim();
+      const calibrationSha256 = $("calibrationDigest").value.trim();
+      const caseCount = Number($("calibrationCaseCount").value);
+      const agreementScore = Number($("calibrationAgreement").value);
+      const result = await api("/api/learning/reviewers/" + encodeURIComponent(reviewerId) +
+        "/calibration", "POST", {
+          calibration_sha256: calibrationSha256,
+          case_count: caseCount,
+          agreement_score: agreementScore,
+          calibration_version: "merlin-assessment-review-v1"
+        });
+      noticeHost.textContent = "Calibration recorded: " + result.status +
+        " · expires " + new Date(result.expires_at * 1000).toLocaleDateString();
+      noticeHost.dataset.status = result.status;
+    } catch (error) {
+      noticeHost.textContent = "Calibration was not recorded: " + error.message;
+      noticeHost.dataset.status = "error";
     }
   }
   async function applyMathNumericalScientificComputingTemplate() {
@@ -702,6 +727,7 @@ footer{margin-top:2rem;border-top:1px solid #303a51;padding-top:1rem;color:#99a6
       notice("Draft course created. Add objectives, lessons and licensed resources before review.", "success");
     } catch (error) { notice("Course creation failed: " + error.message, "error"); }
   });
+  $("recordReviewerCalibration").addEventListener("click", recordReviewerCalibration);
   $("saveManifest").addEventListener("click", async () => {
     try {
       const manifest = JSON.parse($("manifestEditor").value);
