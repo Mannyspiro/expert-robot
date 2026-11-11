@@ -349,7 +349,6 @@ class AppendOnlyLedger:
         source_receipt: SignedReceipt, artifact_sha256: str,
         generator: str, mutation: Mapping[str, Any],
         trusted_keys: Mapping[str, str], episode_id: str | None = None,
-        verifier=None,
     ) -> dict[str, Any]:
         episode = episode_id or candidate_id
         if not _is_sha256(artifact_sha256):
