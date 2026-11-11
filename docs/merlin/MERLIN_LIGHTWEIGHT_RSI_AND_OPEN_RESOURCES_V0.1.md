@@ -17,13 +17,14 @@ This is harness/skill evolution, not model-weight self-training. The current ker
 ## Implemented in this increment
 
 - `python/merlin/rsi.py`: standard-library-only skill procedure schema, input/suite/result digests, fixed-runner evaluation comparison, held-out regression checks, resource budget, and human-review-only decision.
-- `POST /api/rsi/compare`: accepts declarative baseline/candidate skill records, versioned train/held-out cases, and evaluation outcomes; returns a deterministic comparison and records an event.
+- `POST /api/rsi/induce`: converts at least two independently identified, same-signature failures into a declarative skill proposal using only corrective steps common to all supplied trajectories. It preserves source commit and artifact digests; output is explicitly non-executable.
+- `POST /api/rsi/compare`: accepts declarative baseline/candidate skill records, versioned training and at least two held-out cases, and evaluation outcomes; returns a deterministic comparison and records an event.
 - Capability registry entry: `research.rsi.skill_evaluation`.
 - `tests/test_merlin_rsi.py`: checks held-out improvement, regressions, resource budget, evaluator/runner drift, exact outcome coverage, and skill version ordering.
-- `tests/test_merlin_rsi_api.py`: loopback HTTP integration tests for the API.
+- `tests/test_merlin_rsi_api.py`: loopback HTTP integration tests for skill induction and evaluation APIs.
 - CI runs both focused test modules.
 
-The API verifies the integrity and consistency of submitted evaluation metadata; it does not independently execute the task suite or attest that a runner really produced the submitted outcomes. A future runner adapter must produce authenticated execution receipts and CACE must independently verify artifact digests before a skill or code change can be promoted.
+The API verifies the integrity and consistency of submitted evaluation metadata; it does not independently execute the task suite or attest that a runner really produced the submitted outcomes. Skill induction uses a conservative ordered intersection of repeated corrective steps; it cannot invent a missing repair or prove that the repair is correct. A future runner adapter must produce authenticated execution receipts and CACE must independently verify artifact digests before a skill or code change can be promoted.
 
 ## Open projects and integration posture
 
