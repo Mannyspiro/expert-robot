@@ -5,6 +5,15 @@
 
 The machine-readable mapping is maintained in `docs/merlin/MERLIN_MATH_LEARNING_PATHWAYS_V1.json`. It maps all 57 current catalog ideas into the three pathways and labels whether a lesson reference already exists. `scripts/merlin_math_pathways_validate.py` checks catalog identity, idea coverage, pathway membership, lesson-reference consistency, and prerequisite integrity; the LMS evidence workflow runs this validator.
 
+## Current curriculum artifacts
+
+The canonical catalog currently contains 57 mathematical ideas. The authored course manifests now cover:
+- **Mathematics foundations:** whole-number patterns, variables, divisibility, primes, loops, Euclid's proof, and counterexamples.
+- **Logic and discrete mathematics:** quantifiers, sets and relations, and graphs and trees.
+- **Algebra and functions:** patterns, variables, sets, equations and inequalities, function composition, and inverse mappings.
+
+The lesson backlog contains 33 additional review-gated blueprints for ideas without a catalog lesson reference. These are authoring specifications, not completed lessons. A lesson reference is only promoted after its manifest, exercise, rubric, pathway coverage, and validator are present. The LMS evidence workflow checks the catalog graph, three-path mapping, and backlog's epistemic gates.
+
 ## Product objective
 
 Build one adaptive mathematics environment with three mutually reinforcing routes:
