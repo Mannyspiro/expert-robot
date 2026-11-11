@@ -290,7 +290,10 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None):
             elif path == "/api/math/lesson":
                 query = parse_qs(parsed.query)
                 lesson_path = query.get("path", ["mathematician"])[0]
-                self._send(200, math_learning.snapshot(lesson_path))
+                try:
+                    self._send(200, math_learning.snapshot(lesson_path))
+                except ValueError as exc:
+                    self._send(400, {"error": "invalid_request", "detail": str(exc)[:300]})
             elif path == "/api/sim/state":
                 self._send(200, simulation.snapshot())
             elif path == "/api/sim/events":
