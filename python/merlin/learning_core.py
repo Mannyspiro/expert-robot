@@ -463,3 +463,270 @@ def select_next_lesson(
         return None
     eligible.sort(key=lambda item: (-item[0], item[1]))
     return eligible[0][2]
+
+
+# --- Spaced repetition, comprehensive input, and strategy-mix experiments ---
+
+from datetime import date, datetime, timedelta, timezone
+from typing import Literal
+
+
+INPUT_MODES = frozenset({
+    "text", "choice", "numeric", "expression", "code", "proof",
+    "graph", "audio", "video", "mixed",
+})
+TEACHING_STRATEGIES = (
+    "retrieval_practice",
+    "worked_example",
+    "interleaving",
+    "visual_exploration",
+    "self_explanation",
+    "spaced_review",
+)
+
+
+@dataclass(frozen=True)
+class LearningInput:
+    """A normalized envelope for diverse learner responses and media references."""
+    learner_id: str
+    lesson_id: str
+    task_id: str
+    mode: str
+    response: Mapping[str, Any]
+    confidence: float | None = None
+    hints_used: int = 0
+    elapsed_seconds: float | None = None
+    accessibility: Mapping[str, Any] = field(default_factory=dict)
+    source_refs: tuple[str, ...] = ()
+
+    def validate(self) -> None:
+        if not all((self.learner_id, self.lesson_id, self.task_id)):
+            raise ValueError("learner, lesson and task identifiers are required")
+        if self.mode not in INPUT_MODES:
+            raise ValueError(f"unsupported input mode: {self.mode}")
+        if not isinstance(self.response, Mapping) or not self.response:
+            raise ValueError("response must be a non-empty mapping")
+        if self.confidence is not None and (
+            not math.isfinite(float(self.confidence)) or not 0 <= self.confidence <= 1
+        ):
+            raise ValueError("confidence must be between zero and one")
+        if self.hints_used < 0:
+            raise ValueError("hints_used cannot be negative")
+        if self.elapsed_seconds is not None and (
+            not math.isfinite(float(self.elapsed_seconds)) or self.elapsed_seconds < 0
+        ):
+            raise ValueError("elapsed_seconds must be finite and non-negative")
+        if any(not isinstance(ref, str) or not ref.strip() for ref in self.source_refs):
+            raise ValueError("source references must be non-empty strings")
+
+
+@dataclass(frozen=True)
+class ReviewCard:
+    learner_id: str
+    concept_id: str
+    due_at: str
+    interval_days: int
+    repetitions: int
+    ease_factor: float
+    last_quality: int | None
+
+
+@dataclass(frozen=True)
+class ReviewResult:
+    card: ReviewCard
+    quality: int
+    next_due_at: str
+
+
+class SpacedRepetition:
+    """SM-2-inspired scheduler; quality 0..5 is learner recall quality."""
+    def __init__(self, store: LearnerStore) -> None:
+        self.store = store
+        with store._connect() as connection:
+            connection.executescript(
+                """
+                CREATE TABLE IF NOT EXISTS review_cards (
+                    learner_id TEXT NOT NULL,
+                    concept_id TEXT NOT NULL,
+                    due_at TEXT NOT NULL,
+                    interval_days INTEGER NOT NULL DEFAULT 0,
+                    repetitions INTEGER NOT NULL DEFAULT 0,
+                    ease_factor REAL NOT NULL DEFAULT 2.5,
+                    last_quality INTEGER,
+                    updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    PRIMARY KEY (learner_id, concept_id)
+                );
+                """
+            )
+
+    def ensure_card(self, learner_id: str, concept_id: str, *, now: datetime | None = None) -> ReviewCard:
+        if not learner_id or not concept_id:
+            raise ValueError("learner and concept identifiers are required")
+        current = now or datetime.now(timezone.utc)
+        if current.tzinfo is None:
+            raise ValueError("now must be timezone-aware")
+        due = current.astimezone(timezone.utc).isoformat()
+        with self.store._connect() as connection:
+            connection.execute(
+                """INSERT OR IGNORE INTO review_cards
+                (learner_id, concept_id, due_at) VALUES (?, ?, ?)""",
+                (learner_id, concept_id, due),
+            )
+        return self.get_card(learner_id, concept_id)
+
+    def get_card(self, learner_id: str, concept_id: str) -> ReviewCard:
+        with self.store._connect() as connection:
+            row = connection.execute(
+                "SELECT * FROM review_cards WHERE learner_id=? AND concept_id=?",
+                (learner_id, concept_id),
+            ).fetchone()
+        if row is None:
+            raise KeyError(f"no review card for {learner_id}/{concept_id}")
+        return ReviewCard(
+            row["learner_id"], row["concept_id"], row["due_at"],
+            int(row["interval_days"]), int(row["repetitions"]),
+            float(row["ease_factor"]), row["last_quality"],
+        )
+
+    def due_cards(self, learner_id: str, *, now: datetime | None = None, limit: int = 50) -> tuple[ReviewCard, ...]:
+        current = now or datetime.now(timezone.utc)
+        if current.tzinfo is None or limit < 1:
+            raise ValueError("timezone-aware now and positive limit are required")
+        stamp = current.astimezone(timezone.utc).isoformat()
+        with self.store._connect() as connection:
+            rows = connection.execute(
+                """SELECT * FROM review_cards WHERE learner_id=? AND due_at<=?
+                ORDER BY due_at, concept_id LIMIT ?""",
+                (learner_id, stamp, int(limit)),
+            ).fetchall()
+        return tuple(ReviewCard(
+            r["learner_id"], r["concept_id"], r["due_at"],
+            int(r["interval_days"]), int(r["repetitions"]),
+            float(r["ease_factor"]), r["last_quality"],
+        ) for r in rows)
+
+    def review(
+        self, learner_id: str, concept_id: str, quality: int,
+        *, now: datetime | None = None,
+    ) -> ReviewResult:
+        if isinstance(quality, bool) or not isinstance(quality, int) or not 0 <= quality <= 5:
+            raise ValueError("review quality must be an integer from 0 to 5")
+        current = now or datetime.now(timezone.utc)
+        if current.tzinfo is None:
+            raise ValueError("now must be timezone-aware")
+        self.ensure_card(learner_id, concept_id, now=current)
+        card = self.get_card(learner_id, concept_id)
+        ease = max(1.3, card.ease_factor + (0.1 - (5-quality) * (0.08 + (5-quality) * 0.02)))
+        if quality < 3:
+            repetitions, interval = 0, 1
+        elif card.repetitions == 0:
+            repetitions, interval = 1, 1
+        elif card.repetitions == 1:
+            repetitions, interval = 2, 6
+        else:
+            repetitions = card.repetitions + 1
+            interval = max(1, round(card.interval_days * ease))
+        due = (current.astimezone(timezone.utc) + timedelta(days=interval)).isoformat()
+        with self.store._connect() as connection:
+            connection.execute(
+                """UPDATE review_cards SET due_at=?, interval_days=?, repetitions=?,
+                ease_factor=?, last_quality=?, updated_at=CURRENT_TIMESTAMP
+                WHERE learner_id=? AND concept_id=?""",
+                (due, interval, repetitions, ease, quality, learner_id, concept_id),
+            )
+        return ReviewResult(self.get_card(learner_id, concept_id), quality, due)
+
+
+class LearningInputStore:
+    """Persists normalized response envelopes without storing raw media blobs."""
+    def __init__(self, store: LearnerStore) -> None:
+        self.store = store
+        with store._connect() as connection:
+            connection.execute(
+                """CREATE TABLE IF NOT EXISTS learning_inputs (
+                input_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                learner_id TEXT NOT NULL, lesson_id TEXT NOT NULL, task_id TEXT NOT NULL,
+                mode TEXT NOT NULL, response_json TEXT NOT NULL, confidence REAL,
+                hints_used INTEGER NOT NULL, elapsed_seconds REAL,
+                accessibility_json TEXT NOT NULL, source_refs_json TEXT NOT NULL,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP)"""
+            )
+
+    def record(self, item: LearningInput) -> int:
+        item.validate()
+        try:
+            response = json.dumps(dict(item.response), sort_keys=True, allow_nan=False)
+            accessibility = json.dumps(dict(item.accessibility), sort_keys=True, allow_nan=False)
+            refs = json.dumps(list(item.source_refs), allow_nan=False)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("input metadata must be JSON-serializable and finite") from exc
+        with self.store._connect() as connection:
+            cursor = connection.execute(
+                """INSERT INTO learning_inputs
+                (learner_id, lesson_id, task_id, mode, response_json, confidence,
+                 hints_used, elapsed_seconds, accessibility_json, source_refs_json)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                (item.learner_id, item.lesson_id, item.task_id, item.mode, response,
+                 item.confidence, item.hints_used, item.elapsed_seconds, accessibility, refs),
+            )
+            return int(cursor.lastrowid)
+
+
+@dataclass(frozen=True)
+class StrategyAssignment:
+    learner_id: str
+    concept_id: str
+    session_index: int
+    strategy: str
+    policy: str
+
+
+class ParrondoLearningExperiment:
+    """Compare single-strategy baselines with a mixed strategy portfolio.
+
+    This operationalizes a Parrondo-inspired hypothesis, not a mathematical
+    guarantee: alternation may outperform individual strategies in some learner
+    states. Outcomes must be measured against randomized, comparable controls.
+    """
+    def __init__(self, strategies: Sequence[str] = TEACHING_STRATEGIES) -> None:
+        if not strategies or any(s not in TEACHING_STRATEGIES for s in strategies):
+            raise ValueError("experiment strategies must be known and non-empty")
+        self.strategies = tuple(dict.fromkeys(strategies))
+
+    def assign(
+        self, learner_id: str, concept_id: str, session_index: int,
+        *, policy: str = "mixed",
+    ) -> StrategyAssignment:
+        if not learner_id or not concept_id or session_index < 0:
+            raise ValueError("learner, concept and non-negative session index required")
+        if policy == "mixed":
+            # Rotate rather than repeat a single method. A production experiment
+            # should randomize policy assignment at learner/concept cluster level.
+            strategy = self.strategies[session_index % len(self.strategies)]
+        elif policy.startswith("single:"):
+            strategy = policy.split(":", 1)[1]
+            if strategy not in self.strategies:
+                raise ValueError("single-strategy control is not in this experiment")
+        else:
+            raise ValueError("policy must be 'mixed' or 'single:<strategy>'")
+        return StrategyAssignment(learner_id, concept_id, session_index, strategy, policy)
+
+
+def compare_strategy_policies(
+    outcomes: Mapping[str, Sequence[Mapping[str, float]]],
+) -> dict[str, dict[str, float]]:
+    """Summarize measured delayed retention/transfer; never infer causality."""
+    metrics = ("immediate_accuracy", "delayed_retention", "transfer", "independent_solve")
+    summary: dict[str, dict[str, float]] = {}
+    for policy, rows in outcomes.items():
+        if not rows:
+            continue
+        summary[policy] = {}
+        for metric in metrics:
+            values = [float(row[metric]) for row in rows if metric in row]
+            if any(not math.isfinite(v) or not 0 <= v <= 1 for v in values):
+                raise ValueError(f"{policy}/{metric} values must be in [0, 1]")
+            if values:
+                summary[policy][metric] = sum(values) / len(values)
+        summary[policy]["sample_count"] = float(len(rows))
+    return summary
