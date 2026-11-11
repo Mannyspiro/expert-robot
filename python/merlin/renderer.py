@@ -9,6 +9,7 @@ from typing import Any, Mapping
 
 from .lesson_schema import LessonBlock, LessonDocument
 from .learning_core import Attempt, LearnerStore, MASTERY_DIMENSIONS
+from .learning_schedule import SQLiteRetrievalScheduler
 
 
 @dataclass(frozen=True)
@@ -168,3 +169,51 @@ def interaction_count(store: LearnerStore, learner_id: str) -> int:
             (learner_id,),
         ).fetchone()
     return int(row[0])
+
+
+
+def record_retrieval_review(
+    store: LearnerStore,
+    *,
+    learner_id: str,
+    lesson: LessonDocument,
+    block_id: str,
+    concept_id: str,
+    quality: int,
+    response: Any,
+    reviewed_at: datetime | None = None,
+    independent: bool = True,
+    hints_used: int = 0,
+) -> tuple[int, Any]:
+    """Persist a retrieval response and its adaptive due date in the learner DB."""
+    lesson.validate()
+    block = next((b for b in lesson.blocks if b.block_id == block_id), None)
+    if block is None or block.kind != "retrieval":
+        raise ValueError("block_id must identify a retrieval block")
+    if concept_id not in lesson.concept_ids:
+        raise ValueError("retrieval concept must belong to the lesson")
+    if not isinstance(quality, int) or isinstance(quality, bool) or not 0 <= quality <= 5:
+        raise ValueError("quality must be an integer from 0 to 5")
+    if hints_used < 0:
+        raise ValueError("hints_used cannot be negative")
+    now = reviewed_at or datetime.now(timezone.utc)
+    if now.tzinfo is None or now.utcoffset() is None:
+        raise ValueError("reviewed_at must be timezone-aware")
+
+    scheduler = SQLiteRetrievalScheduler(store.database)
+    schedule = scheduler.review(learner_id, concept_id, quality=quality, reviewed_at=now)
+    event_id = record_interaction(
+        store,
+        learner_id=learner_id,
+        lesson=lesson,
+        block_id=block_id,
+        event_type="retrieval_reviewed",
+        response={"answer": response, "quality": quality,
+                  "next_due_at": schedule.state.due_at.isoformat(),
+                  "next_representation": schedule.next_representation},
+        independent=independent,
+        hints_used=hints_used,
+        scores={"retention": quality / 5.0},
+        timestamp=now,
+    )
+    return event_id, schedule
