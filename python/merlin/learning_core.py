@@ -94,6 +94,9 @@ DEFAULT_CONCEPTS = ConceptRegistry(
         Concept("function", "Input-output rule", "A rule that assigns an output to an input.", ("quantity",)),
         Concept("limit", "Approaching a value", "What a quantity gets close to as we approach a point.", ("rate", "slope")),
         Concept("derivative", "Derivative", "The instantaneous rate of change of a function.", ("function", "limit", "slope")),
+        Concept("randomization", "Random choice", "A choice whose outcome is governed by chance.", ("probability",)),
+        Concept("conditional_probability", "Chance given a condition", "A probability that depends on the current state or known information.", ("probability", "state")),
+        Concept("long_run_behavior", "Long-run behavior", "Patterns that emerge across many repetitions of a process.", ("expected_value", "markov_chain")),
     )
 )
 
@@ -222,6 +225,28 @@ DERIVATIVE_DISCOVERY = LessonSpec(
     ),
 )
 DERIVATIVE_DISCOVERY.validate()
+
+
+PARRONDO_DISCOVERY = LessonSpec(
+    lesson_id="math.parrondo.discovery.zero_first.v1",
+    title="Can two losing games make a winning combination?",
+    target_concepts=("probability", "expected_value", "state", "state_transition",
+                     "markov_chain", "randomization", "conditional_probability",
+                     "long_run_behavior"),
+    prerequisites=(),
+    path_tags=("mathematician", "mathematics_programmer", "computational_hacker"),
+    stages=(
+        LessonStage("play-the-games", "concrete", "Play two simple games. Notice that each seems to lose over repeated play."),
+        LessonStage("make-a-prediction", "observation", "Before mixing the games, predict whether alternating or randomly mixing them will help."),
+        LessonStage("run-the-experiment", "visual", "Compare repeated runs of Game A, Game B, and a random mixture. Notice variation between runs."),
+        LessonStage("inspect-the-state", "visual", "Track the current capital modulo three and observe how the next-game odds depend on that state."),
+        LessonStage("build-the-table", "observation", "Record the possible state changes and their probabilities without using formal notation yet."),
+        LessonStage("explain-the-pattern", "language", "Explain how the mixture can behave differently from either game on its own."),
+        LessonStage("name-the-model", "symbol", "Introduce conditional probability, expected gain, and a Markov chain as names for the observed structure.", True),
+        LessonStage("reproduce-the-result", "code", "Write or modify a seeded simulation, then compare finite-run outcomes with the long-run prediction."),
+    ),
+)
+PARRONDO_DISCOVERY.validate()
 
 
 @dataclass
