@@ -34,7 +34,7 @@ Sources:
 
 ## 2. Existing Merlin facts that constrain the design
 
-- `python/merlin/council_runtime.py` currently calls a loopback OpenAI-compatible endpoint and performs six sequential non-streaming opening calls, optionally followed by six sequential cross-examination calls.
+- `python/merlin/council_runtime.py` calls a loopback OpenAI-compatible endpoint and now performs up to six concurrent independent opening calls, isolates seat failures, and optionally runs a second concurrent cross-examination round. The endpoint still returns complete seat messages rather than token deltas.
 - The local council is fail-closed unless `MERLIN_MODEL_QUALIFIED=1`; endpoint must be loopback HTTP.
 - `python/merlin/app.py` already contains a remote OpenAI-compatible proxy configuration with HTTPS, explicit host allowlisting and a credential environment variable.
 - `app.py` capability metadata reports local model execution as qualification-gated and other model capabilities as unqualified/unconfigured. Keep those truthful distinctions.
@@ -80,8 +80,8 @@ Each profile gets a held-out evaluation suite. A single general benchmark score 
 ## 5. Council parallelism and streaming
 
 After model backend qualification:
-- Execute independent council openings concurrently under an MCFC semaphore and per-seat budget.
-- Stream per-seat deltas through the session gateway; isolate failure and cancellation per seat.
+- The initial runtime now executes up to six independent council openings concurrently and records seat-completion telemetry. Next, place concurrency behind MCFC admission and per-seat resource budgets.
+- Add per-seat token-delta streaming through the session gateway; current HUD renders completed seat responses after the council HTTP request returns. Keep failure isolation and add cancellation propagation.
 - Cross-examination begins only after opening transcript is complete.
 - Keep a maximum concurrency and deadline. Do not launch 12 unconstrained simultaneous requests.
 - Use model routing per persona/task; the same model may serve multiple seats, but record that fact. Role prompts are perspectives, not independent agents.
