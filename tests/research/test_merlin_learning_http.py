@@ -127,6 +127,42 @@ class MerlinLearningHttpTests(unittest.TestCase):
         self.assertEqual(recommendation["lesson_id"], "lesson-2")
         self.assertEqual(recommendation["authority"], "recommendation_only")
 
+        # Two independent delayed/transfer demonstrations unlock the prerequisite.
+        for dimension in ["recognition", "conceptual_explanation", "representation_translation", "transfer"]:
+            for session_number in (1, 2):
+                self.learner_store.record_attempt({
+                    "learner_id": "student-1",
+                    "attempt_id": f"math-foundations-{dimension}-{session_number}",
+                    "idea_id": "MATH-NT-001",
+                    "problem_id": "math-foundations-whole-number-diagnostic",
+                    "problem_version": "1",
+                    "dimension": dimension,
+                    "score": 1.0,
+                    "session_id": f"math-foundations-session-{session_number}",
+                    "response": {"fixture": "independent-transfer"},
+                    "rubric_version": "foundation-test-v1",
+                    "delayed": True,
+                    "transfer": True,
+                })
+
+        status, preferences = self.request("POST", "/api/learning/profile", "Bearer learner", {
+            "pathway_weights": {
+                "mathematician": 0.0,
+                "mathematics_programmer": 1.0,
+                "computational_hacker": 0.0,
+            },
+            "interests": ["number_theory"],
+            "pace": "standard",
+        })
+        self.assertEqual(status, 200)
+        self.assertEqual(preferences["max_minutes"], 35)
+        status, personalized = self.request(
+            "GET", f"/api/learning/courses/{course_id}/recommendation", "Bearer learner"
+        )
+        self.assertEqual(status, 200)
+        self.assertEqual(personalized["lesson_id"], "math-foundations-divisibility-v1")
+        self.assertIn("matches_learner_interests", personalized["reason_codes"])
+
     def test_unauthenticated_and_cross_tenant_access_fail_closed(self):
         request = Request(self.base + "/api/learning/courses", data=b'{"slug":"x","title":"X"}',
                           headers={"Content-Type": "application/json"})
@@ -246,60 +282,3 @@ class MerlinLearningHttpTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-
-    def test_math_foundations_template_is_instructor_only_and_uses_normal_review_flow(self):
-        status, preview = self.request(
-            "GET", "/api/learning/templates/math-foundations", "Bearer faculty"
-        )
-        self.assertEqual(status, 200)
-        self.assertEqual(preview["curriculum_id"], "math-foundations-v1")
-        self.assertEqual(preview["objective_count"], 7)
-        self.assertEqual(preview["lesson_count"], 7)
-
-        with self.assertRaises(HTTPError) as denied:
-            self.request("GET", "/api/learning/templates/math-foundations", "Bearer learner")
-        self.assertEqual(denied.exception.code, 403)
-
-        status, draft = self.request("POST", "/api/learning/courses", "Bearer faculty", {
-            "slug": "math-foundations",
-            "title": preview["title"],
-            "description": "First-principles mathematics across proof, programming, and computational problem solving.",
-        })
-        self.assertEqual(status, 201)
-        course_id = draft["course_id"]
-
-        status, applied = self.request(
-            "POST",
-            f"/api/learning/courses/{course_id}/templates/math-foundations",
-            "Bearer faculty",
-            {},
-        )
-        self.assertEqual(status, 200)
-        self.assertEqual(applied["manifest"]["curriculum_id"], "math-foundations-v1")
-        self.assertEqual(len(applied["manifest"]["objectives"]), 7)
-        self.assertEqual(len(applied["manifest"]["lessons"]), 7)
-        self.assertTrue(applied["manifest_sha256"])
-
-        status, review = self.request(
-            "POST", f"/api/learning/courses/{course_id}/review", "Bearer reviewer",
-            {"version": 1, "decision": "approved", "notes": "Reviewed low-stakes foundations template."},
-        )
-        self.assertEqual(status, 200)
-        self.assertEqual(review["decision"], "approved")
-        status, published = self.request(
-            "POST", f"/api/learning/courses/{course_id}/publish", "Bearer faculty", {}
-        )
-        self.assertEqual(status, 200)
-        self.assertEqual(published["status"], "published")
-        status, enrollment = self.request(
-            "POST", f"/api/learning/courses/{course_id}/enroll", "Bearer learner", {}
-        )
-        self.assertEqual(status, 200)
-        status, recommendation = self.request(
-            "GET", f"/api/learning/courses/{course_id}/recommendation", "Bearer learner"
-        )
-        self.assertEqual(status, 200)
-        self.assertEqual(recommendation["state"], "recommended")
-        self.assertEqual(recommendation["lesson_id"], "math-foundations-counting-v1")
-        self.assertEqual(recommendation["authority"], "recommendation_only")
