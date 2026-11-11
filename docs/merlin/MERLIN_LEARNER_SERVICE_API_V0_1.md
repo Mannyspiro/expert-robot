@@ -31,13 +31,18 @@ Instructor/admin template endpoints return versioned manifests; they do not publ
 - `GET /api/learning/templates/math-foundations`
 - `GET /api/learning/templates/math-logic-discrete`
 - `GET /api/learning/templates/math-algebra-functions`
+- `GET /api/learning/templates/math-calculus-probability`
+- `GET /api/learning/templates/math-numerical-scientific-computing`
 
-Apply a selected template to a draft course:
-- `PUT /api/learning/courses/{course_id}/templates/math-foundations`
-- `PUT /api/learning/courses/{course_id}/templates/math-logic-discrete`
-- `PUT /api/learning/courses/{course_id}/templates/math-algebra-functions`
+Apply a selected template to a draft course with `POST /api/learning/courses/{course_id}/templates/{template_id}`, using the matching template ID above. Template application creates or updates a draft only. All five curricula use the same canonical idea catalog and the three shared learner pathways. Cross-course prerequisite IDs are explicitly declared and must resolve to canonical prerequisite lessons. Independent human review and explicit publication remain separate steps.
 
-All three curricula use the same canonical idea catalog and the three shared learner pathways. Cross-course prerequisite IDs are represented explicitly by the idea graph; the course-local manifest validator still requires its own objective graph to be internally coherent. Template application creates or updates a draft only. Independent human review and explicit publication remain separate steps.
+## Append-only course submissions and human review
+
+- Learners submit work through `POST /api/learning/courses/{course_id}/submissions`; submissions require an active enrollment in the published course version and must match a configured lesson task.
+- A stable submission ID is idempotent for identical work and conflicts if reused for different content. The record binds tenant, learner, course version, lesson, assessment, response digest, and submission time.
+- Reviewer queue: `GET /api/learning/courses/{course_id}/submissions`. Reviewer decision and feedback: `POST /api/learning/courses/{course_id}/submissions/{submission_id}/review`. Learner history: `GET /api/learning/courses/{course_id}/submissions/mine`.
+- Each submission response includes the SHA-256 digest of the exact assessment rubric. Human review records carry the same rubric digest alongside normalized rubric scores, binding feedback to the immutable course-version rubric.
+- Reviews are append-only. A review may change the submission's current workflow status, but the review history is retained. Review acceptance does not automatically update mastery or qualify a mathematical proof.
 
 ## Evidence model
 
