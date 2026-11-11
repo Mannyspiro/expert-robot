@@ -112,7 +112,7 @@ class RSIPipelineTests(unittest.TestCase):
             ingest_hermes_failure(self.ledger, record, forged)
         signed = sign_receipt("hermes", claims, "hermes-key", self.hermes_private)
         first = ingest_hermes_failure(self.ledger, record, signed)
-        replay = ingest_hermes_failure(self.ledger, record, signed, self.hermes_keys)
+        replay = ingest_hermes_failure(self.ledger, record, signed)
         self.assertEqual(first["seq"], 0)
         self.assertTrue(replay["idempotent_replay"])
         self.assertEqual(first["event_hash"], replay["event_hash"])
@@ -296,7 +296,7 @@ class RSIPipelineTests(unittest.TestCase):
         created = self.ledger.record_candidate(
             candidate_id=candidate_id, parent_candidate_id=None,
             source_receipt=signed_source, artifact_sha256=ARTIFACT,
-            generator="rsi", mutation={"origin": "hermes-failure"}
+            generator="rsi", mutation={"origin": "hermes-failure"},
             induction_seed_event_hash=seed["event_hash"],
         )
         payload = json.loads(self.ledger.events(candidate_id)[0]["payload"])
