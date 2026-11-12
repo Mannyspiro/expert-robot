@@ -359,7 +359,7 @@ class RSIPipelineTests(unittest.TestCase):
             "claim_id": candidate,
             "bundle_sha256": bundle_sha,
             "created_at_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "purpose": "independent-reproduction",
+            "purpose": "artifact-integrity",
             "bindings": bindings,
         }
         signing_bytes = rsi._CACE_ATTESTATION_DOMAIN + rsi.canonical_json(statement)
