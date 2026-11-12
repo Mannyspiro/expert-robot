@@ -734,7 +734,7 @@ def ingest_hermes_failure(
     if existing:
         seed_row = next((row for row in existing if row["event_type"] == "rsi.induction_seeded"), None)
         seed = json.loads(seed_row["payload"]) if seed_row else None
-        if seed and seed.get("source_receipt_digest") == receipt.receipt_digest:
+        if seed and seed.get("record_sha256") == record_sha256:
             return {"seq": seed_row["sequence"], "event_hash": seed_row["event_hash"],
                     "episode_id": episode_id, "idempotent_replay": True}
         raise PermissionError("Hermes event ID replayed with different evidence")
