@@ -20,6 +20,7 @@ struct MappingResult {
     MappingClass mapping_class{MappingClass::NoMatch};
     std::map<std::string, std::string> node_mapping;
     double node_coverage{0.0}, edge_coverage{0.0}, invariant_coverage{0.0};
+    std::size_t search_states{0};
     std::vector<std::string> preserved_invariants, unmatched_source_edges;
     UnitStatus source_unit_status{UnitStatus::Unchecked}, target_unit_status{UnitStatus::Unchecked};
     std::vector<std::string> caveats;
@@ -99,6 +100,7 @@ public:
             }
         };
         search(search, 0);
+        result.search_states = states;
         if (!found) {
             result.caveats.emplace_back(states >= limits_.max_search_states
                 ? "Search-state budget exhausted; no-match conclusion is inconclusive"
@@ -129,6 +131,8 @@ public:
         else if (source.unit_status == UnitStatus::Unchecked || target.unit_status == UnitStatus::Unchecked)
             result.caveats.emplace_back("Dimensional validation is incomplete; structural matching is not physical validation");
         result.caveats.emplace_back("Structural matching is a candidate correspondence, not proof of physical or mathematical equivalence");
+        result.caveats.emplace_back("Unit status is caller-supplied; this matcher does not independently derive dimensional consistency");
+        result.caveats.emplace_back("Invariant identifier overlap is a retrieval hint, not proof that invariant statements are equivalent");
         return result;
     }
 private:
