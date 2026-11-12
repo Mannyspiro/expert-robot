@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <iterator>
 #include <cstddef>
 #include <stdexcept>
 #include <string>
@@ -179,8 +180,8 @@ public:
         if (std::abs(sum - 1.0) > sum_tolerance) {
             throw std::invalid_argument("barycentric coordinates must sum to one");
         }
-        if (!vertex_compatibility().compatible) {
-            throw std::logic_error("cannot extend a vertex-incompatible boundary");
+        if (classify_affine_extension() != ExtensionClass::AffineExtension) {
+            throw std::logic_error("boundary is not compatible with an affine extension");
         }
         const StatePair a = ab_.start();
         const StatePair b = ab_.end();
