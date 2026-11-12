@@ -2,7 +2,6 @@
 
 #include <functional>
 #include <stdexcept>
-#include <unordered_set>
 #include <utility>
 
 namespace expert_robot::mmir {
@@ -19,11 +18,19 @@ void OperatorRegistry::add(OperatorSpec spec) {
         spec.output_type.empty() || spec.semantic_definition.empty()) {
         throw std::invalid_argument("operator identity, glyph, output type, and semantics are required");
     }
-    if (spec.min_arity > spec.max_arity) {
-        throw std::invalid_argument("operator minimum arity exceeds maximum arity");
+    if (spec.min_arity == 0 || spec.min_arity > spec.max_arity) {
+        throw std::invalid_argument("operator arity must have a positive minimum not exceeding its maximum");
     }
-    if (spec.input_types.empty()) {
-        throw std::invalid_argument("operator must declare at least one input type");
+    // One input type denotes a homogeneous operator of any declared arity.
+    // Otherwise, the signature must specify one type for every possible slot.
+    if (spec.input_types.empty() ||
+        (spec.input_types.size() != 1 && spec.input_types.size() != spec.max_arity)) {
+        throw std::invalid_argument("input signature must be homogeneous (one type) or positional (max_arity types)");
+    }
+    if (spec.verification_status != "specified" &&
+        spec.verification_status != "conjectural" &&
+        spec.verification_status != "unqualified") {
+        throw std::invalid_argument("verification_status must be specified, conjectural, or unqualified");
     }
     if (by_id_.contains(spec.id)) {
         throw std::invalid_argument("duplicate operator id: " + spec.id);
