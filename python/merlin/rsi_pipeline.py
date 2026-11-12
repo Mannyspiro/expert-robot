@@ -282,9 +282,35 @@ def verify_cace_attestation(
     if statement.get("bundle_sha256") != expected_bundle_sha256:
         raise PermissionError("CACE evidence bundle digest mismatch")
     bindings = statement.get("bindings")
-    if (not isinstance(bindings, Mapping) or set(bindings) != set(expected_bindings)
-        or any(bindings.get(k) != v for k, v in expected_bindings.items())):
+    if not isinstance(bindings, Mapping):
+        raise PermissionError("CACE attestation bindings are malformed")
+    signed_bindings = dict(bindings)
+    runner_provenance = signed_bindings.pop("cace_runner_provenance", None)
+    if (set(signed_bindings) != set(expected_bindings)
+        or any(signed_bindings.get(k) != v for k, v in expected_bindings.items())):
         raise PermissionError("CACE attestation bindings do not match candidate evidence")
+    if statement.get("purpose") == "independent-reproduction":
+        required_provenance = {
+            "schema", "repository", "run_id", "workflow_path", "workflow_commit",
+            "runner_name", "job_id", "artifact_sha256", "source_repo",
+            "source_commit", "benchmark_manifest_sha256",
+        }
+        if (not isinstance(runner_provenance, Mapping)
+            or set(runner_provenance) != required_provenance
+            or runner_provenance.get("schema") != "cace-oci-run-provenance-v1"
+            or runner_provenance.get("repository") != "morganaspim/Cace-app"
+            or runner_provenance.get("workflow_path") != ".github/workflows/merlin-oci-job-gateway.yml"
+            or runner_provenance.get("runner_name") != "cace-oci-a1"
+            or runner_provenance.get("source_repo") != expected_bindings.get("source_repo")
+            or runner_provenance.get("source_commit") != expected_bindings.get("source_commit")
+            or runner_provenance.get("benchmark_manifest_sha256") != expected_bindings.get("benchmark_manifest_sha256")
+            or not isinstance(runner_provenance.get("run_id"), int)
+            or not isinstance(runner_provenance.get("job_id"), int)
+            or not _is_sha256(runner_provenance.get("artifact_sha256"))
+            or not re.fullmatch(r"[0-9a-f]{40}", str(runner_provenance.get("workflow_commit", "")))):
+            raise PermissionError("CACE independent-reproduction attestation lacks valid OCI run provenance")
+    elif runner_provenance is not None:
+        raise PermissionError("artifact-integrity attestation cannot claim runner reproduction")
     created_text = str(statement.get("created_at_utc", ""))
     created = datetime.strptime(created_text, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
     current = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
