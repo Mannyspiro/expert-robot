@@ -514,8 +514,14 @@ class AppendOnlyLedger:
                     previous_event_hash,event_hash) VALUES (?,?,?,?,?,?,?)""",
                 (entity_id, sequence, event_type, payload_text, payload_hash,
                  previous, event_hash))
-            return {"seq": sequence, "event_id": event_hash[:32],
-                    "event_hash": event_hash, "episode_id": entity_id}
+            return {
+                **dict(payload),
+                "seq": sequence,
+                "event_id": event_hash[:32],
+                "event_hash": event_hash,
+                "episode_id": entity_id,
+                "event_type": event_type,
+            }
 
     def events(self, episode_id: str) -> list[dict[str, Any]]:
         with self._connect() as db:
