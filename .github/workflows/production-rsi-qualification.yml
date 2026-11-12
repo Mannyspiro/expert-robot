@@ -9,7 +9,7 @@ permissions:
   contents: read
 
 concurrency:
-  # One repository-wide heavy lane prevents aggregate Avrea compute from
+  # One repository-wide heavy lane prevents aggregate Namespace compute from
   # exceeding the approved ceiling. Newer releases may supersede only pending,
   # not running, work.
   group: expert-robot-avrea-heavy-v2
@@ -23,6 +23,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install Merlin native build toolchain
+        uses: ./.github/actions/setup-merlin-native
       - name: Validate shell syntax
         run: bash -n scripts/*.sh
 
@@ -111,6 +113,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install Merlin native build toolchain
+        uses: ./.github/actions/setup-merlin-native
       - name: Build pinned Lean package
         uses: leanprover/lean-action@v1
         env:
