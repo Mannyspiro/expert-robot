@@ -30,7 +30,7 @@ jobs:
       - name: Configure
         run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
       - name: Build focused target
-        run: cmake --build build --target continuum_simplex_smoke --parallel 2
+        run: cmake --build build --target continuum_simplex_smoke simplicial_complex_smoke --parallel 2
       - name: Run focused regression
         run: ctest --test-dir build -R '^(continuum_simplex_smoke|simplicial_complex_smoke)
  --output-on-failure
