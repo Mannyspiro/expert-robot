@@ -855,6 +855,7 @@ class AppendOnlyLedger:
             "verifier_id": verified["verifier_id"],
             "verifier_key_id": verified["verifier_key_id"],
             "purpose": verified["purpose"],
+            "runner_provenance": verified.get("runner_provenance"),
             "authority": "verification-only",
         })
 
@@ -1031,6 +1032,7 @@ class AppendOnlyLedger:
             "suite_sha256": suite_sha256, "bundle_sha256": bundle_sha,
             "cace_attestation_sha256": verified["attestation_sha256"],
             "cace_attestation_purpose": verified["purpose"],
+            "cace_runner_provenance": verified.get("runner_provenance"),
             "approval_receipt_digest": approval_receipt.receipt_digest,
             "promotion_authority": "explicit-signed-approval",
         })
