@@ -49,7 +49,7 @@ concurrency:
 
 jobs:
   learning-platform:
-    runs-on: ubuntu-latest
+    runs-on: namespace-profile-merlin
     timeout-minutes: 15
     steps:
       - name: Checkout exact PR head
