@@ -195,3 +195,38 @@ fingerprint is delivered through the independently controlled CACE trust-store
 channel. The Hermes,
 source, evaluator, worker, approver, and CACE trust-store environment values
 are not provisioned by this code change. No production promotion has occurred.
+
+### Cross-repository CACE verifier qualification (2026-11-12)
+
+Cace-app PR #93 adds `ops/oci_mcp/merlin_rsi_verifier.py` and
+`tests/test_merlin_rsi_cace_verifier.py`. The verifier delegates canonical
+bundle parsing, artifact hashing, and Ed25519 signature validation to CACE's
+own `cace_studio.core.evidence_ledger` and `cace_studio.core.attestation`
+implementations. It checks the exact candidate ID, complete expected bindings,
+active digest-pinned CACE key, independent-reproduction purpose, and supplied
+artifact bytes (10 MiB aggregate cap). Its return value is explicitly
+`authority=verification-only` and `proof_effect=none`.
+
+The CACE collaboration-validation workflow explicitly runs
+`tests/test_merlin_rsi_cace_verifier.py`; run 43125343110 completed successfully
+on `cace-oci-a1`. The test exercises valid CACE-native bundle/attestation
+verification, missing or tampered trust stores, unpinned keys, claim/binding
+mismatch, wrong purpose, altered artifact bytes, and size limits. This is
+CACE-side implementation and regression evidence, not evidence that a live
+Expert Robot candidate has already been submitted to a deployed CACE verifier.
+
+The current CACE verifier source blob is
+`16f73820c21bc41b0759b5d3179859f727afa41c`; its regression test blob is
+`d24e2d4014874dc195cc2d9313b2e29b0c2ff5bf`. The workflow file explicitly
+includes that test. Cace-app PR #93 remains open and targets the OCI inventory
+qualification branch; it is not merged into the CACE default branch.
+
+**Promotion boundary remains unchanged:** the Expert Robot pipeline can
+validate an independently signed CACE attestation against its pinned key and
+then require a separate signed `merlin-approver` receipt. However, no live
+CACE-signed attestation or production verifier execution receipt for an actual
+Expert Robot candidate has been received. The read-only OCI MCP surface still
+does not expose the verifier or signing operation, and the CACE signing key
+has not been provisioned to a production transport. Until that exists, no
+candidate may be promoted. The successful CACE regression suite is not a
+substitute for a live cross-repository evidence receipt.
