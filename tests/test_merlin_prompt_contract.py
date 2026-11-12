@@ -1,3 +1,4 @@
+import base64
 import hashlib
 import json
 import tempfile
@@ -5,10 +6,68 @@ import unittest
 from dataclasses import replace
 from pathlib import Path
 
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+
 from merlin.cace_adapter import CaceVerificationAdapter
 from merlin.event_outbox import MerlinEventOutbox
 from merlin.project_registry import MerlinRegistry
 from merlin.prompt_contract import (CompiledPrompt, PromptCaceEvidenceBridge, PromptCompiler, PromptOutboxPublisher, PromptResult, PromptResultReceiver, PromptTask)
+
+
+
+_TEST_PRIVATE_KEY = Ed25519PrivateKey.from_private_bytes(bytes(range(32)))
+_TEST_PUBLIC_PEM = _TEST_PRIVATE_KEY.public_key().public_bytes(
+    encoding=serialization.Encoding.PEM,
+    format=serialization.PublicFormat.SubjectPublicKeyInfo,
+).decode("ascii")
+_TEST_RAW_PUBLIC = _TEST_PRIVATE_KEY.public_key().public_bytes(
+    encoding=serialization.Encoding.Raw,
+    format=serialization.PublicFormat.Raw,
+)
+_TEST_KEY_ID = "ed25519:" + hashlib.sha256(_TEST_RAW_PUBLIC).hexdigest()
+_TEST_TRUST = {
+    _TEST_KEY_ID: {
+        "verifier_id": "cace:independent-artifact-checker",
+        "public_key_pem": _TEST_PUBLIC_PEM,
+    }
+}
+_CACE_DOMAIN = b"CACE:SIGNED-ATTESTATION:v1\0"
+
+
+def _signed_artifact_attestation(request):
+    statement = {
+        "schema": "cace-attestation-statement-v1",
+        "signature_algorithm": "ed25519",
+        "proof_effect": "none",
+        "verifier_id": "cace:independent-artifact-checker",
+        "verifier_key_id": _TEST_KEY_ID,
+        "claim_id": "artifact:" + request["artifact_kind"],
+        "bundle_sha256": request["artifact_sha256"],
+        "created_at_utc": "2026-11-11T00:00:00Z",
+        "purpose": "artifact-integrity",
+        "bindings": {
+            key: request[key]
+            for key in (
+                "repository", "commit_sha", "artifact_kind",
+                "artifact_schema", "logical_path", "tool_identity",
+            )
+        },
+    }
+    signing_bytes = _CACE_DOMAIN + json.dumps(
+        statement, sort_keys=True, separators=(",", ":"), ensure_ascii=False
+    ).encode("utf-8")
+    return {
+        "schema": "cace-signed-attestation-v1",
+        "signature_algorithm": "ed25519",
+        "proof_effect": "none",
+        "statement_sha256": hashlib.sha256(signing_bytes).hexdigest(),
+        "statement": statement,
+        "public_key_pem": _TEST_PUBLIC_PEM,
+        "signature_b64": base64.b64encode(
+            _TEST_PRIVATE_KEY.sign(signing_bytes)
+        ).decode("ascii"),
+    }
 
 
 def make_task(**overrides):
@@ -223,12 +282,14 @@ class PromptContractTests(unittest.TestCase):
                     "artifact_kind": request["artifact_kind"],
                     "artifact_schema": request["artifact_schema"],
                     "logical_path": request["logical_path"],
+                    "tool_identity": request["tool_identity"],
                     "verifier_id": "cace:independent-artifact-checker",
                     "source_commit_verified": True,
                     "artifact_digest_verified": True,
                     "artifact_schema_validated": True,
                     "artifact_content_verified": True,
                     "verification_status": "verified",
+                    "signed_attestation": _signed_artifact_attestation(request),
                 }
                 body = json.dumps(
                     receipt, sort_keys=True, separators=(",", ":"), ensure_ascii=False
@@ -237,7 +298,8 @@ class PromptContractTests(unittest.TestCase):
                 return receipt
 
             cace = CaceVerificationAdapter(
-                verify_transport=transport, registry=registry, outbox=outbox
+                verify_transport=transport, registry=registry, outbox=outbox,
+                trusted_verifier_keys=_TEST_TRUST,
             )
             compiled = PromptCompiler().compile(make_task(
                 source_repository="Mannyspiro/expert-robot",
@@ -250,6 +312,7 @@ class PromptContractTests(unittest.TestCase):
                     "logical_path": "results/result.json",
                     "artifact_kind": "research_result",
                     "artifact_schema": "merlin-research-result/1",
+                    "tool_identity": "hermes.research-worker@1",
                 }},
             )
             verified = PromptCaceEvidenceBridge(cace).verify_artifacts(
