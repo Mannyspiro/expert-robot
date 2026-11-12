@@ -27,7 +27,9 @@ output type, namespace, and semantic definition.
 - `ExpressionGraph`: typed nodes and operand dependencies.
 - `validate`: unknown operator, arity, input/output type, missing operand,
   and implicit-cycle checks.
-- `MathType`: SI base-dimension exponents and display unit.
+- `MathType`: SI base-dimension exponents, display unit, and positive scale-to-SI factor.
+- Dimensional algebra: multiplication, division, integer powers, dimension
+  comparison, and safe conversion between compatible linear units.
 
 ## Next increments
 
@@ -56,3 +58,13 @@ signature must declare one type for every possible operand slot. Accepted
 local statuses are `specified`, `conjectural`, and `unqualified`; formal or
 numerical qualification must arrive through separate evidence records rather
 than a registry string.
+
+
+## Dimensional model boundaries
+
+The current unit model supports multiplicative linear conversions only. It
+does not model affine units such as degrees Celsius, logarithmic units such as
+decibels, contextual currencies, or uncertainty intervals. Dimension vectors
+use integer SI exponents in this increment; rational exponents are deferred.
+Conversion rejects non-finite values, invalid scales, and incompatible
+dimensions rather than guessing.
