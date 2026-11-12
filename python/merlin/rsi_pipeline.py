@@ -327,6 +327,132 @@ def verify_cace_attestation(
     }
 
 
+class CaceMcpAttestor:
+    """Loopback-only MCP client for the CACE OCI attestation service."""
+
+    def __init__(self, endpoint: str = "http://127.0.0.1:8765/mcp", timeout: float = 12.0):
+        from urllib.parse import urlsplit
+        parsed = urlsplit(endpoint)
+        if (parsed.scheme != "http" or parsed.hostname not in {"127.0.0.1", "localhost"}
+            or parsed.path != "/mcp" or parsed.query or parsed.fragment
+            or parsed.username or parsed.password):
+            raise ValueError("CACE MCP endpoint must be loopback HTTP at /mcp")
+        self.endpoint = endpoint
+        self.timeout = max(1.0, min(float(timeout), 30.0))
+        self.protocol_version = "2025-03-26"
+        self.session_id: str | None = None
+        self._request_id = 0
+
+    def _rpc(self, method: str, params: Mapping[str, Any] | None = None) -> dict[str, Any]:
+        import urllib.request
+        self._request_id += 1
+        request_id = self._request_id if method != "notifications/initialized" else None
+        payload: dict[str, Any] = {"jsonrpc": "2.0", "method": method}
+        if request_id is not None:
+            payload["id"] = request_id
+        if params is not None:
+            payload["params"] = dict(params)
+        headers = {
+            "Content-Type": "application/json",
+            "Accept": "application/json, text/event-stream",
+            "MCP-Protocol-Version": self.protocol_version,
+        }
+        if self.session_id:
+            headers["Mcp-Session-Id"] = self.session_id
+        request = urllib.request.Request(
+            self.endpoint, data=json.dumps(payload).encode("utf-8"),
+            headers=headers, method="POST",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=self.timeout) as response:
+                body = response.read(1_000_001)
+                if len(body) > 1_000_000:
+                    raise RuntimeError("CACE MCP response exceeded the 1 MB limit")
+                content_type = response.headers.get("Content-Type", "")
+                self.session_id = response.headers.get("Mcp-Session-Id", self.session_id)
+        except Exception as exc:
+            raise RuntimeError(f"CACE MCP request failed: {type(exc).__name__}") from None
+        if not body:
+            return {}
+        text_body = body.decode("utf-8", errors="strict")
+        if "text/event-stream" in content_type:
+            messages: list[dict[str, Any]] = []
+            current: list[str] = []
+            for line in text_body.splitlines():
+                if line.startswith("data:"):
+                    current.append(line[5:].lstrip())
+                elif not line and current:
+                    joined = "\n".join(current)
+                    current = []
+                    if joined and joined != "[DONE]":
+                        item = json.loads(joined)
+                        if isinstance(item, dict):
+                            messages.append(item)
+            if current:
+                joined = "\n".join(current)
+                if joined and joined != "[DONE]":
+                    item = json.loads(joined)
+                    if isinstance(item, dict):
+                        messages.append(item)
+            message = next((item for item in messages if item.get("id") == request_id), None)
+            if message is None and messages:
+                message = messages[-1]
+            if message is None:
+                raise RuntimeError("CACE MCP SSE response contained no JSON-RPC result")
+        else:
+            message = json.loads(text_body)
+        if not isinstance(message, dict) or message.get("error"):
+            raise RuntimeError("CACE MCP returned a JSON-RPC error")
+        result = message.get("result")
+        return result if isinstance(result, dict) else {}
+
+    def attest(
+        self, *, bundle_payload: Mapping[str, Any], expected_claim_id: str,
+        expected_bindings: Mapping[str, Any], artifact_bytes_b64: Mapping[str, str],
+    ) -> dict[str, Any]:
+        initialized = self._rpc("initialize", {
+            "protocolVersion": self.protocol_version,
+            "capabilities": {},
+            "clientInfo": {"name": "merlin-rsi-pipeline", "version": "1.0.0"},
+        })
+        negotiated = initialized.get("protocolVersion")
+        if not isinstance(negotiated, str) or not negotiated:
+            raise RuntimeError("CACE MCP initialize response omitted protocolVersion")
+        self.protocol_version = negotiated
+        self._rpc("notifications/initialized")
+        result = self._rpc("tools/call", {
+            "name": "attest_merlin_rsi_bundle",
+            "arguments": {
+                "bundle_payload": dict(bundle_payload),
+                "expected_claim_id": expected_claim_id,
+                "expected_bindings": dict(expected_bindings),
+                "artifact_bytes_b64": dict(artifact_bytes_b64),
+            },
+        })
+        if result.get("isError") is True:
+            raise PermissionError("CACE MCP refused the RSI evidence attestation")
+        structured = result.get("structuredContent")
+        if not isinstance(structured, Mapping):
+            for item in result.get("content", []):
+                if isinstance(item, Mapping) and item.get("type") == "text":
+                    try:
+                        parsed = json.loads(str(item.get("text", "")))
+                    except ValueError:
+                        continue
+                    if isinstance(parsed, Mapping):
+                        structured = parsed
+                        break
+        if not isinstance(structured, Mapping):
+            raise RuntimeError("CACE MCP attestor returned no structured attestation")
+        response = dict(structured)
+        if (response.get("purpose") != "artifact-integrity"
+            or response.get("proof_effect") != "none"
+            or response.get("authority") != "verification-only"
+            or not isinstance(response.get("attestation"), Mapping)):
+            raise PermissionError("CACE MCP attestation response violates the verification-only contract")
+        return response
+
+
 class AppendOnlyLedger:
     """Adapter over the canonical C++ ResearchEpisodeLedger SQLite schema."""
 
