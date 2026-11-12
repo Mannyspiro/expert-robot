@@ -1,0 +1,34 @@
+name: Setup Merlin native build dependencies
+description: Install the minimal C++ and SQLite toolchain required by Expert Robot builds.
+runs:
+  using: composite
+  steps:
+    - name: Ensure CMake, Ninja, C++, SQLite and ccache are available
+      shell: bash
+      run: |
+        set -euo pipefail
+        missing=0
+        for tool in cmake ninja c++; do
+          command -v "$tool" >/dev/null 2>&1 || missing=1
+        done
+        if ! command -v pkg-config >/dev/null 2>&1; then missing=1; fi
+        if [ "$missing" -eq 1 ] || ! dpkg-query -W -f='${Status}' libsqlite3-dev 2>/dev/null | grep -q 'install ok installed'; then
+          if ! command -v apt-get >/dev/null 2>&1; then
+            echo "::error::Native toolchain is incomplete and apt-get is unavailable."
+            exit 1
+          fi
+          if [ "$(id -u)" -eq 0 ]; then
+            SUDO=()
+          elif command -v sudo >/dev/null 2>&1; then
+            SUDO=(sudo)
+          else
+            echo "::error::Native toolchain is incomplete and sudo is unavailable."
+            exit 1
+          fi
+          "${SUDO[@]}" apt-get update
+          "${SUDO[@]}" env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends build-essential cmake ninja-build libsqlite3-dev pkg-config ccache
+        fi
+        cmake --version
+        ninja --version
+        c++ --version
+        pkg-config --modversion sqlite3
