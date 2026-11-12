@@ -72,7 +72,7 @@ class SQLiteMetadataCache:
     """Persistent TTL cache; expired rows are refreshed, never treated as hits."""
 
     def __init__(self, path: str | Path, now: Callable[[], float] = time.time):
-        self._path = str(path)
+        self._path = str(Path(path).expanduser())
         parent = Path(self._path).parent
         if str(parent) not in ("", "."):
             parent.mkdir(parents=True, exist_ok=True)
