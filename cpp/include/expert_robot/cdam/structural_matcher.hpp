@@ -1,6 +1,7 @@
 #pragma once
 #include "expert_robot/cdam/usr.hpp"
 #include <algorithm>
+#include <cstddef>
 #include <map>
 #include <stdexcept>
 #include <string>
@@ -83,7 +84,8 @@ public:
             for (const auto& candidate : target.nodes) {
                 if (used_targets.contains(candidate.id) ||
                     !detail::compatible_signature(source, current, target, candidate)) continue;
-                bool compatible = true;
+                bool compatible = detail::relations_between(source, current.id, current.id) ==
+                                  detail::relations_between(target, candidate.id, candidate.id);
                 for (const auto& [mapped_source, mapped_target] : mapping) {
                     if (detail::relations_between(source, current.id, mapped_source) !=
                             detail::relations_between(target, candidate.id, mapped_target) ||
