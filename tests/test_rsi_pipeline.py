@@ -818,14 +818,14 @@ class RSIPipelineTests(unittest.TestCase):
     def test_cace_bundle_digest_matches_pinned_oci_implementation(self):
         actual = rsi.cace_rsi_bundle_sha256(
             candidate_id="merlin-rsi-bridge-contract-test-1",
-            candidate_digest="a" * 64,
+            candidate_digest=ARTIFACT,
             benchmark_manifest_sha256="b" * 64,
             evaluator_receipt_sha256="c" * 64,
             source_repo="Mannyspiro/expert-robot",
             source_commit="d" * 40,
             candidate_artifact_bytes=ARTIFACT_BYTES,
         )
-        self.assertEqual(actual, "TO_BE_RECOMPUTED")
+        self.assertEqual(actual, "842afc373bce4b2c883c0455bf2169b034bba33629c653c2de80b5957c28fadd")
 
     def test_arxiv_metadata_cache_parses_atom_and_uses_cached_response(self):
         cache = ResearchMetadataCache(self.db_path)
