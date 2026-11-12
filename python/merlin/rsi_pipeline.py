@@ -335,6 +335,19 @@ class AppendOnlyLedger:
                 CREATE TRIGGER IF NOT EXISTS research_episode_events_no_delete
                 BEFORE DELETE ON research_episode_events
                 BEGIN SELECT RAISE(ABORT, 'append-only research episode ledger'); END;
+                CREATE TABLE IF NOT EXISTS rsi_artifacts (
+                    artifact_sha256 TEXT PRIMARY KEY,
+                    media_type TEXT NOT NULL,
+                    artifact_bytes BLOB NOT NULL,
+                    size_bytes INTEGER NOT NULL,
+                    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+                );
+                CREATE TRIGGER IF NOT EXISTS rsi_artifacts_no_update
+                BEFORE UPDATE ON rsi_artifacts
+                BEGIN SELECT RAISE(ABORT, 'append-only RSI artifact store'); END;
+                CREATE TRIGGER IF NOT EXISTS rsi_artifacts_no_delete
+                BEFORE DELETE ON rsi_artifacts
+                BEGIN SELECT RAISE(ABORT, 'append-only RSI artifact store'); END;
             """)
 
     def _connect(self):
@@ -382,6 +395,49 @@ class AppendOnlyLedger:
                 (episode_id,)).fetchall()
         return [dict(row) for row in rows]
 
+    def events_by_type(self, event_type: str) -> list[dict[str, Any]]:
+        if not isinstance(event_type, str) or not event_type.strip():
+            raise ValueError("event_type is required")
+        with self._connect() as db:
+            rows = db.execute(
+                "SELECT * FROM research_episode_events WHERE event_type=? "
+                "ORDER BY recorded_at,episode_id,sequence", (event_type,)).fetchall()
+        return [dict(row) for row in rows]
+
+    def store_artifact(self, artifact_bytes: bytes, *, expected_sha256: str | None = None,
+                       media_type: str = "application/octet-stream") -> dict[str, Any]:
+        if not isinstance(artifact_bytes, (bytes, bytearray)):
+            raise ValueError("artifact_bytes must be bytes")
+        raw = bytes(artifact_bytes)
+        digest = sha256_hex(raw)
+        if expected_sha256 is not None and digest != expected_sha256:
+            raise ValueError("artifact bytes do not match the declared SHA-256")
+        if not isinstance(media_type, str) or not media_type.strip() or len(media_type) > 128:
+            raise ValueError("media_type must be a bounded non-empty string")
+        with self._connect() as db:
+            db.execute("INSERT OR IGNORE INTO rsi_artifacts "
+                       "(artifact_sha256,media_type,artifact_bytes,size_bytes) VALUES (?,?,?,?)",
+                       (digest, media_type, sqlite3.Binary(raw), len(raw)))
+            row = db.execute("SELECT artifact_bytes,media_type,size_bytes FROM rsi_artifacts "
+                             "WHERE artifact_sha256=?", (digest,)).fetchone()
+            if row is None or bytes(row["artifact_bytes"]) != raw:
+                raise RuntimeError("content-addressed artifact collision or persistence failure")
+        return {"artifact_sha256": digest, "media_type": media_type, "size_bytes": len(raw)}
+
+    def get_artifact(self, artifact_sha256: str) -> dict[str, Any] | None:
+        if not _is_sha256(artifact_sha256):
+            raise ValueError("artifact_sha256 must be lowercase SHA-256")
+        with self._connect() as db:
+            row = db.execute("SELECT artifact_bytes,media_type,size_bytes FROM rsi_artifacts "
+                             "WHERE artifact_sha256=?", (artifact_sha256,)).fetchone()
+        if row is None:
+            return None
+        raw = bytes(row["artifact_bytes"])
+        if sha256_hex(raw) != artifact_sha256 or len(raw) != row["size_bytes"]:
+            raise RuntimeError("stored artifact integrity check failed")
+        return {"artifact_bytes": raw, "media_type": row["media_type"],
+                "size_bytes": row["size_bytes"], "artifact_sha256": artifact_sha256}
+
     def _candidate_event(self, episode_id: str, event_type: str,
                          candidate_id: str) -> dict[str, Any] | None:
         for row in self.events(episode_id):
@@ -427,6 +483,9 @@ class AppendOnlyLedger:
         generator: str, mutation: Mapping[str, Any],
         episode_id: str | None = None,
         induction_seed_event_hash: str | None = None,
+        induction_seed_event_hashes: list[str] | None = None,
+        artifact_bytes: bytes | None = None,
+        artifact_media_type: str = "application/json",
     ) -> dict[str, Any]:
         episode = episode_id or candidate_id
         if not _is_sha256(artifact_sha256):
@@ -434,18 +493,28 @@ class AppendOnlyLedger:
         if not candidate_id or not generator:
             raise ValueError("candidate_id and generator are required")
         required = {"candidate_id": candidate_id, "artifact_sha256": artifact_sha256}
+        seed_hashes = list(induction_seed_event_hashes or [])
         if induction_seed_event_hash is not None:
-            if not _is_sha256(induction_seed_event_hash):
-                raise ValueError("induction_seed_event_hash must be lowercase SHA-256")
+            seed_hashes.append(induction_seed_event_hash)
+        if len(seed_hashes) > 100 or any(not _is_sha256(value) for value in seed_hashes):
+            raise ValueError("induction seed hashes must be lowercase SHA-256 values")
+        seed_hashes = sorted(set(seed_hashes))
+        if seed_hashes:
             with self._connect() as db:
-                seed = db.execute(
-                    "SELECT episode_id FROM research_episode_events "
-                    "WHERE event_hash=? AND event_type='rsi.induction_seeded'",
-                    (induction_seed_event_hash,),
-                ).fetchone()
-            if seed is None:
-                raise ValueError("candidate induction seed is absent from authenticated Hermes failure history")
-            required["induction_seed_event_hash"] = induction_seed_event_hash
+                for seed_hash in seed_hashes:
+                    seed = db.execute(
+                        "SELECT episode_id FROM research_episode_events "
+                        "WHERE event_hash=? AND event_type='rsi.induction_seeded'",
+                        (seed_hash,),
+                    ).fetchone()
+                    if seed is None:
+                        raise ValueError("candidate induction seed is absent from authenticated Hermes failure history")
+            required["induction_seed_event_hashes"] = seed_hashes
+        artifact_info = None
+        if artifact_bytes is not None:
+            artifact_info = self.store_artifact(
+                artifact_bytes, expected_sha256=artifact_sha256,
+                media_type=artifact_media_type)
         if not verify_signed_receipt(source_receipt, _load_issuer_trusted_keys("merlin-source"),
             expected_issuer="merlin-source", expected_claims=required):
             raise PermissionError("candidate source receipt is missing, untrusted, or mismatched")
@@ -468,6 +537,8 @@ class AppendOnlyLedger:
             "source_repo": source_repo, "source_commit": source_commit,
             "artifact_sha256": artifact_sha256, "generator": generator,
             "induction_seed_event_hash": induction_seed_event_hash,
+            "induction_seed_event_hashes": seed_hashes,
+            "artifact_storage": artifact_info,
             "mutation": dict(mutation),
         })
 
@@ -614,22 +685,50 @@ def ingest_hermes_failure(
     ledger: AppendOnlyLedger, record: Mapping[str, Any],
     receipt: SignedReceipt,
 ) -> dict[str, Any]:
-    """Authenticate a Hermes failure and append an idempotent RSI induction seed."""
+    """Authenticate the complete Hermes failure envelope before RSI induction."""
     required_fields = ("event_id", "failure_class", "summary", "source_repo",
                        "source_commit", "artifact_sha256")
+    if record.get("schema") != "merlin-hermes-failure/2":
+        raise ValueError("unsupported Hermes failure record schema")
     if any(not record.get(k) for k in required_fields):
         raise ValueError("Hermes failure record is incomplete")
-    if not _is_git_commit(record["source_commit"]) or not _is_sha256(record["artifact_sha256"]):
+    if (not _is_git_commit(record["source_commit"])
+            or not _is_sha256(record["artifact_sha256"])):
         raise ValueError("Hermes failure must bind exact source commit and artifact SHA-256")
+    if not isinstance(record["source_repo"], str) or not re.fullmatch(
+            r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", record["source_repo"]):
+        raise ValueError("Hermes source_repo must be owner/name")
+    failure_signature = record.get("failure_signature")
+    trigger_condition = record.get("trigger_condition")
+    corrective_steps = record.get("corrective_steps", [])
+    if failure_signature is not None and (
+        not isinstance(failure_signature, str) or not failure_signature.strip()
+        or len(failure_signature) > 160
+    ):
+        raise ValueError("failure_signature must be a bounded normalized string")
+    if trigger_condition is not None and (
+        not isinstance(trigger_condition, str) or not trigger_condition.strip()
+        or len(trigger_condition) > 300
+    ):
+        raise ValueError("trigger_condition must be a bounded string")
+    if (not isinstance(corrective_steps, (list, tuple)) or len(corrective_steps) > 10
+            or any(not isinstance(step, str) or not step.strip() or len(step) > 300
+                   for step in corrective_steps)):
+        raise ValueError("corrective_steps must contain at most ten bounded non-empty strings")
+    record_sha256 = sha256_hex(canonical_json(dict(record)))
     episode_id = "rsi-induction:" + str(record["event_id"])
     claims = {
         "subject": "hermes-failure:" + str(record["event_id"]),
-        "source_repo": record["source_repo"], "source_commit": record["source_commit"],
+        "record_sha256": record_sha256,
+        "source_repo": record["source_repo"],
+        "source_commit": record["source_commit"],
         "artifact_sha256": record["artifact_sha256"],
         "failure_class": record["failure_class"],
     }
-    if not verify_signed_receipt(receipt, _load_issuer_trusted_keys("hermes"), expected_issuer="hermes",
-                                 expected_claims=claims):
+    if not verify_signed_receipt(
+        receipt, _load_issuer_trusted_keys("hermes"),
+        expected_issuer="hermes", expected_claims=claims,
+    ):
         raise PermissionError("Hermes failure lacks an authenticated source receipt")
     existing = ledger.events(episode_id)
     if existing:
@@ -641,9 +740,16 @@ def ingest_hermes_failure(
         raise PermissionError("Hermes event ID replayed with different evidence")
     return ledger.append("rsi.induction_seeded", episode_id, {
         "hermes_event_id": record["event_id"],
+        "record_sha256": record_sha256,
         "failure_class": record["failure_class"], "summary": record["summary"],
+        "failure_signature": failure_signature,
+        "trigger_condition": trigger_condition,
+        "corrective_steps": list(corrective_steps),
+        "run_id": record.get("run_id"), "task_id": record.get("task_id"),
+        "worker_id": record.get("worker_id"), "stage": record.get("stage"),
         "source_repo": record["source_repo"], "source_commit": record["source_commit"],
         "artifact_sha256": record["artifact_sha256"],
+        "source_artifact_path": record.get("source_artifact_path"),
         "source_receipt_digest": receipt.receipt_digest,
         "induction": {
             "generalize_failure": True, "generate_counterexample": True,
