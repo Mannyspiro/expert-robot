@@ -110,3 +110,42 @@ cache.
 8. Independent CACE verification is required before a separate approval can promote.
 9. Missing production keys, transports, evaluators, or artifact stores are reported
    as unavailable rather than simulated as successful.
+
+
+## Verification record — 2026-11-12
+
+The authenticated Hermes-to-RSI implementation was copied by content-addressed
+Git blob identity into a bounded CACE OCI validation workspace and executed on
+the existing `cace-oci-a1` runner.
+
+- Source repository: `Mannyspiro/expert-robot`
+- Exact source commit: `e2bdab873c566ca2d54c56932a20df7676f90de6`
+- CACE job: `43130684454`
+- Runner: `cace-oci-a1`, Oracle Linux 9.8, ARM64
+- Python: `3.9.25`
+- RSI pipeline and Hermes bridge regression suite: **22/22 passed**
+- Fixed benchmark manifest: 25 held-out cases across mathematics, Lean,
+  research, coding and engineering
+- OCI artifact digest:
+  `sha256:a80335999a8cce9abbc3cd05480e6ce0fc733bebbd2632f1f5a2e7381dd7ab25`
+- No package installation, arbitrary shell requests, or persistent host
+  mutation was performed.
+
+The suite exercises signed Hermes failure envelopes, exact source/artifact
+binding, idempotent ingestion, independent-run induction, convergence checks,
+candidate artifact persistence, CACE attestation verification, separate
+approval, append-only history, Crossref/arXiv cache integrity, and optional
+adapter qualification gates.
+
+A separate live metadata probe on the CACE OCI runner verified one real
+Crossref request and one arXiv request, then replayed both from SQLite cache.
+It confirmed two persistent provider cache rows, host-specific rate-limit
+clocks, and no duplicate network requests on cache hits. That run used source
+commit `1822a54226d9d1045769b696e264ff8f3edd7de6`; its artifact digest was
+`sha256:386570beea8a9a0a08ea49202fea8c1ab64ee3501813fd11a1cc8bf5a51cc8e5`.
+
+These are bounded validation receipts, not a claim that a production Hermes
+service is already dispatching live failures or that CACE has signed a
+candidate-specific independent-reproduction attestation. Production promotion
+still requires the live CACE verifier, a trusted CACE key, exact candidate and
+benchmark bindings, and a separate signed approval receipt.
