@@ -83,3 +83,27 @@ A successful numerical run is not a formal proof. Formal claims require Lean sou
 - 0.2f: held-out comparison against conventional notation and baseline solvers.
 
 Do not merge or mark qualified based on compilation alone. Keep each increment small, testable, and independently reviewable.
+
+## 0.2 implementation gate: runner availability
+
+The MMIR branch's CI workflow currently targets the custom runner label
+`avrea-ubuntu-latest-8-vcpu`. The GitHub Actions job metadata for the latest
+run (run `43143807743`, job `130936813986`) reports:
+
+- job status: cancelled;
+- job conclusion: cancelled;
+- runner name and runner group: empty;
+- labels requested: `avrea-ubuntu-latest-8-vcpu`;
+- no steps were created and no job logs are available.
+
+This is evidence that the job did not reach a recorded runner/step execution.
+It does not establish whether the runner is offline, a queue/dispatch service
+cancelled the job, or another external cancellation occurred. The workflow
+concurrency policy was changed to queue rather than cancel in-flight runs, but
+the subsequent run still ended before any step. Do not treat this as a C++
+build or MMIR test failure, and do not claim a passing build.
+
+**Release gate:** restore/verify dispatch for the requested Avrea runner label,
+then require a completed configure, build, and CTest run before promoting the
+MMIR implementation. Until then, code changes should remain small and their
+verification status explicitly marked pending.
