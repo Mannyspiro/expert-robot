@@ -3,6 +3,7 @@
 #include "expert_robot/json_util.hpp"
 
 #include <cstdint>
+#include <limits>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -110,8 +111,8 @@ artifacts::VerificationVerdict parse_verdict(std::string_view value) {
     throw std::invalid_argument("verdict must be 'verified' or 'rejected'");
 }
 
-std::uint64_t parse_size_bytes(const std::string& payload) {
-    const auto value = json_util::string_field(payload, "size_bytes", "0");
+std::uint64_t parse_unsigned_field(const std::string& payload, std::string_view key, std::string fallback = "0") {
+    const auto value = json_util::string_field(payload, key, fallback);
     std::size_t consumed = 0;
     const auto parsed = std::stoull(value, &consumed);
     if (consumed != value.size()) throw std::invalid_argument("size_bytes must be an unsigned integer string");
@@ -186,7 +187,7 @@ Response Runtime::handle(const Request& request) {
                 artifact.artifact_type = required_string(request.payload, "artifact_type");
                 artifact.media_type = required_string(request.payload, "media_type");
                 artifact.content_sha256 = required_string(request.payload, "content_sha256");
-                artifact.size_bytes = parse_size_bytes(request.payload);
+                artifact.size_bytes = parse_unsigned_field(request.payload, "size_bytes");
                 artifact.locator = required_string(request.payload, "locator");
                 artifact.source_repository = json_util::string_field(request.payload, "source_repository");
                 artifact.source_commit = json_util::string_field(request.payload, "source_commit");
@@ -200,6 +201,27 @@ Response Runtime::handle(const Request& request) {
                 return response;
             }
 
+            if (request.task == "list") {
+                const auto limit = parse_unsigned_field(request.payload, "limit", "50");
+                const auto offset = parse_unsigned_field(request.payload, "offset", "0");
+                if (limit > static_cast<std::uint64_t>(std::numeric_limits<std::size_t>::max()) ||
+                    offset > static_cast<std::uint64_t>(std::numeric_limits<std::size_t>::max())) {
+                    throw std::invalid_argument("artifact list pagination value is too large");
+                }
+                const auto artifacts = artifact_registry_.list(
+                    static_cast<std::size_t>(limit), static_cast<std::size_t>(offset));
+                std::ostringstream out;
+                out << "[";
+                for (std::size_t i = 0; i < artifacts.size(); ++i) {
+                    if (i != 0U) out << ",";
+                    out << artifact_json(artifacts[i]);
+                }
+                out << "]";
+                response.ok = true;
+                response.result = out.str();
+                return response;
+            }
+
             if (request.task == "get") {
                 const auto artifact_id = required_string(request.payload, "artifact_id");
                 const auto snapshot = artifact_registry_.get(artifact_id);
@@ -209,7 +231,7 @@ Response Runtime::handle(const Request& request) {
                 return response;
             }
 
-            if (request.task == "verify") {
+            if (request.task == "record_receipt") {
                 artifacts::VerificationReceiptInput receipt;
                 receipt.receipt_id = required_string(request.payload, "receipt_id");
                 receipt.artifact_id = required_string(request.payload, "artifact_id");
