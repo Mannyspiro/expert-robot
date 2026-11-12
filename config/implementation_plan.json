@@ -18,7 +18,7 @@
       "title": "Enable free reusable build caches",
       "status": "planned",
       "exit": [
-        "Avrea/GitHub cache keys documented",
+        "Namespace/GitHub cache keys documented",
         "Lean/package/build caches restore safely",
         "low-trust jobs are restore-only"
       ]
