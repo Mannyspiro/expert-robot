@@ -9,14 +9,16 @@ concurrency:
 
 jobs:
   full-qualification:
-    # Manual only: 32 vCPUs / 128 GB on Avrea. This runner is available at
-    # zero monetary cost here; reserve it for genuinely heavy work to conserve
-    # the free runner quota and avoid unnecessary churn.
+    # Manual only: use the configured Namespace Merlin profile. The profile's
+    # observed size is 8 vCPU / 16 GB class; reserve this lane for justified
+    # full qualification and keep the workflow's compute budgets bounded.
     runs-on: namespace-profile-merlin
 
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install Merlin native build toolchain
+        uses: ./.github/actions/setup-merlin-native
       - name: Detect hardware
         id: cores
         shell: bash
