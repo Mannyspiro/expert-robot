@@ -925,6 +925,46 @@ class AppendOnlyLedger:
             episode_id=episode,
         )
 
+    def record_cace_verification_from_mcp(
+        self, *, candidate_id: str, artifact_sha256: str, suite_sha256: str,
+        github_run_id: int, episode_id: str | None = None,
+        attestor: Any | None = None,
+    ) -> dict[str, Any]:
+        """Record CACE independent reproduction after verifying a completed pinned OCI run."""
+        episode = episode_id or candidate_id
+        candidate, evaluation, expected_bundle_sha, bindings = self._cace_evidence(
+            episode, candidate_id, artifact_sha256, suite_sha256
+        )
+        bundle_payload, manifest_bytes, payload_bindings = cace_rsi_bundle_payload(
+            candidate_id=candidate_id, candidate_digest=artifact_sha256,
+            benchmark_manifest_sha256=suite_sha256,
+            evaluator_receipt_sha256=evaluation["evaluator_receipt_digest"],
+            source_repo=candidate["source_repo"], source_commit=candidate["source_commit"],
+        )
+        actual_bundle_sha = sha256_hex(
+            _CACE_BUNDLE_DOMAIN + canonical_json(bundle_payload)
+        )
+        if actual_bundle_sha != expected_bundle_sha or payload_bindings != bindings:
+            raise RuntimeError("CACE bundle payload diverged from the canonical RSI evidence identity")
+        transport = attestor or CaceMcpAttestor()
+        response = transport.reproduce(
+            bundle_payload=bundle_payload,
+            expected_claim_id=candidate_id,
+            expected_bindings=bindings,
+            artifact_bytes_b64={
+                "merlin-rsi-evidence-manifest": base64.b64encode(manifest_bytes).decode("ascii")
+            },
+            github_run_id=github_run_id,
+        )
+        attestation = response.get("attestation") if isinstance(response, Mapping) else None
+        if not isinstance(attestation, Mapping):
+            raise PermissionError("CACE MCP response omitted its signed reproduction attestation")
+        return self.record_cace_verification(
+            candidate_id=candidate_id, attestation=attestation,
+            artifact_sha256=artifact_sha256, suite_sha256=suite_sha256,
+            episode_id=episode,
+        )
+
     def record_promotion(
         self, *, candidate_id: str, artifact_sha256: str,
         suite_sha256: str, attestation: Mapping[str, Any],
