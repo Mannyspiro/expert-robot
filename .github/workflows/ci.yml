@@ -126,6 +126,14 @@ jobs:
           python3 -m unittest discover -s tests -p "test_learner_model.py" -v
           python3 scripts/merlin_math_idea_validate.py
 
+      - name: Merlin mathematical discovery backend tests
+        env:
+          PYTHONPATH: python
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pytest -q tests/test_math_discovery_backends.py -v
+
       - name: Restore C++ compiler cache
         id: ccache-restore
         uses: actions/cache/restore@v4
