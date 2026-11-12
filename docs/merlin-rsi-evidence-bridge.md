@@ -156,43 +156,50 @@ artifact-verification, attestation-signing, or GitHub-runner-status operation.
 No control-plane mutations were invoked. The gateway executes only its
 allowlisted fixed profiles; it does not enable arbitrary shell commands.
 
-The current pinned RSI bridge was executed on OCI:
+The current RSI bridge and its CACE MCP verification client were executed on OCI:
 
-- Python run 43124286254, runner cace-oci-a1 (Oracle Linux 9.8, ARM64);
-- exact source commit 70269acb55093c2071f204c6b2607c11ec2ae99f;
-- 15/15 tests passed, including real Ed25519 receipt verification, trust-store
-  digest tampering and self-approval rejection, authenticated Hermes failure
-  dispatch and worker acknowledgements, candidate lineage, Crossref/arXiv
-  caching and rate limiting, CACE bundle parity, and controlled promotion gates;
-- frozen benchmark manifest: 25 cases across five domains;
-- Python 3.9.25 and preinstalled cryptography 36.0.1;
-- no package installation or persistent host mutation;
-- artifact SHA-256:
-  ded6c5796ea53f70544e6ff1f205af173dd9cbe23a292219f7c7f2e5c790e9d9.
+- run 43128435315 on cace-oci-a1 (Oracle Linux 9.8, ARM64);
+- exact Expert Robot source commit 5f03dbbea07c86b4b60e5832fa102d066d943d49;
+- Python 3.9.25; compile passed; 20/20 RSI tests passed;
+- tests include authenticated Hermes failure ingestion, signed worker ACK/idempotency,
+  append-only candidate/evaluation lineage, independent-reproduction versus
+  artifact-integrity separation, a CACE MCP verifier client contract, strict
+  separate approval for promotion, and optional adapter paired-gain gates;
+- frozen benchmark manifest SHA-256
+  543dbb105d6baf62dbfee54cdd8c7e483f2a9ab799e651dddda8066ce0f5a36f,
+  with 25 cases across mathematics, Lean, research, coding, and engineering;
+- Python compile and unit tests ran without package installation or host mutation;
+- OCI job receipt marks qualification=false and proof_implication=none.
 
-The C++ ledger profile also passed on the same source commit:
+A separate live public-metadata probe passed on OCI (run 43128150986):
 
-- run 43124335696 on cace-oci-a1;
-- both generation-lineage and research-episode C++20 smoke tests compiled
-  and executed successfully;
+- Crossref DOI 10.1038/nature12373 resolved to “Nanometre-scale thermometry in a living cell”;
+- arXiv 1706.03762 resolved to “Attention Is All You Need”;
+- exactly one HTTP request per provider; each second lookup was served from the
+  SQLite cache (two cache-hit replays);
+- response digests were persisted, and per-host request clocks were written for
+  api.crossref.org and export.arxiv.org;
+- only those two public metadata hosts were allowlisted; this is discovery
+  provenance, not mathematical proof.
+
+The C++ ledger profile passed on OCI (run 43128137652):
+
+- generation-lineage and research-episode C++20 smoke tests compiled and ran;
 - Python-to-C++ SQLite interoperability passed: Python appended a canonical
   episode and the C++ ResearchEpisodeLedger independently verified its root;
 - GCC 11.5.0 linked the runner's existing libsqlite3.so.0;
 - because the runner has no development header, the test workspace used a
-  pinned declaration-only SQLite ABI shim. This is test-only infrastructure,
-  not a production SQLite header or vendored implementation;
-- no package installation or persistent host mutation;
-- artifact SHA-256:
-  8a66907020431a550dae9ced35761ec87a96e9931f69fd86285f2502c42654a9.
+  pinned declaration-only SQLite ABI shim, not a production header or vendored
+  SQLite implementation;
+- no package installation or persistent host mutation.
 
-Separate trust-store validation profiles also passed on OCI (runs 43123886846
-and 43123913124), exercising the active CACE and issuer trust-store contracts.
-The CACE EvidenceBundle identity profile (run 43121546574) matched the pinned
-CACE implementation. Its scope remains bundle identity only.
+Earlier OCI trust-store validation profiles (runs 43123886846 and 43123913124)
+and the CACE EvidenceBundle identity profile (run 43121546574) also passed.
+Those scopes remain limited to trust-store contract and bundle identity.
 
-The Avrea build check still reports no Avrea credits, and hosted GitHub Actions
-checks have not supplied usable logs; the fixed OCI profiles are therefore the
-current execution evidence.
+The Avrea build check still reports no Avrea credits. The fixed OCI profiles
+are the current execution evidence; none of these runs is a production
+qualification or proof receipt.
 
 No live CACE artifact attestation has been obtained for an Expert Robot
 candidate. The live OCI MCP service still has no artifact-verification or
@@ -205,9 +212,10 @@ key ID. The signer creates a one-time Ed25519 identity and signs only after
 CACE verifies every bundle artifact byte. The attestation purpose is
 `artifact-integrity`, not independent mathematical reproduction; proof effect
 remains none and promotion authority remains separate. CACE regression tests
-passed on cace-oci-a1 in runs 43125343110 and 43127067362. The PR has not been
-merged or deployed, and no live signing key or trust-store entry has been
-provisioned. The RSI adapter remains fail-closed until the verifier/signer is
+passed on cace-oci-a1 in runs 43127067362, 43128003745, and 43128015130.
+The latest passing run includes the strict independent-reproduction purpose
+gate. The PR has not been deployed, and no live signing key or trust-store
+entry has been provisioned. The RSI adapter remains fail-closed until the verifier/signer is
 deployed, its CACE key is initialized, and its public-key fingerprint is pinned
 through the independently controlled CACE trust-store channel. The Hermes,
 source, evaluator, worker, approver, and CACE trust-store environment values
@@ -231,6 +239,17 @@ verification, missing or tampered trust stores, unpinned keys, claim/binding
 mismatch, wrong purpose, altered artifact bytes, and size limits. This is
 CACE-side implementation and regression evidence, not evidence that a live
 Expert Robot candidate has already been submitted to a deployed CACE verifier.
+
+Expert Robot now has a distinct `CaceMcpVerifier` client. It sends the
+exact EvidenceBundle, attestation, bindings, and artifact bytes to the
+read-only CACE MCP verifier, validates the returned bundle and attestation
+digests, and then independently repeats pinned-key verification before
+appending `candidate.cace_verified`. The artifact-integrity signer remains a
+separate endpoint and cannot satisfy this path. The fixed OCI RSI suite passed
+20/20 tests for source commit 5f03dbbea07c86b4b60e5832fa102d066d943d49
+in run 43128435315. Its CACE MCP client test uses a deterministic fake
+transport; it does not establish that the deployed OCI MCP endpoint has the
+trust store or is currently serving the new tool.
 
 The current CACE verifier source blob is
 `16f73820c21bc41b0759b5d3179859f727afa41c`; its regression test blob is
