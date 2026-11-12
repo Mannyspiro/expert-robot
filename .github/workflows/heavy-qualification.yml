@@ -12,7 +12,7 @@ jobs:
     # Manual only: 32 vCPUs / 128 GB on Avrea. This runner is available at
     # zero monetary cost here; reserve it for genuinely heavy work to conserve
     # the free runner quota and avoid unnecessary churn.
-    runs-on: avrea-ubuntu-latest-32-vcpu
+    runs-on: namespace-profile-merlin
 
     steps:
       - uses: actions/checkout@v4
