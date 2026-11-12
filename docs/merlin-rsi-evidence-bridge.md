@@ -142,33 +142,43 @@ artifact-verification, attestation-signing, or GitHub-runner-status operation.
 No control-plane mutations were invoked. The gateway executes only its
 allowlisted fixed profiles; it does not enable arbitrary shell commands.
 
-The pinned RSI Python bridge was subsequently executed on the OCI runner
-without package installation or persistent host changes:
+The current pinned RSI bridge was executed on OCI:
 
-- run 43123913124, runner cace-oci-a1 (Oracle Linux 9.8, ARM64);
-- source commit e4fcb16ced5b6ff9e2f64f73869695d640eb1c27;
-- 15/15 Python tests passed, including authenticated Hermes failure ingress,
-  candidate lineage, worker acknowledgement, Crossref/arXiv metadata caching,
-  persistent host rate limits, Ed25519 receipt checks, server-pinned issuer
-  and CACE trust registries, rejection of caller self-approval, and separate
-  signed promotion approval;
+- Python run 43124286254, runner cace-oci-a1 (Oracle Linux 9.8, ARM64);
+- exact source commit 70269acb55093c2071f204c6b2607c11ec2ae99f;
+- 15/15 tests passed, including real Ed25519 receipt verification, trust-store
+  digest tampering and self-approval rejection, authenticated Hermes failure
+  dispatch and worker acknowledgements, candidate lineage, Crossref/arXiv
+  caching and rate limiting, CACE bundle parity, and controlled promotion gates;
+- frozen benchmark manifest: 25 cases across five domains;
 - Python 3.9.25 and preinstalled cryptography 36.0.1;
-- uploaded artifact SHA-256:
-  d7b507f57910923e9055732fe4aba2f8e3d404aad3579c549b9ce0975f3293df.
+- no package installation or persistent host mutation;
+- artifact SHA-256:
+  ded6c5796ea53f70544e6ff1f205af173dd9cbe23a292219f7c7f2e5c790e9d9.
 
-A separate OCI CACE contract run (43121546574) matched the CACE EvidenceBundle
-v1 identity implementation. It produced bundle digest
-0898289d4c6267dbc8de6e595e56f8f035ad0344b65431f8deb11be0972b0272 and
-manifest digest
-75a55dcb8d863afb50f2d9614444f36424049598cb243727ba51c11795bb8c74.
-Its scope was bundle identity only, not a signed attestation or candidate
-verification.
+The C++ ledger profile also passed on the same source commit:
 
-The C++ ledger test profile was attempted on OCI (run 43122690856) but returned
-unavailable because the runner has no SQLite development header. No packages
-were installed. The Avrea build check also reports no Avrea credits; the
-dedicated hosted GitHub Actions jobs have not provided usable execution logs.
-The C++ smoke tests therefore remain unverified on a live compiler.
+- run 43124335696 on cace-oci-a1;
+- both generation-lineage and research-episode C++20 smoke tests compiled
+  and executed successfully;
+- Python-to-C++ SQLite interoperability passed: Python appended a canonical
+  episode and the C++ ResearchEpisodeLedger independently verified its root;
+- GCC 11.5.0 linked the runner's existing libsqlite3.so.0;
+- because the runner has no development header, the test workspace used a
+  pinned declaration-only SQLite ABI shim. This is test-only infrastructure,
+  not a production SQLite header or vendored implementation;
+- no package installation or persistent host mutation;
+- artifact SHA-256:
+  8a66907020431a550dae9ced35761ec87a96e9931f69fd86285f2502c42654a9.
+
+Separate trust-store validation profiles also passed on OCI (runs 43123886846
+and 43123913124), exercising the active CACE and issuer trust-store contracts.
+The CACE EvidenceBundle identity profile (run 43121546574) matched the pinned
+CACE implementation. Its scope remains bundle identity only.
+
+The Avrea build check still reports no Avrea credits, and hosted GitHub Actions
+checks have not supplied usable logs; the fixed OCI profiles are therefore the
+current execution evidence.
 
 No live CACE artifact attestation has been obtained for an Expert Robot
 candidate. The current OCI MCP surface has no artifact-verification or
