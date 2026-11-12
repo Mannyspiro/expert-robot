@@ -422,7 +422,8 @@ class AppendOnlyLedger:
                        (digest, media_type, sqlite3.Binary(raw), len(raw)))
             row = db.execute("SELECT artifact_bytes,media_type,size_bytes FROM rsi_artifacts "
                              "WHERE artifact_sha256=?", (digest,)).fetchone()
-            if row is None or bytes(row["artifact_bytes"]) != raw:
+            if (row is None or bytes(row["artifact_bytes"]) != raw
+                    or row["media_type"] != media_type or row["size_bytes"] != len(raw)):
                 raise RuntimeError("content-addressed artifact collision or persistence failure")
         return {"artifact_sha256": digest, "media_type": media_type, "size_bytes": len(raw)}
 
