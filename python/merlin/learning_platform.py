@@ -289,13 +289,21 @@ class LearningPlatform:
     def _validate_manifest(manifest: Mapping[str, Any]) -> None:
         objective_ids: set[str] = set()
         prerequisites_by_id: dict[str, list[str]] = {}
-        for objective in manifest["objectives"]:
+        objectives = manifest["objectives"]
+
+        # Collect the complete objective namespace before resolving references.
+        # Otherwise a valid prerequisite pointing to a later list item is
+        # incorrectly rejected as unknown, and cycles cannot be diagnosed.
+        for objective in objectives:
             if not isinstance(objective, dict):
                 raise ValueError("objective entries must be objects")
             oid = _required(objective.get("id"), "objective.id", 100)
             if oid in objective_ids:
                 raise ValueError("objective IDs must be unique")
             objective_ids.add(oid)
+
+        for objective in objectives:
+            oid = objective["id"]
             _required(objective.get("title"), "objective.title", 240)
             if not isinstance(objective.get("description", ""), str):
                 raise ValueError("objective description must be text")
@@ -545,7 +553,7 @@ class LearningPlatform:
             if lesson is None or not isinstance(lesson.get("exercise"), dict):
                 raise ValueError("lesson does not contain a configured exercise")
             if lesson["exercise"].get("task_id") != task_id:
-                raise ValueError("task_id does not match the selected lesson exercise")
+                raise LearningPermissionError("task_id does not match the selected lesson exercise")
             assessment = next((item for item in manifest["assessments"]
                                if item.get("objective_id") == lesson.get("objective_id")), None)
             if assessment is None:
