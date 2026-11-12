@@ -83,6 +83,7 @@ int main() {
     const auto budget_limited =
         StructuralMatcher({.max_search_states = 1}).match(electrical, hydraulic);
     assert(budget_limited.mapping_class == MappingClass::NoMatch);
+    assert(budget_limited.search_states == 1);
     bool budget_reported = false;
     for (const auto& caveat : budget_limited.caveats)
         budget_reported = budget_reported ||
@@ -113,6 +114,11 @@ int main() {
         warned_about_units = warned_about_units ||
             caveat.find("Dimensional validation is incomplete") != std::string::npos;
     assert(warned_about_units);
+    bool caller_supplied_units = false;
+    for (const auto& caveat : not_physically_qualified.caveats)
+        caller_supplied_units = caller_supplied_units ||
+            caveat.find("Unit status is caller-supplied") != std::string::npos;
+    assert(caller_supplied_units);
 
     const auto library = InvariantLibrary::core();
     assert(library.all().size() >= 8);
