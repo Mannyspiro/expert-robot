@@ -8,6 +8,7 @@ struct Request {
     std::string id;
     std::string role;
     std::string task;
+    std::string payload;
 };
 
 struct Response {
