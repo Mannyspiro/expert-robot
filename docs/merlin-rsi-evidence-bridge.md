@@ -79,6 +79,14 @@ Missing stores, unknown issuers, invalid Ed25519 keys, or digest mismatches
 fail closed. A valid signature authenticates provenance; it does not prove
 mathematical truth or replace Lean, numerical, or engineering checks.
 
+The production integration uses CaceMcpVerifier over the loopback-only CACE
+MCP endpoint. It submits the exact bundle, attestation, expected bindings, and
+base64 artifact bytes to verify_merlin_rsi_attestation, checks the structured
+CACE response against locally reconstructed bundle and attestation digests,
+then repeats local pinned-key verification before appending candidate.cace_verified.
+The artifact-integrity attestor is a separate operation and cannot satisfy this
+verification path.
+
 Promotion additionally requires a separate signed merlin-approver receipt
 bound to the same candidate, artifact, benchmark, and CACE attestation digest.
 The candidate must have a passing evaluation, a prior CACE verification event,
