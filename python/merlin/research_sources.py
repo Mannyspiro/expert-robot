@@ -163,14 +163,29 @@ class ProviderRateLimiter:
 
 
 class UrllibTransport:
+    def __init__(self, max_response_bytes: int = 5 * 1024 * 1024):
+        if max_response_bytes <= 0:
+            raise ValueError("response size limit must be positive")
+        self._max_response_bytes = max_response_bytes
+
     def __call__(self, url: str, headers: Mapping[str, str], timeout: float) -> HttpResponse:
         request = urllib.request.Request(url, headers=dict(headers))
         try:
             with urllib.request.urlopen(request, timeout=timeout) as response:
+                declared_length = response.headers.get("Content-Length")
+                if declared_length is not None:
+                    try:
+                        if int(declared_length) > self._max_response_bytes:
+                            raise MetadataFetchError("provider response exceeds configured size limit")
+                    except ValueError:
+                        pass
+                body = response.read(self._max_response_bytes + 1)
+                if len(body) > self._max_response_bytes:
+                    raise MetadataFetchError("provider response exceeds configured size limit")
                 return HttpResponse(
                     status=int(response.status),
                     headers=dict(response.headers.items()),
-                    body=response.read(),
+                    body=body,
                 )
         except urllib.error.HTTPError as error:
             return HttpResponse(
@@ -226,7 +241,7 @@ class ResearchMetadataClient:
         self._timeout = timeout_seconds
         self._retries = max_retries
         self._max_response_bytes = max_response_bytes
-        self._transport = transport or UrllibTransport()
+        self._transport = transport or UrllibTransport(max_response_bytes)
         self._limiter = limiter or ProviderRateLimiter()
         self._cache = SQLiteMetadataCache(cache_path, now=now)
         self._headers = {
