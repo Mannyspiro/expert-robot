@@ -440,7 +440,7 @@ class RSIPipelineTests(unittest.TestCase):
                     "authority": "verification-only",
                 }
         fake = FakeAttestor()
-        event = self.ledger.record_cace_verification_from_mcp(
+        event = self.ledger.record_cace_integrity_attestation_from_mcp(
             candidate_id=candidate, artifact_sha256=ARTIFACT,
             suite_sha256=SUITE, attestor=fake,
         )
@@ -449,7 +449,8 @@ class RSIPipelineTests(unittest.TestCase):
         self.assertEqual(fake.asserted["artifact_ids"], ["merlin-rsi-evidence-manifest"])
         self.assertEqual(event["seq"], 2)
         recorded = self.ledger.events(candidate)
-        self.assertEqual(recorded[-1]["event_type"], "candidate.cace_verified")
+        self.assertEqual(recorded[-1]["event_type"], "candidate.cace_integrity_attested")
+        self.assertEqual(json.loads(recorded[-1]["payload"])["purpose"], "artifact-integrity")
         self.assertTrue(self.ledger.verify_chain(candidate)["valid"])
 
     def test_cace_verification_and_separate_approval_gate_promotion(self):
@@ -508,11 +509,11 @@ class RSIPipelineTests(unittest.TestCase):
         attestation = self._make_cace_attestation(candidate, purpose="artifact-integrity")
         trust_env = self._cace_trust_env()
         with patch.dict(os.environ, trust_env):
-            event = self.ledger.record_cace_verification(
-                candidate_id=candidate, attestation=attestation,
-                artifact_sha256=ARTIFACT, suite_sha256=SUITE,
-            )
-            self.assertEqual(event["purpose"], "artifact-integrity")
+            with self.assertRaises(PermissionError):
+                self.ledger.record_cace_verification(
+                    candidate_id=candidate, attestation=attestation,
+                    artifact_sha256=ARTIFACT, suite_sha256=SUITE,
+                )
             approval = sign_receipt("merlin-approver", {
                 "candidate_id": candidate,
                 "candidate_digest": ARTIFACT,
