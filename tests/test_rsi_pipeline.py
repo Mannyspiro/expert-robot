@@ -118,6 +118,7 @@ class RSIPipelineTests(unittest.TestCase):
         }
         claims = {
             "subject": "hermes-failure:hermes-17",
+            "record_sha256": rsi.sha256_hex(rsi.canonical_json(record)),
             "source_repo": record["source_repo"],
             "source_commit": SOURCE_COMMIT,
             "artifact_sha256": ARTIFACT, "failure_class": "lean-timeout",
