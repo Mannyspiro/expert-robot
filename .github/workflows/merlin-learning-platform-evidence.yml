@@ -22,6 +22,9 @@ on:
       - "docs/merlin/MERLIN_MATH_LEARNING_PATHWAYS_V1.md"
       - "docs/merlin/MERLIN_MATH_LESSON_BACKLOG_V1.json"
       - "docs/research/merlin-mathematical-idea-catalog.v1.json"
+      - "schemas/merlin/continuum-structure.v1.schema.json"
+      - "docs/research/paired-state-continuum-triangle.v1.json"
+      - "tests/test_continuum_structure_ir.py"
       - "scripts/merlin_math_idea_validate.py"
       - "scripts/merlin_math_pathways_validate.py"
       - "scripts/merlin_math_lesson_backlog_validate.py"
@@ -172,7 +175,7 @@ jobs:
         run: |
           set +e
           mkdir -p artifacts
-          python -m pytest -q -v tests/test_merlin_learning_platform.py tests/research/test_merlin_learning_http.py tests/test_merlin_research_curriculum.py tests/test_merlin_math_foundations_course.py tests/test_merlin_math_logic_discrete_course.py tests/test_merlin_math_algebra_functions_course.py tests/test_merlin_math_calculus_probability_course.py tests/test_merlin_math_numerical_scientific_computing_course.py tests/test_merlin_math_lesson_backlog.py tests/test_merlin_math_portfolio.py tests/test_learner_model.py 2>&1 | tee artifacts/learning-tests.log
+          python -m pytest -q -v tests/test_merlin_learning_platform.py tests/research/test_merlin_learning_http.py tests/test_merlin_research_curriculum.py tests/test_merlin_math_foundations_course.py tests/test_merlin_math_logic_discrete_course.py tests/test_merlin_math_algebra_functions_course.py tests/test_merlin_math_calculus_probability_course.py tests/test_merlin_math_numerical_scientific_computing_course.py tests/test_merlin_math_lesson_backlog.py tests/test_merlin_math_portfolio.py tests/test_learner_model.py tests/test_continuum_structure_ir.py 2>&1 | tee artifacts/learning-tests.log
           rc=${PIPESTATUS[0]}
           printf '{"suite":"learning-platform-tests","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/learning-tests-result.json
           exit "$rc"
