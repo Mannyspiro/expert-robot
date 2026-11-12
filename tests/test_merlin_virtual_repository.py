@@ -26,16 +26,28 @@ class VirtualRepositoryTests(unittest.TestCase):
             expected.update(receipt["binding_override"])
         return {
             "verification_status": "VERIFIED",
-            "promotion_authorized": True,
             "cace_receipt_id": receipt["receipt_id"],
             "bindings": expected,
             "verifier_id": "test-only-not-cace",
         }
 
+    @staticmethod
+    def _test_only_promotion_authorizer(request):
+        return {
+            "promotion_authorized": True,
+            "approval_id": "test-only-approval",
+            "bindings": dict(request["expected_bindings"]),
+            "approver_id": "test-only-not-production",
+        }
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.db = Path(self.temp.name) / "forge.sqlite3"
-        self.repo = VirtualRepository(self.db, check_receipt_verifier=self._test_only_check_verifier)
+        self.repo = VirtualRepository(
+            self.db,
+            check_receipt_verifier=self._test_only_check_verifier,
+            promotion_authorizer=self._test_only_promotion_authorizer,
+        )
         self.initial = self.repo.initialize({
             "README.md": "# Merlin\n",
             "src/core.py": "VERSION = 1\n",
@@ -273,6 +285,25 @@ class VirtualRepositoryTests(unittest.TestCase):
             })
         self.assertEqual(self.repo.check_results(self.initial["commit_id"])[-1]["verification_status"],
                          "UNVERIFIED")
+
+    def test_verified_cace_receipt_does_not_grant_promotion_without_separate_approval(self):
+        isolated = VirtualRepository(
+            Path(self.temp.name) / "no-approval.sqlite3",
+            check_receipt_verifier=self._test_only_check_verifier,
+        )
+        initial = isolated.initialize({"README.md": "test"})
+        result = isolated.record_check_result(
+            initial["commit_id"], "python.compile", "success",
+            "verified-no-approval", "runner", "passed",
+        )
+        verified = isolated.verify_check_result(
+            result["check_id"], {"test_only": True, "receipt_id": "cace-test-receipt"},
+        )
+        self.assertEqual(verified["verification_status"], "VERIFIED")
+        self.assertFalse(verified["promotion_authorized"])
+        row = isolated.check_results(initial["commit_id"])[0]
+        self.assertEqual(row["verification_status"], "VERIFIED")
+        self.assertFalse(row["promotion_authorized"])
 
     def test_check_verification_receipt_replay_is_idempotent(self):
         result = self.repo.record_check_result(
