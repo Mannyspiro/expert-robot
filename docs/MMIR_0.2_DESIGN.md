@@ -107,3 +107,48 @@ build or MMIR test failure, and do not claim a passing build.
 then require a completed configure, build, and CTest run before promoting the
 MMIR implementation. Until then, code changes should remain small and their
 verification status explicitly marked pending.
+
+## 0.2a source audit: implementation boundary
+
+A source review of the current MMIR 0.1 implementation confirms that the
+following are present: seven SI base-dimension exponents; positive finite unit
+scales; dimensional multiplication/division/integer powers; compatible-unit
+conversion; namespace-scoped glyph lookup; typed operator signatures; graph
+operand/type/arity checks; and rejection of implicit dependency cycles.
+
+The following 0.2 contract items are **not implemented yet**:
+
+- Quantity kinds are not distinct from SI dimension vectors. Two quantities
+  with identical dimensions but different semantic kinds (for example,
+  frequency versus radioactive activity) currently compare as dimensionally
+  compatible.
+- NodeKind coordinate_frame and transformation are labels only; there are no
+  frame value objects, transform matrices, composition rules, inverse checks,
+  or frame-identity validation.
+- Algebraic-law booleans in OperatorSpec are declarations, not evidence.
+  There is no per-law state/evidence object or rewrite engine enforcing
+  assumed/conjectured/proven distinctions.
+- There is no parser profile, precedence table, fixity model, source-span
+  preservation, or parse/render round-trip implementation.
+- The harmonic node kind has no oscillator model, numerical solver, or
+  reproducible run receipt.
+
+### Corrective implementation order
+
+1. Add QuantityKind and TypedQuantity semantics without changing the
+   existing SI exponent representation; reject operations whose quantity-kind
+   rules are undefined even when dimensions happen to match.
+2. Replace free-standing algebraic-law booleans with law declarations carrying
+   an explicit evidence state and evidence reference. Do not permit a rewrite
+   based only on a glyph, name, or self-asserted boolean.
+3. Implement typed frame identities and affine transform composition with
+   explicit source/target frames, dimension checks, finite-value checks, and
+   singular-inverse rejection.
+4. Add parser profiles only after the canonical operator and type contracts
+   stabilize.
+5. Add the oscillator solver and numerical receipts after dimensional and
+   frame validation can be reused.
+
+These are source-level findings, not test results. The runner gate above still
+blocks compilation and execution qualification; no 0.2 implementation item
+should be described as passing until a real build/test receipt exists.
