@@ -73,6 +73,9 @@ class SQLiteMetadataCache:
 
     def __init__(self, path: str | Path, now: Callable[[], float] = time.time):
         self._path = str(path)
+        parent = Path(self._path).parent
+        if str(parent) not in ("", "."):
+            parent.mkdir(parents=True, exist_ok=True)
         self._now = now
         self._lock = threading.RLock()
         self._db = sqlite3.connect(self._path, check_same_thread=False)
@@ -96,7 +99,15 @@ class SQLiteMetadataCache:
             ).fetchone()
             if row is None or float(row[1]) <= self._now():
                 return None
-            return ResearchMetadata.from_dict(json.loads(row[0]))
+            try:
+                return ResearchMetadata.from_dict(json.loads(row[0]))
+            except (json.JSONDecodeError, KeyError, TypeError, ValueError):
+                self._db.execute(
+                    "DELETE FROM research_metadata_cache WHERE cache_key=?",
+                    (cache_key,),
+                )
+                self._db.commit()
+                return None
 
     def put(self, cache_key: str, value: ResearchMetadata, ttl_seconds: float) -> None:
         if ttl_seconds <= 0:
@@ -200,18 +211,21 @@ class ResearchMetadataClient:
         cache_ttl_seconds: float = 7 * 24 * 60 * 60,
         timeout_seconds: float = 15.0,
         max_retries: int = 2,
+        max_response_bytes: int = 5 * 1024 * 1024,
         transport: Callable[[str, Mapping[str, str], float], HttpResponse] | None = None,
         limiter: ProviderRateLimiter | None = None,
         now: Callable[[], float] = time.time,
         sleep: Callable[[float], None] = time.sleep,
     ):
-        if cache_ttl_seconds <= 0 or timeout_seconds <= 0 or max_retries < 0:
-            raise ValueError("TTL/timeout must be positive and retries nonnegative")
+        if (cache_ttl_seconds <= 0 or timeout_seconds <= 0 or
+                max_retries < 0 or max_response_bytes <= 0):
+            raise ValueError("TTL/timeout/response limit must be positive and retries nonnegative")
         self._now = now
         self._sleep = sleep
         self._ttl = cache_ttl_seconds
         self._timeout = timeout_seconds
         self._retries = max_retries
+        self._max_response_bytes = max_response_bytes
         self._transport = transport or UrllibTransport()
         self._limiter = limiter or ProviderRateLimiter()
         self._cache = SQLiteMetadataCache(cache_path, now=now)
@@ -222,6 +236,12 @@ class ResearchMetadataClient:
 
     def close(self) -> None:
         self._cache.close()
+
+    def __enter__(self) -> "ResearchMetadataClient":
+        return self
+
+    def __exit__(self, exc_type, exc, traceback) -> None:
+        self.close()
 
     def get_by_doi(self, doi: str) -> ResearchMetadata:
         normalized = doi.strip()
@@ -250,7 +270,7 @@ class ResearchMetadataClient:
             abstract = _clean_abstract(str(message.get("abstract", "")))
             published = _crossref_date(message)
             record_url = str(message.get("URL", url))
-        except (UnicodeDecodeError, json.JSONDecodeError, KeyError, TypeError, AttributeError) as error:
+        except (UnicodeDecodeError, json.JSONDecodeError, KeyError, TypeError, AttributeError, ValueError) as error:
             raise MetadataFetchError("invalid Crossref response") from error
         return self._store(
             key, "crossref", normalized, title, authors, published,
@@ -303,6 +323,10 @@ class ResearchMetadataClient:
                 self._sleep(min(2 ** attempt, 8))
                 continue
             if response.status == 200:
+                if len(response.body) > self._max_response_bytes:
+                    raise MetadataFetchError(
+                        f"{provider} response exceeded the configured size limit"
+                    )
                 return response
             if response.status in (429, 503) and attempt < self._retries:
                 retry_after = next(
@@ -323,6 +347,8 @@ class ResearchMetadataClient:
         authors: tuple[str, ...], published: str, abstract: str,
         doi: str, url: str, raw: bytes,
     ) -> ResearchMetadata:
+        if not title.strip():
+            raise MetadataFetchError(f"{source} response did not contain a title")
         fields: dict[str, object] = {
             "source": source, "identifier": identifier, "title": title,
             "authors": list(authors), "published": published,
