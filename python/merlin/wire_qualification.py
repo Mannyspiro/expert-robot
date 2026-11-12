@@ -11,7 +11,8 @@ from dataclasses import asdict, dataclass
 import hashlib
 import json
 import math
-from typing import Any
+import re
+from typing import Any, Callable, Mapping
 
 
 @dataclass(frozen=True)
@@ -266,7 +267,8 @@ def build_qualification_report(
     electrical: ElectricalInputs | None,
     thermal: ThermalInputs | None,
     manufacturing: ManufacturingInputs | None,
-    evidence: dict[str, dict[str, str]] | None = None,
+    evidence: Mapping[str, Any] | None = None,
+    evidence_verifier: Callable[[Mapping[str, Any]], Mapping[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """Combine independent gate results. Never returns a certified/safe status."""
     findings: list[dict[str, Any]] = []
@@ -291,21 +293,84 @@ def build_qualification_report(
         for net in route.get("nets", []):
             for candidate in net.get("routes", []):
                 findings.extend(assess_manufacturing(candidate, manufacturing))
-    supplied = evidence or {}
-    evidence_status = {}
+    if evidence is None:
+        supplied: Mapping[str, Any] = {}
+    elif isinstance(evidence, Mapping):
+        supplied = evidence
+    else:
+        supplied = {}
+        findings.append(_finding(
+            "EVIDENCE_PAYLOAD_INVALID", "BLOCKED",
+            "Evidence payload must be a mapping keyed by the required evidence identifiers.",
+        ))
+    evidence_status: dict[str, str] = {}
+    evidence_verification: dict[str, dict[str, str]] = {}
     for requirement in _REQUIRED_EVIDENCE:
         item = supplied.get(requirement, {})
+        if not isinstance(item, Mapping):
+            evidence_status[requirement] = "missing_or_unverified"
+            findings.append(_finding(
+                "REQUIRED_EVIDENCE_" + requirement.upper(), "BLOCKED",
+                f"Evidence record is malformed: {requirement}.",
+            ))
+            continue
+        digest = item.get("artifact_sha256")
+        reviewer = item.get("reviewer")
+        if (not isinstance(digest, str) or re.fullmatch(r"[0-9a-f]{64}", digest) is None
+                or not isinstance(reviewer, str) or not reviewer.strip()):
+            evidence_status[requirement] = "missing_or_unverified"
+            findings.append(_finding(
+                "REQUIRED_EVIDENCE_" + requirement.upper(), "BLOCKED",
+                f"Evidence record lacks a valid SHA-256 digest or reviewer identity: {requirement}.",
+            ))
+            continue
+        evidence_record_sha256 = _payload_hash(dict(item))
+        if evidence_verifier is None:
+            evidence_status[requirement] = "missing_or_unverified"
+            findings.append(_finding(
+                "REQUIRED_EVIDENCE_" + requirement.upper(), "BLOCKED",
+                f"No authenticated independent evidence verifier is configured for: {requirement}.",
+            ))
+            continue
+        verification_request = {
+            "requirement": requirement,
+            "artifact_sha256": digest,
+            "evidence_record_sha256": evidence_record_sha256,
+            "reviewer": reviewer.strip(),
+            "evidence": dict(item),
+        }
+        try:
+            verification = evidence_verifier(verification_request)
+        except Exception:
+            verification = None
+        bindings = verification.get("bindings") if isinstance(verification, Mapping) else None
+        verifier_id = verification.get("verifier_id") if isinstance(verification, Mapping) else None
+        receipt_sha256 = verification.get("receipt_sha256") if isinstance(verification, Mapping) else None
+        expected_bindings = {
+            "requirement": requirement,
+            "artifact_sha256": digest,
+            "evidence_record_sha256": evidence_record_sha256,
+        }
         verified = (
-            item.get("status") == "verified"
-            and bool(item.get("artifact_sha256"))
-            and len(item.get("artifact_sha256", "")) == 64
-            and bool(item.get("reviewer"))
+            isinstance(verification, Mapping)
+            and verification.get("verification_status") == "VERIFIED"
+            and isinstance(bindings, Mapping)
+            and all(bindings.get(key) == value for key, value in expected_bindings.items())
+            and isinstance(verifier_id, str) and bool(verifier_id.strip())
+            and isinstance(receipt_sha256, str)
+            and re.fullmatch(r"[0-9a-f]{64}", receipt_sha256) is not None
         )
         evidence_status[requirement] = "verified" if verified else "missing_or_unverified"
-        if not verified:
-            findings.append(_finding("REQUIRED_EVIDENCE_" + requirement.upper(),
-                                     "BLOCKED",
-                                     f"Required independent evidence is missing or unverified: {requirement}."))
+        if verified:
+            evidence_verification[requirement] = {
+                "verifier_id": verifier_id,
+                "receipt_sha256": receipt_sha256,
+            }
+        else:
+            findings.append(_finding(
+                "REQUIRED_EVIDENCE_" + requirement.upper(), "BLOCKED",
+                f"Independent verification did not authenticate the exact evidence record: {requirement}.",
+            ))
     states = {item["status"] for item in findings}
     overall = "BLOCKED" if "BLOCKED" in states else (
         "FAIL" if "FAIL" in states else (
@@ -319,7 +384,7 @@ def build_qualification_report(
             "electrical_inputs_sha256": _payload_hash(asdict(electrical)) if electrical is not None else None,
             "thermal_inputs_sha256": _payload_hash(asdict(thermal)) if thermal is not None else None,
             "manufacturing_inputs_sha256": _payload_hash(asdict(manufacturing)) if manufacturing is not None else None,
-            "evidence_sha256": _payload_hash(supplied),
+            "evidence_sha256": _payload_hash(dict(supplied)),
         },
         "route_format": route.get("format"),
         "route_status": route.get("status"),
@@ -329,6 +394,7 @@ def build_qualification_report(
         "promotion_authorized": False,
         "findings": findings,
         "required_evidence": evidence_status,
+        "evidence_verification": evidence_verification,
         "limitations": [
             "This report is an engineering screening and evidence-gap tool, not a certification or declaration of safety.",
             "Ampacity, insulation rating, required clearance and bend-radius limits must come from applicable authoritative manufacturer data and standards.",
