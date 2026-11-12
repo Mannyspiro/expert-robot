@@ -18,7 +18,7 @@ concurrency:
 
 jobs:
   build-and-smoke:
-    runs-on: avrea-ubuntu-latest-8-vcpu
+    runs-on: namespace-profile-merlin
 
     steps:
       - uses: actions/checkout@v4
