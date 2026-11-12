@@ -505,18 +505,19 @@ class RSIPipelineTests(unittest.TestCase):
         self.assertTrue(self.ledger.verify_chain(candidate)["valid"])
 
     def test_artifact_integrity_attestation_cannot_promote(self):
+        from unittest.mock import patch
         candidate = "candidate-artifact-integrity-only"
         self._record_candidate_and_evaluation(candidate)
         attestation = self._make_cace_attestation(candidate, purpose="artifact-integrity")
         with patch.dict(os.environ, self._cace_trust_env()):
-            cace_event = self.ledger.record_cace_verification(
-                candidate_id=candidate, attestation=attestation,
-                artifact_sha256=ARTIFACT, suite_sha256=SUITE,
-            )
-            self.assertEqual(cace_event["seq"], 2)
+            with self.assertRaises(PermissionError):
+                self.ledger.record_cace_verification(
+                    candidate_id=candidate, attestation=attestation,
+                    artifact_sha256=ARTIFACT, suite_sha256=SUITE,
+                )
             approval = sign_receipt("merlin-approver", {
                 "candidate_id": candidate,
-                "candidate_digest": "f" * 64,
+                "candidate_digest": ARTIFACT,
                 "benchmark_manifest_sha256": SUITE,
                 "cace_attestation_sha256": rsi.sha256_hex(rsi.canonical_json(attestation)),
                 "action": "promote",
