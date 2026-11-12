@@ -18,9 +18,18 @@ struct MathType {
     // temperature, amount, luminous intensity.
     std::array<int, dimension_count> dimensions{};
     std::string unit_symbol;
-
-    bool operator==(const MathType&) const = default;
+    // Positive multiplicative conversion factor from this unit to SI.
+    // Affine units (for example Celsius) are deliberately not represented yet.
+    long double scale_to_si{1.0L};
 };
+
+[[nodiscard]] bool valid_math_type(const MathType& type) noexcept;
+[[nodiscard]] bool same_dimensions(const MathType& lhs, const MathType& rhs) noexcept;
+[[nodiscard]] MathType multiply_types(const MathType& lhs, const MathType& rhs);
+[[nodiscard]] MathType divide_types(const MathType& lhs, const MathType& rhs);
+[[nodiscard]] MathType integer_power(const MathType& base, int exponent);
+[[nodiscard]] long double convert_value(
+    long double value, const MathType& from, const MathType& to);
 
 struct OperatorSpec {
     std::string id;
