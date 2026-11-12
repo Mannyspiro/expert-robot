@@ -423,7 +423,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                             "MATH-POLY-001", "MATH-PARA-001", "MATH-FRACT-002",
                             "MATH-SIG-001", "MATH-GEN-001", "MATH-DATA-001"}
             learning_lessons.append({"lesson_id": lesson_id, "idea_id": idea_id,
-                                     "curriculum_id": "art-math-studio" if idea_id in art_math_ids else "mathematics})
+                                     "curriculum_id": "art-math-studio" if idea_id in art_math_ids else "mathematics"})
     # B2B competencies are a separate, versioned curriculum graph.
     b2b_graph_path = repo_root / "docs" / "merlin" / "MERLIN_B2B_LEARNING_GRAPH_V0_1.json"
     if b2b_graph_path.is_file():
