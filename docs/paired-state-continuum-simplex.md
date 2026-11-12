@@ -26,6 +26,8 @@ Each edge is a sampled, piecewise-linear field. The endpoint values at a shared 
 - a classifier for the affine barycentric extension;
 - affine extension evaluation in barycentric coordinates;
 - typed 2-by-2 linear state transforms, determinant/invertibility checks, and explicit left-to-right composition;
+- generic oriented simplex boundary chains with canonical orientation signs and integer coefficients;
+- executable checks of boundary-of-boundary cancellation on triangles and tetrahedra;
 - a provisional n-ality signature separating geometric dimension, state dimension, logical channels, and temporal parameters.
 
 The state pair is deliberately **not** assumed to be a complex number. Complex semantics would require a separate algebraic type and operations.
