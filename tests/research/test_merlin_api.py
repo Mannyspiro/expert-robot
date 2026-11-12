@@ -492,6 +492,8 @@ class MerlinApiTests(unittest.TestCase):
         self.assertTrue(canonical_ids.issubset(state["skills"]))
         self.assertIn("conceptual_explanation", state["skills"]["MATH-ST-001"])
         self.assertIn("procedure", state["skills"]["MATH-ST-001"])
+        self.assertIn("MATH-COORD-001", state["graph"]["MATH-ST-001"]["prerequisites"])
+        self.assertIn("MATH-NT-001", state["graph"]["MATH-NT-002"]["prerequisites"])
         request = Request(
             self.base + "/api/learning/recommendation?learner_id=" + learner + "&curriculum_id=mathematics",
             headers={"Authorization": "Bearer learner-rotation"},
