@@ -23,6 +23,8 @@ for level_id in ("L3", "L4"):
     assert by_id[level_id]["can_promote"] is False
 
 assert by_id["L1"]["resources"]["recommended_build_jobs"] == 1
+assert by_id["L3"]["runner"] == "namespace-profile-merlin"
+assert by_id["L4"]["runner"] == "namespace-profile-merlin"
 assert by_id["L2"]["resources"]["recommended_build_jobs"] == 1
 
 preflight = policy["preflight"]
@@ -34,7 +36,8 @@ assert preflight["railway_is_qualification_authority"] is False
 cost = policy["cost_policy"]
 assert cost["monetary_budget"] == "zero_spend"
 assert cost["existing_github_runners_are_free"] is True
-assert cost["avrea_runners_allowed"] is True
+assert cost["namespace_runners_allowed"] is True
+assert cost["namespace_cost_must_be_zero"] is True
 assert cost["external_self_hosted_runners_allowed"] is True
 assert cost["paid_railway_resources_allowed"] is False
 assert cost["paid_cloud_expansion_allowed"] is False
