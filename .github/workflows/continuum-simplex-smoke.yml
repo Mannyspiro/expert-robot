@@ -6,6 +6,7 @@ on:
       - "CMakeLists.txt"
       - "cpp/include/expert_robot/math/**"
       - "tests/continuum_simplex_smoke.cpp"
+      - "tests/simplicial_complex_smoke.cpp"
       - "docs/paired-state-continuum-simplex.md"
       - ".github/workflows/continuum-simplex-smoke.yml"
 
