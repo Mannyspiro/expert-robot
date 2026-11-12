@@ -1,6 +1,7 @@
 #include "expert_robot/research/episode_ledger.hpp"
 
 #include "expert_robot/sha256.hpp"
+#include "expert_robot/json_util.hpp"
 
 #include <sqlite3.h>
 
@@ -179,6 +180,18 @@ void ResearchEpisodeLedger::initialize() {
 
         CREATE INDEX IF NOT EXISTS idx_research_episode
             ON research_episode_events(episode_id, sequence);
+
+        CREATE TRIGGER IF NOT EXISTS research_episode_events_no_update
+        BEFORE UPDATE ON research_episode_events
+        BEGIN
+            SELECT RAISE(ABORT, 'research episode events are append-only');
+        END;
+
+        CREATE TRIGGER IF NOT EXISTS research_episode_events_no_delete
+        BEFORE DELETE ON research_episode_events
+        BEGIN
+            SELECT RAISE(ABORT, 'research episode events are append-only');
+        END;
         )SQL");
 
     Statement query(
@@ -343,6 +356,44 @@ EpisodeEvent ResearchEpisodeLedger::append_transition(
         episode_id,
         "research_transition",
         payload.str());
+}
+
+EpisodeEvent ResearchEpisodeLedger::append_failure_observation(
+    std::string_view episode_id,
+    const FailureObservation& observation) {
+    const auto valid_hash = [](std::string_view value) {
+        if (value.size() != 64U) return false;
+        for (const unsigned char ch : value) {
+            const bool digit = ch >= '0' && ch <= '9';
+            const bool lower = ch >= 'a' && ch <= 'f';
+            if (!digit && !lower) return false;
+        }
+        return true;
+    };
+    if (observation.source_agent.empty() ||
+        observation.source_task_id.empty() ||
+        observation.stage.empty() ||
+        observation.failure_class.empty()) {
+        throw std::invalid_argument("failure observation identity and classification are required");
+    }
+    if (!valid_hash(observation.target_sha256) ||
+        !valid_hash(observation.diagnostic_sha256)) {
+        throw std::invalid_argument("failure observation digests must be lowercase SHA-256");
+    }
+
+    std::ostringstream payload;
+    payload
+        << "{\"schema_version\":1"
+        << ",\"source_agent\":\"" << json_util::escape(observation.source_agent) << "\""
+        << ",\"source_task_id\":\"" << json_util::escape(observation.source_task_id) << "\""
+        << ",\"stage\":\"" << json_util::escape(observation.stage) << "\""
+        << ",\"failure_class\":\"" << json_util::escape(observation.failure_class) << "\""
+        << ",\"target_sha256\":\"" << observation.target_sha256 << "\""
+        << ",\"diagnostic_sha256\":\"" << observation.diagnostic_sha256 << "\""
+        << ",\"attempt_count\":" << observation.attempt_count
+        << "}";
+
+    return append(episode_id, "failure_observation.v1", payload.str());
 }
 
 std::vector<EpisodeEvent>
