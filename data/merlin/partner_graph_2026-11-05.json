@@ -1,0 +1,71 @@
+{
+  "schema_version": "merlin.partner-graph.v1",
+  "observed_on": "2026-11-05",
+  "partners": [
+    {
+      "partner_id": "alliant-insurance-services",
+      "display_name": "Alliant Insurance Services",
+      "legal_entity_match": "partially_verified",
+      "relationship": "potential_competitor",
+      "secondary_relationships": ["capability_benchmark"],
+      "contract_evidence_ids": ["az-ctr069812-award", "az-ctr066530-coop"],
+      "difi_entity_license_observation_ids": [],
+      "responsible_individual_license_observation_ids": [],
+      "qualification_state": "hold_for_evidence",
+      "reason": "Public state awards/cooperative contracts are recorded; DIFI entity and responsible-producer observations, current appointments, scope-specific authority and teaming permission are not yet ingested."
+    },
+    {
+      "partner_id": "cbiz-optumas",
+      "display_name": "CBIZ Optumas LLC",
+      "legal_entity_match": "verified_from_state_contract_listing",
+      "relationship": "potential_competitor",
+      "secondary_relationships": ["capability_benchmark"],
+      "contract_evidence_ids": ["az-ctr066534-coop"],
+      "difi_entity_license_observation_ids": [],
+      "responsible_individual_license_observation_ids": [],
+      "qualification_state": "hold_for_evidence",
+      "reason": "Official active cooperative contract record exists; no DIFI license observation or responsible producer record captured."
+    },
+    {
+      "partner_id": "capfi-consulting",
+      "display_name": "CapFi Consulting",
+      "legal_entity_match": "unverified",
+      "relationship": "potential_prime",
+      "secondary_relationships": ["capability_benchmark"],
+      "contract_evidence_ids": ["1gpa-24-05p-02"],
+      "difi_entity_license_observation_ids": [],
+      "responsible_individual_license_observation_ids": [],
+      "qualification_state": "hold_for_evidence",
+      "reason": "1GPA vendor page lists a relevant employee-benefits cooperative contract; legal contracting entity and DIFI license linkage remain unverified."
+    },
+    {
+      "partner_id": "hub-international",
+      "display_name": "HUB International Insurance Services",
+      "legal_entity_match": "unverified",
+      "relationship": "potential_prime",
+      "secondary_relationships": ["capability_benchmark"],
+      "contract_evidence_ids": ["1gpa-24-05p-03"],
+      "difi_entity_license_observation_ids": [],
+      "responsible_individual_license_observation_ids": [],
+      "qualification_state": "hold_for_evidence",
+      "reason": "1GPA vendor page lists a relevant employee-benefits cooperative contract; precise legal contracting entity and DIFI license linkage remain unverified."
+    },
+    {
+      "partner_id": "vsmg",
+      "display_name": "VSMG",
+      "legal_entity_match": "unverified",
+      "relationship": "capability_benchmark",
+      "secondary_relationships": ["potential_competitor"],
+      "contract_evidence_ids": [],
+      "difi_entity_license_observation_ids": [],
+      "responsible_individual_license_observation_ids": [],
+      "qualification_state": "benchmark_only",
+      "reason": "Public website indicates a public-sector employee-benefits consulting focus; no contract award, license record or teaming evidence imported."
+    }
+  ],
+  "not_in_graph_as_qualified_partners": [
+    "No individual responsible producer has been identified from an authoritative license record.",
+    "No candidate has verified teaming permission.",
+    "No candidate has been marked qualified for human selection."
+  ]
+}

@@ -86,6 +86,35 @@ jobs:
       - name: Compute policy guardrails
         run: python3 tests/compute_policy_smoke.py
 
+      - name: Merlin opportunity intelligence and procurement readiness tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          set +e
+          PYTHONPATH=python python3 -m unittest discover -s tests -p "test_opportunity_intelligence.py" -v 2>&1 | tee artifacts/merlin-opportunity-intelligence-tests.log
+          rc_opportunity=${PIPESTATUS[0]}
+          PYTHONPATH=python python3 -m unittest discover -s tests -p "test_procurement_readiness.py" -v 2>&1 | tee -a artifacts/merlin-opportunity-intelligence-tests.log
+          rc_readiness=${PIPESTATUS[0]}
+          PYTHONPATH=python python3 -m unittest discover -s tests -p "test_source_status.py" -v 2>&1 | tee -a artifacts/merlin-opportunity-intelligence-tests.log
+          rc_source_status=${PIPESTATUS[0]}
+          PYTHONPATH=python python3 -m unittest discover -s tests -p "test_partner_qualification.py" -v 2>&1 | tee -a artifacts/merlin-opportunity-intelligence-tests.log
+          rc_partner=${PIPESTATUS[0]}
+          PYTHONPATH=python python3 -m unittest discover -s tests -p "test_partner_evidence_pipeline.py" -v 2>&1 | tee -a artifacts/merlin-opportunity-intelligence-tests.log
+          rc_pipeline=${PIPESTATUS[0]}
+          set -e
+          if [ "$rc_opportunity" -ne 0 ] || [ "$rc_readiness" -ne 0 ] || [ "$rc_source_status" -ne 0 ] || [ "$rc_partner" -ne 0 ] || [ "$rc_pipeline" -ne 0 ]; then rc=1; else rc=0; fi
+          printf '{"suite":"merlin-opportunity-intelligence-partner-evidence-pipeline","opportunity_exit_code":%s,"readiness_exit_code":%s,"source_status_exit_code":%s,"partner_exit_code":%s,"pipeline_exit_code":%s,"exit_code":%s,"commit":"%s"}\n' "$rc_opportunity" "$rc_readiness" "$rc_source_status" "$rc_partner" "$rc_pipeline" "$rc" "$GITHUB_SHA" > artifacts/merlin-opportunity-intelligence-result.json
+          exit "$rc"
+
+      - name: Upload opportunity intelligence test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-opportunity-intelligence-${{ github.run_id }}
+          path: artifacts/merlin-opportunity-intelligence-*
+          if-no-files-found: warn
+
       - name: Known failure regression guardrails
         run: python3 tests/known_failure_regression_smoke.py
 
@@ -131,3 +160,35 @@ jobs:
         with:
           path: ~/.cache/ccache
           key: ccache-v1-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
+
+  partner-evidence-tests:
+    name: Partner evidence and proposal pipeline tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run partner suites and retain evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts
+          set +e
+          rc=0
+          for pattern in test_opportunity_intelligence.py test_procurement_readiness.py test_source_status.py test_partner_qualification.py test_partner_evidence_pipeline.py test_runtime_contracts.py test_sqlite_registry.py; do
+            echo "===== $pattern =====" | tee -a artifacts/merlin-partner-evidence-tests.log
+            PYTHONPATH=python python -m unittest discover -s tests -p "$pattern" -v 2>&1 | tee -a artifacts/merlin-partner-evidence-tests.log
+            suite_rc=${PIPESTATUS[0]}
+            printf '%s=%s\n' "$pattern" "$suite_rc" >> artifacts/merlin-partner-evidence-exit-codes.txt
+            if [ "$suite_rc" -ne 0 ]; then rc=1; fi
+          done
+          printf '{"suite":"merlin-partner-evidence-pipeline","exit_code":%s,"commit":"%s"}\n' "$rc" "$GITHUB_SHA" > artifacts/merlin-partner-evidence-result.json
+          exit "$rc"
+      - name: Upload partner test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: merlin-partner-evidence-${{ github.run_id }}
+          path: artifacts/merlin-partner-evidence-*
+          if-no-files-found: warn

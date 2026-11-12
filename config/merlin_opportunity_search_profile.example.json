@@ -1,0 +1,121 @@
+{
+  "profile_version": "0.1",
+  "default_location": {
+    "city": "Tucson",
+    "county": "Pima",
+    "state": "Arizona",
+    "country": "United States"
+  },
+  "tracks": [
+    {
+      "id": "independent_insurance_agency",
+      "applicant_type": "for_profit_business",
+      "jurisdictions": ["Arizona"],
+      "ownership_profile": {"status": "private_profile_reference", "certification_and_eligibility": "verify_against_official_program_rules"},
+      "producer_license": {"state": "Arizona", "line": "Property and Casualty", "user_confirmed": true, "agency_entity_license_and_appointments_still_to_verify": true},
+      "procurement_readiness": {
+        "app_registration_complete": null,
+        "sam_registration_active": null,
+        "agency_entity_license_verified": null,
+        "producer_appointments_verified": null,
+        "lines_of_authority_verified": null,
+        "professional_liability_verified": null,
+        "cyber_coverage_verified": null,
+        "public_sector_references_verified": null,
+        "delivery_capacity_verified": null,
+        "required_certifications_verified": null
+      },
+      "keywords": [
+        "insurance broker", "insurance brokerage", "insurance agent",
+        "property and casualty", "commercial insurance", "employee benefits",
+        "risk management", "insurance administration", "surety",
+        "government contractor insurance", "broker of record"
+      ],
+      "naics_candidates": ["524210", "524292", "524298"],
+      "procurement_sources": ["SAM.gov", "Arizona Procurement Portal", "City of Tucson", "Pima County"],
+      "grant_policy": "Do not assume ordinary insurance agencies qualify for grants; verify business eligibility and permitted uses."
+    },
+    {
+      "id": "community",
+      "applicant_types": ["nonprofit", "club", "school", "fiscal_sponsor", "public_entity"],
+      "jurisdictions": ["Tucson", "Pima County", "Arizona", "United States"],
+      "keywords": [
+        "community resilience", "digital inclusion", "technology access",
+        "adult digital skills", "STEM education", "amateur radio",
+        "public art", "arts education", "neighborhood improvement",
+        "emergency preparedness", "open source", "wireless communications"
+      ],
+      "partners_to_consider": ["eligible nonprofit", "amateur radio club", "school", "library", "community arts organization"],
+      "grant_policy": "Record whether a fiscal sponsor or nonprofit applicant is mandatory."
+    },
+    {
+      "id": "luxury_brand_authorized_dealer_and_distribution",
+      "applicant_type": "for_profit_business",
+      "jurisdictions": ["Arizona", "United States"],
+      "channels": [
+        "direct_brand_authorized_dealer",
+        "authorized_wholesale_retailer",
+        "regional_distributor",
+        "brand_licensee",
+        "authorized_reseller",
+        "authenticated_preowned_reseller"
+      ],
+      "categories": [
+        "luxury watches", "fine jewelry", "designer fashion", "handbags",
+        "eyewear", "beauty and fragrance", "premium home and lifestyle",
+        "luxury automotive", "art and collectibles"
+      ],
+      "keywords": [
+        "authorized dealer application", "retail partner application",
+        "wholesale account", "brand distribution agreement",
+        "territory distributor", "luxury retailer onboarding",
+        "authorized stockist", "brand licensing"
+      ],
+      "qualification_checks": [
+        "direct authorization from brand owner or documented authorized distributor",
+        "territory and channel rights, including online marketplace restrictions",
+        "opening order, minimum annual purchase, inventory and display requirements",
+        "storefront, ecommerce, customer service and after-sales requirements",
+        "business credit, working capital, insurance and trade references",
+        "MAP policy, returns, warranty, repair and product authenticity rules",
+        "exclusivity, termination, sell-off and geographic restrictions"
+      ],
+      "risk_policy": "Do not describe wholesale access or authenticated resale as manufacturer-authorized dealership. Verify authorization chain and territory in writing; flag gray-market inventory, counterfeit risk, and unauthorized marketplace restrictions."
+    },
+    {
+      "id": "individual_education_and_creative",
+      "applicant_type": "individual",
+      "jurisdictions": ["Arizona", "United States"],
+      "keywords": [
+        "adult learner scholarship", "women in technology scholarship",
+        "Latina scholarship", "LGBTQ scholarship", "trans scholarship",
+        "STEM scholarship", "computer science scholarship",
+        "artist opportunity grant", "creative technology grant",
+        "entrepreneurship fellowship", "career development fellowship",
+        "amateur radio scholarship", "electronics communications scholarship"
+      ],
+      "user_supplied_qualifications": [
+        "Bloomberg Terminal certification",
+        "Google coursework completed",
+        "Harvard CS50 completed",
+        "amateur radio operator"
+      ],
+      "identity_matching": {
+        "enabled_only_with_user_opt_in": false,
+        "attributes": [],
+        "privacy": "Identity attributes must remain in a private encrypted profile and may be loaded only after explicit opt-in for a specific program; never store them in this public example or telemetry."
+      }
+    }
+  ],
+  "global_rules": [
+    "Separate grants, contracts, scholarships, fellowships, prizes, and loans.",
+    "Prefer official program and procurement sources; label secondary aggregators.",
+    "Store source URL, retrieval time, last verified date, deadline, award range, applicant type, jurisdiction, eligibility requirements, and status.",
+    "Never infer eligibility from identity, credentials, age, or location when a program rule is unclear.",
+    "Do not represent a closed or expired opportunity as open.",
+    "Do not represent a federal, state, or local contract as a grant.",
+    "For insurance procurements, enforce the agency's actual licensing and appointment scope.",
+    "Require human review before applications, certifications, registrations, representations, or bids are submitted.",
+    "Do not pay an application fee or share tax, banking, identity, or credential documents without explicit approval."
+  ]
+}
