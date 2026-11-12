@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <filesystem>
 #include <optional>
@@ -82,6 +83,10 @@ public:
 
     [[nodiscard]] std::optional<ArtifactSnapshot> get(
         std::string_view artifact_id) const;
+
+    [[nodiscard]] std::vector<ArtifactSnapshot> list(
+        std::size_t limit = 50U,
+        std::size_t offset = 0U) const;
 
     [[nodiscard]] std::vector<VerificationReceipt> verification_receipts(
         std::string_view artifact_id) const;
