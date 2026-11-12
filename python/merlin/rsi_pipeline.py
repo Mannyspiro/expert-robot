@@ -407,6 +407,56 @@ class CaceMcpAttestor:
         result = message.get("result")
         return result if isinstance(result, dict) else {}
 
+    def reproduce(
+        self, *, bundle_payload: Mapping[str, Any], expected_claim_id: str,
+        expected_bindings: Mapping[str, Any], artifact_bytes_b64: Mapping[str, str],
+        github_run_id: int,
+    ) -> dict[str, Any]:
+        initialized = self._rpc("initialize", {
+            "protocolVersion": self.protocol_version,
+            "capabilities": {},
+            "clientInfo": {"name": "merlin-rsi-pipeline", "version": "1.0.0"},
+        })
+        negotiated = initialized.get("protocolVersion")
+        if not isinstance(negotiated, str) or not negotiated:
+            raise RuntimeError("CACE MCP initialize response omitted protocolVersion")
+        self.protocol_version = negotiated
+        self._rpc("notifications/initialized")
+        result = self._rpc("tools/call", {
+            "name": "attest_merlin_rsi_reproduction",
+            "arguments": {
+                "bundle_payload": dict(bundle_payload),
+                "expected_claim_id": expected_claim_id,
+                "expected_bindings": dict(expected_bindings),
+                "artifact_bytes_b64": dict(artifact_bytes_b64),
+                "github_run_id": int(github_run_id),
+            },
+        })
+        if result.get("isError") is True:
+            raise PermissionError("CACE MCP refused independent-reproduction attestation")
+        structured = result.get("structuredContent")
+        if not isinstance(structured, Mapping):
+            for item in result.get("content", []):
+                if isinstance(item, Mapping) and item.get("type") == "text":
+                    try:
+                        parsed = json.loads(str(item.get("text", "")))
+                    except ValueError:
+                        continue
+                    if isinstance(parsed, Mapping):
+                        structured = parsed
+                        break
+        if not isinstance(structured, Mapping):
+            raise RuntimeError("CACE MCP reproduction tool returned no structured attestation")
+        response = dict(structured)
+        if (response.get("purpose") != "independent-reproduction"
+            or response.get("proof_effect") != "none"
+            or response.get("authority") != "verification-only"
+            or not isinstance(response.get("attestation"), Mapping)
+            or not isinstance(response.get("runner_provenance"), Mapping)):
+            raise PermissionError("CACE MCP reproduction response violates the verification contract")
+        return response
+
+
     def attest(
         self, *, bundle_payload: Mapping[str, Any], expected_claim_id: str,
         expected_bindings: Mapping[str, Any], artifact_bytes_b64: Mapping[str, str],
