@@ -164,7 +164,6 @@ class HermesWorker:
             "source_commit": task["source_commit"],
             "artifact_sha256": task["artifact_sha256"],
             "source_artifact_path": task.get("source_artifact_path"),
-            "observed_at": datetime.now(timezone.utc).isoformat(),
         }
         try:
             signed = self.failure_signer.sign_failure(failure_record)
