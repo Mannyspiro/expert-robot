@@ -476,10 +476,15 @@ int main() {
     bool saw_strategy_dispatch = false;
     bool saw_strategy_outcome = false;
     bool saw_strategy_partial = false;
+    bool saw_direct_failure_observation = false;
 
     for (const auto& event :
          episode_ledger.events(
              "engine-episode-001")) {
+        if (event.event_type == "failure_observation.v1" &&
+            event.payload.find("\"stage\":\"direct_proof\"") != std::string::npos) {
+            saw_direct_failure_observation = true;
+        }
         if (event.event_type ==
             "route_plan_top") {
             saw_route_plan = true;
@@ -540,6 +545,7 @@ int main() {
     assert(saw_strategy_top);
     assert(saw_strategy_dispatch);
     assert(saw_strategy_outcome);
+    assert(saw_direct_failure_observation);
     assert(!saw_strategy_partial);
 
     std::filesystem::remove(
