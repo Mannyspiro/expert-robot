@@ -1,6 +1,8 @@
 #include "expert_robot/math/mmir.hpp"
 
+#include <cmath>
 #include <functional>
+#include <limits>
 #include <stdexcept>
 #include <utility>
 
@@ -11,7 +13,100 @@ std::string glyph_key(std::string_view name_space, std::string_view glyph) {
     return std::string(name_space) + "::" + std::string(glyph);
 }
 
+bool valid_math_type(const MathType& type) noexcept {
+    return !type.name.empty() && std::isfinite(type.scale_to_si) &&
+        type.scale_to_si > 0.0L;
+}
+
+bool same_dimensions(const MathType& lhs, const MathType& rhs) noexcept {
+    return lhs.dimensions == rhs.dimensions;
+}
+
+namespace {
+
+int checked_dimension(int lhs, int rhs, bool subtract) {
+    const auto result = subtract
+        ? static_cast<long long>(lhs) - static_cast<long long>(rhs)
+        : static_cast<long long>(lhs) + static_cast<long long>(rhs);
+    if (result < std::numeric_limits<int>::min() ||
+        result > std::numeric_limits<int>::max()) {
+        throw std::overflow_error("SI dimension exponent overflow");
+    }
+    return static_cast<int>(result);
+}
+
+void require_valid_type(const MathType& type) {
+    if (!valid_math_type(type)) {
+        throw std::invalid_argument("mathematical type requires a name and positive finite SI scale");
+    }
+}
+
+std::string unit_product(const MathType& lhs, const MathType& rhs, char operation) {
+    const auto left = lhs.unit_symbol.empty() ? "1" : lhs.unit_symbol;
+    const auto right = rhs.unit_symbol.empty() ? "1" : rhs.unit_symbol;
+    return "(" + left + ")" + operation + "(" + right + ")";
+}
+
 } // namespace
+
+MathType multiply_types(const MathType& lhs, const MathType& rhs) {
+    require_valid_type(lhs);
+    require_valid_type(rhs);
+    MathType result;
+    result.name = lhs.name + "*" + rhs.name;
+    result.unit_symbol = unit_product(lhs, rhs, '*');
+    result.scale_to_si = lhs.scale_to_si * rhs.scale_to_si;
+    for (std::size_t i = 0; i < dimension_count; ++i) {
+        result.dimensions[i] = checked_dimension(lhs.dimensions[i], rhs.dimensions[i], false);
+    }
+    require_valid_type(result);
+    return result;
+}
+
+MathType divide_types(const MathType& lhs, const MathType& rhs) {
+    require_valid_type(lhs);
+    require_valid_type(rhs);
+    MathType result;
+    result.name = lhs.name + "/" + rhs.name;
+    result.unit_symbol = unit_product(lhs, rhs, '/');
+    result.scale_to_si = lhs.scale_to_si / rhs.scale_to_si;
+    for (std::size_t i = 0; i < dimension_count; ++i) {
+        result.dimensions[i] = checked_dimension(lhs.dimensions[i], rhs.dimensions[i], true);
+    }
+    require_valid_type(result);
+    return result;
+}
+
+MathType integer_power(const MathType& base, int exponent) {
+    require_valid_type(base);
+    MathType result;
+    result.name = base.name + "^" + std::to_string(exponent);
+    result.unit_symbol = "(" + base.unit_symbol + ")^" + std::to_string(exponent);
+    result.scale_to_si = std::pow(base.scale_to_si, exponent);
+    for (std::size_t i = 0; i < dimension_count; ++i) {
+        const auto value = static_cast<long long>(base.dimensions[i]) *
+            static_cast<long long>(exponent);
+        if (value < std::numeric_limits<int>::min() ||
+            value > std::numeric_limits<int>::max()) {
+            throw std::overflow_error("SI dimension exponent overflow");
+        }
+        result.dimensions[i] = static_cast<int>(value);
+    }
+    require_valid_type(result);
+    return result;
+}
+
+long double convert_value(long double value, const MathType& from, const MathType& to) {
+    require_valid_type(from);
+    require_valid_type(to);
+    if (!std::isfinite(value)) {
+        throw std::invalid_argument("unit conversion requires a finite value");
+    }
+    if (!same_dimensions(from, to)) {
+        throw std::invalid_argument("cannot convert between dimensionally incompatible units");
+    }
+    return value * from.scale_to_si / to.scale_to_si;
+}
 
 void OperatorRegistry::add(OperatorSpec spec) {
     if (spec.id.empty() || spec.name_space.empty() || spec.glyph.empty() ||
