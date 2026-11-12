@@ -973,7 +973,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                             "curriculum_id": curriculum_id})
                         if learning_router is not None:
                             learning_router.run_once()
-                    self._send(200, {"schema": "merlin-learning-recommendation/1", **result})
+                    self._send(200, {"schema": "merlin-learning-recommendation/1", **result, "learner_id": actor.actor_id})
                 else:
                     estimates = {}
                     for idea_id, idea in learning_graph.items():
