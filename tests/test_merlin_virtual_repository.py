@@ -425,6 +425,25 @@ class VirtualRepositoryTests(unittest.TestCase):
         with self.assertRaises(KeyError):
             self.repo.read_file("main", "src/core.py")
 
+    def test_accepts_dot_prefixed_project_metadata_paths_but_not_git_directory(self):
+        branch = self.repo.create_branch("feature/metadata")
+        commit = self.repo.commit(branch["name"], "add workflow metadata", {
+            ".github/workflows/ci.yml": "name: CI\\n",
+            ".gitignore": "build/\\n",
+        })
+        self.assertEqual(
+            self.repo.read_file(branch["name"], ".github/workflows/ci.yml"),
+            b"name: CI\\n",
+        )
+        self.assertEqual(
+            self.repo.read_file(branch["name"], ".gitignore"),
+            b"build/\\n",
+        )
+        with self.assertRaises(VirtualGitError):
+            self.repo.commit(branch["name"], "reject git internals", {
+                ".git/config": "unsafe\\n",
+            })
+
     def test_rejects_path_traversal_and_oversized_event_queries(self):
         with self.assertRaises(VirtualGitError):
             self.repo.commit("main", "bad path", {"../outside.txt": "no"}, allow_protected=True)
