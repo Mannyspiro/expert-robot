@@ -235,8 +235,14 @@ class CaceVerificationAdapter:
             if not isinstance(value, str) or not value.strip() or len(value) > 500:
                 raise ValueError(label + " is required")
         extra_bindings = dict(additional_bindings or {})
+        reserved_bindings = {
+            "repository", "commit_sha", "artifact_kind", "artifact_schema",
+            "logical_path", "tool_identity",
+        }
         if any(not isinstance(key, str) or not key.strip() for key in extra_bindings):
             raise ValueError("additional binding keys must be non-empty strings")
+        if reserved_bindings.intersection(extra_bindings):
+            raise ValueError("additional bindings cannot override canonical CACE subject fields")
         try:
             _canonical(extra_bindings)
         except (TypeError, ValueError) as exc:
