@@ -260,11 +260,17 @@ def bootstrap_merlin(
         ))
         graph.add_edge(GraphEdge(project_node_id, "contains", node_id, {"source_commit": source_commit}))
         graph.add_edge(GraphEdge(node_id, "derived_from", catalog_node_id, {"catalog_sha256": catalog_sha}))
+
+    # Add dependency edges only after every versioned idea node exists. This
+    # supports forward references without weakening foreign-key enforcement.
+    for idea_id, idea in idea_by_id.items():
+        learning = idea.get("learning") or {}
+        node_id = idea_node_ids[idea_id]
         for prerequisite_id in learning.get("prerequisites", []):
             graph.add_edge(GraphEdge(
                 node_id,
                 "depends_on",
-                idea_node_ids.get(prerequisite_id, "idea:" + prerequisite_id + ":" + source_commit_short),
+                idea_node_ids[prerequisite_id],
                 {"prerequisite_idea_id": prerequisite_id},
             ))
 
@@ -329,7 +335,7 @@ def bootstrap_merlin(
         "stores": {
             "registry": str(registry.db_path),
             "knowledge_graph": str(graph.path),
-            "hypotheses": str(ledger.path),
+            "hypotheses": ledger.database,
             "outbox": str(outbox.path),
         },
         "epistemic_status": "source_catalog_and_candidate_blueprints_recorded_not_verified",
