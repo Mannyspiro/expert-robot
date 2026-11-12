@@ -28,6 +28,8 @@ class MerlinLearningHttpTests(unittest.TestCase):
             "Bearer learner-course-authoring": Actor("tenant-a", "student-course-authoring", "learner"),
             "Bearer learner-profile": Actor("tenant-a", "student-profile", "learner"),
             "Bearer learner-foundations": Actor("tenant-a", "student-foundations", "learner"),
+            "Bearer learner-logic": Actor("tenant-a", "student-logic", "learner"),
+            "Bearer learner-algebra": Actor("tenant-a", "student-algebra", "learner"),
             "Bearer outsider": Actor("tenant-b", "student-2", "learner"),
         }
 
@@ -271,7 +273,7 @@ class MerlinLearningHttpTests(unittest.TestCase):
         request = Request(self.base + "/api/learning/courses",
                           data=b'{"slug":"blocked-course","title":"Blocked"}',
                           headers={"Content-Type": "application/json",
-                                   "Authorization": "Bearer learner-course-authoring"})
+                                   "Authorization": "Bearer learner"})
         with self.assertRaises(HTTPError) as caught:
             urlopen(request, timeout=5)
         self.assertEqual(caught.exception.code, 403)
@@ -287,7 +289,7 @@ class MerlinLearningHttpTests(unittest.TestCase):
         self.assertEqual(preview["lesson_count"], 7)
 
         with self.assertRaises(HTTPError) as denied:
-            self.request("GET", "/api/learning/templates/math-foundations", "Bearer learner-course-authoring")
+            self.request("GET", "/api/learning/templates/math-foundations", "Bearer learner-foundations")
         self.assertEqual(denied.exception.code, 403)
 
         status, draft = self.request("POST", "/api/learning/courses", "Bearer faculty", {
@@ -322,11 +324,11 @@ class MerlinLearningHttpTests(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertEqual(published["status"], "published")
         status, enrollment = self.request(
-            "POST", f"/api/learning/courses/{course_id}/enroll", "Bearer learner-course-authoring", {}
+            "POST", f"/api/learning/courses/{course_id}/enroll", "Bearer learner-foundations", {}
         )
         self.assertEqual(status, 200)
         status, recommendation = self.request(
-            "GET", f"/api/learning/courses/{course_id}/recommendation", "Bearer learner-course-authoring"
+            "GET", f"/api/learning/courses/{course_id}/recommendation", "Bearer learner-foundations"
         )
         self.assertEqual(status, 200)
         self.assertEqual(recommendation["state"], "recommended")
@@ -334,12 +336,12 @@ class MerlinLearningHttpTests(unittest.TestCase):
         self.assertEqual(recommendation["authority"], "recommendation_only")
 
     def test_learner_profile_is_identity_scoped_and_persisted(self):
-        status, default = self.request("GET", "/api/learning/profile", "Bearer learner-course-authoring")
+        status, default = self.request("GET", "/api/learning/profile", "Bearer learner-profile")
         self.assertEqual(status, 200)
         self.assertAlmostEqual(sum(default["pathway_weights"].values()), 1.0)
         self.assertEqual(default["interests"], [])
 
-        status, updated = self.request("POST", "/api/learning/profile", "Bearer learner-course-authoring", {
+        status, updated = self.request("POST", "/api/learning/profile", "Bearer learner-profile", {
             "pathway_weights": {
                 "mathematician": 0.0,
                 "mathematics_programmer": 1.0,
@@ -352,7 +354,7 @@ class MerlinLearningHttpTests(unittest.TestCase):
         self.assertEqual(updated["interests"], ["number_theory", "python"])
         self.assertEqual(updated["max_minutes"], 20)
 
-        status, persisted = self.request("GET", "/api/learning/profile", "Bearer learner-course-authoring")
+        status, persisted = self.request("GET", "/api/learning/profile", "Bearer learner-profile")
         self.assertEqual(status, 200)
         self.assertEqual(persisted["pathway_weights"], updated["pathway_weights"])
         self.assertEqual(persisted["interests"], updated["interests"])
@@ -362,7 +364,7 @@ class MerlinLearningHttpTests(unittest.TestCase):
         self.assertEqual(instructor_denied.exception.code, 403)
 
         with self.assertRaises(HTTPError) as identity_denied:
-            self.request("POST", "/api/learning/profile", "Bearer learner-course-authoring", {
+            self.request("POST", "/api/learning/profile", "Bearer learner-profile", {
                 "learner_id": "another-learner", "interests": ["proof"]
             })
         self.assertEqual(identity_denied.exception.code, 400)
@@ -374,25 +376,25 @@ class MerlinLearningHttpTests(unittest.TestCase):
         self.assertEqual(unauthenticated.exception.code, 503)
 
         status, recommendation = self.request(
-            "GET", "/api/learning/recommendation?learner_id=student-1", "Bearer learner-profile"
+            "GET", "/api/learning/recommendation?learner_id=student-1", "Bearer learner"
         )
         self.assertEqual(status, 200)
         self.assertEqual(recommendation["learner_id"], "student-1")
 
         with self.assertRaises(HTTPError) as mismatched_recommendation:
             self.request(
-                "GET", "/api/learning/recommendation?learner_id=another-learner", "Bearer learner-profile"
+                "GET", "/api/learning/recommendation?learner_id=another-learner", "Bearer learner"
             )
         self.assertEqual(mismatched_recommendation.exception.code, 403)
 
         status, state = self.request(
-            "GET", "/api/learning/learner?learner_id=student-1", "Bearer learner-profile"
+            "GET", "/api/learning/learner?learner_id=student-1", "Bearer learner"
         )
         self.assertEqual(status, 200)
         self.assertEqual(state["learner_id"], "student-1")
         with self.assertRaises(HTTPError) as mismatched_state:
             self.request(
-                "GET", "/api/learning/learner?learner_id=another-learner", "Bearer learner-profile"
+                "GET", "/api/learning/learner?learner_id=another-learner", "Bearer learner"
             )
         self.assertEqual(mismatched_state.exception.code, 403)
 
@@ -405,7 +407,7 @@ class MerlinLearningHttpTests(unittest.TestCase):
         self.assertEqual(preview["curriculum_id"], "math-logic-discrete-v1")
         self.assertEqual(preview["objective_count"], 3)
         with self.assertRaises(HTTPError) as denied:
-            self.request("GET", "/api/learning/templates/math-logic-discrete", "Bearer learner-foundations")
+            self.request("GET", "/api/learning/templates/math-logic-discrete", "Bearer learner-logic")
         self.assertEqual(denied.exception.code, 403)
 
         status, draft = self.request("POST", "/api/learning/courses", "Bearer faculty", {
@@ -433,12 +435,12 @@ class MerlinLearningHttpTests(unittest.TestCase):
         self.assertEqual(status, 200)
         self.assertEqual(published["status"], "published")
         status, enrollment = self.request(
-            "POST", f"/api/learning/courses/{course_id}/enroll", "Bearer learner-foundations", {}
+            "POST", f"/api/learning/courses/{course_id}/enroll", "Bearer learner-logic", {}
         )
         self.assertEqual(status, 200)
 
         status, submitted = self.request(
-            "POST", f"/api/learning/courses/{course_id}/submissions", "Bearer learner-foundations", {
+            "POST", f"/api/learning/courses/{course_id}/submissions", "Bearer learner-logic", {
                 "submission_id": "logic-bridge-submission-1",
                 "lesson_id": "math-logic-quantifiers-v1",
                 "task_id": "logic-quantifier-scope",
@@ -480,11 +482,11 @@ class MerlinLearningHttpTests(unittest.TestCase):
         )
         self.assertEqual(status, 200)
         status, enrollment = self.request(
-            "POST", f"/api/learning/courses/{course_id}/enroll", "Bearer learner", {}
+            "POST", f"/api/learning/courses/{course_id}/enroll", "Bearer learner-algebra", {}
         )
         self.assertEqual(status, 200)
         status, submitted = self.request(
-            "POST", f"/api/learning/courses/{course_id}/submissions", "Bearer learner", {
+            "POST", f"/api/learning/courses/{course_id}/submissions", "Bearer learner-algebra", {
                 "submission_id": "algebra-bridge-submission-1",
                 "lesson_id": "math-equations-inequalities-v1",
                 "task_id": "solve-equations-preserve-solutions",
