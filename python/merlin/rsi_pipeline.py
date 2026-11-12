@@ -409,6 +409,8 @@ class AppendOnlyLedger:
         if not isinstance(artifact_bytes, (bytes, bytearray)):
             raise ValueError("artifact_bytes must be bytes")
         raw = bytes(artifact_bytes)
+        if len(raw) > 10 * 1024 * 1024:
+            raise ValueError("RSI inline artifact exceeds the 10 MiB CACE verification limit")
         digest = sha256_hex(raw)
         if expected_sha256 is not None and digest != expected_sha256:
             raise ValueError("artifact bytes do not match the declared SHA-256")
@@ -490,8 +492,10 @@ class AppendOnlyLedger:
         episode = episode_id or candidate_id
         if not _is_sha256(artifact_sha256):
             raise ValueError("artifact_sha256 must be lowercase SHA-256")
-        if not candidate_id or not generator:
-            raise ValueError("candidate_id and generator are required")
+        if (not isinstance(candidate_id, str) or not candidate_id.strip()
+                or len(candidate_id) > 128 or not isinstance(generator, str)
+                or not generator.strip() or len(generator) > 128):
+            raise ValueError("candidate_id and generator must be bounded non-empty strings")
         required = {"candidate_id": candidate_id, "artifact_sha256": artifact_sha256}
         plural_seed_hashes_supplied = induction_seed_event_hashes is not None
         seed_hashes = list(induction_seed_event_hashes or [])
@@ -514,11 +518,6 @@ class AppendOnlyLedger:
                 required["induction_seed_event_hashes"] = seed_hashes
             elif induction_seed_event_hash is not None:
                 required["induction_seed_event_hash"] = induction_seed_event_hash
-        artifact_info = None
-        if artifact_bytes is not None:
-            artifact_info = self.store_artifact(
-                artifact_bytes, expected_sha256=artifact_sha256,
-                media_type=artifact_media_type)
         if not verify_signed_receipt(source_receipt, _load_issuer_trusted_keys("merlin-source"),
             expected_issuer="merlin-source", expected_claims=required):
             raise PermissionError("candidate source receipt is missing, untrusted, or mismatched")
@@ -527,6 +526,8 @@ class AppendOnlyLedger:
         if not isinstance(source_repo, str) or not source_repo.strip() or not _is_git_commit(source_commit):
             raise ValueError("candidate source receipt must bind source_repo and exact 40-hex source_commit")
         if parent_candidate_id:
+            if not isinstance(parent_candidate_id, str) or not parent_candidate_id.strip():
+                raise ValueError("parent_candidate_id must be a non-empty string")
             with self._connect() as db:
                 rows = db.execute(
                     "SELECT payload FROM research_episode_events WHERE event_type='candidate.created'"
@@ -534,6 +535,11 @@ class AppendOnlyLedger:
             if not any(json.loads(row["payload"]).get("candidate_id") == parent_candidate_id
                        for row in rows):
                 raise ValueError("parent candidate is absent from append-only lineage")
+        artifact_info = None
+        if artifact_bytes is not None:
+            artifact_info = self.store_artifact(
+                artifact_bytes, expected_sha256=artifact_sha256,
+                media_type=artifact_media_type)
         return self.append("candidate.created", episode, {
             "candidate_id": candidate_id, "parent_candidate_id": parent_candidate_id,
             "source_receipt_digest": source_receipt.receipt_digest,
