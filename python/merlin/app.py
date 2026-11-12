@@ -979,7 +979,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     for idea_id, idea in learning_graph.items():
                         estimates[idea_id] = {dimension: learner_store.estimate(
                             learner_id, idea_id, dimension).__dict__ for dimension in idea["dimensions"]}
-                    self._send(200, {"schema": "merlin-learner-state/1", "learner_id": learner_id,
+                    self._send(200, {"schema": "merlin-learner-state/1", "learner_id": actor.actor_id,
                                      "skills": estimates, "attempts": len(learner_store.attempts(learner_id))})
             elif path == "/api/council/roles":
                 self._send(200, {"schema": "merlin-council-roles/1",
