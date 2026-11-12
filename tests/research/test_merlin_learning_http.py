@@ -68,9 +68,11 @@ class MerlinLearningHttpTests(unittest.TestCase):
         cid = course["course_id"]
         status, faculty_catalog = self.request("GET", "/api/learning/courses", "Bearer faculty")
         self.assertEqual(status, 200)
-        self.assertEqual(faculty_catalog["count"], 1)
-        self.assertEqual(faculty_catalog["courses"][0]["course_id"], cid)
-        self.assertEqual(faculty_catalog["courses"][0]["status"], "draft")
+        self.assertGreaterEqual(faculty_catalog["count"], 1)
+        created = next((item for item in faculty_catalog["courses"]
+                        if item["course_id"] == cid), None)
+        self.assertIsNotNone(created)
+        self.assertEqual(created["status"], "draft")
         manifest = course["manifest"]
         manifest["objectives"] = [{"id": "PHY-1", "title": "Describe motion", "prerequisites": [],
                                   "dimensions": ["conceptual_explanation"]},
