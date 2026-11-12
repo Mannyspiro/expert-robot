@@ -366,16 +366,32 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
     if catalog_path.is_file():
         catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
         for idea in catalog.get("ideas", []):
+            if not isinstance(idea, dict):
+                raise ValueError("mathematical idea catalog entries must be objects")
             learning = idea.get("learning")
             if not isinstance(learning, dict):
-                continue
+                learning = {}
             idea_id = idea.get("id")
-            lesson_id = learning.get("lesson_id")
-            dimensions = learning.get("dimensions", [])
+            if not isinstance(idea_id, str) or not idea_id.strip():
+                raise ValueError("mathematical idea catalog entries require an ID")
+            dimensions = learning.get("dimensions", ["conceptual_explanation", "procedure"])
             prerequisites = learning.get("prerequisites", [])
-            if not isinstance(idea_id, str) or not isinstance(lesson_id, str):
+            if (not isinstance(dimensions, list) or not dimensions
+                or any(not isinstance(item, str) or not item for item in dimensions)):
+                raise ValueError(f"{idea_id}: learner dimensions must be a non-empty list")
+            if (not isinstance(prerequisites, list)
+                or any(not isinstance(item, str) or not item for item in prerequisites)):
+                raise ValueError(f"{idea_id}: learner prerequisites must be a list of IDs")
+
+            # Keep every canonical idea in the evidence graph, including ideas
+            # whose lesson is only a candidate or has not yet been authored.
+            learning_graph[idea_id] = {
+                "prerequisites": prerequisites,
+                "dimensions": dimensions,
+            }
+            lesson_id = learning.get("lesson_id")
+            if not isinstance(lesson_id, str) or not lesson_id.strip():
                 continue
-            learning_graph[idea_id] = {"prerequisites": prerequisites, "dimensions": dimensions}
             art_math_ids = {"MATH-ART-001", "MATH-TESS-001", "MATH-PROJ-001",
                             "MATH-POLY-001", "MATH-PARA-001", "MATH-FRACT-002",
                             "MATH-SIG-001", "MATH-GEN-001", "MATH-DATA-001"}
