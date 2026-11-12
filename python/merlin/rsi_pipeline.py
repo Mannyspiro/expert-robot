@@ -921,47 +921,6 @@ class AppendOnlyLedger:
         })
 
     def record_cace_verification_from_mcp(
-        self, *, candidate_id: str, attestation: Mapping[str, Any],
-        artifact_sha256: str, suite_sha256: str,
-        episode_id: str | None = None, verifier: Any | None = None,
-    ) -> dict[str, Any]:
-        """Verify an independent-reproduction receipt through CACE MCP, then persist it."""
-        episode = episode_id or candidate_id
-        candidate, evaluation, expected_bundle_sha, bindings = self._cace_evidence(
-            episode, candidate_id, artifact_sha256, suite_sha256
-        )
-        bundle_payload, manifest_bytes, payload_bindings = cace_rsi_bundle_payload(
-            candidate_id=candidate_id, candidate_digest=artifact_sha256,
-            benchmark_manifest_sha256=suite_sha256,
-            evaluator_receipt_sha256=evaluation["evaluator_receipt_digest"],
-            source_repo=candidate["source_repo"], source_commit=candidate["source_commit"],
-        )
-        actual_bundle_sha = sha256_hex(_CACE_BUNDLE_DOMAIN + canonical_json(bundle_payload))
-        if actual_bundle_sha != expected_bundle_sha or payload_bindings != bindings:
-            raise RuntimeError("CACE bundle payload diverged from canonical RSI evidence identity")
-        transport = verifier or CaceMcpVerifier()
-        response = transport.verify(
-            bundle_payload=bundle_payload,
-            attestation_payload=attestation,
-            expected_claim_id=candidate_id,
-            expected_bindings=bindings,
-            artifact_bytes_b64={
-                "merlin-rsi-evidence-manifest": base64.b64encode(manifest_bytes).decode("ascii")
-            },
-        )
-        expected_attestation_sha = sha256_hex(canonical_json(dict(attestation)))
-        if (
-            response.get("bundle_sha256") != expected_bundle_sha
-            or response.get("attestation_sha256") != expected_attestation_sha
-        ):
-            raise PermissionError("CACE MCP verifier receipt does not bind the exact local evidence")
-        return self.record_cace_verification(
-            candidate_id=candidate_id, attestation=attestation,
-            artifact_sha256=artifact_sha256, suite_sha256=suite_sha256,
-            episode_id=episode,
-        )
-
-    def record_cace_verification_from_mcp(
         self, *, candidate_id: str, artifact_sha256: str, suite_sha256: str,
         github_run_id: int, episode_id: str | None = None,
         attestor: Any | None = None,
