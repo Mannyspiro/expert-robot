@@ -191,27 +191,33 @@ class UrllibTransport:
         request = urllib.request.Request(url, headers=dict(headers))
         try:
             with urllib.request.urlopen(request, timeout=timeout) as response:
-                declared_length = response.headers.get("Content-Length")
-                if declared_length is not None:
-                    try:
-                        if int(declared_length) > self._max_response_bytes:
-                            raise MetadataFetchError("provider response exceeds configured size limit")
-                    except ValueError:
-                        pass
-                body = response.read(self._max_response_bytes + 1)
-                if len(body) > self._max_response_bytes:
-                    raise MetadataFetchError("provider response exceeds configured size limit")
-                return HttpResponse(
-                    status=int(response.status),
-                    headers=dict(response.headers.items()),
-                    body=body,
-                )
+                return self._response(response, int(response.status), response.headers)
         except urllib.error.HTTPError as error:
             return HttpResponse(
                 status=int(error.code),
                 headers=dict(error.headers.items()) if error.headers else {},
-                body=error.read(),
+                body=self._read_bounded(error, error.headers),
             )
+
+    def _read_bounded(self, response, headers) -> bytes:
+        declared_length = headers.get("Content-Length") if headers else None
+        if declared_length is not None:
+            try:
+                if int(declared_length) > self._max_response_bytes:
+                    raise MetadataFetchError("provider response exceeds configured size limit")
+            except ValueError:
+                pass
+        body = response.read(self._max_response_bytes + 1)
+        if len(body) > self._max_response_bytes:
+            raise MetadataFetchError("provider response exceeds configured size limit")
+        return body
+
+    def _response(self, response, status: int, headers) -> HttpResponse:
+        return HttpResponse(
+            status=status,
+            headers=dict(headers.items()),
+            body=self._read_bounded(response, headers),
+        )
 
 
 def _clean_abstract(value: str) -> str:
@@ -296,9 +302,20 @@ class ResearchMetadataClient:
             title_values = message.get("title") or []
             title = str(title_values[0]) if title_values else ""
             authors = tuple(
-                " ".join(part for part in (str(a.get("given", "")).strip(),
-                                           str(a.get("family", "")).strip()) if part)
+                (
+                    " ".join(part for part in (
+                        str(a.get("given", "")).strip(),
+                        str(a.get("family", "")).strip(),
+                    ) if part)
+                    or str(a.get("name", "")).strip()
+                )
                 for a in message.get("author", [])
+                if isinstance(a, dict)
+                and (
+                    str(a.get("given", "")).strip()
+                    or str(a.get("family", "")).strip()
+                    or str(a.get("name", "")).strip()
+                )
             )
             doi_value = str(message.get("DOI", normalized)).lower()
             abstract = _clean_abstract(str(message.get("abstract", "")))
