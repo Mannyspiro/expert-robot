@@ -1,0 +1,547 @@
+"""Loopback-only Merlin MVP API.
+
+Provides deterministic research/engineering contracts and an append-only
+metadata event ledger. Model, image and video generation are reported as
+unconfigured until a real adapter is connected.
+"""
+from __future__ import annotations
+
+from datetime import datetime, timezone
+from hashlib import sha256
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+import json
+import os
+from pathlib import Path
+import sqlite3
+from typing import Any
+from urllib.parse import urlparse, urlsplit
+from urllib.request import Request, urlopen
+from urllib.error import URLError, HTTPError
+from time import perf_counter
+
+from .council import PERSONAS, build_deliberation_packets
+from .council_runtime import run_local_council
+from .simulation import MerlinSimulation
+from .telemetry import normalize_event, telemetry_view, record_runtime_event
+from .telemetry_graph import build_telemetry_graph
+from .research import (
+    AnalogyMap, Idea, PromotionPacket, qualify_rsi_candidate, rank_ideas,
+    validate_analogy,
+)
+from .engineering.geometry import GeometrySpec, Point3D, validate_geometry, bounding_box
+from .engineering.netlist import Component, Connection, Net, Netlist, validate_netlist
+
+MAX_BODY = 1_000_000
+MAX_PROXY_RESPONSE = 16_000_000
+
+
+def _loopback_endpoint(env_name: str, default: str) -> str:
+    value = os.environ.get(env_name, default)
+    parsed = urlsplit(value)
+    if parsed.scheme != "http" or parsed.hostname not in {"127.0.0.1", "localhost", "::1"}:
+        raise ValueError(f"{env_name} must be an http loopback URL")
+    return value
+
+
+def _json_bytes(value: Any) -> bytes:
+    return json.dumps(value, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
+
+
+def _append_component_event(store: EventStore, *, source: str, kind: str,
+                           component: str, task_id: str, payload: dict[str, Any],
+                           duration_ms: float | None = None,
+                           model_id: str | None = None,
+                           evidence_refs: list[str] | None = None) -> None:
+    event = normalize_event({
+        "source": source, "kind": kind, "run_id": sha256(_json_bytes({
+            "component": component, "task": task_id, "nonce": os.urandom(16).hex()
+        })).hexdigest(), "task_id": task_id, "payload": {"component": component, **payload},
+        "duration_ms": duration_ms, "model_id": model_id,
+        "evidence_refs": evidence_refs or [],
+    })
+    store.append("/api/telemetry/ingest",
+                 {"event_id": event["event_id"], "source": source},
+                 {"event": event})
+
+
+def _remote_model_endpoint() -> tuple[str, str]:
+    """Return an explicitly allowlisted HTTPS OpenAI-compatible endpoint."""
+    endpoint = os.environ.get("MERLIN_REMOTE_MODEL_URL", "").strip()
+    api_key = os.environ.get("MERLIN_REMOTE_API_KEY", "").strip()
+    allowed = {host.strip().lower() for host in os.environ.get("MERLIN_REMOTE_ALLOWED_HOSTS", "").split(",") if host.strip()}
+    if not endpoint or not api_key or not allowed:
+        raise ValueError("remote model requires URL, API key, and explicit allowed-host list")
+    parsed = urlsplit(endpoint)
+    if parsed.scheme != "https" or not parsed.hostname or parsed.hostname.lower() not in allowed or parsed.username or parsed.password or parsed.fragment:
+        raise ValueError("remote model URL must use HTTPS and an explicitly allowlisted host")
+    return endpoint, api_key
+
+
+class EventStore:
+    def __init__(self, path: str | Path):
+        self.path = str(path)
+        Path(self.path).parent.mkdir(parents=True, exist_ok=True)
+        with sqlite3.connect(self.path) as db:
+            db.execute("""CREATE TABLE IF NOT EXISTS events (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                kind TEXT NOT NULL,
+                request_sha256 TEXT NOT NULL,
+                summary_json TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            )""")
+
+    def append(self, kind: str, request: dict[str, Any], summary: dict[str, Any]) -> None:
+        digest = sha256(_json_bytes(request)).hexdigest()
+        with sqlite3.connect(self.path) as db:
+            db.execute(
+                "INSERT INTO events(kind,request_sha256,summary_json,created_at) VALUES(?,?,?,?)",
+                (kind, digest, json.dumps(summary, sort_keys=True), datetime.now(timezone.utc).isoformat()),
+            )
+
+    def recent(self, limit: int = 20) -> list[dict[str, Any]]:
+        with sqlite3.connect(self.path) as db:
+            rows = db.execute(
+                "SELECT id,kind,request_sha256,summary_json,created_at FROM events ORDER BY id DESC LIMIT ?",
+                (limit,),
+            ).fetchall()
+        return [
+            {"id": row[0], "kind": row[1], "request_sha256": row[2],
+             "summary": json.loads(row[3]), "created_at": row[4]}
+            for row in rows
+        ]
+
+    def by_kind(self, kind: str, limit: int = 10000) -> list[dict[str, Any]]:
+        """Return oldest-first event metadata for deterministic replay."""
+        if not 1 <= limit <= 100000:
+            raise ValueError("event limit out of range")
+        with sqlite3.connect(self.path) as db:
+            rows = db.execute(
+                "SELECT id,kind,request_sha256,summary_json,created_at FROM events WHERE kind=? ORDER BY id ASC LIMIT ?",
+                (kind, limit),
+            ).fetchall()
+        return [{"id": row[0], "kind": row[1], "request_sha256": row[2],
+                 "summary": json.loads(row[3]), "created_at": row[4]} for row in rows]
+
+
+CAPABILITIES = [
+    {"id": "simulation.world", "status": "AVAILABLE", "evidence": "deterministic bounded world state, actions, and event telemetry"},
+    {"id": "simulation.hud", "status": "AVAILABLE", "evidence": "responsive HUD renders live simulation API data"},
+    {"id": "council.roles", "status": "AVAILABLE", "evidence": "deterministic simulated persona registry"},
+    {"id": "council.deliberation.prepare", "status": "AVAILABLE", "evidence": "role-specific prompt packets and auditable self-map contract"},
+    {"id": "council.deliberation.run_local", "status": "QUALIFICATION_GATED", "evidence": "six isolated local model openings; optional bounded cross-examination"},
+    {"id": "research.ideonomy.rank", "status": "AVAILABLE", "evidence": "unit-tested deterministic candidate ranking"},
+    {"id": "research.analogy.validate", "status": "AVAILABLE", "evidence": "unit-tested invariant and boundary checks"},
+    {"id": "research.rsi.qualify", "status": "AVAILABLE", "evidence": "fail-closed qualification contract"},
+    {"id": "engineering.geometry.validate", "status": "AVAILABLE", "evidence": "unit-tested structural mesh checks"},
+    {"id": "engineering.geometry.openscad", "status": "AVAILABLE", "evidence": "typed geometry exporter"},
+    {"id": "engineering.netlist.validate", "status": "AVAILABLE", "evidence": "unit-tested structural/rating preflight"},
+    {"id": "voice.kokoro", "status": "OPTIONAL_LOCAL_SERVICE", "endpoint": "http://127.0.0.1:8880"},
+    {"id": "model.remote_openai_compatible", "status": "CONFIGURED_AT_RUNTIME", "transport": "HTTPS + SSE", "credential_source": "MERLIN_REMOTE_API_KEY"},
+    {"id": "model.nouscoder", "status": "NOT_QUALIFIED", "endpoint": "http://127.0.0.1:8080/v1"},
+    {"id": "agent.hermes", "status": "SOURCE_DOWNLOADED_NOT_CONNECTED", "path": ".tools/hermes-agent"},
+    {"id": "media.image", "status": "NOT_CONFIGURED"},
+    {"id": "media.video", "status": "NOT_CONFIGURED"},
+    {"id": "biology.biochemistry", "status": "NOT_CONFIGURED"},
+]
+
+
+def _idea(row: dict[str, Any]) -> Idea:
+    return Idea(
+        title=row.get("title", ""),
+        mechanism=row.get("mechanism", ""),
+        assumptions=tuple(row.get("assumptions", [])),
+        constraints=tuple(row.get("constraints", [])),
+        observable=row.get("observable", ""),
+        falsifier=row.get("falsifier", ""),
+        novelty=float(row.get("novelty", 0.5)),
+        feasibility=float(row.get("feasibility", 0.5)),
+        evidence_fit=float(row.get("evidence_fit", 0.5)),
+        testability=float(row.get("testability", 0.5)),
+        resource_cost=float(row.get("resource_cost", 0.5)),
+        source_domains=tuple(row.get("source_domains", [])),
+    )
+
+
+def _analogy(data: dict[str, Any]) -> AnalogyMap:
+    return AnalogyMap(
+        source_problem=data.get("source_problem", ""),
+        target_problem=data.get("target_problem", ""),
+        entity_mapping=dict(data.get("entity_mapping", {})),
+        operation_mapping=dict(data.get("operation_mapping", {})),
+        required_invariants=tuple(data.get("required_invariants", [])),
+        preserved_invariants=tuple(data.get("preserved_invariants", [])),
+        source_boundary_conditions=tuple(data.get("source_boundary_conditions", [])),
+        target_boundary_conditions=tuple(data.get("target_boundary_conditions", [])),
+        known_failure_modes=tuple(data.get("known_failure_modes", [])),
+    )
+
+
+def _geometry(data: dict[str, Any]) -> tuple[GeometrySpec, dict[str, Any]]:
+    spec = GeometrySpec(
+        name=data.get("name", ""),
+        unit=data.get("unit", "mm"),
+        points=tuple(Point3D(**point) for point in data.get("points", [])),
+        faces=tuple(tuple(face) for face in data.get("faces", [])),
+        closed_solid=bool(data.get("closed_solid", False)),
+    )
+    issues = [issue.__dict__ for issue in validate_geometry(spec)]
+    result: dict[str, Any] = {"valid": not issues, "issues": issues}
+    if not issues and spec.points:
+        result["bounding_box"] = bounding_box(spec)
+    return spec, result
+
+
+def _netlist(data: dict[str, Any]) -> Netlist:
+    components = tuple(Component(
+        id=row["id"], pins=tuple(row.get("pins", [])),
+        pin_roles=tuple(tuple(item) for item in row.get("pin_roles", [])),
+        max_voltage_v=row.get("max_voltage_v"), max_current_a=row.get("max_current_a"),
+    ) for row in data.get("components", []))
+    nets = tuple(Net(
+        id=row["id"],
+        connections=tuple(Connection(**connection) for connection in row.get("connections", [])),
+        voltage_v=row.get("voltage_v"), current_a=row.get("current_a"),
+    ) for row in data.get("nets", []))
+    return Netlist(components=components, nets=nets)
+
+
+def make_handler(store: EventStore):
+    simulation = MerlinSimulation()
+    # Rebuild simulation state from the durable action ledger on process restart.
+    replay_rows = store.by_kind("/api/sim/step")
+    replayed = 0
+    for row in replay_rows:
+        action = row.get("summary", {}).get("last_action")
+        if isinstance(action, str):
+            simulation.step(action)
+            replayed += 1
+    class Handler(BaseHTTPRequestHandler):
+        server_version = "MerlinMVP/0.3"
+
+        def _record_boundary(self, status: int, response_bytes: int) -> None:
+            started = getattr(self, "_request_started", None)
+            if started is None:
+                return
+            try:
+                record_runtime_event(store, path=urlparse(self.path).path,
+                    method=self.command, status=status,
+                    duration_ms=(perf_counter() - started) * 1000.0,
+                    response_bytes=response_bytes)
+            except Exception:
+                # Observability must never change the underlying API result.
+                return
+
+        def _send_bytes(self, status: int, body: bytes, content_type: str) -> None:
+            self._record_boundary(status, len(body))
+            self.send_response(status)
+            self.send_header("Content-Type", content_type)
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(body)
+
+        def _send(self, status: int, payload: dict[str, Any]) -> None:
+            body = _json_bytes(payload)
+            self._record_boundary(status, len(body))
+            self.send_response(status)
+            self.send_header("Content-Type", "application/json; charset=utf-8")
+            self.send_header("Content-Length", str(len(body)))
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(body)
+
+        def do_GET(self) -> None:
+            self._request_started = perf_counter()
+            path = urlparse(self.path).path
+            if path == "/hud":
+                hud_path = Path(__file__).resolve().parents[2] / "web" / "merlin_hud.html"
+                if not hud_path.is_file():
+                    self._send(404, {"error": "hud_not_found"})
+                    return
+                self._send_bytes(200, hud_path.read_bytes(), "text/html; charset=utf-8")
+            elif path == "/api/sim/state":
+                self._send(200, simulation.snapshot())
+            elif path == "/api/sim/events":
+                self._send(200, simulation.get_events())
+            elif path == "/api/sim/replay":
+                rows = store.by_kind("/api/sim/step")
+                actions = [row["summary"]["last_action"] for row in rows
+                           if isinstance(row.get("summary", {}).get("last_action"), str)]
+                self._send(200, {"schema": "merlin-simulation-replay/1",
+                                 "environment": "deterministic_simulation",
+                                 "actions": actions, "replayed_actions": len(actions),
+                                 "state": simulation.snapshot(),
+                                 "promotion_authorized": False})
+            elif path == "/api/telemetry":
+                rows = store.recent(100)
+                events = [row["summary"]["event"] for row in rows
+                          if row["kind"] == "/api/telemetry/ingest"
+                          and isinstance(row.get("summary"), dict)
+                          and isinstance(row["summary"].get("event"), dict)]
+                self._send(200, telemetry_view(events))
+            elif path == "/api/telemetry/graph":
+                rows = store.by_kind("/api/telemetry/ingest", 10000)
+                events = [row["summary"]["event"] for row in rows
+                          if isinstance(row.get("summary"), dict)
+                          and isinstance(row["summary"].get("event"), dict)]
+                self._send(200, build_telemetry_graph(events))
+            elif path == "/health":
+                self._send(200, {"ok": True, "service": "merlin", "version": "0.4"})
+            elif path == "/api/capabilities":
+                self._send(200, {"schema": "merlin-capabilities/1", "capabilities": CAPABILITIES})
+            elif path == "/api/events":
+                self._send(200, {"schema": "merlin-events/1", "events": store.recent()})
+            elif path == "/api/council/roles":
+                self._send(200, {"schema": "merlin-council-roles/1",
+                                 "roles": [{"id": p.persona_id, "title": p.title,
+                                            "temperament": p.temperament,
+                                            "priorities": list(p.primary_values)}
+                                           for p in PERSONAS]})
+            else:
+                self._send(404, {"error": "not_found"})
+
+        def do_POST(self) -> None:
+            self._request_started = perf_counter()
+            path = urlparse(self.path).path
+            try:
+                length = int(self.headers.get("Content-Length", "0"))
+                if length <= 0 or length > MAX_BODY:
+                    self._send(413 if length > MAX_BODY else 400, {"error": "invalid_body_size"})
+                    return
+                raw = self.rfile.read(length)
+                data = json.loads(raw.decode("utf-8"))
+                if not isinstance(data, dict):
+                    raise ValueError("request body must be a JSON object")
+
+                if path == "/api/telemetry/ingest":
+                    event = normalize_event(data)
+                    store.append(path, {"event_id": event["event_id"], "source": event["source"]},
+                                 {"event": event})
+                    self._send(202, {"accepted": True, "event": event,
+                                     "promotion_authorized": False})
+                    return
+                if path == "/api/sim/step":
+                    action = data.get("action", "")
+                    if not isinstance(action, str):
+                        raise ValueError("simulation action must be a string")
+                    result = simulation.step(action)
+                    store.append(path, {"action": action, "tick": result["state"]["tick"]},
+                                 {"simulation_only": True, "last_action": action,
+                                  "tick": result["state"]["tick"],
+                                  "progress": result["state"]["progress"],
+                                  "uncertainty": result["state"]["uncertainty"]})
+                    sim_event = normalize_event({
+                        "source": "simulation", "kind": "operator.action",
+                        "run_id": "simulation-session", "task_id": "simulation-control",
+                        "payload": {"action": action, "tick": result["state"]["tick"],
+                                    "simulation_only": True},
+                    })
+                    store.append("/api/telemetry/ingest",
+                                 {"event_id": sim_event["event_id"], "source": "simulation"},
+                                 {"event": sim_event})
+                    self._send(200, result)
+                    return
+                if path == "/api/council/prepare":
+                    question = data.get("question", "")
+                    context = data.get("context", "")
+                    verbosity = data.get("verbosity", "lively")
+                    if not isinstance(question, str) or not isinstance(context, str):
+                        raise ValueError("question and context must be strings")
+                    result = {
+                        "schema": "merlin-council-packets/1",
+                        "packets": build_deliberation_packets(question, context, verbosity),
+                        "promotion_authorized": False,
+                    }
+                    store.append(path, {"question": question, "verbosity": verbosity},
+                                 {"persona_count": len(PERSONAS), "verbosity": verbosity})
+                    self._send(200, result)
+                    return
+                if path == "/api/council/run":
+                    question = data.get("question", "")
+                    context = data.get("context", "")
+                    verbosity = data.get("verbosity", "lively")
+                    rounds = data.get("rounds", 1)
+                    if not isinstance(question, str) or not isinstance(context, str):
+                        raise ValueError("question and context must be strings")
+                    council_started = perf_counter()
+                    result = run_local_council(question, context, verbosity, rounds)
+                    council_duration_ms = (perf_counter() - council_started) * 1000.0
+                    transcript_digest = sha256(_json_bytes(result)).hexdigest()
+                    result["transcript_sha256"] = transcript_digest
+                    store.append(path, {"question": question, "verbosity": verbosity, "rounds": rounds},
+                                 {"model": result["model"], "opening_count": len(result["opening_positions"]),
+                                  "cross_examination_count": len(result["cross_examination"]),
+                                  "transcript_sha256": transcript_digest})
+                    council_event = normalize_event({
+                        "source": "model_output", "kind": "model.inference",
+                        "run_id": transcript_digest, "task_id": "council-deliberation",
+                        "model_id": str(result.get("model", "local-unidentified")),
+                        "duration_ms": council_duration_ms,
+                        "payload": {"opening_count": len(result["opening_positions"]),
+                                    "cross_examination_count": len(result["cross_examination"]),
+                                    "transcript_sha256": transcript_digest},
+                        "evidence_refs": ["sha256:" + transcript_digest],
+                    })
+                    store.append("/api/telemetry/ingest",
+                                 {"event_id": council_event["event_id"], "source": "model_output"},
+                                 {"event": council_event})
+                    self._send(200, result)
+                    return
+                if path == "/api/speech":
+                    endpoint = _loopback_endpoint("MERLIN_TTS_URL", "http://127.0.0.1:8880/v1/audio/speech")
+                    request = Request(endpoint, data=raw, headers={"Content-Type": "application/json"}, method="POST")
+                    with urlopen(request, timeout=60) as response:
+                        audio = response.read(MAX_PROXY_RESPONSE + 1)
+                        if len(audio) > MAX_PROXY_RESPONSE:
+                            self._send(502, {"error": "tts_response_too_large"})
+                            return
+                        content_type = response.headers.get("Content-Type", "audio/wav")
+                    store.append(path, data, {"bytes": len(audio), "content_type": content_type})
+                    _append_component_event(store, source="model_output", kind="model.inference",
+                        component="tts_adapter", task_id="speech",
+                        payload={"response_bytes": len(audio), "content_type": content_type},
+                        duration_ms=(perf_counter() - self._request_started) * 1000.0,
+                        model_id=os.environ.get("MERLIN_TTS_MODEL"))
+                    self._send_bytes(200, audio, content_type)
+                    return
+                if path == "/api/chat":
+                    remote_url = os.environ.get("MERLIN_REMOTE_MODEL_URL", "").strip()
+                    if remote_url:
+                        if os.environ.get("MERLIN_REMOTE_MODEL_QUALIFIED") != "1":
+                            self._send(503, {"error": "remote_model_not_qualified"})
+                            return
+                        endpoint, api_key = _remote_model_endpoint()
+                    else:
+                        if os.environ.get("MERLIN_MODEL_QUALIFIED") != "1":
+                            self._send(503, {"error": "model_not_qualified", "detail": "No qualified remote provider or local model is configured."})
+                            return
+                        endpoint = _loopback_endpoint("MERLIN_MODEL_URL", "http://127.0.0.1:8080/v1/chat/completions")
+                        api_key = ""
+                    headers = {"Content-Type": "application/json", "Accept": "text/event-stream, application/json"}
+                    if api_key:
+                        headers["Authorization"] = "Bearer " + api_key
+                    request = Request(endpoint, data=raw, headers=headers, method="POST")
+                    with urlopen(request, timeout=180) as response:
+                        content_type = response.headers.get("Content-Type", "application/json")
+                        wants_stream = bool(data.get("stream")) and "text/event-stream" in content_type.lower()
+                        if wants_stream:
+                            self.send_response(200)
+                            self.send_header("Content-Type", content_type)
+                            self.send_header("Cache-Control", "no-cache, no-transform")
+                            self.send_header("X-Accel-Buffering", "no")
+                            self.send_header("Connection", "close")
+                            self.end_headers()
+                            total = 0
+                            while True:
+                                chunk = response.read(8192)
+                                if not chunk:
+                                    break
+                                total += len(chunk)
+                                if total > 64000000:
+                                    raise ValueError("stream exceeded 64 MB safety limit")
+                                self.wfile.write(chunk)
+                                self.wfile.flush()
+                            self._record_boundary(200, total)
+                            store.append(path, data, {"streamed": True, "bytes": total, "provider_host": urlsplit(endpoint).hostname})
+                            _append_component_event(store, source="model_output", kind="model.inference",
+                                component="chat_adapter", task_id="chat",
+                                payload={"streamed": True, "response_bytes": total,
+                                         "provider_host": urlsplit(endpoint).hostname},
+                                duration_ms=(perf_counter() - self._request_started) * 1000.0,
+                                model_id=os.environ.get("MERLIN_MODEL_NAME"))
+                            return
+                        body = response.read(MAX_PROXY_RESPONSE + 1)
+                        if len(body) > MAX_PROXY_RESPONSE:
+                            self._send(502, {"error": "model_response_too_large"})
+                            return
+                    if "application/json" in content_type.lower():
+                        try:
+                            model_result = json.loads(body.decode("utf-8"))
+                            summary = {"model": model_result.get("model"), "choices": len(model_result.get("choices", [])), "provider_host": urlsplit(endpoint).hostname}
+                        except (ValueError, AttributeError):
+                            summary = {"bytes": len(body), "provider_host": urlsplit(endpoint).hostname}
+                    else:
+                        summary = {"bytes": len(body), "content_type": content_type, "provider_host": urlsplit(endpoint).hostname}
+                    store.append(path, data, summary)
+                    _append_component_event(store, source="model_output", kind="model.inference",
+                        component="chat_adapter", task_id="chat",
+                        payload={"streamed": False, "response_bytes": len(body),
+                                 "provider_host": urlsplit(endpoint).hostname,
+                                 "model": summary.get("model")},
+                        duration_ms=(perf_counter() - self._request_started) * 1000.0,
+                        model_id=summary.get("model") or os.environ.get("MERLIN_MODEL_NAME"))
+                    self._send_bytes(200, body, content_type)
+                    return
+                if path == "/api/ideonomy/rank":
+                    ideas = [_idea(row) for row in data.get("ideas", [])]
+                    result = rank_ideas(ideas, int(data.get("limit", 8)))
+                    summary = {"accepted": len(result["accepted"]), "rejected": len(result["rejected"])}
+                elif path == "/api/analogy/validate":
+                    result = validate_analogy(_analogy(data))
+                    summary = {"accepted": result["accepted"], "reasons": len(result["reasons"])}
+                elif path == "/api/rsi/qualify":
+                    result = qualify_rsi_candidate(PromotionPacket(**data))
+                    summary = {"status": result["status"], "failed_gates": result["failed_gates"]}
+                    verifier_event = normalize_event({
+                        "source": "verifier", "kind": "verification.completed",
+                        "run_id": sha256(_json_bytes(data)).hexdigest(),
+                        "task_id": "rsi-qualification",
+                        "payload": {"status": result["status"],
+                                    "failed_gates": result["failed_gates"],
+                                    "promotion_authorized": False},
+                    })
+                    store.append("/api/telemetry/ingest",
+                                 {"event_id": verifier_event["event_id"], "source": "verifier"},
+                                 {"event": verifier_event})
+                elif path == "/api/geometry/validate":
+                    _spec, result = _geometry(data)
+                    summary = {"valid": result["valid"], "issues": len(result["issues"])}
+                elif path == "/api/netlist/validate":
+                    issues = [issue.__dict__ for issue in validate_netlist(_netlist(data))]
+                    result = {"valid": not issues, "issues": issues}
+                    summary = {"valid": result["valid"], "issues": len(issues)}
+                else:
+                    self._send(404, {"error": "not_found"})
+                    return
+
+                store.append(path, data, summary)
+                self._send(200, result)
+            except (ValueError, TypeError, KeyError, json.JSONDecodeError) as exc:
+                self._send(400, {"error": "invalid_request", "detail": str(exc)[:300]})
+            except RuntimeError as exc:
+                self._send(503, {"error": "council_model_unavailable", "detail": str(exc)[:200]})
+            except (URLError, HTTPError, TimeoutError, OSError) as exc:
+                self._send(503, {"error": "local_adapter_unavailable", "detail": str(exc)[:200]})
+            except Exception:
+                self._send(500, {"error": "internal_error"})
+
+        def log_message(self, fmt: str, *args: Any) -> None:
+            # Do not log request bodies, prompts, or voice content.
+            return
+
+    return Handler
+
+
+def serve(port: int = 8765, db_path: str | None = None) -> None:
+    target = db_path or os.environ.get(
+        "MERLIN_DB_PATH",
+        str(Path.home() / ".local" / "share" / "merlin" / "events.sqlite3"),
+    )
+    store = EventStore(target)
+    server = ThreadingHTTPServer(("127.0.0.1", port), make_handler(store))
+    print(f"Merlin MVP API listening on http://127.0.0.1:{port}")
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        server.server_close()
+
+
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="Run the loopback-only Merlin MVP API")
+    parser.add_argument("--port", type=int, default=8765)
+    parser.add_argument("--db", default=None)
+    args = parser.parse_args()
+    serve(args.port, args.db)

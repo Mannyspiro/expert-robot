@@ -1,0 +1,571 @@
+﻿2026-11-03T16:44:03.7457784Z Current runner version: '2.338.2'
+2026-11-03T16:44:03.7460557Z Runner name: 'avrea-exe-01a1a24bc11f775eb8cfeef41aa7ec31'
+2026-11-03T16:44:03.7461007Z Runner group name: 'Default'
+2026-11-03T16:44:03.7461436Z Machine name: 'vrm-01a1a24bc3c57ddebb8b6e08ac883ad4'
+2026-11-03T16:44:03.7462623Z ##[group]GITHUB_TOKEN Permissions
+2026-11-03T16:44:03.7463683Z Contents: read
+2026-11-03T16:44:03.7464035Z Metadata: read
+2026-11-03T16:44:03.7464436Z Packages: read
+2026-11-03T16:44:03.7464699Z ##[endgroup]
+2026-11-03T16:44:03.7465939Z Secret source: Actions
+2026-11-03T16:44:03.7466385Z Cache mode: write
+2026-11-03T16:44:03.7466714Z Prepare workflow directory
+2026-11-03T16:44:03.7636015Z Prepare all required actions
+2026-11-03T16:44:03.7661573Z Getting action download info
+2026-11-03T16:44:04.1419718Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-03T16:44:04.1718048Z Download action repository 'actions/cache@v4' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-11-03T16:44:04.2686279Z Complete job name: build-and-smoke
+2026-11-03T16:44:04.2967775Z A job started hook has been configured by the self-hosted runner administrator
+2026-11-03T16:44:04.3079584Z ##[group]Run '/home/runner/.avrea-github-job-started.sh'
+2026-11-03T16:44:04.3093204Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-03T16:44:04.3093673Z ##[endgroup]
+2026-11-03T16:44:04.3494579Z ##[group]Run actions/checkout@v4
+2026-11-03T16:44:04.3494908Z with:
+2026-11-03T16:44:04.3495208Z   repository: Mannyspiro/expert-robot
+2026-11-03T16:44:04.3496986Z   token: ***
+2026-11-03T16:44:04.3497224Z   ssh-strict: true
+2026-11-03T16:44:04.3497489Z   ssh-user: git
+2026-11-03T16:44:04.3497724Z   persist-credentials: true
+2026-11-03T16:44:04.3498006Z   clean: true
+2026-11-03T16:44:04.3498251Z   sparse-checkout-cone-mode: true
+2026-11-03T16:44:04.3498544Z   fetch-depth: 1
+2026-11-03T16:44:04.3498791Z   fetch-tags: false
+2026-11-03T16:44:04.3499043Z   show-progress: true
+2026-11-03T16:44:04.3499291Z   lfs: false
+2026-11-03T16:44:04.3499529Z   submodules: false
+2026-11-03T16:44:04.3499770Z   set-safe-directory: true
+2026-11-03T16:44:04.3500076Z   allow-unsafe-pr-checkout: false
+2026-11-03T16:44:04.3500351Z ##[endgroup]
+2026-11-03T16:44:04.4120212Z Syncing repository: Mannyspiro/expert-robot
+2026-11-03T16:44:04.4121150Z ##[group]Getting Git version info
+2026-11-03T16:44:04.4121680Z Working directory is '/home/runner/_work/expert-robot/expert-robot'
+2026-11-03T16:44:04.4122245Z [command]/usr/bin/git version
+2026-11-03T16:44:04.4122524Z git version 2.55.0
+2026-11-03T16:44:04.4162117Z ##[endgroup]
+2026-11-03T16:44:04.4170308Z Temporarily overriding HOME='/home/runner/_work/_temp/b974a0e5-3a20-4a9c-b7a4-4b1ffb022469' before making global git config changes
+2026-11-03T16:44:04.4171021Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-03T16:44:04.4173555Z [command]/usr/bin/git config --global --add safe.directory /home/runner/_work/expert-robot/expert-robot
+2026-11-03T16:44:04.4188482Z Deleting the contents of '/home/runner/_work/expert-robot/expert-robot'
+2026-11-03T16:44:04.4190433Z ##[group]Initializing the repository
+2026-11-03T16:44:04.4192941Z [command]/usr/bin/git init /home/runner/_work/expert-robot/expert-robot
+2026-11-03T16:44:04.4214557Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-03T16:44:04.4215081Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-03T16:44:04.4215627Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-03T16:44:04.4216028Z hint: call:
+2026-11-03T16:44:04.4216422Z hint:
+2026-11-03T16:44:04.4216725Z hint: 	git config --global init.defaultBranch <name>
+2026-11-03T16:44:04.4217069Z hint:
+2026-11-03T16:44:04.4217394Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-03T16:44:04.4217886Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-03T16:44:04.4218269Z hint:
+2026-11-03T16:44:04.4218622Z hint: 	git branch -m <name>
+2026-11-03T16:44:04.4218880Z hint:
+2026-11-03T16:44:04.4219229Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-03T16:44:04.4219762Z Initialized empty Git repository in /home/runner/_work/expert-robot/expert-robot/.git/
+2026-11-03T16:44:04.4220657Z [command]/usr/bin/git remote add origin https://github.com/Mannyspiro/expert-robot
+2026-11-03T16:44:04.4234799Z ##[endgroup]
+2026-11-03T16:44:04.4235207Z ##[group]Disabling automatic garbage collection
+2026-11-03T16:44:04.4236909Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-03T16:44:04.4250186Z ##[endgroup]
+2026-11-03T16:44:04.4250574Z ##[group]Setting up auth
+2026-11-03T16:44:04.4253770Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-03T16:44:04.4267280Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-03T16:44:04.4376652Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-03T16:44:04.4389138Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-03T16:44:04.4483455Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-03T16:44:04.4497233Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-03T16:44:04.4592315Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-03T16:44:04.4610530Z ##[endgroup]
+2026-11-03T16:44:04.4610996Z ##[group]Fetching the repository
+2026-11-03T16:44:04.4614957Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +0d7c621771dad8bf92bdafaef9ab22823123f324:refs/remotes/pull/67/merge
+2026-11-03T16:44:05.0187471Z From https://github.com/Mannyspiro/expert-robot
+2026-11-03T16:44:05.0187943Z  * [new ref]         0d7c621771dad8bf92bdafaef9ab22823123f324 -> pull/67/merge
+2026-11-03T16:44:05.0188966Z ##[endgroup]
+2026-11-03T16:44:05.0189367Z ##[group]Determining the checkout info
+2026-11-03T16:44:05.0190079Z ##[endgroup]
+2026-11-03T16:44:05.0192742Z [command]/usr/bin/git sparse-checkout disable
+2026-11-03T16:44:05.0223926Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-03T16:44:05.0225089Z ##[group]Checking out the ref
+2026-11-03T16:44:05.0225523Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/67/merge
+2026-11-03T16:44:05.0300688Z Note: switching to 'refs/remotes/pull/67/merge'.
+2026-11-03T16:44:05.0301077Z 
+2026-11-03T16:44:05.0301382Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-03T16:44:05.0302161Z changes and commit them, and you can discard any commits you make in this
+2026-11-03T16:44:05.0302894Z state without impacting any branches by switching back to a branch.
+2026-11-03T16:44:05.0303348Z 
+2026-11-03T16:44:05.0303644Z If you want to create a new branch to retain commits you create, you may
+2026-11-03T16:44:05.0304507Z do so (now or later) by using -c with the switch command. Example:
+2026-11-03T16:44:05.0304912Z 
+2026-11-03T16:44:05.0305191Z   git switch -c <new-branch-name>
+2026-11-03T16:44:05.0305476Z 
+2026-11-03T16:44:05.0305652Z Or undo this operation with:
+2026-11-03T16:44:05.0305932Z 
+2026-11-03T16:44:05.0306089Z   git switch -
+2026-11-03T16:44:05.0306313Z 
+2026-11-03T16:44:05.0306634Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-03T16:44:05.0307113Z 
+2026-11-03T16:44:05.0307715Z HEAD is now at 0d7c621 Merge 02d97d814d5e10edd27e47cbe91e0276ef7e6482 into b57bd0a1b92882e6cdc14d97e5b9208afb831a63
+2026-11-03T16:44:05.0309420Z ##[endgroup]
+2026-11-03T16:44:05.0318138Z [command]/usr/bin/git log -1 --format=%H
+2026-11-03T16:44:05.0327212Z 0d7c621771dad8bf92bdafaef9ab22823123f324
+2026-11-03T16:44:05.0477797Z ##[group]Run actions/cache/restore@v4
+2026-11-03T16:44:05.0478410Z with:
+2026-11-03T16:44:05.0478871Z   path: ~/.cache/ccache
+2026-11-03T16:44:05.0479639Z   key: ccache-v1-Linux-X64-0d7c621771dad8bf92bdafaef9ab22823123f324
+2026-11-03T16:44:05.0480507Z   restore-keys: ccache-v1-Linux-X64-
+
+2026-11-03T16:44:05.0481187Z   enableCrossOsArchive: false
+2026-11-03T16:44:05.0481784Z   fail-on-cache-miss: false
+2026-11-03T16:44:05.0482351Z   lookup-only: false
+2026-11-03T16:44:05.0482857Z ##[endgroup]
+2026-11-03T16:44:05.1017576Z (node:2327) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-03T16:44:05.1018960Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-03T16:44:05.2182583Z Cache not found for input keys: ccache-v1-Linux-X64-0d7c621771dad8bf92bdafaef9ab22823123f324, ccache-v1-Linux-X64-
+2026-11-03T16:44:05.2287256Z ##[group]Run set -euo pipefail
+2026-11-03T16:44:05.2287847Z [36;1mset -euo pipefail[0m
+2026-11-03T16:44:05.2288446Z [36;1mif command -v ccache >/dev/null 2>&1; then[0m
+2026-11-03T16:44:05.2289144Z [36;1m  mkdir -p "$HOME/.cache/ccache"[0m
+2026-11-03T16:44:05.2289774Z [36;1m  ccache --set-config=max_size=2G[0m
+2026-11-03T16:44:05.2290376Z [36;1m  ccache --zero-stats[0m
+2026-11-03T16:44:05.2291007Z [36;1m  echo "EXPERT_ROBOT_CCACHE=1" >> "$GITHUB_ENV"[0m
+2026-11-03T16:44:05.2291671Z [36;1melse[0m
+2026-11-03T16:44:05.2292315Z [36;1m  echo "ccache unavailable; continuing without compiler cache"[0m
+2026-11-03T16:44:05.2293170Z [36;1m  echo "EXPERT_ROBOT_CCACHE=0" >> "$GITHUB_ENV"[0m
+2026-11-03T16:44:05.2293813Z [36;1mfi[0m
+2026-11-03T16:44:05.2312143Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-03T16:44:05.2312926Z ##[endgroup]
+2026-11-03T16:44:05.2341623Z ccache unavailable; continuing without compiler cache
+2026-11-03T16:44:05.2381383Z ##[group]Run set -euo pipefail
+2026-11-03T16:44:05.2381930Z [36;1mset -euo pipefail[0m
+2026-11-03T16:44:05.2382646Z [36;1mdetected="$(nproc 2>/dev/null || getconf _NPROCESSORS_ONLN || echo 2)"[0m
+2026-11-03T16:44:05.2383551Z [36;1mif [ "$detected" -gt 32 ]; then detected=32; fi[0m
+2026-11-03T16:44:05.2384414Z [36;1mif [ "$detected" -lt 1 ]; then detected=1; fi[0m
+2026-11-03T16:44:05.2385178Z [36;1mecho "jobs=$detected" >> "$GITHUB_OUTPUT"[0m
+2026-11-03T16:44:05.2385872Z [36;1mecho "Detected $detected build/test workers"[0m
+2026-11-03T16:44:05.2386501Z [36;1mlscpu || true[0m
+2026-11-03T16:44:05.2386979Z [36;1mfree -h || true[0m
+2026-11-03T16:44:05.2399443Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-03T16:44:05.2400102Z env:
+2026-11-03T16:44:05.2400496Z   EXPERT_ROBOT_CCACHE: 0
+2026-11-03T16:44:05.2400977Z ##[endgroup]
+2026-11-03T16:44:05.2434908Z Detected 8 build/test workers
+2026-11-03T16:44:05.2448687Z Architecture:                            x86_64
+2026-11-03T16:44:05.2449472Z CPU op-mode(s):                          32-bit, 64-bit
+2026-11-03T16:44:05.2450468Z Address sizes:                           46 bits physical, 48 bits virtual
+2026-11-03T16:44:05.2451375Z Byte Order:                              Little Endian
+2026-11-03T16:44:05.2452371Z CPU(s):                                  8
+2026-11-03T16:44:05.2453074Z On-line CPU(s) list:                     0-7
+2026-11-03T16:44:05.2453726Z Vendor ID:                               AuthenticAMD
+2026-11-03T16:44:05.2454619Z Model name:                              AMD EPYC 4585PX 16-Core Processor
+2026-11-03T16:44:05.2455371Z CPU family:                              26
+2026-11-03T16:44:05.2455944Z Model:                                   68
+2026-11-03T16:44:05.2456505Z Thread(s) per core:                      1
+2026-11-03T16:44:05.2457094Z Core(s) per socket:                      8
+2026-11-03T16:44:05.2457658Z Socket(s):                               1
+2026-11-03T16:44:05.2458215Z Stepping:                                0
+2026-11-03T16:44:05.2458908Z BogoMIPS:                                8583.80
+2026-11-03T16:44:05.2465934Z Flags:                                   fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ht syscall nx mmxext fxsr_opt pdpe1gb rdtscp lm constant_tsc rep_good nopl xtopology nonstop_tsc cpuid extd_apicid tsc_known_freq pni pclmulqdq ssse3 fma cx16 sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand hypervisor lahf_lm cmp_legacy svm cr8_legacy abm sse4a misalignsse 3dnowprefetch osvw topoext perfctr_core cpuid_fault ssbd perfmon_v2 ibrs ibpb stibp ibrs_enhanced vmmcall fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid avx512f avx512dq adx smap avx512ifma clflushopt clwb avx512cd sha_ni avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves avx_vnni avx512_bf16 clzero xsaveerptr wbnoinvd arat npt lbrv nrip_save tsc_scale vmcb_clean flushbyasid pausefilter pfthreshold v_vmsave_vmload vgif vnmi avx512vbmi umip pku avx512_vbmi2 gfni vaes vpclmulqdq avx512_vnni avx512_bitalg avx512_vpopcntdq rdpid movdiri movdir64b fsrm avx512_vp2intersect flush_l1d arch_capabilities
+2026-11-03T16:44:05.2472735Z Virtualization:                          AMD-V
+2026-11-03T16:44:05.2473404Z Hypervisor vendor:                       KVM
+2026-11-03T16:44:05.2474001Z Virtualization type:                     full
+2026-11-03T16:44:05.2474850Z L1d cache:                               192 KiB (4 instances)
+2026-11-03T16:44:05.2475564Z L1i cache:                               128 KiB (4 instances)
+2026-11-03T16:44:05.2476245Z L2 cache:                                4 MiB (4 instances)
+2026-11-03T16:44:05.2476920Z L3 cache:                                96 MiB (1 instance)
+2026-11-03T16:44:05.2477523Z NUMA node(s):                            1
+2026-11-03T16:44:05.2478076Z NUMA node0 CPU(s):                       0-7
+2026-11-03T16:44:05.2478705Z Vulnerability Gather data sampling:      Not affected
+2026-11-03T16:44:05.2479491Z Vulnerability Ghostwrite:                Not affected
+2026-11-03T16:44:05.2480182Z Vulnerability Indirect target selection: Not affected
+2026-11-03T16:44:05.2480870Z Vulnerability Itlb multihit:             Not affected
+2026-11-03T16:44:05.2481553Z Vulnerability L1tf:                      Not affected
+2026-11-03T16:44:05.2482201Z Vulnerability Mds:                       Not affected
+2026-11-03T16:44:05.2482856Z Vulnerability Meltdown:                  Not affected
+2026-11-03T16:44:05.2483534Z Vulnerability Mmio stale data:           Not affected
+2026-11-03T16:44:05.2484348Z Vulnerability Old microcode:             Not affected
+2026-11-03T16:44:05.2485085Z Vulnerability Reg file data sampling:    Not affected
+2026-11-03T16:44:05.2485819Z Vulnerability Retbleed:                  Not affected
+2026-11-03T16:44:05.2486608Z Vulnerability Spec rstack overflow:      Mitigation; IBPB on VMEXIT only
+2026-11-03T16:44:05.2487622Z Vulnerability Spec store bypass:         Mitigation; Speculative Store Bypass disabled via prctl
+2026-11-03T16:44:05.2488827Z Vulnerability Spectre v1:                Mitigation; usercopy/swapgs barriers and __user pointer sanitization
+2026-11-03T16:44:05.2489907Z Vulnerability Spectre v2:                Vulnerable: eIBRS with unprivileged eBPF
+2026-11-03T16:44:05.2490721Z Vulnerability Srbds:                     Not affected
+2026-11-03T16:44:05.2491378Z Vulnerability Tsa:                       Not affected
+2026-11-03T16:44:05.2492035Z Vulnerability Tsx async abort:           Not affected
+2026-11-03T16:44:05.2492700Z Vulnerability Vmscape:                   Not affected
+2026-11-03T16:44:05.2493458Z                total        used        free      shared  buff/cache   available
+2026-11-03T16:44:05.2494410Z Mem:            29Gi       1.0Gi        27Gi        38Mi       1.1Gi        28Gi
+2026-11-03T16:44:05.2495143Z Swap:          3.0Gi          0B       3.0Gi
+2026-11-03T16:44:05.2528590Z ##[group]Run bash -n scripts/*.sh
+2026-11-03T16:44:05.2529133Z [36;1mbash -n scripts/*.sh[0m
+2026-11-03T16:44:05.2541447Z shell: /usr/bin/bash -e {0}
+2026-11-03T16:44:05.2542019Z env:
+2026-11-03T16:44:05.2542409Z   EXPERT_ROBOT_CCACHE: 0
+2026-11-03T16:44:05.2542894Z ##[endgroup]
+2026-11-03T16:44:05.2607875Z ##[group]Run set -euo pipefail
+2026-11-03T16:44:05.2608386Z [36;1mset -euo pipefail[0m
+2026-11-03T16:44:05.2608969Z [36;1margs=(-S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release)[0m
+2026-11-03T16:44:05.2609688Z [36;1mif [ "${EXPERT_ROBOT_CCACHE:-0}" = "1" ]; then[0m
+2026-11-03T16:44:05.2610328Z [36;1m  args+=(-DCMAKE_CXX_COMPILER_LAUNCHER=ccache)[0m
+2026-11-03T16:44:05.2610911Z [36;1mfi[0m
+2026-11-03T16:44:05.2611298Z [36;1mcmake "${args[@]}"[0m
+2026-11-03T16:44:05.2623427Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-03T16:44:05.2624138Z env:
+2026-11-03T16:44:05.2624630Z   EXPERT_ROBOT_CCACHE: 0
+2026-11-03T16:44:05.2625086Z ##[endgroup]
+2026-11-03T16:44:05.3058995Z -- The CXX compiler identification is GNU 13.3.0
+2026-11-03T16:44:05.3109367Z -- Detecting CXX compiler ABI info
+2026-11-03T16:44:05.3373796Z -- Detecting CXX compiler ABI info - done
+2026-11-03T16:44:05.3455999Z -- Check for working CXX compiler: /usr/bin/c++ - skipped
+2026-11-03T16:44:05.3458285Z -- Detecting CXX compile features
+2026-11-03T16:44:05.3462221Z -- Detecting CXX compile features - done
+2026-11-03T16:44:05.3650720Z -- Found SQLite3: /usr/include (found version "3.45.1")
+2026-11-03T16:44:05.3657830Z -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+2026-11-03T16:44:05.3964935Z -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+2026-11-03T16:44:05.3969720Z -- Found Threads: TRUE
+2026-11-03T16:44:05.3979476Z -- Performing Test EXPERT_ROBOT__Werror_missing_field_initializers
+2026-11-03T16:44:05.4226520Z -- Performing Test EXPERT_ROBOT__Werror_missing_field_initializers - Success
+2026-11-03T16:44:05.4230164Z -- Performing Test EXPERT_ROBOT__Werror_range_loop_construct
+2026-11-03T16:44:05.4480636Z -- Performing Test EXPERT_ROBOT__Werror_range_loop_construct - Success
+2026-11-03T16:44:05.4491620Z -- Configuring done (0.2s)
+2026-11-03T16:44:05.4613153Z -- Generating done (0.0s)
+2026-11-03T16:44:05.4614802Z -- Build files have been written to: /home/runner/_work/expert-robot/expert-robot/build
+2026-11-03T16:44:05.4729851Z ##[group]Run cmake --build build --parallel "${CMAKE_BUILD_PARALLEL_LEVEL}"
+2026-11-03T16:44:05.4730720Z [36;1mcmake --build build --parallel "${CMAKE_BUILD_PARALLEL_LEVEL}"[0m
+2026-11-03T16:44:05.4748309Z shell: /usr/bin/bash -e {0}
+2026-11-03T16:44:05.4748744Z env:
+2026-11-03T16:44:05.4749096Z   EXPERT_ROBOT_CCACHE: 0
+2026-11-03T16:44:05.4749523Z   CMAKE_BUILD_PARALLEL_LEVEL: 8
+2026-11-03T16:44:05.4749948Z ##[endgroup]
+2026-11-03T16:44:05.7648807Z [1/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/sha256.cpp.o
+2026-11-03T16:44:05.7998915Z [2/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/runtime.cpp.o
+2026-11-03T16:44:05.9437818Z [3/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/json_util.cpp.o
+2026-11-03T16:44:06.0814971Z [4/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/app/math_research_service.cpp.o
+2026-11-03T16:44:06.5309996Z [5/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/proof_memory.cpp.o
+2026-11-03T16:44:06.6112951Z [6/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/proof_search.cpp.o
+2026-11-03T16:44:06.9167771Z [7/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/model_server.cpp.o
+2026-11-03T16:44:06.9405422Z [8/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/text_generation.cpp.o
+2026-11-03T16:44:07.0023500Z [9/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/model_lemma_decomposer.cpp.o
+2026-11-03T16:44:07.0877096Z [10/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/swarm/task.cpp.o
+2026-11-03T16:44:07.1005437Z [11/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/knowledge_graph.cpp.o
+2026-11-03T16:44:07.1400820Z [12/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/model_formalization_proposer.cpp.o
+2026-11-03T16:44:07.2491853Z [13/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/swarm/agent.cpp.o
+2026-11-03T16:44:07.2695144Z [14/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/imagination/idea.cpp.o
+2026-11-03T16:44:07.2990115Z [15/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/lemma_factory.cpp.o
+2026-11-03T16:44:07.6627072Z [16/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/imagination/memory.cpp.o
+2026-11-03T16:44:07.6811931Z [17/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/capabilities.cpp.o
+2026-11-03T16:44:07.7392962Z [18/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/skills/math_skill.cpp.o
+2026-11-03T16:44:08.0684539Z [19/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/skills/skill_ledger.cpp.o
+2026-11-03T16:44:08.0859430Z [20/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/formalizer.cpp.o
+2026-11-03T16:44:08.1134816Z [21/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/swarm/aggregator.cpp.o
+2026-11-03T16:44:08.1272680Z [22/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/skills/experimental_skill_store.cpp.o
+2026-11-03T16:44:08.1892554Z [23/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/swarm/supervisor.cpp.o
+2026-11-03T16:44:08.4624949Z [24/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/skills/promotion_packet.cpp.o
+2026-11-03T16:44:08.4713877Z [25/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/research/state_machine.cpp.o
+2026-11-03T16:44:08.5984967Z [26/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/imagination/archive.cpp.o
+2026-11-03T16:44:08.6123286Z [27/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/eval/math_eval.cpp.o
+2026-11-03T16:44:09.0219634Z [28/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/research/episode_ledger.cpp.o
+2026-11-03T16:44:09.0893804Z [29/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/imagination/controller.cpp.o
+2026-11-03T16:44:09.1868226Z [30/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/research/knowledge_consolidator.cpp.o
+2026-11-03T16:44:09.3716975Z [31/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/research/candidate_verifier.cpp.o
+2026-11-03T16:44:09.4020769Z [32/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/eval/math_benchmark.cpp.o
+2026-11-03T16:44:09.5619760Z [33/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/research/strategy_discovery.cpp.o
+2026-11-03T16:44:09.7309299Z [34/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/eval/research_benchmark_executor.cpp.o
+2026-11-03T16:44:09.8368202Z [35/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/research/route_memory.cpp.o
+2026-11-03T16:44:09.9106701Z [36/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/research/strategy_ablation.cpp.o
+2026-11-03T16:44:09.9279000Z [37/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/skills/model_skill_proposer.cpp.o
+2026-11-03T16:44:10.1634509Z [38/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/cognition/neuromodulation.cpp.o
+2026-11-03T16:44:10.1717157Z [39/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/growth/ablation_evidence.cpp.o
+2026-11-03T16:44:10.1858418Z [40/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/cognition/interoception.cpp.o
+2026-11-03T16:44:10.2975364Z [41/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/cognition/controller.cpp.o
+2026-11-03T16:44:10.4045981Z [42/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/cognition/personality.cpp.o
+2026-11-03T16:44:10.4112556Z [43/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/research/route_planner.cpp.o
+2026-11-03T16:44:10.4510576Z [44/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/research/strategy_planner.cpp.o
+2026-11-03T16:44:10.4799864Z [45/121] Building CXX object CMakeFiles/expert_robot_runtime.dir/cpp/src/main.cpp.o
+2026-11-03T16:44:10.5552585Z [46/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/growth/generation_lineage.cpp.o
+2026-11-03T16:44:10.6518404Z [47/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/cognition/lemma_factory_bridge.cpp.o
+2026-11-03T16:44:10.6569026Z [48/121] Building CXX object CMakeFiles/neuromodulation_smoke.dir/tests/neuromodulation_smoke.cpp.o
+2026-11-03T16:44:10.6973539Z [49/121] Building CXX object CMakeFiles/capabilities_smoke.dir/tests/capabilities_smoke.cpp.o
+2026-11-03T16:44:10.7098079Z [50/121] Building CXX object CMakeFiles/interoception_smoke.dir/tests/interoception_smoke.cpp.o
+2026-11-03T16:44:10.7152488Z [51/121] Building CXX object CMakeFiles/cognition_controller_smoke.dir/tests/cognition_controller_smoke.cpp.o
+2026-11-03T16:44:10.8143283Z [52/121] Building CXX object CMakeFiles/personality_smoke.dir/tests/personality_smoke.cpp.o
+2026-11-03T16:44:11.1529974Z [53/121] Building CXX object CMakeFiles/growth_governance_smoke.dir/tests/growth_governance_smoke.cpp.o
+2026-11-03T16:44:11.1613504Z [54/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/research/strategy_qualification.cpp.o
+2026-11-03T16:44:11.1652070Z [55/121] Building CXX object CMakeFiles/math_core_smoke.dir/tests/math_core_smoke.cpp.o
+2026-11-03T16:44:11.1965437Z [56/121] Building CXX object CMakeFiles/math_eval_smoke.dir/tests/math_eval_smoke.cpp.o
+2026-11-03T16:44:11.3237052Z [57/121] Building CXX object CMakeFiles/research_state_machine_smoke.dir/tests/research_state_machine_smoke.cpp.o
+2026-11-03T16:44:11.3800801Z [58/121] Building CXX object CMakeFiles/expert_robot_research.dir/cpp/src/research_cli_main.cpp.o
+2026-11-03T16:44:11.4128278Z [59/121] Building CXX object CMakeFiles/expert_robot_core.dir/cpp/src/research/engine.cpp.o
+2026-11-03T16:44:11.4430717Z [60/121] Building CXX object CMakeFiles/lemma_factory_smoke.dir/tests/lemma_factory_smoke.cpp.o
+2026-11-03T16:44:11.4865866Z [61/121] Building CXX object CMakeFiles/research_episode_ledger_smoke.dir/tests/research_episode_ledger_smoke.cpp.o
+2026-11-03T16:44:11.5588817Z [62/121] Linking CXX static library libexpert_robot_core.a
+2026-11-03T16:44:11.6956913Z [63/121] Building CXX object CMakeFiles/model_formalization_smoke.dir/tests/model_formalization_smoke.cpp.o
+2026-11-03T16:44:11.7629406Z [64/121] Building CXX object CMakeFiles/skill_growth_smoke.dir/tests/skill_growth_smoke.cpp.o
+2026-11-03T16:44:11.8369719Z [65/121] Building CXX object CMakeFiles/candidate_verifier_smoke.dir/tests/candidate_verifier_smoke.cpp.o
+2026-11-03T16:44:11.8848586Z [66/121] Building CXX object CMakeFiles/generation_lineage_smoke.dir/tests/generation_lineage_smoke.cpp.o
+2026-11-03T16:44:12.0098139Z [67/121] Building CXX object CMakeFiles/ablation_evidence_smoke.dir/tests/ablation_evidence_smoke.cpp.o
+2026-11-03T16:44:12.1148330Z [68/121] Building CXX object CMakeFiles/hybrid_math_engine_smoke.dir/tests/hybrid_math_engine_smoke.cpp.o
+2026-11-03T16:44:12.1392708Z [69/121] Building CXX object CMakeFiles/route_planner_smoke.dir/tests/route_planner_smoke.cpp.o
+2026-11-03T16:44:12.1440266Z [70/121] Building CXX object CMakeFiles/knowledge_consolidator_smoke.dir/tests/knowledge_consolidator_smoke.cpp.o
+2026-11-03T16:44:12.3268000Z [71/121] Building CXX object CMakeFiles/route_memory_smoke.dir/tests/route_memory_smoke.cpp.o
+2026-11-03T16:44:12.3296850Z [72/121] Building CXX object CMakeFiles/theorem_hint_smoke.dir/tests/theorem_hint_smoke.cpp.o
+2026-11-03T16:44:12.4295256Z [73/121] Building CXX object CMakeFiles/skill_promotion_packet_smoke.dir/tests/skill_promotion_packet_smoke.cpp.o
+2026-11-03T16:44:12.4620629Z [74/121] Building CXX object CMakeFiles/math_research_engine_smoke.dir/tests/math_research_engine_smoke.cpp.o
+2026-11-03T16:44:12.6140418Z [75/121] Building CXX object CMakeFiles/math_research_service_smoke.dir/tests/math_research_service_smoke.cpp.o
+2026-11-03T16:44:12.7052940Z [76/121] Building CXX object CMakeFiles/strategy_discovery_smoke.dir/tests/strategy_discovery_smoke.cpp.o
+2026-11-03T16:44:12.9102386Z [77/121] Building CXX object CMakeFiles/skill_feedback_smoke.dir/tests/skill_feedback_smoke.cpp.o
+2026-11-03T16:44:12.9833904Z [78/121] Building CXX object CMakeFiles/strategy_planner_smoke.dir/tests/strategy_planner_smoke.cpp.o
+2026-11-03T16:44:13.0103240Z [79/121] Linking CXX executable expert_robot_runtime
+2026-11-03T16:44:13.0362403Z [80/121] Building CXX object CMakeFiles/retrieval_hint_engine_smoke.dir/tests/retrieval_hint_engine_smoke.cpp.o
+2026-11-03T16:44:13.0432855Z [81/121] Building CXX object CMakeFiles/strategy_ablation_smoke.dir/tests/strategy_ablation_smoke.cpp.o
+2026-11-03T16:44:13.0452286Z [82/121] Building CXX object CMakeFiles/math_benchmark_smoke.dir/tests/math_benchmark_smoke.cpp.o
+2026-11-03T16:44:13.0481035Z [83/121] Linking CXX executable expert_robot_research
+2026-11-03T16:44:13.0625076Z [84/121] Linking CXX executable capabilities_smoke
+2026-11-03T16:44:13.0681905Z [85/121] Linking CXX executable math_core_smoke
+2026-11-03T16:44:13.0693741Z [86/121] Linking CXX executable neuromodulation_smoke
+2026-11-03T16:44:13.0711464Z [87/121] Linking CXX executable interoception_smoke
+2026-11-03T16:44:13.0869897Z [88/121] Linking CXX executable personality_smoke
+2026-11-03T16:44:13.0945180Z [89/121] Linking CXX executable cognition_controller_smoke
+2026-11-03T16:44:13.0973821Z [90/121] Linking CXX executable lemma_factory_smoke
+2026-11-03T16:44:13.1084391Z [91/121] Linking CXX executable hybrid_math_engine_smoke
+2026-11-03T16:44:13.1142225Z [92/121] Linking CXX executable growth_governance_smoke
+2026-11-03T16:44:13.1257496Z [93/121] Linking CXX executable math_eval_smoke
+2026-11-03T16:44:13.1286296Z [94/121] Linking CXX executable skill_growth_smoke
+2026-11-03T16:44:13.1436476Z [95/121] Linking CXX executable research_state_machine_smoke
+2026-11-03T16:44:13.1465220Z [96/121] Linking CXX executable research_episode_ledger_smoke
+2026-11-03T16:44:13.1494025Z [97/121] Linking CXX executable model_formalization_smoke
+2026-11-03T16:44:13.1550658Z [98/121] Linking CXX executable candidate_verifier_smoke
+2026-11-03T16:44:13.1716545Z [99/121] Linking CXX executable knowledge_consolidator_smoke
+2026-11-03T16:44:13.1745336Z [100/121] Linking CXX executable route_planner_smoke
+2026-11-03T16:44:13.1773946Z [101/121] Linking CXX executable math_research_engine_smoke
+2026-11-03T16:44:13.1802785Z [102/121] Linking CXX executable generation_lineage_smoke
+2026-11-03T16:44:13.1972279Z [103/121] Linking CXX executable ablation_evidence_smoke
+2026-11-03T16:44:13.2029232Z [104/121] Linking CXX executable route_memory_smoke
+2026-11-03T16:44:13.2057814Z [105/121] Linking CXX executable theorem_hint_smoke
+2026-11-03T16:44:13.2142835Z [106/121] Linking CXX executable math_research_service_smoke
+2026-11-03T16:44:13.2265650Z [107/121] Building CXX object CMakeFiles/strategy_engine_complete_smoke.dir/tests/strategy_engine_complete_smoke.cpp.o
+2026-11-03T16:44:13.2283703Z [108/121] Linking CXX executable skill_promotion_packet_smoke
+2026-11-03T16:44:13.2304663Z [109/121] Linking CXX executable skill_feedback_smoke
+2026-11-03T16:44:13.2382899Z [110/121] Linking CXX executable retrieval_hint_engine_smoke
+2026-11-03T16:44:13.2439717Z [111/121] Linking CXX executable strategy_planner_smoke
+2026-11-03T16:44:13.2458573Z [112/121] Building CXX object CMakeFiles/strategy_qualification_smoke.dir/tests/strategy_qualification_smoke.cpp.o
+2026-11-03T16:44:13.2582654Z [113/121] Linking CXX executable math_benchmark_smoke
+2026-11-03T16:44:13.2619983Z [114/121] Linking CXX executable strategy_discovery_smoke
+2026-11-03T16:44:13.2623683Z [115/121] Linking CXX executable strategy_engine_complete_smoke
+2026-11-03T16:44:13.2712155Z [116/121] Linking CXX executable strategy_ablation_smoke
+2026-11-03T16:44:13.2753848Z [117/121] Linking CXX executable strategy_qualification_smoke
+2026-11-03T16:44:13.3665291Z [118/121] Building CXX object CMakeFiles/research_benchmark_executor_smoke.dir/tests/research_benchmark_executor_smoke.cpp.o
+2026-11-03T16:44:13.3995804Z [119/121] Linking CXX executable research_benchmark_executor_smoke
+2026-11-03T16:44:13.8585062Z [120/121] Building CXX object CMakeFiles/expert_robot_math_benchmark.dir/cpp/src/math_benchmark_main.cpp.o
+2026-11-03T16:44:13.8911792Z [121/121] Linking CXX executable expert_robot_math_benchmark
+2026-11-03T16:44:13.8943169Z ##[group]Run ctest             --test-dir build             --parallel "${CTEST_PARALLEL_LEVEL}"             --output-on-failure
+2026-11-03T16:44:13.8943546Z [36;1mctest             --test-dir build             --parallel "${CTEST_PARALLEL_LEVEL}"             --output-on-failure[0m
+2026-11-03T16:44:13.8962588Z shell: /usr/bin/bash -e {0}
+2026-11-03T16:44:13.8962718Z env:
+2026-11-03T16:44:13.8962819Z   EXPERT_ROBOT_CCACHE: 0
+2026-11-03T16:44:13.8962945Z   CTEST_PARALLEL_LEVEL: 8
+2026-11-03T16:44:13.8963059Z ##[endgroup]
+2026-11-03T16:44:13.9029535Z Internal ctest changing into directory: /home/runner/_work/expert-robot/expert-robot/build
+2026-11-03T16:44:13.9031223Z Test project /home/runner/_work/expert-robot/expert-robot/build
+2026-11-03T16:44:13.9036170Z       Start  1: capabilities_smoke
+2026-11-03T16:44:13.9039621Z       Start  2: math_core_smoke
+2026-11-03T16:44:13.9042797Z       Start  3: neuromodulation_smoke
+2026-11-03T16:44:13.9046160Z       Start  4: interoception_smoke
+2026-11-03T16:44:13.9049201Z       Start  5: personality_smoke
+2026-11-03T16:44:13.9052597Z       Start  6: cognition_controller_smoke
+2026-11-03T16:44:13.9056635Z       Start  7: lemma_factory_smoke
+2026-11-03T16:44:13.9060093Z       Start  8: hybrid_math_engine_smoke
+2026-11-03T16:44:13.9064949Z  1/33 Test  #1: capabilities_smoke ..................   Passed    0.00 sec
+2026-11-03T16:44:13.9067545Z  2/33 Test  #3: neuromodulation_smoke ...............   Passed    0.00 sec
+2026-11-03T16:44:13.9067854Z  3/33 Test  #4: interoception_smoke .................   Passed    0.00 sec
+2026-11-03T16:44:13.9068272Z  4/33 Test  #5: personality_smoke ...................   Passed    0.00 sec
+2026-11-03T16:44:13.9068524Z  5/33 Test  #6: cognition_controller_smoke ..........   Passed    0.00 sec
+2026-11-03T16:44:13.9068784Z       Start  9: growth_governance_smoke
+2026-11-03T16:44:13.9072057Z       Start 10: math_eval_smoke
+2026-11-03T16:44:13.9077519Z       Start 11: skill_growth_smoke
+2026-11-03T16:44:13.9081451Z       Start 12: research_state_machine_smoke
+2026-11-03T16:44:13.9084830Z       Start 13: research_episode_ledger_smoke
+2026-11-03T16:44:13.9088273Z  6/33 Test  #7: lemma_factory_smoke .................   Passed    0.00 sec
+2026-11-03T16:44:13.9092520Z       Start 14: model_formalization_smoke
+2026-11-03T16:44:13.9094966Z  7/33 Test #12: research_state_machine_smoke ........   Passed    0.00 sec
+2026-11-03T16:44:13.9095544Z       Start 15: candidate_verifier_smoke
+2026-11-03T16:44:13.9099459Z  8/33 Test #14: model_formalization_smoke ...........   Passed    0.00 sec
+2026-11-03T16:44:13.9099789Z       Start 16: knowledge_consolidator_smoke
+2026-11-03T16:44:13.9106902Z  9/33 Test #15: candidate_verifier_smoke ............   Passed    0.00 sec
+2026-11-03T16:44:13.9107366Z       Start 17: math_research_engine_smoke
+2026-11-03T16:44:13.9361150Z 10/33 Test  #2: math_core_smoke .....................   Passed    0.03 sec
+2026-11-03T16:44:13.9366132Z       Start 18: route_planner_smoke
+2026-11-03T16:44:13.9376980Z 11/33 Test #18: route_planner_smoke .................   Passed    0.00 sec
+2026-11-03T16:44:13.9377374Z       Start 19: generation_lineage_smoke
+2026-11-03T16:44:13.9416711Z 12/33 Test #16: knowledge_consolidator_smoke ........   Passed    0.03 sec
+2026-11-03T16:44:13.9417085Z       Start 20: ablation_evidence_smoke
+2026-11-03T16:44:13.9431116Z 13/33 Test #13: research_episode_ledger_smoke .......   Passed    0.03 sec
+2026-11-03T16:44:13.9432247Z       Start 21: route_memory_smoke
+2026-11-03T16:44:13.9604000Z 14/33 Test #20: ablation_evidence_smoke .............   Passed    0.02 sec
+2026-11-03T16:44:13.9604409Z       Start 22: theorem_hint_smoke
+2026-11-03T16:44:13.9608422Z 15/33 Test #19: generation_lineage_smoke ............   Passed    0.02 sec
+2026-11-03T16:44:13.9608818Z       Start 23: math_research_service_smoke
+2026-11-03T16:44:13.9612648Z 16/33 Test #22: theorem_hint_smoke ..................   Passed    0.00 sec
+2026-11-03T16:44:13.9613056Z       Start 24: skill_feedback_smoke
+2026-11-03T16:44:13.9710119Z 17/33 Test  #9: growth_governance_smoke .............   Passed    0.06 sec
+2026-11-03T16:44:13.9710481Z       Start 25: skill_promotion_packet_smoke
+2026-11-03T16:44:13.9942352Z 18/33 Test #10: math_eval_smoke .....................   Passed    0.09 sec
+2026-11-03T16:44:13.9943071Z       Start 26: retrieval_hint_engine_smoke
+2026-11-03T16:44:13.9960691Z 19/33 Test #24: skill_feedback_smoke ................   Passed    0.03 sec
+2026-11-03T16:44:13.9961023Z       Start 27: strategy_planner_smoke
+2026-11-03T16:44:13.9967637Z 20/33 Test #17: math_research_engine_smoke ..........   Passed    0.09 sec
+2026-11-03T16:44:13.9968008Z       Start 28: strategy_engine_complete_smoke
+2026-11-03T16:44:14.0054596Z 21/33 Test #21: route_memory_smoke ..................   Passed    0.06 sec
+2026-11-03T16:44:14.0058066Z       Start 29: strategy_discovery_smoke
+2026-11-03T16:44:14.0067477Z 22/33 Test #29: strategy_discovery_smoke ............   Passed    0.00 sec
+2026-11-03T16:44:14.0070150Z       Start 30: math_benchmark_smoke
+2026-11-03T16:44:14.0076396Z 23/33 Test #11: skill_growth_smoke ..................   Passed    0.10 sec
+2026-11-03T16:44:14.0076839Z       Start 31: research_benchmark_executor_smoke
+2026-11-03T16:44:14.0325298Z 24/33 Test #25: skill_promotion_packet_smoke ........   Passed    0.06 sec
+2026-11-03T16:44:14.0325716Z       Start 32: strategy_ablation_smoke
+2026-11-03T16:44:14.0333467Z 25/33 Test #32: strategy_ablation_smoke .............   Passed    0.00 sec
+2026-11-03T16:44:14.0333884Z       Start 33: strategy_qualification_smoke
+2026-11-03T16:44:14.0343198Z 26/33 Test #33: strategy_qualification_smoke ........   Passed    0.00 sec
+2026-11-03T16:44:14.0454762Z 27/33 Test #26: retrieval_hint_engine_smoke .........   Passed    0.05 sec
+2026-11-03T16:44:14.0624837Z 28/33 Test  #8: hybrid_math_engine_smoke ............   Passed    0.16 sec
+2026-11-03T16:44:14.0689343Z 29/33 Test #28: strategy_engine_complete_smoke ......   Passed    0.07 sec
+2026-11-03T16:44:14.0690010Z 30/33 Test #23: math_research_service_smoke .........   Passed    0.11 sec
+2026-11-03T16:44:14.1010937Z 31/33 Test #30: math_benchmark_smoke ................   Passed    0.09 sec
+2026-11-03T16:44:14.1491838Z 32/33 Test #27: strategy_planner_smoke ..............   Passed    0.15 sec
+2026-11-03T16:44:14.2580075Z 33/33 Test #31: research_benchmark_executor_smoke ...   Passed    0.25 sec
+2026-11-03T16:44:14.2581454Z 
+2026-11-03T16:44:14.2581562Z 100% tests passed, 0 tests failed out of 33
+2026-11-03T16:44:14.2581682Z 
+2026-11-03T16:44:14.2581734Z Total Test time (real) =   0.35 sec
+2026-11-03T16:44:14.2603527Z ##[group]Run python3 tests/compute_policy_smoke.py
+2026-11-03T16:44:14.2603721Z [36;1mpython3 tests/compute_policy_smoke.py[0m
+2026-11-03T16:44:14.2621238Z shell: /usr/bin/bash -e {0}
+2026-11-03T16:44:14.2621370Z env:
+2026-11-03T16:44:14.2621469Z   EXPERT_ROBOT_CCACHE: 0
+2026-11-03T16:44:14.2621595Z ##[endgroup]
+2026-11-03T16:44:14.2767745Z compute policy guardrails: PASS
+2026-11-03T16:44:14.2801747Z ##[group]Run python3 tests/known_failure_regression_smoke.py
+2026-11-03T16:44:14.2801958Z [36;1mpython3 tests/known_failure_regression_smoke.py[0m
+2026-11-03T16:44:14.2814131Z shell: /usr/bin/bash -e {0}
+2026-11-03T16:44:14.2814260Z env:
+2026-11-03T16:44:14.2814363Z   EXPERT_ROBOT_CCACHE: 0
+2026-11-03T16:44:14.2814555Z ##[endgroup]
+2026-11-03T16:44:14.2956623Z known failure regression guardrails: PASS
+2026-11-03T16:44:14.2989652Z ##[group]Run python3 tests/benchmark_baseline_smoke.py
+2026-11-03T16:44:14.2989855Z [36;1mpython3 tests/benchmark_baseline_smoke.py[0m
+2026-11-03T16:44:14.2990026Z [36;1mpython3 tests/progression_benchmark_smoke.py[0m
+2026-11-03T16:44:14.2990211Z [36;1mpython3 tests/progression_baseline_integrity_smoke.py[0m
+2026-11-03T16:44:14.2990399Z [36;1mpython3 tests/progression_freezer_smoke.py[0m
+2026-11-03T16:44:14.3002891Z shell: /usr/bin/bash -e {0}
+2026-11-03T16:44:14.3003092Z env:
+2026-11-03T16:44:14.3003193Z   EXPERT_ROBOT_CCACHE: 0
+2026-11-03T16:44:14.3003317Z ##[endgroup]
+2026-11-03T16:44:14.3349502Z benchmark baseline comparison smoke: PASS
+2026-11-03T16:44:14.3863966Z progression comparator smoke: PASS
+2026-11-03T16:44:14.4014879Z progression baseline integrity: PASS
+2026-11-03T16:44:14.4542100Z progression baseline freezer smoke: PASS
+2026-11-03T16:44:14.4579505Z ##[group]Run python3 tests/formal_dependency_lock_smoke.py
+2026-11-03T16:44:14.4579705Z [36;1mpython3 tests/formal_dependency_lock_smoke.py[0m
+2026-11-03T16:44:14.4592070Z shell: /usr/bin/bash -e {0}
+2026-11-03T16:44:14.4592203Z env:
+2026-11-03T16:44:14.4592306Z   EXPERT_ROBOT_CCACHE: 0
+2026-11-03T16:44:14.4592419Z ##[endgroup]
+2026-11-03T16:44:14.4726725Z formal dependency lock: PASS
+2026-11-03T16:44:14.4759130Z ##[group]Run python3 tests/cace_return_bridge_smoke.py
+2026-11-03T16:44:14.4759317Z [36;1mpython3 tests/cace_return_bridge_smoke.py[0m
+2026-11-03T16:44:14.4771239Z shell: /usr/bin/bash -e {0}
+2026-11-03T16:44:14.4771372Z env:
+2026-11-03T16:44:14.4771472Z   EXPERT_ROBOT_CCACHE: 0
+2026-11-03T16:44:14.4771584Z ##[endgroup]
+2026-11-03T16:44:14.4899124Z CACE return bridge guardrails: PASS
+2026-11-03T16:44:14.4933506Z ##[group]Run python3 tests/collar_policy_smoke.py
+2026-11-03T16:44:14.4933690Z [36;1mpython3 tests/collar_policy_smoke.py[0m
+2026-11-03T16:44:14.4933857Z [36;1mpython3 tests/collar_runtime_contract_smoke.py[0m
+2026-11-03T16:44:14.4945920Z shell: /usr/bin/bash -e {0}
+2026-11-03T16:44:14.4946052Z env:
+2026-11-03T16:44:14.4946149Z   EXPERT_ROBOT_CCACHE: 0
+2026-11-03T16:44:14.4946306Z ##[endgroup]
+2026-11-03T16:44:14.5080432Z collar policy smoke: PASS
+2026-11-03T16:44:14.6251985Z collar runtime contract: PASS
+2026-11-03T16:44:14.6288295Z ##[group]Run bash tests/collar_vault_smoke.sh
+2026-11-03T16:44:14.6288454Z [36;1mbash tests/collar_vault_smoke.sh[0m
+2026-11-03T16:44:14.6299945Z shell: /usr/bin/bash -e {0}
+2026-11-03T16:44:14.6300072Z env:
+2026-11-03T16:44:14.6300178Z   EXPERT_ROBOT_CCACHE: 0
+2026-11-03T16:44:14.6300291Z ##[endgroup]
+2026-11-03T16:44:14.7775366Z collar vault smoke: PASS
+2026-11-03T16:44:14.7793520Z ##[group]Run bash -n scripts/install_hermes_agent.sh scripts/models/*.sh
+2026-11-03T16:44:14.7793751Z [36;1mbash -n scripts/install_hermes_agent.sh scripts/models/*.sh[0m
+2026-11-03T16:44:14.7793944Z [36;1mpython3 -m unittest discover -s tests/voice -v[0m
+2026-11-03T16:44:14.7794136Z [36;1mpython3 -m unittest discover -s tests/engineering -v[0m
+2026-11-03T16:44:14.7804722Z shell: /usr/bin/bash -e {0}
+2026-11-03T16:44:14.7804851Z env:
+2026-11-03T16:44:14.7804948Z   EXPERT_ROBOT_CCACHE: 0
+2026-11-03T16:44:14.7805062Z ##[endgroup]
+2026-11-03T16:44:14.8190555Z test_default_request (test_kokoro_server.KokoroContractTests.test_default_request) ... ok
+2026-11-03T16:44:14.8190876Z test_reject_empty_text (test_kokoro_server.KokoroContractTests.test_reject_empty_text) ... ok
+2026-11-03T16:44:14.8191192Z test_reject_invalid_speed (test_kokoro_server.KokoroContractTests.test_reject_invalid_speed) ... ok
+2026-11-03T16:44:14.8191544Z test_reject_oversized_text (test_kokoro_server.KokoroContractTests.test_reject_oversized_text) ... ok
+2026-11-03T16:44:14.8192062Z test_reject_unsupported_language (test_kokoro_server.KokoroContractTests.test_reject_unsupported_language) ... ok
+2026-11-03T16:44:14.8192422Z test_wav_header_and_pcm (test_kokoro_server.KokoroContractTests.test_wav_header_and_pcm) ... ok
+2026-11-03T16:44:14.8192598Z 
+2026-11-03T16:44:14.8192675Z ----------------------------------------------------------------------
+2026-11-03T16:44:14.8192843Z Ran 6 tests in 0.000s
+2026-11-03T16:44:14.8192911Z 
+2026-11-03T16:44:14.8192951Z OK
+2026-11-03T16:44:14.8543094Z test_cpu_fabric (unittest.loader._FailedTest.test_cpu_fabric) ... ERROR
+2026-11-03T16:44:14.8544033Z test_non_manifold_closed_edge_is_rejected (test_geometry.GeometryIRTests.test_non_manifold_closed_edge_is_rejected) ... ok
+2026-11-03T16:44:14.8544490Z test_openscad_export (test_geometry.GeometryIRTests.test_openscad_export) ... ok
+2026-11-03T16:44:14.8545174Z test_unit_conversion_to_mm (test_geometry.GeometryIRTests.test_unit_conversion_to_mm) ... ok
+2026-11-03T16:44:14.8545609Z test_unknown_vertex_is_rejected (test_geometry.GeometryIRTests.test_unknown_vertex_is_rejected) ... ok
+2026-11-03T16:44:14.8545941Z test_valid_closed_tetrahedron (test_geometry.GeometryIRTests.test_valid_closed_tetrahedron) ... ok
+2026-11-03T16:44:14.8546489Z test_component_rating_is_checked (test_netlist.NetlistIRTests.test_component_rating_is_checked) ... ok
+2026-11-03T16:44:14.8546881Z test_duplicate_connection_on_one_net_is_flagged (test_netlist.NetlistIRTests.test_duplicate_connection_on_one_net_is_flagged) ... ok
+2026-11-03T16:44:14.8547291Z test_pin_cannot_be_assigned_to_two_nets (test_netlist.NetlistIRTests.test_pin_cannot_be_assigned_to_two_nets) ... ok
+2026-11-03T16:44:14.8547646Z test_supply_ground_short_is_flagged (test_netlist.NetlistIRTests.test_supply_ground_short_is_flagged) ... ok
+2026-11-03T16:44:14.8548123Z test_valid_low_voltage_netlist (test_netlist.NetlistIRTests.test_valid_low_voltage_netlist) ... ok
+2026-11-03T16:44:14.8548332Z 
+2026-11-03T16:44:14.8548397Z ======================================================================
+2026-11-03T16:44:14.8548589Z ERROR: test_cpu_fabric (unittest.loader._FailedTest.test_cpu_fabric)
+2026-11-03T16:44:14.8548792Z ----------------------------------------------------------------------
+2026-11-03T16:44:14.8548989Z ImportError: Failed to import test module: test_cpu_fabric
+2026-11-03T16:44:14.8549157Z Traceback (most recent call last):
+2026-11-03T16:44:14.8549343Z   File "/usr/lib/python3.12/unittest/loader.py", line 394, in _find_test_path
+2026-11-03T16:44:14.8549540Z     module = self._get_module_from_name(name)
+2026-11-03T16:44:14.8549681Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-11-03T16:44:14.8549870Z   File "/usr/lib/python3.12/unittest/loader.py", line 337, in _get_module_from_name
+2026-11-03T16:44:14.8550059Z     __import__(name)
+2026-11-03T16:44:14.8550284Z   File "/home/runner/_work/expert-robot/expert-robot/tests/engineering/test_cpu_fabric.py", line 6, in <module>
+2026-11-03T16:44:14.8550727Z     from merlin.cpu_fabric.catalog import BoundedModuleManager, CatalogError, ModuleManifest
+2026-11-03T16:44:14.8550964Z ModuleNotFoundError: No module named 'merlin'
+2026-11-03T16:44:14.8551060Z 
+2026-11-03T16:44:14.8551062Z 
+2026-11-03T16:44:14.8551136Z ----------------------------------------------------------------------
+2026-11-03T16:44:14.8551294Z Ran 11 tests in 0.000s
+2026-11-03T16:44:14.8551360Z 
+2026-11-03T16:44:14.8551403Z FAILED (errors=1)
+2026-11-03T16:44:14.8594126Z ##[error]Process completed with exit code 1.
+2026-11-03T16:44:14.8618517Z ##[group]Run if [ "${EXPERT_ROBOT_CCACHE:-0}" = "1" ]; then
+2026-11-03T16:44:14.8618714Z [36;1mif [ "${EXPERT_ROBOT_CCACHE:-0}" = "1" ]; then[0m
+2026-11-03T16:44:14.8618873Z [36;1m  ccache --show-stats || true[0m
+2026-11-03T16:44:14.8618995Z [36;1mfi[0m
+2026-11-03T16:44:14.8629739Z shell: /usr/bin/bash --noprofile --norc -e -o pipefail {0}
+2026-11-03T16:44:14.8629909Z env:
+2026-11-03T16:44:14.8630007Z   EXPERT_ROBOT_CCACHE: 0
+2026-11-03T16:44:14.8630117Z ##[endgroup]
+2026-11-03T16:44:14.8710142Z Post job cleanup.
+2026-11-03T16:44:14.9160861Z [command]/usr/bin/git version
+2026-11-03T16:44:14.9178650Z git version 2.55.0
+2026-11-03T16:44:14.9199231Z Temporarily overriding HOME='/home/runner/_work/_temp/8fd73cc6-23ea-4ab4-b01f-1f89cff536e8' before making global git config changes
+2026-11-03T16:44:14.9199595Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-03T16:44:14.9202964Z [command]/usr/bin/git config --global --add safe.directory /home/runner/_work/expert-robot/expert-robot
+2026-11-03T16:44:14.9218797Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-03T16:44:14.9233555Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-03T16:44:14.9329470Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-03T16:44:14.9338216Z http.https://github.com/.extraheader
+2026-11-03T16:44:14.9343690Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-03T16:44:14.9357550Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-03T16:44:14.9450754Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-03T16:44:14.9463764Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-03T16:44:14.9619825Z Cleaning up orphan processes
+2026-11-03T16:44:14.9800242Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache/restore@v4, actions/checkout@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
