@@ -270,6 +270,42 @@ void GenerationLineageStore::initialize() {
             FOREIGN KEY(generation_id)
                 REFERENCES generations(generation_id)
         );
+
+        CREATE TRIGGER IF NOT EXISTS generations_no_update
+        BEFORE UPDATE ON generations
+        BEGIN
+            SELECT RAISE(ABORT, 'generation lineage is append-only');
+        END;
+
+        CREATE TRIGGER IF NOT EXISTS generations_no_delete
+        BEFORE DELETE ON generations
+        BEGIN
+            SELECT RAISE(ABORT, 'generation lineage is append-only');
+        END;
+
+        CREATE TRIGGER IF NOT EXISTS generation_evaluations_no_update
+        BEFORE UPDATE ON generation_evaluations
+        BEGIN
+            SELECT RAISE(ABORT, 'generation evaluations are append-only');
+        END;
+
+        CREATE TRIGGER IF NOT EXISTS generation_evaluations_no_delete
+        BEFORE DELETE ON generation_evaluations
+        BEGIN
+            SELECT RAISE(ABORT, 'generation evaluations are append-only');
+        END;
+
+        CREATE TRIGGER IF NOT EXISTS promotion_decisions_no_update
+        BEFORE UPDATE ON promotion_decisions
+        BEGIN
+            SELECT RAISE(ABORT, 'promotion decisions are append-only');
+        END;
+
+        CREATE TRIGGER IF NOT EXISTS promotion_decisions_no_delete
+        BEFORE DELETE ON promotion_decisions
+        BEGIN
+            SELECT RAISE(ABORT, 'promotion decisions are append-only');
+        END;
         )SQL");
 
     Statement select(
