@@ -100,7 +100,26 @@ class SQLiteMetadataCache:
             if row is None or float(row[1]) <= self._now():
                 return None
             try:
-                return ResearchMetadata.from_dict(json.loads(row[0]))
+                record = ResearchMetadata.from_dict(json.loads(row[0]))
+                fields: dict[str, object] = {
+                    "source": record.source,
+                    "identifier": record.identifier,
+                    "title": record.title,
+                    "authors": list(record.authors),
+                    "published": record.published,
+                    "abstract": record.abstract,
+                    "doi": record.doi,
+                    "url": record.url,
+                    "raw_sha256": record.raw_sha256,
+                }
+                valid_digest = (
+                    re.fullmatch(r"[0-9a-f]{64}", record.raw_sha256) is not None
+                    and re.fullmatch(r"[0-9a-f]{64}", record.metadata_sha256) is not None
+                    and _metadata_digest(fields) == record.metadata_sha256
+                )
+                if not valid_digest:
+                    raise ValueError("cached metadata digest mismatch")
+                return record
             except (json.JSONDecodeError, KeyError, TypeError, ValueError):
                 self._db.execute(
                     "DELETE FROM research_metadata_cache WHERE cache_key=?",
