@@ -89,6 +89,11 @@ bool parse_request_line(const std::string& line, Request& out, std::string& erro
         error = "missing string field: task";
         return false;
     }
+    if (line.find("\\\"payload\\\"") != std::string::npos &&
+        !extract_json_string(line, "payload", out.payload)) {
+        error = "payload must be a valid JSON string";
+        return false;
+    }
     return true;
 }
 
