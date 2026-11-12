@@ -86,5 +86,64 @@ int main() {
     }
     assert(duplicate_glyph_rejected);
 
+    bool malformed_signature_rejected = false;
+    try {
+        registry.add({
+            .id = "xa.arithmetic.bad_signature",
+            .name_space = "xa.arithmetic",
+            .glyph = "⊞",
+            .min_arity = 2,
+            .max_arity = 3,
+            .input_types = {"Real", "Complex"},
+            .output_type = "Real",
+            .semantic_definition = "Invalid incomplete positional signature",
+        });
+    } catch (const std::invalid_argument&) {
+        malformed_signature_rejected = true;
+    }
+    assert(malformed_signature_rejected);
+
+    ExpressionGraph missing_operand;
+    missing_operand.add({
+        .id = "sum", .kind = NodeKind::application, .type = "Real",
+        .operator_id = "xa.arithmetic.add", .operands = {"absent", "also_absent"},
+    });
+    const auto missing_issues = missing_operand.validate(registry);
+    bool found_missing = false;
+    for (const auto& issue : missing_issues) {
+        if (issue.code == "MISSING_OPERAND") found_missing = true;
+    }
+    assert(found_missing);
+
+    ExpressionGraph implicit_cycle;
+    implicit_cycle.add({
+        .id = "loop", .kind = NodeKind::application, .type = "Real",
+        .operator_id = "xa.arithmetic.add", .operands = {"loop", "loop"},
+    });
+    const auto cycle_issues = implicit_cycle.validate(registry);
+    bool found_cycle = false;
+    for (const auto& issue : cycle_issues) {
+        if (issue.code == "IMPLICIT_CYCLE") found_cycle = true;
+    }
+    assert(found_cycle);
+
+    bool invalid_status_rejected = false;
+    try {
+        registry.add({
+            .id = "xa.arithmetic.unearned_proof",
+            .name_space = "xa.arithmetic",
+            .glyph = "⊕",
+            .min_arity = 2,
+            .max_arity = 2,
+            .input_types = {"Real"},
+            .output_type = "Real",
+            .semantic_definition = "Cannot self-assert a proof receipt",
+            .verification_status = "formally_verified",
+        });
+    } catch (const std::invalid_argument&) {
+        invalid_status_rejected = true;
+    }
+    assert(invalid_status_rejected);
+
     return 0;
 }
