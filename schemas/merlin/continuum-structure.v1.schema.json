@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://merlin.invalid/schemas/continuum-structure.v1.schema.json",
+  "$id": "urn:merlin:schema:continuum-structure:1",
   "title": "Merlin Continuum Structure IR v1",
   "type": "object",
   "additionalProperties": false,
