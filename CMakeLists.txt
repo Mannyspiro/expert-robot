@@ -111,6 +111,11 @@ add_executable(continuum_simplex_smoke
 )
 add_test(NAME continuum_simplex_smoke COMMAND continuum_simplex_smoke)
 
+add_executable(simplicial_complex_smoke
+    tests/simplicial_complex_smoke.cpp
+)
+add_test(NAME simplicial_complex_smoke COMMAND simplicial_complex_smoke)
+
 set_tests_properties(
     math_core_smoke
     PROPERTIES
