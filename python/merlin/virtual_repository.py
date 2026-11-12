@@ -601,12 +601,25 @@ class VirtualRepository:
                 if (existing["commit_id"], existing["conclusion"], existing["runner_id"],
                     existing["log_digest"]) != (commit_id, conclusion, runner_id, log_digest):
                     raise VirtualGitError("run_id already records a different check result")
-                metadata = json.loads(existing["result_json"])
+                verification_row = db.execute("""SELECT verification_json FROM check_verifications
+                    WHERE check_id=? ORDER BY recorded_at DESC,verification_id DESC LIMIT 1""",
+                    (existing["check_id"],)).fetchone()
+                try:
+                    verification = json.loads(verification_row["verification_json"]) if verification_row else {}
+                except (TypeError, ValueError):
+                    verification = {}
+                expected = self._check_binding(existing)
+                verified = (
+                    verification.get("verification_status") == "VERIFIED"
+                    and verification.get("bindings") == expected
+                    and verification.get("promotion_authorized") is True
+                    and bool(verification.get("cace_receipt_id"))
+                )
                 return {"check_id": existing["check_id"], "commit_id": commit_id,
                         "check_name": check_name, "conclusion": conclusion,
                         "log_sha256": log_digest,
-                        "verification_status": metadata.get("verification_status", "UNVERIFIED"),
-                        "promotion_authorized": metadata.get("promotion_authorized") is True,
+                        "verification_status": "VERIFIED" if verified else "UNVERIFIED",
+                        "promotion_authorized": verified,
                         "idempotent_replay": True}
             result = {"commit_id": commit_id, "check_name": check_name,
                       "conclusion": conclusion, "run_id": run_id, "runner_id": runner_id,
