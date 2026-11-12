@@ -486,6 +486,12 @@ class MerlinApiTests(unittest.TestCase):
         self.assertEqual(state["attempts"], 2)
         self.assertEqual(state["skills"]["MATH-REP-001"]["procedure"]["state"],
                          "provisionally_mastered")
+        catalog_path = Path(__file__).resolve().parents[2] / "docs/research/merlin-mathematical-idea-catalog.v1.json"
+        catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+        canonical_ids = {idea["id"] for idea in catalog["ideas"]}
+        self.assertTrue(canonical_ids.issubset(state["skills"]))
+        self.assertIn("conceptual_explanation", state["skills"]["MATH-ST-001"])
+        self.assertIn("procedure", state["skills"]["MATH-ST-001"])
         request = Request(
             self.base + "/api/learning/recommendation?learner_id=" + learner + "&curriculum_id=mathematics",
             headers={"Authorization": "Bearer learner-rotation"},
