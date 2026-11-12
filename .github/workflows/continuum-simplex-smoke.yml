@@ -32,7 +32,6 @@ jobs:
       - name: Build focused target
         run: cmake --build build --target continuum_simplex_smoke simplicial_complex_smoke --parallel 2
       - name: Run focused regression
-        run: ctest --test-dir build -R '^(continuum_simplex_smoke|simplicial_complex_smoke)
- --output-on-failure
+        run: ctest --test-dir build -R '^(continuum_simplex_smoke|simplicial_complex_smoke)$' --output-on-failure
       - name: Validate canonical continuum structure IR
         run: python3 -m unittest discover -s tests -p 'test_continuum_structure_ir.py' -v
