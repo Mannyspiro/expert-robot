@@ -80,3 +80,50 @@ Use `clean: false` for any future workflow that is separately approved and safe 
 - RSI candidate generation, evaluation, held-out benchmarking, skeptical review, and promotion remain separate stages. Candidate generation must never grant execution authority or self-certify correctness.
 
 No new verification claim is made by this document. It is a continuity and safety record only.
+
+
+## Repository-side continuation after this snapshot
+
+The following implementation PRs were opened after the original OCI handoff.
+They are separate branches and remain unmerged; do not treat them as deployed
+or verified builds.
+
+- [PR #131 — MMIR 0.1](https://github.com/Mannyspiro/expert-robot/pull/131):
+  typed operator registry, expression graph, dimensional algebra, and smoke
+  tests. Codex found a P1 anonymous-namespace compile issue; commit
+  `022b98186ab330669460a072fc0b0f4ad1f9adc2` closes that namespace correctly.
+  A fresh successful build is still pending.
+- [PR #132 — append-only RSI lineage](https://github.com/Mannyspiro/expert-robot/pull/132):
+  SQLite triggers prevent UPDATE/DELETE on generation, evaluation, and
+  promotion records. Readiness now uses one latest evaluation record rather
+  than combining partial passes, and the latest explicit owner decision
+  supersedes earlier decisions. Codex setup failed on its latest review attempt.
+- [PR #133 — failure observations](https://github.com/Mannyspiro/expert-robot/pull/133):
+  research-engine direct-proof and parent-retry failures are recorded as
+  `failure_observation.v1` events in the hash-chained episode ledger. SQLite
+  immutability triggers are added. Codex review reported no major issues.
+  This is a Hermes-compatible ingestion seam, not yet a live cross-repository
+  Hermes transport or authenticated CACE receipt integration.
+- [PR #134 — research metadata sources](https://github.com/Mannyspiro/expert-robot/pull/134):
+  standard-library Crossref/arXiv metadata client with SQLite TTL cache,
+  provider rate limits, bounded retries, response-size limits, and offline
+  fake-transport tests. Codex review was running at the last check.
+
+The Avrea bot reported no available organization credits for the Expert Robot
+CI job. No GitHub-hosted workflow was dispatched as a substitute. All four
+implementation branches are repository-only changes; no OCI runner files,
+caches, service configuration, or artifacts were modified.
+
+## Updated operational boundary
+
+The original OCI inventory remains historical and the last recorded free disk
+space remains approximately 0.48 GiB. There has been no fresh OCI health,
+disk, MCP, or runner-registration check in this session. Do not dispatch the
+existing external CACE bridge workflow: it performs archive transfer and
+cache/package operations on the self-hosted runner, which is not safe under
+the recorded disk constraint.
+
+Current safe next step: restore the CACE GitHub connection and perform a
+strictly read-only MCP/instance/disk check through the authenticated route.
+Only after fresh resource evidence should a small, bounded CACE job be
+considered. No merge, deploy, or promotion has been performed.
