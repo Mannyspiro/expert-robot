@@ -136,6 +136,65 @@ int main() {
     assert(readiness.externally_approved);
     assert(readiness.promotable());
 
+    // A later explicit rejection supersedes an earlier approval.
+    (void)store.record_promotion_decision(
+        PromotionDecision{
+            .generation_id = "generation-0001",
+            .actor = "owner-policy-boundary",
+            .approved = false,
+            .reason = "new evidence requires hold",
+            .evidence_hash = sha256_hex("later-rejection")
+        });
+    assert(!store.readiness("generation-0001").promotable());
+
+    // Partial passes from separate evaluations must never combine into a pass.
+    (void)store.record_candidate(
+        GenerationCandidate{
+            .generation_id = "generation-0003",
+            .parent_generation_id = "generation-0001",
+            .source_tree_hash = sha256_hex("g3-source"),
+            .model_manifest_hash = sha256_hex("g3-model"),
+            .config_hash = sha256_hex("g3-config"),
+            .rationale = "split evaluation regression fixture"
+        });
+    (void)store.record_evaluation(
+        EvaluationRecord{
+            .generation_id = "generation-0003",
+            .evaluator = "benchmark-a",
+            .evidence_hash = sha256_hex("partial-a"),
+            .recommend_keep = true,
+            .verification_ok = true,
+            .efficiency_ok = false,
+            .diversity_ok = true,
+            .verified_rate_delta = 0.1,
+            .cost_per_verified_ratio = 1.0
+        });
+    (void)store.record_evaluation(
+        EvaluationRecord{
+            .generation_id = "generation-0003",
+            .evaluator = "benchmark-b",
+            .evidence_hash = sha256_hex("partial-b"),
+            .recommend_keep = true,
+            .verification_ok = false,
+            .efficiency_ok = true,
+            .diversity_ok = true,
+            .verified_rate_delta = 0.1,
+            .cost_per_verified_ratio = 1.0
+        });
+    (void)store.record_promotion_decision(
+        PromotionDecision{
+            .generation_id = "generation-0003",
+            .actor = "owner-policy-boundary",
+            .approved = true,
+            .reason = "test that partial results do not combine",
+            .evidence_hash = sha256_hex("split-approval")
+        });
+    const auto split_readiness = store.readiness("generation-0003");
+    assert(split_readiness.has_positive_evaluation);
+    assert(!split_readiness.verification_ok);
+    assert(split_readiness.efficiency_ok);
+    assert(!split_readiness.promotable());
+
     const auto verification =
         store.verify();
     assert(verification.valid);
