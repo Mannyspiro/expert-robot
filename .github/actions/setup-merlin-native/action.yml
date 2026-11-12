@@ -8,7 +8,7 @@ runs:
       run: |
         set -euo pipefail
         missing=0
-        for tool in cmake ninja c++; do
+        for tool in cmake ninja c++ ccache; do
           command -v "$tool" >/dev/null 2>&1 || missing=1
         done
         if ! command -v pkg-config >/dev/null 2>&1; then missing=1; fi
