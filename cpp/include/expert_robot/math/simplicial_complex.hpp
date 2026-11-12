@@ -1,6 +1,7 @@
 #pragma once
 
 #include <algorithm>
+#include <cstddef>
 #include <map>
 #include <stdexcept>
 #include <string>
@@ -81,6 +82,12 @@ inline IntegerChain boundary(const IntegerChain& chain) {
     for (const auto& [vertices, coefficient] : chain) {
         if (vertices.size() < 2) {
             throw std::invalid_argument("cannot take the boundary of a 0-chain");
+        }
+        if (!std::is_sorted(vertices.begin(), vertices.end()) ||
+            std::adjacent_find(vertices.begin(), vertices.end()) != vertices.end() ||
+            std::any_of(vertices.begin(), vertices.end(),
+                        [](const std::string& vertex) { return vertex.empty(); })) {
+            throw std::invalid_argument("chain keys must be valid canonical simplex orientations");
         }
         const IntegerChain faces = boundary(OrientedSimplex{vertices});
         for (const auto& [face, face_coefficient] : faces) {
