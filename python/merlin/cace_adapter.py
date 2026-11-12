@@ -214,7 +214,8 @@ class CaceVerificationAdapter:
     def verify_artifact(self, *, project_id: str, repository: str, commit_sha: str,
                         artifact_sha256: str, artifact_kind: str,
                         artifact_schema: str, requester_id: str,
-                        logical_path: str, tool_identity: str) -> dict[str, Any]:
+                        logical_path: str, tool_identity: str,
+                        additional_bindings: Mapping[str, Any] | None = None) -> dict[str, Any]:
         """Independently attest a non-theorem artifact and store its signed receipt."""
         if self.verify_transport is None:
             raise RuntimeError("CACE verification transport is not configured")
@@ -233,6 +234,13 @@ class CaceVerificationAdapter:
                              (tool_identity, "tool_identity")):
             if not isinstance(value, str) or not value.strip() or len(value) > 500:
                 raise ValueError(label + " is required")
+        extra_bindings = dict(additional_bindings or {})
+        if any(not isinstance(key, str) or not key.strip() for key in extra_bindings):
+            raise ValueError("additional binding keys must be non-empty strings")
+        try:
+            _canonical(extra_bindings)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("additional bindings must be canonical JSON values") from exc
         artifact_bytes = self._verified_artifact_bytes(artifact_sha256)
         request = {
             "schema": "merlin-cace-artifact-verification-request/1",
@@ -243,6 +251,7 @@ class CaceVerificationAdapter:
             "artifact_schema": artifact_schema,
             "logical_path": logical_path,
             "tool_identity": tool_identity,
+            "additional_bindings": extra_bindings,
             "requester_id": requester_id,
             "artifact_registry_verified": True,
             "artifact_size_bytes": len(artifact_bytes),
@@ -255,8 +264,9 @@ class CaceVerificationAdapter:
         if receipt.get("schema") != "cace-artifact-verification/1":
             raise ValueError("unsupported CACE artifact receipt schema")
         for key in ("repository", "commit_sha", "artifact_sha256",
-                    "artifact_kind", "artifact_schema", "logical_path", "tool_identity"):
-            if receipt.get(key) != request[key]:
+                    "artifact_kind", "artifact_schema", "logical_path", "tool_identity",
+                    "additional_bindings"):
+            if receipt.get(key, {} if key == "additional_bindings" else None) != request[key]:
                 raise ValueError("CACE artifact receipt is bound to a different " + key)
         verifier_id = receipt.get("verifier_id")
         if not isinstance(verifier_id, str) or not verifier_id.strip() or verifier_id == requester_id:
@@ -270,6 +280,7 @@ class CaceVerificationAdapter:
                 "repository": repository, "commit_sha": commit_sha,
                 "artifact_kind": artifact_kind, "artifact_schema": artifact_schema,
                 "logical_path": logical_path, "tool_identity": tool_identity,
+                **extra_bindings,
             },
             requester_id=requester_id,
         )
@@ -293,7 +304,8 @@ class CaceVerificationAdapter:
         receipt_bytes = (_canonical(receipt) + "\n").encode("utf-8")
         receipt_path = ("cace-artifact-receipts/" + commit_sha + "/" +
                         artifact_sha256 + "/" + hashlib.sha256(
-                            artifact_kind.encode("utf-8")).hexdigest() + ".json")
+                            _canonical({"artifact_kind": artifact_kind,
+                                        "additional_bindings": extra_bindings}).encode("utf-8")).hexdigest() + ".json")
         receipt_digest = self.registry.put_artifact(
             project_id, receipt_path, receipt_bytes,
             "application/vnd.merlin.cace-artifact-receipt+json",
@@ -310,7 +322,8 @@ class CaceVerificationAdapter:
                     artifact_node_id, "artifact", logical_path,
                     {"sha256": artifact_sha256, "project_id": project_id,
                      "logical_path": logical_path, "artifact_kind": artifact_kind,
-                     "artifact_schema": artifact_schema},
+                     "artifact_schema": artifact_schema,
+                 "additional_bindings": extra_bindings},
                     evidence_class="submitted_for_verification",
                     source_uri="registry://sha256/" + artifact_sha256,
                 ))
@@ -322,7 +335,8 @@ class CaceVerificationAdapter:
                  "artifact_kind": artifact_kind, "artifact_schema": artifact_schema,
                  "repository": repository, "commit_sha": commit_sha,
                  "verifier_id": verifier_id, "verifier_key_id": signed["verifier_key_id"],
-                 "tool_identity": tool_identity, "verification_status": status,
+                 "tool_identity": tool_identity, "additional_bindings": extra_bindings,
+                 "verification_status": status,
                  "promotion_authority": False},
                 evidence_class="independent_verification",
                 source_uri="registry://sha256/" + receipt_digest,
@@ -341,6 +355,7 @@ class CaceVerificationAdapter:
             "tool_identity": tool_identity,
             "source_commit": commit_sha,
             "artifact_sha256": artifact_sha256,
+            "additional_bindings": extra_bindings,
             "receipt_artifact_sha256": receipt_digest,
             "receipt_graph_node_id": receipt_node_id,
             "promotion_authority": False,
