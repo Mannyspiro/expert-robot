@@ -7,6 +7,8 @@ possible only through explicitly injected, stage-scoped handlers.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import datetime, timezone
+import re
 import time
 from typing import Any, Callable, Mapping
 
@@ -43,6 +45,8 @@ class HermesWorker:
         lease_seconds: float = 120,
         max_attempts: int = 4,
         retry_delay_seconds: float = 2,
+        failure_signer: Any | None = None,
+        failure_sink: Callable[[Mapping[str, Any], Any], Mapping[str, Any]] | None = None,
     ):
         if not isinstance(outbox, MerlinEventOutbox):
             raise ValueError("outbox must be a MerlinEventOutbox")
@@ -68,7 +72,15 @@ class HermesWorker:
         self.worker_id = worker_id.strip()
         self.lease_seconds = float(lease_seconds)
         self.max_attempts = max_attempts
+        if failure_signer is not None and not callable(getattr(failure_signer, "sign_failure", None)):
+            raise ValueError("failure_signer must provide sign_failure(record)")
+        if failure_sink is not None and not callable(failure_sink):
+            raise ValueError("failure_sink must be callable")
+        if (failure_signer is None) != (failure_sink is None):
+            raise ValueError("failure signer and sink must be configured together")
         self.retry_delay_seconds = float(retry_delay_seconds)
+        self.failure_signer = failure_signer
+        self.failure_sink = failure_sink
         self.emit_event = agent_event_sink(outbox, "hermes")
 
     @staticmethod
@@ -90,6 +102,27 @@ class HermesWorker:
             raise PermissionError("Hermes tasks cannot carry hypothesis-promotion authority")
         if payload.get("authority") != "bounded_execution_only":
             raise PermissionError("Hermes task authority is not bounded execution")
+        source_fields = ("source_repo", "source_commit", "artifact_sha256")
+        if any(payload.get(key) is not None for key in source_fields):
+            if any(not isinstance(payload.get(key), str) or not payload[key].strip() for key in source_fields):
+                raise ValueError("Hermes source identity must include repo, commit and artifact digest")
+            if not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", payload["source_repo"]):
+                raise ValueError("Hermes source_repo must be owner/name")
+            if not re.fullmatch(r"[0-9a-f]{40}", payload["source_commit"]):
+                raise ValueError("Hermes source_commit must be a lowercase Git SHA")
+            if not re.fullmatch(r"[0-9a-f]{64}", payload["artifact_sha256"]):
+                raise ValueError("Hermes artifact_sha256 must be lowercase SHA-256")
+        if "corrective_steps" in payload and (
+            not isinstance(payload["corrective_steps"], list) or len(payload["corrective_steps"]) > 10
+            or any(not isinstance(step, str) or not step.strip() or len(step) > 300
+                   for step in payload["corrective_steps"])
+        ):
+            raise ValueError("Hermes corrective_steps must be at most ten bounded strings")
+        if "run_id" in payload and (
+            not isinstance(payload["run_id"], str) or not payload["run_id"].strip()
+            or len(payload["run_id"]) > 200
+        ):
+            raise ValueError("Hermes run_id is invalid")
         return payload
 
     def _progress(self, task_id: str, hypothesis_id: str, stage: str,
@@ -105,6 +138,43 @@ class HermesWorker:
             body["details"] = dict(details)
         self.emit_event(kind="task.progress", run_id=task_id, task_id=task_id, payload=body)
 
+    def _emit_failure_record(self, *, event_id: str, task_id: str,
+                             task: Mapping[str, Any] | None, exc: Exception,
+                             attempt: int) -> tuple[str, str | None]:
+        if self.failure_signer is None or self.failure_sink is None:
+            return "not_configured", None
+        if not isinstance(task, Mapping) or any(
+            not task.get(key) for key in ("source_repo", "source_commit", "artifact_sha256")
+        ):
+            return "source_identity_missing", None
+        stage = str(task.get("stage") or "unknown")
+        failure_record = {
+            "schema": "merlin-hermes-failure/2",
+            "event_id": f"{event_id}:attempt:{max(1, int(attempt))}",
+            "task_id": task_id,
+            "run_id": task.get("run_id") or task.get("hypothesis_id") or task_id,
+            "worker_id": self.worker_id,
+            "stage": stage,
+            "failure_class": type(exc).__name__,
+            "summary": str(exc)[:300] or type(exc).__name__,
+            "failure_signature": task.get("failure_signature") or f"{type(exc).__name__}:{stage}",
+            "trigger_condition": task.get("trigger_condition") or f"stage:{stage}",
+            "corrective_steps": list(task.get("corrective_steps") or []),
+            "source_repo": task["source_repo"],
+            "source_commit": task["source_commit"],
+            "artifact_sha256": task["artifact_sha256"],
+            "source_artifact_path": task.get("source_artifact_path"),
+            "observed_at": datetime.now(timezone.utc).isoformat(),
+        }
+        try:
+            signed = self.failure_signer.sign_failure(failure_record)
+            result = self.failure_sink(failure_record, signed)
+            if not isinstance(result, Mapping) or not result.get("event_hash"):
+                return "ingestion_receipt_missing", None
+            return "ingested", str(result["event_hash"])
+        except Exception as sink_error:
+            return "ingestion_failed:" + type(sink_error).__name__, None
+
     def run_once(self, *, now: float | None = None) -> dict[str, Any] | None:
         lease = self.outbox.claim_next(
             self.worker_id, lease_seconds=self.lease_seconds,
@@ -115,6 +185,7 @@ class HermesWorker:
         event_id, token = lease["event_id"], lease["lease_token"]
         payload = lease["payload"]
         task_id = str(payload.get("task_id") or event_id) if isinstance(payload, dict) else event_id
+        task = None
         try:
             task = self._validate_payload(payload)
             stage = task["stage"]
@@ -204,11 +275,16 @@ class HermesWorker:
             return {"status": "rejected", "event_id": event_id,
                     "outbox_state": ack["state"]}
         except Exception as exc:
+            attempt = lease.get("attempts", 1) if isinstance(lease, Mapping) else 1
+            failure_receipt_status, rsi_seed_event_hash = self._emit_failure_record(
+                event_id=event_id, task_id=task_id, task=task, exc=exc, attempt=attempt)
             self.emit_event(
                 kind="system.error", run_id=task_id, task_id=task_id,
                 payload={"agent_id": "hermes", "component": "worker_execution",
                          "status": "retrying", "error_type": type(exc).__name__,
-                         "summary": str(exc)[:300]},
+                         "summary": str(exc)[:300],
+                         "failure_receipt_status": failure_receipt_status,
+                         "rsi_seed_event_hash": rsi_seed_event_hash},
             )
             retried = self.outbox.retry(
                 event_id, self.worker_id, token,
@@ -223,7 +299,9 @@ class HermesWorker:
                          "activity": "handler failed; outbox retry policy applied"},
             )
             return {"status": retried["state"], "event_id": event_id,
-                    "error": type(exc).__name__}
+                    "error": type(exc).__name__,
+                    "failure_receipt_status": failure_receipt_status,
+                    "rsi_seed_event_hash": rsi_seed_event_hash}
 
     def run_forever(self, stop_event: Any, *, idle_seconds: float = 0.5) -> None:
         if not hasattr(stop_event, "is_set") or not hasattr(stop_event, "wait"):
