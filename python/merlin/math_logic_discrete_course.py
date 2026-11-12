@@ -55,7 +55,10 @@ def validate_math_curriculum_manifest(
                 raise ValueError(f"{objective_id}: external prerequisite {prerequisite} has no canonical lesson")
         if not isinstance(objective.get("pathways"), list) or set(objective["pathways"]) != PATHWAYS:
             raise ValueError(f"{objective_id}: objective must be assigned to all three pathways")
-    # Check canonical metadata before generic reference validation so callers\n    # receive the precise catalog-drift error rather than a secondary graph error.\n    LearningPlatform._validate_manifest(manifest)\n    lesson_ids: set[str] = set()
+    # Check canonical metadata before generic reference validation so callers
+    # receive the precise catalog-drift error rather than a secondary graph error.
+    LearningPlatform._validate_manifest(manifest)
+    lesson_ids: set[str] = set()
     task_ids: set[str] = set()
     lesson_by_id = {}
     for lesson in manifest["lessons"]:
