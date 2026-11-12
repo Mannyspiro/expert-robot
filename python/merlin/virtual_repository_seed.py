@@ -154,7 +154,7 @@ def build_repository_seed(
         "execution_performed": False,
         "source_commit_verified": False,
     }
-    manifest["tree_sha256"] = hashlib.sha256(_canonical(included).encode("utf-8")).hexdigest()
+    manifest["tree_sha256"] = hashlib.sha256(_canonical(included)).hexdigest()
     files["merlin/SEED_MANIFEST.json"] = _canonical(manifest) + b"\n"
     return files, manifest
 
