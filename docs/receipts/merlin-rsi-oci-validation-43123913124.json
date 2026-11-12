@@ -1,0 +1,111 @@
+{
+  "schema": "merlin-oci-validation-receipt-v1",
+  "generated_at_utc": "2026-11-12T00:00:00Z",
+  "scope": "RSI Python bridge compile and unit-test validation only",
+  "source": {
+    "repository": "Mannyspiro/expert-robot",
+    "commit": "e4fcb16ced5b6ff9e2f64f73869695d640eb1c27",
+    "branch": "math/parrondo-renderer-clean",
+    "files": {
+      "python/merlin/rsi_pipeline.py": {
+        "git_blob_sha": "34557113cf335694a77222a74d57ef5cdc6c2e6e"
+      },
+      "tests/test_rsi_pipeline.py": {
+        "git_blob_sha": "c0541be179da106990e4e74b1e0f87852b6f6bc1"
+      },
+      "config/benchmarks/merlin_rsi_multidomain_holdout_v1.json": {
+        "git_blob_sha": "e38004514228b84ac052dace756d00f3022524b6"
+      }
+    }
+  },
+  "runner": {
+    "repository": "morganaspim/Cace-app",
+    "name": "cace-oci-a1",
+    "os": "Oracle Linux 9.8",
+    "architecture": "ARM64",
+    "python": "3.9.25",
+    "cryptography": "36.0.1",
+    "workflow": "Merlin OCI typed job gateway",
+    "run_id": 43123913124,
+    "job_id": 130871049084,
+    "request_commit": "1343b68b34f2250f144485b49ada4d87a48dbbf5"
+  },
+  "results": {
+    "status": "passed",
+    "compile_returncode": 0,
+    "test_returncode": 0,
+    "tests_passed": 15,
+    "tests_failed": 0,
+    "benchmark_suite_id": "merlin-rsi-multidomain-heldout-v1",
+    "benchmark_cases": 25,
+    "domains": [
+      "mathematics",
+      "lean",
+      "research",
+      "coding",
+      "engineering"
+    ],
+    "package_installation": false,
+    "host_mutations": false
+  },
+  "test_names": [
+    "test_arxiv_metadata_cache_parses_atom_and_uses_cached_response",
+    "test_cace_bundle_digest_matches_pinned_oci_implementation",
+    "test_cace_trust_store_rejects_modified_digest_and_self_approval",
+    "test_cace_verification_and_separate_approval_gate_promotion",
+    "test_candidate_lineage_requires_signed_source_and_valid_parent",
+    "test_fixed_holdout_covers_all_five_domains",
+    "test_hermes_failure_requires_authentic_signature_and_is_idempotent",
+    "test_induction_dispatch_rejects_worker_ack_for_another_seed",
+    "test_induction_dispatch_requires_signed_worker_ack_and_is_idempotent",
+    "test_metadata_cache_normalizes_doi_and_detects_tampering",
+    "test_metadata_host_rate_limit_is_persisted_between_calls",
+    "test_optional_adapters_require_paired_multidomain_gain",
+    "test_promotion_rejects_failed_evaluation",
+    "test_rsi_candidate_binds_authenticated_hermes_seed",
+    "test_sqlite_ledger_rejects_update_and_delete"
+  ],
+  "artifact": {
+    "id": 13902350647,
+    "name": "merlin-oci-job-43123913124-1",
+    "sha256": "d7b507f57910923e9055732fe4aba2f8e3d404aad3579c549b9ce0975f3293df",
+    "size_bytes": 49522,
+    "retention_expires_utc": "2026-11-25T23:59:25Z"
+  },
+  "independent_cace_status": {
+    "mcp_probe_run_id": 43123029433,
+    "endpoint": "http://127.0.0.1:8765/mcp",
+    "runtime_status": "reachable",
+    "control_capabilities": "read-only query succeeded",
+    "artifact_verification_tool_exposed": false,
+    "attestation_signing_tool_exposed": false,
+    "live_candidate_attestation_obtained": false,
+    "production_promotion": false,
+    "proposed_verifier_pr": 93,
+    "proposed_verifier_ci_run": 43125343110,
+    "live_artifact_verification_tool_exposed": false
+  },
+  "limitations": [
+    "This receipt records a successful CI test run, not an independent CACE artifact attestation.",
+    "The CACE MCP server exposes control-plane inspection and operations, but no artifact-verification or attestation-signing tool.",
+    "The live production trust stores and RSI worker transport remain unconfigured; the code fails closed.",
+    "The fixed 25-case benchmark is a frozen task set, not yet a calibrated universal ranking benchmark."
+  ],
+  "cace_verifier_pr": {
+    "repository": "morganaspim/Cace-app",
+    "pull_request": 93,
+    "url": "https://github.com/morganaspim/Cace-app/pull/93",
+    "branch": "feature/cace-merlin-rsi-attestation-verifier-clean-20261112",
+    "commit": "7ba90e567373eda7cbb78be5a7f36c8378ea5936",
+    "workflow_run_id": 43125343110,
+    "job_id": 130876156361,
+    "runner": "cace-oci-a1",
+    "status": "passed",
+    "artifact": {
+      "id": 13902467637,
+      "sha256": "09f5133a52ec27dabd6731bc08b956b137436d037103dcebd634bc224c36d8a9"
+    },
+    "test_scope": "CACE core EvidenceBundle and Ed25519 verifier integration, server-pinned key allowlist, exact artifact byte verification, claim/binding matching, and 10 MiB aggregate input cap",
+    "deployment_status": "not_merged_not_deployed"
+  }
+}

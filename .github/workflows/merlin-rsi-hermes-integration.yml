@@ -1,0 +1,68 @@
+name: Merlin RSI and Hermes integration
+
+on:
+  push:
+    branches:
+      - feat/merlin-hermes-rsi-bridge-20261112
+  pull_request:
+    paths:
+      - "python/merlin/rsi.py"
+      - "python/merlin/rsi_pipeline.py"
+      - "python/merlin/hermes_rsi_bridge.py"
+      - "python/merlin/hermes_worker.py"
+      - "python/merlin/event_outbox.py"
+      - "python/merlin/telemetry.py"
+      - "python/merlin/hermes_outbox.py"
+      - "python/merlin/runtime_contracts.py"
+      - "python/merlin/sqlite_registry.py"
+      - "tests/test_rsi_pipeline.py"
+      - "tests/test_hermes_rsi_bridge.py"
+      - "tests/test_hermes_worker.py"
+      - "tests/test_event_outbox.py"
+      - "tests/test_hermes_outbox.py"
+      - "tests/test_runtime_contracts.py"
+      - "tests/test_telemetry.py"
+      - ".github/workflows/merlin-rsi-hermes-integration.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: merlin-rsi-hermes-\${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install receipt verification dependency
+        run: python -m pip install --disable-pip-version-check "cryptography>=42,<47"
+      - name: Compile Merlin Python modules
+        env:
+          PYTHONPATH: python
+        run: python -m compileall -q python/merlin
+      - name: Validate frozen benchmark manifest
+        run: python -m json.tool config/benchmarks/merlin_rsi_multidomain_holdout_v1.json >/dev/null
+      - name: Run RSI and Hermes regression suites
+        env:
+          PYTHONPATH: python
+        run: |
+          set -euo pipefail
+          for test_file in \
+            test_rsi_pipeline.py \
+            test_hermes_rsi_bridge.py \
+            test_hermes_worker.py \
+            test_event_outbox.py \
+            test_hermes_outbox.py \
+            test_runtime_contracts.py \
+            test_telemetry.py
+          do
+            python -m unittest discover -s tests -p "$test_file" -v
+          done

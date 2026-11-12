@@ -179,6 +179,18 @@ void ResearchEpisodeLedger::initialize() {
 
         CREATE INDEX IF NOT EXISTS idx_research_episode
             ON research_episode_events(episode_id, sequence);
+
+        CREATE TRIGGER IF NOT EXISTS research_episode_events_no_update
+        BEFORE UPDATE ON research_episode_events
+        BEGIN
+            SELECT RAISE(ABORT, 'append-only research episode ledger');
+        END;
+
+        CREATE TRIGGER IF NOT EXISTS research_episode_events_no_delete
+        BEFORE DELETE ON research_episode_events
+        BEGIN
+            SELECT RAISE(ABORT, 'append-only research episode ledger');
+        END;
         )SQL");
 
     Statement query(

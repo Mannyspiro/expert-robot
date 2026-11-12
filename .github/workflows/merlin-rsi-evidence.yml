@@ -1,0 +1,85 @@
+name: Merlin RSI Evidence Bridge
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "python/merlin/rsi_pipeline.py"
+      - "tests/test_rsi_pipeline.py"
+      - "config/benchmarks/merlin_rsi_multidomain_holdout_v1.json"
+      - "cpp/src/research/episode_ledger.cpp"
+      - "cpp/src/growth/generation_lineage.cpp"
+      - "tests/research_episode_ledger_smoke.cpp"
+      - "tests/generation_lineage_smoke.cpp"
+      - ".github/workflows/merlin-rsi-evidence.yml"
+  push:
+    branches:
+      - "math/parrondo-renderer-clean"
+    paths:
+      - "python/merlin/rsi_pipeline.py"
+      - "tests/test_rsi_pipeline.py"
+      - "config/benchmarks/merlin_rsi_multidomain_holdout_v1.json"
+      - ".github/workflows/merlin-rsi-evidence.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: merlin-rsi-evidence-\${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  python-evidence-bridge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install cryptographic verification dependency
+        run: python -m pip install --disable-pip-version-check "cryptography>=42,<47"
+      - name: Validate frozen benchmark manifest
+        run: |
+          python3 -m json.tool config/benchmarks/merlin_rsi_multidomain_holdout_v1.json >/dev/null
+          python3 - <<'PY'
+          import hashlib, json
+          from collections import Counter
+          from pathlib import Path
+          path = Path("config/benchmarks/merlin_rsi_multidomain_holdout_v1.json")
+          raw = path.read_bytes()
+          suite = json.loads(raw)
+          assert suite["status"] == "frozen"
+          assert suite["split"] == "held_out"
+          assert set(suite["domains"]) == {"mathematics", "lean", "research", "coding", "engineering"}
+          assert len(suite["cases"]) == 25
+          assert len({case["id"] for case in suite["cases"]}) == 25
+          counts = Counter(case["domain"] for case in suite["cases"])
+          assert counts == {domain: 5 for domain in suite["domains"]}
+          print("benchmark_manifest_sha256=" + hashlib.sha256(raw).hexdigest())
+          PY
+      - name: Compile Python bridge
+        env:
+          PYTHONPATH: python
+        run: python3 -m py_compile python/merlin/rsi_pipeline.py
+      - name: Run RSI and real Ed25519 CACE gate tests
+        env:
+          PYTHONPATH: python
+        run: python3 -m unittest discover -s tests -p "test_rsi_pipeline.py" -v
+
+  cpp-append-only-ledgers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Configure C++ project
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+      - name: Build canonical ledger tests
+        run: cmake --build build --target research_episode_ledger_smoke generation_lineage_smoke --parallel 2
+      - name: Run append-only ledger tests
+        run: ctest --test-dir build --output-on-failure -R "research_episode_ledger_smoke|generation_lineage_smoke"
