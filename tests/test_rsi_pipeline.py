@@ -447,8 +447,9 @@ class RSIPipelineTests(unittest.TestCase):
         self.assertEqual(fake.calls, 1)
         self.assertEqual(fake.asserted["claim"], candidate)
         self.assertEqual(fake.asserted["artifact_ids"], ["merlin-rsi-evidence-manifest"])
-        self.assertEqual(event["event_type"], "candidate.cace_verified")
-        self.assertEqual(event["verifier_id"], "cace")
+        self.assertEqual(event["seq"], 2)
+        recorded = self.ledger.events(candidate)
+        self.assertEqual(recorded[-1]["event_type"], "candidate.cace_verified")
         self.assertTrue(self.ledger.verify_chain(candidate)["valid"])
 
     def test_cace_verification_and_separate_approval_gate_promotion(self):
