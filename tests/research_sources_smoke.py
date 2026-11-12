@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import sqlite3
 import sys
 import tempfile
 import unittest
@@ -110,6 +111,46 @@ class ResearchSourcesSmoke(unittest.TestCase):
         self.assertEqual(client.get_by_doi("10.1234/ttl").title, "Second")
         self.assertEqual(len(transport.calls), 2)
         client.close()
+
+    def test_corrupted_cache_metadata_is_rejected_and_refetched(self):
+        def response(title: str) -> HttpResponse:
+            return HttpResponse(200, {}, json.dumps({
+                "message": {"DOI": "10.1234/cache-integrity", "title": [title], "author": []}
+            }).encode())
+
+        first_transport = FakeTransport([response("Original")])
+        limiter = ProviderRateLimiter({"crossref": 0})
+        first_client = ResearchMetadataClient(
+            self.cache, transport=first_transport, limiter=limiter
+        )
+        self.assertEqual(
+            first_client.get_by_doi("10.1234/cache-integrity").title, "Original"
+        )
+        first_client.close()
+
+        connection = sqlite3.connect(self.cache)
+        row = connection.execute(
+            "SELECT cache_key, payload_json FROM research_metadata_cache"
+        ).fetchone()
+        payload = json.loads(row[1])
+        payload["title"] = "Tampered"
+        connection.execute(
+            "UPDATE research_metadata_cache SET payload_json=? WHERE cache_key=?",
+            (json.dumps(payload), row[0]),
+        )
+        connection.commit()
+        connection.close()
+
+        second_transport = FakeTransport([response("Recovered")])
+        second_client = ResearchMetadataClient(
+            self.cache,
+            transport=second_transport,
+            limiter=ProviderRateLimiter({"crossref": 0}),
+        )
+        recovered = second_client.get_by_doi("10.1234/cache-integrity")
+        self.assertEqual(recovered.title, "Recovered")
+        self.assertEqual(len(second_transport.calls), 1)
+        second_client.close()
 
     def test_arxiv_atom_parsing(self):
         atom = b"""<?xml version="1.0" encoding="UTF-8"?>
