@@ -45,3 +45,14 @@ New notation must beat a conventional baseline on measured comprehension,
 error rate, expression depth, or proof/search cost without changing semantics.
 All claims remain conjectural until formal or reproducible numerical evidence
 supports them.
+
+
+## 0.1.1 validation hardening
+
+The registry rejects zero-arity operators in this initial application model,
+malformed positional input signatures, and self-asserted verification labels.
+A single declared input type means all operands share that type. A positional
+signature must declare one type for every possible operand slot. Accepted
+local statuses are `specified`, `conjectural`, and `unqualified`; formal or
+numerical qualification must arrive through separate evidence records rather
+than a registry string.
