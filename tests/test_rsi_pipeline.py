@@ -41,6 +41,21 @@ def sign_receipt(issuer, claims, key_id, private_key):
         base64.b64encode(signature).decode("ascii"),
     )
 
+def hermes_claims(record):
+    return {
+        "subject": "hermes-failure:" + record["event_id"],
+        "record_sha256": rsi.sha256_hex(rsi.canonical_json(record)),
+        "source_repo": record["source_repo"],
+        "source_commit": record["source_commit"],
+        "artifact_sha256": record["artifact_sha256"],
+        "failure_class": record["failure_class"],
+    }
+
+
+def sign_hermes_record(record, private_key):
+    return sign_receipt("hermes", hermes_claims(record), "hermes-key", private_key)
+
+
 class RSIPipelineTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory()
@@ -110,6 +125,7 @@ class RSIPipelineTests(unittest.TestCase):
 
     def test_hermes_failure_requires_authentic_signature_and_is_idempotent(self):
         record = {
+            "schema": "merlin-hermes-failure/2",
             "event_id": "hermes-17", "failure_class": "lean-timeout",
             "summary": "Proof search exceeded its budget",
             "source_repo": "Mannyspiro/expert-robot",
@@ -175,20 +191,20 @@ class RSIPipelineTests(unittest.TestCase):
 
     def test_induction_dispatch_requires_signed_worker_ack_and_is_idempotent(self):
         failure = {
+            "schema": "merlin-hermes-failure/2",
             "event_id": "hermes-dispatch-51",
             "failure_class": "proof-timeout",
             "summary": "Proof search reached its resource budget",
             "source_repo": "Mannyspiro/expert-robot",
             "source_commit": SOURCE_COMMIT,
             "artifact_sha256": ARTIFACT,
+            "failure_signature": "proof-timeout:lean",
+            "trigger_condition": "stage:proof",
+            "corrective_steps": ["bound proof search", "cache normalized goal"],
+            "run_id": "run-hermes-51", "task_id": "task-51",
+            "worker_id": "hermes-worker", "stage": "proof",
         }
-        claims = {
-            "subject": "hermes-failure:hermes-dispatch-51",
-            "source_repo": failure["source_repo"],
-            "source_commit": SOURCE_COMMIT,
-            "artifact_sha256": ARTIFACT,
-            "failure_class": failure["failure_class"],
-        }
+        claims = hermes_claims(failure)
         seed = ingest_hermes_failure(
             self.ledger, failure,
             sign_receipt("hermes", claims, "hermes-key", self.hermes_private),
@@ -237,20 +253,20 @@ class RSIPipelineTests(unittest.TestCase):
 
     def test_induction_dispatch_rejects_worker_ack_for_another_seed(self):
         failure = {
+            "schema": "merlin-hermes-failure/2",
             "event_id": "hermes-dispatch-52",
             "failure_class": "lean-error",
             "summary": "Lean rejected generated declaration",
             "source_repo": "Mannyspiro/expert-robot",
             "source_commit": SOURCE_COMMIT,
             "artifact_sha256": ARTIFACT,
+            "failure_signature": "lean-compile-error:formalize",
+            "trigger_condition": "stage:formalize",
+            "corrective_steps": ["inspect compiler diagnostic", "minimize theorem statement"],
+            "run_id": "run-hermes-52", "task_id": "task-52",
+            "worker_id": "hermes-worker", "stage": "formalize",
         }
-        claims = {
-            "subject": "hermes-failure:hermes-dispatch-52",
-            "source_repo": failure["source_repo"],
-            "source_commit": SOURCE_COMMIT,
-            "artifact_sha256": ARTIFACT,
-            "failure_class": failure["failure_class"],
-        }
+        claims = hermes_claims(failure)
         seed = ingest_hermes_failure(
             self.ledger, failure,
             sign_receipt("hermes", claims, "hermes-key", self.hermes_private),
@@ -279,6 +295,8 @@ class RSIPipelineTests(unittest.TestCase):
 
     def test_rsi_candidate_binds_authenticated_hermes_seed(self):
         failure = {
+            "schema": "merlin-hermes-failure/2",
+            "schema": "merlin-hermes-failure/2",
             "event_id": "hermes-seed-42",
             "failure_class": "formalization-timeout",
             "summary": "Lean proof search timed out",
@@ -286,13 +304,14 @@ class RSIPipelineTests(unittest.TestCase):
             "source_commit": SOURCE_COMMIT,
             "artifact_sha256": ARTIFACT,
         }
-        hermes_receipt = sign_receipt("hermes", {
-            "subject": "hermes-failure:hermes-seed-42",
-            "source_repo": failure["source_repo"],
-            "source_commit": SOURCE_COMMIT,
-            "artifact_sha256": ARTIFACT,
-            "failure_class": failure["failure_class"],
-        }, "hermes-key", self.hermes_private)
+        failure.update({
+            "failure_signature": "formalization-timeout:lean",
+            "trigger_condition": "stage:formalize",
+            "corrective_steps": ["bound proof search", "cache normalized goal"],
+            "run_id": "run-hermes-42", "task_id": "task-42",
+            "worker_id": "hermes-worker", "stage": "formalize",
+        })
+        hermes_receipt = sign_hermes_record(failure, self.hermes_private)
         seed = ingest_hermes_failure(
             self.ledger, failure, hermes_receipt
         )
