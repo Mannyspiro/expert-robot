@@ -122,12 +122,12 @@ _CACE_BUNDLE_DOMAIN = b"CACE:EVIDENCE:BUNDLE:v1\0"
 _CACE_ARTIFACT_LEAF_DOMAIN = b"CACE:EVIDENCE:ARTIFACT-LEAF:v1\0"
 
 
-def cace_rsi_bundle_sha256(
+def cace_rsi_bundle_payload(
     *, candidate_id: str, candidate_digest: str,
     benchmark_manifest_sha256: str, evaluator_receipt_sha256: str,
     source_repo: str, source_commit: str,
-) -> str:
-    """Reproduce CACE EvidenceBundle v1 identity for a one-artifact RSI manifest."""
+) -> tuple[dict[str, Any], bytes, dict[str, Any]]:
+    """Build the exact CACE EvidenceBundle v1 payload and its sole artifact bytes."""
     manifest = {
         "schema": "merlin-rsi-evidence-manifest-v1",
         "candidate_id": candidate_id, "candidate_digest": candidate_digest,
@@ -156,8 +156,23 @@ def cace_rsi_bundle_sha256(
         "merkle_algorithm": "sha256/cace-merkle-v1",
         "proof_effect": "none", "artifacts": [artifact],
         "merkle_root_sha256": leaf, "bindings": bindings,
-        "notes": ["Merlin RSI exact-artifact independent verification"],
+        "notes": ["Merlin RSI exact-artifact integrity verification"],
     }
+    return bundle, manifest_bytes, bindings
+
+
+def cace_rsi_bundle_sha256(
+    *, candidate_id: str, candidate_digest: str,
+    benchmark_manifest_sha256: str, evaluator_receipt_sha256: str,
+    source_repo: str, source_commit: str,
+) -> str:
+    """Reproduce CACE EvidenceBundle v1 identity for a one-artifact RSI manifest."""
+    bundle, _, _ = cace_rsi_bundle_payload(
+        candidate_id=candidate_id, candidate_digest=candidate_digest,
+        benchmark_manifest_sha256=benchmark_manifest_sha256,
+        evaluator_receipt_sha256=evaluator_receipt_sha256,
+        source_repo=source_repo, source_commit=source_commit,
+    )
     return sha256_hex(_CACE_BUNDLE_DOMAIN + canonical_json(bundle))
 
 
