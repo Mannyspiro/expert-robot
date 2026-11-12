@@ -487,16 +487,29 @@ class RSIPipelineTests(unittest.TestCase):
                     return {"structuredContent": self.response}
                 raise AssertionError("unexpected MCP method")
 
+        provenance = {
+            "schema": "cace-oci-run-provenance-v1",
+            "repository": "morganaspim/Cace-app", "run_id": 123,
+            "workflow_path": ".github/workflows/merlin-oci-job-gateway.yml",
+            "workflow_commit": "e" * 40, "runner_name": "cace-oci-a1",
+            "job_id": 456, "artifact_sha256": "f" * 64,
+            "source_repo": "Mannyspiro/expert-robot",
+            "source_commit": "d" * 40, "benchmark_manifest_sha256": "b" * 64,
+        }
         valid = {
             "verified": True, "verifier_id": "cace",
             "purpose": "independent-reproduction", "proof_effect": "none",
             "authority": "verification-only", "claim_id": "candidate-mcp-client",
             "bundle_sha256": "a" * 64, "attestation_sha256": "b" * 64,
+            "runner_provenance": provenance,
         }
         verifier = StubVerifier(valid)
         result = verifier.verify(
             bundle_payload={"schema": "cace-evidence-bundle-v1"},
-            attestation_payload={"schema": "cace-signed-attestation-v1"},
+            attestation_payload={
+                "schema": "cace-signed-attestation-v1",
+                "statement": {"bindings": {"cace_runner_provenance": provenance}},
+            },
             expected_claim_id="candidate-mcp-client",
             expected_bindings={"authority": "verification-only"},
             artifact_bytes_b64={"artifact-1": base64.b64encode(b"exact").decode("ascii")},
@@ -540,6 +553,7 @@ class RSIPipelineTests(unittest.TestCase):
                     "verified": True, "verifier_id": "cace",
                     "purpose": "independent-reproduction", "proof_effect": "none",
                     "authority": "verification-only", "claim_id": expected_claim_id,
+                    "runner_provenance": attestation_payload["statement"]["bindings"]["cace_runner_provenance"],
                     "bundle_sha256": rsi.sha256_hex(
                         rsi._CACE_BUNDLE_DOMAIN + rsi.canonical_json(bundle_payload)
                     ),
