@@ -2573,6 +2573,79 @@
           "MATH-LIN-002"
         ]
       }
+    },
+    {
+      "id": "MATH-CONT-001",
+      "title": "Paired-state continuum simplices",
+      "kind": "representation",
+      "claim": "A geometric simplex can carry a state space on each oriented cell. In the triangle prototype, each edge carries a two-channel real-valued field; shared endpoint values define a single-valued boundary field, and affine edge traces admit an affine barycentric extension.",
+      "definitions": [
+        "oriented simplex",
+        "state space attached to a cell",
+        "two-channel real state",
+        "edge field",
+        "shared-vertex gluing",
+        "affine barycentric extension",
+        "oriented boundary operator"
+      ],
+      "assumptions": [
+        "The first executable triangle prototype uses an ordered pair of real values at each sampled edge parameter.",
+        "The edge orientation is AB from A to B, BC from B to C, and CA from C to A.",
+        "The affine-extension classifier only tests whether the sampled boundary traces match the affine barycentric extension.",
+        "Finite smoke tests do not establish a general continuous-extension theorem."
+      ],
+      "status": "candidate",
+      "provenance": [
+        "Expert Robot PR #142, source commit a3ad1b9319a150f5a3be4f8aae906e7ad112116b",
+        "Merlin paired-state continuum simplex research specification"
+      ],
+      "relations": [
+        {
+          "type": "depends_on",
+          "target": "MATH-REP-001"
+        },
+        {
+          "type": "depends_on",
+          "target": "MATH-COORD-001"
+        },
+        {
+          "type": "depends_on",
+          "target": "MATH-POLY-001"
+        },
+        {
+          "type": "maps_to",
+          "target": "MATH-XMG-001"
+        }
+      ],
+      "objections": [
+        "A non-affine boundary trace may admit a higher-order or continuous extension; failure of the affine classifier is not non-extendability.",
+        "An arbitrary ordered pair of real values is not automatically a complex number or another algebraic number system.",
+        "Finite triangle and tetrahedron tests do not prove the general boundary-of-boundary theorem."
+      ],
+      "next_steps": [
+        "Define a versioned typed mathematical IR for geometry, state spaces, edge fields, maps, constraints, and provenance.",
+        "Formalize affine boundary restriction and the simplicial boundary-squared identity in Lean.",
+        "Add polynomial and piecewise-polynomial edge representations.",
+        "Investigate higher-order and harmonic interior extensions with explicit regularity and boundary conditions.",
+        "Generalize the same component/state-space representation to tetrahedra and finite simplicial complexes."
+      ],
+      "learning": {
+        "lesson_id": null,
+        "dimensions": [
+          "conceptual_explanation",
+          "representation_translation",
+          "spatial_reasoning",
+          "topology",
+          "proof_justification",
+          "numerical_experimentation",
+          "transfer"
+        ],
+        "prerequisites": [
+          "MATH-REP-001",
+          "MATH-COORD-001",
+          "MATH-POLY-001"
+        ]
+      }
     }
   ]
 }
