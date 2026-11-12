@@ -113,5 +113,76 @@ class WireQualificationTests(unittest.TestCase):
         self.assertFalse(report["qualified_for_manufacture"])
 
 
+    def test_self_declared_verified_evidence_is_not_accepted_without_verifier(self):
+        from merlin.wire_qualification import _REQUIRED_EVIDENCE
+        evidence = {
+            name: {"status": "verified", "artifact_sha256": "a" * 64, "reviewer": "reviewer-1"}
+            for name in _REQUIRED_EVIDENCE
+        }
+        report = build_qualification_report(
+            route(), electrical(), ThermalInputs(25.0, 90.0, 4.0, "thermal-test-001"),
+            ManufacturingInputs(10.0, (12.0,), 5.0, 8.0, "REV-A", "process-001"),
+            evidence=evidence,
+        )
+        self.assertEqual(report["required_evidence"]["component_datasheets"], "missing_or_unverified")
+        self.assertTrue(any("No authenticated independent evidence verifier" in item["message"]
+                            for item in report["findings"]))
+
+    def test_evidence_verifier_must_bind_exact_requirement_and_artifact(self):
+        from merlin.wire_qualification import _REQUIRED_EVIDENCE
+        evidence = {
+            name: {"status": "verified", "artifact_sha256": "a" * 64, "reviewer": "reviewer-1"}
+            for name in _REQUIRED_EVIDENCE
+        }
+
+        def verifier(request):
+            return {
+                "verification_status": "VERIFIED",
+                "verifier_id": "cace:test-verifier",
+                "receipt_sha256": "b" * 64,
+                "bindings": {
+                    "requirement": request["requirement"],
+                    "artifact_sha256": request["artifact_sha256"],
+                    "evidence_record_sha256": request["evidence_record_sha256"],
+                },
+            }
+
+        report = build_qualification_report(
+            route(), electrical(), ThermalInputs(25.0, 90.0, 4.0, "thermal-test-001"),
+            ManufacturingInputs(10.0, (12.0,), 5.0, 8.0, "REV-A", "process-001"),
+            evidence=evidence, evidence_verifier=verifier,
+        )
+        self.assertEqual(report["required_evidence"]["component_datasheets"], "verified")
+        self.assertEqual(report["evidence_verification"]["component_datasheets"]["verifier_id"],
+                         "cace:test-verifier")
+
+        def mismatched_verifier(request):
+            return {
+                "verification_status": "VERIFIED",
+                "verifier_id": "cace:test-verifier",
+                "receipt_sha256": "b" * 64,
+                "bindings": {
+                    "requirement": request["requirement"],
+                    "artifact_sha256": "c" * 64,
+                    "evidence_record_sha256": request["evidence_record_sha256"],
+                },
+            }
+
+        rejected = build_qualification_report(
+            route(), electrical(), ThermalInputs(25.0, 90.0, 4.0, "thermal-test-001"),
+            ManufacturingInputs(10.0, (12.0,), 5.0, 8.0, "REV-A", "process-001"),
+            evidence=evidence, evidence_verifier=mismatched_verifier,
+        )
+        self.assertEqual(rejected["required_evidence"]["component_datasheets"], "missing_or_unverified")
+
+    def test_malformed_evidence_record_blocks_without_crashing(self):
+        report = build_qualification_report(
+            route(), electrical(), ThermalInputs(25.0, 90.0, 4.0, "thermal-test-001"),
+            ManufacturingInputs(10.0, (12.0,), 5.0, 8.0, "REV-A", "process-001"),
+            evidence={"component_datasheets": "not-a-record"},
+        )
+        self.assertEqual(report["required_evidence"]["component_datasheets"], "missing_or_unverified")
+
+
 if __name__ == "__main__":
     unittest.main()
