@@ -62,6 +62,18 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Install Merlin native build toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          missing=0
+          for tool in cmake ninja c++ ccache; do command -v "$tool" >/dev/null 2>&1 || missing=1; done
+          if [ "$missing" -eq 1 ] || ! dpkg-query -W -f='${Status}' libsqlite3-dev 2>/dev/null | grep -q 'install ok installed'; then
+            if [ "$(id -u)" -eq 0 ]; then SUDO=(); elif command -v sudo >/dev/null 2>&1; then SUDO=(sudo); else echo '::error::No apt install privilege for native toolchain'; exit 1; fi
+            "${SUDO[@]}" apt-get update
+            "${SUDO[@]}" env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends build-essential cmake ninja-build libsqlite3-dev pkg-config ccache
+          fi
+          cmake --version && ninja --version && c++ --version && pkg-config --modversion sqlite3
       - name: Bind candidate to current base
         id: meta
         shell: bash
