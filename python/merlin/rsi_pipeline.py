@@ -1052,7 +1052,8 @@ class AppendOnlyLedger:
         cace_event = self._candidate_event(episode, "candidate.cace_verified", candidate_id)
         if (not cace_event or cace_event.get("artifact_sha256") != artifact_sha256
             or cace_event.get("suite_sha256") != suite_sha256
-            or cace_event.get("attestation_sha256") != verified["attestation_sha256"]):
+            or cace_event.get("attestation_sha256") != verified["attestation_sha256"]
+            or cace_event.get("runner_provenance") != verified["runner_provenance"]):
             raise PermissionError("independent CACE verification event is absent or mismatched")
         if not self.verify_chain(episode)["valid"]:
             raise RuntimeError("canonical research episode ledger integrity check failed")
