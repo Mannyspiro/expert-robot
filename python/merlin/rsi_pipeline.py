@@ -523,9 +523,11 @@ class AppendOnlyLedger:
             raise PermissionError("candidate source receipt is missing, untrusted, or mismatched")
         source_repo = source_receipt.claims.get("source_repo")
         source_commit = source_receipt.claims.get("source_commit")
-        if not isinstance(source_repo, str) or not source_repo.strip() or not _is_git_commit(source_commit):
-            raise ValueError("candidate source receipt must bind source_repo and exact 40-hex source_commit")
-        if parent_candidate_id:
+        if (not isinstance(source_repo, str)
+                or not re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", source_repo)
+                or not _is_git_commit(source_commit)):
+            raise ValueError("candidate source receipt must bind owner/name and exact 40-hex source_commit")
+        if parent_candidate_id is not None:
             if not isinstance(parent_candidate_id, str) or not parent_candidate_id.strip():
                 raise ValueError("parent_candidate_id must be a non-empty string")
             with self._connect() as db:
