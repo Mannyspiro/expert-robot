@@ -12,6 +12,7 @@ add_library(expert_robot_core STATIC
     cpp/src/runtime.cpp
     cpp/src/app/math_research_service.cpp
     cpp/src/capabilities.cpp
+    cpp/src/artifact_registry.cpp
     cpp/src/sha256.cpp
     cpp/src/json_util.cpp
     cpp/src/proof_search.cpp
@@ -170,6 +171,12 @@ add_executable(research_state_machine_smoke
 )
 target_link_libraries(research_state_machine_smoke PRIVATE expert_robot_core)
 add_test(NAME research_state_machine_smoke COMMAND research_state_machine_smoke)
+
+add_executable(artifact_registry_smoke
+    tests/artifact_registry_smoke.cpp
+)
+target_link_libraries(artifact_registry_smoke PRIVATE expert_robot_core SQLite::SQLite3)
+add_test(NAME artifact_registry_smoke COMMAND artifact_registry_smoke)
 
 add_executable(research_episode_ledger_smoke
     tests/research_episode_ledger_smoke.cpp
