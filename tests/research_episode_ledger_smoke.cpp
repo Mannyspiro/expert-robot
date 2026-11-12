@@ -77,7 +77,7 @@ int main() {
     assert(verified.first_invalid_sequence == -1);
     assert(
         verified.root_hash ==
-        direct_event.event_hash);
+        failure_event.event_hash);
 
     const auto events =
         ledger.events(episode);
