@@ -139,10 +139,23 @@ class VirtualRepository:
 
     @classmethod
     def _path(cls, value: str) -> str:
-        path = cls._name(value, "file path")
-        if path.startswith("/") or "\\" in path or path.startswith(".git/"):
+        # Repository snapshots legitimately include dot-prefixed metadata such
+        # as .github and .gitignore. Validate path segments separately so those
+        # names work without allowing absolute paths or traversal.
+        if (
+            not isinstance(value, str)
+            or not value
+            or len(value) > 120
+            or value.startswith("/")
+            or value.endswith("/")
+            or "\\" in value
+            or not re.fullmatch(r"[A-Za-z0-9._/-]{1,120}", value)
+        ):
             raise VirtualGitError("file path must be relative and traversal-free")
-        return path
+        parts = value.split("/")
+        if any(part in {"", ".", "..", ".git"} for part in parts):
+            raise VirtualGitError("file path must be relative and traversal-free")
+        return value
 
     def _event(self, db, kind: str, payload: Mapping[str, Any]) -> None:
         db.execute("INSERT INTO events(kind,payload_json,created_at) VALUES(?,?,?)",
