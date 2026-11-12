@@ -24,7 +24,7 @@ _TEST_RAW_PUBLIC = _TEST_PRIVATE_KEY.public_key().public_bytes(
 )
 _TEST_KEY_ID = "ed25519:" + hashlib.sha256(_TEST_RAW_PUBLIC).hexdigest()
 _TEST_TRUST = {_TEST_KEY_ID: {"verifier_id": "cace:independent-kernel", "public_key_pem": _TEST_PUBLIC_PEM}}
-_CACE_DOMAIN = b"CACE:SIGNED-ATTESTATION:v1\\0"
+_CACE_DOMAIN = b"CACE:SIGNED-ATTESTATION:v1\0"
 
 
 def signed_attestation(claim_id, bundle_sha256, bindings, purpose="independent-reproduction"):
@@ -210,7 +210,7 @@ class CaceAdapterTests(unittest.TestCase):
             return receipt
         adapter = CaceVerificationAdapter(
             verify_transport=transport, registry=self.registry,
-            outbox=self.outbox, graph=graph,
+            outbox=self.outbox, graph=graph, trusted_verifier_keys=_TEST_TRUST,
         )
         result = adapter.verify_artifact(
             project_id="merlin", repository="owner/repo", commit_sha=self.commit,
