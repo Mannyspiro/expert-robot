@@ -91,6 +91,9 @@ inline IntegerChain boundary(const IntegerChain& chain) {
 }
 
 inline IntegerChain boundary_squared(const OrientedSimplex& simplex) {
+    if (simplex.vertices.size() < 3) {
+        throw std::invalid_argument("boundary squared requires a simplex of dimension >= 2");
+    }
     return boundary(boundary(simplex));
 }
 
