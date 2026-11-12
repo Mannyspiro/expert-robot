@@ -59,10 +59,11 @@ class HermesFailureSigner(Ed25519ReceiptSigner):
 
     @classmethod
     def from_env(cls):
-        return super().from_env(
-            issuer="hermes", key_id_env="HERMES_FAILURE_SIGNING_KEY_ID",
-            private_key_env="HERMES_FAILURE_SIGNING_KEY_PEM",
-        )
+        key_id = os.environ.get("HERMES_FAILURE_SIGNING_KEY_ID", "").strip()
+        private_key = os.environ.get("HERMES_FAILURE_SIGNING_KEY_PEM", "")
+        if not key_id or not private_key:
+            raise RuntimeError("Hermes signing capability unavailable: required secret is not configured")
+        return cls(key_id=key_id, private_key_pem=private_key)
 
     def sign_failure(self, record: Mapping[str, Any]) -> SignedReceipt:
         if record.get("schema") != "merlin-hermes-failure/2":
@@ -87,10 +88,11 @@ class MerlinCandidateSigner(Ed25519ReceiptSigner):
 
     @classmethod
     def from_env(cls):
-        return super().from_env(
-            issuer="merlin-source", key_id_env="MERLIN_SOURCE_SIGNING_KEY_ID",
-            private_key_env="MERLIN_SOURCE_SIGNING_KEY_PEM",
-        )
+        key_id = os.environ.get("MERLIN_SOURCE_SIGNING_KEY_ID", "").strip()
+        private_key = os.environ.get("MERLIN_SOURCE_SIGNING_KEY_PEM", "")
+        if not key_id or not private_key:
+            raise RuntimeError("Merlin candidate signing capability unavailable: required secret is not configured")
+        return cls(key_id=key_id, private_key_pem=private_key)
 
 
 class HermesRSIBridge:
