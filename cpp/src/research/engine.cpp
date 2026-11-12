@@ -32,6 +32,45 @@ std::size_t proof_attempts(
     return result.search.attempts.size();
 }
 
+std::string failure_diagnostic_hash(const SearchResult& result) {
+    std::ostringstream canonical;
+    canonical
+        << "statement_sha256=" << sha256_hex(result.problem.statement) << "\n"
+        << "attempt_count=" << result.attempts.size() << "\n";
+    for (std::size_t i = 0; i < result.attempts.size(); ++i) {
+        const auto& attempt = result.attempts[i];
+        canonical
+            << "attempt=" << i << "\n"
+            << "tactic_sha256=" << sha256_hex(attempt.tactic) << "\n"
+            << "success=" << (attempt.success ? "true" : "false") << "\n"
+            << "exit_code=" << attempt.exit_code << "\n"
+            << "output_sha256=" << sha256_hex(attempt.output) << "\n";
+    }
+    return sha256_hex(canonical.str());
+}
+
+void append_failure_observation(
+    ResearchEpisodeLedger& ledger,
+    const std::string& episode_id,
+    std::string_view stage,
+    const SearchResult& result,
+    std::size_t cycle) {
+    (void)ledger.append_failure_observation(
+        episode_id,
+        FailureObservation{
+            .source_agent = "expert_robot.research_engine",
+            .source_task_id = episode_id + ":" + std::string(stage) + ":" + std::to_string(cycle),
+            .stage = std::string(stage),
+            .failure_class = result.attempts.empty()
+                ? "search_not_executed"
+                : "proof_search_exhausted",
+            .target_sha256 = sha256_hex(result.problem.statement),
+            .diagnostic_sha256 = failure_diagnostic_hash(result),
+            .attempt_count = result.attempts.size(),
+        });
+}
+
+
 std::size_t lemma_tree_attempts(
     const LemmaFactoryNode& node) {
     std::size_t total = 0;
@@ -1121,6 +1160,12 @@ ResearchOutcome MathResearchEngine::run(
                     observation.lean_verified =
                         true;
                 } else {
+                    append_failure_observation(
+                        episode_ledger_,
+                        problem.episode_id,
+                        "direct_proof",
+                        direct.search,
+                        machine.state().usage.cycles);
                     update_failure_sensors(
                         problem.sensors,
                         direct.search.attempts.size(),
