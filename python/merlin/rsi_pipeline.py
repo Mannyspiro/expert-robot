@@ -493,6 +493,7 @@ class AppendOnlyLedger:
         if not candidate_id or not generator:
             raise ValueError("candidate_id and generator are required")
         required = {"candidate_id": candidate_id, "artifact_sha256": artifact_sha256}
+        plural_seed_hashes_supplied = induction_seed_event_hashes is not None
         seed_hashes = list(induction_seed_event_hashes or [])
         if induction_seed_event_hash is not None:
             seed_hashes.append(induction_seed_event_hash)
@@ -509,7 +510,10 @@ class AppendOnlyLedger:
                     ).fetchone()
                     if seed is None:
                         raise ValueError("candidate induction seed is absent from authenticated Hermes failure history")
-            required["induction_seed_event_hashes"] = seed_hashes
+            if plural_seed_hashes_supplied:
+                required["induction_seed_event_hashes"] = seed_hashes
+            elif induction_seed_event_hash is not None:
+                required["induction_seed_event_hash"] = induction_seed_event_hash
         artifact_info = None
         if artifact_bytes is not None:
             artifact_info = self.store_artifact(
