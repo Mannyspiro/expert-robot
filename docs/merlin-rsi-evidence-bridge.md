@@ -158,9 +158,9 @@ allowlisted fixed profiles; it does not enable arbitrary shell commands.
 
 The current RSI bridge and its CACE MCP verification client were executed on OCI:
 
-- run 43128435315 on cace-oci-a1 (Oracle Linux 9.8, ARM64);
-- exact Expert Robot source commit 5f03dbbea07c86b4b60e5832fa102d066d943d49;
-- Python 3.9.25; compile passed; 20/20 RSI tests passed;
+- run 43130141075 on cace-oci-a1 (Oracle Linux 9.8, ARM64);
+- exact Expert Robot source commit 1822a54226d9d1045769b696e264ff8f3edd7de6;
+- Python 3.9.25; compile passed; 22/22 RSI tests passed;
 - tests include authenticated Hermes failure ingestion, signed worker ACK/idempotency,
   append-only candidate/evaluation lineage, independent-reproduction versus
   artifact-integrity separation, a CACE MCP verifier client contract, strict
@@ -171,7 +171,7 @@ The current RSI bridge and its CACE MCP verification client were executed on OCI
 - Python compile and unit tests ran without package installation or host mutation;
 - OCI job receipt marks qualification=false and proof_implication=none.
 
-A separate live public-metadata probe passed on OCI (run 43128150986):
+A separate live public-metadata probe passed on OCI (run 43130444733):
 
 - Crossref DOI 10.1038/nature12373 resolved to “Nanometre-scale thermometry in a living cell”;
 - arXiv 1706.03762 resolved to “Attention Is All You Need”;
@@ -232,9 +232,18 @@ active digest-pinned CACE key, independent-reproduction purpose, and supplied
 artifact bytes (10 MiB aggregate cap). Its return value is explicitly
 `authority=verification-only` and `proof_effect=none`.
 
+The reproduction attestor now checks the successful CACE OCI run's request
+operation, exact source commit, workflow source pin, GitHub job/runner identity,
+retained job-artifact digest, and the Git blob SHA-1 of the exact RSI module,
+test file, and frozen benchmark at the requested Expert Robot commit. It
+includes these run facts as `cace_runner_provenance` inside the signed
+independent-reproduction statement; the verifier rejects such a statement if
+the provenance is absent, malformed, or inconsistent. CACE tests cover this
+path with a deterministic GitHub API fixture, not a live candidate attestation.
+
 The CACE collaboration-validation workflow explicitly runs
-`tests/test_merlin_rsi_cace_verifier.py`; run 43125343110 completed successfully
-on `cace-oci-a1`. The test exercises valid CACE-native bundle/attestation
+`tests/test_merlin_rsi_cace_verifier.py`; runs 43129186420 and 43130550343
+completed successfully on `cace-oci-a1`. The test exercises valid CACE-native bundle/attestation
 verification, missing or tampered trust stores, unpinned keys, claim/binding
 mismatch, wrong purpose, altered artifact bytes, and size limits. This is
 CACE-side implementation and regression evidence, not evidence that a live
@@ -246,8 +255,8 @@ read-only CACE MCP verifier, validates the returned bundle and attestation
 digests, and then independently repeats pinned-key verification before
 appending `candidate.cace_verified`. The artifact-integrity signer remains a
 separate endpoint and cannot satisfy this path. The fixed OCI RSI suite passed
-20/20 tests for source commit 5f03dbbea07c86b4b60e5832fa102d066d943d49
-in run 43128435315. Its CACE MCP client test uses a deterministic fake
+22/22 tests for source commit 1822a54226d9d1045769b696e264ff8f3edd7de6
+in run 43130141075. Its CACE MCP client test uses a deterministic fake
 transport; it does not establish that the deployed OCI MCP endpoint has the
 trust store or is currently serving the new tool.
 
