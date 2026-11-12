@@ -198,7 +198,7 @@ int main() {
     const auto verification =
         store.verify();
     assert(verification.valid);
-    assert(verification.generations == 2);
+    assert(verification.generations == 4);
 
     bool missing_parent_rejected = false;
     try {
