@@ -116,6 +116,7 @@ jobs:
           set -euo pipefail
           python3 tests/smoke.py ./build/expert_robot_runtime
           python3 tests/research_cli_contract_smoke.py
+          python3 tests/research_sources_smoke.py
 
       - name: Show ccache stats
         if: always()
