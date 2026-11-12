@@ -280,8 +280,8 @@ are reserved for work that already passed cheaper checks:
 L0 local/static
  -> L1 railway.new free VM
  -> L2 Railway sandbox/checkpoint/fork
- -> L3 Avrea 8-vCPU CI
- -> L4 Avrea 32-vCPU manual qualification
+ -> L3 Namespace `namespace-profile-merlin` CI/qualification
+ -> L4 Namespace `namespace-profile-merlin` manual qualification with bounded budgets
  -> Lean evidence + repository CI + authority/promotion gate
 ```
 
