@@ -159,7 +159,7 @@ class HermesRSIBridge:
         )
         artifact_bytes = canonical_json(asdict(candidate))
         artifact_sha = sha256_hex(artifact_bytes)
-        candidate_id = f"{skill_id}:v{version}:{artifact_sha[:12]}"
+        candidate_id = f"rsi-candidate:{artifact_sha[:32]}"
         claims = {
             "candidate_id": candidate_id,
             "artifact_sha256": artifact_sha,
