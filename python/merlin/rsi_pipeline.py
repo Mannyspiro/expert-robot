@@ -156,7 +156,7 @@ def cace_rsi_bundle_payload(
         "merkle_algorithm": "sha256/cace-merkle-v1",
         "proof_effect": "none", "artifacts": [artifact],
         "merkle_root_sha256": leaf, "bindings": bindings,
-        "notes": ["Merlin RSI exact-artifact integrity verification"],
+        "notes": ["Merlin RSI exact-artifact independent verification"],
     }
     return bundle, manifest_bytes, bindings
 
