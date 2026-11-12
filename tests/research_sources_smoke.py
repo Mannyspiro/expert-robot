@@ -63,6 +63,7 @@ class ResearchSourcesSmoke(unittest.TestCase):
                 "author": [
                     {"given": "Ada", "family": "Lovelace"},
                     {"given": "Alan", "family": "Turing"},
+                    {"name": "Merlin Research Consortium"},
                 ],
                 "published-print": {"date-parts": [[2025, 4, 9]]},
                 "abstract": "<jats:p>Typed <jats:italic>relations</jats:italic> matter.</jats:p>",
@@ -83,12 +84,48 @@ class ResearchSourcesSmoke(unittest.TestCase):
         first = client.get_by_doi("https://doi.org/10.1234/EXAMPLE")
         second = client.get_by_doi("doi:10.1234/example")
         self.assertEqual(first.title, "A Test of Relational Mathematics")
-        self.assertEqual(first.authors, ("Ada Lovelace", "Alan Turing"))
+        self.assertEqual(
+            first.authors,
+            ("Ada Lovelace", "Alan Turing", "Merlin Research Consortium"),
+        )
         self.assertEqual(first.published, "2025-04-09")
         self.assertEqual(first.abstract, "Typed relations matter.")
         self.assertEqual(first.metadata_sha256, second.metadata_sha256)
         self.assertEqual(len(transport.calls), 1)
         self.assertIn("mailto:research@example.org", transport.calls[0][1]["User-Agent"])
+        client.close()
+
+    def test_percent_encoded_doi_url_is_decoded_once(self):
+        body = json.dumps({
+            "message": {
+                "DOI": "10.1234/example#section",
+                "title": ["Encoded DOI"],
+                "author": [],
+            }
+        }).encode()
+        transport = FakeTransport([HttpResponse(200, {}, body)])
+        client = ResearchMetadataClient(
+            self.cache,
+            transport=transport,
+            limiter=ProviderRateLimiter({"crossref": 0}),
+        )
+        record = client.get_by_doi("https://doi.org/10.1234/example%23section")
+        self.assertEqual(record.identifier, "10.1234/example#section")
+        self.assertTrue(transport.calls[0][0].endswith("10.1234/example%23section"))
+        client.close()
+
+    def test_oversized_provider_response_is_rejected(self):
+        transport = FakeTransport([
+            HttpResponse(200, {}, b"x" * 33)
+        ])
+        client = ResearchMetadataClient(
+            self.cache,
+            transport=transport,
+            limiter=ProviderRateLimiter({"crossref": 0}),
+            max_response_bytes=32,
+        )
+        with self.assertRaises(MetadataFetchError):
+            client.get_by_doi("10.1234/oversized")
         client.close()
 
     def test_expired_cache_refetches(self):
