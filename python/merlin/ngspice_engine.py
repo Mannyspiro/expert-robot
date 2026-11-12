@@ -81,7 +81,7 @@ def run_ngspice(
         env={"PATH": str(Path(executable).parent), "HOME": "/tmp", "LANG": "C"},
     )
     version_text = (version_probe.stdout or "") + "\\n" + (version_probe.stderr or "")
-    version_match = re.search(r"ngspice[- ](\\d+(?:\\.\\d+)*)", version_text, re.I)
+    version_match = re.search(r"ngspice[- ](\d+(?:\.\d+)*)", version_text, re.I)
     if version_probe.returncode != 0 or version_match is None:
         raise RuntimeError("ngspice exact version could not be established")
     tool_version = version_match.group(1)

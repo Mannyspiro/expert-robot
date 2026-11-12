@@ -13,6 +13,7 @@ from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from python.merlin.hermes_runtime import build_merlin_hermes_runtime
+from python.merlin.app import EventStore, make_handler, serve
 
 
 class HermesRuntimeCompositionTests(unittest.TestCase):

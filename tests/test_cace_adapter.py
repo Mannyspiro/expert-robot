@@ -272,5 +272,66 @@ class CaceAdapterTests(unittest.TestCase):
                            theorem="T",requester_id="merlin-agent",tool_version="Lean 4.32.1")
 
 
+    def test_generic_cace_artifact_receipt_binds_additional_wire_evidence_subject(self):
+        artifact_path = "evidence/components/supply.json"
+        artifact_digest = self.registry.put_artifact(
+            "merlin", artifact_path, b'{"schema":"merlin-component-datasheet-evidence/1"}',
+            "application/json",
+        )
+        additional = {
+            "wire_requirement": "component_datasheets",
+            "evidence_record_sha256": "d" * 64,
+        }
+        def transport(request):
+            receipt = {
+                "schema": "cace-artifact-verification/1",
+                "repository": request["repository"],
+                "commit_sha": request["commit_sha"],
+                "artifact_sha256": request["artifact_sha256"],
+                "artifact_kind": request["artifact_kind"],
+                "artifact_schema": request["artifact_schema"],
+                "logical_path": request["logical_path"],
+                "tool_identity": request["tool_identity"],
+                "additional_bindings": request["additional_bindings"],
+                "verifier_id": "cace:independent-kernel",
+                "source_commit_verified": True,
+                "artifact_digest_verified": True,
+                "artifact_schema_validated": True,
+                "artifact_content_verified": True,
+                "verification_status": "verified",
+                "signed_attestation": signed_attestation(
+                    "artifact:" + request["artifact_kind"], request["artifact_sha256"],
+                    {
+                        "repository": request["repository"],
+                        "commit_sha": request["commit_sha"],
+                        "artifact_kind": request["artifact_kind"],
+                        "artifact_schema": request["artifact_schema"],
+                        "logical_path": request["logical_path"],
+                        "tool_identity": request["tool_identity"],
+                        **request["additional_bindings"],
+                    },
+                    purpose="artifact-integrity",
+                ),
+            }
+            body = json.dumps(receipt, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+            receipt["receipt_sha256"] = hashlib.sha256(body.encode()).hexdigest()
+            return receipt
+        adapter = CaceVerificationAdapter(
+            verify_transport=transport, registry=self.registry, outbox=self.outbox,
+            trusted_verifier_keys=_TEST_TRUST,
+        )
+        result = adapter.verify_artifact(
+            project_id="merlin", repository="owner/repo", commit_sha=self.commit,
+            artifact_sha256=artifact_digest, artifact_kind="engineering_evidence",
+            artifact_schema="merlin-component-datasheet-evidence/1",
+            requester_id="merlin-agent", logical_path=artifact_path,
+            tool_identity="merlin-wire-qualification/0.2",
+            additional_bindings=additional,
+        )
+        self.assertEqual(result["verification_status"], "verified")
+        self.assertEqual(result["additional_bindings"], additional)
+        self.assertTrue(self.registry.verify_artifact(result["receipt_artifact_sha256"]))
+
+
 if __name__ == "__main__":
     unittest.main()
