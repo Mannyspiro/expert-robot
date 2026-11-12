@@ -461,6 +461,19 @@ class MerlinApiTests(unittest.TestCase):
             "dimension": "conceptual_explanation", "score": 1.0, "rubric_version": "rotation-r1",
             "response": {"x": 0, "y": 1}, "transfer": False, "delayed": False,
         }
+
+        with self.assertRaises(HTTPError) as unauthenticated:
+            self.post("/api/learning/attempt", {
+                **base, "attempt_id": "unauthenticated-attempt", "session_id": "session-x",
+            })
+        self.assertEqual(unauthenticated.exception.code, 503)
+
+        with self.assertRaises(HTTPError) as mismatched_identity:
+            self.post("/api/learning/attempt", {
+                **base, "learner_id": "another-learner",
+                "attempt_id": "spoofed-attempt", "session_id": "session-x",
+            }, token="Bearer learner-rotation")
+        self.assertEqual(mismatched_identity.exception.code, 403)
         for attempt_id, session in (("rotation-attempt-1", "session-a"),
                                     ("rotation-attempt-2", "session-b")):
             self.post("/api/learning/attempt", {
@@ -521,8 +534,12 @@ class MerlinApiTests(unittest.TestCase):
             "rubric_version": "art-math-studio-r1",
             "response": {"reflection": "Repeated forms create visual rhythm."},
         }
-        self.post("/api/learning/attempt", event)
-        with urlopen(self.base + "/api/learning/learner?learner_id=" + learner, timeout=5) as response:
+        self.post("/api/learning/attempt", event, token="Bearer learner-art-math")
+        request = Request(
+            self.base + "/api/learning/learner?learner_id=" + learner,
+            headers={"Authorization": "Bearer learner-art-math"},
+        )
+        with urlopen(request, timeout=5) as response:
             state = json.loads(response.read())
         self.assertIn("ART-PAT-001", state["skills"])
         self.assertIn("self_reflection", state["skills"]["ART-PAT-001"])
