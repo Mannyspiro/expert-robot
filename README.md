@@ -326,3 +326,8 @@ cognition stack, swarm, skill governance, recursive lemma search, and bounded
 research engine are now implemented behind C++ interfaces. The next milestones
 are benchmark corpus expansion, real local-model qualification runs, and
 measured promotion of only the capabilities that improve Lean-verified results.
+
+
+## Merlin artifact registry
+
+The runtime exposes an append-only SQLite artifact registry over its local NDJSON interface. It stores stable artifact IDs, SHA-256 content digests, typed provenance metadata and digest-bound verification receipts. See the artifact registry contract in docs/merlin-artifact-registry.md for the operations, trust boundary and integration plan. The registry stores metadata and receipts, not artifact bytes; authenticated CACE verification remains a separate required boundary.
