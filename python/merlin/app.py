@@ -1580,7 +1580,20 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     return
 
                 if path == "/api/learning/attempt":
-                    scored_event = score_attempt_event(data)
+                    actor = self._learning_actor()
+                    if actor is None:
+                        self._send(503, {"error": "learning_identity_provider_not_configured"})
+                        return
+                    if actor.role != "learner":
+                        self._send(403, {"error": "learner_role_required"})
+                        return
+                    requested_learner_id = data.get("learner_id")
+                    if requested_learner_id is not None and requested_learner_id != actor.actor_id:
+                        self._send(403, {"error": "learner_identity_mismatch"})
+                        return
+                    attempt_payload = dict(data)
+                    attempt_payload["learner_id"] = learner_subject_id(actor.tenant_id, actor.actor_id)
+                    scored_event = score_attempt_event(attempt_payload)
                     result = learner_store.record_attempt(scored_event)
                     if learning_outbox is not None:
                         learning_outbox.enqueue("learning-attempt:" + str(scored_event.get("attempt_id", "")),
@@ -1592,7 +1605,8 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                                  {"state": result.get("state"), "idea_id": scored_event.get("idea_id"),
                                   "dimension": scored_event.get("dimension"),
                                   "scoring_source": scored_event.get("scoring_source")})
-                    self._send(202, {"schema": "merlin-learning-attempt/1", "accepted": True, **result})
+                    self._send(202, {"schema": "merlin-learning-attempt/1", "accepted": True,
+                                     **result, "learner_id": actor.actor_id})
                     return
                 if path == "/api/telemetry/ingest":
                     if not interaction_store.preferences()["aggregate_telemetry"]:
