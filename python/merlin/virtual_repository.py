@@ -678,6 +678,8 @@ class VirtualRepository:
             current = db.execute("SELECT * FROM check_results WHERE check_id=?", (check_id,)).fetchone()
             if current is None or self._check_binding(current) != expected:
                 raise VirtualGitError("check result changed during receipt verification")
+            existing = db.execute("""SELECT verification_id FROM check_verifications
+                WHERE check_id=? AND receipt_sha256=?""", (check_id, receipt_sha256)).fetchone()
             db.execute("""INSERT OR IGNORE INTO check_verifications
                 (check_id,receipt_sha256,receipt_json,verification_json,recorded_at)
                 VALUES(?,?,?,?,?)""",
@@ -693,7 +695,7 @@ class VirtualRepository:
             "check_id": check_id, "receipt_sha256": receipt_sha256,
             "verification_status": "VERIFIED", "promotion_authorized": True,
             "cace_receipt_id": verified["cace_receipt_id"],
-            "idempotent_replay": saved is not None,
+            "idempotent_replay": existing is not None,
         }
 
     def check_results(self, commit_id: str) -> list[dict[str, Any]]:
