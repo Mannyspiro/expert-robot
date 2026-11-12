@@ -42,9 +42,9 @@ struct OperatorSpec {
 class OperatorRegistry {
 public:
     void add(OperatorSpec spec);
-    [[nodiscard]] const OperatorSpec* find(std::string_view id) const noexcept;
+    [[nodiscard]] const OperatorSpec* find(std::string_view id) const;
     [[nodiscard]] const OperatorSpec* resolve(
-        std::string_view name_space, std::string_view glyph) const noexcept;
+        std::string_view name_space, std::string_view glyph) const;
     [[nodiscard]] std::size_t size() const noexcept { return by_id_.size(); }
 
 private:
@@ -84,7 +84,7 @@ struct ValidationIssue {
 class ExpressionGraph {
 public:
     void add(ExpressionNode node);
-    [[nodiscard]] const ExpressionNode* find(std::string_view id) const noexcept;
+    [[nodiscard]] const ExpressionNode* find(std::string_view id) const;
     [[nodiscard]] std::vector<ValidationIssue> validate(
         const OperatorRegistry& registry) const;
     [[nodiscard]] std::size_t size() const noexcept { return nodes_.size(); }
