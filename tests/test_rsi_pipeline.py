@@ -581,7 +581,7 @@ class RSIPipelineTests(unittest.TestCase):
             attestor=fake,
         )
         self.assertEqual(fake.kwargs["github_run_id"], provenance["run_id"])
-        self.assertEqual(event["event_type"], "candidate.cace_verified")
+        self.assertEqual(self.ledger.events(candidate)[-1]["event_type"], "candidate.cace_verified")
         payload = json.loads(self.ledger.events(candidate)[-1]["payload"])
         self.assertEqual(payload["runner_provenance"]["runner_name"], "cace-oci-a1")
         approval = sign_receipt("merlin-approver", {
@@ -597,7 +597,7 @@ class RSIPipelineTests(unittest.TestCase):
             suite_sha256=SUITE, attestation=attestation,
             approval_receipt=approval,
         )
-        self.assertEqual(promoted["event_type"], "candidate.promoted")
+        self.assertEqual(self.ledger.events(candidate)[-1]["event_type"], "candidate.promoted")
         self.assertEqual(
             json.loads(self.ledger.events(candidate)[-1]["payload"])["cace_runner_provenance"],
             provenance,
