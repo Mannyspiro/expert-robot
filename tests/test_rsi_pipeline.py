@@ -16,6 +16,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "python"))
 from merlin import rsi_pipeline as rsi
 from merlin.rsi_pipeline import (
     AppendOnlyLedger, ResearchMetadataCache, SignedReceipt,
+    CaceMcpAttestor, CaceMcpVerifier, cace_rsi_bundle_payload,
     dispatch_rsi_induction_seed, ingest_hermes_failure, optional_adapter_status,
     paired_adapter_gain, paired_adapter_gate,
 )
@@ -360,10 +361,28 @@ class RSIPipelineTests(unittest.TestCase):
         )
         return evaluator
 
-    def _make_cace_attestation(self, candidate):
+    def _runner_provenance(self):
+        return {
+            "schema": "cace-oci-run-provenance-v1",
+            "repository": "morganaspim/Cace-app",
+            "run_id": 98765,
+            "workflow_path": ".github/workflows/merlin-oci-job-gateway.yml",
+            "workflow_commit": "e" * 40,
+            "runner_name": "cace-oci-a1",
+            "job_id": 123456,
+            "artifact_sha256": "f" * 64,
+            "source_repo": "Mannyspiro/expert-robot",
+            "source_commit": SOURCE_COMMIT,
+            "benchmark_manifest_sha256": SUITE,
+        }
+
+    def _make_cace_attestation(self, candidate, purpose="independent-reproduction", include_runner_provenance=True):
         _, _, bundle_sha, bindings = self.ledger._cace_evidence(
             candidate, candidate, ARTIFACT, SUITE
         )
+        signed_bindings = dict(bindings)
+        if purpose == "independent-reproduction" and include_runner_provenance:
+            signed_bindings["cace_runner_provenance"] = self._runner_provenance()
         statement = {
             "schema": "cace-attestation-statement-v1",
             "signature_algorithm": "ed25519",
@@ -373,8 +392,8 @@ class RSIPipelineTests(unittest.TestCase):
             "claim_id": candidate,
             "bundle_sha256": bundle_sha,
             "created_at_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-            "purpose": "independent-reproduction",
-            "bindings": bindings,
+            "purpose": purpose,
+            "bindings": signed_bindings,
         }
         signing_bytes = rsi._CACE_ATTESTATION_DOMAIN + rsi.canonical_json(statement)
         signature = self.cace_private.sign(signing_bytes)
@@ -402,6 +421,124 @@ class RSIPipelineTests(unittest.TestCase):
             "MERLIN_CACE_TRUST_STORE_JSON": raw,
             "MERLIN_CACE_TRUST_STORE_SHA256": rsi.sha256_hex(raw.encode("utf-8")),
         }
+
+    def test_cace_mcp_attestor_rejects_non_loopback_endpoints(self):
+        with self.assertRaises(ValueError):
+            CaceMcpAttestor("https://untrusted.example/mcp")
+        with self.assertRaises(ValueError):
+            CaceMcpAttestor("http://192.0.2.10:8765/mcp")
+
+    def test_cace_mcp_verifier_calls_read_only_tool_and_checks_result(self):
+        provenance = self._runner_provenance()
+        valid = {
+            "verified": True, "verifier_id": "cace",
+            "purpose": "independent-reproduction", "proof_effect": "none",
+            "authority": "verification-only", "claim_id": "candidate-mcp-client",
+            "bundle_sha256": "a" * 64, "attestation_sha256": "b" * 64,
+            "runner_provenance": provenance,
+        }
+        class StubVerifier(CaceMcpVerifier):
+            def __init__(self, response):
+                super().__init__()
+                self.response = response
+                self.calls = []
+            def _rpc(self, method, params=None):
+                self.calls.append((method, params))
+                if method == "initialize":
+                    return {"protocolVersion": "2025-03-26"}
+                if method == "notifications/initialized":
+                    return {}
+                if method == "tools/call":
+                    return {"structuredContent": self.response}
+                raise AssertionError("unexpected MCP method")
+        verifier = StubVerifier(valid)
+        result = verifier.verify(
+            bundle_payload={"schema": "cace-evidence-bundle-v1"},
+            attestation_payload={
+                "schema": "cace-signed-attestation-v1",
+                "statement": {"bindings": {"cace_runner_provenance": provenance}},
+            },
+            expected_claim_id="candidate-mcp-client",
+            expected_bindings={"authority": "verification-only"},
+            artifact_bytes_b64={"artifact-1": base64.b64encode(b"exact").decode("ascii")},
+        )
+        self.assertTrue(result["verified"])
+        call = next(params for method, params in verifier.calls if method == "tools/call")
+        self.assertEqual(call["name"], "verify_merlin_rsi_attestation")
+        self.assertEqual(call["arguments"]["expected_claim_id"], "candidate-mcp-client")
+        invalid = dict(valid, purpose="artifact-integrity")
+        with self.assertRaises(PermissionError):
+            StubVerifier(invalid).verify(
+                bundle_payload={}, attestation_payload={},
+                expected_claim_id="candidate-mcp-client",
+                expected_bindings={"authority": "verification-only"},
+                artifact_bytes_b64={},
+            )
+
+    def test_independent_reproduction_receipt_without_runner_provenance_is_rejected(self):
+        candidate = "candidate-reproduction-without-run"
+        self._record_candidate_and_evaluation(candidate)
+        forged = self._make_cace_attestation(
+            candidate, purpose="independent-reproduction", include_runner_provenance=False
+        )
+        with self.assertRaises(PermissionError):
+            self.ledger.record_cace_verification(
+                candidate_id=candidate, attestation=forged,
+                artifact_sha256=ARTIFACT, suite_sha256=SUITE,
+            )
+
+    def test_cace_independent_reproduction_mcp_gate_binds_successful_oci_run(self):
+        candidate = "candidate-cace-reproduction-oci"
+        self._record_candidate_and_evaluation(candidate)
+        attestation = self._make_cace_attestation(candidate)
+        provenance = self._runner_provenance()
+        class FakeReproducer:
+            def reproduce(self, **kwargs):
+                self.kwargs = kwargs
+                return {
+                    "attestation": attestation,
+                    "purpose": "independent-reproduction",
+                    "runner_provenance": provenance,
+                    "proof_effect": "none",
+                    "authority": "verification-only",
+                }
+        class FakeVerifier:
+            def verify(self, **kwargs):
+                self.kwargs = kwargs
+                return {
+                    "verified": True,
+                    "bundle_sha256": rsi.sha256_hex(
+                        rsi._CACE_BUNDLE_DOMAIN + rsi.canonical_json(kwargs["bundle_payload"])
+                    ),
+                    "attestation_sha256": rsi.sha256_hex(
+                        rsi.canonical_json(kwargs["attestation_payload"])
+                    ),
+                    "runner_provenance": provenance,
+                }
+        fake, fake_verifier = FakeReproducer(), FakeVerifier()
+        event = self.ledger.record_cace_verification_from_mcp(
+            candidate_id=candidate, artifact_sha256=ARTIFACT,
+            suite_sha256=SUITE, github_run_id=provenance["run_id"],
+            attestor=fake, verifier=fake_verifier,
+        )
+        self.assertEqual(fake.kwargs["github_run_id"], provenance["run_id"])
+        self.assertEqual(fake_verifier.kwargs["expected_claim_id"], candidate)
+        payload = json.loads(self.ledger.events(candidate)[-1]["payload"])
+        self.assertEqual(self.ledger.events(candidate)[-1]["event_type"], "candidate.cace_verified")
+        self.assertEqual(payload["runner_provenance"]["runner_name"], "cace-oci-a1")
+        approval = sign_receipt("merlin-approver", {
+            "candidate_id": candidate, "candidate_digest": ARTIFACT,
+            "benchmark_manifest_sha256": SUITE,
+            "cace_attestation_sha256": rsi.sha256_hex(rsi.canonical_json(attestation)),
+            "action": "promote", "target": "qualified",
+        }, "approver-key", self.approver_private)
+        self.ledger.record_promotion(
+            candidate_id=candidate, artifact_sha256=ARTIFACT,
+            suite_sha256=SUITE, attestation=attestation,
+            approval_receipt=approval,
+        )
+        promoted = json.loads(self.ledger.events(candidate)[-1]["payload"])
+        self.assertEqual(promoted["cace_runner_provenance"], provenance)
 
     def test_cace_verification_and_separate_approval_gate_promotion(self):
         from unittest.mock import patch
