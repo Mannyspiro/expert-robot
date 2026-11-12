@@ -8,6 +8,9 @@ on:
       - "tests/continuum_simplex_smoke.cpp"
       - "tests/simplicial_complex_smoke.cpp"
       - "docs/paired-state-continuum-simplex.md"
+      - "schemas/merlin/continuum-structure.v1.schema.json"
+      - "docs/research/paired-state-continuum-triangle.v1.json"
+      - "tests/test_continuum_structure_ir.py"
       - ".github/workflows/continuum-simplex-smoke.yml"
 
 permissions:
@@ -20,7 +23,7 @@ concurrency:
 jobs:
   focused-smoke:
     # This is a low-cost compile/regression lane, not repository qualification.
-    runs-on: ubuntu-latest
+    runs-on: namespace-profile-merlin
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -29,4 +32,7 @@ jobs:
       - name: Build focused target
         run: cmake --build build --target continuum_simplex_smoke --parallel 2
       - name: Run focused regression
-        run: ctest --test-dir build -R '^continuum_simplex_smoke$' --output-on-failure
+        run: ctest --test-dir build -R '^(continuum_simplex_smoke|simplicial_complex_smoke)
+ --output-on-failure
+      - name: Validate canonical continuum structure IR
+        run: python3 -m unittest discover -s tests -p 'test_continuum_structure_ir.py' -v
