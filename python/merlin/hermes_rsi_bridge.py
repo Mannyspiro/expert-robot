@@ -114,7 +114,8 @@ class HermesRSIBridge:
             payload = json.loads(row["payload"])
             if payload.get("failure_signature") != failure_signature:
                 continue
-            if not payload.get("corrective_steps") or not payload.get("run_id"):
+            if (not payload.get("corrective_steps") or not payload.get("run_id")
+                    or not payload.get("trigger_condition")):
                 continue
             selected.append((row, payload))
         run_ids = {payload["run_id"] for _, payload in selected}
@@ -143,6 +144,9 @@ class HermesRSIBridge:
     ) -> dict[str, Any]:
         if len(source_commit) != 40 or any(c not in "0123456789abcdef" for c in source_commit):
             raise ValueError("candidate generator source commit must be a lowercase Git SHA")
+        if not isinstance(source_repo, str) or not __import__("re").fullmatch(
+                r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", source_repo):
+            raise ValueError("candidate generator source_repo must be owner/name")
         trajectories, seed_hashes, selected = self._trajectories(failure_signature)
         candidate = rsi.induce_skill_candidate(
             skill_id=skill_id, version=version, purpose=purpose,
