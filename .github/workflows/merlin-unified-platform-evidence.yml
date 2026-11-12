@@ -62,7 +62,7 @@ concurrency:
 
 jobs:
   unified-platform:
-    runs-on: ubuntu-latest
+    runs-on: namespace-profile-merlin
     timeout-minutes: 20
     steps:
       - name: Checkout exact PR head
