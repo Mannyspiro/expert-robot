@@ -63,6 +63,33 @@ The registry does not read artifact bytes from locator, independently compute th
 
 A production CACE adapter must retrieve or receive the exact artifact bytes, independently recompute the digest, authenticate the CACE result/receipt and only then call record_receipt. The receipt chain protects the stored sequence from undetected in-database alteration; it does not replace CACE authentication or an external trust anchor.
 
+## Existing CACE attestation contract
+
+The connected CACE application already provides the verifier machinery Merlin should reuse:
+
+- Signed attestation schema: cace-signed-attestation-v1.
+- Ed25519 signatures over canonical, domain-separated JSON.
+- Verifier key identity: ed25519: followed by SHA-256 of the raw public key.
+- Exact claim_id and evidence-bundle SHA-256 binding.
+- Purpose independent-reproduction for E5 cross-verification.
+- Canonical EvidenceBundle, deterministic Merkle root and append-only evidence ledger.
+- Exact-current-head qualification bound to the canonical proof contract, Lean toolchain, Mathlib pin, source bundle and kernel axiom audit.
+
+All signed attestations carry proof_effect = none. A valid signature authenticates the signed statement; it does not establish theorem truth or promote a claim.
+
+### Required adapter behavior
+
+1. Parse the exact CACE signed-attestation schema and reject unknown fields or unsupported versions.
+2. Verify the Ed25519 signature and canonical statement digest using the existing CACE implementation.
+3. Require the verifier_key_id to be explicitly approved and bound to the expected verifier identity. The public key embedded in an envelope is not, by itself, a trust anchor.
+4. Bind the attestation to the requested claim_id, exact CACE bundle SHA-256, qualified commit, proof-artifact SHA-256, proof-contract ID and current proof-contract hash.
+5. Require CACE's canonical claim registry, proof ledger and proof contract to show current-head PASS before E5 is considered.
+6. For E5, require at least two distinct approved verifier identities and distinct approved keys over the same claim and exact bundle. E5 remains cross-verification metadata with proof_effect = none.
+7. Only after these checks may the adapter append a digest-bound receipt to the Merlin artifact registry.
+
+Until approved verifier keys and an authenticated CACE transport are configured, CACE attestation capability must remain unavailable/unqualified. Do not generate a substitute key or infer approval from a self-signed envelope.
+
+
 ## Merlin integration
 
 1. Hermes: attach artifact IDs and digest references to job envelopes and outbox acknowledgements.
