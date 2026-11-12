@@ -412,6 +412,37 @@ std::optional<ArtifactSnapshot> ArtifactRegistry::get(std::string_view artifact_
     return snapshot;
 }
 
+std::vector<ArtifactSnapshot> ArtifactRegistry::list(
+    std::size_t limit,
+    std::size_t offset) const {
+    if (limit == 0U || limit > 500U) {
+        throw std::invalid_argument("artifact list limit must be in 1..500");
+    }
+    if (offset > static_cast<std::size_t>(std::numeric_limits<sqlite3_int64>::max())) {
+        throw std::invalid_argument("artifact list offset exceeds SQLite integer range");
+    }
+
+    Statement query(db_, "SELECT artifact_id FROM artifacts ORDER BY created_at DESC, artifact_id ASC LIMIT ? OFFSET ?;");
+    check(sqlite3_bind_int64(query.get(), 1, static_cast<sqlite3_int64>(limit)), db_, "bind artifact list limit");
+    check(sqlite3_bind_int64(query.get(), 2, static_cast<sqlite3_int64>(offset)), db_, "bind artifact list offset");
+
+    std::vector<std::string> ids;
+    while (true) {
+        const int rc = sqlite3_step(query.get());
+        check(rc, db_, "list artifact IDs");
+        if (rc == SQLITE_DONE) break;
+        ids.push_back(text_column(query.get(), 0));
+    }
+
+    std::vector<ArtifactSnapshot> result;
+    result.reserve(ids.size());
+    for (const auto& id : ids) {
+        auto snapshot = get(id);
+        if (snapshot.has_value()) result.push_back(std::move(*snapshot));
+    }
+    return result;
+}
+
 std::vector<VerificationReceipt> ArtifactRegistry::verification_receipts(
     std::string_view artifact_id) const {
     if (artifact_id.empty()) throw std::invalid_argument("artifact_id must be non-empty");
