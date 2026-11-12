@@ -106,6 +106,21 @@
       "sha256": "09f5133a52ec27dabd6731bc08b956b137436d037103dcebd634bc224c36d8a9"
     },
     "test_scope": "CACE core EvidenceBundle and Ed25519 verifier integration, server-pinned key allowlist, exact artifact byte verification, claim/binding matching, and 10 MiB aggregate input cap",
-    "deployment_status": "not_merged_not_deployed"
+    "deployment_status": "not_merged_not_deployed",
+    "latest_validated_commit": "9c6ec3d17825dc13d18cc221b8cc8a125f8eb280",
+    "latest_validation_run_id": 43127067362,
+    "latest_validation_artifact": {
+      "id": 13903645937,
+      "sha256": "b6e2546fc0f4081954a03ab978ef967208669c2211ad489964c8987ee0780806",
+      "size_bytes": 199727
+    },
+    "capabilities": [
+      "one-time non-overwriting Ed25519 CACE key initialization",
+      "exact-byte EvidenceBundle integrity validation",
+      "CACE artifact-integrity signing",
+      "CACE trust-pinned attestation verification"
+    ],
+    "signing_purpose": "artifact-integrity",
+    "proof_effect": "none"
   }
 }
