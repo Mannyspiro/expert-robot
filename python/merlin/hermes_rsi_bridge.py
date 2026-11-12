@@ -11,6 +11,7 @@ from datetime import datetime, timezone
 import base64
 import json
 import os
+import re
 from typing import Any, Mapping
 
 from merlin import rsi
@@ -118,6 +119,10 @@ class HermesRSIBridge:
                     or not payload.get("trigger_condition")):
                 continue
             selected.append((row, payload))
+        one_per_run = {}
+        for row, payload in selected:
+            one_per_run.setdefault(payload["run_id"], (row, payload))
+        selected = list(one_per_run.values())
         run_ids = {payload["run_id"] for _, payload in selected}
         failure_ids = {payload["hermes_event_id"] for _, payload in selected}
         receipt_digests = {payload["source_receipt_digest"] for _, payload in selected}
@@ -144,7 +149,7 @@ class HermesRSIBridge:
     ) -> dict[str, Any]:
         if len(source_commit) != 40 or any(c not in "0123456789abcdef" for c in source_commit):
             raise ValueError("candidate generator source commit must be a lowercase Git SHA")
-        if not isinstance(source_repo, str) or not __import__("re").fullmatch(
+        if not isinstance(source_repo, str) or not re.fullmatch(
                 r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", source_repo):
             raise ValueError("candidate generator source_repo must be owner/name")
         trajectories, seed_hashes, selected = self._trajectories(failure_signature)
