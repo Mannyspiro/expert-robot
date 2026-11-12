@@ -3,11 +3,11 @@
 **Status:** architecture and implementation plan; not a production qualification.
 **Canonical inputs:** `docs/research/merlin-mathematical-idea-catalog.v1.json`, `docs/merlin/MERLIN_MATH_FOUNDATIONS_COURSE_V1.json`, and the tenant-scoped Merlin Learning service.
 
-The machine-readable mapping is maintained in `docs/merlin/MERLIN_MATH_LEARNING_PATHWAYS_V1.json`. It maps all 57 current catalog ideas into the three pathways and labels whether a lesson reference already exists. `scripts/merlin_math_pathways_validate.py` checks catalog identity, idea coverage, pathway membership, lesson-reference consistency, and prerequisite integrity; the LMS evidence workflow runs this validator.
+The machine-readable mapping is maintained in `docs/merlin/MERLIN_MATH_LEARNING_PATHWAYS_V1.json`. It maps all 58 current catalog ideas into the three pathways and labels whether a lesson reference already exists. `scripts/merlin_math_pathways_validate.py` checks catalog identity, idea coverage, pathway membership, lesson-reference consistency, and prerequisite integrity; the LMS evidence workflow runs this validator.
 
 ## Current curriculum artifacts
 
-The canonical catalog currently contains 57 mathematical ideas, with 35 catalog lesson references. The authored course manifests now cover:
+The canonical catalog currently contains 58 mathematical ideas, with 35 catalog lesson references. The authored course manifests now cover:
 - **Mathematics foundations:** whole-number patterns, variables, divisibility, primes, loops, Euclid's proof, and counterexamples.
 - **Logic and discrete mathematics:** quantifiers, sets and relations, and graphs and trees.
 - **Algebra and functions:** patterns, variables, sets, equations and inequalities, function composition, and inverse mappings.
@@ -16,7 +16,11 @@ The canonical catalog currently contains 57 mathematical ideas, with 35 catalog 
 
 The cross-course validator `scripts/merlin_math_portfolio_validate.py` checks objective metadata consistency, shared lesson identity, and that every external prerequisite is actually taught in another authored course. It runs alongside the individual course, pathway-map, and lesson-backlog validators in the LMS evidence workflow.
 
-The lesson backlog contains 22 additional review-gated blueprints for ideas without a catalog lesson reference. These are authoring specifications, not completed lessons. A lesson reference is only promoted after its manifest, exercise, rubric, pathway coverage, and validator are present. The LMS evidence workflow checks the catalog graph, three-path mapping, and backlog's epistemic gates.
+The lesson backlog contains 23 additional review-gated blueprints for ideas without a catalog lesson reference. These are authoring specifications, not completed lessons. A lesson reference is only promoted after its manifest, exercise, rubric, pathway coverage, and validator are present. The LMS evidence workflow checks the catalog graph, three-path mapping, and backlog's epistemic gates.
+
+
+
+The new candidate **MATH-CONT-001 — Paired-state continuum simplices** is mapped into all three pathways: generalization and research for the mathematician, the formal/research bridge for the mathematics programmer, and measure/validate for the computational hacker. It remains a candidate with a review-gated lesson blueprint; the C++ finite tests do not mark the general mathematical claim as proved.
 
 ## Product objective
 
