@@ -326,3 +326,16 @@ cognition stack, swarm, skill governance, recursive lemma search, and bounded
 research engine are now implemented behind C++ interfaces. The next milestones
 are benchmark corpus expansion, real local-model qualification runs, and
 measured promotion of only the capabilities that improve Lean-verified results.
+
+
+## Merlin voice and Hermes coding integrations
+
+Optional Hermes Agent, NousCoder-14B and local Kokoro TTS setup is documented in [docs/merlin-hermes-voice.md](docs/merlin-hermes-voice.md). Model weights remain outside Git under `models/`; no default coding role is changed. The Kokoro service is loopback-only by default and provides an OpenAI-compatible WAV endpoint for sequential council playback.
+
+Project continuity and outstanding research requirements are consolidated in [docs/MERLIN_MASTER_HANDOFF_2026-11-02.md](docs/MERLIN_MASTER_HANDOFF_2026-11-02.md).
+
+Typed geometry and wiring foundations are documented in [docs/merlin-geometry-netlist-ir.md](docs/merlin-geometry-netlist-ir.md).
+
+Current inductive roadmap: [docs/ENGINEERING_PLAN_V17.md](docs/ENGINEERING_PLAN_V17.md).
+
+Run the loopback-only Merlin API using [docs/merlin-mvp-api.md](docs/merlin-mvp-api.md).
