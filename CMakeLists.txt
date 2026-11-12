@@ -105,6 +105,13 @@ add_executable(math_core_smoke
 )
 target_link_libraries(math_core_smoke PRIVATE expert_robot_core)
 add_test(NAME math_core_smoke COMMAND math_core_smoke)
+
+add_executable(continuum_simplex_smoke
+    tests/continuum_simplex_smoke.cpp
+)
+target_link_libraries(continuum_simplex_smoke PRIVATE expert_robot_core)
+add_test(NAME continuum_simplex_smoke COMMAND continuum_simplex_smoke)
+
 set_tests_properties(
     math_core_smoke
     PROPERTIES
