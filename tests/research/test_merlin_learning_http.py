@@ -195,7 +195,10 @@ class MerlinLearningHttpTests(unittest.TestCase):
         self.assertFalse(my_work["mastery_updated"])
         status, enrolled_catalog = self.request("GET", "/api/learning/courses", "Bearer learner-course-authoring")
         self.assertEqual(status, 200)
-        self.assertEqual(enrolled_catalog["courses"][0]["enrollment_status"], "active")
+        enrolled_course = next((item for item in enrolled_catalog["courses"]
+                                 if item["course_id"] == cid), None)
+        self.assertIsNotNone(enrolled_course)
+        self.assertEqual(enrolled_course["enrollment_status"], "active")
         status, learner_view = self.request("GET", f"/api/learning/courses/{cid}",
                                             "Bearer learner-course-authoring")
         self.assertEqual(status, 200)
