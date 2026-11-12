@@ -362,12 +362,12 @@ class RSIPipelineTests(unittest.TestCase):
             "benchmark_manifest_sha256": SUITE,
         }
 
-    def _make_cace_attestation(self, candidate, purpose="independent-reproduction"):
+    def _make_cace_attestation(self, candidate, purpose="independent-reproduction", include_runner_provenance=True):
         _, _, bundle_sha, bindings = self.ledger._cace_evidence(
             candidate, candidate, ARTIFACT, SUITE
         )
         signed_bindings = dict(bindings)
-        if purpose == "independent-reproduction":
+        if purpose == "independent-reproduction" and include_runner_provenance:
             signed_bindings["cace_runner_provenance"] = self._runner_provenance()
         statement = {
             "schema": "cace-attestation-statement-v1",
@@ -558,6 +558,18 @@ class RSIPipelineTests(unittest.TestCase):
         self.assertEqual(json.loads(self.ledger.events(candidate)[-1]["payload"])["purpose"],
                          "independent-reproduction")
         self.assertTrue(self.ledger.verify_chain(candidate)["valid"])
+
+    def test_independent_reproduction_receipt_without_runner_provenance_is_rejected(self):
+        candidate = "candidate-reproduction-without-run"
+        self._record_candidate_and_evaluation(candidate)
+        forged_claim = self._make_cace_attestation(
+            candidate, purpose="independent-reproduction", include_runner_provenance=False
+        )
+        with self.assertRaises(PermissionError):
+            self.ledger.record_cace_verification(
+                candidate_id=candidate, attestation=forged_claim,
+                artifact_sha256=ARTIFACT, suite_sha256=SUITE,
+            )
 
     def test_cace_independent_reproduction_mcp_gate_binds_successful_oci_run(self):
         candidate = "candidate-cace-reproduction-oci"
