@@ -25,7 +25,7 @@ jobs:
     concurrency:
       group: expert-robot-avrea-rsi-promotion-v2
       cancel-in-progress: false
-    runs-on: avrea-ubuntu-latest-8-vcpu
+    runs-on: namespace-profile-merlin
     timeout-minutes: 45
     env:
       CANDIDATE_REF: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_branch || inputs.candidate_ref }}
@@ -161,7 +161,7 @@ jobs:
     concurrency:
       group: expert-robot-avrea-rsi-promotion-v2
       cancel-in-progress: false
-    runs-on: avrea-ubuntu-latest-8-vcpu
+    runs-on: namespace-profile-merlin
     timeout-minutes: 15
 
     steps:
