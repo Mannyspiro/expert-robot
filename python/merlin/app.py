@@ -365,15 +365,27 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
     learning_lessons: list[dict[str, Any]] = []
     if catalog_path.is_file():
         catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
-        for idea in catalog.get("ideas", []):
+        catalog_ideas = catalog.get("ideas", [])
+        if not isinstance(catalog_ideas, list):
+            raise ValueError("mathematical idea catalog must contain an ideas list")
+        catalog_ids = {
+            item.get("id") for item in catalog_ideas if isinstance(item, dict)
+        }
+        seen_ids: set[str] = set()
+        for idea in catalog_ideas:
             if not isinstance(idea, dict):
                 raise ValueError("mathematical idea catalog entries must be objects")
-            learning = idea.get("learning")
-            if not isinstance(learning, dict):
-                learning = {}
             idea_id = idea.get("id")
             if not isinstance(idea_id, str) or not idea_id.strip():
                 raise ValueError("mathematical idea catalog entries require an ID")
+            if idea_id in seen_ids:
+                raise ValueError(f"duplicate mathematical idea ID: {idea_id}")
+            seen_ids.add(idea_id)
+        for idea in catalog_ideas:
+            idea_id = idea["id"]
+            learning = idea.get("learning")
+            if not isinstance(learning, dict):
+                learning = {}
             dimensions = learning.get("dimensions", ["conceptual_explanation", "procedure"])
             prerequisites = learning.get("prerequisites", [])
             if (not isinstance(dimensions, list) or not dimensions
@@ -382,9 +394,24 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             if (not isinstance(prerequisites, list)
                 or any(not isinstance(item, str) or not item for item in prerequisites)):
                 raise ValueError(f"{idea_id}: learner prerequisites must be a list of IDs")
+            if any(item not in catalog_ids for item in prerequisites):
+                raise ValueError(f"{idea_id}: learner prerequisite is absent from the canonical catalog")
+            relations = idea.get("relations", [])
+            if not isinstance(relations, list):
+                raise ValueError(f"{idea_id}: relations must be a list")
+            for relation in relations:
+                if not isinstance(relation, dict):
+                    continue
+                if relation.get("type") == "depends_on":
+                    target = relation.get("target")
+                    if not isinstance(target, str) or target not in catalog_ids:
+                        raise ValueError(f"{idea_id}: depends_on relation has an unknown target")
+                    prerequisites.append(target)
+            prerequisites = list(dict.fromkeys(prerequisites))
 
             # Keep every canonical idea in the evidence graph, including ideas
             # whose lesson is only a candidate or has not yet been authored.
+            # Canonical depends_on relations are learner prerequisites too.
             learning_graph[idea_id] = {
                 "prerequisites": prerequisites,
                 "dimensions": dimensions,
@@ -396,7 +423,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                             "MATH-POLY-001", "MATH-PARA-001", "MATH-FRACT-002",
                             "MATH-SIG-001", "MATH-GEN-001", "MATH-DATA-001"}
             learning_lessons.append({"lesson_id": lesson_id, "idea_id": idea_id,
-                                     "curriculum_id": "art-math-studio" if idea_id in art_math_ids else "mathematics"})
+                                     "curriculum_id": "art-math-studio" if idea_id in art_math_ids else "mathematics})
     # B2B competencies are a separate, versioned curriculum graph.
     b2b_graph_path = repo_root / "docs" / "merlin" / "MERLIN_B2B_LEARNING_GRAPH_V0_1.json"
     if b2b_graph_path.is_file():
@@ -995,8 +1022,16 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     for idea_id, idea in learning_graph.items():
                         estimates[idea_id] = {dimension: learner_store.estimate(
                             learner_id, idea_id, dimension).__dict__ for dimension in idea["dimensions"]}
+                    graph = {
+                        idea_id: {
+                            "prerequisites": list(idea["prerequisites"]),
+                            "dimensions": list(idea["dimensions"]),
+                        }
+                        for idea_id, idea in learning_graph.items()
+                    }
                     self._send(200, {"schema": "merlin-learner-state/1", "learner_id": actor.actor_id,
-                                     "skills": estimates, "attempts": len(learner_store.attempts(learner_id))})
+                                     "skills": estimates, "graph": graph,
+                                     "attempts": len(learner_store.attempts(learner_id))})
             elif path == "/api/council/roles":
                 self._send(200, {"schema": "merlin-council-roles/1",
                                  "roles": [{"id": p.persona_id, "title": p.title,
