@@ -347,10 +347,28 @@ class RSIPipelineTests(unittest.TestCase):
         )
         return evaluator
 
+    def _runner_provenance(self):
+        return {
+            "schema": "cace-oci-run-provenance-v1",
+            "repository": "morganaspim/Cace-app",
+            "run_id": 98765,
+            "workflow_path": ".github/workflows/merlin-oci-job-gateway.yml",
+            "workflow_commit": "e" * 40,
+            "runner_name": "cace-oci-a1",
+            "job_id": 123456,
+            "artifact_sha256": "f" * 64,
+            "source_repo": "Mannyspiro/expert-robot",
+            "source_commit": SOURCE_COMMIT,
+            "benchmark_manifest_sha256": SUITE,
+        }
+
     def _make_cace_attestation(self, candidate, purpose="independent-reproduction"):
         _, _, bundle_sha, bindings = self.ledger._cace_evidence(
             candidate, candidate, ARTIFACT, SUITE
         )
+        signed_bindings = dict(bindings)
+        if purpose == "independent-reproduction":
+            signed_bindings["cace_runner_provenance"] = self._runner_provenance()
         statement = {
             "schema": "cace-attestation-statement-v1",
             "signature_algorithm": "ed25519",
@@ -361,7 +379,7 @@ class RSIPipelineTests(unittest.TestCase):
             "bundle_sha256": bundle_sha,
             "created_at_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "purpose": purpose,
-            "bindings": bindings,
+            "bindings": signed_bindings,
         }
         signing_bytes = rsi._CACE_ATTESTATION_DOMAIN + rsi.canonical_json(statement)
         signature = self.cace_private.sign(signing_bytes)
