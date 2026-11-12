@@ -305,7 +305,7 @@ class ResearchMetadataClient:
             published = entry.findtext("atom:published", default="", namespaces=ns)[:10]
             record_url = entry.findtext("atom:id", default=url, namespaces=ns)
             doi = entry.findtext("arxiv:doi", default="", namespaces=ns).lower()
-        except ET.ParseError as error:
+        except (ET.ParseError, AttributeError) as error:
             raise MetadataFetchError("invalid arXiv Atom response") from error
         return self._store(
             key, "arxiv", normalized, title, authors, published,
