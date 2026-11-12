@@ -274,6 +274,18 @@ class VirtualRepositoryTests(unittest.TestCase):
         self.assertEqual(self.repo.check_results(self.initial["commit_id"])[-1]["verification_status"],
                          "UNVERIFIED")
 
+    def test_check_verification_receipt_replay_is_idempotent(self):
+        result = self.repo.record_check_result(
+            self.initial["commit_id"], "python.compile", "success",
+            "replay-run", "local-runner", "passed",
+        )
+        receipt = {"test_only": True, "receipt_id": "stable-test-receipt"}
+        first = self.repo.verify_check_result(result["check_id"], receipt)
+        replay = self.repo.verify_check_result(result["check_id"], receipt)
+        self.assertFalse(first["idempotent_replay"])
+        self.assertTrue(replay["idempotent_replay"])
+        self.assertEqual(first["receipt_sha256"], replay["receipt_sha256"])
+
     def test_main_merge_requires_successful_checks_for_exact_pr_head(self):
         self.repo.create_branch("feature/protected")
         self.repo.commit("feature/protected", "protected change", {"README.md": "# protected\n"})
