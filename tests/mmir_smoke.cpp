@@ -32,6 +32,43 @@ int main() {
     });
 
     assert(registry.size() == 2);
+
+    MathType metre{
+        .name = "length",
+        .dimensions = {1, 0, 0, 0, 0, 0, 0},
+        .unit_symbol = "m",
+        .scale_to_si = 1.0L,
+    };
+    MathType centimetre{
+        .name = "length",
+        .dimensions = {1, 0, 0, 0, 0, 0, 0},
+        .unit_symbol = "cm",
+        .scale_to_si = 0.01L,
+    };
+    MathType second{
+        .name = "time",
+        .dimensions = {0, 0, 1, 0, 0, 0, 0},
+        .unit_symbol = "s",
+        .scale_to_si = 1.0L,
+    };
+    assert(valid_math_type(metre));
+    assert(same_dimensions(metre, centimetre));
+    assert(!same_dimensions(metre, second));
+    assert(convert_value(125.0L, centimetre, metre) > 1.249L);
+    assert(convert_value(125.0L, centimetre, metre) < 1.251L);
+    const auto velocity = divide_types(metre, second);
+    assert((velocity.dimensions == std::array<int, dimension_count>{1, 0, -1, 0, 0, 0, 0}));
+    const auto area = integer_power(metre, 2);
+    assert(area.dimensions[0] == 2);
+    const auto volume = multiply_types(area, metre);
+    assert(volume.dimensions[0] == 3);
+    bool incompatible_units_rejected = false;
+    try {
+        (void)convert_value(1.0L, metre, second);
+    } catch (const std::invalid_argument&) {
+        incompatible_units_rejected = true;
+    }
+    assert(incompatible_units_rejected);
     assert(registry.resolve("xa.arithmetic", "+") != nullptr);
     assert(registry.resolve("xa.harmonic", "⋈") != nullptr);
     assert(registry.resolve("xa.arithmetic", "⋈") == nullptr);
