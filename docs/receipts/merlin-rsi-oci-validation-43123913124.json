@@ -80,12 +80,32 @@
     "artifact_verification_tool_exposed": false,
     "attestation_signing_tool_exposed": false,
     "live_candidate_attestation_obtained": false,
-    "production_promotion": false
+    "production_promotion": false,
+    "proposed_verifier_pr": 93,
+    "proposed_verifier_ci_run": 43125343110,
+    "live_artifact_verification_tool_exposed": false
   },
   "limitations": [
     "This receipt records a successful CI test run, not an independent CACE artifact attestation.",
     "The CACE MCP server exposes control-plane inspection and operations, but no artifact-verification or attestation-signing tool.",
     "The live production trust stores and RSI worker transport remain unconfigured; the code fails closed.",
     "The fixed 25-case benchmark is a frozen task set, not yet a calibrated universal ranking benchmark."
-  ]
+  ],
+  "cace_verifier_pr": {
+    "repository": "morganaspim/Cace-app",
+    "pull_request": 93,
+    "url": "https://github.com/morganaspim/Cace-app/pull/93",
+    "branch": "feature/cace-merlin-rsi-attestation-verifier-clean-20261112",
+    "commit": "7ba90e567373eda7cbb78be5a7f36c8378ea5936",
+    "workflow_run_id": 43125343110,
+    "job_id": 130876156361,
+    "runner": "cace-oci-a1",
+    "status": "passed",
+    "artifact": {
+      "id": 13902467637,
+      "sha256": "09f5133a52ec27dabd6731bc08b956b137436d037103dcebd634bc224c36d8a9"
+    },
+    "test_scope": "CACE core EvidenceBundle and Ed25519 verifier integration, server-pinned key allowlist, exact artifact byte verification, claim/binding matching, and 10 MiB aggregate input cap",
+    "deployment_status": "not_merged_not_deployed"
+  }
 }
