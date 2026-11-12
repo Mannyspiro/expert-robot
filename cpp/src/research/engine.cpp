@@ -1507,6 +1507,12 @@ ResearchOutcome MathResearchEngine::run(
                     observation.lean_verified =
                         true;
                 } else {
+                    append_failure_observation(
+                        episode_ledger_,
+                        problem.episode_id,
+                        "parent_retry",
+                        retry.search,
+                        machine.state().usage.cycles);
                     update_failure_sensors(
                         problem.sensors,
                         retry.search.attempts.size(),
