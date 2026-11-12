@@ -17,7 +17,7 @@ import shutil
 import sqlite3
 import time
 import uuid
-from typing import Any, Mapping
+from typing import Any, Callable, Mapping
 
 
 class VirtualGitError(ValueError):
@@ -25,8 +25,12 @@ class VirtualGitError(ValueError):
 
 
 class VirtualRepository:
-    def __init__(self, database: str | Path):
+    def __init__(self, database: str | Path, *,
+                 check_receipt_verifier: Callable[[Mapping[str, Any]], Mapping[str, Any]] | None = None,
+                 promotion_authorizer: Callable[[Mapping[str, Any]], Mapping[str, Any]] | None = None):
         self.path = Path(database)
+        self._check_receipt_verifier = check_receipt_verifier
+        self._promotion_authorizer = promotion_authorizer
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with closing(self._connect()) as db, db:
             db.executescript("""
@@ -65,6 +69,16 @@ class VirtualRepository:
               UNIQUE(run_id, check_name));
             CREATE INDEX IF NOT EXISTS check_results_commit_name
               ON check_results(commit_id,check_name,recorded_at);
+            CREATE TABLE IF NOT EXISTS check_verifications(
+              verification_id INTEGER PRIMARY KEY AUTOINCREMENT,
+              check_id INTEGER NOT NULL REFERENCES check_results(check_id),
+              receipt_sha256 TEXT NOT NULL,
+              receipt_json TEXT NOT NULL,
+              verification_json TEXT NOT NULL,
+              recorded_at REAL NOT NULL,
+              UNIQUE(check_id, receipt_sha256));
+            CREATE INDEX IF NOT EXISTS check_verifications_latest
+              ON check_verifications(check_id,recorded_at,verification_id);
             CREATE INDEX IF NOT EXISTS events_kind_id ON events(kind,event_id);
             CREATE INDEX IF NOT EXISTS commits_parent1 ON commits(parent1);
             CREATE INDEX IF NOT EXISTS commits_parent2 ON commits(parent2);
@@ -109,6 +123,12 @@ class VirtualRepository:
             CREATE TRIGGER IF NOT EXISTS virtual_check_results_no_delete
               BEFORE DELETE ON check_results
               BEGIN SELECT RAISE(ABORT, 'virtual repository check results are immutable'); END;
+            CREATE TRIGGER IF NOT EXISTS virtual_check_verifications_no_update
+              BEFORE UPDATE ON check_verifications
+              BEGIN SELECT RAISE(ABORT, 'virtual repository check verifications are immutable'); END;
+            CREATE TRIGGER IF NOT EXISTS virtual_check_verifications_no_delete
+              BEFORE DELETE ON check_verifications
+              BEGIN SELECT RAISE(ABORT, 'virtual repository check verifications are immutable'); END;
             """)
             if db.execute("SELECT 1 FROM branches WHERE name='main'").fetchone():
                 default_checks = self._canonical([
@@ -139,10 +159,23 @@ class VirtualRepository:
 
     @classmethod
     def _path(cls, value: str) -> str:
-        path = cls._name(value, "file path")
-        if path.startswith("/") or "\\" in path or path.startswith(".git/"):
+        # Repository snapshots legitimately include dot-prefixed metadata such
+        # as .github and .gitignore. Validate path segments separately so those
+        # names work without allowing absolute paths or traversal.
+        if (
+            not isinstance(value, str)
+            or not value
+            or len(value) > 120
+            or value.startswith("/")
+            or value.endswith("/")
+            or "\\" in value
+            or not re.fullmatch(r"[A-Za-z0-9._/-]{1,120}", value)
+        ):
             raise VirtualGitError("file path must be relative and traversal-free")
-        return path
+        parts = value.split("/")
+        if any(part in {"", ".", "..", ".git"} for part in parts):
+            raise VirtualGitError("file path must be relative and traversal-free")
+        return value
 
     def _event(self, db, kind: str, payload: Mapping[str, Any]) -> None:
         db.execute("INSERT INTO events(kind,payload_json,created_at) VALUES(?,?,?)",
@@ -571,12 +604,27 @@ class VirtualRepository:
                 if (existing["commit_id"], existing["conclusion"], existing["runner_id"],
                     existing["log_digest"]) != (commit_id, conclusion, runner_id, log_digest):
                     raise VirtualGitError("run_id already records a different check result")
-                metadata = json.loads(existing["result_json"])
+                verification_row = db.execute("""SELECT verification_json FROM check_verifications
+                    WHERE check_id=? ORDER BY recorded_at DESC,verification_id DESC LIMIT 1""",
+                    (existing["check_id"],)).fetchone()
+                try:
+                    verification = json.loads(verification_row["verification_json"]) if verification_row else {}
+                except (TypeError, ValueError):
+                    verification = {}
+                expected = self._check_binding(existing)
+                verified = (
+                    verification.get("verification_status") == "VERIFIED"
+                    and verification.get("bindings") == expected
+                    and verification.get("promotion_authorization", {}).get("promotion_authorized") is True
+                    and verification.get("promotion_authorization", {}).get("bindings") == expected
+                    and bool(verification.get("promotion_authorization", {}).get("approval_id"))
+                    and bool(verification.get("cace_receipt_id"))
+                )
                 return {"check_id": existing["check_id"], "commit_id": commit_id,
                         "check_name": check_name, "conclusion": conclusion,
                         "log_sha256": log_digest,
-                        "verification_status": metadata.get("verification_status", "UNVERIFIED"),
-                        "promotion_authorized": metadata.get("promotion_authorized") is True,
+                        "verification_status": "VERIFIED" if verified else "UNVERIFIED",
+                        "promotion_authorized": verified,
                         "idempotent_replay": True}
             result = {"commit_id": commit_id, "check_name": check_name,
                       "conclusion": conclusion, "run_id": run_id, "runner_id": runner_id,
@@ -591,6 +639,110 @@ class VirtualRepository:
             self._event(db, "check.recorded", {"check_id": check_id, **result})
             return {"check_id": check_id, **result, "idempotent_replay": False}
 
+    @staticmethod
+    def _check_binding(row) -> dict[str, Any]:
+        return {
+            "commit_id": row["commit_id"],
+            "check_name": row["check_name"],
+            "conclusion": row["conclusion"],
+            "run_id": row["run_id"],
+            "runner_id": row["runner_id"],
+            "log_sha256": row["log_digest"],
+        }
+
+    def verify_check_result(self, check_id: int, receipt: Mapping[str, Any]) -> dict[str, Any]:
+        """Verify a check receipt through an injected independent verifier.
+
+        No verifier is configured by default. A caller-supplied boolean or
+        metadata field is never sufficient: the verifier must return a
+        normalized VERIFIED result bound to every immutable check field.
+        """
+        if self._check_receipt_verifier is None:
+            raise VirtualGitError("independent check receipt verifier is not configured")
+        if not isinstance(check_id, int) or isinstance(check_id, bool) or check_id < 1:
+            raise VirtualGitError("check_id must be a positive integer")
+        if not isinstance(receipt, Mapping):
+            raise VirtualGitError("check receipt must be an object")
+        try:
+            receipt_json = self._canonical(dict(receipt))
+            receipt_sha256 = sha256(receipt_json.encode("utf-8")).hexdigest()
+        except (TypeError, ValueError) as exc:
+            raise VirtualGitError("check receipt must be canonical JSON data") from exc
+        with closing(self._connect()) as db:
+            row = db.execute("SELECT * FROM check_results WHERE check_id=?", (check_id,)).fetchone()
+        if row is None:
+            raise KeyError(f"unknown check result: {check_id}")
+        expected = self._check_binding(row)
+        request = {
+            "schema": "merlin-virtual-check-verification-request/1",
+            "expected_bindings": expected,
+            "receipt": dict(receipt),
+        }
+        try:
+            verified = self._check_receipt_verifier(request)
+        except Exception as exc:
+            raise VirtualGitError("independent check receipt verification failed") from exc
+        if not isinstance(verified, Mapping):
+            raise VirtualGitError("independent verifier returned an invalid result")
+        if (verified.get("verification_status") != "VERIFIED"
+                or verified.get("bindings") != expected
+                or not isinstance(verified.get("cace_receipt_id"), str)
+                or not verified.get("cace_receipt_id").strip()):
+            raise VirtualGitError("independent verifier did not verify this exact check binding")
+        authorization: Mapping[str, Any] = {
+            "status": "NOT_AUTHORIZED", "promotion_authorized": False,
+        }
+        if self._promotion_authorizer is not None:
+            try:
+                candidate = self._promotion_authorizer({
+                    "schema": "merlin-promotion-authorization-request/1",
+                    "expected_bindings": expected,
+                    "cace_receipt_id": verified["cace_receipt_id"],
+                })
+            except Exception as exc:
+                raise VirtualGitError("promotion authorization failed") from exc
+            if not isinstance(candidate, Mapping):
+                raise VirtualGitError("promotion authorizer returned an invalid result")
+            if (candidate.get("promotion_authorized") is not True
+                    or candidate.get("bindings") != expected
+                    or not isinstance(candidate.get("approval_id"), str)
+                    or not candidate.get("approval_id").strip()):
+                raise VirtualGitError("promotion approval is not bound to this exact verified check")
+            authorization = dict(candidate)
+        verification_record = {
+            "verification_status": "VERIFIED",
+            "bindings": expected,
+            "cace_receipt_id": verified["cace_receipt_id"],
+            "verifier_id": verified.get("verifier_id"),
+            "promotion_authorization": dict(authorization),
+        }
+        verification_json = self._canonical(verification_record)
+        with closing(self._connect()) as db, db:
+            db.execute("BEGIN IMMEDIATE")
+            current = db.execute("SELECT * FROM check_results WHERE check_id=?", (check_id,)).fetchone()
+            if current is None or self._check_binding(current) != expected:
+                raise VirtualGitError("check result changed during receipt verification")
+            existing = db.execute("""SELECT verification_id FROM check_verifications
+                WHERE check_id=? AND receipt_sha256=?""", (check_id, receipt_sha256)).fetchone()
+            db.execute("""INSERT OR IGNORE INTO check_verifications
+                (check_id,receipt_sha256,receipt_json,verification_json,recorded_at)
+                VALUES(?,?,?,?,?)""",
+                (check_id, receipt_sha256, receipt_json, verification_json, time.time()))
+            saved = db.execute("""SELECT verification_id FROM check_verifications
+                WHERE check_id=? AND receipt_sha256=?""", (check_id, receipt_sha256)).fetchone()
+            self._event(db, "check.verification_recorded", {
+                "check_id": check_id, "verification_id": saved["verification_id"],
+                "receipt_sha256": receipt_sha256,
+                "cace_receipt_id": verified["cace_receipt_id"],
+            })
+        return {
+            "check_id": check_id, "receipt_sha256": receipt_sha256,
+            "verification_status": "VERIFIED",
+            "promotion_authorized": authorization.get("promotion_authorized") is True,
+            "cace_receipt_id": verified["cace_receipt_id"],
+            "idempotent_replay": existing is not None,
+        }
+
     def check_results(self, commit_id: str) -> list[dict[str, Any]]:
         with closing(self._connect()) as db:
             rows = db.execute("""SELECT check_id,commit_id,check_name,conclusion,run_id,
@@ -603,8 +755,32 @@ class VirtualRepository:
                 metadata = json.loads(item.pop("result_json"))
             except (TypeError, ValueError):
                 metadata = {}
-            item["verification_status"] = metadata.get("verification_status", "UNVERIFIED")
-            item["promotion_authorized"] = metadata.get("promotion_authorized") is True
+            with closing(self._connect()) as db:
+                verification = db.execute("""SELECT verification_json FROM check_verifications
+                    WHERE check_id=? ORDER BY recorded_at DESC,verification_id DESC LIMIT 1""",
+                    (item["check_id"],)).fetchone()
+            verified = {}
+            if verification is not None:
+                try:
+                    verified = json.loads(verification["verification_json"])
+                except (TypeError, ValueError):
+                    verified = {}
+            expected = {
+                "commit_id": item["commit_id"], "check_name": item["check_name"],
+                "conclusion": item["conclusion"], "run_id": item["run_id"],
+                "runner_id": item["runner_id"], "log_sha256": item["log_digest"],
+            }
+            item["verification_status"] = (
+                "VERIFIED" if verified.get("verification_status") == "VERIFIED"
+                and verified.get("bindings") == expected else "UNVERIFIED"
+            )
+            item["promotion_authorized"] = (
+                item["verification_status"] == "VERIFIED"
+                and verified.get("promotion_authorization", {}).get("promotion_authorized") is True
+                and verified.get("promotion_authorization", {}).get("bindings") == expected
+                and bool(verified.get("promotion_authorization", {}).get("approval_id"))
+                and bool(verified.get("cace_receipt_id"))
+            )
             results.append(item)
         return results
 
@@ -772,13 +948,23 @@ class VirtualRepository:
                     failed_checks.append({"check": check_name, "conclusion": result["conclusion"]})
                     continue
                 try:
-                    metadata = json.loads(result["result_json"])
-                except (TypeError, ValueError):
-                    metadata = {}
-                if not isinstance(metadata, Mapping):
-                    metadata = {}
-                if (metadata.get("verification_status") != "VERIFIED"
-                        or metadata.get("promotion_authorized") is not True):
+                    check_row = db.execute("""SELECT * FROM check_results
+                        WHERE commit_id=? AND check_name=?
+                        ORDER BY recorded_at DESC,check_id DESC LIMIT 1""",
+                        (source_head, check_name)).fetchone()
+                    verification_row = db.execute("""SELECT verification_json FROM check_verifications
+                        WHERE check_id=? ORDER BY recorded_at DESC,verification_id DESC LIMIT 1""",
+                        (check_row["check_id"],)).fetchone() if check_row else None
+                    verification = json.loads(verification_row["verification_json"]) if verification_row else {}
+                except (TypeError, ValueError, KeyError):
+                    verification = {}
+                expected = self._check_binding(check_row) if check_row else {}
+                if (verification.get("verification_status") != "VERIFIED"
+                        or verification.get("bindings") != expected
+                        or verification.get("promotion_authorization", {}).get("promotion_authorized") is not True
+                        or verification.get("promotion_authorization", {}).get("bindings") != expected
+                        or not verification.get("promotion_authorization", {}).get("approval_id")
+                        or not verification.get("cace_receipt_id")):
                     unverified_checks.append(check_name)
             if missing_checks or failed_checks or unverified_checks:
                 self._event(db, "pull_request.merge_blocked", {"pr_id": pr_id,

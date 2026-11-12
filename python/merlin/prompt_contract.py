@@ -338,7 +338,7 @@ class PromptResult:
         for name, descriptor in metadata.items():
             if not isinstance(descriptor, dict):
                 raise ValueError("each artifact metadata entry must be an object")
-            for key in ("logical_path", "artifact_kind", "artifact_schema"):
+            for key in ("logical_path", "artifact_kind", "artifact_schema", "tool_identity"):
                 _bounded_text(descriptor.get(key), f"artifact_metadata.{name}.{key}", 500)
 
     def to_payload(self) -> dict[str, Any]:
@@ -456,6 +456,7 @@ class PromptCaceEvidenceBridge:
                 artifact_schema=descriptor["artifact_schema"],
                 requester_id=requester_id,
                 logical_path=descriptor["logical_path"],
+                tool_identity=descriptor["tool_identity"],
             )
             if not isinstance(receipt, Mapping):
                 raise TypeError("CACE artifact verifier returned a non-mapping result")

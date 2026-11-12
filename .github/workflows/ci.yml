@@ -32,10 +32,18 @@ concurrency:
 
 jobs:
   build-and-smoke:
-    runs-on: avrea-ubuntu-latest-8-vcpu
+    runs-on: namespace-profile-merlin
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Merlin native build toolchain
+        uses: ./.github/actions/setup-merlin-native
       - name: Record runner and source identity
         shell: bash
         run: |
@@ -63,7 +71,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p artifacts
-          python3 -m pip install pytest 2>&1 | tee artifacts/pytest-install.log
+          python3 -m pip install pytest cryptography==46.0.3 2>&1 | tee artifacts/pytest-install.log
           python3 -m pytest -q tests/test_hermes_claim_routing.py 2>&1 | tee artifacts/focused-python-group-1.log
 
       - name: Focused Python group 2 — proof orchestrator and CACE adapter

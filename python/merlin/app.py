@@ -365,17 +365,60 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
     learning_lessons: list[dict[str, Any]] = []
     if catalog_path.is_file():
         catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
-        for idea in catalog.get("ideas", []):
+        catalog_ideas = catalog.get("ideas", [])
+        if not isinstance(catalog_ideas, list):
+            raise ValueError("mathematical idea catalog must contain an ideas list")
+        catalog_ids = {
+            item.get("id") for item in catalog_ideas if isinstance(item, dict)
+        }
+        seen_ids: set[str] = set()
+        for idea in catalog_ideas:
+            if not isinstance(idea, dict):
+                raise ValueError("mathematical idea catalog entries must be objects")
+            idea_id = idea.get("id")
+            if not isinstance(idea_id, str) or not idea_id.strip():
+                raise ValueError("mathematical idea catalog entries require an ID")
+            if idea_id in seen_ids:
+                raise ValueError(f"duplicate mathematical idea ID: {idea_id}")
+            seen_ids.add(idea_id)
+        for idea in catalog_ideas:
+            idea_id = idea["id"]
             learning = idea.get("learning")
             if not isinstance(learning, dict):
-                continue
-            idea_id = idea.get("id")
-            lesson_id = learning.get("lesson_id")
-            dimensions = learning.get("dimensions", [])
+                learning = {}
+            dimensions = learning.get("dimensions", ["conceptual_explanation", "procedure"])
             prerequisites = learning.get("prerequisites", [])
-            if not isinstance(idea_id, str) or not isinstance(lesson_id, str):
+            if (not isinstance(dimensions, list) or not dimensions
+                or any(not isinstance(item, str) or not item for item in dimensions)):
+                raise ValueError(f"{idea_id}: learner dimensions must be a non-empty list")
+            if (not isinstance(prerequisites, list)
+                or any(not isinstance(item, str) or not item for item in prerequisites)):
+                raise ValueError(f"{idea_id}: learner prerequisites must be a list of IDs")
+            if any(item not in catalog_ids for item in prerequisites):
+                raise ValueError(f"{idea_id}: learner prerequisite is absent from the canonical catalog")
+            relations = idea.get("relations", [])
+            if not isinstance(relations, list):
+                raise ValueError(f"{idea_id}: relations must be a list")
+            for relation in relations:
+                if not isinstance(relation, dict):
+                    continue
+                if relation.get("type") == "depends_on":
+                    target = relation.get("target")
+                    if not isinstance(target, str) or target not in catalog_ids:
+                        raise ValueError(f"{idea_id}: depends_on relation has an unknown target")
+                    prerequisites.append(target)
+            prerequisites = list(dict.fromkeys(prerequisites))
+
+            # Keep every canonical idea in the evidence graph, including ideas
+            # whose lesson is only a candidate or has not yet been authored.
+            # Canonical depends_on relations are learner prerequisites too.
+            learning_graph[idea_id] = {
+                "prerequisites": prerequisites,
+                "dimensions": dimensions,
+            }
+            lesson_id = learning.get("lesson_id")
+            if not isinstance(lesson_id, str) or not lesson_id.strip():
                 continue
-            learning_graph[idea_id] = {"prerequisites": prerequisites, "dimensions": dimensions}
             art_math_ids = {"MATH-ART-001", "MATH-TESS-001", "MATH-PROJ-001",
                             "MATH-POLY-001", "MATH-PARA-001", "MATH-FRACT-002",
                             "MATH-SIG-001", "MATH-GEN-001", "MATH-DATA-001"}
@@ -973,14 +1016,22 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                             "curriculum_id": curriculum_id})
                         if learning_router is not None:
                             learning_router.run_once()
-                    self._send(200, {"schema": "merlin-learning-recommendation/1", **result})
+                    self._send(200, {"schema": "merlin-learning-recommendation/1", **result, "learner_id": actor.actor_id})
                 else:
                     estimates = {}
                     for idea_id, idea in learning_graph.items():
                         estimates[idea_id] = {dimension: learner_store.estimate(
                             learner_id, idea_id, dimension).__dict__ for dimension in idea["dimensions"]}
-                    self._send(200, {"schema": "merlin-learner-state/1", "learner_id": learner_id,
-                                     "skills": estimates, "attempts": len(learner_store.attempts(learner_id))})
+                    graph = {
+                        idea_id: {
+                            "prerequisites": list(idea["prerequisites"]),
+                            "dimensions": list(idea["dimensions"]),
+                        }
+                        for idea_id, idea in learning_graph.items()
+                    }
+                    self._send(200, {"schema": "merlin-learner-state/1", "learner_id": actor.actor_id,
+                                     "skills": estimates, "graph": graph,
+                                     "attempts": len(learner_store.attempts(learner_id))})
             elif path == "/api/council/roles":
                 self._send(200, {"schema": "merlin-council-roles/1",
                                  "roles": [{"id": p.persona_id, "title": p.title,
@@ -1580,7 +1631,20 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     return
 
                 if path == "/api/learning/attempt":
-                    scored_event = score_attempt_event(data)
+                    actor = self._learning_actor()
+                    if actor is None:
+                        self._send(503, {"error": "learning_identity_provider_not_configured"})
+                        return
+                    if actor.role != "learner":
+                        self._send(403, {"error": "learner_role_required"})
+                        return
+                    requested_learner_id = data.get("learner_id")
+                    if requested_learner_id is not None and requested_learner_id != actor.actor_id:
+                        self._send(403, {"error": "learner_identity_mismatch"})
+                        return
+                    attempt_payload = dict(data)
+                    attempt_payload["learner_id"] = learner_subject_id(actor.tenant_id, actor.actor_id)
+                    scored_event = score_attempt_event(attempt_payload)
                     result = learner_store.record_attempt(scored_event)
                     if learning_outbox is not None:
                         learning_outbox.enqueue("learning-attempt:" + str(scored_event.get("attempt_id", "")),
@@ -1592,7 +1656,8 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                                  {"state": result.get("state"), "idea_id": scored_event.get("idea_id"),
                                   "dimension": scored_event.get("dimension"),
                                   "scoring_source": scored_event.get("scoring_source")})
-                    self._send(202, {"schema": "merlin-learning-attempt/1", "accepted": True, **result})
+                    self._send(202, {"schema": "merlin-learning-attempt/1", "accepted": True,
+                                     **result, "learner_id": actor.actor_id})
                     return
                 if path == "/api/telemetry/ingest":
                     if not interaction_store.preferences()["aggregate_telemetry"]:

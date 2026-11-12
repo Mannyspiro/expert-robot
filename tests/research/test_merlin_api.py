@@ -10,6 +10,7 @@ from pathlib import Path
 from python.merlin.app import EventStore, make_handler
 from python.merlin.knowledge_graph import MerlinKnowledgeGraph, GraphNode, GraphEdge
 from python.merlin.hermes_service import HermesWorkerService
+from python.merlin.learning_platform import Actor
 
 
 class MerlinApiTests(unittest.TestCase):
@@ -17,7 +18,19 @@ class MerlinApiTests(unittest.TestCase):
     def setUpClass(cls):
         cls.temp = tempfile.TemporaryDirectory()
         cls.store = EventStore(Path(cls.temp.name) / "events.sqlite3")
-        cls.server = ThreadingHTTPServer(("127.0.0.1", 0), make_handler(cls.store))
+        cls.learning_actors = {
+            "Bearer learner-rotation": Actor("tenant-a", "api-learner-rotation-test", "learner"),
+            "Bearer learner-b2b": Actor("tenant-a", "api-learner-b2b-test", "learner"),
+            "Bearer learner-art-math": Actor("tenant-a", "api-learner-art-math-test", "learner"),
+        }
+
+        def resolve_learning_identity(headers):
+            return cls.learning_actors.get(headers.get("Authorization"))
+
+        cls.server = ThreadingHTTPServer(
+            ("127.0.0.1", 0),
+            make_handler(cls.store, learning_identity_resolver=resolve_learning_identity),
+        )
         cls.thread = threading.Thread(target=cls.server.serve_forever, daemon=True)
         cls.thread.start()
         cls.base = f"http://127.0.0.1:{cls.server.server_port}"
@@ -29,8 +42,11 @@ class MerlinApiTests(unittest.TestCase):
         cls.thread.join(timeout=2)
         cls.temp.cleanup()
 
-    def post(self, path, payload):
-        request = Request(self.base + path, data=json.dumps(payload).encode(), headers={"Content-Type": "application/json"})
+    def post(self, path, payload, token=None):
+        headers = {"Content-Type": "application/json"}
+        if token:
+            headers["Authorization"] = token
+        request = Request(self.base + path, data=json.dumps(payload).encode(), headers=headers)
         with urlopen(request, timeout=5) as response:
             return json.loads(response.read())
 
@@ -445,17 +461,44 @@ class MerlinApiTests(unittest.TestCase):
             "dimension": "conceptual_explanation", "score": 1.0, "rubric_version": "rotation-r1",
             "response": {"x": 0, "y": 1}, "transfer": False, "delayed": False,
         }
+
+        with self.assertRaises(HTTPError) as unauthenticated:
+            self.post("/api/learning/attempt", {
+                **base, "attempt_id": "unauthenticated-attempt", "session_id": "session-x",
+            })
+        self.assertEqual(unauthenticated.exception.code, 503)
+
+        with self.assertRaises(HTTPError) as mismatched_identity:
+            self.post("/api/learning/attempt", {
+                **base, "learner_id": "another-learner",
+                "attempt_id": "spoofed-attempt", "session_id": "session-x",
+            }, token="Bearer learner-rotation")
+        self.assertEqual(mismatched_identity.exception.code, 403)
         for attempt_id, session in (("rotation-attempt-1", "session-a"),
                                     ("rotation-attempt-2", "session-b")):
             self.post("/api/learning/attempt", {
                 **base, "attempt_id": attempt_id, "session_id": session,
-            })
-        with urlopen(self.base + "/api/learning/learner?learner_id=" + learner, timeout=5) as response:
+            }, token="Bearer learner-rotation")
+        request = Request(self.base + "/api/learning/learner?learner_id=" + learner,
+                          headers={"Authorization": "Bearer learner-rotation"})
+        with urlopen(request, timeout=5) as response:
             state = json.loads(response.read())
         self.assertEqual(state["attempts"], 2)
         self.assertEqual(state["skills"]["MATH-REP-001"]["procedure"]["state"],
                          "provisionally_mastered")
-        with urlopen(self.base + "/api/learning/recommendation?learner_id=" + learner + "&curriculum_id=mathematics", timeout=5) as response:
+        catalog_path = Path(__file__).resolve().parents[2] / "docs/research/merlin-mathematical-idea-catalog.v1.json"
+        catalog = json.loads(catalog_path.read_text(encoding="utf-8"))
+        canonical_ids = {idea["id"] for idea in catalog["ideas"]}
+        self.assertTrue(canonical_ids.issubset(state["skills"]))
+        self.assertIn("conceptual_explanation", state["skills"]["MATH-ST-001"])
+        self.assertIn("procedure", state["skills"]["MATH-ST-001"])
+        self.assertIn("MATH-COORD-001", state["graph"]["MATH-ST-001"]["prerequisites"])
+        self.assertIn("MATH-NT-001", state["graph"]["MATH-NT-002"]["prerequisites"])
+        request = Request(
+            self.base + "/api/learning/recommendation?learner_id=" + learner + "&curriculum_id=mathematics",
+            headers={"Authorization": "Bearer learner-rotation"},
+        )
+        with urlopen(request, timeout=5) as response:
             recommendation = json.loads(response.read())
         self.assertEqual(recommendation["state"], "recommended")
         self.assertEqual(recommendation["authority"], "recommendation_only")
@@ -464,8 +507,12 @@ class MerlinApiTests(unittest.TestCase):
 
     def test_b2b_curriculum_starts_with_ml_foundations(self):
         learner = "api-learner-b2b-test"
-        with urlopen(self.base + "/api/learning/recommendation?learner_id=" + learner +
-                     "&curriculum_id=b2b-ml-agentic-ai", timeout=5) as response:
+        request = Request(
+            self.base + "/api/learning/recommendation?learner_id=" + learner +
+            "&curriculum_id=b2b-ml-agentic-ai",
+            headers={"Authorization": "Bearer learner-b2b"},
+        )
+        with urlopen(request, timeout=5) as response:
             recommendation = json.loads(response.read())
         self.assertEqual(recommendation["state"], "recommended")
         self.assertEqual(recommendation["idea_id"], "B2B-ML-001")
@@ -475,8 +522,12 @@ class MerlinApiTests(unittest.TestCase):
 
     def test_art_math_curriculum_routes_from_linked_math_and_art_graphs(self):
         learner = "api-learner-art-math-test"
-        with urlopen(self.base + "/api/learning/recommendation?learner_id=" + learner +
-                     "&curriculum_id=art-math-studio", timeout=5) as response:
+        request = Request(
+            self.base + "/api/learning/recommendation?learner_id=" + learner +
+            "&curriculum_id=art-math-studio",
+            headers={"Authorization": "Bearer learner-art-math"},
+        )
+        with urlopen(request, timeout=5) as response:
             recommendation = json.loads(response.read())
         self.assertEqual(recommendation["state"], "recommended")
         self.assertEqual(recommendation["lesson_id"], "art-math-symmetry-studio-v0.1")
@@ -491,8 +542,12 @@ class MerlinApiTests(unittest.TestCase):
             "rubric_version": "art-math-studio-r1",
             "response": {"reflection": "Repeated forms create visual rhythm."},
         }
-        self.post("/api/learning/attempt", event)
-        with urlopen(self.base + "/api/learning/learner?learner_id=" + learner, timeout=5) as response:
+        self.post("/api/learning/attempt", event, token="Bearer learner-art-math")
+        request = Request(
+            self.base + "/api/learning/learner?learner_id=" + learner,
+            headers={"Authorization": "Bearer learner-art-math"},
+        )
+        with urlopen(request, timeout=5) as response:
             state = json.loads(response.read())
         self.assertIn("ART-PAT-001", state["skills"])
         self.assertIn("self_reflection", state["skills"]["ART-PAT-001"])

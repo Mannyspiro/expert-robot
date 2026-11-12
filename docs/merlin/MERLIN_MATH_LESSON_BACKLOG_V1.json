@@ -6,7 +6,7 @@
   "catalog_schema": 1,
   "generated_from_catalog_count": 57,
   "existing_catalog_lesson_count": 35,
-  "blueprint_count": 22,
+  "blueprint_count": 36,
   "publication_policy": "These records are authoring blueprints, not released course lessons. Every blueprint requires instructor review and content validation. Refuted, unresolved, conjectural, and open-question ideas retain explicit epistemic labels.",
   "blueprints": [
     {
@@ -2298,6 +2298,1494 @@
       "pathway_tasks": {
         "mathematician": "Formulate a precise claim, identify quantifiers, and prove, refute, or bound it.",
         "mathematics_programmer": "Encode the objects and operations, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-rep-001-v1",
+      "idea_id": "MATH-REP-001",
+      "title": "Representation-first mathematical objects",
+      "kind": "concept",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "representation_translation",
+        "transfer",
+        "procedure"
+      ],
+      "learning_objective": "Explain Representation-first mathematical objects through concrete examples, a formal representation, and a checked transfer case.",
+      "epistemic_guardrail": "Preserve the catalog status and stated scope. Distinguish definitions, examples, tested properties, and claims requiring proof.",
+      "source_claim": "A mathematical object can be exposed through multiple typed representations linked by explicit maps and invariants.",
+      "definitions": [
+        "source/target types",
+        "domains",
+        "frames",
+        "invariants"
+      ],
+      "assumptions": [
+        "Each representation has declared semantics and scope."
+      ],
+      "known_objections": [
+        "Not all representations are lossless or mutually convertible."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, physical analogy, diagram, or small data set that makes Representation-first mathematical objects observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea with a diagram, table, graph, symbolic object, or small executable model. Label domains and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: source/target types, domains, frames, invariants. Preserve any unresolved terminology."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Each representation has declared semantics and scope."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-rep-001-v1",
+        "objective": "Explain Representation-first mathematical objects through concrete examples, a formal representation, and a checked transfer case.",
+        "prompt": "For Representation-first mathematical objects, construct a worked example, express it in a second representation, test an edge case, and explain which properties are preserved and why.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin with the domain, definitions, and the exact scope of Representation-first mathematical objects.",
+          "Check the assumptions and test a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption, parameter, or representation in Representation-first mathematical objects. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate the exact claim, identify quantifiers and assumptions, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations in a typed representation, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-coord-001-v1",
+      "idea_id": "MATH-COORD-001",
+      "title": "Simultaneous coordinate frames",
+      "kind": "representation",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [
+        "MATH-REP-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "recognition",
+        "conceptual_explanation",
+        "procedure",
+        "representation_translation"
+      ],
+      "learning_objective": "Explain Simultaneous coordinate frames through concrete examples, a formal representation, and a checked transfer case.",
+      "epistemic_guardrail": "Preserve the catalog status and stated scope. Distinguish definitions, examples, tested properties, and claims requiring proof.",
+      "source_claim": "One geometric object may have multiple coordinate descriptions connected by transition maps.",
+      "definitions": [
+        "Cartesian",
+        "polar",
+        "cylindrical",
+        "spherical",
+        "homogeneous",
+        "manifold charts"
+      ],
+      "assumptions": [
+        "Frames, units, domains and singularities are explicit."
+      ],
+      "known_objections": [
+        "Coordinate singularity must not be confused with geometric singularity."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, physical analogy, diagram, or small data set that makes Simultaneous coordinate frames observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea with a diagram, table, graph, symbolic object, or small executable model. Label domains and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: Cartesian, polar, cylindrical, spherical, homogeneous, manifold charts. Preserve any unresolved terminology."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Frames, units, domains and singularities are explicit."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-coord-001-v1",
+        "objective": "Explain Simultaneous coordinate frames through concrete examples, a formal representation, and a checked transfer case.",
+        "prompt": "For Simultaneous coordinate frames, construct a worked example, express it in a second representation, test an edge case, and explain which properties are preserved and why.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin with the domain, definitions, and the exact scope of Simultaneous coordinate frames.",
+          "Check the assumptions and test a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption, parameter, or representation in Simultaneous coordinate frames. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate the exact claim, identify quantifiers and assumptions, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations in a typed representation, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-calg-001-v1",
+      "idea_id": "MATH-CALG-001",
+      "title": "Complex and trigonometric representation bridge",
+      "kind": "representation",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [
+        "MATH-REP-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "recognition",
+        "conceptual_explanation",
+        "procedure",
+        "representation_translation"
+      ],
+      "learning_objective": "Explain Complex and trigonometric representation bridge through concrete examples, a formal representation, and a checked transfer case.",
+      "epistemic_guardrail": "Preserve the catalog status and stated scope. Distinguish definitions, examples, tested properties, and claims requiring proof.",
+      "source_claim": "Complex polar form, Euler identity and planar rotations provide linked representations of 2D rotations.",
+      "definitions": [
+        "complex plane",
+        "Euler identity",
+        "rotation matrix"
+      ],
+      "assumptions": [
+        "Angle convention and orientation are fixed."
+      ],
+      "known_objections": [
+        "Conventions and branch choices matter."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, physical analogy, diagram, or small data set that makes Complex and trigonometric representation bridge observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea with a diagram, table, graph, symbolic object, or small executable model. Label domains and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: complex plane, Euler identity, rotation matrix. Preserve any unresolved terminology."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Angle convention and orientation are fixed."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-calg-001-v1",
+        "objective": "Explain Complex and trigonometric representation bridge through concrete examples, a formal representation, and a checked transfer case.",
+        "prompt": "For Complex and trigonometric representation bridge, construct a worked example, express it in a second representation, test an edge case, and explain which properties are preserved and why.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin with the domain, definitions, and the exact scope of Complex and trigonometric representation bridge.",
+          "Check the assumptions and test a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption, parameter, or representation in Complex and trigonometric representation bridge. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate the exact claim, identify quantifiers and assumptions, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations in a typed representation, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-alg-001-v1",
+      "idea_id": "MATH-ALG-001",
+      "title": "Geometric number systems",
+      "kind": "concept",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [
+        "MATH-CALG-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "representation_translation",
+        "transfer"
+      ],
+      "learning_objective": "Explain Geometric number systems through concrete examples, a formal representation, and a checked transfer case.",
+      "epistemic_guardrail": "Preserve the catalog status and stated scope. Distinguish definitions, examples, tested properties, and claims requiring proof.",
+      "source_claim": "Complex numbers, quaternions, dual numbers and Clifford/geometric algebras can be compared by their algebraic laws and geometric semantics.",
+      "definitions": [
+        "field/ring/algebra",
+        "signature",
+        "norm",
+        "conjugation",
+        "grade"
+      ],
+      "assumptions": [
+        "Each algebra is specified independently; no blanket interchangeability."
+      ],
+      "known_objections": [
+        "Different algebras have different multiplication and geometric properties."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, physical analogy, diagram, or small data set that makes Geometric number systems observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea with a diagram, table, graph, symbolic object, or small executable model. Label domains and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: field/ring/algebra, signature, norm, conjugation, grade. Preserve any unresolved terminology."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Each algebra is specified independently; no blanket interchangeability."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-alg-001-v1",
+        "objective": "Explain Geometric number systems through concrete examples, a formal representation, and a checked transfer case.",
+        "prompt": "For Geometric number systems, construct a worked example, express it in a second representation, test an edge case, and explain which properties are preserved and why.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin with the domain, definitions, and the exact scope of Geometric number systems.",
+          "Check the assumptions and test a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption, parameter, or representation in Geometric number systems. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate the exact claim, identify quantifiers and assumptions, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations in a typed representation, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-lin-001-v1",
+      "idea_id": "MATH-LIN-001",
+      "title": "Eigenstructure and higher-dimensional transforms",
+      "kind": "concept",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [
+        "MATH-REP-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "procedure",
+        "representation_translation",
+        "proof_justification",
+        "transfer"
+      ],
+      "learning_objective": "Explain Eigenstructure and higher-dimensional transforms through concrete examples, a formal representation, and a checked transfer case.",
+      "epistemic_guardrail": "Preserve the catalog status and stated scope. Distinguish definitions, examples, tested properties, and claims requiring proof.",
+      "source_claim": "Spectral and invariant-subspace descriptions can be compared across matrix representations when basis and operator semantics are explicit.",
+      "definitions": [
+        "eigenvalues",
+        "eigenspaces",
+        "Jordan form",
+        "singular values",
+        "tensor invariants"
+      ],
+      "assumptions": [
+        "Underlying operator and field are declared."
+      ],
+      "known_objections": [
+        "Matrix eigenvalues depend on the represented operator; basis changes and field matter."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, physical analogy, diagram, or small data set that makes Eigenstructure and higher-dimensional transforms observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea with a diagram, table, graph, symbolic object, or small executable model. Label domains and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: eigenvalues, eigenspaces, Jordan form, singular values, tensor invariants. Preserve any unresolved terminology."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Underlying operator and field are declared."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-lin-001-v1",
+        "objective": "Explain Eigenstructure and higher-dimensional transforms through concrete examples, a formal representation, and a checked transfer case.",
+        "prompt": "For Eigenstructure and higher-dimensional transforms, construct a worked example, express it in a second representation, test an edge case, and explain which properties are preserved and why.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin with the domain, definitions, and the exact scope of Eigenstructure and higher-dimensional transforms.",
+          "Check the assumptions and test a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption, parameter, or representation in Eigenstructure and higher-dimensional transforms. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate the exact claim, identify quantifiers and assumptions, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations in a typed representation, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-art-001-v1",
+      "idea_id": "MATH-ART-001",
+      "title": "Planar transformations and symmetry groups",
+      "kind": "representation",
+      "catalog_status": "finite_tested",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "recognition",
+        "construction",
+        "representation_translation",
+        "proof_justification",
+        "transfer"
+      ],
+      "learning_objective": "Explain Planar transformations and symmetry groups through concrete examples, a formal representation, and a checked transfer case.",
+      "epistemic_guardrail": "Preserve the catalog status and stated scope. Distinguish definitions, examples, tested properties, and claims requiring proof.",
+      "source_claim": "Geometric transformations preserve or change declared properties of a planar figure; isometries generate symmetry actions.",
+      "definitions": [
+        "objects and domains",
+        "construction rules",
+        "invariants or measurable properties",
+        "representation choices"
+      ],
+      "assumptions": [
+        "Construction and scope are explicitly declared.",
+        "Visual resemblance alone is not mathematical equivalence."
+      ],
+      "known_objections": [
+        "Finite examples do not establish a universal theorem.",
+        "Artistic interpretation is not determined by mathematical structure alone."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, physical analogy, diagram, or small data set that makes Planar transformations and symmetry groups observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea with a diagram, table, graph, symbolic object, or small executable model. Label domains and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: objects and domains, construction rules, invariants or measurable properties, representation choices. Preserve any unresolved terminology."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Construction and scope are explicitly declared. Visual resemblance alone is not mathematical equivalence."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-art-001-v1",
+        "objective": "Explain Planar transformations and symmetry groups through concrete examples, a formal representation, and a checked transfer case.",
+        "prompt": "For Planar transformations and symmetry groups, construct a worked example, express it in a second representation, test an edge case, and explain which properties are preserved and why.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin with the domain, definitions, and the exact scope of Planar transformations and symmetry groups.",
+          "Check the assumptions and test a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption, parameter, or representation in Planar transformations and symmetry groups. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate the exact claim, identify quantifiers and assumptions, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations in a typed representation, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-tess-001-v1",
+      "idea_id": "MATH-TESS-001",
+      "title": "Tessellations and wallpaper groups",
+      "kind": "concept",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [
+        "MATH-ART-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "construction",
+        "classification",
+        "proof_justification",
+        "artistic_variation"
+      ],
+      "learning_objective": "Explain Tessellations and wallpaper groups through concrete examples, a formal representation, and a checked transfer case.",
+      "epistemic_guardrail": "Preserve the catalog status and stated scope. Distinguish definitions, examples, tested properties, and claims requiring proof.",
+      "source_claim": "A tiling covers a domain under non-overlap constraints; periodic tilings admit translational symmetry and wallpaper-group structure.",
+      "definitions": [
+        "objects and domains",
+        "construction rules",
+        "invariants or measurable properties",
+        "representation choices"
+      ],
+      "assumptions": [
+        "Construction and scope are explicitly declared.",
+        "Visual resemblance alone is not mathematical equivalence."
+      ],
+      "known_objections": [
+        "Finite examples do not establish a universal theorem.",
+        "Artistic interpretation is not determined by mathematical structure alone."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, physical analogy, diagram, or small data set that makes Tessellations and wallpaper groups observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea with a diagram, table, graph, symbolic object, or small executable model. Label domains and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: objects and domains, construction rules, invariants or measurable properties, representation choices. Preserve any unresolved terminology."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Construction and scope are explicitly declared. Visual resemblance alone is not mathematical equivalence."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-tess-001-v1",
+        "objective": "Explain Tessellations and wallpaper groups through concrete examples, a formal representation, and a checked transfer case.",
+        "prompt": "For Tessellations and wallpaper groups, construct a worked example, express it in a second representation, test an edge case, and explain which properties are preserved and why.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin with the domain, definitions, and the exact scope of Tessellations and wallpaper groups.",
+          "Check the assumptions and test a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption, parameter, or representation in Tessellations and wallpaper groups. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate the exact claim, identify quantifiers and assumptions, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations in a typed representation, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-proj-001-v1",
+      "idea_id": "MATH-PROJ-001",
+      "title": "Projective geometry and perspective drawing",
+      "kind": "concept",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [
+        "MATH-COORD-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "construction",
+        "representation_translation",
+        "proof_justification",
+        "transfer"
+      ],
+      "learning_objective": "Explain Projective geometry and perspective drawing through concrete examples, a formal representation, and a checked transfer case.",
+      "epistemic_guardrail": "Preserve the catalog status and stated scope. Distinguish definitions, examples, tested properties, and claims requiring proof.",
+      "source_claim": "Central projection maps 3D points to an image plane; perspective constructions can be analyzed through projective incidence and cross-ratio.",
+      "definitions": [
+        "objects and domains",
+        "construction rules",
+        "invariants or measurable properties",
+        "representation choices"
+      ],
+      "assumptions": [
+        "Construction and scope are explicitly declared.",
+        "Visual resemblance alone is not mathematical equivalence."
+      ],
+      "known_objections": [
+        "Finite examples do not establish a universal theorem.",
+        "Artistic interpretation is not determined by mathematical structure alone."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, physical analogy, diagram, or small data set that makes Projective geometry and perspective drawing observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea with a diagram, table, graph, symbolic object, or small executable model. Label domains and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: objects and domains, construction rules, invariants or measurable properties, representation choices. Preserve any unresolved terminology."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Construction and scope are explicitly declared. Visual resemblance alone is not mathematical equivalence."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-proj-001-v1",
+        "objective": "Explain Projective geometry and perspective drawing through concrete examples, a formal representation, and a checked transfer case.",
+        "prompt": "For Projective geometry and perspective drawing, construct a worked example, express it in a second representation, test an edge case, and explain which properties are preserved and why.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin with the domain, definitions, and the exact scope of Projective geometry and perspective drawing.",
+          "Check the assumptions and test a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption, parameter, or representation in Projective geometry and perspective drawing. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate the exact claim, identify quantifiers and assumptions, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations in a typed representation, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-poly-001-v1",
+      "idea_id": "MATH-POLY-001",
+      "title": "Polyhedral geometry and topological invariants",
+      "kind": "concept",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [
+        "MATH-COORD-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "construction",
+        "spatial_reasoning",
+        "proof_justification",
+        "transfer"
+      ],
+      "learning_objective": "Explain Polyhedral geometry and topological invariants through concrete examples, a formal representation, and a checked transfer case.",
+      "epistemic_guardrail": "Preserve the catalog status and stated scope. Distinguish definitions, examples, tested properties, and claims requiring proof.",
+      "source_claim": "Polyhedral surfaces connect geometric construction with combinatorial and topological invariants such as vertices, edges, faces and Euler characteristic.",
+      "definitions": [
+        "objects and domains",
+        "construction rules",
+        "invariants or measurable properties",
+        "representation choices"
+      ],
+      "assumptions": [
+        "Construction and scope are explicitly declared.",
+        "Visual resemblance alone is not mathematical equivalence."
+      ],
+      "known_objections": [
+        "Finite examples do not establish a universal theorem.",
+        "Artistic interpretation is not determined by mathematical structure alone."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, physical analogy, diagram, or small data set that makes Polyhedral geometry and topological invariants observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea with a diagram, table, graph, symbolic object, or small executable model. Label domains and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: objects and domains, construction rules, invariants or measurable properties, representation choices. Preserve any unresolved terminology."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Construction and scope are explicitly declared. Visual resemblance alone is not mathematical equivalence."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-poly-001-v1",
+        "objective": "Explain Polyhedral geometry and topological invariants through concrete examples, a formal representation, and a checked transfer case.",
+        "prompt": "For Polyhedral geometry and topological invariants, construct a worked example, express it in a second representation, test an edge case, and explain which properties are preserved and why.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin with the domain, definitions, and the exact scope of Polyhedral geometry and topological invariants.",
+          "Check the assumptions and test a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption, parameter, or representation in Polyhedral geometry and topological invariants. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate the exact claim, identify quantifiers and assumptions, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations in a typed representation, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-para-001-v1",
+      "idea_id": "MATH-PARA-001",
+      "title": "Parametric curves and differential geometry",
+      "kind": "representation",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [
+        "MATH-CALG-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "procedure",
+        "visualization",
+        "representation_translation",
+        "transfer"
+      ],
+      "learning_objective": "Explain Parametric curves and differential geometry through concrete examples, a formal representation, and a checked transfer case.",
+      "epistemic_guardrail": "Preserve the catalog status and stated scope. Distinguish definitions, examples, tested properties, and claims requiring proof.",
+      "source_claim": "Parametric functions generate curves whose tangent, speed and curvature can be studied analytically and translated into visual form.",
+      "definitions": [
+        "objects and domains",
+        "construction rules",
+        "invariants or measurable properties",
+        "representation choices"
+      ],
+      "assumptions": [
+        "Construction and scope are explicitly declared.",
+        "Visual resemblance alone is not mathematical equivalence."
+      ],
+      "known_objections": [
+        "Finite examples do not establish a universal theorem.",
+        "Artistic interpretation is not determined by mathematical structure alone."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, physical analogy, diagram, or small data set that makes Parametric curves and differential geometry observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea with a diagram, table, graph, symbolic object, or small executable model. Label domains and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: objects and domains, construction rules, invariants or measurable properties, representation choices. Preserve any unresolved terminology."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Construction and scope are explicitly declared. Visual resemblance alone is not mathematical equivalence."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-para-001-v1",
+        "objective": "Explain Parametric curves and differential geometry through concrete examples, a formal representation, and a checked transfer case.",
+        "prompt": "For Parametric curves and differential geometry, construct a worked example, express it in a second representation, test an edge case, and explain which properties are preserved and why.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin with the domain, definitions, and the exact scope of Parametric curves and differential geometry.",
+          "Check the assumptions and test a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption, parameter, or representation in Parametric curves and differential geometry. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate the exact claim, identify quantifiers and assumptions, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations in a typed representation, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-fract-002-v1",
+      "idea_id": "MATH-FRACT-002",
+      "title": "Iterated systems, fractals and dimension",
+      "kind": "concept",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [
+        "MATH-FRACT-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "procedure",
+        "scaling_analysis",
+        "modeling",
+        "creative_iteration"
+      ],
+      "learning_objective": "Explain Iterated systems, fractals and dimension through concrete examples, a formal representation, and a checked transfer case.",
+      "epistemic_guardrail": "Preserve the catalog status and stated scope. Distinguish definitions, examples, tested properties, and claims requiring proof.",
+      "source_claim": "Iterated rules can generate self-similar or statistically self-similar forms; dimension and scaling depend on construction and assumptions.",
+      "definitions": [
+        "objects and domains",
+        "construction rules",
+        "invariants or measurable properties",
+        "representation choices"
+      ],
+      "assumptions": [
+        "Construction and scope are explicitly declared.",
+        "Visual resemblance alone is not mathematical equivalence."
+      ],
+      "known_objections": [
+        "Finite examples do not establish a universal theorem.",
+        "Artistic interpretation is not determined by mathematical structure alone."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, physical analogy, diagram, or small data set that makes Iterated systems, fractals and dimension observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea with a diagram, table, graph, symbolic object, or small executable model. Label domains and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: objects and domains, construction rules, invariants or measurable properties, representation choices. Preserve any unresolved terminology."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Construction and scope are explicitly declared. Visual resemblance alone is not mathematical equivalence."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-fract-002-v1",
+        "objective": "Explain Iterated systems, fractals and dimension through concrete examples, a formal representation, and a checked transfer case.",
+        "prompt": "For Iterated systems, fractals and dimension, construct a worked example, express it in a second representation, test an edge case, and explain which properties are preserved and why.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin with the domain, definitions, and the exact scope of Iterated systems, fractals and dimension.",
+          "Check the assumptions and test a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption, parameter, or representation in Iterated systems, fractals and dimension. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate the exact claim, identify quantifiers and assumptions, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations in a typed representation, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-sig-001-v1",
+      "idea_id": "MATH-SIG-001",
+      "title": "Fourier representations for sound and image",
+      "kind": "concept",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [
+        "MATH-CALG-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "representation_translation",
+        "procedure",
+        "interpretation",
+        "transfer"
+      ],
+      "learning_objective": "Explain Fourier representations for sound and image through concrete examples, a formal representation, and a checked transfer case.",
+      "epistemic_guardrail": "Preserve the catalog status and stated scope. Distinguish definitions, examples, tested properties, and claims requiring proof.",
+      "source_claim": "Periodic and suitably integrable signals can be represented through Fourier components; spectral structure connects sound, image and temporal composition.",
+      "definitions": [
+        "objects and domains",
+        "construction rules",
+        "invariants or measurable properties",
+        "representation choices"
+      ],
+      "assumptions": [
+        "Construction and scope are explicitly declared.",
+        "Visual resemblance alone is not mathematical equivalence."
+      ],
+      "known_objections": [
+        "Finite examples do not establish a universal theorem.",
+        "Artistic interpretation is not determined by mathematical structure alone."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, physical analogy, diagram, or small data set that makes Fourier representations for sound and image observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea with a diagram, table, graph, symbolic object, or small executable model. Label domains and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: objects and domains, construction rules, invariants or measurable properties, representation choices. Preserve any unresolved terminology."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Construction and scope are explicitly declared. Visual resemblance alone is not mathematical equivalence."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-sig-001-v1",
+        "objective": "Explain Fourier representations for sound and image through concrete examples, a formal representation, and a checked transfer case.",
+        "prompt": "For Fourier representations for sound and image, construct a worked example, express it in a second representation, test an edge case, and explain which properties are preserved and why.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin with the domain, definitions, and the exact scope of Fourier representations for sound and image.",
+          "Check the assumptions and test a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption, parameter, or representation in Fourier representations for sound and image. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate the exact claim, identify quantifiers and assumptions, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations in a typed representation, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-gen-001-v1",
+      "idea_id": "MATH-GEN-001",
+      "title": "Procedural and generative composition",
+      "kind": "concept",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [
+        "MATH-REP-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "algorithm_design",
+        "parameter_reasoning",
+        "reproducibility",
+        "artistic_intent"
+      ],
+      "learning_objective": "Explain Procedural and generative composition through concrete examples, a formal representation, and a checked transfer case.",
+      "epistemic_guardrail": "Preserve the catalog status and stated scope. Distinguish definitions, examples, tested properties, and claims requiring proof.",
+      "source_claim": "A generative artwork is produced by a parameterized procedure whose rules, randomness and constraints can be analyzed, reproduced and intentionally revised.",
+      "definitions": [
+        "objects and domains",
+        "construction rules",
+        "invariants or measurable properties",
+        "representation choices"
+      ],
+      "assumptions": [
+        "Construction and scope are explicitly declared.",
+        "Visual resemblance alone is not mathematical equivalence."
+      ],
+      "known_objections": [
+        "Finite examples do not establish a universal theorem.",
+        "Artistic interpretation is not determined by mathematical structure alone."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, physical analogy, diagram, or small data set that makes Procedural and generative composition observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea with a diagram, table, graph, symbolic object, or small executable model. Label domains and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: objects and domains, construction rules, invariants or measurable properties, representation choices. Preserve any unresolved terminology."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Construction and scope are explicitly declared. Visual resemblance alone is not mathematical equivalence."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-gen-001-v1",
+        "objective": "Explain Procedural and generative composition through concrete examples, a formal representation, and a checked transfer case.",
+        "prompt": "For Procedural and generative composition, construct a worked example, express it in a second representation, test an edge case, and explain which properties are preserved and why.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin with the domain, definitions, and the exact scope of Procedural and generative composition.",
+          "Check the assumptions and test a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption, parameter, or representation in Procedural and generative composition. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate the exact claim, identify quantifiers and assumptions, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations in a typed representation, then add property and boundary tests.",
+        "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
+      },
+      "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-data-001-v1",
+      "idea_id": "MATH-DATA-001",
+      "title": "Statistical visual encoding and uncertainty",
+      "kind": "concept",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [
+        "MATH-IDEA-002"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "data_reasoning",
+        "visual_encoding",
+        "uncertainty",
+        "critical_interpretation"
+      ],
+      "learning_objective": "Explain Statistical visual encoding and uncertainty through concrete examples, a formal representation, and a checked transfer case.",
+      "epistemic_guardrail": "Preserve the catalog status and stated scope. Distinguish definitions, examples, tested properties, and claims requiring proof.",
+      "source_claim": "A data artwork maps data attributes to visual channels; valid interpretation requires attention to scale, distribution, missingness, uncertainty and provenance.",
+      "definitions": [
+        "objects and domains",
+        "construction rules",
+        "invariants or measurable properties",
+        "representation choices"
+      ],
+      "assumptions": [
+        "Construction and scope are explicitly declared.",
+        "Visual resemblance alone is not mathematical equivalence."
+      ],
+      "known_objections": [
+        "Finite examples do not establish a universal theorem.",
+        "Artistic interpretation is not determined by mathematical structure alone."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Start with a concrete example, physical analogy, diagram, or small data set that makes Statistical visual encoding and uncertainty observable."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Record what changes and what remains invariant. Compare at least two cases, including a boundary or near-miss case."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Represent the idea with a diagram, table, graph, symbolic object, or small executable model. Label domains and units."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the idea in plain language. Define each term: objects and domains, construction rules, invariants or measurable properties, representation choices. Preserve any unresolved terminology."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "State the mathematical relationship precisely and list its assumptions: Construction and scope are explicitly declared. Visual resemblance alone is not mathematical equivalence."
+        },
+        {
+          "mode": "code",
+          "prompt": "Design a reproducible test or implementation. Distinguish what computation can establish from what requires proof or independent review."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-data-001-v1",
+        "objective": "Explain Statistical visual encoding and uncertainty through concrete examples, a formal representation, and a checked transfer case.",
+        "prompt": "For Statistical visual encoding and uncertainty, construct a worked example, express it in a second representation, test an edge case, and explain which properties are preserved and why.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Begin with the domain, definitions, and the exact scope of Statistical visual encoding and uncertainty.",
+          "Check the assumptions and test a boundary case before generalizing."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Explains the idea and its declared scope accurately.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "Separates assumptions, evidence, and conclusions; identifies missing proof obligations.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Applies the idea to a changed example and explains limitations.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Change one assumption, parameter, or representation in Statistical visual encoding and uncertainty. Explain which parts of your result still hold and why.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "Formulate the exact claim, identify quantifiers and assumptions, and prove, refute, or bound it.",
+        "mathematics_programmer": "Encode the objects and operations in a typed representation, then add property and boundary tests.",
         "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
       },
       "estimated_minutes": 30,
