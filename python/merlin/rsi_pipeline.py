@@ -324,6 +324,7 @@ def verify_cace_attestation(
         "attestation_sha256": sha256_hex(canonical_json(dict(attestation))),
         "statement_sha256": statement_digest, "verifier_key_id": actual_key_id,
         "verifier_id": expected_verifier_id, "bundle_sha256": expected_bundle_sha256,
+        "purpose": statement.get("purpose"), "authority": "verification-only",
     }
 
 
@@ -710,6 +711,7 @@ class AppendOnlyLedger:
             "statement_sha256": verified["statement_sha256"],
             "verifier_id": verified["verifier_id"],
             "verifier_key_id": verified["verifier_key_id"],
+            "purpose": verified["purpose"],
             "authority": "verification-only",
         })
 
@@ -784,6 +786,7 @@ class AppendOnlyLedger:
             "candidate_id": candidate_id, "artifact_sha256": artifact_sha256,
             "suite_sha256": suite_sha256, "bundle_sha256": bundle_sha,
             "cace_attestation_sha256": verified["attestation_sha256"],
+            "cace_attestation_purpose": verified["purpose"],
             "approval_receipt_digest": approval_receipt.receipt_digest,
             "promotion_authority": "explicit-signed-approval",
         })
