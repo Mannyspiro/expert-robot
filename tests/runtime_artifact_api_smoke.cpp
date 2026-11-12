@@ -50,10 +50,19 @@ int main() {
         assert(fetched.ok);
         assert(fetched.result.find(content_digest) != std::string::npos);
 
+        Request list;
+        list.id = "list-1";
+        list.role = "artifact";
+        list.task = "list";
+        list.payload = R"JSON({"limit":"10","offset":"0"})JSON";
+        const auto listed = runtime.handle(list);
+        assert(listed.ok);
+        assert(listed.result.find("runtime-artifact-1") != std::string::npos);
+
         Request verify;
         verify.id = "verify-1";
         verify.role = "artifact";
-        verify.task = "verify";
+        verify.task = "record_receipt";
         verify.payload =
             "{\"receipt_id\":\"runtime-receipt-1\","
             "\"artifact_id\":\"runtime-artifact-1\","
@@ -78,7 +87,7 @@ int main() {
         Request bad;
         bad.id = "bad-1";
         bad.role = "artifact";
-        bad.task = "verify";
+        bad.task = "record_receipt";
         bad.payload =
             "{\"receipt_id\":\"bad-receipt\","
             "\"artifact_id\":\"runtime-artifact-1\","
