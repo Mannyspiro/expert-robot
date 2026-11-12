@@ -16,10 +16,26 @@ from python.merlin.app import EventStore, make_handler
 
 
 class VirtualRepositoryTests(unittest.TestCase):
+    @staticmethod
+    def _test_only_check_verifier(request):
+        expected = dict(request["expected_bindings"])
+        receipt = request["receipt"]
+        if receipt.get("test_only") is not True:
+            raise ValueError("test-only receipt required")
+        if receipt.get("binding_override"):
+            expected.update(receipt["binding_override"])
+        return {
+            "verification_status": "VERIFIED",
+            "promotion_authorized": True,
+            "cace_receipt_id": receipt["receipt_id"],
+            "bindings": expected,
+            "verifier_id": "test-only-not-cace",
+        }
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.db = Path(self.temp.name) / "forge.sqlite3"
-        self.repo = VirtualRepository(self.db)
+        self.repo = VirtualRepository(self.db, check_receipt_verifier=self._test_only_check_verifier)
         self.initial = self.repo.initialize({
             "README.md": "# Merlin\n",
             "src/core.py": "VERSION = 1\n",
@@ -38,19 +54,10 @@ class VirtualRepositoryTests(unittest.TestCase):
                 "unit-test-runner", "PASS: " + check_name,
             )
             receipt = {
-                "commit_id": commit_id, "check_name": check_name,
-                "conclusion": "success", "run_id": "cace-test-" + commit_id[:10] + "-" + check_name,
-                "runner_id": "cace-test-signer", "log_sha256": local["log_sha256"],
-                "verification_status": "VERIFIED", "promotion_authorized": True,
-                "cace_receipt_id": "test-receipt-" + check_name,
+                "test_only": True,
+                "receipt_id": "test-receipt-" + check_name,
             }
-            with sqlite3.connect(self.db) as db:
-                db.execute("""INSERT INTO check_results
-                    (commit_id,check_name,conclusion,run_id,runner_id,log_digest,result_json,recorded_at)
-                    VALUES(?,?,?,?,?,?,?,?)""",
-                    (commit_id, check_name, "success", receipt["run_id"],
-                     receipt["runner_id"], local["log_sha256"],
-                     json.dumps(receipt, sort_keys=True), time.time() + 1))
+            self.repo.verify_check_result(local["check_id"], receipt)
 
     def test_concurrent_first_start_initialization_is_idempotent(self):
         with tempfile.TemporaryDirectory() as temp:
@@ -243,6 +250,29 @@ class VirtualRepositoryTests(unittest.TestCase):
         with self.assertRaises(VirtualGitError):
             self.repo.set_branch_policy("main", ["python.compile"])
         self.assertEqual(set(self.repo.required_checks("main")), baseline)
+
+    def test_check_verification_requires_injected_independent_verifier(self):
+        isolated = VirtualRepository(Path(self.temp.name) / "unconfigured.sqlite3")
+        initial = isolated.initialize({"README.md": "test"})
+        result = isolated.record_check_result(
+            initial["commit_id"], "python.compile", "success",
+            "unconfigured-run", "local-runner", "passed",
+        )
+        with self.assertRaisesRegex(VirtualGitError, "not configured"):
+            isolated.verify_check_result(result["check_id"], {"test_only": True})
+
+    def test_check_verification_rejects_receipt_bound_to_different_log_or_commit(self):
+        result = self.repo.record_check_result(
+            self.initial["commit_id"], "python.compile", "success",
+            "binding-run", "local-runner", "passed",
+        )
+        with self.assertRaisesRegex(VirtualGitError, "exact check binding"):
+            self.repo.verify_check_result(result["check_id"], {
+                "test_only": True, "receipt_id": "wrong-binding",
+                "binding_override": {"log_sha256": "0" * 64},
+            })
+        self.assertEqual(self.repo.check_results(self.initial["commit_id"])[-1]["verification_status"],
+                         "UNVERIFIED")
 
     def test_main_merge_requires_successful_checks_for_exact_pr_head(self):
         self.repo.create_branch("feature/protected")
