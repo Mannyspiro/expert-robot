@@ -1,0 +1,31 @@
+name: Continuum Simplex Focused Smoke
+
+on:
+  pull_request:
+    paths:
+      - "CMakeLists.txt"
+      - "cpp/include/expert_robot/math/**"
+      - "tests/continuum_simplex_smoke.cpp"
+      - "docs/paired-state-continuum-simplex.md"
+      - ".github/workflows/continuum-simplex-smoke.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: continuum-simplex-smoke-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  focused-smoke:
+    # This is a low-cost compile/regression lane, not repository qualification.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Configure
+        run: cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+      - name: Build focused target
+        run: cmake --build build --target continuum_simplex_smoke --parallel 2
+      - name: Run focused regression
+        run: ctest --test-dir build -R '^continuum_simplex_smoke$' --output-on-failure
