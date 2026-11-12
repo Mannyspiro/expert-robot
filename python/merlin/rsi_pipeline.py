@@ -923,7 +923,7 @@ class AppendOnlyLedger:
     def record_cace_verification_from_mcp(
         self, *, candidate_id: str, artifact_sha256: str, suite_sha256: str,
         github_run_id: int, episode_id: str | None = None,
-        attestor: Any | None = None,
+        attestor: Any | None = None, verifier: Any | None = None,
     ) -> dict[str, Any]:
         """Record CACE independent reproduction after verifying a completed pinned OCI run."""
         episode = episode_id or candidate_id
@@ -954,6 +954,25 @@ class AppendOnlyLedger:
         attestation = response.get("attestation") if isinstance(response, Mapping) else None
         if not isinstance(attestation, Mapping):
             raise PermissionError("CACE MCP response omitted its signed reproduction attestation")
+        verifier_transport = verifier or CaceMcpVerifier()
+        verification = verifier_transport.verify(
+            bundle_payload=bundle_payload,
+            attestation_payload=attestation,
+            expected_claim_id=candidate_id,
+            expected_bindings=bindings,
+            artifact_bytes_b64={
+                "merlin-rsi-evidence-manifest": base64.b64encode(manifest_bytes).decode("ascii")
+            },
+        )
+        expected_attestation_sha = sha256_hex(canonical_json(dict(attestation)))
+        if (
+            verification.get("verified") is not True
+            or verification.get("purpose") != "independent-reproduction"
+            or verification.get("bundle_sha256") != expected_bundle_sha
+            or verification.get("attestation_sha256") != expected_attestation_sha
+            or verification.get("runner_provenance") != response.get("runner_provenance")
+        ):
+            raise PermissionError("CACE MCP verifier did not independently confirm the exact reproduction attestation")
         return self.record_cace_verification(
             candidate_id=candidate_id, attestation=attestation,
             artifact_sha256=artifact_sha256, suite_sha256=suite_sha256,
