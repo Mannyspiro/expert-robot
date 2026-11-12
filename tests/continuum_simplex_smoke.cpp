@@ -84,7 +84,7 @@ int main() {
     assert(close(transformed.first, 4.0));
     assert(close(transformed.second, 2.0));
     assert(composed.invertible());
-    assert(!Matrix2{1.0, 0.0, 0.0, 0.0}.invertible());
+    assert(!(Matrix2{1.0, 0.0, 0.0, 0.0}.invertible()));
 
     bool rejected_bad_samples = false;
     try {
