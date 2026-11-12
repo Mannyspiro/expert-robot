@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdexcept>
 
+using expert_robot::math::continuum::IntegerChain;
 using expert_robot::math::continuum::OrientedSimplex;
 using expert_robot::math::continuum::boundary;
 using expert_robot::math::continuum::boundary_squared;
@@ -43,6 +44,15 @@ int main() {
         rejected_zero_simplex_boundary = true;
     }
     assert(rejected_zero_simplex_boundary);
+
+    bool rejected_noncanonical_chain = false;
+    try {
+        const IntegerChain malformed{{{"B", "A"}, 1}};
+        (void)boundary(malformed);
+    } catch (const std::invalid_argument&) {
+        rejected_noncanonical_chain = true;
+    }
+    assert(rejected_noncanonical_chain);
 
     std::cout << "simplicial boundary smoke: PASS\n";
     return 0;
