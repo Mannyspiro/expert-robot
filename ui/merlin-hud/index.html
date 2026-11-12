@@ -319,7 +319,7 @@ async function renderForgeView(){
  $("forgeRefresh").addEventListener("click",refresh);
  await refresh();
 }
-function renderCapabilitiesView(){
+async function renderCapabilitiesView(){
  const host=document.querySelector(".canvas");if(!host)return;
  host.innerHTML='<div class="workbench-panel"><div class="workbench-intro">Loading canonical capability registry…</div></div>';
  let data={capabilities:[]};
