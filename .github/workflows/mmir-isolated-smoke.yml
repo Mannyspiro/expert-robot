@@ -1,0 +1,29 @@
+name: MMIR isolated smoke
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mmir-isolated-smoke
+  cancel-in-progress: true
+
+jobs:
+  mmir-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      - name: Compile MMIR in isolation
+        run: |
+          set -euo pipefail
+          g++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -Wconversion -Wshadow \
+            -Icpp/include \
+            cpp/src/math/mmir.cpp tests/mmir_smoke.cpp \
+            -o /tmp/mmir_smoke
+      - name: Run MMIR smoke tests
+        run: /tmp/mmir_smoke
