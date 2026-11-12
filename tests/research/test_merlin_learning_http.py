@@ -89,6 +89,7 @@ class MerlinLearningHttpTests(unittest.TestCase):
              "body": "Position changes over time."},
             {"id": "lesson-2", "title": "Acceleration", "objective_id": "PHY-2",
              "body": "Acceleration is the rate of change of velocity.",
+             "interest_tags": ["physics"],
              "exercise": {"task_id": "acceleration-explain",
                           "prompt": "Explain acceleration in your own words."}},
         ]
@@ -244,17 +245,17 @@ class MerlinLearningHttpTests(unittest.TestCase):
                 "mathematics_programmer": 1.0,
                 "computational_hacker": 0.0,
             },
-            "interests": ["number_theory"],
+            "interests": ["physics"],
             "pace": "standard",
         })
         self.assertEqual(status, 200)
         self.assertEqual(preferences["max_minutes"], 35)
         status, personalized = self.request(
-            "GET", "/api/learning/recommendation?learner_id=student-course-authoring&curriculum_id=mathematics",
+            "GET", f"/api/learning/courses/{course['course_id']}/recommendation",
             "Bearer learner-course-authoring",
         )
         self.assertEqual(status, 200)
-        self.assertEqual(personalized["lesson_id"], "math-foundations-divisibility-v1")
+        self.assertEqual(personalized["lesson_id"], "lesson-2")
         self.assertIn("matches_learner_interests", personalized["reason_codes"])
 
     def test_unauthenticated_and_cross_tenant_access_fail_closed(self):
