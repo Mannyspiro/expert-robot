@@ -457,7 +457,9 @@ class RSIPipelineTests(unittest.TestCase):
         from unittest.mock import patch
         candidate = "candidate-promote"
         self._record_candidate_and_evaluation(candidate)
-        attestation = self._make_cace_attestation(candidate)
+        attestation = self._make_cace_attestation(
+            candidate, purpose="independent-reproduction"
+        )
         with patch.dict(os.environ, {
             "MERLIN_CACE_TRUST_STORE_JSON": "",
             "MERLIN_CACE_TRUST_STORE_SHA256": "",
