@@ -181,10 +181,17 @@ checks have not supplied usable logs; the fixed OCI profiles are therefore the
 current execution evidence.
 
 No live CACE artifact attestation has been obtained for an Expert Robot
-candidate. The current OCI MCP surface has no artifact-verification or
-attestation-signing operation. The RSI adapter therefore remains fail-closed
-until a separately operated CACE verifier is wired to the exact EvidenceBundle,
-issues a real signed attestation, and its public-key fingerprint is delivered
-through the independently controlled CACE trust-store channel. The Hermes,
+candidate. The live OCI MCP service still has no artifact-verification or
+attestation-signing operation. A CACE-native, read-only verifier has now been
+implemented in Cace-app PR #93 (https://github.com/morganaspim/Cace-app/pull/93).
+It delegates EvidenceBundle and Ed25519 verification to CACE core, requires
+the exact artifact bytes (10 MiB aggregate request cap), exact candidate and
+binding digests, and a separately pinned CACE key ID. Its OCI MCP regression
+suite passed on cace-oci-a1 in run 43125343110. The PR has not been merged or
+deployed, and no signing key or trust-store entry has been provisioned.
+The RSI adapter therefore remains fail-closed until the verifier is deployed,
+a real CACE attestation is issued over the exact evidence, and its public-key
+fingerprint is delivered through the independently controlled CACE trust-store
+channel. The Hermes,
 source, evaluator, worker, approver, and CACE trust-store environment values
 are not provisioned by this code change. No production promotion has occurred.
