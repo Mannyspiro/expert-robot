@@ -36,13 +36,13 @@ void OperatorRegistry::add(OperatorSpec spec) {
     by_id_.emplace(spec.id, std::move(spec));
 }
 
-const OperatorSpec* OperatorRegistry::find(std::string_view id) const noexcept {
+const OperatorSpec* OperatorRegistry::find(std::string_view id) const {
     const auto it = by_id_.find(std::string(id));
     return it == by_id_.end() ? nullptr : &it->second;
 }
 
 const OperatorSpec* OperatorRegistry::resolve(
-    std::string_view name_space, std::string_view glyph) const noexcept {
+    std::string_view name_space, std::string_view glyph) const {
     const auto it = glyph_to_id_.find(glyph_key(name_space, glyph));
     return it == glyph_to_id_.end() ? nullptr : find(it->second);
 }
@@ -57,7 +57,7 @@ void ExpressionGraph::add(ExpressionNode node) {
     nodes_.emplace(node.id, std::move(node));
 }
 
-const ExpressionNode* ExpressionGraph::find(std::string_view id) const noexcept {
+const ExpressionNode* ExpressionGraph::find(std::string_view id) const {
     const auto it = nodes_.find(std::string(id));
     return it == nodes_.end() ? nullptr : &it->second;
 }
@@ -89,15 +89,14 @@ std::vector<ValidationIssue> ExpressionGraph::validate(
             issues.push_back({id, "OUTPUT_TYPE_MISMATCH",
                 "application result type differs from the operator output type"});
         }
-        for (const auto& operand_id : node.operands) {
+        for (std::size_t index = 0; index < node.operands.size(); ++index) {
+            const auto& operand_id = node.operands[index];
             const auto* operand = find(operand_id);
             if (operand == nullptr) {
                 issues.push_back({id, "MISSING_OPERAND",
                     "application references missing operand: " + operand_id});
                 continue;
             }
-            const auto index = static_cast<std::size_t>(
-                &operand_id - node.operands.data());
             const auto expected_index = index < op->input_types.size()
                 ? index : op->input_types.size() - 1;
             if (operand->type != op->input_types[expected_index]) {
