@@ -117,8 +117,10 @@ def verify_cace_signed_attestation(
         raise CaceAttestationError("CACE attestation statement has missing or extra fields")
     if statement.get("schema") != STATEMENT_SCHEMA:
         raise CaceAttestationError("unsupported CACE attestation statement schema")
-    if statement.get("signature_algorithm") != ALGORITHM or statement.get("proof_effect") != PROOF_EFFECT:
-        raise CaceAttestationError("CACE statement algorithm or proof effect is invalid")
+    if statement.get("signature_algorithm") != ALGORITHM:
+        raise CaceAttestationError("CACE statement signature algorithm is invalid")
+    if statement.get("proof_effect") != PROOF_EFFECT:
+        raise CaceAttestationError("CACE statement proof_effect must be none")
     verifier_id = statement.get("verifier_id")
     if not isinstance(verifier_id, str) or not verifier_id.strip() or verifier_id == requester_id:
         raise CaceAttestationError("CACE verifier identity is missing or not independent")
