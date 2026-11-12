@@ -74,7 +74,20 @@ int main() {
     assert(result.edge_coverage == 1.0);
     assert(result.invariant_coverage == 1.0);
     assert(result.preserved_invariants.size() == 1);
+    assert(result.node_mapping.at("battery") == "pump");
+    assert(result.node_mapping.at("voltage") == "pressure");
+    assert(result.node_mapping.at("current") == "flow");
+    assert(result.node_mapping.at("resistor") == "pipe");
     assert(!result.caveats.empty()); // Structural matching is never promoted to proof.
+
+    const auto budget_limited =
+        StructuralMatcher({.max_search_states = 1}).match(electrical, hydraulic);
+    assert(budget_limited.mapping_class == MappingClass::NoMatch);
+    bool budget_reported = false;
+    for (const auto& caveat : budget_limited.caveats)
+        budget_reported = budget_reported ||
+            caveat.find("budget exhausted") != std::string::npos;
+    assert(budget_reported);
 
     auto extended_target = hydraulic;
     extended_target.system_id = "hydraulic.extended";
