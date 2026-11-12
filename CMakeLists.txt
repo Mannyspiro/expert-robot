@@ -178,6 +178,12 @@ add_executable(artifact_registry_smoke
 target_link_libraries(artifact_registry_smoke PRIVATE expert_robot_core SQLite::SQLite3)
 add_test(NAME artifact_registry_smoke COMMAND artifact_registry_smoke)
 
+add_executable(runtime_artifact_api_smoke
+    tests/runtime_artifact_api_smoke.cpp
+)
+target_link_libraries(runtime_artifact_api_smoke PRIVATE expert_robot_core SQLite::SQLite3)
+add_test(NAME runtime_artifact_api_smoke COMMAND runtime_artifact_api_smoke)
+
 add_executable(research_episode_ledger_smoke
     tests/research_episode_ledger_smoke.cpp
 )
