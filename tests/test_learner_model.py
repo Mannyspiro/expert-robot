@@ -21,6 +21,13 @@ class LearnerModelTests(unittest.TestCase):
           "problem_id":attempt,"problem_version":"1","dimension":dimension,"score":score,
           "session_id":session,"response":{"work":"shown"},"rubric_version":"r1",**extra}
 
+    def test_continuum_math_evidence_dimensions_are_supported(self):
+        for dimension in ("topology", "numerical_experimentation"):
+            estimate = self.store.estimate("learner-test", "MATH-CONT-001", dimension)
+            self.assertEqual(estimate.dimension, dimension)
+            self.assertEqual(estimate.observations, 0)
+            self.assertEqual(estimate.state, "unobserved")
+
     def test_tenant_scoped_subject_ids_prevent_cross_tenant_learner_collisions(self):
         from_a = learner_subject_id("college-a", "student-1")
         from_b = learner_subject_id("college-b", "student-1")
