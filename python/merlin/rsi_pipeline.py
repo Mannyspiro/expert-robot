@@ -575,6 +575,12 @@ class CaceMcpVerifier(CaceMcpAttestor):
         if not isinstance(structured, Mapping):
             raise RuntimeError("CACE MCP verifier returned no structured result")
         response = dict(structured)
+        statement = attestation_payload.get("statement") if isinstance(attestation_payload, Mapping) else None
+        statement_bindings = statement.get("bindings") if isinstance(statement, Mapping) else None
+        expected_provenance = (
+            statement_bindings.get("cace_runner_provenance")
+            if isinstance(statement_bindings, Mapping) else None
+        )
         if (
             response.get("verified") is not True
             or response.get("verifier_id") != "cace"
@@ -582,6 +588,8 @@ class CaceMcpVerifier(CaceMcpAttestor):
             or response.get("proof_effect") != "none"
             or response.get("authority") != "verification-only"
             or response.get("claim_id") != expected_claim_id
+            or response.get("runner_provenance") != expected_provenance
+            or not isinstance(expected_provenance, Mapping)
         ):
             raise PermissionError("CACE MCP verifier response violates the independent verification contract")
         return response
