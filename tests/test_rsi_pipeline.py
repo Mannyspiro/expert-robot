@@ -422,7 +422,7 @@ class RSIPipelineTests(unittest.TestCase):
     def test_ledger_obtains_cace_attestation_from_mcp_transport(self):
         candidate = "candidate-live-cace-transport"
         self._record_candidate_and_evaluation(candidate)
-        attestation = self._make_cace_attestation(candidate)
+        attestation = self._make_cace_attestation(candidate, purpose="artifact-integrity")
         class FakeAttestor:
             def __init__(self):
                 self.calls = 0
