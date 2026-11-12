@@ -115,7 +115,8 @@
             "MATH-LIN-002",
             "MATH-NUM-001",
             "MATH-ODE-001",
-            "MATH-OPT-001"
+            "MATH-OPT-001",
+            "MATH-CONT-001"
           ],
           "evidence": [
             "assumption sensitivity",
@@ -247,7 +248,8 @@
             "MATH-LIN-002",
             "MATH-NUM-001",
             "MATH-ODE-001",
-            "MATH-OPT-001"
+            "MATH-OPT-001",
+            "MATH-CONT-001"
           ],
           "evidence": [
             "versioned implementation",
@@ -325,7 +327,8 @@
             "MATH-STAT-001",
             "MATH-NUM-001",
             "MATH-ODE-001",
-            "MATH-OPT-001"
+            "MATH-OPT-001",
+            "MATH-CONT-001"
           ],
           "evidence": [
             "seeded reproducible run",
@@ -1275,6 +1278,25 @@
       "prerequisites": [
         "MATH-CALC-002",
         "MATH-LIN-002"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ]
+    },
+    {
+      "id": "MATH-CONT-001",
+      "title": "Paired-state continuum simplices",
+      "kind": "representation",
+      "status": "candidate",
+      "lesson_id": null,
+      "lesson_state": "lesson_not_yet_linked",
+      "legacy_lesson_id": null,
+      "prerequisites": [
+        "MATH-REP-001",
+        "MATH-COORD-001",
+        "MATH-POLY-001"
       ],
       "pathways": [
         "mathematician",
