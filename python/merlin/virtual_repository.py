@@ -25,9 +25,12 @@ class VirtualGitError(ValueError):
 
 
 class VirtualRepository:
-    def __init__(self, database: str | Path, *, check_receipt_verifier: Callable[[Mapping[str, Any]], Mapping[str, Any]] | None = None):
+    def __init__(self, database: str | Path, *,
+                 check_receipt_verifier: Callable[[Mapping[str, Any]], Mapping[str, Any]] | None = None,
+                 promotion_authorizer: Callable[[Mapping[str, Any]], Mapping[str, Any]] | None = None):
         self.path = Path(database)
         self._check_receipt_verifier = check_receipt_verifier
+        self._promotion_authorizer = promotion_authorizer
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with closing(self._connect()) as db, db:
             db.executescript("""
@@ -612,7 +615,9 @@ class VirtualRepository:
                 verified = (
                     verification.get("verification_status") == "VERIFIED"
                     and verification.get("bindings") == expected
-                    and verification.get("promotion_authorized") is True
+                    and verification.get("promotion_authorization", {}).get("promotion_authorized") is True
+                    and verification.get("promotion_authorization", {}).get("bindings") == expected
+                    and bool(verification.get("promotion_authorization", {}).get("approval_id"))
                     and bool(verification.get("cace_receipt_id"))
                 )
                 return {"check_id": existing["check_id"], "commit_id": commit_id,
@@ -680,12 +685,38 @@ class VirtualRepository:
         if not isinstance(verified, Mapping):
             raise VirtualGitError("independent verifier returned an invalid result")
         if (verified.get("verification_status") != "VERIFIED"
-                or verified.get("promotion_authorized") is not True
                 or verified.get("bindings") != expected
                 or not isinstance(verified.get("cace_receipt_id"), str)
                 or not verified.get("cace_receipt_id").strip()):
-            raise VirtualGitError("independent verifier did not authorize this exact check binding")
-        verification_json = self._canonical(dict(verified))
+            raise VirtualGitError("independent verifier did not verify this exact check binding")
+        authorization: Mapping[str, Any] = {
+            "status": "NOT_AUTHORIZED", "promotion_authorized": False,
+        }
+        if self._promotion_authorizer is not None:
+            try:
+                candidate = self._promotion_authorizer({
+                    "schema": "merlin-promotion-authorization-request/1",
+                    "expected_bindings": expected,
+                    "cace_receipt_id": verified["cace_receipt_id"],
+                })
+            except Exception as exc:
+                raise VirtualGitError("promotion authorization failed") from exc
+            if not isinstance(candidate, Mapping):
+                raise VirtualGitError("promotion authorizer returned an invalid result")
+            if (candidate.get("promotion_authorized") is not True
+                    or candidate.get("bindings") != expected
+                    or not isinstance(candidate.get("approval_id"), str)
+                    or not candidate.get("approval_id").strip()):
+                raise VirtualGitError("promotion approval is not bound to this exact verified check")
+            authorization = dict(candidate)
+        verification_record = {
+            "verification_status": "VERIFIED",
+            "bindings": expected,
+            "cace_receipt_id": verified["cace_receipt_id"],
+            "verifier_id": verified.get("verifier_id"),
+            "promotion_authorization": dict(authorization),
+        }
+        verification_json = self._canonical(verification_record)
         with closing(self._connect()) as db, db:
             db.execute("BEGIN IMMEDIATE")
             current = db.execute("SELECT * FROM check_results WHERE check_id=?", (check_id,)).fetchone()
@@ -706,7 +737,8 @@ class VirtualRepository:
             })
         return {
             "check_id": check_id, "receipt_sha256": receipt_sha256,
-            "verification_status": "VERIFIED", "promotion_authorized": True,
+            "verification_status": "VERIFIED",
+            "promotion_authorized": authorization.get("promotion_authorized") is True,
             "cace_receipt_id": verified["cace_receipt_id"],
             "idempotent_replay": existing is not None,
         }
@@ -744,7 +776,9 @@ class VirtualRepository:
             )
             item["promotion_authorized"] = (
                 item["verification_status"] == "VERIFIED"
-                and verified.get("promotion_authorized") is True
+                and verified.get("promotion_authorization", {}).get("promotion_authorized") is True
+                and verified.get("promotion_authorization", {}).get("bindings") == expected
+                and bool(verified.get("promotion_authorization", {}).get("approval_id"))
                 and bool(verified.get("cace_receipt_id"))
             )
             results.append(item)
@@ -926,8 +960,10 @@ class VirtualRepository:
                     verification = {}
                 expected = self._check_binding(check_row) if check_row else {}
                 if (verification.get("verification_status") != "VERIFIED"
-                        or verification.get("promotion_authorized") is not True
                         or verification.get("bindings") != expected
+                        or verification.get("promotion_authorization", {}).get("promotion_authorized") is not True
+                        or verification.get("promotion_authorization", {}).get("bindings") != expected
+                        or not verification.get("promotion_authorization", {}).get("approval_id")
                         or not verification.get("cace_receipt_id")):
                     unverified_checks.append(check_name)
             if missing_checks or failed_checks or unverified_checks:
