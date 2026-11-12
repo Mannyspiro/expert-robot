@@ -4,6 +4,7 @@
 #include <cassert>
 #include <filesystem>
 #include <stdexcept>
+#include <sqlite3.h>
 
 int main() {
     using namespace expert_robot;
@@ -209,6 +210,34 @@ int main() {
         !store.readiness(
             "generation-0002").
             promotable());
+
+    // Enforce append-only semantics at the SQLite layer, not only through
+    // the C++ API. Open a second connection to simulate an external writer.
+    sqlite3* external_db = nullptr;
+    assert(sqlite3_open(db.string().c_str(), &external_db) == SQLITE_OK);
+    const auto rejected_sql = [&](const char* sql) {
+        char* error = nullptr;
+        const int rc = sqlite3_exec(external_db, sql, nullptr, nullptr, &error);
+        if (error != nullptr) sqlite3_free(error);
+        return rc != SQLITE_OK;
+    };
+    assert(rejected_sql(
+        "UPDATE generations SET rationale='tampered' "
+        "WHERE generation_id='generation-0001';"));
+    assert(rejected_sql(
+        "DELETE FROM generation_evaluations "
+        "WHERE generation_id='generation-0001';"));
+    assert(rejected_sql(
+        "UPDATE promotion_decisions SET approved=0 "
+        "WHERE generation_id='generation-0001';"));
+    assert(rejected_sql(
+        "DELETE FROM promotion_decisions "
+        "WHERE generation_id='generation-0001';"));
+    assert(sqlite3_close(external_db) == SQLITE_OK);
+
+    assert(store.verify().valid);
+    assert(store.evaluations("generation-0001").size() == 1U);
+    assert(store.promotion_decisions("generation-0001").size() == 2U);
 
     std::filesystem::remove(db);
     return 0;
