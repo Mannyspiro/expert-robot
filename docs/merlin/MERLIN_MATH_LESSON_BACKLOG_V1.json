@@ -4,9 +4,9 @@
   "status": "draft_blueprints_not_published_lessons",
   "catalog_id": "merlin.mathematics",
   "catalog_schema": 1,
-  "generated_from_catalog_count": 57,
+  "generated_from_catalog_count": 58,
   "existing_catalog_lesson_count": 35,
-  "blueprint_count": 36,
+  "blueprint_count": 37,
   "publication_policy": "These records are authoring blueprints, not released course lessons. Every blueprint requires instructor review and content validation. Refuted, unresolved, conjectural, and open-question ideas retain explicit epistemic labels.",
   "blueprints": [
     {
@@ -3789,6 +3789,125 @@
         "computational_hacker": "Build the smallest discriminating experiment, inspect failure cases, and record reproducible evidence."
       },
       "estimated_minutes": 30,
+      "review_required": true,
+      "resource_ids": []
+    },
+    {
+      "blueprint_id": "lesson-math-cont-001-v1",
+      "idea_id": "MATH-CONT-001",
+      "title": "Paired-state continuum simplices",
+      "kind": "representation",
+      "catalog_status": "candidate",
+      "delivery_state": "instructional_candidate",
+      "publication_gate": "standard_curriculum_review_required",
+      "prerequisite_idea_ids": [
+        "MATH-REP-001",
+        "MATH-COORD-001",
+        "MATH-POLY-001"
+      ],
+      "pathways": [
+        "mathematician",
+        "mathematics_programmer",
+        "computational_hacker"
+      ],
+      "skill_dimensions": [
+        "conceptual_explanation",
+        "representation_translation",
+        "spatial_reasoning",
+        "topology",
+        "proof_justification",
+        "numerical_experimentation",
+        "transfer"
+      ],
+      "learning_objective": "Model an oriented triangle whose edges carry two-channel state fields, then distinguish shared-vertex compatibility, affine extension, and higher-order extension questions.",
+      "epistemic_guardrail": "Treat the two real channels as an ordered pair unless an algebra is explicitly defined. Do not infer non-extendability from failure of the affine-extension test. Keep finite tests separate from general proof.",
+      "source_claim": "A geometric simplex can carry a state space on each oriented cell. In the triangle prototype, each edge carries a two-channel real-valued field; shared endpoint values define a single-valued boundary field, and affine edge traces admit an affine barycentric extension.",
+      "definitions": [
+        "oriented simplex",
+        "state space attached to a cell",
+        "two-channel real state",
+        "edge field",
+        "shared-vertex gluing",
+        "affine barycentric extension",
+        "oriented boundary operator"
+      ],
+      "assumptions": [
+        "The first executable triangle prototype uses an ordered pair of real values at each sampled edge parameter.",
+        "The edge orientation is AB from A to B, BC from B to C, and CA from C to A.",
+        "The affine-extension classifier only tests whether the sampled boundary traces match the affine barycentric extension.",
+        "Finite smoke tests do not establish a general continuous-extension theorem."
+      ],
+      "known_objections": [
+        "A non-affine boundary trace may admit a higher-order or continuous extension; failure of the affine classifier is not non-extendability.",
+        "An arbitrary ordered pair of real values is not automatically a complex number or another algebraic number system.",
+        "Finite triangle and tetrahedron tests do not prove the general boundary-of-boundary theorem."
+      ],
+      "stages": [
+        {
+          "mode": "concrete",
+          "prompt": "Draw a triangle and assign two changing real values to each oriented edge. Track what happens at vertices A, B, and C."
+        },
+        {
+          "mode": "observation",
+          "prompt": "Compare independent edge values with endpoint-compatible values. Identify which boundary data can describe one single-valued field."
+        },
+        {
+          "mode": "visual",
+          "prompt": "Visualize the triangle, its three oriented edge traces, and an interior barycentric state. Label the two channels and edge parameters."
+        },
+        {
+          "mode": "language",
+          "prompt": "Explain the difference between an ordered pair of real values, a complex number, and a general state-space element."
+        },
+        {
+          "mode": "symbol",
+          "prompt": "Write the edge fields F_AB(t), F_BC(t), F_CA(t), the shared-vertex gluing conditions, and the affine barycentric extension. State every assumption."
+        },
+        {
+          "mode": "code",
+          "prompt": "Run the finite triangle and tetrahedron smoke tests. Then construct a nonlinear edge trace and explain why failing the affine classifier does not prove that no continuous extension exists."
+        }
+      ],
+      "exercise": {
+        "task_id": "task-math-cont-001-v1",
+        "objective": "Construct and analyze a paired-state continuum triangle with explicit gluing and extension semantics.",
+        "prompt": "Define three oriented edge fields with two real channels. Check the three shared vertices, classify the affine extension, and give a nonlinear trace that requires a higher-order extension without claiming non-extendability.",
+        "answer_format": "written_explanation",
+        "hints": [
+          "Fix the edge orientation before writing endpoint conditions.",
+          "Check all three shared vertices independently.",
+          "Separate the affine extension question from the more general continuous-extension question."
+        ],
+        "rubric": [
+          {
+            "dimension": "conceptual_explanation",
+            "description": "Distinguishes geometry, state dimension, and algebraic semantics.",
+            "points": 3
+          },
+          {
+            "dimension": "proof_justification",
+            "description": "States the gluing and extension assumptions and avoids conclusions beyond the classifier.",
+            "points": 3
+          },
+          {
+            "dimension": "transfer",
+            "description": "Transfers the construction to a tetrahedron or another finite simplicial complex.",
+            "points": 2
+          }
+        ],
+        "transfer_prompt": "Replace the triangle with a tetrahedron. Identify its vertices, edges, faces, and the corresponding state-bearing components. Explain which gluing conditions generalize.",
+        "allowed_tools": [
+          "paper",
+          "calculator",
+          "python"
+        ]
+      },
+      "pathway_tasks": {
+        "mathematician": "State the boundary compatibility and extension claims with exact quantifiers, then prove or refute them under declared hypotheses.",
+        "mathematics_programmer": "Represent cells, state spaces, edge traces, transformations, and constraints in a typed IR; add invariant and property tests.",
+        "computational_hacker": "Generate small compatible and incompatible examples, search for counterexamples, and preserve exact reproducible artifacts."
+      },
+      "estimated_minutes": 45,
       "review_required": true,
       "resource_ids": []
     }
