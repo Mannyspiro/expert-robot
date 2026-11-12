@@ -252,8 +252,8 @@ transport; it does not establish that the deployed OCI MCP endpoint has the
 trust store or is currently serving the new tool.
 
 The current CACE verifier source blob is
-`16f73820c21bc41b0759b5d3179859f727afa41c`; its regression test blob is
-`d24e2d4014874dc195cc2d9313b2e29b0c2ff5bf`. The workflow file explicitly
+`5cf3acde39ba1bfc072fb1c1d16731d592087948`; its regression test blob is
+`67b89a6a122d6da57aec1ba203fd1e5b72c6eb03`. The workflow file explicitly
 includes that test. Cace-app PR #93 remains open and targets the OCI inventory
 qualification branch; it is not merged into the CACE default branch.
 
