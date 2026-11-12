@@ -559,6 +559,50 @@ class RSIPipelineTests(unittest.TestCase):
                          "independent-reproduction")
         self.assertTrue(self.ledger.verify_chain(candidate)["valid"])
 
+    def test_cace_independent_reproduction_mcp_gate_binds_successful_oci_run(self):
+        candidate = "candidate-cace-reproduction-oci"
+        self._record_candidate_and_evaluation(candidate)
+        attestation = self._make_cace_attestation(candidate, purpose="independent-reproduction")
+        provenance = self._runner_provenance()
+        class FakeReproducer:
+            def reproduce(self, **kwargs):
+                self.kwargs = kwargs
+                return {
+                    "attestation": attestation,
+                    "purpose": "independent-reproduction",
+                    "runner_provenance": provenance,
+                    "proof_effect": "none",
+                    "authority": "verification-only",
+                }
+        fake = FakeReproducer()
+        event = self.ledger.record_cace_verification_from_mcp(
+            candidate_id=candidate, artifact_sha256=ARTIFACT,
+            suite_sha256=SUITE, github_run_id=provenance["run_id"],
+            attestor=fake,
+        )
+        self.assertEqual(fake.kwargs["github_run_id"], provenance["run_id"])
+        self.assertEqual(event["event_type"], "candidate.cace_verified")
+        payload = json.loads(self.ledger.events(candidate)[-1]["payload"])
+        self.assertEqual(payload["runner_provenance"]["runner_name"], "cace-oci-a1")
+        approval = sign_receipt("merlin-approver", {
+            "candidate_id": candidate,
+            "candidate_digest": ARTIFACT,
+            "benchmark_manifest_sha256": SUITE,
+            "cace_attestation_sha256": rsi.sha256_hex(rsi.canonical_json(attestation)),
+            "action": "promote",
+            "target": "qualified",
+        }, "approver-key", self.approver_private)
+        promoted = self.ledger.record_promotion(
+            candidate_id=candidate, artifact_sha256=ARTIFACT,
+            suite_sha256=SUITE, attestation=attestation,
+            approval_receipt=approval,
+        )
+        self.assertEqual(promoted["event_type"], "candidate.promoted")
+        self.assertEqual(
+            json.loads(self.ledger.events(candidate)[-1]["payload"])["cace_runner_provenance"],
+            provenance,
+        )
+
     def test_cace_verification_and_separate_approval_gate_promotion(self):
         from unittest.mock import patch
         candidate = "candidate-promote"
