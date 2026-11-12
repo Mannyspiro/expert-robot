@@ -22,8 +22,8 @@ def test_bootstrap_records_all_ideas_and_review_gated_blueprints_idempotently():
         graph = MerlinKnowledgeGraph(root / "knowledge-graph.sqlite3")
         first_snapshot = graph.export_snapshot()
 
-        assert first["counts"]["canonical_ideas"] == 57
-        assert first["counts"]["review_gated_blueprints"] == 36
+        assert first["counts"]["canonical_ideas"] == 58
+        assert first["counts"]["review_gated_blueprints"] == 37
         assert first["promotion_authority"] is False
         assert first["cace_verification"].startswith("unavailable")
         assert first["source_artifacts"]["idea_catalog"]["registry_verified"] is True
@@ -31,6 +31,8 @@ def test_bootstrap_records_all_ideas_and_review_gated_blueprints_idempotently():
 
         node_ids = {node["node_id"] for node in first_snapshot["nodes"]}
         assert "idea:MATH-REP-001:aaaaaaaaaaaa" in node_ids
+        assert "idea:MATH-CONT-001:aaaaaaaaaaaa" in node_ids
+        assert "lesson-blueprint:lesson-math-cont-001-v1:aaaaaaaaaaaa" in node_ids
         assert "lesson-blueprint:lesson-math-rep-001-v1:aaaaaaaaaaaa" in node_ids
         assert "project:merlin" in node_ids
 
