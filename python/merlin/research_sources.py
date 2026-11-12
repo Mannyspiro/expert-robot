@@ -285,7 +285,9 @@ class ResearchMetadataClient:
 
     def get_by_doi(self, doi: str) -> ResearchMetadata:
         normalized = doi.strip()
-        normalized = re.sub(r"^https?://(dx\.)?doi\.org/", "", normalized, flags=re.I)
+        if re.match(r"^https?://(dx\\.)?doi\\.org/", normalized, flags=re.I):
+            parsed = urllib.parse.urlsplit(normalized)
+            normalized = urllib.parse.unquote(parsed.path.lstrip("/"))
         normalized = re.sub(r"^doi:\s*", "", normalized, flags=re.I)
         if not re.fullmatch(r"10\.\d{4,9}/[^\s]+", normalized, flags=re.I):
             raise ValueError("invalid DOI")
