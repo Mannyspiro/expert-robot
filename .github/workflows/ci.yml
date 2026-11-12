@@ -23,6 +23,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install Merlin native build toolchain
+        uses: ./.github/actions/setup-merlin-native
+
       - name: Restore C++ compiler cache
         id: ccache-restore
         uses: actions/cache/restore@v4
@@ -85,6 +88,9 @@ jobs:
 
       - name: Compute policy guardrails
         run: python3 tests/compute_policy_smoke.py
+
+      - name: Production readiness and promotion policy
+        run: python3 tests/production_policy_smoke.py
 
       - name: Known failure regression guardrails
         run: python3 tests/known_failure_regression_smoke.py
