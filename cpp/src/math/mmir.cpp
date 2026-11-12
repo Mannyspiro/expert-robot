@@ -105,7 +105,11 @@ long double convert_value(long double value, const MathType& from, const MathTyp
     if (!same_dimensions(from, to)) {
         throw std::invalid_argument("cannot convert between dimensionally incompatible units");
     }
-    return value * from.scale_to_si / to.scale_to_si;
+    const auto converted = value * from.scale_to_si / to.scale_to_si;
+    if (!std::isfinite(converted)) {
+        throw std::overflow_error("unit conversion result is not finite");
+    }
+    return converted;
 }
 
 void OperatorRegistry::add(OperatorSpec spec) {
