@@ -23,6 +23,8 @@ DEFAULT_REPOSITORY = "Mannyspiro/expert-robot"
 CATALOG_RELATIVE_PATH = Path("docs/research/merlin-mathematical-idea-catalog.v1.json")
 BACKLOG_RELATIVE_PATH = Path("docs/merlin/MERLIN_MATH_LESSON_BACKLOG_V1.json")
 _SOURCE_COMMIT = re.compile(r"^[0-9a-f]{40}$")
+_REPOSITORY = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
+_GRAPH_TOKEN = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$")
 
 
 def _read_json(path: Path, label: str) -> tuple[bytes, dict[str, Any]]:
@@ -63,9 +65,11 @@ def bootstrap_merlin(
     if not isinstance(source_commit, str) or not _SOURCE_COMMIT.fullmatch(source_commit):
         raise ValueError("source_commit must be a lowercase 40-character Git SHA")
     repository = _required_text(repository, "repository", 200)
-    if repository.count("/") != 1:
-        raise ValueError("repository must be owner/name")
+    if not _REPOSITORY.fullmatch(repository):
+        raise ValueError("repository must be a safe owner/name identifier")
     project_id = _required_text(project_id, "project_id", 120)
+    if not _GRAPH_TOKEN.fullmatch(project_id):
+        raise ValueError("project_id must be a safe graph identifier segment")
     project_name = _required_text(project_name, "project_name", 200)
     if not isinstance(root, (str, Path)) or not str(root).strip():
         raise ValueError("persistent data root is required")
@@ -93,7 +97,9 @@ def bootstrap_merlin(
     for idea in ideas:
         if not isinstance(idea, dict):
             raise ValueError("idea catalog entries must be objects")
-        idea_id = _required_text(idea.get("id"), "idea.id", 160)
+        idea_id = _required_text(idea.get("id"), "idea.id", 120)
+        if not _GRAPH_TOKEN.fullmatch(idea_id):
+            raise ValueError("idea ID is not safe for canonical graph identity")
         _required_text(idea.get("title"), idea_id + ".title", 500)
         _required_text(idea.get("kind"), idea_id + ".kind", 120)
         _required_text(idea.get("status"), idea_id + ".status", 120)
@@ -126,7 +132,9 @@ def bootstrap_merlin(
     for blueprint in blueprints:
         if not isinstance(blueprint, dict):
             raise ValueError("lesson blueprint entries must be objects")
-        blueprint_id = _required_text(blueprint.get("blueprint_id"), "blueprint_id", 200)
+        blueprint_id = _required_text(blueprint.get("blueprint_id"), "blueprint_id", 120)
+        if not _GRAPH_TOKEN.fullmatch(blueprint_id):
+            raise ValueError("blueprint ID is not safe for canonical graph identity")
         idea_id = _required_text(blueprint.get("idea_id"), blueprint_id + ".idea_id", 160)
         _required_text(blueprint.get("title"), blueprint_id + ".title", 500)
         if blueprint_id in blueprint_ids:
