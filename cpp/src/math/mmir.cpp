@@ -13,6 +13,8 @@ std::string glyph_key(std::string_view name_space, std::string_view glyph) {
     return std::string(name_space) + "::" + std::string(glyph);
 }
 
+} // namespace
+
 bool valid_math_type(const MathType& type) noexcept {
     return !type.name.empty() && std::isfinite(type.scale_to_si) &&
         type.scale_to_si > 0.0L;
