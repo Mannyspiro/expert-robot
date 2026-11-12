@@ -61,10 +61,17 @@ candidate ID, exact candidate digest, benchmark manifest digest, evaluator
 receipt digest, source repository, source commit, and
 authority=verification-only.
 
-The embedded public key is not trusted by itself. The verifier key ID must
-match an independently configured allowlist mapping the key ID to verifier
-identity cace. A valid signature authenticates the attestation; it does not
-prove mathematical truth or replace Lean, numerical, or engineering checks.
+The embedded public key is not trusted by itself. The CACE verifier key ID
+must match a server-loaded, digest-pinned allowlist in
+MERLIN_CACE_TRUST_STORE_JSON / MERLIN_CACE_TRUST_STORE_SHA256. The trust-store
+document uses schema merlin-cace-trust-store-v1 and contains active key IDs
+bound to verifier identity cace. Callers cannot pass their own CACE allowlist.
+Hermes, merlin-source, merlin-evaluator, merlin-rsi-worker, and merlin-approver
+public keys are likewise loaded from the digest-pinned
+MERLIN_ISSUER_TRUST_STORE_JSON / MERLIN_ISSUER_TRUST_STORE_SHA256 registry.
+Missing stores, unknown issuers, invalid Ed25519 keys, or digest mismatches
+fail closed. A valid signature authenticates provenance; it does not prove
+mathematical truth or replace Lean, numerical, or engineering checks.
 
 Promotion additionally requires a separate signed merlin-approver receipt
 bound to the same candidate, artifact, benchmark, and CACE attestation digest.
@@ -125,25 +132,29 @@ rate, and reproducibility before a controlled trial.
 
 ## OCI and CI validation status (2026-11-11)
 
-The Cace-app repository's typed OCI gateway successfully executed the fixed
-read-only MCP probe on runner cace-oci-a1. The probe confirmed the local MCP
+The Cace-app repository's typed OCI gateway successfully executed fixed
+read-only MCP probes on runner cace-oci-a1. The probe confirmed the local MCP
 endpoint at 127.0.0.1:8765 and successful read-only responses from
-get_control_capabilities and get_cace_runtime_status. The live registry did
-not expose get_github_runner_status or an artifact-verification operation.
-The gateway currently allowlists inventory_snapshot and mcp_readonly_probe;
-it does not execute arbitrary repository tests or shell commands.
+get_control_capabilities and get_cace_runtime_status. The live MCP registry
+exposed only CACE control-plane tools (runtime status, logs, OCI summary,
+attached NSG inspection, and ingress/restart controls); it did not expose an
+artifact-verification, attestation-signing, or GitHub-runner-status operation.
+No control-plane mutations were invoked. The gateway executes only its
+allowlisted fixed profiles; it does not enable arbitrary shell commands.
 
 The pinned RSI Python bridge was subsequently executed on the OCI runner
 without package installation or persistent host changes:
 
-- run 43122831275, runner cace-oci-a1 (Oracle Linux 9.8, ARM64);
-- source commit fce180371c006debd8916b4a2be7f9b75bb0b03c;
-- 10/10 Python tests passed, including real Ed25519 receipts, Hermes seed-to-
-  candidate lineage, cache integrity, frozen-suite coverage, and CACE
-  EvidenceBundle digest compatibility;
+- run 43123913124, runner cace-oci-a1 (Oracle Linux 9.8, ARM64);
+- source commit e4fcb16ced5b6ff9e2f64f73869695d640eb1c27;
+- 15/15 Python tests passed, including authenticated Hermes failure ingress,
+  candidate lineage, worker acknowledgement, Crossref/arXiv metadata caching,
+  persistent host rate limits, Ed25519 receipt checks, server-pinned issuer
+  and CACE trust registries, rejection of caller self-approval, and separate
+  signed promotion approval;
 - Python 3.9.25 and preinstalled cryptography 36.0.1;
 - uploaded artifact SHA-256:
-  eaed9cd1bf9162c393764ab0a2f5305707b58c8ae71cb521302ee53a3eb9733a.
+  d7b507f57910923e9055732fe4aba2f8e3d404aad3579c549b9ce0975f3293df.
 
 A separate OCI CACE contract run (43121546574) matched the CACE EvidenceBundle
 v1 identity implementation. It produced bundle digest
@@ -160,6 +171,10 @@ dedicated hosted GitHub Actions jobs have not provided usable execution logs.
 The C++ smoke tests therefore remain unverified on a live compiler.
 
 No live CACE artifact attestation has been obtained for an Expert Robot
-candidate. The CACE verification adapter remains fail-closed until a real
-independent attestation and its independently distributed public-key pin are
-available. No production promotion has occurred.
+candidate. The current OCI MCP surface has no artifact-verification or
+attestation-signing operation. The RSI adapter therefore remains fail-closed
+until a separately operated CACE verifier is wired to the exact EvidenceBundle,
+issues a real signed attestation, and its public-key fingerprint is delivered
+through the independently controlled CACE trust-store channel. The Hermes,
+source, evaluator, worker, approver, and CACE trust-store environment values
+are not provisioned by this code change. No production promotion has occurred.
