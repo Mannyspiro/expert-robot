@@ -55,8 +55,14 @@ written to the same C++ research episode chain.
 
 ## CACE verification and controlled promotion
 
-CACE verification uses the existing cace-signed-attestation-v1 Ed25519
-profile and CACE EvidenceBundle v1 digest rules. The attestation must bind the
+CACE artifact-integrity attestation and independent-reproduction verification
+are separate evidence classes. The loopback MCP attestor can issue only an
+artifact-integrity statement after exact artifact-byte verification; it is
+recorded as candidate.cace_integrity_attested and is never promotion evidence.
+Only a separately produced CACE independent-reproduction attestation can be
+recorded as candidate.cace_verified. The latter uses the existing
+cace-signed-attestation-v1 Ed25519 profile and CACE EvidenceBundle v1 digest rules.
+It must bind the
 candidate ID, exact candidate digest, benchmark manifest digest, evaluator
 receipt digest, source repository, source commit, and
 authority=verification-only.
