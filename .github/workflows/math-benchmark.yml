@@ -25,7 +25,7 @@ on:
   workflow_dispatch:
     inputs:
       runner:
-        description: Avrea runner size
+        description: Namespace runner profile
         required: true
         type: choice
         default: namespace-profile-merlin
@@ -62,6 +62,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install Merlin native build toolchain
+        uses: ./.github/actions/setup-merlin-native
       - name: Build pinned Lean package
         uses: leanprover/lean-action@v1
         env:
