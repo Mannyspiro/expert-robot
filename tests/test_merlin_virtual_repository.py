@@ -427,20 +427,20 @@ class VirtualRepositoryTests(unittest.TestCase):
 
     def test_accepts_dot_prefixed_project_metadata_paths_but_not_git_directory(self):
         branch = self.repo.create_branch("feature/metadata")
-        commit = self.repo.commit(branch["name"], "add workflow metadata", {
+        commit = self.repo.commit(branch["branch"], "add workflow metadata", {
             ".github/workflows/ci.yml": "name: CI\\n",
             ".gitignore": "build/\\n",
         })
         self.assertEqual(
-            self.repo.read_file(branch["name"], ".github/workflows/ci.yml"),
+            self.repo.read_file(branch["branch"], ".github/workflows/ci.yml"),
             b"name: CI\\n",
         )
         self.assertEqual(
-            self.repo.read_file(branch["name"], ".gitignore"),
+            self.repo.read_file(branch["branch"], ".gitignore"),
             b"build/\\n",
         )
         with self.assertRaises(VirtualGitError):
-            self.repo.commit(branch["name"], "reject git internals", {
+            self.repo.commit(branch["branch"], "reject git internals", {
                 ".git/config": "unsafe\\n",
             })
 
