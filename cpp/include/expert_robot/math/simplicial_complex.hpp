@@ -308,6 +308,9 @@ public:
     [[nodiscard]] const std::map<SimplexKey, bool>& source_simplices() const noexcept {
         return source_.simplices();
     }
+    [[nodiscard]] const std::map<SimplexKey, bool>& target_simplices() const noexcept {
+        return target_.simplices();
+    }
 
     [[nodiscard]] SimplicialChain apply(const SimplicialChain& chain) const {
         for (const auto& [simplex, coefficient] : chain.terms()) {
@@ -374,18 +377,23 @@ public:
         const SimplicialChainMap& g,
         std::map<SimplexKey, IntegerChain> values)
         : source_id_(f.source_id()), target_id_(f.target_id()),
-          values_(std::move(values)) {
+          source_simplices_(f.source_simplices()),
+          target_simplices_(f.target_simplices()), values_(std::move(values)) {
         if (f.source_id() != g.source_id() || f.target_id() != g.target_id()) {
             throw std::invalid_argument(
                 "chain homotopy requires maps with identical source and target complexes");
         }
         for (const auto& [source_simplex, image] : values_) {
-            if (!f.source_contains(source_simplex)) {
-                throw std::invalid_argument("homotopy value is keyed by a simplex outside the source");
+            if (!f.source_contains(source_simplex) ||
+                !std::is_sorted(source_simplex.begin(), source_simplex.end()) ||
+                std::adjacent_find(source_simplex.begin(), source_simplex.end()) != source_simplex.end()) {
+                throw std::invalid_argument("homotopy key must be a canonical simplex in the source");
             }
             const std::size_t expected_degree = source_simplex.size();
             for (const auto& [target_simplex, coefficient] : image) {
                 if (coefficient == 0 || target_simplex.size() != expected_degree + 1 ||
+                    !std::is_sorted(target_simplex.begin(), target_simplex.end()) ||
+                    std::adjacent_find(target_simplex.begin(), target_simplex.end()) != target_simplex.end() ||
                     !f.target_contains(target_simplex)) {
                     throw std::invalid_argument(
                         "homotopy values must be nonzero target simplices one degree higher");
@@ -400,9 +408,18 @@ public:
     [[nodiscard]] SimplicialChain apply(const SimplicialChain& chain) const {
         IntegerChain result;
         for (const auto& [simplex, coefficient] : chain.terms()) {
+            if (source_simplices_.count(simplex) == 0) {
+                throw std::invalid_argument("homotopy input contains a simplex outside the source");
+            }
             const auto found = values_.find(simplex);
             if (found == values_.end()) continue;
             add_scaled_chain(result, found->second, coefficient);
+        }
+        for (const auto& [simplex, coefficient] : result) {
+            (void)coefficient;
+            if (target_simplices_.count(simplex) == 0) {
+                throw std::logic_error("homotopy output contains a simplex outside the target");
+            }
         }
         return SimplicialChain(chain.degree() + 1, std::move(result));
     }
@@ -436,6 +453,8 @@ public:
 private:
     std::string source_id_;
     std::string target_id_;
+    std::map<SimplexKey, bool> source_simplices_;
+    std::map<SimplexKey, bool> target_simplices_;
     std::map<SimplexKey, IntegerChain> values_;
 };
 
