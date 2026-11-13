@@ -458,4 +458,115 @@ private:
     std::map<SimplexKey, IntegerChain> values_;
 };
 
+
+// Compute matrix rank over the field F_2. Boundary coefficients +1 and -1
+// both become 1, so this gives exact homology over F_2 without floating-point
+// tolerances or integer-overflow assumptions.
+inline std::size_t rank_mod2(std::vector<std::vector<unsigned char>> matrix) {
+    if (matrix.empty()) return 0;
+    const std::size_t row_count = matrix.size();
+    const std::size_t column_count = matrix.front().size();
+    for (const auto& row : matrix) {
+        if (row.size() != column_count) {
+            throw std::invalid_argument("boundary matrix must be rectangular");
+        }
+    }
+
+    std::size_t pivot_row = 0;
+    for (std::size_t column = 0;
+         column < column_count && pivot_row < row_count; ++column) {
+        std::size_t selected = pivot_row;
+        while (selected < row_count && (matrix[selected][column] & 1U) == 0U) {
+            ++selected;
+        }
+        if (selected == row_count) continue;
+        std::swap(matrix[pivot_row], matrix[selected]);
+
+        for (std::size_t row = pivot_row + 1; row < row_count; ++row) {
+            if ((matrix[row][column] & 1U) == 0U) continue;
+            for (std::size_t c = column; c < column_count; ++c) {
+                matrix[row][c] =
+                    static_cast<unsigned char>((matrix[row][c] ^ matrix[pivot_row][c]) & 1U);
+            }
+        }
+        ++pivot_row;
+    }
+    return pivot_row;
+}
+
+
+// Construct the degree-n simplicial boundary matrix over F_2. Rows are
+// (n-1)-simplices and columns are n-simplices, both in canonical key order.
+inline std::vector<std::vector<unsigned char>> boundary_matrix_mod2(
+    const FiniteSimplicialComplex& complex, std::size_t degree) {
+    if (degree == 0) return {};
+    std::vector<SimplexKey> columns;
+    std::vector<SimplexKey> rows;
+    for (const auto& [simplex, present] : complex.simplices()) {
+        (void)present;
+        if (simplex.size() == degree + 1) columns.push_back(simplex);
+        if (simplex.size() == degree) rows.push_back(simplex);
+    }
+
+    std::map<SimplexKey, std::size_t> row_index;
+    for (std::size_t i = 0; i < rows.size(); ++i) row_index.emplace(rows[i], i);
+    std::vector<std::vector<unsigned char>> matrix(
+        rows.size(), std::vector<unsigned char>(columns.size(), 0));
+    for (std::size_t column = 0; column < columns.size(); ++column) {
+        const auto faces = boundary(OrientedSimplex{columns[column]});
+        for (const auto& [face, coefficient] : faces) {
+            (void)coefficient;
+            const auto found = row_index.find(face);
+            if (found == row_index.end()) {
+                throw std::logic_error("finite complex is missing a face of one of its simplices");
+            }
+            matrix[found->second][column] ^= 1U;
+        }
+    }
+    return matrix;
+}
+
+
+struct F2HomologyGroup {
+    std::size_t degree = 0;
+    std::size_t chain_dimension = 0;
+    std::size_t boundary_rank = 0;
+    std::size_t coboundary_rank = 0;
+    std::size_t betti_number = 0;
+};
+
+
+// Betti numbers over F_2: dim H_n = dim C_n - rank(d_n) - rank(d_(n+1)).
+// This intentionally computes field homology, not integral torsion data.
+inline std::vector<F2HomologyGroup> compute_f2_homology(
+    const FiniteSimplicialComplex& complex) {
+    std::size_t maximum_degree = 0;
+    for (const auto& [simplex, present] : complex.simplices()) {
+        (void)present;
+        maximum_degree = std::max(maximum_degree, simplex.size() - 1);
+    }
+
+    std::vector<F2HomologyGroup> result;
+    result.reserve(maximum_degree + 1);
+    for (std::size_t degree = 0; degree <= maximum_degree; ++degree) {
+        std::size_t chain_dimension = 0;
+        for (const auto& [simplex, present] : complex.simplices()) {
+            (void)present;
+            if (simplex.size() == degree + 1) ++chain_dimension;
+        }
+        const auto lower = boundary_matrix_mod2(complex, degree);
+        const auto upper = boundary_matrix_mod2(complex, degree + 1);
+        const std::size_t boundary_rank = rank_mod2(lower);
+        const std::size_t coboundary_rank = rank_mod2(upper);
+        if (boundary_rank + coboundary_rank > chain_dimension) {
+            throw std::logic_error("boundary ranks violate the chain-complex dimension identity");
+        }
+        result.push_back(F2HomologyGroup{
+            degree, chain_dimension, boundary_rank, coboundary_rank,
+            chain_dimension - boundary_rank - coboundary_rank
+        });
+    }
+    return result;
+}
+
 } // namespace expert_robot::math::continuum
