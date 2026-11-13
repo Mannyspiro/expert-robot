@@ -810,8 +810,11 @@ inline SmithNormalForm smith_normal_form(IntegerMatrix input) {
             bool restart = false;
             for (std::size_t i = pivot + 1; i < input.rows; ++i) {
                 if (input.values[i][pivot] == 0) continue;
-                const Integer q = input.values[i][pivot] / input.values[pivot][pivot];
-                add_row_multiple(input, i, pivot, -q);
+                const Integer q = checked_integer(
+                    static_cast<__int128>(input.values[i][pivot]) /
+                    static_cast<__int128>(input.values[pivot][pivot]));
+                add_row_multiple(input, i, pivot,
+                    checked_integer(-static_cast<__int128>(q)));
                 if (input.values[i][pivot] != 0) {
                     swap_rows(input, i, pivot);
                 }
@@ -822,9 +825,12 @@ inline SmithNormalForm smith_normal_form(IntegerMatrix input) {
 
             for (std::size_t j = pivot + 1; j < input.columns; ++j) {
                 if (input.values[pivot][j] == 0) continue;
-                const Integer q = input.values[pivot][j] / input.values[pivot][pivot];
-                add_column_multiple(input, j, pivot, -q);
-                add_column_multiple(right, j, pivot, -q);
+                const Integer q = checked_integer(
+                    static_cast<__int128>(input.values[pivot][j]) /
+                    static_cast<__int128>(input.values[pivot][pivot]));
+                const Integer negative_q = checked_integer(-static_cast<__int128>(q));
+                add_column_multiple(input, j, pivot, negative_q);
+                add_column_multiple(right, j, pivot, negative_q);
                 // (V E)^-1 = E^-1 V^-1 for E: col_j -= q col_pivot.
                 add_row_multiple(inverse, pivot, j, q);
                 if (input.values[pivot][j] != 0) {
@@ -840,7 +846,8 @@ inline SmithNormalForm smith_normal_form(IntegerMatrix input) {
             std::size_t bad_row = input.rows;
             for (std::size_t i = pivot + 1; i < input.rows && bad_row == input.rows; ++i) {
                 for (std::size_t j = pivot + 1; j < input.columns; ++j) {
-                    if (input.values[i][j] % input.values[pivot][pivot] != 0) {
+                    if (static_cast<__int128>(input.values[i][j]) %
+                        static_cast<__int128>(input.values[pivot][pivot]) != 0) {
                         bad_row = i;
                         break;
                     }
