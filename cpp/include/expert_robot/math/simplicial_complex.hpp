@@ -1006,6 +1006,18 @@ inline IntegralHomologyGroup real_projective_plane_h1() {
 
 
 
+// The minimal six-vertex triangulation of RP^2 (10 facets). Unlike the
+// cellular fixture above, this is a genuine abstract simplicial complex;
+// homology is computed from its oriented simplicial boundary matrices.
+inline FiniteSimplicialComplex triangulated_real_projective_plane() {
+    return FiniteSimplicialComplex("triangulated-real-projective-plane", {
+        {"0", "1", "2"}, {"0", "1", "3"}, {"0", "2", "4"},
+        {"0", "3", "5"}, {"0", "4", "5"}, {"1", "2", "5"},
+        {"1", "3", "4"}, {"1", "4", "5"}, {"2", "3", "4"},
+        {"2", "3", "5"}
+    });
+}
+
 // A finite filtered complex assigns a nondecreasing filtration value to every
 // simplex: each face must appear no later than its cofaces. Persistent homology
 // is computed over F_2 by standard left-to-right boundary-matrix reduction.
@@ -1261,6 +1273,97 @@ inline ContinuumStateFiltration build_paired_state_filtration(
     return result;
 }
 
+
+// A shared endpoint is a named geometric/state-space vertex represented by
+// an endpoint sample on each incident edge. Parameters are explicit (normally
+// 0 or 1); no endpoint is inferred from coincident floating-point coordinates.
+struct ContinuumEndpointBinding {
+    std::string edge_id;
+    std::string sample_id;
+    double endpoint_parameter = 0.0;
+};
+
+struct ContinuumEndpointConstraint {
+    std::string endpoint_id;
+    std::vector<ContinuumEndpointBinding> bindings;
+    double tolerance = 0.0;
+    std::vector<std::string> provenance;
+};
+
+struct ResolvedContinuumEndpoint {
+    std::string endpoint_id;
+    double first = 0.0;
+    double second = 0.0;
+    std::vector<std::string> incident_edges;
+    std::vector<std::string> sample_ids;
+    std::vector<std::string> provenance;
+};
+
+// Resolve shared endpoints only when the caller supplies an explicit
+// compatibility constraint. The first binding is the reference state;
+// every other incident edge must agree within the declared tolerance.
+inline std::vector<ResolvedContinuumEndpoint> validate_continuum_gluing(
+    const std::vector<PairedContinuumSample>& samples,
+    const std::vector<ContinuumEndpointConstraint>& constraints) {
+    std::map<std::string, const PairedContinuumSample*> by_id;
+    for (const auto& sample : samples) {
+        if (sample.sample_id.empty() || sample.edge_id.empty() ||
+            !by_id.emplace(sample.sample_id, &sample).second) {
+            throw std::invalid_argument("continuum gluing requires unique, named samples and edges");
+        }
+    }
+    std::set<std::string> endpoint_ids;
+    std::vector<ResolvedContinuumEndpoint> resolved;
+    for (const auto& constraint : constraints) {
+        if (constraint.endpoint_id.empty() || !endpoint_ids.insert(constraint.endpoint_id).second ||
+            constraint.bindings.size() < 2 || !std::isfinite(constraint.tolerance) ||
+            constraint.tolerance < 0.0) {
+            throw std::invalid_argument("endpoint constraints need unique IDs, two bindings and finite nonnegative tolerance");
+        }
+        const auto& reference_binding = constraint.bindings.front();
+        const auto reference = by_id.find(reference_binding.sample_id);
+        if (reference == by_id.end() || reference->second->edge_id != reference_binding.edge_id ||
+            !std::isfinite(reference_binding.endpoint_parameter) ||
+            std::abs(reference->second->parameter - reference_binding.endpoint_parameter) > 1e-12 ||
+            (std::abs(reference_binding.endpoint_parameter) > 1e-12 &&
+             std::abs(reference_binding.endpoint_parameter - 1.0) > 1e-12)) {
+            throw std::invalid_argument("endpoint reference binding does not identify its declared edge endpoint");
+        }
+        ResolvedContinuumEndpoint item;
+        item.endpoint_id = constraint.endpoint_id;
+        item.first = reference->second->first;
+        item.second = reference->second->second;
+        item.provenance = constraint.provenance;
+        for (const auto& binding : constraint.bindings) {
+            const auto found = by_id.find(binding.sample_id);
+            if (found == by_id.end() || found->second->edge_id != binding.edge_id ||
+                !std::isfinite(binding.endpoint_parameter) ||
+                (std::abs(binding.endpoint_parameter) > 1e-12 &&
+                 std::abs(binding.endpoint_parameter - 1.0) > 1e-12) ||
+                std::abs(found->second->parameter - binding.endpoint_parameter) > 1e-12) {
+                throw std::invalid_argument("endpoint binding does not match an explicit sample at edge parameter 0 or 1");
+            }
+            if (std::abs(found->second->first - item.first) > constraint.tolerance ||
+                std::abs(found->second->second - item.second) > constraint.tolerance) {
+                throw std::invalid_argument("shared endpoint paired states violate compatibility tolerance");
+            }
+            item.incident_edges.push_back(binding.edge_id);
+            item.sample_ids.push_back(binding.sample_id);
+            item.provenance.push_back("endpoint:" + constraint.endpoint_id);
+            item.provenance.push_back("edge:" + binding.edge_id);
+            item.provenance.push_back("sample:" + binding.sample_id);
+            item.provenance.push_back("parameter:" + canonical_double(binding.endpoint_parameter));
+            item.provenance.insert(item.provenance.end(), found->second->assumptions.begin(),
+                                   found->second->assumptions.end());
+        }
+        std::sort(item.provenance.begin(), item.provenance.end());
+        item.provenance.erase(std::unique(item.provenance.begin(), item.provenance.end()),
+                              item.provenance.end());
+        resolved.push_back(std::move(item));
+    }
+    return resolved;
+}
+
 struct PersistenceEvidence {
     std::string algorithm_version = "merlin-persistence-f2-v2";
     std::string input_digest;
@@ -1363,6 +1466,78 @@ inline PersistenceEvidence make_persistence_evidence(
     return evidence;
 }
 
+
+
+// Transport-ready evidence envelope. It binds a run to immutable source and
+// result identities; it is a request/record for CACE, not a CACE signature or
+// a claim that independent verification has occurred.
+struct PersistenceEvidenceEnvelope {
+    std::string source_commit;
+    std::string algorithm_version;
+    std::string input_digest;
+    std::string output_digest;
+    std::string runner_identity;
+    std::string runner_execution_id;
+    std::string environment;
+    std::string reproducibility_receipt_digest;
+};
+
+inline bool is_lower_hex_digest(const std::string& value) {
+    return value.size() == 64 &&
+        std::all_of(value.begin(), value.end(), [](char c) {
+            return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f');
+        });
+}
+
+inline std::string canonical_persistence_evidence_envelope(
+    const PersistenceEvidenceEnvelope& envelope) {
+    if (envelope.source_commit.size() != 40 ||
+        !std::all_of(envelope.source_commit.begin(), envelope.source_commit.end(),
+                     [](char c) { return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f'); }) ||
+        envelope.algorithm_version.empty() || envelope.runner_identity.empty() ||
+        envelope.runner_execution_id.empty() || envelope.environment.empty() ||
+        !is_lower_hex_digest(envelope.input_digest) ||
+        !is_lower_hex_digest(envelope.output_digest) ||
+        !is_lower_hex_digest(envelope.reproducibility_receipt_digest)) {
+        throw std::invalid_argument("evidence envelope is missing exact source, runner or digest identity");
+    }
+    const auto field = [](const std::string& name, const std::string& value) {
+        return name + "=" + std::to_string(value.size()) + ":" + value + "\n";
+    };
+    return field("source_commit", envelope.source_commit) +
+        field("algorithm_version", envelope.algorithm_version) +
+        field("input_digest", envelope.input_digest) +
+        field("output_digest", envelope.output_digest) +
+        field("runner_identity", envelope.runner_identity) +
+        field("runner_execution_id", envelope.runner_execution_id) +
+        field("environment", envelope.environment) +
+        field("reproducibility_receipt_digest", envelope.reproducibility_receipt_digest);
+}
+
+inline std::string persistence_evidence_envelope_digest(
+    const PersistenceEvidenceEnvelope& envelope) {
+    return expert_robot::sha256_hex(canonical_persistence_evidence_envelope(envelope));
+}
+
+// CACE's eventual response must bind this exact envelope digest. Signature
+// verification and issuer trust remain responsibilities of the CACE verifier.
+struct CaceReceiptBinding {
+    std::string envelope_digest;
+    std::string receipt_id;
+    std::string issuer_key_id;
+    std::string signature;
+    std::string verifier_version;
+};
+
+inline void validate_cace_receipt_binding(
+    const PersistenceEvidenceEnvelope& envelope,
+    const CaceReceiptBinding& receipt) {
+    if (receipt.envelope_digest != persistence_evidence_envelope_digest(envelope) ||
+        receipt.receipt_id.empty() || receipt.issuer_key_id.empty() ||
+        receipt.signature.empty() || receipt.verifier_version.empty()) {
+        throw std::invalid_argument("CACE receipt binding is incomplete or targets different evidence bytes");
+    }
+}
 
 inline std::vector<std::vector<unsigned char>> induced_f2_homology_map(
     const SimplicialChainMap& map,
