@@ -485,7 +485,42 @@ int main() {
     assert(evidence.input_digest.size() == 64);
     assert(evidence.output_digest.size() == 64);
     assert(evidence.filtration_parameters.find("threshold=1") != std::string::npos);
+
     assert(!evidence.reproducibility_metadata.empty());
+
+    // Smith normal form retains invariant factors and unimodular basis data.
+    using expert_robot::math::continuum::IntegerMatrix;
+    using expert_robot::math::continuum::smith_normal_form;
+    using expert_robot::math::continuum::real_projective_plane_h1;
+    IntegerMatrix integer_matrix(2, 2);
+    integer_matrix.values = {{2, 4}, {6, 8}};
+    const auto smith = smith_normal_form(integer_matrix);
+    assert(smith.rank == 2);
+    assert(smith.invariant_factors.size() == 2);
+    assert(smith.invariant_factors[0] == 2);
+    assert(smith.invariant_factors[1] == 4);
+
+    // The cellular chain complex of RP^2 distinguishes integral torsion:
+    // H_1(RP^2; Z) = Z/2, which a Betti-number-only report would miss.
+    const auto rp2_h1 = real_projective_plane_h1();
+    assert(rp2_h1.degree == 1);
+    assert(rp2_h1.free_rank == 0);
+    assert(rp2_h1.torsion_invariant_factors.size() == 1);
+    assert(rp2_h1.torsion_invariant_factors[0] == 2);
+
+    bool rejected_non_chain_complex = false;
+    try {
+        IntegerMatrix bad_d1(1, 1);
+        IntegerMatrix bad_d2(1, 1);
+        bad_d1.values[0][0] = 1;
+        bad_d2.values[0][0] = 1;
+        (void)expert_robot::math::continuum::compute_integral_homology_group(
+            1, bad_d1, bad_d2);
+    } catch (const std::invalid_argument&) {
+        rejected_non_chain_complex = true;
+    }
+    assert(rejected_non_chain_complex);
+
 
 
     bool rejected_non_face_closed_filtration = false;
