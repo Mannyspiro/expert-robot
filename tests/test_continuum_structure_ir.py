@@ -134,6 +134,32 @@ class ContinuumStructureIRTests(unittest.TestCase):
         self.assertTrue(all(item["proof_implication"] == "none" for item in sample["evidence"]))
 
 
+    def test_explicit_endpoint_gluing_is_typed_and_provenance_bound(self):
+        sample = self.sample
+        fields = {item["id"]: item for item in sample["edge_fields"]}
+        cells = {item["id"]: item for item in sample["cells"]}
+        endpoint_ids = set()
+        for gluing in sample["endpoint_gluing"]:
+            self.assertNotIn(gluing["endpoint_id"], endpoint_ids)
+            endpoint_ids.add(gluing["endpoint_id"])
+            self.assertGreaterEqual(len(gluing["bindings"]), 2)
+            self.assertGreaterEqual(gluing["tolerance"], 0)
+            self.assertEqual(gluing["compatibility"], "componentwise_absolute")
+            self.assertTrue(gluing["provenance"])
+            for binding in gluing["bindings"]:
+                field = fields[binding["edge_field_id"]]
+                points = [p for p in field["samples"] if p.get("sample_id") == binding["sample_id"]]
+                self.assertEqual(len(points), 1)
+                point = points[0]
+                self.assertEqual(point["parameter"], binding["parameter"])
+                self.assertEqual(point["value"], binding["value"])
+                cell = cells[field["cell_id"]]
+                expected_vertex = cell["vertex_ids"][0 if binding["parameter"] == 0 else -1]
+                self.assertEqual(expected_vertex, gluing["endpoint_id"])
+        self.assertEqual(endpoint_ids, {"A", "B", "C"})
+
+
+
     def test_cells_can_attach_heterogeneous_state_spaces(self):
         sample = json.loads(json.dumps(self.sample))
         sample["state_spaces"].append({
