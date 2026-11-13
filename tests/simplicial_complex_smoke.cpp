@@ -138,6 +138,56 @@ int main() {
     }
     assert(rejected_noncanonical_chain);
 
+
+    // Vertex maps induce chain maps: boundary(f(c)) == f(boundary(c)).
+    using expert_robot::math::continuum::SimplicialVertexMap;
+    const SimplicialVertexMap relabel({
+        {"A", "X"}, {"B", "Y"}, {"C", "Z"}, {"D", "W"}
+    });
+    assert(relabel.commutes_with_boundary(triangle_chain));
+    const auto relabeled = relabel.apply(triangle_chain);
+    assert(relabeled.degree() == 2);
+    assert(relabeled.terms().size() == 1);
+
+    // A permutation of target vertices changes orientation by its sign.
+    const SimplicialVertexMap reverse_map({
+        {"A", "Z"}, {"B", "Y"}, {"C", "X"}
+    });
+    const auto reversed_image = reverse_map.apply(triangle_chain);
+    assert(reversed_image.terms().size() == 1);
+    assert(reversed_image.terms().begin()->first == (std::vector<std::string>{"X", "Y", "Z"}));
+    assert(reversed_image.terms().begin()->second == -1);
+    assert(reverse_map.commutes_with_boundary(triangle_chain));
+
+    // Collapsing an edge makes the 2-simplex degenerate (zero), while the
+    // two surviving boundary-edge images cancel exactly.
+    const SimplicialVertexMap collapse_map({
+        {"A", "X"}, {"B", "X"}, {"C", "Z"}
+    });
+    const auto collapsed_triangle = collapse_map.apply(triangle_chain);
+    assert(collapsed_triangle.terms().empty());
+    assert(collapse_map.commutes_with_boundary(triangle_chain));
+
+    // A map must be defined on every vertex actually used by a chain.
+    bool rejected_missing_vertex_image = false;
+    try {
+        const SimplicialVertexMap partial_map({{"A", "X"}, {"B", "Y"}});
+        (void)partial_map.apply(triangle_chain);
+    } catch (const std::invalid_argument&) {
+        rejected_missing_vertex_image = true;
+    }
+    assert(rejected_missing_vertex_image);
+
+    // The boundary-commutation helper is intentionally undefined for C0 in
+    // this non-augmented chain model.
+    bool rejected_degree_zero_chain_map_check = false;
+    try {
+        (void)relabel.commutes_with_boundary(vertex_chain);
+    } catch (const std::invalid_argument&) {
+        rejected_degree_zero_chain_map_check = true;
+    }
+    assert(rejected_degree_zero_chain_map_check);
+
     std::cout << "simplicial boundary smoke: PASS\n";
     return 0;
 }
