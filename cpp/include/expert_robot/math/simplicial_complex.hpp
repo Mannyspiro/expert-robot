@@ -569,4 +569,134 @@ inline std::vector<F2HomologyGroup> compute_f2_homology(
     return result;
 }
 
+
+// Return a basis for the nullspace of a matrix over F_2. The caller supplies
+// the column count so matrices with zero rows still retain their domain size.
+inline std::vector<std::vector<unsigned char>> nullspace_basis_mod2(
+    std::vector<std::vector<unsigned char>> matrix, std::size_t column_count) {
+    for (const auto& row : matrix) {
+        if (row.size() != column_count) {
+            throw std::invalid_argument("nullspace matrix has inconsistent row width");
+        }
+    }
+    const std::size_t row_count = matrix.size();
+    std::vector<std::size_t> pivot_columns;
+    std::size_t pivot_row = 0;
+    for (std::size_t column = 0;
+         column < column_count && pivot_row < row_count; ++column) {
+        std::size_t selected = pivot_row;
+        while (selected < row_count && (matrix[selected][column] & 1U) == 0U) ++selected;
+        if (selected == row_count) continue;
+        std::swap(matrix[pivot_row], matrix[selected]);
+        for (std::size_t row = 0; row < row_count; ++row) {
+            if (row == pivot_row || (matrix[row][column] & 1U) == 0U) continue;
+            for (std::size_t c = column; c < column_count; ++c) {
+                matrix[row][c] = static_cast<unsigned char>(
+                    (matrix[row][c] ^ matrix[pivot_row][c]) & 1U);
+            }
+        }
+        pivot_columns.push_back(column);
+        ++pivot_row;
+    }
+
+    std::vector<bool> is_pivot(column_count, false);
+    for (const auto column : pivot_columns) is_pivot[column] = true;
+    std::vector<std::vector<unsigned char>> basis;
+    for (std::size_t free_column = 0; free_column < column_count; ++free_column) {
+        if (is_pivot[free_column]) continue;
+        std::vector<unsigned char> vector(column_count, 0);
+        vector[free_column] = 1;
+        for (std::size_t row = 0; row < pivot_columns.size(); ++row) {
+            vector[pivot_columns[row]] = matrix[row][free_column] & 1U;
+        }
+        basis.push_back(std::move(vector));
+    }
+    return basis;
+}
+
+
+// Rank of a list of F_2 vectors, each represented in the same coordinate
+// space. Empty input has rank zero.
+inline std::size_t vector_rank_mod2(
+    const std::vector<std::vector<unsigned char>>& vectors,
+    std::size_t coordinate_count) {
+    std::vector<std::vector<unsigned char>> matrix(
+        coordinate_count, std::vector<unsigned char>(vectors.size(), 0));
+    for (std::size_t column = 0; column < vectors.size(); ++column) {
+        if (vectors[column].size() != coordinate_count) {
+            throw std::invalid_argument("F2 vectors have inconsistent coordinate dimensions");
+        }
+        for (std::size_t row = 0; row < coordinate_count; ++row) {
+            matrix[row][column] = vectors[column][row] & 1U;
+        }
+    }
+    return rank_mod2(std::move(matrix));
+}
+
+
+struct F2HomologyRepresentatives {
+    std::size_t degree = 0;
+    // Each representative is a cycle chain, and the classes form a basis
+    // modulo boundaries. Coefficients are 0/1 in F_2.
+    std::vector<IntegerChain> representatives;
+};
+
+
+// Compute explicit cycle representatives for a basis of H_n(K; F_2).
+// Boundaries are inserted into the span first; a cycle is retained exactly
+// when it contributes a new independent class modulo that span.
+inline std::vector<F2HomologyRepresentatives> compute_f2_homology_representatives(
+    const FiniteSimplicialComplex& complex) {
+    std::size_t maximum_degree = 0;
+    for (const auto& [simplex, present] : complex.simplices()) {
+        (void)present;
+        maximum_degree = std::max(maximum_degree, simplex.size() - 1);
+    }
+
+    std::vector<F2HomologyRepresentatives> result;
+    result.reserve(maximum_degree + 1);
+    for (std::size_t degree = 0; degree <= maximum_degree; ++degree) {
+        std::vector<SimplexKey> basis_simplices;
+        for (const auto& [simplex, present] : complex.simplices()) {
+            (void)present;
+            if (simplex.size() == degree + 1) basis_simplices.push_back(simplex);
+        }
+        const std::size_t dimension = basis_simplices.size();
+        const auto cycles = nullspace_basis_mod2(
+            boundary_matrix_mod2(complex, degree), dimension);
+        const auto upper = boundary_matrix_mod2(complex, degree + 1);
+
+        std::vector<std::vector<unsigned char>> span;
+        if (!upper.empty()) {
+            for (std::size_t column = 0; column < upper.front().size(); ++column) {
+                std::vector<unsigned char> boundary_vector(dimension, 0);
+                for (std::size_t row = 0; row < dimension; ++row) {
+                    boundary_vector[row] = upper[row][column] & 1U;
+                }
+                span.push_back(std::move(boundary_vector));
+            }
+        }
+
+        std::size_t current_rank = vector_rank_mod2(span, dimension);
+        F2HomologyRepresentatives group;
+        group.degree = degree;
+        for (const auto& cycle : cycles) {
+            auto candidate_span = span;
+            candidate_span.push_back(cycle);
+            const std::size_t next_rank = vector_rank_mod2(candidate_span, dimension);
+            if (next_rank == current_rank) continue;
+
+            IntegerChain representative;
+            for (std::size_t i = 0; i < dimension; ++i) {
+                if ((cycle[i] & 1U) != 0U) add_chain_coefficient(representative, basis_simplices[i], 1);
+            }
+            group.representatives.push_back(std::move(representative));
+            span.push_back(cycle);
+            current_rank = next_rank;
+        }
+        result.push_back(std::move(group));
+    }
+    return result;
+}
+
 } // namespace expert_robot::math::continuum
