@@ -767,11 +767,13 @@ inline void validate_f2_homology_representatives(
             }
             coordinates[found->second] ^= static_cast<unsigned char>(coefficient & 1);
         }
-        const IntegerChain boundary_chain = boundary(representative);
-        for (const auto& [simplex, coefficient] : boundary_chain) {
-            (void)simplex;
-            if ((coefficient & 1) != 0) {
-                throw std::invalid_argument("homology representative is not a cycle over F2");
+        if (group.degree > 0) {
+            const IntegerChain boundary_chain = boundary(representative);
+            for (const auto& [simplex, coefficient] : boundary_chain) {
+                (void)simplex;
+                if ((coefficient & 1) != 0) {
+                    throw std::invalid_argument("homology representative is not a cycle over F2");
+                }
             }
         }
         span.push_back(std::move(coordinates));
