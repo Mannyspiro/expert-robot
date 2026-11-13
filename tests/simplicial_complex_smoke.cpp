@@ -945,6 +945,9 @@ int main() {
     const auto target_h1 = compute_f2_homology_representatives(target_circle)[1];
     validate_f2_homology_representatives(source_circle, source_h1);
     validate_f2_homology_representatives(target_circle, target_h1);
+    const FiniteSimplicialComplex representative_point("representative-point", {{"P"}});
+    const auto point_h0 = compute_f2_homology_representatives(representative_point)[0];
+    validate_f2_homology_representatives(representative_point, point_h0);
 
     // The verifier rejects a duplicate class (independence failure), a
     // non-cycle, and a basis with the wrong cardinality (spanning failure).
