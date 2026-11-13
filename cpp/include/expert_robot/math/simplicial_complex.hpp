@@ -1,5 +1,7 @@
 #pragma once
 
+#include "expert_robot/sha256.hpp"
+
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -721,11 +723,16 @@ struct F2PersistenceInterval {
     double death = std::numeric_limits<double>::infinity();
     SimplexKey birth_simplex;
     SimplexKey death_simplex;
+    // A cycle representative in C_degree at the birth parameter, over F_2.
+    // Its class is the interval's generator until the recorded death.
+    IntegerChain birth_cycle;
     [[nodiscard]] bool essential() const noexcept {
         return !std::isfinite(death);
     }
 };
 
+// Column reduction tracks both R = D V and the change-of-basis columns V.
+// If R_j is zero, V_j is an actual cycle representative born at simplex j.
 inline std::vector<F2PersistenceInterval> compute_f2_persistent_homology(
     const std::vector<FilteredSimplex>& filtration) {
     if (filtration.empty()) return {};
@@ -770,6 +777,7 @@ inline std::vector<F2PersistenceInterval> compute_f2_persistent_homology(
 
     std::map<std::size_t, std::size_t> pivot_to_column;
     std::vector<std::set<std::size_t>> reduced_columns;
+    std::vector<std::set<std::size_t>> change_columns;
     std::vector<bool> creates_class(ordered.size(), false);
     std::vector<F2PersistenceInterval> intervals;
     for (std::size_t column = 0; column < ordered.size(); ++column) {
@@ -781,15 +789,24 @@ inline std::vector<F2PersistenceInterval> compute_f2_persistent_homology(
                 reduced.insert(index.at(face));
             }
         }
+        std::set<std::size_t> change{column};
         while (!reduced.empty()) {
             const std::size_t low = *reduced.rbegin();
             const auto paired = pivot_to_column.find(low);
             if (paired == pivot_to_column.end()) break;
-            const auto& other = reduced_columns[paired->second];
-            std::set<std::size_t> merged;
+            const auto& other_reduced = reduced_columns[paired->second];
+            std::set<std::size_t> merged_reduced;
             std::set_symmetric_difference(reduced.begin(), reduced.end(),
-                other.begin(), other.end(), std::inserter(merged, merged.begin()));
-            reduced = std::move(merged);
+                other_reduced.begin(), other_reduced.end(),
+                std::inserter(merged_reduced, merged_reduced.begin()));
+            reduced = std::move(merged_reduced);
+
+            const auto& other_change = change_columns[paired->second];
+            std::set<std::size_t> merged_change;
+            std::set_symmetric_difference(change.begin(), change.end(),
+                other_change.begin(), other_change.end(),
+                std::inserter(merged_change, merged_change.begin()));
+            change = std::move(merged_change);
         }
         if (reduced.empty()) {
             creates_class[column] = true;
@@ -797,17 +814,34 @@ inline std::vector<F2PersistenceInterval> compute_f2_persistent_homology(
             const std::size_t low = *reduced.rbegin();
             pivot_to_column.emplace(low, column);
             const std::size_t degree = ordered[low].size() - 1;
+            IntegerChain cycle;
+            for (const std::size_t term : change_columns[low]) {
+                if (ordered[term].size() != degree + 1) {
+                    throw std::logic_error("persistence change-of-basis column mixes degrees");
+                }
+                add_chain_coefficient(cycle, ordered[term], 1);
+            }
             intervals.push_back(F2PersistenceInterval{
                 degree, values.at(ordered[low]), values.at(ordered[column]),
-                ordered[low], ordered[column]});
+                ordered[low], ordered[column], std::move(cycle)});
         }
         reduced_columns.push_back(std::move(reduced));
+        change_columns.push_back(std::move(change));
     }
     for (std::size_t i = 0; i < ordered.size(); ++i) {
         if (creates_class[i] && pivot_to_column.count(i) == 0) {
+            IntegerChain cycle;
+            const std::size_t degree = ordered[i].size() - 1;
+            for (const std::size_t term : change_columns[i]) {
+                if (ordered[term].size() != degree + 1) {
+                    throw std::logic_error("essential persistence cycle mixes degrees");
+                }
+                add_chain_coefficient(cycle, ordered[term], 1);
+            }
             intervals.push_back(F2PersistenceInterval{
-                ordered[i].size() - 1, values.at(ordered[i]),
-                std::numeric_limits<double>::infinity(), ordered[i], {}});
+                degree, values.at(ordered[i]),
+                std::numeric_limits<double>::infinity(), ordered[i], {},
+                std::move(cycle)});
         }
     }
     std::sort(intervals.begin(), intervals.end(), [](const auto& a, const auto& b) {
@@ -819,6 +853,165 @@ inline std::vector<F2PersistenceInterval> compute_f2_persistent_homology(
     return intervals;
 }
 
+// A paired state at one sampled point on a named continuum edge.
+struct PairedContinuumSample {
+    std::string edge_id;
+    std::string sample_id;
+    double parameter = 0.0;
+    double first = 0.0;
+    double second = 0.0;
+    std::vector<std::string> assumptions;
+};
+
+// A simplex is explicitly declared as a maximal relation among sample IDs.
+// No 2-simplex is inferred merely because three edge samples form a picture.
+struct ContinuumStateSimplex {
+    SimplexKey sample_ids;
+    std::vector<std::string> assumptions;
+};
+
+struct ContinuumStateFiltration {
+    std::vector<FilteredSimplex> filtration;
+    std::map<SimplexKey, std::vector<std::string>> provenance;
+    std::map<SimplexKey, std::vector<double>> paired_state_values;
+    double threshold = 0.0;
+};
+
+// Vertex score is max(|x|,|y|); a simplex enters at the maximum score of
+// its vertices. This upper-star rule guarantees faces enter no later.
+inline ContinuumStateFiltration build_paired_state_filtration(
+    const std::vector<PairedContinuumSample>& samples,
+    const std::vector<ContinuumStateSimplex>& maximal_cells,
+    double threshold) {
+    if (!std::isfinite(threshold) || samples.empty() || maximal_cells.empty()) {
+        throw std::invalid_argument("continuum filtration needs finite threshold, samples and cells");
+    }
+    std::map<std::string, const PairedContinuumSample*> by_id;
+    for (const auto& sample : samples) {
+        if (sample.edge_id.empty() || sample.sample_id.empty() ||
+            !std::isfinite(sample.parameter) || !std::isfinite(sample.first) ||
+            !std::isfinite(sample.second) ||
+            !by_id.emplace(sample.sample_id, &sample).second) {
+            throw std::invalid_argument("continuum samples need unique IDs and finite state coordinates");
+        }
+    }
+    std::map<SimplexKey, double> scores;
+    ContinuumStateFiltration result;
+    result.threshold = threshold;
+    for (const auto& cell : maximal_cells) {
+        if (cell.sample_ids.empty()) throw std::invalid_argument("continuum cell cannot be empty");
+        auto vertices = cell.sample_ids;
+        std::sort(vertices.begin(), vertices.end());
+        if (std::adjacent_find(vertices.begin(), vertices.end()) != vertices.end()) {
+            throw std::invalid_argument("continuum cell repeats a sample ID");
+        }
+        for (const auto& vertex : vertices) {
+            if (by_id.count(vertex) == 0) {
+                throw std::invalid_argument("continuum cell references an unknown sample");
+            }
+        }
+        // Enumerate all nonempty faces; all receive the same max-vertex score
+        // only if they contain the maximizing vertex, otherwise their own max.
+        std::vector<SimplexKey> faces;
+        const auto enumerate = [&](const auto& self, std::size_t at, SimplexKey selected) -> void {
+            if (at == vertices.size()) {
+                if (!selected.empty()) faces.push_back(std::move(selected));
+                return;
+            }
+            self(self, at + 1, selected);
+            selected.push_back(vertices[at]);
+            self(self, at + 1, std::move(selected));
+        };
+        enumerate(enumerate, 0, {});
+        for (const auto& face : faces) {
+            double score = 0.0;
+            std::vector<std::string> origins = cell.assumptions;
+            std::vector<double> states;
+            for (const auto& id : face) {
+                const auto& sample = *by_id.at(id);
+                score = std::max(score, std::max(std::abs(sample.first), std::abs(sample.second)));
+                states.push_back(sample.first);
+                states.push_back(sample.second);
+                origins.push_back("edge:" + sample.edge_id);
+                origins.push_back("sample:" + sample.sample_id);
+                origins.push_back("parameter:" + std::to_string(sample.parameter));
+                origins.insert(origins.end(), sample.assumptions.begin(), sample.assumptions.end());
+            }
+            auto [key, sign] = canonical_orientation(face);
+            (void)sign;
+            auto found = scores.find(key);
+            if (found == scores.end() || score < found->second) scores[key] = score;
+            auto& provenance = result.provenance[key];
+            provenance.insert(provenance.end(), origins.begin(), origins.end());
+            auto& values_for_face = result.paired_state_values[key];
+            values_for_face.insert(values_for_face.end(), states.begin(), states.end());
+        }
+    }
+    for (auto& [simplex, origins] : result.provenance) {
+        std::sort(origins.begin(), origins.end());
+        origins.erase(std::unique(origins.begin(), origins.end()), origins.end());
+        if (scores.at(simplex) <= threshold) {
+            result.filtration.push_back(FilteredSimplex{simplex, scores.at(simplex)});
+        }
+    }
+    return result;
+}
+
+struct PersistenceEvidence {
+    std::string algorithm_version = "merlin-persistence-f2-v2";
+    std::string input_digest;
+    std::string filtration_parameters;
+    std::string output_digest;
+    std::string reproducibility_metadata;
+    // This is a computational record, not a CACE verification receipt.
+};
+
+inline std::string canonical_persistence_input(
+    const std::vector<FilteredSimplex>& filtration) {
+    auto ordered = filtration;
+    std::sort(ordered.begin(), ordered.end(), [](const auto& a, const auto& b) {
+        if (a.simplex != b.simplex) return a.simplex < b.simplex;
+        return a.filtration < b.filtration;
+    });
+    std::string canonical;
+    for (const auto& item : ordered) {
+        for (const auto& vertex : item.simplex) {
+            canonical += std::to_string(vertex.size()) + ":" + vertex + ";";
+        }
+        canonical += "@" + std::to_string(item.filtration) + "\n";
+    }
+    return canonical;
+}
+
+inline std::string canonical_persistence_output(
+    const std::vector<F2PersistenceInterval>& intervals) {
+    std::string canonical;
+    for (const auto& interval : intervals) {
+        canonical += std::to_string(interval.degree) + "|" +
+            std::to_string(interval.birth) + "|" + std::to_string(interval.death) + "|";
+        for (const auto& [simplex, coefficient] : interval.birth_cycle) {
+            for (const auto& vertex : simplex) {
+                canonical += std::to_string(vertex.size()) + ":" + vertex + ";";
+            }
+            canonical += "=" + std::to_string(coefficient) + ",";
+        }
+        canonical += "\n";
+    }
+    return canonical;
+}
+
+inline PersistenceEvidence make_persistence_evidence(
+    const std::vector<FilteredSimplex>& filtration,
+    const std::vector<F2PersistenceInterval>& intervals,
+    std::string filtration_parameters,
+    std::string reproducibility_metadata) {
+    PersistenceEvidence evidence;
+    evidence.input_digest = expert_robot::sha256_hex(canonical_persistence_input(filtration));
+    evidence.output_digest = expert_robot::sha256_hex(canonical_persistence_output(intervals));
+    evidence.filtration_parameters = std::move(filtration_parameters);
+    evidence.reproducibility_metadata = std::move(reproducibility_metadata);
+    return evidence;
+}
 
 
 inline std::vector<std::vector<unsigned char>> induced_f2_homology_map(
