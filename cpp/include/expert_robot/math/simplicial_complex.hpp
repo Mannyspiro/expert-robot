@@ -149,4 +149,69 @@ inline SimplicialChain boundary_squared(const SimplicialChain& chain) {
     return boundary(boundary(chain));
 }
 
+
+// A vertex map induces a degree-preserving map on normalized simplicial
+// chains. A simplex whose image repeats a vertex is degenerate and maps to
+// zero; otherwise its image orientation is canonicalized with the appropriate
+// permutation sign. The caller is responsible for ensuring that nondegenerate
+// image simplices belong to the intended target complex.
+class SimplicialVertexMap {
+public:
+    explicit SimplicialVertexMap(std::map<std::string, std::string> images)
+        : images_(std::move(images)) {
+        for (const auto& [source, target] : images_) {
+            if (source.empty() || target.empty()) {
+                throw std::invalid_argument("vertex-map identifiers must be non-empty");
+            }
+        }
+    }
+
+    [[nodiscard]] const std::map<std::string, std::string>& images() const noexcept {
+        return images_;
+    }
+
+    [[nodiscard]] std::string operator()(const std::string& source_vertex) const {
+        const auto found = images_.find(source_vertex);
+        if (found == images_.end()) {
+            throw std::invalid_argument("vertex map is undefined on a source vertex");
+        }
+        return found->second;
+    }
+
+    [[nodiscard]] SimplicialChain apply(const SimplicialChain& chain) const {
+        IntegerChain mapped;
+        for (const auto& [vertices, coefficient] : chain.terms()) {
+            SimplexKey image_vertices;
+            image_vertices.reserve(vertices.size());
+            for (const auto& vertex : vertices) {
+                image_vertices.push_back((*this)(vertex));
+            }
+
+            SimplexKey distinct = image_vertices;
+            std::sort(distinct.begin(), distinct.end());
+            if (std::adjacent_find(distinct.begin(), distinct.end()) != distinct.end()) {
+                // Degenerate simplex: zero in the normalized chain group.
+                continue;
+            }
+
+            auto [key, orientation_sign] = canonical_orientation(std::move(image_vertices));
+            add_chain_coefficient(mapped, key, coefficient * orientation_sign);
+        }
+        return SimplicialChain(chain.degree(), std::move(mapped));
+    }
+
+    // For positive-degree chains, verify the chain-map identity
+    // boundary(f(c)) = f(boundary(c)).
+    [[nodiscard]] bool commutes_with_boundary(const SimplicialChain& chain) const {
+        if (chain.degree() == 0) {
+            throw std::invalid_argument(
+                "chain-map boundary check requires a chain in positive degree");
+        }
+        return boundary(apply(chain)).terms() == apply(boundary(chain)).terms();
+    }
+
+private:
+    std::map<std::string, std::string> images_;
+};
+
 } // namespace expert_robot::math::continuum
