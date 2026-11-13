@@ -237,7 +237,8 @@ class MerlinRegistry:
             if row is None:
                 raise KeyError("artifact reference does not identify a registered version")
             current = db.execute(
-                "SELECT digest FROM project_artifacts WHERE project_id=? AND logical_path=?",
+                "SELECT MAX(version) AS version FROM artifact_versions "
+                "WHERE project_id=? AND logical_path=?",
                 (ref.project_id, ref.logical_path),
             ).fetchone()
         if row["digest"] != ref.sha256:
@@ -254,7 +255,7 @@ class MerlinRegistry:
             "size_bytes": row["size_bytes"],
             "previous_digest": row["previous_digest"],
             "created_at": row["created_at"],
-            "is_current": current is not None and current["digest"] == ref.sha256,
+            "is_current": current is not None and current["version"] == ref.version,
             "verified": True,
         }
 

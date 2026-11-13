@@ -39,6 +39,8 @@ class ArtifactRefTests(unittest.TestCase):
         self.assertEqual(digest_a, digest_a_again)
         self.assertEqual(ref1["sha256"], ref3["sha256"])
         self.assertNotEqual(ref1["version"], ref3["version"])
+        self.assertFalse(self.registry.resolve_artifact_ref(ref1)["is_current"])
+        self.assertTrue(self.registry.resolve_artifact_ref(ref3)["is_current"])
         self.assertEqual(self.registry.resolve_artifact_ref(ref3)["artifact_ref"], ref3)
 
     def test_wrong_version_or_digest_is_rejected(self):
