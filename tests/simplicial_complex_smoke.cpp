@@ -441,6 +441,34 @@ int main() {
     }
     assert(rejected_non_face_closed_filtration);
 
+
+    // Induced maps act on homology classes, not merely on chains.
+    using expert_robot::math::continuum::SimplicialVertexMap;
+    using expert_robot::math::continuum::SimplicialChainMap;
+    using expert_robot::math::continuum::induced_f2_homology_map;
+    const FiniteSimplicialComplex source_circle(
+        "induced-source-circle", {{"A", "B"}, {"B", "C"}, {"A", "C"}});
+    const FiniteSimplicialComplex target_circle(
+        "induced-target-circle", {{"X", "Y"}, {"Y", "Z"}, {"X", "Z"}});
+    const SimplicialChainMap identity_on_circle(
+        source_circle, target_circle,
+        SimplicialVertexMap({{"A", "X"}, {"B", "Y"}, {"C", "Z"}}));
+    const auto source_h1 = compute_f2_homology_representatives(source_circle)[1];
+    const auto target_h1 = compute_f2_homology_representatives(target_circle)[1];
+    const auto identity_h1 = induced_f2_homology_map(
+        identity_on_circle, source_h1, target_h1);
+    assert(identity_h1.size() == 1 && identity_h1[0].size() == 1);
+    assert(identity_h1[0][0] == 1);
+
+    const FiniteSimplicialComplex point_target("induced-point-target", {{"P"}});
+    const SimplicialChainMap collapse_circle(
+        source_circle, point_target,
+        SimplicialVertexMap({{"A", "P"}, {"B", "P"}, {"C", "P"}}));
+    const auto point_h1 = compute_f2_homology_representatives(point_target)[0];
+    const auto collapsed_h1 = induced_f2_homology_map(
+        collapse_circle, source_h1, point_h1);
+    assert(collapsed_h1.empty());
+
     std::cout << "simplicial boundary smoke: PASS\n";
     return 0;
 }
