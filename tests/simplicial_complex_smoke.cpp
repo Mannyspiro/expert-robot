@@ -515,6 +515,16 @@ int main() {
     assert(smith.invariant_factors.size() == 2);
     assert(smith.invariant_factors[0] == 2);
     assert(smith.invariant_factors[1] == 4);
+    for (std::size_t i = 0; i < 2; ++i) {
+        for (std::size_t j = 0; j < 2; ++j) {
+            std::int64_t product = 0;
+            for (std::size_t k = 0; k < 2; ++k) {
+                product += smith.right_transform_inverse.values[i][k] *
+                           smith.right_transform.values[k][j];
+            }
+            assert(product == (i == j ? 1 : 0));
+        }
+    }
 
     // The cellular chain complex of RP^2 distinguishes integral torsion:
     // H_1(RP^2; Z) = Z/2, which a Betti-number-only report would miss.
@@ -530,6 +540,10 @@ int main() {
         circle_complex, 1);
     assert(integral_circle.free_rank == 1);
     assert(integral_circle.torsion_invariant_factors.empty());
+    const auto integral_circle_h0 = expert_robot::math::continuum::compute_integral_homology(
+        circle_complex, 0);
+    assert(integral_circle_h0.free_rank == 1);
+    assert(integral_circle_h0.torsion_invariant_factors.empty());
     const auto integral_disk = expert_robot::math::continuum::compute_integral_homology(
         FiniteSimplicialComplex("integral-filled-triangle", {{"A", "B", "C"}}), 1);
     assert(integral_disk.free_rank == 0);
