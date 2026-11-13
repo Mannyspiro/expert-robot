@@ -640,6 +640,7 @@ inline std::size_t vector_rank_mod2(
 
 struct F2HomologyRepresentatives {
     std::size_t degree = 0;
+    std::vector<SimplexKey> basis_simplices;
     // Each representative is a cycle chain, and the classes form a basis
     // modulo boundaries. Coefficients are 0/1 in F_2.
     std::vector<IntegerChain> representatives;
@@ -684,6 +685,7 @@ inline std::vector<F2HomologyRepresentatives> compute_f2_homology_representative
         std::size_t current_rank = vector_rank_mod2(span, dimension);
         F2HomologyRepresentatives group;
         group.degree = degree;
+        group.basis_simplices = basis_simplices;
         for (const auto& cycle : cycles) {
             auto candidate_span = span;
             candidate_span.push_back(cycle);
@@ -815,6 +817,117 @@ inline std::vector<F2PersistenceInterval> compute_f2_persistent_homology(
         return a.birth_simplex < b.birth_simplex;
     });
     return intervals;
+}
+
+
+
+inline std::vector<std::vector<unsigned char>> induced_f2_homology_map(
+    const SimplicialChainMap& map,
+    const F2HomologyRepresentatives& source_basis,
+    const F2HomologyRepresentatives& target_basis) {
+    if (source_basis.degree != target_basis.degree) {
+        throw std::invalid_argument("induced homology map requires equal degrees");
+    }
+    const std::size_t degree = source_basis.degree;
+    std::vector<SimplexKey> target_simplices;
+    for (const auto& [simplex, present] : map.target_simplices()) {
+        (void)present;
+        if (simplex.size() == degree + 1) target_simplices.push_back(simplex);
+    }
+    if (target_simplices != target_basis.basis_simplices) {
+        throw std::invalid_argument("target homology basis belongs to a different simplex ordering");
+    }
+    for (const auto& simplex : source_basis.basis_simplices) {
+        if (!map.source_contains(simplex)) {
+            throw std::invalid_argument("source homology basis contains a simplex outside the map domain");
+        }
+    }
+
+    const std::size_t rows = target_simplices.size();
+    std::map<SimplexKey, std::size_t> row_index;
+    for (std::size_t i = 0; i < rows; ++i) row_index.emplace(target_simplices[i], i);
+    std::vector<std::vector<unsigned char>> columns;
+    for (const auto& [simplex, present] : map.target_simplices()) {
+        (void)present;
+        if (simplex.size() != degree + 2) continue;
+        const auto faces = boundary(OrientedSimplex{simplex});
+        std::vector<unsigned char> vector(rows, 0);
+        for (const auto& [face, coefficient] : faces) {
+            (void)coefficient;
+            vector[row_index.at(face)] ^= 1U;
+        }
+        columns.push_back(std::move(vector));
+    }
+    const std::size_t boundary_columns = columns.size();
+    for (const auto& representative : target_basis.representatives) {
+        std::vector<unsigned char> vector(rows, 0);
+        for (const auto& [simplex, coefficient] : representative) {
+            const auto found = row_index.find(simplex);
+            if (found == row_index.end()) {
+                throw std::invalid_argument("target representative is outside target chain group");
+            }
+            vector[found->second] ^= static_cast<unsigned char>(coefficient & 1);
+        }
+        columns.push_back(std::move(vector));
+    }
+
+    std::vector<std::vector<unsigned char>> result(
+        target_basis.representatives.size(),
+        std::vector<unsigned char>(source_basis.representatives.size(), 0));
+    for (std::size_t source_column = 0;
+         source_column < source_basis.representatives.size(); ++source_column) {
+        IntegerChain image_chain;
+        for (const auto& [simplex, coefficient] : source_basis.representatives[source_column]) {
+            add_chain_coefficient(image_chain, simplex, coefficient);
+        }
+        const SimplicialChain image = map.apply(SimplicialChain(degree, image_chain));
+        std::vector<unsigned char> rhs(rows, 0);
+        for (const auto& [simplex, coefficient] : image.terms()) {
+            const auto found = row_index.find(simplex);
+            if (found == row_index.end()) {
+                throw std::logic_error("chain map image has wrong degree or leaves target chain group");
+            }
+            rhs[found->second] ^= static_cast<unsigned char>(coefficient & 1);
+        }
+
+        const std::size_t unknowns = columns.size();
+        std::vector<std::vector<unsigned char>> augmented(
+            rows, std::vector<unsigned char>(unknowns + 1, 0));
+        for (std::size_t row = 0; row < rows; ++row) {
+            for (std::size_t col = 0; col < unknowns; ++col) augmented[row][col] = columns[col][row];
+            augmented[row][unknowns] = rhs[row];
+        }
+        std::vector<std::size_t> pivot_columns;
+        std::size_t pivot_row = 0;
+        for (std::size_t col = 0; col < unknowns && pivot_row < rows; ++col) {
+            std::size_t selected = pivot_row;
+            while (selected < rows && augmented[selected][col] == 0) ++selected;
+            if (selected == rows) continue;
+            std::swap(augmented[pivot_row], augmented[selected]);
+            for (std::size_t row = 0; row < rows; ++row) {
+                if (row == pivot_row || augmented[row][col] == 0) continue;
+                for (std::size_t j = col; j <= unknowns; ++j) augmented[row][j] ^= augmented[pivot_row][j];
+            }
+            pivot_columns.push_back(col);
+            ++pivot_row;
+        }
+        for (std::size_t row = pivot_row; row < rows; ++row) {
+            bool zero = true;
+            for (std::size_t col = 0; col < unknowns; ++col) zero = zero && augmented[row][col] == 0;
+            if (zero && augmented[row][unknowns] != 0) {
+                throw std::logic_error("mapped cycle is outside target boundaries plus homology span");
+            }
+        }
+        std::vector<unsigned char> solution(unknowns, 0);
+        for (std::size_t row = 0; row < pivot_columns.size(); ++row) {
+            solution[pivot_columns[row]] = augmented[row][unknowns];
+        }
+        for (std::size_t target_column = 0;
+             target_column < target_basis.representatives.size(); ++target_column) {
+            result[target_column][source_column] = solution[boundary_columns + target_column];
+        }
+    }
+    return result;
 }
 
 } // namespace expert_robot::math::continuum
