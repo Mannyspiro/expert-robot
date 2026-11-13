@@ -45,6 +45,24 @@ class MerlinRegistry:
               digest TEXT NOT NULL REFERENCES artifacts(digest),
               logical_path TEXT NOT NULL,
               PRIMARY KEY(project_id, logical_path));
+            CREATE TABLE IF NOT EXISTS artifact_versions(
+              project_id TEXT NOT NULL REFERENCES projects(project_id),
+              logical_path TEXT NOT NULL,
+              version INTEGER NOT NULL CHECK(version > 0),
+              digest TEXT NOT NULL REFERENCES artifacts(digest),
+              media_type TEXT NOT NULL,
+              size_bytes INTEGER NOT NULL CHECK(size_bytes >= 0),
+              previous_digest TEXT REFERENCES artifacts(digest),
+              created_at REAL NOT NULL,
+              PRIMARY KEY(project_id, logical_path, version));
+            CREATE INDEX IF NOT EXISTS artifact_versions_by_digest
+              ON artifact_versions(digest);
+            CREATE TRIGGER IF NOT EXISTS artifact_versions_no_update
+              BEFORE UPDATE ON artifact_versions
+              BEGIN SELECT RAISE(ABORT, 'artifact versions are append-only'); END;
+            CREATE TRIGGER IF NOT EXISTS artifact_versions_no_delete
+              BEFORE DELETE ON artifact_versions
+              BEGIN SELECT RAISE(ABORT, 'artifact versions are append-only'); END;
             CREATE TABLE IF NOT EXISTS claims(
               claim_id TEXT PRIMARY KEY, statement TEXT NOT NULL,
               evidence_class TEXT NOT NULL, assumptions_json TEXT NOT NULL,
@@ -68,6 +86,12 @@ class MerlinRegistry:
             CREATE TRIGGER IF NOT EXISTS capability_receipts_no_delete
               BEFORE DELETE ON capability_qualification_receipts
               BEGIN SELECT RAISE(ABORT, 'capability qualification receipts are append-only'); END;
+            INSERT OR IGNORE INTO artifact_versions(
+              project_id,logical_path,version,digest,media_type,size_bytes,
+              previous_digest,created_at)
+            SELECT pa.project_id,pa.logical_path,1,pa.digest,a.media_type,a.size_bytes,
+                   NULL,a.created_at
+            FROM project_artifacts pa JOIN artifacts a USING(digest);
             """)
     
     def register_project(self, project_id: str, name: str, version: str = "0.1.0",
@@ -85,8 +109,21 @@ class MerlinRegistry:
 
     def put_artifact(self, project_id: str, logical_path: str, content: bytes,
                      media_type: str = "application/octet-stream") -> str:
-        if not logical_path or logical_path.startswith("/") or ".." in Path(logical_path).parts:
+        if not isinstance(project_id, str) or not project_id.strip():
+            raise ValueError("project_id is required")
+        if (not isinstance(logical_path, str) or not logical_path
+                or logical_path.startswith("/")
+                or ".." in Path(logical_path).parts):
             raise ValueError("artifact logical path must be relative and traversal-free")
+        if not isinstance(content, bytes):
+            raise TypeError("artifact content must be bytes")
+        if not isinstance(media_type, str) or not media_type.strip():
+            raise ValueError("media_type is required")
+        with closing(self._connect()) as db:
+            if not db.execute("SELECT 1 FROM projects WHERE project_id=?",
+                              (project_id,)).fetchone():
+                raise KeyError(f"unknown project: {project_id}")
+
         digest = hashlib.sha256(content).hexdigest()
         target = self.blobs / digest[:2] / digest[2:]
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -97,15 +134,56 @@ class MerlinRegistry:
             temp = target.with_suffix(".tmp")
             temp.write_bytes(content)
             os.replace(temp, target)
+
+        timestamp = time.time()
         with closing(self._connect()) as db, db:
-            if not db.execute("SELECT 1 FROM projects WHERE project_id=?", (project_id,)).fetchone():
-                raise KeyError(f"unknown project: {project_id}")
+            db.execute("BEGIN IMMEDIATE")
             db.execute("INSERT OR IGNORE INTO artifacts VALUES(?,?,?,?,?)",
-                       (digest, media_type, len(content), str(target.relative_to(self.root)), time.time()))
-            db.execute("INSERT INTO project_artifacts VALUES(?,?,?) "
-                       "ON CONFLICT(project_id,logical_path) DO UPDATE SET digest=excluded.digest",
-                       (project_id, digest, logical_path))
+                       (digest, media_type.strip(), len(content),
+                        str(target.relative_to(self.root)), timestamp))
+            current = db.execute(
+                "SELECT digest FROM project_artifacts WHERE project_id=? AND logical_path=?",
+                (project_id, logical_path),
+            ).fetchone()
+            if current is None or current["digest"] != digest:
+                previous_digest = current["digest"] if current else None
+                next_version = db.execute(
+                    "SELECT COALESCE(MAX(version),0)+1 AS next_version "
+                    "FROM artifact_versions WHERE project_id=? AND logical_path=?",
+                    (project_id, logical_path),
+                ).fetchone()["next_version"]
+                db.execute(
+                    "INSERT INTO artifact_versions(project_id,logical_path,version,digest,"
+                    "media_type,size_bytes,previous_digest,created_at) VALUES(?,?,?,?,?,?,?,?)",
+                    (project_id, logical_path, next_version, digest, media_type.strip(),
+                     len(content), previous_digest, timestamp),
+                )
+                db.execute(
+                    "INSERT INTO project_artifacts(project_id,digest,logical_path) VALUES(?,?,?) "
+                    "ON CONFLICT(project_id,logical_path) DO UPDATE SET digest=excluded.digest",
+                    (project_id, digest, logical_path),
+                )
         return digest
+
+    def artifact_history(self, project_id: str, logical_path: str) -> list[dict[str, Any]]:
+        """Return the append-only version lineage for one project artifact path."""
+        if not isinstance(project_id, str) or not project_id.strip():
+            raise ValueError("project_id is required")
+        if (not isinstance(logical_path, str) or not logical_path
+                or logical_path.startswith("/")
+                or ".." in Path(logical_path).parts):
+            raise ValueError("artifact logical path must be relative and traversal-free")
+        with closing(self._connect()) as db, db:
+            if not db.execute("SELECT 1 FROM projects WHERE project_id=?",
+                              (project_id,)).fetchone():
+                raise KeyError(f"unknown project: {project_id}")
+            rows = db.execute(
+                "SELECT version,digest,media_type,size_bytes,previous_digest,created_at "
+                "FROM artifact_versions WHERE project_id=? AND logical_path=? "
+                "ORDER BY version",
+                (project_id, logical_path),
+            ).fetchall()
+        return [dict(row) for row in rows]
 
     def verify_artifact(self, digest: str) -> bool:
         with closing(self._connect()) as db, db:
@@ -248,7 +326,9 @@ class MerlinRegistry:
             if project is None:
                 raise KeyError(project_id)
             artifacts = db.execute(
-                "SELECT pa.logical_path,a.digest,a.media_type,a.size_bytes "
+                "SELECT pa.logical_path,a.digest,a.media_type,a.size_bytes,"
+                "(SELECT MAX(av.version) FROM artifact_versions av "
+                " WHERE av.project_id=pa.project_id AND av.logical_path=pa.logical_path) AS version "
                 "FROM project_artifacts pa JOIN artifacts a USING(digest) "
                 "WHERE pa.project_id=? ORDER BY pa.logical_path", (project_id,)
             ).fetchall()
