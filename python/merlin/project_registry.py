@@ -14,6 +14,8 @@ import sqlite3
 import time
 from typing import Any, Mapping
 
+from .artifact_ref import ArtifactRef
+
 
 class MerlinRegistry:
     def __init__(self, root: str | Path):
@@ -184,6 +186,77 @@ class MerlinRegistry:
                 (project_id, logical_path),
             ).fetchall()
         return [dict(row) for row in rows]
+
+    def artifact_ref(self, project_id: str, logical_path: str,
+                     version: int | None = None) -> dict[str, Any]:
+        """Return an immutable reference to one exact artifact version.
+
+        Omitting version selects the latest version at lookup time. The returned
+        reference remains pinned even after the logical path advances.
+        """
+        if not isinstance(project_id, str) or not project_id.strip():
+            raise ValueError("project_id is required")
+        if (not isinstance(logical_path, str) or not logical_path
+                or logical_path.startswith("/") or "\\" in logical_path
+                or "\x00" in logical_path
+                or ".." in Path(logical_path).parts):
+            raise ValueError("artifact logical path must be relative and traversal-free")
+        if version is not None and (
+            isinstance(version, bool) or not isinstance(version, int) or version < 1
+        ):
+            raise ValueError("version must be a positive integer")
+        with closing(self._connect()) as db:
+            if not db.execute("SELECT 1 FROM projects WHERE project_id=?",
+                              (project_id,)).fetchone():
+                raise KeyError(f"unknown project: {project_id}")
+            if version is None:
+                row = db.execute(
+                    "SELECT version,digest FROM artifact_versions "
+                    "WHERE project_id=? AND logical_path=? ORDER BY version DESC LIMIT 1",
+                    (project_id, logical_path),
+                ).fetchone()
+            else:
+                row = db.execute(
+                    "SELECT version,digest FROM artifact_versions "
+                    "WHERE project_id=? AND logical_path=? AND version=?",
+                    (project_id, logical_path, version),
+                ).fetchone()
+        if row is None:
+            raise KeyError(f"unknown artifact version: {project_id}/{logical_path}/{version}")
+        return ArtifactRef(project_id, logical_path, row["version"], row["digest"]).to_dict()
+
+    def resolve_artifact_ref(self, value: Mapping[str, Any]) -> dict[str, Any]:
+        """Resolve and re-hash the exact immutable version named by a reference."""
+        ref = ArtifactRef.from_mapping(value)
+        with closing(self._connect()) as db:
+            row = db.execute(
+                "SELECT digest,media_type,size_bytes,previous_digest,created_at "
+                "FROM artifact_versions WHERE project_id=? AND logical_path=? AND version=?",
+                (ref.project_id, ref.logical_path, ref.version),
+            ).fetchone()
+            if row is None:
+                raise KeyError("artifact reference does not identify a registered version")
+            current = db.execute(
+                "SELECT digest FROM project_artifacts WHERE project_id=? AND logical_path=?",
+                (ref.project_id, ref.logical_path),
+            ).fetchone()
+        if row["digest"] != ref.sha256:
+            raise ValueError("artifact reference digest does not match its registered version")
+        if not self.verify_artifact(ref.sha256):
+            raise RuntimeError("artifact reference content failed SHA-256 verification")
+        blob_path = self.blobs / ref.sha256[:2] / ref.sha256[2:]
+        if blob_path.stat().st_size != row["size_bytes"]:
+            raise RuntimeError("artifact reference content size does not match its version record")
+        return {
+            "schema": "merlin-artifact-resolution/1",
+            "artifact_ref": ref.to_dict(),
+            "media_type": row["media_type"],
+            "size_bytes": row["size_bytes"],
+            "previous_digest": row["previous_digest"],
+            "created_at": row["created_at"],
+            "is_current": current is not None and current["digest"] == ref.sha256,
+            "verified": True,
+        }
 
     def verify_artifact(self, digest: str) -> bool:
         with closing(self._connect()) as db, db:
