@@ -186,6 +186,12 @@ jobs:
         run: |
           ctest             --test-dir build             --parallel "${CTEST_PARALLEL_LEVEL}"             --output-on-failure
 
+      - name: Independent machine-readable RP2 and persistence homology audit
+        run: |
+          set -euo pipefail
+          python3 scripts/homology_audit.py --output artifacts/homology-audit.json
+          python3 -m json.tool artifacts/homology-audit.json >/dev/null
+
       - name: Compute policy guardrails
         run: python3 tests/compute_policy_smoke.py
 
