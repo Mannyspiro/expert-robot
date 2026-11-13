@@ -948,11 +948,18 @@ int main() {
 
     // The verifier rejects a duplicate class (independence failure), a
     // non-cycle, and a basis with the wrong cardinality (spanning failure).
-    auto duplicate_h1 = source_h1;
-    duplicate_h1.representatives.push_back(duplicate_h1.representatives.front());
+    const FiniteSimplicialComplex figure_eight(
+        "homology-figure-eight",
+        {{"A", "B"}, {"B", "C"}, {"A", "C"},
+         {"A", "D"}, {"D", "E"}, {"A", "E"}});
+    const auto figure_eight_h1 = compute_f2_homology_representatives(figure_eight)[1];
+    validate_f2_homology_representatives(figure_eight, figure_eight_h1);
+    assert(figure_eight_h1.representatives.size() == 2);
+    auto duplicate_h1 = figure_eight_h1;
+    duplicate_h1.representatives[1] = duplicate_h1.representatives[0];
     bool rejected_duplicate_homology_class = false;
     try {
-        validate_f2_homology_representatives(source_circle, duplicate_h1);
+        validate_f2_homology_representatives(figure_eight, duplicate_h1);
     } catch (const std::invalid_argument&) {
         rejected_duplicate_homology_class = true;
     }
