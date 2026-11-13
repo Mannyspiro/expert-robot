@@ -570,6 +570,30 @@ int main() {
         rejected_incompatible_gluing = true;
     }
     assert(rejected_incompatible_gluing);
+    bool rejected_duplicate_endpoint_edge = false;
+    try {
+        (void)validate_continuum_gluing(endpoint_samples, {
+            {"duplicate-edge", {{"AB", "AB-at-B", 1.0}, {"AB", "BC-at-B", 0.0}},
+             1.0, {}}
+        });
+    } catch (const std::invalid_argument&) {
+        rejected_duplicate_endpoint_edge = true;
+    }
+    assert(rejected_duplicate_endpoint_edge);
+    bool rejected_nonfinite_endpoint_sample = false;
+    try {
+        const std::vector<PairedContinuumSample> invalid_endpoint_samples{
+            {"AB", "bad-state", 1.0, std::numeric_limits<double>::quiet_NaN(), 0.0, {}},
+            {"BC", "good-state", 0.0, 0.0, 0.0, {}}
+        };
+        (void)validate_continuum_gluing(invalid_endpoint_samples, {
+            {"bad-nan", {{"AB", "bad-state", 1.0}, {"BC", "good-state", 0.0}},
+             1.0, {}}
+        });
+    } catch (const std::invalid_argument&) {
+        rejected_nonfinite_endpoint_sample = true;
+    }
+    assert(rejected_nonfinite_endpoint_sample);
 
     const auto state_intervals = compute_f2_persistent_homology(state_filtration.filtration);
     const auto evidence = make_persistence_evidence(
