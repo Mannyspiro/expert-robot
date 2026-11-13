@@ -786,10 +786,13 @@ inline SmithNormalForm smith_normal_form(IntegerMatrix input) {
         for (std::size_t i = pivot; i < input.rows; ++i) {
             for (std::size_t j = pivot; j < input.columns; ++j) {
                 if (input.values[i][j] == 0) continue;
+                const auto magnitude = [](Integer value) -> __int128 {
+                    const __int128 wide = value;
+                    return wide < 0 ? -wide : wide;
+                };
                 if (selected_row == input.rows ||
-                    (input.values[i][j] != std::numeric_limits<Integer>::min() &&
-                     std::llabs(input.values[i][j]) <
-                     std::llabs(input.values[selected_row][selected_column]))) {
+                    magnitude(input.values[i][j]) <
+                    magnitude(input.values[selected_row][selected_column])) {
                     selected_row = i;
                     selected_column = j;
                 }
