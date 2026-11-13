@@ -724,6 +724,33 @@ struct IntegerMatrix {
           values(row_count, std::vector<Integer>(column_count, 0)) {}
 };
 
+inline IntegerMatrix integer_boundary_matrix(
+    const FiniteSimplicialComplex& complex, std::size_t degree) {
+    std::vector<SimplexKey> columns;
+    std::vector<SimplexKey> rows;
+    for (const auto& [simplex, present] : complex.simplices()) {
+        (void)present;
+        if (simplex.size() == degree + 1) columns.push_back(simplex);
+        if (degree > 0 && simplex.size() == degree) rows.push_back(simplex);
+    }
+    IntegerMatrix matrix(rows.size(), columns.size());
+    std::map<SimplexKey, std::size_t> row_index;
+    for (std::size_t i = 0; i < rows.size(); ++i) row_index.emplace(rows[i], i);
+    if (degree == 0) return matrix;
+    for (std::size_t column = 0; column < columns.size(); ++column) {
+        const auto faces = boundary(OrientedSimplex{columns[column]});
+        for (const auto& [face, coefficient] : faces) {
+            const auto found = row_index.find(face);
+            if (found == row_index.end()) {
+                throw std::logic_error("finite complex is missing a face of one of its simplices");
+            }
+            matrix.values[found->second][column] = checked_integer(
+                static_cast<__int128>(matrix.values[found->second][column]) + coefficient);
+        }
+    }
+    return matrix;
+}
+
 inline Integer checked_integer(__int128 value) {
     if (value < static_cast<__int128>(std::numeric_limits<Integer>::min()) ||
         value > static_cast<__int128>(std::numeric_limits<Integer>::max())) {
@@ -957,6 +984,13 @@ inline IntegralHomologyGroup compute_integral_homology_group(
         if (factor > 1) group.torsion_invariant_factors.push_back(factor);
     }
     return group;
+}
+
+inline IntegralHomologyGroup compute_integral_homology(
+    const FiniteSimplicialComplex& complex, std::size_t degree) {
+    return compute_integral_homology_group(
+        degree, integer_boundary_matrix(complex, degree),
+        integer_boundary_matrix(complex, degree + 1));
 }
 
 // Cellular RP^2 has C_2 --(2)--> C_1 --(0)--> C_0.
