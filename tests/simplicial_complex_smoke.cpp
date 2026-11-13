@@ -272,6 +272,15 @@ int main() {
     assert(contraction.target_id() == "B-complex");
     assert(contraction.verifies(map_ab, map_constant));
 
+    // Chain-homotopic maps must induce the same map on H_0.
+    const auto source_h0 = compute_f2_homology_representatives(complex_a)[0];
+    const auto target_h0 = compute_f2_homology_representatives(complex_b)[0];
+    const auto inclusion_h0 = induced_f2_homology_map(map_ab, source_h0, target_h0);
+    const auto constant_h0 = induced_f2_homology_map(map_constant, source_h0, target_h0);
+    assert(inclusion_h0 == constant_h0);
+    assert(inclusion_h0.size() == 1 && inclusion_h0[0].size() == 1);
+    assert(inclusion_h0[0][0] == 1);
+
     // A deliberately incomplete homotopy fails the chain-homotopy identity.
     const SimplicialChainHomotopy incomplete_contraction(
         map_ab, map_constant,
