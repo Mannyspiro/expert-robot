@@ -1293,7 +1293,15 @@ inline std::string canonical_persistence_output(
     for (const auto& interval : intervals) {
         canonical += std::to_string(interval.degree) + "|" +
             canonical_double(interval.birth) + "|" +
-            (interval.essential() ? "inf" : canonical_double(interval.death)) + "|";
+            (interval.essential() ? "inf" : canonical_double(interval.death)) + "|birth:";
+        for (const auto& vertex : interval.birth_simplex) {
+            canonical += std::to_string(vertex.size()) + ":" + vertex + ";";
+        }
+        canonical += "|death:";
+        for (const auto& vertex : interval.death_simplex) {
+            canonical += std::to_string(vertex.size()) + ":" + vertex + ";";
+        }
+        canonical += "|cycle:";
         for (const auto& [simplex, coefficient] : interval.birth_cycle) {
             for (const auto& vertex : simplex) {
                 canonical += std::to_string(vertex.size()) + ":" + vertex + ";";
