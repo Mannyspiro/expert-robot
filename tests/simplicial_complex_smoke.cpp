@@ -9,6 +9,7 @@
 #include <functional>
 #include <numeric>
 #include <cstdint>
+#include <cstdlib>
 
 using expert_robot::math::continuum::IntegerChain;
 using expert_robot::math::continuum::OrientedSimplex;
@@ -490,9 +491,18 @@ int main() {
     });
     assert(loop_intervals[0]->birth == 1.0 && loop_intervals[0]->death == 2.0);
     assert(loop_intervals[1]->birth == 1.0 && loop_intervals[1]->death == 3.0);
+    std::map<expert_robot::math::continuum::SimplexKey, double> two_loop_birth_values;
+    for (const auto& item : std::vector<FilteredSimplex>{
+             {{"A"}, 0.0}, {{"B"}, 0.0}, {{"C"}, 0.0},
+             {{"D"}, 0.0}, {{"E"}, 0.0}, {{"F"}, 0.0},
+             {{"A", "B"}, 1.0}, {{"B", "C"}, 1.0}, {{"A", "C"}, 1.0},
+             {{"D", "E"}, 1.0}, {{"E", "F"}, 1.0}, {{"D", "F"}, 1.0},
+             {{"A", "B", "C"}, 2.0}, {{"D", "E", "F"}, 3.0}})
+        two_loop_birth_values.emplace(item.simplex, item.filtration);
     for (const auto* interval : loop_intervals) {
         std::map<expert_robot::math::continuum::SimplexKey, unsigned char> boundary_mod2;
         for (const auto& [simplex, coefficient] : interval->birth_cycle) {
+            assert(two_loop_birth_values.at(simplex) <= interval->birth);
             assert(simplex.size() == 2);
             assert((coefficient & 1) == 1);
             for (const auto& [face, face_coefficient] :
