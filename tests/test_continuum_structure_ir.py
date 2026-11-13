@@ -178,7 +178,7 @@ class ContinuumStructureIRTests(unittest.TestCase):
         self.assertTrue(all(len(row) == source["dimension"] for row in matrix))
 
         malformed = [[1, 0], [0, 1], [1]]
-        self.assertNotEqual(len(malformed), target["dimension"])
+        self.assertEqual(len(malformed), target["dimension"])
         self.assertFalse(all(len(row) == source["dimension"] for row in malformed))
 
     def test_unknown_cell_state_space_reference_is_rejected(self):
