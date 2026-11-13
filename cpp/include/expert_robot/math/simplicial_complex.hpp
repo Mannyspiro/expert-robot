@@ -9,6 +9,8 @@
 #include <map>
 #include <limits>
 #include <iterator>
+#include <iomanip>
+#include <sstream>
 #include <stdexcept>
 #include <set>
 #include <string>
@@ -1187,7 +1189,7 @@ inline ContinuumStateFiltration build_paired_state_filtration(
                 states.push_back(sample.second);
                 origins.push_back("edge:" + sample.edge_id);
                 origins.push_back("sample:" + sample.sample_id);
-                origins.push_back("parameter:" + std::to_string(sample.parameter));
+                origins.push_back("parameter:" + canonical_double(sample.parameter));
                 origins.insert(origins.end(), sample.assumptions.begin(), sample.assumptions.end());
             }
             auto [key, sign] = canonical_orientation(face);
@@ -1208,6 +1210,13 @@ inline ContinuumStateFiltration build_paired_state_filtration(
         }
     }
     return result;
+}
+
+inline std::string canonical_double(double value) {
+    if (!std::isfinite(value)) throw std::invalid_argument("canonical persistence values must be finite");
+    std::ostringstream stream;
+    stream << std::setprecision(std::numeric_limits<double>::max_digits10) << value;
+    return stream.str();
 }
 
 struct PersistenceEvidence {
@@ -1231,7 +1240,7 @@ inline std::string canonical_persistence_input(
         for (const auto& vertex : item.simplex) {
             canonical += std::to_string(vertex.size()) + ":" + vertex + ";";
         }
-        canonical += "@" + std::to_string(item.filtration) + "\n";
+        canonical += "@" + canonical_double(item.filtration) + "\n";
     }
     return canonical;
 }
@@ -1241,7 +1250,8 @@ inline std::string canonical_persistence_output(
     std::string canonical;
     for (const auto& interval : intervals) {
         canonical += std::to_string(interval.degree) + "|" +
-            std::to_string(interval.birth) + "|" + std::to_string(interval.death) + "|";
+            canonical_double(interval.birth) + "|" +
+            (interval.essential() ? "inf" : canonical_double(interval.death)) + "|";
         for (const auto& [simplex, coefficient] : interval.birth_cycle) {
             for (const auto& vertex : simplex) {
                 canonical += std::to_string(vertex.size()) + ":" + vertex + ";";
@@ -1268,7 +1278,7 @@ inline PersistenceEvidence make_persistence_evidence(
 
 inline std::string canonical_continuum_filtration_input(
     const ContinuumStateFiltration& state_filtration) {
-    std::string canonical = "threshold=" + std::to_string(state_filtration.threshold) + "\n";
+    std::string canonical = "threshold=" + canonical_double(state_filtration.threshold) + "\n";
     canonical += canonical_persistence_input(state_filtration.filtration);
     for (const auto& [simplex, origins] : state_filtration.provenance) {
         canonical += "simplex:";
@@ -1282,7 +1292,7 @@ inline std::string canonical_continuum_filtration_input(
         canonical += "\nstates:";
         const auto values = state_filtration.paired_state_values.find(simplex);
         if (values != state_filtration.paired_state_values.end()) {
-            for (const double value : values->second) canonical += std::to_string(value) + ",";
+            for (const double value : values->second) canonical += canonical_double(value) + ",";
         }
         canonical += "\n";
     }
