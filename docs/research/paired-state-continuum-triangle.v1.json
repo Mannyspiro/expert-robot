@@ -296,5 +296,11 @@
       "url": "https://github.com/morganaspim/Cace-app/actions/runs/43294161866",
       "proof_implication": "none"
     }
-  ]
+  ],
+  "n_ality": {
+    "geometric_dimension": 2,
+    "state_dimension": 2,
+    "logical_dimension": 2,
+    "temporal_dimension": 1
+  }
 }
