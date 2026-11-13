@@ -464,7 +464,10 @@ int main() {
     const SimplicialChainMap collapse_circle(
         source_circle, point_target,
         SimplicialVertexMap({{"A", "P"}, {"B", "P"}, {"C", "P"}}));
-    const auto point_h1 = compute_f2_homology_representatives(point_target)[0];
+    // The point target has no 1-simplices, so its H_1 group is the
+    // correctly degree-indexed zero group (not its H_0 representative set).
+    const expert_robot::math::continuum::F2HomologyRepresentatives point_h1{
+        1, {}, {}};
     const auto collapsed_h1 = induced_f2_homology_map(
         collapse_circle, source_h1, point_h1);
     assert(collapsed_h1.empty());
