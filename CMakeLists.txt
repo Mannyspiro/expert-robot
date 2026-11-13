@@ -116,6 +116,7 @@ add_executable(simplicial_complex_smoke
     tests/simplicial_complex_smoke.cpp
 )
 target_include_directories(simplicial_complex_smoke PRIVATE cpp/include)
+target_link_libraries(simplicial_complex_smoke PRIVATE expert_robot_core)
 add_test(NAME simplicial_complex_smoke COMMAND simplicial_complex_smoke)
 
 set_tests_properties(
