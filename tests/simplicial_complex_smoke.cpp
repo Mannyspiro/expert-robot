@@ -538,6 +538,22 @@ int main() {
     });
     assert(interacting_h1[0]->birth == 1.0 && interacting_h1[0]->death == 2.0);
     assert(interacting_h1[1]->birth == 1.0 && interacting_h1[1]->death == 3.0);
+
+    // At the common birth parameter the two loops form a graph with a shared
+    // edge. Validate the persistence cycles together as a complete H1 basis;
+    // this catches cycles that are closed individually but represent the same class.
+    const expert_robot::math::continuum::FiniteSimplicialComplex interacting_graph(
+        "interacting-persistence-birth-graph",
+        {{"A", "B"}, {"A", "C"}, {"B", "C"}, {"A", "D"}, {"B", "D"}});
+    const auto interacting_graph_basis =
+        expert_robot::math::continuum::compute_f2_homology_representatives(interacting_graph);
+    assert(interacting_graph_basis.size() > 1);
+    assert(interacting_graph_basis[1].betti_number == 2);
+    expert_robot::math::continuum::F2HomologyRepresentatives interacting_persistence_basis{
+        1, interacting_graph_basis[1].basis_simplices,
+        {interacting_h1[0]->birth_cycle, interacting_h1[1]->birth_cycle}, 2};
+    expert_robot::math::continuum::validate_f2_homology_representatives(
+        interacting_graph, interacting_persistence_basis);
     std::map<expert_robot::math::continuum::SimplexKey, double> interacting_birth_values;
     for (const auto& item : interacting_filtration)
         interacting_birth_values.emplace(item.simplex, item.filtration);
@@ -765,6 +781,16 @@ int main() {
     assert(rp2_f2[0].betti_number == 1);
     assert(rp2_f2[1].betti_number == 1);
     assert(rp2_f2[2].betti_number == 1); // RP2 has a mod-2 fundamental class
+
+    // Validate explicit representatives in every degree, not only dimensions.
+    const auto rp2_representatives =
+        expert_robot::math::continuum::compute_f2_homology_representatives(rp2);
+    assert(rp2_representatives.size() == 3);
+    for (const auto& group : rp2_representatives)
+        expert_robot::math::continuum::validate_f2_homology_representatives(rp2, group);
+    assert(rp2_representatives[0].representatives.size() == 1);
+    assert(rp2_representatives[1].representatives.size() == 1);
+    assert(rp2_representatives[2].representatives.size() == 1);
 
     // Independent SNF cross-check: determinantal divisors are gcds of all
     // k-by-k minors. This does not reuse the Euclidean SNF reduction.
