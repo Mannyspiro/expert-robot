@@ -943,6 +943,40 @@ int main() {
         SimplicialVertexMap({{"A", "X"}, {"B", "Y"}, {"C", "Z"}}));
     const auto source_h1 = compute_f2_homology_representatives(source_circle)[1];
     const auto target_h1 = compute_f2_homology_representatives(target_circle)[1];
+    validate_f2_homology_representatives(source_circle, source_h1);
+    validate_f2_homology_representatives(target_circle, target_h1);
+
+    // The verifier rejects a duplicate class (independence failure), a
+    // non-cycle, and a basis with the wrong cardinality (spanning failure).
+    auto duplicate_h1 = source_h1;
+    duplicate_h1.representatives.push_back(duplicate_h1.representatives.front());
+    bool rejected_duplicate_homology_class = false;
+    try {
+        validate_f2_homology_representatives(source_circle, duplicate_h1);
+    } catch (const std::invalid_argument&) {
+        rejected_duplicate_homology_class = true;
+    }
+    assert(rejected_duplicate_homology_class);
+
+    auto noncycle_h1 = source_h1;
+    noncycle_h1.representatives.front() = {{{"A", "B"}, 1}};
+    bool rejected_noncycle_homology_representative = false;
+    try {
+        validate_f2_homology_representatives(source_circle, noncycle_h1);
+    } catch (const std::invalid_argument&) {
+        rejected_noncycle_homology_representative = true;
+    }
+    assert(rejected_noncycle_homology_representative);
+
+    auto incomplete_h1 = source_h1;
+    incomplete_h1.representatives.clear();
+    bool rejected_incomplete_homology_basis = false;
+    try {
+        validate_f2_homology_representatives(source_circle, incomplete_h1);
+    } catch (const std::invalid_argument&) {
+        rejected_incomplete_homology_basis = true;
+    }
+    assert(rejected_incomplete_homology_basis);
     const auto identity_h1 = induced_f2_homology_map(
         identity_on_circle, source_h1, target_h1);
     assert(identity_h1.size() == 1 && identity_h1[0].size() == 1);
