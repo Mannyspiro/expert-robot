@@ -1,6 +1,9 @@
 #include "expert_robot/math/simplicial_complex.hpp"
 
+#include <algorithm>
 #include <cassert>
+#include <string>
+#include <vector>
 #include <iostream>
 #include <stdexcept>
 
@@ -28,6 +31,57 @@ int main() {
         assert(found != reversed_boundary.end());
         assert(found->second == -coefficient);
     }
+
+
+    // Dimension-generic boundary-of-boundary checks. Exhaust every
+    // orientation for simplices with 3 through 7 vertices (dimensions 2-6).
+    for (std::size_t vertex_count = 3; vertex_count <= 7; ++vertex_count) {
+        std::vector<std::string> vertices;
+        for (std::size_t i = 0; i < vertex_count; ++i) {
+            vertices.push_back("v" + std::to_string(i));
+        }
+        do {
+            const OrientedSimplex simplex{vertices};
+            assert(is_zero_chain(boundary_squared(simplex)));
+
+            // Swapping any two vertices reverses orientation and negates
+            // the complete boundary chain, not merely its vertex set.
+            auto swapped = vertices;
+            std::swap(swapped[0], swapped[1]);
+            const auto original_boundary = boundary(simplex);
+            const auto swapped_boundary = boundary(OrientedSimplex{swapped});
+            assert(original_boundary.size() == swapped_boundary.size());
+            for (const auto& [face, coefficient] : original_boundary) {
+                const auto found = swapped_boundary.find(face);
+                assert(found != swapped_boundary.end());
+                assert(found->second == -coefficient);
+            }
+        } while (std::next_permutation(vertices.begin(), vertices.end()));
+    }
+
+    // The boundary operator is linear on finite integer chains.
+    const OrientedSimplex simplex_abc{{"A", "B", "C"}};
+    const OrientedSimplex simplex_bcd{{"B", "C", "D"}};
+    IntegerChain combined;
+    for (const auto& [face, coefficient] : boundary(simplex_abc)) {
+        combined[face] += 2 * coefficient;
+    }
+    for (const auto& [face, coefficient] : boundary(simplex_bcd)) {
+        combined[face] -= 3 * coefficient;
+    }
+    const auto boundary_of_combined = boundary(combined);
+    IntegerChain expected;
+    for (const auto& [vertex, coefficient] : boundary(boundary(simplex_abc))) {
+        expected[vertex] += 2 * coefficient;
+    }
+    for (const auto& [vertex, coefficient] : boundary(boundary(simplex_bcd))) {
+        expected[vertex] -= 3 * coefficient;
+    }
+    for (auto it = expected.begin(); it != expected.end();) {
+        if (it->second == 0) it = expected.erase(it);
+        else ++it;
+    }
+    assert(boundary_of_combined == expected);
 
     bool rejected_duplicate_vertex = false;
     try {
