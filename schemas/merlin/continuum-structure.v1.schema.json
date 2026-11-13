@@ -535,6 +535,39 @@
           }
         }
       }
+    },
+    "n_ality": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Independent dimensional axes. These are not collapsed into one n-ality number: geometry, state carrier, logical structure, and temporal parameters vary independently.",
+      "required": [
+        "geometric_dimension",
+        "state_dimension",
+        "logical_dimension",
+        "temporal_dimension"
+      ],
+      "properties": {
+        "geometric_dimension": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Topological/geometric dimension; must equal geometry.dimension."
+        },
+        "state_dimension": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Dimension of the state carrier for this signature; individual cells may reference other state spaces."
+        },
+        "logical_dimension": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of independent logical components or channels, not automatically equal to state_dimension."
+        },
+        "temporal_dimension": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of independent temporal parameters; zero denotes a static structure."
+        }
+      }
     }
   }
 }
