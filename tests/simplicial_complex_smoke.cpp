@@ -350,6 +350,59 @@ int main() {
     assert(sphere_homology[1].betti_number == 0);
     assert(sphere_homology[2].betti_number == 1);
 
+
+    // Explicit F_2 homology representatives agree in count with Betti
+    // numbers and are cycles under the corresponding boundary matrices.
+    using expert_robot::math::continuum::compute_f2_homology_representatives;
+    using expert_robot::math::continuum::boundary_matrix_mod2;
+    const auto circle_representatives =
+        compute_f2_homology_representatives(FiniteSimplicialComplex(
+            "triangle-circle-representatives",
+            {{"A", "B"}, {"B", "C"}, {"A", "C"}}));
+    assert(circle_representatives[0].representatives.size() == 1);
+    assert(circle_representatives[1].representatives.size() == 1);
+    assert(circle_representatives[1].representatives[0].size() == 3);
+
+    const auto sphere_representatives =
+        compute_f2_homology_representatives(FiniteSimplicialComplex(
+            "tetrahedron-boundary-representatives",
+            {{"A", "B", "C"}, {"A", "B", "D"},
+             {"A", "C", "D"}, {"B", "C", "D"}}));
+    assert(sphere_representatives[0].representatives.size() == 1);
+    assert(sphere_representatives[1].representatives.empty());
+    assert(sphere_representatives[2].representatives.size() == 1);
+    assert(sphere_representatives[2].representatives[0].size() == 4);
+
+    const FiniteSimplicialComplex circle_complex(
+        "cycle-check", {{"A", "B"}, {"B", "C"}, {"A", "C"}});
+    const auto edge_boundary = boundary_matrix_mod2(circle_complex, 1);
+    const auto& cycle = circle_representatives[1].representatives[0];
+    std::vector<SimplexKey> edge_basis;
+    for (const auto& [simplex, present] : circle_complex.simplices()) {
+        (void)present;
+        if (simplex.size() == 2) edge_basis.push_back(simplex);
+    }
+    std::vector<unsigned char> cycle_coordinates(edge_basis.size(), 0);
+    for (std::size_t i = 0; i < edge_basis.size(); ++i) {
+        const auto found = cycle.find(edge_basis[i]);
+        if (found != cycle.end()) cycle_coordinates[i] =
+            static_cast<unsigned char>(found->second & 1);
+    }
+    for (const auto& row : edge_boundary) {
+        unsigned char value = 0;
+        for (std::size_t column = 0; column < row.size(); ++column) {
+            value ^= static_cast<unsigned char>((row[column] & cycle_coordinates[column]) & 1U);
+        }
+        assert(value == 0);
+    }
+
+    const auto disk_representatives =
+        compute_f2_homology_representatives(FiniteSimplicialComplex(
+            "filled-triangle-representatives", {{"A", "B", "C"}}));
+    assert(disk_representatives[0].representatives.size() == 1);
+    assert(disk_representatives[1].representatives.empty());
+    assert(disk_representatives[2].representatives.empty());
+
     // Rank calculation handles row swaps, skipped pivot columns, and the
     // zero matrix over F_2.
     assert(rank_mod2({{0, 1}, {1, 1}}) == 2);
