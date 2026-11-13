@@ -377,7 +377,7 @@ int main() {
         "cycle-check", {{"A", "B"}, {"B", "C"}, {"A", "C"}});
     const auto edge_boundary = boundary_matrix_mod2(circle_complex, 1);
     const auto& cycle = circle_representatives[1].representatives[0];
-    std::vector<SimplexKey> edge_basis;
+    std::vector<expert_robot::math::continuum::SimplexKey> edge_basis;
     for (const auto& [simplex, present] : circle_complex.simplices()) {
         (void)present;
         if (simplex.size() == 2) edge_basis.push_back(simplex);
