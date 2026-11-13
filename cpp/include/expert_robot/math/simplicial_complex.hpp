@@ -711,6 +711,80 @@ inline std::vector<F2HomologyRepresentatives> compute_f2_homology_representative
 }
 
 
+// Independently audit an explicit homology basis against the chain complex.
+// This checks cycle closure, independence modulo boundaries, and spanning of
+// the full cycle space; merely returning closed cycles is not sufficient.
+inline void validate_f2_homology_representatives(
+    const FiniteSimplicialComplex& complex,
+    const F2HomologyRepresentatives& group) {
+    std::vector<SimplexKey> expected_simplices;
+    for (const auto& [simplex, present] : complex.simplices()) {
+        (void)present;
+        if (simplex.size() == group.degree + 1) expected_simplices.push_back(simplex);
+    }
+    if (expected_simplices != group.basis_simplices) {
+        throw std::invalid_argument("homology basis simplex ordering does not match the complex");
+    }
+
+    const std::size_t dimension = expected_simplices.size();
+    const auto lower = boundary_matrix_mod2(complex, group.degree);
+    const auto upper = boundary_matrix_mod2(complex, group.degree + 1);
+    const std::size_t lower_rank = rank_mod2(lower);
+    const std::size_t boundary_rank = rank_mod2(upper);
+    if (lower_rank > dimension || boundary_rank > dimension - lower_rank) {
+        throw std::logic_error("chain dimensions violate the homology rank identity");
+    }
+    const std::size_t expected_betti = dimension - lower_rank - boundary_rank;
+    if (group.representatives.size() != expected_betti) {
+        throw std::invalid_argument("homology representative count does not equal the computed Betti number");
+    }
+
+    std::map<SimplexKey, std::size_t> simplex_index;
+    for (std::size_t i = 0; i < dimension; ++i) {
+        simplex_index.emplace(expected_simplices[i], i);
+    }
+
+    std::vector<std::vector<unsigned char>> span;
+    if (!upper.empty()) {
+        for (std::size_t column = 0; column < upper.front().size(); ++column) {
+            std::vector<unsigned char> boundary_vector(dimension, 0);
+            for (std::size_t row = 0; row < dimension; ++row) {
+                boundary_vector[row] = upper[row][column] & 1U;
+            }
+            span.push_back(std::move(boundary_vector));
+        }
+    }
+    if (vector_rank_mod2(span, dimension) != boundary_rank) {
+        throw std::logic_error("boundary-column rank is inconsistent");
+    }
+
+    for (const auto& representative : group.representatives) {
+        std::vector<unsigned char> coordinates(dimension, 0);
+        for (const auto& [simplex, coefficient] : representative) {
+            const auto found = simplex_index.find(simplex);
+            if (found == simplex_index.end() || (coefficient != 1 && coefficient != -1)) {
+                throw std::invalid_argument("homology representative has an invalid simplex or F2 coefficient");
+            }
+            coordinates[found->second] ^= static_cast<unsigned char>(coefficient & 1);
+        }
+        const IntegerChain boundary_chain = boundary(representative);
+        for (const auto& [simplex, coefficient] : boundary_chain) {
+            (void)simplex;
+            if ((coefficient & 1) != 0) {
+                throw std::invalid_argument("homology representative is not a cycle over F2");
+            }
+        }
+        span.push_back(std::move(coordinates));
+    }
+
+    const std::size_t full_span_rank = vector_rank_mod2(span, dimension);
+    if (full_span_rank != dimension - lower_rank) {
+        throw std::invalid_argument(
+            "homology representatives do not form a basis of cycles modulo boundaries");
+    }
+}
+
+
 // Exact integer matrices with explicit dimensions (including 0-by-n maps).
 using Integer = std::int64_t;
 struct IntegerMatrix {
