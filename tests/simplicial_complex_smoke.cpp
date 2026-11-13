@@ -6,6 +6,9 @@
 #include <vector>
 #include <iostream>
 #include <stdexcept>
+#include <functional>
+#include <numeric>
+#include <cstdint>
 
 using expert_robot::math::continuum::IntegerChain;
 using expert_robot::math::continuum::OrientedSimplex;
@@ -467,6 +470,44 @@ int main() {
         assert((coefficient & 1) == 1);
     }
 
+
+    // Two disjoint loops are born at the same filtration value and die at
+    // different values. Each returned birth representative must be a cycle
+    // supported entirely in the sublevel complex at its own birth.
+    const auto two_loop_persistence = compute_f2_persistent_homology({
+        {{"A"}, 0.0}, {{"B"}, 0.0}, {{"C"}, 0.0},
+        {{"D"}, 0.0}, {{"E"}, 0.0}, {{"F"}, 0.0},
+        {{"A", "B"}, 1.0}, {{"B", "C"}, 1.0}, {{"A", "C"}, 1.0},
+        {{"D", "E"}, 1.0}, {{"E", "F"}, 1.0}, {{"D", "F"}, 1.0},
+        {{"A", "B", "C"}, 2.0}, {{"D", "E", "F"}, 3.0}
+    });
+    std::vector<const expert_robot::math::continuum::F2PersistenceInterval*> loop_intervals;
+    for (const auto& interval : two_loop_persistence)
+        if (interval.degree == 1) loop_intervals.push_back(&interval);
+    assert(loop_intervals.size() == 2);
+    std::sort(loop_intervals.begin(), loop_intervals.end(), [](const auto* a, const auto* b) {
+        return a->death < b->death;
+    });
+    assert(loop_intervals[0]->birth == 1.0 && loop_intervals[0]->death == 2.0);
+    assert(loop_intervals[1]->birth == 1.0 && loop_intervals[1]->death == 3.0);
+    for (const auto* interval : loop_intervals) {
+        std::map<expert_robot::math::continuum::SimplexKey, unsigned char> boundary_mod2;
+        for (const auto& [simplex, coefficient] : interval->birth_cycle) {
+            assert(simplex.size() == 2);
+            assert((coefficient & 1) == 1);
+            for (const auto& [face, face_coefficient] :
+                 expert_robot::math::continuum::boundary(
+                     expert_robot::math::continuum::OrientedSimplex{simplex})) {
+                (void)face_coefficient;
+                boundary_mod2[face] ^= 1U;
+            }
+        }
+        for (const auto& [face, coefficient] : boundary_mod2) {
+            (void)face;
+            assert(coefficient == 0);
+        }
+    }
+
     // Paired edge-state samples generate a face-closed upper-star filtration;
     // provenance retains the originating edge, sample, parameter and assumptions.
     using expert_robot::math::continuum::PairedContinuumSample;
@@ -490,6 +531,36 @@ int main() {
                      "edge-constraint:AB") != ab_provenance.end());
     assert(state_filtration.paired_state_values.at({"A", "B"}).size() == 4);
 
+
+    // Explicit endpoint gluing joins distinct samples from two edge charts.
+    using expert_robot::math::continuum::ContinuumEndpointBinding;
+    using expert_robot::math::continuum::ContinuumEndpointConstraint;
+    using expert_robot::math::continuum::validate_continuum_gluing;
+    const std::vector<PairedContinuumSample> endpoint_samples{
+        {"AB", "AB-at-B", 1.0, 0.5, -0.25, {"measurement:ab"}},
+        {"BC", "BC-at-B", 0.0, 0.5001, -0.2499, {"measurement:bc"}}
+    };
+    const auto glued = validate_continuum_gluing(endpoint_samples, {
+        {"shared-B", {{"AB", "AB-at-B", 1.0}, {"BC", "BC-at-B", 0.0}},
+         0.001, {"continuum-vertex:B", "constraint:state-continuity"}}
+    });
+    assert(glued.size() == 1);
+    assert(glued[0].endpoint_id == "shared-B");
+    assert(glued[0].incident_edges.size() == 2);
+    assert(glued[0].sample_ids.size() == 2);
+    assert(std::find(glued[0].provenance.begin(), glued[0].provenance.end(),
+                     "continuum-vertex:B") != glued[0].provenance.end());
+    bool rejected_incompatible_gluing = false;
+    try {
+        (void)validate_continuum_gluing(endpoint_samples, {
+            {"bad-B", {{"AB", "AB-at-B", 1.0}, {"BC", "BC-at-B", 0.0}},
+             0.00001, {}}
+        });
+    } catch (const std::invalid_argument&) {
+        rejected_incompatible_gluing = true;
+    }
+    assert(rejected_incompatible_gluing);
+
     const auto state_intervals = compute_f2_persistent_homology(state_filtration.filtration);
     const auto evidence = make_persistence_evidence(
         state_filtration, state_intervals,
@@ -503,6 +574,43 @@ int main() {
     assert(evidence.filtration_parameters.find("threshold=1") != std::string::npos);
 
     assert(!evidence.reproducibility_metadata.empty());
+
+    // Build a transport-ready evidence envelope tied to an exact source
+    // commit, algorithm, input/output bytes and runner execution. A matching
+    // receipt binding is only structurally validated here; cryptographic
+    // signature verification remains external to this C++ producer.
+    using expert_robot::math::continuum::PersistenceEvidenceEnvelope;
+    using expert_robot::math::continuum::CaceReceiptBinding;
+    using expert_robot::math::continuum::persistence_evidence_envelope_digest;
+    using expert_robot::math::continuum::validate_cace_receipt_binding;
+    const PersistenceEvidenceEnvelope envelope{
+        "0123456789abcdef0123456789abcdef01234567",
+        evidence.algorithm_version,
+        evidence.input_digest,
+        evidence.output_digest,
+        "oci-runner:linux-x86_64",
+        "oci-execution:run-0042",
+        "C++20;compiler=clang;deterministic-F2",
+        expert_robot::sha256_hex("reproduction-receipt:run-0042")
+    };
+    const auto envelope_digest = persistence_evidence_envelope_digest(envelope);
+    assert(envelope_digest.size() == 64);
+    validate_cace_receipt_binding(envelope, {
+        envelope_digest, "cace-receipt:pending-test-fixture",
+        "test-key-id", "opaque-test-signature", "cace-verifier:test"
+    });
+    bool rejected_wrong_cace_target = false;
+    try {
+        validate_cace_receipt_binding(envelope, {
+            expert_robot::sha256_hex("different-envelope"), "receipt", "key",
+            "signature", "verifier"
+        });
+    } catch (const std::invalid_argument&) {
+        rejected_wrong_cace_target = true;
+    }
+    assert(rejected_wrong_cace_target);
+
+
 
     // Smith normal form retains invariant factors and unimodular basis data.
     using expert_robot::math::continuum::IntegerMatrix;
@@ -524,6 +632,145 @@ int main() {
             }
             assert(product == (i == j ? 1 : 0));
         }
+    }
+
+
+    // Genuine six-vertex, ten-facet triangulation of RP^2. The simplicial
+    // boundary matrices recover H_0=Z, H_1=Z/2 and H_2=0.
+    using expert_robot::math::continuum::triangulated_real_projective_plane;
+    const auto rp2 = triangulated_real_projective_plane();
+    assert(rp2.simplices().size() == 31); // 6 vertices + 15 edges + 10 facets
+    const auto rp2_h0_simplicial =
+        expert_robot::math::continuum::compute_integral_homology(rp2, 0);
+    const auto rp2_h1_simplicial =
+        expert_robot::math::continuum::compute_integral_homology(rp2, 1);
+    const auto rp2_h2_simplicial =
+        expert_robot::math::continuum::compute_integral_homology(rp2, 2);
+    assert(rp2_h0_simplicial.free_rank == 1);
+    assert(rp2_h0_simplicial.torsion_invariant_factors.empty());
+    assert(rp2_h1_simplicial.free_rank == 0);
+    assert(rp2_h1_simplicial.torsion_invariant_factors ==
+           (std::vector<std::int64_t>{2}));
+    assert(rp2_h2_simplicial.free_rank == 0);
+    assert(rp2_h2_simplicial.torsion_invariant_factors.empty());
+    const auto rp2_f2 = expert_robot::math::continuum::compute_f2_homology(rp2);
+    assert(rp2_f2[0].betti_number == 1);
+    assert(rp2_f2[1].betti_number == 1);
+    assert(rp2_f2[2].betti_number == 0);
+
+    // Independent SNF cross-check: determinantal divisors are gcds of all
+    // k-by-k minors. This does not reuse the Euclidean SNF reduction.
+    const auto determinant = [](const auto& self,
+                                const std::vector<std::vector<std::int64_t>>& matrix) -> std::int64_t {
+        if (matrix.empty()) return 1;
+        if (matrix.size() == 1) return matrix[0][0];
+        std::int64_t value = 0;
+        for (std::size_t column = 0; column < matrix.size(); ++column) {
+            std::vector<std::vector<std::int64_t>> minor;
+            for (std::size_t row = 1; row < matrix.size(); ++row) {
+                std::vector<std::int64_t> minor_row;
+                for (std::size_t col = 0; col < matrix.size(); ++col)
+                    if (col != column) minor_row.push_back(matrix[row][col]);
+                minor.push_back(std::move(minor_row));
+            }
+            const auto term = matrix[0][column] * self(self, minor);
+            value += (column % 2 == 0) ? term : -term;
+        }
+        return value;
+    };
+    const auto combinations = [](std::size_t n, std::size_t k,
+                                 const std::function<void(const std::vector<std::size_t>&)>& visit) {
+        std::vector<std::size_t> selected;
+        const auto walk = [&](const auto& self, std::size_t next) -> void {
+            if (selected.size() == k) { visit(selected); return; }
+            for (std::size_t i = next; i < n; ++i) {
+                selected.push_back(i);
+                self(self, i + 1);
+                selected.pop_back();
+            }
+        };
+        walk(walk, 0);
+    };
+    const auto independent_invariants = [&](const IntegerMatrix& matrix) {
+        std::vector<std::int64_t> factors;
+        std::int64_t previous_divisor = 1;
+        for (std::size_t k = 1; k <= std::min(matrix.rows, matrix.columns); ++k) {
+            std::int64_t divisor = 0;
+            combinations(matrix.rows, k, [&](const auto& row_ids) {
+                combinations(matrix.columns, k, [&](const auto& col_ids) {
+                    std::vector<std::vector<std::int64_t>> minor(k, std::vector<std::int64_t>(k));
+                    for (std::size_t i = 0; i < k; ++i)
+                        for (std::size_t j = 0; j < k; ++j)
+                            minor[i][j] = matrix.values[row_ids[i]][col_ids[j]];
+                    divisor = std::gcd(divisor, std::abs(determinant(determinant, minor)));
+                });
+            });
+            if (divisor == 0) break;
+            assert(divisor % previous_divisor == 0);
+            factors.push_back(divisor / previous_divisor);
+            previous_divisor = divisor;
+        }
+        return factors;
+    };
+    std::uint32_t random_state = 0x5a17c9e3U;
+    for (std::size_t sample = 0; sample < 96; ++sample) {
+        const std::size_t rows = 1 + (sample % 3);
+        const std::size_t columns = 1 + ((sample / 3) % 3);
+        IntegerMatrix candidate(rows, columns);
+        for (std::size_t i = 0; i < rows; ++i) {
+            for (std::size_t j = 0; j < columns; ++j) {
+                random_state = random_state * 1664525U + 1013904223U;
+                candidate.values[i][j] =
+                    static_cast<std::int64_t>((random_state >> 16U) % 9U) - 4;
+            }
+        }
+        const auto reduced = smith_normal_form(candidate);
+        assert(reduced.invariant_factors == independent_invariants(candidate));
+        for (std::size_t i = 0; i < reduced.diagonal.rows; ++i) {
+            for (std::size_t j = 0; j < reduced.diagonal.columns; ++j) {
+                if (i != j) assert(reduced.diagonal.values[i][j] == 0);
+            }
+        }
+        for (std::size_t i = 1; i < reduced.invariant_factors.size(); ++i) {
+            assert(reduced.invariant_factors[i] % reduced.invariant_factors[i - 1] == 0);
+        }
+        // Apply elementary unimodular row/column operations and ensure the
+        // independently computed invariant factors remain unchanged.
+        IntegerMatrix equivalent = candidate;
+        if (rows > 1) {
+            std::swap(equivalent.values[0], equivalent.values[rows - 1]);
+            for (std::size_t j = 0; j < columns; ++j)
+                equivalent.values[1][j] += 2 * equivalent.values[0][j];
+        }
+        if (columns > 1) {
+            for (std::size_t i = 0; i < rows; ++i)
+                std::swap(equivalent.values[i][0], equivalent.values[i][columns - 1]);
+            for (std::size_t i = 0; i < rows; ++i)
+                equivalent.values[i][1] -= equivalent.values[i][0];
+        }
+        assert(independent_invariants(equivalent) == independent_invariants(candidate));
+        const auto equivalent_snf = smith_normal_form(equivalent);
+        assert(equivalent_snf.invariant_factors == reduced.invariant_factors);
+        for (std::size_t i = 0; i < candidate.columns; ++i) {
+            for (std::size_t j = 0; j < candidate.columns; ++j) {
+                std::int64_t product = 0;
+                for (std::size_t k = 0; k < candidate.columns; ++k)
+                    product += reduced.right_transform_inverse.values[i][k] *
+                               reduced.right_transform.values[k][j];
+                assert(product == (i == j ? 1 : 0));
+            }
+        }
+    }
+    // Explicit torsion and rectangular/degenerate fixtures supplement the
+    // deterministic randomized family.
+    for (const auto& fixture : std::vector<IntegerMatrix>{
+             [] { IntegerMatrix m(2, 2); m.values = {{0, 2}, {3, 0}}; return m; }(),
+             [] { IntegerMatrix m(2, 2); m.values = {{4, 6}, {3, 9}}; return m; }(),
+             [] { IntegerMatrix m(2, 2); m.values = {{0, 0}, {0, 6}}; return m; }(),
+             [] { IntegerMatrix m(2, 3); m.values = {{-2, 4, 0}, {6, -8, 2}}; return m; }()
+         }) {
+        const auto reduced = smith_normal_form(fixture);
+        assert(reduced.invariant_factors == independent_invariants(fixture));
     }
 
     // The cellular chain complex of RP^2 distinguishes integral torsion:
