@@ -524,6 +524,17 @@ int main() {
     assert(rp2_h1.torsion_invariant_factors.size() == 1);
     assert(rp2_h1.torsion_invariant_factors[0] == 2);
 
+    // The same Smith engine computes ordinary integral homology directly
+    // from oriented simplicial boundary matrices.
+    const auto integral_circle = expert_robot::math::continuum::compute_integral_homology(
+        circle_complex, 1);
+    assert(integral_circle.free_rank == 1);
+    assert(integral_circle.torsion_invariant_factors.empty());
+    const auto integral_disk = expert_robot::math::continuum::compute_integral_homology(
+        FiniteSimplicialComplex("integral-filled-triangle", {{"A", "B", "C"}}), 1);
+    assert(integral_disk.free_rank == 0);
+    assert(integral_disk.torsion_invariant_factors.empty());
+
     bool rejected_non_chain_complex = false;
     try {
         IntegerMatrix bad_d1(1, 1);
