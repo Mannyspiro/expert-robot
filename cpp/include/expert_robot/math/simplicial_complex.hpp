@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
 #include <map>
 #include <limits>
 #include <iterator>
@@ -705,6 +706,255 @@ inline std::vector<F2HomologyRepresentatives> compute_f2_homology_representative
         result.push_back(std::move(group));
     }
     return result;
+}
+
+
+// Exact integer matrices with explicit dimensions (including 0-by-n maps).
+using Integer = std::int64_t;
+struct IntegerMatrix {
+    std::size_t rows = 0;
+    std::size_t columns = 0;
+    std::vector<std::vector<Integer>> values;
+
+    IntegerMatrix() = default;
+    IntegerMatrix(std::size_t row_count, std::size_t column_count)
+        : rows(row_count), columns(column_count),
+          values(row_count, std::vector<Integer>(column_count, 0)) {}
+};
+
+inline Integer checked_integer(__int128 value) {
+    if (value < static_cast<__int128>(std::numeric_limits<Integer>::min()) ||
+        value > static_cast<__int128>(std::numeric_limits<Integer>::max())) {
+        throw std::overflow_error("integer Smith reduction overflow");
+    }
+    return static_cast<Integer>(value);
+}
+
+struct SmithNormalForm {
+    IntegerMatrix diagonal;
+    IntegerMatrix right_transform;
+    IntegerMatrix right_transform_inverse;
+    std::size_t rank = 0;
+    std::vector<Integer> invariant_factors;
+};
+
+// Euclidean row/column reduction. The right transformations are retained so
+// kernels and quotient groups can be computed, not merely matrix rank.
+inline SmithNormalForm smith_normal_form(IntegerMatrix input) {
+    if (input.values.size() != input.rows) {
+        throw std::invalid_argument("integer matrix row count is inconsistent");
+    }
+    for (const auto& row : input.values) {
+        if (row.size() != input.columns) {
+            throw std::invalid_argument("integer matrix is ragged");
+        }
+    }
+    IntegerMatrix right(input.columns, input.columns);
+    IntegerMatrix inverse(input.columns, input.columns);
+    for (std::size_t i = 0; i < input.columns; ++i) {
+        right.values[i][i] = 1;
+        inverse.values[i][i] = 1;
+    }
+    const auto swap_rows = [](IntegerMatrix& matrix, std::size_t a, std::size_t b) {
+        if (a != b) std::swap(matrix.values[a], matrix.values[b]);
+    };
+    const auto swap_columns = [](IntegerMatrix& matrix, std::size_t a, std::size_t b) {
+        if (a != b) for (auto& row : matrix.values) std::swap(row[a], row[b]);
+    };
+    const auto add_row_multiple = [](IntegerMatrix& matrix, std::size_t target,
+                                     std::size_t source, Integer factor) {
+        for (std::size_t j = 0; j < matrix.columns; ++j) {
+            matrix.values[target][j] = checked_integer(
+                static_cast<__int128>(matrix.values[target][j]) +
+                static_cast<__int128>(factor) * matrix.values[source][j]);
+        }
+    };
+    const auto add_column_multiple = [](IntegerMatrix& matrix, std::size_t target,
+                                        std::size_t source, Integer factor) {
+        for (std::size_t i = 0; i < matrix.rows; ++i) {
+            matrix.values[i][target] = checked_integer(
+                static_cast<__int128>(matrix.values[i][target]) +
+                static_cast<__int128>(factor) * matrix.values[i][source]);
+        }
+    };
+
+    const std::size_t limit = std::min(input.rows, input.columns);
+    std::size_t pivot = 0;
+    while (pivot < limit) {
+        std::size_t selected_row = input.rows;
+        std::size_t selected_column = input.columns;
+        for (std::size_t i = pivot; i < input.rows; ++i) {
+            for (std::size_t j = pivot; j < input.columns; ++j) {
+                if (input.values[i][j] == 0) continue;
+                if (selected_row == input.rows ||
+                    (input.values[i][j] != std::numeric_limits<Integer>::min() &&
+                     std::llabs(input.values[i][j]) <
+                     std::llabs(input.values[selected_row][selected_column]))) {
+                    selected_row = i;
+                    selected_column = j;
+                }
+            }
+        }
+        if (selected_row == input.rows) break;
+        swap_rows(input, pivot, selected_row);
+        swap_columns(input, pivot, selected_column);
+        swap_columns(right, pivot, selected_column);
+        swap_rows(inverse, pivot, selected_column);
+
+        for (;;) {
+            bool restart = false;
+            for (std::size_t i = pivot + 1; i < input.rows; ++i) {
+                if (input.values[i][pivot] == 0) continue;
+                const Integer q = input.values[i][pivot] / input.values[pivot][pivot];
+                add_row_multiple(input, i, pivot, -q);
+                if (input.values[i][pivot] != 0) {
+                    swap_rows(input, i, pivot);
+                }
+                restart = true;
+                break;
+            }
+            if (restart) continue;
+
+            for (std::size_t j = pivot + 1; j < input.columns; ++j) {
+                if (input.values[pivot][j] == 0) continue;
+                const Integer q = input.values[pivot][j] / input.values[pivot][pivot];
+                add_column_multiple(input, j, pivot, -q);
+                add_column_multiple(right, j, pivot, -q);
+                // (V E)^-1 = E^-1 V^-1 for E: col_j -= q col_pivot.
+                add_row_multiple(inverse, pivot, j, q);
+                if (input.values[pivot][j] != 0) {
+                    swap_columns(input, j, pivot);
+                    swap_columns(right, j, pivot);
+                    swap_rows(inverse, j, pivot);
+                }
+                restart = true;
+                break;
+            }
+            if (restart) continue;
+
+            std::size_t bad_row = input.rows;
+            for (std::size_t i = pivot + 1; i < input.rows && bad_row == input.rows; ++i) {
+                for (std::size_t j = pivot + 1; j < input.columns; ++j) {
+                    if (input.values[i][j] % input.values[pivot][pivot] != 0) {
+                        bad_row = i;
+                        break;
+                    }
+                }
+            }
+            if (bad_row != input.rows) {
+                // Bring a non-divisible submatrix entry into the pivot row;
+                // the next Euclidean column pass strictly reduces the pivot.
+                add_row_multiple(input, pivot, bad_row, 1);
+                continue;
+            }
+            break;
+        }
+        if (input.values[pivot][pivot] < 0) {
+            for (std::size_t j = 0; j < input.columns; ++j) {
+                input.values[pivot][j] = checked_integer(-static_cast<__int128>(input.values[pivot][j]));
+            }
+        }
+        ++pivot;
+    }
+
+    SmithNormalForm result;
+    result.diagonal = std::move(input);
+    result.right_transform = std::move(right);
+    result.right_transform_inverse = std::move(inverse);
+    for (std::size_t i = 0; i < limit; ++i) {
+        const Integer value = result.diagonal.values[i][i];
+        if (value == 0) break;
+        if (value < 0 || (i > 0 && value % result.invariant_factors.back() != 0)) {
+            throw std::logic_error("Smith reduction failed the positive divisibility-chain invariant");
+        }
+        result.invariant_factors.push_back(value);
+    }
+    result.rank = result.invariant_factors.size();
+    return result;
+}
+
+struct IntegralHomologyGroup {
+    std::size_t degree = 0;
+    std::size_t free_rank = 0;
+    std::vector<Integer> torsion_invariant_factors; // factors > 1; units are omitted
+};
+
+// Compute H_n for a finite free chain complex from consecutive boundary maps.
+// boundary_n has shape dim(C_(n-1)) x dim(C_n); boundary_next has shape
+// dim(C_n) x dim(C_(n+1)). The chain identity d_n*d_(n+1)=0 is checked.
+inline IntegralHomologyGroup compute_integral_homology_group(
+    std::size_t degree,
+    const IntegerMatrix& boundary_n,
+    const IntegerMatrix& boundary_next) {
+    if (boundary_n.columns != boundary_next.rows) {
+        throw std::invalid_argument("consecutive boundary maps have incompatible dimensions");
+    }
+    const std::size_t chain_dimension = boundary_n.columns;
+    if (boundary_n.values.size() != boundary_n.rows ||
+        boundary_next.values.size() != boundary_next.rows) {
+        throw std::invalid_argument("boundary matrix dimensions are inconsistent");
+    }
+    for (const auto& row : boundary_n.values) if (row.size() != boundary_n.columns)
+        throw std::invalid_argument("boundary_n is ragged");
+    for (const auto& row : boundary_next.values) if (row.size() != boundary_next.columns)
+        throw std::invalid_argument("boundary_next is ragged");
+
+    for (std::size_t i = 0; i < boundary_n.rows; ++i) {
+        for (std::size_t j = 0; j < boundary_next.columns; ++j) {
+            __int128 sum = 0;
+            for (std::size_t k = 0; k < chain_dimension; ++k) {
+                sum += static_cast<__int128>(boundary_n.values[i][k]) *
+                       boundary_next.values[k][j];
+            }
+            if (sum != 0) throw std::invalid_argument("boundary composition is not zero");
+        }
+    }
+
+    const auto snf_n = smith_normal_form(boundary_n);
+    const std::size_t kernel_rank = chain_dimension - snf_n.rank;
+    // Express im(d_(n+1)) in the unimodular basis that splits off im(d_n).
+    IntegerMatrix coordinates(chain_dimension, boundary_next.columns);
+    for (std::size_t i = 0; i < chain_dimension; ++i) {
+        for (std::size_t j = 0; j < boundary_next.columns; ++j) {
+            __int128 sum = 0;
+            for (std::size_t k = 0; k < chain_dimension; ++k) {
+                sum += static_cast<__int128>(snf_n.right_transform_inverse.values[i][k]) *
+                       boundary_next.values[k][j];
+            }
+            coordinates.values[i][j] = checked_integer(sum);
+        }
+    }
+    for (std::size_t i = 0; i < snf_n.rank; ++i) {
+        for (std::size_t j = 0; j < coordinates.columns; ++j) {
+            if (coordinates.values[i][j] != 0) {
+                throw std::logic_error("boundary image does not lie in the computed kernel lattice");
+            }
+        }
+    }
+    IntegerMatrix restricted(kernel_rank, boundary_next.columns);
+    for (std::size_t i = 0; i < kernel_rank; ++i) {
+        for (std::size_t j = 0; j < boundary_next.columns; ++j) {
+            restricted.values[i][j] = coordinates.values[snf_n.rank + i][j];
+        }
+    }
+    const auto snf_next = smith_normal_form(std::move(restricted));
+    IntegralHomologyGroup group;
+    group.degree = degree;
+    group.free_rank = kernel_rank - snf_next.rank;
+    for (const Integer factor : snf_next.invariant_factors) {
+        if (factor > 1) group.torsion_invariant_factors.push_back(factor);
+    }
+    return group;
+}
+
+// Cellular RP^2 has C_2 --(2)--> C_1 --(0)--> C_0.
+// This helper exposes the standard discriminating chain complex as matrices;
+// its H_1 is Z/2, unlike its F_2 Betti number alone.
+inline IntegralHomologyGroup real_projective_plane_h1() {
+    IntegerMatrix d1(1, 1);
+    IntegerMatrix d2(1, 1);
+    d2.values[0][0] = 2;
+    return compute_integral_homology_group(1, d1, d2);
 }
 
 
