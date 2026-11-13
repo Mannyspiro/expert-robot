@@ -1176,6 +1176,13 @@ struct ContinuumStateFiltration {
 
 // Vertex score is max(|x|,|y|); a simplex enters at the maximum score of
 // its vertices. This upper-star rule guarantees faces enter no later.
+inline std::string canonical_double(double value) {
+    if (!std::isfinite(value)) throw std::invalid_argument("canonical persistence values must be finite");
+    std::ostringstream stream;
+    stream << std::setprecision(std::numeric_limits<double>::max_digits10) << value;
+    return stream.str();
+}
+
 inline ContinuumStateFiltration build_paired_state_filtration(
     const std::vector<PairedContinuumSample>& samples,
     const std::vector<ContinuumStateSimplex>& maximal_cells,
@@ -1252,13 +1259,6 @@ inline ContinuumStateFiltration build_paired_state_filtration(
         }
     }
     return result;
-}
-
-inline std::string canonical_double(double value) {
-    if (!std::isfinite(value)) throw std::invalid_argument("canonical persistence values must be finite");
-    std::ostringstream stream;
-    stream << std::setprecision(std::numeric_limits<double>::max_digits10) << value;
-    return stream.str();
 }
 
 struct PersistenceEvidence {
