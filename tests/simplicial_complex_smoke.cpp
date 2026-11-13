@@ -478,7 +478,7 @@ int main() {
 
     const auto state_intervals = compute_f2_persistent_homology(state_filtration.filtration);
     const auto evidence = make_persistence_evidence(
-        state_filtration.filtration, state_intervals,
+        state_filtration, state_intervals,
         "score=max(abs(state.first),abs(state.second));threshold=1",
         "C++20;deterministic simplex ordering;F2 column reduction");
     assert(evidence.algorithm_version == "merlin-persistence-f2-v2");
