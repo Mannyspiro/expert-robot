@@ -56,3 +56,26 @@ A version record proves what bytes the registry stored and in what sequence. It 
 3. Bind execution results and CACE receipts to exact `(project_id, logical_path, version, digest)` references.
 4. Expose history through the existing read-only query facade and API.
 5. Add backup/restore and concurrent-writer tests before multi-host deployment.
+
+
+## Typed immutable reference: `merlin-artifact-ref/1`
+
+The registry now issues and resolves a strict version-pinned reference:
+
+```json
+{
+  "schema": "merlin-artifact-ref/1",
+  "project_id": "merlin",
+  "logical_path": "research/continuum/candidate.lean",
+  "version": 3,
+  "sha256": "<lowercase-sha256-of-exact-bytes>"
+}
+```
+
+- `ArtifactRef` is a frozen typed value with exact-field/schema validation, normalized relative path validation, positive integer version validation and lowercase SHA-256 validation.
+- `MerlinRegistry.artifact_ref(..., version=None)` resolves the current version at lookup time; an explicit version selects historical lineage.
+- `MerlinRegistry.resolve_artifact_ref(ref)` requires an exact project/path/version row, checks the recorded digest, re-hashes the stored blob, checks byte length and reports whether that version is current.
+- A historical reference remains resolvable after the path advances. Reused bytes in a later reversion retain a distinct version identity.
+- A digest/version mismatch, missing row, malformed reference or tampered blob fails closed.
+
+This is the canonical registry boundary only. Hermes dispatch, Avrea/OCI execution receipts and CACE signed receipts do **not** yet carry this reference end-to-end. Their versioned contract migration is the next coordinated step; do not claim end-to-end lineage until the downstream producer/consumer schemas and CACE verifier agree.

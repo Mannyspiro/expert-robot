@@ -201,3 +201,13 @@ Do not create a parallel registry, artifact service, graph or outbox.
 4. Test concurrent writers, process interruption, restart, backup/restore and duplicate event delivery.
 5. Bind every execution and verification receipt to project ID, logical path, version and digest.
 6. Keep CACE independent verification, signer/trust configuration and promotion as separate gates.
+
+
+### 2026-11-13 continuation: typed artifact references
+
+- New commit: `320454d1912832abf017522ea6c05935fee195a5`.
+- Added `python/merlin/artifact_ref.py` with strict immutable `merlin-artifact-ref/1`.
+- Added registry issuance and resolution methods. Resolution binds the exact project/path/version/digest row and re-hashes the blob and checks byte length; stale historical refs remain valid but are marked non-current.
+- Added `tests/test_artifact_ref.py` for pinned historical versions, same-digest reversion identity, wrong version/digest, missing versions, tampered blobs and strict schema/path validation.
+- Fresh native CI and unified platform runs were queued for exact head `320454d1912832abf017522ea6c05935fee195a5` (run IDs 43489158523 and 43489158501 at the time of this update).
+- Scope is deliberately limited to canonical registry issuance/resolution. End-to-end propagation through Hermes, Avrea/OCI and CACE remains unimplemented and must be migrated as coordinated versioned contracts; no old CACE receipt is to be treated as version-bound.
