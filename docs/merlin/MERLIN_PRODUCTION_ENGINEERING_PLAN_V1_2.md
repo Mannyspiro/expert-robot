@@ -161,3 +161,43 @@ Updated unified evidence on exact code head `06ece19e01b115a8d10da7e919b91ba1312
 - Capability may grow; authority must not expand automatically.
 - Phone, headphones, smart-TV and IoT remain backlog ideas, not current MVP dependencies.
 - Draft PRs are not deployed software. Production is complete only after real identity, persisted state, independent verification, provider qualification, operational recovery and end-to-end acceptance are demonstrated.
+
+## 2026-11-13 continuation: canonical artifact version lineage
+
+### Existing canonical components confirmed
+
+Inspection of the continuum feature branch confirmed that Merlin already has:
+- `MerlinRegistry` with SHA-256 content-addressed blobs and a current project/logical-path pointer;
+- `MerlinKnowledgeGraph` and `HypothesisLedger`;
+- `MerlinReadAPI` as a read-only composition facade;
+- `MerlinEventOutbox` with idempotent task/event delivery;
+- a CACE adapter contract that fails closed without a configured transport.
+
+Do not create a parallel registry, artifact service, graph or outbox.
+
+### PR #144: append-only artifact version lineage
+
+- Draft PR: https://github.com/Mannyspiro/expert-robot/pull/144
+- Branch: `feat/merlin-artifact-version-lineage-20261113`
+- Parent: PR #143 branch `feat/merlin-continuum-ir-stack-20261112`
+- Initial implementation head: `349a269642997cefff2a1117ad8fca30221c7097`
+- Added `artifact_versions` as a project/logical-path-scoped append-only ledger, retaining the current-path pointer as a compatibility projection.
+- Version records retain sequence, content digest, media type, byte length, previous digest and timestamp. Reverting to old bytes creates a new chronological version; replaying the current bytes is idempotent.
+- Existing current pointers backfill as version 1. Database triggers reject update/delete of version records.
+- `MerlinReadAPI.artifact_history` now exposes paginated, digest- and size-verified history under schema `merlin-artifact-history/1`.
+- Focused tests cover pagination and blob tampering, in addition to registry-level progression, replay, revert, migration, immutability and traversal cases.
+
+### Exact-head evidence
+
+- Native CI run [43487027051](https://github.com/Mannyspiro/expert-robot/actions/runs/43487027051) passed on exact initial head `349a269642997cefff2a1117ad8fca30221c7097`, including native build, C++ tests, independent RP²/persistence audit, compute-policy and known-failure guardrails, formal dependency lock, and focused Merlin integration contracts.
+- Unified platform run [43487027096](https://github.com/Mannyspiro/expert-robot/actions/runs/43487027096) was still in progress at last observation on that same initial head. Compile and HUD validation passed; unified tests had not yet completed. Do not report the full run as passed.
+- The read API and its tests were subsequently extended in commits `a25db05fdf7a6f4e2b618f15bdcb1e7d350c5921` and `3336dfed1cd9748864beab0a113a212fe170931b`. These newer commits require fresh exact-head CI; the earlier green native run does not validate them.
+
+### Next implementation gates
+
+1. Obtain fresh exact-head focused and unified test results after the read API extension.
+2. Add artifact-version references to existing lineage events and execution/CACE evidence payloads; do not duplicate event or receipt stores.
+3. Expose history through existing API routes with bounded pagination and strict path validation.
+4. Test concurrent writers, process interruption, restart, backup/restore and duplicate event delivery.
+5. Bind every execution and verification receipt to project ID, logical path, version and digest.
+6. Keep CACE independent verification, signer/trust configuration and promotion as separate gates.
