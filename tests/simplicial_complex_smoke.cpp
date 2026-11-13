@@ -437,8 +437,56 @@ int main() {
         if (interval.degree == 0 && interval.birth == 0.0 &&
             interval.essential()) found_essential_component = true;
     }
+
     assert(found_finite_loop);
     assert(found_essential_component);
+
+    // Every interval now carries a chain representative born at its birth
+    // parameter. The triangle loop is the three-edge F_2 cycle.
+    const auto loop_interval = std::find_if(
+        persistence.begin(), persistence.end(),
+        [](const auto& interval) { return interval.degree == 1 && interval.death == 2.0; });
+    assert(loop_interval != persistence.end());
+    assert(loop_interval->birth_cycle.size() == 3);
+    for (const auto& [simplex, coefficient] : loop_interval->birth_cycle) {
+        assert(simplex.size() == 2);
+        assert((coefficient & 1) == 1);
+    }
+
+    // Paired edge-state samples generate a face-closed upper-star filtration;
+    // provenance retains the originating edge, sample, parameter and assumptions.
+    using expert_robot::math::continuum::PairedContinuumSample;
+    using expert_robot::math::continuum::ContinuumStateSimplex;
+    using expert_robot::math::continuum::build_paired_state_filtration;
+    using expert_robot::math::continuum::make_persistence_evidence;
+    const std::vector<PairedContinuumSample> paired_samples{
+        {"AB", "A", 0.0, 0.0, 0.0, {"boundary-condition:fixed"}},
+        {"AB", "B", 1.0, 0.25, 0.5, {"measurement-set:alpha"}},
+        {"BC", "C", 1.0, 0.75, 0.5, {"measurement-set:beta"}}
+    };
+    const auto state_filtration = build_paired_state_filtration(
+        paired_samples,
+        {ContinuumStateSimplex{{"A", "B"}, {"edge-constraint:AB"}},
+         ContinuumStateSimplex{{"B", "C"}, {"edge-constraint:BC"}},
+         ContinuumStateSimplex{{"A", "C"}, {"edge-constraint:CA"}}},
+        1.0);
+    assert(state_filtration.filtration.size() == 6);
+    const auto ab_provenance = state_filtration.provenance.at({"A", "B"});
+    assert(std::find(ab_provenance.begin(), ab_provenance.end(),
+                     "edge-constraint:AB") != ab_provenance.end());
+    assert(state_filtration.paired_state_values.at({"A", "B"}).size() == 4);
+
+    const auto state_intervals = compute_f2_persistent_homology(state_filtration.filtration);
+    const auto evidence = make_persistence_evidence(
+        state_filtration.filtration, state_intervals,
+        "score=max(abs(state.first),abs(state.second));threshold=1",
+        "C++20;deterministic simplex ordering;F2 column reduction");
+    assert(evidence.algorithm_version == "merlin-persistence-f2-v2");
+    assert(evidence.input_digest.size() == 64);
+    assert(evidence.output_digest.size() == 64);
+    assert(evidence.filtration_parameters.find("threshold=1") != std::string::npos);
+    assert(!evidence.reproducibility_metadata.empty());
+
 
     bool rejected_non_face_closed_filtration = false;
     try {
