@@ -311,6 +311,51 @@ int main() {
     }
     assert(rejected_invalid_homotopy_value);
 
+
+    // Exact finite-field homology: F_2 Betti numbers for basic spaces.
+    using expert_robot::math::continuum::compute_f2_homology;
+    using expert_robot::math::continuum::rank_mod2;
+    const auto point_homology = compute_f2_homology(
+        FiniteSimplicialComplex("one-point", {{"P"}}));
+    assert(point_homology.size() == 1);
+    assert(point_homology[0].degree == 0);
+    assert(point_homology[0].betti_number == 1);
+
+    const auto disconnected_homology = compute_f2_homology(
+        FiniteSimplicialComplex("two-points", {{"P"}, {"Q"}}));
+    assert(disconnected_homology[0].betti_number == 2);
+
+    const auto interval_homology = compute_f2_homology(
+        FiniteSimplicialComplex("interval", {{"P", "Q"}}));
+    assert(interval_homology[0].betti_number == 1);
+    assert(interval_homology[1].betti_number == 0);
+
+    const auto filled_triangle_homology = compute_f2_homology(
+        FiniteSimplicialComplex("filled-triangle", {{"A", "B", "C"}}));
+    assert(filled_triangle_homology[0].betti_number == 1);
+    assert(filled_triangle_homology[1].betti_number == 0);
+    assert(filled_triangle_homology[2].betti_number == 0);
+
+    const auto circle_homology = compute_f2_homology(
+        FiniteSimplicialComplex("triangle-circle",
+                                {{"A", "B"}, {"B", "C"}, {"A", "C"}}));
+    assert(circle_homology[0].betti_number == 1);
+    assert(circle_homology[1].betti_number == 1);
+
+    const auto sphere_homology = compute_f2_homology(
+        FiniteSimplicialComplex("tetrahedron-boundary",
+                                {{"A", "B", "C"}, {"A", "B", "D"},
+                                 {"A", "C", "D"}, {"B", "C", "D"}}));
+    assert(sphere_homology[0].betti_number == 1);
+    assert(sphere_homology[1].betti_number == 0);
+    assert(sphere_homology[2].betti_number == 1);
+
+    // Rank calculation handles row swaps, skipped pivot columns, and the
+    // zero matrix over F_2.
+    assert(rank_mod2({{0, 1}, {1, 1}}) == 2);
+    assert(rank_mod2({{0, 1, 1}, {0, 0, 0}}) == 1);
+    assert(rank_mod2({{0, 0}, {0, 0}}) == 0);
+
     std::cout << "simplicial boundary smoke: PASS\n";
     return 0;
 }
