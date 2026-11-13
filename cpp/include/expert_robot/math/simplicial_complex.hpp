@@ -299,6 +299,16 @@ public:
     [[nodiscard]] const std::string& source_id() const noexcept { return source_.id(); }
     [[nodiscard]] const std::string& target_id() const noexcept { return target_.id(); }
 
+    [[nodiscard]] bool source_contains(const SimplexKey& simplex) const {
+        return source_.contains(simplex);
+    }
+    [[nodiscard]] bool target_contains(const SimplexKey& simplex) const {
+        return target_.contains(simplex);
+    }
+    [[nodiscard]] const std::map<SimplexKey, bool>& source_simplices() const noexcept {
+        return source_.simplices();
+    }
+
     [[nodiscard]] SimplicialChain apply(const SimplicialChain& chain) const {
         for (const auto& [simplex, coefficient] : chain.terms()) {
             (void)coefficient;
@@ -340,6 +350,93 @@ private:
     FiniteSimplicialComplex source_;
     FiniteSimplicialComplex target_;
     SimplicialVertexMap vertex_map_;
+};
+
+
+// Add an integer multiple of one finite chain to another, removing zero
+// coefficients so equality is representation-independent.
+inline void add_scaled_chain(IntegerChain& destination,
+                             const IntegerChain& source,
+                             int scale) {
+    for (const auto& [simplex, coefficient] : source) {
+        add_chain_coefficient(destination, simplex, scale * coefficient);
+    }
+}
+
+
+// A degree +1 chain homotopy H between two chain maps f,g : C -> D.
+// Values are supplied on source basis simplices; omitted values are zero.
+// The defining equation is f - g = boundary o H + H o boundary.
+class SimplicialChainHomotopy {
+public:
+    SimplicialChainHomotopy(
+        const SimplicialChainMap& f,
+        const SimplicialChainMap& g,
+        std::map<SimplexKey, IntegerChain> values)
+        : source_id_(f.source_id()), target_id_(f.target_id()),
+          values_(std::move(values)) {
+        if (f.source_id() != g.source_id() || f.target_id() != g.target_id()) {
+            throw std::invalid_argument(
+                "chain homotopy requires maps with identical source and target complexes");
+        }
+        for (const auto& [source_simplex, image] : values_) {
+            if (!f.source_contains(source_simplex)) {
+                throw std::invalid_argument("homotopy value is keyed by a simplex outside the source");
+            }
+            const std::size_t expected_degree = source_simplex.size();
+            for (const auto& [target_simplex, coefficient] : image) {
+                if (coefficient == 0 || target_simplex.size() != expected_degree + 1 ||
+                    !f.target_contains(target_simplex)) {
+                    throw std::invalid_argument(
+                        "homotopy values must be nonzero target simplices one degree higher");
+                }
+            }
+        }
+    }
+
+    [[nodiscard]] const std::string& source_id() const noexcept { return source_id_; }
+    [[nodiscard]] const std::string& target_id() const noexcept { return target_id_; }
+
+    [[nodiscard]] SimplicialChain apply(const SimplicialChain& chain) const {
+        IntegerChain result;
+        for (const auto& [simplex, coefficient] : chain.terms()) {
+            const auto found = values_.find(simplex);
+            if (found == values_.end()) continue;
+            add_scaled_chain(result, found->second, coefficient);
+        }
+        return SimplicialChain(chain.degree() + 1, std::move(result));
+    }
+
+    // Check f(c)-g(c) = dH(c)+H(dc) for every basis simplex in the
+    // finite source complex. Checking basis simplices suffices by linearity.
+    [[nodiscard]] bool verifies(const SimplicialChainMap& f,
+                                const SimplicialChainMap& g) const {
+        if (f.source_id() != source_id_ || g.source_id() != source_id_ ||
+            f.target_id() != target_id_ || g.target_id() != target_id_) {
+            return false;
+        }
+        for (const auto& [simplex, present] : f.source_simplices()) {
+            (void)present;
+            const std::size_t degree = simplex.size() - 1;
+            const SimplicialChain basis(degree, IntegerChain{{simplex, 1}});
+            IntegerChain lhs = f.apply(basis).terms();
+            add_scaled_chain(lhs, g.apply(basis).terms(), -1);
+
+            const auto h_basis = apply(basis);
+            IntegerChain rhs = boundary(h_basis).terms();
+            if (degree > 0) {
+                const auto h_boundary = apply(boundary(basis));
+                add_scaled_chain(rhs, h_boundary.terms(), 1);
+            }
+            if (lhs != rhs) return false;
+        }
+        return true;
+    }
+
+private:
+    std::string source_id_;
+    std::string target_id_;
+    std::map<SimplexKey, IntegerChain> values_;
 };
 
 } // namespace expert_robot::math::continuum
