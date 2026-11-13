@@ -188,6 +188,72 @@ int main() {
     }
     assert(rejected_degree_zero_chain_map_check);
 
+
+    // Checked maps carry source/target complex identities and validate that
+    // every nondegenerate image simplex belongs to the target complex.
+    using expert_robot::math::continuum::FiniteSimplicialComplex;
+    using expert_robot::math::continuum::SimplicialChainMap;
+    const FiniteSimplicialComplex complex_a("A-complex", {{"A", "B", "C"}});
+    const FiniteSimplicialComplex complex_b("B-complex", {{"X", "Y", "Z"}});
+    const FiniteSimplicialComplex complex_c("C-complex", {{"P", "Q", "R"}});
+    const SimplicialChainMap map_ab(
+        complex_a, complex_b,
+        SimplicialVertexMap({{"A", "X"}, {"B", "Y"}, {"C", "Z"}}));
+    const SimplicialChainMap map_bc(
+        complex_b, complex_c,
+        SimplicialVertexMap({{"X", "P"}, {"Y", "Q"}, {"Z", "R"}}));
+    assert(map_ab.source_id() == "A-complex");
+    assert(map_ab.target_id() == "B-complex");
+    assert(map_ab.commutes_with_boundary(triangle_chain));
+
+    // Composition A -> B -> C remains a chain map A -> C.
+    const auto map_ac = map_ab.then(map_bc);
+    assert(map_ac.source_id() == "A-complex");
+    assert(map_ac.target_id() == "C-complex");
+    assert(map_ac.commutes_with_boundary(triangle_chain));
+    const auto composed_image = map_ac.apply(triangle_chain);
+    assert(composed_image.terms().size() == 1);
+    assert(composed_image.terms().begin()->first ==
+           (std::vector<std::string>{"P", "Q", "R"}));
+
+    // Composition is rejected when the intermediate complex identities differ.
+    bool rejected_mismatched_complex_composition = false;
+    try {
+        const FiniteSimplicialComplex unrelated("unrelated", {{"X", "Y", "Z"}});
+        const SimplicialChainMap wrong_next(
+            unrelated, complex_c,
+            SimplicialVertexMap({{"X", "P"}, {"Y", "Q"}, {"Z", "R"}}));
+        (void)map_ab.then(wrong_next);
+    } catch (const std::invalid_argument&) {
+        rejected_mismatched_complex_composition = true;
+    }
+    assert(rejected_mismatched_complex_composition);
+
+    // A vertex assignment that preserves vertices and edges but maps a
+    // source 2-simplex to a missing target 2-simplex is not simplicial.
+    bool rejected_missing_target_face = false;
+    try {
+        const FiniteSimplicialComplex target_without_face(
+            "edges-only", {{"X", "Y"}, {"Y", "Z"}, {"X", "Z"}});
+        (void)SimplicialChainMap(
+            complex_a, target_without_face,
+            SimplicialVertexMap({{"A", "X"}, {"B", "Y"}, {"C", "Z"}}));
+    } catch (const std::invalid_argument&) {
+        rejected_missing_target_face = true;
+    }
+    assert(rejected_missing_target_face);
+
+    // Applying a checked map to a chain outside its source complex is rejected.
+    bool rejected_chain_outside_source = false;
+    try {
+        const SimplicialChain outside_chain(
+            2, IntegerChain{{{"A", "B", "D"}, 1}});
+        (void)map_ab.apply(outside_chain);
+    } catch (const std::invalid_argument&) {
+        rejected_chain_outside_source = true;
+    }
+    assert(rejected_chain_outside_source);
+
     std::cout << "simplicial boundary smoke: PASS\n";
     return 0;
 }
