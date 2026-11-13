@@ -278,6 +278,18 @@ int main() {
         {{{"C"}, IntegerChain{{{"X", "Z"}, 1}}}});
     assert(!incomplete_contraction.verifies(map_ab, map_constant));
 
+
+    // The public H operation enforces its source domain, not only the
+    // verifier's internal basis traversal.
+    bool rejected_homotopy_input_outside_source = false;
+    try {
+        (void)contraction.apply(SimplicialChain(
+            2, IntegerChain{{{"A", "B", "D"}, 1}}));
+    } catch (const std::invalid_argument&) {
+        rejected_homotopy_input_outside_source = true;
+    }
+    assert(rejected_homotopy_input_outside_source);
+
     // Homotopies cannot be attached to maps with different source/target pairs.
     bool rejected_homotopy_map_mismatch = false;
     try {
