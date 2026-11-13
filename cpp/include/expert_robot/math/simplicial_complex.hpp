@@ -1179,10 +1179,37 @@ struct ContinuumStateSimplex {
     std::vector<std::string> assumptions;
 };
 
+// A shared endpoint is a named geometric/state-space vertex represented by
+// an endpoint sample on each incident edge. Parameters are explicit (normally
+// 0 or 1); no endpoint is inferred from coincident floating-point coordinates.
+struct ContinuumEndpointBinding {
+    std::string edge_id;
+    std::string sample_id;
+    double endpoint_parameter = 0.0;
+};
+
+struct ContinuumEndpointConstraint {
+    std::string endpoint_id;
+    std::vector<ContinuumEndpointBinding> bindings;
+    double tolerance = 0.0;
+    std::vector<std::string> provenance;
+};
+
+struct ResolvedContinuumEndpoint {
+    std::string endpoint_id;
+    double first = 0.0;
+    double second = 0.0;
+    std::vector<std::string> incident_edges;
+    std::vector<std::string> sample_ids;
+    std::vector<std::string> provenance;
+};
+
+
 struct ContinuumStateFiltration {
     std::vector<FilteredSimplex> filtration;
     std::map<SimplexKey, std::vector<std::string>> provenance;
     std::map<SimplexKey, std::vector<double>> paired_state_values;
+    std::vector<ResolvedContinuumEndpoint> endpoint_gluing;
     double threshold = 0.0;
 };
 
@@ -1195,10 +1222,15 @@ inline std::string canonical_double(double value) {
     return stream.str();
 }
 
+inline std::vector<ResolvedContinuumEndpoint> validate_continuum_gluing(
+    const std::vector<PairedContinuumSample>& samples,
+    const std::vector<ContinuumEndpointConstraint>& constraints);
+
 inline ContinuumStateFiltration build_paired_state_filtration(
     const std::vector<PairedContinuumSample>& samples,
     const std::vector<ContinuumStateSimplex>& maximal_cells,
-    double threshold) {
+    double threshold,
+    const std::vector<ContinuumEndpointConstraint>& endpoint_constraints = {}) {
     if (!std::isfinite(threshold) || samples.empty() || maximal_cells.empty()) {
         throw std::invalid_argument("continuum filtration needs finite threshold, samples and cells");
     }
@@ -1214,6 +1246,15 @@ inline ContinuumStateFiltration build_paired_state_filtration(
     std::map<SimplexKey, double> scores;
     ContinuumStateFiltration result;
     result.threshold = threshold;
+    result.endpoint_gluing = validate_continuum_gluing(samples, endpoint_constraints);
+    std::map<std::string, std::vector<std::string>> endpoint_provenance;
+    for (const auto& endpoint : result.endpoint_gluing) {
+        for (const auto& sample_id : endpoint.sample_ids) {
+            auto& origins = endpoint_provenance[sample_id];
+            origins.push_back("endpoint:" + endpoint.endpoint_id);
+            origins.insert(origins.end(), endpoint.provenance.begin(), endpoint.provenance.end());
+        }
+    }
     for (const auto& cell : maximal_cells) {
         if (cell.sample_ids.empty()) throw std::invalid_argument("continuum cell cannot be empty");
         auto vertices = cell.sample_ids;
@@ -1252,6 +1293,10 @@ inline ContinuumStateFiltration build_paired_state_filtration(
                 origins.push_back("sample:" + sample.sample_id);
                 origins.push_back("parameter:" + canonical_double(sample.parameter));
                 origins.insert(origins.end(), sample.assumptions.begin(), sample.assumptions.end());
+                const auto glued = endpoint_provenance.find(id);
+                if (glued != endpoint_provenance.end()) {
+                    origins.insert(origins.end(), glued->second.begin(), glued->second.end());
+                }
             }
             auto [key, sign] = canonical_orientation(face);
             (void)sign;
@@ -1261,6 +1306,13 @@ inline ContinuumStateFiltration build_paired_state_filtration(
             provenance.insert(provenance.end(), origins.begin(), origins.end());
             auto& values_for_face = result.paired_state_values[key];
             values_for_face.insert(values_for_face.end(), states.begin(), states.end());
+        }
+    }
+    for (const auto& endpoint : result.endpoint_gluing) {
+        for (const auto& sample_id : endpoint.sample_ids) {
+            if (scores.count(SimplexKey{sample_id}) == 0) {
+                throw std::invalid_argument("glued endpoint sample must occur in an explicit filtration cell");
+            }
         }
     }
     for (auto& [simplex, origins] : result.provenance) {
@@ -1273,31 +1325,6 @@ inline ContinuumStateFiltration build_paired_state_filtration(
     return result;
 }
 
-
-// A shared endpoint is a named geometric/state-space vertex represented by
-// an endpoint sample on each incident edge. Parameters are explicit (normally
-// 0 or 1); no endpoint is inferred from coincident floating-point coordinates.
-struct ContinuumEndpointBinding {
-    std::string edge_id;
-    std::string sample_id;
-    double endpoint_parameter = 0.0;
-};
-
-struct ContinuumEndpointConstraint {
-    std::string endpoint_id;
-    std::vector<ContinuumEndpointBinding> bindings;
-    double tolerance = 0.0;
-    std::vector<std::string> provenance;
-};
-
-struct ResolvedContinuumEndpoint {
-    std::string endpoint_id;
-    double first = 0.0;
-    double second = 0.0;
-    std::vector<std::string> incident_edges;
-    std::vector<std::string> sample_ids;
-    std::vector<std::string> provenance;
-};
 
 // Resolve shared endpoints only when the caller supplies an explicit
 // compatibility constraint. The first binding is the reference state;
@@ -1336,6 +1363,8 @@ inline std::vector<ResolvedContinuumEndpoint> validate_continuum_gluing(
         item.first = reference->second->first;
         item.second = reference->second->second;
         item.provenance = constraint.provenance;
+        item.provenance.push_back("endpoint:" + constraint.endpoint_id);
+        item.provenance.push_back("tolerance:" + canonical_double(constraint.tolerance));
         std::set<std::string> bound_edges;
         std::set<std::string> bound_samples;
         for (const auto& binding : constraint.bindings) {
