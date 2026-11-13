@@ -254,6 +254,51 @@ int main() {
     }
     assert(rejected_chain_outside_source);
 
+
+    // Chain homotopy distinguishes chain maps that differ on chains but
+    // induce the same map on homology.
+    using expert_robot::math::continuum::SimplicialChainHomotopy;
+    const SimplicialChainMap map_constant(
+        complex_a, complex_b,
+        SimplicialVertexMap({{"A", "X"}, {"B", "X"}, {"C", "X"}}));
+    const SimplicialChainHomotopy contraction(
+        map_ab, map_constant,
+        {
+            {{"B"}, IntegerChain{{{"X", "Y"}, 1}}},
+            {{"C"}, IntegerChain{{{"X", "Z"}, 1}}},
+            {{"B", "C"}, IntegerChain{{{"X", "Y", "Z"}, 1}}}
+        });
+    assert(contraction.source_id() == "A-complex");
+    assert(contraction.target_id() == "B-complex");
+    assert(contraction.verifies(map_ab, map_constant));
+
+    // A deliberately incomplete homotopy fails the chain-homotopy identity.
+    const SimplicialChainHomotopy incomplete_contraction(
+        map_ab, map_constant,
+        {{{"C"}, IntegerChain{{{"X", "Z"}, 1}}}});
+    assert(!incomplete_contraction.verifies(map_ab, map_constant));
+
+    // Homotopies cannot be attached to maps with different source/target pairs.
+    bool rejected_homotopy_map_mismatch = false;
+    try {
+        (void)SimplicialChainHomotopy(map_ab, map_ac, {});
+    } catch (const std::invalid_argument&) {
+        rejected_homotopy_map_mismatch = true;
+    }
+    assert(rejected_homotopy_map_mismatch);
+
+    // Homotopy output must be a canonical simplex in the target, one degree
+    // above its source simplex.
+    bool rejected_invalid_homotopy_value = false;
+    try {
+        (void)SimplicialChainHomotopy(
+            map_ab, map_constant,
+            {{{"B"}, IntegerChain{{{"X", "Y", "missing"}, 1}}}});
+    } catch (const std::invalid_argument&) {
+        rejected_invalid_homotopy_value = true;
+    }
+    assert(rejected_invalid_homotopy_value);
+
     std::cout << "simplicial boundary smoke: PASS\n";
     return 0;
 }
