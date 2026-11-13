@@ -1308,8 +1308,10 @@ inline std::vector<ResolvedContinuumEndpoint> validate_continuum_gluing(
     std::map<std::string, const PairedContinuumSample*> by_id;
     for (const auto& sample : samples) {
         if (sample.sample_id.empty() || sample.edge_id.empty() ||
+            !std::isfinite(sample.parameter) || !std::isfinite(sample.first) ||
+            !std::isfinite(sample.second) ||
             !by_id.emplace(sample.sample_id, &sample).second) {
-            throw std::invalid_argument("continuum gluing requires unique, named samples and edges");
+            throw std::invalid_argument("continuum gluing requires unique, named samples and finite edge/state coordinates");
         }
     }
     std::set<std::string> endpoint_ids;
@@ -1334,7 +1336,13 @@ inline std::vector<ResolvedContinuumEndpoint> validate_continuum_gluing(
         item.first = reference->second->first;
         item.second = reference->second->second;
         item.provenance = constraint.provenance;
+        std::set<std::string> bound_edges;
+        std::set<std::string> bound_samples;
         for (const auto& binding : constraint.bindings) {
+            if (!bound_edges.insert(binding.edge_id).second ||
+                !bound_samples.insert(binding.sample_id).second) {
+                throw std::invalid_argument("an endpoint constraint cannot bind the same edge or sample twice");
+            }
             const auto found = by_id.find(binding.sample_id);
             if (found == by_id.end() || found->second->edge_id != binding.edge_id ||
                 !std::isfinite(binding.endpoint_parameter) ||
