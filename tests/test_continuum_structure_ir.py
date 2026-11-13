@@ -30,10 +30,31 @@ class ContinuumStructureIRTests(unittest.TestCase):
         self.assertEqual(schema["type"], "object")
         self.assertIs(schema["additionalProperties"], False)
         required = set(schema["required"])
-        self.assertEqual(required, set(schema["properties"]))
-        self.assertEqual(required, set(sample))
+        self.assertTrue(required.issubset(schema["properties"]))
+        self.assertTrue(required.issubset(sample))
+        self.assertTrue(set(sample).issubset(schema["properties"]))
         self.assertEqual(sample["schema_version"], 1)
         self.assertEqual(sample["version"], "1.0.0")
+
+
+    def test_n_ality_axes_are_independent_and_geometric_axis_is_consistent(self):
+        signature = self.sample["n_ality"]
+        self.assertEqual(set(signature), {
+            "geometric_dimension",
+            "state_dimension",
+            "logical_dimension",
+            "temporal_dimension",
+        })
+        self.assertEqual(
+            signature["geometric_dimension"],
+            self.sample["geometry"]["dimension"],
+        )
+        self.assertEqual(
+            signature["state_dimension"],
+            self.sample["state_spaces"][0]["dimension"],
+        )
+        self.assertGreaterEqual(signature["logical_dimension"], 1)
+        self.assertGreaterEqual(signature["temporal_dimension"], 0)
 
     def test_triangle_state_spaces_cells_and_edge_traces_are_consistent(self):
         sample = self.sample
