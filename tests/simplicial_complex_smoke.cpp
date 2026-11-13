@@ -518,6 +518,60 @@ int main() {
         }
     }
 
+    // Interacting loops share an edge. Both classes are born together,
+    // then die at distinct fillings. Their representatives must be independent
+    // in H1, not merely individually closed cycles.
+    const std::vector<FilteredSimplex> interacting_filtration{
+        {{"A"}, 0.0}, {{"B"}, 0.0}, {{"C"}, 0.0}, {{"D"}, 0.0},
+        {{"A", "B"}, 1.0}, {{"A", "C"}, 1.0}, {{"B", "C"}, 1.0},
+        {{"A", "D"}, 1.0}, {{"B", "D"}, 1.0},
+        {{"A", "B", "C"}, 2.0}, {{"A", "B", "D"}, 3.0}
+    };
+    const auto interacting_intervals = compute_f2_persistent_homology(interacting_filtration);
+    std::vector<const expert_robot::math::continuum::F2PersistenceInterval*> interacting_h1;
+    for (const auto& interval : interacting_intervals)
+        if (interval.degree == 1) interacting_h1.push_back(&interval);
+    assert(interacting_h1.size() == 2);
+    std::sort(interacting_h1.begin(), interacting_h1.end(), [](const auto* a, const auto* b) {
+        return a->death < b->death;
+    });
+    assert(interacting_h1[0]->birth == 1.0 && interacting_h1[0]->death == 2.0);
+    assert(interacting_h1[1]->birth == 1.0 && interacting_h1[1]->death == 3.0);
+    std::map<expert_robot::math::continuum::SimplexKey, double> interacting_birth_values;
+    for (const auto& item : interacting_filtration)
+        interacting_birth_values.emplace(item.simplex, item.filtration);
+    std::vector<std::set<expert_robot::math::continuum::SimplexKey>> interacting_supports;
+    for (const auto* interval : interacting_h1) {
+        std::set<expert_robot::math::continuum::SimplexKey> support;
+        std::map<expert_robot::math::continuum::SimplexKey, unsigned char> boundary_mod2;
+        for (const auto& [simplex, coefficient] : interval->birth_cycle) {
+            assert(interacting_birth_values.at(simplex) <= interval->birth);
+            assert(simplex.size() == 2 && (coefficient & 1) == 1);
+            support.insert(simplex);
+            for (const auto& [face, face_coefficient] :
+                 expert_robot::math::continuum::boundary(
+                     expert_robot::math::continuum::OrientedSimplex{simplex})) {
+                (void)face_coefficient;
+                boundary_mod2[face] ^= 1U;
+            }
+        }
+        for (const auto& [face, coefficient] : boundary_mod2) {
+            (void)face;
+            assert(coefficient == 0);
+        }
+        assert(!support.empty());
+        interacting_supports.push_back(std::move(support));
+    }
+    bool first_has_unique_edge = false;
+    bool second_has_unique_edge = false;
+    for (const auto& edge : interacting_supports[0])
+        if (edge != expert_robot::math::continuum::SimplexKey{"A", "B"} &&
+            interacting_supports[1].count(edge) == 0) first_has_unique_edge = true;
+    for (const auto& edge : interacting_supports[1])
+        if (edge != expert_robot::math::continuum::SimplexKey{"A", "B"} &&
+            interacting_supports[0].count(edge) == 0) second_has_unique_edge = true;
+    assert(first_has_unique_edge && second_has_unique_edge);
+
     // Paired edge-state samples generate a face-closed upper-star filtration;
     // provenance retains the originating edge, sample, parameter and assumptions.
     using expert_robot::math::continuum::PairedContinuumSample;
@@ -527,15 +581,31 @@ int main() {
     const std::vector<PairedContinuumSample> paired_samples{
         {"AB", "A", 0.0, 0.0, 0.0, {"boundary-condition:fixed"}},
         {"AB", "B", 1.0, 0.25, 0.5, {"measurement-set:alpha"}},
+        {"BC", "B-BC", 0.0, 0.25, 0.5, {"measurement-set:beta-B"}},
         {"BC", "C", 1.0, 0.75, 0.5, {"measurement-set:beta"}}
     };
     const auto state_filtration = build_paired_state_filtration(
         paired_samples,
         {ContinuumStateSimplex{{"A", "B"}, {"edge-constraint:AB"}},
+         ContinuumStateSimplex{{"B", "B-BC"}, {"edge-constraint:shared-B"}},
          ContinuumStateSimplex{{"B", "C"}, {"edge-constraint:BC"}},
          ContinuumStateSimplex{{"A", "C"}, {"edge-constraint:CA"}}},
-        1.0);
-    assert(state_filtration.filtration.size() == 6);
+        1.0,
+        {ContinuumEndpointConstraint{
+            "shared-B",
+            {{"AB", "B", 1.0}, {"BC", "B-BC", 0.0}},
+            1e-9,
+            {"continuum-vertex:B", "constraint:state-continuity"}
+        }});
+    assert(state_filtration.filtration.size() == 8);
+    assert(state_filtration.endpoint_gluing.size() == 1);
+    assert(state_filtration.endpoint_gluing[0].endpoint_id == "shared-B");
+    const auto shared_endpoint_provenance =
+        state_filtration.provenance.at({"B", "B-BC"});
+    assert(std::find(shared_endpoint_provenance.begin(), shared_endpoint_provenance.end(),
+                     "endpoint:shared-B") != shared_endpoint_provenance.end());
+    assert(std::find(shared_endpoint_provenance.begin(), shared_endpoint_provenance.end(),
+                     "constraint:state-continuity") != shared_endpoint_provenance.end());
     const auto ab_provenance = state_filtration.provenance.at({"A", "B"});
     assert(std::find(ab_provenance.begin(), ab_provenance.end(),
                      "edge-constraint:AB") != ab_provenance.end());
