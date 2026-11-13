@@ -448,6 +448,20 @@ int main() {
         [](const auto& interval) { return interval.degree == 1 && interval.death == 2.0; });
     assert(loop_interval != persistence.end());
     assert(loop_interval->birth_cycle.size() == 3);
+    // Verify the returned cycle is closed over F_2 (signs reduce mod 2).
+    std::map<expert_robot::math::continuum::SimplexKey, unsigned char> loop_boundary;
+    for (const auto& [edge, coefficient] : loop_interval->birth_cycle) {
+        const auto faces = expert_robot::math::continuum::boundary(
+            expert_robot::math::continuum::OrientedSimplex{edge});
+        for (const auto& [vertex, face_coefficient] : faces) {
+            (void)face_coefficient;
+            loop_boundary[vertex] ^= static_cast<unsigned char>(coefficient & 1);
+        }
+    }
+    for (const auto& [vertex, coefficient] : loop_boundary) {
+        (void)vertex;
+        assert(coefficient == 0);
+    }
     for (const auto& [simplex, coefficient] : loop_interval->birth_cycle) {
         assert(simplex.size() == 2);
         assert((coefficient & 1) == 1);
@@ -483,6 +497,8 @@ int main() {
         "C++20;deterministic simplex ordering;F2 column reduction");
     assert(evidence.algorithm_version == "merlin-persistence-f2-v2");
     assert(evidence.input_digest.size() == 64);
+    assert(expert_robot::sha256_hex("abc") ==
+           "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
     assert(evidence.output_digest.size() == 64);
     assert(evidence.filtration_parameters.find("threshold=1") != std::string::npos);
 
