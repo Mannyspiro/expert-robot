@@ -3,7 +3,9 @@
 #include <algorithm>
 #include <cstddef>
 #include <map>
+#include <limits>
 #include <stdexcept>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
@@ -697,6 +699,120 @@ inline std::vector<F2HomologyRepresentatives> compute_f2_homology_representative
         result.push_back(std::move(group));
     }
     return result;
+}
+
+
+
+// A finite filtered complex assigns a nondecreasing filtration value to every
+// simplex: each face must appear no later than its cofaces. Persistent homology
+// is computed over F_2 by standard left-to-right boundary-matrix reduction.
+struct FilteredSimplex {
+    SimplexKey simplex;
+    double filtration = 0.0;
+};
+
+struct F2PersistenceInterval {
+    std::size_t degree = 0;
+    double birth = 0.0;
+    double death = std::numeric_limits<double>::infinity();
+    SimplexKey birth_simplex;
+    SimplexKey death_simplex;
+    [[nodiscard]] bool essential() const noexcept {
+        return !std::isfinite(death);
+    }
+};
+
+inline std::vector<F2PersistenceInterval> compute_f2_persistent_homology(
+    const std::vector<FilteredSimplex>& filtration) {
+    if (filtration.empty()) return {};
+    std::map<SimplexKey, double> values;
+    for (const auto& item : filtration) {
+        if (item.simplex.empty() || !std::isfinite(item.filtration) ||
+            std::any_of(item.simplex.begin(), item.simplex.end(),
+                        [](const std::string& vertex) { return vertex.empty(); })) {
+            throw std::invalid_argument("filtered simplices need valid vertices and finite filtration values");
+        }
+        auto [key, sign] = canonical_orientation(item.simplex);
+        (void)sign;
+        if (!values.emplace(std::move(key), item.filtration).second) {
+            throw std::invalid_argument("filtered complex contains a duplicate simplex");
+        }
+    }
+    for (const auto& [simplex, value] : values) {
+        if (simplex.size() <= 1) continue;
+        const auto faces = boundary(OrientedSimplex{simplex});
+        for (const auto& [face, coefficient] : faces) {
+            (void)coefficient;
+            const auto found = values.find(face);
+            if (found == values.end() || found->second > value) {
+                throw std::invalid_argument("filtration is not closed under faces");
+            }
+        }
+    }
+
+    std::vector<SimplexKey> ordered;
+    ordered.reserve(values.size());
+    for (const auto& [simplex, value] : values) {
+        (void)value;
+        ordered.push_back(simplex);
+    }
+    std::sort(ordered.begin(), ordered.end(), [&](const SimplexKey& a, const SimplexKey& b) {
+        if (values.at(a) != values.at(b)) return values.at(a) < values.at(b);
+        if (a.size() != b.size()) return a.size() < b.size();
+        return a < b;
+    });
+    std::map<SimplexKey, std::size_t> index;
+    for (std::size_t i = 0; i < ordered.size(); ++i) index.emplace(ordered[i], i);
+
+    std::map<std::size_t, std::size_t> pivot_to_column;
+    std::vector<std::set<std::size_t>> reduced_columns;
+    std::vector<bool> creates_class(ordered.size(), false);
+    std::vector<F2PersistenceInterval> intervals;
+    for (std::size_t column = 0; column < ordered.size(); ++column) {
+        std::set<std::size_t> reduced;
+        if (ordered[column].size() > 1) {
+            const auto faces = boundary(OrientedSimplex{ordered[column]});
+            for (const auto& [face, coefficient] : faces) {
+                (void)coefficient;
+                reduced.insert(index.at(face));
+            }
+        }
+        while (!reduced.empty()) {
+            const std::size_t low = *reduced.rbegin();
+            const auto paired = pivot_to_column.find(low);
+            if (paired == pivot_to_column.end()) break;
+            const auto& other = reduced_columns[paired->second];
+            std::set<std::size_t> merged;
+            std::set_symmetric_difference(reduced.begin(), reduced.end(),
+                other.begin(), other.end(), std::inserter(merged, merged.begin()));
+            reduced = std::move(merged);
+        }
+        if (reduced.empty()) {
+            creates_class[column] = true;
+        } else {
+            const std::size_t low = *reduced.rbegin();
+            pivot_to_column.emplace(low, column);
+            const std::size_t degree = ordered[low].size() - 1;
+            intervals.push_back(F2PersistenceInterval{
+                degree, values.at(ordered[low]), values.at(ordered[column]),
+                ordered[low], ordered[column]});
+        }
+        reduced_columns.push_back(std::move(reduced));
+    }
+    for (std::size_t i = 0; i < ordered.size(); ++i) {
+        if (creates_class[i] && pivot_to_column.count(i) == 0) {
+            intervals.push_back(F2PersistenceInterval{
+                ordered[i].size() - 1, values.at(ordered[i]),
+                std::numeric_limits<double>::infinity(), ordered[i], {}});
+        }
+    }
+    std::sort(intervals.begin(), intervals.end(), [](const auto& a, const auto& b) {
+        if (a.degree != b.degree) return a.degree < b.degree;
+        if (a.birth != b.birth) return a.birth < b.birth;
+        if (a.death != b.death) return a.death < b.death;
+        return a.birth_simplex < b.birth_simplex;
+    });
+    return intervals;
 }
 
 } // namespace expert_robot::math::continuum
