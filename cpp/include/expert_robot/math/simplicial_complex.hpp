@@ -1266,6 +1266,43 @@ inline PersistenceEvidence make_persistence_evidence(
     return evidence;
 }
 
+inline std::string canonical_continuum_filtration_input(
+    const ContinuumStateFiltration& state_filtration) {
+    std::string canonical = "threshold=" + std::to_string(state_filtration.threshold) + "\n";
+    canonical += canonical_persistence_input(state_filtration.filtration);
+    for (const auto& [simplex, origins] : state_filtration.provenance) {
+        canonical += "simplex:";
+        for (const auto& vertex : simplex) {
+            canonical += std::to_string(vertex.size()) + ":" + vertex + ";";
+        }
+        canonical += "\norigins:";
+        for (const auto& origin : origins) {
+            canonical += std::to_string(origin.size()) + ":" + origin + ";";
+        }
+        canonical += "\nstates:";
+        const auto values = state_filtration.paired_state_values.find(simplex);
+        if (values != state_filtration.paired_state_values.end()) {
+            for (const double value : values->second) canonical += std::to_string(value) + ",";
+        }
+        canonical += "\n";
+    }
+    return canonical;
+}
+
+inline PersistenceEvidence make_persistence_evidence(
+    const ContinuumStateFiltration& state_filtration,
+    const std::vector<F2PersistenceInterval>& intervals,
+    std::string filtration_parameters,
+    std::string reproducibility_metadata) {
+    PersistenceEvidence evidence;
+    evidence.input_digest = expert_robot::sha256_hex(
+        canonical_continuum_filtration_input(state_filtration));
+    evidence.output_digest = expert_robot::sha256_hex(canonical_persistence_output(intervals));
+    evidence.filtration_parameters = std::move(filtration_parameters);
+    evidence.reproducibility_metadata = std::move(reproducibility_metadata);
+    return evidence;
+}
+
 
 inline std::vector<std::vector<unsigned char>> induced_f2_homology_map(
     const SimplicialChainMap& map,
