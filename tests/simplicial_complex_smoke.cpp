@@ -698,3 +698,338 @@ int main() {
     std::cout << "PERSISTENCE_ALGORITHM_VERSION=" << evidence.algorithm_version << "\n";
     std::cout << "PERSISTENCE_INPUT_SHA256=" << evidence.input_digest << "\n";
     std::cout << "PERSISTENCE_OUTPUT_SHA256=" << evidence.output_digest << "\n";
+
+    // Build a transport-ready evidence envelope tied to an exact source
+    // commit, algorithm, input/output bytes and runner execution. A matching
+    // receipt binding is only structurally validated here; cryptographic
+    // signature verification remains external to this C++ producer.
+    using expert_robot::math::continuum::PersistenceEvidenceEnvelope;
+    using expert_robot::math::continuum::CaceReceiptBinding;
+    using expert_robot::math::continuum::persistence_evidence_envelope_digest;
+    using expert_robot::math::continuum::validate_cace_receipt_binding;
+    const PersistenceEvidenceEnvelope envelope{
+        "0123456789abcdef0123456789abcdef01234567",
+        evidence.algorithm_version,
+        evidence.input_digest,
+        evidence.output_digest,
+        "oci-runner:linux-x86_64",
+        "oci-execution:run-0042",
+        "C++20;compiler=clang;deterministic-F2",
+        expert_robot::sha256_hex("reproduction-receipt:run-0042")
+    };
+    const auto envelope_digest = persistence_evidence_envelope_digest(envelope);
+    assert(envelope_digest.size() == 64);
+    validate_cace_receipt_binding(envelope, {
+        envelope_digest, "cace-receipt:pending-test-fixture",
+        "test-key-id", "opaque-test-signature", "cace-verifier:test"
+    });
+    bool rejected_wrong_cace_target = false;
+    try {
+        validate_cace_receipt_binding(envelope, {
+            expert_robot::sha256_hex("different-envelope"), "receipt", "key",
+            "signature", "verifier"
+        });
+    } catch (const std::invalid_argument&) {
+        rejected_wrong_cace_target = true;
+    }
+    assert(rejected_wrong_cace_target);
+
+
+
+    // Smith normal form retains invariant factors and unimodular basis data.
+    using expert_robot::math::continuum::IntegerMatrix;
+    using expert_robot::math::continuum::smith_normal_form;
+    using expert_robot::math::continuum::real_projective_plane_h1;
+    IntegerMatrix integer_matrix(2, 2);
+    integer_matrix.values = {{2, 4}, {6, 8}};
+    const auto smith = smith_normal_form(integer_matrix);
+    assert(smith.rank == 2);
+    assert(smith.invariant_factors.size() == 2);
+    assert(smith.invariant_factors[0] == 2);
+    assert(smith.invariant_factors[1] == 4);
+    for (std::size_t i = 0; i < 2; ++i) {
+        for (std::size_t j = 0; j < 2; ++j) {
+            std::int64_t product = 0;
+            for (std::size_t k = 0; k < 2; ++k) {
+                product += smith.right_transform_inverse.values[i][k] *
+                           smith.right_transform.values[k][j];
+            }
+            assert(product == (i == j ? 1 : 0));
+        }
+    }
+
+
+    // Genuine six-vertex, ten-facet triangulation of RP^2. The simplicial
+    // boundary matrices recover H_0=Z, H_1=Z/2 and H_2=0.
+    using expert_robot::math::continuum::triangulated_real_projective_plane;
+    const auto rp2 = triangulated_real_projective_plane();
+    assert(rp2.simplices().size() == 31); // 6 vertices + 15 edges + 10 facets
+    const auto rp2_h0_simplicial =
+        expert_robot::math::continuum::compute_integral_homology(rp2, 0);
+    const auto rp2_h1_simplicial =
+        expert_robot::math::continuum::compute_integral_homology(rp2, 1);
+    const auto rp2_h2_simplicial =
+        expert_robot::math::continuum::compute_integral_homology(rp2, 2);
+    assert(rp2_h0_simplicial.free_rank == 1);
+    assert(rp2_h0_simplicial.torsion_invariant_factors.empty());
+    assert(rp2_h1_simplicial.free_rank == 0);
+    assert(rp2_h1_simplicial.torsion_invariant_factors ==
+           (std::vector<std::int64_t>{2}));
+    assert(rp2_h2_simplicial.free_rank == 0);
+    assert(rp2_h2_simplicial.torsion_invariant_factors.empty());
+    const auto rp2_f2 = expert_robot::math::continuum::compute_f2_homology(rp2);
+    assert(rp2_f2[0].betti_number == 1);
+    assert(rp2_f2[1].betti_number == 1);
+    assert(rp2_f2[2].betti_number == 1); // RP2 has a mod-2 fundamental class
+
+    // Validate explicit representatives in every degree, not only dimensions.
+    const auto rp2_representatives =
+        expert_robot::math::continuum::compute_f2_homology_representatives(rp2);
+    assert(rp2_representatives.size() == 3);
+    for (const auto& group : rp2_representatives)
+        expert_robot::math::continuum::validate_f2_homology_representatives(rp2, group);
+    assert(rp2_representatives[0].representatives.size() == 1);
+    assert(rp2_representatives[1].representatives.size() == 1);
+    assert(rp2_representatives[2].representatives.size() == 1);
+
+    // Independent SNF cross-check: determinantal divisors are gcds of all
+    // k-by-k minors. This does not reuse the Euclidean SNF reduction.
+    const auto determinant = [](const auto& self,
+                                const std::vector<std::vector<std::int64_t>>& matrix) -> std::int64_t {
+        if (matrix.empty()) return 1;
+        if (matrix.size() == 1) return matrix[0][0];
+        std::int64_t value = 0;
+        for (std::size_t column = 0; column < matrix.size(); ++column) {
+            std::vector<std::vector<std::int64_t>> minor;
+            for (std::size_t row = 1; row < matrix.size(); ++row) {
+                std::vector<std::int64_t> minor_row;
+                for (std::size_t col = 0; col < matrix.size(); ++col)
+                    if (col != column) minor_row.push_back(matrix[row][col]);
+                minor.push_back(std::move(minor_row));
+            }
+            const auto term = matrix[0][column] * self(self, minor);
+            value += (column % 2 == 0) ? term : -term;
+        }
+        return value;
+    };
+    const auto combinations = [](std::size_t n, std::size_t k,
+                                 const std::function<void(const std::vector<std::size_t>&)>& visit) {
+        std::vector<std::size_t> selected;
+        const auto walk = [&](const auto& self, std::size_t next) -> void {
+            if (selected.size() == k) { visit(selected); return; }
+            for (std::size_t i = next; i < n; ++i) {
+                selected.push_back(i);
+                self(self, i + 1);
+                selected.pop_back();
+            }
+        };
+        walk(walk, 0);
+    };
+    const auto independent_invariants = [&](const IntegerMatrix& matrix) {
+        std::vector<std::int64_t> factors;
+        std::int64_t previous_divisor = 1;
+        for (std::size_t k = 1; k <= std::min(matrix.rows, matrix.columns); ++k) {
+            std::int64_t divisor = 0;
+            combinations(matrix.rows, k, [&](const auto& row_ids) {
+                combinations(matrix.columns, k, [&](const auto& col_ids) {
+                    std::vector<std::vector<std::int64_t>> minor(k, std::vector<std::int64_t>(k));
+                    for (std::size_t i = 0; i < k; ++i)
+                        for (std::size_t j = 0; j < k; ++j)
+                            minor[i][j] = matrix.values[row_ids[i]][col_ids[j]];
+                    divisor = std::gcd(divisor, std::abs(determinant(determinant, minor)));
+                });
+            });
+            if (divisor == 0) break;
+            assert(divisor % previous_divisor == 0);
+            factors.push_back(divisor / previous_divisor);
+            previous_divisor = divisor;
+        }
+        return factors;
+    };
+    std::uint32_t random_state = 0x5a17c9e3U;
+    for (std::size_t sample = 0; sample < 96; ++sample) {
+        const std::size_t rows = 1 + (sample % 3);
+        const std::size_t columns = 1 + ((sample / 3) % 3);
+        IntegerMatrix candidate(rows, columns);
+        for (std::size_t i = 0; i < rows; ++i) {
+            for (std::size_t j = 0; j < columns; ++j) {
+                random_state = random_state * 1664525U + 1013904223U;
+                candidate.values[i][j] =
+                    static_cast<std::int64_t>((random_state >> 16U) % 9U) - 4;
+            }
+        }
+        const auto reduced = smith_normal_form(candidate);
+        assert(reduced.invariant_factors == independent_invariants(candidate));
+        for (std::size_t i = 0; i < reduced.diagonal.rows; ++i) {
+            for (std::size_t j = 0; j < reduced.diagonal.columns; ++j) {
+                if (i != j) assert(reduced.diagonal.values[i][j] == 0);
+            }
+        }
+        for (std::size_t i = 1; i < reduced.invariant_factors.size(); ++i) {
+            assert(reduced.invariant_factors[i] % reduced.invariant_factors[i - 1] == 0);
+        }
+        // Apply elementary unimodular row/column operations and ensure the
+        // independently computed invariant factors remain unchanged.
+        IntegerMatrix equivalent = candidate;
+        if (rows > 1) {
+            std::swap(equivalent.values[0], equivalent.values[rows - 1]);
+            for (std::size_t j = 0; j < columns; ++j)
+                equivalent.values[1][j] += 2 * equivalent.values[0][j];
+        }
+        if (columns > 1) {
+            for (std::size_t i = 0; i < rows; ++i)
+                std::swap(equivalent.values[i][0], equivalent.values[i][columns - 1]);
+            for (std::size_t i = 0; i < rows; ++i)
+                equivalent.values[i][1] -= equivalent.values[i][0];
+        }
+        assert(independent_invariants(equivalent) == independent_invariants(candidate));
+        const auto equivalent_snf = smith_normal_form(equivalent);
+        assert(equivalent_snf.invariant_factors == reduced.invariant_factors);
+        for (std::size_t i = 0; i < candidate.columns; ++i) {
+            for (std::size_t j = 0; j < candidate.columns; ++j) {
+                std::int64_t product = 0;
+                for (std::size_t k = 0; k < candidate.columns; ++k)
+                    product += reduced.right_transform_inverse.values[i][k] *
+                               reduced.right_transform.values[k][j];
+                assert(product == (i == j ? 1 : 0));
+            }
+        }
+    }
+    // Explicit torsion and rectangular/degenerate fixtures supplement the
+    // deterministic randomized family.
+    for (const auto& fixture : std::vector<IntegerMatrix>{
+             [] { IntegerMatrix m(2, 2); m.values = {{0, 2}, {3, 0}}; return m; }(),
+             [] { IntegerMatrix m(2, 2); m.values = {{4, 6}, {3, 9}}; return m; }(),
+             [] { IntegerMatrix m(2, 2); m.values = {{0, 0}, {0, 6}}; return m; }(),
+             [] { IntegerMatrix m(2, 3); m.values = {{-2, 4, 0}, {6, -8, 2}}; return m; }()
+         }) {
+        const auto reduced = smith_normal_form(fixture);
+        assert(reduced.invariant_factors == independent_invariants(fixture));
+    }
+
+    // The cellular chain complex of RP^2 distinguishes integral torsion:
+    // H_1(RP^2; Z) = Z/2, which a Betti-number-only report would miss.
+    const auto rp2_h1 = real_projective_plane_h1();
+    assert(rp2_h1.degree == 1);
+    assert(rp2_h1.free_rank == 0);
+    assert(rp2_h1.torsion_invariant_factors.size() == 1);
+    assert(rp2_h1.torsion_invariant_factors[0] == 2);
+
+    // The same Smith engine computes ordinary integral homology directly
+    // from oriented simplicial boundary matrices.
+    const auto integral_circle = expert_robot::math::continuum::compute_integral_homology(
+        circle_complex, 1);
+    assert(integral_circle.free_rank == 1);
+    assert(integral_circle.torsion_invariant_factors.empty());
+    const auto integral_circle_h0 = expert_robot::math::continuum::compute_integral_homology(
+        circle_complex, 0);
+    assert(integral_circle_h0.free_rank == 1);
+    assert(integral_circle_h0.torsion_invariant_factors.empty());
+    const auto integral_disk = expert_robot::math::continuum::compute_integral_homology(
+        FiniteSimplicialComplex("integral-filled-triangle", {{"A", "B", "C"}}), 1);
+    assert(integral_disk.free_rank == 0);
+    assert(integral_disk.torsion_invariant_factors.empty());
+
+    bool rejected_non_chain_complex = false;
+    try {
+        IntegerMatrix bad_d1(1, 1);
+        IntegerMatrix bad_d2(1, 1);
+        bad_d1.values[0][0] = 1;
+        bad_d2.values[0][0] = 1;
+        (void)expert_robot::math::continuum::compute_integral_homology_group(
+            1, bad_d1, bad_d2);
+    } catch (const std::invalid_argument&) {
+        rejected_non_chain_complex = true;
+    }
+    assert(rejected_non_chain_complex);
+
+
+
+    bool rejected_non_face_closed_filtration = false;
+    try {
+        (void)compute_f2_persistent_homology({
+            {{"A"}, 1.0}, {{"B"}, 0.0}, {{"A", "B"}, 0.5}
+        });
+    } catch (const std::invalid_argument&) {
+        rejected_non_face_closed_filtration = true;
+    }
+    assert(rejected_non_face_closed_filtration);
+
+
+    // Induced maps act on homology classes, not merely on chains.
+    using expert_robot::math::continuum::SimplicialVertexMap;
+    using expert_robot::math::continuum::SimplicialChainMap;
+    using expert_robot::math::continuum::induced_f2_homology_map;
+    const FiniteSimplicialComplex source_circle(
+        "induced-source-circle", {{"A", "B"}, {"B", "C"}, {"A", "C"}});
+    const FiniteSimplicialComplex target_circle(
+        "induced-target-circle", {{"X", "Y"}, {"Y", "Z"}, {"X", "Z"}});
+    const SimplicialChainMap identity_on_circle(
+        source_circle, target_circle,
+        SimplicialVertexMap({{"A", "X"}, {"B", "Y"}, {"C", "Z"}}));
+    const auto source_h1 = compute_f2_homology_representatives(source_circle)[1];
+    const auto target_h1 = compute_f2_homology_representatives(target_circle)[1];
+    validate_f2_homology_representatives(source_circle, source_h1);
+    validate_f2_homology_representatives(target_circle, target_h1);
+    const FiniteSimplicialComplex representative_point("representative-point", {{"P"}});
+    const auto point_h0 = compute_f2_homology_representatives(representative_point)[0];
+    validate_f2_homology_representatives(representative_point, point_h0);
+
+    // The verifier rejects a duplicate class (independence failure), a
+    // non-cycle, and a basis with the wrong cardinality (spanning failure).
+    const FiniteSimplicialComplex figure_eight(
+        "homology-figure-eight",
+        {{"A", "B"}, {"B", "C"}, {"A", "C"},
+         {"A", "D"}, {"D", "E"}, {"A", "E"}});
+    const auto figure_eight_h1 = compute_f2_homology_representatives(figure_eight)[1];
+    validate_f2_homology_representatives(figure_eight, figure_eight_h1);
+    assert(figure_eight_h1.representatives.size() == 2);
+    auto duplicate_h1 = figure_eight_h1;
+    duplicate_h1.representatives[1] = duplicate_h1.representatives[0];
+    bool rejected_duplicate_homology_class = false;
+    try {
+        validate_f2_homology_representatives(figure_eight, duplicate_h1);
+    } catch (const std::invalid_argument&) {
+        rejected_duplicate_homology_class = true;
+    }
+    assert(rejected_duplicate_homology_class);
+
+    auto noncycle_h1 = source_h1;
+    noncycle_h1.representatives.front() = {{{"A", "B"}, 1}};
+    bool rejected_noncycle_homology_representative = false;
+    try {
+        validate_f2_homology_representatives(source_circle, noncycle_h1);
+    } catch (const std::invalid_argument&) {
+        rejected_noncycle_homology_representative = true;
+    }
+    assert(rejected_noncycle_homology_representative);
+
+    auto incomplete_h1 = source_h1;
+    incomplete_h1.representatives.clear();
+    bool rejected_incomplete_homology_basis = false;
+    try {
+        validate_f2_homology_representatives(source_circle, incomplete_h1);
+    } catch (const std::invalid_argument&) {
+        rejected_incomplete_homology_basis = true;
+    }
+    assert(rejected_incomplete_homology_basis);
+    const auto identity_h1 = induced_f2_homology_map(
+        identity_on_circle, source_h1, target_h1);
+    assert(identity_h1.size() == 1 && identity_h1[0].size() == 1);
+    assert(identity_h1[0][0] == 1);
+
+    const FiniteSimplicialComplex point_target("induced-point-target", {{"P"}});
+    const SimplicialChainMap collapse_circle(
+        source_circle, point_target,
+        SimplicialVertexMap({{"A", "P"}, {"B", "P"}, {"C", "P"}}));
+    // The point target has no 1-simplices, so its H_1 group is the
+    // correctly degree-indexed zero group (not its H_0 representative set).
+    const expert_robot::math::continuum::F2HomologyRepresentatives point_h1{
+        1, {}, {}};
+    const auto collapsed_h1 = induced_f2_homology_map(
+        collapse_circle, source_h1, point_h1);
+    assert(collapsed_h1.empty());
+
+    std::cout << "simplicial boundary smoke: PASS\n";
+    return 0;
+}
