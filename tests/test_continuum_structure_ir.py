@@ -134,5 +134,59 @@ class ContinuumStructureIRTests(unittest.TestCase):
         self.assertTrue(all(item["proof_implication"] == "none" for item in sample["evidence"]))
 
 
+    def test_cells_can_attach_heterogeneous_state_spaces(self):
+        sample = json.loads(json.dumps(self.sample))
+        sample["state_spaces"].append({
+            "id": "R3-face",
+            "kind": "real_vector",
+            "dimension": 3,
+            "scalar_field": "R",
+            "semantics": "Three independent real channels on the 2-cell."
+        })
+        cells = {item["id"]: item for item in sample["cells"]}
+        cells["ABC"]["state_space_id"] = "R3-face"
+
+        spaces = {item["id"]: item for item in sample["state_spaces"]}
+        self.assertEqual(len(spaces), 2)
+        for cell in cells.values():
+            self.assertIn(cell["state_space_id"], spaces)
+        for edge_field in sample["edge_fields"]:
+            cell = cells[edge_field["cell_id"]]
+            self.assertEqual(edge_field["state_space_id"], cell["state_space_id"])
+            dimension = spaces[edge_field["state_space_id"]]["dimension"]
+            self.assertTrue(all(len(point["value"]) == dimension
+                                for point in edge_field["samples"]))
+
+        # The face may use a different carrier from its boundary edges.
+        self.assertEqual(spaces[cells["AB"]["state_space_id"]]["dimension"], 2)
+        self.assertEqual(spaces[cells["ABC"]["state_space_id"]]["dimension"], 3)
+
+    def test_transformations_allow_dimension_changing_maps_but_check_shape(self):
+        spaces = {
+            "R2": {"dimension": 2},
+            "R3": {"dimension": 3},
+        }
+        transform = {
+            "source_state_space_id": "R2",
+            "target_state_space_id": "R3",
+            "matrix": [[1, 0], [0, 1], [1, 1]],
+        }
+        source = spaces[transform["source_state_space_id"]]
+        target = spaces[transform["target_state_space_id"]]
+        matrix = transform["matrix"]
+        self.assertEqual(len(matrix), target["dimension"])
+        self.assertTrue(all(len(row) == source["dimension"] for row in matrix))
+
+        malformed = [[1, 0], [0, 1], [1]]
+        self.assertNotEqual(len(malformed), target["dimension"])
+        self.assertFalse(all(len(row) == source["dimension"] for row in malformed))
+
+    def test_unknown_cell_state_space_reference_is_rejected(self):
+        sample = json.loads(json.dumps(self.sample))
+        known = {item["id"] for item in sample["state_spaces"]}
+        sample["cells"][0]["state_space_id"] = "missing-space"
+        self.assertNotIn(sample["cells"][0]["state_space_id"], known)
+
+
 if __name__ == "__main__":
     unittest.main()
