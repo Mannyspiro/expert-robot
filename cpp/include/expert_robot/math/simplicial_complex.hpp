@@ -108,4 +108,45 @@ inline bool is_zero_chain(const IntegerChain& chain) noexcept {
     return chain.empty();
 }
 
+
+// A degree-indexed finite simplicial chain. Every basis simplex in C_n has
+// exactly n+1 vertices; the boundary map returns an element of C_(n-1).
+class SimplicialChain {
+public:
+    SimplicialChain(std::size_t degree, IntegerChain terms)
+        : degree_(degree), terms_(std::move(terms)) {
+        for (const auto& [vertices, coefficient] : terms_) {
+            if (coefficient == 0 || vertices.size() != degree_ + 1 ||
+                !std::is_sorted(vertices.begin(), vertices.end()) ||
+                std::adjacent_find(vertices.begin(), vertices.end()) != vertices.end() ||
+                std::any_of(vertices.begin(), vertices.end(),
+                            [](const std::string& vertex) { return vertex.empty(); })) {
+                throw std::invalid_argument(
+                    "chain terms must be nonzero canonical simplices of the declared degree");
+            }
+        }
+    }
+
+    [[nodiscard]] std::size_t degree() const noexcept { return degree_; }
+    [[nodiscard]] const IntegerChain& terms() const noexcept { return terms_; }
+
+private:
+    std::size_t degree_;
+    IntegerChain terms_;
+};
+
+inline SimplicialChain boundary(const SimplicialChain& chain) {
+    if (chain.degree() == 0) {
+        throw std::invalid_argument("the boundary of a 0-chain is not defined in this chain model");
+    }
+    return SimplicialChain(chain.degree() - 1, boundary(chain.terms()));
+}
+
+inline SimplicialChain boundary_squared(const SimplicialChain& chain) {
+    if (chain.degree() < 2) {
+        throw std::invalid_argument("boundary squared requires a chain in degree >= 2");
+    }
+    return boundary(boundary(chain));
+}
+
 } // namespace expert_robot::math::continuum
