@@ -409,6 +409,38 @@ int main() {
     assert(rank_mod2({{0, 1, 1}, {0, 0, 0}}) == 1);
     assert(rank_mod2({{0, 0}, {0, 0}}) == 0);
 
+
+    // Persistent homology tracks the birth/death of a loop in a filtered
+    // triangle boundary: edges enter at 1, the loop dies when the 2-simplex
+    // fills at 2. The connected component remains essential.
+    using expert_robot::math::continuum::FilteredSimplex;
+    using expert_robot::math::continuum::compute_f2_persistent_homology;
+    const auto persistence = compute_f2_persistent_homology({
+        {{"A"}, 0.0}, {{"B"}, 0.0}, {{"C"}, 0.0},
+        {{"A", "B"}, 1.0}, {{"B", "C"}, 1.0}, {{"A", "C"}, 1.0},
+        {{"A", "B", "C"}, 2.0}
+    });
+    bool found_finite_loop = false;
+    bool found_essential_component = false;
+    for (const auto& interval : persistence) {
+        if (interval.degree == 1 && interval.birth == 1.0 &&
+            interval.death == 2.0) found_finite_loop = true;
+        if (interval.degree == 0 && interval.birth == 0.0 &&
+            interval.essential()) found_essential_component = true;
+    }
+    assert(found_finite_loop);
+    assert(found_essential_component);
+
+    bool rejected_non_face_closed_filtration = false;
+    try {
+        (void)compute_f2_persistent_homology({
+            {{"A"}, 1.0}, {{"B"}, 0.0}, {{"A", "B"}, 0.5}
+        });
+    } catch (const std::invalid_argument&) {
+        rejected_non_face_closed_filtration = true;
+    }
+    assert(rejected_non_face_closed_filtration);
+
     std::cout << "simplicial boundary smoke: PASS\n";
     return 0;
 }
