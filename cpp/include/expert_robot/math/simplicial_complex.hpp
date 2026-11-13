@@ -214,4 +214,132 @@ private:
     std::map<std::string, std::string> images_;
 };
 
+
+// A finite abstract simplicial complex represented by its complete set of
+// non-empty faces. Construction accepts maximal simplices and closes them
+// under taking non-empty subsets.
+class FiniteSimplicialComplex {
+public:
+    FiniteSimplicialComplex(std::string id, std::vector<SimplexKey> maximal_simplices)
+        : id_(std::move(id)) {
+        if (id_.empty()) {
+            throw std::invalid_argument("simplicial-complex identifier must be non-empty");
+        }
+        if (maximal_simplices.empty()) {
+            throw std::invalid_argument("a finite complex needs at least one non-empty simplex");
+        }
+        for (auto& simplex : maximal_simplices) {
+            if (simplex.empty() ||
+                std::any_of(simplex.begin(), simplex.end(),
+                            [](const std::string& vertex) { return vertex.empty(); })) {
+                throw std::invalid_argument("maximal simplices need non-empty vertex identifiers");
+            }
+            auto sorted = simplex;
+            std::sort(sorted.begin(), sorted.end());
+            if (std::adjacent_find(sorted.begin(), sorted.end()) != sorted.end()) {
+                throw std::invalid_argument("maximal simplex contains a repeated vertex");
+            }
+            add_faces(sorted, 0, {});
+        }
+    }
+
+    [[nodiscard]] const std::string& id() const noexcept { return id_; }
+    [[nodiscard]] bool contains(const SimplexKey& simplex) const {
+        auto key = simplex;
+        std::sort(key.begin(), key.end());
+        return !key.empty() &&
+            std::adjacent_find(key.begin(), key.end()) == key.end() &&
+            simplices_.count(key) != 0;
+    }
+    [[nodiscard]] const std::map<SimplexKey, bool>& simplices() const noexcept {
+        return simplices_;
+    }
+
+private:
+    void add_faces(const SimplexKey& vertices, std::size_t index, SimplexKey selected) {
+        if (index == vertices.size()) {
+            if (!selected.empty()) simplices_.emplace(std::move(selected), true);
+            return;
+        }
+        add_faces(vertices, index + 1, selected);
+        selected.push_back(vertices[index]);
+        add_faces(vertices, index + 1, std::move(selected));
+    }
+
+    std::string id_;
+    std::map<SimplexKey, bool> simplices_;
+};
+
+
+// A checked simplicial chain map between named finite complexes. Its vertex
+// assignment must send every source simplex to a target simplex or to a
+// degenerate simplex (which is zero in normalized chains).
+class SimplicialChainMap {
+public:
+    SimplicialChainMap(FiniteSimplicialComplex source,
+                       FiniteSimplicialComplex target,
+                       SimplicialVertexMap vertex_map)
+        : source_(std::move(source)), target_(std::move(target)),
+          vertex_map_(std::move(vertex_map)) {
+        for (const auto& [simplex, present] : source_.simplices()) {
+            (void)present;
+            IntegerChain singleton{{simplex, 1}};
+            const auto image = vertex_map_.apply(SimplicialChain(simplex.size() - 1,
+                                                                  std::move(singleton)));
+            for (const auto& [image_simplex, coefficient] : image.terms()) {
+                (void)coefficient;
+                if (!target_.contains(image_simplex)) {
+                    throw std::invalid_argument(
+                        "vertex map sends a source simplex outside the target complex");
+                }
+            }
+        }
+    }
+
+    [[nodiscard]] const std::string& source_id() const noexcept { return source_.id(); }
+    [[nodiscard]] const std::string& target_id() const noexcept { return target_.id(); }
+
+    [[nodiscard]] SimplicialChain apply(const SimplicialChain& chain) const {
+        for (const auto& [simplex, coefficient] : chain.terms()) {
+            (void)coefficient;
+            if (!source_.contains(simplex)) {
+                throw std::invalid_argument("chain contains a simplex outside the source complex");
+            }
+        }
+        auto image = vertex_map_.apply(chain);
+        for (const auto& [simplex, coefficient] : image.terms()) {
+            (void)coefficient;
+            if (!target_.contains(simplex)) {
+                throw std::logic_error("validated chain map produced a simplex outside its target");
+            }
+        }
+        return image;
+    }
+
+    [[nodiscard]] bool commutes_with_boundary(const SimplicialChain& chain) const {
+        if (chain.degree() == 0) {
+            throw std::invalid_argument("boundary commutation requires positive degree");
+        }
+        return boundary(apply(chain)).terms() == apply(boundary(chain)).terms();
+    }
+
+    // Compose this map A -> B with next map B -> C.
+    [[nodiscard]] SimplicialChainMap then(const SimplicialChainMap& next) const {
+        if (target_.id() != next.source_.id()) {
+            throw std::invalid_argument("chain-map composition has mismatched intermediate complexes");
+        }
+        std::map<std::string, std::string> composed;
+        for (const auto& [source_vertex, ignored] : vertex_map_.images()) {
+            (void)ignored;
+            composed.emplace(source_vertex, next.vertex_map_(vertex_map_(source_vertex)));
+        }
+        return SimplicialChainMap(source_, next.target_, SimplicialVertexMap(std::move(composed)));
+    }
+
+private:
+    FiniteSimplicialComplex source_;
+    FiniteSimplicialComplex target_;
+    SimplicialVertexMap vertex_map_;
+};
+
 } // namespace expert_robot::math::continuum
