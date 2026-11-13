@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <map>
 #include <limits>
+#include <iterator>
 #include <stdexcept>
 #include <set>
 #include <string>
