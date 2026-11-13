@@ -83,6 +83,36 @@ int main() {
     }
     assert(boundary_of_combined == expected);
 
+
+    // Degree-indexed chain groups make the boundary map's type-level degree
+    // reduction explicit: C2 -> C1 -> C0.
+    using expert_robot::math::continuum::SimplicialChain;
+    const SimplicialChain triangle_chain(2, IntegerChain{{{"A", "B", "C"}, 1}});
+    const auto edge_chain = boundary(triangle_chain);
+    assert(edge_chain.degree() == 1);
+    const auto vertex_chain = boundary(edge_chain);
+    assert(vertex_chain.degree() == 0);
+    assert(is_zero_chain(boundary_squared(triangle_chain).terms()));
+
+    bool rejected_mixed_degree_chain = false;
+    try {
+        (void)SimplicialChain(2, IntegerChain{
+            {{"A", "B", "C"}, 1},
+            {{"A", "B"}, 1}
+        });
+    } catch (const std::invalid_argument&) {
+        rejected_mixed_degree_chain = true;
+    }
+    assert(rejected_mixed_degree_chain);
+
+    bool rejected_boundary_of_zero_chain = false;
+    try {
+        (void)boundary(vertex_chain);
+    } catch (const std::invalid_argument&) {
+        rejected_boundary_of_zero_chain = true;
+    }
+    assert(rejected_boundary_of_zero_chain);
+
     bool rejected_duplicate_vertex = false;
     try {
         (void)boundary(OrientedSimplex{{"A", "B", "A"}});
