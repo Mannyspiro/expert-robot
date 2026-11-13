@@ -724,6 +724,14 @@ struct IntegerMatrix {
           values(row_count, std::vector<Integer>(column_count, 0)) {}
 };
 
+inline Integer checked_integer(__int128 value) {
+    if (value < static_cast<__int128>(std::numeric_limits<Integer>::min()) ||
+        value > static_cast<__int128>(std::numeric_limits<Integer>::max())) {
+        throw std::overflow_error("integer Smith reduction overflow");
+    }
+    return static_cast<Integer>(value);
+}
+
 inline IntegerMatrix integer_boundary_matrix(
     const FiniteSimplicialComplex& complex, std::size_t degree) {
     std::vector<SimplexKey> columns;
@@ -751,13 +759,6 @@ inline IntegerMatrix integer_boundary_matrix(
     return matrix;
 }
 
-inline Integer checked_integer(__int128 value) {
-    if (value < static_cast<__int128>(std::numeric_limits<Integer>::min()) ||
-        value > static_cast<__int128>(std::numeric_limits<Integer>::max())) {
-        throw std::overflow_error("integer Smith reduction overflow");
-    }
-    return static_cast<Integer>(value);
-}
 
 struct SmithNormalForm {
     IntegerMatrix diagonal;
