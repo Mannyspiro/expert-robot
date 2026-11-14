@@ -159,13 +159,26 @@ function validateIdentity(nodeType, identity) {
       break;
     case "trust_root":
       requireText(identity, "authority_id");
-      requireText(identity, "version");
+      requirePositiveInt(identity, "version");
+      if (typeof identity.key_id !== "string" || !/^ed25519:[0-9a-f]{64}$/.test(identity.key_id)) {
+        throw new Error("identity.key_id must be a canonical Ed25519 key ID");
+      }
       requireDigest(identity.root_sha256, "identity.root_sha256");
       break;
     case "verification_receipt":
       requireDigest(identity.receipt_sha256, "identity.receipt_sha256");
       requireText(identity, "verifier_id");
       validateArtifactRef(identity.artifact_ref, "identity.artifact_ref");
+      requireText(identity, "trust_root_authority_id");
+      requirePositiveInt(identity, "trust_root_version");
+      if (typeof identity.trust_root_key_id !== "string" || !/^ed25519:[0-9a-f]{64}$/.test(identity.trust_root_key_id)) {
+        throw new Error("identity.trust_root_key_id must be a canonical Ed25519 key ID");
+      }
+      requireDigest(identity.trust_root_sha256, "identity.trust_root_sha256");
+      requirePositiveInt(identity, "trust_store_version");
+      requireDigest(identity.trust_store_sha256, "identity.trust_store_sha256");
+      requireText(identity, "trust_store_source_authority");
+      requireText(identity, "trust_store_retrieval_identity");
       break;
     case "oci_execution":
       requireText(identity, "execution_id");
