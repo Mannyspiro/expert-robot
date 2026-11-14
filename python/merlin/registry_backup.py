@@ -142,6 +142,21 @@ class MerlinRegistryBackup:
                         or size_bytes < 0):
                     raise RuntimeError("registry artifact metadata is malformed")
                 source_blob = self.root / relative_path
+                for directory in (
+                    self.root / "blobs",
+                    self.root / "blobs" / "sha256",
+                    source_blob.parent,
+                ):
+                    try:
+                        directory_mode = directory.lstat().st_mode
+                    except OSError as exc:
+                        raise RuntimeError(
+                            f"referenced artifact blob directory is unavailable: {digest}"
+                        ) from exc
+                    if not stat.S_ISDIR(directory_mode):
+                        raise RuntimeError(
+                            f"referenced artifact blob directory is not a real directory: {digest}"
+                        )
                 try:
                     metadata = source_blob.lstat()
                 except OSError as exc:
@@ -187,7 +202,7 @@ class MerlinRegistryBackup:
                 raise RuntimeError("backup package changed during final verification")
             # A hard link provides atomic no-overwrite publication on the same filesystem.
             os.link(temporary_archive, target)
-            with target.open("rb") as published:
+            with target.open("rb+") as published:
                 os.fsync(published.fileno())
             parent_fd = os.open(target.parent, os.O_RDONLY)
             try:
