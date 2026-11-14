@@ -1,6 +1,7 @@
 import base64
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 
 from merlin.oci_kms_provider import (
     ASSOCIATED_DATA,
@@ -127,6 +128,15 @@ class OciKmsDataKeyProviderTests(unittest.TestCase):
         ):
             with self.assertRaisesRegex(ValueError, "HTTPS Vault crypto endpoint"):
                 OciKmsDataKeyProvider(KEY_OCID, endpoint, client=FakeKmsClient(), oci_module=FakeOciModule)
+
+
+    def test_environment_factory_fails_closed_when_key_or_endpoint_is_missing(self):
+        with patch.dict("os.environ", {
+            "MERLIN_BACKUP_KMS_KEY_OCID": "",
+            "MERLIN_BACKUP_KMS_CRYPTO_ENDPOINT": "",
+        }):
+            with self.assertRaisesRegex(RuntimeError, "unconfigured"):
+                OciKmsDataKeyProvider.from_environment()
 
     def test_rejects_wrong_key_id_on_unwrap(self):
         provider = OciKmsDataKeyProvider(
