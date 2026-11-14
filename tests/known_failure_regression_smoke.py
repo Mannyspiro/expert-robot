@@ -23,6 +23,82 @@ for item in classes:
     assert item["guard"] in allowed_guards
     assert (ROOT / item["guard"]).exists()
 
+# Cross-repository guards use the registry as the single mutable pin source.
+# This smoke validates the complete path::test reference and pin structure;
+# it deliberately does not duplicate the upstream commit/run/digest literals.
+expected_cace_guards = {
+    "artifact-ref-key-symlink-parent":
+        "test_artifact_ref_key_initializer_rejects_symlinked_parent",
+    "artifact-ref-key-unsafe-parent-permissions":
+        "test_artifact_ref_key_initializer_rejects_unsafe_directory_and_hardlinks",
+    "artifact-ref-key-hardlink-substitution":
+        "test_artifact_ref_key_initializer_rejects_unsafe_directory_and_hardlinks",
+    "artifact-ref-key-concurrent-initialization":
+        "test_artifact_ref_key_initializer_serializes_concurrent_creation",
+    "artifact-ref-key-interrupted-publication":
+        "test_artifact_ref_key_initializer_cleans_partial_temp_on_write_failure",
+}
+cace_guard_items = {
+    item["id"]: item for item in classes
+    if item["id"].startswith("artifact-ref-key-")
+}
+assert set(cace_guard_items) == set(expected_cace_guards)
+assert "cross-repo-test-reference-path-mismatch" in ids
+assert "cross-repo-evidence-pin-duplication" in ids
+assert "backup-verifier-tamper-fixture-guard-precedence" in ids
+external_pin = None
+for class_id, test_name in expected_cace_guards.items():
+    external = cace_guard_items[class_id].get("external_guard")
+    assert isinstance(external, dict)
+    assert set(external) == {
+        "repository", "pull_request", "path", "exact_head",
+        "workflow_run_id", "artifact_sha256", "test",
+    }
+    assert external["repository"] == "morganaspim/Cace-app"
+    assert type(external["pull_request"]) is int and external["pull_request"] == 103
+    assert external["path"] == "tests/test_merlin_artifact_ref.py"
+    head = external["exact_head"]
+    assert isinstance(head, str) and len(head) == 40
+    assert all(char in "0123456789abcdef" for char in head)
+    run_id = external["workflow_run_id"]
+    assert type(run_id) is int and run_id > 0
+    digest = external["artifact_sha256"]
+    assert isinstance(digest, str) and len(digest) == 64
+    assert all(char in "0123456789abcdef" for char in digest)
+    assert external["test"] == external["path"] + "::" + test_name
+    pin = (
+        external["repository"], external["pull_request"], external["path"],
+        head, run_id, digest,
+    )
+    if external_pin is None:
+        external_pin = pin
+    else:
+        assert pin == external_pin
+
+# Optional fully qualified local regression-test links must resolve to a
+# real test method, not merely an existing file.
+for item in classes:
+    regression_test = item.get("regression_test")
+    if regression_test is not None:
+        assert isinstance(regression_test, str) and regression_test.count("::") == 1
+        test_path, qualified_name = regression_test.split("::", 1)
+        test_file = ROOT / test_path
+        assert test_file.is_file()
+        test_method = qualified_name.rsplit(".", 1)[-1]
+        assert f"def {test_method}(" in test_file.read_text(encoding="utf-8")
+
+backup_fixture = next(
+    item for item in classes
+    if item["id"] == "backup-tamper-fixture-precondition-masking"
+)
+assert backup_fixture["regression_test"] == (
+    "tests/test_qualification_evidence_dag.py::"
+    "QualificationEvidenceDagSnapshotHistoryTests."
+    "test_backup_verification_rejects_tampered_snapshot_rows"
+)
+
+
+
 cmake = (ROOT / "CMakeLists.txt").read_text(encoding="utf-8")
 assert "-Werror=missing-field-initializers" in cmake
 assert "-Werror=range-loop-construct" in cmake
