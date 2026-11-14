@@ -151,3 +151,18 @@ This is local SQLite persistence only. It does not yet provide multi-host consen
 - Snapshot history PR #150 exact head `97107bbf38f2e68823fe7c3c7c18599656b7005f`: CI run `43605192756` **SUCCESS**. Diagnostics artifact `14118372468`, SHA-256 `aad40e4f92affdf10927f3e7c40bce8bc8fad534078add67b56d087a6582324d`.
 - The latter exact-head run includes the DAG runtime test suite in the canonical CI workflow.
 - Both PRs remain draft/stacked. These are engineering test receipts, not production qualification or independent evidence verification.
+
+
+## Backup and restore qualification increment (2026-11-14)
+
+`SnapshotHistory.backup_to` now creates a consistent SQLite online backup from the existing MerlinRegistry database. It publishes into an already-existing destination directory through a same-directory temporary file and atomic, non-overwriting hard-link publication. It refuses to overwrite an existing file or symlink.
+
+Before publication, `verify_backup` opens the backup read-only and verifies:
+- canonical MerlinRegistry project and artifact-version tables;
+- qualification snapshot history and both append-only triggers;
+- SQLite `integrity_check`;
+- every stored snapshot's schema, canonical JSON bytes, and SHA-256 digest.
+
+The returned backup receipt contains the backup file SHA-256 and the number of snapshots checked. Tests exercise a multi-snapshot backup/readback, overwrite rejection, and tampered snapshot rejection.
+
+This is a local filesystem backup primitive, not an off-host backup service or disaster-recovery guarantee. Production qualification still needs encrypted off-host retention, restore into an isolated target, restore-point objectives, and periodic recovery drills. The API intentionally does not overwrite or mutate the source registry during restore.
