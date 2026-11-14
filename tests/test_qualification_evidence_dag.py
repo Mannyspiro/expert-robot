@@ -311,6 +311,80 @@ class QualificationEvidenceDagTests(unittest.TestCase):
         self.assertNotEqual(rejected_order.returncode, 0)
         self.assertIn("not in canonical order", rejected_order.stderr.decode("utf-8"))
 
+
+    def test_node_reference_covers_all_nine_identity_types_and_seeded_vectors(self):
+        node = shutil.which("node")
+        if node is None:
+            self.skipTest("Node.js is not installed")
+        artifact_ref = {
+            "schema": "merlin-artifact-ref/1",
+            "project_id": "merlin",
+            "logical_path": "research/task.json",
+            "version": 4,
+            "sha256": "a" * 64,
+        }
+        extra = [
+            make_node("workflow_run", {
+                "repository": "Mannyspiro/expert-robot", "workflow_id": "ci.yml",
+                "run_id": 91, "attempt": 2, "head_sha": "b" * 40,
+                "conclusion": "success", "artifact_digest": "c" * 64,
+            }, "d" * 64, "workflow-evidence", "qualified"),
+            make_node("oci_execution", {
+                "execution_id": "oci-exec-91", "runner_profile": "oci-cpu-small",
+                "task_ref": artifact_ref, "input_refs": [artifact_ref],
+            }, "e" * 64, "execution-evidence", "qualified"),
+            make_node("protected_orchestrator", {
+                "repository": "Mannyspiro/expert-robot", "workflow_id": "protected.yml",
+                "run_id": 92, "attempt": 1, "execution_id": "oci-exec-91",
+                "execution_receipt_sha256": "f" * 64,
+            }, "1" * 64, "orchestrator-evidence", "qualified"),
+            make_node("lean_compile", {
+                "module": "CACEFormal.ContinuumSimplexCore",
+                "lean_version": "v4.32.1", "mathlib_revision": "520045ab",
+                "result": "success", "source_sha256": "2" * 64,
+            }, "3" * 64, "lean-kernel-evidence", "qualified"),
+        ]
+        all_nodes = self.nodes + extra
+        script = Path(__file__).resolve().parents[1] / "scripts" / "verify_qualification_evidence_dag.js"
+
+        # Every supported node type must be accepted by both implementations.
+        for seed in range(12):
+            rng = random.Random(seed)
+            nodes = list(all_nodes)
+            edges = list(self.edges)
+            rng.shuffle(nodes)
+            rng.shuffle(edges)
+            snapshot = build_snapshot(nodes, edges)
+            result = subprocess.run(
+                [node, str(script)], input=canonical_json(snapshot),
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr.decode("utf-8", "replace"))
+            receipt = json.loads(result.stdout.decode("utf-8"))
+            self.assertEqual(receipt["status"], "verified")
+            self.assertEqual(receipt["snapshot_sha256"], snapshot["snapshot_sha256"])
+            self.assertEqual(receipt["node_count"], 9)
+            self.assertEqual(receipt["edge_count"], len(self.edges))
+
+        # A structurally well-formed snapshot with a rehashed but invalid
+        # type-specific identity must still be rejected by the independent verifier.
+        invalid = build_snapshot(all_nodes, self.edges)
+        bad = copy.deepcopy(extra[-1])
+        bad["identity"]["source_sha256"] = "not-a-sha256"
+        bad["node_id"] = "sha256:" + hashlib.sha256(canonical_json({
+            "node_type": bad["node_type"], "identity": bad["identity"],
+        })).hexdigest()
+        invalid["nodes"].append(bad)
+        invalid["nodes"].sort(key=lambda item: item["node_id"])
+        unsigned = {key: value for key, value in invalid.items() if key != "snapshot_sha256"}
+        invalid["snapshot_sha256"] = hashlib.sha256(canonical_json(unsigned)).hexdigest()
+        rejected = subprocess.run(
+            [node, str(script)], input=canonical_json(invalid),
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        self.assertNotEqual(rejected.returncode, 0)
+        self.assertIn("identity.source_sha256", rejected.stderr.decode("utf-8"))
+
     def test_oci_execution_identity_accepts_typed_task_and_input_artifact_refs(self):
         task_ref = {
             "schema": "merlin-artifact-ref/1", "project_id": "merlin",
