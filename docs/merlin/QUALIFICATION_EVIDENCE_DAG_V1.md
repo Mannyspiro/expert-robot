@@ -188,3 +188,12 @@ A second implementation now exists at `scripts/verify_qualification_evidence_dag
 To keep Python and ECMAScript serialization byte-identical, v1 canonical evidence JSON permits only null, booleans, strings, arrays/objects, and safe-range integers. Floating-point values and integers outside the JavaScript safe-integer range are rejected rather than silently serialized differently. Represent measured floating-point quantities as canonical decimal strings with explicit units/precision in evidence payloads.
 
 The Node verifier currently checks structural graph integrity and canonical digests; the Python implementation remains the richer type-specific identity validator. The next qualification step should extend the second implementation to every type-specific identity rule and run randomized cross-language property vectors.
+
+
+## Type-specific independent validation completion (2026-11-14)
+
+The Node verifier now independently enforces the Python v1 minimum identity contract for all nine node types: source commit, artifact version, workflow run, CACE attestation, trust root, verification receipt, OCI execution, protected orchestrator, and Lean compile. It also independently validates nested ArtifactRef objects, including exact fields/schema, bounded project/path lengths, normalized traversal-free paths, positive versions, and lowercase SHA-256.
+
+The test suite builds a valid nine-type snapshot, verifies it in Node, then creates a self-consistent rehashed snapshot with one invalid identity field for each type and confirms the Node implementation rejects every case. This tests identity validation independently of the Python builder's own validation.
+
+This is equivalence of the current v1 minimum structural identity rules, not independent verification of source bytes, signatures, trust provisioning, OCI execution, or Lean kernel results. Those remain separate authority-bearing verifiers.
