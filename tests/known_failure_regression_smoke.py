@@ -45,6 +45,16 @@ cace_guard_items = {
 assert set(cace_guard_items) == set(expected_cace_guards)
 assert "cross-repo-test-reference-path-mismatch" in ids
 assert "cross-repo-evidence-pin-duplication" in ids
+assert "backup-verifier-trigger-name-spoof" in ids
+
+for item in classes:
+    external_test = item.get("external_regression_test")
+    if external_test is not None:
+        assert isinstance(external_test, dict)
+        assert set(external_test) == {"repository", "path", "test"}
+        assert isinstance(external_test["repository"], str) and external_test["repository"]
+        assert isinstance(external_test["path"], str) and external_test["path"]
+        assert external_test["test"].startswith(external_test["path"] + "::")
 external_pin = None
 for class_id, test_name in expected_cace_guards.items():
     external = cace_guard_items[class_id].get("external_guard")
