@@ -9,6 +9,12 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from merlin.project_registry import MerlinRegistry
+from merlin.event_outbox import MerlinEventOutbox, OutboxConflict
+from merlin.hermes_outbox import HermesOutboxConsumer
+from merlin.qualification_publication import (
+    SNAPSHOT_EVENT_TOPIC,
+    QualificationSnapshotPublisher,
+)
 from merlin.qualification_evidence_dag import (
     SnapshotHistory,
     build_snapshot,
@@ -473,6 +479,90 @@ class QualificationEvidenceDagSnapshotHistoryTests(unittest.TestCase):
             self.history.list_history(0)
         with self.assertRaisesRegex(ValueError, "limit"):
             self.history.list_history(True)
+
+
+
+class QualificationSnapshotPublicationTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.registry = MerlinRegistry(Path(self.temp.name) / "registry")
+        self.registry.register_project("merlin", "Merlin")
+        self.snapshot_history = SnapshotHistory(self.registry.db_path)
+        self.publisher = QualificationSnapshotPublisher(self.registry.db_path)
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    @staticmethod
+    def snapshot():
+        node = make_node(
+            "source_commit",
+            {"repository": "Mannyspiro/expert-robot", "commit": "a" * 40},
+            "b" * 64, "source-control", "qualified",
+        )
+        return build_snapshot([node], [])
+
+    def test_snapshot_and_hermes_notification_commit_atomically(self):
+        snapshot = self.snapshot()
+        published = self.publisher.publish(snapshot, now=10)
+        self.assertEqual(published["snapshot_sha256"], snapshot["snapshot_sha256"])
+        self.assertEqual(published["sequence"], 1)
+        self.assertEqual(published["event_state"], "pending")
+        self.assertEqual(
+            self.snapshot_history.get(snapshot["snapshot_sha256"]), snapshot,
+        )
+        event = self.publisher.outbox.get(published["event_id"])
+        self.assertEqual(event["topic"], SNAPSHOT_EVENT_TOPIC)
+        self.assertEqual(event["payload"]["schema"], "merlin-qualification-snapshot-event/1")
+        self.assertEqual(event["payload"]["snapshot_sha256"], snapshot["snapshot_sha256"])
+        self.assertEqual(event["payload"]["sequence"], 1)
+
+    def test_snapshot_publication_replay_is_idempotent(self):
+        snapshot = self.snapshot()
+        first = self.publisher.publish(snapshot, now=10)
+        replay = self.publisher.publish(snapshot, now=20)
+        self.assertEqual(first["sequence"], replay["sequence"])
+        self.assertEqual(first["event_id"], replay["event_id"])
+        self.assertEqual(self.publisher.outbox.counts()["pending"], 1)
+
+    def test_outbox_conflict_rolls_back_uncommitted_snapshot(self):
+        snapshot = self.snapshot()
+        key = f"qualification-snapshot:{snapshot['snapshot_sha256']}"
+        self.publisher.outbox.enqueue(key, "wrong.topic", {"different": True}, now=1)
+        with self.assertRaises(OutboxConflict):
+            self.publisher.publish(snapshot, now=2)
+        with self.assertRaises(KeyError):
+            self.snapshot_history.get(snapshot["snapshot_sha256"])
+
+    def test_publisher_rejects_outbox_on_a_different_database(self):
+        separate = MerlinEventOutbox(Path(self.temp.name) / "separate-outbox.sqlite3")
+        with self.assertRaisesRegex(ValueError, "share the registry database"):
+            QualificationSnapshotPublisher(self.registry.db_path, separate)
+
+    def test_hermes_can_consume_and_resolve_the_exact_snapshot_pointer(self):
+        snapshot = self.snapshot()
+        published = self.publisher.publish(snapshot, now=10)
+        consumer = HermesOutboxConsumer(self.publisher.outbox)
+        consumed = consumer.consume_one(
+            "hermes-qualification-worker",
+            lambda event: {
+                "snapshot_sha256": event["payload"]["snapshot_sha256"],
+                "verified_snapshot_sha256": self.snapshot_history.get(
+                    event["payload"]["snapshot_sha256"]
+                )["snapshot_sha256"],
+            },
+            topics=(SNAPSHOT_EVENT_TOPIC,),
+            now=11,
+        )
+        self.assertEqual(consumed["state"], "acknowledged")
+        self.assertEqual(
+            consumed["result"]["verified_snapshot_sha256"],
+            published["snapshot_sha256"],
+        )
+        self.assertEqual(
+            self.publisher.outbox.get(published["event_id"])["state"],
+            "acknowledged",
+        )
 
 
 if __name__ == "__main__":
