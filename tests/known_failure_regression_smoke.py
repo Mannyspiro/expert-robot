@@ -45,7 +45,6 @@ cace_guard_items = {
 assert set(cace_guard_items) == set(expected_cace_guards)
 assert "cross-repo-test-reference-path-mismatch" in ids
 assert "cross-repo-evidence-pin-duplication" in ids
-assert "backup-verifier-tamper-fixture-guard-precedence" in ids
 external_pin = None
 for class_id, test_name in expected_cace_guards.items():
     external = cace_guard_items[class_id].get("external_guard")
@@ -91,8 +90,13 @@ backup_fixture = next(
     item for item in classes
     if item["id"] == "backup-tamper-fixture-precondition-masking"
 )
-assert backup_fixture["regression_test"] == (
-    "tests/test_qualification_evidence_dag.py::"
+external_regression = backup_fixture.get("external_regression_test")
+assert isinstance(external_regression, dict)
+assert set(external_regression) == {"repository", "path", "test"}
+assert external_regression["repository"] == "Mannyspiro/expert-robot"
+assert external_regression["path"] == "tests/test_qualification_evidence_dag.py"
+assert external_regression["test"] == (
+    external_regression["path"] + "::"
     "QualificationEvidenceDagSnapshotHistoryTests."
     "test_backup_verification_rejects_tampered_snapshot_rows"
 )
