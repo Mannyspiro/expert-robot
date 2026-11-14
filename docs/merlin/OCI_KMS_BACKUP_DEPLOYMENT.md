@@ -84,3 +84,6 @@ On the designated OCI runner, after the KMS live round trip has passed:
 7. Restore on a separate host into an empty registry root and measure recovery time.
 
 Object Storage upload/download and bucket retention are implemented as a tested adapter contract, not live tenancy qualification. Until the above run is complete, no off-host backup or disaster-recovery claim is permitted.
+
+
+A create-only retry is not accepted on metadata alone: after a conditional-create 412, Merlin downloads the existing object version (or ETag-pinned current object) and hashes the full encrypted envelope before returning an idempotent replay receipt. Upload requests also provide the base64-encoded expected SHA-256 to Object Storage for server-side checksum validation. This protects against stale or substituted bytes whose custom metadata was copied or left unchanged.
