@@ -310,7 +310,71 @@ class QualificationEvidenceDagTests(unittest.TestCase):
         )
         self.assertNotEqual(rejected_order.returncode, 0)
         self.assertIn("not in canonical order", rejected_order.stderr.decode("utf-8"))
+        duplicate_key = canonical_json(snapshot).decode("utf-8").replace(
+            '"schema":"merlin-qualification-evidence-dag/1"',
+            '"schema":"invalid","schema":"merlin-qualification-evidence-dag/1"',
+            1,
+        )
+        rejected_duplicate = subprocess.run(
+            [node, str(script)], input=duplicate_key.encode("utf-8"),
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        self.assertNotEqual(rejected_duplicate.returncode, 0)
+        self.assertIn("input is not canonical JSON", rejected_duplicate.stderr.decode("utf-8"))
 
+        unicode_node = make_node(
+            "source_commit",
+            {"repository": "Mérlin/🧭/研究", "commit": "b" * 40},
+            "a" * 64, "unicode-source", "qualified",
+        )
+        unicode_snapshot = build_snapshot([unicode_node], [])
+        unicode_result = subprocess.run(
+            [node, str(script)], input=canonical_json(unicode_snapshot),
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        self.assertEqual(unicode_result.returncode, 0, unicode_result.stderr.decode("utf-8", "replace"))
+
+
+
+
+    def test_independent_node_matches_randomized_dag_property_vectors(self):
+        node = shutil.which("node")
+        if node is None:
+            self.skipTest("Node.js is not installed")
+        script = Path(__file__).resolve().parents[1] / "scripts" / "verify_qualification_evidence_dag.js"
+        for seed in range(12):
+            with self.subTest(seed=seed):
+                rng = random.Random(seed)
+                nodes = [
+                    make_node(
+                        "source_commit",
+                        {"repository": "Mannyspiro/expert-robot", "commit": f"{i + 1:040x}"},
+                        f"{seed * 100 + i + 1:064x}", "property-vector", "qualified",
+                    )
+                    for i in range(10)
+                ]
+                edges = []
+                for dependent in range(1, len(nodes)):
+                    for prerequisite in range(dependent):
+                        if rng.random() < 0.22:
+                            edges.append({
+                                "dependent_node_id": nodes[dependent]["node_id"],
+                                "prerequisite_node_id": nodes[prerequisite]["node_id"],
+                                "relation": "derived_from",
+                            })
+                snapshot = build_snapshot(nodes, edges)
+                rng.shuffle(nodes)
+                rng.shuffle(edges)
+                self.assertEqual(build_snapshot(nodes, edges), snapshot)
+                result = subprocess.run(
+                    [node, str(script)], input=canonical_json(snapshot),
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+                )
+                self.assertEqual(result.returncode, 0, result.stderr.decode("utf-8", "replace"))
+                receipt = json.loads(result.stdout.decode("utf-8"))
+                self.assertEqual(receipt["snapshot_sha256"], snapshot["snapshot_sha256"])
+                self.assertEqual(receipt["node_count"], 10)
+                self.assertEqual(receipt["edge_count"], len(edges))
 
     def test_independent_node_validates_all_nine_type_specific_identity_contracts(self):
         artifact_ref = {
