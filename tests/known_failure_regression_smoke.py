@@ -53,11 +53,11 @@ for class_id, test_name in expected_cace_guards.items():
     assert external["repository"] == "morganaspim/Cace-app"
     assert external["pull_request"] == 103
     assert external["path"] == "tests/test_merlin_artifact_ref.py"
-    assert external["exact_head"] == "3534a1906fc0ff8cb5c9f3b052e917cf23258800"
-    assert external["workflow_run_id"] == 43603746084
+    assert external["exact_head"] == "00ffff17d97508b9df9ec1386404343e1d9f9dae"
+    assert external["workflow_run_id"] == 43604033624
     digest = external["artifact_sha256"]
     assert len(digest) == 64 and all(char in "0123456789abcdef" for char in digest)
-    assert digest == "237710f7b090997d231068084c9e8118cab98bee8e420784ae22d92659353657"
+    assert digest == "7ed69cf936eefe810efc6c15341c48cb73b913408caa8badba8152ebb87cd477"
     assert external["test"] == "tests/test_merlin_artifact_ref.py::" + test_name
 
 cmake = (ROOT / "CMakeLists.txt").read_text(encoding="utf-8")
