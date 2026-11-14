@@ -201,3 +201,43 @@ Acceptance gates:
 - Council demonstrably improves quality over the best single model, with incremental latency/cost disclosed.
 
 Implementation note: this update records a plan and research shortlist only. No model weights, NASA source, llama-swap or LLM Compressor have been downloaded/integrated; no hardware inventory or benchmark has been run. Keep current gateway in place until prototype gates pass.
+
+
+## Inductive plan update v20 — mandatory skeptical-scientist loop
+
+### New requirements from the operating-model review
+
+Merlin must continuously plan and revise from observations, not simply execute a static roadmap. Newly ingested information must be treated skeptically. Induction, deduction, abduction and analogy have distinct roles and explicit epistemic boundaries. Ideonomy enumeration is on-demand, problem-directed and compatibility-constrained. A blockage must trigger analogical decomposition before the same failed approach is repeated.
+
+### P0 — policy primitives (implemented; exact-head CI still required)
+- Added `python/merlin/scientific_loop.py`: observation validation with provenance/units/uncertainty, deductive interval comparison against predictions, auditable plan-update proposals, constrained Ideonomy combination enumeration, invariant-mapped analogical decomposition, and a machine-readable scientific-loop contract.
+- Added `tests/test_scientific_loop.py` for missing provenance, unit/uncertainty validation, support/refutation/inconclusive comparisons, plan lineage, constrained combinations and analogy invariants.
+- Added mandatory repository-agent instructions and this operating contract.
+- This is not yet a fully wired autonomous workflow. The primitives do not themselves persist to the canonical registry, execute experiments, or force every existing agent route through the contract.
+
+### Ranked production steps
+
+1. **P1 — canonical scientific record store.** Extend the canonical registry with immutable, versioned records for observations, measurement uncertainty, assumptions, hypotheses, predictions, experiment manifests, counterexamples, analogy maps, plan revisions and defect classes. Bind each to exact source commit, artifact reference and content digest. Add append-only migration, concurrent writer, crash recovery and backup/restore tests.
+2. **P2 — Hermes research episode coordinator.** Enforce the ten-stage scientific loop as a resumable state machine with idempotency keys, deadlines, resource leases, explicit approvals and stage receipts. Missing evidence must block promotion but not prevent safe research capture.
+3. **P3 — event-triggered Ideonomy.** Connect the current primitive compatibility catalogue to typed triggers (blocked task, unexplained residual, contradictory evidence, design trade-off, coverage gap). Use bounded enumeration, pairwise compatibility, prerequisites, cost/testability constraints and diversity/Pareto selection. Do not enumerate without a problem statement.
+4. **P4 — analogical decomposition and transfer validator.** Build an invariant extractor and mapping registry. Generate at least two structurally distinct analogies when the first is incomplete; solve smaller subproblems; translate back; rerun original tests. Reject analogies that lose identity, ordering, units, resource, trust or timing semantics.
+5. **P5 — skeptical council and independent evidence.** Add Logos skeptic review and CACE independent artifact verification. Preserve dissent, alternative hypotheses, negative results and correlated-error notes. A model's confidence or repeated agreement is not independent evidence.
+6. **P6 — experiment adapters and measurement quality.** Standardize Lean, numerical solver, finite counterexample, literature, CAD, simulation and runner adapters. Record toolchain, seed, precision, parameters, environment, runtime, output digest, uncertainty and termination. Separate simulated, measured, compiled and independently verified states.
+7. **P7 — plan-diff HUD and defect-class memory.** Display what observation changed the plan, parent/child plan versions, ranking deltas, uncertainty, open counter-hypotheses, worker/cost/approval state and regression coverage. Every failure creates a defect class with preventive test and detection telemetry.
+8. **P8 — held-out qualification.** Evaluate calibration, falsification rate, counterexample discovery, reproducibility, information gain per cost, plan quality, analogical transfer success and recurrence of known defect classes. Promotion requires independent review and approval.
+
+### Adaptive ranking rule
+
+Re-rank after every material observation or failed stage using: (a) expected information gain, (b) consequence/impact, (c) feasibility and readiness, (d) cost and runner budget, (e) dependency criticality, (f) uncertainty reduction, and (g) safety/authority boundaries. Prefer the cheapest experiment that separates competing hypotheses. If evidence changes none of the rankings, record the no-change rationale. A high heuristic score is triage, never qualification.
+
+### Always-on invariants
+
+- Observations are not interpretations; hypotheses are not facts.
+- Every consequential claim has provenance, assumptions, scope and a falsifier.
+- Every experiment has preregistered predictions and measurable outputs.
+- Preserve failed/null results and dissent.
+- Every plan change links to observations and exact artifacts.
+- Every recurring bug class gets a regression test, detector and prevention proof.
+- Capability grows only after qualification; authority never expands automatically.
+
+See [MERLIN_SCIENTIFIC_OPERATING_LOOP_V1.md](MERLIN_SCIENTIFIC_OPERATING_LOOP_V1.md). The next execution target is P1, not more unmeasured feature expansion.
