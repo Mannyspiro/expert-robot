@@ -23,9 +23,9 @@ for item in classes:
     assert item["guard"] in allowed_guards
     assert (ROOT / item["guard"]).exists()
 
-# Cross-repository guards are pinned to a specific CACE test, commit, workflow
-# run, and retained evidence digest. The CACE workflow executes the test; this
-# local smoke prevents the failure registry from silently losing that linkage.
+# Cross-repository guards use the registry as the single mutable pin source.
+# This smoke validates the complete path::test reference and pin structure;
+# it deliberately does not duplicate the upstream commit/run/digest literals.
 expected_cace_guards = {
     "artifact-ref-key-symlink-parent":
         "test_artifact_ref_key_initializer_rejects_symlinked_parent",
@@ -43,6 +43,9 @@ cace_guard_items = {
     if item["id"].startswith("artifact-ref-key-")
 }
 assert set(cace_guard_items) == set(expected_cace_guards)
+assert "cross-repo-test-reference-path-mismatch" in ids
+assert "cross-repo-evidence-pin-duplication" in ids
+external_pin = None
 for class_id, test_name in expected_cace_guards.items():
     external = cace_guard_items[class_id].get("external_guard")
     assert isinstance(external, dict)
@@ -51,14 +54,25 @@ for class_id, test_name in expected_cace_guards.items():
         "workflow_run_id", "artifact_sha256", "test",
     }
     assert external["repository"] == "morganaspim/Cace-app"
-    assert external["pull_request"] == 103
+    assert type(external["pull_request"]) is int and external["pull_request"] == 103
     assert external["path"] == "tests/test_merlin_artifact_ref.py"
-    assert external["exact_head"] == "00ffff17d97508b9df9ec1386404343e1d9f9dae"
-    assert external["workflow_run_id"] == 43604033624
+    head = external["exact_head"]
+    assert isinstance(head, str) and len(head) == 40
+    assert all(char in "0123456789abcdef" for char in head)
+    run_id = external["workflow_run_id"]
+    assert type(run_id) is int and run_id > 0
     digest = external["artifact_sha256"]
-    assert len(digest) == 64 and all(char in "0123456789abcdef" for char in digest)
-    assert digest == "7ed69cf936eefe810efc6c15341c48cb73b913408caa8badba8152ebb87cd477"
-    assert external["test"] == "tests/test_merlin_artifact_ref.py::" + test_name
+    assert isinstance(digest, str) and len(digest) == 64
+    assert all(char in "0123456789abcdef" for char in digest)
+    assert external["test"] == external["path"] + "::" + test_name
+    pin = (
+        external["repository"], external["pull_request"], external["path"],
+        head, run_id, digest,
+    )
+    if external_pin is None:
+        external_pin = pin
+    else:
+        assert pin == external_pin
 
 cmake = (ROOT / "CMakeLists.txt").read_text(encoding="utf-8")
 assert "-Werror=missing-field-initializers" in cmake
