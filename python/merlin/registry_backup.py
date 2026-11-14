@@ -48,18 +48,27 @@ def _sha256_file(path: Path) -> tuple[str, int]:
     return digest.hexdigest(), size
 
 
-def _copy_verified_blob(source: Path, destination: Path,
-                        expected_digest: str, expected_size: int) -> None:
-    """Copy one blob without following symlinks and verify the bytes while copying."""
-    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
-    descriptor = os.open(source, flags)
+def _copy_verified_blob(root: Path, digest_value: str, destination: Path,
+                        expected_size: int) -> None:
+    """Copy a content-addressed blob through no-follow directory descriptors."""
+    directory_flags = (
+        os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0)
+    )
+    file_flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+    descriptors = []
     digest = hashlib.sha256()
     size = 0
     try:
-        metadata = os.fstat(descriptor)
-        if not stat.S_ISREG(metadata.st_mode):
+        parent_fd = os.open(root, directory_flags)
+        descriptors.append(parent_fd)
+        for component in ("blobs", "sha256", digest_value[:2]):
+            parent_fd = os.open(component, directory_flags, dir_fd=parent_fd)
+            descriptors.append(parent_fd)
+        file_fd = os.open(digest_value[2:], file_flags, dir_fd=parent_fd)
+        descriptors.append(file_fd)
+        if not stat.S_ISREG(os.fstat(file_fd).st_mode):
             raise RuntimeError("referenced artifact blob is not a regular file")
-        with os.fdopen(descriptor, "rb", closefd=False) as input_stream:
+        with os.fdopen(file_fd, "rb", closefd=False) as input_stream:
             with destination.open("xb") as output_stream:
                 while True:
                     chunk = input_stream.read(1024 * 1024)
@@ -71,10 +80,11 @@ def _copy_verified_blob(source: Path, destination: Path,
                 output_stream.flush()
                 os.fsync(output_stream.fileno())
     finally:
-        os.close(descriptor)
-    if digest.hexdigest() != expected_digest or size != expected_size:
+        for descriptor in reversed(descriptors):
+            os.close(descriptor)
+    if digest.hexdigest() != digest_value or size != expected_size:
         destination.unlink(missing_ok=True)
-        raise RuntimeError(f"referenced artifact blob failed integrity check: {expected_digest}")
+        raise RuntimeError(f"referenced artifact blob failed integrity check: {digest_value}")
 
 
 def _validate_archive_name(name: str) -> str:
@@ -141,31 +151,14 @@ class MerlinRegistryBackup:
                         or isinstance(size_bytes, bool) or not isinstance(size_bytes, int)
                         or size_bytes < 0):
                     raise RuntimeError("registry artifact metadata is malformed")
-                source_blob = self.root / relative_path
-                for directory in (
-                    self.root / "blobs",
-                    self.root / "blobs" / "sha256",
-                    source_blob.parent,
-                ):
-                    try:
-                        directory_mode = directory.lstat().st_mode
-                    except OSError as exc:
-                        raise RuntimeError(
-                            f"referenced artifact blob directory is unavailable: {digest}"
-                        ) from exc
-                    if not stat.S_ISDIR(directory_mode):
-                        raise RuntimeError(
-                            f"referenced artifact blob directory is not a real directory: {digest}"
-                        )
-                try:
-                    metadata = source_blob.lstat()
-                except OSError as exc:
-                    raise RuntimeError(f"referenced artifact blob is unavailable: {digest}") from exc
-                if not stat.S_ISREG(metadata.st_mode):
-                    raise RuntimeError(f"referenced artifact blob is not a regular file: {digest}")
                 staged_blob = stage / expected_path
                 staged_blob.parent.mkdir(parents=True, exist_ok=True)
-                _copy_verified_blob(source_blob, staged_blob, digest, size_bytes)
+                try:
+                    _copy_verified_blob(self.root, digest, staged_blob, size_bytes)
+                except OSError as exc:
+                    raise RuntimeError(
+                        f"referenced artifact blob or directory is unavailable: {digest}"
+                    ) from exc
                 blobs.append({
                     "sha256": digest,
                     "size_bytes": size_bytes,
