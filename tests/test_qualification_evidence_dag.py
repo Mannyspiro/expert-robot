@@ -1,4 +1,7 @@
 import copy
+import hashlib
+import json
+import random
 import sqlite3
 import tempfile
 import unittest
@@ -203,6 +206,61 @@ class QualificationEvidenceDagTests(unittest.TestCase):
                 "repository": "repo", "commit": "a" * 40,
             }, "1" * 64, "source", [])
 
+
+
+    def test_independent_hash_and_randomized_permutation_invariants(self):
+        for seed in range(25):
+            rng = random.Random(seed)
+            nodes = []
+            for index in range(10):
+                nodes.append(make_node(
+                    "source_commit",
+                    {
+                        "repository": "Mannyspiro/expert-robot",
+                        "commit": f"{index + 1:040x}",
+                    },
+                    f"{seed * 100 + index + 1:064x}",
+                    "source-control",
+                    "qualified",
+                ))
+            edges = []
+            for dependent in range(1, len(nodes)):
+                for prerequisite in range(dependent):
+                    if rng.random() < 0.18:
+                        edges.append({
+                            "dependent_node_id": nodes[dependent]["node_id"],
+                            "prerequisite_node_id": nodes[prerequisite]["node_id"],
+                            "relation": "derived_from",
+                        })
+            original = build_snapshot(nodes, edges)
+            shuffled_nodes = list(nodes)
+            shuffled_edges = list(edges)
+            rng.shuffle(shuffled_nodes)
+            rng.shuffle(shuffled_edges)
+            permuted = build_snapshot(shuffled_nodes, shuffled_edges)
+            self.assertEqual(original, permuted)
+
+            payload = {
+                key: value for key, value in original.items()
+                if key != "snapshot_sha256"
+            }
+            independent_bytes = json.dumps(
+                payload, ensure_ascii=False, sort_keys=True,
+                separators=(",", ":"), allow_nan=False,
+            ).encode("utf-8")
+            self.assertEqual(
+                hashlib.sha256(independent_bytes).hexdigest(),
+                original["snapshot_sha256"],
+            )
+            positions = {
+                node_id: position
+                for position, node_id in enumerate(prerequisite_first_order(original))
+            }
+            for edge in edges:
+                self.assertLess(
+                    positions[edge["prerequisite_node_id"]],
+                    positions[edge["dependent_node_id"]],
+                )
 
     def test_oci_execution_identity_accepts_typed_task_and_input_artifact_refs(self):
         task_ref = {
