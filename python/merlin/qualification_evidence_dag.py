@@ -122,8 +122,11 @@ def _validate_identity(node_type: str, identity: Mapping[str, Any]) -> None:
         _require_digest(identity.get("artifact_digest"), "identity.artifact_digest")
     elif node_type == "cace_attestation":
         _require_digest(identity.get("statement_sha256"), "identity.statement_sha256")
-        for field in ("verifier_id", "key_id", "purpose"):
+        for field in ("verifier_id", "key_id", "purpose", "source_repo", "artifact_id",
+                      "artifact_kind", "artifact_schema"):
             _require_text(identity, field)
+        if not isinstance(identity.get("source_commit"), str) or not _HEX_40.fullmatch(identity["source_commit"]):
+            raise ValueError("identity.source_commit must be a full lowercase Git commit SHA")
         if not isinstance(identity.get("artifact_ref"), dict):
             raise ValueError("identity.artifact_ref must be an object")
         ArtifactRef.from_mapping(identity["artifact_ref"])
@@ -155,6 +158,7 @@ def _validate_identity(node_type: str, identity: Mapping[str, Any]) -> None:
         _require_positive_int(identity, "run_id")
         _require_positive_int(identity, "attempt")
         _require_text(identity, "execution_id")
+        _require_digest(identity.get("execution_receipt_sha256"), "identity.execution_receipt_sha256")
     elif node_type == "lean_compile":
         for field in ("module", "lean_version", "mathlib_revision", "result"):
             _require_text(identity, field)
@@ -176,7 +180,7 @@ def make_node(
     _require_digest(record_sha256, "record_sha256")
     if not isinstance(evidence_class, str) or not evidence_class or len(evidence_class) > 128:
         raise ValueError("evidence_class must be a non-empty string of at most 128 characters")
-    if status not in STATUSES:
+    if not isinstance(status, str) or status not in STATUSES:
         raise ValueError("unknown evidence status")
     return {
         "node_id": node_id_for(node_type, identity),
