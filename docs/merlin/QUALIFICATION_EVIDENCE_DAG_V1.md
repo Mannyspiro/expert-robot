@@ -205,3 +205,10 @@ This closes the local single-database dual-write gap only. It does not provide m
 When the shared event outbox exists, verification also checks that each `merlin.qualification.snapshot` event's deterministic idempotency identity and payload point to the exact stored snapshot sequence/digest and matching node/edge counts. Restore verifies the complete package first, extracts into a fresh sibling staging directory, rechecks every restored blob, and atomically renames the new registry root into place without overwriting an existing target.
 
 This is a local verified recovery package, not an encrypted or off-host backup. Production off-host qualification still requires independently provisioned encryption keys, authenticated object-storage transport, retention/immutability policy, access separation, and a timed restore drill on a separate host.
+
+
+## KMS-wrapped encrypted backup envelope (2026-11-14)
+
+`MerlinBackupEncryption` adds an authenticated, chunked AES-256-GCM envelope for verified registry backup ZIPs. It obtains a fresh 256-bit data-encryption key from an injected `BackupKeyProvider`, stores only the wrapped key and key-version identity in the canonical envelope header, and authenticates the complete header plus each chunk index as associated data. Nonces combine a random per-envelope 64-bit prefix with a monotonic 32-bit chunk counter. Decryption checks exact frame lengths, authentication tags, truncation/trailing bytes, plaintext size/digest, and then re-verifies the complete registry backup before publishing the plaintext archive.
+
+The interface deliberately has no local-key fallback. Tests use a deterministic fake key provider solely to test envelope behavior. There is not yet a production OCI Vault/KMS adapter, independently provisioned key, object-storage transport, retention lock, or separate-host restore drill. Therefore this code qualifies the envelope format and failure behavior only; it does not qualify production encryption/key custody or off-host backup.
