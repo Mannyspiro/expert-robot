@@ -179,3 +179,12 @@ This is a local filesystem backup primitive, not an off-host backup service or d
 
 ### Failure-driven test correction
 The first backup-verification CI run correctly rejected a deliberately tampered database because the tamper fixture had removed an append-only trigger. That exercised the earlier trigger-integrity guard rather than the intended stored-snapshot digest guard. The test now restores the expected trigger after injecting the tampered row, so the verifier must reach and reject the invalid snapshot itself. No production verifier behavior was weakened.
+
+
+## Independent cross-language verifier (2026-11-14)
+
+A second implementation now exists at `scripts/verify_qualification_evidence_dag.js`. It uses Node's built-in crypto and independently reimplements canonical JSON, node identity hashing, edge validation, cycle detection, and snapshot digest verification. The Python test invokes it against a generated snapshot and confirms that tampered and noncanonical serialized snapshots are rejected.
+
+To keep Python and ECMAScript serialization byte-identical, v1 canonical evidence JSON permits only null, booleans, strings, arrays/objects, and safe-range integers. Floating-point values and integers outside the JavaScript safe-integer range are rejected rather than silently serialized differently. Represent measured floating-point quantities as canonical decimal strings with explicit units/precision in evidence payloads.
+
+The Node verifier currently checks structural graph integrity and canonical digests; the Python implementation remains the richer type-specific identity validator. The next qualification step should extend the second implementation to every type-specific identity rule and run randomized cross-language property vectors.
