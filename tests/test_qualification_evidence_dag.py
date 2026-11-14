@@ -2,6 +2,8 @@ import copy
 import hashlib
 import json
 import random
+import shutil
+import subprocess
 import sqlite3
 import tempfile
 import unittest
@@ -154,10 +156,14 @@ class QualificationEvidenceDagTests(unittest.TestCase):
         tampered["nodes"][0]["evidence_class"] = "forged"
         with self.assertRaisesRegex(ValueError, "does not match"):
             validate_snapshot(tampered)
-        with self.assertRaisesRegex(ValueError, "non-finite"):
+        with self.assertRaisesRegex(ValueError, "floating-point"):
             node_id_for("source_commit", {
                 "repository": "repo", "commit": "a" * 40, "score": float("nan"),
             })
+        with self.assertRaisesRegex(ValueError, "floating-point"):
+            canonical_json({"score": 1.25})
+        with self.assertRaisesRegex(ValueError, "safe range"):
+            canonical_json({"run_id": 2 ** 60})
 
     def test_invalidation_is_transitive_and_selective(self):
         snapshot = build_snapshot(self.nodes, self.edges)
@@ -272,6 +278,220 @@ class QualificationEvidenceDagTests(unittest.TestCase):
                     positions[edge["prerequisite_node_id"]],
                     positions[edge["dependent_node_id"]],
                 )
+
+    def test_independent_node_reference_reproduces_snapshot_digest(self):
+        node = shutil.which("node")
+        if node is None:
+            self.skipTest("Node.js is not installed")
+        snapshot = build_snapshot(self.nodes, self.edges)
+        script = Path(__file__).resolve().parents[1] / "scripts" / "verify_qualification_evidence_dag.js"
+        result = subprocess.run(
+            [node, str(script)], input=canonical_json(snapshot),
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr.decode("utf-8", "replace"))
+        receipt = json.loads(result.stdout.decode("utf-8"))
+        self.assertEqual(receipt["status"], "verified")
+        self.assertEqual(receipt["snapshot_sha256"], snapshot["snapshot_sha256"])
+        self.assertEqual(receipt["node_count"], len(self.nodes))
+        self.assertEqual(receipt["edge_count"], len(self.edges))
+
+        tampered = copy.deepcopy(snapshot)
+        tampered["nodes"][0]["record_sha256"] = "f" * 64
+        rejected = subprocess.run(
+            [node, str(script)], input=canonical_json(tampered),
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        self.assertNotEqual(rejected.returncode, 0)
+        self.assertIn("snapshot SHA-256 mismatch", rejected.stderr.decode("utf-8"))
+
+        noncanonical = canonical_json(snapshot).decode("utf-8").replace('"version":3', '"version":3.0', 1)
+        rejected_float = subprocess.run(
+            [node, str(script)], input=noncanonical.encode("utf-8"),
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        self.assertNotEqual(rejected_float.returncode, 0)
+        self.assertIn("input is not canonical JSON", rejected_float.stderr.decode("utf-8"))
+        reordered = copy.deepcopy(snapshot)
+        reordered["nodes"].reverse()
+        rejected_order = subprocess.run(
+            [node, str(script)], input=canonical_json(reordered),
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        self.assertNotEqual(rejected_order.returncode, 0)
+        self.assertIn("not in canonical order", rejected_order.stderr.decode("utf-8"))
+        duplicate_key = canonical_json(snapshot).decode("utf-8").replace(
+            '"schema":"merlin-qualification-evidence-dag/1"',
+            '"schema":"invalid","schema":"merlin-qualification-evidence-dag/1"',
+            1,
+        )
+        rejected_duplicate = subprocess.run(
+            [node, str(script)], input=duplicate_key.encode("utf-8"),
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        self.assertNotEqual(rejected_duplicate.returncode, 0)
+        self.assertIn("input is not canonical JSON", rejected_duplicate.stderr.decode("utf-8"))
+
+        unicode_node = make_node(
+            "source_commit",
+            {"repository": "Mérlin/🧭/研究", "commit": "b" * 40},
+            "a" * 64, "unicode-source", "qualified",
+        )
+        unicode_snapshot = build_snapshot([unicode_node], [])
+        unicode_result = subprocess.run(
+            [node, str(script)], input=canonical_json(unicode_snapshot),
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        self.assertEqual(unicode_result.returncode, 0, unicode_result.stderr.decode("utf-8", "replace"))
+
+
+    def test_independent_node_matches_randomized_dag_property_vectors(self):
+        node = shutil.which("node")
+        if node is None:
+            self.skipTest("Node.js is not installed")
+        script = Path(__file__).resolve().parents[1] / "scripts" / "verify_qualification_evidence_dag.js"
+        for seed in range(12):
+            with self.subTest(seed=seed):
+                rng = random.Random(seed)
+                nodes = [
+                    make_node(
+                        "source_commit",
+                        {"repository": "Mannyspiro/expert-robot", "commit": f"{i + 1:040x}"},
+                        f"{seed * 100 + i + 1:064x}", "property-vector", "qualified",
+                    )
+                    for i in range(10)
+                ]
+                edges = []
+                for dependent in range(1, len(nodes)):
+                    for prerequisite in range(dependent):
+                        if rng.random() < 0.22:
+                            edges.append({
+                                "dependent_node_id": nodes[dependent]["node_id"],
+                                "prerequisite_node_id": nodes[prerequisite]["node_id"],
+                                "relation": "derived_from",
+                            })
+                snapshot = build_snapshot(nodes, edges)
+                rng.shuffle(nodes)
+                rng.shuffle(edges)
+                self.assertEqual(build_snapshot(nodes, edges), snapshot)
+                result = subprocess.run(
+                    [node, str(script)], input=canonical_json(snapshot),
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+                )
+                self.assertEqual(result.returncode, 0, result.stderr.decode("utf-8", "replace"))
+                receipt = json.loads(result.stdout.decode("utf-8"))
+                self.assertEqual(receipt["snapshot_sha256"], snapshot["snapshot_sha256"])
+                self.assertEqual(receipt["node_count"], 10)
+                self.assertEqual(receipt["edge_count"], len(edges))
+
+
+    def test_independent_node_validates_all_nine_type_specific_identity_contracts(self):
+        artifact_ref = {
+            "schema": "merlin-artifact-ref/1", "project_id": "merlin",
+            "logical_path": "research/candidate.lean", "version": 3,
+            "sha256": "2" * 64,
+        }
+        identities = {
+            "source_commit": {
+                "repository": "Mannyspiro/expert-robot", "commit": "a" * 40,
+            },
+            "artifact_version": {
+                "project_id": "merlin", "logical_path": "research/candidate.lean",
+                "version": 3, "digest": "2" * 64, "size_bytes": 128,
+            },
+            "workflow_run": {
+                "repository": "Mannyspiro/expert-robot", "workflow_id": "ci.yml",
+                "run_id": 42, "attempt": 1, "head_sha": "a" * 40,
+                "conclusion": "success", "artifact_digest": "3" * 64,
+            },
+            "cace_attestation": {
+                "statement_sha256": "4" * 64, "verifier_id": "cace-v2",
+                "key_id": "key-7", "purpose": "artifact-integrity",
+                "source_repo": "Mannyspiro/expert-robot", "source_commit": "a" * 40,
+                "artifact_id": "candidate-3", "artifact_kind": "lean-source",
+                "artifact_schema": "lean-source/1", "artifact_ref": artifact_ref,
+            },
+            "trust_root": {
+                "authority_id": "oci-vault-prod", "version": 4,
+                "key_id": "ed25519:" + "a" * 64, "root_sha256": "5" * 64,
+            },
+            "verification_receipt": {
+                "receipt_sha256": "6" * 64, "verifier_id": "cace-independent",
+                "artifact_ref": artifact_ref,
+                "trust_root_authority_id": "oci-vault-prod",
+                "trust_root_version": 4, "trust_root_key_id": "ed25519:" + "a" * 64,
+                "trust_root_sha256": "5" * 64, "trust_store_version": 7,
+                "trust_store_sha256": "b" * 64,
+                "trust_store_source_authority": "oci-vault-secret:trust-store",
+                "trust_store_retrieval_identity": "oci-instance-principal:cace",
+            },
+            "oci_execution": {
+                "execution_id": "oci-exec-42", "runner_profile": "oci-isolated-cpu",
+                "task_ref": artifact_ref, "input_refs": [artifact_ref],
+            },
+            "protected_orchestrator": {
+                "repository": "Mannyspiro/expert-robot", "workflow_id": "protected.yml",
+                "run_id": 43, "attempt": 1, "execution_id": "oci-exec-42",
+                "execution_receipt_sha256": "7" * 64,
+            },
+            "lean_compile": {
+                "module": "CACEFormal.Core", "lean_version": "4.32.1",
+                "mathlib_revision": "520045ab", "result": "success",
+                "source_sha256": "8" * 64,
+            },
+        }
+        nodes = [
+            make_node(kind, identity, f"{index:064x}", "qualification-test", "qualified")
+            for index, (kind, identity) in enumerate(identities.items(), 1)
+        ]
+        snapshot = build_snapshot(nodes, [])
+        node = shutil.which("node")
+        if node is None:
+            self.skipTest("Node.js is not installed")
+        script = Path(__file__).resolve().parents[1] / "scripts" / "verify_qualification_evidence_dag.js"
+
+        def run(candidate):
+            return subprocess.run(
+                [node, str(script)], input=canonical_json(candidate),
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+            )
+
+        valid = run(snapshot)
+        self.assertEqual(valid.returncode, 0, valid.stderr.decode("utf-8", "replace"))
+        self.assertEqual(json.loads(valid.stdout)["node_count"], 9)
+
+        invalid_fields = {
+            "source_commit": ("commit", "A" * 40),
+            "artifact_version": ("size_bytes", -1),
+            "workflow_run": ("attempt", 0),
+            "cace_attestation": ("artifact_ref", {
+                **artifact_ref, "logical_path": "../substitute.lean",
+            }),
+            "trust_root": ("root_sha256", "not-a-digest"),
+            "verification_receipt": ("artifact_ref", {
+                **artifact_ref, "schema": "untrusted/2",
+            }),
+            "oci_execution": ("task_ref", {
+                **artifact_ref, "sha256": "not-a-digest",
+            }),
+            "protected_orchestrator": ("execution_receipt_sha256", "bad"),
+            "lean_compile": ("source_sha256", "bad"),
+        }
+        for kind, (field, bad_value) in invalid_fields.items():
+            with self.subTest(node_type=kind):
+                tampered = copy.deepcopy(snapshot)
+                target = next(item for item in tampered["nodes"] if item["node_type"] == kind)
+                target["identity"][field] = bad_value
+                target["node_id"] = "sha256:" + hashlib.sha256(canonical_json({
+                    "node_type": kind, "identity": target["identity"],
+                })).hexdigest()
+                unsigned = {key: value for key, value in tampered.items()
+                            if key != "snapshot_sha256"}
+                tampered["snapshot_sha256"] = hashlib.sha256(canonical_json(unsigned)).hexdigest()
+                rejected = run(tampered)
+                self.assertNotEqual(rejected.returncode, 0)
+                self.assertIn("identity", rejected.stderr.decode("utf-8").lower())
+
 
     def test_oci_execution_identity_accepts_typed_task_and_input_artifact_refs(self):
         task_ref = {
