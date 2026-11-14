@@ -311,6 +311,108 @@ class QualificationEvidenceDagTests(unittest.TestCase):
         self.assertNotEqual(rejected_order.returncode, 0)
         self.assertIn("not in canonical order", rejected_order.stderr.decode("utf-8"))
 
+
+    def test_independent_node_validates_all_nine_type_specific_identity_contracts(self):
+        artifact_ref = {
+            "schema": "merlin-artifact-ref/1", "project_id": "merlin",
+            "logical_path": "research/candidate.lean", "version": 3,
+            "sha256": "2" * 64,
+        }
+        identities = {
+            "source_commit": {
+                "repository": "Mannyspiro/expert-robot", "commit": "a" * 40,
+            },
+            "artifact_version": {
+                "project_id": "merlin", "logical_path": "research/candidate.lean",
+                "version": 3, "digest": "2" * 64, "size_bytes": 128,
+            },
+            "workflow_run": {
+                "repository": "Mannyspiro/expert-robot", "workflow_id": "ci.yml",
+                "run_id": 42, "attempt": 1, "head_sha": "a" * 40,
+                "conclusion": "success", "artifact_digest": "3" * 64,
+            },
+            "cace_attestation": {
+                "statement_sha256": "4" * 64, "verifier_id": "cace-v2",
+                "key_id": "key-7", "purpose": "artifact-integrity",
+                "source_repo": "Mannyspiro/expert-robot", "source_commit": "a" * 40,
+                "artifact_id": "candidate-3", "artifact_kind": "lean-source",
+                "artifact_schema": "lean-source/1", "artifact_ref": artifact_ref,
+            },
+            "trust_root": {
+                "authority_id": "oci-vault-prod", "version": "root-v4",
+                "root_sha256": "5" * 64,
+            },
+            "verification_receipt": {
+                "receipt_sha256": "6" * 64, "verifier_id": "cace-independent",
+                "artifact_ref": artifact_ref,
+            },
+            "oci_execution": {
+                "execution_id": "oci-exec-42", "runner_profile": "oci-isolated-cpu",
+                "task_ref": artifact_ref, "input_refs": [artifact_ref],
+            },
+            "protected_orchestrator": {
+                "repository": "Mannyspiro/expert-robot", "workflow_id": "protected.yml",
+                "run_id": 43, "attempt": 1, "execution_id": "oci-exec-42",
+                "execution_receipt_sha256": "7" * 64,
+            },
+            "lean_compile": {
+                "module": "CACEFormal.Core", "lean_version": "4.32.1",
+                "mathlib_revision": "520045ab", "result": "success",
+                "source_sha256": "8" * 64,
+            },
+        }
+        nodes = [
+            make_node(kind, identity, f"{index:064x}", "qualification-test", "qualified")
+            for index, (kind, identity) in enumerate(identities.items(), 1)
+        ]
+        snapshot = build_snapshot(nodes, [])
+        node = shutil.which("node")
+        if node is None:
+            self.skipTest("Node.js is not installed")
+        script = Path(__file__).resolve().parents[1] / "scripts" / "verify_qualification_evidence_dag.js"
+
+        def run(candidate):
+            return subprocess.run(
+                [node, str(script)], input=canonical_json(candidate),
+                stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+            )
+
+        valid = run(snapshot)
+        self.assertEqual(valid.returncode, 0, valid.stderr.decode("utf-8", "replace"))
+        self.assertEqual(json.loads(valid.stdout)["node_count"], 9)
+
+        invalid_fields = {
+            "source_commit": ("commit", "A" * 40),
+            "artifact_version": ("size_bytes", -1),
+            "workflow_run": ("attempt", 0),
+            "cace_attestation": ("artifact_ref", {
+                **artifact_ref, "logical_path": "../substitute.lean",
+            }),
+            "trust_root": ("root_sha256", "not-a-digest"),
+            "verification_receipt": ("artifact_ref", {
+                **artifact_ref, "schema": "untrusted/2",
+            }),
+            "oci_execution": ("task_ref", {
+                **artifact_ref, "sha256": "not-a-digest",
+            }),
+            "protected_orchestrator": ("execution_receipt_sha256", "bad"),
+            "lean_compile": ("source_sha256", "bad"),
+        }
+        for kind, (field, bad_value) in invalid_fields.items():
+            with self.subTest(node_type=kind):
+                tampered = copy.deepcopy(snapshot)
+                target = next(item for item in tampered["nodes"] if item["node_type"] == kind)
+                target["identity"][field] = bad_value
+                target["node_id"] = "sha256:" + hashlib.sha256(canonical_json({
+                    "node_type": kind, "identity": target["identity"],
+                })).hexdigest()
+                unsigned = {key: value for key, value in tampered.items()
+                            if key != "snapshot_sha256"}
+                tampered["snapshot_sha256"] = hashlib.sha256(canonical_json(unsigned)).hexdigest()
+                rejected = run(tampered)
+                self.assertNotEqual(rejected.returncode, 0)
+                self.assertIn("identity", rejected.stderr.decode("utf-8").lower())
+
     def test_oci_execution_identity_accepts_typed_task_and_input_artifact_refs(self):
         task_ref = {
             "schema": "merlin-artifact-ref/1", "project_id": "merlin",
