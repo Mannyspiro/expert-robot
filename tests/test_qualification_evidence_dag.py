@@ -1,7 +1,13 @@
 import copy
+import sqlite3
+import tempfile
 import unittest
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
 
+from merlin.project_registry import MerlinRegistry
 from merlin.qualification_evidence_dag import (
+    SnapshotHistory,
     build_snapshot,
     canonical_json,
     derive_statuses,
@@ -206,6 +212,98 @@ class QualificationEvidenceDagTests(unittest.TestCase):
                 positions[edge["prerequisite_node_id"]],
                 positions[edge["dependent_node_id"]],
             )
+
+
+
+
+class QualificationEvidenceDagSnapshotHistoryTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.registry = MerlinRegistry(Path(self.temp.name) / "registry")
+        self.registry.register_project("merlin", "Merlin")
+        self.history = SnapshotHistory(self.registry.db_path)
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    @staticmethod
+    def snapshot(record_digest):
+        node = make_node(
+            "source_commit",
+            {"repository": "Mannyspiro/expert-robot", "commit": "a" * 40},
+            record_digest, "source-control", "qualified",
+        )
+        return build_snapshot([node], [])
+
+    def test_append_is_atomic_idempotent_and_retrievable(self):
+        snapshot = self.snapshot("1" * 64)
+        first = self.history.append(snapshot)
+        replay = self.history.append(snapshot)
+        self.assertEqual(first, replay)
+        self.assertEqual(self.history.get(snapshot["snapshot_sha256"]), snapshot)
+        self.assertEqual(self.history.get_by_sequence(first), snapshot)
+        self.assertEqual(len(self.history.list_history()), 1)
+
+    def test_snapshot_history_rejects_update_and_delete(self):
+        snapshot = self.snapshot("2" * 64)
+        self.history.append(snapshot)
+        with self.assertRaises(sqlite3.IntegrityError):
+            with sqlite3.connect(self.registry.db_path) as db:
+                db.execute(
+                    "UPDATE qualification_evidence_snapshots SET snapshot_json='{}' "
+                    "WHERE snapshot_sha256=?",
+                    (snapshot["snapshot_sha256"],),
+                )
+        with self.assertRaises(sqlite3.IntegrityError):
+            with sqlite3.connect(self.registry.db_path) as db:
+                db.execute(
+                    "DELETE FROM qualification_evidence_snapshots WHERE snapshot_sha256=?",
+                    (snapshot["snapshot_sha256"],),
+                )
+
+    def test_concurrent_appends_preserve_unique_immutable_history(self):
+        snapshots = [self.snapshot(f"{index:064x}") for index in range(1, 17)]
+        with ThreadPoolExecutor(max_workers=8) as pool:
+            sequences = list(pool.map(self.history.append, snapshots))
+        self.assertEqual(len(set(sequences)), len(snapshots))
+        rows = self.history.list_history(limit=100)
+        self.assertEqual(len(rows), len(snapshots))
+        self.assertEqual(
+            [row["sequence"] for row in rows],
+            sorted(row["sequence"] for row in rows),
+        )
+        for snapshot in snapshots:
+            self.assertEqual(
+                self.history.get(snapshot["snapshot_sha256"]), snapshot,
+            )
+
+    def test_stored_snapshot_is_revalidated_on_read(self):
+        snapshot = self.snapshot("3" * 64)
+        self.history.append(snapshot)
+        with sqlite3.connect(self.registry.db_path) as db:
+            db.execute("DROP TRIGGER qualification_evidence_snapshots_no_update")
+            db.execute(
+                "UPDATE qualification_evidence_snapshots SET snapshot_json='{}' "
+                "WHERE snapshot_sha256=?",
+                (snapshot["snapshot_sha256"],),
+            )
+        with self.assertRaises(ValueError):
+            self.history.get(snapshot["snapshot_sha256"])
+
+    def test_requires_existing_merlin_registry_database(self):
+        with tempfile.TemporaryDirectory() as other:
+            with self.assertRaises(FileNotFoundError):
+                SnapshotHistory(Path(other) / "missing.sqlite3")
+            unrelated = Path(other) / "unrelated.sqlite3"
+            sqlite3.connect(unrelated).close()
+            with self.assertRaisesRegex(ValueError, "canonical MerlinRegistry"):
+                SnapshotHistory(unrelated)
+
+    def test_history_limit_is_bounded(self):
+        with self.assertRaisesRegex(ValueError, "limit"):
+            self.history.list_history(0)
+        with self.assertRaisesRegex(ValueError, "limit"):
+            self.history.list_history(True)
 
 
 if __name__ == "__main__":
