@@ -171,6 +171,7 @@ function verify(snapshot) {
 try {
   const raw = fs.readFileSync(0, "utf8");
   const snapshot = JSON.parse(raw);
+  if (raw !== canonical(snapshot)) throw new Error("input is not canonical JSON");
   process.stdout.write(JSON.stringify(verify(snapshot)) + "\n");
 } catch (error) {
   process.stderr.write(String(error && error.message ? error.message : error) + "\n");
