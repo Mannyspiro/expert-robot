@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import hashlib
 import json
-import math
 import os
 import re
 import sqlite3
@@ -52,12 +51,14 @@ def canonical_json(value: Any) -> bytes:
 
 
 def _validate_json_value(value: Any, path: str = "$") -> None:
-    if value is None or isinstance(value, (str, bool, int)):
+    if value is None or isinstance(value, (str, bool)):
+        return
+    if isinstance(value, int):
+        if abs(value) > (2 ** 53 - 1):
+            raise ValueError(f"integer exceeds cross-language safe range at {path}")
         return
     if isinstance(value, float):
-        if not math.isfinite(value):
-            raise ValueError(f"non-finite number at {path}")
-        return
+        raise ValueError(f"floating-point numbers are not supported in v1 canonical evidence at {path}")
     if isinstance(value, list):
         for index, item in enumerate(value):
             _validate_json_value(item, f"{path}[{index}]")
