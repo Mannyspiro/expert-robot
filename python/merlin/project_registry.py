@@ -14,6 +14,15 @@ import sqlite3
 import time
 from typing import Any, Mapping
 
+from .artifact_ref import ArtifactRef
+
+
+MAX_ARTIFACT_READ_BYTES = 25 * 1024 * 1024
+
+
+class ArtifactSizeLimitError(ValueError):
+    """Raised when an exact artifact read exceeds the configured byte ceiling."""
+
 
 class MerlinRegistry:
     def __init__(self, root: str | Path):
@@ -45,6 +54,39 @@ class MerlinRegistry:
               digest TEXT NOT NULL REFERENCES artifacts(digest),
               logical_path TEXT NOT NULL,
               PRIMARY KEY(project_id, logical_path));
+            CREATE TABLE IF NOT EXISTS artifact_versions(
+              project_id TEXT NOT NULL REFERENCES projects(project_id),
+              logical_path TEXT NOT NULL,
+              version INTEGER NOT NULL CHECK(version > 0),
+              digest TEXT NOT NULL REFERENCES artifacts(digest),
+              media_type TEXT NOT NULL,
+              size_bytes INTEGER NOT NULL CHECK(size_bytes >= 0),
+              previous_digest TEXT REFERENCES artifacts(digest),
+              created_at REAL NOT NULL,
+              PRIMARY KEY(project_id, logical_path, version));
+            CREATE INDEX IF NOT EXISTS artifact_versions_by_digest
+              ON artifact_versions(digest);
+            CREATE TABLE IF NOT EXISTS artifact_version_provenance(
+              project_id TEXT NOT NULL,
+              logical_path TEXT NOT NULL,
+              version INTEGER NOT NULL,
+              provenance_json TEXT NOT NULL,
+              provenance_sha256 TEXT NOT NULL,
+              PRIMARY KEY(project_id, logical_path, version),
+              FOREIGN KEY(project_id, logical_path, version)
+                REFERENCES artifact_versions(project_id, logical_path, version));
+            CREATE TRIGGER IF NOT EXISTS artifact_version_provenance_no_update
+              BEFORE UPDATE ON artifact_version_provenance
+              BEGIN SELECT RAISE(ABORT, 'artifact version provenance is append-only'); END;
+            CREATE TRIGGER IF NOT EXISTS artifact_version_provenance_no_delete
+              BEFORE DELETE ON artifact_version_provenance
+              BEGIN SELECT RAISE(ABORT, 'artifact version provenance is append-only'); END;
+            CREATE TRIGGER IF NOT EXISTS artifact_versions_no_update
+              BEFORE UPDATE ON artifact_versions
+              BEGIN SELECT RAISE(ABORT, 'artifact versions are append-only'); END;
+            CREATE TRIGGER IF NOT EXISTS artifact_versions_no_delete
+              BEFORE DELETE ON artifact_versions
+              BEGIN SELECT RAISE(ABORT, 'artifact versions are append-only'); END;
             CREATE TABLE IF NOT EXISTS claims(
               claim_id TEXT PRIMARY KEY, statement TEXT NOT NULL,
               evidence_class TEXT NOT NULL, assumptions_json TEXT NOT NULL,
@@ -68,6 +110,12 @@ class MerlinRegistry:
             CREATE TRIGGER IF NOT EXISTS capability_receipts_no_delete
               BEFORE DELETE ON capability_qualification_receipts
               BEGIN SELECT RAISE(ABORT, 'capability qualification receipts are append-only'); END;
+            INSERT OR IGNORE INTO artifact_versions(
+              project_id,logical_path,version,digest,media_type,size_bytes,
+              previous_digest,created_at)
+            SELECT pa.project_id,pa.logical_path,1,pa.digest,a.media_type,a.size_bytes,
+                   NULL,a.created_at
+            FROM project_artifacts pa JOIN artifacts a USING(digest);
             """)
     
     def register_project(self, project_id: str, name: str, version: str = "0.1.0",
@@ -84,9 +132,47 @@ class MerlinRegistry:
             )
 
     def put_artifact(self, project_id: str, logical_path: str, content: bytes,
-                     media_type: str = "application/octet-stream") -> str:
-        if not logical_path or logical_path.startswith("/") or ".." in Path(logical_path).parts:
+                     media_type: str = "application/octet-stream", *,
+                     provenance: Mapping[str, Any] | None = None) -> str:
+        if not isinstance(project_id, str) or not project_id.strip():
+            raise ValueError("project_id is required")
+        if (not isinstance(logical_path, str) or not logical_path
+                or logical_path.startswith("/")
+                or ".." in Path(logical_path).parts):
             raise ValueError("artifact logical path must be relative and traversal-free")
+        if not isinstance(content, bytes):
+            raise TypeError("artifact content must be bytes")
+        if not isinstance(media_type, str) or not media_type.strip():
+            raise ValueError("media_type is required")
+        provenance_json = None
+        provenance_sha256 = None
+        if provenance is not None:
+            expected_provenance_fields = {
+                "schema", "source_repo", "source_commit",
+                "artifact_id", "artifact_kind", "artifact_schema",
+            }
+            if not isinstance(provenance, Mapping) or set(provenance) != expected_provenance_fields:
+                raise ValueError("artifact provenance must contain the exact v1 field set")
+            if provenance.get("schema") != "merlin-artifact-provenance/1":
+                raise ValueError("unsupported artifact provenance schema")
+            source_repo = provenance.get("source_repo")
+            source_commit = provenance.get("source_commit")
+            if not isinstance(source_repo, str) or not source_repo.strip():
+                raise ValueError("artifact provenance source_repo is required")
+            if (not isinstance(source_commit, str) or len(source_commit) != 40
+                    or any(ch not in "0123456789abcdef" for ch in source_commit)):
+                raise ValueError("artifact provenance source_commit must be a full lowercase Git SHA")
+            for field in ("artifact_id", "artifact_kind", "artifact_schema"):
+                value = provenance.get(field)
+                if not isinstance(value, str) or not value.strip() or len(value) > 256:
+                    raise ValueError(f"artifact provenance {field} is invalid")
+            provenance_json = self._canonical_json(provenance)
+            provenance_sha256 = hashlib.sha256(provenance_json.encode("utf-8")).hexdigest()
+        with closing(self._connect()) as db:
+            if not db.execute("SELECT 1 FROM projects WHERE project_id=?",
+                              (project_id,)).fetchone():
+                raise KeyError(f"unknown project: {project_id}")
+
         digest = hashlib.sha256(content).hexdigest()
         target = self.blobs / digest[:2] / digest[2:]
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -97,15 +183,186 @@ class MerlinRegistry:
             temp = target.with_suffix(".tmp")
             temp.write_bytes(content)
             os.replace(temp, target)
+
+        timestamp = time.time()
         with closing(self._connect()) as db, db:
-            if not db.execute("SELECT 1 FROM projects WHERE project_id=?", (project_id,)).fetchone():
-                raise KeyError(f"unknown project: {project_id}")
+            db.execute("BEGIN IMMEDIATE")
             db.execute("INSERT OR IGNORE INTO artifacts VALUES(?,?,?,?,?)",
-                       (digest, media_type, len(content), str(target.relative_to(self.root)), time.time()))
-            db.execute("INSERT INTO project_artifacts VALUES(?,?,?) "
-                       "ON CONFLICT(project_id,logical_path) DO UPDATE SET digest=excluded.digest",
-                       (project_id, digest, logical_path))
+                       (digest, media_type.strip(), len(content),
+                        str(target.relative_to(self.root)), timestamp))
+            current = db.execute(
+                "SELECT digest FROM project_artifacts WHERE project_id=? AND logical_path=?",
+                (project_id, logical_path),
+            ).fetchone()
+            if current is None or current["digest"] != digest:
+                previous_digest = current["digest"] if current else None
+                next_version = db.execute(
+                    "SELECT COALESCE(MAX(version),0)+1 AS next_version "
+                    "FROM artifact_versions WHERE project_id=? AND logical_path=?",
+                    (project_id, logical_path),
+                ).fetchone()["next_version"]
+                db.execute(
+                    "INSERT INTO artifact_versions(project_id,logical_path,version,digest,"
+                    "media_type,size_bytes,previous_digest,created_at) VALUES(?,?,?,?,?,?,?,?)",
+                    (project_id, logical_path, next_version, digest, media_type.strip(),
+                     len(content), previous_digest, timestamp),
+                )
+                db.execute(
+                    "INSERT INTO project_artifacts(project_id,digest,logical_path) VALUES(?,?,?) "
+                    "ON CONFLICT(project_id,logical_path) DO UPDATE SET digest=excluded.digest",
+                    (project_id, digest, logical_path),
+                )
+                if provenance_json is not None:
+                    db.execute(
+                        "INSERT INTO artifact_version_provenance VALUES(?,?,?,?,?)",
+                        (project_id, logical_path, next_version, provenance_json, provenance_sha256),
+                    )
+            elif provenance_json is not None:
+                current_version = db.execute(
+                    "SELECT MAX(version) AS version FROM artifact_versions "
+                    "WHERE project_id=? AND logical_path=?",
+                    (project_id, logical_path),
+                ).fetchone()["version"]
+                existing_provenance = db.execute(
+                    "SELECT provenance_json FROM artifact_version_provenance "
+                    "WHERE project_id=? AND logical_path=? AND version=?",
+                    (project_id, logical_path, current_version),
+                ).fetchone()
+                if existing_provenance is None or existing_provenance["provenance_json"] != provenance_json:
+                    raise ValueError("cannot attach or alter provenance for an already registered artifact version")
         return digest
+
+    def artifact_history(self, project_id: str, logical_path: str) -> list[dict[str, Any]]:
+        """Return the append-only version lineage for one project artifact path."""
+        if not isinstance(project_id, str) or not project_id.strip():
+            raise ValueError("project_id is required")
+        if (not isinstance(logical_path, str) or not logical_path
+                or logical_path.startswith("/")
+                or ".." in Path(logical_path).parts):
+            raise ValueError("artifact logical path must be relative and traversal-free")
+        with closing(self._connect()) as db, db:
+            if not db.execute("SELECT 1 FROM projects WHERE project_id=?",
+                              (project_id,)).fetchone():
+                raise KeyError(f"unknown project: {project_id}")
+            rows = db.execute(
+                "SELECT version,digest,media_type,size_bytes,previous_digest,created_at "
+                "FROM artifact_versions WHERE project_id=? AND logical_path=? "
+                "ORDER BY version",
+                (project_id, logical_path),
+            ).fetchall()
+        return [dict(row) for row in rows]
+
+    def artifact_ref(self, project_id: str, logical_path: str,
+                     version: int | None = None) -> dict[str, Any]:
+        """Return an immutable reference to one exact artifact version.
+
+        Omitting version selects the latest version at lookup time. The returned
+        reference remains pinned even after the logical path advances.
+        """
+        if not isinstance(project_id, str) or not project_id.strip():
+            raise ValueError("project_id is required")
+        if (not isinstance(logical_path, str) or not logical_path
+                or logical_path.startswith("/") or "\\" in logical_path
+                or "\x00" in logical_path
+                or ".." in Path(logical_path).parts):
+            raise ValueError("artifact logical path must be relative and traversal-free")
+        if version is not None and (
+            isinstance(version, bool) or not isinstance(version, int) or version < 1
+        ):
+            raise ValueError("version must be a positive integer")
+        with closing(self._connect()) as db:
+            if not db.execute("SELECT 1 FROM projects WHERE project_id=?",
+                              (project_id,)).fetchone():
+                raise KeyError(f"unknown project: {project_id}")
+            if version is None:
+                row = db.execute(
+                    "SELECT version,digest FROM artifact_versions "
+                    "WHERE project_id=? AND logical_path=? ORDER BY version DESC LIMIT 1",
+                    (project_id, logical_path),
+                ).fetchone()
+            else:
+                row = db.execute(
+                    "SELECT version,digest FROM artifact_versions "
+                    "WHERE project_id=? AND logical_path=? AND version=?",
+                    (project_id, logical_path, version),
+                ).fetchone()
+        if row is None:
+            raise KeyError(f"unknown artifact version: {project_id}/{logical_path}/{version}")
+        return ArtifactRef(project_id, logical_path, row["version"], row["digest"]).to_dict()
+
+    def resolve_artifact_ref(self, value: Mapping[str, Any]) -> dict[str, Any]:
+        """Resolve and re-hash the exact immutable version named by a reference."""
+        ref = ArtifactRef.from_mapping(value)
+        with closing(self._connect()) as db:
+            row = db.execute(
+                "SELECT digest,media_type,size_bytes,previous_digest,created_at "
+                "FROM artifact_versions WHERE project_id=? AND logical_path=? AND version=?",
+                (ref.project_id, ref.logical_path, ref.version),
+            ).fetchone()
+            if row is None:
+                raise KeyError("artifact reference does not identify a registered version")
+            current = db.execute(
+                "SELECT MAX(version) AS version FROM artifact_versions "
+                "WHERE project_id=? AND logical_path=?",
+                (ref.project_id, ref.logical_path),
+            ).fetchone()
+        if row["digest"] != ref.sha256:
+            raise ValueError("artifact reference digest does not match its registered version")
+        if not self.verify_artifact(ref.sha256):
+            raise RuntimeError("artifact reference content failed SHA-256 verification")
+        blob_path = self.blobs / ref.sha256[:2] / ref.sha256[2:]
+        if blob_path.stat().st_size != row["size_bytes"]:
+            raise RuntimeError("artifact reference content size does not match its version record")
+        with closing(self._connect()) as db:
+            provenance_row = db.execute(
+                "SELECT provenance_json,provenance_sha256 FROM artifact_version_provenance "
+                "WHERE project_id=? AND logical_path=? AND version=?",
+                (ref.project_id, ref.logical_path, ref.version),
+            ).fetchone()
+        result = {
+            "schema": "merlin-artifact-resolution/1",
+            "artifact_ref": ref.to_dict(),
+            "media_type": row["media_type"],
+            "size_bytes": row["size_bytes"],
+            "previous_digest": row["previous_digest"],
+            "created_at": row["created_at"],
+            "is_current": current is not None and current["version"] == ref.version,
+            "verified": True,
+        }
+        if provenance_row is not None:
+            provenance_json = provenance_row["provenance_json"]
+            if hashlib.sha256(provenance_json.encode("utf-8")).hexdigest() != provenance_row["provenance_sha256"]:
+                raise RuntimeError("artifact version provenance integrity check failed")
+            try:
+                result["provenance"] = json.loads(provenance_json)
+            except ValueError as exc:
+                raise RuntimeError("artifact version provenance is malformed") from exc
+        return result
+
+    def read_artifact_ref(
+        self,
+        value: Mapping[str, Any],
+        *,
+        max_bytes: int = MAX_ARTIFACT_READ_BYTES,
+    ) -> dict[str, Any]:
+        """Return exact immutable version bytes after independent digest/size checks."""
+        if (isinstance(max_bytes, bool) or not isinstance(max_bytes, int)
+                or not 1 <= max_bytes <= MAX_ARTIFACT_READ_BYTES):
+            raise ValueError("max_bytes must be between 1 and 25 MiB")
+        resolution = self.resolve_artifact_ref(value)
+        if resolution["size_bytes"] > max_bytes:
+            raise ArtifactSizeLimitError("artifact exceeds the configured read byte limit")
+        ref = ArtifactRef.from_mapping(value)
+        path = self.blobs / ref.sha256[:2] / ref.sha256[2:]
+        try:
+            content = path.read_bytes()
+        except OSError as exc:
+            raise RuntimeError("artifact reference blob is unavailable") from exc
+        if len(content) != resolution["size_bytes"]:
+            raise RuntimeError("artifact reference content size changed during read")
+        if hashlib.sha256(content).hexdigest() != ref.sha256:
+            raise RuntimeError("artifact reference content digest changed during read")
+        return {"resolution": resolution, "content": content}
 
     def verify_artifact(self, digest: str) -> bool:
         with closing(self._connect()) as db, db:
@@ -248,7 +505,9 @@ class MerlinRegistry:
             if project is None:
                 raise KeyError(project_id)
             artifacts = db.execute(
-                "SELECT pa.logical_path,a.digest,a.media_type,a.size_bytes "
+                "SELECT pa.logical_path,a.digest,a.media_type,a.size_bytes,"
+                "(SELECT MAX(av.version) FROM artifact_versions av "
+                " WHERE av.project_id=pa.project_id AND av.logical_path=pa.logical_path) AS version "
                 "FROM project_artifacts pa JOIN artifacts a USING(digest) "
                 "WHERE pa.project_id=? ORDER BY pa.logical_path", (project_id,)
             ).fetchall()

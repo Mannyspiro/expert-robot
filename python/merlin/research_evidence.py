@@ -32,12 +32,19 @@ class ResearchEvidenceRecorder:
                source_url: str = "") -> dict[str, Any]:
         hypothesis = self.ledger.get(hypothesis_id)
         digest = self.registry.put_artifact(project_id, logical_path, content)
+        artifact_ref = self.registry.artifact_ref(project_id, logical_path)
+        resolution = self.registry.resolve_artifact_ref(artifact_ref)
+        if not resolution["verified"]:
+            raise RuntimeError("research evidence artifact reference failed registry resolution")
         evidence = self.ledger.add_evidence(
             hypothesis_id, evidence_kind, description,
             source_url=source_url, artifact_hash=digest,
         )
         claim_node_id = "hypothesis:" + hashlib.sha256(hypothesis_id.encode("utf-8")).hexdigest()[:32]
-        artifact_identity = project_id + "|" + logical_path + "|" + digest
+        # Version is part of graph identity: identical bytes may legitimately recur
+        # in distinct chronological versions (for example A -> B -> A).
+        artifact_identity = (project_id + "|" + logical_path + "|"
+                             + str(artifact_ref["version"]) + "|" + digest)
         artifact_node_id = "artifact:" + hashlib.sha256(
             artifact_identity.encode("utf-8")
         ).hexdigest()[:32]
@@ -52,15 +59,16 @@ class ResearchEvidenceRecorder:
         self.graph.add_node(GraphNode(
             artifact_node_id, "artifact", logical_path,
             {"sha256": digest, "project_id": project_id,
-             "logical_path": logical_path, "evidence_kind": evidence_kind,
-             "size_bytes": len(content)},
+             "logical_path": logical_path, "artifact_ref": artifact_ref,
+             "evidence_kind": evidence_kind, "size_bytes": len(content)},
             evidence_class=evidence_kind,
             source_uri=source_url or "registry://sha256/" + digest,
         ))
         self.graph.add_edge(GraphEdge(
             artifact_node_id, _RELATION[evidence_kind], claim_node_id,
             {"hypothesis_id": hypothesis_id, "evidence_id": evidence.evidence_id,
-             "artifact_sha256": digest, "evidence_kind": evidence_kind},
+             "artifact_sha256": digest, "artifact_ref": artifact_ref,
+             "evidence_kind": evidence_kind},
         ))
         return {
             "schema": "merlin-research-evidence/1",
@@ -68,6 +76,7 @@ class ResearchEvidenceRecorder:
             "evidence_id": evidence.evidence_id,
             "evidence_kind": evidence_kind,
             "artifact_sha256": digest,
+            "artifact_ref": artifact_ref,
             "artifact_verified": self.registry.verify_artifact(digest),
             "graph_edge": {
                 "source_id": artifact_node_id,

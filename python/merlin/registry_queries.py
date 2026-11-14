@@ -46,6 +46,30 @@ class MerlinReadAPI:
         path = self.registry.blobs / match["digest"][:2] / match["digest"][2:]
         return {**match, "verified": True, "content_bytes": path.stat().st_size}
 
+    def artifact_history(self, project_id: str, logical_path: str, *,
+                         limit: int = 100, offset: int = 0) -> dict[str, Any]:
+        """Read a verified, paginated immutable artifact-version history."""
+        limit, offset = self._page(limit, offset)
+        history = self.registry.artifact_history(project_id, logical_path)
+        verified_items: list[dict[str, Any]] = []
+        for item in history:
+            digest = item["digest"]
+            if not self.registry.verify_artifact(digest):
+                raise RuntimeError(f"artifact version digest verification failed: {digest}")
+            blob = self.registry.blobs / digest[:2] / digest[2:]
+            if not blob.is_file() or blob.stat().st_size != item["size_bytes"]:
+                raise RuntimeError(f"artifact version blob metadata mismatch: {digest}")
+            verified_items.append({**item, "verified": True})
+        return {
+            "schema": "merlin-artifact-history/1",
+            "project_id": project_id,
+            "logical_path": logical_path,
+            "items": verified_items[offset:offset + limit],
+            "limit": limit,
+            "offset": offset,
+            "total": len(verified_items),
+        }
+
     def hypothesis(self, hypothesis_id: str) -> dict[str, Any]:
         if self.hypotheses is None:
             raise RuntimeError("hypothesis ledger is not configured")

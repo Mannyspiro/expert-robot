@@ -251,3 +251,18 @@ License rule: no stripping attribution, copyright notices, license texts or NOTI
 Parrondo principle: treat A=fast local model, B=remote/specialist model, and adaptive switching/council as hypotheses. Measure on held-out tasks with equal budgets; hybrid only wins if net quality after latency, cost, privacy and error penalties beats fixed A and B. Verbose council debate belongs in a transcript; voice playback should start with the lead answer and queue optional council contributions.
 
 Status: architecture/design only. No new quantized model, NASA source, llama-swap or LLM Compressor has been downloaded or integrated. Hardware inventory and local-vs-remote benchmarks remain outstanding. The previous core Avrea CI and remote gateway tests passed; the separate NousCoder inference qualification was still running at the last checked status. The current gateway remains the production candidate until the hot-swap prototype passes its own gates.
+
+
+## 2026-11-14 immutable artifact producer provenance
+
+New exact-version provenance is now represented separately from artifact bytes and ArtifactRef identity. See `docs/merlin/MERLIN_ARTIFACT_VERSION_LINEAGE_V1.md` for schema, transactional storage and immutability rules.
+
+The Merlin registry now:
+- stores `merlin-artifact-provenance/1` per exact project/path/version;
+- returns it from the exact historical resolver only after checking its canonical JSON digest;
+- rejects provenance backfill or mutation on an existing version;
+- binds generated math-transfer previews and directive bundles to the deployed source repo/commit when `MERLIN_SOURCE_REPO` and `MERLIN_SOURCE_COMMIT` are configured.
+
+CACE now requires this nested resolver provenance and compares it against the caller's requested source commit and artifact identity before signing or verifying. This closes the earlier gap where CACE could sign a caller-supplied commit that Merlin's registry did not independently bind to the artifact version.
+
+Latest Merlin source code head `3045e0afaa50e63215323b07732ce5f52b6d54eb`: native CI #43601684749 SUCCESS and unified platform #43601684767 SUCCESS. PR #144 remains OPEN/DRAFT and stacked. No production source identity variables were configured; historical versions without provenance remain unqualified; no live CACE resolver/signature round trip has yet been performed.

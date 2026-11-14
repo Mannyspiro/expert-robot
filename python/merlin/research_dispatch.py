@@ -13,6 +13,7 @@ from typing import Any, Callable
 from merlin.event_outbox import MerlinEventOutbox
 from merlin.telemetry import agent_event_sink
 from merlin.hypothesis_ledger import HypothesisLedger
+from merlin.artifact_ref import ArtifactRef
 from merlin.research_optimizer import (
     ResearchCandidate, ResearchMetrics, ResearchWeights, rank_research_candidates,
 )
@@ -31,6 +32,7 @@ class ResearchTask:
     lease_ref: str
     evidence_refs: tuple[str, ...] = ()
     experiment_spec: dict[str, Any] | None = None
+    artifact_refs: tuple[Mapping[str, Any], ...] = ()
 
     def validate(self) -> None:
         for name, value in (("task_id", self.task_id), ("hypothesis_id", self.hypothesis_id),
@@ -55,13 +57,18 @@ class ResearchTask:
             raise ValueError("evidence_refs must be non-empty strings")
         if self.experiment_spec is not None and not isinstance(self.experiment_spec, dict):
             raise ValueError("experiment_spec must be an object")
+        if not isinstance(self.artifact_refs, (tuple, list)):
+            raise ValueError("artifact_refs must be a sequence of exact artifact references")
+        for ref in self.artifact_refs:
+            ArtifactRef.from_mapping(ref)
 
 
 class ResearchDispatchCoordinator:
     def __init__(self, outbox: MerlinEventOutbox, hypotheses: HypothesisLedger, *,
                  approval_validator: Callable[[str, ResearchTask], bool],
                  lease_validator: Callable[[str, dict[str, int]], bool],
-                 weights: ResearchWeights | None = None):
+                 weights: ResearchWeights | None = None,
+                 artifact_ref_validator: Callable[[Mapping[str, Any]], bool] | None = None):
         if not isinstance(outbox, MerlinEventOutbox):
             raise ValueError("outbox must be a MerlinEventOutbox")
         if not isinstance(hypotheses, HypothesisLedger):
@@ -73,6 +80,7 @@ class ResearchDispatchCoordinator:
         self.approval_validator = approval_validator
         self.lease_validator = lease_validator
         self.weights = weights
+        self.artifact_ref_validator = artifact_ref_validator
         self.emit_event = agent_event_sink(outbox, "hermes")
         self.emit_mcfc_event = agent_event_sink(outbox, "mcfc")
 
@@ -95,8 +103,13 @@ class ResearchDispatchCoordinator:
             raise PermissionError("explicit operator approval was not validated")
         if not self.lease_validator(task.lease_ref, task.resource_budget):
             raise PermissionError("active MCFC resource lease was not validated")
+        if task.artifact_refs and self.artifact_ref_validator is None:
+            raise RuntimeError("artifact references require a configured canonical registry validator")
+        for artifact_ref in task.artifact_refs:
+            if not self.artifact_ref_validator(artifact_ref):
+                raise ValueError("research task contains an unresolved or unverified artifact reference")
         payload = {
-            "schema": "merlin-research-task/1",
+            "schema": "merlin-research-task/2",
             "task_id": task.task_id,
             "hypothesis_id": task.hypothesis_id,
             "objective": task.objective,
@@ -106,6 +119,7 @@ class ResearchDispatchCoordinator:
             "approval_ref": task.approval_ref,
             "lease_ref": task.lease_ref,
             "evidence_refs": list(task.evidence_refs),
+            "artifact_refs": [ArtifactRef.from_mapping(ref).to_dict() for ref in task.artifact_refs],
             "experiment_spec": dict(task.experiment_spec or {}),
             "authority": "bounded_execution_only",
             "promotion_authority": False,

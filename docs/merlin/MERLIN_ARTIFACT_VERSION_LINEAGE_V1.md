@@ -1,0 +1,106 @@
+# Merlin canonical artifact version lineage v1
+
+**Status:** implemented on the artifact-version feature branch; hosted validation pending. This contract is not a production acceptance record.
+
+## Existing canonical ownership
+
+The existing `MerlinRegistry` remains the sole owner of project artifact identity and content-addressed bytes. The existing `project_artifacts` relation remains the current-path projection for compatibility. This change does not introduce a second registry, artifact service, or source of truth.
+
+## Version model
+
+Each `(project_id, logical_path)` has a monotonically increasing sequence in `artifact_versions`:
+
+- `version`: positive integer, scoped to the project and logical path.
+- `digest`: SHA-256 identity of the exact immutable blob.
+- `media_type` and `size_bytes`: properties of that version.
+- `previous_digest`: prior current version's digest, or null for the first version.
+- `created_at`: registry insertion time.
+
+The current `project_artifacts` pointer remains a compatibility projection. It may move to the latest version, but the version ledger is append-only and protected by SQLite update/delete triggers.
+
+## Write semantics
+
+1. Validate project identity, relative logical path, byte content and media type.
+2. Hash exact bytes and store them under the SHA-256 content-addressed blob path.
+3. Verify an existing blob before reuse; never silently overwrite a digest path whose bytes disagree.
+4. Under a SQLite immediate transaction, insert the blob metadata if absent.
+5. If the requested digest is already current at the logical path, treat the write as an idempotent replay.
+6. Otherwise append the next version, linking it to the previous digest, then update the current-path projection in the same transaction.
+
+Reverting to bytes used by an older version creates a new version with the old digest and the immediately previous digest as its parent. This preserves chronology without duplicating blob storage.
+
+## Migration and reads
+
+Existing `project_artifacts` rows are backfilled as version 1 when the new table is initialized. `artifact_history(project_id, logical_path)` returns the ordered immutable history. Project inventory continues to return the current digest and additionally reports its current version number.
+
+## Evidence boundary
+
+A version record proves what bytes the registry stored and in what sequence. It does not prove scientific correctness, formal validity, execution provenance, CACE verification, signature validity, approval or deployment. Those remain separate typed records and gates.
+
+## Regression requirements
+
+- first write creates version 1;
+- changed bytes create the next version;
+- replay of the current bytes does not create a duplicate version;
+- reverting to earlier bytes creates a new chronological version;
+- prior digest links are correct;
+- update/delete attempts on version rows fail;
+- existing databases backfill current artifacts as version 1;
+- unknown projects and traversal paths fail closed;
+- current inventory agrees with the latest version record.
+
+## Next integration steps
+
+1. Run the focused registry tests and the full unified Merlin CI suite on the exact branch head.
+2. Add lineage-event linkage for artifact versions without duplicating the existing graph or outbox.
+3. Bind execution results and CACE receipts to exact `(project_id, logical_path, version, digest)` references.
+4. Expose history through the existing read-only query facade and API.
+5. Add backup/restore and concurrent-writer tests before multi-host deployment.
+
+
+## Typed immutable reference: `merlin-artifact-ref/1`
+
+The registry now issues and resolves a strict version-pinned reference:
+
+```json
+{
+  "schema": "merlin-artifact-ref/1",
+  "project_id": "merlin",
+  "logical_path": "research/continuum/candidate.lean",
+  "version": 3,
+  "sha256": "<lowercase-sha256-of-exact-bytes>"
+}
+```
+
+- `ArtifactRef` is a frozen typed value with exact-field/schema validation, normalized relative path validation, positive integer version validation and lowercase SHA-256 validation.
+- `MerlinRegistry.artifact_ref(..., version=None)` resolves the current version at lookup time; an explicit version selects historical lineage.
+- `MerlinRegistry.resolve_artifact_ref(ref)` requires an exact project/path/version row, checks the recorded digest, re-hashes the stored blob, checks byte length and reports whether that version is current.
+- A historical reference remains resolvable after the path advances. Reused bytes in a later reversion retain a distinct version identity.
+- A digest/version mismatch, missing row, malformed reference or tampered blob fails closed.
+
+This is the canonical registry boundary only. Hermes dispatch, Avrea/OCI execution receipts and CACE signed receipts do **not** yet carry this reference end-to-end. Their versioned contract migration is the next coordinated step; do not claim end-to-end lineage until the downstream producer/consumer schemas and CACE verifier agree.
+
+
+## Immutable producer provenance: `merlin-artifact-provenance/1`
+
+The exact-version resolver now supports immutable producer provenance in addition to the ArtifactRef:
+- `schema`: `merlin-artifact-provenance/1`
+- `source_repo`: canonical source repository
+- `source_commit`: full lowercase 40-character deployed Git commit
+- `artifact_id`, `artifact_kind`, `artifact_schema`: producer-assigned artifact identity
+
+The registry stores this in a separate `artifact_version_provenance` table keyed by the exact `(project_id, logical_path, version)`. Provenance rows have their own canonical-JSON SHA-256 and append-only update/delete triggers. `resolve_artifact_ref` includes the verified provenance object in the nested resolution only when that exact version has it.
+
+`put_artifact(..., provenance=...)` validates the exact schema and inserts provenance in the same transaction as the new version. It refuses to attach provenance retroactively to an existing version or change provenance on an idempotent replay. Historical versions created without provenance remain unqualified; create a new version under a provenance-configured deployment rather than rewriting history.
+
+The generated math-transfer preview and directive-bundle writers attach provenance when deployment environment variables are present:
+- `MERLIN_SOURCE_REPO=Mannyspiro/expert-robot`
+- `MERLIN_SOURCE_COMMIT=<full deployed 40-character commit SHA>`
+
+If either variable is missing, the artifact may still be stored for ordinary Merlin use, but its version has no producer provenance and CACE must refuse to attest it. A noncanonical repository or malformed commit fails closed. No production environment variable was configured in this code-only change.
+
+Exact-head validation on `3045e0afaa50e63215323b07732ce5f52b6d54eb`:
+- Native CI #43601684749 SUCCESS — https://github.com/Mannyspiro/expert-robot/actions/runs/43601684749
+- Unified platform #43601684767 SUCCESS — https://github.com/Mannyspiro/expert-robot/actions/runs/43601684767
+
+This closes source-side code/test validation for immutable provenance only. It does not prove the deployed service has the environment variables or that a live CACE request has succeeded.

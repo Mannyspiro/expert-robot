@@ -5,18 +5,20 @@ import unittest
 from pathlib import Path
 
 from merlin.event_outbox import MerlinEventOutbox
+from merlin.artifact_ref import ArtifactRef
 from merlin.hermes_worker import HermesWorker
 
 
 def task_payload(task_id="task-1"):
     return {
-        "schema": "merlin-research-task/1",
+        "schema": "merlin-research-task/2",
         "task_id": task_id, "hypothesis_id": "H-1",
         "objective": "Run a bounded deterministic experiment",
         "stage": "experiment",
         "resource_budget": {"cpu_cores": 1, "memory_bytes": 1024,
                             "max_wall_seconds": 10, "compute_budget_units": 10},
         "approval_ref": "approval:1", "lease_ref": "lease:1",
+        "artifact_refs": [],
         "authority": "bounded_execution_only", "promotion_authority": False,
         "experiment_spec": {"seed": 7},
     }
@@ -35,6 +37,7 @@ class HermesWorkerTests(unittest.TestCase):
             self.outbox, handlers={"experiment": handler},
             approval_validator=lambda ref, task: approval and ref == "approval:1",
             lease_validator=lambda ref, budget: lease and ref == "lease:1",
+            artifact_ref_validator=lambda ref: True,
             max_attempts=max_attempts, retry_delay_seconds=0, lease_seconds=lease_seconds,
         )
 
@@ -55,6 +58,8 @@ class HermesWorkerTests(unittest.TestCase):
         self.assertEqual(stored["state"], "acknowledged")
         self.assertFalse(stored["result"]["promotion_authority"])
         self.assertEqual(stored["result"]["evidence_refs"], ["sha256:abc"])
+        self.assertEqual(stored["result"]["schema"], "merlin-hermes-task-result/2")
+        self.assertEqual(stored["result"]["input_artifact_refs"], [])
         telemetry = [row for row in self._all_rows() if row["topic"].startswith("merlin.telemetry.")]
         kinds = {row["payload"]["kind"] for row in telemetry}
         self.assertTrue({"task.progress", "agent.tool.started", "agent.tool.completed",
@@ -68,6 +73,8 @@ class HermesWorkerTests(unittest.TestCase):
                              approval=False).run_once(now=2)
         self.assertEqual(result["status"], "rejected")
         self.assertEqual(called, [])
+        self.assertEqual(self.outbox.get(event["event_id"])["result"]["schema"],
+                         "merlin-hermes-task-result/2")
         self.assertEqual(self.outbox.get(event["event_id"])["state"], "acknowledged")
 
     def test_revalidates_mcfc_lease_before_execution(self):
@@ -133,6 +140,45 @@ class HermesWorkerTests(unittest.TestCase):
         event["resource_budget"]["max_wall_seconds"] = 86401
         self.outbox.enqueue("research-task:bad-budget", "merlin.hermes.task", event)
         result = self.worker(lambda task, context: {}, max_attempts=1).run_once()
+        self.assertEqual(result["status"], "quarantined")
+
+    def test_worker_revalidates_input_and_output_artifact_references(self):
+        ref = ArtifactRef("merlin", "input.json", 1, "b" * 64).to_dict()
+        payload = task_payload("artifact-ref")
+        payload["artifact_refs"] = [ref]
+        event = self.outbox.enqueue("research-task:artifact-ref", "merlin.hermes.task",
+                                    payload, now=1)
+        seen = []
+        def handler(task, context):
+            seen.extend(context.artifact_refs)
+            return {"summary": "bound", "artifact_refs": [ref]}
+        worker = HermesWorker(
+            self.outbox, handlers={"experiment": handler},
+            approval_validator=lambda *_: True, lease_validator=lambda *_: True,
+            artifact_ref_validator=lambda value: value == ref,
+        )
+        result = worker.run_once(now=2)
+        self.assertEqual(result["status"], "completed")
+        self.assertEqual(seen, [ref])
+        receipt = self.outbox.get(event["event_id"])["result"]
+        self.assertEqual(receipt["input_artifact_refs"], [ref])
+        self.assertEqual(receipt["output_artifact_refs"], [ref])
+
+    def test_worker_fails_closed_without_registry_validator_for_referenced_input(self):
+        ref = ArtifactRef("merlin", "input.json", 1, "c" * 64).to_dict()
+        payload = task_payload("missing-validator")
+        payload["artifact_refs"] = [ref]
+        self.outbox.enqueue("research-task:missing-validator", "merlin.hermes.task",
+                            payload, now=1)
+        worker = HermesWorker(
+            self.outbox,
+            handlers={"experiment": lambda task, context: {}},
+            approval_validator=lambda ref, task: True,
+            lease_validator=lambda ref, budget: True,
+            max_attempts=1,
+            retry_delay_seconds=0,
+        )
+        result = worker.run_once(now=2)
         self.assertEqual(result["status"], "quarantined")
 
     def _all_rows(self):

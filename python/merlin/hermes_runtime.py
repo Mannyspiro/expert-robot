@@ -129,6 +129,7 @@ def build_merlin_hermes_runtime(
         worker_id=worker_id,
         lease_seconds=lease_seconds,
         max_attempts=max_attempts,
+        artifact_ref_validator=lambda value: registry.resolve_artifact_ref(value)["verified"] is True,
     )
     service = HermesWorkerService(worker)
     return MerlinHermesRuntime(

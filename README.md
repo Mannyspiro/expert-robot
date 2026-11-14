@@ -352,3 +352,8 @@ A deterministic, source-labeled simulation and responsive HUD are now available.
 ## Merlin / Hermes / Avrea quick reference
 
 Read [docs/MERLIN_AVREA_HERMES_ROUTING.md](docs/MERLIN_AVREA_HERMES_ROUTING.md) for the canonical Avrea runner bridge, independent CACE secret setup, Hermes routing policy, labelled training/held-out corpora, and evaluation commands. Repository agents should read [AGENTS.md](AGENTS.md) before changing these integrations.
+
+
+## Merlin scientific operating loop
+
+Merlin's mandatory evidence-first operating contract is [docs/MERLIN_SCIENTIFIC_OPERATING_LOOP_V1.md](docs/MERLIN_SCIENTIFIC_OPERATING_LOOP_V1.md). The pure policy primitives and tests live in `python/merlin/scientific_loop.py` and `tests/test_scientific_loop.py`. The inductively updated production roadmap is [docs/ENGINEERING_PLAN_V17.md](docs/ENGINEERING_PLAN_V17.md), v20 section. Every agent must follow [AGENTS.md](AGENTS.md).

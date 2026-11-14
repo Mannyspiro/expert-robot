@@ -10,6 +10,7 @@ from datetime import datetime, timezone
 from contextlib import closing
 from hashlib import sha256
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+import base64
 import json
 import os
 import signal
@@ -50,10 +51,43 @@ from .engineering.geometry import GeometrySpec, Point3D, validate_geometry, boun
 from .engineering.netlist import Component, Connection, Net, Netlist, validate_netlist
 from .public_literature import PublicLiteratureSearch
 from .virtual_repository import VirtualRepository, VirtualGitError
+from .project_registry import ArtifactSizeLimitError
 from .virtual_repository_seed import build_repository_seed
 
 MAX_BODY = 1_000_000
+MAX_ARTIFACT_READ_BYTES = 25 * 1024 * 1024
 MAX_PROXY_RESPONSE = 16_000_000
+
+def _artifact_version_provenance(
+    *, artifact_id: str, artifact_kind: str, artifact_schema: str,
+) -> dict[str, str] | None:
+    """Bind generated artifacts to the exact deployed Merlin source revision.
+
+    Missing deployment identity leaves the version explicitly unprovenanced;
+    CACE's independent verifier will refuse to attest such a version.
+    """
+    source_repo = os.getenv("MERLIN_SOURCE_REPO", "").strip()
+    source_commit = os.getenv("MERLIN_SOURCE_COMMIT", "").strip()
+    if not source_repo or not source_commit:
+        return None
+    if source_repo != "Mannyspiro/expert-robot":
+        raise ValueError("MERLIN_SOURCE_REPO is not the configured canonical repository")
+    if len(source_commit) != 40 or any(ch not in "0123456789abcdef" for ch in source_commit):
+        raise ValueError("MERLIN_SOURCE_COMMIT must be a full lowercase Git SHA")
+    if not all(isinstance(value, str) and value.strip() for value in (
+        artifact_id, artifact_kind, artifact_schema
+    )):
+        raise ValueError("generated artifact provenance identity is incomplete")
+    return {
+        "schema": "merlin-artifact-provenance/1",
+        "source_repo": source_repo,
+        "source_commit": source_commit,
+        "artifact_id": artifact_id,
+        "artifact_kind": artifact_kind,
+        "artifact_schema": artifact_schema,
+    }
+
+
 
 
 def _loopback_endpoint(env_name: str, default: str) -> str:
@@ -457,6 +491,14 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
     admin_token = (configured_admin_token if isinstance(configured_admin_token, str)
                    and configured_admin_token.isascii() and len(configured_admin_token) >= 32
                    else "")
+    configured_artifact_read_token = os.environ.get("MERLIN_ARTIFACT_READ_TOKEN", "")
+    artifact_read_token = (
+        configured_artifact_read_token
+        if isinstance(configured_artifact_read_token, str)
+        and configured_artifact_read_token.isascii()
+        and len(configured_artifact_read_token) >= 32
+        else ""
+    )
 
     def current_interaction_analysis():
         preferences = interaction_store.preferences()
@@ -554,6 +596,14 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             supplied = authorization[7:].strip()
             return bool(supplied) and hmac.compare_digest(
                 supplied.encode("utf-8"), admin_token.encode("utf-8"))
+
+        def _artifact_read_authenticated(self):
+            authorization = self.headers.get("Authorization", "")
+            if not artifact_read_token or not authorization.startswith("Bearer "):
+                return False
+            supplied = authorization[7:].strip()
+            return bool(supplied) and hmac.compare_digest(
+                supplied.encode("utf-8"), artifact_read_token.encode("utf-8"))
 
         def do_GET(self) -> None:
             self._request_started = perf_counter()
@@ -1022,6 +1072,49 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 if not isinstance(data, dict):
                     raise ValueError("request body must be a JSON object")
 
+                if path == "/api/artifacts/resolve":
+                    if not artifact_read_token:
+                        self._send(503, {"error": "artifact_read_capability_unconfigured"})
+                        return
+                    if not self._artifact_read_authenticated():
+                        self._send(401, {"error": "artifact_read_authentication_required"})
+                        return
+                    if canonical_registry is None:
+                        self._send(503, {"error": "canonical_registry_unavailable"})
+                        return
+                    if set(data) != {"schema", "artifact_ref"} or data.get("schema") != "merlin-artifact-resolution-request/1":
+                        self._send(400, {"error": "invalid_artifact_resolution_request"})
+                        return
+                    try:
+                        resolved = canonical_registry.read_artifact_ref(
+                            data["artifact_ref"], max_bytes=MAX_ARTIFACT_READ_BYTES)
+                    except KeyError:
+                        self._send(404, {"error": "artifact_version_not_found"})
+                        return
+                    except ArtifactSizeLimitError:
+                        self._send(413, {"error": "artifact_exceeds_read_limit"})
+                        return
+                    except ValueError as exc:
+                        self._send(400, {"error": "artifact_reference_rejected",
+                                         "detail": str(exc)[:200]})
+                        return
+                    except RuntimeError:
+                        self._send(503, {"error": "artifact_integrity_verification_failed"})
+                        return
+                    resolution = resolved["resolution"]
+                    content = resolved["content"]
+                    self._send(200, {
+                        "schema": "merlin-artifact-resolution/2",
+                        "artifact_ref": resolution["artifact_ref"],
+                        "resolution": resolution,
+                        "media_type": resolution["media_type"],
+                        "size_bytes": len(content),
+                        "content_sha256": resolution["artifact_ref"]["sha256"],
+                        "content_b64": base64.b64encode(content).decode("ascii"),
+                        "authority": "read_only_artifact_bytes",
+                    })
+                    return
+
                 if path == "/api/forge/branches":
                     result = forge.create_branch(data.get("name"), data.get("from_ref", "main"))
                     self._send(201, {"schema": "merlin-forge-branch-created/1", **result})
@@ -1457,7 +1550,12 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                         logical_path = "math-transfers/" + preview["preview_sha256"] + ".json"
                         digest = canonical_registry.put_artifact(
                             project_id, logical_path, artifact_bytes,
-                            "application/vnd.merlin.math-transfer-preview+json")
+                            "application/vnd.merlin.math-transfer-preview+json",
+                            provenance=_artifact_version_provenance(
+                                artifact_id=preview["preview_sha256"],
+                                artifact_kind="math-transfer-preview",
+                                artifact_schema=preview["schema"],
+                            ))
                         verified = canonical_registry.verify_artifact(digest)
                         if not verified:
                             self._send(503, {"error": "canonical_registry_verification_failed",
@@ -1572,7 +1670,12 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                         logical_path = "intents/" + bundle["directive_sha256"] + ".json"
                         artifact_digest = canonical_registry.put_artifact(
                             project_id, logical_path, artifact_bytes,
-                            "application/vnd.merlin.directive-bundle+json")
+                            "application/vnd.merlin.directive-bundle+json",
+                            provenance=_artifact_version_provenance(
+                                artifact_id=bundle["directive_sha256"],
+                                artifact_kind="directive-bundle",
+                                artifact_schema="merlin-directive-bundle/1",
+                            ))
                         artifact_ref = {
                             "project_id": project_id, "logical_path": logical_path,
                             "sha256": artifact_digest, "verified": canonical_registry.verify_artifact(artifact_digest),

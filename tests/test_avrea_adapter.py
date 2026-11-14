@@ -15,10 +15,10 @@ class AvreaAdapterTests(unittest.TestCase):
         self.registry = MerlinRegistry(root / "registry")
         self.registry.register_project("merlin", "Merlin")
         self.outbox = MerlinEventOutbox(root / "outbox.sqlite3")
-        self.job = {"schema":"merlin-research-task/1","task_id":"t1",
+        self.job = {"schema":"merlin-research-task/2","task_id":"t1",
                     "approval_ref":"approval:1","lease_ref":"lease:1",
                     "resource_budget":{"cpu_cores":1,"memory_bytes":1024},
-                    "promotion_authority":False}
+                    "promotion_authority":False,"artifact_refs":[]}
 
     def tearDown(self):
         self.temp.cleanup()
@@ -49,6 +49,11 @@ class AvreaAdapterTests(unittest.TestCase):
         adapter.dispatch(self.job)
         result = adapter.collect("job-1",project_id="merlin")
         self.assertEqual(result["artifacts"][0]["name"],"result.json")
+        self.assertEqual(result["artifacts"][0]["artifact_ref"]["schema"],
+                         "merlin-artifact-ref/1")
+        self.assertEqual(result["artifacts"][0]["artifact_ref"]["version"], 1)
+        self.assertEqual(result["artifacts"][0]["artifact_ref"]["sha256"],
+                         result["artifacts"][0]["sha256"])
         self.assertTrue(self.registry.verify_artifact(result["artifacts"][0]["sha256"]))
         result_event_id = "evt_" + hashlib.sha256("avrea-result:job-1".encode()).hexdigest()
         result_event = self.outbox.get(result_event_id)
@@ -62,12 +67,52 @@ class AvreaAdapterTests(unittest.TestCase):
         self.assertEqual(self.outbox.counts()["pending"], before)
         self.assertEqual(self.outbox.get(result_event_id)["payload"], result)
 
+    def test_dispatch_pins_and_resolves_input_artifact_versions(self):
+        digest = self.registry.put_artifact("merlin", "input.json", b"input")
+        ref = self.registry.artifact_ref("merlin", "input.json")
+        job = {**self.job, "artifact_refs": [ref]}
+        receipt = self.adapter().dispatch(job)
+        self.assertEqual(receipt["artifact_refs"], [ref])
+        self.assertEqual(receipt["schema"], "merlin-avrea-dispatch-receipt/1")
+        self.assertEqual(ref["sha256"], digest)
+
+    def test_dispatch_rejects_malformed_or_unresolvable_artifact_reference(self):
+        malformed = {**self.job, "artifact_refs": [{"schema": "bad"}]}
+        with self.assertRaises(ValueError):
+            self.adapter().dispatch(malformed)
+        missing = {**self.job, "artifact_refs": [{
+            "schema": "merlin-artifact-ref/1", "project_id": "merlin",
+            "logical_path": "missing.json", "version": 1, "sha256": "d" * 64,
+        }]}
+        with self.assertRaises(KeyError):
+            self.adapter().dispatch(missing)
+
     def test_missing_transport_fails_closed(self):
         adapter = AvreaAdapter(dispatch_transport=None,collect_transport=None,
             approval_validator=lambda *_:True,lease_validator=lambda *_:True,
             registry=self.registry,outbox=self.outbox)
         with self.assertRaises(RuntimeError):
             adapter.dispatch(self.job)
+
+    def test_dispatch_transports_exact_registry_input_bytes_with_reference(self):
+        digest = self.registry.put_artifact("merlin", "input.json", b'{"input":7}')
+        ref = self.registry.artifact_ref("merlin", "input.json")
+        captured = []
+        adapter = AvreaAdapter(
+            dispatch_transport=lambda payload: captured.append(payload) or {
+                "runner_id": "avrea-runner-1", "job_id": "job-input", "status": "accepted"
+            },
+            collect_transport=None,
+            approval_validator=lambda *_: True,
+            lease_validator=lambda *_: True,
+            registry=self.registry, outbox=self.outbox,
+        )
+        adapter.dispatch({**self.job, "task_id": "input-task", "artifact_refs": [ref]})
+        transported = captured[0]["artifact_inputs"][0]
+        import base64
+        self.assertEqual(transported["artifact_ref"], ref)
+        self.assertEqual(base64.b64decode(transported["content_base64"]), b'{"input":7}')
+        self.assertEqual(transported["artifact_ref"]["sha256"], digest)
 
 
 if __name__ == "__main__":

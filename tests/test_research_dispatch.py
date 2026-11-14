@@ -3,6 +3,7 @@ import unittest
 from pathlib import Path
 
 from merlin.event_outbox import MerlinEventOutbox, OutboxConflict
+from merlin.artifact_ref import ArtifactRef
 from merlin.hypothesis_ledger import HypothesisLedger
 from merlin.research_dispatch import ResearchDispatchCoordinator, ResearchTask
 from merlin.research_optimizer import ResearchMetrics
@@ -19,6 +20,7 @@ def make_task(task_id="math-1", approval="approval:1", lease="lease:1"):
         approval_ref=approval, lease_ref=lease,
         evidence_refs=("hypothesis:H-1",),
         experiment_spec={"seed": 42, "tolerance": 1e-8},
+        artifact_refs=(),
     )
 
 
@@ -32,11 +34,12 @@ class ResearchDispatchTests(unittest.TestCase):
     def tearDown(self):
         self.temp.cleanup()
 
-    def coordinator(self, approval=True, lease=True):
+    def coordinator(self, approval=True, lease=True, artifact_ref_validator=None):
         return ResearchDispatchCoordinator(
             self.outbox, self.ledger,
             approval_validator=lambda ref, task: approval and ref == "approval:1",
             lease_validator=lambda ref, budget: lease and ref == "lease:1",
+            artifact_ref_validator=artifact_ref_validator,
         )
 
     def test_dispatch_requires_validated_approval_and_lease(self):
@@ -44,6 +47,8 @@ class ResearchDispatchTests(unittest.TestCase):
         event = self.coordinator().dispatch(task)
         self.assertEqual(event["topic"], "merlin.hermes.task")
         self.assertFalse(event["payload"]["promotion_authority"])
+        self.assertEqual(event["payload"]["schema"], "merlin-research-task/2")
+        self.assertEqual(event["payload"]["artifact_refs"], [])
         with self.assertRaises(PermissionError):
             self.coordinator(approval=False).dispatch(make_task(task_id="no-approval"))
         with self.assertRaises(PermissionError):
@@ -75,6 +80,19 @@ class ResearchDispatchTests(unittest.TestCase):
         task = ResearchTask(**{**make_task().__dict__, "hypothesis_id": "missing"})
         with self.assertRaises(KeyError):
             self.coordinator().dispatch(task)
+
+    def test_input_artifact_references_require_canonical_registry_validation(self):
+        ref = ArtifactRef("merlin", "inputs/data.json", 1, "a" * 64).to_dict()
+        task = ResearchTask(**{**make_task().__dict__, "artifact_refs": (ref,)})
+        with self.assertRaisesRegex(RuntimeError, "canonical registry validator"):
+            self.coordinator().dispatch(task)
+        event = self.coordinator(artifact_ref_validator=lambda value: value == ref).dispatch(task)
+        self.assertEqual(event["payload"]["schema"], "merlin-research-task/2")
+        self.assertEqual(event["payload"]["artifact_refs"], [ref])
+        rejected = self.coordinator(artifact_ref_validator=lambda value: False)
+        with self.assertRaisesRegex(ValueError, "unresolved or unverified"):
+            rejected.dispatch(ResearchTask(**{**make_task("bad-ref").__dict__,
+                                                "artifact_refs": (ref,)}))
 
 
 if __name__ == "__main__":

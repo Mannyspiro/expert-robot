@@ -34,6 +34,26 @@ class MerlinReadAPITests(unittest.TestCase):
         self.assertTrue(artifact["verified"])
         self.assertEqual(artifact["content_bytes"], len(b"proof candidate"))
 
+    def test_artifact_history_is_paginated_and_digest_verified(self):
+        first = self.registry.put_artifact("merlin", "math/example.txt", b"version two", "text/plain")
+        self.registry.put_artifact("merlin", "math/example.txt", b"version three", "text/plain")
+        page = self.api.artifact_history("merlin", "math/example.txt", limit=1, offset=1)
+        self.assertEqual(page["schema"], "merlin-artifact-history/1")
+        self.assertEqual(page["total"], 3)
+        self.assertEqual(page["items"][0]["digest"], first)
+        self.assertTrue(page["items"][0]["verified"])
+        with self.assertRaises(ValueError):
+            self.api.artifact_history("merlin", "math/example.txt", limit=0)
+
+    def test_artifact_history_fails_closed_on_blob_tampering(self):
+        self.registry.put_artifact("merlin", "math/example.txt", b"version two", "text/plain")
+        history = self.registry.artifact_history("merlin", "math/example.txt")
+        digest = history[0]["digest"]
+        blob = self.registry.blobs / digest[:2] / digest[2:]
+        blob.write_bytes(b"tampered")
+        with self.assertRaises(RuntimeError):
+            self.api.artifact_history("merlin", "math/example.txt")
+
     def test_hypothesis_and_graph_queries_are_read_only_views(self):
         self.assertEqual(self.api.hypothesis("H-1")["status"], "proposed")
         page = self.api.list_hypotheses(limit=1, offset=0)

@@ -161,3 +161,88 @@ Updated unified evidence on exact code head `06ece19e01b115a8d10da7e919b91ba1312
 - Capability may grow; authority must not expand automatically.
 - Phone, headphones, smart-TV and IoT remain backlog ideas, not current MVP dependencies.
 - Draft PRs are not deployed software. Production is complete only after real identity, persisted state, independent verification, provider qualification, operational recovery and end-to-end acceptance are demonstrated.
+
+## 2026-11-13 continuation: canonical artifact version lineage
+
+### Existing canonical components confirmed
+
+Inspection of the continuum feature branch confirmed that Merlin already has:
+- `MerlinRegistry` with SHA-256 content-addressed blobs and a current project/logical-path pointer;
+- `MerlinKnowledgeGraph` and `HypothesisLedger`;
+- `MerlinReadAPI` as a read-only composition facade;
+- `MerlinEventOutbox` with idempotent task/event delivery;
+- a CACE adapter contract that fails closed without a configured transport.
+
+Do not create a parallel registry, artifact service, graph or outbox.
+
+### PR #144: append-only artifact version lineage
+
+- Draft PR: https://github.com/Mannyspiro/expert-robot/pull/144
+- Branch: `feat/merlin-artifact-version-lineage-20261113`
+- Parent: PR #143 branch `feat/merlin-continuum-ir-stack-20261112`
+- Initial implementation head: `349a269642997cefff2a1117ad8fca30221c7097`
+- Added `artifact_versions` as a project/logical-path-scoped append-only ledger, retaining the current-path pointer as a compatibility projection.
+- Version records retain sequence, content digest, media type, byte length, previous digest and timestamp. Reverting to old bytes creates a new chronological version; replaying the current bytes is idempotent.
+- Existing current pointers backfill as version 1. Database triggers reject update/delete of version records.
+- `MerlinReadAPI.artifact_history` now exposes paginated, digest- and size-verified history under schema `merlin-artifact-history/1`.
+- Focused tests cover pagination and blob tampering, in addition to registry-level progression, replay, revert, migration, immutability and traversal cases.
+
+### Exact-head evidence
+
+- Native CI run [43487027051](https://github.com/Mannyspiro/expert-robot/actions/runs/43487027051) passed on exact initial head `349a269642997cefff2a1117ad8fca30221c7097`, including native build, C++ tests, independent RP²/persistence audit, compute-policy and known-failure guardrails, formal dependency lock, and focused Merlin integration contracts.
+- Unified platform run [43487027096](https://github.com/Mannyspiro/expert-robot/actions/runs/43487027096) was still in progress at last observation on that same initial head. Compile and HUD validation passed; unified tests had not yet completed. Do not report the full run as passed.
+- The read API and its tests were subsequently extended in commits `a25db05fdf7a6f4e2b618f15bdcb1e7d350c5921` and `3336dfed1cd9748864beab0a113a212fe170931b`. These newer commits require fresh exact-head CI; the earlier green native run does not validate them.
+
+### Next implementation gates
+
+1. Obtain fresh exact-head focused and unified test results after the read API extension.
+2. Add artifact-version references to existing lineage events and execution/CACE evidence payloads; do not duplicate event or receipt stores.
+3. Expose history through existing API routes with bounded pagination and strict path validation.
+4. Test concurrent writers, process interruption, restart, backup/restore and duplicate event delivery.
+5. Bind every execution and verification receipt to project ID, logical path, version and digest.
+6. Keep CACE independent verification, signer/trust configuration and promotion as separate gates.
+
+
+### 2026-11-13 continuation: typed artifact references
+
+- New commit: `320454d1912832abf017522ea6c05935fee195a5`.
+- Added `python/merlin/artifact_ref.py` with strict immutable `merlin-artifact-ref/1`.
+- Added registry issuance and resolution methods. Resolution binds the exact project/path/version/digest row and re-hashes the blob and checks byte length; stale historical refs remain valid but are marked non-current.
+- Added `tests/test_artifact_ref.py` for pinned historical versions, same-digest reversion identity, wrong version/digest, missing versions, tampered blobs and strict schema/path validation.
+- Fresh native CI and unified platform runs were queued for exact head `320454d1912832abf017522ea6c05935fee195a5` (run IDs 43489158523 and 43489158501 at the time of this update).
+- Scope is deliberately limited to canonical registry issuance/resolution. End-to-end propagation through Hermes, Avrea/OCI and CACE remains unimplemented and must be migrated as coordinated versioned contracts; no old CACE receipt is to be treated as version-bound.
+
+
+### 2026-11-13 continuation: evidence and runner artifact lineage
+
+- Research evidence recording now returns and persists the exact `merlin-artifact-ref/1` in its graph node metadata, graph edge provenance and result.
+- Graph artifact identity now includes the chronological version as well as project/path/digest. This prevents distinct A -> B -> A versions from collapsing to one graph node.
+- Avrea result collection now resolves each stored artifact to its exact registry reference and includes that reference in the immutable `merlin-avrea-result-receipt/1` and outbox event payload.
+- Tests assert evidence and Avrea results carry the exact pinned reference, and that historical/reverted evidence remains distinguishable even when the bytes have the same digest.
+- This advances registry -> research evidence and registry -> Avrea result collection. It does not yet propagate the reference into Avrea dispatch input, Hermes task envelopes, MCFC execution leases or the real CACE signed EvidenceBundle contract.
+
+
+### 2026-11-13 continuation: Hermes/Avrea version-pinned task contract
+
+- Research dispatch now emits `merlin-research-task/2` with an explicit `artifact_refs` array. References are strict `ArtifactRef` values; non-empty input references require an injected canonical registry validator and fail closed if absent or false.
+- Hermes worker accepts the v2 task contract, validates reference shape, revalidates every referenced input against the canonical registry at execution time, and exposes immutable input references in `TaskExecutionContext`.
+- Hermes result receipts are now `merlin-hermes-task-result/2`, preserving both input and output artifact-reference arrays. Output references must also resolve through the configured registry validator.
+- Canonical stage handlers return their stored artifact reference as an output reference.
+- Avrea accepts the v2 task contract, resolves every input reference before dispatch, and includes the exact references in its accepted dispatch receipt.
+- Compatibility is explicit: old v1 tasks are not silently treated as v2. The v2 payload always includes an `artifact_refs` array, including an empty array when no registry inputs are required.
+- The reference now flows registry -> research evidence -> Hermes task -> Hermes handler result -> Avrea dispatch input/result receipt. Avrea collected output references already flow through the result outbox. CACE's signed EvidenceBundle binding remains the next boundary to implement.
+
+
+### 2026-11-13 continuation: production Hermes composition wiring
+
+- The production `build_merlin_hermes_runtime` composition root now injects the canonical registry resolver into HermesWorker as its artifact-reference validator.
+- This closes the fail-closed integration gap introduced by v2 task/result references: stage handlers' output references are re-resolved against the actual runtime registry before Hermes acknowledges the task.
+- Runtime regression covers a valid registry-issued reference and a forged digest rejected by the same injected validator.
+
+
+### 2026-11-13 continuation: exact-byte Avrea input transfer
+
+- Avrea dispatch now resolves each task input reference against the canonical registry, re-reads and re-hashes the exact bytes, and transfers the bytes with the unchanged `ArtifactRef` to the injected runner transport.
+- Dispatch enforces a 25 MiB per-artifact and 50 MiB aggregate input cap before transfer. The accepted dispatch receipt records references only; it does not duplicate large input payloads in the durable outbox.
+- Added a regression proving the transport receives bytes whose SHA-256 and versioned reference match the registry entry.
+- Hermes rejection receipts now use `merlin-hermes-task-result/2` consistently with successful receipts.
