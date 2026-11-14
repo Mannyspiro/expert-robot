@@ -3,10 +3,15 @@ import subprocess
 import unittest
 from unittest.mock import patch
 
-from merlin.ngspice_engine import run_ngspice, validate_netlist
+from merlin.ngspice_engine import _extract_ngspice_version, run_ngspice, validate_netlist
 
 
 class NgspiceEngineTests(unittest.TestCase):
+    def test_extracts_numeric_version_from_ngspice_banner(self):
+        self.assertEqual(_extract_ngspice_version("****** ngspice-42.3 : simulator"), "42.3")
+        self.assertEqual(_extract_ngspice_version("ngspice 39"), "39")
+        self.assertIsNone(_extract_ngspice_version("ngspice development build"))
+
     def test_accepts_simple_passive_operating_point_netlist(self):
         netlist = """RC operating point
 V1 in 0 DC 5

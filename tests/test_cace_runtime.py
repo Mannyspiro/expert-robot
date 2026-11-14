@@ -68,7 +68,7 @@ class CaceRuntimeCompositionTests(unittest.TestCase):
         env = {
             "CACE_VERIFY_URL": "https://cace.example/verify",
             "CACE_VERIFY_TOKEN": "t" * 40,
-            "CACE_VERIFY_TRUSTED_KEYS_JSON": json.dumps({self.key_id: self.public_pem}),
+            "CACE_VERIFY_TRUSTED_KEYS_JSON": json.dumps({self.key_id: {"verifier_id": "cace:production-verifier", "public_key_pem": self.public_pem}}),
         }
         with patch.dict(os.environ, env, clear=True):
             adapter = cace_verification_adapter_from_environment(
