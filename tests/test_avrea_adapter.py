@@ -94,6 +94,26 @@ class AvreaAdapterTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             adapter.dispatch(self.job)
 
+    def test_dispatch_transports_exact_registry_input_bytes_with_reference(self):
+        digest = self.registry.put_artifact("merlin", "input.json", b'{"input":7}')
+        ref = self.registry.artifact_ref("merlin", "input.json")
+        captured = []
+        adapter = AvreaAdapter(
+            dispatch_transport=lambda payload: captured.append(payload) or {
+                "runner_id": "avrea-runner-1", "job_id": "job-input", "status": "accepted"
+            },
+            collect_transport=None,
+            approval_validator=lambda *_: True,
+            lease_validator=lambda *_: True,
+            registry=self.registry, outbox=self.outbox,
+        )
+        adapter.dispatch({**self.job, "task_id": "input-task", "artifact_refs": [ref]})
+        transported = captured[0]["artifact_inputs"][0]
+        import base64
+        self.assertEqual(transported["artifact_ref"], ref)
+        self.assertEqual(base64.b64decode(transported["content_base64"]), b'{"input":7}')
+        self.assertEqual(transported["artifact_ref"]["sha256"], digest)
+
 
 if __name__ == "__main__":
     unittest.main()

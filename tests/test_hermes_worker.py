@@ -73,6 +73,8 @@ class HermesWorkerTests(unittest.TestCase):
                              approval=False).run_once(now=2)
         self.assertEqual(result["status"], "rejected")
         self.assertEqual(called, [])
+        self.assertEqual(self.outbox.get(event["event_id"])["result"]["schema"],
+                         "merlin-hermes-task-result/2")
         self.assertEqual(self.outbox.get(event["event_id"])["state"], "acknowledged")
 
     def test_revalidates_mcfc_lease_before_execution(self):

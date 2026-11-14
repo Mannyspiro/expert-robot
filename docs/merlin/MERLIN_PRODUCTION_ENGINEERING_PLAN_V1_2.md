@@ -238,3 +238,11 @@ Do not create a parallel registry, artifact service, graph or outbox.
 - The production `build_merlin_hermes_runtime` composition root now injects the canonical registry resolver into HermesWorker as its artifact-reference validator.
 - This closes the fail-closed integration gap introduced by v2 task/result references: stage handlers' output references are re-resolved against the actual runtime registry before Hermes acknowledges the task.
 - Runtime regression covers a valid registry-issued reference and a forged digest rejected by the same injected validator.
+
+
+### 2026-11-13 continuation: exact-byte Avrea input transfer
+
+- Avrea dispatch now resolves each task input reference against the canonical registry, re-reads and re-hashes the exact bytes, and transfers the bytes with the unchanged `ArtifactRef` to the injected runner transport.
+- Dispatch enforces a 25 MiB per-artifact and 50 MiB aggregate input cap before transfer. The accepted dispatch receipt records references only; it does not duplicate large input payloads in the durable outbox.
+- Added a regression proving the transport receives bytes whose SHA-256 and versioned reference match the registry entry.
+- Hermes rejection receipts now use `merlin-hermes-task-result/2` consistently with successful receipts.

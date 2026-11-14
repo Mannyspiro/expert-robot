@@ -294,9 +294,10 @@ class HermesWorker:
             return {"status": retried["state"], "event_id": event_id}
         except PermissionError as exc:
             stop_heartbeat()
-            rejection = {"schema": "merlin-hermes-task-result/1",
+            rejection = {"schema": "merlin-hermes-task-result/2",
                          "task_id": task_id, "status": "rejected",
-                         "reason": str(exc), "promotion_authority": False}
+                         "reason": str(exc), "input_artifact_refs": [],
+                         "output_artifact_refs": [], "promotion_authority": False}
             self.emit_event(
                 kind="system.error", run_id=task_id, task_id=task_id,
                 payload={"agent_id": "hermes", "component": "worker_admission",

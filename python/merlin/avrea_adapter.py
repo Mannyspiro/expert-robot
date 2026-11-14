@@ -5,6 +5,7 @@ deployment and return the documented neutral receipt shape.
 """
 from __future__ import annotations
 
+import base64
 import hashlib
 from typing import Any, Callable, Mapping
 
@@ -50,7 +51,28 @@ class AvreaAdapter:
             raise PermissionError("operator approval was not validated")
         if not self.lease_validator(lease_ref, budget):
             raise PermissionError("active MCFC lease was not validated")
+        artifact_inputs = []
+        total_input_bytes = 0
+        for value in artifact_refs:
+            ref = ArtifactRef.from_mapping(value)
+            resolution = self.registry.resolve_artifact_ref(ref.to_dict())
+            content_path = self.registry.blobs / ref.sha256[:2] / ref.sha256[2:]
+            content = content_path.read_bytes()
+            if len(content) != resolution["size_bytes"] or hashlib.sha256(content).hexdigest() != ref.sha256:
+                raise RuntimeError("Avrea input bytes changed after registry resolution")
+            if len(content) > 25 * 1024 * 1024:
+                raise ValueError("Avrea input artifact exceeds the 25 MiB per-artifact limit")
+            total_input_bytes += len(content)
+            if total_input_bytes > 50 * 1024 * 1024:
+                raise ValueError("Avrea task inputs exceed the 50 MiB aggregate limit")
+            artifact_inputs.append({
+                "artifact_ref": ref.to_dict(),
+                "media_type": resolution["media_type"],
+                "size_bytes": len(content),
+                "content_base64": base64.b64encode(content).decode("ascii"),
+            })
         dispatch_request = dict(payload)
+        dispatch_request["artifact_inputs"] = artifact_inputs
         dispatch_request["idempotency_key"] = "merlin-avrea:" + str(payload.get("task_id", ""))
         response = self.dispatch_transport(dispatch_request)
         if not isinstance(response, Mapping):
