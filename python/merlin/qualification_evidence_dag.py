@@ -9,8 +9,10 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import os
 import re
 import sqlite3
+import tempfile
 import time
 from pathlib import Path
 from collections import defaultdict, deque
@@ -463,6 +465,106 @@ class SnapshotHistory:
         if row is None:
             raise KeyError(sequence)
         return self.get(row[0])
+
+    @staticmethod
+    def verify_backup(backup_path: str | Path) -> dict[str, Any]:
+        """Verify Registry schema and every stored DAG snapshot in a backup."""
+        path = Path(backup_path)
+        if not path.is_file() or path.is_symlink():
+            raise ValueError("backup must be a regular, non-symlink file")
+        db = sqlite3.connect(f"file:{path.resolve()}?mode=ro", uri=True)
+        try:
+            tables = {
+                row[0] for row in db.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table'"
+                )
+            }
+            required = {
+                "projects", "artifact_versions", "qualification_evidence_snapshots",
+            }
+            if not required.issubset(tables):
+                raise ValueError("backup is missing canonical MerlinRegistry or evidence history tables")
+            triggers = {
+                row[0] for row in db.execute(
+                    "SELECT name FROM sqlite_master WHERE type='trigger'"
+                )
+            }
+            if not {
+                "qualification_evidence_snapshots_no_update",
+                "qualification_evidence_snapshots_no_delete",
+            }.issubset(triggers):
+                raise ValueError("backup is missing append-only evidence history guards")
+            rows = db.execute(
+                "SELECT sequence, snapshot_sha256, snapshot_json "
+                "FROM qualification_evidence_snapshots ORDER BY sequence"
+            ).fetchall()
+            verified = 0
+            for sequence, digest, payload in rows:
+                try:
+                    snapshot = validate_snapshot(json.loads(payload))
+                except (TypeError, json.JSONDecodeError, ValueError) as exc:
+                    raise ValueError(
+                        f"backup contains invalid snapshot at sequence {sequence}"
+                    ) from exc
+                if snapshot["snapshot_sha256"] != digest:
+                    raise ValueError(
+                        f"backup snapshot digest mismatch at sequence {sequence}"
+                    )
+                if canonical_json(snapshot).decode("utf-8") != payload:
+                    raise ValueError(
+                        f"backup snapshot is not canonical at sequence {sequence}"
+                    )
+                verified += 1
+            integrity = db.execute("PRAGMA integrity_check").fetchone()[0]
+            if integrity != "ok":
+                raise ValueError("SQLite backup integrity check failed")
+        finally:
+            db.close()
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        return {"sha256": digest, "snapshot_count": verified, "integrity": "ok"}
+
+    def backup_to(self, destination: str | Path) -> dict[str, Any]:
+        """Create and verify a consistent, non-overwriting SQLite backup.
+
+        The temporary file is created in the destination directory so the final
+        hard-link publication is atomic and cannot replace an existing backup.
+        """
+        target = Path(destination)
+        parent = target.parent
+        if not parent.is_dir():
+            raise FileNotFoundError("backup destination directory must already exist")
+        if target.exists() or target.is_symlink():
+            raise FileExistsError("backup destination already exists")
+        fd, temporary_name = tempfile.mkstemp(
+            prefix=f".{target.name}.", suffix=".tmp", dir=str(parent),
+        )
+        os.close(fd)
+        temporary = Path(temporary_name)
+        try:
+            source = self._connect()
+            destination_db = sqlite3.connect(str(temporary), timeout=30)
+            try:
+                source.backup(destination_db)
+                destination_db.commit()
+            finally:
+                destination_db.close()
+                source.close()
+            with temporary.open("rb") as stream:
+                os.fsync(stream.fileno())
+            verified = self.verify_backup(temporary)
+            os.link(temporary, target)
+            temporary.unlink()
+            directory_fd = os.open(str(parent), os.O_RDONLY)
+            try:
+                os.fsync(directory_fd)
+            finally:
+                os.close(directory_fd)
+            return {"path": str(target), **verified}
+        finally:
+            try:
+                temporary.unlink()
+            except FileNotFoundError:
+                pass
 
     def list_history(self, limit: int = 100) -> list[dict[str, Any]]:
         if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 10000:
