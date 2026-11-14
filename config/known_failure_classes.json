@@ -246,6 +246,18 @@
         "path": "tests/test_qualification_evidence_dag.py",
         "test": "tests/test_qualification_evidence_dag.py::QualificationEvidenceDagSnapshotHistoryTests.test_backup_verification_rejects_tampered_snapshot_rows"
       }
+    },
+    {
+      "id": "backup-verifier-trigger-name-spoof",
+      "discovered_by": "merlin-pr-150-backup-verification-source-review",
+      "symptom": "A backup replaces an append-only SQLite trigger with a no-op trigger under the same name, fooling a verifier that checks only trigger names.",
+      "prevention": [
+        "Verify normalized trigger SQL definitions, not just sqlite_master names.",
+        "Reject missing, renamed, or semantically altered append-only triggers.",
+        "Add a same-name no-op trigger substitution regression test."
+      ],
+      "guard": "tests/known_failure_regression_smoke.py",
+      "regression_test": "tests/test_qualification_evidence_dag.py::QualificationEvidenceDagSnapshotHistoryTests.test_backup_verification_rejects_noop_replacement_trigger"
     }
   ]
 }
