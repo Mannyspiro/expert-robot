@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://merlin.invalid/schemas/qualification-evidence-dag-v1.schema.json",
+  "title": "Merlin Qualification Evidence DAG v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "authority",
+    "nodes",
+    "edges",
+    "snapshot_sha256"
+  ],
+  "properties": {
+    "schema": {
+      "const": "merlin-qualification-evidence-dag/1"
+    },
+    "authority": {
+      "const": "read-only-projection"
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/node"
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/edge"
+      }
+    },
+    "snapshot_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  },
+  "$defs": {
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "node_id",
+        "node_type",
+        "identity",
+        "record_sha256",
+        "evidence_class",
+        "status"
+      ],
+      "properties": {
+        "node_id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "node_type": {
+          "enum": [
+            "source_commit",
+            "artifact_version",
+            "workflow_run",
+            "cace_attestation",
+            "trust_root",
+            "verification_receipt",
+            "oci_execution",
+            "protected_orchestrator",
+            "lean_compile"
+          ]
+        },
+        "identity": {
+          "type": "object",
+          "minProperties": 1
+        },
+        "record_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "evidence_class": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "status": {
+          "enum": [
+            "qualified",
+            "unqualified",
+            "stale",
+            "revoked",
+            "blocked"
+          ]
+        }
+      }
+    },
+    "edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dependent_node_id",
+        "prerequisite_node_id",
+        "relation"
+      ],
+      "properties": {
+        "dependent_node_id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "prerequisite_node_id": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "relation": {
+          "enum": [
+            "derived_from",
+            "built_by",
+            "attests",
+            "verifies",
+            "executes",
+            "qualifies"
+          ]
+        }
+      }
+    }
+  }
+}
