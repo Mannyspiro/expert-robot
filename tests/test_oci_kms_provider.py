@@ -106,6 +106,17 @@ class OciKmsDataKeyProviderTests(unittest.TestCase):
             FakeOciModule.auth.signers.InstancePrincipalsSecurityTokenSigner,
         )
 
+
+    def test_pinned_oci_sdk_models_accept_generation_and_decrypt_contract(self):
+        import oci
+        client = FakeKmsClient()
+        provider = OciKmsDataKeyProvider(
+            KEY_OCID, CRYPTO_ENDPOINT, client=client, oci_module=oci,
+        )
+        key_id, plaintext, wrapped = provider.generate_data_key()
+        self.assertEqual((key_id, plaintext, wrapped), (KEY_OCID, DATA_KEY, WRAPPED_KEY))
+        self.assertEqual(provider.unwrap_data_key(key_id, wrapped), DATA_KEY)
+
     def test_rejects_wrong_key_ocid_and_endpoint(self):
         with self.assertRaisesRegex(ValueError, "key OCID"):
             OciKmsDataKeyProvider("ocid1.vaultsecret.fake", CRYPTO_ENDPOINT, client=FakeKmsClient(), oci_module=FakeOciModule)
