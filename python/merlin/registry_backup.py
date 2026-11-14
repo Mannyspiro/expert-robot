@@ -216,6 +216,8 @@ class MerlinRegistryBackup:
             database_copy = Path(temp) / DATABASE_ENTRY
             with zipfile.ZipFile(path, "r") as archive:
                 infos = archive.infolist()
+                if len(infos) > 100_002:
+                    raise ValueError("backup archive contains too many entries")
                 names = [_validate_archive_name(item.filename) for item in infos]
                 if len(names) != len(set(names)):
                     raise ValueError("backup archive contains duplicate paths")
@@ -225,6 +227,9 @@ class MerlinRegistryBackup:
                         raise ValueError("backup archive must not contain symlinks")
                 if MANIFEST_ENTRY not in names or DATABASE_ENTRY not in names:
                     raise ValueError("backup package is missing its manifest or database")
+                info_by_name = {item.filename: item for item in infos}
+                if info_by_name[MANIFEST_ENTRY].file_size > 8 * 1024 * 1024:
+                    raise ValueError("backup manifest exceeds the 8 MiB safety limit")
                 manifest_bytes = archive.read(MANIFEST_ENTRY)
                 try:
                     manifest = json.loads(
@@ -286,9 +291,6 @@ class MerlinRegistryBackup:
                     expected_names.add(expected_blob_path)
                 if set(names) != expected_names:
                     raise ValueError("backup archive entries do not match the manifest")
-                info_by_name = {item.filename: item for item in infos}
-                if info_by_name[MANIFEST_ENTRY].file_size > 8 * 1024 * 1024:
-                    raise ValueError("backup manifest exceeds the 8 MiB safety limit")
                 if info_by_name[DATABASE_ENTRY].file_size != database["size_bytes"]:
                     raise ValueError("backup database ZIP size does not match the manifest")
                 for blob in blobs:
@@ -359,13 +361,21 @@ class MerlinRegistryBackup:
                         (SNAPSHOT_EVENT_TOPIC,),
                     ):
                         try:
-                            payload = json.loads(event["payload_json"])
-                        except (TypeError, json.JSONDecodeError) as exc:
+                            payload = json.loads(
+                                event["payload_json"], object_pairs_hook=_reject_duplicate_keys,
+                            )
+                        except (TypeError, json.JSONDecodeError, ValueError) as exc:
                             raise ValueError("backup snapshot outbox payload is malformed") from exc
-                        if not isinstance(payload, dict) or set(payload) != {
+                        if (not isinstance(payload, dict) or set(payload) != {
                             "schema", "snapshot_sha256", "node_count", "edge_count", "sequence",
-                        } or payload["schema"] != SNAPSHOT_EVENT_SCHEMA:
+                        } or payload["schema"] != SNAPSHOT_EVENT_SCHEMA
+                                or _canonical_json(payload) != event["payload_json"].encode("utf-8")):
                             raise ValueError("backup snapshot outbox event schema is invalid")
+                        for count_field in ("node_count", "edge_count"):
+                            if (isinstance(payload[count_field], bool)
+                                    or not isinstance(payload[count_field], int)
+                                    or payload[count_field] < 0):
+                                raise ValueError("backup snapshot outbox count is invalid")
                         digest = payload["snapshot_sha256"]
                         if (not isinstance(digest, str) or len(digest) != 64
                                 or any(ch not in "0123456789abcdef" for ch in digest)):
