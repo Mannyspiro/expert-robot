@@ -7,6 +7,7 @@ delete, or administer Vault keys.
 from __future__ import annotations
 
 import base64
+import os
 from typing import Any
 from urllib.parse import urlsplit
 
@@ -63,6 +64,15 @@ class OciKmsDataKeyProvider:
     def from_instance_principal(cls, key_ocid: str, crypto_endpoint: str):
         """Create the crypto client using OCI instance-principal authentication."""
         return cls(key_ocid, crypto_endpoint)
+
+    @classmethod
+    def from_environment(cls):
+        """Fail closed unless the protected runner config supplies both OCI identifiers."""
+        key_ocid = os.getenv("MERLIN_BACKUP_KMS_KEY_OCID", "").strip()
+        crypto_endpoint = os.getenv("MERLIN_BACKUP_KMS_CRYPTO_ENDPOINT", "").strip()
+        if not key_ocid or not crypto_endpoint:
+            raise RuntimeError("Merlin backup OCI KMS key OCID and crypto endpoint are unconfigured")
+        return cls.from_instance_principal(key_ocid, crypto_endpoint)
 
     @staticmethod
     def _decode_key(encoded: Any, field: str) -> bytes:
