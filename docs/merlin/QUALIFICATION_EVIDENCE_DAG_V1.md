@@ -128,3 +128,18 @@ The runtime now rejects CACE attestation nodes unless their identity includes:
 - signed statement digest, verifier identity, key ID, and attestation purpose.
 
 Protected orchestrator node identities also require the exact execution receipt digest, not merely an execution label. OCI execution identities require schema-validated task and input ArtifactRefs. This makes the graph identity reflect the evidence lineage contract rather than an opaque status string.
+
+
+## Persistent snapshot history implementation (2026-11-14)
+
+The next increment adds `SnapshotHistory` in the same module. It stores canonical snapshot JSON and its digest in an append-only table inside the existing `MerlinRegistry` SQLite database; it refuses to initialize against a missing or unrelated database.
+
+- `BEGIN IMMEDIATE` serializes concurrent appenders.
+- An exact snapshot replay is idempotent and returns the original sequence.
+- Digest collisions or same-digest/different-byte substitutions fail closed.
+- Update/delete triggers make snapshot rows append-only.
+- Reads re-run snapshot validation, canonicalization, and digest verification.
+- History listing is bounded; sequence lookup is exact.
+- Tests cover concurrent writers, replay, update/delete rejection, tampered stored bytes, and refusal to create a second registry database.
+
+This is local SQLite persistence only. It does not yet provide multi-host consensus, backup/restore qualification, event/outbox coupling, authenticated source adapters, or API/HUD exposure. A multi-host deployment must not assume SQLite's local writer serialization is a distributed lock.
