@@ -152,3 +152,49 @@ class ArtifactProvenanceTests(unittest.TestCase):
                         "WHERE project_id=? AND logical_path=? AND version=1",
                         ("merlin", "result.bin"),
                     )
+
+
+class GeneratedArtifactProvenanceEnvironmentTests(unittest.TestCase):
+    def test_deployment_identity_is_required_and_validated(self):
+        import os
+        from unittest.mock import patch
+        from merlin.app import _artifact_version_provenance
+
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertIsNone(_artifact_version_provenance(
+                artifact_id="result-1", artifact_kind="research-result",
+                artifact_schema="research-result/1",
+            ))
+        with patch.dict(os.environ, {
+            "MERLIN_SOURCE_REPO": "Mannyspiro/expert-robot",
+            "MERLIN_SOURCE_COMMIT": "a" * 40,
+        }, clear=True):
+            self.assertEqual(_artifact_version_provenance(
+                artifact_id="result-1", artifact_kind="research-result",
+                artifact_schema="research-result/1",
+            ), {
+                "schema": "merlin-artifact-provenance/1",
+                "source_repo": "Mannyspiro/expert-robot",
+                "source_commit": "a" * 40,
+                "artifact_id": "result-1",
+                "artifact_kind": "research-result",
+                "artifact_schema": "research-result/1",
+            })
+        with patch.dict(os.environ, {
+            "MERLIN_SOURCE_REPO": "untrusted/fork",
+            "MERLIN_SOURCE_COMMIT": "a" * 40,
+        }, clear=True):
+            with self.assertRaisesRegex(ValueError, "canonical repository"):
+                _artifact_version_provenance(
+                    artifact_id="result-1", artifact_kind="research-result",
+                    artifact_schema="research-result/1",
+                )
+        with patch.dict(os.environ, {
+            "MERLIN_SOURCE_REPO": "Mannyspiro/expert-robot",
+            "MERLIN_SOURCE_COMMIT": "not-a-full-sha",
+        }, clear=True):
+            with self.assertRaisesRegex(ValueError, "full lowercase Git SHA"):
+                _artifact_version_provenance(
+                    artifact_id="result-1", artifact_kind="research-result",
+                    artifact_schema="research-result/1",
+                )
