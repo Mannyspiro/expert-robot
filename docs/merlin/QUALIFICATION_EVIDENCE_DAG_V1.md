@@ -128,3 +128,62 @@ The runtime now rejects CACE attestation nodes unless their identity includes:
 - signed statement digest, verifier identity, key ID, and attestation purpose.
 
 Protected orchestrator node identities also require the exact execution receipt digest, not merely an execution label. OCI execution identities require schema-validated task and input ArtifactRefs. This makes the graph identity reflect the evidence lineage contract rather than an opaque status string.
+
+
+## Persistent snapshot history implementation (2026-11-14)
+
+The next increment adds `SnapshotHistory` in the same module. It stores canonical snapshot JSON and its digest in an append-only table inside the existing `MerlinRegistry` SQLite database; it refuses to initialize against a missing or unrelated database.
+
+- `BEGIN IMMEDIATE` serializes concurrent appenders.
+- An exact snapshot replay is idempotent and returns the original sequence.
+- Digest collisions or same-digest/different-byte substitutions fail closed.
+- Update/delete triggers make snapshot rows append-only.
+- Reads re-run snapshot validation, canonicalization, and digest verification.
+- History listing is bounded; sequence lookup is exact.
+- Tests cover concurrent writers, replay, update/delete rejection, tampered stored bytes, and refusal to create a second registry database.
+
+This is local SQLite persistence only. It does not yet provide multi-host consensus, backup/restore qualification, event/outbox coupling, authenticated source adapters, or API/HUD exposure. A multi-host deployment must not assume SQLite's local writer serialization is a distributed lock.
+
+
+## Exact-head CI receipts
+
+- Runtime PR #149 exact head `d5f0c7fe2c43599850aa980cbc08797ce9bfe482`: CI run `43604937482` **SUCCESS**. Diagnostics artifact `14117398094`, SHA-256 `00e870bc5ccc0983fd05e8cf4178be0f2b5a0a5546c590693f343b7dd37758c0`.
+- Snapshot history PR #150 exact head `97107bbf38f2e68823fe7c3c7c18599656b7005f`: CI run `43605192756` **SUCCESS**. Diagnostics artifact `14118372468`, SHA-256 `aad40e4f92affdf10927f3e7c40bce8bc8fad534078add67b56d087a6582324d`.
+- The latter exact-head run includes the DAG runtime test suite in the canonical CI workflow.
+- Both PRs remain draft/stacked. These are engineering test receipts, not production qualification or independent evidence verification.
+
+
+## Backup and restore qualification increment (2026-11-14)
+
+`SnapshotHistory.backup_to` now creates a consistent SQLite online backup from the existing MerlinRegistry database. It publishes into an already-existing destination directory through a same-directory temporary file and atomic, non-overwriting hard-link publication. It refuses to overwrite an existing file or symlink.
+
+Before publication, `verify_backup` opens the backup read-only and verifies:
+- canonical MerlinRegistry project and artifact-version tables;
+- qualification snapshot history and both append-only triggers;
+- SQLite `integrity_check`;
+- every stored snapshot's schema, canonical JSON bytes, and SHA-256 digest.
+
+The returned backup receipt contains the backup file SHA-256 and the number of snapshots checked. Tests exercise a multi-snapshot backup/readback, overwrite rejection, and tampered snapshot rejection.
+
+This is a local filesystem backup primitive, not an off-host backup service or disaster-recovery guarantee. Production qualification still needs encrypted off-host retention, restore into an isolated target, restore-point objectives, and periodic recovery drills. The API intentionally does not overwrite or mutate the source registry during restore.
+
+
+## Adversarial and recovery follow-through (2026-11-14)
+
+- Fixed a discovered OCI identity type contradiction: `task_ref` is a schema-validated ArtifactRef object, not text. Added acceptance and negative tests for both task and input references.
+- Added a second, independent test implementation of the snapshot digest calculation using Python's JSON encoder and SHA-256, rather than calling the production canonicalization helper.
+- Added 25 deterministic randomized acyclic graph cases. Each checks permutation-invariant snapshots, independently recomputed digests, and prerequisite-first topological order.
+- Added local consistent backup, integrity verification, append-only trigger verification, non-overwrite publication, snapshot-by-snapshot digest checking, and tamper rejection.
+- These checks strengthen the local projection and storage layer; they do not establish cross-host consistency, authenticated upstream retrieval, CACE signature validity, or production promotion authority.
+
+
+### Failure-driven test correction
+The first backup-verification CI run correctly rejected a deliberately tampered database because the tamper fixture had removed an append-only trigger. That exercised the earlier trigger-integrity guard rather than the intended stored-snapshot digest guard. The test now restores the expected trigger after injecting the tampered row, so the verifier must reach and reject the invalid snapshot itself. No production verifier behavior was weakened.
+
+
+### Backup trigger authenticity
+A further source review found that checking only SQLite trigger names would accept a same-name no-op replacement. Backup verification now compares normalized SQL definitions for both append-only guards, and a regression test replaces one guard with a same-name no-op trigger and confirms rejection. This preserves the distinction between a trigger being present and the intended enforcement actually being present.
+
+
+### Trust-root lineage in verification nodes
+Verification-receipt node identity now requires the trust authority ID, positive root version, Ed25519 root key ID, root public-key digest, positive trust-store version, signed trust-store digest, source authority, and retrieval identity in addition to the exact ArtifactRef and receipt digest. Trust-root node identity likewise binds a positive version, key ID, and public-key digest. This makes a root rotation or trust-store change a distinct graph identity and gives revocation/invalidation a concrete prerequisite node to target.

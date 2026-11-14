@@ -9,7 +9,12 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import os
 import re
+import sqlite3
+import tempfile
+import time
+from pathlib import Path
 from collections import defaultdict, deque
 from typing import Any, Iterable, Mapping
 
@@ -131,8 +136,11 @@ def _validate_identity(node_type: str, identity: Mapping[str, Any]) -> None:
             raise ValueError("identity.artifact_ref must be an object")
         ArtifactRef.from_mapping(identity["artifact_ref"])
     elif node_type == "trust_root":
-        for field in ("authority_id", "version"):
-            _require_text(identity, field)
+        _require_text(identity, "authority_id")
+        _require_positive_int(identity, "version")
+        key_id = identity.get("key_id")
+        if not isinstance(key_id, str) or not re.fullmatch(r"ed25519:[0-9a-f]{64}", key_id):
+            raise ValueError("identity.key_id must be a canonical Ed25519 key ID")
         _require_digest(identity.get("root_sha256"), "identity.root_sha256")
     elif node_type == "verification_receipt":
         _require_digest(identity.get("receipt_sha256"), "identity.receipt_sha256")
@@ -140,8 +148,18 @@ def _validate_identity(node_type: str, identity: Mapping[str, Any]) -> None:
         if not isinstance(identity.get("artifact_ref"), dict):
             raise ValueError("identity.artifact_ref must be an object")
         ArtifactRef.from_mapping(identity["artifact_ref"])
+        _require_text(identity, "trust_root_authority_id")
+        _require_positive_int(identity, "trust_root_version")
+        root_key_id = identity.get("trust_root_key_id")
+        if not isinstance(root_key_id, str) or not re.fullmatch(r"ed25519:[0-9a-f]{64}", root_key_id):
+            raise ValueError("identity.trust_root_key_id must be a canonical Ed25519 key ID")
+        _require_digest(identity.get("trust_root_sha256"), "identity.trust_root_sha256")
+        _require_positive_int(identity, "trust_store_version")
+        _require_digest(identity.get("trust_store_sha256"), "identity.trust_store_sha256")
+        _require_text(identity, "trust_store_source_authority")
+        _require_text(identity, "trust_store_retrieval_identity")
     elif node_type == "oci_execution":
-        for field in ("execution_id", "runner_profile", "task_ref"):
+        for field in ("execution_id", "runner_profile"):
             _require_text(identity, field)
         if not isinstance(identity.get("task_ref"), dict):
             raise ValueError("identity.task_ref must be an ArtifactRef object")
@@ -341,3 +359,253 @@ def derive_statuses(snapshot: Mapping[str, Any]) -> dict[str, str]:
         dependency_statuses = [statuses[item] for item in prerequisites[node_id]]
         statuses[node_id] = max([own, *dependency_statuses], key=_STATUS_RANK.__getitem__)
     return statuses
+
+
+class SnapshotHistory:
+    """Append-only snapshot history stored inside an existing MerlinRegistry DB.
+
+    This is a persistence adapter for the DAG projection, not a second registry.
+    The supplied database must already contain MerlinRegistry's project and
+    artifact-version tables.
+    """
+
+    def __init__(self, registry_db_path: str | Path):
+        self.db_path = Path(registry_db_path)
+        if not self.db_path.is_file():
+            raise FileNotFoundError("an existing MerlinRegistry database is required")
+        self._initialize()
+
+    def _connect(self) -> sqlite3.Connection:
+        db = sqlite3.connect(str(self.db_path), timeout=30)
+        db.execute("PRAGMA busy_timeout=30000")
+        return db
+
+    def _initialize(self) -> None:
+        db = self._connect()
+        try:
+            required = {
+                row[0] for row in db.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table'"
+                )
+            }
+            if not {"projects", "artifact_versions"}.issubset(required):
+                raise ValueError("snapshot history must share the canonical MerlinRegistry database")
+            db.executescript("""
+                CREATE TABLE IF NOT EXISTS qualification_evidence_snapshots(
+                    sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+                    snapshot_sha256 TEXT NOT NULL UNIQUE,
+                    snapshot_json TEXT NOT NULL,
+                    created_at REAL NOT NULL
+                );
+                CREATE TRIGGER IF NOT EXISTS qualification_evidence_snapshots_no_update
+                  BEFORE UPDATE ON qualification_evidence_snapshots
+                  BEGIN SELECT RAISE(ABORT, 'qualification evidence snapshots are append-only'); END;
+                CREATE TRIGGER IF NOT EXISTS qualification_evidence_snapshots_no_delete
+                  BEFORE DELETE ON qualification_evidence_snapshots
+                  BEGIN SELECT RAISE(ABORT, 'qualification evidence snapshots are append-only'); END;
+            """)
+        finally:
+            db.close()
+
+    def append(self, snapshot: Mapping[str, Any]) -> int:
+        """Atomically append a validated snapshot; exact replay is idempotent."""
+        validated = validate_snapshot(snapshot)
+        snapshot_sha256 = validated["snapshot_sha256"]
+        snapshot_json = canonical_json(validated).decode("utf-8")
+        db = self._connect()
+        try:
+            db.execute("BEGIN IMMEDIATE")
+            existing = db.execute(
+                "SELECT sequence, snapshot_json FROM qualification_evidence_snapshots "
+                "WHERE snapshot_sha256=?",
+                (snapshot_sha256,),
+            ).fetchone()
+            if existing is not None:
+                if existing[1] != snapshot_json:
+                    raise RuntimeError("snapshot digest collision or stored-byte substitution")
+                db.commit()
+                return int(existing[0])
+            cursor = db.execute(
+                "INSERT INTO qualification_evidence_snapshots "
+                "(snapshot_sha256, snapshot_json, created_at) VALUES (?, ?, ?)",
+                (snapshot_sha256, snapshot_json, time.time()),
+            )
+            sequence = int(cursor.lastrowid)
+            db.commit()
+            return sequence
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
+
+    def get(self, snapshot_sha256: str) -> dict[str, Any]:
+        """Load and revalidate one immutable snapshot by its digest."""
+        _require_digest(snapshot_sha256, "snapshot_sha256")
+        db = self._connect()
+        try:
+            row = db.execute(
+                "SELECT snapshot_json FROM qualification_evidence_snapshots "
+                "WHERE snapshot_sha256=?",
+                (snapshot_sha256,),
+            ).fetchone()
+        finally:
+            db.close()
+        if row is None:
+            raise KeyError(snapshot_sha256)
+        try:
+            decoded = json.loads(row[0])
+        except (TypeError, json.JSONDecodeError) as exc:
+            raise RuntimeError("stored qualification snapshot is not valid JSON") from exc
+        validated = validate_snapshot(decoded)
+        if canonical_json(validated).decode("utf-8") != row[0]:
+            raise RuntimeError("stored qualification snapshot is not canonical")
+        if validated["snapshot_sha256"] != snapshot_sha256:
+            raise RuntimeError("stored qualification snapshot digest mismatch")
+        return validated
+
+    def get_by_sequence(self, sequence: int) -> dict[str, Any]:
+        if isinstance(sequence, bool) or not isinstance(sequence, int) or sequence < 1:
+            raise ValueError("snapshot sequence must be a positive integer")
+        db = self._connect()
+        try:
+            row = db.execute(
+                "SELECT snapshot_sha256 FROM qualification_evidence_snapshots WHERE sequence=?",
+                (sequence,),
+            ).fetchone()
+        finally:
+            db.close()
+        if row is None:
+            raise KeyError(sequence)
+        return self.get(row[0])
+
+    @staticmethod
+    def verify_backup(backup_path: str | Path) -> dict[str, Any]:
+        """Verify Registry schema and every stored DAG snapshot in a backup."""
+        path = Path(backup_path)
+        if not path.is_file() or path.is_symlink():
+            raise ValueError("backup must be a regular, non-symlink file")
+        db = sqlite3.connect(f"file:{path.resolve()}?mode=ro", uri=True)
+        try:
+            tables = {
+                row[0] for row in db.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table'"
+                )
+            }
+            required = {
+                "projects", "artifact_versions", "qualification_evidence_snapshots",
+            }
+            if not required.issubset(tables):
+                raise ValueError("backup is missing canonical MerlinRegistry or evidence history tables")
+            trigger_rows = {
+                row[0]: row[1] for row in db.execute(
+                    "SELECT name, sql FROM sqlite_master WHERE type='trigger'"
+                )
+            }
+            expected_triggers = {
+                "qualification_evidence_snapshots_no_update": (
+                    "CREATE TRIGGER qualification_evidence_snapshots_no_update "
+                    "BEFORE UPDATE ON qualification_evidence_snapshots "
+                    "BEGIN SELECT RAISE(ABORT, 'qualification evidence snapshots are append-only'); END"
+                ),
+                "qualification_evidence_snapshots_no_delete": (
+                    "CREATE TRIGGER qualification_evidence_snapshots_no_delete "
+                    "BEFORE DELETE ON qualification_evidence_snapshots "
+                    "BEGIN SELECT RAISE(ABORT, 'qualification evidence snapshots are append-only'); END"
+                ),
+            }
+            for name, expected_sql in expected_triggers.items():
+                actual_sql = trigger_rows.get(name)
+                if not isinstance(actual_sql, str):
+                    raise ValueError("backup is missing append-only evidence history guards")
+                normalize_sql = lambda value: re.sub(r"\s+", " ", value).strip().rstrip(";").casefold()
+                if normalize_sql(actual_sql) != normalize_sql(expected_sql):
+                    raise ValueError("backup append-only evidence trigger definition mismatch")
+            rows = db.execute(
+                "SELECT sequence, snapshot_sha256, snapshot_json "
+                "FROM qualification_evidence_snapshots ORDER BY sequence"
+            ).fetchall()
+            verified = 0
+            for sequence, digest, payload in rows:
+                try:
+                    snapshot = validate_snapshot(json.loads(payload))
+                except (TypeError, json.JSONDecodeError, ValueError) as exc:
+                    raise ValueError(
+                        f"backup contains invalid snapshot at sequence {sequence}"
+                    ) from exc
+                if snapshot["snapshot_sha256"] != digest:
+                    raise ValueError(
+                        f"backup snapshot digest mismatch at sequence {sequence}"
+                    )
+                if canonical_json(snapshot).decode("utf-8") != payload:
+                    raise ValueError(
+                        f"backup snapshot is not canonical at sequence {sequence}"
+                    )
+                verified += 1
+            integrity = db.execute("PRAGMA integrity_check").fetchone()[0]
+            if integrity != "ok":
+                raise ValueError("SQLite backup integrity check failed")
+        finally:
+            db.close()
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        return {"sha256": digest, "snapshot_count": verified, "integrity": "ok"}
+
+    def backup_to(self, destination: str | Path) -> dict[str, Any]:
+        """Create and verify a consistent, non-overwriting SQLite backup.
+
+        The temporary file is created in the destination directory so the final
+        hard-link publication is atomic and cannot replace an existing backup.
+        """
+        target = Path(destination)
+        parent = target.parent
+        if not parent.is_dir():
+            raise FileNotFoundError("backup destination directory must already exist")
+        if target.exists() or target.is_symlink():
+            raise FileExistsError("backup destination already exists")
+        fd, temporary_name = tempfile.mkstemp(
+            prefix=f".{target.name}.", suffix=".tmp", dir=str(parent),
+        )
+        os.close(fd)
+        temporary = Path(temporary_name)
+        try:
+            source = self._connect()
+            destination_db = sqlite3.connect(str(temporary), timeout=30)
+            try:
+                source.backup(destination_db)
+                destination_db.commit()
+            finally:
+                destination_db.close()
+                source.close()
+            with temporary.open("rb") as stream:
+                os.fsync(stream.fileno())
+            verified = self.verify_backup(temporary)
+            os.link(temporary, target)
+            temporary.unlink()
+            directory_fd = os.open(str(parent), os.O_RDONLY)
+            try:
+                os.fsync(directory_fd)
+            finally:
+                os.close(directory_fd)
+            return {"path": str(target), **verified}
+        finally:
+            try:
+                temporary.unlink()
+            except FileNotFoundError:
+                pass
+
+    def list_history(self, limit: int = 100) -> list[dict[str, Any]]:
+        if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= 10000:
+            raise ValueError("history limit must be an integer from 1 to 10000")
+        db = self._connect()
+        try:
+            rows = db.execute(
+                "SELECT sequence, snapshot_sha256, created_at "
+                "FROM qualification_evidence_snapshots ORDER BY sequence LIMIT ?",
+                (limit,),
+            ).fetchall()
+        finally:
+            db.close()
+        return [
+            {"sequence": int(row[0]), "snapshot_sha256": row[1], "created_at": row[2]}
+            for row in rows
+        ]
