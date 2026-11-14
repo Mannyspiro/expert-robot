@@ -179,3 +179,7 @@ This is a local filesystem backup primitive, not an off-host backup service or d
 
 ### Failure-driven test correction
 The first backup-verification CI run correctly rejected a deliberately tampered database because the tamper fixture had removed an append-only trigger. That exercised the earlier trigger-integrity guard rather than the intended stored-snapshot digest guard. The test now restores the expected trigger after injecting the tampered row, so the verifier must reach and reject the invalid snapshot itself. No production verifier behavior was weakened.
+
+
+### Backup trigger authenticity
+A further source review found that checking only SQLite trigger names would accept a same-name no-op replacement. Backup verification now compares normalized SQL definitions for both append-only guards, and a regression test replaces one guard with a same-name no-op trigger and confirms rejection. This preserves the distinction between a trigger being present and the intended enforcement actually being present.
