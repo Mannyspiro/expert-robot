@@ -187,3 +187,12 @@ A further source review found that checking only SQLite trigger names would acce
 
 ### Trust-root lineage in verification nodes
 Verification-receipt node identity now requires the trust authority ID, positive root version, Ed25519 root key ID, root public-key digest, positive trust-store version, signed trust-store digest, source authority, and retrieval identity in addition to the exact ArtifactRef and receipt digest. Trust-root node identity likewise binds a positive version, key ID, and public-key digest. This makes a root rotation or trust-store change a distinct graph identity and gives revocation/invalidation a concrete prerequisite node to target.
+
+
+## Atomic snapshot-to-Hermes publication (2026-11-14)
+
+The DAG snapshot ledger and the existing `MerlinEventOutbox` can now share the canonical MerlinRegistry SQLite database. `QualificationSnapshotPublisher` validates the snapshot, opens one `BEGIN IMMEDIATE` transaction, appends or replays the immutable snapshot, and enqueues a deterministic `merlin.qualification.snapshot` notification before committing. The event carries the snapshot digest, sequence, node count, and edge count; Hermes resolves the immutable snapshot by digest rather than trusting caller-supplied graph content.
+
+The publisher rejects an outbox configured against a different database. If event idempotency conflicts after the snapshot insert, the same transaction rolls back both writes. Exact publication replay returns the same snapshot sequence and event identity. Hermes consumption remains at-least-once with explicit acknowledgement; handlers must remain idempotent.
+
+This closes the local single-database dual-write gap only. It does not provide multi-host SQLite coordination, remote event delivery guarantees, encrypted off-host backup, source authenticity, CACE verification, or qualification authority. Existing independently hosted outboxes remain separate until explicitly migrated to the canonical registry database.
