@@ -196,3 +196,12 @@ The DAG snapshot ledger and the existing `MerlinEventOutbox` can now share the c
 The publisher rejects an outbox configured against a different database. If event idempotency conflicts after the snapshot insert, the same transaction rolls back both writes. Exact publication replay returns the same snapshot sequence and event identity. Hermes consumption remains at-least-once with explicit acknowledgement; handlers must remain idempotent.
 
 This closes the local single-database dual-write gap only. It does not provide multi-host SQLite coordination, remote event delivery guarantees, encrypted off-host backup, source authenticity, CACE verification, or qualification authority. Existing independently hosted outboxes remain separate until explicitly migrated to the canonical registry database.
+
+
+## Full MerlinRegistry backup and restore package (2026-11-14)
+
+`MerlinRegistryBackup` packages a consistent SQLite database snapshot together with every content-addressed blob referenced by the database. It verifies blob path/digest/size while copying without following symlinks, records a canonical manifest, and publishes the ZIP without overwriting an existing destination. Package verification rejects duplicate/traversal paths, symlinks, malformed/noncanonical manifests, digest/size mismatches, missing/extra blobs, foreign-key failures, provenance digest drift, and invalid DAG snapshot history.
+
+When the shared event outbox exists, verification also checks that each `merlin.qualification.snapshot` event's deterministic idempotency identity and payload point to the exact stored snapshot sequence/digest and matching node/edge counts. Restore verifies the complete package first, extracts into a fresh sibling staging directory, rechecks every restored blob, and atomically renames the new registry root into place without overwriting an existing target.
+
+This is a local verified recovery package, not an encrypted or off-host backup. Production off-host qualification still requires independently provisioned encryption keys, authenticated object-storage transport, retention/immutability policy, access separation, and a timed restore drill on a separate host.
