@@ -187,3 +187,18 @@ A further source review found that checking only SQLite trigger names would acce
 
 ### Trust-root lineage in verification nodes
 Verification-receipt node identity now requires the trust authority ID, positive root version, Ed25519 root key ID, root public-key digest, positive trust-store version, signed trust-store digest, source authority, and retrieval identity in addition to the exact ArtifactRef and receipt digest. Trust-root node identity likewise binds a positive version, key ID, and public-key digest. This makes a root rotation or trust-store change a distinct graph identity and gives revocation/invalidation a concrete prerequisite node to target.
+
+
+## Independent cross-language verifier (2026-11-14)
+
+A second implementation now exists in `scripts/verify_qualification_evidence_dag.js`, using only Node.js built-in crypto and filesystem APIs. It independently validates the v1 snapshot envelope, all nine type-specific node identity contracts, nested ArtifactRefs, node IDs, edge endpoints/relations, acyclicity, canonical array order, and snapshot digest.
+
+The Python suite invokes Node as a subprocess and checks:
+- independent recomputation of a valid snapshot digest and node/edge counts;
+- tampered digest rejection;
+- noncanonical numeric spellings, duplicate JSON keys, and unsorted arrays;
+- Unicode identity content (accented Latin, emoji, and CJK);
+- twelve deterministic randomized DAG vectors;
+- valid and invalid identity examples for all nine node types, including the exact trust-root and verification-receipt lineage fields.
+
+To avoid Python/ECMAScript number serialization ambiguity, v1 canonical evidence now rejects floating-point numbers and integers outside the interoperable safe-integer range `[-(2^53-1), 2^53-1]`. Canonical evidence values remain JSON data only; the Node verifier has no signing, network, source-retrieval, execution, or promotion authority.
