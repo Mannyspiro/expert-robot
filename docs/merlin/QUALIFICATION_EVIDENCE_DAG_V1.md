@@ -175,3 +175,12 @@ This is a local filesystem backup primitive, not an off-host backup service or d
 - Added 25 deterministic randomized acyclic graph cases. Each checks permutation-invariant snapshots, independently recomputed digests, and prerequisite-first topological order.
 - Added local consistent backup, integrity verification, append-only trigger verification, non-overwrite publication, snapshot-by-snapshot digest checking, and tamper rejection.
 - These checks strengthen the local projection and storage layer; they do not establish cross-host consistency, authenticated upstream retrieval, CACE signature validity, or production promotion authority.
+
+
+## Independent cross-language verifier (2026-11-14)
+
+A second implementation now exists at `scripts/verify_qualification_evidence_dag.js`. It uses Node's built-in crypto and independently reimplements canonical JSON, node identity hashing, edge validation, cycle detection, and snapshot digest verification. The Python test invokes it against a generated snapshot and confirms that tampered and noncanonical serialized snapshots are rejected.
+
+To keep Python and ECMAScript serialization byte-identical, v1 canonical evidence JSON permits only null, booleans, strings, arrays/objects, and safe-range integers. Floating-point values and integers outside the JavaScript safe-integer range are rejected rather than silently serialized differently. Represent measured floating-point quantities as canonical decimal strings with explicit units/precision in evidence payloads.
+
+The Node verifier currently checks structural graph integrity and canonical digests; the Python implementation remains the richer type-specific identity validator. The next qualification step should extend the second implementation to every type-specific identity rule and run randomized cross-language property vectors.
