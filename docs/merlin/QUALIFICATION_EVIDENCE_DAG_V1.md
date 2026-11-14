@@ -175,3 +175,7 @@ This is a local filesystem backup primitive, not an off-host backup service or d
 - Added 25 deterministic randomized acyclic graph cases. Each checks permutation-invariant snapshots, independently recomputed digests, and prerequisite-first topological order.
 - Added local consistent backup, integrity verification, append-only trigger verification, non-overwrite publication, snapshot-by-snapshot digest checking, and tamper rejection.
 - These checks strengthen the local projection and storage layer; they do not establish cross-host consistency, authenticated upstream retrieval, CACE signature validity, or production promotion authority.
+
+
+### Failure-driven test correction
+The first backup-verification CI run correctly rejected a deliberately tampered database because the tamper fixture had removed an append-only trigger. That exercised the earlier trigger-integrity guard rather than the intended stored-snapshot digest guard. The test now restores the expected trigger after injecting the tampered row, so the verifier must reach and reject the invalid snapshot itself. No production verifier behavior was weakened.
