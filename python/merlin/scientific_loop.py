@@ -6,10 +6,11 @@ Model-generated ideas remain hypotheses until their evidence is independently ch
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from itertools import combinations
 import math
 from typing import Any, Mapping, Sequence
+from datetime import datetime
 
 
 @dataclass(frozen=True)
@@ -22,6 +23,7 @@ class Observation:
     uncertainty: Mapping[str, float]
     conditions: Mapping[str, str]
     source_refs: tuple[str, ...]
+    observed_at: str
     artifact_sha256: str = ""
 
     def validate(self) -> None:
@@ -36,6 +38,14 @@ class Observation:
             raise ValueError("at least one measured quantity is required")
         if not self.source_refs or any(not str(x).strip() for x in self.source_refs):
             raise ValueError("observations require source references")
+        try:
+            stamp = datetime.fromisoformat(self.observed_at.replace("Z", "+00:00"))
+        except (AttributeError, ValueError) as exc:
+            raise ValueError("observed_at must be an offset-aware ISO-8601 timestamp") from exc
+        if stamp.tzinfo is None or stamp.utcoffset() is None:
+            raise ValueError("observed_at must include a timezone offset")
+        if not self.conditions:
+            raise ValueError("measurement conditions must be recorded")
         for metric, value in self.measurements.items():
             if not isinstance(metric, str) or not metric.strip():
                 raise ValueError("measurement names must be non-empty")
@@ -75,8 +85,16 @@ def compare_observation(observation: Observation, predictions: Sequence[Predicti
         if prediction.unit != observation.units[prediction.metric]:
             comparisons.append({"metric": prediction.metric, "result": "incomparable_unit"})
             continue
-        if prediction.tolerance < 0 or not math.isfinite(prediction.tolerance):
-            raise ValueError("prediction tolerance must be finite and nonnegative")
+        if (
+            isinstance(prediction.expected, bool)
+            or not isinstance(prediction.expected, (int, float))
+            or not math.isfinite(prediction.expected)
+            or isinstance(prediction.tolerance, bool)
+            or not isinstance(prediction.tolerance, (int, float))
+            or prediction.tolerance < 0
+            or not math.isfinite(prediction.tolerance)
+        ):
+            raise ValueError("prediction expectation must be finite and tolerance finite/nonnegative")
         measured = float(observation.measurements[prediction.metric])
         sigma = float(observation.uncertainty[prediction.metric])
         lo, hi = measured - sigma, measured + sigma
@@ -157,10 +175,11 @@ def enumerate_useful_combinations(
         raise ValueError("enumeration requires an explicit trigger and problem")
     if not 2 <= max_size <= 3 or not 1 <= limit <= 512:
         raise ValueError("max_size must be 2–3 and limit must be 1–512")
+    if isinstance(max_cost, bool) or not isinstance(max_cost, (int, float)) or max_cost < 0 or math.isnan(max_cost):
+        raise ValueError("max_cost must be a nonnegative number")
     ids = [str(p.get("id", "")) for p in primitives]
     if any(not x for x in ids) or len(ids) != len(set(ids)):
         raise ValueError("primitive IDs must be present and unique")
-    by_id = {str(p["id"]): p for p in primitives}
     output = []
     for size in range(2, max_size + 1):
         for group in combinations(primitives, size):
