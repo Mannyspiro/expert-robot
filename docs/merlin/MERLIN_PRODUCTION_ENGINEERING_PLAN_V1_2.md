@@ -231,3 +231,10 @@ Do not create a parallel registry, artifact service, graph or outbox.
 - Avrea accepts the v2 task contract, resolves every input reference before dispatch, and includes the exact references in its accepted dispatch receipt.
 - Compatibility is explicit: old v1 tasks are not silently treated as v2. The v2 payload always includes an `artifact_refs` array, including an empty array when no registry inputs are required.
 - The reference now flows registry -> research evidence -> Hermes task -> Hermes handler result -> Avrea dispatch input/result receipt. Avrea collected output references already flow through the result outbox. CACE's signed EvidenceBundle binding remains the next boundary to implement.
+
+
+### 2026-11-13 continuation: production Hermes composition wiring
+
+- The production `build_merlin_hermes_runtime` composition root now injects the canonical registry resolver into HermesWorker as its artifact-reference validator.
+- This closes the fail-closed integration gap introduced by v2 task/result references: stage handlers' output references are re-resolved against the actual runtime registry before Hermes acknowledges the task.
+- Runtime regression covers a valid registry-issued reference and a forged digest rejected by the same injected validator.

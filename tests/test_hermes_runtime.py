@@ -179,6 +179,17 @@ class HermesRuntimeCompositionTests(unittest.TestCase):
         self.assertEqual(runtime.health()["cace_verification"], "configured")
         self.assertEqual(runtime.cace_adapter.trusted_verifier_keys, self.trusted)
 
+    def test_runtime_injects_live_registry_reference_validator(self):
+        with patch.dict(os.environ, {}, clear=True):
+            runtime = self.build()
+        digest = runtime.registry.put_artifact("merlin", "runtime/input.bin", b"input")
+        ref = runtime.registry.artifact_ref("merlin", "runtime/input.bin")
+        self.assertEqual(ref["sha256"], digest)
+        self.assertTrue(runtime.worker.artifact_ref_validator(ref))
+        forged = dict(ref, sha256="0" * 64)
+        with self.assertRaises(ValueError):
+            runtime.worker.artifact_ref_validator(forged)
+
 
 if __name__ == "__main__":
     unittest.main()
