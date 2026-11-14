@@ -113,6 +113,101 @@
         "allow only reviewed Lean/Mathlib upstream repository prefixes"
       ],
       "guard": "tests/formal_dependency_lock_smoke.py"
+    },
+    {
+      "id": "artifact-ref-key-symlink-parent",
+      "discovered_by": "cace-artifact-ref-key-custody-review",
+      "symptom": "A symlink in any parent component redirects key creation or access outside the intended protected directory.",
+      "prevention": [
+        "Traverse parent components using directory file descriptors and O_NOFOLLOW/O_DIRECTORY.",
+        "Reject symlinked parent components before creating or reading signer material."
+      ],
+      "guard": "tests/known_failure_regression_smoke.py",
+      "external_guard": {
+        "repository": "morganaspim/Cace-app",
+        "pull_request": 103,
+        "path": "tests/test_merlin_artifact_ref.py",
+        "exact_head": "3534a1906fc0ff8cb5c9f3b052e917cf23258800",
+        "workflow_run_id": 43603746084,
+        "artifact_sha256": "237710f7b090997d231068084c9e8118cab98bee8e420784ae22d92659353657",
+        "test": "tests/test_merlin_artifact_ref.py::test_artifact_ref_key_initializer_rejects_symlinked_parent"
+      }
+    },
+    {
+      "id": "artifact-ref-key-unsafe-parent-permissions",
+      "discovered_by": "cace-artifact-ref-key-custody-review",
+      "symptom": "A group/world-writable signer directory permits another principal to replace or inspect key material.",
+      "prevention": [
+        "Require root/effective-user ownership for every parent component.",
+        "Reject writable non-sticky ancestors and require the final key directory to be private mode 0700."
+      ],
+      "guard": "tests/known_failure_regression_smoke.py",
+      "external_guard": {
+        "repository": "morganaspim/Cace-app",
+        "pull_request": 103,
+        "path": "tests/test_merlin_artifact_ref.py",
+        "exact_head": "3534a1906fc0ff8cb5c9f3b052e917cf23258800",
+        "workflow_run_id": 43603746084,
+        "artifact_sha256": "237710f7b090997d231068084c9e8118cab98bee8e420784ae22d92659353657",
+        "test": "tests/test_merlin_artifact_ref.py::test_artifact_ref_key_initializer_rejects_unsafe_directory_and_hardlinks"
+      }
+    },
+    {
+      "id": "artifact-ref-key-hardlink-substitution",
+      "discovered_by": "cace-artifact-ref-key-custody-review",
+      "symptom": "A private key with an unexpected hard link can be accessed or replaced through another filesystem name.",
+      "prevention": [
+        "Require a regular file owned by the effective service user.",
+        "Require st_nlink == 1 before accepting an existing signer key."
+      ],
+      "guard": "tests/known_failure_regression_smoke.py",
+      "external_guard": {
+        "repository": "morganaspim/Cace-app",
+        "pull_request": 103,
+        "path": "tests/test_merlin_artifact_ref.py",
+        "exact_head": "3534a1906fc0ff8cb5c9f3b052e917cf23258800",
+        "workflow_run_id": 43603746084,
+        "artifact_sha256": "237710f7b090997d231068084c9e8118cab98bee8e420784ae22d92659353657",
+        "test": "tests/test_merlin_artifact_ref.py::test_artifact_ref_key_initializer_rejects_unsafe_directory_and_hardlinks"
+      }
+    },
+    {
+      "id": "artifact-ref-key-concurrent-initialization",
+      "discovered_by": "cace-artifact-ref-key-custody-review",
+      "symptom": "Concurrent key initializers can observe or publish a partially written key or diverging key identities.",
+      "prevention": [
+        "Serialize initialization with an exclusive lock on the pinned key directory.",
+        "Publish a fully fsynced temporary key atomically without overwriting an existing key."
+      ],
+      "guard": "tests/known_failure_regression_smoke.py",
+      "external_guard": {
+        "repository": "morganaspim/Cace-app",
+        "pull_request": 103,
+        "path": "tests/test_merlin_artifact_ref.py",
+        "exact_head": "3534a1906fc0ff8cb5c9f3b052e917cf23258800",
+        "workflow_run_id": 43603746084,
+        "artifact_sha256": "237710f7b090997d231068084c9e8118cab98bee8e420784ae22d92659353657",
+        "test": "tests/test_merlin_artifact_ref.py::test_artifact_ref_key_initializer_serializes_concurrent_creation"
+      }
+    },
+    {
+      "id": "artifact-ref-key-interrupted-publication",
+      "discovered_by": "cace-artifact-ref-key-custody-review",
+      "symptom": "An interrupted write can leave a partial key file or stale temporary material that is mistaken for the final signer key.",
+      "prevention": [
+        "Write to a unique 0600 temporary file and fsync before atomic no-overwrite publication.",
+        "Remove temporary names on every exception path and fsync the parent directory."
+      ],
+      "guard": "tests/known_failure_regression_smoke.py",
+      "external_guard": {
+        "repository": "morganaspim/Cace-app",
+        "pull_request": 103,
+        "path": "tests/test_merlin_artifact_ref.py",
+        "exact_head": "3534a1906fc0ff8cb5c9f3b052e917cf23258800",
+        "workflow_run_id": 43603746084,
+        "artifact_sha256": "237710f7b090997d231068084c9e8118cab98bee8e420784ae22d92659353657",
+        "test": "tests/test_merlin_artifact_ref.py::test_artifact_ref_key_initializer_cleans_partial_temp_on_write_failure"
+      }
     }
   ]
 }
