@@ -257,7 +257,11 @@
         "Add a same-name no-op trigger substitution regression test."
       ],
       "guard": "tests/known_failure_regression_smoke.py",
-      "regression_test": "tests/test_qualification_evidence_dag.py::QualificationEvidenceDagSnapshotHistoryTests.test_backup_verification_rejects_noop_replacement_trigger"
+      "external_regression_test": {
+        "repository": "Mannyspiro/expert-robot",
+        "path": "tests/test_qualification_evidence_dag.py",
+        "test": "tests/test_qualification_evidence_dag.py::QualificationEvidenceDagSnapshotHistoryTests.test_backup_verification_rejects_noop_replacement_trigger"
+      }
     }
   ]
 }
