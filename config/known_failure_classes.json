@@ -113,6 +113,184 @@
         "allow only reviewed Lean/Mathlib upstream repository prefixes"
       ],
       "guard": "tests/formal_dependency_lock_smoke.py"
+    },
+    {
+      "id": "artifact-ref-key-symlink-parent",
+      "discovered_by": "cace-artifact-ref-key-custody-review",
+      "symptom": "A symlink in any parent component redirects key creation or access outside the intended protected directory.",
+      "prevention": [
+        "Traverse parent components using directory file descriptors and O_NOFOLLOW/O_DIRECTORY.",
+        "Reject symlinked parent components before creating or reading signer material."
+      ],
+      "guard": "tests/known_failure_regression_smoke.py",
+      "external_guard": {
+        "repository": "morganaspim/Cace-app",
+        "pull_request": 103,
+        "path": "tests/test_merlin_artifact_ref.py",
+        "exact_head": "00ffff17d97508b9df9ec1386404343e1d9f9dae",
+        "workflow_run_id": 43604033624,
+        "artifact_sha256": "7ed69cf936eefe810efc6c15341c48cb73b913408caa8badba8152ebb87cd477",
+        "test": "tests/test_merlin_artifact_ref.py::test_artifact_ref_key_initializer_rejects_symlinked_parent"
+      }
+    },
+    {
+      "id": "artifact-ref-key-unsafe-parent-permissions",
+      "discovered_by": "cace-artifact-ref-key-custody-review",
+      "symptom": "A group/world-writable signer directory permits another principal to replace or inspect key material.",
+      "prevention": [
+        "Require root/effective-user ownership for every parent component.",
+        "Reject writable non-sticky ancestors and require the final key directory to be private mode 0700."
+      ],
+      "guard": "tests/known_failure_regression_smoke.py",
+      "external_guard": {
+        "repository": "morganaspim/Cace-app",
+        "pull_request": 103,
+        "path": "tests/test_merlin_artifact_ref.py",
+        "exact_head": "00ffff17d97508b9df9ec1386404343e1d9f9dae",
+        "workflow_run_id": 43604033624,
+        "artifact_sha256": "7ed69cf936eefe810efc6c15341c48cb73b913408caa8badba8152ebb87cd477",
+        "test": "tests/test_merlin_artifact_ref.py::test_artifact_ref_key_initializer_rejects_unsafe_directory_and_hardlinks"
+      }
+    },
+    {
+      "id": "artifact-ref-key-hardlink-substitution",
+      "discovered_by": "cace-artifact-ref-key-custody-review",
+      "symptom": "A private key with an unexpected hard link can be accessed or replaced through another filesystem name.",
+      "prevention": [
+        "Require a regular file owned by the effective service user.",
+        "Require st_nlink == 1 before accepting an existing signer key."
+      ],
+      "guard": "tests/known_failure_regression_smoke.py",
+      "external_guard": {
+        "repository": "morganaspim/Cace-app",
+        "pull_request": 103,
+        "path": "tests/test_merlin_artifact_ref.py",
+        "exact_head": "00ffff17d97508b9df9ec1386404343e1d9f9dae",
+        "workflow_run_id": 43604033624,
+        "artifact_sha256": "7ed69cf936eefe810efc6c15341c48cb73b913408caa8badba8152ebb87cd477",
+        "test": "tests/test_merlin_artifact_ref.py::test_artifact_ref_key_initializer_rejects_unsafe_directory_and_hardlinks"
+      }
+    },
+    {
+      "id": "artifact-ref-key-concurrent-initialization",
+      "discovered_by": "cace-artifact-ref-key-custody-review",
+      "symptom": "Concurrent key initializers can observe or publish a partially written key or diverging key identities.",
+      "prevention": [
+        "Serialize initialization with an exclusive lock on the pinned key directory.",
+        "Publish a fully fsynced temporary key atomically without overwriting an existing key."
+      ],
+      "guard": "tests/known_failure_regression_smoke.py",
+      "external_guard": {
+        "repository": "morganaspim/Cace-app",
+        "pull_request": 103,
+        "path": "tests/test_merlin_artifact_ref.py",
+        "exact_head": "00ffff17d97508b9df9ec1386404343e1d9f9dae",
+        "workflow_run_id": 43604033624,
+        "artifact_sha256": "7ed69cf936eefe810efc6c15341c48cb73b913408caa8badba8152ebb87cd477",
+        "test": "tests/test_merlin_artifact_ref.py::test_artifact_ref_key_initializer_serializes_concurrent_creation"
+      }
+    },
+    {
+      "id": "artifact-ref-key-interrupted-publication",
+      "discovered_by": "cace-artifact-ref-key-custody-review",
+      "symptom": "An interrupted write can leave a partial key file or stale temporary material that is mistaken for the final signer key.",
+      "prevention": [
+        "Write to a unique 0600 temporary file and fsync before atomic no-overwrite publication.",
+        "Remove temporary names on every exception path and fsync the parent directory."
+      ],
+      "guard": "tests/known_failure_regression_smoke.py",
+      "external_guard": {
+        "repository": "morganaspim/Cace-app",
+        "pull_request": 103,
+        "path": "tests/test_merlin_artifact_ref.py",
+        "exact_head": "00ffff17d97508b9df9ec1386404343e1d9f9dae",
+        "workflow_run_id": 43604033624,
+        "artifact_sha256": "7ed69cf936eefe810efc6c15341c48cb73b913408caa8badba8152ebb87cd477",
+        "test": "tests/test_merlin_artifact_ref.py::test_artifact_ref_key_initializer_cleans_partial_temp_on_write_failure"
+      }
+    },
+    {
+      "id": "cross-repo-test-reference-path-mismatch",
+      "discovered_by": "merlin-pr-147-exact-head-ci",
+      "symptom": "A downstream regression guard compares a fully qualified external test reference (path::test_name) with an unqualified function name, causing a false failure or a weakened path check.",
+      "prevention": [
+        "Treat external test references as canonical path::test_name values.",
+        "Validate the path and function component independently, then compare the complete qualified reference.",
+        "Add a regression test for path mismatch and test-name mismatch."
+      ],
+      "guard": "tests/known_failure_regression_smoke.py"
+    },
+    {
+      "id": "cross-repo-evidence-pin-duplication",
+      "discovered_by": "merlin-pr-147-exact-head-ci",
+      "symptom": "A CACE source head, workflow run ID, or evidence digest is copied into both the canonical failure registry and a smoke-test assertion; refreshing one copy leaves the other stale.",
+      "prevention": [
+        "Keep the external evidence pin in one canonical registry record.",
+        "Have the smoke test validate pin schema, type, immutability format, and consistency across related external guards without duplicating mutable head/run/digest literals.",
+        "Refresh the canonical pin only after independently querying the exact upstream head, successful workflow run, and retained artifact digest."
+      ],
+      "guard": "tests/known_failure_regression_smoke.py"
+    },
+    {
+      "id": "backup-verifier-tamper-fixture-guard-precedence",
+      "discovered_by": "merlin-pr-150-backup-verification-ci",
+      "symptom": "A tamper test removes an integrity guard before injecting bad data, so the verifier correctly fails at the earlier guard check and the test never reaches the intended payload-integrity assertion.",
+      "prevention": [
+        "Keep all unrelated integrity guards valid when testing one verifier layer.",
+        "Restore the exact expected guard after controlled tampering, or assert the documented earliest fail-closed condition.",
+        "Make test fixtures state the verifier stage they intend to exercise."
+      ],
+      "guard": "tests/known_failure_regression_smoke.py"
+    },
+    {
+      "id": "backup-tamper-fixture-precondition-masking",
+      "discovered_by": "merlin-pr150-backup-tamper-ci",
+      "symptom": "A tamper test removes an append-only integrity trigger, causing the verifier to reject the missing guard before it reaches the deliberately corrupted snapshot row; the test therefore fails to exercise its intended invariant.",
+      "prevention": [
+        "Assert the backup contains the complete expected append-only guard set before mutation.",
+        "After injecting a tampered row, restore the expected guard so the verifier reaches the stored-snapshot integrity check.",
+        "Assert the exact failure class and preserve the guard set in the regression fixture."
+      ],
+      "guard": "tests/known_failure_regression_smoke.py",
+      "regression_test": "tests/test_qualification_evidence_dag.py::QualificationEvidenceDagSnapshotHistoryTests.test_backup_verification_rejects_tampered_snapshot_rows"
+    },
+    {
+      "id": "stacked-pr-base-drift-drops-upstream-invariants",
+      "discovered_by": "merlin-pr152-pr153-base-drift-20261114",
+      "symptom": "A parent PR branch advances after stacked child branches are cut; the children retain the old base commit and can omit newly added trust-lineage or backup-integrity invariants while still showing a previously passing CI receipt.",
+      "prevention": [
+        "Before merge, compare the child PR's recorded base SHA with the current parent branch head SHA.",
+        "If the parent advanced, rebase or recreate the child branch from the current exact parent head and reapply only the child delta.",
+        "Require a new exact-head CI receipt after every rebase; close stale child PRs and link the replacement."
+      ],
+      "guard": "tests/known_failure_regression_smoke.py"
+    },
+    {
+      "id": "stacked-cace-security-pr-overlap-regresses-signer-loader",
+      "discovered_by": "cace-pr106-pr103-stack-audit-20261114",
+      "symptom": "An independent trust-root PR diverges from the signer-custody PR and overlaps the same server, signer module, and test files; merging the trust branch independently can restore path-based key reads and bypass the hardened loader.",
+      "prevention": [
+        "Stack trust-root work directly on the signer-custody branch and merge in dependency order.",
+        "Inspect changed-file overlap before retargeting or merging security PRs.",
+        "Require both capability readiness and attestation to use the same pinned secure key loader; do not read the key path directly."
+      ],
+      "guard": "tests/known_failure_regression_smoke.py"
+    },
+    {
+      "id": "backup-archive-size-fixture-masks-digest-check",
+      "discovered_by": "merlin-pr159-backup-package-ci",
+      "symptom": "An archive tamper fixture changes blob content and length together, so the verifier rejects the ZIP size mismatch before reaching the intended content-digest assertion.",
+      "prevention": [
+        "When testing digest rejection, mutate bytes while preserving the manifest-declared size.",
+        "Keep size-mismatch and digest-mismatch tests separate so each integrity layer is exercised independently.",
+        "Assert the exact rejection class expected from the selected tamper."
+      ],
+      "guard": "tests/known_failure_regression_smoke.py",
+      "external_regression_test": {
+        "repository": "Mannyspiro/expert-robot",
+        "path": "tests/test_registry_backup.py",
+        "test": "tests/test_registry_backup.py::MerlinRegistryBackupTests.test_verifier_rejects_tampered_archive_blob"
+      }
     }
   ]
 }
