@@ -54,7 +54,7 @@ def _require_uint(value: Any, field: str, *, minimum: int = 0) -> None:
 
 def _validate_payload(payload: Mapping[str, Any]) -> None:
     expected = {
-        "schema", "source", "backup", "encrypted_envelope",
+        "schema", "source", "execution_evidence", "backup", "encrypted_envelope",
         "object_storage", "kms", "restore", "checks", "counts",
     }
     if not isinstance(payload, Mapping) or set(payload) != expected:
@@ -68,6 +68,40 @@ def _validate_payload(payload: Mapping[str, Any]) -> None:
     _require_text(source["repository"], "source.repository")
     if not isinstance(source["commit"], str) or not COMMIT_RE.fullmatch(source["commit"]):
         raise ValueError("source.commit must be a full Git commit SHA")
+
+    execution = payload["execution_evidence"]
+    if not isinstance(execution, Mapping) or set(execution) != {
+        "repository", "workflow_id", "run_id", "run_attempt", "head_sha",
+        "artifact_id", "artifact_sha256", "artifact_ref",
+        "vault_audit_sha256", "object_storage_audit_sha256",
+    }:
+        raise ValueError("restore execution evidence is malformed")
+    _require_text(execution["repository"], "execution_evidence.repository")
+    if execution["repository"] != source["repository"]:
+        raise ValueError("execution evidence repository differs from source repository")
+    _require_text(execution["workflow_id"], "execution_evidence.workflow_id")
+    for field in ("run_id", "run_attempt", "artifact_id"):
+        _require_uint(execution[field], f"execution_evidence.{field}", minimum=1)
+    if execution["head_sha"] != source["commit"]:
+        raise ValueError("execution evidence head does not match the source commit")
+    for field in ("head_sha", "artifact_sha256", "vault_audit_sha256", "object_storage_audit_sha256"):
+        _require_sha256(execution[field], f"execution_evidence.{field}" if field != "head_sha" else "execution_evidence.head_sha")
+    artifact_ref = execution["artifact_ref"]
+    if not isinstance(artifact_ref, Mapping) or set(artifact_ref) != {
+        "schema", "project_id", "logical_path", "version", "sha256",
+    }:
+        raise ValueError("execution evidence ArtifactRef is malformed")
+    if artifact_ref["schema"] != "merlin-artifact-ref/1":
+        raise ValueError("execution evidence ArtifactRef schema is unsupported")
+    _require_text(artifact_ref["project_id"], "execution_evidence.artifact_ref.project_id")
+    _require_text(artifact_ref["logical_path"], "execution_evidence.artifact_ref.logical_path")
+    path = artifact_ref["logical_path"]
+    if path.startswith("/") or "\\" in path or any(part in {"", ".", ".."} for part in path.split("/")):
+        raise ValueError("execution evidence ArtifactRef path is not normalized")
+    _require_uint(artifact_ref["version"], "execution_evidence.artifact_ref.version", minimum=1)
+    _require_sha256(artifact_ref["sha256"], "execution_evidence.artifact_ref.sha256")
+    if artifact_ref["sha256"] != execution["artifact_sha256"]:
+        raise ValueError("execution evidence ArtifactRef digest mismatch")
 
     backup = payload["backup"]
     if not isinstance(backup, Mapping) or set(backup) != {
