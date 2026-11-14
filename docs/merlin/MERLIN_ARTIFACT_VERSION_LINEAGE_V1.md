@@ -79,3 +79,28 @@ The registry now issues and resolves a strict version-pinned reference:
 - A digest/version mismatch, missing row, malformed reference or tampered blob fails closed.
 
 This is the canonical registry boundary only. Hermes dispatch, Avrea/OCI execution receipts and CACE signed receipts do **not** yet carry this reference end-to-end. Their versioned contract migration is the next coordinated step; do not claim end-to-end lineage until the downstream producer/consumer schemas and CACE verifier agree.
+
+
+## Immutable producer provenance: `merlin-artifact-provenance/1`
+
+The exact-version resolver now supports immutable producer provenance in addition to the ArtifactRef:
+- `schema`: `merlin-artifact-provenance/1`
+- `source_repo`: canonical source repository
+- `source_commit`: full lowercase 40-character deployed Git commit
+- `artifact_id`, `artifact_kind`, `artifact_schema`: producer-assigned artifact identity
+
+The registry stores this in a separate `artifact_version_provenance` table keyed by the exact `(project_id, logical_path, version)`. Provenance rows have their own canonical-JSON SHA-256 and append-only update/delete triggers. `resolve_artifact_ref` includes the verified provenance object in the nested resolution only when that exact version has it.
+
+`put_artifact(..., provenance=...)` validates the exact schema and inserts provenance in the same transaction as the new version. It refuses to attach provenance retroactively to an existing version or change provenance on an idempotent replay. Historical versions created without provenance remain unqualified; create a new version under a provenance-configured deployment rather than rewriting history.
+
+The generated math-transfer preview and directive-bundle writers attach provenance when deployment environment variables are present:
+- `MERLIN_SOURCE_REPO=Mannyspiro/expert-robot`
+- `MERLIN_SOURCE_COMMIT=<full deployed 40-character commit SHA>`
+
+If either variable is missing, the artifact may still be stored for ordinary Merlin use, but its version has no producer provenance and CACE must refuse to attest it. A noncanonical repository or malformed commit fails closed. No production environment variable was configured in this code-only change.
+
+Exact-head validation on `3045e0afaa50e63215323b07732ce5f52b6d54eb`:
+- Native CI #43601684749 SUCCESS — https://github.com/Mannyspiro/expert-robot/actions/runs/43601684749
+- Unified platform #43601684767 SUCCESS — https://github.com/Mannyspiro/expert-robot/actions/runs/43601684767
+
+This closes source-side code/test validation for immutable provenance only. It does not prove the deployed service has the environment variables or that a live CACE request has succeeded.
