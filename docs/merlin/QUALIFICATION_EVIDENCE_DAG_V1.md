@@ -197,3 +197,8 @@ The Node verifier now independently enforces the Python v1 minimum identity cont
 The test suite builds a valid nine-type snapshot, verifies it in Node, then creates a self-consistent rehashed snapshot with one invalid identity field for each type and confirms the Node implementation rejects every case. This tests identity validation independently of the Python builder's own validation.
 
 This is equivalence of the current v1 minimum structural identity rules, not independent verification of source bytes, signatures, trust provisioning, OCI execution, or Lean kernel results. Those remain separate authority-bearing verifiers.
+
+
+### Randomized and Unicode cross-language vectors
+
+The regression suite now generates twelve deterministic random acyclic DAGs, permutes their node/edge input order, and verifies the canonical snapshots with the independent Node implementation. It also checks Unicode identity content (accented Latin, emoji and CJK), and confirms that duplicate JSON object keys are rejected by the canonical raw-byte comparison rather than silently accepted by the parser.
