@@ -299,6 +299,51 @@ class QualificationEvidenceDagSnapshotHistoryTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "canonical MerlinRegistry"):
                 SnapshotHistory(unrelated)
 
+
+    def test_backup_is_consistent_verified_and_non_overwriting(self):
+        snapshots = [self.snapshot(f"{index:064x}") for index in range(1, 4)]
+        for snapshot in snapshots:
+            self.history.append(snapshot)
+        with tempfile.TemporaryDirectory() as backup_dir:
+            backup_path = Path(backup_dir) / "merlin-registry.backup.sqlite3"
+            receipt = self.history.backup_to(backup_path)
+            self.assertEqual(receipt["snapshot_count"], 3)
+            self.assertEqual(receipt["integrity"], "ok")
+            self.assertEqual(len(receipt["sha256"]), 64)
+            self.assertEqual(
+                SnapshotHistory.verify_backup(backup_path)["sha256"],
+                receipt["sha256"],
+            )
+            restored = SnapshotHistory(backup_path)
+            for snapshot in snapshots:
+                self.assertEqual(
+                    restored.get(snapshot["snapshot_sha256"]), snapshot,
+                )
+            with self.assertRaises(FileExistsError):
+                self.history.backup_to(backup_path)
+
+    def test_backup_verification_rejects_tampered_snapshot_rows(self):
+        snapshot = self.snapshot("4" * 64)
+        self.history.append(snapshot)
+        with tempfile.TemporaryDirectory() as backup_dir:
+            backup_path = Path(backup_dir) / "backup.sqlite3"
+            self.history.backup_to(backup_path)
+            with sqlite3.connect(backup_path) as db:
+                db.execute("DROP TRIGGER qualification_evidence_snapshots_no_update")
+                db.execute(
+                    "UPDATE qualification_evidence_snapshots SET snapshot_json='{}' "
+                    "WHERE snapshot_sha256=?",
+                    (snapshot["snapshot_sha256"],),
+                )
+            with self.assertRaisesRegex(ValueError, "invalid snapshot"):
+                SnapshotHistory.verify_backup(backup_path)
+
+    def test_backup_requires_existing_destination_directory(self):
+        with tempfile.TemporaryDirectory() as backup_dir:
+            missing = Path(backup_dir) / "missing" / "backup.sqlite3"
+            with self.assertRaises(FileNotFoundError):
+                self.history.backup_to(missing)
+
     def test_history_limit_is_bounded(self):
         with self.assertRaisesRegex(ValueError, "limit"):
             self.history.list_history(0)
