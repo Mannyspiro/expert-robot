@@ -7,7 +7,6 @@ delete, or administer Vault keys.
 from __future__ import annotations
 
 import base64
-import re
 from typing import Any
 from urllib.parse import urlsplit
 
@@ -41,7 +40,7 @@ class OciKmsDataKeyProvider:
             parsed.scheme != "https" or not parsed.hostname
             or parsed.username is not None or parsed.password is not None
             or parsed.path not in ("", "/") or parsed.query or parsed.fragment
-            or ".crypto.kms." not in parsed.hostname
+            or "crypto.kms." not in parsed.hostname
         ):
             raise ValueError("OCI KMS crypto endpoint must be an HTTPS Vault crypto endpoint")
         if oci_module is None:
