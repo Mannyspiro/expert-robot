@@ -51,6 +51,7 @@ from .engineering.geometry import GeometrySpec, Point3D, validate_geometry, boun
 from .engineering.netlist import Component, Connection, Net, Netlist, validate_netlist
 from .public_literature import PublicLiteratureSearch
 from .virtual_repository import VirtualRepository, VirtualGitError
+from .project_registry import ArtifactSizeLimitError
 from .virtual_repository_seed import build_repository_seed
 
 MAX_BODY = 1_000_000
