@@ -183,3 +183,7 @@ The first backup-verification CI run correctly rejected a deliberately tampered 
 
 ### Backup trigger authenticity
 A further source review found that checking only SQLite trigger names would accept a same-name no-op replacement. Backup verification now compares normalized SQL definitions for both append-only guards, and a regression test replaces one guard with a same-name no-op trigger and confirms rejection. This preserves the distinction between a trigger being present and the intended enforcement actually being present.
+
+
+### Trust-root lineage in verification nodes
+Verification-receipt node identity now requires the trust authority ID, positive root version, Ed25519 root key ID, root public-key digest, positive trust-store version, signed trust-store digest, source authority, and retrieval identity in addition to the exact ArtifactRef and receipt digest. Trust-root node identity likewise binds a positive version, key ID, and public-key digest. This makes a root rotation or trust-store change a distinct graph identity and gives revocation/invalidation a concrete prerequisite node to target.
