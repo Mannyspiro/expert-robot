@@ -40,7 +40,6 @@ class ResearchDispatchTests(unittest.TestCase):
             approval_validator=lambda ref, task: approval and ref == "approval:1",
             lease_validator=lambda ref, budget: lease and ref == "lease:1",
             artifact_ref_validator=artifact_ref_validator,
-            artifact_ref_validator=lambda ref: True,
         )
 
     def test_dispatch_requires_validated_approval_and_lease(self):
