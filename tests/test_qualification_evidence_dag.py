@@ -434,6 +434,23 @@ class QualificationEvidenceDagSnapshotHistoryTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "invalid snapshot"):
                 SnapshotHistory.verify_backup(backup_path)
 
+
+    def test_backup_verification_rejects_noop_replacement_trigger(self):
+        snapshot = self.snapshot("5" * 64)
+        self.history.append(snapshot)
+        with tempfile.TemporaryDirectory() as backup_dir:
+            backup_path = Path(backup_dir) / "backup.sqlite3"
+            self.history.backup_to(backup_path)
+            with sqlite3.connect(backup_path) as db:
+                db.execute("DROP TRIGGER qualification_evidence_snapshots_no_update")
+                db.execute("""
+                    CREATE TRIGGER qualification_evidence_snapshots_no_update
+                    BEFORE UPDATE ON qualification_evidence_snapshots
+                    BEGIN SELECT 1; END
+                """)
+            with self.assertRaisesRegex(ValueError, "trigger definition mismatch"):
+                SnapshotHistory.verify_backup(backup_path)
+
     def test_backup_requires_existing_destination_directory(self):
         with tempfile.TemporaryDirectory() as backup_dir:
             missing = Path(backup_dir) / "missing" / "backup.sqlite3"
