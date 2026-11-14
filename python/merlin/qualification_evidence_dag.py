@@ -407,30 +407,40 @@ class SnapshotHistory:
         finally:
             db.close()
 
-    def append(self, snapshot: Mapping[str, Any]) -> int:
-        """Atomically append a validated snapshot; exact replay is idempotent."""
+    def append_in_transaction(self, db: sqlite3.Connection,
+                              snapshot: Mapping[str, Any]) -> int:
+        """Append/replay a snapshot inside a caller-owned transaction on this DB."""
+        main_path = next(
+            (row[2] for row in db.execute("PRAGMA database_list") if row[1] == "main"),
+            "",
+        )
+        if not main_path or Path(main_path).resolve() != self.db_path.resolve():
+            raise ValueError("snapshot transaction must use the canonical registry database")
         validated = validate_snapshot(snapshot)
         snapshot_sha256 = validated["snapshot_sha256"]
         snapshot_json = canonical_json(validated).decode("utf-8")
+        existing = db.execute(
+            "SELECT sequence, snapshot_json FROM qualification_evidence_snapshots "
+            "WHERE snapshot_sha256=?",
+            (snapshot_sha256,),
+        ).fetchone()
+        if existing is not None:
+            if existing[1] != snapshot_json:
+                raise RuntimeError("snapshot digest collision or stored-byte substitution")
+            return int(existing[0])
+        cursor = db.execute(
+            "INSERT INTO qualification_evidence_snapshots "
+            "(snapshot_sha256, snapshot_json, created_at) VALUES (?, ?, ?)",
+            (snapshot_sha256, snapshot_json, time.time()),
+        )
+        return int(cursor.lastrowid)
+
+    def append(self, snapshot: Mapping[str, Any]) -> int:
+        """Atomically append a validated snapshot; exact replay is idempotent."""
         db = self._connect()
         try:
             db.execute("BEGIN IMMEDIATE")
-            existing = db.execute(
-                "SELECT sequence, snapshot_json FROM qualification_evidence_snapshots "
-                "WHERE snapshot_sha256=?",
-                (snapshot_sha256,),
-            ).fetchone()
-            if existing is not None:
-                if existing[1] != snapshot_json:
-                    raise RuntimeError("snapshot digest collision or stored-byte substitution")
-                db.commit()
-                return int(existing[0])
-            cursor = db.execute(
-                "INSERT INTO qualification_evidence_snapshots "
-                "(snapshot_sha256, snapshot_json, created_at) VALUES (?, ?, ?)",
-                (snapshot_sha256, snapshot_json, time.time()),
-            )
-            sequence = int(cursor.lastrowid)
+            sequence = self.append_in_transaction(db, snapshot)
             db.commit()
             return sequence
         except Exception:

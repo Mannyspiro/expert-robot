@@ -101,8 +101,22 @@ class MerlinEventOutbox:
         result["result"] = json.loads(encoded_result) if encoded_result else None
         return result
 
-    def enqueue(self, idempotency_key: str, topic: str, payload: Mapping[str, Any],
-                *, now: float | None = None) -> dict[str, Any]:
+    def enqueue_in_transaction(self, db: sqlite3.Connection, idempotency_key: str,
+                               topic: str, payload: Mapping[str, Any], *,
+                               now: float | None = None) -> dict[str, Any]:
+        """Insert/replay an event inside a caller-owned transaction on this database.
+
+        The caller owns BEGIN/COMMIT/ROLLBACK. This enables an event to be committed
+        atomically with the durable record that the event announces.
+        """
+        main_path = next(
+            (row[2] for row in db.execute("PRAGMA database_list") if row[1] == "main"),
+            "",
+        )
+        if not main_path or Path(main_path).resolve() != self.path.resolve():
+            raise ValueError("outbox transaction must use the outbox database")
+        if db.row_factory is not sqlite3.Row:
+            raise ValueError("outbox transaction connection must return sqlite3.Row values")
         key = self._text(idempotency_key, "idempotency_key", 256)
         topic = self._text(topic, "topic", 200)
         if not isinstance(payload, Mapping):
@@ -110,20 +124,34 @@ class MerlinEventOutbox:
         encoded = _canonical(dict(payload))
         timestamp = time.time() if now is None else float(now)
         event_id = "evt_" + hashlib.sha256(key.encode()).hexdigest()
-        with closing(self._connect()) as db, db:
+        old = db.execute(
+            "SELECT * FROM event_outbox WHERE idempotency_key=?", (key,)
+        ).fetchone()
+        if old:
+            if old["topic"] != topic or old["payload_json"] != encoded:
+                raise OutboxConflict("idempotency key was reused with different event content")
+            return self._row(old)
+        db.execute("""INSERT INTO event_outbox(
+            event_id,idempotency_key,topic,payload_json,state,attempts,
+            available_at,created_at,updated_at)
+            VALUES(?,?,?,?,'pending',0,?,?,?)""",
+            (event_id,key,topic,encoded,timestamp,timestamp,timestamp))
+        return self._row(db.execute(
+            "SELECT * FROM event_outbox WHERE event_id=?", (event_id,)).fetchone())
+
+    def enqueue(self, idempotency_key: str, topic: str, payload: Mapping[str, Any],
+                *, now: float | None = None) -> dict[str, Any]:
+        with closing(self._connect()) as db:
             db.execute("BEGIN IMMEDIATE")
-            old = db.execute("SELECT * FROM event_outbox WHERE idempotency_key=?", (key,)).fetchone()
-            if old:
-                if old["topic"] != topic or old["payload_json"] != encoded:
-                    raise OutboxConflict("idempotency key was reused with different event content")
-                return self._row(old)
-            db.execute("""INSERT INTO event_outbox(
-                event_id,idempotency_key,topic,payload_json,state,attempts,
-                available_at,created_at,updated_at)
-                VALUES(?,?,?,?,'pending',0,?,?,?)""",
-                (event_id,key,topic,encoded,timestamp,timestamp,timestamp))
-            return self._row(db.execute(
-                "SELECT * FROM event_outbox WHERE event_id=?", (event_id,)).fetchone())
+            try:
+                event = self.enqueue_in_transaction(
+                    db, idempotency_key, topic, payload, now=now,
+                )
+                db.commit()
+                return event
+            except Exception:
+                db.rollback()
+                raise
 
     def claim_next(self, worker_id: str, *, lease_seconds: float = 60,
                    topics: tuple[str, ...] | list[str] | None = None,
