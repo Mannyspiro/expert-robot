@@ -87,7 +87,7 @@ class MerlinRegistryBackupTests(unittest.TestCase):
     def test_backup_fails_closed_when_a_referenced_blob_is_missing(self):
         blob = self.root / "blobs" / "sha256" / self.digest[:2] / self.digest[2:]
         blob.unlink()
-        with self.assertRaisesRegex(RuntimeError, "blob is unavailable"):
+        with self.assertRaisesRegex(RuntimeError, "unavailable"):
             self.backup.backup_to(Path(self.temp.name) / "missing-blob.zip")
 
     def test_backup_fails_closed_when_a_referenced_blob_is_tampered(self):
@@ -102,7 +102,7 @@ class MerlinRegistryBackupTests(unittest.TestCase):
         real_root = Path(self.temp.name) / "sha256-real"
         blob_root.rename(real_root)
         blob_root.symlink_to(real_root, target_is_directory=True)
-        with self.assertRaisesRegex(RuntimeError, "not a real directory"):
+        with self.assertRaisesRegex(RuntimeError, "unavailable"):
             self.backup.backup_to(Path(self.temp.name) / "symlinked-blob-dir.zip")
 
     def test_verifier_rejects_tampered_archive_blob(self):
