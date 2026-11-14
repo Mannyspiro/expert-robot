@@ -114,7 +114,8 @@ class MerlinRegistryBackupTests(unittest.TestCase):
                 for info in source.infolist():
                     data = source.read(info.filename)
                     if info.filename.endswith("/" + self.digest[2:]):
-                        data = b"tampered archive content"
+                        # Preserve the declared size so this reaches the digest guard.
+                        data = b"x" * len(self.content)
                     target.writestr(info.filename, data)
         with self.assertRaisesRegex(ValueError, "blob failed integrity check"):
             MerlinRegistryBackup.verify_archive(tampered_path)
