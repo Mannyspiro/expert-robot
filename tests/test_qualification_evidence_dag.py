@@ -39,7 +39,10 @@ class QualificationEvidenceDagTests(unittest.TestCase):
         )
         self.trust = make_node(
             "trust_root",
-            {"authority_id": "oci-vault-prod", "version": "root-v4", "root_sha256": "4" * 64},
+            {
+                "authority_id": "independent-security-root", "version": 4,
+                "key_id": "ed25519:" + "a" * 64, "root_sha256": "4" * 64,
+            },
             "5" * 64, "independent-trust-root", "qualified",
         )
         self.attestation = make_node(
@@ -67,6 +70,14 @@ class QualificationEvidenceDagTests(unittest.TestCase):
                     "project_id": "merlin", "logical_path": "research/candidate.lean",
                     "version": 3, "sha256": "2" * 64,
                 },
+                "trust_root_authority_id": "independent-security-root",
+                "trust_root_version": 4,
+                "trust_root_key_id": "ed25519:" + "a" * 64,
+                "trust_root_sha256": "4" * 64,
+                "trust_store_version": 7,
+                "trust_store_sha256": "b" * 64,
+                "trust_store_source_authority": "oci-vault-secret:merlin-trust",
+                "trust_store_retrieval_identity": "oci-instance-principal:cace-verifier",
             },
             "9" * 64, "cace-independent-verification", "qualified",
         )
