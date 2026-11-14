@@ -92,7 +92,8 @@ A create-only retry is not accepted on metadata alone: after a conditional-creat
 ## Canonical recovery-drill receipt
 
 Merlin now defines `merlin-backup-recovery-receipt/1` as an integrity-only record for a future live restore drill. It binds:
-- source repository and full source commit;
+- source repository and full source commit, plus the exact workflow ID, run ID/attempt, matching source head, retained artifact ID/digest, and full Merlin ArtifactRef for the evidence bundle;
+- separate Vault and Object Storage audit-export digests included in the retrievable evidence bundle;
 - original backup package and manifest digests, plus the restored manifest digest (which must match);
 - encrypted envelope SHA-256 and byte length;
 - Object Storage namespace, bucket, content-addressed object name, ETag and optional version ID;
