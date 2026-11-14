@@ -505,7 +505,7 @@ class SnapshotHistory:
                 actual_sql = trigger_rows.get(name)
                 if not isinstance(actual_sql, str):
                     raise ValueError("backup is missing append-only evidence history guards")
-                normalize_sql = lambda value: re.sub(r"\\s+", " ", value).strip().rstrip(";").casefold()
+                normalize_sql = lambda value: re.sub(r"\s+", " ", value).strip().rstrip(";").casefold()
                 if normalize_sql(actual_sql) != normalize_sql(expected_sql):
                     raise ValueError("backup append-only evidence trigger definition mismatch")
             rows = db.execute(
