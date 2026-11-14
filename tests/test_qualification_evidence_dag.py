@@ -39,6 +39,7 @@ class QualificationEvidenceDagTests(unittest.TestCase):
                 "statement_sha256": "6" * 64, "verifier_id": "cace-verifier-v2",
                 "key_id": "artifact-ref-key-7", "purpose": "artifact-integrity",
                 "artifact_ref": {
+                    "schema": "merlin-artifact-ref/1",
                     "project_id": "merlin", "logical_path": "research/candidate.lean",
                     "version": 3, "sha256": "2" * 64,
                 },
@@ -50,6 +51,7 @@ class QualificationEvidenceDagTests(unittest.TestCase):
             {
                 "receipt_sha256": "8" * 64, "verifier_id": "cace-independent-verifier",
                 "artifact_ref": {
+                    "schema": "merlin-artifact-ref/1",
                     "project_id": "merlin", "logical_path": "research/candidate.lean",
                     "version": 3, "sha256": "2" * 64,
                 },
