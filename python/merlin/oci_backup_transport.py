@@ -5,6 +5,7 @@ Bucket retention, versioning, privacy and IAM are provisioned separately.
 """
 from __future__ import annotations
 
+import base64
 import hashlib
 import os
 from pathlib import Path
@@ -199,6 +200,7 @@ class OciObjectStorageBackupTransport:
                 content_type=OBJECT_CONTENT_TYPE,
                 metadata=metadata,
                 opc_checksum_algorithm="SHA256",
+                opc_content_sha256=base64.b64encode(bytes.fromhex(digest)).decode("ascii"),
             )
         except Exception as exc:
             if self._status_from_exception(exc) != 412:
@@ -206,6 +208,17 @@ class OciObjectStorageBackupTransport:
             # A timed-out create may already have committed; accept only an exact match.
             replayed = True
         head = self._head_verified(object_name, digest, size)
+        if replayed:
+            # Metadata is not proof of bytes; verify the existing object content before
+            # treating a conditional-create retry as an idempotent success.
+            with tempfile.TemporaryDirectory(prefix="merlin-object-replay-") as temp:
+                replay_path = Path(temp) / "replay.mrb.enc"
+                self.download_encrypted_backup(
+                    object_name, replay_path,
+                    expected_sha256=digest,
+                    expected_size=size,
+                    version_id=head["version_id"],
+                )
         return {
             "namespace": self.namespace,
             "bucket": self.bucket,
