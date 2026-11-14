@@ -237,6 +237,13 @@ class QualificationEvidenceDagTests(unittest.TestCase):
         )
         self.assertNotEqual(rejected.returncode, 0)
         self.assertIn("snapshot SHA-256 mismatch", rejected.stderr.decode("utf-8"))
+        noncanonical = canonical_json(snapshot).decode("utf-8").replace('"version":3', '"version":3.0', 1)
+        rejected_float = subprocess.run(
+            [node, str(script)], input=noncanonical.encode("utf-8"),
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        self.assertNotEqual(rejected_float.returncode, 0)
+        self.assertIn("input is not canonical JSON", rejected_float.stderr.decode("utf-8"))
 
     def test_topological_order_places_prerequisites_before_dependents(self):
         snapshot = build_snapshot(self.nodes, self.edges)
