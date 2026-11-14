@@ -232,17 +232,6 @@
       "guard": "tests/known_failure_regression_smoke.py"
     },
     {
-      "id": "backup-verifier-tamper-fixture-guard-precedence",
-      "discovered_by": "merlin-pr-150-backup-verification-ci",
-      "symptom": "A tamper test removes an integrity guard before injecting bad data, so the verifier correctly fails at the earlier guard check and the test never reaches the intended payload-integrity assertion.",
-      "prevention": [
-        "Keep all unrelated integrity guards valid when testing one verifier layer.",
-        "Restore the exact expected guard after controlled tampering, or assert the documented earliest fail-closed condition.",
-        "Make test fixtures state the verifier stage they intend to exercise."
-      ],
-      "guard": "tests/known_failure_regression_smoke.py"
-    },
-    {
       "id": "backup-tamper-fixture-precondition-masking",
       "discovered_by": "merlin-pr150-backup-tamper-ci",
       "symptom": "A tamper test removes an append-only integrity trigger, causing the verifier to reject the missing guard before it reaches the deliberately corrupted snapshot row; the test therefore fails to exercise its intended invariant.",
@@ -252,7 +241,11 @@
         "Assert the exact failure class and preserve the guard set in the regression fixture."
       ],
       "guard": "tests/known_failure_regression_smoke.py",
-      "regression_test": "tests/test_qualification_evidence_dag.py::QualificationEvidenceDagSnapshotHistoryTests.test_backup_verification_rejects_tampered_snapshot_rows"
+      "external_regression_test": {
+        "repository": "Mannyspiro/expert-robot",
+        "path": "tests/test_qualification_evidence_dag.py",
+        "test": "tests/test_qualification_evidence_dag.py::QualificationEvidenceDagSnapshotHistoryTests.test_backup_verification_rejects_tampered_snapshot_rows"
+      }
     }
   ]
 }
