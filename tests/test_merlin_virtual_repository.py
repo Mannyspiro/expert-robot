@@ -430,6 +430,7 @@ class VirtualRepositoryTests(unittest.TestCase):
         self.repo.commit("main", "main edit", {"src/core.py": "VERSION = 3\n"}, allow_protected=True)
         pr = self.repo.open_pull_request("feature/conflict", "main", "Conflicting edit")
         before = {row["name"]: row["commit_id"] for row in self.repo.branches()}["main"]
+        self.pass_main_checks(pr["head_commit"])
         result = self.repo.merge_pull_request(pr["pr_id"])
         self.assertEqual(result["status"], "conflict")
         self.assertEqual(result["conflicts"], ["src/core.py"])
@@ -475,6 +476,7 @@ class VirtualRepositoryTests(unittest.TestCase):
         self.repo.commit("other/merge-rebase", "other commit", {"b.txt": "b"})
         pr = self.repo.open_pull_request("other/merge-rebase", "feature/merge-rebase", "make merge commit")
         self.assertEqual(self.repo.merge_pull_request(pr["pr_id"])["status"], "merged")
+        self.repo.commit("main", "advance rebase target", {"c.txt": "c"})
         with self.assertRaises(VirtualGitError):
             self.repo.rebase_branch("feature/merge-rebase", "main")
 
