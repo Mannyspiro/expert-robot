@@ -217,3 +217,10 @@ This does not yet qualify a real tenancy deployment: no actual Vault key OCID/cr
 
 
 The production factory reads only two non-secret identifiers from protected runner configuration: `MERLIN_BACKUP_KMS_KEY_OCID` and `MERLIN_BACKUP_KMS_CRYPTO_ENDPOINT`. It fails closed when either is absent and constructs the OCI KMS crypto client with an instance-principal signer. The runner must receive only the narrow key-use permissions needed for data-key generation and decryption on this one key; no user API key file or Vault administration credential is required by the adapter. Actual tenancy IAM policy, key lifecycle/rotation, and live authorization still require independent inspection and a protected end-to-end run.
+
+
+## OCI Object Storage transport adapter (2026-11-14)
+
+`OciObjectStorageBackupTransport` adds a create-only, content-addressed transport for encrypted backup envelopes. It uses OCI instance-principal authentication, a dedicated UploadManager client (separate from the HEAD/GET client), multipart-capable `upload_file`, `if_none_match="*"`, SHA-256 upload checksums, and user metadata binding the exact envelope digest, size and schema. Existing objects are treated as idempotent replays only after HEAD metadata and content length match exactly. Downloads require the expected digest, pin a version when supplied or otherwise use ETag `if_match`, stream to a temporary file, verify the full SHA-256 and size, and publish without overwriting.
+
+The adapter intentionally has no bucket creation, object deletion, retention-rule management, or pre-authenticated-request creation. Bucket privacy, versioning, locked retention, server-side encryption, and narrow IAM must be provisioned by a separate administrator identity. Tests use fake Object Storage clients; no live namespace, bucket, dynamic group, policy, or network path has been qualified. This is an adapter-contract result, not proof of off-host recovery.
