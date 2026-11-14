@@ -229,6 +229,7 @@ jobs:
           python3 -m unittest discover -s tests -p "test_backup_encryption.py" -v
           python3 -m unittest discover -s tests -p "test_oci_kms_provider.py" -v
           python3 -m unittest discover -s tests -p "test_oci_backup_transport.py" -v
+          python3 -m unittest discover -s tests -p "test_backup_recovery_receipt.py" -v
           python3 -m pip install pytest
           python3 -m pytest -q tests/test_knowledge_graph.py tests/test_foundation_store.py tests/test_archive_intake.py
 
