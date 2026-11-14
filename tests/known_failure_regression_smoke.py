@@ -45,6 +45,7 @@ cace_guard_items = {
 assert set(cace_guard_items) == set(expected_cace_guards)
 assert "cross-repo-test-reference-path-mismatch" in ids
 assert "cross-repo-evidence-pin-duplication" in ids
+assert "backup-verifier-tamper-fixture-guard-precedence" in ids
 external_pin = None
 for class_id, test_name in expected_cace_guards.items():
     external = cace_guard_items[class_id].get("external_guard")
