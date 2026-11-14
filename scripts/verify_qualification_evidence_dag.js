@@ -147,10 +147,15 @@ function verify(snapshot) {
   if (visited !== nodeIds.size) throw new Error("evidence dependency graph contains a cycle");
 
   nodes.sort((a, b) => compareCodePoints(a.node_id, b.node_id));
-  edges.sort((a, b) => compareCodePoints(
-    canonical([a.dependent_node_id, a.prerequisite_node_id, a.relation]),
-    canonical([b.dependent_node_id, b.prerequisite_node_id, b.relation]),
-  ));
+  edges.sort((a, b) =>
+    compareCodePoints(a.dependent_node_id, b.dependent_node_id)
+    || compareCodePoints(a.prerequisite_node_id, b.prerequisite_node_id)
+    || compareCodePoints(a.relation, b.relation)
+  );
+  if (canonical(snapshot.nodes) !== canonical(nodes)
+      || canonical(snapshot.edges) !== canonical(edges)) {
+    throw new Error("snapshot node/edge arrays are not in canonical order");
+  }
   const normalized = {
     schema: snapshot.schema,
     authority: snapshot.authority,
