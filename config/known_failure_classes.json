@@ -253,6 +253,28 @@
       ],
       "guard": "tests/known_failure_regression_smoke.py",
       "regression_test": "tests/test_qualification_evidence_dag.py::QualificationEvidenceDagSnapshotHistoryTests.test_backup_verification_rejects_tampered_snapshot_rows"
+    },
+    {
+      "id": "stacked-pr-base-drift-drops-upstream-invariants",
+      "discovered_by": "merlin-pr152-pr153-base-drift-20261114",
+      "symptom": "A parent PR branch advances after stacked child branches are cut; the children retain the old base commit and can omit newly added trust-lineage or backup-integrity invariants while still showing a previously passing CI receipt.",
+      "prevention": [
+        "Before merge, compare the child PR's recorded base SHA with the current parent branch head SHA.",
+        "If the parent advanced, rebase or recreate the child branch from the current exact parent head and reapply only the child delta.",
+        "Require a new exact-head CI receipt after every rebase; close stale child PRs and link the replacement."
+      ],
+      "guard": "tests/known_failure_regression_smoke.py"
+    },
+    {
+      "id": "stacked-cace-security-pr-overlap-regresses-signer-loader",
+      "discovered_by": "cace-pr106-pr103-stack-audit-20261114",
+      "symptom": "An independent trust-root PR diverges from the signer-custody PR and overlaps the same server, signer module, and test files; merging the trust branch independently can restore path-based key reads and bypass the hardened loader.",
+      "prevention": [
+        "Stack trust-root work directly on the signer-custody branch and merge in dependency order.",
+        "Inspect changed-file overlap before retargeting or merging security PRs.",
+        "Require both capability readiness and attestation to use the same pinned secure key loader; do not read the key path directly."
+      ],
+      "guard": "tests/known_failure_regression_smoke.py"
     }
   ]
 }
