@@ -32,14 +32,18 @@ def _headers(response: Any) -> dict[str, str]:
     return {str(key).lower(): str(value) for key, value in raw.items()}
 
 
-def _hash_regular_file(path: Path) -> tuple[str, int]:
+def _hash_regular_file(path: Path) -> tuple[str, int, bytes]:
     descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0))
     digest = hashlib.sha256()
     size = 0
+    prefix = b""
     try:
         if not stat.S_ISREG(os.fstat(descriptor).st_mode):
             raise ValueError("encrypted backup must be a regular file")
         with os.fdopen(descriptor, "rb", closefd=False) as stream:
+            prefix = stream.read(len(MAGIC))
+            digest.update(prefix)
+            size += len(prefix)
             while True:
                 chunk = stream.read(1024 * 1024)
                 if not chunk:
@@ -48,7 +52,7 @@ def _hash_regular_file(path: Path) -> tuple[str, int]:
                 size += len(chunk)
     finally:
         os.close(descriptor)
-    return digest.hexdigest(), size
+    return digest.hexdigest(), size, prefix
 
 
 def _publish_no_overwrite(temporary_path: Path, destination: Path) -> None:
@@ -126,26 +130,34 @@ class OciObjectStorageBackupTransport:
         suffix = f"sha256/{digest[:2]}/{digest}.mrb.enc"
         return f"{self.prefix}/{suffix}" if self.prefix else suffix
 
-    def _head_verified(self, object_name: str, digest: str, size: int):
+    def _head_verified(
+        self, object_name: str, digest: str, size: int | None = None,
+        version_id: str | None = None,
+    ):
+        kwargs = {"version_id": version_id} if version_id else {}
         response = self.read_client.head_object(
-            self.namespace, self.bucket, object_name,
+            self.namespace, self.bucket, object_name, **kwargs,
         )
         headers = _headers(response)
         expected_metadata = {
             "opc-meta-merlin-sha256": digest,
-            "opc-meta-merlin-size-bytes": str(size),
             "opc-meta-merlin-envelope-schema": ENVELOPE_SCHEMA,
             "opc-meta-merlin-metadata-schema": OBJECT_METADATA_SCHEMA,
         }
         for name, expected in expected_metadata.items():
             if headers.get(name) != expected:
                 raise ObjectStorageConflict(f"Object Storage metadata mismatch: {name}")
-        if headers.get("content-length") != str(size):
+        content_length = headers.get("content-length")
+        if (content_length is None or not content_length.isdigit()
+                or headers.get("opc-meta-merlin-size-bytes") != content_length):
+            raise ObjectStorageConflict("Object Storage content length metadata mismatch")
+        actual_size = int(content_length)
+        if size is not None and actual_size != size:
             raise ObjectStorageConflict("Object Storage content length mismatch")
         return {
             "etag": headers.get("etag"),
             "version_id": headers.get("opc-version-id"),
-            "content_length": size,
+            "content_length": actual_size,
         }
 
     @staticmethod
@@ -160,10 +172,9 @@ class OciObjectStorageBackupTransport:
         expected_sha256: str | None = None,
     ) -> dict[str, Any]:
         path = Path(encrypted_path)
-        digest, size = _hash_regular_file(path)
-        with path.open("rb") as stream:
-            if stream.read(len(MAGIC)) != MAGIC:
-                raise ValueError("Object Storage transport accepts only Merlin encrypted backup envelopes")
+        digest, size, prefix = _hash_regular_file(path)
+        if prefix != MAGIC:
+            raise ValueError("Object Storage transport accepts only Merlin encrypted backup envelopes")
         if expected_sha256 is not None and expected_sha256 != digest:
             raise ValueError("encrypted backup digest does not match caller's expected SHA-256")
         object_name = self.object_name_for_digest(digest)
@@ -223,16 +234,8 @@ class OciObjectStorageBackupTransport:
             raise FileExistsError("download destination already exists")
 
         head = self._head_verified(
-            object_name, expected_sha256,
-            expected_size if expected_size is not None else int(
-                _headers(self.read_client.head_object(
-                    self.namespace, self.bucket, object_name,
-                    **({"version_id": version_id} if version_id else {}),
-                )).get("content-length", "0")
-            ),
+            object_name, expected_sha256, expected_size, version_id,
         )
-        if expected_size is not None and head["content_length"] != expected_size:
-            raise ObjectStorageConflict("Object Storage object size differs from expected size")
         etag = head["etag"]
         get_kwargs = {}
         if etag:
