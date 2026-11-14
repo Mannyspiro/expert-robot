@@ -275,6 +275,22 @@
         "Require both capability readiness and attestation to use the same pinned secure key loader; do not read the key path directly."
       ],
       "guard": "tests/known_failure_regression_smoke.py"
+    },
+    {
+      "id": "backup-archive-size-fixture-masks-digest-check",
+      "discovered_by": "merlin-pr159-backup-package-ci",
+      "symptom": "An archive tamper fixture changes blob content and length together, so the verifier rejects the ZIP size mismatch before reaching the intended content-digest assertion.",
+      "prevention": [
+        "When testing digest rejection, mutate bytes while preserving the manifest-declared size.",
+        "Keep size-mismatch and digest-mismatch tests separate so each integrity layer is exercised independently.",
+        "Assert the exact rejection class expected from the selected tamper."
+      ],
+      "guard": "tests/known_failure_regression_smoke.py",
+      "external_regression_test": {
+        "repository": "Mannyspiro/expert-robot",
+        "path": "tests/test_registry_backup.py",
+        "test": "tests/test_registry_backup.py::MerlinRegistryBackupTests.test_verifier_rejects_tampered_archive_blob"
+      }
     }
   ]
 }
