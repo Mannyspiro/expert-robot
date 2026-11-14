@@ -96,6 +96,15 @@ class MerlinRegistryBackupTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "integrity check"):
             self.backup.backup_to(Path(self.temp.name) / "tampered-source.zip")
 
+
+    def test_backup_rejects_symlinked_blob_directory(self):
+        blob_root = self.root / "blobs" / "sha256"
+        real_root = Path(self.temp.name) / "sha256-real"
+        blob_root.rename(real_root)
+        blob_root.symlink_to(real_root, target_is_directory=True)
+        with self.assertRaisesRegex(RuntimeError, "not a real directory"):
+            self.backup.backup_to(Path(self.temp.name) / "symlinked-blob-dir.zip")
+
     def test_verifier_rejects_tampered_archive_blob(self):
         archive_path = Path(self.temp.name) / "original.zip"
         self.backup.backup_to(archive_path)
