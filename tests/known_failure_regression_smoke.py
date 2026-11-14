@@ -87,6 +87,21 @@ for item in classes:
         test_method = qualified_name.rsplit(".", 1)[-1]
         assert f"def {test_method}(" in test_file.read_text(encoding="utf-8")
 
+
+base_drift = next(
+    item for item in classes
+    if item["id"] == "stacked-pr-base-drift-drops-upstream-invariants"
+)
+assert any("current parent branch head SHA" in rule for rule in base_drift["prevention"])
+assert any("exact-head CI receipt" in rule for rule in base_drift["prevention"])
+
+signer_stack = next(
+    item for item in classes
+    if item["id"] == "stacked-cace-security-pr-overlap-regresses-signer-loader"
+)
+assert any("dependency order" in rule for rule in signer_stack["prevention"])
+assert any("pinned secure key loader" in rule for rule in signer_stack["prevention"])
+
 backup_fixture = next(
     item for item in classes
     if item["id"] == "backup-tamper-fixture-precondition-masking"
