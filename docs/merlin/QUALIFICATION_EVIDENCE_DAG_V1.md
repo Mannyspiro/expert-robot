@@ -166,3 +166,12 @@ Before publication, `verify_backup` opens the backup read-only and verifies:
 The returned backup receipt contains the backup file SHA-256 and the number of snapshots checked. Tests exercise a multi-snapshot backup/readback, overwrite rejection, and tampered snapshot rejection.
 
 This is a local filesystem backup primitive, not an off-host backup service or disaster-recovery guarantee. Production qualification still needs encrypted off-host retention, restore into an isolated target, restore-point objectives, and periodic recovery drills. The API intentionally does not overwrite or mutate the source registry during restore.
+
+
+## Adversarial and recovery follow-through (2026-11-14)
+
+- Fixed a discovered OCI identity type contradiction: `task_ref` is a schema-validated ArtifactRef object, not text. Added acceptance and negative tests for both task and input references.
+- Added a second, independent test implementation of the snapshot digest calculation using Python's JSON encoder and SHA-256, rather than calling the production canonicalization helper.
+- Added 25 deterministic randomized acyclic graph cases. Each checks permutation-invariant snapshots, independently recomputed digests, and prerequisite-first topological order.
+- Added local consistent backup, integrity verification, append-only trigger verification, non-overwrite publication, snapshot-by-snapshot digest checking, and tamper rejection.
+- These checks strengthen the local projection and storage layer; they do not establish cross-host consistency, authenticated upstream retrieval, CACE signature validity, or production promotion authority.
