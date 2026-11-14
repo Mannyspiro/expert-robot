@@ -1,3 +1,4 @@
+import base64
 import hashlib
 from pathlib import Path
 from types import SimpleNamespace
@@ -75,6 +76,9 @@ class FakeUploadManager:
         if key in self.client.objects:
             raise FakeServiceError(412)
         data = Path(file_path).read_bytes()
+        expected_sha256 = hashlib.sha256(data).digest()
+        if kwargs.get("opc_content_sha256") != base64.b64encode(expected_sha256).decode("ascii"):
+            raise AssertionError("upload did not bind the expected SHA-256 checksum")
         etag = hashlib.sha256(data).hexdigest()
         headers = {
             "content-length": str(len(data)),
@@ -158,6 +162,15 @@ class OciObjectStorageBackupTransportTests(unittest.TestCase):
                 expected_sha256=uploaded["sha256"],
             )
         self.assertFalse(destination.exists())
+
+
+    def test_idempotent_replay_rejects_substituted_bytes_even_when_metadata_matches(self):
+        uploaded = self.transport.upload_encrypted_backup(self.encrypted)
+        key = ("test-namespace", "merlin-backups", uploaded["object_name"])
+        original = self.client.objects[key]["data"]
+        self.client.objects[key]["data"] = b"z" * len(original)
+        with self.assertRaisesRegex(ValueError, "SHA-256 mismatch"):
+            self.transport.upload_encrypted_backup(self.encrypted)
 
     def test_existing_object_with_wrong_metadata_is_not_accepted_as_replay(self):
         uploaded = self.transport.upload_encrypted_backup(self.encrypted)
