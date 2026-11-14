@@ -46,6 +46,7 @@ assert set(cace_guard_items) == set(expected_cace_guards)
 assert "cross-repo-test-reference-path-mismatch" in ids
 assert "cross-repo-evidence-pin-duplication" in ids
 assert "backup-verifier-trigger-name-spoof" in ids
+assert "cross-language-float-policy-stale-assertion" in ids
 
 for item in classes:
     external_test = item.get("external_regression_test")
