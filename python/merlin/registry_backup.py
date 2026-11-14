@@ -47,6 +47,35 @@ def _sha256_file(path: Path) -> tuple[str, int]:
     return digest.hexdigest(), size
 
 
+def _copy_verified_blob(source: Path, destination: Path,
+                        expected_digest: str, expected_size: int) -> None:
+    """Copy one blob without following symlinks and verify the bytes while copying."""
+    flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+    descriptor = os.open(source, flags)
+    digest = hashlib.sha256()
+    size = 0
+    try:
+        metadata = os.fstat(descriptor)
+        if not stat.S_ISREG(metadata.st_mode):
+            raise RuntimeError("referenced artifact blob is not a regular file")
+        with os.fdopen(descriptor, "rb", closefd=False) as input_stream:
+            with destination.open("xb") as output_stream:
+                while True:
+                    chunk = input_stream.read(1024 * 1024)
+                    if not chunk:
+                        break
+                    output_stream.write(chunk)
+                    digest.update(chunk)
+                    size += len(chunk)
+                output_stream.flush()
+                os.fsync(output_stream.fileno())
+    finally:
+        os.close(descriptor)
+    if digest.hexdigest() != expected_digest or size != expected_size:
+        destination.unlink(missing_ok=True)
+        raise RuntimeError(f"referenced artifact blob failed integrity check: {expected_digest}")
+
+
 def _validate_archive_name(name: str) -> str:
     if (not isinstance(name, str) or not name or name.startswith("/")
             or "\\" in name or "\x00" in name):
@@ -118,9 +147,9 @@ class MerlinRegistryBackup:
                     raise RuntimeError(f"referenced artifact blob is unavailable: {digest}") from exc
                 if not stat.S_ISREG(metadata.st_mode):
                     raise RuntimeError(f"referenced artifact blob is not a regular file: {digest}")
-                actual_digest, actual_size = _sha256_file(source_blob)
-                if actual_digest != digest or actual_size != size_bytes:
-                    raise RuntimeError(f"referenced artifact blob failed integrity check: {digest}")
+                staged_blob = stage / expected_path
+                staged_blob.parent.mkdir(parents=True, exist_ok=True)
+                _copy_verified_blob(source_blob, staged_blob, digest, size_bytes)
                 blobs.append({
                     "sha256": digest,
                     "size_bytes": size_bytes,
@@ -148,8 +177,8 @@ class MerlinRegistryBackup:
                 archive.writestr(MANIFEST_ENTRY, manifest_bytes)
                 archive.write(database_copy, DATABASE_ENTRY)
                 for blob in blobs:
-                    source_blob = self.root / blob["path"]
-                    archive.write(source_blob, blob["path"])
+                    staged_blob = stage / blob["path"]
+                    archive.write(staged_blob, blob["path"])
 
             archive_sha256, archive_size = _sha256_file(temporary_archive)
             # A hard link provides atomic no-overwrite publication on the same filesystem.
@@ -227,6 +256,7 @@ class MerlinRegistryBackup:
                 blobs = manifest["blobs"]
                 if (not isinstance(blobs, list)
                         or isinstance(manifest["blob_count"], bool)
+                        or not isinstance(manifest["blob_count"], int)
                         or manifest["blob_count"] != len(blobs)):
                     raise ValueError("backup blob manifest count is invalid")
                 expected_names = {MANIFEST_ENTRY, DATABASE_ENTRY}
@@ -252,6 +282,14 @@ class MerlinRegistryBackup:
                     expected_names.add(expected_blob_path)
                 if set(names) != expected_names:
                     raise ValueError("backup archive entries do not match the manifest")
+                info_by_name = {item.filename: item for item in infos}
+                if info_by_name[MANIFEST_ENTRY].file_size > 8 * 1024 * 1024:
+                    raise ValueError("backup manifest exceeds the 8 MiB safety limit")
+                if info_by_name[DATABASE_ENTRY].file_size != database["size_bytes"]:
+                    raise ValueError("backup database ZIP size does not match the manifest")
+                for blob in blobs:
+                    if info_by_name[blob["path"]].file_size != blob["size_bytes"]:
+                        raise ValueError("backup blob ZIP size does not match the manifest")
 
                 with archive.open(DATABASE_ENTRY, "r") as source, database_copy.open("xb") as target:
                     shutil.copyfileobj(source, target)
