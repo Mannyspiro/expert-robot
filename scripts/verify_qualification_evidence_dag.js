@@ -101,7 +101,7 @@ function validateArtifactRef(value, label) {
       || value.project_id.length > 256) throw new Error(`${label}.project_id is invalid`);
   if (typeof value.logical_path !== "string" || !value.logical_path
       || value.logical_path.length > 1024 || value.logical_path.startsWith("/")
-      || value.logical_path.includes("\\\\") || value.logical_path.includes("\\0")
+      || value.logical_path.includes("\\") || value.logical_path.includes("\0")
       || value.logical_path.split("/").some(part => part === "" || part === "." || part === "..")) {
     throw new Error(`${label}.logical_path is not normalized and traversal-free`);
   }
@@ -126,7 +126,7 @@ function validateIdentity(nodeType, identity) {
       requireText(identity, "project_id");
       requireText(identity, "logical_path");
       const path = identity.logical_path;
-      if (path.startsWith("/") || path.includes("\\\\") || path.includes("\\0")
+      if (path.startsWith("/") || path.includes("\\") || path.includes("\0")
           || path.split("/").some(part => part === "" || part === "." || part === "..")) {
         throw new Error("identity.logical_path must be normalized and traversal-free");
       }
