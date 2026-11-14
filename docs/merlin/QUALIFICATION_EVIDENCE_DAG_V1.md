@@ -151,3 +151,12 @@ This is local SQLite persistence only. It does not yet provide multi-host consen
 - Snapshot history PR #150 exact head `97107bbf38f2e68823fe7c3c7c18599656b7005f`: CI run `43605192756` **SUCCESS**. Diagnostics artifact `14118372468`, SHA-256 `aad40e4f92affdf10927f3e7c40bce8bc8fad534078add67b56d087a6582324d`.
 - The latter exact-head run includes the DAG runtime test suite in the canonical CI workflow.
 - Both PRs remain draft/stacked. These are engineering test receipts, not production qualification or independent evidence verification.
+
+
+## Independent canonicalization check (2026-11-14)
+
+A second implementation now exists at `scripts/verify_qualification_evidence_dag.js`. It uses Node's built-in crypto and independently reimplements canonical JSON, node identity hashing, edge validation, cycle detection, and snapshot digest verification. The Python test invokes it against a generated snapshot and confirms that a tampered snapshot is rejected.
+
+To keep Python and ECMAScript serialization byte-identical, v1 canonical evidence JSON now permits only null, booleans, strings, arrays/objects, and safe-range integers. Floating-point values and integers outside the JavaScript safe-integer range are rejected rather than silently serialized differently. This is a deliberate v1 constraint; represent measured floating-point quantities as canonical decimal strings with explicit units/precision in evidence payloads.
+
+This independent verifier currently checks structural graph integrity and canonical digests; the Python implementation remains the richer type-specific identity validator. A future qualification step should extend the second implementation to every type-specific identity rule and run randomized cross-language property vectors.
