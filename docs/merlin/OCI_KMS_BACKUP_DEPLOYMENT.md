@@ -96,7 +96,7 @@ Merlin now defines `merlin-backup-recovery-receipt/1` as an integrity-only recor
 - original backup package and manifest digests, plus the restored manifest digest (which must match);
 - encrypted envelope SHA-256 and byte length;
 - Object Storage namespace, bucket, content-addressed object name, ETag and optional version ID;
-- KMS key OCID and key version;
+- KMS key OCID and opaque key-version identity (recorded from the provider/audit evidence, not inferred from an ordinal);
 - restore host identity digest, protected runner profile, start/end timestamps and measured duration;
 - explicit success checks for envelope authentication, archive verification, database integrity, foreign keys, blob inventory, ArtifactRef resolution, DAG history, Hermes outbox pointers and separate-host execution;
 - restored inventory counts for blobs, ArtifactRefs, DAG snapshots and outbox events.
