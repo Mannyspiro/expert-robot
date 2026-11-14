@@ -127,9 +127,9 @@
         "repository": "morganaspim/Cace-app",
         "pull_request": 103,
         "path": "tests/test_merlin_artifact_ref.py",
-        "exact_head": "3534a1906fc0ff8cb5c9f3b052e917cf23258800",
-        "workflow_run_id": 43603746084,
-        "artifact_sha256": "237710f7b090997d231068084c9e8118cab98bee8e420784ae22d92659353657",
+        "exact_head": "00ffff17d97508b9df9ec1386404343e1d9f9dae",
+        "workflow_run_id": 43604033624,
+        "artifact_sha256": "7ed69cf936eefe810efc6c15341c48cb73b913408caa8badba8152ebb87cd477",
         "test": "tests/test_merlin_artifact_ref.py::test_artifact_ref_key_initializer_rejects_symlinked_parent"
       }
     },
@@ -146,9 +146,9 @@
         "repository": "morganaspim/Cace-app",
         "pull_request": 103,
         "path": "tests/test_merlin_artifact_ref.py",
-        "exact_head": "3534a1906fc0ff8cb5c9f3b052e917cf23258800",
-        "workflow_run_id": 43603746084,
-        "artifact_sha256": "237710f7b090997d231068084c9e8118cab98bee8e420784ae22d92659353657",
+        "exact_head": "00ffff17d97508b9df9ec1386404343e1d9f9dae",
+        "workflow_run_id": 43604033624,
+        "artifact_sha256": "7ed69cf936eefe810efc6c15341c48cb73b913408caa8badba8152ebb87cd477",
         "test": "tests/test_merlin_artifact_ref.py::test_artifact_ref_key_initializer_rejects_unsafe_directory_and_hardlinks"
       }
     },
@@ -165,9 +165,9 @@
         "repository": "morganaspim/Cace-app",
         "pull_request": 103,
         "path": "tests/test_merlin_artifact_ref.py",
-        "exact_head": "3534a1906fc0ff8cb5c9f3b052e917cf23258800",
-        "workflow_run_id": 43603746084,
-        "artifact_sha256": "237710f7b090997d231068084c9e8118cab98bee8e420784ae22d92659353657",
+        "exact_head": "00ffff17d97508b9df9ec1386404343e1d9f9dae",
+        "workflow_run_id": 43604033624,
+        "artifact_sha256": "7ed69cf936eefe810efc6c15341c48cb73b913408caa8badba8152ebb87cd477",
         "test": "tests/test_merlin_artifact_ref.py::test_artifact_ref_key_initializer_rejects_unsafe_directory_and_hardlinks"
       }
     },
@@ -184,9 +184,9 @@
         "repository": "morganaspim/Cace-app",
         "pull_request": 103,
         "path": "tests/test_merlin_artifact_ref.py",
-        "exact_head": "3534a1906fc0ff8cb5c9f3b052e917cf23258800",
-        "workflow_run_id": 43603746084,
-        "artifact_sha256": "237710f7b090997d231068084c9e8118cab98bee8e420784ae22d92659353657",
+        "exact_head": "00ffff17d97508b9df9ec1386404343e1d9f9dae",
+        "workflow_run_id": 43604033624,
+        "artifact_sha256": "7ed69cf936eefe810efc6c15341c48cb73b913408caa8badba8152ebb87cd477",
         "test": "tests/test_merlin_artifact_ref.py::test_artifact_ref_key_initializer_serializes_concurrent_creation"
       }
     },
@@ -203,9 +203,9 @@
         "repository": "morganaspim/Cace-app",
         "pull_request": 103,
         "path": "tests/test_merlin_artifact_ref.py",
-        "exact_head": "3534a1906fc0ff8cb5c9f3b052e917cf23258800",
-        "workflow_run_id": 43603746084,
-        "artifact_sha256": "237710f7b090997d231068084c9e8118cab98bee8e420784ae22d92659353657",
+        "exact_head": "00ffff17d97508b9df9ec1386404343e1d9f9dae",
+        "workflow_run_id": 43604033624,
+        "artifact_sha256": "7ed69cf936eefe810efc6c15341c48cb73b913408caa8badba8152ebb87cd477",
         "test": "tests/test_merlin_artifact_ref.py::test_artifact_ref_key_initializer_cleans_partial_temp_on_write_failure"
       }
     }
