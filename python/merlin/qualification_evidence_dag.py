@@ -13,6 +13,8 @@ import re
 from collections import defaultdict, deque
 from typing import Any, Iterable, Mapping
 
+from .artifact_ref import ArtifactRef
+
 
 SCHEMA = "merlin-qualification-evidence-dag/1"
 AUTHORITY = "read-only-projection"
@@ -87,6 +89,8 @@ def _require_positive_int(identity: Mapping[str, Any], field: str) -> None:
 
 def _validate_identity(node_type: str, identity: Mapping[str, Any]) -> None:
     """Validate the stable minimum identity for each evidence node type."""
+    if not isinstance(node_type, str) or node_type not in NODE_TYPES:
+        raise ValueError("unknown evidence node type")
     if not isinstance(identity, Mapping) or not identity:
         raise ValueError("node identity must be a non-empty object")
     _validate_json_value(dict(identity), "$.identity")
@@ -122,6 +126,7 @@ def _validate_identity(node_type: str, identity: Mapping[str, Any]) -> None:
             _require_text(identity, field)
         if not isinstance(identity.get("artifact_ref"), dict):
             raise ValueError("identity.artifact_ref must be an object")
+        ArtifactRef.from_mapping(identity["artifact_ref"])
     elif node_type == "trust_root":
         for field in ("authority_id", "version"):
             _require_text(identity, field)
@@ -131,11 +136,19 @@ def _validate_identity(node_type: str, identity: Mapping[str, Any]) -> None:
         _require_text(identity, "verifier_id")
         if not isinstance(identity.get("artifact_ref"), dict):
             raise ValueError("identity.artifact_ref must be an object")
+        ArtifactRef.from_mapping(identity["artifact_ref"])
     elif node_type == "oci_execution":
         for field in ("execution_id", "runner_profile", "task_ref"):
             _require_text(identity, field)
+        if not isinstance(identity.get("task_ref"), dict):
+            raise ValueError("identity.task_ref must be an ArtifactRef object")
+        ArtifactRef.from_mapping(identity["task_ref"])
         if not isinstance(identity.get("input_refs"), list):
             raise ValueError("identity.input_refs must be an array")
+        for artifact_ref in identity["input_refs"]:
+            if not isinstance(artifact_ref, dict):
+                raise ValueError("each identity.input_refs item must be an ArtifactRef object")
+            ArtifactRef.from_mapping(artifact_ref)
     elif node_type == "protected_orchestrator":
         _require_text(identity, "repository")
         _require_text(identity, "workflow_id")
@@ -150,8 +163,6 @@ def _validate_identity(node_type: str, identity: Mapping[str, Any]) -> None:
 
 def node_id_for(node_type: str, identity: Mapping[str, Any]) -> str:
     """Derive the stable node ID from the complete type and identity."""
-    if node_type not in NODE_TYPES:
-        raise ValueError("unknown evidence node type")
     _validate_identity(node_type, identity)
     payload = {"node_type": node_type, "identity": dict(identity)}
     return "sha256:" + _sha256(canonical_json(payload))
@@ -187,7 +198,7 @@ def _validate_node(node: Any) -> dict[str, Any]:
     _require_digest(node["record_sha256"], "record_sha256")
     if not isinstance(node["evidence_class"], str) or not node["evidence_class"] or len(node["evidence_class"]) > 128:
         raise ValueError("evidence_class must be a non-empty string of at most 128 characters")
-    if node["status"] not in STATUSES:
+    if not isinstance(node["status"], str) or node["status"] not in STATUSES:
         raise ValueError("unknown evidence status")
     return dict(node)
 
@@ -200,7 +211,7 @@ def _validate_edge(edge: Any) -> dict[str, str]:
         value = edge[field]
         if not isinstance(value, str) or not re.fullmatch(r"sha256:[0-9a-f]{64}", value):
             raise ValueError(f"{field} must be a node SHA-256 identity")
-    if edge["relation"] not in RELATIONS:
+    if not isinstance(edge["relation"], str) or edge["relation"] not in RELATIONS:
         raise ValueError("unknown evidence edge relation")
     if edge["dependent_node_id"] == edge["prerequisite_node_id"]:
         raise ValueError("self-dependency is not allowed")
