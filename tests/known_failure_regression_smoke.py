@@ -75,6 +75,28 @@ for class_id, test_name in expected_cace_guards.items():
     else:
         assert pin == external_pin
 
+# Optional fully qualified local regression-test links must resolve to a
+# real test method, not merely an existing file.
+for item in classes:
+    regression_test = item.get("regression_test")
+    if regression_test is not None:
+        assert isinstance(regression_test, str) and regression_test.count("::") == 1
+        test_path, qualified_name = regression_test.split("::", 1)
+        test_file = ROOT / test_path
+        assert test_file.is_file()
+        test_method = qualified_name.rsplit(".", 1)[-1]
+        assert f"def {test_method}(" in test_file.read_text(encoding="utf-8")
+
+backup_fixture = next(
+    item for item in classes
+    if item["id"] == "backup-tamper-fixture-precondition-masking"
+)
+assert backup_fixture["regression_test"] == (
+    "tests/test_qualification_evidence_dag.py::"
+    "QualificationEvidenceDagSnapshotHistoryTests."
+    "test_backup_verification_rejects_tampered_snapshot_rows"
+)
+
 cmake = (ROOT / "CMakeLists.txt").read_text(encoding="utf-8")
 assert "-Werror=missing-field-initializers" in cmake
 assert "-Werror=range-loop-construct" in cmake
