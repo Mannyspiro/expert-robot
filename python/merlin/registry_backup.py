@@ -18,7 +18,8 @@ import time
 from typing import Any
 import zipfile
 
-from .qualification_evidence_dag import SnapshotHistory
+from .qualification_evidence_dag import SnapshotHistory, validate_snapshot
+from .qualification_publication import SNAPSHOT_EVENT_SCHEMA, SNAPSHOT_EVENT_TOPIC
 
 
 BACKUP_SCHEMA = "merlin-registry-backup/1"
@@ -343,6 +344,52 @@ class MerlinRegistryBackup:
                 snapshot_count = db.execute(
                     "SELECT COUNT(*) FROM qualification_evidence_snapshots"
                 ).fetchone()[0]
+                tables = {
+                    row[0] for row in db.execute(
+                        "SELECT name FROM sqlite_master WHERE type='table'"
+                    )
+                }
+                if "event_outbox" in tables:
+                    for event in db.execute(
+                        "SELECT event_id,idempotency_key,topic,payload_json "
+                        "FROM event_outbox WHERE topic=?",
+                        (SNAPSHOT_EVENT_TOPIC,),
+                    ):
+                        try:
+                            payload = json.loads(event["payload_json"])
+                        except (TypeError, json.JSONDecodeError) as exc:
+                            raise ValueError("backup snapshot outbox payload is malformed") from exc
+                        if not isinstance(payload, dict) or set(payload) != {
+                            "schema", "snapshot_sha256", "node_count", "edge_count", "sequence",
+                        } or payload["schema"] != SNAPSHOT_EVENT_SCHEMA:
+                            raise ValueError("backup snapshot outbox event schema is invalid")
+                        digest = payload["snapshot_sha256"]
+                        if (not isinstance(digest, str) or len(digest) != 64
+                                or any(ch not in "0123456789abcdef" for ch in digest)):
+                            raise ValueError("backup snapshot outbox digest is invalid")
+                        expected_key = f"qualification-snapshot:{digest}"
+                        expected_event_id = "evt_" + hashlib.sha256(
+                            expected_key.encode("utf-8")
+                        ).hexdigest()
+                        if (event["idempotency_key"] != expected_key
+                                or event["event_id"] != expected_event_id):
+                            raise ValueError("backup snapshot outbox idempotency identity mismatch")
+                        sequence = payload["sequence"]
+                        if (isinstance(sequence, bool) or not isinstance(sequence, int)
+                                or sequence < 1):
+                            raise ValueError("backup snapshot outbox sequence is invalid")
+                        snapshot_row = db.execute(
+                            "SELECT sequence,snapshot_json FROM qualification_evidence_snapshots "
+                            "WHERE snapshot_sha256=?",
+                            (digest,),
+                        ).fetchone()
+                        if snapshot_row is None or snapshot_row["sequence"] != sequence:
+                            raise ValueError("backup snapshot outbox points to a missing snapshot")
+                        snapshot = validate_snapshot(json.loads(snapshot_row["snapshot_json"]))
+                        if (payload["node_count"] != len(snapshot["nodes"])
+                                or payload["edge_count"] != len(snapshot["edges"])):
+                            raise ValueError("backup snapshot outbox counts do not match snapshot")
+
         return {
             "verified": True,
             "archive_sha256": archive_sha256,
