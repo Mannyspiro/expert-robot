@@ -12,6 +12,7 @@ from unittest.mock import patch
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
+from python.merlin.app import EventStore, make_handler, serve
 from python.merlin.hermes_runtime import build_merlin_hermes_runtime
 
 
