@@ -99,10 +99,10 @@ def _validate_payload(payload: Mapping[str, Any]) -> None:
         _require_text(storage["version_id"], "object_storage.version_id")
 
     kms = payload["kms"]
-    if not isinstance(kms, Mapping) or set(kms) != {"key_ocid", "key_version"}:
+    if not isinstance(kms, Mapping) or set(kms) != {"key_ocid", "key_version_id"}:
         raise ValueError("KMS identity is malformed")
     _require_text(kms["key_ocid"], "kms.key_ocid", prefix="ocid1.key.")
-    _require_uint(kms["key_version"], "kms.key_version", minimum=1)
+    _require_text(kms["key_version_id"], "kms.key_version_id")
 
     restore = payload["restore"]
     if not isinstance(restore, Mapping) or set(restore) != {
