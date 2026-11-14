@@ -47,3 +47,40 @@ On the designated runner, with protected configuration present:
 ## Authority boundary
 
 The KMS provider protects backup confidentiality and integrity. It does not attest artifact source truth, validate CACE signatures, qualify Lean proofs, or authorize production promotion. CACE must independently verify any signed backup/restore evidence before it can be used as a qualification input.
+
+
+## OCI Object Storage transport
+
+The create-only transport uses the same instance-principal pattern but creates a dedicated Object Storage client for UploadManager and a separate client for HEAD/GET. This separation is intentional: OCI documents that UploadManager may modify timeout settings on its client, so it must not share a client used by unrelated operations. Multipart upload uses `if_none_match="*"`, SHA-256 request checksums, and metadata binding the object to the encrypted-envelope digest and size.
+
+Set these additional non-secret protected runner values:
+
+- `MERLIN_BACKUP_OCI_NAMESPACE`: exact Object Storage namespace.
+- `MERLIN_BACKUP_OCI_BUCKET`: pre-created private bucket.
+- `MERLIN_BACKUP_OCI_PREFIX`: optional safe prefix; defaults to `merlin/backups`.
+
+The transport writes content-addressed names under `sha256/<first-two-hex>/<full-digest>.mrb.enc`, refuses overwrite, and accepts an existing object only when its HEAD metadata, size and digest exactly match. Download requires the expected SHA-256, pins an object version when supplied (otherwise uses ETag `if_match`), streams to a temporary file, verifies the full encrypted-envelope digest/size, and publishes without overwrite. It has no bucket-create, object-delete, retention-rule, or pre-authenticated-request methods.
+
+### Bucket and IAM preflight
+
+Before enabling remote backups:
+
+1. A separate bucket administrator creates the bucket as private, disables public access and pre-authenticated requests, enables versioning if required by the recovery policy, and configures a locked retention rule covering the backup retention period.
+2. The backup runner's dynamic group is limited to the designated runner. Its policy is restricted to creating new objects and reading/inspecting those objects in this bucket; it must not have object deletion/overwrite, bucket administration, retention-rule administration, or namespace administration rights.
+3. A separate administrator identity owns retention configuration and break-glass recovery. The runtime backup principal must not be able to shorten or remove retention.
+4. The bucket's region, namespace, bucket name, prefix, retention rule ID/period, versioning status, and IAM policy revision are recorded in the approval receipt.
+5. Verify the bucket's server-side encryption configuration separately. Client-side AES-GCM remains mandatory; server-side encryption is an additional storage-layer control.
+
+### Live remote-backup qualification
+
+On the designated OCI runner, after the KMS live round trip has passed:
+
+1. Run `OciObjectStorageBackupTransport.from_environment()`.
+2. Encrypt a non-production registry backup with the live OCI KMS provider.
+3. Upload it and record object name, exact envelope SHA-256/size, ETag, version ID (if enabled), request IDs and status.
+4. Retry the same upload; it must be accepted only as an exact metadata/digest replay and must not overwrite the object.
+5. Download by exact object name/version with the expected digest; verify bytes match, decrypt, and run the complete registry restore verifier.
+6. Inspect Object Storage and Vault audit events independently. Do not treat SDK success alone as proof of correct IAM or retention.
+7. Restore on a separate host into an empty registry root and measure recovery time.
+
+Object Storage upload/download and bucket retention are implemented as a tested adapter contract, not live tenancy qualification. Until the above run is complete, no off-host backup or disaster-recovery claim is permitted.
