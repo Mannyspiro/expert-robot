@@ -23,6 +23,43 @@ for item in classes:
     assert item["guard"] in allowed_guards
     assert (ROOT / item["guard"]).exists()
 
+# Cross-repository guards are pinned to a specific CACE test, commit, workflow
+# run, and retained evidence digest. The CACE workflow executes the test; this
+# local smoke prevents the failure registry from silently losing that linkage.
+expected_cace_guards = {
+    "artifact-ref-key-symlink-parent":
+        "test_artifact_ref_key_initializer_rejects_symlinked_parent",
+    "artifact-ref-key-unsafe-parent-permissions":
+        "test_artifact_ref_key_initializer_rejects_unsafe_directory_and_hardlinks",
+    "artifact-ref-key-hardlink-substitution":
+        "test_artifact_ref_key_initializer_rejects_unsafe_directory_and_hardlinks",
+    "artifact-ref-key-concurrent-initialization":
+        "test_artifact_ref_key_initializer_serializes_concurrent_creation",
+    "artifact-ref-key-interrupted-publication":
+        "test_artifact_ref_key_initializer_cleans_partial_temp_on_write_failure",
+}
+cace_guard_items = {
+    item["id"]: item for item in classes
+    if item["id"].startswith("artifact-ref-key-")
+}
+assert set(cace_guard_items) == set(expected_cace_guards)
+for class_id, test_name in expected_cace_guards.items():
+    external = cace_guard_items[class_id].get("external_guard")
+    assert isinstance(external, dict)
+    assert set(external) == {
+        "repository", "pull_request", "path", "exact_head",
+        "workflow_run_id", "artifact_sha256", "test",
+    }
+    assert external["repository"] == "morganaspim/Cace-app"
+    assert external["pull_request"] == 103
+    assert external["path"] == "tests/test_merlin_artifact_ref.py"
+    assert external["exact_head"] == "3534a1906fc0ff8cb5c9f3b052e917cf23258800"
+    assert external["workflow_run_id"] == 43603746084
+    digest = external["artifact_sha256"]
+    assert len(digest) == 64 and all(char in "0123456789abcdef" for char in digest)
+    assert digest == "237710f7b090997d231068084c9e8118cab98bee8e420784ae22d92659353657"
+    assert external["test"] == test_name
+
 cmake = (ROOT / "CMakeLists.txt").read_text(encoding="utf-8")
 assert "-Werror=missing-field-initializers" in cmake
 assert "-Werror=range-loop-construct" in cmake
