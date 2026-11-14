@@ -70,6 +70,8 @@ def _artifact_version_provenance(
     source_commit = os.getenv("MERLIN_SOURCE_COMMIT", "").strip()
     if not source_repo or not source_commit:
         return None
+    if source_repo != "Mannyspiro/expert-robot":
+        raise ValueError("MERLIN_SOURCE_REPO is not the configured canonical repository")
     if len(source_commit) != 40 or any(ch not in "0123456789abcdef" for ch in source_commit):
         raise ValueError("MERLIN_SOURCE_COMMIT must be a full lowercase Git SHA")
     if not all(isinstance(value, str) and value.strip() for value in (
