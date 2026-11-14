@@ -84,8 +84,10 @@ def _validate_payload(payload: Mapping[str, Any]) -> None:
         _require_uint(execution[field], f"execution_evidence.{field}", minimum=1)
     if execution["head_sha"] != source["commit"]:
         raise ValueError("execution evidence head does not match the source commit")
-    for field in ("head_sha", "artifact_sha256", "vault_audit_sha256", "object_storage_audit_sha256"):
-        _require_sha256(execution[field], f"execution_evidence.{field}" if field != "head_sha" else "execution_evidence.head_sha")
+    if not isinstance(execution["head_sha"], str) or not COMMIT_RE.fullmatch(execution["head_sha"]):
+        raise ValueError("execution_evidence.head_sha must be a full Git commit SHA")
+    for field in ("artifact_sha256", "vault_audit_sha256", "object_storage_audit_sha256"):
+        _require_sha256(execution[field], f"execution_evidence.{field}")
     artifact_ref = execution["artifact_ref"]
     if not isinstance(artifact_ref, Mapping) or set(artifact_ref) != {
         "schema", "project_id", "logical_path", "version", "sha256",
