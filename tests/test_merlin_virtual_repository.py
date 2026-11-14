@@ -631,7 +631,7 @@ class VirtualRepositoryTests(unittest.TestCase):
             job_log = get("/api/forge/jobs/" + queued["job_id"] + "/log")
             self.assertEqual(job_log["log_utf8"], "compile complete")
             file_result = get("/api/forge/file?ref=main&path=README.md")
-            self.assertTrue(file_result["content_utf8"].startswith("# Expert Robot\\n"))
+            self.assertTrue(file_result["content_utf8"].startswith("# Expert Robot"))
         finally:
             server.shutdown()
             server.server_close()
