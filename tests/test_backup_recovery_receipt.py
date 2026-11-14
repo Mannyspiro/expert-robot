@@ -56,6 +56,7 @@ class BackupRecoveryReceiptTests(unittest.TestCase):
                 "key_version_id": "ocid1.keyversion.oc1..version3",
             },
             "restore": {
+                "origin_host_identity_sha256": "9" * 64,
                 "host_identity_sha256": "e" * 64,
                 "runner_profile": "protected-oci-restore",
                 "started_at_unix_ms": 1000,
@@ -113,6 +114,12 @@ class BackupRecoveryReceiptTests(unittest.TestCase):
         payload = copy.deepcopy(self.payload)
         payload["checks"]["separate_host"] = False
         with self.assertRaisesRegex(ValueError, "failed or missing"):
+            build_backup_recovery_receipt(payload)
+
+    def test_rejects_restore_on_the_same_host_as_backup_origin(self):
+        payload = copy.deepcopy(self.payload)
+        payload["restore"]["host_identity_sha256"] = payload["restore"]["origin_host_identity_sha256"]
+        with self.assertRaisesRegex(ValueError, "must differ from backup origin"):
             build_backup_recovery_receipt(payload)
 
     def test_rejects_duration_that_does_not_match_timestamps(self):
