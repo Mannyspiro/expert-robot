@@ -17,6 +17,24 @@ class BackupRecoveryReceiptTests(unittest.TestCase):
                 "repository": "Mannyspiro/expert-robot",
                 "commit": "b" * 40,
             },
+            "execution_evidence": {
+                "repository": "Mannyspiro/expert-robot",
+                "workflow_id": "registry-backup-restore.yml",
+                "run_id": 123456,
+                "run_attempt": 1,
+                "head_sha": "b" * 40,
+                "artifact_id": 654321,
+                "artifact_sha256": "f" * 64,
+                "artifact_ref": {
+                    "schema": "merlin-artifact-ref/1",
+                    "project_id": "merlin",
+                    "logical_path": "recovery/drill/evidence.json",
+                    "version": 2,
+                    "sha256": "f" * 64,
+                },
+                "vault_audit_sha256": "1" * 64,
+                "object_storage_audit_sha256": "2" * 64,
+            },
             "backup": {
                 "package_sha256": "c" * 64,
                 "manifest_sha256": "d" * 64,
@@ -66,6 +84,18 @@ class BackupRecoveryReceiptTests(unittest.TestCase):
         receipt["restore"]["runner_profile"] = "different-runner"
         with self.assertRaisesRegex(ValueError, "digest mismatch"):
             verify_backup_recovery_receipt(receipt)
+
+    def test_rejects_execution_artifact_ref_digest_mismatch(self):
+        payload = copy.deepcopy(self.payload)
+        payload["execution_evidence"]["artifact_ref"]["sha256"] = "9" * 64
+        with self.assertRaisesRegex(ValueError, "ArtifactRef digest mismatch"):
+            build_backup_recovery_receipt(payload)
+
+    def test_rejects_execution_head_that_differs_from_source_commit(self):
+        payload = copy.deepcopy(self.payload)
+        payload["execution_evidence"]["head_sha"] = "8" * 40
+        with self.assertRaisesRegex(ValueError, "does not match the source commit"):
+            build_backup_recovery_receipt(payload)
 
     def test_rejects_restored_manifest_mismatch(self):
         payload = copy.deepcopy(self.payload)
