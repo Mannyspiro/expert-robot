@@ -117,8 +117,13 @@ class AvreaAdapter:
             digest = self.registry.put_artifact(project_id, logical_path, content)
             if not self.registry.verify_artifact(digest):
                 raise RuntimeError("collected Avrea artifact failed digest verification")
+            artifact_ref = self.registry.artifact_ref(project_id, logical_path)
+            resolution = self.registry.resolve_artifact_ref(artifact_ref)
+            if not resolution["verified"]:
+                raise RuntimeError("collected Avrea artifact reference failed registry resolution")
             saved.append({"name": name, "logical_path": logical_path,
-                          "sha256": digest, "size_bytes": len(content)})
+                          "sha256": digest, "artifact_ref": artifact_ref,
+                          "size_bytes": len(content)})
         result = {
             "schema": "merlin-avrea-result-receipt/1",
             "provider": "avrea", "runner_id": runner_id, "job_id": job_id,

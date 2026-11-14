@@ -49,6 +49,11 @@ class AvreaAdapterTests(unittest.TestCase):
         adapter.dispatch(self.job)
         result = adapter.collect("job-1",project_id="merlin")
         self.assertEqual(result["artifacts"][0]["name"],"result.json")
+        self.assertEqual(result["artifacts"][0]["artifact_ref"]["schema"],
+                         "merlin-artifact-ref/1")
+        self.assertEqual(result["artifacts"][0]["artifact_ref"]["version"], 1)
+        self.assertEqual(result["artifacts"][0]["artifact_ref"]["sha256"],
+                         result["artifacts"][0]["sha256"])
         self.assertTrue(self.registry.verify_artifact(result["artifacts"][0]["sha256"]))
         result_event_id = "evt_" + hashlib.sha256("avrea-result:job-1".encode()).hexdigest()
         result_event = self.outbox.get(result_event_id)

@@ -211,3 +211,12 @@ Do not create a parallel registry, artifact service, graph or outbox.
 - Added `tests/test_artifact_ref.py` for pinned historical versions, same-digest reversion identity, wrong version/digest, missing versions, tampered blobs and strict schema/path validation.
 - Fresh native CI and unified platform runs were queued for exact head `320454d1912832abf017522ea6c05935fee195a5` (run IDs 43489158523 and 43489158501 at the time of this update).
 - Scope is deliberately limited to canonical registry issuance/resolution. End-to-end propagation through Hermes, Avrea/OCI and CACE remains unimplemented and must be migrated as coordinated versioned contracts; no old CACE receipt is to be treated as version-bound.
+
+
+### 2026-11-13 continuation: evidence and runner artifact lineage
+
+- Research evidence recording now returns and persists the exact `merlin-artifact-ref/1` in its graph node metadata, graph edge provenance and result.
+- Graph artifact identity now includes the chronological version as well as project/path/digest. This prevents distinct A -> B -> A versions from collapsing to one graph node.
+- Avrea result collection now resolves each stored artifact to its exact registry reference and includes that reference in the immutable `merlin-avrea-result-receipt/1` and outbox event payload.
+- Tests assert evidence and Avrea results carry the exact pinned reference, and that historical/reverted evidence remains distinguishable even when the bytes have the same digest.
+- This advances registry -> research evidence and registry -> Avrea result collection. It does not yet propagate the reference into Avrea dispatch input, Hermes task envelopes, MCFC execution leases or the real CACE signed EvidenceBundle contract.
