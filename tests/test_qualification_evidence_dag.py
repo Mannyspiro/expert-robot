@@ -491,6 +491,15 @@ class QualificationEvidenceDagTests(unittest.TestCase):
                 self.assertNotEqual(rejected.returncode, 0)
                 self.assertIn("identity", rejected.stderr.decode("utf-8").lower())
 
+
+    def test_canonical_json_rejects_floats_and_unsafe_integer_ranges(self):
+        with self.assertRaisesRegex(ValueError, "floating-point"):
+            canonical_json({"value": 1.0})
+        with self.assertRaisesRegex(ValueError, "safe range"):
+            canonical_json({"value": 2 ** 53})
+        with self.assertRaisesRegex(ValueError, "safe range"):
+            canonical_json({"value": -(2 ** 53)})
+
     def test_oci_execution_identity_accepts_typed_task_and_input_artifact_refs(self):
         task_ref = {
             "schema": "merlin-artifact-ref/1", "project_id": "merlin",
