@@ -78,3 +78,77 @@ class ArtifactRefTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ArtifactProvenanceTests(unittest.TestCase):
+    def test_exact_version_carries_immutable_source_and_artifact_provenance(self):
+        with tempfile.TemporaryDirectory() as temp:
+            registry = MerlinRegistry(Path(temp) / "registry")
+            registry.register_project("merlin", "Merlin")
+            provenance = {
+                "schema": "merlin-artifact-provenance/1",
+                "source_repo": "Mannyspiro/expert-robot",
+                "source_commit": "a" * 40,
+                "artifact_id": "directive-123",
+                "artifact_kind": "directive-bundle",
+                "artifact_schema": "merlin-directive-bundle/1",
+            }
+            raw = b'{"directive":"verified"}'
+            registry.put_artifact(
+                "merlin", "intents/directive-123.json", raw,
+                "application/json", provenance=provenance,
+            )
+            ref = registry.artifact_ref("merlin", "intents/directive-123.json")
+            resolution = registry.resolve_artifact_ref(ref)
+            self.assertEqual(resolution["provenance"], provenance)
+            self.assertTrue(resolution["verified"])
+
+    def test_provenance_cannot_be_backfilled_or_changed_on_replay(self):
+        with tempfile.TemporaryDirectory() as temp:
+            registry = MerlinRegistry(Path(temp) / "registry")
+            registry.register_project("merlin", "Merlin")
+            raw = b"same bytes"
+            registry.put_artifact("merlin", "result.bin", raw)
+            provenance = {
+                "schema": "merlin-artifact-provenance/1",
+                "source_repo": "Mannyspiro/expert-robot",
+                "source_commit": "a" * 40,
+                "artifact_id": "result-1",
+                "artifact_kind": "research-result",
+                "artifact_schema": "research-result/1",
+            }
+            with self.assertRaisesRegex(ValueError, "cannot attach or alter"):
+                registry.put_artifact("merlin", "result.bin", raw, provenance=provenance)
+            registry.put_artifact("merlin", "next.bin", raw, provenance=provenance)
+            altered = dict(provenance, source_commit="b" * 40)
+            with self.assertRaisesRegex(ValueError, "cannot attach or alter"):
+                registry.put_artifact("merlin", "next.bin", raw, provenance=altered)
+
+    def test_provenance_fields_and_digest_are_immutable(self):
+        import sqlite3
+        with tempfile.TemporaryDirectory() as temp:
+            registry = MerlinRegistry(Path(temp) / "registry")
+            registry.register_project("merlin", "Merlin")
+            provenance = {
+                "schema": "merlin-artifact-provenance/1",
+                "source_repo": "Mannyspiro/expert-robot",
+                "source_commit": "a" * 40,
+                "artifact_id": "result-1",
+                "artifact_kind": "research-result",
+                "artifact_schema": "research-result/1",
+            }
+            registry.put_artifact("merlin", "result.bin", b"result", provenance=provenance)
+            with self.assertRaises(sqlite3.IntegrityError):
+                with sqlite3.connect(registry.db_path) as db:
+                    db.execute(
+                        "UPDATE artifact_version_provenance SET provenance_sha256=? "
+                        "WHERE project_id=? AND logical_path=? AND version=1",
+                        ("0" * 64, "merlin", "result.bin"),
+                    )
+            with self.assertRaises(sqlite3.IntegrityError):
+                with sqlite3.connect(registry.db_path) as db:
+                    db.execute(
+                        "DELETE FROM artifact_version_provenance "
+                        "WHERE project_id=? AND logical_path=? AND version=1",
+                        ("merlin", "result.bin"),
+                    )
