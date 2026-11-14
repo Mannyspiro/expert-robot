@@ -181,7 +181,10 @@ class MerlinRegistryBackup:
                     staged_blob = stage / blob["path"]
                     archive.write(staged_blob, blob["path"])
 
+            verified = self.verify_archive(temporary_archive)
             archive_sha256, archive_size = _sha256_file(temporary_archive)
+            if verified["archive_sha256"] != archive_sha256:
+                raise RuntimeError("backup package changed during final verification")
             # A hard link provides atomic no-overwrite publication on the same filesystem.
             os.link(temporary_archive, target)
             with target.open("rb") as published:
