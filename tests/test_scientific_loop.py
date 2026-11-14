@@ -18,6 +18,7 @@ class ScientificLoopTests(unittest.TestCase):
             "uncertainty": {"latency_ms": 2.0},
             "conditions": {"runner": "avrea-8vcpu", "load": "fixed"},
             "source_refs": ("benchmark:run-17",),
+            "observed_at": "2026-11-14T02:30:00-07:00",
             "artifact_sha256": "a" * 64,
         }
         values.update(changes)
@@ -89,3 +90,12 @@ class ScientificLoopTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+    def test_observation_requires_offset_aware_timestamp(self):
+        with self.assertRaises(ValueError):
+            self.observation(observed_at="2026-11-14T02:30:00").validate()
+
+    def test_rejects_nonfinite_predictions(self):
+        obs = self.observation()
+        with self.assertRaises(ValueError):
+            compare_observation(obs, [Prediction("latency_ms", float("nan"), 1, "ms")])
