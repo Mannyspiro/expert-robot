@@ -114,6 +114,8 @@ class MerlinRegistryBackup:
         self.db_path = self.root / "merlin.sqlite3"
         if not self.db_path.is_file() or self.db_path.is_symlink():
             raise FileNotFoundError("an existing canonical MerlinRegistry is required")
+        # Ensure the optional projection ledger is initialized before taking a backup.
+        self.history = SnapshotHistory(self.db_path)
 
     def backup_to(self, destination: str | Path) -> dict[str, Any]:
         """Create a non-overwriting ZIP containing a consistent DB and all referenced blobs."""
