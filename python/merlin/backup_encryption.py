@@ -57,6 +57,19 @@ def _reject_duplicate_keys(pairs):
     return result
 
 
+class _HashingReader:
+    def __init__(self, stream):
+        self.stream = stream
+        self.digest = hashlib.sha256()
+        self.size = 0
+
+    def read(self, length: int = -1) -> bytes:
+        chunk = self.stream.read(length)
+        self.digest.update(chunk)
+        self.size += len(chunk)
+        return chunk
+
+
 def _read_exact(stream, length: int) -> bytes:
     chunks = []
     remaining = length
@@ -124,6 +137,8 @@ class MerlinBackupEncryption:
 
         nonce_prefix = secrets.token_bytes(8)
         chunk_count = (backup_receipt["size_bytes"] + chunk_size - 1) // chunk_size
+        if not 1 <= chunk_count <= 0xFFFFFFFF:
+            raise ValueError("backup package exceeds the supported encrypted chunk count")
         header = {
             "schema": ENVELOPE_SCHEMA,
             "algorithm": ALGORITHM,
@@ -208,20 +223,10 @@ class MerlinBackupEncryption:
         if target.exists() or target.is_symlink():
             raise FileExistsError("decrypted backup destination already exists")
 
-        envelope_digest = hashlib.sha256()
-        envelope_size = 0
-        with _open_regular_nofollow(source) as stream:
-            # Hash the exact encrypted bytes in a separate no-follow pass.
-            while True:
-                chunk = stream.read(1024 * 1024)
-                if not chunk:
-                    break
-                envelope_digest.update(chunk)
-                envelope_size += len(chunk)
-
         with tempfile.TemporaryDirectory(prefix=".merlin-decrypted-backup-", dir=target.parent) as temp:
             temporary_path = Path(temp) / "backup.zip"
-            with _open_regular_nofollow(source) as stream:
+            with _open_regular_nofollow(source) as raw_stream:
+                stream = _HashingReader(raw_stream)
                 if _read_exact(stream, len(MAGIC)) != MAGIC:
                     raise ValueError("unsupported encrypted backup envelope")
                 header_length = struct.unpack(">I", _read_exact(stream, 4))[0]
@@ -321,8 +326,8 @@ class MerlinBackupEncryption:
             _publish_no_overwrite(temporary_path, target)
         return {
             "path": str(target),
-            "envelope_sha256": envelope_digest.hexdigest(),
-            "envelope_size_bytes": envelope_size,
+            "envelope_sha256": stream.digest.hexdigest(),
+            "envelope_size_bytes": stream.size,
             "plaintext_sha256": plaintext_sha256,
             "plaintext_size_bytes": header["plaintext_size"],
             "key_id": header["key_id"],
