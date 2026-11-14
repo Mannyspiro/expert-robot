@@ -146,7 +146,7 @@ def _validate_identity(node_type: str, identity: Mapping[str, Any]) -> None:
             raise ValueError("identity.artifact_ref must be an object")
         ArtifactRef.from_mapping(identity["artifact_ref"])
     elif node_type == "oci_execution":
-        for field in ("execution_id", "runner_profile", "task_ref"):
+        for field in ("execution_id", "runner_profile"):
             _require_text(identity, field)
         if not isinstance(identity.get("task_ref"), dict):
             raise ValueError("identity.task_ref must be an ArtifactRef object")
