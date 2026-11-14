@@ -143,3 +143,11 @@ The next increment adds `SnapshotHistory` in the same module. It stores canonica
 - Tests cover concurrent writers, replay, update/delete rejection, tampered stored bytes, and refusal to create a second registry database.
 
 This is local SQLite persistence only. It does not yet provide multi-host consensus, backup/restore qualification, event/outbox coupling, authenticated source adapters, or API/HUD exposure. A multi-host deployment must not assume SQLite's local writer serialization is a distributed lock.
+
+
+## Exact-head CI receipts
+
+- Runtime PR #149 exact head `d5f0c7fe2c43599850aa980cbc08797ce9bfe482`: CI run `43604937482` **SUCCESS**. Diagnostics artifact `14117398094`, SHA-256 `00e870bc5ccc0983fd05e8cf4178be0f2b5a0a5546c590693f343b7dd37758c0`.
+- Snapshot history PR #150 exact head `97107bbf38f2e68823fe7c3c7c18599656b7005f`: CI run `43605192756` **SUCCESS**. Diagnostics artifact `14118372468`, SHA-256 `aad40e4f92affdf10927f3e7c40bce8bc8fad534078add67b56d087a6582324d`.
+- The latter exact-head run includes the DAG runtime test suite in the canonical CI workflow.
+- Both PRs remain draft/stacked. These are engineering test receipts, not production qualification or independent evidence verification.
