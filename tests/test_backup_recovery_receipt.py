@@ -35,7 +35,7 @@ class BackupRecoveryReceiptTests(unittest.TestCase):
             },
             "kms": {
                 "key_ocid": "ocid1.key.oc1..example",
-                "key_version": 3,
+                "key_version_id": "ocid1.keyversion.oc1..version3",
             },
             "restore": {
                 "host_identity_sha256": "e" * 64,
