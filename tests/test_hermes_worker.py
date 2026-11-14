@@ -5,6 +5,7 @@ import unittest
 from pathlib import Path
 
 from merlin.event_outbox import MerlinEventOutbox
+from merlin.artifact_ref import ArtifactRef
 from merlin.hermes_worker import HermesWorker
 
 
@@ -137,6 +138,38 @@ class HermesWorkerTests(unittest.TestCase):
         event["resource_budget"]["max_wall_seconds"] = 86401
         self.outbox.enqueue("research-task:bad-budget", "merlin.hermes.task", event)
         result = self.worker(lambda task, context: {}, max_attempts=1).run_once()
+        self.assertEqual(result["status"], "quarantined")
+
+    def test_worker_revalidates_input_and_output_artifact_references(self):
+        ref = ArtifactRef("merlin", "input.json", 1, "b" * 64).to_dict()
+        payload = task_payload("artifact-ref")
+        payload["artifact_refs"] = [ref]
+        event = self.outbox.enqueue("research-task:artifact-ref", "merlin.hermes.task",
+                                    payload, now=1)
+        seen = []
+        def handler(task, context):
+            seen.extend(context.artifact_refs)
+            return {"summary": "bound", "artifact_refs": [ref]}
+        worker = HermesWorker(
+            self.outbox, handlers={"experiment": handler},
+            approval_validator=lambda *_: True, lease_validator=lambda *_: True,
+            artifact_ref_validator=lambda value: value == ref,
+        )
+        result = worker.run_once(now=2)
+        self.assertEqual(result["status"], "completed")
+        self.assertEqual(seen, [ref])
+        receipt = self.outbox.get(event["event_id"])["result"]
+        self.assertEqual(receipt["input_artifact_refs"], [ref])
+        self.assertEqual(receipt["output_artifact_refs"], [ref])
+
+    def test_worker_fails_closed_without_registry_validator_for_referenced_input(self):
+        ref = ArtifactRef("merlin", "input.json", 1, "c" * 64).to_dict()
+        payload = task_payload("missing-validator")
+        payload["artifact_refs"] = [ref]
+        self.outbox.enqueue("research-task:missing-validator", "merlin.hermes.task",
+                            payload, now=1)
+        worker = self.worker(lambda task, context: {})
+        result = worker.run_once(now=2)
         self.assertEqual(result["status"], "quarantined")
 
     def _all_rows(self):

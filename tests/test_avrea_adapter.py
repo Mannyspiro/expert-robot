@@ -67,6 +67,26 @@ class AvreaAdapterTests(unittest.TestCase):
         self.assertEqual(self.outbox.counts()["pending"], before)
         self.assertEqual(self.outbox.get(result_event_id)["payload"], result)
 
+    def test_dispatch_pins_and_resolves_input_artifact_versions(self):
+        digest = self.registry.put_artifact("merlin", "input.json", b"input")
+        ref = self.registry.artifact_ref("merlin", "input.json")
+        job = {**self.job, "artifact_refs": [ref]}
+        receipt = self.adapter().dispatch(job)
+        self.assertEqual(receipt["artifact_refs"], [ref])
+        self.assertEqual(receipt["schema"], "merlin-avrea-dispatch-receipt/1")
+        self.assertEqual(ref["sha256"], digest)
+
+    def test_dispatch_rejects_malformed_or_unresolvable_artifact_reference(self):
+        malformed = {**self.job, "artifact_refs": [{"schema": "bad"}]}
+        with self.assertRaises(ValueError):
+            self.adapter().dispatch(malformed)
+        missing = {**self.job, "artifact_refs": [{
+            "schema": "merlin-artifact-ref/1", "project_id": "merlin",
+            "logical_path": "missing.json", "version": 1, "sha256": "d" * 64,
+        }]}
+        with self.assertRaises(KeyError):
+            self.adapter().dispatch(missing)
+
     def test_missing_transport_fails_closed(self):
         adapter = AvreaAdapter(dispatch_transport=None,collect_transport=None,
             approval_validator=lambda *_:True,lease_validator=lambda *_:True,

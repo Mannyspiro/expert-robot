@@ -220,3 +220,14 @@ Do not create a parallel registry, artifact service, graph or outbox.
 - Avrea result collection now resolves each stored artifact to its exact registry reference and includes that reference in the immutable `merlin-avrea-result-receipt/1` and outbox event payload.
 - Tests assert evidence and Avrea results carry the exact pinned reference, and that historical/reverted evidence remains distinguishable even when the bytes have the same digest.
 - This advances registry -> research evidence and registry -> Avrea result collection. It does not yet propagate the reference into Avrea dispatch input, Hermes task envelopes, MCFC execution leases or the real CACE signed EvidenceBundle contract.
+
+
+### 2026-11-13 continuation: Hermes/Avrea version-pinned task contract
+
+- Research dispatch now emits `merlin-research-task/2` with an explicit `artifact_refs` array. References are strict `ArtifactRef` values; non-empty input references require an injected canonical registry validator and fail closed if absent or false.
+- Hermes worker accepts the v2 task contract, validates reference shape, revalidates every referenced input against the canonical registry at execution time, and exposes immutable input references in `TaskExecutionContext`.
+- Hermes result receipts are now `merlin-hermes-task-result/2`, preserving both input and output artifact-reference arrays. Output references must also resolve through the configured registry validator.
+- Canonical stage handlers return their stored artifact reference as an output reference.
+- Avrea accepts the v2 task contract, resolves every input reference before dispatch, and includes the exact references in its accepted dispatch receipt.
+- Compatibility is explicit: old v1 tasks are not silently treated as v2. The v2 payload always includes an `artifact_refs` array, including an empty array when no registry inputs are required.
+- The reference now flows registry -> research evidence -> Hermes task -> Hermes handler result -> Avrea dispatch input/result receipt. Avrea collected output references already flow through the result outbox. CACE's signed EvidenceBundle binding remains the next boundary to implement.

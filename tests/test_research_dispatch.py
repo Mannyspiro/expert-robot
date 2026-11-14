@@ -3,6 +3,7 @@ import unittest
 from pathlib import Path
 
 from merlin.event_outbox import MerlinEventOutbox, OutboxConflict
+from merlin.artifact_ref import ArtifactRef
 from merlin.hypothesis_ledger import HypothesisLedger
 from merlin.research_dispatch import ResearchDispatchCoordinator, ResearchTask
 from merlin.research_optimizer import ResearchMetrics
@@ -33,11 +34,12 @@ class ResearchDispatchTests(unittest.TestCase):
     def tearDown(self):
         self.temp.cleanup()
 
-    def coordinator(self, approval=True, lease=True):
+    def coordinator(self, approval=True, lease=True, artifact_ref_validator=None):
         return ResearchDispatchCoordinator(
             self.outbox, self.ledger,
             approval_validator=lambda ref, task: approval and ref == "approval:1",
             lease_validator=lambda ref, budget: lease and ref == "lease:1",
+            artifact_ref_validator=artifact_ref_validator,
             artifact_ref_validator=lambda ref: True,
         )
 
@@ -79,6 +81,19 @@ class ResearchDispatchTests(unittest.TestCase):
         task = ResearchTask(**{**make_task().__dict__, "hypothesis_id": "missing"})
         with self.assertRaises(KeyError):
             self.coordinator().dispatch(task)
+
+    def test_input_artifact_references_require_canonical_registry_validation(self):
+        ref = ArtifactRef("merlin", "inputs/data.json", 1, "a" * 64).to_dict()
+        task = ResearchTask(**{**make_task().__dict__, "artifact_refs": (ref,)})
+        with self.assertRaisesRegex(RuntimeError, "canonical registry validator"):
+            self.coordinator().dispatch(task)
+        event = self.coordinator(artifact_ref_validator=lambda value: value == ref).dispatch(task)
+        self.assertEqual(event["payload"]["schema"], "merlin-research-task/2")
+        self.assertEqual(event["payload"]["artifact_refs"], [ref])
+        rejected = self.coordinator(artifact_ref_validator=lambda value: False)
+        with self.assertRaisesRegex(ValueError, "unresolved or unverified"):
+            rejected.dispatch(ResearchTask(**{**make_task("bad-ref").__dict__,
+                                                "artifact_refs": (ref,)}))
 
 
 if __name__ == "__main__":
