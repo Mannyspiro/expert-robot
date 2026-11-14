@@ -208,6 +208,28 @@
         "artifact_sha256": "7ed69cf936eefe810efc6c15341c48cb73b913408caa8badba8152ebb87cd477",
         "test": "tests/test_merlin_artifact_ref.py::test_artifact_ref_key_initializer_cleans_partial_temp_on_write_failure"
       }
+    },
+    {
+      "id": "cross-repo-test-reference-path-mismatch",
+      "discovered_by": "merlin-pr-147-exact-head-ci",
+      "symptom": "A downstream regression guard compares a fully qualified external test reference (path::test_name) with an unqualified function name, causing a false failure or a weakened path check.",
+      "prevention": [
+        "Treat external test references as canonical path::test_name values.",
+        "Validate the path and function component independently, then compare the complete qualified reference.",
+        "Add a regression test for path mismatch and test-name mismatch."
+      ],
+      "guard": "tests/known_failure_regression_smoke.py"
+    },
+    {
+      "id": "cross-repo-evidence-pin-duplication",
+      "discovered_by": "merlin-pr-147-exact-head-ci",
+      "symptom": "A CACE source head, workflow run ID, or evidence digest is copied into both the canonical failure registry and a smoke-test assertion; refreshing one copy leaves the other stale.",
+      "prevention": [
+        "Keep the external evidence pin in one canonical registry record.",
+        "Have the smoke test validate pin schema, type, immutability format, and consistency across related external guards without duplicating mutable head/run/digest literals.",
+        "Refresh the canonical pin only after independently querying the exact upstream head, successful workflow run, and retained artifact digest."
+      ],
+      "guard": "tests/known_failure_regression_smoke.py"
     }
   ]
 }
