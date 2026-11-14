@@ -1,0 +1,2 @@
+# Optional production OCI Vault/KMS adapter dependency.
+oci==2.191.0
