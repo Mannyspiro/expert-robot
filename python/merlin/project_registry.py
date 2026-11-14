@@ -66,6 +66,21 @@ class MerlinRegistry:
               PRIMARY KEY(project_id, logical_path, version));
             CREATE INDEX IF NOT EXISTS artifact_versions_by_digest
               ON artifact_versions(digest);
+            CREATE TABLE IF NOT EXISTS artifact_version_provenance(
+              project_id TEXT NOT NULL,
+              logical_path TEXT NOT NULL,
+              version INTEGER NOT NULL,
+              provenance_json TEXT NOT NULL,
+              provenance_sha256 TEXT NOT NULL,
+              PRIMARY KEY(project_id, logical_path, version),
+              FOREIGN KEY(project_id, logical_path, version)
+                REFERENCES artifact_versions(project_id, logical_path, version));
+            CREATE TRIGGER IF NOT EXISTS artifact_version_provenance_no_update
+              BEFORE UPDATE ON artifact_version_provenance
+              BEGIN SELECT RAISE(ABORT, 'artifact version provenance is append-only'); END;
+            CREATE TRIGGER IF NOT EXISTS artifact_version_provenance_no_delete
+              BEFORE DELETE ON artifact_version_provenance
+              BEGIN SELECT RAISE(ABORT, 'artifact version provenance is append-only'); END;
             CREATE TRIGGER IF NOT EXISTS artifact_versions_no_update
               BEFORE UPDATE ON artifact_versions
               BEGIN SELECT RAISE(ABORT, 'artifact versions are append-only'); END;
@@ -117,7 +132,8 @@ class MerlinRegistry:
             )
 
     def put_artifact(self, project_id: str, logical_path: str, content: bytes,
-                     media_type: str = "application/octet-stream") -> str:
+                     media_type: str = "application/octet-stream", *,
+                     provenance: Mapping[str, Any] | None = None) -> str:
         if not isinstance(project_id, str) or not project_id.strip():
             raise ValueError("project_id is required")
         if (not isinstance(logical_path, str) or not logical_path
@@ -128,6 +144,30 @@ class MerlinRegistry:
             raise TypeError("artifact content must be bytes")
         if not isinstance(media_type, str) or not media_type.strip():
             raise ValueError("media_type is required")
+        provenance_json = None
+        provenance_sha256 = None
+        if provenance is not None:
+            expected_provenance_fields = {
+                "schema", "source_repo", "source_commit",
+                "artifact_id", "artifact_kind", "artifact_schema",
+            }
+            if not isinstance(provenance, Mapping) or set(provenance) != expected_provenance_fields:
+                raise ValueError("artifact provenance must contain the exact v1 field set")
+            if provenance.get("schema") != "merlin-artifact-provenance/1":
+                raise ValueError("unsupported artifact provenance schema")
+            source_repo = provenance.get("source_repo")
+            source_commit = provenance.get("source_commit")
+            if not isinstance(source_repo, str) or not source_repo.strip():
+                raise ValueError("artifact provenance source_repo is required")
+            if (not isinstance(source_commit, str) or len(source_commit) != 40
+                    or any(ch not in "0123456789abcdef" for ch in source_commit)):
+                raise ValueError("artifact provenance source_commit must be a full lowercase Git SHA")
+            for field in ("artifact_id", "artifact_kind", "artifact_schema"):
+                value = provenance.get(field)
+                if not isinstance(value, str) or not value.strip() or len(value) > 256:
+                    raise ValueError(f"artifact provenance {field} is invalid")
+            provenance_json = self._canonical_json(provenance)
+            provenance_sha256 = hashlib.sha256(provenance_json.encode("utf-8")).hexdigest()
         with closing(self._connect()) as db:
             if not db.execute("SELECT 1 FROM projects WHERE project_id=?",
                               (project_id,)).fetchone():
@@ -172,6 +212,24 @@ class MerlinRegistry:
                     "ON CONFLICT(project_id,logical_path) DO UPDATE SET digest=excluded.digest",
                     (project_id, digest, logical_path),
                 )
+                if provenance_json is not None:
+                    db.execute(
+                        "INSERT INTO artifact_version_provenance VALUES(?,?,?,?,?)",
+                        (project_id, logical_path, next_version, provenance_json, provenance_sha256),
+                    )
+            elif provenance_json is not None:
+                current_version = db.execute(
+                    "SELECT MAX(version) AS version FROM artifact_versions "
+                    "WHERE project_id=? AND logical_path=?",
+                    (project_id, logical_path),
+                ).fetchone()["version"]
+                existing_provenance = db.execute(
+                    "SELECT provenance_json FROM artifact_version_provenance "
+                    "WHERE project_id=? AND logical_path=? AND version=?",
+                    (project_id, logical_path, current_version),
+                ).fetchone()
+                if existing_provenance is None or existing_provenance["provenance_json"] != provenance_json:
+                    raise ValueError("cannot attach or alter provenance for an already registered artifact version")
         return digest
 
     def artifact_history(self, project_id: str, logical_path: str) -> list[dict[str, Any]]:
@@ -255,7 +313,13 @@ class MerlinRegistry:
         blob_path = self.blobs / ref.sha256[:2] / ref.sha256[2:]
         if blob_path.stat().st_size != row["size_bytes"]:
             raise RuntimeError("artifact reference content size does not match its version record")
-        return {
+        with closing(self._connect()) as db:
+            provenance_row = db.execute(
+                "SELECT provenance_json,provenance_sha256 FROM artifact_version_provenance "
+                "WHERE project_id=? AND logical_path=? AND version=?",
+                (ref.project_id, ref.logical_path, ref.version),
+            ).fetchone()
+        result = {
             "schema": "merlin-artifact-resolution/1",
             "artifact_ref": ref.to_dict(),
             "media_type": row["media_type"],
@@ -265,6 +329,15 @@ class MerlinRegistry:
             "is_current": current is not None and current["version"] == ref.version,
             "verified": True,
         }
+        if provenance_row is not None:
+            provenance_json = provenance_row["provenance_json"]
+            if hashlib.sha256(provenance_json.encode("utf-8")).hexdigest() != provenance_row["provenance_sha256"]:
+                raise RuntimeError("artifact version provenance integrity check failed")
+            try:
+                result["provenance"] = json.loads(provenance_json)
+            except ValueError as exc:
+                raise RuntimeError("artifact version provenance is malformed") from exc
+        return result
 
     def read_artifact_ref(
         self,
