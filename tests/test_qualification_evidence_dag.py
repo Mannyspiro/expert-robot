@@ -38,6 +38,9 @@ class QualificationEvidenceDagTests(unittest.TestCase):
             {
                 "statement_sha256": "6" * 64, "verifier_id": "cace-verifier-v2",
                 "key_id": "artifact-ref-key-7", "purpose": "artifact-integrity",
+                "source_repo": "Mannyspiro/expert-robot", "source_commit": "a" * 40,
+                "artifact_id": "candidate-lean-3", "artifact_kind": "lean-source",
+                "artifact_schema": "lean-source/1",
                 "artifact_ref": {
                     "schema": "merlin-artifact-ref/1",
                     "project_id": "merlin", "logical_path": "research/candidate.lean",
@@ -169,6 +172,30 @@ class QualificationEvidenceDagTests(unittest.TestCase):
         self.assertEqual(statuses[self.artifact["node_id"]], "unqualified")
         self.assertEqual(statuses[self.attestation["node_id"]], "unqualified")
         self.assertEqual(statuses[self.verification["node_id"]], "unqualified")
+
+
+
+    def test_rejects_incomplete_cace_source_binding_and_malformed_status(self):
+        identity = {
+            "statement_sha256": "6" * 64, "verifier_id": "cace-verifier-v2",
+            "key_id": "artifact-ref-key-7", "purpose": "artifact-integrity",
+            "source_repo": "Mannyspiro/expert-robot", "source_commit": "a" * 40,
+            "artifact_id": "candidate-lean-3", "artifact_kind": "lean-source",
+            "artifact_schema": "lean-source/1",
+            "artifact_ref": {
+                "schema": "merlin-artifact-ref/1", "project_id": "merlin",
+                "logical_path": "research/candidate.lean", "version": 3,
+                "sha256": "2" * 64,
+            },
+        }
+        incomplete = dict(identity)
+        incomplete.pop("source_commit")
+        with self.assertRaisesRegex(ValueError, "source_commit"):
+            node_id_for("cace_attestation", incomplete)
+        with self.assertRaisesRegex(ValueError, "unknown evidence status"):
+            make_node("source_commit", {
+                "repository": "repo", "commit": "a" * 40,
+            }, "1" * 64, "source", [])
 
     def test_topological_order_places_prerequisites_before_dependents(self):
         snapshot = build_snapshot(self.nodes, self.edges)
