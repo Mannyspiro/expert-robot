@@ -203,6 +203,32 @@ class QualificationEvidenceDagTests(unittest.TestCase):
                 "repository": "repo", "commit": "a" * 40,
             }, "1" * 64, "source", [])
 
+
+    def test_oci_execution_identity_accepts_typed_task_and_input_artifact_refs(self):
+        task_ref = {
+            "schema": "merlin-artifact-ref/1", "project_id": "merlin",
+            "logical_path": "jobs/task.json", "version": 4, "sha256": "5" * 64,
+        }
+        input_ref = {
+            "schema": "merlin-artifact-ref/1", "project_id": "merlin",
+            "logical_path": "inputs/model.bin", "version": 2, "sha256": "6" * 64,
+        }
+        identity = {
+            "execution_id": "oci-exec-20261114-01",
+            "runner_profile": "oci-isolated-cpu",
+            "task_ref": task_ref, "input_refs": [input_ref],
+        }
+        node_id = node_id_for("oci_execution", identity)
+        self.assertTrue(node_id.startswith("sha256:"))
+        malformed = dict(identity)
+        malformed["task_ref"] = "jobs/task.json"
+        with self.assertRaisesRegex(ValueError, "task_ref"):
+            node_id_for("oci_execution", malformed)
+        malformed_inputs = dict(identity)
+        malformed_inputs["input_refs"] = ["inputs/model.bin"]
+        with self.assertRaisesRegex(ValueError, "ArtifactRef"):
+            node_id_for("oci_execution", malformed_inputs)
+
     def test_topological_order_places_prerequisites_before_dependents(self):
         snapshot = build_snapshot(self.nodes, self.edges)
         order = prerequisite_first_order(snapshot)
