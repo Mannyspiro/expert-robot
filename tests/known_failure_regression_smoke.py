@@ -102,6 +102,20 @@ signer_stack = next(
 assert any("dependency order" in rule for rule in signer_stack["prevention"])
 assert any("pinned secure key loader" in rule for rule in signer_stack["prevention"])
 
+
+backup_archive_fixture = next(
+    item for item in classes
+    if item["id"] == "backup-archive-size-fixture-masks-digest-check"
+)
+assert backup_archive_fixture["external_regression_test"] == {
+    "repository": "Mannyspiro/expert-robot",
+    "path": "tests/test_registry_backup.py",
+    "test": (
+        "tests/test_registry_backup.py::"
+        "MerlinRegistryBackupTests.test_verifier_rejects_tampered_archive_blob"
+    ),
+}
+
 backup_fixture = next(
     item for item in classes
     if item["id"] == "backup-tamper-fixture-precondition-masking"
