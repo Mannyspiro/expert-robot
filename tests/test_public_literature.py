@@ -35,7 +35,7 @@ class PublicLiteratureSearchTests(unittest.TestCase):
         def opener(request, timeout):
             self.assertEqual(urlparse(request.full_url).hostname, "api.crossref.org")
             self.assertNotIn("api_key", parse_qs(urlparse(request.full_url).query))
-            self.assertTrue(any(key.lower() == "user-agent" for key in request.headers))
+            self.assertIn("User-Agent", request.headers)
             return FakeResponse(body)
 
         search = PublicLiteratureSearch(opener=opener, cache_ttl_seconds=0)

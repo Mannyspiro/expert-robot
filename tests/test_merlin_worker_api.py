@@ -1,4 +1,5 @@
 """Authenticated HTTP boundary tests for Hermes' durable outbox worker API."""
+import base64
 import json
 import os
 import tempfile
@@ -12,6 +13,7 @@ from urllib.request import Request, urlopen
 
 from python.merlin.app import EventStore, make_handler
 from python.merlin.event_outbox import MerlinEventOutbox
+from python.merlin.project_registry import ArtifactSizeLimitError, MerlinRegistry
 
 
 class MerlinWorkerApiTests(unittest.TestCase):
@@ -224,6 +226,98 @@ class MerlinWorkerApiTests(unittest.TestCase):
         status, body = self.request("/api/internal/outbox/claim", {})
         self.assertEqual(status, 400)
         self.assertIn("topics", body.get("detail", ""))
+
+
+class MerlinArtifactResolutionApiTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.root = Path(self.temp.name)
+        self.registry = MerlinRegistry(self.root / "registry")
+        self.registry.register_project("merlin", "Merlin")
+        self.token = "r" * 48
+        self._start_server(self.token)
+
+    def _start_server(self, token):
+        self.server_env = patch.dict(
+            os.environ, {"MERLIN_ARTIFACT_READ_TOKEN": token}, clear=False)
+        self.server_env.start()
+        handler = make_handler(
+            EventStore(self.root / ("events-" + str(len(list(self.root.glob("events-*")))) + ".sqlite3")),
+            canonical_registry=self.registry,
+        )
+        self.server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
+        self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
+        self.thread.start()
+        self.base = f"http://127.0.0.1:{self.server.server_port}"
+
+    def _stop_server(self):
+        self.server.shutdown()
+        self.server.server_close()
+        self.thread.join(timeout=2)
+        self.server_env.stop()
+
+    def tearDown(self):
+        self._stop_server()
+        self.temp.cleanup()
+
+    def request_resolution(self, artifact_ref, token=None, schema="merlin-artifact-resolution-request/1"):
+        headers = {"Content-Type": "application/json"}
+        if token is not None:
+            headers["Authorization"] = "Bearer " + token
+        request = Request(
+            self.base + "/api/artifacts/resolve",
+            data=json.dumps({"schema": schema, "artifact_ref": artifact_ref}).encode(),
+            headers=headers,
+        )
+        try:
+            with urlopen(request, timeout=5) as response:
+                return response.status, json.loads(response.read())
+        except HTTPError as error:
+            return error.code, json.loads(error.read())
+
+    def test_authenticated_read_resolves_exact_historical_version_bytes(self):
+        self.registry.put_artifact("merlin", "proof/result.json", b"version-one")
+        first = self.registry.artifact_ref("merlin", "proof/result.json")
+        self.registry.put_artifact("merlin", "proof/result.json", b"version-two")
+        status, body = self.request_resolution(first, self.token)
+        self.assertEqual(status, 200)
+        self.assertEqual(body["schema"], "merlin-artifact-resolution/2")
+        self.assertEqual(body["artifact_ref"], first)
+        self.assertEqual(base64.b64decode(body["content_b64"]), b"version-one")
+        self.assertEqual(body["size_bytes"], len(b"version-one"))
+        self.assertFalse(body["resolution"]["is_current"])
+        self.assertEqual(body["authority"], "read_only_artifact_bytes")
+
+    def test_artifact_resolution_requires_the_dedicated_read_token(self):
+        self.registry.put_artifact("merlin", "proof/result.json", b"proof")
+        ref = self.registry.artifact_ref("merlin", "proof/result.json")
+        status, body = self.request_resolution(ref, "x" * 48)
+        self.assertEqual(status, 401)
+        self.assertEqual(body["error"], "artifact_read_authentication_required")
+
+    def test_artifact_resolution_fails_closed_when_token_is_unconfigured(self):
+        self._stop_server()
+        self._start_server("")
+        self.registry.put_artifact("merlin", "proof/result.json", b"proof")
+        ref = self.registry.artifact_ref("merlin", "proof/result.json")
+        status, body = self.request_resolution(ref, self.token)
+        self.assertEqual(status, 503)
+        self.assertEqual(body["error"], "artifact_read_capability_unconfigured")
+
+    def test_forged_digest_and_oversized_reads_are_rejected(self):
+        self.registry.put_artifact("merlin", "proof/result.json", b"proof")
+        ref = self.registry.artifact_ref("merlin", "proof/result.json")
+        forged = {**ref, "sha256": "0" * 64}
+        status, body = self.request_resolution(forged, self.token)
+        self.assertEqual(status, 400)
+        self.assertEqual(body["error"], "artifact_reference_rejected")
+        with self.assertRaises(ArtifactSizeLimitError):
+            self.registry.read_artifact_ref(ref, max_bytes=1)
+
+    def test_resolution_request_schema_is_strict(self):
+        status, body = self.request_resolution({}, self.token, schema="unknown/1")
+        self.assertEqual(status, 400)
+        self.assertEqual(body["error"], "invalid_artifact_resolution_request")
 
 if __name__ == "__main__":
     unittest.main()

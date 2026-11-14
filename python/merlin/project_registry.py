@@ -17,6 +17,13 @@ from typing import Any, Mapping
 from .artifact_ref import ArtifactRef
 
 
+MAX_ARTIFACT_READ_BYTES = 25 * 1024 * 1024
+
+
+class ArtifactSizeLimitError(ValueError):
+    """Raised when an exact artifact read exceeds the configured byte ceiling."""
+
+
 class MerlinRegistry:
     def __init__(self, root: str | Path):
         self.root = Path(root)
@@ -258,6 +265,31 @@ class MerlinRegistry:
             "is_current": current is not None and current["version"] == ref.version,
             "verified": True,
         }
+
+    def read_artifact_ref(
+        self,
+        value: Mapping[str, Any],
+        *,
+        max_bytes: int = MAX_ARTIFACT_READ_BYTES,
+    ) -> dict[str, Any]:
+        """Return exact immutable version bytes after independent digest/size checks."""
+        if (isinstance(max_bytes, bool) or not isinstance(max_bytes, int)
+                or not 1 <= max_bytes <= MAX_ARTIFACT_READ_BYTES):
+            raise ValueError("max_bytes must be between 1 and 25 MiB")
+        resolution = self.resolve_artifact_ref(value)
+        if resolution["size_bytes"] > max_bytes:
+            raise ArtifactSizeLimitError("artifact exceeds the configured read byte limit")
+        ref = ArtifactRef.from_mapping(value)
+        path = self.blobs / ref.sha256[:2] / ref.sha256[2:]
+        try:
+            content = path.read_bytes()
+        except OSError as exc:
+            raise RuntimeError("artifact reference blob is unavailable") from exc
+        if len(content) != resolution["size_bytes"]:
+            raise RuntimeError("artifact reference content size changed during read")
+        if hashlib.sha256(content).hexdigest() != ref.sha256:
+            raise RuntimeError("artifact reference content digest changed during read")
+        return {"resolution": resolution, "content": content}
 
     def verify_artifact(self, digest: str) -> bool:
         with closing(self._connect()) as db, db:

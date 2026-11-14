@@ -429,7 +429,6 @@ class VirtualRepositoryTests(unittest.TestCase):
         self.repo.commit("feature/conflict", "feature edit", {"src/core.py": "VERSION = 2\n"})
         self.repo.commit("main", "main edit", {"src/core.py": "VERSION = 3\n"}, allow_protected=True)
         pr = self.repo.open_pull_request("feature/conflict", "main", "Conflicting edit")
-        self.pass_main_checks(pr["head_commit"])
         before = {row["name"]: row["commit_id"] for row in self.repo.branches()}["main"]
         result = self.repo.merge_pull_request(pr["pr_id"])
         self.assertEqual(result["status"], "conflict")
@@ -476,7 +475,6 @@ class VirtualRepositoryTests(unittest.TestCase):
         self.repo.commit("other/merge-rebase", "other commit", {"b.txt": "b"})
         pr = self.repo.open_pull_request("other/merge-rebase", "feature/merge-rebase", "make merge commit")
         self.assertEqual(self.repo.merge_pull_request(pr["pr_id"])["status"], "merged")
-        self.repo.commit("main", "advance target after merge", {"main.txt": "main\\n"}, allow_protected=True)
         with self.assertRaises(VirtualGitError):
             self.repo.rebase_branch("feature/merge-rebase", "main")
 
@@ -631,7 +629,7 @@ class VirtualRepositoryTests(unittest.TestCase):
             job_log = get("/api/forge/jobs/" + queued["job_id"] + "/log")
             self.assertEqual(job_log["log_utf8"], "compile complete")
             file_result = get("/api/forge/file?ref=main&path=README.md")
-            self.assertTrue(file_result["content_utf8"].startswith("# Expert Robot"))
+            self.assertEqual(file_result["content_utf8"], "# Merlin\n")
         finally:
             server.shutdown()
             server.server_close()

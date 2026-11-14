@@ -170,12 +170,7 @@ class HermesWorkerTests(unittest.TestCase):
         payload["artifact_refs"] = [ref]
         self.outbox.enqueue("research-task:missing-validator", "merlin.hermes.task",
                             payload, now=1)
-        worker = HermesWorker(
-            self.outbox, handlers={"experiment": lambda task, context: {}},
-            approval_validator=lambda *_: True,
-            lease_validator=lambda *_: True,
-            max_attempts=1, retry_delay_seconds=0,
-        )
+        worker = self.worker(lambda task, context: {}, max_attempts=1)
         result = worker.run_once(now=2)
         self.assertEqual(result["status"], "quarantined")
 
