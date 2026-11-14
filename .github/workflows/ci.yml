@@ -42,6 +42,9 @@ jobs:
         with:
           python-version: "3.11"
 
+      - name: Verify Node.js runtime for independent evidence verifier
+        run: node --version
+
       - name: Install Merlin native build toolchain
         uses: ./.github/actions/setup-merlin-native
       - name: Record runner and source identity
