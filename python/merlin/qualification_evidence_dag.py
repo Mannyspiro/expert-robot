@@ -136,8 +136,11 @@ def _validate_identity(node_type: str, identity: Mapping[str, Any]) -> None:
             raise ValueError("identity.artifact_ref must be an object")
         ArtifactRef.from_mapping(identity["artifact_ref"])
     elif node_type == "trust_root":
-        for field in ("authority_id", "version"):
-            _require_text(identity, field)
+        _require_text(identity, "authority_id")
+        _require_positive_int(identity, "version")
+        key_id = identity.get("key_id")
+        if not isinstance(key_id, str) or not re.fullmatch(r"ed25519:[0-9a-f]{64}", key_id):
+            raise ValueError("identity.key_id must be a canonical Ed25519 key ID")
         _require_digest(identity.get("root_sha256"), "identity.root_sha256")
     elif node_type == "verification_receipt":
         _require_digest(identity.get("receipt_sha256"), "identity.receipt_sha256")
@@ -145,6 +148,16 @@ def _validate_identity(node_type: str, identity: Mapping[str, Any]) -> None:
         if not isinstance(identity.get("artifact_ref"), dict):
             raise ValueError("identity.artifact_ref must be an object")
         ArtifactRef.from_mapping(identity["artifact_ref"])
+        _require_text(identity, "trust_root_authority_id")
+        _require_positive_int(identity, "trust_root_version")
+        root_key_id = identity.get("trust_root_key_id")
+        if not isinstance(root_key_id, str) or not re.fullmatch(r"ed25519:[0-9a-f]{64}", root_key_id):
+            raise ValueError("identity.trust_root_key_id must be a canonical Ed25519 key ID")
+        _require_digest(identity.get("trust_root_sha256"), "identity.trust_root_sha256")
+        _require_positive_int(identity, "trust_store_version")
+        _require_digest(identity.get("trust_store_sha256"), "identity.trust_store_sha256")
+        _require_text(identity, "trust_store_source_authority")
+        _require_text(identity, "trust_store_retrieval_identity")
     elif node_type == "oci_execution":
         for field in ("execution_id", "runner_profile"):
             _require_text(identity, field)
