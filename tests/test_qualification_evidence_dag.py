@@ -424,6 +424,13 @@ class QualificationEvidenceDagSnapshotHistoryTests(unittest.TestCase):
                     "WHERE snapshot_sha256=?",
                     (snapshot["snapshot_sha256"],),
                 )
+                db.executescript("""
+                    CREATE TRIGGER qualification_evidence_snapshots_no_update
+                    BEFORE UPDATE ON qualification_evidence_snapshots
+                    BEGIN
+                      SELECT RAISE(ABORT, 'qualification evidence snapshots are append-only');
+                    END;
+                """)
             with self.assertRaisesRegex(ValueError, "invalid snapshot"):
                 SnapshotHistory.verify_backup(backup_path)
 
