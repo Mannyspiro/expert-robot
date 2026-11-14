@@ -484,16 +484,30 @@ class SnapshotHistory:
             }
             if not required.issubset(tables):
                 raise ValueError("backup is missing canonical MerlinRegistry or evidence history tables")
-            triggers = {
-                row[0] for row in db.execute(
-                    "SELECT name FROM sqlite_master WHERE type='trigger'"
+            trigger_rows = {
+                row[0]: row[1] for row in db.execute(
+                    "SELECT name, sql FROM sqlite_master WHERE type='trigger'"
                 )
             }
-            if not {
-                "qualification_evidence_snapshots_no_update",
-                "qualification_evidence_snapshots_no_delete",
-            }.issubset(triggers):
-                raise ValueError("backup is missing append-only evidence history guards")
+            expected_triggers = {
+                "qualification_evidence_snapshots_no_update": (
+                    "CREATE TRIGGER qualification_evidence_snapshots_no_update "
+                    "BEFORE UPDATE ON qualification_evidence_snapshots "
+                    "BEGIN SELECT RAISE(ABORT, 'qualification evidence snapshots are append-only'); END"
+                ),
+                "qualification_evidence_snapshots_no_delete": (
+                    "CREATE TRIGGER qualification_evidence_snapshots_no_delete "
+                    "BEFORE DELETE ON qualification_evidence_snapshots "
+                    "BEGIN SELECT RAISE(ABORT, 'qualification evidence snapshots are append-only'); END"
+                ),
+            }
+            for name, expected_sql in expected_triggers.items():
+                actual_sql = trigger_rows.get(name)
+                if not isinstance(actual_sql, str):
+                    raise ValueError("backup is missing append-only evidence history guards")
+                normalize_sql = lambda value: re.sub(r"\\s+", " ", value).strip().rstrip(";").casefold()
+                if normalize_sql(actual_sql) != normalize_sql(expected_sql):
+                    raise ValueError("backup append-only evidence trigger definition mismatch")
             rows = db.execute(
                 "SELECT sequence, snapshot_sha256, snapshot_json "
                 "FROM qualification_evidence_snapshots ORDER BY sequence"
