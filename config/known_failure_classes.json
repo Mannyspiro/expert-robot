@@ -230,6 +230,17 @@
         "Refresh the canonical pin only after independently querying the exact upstream head, successful workflow run, and retained artifact digest."
       ],
       "guard": "tests/known_failure_regression_smoke.py"
+    },
+    {
+      "id": "backup-verifier-tamper-fixture-guard-precedence",
+      "discovered_by": "merlin-pr-150-backup-verification-ci",
+      "symptom": "A tamper test removes an integrity guard before injecting bad data, so the verifier correctly fails at the earlier guard check and the test never reaches the intended payload-integrity assertion.",
+      "prevention": [
+        "Keep all unrelated integrity guards valid when testing one verifier layer.",
+        "Restore the exact expected guard after controlled tampering, or assert the documented earliest fail-closed condition.",
+        "Make test fixtures state the verifier stage they intend to exercise."
+      ],
+      "guard": "tests/known_failure_regression_smoke.py"
     }
   ]
 }
