@@ -302,6 +302,14 @@ class QualificationEvidenceDagTests(unittest.TestCase):
         )
         self.assertNotEqual(rejected_float.returncode, 0)
         self.assertIn("input is not canonical JSON", rejected_float.stderr.decode("utf-8"))
+        reordered = copy.deepcopy(snapshot)
+        reordered["nodes"].reverse()
+        rejected_order = subprocess.run(
+            [node, str(script)], input=canonical_json(reordered),
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        self.assertNotEqual(rejected_order.returncode, 0)
+        self.assertIn("not in canonical order", rejected_order.stderr.decode("utf-8"))
 
     def test_oci_execution_identity_accepts_typed_task_and_input_artifact_refs(self):
         task_ref = {
