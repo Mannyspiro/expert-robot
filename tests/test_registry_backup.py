@@ -1,6 +1,7 @@
 import hashlib
 import json
 import os
+import sqlite3
 from pathlib import Path
 import tempfile
 import unittest
@@ -122,6 +123,24 @@ class MerlinRegistryBackupTests(unittest.TestCase):
             archive.writestr("manifest.json", b"{}")
         with self.assertRaisesRegex(ValueError, "duplicate"):
             MerlinRegistryBackup.verify_archive(duplicate)
+
+
+    def test_backup_rejects_outbox_event_that_does_not_bind_its_snapshot(self):
+        event_id = self.published["event_id"]
+        with sqlite3.connect(self.registry.db_path) as db:
+            row = db.execute(
+                "SELECT payload_json FROM event_outbox WHERE event_id=?", (event_id,)
+            ).fetchone()
+            payload = json.loads(row[0])
+            payload["snapshot_sha256"] = "f" * 64
+            db.execute(
+                "UPDATE event_outbox SET payload_json=? WHERE event_id=?",
+                (json.dumps(payload, sort_keys=True, separators=(",", ":")), event_id),
+            )
+        destination = Path(self.temp.name) / "bad-outbox-backup.zip"
+        with self.assertRaisesRegex(ValueError, "idempotency identity mismatch"):
+            self.backup.backup_to(destination)
+        self.assertFalse(destination.exists())
 
     def test_backup_manifest_binds_exact_database_and_blob_inventory(self):
         archive_path = Path(self.temp.name) / "inventory.zip"
