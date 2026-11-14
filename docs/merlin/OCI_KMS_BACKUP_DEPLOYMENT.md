@@ -87,3 +87,20 @@ Object Storage upload/download and bucket retention are implemented as a tested 
 
 
 A create-only retry is not accepted on metadata alone: after a conditional-create 412, Merlin downloads the existing object version (or ETag-pinned current object) and hashes the full encrypted envelope before returning an idempotent replay receipt. Upload requests also provide the base64-encoded expected SHA-256 to Object Storage for server-side checksum validation. This protects against stale or substituted bytes whose custom metadata was copied or left unchanged.
+
+
+## Canonical recovery-drill receipt
+
+Merlin now defines `merlin-backup-recovery-receipt/1` as an integrity-only record for a future live restore drill. It binds:
+- source repository and full source commit;
+- original backup package and manifest digests, plus the restored manifest digest (which must match);
+- encrypted envelope SHA-256 and byte length;
+- Object Storage namespace, bucket, content-addressed object name, ETag and optional version ID;
+- KMS key OCID and key version;
+- restore host identity digest, protected runner profile, start/end timestamps and measured duration;
+- explicit success checks for envelope authentication, archive verification, database integrity, foreign keys, blob inventory, ArtifactRef resolution, DAG history, Hermes outbox pointers and separate-host execution;
+- restored inventory counts for blobs, ArtifactRefs, DAG snapshots and outbox events.
+
+The receipt is canonicalized and SHA-256-bound, but intentionally unsigned. A successful local receipt digest is not CACE verification and does not qualify backup or recovery authority. CACE must independently attest the exact receipt bytes and bind the corresponding backup ArtifactRef before the result can enter a qualification DAG. Failed or missing checks are rejected, and a restored manifest mismatch cannot be represented as a successful drill.
+
+This schema is a preparation contract only. No live OCI restore, separate-host drill, CACE attestation or recovery-time objective is claimed.
