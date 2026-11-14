@@ -58,7 +58,7 @@ for class_id, test_name in expected_cace_guards.items():
     digest = external["artifact_sha256"]
     assert len(digest) == 64 and all(char in "0123456789abcdef" for char in digest)
     assert digest == "237710f7b090997d231068084c9e8118cab98bee8e420784ae22d92659353657"
-    assert external["test"] == test_name
+    assert external["test"] == "tests/test_merlin_artifact_ref.py::" + test_name
 
 cmake = (ROOT / "CMakeLists.txt").read_text(encoding="utf-8")
 assert "-Werror=missing-field-initializers" in cmake
