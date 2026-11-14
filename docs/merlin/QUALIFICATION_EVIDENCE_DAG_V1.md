@@ -118,3 +118,13 @@ Still not implemented:
 - An explicit required-prerequisite policy per node type. Missing required evidence must be represented by a blocked status from the authoritative adapter; the graph must never guess omitted edges.
 
 The module is a read-only projection. It does not sign, verify signatures, execute code, compile Lean, grant capability, or authorize deployment/promotion. CI on the exact runtime PR head is required before treating the implementation as validated.
+
+
+### Exact producer and execution binding
+The runtime now rejects CACE attestation nodes unless their identity includes:
+- the complete schema-validated `ArtifactRef`;
+- full source repository and 40-character source commit;
+- producer `artifact_id`, `artifact_kind`, and `artifact_schema`;
+- signed statement digest, verifier identity, key ID, and attestation purpose.
+
+Protected orchestrator node identities also require the exact execution receipt digest, not merely an execution label. OCI execution identities require schema-validated task and input ArtifactRefs. This makes the graph identity reflect the evidence lineage contract rather than an opaque status string.
