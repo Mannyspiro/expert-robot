@@ -1,4 +1,7 @@
 import copy
+import json
+import shutil
+import subprocess
 import sqlite3
 import tempfile
 import unittest
@@ -140,10 +143,14 @@ class QualificationEvidenceDagTests(unittest.TestCase):
         tampered["nodes"][0]["evidence_class"] = "forged"
         with self.assertRaisesRegex(ValueError, "does not match"):
             validate_snapshot(tampered)
-        with self.assertRaisesRegex(ValueError, "non-finite"):
+        with self.assertRaisesRegex(ValueError, "floating-point"):
             node_id_for("source_commit", {
                 "repository": "repo", "commit": "a" * 40, "score": float("nan"),
             })
+        with self.assertRaisesRegex(ValueError, "floating-point"):
+            canonical_json({"score": 1.25})
+        with self.assertRaisesRegex(ValueError, "safe range"):
+            canonical_json({"run_id": 2 ** 60})
 
     def test_invalidation_is_transitive_and_selective(self):
         snapshot = build_snapshot(self.nodes, self.edges)
@@ -202,6 +209,34 @@ class QualificationEvidenceDagTests(unittest.TestCase):
             make_node("source_commit", {
                 "repository": "repo", "commit": "a" * 40,
             }, "1" * 64, "source", [])
+
+
+
+    def test_independent_node_reference_reproduces_snapshot_digest(self):
+        node = shutil.which("node")
+        if node is None:
+            self.skipTest("Node.js is not installed")
+        snapshot = build_snapshot(self.nodes, self.edges)
+        script = Path(__file__).resolve().parents[1] / "scripts" / "verify_qualification_evidence_dag.js"
+        result = subprocess.run(
+            [node, str(script)], input=canonical_json(snapshot),
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr.decode("utf-8", "replace"))
+        receipt = json.loads(result.stdout.decode("utf-8"))
+        self.assertEqual(receipt["status"], "verified")
+        self.assertEqual(receipt["snapshot_sha256"], snapshot["snapshot_sha256"])
+        self.assertEqual(receipt["node_count"], len(self.nodes))
+        self.assertEqual(receipt["edge_count"], len(self.edges))
+
+        tampered = copy.deepcopy(snapshot)
+        tampered["nodes"][0]["record_sha256"] = "f" * 64
+        rejected = subprocess.run(
+            [node, str(script)], input=canonical_json(tampered),
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False,
+        )
+        self.assertNotEqual(rejected.returncode, 0)
+        self.assertIn("snapshot SHA-256 mismatch", rejected.stderr.decode("utf-8"))
 
     def test_topological_order_places_prerequisites_before_dependents(self):
         snapshot = build_snapshot(self.nodes, self.edges)
