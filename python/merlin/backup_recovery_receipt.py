@@ -142,14 +142,17 @@ def _validate_payload(payload: Mapping[str, Any]) -> None:
 
     restore = payload["restore"]
     if not isinstance(restore, Mapping) or set(restore) != {
-        "host_identity_sha256", "runner_profile", "started_at_unix_ms",
+        "origin_host_identity_sha256", "host_identity_sha256", "runner_profile", "started_at_unix_ms",
         "completed_at_unix_ms", "duration_ms",
     }:
         raise ValueError("restore execution identity is malformed")
+    _require_sha256(restore["origin_host_identity_sha256"], "restore.origin_host_identity_sha256")
     _require_sha256(restore["host_identity_sha256"], "restore.host_identity_sha256")
+    if restore["origin_host_identity_sha256"] == restore["host_identity_sha256"]:
+        raise ValueError("restore host identity must differ from backup origin host")
     _require_text(restore["runner_profile"], "restore.runner_profile")
     for field in ("started_at_unix_ms", "completed_at_unix_ms", "duration_ms"):
-        _require_uint(restore[field], f"restore.{field}")
+        _require_uint(restore[field], f"restore.{field}", minimum=1 if field == "duration_ms" else 0)
     if restore["completed_at_unix_ms"] < restore["started_at_unix_ms"]:
         raise ValueError("restore completion precedes start")
     if restore["duration_ms"] != restore["completed_at_unix_ms"] - restore["started_at_unix_ms"]:
