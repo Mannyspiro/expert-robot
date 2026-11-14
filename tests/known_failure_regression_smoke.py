@@ -82,7 +82,10 @@ for class_id, test_name in expected_cace_guards.items():
     if external_pin is None:
         external_pin = pin
     else:
-        assert pin == external_pin
+        assert pin == external_pin, (
+            f"cross-repository evidence pin drift for {class_id}: "
+            f"observed={pin!r}, canonical={external_pin!r}"
+        )
 
 # Optional fully qualified local regression-test links must resolve to a
 # real test method, not merely an existing file.
