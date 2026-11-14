@@ -10,6 +10,7 @@ from typing import Any, Callable, Mapping
 
 from .event_outbox import MerlinEventOutbox
 from .project_registry import MerlinRegistry
+from .artifact_ref import ArtifactRef
 from .telemetry import agent_event_sink
 
 
@@ -31,8 +32,14 @@ class AvreaAdapter:
         if self.dispatch_transport is None:
             raise RuntimeError("Avrea transport is not configured")
         payload = dict(job)
-        if payload.get("schema") != "merlin-research-task/1":
+        if payload.get("schema") != "merlin-research-task/2":
             raise ValueError("unsupported Merlin job schema")
+        artifact_refs = payload.get("artifact_refs")
+        if not isinstance(artifact_refs, list):
+            raise ValueError("Avrea job artifact_refs must be a list")
+        for value in artifact_refs:
+            ref = ArtifactRef.from_mapping(value)
+            self.registry.resolve_artifact_ref(ref.to_dict())
         if payload.get("promotion_authority") is not False:
             raise PermissionError("Avrea jobs cannot carry promotion authority")
         approval_ref, lease_ref = payload.get("approval_ref"), payload.get("lease_ref")
@@ -64,6 +71,7 @@ class AvreaAdapter:
             "resource_budget": budget,
             "approval_ref": approval_ref,
             "lease_ref": lease_ref,
+            "artifact_refs": [ArtifactRef.from_mapping(ref).to_dict() for ref in artifact_refs],
         }
         receipt["receipt_sha256"] = hashlib.sha256(
             _canonical(receipt).encode("utf-8")

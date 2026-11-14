@@ -12,6 +12,7 @@ import time
 from typing import Any, Callable, Mapping
 
 from .event_outbox import MerlinEventOutbox, LeaseConflict
+from .artifact_ref import ArtifactRef
 from .telemetry import agent_event_sink
 
 HERMES_TASK_TOPIC = "merlin.hermes.task"
@@ -24,6 +25,7 @@ class TaskExecutionContext:
     resource_budget: Mapping[str, int]
     approval_ref: str
     lease_ref: str
+    artifact_refs: tuple[Mapping[str, Any], ...]
     idempotency_key: str
     deadline_epoch: float
     emit_progress: Callable[[str, Mapping[str, Any] | None], None]
@@ -46,6 +48,7 @@ class HermesWorker:
         lease_seconds: float = 120,
         max_attempts: int = 4,
         retry_delay_seconds: float = 2,
+        artifact_ref_validator: Callable[[Mapping[str, Any]], bool] | None = None,
     ):
         if not isinstance(outbox, MerlinEventOutbox):
             raise ValueError("outbox must be a MerlinEventOutbox")
@@ -68,6 +71,7 @@ class HermesWorker:
         self.handlers = dict(handlers)
         self.approval_validator = approval_validator
         self.lease_validator = lease_validator
+        self.artifact_ref_validator = artifact_ref_validator
         self.worker_id = worker_id.strip()
         self.lease_seconds = float(lease_seconds)
         self.max_attempts = max_attempts
@@ -76,7 +80,7 @@ class HermesWorker:
 
     @staticmethod
     def _validate_payload(payload: Any) -> dict[str, Any]:
-        if not isinstance(payload, dict) or payload.get("schema") != "merlin-research-task/1":
+        if not isinstance(payload, dict) or payload.get("schema") != "merlin-research-task/2":
             raise ValueError("unsupported Hermes task schema")
         for key in ("task_id", "hypothesis_id", "objective", "stage", "approval_ref", "lease_ref"):
             value = payload.get(key)
@@ -93,6 +97,11 @@ class HermesWorker:
         for key, value in budget.items():
             if isinstance(value, bool) or not isinstance(value, int) or not 1 <= value <= limits[key]:
                 raise ValueError("task resource budget value is outside its bounded range: " + key)
+        refs = payload.get("artifact_refs")
+        if not isinstance(refs, list):
+            raise ValueError("Hermes task artifact_refs must be a list")
+        for ref in refs:
+            ArtifactRef.from_mapping(ref)
         if payload.get("promotion_authority") is not False:
             raise PermissionError("Hermes tasks cannot carry hypothesis-promotion authority")
         if payload.get("authority") != "bounded_execution_only":
@@ -166,6 +175,11 @@ class HermesWorker:
                 raise PermissionError("operator approval is not valid at execution time")
             if not self.lease_validator(task["lease_ref"], task["resource_budget"]):
                 raise PermissionError("MCFC lease is not valid at execution time")
+            if task["artifact_refs"] and self.artifact_ref_validator is None:
+                raise RuntimeError("task artifact references require a canonical registry validator")
+            for artifact_ref in task["artifact_refs"]:
+                if not self.artifact_ref_validator(artifact_ref):
+                    raise ValueError("Hermes task contains an unresolved or unverified artifact reference")
             deadline_epoch = time.time() + task["resource_budget"]["max_wall_seconds"]
 
             def check_cancelled() -> None:
@@ -209,6 +223,7 @@ class HermesWorker:
                 task_id=task_id, hypothesis_id=task["hypothesis_id"],
                 resource_budget=dict(task["resource_budget"]),
                 approval_ref=task["approval_ref"], lease_ref=task["lease_ref"],
+                artifact_refs=tuple(task["artifact_refs"]),
                 idempotency_key="hermes-task-handler:" + task["task_id"],
                 deadline_epoch=deadline_epoch,
                 emit_progress=progress, emit_tool_event=tool_event,
@@ -220,15 +235,27 @@ class HermesWorker:
                 raise ValueError("Hermes handler must return a result object")
             result = dict(result)
             evidence_refs = result.pop("evidence_refs", [])
+            output_artifact_refs = result.pop("artifact_refs", [])
             if not isinstance(evidence_refs, (list, tuple)) or any(
                 not isinstance(ref, str) or not ref.strip() for ref in evidence_refs
             ):
                 raise ValueError("handler evidence_refs must be non-empty strings")
+            if not isinstance(output_artifact_refs, (list, tuple)):
+                raise ValueError("handler artifact_refs must be a list of exact references")
+            output_artifact_refs = [ArtifactRef.from_mapping(ref).to_dict()
+                                    for ref in output_artifact_refs]
+            if output_artifact_refs and self.artifact_ref_validator is None:
+                raise RuntimeError("output artifact references require a canonical registry validator")
+            for artifact_ref in output_artifact_refs:
+                if not self.artifact_ref_validator(artifact_ref):
+                    raise ValueError("handler returned an unresolved or unverified artifact reference")
             receipt = {
-                "schema": "merlin-hermes-task-result/1",
+                "schema": "merlin-hermes-task-result/2",
                 "task_id": task_id, "hypothesis_id": task["hypothesis_id"],
                 "stage": stage, "status": "completed", "result": result,
                 "evidence_refs": list(evidence_refs),
+                "input_artifact_refs": list(task["artifact_refs"]),
+                "output_artifact_refs": output_artifact_refs,
                 "promotion_authority": False,
             }
             self.emit_event(

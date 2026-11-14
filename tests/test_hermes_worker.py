@@ -10,13 +10,14 @@ from merlin.hermes_worker import HermesWorker
 
 def task_payload(task_id="task-1"):
     return {
-        "schema": "merlin-research-task/1",
+        "schema": "merlin-research-task/2",
         "task_id": task_id, "hypothesis_id": "H-1",
         "objective": "Run a bounded deterministic experiment",
         "stage": "experiment",
         "resource_budget": {"cpu_cores": 1, "memory_bytes": 1024,
                             "max_wall_seconds": 10, "compute_budget_units": 10},
         "approval_ref": "approval:1", "lease_ref": "lease:1",
+        "artifact_refs": [],
         "authority": "bounded_execution_only", "promotion_authority": False,
         "experiment_spec": {"seed": 7},
     }
@@ -35,6 +36,7 @@ class HermesWorkerTests(unittest.TestCase):
             self.outbox, handlers={"experiment": handler},
             approval_validator=lambda ref, task: approval and ref == "approval:1",
             lease_validator=lambda ref, budget: lease and ref == "lease:1",
+            artifact_ref_validator=lambda ref: True,
             max_attempts=max_attempts, retry_delay_seconds=0, lease_seconds=lease_seconds,
         )
 
@@ -55,6 +57,8 @@ class HermesWorkerTests(unittest.TestCase):
         self.assertEqual(stored["state"], "acknowledged")
         self.assertFalse(stored["result"]["promotion_authority"])
         self.assertEqual(stored["result"]["evidence_refs"], ["sha256:abc"])
+        self.assertEqual(stored["result"]["schema"], "merlin-hermes-task-result/2")
+        self.assertEqual(stored["result"]["input_artifact_refs"], [])
         telemetry = [row for row in self._all_rows() if row["topic"].startswith("merlin.telemetry.")]
         kinds = {row["payload"]["kind"] for row in telemetry}
         self.assertTrue({"task.progress", "agent.tool.started", "agent.tool.completed",

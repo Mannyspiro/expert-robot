@@ -19,6 +19,7 @@ def make_task(task_id="math-1", approval="approval:1", lease="lease:1"):
         approval_ref=approval, lease_ref=lease,
         evidence_refs=("hypothesis:H-1",),
         experiment_spec={"seed": 42, "tolerance": 1e-8},
+        artifact_refs=(),
     )
 
 
@@ -37,6 +38,7 @@ class ResearchDispatchTests(unittest.TestCase):
             self.outbox, self.ledger,
             approval_validator=lambda ref, task: approval and ref == "approval:1",
             lease_validator=lambda ref, budget: lease and ref == "lease:1",
+            artifact_ref_validator=lambda ref: True,
         )
 
     def test_dispatch_requires_validated_approval_and_lease(self):
@@ -44,6 +46,8 @@ class ResearchDispatchTests(unittest.TestCase):
         event = self.coordinator().dispatch(task)
         self.assertEqual(event["topic"], "merlin.hermes.task")
         self.assertFalse(event["payload"]["promotion_authority"])
+        self.assertEqual(event["payload"]["schema"], "merlin-research-task/2")
+        self.assertEqual(event["payload"]["artifact_refs"], [])
         with self.assertRaises(PermissionError):
             self.coordinator(approval=False).dispatch(make_task(task_id="no-approval"))
         with self.assertRaises(PermissionError):

@@ -15,10 +15,10 @@ class AvreaAdapterTests(unittest.TestCase):
         self.registry = MerlinRegistry(root / "registry")
         self.registry.register_project("merlin", "Merlin")
         self.outbox = MerlinEventOutbox(root / "outbox.sqlite3")
-        self.job = {"schema":"merlin-research-task/1","task_id":"t1",
+        self.job = {"schema":"merlin-research-task/2","task_id":"t1",
                     "approval_ref":"approval:1","lease_ref":"lease:1",
                     "resource_budget":{"cpu_cores":1,"memory_bytes":1024},
-                    "promotion_authority":False}
+                    "promotion_authority":False,"artifact_refs":[]}
 
     def tearDown(self):
         self.temp.cleanup()

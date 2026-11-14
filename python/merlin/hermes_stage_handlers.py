@@ -317,6 +317,7 @@ def build_hermes_stage_handlers(
                     "project_id": project_id,
                     "logical_path": logical_path,
                     "sha256": digest,
+                    "artifact_ref": recorded["artifact_ref"],
                     "media_type": output["media_type"],
                     "size_bytes": len(output["artifact_bytes"]),
                     "registry_verified": True,
@@ -325,6 +326,7 @@ def build_hermes_stage_handlers(
                 "cace_verification": cace_result,
                 "cace_theorem_receipts": theorem_receipts,
                 "evidence_refs": evidence_refs,
+                "artifact_refs": [recorded["artifact_ref"]],
                 "hypothesis_status_unchanged": recorded["hypothesis_status_unchanged"],
                 "promotion_authority": False,
             }
