@@ -79,6 +79,121 @@ function requireDigest(value, label) {
   }
 }
 
+
+function requireText(identity, field) {
+  const value = identity[field];
+  if (typeof value !== "string" || value.length === 0) {
+    throw new Error(`identity.${field} must be a non-empty string`);
+  }
+}
+
+function requirePositiveInt(identity, field) {
+  const value = identity[field];
+  if (!Number.isSafeInteger(value) || value < 1) {
+    throw new Error(`identity.${field} must be a positive integer`);
+  }
+}
+
+function validateArtifactRef(value, label) {
+  exactKeys(value, ["schema", "project_id", "logical_path", "version", "sha256"], label);
+  if (value.schema !== "merlin-artifact-ref/1") throw new Error(`${label} has unsupported schema`);
+  if (typeof value.project_id !== "string" || !value.project_id.trim()
+      || value.project_id.length > 256) throw new Error(`${label}.project_id is invalid`);
+  if (typeof value.logical_path !== "string" || !value.logical_path
+      || value.logical_path.length > 1024 || value.logical_path.startsWith("/")
+      || value.logical_path.includes("\\\\") || value.logical_path.includes("\\0")
+      || value.logical_path.split("/").some(part => part === "" || part === "." || part === "..")) {
+    throw new Error(`${label}.logical_path is not normalized and traversal-free`);
+  }
+  if (!Number.isSafeInteger(value.version) || value.version < 1) {
+    throw new Error(`${label}.version must be a positive integer`);
+  }
+  requireDigest(value.sha256, `${label}.sha256`);
+}
+
+function validateIdentity(nodeType, identity) {
+  if (!NODE_TYPES.has(nodeType)) throw new Error("unknown evidence node type");
+  if (!identity || typeof identity !== "object" || Array.isArray(identity)
+      || Object.keys(identity).length === 0) throw new Error("node identity must be a non-empty object");
+  switch (nodeType) {
+    case "source_commit":
+      requireText(identity, "repository");
+      if (typeof identity.commit !== "string" || !/^[0-9a-f]{40}$/.test(identity.commit)) {
+        throw new Error("identity.commit must be a full lowercase Git commit SHA");
+      }
+      break;
+    case "artifact_version": {
+      requireText(identity, "project_id");
+      requireText(identity, "logical_path");
+      const path = identity.logical_path;
+      if (path.startsWith("/") || path.includes("\\\\") || path.includes("\\0")
+          || path.split("/").some(part => part === "" || part === "." || part === "..")) {
+        throw new Error("identity.logical_path must be normalized and traversal-free");
+      }
+      requirePositiveInt(identity, "version");
+      requireDigest(identity.digest, "identity.digest");
+      if (!Number.isSafeInteger(identity.size_bytes) || identity.size_bytes < 0) {
+        throw new Error("identity.size_bytes must be a non-negative integer");
+      }
+      break;
+    }
+    case "workflow_run":
+      requireText(identity, "repository");
+      requireText(identity, "workflow_id");
+      requirePositiveInt(identity, "run_id");
+      requirePositiveInt(identity, "attempt");
+      if (typeof identity.head_sha !== "string" || !/^[0-9a-f]{40}$/.test(identity.head_sha)) {
+        throw new Error("identity.head_sha must be a full lowercase Git commit SHA");
+      }
+      requireText(identity, "conclusion");
+      requireDigest(identity.artifact_digest, "identity.artifact_digest");
+      break;
+    case "cace_attestation":
+      requireDigest(identity.statement_sha256, "identity.statement_sha256");
+      for (const field of ["verifier_id", "key_id", "purpose", "source_repo",
+        "artifact_id", "artifact_kind", "artifact_schema"]) requireText(identity, field);
+      if (typeof identity.source_commit !== "string" || !/^[0-9a-f]{40}$/.test(identity.source_commit)) {
+        throw new Error("identity.source_commit must be a full lowercase Git commit SHA");
+      }
+      validateArtifactRef(identity.artifact_ref, "identity.artifact_ref");
+      break;
+    case "trust_root":
+      requireText(identity, "authority_id");
+      requireText(identity, "version");
+      requireDigest(identity.root_sha256, "identity.root_sha256");
+      break;
+    case "verification_receipt":
+      requireDigest(identity.receipt_sha256, "identity.receipt_sha256");
+      requireText(identity, "verifier_id");
+      validateArtifactRef(identity.artifact_ref, "identity.artifact_ref");
+      break;
+    case "oci_execution":
+      requireText(identity, "execution_id");
+      requireText(identity, "runner_profile");
+      validateArtifactRef(identity.task_ref, "identity.task_ref");
+      if (!Array.isArray(identity.input_refs)) throw new Error("identity.input_refs must be an array");
+      identity.input_refs.forEach((ref, index) =>
+        validateArtifactRef(ref, `identity.input_refs[${index}]`));
+      break;
+    case "protected_orchestrator":
+      requireText(identity, "repository");
+      requireText(identity, "workflow_id");
+      requirePositiveInt(identity, "run_id");
+      requirePositiveInt(identity, "attempt");
+      requireText(identity, "execution_id");
+      requireDigest(identity.execution_receipt_sha256, "identity.execution_receipt_sha256");
+      break;
+    case "lean_compile":
+      for (const field of ["module", "lean_version", "mathlib_revision", "result"]) {
+        requireText(identity, field);
+      }
+      requireDigest(identity.source_sha256, "identity.source_sha256");
+      break;
+    default:
+      throw new Error("unknown evidence node type");
+  }
+}
+
 function verify(snapshot) {
   exactKeys(snapshot, ["schema", "authority", "nodes", "edges", "snapshot_sha256"], "snapshot");
   if (snapshot.schema !== "merlin-qualification-evidence-dag/1"
@@ -95,9 +210,7 @@ function verify(snapshot) {
     exactKeys(node, [
       "node_id", "node_type", "identity", "record_sha256", "evidence_class", "status",
     ], "node");
-    if (!NODE_TYPES.has(node.node_type)) throw new Error("unknown node type");
-    if (!node.identity || typeof node.identity !== "object" || Array.isArray(node.identity)
-        || Object.keys(node.identity).length === 0) throw new Error("invalid node identity");
+    validateIdentity(node.node_type, node.identity);
     if (node.node_id !== `sha256:${sha256(canonical({
       node_type: node.node_type, identity: node.identity,
     }))}`) throw new Error("node identity digest mismatch");
