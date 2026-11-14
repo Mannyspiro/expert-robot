@@ -224,6 +224,7 @@ jobs:
           python3 -m unittest discover -s tests -p "test_research_council.py" -v
           python3 -m unittest discover -s tests -p "test_project_registry.py" -v
           python3 -m unittest discover -s tests -p "test_artifact_ref.py" -v
+          python3 -m unittest discover -s tests -p "test_qualification_evidence_dag.py" -v
           python3 -m pip install pytest
           python3 -m pytest -q tests/test_knowledge_graph.py tests/test_foundation_store.py tests/test_archive_intake.py
 

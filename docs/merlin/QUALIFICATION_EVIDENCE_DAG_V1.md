@@ -95,3 +95,36 @@ The DAG is read-only. Graph edges, node counts, connectedness, or a green HUD st
 - CACE PR #102/#103 and issue #104: ArtifactRef attestation, signer custody, and independently administered trust-root requirement.
 
 Do not build a second artifact registry, failure registry, or event ledger. Implement the DAG as a verified projection over those canonical systems.
+
+
+## Initial runtime implementation (2026-11-14)
+
+The first pure-Python runtime projection is implemented in `python/merlin/qualification_evidence_dag.py` with focused tests in `tests/test_qualification_evidence_dag.py`.
+
+Implemented:
+- Canonical UTF-8 JSON encoding with sorted keys, compact separators, and rejection of non-finite/unsupported values.
+- Type-specific immutable node identities and SHA-256 node IDs.
+- Exact ArtifactRef validation for CACE attestation, verification receipt, and OCI task/input references.
+- Exact node/edge envelope validation, duplicate and unknown endpoint rejection, self-edge rejection, and cycle detection.
+- Deterministic node/edge ordering and snapshot SHA-256.
+- Prerequisite-first topological ordering.
+- Reverse-edge transitive invalidation that affects only downstream dependents.
+- Status propagation with `revoked > stale > blocked > unqualified`; a node cannot become qualified merely because its prerequisites are qualified.
+
+Still not implemented:
+- Trusted retrieval/verification adapters for GitHub, MerlinRegistry, CACE, trust service, OCI and Lean records. The module deliberately accepts only already verified projection records and does not fetch or authenticate them.
+- Persistent immutable snapshot history, concurrent append coordination, API/HUD integration, or a background invalidation worker.
+- Independent second implementation and property-based/fuzz qualification.
+- An explicit required-prerequisite policy per node type. Missing required evidence must be represented by a blocked status from the authoritative adapter; the graph must never guess omitted edges.
+
+The module is a read-only projection. It does not sign, verify signatures, execute code, compile Lean, grant capability, or authorize deployment/promotion. CI on the exact runtime PR head is required before treating the implementation as validated.
+
+
+### Exact producer and execution binding
+The runtime now rejects CACE attestation nodes unless their identity includes:
+- the complete schema-validated `ArtifactRef`;
+- full source repository and 40-character source commit;
+- producer `artifact_id`, `artifact_kind`, and `artifact_schema`;
+- signed statement digest, verifier identity, key ID, and attestation purpose.
+
+Protected orchestrator node identities also require the exact execution receipt digest, not merely an execution label. OCI execution identities require schema-validated task and input ArtifactRefs. This makes the graph identity reflect the evidence lineage contract rather than an opaque status string.
