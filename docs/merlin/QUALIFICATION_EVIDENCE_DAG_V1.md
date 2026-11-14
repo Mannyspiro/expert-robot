@@ -188,3 +188,10 @@ A second implementation now exists at `scripts/verify_qualification_evidence_dag
 To keep Python and ECMAScript serialization byte-identical, v1 canonical evidence JSON permits only null, booleans, strings, arrays/objects, and safe-range integers. Floating-point values and integers outside the JavaScript safe-integer range are rejected rather than silently serialized differently. Represent measured floating-point quantities as canonical decimal strings with explicit units/precision in evidence payloads.
 
 The Node verifier currently checks structural graph integrity and canonical digests; the Python implementation remains the richer type-specific identity validator. The next qualification step should extend the second implementation to every type-specific identity rule and run randomized cross-language property vectors.
+
+
+## Type-specific independent parity qualification (2026-11-14)
+
+The Node verifier already implements minimum identity validation for all nine v1 node types. The parity test now constructs valid instances of every type, executes twelve deterministic seeded node/edge permutations through the Python snapshot builder and independent Node verifier, and compares snapshot digests and graph counts. It also constructs a rehashed but type-invalid `lean_compile` identity to ensure the independent verifier rejects semantic identity corruption even when the outer snapshot digest is recomputed.
+
+This is a bounded deterministic property sample, not exhaustive fuzzing. Remaining work: broader generated valid/invalid identity vectors, differential testing of ArtifactRef constraints, Unicode/canonical JSON edge cases, and fuzz/property execution under CI.
