@@ -58,6 +58,35 @@ MAX_BODY = 1_000_000
 MAX_ARTIFACT_READ_BYTES = 25 * 1024 * 1024
 MAX_PROXY_RESPONSE = 16_000_000
 
+def _artifact_version_provenance(
+    *, artifact_id: str, artifact_kind: str, artifact_schema: str,
+) -> dict[str, str] | None:
+    """Bind generated artifacts to the exact deployed Merlin source revision.
+
+    Missing deployment identity leaves the version explicitly unprovenanced;
+    CACE's independent verifier will refuse to attest such a version.
+    """
+    source_repo = os.getenv("MERLIN_SOURCE_REPO", "").strip()
+    source_commit = os.getenv("MERLIN_SOURCE_COMMIT", "").strip()
+    if not source_repo or not source_commit:
+        return None
+    if len(source_commit) != 40 or any(ch not in "0123456789abcdef" for ch in source_commit):
+        raise ValueError("MERLIN_SOURCE_COMMIT must be a full lowercase Git SHA")
+    if not all(isinstance(value, str) and value.strip() for value in (
+        artifact_id, artifact_kind, artifact_schema
+    )):
+        raise ValueError("generated artifact provenance identity is incomplete")
+    return {
+        "schema": "merlin-artifact-provenance/1",
+        "source_repo": source_repo,
+        "source_commit": source_commit,
+        "artifact_id": artifact_id,
+        "artifact_kind": artifact_kind,
+        "artifact_schema": artifact_schema,
+    }
+
+
+
 
 def _loopback_endpoint(env_name: str, default: str) -> str:
     value = os.environ.get(env_name, default)
@@ -1519,7 +1548,12 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                         logical_path = "math-transfers/" + preview["preview_sha256"] + ".json"
                         digest = canonical_registry.put_artifact(
                             project_id, logical_path, artifact_bytes,
-                            "application/vnd.merlin.math-transfer-preview+json")
+                            "application/vnd.merlin.math-transfer-preview+json",
+                            provenance=_artifact_version_provenance(
+                                artifact_id=preview["preview_sha256"],
+                                artifact_kind="math-transfer-preview",
+                                artifact_schema=preview["schema"],
+                            ))
                         verified = canonical_registry.verify_artifact(digest)
                         if not verified:
                             self._send(503, {"error": "canonical_registry_verification_failed",
@@ -1634,7 +1668,12 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                         logical_path = "intents/" + bundle["directive_sha256"] + ".json"
                         artifact_digest = canonical_registry.put_artifact(
                             project_id, logical_path, artifact_bytes,
-                            "application/vnd.merlin.directive-bundle+json")
+                            "application/vnd.merlin.directive-bundle+json",
+                            provenance=_artifact_version_provenance(
+                                artifact_id=bundle["directive_sha256"],
+                                artifact_kind="directive-bundle",
+                                artifact_schema="merlin-directive-bundle/1",
+                            ))
                         artifact_ref = {
                             "project_id": project_id, "logical_path": logical_path,
                             "sha256": artifact_digest, "verified": canonical_registry.verify_artifact(artifact_digest),
