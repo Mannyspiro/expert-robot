@@ -82,12 +82,16 @@ class OciObjectStorageBackupTransport:
         read_client: Any,
         upload_manager: Any,
     ):
-        if not isinstance(namespace, str) or not namespace.strip() or len(namespace) > 256:
+        if not isinstance(namespace, str) or not namespace.strip() or len(namespace.strip()) > 256:
             raise ValueError("OCI Object Storage namespace is invalid")
-        if not isinstance(bucket, str) or not bucket.strip() or len(bucket) > 256:
+        if not isinstance(bucket, str) or not bucket.strip() or len(bucket.strip()) > 256:
             raise ValueError("OCI Object Storage bucket name is invalid")
-        if not isinstance(prefix, str) or prefix.startswith("/") or "\\" in prefix:
+        if (not isinstance(prefix, str) or prefix != prefix.strip()
+                or prefix.startswith("/") or "\\" in prefix or len(prefix) > 1024
+                or any(ord(char) < 0x20 for char in prefix)):
             raise ValueError("backup object prefix is invalid")
+        namespace = namespace.strip()
+        bucket = bucket.strip()
         prefix_parts = prefix.split("/") if prefix else []
         if any(part in {"", ".", ".."} for part in prefix_parts):
             raise ValueError("backup object prefix contains an unsafe path")
