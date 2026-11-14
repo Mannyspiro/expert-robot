@@ -156,7 +156,7 @@ class QualificationEvidenceDagTests(unittest.TestCase):
         tampered["nodes"][0]["evidence_class"] = "forged"
         with self.assertRaisesRegex(ValueError, "does not match"):
             validate_snapshot(tampered)
-        with self.assertRaisesRegex(ValueError, "non-finite"):
+        with self.assertRaisesRegex(ValueError, "floating-point"):
             node_id_for("source_commit", {
                 "repository": "repo", "commit": "a" * 40, "score": float("nan"),
             })
