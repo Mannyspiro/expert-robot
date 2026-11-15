@@ -162,7 +162,7 @@ Tests: `tests/test_text_extractor.py` covers multibyte UTF-8 and CRLF offsets, M
 ## 10. Next ranked implementation steps
 
 1. **Exact-head CI:** run the focused representation, reconstruction and read-API tests plus full Merlin CI on the exact current branch head; retain logs and artifact digests.
-2. **Extraction adapters:** add text/PDF/code/JSON extractors that produce source-bound locators and never alter source bytes.
+2. **Additional extraction adapters:** add PDF, DOCX, code/AST, HTML, OCR/image and video extraction with exact source coordinates; the strict UTF-8 text/Markdown adapter is implemented.
 3. **Ideonomy and Hermes:** enumerate candidate concepts/claims, then schedule bounded extraction and representation jobs through the existing outbox and worker contracts.
 4. **Logos and CACE:** challenge derived claims and verify exact producer artifacts with a configured, independently trusted CACE transport. Until then, status remains unverified.
 5. **Domain-specific paths:** mathematical/formal, code, engineering/CAD/netlist, biological and multimodal representations, each with separate benchmarks.
