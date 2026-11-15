@@ -146,6 +146,14 @@ class KnowledgeReconstructionTests(unittest.TestCase):
         self.registry.put_artifact(
             "merlin", path, canonical_json(manifest),
             "application/vnd.merlin.knowledge-representation+json",
+            provenance={
+                "schema": "merlin-artifact-provenance/1",
+                "source_repo": "Mannyspiro/expert-robot",
+                "source_commit": "b" * 40,
+                "artifact_id": f"knowledge-representation-{manifest['representation_id'][:24]}",
+                "artifact_kind": "knowledge-representation",
+                "artifact_schema": "merlin-knowledge-representation/1",
+            },
         )
         new_ref = self.registry.artifact_ref("merlin", path)
         with self.assertRaises(ValueError):
