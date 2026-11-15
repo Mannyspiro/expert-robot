@@ -55,6 +55,65 @@ class HypothesisLedgerTests(unittest.TestCase):
         self.ledger.add_evidence("H-005", "assumption", "Compactness is assumed.")
         self.assertEqual(self.ledger.set_status("H-005", "conditional").status, "conditional")
 
+
+    def test_idempotency_key_reuses_exact_evidence_and_rejects_conflicts(self):
+        self.ledger.create("H-007", "A deterministic claim.")
+        first = self.ledger.add_evidence(
+            "H-007", "source", "Exact source.", artifact_hash="a" * 64,
+            idempotency_key="evidence-key-1",
+        )
+        replay = self.ledger.add_evidence(
+            "H-007", "source", "Exact source.", artifact_hash="a" * 64,
+            idempotency_key="evidence-key-1",
+        )
+        self.assertEqual(first.evidence_id, replay.evidence_id)
+        self.assertEqual(len(self.ledger.evidence("H-007")), 1)
+        with self.assertRaisesRegex(ValueError, "different evidence"):
+            self.ledger.add_evidence(
+                "H-007", "source", "Different source.", artifact_hash="a" * 64,
+                idempotency_key="evidence-key-1",
+            )
+
+    def test_legacy_ledger_schema_migrates_idempotency_column(self):
+        import sqlite3
+        path = Path(self.temp.name) / "legacy.sqlite3"
+        with sqlite3.connect(path) as db:
+            db.executescript("""
+                CREATE TABLE hypotheses (
+                    hypothesis_id TEXT PRIMARY KEY,
+                    claim TEXT NOT NULL,
+                    mathematical_objects_json TEXT NOT NULL,
+                    relation TEXT NOT NULL,
+                    assumptions_json TEXT NOT NULL,
+                    status TEXT NOT NULL,
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL
+                );
+                CREATE TABLE hypothesis_evidence (
+                    evidence_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    hypothesis_id TEXT NOT NULL REFERENCES hypotheses(hypothesis_id) ON DELETE CASCADE,
+                    kind TEXT NOT NULL,
+                    description TEXT NOT NULL,
+                    source_url TEXT NOT NULL DEFAULT '',
+                    artifact_hash TEXT NOT NULL DEFAULT '',
+                    created_at TEXT NOT NULL
+                );
+            """)
+        migrated = HypothesisLedger(path)
+        migrated.create("H-008", "Migrated claim.")
+        first = migrated.add_evidence(
+            "H-008", "source", "Migrated evidence.", artifact_hash="b" * 64,
+            idempotency_key="legacy-migration-key",
+        )
+        replay = migrated.add_evidence(
+            "H-008", "source", "Migrated evidence.", artifact_hash="b" * 64,
+            idempotency_key="legacy-migration-key",
+        )
+        self.assertEqual(first.evidence_id, replay.evidence_id)
+        with sqlite3.connect(path) as db:
+            columns = {row[1] for row in db.execute("PRAGMA table_info(hypothesis_evidence)")}
+        self.assertIn("idempotency_key", columns)
+
     def test_rejects_non_https_source(self):
         self.ledger.create("H-006", "Claim.")
         with self.assertRaises(ValueError):
