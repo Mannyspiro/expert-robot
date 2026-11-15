@@ -129,7 +129,7 @@ class KnowledgeReconstructionTests(unittest.TestCase):
     def test_rejects_representation_path_and_schema_substitution(self):
         stored = self._store()
         bad_ref = dict(stored["representation_ref"])
-        bad_ref["logical_path"] = "knowledge/representations/not-the-id.json"
+        bad_ref["logical_path"] = "knowledge/other/not-the-id.json"
         with self.assertRaisesRegex(ValueError, "unexpected logical path|does not match"):
             reconstruct_source_artifacts(self.registry, bad_ref)
 
