@@ -101,7 +101,25 @@ The initial implementation covers deterministic serialization and IDs, strict so
 
 It does not yet provide HTTP endpoints, extraction, embeddings, model-based compression, semantic deduplication, automatic claim decomposition, Logos audits, CACE verification, Hermes dispatch, or MCFC worker scheduling.
 
-## 7. Next ranked implementation steps
+## 7. Exact-source reconstruction evaluator
+
+Module: `python/merlin/knowledge_reconstruction.py`
+
+Public entry point: `reconstruct_source_artifacts(registry, representation_ref, ...)`
+
+The evaluator:
+- re-reads the exact representation ArtifactRef through the canonical registry;
+- requires immutable producer provenance for the knowledge-representation schema;
+- validates the manifest fields, deterministic representation ID, logical path, transformation identity, source references and source locators;
+- re-resolves and re-hashes each exact source ArtifactRef;
+- returns the recovered original bytes separately from a JSON-safe, SHA-256-bound reconstruction report;
+- enforces per-source and aggregate byte ceilings (25 MiB per source by default, 100 MiB aggregate by default, with a 1 GiB hard aggregate maximum).
+
+The report explicitly says `semantic_equivalence=not_assessed`, `cace_verification=not_requested`, and `qualification=false`. It proves only that the exact original source bytes named by the representation were recoverable and matched their pinned ArtifactRefs at read time. It does not prove that a summary preserved meaning or that a transformation is reversible.
+
+Tests cover exact recovery, multiple sources and locators, tampered manifest identity, missing/malformed source bindings, path substitution, and byte-budget enforcement.
+
+## 8. Next ranked implementation steps
 
 1. **Exact-head CI:** run the focused knowledge-representation tests and full Merlin CI on the exact branch head; retain logs and artifact digests.
 2. **Reconstruction evaluator:** define exact-source recovery tests and explicit lossy-summary omission/contradiction benchmarks. A `reversible_claim` must not be upgraded without a successful independent reconstruction receipt.
