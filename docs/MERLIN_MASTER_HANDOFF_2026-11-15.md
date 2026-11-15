@@ -83,6 +83,7 @@ The latest inspected default branch is `main`. The repository contains multiple 
 | [#167](https://github.com/Mannyspiro/expert-robot/pull/167) | Exact-source reconstruction evaluator | Draft; head `9b8c74b76024bea77270b84edebcebb0c559f2b8`; CI run `43756841729` SUCCESS; all 6 new tests passed |
 | [#168](https://github.com/Mannyspiro/expert-robot/pull/168) | Read-only knowledge representation query integration | Draft; head `53d3e9799256e3981e12e60ae7479dd4811b2041`; CI run `43757140668` SUCCESS; all 3 new tests passed |
 | [#169](https://github.com/Mannyspiro/expert-robot/pull/169) | Source-located UTF-8 text extraction | Draft; head `eecaa93a96b913f9330673a41eba20065d9131c5`; CI run `43757628616` SUCCESS; all 7 new tests passed |
+| [#170](https://github.com/Mannyspiro/expert-robot/pull/170) | Bounded Hermes knowledge-extraction stage | Draft; head `4fa7178cecdbb93dfaee027960e5c8b983b881ce`; CI run `43758169557` queued; integration evidence run `43758169541` queued |
 | [#164](https://github.com/Mannyspiro/expert-robot/pull/164) | Canonical backup recovery drill receipts | Draft; head `a5fea014fdc6f5991add69996aa6a49252e94eba`; stacked on #163 |
 | [#163](https://github.com/Mannyspiro/expert-robot/pull/163) | Create-only OCI Object Storage backup transport | Draft; head `d873e1e419e78f10b9de83c7f56cd259a80b22fc`; adapter tests passed in run `43610431390`; live tenancy qualification outstanding |
 | [#161](https://github.com/Mannyspiro/expert-robot/pull/161) | OCI Vault/KMS provider and deployment runbook | Draft; head `cdc22ab861ff71a27f4707887c2ef3772583398c`; CI run `43609808622` SUCCESS; live key/IAM round trip outstanding |
@@ -110,7 +111,7 @@ The current implementation already includes:
 - idempotent worker/event outbox contracts;
 - backup/restore verification for SQLite, referenced blobs, ArtifactRefs, DAG snapshots and outbox pointers.
 
-PR #165 adds a deterministic source-bound derived representation manifest, exact source locators, tool/version metadata, a graph `object_view` and `derived_from` links. PR #167 adds a bounded exact-source reconstruction evaluator that re-resolves source ArtifactRefs, verifies producer provenance and the representation identity, and returns exact source bytes separately from a non-qualification report. Lossy summaries remain derived and unverified; semantic equivalence is not assessed. Original artifacts remain immutable.
+PR #165 adds a deterministic source-bound derived representation manifest, exact source locators, tool/version metadata, a graph `object_view` and `derived_from` links. PR #167 adds bounded exact-source reconstruction; PR #168 exposes the verified manifest and source bindings through the existing read-only API; PR #169 adds strict UTF-8/Markdown extraction with exact byte and line locators. PR #170 adds an optional approval/lease-gated Hermes extraction stage, attaches the existing representation ArtifactRef to the hypothesis without copying bytes, and adds full-ArtifactRef-bound evidence idempotency. Lossy summaries remain derived and unverified; semantic equivalence is not assessed. Original artifacts remain immutable.
 
 ### Backup and recovery status
 
