@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from typing import Any, Mapping
 import hashlib
+import json
 
 from merlin.artifact_ref import ArtifactRef
 from merlin.hypothesis_ledger import HypothesisLedger
@@ -68,23 +69,29 @@ class ResearchEvidenceRecorder:
             if not isinstance(existing_payload, Mapping) or existing_payload.get("artifact_ref") != ref:
                 raise ValueError("provided graph node is not bound to the exact ArtifactRef")
 
-        # Sequential retries of the same leased task must not append duplicate
-        # ledger evidence. The outbox lease prevents concurrent ownership.
+        # Bind retry identity to the full ArtifactRef, not only the content
+        # digest: identical bytes at distinct paths/versions remain distinct evidence.
         normalized_url = source_url.strip()
-        if normalized_url and not normalized_url.startswith("https://"):
-            raise ValueError("source_url must use HTTPS")
-        evidence = next((
-            item for item in self.ledger.evidence(hypothesis_id)
-            if item.kind == evidence_kind
-            and item.description == description.strip()
-            and item.source_url == normalized_url
-            and item.artifact_hash == digest
-        ), None)
-        if evidence is None:
-            evidence = self.ledger.add_evidence(
-                hypothesis_id, evidence_kind, description,
-                source_url=normalized_url, artifact_hash=digest,
-            )
+        normalized_description = " ".join(description.split())
+        key_material = {
+            "project_id": project_id,
+            "hypothesis_id": hypothesis_id,
+            "kind": evidence_kind,
+            "description": normalized_description,
+            "source_url": normalized_url,
+            "artifact_ref": ref,
+        }
+        idempotency_key = "research-evidence:" + hashlib.sha256(
+            json.dumps(
+                key_material, ensure_ascii=False, sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+        evidence = self.ledger.add_evidence(
+            hypothesis_id, evidence_kind, description,
+            source_url=normalized_url, artifact_hash=digest,
+            idempotency_key=idempotency_key,
+        )
 
         claim_node_id = "hypothesis:" + hashlib.sha256(
             hypothesis_id.encode("utf-8")
