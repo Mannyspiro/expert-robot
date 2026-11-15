@@ -39,6 +39,14 @@ class ResearchEvidenceRecorder:
         source_url: str = "",
         graph_node_id: str | None = None,
     ) -> dict[str, Any]:
+        if not isinstance(project_id, str) or not project_id.strip():
+            raise ValueError("project_id is required")
+        if not isinstance(hypothesis_id, str) or not hypothesis_id.strip():
+            raise ValueError("hypothesis_id is required")
+        if not isinstance(description, str) or not description.strip():
+            raise ValueError("evidence description is required")
+        if not isinstance(source_url, str):
+            raise ValueError("source_url must be text")
         hypothesis = self.ledger.get(hypothesis_id)
         if evidence_kind not in _RELATION:
             raise ValueError("unsupported research evidence kind")
@@ -50,9 +58,21 @@ class ResearchEvidenceRecorder:
             raise RuntimeError("research evidence ArtifactRef failed canonical registry resolution")
         digest = ref["sha256"]
 
+        if graph_node_id is not None:
+            if not isinstance(graph_node_id, str) or not graph_node_id.strip():
+                raise ValueError("graph_node_id must be non-empty text")
+            existing_node = self.graph.get_node(graph_node_id)
+            if existing_node is None:
+                raise ValueError("provided graph_node_id does not exist")
+            existing_payload = existing_node.payload
+            if not isinstance(existing_payload, Mapping) or existing_payload.get("artifact_ref") != ref:
+                raise ValueError("provided graph node is not bound to the exact ArtifactRef")
+
         # Sequential retries of the same leased task must not append duplicate
         # ledger evidence. The outbox lease prevents concurrent ownership.
-        normalized_url = (source_url or "").strip()
+        normalized_url = source_url.strip()
+        if normalized_url and not normalized_url.startswith("https://"):
+            raise ValueError("source_url must use HTTPS")
         evidence = next((
             item for item in self.ledger.evidence(hypothesis_id)
             if item.kind == evidence_kind
@@ -71,14 +91,6 @@ class ResearchEvidenceRecorder:
         ).hexdigest()[:32]
 
         if graph_node_id is not None:
-            if not isinstance(graph_node_id, str) or not graph_node_id.strip():
-                raise ValueError("graph_node_id must be non-empty text")
-            artifact_node = self.graph.get_node(graph_node_id)
-            if artifact_node is None:
-                raise ValueError("provided graph_node_id does not exist")
-            payload = artifact_node.payload
-            if not isinstance(payload, Mapping) or payload.get("artifact_ref") != ref:
-                raise ValueError("provided graph node is not bound to the exact ArtifactRef")
             artifact_node_id = graph_node_id
         else:
             artifact_identity = (
