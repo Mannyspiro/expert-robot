@@ -99,7 +99,7 @@ Tests: `tests/test_knowledge_compression.py`
 
 The initial implementation covers deterministic serialization and IDs, strict source-reference and locator validation, source re-resolution, canonical registry storage, provenance, graph projection, idempotent replay, changed-payload identity, and fail-closed behavior for malformed or mismatched sources.
 
-It now includes a strict UTF-8 text/Markdown extraction adapter and an optional bounded Hermes knowledge-extraction stage. It does not yet provide PDF/image/video extraction, OCR, embeddings, model-based semantic compression, semantic deduplication, automatic claim decomposition, Logos audits, independently trusted CACE verification, or production MCFC worker scheduling.
+It now includes a strict UTF-8 text/Markdown extraction adapter, an optional bounded Hermes knowledge-extraction stage, and a provider-injected Ideonomy candidate enumerator. It does not yet provide PDF/image/video extraction, OCR, embeddings, model-based semantic compression, semantic deduplication, Hermes Ideonomy dispatch, Logos audits, independently trusted CACE verification, or production MCFC worker scheduling.
 
 ## 7. Exact-source reconstruction evaluator
 
@@ -177,16 +177,43 @@ This is an optional stage handler, not an automatic production dispatch. The can
 
 Tests: `tests/test_hypothesis_ledger.py`, `tests/test_research_evidence.py`, and `tests/test_hermes_stage_handlers.py` cover migration, idempotency, exact ArtifactRef reuse, no duplicate bytes, graph linkage and the bounded stage contract.
 
-## 11. Next ranked implementation steps
+## 11. Source-grounded Ideonomy candidate enumeration
+
+Module: `python/merlin/ideonomy.py`
+
+Public entry points:
+- `ideonomy_capability(candidate_generator)` reports `unavailable` or `configured`, with `qualified=false` until an independent benchmark qualifies the generator.
+- `enumerate_ideonomy_candidates(registry, text_extraction_ref, candidate_generator, ...)` verifies the exact source-bound text-extraction representation, supplies its segments and precise source-binding indexes to an injected generator, and validates the returned candidates.
+- `store_ideonomy_candidate_set(registry, graph, candidate_set, ...)` revalidates the canonical candidate-set identity, stores it as an `ideonomy_candidates` representation, and idempotently projects candidate nodes and relations into the existing knowledge graph.
+
+Enumeration includes concepts, claims, questions, methods, equations, procedures, counter-hypotheses, assumptions, definitions, theorems, experiments and datasets. Candidate relationships are restricted to the canonical graph's supported edge predicates.
+
+Hard limits:
+- 200,000 input characters;
+- 2,000 precise source bindings;
+- 500 candidates;
+- 2,000 candidate relations;
+- 20 source bindings per candidate.
+
+Every candidate must cite one or more precise source locators. The generator receives source-binding indexes rather than being trusted to invent artifact paths or offsets. Candidate IDs and candidate-set IDs are deterministic. Confidence is explicitly labelled as a model estimate, not a truth probability. All candidates remain `unverified`, with `candidate_generation_only` authority; semantic verification and qualification remain false.
+
+Graph projection creates typed candidate nodes, `contains` links from the candidate-set representation, `derived_from` links to exact source artifacts and the enumerated candidate relations. Repeated storage is idempotent. No source bytes are copied into the candidate set.
+
+The generator is injected: there is no pretend/default AI provider. This module is not yet dispatched by Hermes and does not issue CACE receipts or promote hypotheses. A configured generator remains unqualified until held-out domain benchmarks and independent review pass.
+
+Tests: `tests/test_ideonomy.py` covers exact source-binding constraints, deterministic identities, capability state, authority escalation rejection, graph relation validation, input budgets, idempotent graph projection, read-API retrieval and tamper rejection.
+
+## 12. Next ranked implementation steps
 
 1. **Exact-head CI:** run the focused representation, reconstruction and read-API tests plus full Merlin CI on the exact current branch head; retain logs and artifact digests.
 2. **Additional extraction adapters:** add PDF, DOCX, code/AST, HTML, OCR/image and video extraction with exact source coordinates; the strict UTF-8 text/Markdown adapter is implemented.
-3. **Ideonomy and Hermes:** enumerate candidate concepts/claims, then schedule bounded extraction and representation jobs through the existing outbox and worker contracts.
-4. **Logos and CACE:** challenge derived claims and verify exact producer artifacts with a configured, independently trusted CACE transport. Until then, status remains unverified.
-5. **Domain-specific paths:** mathematical/formal, code, engineering/CAD/netlist, biological and multimodal representations, each with separate benchmarks.
-6. **Measured promotion:** qualify compression methods against held-out tasks, retrieval quality, reconstruction, storage, latency and compute. Capability qualification and deployment remain separate approval steps.
+3. **Hermes Ideonomy stage:** inject a configured candidate generator, schedule enumeration through the existing outbox/worker contract, and attach the stored candidate-set ArtifactRef without copying bytes.
+4. **Logos skeptical audit:** challenge candidate claims, assumptions, alternative explanations and contradictions before any candidate is treated as supported.
+5. **CACE verification:** independently verify exact producer artifacts and evidence bindings. Until a trusted transport is configured and a receipt is returned, status remains unverified.
+6. **Additional extraction and domain paths:** PDF/DOCX, code/AST, HTML, OCR/image, video, mathematics, engineering/CAD/netlist and biological representations, each with separate benchmarks.
+7. **Measured qualification:** compare methods on held-out retrieval, reconstruction, information-loss, storage, latency and compute tasks. Capability qualification and deployment remain separate approval steps.
 
-## 12. Required invariants
+## 13. Required invariants
 
 - Never overwrite or delete original source artifacts as a compression side effect.
 - Never merge distinct ArtifactRefs solely because their blob bytes match.
