@@ -554,6 +554,9 @@ def build_ideonomy_stage_handler(
             raise ValueError("Ideonomy max_relations is outside its supported range")
         max_input_characters = min(requested_chars, memory_bytes // 4)
 
+        # Validate the hypothesis before invoking a generator or writing any artifacts.
+        # A stale/invalid task must not leave an orphan candidate-set representation.
+        hypothesis = ledger.get(context.hypothesis_id)
         check_cancelled = getattr(context, "check_cancelled", None)
         if callable(check_cancelled):
             check_cancelled()
@@ -588,7 +591,6 @@ def build_ideonomy_stage_handler(
         if resolution.get("verified") is not True:
             raise RuntimeError("Ideonomy candidate-set ArtifactRef failed canonical registry resolution")
 
-        hypothesis = ledger.get(context.hypothesis_id)
         hypothesis_node_id = "hypothesis:" + hashlib.sha256(
             context.hypothesis_id.encode("utf-8")
         ).hexdigest()[:32]
