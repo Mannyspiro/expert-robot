@@ -120,6 +120,8 @@ def reconstruct_source_artifacts(
     representation_id = manifest["representation_id"]
     if not isinstance(representation_id, str) or not _ID_RE.fullmatch(representation_id):
         raise ValueError("representation_id must be a full lowercase SHA-256 digest")
+    if provenance.get("artifact_id") != f"knowledge-representation-{representation_id[:24]}":
+        raise ValueError("representation producer artifact_id does not match representation_id")
     expected_path = f"{expected_prefix}{representation_id}.json"
     if ref.logical_path != expected_path:
         raise ValueError("representation path does not match representation_id")
