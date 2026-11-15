@@ -19,7 +19,7 @@ from merlin.project_registry import MerlinRegistry
 SCHEMA = "merlin-knowledge-representation/1"
 REPRESENTATION_TYPES = frozenset({
     "summary", "atomic_claims", "concept_index", "symbolic",
-    "procedure", "media_index", "embedding_metadata", "other",
+    "procedure", "media_index", "embedding_metadata", "text_extraction", "other",
 })
 LOSS_CHARACTERS = frozenset({"lossy", "unknown", "reversible_claim"})
 LOCATOR_TYPES = frozenset({
