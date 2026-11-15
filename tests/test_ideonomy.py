@@ -92,7 +92,8 @@ class IdeonomyTests(unittest.TestCase):
             self.request["source_representation_ref"], self.extraction_ref,
         )
         self.assertTrue(self.request["source_bindings"])
-        self.assertTrue(all(b["locator_type"] != "whole_artifact" for b in self.request["source_bindings"]))
+        self.assertTrue(all(b["binding"]["locator_type"] == "byte_range" for b in self.request["source_bindings"]))
+        self.assertTrue(all(b["segment_id"] for b in self.request["source_bindings"]))
         self.assertIn("counter-hypotheses", self.request["instructions"])
 
     def test_enumeration_and_candidate_ids_are_deterministic(self):
