@@ -127,7 +127,7 @@ Never describe adapter tests as a live off-host backup or disaster-recovery dril
 
 CACE repository: [morganaspim/Cace-app](https://github.com/morganaspim/Cace-app).
 
-The active continuity/formal branch is PR [#102](https://github.com/morganaspim/Cace-app/pull/102), branch `fix/lean-proof-hole-guard-regex-20261113`. At the latest inspection its head was `a40a1245eac0a77ce8cd9a256e46748d0335021c`, OPEN/DRAFT, based on `feat/merlin-continuum-oci-reproduction-20261112`.
+The active continuity/formal branch is PR [#102](https://github.com/morganaspim/Cace-app/pull/102), branch `fix/lean-proof-hole-guard-regex-20261113`. At the latest inspection its head was `ee929fd708131fa5b85483395da2ee128e434fcc`, OPEN/DRAFT, based on `feat/merlin-continuum-oci-reproduction-20261112`.
 
 ### RP2 formalization
 
@@ -156,11 +156,11 @@ Observed:
 The source was subsequently corrected on PR #102:
 - commit `23552a46335c563d0bb84b6d49b21a1f493e6888`: explicitly convert the two Fintype sums to `Finset.univ` before factoring scalar multiplication and prove chain-map composition using `LinearMap.ext`;
 - commit `669ca54e55f505e9d7a965ac30e8ef98f4e7747a`: add cheap regression checks for the proof shape;
-- commit `aa02d4f9f916f9d38faf62beda09bb89f3b313ff`: record failure class F-034 in `formal/FAILURE_GUARDRAILS.md`.
+- commit `7a713bc9e851887d4ef403966d5f31dd4e2dc120`: record the RP2 defect as F-035 (F-034 was already assigned to the exact-pin workflow input bug).
 
 **The corrected RP2 source has not yet passed exact-head Lean compilation.** On exact PR head `aa02d4f9f916f9d38faf62beda09bb89f3b313ff`, CACE Collaboration Validation run `43756463757` succeeded; its Python regression suite and bug-sweep manifest passed (32 checked guard references, zero errors). This is not Lean compilation. Exact-pin runs `43756435490`, `43756455602`, and `43756463754` plus source-sanity runs `43756435479`, `43756455724`, and `43756463811` were cancelled before jobs started. The prior exact-pin failure on `88da2a15...` remains the latest actual Lean compile result. The RP2 module must remain quarantined. Do not claim the homology classification or formal qualification.
 
-The exact-pin workflow supports pull-request path triggers and explicit workflow dispatch. The connected GitHub action surface does not expose a workflow-dispatch operation. After the PR was updated to add the F-034 guard to bounded collaboration validation, current head `a40a1245eac0a77ce8cd9a256e46748d0335021c` has source-sanity run `43757185721` in progress and exact-pin run `43757185769` pending; collaboration run `43757185788` was cancelled. These are not passes yet. Inspect the source-sanity and exact-pin results on this exact head; do not rerun an old workflow against a stale commit or waste runner capacity on unrelated successful targets.
+The exact-pin workflow supports pull-request path triggers and explicit workflow dispatch. The connected GitHub action surface does not expose a workflow-dispatch operation. The F-034 duplicate-ID collision was caught by source sanity and corrected by assigning the RP2 proof-shape defect F-035. On current head `ee929fd708131fa5b85483395da2ee128e434fcc`, source-sanity run `43757339422` was cancelled before jobs, exact-pin run `43757339510` is pending, and collaboration run `43757339436` is in progress. The earlier source-sanity run `43757185721` did execute: the new known-proof-failure regression script passed, but permanent-proof-policy rejected duplicate F-034 IDs. These current runs are not passes yet. Inspect the exact-pin and collaboration results on this head; do not rerun an old workflow against a stale commit or waste runner capacity on unrelated successful targets.
 
 ### Other CACE production gates
 
