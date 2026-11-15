@@ -130,7 +130,7 @@ Tests cover exact recovery, multiple sources and locators, tampered manifest ide
 7. **Domain-specific paths:** mathematical/formal, code, engineering/CAD/netlist, biological and multimodal representations, each with separate benchmarks.
 8. **Measured promotion:** qualify compression methods against held-out tasks, retrieval quality, reconstruction, storage, latency and compute. Capability qualification and deployment remain separate approval steps.
 
-## 8. Required invariants
+## 9. Required invariants
 
 - Never overwrite or delete original source artifacts as a compression side effect.
 - Never merge distinct ArtifactRefs solely because their blob bytes match.
