@@ -325,7 +325,7 @@ class HermesStageHandlerTests(unittest.TestCase):
         self.assertEqual(len(snapshot["nodes"]), 3)
         self.assertEqual(len(snapshot["edges"]), 2)
         self.assertEqual(
-            sum(edge["source_id"] == result["graph_edge"]["source_id"] for edge in snapshot["edges"]),
+            sum(edge["target_id"] == result["graph_edge"]["target_id"] for edge in snapshot["edges"]),
             1,
         )
 
