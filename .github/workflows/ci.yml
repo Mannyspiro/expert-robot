@@ -228,6 +228,7 @@ jobs:
           python3 -m unittest discover -s tests -p "test_knowledge_reconstruction.py" -v
           python3 -m unittest discover -s tests -p "test_knowledge_representation_queries.py" -v
           python3 -m unittest discover -s tests -p "test_text_extractor.py" -v
+          python3 -m unittest discover -s tests -p "test_ideonomy.py" -v
           python3 -m unittest discover -s tests -p "test_hypothesis_ledger.py" -v
           python3 -m unittest discover -s tests -p "test_research_evidence.py" -v
           python3 -m unittest discover -s tests -p "test_hermes_stage_handlers.py" -v
