@@ -102,6 +102,14 @@ class KnowledgeReconstructionTests(unittest.TestCase):
             ref["logical_path"],
             json.dumps(manifest, sort_keys=True, separators=(",", ":")).encode("utf-8"),
             "application/vnd.merlin.knowledge-representation+json",
+            provenance={
+                "schema": "merlin-artifact-provenance/1",
+                "source_repo": "Mannyspiro/expert-robot",
+                "source_commit": "b" * 40,
+                "artifact_id": f"knowledge-representation-{manifest['representation_id'][:24]}",
+                "artifact_kind": "knowledge-representation",
+                "artifact_schema": "merlin-knowledge-representation/1",
+            },
         )
         latest_ref = self.registry.artifact_ref("merlin", ref["logical_path"])
         with self.assertRaisesRegex(ValueError, "identity does not match"):
