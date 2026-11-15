@@ -80,6 +80,7 @@ The latest inspected default branch is `main`. The repository contains multiple 
 | PR | Scope | Current inspected state |
 |---|---|---|
 | [#165](https://github.com/Mannyspiro/expert-robot/pull/165) | Provenance-preserving knowledge representations | Draft; head `7fa1b109d52b9ab6a53de4fbb2a12b8ef0d7dbe0`; CI run `43756132171` SUCCESS |
+| [#167](https://github.com/Mannyspiro/expert-robot/pull/167) | Exact-source reconstruction evaluator | Draft; head `9b8c74b76024bea77270b84edebcebb0c559f2b8`; CI run `43756841729` queued |
 | [#164](https://github.com/Mannyspiro/expert-robot/pull/164) | Canonical backup recovery drill receipts | Draft; head `a5fea014fdc6f5991add69996aa6a49252e94eba`; stacked on #163 |
 | [#163](https://github.com/Mannyspiro/expert-robot/pull/163) | Create-only OCI Object Storage backup transport | Draft; head `d873e1e419e78f10b9de83c7f56cd259a80b22fc`; adapter tests passed in run `43610431390`; live tenancy qualification outstanding |
 | [#161](https://github.com/Mannyspiro/expert-robot/pull/161) | OCI Vault/KMS provider and deployment runbook | Draft; head `cdc22ab861ff71a27f4707887c2ef3772583398c`; CI run `43609808622` SUCCESS; live key/IAM round trip outstanding |
@@ -107,7 +108,7 @@ The current implementation already includes:
 - idempotent worker/event outbox contracts;
 - backup/restore verification for SQLite, referenced blobs, ArtifactRefs, DAG snapshots and outbox pointers.
 
-The Knowledge Compression PR adds a deterministic source-bound derived representation manifest, exact source locators, tool/version metadata, a graph `object_view` and `derived_from` links. Lossy summaries remain derived and unverified. Original artifacts remain immutable.
+PR #165 adds a deterministic source-bound derived representation manifest, exact source locators, tool/version metadata, a graph `object_view` and `derived_from` links. PR #167 adds a bounded exact-source reconstruction evaluator that re-resolves source ArtifactRefs, verifies producer provenance and the representation identity, and returns exact source bytes separately from a non-qualification report. Lossy summaries remain derived and unverified; semantic equivalence is not assessed. Original artifacts remain immutable.
 
 ### Backup and recovery status
 
