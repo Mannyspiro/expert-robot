@@ -162,9 +162,11 @@ def enumerate_ideonomy_candidates(
     generated = candidate_generator(request)
     if not isinstance(generated, Mapping):
         raise ValueError("Ideonomy generator must return an object")
+    if set(generated) - {"generator", "candidates", "relations"}:
+        raise ValueError("Ideonomy generator returned unsupported top-level fields")
     generator = generated.get("generator")
-    if not isinstance(generator, Mapping):
-        raise ValueError("Ideonomy generator identity is required")
+    if not isinstance(generator, Mapping) or set(generator) != {"id", "version"}:
+        raise ValueError("Ideonomy generator identity must contain only id and version")
     generator_id = generator.get("id")
     generator_version = generator.get("version")
     if (
@@ -204,7 +206,7 @@ def enumerate_ideonomy_candidates(
             raise ValueError("candidate local_id must be non-empty bounded text")
         if local_id in local_to_candidate:
             raise ValueError("candidate local_id values must be unique")
-        if kind not in CANDIDATE_KINDS:
+        if not isinstance(kind, str) or kind not in CANDIDATE_KINDS:
             raise ValueError("candidate kind is unsupported")
         if not isinstance(content, str) or not content.strip() or len(content) > 8_192:
             raise ValueError("candidate content must be non-empty and at most 8,192 characters")
@@ -268,9 +270,12 @@ def enumerate_ideonomy_candidates(
         object_local = raw.get("object_local_id")
         predicate = raw.get("predicate")
         rationale = raw.get("rationale", "")
-        if subject_local not in local_to_candidate or object_local not in local_to_candidate:
+        if (
+            not isinstance(subject_local, str) or not isinstance(object_local, str)
+            or subject_local not in local_to_candidate or object_local not in local_to_candidate
+        ):
             raise ValueError("Ideonomy relation references an unknown candidate local_id")
-        if predicate not in EDGE_TYPES:
+        if not isinstance(predicate, str) or predicate not in EDGE_TYPES:
             raise ValueError("Ideonomy relation predicate is not supported by the canonical graph")
         if subject_local == object_local:
             raise ValueError("self-relations are not accepted")
@@ -324,6 +329,14 @@ def store_ideonomy_candidate_set(
     """Persist candidate set and idempotently project candidate nodes/relations."""
     if not isinstance(candidate_set, Mapping) or candidate_set.get("schema") != IDEONOMY_SCHEMA:
         raise ValueError("unsupported Ideonomy candidate-set schema")
+    allowed_set_fields = {
+        "schema", "source_representation_ref", "source_representation_id",
+        "source_artifact_refs", "generator", "candidate_count", "relation_count",
+        "candidates", "relations", "authority", "epistemic_status",
+        "semantic_verification", "qualification", "candidate_set_id",
+    }
+    if set(candidate_set) != allowed_set_fields:
+        raise ValueError("Ideonomy candidate set contains unsupported fields")
     source_rep_ref = ArtifactRef.from_mapping(
         candidate_set["source_representation_ref"]
     ).to_dict()
@@ -332,7 +345,10 @@ def store_ideonomy_candidate_set(
         raise ValueError("Ideonomy source representation identity changed")
     if inspection["source_artifact_refs"] != candidate_set.get("source_artifact_refs"):
         raise ValueError("Ideonomy source artifact set changed")
-    if candidate_set.get("authority") != "candidate_generation_only":
+    if (
+        candidate_set.get("authority") != "candidate_generation_only"
+        or candidate_set.get("semantic_verification") != "not_assessed"
+    ):
         raise ValueError("Ideonomy candidate authority must remain candidate_generation_only")
     if candidate_set.get("epistemic_status") != "unverified" or candidate_set.get("qualification") is not False:
         raise ValueError("Ideonomy candidates cannot be marked verified or qualified")
@@ -341,7 +357,7 @@ def store_ideonomy_candidate_set(
         raise ValueError("Ideonomy source representation reference changed")
     generator = candidate_set.get("generator")
     if (
-        not isinstance(generator, Mapping)
+        not isinstance(generator, Mapping) or set(generator) != {"id", "version"}
         or not isinstance(generator.get("id"), str) or not generator.get("id", "").strip()
         or not isinstance(generator.get("version"), str) or not generator.get("version", "").strip()
     ):
@@ -362,8 +378,13 @@ def store_ideonomy_candidate_set(
     for candidate in candidates:
         if not isinstance(candidate, Mapping):
             raise ValueError("Ideonomy candidate must be an object")
+        if set(candidate) != {
+            "candidate_id", "kind", "content", "rationale", "source_bindings",
+            "confidence_estimate", "confidence_semantics", "epistemic_status", "authority",
+        }:
+            raise ValueError("Ideonomy candidate contains unsupported fields")
         if (
-            candidate.get("kind") not in CANDIDATE_KINDS
+            not isinstance(candidate.get("kind"), str) or candidate.get("kind") not in CANDIDATE_KINDS
             or not isinstance(candidate.get("content"), str) or not candidate.get("content", "").strip()
             or not isinstance(candidate.get("rationale"), str)
             or candidate.get("epistemic_status") != "unverified"
@@ -372,8 +393,11 @@ def store_ideonomy_candidate_set(
         ):
             raise ValueError("Ideonomy candidate status, kind or content is invalid")
         selected = candidate.get("source_bindings")
-        if not isinstance(selected, list) or not selected or any(
-            canonical_json(binding) not in valid_bindings for binding in selected
+        if (
+            not isinstance(selected, list) or not selected
+            or len(selected) > MAX_BINDINGS_PER_CANDIDATE
+            or any(not isinstance(binding, Mapping) or canonical_json(binding) not in valid_bindings
+                   or binding.get("locator_type") == "whole_artifact" for binding in selected)
         ):
             raise ValueError("Ideonomy candidate contains an unbound source locator")
         confidence = candidate.get("confidence_estimate")
@@ -398,15 +422,19 @@ def store_ideonomy_candidate_set(
 
     relation_keys: set[tuple[str, str, str]] = set()
     for relation in relations:
-        if not isinstance(relation, Mapping):
-            raise ValueError("Ideonomy relation must be an object")
+        if not isinstance(relation, Mapping) or set(relation) != {
+            "relation_id", "subject_candidate_id", "predicate",
+            "object_candidate_id", "rationale",
+        }:
+            raise ValueError("Ideonomy relation must contain only the canonical fields")
         subject = relation.get("subject_candidate_id")
         object_ = relation.get("object_candidate_id")
         predicate = relation.get("predicate")
         rationale = relation.get("rationale")
         if (
-            subject not in candidate_ids or object_ not in candidate_ids
-            or predicate not in EDGE_TYPES or subject == object_
+            not isinstance(subject, str) or not isinstance(object_, str)
+            or subject not in candidate_ids or object_ not in candidate_ids
+            or not isinstance(predicate, str) or predicate not in EDGE_TYPES or subject == object_
             or not isinstance(rationale, str)
         ):
             raise ValueError("Ideonomy relation endpoints or predicate are invalid")
