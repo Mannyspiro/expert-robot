@@ -360,6 +360,7 @@ def store_ideonomy_candidate_set(
         not isinstance(generator, Mapping) or set(generator) != {"id", "version"}
         or not isinstance(generator.get("id"), str) or not generator.get("id", "").strip()
         or not isinstance(generator.get("version"), str) or not generator.get("version", "").strip()
+        or len(generator.get("id", "")) > 128 or len(generator.get("version", "")) > 128
     ):
         raise ValueError("Ideonomy generator provenance is malformed")
     candidates = candidate_set.get("candidates")
@@ -367,9 +368,11 @@ def store_ideonomy_candidate_set(
     if (
         not isinstance(candidates, list)
         or len(candidates) > MAX_IDEONOMY_CANDIDATES
+        or isinstance(candidate_set.get("candidate_count"), bool)
         or candidate_set.get("candidate_count") != len(candidates)
         or not isinstance(relations, list)
         or len(relations) > MAX_IDEONOMY_RELATIONS
+        or isinstance(candidate_set.get("relation_count"), bool)
         or candidate_set.get("relation_count") != len(relations)
     ):
         raise ValueError("Ideonomy candidate or relation counts are invalid")
@@ -386,7 +389,11 @@ def store_ideonomy_candidate_set(
         if (
             not isinstance(candidate.get("kind"), str) or candidate.get("kind") not in CANDIDATE_KINDS
             or not isinstance(candidate.get("content"), str) or not candidate.get("content", "").strip()
+            or len(candidate.get("content", "")) > 8_192
+            or candidate.get("content") != candidate.get("content", "").strip()
             or not isinstance(candidate.get("rationale"), str)
+            or len(candidate.get("rationale", "")) > 4_096
+            or candidate.get("rationale") != candidate.get("rationale", "").strip()
             or candidate.get("epistemic_status") != "unverified"
             or candidate.get("authority") != "candidate_generation_only"
             or candidate.get("confidence_semantics") != "model_estimate_not_truth_probability"
@@ -396,6 +403,7 @@ def store_ideonomy_candidate_set(
         if (
             not isinstance(selected, list) or not selected
             or len(selected) > MAX_BINDINGS_PER_CANDIDATE
+            or len({canonical_json(binding) for binding in selected}) != len(selected)
             or any(not isinstance(binding, Mapping) or canonical_json(binding) not in valid_bindings
                    or binding.get("locator_type") == "whole_artifact" for binding in selected)
         ):
@@ -435,7 +443,8 @@ def store_ideonomy_candidate_set(
             not isinstance(subject, str) or not isinstance(object_, str)
             or subject not in candidate_ids or object_ not in candidate_ids
             or not isinstance(predicate, str) or predicate not in EDGE_TYPES or subject == object_
-            or not isinstance(rationale, str)
+            or not isinstance(rationale, str) or len(rationale) > 4_096
+            or rationale != rationale.strip()
         ):
             raise ValueError("Ideonomy relation endpoints or predicate are invalid")
         relation_key = (subject, predicate, object_)
