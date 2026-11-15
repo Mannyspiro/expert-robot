@@ -84,7 +84,8 @@ The latest inspected default branch is `main`. The repository contains multiple 
 | [#168](https://github.com/Mannyspiro/expert-robot/pull/168) | Read-only knowledge representation query integration | Draft; head `53d3e9799256e3981e12e60ae7479dd4811b2041`; CI run `43757140668` SUCCESS; all 3 new tests passed |
 | [#169](https://github.com/Mannyspiro/expert-robot/pull/169) | Source-located UTF-8 text extraction | Draft; head `eecaa93a96b913f9330673a41eba20065d9131c5`; CI run `43757628616` SUCCESS; all 7 new tests passed |
 | [#170](https://github.com/Mannyspiro/expert-robot/pull/170) | Bounded Hermes knowledge-extraction stage | Draft; head `dc74a61dbe698189e1ece4105720261ccfa83548`; unified-platform run `43758293101` SUCCESS (236 tests); exact-head CI run `43758293058` SUCCESS (ledger 8, evidence 6, Hermes stage 7 tests) |
-| [#171](https://github.com/Mannyspiro/expert-robot/pull/171) | Source-grounded Ideonomy candidate enumeration | Draft; head `e95920f4f877df1cda0b71ca8c5b88a34043b9e5`; CI `43759349581` failed two Ideonomy tests; graph source-node ID and tamper-test fixes committed with `[skip ci]`; latest head unverified, no rerun without approval |
+| [#171](https://github.com/Mannyspiro/expert-robot/pull/171) | Source-grounded Ideonomy candidate enumeration | Draft; head `e95920f4f877df1cda0b71ca8c5b88a34043b9e5`; CI `43759349581` failed two Ideonomy tests; graph source-node ID and tamper-test fixes committed with `[skip ci]`; latest head unverified |
+| [#172](https://github.com/Mannyspiro/expert-robot/pull/172) | Optional candidate-only Hermes Ideonomy stage | Draft; head `081bbbbcf8d6444ba8f1a79767b7f1106a871e9e`; stacked on #171; no CI run by design; candidate generation adds no hypothesis evidence and has no promotion authority |
 | [#164](https://github.com/Mannyspiro/expert-robot/pull/164) | Canonical backup recovery drill receipts | Draft; head `a5fea014fdc6f5991add69996aa6a49252e94eba`; stacked on #163 |
 | [#163](https://github.com/Mannyspiro/expert-robot/pull/163) | Create-only OCI Object Storage backup transport | Draft; head `d873e1e419e78f10b9de83c7f56cd259a80b22fc`; adapter tests passed in run `43610431390`; live tenancy qualification outstanding |
 | [#161](https://github.com/Mannyspiro/expert-robot/pull/161) | OCI Vault/KMS provider and deployment runbook | Draft; head `cdc22ab861ff71a27f4707887c2ef3772583398c`; CI run `43609808622` SUCCESS; live key/IAM round trip outstanding |
@@ -112,7 +113,7 @@ The current implementation already includes:
 - idempotent worker/event outbox contracts;
 - backup/restore verification for SQLite, referenced blobs, ArtifactRefs, DAG snapshots and outbox pointers.
 
-PR #165 adds a deterministic source-bound derived representation manifest, exact source locators, tool/version metadata, a graph `object_view` and `derived_from` links. PR #167 adds bounded exact-source reconstruction; PR #168 exposes the verified manifest and source bindings through the existing read-only API; PR #169 adds strict UTF-8/Markdown extraction with exact byte and line locators; PR #170 adds an optional approval/lease-gated Hermes extraction stage and full-ArtifactRef-bound evidence idempotency. PR #171 adds provider-injected Ideonomy enumeration with exact source-binding indexes, deterministic candidate identities and unverified graph projections. Candidate generation is not semantic verification or qualification. Original artifacts remain immutable.
+PR #165 adds a deterministic source-bound derived representation manifest, exact source locators, tool/version metadata, a graph `object_view` and `derived_from` links. PR #167 adds bounded exact-source reconstruction; PR #168 exposes the verified manifest and source bindings through the existing read-only API; PR #169 adds strict UTF-8/Markdown extraction with exact byte and line locators; PR #170 adds an optional approval/lease-gated Hermes extraction stage and full-ArtifactRef-bound evidence idempotency. PR #171 adds provider-injected Ideonomy enumeration with exact source-binding indexes, deterministic candidate identities and unverified graph projections. PR #172 adds an optional Hermes Ideonomy stage, linking candidate sets to hypotheses with a neutral `uses` edge while deliberately bypassing hypothesis evidence/status mutation. Candidate generation is not semantic verification or qualification. PR #172 has not been runtime-tested; both PRs remain draft and the #172 stack depends on #171. Original artifacts remain immutable.
 
 ### Backup and recovery status
 
@@ -233,8 +234,9 @@ The virtual repository direction is a headless, internal Git-like system with SQ
 ## 9. Runtime, compute and security constraints
 
 - Target Merlin software and applications for Linux x86-64 unless a specific worker is explicitly ARM64.
-- Avrea is assumed unavailable until the first of next month (2026-12-01) unless the user updates that assumption.
-- Use the existing Namespace runner for ordinary Expert Robot CI where configured; use OCI only for the specific pinned workflows that require it.
+- Avrea has 3,000 runner minutes remaining until 2026-12-01 and must be treated as unavailable; do not consume Avrea minutes.
+- OCI is approved as free compute while it remains free. Stop before any action that would incur a charge, require a paid upgrade, or change that cost status. Prefer the existing OCI runner for the specific CACE pinned workflows that require it; verify runner availability and cost before execution.
+- The user approved one focused validation pass for corrected Expert Robot PR #171 and current CACE PR #102, conditional on OCI remaining free. The connected GitHub action surface currently exposes no workflow-dispatch operation, so no current-head run has been triggered. Do not create artificial commits to provoke workflows or run broad unrelated CI.
 - Avoid unnecessary runner retriggers, repeated heavyweight downloads, redundant model downloads, and speculative cloud work.
 - Do not request routine manual workflows. Intervene manually only when permissions, protected credentials, approvals or an unavailable manual-dispatch action make it unavoidable.
 - Never expose secrets, private keys, runner credentials or plaintext data keys in logs, Git or model-visible artifacts.
@@ -245,12 +247,12 @@ The virtual repository direction is a headless, internal Git-like system with SQ
 
 ## 10. Ranked next actions
 
-1. **Complete the RP2 exact-head correction loop.** Run cheap source/guard checks on PR #102 head `aa02d4f...`; obtain one authorized exact-pin Lean dispatch on that exact head; inspect logs. If it passes, keep RP2 quarantined and proceed to homology classification. If it fails, fix only the observed failure and add a regression class.
+1. **Complete the RP2 exact-head correction loop.** Current CACE PR #102 head is `03709c8c2c3f0fa6515a5f7aaecebb50a451c7cc`; no exact-head Lean result exists. The user has approved one focused validation pass if OCI remains free, but workflow dispatch is not exposed by the connected GitHub action surface. Do not substitute an older run or trigger unrelated CI. Once an authorized exact-pin run can be started on this exact head, inspect logs. If it passes, keep RP2 quarantined and proceed to homology classification; if it fails, fix only the observed failure and add a regression class.
 2. **Complete the knowledge representation PR #165 review loop.** Its exact CI run `43756132171` passed. Next add an independent reconstruction evaluator and omission/contradiction benchmarks before introducing model-based semantic compression.
 3. **Reconcile the stacked registry/backup chain.** Preserve #164 → #163 → #161 → #159 → #158 → #150 → #149 and its upstream dependencies. Do not merge individual stacked branches out of order. Complete live KMS/Object Storage and separate-host recovery qualification only when protected configuration and runner capacity are confirmed.
 4. **Complete the Merlin–CACE ArtifactRef trust chain.** Reconcile signer-custody and trust-root PRs; verify live resolver-owned provenance and exact historical bytes; retain verification-only authority.
 5. **Connect knowledge retrieval to existing APIs.** Extend `MerlinReadAPI`; do not add a parallel registry or database. Add source extractors with page/line/frame/timecode locators.
-6. **Connect Ideonomy, Hermes, Logos and MCFC.** Add bounded, idempotent extraction/representation jobs with explicit leases, cancellation, budgets, failure classes and evidence receipts.
+6. **Connect Ideonomy, Hermes, Logos and MCFC.** PR #171 adds source-grounded candidate enumeration; PR #172 adds the optional candidate-only Hermes stage. Next validate both exact heads, then add Logos adversarial review as a separate non-evidence artifact before any hypothesis/evidence workflow. Preserve explicit leases, cancellation, budgets and failure classes.
 7. **Advance mathematics, engineering and media adapters by observed evidence.** Keep Lean, numerical, CAD, wiring, ngspice, image and video capabilities independently qualified by domain-specific benchmarks.
 8. **Maintain one evolving production engineering plan and handoff.** Update this file and the detailed subsystem documents after meaningful changes; always re-query live GitHub state rather than treating this snapshot as current truth.
 
@@ -269,8 +271,7 @@ When continuing, read these documents and inspect the exact current PR heads and
 ## Current operating constraints
 
 - Keep all Merlin and CACE pull requests in draft; do not merge or close them without explicit approval.
-- Do not trigger additional GitHub Actions runs or spend Actions quota without approval. Where code updates are necessary before approval, use `[skip ci]` and state clearly that the latest head is unverified.
+- Do not trigger additional GitHub Actions runs or spend Actions quota outside the user's focused approval. The approved scope is PR #171 and CACE #102 only, conditional on OCI remaining free; PR #172 is not included. Where code updates are necessary, use `[skip ci]` and state clearly that the latest head is unverified.
 - No paid services or new paid provider dependencies.
 - Preserve the invariant: capability grows; authority never expands. AI-generated candidates and summaries cannot certify, promote evidence, or override graph/proof status; CACE remains the independent verifier.
 - Maintain one-job discipline for OCI/CACE qualification; do not launch competing proof jobs or force-update refs.
-
