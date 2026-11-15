@@ -119,18 +119,34 @@ The report explicitly says `semantic_equivalence=not_assessed`, `cace_verificati
 
 Tests cover exact recovery, multiple sources and locators, tampered manifest identity, missing/malformed source bindings, path substitution, and byte-budget enforcement.
 
-## 8. Next ranked implementation steps
+## 8. Read-only retrieval integration
 
-1. **Exact-head CI:** run the focused knowledge-representation tests and full Merlin CI on the exact branch head; retain logs and artifact digests.
-2. **Reconstruction evaluator:** define exact-source recovery tests and explicit lossy-summary omission/contradiction benchmarks. A `reversible_claim` must not be upgraded without a successful independent reconstruction receipt.
-3. **Read-only retrieval integration:** extend the existing `MerlinReadAPI` to retrieve representation manifests and their source bindings without adding another query store.
-4. **Extraction adapters:** add text/PDF/code/JSON extractors that produce source-bound locators and never alter source bytes.
-5. **Ideonomy and Hermes:** enumerate candidate concepts/claims, then schedule bounded extraction and representation jobs through the existing outbox and worker contracts.
-6. **Logos and CACE:** challenge derived claims and verify exact producer artifacts with a configured, independently trusted CACE transport. Until then, status remains unverified.
-7. **Domain-specific paths:** mathematical/formal, code, engineering/CAD/netlist, biological and multimodal representations, each with separate benchmarks.
-8. **Measured promotion:** qualify compression methods against held-out tasks, retrieval quality, reconstruction, storage, latency and compute. Capability qualification and deployment remain separate approval steps.
+The existing `MerlinReadAPI` in `python/merlin/registry_queries.py` exposes:
 
-## 9. Required invariants
+`knowledge_representation(representation_ref)`
+
+This method delegates manifest validation and exact source ArtifactRef resolution to `inspect_knowledge_representation`. It returns the manifest, producer provenance, exact source references, verified source-resolution metadata and locators. It does not return source bytes or mutate the registry, graph, hypotheses or outbox.
+
+The query explicitly reports:
+- `verification_scope=artifact-integrity-only`;
+- `authority=derived-representation-only`;
+- `qualification=false`;
+- `source_bytes_included=false`.
+
+The API verifies artifact identity and source reachability, not semantic correctness. Exact source bytes remain available through the separate bounded reconstruction operation.
+
+Tests: `tests/test_knowledge_representation_queries.py` checks exact source bindings, verified resolution, no source-byte leakage, and read-only behavior of the existing registry and graph.
+
+## 9. Next ranked implementation steps
+
+1. **Exact-head CI:** run the focused representation, reconstruction and read-API tests plus full Merlin CI on the exact current branch head; retain logs and artifact digests.
+2. **Extraction adapters:** add text/PDF/code/JSON extractors that produce source-bound locators and never alter source bytes.
+3. **Ideonomy and Hermes:** enumerate candidate concepts/claims, then schedule bounded extraction and representation jobs through the existing outbox and worker contracts.
+4. **Logos and CACE:** challenge derived claims and verify exact producer artifacts with a configured, independently trusted CACE transport. Until then, status remains unverified.
+5. **Domain-specific paths:** mathematical/formal, code, engineering/CAD/netlist, biological and multimodal representations, each with separate benchmarks.
+6. **Measured promotion:** qualify compression methods against held-out tasks, retrieval quality, reconstruction, storage, latency and compute. Capability qualification and deployment remain separate approval steps.
+
+## 10. Required invariants
 
 - Never overwrite or delete original source artifacts as a compression side effect.
 - Never merge distinct ArtifactRefs solely because their blob bytes match.

@@ -6,12 +6,13 @@ projects, hypotheses, graph records, evidence or outbox state.
 from __future__ import annotations
 
 from dataclasses import asdict
-from typing import Any
+from typing import Any, Mapping
 
 from merlin.hypothesis_ledger import HypothesisLedger
 from merlin.knowledge_graph import MerlinKnowledgeGraph
 from merlin.project_registry import MerlinRegistry
 from merlin.event_outbox import MerlinEventOutbox
+from merlin.knowledge_reconstruction import inspect_knowledge_representation
 
 
 class MerlinReadAPI:
@@ -68,6 +69,41 @@ class MerlinReadAPI:
             "limit": limit,
             "offset": offset,
             "total": len(verified_items),
+        }
+
+    def knowledge_representation(self, representation_ref: Mapping[str, Any]) -> dict[str, Any]:
+        """Return a verified representation manifest and exact source bindings.
+
+        This read-only query verifies the manifest and re-resolves each pinned
+        source ArtifactRef. It returns metadata only, never original source
+        bytes, and does not imply semantic correctness or CACE qualification.
+        """
+        inspected = inspect_knowledge_representation(self.registry, representation_ref)
+        sources = []
+        for ref, resolution in zip(
+            inspected["source_artifact_refs"], inspected["source_resolutions"],
+        ):
+            bindings = [
+                binding for binding in inspected["source_bindings"]
+                if binding["artifact_ref"] == ref
+            ]
+            sources.append({
+                "artifact_ref": ref,
+                "resolution": resolution,
+                "source_bindings": bindings,
+            })
+        return {
+            "schema": "merlin-knowledge-representation-query/1",
+            "representation_ref": inspected["representation_ref"],
+            "representation_id": inspected["representation_id"],
+            "manifest": inspected["manifest"],
+            "producer_provenance": inspected["producer_provenance"],
+            "sources": sources,
+            "verified": True,
+            "verification_scope": "artifact-integrity-only",
+            "authority": "derived-representation-only",
+            "qualification": False,
+            "source_bytes_included": False,
         }
 
     def hypothesis(self, hypothesis_id: str) -> dict[str, Any]:

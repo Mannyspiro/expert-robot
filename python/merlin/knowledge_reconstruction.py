@@ -1,8 +1,9 @@
-"""Exact-source reconstruction for provenance-preserving Merlin representations.
+"""Inspection and exact-source reconstruction for Merlin knowledge representations.
 
-This retrieves and verifies original source bytes. It does not reconstruct a
-semantic summary, assert semantic equivalence, or issue a CACE verification
-receipt.
+Inspection verifies the representation artifact and its pinned source ArtifactRefs
+without returning source bytes. Reconstruction additionally reads and returns the
+exact source bytes under explicit resource budgets. Neither operation proves
+semantic equivalence or issues a CACE verification receipt.
 """
 from __future__ import annotations
 
@@ -29,32 +30,27 @@ from merlin.project_registry import (
 RECONSTRUCTION_SCHEMA = "merlin-knowledge-reconstruction-report/1"
 _ID_RE = re.compile(r"^[0-9a-f]{64}$")
 DEFAULT_MAX_TOTAL_BYTES = 100 * 1024 * 1024
+MAX_REPRESENTATION_SOURCES = 500
 
 
 class ReconstructionLimitError(ValueError):
     """Raised when source reconstruction would exceed an explicit byte budget."""
 
 
-def reconstruct_source_artifacts(
+def inspect_knowledge_representation(
     registry: MerlinRegistry,
     representation_ref: Mapping[str, Any],
     *,
-    max_total_bytes: int = DEFAULT_MAX_TOTAL_BYTES,
-    max_source_bytes: int = MAX_ARTIFACT_READ_BYTES,
+    max_manifest_bytes: int = MAX_ARTIFACT_READ_BYTES,
 ) -> dict[str, Any]:
-    """Recover every exact source ArtifactRef named by a representation.
+    """Verify a representation manifest and all exact source ArtifactRefs.
 
-    The returned report is deterministic for the same manifest and source
-    bytes. Recovered byte payloads are returned separately from the JSON-safe
-    report. Semantic equivalence and CACE qualification are intentionally not
-    assessed here.
+    This method reads only the bounded manifest, then uses the canonical
+    registry resolver to verify each pinned source. It returns no source bytes.
     """
-    if (isinstance(max_total_bytes, bool) or not isinstance(max_total_bytes, int)
-            or not 1 <= max_total_bytes <= 1024 * 1024 * 1024):
-        raise ValueError("max_total_bytes must be between 1 byte and 1 GiB")
-    if (isinstance(max_source_bytes, bool) or not isinstance(max_source_bytes, int)
-            or not 1 <= max_source_bytes <= MAX_ARTIFACT_READ_BYTES):
-        raise ValueError("max_source_bytes must be between 1 and 25 MiB")
+    if (isinstance(max_manifest_bytes, bool) or not isinstance(max_manifest_bytes, int)
+            or not 1 <= max_manifest_bytes <= MAX_ARTIFACT_READ_BYTES):
+        raise ValueError("max_manifest_bytes must be between 1 and 25 MiB")
 
     ref = ArtifactRef.from_mapping(representation_ref)
     expected_prefix = "knowledge/representations/"
@@ -64,7 +60,7 @@ def reconstruct_source_artifacts(
 
     try:
         stored = registry.read_artifact_ref(
-            ref.to_dict(), max_bytes=max_source_bytes,
+            ref.to_dict(), max_bytes=max_manifest_bytes,
         )
     except ArtifactSizeLimitError as exc:
         raise ReconstructionLimitError(
@@ -134,6 +130,50 @@ def reconstruct_source_artifacts(
     refs, bindings = _validate_sources(
         manifest["source_artifacts"], manifest["source_bindings"],
     )
+    if len(refs) > MAX_REPRESENTATION_SOURCES:
+        raise ValueError("representation exceeds the maximum source artifact count")
+
+    source_resolutions = [registry.resolve_artifact_ref(source_ref) for source_ref in refs]
+    return {
+        "schema": "merlin-knowledge-representation-inspection/1",
+        "representation_ref": ref.to_dict(),
+        "representation_id": representation_id,
+        "manifest": manifest,
+        "producer_provenance": provenance,
+        "source_artifact_refs": refs,
+        "source_bindings": bindings,
+        "source_resolutions": source_resolutions,
+        "verified": True,
+        "verification_scope": "artifact-integrity-only",
+        "authority": "derived-representation-only",
+        "qualification": False,
+    }
+
+
+def reconstruct_source_artifacts(
+    registry: MerlinRegistry,
+    representation_ref: Mapping[str, Any],
+    *,
+    max_total_bytes: int = DEFAULT_MAX_TOTAL_BYTES,
+    max_source_bytes: int = MAX_ARTIFACT_READ_BYTES,
+) -> dict[str, Any]:
+    """Recover every exact source ArtifactRef named by a representation.
+
+    The returned report is deterministic for the same manifest and source
+    bytes. Recovered byte payloads are returned separately from the JSON-safe
+    report. Semantic equivalence and CACE qualification are intentionally not
+    assessed here.
+    """
+    if (isinstance(max_total_bytes, bool) or not isinstance(max_total_bytes, int)
+            or not 1 <= max_total_bytes <= 1024 * 1024 * 1024):
+        raise ValueError("max_total_bytes must be between 1 byte and 1 GiB")
+    if (isinstance(max_source_bytes, bool) or not isinstance(max_source_bytes, int)
+            or not 1 <= max_source_bytes <= MAX_ARTIFACT_READ_BYTES):
+        raise ValueError("max_source_bytes must be between 1 and 25 MiB")
+
+    inspection = inspect_knowledge_representation(registry, representation_ref)
+    refs = inspection["source_artifact_refs"]
+    bindings = inspection["source_bindings"]
     bindings_by_ref: dict[bytes, list[dict[str, Any]]] = {}
     for binding in bindings:
         bindings_by_ref.setdefault(canonical_json(binding["artifact_ref"]), []).append(binding)
@@ -172,8 +212,8 @@ def reconstruct_source_artifacts(
 
     report_body = {
         "schema": RECONSTRUCTION_SCHEMA,
-        "representation_id": representation_id,
-        "representation_ref": ref.to_dict(),
+        "representation_id": inspection["representation_id"],
+        "representation_ref": inspection["representation_ref"],
         "source_results": source_results,
         "source_count": len(source_results),
         "total_source_bytes": total_bytes,
@@ -191,5 +231,6 @@ def reconstruct_source_artifacts(
 
 __all__ = [
     "RECONSTRUCTION_SCHEMA", "DEFAULT_MAX_TOTAL_BYTES",
-    "ReconstructionLimitError", "reconstruct_source_artifacts",
+    "MAX_REPRESENTATION_SOURCES", "ReconstructionLimitError",
+    "inspect_knowledge_representation", "reconstruct_source_artifacts",
 ]
