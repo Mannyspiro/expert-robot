@@ -157,9 +157,9 @@ The source was subsequently corrected on PR #102:
 - commit `669ca54e55f505e9d7a965ac30e8ef98f4e7747a`: add cheap regression checks for the proof shape;
 - commit `aa02d4f9f916f9d38faf62beda09bb89f3b313ff`: record failure class F-034 in `formal/FAILURE_GUARDRAILS.md`.
 
-**The corrected RP2 source has not yet passed exact-head Lean compilation.** The latest exact-pin run above predates these fixes. No new exact-head workflow run was returned for `aa02d4f...` at the time of this handoff. The RP2 module must remain quarantined. Do not claim the homology classification or formal qualification.
+**The corrected RP2 source has not yet passed exact-head Lean compilation.** On exact PR head `aa02d4f9f916f9d38faf62beda09bb89f3b313ff`, CACE Collaboration Validation run `43756463757` succeeded; its Python regression suite and bug-sweep manifest passed (32 checked guard references, zero errors). This is not Lean compilation. Exact-pin runs `43756435490`, `43756455602`, and `43756463754` plus source-sanity runs `43756435479`, `43756455724`, and `43756463811` were cancelled before jobs started. The prior exact-pin failure on `88da2a15...` remains the latest actual Lean compile result. The RP2 module must remain quarantined. Do not claim the homology classification or formal qualification.
 
-The exact-pin workflow is a manual-dispatch workflow. The connected GitHub action surface currently exposes no workflow-dispatch operation. Avoid rerunning an old workflow against a stale commit; a new exact-head dispatch is required when an authorized dispatch path is available. Do not spend another large runner allocation on the already successful targets unnecessarily.
+The exact-pin workflow supports pull-request path triggers and explicit workflow dispatch. The connected GitHub action surface does not expose a workflow-dispatch operation. Current PR-triggered exact-pin attempts were cancelled before starting; do not rerun an old workflow against a stale commit. A new exact-head run must execute against the current RP2 source without wasting runner capacity on unrelated successful targets.
 
 ### Other CACE production gates
 
