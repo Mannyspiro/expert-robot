@@ -236,7 +236,7 @@ def enumerate_ideonomy_candidates(
             raise ValueError("source-binding indexes must be integers")
         if len(set(indexes)) != len(indexes):
             raise ValueError("source-binding indexes must not repeat")
-        if any(index < 0 or index >= len(source_bindings) for index in indexes):
+        if any(index < 0 or index >= len(source_binding_entries) for index in indexes):
             raise ValueError("candidate cites a source-binding index outside the inspected manifest")
         selected_bindings = [source_binding_entries[index]["binding"] for index in indexes]
         if not selected_bindings:
