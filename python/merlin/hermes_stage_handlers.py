@@ -20,6 +20,13 @@ from .knowledge_graph import MerlinKnowledgeGraph
 from .text_extractor import (
     EXTRACTOR_ID, EXTRACTOR_VERSION, MAX_TEXT_SEGMENTS, store_text_extraction,
 )
+from .ideonomy import (
+    IDEONOMY_SCHEMA, MAX_IDEONOMY_CANDIDATES, MAX_IDEONOMY_RELATIONS,
+    MAX_IDEONOMY_INPUT_CHARS, enumerate_ideonomy_candidates,
+    store_ideonomy_candidate_set,
+)
+from .knowledge_graph import GraphEdge, GraphNode
+from .hypothesis_ledger import HypothesisLedger
 
 _STAGE_CONTRACTS = {
     "research": {
@@ -480,6 +487,181 @@ def build_text_extraction_executor(
     return execute
 
 
+
+def build_ideonomy_stage_handler(
+    *,
+    evidence_recorder: ResearchEvidenceRecorder,
+    project_id: str,
+    repository: str,
+    commit_sha: str,
+    candidate_generator: Callable[[Mapping[str, Any]], Mapping[str, Any]],
+) -> Callable[[Mapping[str, Any], Any], Mapping[str, Any]]:
+    """Build a bounded Ideonomy stage that records candidates, never evidence.
+
+    The stage consumes one exact text-extraction ArtifactRef, stores a
+    provenance-bound candidate-set representation, and links it to the
+    hypothesis with a neutral `uses` edge. It deliberately does not call
+    ResearchEvidenceRecorder or mutate hypothesis evidence/status.
+    """
+    if not isinstance(evidence_recorder, ResearchEvidenceRecorder):
+        raise ValueError("the canonical ResearchEvidenceRecorder is required")
+    if not isinstance(project_id, str) or not project_id.strip():
+        raise ValueError("project_id is required")
+    if not isinstance(repository, str) or "/" not in repository:
+        raise ValueError("repository must be owner/name")
+    if not isinstance(commit_sha, str) or len(commit_sha) != 40 or any(
+        char not in "0123456789abcdef" for char in commit_sha
+    ):
+        raise ValueError("commit_sha must be a lowercase 40-character Git SHA")
+    if not callable(candidate_generator):
+        raise ValueError("an injected Ideonomy candidate generator is required")
+
+    registry = evidence_recorder.registry
+    graph = evidence_recorder.graph
+    ledger = evidence_recorder.ledger
+
+    def execute(task: Mapping[str, Any], context: Any) -> Mapping[str, Any]:
+        if task.get("stage") != "ideonomy_enumeration":
+            raise ValueError("Ideonomy handler received a mismatched task")
+        refs = task.get("artifact_refs")
+        if not isinstance(refs, list) or len(refs) != 1:
+            raise ValueError("ideonomy_enumeration requires exactly one text-extraction ArtifactRef")
+        source_ref = ArtifactRef.from_mapping(refs[0]).to_dict()
+        spec = task.get("experiment_spec") or {}
+        budget = task.get("resource_budget")
+        if not isinstance(spec, Mapping):
+            raise ValueError("Ideonomy experiment_spec must be an object")
+        if not isinstance(budget, Mapping):
+            raise ValueError("Ideonomy requires the canonical resource budget")
+        memory_bytes = budget.get("memory_bytes")
+        if isinstance(memory_bytes, bool) or not isinstance(memory_bytes, int) or memory_bytes < 4:
+            raise ValueError("Ideonomy memory budget must be at least four bytes")
+
+        max_candidates = spec.get("max_candidates", MAX_IDEONOMY_CANDIDATES)
+        max_relations = spec.get("max_relations", MAX_IDEONOMY_RELATIONS)
+        requested_chars = spec.get("max_input_characters", MAX_IDEONOMY_INPUT_CHARS)
+        for value, maximum, label in (
+            (max_candidates, MAX_IDEONOMY_CANDIDATES, "max_candidates"),
+            (max_relations, MAX_IDEONOMY_RELATIONS, "max_relations"),
+            (requested_chars, MAX_IDEONOMY_INPUT_CHARS, "max_input_characters"),
+        ):
+            if isinstance(value, bool) or not isinstance(value, int) or not 1 <= value <= maximum:
+                raise ValueError(f"Ideonomy {label} is outside its supported range")
+        max_input_characters = min(requested_chars, memory_bytes // 4)
+
+        check_cancelled = getattr(context, "check_cancelled", None)
+        if callable(check_cancelled):
+            check_cancelled()
+        context.emit_progress("Ideonomy enumerating source-bound candidates")
+        context.emit_tool_event(
+            "agent.tool.started", "merlin-ideonomy",
+            {"stage": "ideonomy_enumeration", "task_id": context.task_id},
+        )
+        candidate_set = enumerate_ideonomy_candidates(
+            registry,
+            source_ref,
+            candidate_generator,
+            max_candidates=max_candidates,
+            max_relations=max_relations,
+            max_input_characters=max_input_characters,
+        )
+        if callable(check_cancelled):
+            check_cancelled()
+        stored = store_ideonomy_candidate_set(
+            registry,
+            graph,
+            candidate_set,
+            project_id=project_id,
+            source_repo=repository,
+            source_commit=commit_sha,
+        )
+        representation = stored["stored_representation"]
+        artifact_ref = ArtifactRef.from_mapping(
+            representation["representation_ref"]
+        ).to_dict()
+        resolution = registry.resolve_artifact_ref(artifact_ref)
+        if resolution.get("verified") is not True:
+            raise RuntimeError("Ideonomy candidate-set ArtifactRef failed canonical registry resolution")
+
+        hypothesis = ledger.get(context.hypothesis_id)
+        hypothesis_node_id = "hypothesis:" + __import__("hashlib").sha256(
+            context.hypothesis_id.encode("utf-8")
+        ).hexdigest()[:32]
+        graph.add_node(GraphNode(
+            hypothesis_node_id,
+            "claim",
+            hypothesis.claim,
+            {
+                "hypothesis_id": context.hypothesis_id,
+                "mathematical_objects": list(hypothesis.mathematical_objects),
+                "relation": hypothesis.relation,
+                "assumptions": list(hypothesis.assumptions),
+            },
+            evidence_class="hypothesis",
+        ))
+        graph.add_edge(GraphEdge(
+            hypothesis_node_id,
+            "uses",
+            representation["graph_node_id"],
+            {
+                "relationship_class": "candidate_discovery",
+                "candidate_set_id": candidate_set["candidate_set_id"],
+                "epistemic_status": "unverified",
+                "authority": "candidate_generation_only",
+                "qualification": False,
+            },
+        ))
+        context.emit_tool_event(
+            "agent.tool.completed", "merlin-ideonomy",
+            {
+                "stage": "ideonomy_enumeration",
+                "task_id": context.task_id,
+                "candidate_set_id": candidate_set["candidate_set_id"],
+                "candidate_count": candidate_set["candidate_count"],
+                "registry_verified": True,
+            },
+        )
+        context.emit_progress(
+            f"Ideonomy stored {candidate_set['candidate_count']} unverified, source-bound candidates."
+        )
+        return {
+            "schema": "merlin-hermes-ideonomy-result/1",
+            "stage": "ideonomy_enumeration",
+            "summary": (
+                f"Enumerated {candidate_set['candidate_count']} candidates and "
+                f"{candidate_set['relation_count']} candidate relations."
+            ),
+            "candidate_set_id": candidate_set["candidate_set_id"],
+            "candidate_count": candidate_set["candidate_count"],
+            "relation_count": candidate_set["relation_count"],
+            "authority": "candidate_generation_only",
+            "epistemic_status": "unverified",
+            "semantic_verification": "not_assessed",
+            "qualification": False,
+            "independent_verification_status": "not_requested_candidate_generation_only",
+            "artifact": {
+                "artifact_ref": artifact_ref,
+                "sha256": artifact_ref["sha256"],
+                "logical_path": artifact_ref["logical_path"],
+                "registry_verified": True,
+                "size_bytes": resolution["size_bytes"],
+                "media_type": resolution.get("media_type"),
+            },
+            "graph_edge": {
+                "source_id": hypothesis_node_id,
+                "relation": "uses",
+                "target_id": representation["graph_node_id"],
+            },
+            "candidate_graph_node_ids": stored["candidate_graph_node_ids"],
+            "evidence_refs": [],
+            "artifact_refs": [artifact_ref],
+            "hypothesis_status_unchanged": ledger.get(context.hypothesis_id).status == hypothesis.status,
+            "promotion_authority": False,
+        }
+
+    return execute
+
+
 def build_merlin_hermes_handlers(
     *,
     evidence_recorder: ResearchEvidenceRecorder,
@@ -495,12 +677,13 @@ def build_merlin_hermes_handlers(
     lean_tool_version: str | None = None,
     theorem_verifier: Callable[..., Mapping[str, Any]] | None = None,
     knowledge_extraction_executor: Callable[[Mapping[str, Any], Any], Mapping[str, Any]] | None = None,
+    ideonomy_candidate_generator: Callable[[Mapping[str, Any]], Mapping[str, Any]] | None = None,
 ) -> dict[str, Callable[[Mapping[str, Any], Any], Mapping[str, Any]]]:
     """Register built-in numerical/electrical engines plus real injected research/proof engines."""
     from merlin.linear_simulation import linear_ode_task_executor
     from merlin.ngspice_engine import ngspice_task_executor
 
-    return build_hermes_stage_handlers(
+    handlers = build_hermes_stage_handlers(
         evidence_recorder=evidence_recorder,
         project_id=project_id,
         research_executor=research_executor,
@@ -516,9 +699,18 @@ def build_merlin_hermes_handlers(
         lean_tool_version=lean_tool_version,
         knowledge_extraction_executor=knowledge_extraction_executor,
     )
+    if ideonomy_candidate_generator is not None:
+        handlers["ideonomy_enumeration"] = build_ideonomy_stage_handler(
+            evidence_recorder=evidence_recorder,
+            project_id=project_id,
+            repository=repository,
+            commit_sha=commit_sha,
+            candidate_generator=ideonomy_candidate_generator,
+        )
+    return handlers
 
 
 __all__ = [
     "build_hermes_stage_handlers", "build_merlin_hermes_handlers",
-    "build_text_extraction_executor",
+    "build_text_extraction_executor", "build_ideonomy_stage_handler",
 ]
