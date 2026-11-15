@@ -79,7 +79,7 @@ class TextExtractorTests(unittest.TestCase):
             extract_text_artifact(self.registry, ref)
 
     def test_byte_and_segment_budgets_are_enforced(self):
-        ref = self._source("notes/long.txt", b"one\ntwo\nthree\n")
+        ref = self._source("notes/long.txt", b"one\n\ntwo\n")
         with self.assertRaises(ValueError):
             extract_text_artifact(self.registry, ref, max_bytes=2)
         with self.assertRaises(ValueError):
