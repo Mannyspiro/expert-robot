@@ -2,8 +2,9 @@
 
 This module deliberately requires concrete domain executors to be injected.
 It does not substitute a fake numerical solver, proof searcher or research agent.
-Each executor returns immutable artifact bytes; this layer stores and verifies
-those bytes, links them to the canonical hypothesis graph, and returns refs.
+Executors return either immutable artifact bytes or one exact existing ArtifactRef;
+this layer verifies the artifact, links it to the canonical hypothesis graph,
+and returns refs without duplicating stored bytes.
 """
 from __future__ import annotations
 
