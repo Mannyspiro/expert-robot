@@ -63,6 +63,8 @@ def _validate_executor_output(value: Any) -> dict[str, Any]:
     result = dict(value)
     artifact_bytes = result.get("artifact_bytes")
     existing_ref = result.get("existing_artifact_ref")
+    if existing_ref is not None and not isinstance(existing_ref, Mapping):
+        raise ValueError("existing_artifact_ref must be an exact ArtifactRef object")
     if artifact_bytes is not None and (
         not isinstance(artifact_bytes, bytes) or not artifact_bytes
     ):
