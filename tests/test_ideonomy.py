@@ -206,7 +206,7 @@ class IdeonomyTests(unittest.TestCase):
             self.registry, self.extraction_ref, self._generator,
         )
         tampered = dict(candidate_set)
-        tampered["candidates"] = [dict(candidate_set["candidates"][0])]
+        tampered["candidates"] = [dict(candidate) for candidate in candidate_set["candidates"]]
         tampered["candidates"][0]["content"] = "Changed after enumeration."
         with self.assertRaisesRegex(ValueError, "candidate identity is invalid"):
             store_ideonomy_candidate_set(
