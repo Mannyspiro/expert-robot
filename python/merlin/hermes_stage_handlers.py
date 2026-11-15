@@ -63,6 +63,10 @@ def _validate_executor_output(value: Any) -> dict[str, Any]:
     result = dict(value)
     artifact_bytes = result.get("artifact_bytes")
     existing_ref = result.get("existing_artifact_ref")
+    if artifact_bytes is not None and (
+        not isinstance(artifact_bytes, bytes) or not artifact_bytes
+    ):
+        raise ValueError("artifact_bytes must be non-empty immutable bytes when supplied")
     has_bytes = isinstance(artifact_bytes, bytes) and bool(artifact_bytes)
     has_existing_ref = isinstance(existing_ref, Mapping)
     if has_bytes == has_existing_ref:
@@ -219,7 +223,7 @@ def build_hermes_stage_handlers(
                     repository=repository,
                     commit_sha=commit_sha,
                     artifact_sha256=digest,
-                    artifact_kind=_stage,
+                    artifact_kind=_contract.get("artifact_kind", _stage),
                     artifact_schema=str(output["metadata"].get("artifact_schema") or output["media_type"]),
                     requester_id=requester_id,
                     logical_path=logical_path,
@@ -382,6 +386,97 @@ def build_hermes_stage_handlers(
     return handlers
 
 
+def build_text_extraction_executor(
+    registry: MerlinRegistry,
+    graph: MerlinKnowledgeGraph,
+    *,
+    project_id: str,
+    repository: str,
+    commit_sha: str,
+) -> Callable[[Mapping[str, Any], Any], Mapping[str, Any]]:
+    """Build a bounded Hermes executor that stores text extraction once.
+
+    The executor consumes exactly one already-validated source ArtifactRef and
+    returns the existing representation ArtifactRef. The stage handler attaches
+    that same artifact to the hypothesis without copying its bytes.
+    """
+    if not isinstance(registry, MerlinRegistry):
+        raise ValueError("canonical MerlinRegistry is required")
+    if not isinstance(graph, MerlinKnowledgeGraph):
+        raise ValueError("canonical MerlinKnowledgeGraph is required")
+    if not isinstance(project_id, str) or not project_id.strip():
+        raise ValueError("project_id is required")
+    if not isinstance(repository, str) or "/" not in repository:
+        raise ValueError("repository must be owner/name")
+    if not isinstance(commit_sha, str) or len(commit_sha) != 40 or any(
+        char not in "0123456789abcdef" for char in commit_sha
+    ):
+        raise ValueError("commit_sha must be a lowercase 40-character Git SHA")
+
+    def execute(task: Mapping[str, Any], context: Any) -> Mapping[str, Any]:
+        refs = task.get("artifact_refs")
+        if not isinstance(refs, list) or len(refs) != 1:
+            raise ValueError("knowledge_extraction requires exactly one source ArtifactRef")
+        source_ref = ArtifactRef.from_mapping(refs[0]).to_dict()
+        spec = task.get("experiment_spec") or {}
+        if not isinstance(spec, Mapping):
+            raise ValueError("knowledge extraction experiment_spec must be an object")
+        budget = task.get("resource_budget")
+        if not isinstance(budget, Mapping):
+            raise ValueError("knowledge extraction requires the canonical resource budget")
+        memory_bytes = budget.get("memory_bytes")
+        if isinstance(memory_bytes, bool) or not isinstance(memory_bytes, int) or memory_bytes < 1:
+            raise ValueError("knowledge extraction memory budget is invalid")
+        max_bytes = spec.get("max_bytes", MAX_ARTIFACT_READ_BYTES)
+        max_segments = spec.get("max_segments", MAX_TEXT_SEGMENTS)
+        if isinstance(max_bytes, bool) or not isinstance(max_bytes, int) or not 1 <= max_bytes <= MAX_ARTIFACT_READ_BYTES:
+            raise ValueError("knowledge extraction max_bytes is outside the supported range")
+        if isinstance(max_segments, bool) or not isinstance(max_segments, int) or not 1 <= max_segments <= MAX_TEXT_SEGMENTS:
+            raise ValueError("knowledge extraction max_segments is outside the supported range")
+        max_bytes = min(max_bytes, max(1, memory_bytes // 4))
+        selected_format = spec.get("format", "auto")
+        if not isinstance(selected_format, str):
+            raise ValueError("knowledge extraction format must be text")
+
+        check_cancelled = getattr(context, "check_cancelled", None)
+        if callable(check_cancelled):
+            check_cancelled()
+        stored = store_text_extraction(
+            registry,
+            graph,
+            source_ref,
+            project_id=project_id,
+            source_repo=repository,
+            source_commit=commit_sha,
+            format=selected_format,
+            max_bytes=max_bytes,
+            max_segments=max_segments,
+        )
+        if callable(check_cancelled):
+            check_cancelled()
+
+        extraction = stored["extraction"]
+        representation = stored["stored_representation"]
+        return {
+            "existing_artifact_ref": representation["representation_ref"],
+            "graph_node_id": representation["graph_node_id"],
+            "summary": (
+                f"Extracted {extraction['segment_count']} text segments from "
+                f"{source_ref['logical_path']}."
+            ),
+            "media_type": "application/vnd.merlin.knowledge-representation+json",
+            "metadata": {
+                "tool_identity": EXTRACTOR_ID + "@" + EXTRACTOR_VERSION,
+                "artifact_schema": "merlin-knowledge-representation/1",
+                "extraction_id": extraction["extraction_id"],
+                "segment_count": extraction["segment_count"],
+                "source_artifact_sha256": source_ref["sha256"],
+            },
+        }
+
+    return execute
+
+
 def build_merlin_hermes_handlers(
     *,
     evidence_recorder: ResearchEvidenceRecorder,
@@ -396,6 +491,7 @@ def build_merlin_hermes_handlers(
     lean_dispatcher: Callable[..., Mapping[str, Any]] | None = None,
     lean_tool_version: str | None = None,
     theorem_verifier: Callable[..., Mapping[str, Any]] | None = None,
+    knowledge_extraction_executor: Callable[[Mapping[str, Any], Any], Mapping[str, Any]] | None = None,
 ) -> dict[str, Callable[[Mapping[str, Any], Any], Mapping[str, Any]]]:
     """Register built-in numerical/electrical engines plus real injected research/proof engines."""
     from merlin.linear_simulation import linear_ode_task_executor
@@ -415,7 +511,11 @@ def build_merlin_hermes_handlers(
         theorem_verifier=theorem_verifier,
         lean_dispatcher=lean_dispatcher,
         lean_tool_version=lean_tool_version,
+        knowledge_extraction_executor=knowledge_extraction_executor,
     )
 
 
-__all__ = ["build_hermes_stage_handlers", "build_merlin_hermes_handlers"]
+__all__ = [
+    "build_hermes_stage_handlers", "build_merlin_hermes_handlers",
+    "build_text_extraction_executor",
+]
