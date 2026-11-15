@@ -145,7 +145,7 @@ class HermesStageHandlerTests(unittest.TestCase):
             commit_sha="a" * 40,
             requester_id="merlin-worker",
         )
-        with self.assertRaisesRegex(ValueError, "non-empty immutable artifact_bytes"):
+        with self.assertRaisesRegex(ValueError, "artifact_bytes must be non-empty immutable bytes"):
             handlers["research"]({"stage": "research"}, Context())
 
 
