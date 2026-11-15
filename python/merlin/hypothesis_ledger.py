@@ -79,10 +79,20 @@ class HypothesisLedger:
                     description TEXT NOT NULL,
                     source_url TEXT NOT NULL DEFAULT '',
                     artifact_hash TEXT NOT NULL DEFAULT '',
-                    created_at TEXT NOT NULL
+                    created_at TEXT NOT NULL,
+                    idempotency_key TEXT
                 );
                 CREATE INDEX IF NOT EXISTS idx_hypothesis_evidence
                     ON hypothesis_evidence(hypothesis_id, kind);
+            """)
+            columns = {
+                row["name"] for row in db.execute("PRAGMA table_info(hypothesis_evidence)")
+            }
+            if "idempotency_key" not in columns:
+                db.execute("ALTER TABLE hypothesis_evidence ADD COLUMN idempotency_key TEXT")
+            db.execute("""
+                CREATE UNIQUE INDEX IF NOT EXISTS idx_hypothesis_evidence_idempotency
+                ON hypothesis_evidence(idempotency_key)
             """)
 
     def _connect(self) -> sqlite3.Connection:
@@ -122,7 +132,8 @@ class HypothesisLedger:
         )
 
     def add_evidence(self, hypothesis_id: str, kind: str, description: str, *,
-                     source_url: str = "", artifact_hash: str = "") -> Evidence:
+                     source_url: str = "", artifact_hash: str = "",
+                     idempotency_key: str = "") -> Evidence:
         if kind not in EVIDENCE_KINDS:
             raise ValueError(f"kind must be one of {sorted(EVIDENCE_KINDS)}")
         desc = _clean(description, "evidence description")
@@ -132,17 +143,42 @@ class HypothesisLedger:
         digest = (artifact_hash or "").strip()
         if digest and (len(digest) < 16 or len(digest) > 128):
             raise ValueError("artifact_hash must be 16 to 128 characters")
+        key = (idempotency_key or "").strip()
+        if key and len(key) > 256:
+            raise ValueError("idempotency_key must be at most 256 characters")
         with self._connect() as db:
             if db.execute("SELECT 1 FROM hypotheses WHERE hypothesis_id=?",
                           (hypothesis_id,)).fetchone() is None:
                 raise KeyError(hypothesis_id)
-            cursor = db.execute("""
-                INSERT INTO hypothesis_evidence
-                    (hypothesis_id, kind, description, source_url, artifact_hash, created_at)
-                VALUES (?, ?, ?, ?, ?, ?)
-            """, (hypothesis_id, kind, desc, url, digest, _now()))
-            row = db.execute("SELECT * FROM hypothesis_evidence WHERE evidence_id=?",
-                             (cursor.lastrowid,)).fetchone()
+            if key:
+                db.execute("""
+                    INSERT OR IGNORE INTO hypothesis_evidence
+                        (hypothesis_id, kind, description, source_url, artifact_hash,
+                         created_at, idempotency_key)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                """, (hypothesis_id, kind, desc, url, digest, _now(), key))
+                row = db.execute(
+                    "SELECT * FROM hypothesis_evidence WHERE idempotency_key=?",
+                    (key,),
+                ).fetchone()
+                if row is None:
+                    raise RuntimeError("idempotent evidence insert did not produce a row")
+                if (
+                    row["hypothesis_id"] != hypothesis_id
+                    or row["kind"] != kind
+                    or row["description"] != desc
+                    or row["source_url"] != url
+                    or row["artifact_hash"] != digest
+                ):
+                    raise ValueError("idempotency_key is already bound to different evidence")
+            else:
+                cursor = db.execute("""
+                    INSERT INTO hypothesis_evidence
+                        (hypothesis_id, kind, description, source_url, artifact_hash, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                """, (hypothesis_id, kind, desc, url, digest, _now()))
+                row = db.execute("SELECT * FROM hypothesis_evidence WHERE evidence_id=?",
+                                 (cursor.lastrowid,)).fetchone()
         return Evidence(row["evidence_id"], row["hypothesis_id"], row["kind"],
                         row["description"], row["source_url"], row["artifact_hash"],
                         row["created_at"])
