@@ -1,0 +1,155 @@
+from __future__ import annotations
+
+from pathlib import Path
+import tempfile
+import unittest
+
+from merlin.hypothesis_ledger import HypothesisLedger
+from merlin.knowledge_graph import MerlinKnowledgeGraph
+from merlin.project_registry import MerlinRegistry
+from merlin.research_evidence import ResearchEvidenceRecorder
+from merlin.text_extractor import store_text_extraction
+from merlin.hermes_stage_handlers import build_ideonomy_stage_handler
+
+
+class Context:
+    task_id = "ideonomy-task-1"
+    hypothesis_id = "H-IDEONOMY"
+
+    def __init__(self):
+        self.events = []
+
+    def emit_progress(self, summary, details=None):
+        self.events.append(("progress", summary, details))
+
+    def emit_tool_event(self, kind, name, details):
+        self.events.append((kind, name, details))
+
+
+class HermesIdeonomyStageTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        root = Path(self.temp.name)
+        self.registry = MerlinRegistry(root / "registry")
+        self.registry.register_project("merlin", "Merlin")
+        self.graph = MerlinKnowledgeGraph(root / "graph.sqlite3")
+        self.ledger = HypothesisLedger(root / "hypotheses.sqlite3")
+        self.ledger.create("H-IDEONOMY", "A candidate invariant may hold.")
+        self.recorder = ResearchEvidenceRecorder(
+            self.registry, self.ledger, self.graph,
+        )
+        source = (
+            "# RP2 notes\n\n"
+            "The source describes a finite triangulation of the projective plane.\n"
+            "It lists vertices, edges and facets.\n"
+        ).encode("utf-8")
+        self.registry.put_artifact(
+            "merlin", "sources/rp2.md", source, "text/markdown",
+        )
+        self.source_ref = self.registry.artifact_ref("merlin", "sources/rp2.md")
+        extracted = store_text_extraction(
+            self.registry, self.graph, self.source_ref,
+            project_id="merlin",
+            source_repo="Mannyspiro/expert-robot",
+            source_commit="a" * 40,
+        )
+        self.extraction_ref = extracted["stored_representation"]["representation_ref"]
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    @staticmethod
+    def generator(request):
+        assert request["source_representation_ref"]["sha256"]
+        assert request["source_bindings"]
+        return {
+            "generator": {"id": "test.ideonomy", "version": "1.0"},
+            "candidates": [{
+                "local_id": "candidate-1",
+                "kind": "claim",
+                "content": "The source describes a finite triangulation.",
+                "rationale": "Directly grounded in the source text.",
+                "source_binding_indexes": [0],
+            }],
+            "relations": [],
+        }
+
+    def _handler(self):
+        return build_ideonomy_stage_handler(
+            evidence_recorder=self.recorder,
+            project_id="merlin",
+            repository="Mannyspiro/expert-robot",
+            commit_sha="b" * 40,
+            candidate_generator=self.generator,
+        )
+
+    def _task(self):
+        return {
+            "stage": "ideonomy_enumeration",
+            "artifact_refs": [self.extraction_ref],
+            "experiment_spec": {
+                "max_candidates": 20,
+                "max_relations": 40,
+                "max_input_characters": 10_000,
+            },
+            "resource_budget": {"memory_bytes": 1_000_000},
+        }
+
+    def test_candidate_stage_stores_representation_without_creating_evidence(self):
+        before_status = self.ledger.get("H-IDEONOMY").status
+        result = self._handler()(self._task(), Context())
+
+        self.assertEqual(result["schema"], "merlin-hermes-ideonomy-result/1")
+        self.assertEqual(result["candidate_count"], 1)
+        self.assertEqual(result["authority"], "candidate_generation_only")
+        self.assertEqual(result["epistemic_status"], "unverified")
+        self.assertEqual(result["semantic_verification"], "not_assessed")
+        self.assertFalse(result["qualification"])
+        self.assertFalse(result["promotion_authority"])
+        self.assertEqual(result["evidence_refs"], [])
+        self.assertTrue(result["artifact"]["registry_verified"])
+        self.assertEqual(result["graph_edge"]["relation"], "uses")
+        self.assertEqual(result["hypothesis_status_unchanged"], True)
+        self.assertEqual(self.ledger.get("H-IDEONOMY").status, before_status)
+        self.assertEqual(self.ledger.evidence("H-IDEONOMY"), [])
+
+        edge = self.graph.neighbors(result["graph_edge"]["source_id"], "out")
+        self.assertEqual(len(edge), 1)
+        self.assertEqual(edge[0]["relation"], "uses")
+        self.assertEqual(
+            edge[0]["payload"]["relationship_class"], "candidate_discovery",
+        )
+        self.assertEqual(edge[0]["payload"]["authority"], "candidate_generation_only")
+
+    def test_stage_requires_exact_source_ref_and_valid_budget(self):
+        handler = self._handler()
+        with self.assertRaisesRegex(ValueError, "exactly one"):
+            handler({**self._task(), "artifact_refs": []}, Context())
+        with self.assertRaisesRegex(ValueError, "memory budget"):
+            handler({
+                **self._task(),
+                "resource_budget": {"memory_bytes": 3},
+            }, Context())
+        with self.assertRaisesRegex(ValueError, "mismatched task"):
+            handler({**self._task(), "stage": "research"}, Context())
+
+    def test_cancellation_is_checked_before_generation(self):
+        called = []
+        class Cancelled(Context):
+            def check_cancelled(self):
+                raise RuntimeError("cancelled")
+
+        handler = build_ideonomy_stage_handler(
+            evidence_recorder=self.recorder,
+            project_id="merlin",
+            repository="Mannyspiro/expert-robot",
+            commit_sha="b" * 40,
+            candidate_generator=lambda request: called.append(request) or {},
+        )
+        with self.assertRaisesRegex(RuntimeError, "cancelled"):
+            handler(self._task(), Cancelled())
+        self.assertEqual(called, [])
+
+
+if __name__ == "__main__":
+    unittest.main()
