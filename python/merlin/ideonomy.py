@@ -136,13 +136,28 @@ def enumerate_ideonomy_candidates(
     )
     if input_characters > max_input_characters:
         raise ValueError("Ideonomy input exceeds its bounded character budget; chunked enumeration is required")
-    source_bindings = [
-        binding for binding in inspection["source_bindings"]
-        if binding.get("locator_type") != "whole_artifact"
-    ]
-    if not source_bindings:
+    segments_by_byte_range = {
+        canonical_json(segment["byte_range"]): segment
+        for segment in segments
+        if isinstance(segment, Mapping) and isinstance(segment.get("byte_range"), Mapping)
+    }
+    source_binding_entries: list[dict[str, Any]] = []
+    for binding in inspection["source_bindings"]:
+        if binding.get("locator_type") == "whole_artifact":
+            continue
+        if binding.get("locator_type") != "byte_range":
+            raise ValueError("Ideonomy text input contains an unsupported precise locator type")
+        segment = segments_by_byte_range.get(canonical_json(binding.get("locator")))
+        if segment is None:
+            raise ValueError("Ideonomy source binding does not resolve to an extracted segment")
+        source_binding_entries.append({
+            "index": len(source_binding_entries),
+            "segment_id": segment["segment_id"],
+            "binding": binding,
+        })
+    if not source_binding_entries:
         raise ValueError("Ideonomy requires precise source locators; the extraction has none")
-    if len(source_bindings) > MAX_IDEONOMY_SOURCE_BINDINGS:
+    if len(source_binding_entries) > MAX_IDEONOMY_SOURCE_BINDINGS:
         raise ValueError("Ideonomy source locator count exceeds its bounded input budget")
     request = {
         "schema": IDEONOMY_INPUT_SCHEMA,
@@ -150,7 +165,7 @@ def enumerate_ideonomy_candidates(
         "source_representation_ref": inspection["representation_ref"],
         "source_representation_id": inspection["representation_id"],
         "source_artifact_refs": inspection["source_artifact_refs"],
-        "source_bindings": source_bindings,
+        "source_bindings": source_binding_entries,
         "segments": segments,
         "limits": {
             "max_candidates": max_candidates,
@@ -223,7 +238,7 @@ def enumerate_ideonomy_candidates(
             raise ValueError("source-binding indexes must not repeat")
         if any(index < 0 or index >= len(source_bindings) for index in indexes):
             raise ValueError("candidate cites a source-binding index outside the inspected manifest")
-        selected_bindings = [source_bindings[index] for index in indexes]
+        selected_bindings = [source_binding_entries[index]["binding"] for index in indexes]
         if not selected_bindings:
             raise ValueError("candidate requires at least one precise source locator")
         if confidence is not None and (
