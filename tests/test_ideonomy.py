@@ -25,7 +25,7 @@ class IdeonomyTests(unittest.TestCase):
         self.registry.register_project("merlin", "Merlin")
         self.graph = MerlinKnowledgeGraph(self.root / "graph.sqlite3")
         source = (
-            "# RP2 topology\n\n"
+            "# Finite triangulation of RP2\n\n"
             "The source describes a finite triangulation.\n"
             "It identifies vertices, edges and facets.\n"
         ).encode("utf-8")
