@@ -15,6 +15,8 @@ IDEONOMY_SCHEMA = "merlin-ideonomy-candidate-set/1"
 IDEONOMY_INPUT_SCHEMA = "merlin-ideonomy-input/1"
 MAX_IDEONOMY_CANDIDATES = 500
 MAX_IDEONOMY_RELATIONS = 2_000
+MAX_IDEONOMY_INPUT_CHARS = 200_000
+MAX_IDEONOMY_SOURCE_BINDINGS = 2_000
 MAX_BINDINGS_PER_CANDIDATE = 20
 
 CANDIDATE_KINDS = frozenset({
@@ -95,6 +97,7 @@ def enumerate_ideonomy_candidates(
     *,
     max_candidates: int = MAX_IDEONOMY_CANDIDATES,
     max_relations: int = MAX_IDEONOMY_RELATIONS,
+    max_input_characters: int = MAX_IDEONOMY_INPUT_CHARS,
 ) -> dict[str, Any]:
     """Ask an injected generator for source-indexed candidates and validate them.
 
@@ -121,8 +124,26 @@ def enumerate_ideonomy_candidates(
     segments = extraction.get("segments")
     if not isinstance(segments, list):
         raise ValueError("text extraction payload is missing segments")
-
-    source_bindings = inspection["source_bindings"]
+    if (
+        isinstance(max_input_characters, bool)
+        or not isinstance(max_input_characters, int)
+        or not 1 <= max_input_characters <= MAX_IDEONOMY_INPUT_CHARS
+    ):
+        raise ValueError("max_input_characters must be between 1 and 200,000")
+    input_characters = sum(
+        len(segment.get("text", "")) for segment in segments
+        if isinstance(segment, Mapping) and isinstance(segment.get("text"), str)
+    )
+    if input_characters > max_input_characters:
+        raise ValueError("Ideonomy input exceeds its bounded character budget; chunked enumeration is required")
+    source_bindings = [
+        binding for binding in inspection["source_bindings"]
+        if binding.get("locator_type") != "whole_artifact"
+    ]
+    if not source_bindings:
+        raise ValueError("Ideonomy requires precise source locators; the extraction has none")
+    if len(source_bindings) > MAX_IDEONOMY_SOURCE_BINDINGS:
+        raise ValueError("Ideonomy source locator count exceeds its bounded input budget")
     request = {
         "schema": IDEONOMY_INPUT_SCHEMA,
         "instructions": IDEONOMY_INSTRUCTIONS,
@@ -134,6 +155,7 @@ def enumerate_ideonomy_candidates(
         "limits": {
             "max_candidates": max_candidates,
             "max_relations": max_relations,
+            "max_input_characters": max_input_characters,
             "max_source_bindings_per_candidate": MAX_BINDINGS_PER_CANDIDATE,
         },
     }
@@ -200,7 +222,7 @@ def enumerate_ideonomy_candidates(
         if any(index < 0 or index >= len(source_bindings) for index in indexes):
             raise ValueError("candidate cites a source-binding index outside the inspected manifest")
         selected_bindings = [source_bindings[index] for index in indexes]
-        if all(binding["locator_type"] == "whole_artifact" for binding in selected_bindings):
+        if not selected_bindings:
             raise ValueError("candidate requires at least one precise source locator")
         if confidence is not None and (
             isinstance(confidence, bool) or not isinstance(confidence, (int, float))
@@ -315,6 +337,101 @@ def store_ideonomy_candidate_set(
     if candidate_set.get("epistemic_status") != "unverified" or candidate_set.get("qualification") is not False:
         raise ValueError("Ideonomy candidates cannot be marked verified or qualified")
 
+    if candidate_set.get("source_representation_ref") != inspection["representation_ref"]:
+        raise ValueError("Ideonomy source representation reference changed")
+    generator = candidate_set.get("generator")
+    if (
+        not isinstance(generator, Mapping)
+        or not isinstance(generator.get("id"), str) or not generator.get("id", "").strip()
+        or not isinstance(generator.get("version"), str) or not generator.get("version", "").strip()
+    ):
+        raise ValueError("Ideonomy generator provenance is malformed")
+    candidates = candidate_set.get("candidates")
+    relations = candidate_set.get("relations")
+    if (
+        not isinstance(candidates, list)
+        or len(candidates) > MAX_IDEONOMY_CANDIDATES
+        or candidate_set.get("candidate_count") != len(candidates)
+        or not isinstance(relations, list)
+        or len(relations) > MAX_IDEONOMY_RELATIONS
+        or candidate_set.get("relation_count") != len(relations)
+    ):
+        raise ValueError("Ideonomy candidate or relation counts are invalid")
+    valid_bindings = {canonical_json(binding) for binding in inspection["source_bindings"]}
+    candidate_ids: set[str] = set()
+    for candidate in candidates:
+        if not isinstance(candidate, Mapping):
+            raise ValueError("Ideonomy candidate must be an object")
+        if (
+            candidate.get("kind") not in CANDIDATE_KINDS
+            or not isinstance(candidate.get("content"), str) or not candidate.get("content", "").strip()
+            or not isinstance(candidate.get("rationale"), str)
+            or candidate.get("epistemic_status") != "unverified"
+            or candidate.get("authority") != "candidate_generation_only"
+            or candidate.get("confidence_semantics") != "model_estimate_not_truth_probability"
+        ):
+            raise ValueError("Ideonomy candidate status, kind or content is invalid")
+        selected = candidate.get("source_bindings")
+        if not isinstance(selected, list) or not selected or any(
+            canonical_json(binding) not in valid_bindings for binding in selected
+        ):
+            raise ValueError("Ideonomy candidate contains an unbound source locator")
+        confidence = candidate.get("confidence_estimate")
+        if confidence is not None and (
+            isinstance(confidence, bool) or not isinstance(confidence, (int, float))
+            or not 0.0 <= float(confidence) <= 1.0
+        ):
+            raise ValueError("Ideonomy candidate confidence estimate is invalid")
+        candidate_body = {
+            "source_representation_id": inspection["representation_id"],
+            "generator": {"id": generator["id"], "version": generator["version"]},
+            "kind": candidate["kind"],
+            "content": candidate["content"],
+            "rationale": candidate["rationale"],
+            "source_bindings": selected,
+            "confidence_estimate": float(confidence) if confidence is not None else None,
+        }
+        expected_id = hashlib.sha256(canonical_json(candidate_body)).hexdigest()
+        if candidate.get("candidate_id") != expected_id or expected_id in candidate_ids:
+            raise ValueError("Ideonomy candidate identity is invalid or duplicated")
+        candidate_ids.add(expected_id)
+
+    relation_keys: set[tuple[str, str, str]] = set()
+    for relation in relations:
+        if not isinstance(relation, Mapping):
+            raise ValueError("Ideonomy relation must be an object")
+        subject = relation.get("subject_candidate_id")
+        object_ = relation.get("object_candidate_id")
+        predicate = relation.get("predicate")
+        rationale = relation.get("rationale")
+        if (
+            subject not in candidate_ids or object_ not in candidate_ids
+            or predicate not in EDGE_TYPES or subject == object_
+            or not isinstance(rationale, str)
+        ):
+            raise ValueError("Ideonomy relation endpoints or predicate are invalid")
+        relation_key = (subject, predicate, object_)
+        if relation_key in relation_keys:
+            raise ValueError("Ideonomy relation tuple is duplicated")
+        relation_keys.add(relation_key)
+        relation_body = {
+            "subject_candidate_id": subject,
+            "predicate": predicate,
+            "object_candidate_id": object_,
+            "rationale": rationale,
+        }
+        expected_relation_id = hashlib.sha256(canonical_json(relation_body)).hexdigest()
+        if relation.get("relation_id") != expected_relation_id:
+            raise ValueError("Ideonomy relation identity is invalid")
+
+    candidate_set_body = {
+        key: value for key, value in candidate_set.items()
+        if key != "candidate_set_id"
+    }
+    expected_set_id = hashlib.sha256(canonical_json(candidate_set_body)).hexdigest()
+    if candidate_set.get("candidate_set_id") != expected_set_id:
+        raise ValueError("Ideonomy candidate-set identity does not match its canonical content")
+
     source_refs = [source_rep_ref] + inspection["source_artifact_refs"]
     source_bindings = [{
         "artifact_ref": source_rep_ref,
@@ -423,6 +540,7 @@ def store_ideonomy_candidate_set(
 __all__ = [
     "IDEONOMY_SCHEMA", "IDEONOMY_INPUT_SCHEMA", "CANDIDATE_KINDS",
     "MAX_IDEONOMY_CANDIDATES", "MAX_IDEONOMY_RELATIONS",
+    "MAX_IDEONOMY_INPUT_CHARS", "MAX_IDEONOMY_SOURCE_BINDINGS",
     "IdeonomyUnavailableError", "ideonomy_capability",
     "enumerate_ideonomy_candidates", "store_ideonomy_candidate_set",
 ]
