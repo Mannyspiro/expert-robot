@@ -4,7 +4,6 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from merlin.hermes_stage_handlers import build_text_extraction_executor
 from merlin.ideonomy import (
     IdeonomyUnavailableError,
     enumerate_ideonomy_candidates,
