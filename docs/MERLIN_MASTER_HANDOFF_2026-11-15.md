@@ -81,6 +81,7 @@ The latest inspected default branch is `main`. The repository contains multiple 
 |---|---|---|
 | [#165](https://github.com/Mannyspiro/expert-robot/pull/165) | Provenance-preserving knowledge representations | Draft; head `7fa1b109d52b9ab6a53de4fbb2a12b8ef0d7dbe0`; CI run `43756132171` SUCCESS |
 | [#167](https://github.com/Mannyspiro/expert-robot/pull/167) | Exact-source reconstruction evaluator | Draft; head `9b8c74b76024bea77270b84edebcebb0c559f2b8`; CI run `43756841729` SUCCESS; all 6 new tests passed |
+| [#168](https://github.com/Mannyspiro/expert-robot/pull/168) | Read-only knowledge representation query integration | Draft; head `53d3e9799256e3981e12e60ae7479dd4811b2041`; CI run `43757140668` in progress |
 | [#164](https://github.com/Mannyspiro/expert-robot/pull/164) | Canonical backup recovery drill receipts | Draft; head `a5fea014fdc6f5991add69996aa6a49252e94eba`; stacked on #163 |
 | [#163](https://github.com/Mannyspiro/expert-robot/pull/163) | Create-only OCI Object Storage backup transport | Draft; head `d873e1e419e78f10b9de83c7f56cd259a80b22fc`; adapter tests passed in run `43610431390`; live tenancy qualification outstanding |
 | [#161](https://github.com/Mannyspiro/expert-robot/pull/161) | OCI Vault/KMS provider and deployment runbook | Draft; head `cdc22ab861ff71a27f4707887c2ef3772583398c`; CI run `43609808622` SUCCESS; live key/IAM round trip outstanding |
@@ -126,7 +127,7 @@ Never describe adapter tests as a live off-host backup or disaster-recovery dril
 
 CACE repository: [morganaspim/Cace-app](https://github.com/morganaspim/Cace-app).
 
-The active continuity/formal branch is PR [#102](https://github.com/morganaspim/Cace-app/pull/102), branch `fix/lean-proof-hole-guard-regex-20261113`. At the latest inspection its head was `aa02d4f9f916f9d38faf62beda09bb89f3b313ff`, OPEN/DRAFT, based on `feat/merlin-continuum-oci-reproduction-20261112`.
+The active continuity/formal branch is PR [#102](https://github.com/morganaspim/Cace-app/pull/102), branch `fix/lean-proof-hole-guard-regex-20261113`. At the latest inspection its head was `a40a1245eac0a77ce8cd9a256e46748d0335021c`, OPEN/DRAFT, based on `feat/merlin-continuum-oci-reproduction-20261112`.
 
 ### RP2 formalization
 
@@ -159,7 +160,7 @@ The source was subsequently corrected on PR #102:
 
 **The corrected RP2 source has not yet passed exact-head Lean compilation.** On exact PR head `aa02d4f9f916f9d38faf62beda09bb89f3b313ff`, CACE Collaboration Validation run `43756463757` succeeded; its Python regression suite and bug-sweep manifest passed (32 checked guard references, zero errors). This is not Lean compilation. Exact-pin runs `43756435490`, `43756455602`, and `43756463754` plus source-sanity runs `43756435479`, `43756455724`, and `43756463811` were cancelled before jobs started. The prior exact-pin failure on `88da2a15...` remains the latest actual Lean compile result. The RP2 module must remain quarantined. Do not claim the homology classification or formal qualification.
 
-The exact-pin workflow supports pull-request path triggers and explicit workflow dispatch. The connected GitHub action surface does not expose a workflow-dispatch operation. Current PR-triggered exact-pin attempts were cancelled before starting; do not rerun an old workflow against a stale commit. A new exact-head run must execute against the current RP2 source without wasting runner capacity on unrelated successful targets.
+The exact-pin workflow supports pull-request path triggers and explicit workflow dispatch. The connected GitHub action surface does not expose a workflow-dispatch operation. After the PR was updated to add the F-034 guard to bounded collaboration validation, current head `a40a1245eac0a77ce8cd9a256e46748d0335021c` has source-sanity run `43757185721` in progress and exact-pin run `43757185769` pending; collaboration run `43757185788` was cancelled. These are not passes yet. Inspect the source-sanity and exact-pin results on this exact head; do not rerun an old workflow against a stale commit or waste runner capacity on unrelated successful targets.
 
 ### Other CACE production gates
 
