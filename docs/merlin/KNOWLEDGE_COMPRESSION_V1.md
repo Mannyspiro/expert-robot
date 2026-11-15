@@ -99,7 +99,7 @@ Tests: `tests/test_knowledge_compression.py`
 
 The initial implementation covers deterministic serialization and IDs, strict source-reference and locator validation, source re-resolution, canonical registry storage, provenance, graph projection, idempotent replay, changed-payload identity, and fail-closed behavior for malformed or mismatched sources.
 
-It now includes a strict UTF-8 text/Markdown extraction adapter. It does not yet provide PDF/image/video extraction, OCR, embeddings, model-based semantic compression, semantic deduplication, automatic claim decomposition, Logos audits, CACE verification, Hermes dispatch, or MCFC worker scheduling.
+It now includes a strict UTF-8 text/Markdown extraction adapter and an optional bounded Hermes knowledge-extraction stage. It does not yet provide PDF/image/video extraction, OCR, embeddings, model-based semantic compression, semantic deduplication, automatic claim decomposition, Logos audits, independently trusted CACE verification, or production MCFC worker scheduling.
 
 ## 7. Exact-source reconstruction evaluator
 
@@ -159,7 +159,25 @@ This is structural extraction, not semantic compression. It does not perform OCR
 
 Tests: `tests/test_text_extractor.py` covers multibyte UTF-8 and CRLF offsets, Markdown block classification, plain-text behavior, empty files, invalid UTF-8, resource limits, deterministic IDs, canonical storage and read-only query integration.
 
-## 10. Next ranked implementation steps
+## 10. Hermes knowledge-extraction stage
+
+The existing `python/merlin/hermes_stage_handlers.py` now supports an optional `knowledge_extraction` stage through `build_text_extraction_executor`.
+
+Execution contract:
+- The Hermes task must contain exactly one canonical source ArtifactRef, an explicit resource budget, and the existing approval/lease/authority fields required by `HermesWorker`.
+- The executor bounds source bytes by both the extractor limit and one quarter of the task's declared memory budget, and honors cancellation checks before and after extraction.
+- The executor calls `store_text_extraction`, which writes one deterministic source-bound representation through the existing registry and graph.
+- The stage handler attaches that exact existing representation ArtifactRef to the hypothesis using `ResearchEvidenceRecorder.record_existing_artifact`; it does not copy the bytes into a second artifact.
+- CACE is asked to verify the exact representation artifact with artifact kind `knowledge-representation` and schema `merlin-knowledge-representation/1`. If the verifier is unavailable, the result remains blocked/unverified and promotion authority remains false.
+- The representation graph node is reused for the hypothesis evidence edge; no duplicate artifact node is created.
+
+`ResearchEvidenceRecorder` now supports attaching existing ArtifactRefs and uses a deterministic idempotency key bound to the full ArtifactRef, hypothesis, evidence kind, description and source URL. This preserves distinct references even when their bytes match. `HypothesisLedger` adds a nullable unique idempotency-key column through an in-place SQLite migration; legacy ledgers remain readable. Replayed evidence writes return the same evidence record and can repair a graph projection after an interrupted attempt.
+
+This is an optional stage handler, not an automatic production dispatch. The canonical Hermes outbox, approval validator, MCFC lease validator and worker must still be configured and invoked by the existing application composition.
+
+Tests: `tests/test_hypothesis_ledger.py`, `tests/test_research_evidence.py`, and `tests/test_hermes_stage_handlers.py` cover migration, idempotency, exact ArtifactRef reuse, no duplicate bytes, graph linkage and the bounded stage contract.
+
+## 11. Next ranked implementation steps
 
 1. **Exact-head CI:** run the focused representation, reconstruction and read-API tests plus full Merlin CI on the exact current branch head; retain logs and artifact digests.
 2. **Additional extraction adapters:** add PDF, DOCX, code/AST, HTML, OCR/image and video extraction with exact source coordinates; the strict UTF-8 text/Markdown adapter is implemented.
@@ -168,7 +186,7 @@ Tests: `tests/test_text_extractor.py` covers multibyte UTF-8 and CRLF offsets, M
 5. **Domain-specific paths:** mathematical/formal, code, engineering/CAD/netlist, biological and multimodal representations, each with separate benchmarks.
 6. **Measured promotion:** qualify compression methods against held-out tasks, retrieval quality, reconstruction, storage, latency and compute. Capability qualification and deployment remain separate approval steps.
 
-## 11. Required invariants
+## 12. Required invariants
 
 - Never overwrite or delete original source artifacts as a compression side effect.
 - Never merge distinct ArtifactRefs solely because their blob bytes match.
