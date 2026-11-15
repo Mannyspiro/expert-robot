@@ -9,6 +9,7 @@ and returns refs without duplicating stored bytes.
 from __future__ import annotations
 
 from dataclasses import asdict
+import hashlib
 import re
 from typing import Any, Callable, Mapping
 
@@ -21,12 +22,11 @@ from .text_extractor import (
     EXTRACTOR_ID, EXTRACTOR_VERSION, MAX_TEXT_SEGMENTS, store_text_extraction,
 )
 from .ideonomy import (
-    IDEONOMY_SCHEMA, MAX_IDEONOMY_CANDIDATES, MAX_IDEONOMY_RELATIONS,
+    MAX_IDEONOMY_CANDIDATES, MAX_IDEONOMY_RELATIONS,
     MAX_IDEONOMY_INPUT_CHARS, enumerate_ideonomy_candidates,
     store_ideonomy_candidate_set,
 )
 from .knowledge_graph import GraphEdge, GraphNode
-from .hypothesis_ledger import HypothesisLedger
 
 _STAGE_CONTRACTS = {
     "research": {
@@ -584,7 +584,7 @@ def build_ideonomy_stage_handler(
             raise RuntimeError("Ideonomy candidate-set ArtifactRef failed canonical registry resolution")
 
         hypothesis = ledger.get(context.hypothesis_id)
-        hypothesis_node_id = "hypothesis:" + __import__("hashlib").sha256(
+        hypothesis_node_id = "hypothesis:" + hashlib.sha256(
             context.hypothesis_id.encode("utf-8")
         ).hexdigest()[:32]
         graph.add_node(GraphNode(
