@@ -90,7 +90,7 @@ def _validate_sources(
             raise ValueError("source binding references an artifact outside source_artifacts")
         locator_type = binding["locator_type"]
         locator = binding["locator"]
-        if locator_type not in LOCATOR_TYPES:
+        if not isinstance(locator_type, str) or locator_type not in LOCATOR_TYPES:
             raise ValueError("unsupported source locator type")
         if not isinstance(locator, (str, int, dict)) or isinstance(locator, bool):
             raise ValueError("source locator must be text, an integer, or an object")
@@ -133,9 +133,9 @@ def store_knowledge_representation(
     """
     if not isinstance(project_id, str) or not project_id.strip():
         raise ValueError("project_id is required")
-    if representation_type not in REPRESENTATION_TYPES:
+    if not isinstance(representation_type, str) or representation_type not in REPRESENTATION_TYPES:
         raise ValueError("unsupported representation_type")
-    if loss_character not in LOSS_CHARACTERS:
+    if not isinstance(loss_character, str) or loss_character not in LOSS_CHARACTERS:
         raise ValueError("unsupported loss_character")
     if not isinstance(tool_id, str) or not tool_id.strip() or len(tool_id) > 256:
         raise ValueError("tool_id must be non-empty bounded text")
@@ -206,7 +206,8 @@ def store_knowledge_representation(
 
     source_node_ids: list[str] = []
     for ref in refs:
-        source_node_id = f"artifact-reference:{ref['sha256']}"
+        source_identity = hashlib.sha256(canonical_json(ref)).hexdigest()
+        source_node_id = f"artifact-reference:{source_identity}"
         source_node_ids.append(source_node_id)
         graph.add_node(GraphNode(
             node_id=source_node_id,
