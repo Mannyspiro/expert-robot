@@ -13,6 +13,12 @@ from typing import Any, Callable, Mapping
 
 from .research_evidence import ResearchEvidenceRecorder
 from .hermes_proof_orchestrator import dispatch_eligible_claim
+from .artifact_ref import ArtifactRef
+from .project_registry import MAX_ARTIFACT_READ_BYTES, MerlinRegistry
+from .knowledge_graph import MerlinKnowledgeGraph
+from .text_extractor import (
+    EXTRACTOR_ID, EXTRACTOR_VERSION, MAX_TEXT_SEGMENTS, store_text_extraction,
+)
 
 _STAGE_CONTRACTS = {
     "research": {
@@ -35,6 +41,12 @@ _STAGE_CONTRACTS = {
         "tool": "ngspice",
         "label": "electrical analysis",
     },
+    "knowledge_extraction": {
+        "evidence_kind": "source",
+        "tool": "merlin-text-extractor",
+        "label": "knowledge extraction",
+        "artifact_kind": "knowledge-representation",
+    },
 }
 
 
@@ -50,8 +62,14 @@ def _validate_executor_output(value: Any) -> dict[str, Any]:
         raise TypeError("stage executor must return an object")
     result = dict(value)
     artifact_bytes = result.get("artifact_bytes")
-    if not isinstance(artifact_bytes, bytes) or not artifact_bytes:
-        raise ValueError("stage executor must return non-empty immutable artifact_bytes")
+    existing_ref = result.get("existing_artifact_ref")
+    has_bytes = isinstance(artifact_bytes, bytes) and bool(artifact_bytes)
+    has_existing_ref = isinstance(existing_ref, Mapping)
+    if has_bytes == has_existing_ref:
+        raise ValueError("stage executor must return exactly one of non-empty artifact_bytes or existing_artifact_ref")
+    if has_existing_ref:
+        existing_ref = ArtifactRef.from_mapping(existing_ref).to_dict()
+        artifact_bytes = None
     summary = result.get("summary")
     if not isinstance(summary, str) or not summary.strip() or len(summary) > 500:
         raise ValueError("stage executor must return a short summary")
@@ -61,8 +79,17 @@ def _validate_executor_output(value: Any) -> dict[str, Any]:
     metadata = result.get("metadata", {})
     if not isinstance(metadata, Mapping):
         raise ValueError("stage executor metadata must be an object")
+    graph_node_id = result.get("graph_node_id")
+    if graph_node_id is not None and (
+        not isinstance(graph_node_id, str) or not graph_node_id.strip()
+    ):
+        raise ValueError("stage executor graph_node_id must be non-empty text")
+    if graph_node_id is not None and not has_existing_ref:
+        raise ValueError("graph_node_id is only valid with existing_artifact_ref")
     return {
         "artifact_bytes": artifact_bytes,
+        "existing_artifact_ref": existing_ref if has_existing_ref else None,
+        "graph_node_id": graph_node_id,
         "summary": summary.strip(),
         "media_type": media_type.strip(),
         "metadata": dict(metadata),
@@ -81,6 +108,7 @@ def build_hermes_stage_handlers(
     commit_sha: str,
     requester_id: str,
     electrical_executor: Callable[[Mapping[str, Any], Any], Mapping[str, Any]] | None = None,
+    knowledge_extraction_executor: Callable[[Mapping[str, Any], Any], Mapping[str, Any]] | None = None,
     theorem_verifier: Callable[..., Mapping[str, Any]] | None = None,
     lean_dispatcher: Callable[..., Mapping[str, Any]] | None = None,
     lean_tool_version: str | None = None,
@@ -104,6 +132,8 @@ def build_hermes_stage_handlers(
     }
     if electrical_executor is not None:
         executors["electrical_analysis"] = electrical_executor
+    if knowledge_extraction_executor is not None:
+        executors["knowledge_extraction"] = knowledge_extraction_executor
     if any(not callable(executor) for executor in executors.values()):
         raise ValueError("all registered stage executors must be callable")
     if artifact_verifier is not None and not callable(artifact_verifier):
@@ -137,18 +167,35 @@ def build_hermes_stage_handlers(
             )
             output = _validate_executor_output(_executor(task, context))
             context.emit_progress(_contract["label"] + " output received; recording canonical artifact")
-            logical_path = (
-                "research-runs/" + _safe_segment(context.task_id) + "/" +
-                _stage + "/result.bin"
-            )
-            recorded = evidence_recorder.record(
-                project_id=project_id,
-                hypothesis_id=context.hypothesis_id,
-                logical_path=logical_path,
-                content=output["artifact_bytes"],
-                evidence_kind=_contract["evidence_kind"],
-                description=output["summary"],
-            )
+            if output["existing_artifact_ref"] is not None:
+                recorded = evidence_recorder.record_existing_artifact(
+                    project_id=project_id,
+                    hypothesis_id=context.hypothesis_id,
+                    artifact_ref=output["existing_artifact_ref"],
+                    evidence_kind=_contract["evidence_kind"],
+                    description=output["summary"],
+                    graph_node_id=output["graph_node_id"],
+                )
+                artifact_ref = recorded["artifact_ref"]
+                logical_path = artifact_ref["logical_path"]
+                media_type = recorded.get("media_type") or output["media_type"]
+                size_bytes = recorded["size_bytes"]
+            else:
+                logical_path = (
+                    "research-runs/" + _safe_segment(context.task_id) + "/" +
+                    _stage + "/result.bin"
+                )
+                recorded = evidence_recorder.record(
+                    project_id=project_id,
+                    hypothesis_id=context.hypothesis_id,
+                    logical_path=logical_path,
+                    content=output["artifact_bytes"],
+                    evidence_kind=_contract["evidence_kind"],
+                    description=output["summary"],
+                )
+                artifact_ref = recorded["artifact_ref"]
+                media_type = output["media_type"]
+                size_bytes = len(output["artifact_bytes"])
             if recorded.get("artifact_verified") is not True:
                 raise RuntimeError("canonical registry did not verify the recorded artifact")
             digest = recorded["artifact_sha256"]
@@ -326,7 +373,7 @@ def build_hermes_stage_handlers(
                 "cace_verification": cace_result,
                 "cace_theorem_receipts": theorem_receipts,
                 "evidence_refs": evidence_refs,
-                "artifact_refs": [recorded["artifact_ref"]],
+                "artifact_refs": [artifact_ref],
                 "hypothesis_status_unchanged": recorded["hypothesis_status_unchanged"],
                 "promotion_authority": False,
             }
