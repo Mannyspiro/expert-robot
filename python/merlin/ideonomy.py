@@ -76,7 +76,7 @@ def _candidate_node_id(candidate_id: str) -> str:
 
 
 def _source_node_id(source_ref: Mapping[str, Any]) -> str:
-    return "artifact-reference:" + hashlib.sha256(canonical_json(source_ref)).hexdigest()[:32]
+    return "artifact-reference:" + hashlib.sha256(canonical_json(source_ref)).hexdigest()
 
 
 def _dedupe_bindings(bindings: list[dict[str, Any]]) -> list[dict[str, Any]]:
