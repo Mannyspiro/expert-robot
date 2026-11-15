@@ -50,8 +50,8 @@ def reconstruct_source_artifacts(
     assessed here.
     """
     if (isinstance(max_total_bytes, bool) or not isinstance(max_total_bytes, int)
-            or max_total_bytes < 1):
-        raise ValueError("max_total_bytes must be a positive integer")
+            or not 1 <= max_total_bytes <= 1024 * 1024 * 1024):
+        raise ValueError("max_total_bytes must be between 1 byte and 1 GiB")
     if (isinstance(max_source_bytes, bool) or not isinstance(max_source_bytes, int)
             or not 1 <= max_source_bytes <= MAX_ARTIFACT_READ_BYTES):
         raise ValueError("max_source_bytes must be between 1 and 25 MiB")
@@ -71,6 +71,20 @@ def reconstruct_source_artifacts(
             "representation manifest exceeds the configured read budget"
         ) from exc
 
+    provenance = stored["resolution"].get("provenance")
+    if not isinstance(provenance, dict):
+        raise ValueError("representation artifact is missing immutable producer provenance")
+    if (
+        provenance.get("schema") != "merlin-artifact-provenance/1"
+        or provenance.get("artifact_kind") != "knowledge-representation"
+        or provenance.get("artifact_schema") != REPRESENTATION_SCHEMA
+        or not isinstance(provenance.get("source_repo"), str)
+        or not provenance.get("source_repo", "").strip()
+        or not isinstance(provenance.get("source_commit"), str)
+        or not re.fullmatch(r"[0-9a-f]{40}", provenance.get("source_commit", ""))
+    ):
+        raise ValueError("representation artifact producer provenance is invalid")
+
     try:
         manifest = json.loads(stored["content"].decode("utf-8"))
     except (UnicodeDecodeError, ValueError) as exc:
@@ -89,9 +103,11 @@ def reconstruct_source_artifacts(
         raise ValueError("unsupported representation schema")
     if manifest["project_id"] != ref.project_id:
         raise ValueError("representation project_id does not match its ArtifactRef")
-    if manifest["representation_type"] not in REPRESENTATION_TYPES:
+    if (not isinstance(manifest["representation_type"], str)
+            or manifest["representation_type"] not in REPRESENTATION_TYPES):
         raise ValueError("unsupported representation_type")
-    if manifest["loss_character"] not in LOSS_CHARACTERS:
+    if (not isinstance(manifest["loss_character"], str)
+            or manifest["loss_character"] not in LOSS_CHARACTERS):
         raise ValueError("unsupported loss_character")
     if not isinstance(manifest["transformation"], dict) or set(manifest["transformation"]) != {
         "tool_id", "tool_version",
