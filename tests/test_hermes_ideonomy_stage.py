@@ -9,7 +9,10 @@ from merlin.knowledge_graph import MerlinKnowledgeGraph
 from merlin.project_registry import MerlinRegistry
 from merlin.research_evidence import ResearchEvidenceRecorder
 from merlin.text_extractor import store_text_extraction
-from merlin.hermes_stage_handlers import build_ideonomy_stage_handler
+from merlin.hermes_stage_handlers import (
+    build_ideonomy_stage_handler,
+    build_merlin_hermes_handlers,
+)
 
 
 class Context:
@@ -132,6 +135,32 @@ class HermesIdeonomyStageTests(unittest.TestCase):
             }, Context())
         with self.assertRaisesRegex(ValueError, "mismatched task"):
             handler({**self._task(), "stage": "research"}, Context())
+
+    def test_standard_hermes_composition_registers_injected_ideonomy_stage(self):
+        handlers = build_merlin_hermes_handlers(
+            evidence_recorder=self.recorder,
+            project_id="merlin",
+            research_executor=lambda task, context: {},
+            proof_search_executor=lambda task, context: {},
+            artifact_verifier=None,
+            repository="Mannyspiro/expert-robot",
+            commit_sha="b" * 40,
+            requester_id="merlin-worker",
+            include_ngspice=False,
+            ideonomy_candidate_generator=self.generator,
+        )
+        self.assertIn("ideonomy_enumeration", handlers)
+        self.assertNotIn("ideonomy_enumeration", build_merlin_hermes_handlers(
+            evidence_recorder=self.recorder,
+            project_id="merlin",
+            research_executor=lambda task, context: {},
+            proof_search_executor=lambda task, context: {},
+            artifact_verifier=None,
+            repository="Mannyspiro/expert-robot",
+            commit_sha="b" * 40,
+            requester_id="merlin-worker",
+            include_ngspice=False,
+        ))
 
     def test_cancellation_is_checked_before_generation(self):
         called = []
