@@ -542,11 +542,16 @@ def build_ideonomy_stage_handler(
         requested_chars = spec.get("max_input_characters", MAX_IDEONOMY_INPUT_CHARS)
         for value, maximum, label in (
             (max_candidates, MAX_IDEONOMY_CANDIDATES, "max_candidates"),
-            (max_relations, MAX_IDEONOMY_RELATIONS, "max_relations"),
             (requested_chars, MAX_IDEONOMY_INPUT_CHARS, "max_input_characters"),
         ):
             if isinstance(value, bool) or not isinstance(value, int) or not 1 <= value <= maximum:
                 raise ValueError(f"Ideonomy {label} is outside its supported range")
+        if (
+            isinstance(max_relations, bool)
+            or not isinstance(max_relations, int)
+            or not 0 <= max_relations <= MAX_IDEONOMY_RELATIONS
+        ):
+            raise ValueError("Ideonomy max_relations is outside its supported range")
         max_input_characters = min(requested_chars, memory_bytes // 4)
 
         check_cancelled = getattr(context, "check_cancelled", None)
