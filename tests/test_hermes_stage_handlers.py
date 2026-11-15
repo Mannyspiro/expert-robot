@@ -6,7 +6,10 @@ from merlin.hypothesis_ledger import HypothesisLedger
 from merlin.knowledge_graph import MerlinKnowledgeGraph
 from merlin.project_registry import MerlinRegistry
 from merlin.research_evidence import ResearchEvidenceRecorder
-from merlin.hermes_stage_handlers import build_hermes_stage_handlers, build_merlin_hermes_handlers
+from merlin.hermes_stage_handlers import (
+    build_hermes_stage_handlers, build_merlin_hermes_handlers,
+    build_text_extraction_executor,
+)
 
 
 def fake_cace_verifier(**request):
@@ -38,6 +41,7 @@ class HermesStageHandlerTests(unittest.TestCase):
         root = Path(self.temp.name)
         registry = MerlinRegistry(root / "registry")
         registry.register_project("merlin", "Merlin")
+        self.registry = registry
         ledger = HypothesisLedger(root / "hypotheses.sqlite3")
         ledger.create("H-17", "The candidate invariant is preserved.")
         graph = MerlinKnowledgeGraph(root / "graph.sqlite3")
@@ -141,7 +145,7 @@ class HermesStageHandlerTests(unittest.TestCase):
             commit_sha="a" * 40,
             requester_id="merlin-worker",
         )
-        with self.assertRaisesRegex(ValueError, "non-empty immutable artifact_bytes"):
+        with self.assertRaisesRegex(ValueError, "artifact_bytes must be non-empty immutable bytes"):
             handlers["research"]({"stage": "research"}, Context())
 
 
@@ -250,6 +254,80 @@ class HermesStageHandlerTests(unittest.TestCase):
         self.assertEqual(receipt["verification_status"], "blocked_missing_lean_dispatcher")
         self.assertEqual(theorem_calls, [])
 
+
+    def test_knowledge_extraction_stage_reuses_canonical_representation_and_verifies_it(self):
+        source_bytes = b"# Evidence source\\n\\nA bounded research passage.\\n"
+        self.registry.put_artifact("merlin", "sources/evidence.md", source_bytes, "text/markdown")
+        source_ref = self.registry.artifact_ref("merlin", "sources/evidence.md")
+        executor = build_text_extraction_executor(
+            self.registry,
+            self.graph,
+            project_id="merlin",
+            repository="owner/repo",
+            commit_sha="a" * 40,
+        )
+        cace_calls = []
+
+        def verifier(**request):
+            cace_calls.append(request)
+            return {
+                "verification_status": "verified",
+                "artifact_sha256": request["artifact_sha256"],
+                "receipt_artifact_sha256": "f" * 64,
+                "promotion_authority": False,
+            }
+
+        handlers = build_hermes_stage_handlers(
+            evidence_recorder=self.recorder,
+            project_id="merlin",
+            research_executor=lambda task, context: {
+                "artifact_bytes": b"research", "summary": "Research complete.",
+                "metadata": {"tool_identity": "research@1"},
+            },
+            numerical_experiment_executor=lambda task, context: {
+                "artifact_bytes": b"experiment", "summary": "Experiment complete.",
+                "metadata": {"tool_identity": "experiment@1"},
+            },
+            proof_search_executor=lambda task, context: {
+                "artifact_bytes": b"proof", "summary": "Proof candidate.",
+                "metadata": {"tool_identity": "proof@1"},
+            },
+            knowledge_extraction_executor=executor,
+            artifact_verifier=verifier,
+            repository="owner/repo",
+            commit_sha="a" * 40,
+            requester_id="merlin-worker",
+        )
+        task = {
+            "stage": "knowledge_extraction",
+            "artifact_refs": [source_ref],
+            "experiment_spec": {"format": "markdown"},
+            "resource_budget": {
+                "cpu_cores": 1, "memory_bytes": 1 << 20,
+                "max_wall_seconds": 60, "compute_budget_units": 100,
+            },
+        }
+        result = handlers["knowledge_extraction"](task, Context())
+
+        self.assertTrue(result["artifact"]["registry_verified"])
+        self.assertTrue(result["artifact"]["logical_path"].startswith("knowledge/representations/"))
+        self.assertEqual(result["artifact"]["artifact_ref"]["project_id"], "merlin")
+        self.assertEqual(result["artifact"]["media_type"], "application/vnd.merlin.knowledge-representation+json")
+        self.assertEqual(result["cace_verification"]["verification_status"], "verified")
+        self.assertEqual(cace_calls[0]["artifact_kind"], "knowledge-representation")
+        self.assertEqual(cace_calls[0]["artifact_schema"], "merlin-knowledge-representation/1")
+        self.assertEqual(cace_calls[0]["artifact_sha256"], result["artifact"]["sha256"])
+        self.assertFalse(result["promotion_authority"])
+        self.assertTrue(result["hypothesis_status_unchanged"])
+        self.assertEqual(len(self.ledger.evidence("H-17")), 1)
+        self.assertEqual(len(self.registry.inventory("merlin")["artifacts"]), 2)
+        snapshot = self.graph.export_snapshot()
+        self.assertEqual(len(snapshot["nodes"]), 3)
+        self.assertEqual(len(snapshot["edges"]), 2)
+        self.assertEqual(
+            sum(edge["target_id"] == result["graph_edge"]["target_id"] for edge in snapshot["edges"]),
+            1,
+        )
 
 if __name__ == "__main__":
     unittest.main()

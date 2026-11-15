@@ -2,8 +2,9 @@
 
 This module deliberately requires concrete domain executors to be injected.
 It does not substitute a fake numerical solver, proof searcher or research agent.
-Each executor returns immutable artifact bytes; this layer stores and verifies
-those bytes, links them to the canonical hypothesis graph, and returns refs.
+Executors return either immutable artifact bytes or one exact existing ArtifactRef;
+this layer verifies the artifact, links it to the canonical hypothesis graph,
+and returns refs without duplicating stored bytes.
 """
 from __future__ import annotations
 
@@ -13,6 +14,12 @@ from typing import Any, Callable, Mapping
 
 from .research_evidence import ResearchEvidenceRecorder
 from .hermes_proof_orchestrator import dispatch_eligible_claim
+from .artifact_ref import ArtifactRef
+from .project_registry import MAX_ARTIFACT_READ_BYTES, MerlinRegistry
+from .knowledge_graph import MerlinKnowledgeGraph
+from .text_extractor import (
+    EXTRACTOR_ID, EXTRACTOR_VERSION, MAX_TEXT_SEGMENTS, store_text_extraction,
+)
 
 _STAGE_CONTRACTS = {
     "research": {
@@ -35,6 +42,12 @@ _STAGE_CONTRACTS = {
         "tool": "ngspice",
         "label": "electrical analysis",
     },
+    "knowledge_extraction": {
+        "evidence_kind": "source",
+        "tool": "merlin-text-extractor",
+        "label": "knowledge extraction",
+        "artifact_kind": "knowledge-representation",
+    },
 }
 
 
@@ -50,8 +63,20 @@ def _validate_executor_output(value: Any) -> dict[str, Any]:
         raise TypeError("stage executor must return an object")
     result = dict(value)
     artifact_bytes = result.get("artifact_bytes")
-    if not isinstance(artifact_bytes, bytes) or not artifact_bytes:
-        raise ValueError("stage executor must return non-empty immutable artifact_bytes")
+    existing_ref = result.get("existing_artifact_ref")
+    if existing_ref is not None and not isinstance(existing_ref, Mapping):
+        raise ValueError("existing_artifact_ref must be an exact ArtifactRef object")
+    if artifact_bytes is not None and (
+        not isinstance(artifact_bytes, bytes) or not artifact_bytes
+    ):
+        raise ValueError("artifact_bytes must be non-empty immutable bytes when supplied")
+    has_bytes = isinstance(artifact_bytes, bytes) and bool(artifact_bytes)
+    has_existing_ref = isinstance(existing_ref, Mapping)
+    if has_bytes == has_existing_ref:
+        raise ValueError("stage executor must return exactly one of non-empty artifact_bytes or existing_artifact_ref")
+    if has_existing_ref:
+        existing_ref = ArtifactRef.from_mapping(existing_ref).to_dict()
+        artifact_bytes = None
     summary = result.get("summary")
     if not isinstance(summary, str) or not summary.strip() or len(summary) > 500:
         raise ValueError("stage executor must return a short summary")
@@ -61,8 +86,17 @@ def _validate_executor_output(value: Any) -> dict[str, Any]:
     metadata = result.get("metadata", {})
     if not isinstance(metadata, Mapping):
         raise ValueError("stage executor metadata must be an object")
+    graph_node_id = result.get("graph_node_id")
+    if graph_node_id is not None and (
+        not isinstance(graph_node_id, str) or not graph_node_id.strip()
+    ):
+        raise ValueError("stage executor graph_node_id must be non-empty text")
+    if graph_node_id is not None and not has_existing_ref:
+        raise ValueError("graph_node_id is only valid with existing_artifact_ref")
     return {
         "artifact_bytes": artifact_bytes,
+        "existing_artifact_ref": existing_ref if has_existing_ref else None,
+        "graph_node_id": graph_node_id,
         "summary": summary.strip(),
         "media_type": media_type.strip(),
         "metadata": dict(metadata),
@@ -81,6 +115,7 @@ def build_hermes_stage_handlers(
     commit_sha: str,
     requester_id: str,
     electrical_executor: Callable[[Mapping[str, Any], Any], Mapping[str, Any]] | None = None,
+    knowledge_extraction_executor: Callable[[Mapping[str, Any], Any], Mapping[str, Any]] | None = None,
     theorem_verifier: Callable[..., Mapping[str, Any]] | None = None,
     lean_dispatcher: Callable[..., Mapping[str, Any]] | None = None,
     lean_tool_version: str | None = None,
@@ -104,6 +139,8 @@ def build_hermes_stage_handlers(
     }
     if electrical_executor is not None:
         executors["electrical_analysis"] = electrical_executor
+    if knowledge_extraction_executor is not None:
+        executors["knowledge_extraction"] = knowledge_extraction_executor
     if any(not callable(executor) for executor in executors.values()):
         raise ValueError("all registered stage executors must be callable")
     if artifact_verifier is not None and not callable(artifact_verifier):
@@ -137,18 +174,35 @@ def build_hermes_stage_handlers(
             )
             output = _validate_executor_output(_executor(task, context))
             context.emit_progress(_contract["label"] + " output received; recording canonical artifact")
-            logical_path = (
-                "research-runs/" + _safe_segment(context.task_id) + "/" +
-                _stage + "/result.bin"
-            )
-            recorded = evidence_recorder.record(
-                project_id=project_id,
-                hypothesis_id=context.hypothesis_id,
-                logical_path=logical_path,
-                content=output["artifact_bytes"],
-                evidence_kind=_contract["evidence_kind"],
-                description=output["summary"],
-            )
+            if output["existing_artifact_ref"] is not None:
+                recorded = evidence_recorder.record_existing_artifact(
+                    project_id=project_id,
+                    hypothesis_id=context.hypothesis_id,
+                    artifact_ref=output["existing_artifact_ref"],
+                    evidence_kind=_contract["evidence_kind"],
+                    description=output["summary"],
+                    graph_node_id=output["graph_node_id"],
+                )
+                artifact_ref = recorded["artifact_ref"]
+                logical_path = artifact_ref["logical_path"]
+                media_type = recorded.get("media_type") or output["media_type"]
+                size_bytes = recorded["size_bytes"]
+            else:
+                logical_path = (
+                    "research-runs/" + _safe_segment(context.task_id) + "/" +
+                    _stage + "/result.bin"
+                )
+                recorded = evidence_recorder.record(
+                    project_id=project_id,
+                    hypothesis_id=context.hypothesis_id,
+                    logical_path=logical_path,
+                    content=output["artifact_bytes"],
+                    evidence_kind=_contract["evidence_kind"],
+                    description=output["summary"],
+                )
+                artifact_ref = recorded["artifact_ref"]
+                media_type = output["media_type"]
+                size_bytes = len(output["artifact_bytes"])
             if recorded.get("artifact_verified") is not True:
                 raise RuntimeError("canonical registry did not verify the recorded artifact")
             digest = recorded["artifact_sha256"]
@@ -172,7 +226,7 @@ def build_hermes_stage_handlers(
                     repository=repository,
                     commit_sha=commit_sha,
                     artifact_sha256=digest,
-                    artifact_kind=_stage,
+                    artifact_kind=_contract.get("artifact_kind", _stage),
                     artifact_schema=str(output["metadata"].get("artifact_schema") or output["media_type"]),
                     requester_id=requester_id,
                     logical_path=logical_path,
@@ -317,22 +371,113 @@ def build_hermes_stage_handlers(
                     "project_id": project_id,
                     "logical_path": logical_path,
                     "sha256": digest,
-                    "artifact_ref": recorded["artifact_ref"],
-                    "media_type": output["media_type"],
-                    "size_bytes": len(output["artifact_bytes"]),
+                    "artifact_ref": artifact_ref,
+                    "media_type": media_type,
+                    "size_bytes": size_bytes,
                     "registry_verified": True,
                 },
                 "graph_edge": recorded["graph_edge"],
                 "cace_verification": cace_result,
                 "cace_theorem_receipts": theorem_receipts,
                 "evidence_refs": evidence_refs,
-                "artifact_refs": [recorded["artifact_ref"]],
+                "artifact_refs": [artifact_ref],
                 "hypothesis_status_unchanged": recorded["hypothesis_status_unchanged"],
                 "promotion_authority": False,
             }
 
         handlers[stage] = handler
     return handlers
+
+
+def build_text_extraction_executor(
+    registry: MerlinRegistry,
+    graph: MerlinKnowledgeGraph,
+    *,
+    project_id: str,
+    repository: str,
+    commit_sha: str,
+) -> Callable[[Mapping[str, Any], Any], Mapping[str, Any]]:
+    """Build a bounded Hermes executor that stores text extraction once.
+
+    The executor consumes exactly one already-validated source ArtifactRef and
+    returns the existing representation ArtifactRef. The stage handler attaches
+    that same artifact to the hypothesis without copying its bytes.
+    """
+    if not isinstance(registry, MerlinRegistry):
+        raise ValueError("canonical MerlinRegistry is required")
+    if not isinstance(graph, MerlinKnowledgeGraph):
+        raise ValueError("canonical MerlinKnowledgeGraph is required")
+    if not isinstance(project_id, str) or not project_id.strip():
+        raise ValueError("project_id is required")
+    if not isinstance(repository, str) or "/" not in repository:
+        raise ValueError("repository must be owner/name")
+    if not isinstance(commit_sha, str) or len(commit_sha) != 40 or any(
+        char not in "0123456789abcdef" for char in commit_sha
+    ):
+        raise ValueError("commit_sha must be a lowercase 40-character Git SHA")
+
+    def execute(task: Mapping[str, Any], context: Any) -> Mapping[str, Any]:
+        refs = task.get("artifact_refs")
+        if not isinstance(refs, list) or len(refs) != 1:
+            raise ValueError("knowledge_extraction requires exactly one source ArtifactRef")
+        source_ref = ArtifactRef.from_mapping(refs[0]).to_dict()
+        spec = task.get("experiment_spec") or {}
+        if not isinstance(spec, Mapping):
+            raise ValueError("knowledge extraction experiment_spec must be an object")
+        budget = task.get("resource_budget")
+        if not isinstance(budget, Mapping):
+            raise ValueError("knowledge extraction requires the canonical resource budget")
+        memory_bytes = budget.get("memory_bytes")
+        if isinstance(memory_bytes, bool) or not isinstance(memory_bytes, int) or memory_bytes < 1:
+            raise ValueError("knowledge extraction memory budget is invalid")
+        max_bytes = spec.get("max_bytes", MAX_ARTIFACT_READ_BYTES)
+        max_segments = spec.get("max_segments", MAX_TEXT_SEGMENTS)
+        if isinstance(max_bytes, bool) or not isinstance(max_bytes, int) or not 1 <= max_bytes <= MAX_ARTIFACT_READ_BYTES:
+            raise ValueError("knowledge extraction max_bytes is outside the supported range")
+        if isinstance(max_segments, bool) or not isinstance(max_segments, int) or not 1 <= max_segments <= MAX_TEXT_SEGMENTS:
+            raise ValueError("knowledge extraction max_segments is outside the supported range")
+        max_bytes = min(max_bytes, max(1, memory_bytes // 4))
+        selected_format = spec.get("format", "auto")
+        if not isinstance(selected_format, str):
+            raise ValueError("knowledge extraction format must be text")
+
+        check_cancelled = getattr(context, "check_cancelled", None)
+        if callable(check_cancelled):
+            check_cancelled()
+        stored = store_text_extraction(
+            registry,
+            graph,
+            source_ref,
+            project_id=project_id,
+            source_repo=repository,
+            source_commit=commit_sha,
+            format=selected_format,
+            max_bytes=max_bytes,
+            max_segments=max_segments,
+        )
+        if callable(check_cancelled):
+            check_cancelled()
+
+        extraction = stored["extraction"]
+        representation = stored["stored_representation"]
+        return {
+            "existing_artifact_ref": representation["representation_ref"],
+            "graph_node_id": representation["graph_node_id"],
+            "summary": (
+                f"Extracted {extraction['segment_count']} text segments from "
+                f"{source_ref['logical_path']}."
+            ),
+            "media_type": "application/vnd.merlin.knowledge-representation+json",
+            "metadata": {
+                "tool_identity": EXTRACTOR_ID + "@" + EXTRACTOR_VERSION,
+                "artifact_schema": "merlin-knowledge-representation/1",
+                "extraction_id": extraction["extraction_id"],
+                "segment_count": extraction["segment_count"],
+                "source_artifact_sha256": source_ref["sha256"],
+            },
+        }
+
+    return execute
 
 
 def build_merlin_hermes_handlers(
@@ -349,6 +494,7 @@ def build_merlin_hermes_handlers(
     lean_dispatcher: Callable[..., Mapping[str, Any]] | None = None,
     lean_tool_version: str | None = None,
     theorem_verifier: Callable[..., Mapping[str, Any]] | None = None,
+    knowledge_extraction_executor: Callable[[Mapping[str, Any], Any], Mapping[str, Any]] | None = None,
 ) -> dict[str, Callable[[Mapping[str, Any], Any], Mapping[str, Any]]]:
     """Register built-in numerical/electrical engines plus real injected research/proof engines."""
     from merlin.linear_simulation import linear_ode_task_executor
@@ -368,7 +514,11 @@ def build_merlin_hermes_handlers(
         theorem_verifier=theorem_verifier,
         lean_dispatcher=lean_dispatcher,
         lean_tool_version=lean_tool_version,
+        knowledge_extraction_executor=knowledge_extraction_executor,
     )
 
 
-__all__ = ["build_hermes_stage_handlers", "build_merlin_hermes_handlers"]
+__all__ = [
+    "build_hermes_stage_handlers", "build_merlin_hermes_handlers",
+    "build_text_extraction_executor",
+]
