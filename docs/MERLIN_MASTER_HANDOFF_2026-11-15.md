@@ -84,7 +84,7 @@ The latest inspected default branch is `main`. The repository contains multiple 
 | [#168](https://github.com/Mannyspiro/expert-robot/pull/168) | Read-only knowledge representation query integration | Draft; head `53d3e9799256e3981e12e60ae7479dd4811b2041`; CI run `43757140668` SUCCESS; all 3 new tests passed |
 | [#169](https://github.com/Mannyspiro/expert-robot/pull/169) | Source-located UTF-8 text extraction | Draft; head `eecaa93a96b913f9330673a41eba20065d9131c5`; CI run `43757628616` SUCCESS; all 7 new tests passed |
 | [#170](https://github.com/Mannyspiro/expert-robot/pull/170) | Bounded Hermes knowledge-extraction stage | Draft; head `dc74a61dbe698189e1ece4105720261ccfa83548`; unified-platform run `43758293101` SUCCESS (236 tests); exact-head CI run `43758293058` SUCCESS (ledger 8, evidence 6, Hermes stage 7 tests) |
-| [#171](https://github.com/Mannyspiro/expert-robot/pull/171) | Source-grounded Ideonomy candidate enumeration | Draft; head `6e90ce85c6bdc8a052592da965767ebfb7871531`; initial CI `43759198217` caught a fixed NameError; corrected-head CI `43759349581` pending |
+| [#171](https://github.com/Mannyspiro/expert-robot/pull/171) | Source-grounded Ideonomy candidate enumeration | Draft; head `e95920f4f877df1cda0b71ca8c5b88a34043b9e5`; CI `43759349581` failed two Ideonomy tests; graph source-node ID and tamper-test fixes committed with `[skip ci]`; latest head unverified, no rerun without approval |
 | [#164](https://github.com/Mannyspiro/expert-robot/pull/164) | Canonical backup recovery drill receipts | Draft; head `a5fea014fdc6f5991add69996aa6a49252e94eba`; stacked on #163 |
 | [#163](https://github.com/Mannyspiro/expert-robot/pull/163) | Create-only OCI Object Storage backup transport | Draft; head `d873e1e419e78f10b9de83c7f56cd259a80b22fc`; adapter tests passed in run `43610431390`; live tenancy qualification outstanding |
 | [#161](https://github.com/Mannyspiro/expert-robot/pull/161) | OCI Vault/KMS provider and deployment runbook | Draft; head `cdc22ab861ff71a27f4707887c2ef3772583398c`; CI run `43609808622` SUCCESS; live key/IAM round trip outstanding |
@@ -265,3 +265,12 @@ The virtual repository direction is a headless, internal Git-like system with SQ
 - OCI runner operations: `docs/OCI_RUNNER_OPERATIONS.md` in `morganaspim/Cace-app`
 
 When continuing, read these documents and inspect the exact current PR heads and workflow evidence before making changes.
+
+## Current operating constraints
+
+- Keep all Merlin and CACE pull requests in draft; do not merge or close them without explicit approval.
+- Do not trigger additional GitHub Actions runs or spend Actions quota without approval. Where code updates are necessary before approval, use `[skip ci]` and state clearly that the latest head is unverified.
+- No paid services or new paid provider dependencies.
+- Preserve the invariant: capability grows; authority never expands. AI-generated candidates and summaries cannot certify, promote evidence, or override graph/proof status; CACE remains the independent verifier.
+- Maintain one-job discipline for OCI/CACE qualification; do not launch competing proof jobs or force-update refs.
+
