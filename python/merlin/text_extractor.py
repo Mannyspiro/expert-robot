@@ -48,7 +48,7 @@ def _split_utf8_lines(raw: bytes) -> list[dict[str, Any]]:
 
 
 def _resolve_format(logical_path: str, requested: str) -> str:
-    if requested not in {"auto", "plain_text", "markdown"}:
+    if not isinstance(requested, str) or requested not in {"auto", "plain_text", "markdown"}:
         raise ValueError("format must be auto, plain_text, or markdown")
     if requested != "auto":
         return requested
