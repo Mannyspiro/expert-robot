@@ -275,3 +275,18 @@ When continuing, read these documents and inspect the exact current PR heads and
 - No paid services or new paid provider dependencies.
 - Preserve the invariant: capability grows; authority never expands. AI-generated candidates and summaries cannot certify, promote evidence, or override graph/proof status; CACE remains the independent verifier.
 - Maintain one-job discipline for OCI/CACE qualification; do not launch competing proof jobs or force-update refs.
+
+
+## Continuation checkpoint — 2026-11-15 (latest inspection)
+
+- PR #172 remains OPEN/DRAFT and stacked on #171. A static code review found one partial-write hazard: the handler originally invoked Ideonomy and persisted a candidate-set representation before checking that the task's hypothesis ID existed. The handler now resolves the hypothesis first, before generator invocation or persistence. A regression test was added to assert an unknown hypothesis is rejected before the generator runs.
+- PR #172 latest head: `a07ce229d182e85837ce107917a3dde3c8409de7`. The two changes were committed with `[skip ci]`; they have **not** been runtime-tested. Do not report the new test as passing.
+- Current-head combined status inspection: PR #171 head `e95920f4f877df1cda0b71ca8c5b88a34043b9e5` reports no status entries; PR #172 head `a07ce229d182e85837ce107917a3dde3c8409de7` reports no status entries. Empty status lists are not CI passes.
+- CACE PR #102 head remains `03709c8c2c3f0fa6515a5f7aaecebb50a451c7cc`. Its combined status contains three Vercel build-rate-limit failures only. These do not establish a Lean failure or success; no exact-head Lean compile result was found. The approved focused validation remains blocked because the connected GitHub action surface does not expose workflow dispatch and no authorized free OCI shell was available in this session.
+- No Actions were triggered, no Avrea minutes were consumed, no OCI charge or paid service was initiated, and no PR was merged.
+
+### Immediate ranked continuation
+
+1. Obtain an authorized, cost-confirmed free OCI execution path or workflow-dispatch capability, then run only the already-approved exact-head validation for Expert Robot #171 and CACE #102. Do not create artificial commits to trigger CI.
+2. Once #171 is validated, run the new #172 focused tests on its latest head. Until then, keep the Ideonomy Hermes stage draft and candidate-only.
+3. After both stages validate, add Logos as a separate adversarial-review artifact (counterexamples, hidden assumptions, contradictions, alternative explanations and falsifiable tests). Logos output must remain non-evidence and cannot promote hypotheses.
