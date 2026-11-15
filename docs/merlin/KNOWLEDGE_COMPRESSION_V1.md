@@ -99,7 +99,7 @@ Tests: `tests/test_knowledge_compression.py`
 
 The initial implementation covers deterministic serialization and IDs, strict source-reference and locator validation, source re-resolution, canonical registry storage, provenance, graph projection, idempotent replay, changed-payload identity, and fail-closed behavior for malformed or mismatched sources.
 
-It does not yet provide HTTP endpoints, extraction, embeddings, model-based compression, semantic deduplication, automatic claim decomposition, Logos audits, CACE verification, Hermes dispatch, or MCFC worker scheduling.
+It now includes a strict UTF-8 text/Markdown extraction adapter. It does not yet provide PDF/image/video extraction, OCR, embeddings, model-based semantic compression, semantic deduplication, automatic claim decomposition, Logos audits, CACE verification, Hermes dispatch, or MCFC worker scheduling.
 
 ## 7. Exact-source reconstruction evaluator
 
@@ -137,16 +137,38 @@ The API verifies artifact identity and source reachability, not semantic correct
 
 Tests: `tests/test_knowledge_representation_queries.py` checks exact source bindings, verified resolution, no source-byte leakage, and read-only behavior of the existing registry and graph.
 
-## 9. Next ranked implementation steps
+## 9. Source-located UTF-8 text extraction
+
+Module: `python/merlin/text_extractor.py`
+
+Public entry points:
+- `extract_text_artifact(registry, source_ref, ...)` returns a deterministic extraction manifest.
+- `store_text_extraction(registry, graph, source_ref, ...)` stores that manifest as a `text_extraction` representation through the existing canonical registry and graph.
+
+The extractor:
+- accepts exact ArtifactRefs and re-reads the pinned source bytes;
+- enforces the existing 25 MiB artifact-read ceiling and a 5,000-segment limit;
+- requires strict UTF-8 (no fallback encoding and no Unicode normalization);
+- recognizes Markdown ATX headings, fenced code blocks, contiguous lists, blockquotes and paragraphs; plain text is grouped into paragraphs only;
+- preserves original line endings and emits exact half-open byte ranges plus one-based inclusive line ranges;
+- hashes each segment and assigns deterministic IDs;
+- records an explicit whole-artifact source binding, including for empty files;
+- fails closed on invalid UTF-8 or exceeded limits.
+
+This is structural extraction, not semantic compression. It does not perform OCR or parse PDF, DOCX, HTML, code syntax trees, video or CAD. The source artifact remains authoritative.
+
+Tests: `tests/test_text_extractor.py` covers multibyte UTF-8 and CRLF offsets, Markdown block classification, plain-text behavior, empty files, invalid UTF-8, resource limits, deterministic IDs, canonical storage and read-only query integration.
+
+## 10. Next ranked implementation steps
 
 1. **Exact-head CI:** run the focused representation, reconstruction and read-API tests plus full Merlin CI on the exact current branch head; retain logs and artifact digests.
-2. **Extraction adapters:** add text/PDF/code/JSON extractors that produce source-bound locators and never alter source bytes.
+2. **Additional extraction adapters:** add PDF, DOCX, code/AST, HTML, OCR/image and video extraction with exact source coordinates; the strict UTF-8 text/Markdown adapter is implemented.
 3. **Ideonomy and Hermes:** enumerate candidate concepts/claims, then schedule bounded extraction and representation jobs through the existing outbox and worker contracts.
 4. **Logos and CACE:** challenge derived claims and verify exact producer artifacts with a configured, independently trusted CACE transport. Until then, status remains unverified.
 5. **Domain-specific paths:** mathematical/formal, code, engineering/CAD/netlist, biological and multimodal representations, each with separate benchmarks.
 6. **Measured promotion:** qualify compression methods against held-out tasks, retrieval quality, reconstruction, storage, latency and compute. Capability qualification and deployment remain separate approval steps.
 
-## 10. Required invariants
+## 11. Required invariants
 
 - Never overwrite or delete original source artifacts as a compression side effect.
 - Never merge distinct ArtifactRefs solely because their blob bytes match.
