@@ -225,6 +225,7 @@ jobs:
           python3 -m unittest discover -s tests -p "test_project_registry.py" -v
           python3 -m unittest discover -s tests -p "test_artifact_ref.py" -v
           python3 -m unittest discover -s tests -p "test_knowledge_compression.py" -v
+          python3 -m unittest discover -s tests -p "test_knowledge_reconstruction.py" -v
           python3 -m unittest discover -s tests -p "test_qualification_evidence_dag.py" -v
           python3 -m unittest discover -s tests -p "test_registry_backup.py" -v
           python3 -m unittest discover -s tests -p "test_backup_encryption.py" -v
