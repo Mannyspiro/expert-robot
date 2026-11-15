@@ -162,6 +162,21 @@ class HermesIdeonomyStageTests(unittest.TestCase):
             include_ngspice=False,
         ))
 
+    def test_unknown_hypothesis_is_rejected_before_generation(self):
+        called = []
+        handler = build_ideonomy_stage_handler(
+            evidence_recorder=self.recorder,
+            project_id="merlin",
+            repository="Mannyspiro/expert-robot",
+            commit_sha="b" * 40,
+            candidate_generator=lambda request: called.append(request) or {},
+        )
+        class UnknownHypothesis(Context):
+            hypothesis_id = "DOES-NOT-EXIST"
+        with self.assertRaises(KeyError):
+            handler(self._task(), UnknownHypothesis())
+        self.assertEqual(called, [])
+
     def test_cancellation_is_checked_before_generation(self):
         called = []
         class Cancelled(Context):
