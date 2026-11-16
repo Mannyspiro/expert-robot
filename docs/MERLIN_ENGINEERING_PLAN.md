@@ -465,3 +465,40 @@ This section supersedes stale status text in earlier handoff entries where exact
 - Engineering plans are append-only. Exact PR metadata and source commits outrank older handoff prose; evidence is always bound to the exact commit it tested.
 
 **Current recommendation:** spend the next implementation cycle on RP² proof correctness and the Ideonomy→Hermes source-bound candidate pipeline, not media runtime setup. The media adapters have a useful green repository CI result but are not yet a production execution path.
+
+
+## 20. 2026-11-16 Ideonomy/Hermes contract review
+
+A direct source review of `python/merlin/ideonomy.py`, its tests, and the Hermes stage confirms the following distinctions.
+
+### What the implementation actually establishes
+
+- The enumerator resolves a stored `text_extraction` representation and its precise byte-range source bindings before calling the injected generator.
+- Every candidate must reference one or more inspected binding indexes; candidate IDs are content-derived and candidate-set storage revalidates source refs, candidate IDs, relation IDs, and the complete set digest.
+- Candidates remain `unverified`, `candidate_generation_only`, `semantic_verification=not_assessed`, and `qualification=false`.
+- Candidate nodes and relations are projected into the existing knowledge graph; the graph explicitly does not infer truth from membership or edge labels.
+- These are valuable provenance and integrity checks, but they do not establish semantic entailment or truth.
+
+### Additional production blockers
+
+1. **Generator provenance is too weak for reproducibility.** The current candidate identity binds only generator `id` and `version`. Extend the generator contract with immutable provider/model revision, prompt/template digest, generation-configuration digest, and adapter/tool build digest. Bind all fields into candidate IDs, candidate-set IDs, registry tool provenance, and receipts. Reject mutable or absent revision identifiers for production dispatch.
+2. **Generator execution is synchronous and not interruptible here.** `enumerate_ideonomy_candidates` calls the injected generator directly. Hermes checks cancellation before and after the call, but cannot terminate a blocked provider or enforce a real memory limit. The memory-derived input-character budget is admission control only. Keep production dispatch disabled until an external supervisor enforces wall-clock, CPU, memory, process-tree termination, cancellation, filesystem/network policy, and no-secret environment.
+3. **Source binding is not semantic verification.** A byte-range locator proves where a candidate points, not that the text entails it. Preserve the candidate-only status through Logos adversarial review and independent CACE evidence checks.
+4. **Current CI evidence is stale relative to the corrected source head.** PR #171 head `e95920f4f877df1cda0b71ca8c5b88a34043b9e5` contains fixes for both previously failing assertions, but those commits used `[skip ci]`; no passing exact-head CI exists. PR #172 head `d511b981d9513e8a8dcaf155b5d8372676a5ceb3` likewise has no CI run. No new Actions run was started in this review.
+
+### PR metadata updates
+
+- PR #171 body now records immutable generator provenance and worker-supervision gates, the two historical test failures, the corrected current head, and the fact that the current head has not passed CI.
+- PR #172 body now records the non-interruptible generator call, admission-vs-enforcement distinction, and need for immutable provider/prompt/config provenance.
+- Both PRs remain draft/unmerged. PR #172 remains stacked on #171.
+
+### Revised next actions
+
+1. Add the missing immutable generator provenance schema and hash-binding tests to #171.
+2. Add an interruptible worker protocol for provider calls, with cancellation/deadline/resource enforcement supplied by the supervisor rather than a thread timeout that leaves work running.
+3. Add replay/crash tests for the Hermes stage: provider completed but registry write failed; registry write completed but outbox acknowledgement failed; duplicate delivery; cancellation racing persistence; stale lease.
+4. Add Logos review artifacts that preserve source/candidate digests and distinguish quoted source claims from model-generated inferences.
+5. Add CACE verification of exact candidate-set and Logos-review bytes; CACE must recompute hashes and resolve ArtifactRefs independently.
+6. Schedule one focused exact-head CI window for #171 and #172 only after tests are expanded and a concrete quota budget is approved. Do not run overlapping or speculative workflows.
+
+**Decision:** source-grounded Ideonomy is a promising candidate-generation foundation, not a production research agent yet. The immediate design objective is to make generation reproducible, interruptible, replay-safe, adversarially reviewed, and independently verifiable before any public Merlin dispatch path is enabled.
