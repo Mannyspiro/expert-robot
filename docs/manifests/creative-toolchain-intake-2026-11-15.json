@@ -1,0 +1,63 @@
+{
+  "schema": "merlin-creative-toolchain-intake/1",
+  "intake_date": "2026-11-15",
+  "target": {
+    "os": "Linux",
+    "architecture": "x86_64"
+  },
+  "assets": [
+    {
+      "name": "Blender",
+      "version": "5.3.0",
+      "uploaded_archive": "blender-5.3.0-linux-x64.tar.xz",
+      "archive_bytes": 406944100,
+      "uncompressed_member_bytes": 1292440678,
+      "member_count": 6672,
+      "sha256": "dacb8264197a3f7fda6001285a5a506fc97ee943881261c2c3bd63c882f22e05",
+      "executable": "blender-5.3.0-linux-x64/blender",
+      "executable_format": {
+        "format": "ELF64",
+        "endianness": "little",
+        "e_machine": 62,
+        "architecture": "x86_64"
+      },
+      "license": "GPU-GPL-3.0-or-later; third-party licenses included",
+      "git_metadata_present": null,
+      "model_weights_present": false,
+      "runtime_qualified": false
+    },
+    {
+      "name": "ComfyUI",
+      "version": "0.45.0",
+      "uploaded_archive": "ComfyUI-master.zip",
+      "archive_bytes": 13620522,
+      "uncompressed_member_bytes": 49925293,
+      "member_count": 1563,
+      "sha256": "d04633f43a85041453f21c7970b4ec3881c3dd2acf4e78b535c7b44eeeeed62b",
+      "python_requirement": ">=3.10",
+      "license": "GPL-3.0",
+      "git_metadata_present": false,
+      "upstream_commit": null,
+      "custom_node_files": [
+        "custom_nodes/example_node.py.example",
+        "custom_nodes/websocket_image_save.py"
+      ],
+      "model_weights_present": false,
+      "runtime_qualified": false
+    }
+  ],
+  "runner_constraints": {
+    "production_target": "Linux x86_64",
+    "existing_cace_oci_runner_architecture": "aarch64",
+    "blender_on_existing_cace_runner": "prohibited_by_architecture_mismatch",
+    "gpu_qualification": "not_performed",
+    "cuda_qualification": "not_performed"
+  },
+  "transfer_policy": {
+    "preserve_originals": true,
+    "verify_sha256_after_transfer": true,
+    "delete_source_only_after_verified_copy": true,
+    "commit_large_binary_archives_to_git": false
+  },
+  "qualification_status": "inventory_only_unqualified"
+}
