@@ -104,12 +104,15 @@ class MediaWorkerTests(unittest.TestCase):
             out = root / "out"
             def fake_run(argv, **kwargs):
                 self.assertIs(kwargs["shell"], False)
-                self.assertIn("--background", argv)
-                out.mkdir(exist_ok=True)
-                (out / "merlin-frame-0001.png").write_bytes(b"rendered-png")
                 class Result:
                     returncode = 0
-                    stdout = b"Blender test"
+                    stdout = b"Blender 5.3.0"
+                if "--version" in argv:
+                    return Result()
+                self.assertIn("--background", argv)
+                self.assertIn("--disable-autoexec", argv)
+                out.mkdir(exist_ok=True)
+                (out / "merlin-frame-0001.png").write_bytes(b"rendered-png")
                 return Result()
             with patch("merlin.media_workers.subprocess.run", fake_run):
                 worker = BlenderWorker(executable, root)
