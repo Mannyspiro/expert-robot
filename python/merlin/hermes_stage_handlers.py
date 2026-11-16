@@ -534,8 +534,8 @@ def build_ideonomy_stage_handler(
         if not isinstance(budget, Mapping):
             raise ValueError("Ideonomy requires the canonical resource budget")
         memory_bytes = budget.get("memory_bytes")
-        if isinstance(memory_bytes, bool) or not isinstance(memory_bytes, int) or memory_bytes < 4:
-            raise ValueError("Ideonomy memory budget must be at least four bytes")
+        if isinstance(memory_bytes, bool) or not isinstance(memory_bytes, int) or memory_bytes < 32:
+            raise ValueError("Ideonomy memory budget must be at least 32 bytes")
 
         max_candidates = spec.get("max_candidates", MAX_IDEONOMY_CANDIDATES)
         max_relations = spec.get("max_relations", MAX_IDEONOMY_RELATIONS)
@@ -552,7 +552,10 @@ def build_ideonomy_stage_handler(
             or not 0 <= max_relations <= MAX_IDEONOMY_RELATIONS
         ):
             raise ValueError("Ideonomy max_relations is outside its supported range")
-        max_input_characters = min(requested_chars, memory_bytes // 4)
+        # Admission estimate only: parsed text, binding indexes and Python object
+        # overhead expand well beyond UTF-8 byte size. The isolated worker must still
+        # enforce the actual process memory limit around the injected generator.
+        max_input_characters = min(requested_chars, max(1, memory_bytes // 32))
 
         # Validate the hypothesis before invoking a generator or writing any artifacts.
         # A stale/invalid task must not leave an orphan candidate-set representation.
