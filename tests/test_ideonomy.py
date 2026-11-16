@@ -157,7 +157,7 @@ class IdeonomyTests(unittest.TestCase):
 
         def escalated(request):
             return {
-                "generator": {"id": "test", "version": "1"},
+                "generator": {"id": "test", "version": "1", "provider_revision": "provider-build-2026-11-16.1", "prompt_digest": "1" * 64, "config_digest": "2" * 64, "adapter_digest": "3" * 64},
                 "candidates": [{
                     "local_id": "bad", "kind": "claim", "content": "verified",
                     "source_binding_indexes": [0], "epistemic_status": "verified",
@@ -170,7 +170,7 @@ class IdeonomyTests(unittest.TestCase):
     def test_rejects_unsupported_graph_relations_and_input_budget_excess(self):
         def unsupported_relation(request):
             return {
-                "generator": {"id": "test", "version": "1"},
+                "generator": {"id": "test", "version": "1", "provider_revision": "provider-build-2026-11-16.1", "prompt_digest": "1" * 64, "config_digest": "2" * 64, "adapter_digest": "3" * 64},
                 "candidates": [
                     {"local_id": "a", "kind": "claim", "content": "A", "source_binding_indexes": [0]},
                     {"local_id": "b", "kind": "claim", "content": "B", "source_binding_indexes": [1]},
