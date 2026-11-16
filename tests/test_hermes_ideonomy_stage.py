@@ -217,6 +217,7 @@ class HermesIdeonomyStageTests(unittest.TestCase):
             repository="Mannyspiro/expert-robot",
             commit_sha="b" * 40,
             candidate_generator=lambda request: called.append(request) or {},
+            candidate_generator_provenance=self.GENERATOR_PROVENANCE,
         )
         class UnknownHypothesis(Context):
             hypothesis_id = "DOES-NOT-EXIST"
