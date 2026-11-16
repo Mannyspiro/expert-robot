@@ -561,3 +561,15 @@ A focused follow-on implementation is now open as draft PR [#175](https://github
 **Limits:** these fields make the declared provenance reproducible and tamper-evident within Merlin's content-addressed artifacts. They do not independently attest that a provider served the declared model revision, and they do not verify candidate semantics. A trusted adapter/registry attestation and independent CACE receipt remain mandatory before qualification or production dispatch.
 
 **Verification state:** no CI run was started. PR #175 is draft and unverified at its exact head. It is stacked on PR #171; neither should be merged until the stack is reviewed and the exact-head focused tests pass. The new schema also needs to be propagated to the Hermes adapter/fixtures before integration.
+
+
+## 23. PR #175 exact-head correction and regression coverage
+
+After the initial PR creation, source review found two remaining legacy test fixtures that still used the old two-field generator identity. Both were corrected, and a separate storage-tampering test was added.
+
+- Current PR #175 head: `f9ae326fc1b0180da8fe7d6dce5b8cbc4aae6ae1`.
+- Current test file blob: `6079f695a5add2c8a4704fbc2dadcb0686eaa818`.
+- All four generator fixtures now carry the required provenance fields.
+- Added a regression proving that changing the stored adapter digest without recomputing candidate identity is rejected.
+- Re-fetched the PR metadata and both changed files at the current branch head; all expected schema/test markers are present.
+- No CI has run. This is a source-level consistency review only, not a passing test claim.
