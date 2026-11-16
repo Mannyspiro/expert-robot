@@ -30,9 +30,10 @@ The archive is structurally readable and contains no absolute or parent-traversa
 - Python requirement: `>=3.10`
 - License file: GPL-3.0
 - Git metadata: absent; the archive does not establish an upstream commit SHA.
-- Custom-node files present: `example_node.py.example` and `websocket_image_save.py`.
-- Model directories: placeholder structure/configuration only; no model weights were found.
-- The source contains workflow/blueprint assets; separately supplied user workflows have not yet been inventoried.
+- Custom-node files present: `example_node.py.example` and `websocket_image_save.py` (two files).
+- The archive contains 133 files under `blueprints/`, including 116 JSON workflow blueprints.
+- No model-weight files with common checkpoint extensions (`.safetensors`, `.ckpt`, `.pt`, `.pth`, `.gguf`, `.bin`) were found; model directories are placeholder structure/configuration only.
+- These are upstream-supplied blueprints, not separately supplied user-authored workflows. Each selected blueprint still needs dependency/model review before execution.
 
 The dependency file includes PyTorch, torchvision, torchsde and other runtime dependencies. It is not a fully pinned, target-specific environment lock. GPU/CPU execution must be qualified against the actual host and selected PyTorch build.
 
