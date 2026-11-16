@@ -262,6 +262,12 @@ def build_logos_review_stage_handler(
             for binding in candidate.get("source_bindings", []):
                 if canonical_json(binding) not in allowed_bindings:
                     raise ValueError("candidate cites a source locator outside the verified extraction manifest")
+        budget = task.get("resource_budget")
+        if not isinstance(budget, Mapping):
+            raise ValueError("Logos requires the canonical resource budget")
+        memory_bytes = budget.get("memory_bytes")
+        if isinstance(memory_bytes, bool) or not isinstance(memory_bytes, int) or memory_bytes < 4096:
+            raise ValueError("Logos memory budget must be at least 4096 bytes")
         candidate_set_bytes = len(canonical_json(candidate_set))
         source_binding_bytes = len(canonical_json(inspection["source_bindings"]))
         input_bytes = candidate_set_bytes + source_binding_bytes
@@ -270,12 +276,6 @@ def build_logos_review_stage_handler(
         candidate_set_digest = hashlib.sha256(canonical_json(candidate_set)).hexdigest()
         if candidate_ref["sha256"] != inspection["representation_ref"]["sha256"]:
             raise ValueError("candidate-set ArtifactRef digest changed")
-        budget = task.get("resource_budget")
-        if not isinstance(budget, Mapping):
-            raise ValueError("Logos requires the canonical resource budget")
-        memory_bytes = budget.get("memory_bytes")
-        if isinstance(memory_bytes, bool) or not isinstance(memory_bytes, int) or memory_bytes < 4096:
-            raise ValueError("Logos memory budget must be at least 4096 bytes")
         check_cancelled = getattr(context, "check_cancelled", None)
         if callable(check_cancelled):
             check_cancelled()
