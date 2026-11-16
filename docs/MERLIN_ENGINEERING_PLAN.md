@@ -502,3 +502,46 @@ A direct source review of `python/merlin/ideonomy.py`, its tests, and the Hermes
 6. Schedule one focused exact-head CI window for #171 and #172 only after tests are expanded and a concrete quota budget is approved. Do not run overlapping or speculative workflows.
 
 **Decision:** source-grounded Ideonomy is a promising candidate-generation foundation, not a production research agent yet. The immediate design objective is to make generation reproducible, interruptible, replay-safe, adversarially reviewed, and independently verifiable before any public Merlin dispatch path is enabled.
+
+
+## 21. RP² proof decomposition from the current Lean and independent reference sources
+
+This is a proof plan, not a claim that the following theorems have been implemented or compiled. It is grounded in the current `RP2ChainComplex.lean` blob `de38d861809496cd9624e63ce776048ad3e79d1d` and the independent reference test blob `7b896d4d3844de25bbaca8726fce944da0089b6d`, both read at CACE PR #102 head `c2af6c0f01babb3d89d4ef8972dd96535a71b422`.
+
+### A. H0: augmentation quotient
+
+- Define `augmentation : C0 →ₗ[ℤ] ℤ` by summing all six vertex coordinates.
+- Prove `augmentation.comp boundary1Linear = 0`; hence `range boundary1Linear ≤ ker augmentation`.
+- Use the five star edges `(0,i)`, i=1..5, to show every augmentation-zero 0-chain is an integral combination of their boundaries `e_i - e_0`. This proves the reverse inclusion.
+- Apply the first isomorphism theorem / quotient-map construction to establish `H0 ≃ₗ[ℤ] ℤ`.
+- Keep the generator and inverse maps explicit; do not infer H0 from connectedness prose alone.
+
+### B. H2: injectivity of the second boundary
+
+- The reference constructs the 15×10 integral `d2` matrix from the ten oriented facets.
+- Select the ten edge rows with zero-based indices `(0,1,2,3,5,6,7,9,10,12)`; the resulting 10×10 minor has determinant `-2`.
+- Prove the finite matrix representation agrees entrywise with `boundary2Linear`.
+- Coerce the selected minor to `Matrix (Fin 10) (Fin 10) ℚ`; its determinant is nonzero, so it is invertible over ℚ.
+- If an integral 2-chain is in `ker boundary2Linear`, its selected coordinates solve this invertible homogeneous system, hence all ten coefficients vanish. Conclude `H2 = 0`.
+- This argument uses nonzero determinant over ℚ, not the false assertion that `-2` is a unit in ℤ.
+
+### C. H1: explicit spanning-tree presentation
+
+- Use the star `T = {(0,i) | i=1..5}` as a spanning tree of the complete 1-skeleton.
+- For each of the ten non-tree edges `(i,j)`, define the fundamental cycle `zᵢⱼ = [i,j] + [0,i] - [0,j]` with signs matched to the declared edge orientation.
+- Prove these ten cycles form a `ℤ`-basis of `Z1 = ker boundary1Linear`: give explicit coefficient extraction on non-tree edge coordinates and prove the reconstruction identity.
+- Express each of the ten oriented facet boundaries in this cycle basis. This yields the 10×10 relation matrix used by the Python reference.
+- The reference matrix has determinant `-2`. It also has the 9×9 minor obtained by omitting zero-based row 2 and column 0 with determinant `-1`. Prove the entries and both determinant witnesses in Lean.
+- Prove the quotient by the relation columns has order 2 (e.g. via the determinant/index theorem for a full-rank integer matrix), hence is isomorphic to `Z/2`. Equivalently, use the unit 9×9 minor to exhibit integral row/column reduction to `diag(1,…,1,2)`.
+- Transport this quotient equivalence through the cycle-basis equivalence to obtain `H1 ≃ₗ[ℤ] ZMod 2` (or the equivalent additive-group isomorphism to `ℤ/2ℤ`).
+
+### D. Required proof gates
+
+1. Add the matrix definitions and entrywise bridge lemmas first; compile before adding quotient isomorphisms.
+2. Prove H0 and H2 separately so failures are localized.
+3. Prove the fundamental-cycle basis and relation-matrix bridge before attempting H1's Smith/integer quotient result.
+4. Add exact expected determinant and minor lemmas as Lean theorems, not imported Python constants without proof.
+5. Compile the complete module with the repository-pinned Lean toolchain and mathlib lock at exact PR head `c2af6c0f01babb3d89d4ef8972dd96535a71b422`; record stdout, stderr, toolchain, lock, source digest and runner identity in the evidence receipt.
+6. Only after all three classifications compile, remove the quarantine and ask CACE to verify the exact module artifact independently.
+
+**Important distinction:** the Python reference checks the chain matrices, tree-collapsed presentation, determinant `-2`, unit minor `-1`, and expected integral homology labels. It is a construction oracle and regression reference. It is not a Lean proof, and its receipt must not be relabeled as a formal verification receipt.
