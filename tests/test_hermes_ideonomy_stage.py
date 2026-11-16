@@ -18,6 +18,7 @@ from merlin.hermes_stage_handlers import (
 class Context:
     task_id = "ideonomy-task-1"
     hypothesis_id = "H-IDEONOMY"
+    idempotency_key = "hermes-task-handler:ideonomy-task-1"
 
     def __init__(self):
         self.events = []
@@ -190,6 +191,50 @@ class HermesIdeonomyStageTests(unittest.TestCase):
             requester_id="merlin-worker",
             include_ngspice=False,
         ))
+
+    def test_replay_uses_durable_generated_checkpoint_after_projection_failure(self):
+        from unittest.mock import patch
+        import merlin.hermes_stage_handlers as stage_module
+        calls = []
+        def counted(request):
+            calls.append(request.get("idempotency_key"))
+            return self.generator(request)
+        handler = build_ideonomy_stage_handler(
+            evidence_recorder=self.recorder,
+            project_id="merlin",
+            repository="Mannyspiro/expert-robot",
+            commit_sha="b" * 40,
+            candidate_generator=counted,
+            candidate_generator_provenance=self.GENERATOR_PROVENANCE,
+        )
+        original = stage_module.store_ideonomy_candidate_set
+        with patch.object(stage_module, "store_ideonomy_candidate_set",
+                          side_effect=RuntimeError("simulated crash before projection")):
+            with self.assertRaisesRegex(RuntimeError, "simulated crash"):
+                handler(self._task(), Context())
+        first_checkpoint = handler.__closure__
+        result = handler(self._task(), Context())
+        self.assertEqual(result["candidate_count"], 1)
+        self.assertEqual(calls, ["hermes-task-handler:ideonomy-task-1"])
+        self.assertEqual(result["authority"], "candidate_generation_only")
+
+    def test_completed_stage_replay_returns_cached_result_without_regeneration(self):
+        calls = []
+        def counted(request):
+            calls.append(True)
+            return self.generator(request)
+        handler = build_ideonomy_stage_handler(
+            evidence_recorder=self.recorder,
+            project_id="merlin",
+            repository="Mannyspiro/expert-robot",
+            commit_sha="b" * 40,
+            candidate_generator=counted,
+            candidate_generator_provenance=self.GENERATOR_PROVENANCE,
+        )
+        first = handler(self._task(), Context())
+        replay = handler(self._task(), Context())
+        self.assertEqual(first, replay)
+        self.assertEqual(len(calls), 1)
 
     def test_model_cannot_assert_its_own_generator_provenance(self):
         def forged(request):
