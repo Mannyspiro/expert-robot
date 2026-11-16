@@ -237,6 +237,7 @@ class HermesIdeonomyStageTests(unittest.TestCase):
             repository="Mannyspiro/expert-robot",
             commit_sha="b" * 40,
             candidate_generator=lambda request: called.append(request) or {},
+            candidate_generator_provenance=self.GENERATOR_PROVENANCE,
         )
         with self.assertRaisesRegex(RuntimeError, "cancelled"):
             handler(self._task(), Cancelled())
