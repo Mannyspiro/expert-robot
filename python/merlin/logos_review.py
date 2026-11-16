@@ -304,11 +304,14 @@ def build_logos_review_stage_handler(
         memory_bytes = budget.get("memory_bytes")
         if isinstance(memory_bytes, bool) or not isinstance(memory_bytes, int) or memory_bytes < 4096:
             raise ValueError("Logos memory budget must be at least 4096 bytes")
+        if not isinstance(source_segments, list):
+            raise ValueError("verified source extraction must contain a segment list")
         candidate_set_bytes = len(canonical_json(candidate_set))
         source_binding_bytes = len(canonical_json(inspection["source_bindings"]))
-        input_bytes = candidate_set_bytes + source_binding_bytes
+        source_segment_bytes = len(canonical_json(source_segments))
+        input_bytes = candidate_set_bytes + source_binding_bytes + source_segment_bytes
         if input_bytes > max(1024, memory_bytes // 4):
-            raise ValueError("Logos candidate-set input exceeds the conservative memory admission budget")
+            raise ValueError("Logos candidate-set and source input exceed the conservative memory admission budget")
         candidate_set_digest = hashlib.sha256(canonical_json(candidate_set)).hexdigest()
         if candidate_ref["sha256"] != inspection["representation_ref"]["sha256"]:
             raise ValueError("candidate-set ArtifactRef digest changed")
