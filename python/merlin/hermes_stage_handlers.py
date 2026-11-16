@@ -516,6 +516,8 @@ def build_ideonomy_stage_handler(
         raise ValueError("commit_sha must be a lowercase 40-character Git SHA")
     if not callable(candidate_generator):
         raise ValueError("an injected Ideonomy candidate generator is required")
+    if not isinstance(candidate_generator_provenance, Mapping):
+        raise ValueError("runtime-owned Ideonomy generator provenance is required")
 
     registry = evidence_recorder.registry
     graph = evidence_recorder.graph
