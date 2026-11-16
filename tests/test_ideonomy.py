@@ -114,7 +114,7 @@ class IdeonomyTests(unittest.TestCase):
         return enumerate_ideonomy_candidates(*args, **kwargs)
 
     def test_enumeration_is_source_bound_and_never_claims_verification(self):
-        result = enumerate_ideonomy_candidates(
+        result = self._enumerate(
             self.registry, self.extraction_ref, self._generator,
         )
         self.assertEqual(result["schema"], "merlin-ideonomy-candidate-set/1")
@@ -135,8 +135,8 @@ class IdeonomyTests(unittest.TestCase):
         self.assertIn("counter-hypotheses", self.request["instructions"])
 
     def test_enumeration_and_candidate_ids_are_deterministic(self):
-        first = enumerate_ideonomy_candidates(self.registry, self.extraction_ref, self._generator)
-        second = enumerate_ideonomy_candidates(self.registry, self.extraction_ref, self._generator)
+        first = self._enumerate(self.registry, self.extraction_ref, self._generator)
+        second = self._enumerate(self.registry, self.extraction_ref, self._generator)
         self.assertEqual(first["candidate_set_id"], second["candidate_set_id"])
         self.assertEqual(first["candidates"], second["candidates"])
         self.assertEqual(first["relations"], second["relations"])
@@ -145,7 +145,7 @@ class IdeonomyTests(unittest.TestCase):
         self.assertEqual(ideonomy_capability(None)["state"], "unavailable")
         self.assertFalse(ideonomy_capability(self._generator)["qualified"])
         with self.assertRaises(IdeonomyUnavailableError):
-            enumerate_ideonomy_candidates(self.registry, self.extraction_ref, None)
+            self._enumerate(self.registry, self.extraction_ref, None)
 
     def test_rejects_unbound_source_indexes_and_authority_escalation(self):
         def unbound(request):
@@ -157,7 +157,7 @@ class IdeonomyTests(unittest.TestCase):
                 "relations": [],
             }
         with self.assertRaisesRegex(ValueError, "outside the inspected manifest"):
-            enumerate_ideonomy_candidates(self.registry, self.extraction_ref, unbound)
+            self._enumerate(self.registry, self.extraction_ref, unbound)
 
         def escalated(request):
             return {
@@ -168,7 +168,7 @@ class IdeonomyTests(unittest.TestCase):
                 "relations": [],
             }
         with self.assertRaisesRegex(ValueError, "unsupported authority or fields"):
-            enumerate_ideonomy_candidates(self.registry, self.extraction_ref, escalated)
+            self._enumerate(self.registry, self.extraction_ref, escalated)
 
     def test_rejects_unsupported_graph_relations_and_input_budget_excess(self):
         def unsupported_relation(request):
@@ -183,15 +183,15 @@ class IdeonomyTests(unittest.TestCase):
                 }],
             }
         with self.assertRaisesRegex(ValueError, "not supported by the canonical graph"):
-            enumerate_ideonomy_candidates(self.registry, self.extraction_ref, unsupported_relation)
+            self._enumerate(self.registry, self.extraction_ref, unsupported_relation)
         with self.assertRaisesRegex(ValueError, "character budget"):
-            enumerate_ideonomy_candidates(
+            self._enumerate(
                 self.registry, self.extraction_ref, self._generator,
                 max_input_characters=10,
             )
 
     def test_store_projects_candidates_and_relations_idempotently(self):
-        candidate_set = enumerate_ideonomy_candidates(
+        candidate_set = self._enumerate(
             self.registry, self.extraction_ref, self._generator,
         )
         before = self.registry.inventory("merlin")
@@ -237,7 +237,7 @@ class IdeonomyTests(unittest.TestCase):
         self.assertTrue(all(node["evidence_class"] == "unverified_candidate" for node in candidate_nodes))
 
     def test_store_rejects_tampered_candidate_set(self):
-        candidate_set = enumerate_ideonomy_candidates(
+        candidate_set = self._enumerate(
             self.registry, self.extraction_ref, self._generator,
         )
         tampered = dict(candidate_set)
@@ -253,7 +253,7 @@ class IdeonomyTests(unittest.TestCase):
 
 
     def test_store_rejects_changed_generator_provenance(self):
-        candidate_set = enumerate_ideonomy_candidates(
+        candidate_set = self._enumerate(
             self.registry, self.extraction_ref, self._generator,
         )
         tampered = dict(candidate_set)
