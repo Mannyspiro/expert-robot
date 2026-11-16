@@ -357,3 +357,35 @@ The ComfyUI output-download path creates `urllib.request.Request` without an exp
 - A rerun on the corrected current head has not yet been observed. Do not label the correction verified until a new exact-head CI run passes.
 
 **Plan decision:** retain the adapter branch as draft. The next gate is a fresh focused test result on the current head, followed by worker isolation and real x86-64 integration. No CACE qualification, API exposure, capability promotion, merge or deployment.
+
+
+## 17. Append-only verification update — corrected media adapter head passes CI
+
+**Implementation PR:** https://github.com/Mannyspiro/expert-robot/pull/174  
+**Candidate commit:** `980300fafafbb58f52ab4ea31fb3f326d953fd91`  
+**Workflow run:** [CI #43795822511](https://github.com/Mannyspiro/expert-robot/actions/runs/43795822511)  
+**Result:** `build-and-smoke` completed successfully. The optional `merlin-nouscoder-inference` job was skipped.
+
+### What this establishes
+
+- The corrected candidate commit has a successful PR-triggered CI run.
+- The `Merlin media, drafting and council contracts` step passed, including the regression test corrected to use `Request.get_method()`.
+- The other executed build-and-smoke steps also completed successfully, including the repository's Python/C++ contract suites and independent machine-readable RP2/persistence homology audit.
+
+### What this does not establish
+
+- It does not establish a successful real ComfyUI or Blender execution.
+- It does not establish an OS/container sandbox, Linux x86-64 worker qualification, GPU/model availability, registry persistence, Hermes/MCFC durable scheduling, or CACE verification of media outputs.
+- It does not authorize capability promotion, API exposure, merge, or deployment. Keep `media.image` and `media.video` unavailable/unqualified.
+
+### Revised ranked next steps
+
+1. **Close the exact-head evidence loop:** confirm PR #174 still points to the candidate SHA above and retain the workflow run/job manifest against that exact source identity.
+2. **Build the worker supervisor boundary before runtime execution:** define a narrow worker contract for workspace creation/destruction, no-secret environment, read-only source mounts, writable output mount, network policy, CPU/memory/process/file-size limits, wall-clock deadline, cancellation, and telemetry. Prefer an existing proven container/OCI execution facility over a custom in-process sandbox.
+3. **Keep media adapters behind that boundary:** the Merlin API/Hermes must submit typed jobs to the supervisor, never launch ComfyUI or Blender directly inside the web process.
+4. **Persist immutable artifacts:** register each output with input digest, source repo+commit, adapter/tool digest, runtime version, job ID, output digest, and execution receipt; reject path escapes and digest mismatches.
+5. **Add Hermes/MCFC durability:** leases, idempotency keys, heartbeats, bounded retries, cancellation propagation, outbox acknowledgement, and resource-budget accounting.
+6. **Only then run real x86-64 preflights:** one deterministic built-in ComfyUI workflow without model weights and one tiny Blender CPU render. Capture complete execution receipts and failures.
+7. **CACE verifies independently:** verify exact artifacts and provenance; only a separate qualification decision may change capability state.
+
+**Decision:** the adapter's repository-level CI gate is now green on the corrected candidate commit. The adapters remain unqualified production candidates pending isolation, real-runtime execution, artifact-registry integration, and independent verification. Preserve P0 RP2 formalization and the P1 end-to-end Hermes/Ideonomy/MCFC/Logos/registry vertical slice; do not let media work displace them.
