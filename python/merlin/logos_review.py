@@ -63,8 +63,9 @@ def validate_logos_review(
         raise ValueError("candidate set is malformed or exceeds the review budget")
     candidate_by_id = {}
     generator = candidate_set.get("generator")
-    if not isinstance(generator, Mapping) or set(generator) != _PROVENANCE_FIELDS:
+    if not isinstance(generator, Mapping):
         raise ValueError("candidate-set generator provenance is malformed")
+    validate_reviewer_provenance(generator)
     source_representation_id = candidate_set.get("source_representation_id")
     if not isinstance(source_representation_id, str) or len(source_representation_id) != 64:
         raise ValueError("candidate-set source representation identity is malformed")
@@ -244,14 +245,22 @@ def build_logos_review_stage_handler(
         if manifest["representation_type"] != "ideonomy_candidates":
             raise ValueError("Logos input must be an ideonomy_candidates representation")
         candidate_set = manifest["payload"]
-        if (candidate_set.get("source_representation_ref") != inspection["source_artifact_refs"][0]
+        if (not isinstance(candidate_set, Mapping)
+                or candidate_set.get("source_representation_ref") != inspection["source_artifact_refs"][0]
                 or candidate_set.get("source_artifact_refs") != inspection["source_artifact_refs"][1:]):
             raise ValueError("candidate-set source ArtifactRefs do not match its verified representation")
-        allowed_bindings = {canonical_json(binding) for binding in inspection["source_bindings"]}
+        source_inspection = inspect_knowledge_representation(
+            registry, candidate_set["source_representation_ref"],
+        )
+        if (source_inspection["manifest"]["representation_type"] != "text_extraction"
+                or source_inspection["representation_id"] != candidate_set.get("source_representation_id")
+                or source_inspection["source_artifact_refs"] != candidate_set.get("source_artifact_refs")):
+            raise ValueError("candidate-set source extraction identity or lineage is invalid")
+        allowed_bindings = {canonical_json(binding) for binding in source_inspection["source_bindings"]}
         for candidate in candidate_set.get("candidates", []):
             for binding in candidate.get("source_bindings", []):
                 if canonical_json(binding) not in allowed_bindings:
-                    raise ValueError("candidate cites a source locator outside the verified candidate-set manifest")
+                    raise ValueError("candidate cites a source locator outside the verified extraction manifest")
         candidate_set_digest = hashlib.sha256(canonical_json(candidate_set)).hexdigest()
         if candidate_ref["sha256"] != inspection["representation_ref"]["sha256"]:
             raise ValueError("candidate-set ArtifactRef digest changed")
