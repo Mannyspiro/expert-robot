@@ -389,3 +389,25 @@ The ComfyUI output-download path creates `urllib.request.Request` without an exp
 7. **CACE verifies independently:** verify exact artifacts and provenance; only a separate qualification decision may change capability state.
 
 **Decision:** the adapter's repository-level CI gate is now green on the corrected candidate commit. The adapters remain unqualified production candidates pending isolation, real-runtime execution, artifact-registry integration, and independent verification. Preserve P0 RP2 formalization and the P1 end-to-end Hermes/Ideonomy/MCFC/Logos/registry vertical slice; do not let media work displace them.
+
+
+## 18. Skeptical implementation review — hardening blockers before worker execution
+
+A source review of python/merlin/media_workers.py at the candidate branch found additional issues that the passing CI suite does not currently cover. These are not evidence of a runtime compromise; they are reasons to keep the adapters non-invokable until corrected.
+
+### Findings
+
+1. **Blender inherits the parent environment.** Both the --version probe and render call inherit os.environ; the render call adds Blender-specific paths but does not remove unrelated variables. A future supervisor must not rely on callers to remember to scrub secrets. The adapter should construct an explicit allowlisted environment (controlled PATH/locale and workspace-local HOME, TMPDIR, Blender config/scripts) and tests must prove sentinel secrets are absent.
+2. **Input size is checked after reading the entire scene.** scene_path.read_bytes() allocates the full file before comparing its length with the configured limit. Replace with a stat precheck plus bounded streaming digest/read, and fail closed if the file changes during hashing.
+3. **Output size is checked after reading output files.** Blender output collection currently reads each PNG fully before enforcing the aggregate byte cap. Enforce per-file and aggregate limits while streaming; remove partial outputs on failure.
+4. **Subprocess logs are only truncated after capture.** stdout=PIPE can accumulate unbounded output before the post-run slice. Replace with a bounded log sink or streaming reader that terminates the process when the log budget is exceeded; preserve timeout and cancellation semantics.
+5. **No supervisor is present.** These adapters do not themselves provide a namespace/container sandbox, cgroup limits, network policy, secret isolation, or process-tree termination. They must remain unavailable to API/Hermes dispatch until an independently reviewed supervisor enforces those properties.
+
+### Required correction gate
+
+- Add regression tests for secret-environment non-inheritance, oversized scene rejection without full read, output byte caps during streaming, noisy subprocess termination, process-tree cleanup, and cancellation/deadline races.
+- Use an explicit environment allowlist and bounded streaming I/O.
+- Implement the supervisor as a separate trust boundary; do not mislabel shell=False, loopback-only HTTP, or path checks as sandboxing.
+- Re-run focused tests and the exact-head CI gate after the corrections. Preserve this successful run as evidence for the earlier candidate only; it cannot be reused to qualify a later changed commit.
+
+**Decision:** CI #43795822511 remains valid evidence that the current candidate passed its committed repository suite. The source-review findings are new and supersede any suggestion that the candidate is ready for real worker execution. No media runtime invocation, API/Hermes exposure, capability promotion, merge, or deployment until these blockers are corrected and verified.
