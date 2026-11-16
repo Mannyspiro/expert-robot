@@ -299,7 +299,11 @@ class HermesIdeonomyStageTests(unittest.TestCase):
 
     def test_logos_stage_persists_exact_source_bound_review_and_replays(self):
         enumeration = self._handler()(self._task(), Context())
-        candidate_set = enumeration["candidate_set"]
+        candidate_set_inspection = inspect_knowledge_representation(
+            self.registry, enumeration["artifact"]["artifact_ref"],
+        )
+        candidate_set = candidate_set_inspection["manifest"]["payload"]
+        candidate_set_ref = enumeration["artifact"]["artifact_ref"]
         candidate_id = candidate_set["candidates"][0]["candidate_id"]
         reviewer_calls = []
 
@@ -347,7 +351,7 @@ class HermesIdeonomyStageTests(unittest.TestCase):
 
         task = {
             "stage": "logos_review",
-            "artifact_refs": [enumeration["stored_representation"]["representation_ref"]],
+            "artifact_refs": [candidate_set_ref],
             "resource_budget": {"memory_bytes": 2_000_000},
         }
         first = handler(task, LogosContext())
@@ -374,12 +378,17 @@ class HermesIdeonomyStageTests(unittest.TestCase):
         self.assertEqual(len(review_edges), 1)
         self.assertEqual(
             review_edges[0]["target_id"],
-            "knowledge-representation:" + enumeration["stored_representation"]["representation_id"],
+            "knowledge-representation:" + candidate_set_inspection["representation_id"],
         )
 
     def test_logos_stage_rejects_reused_idempotency_key_with_changed_budget(self):
         enumeration = self._handler()(self._task(), Context())
-        candidate_id = enumeration["candidate_set"]["candidates"][0]["candidate_id"]
+        candidate_set_inspection = inspect_knowledge_representation(
+            self.registry, enumeration["artifact"]["artifact_ref"],
+        )
+        candidate_set = candidate_set_inspection["manifest"]["payload"]
+        candidate_set_ref = enumeration["artifact"]["artifact_ref"]
+        candidate_id = candidate_set["candidates"][0]["candidate_id"]
         provenance = {
             "id": "test.logos", "version": "1.0",
             "provider_revision": "test-reviewer-build-2026-11-16.1",
