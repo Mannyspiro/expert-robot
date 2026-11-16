@@ -411,3 +411,57 @@ A source review of python/merlin/media_workers.py at the candidate branch found 
 - Re-run focused tests and the exact-head CI gate after the corrections. Preserve this successful run as evidence for the earlier candidate only; it cannot be reused to qualify a later changed commit.
 
 **Decision:** CI #43795822511 remains valid evidence that the current candidate passed its committed repository suite. The source-review findings are new and supersede any suggestion that the candidate is ready for real worker execution. No media runtime invocation, API/Hermes exposure, capability promotion, merge, or deployment until these blockers are corrected and verified.
+
+
+## 19. 2026-11-16 production handoff — reconcile exact heads and restore the critical path
+
+This section supersedes stale status text in earlier handoff entries where exact current PR metadata differs.
+
+### Exact current repository state
+
+**Expert Robot PR #174 — media adapters**
+- Current head: `980300fafafbb58f52ab4ea31fb3f326d953fd91`.
+- Exact-head CI [43795822511](https://github.com/Mannyspiro/expert-robot/actions/runs/43795822511): `build-and-smoke` SUCCESS; all 40 listed execution steps completed successfully. Optional `merlin-nouscoder-inference` was skipped.
+- The PR body has been corrected to reflect the successful exact-head CI and the subsequent source-review blockers.
+- The adapters remain draft/unmerged and unqualified. CI did not execute real ComfyUI/Blender; it did not prove sandboxing, registry persistence, Hermes/MCFC scheduling, or CACE media verification.
+- Source-review blockers are recorded in section 18 and PR body: environment inheritance, unbounded scene read before size check, unbounded output read before cap, subprocess output capture before log truncation, and missing OS/container supervisor.
+
+**Expert Robot PR #171 — source-grounded Ideonomy enumeration**
+- Current head: `e95920f4f877df1cda0b71ca8c5b88a34043b9e5`.
+- Latest actual CI [43759349581](https://github.com/Mannyspiro/expert-robot/actions/runs/43759349581) failed two Ideonomy assertions: candidate-to-source graph edge ID did not match the canonical full source-node ID, and the tamper fixture mutated candidate content before checking identity.
+- Both corrections are present in later commits `08bf93e4196dc131f6cf9921a25e02334d30efaa` and `e95920f4f877df1cda0b71ca8c5b88a34043b9e5`, both marked `[skip ci]` to conserve Actions quota.
+- **No passing exact-head CI exists for current head.** PR remains draft and stacked on PR #170.
+
+**Expert Robot PR #172 — Hermes Ideonomy stage**
+- Current head: `d511b981d9513e8a8dcaf155b5d8372676a5ceb3`, based on PR #171 head `e95920f4f877df1cda0b71ca8c5b88a34043b9e5`.
+- No CI run is recorded for this head; its PR body says validation is pending and commits use `[skip ci]`.
+- The stage requires an injected generator and canonical resource budget, checks the hypothesis before generation, persists candidate-only output and a neutral `uses` graph edge, and does not write evidence refs or change hypothesis status.
+- The memory-derived character admission bound is explicitly only an estimate. It is not an enforced process memory limit. Generator execution needs a worker-enforced memory/deadline/cancellation boundary before production dispatch.
+
+**CACE PR #102 — RP² Lean formalization**
+- Current head from live PR metadata: `c2af6c0f01babb3d89d4ef8972dd96535a71b422`. Earlier handoff text named `03709c8...`; the PR body now records the corrected current head.
+- Exact source file blob remains `de38d861809496cd9624e63ce776048ad3e79d1d`.
+- Source contains the 6-vertex, 15-edge, 10-facet chain groups; `boundary_squared_zero`; `one_skeleton_connected`; integral linear boundary maps; and definitions of H0/H1/H2.
+- Both scalar-linearity proofs now include `simp_rw [mul_assoc]`, but **there is no exact-head Lean kernel compile result on c2af6c0**. The latest documented actual compile remains the earlier failure on `ee929fd...`; later corrections were committed with `[skip ci]`.
+- The file does not yet prove the integral classifications H0 ≅ ℤ, H1 ≅ ℤ/2, H2 = 0. Defining homology as a quotient/kernel is not proving its isomorphism type. RP² remains quarantined and unqualified.
+
+### Corrected ranked critical path
+
+1. **P0 — RP² formal proof, no false completion.** Continue from the actual current CACE head. First obtain an owner-approved, quota-conscious exact-head Lean compile of the corrected source. Then formalize explicit integral bases and maps: H0 ≅ ℤ, H1 ≅ ℤ/2, H2 = 0. Prove the relation presentation and determinant/minor/SNF witnesses inside Lean; Python reference outputs are test oracles, not theorems. Preserve the prior exact-pin failure bundle and bind every new result to the exact source SHA.
+2. **P1 — close Ideonomy source/graph correctness.** Review the corrected graph identity and tamper-validation changes at #171 current head. Do not claim it passes CI. Run the focused Ideonomy tests and exact-head CI only in an approved Actions window; until then keep the generator unavailable/unqualified and the PR draft.
+3. **P1 — validate Hermes dispatch after its dependency.** #172 is stacked on #171 and must not be merged independently. Add tests for stale/malformed hypothesis rejection before provider invocation, cancellation during generation, generator deadline/termination, idempotent replay after partial persistence, and registry/graph consistency. Resource-budget admission must be paired with actual supervisor-enforced memory/CPU/time limits.
+4. **P1 — Logos skeptical review contract.** After candidate generation is validated, implement a source-bound adversarial audit that emits counterclaims, assumptions, missing evidence, contradictions, alternative explanations, falsification tests, and exact source/candidate references. Logos may challenge and classify; it cannot verify, certify, promote, alter CACE receipts, or override the source of truth.
+5. **P1 — independent CACE evidence bridge.** Bind the exact candidate-set artifact digest, source extraction ArtifactRefs, source repo/commit, generator/model revision, prompt/config digest, runtime/tool version, and reviewer output. CACE must resolve and independently hash exact bytes; no caller-provided SHA or local test double counts as CACE verification. Keep signing/trust provisioning separate and unavailable until explicitly configured.
+6. **P1 — durable job and registry lifecycle.** Connect the validated stage to canonical registry persistence, Hermes leases/idempotency/heartbeats/outbox acknowledgements, MCFC worker scheduling and measured resource telemetry. Failure, cancellation, retry, and crash recovery must be replay-safe. No API dispatch until this full boundary is exercised.
+7. **P2 — media hardening, then isolated worker.** Fix section 18 blockers, build a separate OS/container supervisor, pin ComfyUI to an immutable upstream source revision, and only then run deterministic no-model ComfyUI and tiny Blender CPU preflights on Linux x86-64. OCI ARM64 is not a Blender x86-64 substitute; Avrea remains unavailable until 2026-12-01.
+8. **P3 — qualification and product surface.** Add held-out provider benchmarks and measured routing, then connect qualified research/media outputs to the persistent HUD, evidence canvas, equation atlas, CAD/wiring, simulations and learning pathways. UI visibility must reflect configured/unavailable/unqualified/verified states without implying more authority than the evidence supports.
+
+### Resource and authority policy reaffirmed
+
+- No paid compute. OCI only when free and available. No Avrea use before 2026-12-01.
+- Avoid new GitHub Actions runs unless an owner-approved window and a concrete acceptance target exist. Do not dispatch a workflow simply to refresh a status label.
+- No PR merge, deployment, signing-key provisioning, trust-root changes, production secret mutation, or capability promotion without explicit authorization and the corresponding independent gates.
+- No source artifact deletion as a side effect of compression or transformation. Registry lineage remains append-only and original artifacts remain recoverable.
+- Engineering plans are append-only. Exact PR metadata and source commits outrank older handoff prose; evidence is always bound to the exact commit it tested.
+
+**Current recommendation:** spend the next implementation cycle on RP² proof correctness and the Ideonomy→Hermes source-bound candidate pipeline, not media runtime setup. The media adapters have a useful green repository CI result but are not yet a production execution path.
