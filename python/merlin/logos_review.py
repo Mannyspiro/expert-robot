@@ -46,8 +46,14 @@ def validate_reviewer_provenance(value: Mapping[str, Any]) -> dict[str, str]:
 def validate_logos_review(
     candidate_set: Mapping[str, Any],
     generated: Mapping[str, Any],
+    *,
+    source_segments: list[Mapping[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    """Validate complete, typed review coverage without granting epistemic authority."""
+    """Validate complete, typed review coverage without granting epistemic authority.
+
+    A quotation is accepted only when its exact text occurs in a cited, verified
+    extraction segment whose byte-range locator matches the candidate binding.
+    """
     if not isinstance(candidate_set, Mapping) or candidate_set.get("schema") != "merlin-ideonomy-candidate-set/1":
         raise ValueError("Logos input must be an Ideonomy candidate set")
     body = {key: value for key, value in candidate_set.items() if key != "candidate_set_id"}
@@ -100,6 +106,20 @@ def validate_logos_review(
     if len(candidate_by_id) != len(candidates):
         raise ValueError("candidate IDs must be unique")
 
+    segments_by_range: dict[bytes, str] = {}
+    if source_segments is not None:
+        if not isinstance(source_segments, list) or len(source_segments) > 10_000:
+            raise ValueError("verified source segments must be a bounded list")
+        for segment in source_segments:
+            if (not isinstance(segment, Mapping)
+                    or not isinstance(segment.get("byte_range"), Mapping)
+                    or not isinstance(segment.get("text"), str)):
+                raise ValueError("verified source segment is malformed")
+            key = canonical_json(segment["byte_range"])
+            if key in segments_by_range:
+                raise ValueError("verified source segment byte ranges must be unique")
+            segments_by_range[key] = segment["text"]
+
     if not isinstance(generated, Mapping) or set(generated) != {
         "candidate_reviews", "counter_hypotheses", "falsifiability_questions", "limitations",
     }:
@@ -145,8 +165,22 @@ def validate_logos_review(
                 raise ValueError("finding cites a source binding outside this candidate")
             if len(set(indexes)) != len(indexes):
                 raise ValueError("finding source-binding indexes must be unique")
-            if kind == "quotation" and not indexes:
-                raise ValueError("direct quotations require at least one exact source binding")
+            if kind == "quotation":
+                if not indexes:
+                    raise ValueError("direct quotations require at least one exact source binding")
+                if not segments_by_range:
+                    raise ValueError("direct quotations require verified extraction text")
+                cited_texts = []
+                for index in indexes:
+                    binding = candidate_bindings[index]
+                    if binding.get("locator_type") != "byte_range":
+                        raise ValueError("direct quotation binding must identify an exact byte range")
+                    segment_text = segments_by_range.get(canonical_json(binding.get("locator")))
+                    if segment_text is None:
+                        raise ValueError("direct quotation locator does not resolve to verified extraction text")
+                    cited_texts.append(segment_text)
+                if not any(text.strip() in segment_text for segment_text in cited_texts):
+                    raise ValueError("quoted text does not occur in the cited source segment")
             normalized_findings.append({
                 "kind": kind, "text": text.strip(),
                 "source_bindings": [candidate_bindings[i] for i in indexes],
@@ -253,6 +287,8 @@ def build_logos_review_stage_handler(
         source_inspection = inspect_knowledge_representation(
             registry, candidate_set["source_representation_ref"],
         )
+        extraction_payload = source_inspection["manifest"].get("payload")
+        source_segments = extraction_payload.get("segments") if isinstance(extraction_payload, Mapping) else None
         if (source_inspection["manifest"]["representation_type"] != "text_extraction"
                 or source_inspection["representation_id"] != candidate_set.get("source_representation_id")
                 or source_inspection["source_artifact_refs"] != candidate_set.get("source_artifact_refs")):
@@ -311,8 +347,11 @@ def build_logos_review_stage_handler(
                 "limits": {"memory_bytes": memory_bytes, "max_candidates": 500, "max_input_bytes": max(1024, memory_bytes // 4)},
                 "idempotency_key": getattr(context, "idempotency_key", None),
             }
+            request["source_segments"] = source_segments
             generated = reviewer(request)
-            review = validate_logos_review(candidate_set, generated)
+            review = validate_logos_review(
+                candidate_set, generated, source_segments=source_segments,
+            )
             review_body = {key: value for key, value in review.items() if key != "review_id"}
             review_body["reviewer_provenance"] = provenance
             review = {**review_body, "review_id": hashlib.sha256(canonical_json(review_body)).hexdigest()}
