@@ -586,3 +586,10 @@ PR #172 has been retargeted onto PR #175's immutable-provenance branch so the He
 - This is source-level only. No CI was run, no worker was dispatched, and no PR was merged.
 
 **Remaining operational gate:** cancellation still cannot interrupt a blocked generator call, and the task memory estimate is not OS-enforced. Production dispatch remains blocked until an external supervisor enforces deadlines, process-tree termination, memory/CPU limits, and secret/network/filesystem isolation. Crash-safe replay and Logos/CACE stages remain separate work.
+
+
+## 25. 2026-11-16 provenance closure defect found in source review
+
+A second-pass inspection of the Hermes-stacked Ideonomy implementation found a critical closure defect: candidate IDs used the full runtime provenance object, and storage validation required the full six-field object, but the candidate-set envelope still serialized only generator ID/version. Consequently, the envelope did not directly bind provider revision or prompt/configuration/adapter digests, and the storage path would reject the generated envelope. This is corrected by serializing the complete canonical `generator_provenance` object into the candidate-set body, which makes it part of the candidate-set digest and allows the existing store-time validation to succeed. The focused Ideonomy test now asserts the complete provenance object is present in the candidate-set envelope before persistence.
+
+This is a source-level correction only. No tests or CI were executed; exact-head verification remains outstanding. Provider authentication, crash-safe task journaling, generator interruption, external resource supervision, Logos review and independent CACE receipts remain unimplemented gates.
