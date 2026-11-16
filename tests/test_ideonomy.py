@@ -250,5 +250,21 @@ class IdeonomyTests(unittest.TestCase):
             )
 
 
+    def test_store_rejects_changed_generator_provenance(self):
+        candidate_set = enumerate_ideonomy_candidates(
+            self.registry, self.extraction_ref, self._generator,
+        )
+        tampered = dict(candidate_set)
+        tampered["generator"] = dict(candidate_set["generator"])
+        tampered["generator"]["adapter_digest"] = "4" * 64
+        with self.assertRaisesRegex(ValueError, "candidate identity is invalid"):
+            store_ideonomy_candidate_set(
+                self.registry, self.graph, tampered,
+                project_id="merlin",
+                source_repo="Mannyspiro/expert-robot",
+                source_commit="b" * 40,
+            )
+
+
 if __name__ == "__main__":
     unittest.main()
