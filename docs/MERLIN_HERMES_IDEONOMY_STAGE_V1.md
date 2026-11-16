@@ -11,7 +11,7 @@ The `ideonomy_enumeration` stage connects the source-grounded Ideonomy engine to
 - Optional bounded limits: `max_candidates` (1–500), `max_relations` (0–2,000), and `max_input_characters` (1–200,000).
 - An injected candidate generator plus a separate runtime-owned provenance object. The generator response may contain only candidates and relations; any model-returned `generator` metadata is rejected. No provider is silently selected or simulated.
 
-The effective character budget is the smaller of the requested limit and one quarter of the stage memory budget. The generator receives the verified extracted segments and precise source-binding indexes from the Ideonomy contract. Every candidate must cite one or more of those bindings.
+The effective character budget is the smaller of the requested limit and one quarter of the stage memory budget. The generator receives the verified extracted segments and precise source-binding indexes from the Ideonomy contract. Every candidate must cite one or more of those bindings. Runtime provenance is validated before invoking the generator, so missing or mutable provider identity fails closed without making a provider call.
 
 ## Output and persistence
 
