@@ -43,7 +43,11 @@
         "custom_nodes/websocket_image_save.py"
       ],
       "model_weights_present": false,
-      "runtime_qualified": false
+      "runtime_qualified": false,
+      "blueprint_file_count": 133,
+      "workflow_blueprint_json_count": 116,
+      "custom_node_file_count": 2,
+      "common_model_weight_files_found": 0
     }
   ],
   "runner_constraints": {
