@@ -216,6 +216,14 @@ class HermesIdeonomyStageTests(unittest.TestCase):
         self.assertEqual(calls, ["hermes-task-handler:ideonomy-task-1"])
         self.assertEqual(result["authority"], "candidate_generation_only")
 
+    def test_task_idempotency_key_cannot_be_reused_for_changed_inputs(self):
+        handler = self._handler()
+        handler(self._task(), Context())
+        changed = self._task()
+        changed["experiment_spec"]["max_candidates"] = 21
+        with self.assertRaisesRegex(ValueError, "already bound to different stage inputs"):
+            handler(changed, Context())
+
     def test_completed_stage_replay_returns_cached_result_without_regeneration(self):
         calls = []
         def counted(request):
