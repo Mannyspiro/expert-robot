@@ -62,14 +62,38 @@ def validate_logos_review(
     if not isinstance(candidates, list) or len(candidates) > 500:
         raise ValueError("candidate set is malformed or exceeds the review budget")
     candidate_by_id = {}
+    generator = candidate_set.get("generator")
+    if not isinstance(generator, Mapping) or set(generator) != _PROVENANCE_FIELDS:
+        raise ValueError("candidate-set generator provenance is malformed")
+    source_representation_id = candidate_set.get("source_representation_id")
+    if not isinstance(source_representation_id, str) or len(source_representation_id) != 64:
+        raise ValueError("candidate-set source representation identity is malformed")
+    if candidate_set.get("candidate_count") != len(candidates):
+        raise ValueError("candidate-set count does not match its candidate list")
     for candidate in candidates:
-        if not isinstance(candidate, Mapping):
-            raise ValueError("candidate entries must be objects")
+        if not isinstance(candidate, Mapping) or set(candidate) != {
+            "candidate_id", "kind", "content", "rationale", "source_bindings",
+            "confidence_estimate", "confidence_semantics", "epistemic_status", "authority",
+        }:
+            raise ValueError("candidate entries contain unsupported fields")
         candidate_id = candidate.get("candidate_id")
         bindings = candidate.get("source_bindings")
         if (not isinstance(candidate_id, str) or len(candidate_id) != 64
                 or not isinstance(bindings, list) or not bindings):
             raise ValueError("candidate identity or source bindings are missing")
+        if (candidate.get("epistemic_status") != "unverified"
+                or candidate.get("authority") != "candidate_generation_only"
+                or candidate.get("confidence_semantics") != "model_estimate_not_truth_probability"):
+            raise ValueError("candidate epistemic boundary is malformed")
+        identity_body = {
+            "source_representation_id": source_representation_id,
+            "generator": dict(generator), "kind": candidate.get("kind"),
+            "content": candidate.get("content"), "rationale": candidate.get("rationale"),
+            "source_bindings": bindings,
+            "confidence_estimate": candidate.get("confidence_estimate"),
+        }
+        if hashlib.sha256(canonical_json(identity_body)).hexdigest() != candidate_id:
+            raise ValueError("candidate identity does not match its canonical source-bound content")
         candidate_by_id[candidate_id] = candidate
     if len(candidate_by_id) != len(candidates):
         raise ValueError("candidate IDs must be unique")
@@ -220,6 +244,14 @@ def build_logos_review_stage_handler(
         if manifest["representation_type"] != "ideonomy_candidates":
             raise ValueError("Logos input must be an ideonomy_candidates representation")
         candidate_set = manifest["payload"]
+        if (candidate_set.get("source_representation_ref") != inspection["source_artifact_refs"][0]
+                or candidate_set.get("source_artifact_refs") != inspection["source_artifact_refs"][1:]):
+            raise ValueError("candidate-set source ArtifactRefs do not match its verified representation")
+        allowed_bindings = {canonical_json(binding) for binding in inspection["source_bindings"]}
+        for candidate in candidate_set.get("candidates", []):
+            for binding in candidate.get("source_bindings", []):
+                if canonical_json(binding) not in allowed_bindings:
+                    raise ValueError("candidate cites a source locator outside the verified candidate-set manifest")
         candidate_set_digest = hashlib.sha256(canonical_json(candidate_set)).hexdigest()
         if candidate_ref["sha256"] != inspection["representation_ref"]["sha256"]:
             raise ValueError("candidate-set ArtifactRef digest changed")
