@@ -98,6 +98,7 @@ def enumerate_ideonomy_candidates(
     max_candidates: int = MAX_IDEONOMY_CANDIDATES,
     max_relations: int = MAX_IDEONOMY_RELATIONS,
     max_input_characters: int = MAX_IDEONOMY_INPUT_CHARS,
+    generator_provenance: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Ask an injected generator for source-indexed candidates and validate them.
 
@@ -177,20 +178,48 @@ def enumerate_ideonomy_candidates(
     generated = candidate_generator(request)
     if not isinstance(generated, Mapping):
         raise ValueError("Ideonomy generator must return an object")
-    if set(generated) - {"generator", "candidates", "relations"}:
-        raise ValueError("Ideonomy generator returned unsupported top-level fields")
-    generator = generated.get("generator")
-    if not isinstance(generator, Mapping) or set(generator) != {"id", "version"}:
-        raise ValueError("Ideonomy generator identity must contain only id and version")
+    if set(generated) - {"candidates", "relations"}:
+        raise ValueError("Ideonomy generator returned unsupported top-level fields; provenance is runtime-owned")
+    generator = generator_provenance
+    required_generator_fields = {
+        "id", "version", "provider_revision", "prompt_digest",
+        "config_digest", "adapter_digest",
+    }
+    if not isinstance(generator, Mapping) or set(generator) != required_generator_fields:
+        raise ValueError(
+            "trusted runtime generator provenance must bind id, version, provider_revision, "
+            "prompt_digest, config_digest and adapter_digest"
+        )
     generator_id = generator.get("id")
     generator_version = generator.get("version")
+    provider_revision = generator.get("provider_revision")
     if (
         not isinstance(generator_id, str) or not generator_id.strip()
         or len(generator_id) > 128
         or not isinstance(generator_version, str) or not generator_version.strip()
         or len(generator_version) > 128
+        or not isinstance(provider_revision, str) or not provider_revision.strip()
+        or len(provider_revision) > 256
+        or provider_revision.strip().casefold() in {
+            "latest", "stable", "main", "master", "head", "current", "default",
+        }
     ):
-        raise ValueError("Ideonomy generator id and version must be non-empty bounded text")
+        raise ValueError("Ideonomy generator identity and immutable provider revision are required")
+    for digest_field in ("prompt_digest", "config_digest", "adapter_digest"):
+        digest = generator.get(digest_field)
+        if (
+            not isinstance(digest, str) or len(digest) != 64
+            or any(character not in "0123456789abcdef" for character in digest)
+        ):
+            raise ValueError(f"Ideonomy {digest_field} must be a lowercase SHA-256 digest")
+    generator_provenance = {
+        "id": generator_id,
+        "version": generator_version,
+        "provider_revision": provider_revision,
+        "prompt_digest": generator["prompt_digest"],
+        "config_digest": generator["config_digest"],
+        "adapter_digest": generator["adapter_digest"],
+    }
 
     raw_candidates = generated.get("candidates")
     raw_relations = generated.get("relations", [])
@@ -249,7 +278,7 @@ def enumerate_ideonomy_candidates(
 
         candidate_body = {
             "source_representation_id": inspection["representation_id"],
-            "generator": {"id": generator_id, "version": generator_version},
+            "generator": generator_provenance,
             "kind": kind,
             "content": content.strip(),
             "rationale": rationale.strip(),
@@ -371,13 +400,29 @@ def store_ideonomy_candidate_set(
     if candidate_set.get("source_representation_ref") != inspection["representation_ref"]:
         raise ValueError("Ideonomy source representation reference changed")
     generator = candidate_set.get("generator")
+    required_generator_fields = {
+        "id", "version", "provider_revision", "prompt_digest",
+        "config_digest", "adapter_digest",
+    }
     if (
-        not isinstance(generator, Mapping) or set(generator) != {"id", "version"}
+        not isinstance(generator, Mapping) or set(generator) != required_generator_fields
         or not isinstance(generator.get("id"), str) or not generator.get("id", "").strip()
         or not isinstance(generator.get("version"), str) or not generator.get("version", "").strip()
         or len(generator.get("id", "")) > 128 or len(generator.get("version", "")) > 128
+        or not isinstance(generator.get("provider_revision"), str)
+        or not generator.get("provider_revision", "").strip()
+        or len(generator.get("provider_revision", "")) > 256
+        or generator.get("provider_revision", "").strip().casefold() in {
+            "latest", "stable", "main", "master", "head", "current", "default",
+        }
+        or any(
+            not isinstance(generator.get(field), str)
+            or len(generator.get(field, "")) != 64
+            or any(character not in "0123456789abcdef" for character in generator.get(field, ""))
+            for field in ("prompt_digest", "config_digest", "adapter_digest")
+        )
     ):
-        raise ValueError("Ideonomy generator provenance is malformed")
+        raise ValueError("Ideonomy generator provenance is malformed or mutable")
     candidates = candidate_set.get("candidates")
     relations = candidate_set.get("relations")
     if (
@@ -431,7 +476,7 @@ def store_ideonomy_candidate_set(
             raise ValueError("Ideonomy candidate confidence estimate is invalid")
         candidate_body = {
             "source_representation_id": inspection["representation_id"],
-            "generator": {"id": generator["id"], "version": generator["version"]},
+            "generator": dict(generator),
             "kind": candidate["kind"],
             "content": candidate["content"],
             "rationale": candidate["rationale"],
