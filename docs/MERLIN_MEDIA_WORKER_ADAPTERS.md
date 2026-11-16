@@ -4,8 +4,8 @@
 
 ## Trust and execution boundary
 
-- ComfyUI is reached only through an HTTP loopback endpoint. The adapter submits one bounded workflow, polls the job, retrieves outputs through the ComfyUI view endpoint, and records exact output byte digests.
-- Blender is launched as an absolute executable using an argument vector and `shell=False`. Scene and output paths must remain inside a configured workspace. The worker is headless, uses a bounded frame and fixed low-resolution preflight settings, and enforces a process deadline.
+- ComfyUI is reached only through an HTTP loopback endpoint. The adapter submits one bounded workflow, polls the job, retrieves outputs through the ComfyUI view endpoint, and records exact output byte digests. Loopback binding is not a sandbox: run ComfyUI in an isolated worker with no secrets, restricted filesystem/network access, and only approved workflows/custom nodes.
+- Blender is launched as an absolute executable using an argument vector and `shell=False`; `--disable-autoexec` prevents automatic execution of embedded blend scripts. Scene and output paths must remain inside a configured workspace. The worker is headless, uses a bounded frame and fixed low-resolution preflight settings, and enforces a process deadline. Run it in an OS/container sandbox with no secrets and restricted filesystem/network access.
 - Both adapters emit `merlin-media-execution/1` receipts with input digest, output digest(s), timing, logs, and resource/telemetry limitations. These are execution receipts only; they do not establish CACE verification, source qualification, or promotion authority.
 - No endpoint is exposed publicly. No model weights are downloaded. No adapter is invoked by the Merlin HTTP process.
 
