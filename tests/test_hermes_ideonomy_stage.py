@@ -30,6 +30,14 @@ class Context:
 
 
 class HermesIdeonomyStageTests(unittest.TestCase):
+    GENERATOR_PROVENANCE = {
+        "id": "test.ideonomy",
+        "version": "1.0",
+        "provider_revision": "test-provider-build-2026-11-16.1",
+        "prompt_digest": "1" * 64,
+        "config_digest": "2" * 64,
+        "adapter_digest": "3" * 64,
+    }
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         root = Path(self.temp.name)
@@ -66,7 +74,6 @@ class HermesIdeonomyStageTests(unittest.TestCase):
         assert request["source_representation_ref"]["sha256"]
         assert request["source_bindings"]
         return {
-            "generator": {"id": "test.ideonomy", "version": "1.0"},
             "candidates": [{
                 "local_id": "candidate-1",
                 "kind": "claim",
@@ -84,6 +91,7 @@ class HermesIdeonomyStageTests(unittest.TestCase):
             repository="Mannyspiro/expert-robot",
             commit_sha="b" * 40,
             candidate_generator=self.generator,
+            candidate_generator_provenance=self.GENERATOR_PROVENANCE,
         )
 
     def _task(self):
@@ -148,6 +156,7 @@ class HermesIdeonomyStageTests(unittest.TestCase):
             repository="Mannyspiro/expert-robot",
             commit_sha="b" * 40,
             candidate_generator=generator,
+            candidate_generator_provenance=self.GENERATOR_PROVENANCE,
         )
         task = self._task()
         task["resource_budget"] = {"memory_bytes": 8192}
@@ -167,6 +176,7 @@ class HermesIdeonomyStageTests(unittest.TestCase):
             requester_id="merlin-worker",
             include_ngspice=False,
             ideonomy_candidate_generator=self.generator,
+            ideonomy_candidate_generator_provenance=self.GENERATOR_PROVENANCE,
         )
         self.assertIn("ideonomy_enumeration", handlers)
         self.assertNotIn("ideonomy_enumeration", build_merlin_hermes_handlers(
@@ -180,6 +190,24 @@ class HermesIdeonomyStageTests(unittest.TestCase):
             requester_id="merlin-worker",
             include_ngspice=False,
         ))
+
+    def test_model_cannot_assert_its_own_generator_provenance(self):
+        def forged(request):
+            return {
+                "generator": self.GENERATOR_PROVENANCE,
+                "candidates": [],
+                "relations": [],
+            }
+        handler = build_ideonomy_stage_handler(
+            evidence_recorder=self.recorder,
+            project_id="merlin",
+            repository="Mannyspiro/expert-robot",
+            commit_sha="b" * 40,
+            candidate_generator=forged,
+            candidate_generator_provenance=self.GENERATOR_PROVENANCE,
+        )
+        with self.assertRaisesRegex(ValueError, "provenance is runtime-owned"):
+            handler(self._task(), Context())
 
     def test_unknown_hypothesis_is_rejected_before_generation(self):
         called = []
