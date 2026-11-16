@@ -43,7 +43,7 @@ class MediaWorkerTests(unittest.TestCase):
             if path == "/prompt":
                 return _Response(b'{"prompt_id":"job_123"}')
             if path == "/api/jobs/job_123":
-                return _Response(b'{"status":"completed","version":"0.45.0","outputs":[{"filename":"result.png","subfolder":"","type":"output"}]}')
+                return _Response(b'{"status":"completed","version":"0.45.0","outputs":{"9":{"images":[{"filename":"result.png","subfolder":"","type":"output"}]}}}')
             if path == "/view":
                 return _Response(b"png-bytes")
             raise AssertionError(request.full_url)
@@ -83,11 +83,12 @@ class MediaWorkerTests(unittest.TestCase):
                 return _Response(b'{}')
             raise AssertionError(request.full_url)
         def clock():
-            now[0] += 1
             return now[0]
+        def sleeper(_):
+            now[0] += 1
         with tempfile.TemporaryDirectory() as tmp, patch("merlin.media_workers.urlopen", fake_urlopen):
             worker = ComfyUIWorker("http://127.0.0.1:8188", tmp,
-                                   timeout_seconds=1, clock=clock, sleeper=lambda _: None)
+                                   timeout_seconds=1, clock=clock, sleeper=sleeper)
             with self.assertRaisesRegex(MediaWorkerError, "deadline"):
                 worker.execute({"1": {}})
         self.assertIn(("POST", "/api/jobs/job_123/cancel"), calls)
