@@ -266,7 +266,9 @@ def build_logos_review_stage_handler(
             }
             generated = reviewer(request)
             review = validate_logos_review(candidate_set, generated)
-            review["reviewer_provenance"] = provenance
+            review_body = {key: value for key, value in review.items() if key != "review_id"}
+            review_body["reviewer_provenance"] = provenance
+            review = {**review_body, "review_id": hashlib.sha256(canonical_json(review_body)).hexdigest()}
             journal.save_generated(getattr(context, "idempotency_key", None), review)
         if callable(check_cancelled):
             check_cancelled()
