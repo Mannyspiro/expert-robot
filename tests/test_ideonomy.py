@@ -96,6 +96,7 @@ class IdeonomyTests(unittest.TestCase):
                             generator_provenance=mutable)
 
         baseline = self._enumerate(self.registry, self.extraction_ref, self._generator)
+        self.assertEqual(baseline["generator"], self.GENERATOR_PROVENANCE)
         changed = dict(self.GENERATOR_PROVENANCE)
         changed["prompt_digest"] = "4" * 64
         revised = self._enumerate(self.registry, self.extraction_ref, self._generator,
