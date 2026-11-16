@@ -295,5 +295,45 @@ class HermesIdeonomyStageTests(unittest.TestCase):
         self.assertEqual(called, [])
 
 
+    def test_standard_hermes_composition_registers_optional_logos_stage(self):
+        provenance = {
+            "id": "test.logos",
+            "version": "1.0",
+            "provider_revision": "test-reviewer-build-2026-11-16.1",
+            "prompt_digest": "4" * 64,
+            "config_digest": "5" * 64,
+            "adapter_digest": "6" * 64,
+        }
+        handlers = build_merlin_hermes_handlers(
+            evidence_recorder=self.recorder,
+            project_id="merlin",
+            research_executor=lambda task, context: {},
+            proof_search_executor=lambda task, context: {},
+            artifact_verifier=None,
+            repository="Mannyspiro/expert-robot",
+            commit_sha="b" * 40,
+            requester_id="merlin-worker",
+            include_ngspice=False,
+            logos_reviewer=lambda request: {},
+            logos_reviewer_provenance=provenance,
+        )
+        self.assertIn("logos_review", handlers)
+
+    def test_logos_stage_registration_rejects_missing_runtime_provenance(self):
+        with self.assertRaisesRegex(ValueError, "requires both"):
+            build_merlin_hermes_handlers(
+                evidence_recorder=self.recorder,
+                project_id="merlin",
+                research_executor=lambda task, context: {},
+                proof_search_executor=lambda task, context: {},
+                artifact_verifier=None,
+                repository="Mannyspiro/expert-robot",
+                commit_sha="b" * 40,
+                requester_id="merlin-worker",
+                include_ngspice=False,
+                logos_reviewer=lambda request: {},
+            )
+
+
 if __name__ == "__main__":
     unittest.main()
