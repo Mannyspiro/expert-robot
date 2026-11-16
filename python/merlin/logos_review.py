@@ -294,8 +294,16 @@ def build_logos_review_stage_handler(
                 or source_inspection["source_artifact_refs"] != candidate_set.get("source_artifact_refs")):
             raise ValueError("candidate-set source extraction identity or lineage is invalid")
         allowed_bindings = {canonical_json(binding) for binding in source_inspection["source_bindings"]}
-        for candidate in candidate_set.get("candidates", []):
-            for binding in candidate.get("source_bindings", []):
+        candidates = candidate_set.get("candidates")
+        if not isinstance(candidates, list) or len(candidates) > 500:
+            raise ValueError("Ideonomy candidate list is malformed or exceeds the Logos budget")
+        for candidate in candidates:
+            if not isinstance(candidate, Mapping):
+                raise ValueError("Ideonomy candidate entries must be objects")
+            candidate_bindings = candidate.get("source_bindings")
+            if not isinstance(candidate_bindings, list) or not candidate_bindings:
+                raise ValueError("Ideonomy candidates require source bindings")
+            for binding in candidate_bindings:
                 if canonical_json(binding) not in allowed_bindings:
                     raise ValueError("candidate cites a source locator outside the verified extraction manifest")
         budget = task.get("resource_budget")
