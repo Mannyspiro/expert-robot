@@ -69,7 +69,8 @@ def validate_logos_review(
     source_representation_id = candidate_set.get("source_representation_id")
     if not isinstance(source_representation_id, str) or len(source_representation_id) != 64:
         raise ValueError("candidate-set source representation identity is malformed")
-    if candidate_set.get("candidate_count") != len(candidates):
+    if (isinstance(candidate_set.get("candidate_count"), bool)
+            or candidate_set.get("candidate_count") != len(candidates)):
         raise ValueError("candidate-set count does not match its candidate list")
     for candidate in candidates:
         if not isinstance(candidate, Mapping) or set(candidate) != {
@@ -261,6 +262,11 @@ def build_logos_review_stage_handler(
             for binding in candidate.get("source_bindings", []):
                 if canonical_json(binding) not in allowed_bindings:
                     raise ValueError("candidate cites a source locator outside the verified extraction manifest")
+        candidate_set_bytes = len(canonical_json(candidate_set))
+        source_binding_bytes = len(canonical_json(inspection["source_bindings"]))
+        input_bytes = candidate_set_bytes + source_binding_bytes
+        if input_bytes > max(1024, memory_bytes // 4):
+            raise ValueError("Logos candidate-set input exceeds the conservative memory admission budget")
         candidate_set_digest = hashlib.sha256(canonical_json(candidate_set)).hexdigest()
         if candidate_ref["sha256"] != inspection["representation_ref"]["sha256"]:
             raise ValueError("candidate-set ArtifactRef digest changed")
@@ -302,7 +308,7 @@ def build_logos_review_stage_handler(
                     "conflicts, propose counter-hypotheses and falsifiability tests. Do not "
                     "claim truth, proof, verification, qualification or promotion."
                 ),
-                "limits": {"memory_bytes": memory_bytes, "max_candidates": 500},
+                "limits": {"memory_bytes": memory_bytes, "max_candidates": 500, "max_input_bytes": max(1024, memory_bytes // 4)},
                 "idempotency_key": getattr(context, "idempotency_key", None),
             }
             generated = reviewer(request)
