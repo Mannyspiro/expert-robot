@@ -17,7 +17,7 @@ The reviewer response is restricted to complete per-candidate reviews, typed fin
 
 ## Finding semantics
 
-- `quotation`: must cite one or more exact source-binding indexes. A quotation without a locator is rejected.
+- `quotation`: must cite one or more exact source-binding indexes, and the quoted text must occur verbatim in the verified text-extraction segment whose byte-range locator matches the cited binding. A locator alone is insufficient.
 - `interpretation`: an interpretation, not a direct source statement.
 - `hypothesis`: a reviewer-generated possibility, not source evidence.
 
@@ -53,4 +53,4 @@ The stage journal provides replay after the validated review checkpoint, but it 
 
 ## Validation status
 
-Regression tests are authored for full candidate coverage, exact quotation locators, disallowed authority dispositions, candidate identity tampering and immutable reviewer provenance. Tests have not been executed; this change is source-authored and source-reviewed only.
+Regression tests cover full candidate coverage, exact quotation text-to-locator matching, disallowed authority dispositions, candidate identity tampering, immutable reviewer provenance, and end-to-end review persistence/graph projection/replay. The exact-head CI evidence currently available predates the latest quotation and end-to-end test commits; those latest changes remain unverified until the next automatic exact-head workflow completes.
