@@ -32,6 +32,6 @@ A candidate is a prompt for subsequent skeptical review, not an assertion of tru
 
 ## Operational boundary
 
-Cancellation is checked before enumeration and again before persistence. Enumeration is bounded by the resource budget and the existing Ideonomy input/candidate/relation limits. The stage uses the existing registry, graph and hypothesis ledger; it creates no parallel store.
+Cancellation is checked before enumeration and again before persistence. The memory budget applies a conservative 32-bytes-per-input-character admission estimate before invoking the generator, in addition to the existing Ideonomy input/candidate/relation limits. This is an admission bound, not an operating-system memory sandbox: the MCFC/worker execution boundary must enforce the actual process memory limit around the injected generator. The stage uses the existing registry, graph and hypothesis ledger; it creates no parallel store.
 
 The stage is registered by supplying `ideonomy_candidate_generator` to `build_merlin_hermes_handlers`. If no generator is injected, no Ideonomy handler is registered and the capability remains unavailable rather than silently substituting a fake model.
