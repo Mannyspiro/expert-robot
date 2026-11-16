@@ -545,3 +545,19 @@ This is a proof plan, not a claim that the following theorems have been implemen
 6. Only after all three classifications compile, remove the quarantine and ask CACE to verify the exact module artifact independently.
 
 **Important distinction:** the Python reference checks the chain matrices, tree-collapsed presentation, determinant `-2`, unit minor `-1`, and expected integral homology labels. It is a construction oracle and regression reference. It is not a Lean proof, and its receipt must not be relabeled as a formal verification receipt.
+
+
+## 22. 2026-11-16 implementation: Ideonomy generator provenance contract
+
+A focused follow-on implementation is now open as draft PR [#175](https://github.com/Mannyspiro/expert-robot/pull/175), based on PR #171's current head.
+
+- Branch: `feat/ideonomy-immutable-generator-provenance-20261116`
+- Current head at PR creation: `bba8e353ef83fba73d4b5a04e936fd78ae21ec94`
+- Files changed: `python/merlin/ideonomy.py` and `tests/test_ideonomy.py`.
+- Generator metadata now requires `id`, `version`, a non-alias `provider_revision`, and SHA-256 digests for prompt/template, generation configuration, and adapter/tool build.
+- The full provenance object is included in candidate and candidate-set identity recomputation and is revalidated before persistence.
+- Tests cover missing provenance, mutable provider aliases, and candidate identity changes when the prompt digest changes.
+
+**Limits:** these fields make the declared provenance reproducible and tamper-evident within Merlin's content-addressed artifacts. They do not independently attest that a provider served the declared model revision, and they do not verify candidate semantics. A trusted adapter/registry attestation and independent CACE receipt remain mandatory before qualification or production dispatch.
+
+**Verification state:** no CI run was started. PR #175 is draft and unverified at its exact head. It is stacked on PR #171; neither should be merged until the stack is reviewed and the exact-head focused tests pass. The new schema also needs to be propagated to the Hermes adapter/fixtures before integration.
