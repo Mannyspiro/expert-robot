@@ -136,6 +136,25 @@ class HermesIdeonomyStageTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "mismatched task"):
             handler({**self._task(), "stage": "research"}, Context())
 
+    def test_memory_budget_conservatively_caps_generator_input(self):
+        observed = []
+        def generator(request):
+            observed.append(request["limits"]["max_input_characters"])
+            return self.generator(request)
+
+        handler = build_ideonomy_stage_handler(
+            evidence_recorder=self.recorder,
+            project_id="merlin",
+            repository="Mannyspiro/expert-robot",
+            commit_sha="b" * 40,
+            candidate_generator=generator,
+        )
+        task = self._task()
+        task["resource_budget"] = {"memory_bytes": 8192}
+        result = handler(task, Context())
+        self.assertEqual(result["candidate_count"], 1)
+        self.assertEqual(observed, [256])
+
     def test_standard_hermes_composition_registers_injected_ideonomy_stage(self):
         handlers = build_merlin_hermes_handlers(
             evidence_recorder=self.recorder,
