@@ -330,3 +330,30 @@ Additional changes:
 - The focused CI workflow includes `tests/test_media_workers.py`.
 
 **Verification status remains unchanged:** no CI run/status was returned for the draft PR head, the focused tests have not been executed, and neither adapter has been run against a real worker. These commits are implementation candidates only. The ComfyUI workflow itself is not sandboxed by loopback binding; an isolated worker with restricted filesystem/network access and no secrets is a prerequisite before processing untrusted workflows.
+
+
+## 16. Append-only defect record — media adapter focused test
+
+**Observed run:** Expert Robot CI `43795663612`, tested source head `4225d1f164b0e4ac94db037f30961c0e1cc01166`.  
+**Affected step:** “Merlin media, drafting and council contracts”.  
+**Status:** failed; not a production runtime failure.
+
+### Minimal reproduction and root cause
+
+The ComfyUI output-download path creates `urllib.request.Request` without an explicit method, correctly relying on urllib's default GET behavior. The mocked test transport incorrectly read `request.method`, an attribute absent on that default-constructed Request. The earlier POST/GET JSON requests supplied an explicit method and did expose it, which is why the test only failed at output retrieval.
+
+### Corrective change
+
+- Updated the fake transport to use the public `Request.get_method()` accessor.
+- Correction commit: `980300fafafbb58f52ab4ea31fb3f326d953fd91`.
+- The ComfyUI timeout-boundary implementation also advanced after the run in commit `da8605a0323e368f1d5dcfc8ee740cc4e2ac8fcf`.
+- Current PR #174 head at this update: `980300fafafbb58f52ab4ea31fb3f326d953fd91`.
+
+### Regression and prevention
+
+- The focused test still asserts the complete POST → poll → GET output sequence and checks the resulting byte digest.
+- Prevention rule: test doubles must use documented public request APIs and must exercise both explicitly specified methods and urllib's default-method path.
+- The failing run's other completed checks before step 27 passed; within step 27, the existing media/drafting suite passed, five of six new adapter tests passed, and one new test errored. Later steps were skipped after the failure.
+- A rerun on the corrected current head has not yet been observed. Do not label the correction verified until a new exact-head CI run passes.
+
+**Plan decision:** retain the adapter branch as draft. The next gate is a fresh focused test result on the current head, followed by worker isolation and real x86-64 integration. No CACE qualification, API exposure, capability promotion, merge or deployment.
