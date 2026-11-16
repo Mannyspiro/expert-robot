@@ -39,7 +39,7 @@ class MediaWorkerTests(unittest.TestCase):
         calls = []
         def fake_urlopen(request, timeout=0):
             path = urlsplit(request.full_url).path
-            calls.append((request.method, path))
+            calls.append((request.get_method(), path))
             if path == "/prompt":
                 return _Response(b'{"prompt_id":"job_123"}')
             if path == "/api/jobs/job_123":
