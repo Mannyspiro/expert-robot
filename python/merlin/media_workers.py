@@ -199,14 +199,22 @@ class ComfyUIWorker:
                 raise MediaWorkerError("ComfyUI job was cancelled")
             self.sleeper(min(self.poll_seconds, max(0.0, deadline - self.clock())))
         rows = state.get("outputs")
+        # ComfyUI's jobs API groups outputs by node and media type.
+        flattened: list[Mapping[str, Any]] = []
         if isinstance(rows, dict):
-            rows = [entry for value in rows.values()
-                    for entry in (value if isinstance(value, list) else [value])
-                    if isinstance(entry, dict)]
-        if not isinstance(rows, list) or not rows:
+            for node_output in rows.values():
+                if not isinstance(node_output, dict):
+                    continue
+                for media_type in ("images", "video", "audio", "3d"):
+                    entries = node_output.get(media_type, [])
+                    if isinstance(entries, list):
+                        flattened.extend(entry for entry in entries if isinstance(entry, Mapping))
+        elif isinstance(rows, list):
+            flattened.extend(entry for entry in rows if isinstance(entry, Mapping))
+        if not flattened:
             raise MediaWorkerError("ComfyUI completed without output files")
         outputs = tuple(_download_output(self.base_url, row, self.output_dir)
-                        for row in rows if isinstance(row, Mapping))
+                        for row in flattened)
         if not outputs:
             raise MediaWorkerError("ComfyUI completed without retrievable output files")
         total = sum(row["size_bytes"] for row in outputs)
@@ -268,9 +276,28 @@ class BlenderWorker:
             raise ValueError("scene file exceeds the configured input limit")
         input_digest = sha256(scene_bytes).hexdigest()
         output_prefix = out_dir / "merlin-frame-"
+        render_setup = (
+            "import bpy; "
+            "s=bpy.context.scene; "
+            "s.render.resolution_x=64; "
+            "s.render.resolution_y=64; "
+            f"s.render.resolution_percentage={resolution_scale}"
+        )
         argv = [str(self.executable), "--background", str(scene_path),
+                "--python-expr", render_setup,
                 "--render-output", str(output_prefix), "--render-format", "PNG",
-                "--render-res", "64", "64", "--render-frame", str(frame)]
+                "--render-frame", str(frame)]
+        version = None
+        try:
+            version_probe = subprocess.run(
+                [str(self.executable), "--version"], cwd=str(self.workspace),
+                shell=False, check=False, stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT, timeout=10,
+            )
+            if version_probe.returncode == 0:
+                version = (version_probe.stdout or b"").decode("utf-8", errors="replace").strip()[:200]
+        except (OSError, subprocess.TimeoutExpired):
+            version = None
         started = time.time()
         monotonic_start = time.monotonic()
         try:
@@ -306,7 +333,7 @@ class BlenderWorker:
         finished = time.time()
         return MediaExecutionReceipt(
             schema="merlin-media-execution/1", worker="blender",
-            status="completed", tool_version=None, job_id=input_digest[:24],
+            status="completed", tool_version=version, job_id=input_digest[:24],
             started_at=started, finished_at=finished,
             duration_ms=max(0, int((time.monotonic() - monotonic_start) * 1000)),
             input_sha256=input_digest, outputs=tuple(outputs), log=log,
