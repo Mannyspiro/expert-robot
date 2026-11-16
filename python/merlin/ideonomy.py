@@ -177,11 +177,6 @@ def enumerate_ideonomy_candidates(
             "max_source_bindings_per_candidate": MAX_BINDINGS_PER_CANDIDATE,
         },
     }
-    generated = candidate_generator(request)
-    if not isinstance(generated, Mapping):
-        raise ValueError("Ideonomy generator must return an object")
-    if set(generated) - {"candidates", "relations"}:
-        raise ValueError("Ideonomy generator returned unsupported top-level fields; provenance is runtime-owned")
     generator = generator_provenance
     required_generator_fields = {
         "id", "version", "provider_revision", "prompt_digest",
@@ -223,6 +218,11 @@ def enumerate_ideonomy_candidates(
         "adapter_digest": generator["adapter_digest"],
     }
 
+    generated = candidate_generator(request)
+    if not isinstance(generated, Mapping):
+        raise ValueError("Ideonomy generator must return an object")
+    if set(generated) - {"candidates", "relations"}:
+        raise ValueError("Ideonomy generator returned unsupported top-level fields; provenance is runtime-owned")
     raw_candidates = generated.get("candidates")
     raw_relations = generated.get("relations", [])
     if not isinstance(raw_candidates, list) or len(raw_candidates) > max_candidates:
