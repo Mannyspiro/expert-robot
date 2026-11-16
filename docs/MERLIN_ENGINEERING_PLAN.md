@@ -573,3 +573,16 @@ After the initial PR creation, source review found two remaining legacy test fix
 - Added a regression proving that changing the stored adapter digest without recomputing candidate identity is rejected.
 - Re-fetched the PR metadata and both changed files at the current branch head; all expected schema/test markers are present.
 - No CI has run. This is a source-level consistency review only, not a passing test claim.
+
+
+## 24. 2026-11-16 Hermes provenance trust-boundary integration
+
+PR #172 has been retargeted onto PR #175's immutable-provenance branch so the Hermes adapter is stacked on the schema it consumes. The Hermes stage now receives generator provenance as a separate runtime configuration argument; the injected model/generator response is limited to candidates and relations. A response that attempts to include its own `generator` metadata is rejected. The full runtime-supplied provenance object is passed to Ideonomy identity construction and persistence validation.
+
+- The runtime contract requires generator ID/version, immutable provider revision, prompt digest, generation configuration digest, and adapter build digest.
+- Candidate IDs and candidate-set identity continue to bind the complete provenance object.
+- Hermes registration fails closed if only the generator or only its provenance is supplied.
+- This is a declaration boundary, not a provider attestation. A trusted provider receipt/adapter attestation and independent CACE receipt remain absent; no capability qualification or production dispatch is authorized.
+- This is source-level only. No CI was run, no worker was dispatched, and no PR was merged.
+
+**Remaining operational gate:** cancellation still cannot interrupt a blocked generator call, and the task memory estimate is not OS-enforced. Production dispatch remains blocked until an external supervisor enforces deadlines, process-tree termination, memory/CPU limits, and secret/network/filesystem isolation. Crash-safe replay and Logos/CACE stages remain separate work.
