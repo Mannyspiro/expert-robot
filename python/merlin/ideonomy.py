@@ -99,6 +99,7 @@ def enumerate_ideonomy_candidates(
     max_relations: int = MAX_IDEONOMY_RELATIONS,
     max_input_characters: int = MAX_IDEONOMY_INPUT_CHARS,
     generator_provenance: Mapping[str, Any] | None = None,
+    idempotency_key: str | None = None,
 ) -> dict[str, Any]:
     """Ask an injected generator for source-indexed candidates and validate them.
 
@@ -168,6 +169,7 @@ def enumerate_ideonomy_candidates(
         "source_artifact_refs": inspection["source_artifact_refs"],
         "source_bindings": source_binding_entries,
         "segments": segments,
+        "idempotency_key": idempotency_key,
         "limits": {
             "max_candidates": max_candidates,
             "max_relations": max_relations,
