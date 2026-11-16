@@ -11,7 +11,7 @@ from dataclasses import asdict, dataclass
 from hashlib import sha256
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import re
 import subprocess
 import time
@@ -60,6 +60,14 @@ def _loopback_base_url(value: str) -> str:
             parsed.password or parsed.query or parsed.fragment):
         raise ValueError("media worker endpoint must be an HTTP loopback URL")
     return value.rstrip("/")
+
+
+def _sha256_file(path: Path) -> str:
+    digest = sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def _safe_output_dir(value: str | Path) -> Path:
@@ -112,10 +120,11 @@ def _download_output(base_url: str, file_row: Mapping[str, Any],
     filename = file_row.get("filename") or file_row.get("name")
     subfolder = file_row.get("subfolder", "")
     file_type = file_row.get("type", "output")
-    if (not isinstance(filename, str) or not filename or
+    if (not isinstance(filename, str) or not filename or "\\" in filename or "\\x00" in filename or
             Path(filename).name != filename or filename in {".", ".."}):
         raise MediaWorkerError("ComfyUI returned an unsafe output filename")
-    if not isinstance(subfolder, str) or Path(subfolder).is_absolute() or ".." in Path(subfolder).parts:
+    if (not isinstance(subfolder, str) or "\\" in subfolder or "\\x00" in subfolder or
+            PurePosixPath(subfolder).is_absolute() or ".." in PurePosixPath(subfolder).parts):
         raise MediaWorkerError("ComfyUI returned an unsafe output subfolder")
     if file_type not in {"output", "temp", "input"}:
         raise MediaWorkerError("ComfyUI returned an unsupported output type")
@@ -129,7 +138,7 @@ def _download_output(base_url: str, file_row: Mapping[str, Any],
     if not content:
         raise MediaWorkerError("ComfyUI returned an empty output")
     target = output_dir / filename
-    if target.exists():
+    if target.exists() or target.is_symlink():
         raise MediaWorkerError("output filename collision; refusing to overwrite an artifact")
     target.write_bytes(content)
     return {"path": str(target), "filename": filename, "size_bytes": len(content),
@@ -298,7 +307,7 @@ class BlenderWorker:
             "s.render.resolution_y=64; "
             f"s.render.resolution_percentage={resolution_scale}"
         )
-        argv = [str(self.executable), "--background", "--disable-autoexec", str(scene_path),
+        argv = [str(self.executable), "--background", "--disable-autoexec", "--threads", "1", str(scene_path),
                 "--python-expr", render_setup,
                 "--render-output", str(output_prefix), "--render-format", "PNG",
                 "--render-frame", str(frame)]
@@ -353,5 +362,7 @@ class BlenderWorker:
             duration_ms=max(0, int((time.monotonic() - monotonic_start) * 1000)),
             input_sha256=input_digest, outputs=tuple(outputs), log=log,
             resource={"timeout_seconds": self.timeout_seconds,
+                      "worker_architecture": __import__("platform").machine(),
+                      "executable_sha256": _sha256_file(self.executable),
                       "telemetry_source": "host process runtime; detailed CPU/GPU metrics unavailable"},
         )
