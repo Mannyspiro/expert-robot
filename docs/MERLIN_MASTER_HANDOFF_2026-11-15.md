@@ -290,3 +290,10 @@ When continuing, read these documents and inspect the exact current PR heads and
 1. Obtain an authorized, cost-confirmed free OCI execution path or workflow-dispatch capability, then run only the already-approved exact-head validation for Expert Robot #171 and CACE #102. Do not create artificial commits to trigger CI.
 2. Once #171 is validated, run the new #172 focused tests on its latest head. Until then, keep the Ideonomy Hermes stage draft and candidate-only.
 3. After both stages validate, add Logos as a separate adversarial-review artifact (counterexamples, hidden assumptions, contradictions, alternative explanations and falsifiable tests). Logos output must remain non-evidence and cannot promote hypotheses.
+
+
+### Additional Hermes Ideonomy review — 2026-11-15
+
+A second resource-boundary review found that the initial stage translated memory bytes to input characters at 4 bytes per character. This did not conservatively account for Python string, list, mapping and source-binding expansion. PR #172 now uses a 32-bytes-per-input-character admission estimate, rejects memory budgets below 32 bytes, and includes a regression test asserting the derived input cap. The stage documentation explicitly states that this is only admission control: MCFC/worker isolation must enforce the actual process memory limit around the injected generator. This distinction prevents a request-level budget from being misrepresented as a hard runtime sandbox.
+
+Latest PR #172 head is `d511b981d9513e8a8dcaf155b5d8372676a5ceb3`; all follow-up changes use `[skip ci]`. The added budget regression test and hypothesis-validation regression test are **not runtime-tested**. PR remains draft and stacked on #171. No CI, OCI, Avrea, paid compute, merge or deployment was initiated.
