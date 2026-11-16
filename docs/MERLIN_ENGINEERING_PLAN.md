@@ -234,3 +234,50 @@ No dependency is adopted solely because it is popular. Evaluate license compatib
 - Avrea remains unavailable until 2026-12-01; use OCI only when available and justified by preflight. Avoid duplicate or broad runner dispatches.
 
 **Immediate next action:** repair and compile the three local Lean proof seams with focused tests, then rerun the quarantined standalone target once. Only after it passes should the next promotion stage be considered. In parallel, inventory existing Expert Robot modules and reuse them to implement the P1 vertical slice; do not rebuild its existing imagination, skeptic, cognition, or recursive-lemma machinery.
+
+
+## 13. Append-only plan update — 2026-11-15 creative-toolchain evidence
+
+**Parent plan:** revision 2026-11-15, this document before this append.  
+**Update type:** evidence-driven checkpoint; no prior plan text is rewritten.  
+**Source/evidence references:**
+- Expert Robot creative intake PR: https://github.com/Mannyspiro/expert-robot/pull/173
+- Exact PR head: `10e52ea57d3542a1c303cf11e049a2cd8eb222b8`
+- Exact-head CI run: https://github.com/Mannyspiro/expert-robot/actions/runs/43790408866
+- CACE RP² failure run: https://github.com/morganaspim/Cace-app/actions/runs/43741255348
+- CACE latest RP² source-code head reviewed: `03709c8c2c3f0fa6515a5f7aaecebb50a451c7cc` (subsequent handoff-only commits may advance the PR head; this is the reviewed Lean source revision, not a successful compile).
+
+### New observations
+
+1. Expert Robot PR #173 records the Blender and ComfyUI archive intake and qualification gates. Its exact-head repository CI passed. This establishes the documentation/regression state only; it does not establish either application's runtime readiness.
+2. Blender 5.3.0 archive SHA-256: `dacb8264197a3f7fda6001285a5a506fc97ee943881261c2c3bd63c882f22e05`. The archive passed a complete streamed TAR/XZ integrity check and contains an ELF64 x86-64 executable. It has not been installed or executed.
+3. ComfyUI archive SHA-256: `d04633f43a85041453f21c7970b4ec3881c3dd2acf4e78b535c7b44eeeeed62b`. ZIP CRC passed. The source reports version 0.45.0 and GPL-3.0; the archive contains 116 JSON workflow blueprints but no model weights and no `.git` metadata. Its upstream commit is therefore not pinned by this archive.
+4. The existing CACE OCI execution lane is ARM64/AArch64. It cannot execute the Blender x86-64 binary natively. Avrea is treated as unavailable until 2026-12-01. Do not route x86-64 media execution to the ARM64 lane or assume another runner label is accessible without live evidence.
+5. Merlin's current API still reports `media.image` and `media.video` as `NOT_CONFIGURED`; no ComfyUI or Blender integration is present in `python/merlin/app.py`. This is the correct fail-closed status.
+6. The CACE RP² Lean source has not been compiled on reviewed source head `03709c8...`. The earlier exact-pin run is a preserved FAIL, not qualification. The candidate H0/H1/H2 integer-matrix decomposition in the handoff remains a proof plan until encoded and checked in Lean.
+
+### Hypotheses and counter-hypotheses
+
+- **H1:** ComfyUI can provide the first bounded image-generation execution adapter without requiring a second orchestration system. Test with its loopback API and a deterministic built-in workflow before adding model weights.
+- **H2:** Blender should be a separate headless worker adapter, not embedded in the Merlin HTTP process. Test with a tiny CPU scene/render and a complete execution receipt.
+- **Counter-hypothesis:** the current target runner may not have sufficient x86-64, RAM, disk or GPU resources for a useful model-backed workflow. No model or GPU choice should be made until worker telemetry is available.
+- **H3:** the RP² source corrections may fix the previously observed Lean rewrite failures. Counter-hypothesis: the changes may expose further elaboration, algebraic, or theorem-statement issues. Only an exact-head compile can discriminate.
+
+### Revised ranked next actions
+
+1. **RP² exact-source proof gate (P0, blocked on a suitable approved execution window):** compile the reviewed Lean source at its exact immutable commit; if it fails, isolate the smallest failing rewrite/composition lemma, add a regression test and update the failure ledger. Do not claim homology classification until H0/H1/H2 are proved in Lean and the exact target passes.
+2. **Media adapter contract and deterministic preflight (P3 preparation, low compute):** design separate typed ComfyUI and Blender adapters with bounded request schemas, loopback-only defaults, deadlines, cancellation, health/queue polling, output-size caps, logs, resource telemetry, output digests, and provenance receipts. Keep both capabilities `UNAVAILABLE/UNQUALIFIED` until their own tests pass.
+3. **ComfyUI first vertical slice:** pin the upstream source revision and dependencies; run one built-in non-generative brightness/contrast workflow without model weights; prove queue -> execution -> output retrieval -> artifact registry -> provenance capture. Do not expose the ComfyUI server publicly.
+4. **Blender worker qualification:** on a confirmed Linux x86-64 worker, run a tiny CPU-only headless scene and capture exact binary version, arguments, scene digest, output digest, exit status, runtime and resource telemetry. Keep this separate from ComfyUI.
+5. **Model selection only after preflight:** catalogue each candidate weight by exact upstream revision, SHA-256, license, model family, workflow compatibility, memory/VRAM requirement and provenance. Do not download large weights before worker capacity and license review are known.
+
+### Budget, approval and acceptance gates
+
+- No Avrea-dependent work before 2026-12-01 under the current availability assumption.
+- No CACE ARM64 attempt for the Blender x86-64 binary.
+- No broad Actions dispatch solely to create activity; use focused static/unit checks first and preserve the current successful exact-head CI evidence.
+- No model-weight downloads or public ComfyUI endpoint.
+- No capability promotion, merge, deployment or signer/credential changes.
+- Acceptance requires exact source identity, reproducible tool/dependency versions, bounded execution, retained success and failure artifacts, artifact digest verification, and an independent verifier receipt where the result is trust-bearing.
+
+**Plan decision:** preserve the existing P0 RP² repair priority. In parallel, prepare the media adapters as isolated, unqualified modules; do not allow the creative-toolchain intake to displace the P1 end-to-end Hermes/Ideonomy/MCFC/Logos/registry vertical slice.
