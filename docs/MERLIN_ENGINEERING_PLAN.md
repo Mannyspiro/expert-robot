@@ -281,3 +281,39 @@ No dependency is adopted solely because it is popular. Evaluate license compatib
 - Acceptance requires exact source identity, reproducible tool/dependency versions, bounded execution, retained success and failure artifacts, artifact digest verification, and an independent verifier receipt where the result is trust-bearing.
 
 **Plan decision:** preserve the existing P0 RP² repair priority. In parallel, prepare the media adapters as isolated, unqualified modules; do not allow the creative-toolchain intake to displace the P1 end-to-end Hermes/Ideonomy/MCFC/Logos/registry vertical slice.
+
+
+## 14. Append-only plan update — media worker adapter implementation
+
+**Parent plan:** commit `2d645ea7a1ff0fdeb022cce0d583c181204c24d3`.  
+**Implementation PR:** https://github.com/Mannyspiro/expert-robot/pull/174  
+**Reviewed PR head:** `b4adeac2389608c071039ad96e3ac2b81d3d4078`  
+**Branch:** `feat/merlin-media-worker-adapters-20261115`.
+
+### Implemented in the candidate branch
+
+- Added `python/merlin/media_workers.py` with separate ComfyUI and Blender worker adapters.
+- ComfyUI adapter uses loopback-only HTTP, bounded workflow payload/node count, job polling, cancellation on deadline, the inspected ComfyUI jobs API output grouping, bounded output count/aggregate bytes, safe output filenames, and SHA-256 output receipts.
+- Blender adapter uses an absolute executable, `shell=False`, `--disable-autoexec`, a fixed low-resolution single-frame render, workspace-contained scene/output paths, a bounded process deadline, a version probe, and SHA-256 output receipts.
+- Both produce execution-only receipts with explicit non-verification status and telemetry limitations.
+- Added `tests/test_media_workers.py` and included it in the focused CI media-test step.
+- Added `docs/MERLIN_MEDIA_WORKER_ADAPTERS.md` with worker isolation, trust boundaries and qualification gates.
+
+### Skeptical review and remaining uncertainty
+
+- The ComfyUI API shape was inspected directly in the uploaded 0.45.0 source archive: `/prompt`, `/api/jobs/{job_id}`, `/api/jobs/{job_id}/cancel`, and `/view`; job outputs are grouped by node and media type. The source archive still has no `.git` metadata, so the upstream commit is not pinned.
+- The adapter's unit tests are committed but have **not yet been executed**. The PR is draft and no PR-triggered workflow run or commit status was returned at the time of this update. Do not report tests as passing.
+- Neither worker has been executed against a real runtime. No actual image or render output has been produced by these adapters.
+- The ComfyUI loopback endpoint is not a security sandbox. Both workers require isolated execution environments with no secrets and restricted filesystem/network access before handling untrusted workflows or scene files.
+- The current implementation is not yet integrated with the canonical artifact registry, Hermes jobs, MCFC leases, or CACE. Media capabilities remain unavailable/unqualified.
+
+### Revised next actions
+
+1. Run the new focused unit suite in an approved CI window; fix any failing tests before further integration.
+2. Pin ComfyUI to an immutable upstream commit and lock its dependency set; keep the archive hash as intake evidence, not a substitute for upstream identity.
+3. Add a worker supervisor boundary that provides isolation, process/resource limits, cancellation, and telemetry before accepting untrusted media jobs.
+4. Integrate completed outputs into the canonical registry with immutable artifact versions and provenance bound to the deployed Merlin source commit and worker/tool digests.
+5. Add Hermes/MCFC durable job leases, idempotency, heartbeats and outbox acknowledgements; preserve the execution-only versus independently-verified distinction.
+6. Only after those gates, run the deterministic ComfyUI workflow and tiny Blender CPU scene on a qualified Linux x86-64 worker. Keep model-weight selection deferred until GPU/VRAM and licensing are measured.
+
+**Decision:** the isolated adapter code is a candidate implementation, not a production capability. No API exposure, capability-state promotion, CACE verification, merge or deployment is authorized by this plan update.
