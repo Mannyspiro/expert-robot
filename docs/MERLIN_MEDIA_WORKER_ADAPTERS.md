@@ -11,9 +11,9 @@
 
 ## Current limitations
 
-- The ComfyUI adapter expects the installed server's `/prompt`, `/api/jobs/{id}`, `/api/jobs/{id}/cancel`, and `/view` endpoints. It must be integration-tested against the pinned ComfyUI source revision before use.
-- Blender's adapter has not been run against the uploaded binary. Its version is intentionally left unset until a real `--version` probe is captured and bound to the worker receipt.
-- Output files are written to the caller-provided workspace; registry persistence and append-only artifact provenance integration are a separate gate.
+- The ComfyUI adapter uses `/prompt`, `/api/jobs/{id}`, `/api/jobs/{id}/cancel`, and `/view`. Its job-output parser follows the inspected 0.45.0 source shape (node-keyed output groups such as `images`). It must still be integration-tested against a pinned upstream commit before use.
+- Blender's adapter has not been run against the uploaded binary. It performs a bounded `--version` probe and includes the returned version string when available; the executable digest still needs to be recorded in the later registry-backed qualification receipt.
+- Output files are written to the caller-provided workspace. ComfyUI output count and aggregate bytes are capped; Blender output bytes and execution time are capped. Registry persistence and append-only artifact provenance integration are a separate gate.
 - The adapters are not yet wired into `/api`, Hermes, MCFC leases, or the capability registry. Existing `media.image` and `media.video` states remain unavailable/unqualified.
 
 ## Preflight acceptance
