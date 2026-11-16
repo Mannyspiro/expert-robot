@@ -495,6 +495,7 @@ def build_ideonomy_stage_handler(
     repository: str,
     commit_sha: str,
     candidate_generator: Callable[[Mapping[str, Any]], Mapping[str, Any]],
+    candidate_generator_provenance: Mapping[str, Any],
 ) -> Callable[[Mapping[str, Any], Any], Mapping[str, Any]]:
     """Build a bounded Ideonomy stage that records candidates, never evidence.
 
@@ -575,6 +576,7 @@ def build_ideonomy_stage_handler(
             max_candidates=max_candidates,
             max_relations=max_relations,
             max_input_characters=max_input_characters,
+            generator_provenance=candidate_generator_provenance,
         )
         if callable(check_cancelled):
             check_cancelled()
@@ -688,6 +690,7 @@ def build_merlin_hermes_handlers(
     theorem_verifier: Callable[..., Mapping[str, Any]] | None = None,
     knowledge_extraction_executor: Callable[[Mapping[str, Any], Any], Mapping[str, Any]] | None = None,
     ideonomy_candidate_generator: Callable[[Mapping[str, Any]], Mapping[str, Any]] | None = None,
+    ideonomy_candidate_generator_provenance: Mapping[str, Any] | None = None,
 ) -> dict[str, Callable[[Mapping[str, Any], Any], Mapping[str, Any]]]:
     """Register built-in numerical/electrical engines plus real injected research/proof engines."""
     from merlin.linear_simulation import linear_ode_task_executor
@@ -709,13 +712,16 @@ def build_merlin_hermes_handlers(
         lean_tool_version=lean_tool_version,
         knowledge_extraction_executor=knowledge_extraction_executor,
     )
-    if ideonomy_candidate_generator is not None:
+    if ideonomy_candidate_generator is not None or ideonomy_candidate_generator_provenance is not None:
+        if ideonomy_candidate_generator is None or ideonomy_candidate_generator_provenance is None:
+            raise ValueError("Ideonomy registration requires both a generator and runtime-owned provenance")
         handlers["ideonomy_enumeration"] = build_ideonomy_stage_handler(
             evidence_recorder=evidence_recorder,
             project_id=project_id,
             repository=repository,
             commit_sha=commit_sha,
             candidate_generator=ideonomy_candidate_generator,
+            candidate_generator_provenance=ideonomy_candidate_generator_provenance,
         )
     return handlers
 
