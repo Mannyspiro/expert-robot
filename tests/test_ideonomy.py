@@ -85,9 +85,14 @@ class IdeonomyTests(unittest.TestCase):
 
     def test_generator_provenance_is_required_and_bound_into_candidate_identity(self):
         incomplete = {"id": "test.ideonomy", "version": "1.0.0"}
+        called = []
+        def should_not_run(request):
+            called.append(request)
+            return self._generator(request)
         with self.assertRaisesRegex(ValueError, "trusted runtime generator provenance"):
-            self._enumerate(self.registry, self.extraction_ref, self._generator,
+            self._enumerate(self.registry, self.extraction_ref, should_not_run,
                             generator_provenance=incomplete)
+        self.assertEqual(called, [])
 
         mutable = dict(self.GENERATOR_PROVENANCE)
         mutable["provider_revision"] = "latest"
