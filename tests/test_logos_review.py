@@ -120,6 +120,51 @@ class LogosReviewContractTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "candidate identity"):
             validate_logos_review(candidate_set, self.valid_output)
 
+    def test_exact_quotation_is_accepted_only_when_present_in_cited_segment(self):
+        import copy
+        output = copy.deepcopy(self.valid_output)
+        output["candidate_reviews"][0]["findings"] = [{
+            "kind": "quotation", "text": "A candidate statement.",
+            "source_binding_indexes": [0],
+        }]
+        segments = [{
+            "byte_range": {"start": 0, "end": 24},
+            "text": "A candidate statement.",
+        }]
+        result = validate_logos_review(
+            self.candidate_set, output, source_segments=segments,
+        )
+        self.assertEqual(
+            result["candidate_reviews"][0]["findings"][0]["text"],
+            "A candidate statement.",
+        )
+
+    def test_fabricated_quotation_is_rejected_even_with_valid_locator(self):
+        import copy
+        output = copy.deepcopy(self.valid_output)
+        output["candidate_reviews"][0]["findings"] = [{
+            "kind": "quotation", "text": "This text is not in the source.",
+            "source_binding_indexes": [0],
+        }]
+        segments = [{
+            "byte_range": {"start": 0, "end": 24},
+            "text": "A candidate statement.",
+        }]
+        with self.assertRaisesRegex(ValueError, "does not occur"):
+            validate_logos_review(
+                self.candidate_set, output, source_segments=segments,
+            )
+
+    def test_quotation_without_verified_extraction_text_is_rejected(self):
+        import copy
+        output = copy.deepcopy(self.valid_output)
+        output["candidate_reviews"][0]["findings"] = [{
+            "kind": "quotation", "text": "A candidate statement.",
+            "source_binding_indexes": [0],
+        }]
+        with self.assertRaisesRegex(ValueError, "verified extraction text"):
+            validate_logos_review(self.candidate_set, output)
+
     def test_reviewer_provenance_rejects_mutable_provider_alias(self):
         provenance = {
             "id": "logos", "version": "1",
