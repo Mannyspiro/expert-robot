@@ -317,3 +317,16 @@ No dependency is adopted solely because it is popular. Evaluate license compatib
 6. Only after those gates, run the deterministic ComfyUI workflow and tiny Blender CPU scene on a qualified Linux x86-64 worker. Keep model-weight selection deferred until GPU/VRAM and licensing are measured.
 
 **Decision:** the isolated adapter code is a candidate implementation, not a production capability. No API exposure, capability-state promotion, CACE verification, merge or deployment is authorized by this plan update.
+
+
+## 15. Append-only correction — final media adapter candidate revision
+
+The media adapter branch advanced after the initial implementation checkpoint. The current reviewed head is now `4225d1f164b0e4ac94db037f30961c0e1cc01166`; use this SHA rather than the earlier head in section 14 when referring to the latest candidate.
+
+Additional changes:
+- ComfyUI output retrieval now enforces an aggregate byte budget while downloading and caps returned output count.
+- Output filenames/subfolders reject traversal and unsafe separators; output collisions and symlink targets are rejected.
+- Blender now disables automatic blend-file script execution, limits rendering to one thread, refuses to overwrite a previous render, probes its version, and records the executable SHA-256 and worker architecture.
+- The focused CI workflow includes `tests/test_media_workers.py`.
+
+**Verification status remains unchanged:** no CI run/status was returned for the draft PR head, the focused tests have not been executed, and neither adapter has been run against a real worker. These commits are implementation candidates only. The ComfyUI workflow itself is not sandboxed by loopback binding; an isolated worker with restricted filesystem/network access and no secrets is a prerequisite before processing untrusted workflows.
