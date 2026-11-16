@@ -207,12 +207,10 @@ class HermesIdeonomyStageTests(unittest.TestCase):
             candidate_generator=counted,
             candidate_generator_provenance=self.GENERATOR_PROVENANCE,
         )
-        original = stage_module.store_ideonomy_candidate_set
         with patch.object(stage_module, "store_ideonomy_candidate_set",
                           side_effect=RuntimeError("simulated crash before projection")):
             with self.assertRaisesRegex(RuntimeError, "simulated crash"):
                 handler(self._task(), Context())
-        first_checkpoint = handler.__closure__
         result = handler(self._task(), Context())
         self.assertEqual(result["candidate_count"], 1)
         self.assertEqual(calls, ["hermes-task-handler:ideonomy-task-1"])
