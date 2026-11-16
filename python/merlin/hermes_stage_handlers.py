@@ -26,6 +26,7 @@ from .ideonomy import (
     MAX_IDEONOMY_INPUT_CHARS, enumerate_ideonomy_candidates,
     store_ideonomy_candidate_set,
 )
+from .hermes_stage_journal import HermesStageJournal
 from .knowledge_graph import GraphEdge, GraphNode
 
 _STAGE_CONTRACTS = {
@@ -522,6 +523,7 @@ def build_ideonomy_stage_handler(
     registry = evidence_recorder.registry
     graph = evidence_recorder.graph
     ledger = evidence_recorder.ledger
+    journal = HermesStageJournal(registry.root / "hermes-stage-journal.sqlite3")
 
     def execute(task: Mapping[str, Any], context: Any) -> Mapping[str, Any]:
         if task.get("stage") != "ideonomy_enumeration":
@@ -561,25 +563,50 @@ def build_ideonomy_stage_handler(
         max_input_characters = min(requested_chars, max(1, memory_bytes // 32))
 
         # Validate the hypothesis before invoking a generator or writing any artifacts.
-        # A stale/invalid task must not leave an orphan candidate-set representation.
         hypothesis = ledger.get(context.hypothesis_id)
         check_cancelled = getattr(context, "check_cancelled", None)
         if callable(check_cancelled):
             check_cancelled()
-        context.emit_progress("Ideonomy enumerating source-bound candidates")
-        context.emit_tool_event(
-            "agent.tool.started", "merlin-ideonomy",
-            {"stage": "ideonomy_enumeration", "task_id": context.task_id},
+        idempotency_key = getattr(context, "idempotency_key", None)
+        journal_request = {
+            "task_id": context.task_id,
+            "hypothesis_id": context.hypothesis_id,
+            "stage": "ideonomy_enumeration",
+            "artifact_refs": [source_ref],
+            "experiment_spec": dict(spec),
+            "resource_budget": dict(budget),
+            "generator_provenance": dict(candidate_generator_provenance),
+        }
+        checkpoint = journal.begin(
+            idempotency_key=idempotency_key,
+            stage="ideonomy_enumeration",
+            task_id=context.task_id,
+            hypothesis_id=context.hypothesis_id,
+            request=journal_request,
         )
-        candidate_set = enumerate_ideonomy_candidates(
-            registry,
-            source_ref,
-            candidate_generator,
-            max_candidates=max_candidates,
-            max_relations=max_relations,
-            max_input_characters=max_input_characters,
-            generator_provenance=candidate_generator_provenance,
-        )
+        if checkpoint["state"] == "completed":
+            return checkpoint["result"]
+        if checkpoint["candidate_set"] is not None:
+            candidate_set = checkpoint["candidate_set"]
+        else:
+            context.emit_progress("Ideonomy enumerating source-bound candidates")
+            context.emit_tool_event(
+                "agent.tool.started", "merlin-ideonomy",
+                {"stage": "ideonomy_enumeration", "task_id": context.task_id},
+            )
+            candidate_set = enumerate_ideonomy_candidates(
+                registry,
+                source_ref,
+                candidate_generator,
+                max_candidates=max_candidates,
+                max_relations=max_relations,
+                max_input_characters=max_input_characters,
+                generator_provenance=candidate_generator_provenance,
+                idempotency_key=idempotency_key,
+            )
+            # Checkpoint before registry/graph writes so a crash during projection
+            # resumes from the exact generated candidate set rather than regenerating.
+            journal.save_generated(idempotency_key, candidate_set)
         if callable(check_cancelled):
             check_cancelled()
         stored = store_ideonomy_candidate_set(
@@ -638,7 +665,7 @@ def build_ideonomy_stage_handler(
         context.emit_progress(
             f"Ideonomy stored {candidate_set['candidate_count']} unverified, source-bound candidates."
         )
-        return {
+        result = {
             "schema": "merlin-hermes-ideonomy-result/1",
             "stage": "ideonomy_enumeration",
             "summary": (
@@ -672,6 +699,7 @@ def build_ideonomy_stage_handler(
             "hypothesis_status_unchanged": ledger.get(context.hypothesis_id).status == hypothesis.status,
             "promotion_authority": False,
         }
+        return journal.complete(idempotency_key, result)
 
     return execute
 
