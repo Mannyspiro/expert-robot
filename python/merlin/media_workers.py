@@ -289,6 +289,8 @@ class BlenderWorker:
             raise ValueError("scene file exceeds the configured input limit")
         input_digest = sha256(scene_bytes).hexdigest()
         output_prefix = out_dir / "merlin-frame-"
+        if any(out_dir.glob("merlin-frame-*.png")):
+            raise MediaWorkerError("Blender output path already contains a prior render; refusing to overwrite")
         render_setup = (
             "import bpy; "
             "s=bpy.context.scene; "
@@ -296,7 +298,7 @@ class BlenderWorker:
             "s.render.resolution_y=64; "
             f"s.render.resolution_percentage={resolution_scale}"
         )
-        argv = [str(self.executable), "--background", str(scene_path),
+        argv = [str(self.executable), "--background", "--disable-autoexec", str(scene_path),
                 "--python-expr", render_setup,
                 "--render-output", str(output_prefix), "--render-format", "PNG",
                 "--render-frame", str(frame)]
