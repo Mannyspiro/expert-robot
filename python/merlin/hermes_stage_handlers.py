@@ -28,6 +28,7 @@ from .ideonomy import (
 )
 from .hermes_stage_journal import HermesStageJournal
 from .knowledge_graph import GraphEdge, GraphNode
+from .logos_review import build_logos_review_stage_handler
 
 _STAGE_CONTRACTS = {
     "research": {
@@ -721,6 +722,8 @@ def build_merlin_hermes_handlers(
     knowledge_extraction_executor: Callable[[Mapping[str, Any], Any], Mapping[str, Any]] | None = None,
     ideonomy_candidate_generator: Callable[[Mapping[str, Any]], Mapping[str, Any]] | None = None,
     ideonomy_candidate_generator_provenance: Mapping[str, Any] | None = None,
+    logos_reviewer: Callable[[Mapping[str, Any]], Mapping[str, Any]] | None = None,
+    logos_reviewer_provenance: Mapping[str, Any] | None = None,
 ) -> dict[str, Callable[[Mapping[str, Any], Any], Mapping[str, Any]]]:
     """Register built-in numerical/electrical engines plus real injected research/proof engines."""
     from merlin.linear_simulation import linear_ode_task_executor
@@ -753,10 +756,23 @@ def build_merlin_hermes_handlers(
             candidate_generator=ideonomy_candidate_generator,
             candidate_generator_provenance=ideonomy_candidate_generator_provenance,
         )
+    if logos_reviewer is not None or logos_reviewer_provenance is not None:
+        if logos_reviewer is None or logos_reviewer_provenance is None:
+            raise ValueError("Logos registration requires both a reviewer and runtime-owned provenance")
+        handlers["logos_review"] = build_logos_review_stage_handler(
+            registry=evidence_recorder.registry,
+            graph=evidence_recorder.graph,
+            project_id=project_id,
+            repository=repository,
+            commit_sha=commit_sha,
+            reviewer=logos_reviewer,
+            reviewer_provenance=logos_reviewer_provenance,
+        )
     return handlers
 
 
 __all__ = [
     "build_hermes_stage_handlers", "build_merlin_hermes_handlers",
     "build_text_extraction_executor", "build_ideonomy_stage_handler",
+    "build_logos_review_stage_handler",
 ]
