@@ -108,7 +108,7 @@ def _http_json(base_url: str, path: str, *, method: str = "GET",
 
 
 def _download_output(base_url: str, file_row: Mapping[str, Any],
-                     output_dir: Path) -> dict[str, Any]:
+                     output_dir: Path, byte_limit: int) -> dict[str, Any]:
     filename = file_row.get("filename") or file_row.get("name")
     subfolder = file_row.get("subfolder", "")
     file_type = file_row.get("type", "output")
@@ -123,7 +123,7 @@ def _download_output(base_url: str, file_row: Mapping[str, Any],
     request = Request(base_url + "/view?" + query, headers={"Accept": "application/octet-stream"})
     try:
         with urlopen(request, timeout=10.0) as response:
-            content = _read_bounded(response, MAX_OUTPUT_BYTES)
+            content = _read_bounded(response, byte_limit)
     except (HTTPError, URLError, TimeoutError, OSError) as exc:
         raise MediaWorkerError(f"ComfyUI output retrieval failed: {type(exc).__name__}") from exc
     if not content:
@@ -213,15 +213,25 @@ class ComfyUIWorker:
             flattened.extend(entry for entry in rows if isinstance(entry, Mapping))
         if not flattened:
             raise MediaWorkerError("ComfyUI completed without output files")
-        outputs = tuple(_download_output(self.base_url, row, self.output_dir)
-                        for row in flattened)
+        if len(flattened) > 32:
+            raise MediaWorkerError("ComfyUI returned more than 32 output files")
+        collected: list[dict[str, Any]] = []
+        total = 0
+        try:
+            for row in flattened:
+                remaining = self.max_output_bytes - total
+                if remaining <= 0:
+                    raise MediaWorkerError("ComfyUI outputs exceed the configured aggregate byte limit")
+                item = _download_output(self.base_url, row, self.output_dir, remaining)
+                collected.append(item)
+                total += item["size_bytes"]
+        except Exception:
+            for item in collected:
+                Path(item["path"]).unlink(missing_ok=True)
+            raise
+        outputs = tuple(collected)
         if not outputs:
             raise MediaWorkerError("ComfyUI completed without retrievable output files")
-        total = sum(row["size_bytes"] for row in outputs)
-        if total > self.max_output_bytes:
-            for row in outputs:
-                Path(row["path"]).unlink(missing_ok=True)
-            raise MediaWorkerError("ComfyUI outputs exceed the configured aggregate byte limit")
         finished = time.time()
         return MediaExecutionReceipt(
             schema="merlin-media-execution/1", worker="comfyui",
@@ -259,12 +269,15 @@ class BlenderWorker:
     def execute(self, scene: str | Path, output_dir: str | Path, *,
                 frame: int = 1, resolution_scale: int = 25) -> MediaExecutionReceipt:
         scene_path = Path(scene).expanduser().resolve()
-        out_dir = _safe_output_dir(output_dir)
+        out_dir = Path(output_dir).expanduser().resolve()
         try:
             scene_path.relative_to(self.workspace)
             out_dir.relative_to(self.workspace)
         except ValueError as exc:
             raise ValueError("scene and output directory must remain inside the worker workspace") from exc
+        out_dir.mkdir(parents=True, exist_ok=True)
+        if not out_dir.is_dir():
+            raise ValueError("Blender output path must be a directory")
         if not scene_path.is_file() or scene_path.suffix.lower() != ".blend":
             raise ValueError("scene must be an existing .blend file")
         if not isinstance(frame, int) or not 1 <= frame <= 100000:
