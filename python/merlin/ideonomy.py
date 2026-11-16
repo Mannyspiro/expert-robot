@@ -347,7 +347,7 @@ def enumerate_ideonomy_candidates(
         "source_representation_ref": inspection["representation_ref"],
         "source_representation_id": inspection["representation_id"],
         "source_artifact_refs": inspection["source_artifact_refs"],
-        "generator": {"id": generator_id, "version": generator_version},
+        "generator": generator_provenance,
         "candidate_count": len(candidates),
         "relation_count": len(relations),
         "candidates": candidates,
