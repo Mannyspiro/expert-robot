@@ -415,7 +415,7 @@ class HermesIdeonomyStageTests(unittest.TestCase):
 
         task = {
             "stage": "logos_review",
-            "artifact_refs": [enumeration["stored_representation"]["representation_ref"]],
+            "artifact_refs": [candidate_set_ref],
             "resource_budget": {"memory_bytes": 2_000_000},
         }
         handler(task, LogosContext())
