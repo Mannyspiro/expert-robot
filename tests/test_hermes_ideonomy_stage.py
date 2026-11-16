@@ -11,8 +11,10 @@ from merlin.research_evidence import ResearchEvidenceRecorder
 from merlin.text_extractor import store_text_extraction
 from merlin.hermes_stage_handlers import (
     build_ideonomy_stage_handler,
+    build_logos_review_stage_handler,
     build_merlin_hermes_handlers,
 )
+from merlin.knowledge_reconstruction import inspect_knowledge_representation
 
 
 class Context:
@@ -294,6 +296,123 @@ class HermesIdeonomyStageTests(unittest.TestCase):
             handler(self._task(), Cancelled())
         self.assertEqual(called, [])
 
+
+    def test_logos_stage_persists_exact_source_bound_review_and_replays(self):
+        enumeration = self._handler()(self._task(), Context())
+        candidate_set = enumeration["candidate_set"]
+        candidate_id = candidate_set["candidates"][0]["candidate_id"]
+        reviewer_calls = []
+
+        def reviewer(request):
+            reviewer_calls.append(request)
+            return {
+                "candidate_reviews": [{
+                    "candidate_id": candidate_id,
+                    "disposition": "retain_for_testing",
+                    "rationale": "The locator is relevant but does not prove the candidate.",
+                    "findings": [{
+                        "kind": "interpretation",
+                        "text": "This is a cautious interpretation.",
+                        "source_binding_indexes": [0],
+                    }],
+                }],
+                "counter_hypotheses": [{
+                    "candidate_id": candidate_id,
+                    "statement": "A different interpretation may fit.",
+                    "source_binding_indexes": [0],
+                }],
+                "falsifiability_questions": [{
+                    "candidate_id": candidate_id,
+                    "statement": "What observation would falsify this?",
+                    "source_binding_indexes": [],
+                }],
+                "limitations": ["One source was inspected."],
+            }
+
+        provenance = {
+            "id": "test.logos", "version": "1.0",
+            "provider_revision": "test-reviewer-build-2026-11-16.1",
+            "prompt_digest": "4" * 64, "config_digest": "5" * 64,
+            "adapter_digest": "6" * 64,
+        }
+        handler = build_logos_review_stage_handler(
+            registry=self.registry, graph=self.graph, project_id="merlin",
+            repository="Mannyspiro/expert-robot", commit_sha="b" * 40,
+            reviewer=reviewer, reviewer_provenance=provenance,
+        )
+
+        class LogosContext(Context):
+            task_id = "logos-review-task-1"
+            idempotency_key = "hermes-task-handler:logos-review-task-1"
+
+        task = {
+            "stage": "logos_review",
+            "artifact_refs": [enumeration["stored_representation"]["representation_ref"]],
+            "resource_budget": {"memory_bytes": 2_000_000},
+        }
+        first = handler(task, LogosContext())
+        replay = handler(task, LogosContext())
+        self.assertEqual(first, replay)
+        self.assertEqual(len(reviewer_calls), 1)
+        self.assertTrue(first["artifact"]["registry_verified"])
+        self.assertFalse(first["qualification"])
+        self.assertEqual(first["authority"], "skeptical_review_only")
+
+        inspection = inspect_knowledge_representation(
+            self.registry, first["artifact"]["artifact_ref"],
+        )
+        review = inspection["manifest"]["payload"]
+        self.assertEqual(review["candidate_set_id"], candidate_set["candidate_set_id"])
+        self.assertEqual(review["reviewer_provenance"], provenance)
+        self.assertEqual(review["epistemic_status"], "unverified")
+        self.assertFalse(review["promotion_authority"])
+
+        neighbors = self.graph.neighbors(
+            "knowledge-representation:" + inspection["representation_id"], "out",
+        )
+        review_edges = [edge for edge in neighbors if edge["relation"] == "reviews"]
+        self.assertEqual(len(review_edges), 1)
+        self.assertEqual(
+            review_edges[0]["target_id"],
+            "knowledge-representation:" + enumeration["stored_representation"]["representation_id"],
+        )
+
+    def test_logos_stage_rejects_reused_idempotency_key_with_changed_budget(self):
+        enumeration = self._handler()(self._task(), Context())
+        candidate_id = enumeration["candidate_set"]["candidates"][0]["candidate_id"]
+        provenance = {
+            "id": "test.logos", "version": "1.0",
+            "provider_revision": "test-reviewer-build-2026-11-16.1",
+            "prompt_digest": "4" * 64, "config_digest": "5" * 64,
+            "adapter_digest": "6" * 64,
+        }
+        handler = build_logos_review_stage_handler(
+            registry=self.registry, graph=self.graph, project_id="merlin",
+            repository="Mannyspiro/expert-robot", commit_sha="b" * 40,
+            reviewer=lambda request: {
+                "candidate_reviews": [{
+                    "candidate_id": candidate_id, "disposition": "challenge",
+                    "rationale": "Test response.", "findings": [],
+                }],
+                "counter_hypotheses": [], "falsifiability_questions": [],
+                "limitations": [],
+            },
+            reviewer_provenance=provenance,
+        )
+
+        class LogosContext(Context):
+            task_id = "logos-review-task-conflict"
+            idempotency_key = "hermes-task-handler:logos-review-task-conflict"
+
+        task = {
+            "stage": "logos_review",
+            "artifact_refs": [enumeration["stored_representation"]["representation_ref"]],
+            "resource_budget": {"memory_bytes": 2_000_000},
+        }
+        handler(task, LogosContext())
+        changed = {**task, "resource_budget": {"memory_bytes": 2_100_000}}
+        with self.assertRaisesRegex(ValueError, "already bound to different stage inputs"):
+            handler(changed, LogosContext())
 
     def test_standard_hermes_composition_registers_optional_logos_stage(self):
         provenance = {
