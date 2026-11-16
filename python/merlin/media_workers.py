@@ -116,7 +116,7 @@ def _http_json(base_url: str, path: str, *, method: str = "GET",
 
 
 def _download_output(base_url: str, file_row: Mapping[str, Any],
-                     output_dir: Path, byte_limit: int) -> dict[str, Any]:
+                     output_dir: Path, byte_limit: int, timeout: float = 10.0) -> dict[str, Any]:
     filename = file_row.get("filename") or file_row.get("name")
     subfolder = file_row.get("subfolder", "")
     file_type = file_row.get("type", "output")
@@ -131,7 +131,7 @@ def _download_output(base_url: str, file_row: Mapping[str, Any],
     query = urlencode({"filename": filename, "subfolder": subfolder, "type": file_type})
     request = Request(base_url + "/view?" + query, headers={"Accept": "application/octet-stream"})
     try:
-        with urlopen(request, timeout=10.0) as response:
+        with urlopen(request, timeout=timeout) as response:
             content = _read_bounded(response, byte_limit)
     except (HTTPError, URLError, TimeoutError, OSError) as exc:
         raise MediaWorkerError(f"ComfyUI output retrieval failed: {type(exc).__name__}") from exc
@@ -178,7 +178,7 @@ class ComfyUIWorker:
         started = time.time()
         deadline = self.clock() + self.timeout_seconds
         submission = _http_json(self.base_url, "/prompt", method="POST",
-                                payload={"prompt": workflow}, timeout=10.0)
+                                payload={"prompt": workflow}, timeout=min(10.0, self.timeout_seconds))
         job_id = submission.get("prompt_id") or submission.get("job_id")
         if not isinstance(job_id, str) or not JOB_ID_RE.fullmatch(job_id):
             raise MediaWorkerError("ComfyUI did not return a valid job identifier")
@@ -197,7 +197,9 @@ class ComfyUIWorker:
                 except MediaWorkerError:
                     pass
                 raise MediaWorkerError("ComfyUI job exceeded its execution deadline")
-            state = _http_json(self.base_url, f"/api/jobs/{job_id}", timeout=5.0)
+            remaining_time = max(0.1, deadline - self.clock())
+            state = _http_json(self.base_url, f"/api/jobs/{job_id}",
+                               timeout=min(5.0, remaining_time))
             status = str(state.get("status", "")).lower()
             log_rows.append(f"job={job_id} status={status or 'unknown'}")
             if status in {"failed", "error"}:
@@ -231,7 +233,9 @@ class ComfyUIWorker:
                 remaining = self.max_output_bytes - total
                 if remaining <= 0:
                     raise MediaWorkerError("ComfyUI outputs exceed the configured aggregate byte limit")
-                item = _download_output(self.base_url, row, self.output_dir, remaining)
+                remaining_time = max(0.1, deadline - self.clock())
+                item = _download_output(self.base_url, row, self.output_dir, remaining,
+                                        timeout=min(10.0, remaining_time))
                 collected.append(item)
                 total += item["size_bytes"]
         except Exception:
