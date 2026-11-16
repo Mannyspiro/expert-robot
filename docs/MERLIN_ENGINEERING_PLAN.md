@@ -600,3 +600,8 @@ This is a source-level correction only. No tests or CI were executed; exact-head
 Added `HermesStageJournal` for the Ideonomy stage. It binds the stable Hermes task idempotency key to stage/task/hypothesis identity and a canonical request digest; reusing a key with changed inputs fails closed. The journal checkpoints the generated candidate set before registry/graph projection and stores the final stage result. A retry after a projection failure resumes from the saved candidate set; a retry after completion returns the cached result without regenerating. The stable idempotency key is passed into the generator request for adapter/provider deduplication where supported.
 
 This provides durable stage-level replay across the handler's registry/graph boundaries, but not exactly-once external provider execution: a crash during an in-flight provider call can cause a retry, and overlapping workers after lease expiry remain possible if the first worker cannot be terminated. External process supervision is still mandatory. No CI or local test run was performed; the new replay tests are source-authored but unverified.
+
+
+## 27. 2026-11-16 provenance admission ordering
+
+Moved complete runtime generator-provenance validation ahead of the injected generator invocation. A missing/malformed revision or digest now fails before a potentially billable or side-effecting provider call. Added a regression assertion that the generator callback is never invoked for incomplete provenance. Source-level only; no local tests or CI run. This does not authenticate the provider revision; it only validates the runtime's declared contract.
