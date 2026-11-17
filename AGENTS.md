@@ -44,3 +44,15 @@ For each substantive session, record task-relevant context coverage with exact s
 Keep Lacuna-inspired coherence, corpus-relative availability and empirical support distinct. Label exact analogy only with a checked structure/solution-transfer mapping; otherwise name the unmatched assumptions and transfer tests. Treat n-ality as a defined, testable method, not an asserted universal paradox solver. Check concrete bias/fallacy risks and counterexamples without claiming an exhaustive or bias-free review.
 
 No paid compute or speculative CI. Preserve the recorded Avrea hold until 2026-12-01 unless the user explicitly changes it. No new merge, deployment, signing, credential/trust-root mutation or capability promotion is authorized by this continuation.
+
+## Proactive repair and recurrence prevention
+
+The latest companion engineering checkpoint is [revision 6](docs/MERLIN_PRODUCTION_PLAN_R6.md), whose parent is revision 5 in the original plan. Read both; previous revisions remain unchanged.
+
+Within the user's already approved engineering scope, do not wait for another request to investigate and fix a reproducible defect. First contain harmful/repeated work, preserve exact source/input identities and sanitized observations, and distinguish symptom grouping from a demonstrated root cause. Do not expose exception prose or credentials in shared telemetry.
+
+For each repair: reproduce the failure as a negative control; retain competing causes; deduce a discriminating test; implement the smallest reversible change; run the original acceptance tests and adjacent-class regressions; update `config/known_failure_classes.json`, its discoverable guard and the scoped evidence record. A patch or a green unrelated branch is not closure. Keep unresolved obligations visible and reopen a case on recurrence.
+
+At stagnation, stop unchanged retries. Reframe the failing operation as a smaller constraint, transaction, interface or resource problem. State preserved invariants and lost assumptions; label non-exact transfers heuristic. Use bounded, compatible Ideonomy alternatives and Lacuna-inspired gaps only as hypotheses. Translate the candidate repair back and rerun the original task's acceptance criteria; never weaken those criteria to obtain success.
+
+The worker's `failure_prevention.py` is a bounded containment/retry/reframing policy, not an autonomous source-patching or deployment agent. It persists the latest operational decision in the existing outbox; canonical append-only scientific plan revisions remain separate. Diagnostics never grant approval, change trust roots, bypass CACE, or expand budgets. Only separately qualified and approved repair executors may apply runtime code changes. No claim that unknown failures or all future recurrences have been eliminated is permitted.

@@ -1,0 +1,45 @@
+{
+  "oversized_id": {
+    "statuses": [
+      "raised:ValueError"
+    ],
+    "state": "leased",
+    "attempts": 1,
+    "synthetic_detail_persisted": false
+  },
+  "error_detail": {
+    "statuses": [
+      "pending"
+    ],
+    "state": "pending",
+    "attempts": 1,
+    "synthetic_detail_persisted": true
+  },
+  "telemetry_failure": {
+    "statuses": [
+      "raised:OSError"
+    ],
+    "state": "leased",
+    "attempts": 1,
+    "synthetic_detail_persisted": false
+  },
+  "repetition": {
+    "statuses": [
+      "pending",
+      "pending",
+      "pending",
+      "quarantined"
+    ],
+    "state": "quarantined",
+    "attempts": 4,
+    "synthetic_detail_persisted": true
+  },
+  "nonfinite_retry_delay_accepted": {
+    "nan": true,
+    "positive_infinity": true
+  },
+  "preexecution_revocation": {
+    "handler_called_after_preexecution_revocation": true,
+    "final_status": "rejected"
+  }
+}

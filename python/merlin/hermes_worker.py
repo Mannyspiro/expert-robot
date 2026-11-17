@@ -10,12 +10,14 @@ from dataclasses import dataclass
 from copy import deepcopy
 import hashlib
 import json
+import math
 import threading
 import time
 from typing import Any, Callable, Mapping
 
 from .event_outbox import MerlinEventOutbox, LeaseConflict
 from .artifact_ref import ArtifactRef
+from .failure_prevention import failure_plan, encode_failure_plan
 from .telemetry import agent_event_sink, normalize_event
 
 HERMES_TASK_TOPIC = "merlin.hermes.task"
@@ -52,6 +54,7 @@ class HermesWorker:
         max_attempts: int = 4,
         retry_delay_seconds: float = 2,
         artifact_ref_validator: Callable[[Mapping[str, Any]], bool] | None = None,
+        max_same_failures: int = 2,
     ):
         if not isinstance(outbox, MerlinEventOutbox):
             raise ValueError("outbox must be a MerlinEventOutbox")
@@ -66,10 +69,13 @@ class HermesWorker:
             raise ValueError("worker_id is required")
         if isinstance(lease_seconds, bool) or not isinstance(lease_seconds, (int, float)) or not 0.05 <= lease_seconds <= 3600:
             raise ValueError("lease_seconds must be between 0.05 and 3600 seconds")
-        if isinstance(max_attempts, bool) or not isinstance(max_attempts, int) or max_attempts < 1:
-            raise ValueError("max_attempts must be a positive integer")
-        if isinstance(retry_delay_seconds, bool) or not isinstance(retry_delay_seconds, (int, float)) or retry_delay_seconds < 0:
-            raise ValueError("retry_delay_seconds must be non-negative")
+        if isinstance(max_attempts, bool) or not isinstance(max_attempts, int) or not 1 <= max_attempts <= 1_000_000:
+            raise ValueError("max_attempts must be a positive bounded integer")
+        if isinstance(retry_delay_seconds, bool) or not isinstance(retry_delay_seconds, (int, float)) or not math.isfinite(retry_delay_seconds) or retry_delay_seconds < 0:
+            raise ValueError("retry_delay_seconds must be finite and non-negative")
+        if type(max_same_failures) is not int or not 1 <= max_same_failures <= 100:
+            raise ValueError("max_same_failures must be between 1 and 100")
+        self.max_same_failures = max_same_failures
         self.outbox = outbox
         self.handlers = dict(handlers)
         self.approval_validator = approval_validator
@@ -89,6 +95,8 @@ class HermesWorker:
             value = payload.get(key)
             if not isinstance(value, str) or not value.strip() or len(value) > 2000:
                 raise ValueError("task " + key + " is missing or invalid")
+        if len(payload["task_id"]) > 128:
+            raise ValueError("task_id exceeds the telemetry identity boundary")
         budget = payload.get("resource_budget")
         required = {"cpu_cores", "memory_bytes", "max_wall_seconds", "compute_budget_units"}
         if not isinstance(budget, dict) or not required.issubset(budget):
@@ -124,6 +132,47 @@ class HermesWorker:
             body["details"] = dict(details)
         self.emit_event(kind="task.progress", run_id=task_id, task_id=task_id, payload=body)
 
+    def _diagnostic_event(self, **event: Any) -> bool:
+        """Best-effort observation must not undo a persisted failure decision."""
+        try:
+            self.emit_event(**event)
+            return True
+        except Exception:
+            return False
+
+    def _record_failure(self, lease: Mapping[str, Any], task_id: str, phase: str,
+                        error: Exception, now: float | None) -> dict[str, Any]:
+        event_id, token = lease["event_id"], lease["lease_token"]
+        plan = failure_plan(error=error, event_id=event_id, phase=phase,
+            attempt=lease["attempts"], max_attempts=self.max_attempts,
+            max_same_failures=self.max_same_failures, previous_error=lease.get("last_error"))
+        limit = self.max_attempts if plan["action"] == "retry_same_approved_task" else lease["attempts"]
+        try:
+            retried = self.outbox.retry(event_id, self.worker_id, token, encode_failure_plan(plan),
+                delay_seconds=self.retry_delay_seconds, max_attempts=limit, now=now)
+        except LeaseConflict:
+            current = self.outbox.get(event_id)
+            return {"status": "cancelled" if current and current.get("state") == "cancelled"
+                    else "lease_lost", "event_id": event_id}
+        # The durable decision is stored first. No exception message or traceback
+        # is sent to shared telemetry, even when the diagnostic sink itself fails.
+        observed = self._diagnostic_event(
+            kind="system.error", run_id=task_id, task_id=task_id,
+            payload={"agent_id": "hermes", "component": "worker_execution",
+                     "status": retried["state"], "failure_plan": plan},
+        )
+        status_observed = self._diagnostic_event(
+            kind="agent.status", run_id=task_id, task_id=task_id,
+            payload={"agent_id": "hermes", "role": "research orchestrator",
+                     "status": retried["state"],
+                     "activity": "failure contained; bounded retry or reframing required"},
+        )
+        telemetry = ("recorded" if observed and status_observed else
+                     "partial" if observed or status_observed else "unavailable")
+        return {"status": retried["state"], "event_id": event_id,
+                "error": plan["category"], "failure_plan": plan,
+                "telemetry_status": telemetry}
+
     def run_once(self, *, now: float | None = None) -> dict[str, Any] | None:
         lease = self.outbox.claim_next(
             self.worker_id, lease_seconds=self.lease_seconds,
@@ -133,7 +182,10 @@ class HermesWorker:
             return None
         event_id, token = lease["event_id"], lease["lease_token"]
         payload = lease["payload"]
-        task_id = str(payload.get("task_id") or event_id) if isinstance(payload, dict) else event_id
+        raw_task_id = payload.get("task_id") if isinstance(payload, dict) else None
+        task_id = (raw_task_id if isinstance(raw_task_id, str) and raw_task_id.strip()
+                   and len(raw_task_id) <= 128 else event_id)
+        phase = "admission"
         heartbeat_stop = threading.Event()
         lease_lost = threading.Event()
         heartbeat_thread = None
@@ -211,6 +263,7 @@ class HermesWorker:
                 check_cancelled()
                 heartbeat_once()
 
+            phase = "telemetry"
             self.emit_event(
                 kind="agent.status", run_id=task_id, task_id=task_id,
                 payload={"agent_id": "hermes", "role": "research orchestrator",
@@ -243,7 +296,11 @@ class HermesWorker:
                 heartbeat=renew_lease, check_cancelled=check_cancelled,
             )
             handler_task = deepcopy(task)
+            phase = "admission"
+            check_cancelled()
+            phase = "execution"
             result = handler(handler_task, context)
+            phase = "result_validation"
             if handler_task != task:
                 raise ValueError("Hermes handler mutated its admitted task")
             check_cancelled()
@@ -303,6 +360,7 @@ class HermesWorker:
                                           "topic": "merlin.telemetry." + kind, "payload": event})
             stop_heartbeat()
             check_cancelled()
+            phase = "acknowledgement"
             ack = self.outbox.acknowledge_with_events(
                 event_id, self.worker_id, token, result=receipt,
                 events=completion_events, now=now,
@@ -313,43 +371,42 @@ class HermesWorker:
             stop_heartbeat()
             current = self.outbox.get(event_id)
             if current is not None and current.get("state") == "cancelled":
-                self.emit_event(
+                self._diagnostic_event(
                     kind="agent.status", run_id=task_id, task_id=task_id,
                     payload={"agent_id": "hermes", "status": "cancelled",
                              "activity": "worker observed cooperative cancellation"},
                 )
                 return {"status": "cancelled", "event_id": event_id}
-            if current is None or current.get("state") != "leased" or current.get("lease_token") != token:
-                return {"status": "lease_lost", "event_id": event_id}
-            try:
-                retried = self.outbox.retry(
-                    event_id, self.worker_id, token, str(exc),
-                    delay_seconds=0, max_attempts=self.max_attempts, now=now,
-                )
-            except LeaseConflict:
-                current = self.outbox.get(event_id)
-                return {"status": "cancelled" if current and current.get("state") == "cancelled"
-                        else "lease_lost", "event_id": event_id}
-            return {"status": retried["state"], "event_id": event_id}
+            return self._record_failure(lease, task_id, phase, exc, now)
         except PermissionError as exc:
             stop_heartbeat()
+            plan = failure_plan(error=exc, event_id=event_id, phase=phase,
+                attempt=lease["attempts"], max_attempts=self.max_attempts,
+                max_same_failures=self.max_same_failures, previous_error=lease.get("last_error"))
             rejection = {"schema": "merlin-hermes-task-result/2",
                          "task_id": task_id, "status": "rejected",
-                         "reason": str(exc), "input_artifact_refs": [],
-                         "output_artifact_refs": [], "promotion_authority": False}
-            self.emit_event(
-                kind="system.error", run_id=task_id, task_id=task_id,
-                payload={"agent_id": "hermes", "component": "worker_admission",
-                         "status": "rejected", "error_type": type(exc).__name__,
-                         "summary": str(exc)[:300]},
-            )
+                         "reason": "approval_or_lease_denied", "input_artifact_refs": [],
+                         "output_artifact_refs": [], "promotion_authority": False,
+                         "failure_plan": plan}
             try:
                 ack = self.outbox.acknowledge(event_id, self.worker_id, token,
                                               result=rejection, now=now)
             except LeaseConflict:
-                return {"status": "lease_lost", "event_id": event_id}
-            return {"status": "rejected", "event_id": event_id,
-                    "outbox_state": ack["state"]}
+                current = self.outbox.get(event_id)
+                return {"status": "cancelled" if current and current.get("state") == "cancelled"
+                        else "lease_lost", "event_id": event_id}
+            except Exception:
+                current = self.outbox.get(event_id)
+                if not current or current.get("state") != "acknowledged" or current.get("result") != rejection:
+                    raise
+                ack = current
+            observed = self._diagnostic_event(
+                kind="system.error", run_id=task_id, task_id=task_id,
+                payload={"agent_id": "hermes", "component": "worker_admission",
+                         "status": "rejected", "failure_plan": plan},
+            )
+            return {"status": "rejected", "event_id": event_id, "outbox_state": ack["state"],
+                    "telemetry_status": "recorded" if observed else "unavailable"}
         except LeaseConflict:
             stop_heartbeat()
             current = self.outbox.get(event_id)
@@ -366,31 +423,7 @@ class HermesWorker:
                 return {"status": "cancelled", "event_id": event_id}
             if current is None or current.get("state") != "leased" or current.get("lease_token") != token:
                 return {"status": "lease_lost", "event_id": event_id}
-            self.emit_event(
-                kind="system.error", run_id=task_id, task_id=task_id,
-                payload={"agent_id": "hermes", "component": "worker_execution",
-                         "status": "retrying", "error_type": type(exc).__name__,
-                         "summary": str(exc)[:300]},
-            )
-            try:
-                retried = self.outbox.retry(
-                    event_id, self.worker_id, token,
-                    type(exc).__name__ + ": " + str(exc),
-                    delay_seconds=self.retry_delay_seconds,
-                    max_attempts=self.max_attempts, now=now,
-                )
-            except LeaseConflict:
-                current = self.outbox.get(event_id)
-                return {"status": "cancelled" if current and current.get("state") == "cancelled"
-                        else "lease_lost", "event_id": event_id}
-            self.emit_event(
-                kind="agent.status", run_id=task_id, task_id=task_id,
-                payload={"agent_id": "hermes", "role": "research orchestrator",
-                         "status": retried["state"],
-                         "activity": "handler failed; outbox retry policy applied"},
-            )
-            return {"status": retried["state"], "event_id": event_id,
-                    "error": type(exc).__name__}
+            return self._record_failure(lease, task_id, phase, exc, now)
         finally:
             stop_heartbeat()
 

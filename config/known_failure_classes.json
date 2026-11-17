@@ -113,6 +113,114 @@
         "allow only reviewed Lean/Mathlib upstream repository prefixes"
       ],
       "guard": "tests/formal_dependency_lock_smoke.py"
+    },
+    {
+      "id": "hermes-oversized-task-identity",
+      "discovered_by": "merlin-production-scientific-worker",
+      "symptom": "Task identity exceeds telemetry limits; error reporting raises a second exception and leaves delivery leased.",
+      "prevention": [
+        "Validate task IDs at the telemetry boundary.",
+        "Use canonical outbox event identity for invalid-task diagnostics."
+      ],
+      "guard": "tests/test_failure_prevention.py",
+      "regressions": [
+        "WorkerPreventionTests.test_oversized_identifier_is_quarantined_without_secondary_error",
+        "WorkerPreventionTests.test_missing_or_invalid_identifier_has_safe_diagnostics"
+      ],
+      "qualification": "locally_tested_not_independently_verified"
+    },
+    {
+      "id": "hermes-exception-detail-exposure",
+      "discovered_by": "merlin-production-scientific-worker",
+      "symptom": "Exception prose can contain credentials or private data and was copied into shared logs and last_error.",
+      "prevention": [
+        "Never render exception messages in worker failure diagnostics.",
+        "Persist only controlled categories, phase, fingerprint and bounded repair plan."
+      ],
+      "guard": "tests/test_failure_prevention.py",
+      "regressions": [
+        "WorkerPreventionTests.test_error_text_is_absent_from_failure_telemetry_and_durable_decision",
+        "WorkerPreventionTests.test_permissions_error_text_is_not_a_rejection_receipt",
+        "WorkerPreventionTests.test_unrenderable_exception_cannot_break_failure_handling"
+      ],
+      "qualification": "locally_tested_not_independently_verified"
+    },
+    {
+      "id": "hermes-diagnostic-failure-masks-state",
+      "discovered_by": "merlin-production-scientific-worker",
+      "symptom": "A broken telemetry sink prevents retry or rejection state from being stored.",
+      "prevention": [
+        "Persist failure decisions before optional diagnostic emission.",
+        "Treat diagnostic unavailability as explicit, without inventing recorded evidence.",
+        "Reject nonfinite retry delays before admitting a worker."
+      ],
+      "guard": "tests/test_failure_prevention.py",
+      "regressions": [
+        "WorkerPreventionTests.test_telemetry_outage_cannot_prevent_durable_retry_decision",
+        "WorkerPreventionTests.test_telemetry_outage_after_denial_does_not_leave_task_leased",
+        "WorkerPreventionTests.test_nonfinite_retry_delay_is_rejected_before_delivery",
+        "WorkerPreventionTests.test_partial_diagnostic_delivery_preserves_failure_status_stream"
+      ],
+      "qualification": "locally_tested_not_independently_verified"
+    },
+    {
+      "id": "hermes-repeated-unchanged-failure",
+      "discovered_by": "merlin-production-scientific-worker",
+      "symptom": "Identical failed attempts consumed all retries without a stagnation/reframing gate.",
+      "prevention": [
+        "Persist provisional symptom counters in the existing outbox.",
+        "Default to stopping after the second same-group failure; quarantine invalid contracts immediately.",
+        "Require original-task and adjacent regression tests before declaring a repair."
+      ],
+      "guard": "tests/test_failure_prevention.py",
+      "regressions": [
+        "WorkerPreventionTests.test_repeated_symptom_is_quarantined_across_restart",
+        "WorkerPreventionTests.test_invalid_contract_is_not_blindly_retried",
+        "WorkerPreventionTests.test_one_failure_can_recover_on_revalidated_retry"
+      ],
+      "qualification": "locally_tested_not_independently_verified"
+    },
+    {
+      "id": "hermes-completion-before-ack",
+      "discovered_by": "merlin-production-scientific-worker",
+      "symptom": "A completion event could survive failed task acknowledgement.",
+      "prevention": [
+        "Commit successful receipts and completion announcements in the same existing outbox transaction."
+      ],
+      "guard": "tests/test_failure_prevention.py",
+      "regressions": [
+        "WorkerPreventionTests.test_ack_storage_failure_creates_no_false_completion_event",
+        "WorkerPreventionTests.test_success_ack_loss_still_uses_previous_atomic_recovery"
+      ],
+      "qualification": "locally_tested_not_independently_verified"
+    },
+    {
+      "id": "hermes-truthy-approval",
+      "discovered_by": "merlin-production-scientific-worker",
+      "symptom": "A nonboolean callback response was treated as approval.",
+      "prevention": [
+        "Require literal True for approval, lease and artifact validation."
+      ],
+      "guard": "tests/test_failure_prevention.py",
+      "regressions": [
+        "WorkerPreventionTests.test_nonboolean_admission_is_rejected"
+      ],
+      "qualification": "locally_tested_not_independently_verified"
+    },
+    {
+      "id": "hermes-midflight-approval-revocation",
+      "discovered_by": "merlin-production-scientific-worker",
+      "symptom": "Approval revoked during execution did not prevent successful acknowledgement.",
+      "prevention": [
+        "Revalidate authority at cooperative checkpoints and before success acknowledgement.",
+        "Recheck cancellation, expiry and authority immediately before invoking the handler, after preexecution telemetry."
+      ],
+      "guard": "tests/test_failure_prevention.py",
+      "regressions": [
+        "WorkerPreventionTests.test_midflight_revocation_prevents_success",
+        "WorkerPreventionTests.test_revocation_during_preexecution_telemetry_prevents_handler_call"
+      ],
+      "qualification": "locally_tested_not_independently_verified"
     }
   ]
 }

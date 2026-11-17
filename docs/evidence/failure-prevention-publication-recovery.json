@@ -1,0 +1,21 @@
+{
+  "schema": "merlin-publication-recovery/1",
+  "base_commit": "53284060d0cc01e08c21b46d64eba6594d848c8c",
+  "incident_commit": "253c30e573eb65259ca06b2d5410479fa790f7bc",
+  "observation": "An unintended contents-API update with empty content, message and SHA created an empty new revision-6 document instead of advancing the branch to the prepared checkpoint.",
+  "observed_scope": "GitHub compare returned only docs/MERLIN_PRODUCTION_PLAN_R6.md added with zero lines; no existing source or previous plan was changed.",
+  "cause": "Wrong write action selected while intending a branch-ref update; write arguments were not checked against that intended action.",
+  "recovery": "Use a new fast-forward commit whose tree is the verified checkpoint plus this record and whose parent is the incident commit. Preserve history; do not force-reset.",
+  "restored_plan_blob": "8329ab3f9e94784b75d27482ecbe703df88ccf5b",
+  "prepared_checkpoint_tree": "bdd5460e1089ab110f0ed8606fc3bd0a9729387e",
+  "prepublication_checks": [
+    "all eleven checkpoint file bytes match uploaded Git blob IDs",
+    "revision-6 document is nonempty and matches its tested checkpoint identity",
+    "compare incident with source base before restoring",
+    "use update_ref with expected_sha and force=false",
+    "read back final document and compare final file set"
+  ],
+  "prevention_boundary": "Action/schema and nonempty-payload checks are a publication procedure, not a mechanically enforced connector-wide guard. No guarantee of zero future tool errors.",
+  "incident_workflow_query": "zero runs returned; no manual CI dispatch",
+  "qualification_effect": "none"
+}

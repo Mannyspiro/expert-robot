@@ -17,6 +17,7 @@ allowed_guards = {
     "tests/known_failure_regression_smoke.py",
     "tests/formal_dependency_lock_smoke.py",
     "tests/route_planner_smoke.cpp",
+    "tests/test_failure_prevention.py",
 }
 for item in classes:
     assert item["prevention"]

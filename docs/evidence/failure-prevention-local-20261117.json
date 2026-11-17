@@ -1,0 +1,155 @@
+{
+  "schema": "merlin-failure-prevention-local-evidence/1",
+  "source_repository": "Mannyspiro/expert-robot",
+  "base_commit": "53284060d0cc01e08c21b46d64eba6594d848c8c",
+  "actual_python": "3.13.5",
+  "status": "locally_tested",
+  "tests_run": 51,
+  "failures": 0,
+  "errors": 0,
+  "skips": 0,
+  "suites": {
+    "failure_prevention": 41,
+    "existing_hermes_worker": 10
+  },
+  "command": "PYTHONPATH=python python -m unittest discover -s tests -p 'test_*.py' -v (focused subset only)",
+  "scope": "two focused suites; exact pinned real outbox/worker/telemetry/ArtifactRef; test-only approval and lease callbacks",
+  "baseline": {
+    "oversized_id": {
+      "statuses": [
+        "raised:ValueError"
+      ],
+      "state": "leased",
+      "attempts": 1,
+      "synthetic_detail_persisted": false
+    },
+    "error_detail": {
+      "statuses": [
+        "pending"
+      ],
+      "state": "pending",
+      "attempts": 1,
+      "synthetic_detail_persisted": true
+    },
+    "telemetry_failure": {
+      "statuses": [
+        "raised:OSError"
+      ],
+      "state": "leased",
+      "attempts": 1,
+      "synthetic_detail_persisted": false
+    },
+    "repetition": {
+      "statuses": [
+        "pending",
+        "pending",
+        "pending",
+        "quarantined"
+      ],
+      "state": "quarantined",
+      "attempts": 4,
+      "synthetic_detail_persisted": true
+    },
+    "nonfinite_retry_delay_accepted": {
+      "nan": true,
+      "positive_infinity": true
+    },
+    "preexecution_revocation": {
+      "handler_called_after_preexecution_revocation": true,
+      "final_status": "rejected"
+    }
+  },
+  "test_log_sha256": "03bec4163029d8ae0f9efa903d21df63adf24b75abb092ef278db9465bee4547",
+  "files": {
+    "AGENTS.md": {
+      "bytes": 7161,
+      "sha256": "06c474d28b7a87307a8de85f0e51b491f006fdf257b74f69cfa3348f09b7df74",
+      "git_blob_sha1": "2f9ad887cf016657a182c17b48fe8f1b597902fd"
+    },
+    "config/known_failure_classes.json": {
+      "bytes": 10674,
+      "sha256": "0fad29b24add8647bbe73fc933c2ef7ca7fb28cdd4de2c3052eebf09e8e84aad",
+      "git_blob_sha1": "94ec2362028660b72ed2f4b24f548260d8169fd9"
+    },
+    "python/merlin/failure_prevention.py": {
+      "bytes": 5572,
+      "sha256": "d51ec48578ce445d5f7f911c8813914858c0f16474e759b46e57c342ac6cf1fa",
+      "git_blob_sha1": "2946f24abf4053fdfe03cfcfe313f4df61c5f5a0"
+    },
+    "python/merlin/hermes_worker.py": {
+      "bytes": 24528,
+      "sha256": "e240d0979ca46aab20adb07c3a3a2ed0fc36f1183e5e0a992e89bc1b79212033",
+      "git_blob_sha1": "1ba14cc913c3141c01bf52ef467517e4f6d672b2"
+    },
+    "scripts/merlin_research_stack_gate.py": {
+      "bytes": 14955,
+      "sha256": "132bf0bc298ebf531aa880b5870b95687b89f046c0a88b52392d5b87e5fd2474",
+      "git_blob_sha1": "31493a77ddc7e05ac1e20976cd9bd79b1160c45f"
+    },
+    "tests/test_failure_prevention.py": {
+      "bytes": 19968,
+      "sha256": "cee6097cafc3f8d7c91b3045d9eec52747c80d777ffa7318d63e799a51d8913a",
+      "git_blob_sha1": "608874b885652e3f4a55f8e913b71b7f7fa7c56b"
+    },
+    "tests/known_failure_regression_smoke.py": {
+      "bytes": 5621,
+      "sha256": "81e99e2693d94f9c41b56deca196f3798da4dc379cb8ff028634a88eb8c6ee40",
+      "git_blob_sha1": "6c608b72e147a30239f0701a4568c717076bc4cc"
+    },
+    "docs/MERLIN_PRODUCTION_PLAN_R6.md": {
+      "bytes": 7991,
+      "sha256": "1b8badda0187c311a2cc5ef5f6dded82060f5cd299ae89f1d236215ce9786e93",
+      "git_blob_sha1": "8329ab3f9e94784b75d27482ecbe703df88ccf5b"
+    }
+  },
+  "unchanged_dependencies": {
+    "python/merlin/__init__.py": {
+      "bytes": 275,
+      "sha256": "49f23ffa9b838de063cd88e4a60704d1989f55ff3aa70fe2ed850b0396fa8f93",
+      "git_blob_sha1": "0ad35f52071fb1537c1ffcb918a9a7148b411661"
+    },
+    "python/merlin/artifact_ref.py": {
+      "bytes": 2542,
+      "sha256": "187e33ed4ab6e1a79e054ff31c07b383090dae94cb51c5eb9dd01dfb80227584",
+      "git_blob_sha1": "aa3ce66edc8286668f4a01a0ee5e3f4c61fa0fd3"
+    },
+    "python/merlin/event_outbox.py": {
+      "bytes": 21267,
+      "sha256": "b447d4706f8b6f23813786649e52ea125115c1fc6be973cd8b3da3876c4bc37c",
+      "git_blob_sha1": "144a6b94704c0b944a4cbd688e9451143090e488"
+    },
+    "python/merlin/telemetry.py": {
+      "bytes": 7791,
+      "sha256": "15539c20ffc8fb36b01f745e25d453955bccacea95d7d47940e9777302ede59c",
+      "git_blob_sha1": "5e05f0de306e9b55db81ebd26f8446e3fef35c8d"
+    },
+    "tests/test_hermes_worker.py": {
+      "bytes": 9585,
+      "sha256": "931df156bad44335144cff29cb8707d2b9e2d4cded62257eb22d6884170b09d6",
+      "git_blob_sha1": "0cfda318dd974efe5dab0320327c0b399a8d2278"
+    }
+  },
+  "static_checks": {
+    "python_3_11_ast": "pass_not_execution",
+    "bytecode_compile": "pass",
+    "known_failure_catalog_regression_links": "pass_for_seven_new_entries"
+  },
+  "full_checkout": false,
+  "target_python_3_11": "not_run",
+  "full_15_suite_gate": "not_run",
+  "prior_148_test_collection": "not_rerun_not_inherited",
+  "full_legacy_smoke": "not_run_missing_full_checkout",
+  "ci_dispatch": false,
+  "provider_execution": false,
+  "independent_cace_verification": false,
+  "mcfc_os_isolation": false,
+  "production_qualification": false,
+  "promotion_authority": false,
+  "limitations": [
+    "Runtime action is containment, bounded existing-authority retry and explicit reframing; autonomous source patching/deployment is not implemented.",
+    "Fingerprints group symptoms within one outbox delivery, not global recurring root causes.",
+    "latest last_error decision is durable, but not an append-only canonical scientific incident history.",
+    "Diagnostic emission is best effort; database outage is surfaced, not called a persisted decision.",
+    "Cooperative revocation checks do not replace OS isolation or cross-service fencing."
+  ]
+}
