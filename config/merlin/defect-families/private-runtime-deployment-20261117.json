@@ -1,0 +1,54 @@
+{
+  "schema": "merlin-defect-family-ledger/1",
+  "scope": "private dot engineering runtime and OCI operations; not whole-program bug closure",
+  "source_anchor": "0f4823ca35f08cc7038a6923e042e359d5d5e941",
+  "families": [
+    {
+      "id": "DF-ISOLATED-IMPORT",
+      "trigger": "Privileged seeding originally used -s and inherited runner import context; source-review finding, no observed exploitation.",
+      "invariant": "Root and peer probes import only pinned reviewed code from a fixed verified release.",
+      "control": "Isolated -I -B interpreters, explicit verified path and trusted cwd.",
+      "regression": "ops/merlin_dot/test_install_private.py isolated child fixture",
+      "state": "control_tested_local; sibling bootstrap paths reviewed in upgrade/resume",
+      "remaining": "No claim this guards unrelated CACE or every Merlin worker."
+    },
+    {
+      "id": "DF-UMASK-PUBLICATION",
+      "trigger": "A restrictive umask can make newly installed source/config inaccessible to the service UID.",
+      "invariant": "Published files/directories have explicit intended modes and ownership.",
+      "control": "Explicit modes at publication; restrictive-umask fixture.",
+      "regression": "ops/merlin_dot/test_install_private.py umask fixture; recovery snapshots use explicit private modes.",
+      "state": "bounded_installation_control_tested",
+      "remaining": "Restored clone traversal is checked under actual service UID in recovery drill."
+    },
+    {
+      "id": "DF-ACTIONS-EVIDENCE-PERMISSION",
+      "trigger": "An earlier validation-run lookup returned403 before host mutation.",
+      "invariant": "Exact successful run metadata must be readable before activation.",
+      "control": "Narrow actions:read and exact run/source/path binding.",
+      "regression": "Failed/missing/mismatched validation must remain blocking.",
+      "state": "partial",
+      "remaining": "Preserve original403run/log identity before claiming complete defect-family closure."
+    },
+    {
+      "id": "DF-STARTUP-PROBE-OBSERVABILITY",
+      "trigger": "Upgrade run44145136056 reported rollback_failed after CalledProcessError; original child stderr was lost. Later runs44145909148/44146757840 proved v1restored and healthy.",
+      "invariant": "Report pointer/config restoration, service state and peer-tool verification separately; retain bounded subprocess failure output.",
+      "root_cause": "Original failure cause is not established. Readiness race is a hypothesis only.",
+      "control": "Resume captures failure stdout/stderr, retries only missing/refused sockets and preserves attempt records.",
+      "regressions": "ops/merlin_dot/test_resume_research.py: missing/refused readiness, no auth/semantic retries, restoration dimensions, original-history preservation and idempotent replay.",
+      "state": "23combined upgrade/resume fixture tests passed; v2activation and later tools observed on OCI",
+      "evidence_run_ids": [
+        44145136056,
+        44145909148,
+        44146757840,
+        44148199995,
+        44148526104
+      ],
+      "remaining": "Retain unknown original cause; avoid treating a bounded readiness control as causal proof."
+    }
+  ],
+  "update_rule": "Append observed defects or measured status updates; preserve previous versions of this record in plan history. Fault injection is labelled synthetic and is not a production exploit/outage claim.",
+  "qualification": false,
+  "promotion_authority": false
+}
