@@ -7,7 +7,9 @@ from __future__ import annotations
 
 import hashlib
 
-WORKFLOW_VERSION = "merlin-scientific-workflow/1"
+from .mathematical_methods import POLICY_TEXT as MATHEMATICAL_POLICY_TEXT
+
+WORKFLOW_VERSION = "merlin-scientific-workflow/2"
 WORKFLOW_TEXT = """CONTEXT AND CONTINUITY
 Use the available task-relevant project context. Record source paths/locators,
 commit or document revision, and read/partial/stale/missing status. Refresh live
@@ -83,6 +85,7 @@ These instructions add no tools, credentials, compute budget or execution author
 Source-authored, locally tested, CI-tested, independently verified, qualified and
 promoted are distinct. Missing approval, supervisor or independent verifier stays
 blocked/unqualified. No automatic merge, deployment or capability promotion."""
+WORKFLOW_TEXT += "\n\n" + MATHEMATICAL_POLICY_TEXT
 WORKFLOW_SHA256 = hashlib.sha256(WORKFLOW_TEXT.encode("utf-8")).hexdigest()
 
 

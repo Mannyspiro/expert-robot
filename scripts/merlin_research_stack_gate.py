@@ -24,6 +24,8 @@ SUITES = (
     "test_scientific_worker_integration.py",
     "test_hermes_worker.py",
     "test_failure_prevention.py",
+    "test_hermes_teacher.py",
+    "test_mathematical_methods.py",
     "test_event_outbox.py",
     "test_hypothesis_ledger.py",
     "test_scientific_loop.py",

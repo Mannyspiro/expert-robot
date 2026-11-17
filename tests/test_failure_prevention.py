@@ -364,7 +364,26 @@ class PreventionCatalogTests(unittest.TestCase):
         suites = next(ast.literal_eval(node.value) for node in tree.body
                       if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == 'SUITES' for t in node.targets))
         self.assertIn('test_failure_prevention.py', suites)
-        self.assertEqual(len(suites), 15)
+        # Preserve every original gate, while allowing additional regression suites.
+        required = {
+            'test_merlin_prompt_contract.py',
+            'test_merlin_scientific_workflow.py',
+            'test_scientific_recording.py',
+            'test_scientific_worker_integration.py',
+            'test_hermes_worker.py',
+            'test_failure_prevention.py',
+            'test_event_outbox.py',
+            'test_hypothesis_ledger.py',
+            'test_scientific_loop.py',
+            'test_text_extractor.py',
+            'test_knowledge_compression.py',
+            'test_ideonomy.py',
+            'test_hermes_ideonomy_stage.py',
+            'test_logos_review.py',
+            'test_merlin_research_stack_gate.py',
+        }
+        self.assertTrue(required.issubset(suites), "an existing required suite was removed")
+        self.assertEqual(len(suites), len(set(suites)), "suite selection must be unique")
 
 
 if __name__ == '__main__':

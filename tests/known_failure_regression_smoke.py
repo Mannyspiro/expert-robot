@@ -18,6 +18,7 @@ allowed_guards = {
     "tests/formal_dependency_lock_smoke.py",
     "tests/route_planner_smoke.cpp",
     "tests/test_failure_prevention.py",
+    "tests/test_hermes_teacher.py",
 }
 for item in classes:
     assert item["prevention"]
@@ -38,9 +39,9 @@ benchmark = (ROOT / "cpp" / "src" / "eval" / "math_benchmark.cpp").read_text(
 )
 assert "for (const std::string& domain :" in benchmark
 
-route_memory = (ROOT / "cpp" / "src" / "research" / "route_memory.cpp").read_text(
-    encoding="utf-8"
-)
+route_memory = (
+    ROOT / "cpp" / "src" / "research" / "route_memory.cpp"
+).read_text(encoding="utf-8")
 assert route_memory.count(".signature = {}") >= 3
 
 exact = (ROOT / "formal" / "MathAI" / "Geometry" / "Exact.lean").read_text(

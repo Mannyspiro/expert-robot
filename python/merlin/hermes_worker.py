@@ -1,6 +1,6 @@
 """Hermes worker lifecycle for approval-gated Merlin research tasks.
 
-The worker consumes only the Hermes task topic. It never dispatches Avrea,
+The worker consumes one runtime-selected Hermes task lane. It never dispatches Avrea,
 installs tools, or grants hypothesis-promotion authority. Actual execution is
 possible only through explicitly injected, stage-scoped handlers.
 """
@@ -21,6 +21,7 @@ from .failure_prevention import failure_plan, encode_failure_plan
 from .telemetry import agent_event_sink, normalize_event
 
 HERMES_TASK_TOPIC = "merlin.hermes.task"
+HERMES_TEACHER_TASK_TOPIC = "merlin.hermes.teacher.task"
 
 
 @dataclass(frozen=True)
@@ -55,6 +56,7 @@ class HermesWorker:
         retry_delay_seconds: float = 2,
         artifact_ref_validator: Callable[[Mapping[str, Any]], bool] | None = None,
         max_same_failures: int = 2,
+        task_topic: str = HERMES_TASK_TOPIC,
     ):
         if not isinstance(outbox, MerlinEventOutbox):
             raise ValueError("outbox must be a MerlinEventOutbox")
@@ -75,6 +77,16 @@ class HermesWorker:
             raise ValueError("retry_delay_seconds must be finite and non-negative")
         if type(max_same_failures) is not int or not 1 <= max_same_failures <= 100:
             raise ValueError("max_same_failures must be between 1 and 100")
+        if not isinstance(task_topic, str) or task_topic not in {HERMES_TASK_TOPIC, HERMES_TEACHER_TASK_TOPIC}:
+            raise ValueError("task_topic must be an approved Hermes lane")
+        teacher_lane = task_topic == HERMES_TEACHER_TASK_TOPIC
+        if teacher_lane and set(handlers) != {"teacher_review"}:
+            raise ValueError("the teacher lane may register only teacher_review")
+        if not teacher_lane and "teacher_review" in handlers:
+            raise ValueError("teacher_review requires its dedicated task lane")
+        self.task_topic = task_topic
+        self.agent_id = "hermes-teacher" if teacher_lane else "hermes"
+        self.agent_role = "teacher reviewer" if teacher_lane else "research orchestrator"
         self.max_same_failures = max_same_failures
         self.outbox = outbox
         self.handlers = dict(handlers)
@@ -123,7 +135,7 @@ class HermesWorker:
                   summary: str, details: Mapping[str, Any] | None = None) -> None:
         if not isinstance(summary, str) or not summary.strip() or len(summary) > 500:
             raise ValueError("progress summary must be a short non-empty string")
-        body = {"agent_id": "hermes", "role": "research orchestrator",
+        body = {"agent_id": self.agent_id, "role": self.agent_role,
                 "status": "running", "stage": stage, "summary": summary,
                 "hypothesis_id": hypothesis_id}
         if details is not None:
@@ -158,12 +170,12 @@ class HermesWorker:
         # is sent to shared telemetry, even when the diagnostic sink itself fails.
         observed = self._diagnostic_event(
             kind="system.error", run_id=task_id, task_id=task_id,
-            payload={"agent_id": "hermes", "component": "worker_execution",
+            payload={"agent_id": self.agent_id, "component": "worker_execution",
                      "status": retried["state"], "failure_plan": plan},
         )
         status_observed = self._diagnostic_event(
             kind="agent.status", run_id=task_id, task_id=task_id,
-            payload={"agent_id": "hermes", "role": "research orchestrator",
+            payload={"agent_id": self.agent_id, "role": self.agent_role,
                      "status": retried["state"],
                      "activity": "failure contained; bounded retry or reframing required"},
         )
@@ -176,7 +188,7 @@ class HermesWorker:
     def run_once(self, *, now: float | None = None) -> dict[str, Any] | None:
         lease = self.outbox.claim_next(
             self.worker_id, lease_seconds=self.lease_seconds,
-            topics=[HERMES_TASK_TOPIC], now=now,
+            topics=[self.task_topic], now=now,
         )
         if lease is None:
             return None
@@ -266,7 +278,7 @@ class HermesWorker:
             phase = "telemetry"
             self.emit_event(
                 kind="agent.status", run_id=task_id, task_id=task_id,
-                payload={"agent_id": "hermes", "role": "research orchestrator",
+                payload={"agent_id": self.agent_id, "role": self.agent_role,
                          "status": "running", "activity": "worker claimed and revalidated task",
                          "worker_id": self.worker_id},
             )
@@ -282,7 +294,7 @@ class HermesWorker:
                     raise ValueError("unsupported tool lifecycle event")
                 if not isinstance(tool_name, str) or not tool_name.strip() or len(tool_name) > 120:
                     raise ValueError("tool name is invalid")
-                body = {**dict(details), "agent_id": "hermes", "tool": tool_name}
+                body = {**dict(details), "agent_id": self.agent_id, "tool": tool_name}
                 self.emit_event(kind=kind, run_id=task_id, task_id=task_id, payload=body)
 
             context = TaskExecutionContext(
@@ -290,7 +302,7 @@ class HermesWorker:
                 resource_budget=dict(task["resource_budget"]),
                 approval_ref=task["approval_ref"], lease_ref=task["lease_ref"],
                 artifact_refs=tuple(deepcopy(task["artifact_refs"])),
-                idempotency_key="hermes-task-handler:" + task["task_id"],
+                idempotency_key=self.agent_id + "-task-handler:" + task["task_id"],
                 deadline_epoch=deadline_epoch,
                 emit_progress=progress, emit_tool_event=tool_event,
                 heartbeat=renew_lease, check_cancelled=check_cancelled,
@@ -351,7 +363,7 @@ class HermesWorker:
                     "event_id": telemetry_id, "source": "hermes", "kind": kind,
                     "run_id": task_id, "task_id": task_id,
                     "evidence_refs": list(evidence_refs),
-                    "payload": {"agent_id": "hermes", "role": "research orchestrator",
+                    "payload": {"agent_id": self.agent_id, "role": self.agent_role,
                                 "status": "completed", "activity": activity,
                                 "hypothesis_id": task["hypothesis_id"],
                                 "task_event_id": event_id, "receipt_sha256": receipt_digest},
@@ -373,7 +385,7 @@ class HermesWorker:
             if current is not None and current.get("state") == "cancelled":
                 self._diagnostic_event(
                     kind="agent.status", run_id=task_id, task_id=task_id,
-                    payload={"agent_id": "hermes", "status": "cancelled",
+                    payload={"agent_id": self.agent_id, "status": "cancelled",
                              "activity": "worker observed cooperative cancellation"},
                 )
                 return {"status": "cancelled", "event_id": event_id}
@@ -402,7 +414,7 @@ class HermesWorker:
                 ack = current
             observed = self._diagnostic_event(
                 kind="system.error", run_id=task_id, task_id=task_id,
-                payload={"agent_id": "hermes", "component": "worker_admission",
+                payload={"agent_id": self.agent_id, "component": "worker_admission",
                          "status": "rejected", "failure_plan": plan},
             )
             return {"status": "rejected", "event_id": event_id, "outbox_state": ack["state"],
@@ -438,4 +450,4 @@ class HermesWorker:
                 stop_event.wait(idle_seconds)
 
 
-__all__ = ["HermesWorker", "TaskExecutionContext", "HERMES_TASK_TOPIC"]
+__all__ = ["HermesWorker", "TaskExecutionContext", "HERMES_TASK_TOPIC", "HERMES_TEACHER_TASK_TOPIC"]

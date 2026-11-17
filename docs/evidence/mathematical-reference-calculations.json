@@ -1,0 +1,73 @@
+{
+  "parrondo": {
+    "schema": "merlin-parrondo-reference/1",
+    "evidence_class": "exact_model_calculation",
+    "model": "capital_mod_3_random_mixture",
+    "epsilon": "1/200",
+    "probability_A": "1/2",
+    "combined_cost_per_step": "0",
+    "results": {
+      "A": {
+        "stationary_distribution": [
+          "1/3",
+          "1/3",
+          "1/3"
+        ],
+        "net_gain_per_step_exact": "-1/100",
+        "net_gain_per_step": -0.01
+      },
+      "B": {
+        "stationary_distribution": [
+          "32401/84463",
+          "13031/84463",
+          "39031/84463"
+        ],
+        "net_gain_per_step_exact": "-73443/8446300",
+        "net_gain_per_step": -0.008695286693581805
+      },
+      "combined": {
+        "stationary_distribution": [
+          "49/142",
+          "433/1704",
+          "683/1704"
+        ],
+        "net_gain_per_step_exact": "223/14200",
+        "net_gain_per_step": 0.015704225352112675
+      }
+    },
+    "strict_parrondo_in_model": true,
+    "agent_benefit_measured": false,
+    "qualification": false,
+    "promotion_authority": false
+  },
+  "perfect_binary_experiment": {
+    "schema": "merlin-finite-eig/1",
+    "expected_information_bits": 1.0,
+    "prior_entropy_bits": 1.0,
+    "observation_probabilities": [
+      0.5,
+      0.5
+    ],
+    "expected_bits_per_cost_unit": 0.5,
+    "cost_unit": "test-second",
+    "conditional_on_supplied_model": true,
+    "empirical_validation": "not_assessed",
+    "qualification": false,
+    "promotion_authority": false
+  },
+  "uninformative_experiment": {
+    "schema": "merlin-finite-eig/1",
+    "expected_information_bits": 0.0,
+    "prior_entropy_bits": 1.0,
+    "observation_probabilities": [
+      0.5,
+      0.5
+    ],
+    "expected_bits_per_cost_unit": 0.0,
+    "cost_unit": "experiment",
+    "conditional_on_supplied_model": true,
+    "empirical_validation": "not_assessed",
+    "qualification": false,
+    "promotion_authority": false
+  }
+}

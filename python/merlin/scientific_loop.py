@@ -12,6 +12,8 @@ import math
 from typing import Any, Mapping, Sequence
 from datetime import datetime
 
+from .mathematical_methods import mathematical_strategy_contract
+
 
 @dataclass(frozen=True)
 class Observation:
@@ -250,6 +252,7 @@ def scientific_loop_contract() -> dict[str, Any]:
     """Machine-readable invariants every Merlin research workflow must enforce."""
     return {
         "schema": "merlin-scientific-loop-contract/1",
+        "mathematical_strategy_policy": mathematical_strategy_contract(),
         "mandatory_stages": [
             "capture_observation_with_provenance_and_uncertainty",
             "separate_observation_interpretation_and_hypothesis",

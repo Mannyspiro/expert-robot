@@ -1,0 +1,82 @@
+{
+  "schema": "merlin-mathematical-methods-local-evidence/1",
+  "base_commit": "efacfdfe4ab351f6e96152ed5555d733ea2ff07e",
+  "actual_python": "3.13.5",
+  "status": "locally_tested",
+  "tests_run": 40,
+  "suites": {
+    "mathematical_methods": 26,
+    "scientific_loop": 14
+  },
+  "failures": 0,
+  "errors": 0,
+  "skips": 0,
+  "command": "PYTHONPATH=python python -m unittest discover -s tests -p 'test_*.py' -v (current focused subset)",
+  "scope": "new standalone calculations and shared policy plus existing scientific-loop primitives; not live agents or complete application",
+  "test_log_sha256": "2d06a29ed94f1f6a08ad1a0b0c284f03de52575c86c742466779e5e27591e5d2",
+  "files": {
+    "AGENTS.md": {
+      "bytes": 8578,
+      "sha256": "f45a92a22401f902c0e354aea9481ccca6e91a130f1e6245af87aed15213802a",
+      "git_blob_sha1": "422b62f060b74d432c9fa4444fc3a2582fcd62d6"
+    },
+    "python/merlin/mathematical_methods.py": {
+      "bytes": 11240,
+      "sha256": "937ac0152963fb204d514eadfd362322c98bd406e03d69c21d802184001fc009",
+      "git_blob_sha1": "8c3a723b2ca87212c763bfd4e2271dceb533ea4b"
+    },
+    "python/merlin/scientific_loop.py": {
+      "bytes": 13160,
+      "sha256": "ead76178bdff591f88edd89bd5b26ddf93eb50e3ef282d1c4615af8eb230a682",
+      "git_blob_sha1": "bdc82bf9ccfa607dd6d34d7fd2418c3b03487084"
+    },
+    "python/merlin/scientific_workflow.py": {
+      "bytes": 5827,
+      "sha256": "467b413b6dd4c4a367f2325b7cb86fc5a5e14a17a381fe2f693300dd811dbb73",
+      "git_blob_sha1": "282c40cfc82de78d18f41fe23dcf440d09773946"
+    },
+    "scripts/merlin_research_stack_gate.py": {
+      "bytes": 15021,
+      "sha256": "91fec1df8c8dc70580e42087cc5f9113aa1d8c6768472e7edc6f000bcd6f6f5c",
+      "git_blob_sha1": "fdd3a1209ab15e426189641aaaa814ee90c4fa77"
+    },
+    "tests/test_mathematical_methods.py": {
+      "bytes": 8360,
+      "sha256": "a7c6693ba43ced014ccb1733d46e4d7f4a015d90cf11bb5a20ec0f3934edf550",
+      "git_blob_sha1": "65a576846454b6bb89eca06cf6a11ed6a93f4246"
+    },
+    "tests/known_failure_regression_smoke.py": {
+      "bytes": 5657,
+      "sha256": "4087018f4bf1d19b24e730deae099c6e872587685a46bc9f685475b8182a161a",
+      "git_blob_sha1": "670ac329bf9d833d07327830e64c0468525832ec"
+    },
+    "docs/MERLIN_MATHEMATICAL_METHODS_V1.md": {
+      "bytes": 6900,
+      "sha256": "c028dfbd2a0471ab968e1ab648648d3457a5211afff308d1389d4b0bff454231",
+      "git_blob_sha1": "6aa80785c823ed3622414ed69b408fa10285b102"
+    },
+    "docs/MERLIN_HERMES_TEACHER_V1.md": {
+      "bytes": 2799,
+      "sha256": "20df4c343b7c945d054aa21cf2863b00d0b6f21bd0ddff477b6b0e550e24eb67",
+      "git_blob_sha1": "30204a1488d15e002e6308fc61f9264745a52ecb"
+    },
+    "docs/MERLIN_PRODUCTION_PLAN_R7.md": {
+      "bytes": 4026,
+      "sha256": "e61a2fb7c694c467f968bedcfedeadcb1bfb75537fcd1abc4b3265352a257ac5",
+      "git_blob_sha1": "ec80c8844989cb3146d41be48321fcb28e5238ce"
+    }
+  },
+  "full_checkout": false,
+  "python_3_11_execution": "not_run",
+  "python_3_11_ast": "pass_not_execution",
+  "full_17_suite_gate": "not_run",
+  "teacher_suite_this_turn": "not_rerun; prior report not inherited",
+  "prompt_contract_suite_this_turn": "not_run",
+  "agent_benefit_measured": false,
+  "model_weights_trained": false,
+  "automatic_lesson_adoption": false,
+  "independent_cace_verification": false,
+  "production_qualification": false,
+  "promotion_authority": false,
+  "legacy_smoke_execution": "not_run; uploaded formatting variation checked AST-identical to locally parsed extended guard"
+}

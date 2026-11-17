@@ -1,0 +1,18 @@
+{
+  "schema": "merlin-teacher-source-continuation/1",
+  "base_commit": "efacfdfe4ab351f6e96152ed5555d733ea2ff07e",
+  "retained_source_blobs": {
+    "python/merlin/hermes_worker.py": "f88a9df231599dcccbe526a268b79128d48d9242",
+    "python/merlin/hermes_teacher.py": "7723291ab5672b2658e432f60273d5c3fdda562a",
+    "tests/test_hermes_teacher.py": "5a5a77bea220238d12e263b6903123d6f5201f9b",
+    "tests/test_failure_prevention.py": "812bb7af4527dc3e52e04eb5999d6a801074e6bf",
+    "config/known_failure_classes.json": "cd8c417e505caf10d2628efdcf0d20c057c9262a"
+  },
+  "previous_teacher_validation": "prior working session reported 128 focused passes; full raw logs unavailable in current runtime; not rerun or inherited",
+  "current_validation": "40 mathematical-method and scientific-loop tests; separate raw log and manifest",
+  "full_gate": "not_run",
+  "excluded_unreferenced_blob": "e1b71d4294aa0365441e02ff4b7d4c5c17dfcc1b",
+  "excluded_blob_reason": "prepublication blob hash differed from tested local source; replaced with exact matching blob before any branch update",
+  "matched_math_blob": "8c3a723b2ca87212c763bfd4e2271dceb533ea4b",
+  "promotion_authority": false
+}

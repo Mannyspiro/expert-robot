@@ -221,6 +221,22 @@
         "WorkerPreventionTests.test_revocation_during_preexecution_telemetry_prevents_handler_call"
       ],
       "qualification": "locally_tested_not_independently_verified"
+    },
+    {
+      "id": "hermes-cross-role-task-claim",
+      "discovered_by": "hermes-teacher-lane-negative-control",
+      "symptom": "A coder-only worker claims a teacher task on the shared topic and quarantines it as an unknown stage.",
+      "prevention": [
+        "Use a runtime-selected dedicated teacher topic and matching handler map.",
+        "Keep author/reviewer identities separate; bind teacher checkpoints to a distinct idempotency namespace.",
+        "Preserve all named required suites instead of freezing a global suite count."
+      ],
+      "guard": "tests/test_hermes_teacher.py",
+      "regressions": [
+        "TeacherTests.test_coder_cannot_claim_teacher_work",
+        "TeacherTests.test_teacher_cannot_claim_coder_work",
+        "TeacherTests.test_lane_configuration_cannot_register_other_execution_stages"
+      ]
     }
   ]
 }
