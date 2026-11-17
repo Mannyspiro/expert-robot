@@ -14,6 +14,7 @@ from .hypothesis_ledger import HypothesisLedger
 from .knowledge_graph import MerlinKnowledgeGraph
 from .project_registry import MerlinRegistry
 from .research_evidence import ResearchEvidenceRecorder
+from .scientific_recording import register_scientific_recording
 
 
 @dataclass
@@ -41,6 +42,10 @@ class MerlinHermesRuntime:
             "cace_verification": (
                 "configured" if self.cace_adapter is not None else "unavailable"
             ),
+            "scientific_recording": (
+                "configured_unqualified" if "scientific_recording" in self.worker.handlers
+                else "disabled"
+            ),
             "promotion_authority": False,
         }
 
@@ -61,6 +66,7 @@ def build_merlin_hermes_runtime(
     lean_dispatcher: Callable[..., Mapping[str, Any]] | None = None,
     lean_tool_version: str | None = None,
     include_ngspice: bool = True,
+    include_scientific_recording: bool = False,
     cace_opener: Any | None = None,
     lease_seconds: float = 120,
     max_attempts: int = 4,
@@ -72,6 +78,8 @@ def build_merlin_hermes_runtime(
     executors. Without complete CACE URL/token/pinned signer configuration,
     artifacts can be recorded but CACE verification remains unavailable.
     """
+    if type(include_scientific_recording) is not bool:
+        raise ValueError("include_scientific_recording must be an explicit boolean")
     if not isinstance(root, (str, Path)) or not str(root).strip():
         raise ValueError("runtime root is required")
     for value, label in (
@@ -120,6 +128,12 @@ def build_merlin_hermes_runtime(
         lean_dispatcher=lean_dispatcher,
         lean_tool_version=lean_tool_version,
         theorem_verifier=cace_adapter.verify if cace_adapter is not None else None,
+    )
+    handlers = register_scientific_recording(
+        handlers, enabled=include_scientific_recording,
+        registry=registry, ledger=ledger, project_id=project_id,
+        repository=repository, commit_sha=commit_sha,
+        approval_validator=approval_validator, lease_validator=lease_validator,
     )
     worker = HermesWorker(
         outbox,

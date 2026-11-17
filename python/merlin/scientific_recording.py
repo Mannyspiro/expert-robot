@@ -8,6 +8,7 @@ No caller-controlled status can grant CACE verification or execution authority.
 from __future__ import annotations
 
 from dataclasses import asdict
+from copy import deepcopy
 import hashlib
 import json
 import math
@@ -352,9 +353,13 @@ def build_scientific_recording_handler(*, registry: MerlinRegistry, project_id: 
                 raise ValueError("scientific task/context approval or lease mismatch")
         if task.get("resource_budget") != dict(context.resource_budget) or task.get("artifact_refs") != list(context.artifact_refs):
             raise ValueError("scientific task/context inputs or budget mismatch")
-        if admission_validator(task, context) is not True:
-            raise PermissionError("scientific recording admission was not independently approved")
-        context.check_cancelled()
+        def require_admission() -> None:
+            context.check_cancelled()
+            if admission_validator(deepcopy(task), context) is not True:
+                raise PermissionError("scientific recording admission was not independently approved")
+            context.check_cancelled()
+
+        require_admission()
         budget = task.get("resource_budget")
         if not isinstance(budget, dict) or set(budget) != {"cpu_cores", "memory_bytes", "max_wall_seconds", "compute_budget_units"}:
             raise ValueError("canonical scientific resource budget required")
@@ -368,6 +373,7 @@ def build_scientific_recording_handler(*, registry: MerlinRegistry, project_id: 
             raise ValueError("scientific command exceeds admission budget")
         prepared = store.prepare(spec["operation"], spec["data"], task.get("artifact_refs"))
         request = {"task": task, "record": prepared}
+        require_admission()
         checkpoint = journal.begin(idempotency_key=context.idempotency_key, stage=STAGE,
             task_id=context.task_id, hypothesis_id=context.hypothesis_id, request=request)
         if checkpoint["candidate_set"] is not None and _json(checkpoint["candidate_set"]) != _json(prepared):
@@ -376,8 +382,9 @@ def build_scientific_recording_handler(*, registry: MerlinRegistry, project_id: 
             raise StageJournalConflict("completed scientific stage lost its checkpoint")
         if checkpoint["state"] != "completed" and checkpoint["candidate_set"] is None:
             journal.save_generated(context.idempotency_key, prepared)
-        context.check_cancelled()
+        require_admission()
         ref = store.persist(prepared)
+        require_admission()
         result = {"schema": "merlin-hermes-scientific-recording-result/1", "stage": STAGE,
                   "operation": spec["operation"], "artifact_refs": [ref], "evidence_refs": [],
                   "verification_status": "unverified", "qualification": False,
@@ -386,7 +393,65 @@ def build_scientific_recording_handler(*, registry: MerlinRegistry, project_id: 
             if checkpoint["result"] != result:
                 raise StageJournalConflict("scientific completed result changed")
             return result
-        context.check_cancelled()
+        require_admission()
         return journal.complete(context.idempotency_key, result)
 
     return handle
+
+
+def register_scientific_recording(
+    handlers: Mapping[str, Callable[..., Mapping[str, Any]]], *,
+    enabled: bool, registry: MerlinRegistry, ledger: Any, project_id: str,
+    repository: str, commit_sha: str,
+    approval_validator: Callable[[str, Mapping[str, Any]], bool],
+    lease_validator: Callable[[str, Mapping[str, int]], bool],
+) -> dict[str, Callable[..., Mapping[str, Any]]]:
+    """Opt into the existing worker map using the runtime's actual policy hooks.
+
+    This grants no approval or lease. Deployed validators must independently
+    authorize the complete task, including episode/operation/input scope. A test
+    callback is not a production authorization service. Refuted hypotheses may
+    still receive negative observations; recording never changes ledger status.
+    """
+    from .hypothesis_ledger import HypothesisLedger
+
+    if type(enabled) is not bool or not isinstance(handlers, Mapping):
+        raise ValueError("recording enablement must be explicit boolean and handlers a mapping")
+    registered = dict(handlers)
+    if not enabled:
+        return registered
+    if STAGE in registered:
+        raise ValueError("scientific recording handler is already registered")
+    if not isinstance(registry, MerlinRegistry) or not isinstance(ledger, HypothesisLedger):
+        raise ValueError("canonical registry and hypothesis ledger are required")
+    if not callable(approval_validator) or not callable(lease_validator):
+        raise ValueError("independent approval and MCFC lease validators are required")
+    registry.inventory(project_id)  # Require an existing canonical project.
+
+    def admit(task: Mapping[str, Any], context: Any) -> bool:
+        context.check_cancelled()
+        if task.get("stage") != STAGE or task.get("hypothesis_id") != context.hypothesis_id:
+            return False
+        try:
+            hypothesis = ledger.get(context.hypothesis_id)
+        except KeyError:
+            return False
+        if hypothesis.hypothesis_id != context.hypothesis_id:
+            return False
+        refs = task.get("artifact_refs")
+        if not isinstance(refs, list) or not refs:
+            return False
+        if any(ArtifactRef.from_mapping(ref).project_id != project_id for ref in refs):
+            return False
+        if approval_validator(task["approval_ref"], deepcopy(task)) is not True:
+            return False
+        if lease_validator(task["lease_ref"], dict(task["resource_budget"])) is not True:
+            return False
+        context.check_cancelled()
+        return True
+
+    registered[STAGE] = build_scientific_recording_handler(
+        registry=registry, project_id=project_id, repository=repository,
+        commit_sha=commit_sha, admission_validator=admit,
+    )
+    return registered

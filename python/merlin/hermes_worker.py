@@ -7,13 +7,16 @@ possible only through explicitly injected, stage-scoped handlers.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from copy import deepcopy
+import hashlib
+import json
 import threading
 import time
 from typing import Any, Callable, Mapping
 
 from .event_outbox import MerlinEventOutbox, LeaseConflict
 from .artifact_ref import ArtifactRef
-from .telemetry import agent_event_sink
+from .telemetry import agent_event_sink, normalize_event
 
 HERMES_TASK_TOPIC = "merlin.hermes.task"
 
@@ -134,6 +137,7 @@ class HermesWorker:
         heartbeat_stop = threading.Event()
         lease_lost = threading.Event()
         heartbeat_thread = None
+        receipt = None
 
         def stop_heartbeat() -> None:
             heartbeat_stop.set()
@@ -171,14 +175,14 @@ class HermesWorker:
             handler = self.handlers.get(stage)
             if handler is None:
                 raise ValueError("no Hermes handler is registered for stage " + stage)
-            if not self.approval_validator(task["approval_ref"], task):
+            if self.approval_validator(task["approval_ref"], deepcopy(task)) is not True:
                 raise PermissionError("operator approval is not valid at execution time")
-            if not self.lease_validator(task["lease_ref"], task["resource_budget"]):
+            if self.lease_validator(task["lease_ref"], dict(task["resource_budget"])) is not True:
                 raise PermissionError("MCFC lease is not valid at execution time")
             if task["artifact_refs"] and self.artifact_ref_validator is None:
                 raise RuntimeError("task artifact references require a canonical registry validator")
             for artifact_ref in task["artifact_refs"]:
-                if not self.artifact_ref_validator(artifact_ref):
+                if self.artifact_ref_validator(deepcopy(artifact_ref)) is not True:
                     raise ValueError("Hermes task contains an unresolved or unverified artifact reference")
             deadline_epoch = time.time() + task["resource_budget"]["max_wall_seconds"]
 
@@ -193,6 +197,15 @@ class HermesWorker:
                 if current.get("state") != "leased" or current.get("lease_token") != token:
                     lease_lost.set()
                     raise LeaseConflict("Hermes worker no longer owns the task lease")
+                expiry = current.get("lease_expires_at")
+                lease_clock = time.time() if now is None else float(now)
+                if expiry is None or expiry <= lease_clock:
+                    lease_lost.set()
+                    raise LeaseConflict("Hermes worker task lease expired")
+                if self.approval_validator(task["approval_ref"], deepcopy(task)) is not True:
+                    raise PermissionError("operator approval was revoked during execution")
+                if self.lease_validator(task["lease_ref"], dict(task["resource_budget"])) is not True:
+                    raise PermissionError("MCFC lease was revoked during execution")
 
             def renew_lease() -> None:
                 check_cancelled()
@@ -223,13 +236,16 @@ class HermesWorker:
                 task_id=task_id, hypothesis_id=task["hypothesis_id"],
                 resource_budget=dict(task["resource_budget"]),
                 approval_ref=task["approval_ref"], lease_ref=task["lease_ref"],
-                artifact_refs=tuple(task["artifact_refs"]),
+                artifact_refs=tuple(deepcopy(task["artifact_refs"])),
                 idempotency_key="hermes-task-handler:" + task["task_id"],
                 deadline_epoch=deadline_epoch,
                 emit_progress=progress, emit_tool_event=tool_event,
                 heartbeat=renew_lease, check_cancelled=check_cancelled,
             )
-            result = handler(task, context)
+            handler_task = deepcopy(task)
+            result = handler(handler_task, context)
+            if handler_task != task:
+                raise ValueError("Hermes handler mutated its admitted task")
             check_cancelled()
             if not isinstance(result, Mapping):
                 raise ValueError("Hermes handler must return a result object")
@@ -247,7 +263,7 @@ class HermesWorker:
             if output_artifact_refs and self.artifact_ref_validator is None:
                 raise RuntimeError("output artifact references require a canonical registry validator")
             for artifact_ref in output_artifact_refs:
-                if not self.artifact_ref_validator(artifact_ref):
+                if self.artifact_ref_validator(deepcopy(artifact_ref)) is not True:
                     raise ValueError("handler returned an unresolved or unverified artifact reference")
             receipt = {
                 "schema": "merlin-hermes-task-result/2",
@@ -258,21 +274,39 @@ class HermesWorker:
                 "output_artifact_refs": output_artifact_refs,
                 "promotion_authority": False,
             }
-            self.emit_event(
-                kind="task.completed", run_id=task_id, task_id=task_id,
-                evidence_refs=list(evidence_refs),
-                payload={"agent_id": "hermes", "role": "research orchestrator",
-                         "status": "completed", "activity": "bounded handler completed",
-                         "hypothesis_id": task["hypothesis_id"]},
-            )
-            self.emit_event(
-                kind="agent.status", run_id=task_id, task_id=task_id,
-                payload={"agent_id": "hermes", "role": "research orchestrator",
-                         "status": "completed", "activity": "result receipt stored"},
-            )
+            # Normalize once to the exact JSON representation that will be stored.
+            # This also makes lost-reply reconciliation insensitive to tuple/list
+            # differences in otherwise valid handler return values.
+            receipt = json.loads(json.dumps(receipt, sort_keys=True, separators=(",", ":"),
+                                             ensure_ascii=False, allow_nan=False))
+            # Construct announcements without publishing them. The receipt and
+            # both announcements commit together or not at all in the same outbox.
+            receipt_digest = hashlib.sha256(json.dumps(
+                receipt, sort_keys=True, separators=(",", ":"),
+                ensure_ascii=False, allow_nan=False).encode("utf-8")).hexdigest()
+            completion_events = []
+            for kind, activity in (("task.completed", "bounded handler completed"),
+                                   ("agent.status", "result receipt stored")):
+                telemetry_id = hashlib.sha256(
+                    (event_id + ":" + kind + ":" + receipt_digest).encode("utf-8")
+                ).hexdigest()
+                event = normalize_event({
+                    "event_id": telemetry_id, "source": "hermes", "kind": kind,
+                    "run_id": task_id, "task_id": task_id,
+                    "evidence_refs": list(evidence_refs),
+                    "payload": {"agent_id": "hermes", "role": "research orchestrator",
+                                "status": "completed", "activity": activity,
+                                "hypothesis_id": task["hypothesis_id"],
+                                "task_event_id": event_id, "receipt_sha256": receipt_digest},
+                })
+                completion_events.append({"idempotency_key": "telemetry:" + telemetry_id,
+                                          "topic": "merlin.telemetry." + kind, "payload": event})
             stop_heartbeat()
-            ack = self.outbox.acknowledge(event_id, self.worker_id, token,
-                                          result=receipt, now=now)
+            check_cancelled()
+            ack = self.outbox.acknowledge_with_events(
+                event_id, self.worker_id, token, result=receipt,
+                events=completion_events, now=now,
+            )
             return {"status": "completed", "event_id": event_id,
                     "receipt": receipt, "outbox_state": ack["state"]}
         except InterruptedError as exc:
@@ -287,10 +321,15 @@ class HermesWorker:
                 return {"status": "cancelled", "event_id": event_id}
             if current is None or current.get("state") != "leased" or current.get("lease_token") != token:
                 return {"status": "lease_lost", "event_id": event_id}
-            retried = self.outbox.retry(
-                event_id, self.worker_id, token, str(exc),
-                delay_seconds=0, max_attempts=self.max_attempts, now=now,
-            )
+            try:
+                retried = self.outbox.retry(
+                    event_id, self.worker_id, token, str(exc),
+                    delay_seconds=0, max_attempts=self.max_attempts, now=now,
+                )
+            except LeaseConflict:
+                current = self.outbox.get(event_id)
+                return {"status": "cancelled" if current and current.get("state") == "cancelled"
+                        else "lease_lost", "event_id": event_id}
             return {"status": retried["state"], "event_id": event_id}
         except PermissionError as exc:
             stop_heartbeat()
@@ -319,6 +358,10 @@ class HermesWorker:
         except Exception as exc:
             stop_heartbeat()
             current = self.outbox.get(event_id)
+            if (receipt is not None and current is not None
+                    and current.get("state") == "acknowledged" and current.get("result") == receipt):
+                return {"status": "completed", "event_id": event_id,
+                        "receipt": receipt, "outbox_state": "acknowledged"}
             if current is not None and current.get("state") == "cancelled":
                 return {"status": "cancelled", "event_id": event_id}
             if current is None or current.get("state") != "leased" or current.get("lease_token") != token:
@@ -329,12 +372,17 @@ class HermesWorker:
                          "status": "retrying", "error_type": type(exc).__name__,
                          "summary": str(exc)[:300]},
             )
-            retried = self.outbox.retry(
-                event_id, self.worker_id, token,
-                type(exc).__name__ + ": " + str(exc),
-                delay_seconds=self.retry_delay_seconds,
-                max_attempts=self.max_attempts, now=now,
-            )
+            try:
+                retried = self.outbox.retry(
+                    event_id, self.worker_id, token,
+                    type(exc).__name__ + ": " + str(exc),
+                    delay_seconds=self.retry_delay_seconds,
+                    max_attempts=self.max_attempts, now=now,
+                )
+            except LeaseConflict:
+                current = self.outbox.get(event_id)
+                return {"status": "cancelled" if current and current.get("state") == "cancelled"
+                        else "lease_lost", "event_id": event_id}
             self.emit_event(
                 kind="agent.status", run_id=task_id, task_id=task_id,
                 payload={"agent_id": "hermes", "role": "research orchestrator",

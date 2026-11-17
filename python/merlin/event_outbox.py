@@ -264,6 +264,74 @@ class MerlinEventOutbox:
             return self._row(db.execute(
                 "SELECT * FROM event_outbox WHERE event_id=?", (event_id,)).fetchone())
 
+    def acknowledge_with_events(
+        self, event_id: str, worker_id: str, lease_token: str, *,
+        result: Mapping[str, Any], events: list[Mapping[str, Any]],
+        now: float | None = None,
+    ) -> dict[str, Any]:
+        """Atomically store a receipt and its follow-up events in this outbox.
+
+        Failure rolls back both acknowledgement and announcements. Replays must
+        match the stored receipt and already-existing events; they cannot append
+        new announcements to a historical acknowledgement. This is a local
+        transaction, not exactly-once execution or authentication of a worker.
+        """
+        import math
+
+        self._text(worker_id, "worker_id", 128)
+        self._text(lease_token, "lease_token", 256)
+        if not isinstance(result, Mapping):
+            raise ValueError("acknowledgement result must be an object")
+        if not isinstance(events, list) or not 1 <= len(events) <= 16:
+            raise ValueError("one to sixteen completion events are required")
+        # Snapshot caller-owned objects before entering the transaction.
+        result_json = _canonical(dict(result))
+        specifications = json.loads(_canonical(events))
+        keys = set()
+        for event in specifications:
+            if not isinstance(event, dict) or set(event) != {"idempotency_key", "topic", "payload"}:
+                raise ValueError("completion event must contain key, topic and payload")
+            key = self._text(event["idempotency_key"], "idempotency_key", 256)
+            self._text(event["topic"], "topic", 200)
+            if key != event["idempotency_key"] or event["topic"].strip() != event["topic"]:
+                raise ValueError("completion event identifiers must be canonical")
+            if key in keys or not isinstance(event["payload"], dict):
+                raise ValueError("completion event keys must be unique and payloads objects")
+            keys.add(key)
+        if now is not None and (isinstance(now, bool) or not isinstance(now, (int, float))
+                                or not math.isfinite(now)):
+            raise ValueError("acknowledgement clock must be finite")
+        with closing(self._connect()) as db, db:
+            db.execute("BEGIN IMMEDIATE")
+            # Obtain real time after acquiring the write lock, not before waiting.
+            timestamp = time.time() if now is None else float(now)
+            row = db.execute("SELECT * FROM event_outbox WHERE event_id=?", (event_id,)).fetchone()
+            if row is None:
+                raise KeyError(event_id)
+            if row["idempotency_key"] in keys:
+                raise OutboxConflict("completion event cannot reuse its parent task key")
+            if row["state"] == "acknowledged":
+                if row["result_json"] != result_json:
+                    raise OutboxConflict("acknowledged receipt differs on replay")
+                for event in specifications:
+                    old = db.execute("SELECT topic,payload_json FROM event_outbox WHERE idempotency_key=?",
+                                     (event["idempotency_key"],)).fetchone()
+                    if old is None or old["topic"] != event["topic"] or old["payload_json"] != _canonical(event["payload"]):
+                        raise OutboxConflict("acknowledged completion events differ on replay")
+                return self._row(row)
+            self._require_lease(row, worker_id, lease_token, timestamp)
+            for event in specifications:
+                self.enqueue_in_transaction(db, event["idempotency_key"], event["topic"],
+                                            event["payload"], now=timestamp)
+            # A slow insert must not turn an expired lease into a successful result.
+            self._require_lease(row, worker_id, lease_token,
+                                time.time() if now is None else timestamp)
+            db.execute("""UPDATE event_outbox SET state='acknowledged',acknowledged_at=?,
+                lease_owner=NULL,lease_token=NULL,lease_expires_at=NULL,updated_at=?,result_json=?
+                WHERE event_id=?""", (timestamp, timestamp, result_json, event_id))
+            return self._row(db.execute("SELECT * FROM event_outbox WHERE event_id=?",
+                                        (event_id,)).fetchone())
+
     def retry(self, event_id: str, worker_id: str, lease_token: str, error: str,
               *, delay_seconds: float = 0, max_attempts: int = 5,
               now: float | None = None) -> dict[str, Any]:

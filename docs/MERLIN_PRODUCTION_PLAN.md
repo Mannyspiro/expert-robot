@@ -161,3 +161,50 @@ Additional limitations: prerecording an experiment in Merlin does not prove outc
 Manual, bounded alternatives were (A) add another store, rejected as duplicate architecture; (B) mutate current plans, rejected because history would be lost; (C) use canonical immutable artifacts plus the existing journal, selected; (D) dispatch real experiments immediately, rejected pending isolation/verifier gates. This was not a claimed trained Lacuna run. The event-log/content-addressing analogy guides the implementation but is not scientific evidence. Correlated-author test bias remains; independent review and the full pre-existing suites are still required.
 
 Rollback: revert only this feature-branch increment and retain prior evidence/artifacts. No workflow dispatch, paid compute, Avrea use before the recorded 2026-12-01 hold, merge, deployment, credential/trust-root mutation or capability promotion occurred. Context coverage is the available handoffs/specifications and relevant live source, not a literal read of every historical chat.
+
+
+## Revision 5 - real recording-worker lifecycle and atomic completion (2026-11-17)
+
+Parent: revision 4 at `1754d4819d5b6bc0ec2dcc09bf6c2e0a98549011`. Earlier plan text is preserved. Production readiness remains NOT ESTABLISHED.
+
+### Live context and bounded objective
+
+The feature branch still pointed to the parent and its exact-head workflow query returned no runs. The container still could not resolve github.com and had no Python 3.11 interpreter. These observations do not justify making repositories public, inventing credentials or repeatedly dispatching unapproved CI. The selected increment was the existing P0c next step: execute the recording path with the REAL HermesWorker/outbox, test interruption boundaries, and add an explicit opt-in hook to the existing runtime composition.
+
+Context used: the preserved project decisions and available cross-chat specifications, current branch/CI query, exact worker/outbox/registry/journal/telemetry/ledger/runtime source, and the prior scientific-recording patch with Git blob identity checks. This is task-relevant coverage, not a claim to have reread every historical chat or source file. Avrea remains held until 2026-12-01.
+
+### Observation -> deduction -> change -> test
+
+Baseline probes reproduced three defects: acknowledgement failure left a pending task with a completion announcement; approval revoked during a handler still permitted success; and a nonempty string denial was accepted as approval. The required invariant is that a committed completion announcement references an acknowledged exact receipt, while denied/expired authority cannot authorize success.
+
+Implemented atomic receipt plus completion-event insertion in the EXISTING outbox transaction. Worker completion uses that method, binds announcements to the receipt digest, normalizes JSON before lost-reply comparison, and checks literal True for admission and artifact validation. Cooperative checks now include lease expiry and current approval/MCFC policy; retry error paths retain lease-loss outcomes instead of throwing a second lease error. Mutated handler input cannot replace the admitted task's receipt.
+
+The existing runtime now has explicit `include_scientific_recording=False` and calls the tested registration helper only through that flag. The helper uses canonical stores and the same runtime-supplied policies, requires an existing hypothesis/project scope, and never grants approval. The recording handler revalidates at write boundaries. No second registry, scheduler or authority mechanism was added.
+
+Repeated admission exposed unclosed HypothesisLedger connections. A baseline probe retained three connections from three get calls and found all still usable. Canonical ledger methods now explicitly close their connections; a regression checks both successful and missing-hypothesis paths. The unchanged eight-test ledger suite still passes.
+
+### Actual validation and boundary
+
+Final validation: 148 distinct local tests passed on Python 3.13.5, with zero failures/errors/skips. Counts: 35 integration/atomicity, 42 recording, 14 scientific-loop, 10 existing worker, 11 existing outbox, 8 existing ledger, 28 source-gate fixture regressions. The first combined invocation exceeded the tool's 60-second execution limit; five smaller batches completed the unchanged test set. No timed-out invocation is reported as a completed pass.
+
+Integration exercised the real stores, stage journal, worker, delivery leases and receipt path, including an actual local child process exiting after persistence/before ACK; reopening and lease recovery; cancellation after persistence; revocation; expired/reclaimed leases; changed-input and corrupted-source rejection; lost ACK replies; and a concurrent cancellation/commit test showing no half-committed completion visibility.
+
+Full runtime composition is SOURCE-AUTHORED/STATIC-CHECKED ONLY: the opt-in call and default-off flag were AST checked, but its complete import graph, deployed policy services, API, HUD and service start were not executed. Tests use explicit fixture approval/lease policies, not a real operator/MCFC authorization service. The local work remains a focused source subset, not a full repository checkout. Python 3.11 syntax parsing passed but target-interpreter execution did not occur.
+
+Evidence: `docs/evidence/scientific-worker-local-20261117.json`, `scientific-worker-final-tests.log`, and `MERLIN_SCIENTIFIC_WORKER_INTEGRATION_V1.md`. The exact-source gate now requires fourteen suites, retaining all earlier suites. No CI run, CACE verification, OS sandbox or production qualification is claimed.
+
+### Revised ranked queue
+
+1. P0b remains the next QUALIFICATION gate: complete authenticated checkout, run all fourteen suites under Python 3.11 on the exact new commit, reconcile the branch stack, and inspect each result. Do not inherit another branch's pass.
+2. P0c is WORKER-INTEGRATED/LOCALLY TESTED within the scope above. Next execute the complete runtime/service/API composition with real independently supplied policies; review adjacent completion producers and legacy acknowledgement callers. Recording completion is not experiment success or scientific verification.
+3. P1 remains blocking for real external execution: OS/container CPU/memory/PID/network/filesystem/secret limits, monotonic deadlines, process-tree cleanup and lease fencing. Cooperative policy checks and a local SQLite transaction do not provide this isolation.
+4. P2 remains unexercised: real CACE transport and signer/exact source/artifact tests. Audit end-to-end promotion paths; low-level ledger status APIs are not themselves a verifier gate.
+5. P3 remains unqualified: complete research-to-artifact/HUD, installation, migration, restart, backup/restore, observability, rollback and explicit promotion approval.
+
+Registry persistence/journal completion and outbox acknowledgement are not one distributed transaction. Cancellation or lease loss can leave immutable records for reconciliation, and a check cannot forcibly stop an uncooperative process. Final external approval can change after a cooperative check; independent service fencing remains an obligation. No automatic deletion or history rewriting was introduced.
+
+### Manual constrained alternatives and skeptical controls
+
+This iteration used a manual idea-space enumeration, not a claimed trained Ideonomy/Lacuna model run: (A) completion before ACK, rejected by the reproduced false-success event; (B) completion after ACK in a separate write, rejected because a crash can lose the announcement; (C) receipt plus announcement in the existing local transaction, selected; (D) another registry/message subsystem, rejected as duplication. The selected mapping is scoped to one SQLite outbox; it is not an analogy claiming distributed exactly-once execution. Correlated-author/test bias remains, so existing regressions, negative controls and eventual independent review remain mandatory. No exhaustive novelty or universal n-ality paradox-resolution claim is made.
+
+Rollback: revert this feature-branch increment while retaining historical records/evidence. No workflow dispatch, paid compute, Avrea use, merge, deployment, signing, secret/trust-root mutation or promotion occurred. Re-query the live head and evidence before the next execution.

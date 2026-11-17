@@ -1,0 +1,200 @@
+{
+  "schema": "merlin-scientific-worker-local-evidence/1",
+  "source_repository": "Mannyspiro/expert-robot",
+  "base_commit": "1754d4819d5b6bc0ec2dcc09bf6c2e0a98549011",
+  "actual_python": "3.13.5",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "status": "locally_tested",
+  "tests_run": 148,
+  "failures": 0,
+  "errors": 0,
+  "skips": 0,
+  "suites": {
+    "test_event_outbox": 11,
+    "test_hermes_worker": 10,
+    "test_hypothesis_ledger": 8,
+    "test_scientific_loop": 14,
+    "test_scientific_recording": 42,
+    "test_scientific_worker_integration": 35,
+    "test_merlin_research_stack_gate": 28
+  },
+  "test_ids_sha256": "8e0db2a71ba34345bf5b3e9d18eb597b94488f339cc9b0571c217cd1053568cc",
+  "test_log_sha256": "8e293c036bb529e1de1abb61b7075354cf8d29fb3415b5d7e78265cf6000548e",
+  "execution_scope": "focused source subset; real HermesWorker, MerlinEventOutbox, MerlinRegistry, HermesStageJournal and HypothesisLedger; test policy callbacks; no production authorization service",
+  "commands": [
+    "PYTHONPATH=python python -m unittest discover -s tests -p test_scientific_worker_integration.py -v",
+    "Seven local suites split into five bounded batches; test IDs deduplicated."
+  ],
+  "batch_seconds": {
+    "main": 13.141,
+    "0": 10.803,
+    "1": 10.598,
+    "2": 22.559,
+    "3": 4.499
+  },
+  "interrupted_combined_run": "60-second tool limit expired before full completion; retained separately; final batches preserve all tests",
+  "baseline": {
+    "ack_failure": {
+      "worker_status": "pending",
+      "outbox_state": "pending",
+      "completion_events": 1
+    },
+    "revocation": {
+      "worker_status": "completed",
+      "outbox_state": "acknowledged",
+      "completion_events": 1
+    },
+    "truthy_denial": {
+      "worker_status": "completed",
+      "outbox_state": "acknowledged",
+      "completion_events": 1
+    }
+  },
+  "regression": {
+    "ack_failure": {
+      "worker_status": "pending",
+      "outbox_state": "pending",
+      "completion_events": 0
+    },
+    "revocation": {
+      "worker_status": "rejected",
+      "outbox_state": "acknowledged",
+      "completion_events": 0
+    },
+    "truthy_denial": {
+      "worker_status": "rejected",
+      "outbox_state": "acknowledged",
+      "completion_events": 0
+    }
+  },
+  "ledger_baseline": {
+    "baseline_get_calls": 3,
+    "connections_still_usable_after_get": 3,
+    "scope": "held references to observe explicit close, not GC timing"
+  },
+  "real_child_process_exit_and_recovery": "passed; deliberate os._exit(23) before ACK, then lease recovery and process restart",
+  "concurrent_ack_cancel_transaction": "passed",
+  "runtime_composition": "opt-in hook source-authored; AST/static wiring tested, full composition imports/execution not run",
+  "default_activation": false,
+  "full_checkout": false,
+  "target_python_3_11": "not_run",
+  "static_checks": {
+    "bytecode_compile": "pass",
+    "python_3_11_ast": "pass_not_execution"
+  },
+  "ci_dispatch": "not_performed",
+  "full_research_stack": "not_run; gate now requires fourteen suites",
+  "independent_cace_verification": false,
+  "real_mcfc_supervisor": "not_implemented_or_exercised",
+  "production_qualification": false,
+  "promotion_authority": false,
+  "files": {
+    "python/merlin/event_outbox.py": {
+      "bytes": 21267,
+      "sha256": "b447d4706f8b6f23813786649e52ea125115c1fc6be973cd8b3da3876c4bc37c",
+      "git_blob_sha1": "144a6b94704c0b944a4cbd688e9451143090e488"
+    },
+    "python/merlin/hermes_worker.py": {
+      "bytes": 22445,
+      "sha256": "16590c225996a51e4dd812b5888c94089f5c53f36b10d21d2ac6812df996c455",
+      "git_blob_sha1": "2dda66a8e81ac3b1be409b55169640be1aef54f1"
+    },
+    "python/merlin/hermes_runtime.py": {
+      "bytes": 6623,
+      "sha256": "c7d8e8e3415e9b53ad83027c3e62d15dd82c5bff025c5c51b8947ce40aa8706e",
+      "git_blob_sha1": "31164e6b10975d113c7a98f5a1c433a154139790"
+    },
+    "python/merlin/hypothesis_ledger.py": {
+      "bytes": 10627,
+      "sha256": "03bd1ec00e3efb5b7898ba6be9dc8fa9a125836e9c22856e649e79f240b87a11",
+      "git_blob_sha1": "7ff3ed8dc4399a5f82f094041a97abbd011f8500"
+    },
+    "python/merlin/scientific_recording.py": {
+      "bytes": 27380,
+      "sha256": "0c538772631fa850001bcc8c962ab4a212ec0be4459f01beafebe828453a21dc",
+      "git_blob_sha1": "30035a79f16cecf5bf1370b0a6963905b3f4a451"
+    },
+    "scripts/merlin_research_stack_gate.py": {
+      "bytes": 14921,
+      "sha256": "fd7a4963500f1532077c6331eba33f7f6ac196c2a5486ca8c61e5c4c00b15e57",
+      "git_blob_sha1": "76f42ee0ecbf3651d789162e758316f34fbff736"
+    },
+    "tests/test_scientific_worker_integration.py": {
+      "bytes": 31325,
+      "sha256": "5164376a850cf249b45e82a973076d279710834165b88400a23d3ec01a99f046",
+      "git_blob_sha1": "4fbaed9e30980cf3dd4c1f1ed7271a042450e2d2"
+    }
+  },
+  "unchanged_dependencies": {
+    "python/merlin/__init__.py": {
+      "bytes": 275,
+      "sha256": "49f23ffa9b838de063cd88e4a60704d1989f55ff3aa70fe2ed850b0396fa8f93",
+      "git_blob_sha1": "0ad35f52071fb1537c1ffcb918a9a7148b411661"
+    },
+    "python/merlin/artifact_ref.py": {
+      "bytes": 2542,
+      "sha256": "187e33ed4ab6e1a79e054ff31c07b383090dae94cb51c5eb9dd01dfb80227584",
+      "git_blob_sha1": "aa3ce66edc8286668f4a01a0ee5e3f4c61fa0fd3"
+    },
+    "python/merlin/project_registry.py": {
+      "bytes": 27860,
+      "sha256": "4b4af27bee57888bf1f006b6fea55aba435084fcd7aec53d794d1ac681a40fcc",
+      "git_blob_sha1": "ee72615f5e39f4ce43de856a014fab34d8528dc2"
+    },
+    "python/merlin/hermes_stage_journal.py": {
+      "bytes": 6912,
+      "sha256": "40557d275160ae4709b77bf8fcab3377fdfec1e04c700b36788552572fd1d721",
+      "git_blob_sha1": "abe028f0510a8a2f3232ebfbd451fd0291abe41e"
+    },
+    "python/merlin/telemetry.py": {
+      "bytes": 7791,
+      "sha256": "15539c20ffc8fb36b01f745e25d453955bccacea95d7d47940e9777302ede59c",
+      "git_blob_sha1": "5e05f0de306e9b55db81ebd26f8446e3fef35c8d"
+    },
+    "python/merlin/scientific_loop.py": {
+      "bytes": 13020,
+      "sha256": "9fab3dd45a2ff3fa4ee371e1a7e720e554dbc5d8ff1d70ae8182205f2d9ebee5",
+      "git_blob_sha1": "5a84bfc0e7ad1a5bfbcbeab0edae383cccfb6eaa"
+    },
+    "tests/test_scientific_recording.py": {
+      "bytes": 26441,
+      "sha256": "754511b03519e5bf3983cd862a4ddbb5d9161e7d45c4572a871cf894df52ff60",
+      "git_blob_sha1": "8a505e94e29817fd7d39c1857412b664943884a4"
+    },
+    "tests/test_scientific_loop.py": {
+      "bytes": 7102,
+      "sha256": "8ad3a9cf5dbc47c63fe7d617bd337d5ebf89a6caa62811111878bb543c2db56c",
+      "git_blob_sha1": "eb09fc002768627588f8eba42a9f97c95b16f8e9"
+    },
+    "tests/test_hermes_worker.py": {
+      "bytes": 9585,
+      "sha256": "931df156bad44335144cff29cb8707d2b9e2d4cded62257eb22d6884170b09d6",
+      "git_blob_sha1": "0cfda318dd974efe5dab0320327c0b399a8d2278"
+    },
+    "tests/test_event_outbox.py": {
+      "bytes": 7799,
+      "sha256": "1195ec8cd4124fd4a64c620b469306ac52e4aff3f6064369929a52e4d97981a8",
+      "git_blob_sha1": "ccdd3432142513f65c642c4ccdddbd9ac53614eb"
+    },
+    "tests/test_hypothesis_ledger.py": {
+      "bytes": 5870,
+      "sha256": "e9da94235a0ba034b0af332601e4ead1a9e42e959a66311e426b44a196182ea2",
+      "git_blob_sha1": "d4cefa8cd98350037d22fcfbfeee991090905f2b"
+    },
+    "tests/test_merlin_research_stack_gate.py": {
+      "bytes": 10224,
+      "sha256": "2e39078c07b81c9d0193bc0b8207080b675941716feb81190f5e1ba136f013e6",
+      "git_blob_sha1": "9101fc8599bb45c6f46aac1600dc8d53ecbce203"
+    }
+  },
+  "limitations": [
+    "Cooperative revocation checks do not terminate a noncooperating handler or supply OS isolation.",
+    "Approval policy and MCFC lease services remain mandatory deployment-owned injections; test callbacks do not establish real approval.",
+    "Registry writes and journal checkpoints are not in the outbox transaction; crashes/cancellations may leave immutable unacknowledged scientific records for reconciliation.",
+    "Final policy check is not transactionally fenced with a separate authorization service.",
+    "Legacy acknowledge() retains its prior compatibility semantics; atomic receipt/event guarantees apply to acknowledge_with_events().",
+    "Completed recording tasks do not imply completed experiments, measurement truth, independent verification or promotion.",
+    "Full runtime composition, source-stack branch reconciliation, target interpreter, API/HUD, package recovery and production qualification remain pending."
+  ],
+  "post_upload_normalization": "Outbox upload omitted one terminal newline; local bytes aligned to that exact blob and all 120 dependent tests re-executed successfully. The unchanged gate and its 28 independent fixture tests retain their earlier executed results."
+}
