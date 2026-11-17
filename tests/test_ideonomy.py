@@ -46,7 +46,7 @@ class IdeonomyTests(unittest.TestCase):
     def _generator(self, request):
         self.request = request
         return {
-            "generator": {"id": "test.ideonomy", "version": "1.0.0"},
+            "generator": {"id": "test.ideonomy", "version": "1.0.0", "provider_revision": "provider-build-2026-11-16.1", "prompt_digest": "1" * 64, "config_digest": "2" * 64, "adapter_digest": "3" * 64},
             "candidates": [
                 {
                     "local_id": "concept-1",
@@ -74,6 +74,39 @@ class IdeonomyTests(unittest.TestCase):
                 }
             ],
         }
+
+
+    def test_generator_provenance_is_required_and_bound_into_candidate_identity(self):
+        incomplete = dict(self._generator(self._empty_request()))
+        incomplete["generator"] = {"id": "test.ideonomy", "version": "1.0.0"}
+        with self.assertRaisesRegex(ValueError, "must bind id, version, provider_revision"):
+            enumerate_ideonomy_candidates(
+                self.registry, self.extraction_ref, lambda request: incomplete,
+            )
+
+        mutable = self._generator(self._empty_request())
+        mutable["generator"]["provider_revision"] = "latest"
+        with self.assertRaisesRegex(ValueError, "immutable provider revision"):
+            enumerate_ideonomy_candidates(
+                self.registry, self.extraction_ref, lambda request: mutable,
+            )
+
+        baseline = enumerate_ideonomy_candidates(
+            self.registry, self.extraction_ref, self._generator,
+        )
+        changed = self._generator(self._empty_request())
+        changed["generator"]["prompt_digest"] = "4" * 64
+        revised = enumerate_ideonomy_candidates(
+            self.registry, self.extraction_ref, lambda request: changed,
+        )
+        self.assertNotEqual(baseline["candidate_set_id"], revised["candidate_set_id"])
+        self.assertNotEqual(
+            baseline["candidates"][0]["candidate_id"],
+            revised["candidates"][0]["candidate_id"],
+        )
+
+    def _empty_request(self):
+        return {}
 
     def test_enumeration_is_source_bound_and_never_claims_verification(self):
         result = enumerate_ideonomy_candidates(
@@ -112,7 +145,7 @@ class IdeonomyTests(unittest.TestCase):
     def test_rejects_unbound_source_indexes_and_authority_escalation(self):
         def unbound(request):
             return {
-                "generator": {"id": "test", "version": "1"},
+                "generator": {"id": "test", "version": "1", "provider_revision": "provider-build-2026-11-16.1", "prompt_digest": "1" * 64, "config_digest": "2" * 64, "adapter_digest": "3" * 64},
                 "candidates": [{
                     "local_id": "bad", "kind": "claim", "content": "unsupported",
                     "source_binding_indexes": [999999],
@@ -124,7 +157,7 @@ class IdeonomyTests(unittest.TestCase):
 
         def escalated(request):
             return {
-                "generator": {"id": "test", "version": "1"},
+                "generator": {"id": "test", "version": "1", "provider_revision": "provider-build-2026-11-16.1", "prompt_digest": "1" * 64, "config_digest": "2" * 64, "adapter_digest": "3" * 64},
                 "candidates": [{
                     "local_id": "bad", "kind": "claim", "content": "verified",
                     "source_binding_indexes": [0], "epistemic_status": "verified",
@@ -137,7 +170,7 @@ class IdeonomyTests(unittest.TestCase):
     def test_rejects_unsupported_graph_relations_and_input_budget_excess(self):
         def unsupported_relation(request):
             return {
-                "generator": {"id": "test", "version": "1"},
+                "generator": {"id": "test", "version": "1", "provider_revision": "provider-build-2026-11-16.1", "prompt_digest": "1" * 64, "config_digest": "2" * 64, "adapter_digest": "3" * 64},
                 "candidates": [
                     {"local_id": "a", "kind": "claim", "content": "A", "source_binding_indexes": [0]},
                     {"local_id": "b", "kind": "claim", "content": "B", "source_binding_indexes": [1]},
@@ -208,6 +241,22 @@ class IdeonomyTests(unittest.TestCase):
         tampered = dict(candidate_set)
         tampered["candidates"] = [dict(candidate) for candidate in candidate_set["candidates"]]
         tampered["candidates"][0]["content"] = "Changed after enumeration."
+        with self.assertRaisesRegex(ValueError, "candidate identity is invalid"):
+            store_ideonomy_candidate_set(
+                self.registry, self.graph, tampered,
+                project_id="merlin",
+                source_repo="Mannyspiro/expert-robot",
+                source_commit="b" * 40,
+            )
+
+
+    def test_store_rejects_changed_generator_provenance(self):
+        candidate_set = enumerate_ideonomy_candidates(
+            self.registry, self.extraction_ref, self._generator,
+        )
+        tampered = dict(candidate_set)
+        tampered["generator"] = dict(candidate_set["generator"])
+        tampered["generator"]["adapter_digest"] = "4" * 64
         with self.assertRaisesRegex(ValueError, "candidate identity is invalid"):
             store_ideonomy_candidate_set(
                 self.registry, self.graph, tampered,
