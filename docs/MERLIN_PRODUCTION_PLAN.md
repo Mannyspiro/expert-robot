@@ -87,3 +87,37 @@ For future Lacuna-inspired candidate search, track coherence, corpus-relative av
 ### Defect-class record
 
 Trigger: change valid metadata while retaining another task's text/hash. Root cause: validation checked field shape and selected substring bindings but did not compare the complete control preamble. Preventive control: one canonical preamble renderer shared by compilation and admission, exact prefix equality, single-line controls and compiled-envelope validation. Detection: metadata perturbation, context-planted header, altered/relocated workflow, oversized envelope and publication-negative tests. Adjacent boundary review still needed: direct outbox producers, result admission, other model entrypoints, approval provenance and authenticated transport. This patch does not claim to authenticate a coherently forged whole envelope.
+
+
+## Revision 3 - private checkout and exact-source CI gate (2026-11-17)
+
+Parent plan: revision 2 at source 5a5cb0b3f1ff614666455b7bc9b212eb81693112. Prior plan text is preserved byte-for-byte. Production readiness remains NOT ESTABLISHED.
+
+### Observations and decision
+
+Authenticated connector reads succeeded for both private repositories. Container Git probes for both repositories failed to resolve github.com; the container also has no GitHub token, SSH agent or configured Git credential helper. A complete Git checkout was NOT obtained. Neither repository was made public, and no credentials or trust roots were created, read out or changed. The safe partial resolution is an exact-source private checkout path in existing CI, not a claim that connector access supplies shell authentication.
+
+The current production feature branch diverges from PR #175 (59 commits ahead, 5 behind in the queried comparison). Content inspection found the complete six-field generator provenance already preserved in candidate envelopes and persistence validation. The newer interface additionally requires runtime-owned provenance before invocation and rejects provider-supplied provenance. Preserve that stronger interface; copying the older #175 provider-response interface would regress the trust boundary. No branch-history merge/rebase or full integration-test success is claimed.
+
+### Implemented change and bounded validation
+
+- Existing CI checks out the exact PR head or push commit with full history and persist-credentials=false, retains read-only workflow permissions and existing test steps, and records event identity separately from actual tested source.
+- scripts/merlin_research_stack_gate.py requires Python 3.11 and verifies actual tracked source bytes against the exact Git commit before/between/after the eight fixed suites. It rejects hidden skip-worktree changes, untracked importable source, missing files, unsupported symlinks/submodules and source drift. Each suite has a deadline, bounded streaming log and explicit missing/failed/incomplete/not_run status. A stale previous result cannot be reused as a pass. These are test-runner controls, NOT an adversarial MCFC sandbox.
+- The previously omitted scientific-workflow suite is now selected alongside prompt, extraction, knowledge-compression, Ideonomy, Hermes and Logos tests in an explicit existing-CI step. Prior standalone suites remain intact.
+- .github/actions/checkout-cace-source/action.yml defines a dormant exact-commit private CACE checkout using an existing caller-supplied protected transport key. It does not provision a key or authenticate a CACE verifier. Use only in an independently approved protected job, never one executing untrusted PR code; do not forward its credential to tests. It has not been invoked.
+- The NEW gate's 28 regression tests passed locally on Python 3.13.5 using disposable real Git fixture repositories. This is not execution of the actual Merlin research suites. YAML parsing and 37 shell-block syntax checks passed; Python 3.11 AST parsing passed but is not interpreter execution.
+- An actual attempt to invoke the production gate in this container returned blocked because Python 3.11 is unavailable. All eight required suites were recorded as not_run. No CI workflow was dispatched. Evidence: docs/evidence/merlin-source-gate-local-20261117.json, research-stack-gate-local.log, and target-runtime-blocked/research-stack-result.json.
+
+### Updated ranking and acceptance
+
+P0b remains PARTIAL: checkout configuration and the test gate are source-authored/locally tested within the scope above. NEXT: execute the gate on the exact updated branch with Python 3.11 in an approved network-enabled authenticated runner and inspect every suite result; then resolve the remaining branch history deliberately. No other branch's green run substitutes for this evidence. A cross-repository source checkout requires its own authorized transport; the current repository's workflow token is not assumed to grant CACE access.
+
+P0c remains NEXT IMPLEMENTATION: persist the existing scientific_loop.py observation/prediction/plan records in the canonical registry with immutable ArtifactRefs and Hermes episode gates. Require parent-plan and evidence references, preserve failed/null outcomes, and test restart/replay and changed-input rejection. Do not create a second registry.
+
+P1 remains BLOCKED FOR REAL DISPATCH: implement and test actual MCFC OS/container enforcement, including CPU/memory/PID/filesystem/network/secret limits, process-tree cleanup and lease fencing. The focused test runner is not a substitute.
+
+P2 remains UNEXERCISED: independent CACE verifier transport, signer and exact artifact/source acceptance. Existing transport access and local test keys cannot establish independent verification.
+
+P3 remains UNQUALIFIED: one complete research-to-artifact/HUD path, followed by installation, backup/restore, restart, migration, observability and rollback. No production claim until all dependent gates and explicit promotion approval pass.
+
+Rollback: revert only this feature-branch checkpoint; retain prior plans and evidence. No paid/speculative CI, Avrea use before the recorded 2026-12-01 hold, merge, deployment, signing, secret mutation or capability promotion occurred. Context coverage remains the available handoffs/specifications plus task-relevant live source, not every prior chat or repository file. Re-query live state before the next execution.

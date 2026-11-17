@@ -1,0 +1,33 @@
+test_abbreviated_commit (test_merlin_research_stack_gate.ResearchStackGateTests.test_abbreviated_commit) ... ok
+test_dirty_tracked_source (test_merlin_research_stack_gate.ResearchStackGateTests.test_dirty_tracked_source) ... ok
+test_executable_mode_change_is_rejected (test_merlin_research_stack_gate.ResearchStackGateTests.test_executable_mode_change_is_rejected) ... ok
+test_failure_does_not_skip_later_suites (test_merlin_research_stack_gate.ResearchStackGateTests.test_failure_does_not_skip_later_suites) ... ok
+test_ignored_importable_code_is_rejected (test_merlin_research_stack_gate.ResearchStackGateTests.test_ignored_importable_code_is_rejected) ... ok
+test_import_error_is_reported (test_merlin_research_stack_gate.ResearchStackGateTests.test_import_error_is_reported) ... ok
+test_invalid_runtime_bounds_fail_closed (test_merlin_research_stack_gate.ResearchStackGateTests.test_invalid_runtime_bounds_fail_closed) ... ok
+test_invalid_suite_path (test_merlin_research_stack_gate.ResearchStackGateTests.test_invalid_suite_path) ... ok
+test_log_limit_does_not_limit_test_fixture_files (test_merlin_research_stack_gate.ResearchStackGateTests.test_log_limit_does_not_limit_test_fixture_files) ... ok
+test_missing_git_checkout_is_rejected (test_merlin_research_stack_gate.ResearchStackGateTests.test_missing_git_checkout_is_rejected) ... ok
+test_missing_suite_is_not_a_pass (test_merlin_research_stack_gate.ResearchStackGateTests.test_missing_suite_is_not_a_pass) ... ok
+test_missing_tracked_file (test_merlin_research_stack_gate.ResearchStackGateTests.test_missing_tracked_file) ... ok
+test_nested_worktree_root_is_rejected (test_merlin_research_stack_gate.ResearchStackGateTests.test_nested_worktree_root_is_rejected) ... ok
+test_output_cap_is_recorded (test_merlin_research_stack_gate.ResearchStackGateTests.test_output_cap_is_recorded) ... ok
+test_parent_secret_is_not_inherited (test_merlin_research_stack_gate.ResearchStackGateTests.test_parent_secret_is_not_inherited) ... ok
+test_production_suite_set_covers_entire_requested_chain (test_merlin_research_stack_gate.ResearchStackGateTests.test_production_suite_set_covers_entire_requested_chain) ... ok
+test_skip_worktree_does_not_hide_changes (test_merlin_research_stack_gate.ResearchStackGateTests.test_skip_worktree_does_not_hide_changes) ... ok
+test_skipped_test_is_incomplete (test_merlin_research_stack_gate.ResearchStackGateTests.test_skipped_test_is_incomplete) ... ok
+test_source_mutation_blocks_next_suite (test_merlin_research_stack_gate.ResearchStackGateTests.test_source_mutation_blocks_next_suite) ... ok
+test_stale_pass_result_cannot_mask_early_exit (test_merlin_research_stack_gate.ResearchStackGateTests.test_stale_pass_result_cannot_mask_early_exit) ... ok
+test_success_report_is_written_and_non_authoritative (test_merlin_research_stack_gate.ResearchStackGateTests.test_success_report_is_written_and_non_authoritative) ... ok
+test_symlinked_source_parent_is_rejected (test_merlin_research_stack_gate.ResearchStackGateTests.test_symlinked_source_parent_is_rejected) ... ok
+test_timeout_is_recorded (test_merlin_research_stack_gate.ResearchStackGateTests.test_timeout_is_recorded) ... ok
+test_tracked_symlink_requires_target_qualification (test_merlin_research_stack_gate.ResearchStackGateTests.test_tracked_symlink_requires_target_qualification) ... ok
+test_valid_byte_verified_checkout (test_merlin_research_stack_gate.ResearchStackGateTests.test_valid_byte_verified_checkout) ... ok
+test_wrong_commit (test_merlin_research_stack_gate.ResearchStackGateTests.test_wrong_commit) ... ok
+test_wrong_python_stops_before_execution (test_merlin_research_stack_gate.ResearchStackGateTests.test_wrong_python_stops_before_execution) ... ok
+test_zero_tests_is_incomplete (test_merlin_research_stack_gate.ResearchStackGateTests.test_zero_tests_is_incomplete) ... ok
+
+----------------------------------------------------------------------
+Ran 28 tests in 27.794s
+
+OK

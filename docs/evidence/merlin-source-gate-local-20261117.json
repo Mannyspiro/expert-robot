@@ -1,0 +1,63 @@
+{
+  "actual_python": "3.13.5",
+  "auth_access": {
+    "container_gh_token_present": false,
+    "container_git_probe": "blocked_dns_github_com",
+    "container_github_token_present": false,
+    "container_ssh_agent_present": false,
+    "full_checkout_obtained": false,
+    "git_credential_helper_configured": false,
+    "github_connector": "authenticated_read_access",
+    "visibility_changed": false
+  },
+  "base_commit": "5a5cb0b3f1ff614666455b7bc9b212eb81693112",
+  "ci_dispatch": "not_performed",
+  "command": "python -m unittest discover -s tests -p 'test_merlin_research_stack_gate.py' -v",
+  "cross_repository_authenticated_checkout": "helper_source_authored_not_exercised",
+  "errors": 0,
+  "failures": 0,
+  "files": {
+    ".github/actions/checkout-cace-source/action.yml": {
+      "bytes": 1858,
+      "git_blob_sha1": "4dab7f4dd70d9c20b5dd75b5a2c67c5e5474bf1b",
+      "sha256": "4e9c57accaed058f39fc33853a01aee3a1ddf953ba57ee3f7b0d833d35760229"
+    },
+    ".github/workflows/ci.yml": {
+      "bytes": 24007,
+      "git_blob_sha1": "7a84a28c7a11aa10b44256ef2dcff24704eca994",
+      "sha256": "79c848276296372dedaa611b429f697d35ac107a65e10401afc9754ce2667987"
+    },
+    "docs/evidence/research-stack-gate-local.log": {
+      "bytes": 3932,
+      "git_blob_sha1": "ad09ad8a9fe2585df70c1f508d413605ba4eab5e",
+      "sha256": "74bbbb044d5474e62a360cdb6fa3afa3d8a1fdb0f808cc5170118c590e815890"
+    },
+    "scripts/merlin_research_stack_gate.py": {
+      "bytes": 14719,
+      "git_blob_sha1": "127df0f6301304c7a224a900220a45d487bf4937",
+      "sha256": "90e07635a4ccc09049100141a3d42dc5f697c600cfabd6765f87be56677f466c"
+    },
+    "tests/test_merlin_research_stack_gate.py": {
+      "bytes": 10224,
+      "git_blob_sha1": "9101fc8599bb45c6f46aac1600dc8d53ecbce203",
+      "sha256": "2e39078c07b81c9d0193bc0b8207080b675941716feb81190f5e1ba136f013e6"
+    }
+  },
+  "independent_cace_verification": false,
+  "mcfc_os_isolation": "not_implemented_by_this_patch",
+  "production_qualification": false,
+  "promotion_authority": false,
+  "python_3_11_execution": "not_run",
+  "required_production_python": "3.11",
+  "research_stack_suites": "not_run",
+  "schema": "merlin-source-gate-local-evidence/1",
+  "scope": "new CI-gate code tested with temporary local Git fixture repositories; not the Merlin research suites",
+  "source_repository": "Mannyspiro/expert-robot",
+  "static_checks": {
+    "bash_syntax_blocks": 37,
+    "python_3_11_ast": "pass_not_execution",
+    "yaml_parse": "pass"
+  },
+  "status": "locally_tested",
+  "tests_run": 28
+}

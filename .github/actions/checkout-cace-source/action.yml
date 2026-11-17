@@ -1,0 +1,49 @@
+name: Checkout exact private CACE source
+description: Read-only source checkout using an existing caller-provided CACE transport key; not verifier authentication.
+inputs:
+  source-sha:
+    description: Full lowercase CACE commit SHA approved for source inspection.
+    required: true
+  ssh-key:
+    description: Existing protected CACE repository transport key. Never supply this action from an untrusted PR job.
+    required: true
+outputs:
+  source-sha:
+    description: Actual checked out CACE commit.
+    value: ${{ steps.identity.outputs.source_sha }}
+  tree-sha:
+    description: Actual checked out CACE tree.
+    value: ${{ steps.identity.outputs.tree_sha }}
+runs:
+  using: composite
+  steps:
+    - name: Validate immutable source identity
+      shell: bash
+      env:
+        CACE_SOURCE_SHA: ${{ inputs.source-sha }}
+      run: |
+        set -euo pipefail
+        [[ "$CACE_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo 'An exact CACE commit is required.'; exit 2; }
+        test ! -e cace-source || { echo 'Refusing to replace an existing CACE workspace.'; exit 2; }
+    - name: Private CACE checkout
+      uses: actions/checkout@v4
+      with:
+        repository: morganaspim/Cace-app
+        ref: ${{ inputs.source-sha }}
+        path: cace-source
+        ssh-key: ${{ inputs.ssh-key }}
+        ssh-strict: true
+        persist-credentials: false
+        fetch-depth: 0
+    - name: Verify source identity
+      id: identity
+      shell: bash
+      env:
+        CACE_SOURCE_SHA: ${{ inputs.source-sha }}
+      run: |
+        set -euo pipefail
+        actual="$(git -C cace-source rev-parse HEAD)"
+        test "$actual" = "$CACE_SOURCE_SHA"
+        git -C cace-source diff --quiet HEAD --
+        printf 'source_sha=%s\n' "$actual" >> "$GITHUB_OUTPUT"
+        printf 'tree_sha=%s\n' "$(git -C cace-source rev-parse 'HEAD^{tree}')" >> "$GITHUB_OUTPUT"
