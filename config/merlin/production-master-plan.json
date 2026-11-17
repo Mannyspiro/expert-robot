@@ -1,7 +1,7 @@
 {
   "schema": "merlin-production-master-plan/1",
   "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
-  "version": 2,
+  "version": 3,
   "created_at_utc": "2026-11-17T17:51:10.393995+00:00",
   "date_phoenix": "2026-11-17",
   "source_repository": "Mannyspiro/expert-robot",
@@ -12,10 +12,10 @@
   "promotion_authority": false,
   "parent_plan": {
     "id": "MERLIN-PRODUCTION-MASTER-20261117",
-    "version": 1,
-    "path": "config/merlin/plan-history/production-master-plan-v1-4ea0e5100d69329a72df7398cff7adcb747f123b171d69129aa4c858f4acf623.json",
-    "sha256": "4ea0e5100d69329a72df7398cff7adcb747f123b171d69129aa4c858f4acf623",
-    "mutation": "append-only revision; v1 preserved"
+    "version": 2,
+    "path": "config/merlin/plan-history/production-master-plan-v2-a1703f0412da38486ca55c6fcc280aa262786278a823c3a41b91d16660668840.json",
+    "sha256": "a1703f0412da38486ca55c6fcc280aa262786278a823c3a41b91d16660668840",
+    "mutation": "append-only measured recovery revision; v2 preserved"
   },
   "references": {
     "coverage": {
@@ -72,6 +72,38 @@
       "archive_path": "docs/evidence/merlin-research-upgrade-20261117.zip",
       "archive_sha256": "120b0a4c914880538626c86fd18f71d5294867f67f99d10389ee32cbace0aa1c",
       "sha256": "115d47d1bdb023bc79be4f4043dee3303d446a01b33075e643f5c75278ba51b0"
+    },
+    "recovery_protocol": {
+      "path": "config/merlin/recovery-drill-protocol-20261117.json",
+      "path_kind": "repository_relative",
+      "sha256": "e33dbf72ce68f16e04fe9fb8b408c8b4269a236dcd1027eb80f8f17589a97a6a",
+      "scope": "Pre-result operational predictions, invariants, controls and four representation applicability decisions"
+    },
+    "defect_families": {
+      "path": "config/merlin/defect-families/private-runtime-deployment-20261117.json",
+      "path_kind": "repository_relative",
+      "scope": "Bounded deployment family observations, preventive controls, regressions and unknowns",
+      "sha256": "7535a2e8c888ffa1e14fe984c4ea1523371f2a95cbe673cf99a6ec12196f7246"
+    },
+    "recovery_evidence": {
+      "path": "docs/evidence/merlin-registry-recovery-20261117.json",
+      "path_kind": "repository_relative",
+      "sha256": "478febf4a2210f5b916d5cf4d268dc5dc7196c2602448713f23148d894b022a5",
+      "run_id": 44151750942,
+      "workflow_commit": "176d7fb683f7829efcdf0c2043a75d287cb38cb0",
+      "artifact_id": 14359511488,
+      "artifact_sha256": "2158f078958ac9ea129c861414521d3ca26abe786494e901ec67256d167966d3",
+      "archive_path": "docs/evidence/merlin-registry-recovery-20261117.zip",
+      "scope": "published two-record synthetic private registry; no full-Merlin or off-host disaster recovery claim"
+    },
+    "recovery_api": {
+      "path": "docs/PRIVATE_REGISTRY_RECOVERY.md",
+      "path_kind": "repository_relative"
+    },
+    "recovery_source_review": {
+      "path": "config/merlin/source-reviews/recovery-scope-20261117.json",
+      "path_kind": "repository_relative",
+      "scope": "five complete current governing documents reviewed for operational recovery; broader semantic review queue remains open"
     }
   },
   "source_of_truth_order": [
@@ -109,7 +141,23 @@
         "P01"
       ],
       "review": "queued",
-      "reconciliation_task": "P01-1"
+      "reconciliation_task": "P01-1",
+      "current_operational_review": {
+        "document_id": "DOC-a54ff182c7e8acf5",
+        "path": "AGENTS.md",
+        "source_commit": "0f4823ca35f08cc7038a6923e042e359d5d5e941",
+        "git_blob_sha1": "f274824e3a6eae9eec7eb5b883eeb2e736518e56",
+        "content_sha256": "6fd6de36b30f5693aebff2cf326ebfc302d47ee24055aaab7abce8c000aff6d2",
+        "matches_original_capture": false,
+        "complete_current_text_read": true,
+        "review_scope": "private own-service recovery, canonical registry and permission/evidence boundaries only",
+        "implementation_findings": [
+          "New private demo route is observed separately from historical Avrea/CACE qualification bridge.",
+          "Legacy run/disk/qualification snapshots are navigation, not inherited current proof or live provider state.",
+          "No direct ChatGPT MCP/provider-wide integration or independent CACE verification inferred."
+        ],
+        "remaining": "Whole-document claims-to-code/receipt semantic reconciliation remains queued outside this bounded operational shard."
+      }
     },
     "DOC-b335630551682c19": {
       "coverage_index": 1,
@@ -383,7 +431,23 @@
         "P04"
       ],
       "review": "queued",
-      "reconciliation_task": "P01-1"
+      "reconciliation_task": "P01-1",
+      "current_operational_review": {
+        "document_id": "DOC-f58d6c6622f70197",
+        "path": "docs/AI_RUNNER_AND_BRIDGE_OPERATIONS.md",
+        "source_commit": "0f4823ca35f08cc7038a6923e042e359d5d5e941",
+        "git_blob_sha1": "e412ec13e1e94691f61fa70243bdab235b1d7538",
+        "content_sha256": "c9d318eaf3cde770a75407a398be1180058d6199e54bfd9abeb37889c91f0ac7",
+        "matches_original_capture": true,
+        "complete_current_text_read": true,
+        "review_scope": "private own-service recovery, canonical registry and permission/evidence boundaries only",
+        "implementation_findings": [
+          "New private demo route is observed separately from historical Avrea/CACE qualification bridge.",
+          "Legacy run/disk/qualification snapshots are navigation, not inherited current proof or live provider state.",
+          "No direct ChatGPT MCP/provider-wide integration or independent CACE verification inferred."
+        ],
+        "remaining": "Whole-document claims-to-code/receipt semantic reconciliation remains queued outside this bounded operational shard."
+      }
     },
     "DOC-76158a34fb32f71e": {
       "coverage_index": 31,
@@ -450,7 +514,23 @@
         "P04"
       ],
       "review": "queued",
-      "reconciliation_task": "P01-1"
+      "reconciliation_task": "P01-1",
+      "current_operational_review": {
+        "document_id": "DOC-d9e0a43180109c45",
+        "path": "docs/MERLIN_AVREA_HERMES_ROUTING.md",
+        "source_commit": "0f4823ca35f08cc7038a6923e042e359d5d5e941",
+        "git_blob_sha1": "9ff7c26704c34378e67c06288603c9985b7276c2",
+        "content_sha256": "f1dcf2f6af9dae77c9233fea0ceb7c81e07e513a2dffd0ea68627f170b166308",
+        "matches_original_capture": true,
+        "complete_current_text_read": true,
+        "review_scope": "private own-service recovery, canonical registry and permission/evidence boundaries only",
+        "implementation_findings": [
+          "New private demo route is observed separately from historical Avrea/CACE qualification bridge.",
+          "Legacy run/disk/qualification snapshots are navigation, not inherited current proof or live provider state.",
+          "No direct ChatGPT MCP/provider-wide integration or independent CACE verification inferred."
+        ],
+        "remaining": "Whole-document claims-to-code/receipt semantic reconciliation remains queued outside this bounded operational shard."
+      }
     },
     "DOC-265ba8535bf52f1d": {
       "coverage_index": 38,
@@ -630,7 +710,23 @@
         "P03"
       ],
       "review": "queued",
-      "reconciliation_task": "P01-1"
+      "reconciliation_task": "P01-1",
+      "current_operational_review": {
+        "document_id": "DOC-d99505ca6cfd925b",
+        "path": "docs/MERLIN_SCIENTIFIC_OPERATING_LOOP_V1.md",
+        "source_commit": "0f4823ca35f08cc7038a6923e042e359d5d5e941",
+        "git_blob_sha1": "b97dbfeceac863927fb7da3a63b68e2b6fcf83e9",
+        "content_sha256": "a9ead9579ab6b5d33099cea00a5472c71228fde1d152d5664b44772841bdc852",
+        "matches_original_capture": true,
+        "complete_current_text_read": true,
+        "review_scope": "private own-service recovery, canonical registry and permission/evidence boundaries only",
+        "implementation_findings": [
+          "New private demo route is observed separately from historical Avrea/CACE qualification bridge.",
+          "Legacy run/disk/qualification snapshots are navigation, not inherited current proof or live provider state.",
+          "No direct ChatGPT MCP/provider-wide integration or independent CACE verification inferred."
+        ],
+        "remaining": "Whole-document claims-to-code/receipt semantic reconciliation remains queued outside this bounded operational shard."
+      }
     },
     "DOC-329ab9226f8c094a": {
       "coverage_index": 57,
@@ -686,7 +782,23 @@
         "P05"
       ],
       "review": "queued",
-      "reconciliation_task": "P01-1"
+      "reconciliation_task": "P01-1",
+      "current_operational_review": {
+        "document_id": "DOC-48460c655b05f204",
+        "path": "docs/cace-bidirectional-bridge.md",
+        "source_commit": "0f4823ca35f08cc7038a6923e042e359d5d5e941",
+        "git_blob_sha1": "8ab6be27cc0adc6d6a929da9ee91fcf4ff03b37a",
+        "content_sha256": "a28f011ad3e92ca7e764056119113ecddc8cde26a28daad5918756f72d7eb73e",
+        "matches_original_capture": true,
+        "complete_current_text_read": true,
+        "review_scope": "private own-service recovery, canonical registry and permission/evidence boundaries only",
+        "implementation_findings": [
+          "New private demo route is observed separately from historical Avrea/CACE qualification bridge.",
+          "Legacy run/disk/qualification snapshots are navigation, not inherited current proof or live provider state.",
+          "No direct ChatGPT MCP/provider-wide integration or independent CACE verification inferred."
+        ],
+        "remaining": "Whole-document claims-to-code/receipt semantic reconciliation remains queued outside this bounded operational shard."
+      }
     },
     "DOC-8a82c0bc9e8ae59f": {
       "coverage_index": 63,
@@ -1926,7 +2038,7 @@
       "live coder/evaluator providers",
       "general Hermes/MCFC execution",
       "independent CACE signer/verifier",
-      "reboot_or_isolated_state_restore_drill",
+      "reboot_and_off_host_or_full_project_state_restore",
       "native FreeCAD/ngspice runtime",
       "full191-document semantic reconciliation"
     ],
@@ -1980,6 +2092,71 @@
         "virtual_circuit_demo"
       ],
       "persistence_write_denial": "tool_not_allowed"
+    },
+    "recovery_work": {
+      "baseline_run_id": 44149984275,
+      "baseline_commit": "3a28ea8db1435008b59947be16089e22a9729834",
+      "baseline_artifact_id": 14358267196,
+      "baseline_artifact_sha256": "308006378aa9e57aae7fcfb4214c5bbc1a96d02850dd077ea4948f00f403e346",
+      "baseline_service_pid": 1987572,
+      "baseline_status": "active_and_tools_passed",
+      "isolated_restore": "passed_actual_service_uid_and_private_socket",
+      "scope": "two synthetic engineering records on own private runtime only",
+      "run_id": 44151750942,
+      "workflow_commit": "176d7fb683f7829efcdf0c2043a75d287cb38cb0",
+      "source_commit": "2e07231d4480ee567ce5583022a8987669936196",
+      "runtime_and_recovery_tests": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests": 136
+      },
+      "operation_tests": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests": 9
+      },
+      "total_tests": 145,
+      "skipped": 0,
+      "production_unchanged": true,
+      "production_service_restarted": false,
+      "source_state": {
+        "bytes": 92016,
+        "files": 5,
+        "sha256": "7c28f9ba92155e2ab59167de922d7f2242b4aaabd2b998375ff2dc745cd0d28a"
+      },
+      "production_pid": 1987572,
+      "snapshot_manifest_sha256": "6b199b0a1d5a9d5ac66ba54c6530af6d6b4136996571e3f11977161093cfc98c",
+      "workspace": "/var/lib/merlin-dot-private-recovery-drills/drill-az9_3nug",
+      "canonical_identity": {
+        "history_rows": 4,
+        "history_sha256": "3a8d5090c6a8bd953e4ee779ba4803b3cf80867b704c89a17189e0c9c14e57f9",
+        "inventory_sha256": "c537ce5b169a330c260818bb0c50d31d7f43086587463b8cf6196ca2cd35e591",
+        "provenance_rows": 0,
+        "provenance_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "record_count": 2,
+        "source_refs_sha256": "69e4e5a225116c2791e45289e8671a1025183dde2f309145915ae5b925932d79"
+      },
+      "negative_controls": {
+        "corrupt_blob": {
+          "class": "RecoveryError",
+          "rejected": true
+        },
+        "missing_blob": {
+          "class": "RecoveryError",
+          "rejected": true
+        }
+      },
+      "isolated_server_stopped": true,
+      "limitations": [
+        "Same host and same service identity; no independent backup custody or verifier.",
+        "Production sample has two synthetic records, four version rows and zero provenance rows; nonempty multi-version/provenance/pending-receipt coverage is in focused fixtures.",
+        "No full corpus/other-store restore, production switch/restart or shared-runner reboot.",
+        "Quiescent published non-WAL source is a prerequisite; immutable SQLite mode is not a writer lock."
+      ]
     }
   },
   "reconciliations": [
@@ -2232,9 +2409,10 @@
           "state": "partial",
           "evidence_refs": [
             "deployment",
-            "persistence"
+            "persistence",
+            "recovery_evidence"
           ],
-          "scope_note": "Real socket/CLI and write denial passed. A failed upgrade restarted v1; later diagnostics confirmed exact v1 link/config and an active service, and an as-opc peer probe passed. The reconciled v2 upgrade is measured separately. Reboot and isolated state-restore acceptance remain open.",
+          "scope_note": "Private runtime acceptance and an isolated restored runtime passed actual socket/UID tests; production stayed active with unchanged PID/source/config. Reboot and broader worker lifecycle acceptance remain open.",
           "acceptance_gate_ids": [
             "G-SOURCE",
             "G-SCOPE",
@@ -2245,11 +2423,12 @@
           "id": "P00-3",
           "title": "Prove non-destructive recovery",
           "coverage_pointer": "/ranked_workstreams/0/tasks/2",
-          "state": "partial",
+          "state": "private_demo_registry_recovery_evidenced_partial_full_scope",
           "evidence_refs": [
-            "research_integration"
+            "research_integration",
+            "recovery_evidence"
           ],
-          "scope_note": "After a failed source/config switch, later fixed diagnostics and tools confirmed exact v1 recovery. This is operational source/config recovery, not an isolated canonical-state restore drill.",
+          "scope_note": "Live isolated backup/restore passed as serviceUID982 for2synthetic records, with exact canonical row/blob checks, negative controls and production unchanged. Full project stores, off-host retention and reboot recovery remain open.",
           "acceptance_gate_ids": [
             "G-SOURCE",
             "G-SCOPE",
@@ -2961,9 +3140,14 @@
         "Test fault injection and preventive guards on the original failure and adjacent privileged/client/tool paths.",
         "Link cause, violated invariant, detection rule, regression, prevention and exact source evidence; a green unrelated suite cannot close a family."
       ],
-      "state": "planned_integration_not_qualified",
+      "state": "partial_controls_and_structured_family_ledger",
       "promotion_authority": false,
-      "dependency_condition": "Require the relevant contract and evidence slice; do not wait for unrelated domain completion or infer the full dependency track is done."
+      "dependency_condition": "Require the relevant contract and evidence slice; do not wait for unrelated domain completion or infer the full dependency track is done.",
+      "evidence": [
+        "defect_families",
+        "research_integration"
+      ],
+      "remaining": "Original Actions403run provenance, independent cause of original upgradefailure and broader sibling integration remain open."
     },
     {
       "id": "P00-X2",
@@ -2982,9 +3166,15 @@
         "Changes carry bounded impact, before/after evidence, an isolated rollback/restore target and a check that rollback restores the original invariant.",
         "Only materially missing authority requires a new decision; this task does not widen service UID grants, signer custody or execution capabilities."
       ],
-      "state": "planned_integration_not_qualified",
+      "state": "bounded_demo_restore_and_preservation_evidenced",
       "promotion_authority": false,
-      "dependency_condition": "Require the relevant contract and evidence slice; do not wait for unrelated domain completion or infer the full dependency track is done."
+      "dependency_condition": "Require the relevant contract and evidence slice; do not wait for unrelated domain completion or infer the full dependency track is done.",
+      "evidence": [
+        "recovery_protocol",
+        "recovery_evidence",
+        "defect_families"
+      ],
+      "remaining": "Full project-store restore/off-host custody/reboot and independent broad-worker recovery remain open. Source/config rollback and isolated clone are distinct measured paths."
     },
     {
       "id": "P09-X2",
@@ -3021,47 +3211,44 @@
     {
       "rank": 1,
       "task_ids": [
-        "P03-X1",
-        "P00-X1",
-        "P09-X2"
-      ],
-      "reason": "The default typed contracts and fixed private demo slice are implemented/tested/live. Finish defect-family evidence and broaden to one independently evaluated episode without treating this fixture as a discovery."
-    },
-    {
-      "rank": 2,
-      "task_ids": [
-        "P00-3",
-        "P00-X2"
-      ],
-      "reason": "Demonstrated post-job persistence is not restart or isolated restore; prove recovery without altering unrelated runner data."
-    },
-    {
-      "rank": 3,
-      "task_ids": [
         "P01-1",
         "P01-X1",
         "P01-2"
       ],
-      "reason": "Review a dependency-selected shard of187 queued records and freeze source-cited retrieval cases before optimization; preserve all191IDs."
+      "reason": "Recovery is now demonstrated for the private demo. Review a dependency-selected private context shard, derive source/test impact links and freeze source-cited retrieval evaluation cases before broadening context. Keep raw corpus outside shared-runner retrieval.",
+      "acceptance": "Each selected source has exact identity, full read coverage, cited answer span and explicit missing/contradictory cases; training/evaluation cases are disjoint and versioned."
     },
     {
-      "rank": 4,
+      "rank": 2,
       "task_ids": [
         "P03-1",
         "P03-2",
-        "P03-3"
+        "P03-3",
+        "P03-X1"
       ],
-      "reason": "Bind available authorized free coder/evaluator adapters and run one falsifiable episode with held-out cases, counterexamples and safe resume."
+      "reason": "Run one genuinely discriminating episode through authorized free coder/evaluator adapters with canonical checkpoints and independent review; the known fixture is not discovery evidence.",
+      "acceptance": "Actual provider identities/cost bounds, held-out predictions, failed/null cases, resumable receipts and no automatic promotion."
     },
     {
-      "rank": 5,
+      "rank": 3,
+      "task_ids": [
+        "P00-3",
+        "P00-X2",
+        "P00-4"
+      ],
+      "reason": "Extend measured local restore to separately authorized durable off-host custody and broader canonical stores, then scheduled recovery/lifecycle acceptance. A snapshot beside production does not address host loss.",
+      "acceptance": "Trusted manifest pin retained apart from backup, exact payload scope, retrieval/restore test, retention budget and no unrelated runner changes. Shared-runner reboot requires a coordinated window."
+    },
+    {
+      "rank": 4,
       "task_ids": [
         "P04-1",
         "P05-1",
         "P06-2",
         "P06-4"
       ],
-      "reason": "Then close supervised execution, independent evidence and native CAD/solver vertical-slice prerequisites."
+      "reason": "Close supervised execution, independent evidence and native CAD/wiring/solver vertical-slice prerequisites after the source/research boundaries have actual evidence.",
+      "acceptance": "Pinned tools/source, bounded execution, exact artifacts and original-domain checks; no assumed FreeCAD/ngspice availability or independent CACE credentials."
     }
   ],
   "jit_repair_policy": {
@@ -3081,5 +3268,5 @@
   ],
   "update_rule": "Append a new plan version linked to this plan and exact observations/receipts. Update source review counts only after actual content/code/evidence reconciliation; never infer completion from indexing or generated text.",
   "dependency_semantics": "For bounded implementation, a dependency requires its relevant contract/source/evidence slice, not completion of every unrelated task in that track. Full191-document reconciliation remains open; offline typed-contract work may proceed after its governing source shard is read and its negative tests are defined.",
-  "updated_at_utc": "2026-11-17T18:31:57.491223+00:00"
+  "updated_at_utc": "2026-11-17T18:51:16.188799+00:00"
 }

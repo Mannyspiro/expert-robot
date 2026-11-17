@@ -1,6 +1,6 @@
 # Merlin production master plan
 
-Version 2 — November 17, 2026, America/Phoenix. This is the dependency and acceptance view for the preserved Merlin program. The machine-readable companion is [production-master-plan.json](../config/merlin/production-master-plan.json).
+Version 3 — November 17, 2026, America/Phoenix. This is the dependency and acceptance view for the preserved Merlin program. The machine-readable companion is [production-master-plan.json](../config/merlin/production-master-plan.json).
 
 A narrow private Merlin service is running on OCI. The remaining work turns that measured foothold into a reliable research system while preserving the existing canonical registry, graph, worker and independent-evidence boundaries.
 
@@ -113,7 +113,7 @@ The original acceptance definitions and PR/document inventories remain in the pi
 | P09-4 | Preserve cross-domain hypotheses without claiming discoveries | queued |
 | P09-5 | Preserve humanistic and teaching research | queued |
 
-`Partial` and `private demo scope evidenced` never mean the broader track is finished. In particular, P00-2 still needs reboot/extended acceptance, P00-3 needs an isolated canonical-state restore drill, P03 needs real provider binding, P05 needs independent verifier identity/custody and P06 needs native tools and geometry/wiring/solver round trips.
+`Partial` and `private demo scope evidenced` never mean the broader track is finished. In particular, P00-2 still needs reboot/extended acceptance, P00-3 needs full-store/off-host restore coverage beyond the demonstrated isolated demo, P03 needs real provider binding, P05 needs independent verifier identity/custody and P06 needs native tools and geometry/wiring/solver round trips.
 
 ## New integration tasks
 
@@ -147,11 +147,10 @@ Keep failed attempts, skipped gates and `NOT_RUN` visible. Reconcile an ambiguou
 
 ## Ranked next implementation
 
-1. Bind the typed default scientific/representation contract and the observed defect-family guards to one bounded episode. Prove the negative gates before expanding execution.
-2. Extend measured source/config restart recovery to an isolated canonical-state restore and reboot acceptance, retaining exact source/artifact identity and an explicit rollback target.
-3. Reconcile a dependency-selected shard from the 187 queued records, derive its impact/test links and freeze source-cited retrieval cases. Keep all 191 IDs discoverable.
-4. Bind available authorized free coder/evaluator adapters and run one falsifiable, held-out episode with independent review and safe resume. Keep provider/cost availability explicit.
-5. Then close supervised Hermes/MCFC execution, independent CACE evidence and a native CAD/wiring/simulation vertical slice.
+1. Review a dependency-selected private context shard, derive source/test impact links and freeze versioned source-cited retrieval cases, including omissions and contradictions. Keep all 191 IDs visible and the private corpus outside shared-runner retrieval.
+2. Bind authorized available free coder/evaluator adapters and run one genuinely discriminating episode with preregistered predictions, held-out cases, independent review, failed/null outcomes and canonical resume.
+3. Extend the demonstrated isolated demo restore to explicitly scoped off-host custody and broader canonical stores. Then coordinate lifecycle/reboot acceptance; a same-host snapshot does not protect against host loss.
+4. Close supervised execution, independent CACE evidence and native CAD/wiring/solver vertical-slice prerequisites with pinned tools and original-domain checks.
 
 Standing constraints remain no inferred external paid compute, Avrea unavailable until December 1, 2026 pending fresh availability evidence, no new Cloudflare deployment, no pasted/placeholder secrets and no automatic truth, proof, physical release or authority promotion. Append a new plan version when actual observations change the ranking; indexing or generated prose cannot close an acceptance gate.
 
@@ -165,4 +164,10 @@ Every substantive typed plan assesses all four lenses with an applied, deferred 
 
 ## Latest measured runtime checkpoint
 
-The reconciled research package is active. Upgrade run [44148199995](https://github.com/morganaspim/Cace-app/actions/runs/44148199995) passed116runtime tests with zero skips and verified live tools. Later read-only inspection [44148526104](https://github.com/morganaspim/Cace-app/actions/runs/44148526104) found the same service PID1987572 active and checked the research contract, all-lens demonstration, research episode, reviewed circuit and write denial. Both releases and original failure history remain preserved. The first failure cause is still unknown. Evidence and exact artifact digests are in [the checkpoint](evidence/merlin-research-integration-20261117.json); the successful run archive is preserved beside it.
+The reconciled research package is active. Upgrade run [44148199995](https://github.com/morganaspim/Cace-app/actions/runs/44148199995) passed116runtime tests with zero skips and verified live tools. Later read-only inspection [44148526104](https://github.com/morganaspim/Cace-app/actions/runs/44148526104) found the same service PID 1987572 active and checked the research contract, all-lens demonstration, research episode, reviewed circuit and write denial. Both releases and original failure history remain preserved. The first failure cause is still unknown. Evidence and exact artifact digests are in [the checkpoint](evidence/merlin-research-integration-20261117.json); the successful run archive is preserved beside it.
+
+## Isolated recovery gate — measured November 17, 2026
+
+[OCI run 44151750942](https://github.com/morganaspim/Cace-app/actions/runs/44151750942) passed 136 runtime/recovery tests plus 9 orchestration tests, zero skips. A separate restored registry ran as UID 982, retrieved the two synthetic context records, checked research/math tools and rejected job_submit. Separate changed/missing-blob copies were rejected before publication. The isolated child stopped; production PID 1987572, code/config/unit and the 92,016-byte five-file state identity were unchanged.
+
+The sample has four version rows and zero provenance rows; nonempty provenance, multi-version and pending-receipt round trips are covered by the focused fixture suite. This is local operational evidence, not full-Merlin readiness, off-host disaster recovery or independent qualification. The [API/runbook](PRIVATE_REGISTRY_RECOVERY.md), [preregistered protocol](../config/merlin/recovery-drill-protocol-20261117.json), [exact receipt](evidence/merlin-registry-recovery-20261117.json) and preserved run archive describe the scope. Parent plan v2 remains preserved.

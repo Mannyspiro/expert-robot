@@ -46,6 +46,17 @@
         44148526104
       ],
       "remaining": "Retain unknown original cause; avoid treating a bounded readiness control as causal proof."
+    },
+    {
+      "id": "DF-DRILL-CHILD-PARENT-IDENTITY",
+      "trigger": "Review of the new isolated drill found child startup originally sampled its parent PID after fork; if the worker exited before that read, it could observe its adopter instead. No production orphan was observed.",
+      "invariant": "The isolated child must only serve while its specifically expected worker is alive.",
+      "root_cause": "Using a newly observed parent identity instead of the parent identity fixed by the launching worker.",
+      "control": "Pass the launching worker PID and compare before and after the parent-death signal setup, plus finally terminate/kill/wait for the owned child.",
+      "regression": "ops/merlin_dot/test_recovery_drill.py::test_mismatched_parent_exits_before_importing_server",
+      "evidence_run_id": 44151750942,
+      "state": "local negative fixture and actual OCI isolated worker passed; child stopped",
+      "remaining": "Scoped to this fixed Unix child, not a general worker-supervision guarantee."
     }
   ],
   "update_rule": "Append observed defects or measured status updates; preserve previous versions of this record in plan history. Fault injection is labelled synthetic and is not a production exploit/outage claim.",
