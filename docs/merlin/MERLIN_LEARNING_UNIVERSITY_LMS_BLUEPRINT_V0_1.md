@@ -256,3 +256,7 @@ Guardrails:
 A pilot student enrolls through an institution course launch, completes a diagnostic, receives an adaptive lesson with historically contextualized and properly attributed media, practices a concept through retrieval and worked examples, receives a performance-based review schedule, completes a novel transfer task, and sees a transparent mastery record. The instructor can inspect the objective mapping, sources, assessment rubric and cohort-level results. The institution can audit identity, permissions, data flows and activity records.
 
 All major actions produce reproducible logs and test evidence. A successful demo is not evidence of educational efficacy; that requires a properly designed pilot.
+
+## Source implementation checkpoint — November 17, 2026
+
+A bounded source-pinned Titan structural research lab is integrated with the existing LearningPlatform, LearnerStore and canonical registry/hypothesis/graph stores. Draft publication policy, enrollment, frozen predictions, exact evidence, pending assessment review, recommendation and replay passed an isolated 85-test OCI suite (run 44174486449, zero skips). See [the integration contract](MERLIN_LMS_TITAN_INTEGRATION_V1.md) and the master plan. This establishes a software slice using synthetic actors; institutional login/interoperability, rights/accessibility review, student-data onboarding and learning efficacy remain separate requirements.

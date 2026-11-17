@@ -1,0 +1,26 @@
+{
+  "schema": "merlin-plan-observation/1",
+  "parent_plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+  "parent_plan_version": 3,
+  "protocol_ref": "config/merlin/learning-titan-integration-protocol-20261117.json",
+  "source_commit": "a5fe1065eb9d3a07448da9edcf29712fdf89bacd",
+  "observations": [
+    {
+      "run_id": 44174486449,
+      "tests": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests": 85
+      },
+      "synthetic_replay_equal": true,
+      "submission": "pending_review",
+      "verification": "blocked_missing_credentials",
+      "production_service_modified": false
+    }
+  ],
+  "decision": "Accept bounded code integration and synthetic OCI flow; next source-grounded retrieval and host-authenticated institutional adapter. Independent review/efficacy/cryptographic qualification remain open.",
+  "qualification": false,
+  "promotion_authority": false
+}

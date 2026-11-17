@@ -1,7 +1,7 @@
 {
   "schema": "merlin-production-master-plan/1",
   "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
-  "version": 3,
+  "version": 4,
   "created_at_utc": "2026-11-17T17:51:10.393995+00:00",
   "date_phoenix": "2026-11-17",
   "source_repository": "Mannyspiro/expert-robot",
@@ -12,10 +12,10 @@
   "promotion_authority": false,
   "parent_plan": {
     "id": "MERLIN-PRODUCTION-MASTER-20261117",
-    "version": 2,
-    "path": "config/merlin/plan-history/production-master-plan-v2-a1703f0412da38486ca55c6fcc280aa262786278a823c3a41b91d16660668840.json",
-    "sha256": "a1703f0412da38486ca55c6fcc280aa262786278a823c3a41b91d16660668840",
-    "mutation": "append-only measured recovery revision; v2 preserved"
+    "version": 3,
+    "path": "config/merlin/plan-history/production-master-plan-v3-b0104e3e0da32a5809bc439216fc0c8425e231c494369142f122462e3d3c1e41.json",
+    "sha256": "b0104e3e0da32a5809bc439216fc0c8425e231c494369142f122462e3d3c1e41",
+    "mutation": "append-only LMS/Titan integration revision; v3 preserved"
   },
   "references": {
     "coverage": {
@@ -104,6 +104,35 @@
       "path": "config/merlin/source-reviews/recovery-scope-20261117.json",
       "path_kind": "repository_relative",
       "scope": "five complete current governing documents reviewed for operational recovery; broader semantic review queue remains open"
+    },
+    "learning_titan_protocol": {
+      "path": "config/merlin/learning-titan-integration-protocol-20261117.json",
+      "path_kind": "repository_relative",
+      "scope": "Software integration predictions and declared negative/replay gates; known fixtures, no educational or crypto efficacy claim",
+      "sha256": "c49f1ce10867218528962c1b0ced1ba95b6303c9f579ca2ce7621f91b2fac3d3"
+    },
+    "learning_titan_integration": {
+      "path": "docs/merlin/MERLIN_LMS_TITAN_INTEGRATION_V1.md",
+      "path_kind": "repository_relative",
+      "source_commit": "a5fe1065eb9d3a07448da9edcf29712fdf89bacd",
+      "sha256": "a960c8e264dc03c4746f1363ed20ce0babba208242a1d09fb067c66d656bc05f"
+    },
+    "learning_titan_evidence": {
+      "path": "docs/evidence/merlin-learning-titan-integration-20261117.json",
+      "path_kind": "repository_relative",
+      "sha256": "1ab2ec0fec7199d3178dd908dc01282200f92662a52498680e3c6b5a2b668fcb",
+      "run_id": 44174486449,
+      "workflow_commit": "8e60a698373049c7e69dd1a4e2bbd4f2b7548591",
+      "artifact_id": 14370155589,
+      "archive_path": "docs/evidence/merlin-learning-titan-integration-20261117.zip",
+      "artifact_sha256": "77d105e32b07482d6ea26ce66d9428cec848c0c355fac4abc0a447d6d9bfd67c",
+      "scope": "Isolated synthetic integration,85focused tests; not institutional rollout or crypto qualification"
+    },
+    "learning_titan_defects": {
+      "path": "config/merlin/defect-families/learning-titan-integration-20261117.json",
+      "path_kind": "repository_relative",
+      "sha256": "57a809391a4d9a01ebf3f7e2024313c74e6c093d6d236e864a96a344b68bfaf7",
+      "scope": "Observed integration failure families and targeted canonical prevention"
     }
   },
   "source_of_truth_order": [
@@ -121,8 +150,8 @@
     "original_tracks": 10,
     "original_tasks": 37,
     "original_tasks_referenced": 37,
-    "extension_tasks": 7,
-    "master_task_total": 44,
+    "extension_tasks": 8,
+    "master_task_total": 45,
     "accessible_project_context_records": 41,
     "all_raw_chats_available": false,
     "all_drive_files_read": false,
@@ -2157,6 +2186,56 @@
         "No full corpus/other-store restore, production switch/restart or shared-runner reboot.",
         "Quiescent published non-WAL source is a prerequisite; immutable SQLite mode is not a writer lock."
       ]
+    },
+    "learning_titan": {
+      "run_id": 44174486449,
+      "tests": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests": 85
+      },
+      "source_commit": "a5fe1065eb9d3a07448da9edcf29712fdf89bacd",
+      "package_sha256": "545ec043f6269fec7bb13e6ff3f9001f42b0f7984ca7f9245019e8cf7359841a",
+      "synthetic_demo": {
+        "canonical_receipt_replay_equal": true,
+        "course_id": "10e12c902eb5cc5d923667b1",
+        "course_manifest_sha256": "10bbbf36860f35fe411e264234766c06b7e42bda0b18e250b56d99616a64e358",
+        "course_version": 1,
+        "cryptographic_security_verified": false,
+        "educational_efficacy_established": false,
+        "fixture_class": "synthetic_known_fixture",
+        "frozen_transcript_ref": {
+          "logical_path": "learning/synthetic-demo/frozen-transcript.json",
+          "project_id": "titan-learning-demo",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "62484630dd9f2d945f0d292e0e590a8c1f251938036413af54b077b368702455",
+          "version": 1
+        },
+        "lab_artifact_ref": {
+          "logical_path": "learning-labs/835aec4632a9ad0e0523ed8ca2f9136e329f2e17c929232127e719593c0a3b58/titan-structural.json",
+          "project_id": "titan-learning-demo",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "dfad28c983ec3533999ed7ff77ab69ca505b141d2470f4cbfe5f42239f925e8e",
+          "version": 1
+        },
+        "mastery_updated": false,
+        "model_sha256": "1a250aa2b19515404efa9017fdd54ec899f3e92487bb110dfd0426f5fb01cfc3",
+        "promotion_authority": false,
+        "qualification": false,
+        "replay_duplicate": true,
+        "schema": "merlin-learning-titan-oci-demo/1",
+        "source_commit": "a5fe1065eb9d3a07448da9edcf29712fdf89bacd",
+        "submission_status": "pending_review",
+        "synthetic_publication_review": true,
+        "vector_count": 5,
+        "vectors_sha256": "8b3cc775f7d2e60077fc1625131070f56eba63542a0392a6819fe871f1cbcdbc",
+        "verification_status": "blocked_missing_credentials"
+      },
+      "host_configuration_changed": false,
+      "production_service_modified": false,
+      "scope": "Course publication/enrollment/lab/evidence/pending-review/recommendation/replay on real local canonical stores; synthetic actors only"
     }
   },
   "reconciliations": [
@@ -2847,7 +2926,7 @@
         "P04"
       ],
       "coverage_pointer": "/ranked_workstreams/7",
-      "reconciliation": "HUD, Forge, voice and learning remain dependency-gated integrations, not evidence from interface descriptions.",
+      "reconciliation": "A concrete source-pinned Titan structural lab now reuses the canonical research stores in the LMS; institutional rollout and efficacy remain separate.",
       "tasks": [
         {
           "id": "P07-1",
@@ -2866,9 +2945,13 @@
           "id": "P07-2",
           "title": "Complete one learning vertical slice",
           "coverage_pointer": "/ranked_workstreams/7/tasks/1",
-          "state": "queued",
-          "evidence_refs": [],
-          "scope_note": "No current completion evidence was established in this master-plan pass.",
+          "state": "synthetic_lab_vertical_slice_oci_validated_partial_institutional_rollout",
+          "evidence_refs": [
+            "learning_titan_protocol",
+            "learning_titan_integration",
+            "learning_titan_evidence"
+          ],
+          "scope_note": "Draft course, independent publication policy, enrollment, canonical lab evidence, pending review and recommendation are wired in code; actual institutional auth/hosting/efficacy remain open.",
           "acceptance_gate_ids": [
             "G-SOURCE",
             "G-SCOPE",
@@ -3205,6 +3288,30 @@
         "installed personal method guidance"
       ],
       "remaining": "Real independent episode, held-out evaluation, appropriate numerical/empirical obligations and broader-worker integration remain open."
+    },
+    {
+      "id": "P07-X1",
+      "track": "P07",
+      "title": "Integrate source-bound research labs into the tenant-scoped learning workflow",
+      "depends_on": [
+        "P07-2",
+        "P02-1",
+        "P03-X1"
+      ],
+      "state": "source_integrated_oci_validated_synthetic_scope",
+      "acceptance": [
+        "Published course version/hash and enrolled learner scope bind each fixed lab.",
+        "Canonical model/vector/source evidence survives replay and crash recovery; altered identity or bytes are rejected.",
+        "Assessment version/hash is checked in the same write transaction and remains pending calibrated review.",
+        "Source citations and transfer/limits exercises remain distinct from fixture success, mastery and crypto qualification.",
+        "Actual authenticated institutional adapter, accessibility/media rights and student-data onboarding are separate gates."
+      ],
+      "promotion_authority": false,
+      "evidence": [
+        "learning_titan_protocol",
+        "learning_titan_integration",
+        "learning_titan_evidence"
+      ]
     }
   ],
   "ranked_next_actions": [
@@ -3213,42 +3320,53 @@
       "task_ids": [
         "P01-1",
         "P01-X1",
-        "P01-2"
+        "P01-2",
+        "P07-X1"
       ],
-      "reason": "Recovery is now demonstrated for the private demo. Review a dependency-selected private context shard, derive source/test impact links and freeze source-cited retrieval evaluation cases before broadening context. Keep raw corpus outside shared-runner retrieval.",
-      "acceptance": "Each selected source has exact identity, full read coverage, cited answer span and explicit missing/contradictory cases; training/evaluation cases are disjoint and versioned."
+      "reason": "Build frozen source-cited retrieval and abstention/contradiction evaluations using the new LMS/Titan artifact workflow; preserve exact source versions and all191bindings. Source links alone do not establish retrieval quality.",
+      "acceptance": "Versioned disjoint evaluation cases, exact answer spans and source hashes, missing-evidence refusals and measured citation correctness; no raw corpus on shared runner."
     },
     {
       "rank": 2,
+      "task_ids": [
+        "P07-2",
+        "P07-X1",
+        "P04-1"
+      ],
+      "reason": "Wire the library bridge through the actual host-authenticated LMS/session adapter and tenant/project provisioning, with instructor review, accessibility and retention policies. Keep synthetic demo and actual institutional onboarding distinct.",
+      "acceptance": "Authenticated Actor from hostsession, tenant-scoped routes, version-pinned submissions, role tests and one explicitly provisioned pilot tenant; no model-authored identity or grades."
+    },
+    {
+      "rank": 3,
       "task_ids": [
         "P03-1",
         "P03-2",
         "P03-3",
         "P03-X1"
       ],
-      "reason": "Run one genuinely discriminating episode through authorized free coder/evaluator adapters with canonical checkpoints and independent review; the known fixture is not discovery evidence.",
-      "acceptance": "Actual provider identities/cost bounds, held-out predictions, failed/null cases, resumable receipts and no automatic promotion."
+      "reason": "Use two authorized coder/evaluator adapters for a genuinely discriminating research episode with held-out predictions and independent review; the fixed Titan vectors remain known fixtures.",
+      "acceptance": "Actual provider/cost identities, new-data or held-out cases, canonical checkpoints and preserved failed/null results."
     },
     {
-      "rank": 3,
+      "rank": 4,
       "task_ids": [
         "P00-3",
         "P00-X2",
         "P00-4"
       ],
-      "reason": "Extend measured local restore to separately authorized durable off-host custody and broader canonical stores, then scheduled recovery/lifecycle acceptance. A snapshot beside production does not address host loss.",
-      "acceptance": "Trusted manifest pin retained apart from backup, exact payload scope, retrieval/restore test, retention budget and no unrelated runner changes. Shared-runner reboot requires a coordinated window."
+      "reason": "Extend recovery to published LMS/learner/research store sets and off-host custody using implemented approved primitives, retaining trusted pins and restore verification. Titan structural models are not encryption providers.",
+      "acceptance": "Consistent offline publication of WAL-backed stores, explicit payload/retention scope and retrieved restore drill; no shared-runner reboot outside a coordinated window."
     },
     {
-      "rank": 4,
+      "rank": 5,
       "task_ids": [
         "P04-1",
         "P05-1",
         "P06-2",
         "P06-4"
       ],
-      "reason": "Close supervised execution, independent evidence and native CAD/wiring/solver vertical-slice prerequisites after the source/research boundaries have actual evidence.",
-      "acceptance": "Pinned tools/source, bounded execution, exact artifacts and original-domain checks; no assumed FreeCAD/ngspice availability or independent CACE credentials."
+      "reason": "Continue native CAD/wiring/solver and independently verified Titan conformance paths after available adapters and exact source evidence are established.",
+      "acceptance": "Pinned native tools and standards-based implementations, exact vectors/interoperability and independent review where required; no automatic source/model-to-proof promotion."
     }
   ],
   "jit_repair_policy": {
@@ -3268,5 +3386,98 @@
   ],
   "update_rule": "Append a new plan version linked to this plan and exact observations/receipts. Update source review counts only after actual content/code/evidence reconciliation; never infer completion from indexing or generated text.",
   "dependency_semantics": "For bounded implementation, a dependency requires its relevant contract/source/evidence slice, not completion of every unrelated task in that track. Full191-document reconciliation remains open; offline typed-contract work may proceed after its governing source shard is read and its negative tests are defined.",
-  "updated_at_utc": "2026-11-17T18:51:16.188799+00:00"
+  "updated_at_utc": "2026-11-17T21:01:46.045568+00:00",
+  "integrations": {
+    "learning_titan": {
+      "status": "source_integrated_and_oci85pass_synthetic_flow",
+      "source_commit": "a5fe1065eb9d3a07448da9edcf29712fdf89bacd",
+      "components": [
+        "LearningPlatform and LearnerStore",
+        "LearningLabBridge and source-pinned Titan course",
+        "Titan structural protocol model/vector fixtures",
+        "MerlinRegistry and immutable ArtifactRef/provenance",
+        "ResearchEvidenceRecorder/HypothesisLedger/KnowledgeGraph",
+        "existing pending assessment and reviewer calibration policy"
+      ],
+      "reuse_boundary": "No duplicate blob/evidence store; LMS owns only run reservation/receipt links in its existing database.",
+      "baseline": {
+        "tests": 28,
+        "passed": 27,
+        "errors": 1,
+        "failure": "missing Titan executor tool_identity; legacy unsigned fixture mismatched current signed adapter contract"
+      },
+      "local_focused_tests": {
+        "tests": 85,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "broader_probe": {
+        "tests": 95,
+        "errors": 2,
+        "cause": "Incomplete source shard lacked unrelated app import; pytest unavailable for an unchanged graph test file. These are NOT_RUN outside selected85-test suite, not evidence of passing full repository tests."
+      },
+      "four_mathematical_lenses": "Every fixed lab report records applied/not_applicable for all four, with invariants and limits.",
+      "limits": [
+        "Synthetic known-fixture software flow; no held-out/new-data learning efficacy.",
+        "Host must inject authenticated Actor and distinct tenant/project provisioning; no institutional SSO/LTI/public deployment in this slice.",
+        "Titan executes no KDF/AEAD/KEM primitives and establishes no cryptographic security.",
+        "Missing independent verifier remains blocked_missing_credentials.",
+        "No automatic grade/mastery, proof qualification or promotion.",
+        "Existing private live host and production state are outside isolated validation."
+      ],
+      "qualification": false,
+      "promotion_authority": false,
+      "oci_run_id": 44174486449,
+      "oci_tests": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests": 85
+      },
+      "oci_architecture": "aarch64",
+      "oci_python": [
+        3,
+        9,
+        25
+      ],
+      "known_fixture_replay": {
+        "canonical_receipt_replay_equal": true,
+        "course_id": "10e12c902eb5cc5d923667b1",
+        "course_manifest_sha256": "10bbbf36860f35fe411e264234766c06b7e42bda0b18e250b56d99616a64e358",
+        "course_version": 1,
+        "cryptographic_security_verified": false,
+        "educational_efficacy_established": false,
+        "fixture_class": "synthetic_known_fixture",
+        "frozen_transcript_ref": {
+          "logical_path": "learning/synthetic-demo/frozen-transcript.json",
+          "project_id": "titan-learning-demo",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "62484630dd9f2d945f0d292e0e590a8c1f251938036413af54b077b368702455",
+          "version": 1
+        },
+        "lab_artifact_ref": {
+          "logical_path": "learning-labs/835aec4632a9ad0e0523ed8ca2f9136e329f2e17c929232127e719593c0a3b58/titan-structural.json",
+          "project_id": "titan-learning-demo",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "dfad28c983ec3533999ed7ff77ab69ca505b141d2470f4cbfe5f42239f925e8e",
+          "version": 1
+        },
+        "mastery_updated": false,
+        "model_sha256": "1a250aa2b19515404efa9017fdd54ec899f3e92487bb110dfd0426f5fb01cfc3",
+        "promotion_authority": false,
+        "qualification": false,
+        "replay_duplicate": true,
+        "schema": "merlin-learning-titan-oci-demo/1",
+        "source_commit": "a5fe1065eb9d3a07448da9edcf29712fdf89bacd",
+        "submission_status": "pending_review",
+        "synthetic_publication_review": true,
+        "vector_count": 5,
+        "vectors_sha256": "8b3cc775f7d2e60077fc1625131070f56eba63542a0392a6819fe871f1cbcdbc",
+        "verification_status": "blocked_missing_credentials"
+      },
+      "production_service_modified": false
+    }
+  }
 }
