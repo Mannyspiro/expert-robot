@@ -87,10 +87,6 @@ class ScientificLoopTests(unittest.TestCase):
         self.assertIn("preregister_predictions_and_falsifiers", contract["mandatory_stages"])
         self.assertIn("capability grows", contract["promotion_policy"])
 
-
-if __name__ == "__main__":
-    unittest.main()
-
     def test_observation_requires_offset_aware_timestamp(self):
         with self.assertRaises(ValueError):
             self.observation(observed_at="2026-11-14T02:30:00").validate()
@@ -99,3 +95,40 @@ if __name__ == "__main__":
         obs = self.observation()
         with self.assertRaises(ValueError):
             compare_observation(obs, [Prediction("latency_ms", float("nan"), 1, "ms")])
+
+    def test_invalid_prediction_cannot_hide_behind_missing_metric_or_wrong_units(self):
+        for metric, unit in (("missing", "ms"), ("latency_ms", "wrong")):
+            for expected, tolerance in ((float("nan"), 1), (1, -1), (True, 1), (1e308, 1e308)):
+                with self.subTest(metric=metric, expected=expected, tolerance=tolerance):
+                    with self.assertRaises(ValueError):
+                        compare_observation(self.observation(), [Prediction(metric, expected, tolerance, unit)])
+
+    def test_plan_revision_requires_real_parent_identity_and_version(self):
+        for parent in ({"unrelated": True}, {"plan_id": "", "version": 1},
+                       *({"plan_id": "P", "version": v} for v in (None, True, 0, -1, "1"))):
+            with self.subTest(parent=parent), self.assertRaises(ValueError):
+                update_plan_from_observations(parent, [self.observation()], next_actions=["next"])
+
+    def test_prediction_requires_typed_nonempty_identifiers(self):
+        for prediction in (Prediction("", 1, 1, "ms"), Prediction("x", 1, 1, ""), {}):
+            with self.subTest(prediction=prediction), self.assertRaises(ValueError):
+                compare_observation(self.observation(), [prediction])
+
+    def test_interval_overflow_is_rejected(self):
+        observation = self.observation(measurements={"latency_ms": 1e308}, uncertainty={"latency_ms": 1e308})
+        with self.assertRaises(ValueError):
+            compare_observation(observation, [Prediction("latency_ms", 1, 1, "ms")])
+
+    def test_next_actions_must_be_concrete_strings_not_coerced_objects(self):
+        for actions in ("next", [None], [False]):
+            with self.subTest(actions=actions), self.assertRaises(ValueError):
+                update_plan_from_observations({"plan_id": "P", "version": 1}, [self.observation()], next_actions=actions)
+
+    def test_previously_hidden_negative_tests_are_discovered(self):
+        names = unittest.TestLoader().getTestCaseNames(type(self))
+        self.assertIn("test_observation_requires_offset_aware_timestamp", names)
+        self.assertIn("test_rejects_nonfinite_predictions", names)
+
+
+if __name__ == "__main__":
+    unittest.main()

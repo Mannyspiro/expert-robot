@@ -1,0 +1,26 @@
+{
+  "missing_parent": {
+    "authority_effect": "none",
+    "changes": [
+      {
+        "rationale": "Plan update is linked to explicit observations; conclusions remain provisional.",
+        "type": "evidence_informed_revision"
+      }
+    ],
+    "next_actions": [
+      "next"
+    ],
+    "observation_ids": [
+      "o"
+    ],
+    "observed_artifacts": [],
+    "parent_plan_id": null,
+    "parent_plan_version": null,
+    "reasoning_mode": "inductive_revision",
+    "requires_review": true,
+    "schema": "merlin-plan-update/1"
+  },
+  "tests_discovered": 6,
+  "unobserved_nan": "inconclusive",
+  "wrong_unit_nan": "inconclusive"
+}

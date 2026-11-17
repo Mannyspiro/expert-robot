@@ -20,6 +20,8 @@ from typing import Any
 SUITES = (
     "test_merlin_prompt_contract.py",
     "test_merlin_scientific_workflow.py",
+    "test_scientific_recording.py",
+    "test_scientific_loop.py",
     "test_text_extractor.py",
     "test_knowledge_compression.py",
     "test_ideonomy.py",

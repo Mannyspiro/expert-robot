@@ -1,0 +1,120 @@
+{
+  "actual_python": "3.13.5",
+  "base_commit": "b0cfc03e693d565f4f71b923ad237d496b054b6c",
+  "baseline_observations": {
+    "missing_parent": {
+      "authority_effect": "none",
+      "changes": [
+        {
+          "rationale": "Plan update is linked to explicit observations; conclusions remain provisional.",
+          "type": "evidence_informed_revision"
+        }
+      ],
+      "next_actions": [
+        "next"
+      ],
+      "observation_ids": [
+        "o"
+      ],
+      "observed_artifacts": [],
+      "parent_plan_id": null,
+      "parent_plan_version": null,
+      "reasoning_mode": "inductive_revision",
+      "requires_review": true,
+      "schema": "merlin-plan-update/1"
+    },
+    "tests_discovered": 6,
+    "unobserved_nan": "inconclusive",
+    "wrong_unit_nan": "inconclusive"
+  },
+  "ci_dispatch": "not_performed",
+  "command": "PYTHONPATH=python python -m unittest discover -s tests -p 'test_*.py' -v",
+  "default_handler_registration": "not_enabled_opt_in_handler_only",
+  "errors": 0,
+  "failures": 0,
+  "files": {
+    "python/merlin/scientific_loop.py": {
+      "bytes": 13020,
+      "git_blob_sha1": "5a84bfc0e7ad1a5bfbcbeab0edae383cccfb6eaa",
+      "sha256": "9fab3dd45a2ff3fa4ee371e1a7e720e554dbc5d8ff1d70ae8182205f2d9ebee5"
+    },
+    "python/merlin/scientific_recording.py": {
+      "bytes": 24410,
+      "git_blob_sha1": "487779deacfaa8f9f541842e32115e5546d7d6fd",
+      "sha256": "de3eff86580f882a23b26821de2414d452f3aaa947db24bbbaa04e4105f0772d"
+    },
+    "scripts/merlin_research_stack_gate.py": {
+      "bytes": 14786,
+      "git_blob_sha1": "8988a535ee7eee346c4940c24ba7d38c5f6c1bc8",
+      "sha256": "d0f8ef6814903169a9d7f8aa94064ac445476338d247aab1511839e57a38dc8e"
+    },
+    "tests/test_scientific_loop.py": {
+      "bytes": 7102,
+      "git_blob_sha1": "eb09fc002768627588f8eba42a9f97c95b16f8e9",
+      "sha256": "8ad3a9cf5dbc47c63fe7d617bd337d5ebf89a6caa62811111878bb543c2db56c"
+    },
+    "tests/test_scientific_recording.py": {
+      "bytes": 26441,
+      "git_blob_sha1": "8a505e94e29817fd7d39c1857412b664943884a4",
+      "sha256": "754511b03519e5bf3983cd862a4ddbb5d9161e7d45c4572a871cf894df52ff60"
+    }
+  },
+  "full_checkout": false,
+  "full_research_stack": "not_run",
+  "independent_cace_verification": false,
+  "limitations": [
+    "Record validity and digest checks do not prove measurements are true.",
+    "Prerecording in Merlin is not independently timestamped preregistration or proof that outcomes were unseen.",
+    "Plan revisions are immutable proposals; forks are explicit, with no automatic latest-plan or promotion policy.",
+    "Full admission, outbox acknowledgement, worker lease races, API/HUD and production path are not exercised.",
+    "Input size and lineage admission limits are not OS isolation; registry filesystem concurrency and locking remain separate production concerns."
+  ],
+  "platform": "Linux 6.18.57 x86_64",
+  "production_qualification": false,
+  "promotion_authority": false,
+  "real_mcfc_supervisor": "not_implemented_or_exercised",
+  "schema": "merlin-scientific-persistence-local-evidence/1",
+  "scope": "focused source subset reconstructed from exact Git blobs plus this patch; real MerlinRegistry and HermesStageJournal; test admission callbacks, no full HermesWorker or deployed service",
+  "skips": 0,
+  "source_repository": "Mannyspiro/expert-robot",
+  "static_checks": {
+    "compile": "pass",
+    "python_3_11_ast": "pass_not_interpreter_execution"
+  },
+  "status": "locally_tested",
+  "suites": {
+    "research_stack_gate_fixtures": 28,
+    "scientific_loop": 14,
+    "scientific_recording": 42
+  },
+  "target_python_3_11": "not_run",
+  "test_log_sha256": "aa6f021b9bffa36762b626a1879c629ad307b5548ca325e8935459f710864760",
+  "tests_run": 84,
+  "unchanged_exact_dependencies": {
+    "python/merlin/__init__.py": {
+      "bytes": 275,
+      "git_blob_sha1": "0ad35f52071fb1537c1ffcb918a9a7148b411661",
+      "sha256": "49f23ffa9b838de063cd88e4a60704d1989f55ff3aa70fe2ed850b0396fa8f93"
+    },
+    "python/merlin/artifact_ref.py": {
+      "bytes": 2542,
+      "git_blob_sha1": "aa3ce66edc8286668f4a01a0ee5e3f4c61fa0fd3",
+      "sha256": "187e33ed4ab6e1a79e054ff31c07b383090dae94cb51c5eb9dd01dfb80227584"
+    },
+    "python/merlin/hermes_stage_journal.py": {
+      "bytes": 6912,
+      "git_blob_sha1": "abe028f0510a8a2f3232ebfbd451fd0291abe41e",
+      "sha256": "40557d275160ae4709b77bf8fcab3377fdfec1e04c700b36788552572fd1d721"
+    },
+    "python/merlin/project_registry.py": {
+      "bytes": 27860,
+      "git_blob_sha1": "ee72615f5e39f4ce43de856a014fab34d8528dc2",
+      "sha256": "4b4af27bee57888bf1f006b6fea55aba435084fcd7aec53d794d1ac681a40fcc"
+    },
+    "tests/test_merlin_research_stack_gate.py": {
+      "bytes": 10224,
+      "git_blob_sha1": "9101fc8599bb45c6f46aac1600dc8d53ecbce203",
+      "sha256": "2e39078c07b81c9d0193bc0b8207080b675941716feb81190f5e1ba136f013e6"
+    }
+  }
+}

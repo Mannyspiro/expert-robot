@@ -121,3 +121,43 @@ P2 remains UNEXERCISED: independent CACE verifier transport, signer and exact ar
 P3 remains UNQUALIFIED: one complete research-to-artifact/HUD path, followed by installation, backup/restore, restart, migration, observability and rollback. No production claim until all dependent gates and explicit promotion approval pass.
 
 Rollback: revert only this feature-branch checkpoint; retain prior plans and evidence. No paid/speculative CI, Avrea use before the recorded 2026-12-01 hold, merge, deployment, signing, secret mutation or capability promotion occurred. Context coverage remains the available handoffs/specifications plus task-relevant live source, not every prior chat or repository file. Re-query live state before the next execution.
+
+## Revision 4 - canonical scientific recording and measured regression fixes (2026-11-17)
+
+Parent: revision 3 at `b0cfc03e693d565f4f71b923ad237d496b054b6c`. Earlier revisions are preserved. Production readiness remains NOT ESTABLISHED.
+
+### Observation, decision and implementation
+
+The production feature branch still pointed to the parent commit and no workflow run was returned for that exact head. Local GitHub name resolution remained unavailable and the runtime remained Python 3.13.5, not 3.11. Repeating checkout configuration would not resolve those constraints. The next safe implementation increment was the existing plan's P0c: canonical record persistence and handler-level gates, without external execution.
+
+Implemented `python/merlin/scientific_recording.py` over the existing registry, ArtifactRefs, Hermes stage journal and scientific-loop primitives. It records observations, initial plans, prediction/falsifier sets, completed/failed/inconclusive/not-run outcomes, and immutable parent-linked plan-revision proposals. Semantic identities are journal-bound across task IDs. Exact raw versions, source commit, episode and hypothesis scope are retained. All outputs remain unverified, unqualified and non-promoting. No new database, hypothesis promotion, provider invocation or external tool execution is introduced.
+
+The opt-in `scientific_recording` Hermes handler requires an independent admission callback and matching task/context identities, approvals, leases, refs and budgets. The complete task is bound into durable checkpoints. Replay rechecks sources and output; changed inputs, provenance, checkpoints or results are rejected. This is handler-level integration, NOT automatic default-factory/API activation or a fully qualified HermesWorker/outbox path.
+
+### Measured iteration and regression prevention
+
+The first 37 recording tests passed. Review found that new task IDs could reuse a plan/experiment identity with changed content. Stable identity reservations in the existing journal were added for observations, root plans, experiments and runs; five additional tests cover substitution and missing completed checkpoints. Recording tests now total 42.
+
+Inspection of the existing scientific-loop suite found two negative-test functions below the `__main__` block rather than inside the test class. The unmodified exact source discovered only six tests. Actual baseline probes also accepted NaN predictions when the metric was unobserved or the unit mismatched, and produced a plan-update record with null parent identity/version from an unrelated nonempty mapping.
+
+Corrected test placement; added shared `Prediction.validate()` before all comparison branches; rejected interval overflow, missing/invalid parent plan identity/version, and coerced non-string next actions. The recording adapter reuses the shared validator rather than maintaining competing numeric semantics. The scientific-loop suite now discovers and passes 14 tests. These are narrowly scoped contract fixes, not a claim that all scientific primitives have been qualified.
+
+The final focused run on Python 3.13.5 passed 84 tests (42 recording + 14 scientific-loop + 28 source-gate fixture regressions), with zero failures/errors/skips. The exact registry, ArtifactRef and journal dependencies matched fetched Git blob identities. Python 3.11 AST checks and bytecode compilation passed; Python 3.11 interpreter execution did NOT occur. The CI gate now includes both recording and primitive suites, retaining the prior eight, for ten required suites.
+
+Evidence: `docs/evidence/scientific-persistence-local-20261117.json`, `scientific-persistence-final-tests.log`, and `baseline-probes.json`. Reproduce the focused recording/primitive tests with `PYTHONPATH=python python -m unittest discover -s tests -p 'test_scientific*.py' -v`; run the exact-source research gate only on a complete pinned checkout under Python 3.11.
+
+### Ranking and unresolved obligations
+
+1. P0b remains blocked for target-runtime qualification: obtain the approved authenticated complete checkout, execute all ten research-stack suites on the exact new commit under Python 3.11, and reconcile branch history deliberately. No other branch's success is inherited.
+2. P0c is PARTIALLY IMPLEMENTED/LOCALLY TESTED: canonical records and opt-in handler gates exist. Next integrate the real admission policy and HermesWorker/outbox lifecycle, including acknowledgement, lease loss and cancellation/restart races; exercise the actual default runtime composition. Plan revisions are proposals and may branch; no implicit latest plan or approval selection exists.
+3. P1 remains required before real worker dispatch: actual MCFC OS/container isolation and resource/secret/network/filesystem enforcement. Recording/input caps and test-runner process cleanup are not a sandbox.
+4. P2 remains unexercised: independently authenticated CACE exact-source/artifact/signer verification. Neither registry hashes nor local test fixtures establish this.
+5. P3 remains unqualified: the complete research-to-artifact/HUD path plus install, recovery, migration, observability, rollback and explicit promotion approval.
+
+Additional limitations: prerecording an experiment in Merlin does not prove outcomes were unseen; artifact hashes do not authenticate observation truth; lineage inspection is bounded and blocks at its ceiling; canonical registry concurrent file-write behavior still needs supervisor/integration qualification. No claim of universal n-ality paradox resolution or exhaustive idea-space coverage is made.
+
+### Alternative review and skeptical controls
+
+Manual, bounded alternatives were (A) add another store, rejected as duplicate architecture; (B) mutate current plans, rejected because history would be lost; (C) use canonical immutable artifacts plus the existing journal, selected; (D) dispatch real experiments immediately, rejected pending isolation/verifier gates. This was not a claimed trained Lacuna run. The event-log/content-addressing analogy guides the implementation but is not scientific evidence. Correlated-author test bias remains; independent review and the full pre-existing suites are still required.
+
+Rollback: revert only this feature-branch increment and retain prior evidence/artifacts. No workflow dispatch, paid compute, Avrea use before the recorded 2026-12-01 hold, merge, deployment, credential/trust-root mutation or capability promotion occurred. Context coverage is the available handoffs/specifications and relevant live source, not a literal read of every historical chat.

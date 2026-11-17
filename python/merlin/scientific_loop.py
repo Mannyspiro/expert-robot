@@ -71,6 +71,18 @@ class Prediction:
     tolerance: float
     unit: str
 
+    def validate(self) -> None:
+        for label, value in (("metric", self.metric), ("unit", self.unit)):
+            if not isinstance(value, str) or not value.strip():
+                raise ValueError("prediction " + label + " must be non-empty text")
+        for value in (self.expected, self.tolerance):
+            if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+                raise ValueError("prediction expectation/tolerance must be finite numeric data")
+        if self.tolerance < 0 or not all(
+            math.isfinite(self.expected + sign * self.tolerance) for sign in (-1, 1)
+        ):
+            raise ValueError("prediction tolerance/interval must be finite and nonnegative")
+
 
 def compare_observation(observation: Observation, predictions: Sequence[Prediction]) -> dict[str, Any]:
     """Deductively compare preregistered predictions with measured intervals."""
@@ -79,25 +91,20 @@ def compare_observation(observation: Observation, predictions: Sequence[Predicti
         raise ValueError("at least one preregistered prediction is required")
     comparisons = []
     for prediction in predictions:
+        if not isinstance(prediction, Prediction):
+            raise ValueError("predictions must contain typed Prediction records")
+        prediction.validate()
         if prediction.metric not in observation.measurements:
             comparisons.append({"metric": prediction.metric, "result": "unobserved"})
             continue
         if prediction.unit != observation.units[prediction.metric]:
             comparisons.append({"metric": prediction.metric, "result": "incomparable_unit"})
             continue
-        if (
-            isinstance(prediction.expected, bool)
-            or not isinstance(prediction.expected, (int, float))
-            or not math.isfinite(prediction.expected)
-            or isinstance(prediction.tolerance, bool)
-            or not isinstance(prediction.tolerance, (int, float))
-            or prediction.tolerance < 0
-            or not math.isfinite(prediction.tolerance)
-        ):
-            raise ValueError("prediction expectation must be finite and tolerance finite/nonnegative")
         measured = float(observation.measurements[prediction.metric])
         sigma = float(observation.uncertainty[prediction.metric])
         lo, hi = measured - sigma, measured + sigma
+        if not math.isfinite(lo) or not math.isfinite(hi):
+            raise ValueError("measured interval must be finite")
         expected_lo = prediction.expected - prediction.tolerance
         expected_hi = prediction.expected + prediction.tolerance
         if hi < expected_lo or lo > expected_hi:
@@ -137,11 +144,18 @@ def update_plan_from_observations(
     """Create an auditable inductive update; never silently overwrite the plan."""
     if not isinstance(current_plan, Mapping) or not current_plan:
         raise ValueError("current_plan must be a non-empty versioned plan")
+    plan_id, version = current_plan.get("plan_id"), current_plan.get("version")
+    if not isinstance(plan_id, str) or not plan_id.strip():
+        raise ValueError("current_plan requires an explicit parent plan_id")
+    if isinstance(version, bool) or not isinstance(version, int) or version < 1:
+        raise ValueError("current_plan requires a positive parent plan version")
     if not observations:
         raise ValueError("at least one observation is required for an inductive update")
     for item in observations:
         item.validate()
-    if not next_actions or any(not str(x).strip() for x in next_actions):
+    if isinstance(next_actions, (str, bytes)) or not next_actions or any(
+        not isinstance(x, str) or not x.strip() for x in next_actions
+    ):
         raise ValueError("next_actions must state at least one concrete next step")
     return {
         "schema": "merlin-plan-update/1",
