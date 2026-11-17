@@ -1,6 +1,6 @@
 # Merlin Status, Decisions, Dependencies and Roadmap
 
-**Snapshot:** 2026-11-16  
+**Snapshot:** 2026-11-17  
 **Companion:** [MERLIN_MASTER_CONTEXT.md](./MERLIN_MASTER_CONTEXT.md)
 
 ## 1. Decision ledger
@@ -30,10 +30,11 @@
 - This README is repository baseline context; it does not prove all listed subsystems are complete or integrated with newer Python Merlin services.
 
 ### Ideonomy/Hermes/Logos
-- PR #171: enumeration; source binding and candidate identity corrections recorded, exact-head CI not passed/verified.
-- PR #172: Hermes stage with runtime-owned generator provenance and SQLite replay journal; tests authored, exact-head run not recorded.
-- PR #175: immutable generator provenance; tests authored, exact-head run not recorded.
-- PR #176: Logos skeptical review; validator, lineage checks, review artifact/graph edge, journal replay and tests authored; tests not executed. Opening PR automatically queued unified-platform and CI runs at head `895d8418aae8471c32fca81e09631139d1e31bbb`; last observed unified-platform queued and CI pending. Recheck current state.
+- PR #171: enumeration; earlier source-binding/candidate-identity corrections are recorded, but the current exact-head status has not yet been rechecked in this iteration.
+- PR #175: immutable generator provenance. Earlier CI run `43870371518` failed in three Ideonomy tests because the candidate-set envelope truncated the generator provenance to `id` and `version`, while persistence required all six provenance fields. Commit `b934d8344532b27dd69e58a9154c77bc0c24633a` fixes the serialization defect by persisting the complete already-validated provenance object. Exact-head CI is pending/not yet returned; do not mark verified.
+- PR #172: Hermes Ideonomy stage remains stacked on PR #175 at base SHA `f9ae326fc1b0180da8fe7d6dce5b8cbc4aae6ae1`; no workflow run was returned for its current head `b3d78ff8ada12947cb53dcdfd13b627e52aee343`. Its mergeability was reported false at the latest check; inspect branch/base synchronization only after PR #175 is validated.
+- PR #176: Logos skeptical review. Exact head `8b83b4dfd639d0abdd3e9b0a7eb695b193d2c7b3`; CI run `44010725986` passed all build-and-smoke steps, including the newly added `tests/test_logos_review.py` suite. Unified-platform run `44010726036` passed compilation, HUD JavaScript validation and integration tests. Optional NousCoder inference was skipped. PR remains draft and unmerged.
+- The successful #176 workflow tests its own stacked branch snapshot; it does not independently establish CACE verification, production supervisor enforcement, or qualification of the full dependency chain.
 - No CACE verification or production qualification of these new stages has been established.
 
 ### Media
@@ -164,3 +165,4 @@ Never skip levels by implication.
 ## 8. Change log
 
 - **2026-11-16:** Created cross-chat master context, research atlas and status/roadmap documents from the available saved context, recent project handoffs and current repository inspection. Includes explicit implementation-vs-plan distinctions and historical status caveats.
+- **2026-11-17:** Reconciled the Ideonomy/Hermes/Logos status against live PR heads and workflow runs. Recorded the #175 provenance serialization defect and pending correction, #172's missing exact-head run/stacked dependency, and #176's two successful exact-head workflows including the Logos validator suite.
