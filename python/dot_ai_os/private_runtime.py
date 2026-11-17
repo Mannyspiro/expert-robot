@@ -428,10 +428,15 @@ def main():
     registry.inventory(config["project_id"])
     plugins = {}
     if args.simulation_demo:
-        from .simulation_research import virtual_circuit_demo
+        from .research_tools import (reviewed_virtual_circuit_demo, research_contract,
+                                     research_episode_demo, mathematical_lenses_demo)
         plugins["virtual_circuit_demo"] = RegisteredTool(
-            lambda arguments, principal: virtual_circuit_demo(arguments), frozenset(),
+            lambda arguments, principal: reviewed_virtual_circuit_demo(arguments), frozenset(),
             frozenset({"operation"}))
+        for name, handler in (("research_contract", research_contract),
+                              ("research_episode_demo", research_episode_demo),
+                              ("mathematical_lenses_demo", mathematical_lenses_demo)):
+            plugins[name] = RegisteredTool(lambda arguments, principal, call=handler: call(arguments), frozenset())
     dispatcher = PrivateDispatcher(bridge, grants=config["grants"], plugin_tools=plugins)
     with PrivateUnixServer(args.socket, dispatcher) as server:
         server.serve_forever(poll_interval=0.5)

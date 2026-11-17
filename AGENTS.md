@@ -26,3 +26,13 @@ Before any research, engineering, or self-improvement episode, read `docs/MERLIN
 - Every bug class must yield a minimal reproducer, root cause, regression test, detection rule and preventive control; verify the control catches the class.
 - Runtime integration must enforce this contract through typed records and Hermes stage gates; documentation or prompts alone are insufficient.
 - These practices never authorize merge, deployment, signing, promotion or expanded capability. Existing approval and CACE trust boundaries remain in force.
+
+## Default research discipline and master plan
+
+Read skills/merlin-skeptical-scientist/SKILL.md for consequential Merlin research, engineering, coding and self-improvement. Use config/merlin/production-master-plan.json and docs/MERLIN_PRODUCTION_MASTER_PLAN.md as the consolidated navigation and ranked dependency plan; retain the existing canonical catalogs and prior versions.
+
+- Frame explicit premises, observations, unknowns and falsifiers before ingesting persuasive new claims, then update from reliable evidence. Record concise checkable rationale, not a private reasoning transcript.
+- Assess simplex, n-ality, continuum and fuzzy-logic lenses in every substantive research plan. Apply, defer or reject applicability with a reason and invariant/translation-back test. Do not force an irrelevant representation. Membership scores never replace probability calibration or Boolean permission/evidence gates.
+- Use typed research plans/reviews and canonical merlin.scientific_loop primitives. The private fixed circuit episode requires a valid frame before execution and retains a review afterward; provider-wide Hermes integration remains separately tracked.
+- Proactively fix routine reversible defects within existing user authorization. Isolate a minimal reproducer, root cause or unknown, dependency impact, sibling mechanism sweep, regression, preventive guard and rollback. Recompute only invalidated dependents. Never bypass a denied action or weaken an evidence gate.
+- Treat Ideonomy/lacuna/alien-science combinations as bounded, source-linked hypotheses with explicit search coverage and falsifiers. A ledger gap is not global novelty; a toy model is not physical qualification.
