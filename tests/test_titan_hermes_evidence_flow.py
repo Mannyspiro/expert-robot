@@ -13,9 +13,16 @@ from merlin.project_registry import MerlinRegistry
 from merlin.research_evidence import ResearchEvidenceRecorder
 from merlin.hermes_stage_handlers import build_hermes_stage_handlers
 from merlin.titan_crypto_lab import hermes_titan_research_executor
+from test_cace_adapter import signed_attestation, _TEST_TRUST
 
 
-def signed_artifact_receipt(request):
+def synthetic_signed_artifact_receipt(request):
+    """Test-only signer fixture; never configures a deployed verifier."""
+    raw = base64.b64decode(request["artifact_content_base64"], validate=True)
+    if hashlib.sha256(raw).hexdigest() != request["artifact_sha256"]:
+        raise ValueError("fixture received mismatched artifact bytes")
+    if len(raw) != request["artifact_size_bytes"]:
+        raise ValueError("fixture received mismatched artifact size")
     receipt = {
         "schema": "cace-artifact-verification/1",
         "repository": request["repository"],
@@ -24,12 +31,20 @@ def signed_artifact_receipt(request):
         "artifact_kind": request["artifact_kind"],
         "artifact_schema": request["artifact_schema"],
         "logical_path": request["logical_path"],
-        "verifier_id": "cace:independent-artifact-checker",
+        "tool_identity": request["tool_identity"],
+        "verifier_id": "cace:independent-kernel",
         "source_commit_verified": True,
         "artifact_digest_verified": True,
         "artifact_schema_validated": True,
         "artifact_content_verified": True,
         "verification_status": "verified",
+        "signed_attestation": signed_attestation(
+            "artifact:" + request["artifact_kind"], request["artifact_sha256"],
+            {key: request[key] for key in (
+                "repository", "commit_sha", "artifact_kind", "artifact_schema",
+                "logical_path", "tool_identity")},
+            purpose="artifact-integrity",
+        ),
     }
     body = json.dumps(receipt, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
     receipt["receipt_sha256"] = hashlib.sha256(body.encode("utf-8")).hexdigest()
@@ -62,8 +77,9 @@ class TitanHermesEvidenceFlowTests(unittest.TestCase):
             outbox = MerlinEventOutbox(root / "outbox.sqlite3")
             recorder = ResearchEvidenceRecorder(registry, ledger, graph)
             adapter = CaceVerificationAdapter(
-                verify_transport=signed_artifact_receipt,
+                verify_transport=synthetic_signed_artifact_receipt,
                 registry=registry, outbox=outbox, graph=graph,
+                trusted_verifier_keys=_TEST_TRUST,
             )
             handlers = build_hermes_stage_handlers(
                 evidence_recorder=recorder,

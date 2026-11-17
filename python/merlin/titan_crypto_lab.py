@@ -155,6 +155,7 @@ def hermes_titan_research_executor(task, context):
         "media_type": "application/vnd.merlin.titan-protocol-bundle+json",
         "summary": "Generated deterministic Titan protocol model and structural vectors; no cryptographic operations performed.",
         "metadata": {
+            "tool_identity": "merlin.titan_protocol_model:structural-v1",
             "artifact_schema": report["schema"],
             "bundle_schema": bundle["schema"],
             "model_sha256": bundle["model_sha256"],

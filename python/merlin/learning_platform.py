@@ -482,9 +482,21 @@ class LearningPlatform:
         return self.get_course(actor, course_id)
 
     def submit_assessment(self, actor: Actor, course_id: str, submission_id: str,
-                          lesson_id: str, task_id: str, response: Any) -> dict[str, Any]:
-        """Append learner work for independent human review; never award mastery."""
+                          lesson_id: str, task_id: str, response: Any, *,
+                          expected_version: int | None = None,
+                          expected_manifest_sha256: str | None = None) -> dict[str, Any]:
+        """Append independently reviewed work, optionally bound to an exact course.
+
+        Version and manifest preconditions are checked within the same write
+        transaction as replay/insert, so a concurrent revision cannot retarget
+        externally produced lab evidence to another course version.
+        """
         self._authorize(actor, {"learner"})
+        if expected_version is not None or expected_manifest_sha256 is not None:
+            if (type(expected_version) is not int or expected_version < 1
+                    or not isinstance(expected_manifest_sha256, str)
+                    or re.fullmatch(r"[0-9a-f]{64}", expected_manifest_sha256) is None):
+                raise ValueError("exact course version and manifest SHA-256 must be supplied together")
         submission_id = _required(submission_id, "submission_id", 120)
         lesson_id = _required(lesson_id, "lesson_id", 100)
         task_id = _required(task_id, "task_id", 120)
@@ -508,12 +520,17 @@ class LearningPlatform:
                 if not same:
                     raise LearningConflictError("submission_id was already used for different work")
                 version_row = db.execute(
-                    """SELECT manifest_json FROM learning_course_versions
+                    """SELECT manifest_json,manifest_sha256 FROM learning_course_versions
                        WHERE tenant_id=? AND course_id=? AND version=?""",
                     (actor.tenant_id, existing["course_id"], existing["version"]),
                 ).fetchone()
                 if version_row is None:
                     raise LearningConflictError("original submission course version is unavailable")
+                if expected_version is not None and (
+                    existing["version"] != expected_version
+                    or version_row["manifest_sha256"] != expected_manifest_sha256
+                ):
+                    raise LearningConflictError("submission replay does not match the pinned course version")
                 original_manifest = json.loads(version_row["manifest_json"])
                 original_lesson = next(
                     (item for item in original_manifest["lessons"] if item.get("id") == existing["lesson_id"]),
@@ -533,7 +550,7 @@ class LearningPlatform:
                         "version": existing["version"], "status": existing["status"],
                         "rubric_sha256": rubric_sha256, "duplicate": True,
                         "mastery_updated": False, "proof_qualified": False}
-            course = db.execute("""SELECT c.current_version,v.status,v.manifest_json
+            course = db.execute("""SELECT c.current_version,v.status,v.manifest_json,v.manifest_sha256
               FROM learning_courses c JOIN learning_course_versions v
               ON v.tenant_id=c.tenant_id AND v.course_id=c.course_id AND v.version=c.current_version
               WHERE c.tenant_id=? AND c.course_id=?""",
@@ -543,6 +560,11 @@ class LearningPlatform:
             if course["status"] != "published":
                 raise LearningConflictError("submissions require a published course version")
             version = int(course["current_version"])
+            if expected_version is not None and (
+                version != expected_version
+                or course["manifest_sha256"] != expected_manifest_sha256
+            ):
+                raise LearningConflictError("current course differs from the pinned submission version")
             enrolled = db.execute("""SELECT 1 FROM learning_enrollments
               WHERE tenant_id=? AND course_id=? AND version=? AND learner_id=? AND status='active'""",
               (actor.tenant_id, course_id, version, actor.actor_id)).fetchone()

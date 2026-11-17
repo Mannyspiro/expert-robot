@@ -11,6 +11,7 @@ import json
 import os
 from pathlib import Path
 import sqlite3
+import tempfile
 import time
 from typing import Any, Mapping
 
@@ -180,9 +181,23 @@ class MerlinRegistry:
             if hashlib.sha256(target.read_bytes()).hexdigest() != digest:
                 raise RuntimeError("content-addressed blob integrity mismatch")
         else:
-            temp = target.with_suffix(".tmp")
-            temp.write_bytes(content)
-            os.replace(temp, target)
+            # Concurrent producers can legitimately publish the same digest.
+            # A shared digest.tmp path lets one replace remove another writer's
+            # staging file. Each writer instead owns a unique completed file;
+            # replacing the digest with those identical bytes remains atomic.
+            descriptor, temporary = tempfile.mkstemp(
+                prefix="." + target.name + ".", suffix=".tmp", dir=str(target.parent))
+            try:
+                with os.fdopen(descriptor, "wb") as stream:
+                    stream.write(content)
+                    stream.flush()
+                    os.fsync(stream.fileno())
+                os.replace(temporary, target)
+            finally:
+                try:
+                    os.unlink(temporary)
+                except FileNotFoundError:
+                    pass
 
         timestamp = time.time()
         with closing(self._connect()) as db, db:
