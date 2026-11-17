@@ -30,8 +30,8 @@ def simplex_weights(values: tuple[float, ...]) -> tuple[float, ...]:
     if type(values) is not tuple or not 2 <= len(values) <= 16:
         raise ValueError("2..16 simplex coordinates required")
     result = tuple(_unit(x) for x in values)
-    if not math.isclose(math.fsum(result), 1.0, rel_tol=0, abs_tol=1e-12):
-        raise ValueError("simplex coordinates must sum to one")
+    if math.fsum(result) != 1.0:
+        raise ValueError("simplex coordinates must sum to one in the declared floating representation")
     return result
 
 
@@ -44,7 +44,10 @@ def convex_blend(vertices: tuple[tuple[float, ...], ...], weights: tuple[float, 
             or any(len(row) != len(vertices[0]) for row in vertices)):
         raise ValueError("bounded equally dimensioned vertices required")
     v = tuple(tuple(_finite(x) for x in row) for row in vertices)
-    return tuple(math.fsum(w[i] * v[i][j] for i in range(len(w))) for j in range(len(v[0])))
+    result = tuple(math.fsum(w[i] * v[i][j] for i in range(len(w))) for j in range(len(v[0])))
+    if any(not min(row[j] for row in v) <= x <= max(row[j] for row in v) for j, x in enumerate(result)):
+        raise ValueError("floating blend exceeds convex bounds; use an exact or higher-precision model")
+    return result
 
 
 def n_ality_signature(geometric_dimension: int, state_dimension: int,

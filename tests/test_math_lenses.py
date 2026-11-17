@@ -14,6 +14,12 @@ class MathematicalLensesTests(unittest.TestCase):
         for weights in ((1., 1.), (-0.1, 1.1), (math.nan, 0.), (True, 0.), (10**1000, 0.)):
             with self.assertRaises(ValueError): simplex_weights(weights)
 
+    def test_near_unit_weights_cannot_amplify_an_identical_vertex(self):
+        vertices = ((1e12,), (1e12,))
+        for weights in ((0.5, 0.5000000000005), (0.5, 0.4999999999995)):
+            with self.assertRaises(ValueError): convex_blend(vertices, weights)
+        self.assertEqual(convex_blend(vertices, (0.5, 0.5)), (1e12,))
+
     def test_dimensions_and_numeric_domains_rejected(self):
         for vertices in (((0.,), (1., 2.)), ((math.inf,), (1.,)), ((), ())):
             with self.assertRaises(ValueError): convex_blend(vertices, (0.5, 0.5))
