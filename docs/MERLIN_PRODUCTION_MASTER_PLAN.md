@@ -1,6 +1,6 @@
 # Merlin production master plan
 
-Version 1 — November 17, 2026, America/Phoenix. This is the dependency and acceptance view for the preserved Merlin program. The machine-readable companion is [production-master-plan.json](../config/merlin/production-master-plan.json).
+Version 2 — November 17, 2026, America/Phoenix. This is the dependency and acceptance view for the preserved Merlin program. The machine-readable companion is [production-master-plan.json](../config/merlin/production-master-plan.json).
 
 A narrow private Merlin service is running on OCI. The remaining work turns that measured foothold into a reliable research system while preserving the existing canonical registry, graph, worker and independent-evidence boundaries.
 
@@ -30,7 +30,7 @@ Keep the private corpus in Expert Robot/private project custody. The live shared
 
 ## Default skeptical-scientist method
 
-The user requires this behavior by default. The parent is implementing the typed research contract and installed skill; their exact implementation, tests and installation receipts remain pending in this plan. Skill text alone does not enforce a runtime contract.
+The user requires this behavior by default. The typed research contract, mathematical reference tools and installed standing guidance are implemented. The exact code-only package passed116tests on OCI (run44144790708). The first upgrade failed and its failure record is preserved; later diagnostics and a fixed peer probe confirm v1 restored and active. The reconciled v2 upgrade succeeded (run44148199995):116tests passed with zero skips; health, research contract, all-lens demo, reviewed circuit and episode tools passed live checks. Original failure cause remains unknown. Skill text alone does not enforce a runtime contract.
 
 1. Frame the question, scope, baseline, success metric and constraints. Before new external ingestion, declare preliminary first principles: definitions, premises, units, invariants, unknowns and potential falsifiers. Existing observations may seed the frame. Mark unknown premises rather than inventing facts, and append revisions when observations contradict the model.
 2. Preregister competing explanations, predictions, boundary conditions and the smallest discriminating experiment. Preserve uncertainty, dissent and a result that would change the plan.
@@ -113,7 +113,7 @@ The original acceptance definitions and PR/document inventories remain in the pi
 | P09-4 | Preserve cross-domain hypotheses without claiming discoveries | queued |
 | P09-5 | Preserve humanistic and teaching research | queued |
 
-`Partial` and `private demo scope evidenced` never mean the broader track is finished. In particular, P00-2 still needs actual restart recovery, P00-3 needs an isolated restore drill, P03 needs real provider binding, P05 needs independent verifier identity/custody and P06 needs native tools and geometry/wiring/solver round trips.
+`Partial` and `private demo scope evidenced` never mean the broader track is finished. In particular, P00-2 still needs reboot/extended acceptance, P00-3 needs an isolated canonical-state restore drill, P03 needs real provider binding, P05 needs independent verifier identity/custody and P06 needs native tools and geometry/wiring/solver round trips.
 
 ## New integration tasks
 
@@ -148,7 +148,7 @@ Keep failed attempts, skipped gates and `NOT_RUN` visible. Reconcile an ambiguou
 ## Ranked next implementation
 
 1. Bind the typed default scientific/representation contract and the observed defect-family guards to one bounded episode. Prove the negative gates before expanding execution.
-2. Exercise a real restart and isolated canonical-state restore, retaining exact source/artifact identity and an explicit rollback target.
+2. Extend measured source/config restart recovery to an isolated canonical-state restore and reboot acceptance, retaining exact source/artifact identity and an explicit rollback target.
 3. Reconcile a dependency-selected shard from the 187 queued records, derive its impact/test links and freeze source-cited retrieval cases. Keep all 191 IDs discoverable.
 4. Bind available authorized free coder/evaluator adapters and run one falsifiable, held-out episode with independent review and safe resume. Keep provider/cost availability explicit.
 5. Then close supervised Hermes/MCFC execution, independent CACE evidence and a native CAD/wiring/simulation vertical slice.
@@ -158,3 +158,11 @@ Standing constraints remain no inferred external paid compute, Avrea unavailable
 ## Installed discipline
 
 Merlin Skeptical Scientist is installed and mirrored at skills/merlin-skeptical-scientist/SKILL.md. Root AGENTS.md makes it the default research discipline. Runtime adoption is tracked separately from installation; typed plan structure is not scientific proof. The original191sources remain individually referenced; the private unfiltered capture is a receipt, not a repository dependency.
+
+## Mathematical implementation scope
+
+Every substantive typed plan assesses all four lenses with an applied, deferred or not_applicable decision, reason, invariant/test and limits. The reference tools implement standard-simplex weights/convex blends, independent n-ality axes, bounded piecewise-linear continuum interpolation and explicit fuzzy ramps/min/max aggregation. They do not implement a complete n-ary interaction engine or general PDE solver. The existing continuum-structure IR remains the canonical integration target. Original-domain tests and independent evidence are still required.
+
+## Latest measured runtime checkpoint
+
+The reconciled research package is active. Upgrade run [44148199995](https://github.com/morganaspim/Cace-app/actions/runs/44148199995) passed116runtime tests with zero skips and verified live tools. Later read-only inspection [44148526104](https://github.com/morganaspim/Cace-app/actions/runs/44148526104) found the same service PID1987572 active and checked the research contract, all-lens demonstration, research episode, reviewed circuit and write denial. Both releases and original failure history remain preserved. The first failure cause is still unknown. Evidence and exact artifact digests are in [the checkpoint](evidence/merlin-research-integration-20261117.json); the successful run archive is preserved beside it.

@@ -1,7 +1,7 @@
 {
   "schema": "merlin-production-master-plan/1",
   "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
-  "version": 1,
+  "version": 2,
   "created_at_utc": "2026-11-17T17:51:10.393995+00:00",
   "date_phoenix": "2026-11-17",
   "source_repository": "Mannyspiro/expert-robot",
@@ -11,9 +11,11 @@
   "qualification": false,
   "promotion_authority": false,
   "parent_plan": {
-    "id": "MERLIN-DOT-COVERAGE-2026-11-17",
-    "reference": "coverage",
-    "mutation": "original coverage JSON is unchanged"
+    "id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "version": 1,
+    "path": "config/merlin/plan-history/production-master-plan-v1-4ea0e5100d69329a72df7398cff7adcb747f123b171d69129aa4c858f4acf623.json",
+    "sha256": "4ea0e5100d69329a72df7398cff7adcb747f123b171d69129aa4c858f4acf623",
+    "mutation": "append-only revision; v1 preserved"
   },
   "references": {
     "coverage": {
@@ -62,6 +64,14 @@
       "installed_detail_url": "https://chatgpt.com/skills?skill_id=6afc94cfcb1c819194ace6ac0698389f",
       "status": "installed_and_reconciled",
       "forward_checks": "two fresh task examples; no live mutations"
+    },
+    "research_integration": {
+      "path": "docs/evidence/merlin-research-integration-20261117.json",
+      "path_kind": "repository_relative",
+      "scope": "Exact runtime tests, original failed attempt, later fixed diagnosis and peer probe; no broader qualification.",
+      "archive_path": "docs/evidence/merlin-research-upgrade-20261117.zip",
+      "archive_sha256": "120b0a4c914880538626c86fd18f71d5294867f67f99d10389ee32cbace0aa1c",
+      "sha256": "115d47d1bdb023bc79be4f4043dee3303d446a01b33075e643f5c75278ba51b0"
     }
   },
   "source_of_truth_order": [
@@ -1882,40 +1892,95 @@
     "deployment_workflow_commit": "65a16e4795bb9acf4003f48cc8989c82ee337d03",
     "persistence_run_id": "44139195492",
     "persistence_workflow_commit": "eae8fab1fccc146850e84f2835a53041a620e0e1",
-    "bundle_sha256": "95e4985f5cf4af7b31bbb183047f6e2e4c4488034ec2d880e54f260feedb0b10",
+    "bundle_sha256": "efe57bada5cd86f45118cac0036faf497f9aa60972508e036aed09f7b8cf04db",
     "host_tests": {
       "errors": 0,
       "failures": 0,
       "passed": true,
       "skipped": 0,
-      "tests": 83
+      "tests": 116
     },
     "service": {
       "name": "merlin-dot-private.service",
       "uid": 982,
       "user": "merlin-dot",
       "group": "opc",
-      "state": "active_running_enabled_at_inspection",
+      "state": "v2_active_running_enabled_in_later_inspection",
       "transport": "AF_UNIX",
       "private_network": true,
       "no_new_privileges": true
     },
-    "scope": "Exact private demo/runtime bundle only;83 tests and a later inspection do not establish full-Merlin integration, reboot recovery, native CAD or formal verification.",
+    "scope": "Exact code-only private runtime and known fixture only;116tests and live read/demo checks do not establish full-Merlin workers, general mathematical solvers, reboot/isolated-state restore, native CAD or independent verification.",
     "available": [
       "GitHub-mediated bounded read-only tools",
       "two synthetic context records",
       "exact-rational ideal-DC demo",
-      "shared-runner job_submit denial"
+      "shared-runner job_submit denial",
+      "fixed live research_contract",
+      "fixed live research_episode_demo with required four-lens plan",
+      "fixed live mathematical_lenses_demo",
+      "reviewed virtual_circuit_demo requires research protocol"
     ],
     "not_established": [
       "direct ChatGPT dot custom-MCP connection",
       "live coder/evaluator providers",
       "general Hermes/MCFC execution",
       "independent CACE signer/verifier",
-      "restart_or_isolated_restore_drill",
+      "reboot_or_isolated_state_restore_drill",
       "native FreeCAD/ngspice runtime",
       "full191-document semantic reconciliation"
-    ]
+    ],
+    "research_update": {
+      "source_commit": "31b3ab41848685c7670abf9e20994cebd9eb699e",
+      "validation_run_id": 44144790708,
+      "tests": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests": 116
+      },
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "upgrade_attempt_run_id": 44145136056,
+      "reported_upgrade_result": "rollback_failed",
+      "diagnostic_run_id": 44145909148,
+      "observed_link_and_config": "exact_v1_restored",
+      "observed_service": "active_running",
+      "peer_probe_run_id": 44146757840,
+      "peer_probe_returncode": 0,
+      "peer_probe_write_denial": "tool_not_allowed",
+      "failure_cause": "unestablished; missing original subprocess stderr; startup readiness is hypothesis only",
+      "live_adoption": "v2_active_and_verified_in_later_job",
+      "successful_upgrade_run_id": 44148199995,
+      "successful_upgrade_commit": "bc4d1de8ea7f370f782b078021833371b6a2e579",
+      "service_properties": "MainPID=1987572\nUser=merlin-dot\nGroup=opc\nPrivateNetwork=yes\nNoNewPrivileges=yes\nRestrictAddressFamilies=AF_UNIX\nActiveState=active\nSubState=running\nUnitFileState=enabled\n",
+      "live_tools": [
+        "context_search",
+        "context_status",
+        "health",
+        "mathematical_lenses_demo",
+        "research_contract",
+        "research_episode_demo",
+        "virtual_circuit_demo"
+      ],
+      "configuration_sha256": "a25921442e2d3e463ccd685de6c67d824140b8c1592ab4fe942fb50c5d3b22e8",
+      "both_releases_preserved": true,
+      "prior_failure_cause": "not_established",
+      "persistence_run_id": 44148526104,
+      "persistence_commit": "1beb2afb492cd245274cda5742dbe87629507fa1",
+      "persistence_same_pid": 1987572,
+      "persistence_tools": [
+        "health",
+        "context_status",
+        "research_contract",
+        "mathematical_lenses_demo",
+        "research_episode_demo",
+        "virtual_circuit_demo"
+      ],
+      "persistence_write_denial": "tool_not_allowed"
+    }
   },
   "reconciliations": [
     {
@@ -1982,13 +2047,27 @@
     "default_behavior_required": true,
     "authority": "research_method_only",
     "typed_runtime_contract": {
-      "status": "pending_parent_implementation_and_exact_tests",
-      "receipt_ref": null
+      "status": "implemented_and_116_tests_passed_on_oci",
+      "source_commit": "31b3ab41848685c7670abf9e20994cebd9eb699e",
+      "bundle_sha256": "efe57bada5cd86f45118cac0036faf497f9aa60972508e036aed09f7b8cf04db",
+      "validation_run_id": 44144790708,
+      "live_adoption": "v2_active_research_and_mathematics_tools_verified_in_later_job",
+      "authority": "typed_structure_not_scientific_truth",
+      "review": {
+        "reviewer": "second_coder_source_review",
+        "scope": "Malformed/rehashed lens records, missing fields, persisted plan reconstruction, simplex counterexample and fixture claims",
+        "result": "no_material_issue_found",
+        "independent_scientific_validation": false
+      },
+      "upgrade_run_id": 44148199995,
+      "persistence_run_id": 44148526104
     },
     "installed_skill": {
-      "status": "pending_parent_installation_receipt",
-      "package": null,
-      "git_commit": null,
+      "status": "installed_and_reconciled",
+      "package": "merlin-skeptical-scientist",
+      "skill_id": "6afc94cfcb1c819194ace6ac0698389f",
+      "creation_commit": "32976b6",
+      "reconciled_commit": "30c23ba",
       "grants_runtime_authority": false
     },
     "ordered_episode": [
@@ -2028,13 +2107,19 @@
         "continuum",
         "fuzzy_logic"
       ],
-      "selection_rule": "Record applicable, irrelevant or deferred with a reason for each lens. Do not force an irrelevant representation.",
+      "selection_rule": "Record applied, not_applicable or deferred with reason, invariant/test and limits for each of the four lenses. Do not force an irrelevant representation.",
       "simplex": "Declare dimensionality, affine/convex assumptions, normalized weights and invariant mappings; normalization is not proof or automatic probabilistic meaning.",
       "n_ality": "Declare arity, typed interactions, composition rules and dimensional constraints; an n-ary structure does not establish physical synergy.",
       "continuum": "Declare domain, boundary/initial conditions, operators and approximation scope; numerical continuum claims need discretization-error, convergence and stability checks.",
       "fuzzy_logic": "Membership degrees are not probabilities. Label semantics, membership functions, aggregation and thresholds; hard authorization and verification gates remain Boolean.",
       "acceptance": "State source/target transformation, invariants and approximation losses, then rerun original-task acceptance tests. A new representation does not change what counts as evidence.",
-      "typed_helpers_status": "Parent implementation and exact integration receipts pending; no claim this is in the installed private-service bundle."
+      "typed_helpers_status": "Implemented in math_lenses.py and required by typed plans; exact OCI package passed116tests. Live adoption is separately measured, not inferred from source.",
+      "implementation_scope": {
+        "simplex": "Bounded standard-simplex validation and convex blend; arbitrary vertices do not imply affine independence.",
+        "n_ality": "Independently typed geometric dimension, state dimension, logical channels and temporal parameters. This is a reference signature, not a complete n-ary interaction engine.",
+        "continuum": "Declared bounded piecewise-linear interpolation, no extrapolation. General continuum IR, PDE convergence and native geometry integration remain source-review/integration tasks.",
+        "fuzzy_logic": "Bounded ramp membership and explicit min/max operators; not calibrated probabilities or authorization."
+      }
     }
   },
   "acceptance_gates": [
@@ -2149,7 +2234,7 @@
             "deployment",
             "persistence"
           ],
-          "scope_note": "Real socket/CLI and write denial passed; later job observed the same service PID. Restart and restore acceptance remain open.",
+          "scope_note": "Real socket/CLI and write denial passed. A failed upgrade restarted v1; later diagnostics confirmed exact v1 link/config and an active service, and an as-opc peer probe passed. The reconciled v2 upgrade is measured separately. Reboot and isolated state-restore acceptance remain open.",
           "acceptance_gate_ids": [
             "G-SOURCE",
             "G-SCOPE",
@@ -2160,9 +2245,11 @@
           "id": "P00-3",
           "title": "Prove non-destructive recovery",
           "coverage_pointer": "/ranked_workstreams/0/tasks/2",
-          "state": "queued",
-          "evidence_refs": [],
-          "scope_note": "No current completion evidence was established in this master-plan pass.",
+          "state": "partial",
+          "evidence_refs": [
+            "research_integration"
+          ],
+          "scope_note": "After a failed source/config switch, later fixed diagnostics and tools confirmed exact v1 recovery. This is operational source/config recovery, not an isolated canonical-state restore drill.",
           "acceptance_gate_ids": [
             "G-SOURCE",
             "G-SCOPE",
@@ -2773,7 +2860,7 @@
         "Negative tests block omitted provenance/units-or-explicit-not-applicable/uncertainty, unsupported analogy transfer and self-promoted verification.",
         "One real bounded episode resumes safely and preserves failed/null results; installed skill text alone does not satisfy runtime enforcement."
       ],
-      "state": "planned_integration_not_qualified",
+      "state": "implemented_typed_contract_and_fixture_tests_partial_integration",
       "promotion_authority": false,
       "dependency_condition": "Require the relevant contract and evidence slice; do not wait for unrelated domain completion or infer the full dependency track is done.",
       "source_review_requirements": [
@@ -2781,7 +2868,13 @@
         "DOC-d99505ca6cfd925b",
         "DOC-f3acee6ab2f749e5",
         "DOC-ef4a2da198314eb8"
-      ]
+      ],
+      "evidence": [
+        "source:31b3ab41848685c7670abf9e20994cebd9eb699e",
+        "OCI validation run44144790708:116tests",
+        "installed personal method guidance"
+      ],
+      "remaining": "Real independent episode, held-out evaluation, appropriate numerical/empirical obligations and broader-worker integration remain open."
     },
     {
       "id": "P09-X1",
@@ -2800,9 +2893,15 @@
         "Translate successful analogues back and rerun original acceptance tests; reject lost essential invariants.",
         "Lacuna and alien notation/axiom/representation candidates retain operational definitions, human baselines, competing explanations and falsifiable predictions; no novelty or alien-origin claim follows from a generated glyph."
       ],
-      "state": "planned_integration_not_qualified",
+      "state": "implemented_typed_contract_and_fixture_tests_partial_integration",
       "promotion_authority": false,
-      "dependency_condition": "Require the relevant contract and evidence slice; do not wait for unrelated domain completion or infer the full dependency track is done."
+      "dependency_condition": "Require the relevant contract and evidence slice; do not wait for unrelated domain completion or infer the full dependency track is done.",
+      "evidence": [
+        "source:31b3ab41848685c7670abf9e20994cebd9eb699e",
+        "OCI validation run44144790708:116tests",
+        "installed personal method guidance"
+      ],
+      "remaining": "Real independent episode, held-out evaluation, appropriate numerical/empirical obligations and broader-worker integration remain open."
     },
     {
       "id": "P04-X1",
@@ -2907,9 +3006,15 @@
         "Negative tests reject membership-as-probability, normalized-weights-as-proof, n-ary-shape-as-physical-synergy and fuzzy authorization/verification gates.",
         "The transformed and original problems pass their declared acceptance tests; helper/skill presence alone does not close integration."
       ],
-      "state": "planned_integration_not_qualified",
+      "state": "implemented_typed_contract_and_fixture_tests_partial_integration",
       "promotion_authority": false,
-      "dependency_condition": "Require the relevant contract and evidence slice; do not wait for unrelated domain completion or infer the full dependency track is done."
+      "dependency_condition": "Require the relevant contract and evidence slice; do not wait for unrelated domain completion or infer the full dependency track is done.",
+      "evidence": [
+        "source:31b3ab41848685c7670abf9e20994cebd9eb699e",
+        "OCI validation run44144790708:116tests",
+        "installed personal method guidance"
+      ],
+      "remaining": "Real independent episode, held-out evaluation, appropriate numerical/empirical obligations and broader-worker integration remain open."
     }
   ],
   "ranked_next_actions": [
@@ -2920,7 +3025,7 @@
         "P00-X1",
         "P09-X2"
       ],
-      "reason": "Turn the requested default research discipline and observed defect lessons into typed, tested boundary gates before a broader episode."
+      "reason": "The default typed contracts and fixed private demo slice are implemented/tested/live. Finish defect-family evidence and broaden to one independently evaluated episode without treating this fixture as a discovery."
     },
     {
       "rank": 2,
@@ -2975,5 +3080,6 @@
     "Bound source/test shards, preserve skipped and NOT_RUN states, and keep independent CACE credentials absent rather than inventing them."
   ],
   "update_rule": "Append a new plan version linked to this plan and exact observations/receipts. Update source review counts only after actual content/code/evidence reconciliation; never infer completion from indexing or generated text.",
-  "dependency_semantics": "For bounded implementation, a dependency requires its relevant contract/source/evidence slice, not completion of every unrelated task in that track. Full191-document reconciliation remains open; offline typed-contract work may proceed after its governing source shard is read and its negative tests are defined."
+  "dependency_semantics": "For bounded implementation, a dependency requires its relevant contract/source/evidence slice, not completion of every unrelated task in that track. Full191-document reconciliation remains open; offline typed-contract work may proceed after its governing source shard is read and its negative tests are defined.",
+  "updated_at_utc": "2026-11-17T18:31:57.491223+00:00"
 }

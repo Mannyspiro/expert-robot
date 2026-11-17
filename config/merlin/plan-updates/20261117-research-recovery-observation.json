@@ -1,0 +1,23 @@
+{
+  "schema": "merlin-plan-observation/1",
+  "parent_plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+  "parent_plan_version": 1,
+  "observations": [
+    {
+      "kind": "fixed_diagnostic",
+      "run_id": 44145909148,
+      "result": "exact_v1_link_and_config_restored_service_active_running"
+    },
+    {
+      "kind": "as_opc_peer_probe",
+      "run_id": 44146757840,
+      "returncode": 0,
+      "stderr": "",
+      "health": "ok",
+      "write_denial": "tool_not_allowed"
+    }
+  ],
+  "decision": "Preserve original failure; reconcile existing v2 release/history before one corrected bounded attempt. Original failure cause remains unknown.",
+  "qualification": false,
+  "promotion_authority": false
+}

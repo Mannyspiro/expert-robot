@@ -1,0 +1,142 @@
+{
+  "schema": "merlin-research-integration-evidence/1",
+  "source_commit": "31b3ab41848685c7670abf9e20994cebd9eb699e",
+  "bundle_sha256": "efe57bada5cd86f45118cac0036faf497f9aa60972508e036aed09f7b8cf04db",
+  "validation": {
+    "run_id": 44144790708,
+    "tests": 116,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "first_upgrade": {
+    "run_id": 44145136056,
+    "artifact_id": 14357160204,
+    "artifact_sha256": "a6231e6706d2e24a30619635b0835da8643c9c2abf94fba62f42262d21a38ac3",
+    "receipt_sha256": "19981a09fe43caa80209bae5464bd4eece0fe3d1fa3268e99475bec2ca599e62",
+    "reported_status": "rollback_failed",
+    "error_class": "CalledProcessError",
+    "original_probe_stderr": "not_retained"
+  },
+  "subsequent_diagnostic": {
+    "run_id": 44145909148,
+    "artifact_id": 14356072686,
+    "artifact_sha256": "bdca1f6fc8ae8402e266b36fd5e6fbb921bd53fb694ddbef19175398015ddaa0",
+    "current_and_config": "exact_v1_restored",
+    "service": "active_running"
+  },
+  "peer_probe": {
+    "run_id": 44146757840,
+    "artifact_id": 14356957057,
+    "artifact_sha256": "4b072920df81eaf9fe4285678569961edee1164510a335145d3eb472aafcd935",
+    "receipt_sha256": "ca21d383cc76a7c0134c23c647999a8e922ef676fbe7dabc6bf6088ac26d8f4a",
+    "child_uid": 1000,
+    "returncode": 0,
+    "stderr": "",
+    "health": "ok",
+    "job_submit": "tool_not_allowed"
+  },
+  "failure_cause": "not_established",
+  "hypothesis": "Startup readiness race is plausible, not a measured cause.",
+  "qualification": false,
+  "promotion_authority": false,
+  "successful_upgrade": {
+    "run_id": 44148199995,
+    "commit": "bc4d1de8ea7f370f782b078021833371b6a2e579",
+    "artifact_id": 14357482275,
+    "artifact_sha256": "120b0a4c914880538626c86fd18f71d5294867f67f99d10389ee32cbace0aa1c",
+    "receipt_sha256": "a816d0fb5272dbb40dc2e4ea033201f568817b80f76a0955c2c1b765a7bf4c76",
+    "tests": {
+      "errors": 0,
+      "failures": 0,
+      "passed": true,
+      "skipped": 0,
+      "tests": 116
+    },
+    "installation": {
+      "attempt": 2,
+      "both_releases_preserved": true,
+      "error": null,
+      "idempotent_replay": false,
+      "new_bundle_sha256": "efe57bada5cd86f45118cac0036faf497f9aa60972508e036aed09f7b8cf04db",
+      "new_config_sha256": "a25921442e2d3e463ccd685de6c67d824140b8c1592ab4fe942fb50c5d3b22e8",
+      "new_manifest_sha256": "68ef80c37a0368b09b67d01b5bf563ea4ab8bbb014bfd6184a93f3b19e2f01b9",
+      "old_bundle_sha256": "95e4985f5cf4af7b31bbb183047f6e2e4c4488034ec2d880e54f260feedb0b10",
+      "old_config_sha256": "17671e753cabef57ae9c0beb416afd2360e9f8f690046eb649238ccc3a5eb2a5",
+      "original_result_sha256": "0c4bfecce91beb56dcb95ad625f17f6f490767fd7d772a14269d2541cafbd43e",
+      "prior_failure_cause": "not_established",
+      "promotion_authority": false,
+      "qualification": false,
+      "restoration": null,
+      "schema": "merlin-research-resume/1",
+      "service_properties": {
+        "ActiveState": "active",
+        "DropInPaths": "",
+        "Group": "opc",
+        "NoNewPrivileges": "yes",
+        "PrivateNetwork": "yes",
+        "RestrictAddressFamilies": "AF_UNIX",
+        "SubState": "running",
+        "UnitFileState": "enabled",
+        "User": "merlin-dot"
+      },
+      "service_uid": 982,
+      "state_seed_changed": false,
+      "status": "upgraded",
+      "tool_verification": {
+        "health": {
+          "checked": true
+        },
+        "job_submit": {
+          "checked": true
+        },
+        "mathematical_lenses_demo": {
+          "checked": true
+        },
+        "research_contract": {
+          "checked": true
+        },
+        "research_episode_demo": {
+          "checked": true
+        }
+      }
+    },
+    "live_tools_ok": {
+      "context_search": true,
+      "context_status": true,
+      "health": true,
+      "mathematical_lenses_demo": true,
+      "research_contract": true,
+      "research_episode_demo": true,
+      "virtual_circuit_demo": true
+    },
+    "service_properties": "MainPID=1987572\nUser=merlin-dot\nGroup=opc\nPrivateNetwork=yes\nNoNewPrivileges=yes\nRestrictAddressFamilies=AF_UNIX\nActiveState=active\nSubState=running\nUnitFileState=enabled\n"
+  },
+  "upgrade_tests": {
+    "new_resume_tests": 9,
+    "combined_upgrade_resume_tests": 23,
+    "scope": "local fixture tests, not independent live recovery proof"
+  },
+  "subsequent_v2_inspection": {
+    "run_id": 44148526104,
+    "commit": "1beb2afb492cd245274cda5742dbe87629507fa1",
+    "artifact_id": 14356664081,
+    "artifact_sha256": "aa40e9035df68b13f3fa6b9e2eb5e9356aa920ae1826371483c68e1031b65d66",
+    "status": "succeeded",
+    "host_configuration_changed": false,
+    "service_pid": 1987572,
+    "same_pid_as_upgrade": true,
+    "tools_ok": [
+      "health",
+      "context_status",
+      "research_contract",
+      "mathematical_lenses_demo",
+      "research_episode_demo",
+      "virtual_circuit_demo"
+    ],
+    "job_submit": "tool_not_allowed",
+    "private_network": true,
+    "no_new_privileges": true,
+    "restrict_address_families": "AF_UNIX"
+  }
+}
