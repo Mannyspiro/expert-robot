@@ -233,6 +233,7 @@ jobs:
           python3 -m unittest discover -s tests -p "test_research_evidence.py" -v
           python3 -m unittest discover -s tests -p "test_hermes_stage_handlers.py" -v
           python3 -m unittest discover -s tests -p "test_hermes_ideonomy_stage.py" -v
+          python3 -m unittest discover -s tests -p "test_logos_review.py" -v
           python3 -m unittest discover -s tests -p "test_qualification_evidence_dag.py" -v
           python3 -m unittest discover -s tests -p "test_registry_backup.py" -v
           python3 -m unittest discover -s tests -p "test_backup_encryption.py" -v
