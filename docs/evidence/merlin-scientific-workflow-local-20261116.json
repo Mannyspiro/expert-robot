@@ -1,0 +1,69 @@
+{
+  "schema": "merlin-local-engineering-check/1",
+  "plan_id": "MERLIN-PRODUCTION-20261116",
+  "source_repository": "Mannyspiro/expert-robot",
+  "source_commit": "5b1d2d0226fc9a6abc3d83974ff12cf889330499",
+  "execution_scope": "focused source subset in ChatGPT container; not a full checkout or deployed runtime",
+  "python_version": "3.13.5",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "command": "PYTHONPATH=python python -m unittest discover -s tests -p 'test_merlin_scientific_workflow.py' -v",
+  "tests_run": 27,
+  "failures": 0,
+  "errors": 0,
+  "status": "locally_tested",
+  "additional_checks": {
+    "py_compile": "pass",
+    "legacy_receipt_acceptance": "pass",
+    "old_prompt_new_admission": "rejected_recompile_required"
+  },
+  "baseline_negative_control": {
+    "task_id": "mismatch_accepted",
+    "recipient": "mismatch_accepted",
+    "task_sha256": "mismatch_accepted",
+    "authority_scope": "mismatch_accepted"
+  },
+  "regression_result": "all listed metadata mismatch cases rejected after patch",
+  "files": {
+    "python/merlin/prompt_contract.py": {
+      "bytes": 27860,
+      "sha256": "97eaf2ead0ac984230a2b3f1789e397fcece253802fe006b90176e0c3dd4c8f8",
+      "git_blob_sha1": "8a1ed9d737f7c1c6fb27d95072266a61c40a46d7"
+    },
+    "python/merlin/scientific_workflow.py": {
+      "bytes": 5701,
+      "sha256": "9633773a54c16c63e6ec22ffd97fc12e77a3fbd02ee7ebbe24d952e62906e5d8",
+      "git_blob_sha1": "012005c4215cc338a6297455c90d90feb0d0d952"
+    },
+    "tests/test_merlin_scientific_workflow.py": {
+      "bytes": 13694,
+      "sha256": "044e0d0dcc2c0003a2e81e4ce5d153a93a6dcd5062b6ac023f65f749372fb131",
+      "git_blob_sha1": "c5522bdc4f05b391df7015c1e9f649f573ba984b"
+    },
+    "python/merlin/event_outbox.py": {
+      "bytes": 16960,
+      "sha256": "ccc1ec2e8d069686607365ba122b4a45e3118a628c5c4f288705c73e6468ceb2",
+      "git_blob_sha1": "14cd094db04d1a31d050129eb31b5cbd793d5457"
+    },
+    "python/merlin/__init__.py": {
+      "bytes": 275,
+      "sha256": "49f23ffa9b838de063cd88e4a60704d1989f55ff3aa70fe2ed850b0396fa8f93",
+      "git_blob_sha1": "0ad35f52071fb1537c1ffcb918a9a7148b411661"
+    }
+  },
+  "test_log_sha256": "b0756d1a9ea03a719ab8a95860dd05e35786146b3b62089e23c11069a61c0f7b",
+  "ci_run": null,
+  "full_native_suite": "not_run",
+  "full_python_suite": "not_run",
+  "lean": "not_run",
+  "model_inference": "not_run",
+  "cace_independent_verification": false,
+  "production_qualification": false,
+  "promotion_authority": false,
+  "limitations": [
+    "Prompt presence and metadata consistency do not establish model compliance or semantic truth.",
+    "Existing typed scientific-loop registry persistence and Hermes episode gates remain pending.",
+    "The new test suite has not been added to an explicit CI step; wire it into existing focused CI before qualification.",
+    "No MCFC OS sandbox, independent CACE endpoint, real provider, deployment, or capability promotion was exercised.",
+    "Hashes establish artifact identity, not independent verifier authentication."
+  ]
+}
