@@ -1,0 +1,100 @@
+{
+  "sources": {
+    "44232716977": {
+      "path": "docs/evidence/merlin-learning-host-20261117.json",
+      "sha256": "f3a2e4cf3182f60dfb51f48c8359e6bd4ddb193dc4d296e069119563de95d55f"
+    },
+    "44223138785": {
+      "path": "docs/evidence/merlin-learning-evidence-20261117.json",
+      "sha256": "3a3a9c2c1cc17d184070dcf1a304ebcab0b15fe62fc3d37fef3684407b63dfcc"
+    }
+  },
+  "cases": [
+    {
+      "question": "For run 44232716977, how many tests ran in the main shard?",
+      "expected": {
+        "disposition": "supported",
+        "run": "44232716977",
+        "pointer": "/tests/tests",
+        "value": 143
+      }
+    },
+    {
+      "question": "For run 44232716977, did the main shard run 130 tests?",
+      "expected": {
+        "disposition": "contradicted",
+        "run": "44232716977",
+        "pointer": "/tests/tests",
+        "value": 143
+      }
+    },
+    {
+      "question": "For run 44232716977, what was the submission status?",
+      "expected": {
+        "disposition": "supported",
+        "run": "44232716977",
+        "pointer": "/demo/submission_status",
+        "value": "pending_review"
+      }
+    },
+    {
+      "question": "For run 44232716977, what numeric grade was awarded?",
+      "expected": {
+        "disposition": "abstain"
+      }
+    },
+    {
+      "question": "For run 44223138785, how many tests ran in the main shard?",
+      "expected": {
+        "disposition": "supported",
+        "run": "44223138785",
+        "pointer": "/tests/tests",
+        "value": 130
+      }
+    },
+    {
+      "question": "For run 44223138785, did the main shard run 143 tests?",
+      "expected": {
+        "disposition": "contradicted",
+        "run": "44223138785",
+        "pointer": "/tests/tests",
+        "value": 130
+      }
+    },
+    {
+      "question": "For run 44223138785, what was the submission status?",
+      "expected": {
+        "disposition": "supported",
+        "run": "44223138785",
+        "pointer": "/demo/submission_status",
+        "value": "pending_review"
+      }
+    },
+    {
+      "question": "For run 44223138785, what numeric grade was awarded?",
+      "expected": {
+        "disposition": "abstain"
+      }
+    },
+    {
+      "question": "How many tests ran in the main shard?",
+      "expected": {
+        "disposition": "clarify_run"
+      }
+    },
+    {
+      "question": "For run 44232716977, what happened?",
+      "expected": {
+        "disposition": "clarify_field"
+      }
+    },
+    {
+      "question": "For run 99999000, what operation ran?",
+      "expected": {
+        "disposition": "abstain"
+      }
+    }
+  ],
+  "source_revision": "5218b4d61dcadde9d52a6dc0120a262cb8c2f3ec",
+  "criterion": "All eleven dispositions and all six typed cited values must agree with original nested receipt bytes. Report first-hit baseline. No relabeling."
+}
