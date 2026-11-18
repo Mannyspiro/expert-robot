@@ -1,2 +1,2 @@
 # Tested MCP v1 maintenance runtime. The canonical Merlin source is supplied by the repository.
-mcp==1.29.0
+mcp==1.30.0
