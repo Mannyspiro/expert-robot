@@ -1,0 +1,10 @@
+{
+  "centers": [0.41, 0.52, 0.59],
+  "slopes": [-0.38, 0.31],
+  "seeds": [811, 839],
+  "families": ["narrow", "broad", "overlap"],
+  "noise_bound": 0.001,
+  "rule": "Test whether each row can be explained by a unit amplitude single Gaussian of width 0.08 with arbitrary additive row offset. Enumerate centers from 0 to 1 at spacing 0.001 separately per row. Compute the minimum residual range over centers, then take the maximum over rows. Accept if this is <=0.013, allowing bounded noise and grid discretization. On acceptance use the prior guarded row-minimum warp; otherwise use original uniform.",
+  "design": "Cross all centers, slopes, seeds and families. Ridge center varies linearly about y=0.5. Narrow width 0.08; broad width 0.22; overlap uses width 0.12 at offsets +/-0.09 with amplitudes 1 and 0.8. Background 0.03+0.17*sin(2*pi*y); row-major seeded uniform pilot noise. Use existing 9 probes, 541 vertices and 4096 exact scoring points.",
+  "criterion": "Against original uniform, count a harmful adaptation if selected warp has higher RMSE, and a missed gain if uniform is selected when candidate warp has lower RMSE. Report mirrored uniform sensitivity separately. Advance only with zero harmful adaptations and retention of at least 75 percent of available improvements on the original comparator. No threshold tuning."
+}
