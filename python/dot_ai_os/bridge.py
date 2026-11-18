@@ -195,8 +195,43 @@ class DotContextBridge:
                                  "rsi_promotion": "unavailable"},
                 "policy": POLICY, "qualification": False}
 
+    def _pinned_records(self, pins: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        """Read only caller-authorized historical pairs, before ranking or budgeting.
+
+        This is a host scoping primitive, not an authorization decision. The host
+        must derive pins from its own authenticated course/source policy.
+        """
+        if not isinstance(pins, list) or not 1 <= len(pins) <= self.max_records:
+            raise ValueError("bounded explicit record/source pins required")
+        result = []; seen = set()
+        for pin in pins:
+            if not isinstance(pin, dict) or set(pin) != {"record_ref", "source_ref"}:
+                raise ValueError("exact record/source reference pair required")
+            ref = ArtifactRef.from_mapping(pin["record_ref"])
+            source_ref = ArtifactRef.from_mapping(pin["source_ref"])
+            identity = canonical(ref.to_dict())
+            if identity in seen:
+                raise ValueError("duplicate pinned record")
+            seen.add(identity)
+            record = json.loads(self._read(ref.to_dict(), 16000))
+            required = {"schema", "namespace", "source_id", "title", "source_url",
+                        "source_version", "epistemic", "captured_at", "source_ref"}
+            if not isinstance(record, dict) or set(record) != required or record["schema"] != "dot-context-record/1":
+                raise ValueError("invalid pinned context record")
+            source_metadata(record); self._namespace(record["namespace"])
+            record_source_ref = ArtifactRef.from_mapping(record["source_ref"])
+            base = f"context/{record['namespace']}/{digest(record['source_id'].encode())}"
+            if (ref.logical_path != base + "/record.json" or source_ref.logical_path != base + "/source.txt"
+                    or ref.project_id != self.project_id or source_ref.project_id != self.project_id
+                    or record_source_ref.to_dict() != source_ref.to_dict()):
+                raise ValueError("pinned context source binding mismatch")
+            self._read(source_ref.to_dict()).decode("utf-8")
+            result.append({**record, "record_ref": ref.to_dict()})
+        return result
+
     def search(self, query: str, *, namespace: str | None = None, limit: int = 8,
-               budget_bytes: int = 14000) -> dict[str, Any]:
+               budget_bytes: int = 14000,
+               pinned_records: list[dict[str, Any]] | None = None) -> dict[str, Any]:
         """Deterministic lexical baseline; budget applies to full canonical response."""
         text_value(query, "query", 1000)
         integer(limit, "limit", 1, 30)
@@ -207,7 +242,8 @@ class DotContextBridge:
         if not terms:
             raise ValueError("query must contain searchable words")
         ranked = []
-        for record in self._records():
+        records = self._records() if pinned_records is None else self._pinned_records(pinned_records)
+        for record in records:
             if namespace is not None and record["namespace"] != namespace:
                 continue
             source = self._read(record["source_ref"]).decode("utf-8")
@@ -231,6 +267,10 @@ class DotContextBridge:
                   "hits": [], "matched_chunks": len(ranked), "omitted_chunks": len(ranked),
                   "selection": "lexical_baseline_max_two_chunks_per_source",
                   "qualification": False, "budget_bytes": budget_bytes}
+        if pinned_records is not None:
+            # Keep matching scope independent of excerpt truncation so a host's
+            # conflict annotations cannot disappear when its byte budget fills.
+            packet["matched_record_sha256s"] = sorted({hit["record_ref"]["sha256"] for hit in ranked})
         if len(canonical(packet)) > budget_bytes:
             raise ValueError("budget_bytes is too small for query and packet metadata")
         per_source = Counter()
