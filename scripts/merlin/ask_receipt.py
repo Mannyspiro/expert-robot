@@ -18,6 +18,9 @@ ALIASES = {"learning": ("44174486449",), "titan": ("44174486449",),
 SELECTOR = r"(?:the )?(?:(?:run )?[0-9]+|(?:learning|titan|lms|recovery)(?: run| receipt)?)"
 FIELDS = (
     (r"how many (?:main shard tests ran|tests ran in the main shard)", "/tests/tests"),
+    (r"how many tests did the main shard (?:log|record|run)", "/tests/tests"),
+    (r"what was the main shard's test (?:tally|count)", "/tests/tests"),
+    (r"how many main[- ]shard tests does the receipt (?:show|record)", "/tests/tests"),
     (r"how many operation tests ran", "/recovery_operation_tests/tests"),
     (r"what (?:was|is) the (?:submission (?:status|state)|(?:recorded )?(?:status|state) of "
      r"the (?:(?:synthetic )?learner's )?submission)", "/demo/submission_status"),
@@ -69,6 +72,26 @@ def ask(bridge, pins, question, aliases=ALIASES):
         body, selector = suffix.groups()
     else:
         body, selector = text, None
+
+    # Recognize complete embedded-selector questions before resolving their field.
+    # Keeping full matches preserves uncertainty for comparisons and modified claims.
+    embedded = (
+        (rf"where did the submission for ({SELECTOR}) stand when the receipt was recorded",
+         "what was the submission status"),
+        (rf"what numeric grade did ({SELECTOR}) receive", "what numeric grade was awarded"),
+    )
+    for pattern, canonical in embedded:
+        match = re.fullmatch(pattern, text)
+        if match:
+            selector, body = match.group(1), canonical
+            break
+    assertion = re.fullmatch(
+        rf"i have ([0-9]{{1,9}}) main[- ]shard tests written down for ({SELECTOR})\. is that right", text)
+    if assertion:
+        count, selector = assertion.groups()
+        body = f"did the main shard run {count} tests"
+    if selector is None:
+        body = body.removesuffix(" for that run")
 
     pointer, claim = resolve_field(body)
     if pointer is None:
