@@ -1,0 +1,22 @@
+{
+  "schema":"merlin-mesh-robustness/1",
+  "frame":"Can the fixed nine-probe inversion survive assumptions becoming inaccurate?",
+  "centers":[0.43,0.57],
+  "slopes":[-0.45,0.45],
+  "perturbations":[
+    {"id":"baseline","width":0.08,"background":0.1,"noise":0},
+    {"id":"narrow","width":0.06,"background":0.1,"noise":0},
+    {"id":"broad","width":0.1,"background":0.1,"noise":0},
+    {"id":"background","width":0.08,"background":0.12,"noise":0},
+    {"id":"noise","width":0.08,"background":0.1,"noise":0.001}
+  ],
+  "noise_seed":917,
+  "noise_rule":"One deterministic uniform [-noise,+noise] draw at each pilot, fresh Random(seed) per case.",
+  "estimator":"Existing three-row fit assumes width 0.08 and background 0.1. No retuning. Invalid positive residual or any extrapolated center outside (0,1) selects original uniform mesh, with failure reason recorded.",
+  "budget":"Nine pilot queries per selection and 541 vertex queries per arm. Original 4096 scoring coordinates. Noise affects pilots only. Evaluate true field to isolate placement robustness.",
+  "criterion":"Each case must strictly beat both uniform orientations. Report each failure and fallback. Advance only if all perturbed cases pass.",
+  "hypotheses":["Specialized Gaussian inversion generalizes across these perturbations.","Sparse log-ratio inversion is unstable when residuals are small or the background is inaccurate."],
+  "niche_fact":"Gaussian log ratios determine center under known width and additive background. This is a conditional analytic model, not an empirical universal rule.",
+  "lenses":{"simplex":"Applied existing barycentric P1 interpolation, affine reproduction check.","n_ality":"Applied separate location, tilt and perturbation axes with full stated factorial coverage.","continuum":"Applied analytic field sampled onto fixed triangulations, scored in original dimensionless scalar units.","fuzzy":"Deferred because hard geometry checks and explicit numeric errors already determine the experiment."},
+  "bias_control":"Retain all 20 cases including null/failed inversions. Freeze rule before scoring. Compare mirrored triangulations to expose orientation confounding."
+}
