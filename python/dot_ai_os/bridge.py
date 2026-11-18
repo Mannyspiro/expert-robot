@@ -71,6 +71,14 @@ def session_path(session_id: str) -> str:
     return f"handoffs/{session_id}.json"
 
 
+def search_tokens(text: str):
+    """Keep exact identifiers searchable and index their component words."""
+    for token in _TOKEN.findall(text.casefold()):
+        yield token
+        if "_" in token or "-" in token:
+            yield from (part for part in re.split(r"[_-]+", token) if part)
+
+
 def chunks(text: str, max_bytes: int = 1800):
     """Produce contiguous exact UTF-8 ranges, preferring newline boundaries."""
     raw = text.encode("utf-8")
@@ -203,7 +211,7 @@ class DotContextBridge:
         integer(budget_bytes, "budget_bytes", 2000, 64000)
         if namespace is not None:
             self._namespace(namespace)
-        terms = set(_TOKEN.findall(query.casefold()))
+        terms = set(search_tokens(query))
         if not terms:
             raise ValueError("query must contain searchable words")
         ranked = []
@@ -211,9 +219,9 @@ class DotContextBridge:
             if namespace is not None and record["namespace"] != namespace:
                 continue
             source = self._read(record["source_ref"]).decode("utf-8")
-            title_terms = set(_TOKEN.findall(record["title"].casefold()))
+            title_terms = set(search_tokens(record["title"]))
             for start, end, part in chunks(source):
-                counts = Counter(_TOKEN.findall(part.casefold()))
+                counts = Counter(search_tokens(part))
                 matched = terms.intersection(counts)
                 if not matched:
                     continue
