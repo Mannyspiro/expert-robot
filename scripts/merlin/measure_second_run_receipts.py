@@ -12,13 +12,13 @@ from unittest.mock import patch
 from measure_pr179_receipts import HERE, check_answer, pinned
 
 
-def measure(candidate_root):
-    raw = (HERE / "tests/fixtures/second-run-receipts.json").read_bytes()
+def measure(candidate_root, fixture="second-run-receipts.json", implementation=None):
+    raw = (HERE / "tests/fixtures" / fixture).read_bytes()
     protocol = json.loads(raw)
     original = json.loads((HERE / "tests/fixtures/pr179-fresh-receipts-v1.json").read_bytes())
     for path, blob in original["code_blobs"].items():
         if path != "base":
-            pinned(candidate_root / path, blob)
+            pinned(candidate_root / path, implementation["parser_blob"] if implementation and path == "scripts/merlin/ask_receipt.py" else blob)
     sys.path[:0] = [str(candidate_root / "python"), str(candidate_root / "scripts/merlin")]
     import ask_receipt
     from dot_ai_os.bridge import DotContextBridge
@@ -61,11 +61,15 @@ def measure(candidate_root):
                     citation["outer_end_byte"] = start + citation["end_byte"]
                 row[arm] = grade
             cases.append(row)
-    return dict(protocol_sha256=hashlib.sha256(raw).hexdigest(),candidate_commit=original["candidate_commit"],
+    return dict(protocol_sha256=hashlib.sha256(raw).hexdigest(),candidate_commit=implementation["commit"] if implementation else original["candidate_commit"],
                 results=cases,passed={arm:sum(c[arm]["passed"] for c in cases) for arm in ("first_hit","bound")})
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--candidate-root",required=True,type=Path)
-    print(json.dumps(measure(parser.parse_args().candidate_root.resolve()),indent=2))
+    parser.add_argument("--fixture", choices=("second-run-receipts.json","separate-author-receipts.json"), default="second-run-receipts.json")
+    parser.add_argument("--implementation", type=Path, help="Explicit revision and parser blob for a follow-up comparison")
+    args = parser.parse_args()
+    implementation = json.loads(args.implementation.read_bytes()) if args.implementation else None
+    print(json.dumps(measure(args.candidate_root.resolve(),args.fixture,implementation),indent=2))
