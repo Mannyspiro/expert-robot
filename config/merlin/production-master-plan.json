@@ -1,21 +1,21 @@
 {
   "schema": "merlin-production-master-plan/1",
   "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
-  "version": 5,
+  "version": 6,
   "created_at_utc": "2026-11-17T17:51:10.393995+00:00",
   "date_phoenix": "2026-11-17",
   "source_repository": "Mannyspiro/expert-robot",
-  "source_anchor_commit": "47260febc9726ec6d02c798b0fd99780b19dba29",
-  "source_anchor_scope": "Code implementation and isolated OCI test/evaluation evidence; no institutional rollout claim.",
+  "source_anchor_commit": "b6897ed3808dcd5a9cc097d5ae73710871ffeb56",
+  "source_anchor_scope": "Authenticated host injection and narrow actual-route/factoryguard synthetic validation; not fullstartup/pilot deployment.",
   "authority": "planning_and_traceability_only",
   "qualification": false,
   "promotion_authority": false,
   "parent_plan": {
     "id": "MERLIN-PRODUCTION-MASTER-20261117",
-    "version": 4,
-    "path": "config/merlin/plan-history/production-master-plan-v4-8a04c1f6aa671544b6fd455b2d5f2f5b1dedb41a9e36bd608de8a7521a72130b.json",
-    "sha256": "8a04c1f6aa671544b6fd455b2d5f2f5b1dedb41a9e36bd608de8a7521a72130b",
-    "mutation": "Append-only course evidence retrieval/evaluation revision; v4 preserved byte-for-byte."
+    "version": 5,
+    "path": "config/merlin/plan-history/production-master-plan-v5-9ff12156ce2ee26aab1fa5f1003ccd920715c8537fbe302a6dda5a2cdc7bc043.json",
+    "sha256": "9ff12156ce2ee26aab1fa5f1003ccd920715c8537fbe302a6dda5a2cdc7bc043",
+    "mutation": "Append-only authenticated host boundary revision; v5 preserved exactly."
   },
   "references": {
     "coverage": {
@@ -162,6 +162,37 @@
       "artifact_id": 14392210368,
       "archive_path": "docs/evidence/merlin-learning-evidence-20261117.zip",
       "artifact_sha256": "43bc89b0c6b188d42901a113d7f43babad4e4df2c023877b23c525916c14c786"
+    },
+    "learning_host_protocol": {
+      "path": "config/merlin/learning-host-protocol-20261117.json",
+      "path_kind": "repository_relative",
+      "sha256": "be06c0d774e763774aba843269532319659ca18e68483bc1e09cdf5a6a23299a",
+      "scope": "Pre-result host boundary predictions and representation checks"
+    },
+    "learning_host_contract": {
+      "path": "docs/merlin/MERLIN_LEARNING_HOST_API_V1.md",
+      "path_kind": "repository_relative",
+      "sha256": "0d2eb296261729590c840c9fd03ee893c69f4116f1df33d508356dbd589dcef5",
+      "scope": "Explicit injectable host API and pilot limits"
+    },
+    "learning_host_defects": {
+      "path": "config/merlin/defect-families/learning-host-20261117.json",
+      "path_kind": "repository_relative",
+      "sha256": "56b4d95158d67ee4369e7fdbc58263d361e3f2ac5961934f5b3c41b809975ce0",
+      "scope": "Malformed nested fields and bounded generic research error controls"
+    },
+    "learning_host_checkpoint": {
+      "path": "docs/evidence/merlin-learning-host-20261117.json",
+      "path_kind": "repository_relative",
+      "sha256": "f3a2e4cf3182f60dfb51f48c8359e6bd4ddb193dc4d296e069119563de95d55f",
+      "scope": "143selected OCI tests with13new synthetic host tests; no fullstartup/SSO/pilot claim",
+      "run_id": 44232716977,
+      "job_id": 134561383452,
+      "workflow_commit": "5245f8d847a5d135afb4097491e9ad19261d7d61",
+      "operations_source_commit": "b9fac367b83f52e197811d210437478290a514c5",
+      "artifact_id": 14395852187,
+      "archive_path": "docs/evidence/merlin-learning-host-20261117.zip",
+      "artifact_sha256": "e534dee842a57b94574c4ccf79c9848c1eb5be02cd0ad1a325d5b303d6ae6ae8"
     }
   },
   "source_of_truth_order": [
@@ -2285,6 +2316,42 @@
       },
       "production_service_modified": false,
       "scope": "Public known synthetic reader/evaluator and existing LMS/Titan regression suite"
+    },
+    "learning_host": {
+      "status": "host_api_injected_source_integrated_oci_synthetic_validated",
+      "source_commit": "b6897ed3808dcd5a9cc097d5ae73710871ffeb56",
+      "run_id": 44232716977,
+      "tests": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests": 143
+      },
+      "new_host_tests": 13,
+      "architecture": "aarch64",
+      "python": [
+        3,
+        9,
+        25
+      ],
+      "operations": [
+        "sources",
+        "evidence",
+        "lab",
+        "submit-lab"
+      ],
+      "reuse": "Existing Actor resolver, LearningPlatform, LearningEvidenceService, optional LearningLabBridge and canonicalregistry; no new truth or identity store.",
+      "limits": [
+        "No full application startup or live institutional OIDC flow was executed.",
+        "Resolver is an explicitly synthetic fixture; actual issuer/tenant/pilot provisioning and rights/accessibility/retention policy remain open.",
+        "Service remains opt-in via host injection; production service/state was not modified.",
+        "No raw student/private chat/Drive data, grading/mastery, cryptographic conformance or independent qualification.",
+        "Prior retrieval case set remains four public nonblind knownfixtures, not general accuracy."
+      ],
+      "qualification": false,
+      "promotion_authority": false,
+      "production_service_modified": false
     }
   },
   "reconciliations": [
@@ -2998,15 +3065,17 @@
           "id": "P07-2",
           "title": "Complete one learning vertical slice",
           "coverage_pointer": "/ranked_workstreams/7/tasks/1",
-          "state": "synthetic_lab_vertical_slice_oci_validated_partial_institutional_rollout",
+          "state": "host_routes_and_canonical_lab_evidence_oci_synthetic_validated_partial_pilot",
           "evidence_refs": [
             "learning_titan_protocol",
             "learning_titan_integration",
             "learning_titan_evidence",
             "learning_evidence_contract",
-            "learning_evidence_checkpoint"
+            "learning_evidence_checkpoint",
+            "learning_host_contract",
+            "learning_host_checkpoint"
           ],
-          "scope_note": "Draft course, independent publication policy, enrollment, canonical lab evidence, pending review and recommendation are wired in code; actual institutional auth/hosting/efficacy remain open. Course-scoped canonical retrieval/evaluation now passes synthetic OCI checks; host route/onboarding remains open.",
+          "scope_note": "Draft course, independent publication policy, enrollment, canonical lab evidence, pending review and recommendation are wired in code; actual institutional auth/hosting/efficacy remain open. Course-scoped canonical retrieval/evaluation now passes synthetic OCI checks; host route/onboarding remains open. Explicit hostadapter and actual route/factoryguard tests nowpass; fullstartup and actual institutional pilot remain open.",
           "acceptance_gate_ids": [
             "G-SOURCE",
             "G-SCOPE",
@@ -3367,7 +3436,9 @@
         "learning_titan_integration",
         "learning_titan_evidence",
         "learning_evidence_contract",
-        "learning_evidence_checkpoint"
+        "learning_evidence_checkpoint",
+        "learning_host_contract",
+        "learning_host_checkpoint"
       ]
     }
   ],
@@ -3379,8 +3450,8 @@
         "P07-X1",
         "P04-1"
       ],
-      "reason": "Wire the library bridge through the actual host-authenticated LMS/session adapter and tenant/project provisioning, with instructor review, accessibility and retention policies. Keep synthetic demo and actual institutional onboarding distinct.",
-      "acceptance": "Authenticated Actor from hostsession, tenant-scoped routes, version-pinned submissions, role tests and one explicitly provisioned pilot tenant; no model-authored identity or grades."
+      "reason": "Host research routes are now wired and tested on synthetic services. Provision the actual institutional issuer/resolver and distinct pilot tenant/project mapping, complete policy and fullstartup/operational acceptance.",
+      "acceptance": "Actual issuer/audience/JWKS and tenant/role policy, explicitly provisioned pilot, instructor/rights/accessibility/retention review, fullapplication startup and end-to-end authenticated acceptance; do not infer from synthetic fixtures."
     },
     {
       "rank": 2,
@@ -3442,7 +3513,7 @@
   ],
   "update_rule": "Append a new plan version linked to this plan and exact observations/receipts. Update source review counts only after actual content/code/evidence reconciliation; never infer completion from indexing or generated text.",
   "dependency_semantics": "For bounded implementation, a dependency requires its relevant contract/source/evidence slice, not completion of every unrelated task in that track. Full191-document reconciliation remains open; offline typed-contract work may proceed after its governing source shard is read and its negative tests are defined.",
-  "updated_at_utc": "2026-11-18T02:28:17.917991+00:00",
+  "updated_at_utc": "2026-11-18T03:48:17.346834+00:00",
   "integrations": {
     "learning_titan": {
       "status": "source_integrated_and_oci85pass_synthetic_flow",
@@ -3612,6 +3683,42 @@
         "Larger frozen independent/new-data evaluations before claiming general retrieval quality.",
         "Automatic semantic contradiction discovery remains absent; only reviewed annotations are implemented."
       ]
+    },
+    "learning_host": {
+      "status": "host_api_injected_source_integrated_oci_synthetic_validated",
+      "source_commit": "b6897ed3808dcd5a9cc097d5ae73710871ffeb56",
+      "run_id": 44232716977,
+      "tests": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests": 143
+      },
+      "new_host_tests": 13,
+      "architecture": "aarch64",
+      "python": [
+        3,
+        9,
+        25
+      ],
+      "operations": [
+        "sources",
+        "evidence",
+        "lab",
+        "submit-lab"
+      ],
+      "reuse": "Existing Actor resolver, LearningPlatform, LearningEvidenceService, optional LearningLabBridge and canonicalregistry; no new truth or identity store.",
+      "limits": [
+        "No full application startup or live institutional OIDC flow was executed.",
+        "Resolver is an explicitly synthetic fixture; actual issuer/tenant/pilot provisioning and rights/accessibility/retention policy remain open.",
+        "Service remains opt-in via host injection; production service/state was not modified.",
+        "No raw student/private chat/Drive data, grading/mastery, cryptographic conformance or independent qualification.",
+        "Prior retrieval case set remains four public nonblind knownfixtures, not general accuracy."
+      ],
+      "qualification": false,
+      "promotion_authority": false,
+      "production_service_modified": false
     }
   }
 }

@@ -1,0 +1,27 @@
+{
+  "schema": "merlin-defect-families/1",
+  "source_commit": "b6897ed3808dcd5a9cc097d5ae73710871ffeb56",
+  "scope": "Host research adapter development/source review; no live incident claim",
+  "families": [
+    {
+      "id": "RESEARCH-MALFORMED-SOURCE-STATUS",
+      "observation_class": "source_review_and_negative_regression",
+      "root_cause": "Looking up nested source references before validating exact fields classified missing request keys as internal failures.",
+      "prevention": "Validate exact nested field set before canonical ref lookup; malformed request400, unavailable canonical evidence503.",
+      "regression": "test_curator_source_freeze_and_owner_restrictions",
+      "rollback": "Revert host adapter source; retain existing canonical evidence."
+    },
+    {
+      "id": "RESEARCH-BOUNDARY-ERROR-REDACTION",
+      "observation_class": "source_review_hazard_and_current_source_reproduction",
+      "root_cause": "The older shared app parser could include exception details for malformed length/JSON; a research-only generic boundary is required. No prior live leak was observed.",
+      "prevention": "Research-specific bounded length/strict decode/short-read and constant errors; other routes retain existing behavior.",
+      "regression": "Actual app POST test sends token-marker Content-Length,negative,zero,oversized headers and verifies constant400 without raw marker.",
+      "current_observation": "Fixed source returns400 invalid_research_request for malformed Content-Length marker.",
+      "rollback": "Source revert only, no canonical store migration."
+    }
+  ],
+  "sibling_scope": "Allfour research operations, actual host factory object-identity guards and prior130 canonical regressions. Other controllers/fullstartup remain unexecuted.",
+  "qualification": false,
+  "promotion_authority": false
+}

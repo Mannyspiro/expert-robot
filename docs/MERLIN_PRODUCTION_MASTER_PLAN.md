@@ -1,6 +1,6 @@
 # Merlin production master plan
 
-Version 5 — November 17, 2026, America/Phoenix. This is the dependency and acceptance view for the preserved Merlin program. The machine-readable companion is [production-master-plan.json](../config/merlin/production-master-plan.json).
+Version 6 — November 17, 2026, America/Phoenix. This is the dependency and acceptance view for the preserved Merlin program. The machine-readable companion is [production-master-plan.json](../config/merlin/production-master-plan.json).
 
 A narrow private Merlin service is running on OCI. The remaining work turns that measured foothold into a reliable research system while preserving the existing canonical registry, graph, worker and independent-evidence boundaries.
 
@@ -147,7 +147,7 @@ Keep failed attempts, skipped gates and `NOT_RUN` visible. Reconcile an ambiguou
 
 ## Ranked next implementation
 
-1. Wire the lab and evidence reader through the real host-authenticated session/LMS adapter and explicit tenant/project provisioning. Complete instructor, accessibility, rights, retention and student-data policies before an explicitly provisioned pilot.
+1. Activate the implemented host research interface with an actual institutional issuer/resolver, explicit pilot tenant/project provisioning, instructor/accessibility/rights/retention policies and full application operational acceptance. Synthetic route tests do not establish this gate.
 2. Expand the completed four-case public retrieval fixture with independently frozen source/case sets, leakage controls and discriminating missing/conflicting evidence. Preserve failed candidates and original-byte oracles; do not move private context onto the shared runner.
 3. Run a genuinely discriminating two-coder research episode with authorized provider adapters, held-out predictions, independent review and canonical resume. Public Titan vectors remain known fixtures.
 4. Extend recovery to consistently published LMS/learner/research stores and off-host custody. Titan structural models are not encryption providers.
@@ -189,3 +189,12 @@ The original synthetic fixture was frozen before its first run. One development 
 Separate coder review within the same team found and repaired the curation publication race, hidden conflict-context risk, evaluator scope omission and Boolean/integer identity alias. Each has a targeted regression and a [defect-family record](../config/merlin/defect-families/learning-evidence-20261117.json). The [reader contract](merlin/MERLIN_LEARNING_EVIDENCE_V1.md), [pre-result protocol](../config/merlin/learning-evidence-protocol-20261117.json), [exact checkpoint](evidence/merlin-learning-evidence-20261117.json) and preserved archive record the evidence and its limits. Raw canonical protocol, report and candidate exports were digest-verified after download.
 
 The running production service and state were outside isolated validation. Institutional session/routes/provisioning and pilot policy remain the first integration gate. No grade/mastery, cryptographic primitive/conformance, independent verifier or promotion was added. Master plan v5 preserves v4 byte-for-byte, all191sourcebindings and all45tasks; the187semanticreviews remain queued.
+
+
+## Authenticated host research interface — measured November 17, 2026
+
+[OCI run 44232716977](https://github.com/morganaspim/Cace-app/actions/runs/44232716977) passed **143 selected tests**, zero failures/errors/skips, on ARM64/Python 3.9.25. Thirteen new tests exercise actual loopback calls through all four research POST paths, exact host object-identity guards, source curation, evidence retrieval, canonical Titan lab replay and pending submission. Identity comes only from the injected host resolver; body identity/project overrides and cross-tenant/course/version access fail. Malformed input and internal failures have bounded generic responses. Existing canonical stores and services are reused.
+
+The test harness compiles the actual host POST/origin methods and factory guard prelude without importing/seeding unrelated application components. The resolver is an explicit synthetic fixture. Full startup, actual institutional OIDC, real pilot policies and live deployment remain unexecuted; no mastery, cryptographic security, independent verification or promotion follows. A clean extracted package also passed143tests and replayed the two existing demos.
+
+See the [host contract](merlin/MERLIN_LEARNING_HOST_API_V1.md), [pre-result protocol](../config/merlin/learning-host-protocol-20261117.json), [exact checkpoint](evidence/merlin-learning-host-20261117.json) and preserved archive. Master plan v6 preserves v5 and all191sourcebindings/45tasks. Production service/state was not modified.
