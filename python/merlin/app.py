@@ -36,7 +36,7 @@ from .math_transfer import preview_transfers
 from .interaction_learning import InteractionLearningStore, analyze_interactions
 from .memory_vault import MerlinMemoryVault
 from .capability_registry import capability_snapshot, validate_graph
-from .learning_platform import Actor as LearningActor, LearningPlatform
+from .learning_platform import Actor as LearningActor, LearningConflictError, LearningPlatform
 from .math_foundations_course import load_math_foundations_manifest
 from .math_logic_discrete_course import load_math_logic_discrete_manifest
 from .math_calculus_probability_course import load_math_calculus_probability_manifest
@@ -342,12 +342,17 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                  learning_identity_resolver: Any | None = None,
                  canonical_graph: Any | None = None,
                  hermes_worker_service: Any | None = None,
-                 hermes_runtime: Any | None = None):
+                 hermes_runtime: Any | None = None,
+                 learning_lab_bridge: Any | None = None):
     simulation = MerlinSimulation()
     literature_search = PublicLiteratureSearch()
     learner_store = learner_store or LearnerStore(store.path)
     learning_db = os.environ.get("MERLIN_LEARNING_DB_PATH",
         str(Path(store.path).with_name("learning.sqlite3")))
+    if learning_lab_bridge is not None:
+        if learning_platform is not None and learning_lab_bridge.platform is not learning_platform:
+            raise ValueError("Learning routes and lab bridge must share the same platform")
+        learning_platform = learning_lab_bridge.platform
     learning_platform = learning_platform or LearningPlatform(learning_db)
     interaction_store = InteractionLearningStore(store.path)
     memory_path = os.environ.get("MERLIN_MEMORY_DB_PATH", str(Path(store.path).with_name("memory.sqlite3")))
@@ -1362,6 +1367,27 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                         self._send(503, {"error": "learning_identity_provider_not_configured"})
                         return
                     parts = [unquote(part) for part in path.split("/") if part]
+                    if len(parts) == 6 and parts[4] == "titan-lab" and parts[5] in {"run", "submit"}:
+                        if learning_lab_bridge is None:
+                            self._send(503, {"error": "learning_lab_not_configured"})
+                            return
+                        required = {"course_version", "manifest_sha256", "lesson_id", "run_id"}
+                        if parts[5] == "run":
+                            required.add("prediction")
+                            action = learning_lab_bridge.run_titan_lab
+                        else:
+                            required.update(("submission_id", "reflection"))
+                            action = learning_lab_bridge.submit_lab_assessment
+                        if set(data) != required:
+                            self._send(400, {"error": "invalid_learning_lab_fields"})
+                            return
+                        try:
+                            result = action(actor, course_id=parts[3], **data)
+                        except LearningConflictError:
+                            self._send(409, {"error": "learning_lab_conflict"})
+                            return
+                        self._send(200, result)
+                        return
                     if len(parts) == 6 and parts[4] == "templates" and parts[5] == "math-algebra-functions":
                         if actor.role not in {"tenant_admin", "instructor"}:
                             self._send(403, {"error": "instructor_role_required"})
@@ -2041,7 +2067,8 @@ def _build_optional_hud_runtime(
 def serve(port: int = 8765, db_path: str | None = None,
           learning_identity_resolver: Any | None = None,
           hermes_worker_service: Any | None = None,
-          hermes_runtime: Any | None = None) -> None:
+          hermes_runtime: Any | None = None,
+          learning_lab_bridge: Any | None = None) -> None:
     if hermes_runtime is not None and hermes_worker_service is not None:
         raise ValueError("pass hermes_runtime or hermes_worker_service, not both")
     if hermes_runtime is not None:
@@ -2084,7 +2111,7 @@ def serve(port: int = 8765, db_path: str | None = None,
                      canonical_registry, learning_identity_resolver=learning_identity_resolver,
                      canonical_graph=canonical_graph,
                      hermes_worker_service=hermes_worker_service,
-                     hermes_runtime=hermes_runtime))
+                     hermes_runtime=hermes_runtime, learning_lab_bridge=learning_lab_bridge))
     hud_runtime_started = False
     hermes_service_started = False
     shutdown_requested = Event()
