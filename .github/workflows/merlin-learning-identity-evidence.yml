@@ -7,6 +7,8 @@ on:
       - "python/merlin/identity.py"
       - "requirements-merlin-auth.txt"
       - "python/merlin/learning_platform.py"
+      - "python/merlin/learning_lab_bridge.py"
+      - "tests/test_learning_titan_http.py"
       - "tests/test_merlin_identity.py"
       - "tests/test_merlin_learning_platform.py"
       - "tests/research/test_merlin_learning_http.py"
@@ -59,11 +61,11 @@ jobs:
       - name: Run Learning and identity tests
         shell: bash
         env:
-          PYTHONPATH: .
+          PYTHONPATH: .:python
         run: |
           set +e
           mkdir -p artifacts
-          python -m pytest -q -v tests/test_merlin_identity.py tests/test_merlin_learning_platform.py tests/research/test_merlin_learning_http.py 2>&1 | tee artifacts/learning-identity-tests.log
+          python -m pytest -q -v tests/test_learning_titan_http.py tests/test_merlin_identity.py tests/test_merlin_learning_platform.py tests/research/test_merlin_learning_http.py 2>&1 | tee artifacts/learning-identity-tests.log
           rc=${PIPESTATUS[0]}
           printf '{"suite":"merlin-learning-identity-tests","commit":"%s","exit_code":%s}\n' "$GITHUB_SHA" "$rc" > artifacts/learning-identity-tests-result.json
           exit "$rc"
