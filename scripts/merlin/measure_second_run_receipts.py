@@ -18,7 +18,11 @@ def measure(candidate_root, fixture="second-run-receipts.json", implementation=N
     original = json.loads((HERE / "tests/fixtures/pr179-fresh-receipts-v1.json").read_bytes())
     for path, blob in original["code_blobs"].items():
         if path != "base":
-            pinned(candidate_root / path, implementation["parser_blob"] if implementation and path == "scripts/merlin/ask_receipt.py" else blob)
+            if implementation and path == "scripts/merlin/ask_receipt.py":
+                blob = implementation["parser_blob"]
+            if implementation and path == "scripts/merlin/evaluate_multirun_receipts.py":
+                blob = implementation.get("evaluator_blob", blob)
+            pinned(candidate_root / path, blob)
     sys.path[:0] = [str(candidate_root / "python"), str(candidate_root / "scripts/merlin")]
     import ask_receipt
     from dot_ai_os.bridge import DotContextBridge

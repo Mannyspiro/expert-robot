@@ -1,0 +1,26 @@
+{
+  "schema": "merlin-plan-update/1",
+  "parent_plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+  "parent_plan_version": 7,
+  "reasoning_mode": "inductive_revision",
+  "requires_review": true,
+  "authority_effect": "none",
+  "prior_update": "config/merlin/plan-updates/20261118-receipt-phrasing.json",
+  "prior_update_sha256": "6ad9026095e9e4a1035baf6169ef6a405bce430af3257a7bd175dda09b32fad4",
+  "observation_ids": [
+    "receipt-version-restart"
+  ],
+  "observed_artifacts": [],
+  "evidence": [
+    "https://github.com/Mannyspiro/expert-robot/blob/46829079eb000153ad38055ab345e4e6d8a8b745/tests/test_receipt_version_replay.py"
+  ],
+  "decision": "Pinned v1 previously abstained after replacement. Direct version fetch returned both exact version-specific counts and citations after reopening the local registry; mismatched run ID abstained. Earlier bound suites passed 8/8 and 11/11.",
+  "limits": "Synthetic restart plus rerun of known question suites. Institutional pilot and deployed service verification pending.",
+  "next_actions": [
+    "Verify the learning service with an owner-provisioned institutional pilot, approved data policy and restart exercise.",
+    "Evaluate fresh independently authored multi-turn questions, including ambiguity about run and version.",
+    "Test the training-parent planner with distinct versioned coder adapters. Record measured calls and cost, and use a fresh holdout to decide whether any proposal improves behavior.",
+    "Evaluate an additional instrument dataset with documented unit conventions. Recheck missing values and timestamp precision across scientific data interchange.",
+    "Evaluate a selector that estimates interpolation error for mesh alternatives, including both uniform orientations. Freeze its proxy and test on new geometries with uncertain amplitude before scoring."
+  ]
+}
