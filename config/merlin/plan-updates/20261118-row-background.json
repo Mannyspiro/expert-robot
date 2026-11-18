@@ -1,0 +1,27 @@
+{
+  "schema": "merlin-plan-update/1",
+  "parent_plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+  "parent_plan_version": 7,
+  "reasoning_mode": "inductive_revision",
+  "requires_review": true,
+  "authority_effect": "none",
+  "prior_update": "config/merlin/plan-updates/20261118-mesh-robustness.json",
+  "prior_update_sha256": "d0ef080e41353ad5df9cf2b73fcddd1cd6ca9120f7a5b0cd84dd1d98647f966a",
+  "observation_ids": [
+    "row-background-eight-cases"
+  ],
+  "observed_artifacts": [
+    "6eabf071f502762fc507ed4439f6d3173bf8daded9f8e6cdd2c9c40f86daadc9"
+  ],
+  "evidence": "docs/evidence/mesh-row-background-results.json",
+  "preregistered_commit": "de34fd43ad386b31b250242bce8e9e2b9517843e",
+  "decision": "Advance to broader synthetic testing. All four prior failures and all four fresh cases beat both uniform controls.",
+  "limits": "Positive single Gaussian ridge, fixed width, one fresh noise pattern, exact scoring, locally tested.",
+  "next_actions": [
+    "Verify the learning service with an owner-provisioned institutional pilot, approved data policy and restart exercise.",
+    "Retest run-bound retrieval on a second independently authored corpus. Score supported answers, appropriate clarification, abstention and citation bytes.",
+    "Test the training-parent planner with distinct versioned coder adapters. Record measured calls and cost, and use a fresh holdout to decide whether any proposal improves behavior.",
+    "Evaluate an additional instrument dataset with documented unit conventions. Recheck missing values and timestamp precision across scientific data interchange.",
+    "Test the row-minimum assumption on broader and multiple ridges where all three probes can contain appreciable signal. Include flat and noise-only controls and estimate fallback frequency on fresh noise draws."
+  ]
+}
