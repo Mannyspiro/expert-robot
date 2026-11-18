@@ -1,0 +1,200 @@
+{
+  "candidate": {
+    "metrics": {
+      "affine_control_max_absolute_error": 8.881784197001252e-16,
+      "maximum_absolute_error": 0.00847325432832119,
+      "mean_absolute_error": 0.001406979275227938,
+      "rmse": 0.0019202665544807449,
+      "sample_count": 4096,
+      "uncovered_samples": 0
+    },
+    "point_location_triangle_tests": 14229,
+    "validation": {
+      "all_four_boundary_sides_covered": true,
+      "all_vertices_used": true,
+      "boundary_edge_count": 94,
+      "coverage_scope": "floating-point area, boundary, oriented adjacency, disk topology and held-out location checks; not formal proof",
+      "euler_characteristic": 1,
+      "geometry_issue_codes": [],
+      "input_clockwise_faces_reoriented": 986,
+      "mesh_sha256": "4397f76b59c2ba3499047710db2cb23cebd3baab34928f171d5613d83ae1752e",
+      "minimum_triangle_area": 0.0002723440170927456,
+      "summed_triangle_area": 1.0,
+      "triangle_components": 1,
+      "triangle_count": 986,
+      "vertex_count": 541
+    }
+  },
+  "candidate_origin": "provided_native_mesh_file; native tool execution is separately evidenced",
+  "candidate_to_uniform_rmse_ratio": 0.12312118759498555,
+  "elapsed_evaluation_seconds": 0.08476806500038947,
+  "equal_vertex_comparator": {
+    "metrics": {
+      "affine_control_max_absolute_error": 8.881784197001252e-16,
+      "maximum_absolute_error": 0.07162141111640563,
+      "mean_absolute_error": 0.0075916933124970665,
+      "rmse": 0.01559655646595593,
+      "sample_count": 4096,
+      "uncovered_samples": 0
+    },
+    "point_location_triangle_tests": 13676,
+    "validation": {
+      "all_four_boundary_sides_covered": true,
+      "all_vertices_used": true,
+      "boundary_edge_count": 89,
+      "coverage_scope": "floating-point area, boundary, oriented adjacency, disk topology and held-out location checks; not formal proof",
+      "euler_characteristic": 1,
+      "geometry_issue_codes": [],
+      "input_clockwise_faces_reoriented": 0,
+      "mesh_sha256": "4b7b2deb2c250e1a8ebfa6c95a51aae73fc14c4753b3e474bbf63893be58d00b",
+      "minimum_triangle_area": 0.000988142292490117,
+      "summed_triangle_area": 1.0,
+      "triangle_components": 1,
+      "triangle_count": 991,
+      "vertex_count": 541
+    }
+  },
+  "field": {
+    "center_x": 0.5,
+    "definition": "exp(-((x-0.5)/0.08)^2)+0.1*sin(2*pi*y)",
+    "width_x": 0.08,
+    "y_amplitude": 0.1,
+    "y_cycles": 1
+  },
+  "field_output_unit": "1 (synthetic dimensionless scalar)",
+  "input_mesh_file_sha256": "34024df2a46e63dccce694cedcfa8b8a58b53292812536eaabda0ab6ece4e33a",
+  "limits": [
+    "Synthetic analytic field informed the fixed metric; only uniform evaluation locations are held out.",
+    "One mesh/field/budget; no blind generalization, PDE-solver, physical or mesher-wide superiority claim.",
+    "Equal total vertex count; boundary vertex counts and triangle shapes may differ.",
+    "Floating-point connectivity/coverage validation is not a formal geometric proof."
+  ],
+  "native_run_receipt": {
+    "binding_verified": "mesh bytes/source/counts only; receipt authenticity is separately established",
+    "reported_metadata": {
+      "artifact_sha256": {
+        "adapt.log": "075c5e82ddfe5f98677f0a22f0a305cedd5af4f9390259bfad85ec5536de61bc",
+        "adapted.msh2": "34024df2a46e63dccce694cedcfa8b8a58b53292812536eaabda0ab6ece4e33a",
+        "execution.json": "d1690122aa58527750a1936deaa5001802470e1573e9bc2a0524b0fb592fa59b",
+        "input-bamg.msh": "5a16d26d228318f9735d4dcd1fdf18afde1ec8195b4e1dc9ddba301e2be4529e",
+        "metric.sol": "8eaf45623f299f2a0a185a9477be9bce7220bef45cdadd255e9031e4a2e27ba9",
+        "protocol.json": "3c659c39991a350f054ff49092ed97babb78bd2a017ab24d159a314bc807bdbc"
+      },
+      "build": {
+        "build_log_sha256": "c22219ff1417ba9057fb4f8f4d52e513abd24d44bb95f98a17e18f8a66793fcd",
+        "cmake": "3.31.6 project-only pip target, not system installation",
+        "compiler": "gcc (Debian 14.2.0-19) 14.2.0",
+        "configuration": "Release; refine_ENABLE_TESTS=OFF; CUDA off; MPI,EGADS,OpenCASCADE,ParMETIS,Zoltan,meshlink OFF",
+        "executable_sha256": "927d52dba1ebebb2dd1a0c04e47d03401f8f80c87618b55337262cb925ba231a",
+        "native_version_label": "3.0.0 guessed by upstream CMake for non-git archive; exact commit is the source identity",
+        "parallel_build_jobs": 2,
+        "source_tree_modified": false,
+        "target": "ref",
+        "upstream_tests_executed": false
+      },
+      "created_at_utc": "2026-11-18T05:47:57.532395+00:00",
+      "environment": {
+        "machine": "x86_64",
+        "python": "3.12.14",
+        "system": "Linux"
+      },
+      "execution": {
+        "command": [
+          "ref",
+          "adapt",
+          "input-bamg.msh",
+          "-m",
+          "metric.sol",
+          "-x",
+          "adapted.msh2",
+          "-s",
+          "12"
+        ],
+        "executable_sha256": "927d52dba1ebebb2dd1a0c04e47d03401f8f80c87618b55337262cb925ba231a",
+        "exit_code": 0,
+        "log_sha256": "075c5e82ddfe5f98677f0a22f0a305cedd5af4f9390259bfad85ec5536de61bc",
+        "output_exists": true,
+        "promotion_authority": false,
+        "qualification": false,
+        "schema": "refine-native-execution/1",
+        "status": "completed",
+        "wall_seconds": 0.6167068960003235
+      },
+      "experiment": {
+        "acceptance_triangles_max": 20000,
+        "acceptance_vertices_max": 10000,
+        "address_space_limit_bytes": 536870912,
+        "authority_effect": "none",
+        "cpu_seconds_limit": 25,
+        "created_at_utc": "2026-11-18T05:46:43.813060+00:00",
+        "created_before_native_execution": true,
+        "domain": "[0,1]x[0,1] metres, synthetic planar unit square",
+        "input_triangles": 128,
+        "input_vertices": 81,
+        "inputs": {
+          "input-bamg.msh": "5a16d26d228318f9735d4dcd1fdf18afde1ec8195b4e1dc9ddba301e2be4529e",
+          "metric.sol": "8eaf45623f299f2a0a185a9477be9bce7220bef45cdadd255e9031e4a2e27ba9"
+        },
+        "metric": "hx=0.08/(1+7*exp(-((x-0.5)/0.12)^2)), hy=0.08; M=diag(hx^-2,hy^-2)",
+        "metric_selection": "A priori narrow-x feature; no evaluation point coordinates read or used",
+        "output_format": "native Gmsh 2.2 ASCII .msh2; BAMG exporter avoided because it emits x,z from x,y input",
+        "passes": 12,
+        "promotion_authority": false,
+        "qualification": false,
+        "schema": "refine-native-study-protocol/1",
+        "selection": "Retain first valid native result, including non-improvement",
+        "source_commit": "1563f71f224d59c8712e2181369ff93440957b0f",
+        "source_tree_expected_blobs": 698,
+        "wall_timeout_seconds": 30
+      },
+      "limits": [
+        "Serial local native study only, no CAD/FreeCAD geometry backend or MPI",
+        "Native code executed with address-space/CPU/wall limits; this is not a network/filesystem sandbox qualification",
+        "The 10k/20k mesh count ceiling is an output acceptance bound, not an enforced native in-memory counter",
+        "No upstream unit/acceptance suite run; no measured PDE solver accuracy or physical safety qualification",
+        "No held-out evaluator point locations read by metric generation; field/metric design is informed, not blind",
+        "BAMG text exporter avoided because its source writes x,z while this input uses x,y; no upstream source edits",
+        "Interpolation and geometry acceptance is separately evaluated by coder B, including explicit triangle-orientation normalization"
+      ],
+      "output": {
+        "coordinate_or_connectivity_edit_after_native_output": false,
+        "dimension": 2,
+        "domain": "[0,1]x[0,1] declared metres, z=0",
+        "filename": "adapted.msh2",
+        "format": "Native Gmsh 2.2 ASCII",
+        "triangles_from_native_log": 986,
+        "vertices_from_native_log": 541
+      },
+      "promotion_authority": false,
+      "qualification": false,
+      "schema": "merlin-refine-native-build/1",
+      "source": {
+        "archive_sha256": "d96a133756331b2c57cbb22718a383decce8361b3602dad2376f540ce79fabcf",
+        "authority_effect": "none",
+        "commit": "1563f71f224d59c8712e2181369ff93440957b0f",
+        "expected_blobs": 698,
+        "extra_files": [],
+        "github_tree_truncated": false,
+        "matched_blobs": 698,
+        "mismatches": [],
+        "repository": "nasa/refine",
+        "schema": "refine-source-verification/1",
+        "source_modified": false
+      },
+      "status": "native_build_and_first_adaptation_completed"
+    },
+    "sha256": "434db45fed6da4ecae18516afb635a3b3dd3a96ff9e9c890ac7924f2cc5fa6ea"
+  },
+  "observed_result": "candidate_lower_rmse",
+  "promotion_authority": false,
+  "protocol_sha256": "b4d456bdd43e63373ca23b8ef3f94f3c60197a386c1a3718c22fa1779d3637f9",
+  "python": "3.12.14",
+  "qualification": false,
+  "sample_sha256": "e2c0858148e6e26ba29506a2c65908fe4045167e39b3aa09e833bb4f6412518f",
+  "schema": "merlin-mesh-interpolation-measurement/1",
+  "source_sha256": {
+    "benchmark": "5707e06a0a393f8c62a2f941cf85b77f30181f9e485641df69da718bb6960838",
+    "merlin_geometry_validator": "3329684f672508c3b2d6ddb1f8b5c1f80b075aed6598b04e6ad549c540113d2e"
+  },
+  "status": "passed"
+}

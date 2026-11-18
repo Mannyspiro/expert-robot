@@ -1,0 +1,112 @@
+{
+  "schema": "merlin-refine-native-build/1",
+  "created_at_utc": "2026-11-18T05:47:57.532395+00:00",
+  "status": "native_build_and_first_adaptation_completed",
+  "qualification": false,
+  "promotion_authority": false,
+  "source": {
+    "schema": "refine-source-verification/1",
+    "repository": "nasa/refine",
+    "commit": "1563f71f224d59c8712e2181369ff93440957b0f",
+    "github_tree_truncated": false,
+    "expected_blobs": 698,
+    "matched_blobs": 698,
+    "mismatches": [],
+    "extra_files": [],
+    "archive_sha256": "d96a133756331b2c57cbb22718a383decce8361b3602dad2376f540ce79fabcf",
+    "source_modified": false,
+    "authority_effect": "none"
+  },
+  "build": {
+    "source_tree_modified": false,
+    "cmake": "3.31.6 project-only pip target, not system installation",
+    "compiler": "gcc (Debian 14.2.0-19) 14.2.0",
+    "configuration": "Release; refine_ENABLE_TESTS=OFF; CUDA off; MPI,EGADS,OpenCASCADE,ParMETIS,Zoltan,meshlink OFF",
+    "target": "ref",
+    "parallel_build_jobs": 2,
+    "native_version_label": "3.0.0 guessed by upstream CMake for non-git archive; exact commit is the source identity",
+    "executable_sha256": "927d52dba1ebebb2dd1a0c04e47d03401f8f80c87618b55337262cb925ba231a",
+    "build_log_sha256": "c22219ff1417ba9057fb4f8f4d52e513abd24d44bb95f98a17e18f8a66793fcd",
+    "upstream_tests_executed": false
+  },
+  "experiment": {
+    "schema": "refine-native-study-protocol/1",
+    "created_before_native_execution": true,
+    "created_at_utc": "2026-11-18T05:46:43.813060+00:00",
+    "source_commit": "1563f71f224d59c8712e2181369ff93440957b0f",
+    "source_tree_expected_blobs": 698,
+    "domain": "[0,1]x[0,1] metres, synthetic planar unit square",
+    "input_vertices": 81,
+    "input_triangles": 128,
+    "metric": "hx=0.08/(1+7*exp(-((x-0.5)/0.12)^2)), hy=0.08; M=diag(hx^-2,hy^-2)",
+    "metric_selection": "A priori narrow-x feature; no evaluation point coordinates read or used",
+    "passes": 12,
+    "wall_timeout_seconds": 30,
+    "cpu_seconds_limit": 25,
+    "address_space_limit_bytes": 536870912,
+    "acceptance_vertices_max": 10000,
+    "acceptance_triangles_max": 20000,
+    "output_format": "native Gmsh 2.2 ASCII .msh2; BAMG exporter avoided because it emits x,z from x,y input",
+    "selection": "Retain first valid native result, including non-improvement",
+    "authority_effect": "none",
+    "qualification": false,
+    "promotion_authority": false,
+    "inputs": {
+      "input-bamg.msh": "5a16d26d228318f9735d4dcd1fdf18afde1ec8195b4e1dc9ddba301e2be4529e",
+      "metric.sol": "8eaf45623f299f2a0a185a9477be9bce7220bef45cdadd255e9031e4a2e27ba9"
+    }
+  },
+  "execution": {
+    "schema": "refine-native-execution/1",
+    "command": [
+      "ref",
+      "adapt",
+      "input-bamg.msh",
+      "-m",
+      "metric.sol",
+      "-x",
+      "adapted.msh2",
+      "-s",
+      "12"
+    ],
+    "status": "completed",
+    "exit_code": 0,
+    "wall_seconds": 0.6167068960003235,
+    "executable_sha256": "927d52dba1ebebb2dd1a0c04e47d03401f8f80c87618b55337262cb925ba231a",
+    "log_sha256": "075c5e82ddfe5f98677f0a22f0a305cedd5af4f9390259bfad85ec5536de61bc",
+    "output_exists": true,
+    "qualification": false,
+    "promotion_authority": false
+  },
+  "artifact_sha256": {
+    "input-bamg.msh": "5a16d26d228318f9735d4dcd1fdf18afde1ec8195b4e1dc9ddba301e2be4529e",
+    "metric.sol": "8eaf45623f299f2a0a185a9477be9bce7220bef45cdadd255e9031e4a2e27ba9",
+    "adapted.msh2": "34024df2a46e63dccce694cedcfa8b8a58b53292812536eaabda0ab6ece4e33a",
+    "protocol.json": "3c659c39991a350f054ff49092ed97babb78bd2a017ab24d159a314bc807bdbc",
+    "execution.json": "d1690122aa58527750a1936deaa5001802470e1573e9bc2a0524b0fb592fa59b",
+    "adapt.log": "075c5e82ddfe5f98677f0a22f0a305cedd5af4f9390259bfad85ec5536de61bc"
+  },
+  "output": {
+    "filename": "adapted.msh2",
+    "format": "Native Gmsh 2.2 ASCII",
+    "dimension": 2,
+    "domain": "[0,1]x[0,1] declared metres, z=0",
+    "vertices_from_native_log": 541,
+    "triangles_from_native_log": 986,
+    "coordinate_or_connectivity_edit_after_native_output": false
+  },
+  "environment": {
+    "python": "3.12.14",
+    "system": "Linux",
+    "machine": "x86_64"
+  },
+  "limits": [
+    "Serial local native study only, no CAD/FreeCAD geometry backend or MPI",
+    "Native code executed with address-space/CPU/wall limits; this is not a network/filesystem sandbox qualification",
+    "The 10k/20k mesh count ceiling is an output acceptance bound, not an enforced native in-memory counter",
+    "No upstream unit/acceptance suite run; no measured PDE solver accuracy or physical safety qualification",
+    "No held-out evaluator point locations read by metric generation; field/metric design is informed, not blind",
+    "BAMG text exporter avoided because its source writes x,z while this input uses x,y; no upstream source edits",
+    "Interpolation and geometry acceptance is separately evaluated by coder B, including explicit triangle-orientation normalization"
+  ]
+}
