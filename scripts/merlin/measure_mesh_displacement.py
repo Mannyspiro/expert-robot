@@ -1,9 +1,10 @@
 """Replay the original mesh benchmark, then move the feature on both fixed meshes."""
+from functools import partial
 import json
 import math
 from pathlib import Path
 
-from measure_mesh_interpolation import REPO, digest, evaluate, load_protocol, near_uniform_mesh, read_mesh
+from measure_mesh_interpolation import REPO, digest, evaluate, field, load_protocol, near_uniform_mesh, read_mesh
 
 
 def measure():
@@ -24,7 +25,7 @@ def measure():
         center = plan[case + "_center_m"]
         metrics = {}
         for arm, mesh in meshes.items():
-            report = evaluate(*mesh, protocol["samples"], center=center)
+            report = evaluate(*mesh, protocol["samples"], field_fn=partial(field, center=center))
             if report["validation"]["mesh_sha256"] != prior[arm]["validation"]["mesh_sha256"]:
                 raise ValueError("triangulation changed")
             metrics[arm] = report["metrics"]
