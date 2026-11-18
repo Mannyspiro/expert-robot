@@ -1,0 +1,77 @@
+{
+  "protocol_sha256": "b62865d9665ec6179cdc2dbecee8653018d36ab2c68e21b157fe5864532e4850",
+  "oracle": "GDAL 3.10.3 OGR DXF driver and ElementTree SVG parser",
+  "runs": [
+    {
+      "id": "clean-bend",
+      "exit": 0,
+      "stderr": "",
+      "seconds": 0.5888,
+      "files": [
+        "image-brief.txt",
+        "receipt.json",
+        "wiring.dxf",
+        "wiring.svg"
+      ]
+    },
+    {
+      "id": "cross-net",
+      "exit": 2,
+      "stderr": "different nets touch or cross on the drawing plane",
+      "seconds": 0.0726,
+      "files": []
+    },
+    {
+      "id": "spacing",
+      "exit": 0,
+      "stderr": "",
+      "seconds": 0.5036,
+      "files": [
+        "image-brief.txt",
+        "receipt.json",
+        "wiring.dxf",
+        "wiring.svg"
+      ]
+    },
+    {
+      "id": "invalid-endpoint",
+      "exit": 2,
+      "stderr": "route must connect two distinct known pins",
+      "seconds": 0.0884,
+      "files": []
+    }
+  ],
+  "valid": [
+    {
+      "name": "clean-bend",
+      "nets": 2,
+      "svg_translation_after_y_flip_mm": [
+        -1.0,
+        67.0
+      ],
+      "lengths_mm": [
+        40.0,
+        50.0
+      ],
+      "source_and_artifact_hashes": "matched",
+      "dxf_units": "mm",
+      "svg_and_dxf_coordinates": "exact"
+    },
+    {
+      "name": "spacing",
+      "nets": 2,
+      "svg_translation_after_y_flip_mm": [
+        -1.0,
+        48.0
+      ],
+      "lengths_mm": [
+        50.0,
+        40.0
+      ],
+      "source_and_artifact_hashes": "matched",
+      "dxf_units": "mm",
+      "svg_and_dxf_coordinates": "exact"
+    }
+  ],
+  "limits": "No bend-radius or minimum physical-spacing rule in this CLI. Parallel paths 1 mm apart remain separate, and cross-net contact is rejected. Synthetic planar signal sheets only."
+}

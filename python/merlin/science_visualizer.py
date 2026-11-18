@@ -130,7 +130,7 @@ def main():
     commands = parser.add_subparsers(dest="command", required=True)
     for name in ("brief", "imagine"):
         commands.add_parser(name).add_argument("question")
-    for name in ("render", "layout"):
+    for name in ("render", "layout", "wiring"):
         generator = commands.add_parser(name)
         generator.add_argument("source", type=Path)
         generator.add_argument("destination", type=Path)
@@ -138,6 +138,9 @@ def main():
     try:
         if args.command == "render":
             result = render(args.source, args.destination)
+        elif args.command == "wiring":
+            from .wiring_sheet import render_wiring
+            result = render_wiring(args.source, args.destination)
         elif args.command == "layout":
             from .spatial_layout import render_layout
             result = render_layout(args.source, args.destination)

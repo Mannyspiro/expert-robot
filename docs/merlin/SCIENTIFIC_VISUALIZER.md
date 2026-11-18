@@ -69,3 +69,23 @@ Open `service-study/index.html` and toggle **Show service zones** to inspect the
 Touching faces, edges or corners passes all interior-overlap checks. Each item accepts up to eight named zones and each layout up to 64. Zone IDs must be unique within their owner. Different items may reuse the same zone ID. Overlapping zones on the same item can define portions of one task. An item without zones has no tested maintenance envelope.
 
 Both sample layouts fit all equipment into the room without a solid collision. The tight arrangement blocks a pump panel, places part of a filter drawer envelope outside the room and shares space between two panels. The revised arrangement clears these checks with the same equipment sizes and local zone dimensions. Clear zones alone do not establish reachability, safe working conditions or compliance with service requirements.
+
+## Draft a scientific signal wiring sheet
+
+Supply a synthetic or approved signal diagram as component rectangles, pins and named routes. The following draws a sensor, a recorder and a display. The recorder has separate input and output pins.
+
+```sh
+python -m pip install -r requirements-merlin-wiring.txt
+PYTHONPATH=python python -m merlin.science_visualizer wiring examples/merlin/lab-signal-sheet.json signal-sheet
+```
+
+The hand-drafted SVG and editable R2010 DXF use the same geometry. Open `wiring.svg` to inspect the ink-and-grid sheet. In the DXF, isolate `COMPONENTS`, `PINS`, `LABELS` or a `NET_<id>` layer. Each route is an editable polyline. The MERLIN extended data on that entity stores its net, start pin and end pin in that order. DXF modelspace uses Cartesian XY millimetres with positive Y up. SVG maps that plane into screen coordinates with positive Y down and retains the millimetre scale. Unit declarations, provenance and file hashes are captured in `receipt.json`.
+
+* Each pin's offset is relative to the component's lower-left origin. Its location must lie on the component boundary.
+* A route identifies two pins by `component.pin` and supplies all vertices in global XY millimetres. Coordinates use a one-micrometre grid. Paths must have nonzero axis-aligned segments. The supplied endpoints must coincide with the two named pins.
+* Every net must connect its declared pin pairs into one graph. Separate nets cannot touch or cross on this single drawing plane. Routes cannot pass through another pin or enter a component interior.
+* The sample's two polylines measure 52 mm and 62 mm along the drawn path. A real harness needs separate pinout, minimum spacing, bend radius, slack and electrical checks. This drawing represents the supplied logical connections.
+
+`image-brief.txt` derives an illustration prompt from the validated topology. It can be supplied to a chosen image generator. The renderer runs locally without an image-provider call. To credit a reference image, include the optional `reference_image` object with `title`, `source` and `credit`. Those fields are recorded as attribution. The renderer neither retrieves the image nor extracts connections from its pixels. Keep illustrative images separate from the measured sheet.
+
+Merlin's existing engineering-IR exporter still produces DOT and CSV views of projects and proposed routes. This drawing command takes explicit sheet placement and routes. The CAD dependency is the MIT-licensed ezdxf 1.4.4 distribution from `mozman/ezdxf`. Repeated exports on the same dependency version use fixed DXF metadata for reproducibility.
