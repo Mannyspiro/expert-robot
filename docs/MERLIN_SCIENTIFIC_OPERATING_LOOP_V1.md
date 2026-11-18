@@ -133,3 +133,26 @@ P7. Run held-out evaluations measuring hypothesis calibration, counterexample di
 ## Current implementation boundary
 
 The new module supplies validated observation/prediction structures, interval comparison, plan-update proposals, constrained Ideonomy combination enumeration, invariant-mapped analogical decomposition and a machine-readable loop contract. It does not yet persist these records in the canonical registry, orchestrate every stage through Hermes, run experiments, or alter production authority. Those are P1–P7 and require separate evidence.
+
+## Conditional specialist clues
+
+Research callers can use `ConditionalFact` and `assess_clue_hypotheses` from
+`merlin.scientific_loop` to keep unusual domain facts, their sources and
+applicability assumptions alongside competing measurable predictions.
+The evaluator checks predictions against validated observations and records
+contradictions, missing metrics and unit mismatches. It requires a declared
+sample scope and next discriminating experiment. Specialist facts frame the
+inquiry and receive no automatic evidential weight.
+
+The concrete CLI `scripts/merlin/review_mesh_robustness.py` uses this path to
+compare specialist Gaussian inversion assumptions against the frozen 20-case
+mesh experiment and creates a parent-linked plan proposal. Both universal
+transfer and universal failure are contradicted across that sample. Conditional
+applicability is the next research target.
+
+The mesh experiment proactively detects invalid residuals and out-of-domain
+warps and selects the existing uniform comparator. Failed cases remain in the
+receipt. This bounded reversible fallback exercises defect handling within the
+research adapter. Provider-wide reasoning, arbitrary repair execution, deployed
+worker adoption and production qualification require their own integration and
+acceptance evidence.

@@ -131,6 +131,71 @@ def compare_observation(observation: Observation, predictions: Sequence[Predicti
     }
 
 
+
+@dataclass(frozen=True)
+class ConditionalFact:
+    """A sourced specialist clue whose applicability must be tested separately."""
+    fact_id: str
+    statement: str
+    source_refs: tuple[str, ...]
+    assumptions: tuple[str, ...]
+
+    def validate(self) -> None:
+        if not self.fact_id.strip() or not self.statement.strip():
+            raise ValueError("fact identity and statement required")
+        if not self.source_refs or any(not ref.strip() for ref in self.source_refs):
+            raise ValueError("specialist facts require source references")
+        if not self.assumptions or any(not assumption.strip() for assumption in self.assumptions):
+            raise ValueError("specialist facts require explicit applicability assumptions")
+
+
+def assess_clue_hypotheses(
+    observations: Sequence[Observation],
+    hypotheses: Mapping[str, Sequence[Prediction]],
+    *,
+    specialist_facts: Sequence[ConditionalFact],
+    scope: str,
+    next_test: str,
+) -> dict[str, Any]:
+    """Check competing explanations using the existing interval evaluator.
+
+    Facts help frame hypotheses. Only supplied observations score predictions.
+    This is an inductive research record, with no repair or promotion authority.
+    """
+    if not scope.strip() or not next_test.strip() or not observations:
+        raise ValueError("observations, sample scope and next discriminating test required")
+    if len(hypotheses) < 2:
+        raise ValueError("at least two competing explanations required")
+    ids = [item.observation_id for item in observations]
+    if len(ids) != len(set(ids)):
+        raise ValueError("duplicate observation IDs would double count evidence")
+    for item in observations:
+        item.validate()
+    for fact in specialist_facts:
+        fact.validate()
+    assessments = {}
+    for name, predictions in hypotheses.items():
+        if not name.strip() or not predictions:
+            raise ValueError("named hypotheses require measurable predictions")
+        assessments[name] = [compare_observation(item, predictions) for item in observations]
+    return {
+        "schema": "merlin-clue-inquiry/1",
+        "reasoning_mode": "inductive_comparison_with_conditional_specialist_facts",
+        "scope": scope,
+        "observation_ids": ids,
+        "specialist_facts": [
+            {"fact_id": fact.fact_id, "statement": fact.statement,
+             "source_refs": list(fact.source_refs), "assumptions": list(fact.assumptions),
+             "status": "conditional_fact_requires_applicability_check"}
+            for fact in specialist_facts
+        ],
+        "hypotheses": assessments,
+        "next_discriminating_test": next_test,
+        "unresolved": "Source reliability, applicability and generalization require separate review.",
+        "promotion_authority": False,
+    }
+
+
 def update_plan_from_observations(
     current_plan: Mapping[str, Any],
     observations: Sequence[Observation],
@@ -305,6 +370,7 @@ def scientific_loop_contract() -> dict[str, Any]:
         "mandatory_stages": [
             "capture_observation_with_provenance_and_uncertainty",
             "separate_observation_interpretation_and_hypothesis",
+            "check_specialist_fact_sources_and_applicability_before_clue_inference",
             "enumerate_competing_explanations_when_ambiguity_is_material",
             "preregister_predictions_and_falsifiers",
             "choose_lowest_cost_discriminating_experiment",
@@ -317,12 +383,13 @@ def scientific_loop_contract() -> dict[str, Any]:
         "ideonomy_policy": "enumerate only when a concrete problem/trigger exists; filter by compatibility, constraints, testability and cost",
         "analogy_policy": "map invariants explicitly, decompose, solve, translate back and rerun original tests",
         "promotion_policy": "evidence and human/policy gates required; capability grows, authority never expands",
-        "failure_policy": "classify root cause, add regression test and detection rule, verify prevention",
+        "failure_policy": "proactively isolate and repair authorized reversible defects, classify root cause, add regression test and detection rule, verify prevention and retain rollback",
     }
 
 
 __all__ = [
     "Observation", "Prediction", "compare_observation",
+    "ConditionalFact", "assess_clue_hypotheses",
     "update_plan_from_observations", "enumerate_useful_combinations",
     "enumerate_combination_report", "decompose_by_analogy", "scientific_loop_contract",
 ]

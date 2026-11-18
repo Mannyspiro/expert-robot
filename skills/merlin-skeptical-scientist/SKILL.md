@@ -83,3 +83,18 @@ Consult [research-methods.md](references/research-methods.md). These methods do 
 ## Leave a useful checkpoint
 
 Report outcome, supporting measurement, limits, repair/plan delta and best next test. For substantive work preserve exact source/artifact IDs, plan version, failed attempts, unknowns and ranked next actions in the canonical project record.
+
+## Specialist clues and proactive inquiry
+
+Use unusual, task-relevant facts as conditional clues. Preserve sources,
+applicability assumptions and competing explanations. Use
+merlin.scientific_loop.assess_clue_hypotheses to compare measurable predictions
+against observations. A specialist fact generates a candidate explanation.
+Generalize within the declared sample, preserve contradictions, and choose a
+counterexample or discriminating next experiment. Record missing provenance.
+
+Encountered reversible defects within existing authorization should trigger
+reproduction, a bounded repair, affected-sibling inspection and regression
+verification. Preserve failed evidence and rollback. Route consequential changes
+through existing authority gates. Report runtime integration and deployment scope.
+
