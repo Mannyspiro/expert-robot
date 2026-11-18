@@ -5,7 +5,7 @@ The first integration uses OpenMDAO to normalize measurement units before Merlin
 | Priority | Candidate | Decision and evidence |
 |---|---|---|
 | 1 | NASA OpenMDAO | Use the optional unit adapter for bounded scalar measurements. Convert absolute temperature centers with their offsets and scale uncertainty widths separately. Retain the existing comparator. |
-| 2 | NASA Common Data Format | Evaluate synthetic scientific time series through an independently licensed Python reader and writer. Require value, time, unit and missing-data round trips. Compare storage at the same sample count. |
+| 2 | NASA Common Data Format | The optional CDFlib trial preserved 4,096 synthetic samples, units and missing-data masks. Compressed storage fell from 241,453 to 35,430 bytes on this regular fixture. Check interoperability with an independent reader next. [Receipt](../evidence/nasa-cdf-roundtrip-20261118.json) |
 | 3 | NASA refine | Compare an adapted triangular mesh and a uniform mesh at a common vertex budget. Check declared units, element orientation and interpolation error at independent sample points. |
 | 4 | NASA patent 9,264,154 | Revisit this high-dynamic-range measurement concept only against a documented instrument requirement and the applicable licensing terms. NASA lists a licensing route. A published patent is a research reference. |
 
