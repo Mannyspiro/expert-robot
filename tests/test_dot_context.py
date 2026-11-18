@@ -25,6 +25,13 @@ class ContextTests(unittest.TestCase):
         values.update(extra)
         return self.bridge.ingest(**values)
 
+    def test_identifier_search_preserves_exact_and_component_matches(self):
+        self.ingest("submission_status qa-vector")
+        for term in ("submission_status", "submission", "status", "qa-vector", "vector"):
+            with self.subTest(term=term):
+                hits = self.bridge.search(term)["hits"]
+                self.assertEqual([hit["text"] for hit in hits], ["submission_status qa-vector"])
+
     def test_exact_bytes_and_idempotent_ingest(self):
         text = "\ufeffXenomaths ⟲: 日本語\r\nline2\r\n"
         first = self.ingest(text)
