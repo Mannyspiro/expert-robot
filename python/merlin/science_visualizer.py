@@ -130,13 +130,17 @@ def main():
     commands = parser.add_subparsers(dest="command", required=True)
     for name in ("brief", "imagine"):
         commands.add_parser(name).add_argument("question")
-    movie = commands.add_parser("render")
-    movie.add_argument("source", type=Path)
-    movie.add_argument("destination", type=Path)
+    for name in ("render", "layout"):
+        generator = commands.add_parser(name)
+        generator.add_argument("source", type=Path)
+        generator.add_argument("destination", type=Path)
     args = parser.parse_args()
     try:
         if args.command == "render":
             result = render(args.source, args.destination)
+        elif args.command == "layout":
+            from .spatial_layout import render_layout
+            result = render_layout(args.source, args.destination)
         elif args.command == "brief":
             result = build_deliberation_packets(args.question, visual_specialist_only=True)[0]
         else:

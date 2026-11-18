@@ -1,0 +1,31 @@
+{
+  "reader": [
+    "1",
+    "0",
+    "0"
+  ],
+  "unit": "mm",
+  "results": [
+    {
+      "layout": "Central island",
+      "solids": 3,
+      "positive_volume_intersections": [
+        [
+          "wave-tank",
+          "imaging-bench"
+        ]
+      ],
+      "dimensions_and_origins_match": true,
+      "parametric_edit_recomputed": true,
+      "destination_collision_preserved": true
+    },
+    {
+      "layout": "Split gallery",
+      "solids": 3,
+      "positive_volume_intersections": [],
+      "dimensions_and_origins_match": true,
+      "parametric_edit_recomputed": true,
+      "destination_collision_preserved": true
+    }
+  ]
+}

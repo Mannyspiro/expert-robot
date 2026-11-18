@@ -1,0 +1,31 @@
+{
+  "signals": [
+    "two closed cuboids per exported layout with correct eight absolute world-space corners per item, six quadrilateral faces or twelve triangles, outward positive volume matching dx*dy*dz",
+    "read export with independent geometry reader",
+    "room unit metre and source coordinates retained",
+    "CLI rejects degenerate cuboid"
+  ],
+  "expected": {
+    "Face contact": {
+      "clash": false,
+      "outside": false
+    },
+    "Interior overlap": {
+      "clash": true,
+      "outside": false
+    },
+    "Separated vertically": {
+      "clash": false,
+      "outside": false
+    },
+    "Overhang": {
+      "clash": false,
+      "outside": true
+    },
+    "Touch ceiling": {
+      "clash": false,
+      "outside": false
+    }
+  },
+  "scope": "Synthetic exhibit geometry only. Finite checks cannot demonstrate structural or physical safety."
+}
