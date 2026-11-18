@@ -1,6 +1,6 @@
 # Merlin production master plan
 
-Version 4 — November 17, 2026, America/Phoenix. This is the dependency and acceptance view for the preserved Merlin program. The machine-readable companion is [production-master-plan.json](../config/merlin/production-master-plan.json).
+Version 5 — November 17, 2026, America/Phoenix. This is the dependency and acceptance view for the preserved Merlin program. The machine-readable companion is [production-master-plan.json](../config/merlin/production-master-plan.json).
 
 A narrow private Merlin service is running on OCI. The remaining work turns that measured foothold into a reliable research system while preserving the existing canonical registry, graph, worker and independent-evidence boundaries.
 
@@ -147,11 +147,11 @@ Keep failed attempts, skipped gates and `NOT_RUN` visible. Reconcile an ambiguou
 
 ## Ranked next implementation
 
-1. Freeze source-cited retrieval, abstention and contradiction evaluations through the new LMS/Titan evidence path. Preserve source versions and all 191 bindings; links alone do not establish retrieval quality.
-2. Wire the lab library through the real host-authenticated session/LMS adapter and explicit tenant/project provisioning. Complete instructor, accessibility, rights and student-data policies before institutional onboarding.
-3. Run a genuinely discriminating two-coder research episode with authorized provider adapters, held-out predictions, independent review and canonical resume. Public Titan vectors remain known fixtures.
-4. Extend recovery to consistently published LMS/learner/research stores and off-host custody. Titan structural models are not encryption providers.
-5. Continue native CAD/wiring/solver and independently reviewed Titan conformance integrations with exact source, tools and evidence.
+1. Exercise interrupted publication of the four-store recovery set. At each interruption, verify that the previous generation remains readable and can replay the same lab receipt and pending submission. Off-host custody needs separate readback evidence.
+2. Score the frozen receipt interpreter against independently authored questions once available. Preserve citations and count unsupported answers and unnecessary clarifications.
+3. Run the LMS adapter with a provisioned institutional staging tenant and provider-issued token. The host session, rotation and revocation paths already have hosted test evidence.
+4. Run a held-out two-coder episode when authorized provider adapters and independent evaluation are available.
+5. Continue native CAD/wiring/solver and Titan conformance work against pinned tools and reviewed fixtures.
 
 Standing constraints remain no inferred external paid compute, Avrea unavailable until December 1, 2026 pending fresh availability evidence, no new Cloudflare deployment, no pasted/placeholder secrets and no automatic truth, proof, physical release or authority promotion. Append a new plan version when actual observations change the ranking; indexing or generated prose cannot close an acceptance gate.
 
@@ -178,3 +178,9 @@ The sample has four version rows and zero provenance rows; nonempty provenance, 
 [OCI run 44174486449](https://github.com/morganaspim/Cace-app/actions/runs/44174486449) passed 85 focused tests with zero skips on ARM64/Python 3.9.25. A synthetic reviewed course enrolled a learner, froze predictions/transcript as an ArtifactRef, ran the fixed structural lab, retained model/vector/source identity, submitted work for pending review and replayed the same canonical receipt. No grade/mastery, cryptographic security, independent verifier or educational-efficacy status was awarded.
 
 This reuses the canonical registry, hypothesis ledger, graph and existing LMS/learner store. Atomic course-version submission checks and canonical blob/graph concurrency repairs have targeted regressions. The draft course adds source-pinned objectives, transfer/counterexample exercises and explicit limitations. Institutional auth/SSO/LTI rollout and cryptographic implementation remain separate gates. Production service/state was outside the isolated validation. The [integration contract](merlin/MERLIN_LMS_TITAN_INTEGRATION_V1.md), [exact receipt](evidence/merlin-learning-titan-integration-20261117.json), preserved run archive and parent plan v3 carry the checkpoint. The master retains 191 source bindings, 37 original tasks and 8 extensions (45 total).
+
+## Version 5 recovery and identity evidence
+
+A local recovery drill held an old SQLite read transaction open while the synthetic learner submitted the lab. Reading the database file alone found zero submissions. The SQLite backup preserved the committed WAL row, and the restored LMS showed one pending submission before replay. Restoring the hypothesis ledger, graph and canonical registry alongside it reproduced the original lab and transcript references. A stale LMS database, incorrect registry manifest pin and occupied restore destination were each rejected. The drill uses a temporary local workspace under one writer's control. Nine focused tests passed. [Recovery drill](../tests/test_learning_store_set_recovery.py)
+
+Hosted checks at PR 180 revision `5fe73830f5df311a177bc8c6e331685aa0ffdf7d` passed the [47 identity tests](https://github.com/Mannyspiro/expert-robot/actions/runs/44217286844), [103 learning-platform tests](https://github.com/Mannyspiro/expert-robot/actions/runs/44217287063) and [236 unified-platform tests](https://github.com/Mannyspiro/expert-robot/actions/runs/44217286966). These suites overlap. PR 179's language candidate remains frozen for independent questions. Staging identity and off-host custody remain open.
