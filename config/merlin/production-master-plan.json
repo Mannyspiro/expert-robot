@@ -1,21 +1,21 @@
 {
   "schema": "merlin-production-master-plan/1",
   "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
-  "version": 4,
+  "version": 5,
   "created_at_utc": "2026-11-17T17:51:10.393995+00:00",
   "date_phoenix": "2026-11-17",
   "source_repository": "Mannyspiro/expert-robot",
-  "source_anchor_commit": "d074cab60ea61411373098cb86562109813b3a3a",
-  "source_anchor_scope": "Parent supplied current head; the five governing files were re-read at this exact ref and match captured text. The191-document corpus is a separately pinned capture, not a claim of current-head implementation.",
+  "source_anchor_commit": "47260febc9726ec6d02c798b0fd99780b19dba29",
+  "source_anchor_scope": "Code implementation and isolated OCI test/evaluation evidence; no institutional rollout claim.",
   "authority": "planning_and_traceability_only",
   "qualification": false,
   "promotion_authority": false,
   "parent_plan": {
     "id": "MERLIN-PRODUCTION-MASTER-20261117",
-    "version": 3,
-    "path": "config/merlin/plan-history/production-master-plan-v3-b0104e3e0da32a5809bc439216fc0c8425e231c494369142f122462e3d3c1e41.json",
-    "sha256": "b0104e3e0da32a5809bc439216fc0c8425e231c494369142f122462e3d3c1e41",
-    "mutation": "append-only LMS/Titan integration revision; v3 preserved"
+    "version": 4,
+    "path": "config/merlin/plan-history/production-master-plan-v4-8a04c1f6aa671544b6fd455b2d5f2f5b1dedb41a9e36bd608de8a7521a72130b.json",
+    "sha256": "8a04c1f6aa671544b6fd455b2d5f2f5b1dedb41a9e36bd608de8a7521a72130b",
+    "mutation": "Append-only course evidence retrieval/evaluation revision; v4 preserved byte-for-byte."
   },
   "references": {
     "coverage": {
@@ -133,6 +133,35 @@
       "path_kind": "repository_relative",
       "sha256": "57a809391a4d9a01ebf3f7e2024313c74e6c093d6d236e864a96a344b68bfaf7",
       "scope": "Observed integration failure families and targeted canonical prevention"
+    },
+    "learning_evidence_protocol": {
+      "path": "config/merlin/learning-evidence-protocol-20261117.json",
+      "path_kind": "repository_relative",
+      "sha256": "3d80ee6acf4e49f108af477d62b9a36570d1c8287208e6a119dee0395811b67b",
+      "scope": "Pre-result operational predictions and four-lens applicability decisions"
+    },
+    "learning_evidence_contract": {
+      "path": "docs/merlin/MERLIN_LEARNING_EVIDENCE_V1.md",
+      "path_kind": "repository_relative",
+      "sha256": "cbc10bf0299ec06dc03b2a8c4bfbd92a89073f857ae3729c79915eeb14e0afad",
+      "scope": "Course-scoped reader/API and exact evidence limits"
+    },
+    "learning_evidence_defects": {
+      "path": "config/merlin/defect-families/learning-evidence-20261117.json",
+      "path_kind": "repository_relative",
+      "sha256": "f9111483f52fe1bcab67a8be4699fbd964d5be456f9eb1af524265eec3ca7282",
+      "scope": "Measured development race, scoped design findings and strict identity prevention"
+    },
+    "learning_evidence_checkpoint": {
+      "path": "docs/evidence/merlin-learning-evidence-20261117.json",
+      "path_kind": "repository_relative",
+      "sha256": "3a3a9c2c1cc17d184070dcf1a304ebcab0b15fe62fc3d37fef3684407b63dfcc",
+      "scope": "Isolated130-test synthetic OCI validation; four public known evaluation cases, not general accuracy",
+      "run_id": 44223138785,
+      "workflow_commit": "141b29fbb645f7e2cddc4857d1cdd8b925f8b78c",
+      "artifact_id": 14392210368,
+      "archive_path": "docs/evidence/merlin-learning-evidence-20261117.zip",
+      "artifact_sha256": "43bc89b0c6b188d42901a113d7f43babad4e4df2c023877b23c525916c14c786"
     }
   },
   "source_of_truth_order": [
@@ -2236,6 +2265,26 @@
       "host_configuration_changed": false,
       "production_service_modified": false,
       "scope": "Course publication/enrollment/lab/evidence/pending-review/recommendation/replay on real local canonical stores; synthetic actors only"
+    },
+    "learning_evidence": {
+      "run_id": 44223138785,
+      "source_commit": "47260febc9726ec6d02c798b0fd99780b19dba29",
+      "tests": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests": 130
+      },
+      "metrics": {
+        "case_count": 4,
+        "development_passed": 1,
+        "evaluation_passed": 3,
+        "failed": 0,
+        "passed": 4
+      },
+      "production_service_modified": false,
+      "scope": "Public known synthetic reader/evaluator and existing LMS/Titan regression suite"
     }
   },
   "reconciliations": [
@@ -2538,7 +2587,7 @@
         "P00"
       ],
       "coverage_pointer": "/ranked_workstreams/1",
-      "reconciliation": "Preservation/indexing is established; semantic document reconciliation and source-cited retrieval evaluation remain open.",
+      "reconciliation": "Canonical source preservation remains; course-scoped historical retrieval and four public known byte-oracle cases pass OCI. Full semantic review and general retrieval quality remain open.",
       "tasks": [
         {
           "id": "P01-1",
@@ -2560,9 +2609,13 @@
           "id": "P01-2",
           "title": "Evaluate retrieval against a fixed reference set",
           "coverage_pointer": "/ranked_workstreams/1/tasks/1",
-          "state": "queued",
-          "evidence_refs": [],
-          "scope_note": "No current completion evidence was established in this master-plan pass.",
+          "state": "public_known_fixture_reader_evaluation_oci_validated_partial_general_quality",
+          "evidence_refs": [
+            "learning_evidence_protocol",
+            "learning_evidence_contract",
+            "learning_evidence_checkpoint"
+          ],
+          "scope_note": "Four frozen nonblind cases (one development, three evaluation IDs), exact original-byte/source/course/ref checks, abstention and explicit declared conflicts. No general accuracy or semantic contradiction claim.",
           "acceptance_gate_ids": [
             "G-SOURCE",
             "G-SCOPE",
@@ -2949,9 +3002,11 @@
           "evidence_refs": [
             "learning_titan_protocol",
             "learning_titan_integration",
-            "learning_titan_evidence"
+            "learning_titan_evidence",
+            "learning_evidence_contract",
+            "learning_evidence_checkpoint"
           ],
-          "scope_note": "Draft course, independent publication policy, enrollment, canonical lab evidence, pending review and recommendation are wired in code; actual institutional auth/hosting/efficacy remain open.",
+          "scope_note": "Draft course, independent publication policy, enrollment, canonical lab evidence, pending review and recommendation are wired in code; actual institutional auth/hosting/efficacy remain open. Course-scoped canonical retrieval/evaluation now passes synthetic OCI checks; host route/onboarding remains open.",
           "acceptance_gate_ids": [
             "G-SOURCE",
             "G-SCOPE",
@@ -3310,7 +3365,9 @@
       "evidence": [
         "learning_titan_protocol",
         "learning_titan_integration",
-        "learning_titan_evidence"
+        "learning_titan_evidence",
+        "learning_evidence_contract",
+        "learning_evidence_checkpoint"
       ]
     }
   ],
@@ -3318,23 +3375,22 @@
     {
       "rank": 1,
       "task_ids": [
-        "P01-1",
-        "P01-X1",
-        "P01-2",
-        "P07-X1"
-      ],
-      "reason": "Build frozen source-cited retrieval and abstention/contradiction evaluations using the new LMS/Titan artifact workflow; preserve exact source versions and all191bindings. Source links alone do not establish retrieval quality.",
-      "acceptance": "Versioned disjoint evaluation cases, exact answer spans and source hashes, missing-evidence refusals and measured citation correctness; no raw corpus on shared runner."
-    },
-    {
-      "rank": 2,
-      "task_ids": [
         "P07-2",
         "P07-X1",
         "P04-1"
       ],
       "reason": "Wire the library bridge through the actual host-authenticated LMS/session adapter and tenant/project provisioning, with instructor review, accessibility and retention policies. Keep synthetic demo and actual institutional onboarding distinct.",
       "acceptance": "Authenticated Actor from hostsession, tenant-scoped routes, version-pinned submissions, role tests and one explicitly provisioned pilot tenant; no model-authored identity or grades."
+    },
+    {
+      "rank": 2,
+      "task_ids": [
+        "P01-2",
+        "P01-X1",
+        "P03-2"
+      ],
+      "reason": "Expand beyond the completed four-case public fixture with independently frozen source/case sets and discriminating missing/conflicting evidence, on an explicitly authorized private host. Do not move private context onto the shared runner.",
+      "acceptance": "Predeclared corpus/scope/rights, original-byte oracles, held-out or new-data leakage controls, measured errors/abstentions and preserved failed candidates; no efficacy inference."
     },
     {
       "rank": 3,
@@ -3386,7 +3442,7 @@
   ],
   "update_rule": "Append a new plan version linked to this plan and exact observations/receipts. Update source review counts only after actual content/code/evidence reconciliation; never infer completion from indexing or generated text.",
   "dependency_semantics": "For bounded implementation, a dependency requires its relevant contract/source/evidence slice, not completion of every unrelated task in that track. Full191-document reconciliation remains open; offline typed-contract work may proceed after its governing source shard is read and its negative tests are defined.",
-  "updated_at_utc": "2026-11-17T21:01:46.045568+00:00",
+  "updated_at_utc": "2026-11-18T02:28:17.917991+00:00",
   "integrations": {
     "learning_titan": {
       "status": "source_integrated_and_oci85pass_synthetic_flow",
@@ -3478,6 +3534,84 @@
         "verification_status": "blocked_missing_credentials"
       },
       "production_service_modified": false
+    },
+    "learning_evidence": {
+      "status": "source_integrated_oci130pass_public_known_fixture_scope",
+      "source_commit": "47260febc9726ec6d02c798b0fd99780b19dba29",
+      "components": [
+        "LearningEvidenceService",
+        "existing LearningPlatform/Actor/enrollment",
+        "existing DotContextBridge with optional historical pins",
+        "existing MerlinRegistry/ArtifactRef",
+        "frozen original-byte evaluator and Titan synthetic course"
+      ],
+      "reuse_boundary": "No shadow context/evidence store; source curation, protocol, candidates and reports use canonical registry.",
+      "oci_run_id": 44223138785,
+      "tests": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests": 130
+      },
+      "architecture": "aarch64",
+      "python": [
+        3,
+        9,
+        25
+      ],
+      "evaluation": {
+        "canonical_replay_equal": true,
+        "case_sha256": "09176a392074366c5e8e620c68fb3525321c8e33228951b341b876485bd98b7b",
+        "fixture_class": "public_known_fixture",
+        "fixture_sha256": "b6b6b28f3aaea631c78fc7e06a23ca0d5d4342cfc065a3887f451f18a942b018",
+        "limits": [
+          "Public known fixtures; non-blind evaluation with no general retrieval-accuracy estimate.",
+          "The case-ID split prevents overlap, not evaluator leakage or curriculum efficacy claims.",
+          "Text is synthetic, not historical evidence, student data, actual ciphertext or credentials.",
+          "Exact source bytes establish citation integrity only; no crypto security, grade, mastery or qualification."
+        ],
+        "mastery_updated": false,
+        "metrics": {
+          "case_count": 4,
+          "development_passed": 1,
+          "evaluation_passed": 3,
+          "failed": 0,
+          "passed": 4
+        },
+        "promotion_authority": false,
+        "protocol_ref": {
+          "logical_path": "learning-evidence-eval/b1c243abd932a8d18501bb56e87df1fc1b77b86d674fcef84d061daba3aa116b/protocol.json",
+          "project_id": "synthetic-learning-evidence",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "b1c243abd932a8d18501bb56e87df1fc1b77b86d674fcef84d061daba3aa116b",
+          "version": 1
+        },
+        "qualification": false,
+        "report_ref": {
+          "logical_path": "learning-evidence-eval/b1c243abd932a8d18501bb56e87df1fc1b77b86d674fcef84d061daba3aa116b/report.json",
+          "project_id": "synthetic-learning-evidence",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "cc0001246d142df8727e286c25c18762a7aeef51894e938bfd5e7dc00df19905",
+          "version": 1
+        },
+        "schema": "synthetic-learning-evidence-demo/1",
+        "source_sha256": {
+          "fixture-current-name": "97a2317e8866d254ff74eed4e2280d8ac49e390bb6d264348f9aa9493117628b",
+          "fixture-historical-name": "60a39ccc073a34a6f73fc56e7f6610d73525554cae11ee8fb40fc5aa1a5196b1",
+          "fixture-review-policy": "e889e83d9fa61f8ec63510cd6907a367edcbe0c9bb65c3e07266e57289fe6df0",
+          "fixture-titan-scope": "60b5b26d1ceab49bc05992b784164b28d2881130c6e7fca208fe5bea3c9f96bb"
+        }
+      },
+      "qualification": false,
+      "promotion_authority": false,
+      "production_service_modified": false,
+      "remaining": [
+        "Actual host-authenticated routes and distinct tenant/project provisioning.",
+        "Origin/rights/accessibility/retention review and explicitly provisioned pilot.",
+        "Larger frozen independent/new-data evaluations before claiming general retrieval quality.",
+        "Automatic semantic contradiction discovery remains absent; only reviewed annotations are implemented."
+      ]
     }
   }
 }

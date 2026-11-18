@@ -1,6 +1,6 @@
 # Merlin production master plan
 
-Version 4 — November 17, 2026, America/Phoenix. This is the dependency and acceptance view for the preserved Merlin program. The machine-readable companion is [production-master-plan.json](../config/merlin/production-master-plan.json).
+Version 5 — November 17, 2026, America/Phoenix. This is the dependency and acceptance view for the preserved Merlin program. The machine-readable companion is [production-master-plan.json](../config/merlin/production-master-plan.json).
 
 A narrow private Merlin service is running on OCI. The remaining work turns that measured foothold into a reliable research system while preserving the existing canonical registry, graph, worker and independent-evidence boundaries.
 
@@ -22,7 +22,7 @@ The preserved capture contains **191 document/config records**, each checked aga
 
 Every one of the 191 document IDs appears exactly once in the JSON companion's `document_bindings`. Its `coverage_index` resolves to the original [coverage index](../config/merlin/dot-production-coverage-20261117.json); `capture_index` resolves to the pinned private `merlin-documentation-corpus/captured-sources.json`. Their full digests prevent a silent change of inputs. Track tags are navigation from the existing index, not semantic review or truth judgements. This avoids copying another 191-document corpus into a competing store.
 
-The plan retains **all 10 tracks and 37 original tasks**, with unchanged acceptance work referenced through JSON pointers to the coverage file. Seven explicit extension tasks add the user's new scientific, representation and repair requirements. None erases deferred research or changes historical evidence.
+The plan retains **all 10 tracks and 37 original tasks**, with unchanged acceptance work referenced through JSON pointers to the coverage file. Eight explicit extension tasks add the user's new scientific, representation and repair requirements. None erases deferred research or changes historical evidence.
 
 Accessible project chat context is **41 records/23 unique snapshots**, not every raw chat or all account history. The useful-asset inventory contains 134 Drive candidates from a bounded supplied listing. Metadata completeness for that listing does not mean every Drive file was read. The torus OBJ intake reports topology and byte identity with units undeclared; broken/placeholder modeler code remains unexecuted intake. Native FreeCAD/ngspice execution is unavailable on the measured host.
 
@@ -59,7 +59,7 @@ Record `applicable`, `irrelevant` or `deferred`, with a reason, for each lens. D
 | Track | Outcome | Original tasks | Reconciliation from measured state |
 |---|---|---:|---|
 | P00 | Private OCI service and operational recovery | 4 | Private service is running within its narrow demo scope; recovery and defect-family closure remain open. |
-| P01 | Source-complete project context and retrieval | 4 | Preservation/indexing is established; semantic document reconciliation and source-cited retrieval evaluation remain open. |
+| P01 | Source-complete project context and retrieval | 4 | Preservation/indexing and a four-case public source-citation baseline are evidenced; full semantic review and general retrieval quality remain open. |
 | P02 | Identity, scopes and separation of authority | 3 | Kernel UID and private socket grant work for the fixed route; remote dot identity and write/execution separation need separate completion. |
 | P03 | Real two-coder and independent-evaluator improvement loop | 3 | Durable two-coder machinery is tested with fixtures; live independent adapters and measured transferable improvements are not established. |
 | P04 | Hermes orchestration and MCFC execution fabric | 4 | Existing canonical worker contracts must be composed and externally enforced; the read/demo service is not that fabric. |
@@ -80,7 +80,7 @@ The original acceptance definitions and PR/document inventories remain in the pi
 | P00-3 | Prove non-destructive recovery | queued |
 | P00-4 | Keep observability and capacity evidence | partial |
 | P01-1 | Reconcile all 191 document records | partial |
-| P01-2 | Evaluate retrieval against a fixed reference set | queued |
+| P01-2 | Evaluate retrieval against a fixed reference set | four public known cases pass OCI; general quality remains open |
 | P01-3 | Preserve full-context boundaries | partial |
 | P01-4 | Review useful Drive assets without running intake code | partial |
 | P02-1 | Audit UID/tool grant matrix | partial |
@@ -102,7 +102,7 @@ The original acceptance definitions and PR/document inventories remain in the pi
 | P06-4 | Complete pinned simulation evidence | partial ideal model only |
 | P06-5 | Retain physical-release boundaries | queued |
 | P07-1 | Wire the research HUD to real recorded state | queued |
-| P07-2 | Complete one learning vertical slice | queued |
+| P07-2 | Complete one learning vertical slice | synthetic lab and source retrieval pass OCI; institutional adapter remains open |
 | P07-3 | Keep Forge and voice capability-scoped | queued |
 | P08-1 | Establish real model/hardware baseline | queued |
 | P08-2 | Compare bounded alternatives | queued |
@@ -147,8 +147,8 @@ Keep failed attempts, skipped gates and `NOT_RUN` visible. Reconcile an ambiguou
 
 ## Ranked next implementation
 
-1. Freeze source-cited retrieval, abstention and contradiction evaluations through the new LMS/Titan evidence path. Preserve source versions and all 191 bindings; links alone do not establish retrieval quality.
-2. Wire the lab library through the real host-authenticated session/LMS adapter and explicit tenant/project provisioning. Complete instructor, accessibility, rights and student-data policies before institutional onboarding.
+1. Wire the lab and evidence reader through the real host-authenticated session/LMS adapter and explicit tenant/project provisioning. Complete instructor, accessibility, rights, retention and student-data policies before an explicitly provisioned pilot.
+2. Expand the completed four-case public retrieval fixture with independently frozen source/case sets, leakage controls and discriminating missing/conflicting evidence. Preserve failed candidates and original-byte oracles; do not move private context onto the shared runner.
 3. Run a genuinely discriminating two-coder research episode with authorized provider adapters, held-out predictions, independent review and canonical resume. Public Titan vectors remain known fixtures.
 4. Extend recovery to consistently published LMS/learner/research stores and off-host custody. Titan structural models are not encryption providers.
 5. Continue native CAD/wiring/solver and independently reviewed Titan conformance integrations with exact source, tools and evidence.
@@ -178,3 +178,14 @@ The sample has four version rows and zero provenance rows; nonempty provenance, 
 [OCI run 44174486449](https://github.com/morganaspim/Cace-app/actions/runs/44174486449) passed 85 focused tests with zero skips on ARM64/Python 3.9.25. A synthetic reviewed course enrolled a learner, froze predictions/transcript as an ArtifactRef, ran the fixed structural lab, retained model/vector/source identity, submitted work for pending review and replayed the same canonical receipt. No grade/mastery, cryptographic security, independent verifier or educational-efficacy status was awarded.
 
 This reuses the canonical registry, hypothesis ledger, graph and existing LMS/learner store. Atomic course-version submission checks and canonical blob/graph concurrency repairs have targeted regressions. The draft course adds source-pinned objectives, transfer/counterexample exercises and explicit limitations. Institutional auth/SSO/LTI rollout and cryptographic implementation remain separate gates. Production service/state was outside the isolated validation. The [integration contract](merlin/MERLIN_LMS_TITAN_INTEGRATION_V1.md), [exact receipt](evidence/merlin-learning-titan-integration-20261117.json), preserved run archive and parent plan v3 carry the checkpoint. The master retains 191 source bindings, 37 original tasks and 8 extensions (45 total).
+
+
+## Course evidence retrieval — measured November 17, 2026
+
+[OCI run 44223138785](https://github.com/morganaspim/Cace-app/actions/runs/44223138785) passed **130 selected tests**, zero failures/errors/skips, on ARM64/Python 3.9.25. Exact source commit `47260febc9726ec6d02c798b0fd99780b19dba29` adds a course/version/tenant-scoped reader over the existing canonical context bridge and registry. Curator-reviewed historical source pairs are pinned before ranking; citations carry exact UTF-8 spans/digests. Missing relevant evidence abstains. Explicit curator-declared conflicts retain required member references despite excerpt budgets, with visible lesson-scope omissions.
+
+The original synthetic fixture was frozen before its first run. One development case and three separately identified evaluation cases all passed the original-byte oracle and host-owned course/source-manifest identity checks. The fixture is public and nonblind. This establishes a bounded software contract, not general retrieval accuracy, automatic contradiction discovery or learning efficacy. Both the existing LMS/Titan demo and new reader/evaluator replayed the same canonical receipts. A clean local package extraction also passed all130tests and both demos.
+
+Separate coder review within the same team found and repaired the curation publication race, hidden conflict-context risk, evaluator scope omission and Boolean/integer identity alias. Each has a targeted regression and a [defect-family record](../config/merlin/defect-families/learning-evidence-20261117.json). The [reader contract](merlin/MERLIN_LEARNING_EVIDENCE_V1.md), [pre-result protocol](../config/merlin/learning-evidence-protocol-20261117.json), [exact checkpoint](evidence/merlin-learning-evidence-20261117.json) and preserved archive record the evidence and its limits. Raw canonical protocol, report and candidate exports were digest-verified after download.
+
+The running production service and state were outside isolated validation. Institutional session/routes/provisioning and pilot policy remain the first integration gate. No grade/mastery, cryptographic primitive/conformance, independent verifier or promotion was added. Master plan v5 preserves v4 byte-for-byte, all191sourcebindings and all45tasks; the187semanticreviews remain queued.
