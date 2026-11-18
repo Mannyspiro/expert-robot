@@ -19,16 +19,48 @@ SELECTOR = r"(?:the )?(?:(?:run )?[0-9]+|(?:learning|titan|lms|recovery)(?: run|
 FIELDS = (
     (r"how many (?:main shard tests ran|tests ran in the main shard)", "/tests/tests"),
     (r"how many operation tests ran", "/recovery_operation_tests/tests"),
-    (r"what (?:was|is) the submission status", "/demo/submission_status"),
+    (r"what (?:was|is) the (?:submission (?:status|state)|(?:recorded )?(?:status|state) of "
+     r"the (?:(?:synthetic )?learner's )?submission)", "/demo/submission_status"),
+    (r"how many (?:structural )?(?:test )?vectors were (?:recorded|used)", "/demo/vector_count"),
+    (r"what (?:was|is) the (?:structural )?vector count", "/demo/vector_count"),
     (r"what operation ran", "/operation"),
-    (r"what numeric grade was awarded", "/demo/grade"),
+    (r"what (?:numeric )?grade (?:was awarded|did the reviewer award (?:this|the) learner)",
+     "/demo/grade"),
+    (r"how many milliseconds did the second lab execution take", "/demo/second_execution_ms"),
     (r"was (?:the recorded security verification true|cryptographic security verified)",
      "/demo/cryptographic_security_verified"),
 )
 
 
+# Match complete propositions so a different actor, comparison, or negation
+# cannot silently change the meaning of a source-bound claim.
+BOOLEAN_CLAIMS = (
+    (r"(?:the demo receipt says )?cryptographic security was (?P<negative>not )?verified",
+     "/demo/cryptographic_security_verified"),
+    (r"(?:the learner's )?mastery was (?P<negative>not )?updated(?: during this run)?",
+     "/demo/mastery_updated"),
+    (r"did replay (?P<negative>not )?return (?:an equal|the same|an identical) canonical receipt",
+     "/demo/canonical_receipt_replay_equal"),
+)
+
+
+def resolve_field(body):
+    count = re.fullmatch(r"did the main shard run ([0-9]{1,9}) tests", body)
+    if count:
+        return "/tests/tests", int(count.group(1))
+    proposition = body.removesuffix(". is this assertion supported or contradicted")
+    for pattern, path in BOOLEAN_CLAIMS:
+        match = re.fullmatch(pattern, proposition)
+        if match:
+            return path, match.group("negative") is None
+    for pattern, path in FIELDS:
+        if re.fullmatch(pattern, body):
+            return path, True if path == "/demo/cryptographic_security_verified" else None
+    return None, None
+
+
 def ask(bridge, pins, question, aliases=ALIASES):
-    text = " ".join(question.lower().strip().rstrip("?.").split())
+    text = " ".join(question.lower().replace("’", "'").strip().rstrip("?.").split())
     prefix = re.fullmatch(rf"(?:for |in )?({SELECTOR}),\s*(.+)", text)
     suffix = re.fullmatch(rf"(.+) (?:in|for|during) ({SELECTOR})", text)
     if prefix:
@@ -38,14 +70,12 @@ def ask(bridge, pins, question, aliases=ALIASES):
     else:
         body, selector = text, None
 
-    claim = re.fullmatch(r"did the main shard run ([0-9]{1,9}) tests", body)
-    pointer = next((path for pattern, path in FIELDS if re.fullmatch(pattern, body)), None)
-    if claim:
-        pointer = "/tests/tests"
+    pointer, claim = resolve_field(body)
     if pointer is None:
         return {"disposition": "clarify_field",
                 "message": "Which field do you mean: main shard test count, operation test count, "
-                           "operation, submission status, numeric grade, or security verification?"}
+                           "operation, submission status, grade, replay equality, vector count, mastery, "
+                           "execution time, or security verification?"}
     if selector is None:
         candidates = sorted(pins)
     else:
@@ -62,10 +92,8 @@ def ask(bridge, pins, question, aliases=ALIASES):
 
     run = candidates[0]
     request = {"question": body, "run_id": run, "pointer": pointer}
-    if claim:
-        request["claim"] = int(claim.group(1))
-    elif pointer == "/demo/cryptographic_security_verified":
-        request["claim"] = True
+    if claim is not None:
+        request["claim"] = claim
     result = answer(bridge, pins, request)
     return dict(result, run_id=run)
 
