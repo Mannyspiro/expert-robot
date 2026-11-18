@@ -36,8 +36,9 @@
     },
     {
       "area": "NASA scientific data format",
-      "result": "Both representations preserved 4,096 synthetic samples and their metadata. Plain and compressed files measured 241,453 and 35,430 bytes. An independent implementation has yet to read the outputs.",
-      "evidence": "docs/evidence/nasa-cdf-roundtrip-20261118.json"
+      "result": "Both representations preserved 4,096 synthetic samples and their metadata. Plain and compressed files measured 241,453 and 35,430 bytes. NASA CDF 3.9.1 independently read both files with 24 of 24 checks passing for each.",
+      "evidence": "docs/evidence/nasa-cdf-roundtrip-20261118.json",
+      "independent_reader_evidence": "docs/evidence/nasa-cdf-native-read-20261118.json"
     }
   ],
   "ranked_next_actions": [
