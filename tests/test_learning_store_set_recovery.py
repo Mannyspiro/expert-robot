@@ -1,4 +1,5 @@
 """Isolated offline drill for a single synthetic LMS/Titan store set."""
+import errno
 import hashlib
 import json
 import multiprocessing
@@ -9,8 +10,10 @@ import tempfile
 import unittest
 from contextlib import closing
 from pathlib import Path
+from unittest.mock import patch
 
 from dot_ai_os.recovery import RecoveryError, create_snapshot, restore_snapshot
+from dot_ai_os.store_set_publication import SelectionUncertain, select_generation
 from merlin.learning_platform import LearningPlatform
 from merlin.learning_titan_course import run_synthetic_titan_demo
 
@@ -57,7 +60,7 @@ PUBLICATION_STAGES = (
 CRASH_EXIT = 73
 
 
-def publish_fixture(source, catalog, stop_after=None):
+def publish_fixture(source, catalog, stop_after=None, *, prepare_only=False):
     def checkpoint(stage):
         if stop_after == stage:
             os._exit(CRASH_EXIT)
@@ -82,6 +85,8 @@ def publish_fixture(source, catalog, stop_after=None):
     checkpoint("pins_written")
     stage.rename(catalog / generation)
     checkpoint("generation_named")
+    if prepare_only:
+        return pointer
     with tempfile.NamedTemporaryFile(mode="w", prefix=".pointer-", dir=catalog, delete=False) as file:
         # Force some bytes of an incomplete selector into the filesystem.
         encoded = json.dumps(pointer)
@@ -195,3 +200,66 @@ class LearningStoreRecoveryTests(unittest.TestCase):
                     retried = publish_fixture(sources[1], catalog)
                     self.assertEqual(json.loads((catalog / "CURRENT").read_text()), retried)
                     assert_replay(catalog, retried, case / "retried", originals[1], versions[1])
+
+    def test_durable_selection_barriers_and_ambiguous_retry(self):
+        with tempfile.TemporaryDirectory() as temp:
+            catalog = Path(temp) / "catalog"
+            catalog.mkdir()
+            candidates = []
+            originals = []
+            for name in ("a", "b"):
+                source = Path(temp) / name
+                source.mkdir()
+                originals.append(run_synthetic_titan_demo(source, name * 40))
+                candidates.append(publish_fixture(source, catalog, prepare_only=True))
+            prior, new = candidates
+            select_generation(catalog, prior, None)
+            bundle = catalog / new["generation"]
+            fsync = os.fsync
+            replace = os.replace
+            current = catalog / "CURRENT"
+
+            def exercise(fail_at=None):
+                events = []
+
+                def observed_sync(fd):
+                    path = Path(os.readlink(f"/proc/self/fd/{fd}"))
+                    events.append(path)
+                    if len(events) == fail_at:
+                        raise OSError(errno.EIO, "injected sync failure")
+                    fsync(fd)
+
+                def observed_replace(src, dst):
+                    self.assertEqual(dst, current)
+                    events.append("replace")
+                    replace(src, dst)
+
+                with patch("os.fsync", observed_sync), patch("os.replace", observed_replace):
+                    select_generation(catalog, new, prior)
+                return events
+
+            events = exercise()
+            boundary = events.index("replace")
+            self.assertEqual(events[boundary + 1:], [catalog])
+            self.assertEqual(events[boundary - 3:boundary - 1], [bundle, catalog])
+            self.assertTrue(events[boundary - 1].name.startswith(".pointer-"))
+            for path in bundle.rglob("*"):
+                self.assertLess(events.index(path), events.index(path.parent))
+
+            select_generation(catalog, prior, new)
+            for index in range(boundary):
+                with self.subTest(before_replace=index), self.assertRaises(OSError):
+                    exercise(index + 1)
+                self.assertEqual(json.loads(current.read_text()), prior)
+            with self.assertRaises(SelectionUncertain):
+                exercise(boundary + 2)
+            self.assertEqual(json.loads(current.read_text()), new)
+            with patch("os.replace", side_effect=AssertionError("retry rewrote CURRENT")):
+                self.assertEqual(select_generation(catalog, new, prior), new)
+            with self.assertRaisesRegex(RecoveryError, "current generation changed"):
+                select_generation(catalog, prior, None)
+            restored = Path(temp) / "restored"
+            restore_fixture(bundle, restored, json.loads((bundle / "pins.json").read_text()))
+            after = run_synthetic_titan_demo(restored, "b" * 40)
+            self.assertEqual(after["lab"], originals[1]["lab"])
+            self.assertTrue(after["submission"]["duplicate"])
