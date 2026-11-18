@@ -52,3 +52,20 @@ real student-data onboarding, a cipher/KEM implementation, live independent CACE
 qualification or educational-efficacy evidence. Those remain separate production
 gates in the master plan. The running private Merlin service and its state are
 outside the isolated integration validation workspace.
+
+## Host-configured HTTP adapter
+
+Pass the provisioned bridge as `learning_lab_bridge` to `serve` or
+`make_handler`. Both course and lab routes use the bridge's platform. A
+separately supplied platform must be the same instance. Provision the per-tenant
+projects on the host before enabling the adapter. The existing learning session
+resolver supplies the actor on every request.
+
+POST to `/api/learning/courses/{course_id}/titan-lab/run` with
+`course_version`, `manifest_sha256`, `lesson_id`, `run_id` and `prediction`.
+POST to the sibling `submit` route with the same four binding fields plus
+`submission_id` and `reflection`. Use the original identifiers and content for
+retries. The run returns the canonical receipt and submission remains pending
+review. A stale course binding returns HTTP 409. Unconfigured lab access returns
+503. The application-level test uses synthetic host identities on loopback.
+Institutional identity-provider and LTI acceptance remain open.
