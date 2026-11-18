@@ -13,7 +13,10 @@ import stat
 from contextlib import closing
 from typing import Mapping
 
-from dot_ai_os.bridge import DotContextBridge, canonical, digest, integer, text_value, POLICY
+if __package__ == "python.merlin":
+    from ..dot_ai_os.bridge import DotContextBridge, canonical, digest, integer, text_value, POLICY
+else:
+    from dot_ai_os.bridge import DotContextBridge, canonical, digest, integer, text_value, POLICY
 from .artifact_ref import ArtifactRef
 from .learning_platform import Actor, LearningPlatform, LearningConflictError, LearningPermissionError
 from .project_registry import MerlinRegistry

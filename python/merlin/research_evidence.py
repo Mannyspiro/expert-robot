@@ -5,10 +5,10 @@ from typing import Any, Mapping
 import hashlib
 import json
 
-from merlin.artifact_ref import ArtifactRef
-from merlin.hypothesis_ledger import HypothesisLedger
-from merlin.knowledge_graph import GraphEdge, GraphNode, MerlinKnowledgeGraph
-from merlin.project_registry import MerlinRegistry
+from .artifact_ref import ArtifactRef
+from .hypothesis_ledger import HypothesisLedger
+from .knowledge_graph import GraphEdge, GraphNode, MerlinKnowledgeGraph
+from .project_registry import MerlinRegistry
 
 
 _RELATION = {

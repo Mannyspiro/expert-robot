@@ -45,6 +45,36 @@ Enumeration is on-demand and problem-directed.
 - Store generated combinations as hypothesis combinations; only observations and independent verification can change epistemic status.
 - If no useful combination survives, report that result rather than relaxing constraints silently.
 
+### Run a bounded catalogue search
+
+The host can call `merlin.scientific_loop.enumerate_combination_report` or run the command below from the repository root. Here two visits and one result are independent limits. A group rejected for incompatibility, status, cost, domain or previous observation still consumes one visit.
+
+```sh
+PYTHONPATH=python python scripts/merlin/enumerate_idea_space.py - --work-budget 2 --limit 1 --gaps-only <<'JSON'
+{
+  "trigger": "two failed checks used the same comparison",
+  "problem": "Which compatible pairing has yet to be tried in the toy catalogue?",
+  "primitives": [
+    {"id":"sensor","domain":"measurement","estimated_cost":2},
+    {"id":"review","domain":"verification","estimated_cost":1},
+    {"id":"model","domain":"simulation","estimated_cost":3}
+  ],
+  "compatible_pairs": [["sensor","review"],["sensor","model"],["review","model"]],
+  "ledger_ref": "example-notebook-v1",
+  "observed_groups": [["sensor","review"]],
+  "analogy": {
+    "analogy": "inspecting a fixed catalogue one entry at a time",
+    "invariant_mapping": {"one inspected group":"one consumed visit"},
+    "subproblems": ["count inspected pairs", "rerun the original check"]
+  }
+}
+JSON
+```
+
+The example examines two of four possible pairs/triples. It excludes the recorded sensor/review pair and returns sensor/model. The remaining pair and triple are unexamined. Ledger absence refers only to this named input. The analogue retains its translation-back test. The caller supplies the compatibility edges and the research evidence.
+
+Merlin visits pairs then triples, preserving catalogue order within each size. Ranking uses estimated cost and combination ID among visited groups. A partial prefix can miss a cheaper group later in the catalogue. The coverage record reports examined, rejected, eligible, returned and unexamined counts, including eligible rows omitted by the output limit. Existing callers of `enumerate_useful_combinations` retain their exhaustive ranking.
+
 ## Analogical reframing protocol
 
 When blocked, Merlin translates the task into a smaller analogous problem before repeating the same failed approach.
