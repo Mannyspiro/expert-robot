@@ -35,34 +35,38 @@ def index_sources(bridge, suite):
 
 
 def answer(bridge, pins, request, *, bind_run=True):
-    """Answer scalar object-field lookups from matching, pinned search results."""
+    """Resolve bound lookups by exact receipt reference and unbound controls by first hit."""
     abstain = {"disposition": "abstain", "value": None, "citation": None}
     run_id = request["run_id"]
     pointer = request["pointer"]
     if not re.fullmatch(r"(?:/[A-Za-z0-9_]+)+", pointer):
         raise ValueError("Expected a slash-separated object-field path")
-    query = " ".join((run_id, request["question"], pointer.replace("/", " ")))
-    for hit in bridge.search(query, namespace="merlin")["hits"]:
-        ref = hit["source_ref"]
-        if bind_run and ref != pins.get(run_id):
-            continue
-        page = bridge.fetch(ref, length_bytes=16000)
-        if page["next_start_byte"] is not None:
-            return abstain  # This bounded probe accepts complete small receipts only.
-        node = json.loads(page["text"])
-        if bind_run and node.get("run_id") != run_id:
+    if bind_run:
+        ref = pins.get(run_id)
+        if not ref or not ref["logical_path"].startswith("context/merlin/"):
             return abstain
-        for field in pointer[1:].split("/"):
-            if not isinstance(node, dict) or field not in node:
-                return abstain
-            node = node[field]
-        if not isinstance(node, (str, bool, int, float)):
+    else:
+        query = " ".join((run_id, request["question"], pointer.replace("/", " ")))
+        hits = bridge.search(query, namespace="merlin")["hits"]
+        if not hits:
             return abstain
-        agrees = "claim" not in request or (
-            type(node) is type(request["claim"]) and node == request["claim"])
-        return {"disposition": "supported" if agrees else "contradicted", "value": node,
-                "citation": {"source_ref": ref, "pointer": pointer}}
-    return abstain
+        ref = hits[0]["source_ref"]
+    page = bridge.fetch(ref, length_bytes=16000)
+    if page["next_start_byte"] is not None:
+        return abstain  # This bounded probe accepts complete small receipts only.
+    node = json.loads(page["text"])
+    if bind_run and node.get("run_id") != run_id:
+        return abstain
+    for field in pointer[1:].split("/"):
+        if not isinstance(node, dict) or field not in node:
+            return abstain
+        node = node[field]
+    if not isinstance(node, (str, bool, int, float)):
+        return abstain
+    agrees = "claim" not in request or (
+        type(node) is type(request["claim"]) and node == request["claim"])
+    return {"disposition": "supported" if agrees else "contradicted", "value": node,
+            "citation": {"source_ref": ref, "pointer": pointer}}
 
 
 def evaluate(bridge, pins, cases, bind_run):
