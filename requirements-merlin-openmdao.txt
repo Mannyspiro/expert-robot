@@ -1,0 +1,13 @@
+# Optional offline scalar-unit lab: exact locally tested Python 3.12 profile.
+# OpenMDAO itself permits >=3.10; networkx 3.7 in this lock requires >=3.12.
+# No optimizer plugins, MPI, proprietary solvers or remote services are required.
+openmdao==3.45.2
+networkx==3.7
+numpy==2.3.5
+scipy==1.17.0
+packaging==26.3
+requests==2.34.2
+urllib3==2.8.0
+charset-normalizer==3.5.2
+idna==3.18
+certifi==2026.10.19

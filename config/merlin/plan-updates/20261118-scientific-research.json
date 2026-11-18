@@ -1,0 +1,62 @@
+{
+  "schema": "merlin-plan-observation/1",
+  "parent_plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+  "parent_plan_version": 6,
+  "source_commit": "7addc94953d0a8980bd8597b97928511eeab21f6",
+  "observations": [
+    {
+      "area": "scientific reasoning",
+      "result": "A seven-group budget examined seven of 286 eligible positions, counting rejected candidates as work. Default enumeration matched the frozen exhaustive implementation in 60 sampled comparisons.",
+      "evidence": "docs/evidence/scientific-work-budget-v1.json"
+    },
+    {
+      "area": "research scheduling",
+      "result": "The stored training observations needed one parent to cover two cases. A complementary-case control used two parents to cover three cases.",
+      "evidence": "docs/evidence/dot-training-parents-20261117.json"
+    },
+    {
+      "area": "learning evidence",
+      "result": "Request-bound answers improved from 9 to 12 correct decisions on 15 fresh questions. The two passage tokenizers both found supporting bytes in the first two hits on 3 of 7 checked questions.",
+      "evidence": "docs/evidence/pr179-fresh-receipts-v1.json"
+    },
+    {
+      "area": "Titan board records",
+      "result": "The two historical recording profiles produced equal envelope lengths in the same padding bucket. The complete records and messages were recovered under the pinned recipient-encryption profile.",
+      "evidence": "docs/evidence/titan-board-pq-20261117.json"
+    },
+    {
+      "area": "host compatibility",
+      "result": "The two supported Python package layouts now load the learning evidence path. Hosted CI and Learning identity succeeded on the repair. The selected local research suite passed 225 tests without skips.",
+      "test": "tests/test_learning_import_modes.py"
+    },
+    {
+      "area": "scientific measurement units",
+      "result": "The optional OpenMDAO adapter passed 13 focused tests. Compatible units normalized to comparable intervals, including absolute temperatures and their uncertainty widths. The existing comparator judged the observations.",
+      "evidence": "docs/merlin/OPENMDAO_MEASUREMENT_EVIDENCE_20261118.json"
+    }
+  ],
+  "ranked_next_actions": [
+    {
+      "task": "P07-2",
+      "action": "Verify the learning service with an owner-provisioned institutional pilot, approved data policy and restart exercise."
+    },
+    {
+      "task": "P01-2",
+      "action": "Retest run-bound retrieval on a second independently authored corpus. Score supported answers, appropriate clarification, abstention and citation bytes."
+    },
+    {
+      "task": "P03-2",
+      "action": "Test the training-parent planner with distinct versioned coder adapters. Record measured calls and cost, and use a fresh holdout to decide whether any proposal improves behavior."
+    },
+    {
+      "task": "P04-1",
+      "action": "Evaluate an additional instrument dataset with documented unit conventions. Recheck missing values and timestamp precision across scientific data interchange."
+    },
+    {
+      "task": "P06-2",
+      "action": "Test generic mesh adaptation at a fixed vertex and runtime budget, with independent interpolation samples and declared source units."
+    }
+  ],
+  "qualification": false,
+  "promotion_authority": false
+}
