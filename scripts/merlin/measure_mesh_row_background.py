@@ -9,7 +9,17 @@ from measure_mesh_localization import measure_arm, move_template
 from measure_mesh_three_rows import fit
 
 
-def select_mesh(pilots, vertices, faces, uniform, estimate_background):
+def row_contrast(pilots):
+    rows = [[pilots[x, y] for x in (.25, .5, .75)] for y in (.25, .5, .75)]
+    return max(max(row) - min(row) for row in rows)
+
+
+def select_mesh(pilots, vertices, faces, uniform, estimate_background, *, noise_bound=None):
+    if noise_bound is not None:
+        if not math.isfinite(noise_bound) or noise_bound < 0:
+            raise ValueError("finite nonnegative pilot noise bound required")
+        if row_contrast(pilots) <= 2 * noise_bound + 1e-14:
+            return uniform, "row contrast within pilot noise bound"
     minima = {y: min(v for (px, py), v in pilots.items() if py == y)
               for y in (.25, .5, .75)}
 
