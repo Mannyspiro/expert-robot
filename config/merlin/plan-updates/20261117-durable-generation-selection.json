@@ -1,0 +1,18 @@
+{
+  "parent_plan": 5,
+  "parent_commit": "64155bb2be5af1b5ae01fe05a514a79c0f399c00",
+  "task": "P00-3",
+  "state": "partial",
+  "scope": "Local Linux private catalog, prepared immutable store sets, cooperating publishers. This covers selecting a generation; source quiescence, initial catalog persistence, and off-host custody are host responsibilities.",
+  "method": "Run test_learning_store_set_recovery and test_learning_titan_integration on workspace overlayfs. Execute real fsync calls on the success path, observe file and directory order, then inject EIO at one call at a time.",
+  "measurement": {
+    "before_replace_failures_preserved_prior": "17/17",
+    "post_replace_failures_reported_uncertain": "1/1",
+    "retry_rewrote_current": false,
+    "stale_expected_prior_rejected": true,
+    "restored_receipt_replayed": true,
+    "focused_tests_passed": 11
+  },
+  "limits": "Injected faults precede the selected syscall. The test does not emulate storage hardware losing acknowledged writes, kernel crashes, or permanent media failure. Temporary generations are retained.",
+  "next": "On an isolated disposable filesystem with an approved crash-capable runner, perform abrupt guest power removal at the durable selector boundaries, remount, verify pinned generations and replay. Preserve the previous generation until off-host readback is verified."
+}

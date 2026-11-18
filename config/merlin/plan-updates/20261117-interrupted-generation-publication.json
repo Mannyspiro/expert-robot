@@ -1,0 +1,38 @@
+{
+  "task": "P00-3",
+  "parent_plan": {
+    "version": 5,
+    "commit": "dd998744fdd98ed1d096b8cbbd30d8e40dbae532",
+    "path": "config/merlin/production-master-plan.json"
+  },
+  "state": "partial",
+  "source_commit": "a2228906eee2fd57721032b26574d9ae80495cbe",
+  "test": "tests/test_learning_store_set_recovery.py",
+  "command": "PYTHONPATH=.:python:tests python3 -m unittest test_learning_store_set_recovery test_learning_titan_integration",
+  "scope": "Local Linux synthetic acceptance fixture, two distinguishable versions of the four-store set, one publisher and quiescent application data.",
+  "prediction": "Every process exit before CURRENT replacement preserves the prior selection. Exit after replacement selects the complete new generation and leaves the prior generation restorable.",
+  "termination": "Spawned publisher called os._exit(73) at each cut; parent checked the exit code. Operating system and storage remained online.",
+  "cuts": [
+    "stage_created",
+    "registry_ready",
+    "learning_backup_in_progress",
+    "learning.sqlite3",
+    "hypotheses.sqlite3",
+    "graph.sqlite3",
+    "pins_written",
+    "generation_named",
+    "pointer_part_written",
+    "pointer_prepared",
+    "pointer_replaced"
+  ],
+  "observed": {
+    "prior_selected_before_replace": "10/10",
+    "new_selected_after_replace": "1/1",
+    "prior_restored_after_replace": true,
+    "retry_and_replay": "11/11",
+    "focused_tests": "10 passed"
+  },
+  "acceptance": "Verify the selected manifest hash and store digests. Check one pending submission before application replay, equal lab receipt, transcript ref, course manifest and recommendation, duplicate submission and unchanged mastery.",
+  "limits": "Test fixture only. The selector is local mutable metadata; candidate names are unique, so retry may leave duplicate or incomplete directories. No power failure, durable fsync ordering, writer concurrency, off-host custody or production deployment was exercised.",
+  "next": "Implement and test a durable single-publisher contract on an isolated volume, including file and directory sync ordering, ambiguous commit reconciliation and safe retries. Keep independent off-host readback as a separate acceptance gate."
+}

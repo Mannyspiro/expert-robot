@@ -1,7 +1,7 @@
 {
   "schema": "merlin-production-master-plan/1",
   "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
-  "version": 4,
+  "version": 5,
   "created_at_utc": "2026-11-17T17:51:10.393995+00:00",
   "date_phoenix": "2026-11-17",
   "source_repository": "Mannyspiro/expert-robot",
@@ -12,10 +12,10 @@
   "promotion_authority": false,
   "parent_plan": {
     "id": "MERLIN-PRODUCTION-MASTER-20261117",
-    "version": 3,
-    "path": "config/merlin/plan-history/production-master-plan-v3-b0104e3e0da32a5809bc439216fc0c8425e231c494369142f122462e3d3c1e41.json",
-    "sha256": "b0104e3e0da32a5809bc439216fc0c8425e231c494369142f122462e3d3c1e41",
-    "mutation": "append-only LMS/Titan integration revision; v3 preserved"
+    "version": 4,
+    "path": "config/merlin/plan-history/production-master-plan-v4-8a04c1f6aa671544b6fd455b2d5f2f5b1dedb41a9e36bd608de8a7521a72130b.json",
+    "sha256": "8a04c1f6aa671544b6fd455b2d5f2f5b1dedb41a9e36bd608de8a7521a72130b",
+    "mutation": "Preserve v4 bytes and rerank after hosted identity evidence and a local isolated store-set recovery drill."
   },
   "references": {
     "coverage": {
@@ -3318,44 +3318,44 @@
     {
       "rank": 1,
       "task_ids": [
+        "P00-3",
+        "P00-X2",
+        "P00-4"
+      ],
+      "reason": "Recovery has a local WAL-aware four-store replay. Cross-store consistency under interrupted publication remains the nearest reproducible production gap.",
+      "acceptance": "Interrupt each publication stage, retain the last complete generation, and replay its receipt and pending submission. Verify off-host readback separately when custody is configured."
+    },
+    {
+      "rank": 2,
+      "task_ids": [
         "P01-1",
         "P01-X1",
         "P01-2",
         "P07-X1"
       ],
-      "reason": "Build frozen source-cited retrieval and abstention/contradiction evaluations using the new LMS/Titan artifact workflow; preserve exact source versions and all191bindings. Source links alone do not establish retrieval quality.",
-      "acceptance": "Versioned disjoint evaluation cases, exact answer spans and source hashes, missing-evidence refusals and measured citation correctness; no raw corpus on shared runner."
+      "reason": "Freeze the receipt interpreter from PR 179 until independently authored paraphrases are available.",
+      "acceptance": "Score an unseen question set with exact citations, incorrect answers, appropriate abstentions and clarification counts. Keep the 191 original bindings pinned."
     },
     {
-      "rank": 2,
+      "rank": 3,
       "task_ids": [
         "P07-2",
         "P07-X1",
         "P04-1"
       ],
-      "reason": "Wire the library bridge through the actual host-authenticated LMS/session adapter and tenant/project provisioning, with instructor review, accessibility and retention policies. Keep synthetic demo and actual institutional onboarding distinct.",
-      "acceptance": "Authenticated Actor from hostsession, tenant-scoped routes, version-pinned submissions, role tests and one explicitly provisioned pilot tenant; no model-authored identity or grades."
+      "reason": "PR 180 passed hosted identity, LMS and unified-platform checks. No institutional issuer or provisioned pilot tenant was demonstrated.",
+      "acceptance": "Repeat the lab, replay, submission and revocation with a provisioned staging tenant and provider-issued token under the institution's approved data policies."
     },
     {
-      "rank": 3,
+      "rank": 4,
       "task_ids": [
         "P03-1",
         "P03-2",
         "P03-3",
         "P03-X1"
       ],
-      "reason": "Use two authorized coder/evaluator adapters for a genuinely discriminating research episode with held-out predictions and independent review; the fixed Titan vectors remain known fixtures.",
+      "reason": "A discriminating two-coder episode depends on authorized adapters, a held-out task and an independent evaluator.",
       "acceptance": "Actual provider/cost identities, new-data or held-out cases, canonical checkpoints and preserved failed/null results."
-    },
-    {
-      "rank": 4,
-      "task_ids": [
-        "P00-3",
-        "P00-X2",
-        "P00-4"
-      ],
-      "reason": "Extend recovery to published LMS/learner/research store sets and off-host custody using implemented approved primitives, retaining trusted pins and restore verification. Titan structural models are not encryption providers.",
-      "acceptance": "Consistent offline publication of WAL-backed stores, explicit payload/retention scope and retrieved restore drill; no shared-runner reboot outside a coordinated window."
     },
     {
       "rank": 5,
@@ -3365,7 +3365,7 @@
         "P06-2",
         "P06-4"
       ],
-      "reason": "Continue native CAD/wiring/solver and independently verified Titan conformance paths after available adapters and exact source evidence are established.",
+      "reason": "Native CAD and Titan conformance still depend on toolchain and evaluator availability.",
       "acceptance": "Pinned native tools and standards-based implementations, exact vectors/interoperability and independent review where required; no automatic source/model-to-proof promotion."
     }
   ],
@@ -3386,7 +3386,7 @@
   ],
   "update_rule": "Append a new plan version linked to this plan and exact observations/receipts. Update source review counts only after actual content/code/evidence reconciliation; never infer completion from indexing or generated text.",
   "dependency_semantics": "For bounded implementation, a dependency requires its relevant contract/source/evidence slice, not completion of every unrelated task in that track. Full191-document reconciliation remains open; offline typed-contract work may proceed after its governing source shard is read and its negative tests are defined.",
-  "updated_at_utc": "2026-11-17T21:01:46.045568+00:00",
+  "updated_at_utc": "2026-11-18T01:43:03.376791+00:00",
   "integrations": {
     "learning_titan": {
       "status": "source_integrated_and_oci85pass_synthetic_flow",
@@ -3478,6 +3478,50 @@
         "verification_status": "blocked_missing_credentials"
       },
       "production_service_modified": false
+    },
+    "receipt_retrieval_and_host_adapter": {
+      "retrieval_pr": 179,
+      "retrieval_commit": "09da78d367fa50fdcca7fa0a0e0b18bf61b1487f",
+      "host_adapter_pr": 180,
+      "host_adapter_commit": "5fe73830f5df311a177bc8c6e331685aa0ffdf7d",
+      "hosted_runs": {
+        "identity": {
+          "id": 44217286844,
+          "passed": 47
+        },
+        "learning": {
+          "id": 44217287063,
+          "passed": 103
+        },
+        "unified": {
+          "id": 44217286966,
+          "passed": 236
+        },
+        "general_ci": {
+          "id": 44217286895,
+          "conclusion": "success"
+        }
+      },
+      "coverage": "Suite counts may overlap. Two sibling workflows were cancelled; hosted evidence does not certify them. Both PRs open at observation."
+    },
+    "offline_store_set_recovery": {
+      "task": "P00-3",
+      "state": "partial",
+      "base_commit": "4811c448216e0582336ffc8c2c1468a5260a4b18",
+      "test": "tests/test_learning_store_set_recovery.py",
+      "test_sha256": "73895c4b96281e308c4fa377201cfe21d2e3aef82b69d146a07328195677e3bf",
+      "hypothesis": "An SQLite backup that sees committed WAL pages, paired with an exact registry snapshot, can preserve a quiescent synthetic lab submission.",
+      "decision_rule": "Require one pending submission before replay, identical lab and transcript refs, duplicate submission, unchanged recommendation, and no publication on stale database or wrong registry pin.",
+      "controls": "Database-file-only read saw zero submissions. The first exploratory control had no checkpointed schema; checkpointing the empty schema before the writer made the comparison meaningful.",
+      "observed": "9 local tests passed, including the new drill and eight original Titan integration tests. The registry, three named SQLite stores and the recovered receipt met the decision rule. Existing destination refused.",
+      "limits": "One synthetic dataset; a single application writer completed before capture, local pins and same-host custody. A temporary restore directory and rename do not establish durable publication through power loss or concurrent writers.",
+      "lenses": {
+        "n_ality": "Vary store identity and failure stage independently; compare exact hashes and destination visibility.",
+        "simplex": "Deferred; no mixture weights are involved.",
+        "continuum": "Deferred; observed outcomes are discrete, not a measured interruption-time distribution.",
+        "fuzzy": "Inapplicable to exact identity and pending-review gates."
+      },
+      "bias_check": "Replay can reconstruct missing state. Check the pending submission and all database digests before invoking the application."
     }
   }
 }
