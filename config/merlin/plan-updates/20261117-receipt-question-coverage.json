@@ -1,0 +1,16 @@
+{
+  "parent_plan": "v4",
+  "task": "P01-2",
+  "status": "partial",
+  "candidate": "60108277166049e52eee93834ef41dacb5866510",
+  "evaluation": "ac94f6cb24d5ccc61f98dbec62325568b619c152",
+  "entry": "PYTHONPATH=python python3 scripts/merlin/ask_receipt.py \"How many tests ran in the main shard for the recovery run?\"",
+  "local_results": {
+    "multirun_questions_with_run_prefix": "11/11",
+    "additional_boundaries": "8/8",
+    "context_tests": "18/18",
+    "prior_titan_questions_with_Titan_prefix": "0/7 intended dispositions; all seven returned clarify_field"
+  },
+  "interpretation": "The small grammar can cite exact sources and discriminate known run names, unsupported comparisons, missing records and ambiguous aliases. Known exact phrasing strongly favors the command. The earlier seven prompts were available during development; neither set is independently authored held-out evidence. No service or institutional integration was exercised.",
+  "next": "Prioritize field paraphrases and separating out-of-vocabulary questions from genuinely missing receipt data. Collect independently worded evaluation questions before claiming natural-language readiness. Keep the pinned-source and abstention tests."
+}
