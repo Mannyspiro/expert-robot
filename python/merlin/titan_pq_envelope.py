@@ -1,6 +1,6 @@
 """Bounded Titan wrapper over the installed cryptography HPKE implementation.
 
-Fixed opt-in profile: cryptography50.0.0 / OpenSSL4.0.1, ML-KEM-768,
+Fixed opt-in profile: cryptography 50.0.2 / OpenSSL 4.0.3, ML-KEM-768,
 HKDF-SHA256 and AES-256-GCM through Suite.encrypt/decrypt. No KEM, KDF,
 AEAD, hybrid combiner or nonce construction is implemented here. Dependency
 absence/version mismatch blocks rather than falling back to classical crypto.
@@ -24,8 +24,8 @@ from typing import Any
 
 SCHEMA = 'titan-pq-envelope/1'
 SUITE = 'HPKE-ML-KEM-768-HKDF-SHA256-AES-256-GCM'
-CRYPTOGRAPHY_VERSION = '50.0.0'
-OPENSSL_BACKEND_VERSION = 'OpenSSL 4.0.1 9 Jun 2026'
+CRYPTOGRAPHY_VERSION = '50.0.2'
+OPENSSL_BACKEND_VERSION = 'OpenSSL 4.0.3 29 Sep 2026'
 PADDING_BUCKETS = (4096, 16384, 65536, 262144, 1048576)
 DEFAULT_PAD_TO = 65536
 MAX_PAYLOAD_BYTES = PADDING_BUCKETS[-1] - 8
@@ -91,7 +91,7 @@ def backend_status() -> dict[str, Any]:
         'cryptography_version': CRYPTOGRAPHY_VERSION,
         'openssl_backend_version': OPENSSL_BACKEND_VERSION,
         'real_roundtrip': True,
-        'source': 'https://cryptography.io/en/50.0.0/hazmat/primitives/hpke/',
+        'source': f'https://cryptography.io/en/{CRYPTOGRAPHY_VERSION}/hazmat/primitives/hpke/',
         'qualification': False,
         'promotion_authority': False,
     }

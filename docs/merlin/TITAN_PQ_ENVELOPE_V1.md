@@ -5,28 +5,22 @@ This opt-in local adapter performs actual encryption through the maintained
 nonce scheme or hybrid combiner. `age`, liboqs and pqcrypto were absent locally;
 the installed high-level HPKE API avoids manually composing those primitives.
 
-The tested profile is pinned to **cryptography 50.0.0**, whose bundled backend
-reports **OpenSSL 4.0.1 (9 June 2026)**. The separate system OpenSSL CLI reports
-3.5.7 and ML-KEM support; the adapter does not invoke that executable. A missing
-or changed pinned Python/backend implementation blocks operation. Nothing is
-downloaded, installed or silently replaced with classical encryption.
-
-The current upstream patch release inspected during this acceptance is
-**50.0.2**, whose release notes specify OpenSSL 4.0.3 wheels. That release is
-not installed in this workspace and has not been executed here. The adapter
-therefore rejects it under this narrowly pinned development profile rather than
-claiming unmeasured patch compatibility. This local pin is not a recommendation
-to downgrade or a deployment acceptance result: an approved current patch must
-be retested before production use. See the
+The optional profile requires **cryptography 50.0.2** with **OpenSSL 4.0.3
+(29 September 2026)**. The local test used the CPython ABI3 manylinux x86-64
+wheel with SHA-256
+`9dab55f57c74c3cad24c323bacbbd04be4705ba6eb0d92e920b1fc4837ed5079`.
+Install the pinned provider into the scientific worker's own environment.
+The wrapper checks the loaded library and backend before use. This patch
+preserves the v1 envelope format and suite. See the
 [upstream release notes](https://github.com/pyca/cryptography/blob/4dda5c7fe4ae71b8925f2551910a0ef959df9c7a/CHANGELOG.rst).
 
 The sole suite is `HPKE-ML-KEM-768-HKDF-SHA256-AES-256-GCM`. It uses the library's
 single-shot `Suite.encrypt()` / `Suite.decrypt()`. HPKE is described in
 [RFC 9180](https://www.rfc-editor.org/rfc/rfc9180.html), an informational CFRG RFC;
 that RFC does not itself specify this later ML-KEM extension or Titan's wrapper.
-The [cryptography 50.0.0 HPKE documentation](https://cryptography.io/en/50.0.0/hazmat/primitives/hpke/)
+The [cryptography 50.0.2 HPKE documentation](https://cryptography.io/en/50.0.2/hazmat/primitives/hpke/)
 specifies the implemented suite interface and application binding through
-`info`. The [ML-KEM interface](https://cryptography.io/en/50.0.0/hazmat/primitives/asymmetric/mlkem/)
+`info`. The [ML-KEM interface](https://cryptography.io/en/50.0.2/hazmat/primitives/asymmetric/mlkem/)
 implements ML-KEM from [FIPS 203](https://csrc.nist.gov/pubs/fips/203/final).
 These references are not an audit or qualification of this application profile.
 The earlier Titan structural-model artifact names a different AEAD; it remains a
@@ -119,7 +113,7 @@ The exact v1 suite currently has real library roundtrip/tamper/boundary tests,
 with the external full-suite known-answer gap left open. No new primitive,
 hand-written vector or downgrade was introduced to conceal that gap.
 
-Local acceptance on November 18, 2026 passed all 35 `test_titan*.py` tests with
+The earlier 50.0.0 baseline on November 18, 2026 passed all 35 `test_titan*.py` tests with
 zero skips: eight real-envelope tests, three published-vector/provenance tests,
 twelve board-record tests and twelve existing structural/registry tests. This
 includes encrypting and recovering arbitrary message bytes together with three
@@ -128,3 +122,19 @@ padding bucket. The smaller October board record in the same bucket has the
 same public header and ciphertext length. These public synthetic examples do
 not establish an exact-suite external KAT, current-patch acceptance, anonymity,
 or general cryptographic security.
+
+## Patch-provider acceptance on November 18, 2026
+
+The 50.0.2 x86-64 wheel passed the 26 focused envelope, vector, board codec and
+board-measurement tests with zero skips. Two isolated Python processes exchanged
+a synthetic time-series CSV in both directions between the old and new
+profiles. The old provider was rejected when loaded under the new profile.
+The new measurement command passed nine checks on each of two runs with
+fresh synthetic keys. Replay the public fields with:
+
+```sh
+PYTHONPATH=python python scripts/merlin/measure_titan_board_pq.py --compare docs/evidence/titan-board-pq-20261118-provider.json
+```
+
+The receipt includes the Python version (3.12.14). This run measured Linux
+x86-64; the OCI Arm worker and external exact-suite vector remain unverified.
