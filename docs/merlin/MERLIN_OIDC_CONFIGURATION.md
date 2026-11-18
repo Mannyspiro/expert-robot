@@ -51,3 +51,14 @@ HTTPS is mandatory for non-loopback issuer and JWKS URLs. Never accept issuer/JW
 - Institutional SSO policy, session management, account provisioning, group/role synchronization, FERPA/privacy review and production operational acceptance remain open.
 
 Therefore this code is a tested integration mechanism, not evidence that Merlin Learning currently has production SSO.
+
+## Titan lab integration evidence
+
+The loopback test in `tests/test_learning_titan_http.py` runs the environment
+factory with an ephemeral public-key endpoint. It signs a synthetic learner's
+token, maps custom campus and role claims, rotates to a second key ID, checks
+canonical lab receipt replay, and submits the work for review. Revoking the
+second token in the configured SQLite store blocks a subsequent request.
+Both private keys are generated in memory for this test. This exercises the
+resource server. Institutional login, actual tenant provisioning, and provider
+acceptance still require the staging environment.
