@@ -1,0 +1,271 @@
+{
+  "protocol_sha256": "d9cda0225e93490be19381560b6b7d84d8b3d809fc9189b2dce4f3ea847b3feb",
+  "candidate_commit": "09da78d367fa50fdcca7fa0a0e0b18bf61b1487f",
+  "results": [
+    {
+      "question": "For run 44232716977, how many tests ran in the main shard?",
+      "first_hit": {
+        "action": "supported",
+        "value": 143,
+        "citation": {
+          "run": "44232716977",
+          "pointer": "/tests/tests",
+          "start_byte": 11152,
+          "end_byte": 11164,
+          "sha256": "4e6ca854844667533476af71c7bc6bc71fb86ad9934804f7a65bf95180500cdd",
+          "outer_start_byte": 11525,
+          "outer_end_byte": 11537
+        },
+        "passed": true
+      },
+      "bound": {
+        "action": "supported",
+        "value": 143,
+        "citation": {
+          "run": "44232716977",
+          "pointer": "/tests/tests",
+          "start_byte": 11152,
+          "end_byte": 11164,
+          "sha256": "4e6ca854844667533476af71c7bc6bc71fb86ad9934804f7a65bf95180500cdd",
+          "outer_start_byte": 11525,
+          "outer_end_byte": 11537
+        },
+        "passed": true
+      }
+    },
+    {
+      "question": "For run 44232716977, did the main shard run 130 tests?",
+      "first_hit": {
+        "action": "supported",
+        "value": 130,
+        "citation": {
+          "run": "44223138785",
+          "pointer": "/tests/tests",
+          "start_byte": 10825,
+          "end_byte": 10837,
+          "sha256": "70151612a308c335d7886459cf8c7d03b7542b0b43d5e5d29dbf8d3e06df1751",
+          "outer_start_byte": 11487,
+          "outer_end_byte": 11499
+        },
+        "passed": false
+      },
+      "bound": {
+        "action": "contradicted",
+        "value": 143,
+        "citation": {
+          "run": "44232716977",
+          "pointer": "/tests/tests",
+          "start_byte": 11152,
+          "end_byte": 11164,
+          "sha256": "4e6ca854844667533476af71c7bc6bc71fb86ad9934804f7a65bf95180500cdd",
+          "outer_start_byte": 11525,
+          "outer_end_byte": 11537
+        },
+        "passed": true
+      }
+    },
+    {
+      "question": "For run 44232716977, what was the submission status?",
+      "first_hit": {
+        "action": "supported",
+        "value": "pending_review",
+        "citation": {
+          "run": "44232716977",
+          "pointer": "/demo/submission_status",
+          "start_byte": 3738,
+          "end_byte": 3775,
+          "sha256": "d4dc2398dcc2c9c38be94163d9f4d149b89dca01fca5d8a9cff92c3004f547e1",
+          "outer_start_byte": 4111,
+          "outer_end_byte": 4148
+        },
+        "passed": true
+      },
+      "bound": {
+        "action": "supported",
+        "value": "pending_review",
+        "citation": {
+          "run": "44232716977",
+          "pointer": "/demo/submission_status",
+          "start_byte": 3738,
+          "end_byte": 3775,
+          "sha256": "d4dc2398dcc2c9c38be94163d9f4d149b89dca01fca5d8a9cff92c3004f547e1",
+          "outer_start_byte": 4111,
+          "outer_end_byte": 4148
+        },
+        "passed": true
+      }
+    },
+    {
+      "question": "For run 44232716977, what numeric grade was awarded?",
+      "first_hit": {
+        "action": "abstain",
+        "value": null,
+        "citation": null,
+        "passed": true
+      },
+      "bound": {
+        "action": "abstain",
+        "value": null,
+        "citation": null,
+        "passed": true
+      }
+    },
+    {
+      "question": "For run 44223138785, how many tests ran in the main shard?",
+      "first_hit": {
+        "action": "supported",
+        "value": 143,
+        "citation": {
+          "run": "44232716977",
+          "pointer": "/tests/tests",
+          "start_byte": 11152,
+          "end_byte": 11164,
+          "sha256": "4e6ca854844667533476af71c7bc6bc71fb86ad9934804f7a65bf95180500cdd",
+          "outer_start_byte": 11525,
+          "outer_end_byte": 11537
+        },
+        "passed": false
+      },
+      "bound": {
+        "action": "supported",
+        "value": 130,
+        "citation": {
+          "run": "44223138785",
+          "pointer": "/tests/tests",
+          "start_byte": 10825,
+          "end_byte": 10837,
+          "sha256": "70151612a308c335d7886459cf8c7d03b7542b0b43d5e5d29dbf8d3e06df1751",
+          "outer_start_byte": 11487,
+          "outer_end_byte": 11499
+        },
+        "passed": true
+      }
+    },
+    {
+      "question": "For run 44223138785, did the main shard run 143 tests?",
+      "first_hit": {
+        "action": "supported",
+        "value": 143,
+        "citation": {
+          "run": "44232716977",
+          "pointer": "/tests/tests",
+          "start_byte": 11152,
+          "end_byte": 11164,
+          "sha256": "4e6ca854844667533476af71c7bc6bc71fb86ad9934804f7a65bf95180500cdd",
+          "outer_start_byte": 11525,
+          "outer_end_byte": 11537
+        },
+        "passed": false
+      },
+      "bound": {
+        "action": "contradicted",
+        "value": 130,
+        "citation": {
+          "run": "44223138785",
+          "pointer": "/tests/tests",
+          "start_byte": 10825,
+          "end_byte": 10837,
+          "sha256": "70151612a308c335d7886459cf8c7d03b7542b0b43d5e5d29dbf8d3e06df1751",
+          "outer_start_byte": 11487,
+          "outer_end_byte": 11499
+        },
+        "passed": true
+      }
+    },
+    {
+      "question": "For run 44223138785, what was the submission status?",
+      "first_hit": {
+        "action": "supported",
+        "value": "pending_review",
+        "citation": {
+          "run": "44223138785",
+          "pointer": "/demo/submission_status",
+          "start_byte": 3738,
+          "end_byte": 3775,
+          "sha256": "d4dc2398dcc2c9c38be94163d9f4d149b89dca01fca5d8a9cff92c3004f547e1",
+          "outer_start_byte": 4400,
+          "outer_end_byte": 4437
+        },
+        "passed": true
+      },
+      "bound": {
+        "action": "supported",
+        "value": "pending_review",
+        "citation": {
+          "run": "44223138785",
+          "pointer": "/demo/submission_status",
+          "start_byte": 3738,
+          "end_byte": 3775,
+          "sha256": "d4dc2398dcc2c9c38be94163d9f4d149b89dca01fca5d8a9cff92c3004f547e1",
+          "outer_start_byte": 4400,
+          "outer_end_byte": 4437
+        },
+        "passed": true
+      }
+    },
+    {
+      "question": "For run 44223138785, what numeric grade was awarded?",
+      "first_hit": {
+        "action": "abstain",
+        "value": null,
+        "citation": null,
+        "passed": true
+      },
+      "bound": {
+        "action": "abstain",
+        "value": null,
+        "citation": null,
+        "passed": true
+      }
+    },
+    {
+      "question": "How many tests ran in the main shard?",
+      "first_hit": {
+        "action": "clarify_run",
+        "value": null,
+        "citation": null,
+        "passed": true
+      },
+      "bound": {
+        "action": "clarify_run",
+        "value": null,
+        "citation": null,
+        "passed": true
+      }
+    },
+    {
+      "question": "For run 44232716977, what happened?",
+      "first_hit": {
+        "action": "clarify_field",
+        "value": null,
+        "citation": null,
+        "passed": true
+      },
+      "bound": {
+        "action": "clarify_field",
+        "value": null,
+        "citation": null,
+        "passed": true
+      }
+    },
+    {
+      "question": "For run 99999000, what operation ran?",
+      "first_hit": {
+        "action": "abstain",
+        "value": null,
+        "citation": null,
+        "passed": true
+      },
+      "bound": {
+        "action": "abstain",
+        "value": null,
+        "citation": null,
+        "passed": true
+      }
+    }
+  ],
+  "passed": {
+    "first_hit": 8,
+    "bound": 11
+  }
+}
