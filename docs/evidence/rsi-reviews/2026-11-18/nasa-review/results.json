@@ -1,0 +1,54 @@
+{
+  "wheel_sha256": "54d3f525651e9293b65a71b29b6b0b737cfe8e8f2a9191dcb686d261b77fc4f1",
+  "source_commit": "cf7553fe93c0684ae461fffb1df0a0b9daa23219",
+  "protocol_sha256": "5e7c2a20d607c57100061a688d4872df9afd8a92ba7e89d423ef18c9bccdb70b",
+  "python": "3.12.14",
+  "numpy": "2.3.5",
+  "cdflib": "1.3.16",
+  "wall_seconds": 0.173095,
+  "results": {
+    "development": {
+      "records": 2,
+      "expected_deltas": [
+        1
+      ],
+      "measured_deltas": [
+        1
+      ],
+      "roundtrip": true,
+      "distinct_raw": 2,
+      "distinct_projection": 2,
+      "projected_values": [
+        "2016-12-30T12:00:00.000000000",
+        "2016-12-30T12:00:00.000000001"
+      ],
+      "oracle_pass": true
+    },
+    "held_out": {
+      "records": 5,
+      "expected_deltas": [
+        1,
+        999999999,
+        1,
+        1
+      ],
+      "measured_deltas": [
+        1,
+        999999999,
+        1,
+        1
+      ],
+      "roundtrip": true,
+      "distinct_raw": 5,
+      "distinct_projection": 4,
+      "projected_values": [
+        "2016-12-31T23:59:59.999999999",
+        "2017-01-01T00:00:00.000000000",
+        "2017-01-01T00:00:00.999999999",
+        "2017-01-01T00:00:00.000000000",
+        "2017-01-01T00:00:00.000000001"
+      ],
+      "oracle_pass": true
+    }
+  }
+}
