@@ -6,6 +6,7 @@ import argparse
 from copy import deepcopy
 import json
 import re
+import sys
 import tempfile
 from pathlib import Path
 
@@ -193,26 +194,37 @@ class ReceiptConversation:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("question")
+    mode = parser.add_mutually_exclusive_group(required=True)
+    mode.add_argument("question", nargs="?")
+    mode.add_argument("--stdio", action="store_true", help="One local conversation per process, one question and JSON result per line")
     parser.add_argument("--follow-up", action="append", default=[], help="Reply to a clarification in this conversation")
     args = parser.parse_args()
+    if args.stdio and args.follow_up:
+        parser.error("send follow-ups on stdin with --stdio")
     suite = json.loads(SUITE.read_text())
     with tempfile.TemporaryDirectory() as directory:
         bridge = DotContextBridge(MerlinRegistry(Path(directory)))
         bridge.initialize()
         pins = index_sources(bridge, suite)
-        if args.follow_up:
+        def emit(result, *, compact=False):
+            if result.get("citation"):
+                path = suite["sources"][result["run_id"]][0]
+                result["citation"]["url"] = (
+                    f"https://github.com/Mannyspiro/expert-robot/blob/{suite['revision']}/{path}")
+            print(json.dumps(result, indent=None if compact else 2), flush=True)
+
+        if args.stdio or args.follow_up:
             dialogue = ReceiptConversation(bridge, {run:{ref["version"]:ref} for run,ref in pins.items()})
+            if args.stdio:
+                for line in sys.stdin:
+                    emit(dialogue.turn(line), compact=True)
+                return
             result = dialogue.turn(args.question)
             for reply in args.follow_up:
                 result = dialogue.turn(reply)
         else:
             result = ask(bridge, pins, args.question)
-        if result.get("citation"):
-            path = suite["sources"][result["run_id"]][0]
-            result["citation"]["url"] = (
-                f"https://github.com/Mannyspiro/expert-robot/blob/{suite['revision']}/{path}")
-        print(json.dumps(result, indent=2))
+        emit(result)
 
 
 if __name__ == "__main__":

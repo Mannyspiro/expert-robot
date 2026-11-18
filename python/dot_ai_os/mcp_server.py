@@ -5,7 +5,7 @@ Deployment through a remote authenticated gateway is a separate integration gate
 import argparse
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable, Protocol
 
 from mcp.server.fastmcp import FastMCP
 from mcp.types import ToolAnnotations
@@ -14,7 +14,12 @@ from .bridge import DotContextBridge
 from .dual_coder import DualCoderWorkflow
 
 
-def create_server(bridge: DotContextBridge, *, server_options: dict[str, Any] | None = None) -> FastMCP:
+class ReceiptDialogue(Protocol):
+    def turn(self, question: str) -> dict[str, Any]: ...
+
+
+def create_server(bridge: DotContextBridge, *, server_options: dict[str, Any] | None = None,
+                  new_receipt_dialogue: Callable[[], ReceiptDialogue] | None = None) -> FastMCP:
     """Build tools once for stdio or a separately authenticated HTTP transport.
 
     server_options are trusted host configuration, never model/tool arguments.
@@ -66,6 +71,19 @@ def create_server(bridge: DotContextBridge, *, server_options: dict[str, Any] | 
         for source_ref in refs:
             bridge.fetch(source_ref, length_bytes=4)
         return workflow.status(session_id)
+
+    if new_receipt_dialogue is not None:
+        @server.tool(annotations=annotations)
+        def receipt_dialogue(turns: list[str]) -> dict[str, Any]:
+            """Replay up to eight turns against receipt versions provisioned by this host."""
+            if not 1 <= len(turns) <= 8 or any(not t.strip() or len(t) > 2000 for t in turns):
+                raise ValueError("expected 1 to 8 nonempty turns of up to 2000 characters")
+            # The host factory supplies fresh state and resolves the allowed catalogue.
+            # Only questions cross the tool boundary; reference pins are host-owned.
+            dialogue = new_receipt_dialogue()
+            for question in turns:
+                result = dialogue.turn(question)
+            return result
 
     return server
 
