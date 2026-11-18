@@ -46,6 +46,36 @@ def evaluate():
                 counts["boundary_questions"] += 1
             else:
                 failed.append(question)
+        titan = json.loads(SUITE.with_name("titan-retrieval-v1.json").read_text())
+        for case in titan["cases"]:
+            question = "Titan, " + case["question"]
+            result = ask(bridge, pins, question)
+            citation = None if case["pointer"] is None else {
+                "source_ref": pins["44174486449"], "pointer": case["pointer"]}
+            if (result["disposition"] == case["disposition"]
+                    and result.get("value") == case["value"]
+                    and type(result.get("value")) is type(case["value"])
+                    and result.get("citation") == citation):
+                counts["titan_regressions"] += 1
+            else:
+                failed.append(question)
+
+        for question, disposition in [
+            ("Titan, cryptographic security was not verified.", "supported"),
+            ("Titan, the learner’s mastery was not updated.", "supported"),
+            ("Titan, did replay not return the same canonical receipt?", "contradicted"),
+            ("Recovery, what is the vector count?", "abstain"),
+            ("What is the vector count?", "clarify_run"),
+            ("Titan, were more than five structural vectors recorded?", "clarify_field"),
+            ("Titan, the instructor's mastery was updated.", "clarify_field"),
+            ("Titan, mastery was updated and security was verified.", "clarify_field"),
+            ("Titan, cryptographic security was never independently verified.", "clarify_field"),
+        ]:
+            result = ask(bridge, pins, question)
+            if result["disposition"] == disposition:
+                counts["paraphrase_controls"] += 1
+            else:
+                failed.append(question)
         result = ask(bridge, pins, "Titan, what operation ran?", {"titan": tuple(pins)})
         if result.get("run_ids") == sorted(pins) and result["disposition"] == "clarify_run":
             counts["ambiguous_alias"] += 1
