@@ -1,0 +1,175 @@
+{
+  "schema": "merlin-pr179-independent-receipt-trial/1",
+  "base_commit": "4811c448216e0582336ffc8c2c1468a5260a4b18",
+  "candidate_commit": "09da78d367fa50fdcca7fa0a0e0b18bf61b1487f",
+  "source_revision": "4811c448216e0582336ffc8c2c1468a5260a4b18",
+  "sources": {
+    "44174486449": [
+      "docs/evidence/merlin-learning-titan-integration-20261117.json",
+      "8e5224c8d31759eea9275afd3f21de0c80c28741"
+    ],
+    "44151750942": [
+      "docs/evidence/merlin-registry-recovery-20261117.json",
+      "3d160e6f27cc60d6493e31f3cda6483abe696467"
+    ]
+  },
+  "code_blobs": {
+    "python/dot_ai_os/__init__.py": "78666698d33f10703883542945526d931ad578c0",
+    "python/dot_ai_os/bridge.py": "358e4c06372398eb777135044cbe227c71c95d95",
+    "python/merlin/__init__.py": "0ad35f52071fb1537c1ffcb918a9a7148b411661",
+    "python/merlin/artifact_ref.py": "aa3ce66edc8286668f4a01a0ee5e3f4c61fa0fd3",
+    "python/merlin/project_registry.py": "3077aea9e6640d7a06428632228077f49f255221",
+    "scripts/merlin/ask_receipt.py": "23031965d5d2a53747b9507920fdfe95124c9289",
+    "scripts/merlin/evaluate_multirun_receipts.py": "56c06ada75313c509deefddc92abfa532e521c1d",
+    "base": "69aa39f306295ca037889db6951d7ecd1eee2967"
+  },
+  "predeclared": {
+    "population": "two existing course-integration and registry-recovery receipts",
+    "stopping_rule": "one complete run; no relabeling or tuning",
+    "baseline": "PR179 natural-language parser and original first-hit evaluator with bind_run=False",
+    "candidate": "same PR179 parser and its default run-bound evaluator",
+    "pass": "exact disposition; for positive/contradicted answers, exact scalar type and value, bound receipt, expected JSON path and source byte span; for abstain/clarify, no answer/citation",
+    "ambiguity": "Every supported field without a named run requires clarify_run even when only one run records the field. Named run with unspecified field requires clarify_field. A specifically requested unreported quantity requires abstain.",
+    "passage_control": "On positive cases only compare top-two raw passage hits from base and head lexical implementations. Require source/version, byte range, excerpt hash and enclosed expected value.",
+    "primary_gate": "More exact correct decisions than baseline, zero new errors. Report absolute misses even on positive differential.",
+    "limitations": [
+      "Freshly authored public synthetic questions, source-aware and implementation-visible; no independent live traffic or blind sample.",
+      "Deliberately adversarial receipt questions; raw passage recall and full answer accuracy are separate outcomes."
+    ]
+  },
+  "cases": [
+    {
+      "id": "L1",
+      "question": "In the recovery receipt, how many tests ran in the main shard?",
+      "expected": {
+        "disposition": "supported",
+        "run": "44151750942",
+        "pointer": "/tests/tests",
+        "value": 136
+      }
+    },
+    {
+      "id": "L2",
+      "question": "For the LMS receipt, what was the submission state?",
+      "expected": {
+        "disposition": "supported",
+        "run": "44174486449",
+        "pointer": "/demo/submission_status",
+        "value": "pending_review"
+      }
+    },
+    {
+      "id": "L3",
+      "question": "How many test vectors were used during the recovery receipt?",
+      "expected": {
+        "disposition": "abstain"
+      }
+    },
+    {
+      "id": "L4",
+      "question": "How many operation tests ran during the LMS receipt?",
+      "expected": {
+        "disposition": "abstain"
+      }
+    },
+    {
+      "id": "L5",
+      "question": "What was the submission status in run 5522446688?",
+      "expected": {
+        "disposition": "abstain"
+      }
+    },
+    {
+      "id": "L6",
+      "question": "Did the main shard run 135 tests?",
+      "expected": {
+        "disposition": "clarify_run"
+      }
+    },
+    {
+      "id": "L7",
+      "question": "For the recovery receipt, what was the result?",
+      "expected": {
+        "disposition": "clarify_field"
+      }
+    },
+    {
+      "id": "L8",
+      "question": "Did the main shard run 135 tests in the recovery receipt?",
+      "expected": {
+        "disposition": "contradicted",
+        "run": "44151750942",
+        "pointer": "/tests/tests",
+        "value": 136
+      }
+    },
+    {
+      "id": "L9",
+      "question": "How many example vectors are listed for the LMS receipt?",
+      "expected": {
+        "disposition": "supported",
+        "run": "44174486449",
+        "pointer": "/demo/vector_count",
+        "value": 5
+      }
+    },
+    {
+      "id": "L10",
+      "question": "How many structural test vectors were recorded in the learning receipt?",
+      "expected": {
+        "disposition": "supported",
+        "run": "44174486449",
+        "pointer": "/demo/vector_count",
+        "value": 5
+      }
+    },
+    {
+      "id": "L11",
+      "question": "How many milliseconds did the second lab execution take during the LMS receipt?",
+      "expected": {
+        "disposition": "abstain"
+      }
+    },
+    {
+      "id": "L12",
+      "question": "Did the main shard run 84 tests during the LMS receipt?",
+      "expected": {
+        "disposition": "contradicted",
+        "run": "44174486449",
+        "pointer": "/tests/tests",
+        "value": 85
+      }
+    },
+    {
+      "id": "L13",
+      "question": "What operation ran in run 44151750942?",
+      "expected": {
+        "disposition": "supported",
+        "run": "44151750942",
+        "pointer": "/operation",
+        "value": "recovery_drill"
+      }
+    },
+    {
+      "id": "L14",
+      "question": "How long did the recovery run take compared with the learning run?",
+      "expected": {
+        "disposition": "abstain"
+      }
+    },
+    {
+      "id": "L15",
+      "question": "For the LMS receipt, what score did the learner receive on a 100-point scale?",
+      "expected": {
+        "disposition": "abstain"
+      }
+    },
+    {
+      "id": "L16",
+      "question": "How many operation tests ran?",
+      "expected": {
+        "disposition": "clarify_run"
+      }
+    }
+  ]
+}
