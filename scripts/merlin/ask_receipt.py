@@ -3,6 +3,7 @@
 PYTHONPATH=python python3 scripts/merlin/ask_receipt.py "How many tests ran in the main shard for the recovery run?"
 """
 import argparse
+from copy import deepcopy
 import json
 import re
 import tempfile
@@ -62,7 +63,7 @@ def resolve_field(body):
     return None, None
 
 
-def ask(bridge, pins, question, aliases=ALIASES):
+def _route(pins, question, aliases):
     text = " ".join(question.lower().replace("’", "'").strip().rstrip("?.").split())
     prefix = re.fullmatch(rf"(?:for |in )?({SELECTOR}),\s*(.+)", text)
     suffix = re.fullmatch(rf"(.+) (?:in|for|during) ({SELECTOR})", text)
@@ -109,27 +110,104 @@ def ask(bridge, pins, question, aliases=ALIASES):
             candidates = sorted(set(aliases.get(key, ())).intersection(pins))
     if not candidates:
         return {"disposition": "abstain", "reason": "unknown_run"}
+    request = {"question": body, "pointer": pointer}
+    if claim is not None:
+        request["claim"] = claim
+    return candidates, request
+
+
+def ask(bridge, pins, question, aliases=ALIASES):
+    route = _route(pins, question, aliases)
+    if isinstance(route, dict):
+        return route
+    candidates, request = route
     if len(candidates) > 1:
         return {"disposition": "clarify_run", "message": "Which run do you mean?",
                 "run_ids": candidates}
-
     run = candidates[0]
-    request = {"question": body, "run_id": run, "pointer": pointer}
-    if claim is not None:
-        request["claim"] = claim
-    result = answer(bridge, pins, request)
-    return dict(result, run_id=run)
+    return dict(answer(bridge, pins, dict(request, run_id=run)), run_id=run)
+
+
+class ReceiptConversation:
+    """One caller-owned dialogue over a snapshot of the caller's allowed receipt refs."""
+
+    def __init__(self, bridge, versions):
+        self.bridge = bridge
+        self.versions = deepcopy(versions)
+        for refs in self.versions.values():
+            if not refs or any(type(v) is not int or v < 1 or type(ref.get("version")) is not int
+                               or v != ref["version"] for v, ref in refs.items()):
+                raise ValueError("receipt versions must match their pinned references")
+        self.pending = None
+
+    def turn(self, text):
+        reply = text.strip().lower().rstrip(".?!").strip()
+        if self.pending:
+            candidates, request, requested_version = self.pending
+            combined = re.fullmatch(r"(?:yes,?\s+)?run ([0-9]+),?\s+(?:version |v)([0-9]{1,9})", reply)
+            if combined:
+                run, explicit = combined.groups()
+                self.pending = None
+                if run not in candidates:
+                    return {"disposition": "abstain", "reason": "unknown_run"}
+                return self._select([run], request, int(explicit))
+            run_reply = re.fullmatch(r"(?:run\s+)?([0-9]+)", reply)
+            version_reply = re.fullmatch(r"(?:version\s+|v)([0-9]{1,9})", reply)
+            if len(candidates) > 1 and run_reply:
+                run = run_reply.group(1)
+                if run not in candidates:
+                    self.pending = None
+                    return {"disposition": "abstain", "reason": "unknown_run"}
+                return self._select([run], request, requested_version)
+            if len(candidates) == 1 and (version_reply or run_reply and reply.isdecimal() and len(reply) <= 9):
+                return self._select(candidates, request, int((version_reply or run_reply).group(1)))
+        self.pending = None
+        version = None
+        if reply == "how many tests were on the main shard":
+            text = "how many main shard tests ran"
+        count = re.fullmatch(r"did the main shard have ([0-9]{1,9}) tests in the (first|second) receipt(?: too)?", reply)
+        lookup = re.fullmatch(r"can you check the (first|second) receipt for the test count", reply)
+        if count:
+            text = f"did the main shard run {count.group(1)} tests"
+            version = {"first":1, "second":2}[count.group(2)]
+        elif lookup:
+            text = "how many main shard tests ran"
+            version = {"first":1, "second":2}[lookup.group(1)]
+        route = _route(self.versions, text, ALIASES)
+        return route if isinstance(route, dict) else self._select(*route, version=version)
+
+    def _select(self, candidates, request, version=None):
+        self.pending = (candidates, request, version)
+        if len(candidates) > 1:
+            return {"disposition": "clarify_run", "run_ids": list(candidates)}
+        run = candidates[0]
+        refs = self.versions[run]
+        if version is None and len(refs) > 1:
+            return {"disposition": "clarify_version", "run_id": run, "versions": sorted(refs)}
+        self.pending = None
+        ref = refs.get(version) if version is not None else next(iter(refs.values()))
+        if ref is None:
+            return {"disposition": "abstain", "reason": "unknown_version"}
+        return dict(answer(self.bridge, {run:ref}, dict(request, run_id=run)), run_id=run)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("question")
+    parser.add_argument("--follow-up", action="append", default=[], help="Reply to a clarification in this conversation")
     args = parser.parse_args()
     suite = json.loads(SUITE.read_text())
     with tempfile.TemporaryDirectory() as directory:
         bridge = DotContextBridge(MerlinRegistry(Path(directory)))
         bridge.initialize()
-        result = ask(bridge, index_sources(bridge, suite), args.question)
+        pins = index_sources(bridge, suite)
+        if args.follow_up:
+            dialogue = ReceiptConversation(bridge, {run:{ref["version"]:ref} for run,ref in pins.items()})
+            result = dialogue.turn(args.question)
+            for reply in args.follow_up:
+                result = dialogue.turn(reply)
+        else:
+            result = ask(bridge, pins, args.question)
         if result.get("citation"):
             path = suite["sources"][result["run_id"]][0]
             result["citation"]["url"] = (
