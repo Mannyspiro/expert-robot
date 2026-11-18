@@ -1,0 +1,196 @@
+{
+  "cases": [
+    {
+      "adapted_over_uniform_rmse": 0.14025994589084306,
+      "arms": {
+        "adapted": {
+          "affine_max_error": 8.881784197001252e-16,
+          "rmse": 0.002082651762539765,
+          "scoring_queries": 4096,
+          "uncovered": 0,
+          "validation": {
+            "all_four_boundary_sides_covered": true,
+            "all_vertices_used": true,
+            "boundary_edge_count": 94,
+            "coverage_scope": "floating-point area, boundary, oriented adjacency, disk topology and held-out location checks; not formal proof",
+            "euler_characteristic": 1,
+            "geometry_issue_codes": [],
+            "input_clockwise_faces_reoriented": 986,
+            "mesh_sha256": "b1109c89c4b6bb585d12e409fa0e3c4f581226b0040391403e525db2187327f9",
+            "minimum_triangle_area": 0.00020602528345861003,
+            "summed_triangle_area": 1.0,
+            "triangle_components": 1,
+            "triangle_count": 986,
+            "vertex_count": 541
+          },
+          "vertex_queries": 541
+        },
+        "uniform": {
+          "affine_max_error": 8.881784197001252e-16,
+          "rmse": 0.014848513945389536,
+          "scoring_queries": 4096,
+          "uncovered": 0,
+          "validation": {
+            "all_four_boundary_sides_covered": true,
+            "all_vertices_used": true,
+            "boundary_edge_count": 89,
+            "coverage_scope": "floating-point area, boundary, oriented adjacency, disk topology and held-out location checks; not formal proof",
+            "euler_characteristic": 1,
+            "geometry_issue_codes": [],
+            "input_clockwise_faces_reoriented": 0,
+            "mesh_sha256": "4b7b2deb2c250e1a8ebfa6c95a51aae73fc14c4753b3e474bbf63893be58d00b",
+            "minimum_triangle_area": 0.000988142292490117,
+            "summed_triangle_area": 1.0,
+            "triangle_components": 1,
+            "triangle_count": 991,
+            "vertex_count": 541
+          },
+          "vertex_queries": 541
+        }
+      },
+      "estimated_center_m": 0.375,
+      "pilot_values": [
+        4.772218444821382e-11,
+        1.7164688991132363e-05,
+        0.04677062238395895,
+        0.9654545521978378,
+        0.1509774184559147,
+        0.0001788601665270204,
+        1.6052280674320796e-09,
+        1.2138580902084805e-16,
+        1.2246468047687907e-17
+      ],
+      "slope_dx_dy": 0
+    },
+    {
+      "adapted_over_uniform_rmse": 2.495735129239773,
+      "arms": {
+        "adapted": {
+          "affine_max_error": 8.881784197001252e-16,
+          "rmse": 0.02887993025695937,
+          "scoring_queries": 4096,
+          "uncovered": 0,
+          "validation": {
+            "all_four_boundary_sides_covered": true,
+            "all_vertices_used": true,
+            "boundary_edge_count": 94,
+            "coverage_scope": "floating-point area, boundary, oriented adjacency, disk topology and held-out location checks; not formal proof",
+            "euler_characteristic": 1,
+            "geometry_issue_codes": [],
+            "input_clockwise_faces_reoriented": 986,
+            "mesh_sha256": "b1109c89c4b6bb585d12e409fa0e3c4f581226b0040391403e525db2187327f9",
+            "minimum_triangle_area": 0.00020602528345861003,
+            "summed_triangle_area": 1.0,
+            "triangle_components": 1,
+            "triangle_count": 986,
+            "vertex_count": 541
+          },
+          "vertex_queries": 541
+        },
+        "uniform": {
+          "affine_max_error": 8.881784197001252e-16,
+          "rmse": 0.011571712846689985,
+          "scoring_queries": 4096,
+          "uncovered": 0,
+          "validation": {
+            "all_four_boundary_sides_covered": true,
+            "all_vertices_used": true,
+            "boundary_edge_count": 89,
+            "coverage_scope": "floating-point area, boundary, oriented adjacency, disk topology and held-out location checks; not formal proof",
+            "euler_characteristic": 1,
+            "geometry_issue_codes": [],
+            "input_clockwise_faces_reoriented": 0,
+            "mesh_sha256": "4b7b2deb2c250e1a8ebfa6c95a51aae73fc14c4753b3e474bbf63893be58d00b",
+            "minimum_triangle_area": 0.000988142292490117,
+            "summed_triangle_area": 1.0,
+            "triangle_components": 1,
+            "triangle_count": 991,
+            "vertex_count": 541
+          },
+          "vertex_queries": 541
+        }
+      },
+      "estimated_center_m": 0.375,
+      "pilot_values": [
+        4.772218444821382e-11,
+        1.7164688991132363e-05,
+        0.04677062238395895,
+        0.9654545521978378,
+        0.1509774184559147,
+        0.0001788601665270204,
+        1.6052280674320796e-09,
+        1.2138580902084805e-16,
+        1.2246468047687907e-17
+      ],
+      "slope_dx_dy": -0.7
+    },
+    {
+      "adapted_over_uniform_rmse": 0.9831715217747755,
+      "arms": {
+        "adapted": {
+          "affine_max_error": 8.881784197001252e-16,
+          "rmse": 0.029751965176617896,
+          "scoring_queries": 4096,
+          "uncovered": 0,
+          "validation": {
+            "all_four_boundary_sides_covered": true,
+            "all_vertices_used": true,
+            "boundary_edge_count": 94,
+            "coverage_scope": "floating-point area, boundary, oriented adjacency, disk topology and held-out location checks; not formal proof",
+            "euler_characteristic": 1,
+            "geometry_issue_codes": [],
+            "input_clockwise_faces_reoriented": 986,
+            "mesh_sha256": "b1109c89c4b6bb585d12e409fa0e3c4f581226b0040391403e525db2187327f9",
+            "minimum_triangle_area": 0.00020602528345861003,
+            "summed_triangle_area": 1.0,
+            "triangle_components": 1,
+            "triangle_count": 986,
+            "vertex_count": 541
+          },
+          "vertex_queries": 541
+        },
+        "uniform": {
+          "affine_max_error": 8.881784197001252e-16,
+          "rmse": 0.03026121538072119,
+          "scoring_queries": 4096,
+          "uncovered": 0,
+          "validation": {
+            "all_four_boundary_sides_covered": true,
+            "all_vertices_used": true,
+            "boundary_edge_count": 89,
+            "coverage_scope": "floating-point area, boundary, oriented adjacency, disk topology and held-out location checks; not formal proof",
+            "euler_characteristic": 1,
+            "geometry_issue_codes": [],
+            "input_clockwise_faces_reoriented": 0,
+            "mesh_sha256": "4b7b2deb2c250e1a8ebfa6c95a51aae73fc14c4753b3e474bbf63893be58d00b",
+            "minimum_triangle_area": 0.000988142292490117,
+            "summed_triangle_area": 1.0,
+            "triangle_components": 1,
+            "triangle_count": 991,
+            "vertex_count": 541
+          },
+          "vertex_queries": 541
+        }
+      },
+      "estimated_center_m": 0.375,
+      "pilot_values": [
+        4.772218444821382e-11,
+        1.7164688991132363e-05,
+        0.04677062238395895,
+        0.9654545521978378,
+        0.1509774184559147,
+        0.0001788601665270204,
+        1.6052280674320796e-09,
+        1.2138580902084805e-16,
+        1.2246468047687907e-17
+      ],
+      "slope_dx_dy": 0.7
+    }
+  ],
+  "mesh_sha256": "34024df2a46e63dccce694cedcfa8b8a58b53292812536eaabda0ab6ece4e33a",
+  "protocol_sha256": "a10d1dd804ff60186303a39d5a42aeeb4d4db60964eb5f71bacfdf662bb207d8",
+  "sample_sha256": "e2c0858148e6e26ba29506a2c65908fe4045167e39b3aa09e833bb4f6412518f",
+  "schema": "merlin-mesh-tilt/1",
+  "script_sha256": "5794161a6508fb7ba7131b25aa0d6c1b037f56544cf098866fe1455bd0831b55",
+  "tilt_transfer_passed": false
+}
