@@ -275,6 +275,10 @@ def render_wiring(source,destination):
         brief.append("Show only these logical connections. Leave dimensions and physical pin assignments to the measured drawing.")
         (stage/"image-brief.txt").write_text("\n".join(brief)+"\n",encoding="utf-8")
         hashes={key:sha256((stage/key).read_bytes()).hexdigest() for key in ("wiring.svg","wiring.dxf","image-brief.txt")}
+        from .drafting_control import guide_files
+        for filename, data in guide_files(raw,(stage/"wiring.svg").read_bytes(),nets).items():
+            (stage/filename).write_bytes(data)
+            hashes[filename] = sha256(data).hexdigest()
         receipt={"schema":"merlin-wiring-sheet/1","title":title,"unit":"mm","source_sha256":sha256(raw).hexdigest(),
                  "connections":connections,"reference_image":ref,"artifact_sha256":hashes,
                  "limits":"Explicit single-plane drawing. Physical clearance, circuit behavior and fabrication readiness are unassessed."}

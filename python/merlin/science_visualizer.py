@@ -134,10 +134,18 @@ def main():
         generator = commands.add_parser(name)
         generator.add_argument("source", type=Path)
         generator.add_argument("destination", type=Path)
+    review = commands.add_parser("wiring-review")
+    for arg in ("source", "guide_dir", "image", "verdict", "destination"):
+        review.add_argument(arg, type=Path)
     args = parser.parse_args()
     try:
         if args.command == "render":
             result = render(args.source, args.destination)
+        elif args.command == "wiring-review":
+            from .drafting_control import review_wiring
+            result = review_wiring(args.source, args.guide_dir, args.image, args.verdict, args.destination)
+            print(json.dumps(result, indent=2))
+            return 0 if result["decision"] == "accepted" else 1
         elif args.command == "wiring":
             from .wiring_sheet import render_wiring
             result = render_wiring(args.source, args.destination)
@@ -154,4 +162,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

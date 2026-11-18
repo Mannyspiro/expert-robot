@@ -89,3 +89,20 @@ The hand-drafted SVG and editable R2010 DXF use the same geometry. Open `wiring.
 `image-brief.txt` derives an illustration prompt from the validated topology. It can be supplied to a chosen image generator. The renderer runs locally without an image-provider call. To credit a reference image, include the optional `reference_image` object with `title`, `source` and `credit`. Those fields are recorded as attribution. The renderer neither retrieves the image nor extracts connections from its pixels. Keep illustrative images separate from the measured sheet.
 
 Merlin's existing engineering-IR exporter still produces DOT and CSV views of projects and proposed routes. This drawing command takes explicit sheet placement and routes. The CAD dependency is the MIT-licensed ezdxf 1.4.4 distribution from `mozman/ezdxf`. Repeated exports on the same dependency version use fixed DXF metadata for reproducibility.
+
+## Control an image edit with the measured drawing
+
+In hand drafting, a construction line fixes where an edge belongs. Here the source model fixes each route and the raster guide fixes where that route lands on the image. The `wiring` command also writes `conditioning-guide.png`, `draft-controls.json`, and `image-edit-brief.txt`. The controls specify guide dimensions, a pixel scale, four labeled corner fiducials and the pixel coordinates of every pin and bend. The preferred SVG rasterizer is CairoSVG 2.8.2. An installed Inkscape command can render the guide when CairoSVG is unavailable. The controls record the selected renderer and version. Reproduce a review with the same renderer, fonts and raster environment.
+
+Pass the guide **as the image to edit** and provide the edit brief with it. Save the candidate as a single PNG. Ask an independent reviewer to compare that candidate with the guide, tracing every named connection and checking each endpoint, bend, label and fiducial. Verify that extra connections, crossings or junction dots were not introduced. The generated illustration is a separate deliverable; the source, SVG and DXF retain the measured geometry.
+
+Use this interface to register the review.
+
+```sh
+PYTHONPATH=python python -m merlin.science_visualizer wiring-review \
+  examples/merlin/lab-signal-sheet.json signal-sheet candidate.png verdict.json reviewed
+```
+
+The verdict uses schema `merlin-drafting-verdict/1`. Supply a reviewer label, notes describing visible evidence, and `source_sha256`, `guide_sha256` and `image_sha256` for the exact input, guide PNG and candidate PNG. The first two hashes are in the control record. Use `sha256sum candidate.png` for the third. Include a `checks` object with `component_labels`, `geometry`, `fiducials`, and `no_extra_connections`. Each check takes `pass`, `fail` or `unknown`. The `nets` list must enumerate every net once. For each, supply `id`, `status`, and `connections`. Each connection records `from`, `to` and `status` for the exact source pair. Use `unknown` wherever the evidence is insufficient.
+
+The command rebuilds the guide from the source, checks the digests, verifies the PNG, enforces the guide aspect ratio, and validates complete review coverage. All checks must pass to record an accepted illustration (exit 0). A complete review with failed or unknown observations records a rejection (exit 1). Stale or malformed evidence and missing observations return exit 2. The JSON record captures a reviewer assertion and the evidence it refers to. The command does not authenticate the reviewer, infer endpoint alignment from pixels or certify physical implementation.

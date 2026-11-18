@@ -1,0 +1,38 @@
+{
+  "schema": "merlin-drafting-verdict/1",
+  "reviewer": "Independent scientific visual evaluator",
+  "source_sha256": "fc9247553726fc98f85a3b4dc11d00aab923f49a5aadfca04eedf27c4b0d96a0",
+  "guide_sha256": "194deefb4182f6e21ec57b8861c2bb2c5cadfc48b4c122457c6ee91d87b649af",
+  "image_sha256": "21c204662ad7cd8a92a00a4a23428ae319fc6315210af4c9bcdbd03262af8510",
+  "checks": {
+    "component_labels": "pass",
+    "geometry": "pass",
+    "fiducials": "pass",
+    "no_extra_connections": "pass"
+  },
+  "nets": [
+    {
+      "id": "SAMPLE",
+      "status": "pass",
+      "connections": [
+        {
+          "from": "Sensor.OUT",
+          "to": "Recorder.IN",
+          "status": "pass"
+        }
+      ]
+    },
+    {
+      "id": "TRACE",
+      "status": "pass",
+      "connections": [
+        {
+          "from": "Recorder.OUT",
+          "to": "Display.IN",
+          "status": "pass"
+        }
+      ]
+    }
+  ],
+  "notes": "Both images are 1536x1024. SAMPLE leaves Sensor.OUT at (365,459), turns at x492 and reaches Recorder.IN at (634,558). TRACE leaves Recorder.OUT at (860,615), turns at x1023 and reaches Display.IN at (1171,487). Three component labels, four pin labels, two net labels, title, units and all four A-D crosshairs are legible. The new paper texture adds no apparent junction or obscured label. Assessment applies to this exact synthetic illustration."
+}

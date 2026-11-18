@@ -1,0 +1,7 @@
+Edit the supplied conditioning-guide.png. Keep the 1536 × 1024 landscape composition.
+Treat the source as a dimensioned master. Preserve the four labeled registration crosses A–D, component outlines, pin circles, exact text, net paths, right-angle bends and endpoint positions.
+Limit your edit to small changes in paper grain and pen texture. Keep every existing edge readable.
+Each route below lists its vertices in guide pixels, measured from the top left.
+SAMPLE: Sensor.OUT to Recorder.IN at [[364.8, 458.9474], [492.1263, 458.9474], [492.1263, 557.9789], [633.6, 557.9789]].
+TRACE: Recorder.OUT to Display.IN at [[859.9579, 614.5684], [1022.6526, 614.5684], [1022.6526, 487.2421], [1171.2, 487.2421]].
+Keep the same number of components, wires, junctions and labels. Return one edited PNG.
