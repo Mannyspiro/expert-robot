@@ -49,3 +49,23 @@ PYTHONPATH=python:/usr/lib/freecad/lib /usr/bin/python3 scripts/merlin/export_ex
 ```
 
 This writes each equipment item as a named parametric box and converts the study's metres to FreeCAD millimetres. Reopen the document to change length, width, height or placement. The room dimensions and critique remain in the source study and its review.
+
+## Measure maintenance clearance
+
+Add optional `service_zones` to individual equipment items. Each zone has an `id`, a three-component `origin` relative to its owner's origin, and a positive XYZ `size`, all in metres. Moving an item moves all its zones. Enter supplier dimensions or label a synthetic assumption in the study title. The example uses assumed axis-aligned boxes for service access.
+
+```sh
+PYTHONPATH=python python -m merlin.science_visualizer layout examples/merlin/exhibit-service-layouts.json service-study
+```
+
+Open `service-study/index.html` and toggle **Show service zones** to inspect the dashed volumes. Compare the alternatives and inspect each zone's room coordinates in the table. Equipment mesh exports contain only physical items. The report lists three separate checks.
+
+| Finding | Geometric meaning |
+| --- | --- |
+| Equipment intrusion | An occupied item, including the zone's owner, intersects the zone interior. Moving a second worker to a different time cannot free the occupied volume. |
+| Service zone outside room | A portion of the specified service volume extends beyond the room enclosure. |
+| Simultaneous service conflict | Zones belonging to two different items share interior volume. This matters if both tasks require the shared space at the same time. |
+
+Touching faces, edges or corners passes all interior-overlap checks. Each item accepts up to eight named zones and each layout up to 64. Zone IDs must be unique within their owner. Different items may reuse the same zone ID. Overlapping zones on the same item can define portions of one task. An item without zones has no tested maintenance envelope.
+
+Both sample layouts fit all equipment into the room without a solid collision. The tight arrangement blocks a pump panel, places part of a filter drawer envelope outside the room and shares space between two panels. The revised arrangement clears these checks with the same equipment sizes and local zone dimensions. Clear zones alone do not establish reachability, safe working conditions or compliance with service requirements.

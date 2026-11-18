@@ -1,0 +1,1 @@
+{"title": "Synthetic spectroscopy maintenance", "unit": "m", "room": [10, 8, 5], "layouts": [{"name": "legacy", "items": [{"id": "spectrometer", "origin": [1, 1, 1], "size": [2, 2, 1]}, {"id": "microscope", "origin": [4, 1, 1], "size": [1, 1, 1]}]}]}

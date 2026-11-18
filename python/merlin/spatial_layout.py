@@ -50,16 +50,24 @@ class Box:
     high: tuple
 
     @classmethod
-    def read(cls, spec):
+    def read(cls, spec, *, offset=(0, 0, 0)):
         if not isinstance(spec, dict) or not isinstance(spec.get("id"), str) or not re.fullmatch(
                 r"[A-Za-z0-9][A-Za-z0-9_.-]{0,63}", spec["id"]):
             raise ValueError("invalid item id")
-        low = vector(spec.get("origin"), positive=False)
+        relative = vector(spec.get("origin"), positive=False)
+        low = tuple(a + b for a, b in zip(relative, offset))
         size = vector(spec.get("size"), positive=True)
         return cls(spec["id"], low, tuple(a + b for a, b in zip(low, size)))
 
     def overlaps(self, other):
         return all(max(a, c) < min(b, d) for a, b, c, d in zip(self.low, self.high, other.low, other.high))
+
+    def outside(self, room):
+        return any(lo < 0 or hi > limit for lo, hi, limit in zip(self.low, self.high, room))
+
+    def dimensions(self):
+        return {"id": self.name, "origin": list(map(meters, self.low)),
+                "size": [meters(hi - lo) for hi, lo in zip(self.high, self.low)]}
 
     def vertices(self):
         return [tuple((self.low[i], self.high[i])[corner[i]] for i in range(3)) for corner in VERTICES]
@@ -80,6 +88,40 @@ def obj_text(boxes):
     return "\n".join(lines) + "\n"
 
 
+def service_review(items, boxes, room):
+    zones = []
+    for item, owner in zip(items, boxes):
+        specs = item.get("service_zones", [])
+        if not isinstance(specs, list) or len(specs) > 8:
+            raise ValueError("each item may specify up to 8 service zones")
+        if len(zones) + len(specs) > 64:
+            raise ValueError("a layout may specify up to 64 service zones")
+        names = set()
+        for spec in specs:
+            zone = Box.read(spec, offset=owner.low)
+            if zone.name in names:
+                raise ValueError("duplicate service zone id for one item")
+            names.add(zone.name)
+            zones.append((owner.name, zone))
+
+    intrusions = []
+    outside = []
+    conflicts = []
+    for index, (owner, zone) in enumerate(zones):
+        if zone.outside(room):
+            outside.append({"owner": owner, "zone": zone.name})
+        for box in boxes:
+            if zone.overlaps(box):
+                intrusions.append({"owner": owner, "zone": zone.name, "equipment": box.name})
+        for other_owner, other_zone in zones[index + 1:]:
+            if owner != other_owner and zone.overlaps(other_zone):
+                conflicts.append({"owner_a": owner, "zone_a": zone.name,
+                                  "owner_b": other_owner, "zone_b": other_zone.name})
+    return {"service_zones": [{"owner": owner, **zone.dimensions()} for owner, zone in zones],
+            "service_intrusions": intrusions, "service_out_of_bounds": outside,
+            "simultaneous_service_conflicts": conflicts}
+
+
 def critique(spec, room, index):
     if not isinstance(spec, dict):
         raise ValueError("each layout must be an object")
@@ -90,14 +132,12 @@ def critique(spec, room, index):
     boxes = [Box.read(item) for item in items]
     if len({box.name for box in boxes}) != len(boxes):
         raise ValueError("duplicate item id within a layout")
-    outside = [box.name for box in boxes if any(lo < 0 or hi > limit
-               for lo, hi, limit in zip(box.low, box.high, room))]
+    outside = [box.name for box in boxes if box.outside(room)]
     collisions = [[a.name, b.name] for i, a in enumerate(boxes) for b in boxes[i + 1:] if a.overlaps(b)]
     model = obj_text(boxes).encode()
     report = {"name": name, "collisions": collisions, "out_of_bounds": outside,
               "obj": f"layout-{index}.obj", "obj_sha256": hashlib.sha256(model).hexdigest(),
-              "items": [{"id": b.name, "origin": list(map(meters, b.low)),
-                         "size": [meters(hi - lo) for hi, lo in zip(b.high, b.low)]} for b in boxes]}
+              "items": [box.dimensions() for box in boxes], **service_review(items, boxes, room)}
     return report, model
 
 

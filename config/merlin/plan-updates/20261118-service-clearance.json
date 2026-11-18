@@ -1,0 +1,15 @@
+{
+  "schema": "merlin-plan-update/1",
+  "parent_plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+  "parent_source_commit": "fa1b598931c5d9c3e075913b4a1f635010c6099d",
+  "prior_update": "config/merlin/plan-updates/20261118-spatial-designer.json",
+  "prior_update_sha256": "9ec69fee051240c20cb44e006688680a1cb56a93f0f0689e9cf63fa433c303a3",
+  "decision": "Keep the opt-in scientific equipment service-zone critic. Require a separate decision about simultaneous servicing.",
+  "baseline": "Prior CLI accepted the same six-layout input and returned zero equipment collisions and zero enclosure crossings in all six. It did not evaluate service allowances.",
+  "observed": "All six held-out reports matched independent FreeCAD volume checks. Legacy equipment mesh bytes were preserved.",
+  "evidence": ["docs/evidence/service-clearance-20261118/result.json", "docs/evidence/service-clearance-20261118/freecad.json"],
+  "limits": "User-specified axis-aligned rectangular zones. Clearance requirements themselves, rotation, worker access paths and swept motion were not measured.",
+  "next_actions": ["Freeze a rotation benchmark with two oblique instruments whose axis-aligned bounding boxes overlap but whose solids are disjoint. Check the result with independent solid intersections before enabling rotation."],
+  "requires_review": true,
+  "authority_effect": "none"
+}

@@ -22,11 +22,14 @@ summary{cursor:pointer}details{margin:1rem 0}
 </style>
 <header><h1 id="heading"></h1><p id="bounds"></p></header>
 <div class="controls"><label>Alternative <select id="choice"></select></label>
-<label>View angle <input type="range" min="-180" max="180" value="-38" step="1" id="angle"> <output id="degrees"></output></label></div>
+<label>View angle <input type="range" min="-180" max="180" value="-38" step="1" id="angle"> <output id="degrees"></output></label>
+<label id="zone-control"><input type="checkbox" id="zones" checked> Show service zones</label></div>
 <main><canvas id="model" width="900" height="560" aria-label="Rotatable spatial concept. Dimensions and intersections are available below."></canvas>
 <aside><h2>Geometry review</h2><div id="findings" aria-live="polite"></div><p><a id="mesh">Download this 3D model</a></p></aside></main>
 <details><summary>Equipment dimensions and positions</summary><table><thead>
 <tr><th>Equipment</th><th>Origin (x, y, z) · m</th><th>Size (x, y, z) · m</th></tr></thead><tbody id="rows"></tbody></table></details>
+<details id="zone-details"><summary>Service zones in room coordinates</summary><table><thead>
+<tr><th>Equipment / zone</th><th>Origin (x, y, z) · m</th><th>Size (x, y, z) · m</th></tr></thead><tbody id="zone-rows"></tbody></table></details>
 <p id="scope"></p><a href="critique.json">Download review data</a>
 <script type="application/json" id="report">{{REPORT}}</script>
 <script>
@@ -51,7 +54,8 @@ function draw(){
   }
   const room=vertices([0,0,0],data.room).map(project);
   const objects=layout.items.map(item=>vertices(item.origin,item.size).map(project));
-  const all=room.concat(...objects);
+  const zones=el('zones').checked?layout.service_zones.map(zone=>vertices(zone.origin,zone.size).map(project)):[];
+  const all=room.concat(...objects,...zones);
   const xs=all.map(p=>p[0]),ys=all.map(p=>p[1]);
   const left=Math.min(...xs),top=Math.min(...ys);
   const w=Math.max(...xs)-left,h=Math.max(...ys)-top;
@@ -82,6 +86,9 @@ function draw(){
   }
   polygons.sort((a,b)=>a.depth-b.depth);
   for(const face of polygons)polygon(face.pts,face.fill,'#354d50');
+  ctx.setLineDash([7,4]);
+  for(const vs of zones)for(const face of faces)polygon(face.map(i=>vs[i]),null,'#603598');
+  ctx.setLineDash([]);
 }
 function update(){
   const layout=data.layouts[el('choice').selectedIndex];
@@ -91,6 +98,21 @@ function update(){
   for(const [a,b] of layout.collisions)add(a+' overlaps '+b);
   add('Outside the room · '+layout.out_of_bounds.length);
   for(const id of layout.out_of_bounds)add(id+' crosses the enclosure');
+  const hasZones=layout.service_zones.length>0;
+  el('zone-control').hidden=el('zone-details').hidden=!hasZones;
+  el('zone-rows').replaceChildren();
+  if(hasZones){
+    add('Equipment intrusions · '+layout.service_intrusions.length);
+    for(const hit of layout.service_intrusions)add(hit.equipment+' occupies '+hit.owner+' / '+hit.zone);
+    add('Service zones outside room · '+layout.service_out_of_bounds.length);
+    for(const z of layout.service_out_of_bounds)add(z.owner+' / '+z.zone+' crosses the enclosure');
+    add('Conflicts during simultaneous service · '+layout.simultaneous_service_conflicts.length);
+    for(const c of layout.simultaneous_service_conflicts)add(c.owner_a+' / '+c.zone_a+' shares space with '+c.owner_b+' / '+c.zone_b);
+    for(const z of layout.service_zones){
+      const row=el('zone-rows').insertRow();
+      for(const value of [z.owner+' / '+z.id,z.origin.join(', '),z.size.join(', ')])row.insertCell().textContent=value;
+    }
+  }else{add('No service zones supplied. Maintenance clearance is unassessed.');}
   el('mesh').href=layout.obj;
   el('rows').replaceChildren();
   for(const item of layout.items){
@@ -101,6 +123,7 @@ function update(){
 }
 el('choice').addEventListener('change',update);
 el('angle').addEventListener('input',draw);
+el('zones').addEventListener('change',draw);
 update();
 </script>
 </html>

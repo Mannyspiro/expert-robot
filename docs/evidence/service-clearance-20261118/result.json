@@ -1,0 +1,133 @@
+{
+  "protocol_sha256": "34a0a7a6f9502d879eef84b79f3cb504cb1af88fdafb260e45ee4025db3a7c6f",
+  "input_sha256": "8b63bc8b16964269f9ed8b273c594a8e09f15bef109f95d73479ed230ee06a64",
+  "critique_sha256": "ffca8347425359925265c8e559e7ec8b39e30823cf33246f81cd95a6b1e4b932",
+  "freecad_sha256": "77f7f8fa27d605c283a878dd886fd701c06036cb22943785183bbeb54ea88c9a",
+  "normal_entry": "python -m merlin.science_visualizer layout INPUT OUTDIR",
+  "source_scientific_loop_sha256": "8271072d8174336fc9bd3e60ede294ce08a0ccbda5d9ff75fa584dc75220e574",
+  "old_obj_sha256": "c2775b2bbfe9bb44a186b3c5fd5b1ae20bf744defc0a2769d63a2d59ccd8490b",
+  "new_obj_sha256": "c2775b2bbfe9bb44a186b3c5fd5b1ae20bf744defc0a2769d63a2d59ccd8490b",
+  "cases": [
+    {
+      "id": "blocked-service",
+      "cad_matches_expected": true,
+      "labels": {
+        "service_intrusions": true,
+        "service_out_of_bounds": true,
+        "simultaneous_service_conflicts": true,
+        "service_zones": true,
+        "equipment": true
+      }
+    },
+    {
+      "id": "vertical-separation",
+      "cad_matches_expected": true,
+      "labels": {
+        "service_intrusions": true,
+        "service_out_of_bounds": true,
+        "simultaneous_service_conflicts": true,
+        "service_zones": true,
+        "equipment": true
+      }
+    },
+    {
+      "id": "shared-service",
+      "cad_matches_expected": true,
+      "labels": {
+        "service_intrusions": true,
+        "service_out_of_bounds": true,
+        "simultaneous_service_conflicts": true,
+        "service_zones": true,
+        "equipment": true
+      }
+    },
+    {
+      "id": "legacy",
+      "cad_matches_expected": true,
+      "labels": {
+        "service_intrusions": true,
+        "service_out_of_bounds": true,
+        "simultaneous_service_conflicts": true,
+        "service_zones": true,
+        "equipment": true
+      }
+    },
+    {
+      "id": "room-boundary-touch",
+      "cad_matches_expected": true,
+      "labels": {
+        "service_intrusions": true,
+        "service_out_of_bounds": true,
+        "simultaneous_service_conflicts": true,
+        "service_zones": true,
+        "equipment": true
+      }
+    },
+    {
+      "id": "room-boundary-breach",
+      "cad_matches_expected": true,
+      "labels": {
+        "service_intrusions": true,
+        "service_out_of_bounds": true,
+        "simultaneous_service_conflicts": true,
+        "service_zones": true,
+        "equipment": true
+      }
+    }
+  ],
+  "observed": {
+    "geometry_oracles": 6,
+    "exact_reports": 6,
+    "legacy_compatibility": 1
+  },
+  "freecad": "1.0.0",
+  "opencascade": "7.8.1",
+  "assessment": {
+    "schema": "merlin-observation-assessment/1",
+    "observation_id": "maintenance-clearance-holdout",
+    "reasoning_mode": "deductive_prediction_check",
+    "overall": "consistent_with_prediction",
+    "comparisons": [
+      {
+        "metric": "geometry_oracles",
+        "result": "supports",
+        "measured_interval": [
+          6.0,
+          6.0
+        ],
+        "predicted_interval": [
+          6,
+          6
+        ],
+        "unit": "cases"
+      },
+      {
+        "metric": "exact_reports",
+        "result": "supports",
+        "measured_interval": [
+          6.0,
+          6.0
+        ],
+        "predicted_interval": [
+          6,
+          6
+        ],
+        "unit": "cases"
+      },
+      {
+        "metric": "legacy_compatibility",
+        "result": "supports",
+        "measured_interval": [
+          1.0,
+          1.0
+        ],
+        "predicted_interval": [
+          1,
+          1
+        ],
+        "unit": "cases"
+      }
+    ],
+    "claim_boundary": "Consistency with predictions is not proof of a general claim."
+  }
+}

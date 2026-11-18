@@ -1,0 +1,23 @@
+{
+  "title": "Pump and imaging station service access",
+  "unit": "m",
+  "room": [6, 4, 3],
+  "layouts": [
+    {"name": "Tight fit", "items": [
+      {"id": "pump", "origin": [1, 1, 0], "size": [1, 1, 1], "service_zones": [
+        {"id": "panel", "origin": [1, 0, 0], "size": [1, 1, 1.4]}]},
+      {"id": "station", "origin": [2.6, 1, 0], "size": [1, 1, 1.4], "service_zones": [
+        {"id": "panel", "origin": [-0.6, 0, 0], "size": [0.6, 1, 1.4]}]},
+      {"id": "filter", "origin": [5, 3, 0], "size": [0.8, 0.8, 0.8], "service_zones": [
+        {"id": "drawer", "origin": [0.8, 0, 0], "size": [0.5, 0.8, 0.8]}]}
+    ]},
+    {"name": "Separate service bays", "items": [
+      {"id": "pump", "origin": [1, 1, 0], "size": [1, 1, 1], "service_zones": [
+        {"id": "panel", "origin": [1, 0, 0], "size": [1, 1, 1.4]}]},
+      {"id": "station", "origin": [4.0, 1, 0], "size": [1, 1, 1.4], "service_zones": [
+        {"id": "panel", "origin": [-0.6, 0, 0], "size": [0.6, 1, 1.4]}]},
+      {"id": "filter", "origin": [4.4, 3, 0], "size": [0.8, 0.8, 0.8], "service_zones": [
+        {"id": "drawer", "origin": [0.8, 0, 0], "size": [0.5, 0.8, 0.8]}]}
+    ]}
+  ]
+}
