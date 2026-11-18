@@ -101,6 +101,8 @@ def compare_observation(observation: Observation, predictions: Sequence[Predicti
         lo, hi = measured - sigma, measured + sigma
         expected_lo = prediction.expected - prediction.tolerance
         expected_hi = prediction.expected + prediction.tolerance
+        if not all(math.isfinite(endpoint) for endpoint in (lo, hi, expected_lo, expected_hi)):
+            raise ValueError("measured and predicted interval endpoints must be finite")
         if hi < expected_lo or lo > expected_hi:
             result = "contradicts"
         elif lo >= expected_lo and hi <= expected_hi:
