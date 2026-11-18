@@ -1,15 +1,19 @@
 """Exercise the host-authenticated Titan lab routes with synthetic learner state."""
 import json
+import os
 import tempfile
 import threading
+import time
 import unittest
-from http.server import ThreadingHTTPServer
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from unittest.mock import patch
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 from merlin.app import EventStore, make_handler
 from merlin.hypothesis_ledger import HypothesisLedger
+from merlin.identity import SQLiteTokenRevocationStore, learning_identity_resolver_from_environment
 from merlin.knowledge_graph import MerlinKnowledgeGraph
 from merlin.learning_lab_bridge import LearningLabBridge
 from merlin.learning_platform import Actor, LearningPlatform
@@ -44,10 +48,10 @@ class TitanHttpTests(unittest.TestCase):
         self.binding = dict(course_version=1, manifest_sha256=course["manifest_sha256"],
                             lesson_id=LAB_LESSON_ID, run_id="http-fixture")
 
-    def start(self, bridge):
+    def start(self, bridge, resolver=None):
         actors = {"Bearer fixture": self.learner, "Bearer outsider": Actor("other", "learner", "learner")}
         handler = make_handler(self.store, learning_platform=self.platform, learning_lab_bridge=bridge,
-                               learning_identity_resolver=lambda headers: actors.get(headers.get("Authorization")))
+                               learning_identity_resolver=resolver or (lambda headers: actors.get(headers.get("Authorization"))))
         server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
         thread = threading.Thread(target=server.serve_forever)
         thread.start()
@@ -84,6 +88,74 @@ class TitanHttpTests(unittest.TestCase):
         self.assertEqual(result["status"], "pending_review")
         self.assertFalse(result["mastery_updated"])
         self.assertTrue(self.post("submit", submit)[1]["duplicate"])
+
+    def test_signed_session_key_rotation_and_revocation(self):
+        import jwt
+        from cryptography.hazmat.primitives.asymmetric import rsa
+
+        published = {}
+        fetches = []
+
+        class KeyEndpoint(BaseHTTPRequestHandler):
+            def do_GET(self):
+                if self.path != "/keys":
+                    self.send_error(404)
+                    return
+                fetches.append(published["kid"])
+                body = json.dumps({"keys": [published]}).encode()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, fmt, *args):
+                pass
+
+        issuer_server = ThreadingHTTPServer(("127.0.0.1", 0), KeyEndpoint)
+        thread = threading.Thread(target=issuer_server.serve_forever)
+        thread.start()
+        self.addCleanup(issuer_server.server_close)
+        self.addCleanup(thread.join)
+        self.addCleanup(issuer_server.shutdown)
+        issuer = f"http://127.0.0.1:{issuer_server.server_port}"
+        audience = "synthetic-learning"
+        revocations = Path(self.store.path).with_name("revocations.sqlite3")
+        settings = {"MERLIN_OIDC_ISSUER": issuer, "MERLIN_OIDC_AUDIENCE": audience,
+                    "MERLIN_OIDC_JWKS_URL": issuer + "/keys",
+                    "MERLIN_OIDC_REVOCATION_DB": str(revocations),
+                    "MERLIN_OIDC_TENANT_CLAIM": "campus", "MERLIN_OIDC_ROLE_CLAIM": "campus_role"}
+        with patch.dict(os.environ, settings, clear=True):
+            resolver = learning_identity_resolver_from_environment()
+        self.assertIsNotNone(resolver)
+        self.start(self.bridge, resolver)
+
+        def rotate_and_issue(kid):
+            key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+            published.clear()
+            published.update(json.loads(jwt.algorithms.RSAAlgorithm.to_jwk(key.public_key())),
+                             kid=kid, alg="RS256", use="sig")
+            now = int(time.time())
+            claims = dict(iss=issuer, aud=audience, sub=self.learner.actor_id, campus="college",
+                          campus_role="learner", iat=now, exp=now + 300, jti="fixture-" + kid)
+            return "Bearer " + jwt.encode(claims, key, algorithm="RS256", headers={"kid": kid})
+
+        first = rotate_and_issue("first")
+        run = dict(self.binding, prediction="The structural test vectors should reproduce.")
+        status, receipt = self.post("run", run, first)
+        self.assertEqual(status, 200, receipt)
+        self.assertEqual(receipt["binding"]["learner_id"], self.learner.actor_id)
+        second = rotate_and_issue("second")
+        self.assertEqual(self.post("run", run, second), (200, receipt))
+        self.assertEqual(fetches, ["first", "second"])
+        submit = dict(self.binding, submission_id="signed-session-submission",
+                      reflection="The structural fixture still requires independent review.")
+        status, result = self.post("submit", submit, second)
+        self.assertEqual(status, 200, result)
+        self.assertEqual(result["status"], "pending_review")
+        SQLiteTokenRevocationStore(revocations).revoke(issuer, "fixture-second")
+        self.assertEqual(self.post("submit", submit, second)[0], 503)
+        self.assertEqual(fetches, ["first", "second"])
 
     def test_unconfigured_host(self):
         self.start(None)
