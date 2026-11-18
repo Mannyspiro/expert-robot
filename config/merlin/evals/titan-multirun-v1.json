@@ -1,0 +1,139 @@
+{
+  "revision": "4811c448216e0582336ffc8c2c1468a5260a4b18",
+  "sources": {
+    "44174486449": [
+      "docs/evidence/merlin-learning-titan-integration-20261117.json",
+      "8e5224c8d31759eea9275afd3f21de0c80c28741"
+    ],
+    "44151750942": [
+      "docs/evidence/merlin-registry-recovery-20261117.json",
+      "3d160e6f27cc60d6493e31f3cda6483abe696467"
+    ]
+  },
+  "cases": [
+    {
+      "request": {
+        "run_id": "44174486449",
+        "question": "How many tests ran in the main shard?",
+        "pointer": "/tests/tests"
+      },
+      "expected": {
+        "disposition": "supported",
+        "value": 85
+      }
+    },
+    {
+      "request": {
+        "run_id": "44151750942",
+        "question": "How many tests ran in the main shard?",
+        "pointer": "/tests/tests"
+      },
+      "expected": {
+        "disposition": "supported",
+        "value": 136
+      }
+    },
+    {
+      "request": {
+        "run_id": "44151750942",
+        "question": "How many operation tests ran?",
+        "pointer": "/recovery_operation_tests/tests"
+      },
+      "expected": {
+        "disposition": "supported",
+        "value": 9
+      }
+    },
+    {
+      "request": {
+        "run_id": "44174486449",
+        "question": "How many operation tests ran?",
+        "pointer": "/recovery_operation_tests/tests"
+      },
+      "expected": {
+        "disposition": "abstain",
+        "value": null
+      }
+    },
+    {
+      "request": {
+        "run_id": "44174486449",
+        "question": "What was the submission status?",
+        "pointer": "/demo/submission_status"
+      },
+      "expected": {
+        "disposition": "supported",
+        "value": "pending_review"
+      }
+    },
+    {
+      "request": {
+        "run_id": "44151750942",
+        "question": "What was the submission status?",
+        "pointer": "/demo/submission_status"
+      },
+      "expected": {
+        "disposition": "abstain",
+        "value": null
+      }
+    },
+    {
+      "request": {
+        "run_id": "44174486449",
+        "question": "Did the main shard run 136 tests?",
+        "pointer": "/tests/tests",
+        "claim": 136
+      },
+      "expected": {
+        "disposition": "contradicted",
+        "value": 85
+      }
+    },
+    {
+      "request": {
+        "run_id": "44151750942",
+        "question": "Did the main shard run 136 tests?",
+        "pointer": "/tests/tests",
+        "claim": 136
+      },
+      "expected": {
+        "disposition": "supported",
+        "value": 136
+      }
+    },
+    {
+      "request": {
+        "run_id": "44174486449",
+        "question": "Was the recorded security verification true?",
+        "pointer": "/demo/cryptographic_security_verified",
+        "claim": true
+      },
+      "expected": {
+        "disposition": "contradicted",
+        "value": false
+      }
+    },
+    {
+      "request": {
+        "run_id": "44174486449",
+        "question": "What numeric grade was awarded?",
+        "pointer": "/demo/grade"
+      },
+      "expected": {
+        "disposition": "abstain",
+        "value": null
+      }
+    },
+    {
+      "request": {
+        "run_id": "99999999999",
+        "question": "What operation ran?",
+        "pointer": "/operation"
+      },
+      "expected": {
+        "disposition": "abstain",
+        "value": null
+      }
+    }
+  ]
+}
