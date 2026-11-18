@@ -279,22 +279,22 @@ def validate_square_mesh(vertices, triangles):
         "coverage_scope": "floating-point area, boundary, oriented adjacency, disk topology and held-out location checks; not formal proof"}
 
 
-def field(x, y):
-    return math.exp(-((x - .5) / .08) ** 2) + .1 * math.sin(2 * math.pi * y)
+def field(x, y, center=.5):
+    return math.exp(-((x - center) / .08) ** 2) + .1 * math.sin(2 * math.pi * y)
 
 
 def affine(x, y):
     return 1 + 2 * x - 3 * y
 
 
-def evaluate(vertices, triangles, samples):
+def evaluate(vertices, triangles, samples, *, center=.5):
     triangles, validation = validate_square_mesh(vertices, triangles)
     bins, index, insertions = 32, defaultdict(list), 0
     records = []
     for face in triangles:
         a, b, c = (vertices[v] for v in face)
         det = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
-        records.append((a, b, c, det, tuple(field(*vertices[v]) for v in face),
+        records.append((a, b, c, det, tuple(field(*vertices[v], center=center) for v in face),
                         tuple(affine(*vertices[v]) for v in face)))
         ranges = []
         for axis in (0, 1):
@@ -319,7 +319,7 @@ def evaluate(vertices, triangles, samples):
             w2 = ((b[0]-a[0]) * (y-a[1]) - (b[1]-a[1]) * (x-a[0])) / det
             weights = (1-w1-w2, w1, w2)
             if min(weights) >= -1e-11:
-                errors.append(abs(math.fsum(w * value for w, value in zip(weights, values)) - field(x, y)))
+                errors.append(abs(math.fsum(w * value for w, value in zip(weights, values)) - field(x, y, center=center)))
                 control_errors.append(abs(math.fsum(w * value for w, value in zip(weights, controls)) - affine(x, y)))
                 found = True
                 break
