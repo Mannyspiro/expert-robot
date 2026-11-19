@@ -1,0 +1,12 @@
+{
+  "source_commit": "e7be083b754b36e90d9ebffbe9f7ef9069296e06",
+  "baseline_blob": "9888abf24d4226dc3ecc52ff92aeb4b8e2a71298",
+  "baseline_sha256": "a2d816d873b60179e6878a65d4416bd416d356ab3b9d76cc8531796b5704702b",
+  "candidate_module": "daily19/candidate/python/merlin/drafting_control.py",
+  "candidate_sha256": "7a873c32a7c467b95efac7f09b21520667f4470d8d2e782a866f41eb8e8648d7",
+  "new_test_sha256": "c0aa89381d476228209fd20fb2064f2b872f21696cae748d47915ceae80ce7b3",
+  "holdout_opened_by_coder_a": false,
+  "authority_effect": "none",
+  "qualification": false,
+  "promotion_authority": false
+}

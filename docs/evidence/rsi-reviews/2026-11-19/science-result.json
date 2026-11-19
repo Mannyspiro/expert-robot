@@ -1,0 +1,48 @@
+{
+  "schema": "merlin-observation-assessment/1",
+  "observation_id": "drafting-decoder-and-review-trust",
+  "reasoning_mode": "deductive_prediction_check",
+  "overall": "contradicted",
+  "comparisons": [
+    {
+      "metric": "foreign_format_rejected_before_other_decoder",
+      "result": "supports",
+      "measured_interval": [
+        2.0,
+        2.0
+      ],
+      "predicted_interval": [
+        2,
+        2
+      ],
+      "unit": "fixture observations"
+    },
+    {
+      "metric": "branched_drawing_correct",
+      "result": "supports",
+      "measured_interval": [
+        9.0,
+        9.0
+      ],
+      "predicted_interval": [
+        9,
+        9
+      ],
+      "unit": "fixture observations"
+    },
+    {
+      "metric": "wrong_verdict_detected",
+      "result": "contradicts",
+      "measured_interval": [
+        0.0,
+        0.0
+      ],
+      "predicted_interval": [
+        3,
+        3
+      ],
+      "unit": "fixture observations"
+    }
+  ],
+  "claim_boundary": "Consistency with predictions is not proof of a general claim."
+}

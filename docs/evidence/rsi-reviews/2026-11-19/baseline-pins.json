@@ -1,0 +1,79 @@
+{
+  "source_commit": "e7be083b754b36e90d9ebffbe9f7ef9069296e06",
+  "files": [
+    {
+      "path": "requirements-merlin-wiring.txt",
+      "git_blob": "ee2cfb1809a34f5e0d20f7744918908cc103c656",
+      "sha256": "2cc9a9995103cc4981bf3f514b579ce0ef4eb3faa8a4bb1d6f17e3e0f80a50d6",
+      "bytes": 44
+    },
+    {
+      "path": "tests/test_drafting_control.py",
+      "git_blob": "0abd76ccdec69abd9396a471bd14ffd8c541b454",
+      "sha256": "74e819bbd02e2bc6dbdda867114d50382843ad4d8c5ab1f1b1397073ca3856a5",
+      "bytes": 4288
+    },
+    {
+      "path": "tests/test_wiring_sheet.py",
+      "git_blob": "2db03172bb53578a14b65be46a72fdf603d69846",
+      "sha256": "65daa81dbc517a1a3a2449b1ed77c33f955a5c3e006bf461a15104a651963327",
+      "bytes": 2497
+    },
+    {
+      "path": "docs/AI_RUNNER_AND_BRIDGE_OPERATIONS.md",
+      "git_blob": "e412ec13e1e94691f61fa70243bdab235b1d7538",
+      "sha256": "c9d318eaf3cde770a75407a398be1180058d6199e54bfd9abeb37889c91f0ac7",
+      "bytes": 28587
+    },
+    {
+      "path": "docs/MERLIN_SCIENTIFIC_OPERATING_LOOP_V1.md",
+      "git_blob": "983e86d40839f113f9e86ed46abf1da67aa29689",
+      "sha256": "dc9a92b2f2ebcc703713bbb1f1966f1b0d64b07ea8679647f1c05ddb2b510919",
+      "bytes": 13399
+    },
+    {
+      "path": "config/merlin/plan-updates/20261118-controlled-drafting.json",
+      "git_blob": "dce19b1ff08e0ca2657113d6a3f345b3751e8088",
+      "sha256": "5e8fc23cb7d69c6c2bd57b48ea7cd82f83b407b344fd98381f1b048e30c0ede9",
+      "bytes": 802
+    },
+    {
+      "path": "docs/evidence/controlled-drafting-20261118/protocol.json",
+      "git_blob": "645ea716ec777e3243cba593735e182ac1c47c42",
+      "sha256": "d8de7e1adecfff60856380344ae5f5487f71aa4a326637fdde8c3f4a9e544598",
+      "bytes": 1288
+    },
+    {
+      "path": "docs/evidence/controlled-drafting-20261118/decision.json",
+      "git_blob": "ea32679d77001bd43c3a5e3896d7c89ecc715a9c",
+      "sha256": "3b9b89c6ee454273c2007add74963cb08160210ce5fd7df5d5cf46b7f78231ad",
+      "bytes": 1598
+    },
+    {
+      "path": "examples/merlin/lab-signal-sheet.json",
+      "git_blob": "9e3e2baddbac362560fad13a45364f3aaf5fcd60",
+      "sha256": "7fdb3deb323a68af0ef3c2e2e3cd706f0bbd1e5bb188ff2bcf688279241575db",
+      "bytes": 634
+    },
+    {
+      "path": "python/merlin/drafting_control.py",
+      "git_blob": "9888abf24d4226dc3ecc52ff92aeb4b8e2a71298",
+      "sha256": "a2d816d873b60179e6878a65d4416bd416d356ab3b9d76cc8531796b5704702b",
+      "bytes": 11605
+    },
+    {
+      "path": "python/merlin/__init__.py",
+      "git_blob": "0ad35f52071fb1537c1ffcb918a9a7148b411661",
+      "sha256": "49f23ffa9b838de063cd88e4a60704d1989f55ff3aa70fe2ed850b0396fa8f93",
+      "bytes": 275
+    },
+    {
+      "path": "python/merlin/wiring_sheet.py",
+      "git_blob": "609b487e332d97d49ce2eba19aaf0729a4526822",
+      "sha256": "f0ed2974b4ca25efd200a992f81628d7b8914d173e0419b9340bf24026aac203",
+      "bytes": 14000
+    }
+  ],
+  "all_git_blobs_match": true,
+  "materialization_note": "One added trailing line ending from text patch transport was removed only when that exact removal matched the pinned Git blob; before any execution."
+}

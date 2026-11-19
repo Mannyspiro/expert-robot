@@ -1,0 +1,131 @@
+{
+  "arm": "alternative",
+  "source_sha256": "dafe2525440f1c083fac543b794ad530c8efd48f7c1e3a115cce981c32eab984",
+  "protocol_sha256": "fa4f65757e4be864b067d9aa68fdbb48e965314c5ec8fffec011021607dcdb91",
+  "elapsed_seconds": 6.729,
+  "results": [
+    {
+      "id": "D0",
+      "partition": "development",
+      "expected_label": "accepted",
+      "actual_label": "accepted",
+      "decision": "accepted",
+      "passed": true,
+      "source_sha256": "7fdb3deb323a68af0ef3c2e2e3cd706f0bbd1e5bb188ff2bcf688279241575db",
+      "candidate_sha256": "aeb4f286555cd2b81ac89cec7145e7363a6aea8133512a3449de3db7a0a764f5",
+      "candidate_only_open_calls": 2,
+      "candidate_only_load_calls": 1,
+      "allowed_formats_at_open": [
+        null,
+        null
+      ],
+      "error": null,
+      "seconds": 0.6427
+    },
+    {
+      "id": "B0",
+      "partition": "heldout",
+      "expected_label": "accepted",
+      "actual_label": "accepted",
+      "decision": "accepted",
+      "passed": true,
+      "source_sha256": "a85e639346ceb4f162d02fd750c0bea5a55291d28d9c32a1eced8d852e08fbf1",
+      "candidate_sha256": "f7b40a4ccf1aefd28474feb7705e846246eba4d06dc28f50e8ffccc0afb28575",
+      "candidate_only_open_calls": 2,
+      "candidate_only_load_calls": 1,
+      "allowed_formats_at_open": [
+        null,
+        null
+      ],
+      "error": null,
+      "seconds": 0.6592
+    },
+    {
+      "id": "B1",
+      "partition": "heldout",
+      "expected_label": "rejected",
+      "actual_label": "rejected",
+      "decision": "rejected",
+      "passed": true,
+      "source_sha256": "a85e639346ceb4f162d02fd750c0bea5a55291d28d9c32a1eced8d852e08fbf1",
+      "candidate_sha256": "f7b40a4ccf1aefd28474feb7705e846246eba4d06dc28f50e8ffccc0afb28575",
+      "candidate_only_open_calls": 2,
+      "candidate_only_load_calls": 1,
+      "allowed_formats_at_open": [
+        null,
+        null
+      ],
+      "error": "ValueError: unknown, reversed or repeated reviewed connection",
+      "seconds": 0.8936
+    },
+    {
+      "id": "B2",
+      "partition": "heldout",
+      "expected_label": "rejected",
+      "actual_label": "rejected",
+      "decision": "rejected",
+      "passed": true,
+      "source_sha256": "a85e639346ceb4f162d02fd750c0bea5a55291d28d9c32a1eced8d852e08fbf1",
+      "candidate_sha256": "8273c0e379d461a752dc7e555951b70b0bf594a6cc55e1a516c915fc5a3bdcfc",
+      "candidate_only_open_calls": 2,
+      "candidate_only_load_calls": 1,
+      "allowed_formats_at_open": [
+        null,
+        null
+      ],
+      "error": null,
+      "seconds": 0.656
+    },
+    {
+      "id": "B3",
+      "partition": "heldout",
+      "expected_label": "rejected",
+      "actual_label": "accepted",
+      "decision": "accepted",
+      "passed": false,
+      "source_sha256": "a85e639346ceb4f162d02fd750c0bea5a55291d28d9c32a1eced8d852e08fbf1",
+      "candidate_sha256": "8273c0e379d461a752dc7e555951b70b0bf594a6cc55e1a516c915fc5a3bdcfc",
+      "candidate_only_open_calls": 2,
+      "candidate_only_load_calls": 1,
+      "allowed_formats_at_open": [
+        null,
+        null
+      ],
+      "error": null,
+      "seconds": 0.6984
+    },
+    {
+      "id": "B4",
+      "partition": "heldout",
+      "expected_label": "rejected_without_general_dispatch",
+      "actual_label": "rejected_without_general_dispatch",
+      "decision": "rejected",
+      "passed": true,
+      "source_sha256": "a85e639346ceb4f162d02fd750c0bea5a55291d28d9c32a1eced8d852e08fbf1",
+      "candidate_sha256": "7e07ec2d91094cebb879a7337c30809ccb87850319c28368e0f778869e7c44f3",
+      "candidate_only_open_calls": 0,
+      "candidate_only_load_calls": 0,
+      "allowed_formats_at_open": [],
+      "error": "ValueError: expected a PNG signature and complete first IHDR chunk",
+      "seconds": 0.7406
+    },
+    {
+      "id": "B5",
+      "partition": "heldout",
+      "expected_label": "rejected_before_load",
+      "actual_label": "rejected",
+      "decision": "rejected",
+      "passed": false,
+      "source_sha256": "a85e639346ceb4f162d02fd750c0bea5a55291d28d9c32a1eced8d852e08fbf1",
+      "candidate_sha256": "9ba521807af998b4a751aa0cab973db1435fb1e11f072c4cc25cc1945941c520",
+      "candidate_only_open_calls": 2,
+      "candidate_only_load_calls": 1,
+      "allowed_formats_at_open": [
+        null,
+        null
+      ],
+      "error": null,
+      "seconds": 0.6758
+    }
+  ]
+}

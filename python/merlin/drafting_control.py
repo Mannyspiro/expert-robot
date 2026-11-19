@@ -8,7 +8,7 @@ import subprocess
 import tempfile
 import xml.etree.ElementTree as ET
 
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 from .wiring_sheet import read_sheet, wire_svg
 
 
@@ -202,14 +202,14 @@ def review_wiring(source, guide_dir, image, verdict_file, destination):
         raise ValueError("sheet differs from reconstructed source")
     candidate = limited(image,32_000_000)
     try:
-        with Image.open(io.BytesIO(candidate)) as asset:
+        with Image.open(io.BytesIO(candidate), formats=["PNG"]) as asset:
             if asset.format != "PNG" or asset.width * asset.height > 24_000_000 or asset.n_frames != 1:
                 raise ValueError("expected a single bounded PNG candidate")
             size = asset.size
             asset.verify()
-        with Image.open(io.BytesIO(candidate)) as asset:
+        with Image.open(io.BytesIO(candidate), formats=["PNG"]) as asset:
             asset.load()
-    except (Image.DecompressionBombError, SyntaxError) as error:
+    except (Image.DecompressionBombError, SyntaxError, UnidentifiedImageError) as error:
         raise ValueError("candidate PNG could not be verified") from error
     image_sha = digest(candidate)
     verdict_raw = limited(verdict_file,300_000)

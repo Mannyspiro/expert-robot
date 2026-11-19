@@ -1,0 +1,76 @@
+{
+  "role": "same-team independent evaluator, candidate code not used to tune holdout",
+  "same_fixture_bytes_all_arms": true,
+  "split": {
+    "development": [
+      "D0"
+    ],
+    "heldout": [
+      "B0",
+      "B1",
+      "B2",
+      "B3",
+      "B4",
+      "B5"
+    ]
+  },
+  "protocol_sha256": "fa4f65757e4be864b067d9aa68fdbb48e965314c5ec8fffec011021607dcdb91",
+  "amendment_sha256": "b10f9f63cab6dbd46d64ad96151b3b89bf23ba46827d84fa4535b027c1bfa866",
+  "scope": "RGB synthetic fixture, genuine review_wiring entry point, local Inkscape or CairoSVG rendering, diagnostic B3 evaluates mistaken reviewer, B5 evaluates early aspect handling. One cold wall time per arm; no speed inference.",
+  "scores": {
+    "baseline": {
+      "source_sha256": "a2d816d873b60179e6878a65d4416bd416d356ab3b9d76cc8531796b5704702b",
+      "development_passed": 1,
+      "heldout_passed": 3,
+      "labels": {
+        "D0": "accepted",
+        "B0": "accepted",
+        "B1": "rejected",
+        "B2": "rejected",
+        "B3": "accepted",
+        "B4": "rejected",
+        "B5": "rejected"
+      },
+      "rejected_or_abstained": 4,
+      "wall_seconds": 7.306
+    },
+    "candidate": {
+      "source_sha256": "7a873c32a7c467b95efac7f09b21520667f4470d8d2e782a866f41eb8e8648d7",
+      "development_passed": 1,
+      "heldout_passed": 4,
+      "labels": {
+        "D0": "accepted",
+        "B0": "accepted",
+        "B1": "rejected",
+        "B2": "rejected",
+        "B3": "accepted",
+        "B4": "rejected_without_general_dispatch",
+        "B5": "rejected"
+      },
+      "rejected_or_abstained": 4,
+      "wall_seconds": 7.544
+    },
+    "alternative": {
+      "source_sha256": "dafe2525440f1c083fac543b794ad530c8efd48f7c1e3a115cce981c32eab984",
+      "development_passed": 1,
+      "heldout_passed": 4,
+      "labels": {
+        "D0": "accepted",
+        "B0": "accepted",
+        "B1": "rejected",
+        "B2": "rejected",
+        "B3": "accepted",
+        "B4": "rejected_without_general_dispatch",
+        "B5": "rejected"
+      },
+      "rejected_or_abstained": 4,
+      "wall_seconds": 6.729
+    }
+  },
+  "notes": [
+    "Every arm classified every truthful synthetic positive/negative as expected.",
+    "B3 is a measured visual false acceptance under a mistaken all-pass observer; no automatic electrical verification claim is supported.",
+    "Every arm eventually rejected B5, but all decoded it first.",
+    "Both proposals harden plugin admission, without a measured raster-topology improvement or an observed decision regression."
+  ]
+}

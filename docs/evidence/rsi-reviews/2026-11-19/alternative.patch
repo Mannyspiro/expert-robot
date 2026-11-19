@@ -1,0 +1,39 @@
+--- a/python/merlin/drafting_control.py
++++ b/python/merlin/drafting_control.py
+@@ -30,6 +30,18 @@
+     return data
+ 
+ 
++def png_candidate_size(candidate):
++    """Check fixed PNG identity and its pixel budget before any image plugin."""
++    if (len(candidate) < 33 or candidate[:8] != b"\x89PNG\r\n\x1a\n"
++            or candidate[8:16] != b"\x00\x00\x00\rIHDR"):
++        raise ValueError("expected a PNG signature and complete first IHDR chunk")
++    width = int.from_bytes(candidate[16:20], "big")
++    height = int.from_bytes(candidate[20:24], "big")
++    if width < 1 or height < 1 or width * height > 24_000_000:
++        raise ValueError("expected a PNG within the candidate pixel budget")
++    return width, height
++
++
+ def registered_sheet(svg, nets):
+     # The sheet's own viewBox is in mm; the outer guide is in pixels.
+     sheet = ET.fromstring(svg)
+@@ -201,9 +213,11 @@
+     if limited(guide_dir/"wiring.svg",4_000_000)!=svg:
+         raise ValueError("sheet differs from reconstructed source")
+     candidate = limited(image,32_000_000)
++    header_size = png_candidate_size(candidate)
+     try:
+         with Image.open(io.BytesIO(candidate)) as asset:
+-            if asset.format != "PNG" or asset.width * asset.height > 24_000_000 or asset.n_frames != 1:
++            if (asset.format != "PNG" or asset.size != header_size
++                    or asset.width * asset.height > 24_000_000 or asset.n_frames != 1):
+                 raise ValueError("expected a single bounded PNG candidate")
+             size = asset.size
+             asset.verify()
+@@ -229,3 +243,4 @@
+         shutil.rmtree(destination)
+         raise
+     return result
++

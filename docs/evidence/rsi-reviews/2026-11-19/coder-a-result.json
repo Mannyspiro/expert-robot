@@ -1,0 +1,88 @@
+{
+  "schema": "merlin-daily-rsi-coder/1",
+  "coder": "A",
+  "recorded_at_utc": "2026-11-19T15:05:42.587060+00:00",
+  "parent_source_commit": "e7be083b754b36e90d9ebffbe9f7ef9069296e06",
+  "source_file": "python/merlin/drafting_control.py",
+  "parent_git_blob": "9888abf24d4226dc3ecc52ff92aeb4b8e2a71298",
+  "parent_sha256": "a2d816d873b60179e6878a65d4416bd416d356ab3b9d76cc8531796b5704702b",
+  "candidate_sha256": "7a873c32a7c467b95efac7f09b21520667f4470d8d2e782a866f41eb8e8648d7",
+  "new_test_file": "tests/test_drafting_png_admission.py",
+  "new_test_sha256": "c0aa89381d476228209fd20fb2064f2b872f21696cae748d47915ceae80ce7b3",
+  "patch_sha256": "2ecf00cedaa523bf67043b8b0a9298e639a24ded47feeac8f4288043c7b7a82c",
+  "status": "local_candidate_tested_frozen",
+  "qualification": false,
+  "promotion_authority": false,
+  "authority_effect": "none",
+  "defect_family": {
+    "class": "Parser selection occurs before the promised candidate-format admission.",
+    "minimal_observation": "An ordinary JPEG is rejected on baseline only after one JPEG decoder entry. No malicious/advisory payload used.",
+    "violated_invariant": "Caller-supplied review image is PNG-only; unrelated decoder must not be selected.",
+    "root_cause": "Both Image.open calls omitted Pillow formats and relied on an asset.format check after identification.",
+    "repair": "Preselect PNG at both review opens; normalize UnidentifiedImageError to the existing ValueError rejection API.",
+    "sibling_search_scope": "All three Image.open sites in drafting_control.py reviewed. The third normalizes host rasterizer output and is unchanged; the two caller-supplied review paths are restricted.",
+    "regression": "Normal JPEG decoder-entry observation fails on baseline, passes candidate; valid PNG and unknown verdict gate preserved.",
+    "preventive_guard": "PNG decoder preselection plus a benign other-format regression.",
+    "verification": "9 candidate unit tests passed; independent fresh evaluation reported a narrow decoder-admission improvement only.",
+    "rollback": "Discard local patch; immutable exact baseline retained.",
+    "authorization_status": "User-authorized local reversible RSI candidate only; no remote write, deployment, merge or promotion."
+  },
+  "tests": {
+    "baseline_existing_drafting": {
+      "run": 3,
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    "baseline_new_development_regression": {
+      "run": 2,
+      "passed": 1,
+      "failed": 1,
+      "skipped": 0,
+      "expected_failure": "JPEG decoder-entry check; before repair the unsupported decoder is entered.",
+      "raw_log": "daily19/baseline-decoder-regression.log"
+    },
+    "candidate_drafting": {
+      "run": 5,
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "command": "PYTHONPATH=daily19/candidate/python python -m unittest discover -s daily19/candidate/tests -p test_drafting*.py -v"
+    },
+    "candidate_wiring": {
+      "run": 4,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "command": "PYTHONPATH=daily19/candidate/python python -m unittest discover -s daily19/candidate/tests -p test_wiring_sheet.py -v"
+    },
+    "python39_grammar_parse": "passed; not Python3.9 execution"
+  },
+  "environment": {
+    "python": "3.12.14",
+    "Pillow": "13.0.0",
+    "ezdxf": "1.4.4",
+    "CairoSVG": "unavailable",
+    "renderer": "Inkscape1.4(e7c3feb100,2024-10-09) supported fallback"
+  },
+  "independent_evaluation": {
+    "case_hash_reported_by_evaluation_agent": "fa4f65757e4be864b067d9aa68fdbb48e965314c5ec8fffec011021607dcdb91",
+    "result_scope": "Message reported; evaluation agent owns full record and scoring.",
+    "baseline_passed": 3,
+    "candidate_passed": 4,
+    "total_cases": 6,
+    "candidate_frozen_before_feedback": true,
+    "candidate_modified_after_feedback": false,
+    "holdout_files_opened_by_coder_a": false,
+    "remaining_gap": "A supplied all-pass human verdict can still accept a synthetic extra conductor; source hash binding is not an independent image-content measurement."
+  },
+  "recompute_scope": "Only candidate-image admission and unchanged adjacent drawing contracts tested. No runtime/server/dependency/visual-scoring change.",
+  "limits": [
+    "Not an exploit test or proof of Pillow security",
+    "No new image-model call; no demonstrated visual wiring accuracy improvement",
+    "Supplied verdict truth and reviewer independence remain unqualified",
+    "Original CairoSVG2.8.2 rendering profile unavailable; supported Inkscape fallback used",
+    "No CI, remote runner, production service, deployment or CACE verification exercised"
+  ],
+  "next_experiment": "Create new preregistered visual controls after this holdout; compare independently measured source-to-image extra-conductor and pin-attachment evidence, retaining manual-verdict limitations. Do not tune to this fresh holdout."
+}

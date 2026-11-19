@@ -1,0 +1,42 @@
+{
+  "train": {
+    "D0": "accepted"
+  },
+  "holdout": {
+    "B0": "accepted",
+    "B1": "rejected",
+    "B2": "rejected",
+    "B3": "rejected",
+    "B4": "rejected_without_general_dispatch",
+    "B5": "rejected_before_load"
+  },
+  "observed": {
+    "baseline": {
+      "D0": "accepted",
+      "B0": "accepted",
+      "B1": "rejected",
+      "B2": "rejected",
+      "B3": "accepted",
+      "B4": "rejected",
+      "B5": "rejected"
+    },
+    "coder_a": {
+      "D0": "accepted",
+      "B0": "accepted",
+      "B1": "rejected",
+      "B2": "rejected",
+      "B3": "accepted",
+      "B4": "rejected_without_general_dispatch",
+      "B5": "rejected"
+    },
+    "coder_b": {
+      "D0": "accepted",
+      "B0": "accepted",
+      "B1": "rejected",
+      "B2": "rejected",
+      "B3": "accepted",
+      "B4": "rejected_without_general_dispatch",
+      "B5": "rejected"
+    }
+  }
+}
