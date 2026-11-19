@@ -24,6 +24,7 @@ from urllib.request import Request, urlopen
 from urllib.error import URLError, HTTPError
 from time import perf_counter
 
+from .chat_context import ChatContextTooLarge, pack_chat_context, parse_context_budget
 from .council import PERSONAS, build_deliberation_packets
 from .council_runtime import run_local_council
 from .simulation import MerlinSimulation
@@ -358,6 +359,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
             raise ValueError("learning research adapter registry differs from host")
         learning_platform = learning_research_api.platform
         canonical_registry = learning_research_api.registry
+    chat_context_budget = parse_context_budget(os.environ.get("MERLIN_CHAT_CONTEXT_BYTES"))
     simulation = MerlinSimulation()
     literature_search = PublicLiteratureSearch()
     learner_store = learner_store or LearnerStore(store.path)
@@ -1893,6 +1895,17 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                     if not upstream_payload.get("model"):
                         self._send(503, {"error": "model_name_not_configured"})
                         return
+                    context_metadata = {}
+                    if chat_context_budget is not None:
+                        try:
+                            packed = pack_chat_context(upstream_payload, chat_context_budget)
+                        except ChatContextTooLarge:
+                            self._send(413, {"error": "chat_context_too_large",
+                                             "budget_bytes": chat_context_budget})
+                            return
+                        if packed is not None:
+                            upstream_payload["messages"] = packed.messages
+                            context_metadata = {"context_budget": packed.metadata}
                     upstream_raw = _json_bytes(upstream_payload)
                     headers = {"Content-Type": "application/json", "Accept": "text/event-stream, application/json"}
                     if api_key:
@@ -1919,7 +1932,8 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                                 self.wfile.write(chunk)
                                 self.wfile.flush()
                             self._record_boundary(200, total)
-                            store.append(path, data, {"streamed": True, "bytes": total, "provider_host": urlsplit(endpoint).hostname})
+                            store.append(path, data, {"streamed": True, "bytes": total, "provider_host": urlsplit(endpoint).hostname,
+                                          **context_metadata})
                             _append_component_event(store, source="model_output", kind="model.inference",
                                 component="chat_adapter", task_id="chat",
                                 payload={"streamed": True, "response_bytes": total,
@@ -1939,7 +1953,7 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                             summary = {"bytes": len(body), "provider_host": urlsplit(endpoint).hostname}
                     else:
                         summary = {"bytes": len(body), "content_type": content_type, "provider_host": urlsplit(endpoint).hostname}
-                    store.append(path, data, summary)
+                    store.append(path, data, {**summary, **context_metadata})
                     _append_component_event(store, source="model_output", kind="model.inference",
                         component="chat_adapter", task_id="chat",
                         payload={"streamed": False, "response_bytes": len(body),
