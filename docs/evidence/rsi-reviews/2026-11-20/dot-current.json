@@ -1,0 +1,59 @@
+{
+  "source_commit": "584b948332b76596311d75133c0430d761e2f67a",
+  "sources": {
+    "baseline": {
+      "sha256": "edf0786e0030c3892f388ae98e45cc2541d86ab0fcc08ce4ec63d072b7b5cea7",
+      "description": "Reviewer-bound decision without raster comparison"
+    },
+    "coder_a": {
+      "sha256": "a3843ab7fe2e610e106b06adbc25c329a9edd8b69802f9319c9298482b275a1a",
+      "description": "Registered dark-stroke residual check"
+    },
+    "coder_b": {
+      "sha256": "8057ee0b208eafa0a07681cbf5b11b3cb3ade5578dc530ebb7e59186c2a06d77",
+      "description": "Registered teal terminal connectivity"
+    }
+  },
+  "matrix_sha256": "9efae1c6e10db19f7db2fd7ad8f55019902a1c70ea4f88ed6a87ae646cbe5942",
+  "protocol_ref": {
+    "schema": "merlin-artifact-ref/1",
+    "project_id": "drafting-topology-review",
+    "logical_path": "cross-agent/merlin/protocols/442984ddd156fcef2365efc37732dd22ec6868330f21b313386e6bb1785305d3.json",
+    "version": 1,
+    "sha256": "442984ddd156fcef2365efc37732dd22ec6868330f21b313386e6bb1785305d3"
+  },
+  "observation_ref": {
+    "schema": "merlin-artifact-ref/1",
+    "project_id": "drafting-topology-review",
+    "logical_path": "cross-agent/merlin/observations/6e03f5f0ac0bacb506643dc8354c76ca647bb9e98a5baea6b3c2dda273da9f16.json",
+    "version": 1,
+    "sha256": "6e03f5f0ac0bacb506643dc8354c76ca647bb9e98a5baea6b3c2dda273da9f16"
+  },
+  "report_ref": {
+    "schema": "merlin-artifact-ref/1",
+    "project_id": "drafting-topology-review",
+    "logical_path": "dual-coder/442984ddd156fcef2365efc37732dd22ec6868330f21b313386e6bb1785305d3/report.json",
+    "version": 1,
+    "sha256": "f07ab1fec3a08acbc7b762c701634f013c55f9599238144a7050d22a107be491"
+  },
+  "scores": {
+    "baseline": {
+      "holdout_passed": 2,
+      "regressions": 0,
+      "train_passed": 1
+    },
+    "coder_a": {
+      "holdout_passed": 4,
+      "regressions": 0,
+      "train_passed": 1
+    },
+    "coder_b": {
+      "holdout_passed": 2,
+      "regressions": 0,
+      "train_passed": 1
+    }
+  },
+  "recommendation": "coder_a",
+  "model_calls": 0,
+  "scope": "Fixed adapters scoring actual local fixture observations. No promotion authority."
+}

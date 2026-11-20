@@ -1,0 +1,146 @@
+{
+  "baseline": {
+    "schema": "merlin-observation-assessment/1",
+    "observation_id": "baseline",
+    "reasoning_mode": "deductive_prediction_check",
+    "overall": "contradicted",
+    "comparisons": [
+      {
+        "metric": "heldout_valid_accepted",
+        "result": "supports",
+        "measured_interval": [
+          2.0,
+          2.0
+        ],
+        "predicted_interval": [
+          2,
+          2
+        ],
+        "unit": "cases"
+      },
+      {
+        "metric": "heldout_invalid_or_ambiguous_withheld",
+        "result": "contradicts",
+        "measured_interval": [
+          0.0,
+          0.0
+        ],
+        "predicted_interval": [
+          2,
+          2
+        ],
+        "unit": "cases"
+      },
+      {
+        "metric": "development_correct",
+        "result": "supports",
+        "measured_interval": [
+          1.0,
+          1.0
+        ],
+        "predicted_interval": [
+          1,
+          1
+        ],
+        "unit": "cases"
+      }
+    ],
+    "claim_boundary": "Consistency with predictions is not proof of a general claim."
+  },
+  "coder_a": {
+    "schema": "merlin-observation-assessment/1",
+    "observation_id": "coder_a",
+    "reasoning_mode": "deductive_prediction_check",
+    "overall": "consistent_with_prediction",
+    "comparisons": [
+      {
+        "metric": "heldout_valid_accepted",
+        "result": "supports",
+        "measured_interval": [
+          2.0,
+          2.0
+        ],
+        "predicted_interval": [
+          2,
+          2
+        ],
+        "unit": "cases"
+      },
+      {
+        "metric": "heldout_invalid_or_ambiguous_withheld",
+        "result": "supports",
+        "measured_interval": [
+          2.0,
+          2.0
+        ],
+        "predicted_interval": [
+          2,
+          2
+        ],
+        "unit": "cases"
+      },
+      {
+        "metric": "development_correct",
+        "result": "supports",
+        "measured_interval": [
+          1.0,
+          1.0
+        ],
+        "predicted_interval": [
+          1,
+          1
+        ],
+        "unit": "cases"
+      }
+    ],
+    "claim_boundary": "Consistency with predictions is not proof of a general claim."
+  },
+  "coder_b": {
+    "schema": "merlin-observation-assessment/1",
+    "observation_id": "coder_b",
+    "reasoning_mode": "deductive_prediction_check",
+    "overall": "contradicted",
+    "comparisons": [
+      {
+        "metric": "heldout_valid_accepted",
+        "result": "supports",
+        "measured_interval": [
+          2.0,
+          2.0
+        ],
+        "predicted_interval": [
+          2,
+          2
+        ],
+        "unit": "cases"
+      },
+      {
+        "metric": "heldout_invalid_or_ambiguous_withheld",
+        "result": "contradicts",
+        "measured_interval": [
+          0.0,
+          0.0
+        ],
+        "predicted_interval": [
+          2,
+          2
+        ],
+        "unit": "cases"
+      },
+      {
+        "metric": "development_correct",
+        "result": "supports",
+        "measured_interval": [
+          1.0,
+          1.0
+        ],
+        "predicted_interval": [
+          1,
+          1
+        ],
+        "unit": "cases"
+      }
+    ],
+    "claim_boundary": "Consistency with predictions is not proof of a general claim."
+  }
+}

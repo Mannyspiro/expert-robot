@@ -1,0 +1,7 @@
+{
+  "arm": "A",
+  "result_diagnostics_and_fixture_hashes_identical": true,
+  "first_wall_seconds": 5.2191,
+  "replay_wall_seconds": 5.0613,
+  "scope": "same machine and renderer, a second fresh temporary directory, timing excluded"
+}

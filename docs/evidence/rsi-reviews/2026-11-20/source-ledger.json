@@ -1,0 +1,193 @@
+{
+  "window_start": "2026-11-19T15:03:54Z",
+  "query_observed_at": "2026-11-20T15:07:38.106Z",
+  "scope": "Default branches, at most 15 commits per repository and latest GitHub releases. A null release is an unavailable endpoint, not an absence of release tags.",
+  "repositories": [
+    {
+      "r": "modelcontextprotocol/python-sdk",
+      "release": "v2.3.0",
+      "published": "2026-10-02T22:02:27Z",
+      "url": "https://github.com/modelcontextprotocol/python-sdk/releases/tag/v2.3.0",
+      "commits": []
+    },
+    {
+      "r": "encode/httpx",
+      "release": "0.28.1",
+      "published": "2024-12-06T15:36:24Z",
+      "url": "https://github.com/encode/httpx/releases/tag/0.28.1",
+      "commits": []
+    },
+    {
+      "r": "jpadilla/pyjwt",
+      "release": "2.15.1",
+      "published": "2026-09-28T18:39:19Z",
+      "url": "https://github.com/jpadilla/pyjwt/releases/tag/2.15.1",
+      "commits": []
+    },
+    {
+      "r": "Kludex/starlette",
+      "release": "1.10.0",
+      "published": "2026-10-24T15:02:54Z",
+      "url": "https://github.com/Kludex/starlette/releases/tag/1.10.0",
+      "commits": []
+    },
+    {
+      "r": "mozman/ezdxf",
+      "release": null,
+      "published": null,
+      "url": null,
+      "commits": [
+        [
+          "431aecaa97cf653cde4eabc200547200c57c742e",
+          "2026-11-20T15:02:44Z",
+          "Merge pull request #1476 from grootstebozewolf/master"
+        ],
+        [
+          "88cf03973b49b5501d18abb391dc16c6af376c79",
+          "2026-11-20T12:13:19Z",
+          "Address review notes for the MINSERT spacing fix"
+        ],
+        [
+          "fc5d74c593cd1c963874f758bccd72c133c37e73",
+          "2026-11-20T07:29:01Z",
+          "add example script for transformed MINSERT entities #1476"
+        ],
+        [
+          "82f0ba080e3a955c17d68e288451bbd4b884e38f",
+          "2026-11-20T06:01:49Z",
+          "Check row and column spacing against tolerances in property `mcount`"
+        ],
+        [
+          "87774e7dd667ee85efd885607b2621a18ad67b9c",
+          "2026-11-20T05:13:02Z",
+          "edit changelog"
+        ],
+        [
+          "6fd6af010597d37fd119b1bd4da75ff40337797d",
+          "2026-11-20T05:10:09Z",
+          "Merge pull request #1479 from crossworks-engineering/fix/dense-hatch-fallback-wcs"
+        ],
+        [
+          "7b29fbf55de3012a3b743a0ed1264e563e6be619",
+          "2026-11-20T04:46:31Z",
+          "edit changelog"
+        ],
+        [
+          "9002fb91fae9cc9676de85900950a722519d4228",
+          "2026-11-20T04:42:21Z",
+          "Merge pull request #1478 from zzoraemon043/c-matrix44-match-python"
+        ]
+      ]
+    },
+    {
+      "r": "python-pillow/Pillow",
+      "release": "13.0.0",
+      "published": "2026-10-16T22:37:44Z",
+      "url": "https://github.com/python-pillow/Pillow/releases/tag/13.0.0",
+      "commits": [
+        [
+          "c5dd59a41f47034b64d6b633214595c1b5169005",
+          "2026-11-20T12:10:29Z",
+          "Improve memory usage and performance for raw encoder in tobytes() (#10561)"
+        ],
+        [
+          "81df0b1d0a04f0d2180a34b8ece3e2005b53a3fb",
+          "2026-11-20T08:12:37Z",
+          "Add libavif dav1d upgrade to SBOM (#10571)"
+        ],
+        [
+          "c8ab88c65c688a70930eb40b289bde44ba09b61d",
+          "2026-11-20T07:39:21Z",
+          "Fix saving a GIF with per-frame disposal when frames are merged into one (#10562)"
+        ],
+        [
+          "6761cbd58b0c9bfa630ae5dbdd2e49c93e1e1c15",
+          "2026-11-20T05:57:58Z",
+          "Fix Windows CI with MSVC 19.52 (#10569)"
+        ],
+        [
+          "c755114baabda1869f3e3825b55665b9a4dc146b",
+          "2026-11-20T05:13:55Z",
+          "Use uint8_t to fix intermittent output change on Windows"
+        ],
+        [
+          "8cbb9d8328c7d4a8ff3bd2abb41cdfe292e56e02",
+          "2026-11-20T03:29:13Z",
+          "Use dav1d 1.5.5 when building libavif on Windows"
+        ],
+        [
+          "475afe1a54a92d0fdc8dc52407a021461a1860ae",
+          "2026-11-19T20:15:35Z",
+          "Use Python readline() instead of while loop in ContainerIO (#10565)"
+        ],
+        [
+          "f3d17293ee85747f274cab8647f49cf9ec632af0",
+          "2026-11-19T20:14:06Z",
+          "Add decompression bomb check for expanded size in RankFilter (#10566)"
+        ]
+      ]
+    },
+    {
+      "r": "Kozea/CairoSVG",
+      "release": "2.9.1",
+      "published": "2026-09-07T10:37:00Z",
+      "url": "https://github.com/Kozea/CairoSVG/releases/tag/2.9.1",
+      "commits": []
+    },
+    {
+      "r": "gepa-ai/gepa",
+      "release": "v0.1.4",
+      "published": "2026-07-15T14:50:58Z",
+      "url": "https://github.com/gepa-ai/gepa/releases/tag/v0.1.4",
+      "commits": []
+    },
+    {
+      "r": "asg017/sqlite-vec",
+      "release": "v0.1.9",
+      "published": "2026-03-31T08:00:23Z",
+      "url": "https://github.com/asg017/sqlite-vec/releases/tag/v0.1.9",
+      "commits": []
+    },
+    {
+      "r": "lasp/cdflib",
+      "release": "1.3.16",
+      "published": "2026-10-21T17:47:30Z",
+      "url": "https://github.com/lasp/cdflib/releases/tag/1.3.16",
+      "commits": []
+    },
+    {
+      "r": "nasa/refine",
+      "release": null,
+      "published": null,
+      "url": null,
+      "commits": []
+    }
+  ],
+  "exact_pins": [
+    [
+      "Kozea/CairoSVG/commits/2.9.1",
+      "3b7a250c9e955db9c3cdf525d5b5027a9a396201",
+      null,
+      "https://github.com/Kozea/CairoSVG/commit/3b7a250c9e955db9c3cdf525d5b5027a9a396201"
+    ],
+    [
+      "mozman/ezdxf/commits/v1.4.5",
+      "84ae31976940f99e6d5f4d3b2e9131da02b574fe",
+      null,
+      "https://github.com/mozman/ezdxf/commit/84ae31976940f99e6d5f4d3b2e9131da02b574fe"
+    ],
+    [
+      "Kozea/CairoSVG/releases/tags/2.9.1",
+      null,
+      "**WARNING**: this is a security update.\r\n\r\nSpecially crafted SVGs with very long paths could lead to exponential rendering times.\r\n\r\n* Support path-like objects for the url parameter\r\n* Fix support of Windows paths\r\n",
+      "https://github.com/Kozea/CairoSVG/releases/tag/2.9.1"
+    ]
+  ],
+  "runtime_source_verification": {
+    "tag_commit": "3b7a250c9e955db9c3cdf525d5b5027a9a396201",
+    "files": 18,
+    "verified": 18,
+    "differences": [],
+    "scope": "Files in the installed cairosvg package, excluding bytecode"
+  }
+}

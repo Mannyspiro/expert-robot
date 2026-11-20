@@ -187,7 +187,9 @@ def verdict_status(verdict, controls, image_sha):
     return "accepted" if all(s=="pass" for s in states) else "rejected"
 
 
-def review_wiring(source, guide_dir, image, verdict_file, destination):
+def review_wiring(source, guide_dir, image, verdict_file, destination, *, independent_raster=False):
+    if type(independent_raster) is not bool:
+        raise ValueError("independent_raster must be a Boolean")
     raw = limited(source,131072)
     title,_,parts,pins,nets = read_sheet(raw)
     svg = wire_svg(title,parts,pins,nets)
@@ -215,6 +217,12 @@ def review_wiring(source, guide_dir, image, verdict_file, destination):
     verdict_raw = limited(verdict_file,300_000)
     verdict = json_object(verdict_raw)
     decision = verdict_status(verdict,controls,image_sha)
+    raster_check = None
+    if independent_raster:
+        from .drafting_raster import check_registered_raster
+        raster_check = check_registered_raster(rebuilt["conditioning-guide.png"],candidate,controls)
+        if raster_check["status"] != "clear_within_scope":
+            decision = "rejected"
     if size[0]*CANVAS[1]!=size[1]*CANVAS[0]:
         decision = "rejected"
     result = {"schema":"merlin-drafting-review/1","decision":decision,"reviewer":verdict["reviewer"],
@@ -222,6 +230,8 @@ def review_wiring(source, guide_dir, image, verdict_file, destination):
               "verdict_sha256":digest(verdict_raw),"size_px":list(size),
               "aspect_ratio_matches":size[0]*CANVAS[1]==size[1]*CANVAS[0],"checks":verdict["checks"],
               "nets":verdict["nets"],"notes":verdict["notes"],"authority":"illustration review only"}
+    if raster_check is not None:
+        result["raster_check"] = raster_check
     destination.mkdir()
     try:
         (destination/"review.json").write_text(json.dumps(result,indent=2)+"\n",encoding="utf-8")

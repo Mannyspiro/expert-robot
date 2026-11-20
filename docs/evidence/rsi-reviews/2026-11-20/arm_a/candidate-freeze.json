@@ -1,0 +1,37 @@
+{
+  "schema": "merlin-rsi-candidate-freeze/1",
+  "recorded_at_utc": "2026-11-20T15:12:12.261709+00:00",
+  "source_head": "584b948332b76596311d75133c0430d761e2f67a",
+  "interface": "review_wiring(source, guide_dir, image, verdict_file, destination, *, independent_raster=False)",
+  "evaluation_kwargs": {
+    "independent_raster": true
+  },
+  "files": [
+    {
+      "path": "candidate/python/merlin/drafting_control.py",
+      "sha256": "e7be4515cb18baec51fcb4effebda0ce3641c6eec2e57e759c9127d48d247d24",
+      "bytes": 12211
+    },
+    {
+      "path": "candidate/python/merlin/drafting_raster.py",
+      "sha256": "00a2b8e2fbf5c580e7b74643fc58a37917de308d33030c78a151a87d8aacbe35",
+      "bytes": 8797
+    },
+    {
+      "path": "candidate/tests/test_drafting_raster.py",
+      "sha256": "77832d97069ea12600549928fedf6a80e6b749dff2b5d4b25fb88eadd44c7d90",
+      "bytes": 7779
+    },
+    {
+      "path": "protocol.json",
+      "sha256": "3d0b7a5102cc0ec5e797bd91a83c5091fd4af916964e637a7babdcda99b605a3",
+      "bytes": 4914
+    }
+  ],
+  "development_tests_passed": 11,
+  "python39_grammar": "passed; execution is Python3.12.14",
+  "fresh_holdout_opened_by_coder_a": false,
+  "remote_writes": false,
+  "qualification": false,
+  "promotion_authority": false
+}

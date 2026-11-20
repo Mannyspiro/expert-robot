@@ -1,0 +1,15 @@
+{
+  "schema": "merlin-plan-update/1",
+  "parent_source_commit": "584b948332b76596311d75133c0430d761e2f67a",
+  "prior_update": "config/merlin/plan-updates/20261119-daily-rsi.json",
+  "prior_update_sha256": "1ad6c33a8ab35dd66a9902e91f505844de23cabc8f615121bef62fe25c1e0696",
+  "decision": "Retain the reviewer gate and advance the opt-in registered raster residual prototype on the private draft. Hold the renderer pin pending migration qualification.",
+  "evidence": ["docs/evidence/rsi-reviews/2026-11-20/README.md", "docs/evidence/rsi-reviews/2026-11-20/eval/review.json", "docs/evidence/rsi-reviews/2026-11-20/cairo/matrix.jsonl"],
+  "next_actions": [
+    "Freeze cross-renderer controls including a subtle change inside the reference corridor, pale strokes, annotations and ambiguous junctions. Separate visual mismatch from electrical connectivity.",
+    "Qualify an explicit CairoSVG renderer migration with preserved historical receipts, regenerated guides and reviewer reapproval on supported Python runtimes.",
+    "Compare no-lesson, optional and compulsory guidance with pinned lesson lineage, equal cost and isolated heldouts."
+  ],
+  "requires_review": true,
+  "authority_effect": "none"
+}

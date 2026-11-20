@@ -1,0 +1,34 @@
+{
+  "train": {
+    "D0": "accept"
+  },
+  "holdout": {
+    "H1": "accept",
+    "H2": "withhold",
+    "H3": "withhold",
+    "H4": "accept"
+  },
+  "observed": {
+    "baseline": {
+      "D0": "accept",
+      "H1": "accept",
+      "H2": "accept",
+      "H3": "accept",
+      "H4": "accept"
+    },
+    "coder_a": {
+      "D0": "accept",
+      "H1": "accept",
+      "H2": "withhold",
+      "H3": "withhold",
+      "H4": "accept"
+    },
+    "coder_b": {
+      "D0": "accept",
+      "H1": "accept",
+      "H2": "accept",
+      "H3": "accept",
+      "H4": "accept"
+    }
+  }
+}
