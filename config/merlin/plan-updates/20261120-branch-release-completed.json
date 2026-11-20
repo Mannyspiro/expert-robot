@@ -1,0 +1,204 @@
+{
+  "schema": "merlin-plan-update/1",
+  "date": "2026-11-20",
+  "status": "deployed_private_library_and_readback_verified",
+  "parent_source_commit": "89d04145d4afd0fa8cf634e989f73c80b6f74c8e",
+  "prior_update": {
+    "path": "config/merlin/plan-updates/20261120-branch-release-preparation.json",
+    "git_blob": "9a21657b667a63f2fa38bfe2bebbbe71bda4e213"
+  },
+  "master_plan_reference": {
+    "version": 6,
+    "source_commit": "5b0053ce04c2a9f9da80d9581efa148784aada8a",
+    "path": "config/merlin/production-master-plan.json",
+    "full_track_status_unchanged": true
+  },
+  "authorization": "User explicitly requested push, merge and deploy on November 20, 2026.",
+  "source": {
+    "repository": "Mannyspiro/expert-robot",
+    "pull_request": 183,
+    "tested_commit": "5d5ecfbe2ed4bb29d7e5c0c86607e73780fd599f",
+    "merge_commit": "89d04145d4afd0fa8cf634e989f73c80b6f74c8e",
+    "merged_at": "2026-11-20T22:02:08Z",
+    "tested_to_merged_file_changes": 0,
+    "files": {
+      "python/merlin/branch_research.py": "78cc71d4b506a59bf7712a41193ae24644f98f6ec59024c82ae4d7855da7e3b5",
+      "tests/test_branch_research.py": "36ad328f121b0f545a00f4657a35d21bc6adf8addd583acb73d299c03c8f8f11",
+      "tests/test_branch_research_boundaries.py": "34735ebc088b54f0e8f11d75871246dd215cabad15c0e0ee941092162adf905a"
+    }
+  },
+  "decision": "Retain the verified additive scheduler library in the existing private OCI service. Do not equate this scoped release with full Merlin platform acceptance.",
+  "runtime_package_sha256": "d4fa47482b94c8f086b87d2c2e532a64a5874124b31283d834bc9be8350c3365",
+  "previous_package_sha256": "efe57bada5cd86f45118cac0036faf497f9aa60972508e036aed09f7b8cf04db",
+  "measurements": {
+    "local_scheduler_tests": 21,
+    "oci_baseline_tests": 116,
+    "oci_candidate_tests": 137,
+    "oci_release_controller_tests": 27,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "oci_python": "3.9.25",
+    "runner": "cace-oci-a1",
+    "test_scope": "Synthetic software contracts, including fake-service fault injection; not independent scientific qualification."
+  },
+  "live_readback": {
+    "library": {
+      "installed_library_import": true,
+      "remote_tool_exposed": false,
+      "restart_and_mutation_smoke": true
+    },
+    "snapshot": {
+      "config_sha256": "a25921442e2d3e463ccd685de6c67d824140b8c1592ab4fe942fb50c5d3b22e8",
+      "grants_changed": false,
+      "manifest_sha256": "9067ebf27ee04927911310138ab7eb02075161dc030acac7028d62e2eaca56b1",
+      "release_sha256": "d4fa47482b94c8f086b87d2c2e532a64a5874124b31283d834bc9be8350c3365",
+      "service_properties": {
+        "ActiveState": "active",
+        "DropInPaths": "",
+        "Group": "opc",
+        "NoNewPrivileges": "yes",
+        "PrivateNetwork": "yes",
+        "RestrictAddressFamilies": "AF_UNIX",
+        "SubState": "running",
+        "UnitFileState": "enabled",
+        "User": "merlin-dot"
+      },
+      "unit_sha256": "f22462e9c91eedab99d4bd16d9e3bb14eb52fedbc1e9e3b9110bb3307a11e543"
+    },
+    "tools": {
+      "job_submit": "tool_not_allowed",
+      "tools": {
+        "health": {
+          "ok": true
+        },
+        "mathematical_lenses_demo": {
+          "ok": true
+        },
+        "research_contract": {
+          "ok": true
+        },
+        "research_episode_demo": {
+          "ok": true
+        }
+      }
+    }
+  },
+  "deployment": {
+    "run_id": 44826735576,
+    "status": "upgraded",
+    "previous_release_retained": true,
+    "old_failure_receipt_retained": true,
+    "private_state_edited_by_updater": false,
+    "new_remote_tools": false,
+    "unit_changed": false,
+    "grants_changed": false,
+    "readiness_attempts": 2,
+    "readiness_elapsed_seconds": 0.20119156409054995
+  },
+  "operations_repository": "morganaspim/Cace-app",
+  "operations_branch": "merlin/dot-ops/branch-release-20261120",
+  "workflow_blob": "b9fa305a5c191eacf7f38489854ab0a1859629e9",
+  "evidence": [
+    {
+      "stage": "initial-validation",
+      "run_id": 44825294392,
+      "artifact_id": 14673961921,
+      "workflow_commit": "460438b7e720554890a53234664c0b1bc39f8b3c",
+      "status": "succeeded",
+      "archive_bytes": 93810,
+      "archive_sha256": "4639287a8371158d1ca09c8b3b2d6707d788969e694dee788d5de98f3d55e2cf",
+      "receipt_sha256": "6d9ea2c53a756344f83cfc39c8beac43bd92ba7cf78fe5bf2f10ab5811ec299e"
+    },
+    {
+      "stage": "failed-activation",
+      "run_id": 44825544345,
+      "artifact_id": 14674655449,
+      "workflow_commit": "3114e4fd8c1c0876a3e715f14da7abcd8b253186",
+      "status": "rollback_failed",
+      "archive_bytes": 95537,
+      "archive_sha256": "662f74783ff2319a8868612ab51af9f80a56b51598902edfa945b493abdaf8b9",
+      "receipt_sha256": "1d8f48e56964e34935bbeaeaab04c0ee5ee065c9d3f97d254a87e8a057895e98"
+    },
+    {
+      "stage": "restored-original-diagnostic",
+      "run_id": 44825819133,
+      "artifact_id": 14673951079,
+      "workflow_commit": "b79a807bdd46a8c4198900d585efb394964cbc98",
+      "status": "succeeded",
+      "archive_bytes": 4622,
+      "archive_sha256": "175787332c6b8b726401f5a49d33141824965f17964c8f41b66fdd38a8087379",
+      "receipt_sha256": "aadbc29d885fc11d7868b6cbfd38971bccd03150ef3ec698b4fd076c2c3f703e"
+    },
+    {
+      "stage": "resume-validation",
+      "run_id": 44826601065,
+      "artifact_id": 14673229639,
+      "workflow_commit": "d9c862216cc832727c8dfa3be201201bc3592934",
+      "status": "succeeded",
+      "archive_bytes": 94044,
+      "archive_sha256": "838b318b3c310288cad4d0ff70919f81bdfa39b5d6d3a278d2f85e8faa9d093c",
+      "receipt_sha256": "bf95cb5c00d0a7932ecdc9014fc8be45a60da0e7093b1c4ac37c50c575797dd7"
+    },
+    {
+      "stage": "successful-deployment",
+      "run_id": 44826735576,
+      "artifact_id": 14673963711,
+      "workflow_commit": "ef8e2dfdad2db53e3d9a659e7c64fdd38b302a6e",
+      "status": "succeeded",
+      "archive_bytes": 95463,
+      "archive_sha256": "0484cef3bb0a5fad12d690b282fd53bf527804fdc9023ef4a3cf1edf5b36d10c",
+      "receipt_sha256": "38d32992ab4beefa0a3a1b5051384673551feccf7c24f33a17f4ddf3eabfec80"
+    },
+    {
+      "stage": "postdeployment-readback",
+      "run_id": 44826892682,
+      "artifact_id": 14673684024,
+      "workflow_commit": "4cae0e157799d894dd1aff5d63ec8adcb12d4c67",
+      "status": "succeeded",
+      "archive_bytes": 87671,
+      "archive_sha256": "aa349bfb3bae6d908b31a4faf7313d2f86f2c163094c739b2ca3f44f77e361ee",
+      "receipt_sha256": "48cfbae6dc2455c270d5649cc24cbd591092f8c7792e104ed6c1c79d631b5aed"
+    }
+  ],
+  "failure_and_repair": {
+    "failed_run": 44825544345,
+    "reported_status": "rollback_failed",
+    "later_diagnostic_run": 44825819133,
+    "later_observation": "Original release active, original unit/configuration intact. Full original tool checks subsequently passed before resume.",
+    "original_exception_cause": "Not conclusively recovered: original error truncated command text instead of stderr.",
+    "mechanism_supported": "Systemd active can precede private socket readiness; successful resume required two health attempts over approximately 0.201 seconds.",
+    "prevention": "Bounded readiness on missing/refused sockets only; no retry of authorization/health failures; retain stderr; exact prior-failure binding; append-only resume history; full pre/post health and write-denial checks.",
+    "fault_injection": "14 new readiness/resume tests plus 13 original release controls; fake service fixtures, not deliberate live failures."
+  },
+  "authority_effect": "none; existing private AF_UNIX tool grant set unchanged",
+  "avrea_used": false,
+  "avrea_freeze_until": "2026-12-01",
+  "branch_protections_changed": false,
+  "limits": [
+    "Installed scheduler is a library, not a newly exposed remote execution tool.",
+    "No full-platform or institutional production acceptance is claimed.",
+    "Canonical registry/Hermes scheduler integration remains open.",
+    "External side effects require idempotency/reconciliation; checkpoint resume alone is not exactly-once execution.",
+    "Independent CACE verification, proof qualification and promotion remain unestablished.",
+    "No off-host recovery, host reboot or extended-soak acceptance was performed.",
+    "GitHub artifacts have 30-day retention; preserve the downloaded evidence packet."
+  ],
+  "ranked_next_actions": [
+    {
+      "rank": 1,
+      "task": "Integrate the installed scheduler with existing canonical registry/Hermes receipts behind unchanged authority boundaries.",
+      "acceptance": "Exact-source end-to-end run, failed prerequisite, replay and canonical receipt identity."
+    },
+    {
+      "rank": 2,
+      "task": "Qualify interruption reconciliation and externally enforced budgets before enabling side-effecting remote work.",
+      "acceptance": "Crash-before/after-effect tests, lease fencing, duplicate-effect prevention and rollback."
+    },
+    {
+      "rank": 3,
+      "task": "Continue original master-plan operational and institutional gates without bulk-merging unrelated drafts.",
+      "acceptance": "Reboot/soak/off-host restore and separately provisioned identity/provider/verifier evidence."
+    }
+  ]
+}
