@@ -1,5 +1,6 @@
 """Bounded durable research DAG with exact checkpoint and outcome identity."""
 from contextlib import closing
+from copy import deepcopy
 from dataclasses import asdict, dataclass
 from hashlib import sha256
 import json
@@ -84,17 +85,21 @@ class BranchResearch:
                     branch = self._choose(results)
                     if branch is None:
                         break
+                    # Lineage is scheduler-owned. Give the evaluator a detached
+                    # snapshot so even nested mutations cannot alter the checkpoint.
                     inputs = {key: results[key] for key in branch.prerequisites}
-                    evidence = evaluate(branch.id, inputs)
+                    prerequisite_receipts = {key: row["receipt_sha256"] for key, row in inputs.items()}
+                    parent_sha256 = next(reversed(results.values()))["receipt_sha256"] if results else None
+                    evidence = evaluate(branch.id, deepcopy(inputs))
                     if (not isinstance(evidence, dict) or type(evidence.get("passed")) is not bool
                             or not isinstance(evidence.get("detail"), str)):
                         raise ValueError("A branch must return a measured pass or failure and detail.")
                     receipt = {
                         "plan_sha256": self.plan_sha256,
-                        "parent_sha256": next(reversed(results.values()))["receipt_sha256"] if results else None,
+                        "parent_sha256": parent_sha256,
                         "branch": branch.id, "status": "verified" if evidence["passed"] else "failed",
                         "evidence": evidence, "evidence_sha256": digest(evidence),
-                        "prerequisite_receipts": {key: row["receipt_sha256"] for key, row in inputs.items()},
+                        "prerequisite_receipts": prerequisite_receipts,
                     }
                     body = canonical(receipt)
                     if len(body.encode()) > 64 * 1024:
