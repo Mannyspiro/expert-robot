@@ -1,0 +1,15 @@
+{
+  "schema": "merlin-plan-update/1",
+  "parent_source_commit": "b928e634ccce96907788d95a7d82bd58c93841a4",
+  "master_plan_reference": {"source_commit": "5b0053ce04c2a9f9da80d9581efa148784aada8a", "path": "config/merlin/production-master-plan.json", "version": 6},
+  "authorization": "User explicitly requested push, merge and deploy on November 20, 2026.",
+  "status": "release_preparation_not_release_evidence",
+  "scope": "PR 183 scheduler input-isolation repair; not bulk integration of unrelated draft branches.",
+  "observed_local_tests": {"run": 21, "failures": 0, "errors": 0, "skips": 0, "python": "3.13.5"},
+  "preflight": {"repository": "morganaspim/Cace-app", "workflow_commit": "91e8716d37e2bae061287d5dbdad2452d3e36f12", "run_id": 44823189505, "status": "succeeded", "service": "merlin-dot-private.service", "active": true, "host_configuration_changed": false},
+  "acceptance": ["Exact code and test hashes agree with published source.", "OCI Python 3.9 runs 21 focused checks with zero failures, errors or skips.", "Existing release regressions and private live health/write-denial probes pass.", "Merge honors existing repository protection and exact head lease.", "Deployment preserves state, grants, unit and rollback source; independently read back active release."],
+  "mathematical_lenses": {"simplex": "not_applicable: no mixture changed", "n_ality": "applied: multi-parent prerequisites remain distinct from chronological chain", "continuum": "not_applicable: discrete transactions", "fuzzy": "not_applicable: integrity and authorization remain Boolean"},
+  "constraints": ["No Avrea before 2026-12-01", "No new credentials or public listener", "No autonomous remote side effects", "No truth, proof or qualification promotion"],
+  "next_actions": ["Publish repaired source", "Validate exact candidate on OCI", "Merge only validated scope", "Perform reversible pinned upgrade and verify live service"],
+  "authority_effect": "No changes to runtime grants or promotion authority"
+}
