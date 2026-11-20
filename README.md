@@ -2,6 +2,10 @@
 
 Expert Robot is a local, modular AI research system designed around a thin Python orchestration layer and a C++ runtime core.
 
+## AI agent operations
+
+Any coding agent with authorized GitHub access should start with [AGENTS.md](AGENTS.md), then the [runner and bridge operations guide](docs/AI_RUNNER_AND_BRIDGE_OPERATIONS.md) and [machine-readable runner catalog](docs/runner-bridge-catalog.json). These document Avrea and OCI runners, both repository directions, credential-name boundaries, request/result schemas, evidence handling, and repeatable troubleshooting. Workflow YAML and exact-run artifacts remain authoritative; agents must inspect the live branch and run before acting.
+
 ## Architecture
 
 - **Python**: orchestration only
