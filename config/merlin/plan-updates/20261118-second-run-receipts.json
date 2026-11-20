@@ -1,0 +1,27 @@
+{
+  "schema": "merlin-plan-update/1",
+  "parent_plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+  "parent_plan_version": 7,
+  "reasoning_mode": "inductive_revision",
+  "requires_review": true,
+  "authority_effect": "none",
+  "prior_update": "config/merlin/plan-updates/20261118-mesh-profile-gate.json",
+  "prior_update_sha256": "2aebd7d7be377c82d3c58174f9c2bd1147bc18f09103c111e9e5858b41cb6600",
+  "observation_ids": [
+    "second-run-receipt-retrieval"
+  ],
+  "observed_artifacts": [
+    "ef0539d1002d6d39cb7a65b4cb18d07c09500367a4d07c85d4fb09e7e4025b7e"
+  ],
+  "evidence": "docs/evidence/second-run-receipts.json",
+  "preregistered_commit": "9a215c30c81e7ff33920ac58cf21771905ab7b24",
+  "decision": "Run-bound revision passed all 11 cases on two additional historical source reports; the first-hit baseline passed eight.",
+  "limits": "New source-aware questions authored for this exercise. Offline evaluation on the pinned PR 179 revision. Independent user-authored question evaluation and institutional pilot provisioning remain open.",
+  "next_actions": [
+    "Verify the learning service with an owner-provisioned institutional pilot, approved data policy and restart exercise.",
+    "Evaluate questions authored independently of the parser and scorer, including natural paraphrases and version drift; retain exact historical citations.",
+    "Test the training-parent planner with distinct versioned coder adapters. Record measured calls and cost, and use a fresh holdout to decide whether any proposal improves behavior.",
+    "Evaluate an additional instrument dataset with documented unit conventions. Recheck missing values and timestamp precision across scientific data interchange.",
+    "Evaluate a selector that estimates interpolation error for mesh alternatives, including both uniform orientations. Freeze its proxy and test on new geometries with uncertain amplitude before scoring."
+  ]
+}

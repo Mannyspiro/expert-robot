@@ -1,0 +1,13 @@
+{
+  "title": "Lab signal chain",
+  "unit": "mm",
+  "components": [
+    {"id":"Sensor", "origin":[0,20], "size":[30,20], "pins":[{"id":"OUT","offset":[30,10]}]},
+    {"id":"Recorder", "origin":[68,0], "size":[32,24], "pins":[{"id":"IN","offset":[0,16]},{"id":"OUT","offset":[32,8]}]},
+    {"id":"Display", "origin":[144,16], "size":[30,20], "pins":[{"id":"IN","offset":[0,10]}]}
+  ],
+  "nets": [
+    {"id":"SAMPLE","routes":[{"from":"Sensor.OUT","to":"Recorder.IN","points":[[30,30],[48,30],[48,16],[68,16]]}]},
+    {"id":"TRACE","routes":[{"from":"Recorder.OUT","to":"Display.IN","points":[[100,8],[123,8],[123,26],[144,26]]}]}
+  ]
+}

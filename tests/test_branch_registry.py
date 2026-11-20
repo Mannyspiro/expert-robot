@@ -333,14 +333,14 @@ s.step(crash,check_cancelled=lambda:None)
         self.assertEqual(self.step()['reconciliation_required'],'a')
 
     def test_hermes_snapshot_rejects_intervening_tick(self):
-        session=self.session();original=session.step
+        session=self.session();original=session._step_locked
         def interleaved(*args,**kwargs):
             old=original(*args,**kwargs)
             original(self.evaluate,check_cancelled=lambda:None,budget=1)
             return old
         execute=build_branch_research_executor(session,self.evaluate)
-        context=SimpleNamespace(task_id='t1',artifact_refs=(self.frame_ref,),check_cancelled=lambda:None)
-        with patch.object(session,'step',side_effect=interleaved):
+        context=SimpleNamespace(task_id='t1',hypothesis_id='H-test',artifact_refs=(self.frame_ref,),check_cancelled=lambda:None)
+        with patch.object(session,'_step_locked',side_effect=interleaved):
             with self.assertRaises(BranchSessionConflict):execute({'stage':'research','task_id':'t1'},context)
         self.assertEqual(session.status()['completed'],2)
         self.assertEqual(self.calls,['a','b'])

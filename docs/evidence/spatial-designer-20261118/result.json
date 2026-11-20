@@ -1,0 +1,111 @@
+{
+  "cases": [
+    {
+      "name": "Face contact",
+      "exact_clash": true,
+      "exact_bounds": true,
+      "meshes": [
+        true,
+        true
+      ],
+      "mesh_count": 2
+    },
+    {
+      "name": "Interior overlap",
+      "exact_clash": true,
+      "exact_bounds": true,
+      "meshes": [
+        true,
+        true
+      ],
+      "mesh_count": 2
+    },
+    {
+      "name": "Separated vertically",
+      "exact_clash": true,
+      "exact_bounds": true,
+      "meshes": [
+        true,
+        true
+      ],
+      "mesh_count": 2
+    },
+    {
+      "name": "Overhang",
+      "exact_clash": true,
+      "exact_bounds": true,
+      "meshes": [
+        true,
+        true
+      ],
+      "mesh_count": 2
+    },
+    {
+      "name": "Touch ceiling",
+      "exact_clash": true,
+      "exact_bounds": true,
+      "meshes": [
+        true,
+        true
+      ],
+      "mesh_count": 2
+    }
+  ],
+  "blender_version": "4.3.2",
+  "protocol_sha256": "b9f7c0c0e0d9a52bdb7966500db9991197a8e42efb95b7bd68e458ad567dec1e",
+  "input_sha256": "bea339446e6ebdf6f498efceba5f3586debf84b3fc3150e270b23a37f0374c8e",
+  "invalid_input_rejected": {
+    "exit_code": 2,
+    "output_exists": false
+  },
+  "scope": "Synthetic exhibit geometry only. Finite checks cannot demonstrate structural or physical safety.",
+  "scientific_loop_source_sha256": "8271072d8174336fc9bd3e60ede294ce08a0ccbda5d9ff75fa584dc75220e574",
+  "assessment": {
+    "schema": "merlin-observation-assessment/1",
+    "observation_id": "synthetic-exhibit-layout-heldout",
+    "reasoning_mode": "deductive_prediction_check",
+    "overall": "consistent_with_prediction",
+    "comparisons": [
+      {
+        "metric": "correct_critiques",
+        "result": "supports",
+        "measured_interval": [
+          5.0,
+          5.0
+        ],
+        "predicted_interval": [
+          5,
+          5
+        ],
+        "unit": "cases"
+      },
+      {
+        "metric": "exact_meshes",
+        "result": "supports",
+        "measured_interval": [
+          10.0,
+          10.0
+        ],
+        "predicted_interval": [
+          10,
+          10
+        ],
+        "unit": "cases"
+      },
+      {
+        "metric": "rejects",
+        "result": "supports",
+        "measured_interval": [
+          1.0,
+          1.0
+        ],
+        "predicted_interval": [
+          1,
+          1
+        ],
+        "unit": "cases"
+      }
+    ],
+    "claim_boundary": "Consistency with predictions is not proof of a general claim."
+  }
+}

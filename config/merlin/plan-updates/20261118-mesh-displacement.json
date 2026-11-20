@@ -1,0 +1,59 @@
+{
+  "schema": "merlin-plan-update/1",
+  "parent_plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+  "parent_plan_version": 6,
+  "reasoning_mode": "inductive_revision",
+  "observation_ids": [
+    "mesh-displacement-quarter-domain"
+  ],
+  "observed_artifacts": [
+    "4c9a080f1fccde5eff89558bae0afb34746831aaa64bb4e3ca73b54412447aa8"
+  ],
+  "changes": [
+    {
+      "type": "evidence_informed_revision",
+      "rationale": "Plan update is linked to explicit observations; conclusions remain provisional."
+    }
+  ],
+  "next_actions": [
+    "Verify the learning service with an owner-provisioned institutional pilot, approved data policy and restart exercise.",
+    "Retest run-bound retrieval on a second independently authored corpus. Score supported answers, appropriate clarification, abstention and citation bytes.",
+    "Test the training-parent planner with distinct versioned coder adapters. Record measured calls and cost, and use a fresh holdout to decide whether any proposal improves behavior.",
+    "Evaluate an additional instrument dataset with documented unit conventions. Recheck missing values and timestamp precision across scientific data interchange.",
+    "Keep the field-specific mesh opt-in. Test a metric estimated from coarse observations at equal sampling and vertex budgets on an unseen feature location before considering a CAD default."
+  ],
+  "requires_review": true,
+  "authority_effect": "none",
+  "prior_update": "config/merlin/plan-updates/20261118-mesh-measurement.json",
+  "prior_update_sha256": "dae246c734ec598343a05f575266a3d92d44239847f68aafde7103c62f159ce6",
+  "ranked_next_actions": [
+    {
+      "task": "P07-2",
+      "action": "Verify the learning service with an owner-provisioned institutional pilot, approved data policy and restart exercise."
+    },
+    {
+      "task": "P01-2",
+      "action": "Retest run-bound retrieval on a second independently authored corpus. Score supported answers, appropriate clarification, abstention and citation bytes."
+    },
+    {
+      "task": "P03-2",
+      "action": "Test the training-parent planner with distinct versioned coder adapters. Record measured calls and cost, and use a fresh holdout to decide whether any proposal improves behavior."
+    },
+    {
+      "task": "P04-1",
+      "action": "Evaluate an additional instrument dataset with documented unit conventions. Recheck missing values and timestamp precision across scientific data interchange."
+    },
+    {
+      "task": "P06-2",
+      "action": "Keep the field-specific mesh opt-in. Test a metric estimated from coarse observations at equal sampling and vertex budgets on an unseen feature location before considering a CAD default."
+    }
+  ],
+  "preregistered_commit": "fc5066245c25a076ac7ca81b53bb282c8c2bec45",
+  "rmse_ratios": {
+    "baseline": 0.12312118759498555,
+    "mirror": 1.5314233400778443,
+    "primary": 1.5829997876737665
+  },
+  "evidence": "docs/evidence/mesh-displacement-20261118.json",
+  "decision": "Retain near-uniform as the experimental comparator. Displacing the synthetic feature in either direction reversed the original gain. No change to production CAD configuration."
+}

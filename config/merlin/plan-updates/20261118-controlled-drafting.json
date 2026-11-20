@@ -1,0 +1,13 @@
+{
+  "schema": "merlin-plan-update/1",
+  "parent_source_commit": "aa89bbff0dd5580cb948785d97c1472d9be86e7a",
+  "prior_update": "config/merlin/plan-updates/20261118-hand-drafting.json",
+  "decision": "Use a registered raster derived from the scientific wiring source to condition an image edit, then review each net against the same source.",
+  "evidence": "docs/evidence/controlled-drafting-20261118/decision.json",
+  "limits": "A session image provider was invoked. Local commands prepare the request and verify a supplied visual verdict. Provider autonomy and independent reviewer identity are unqualified.",
+  "next_actions": [
+    "Repeat on a fresh multi-branch optical schematic with blinded swapped-pin and extra-junction controls."
+  ],
+  "requires_review": true,
+  "authority_effect": "none"
+}

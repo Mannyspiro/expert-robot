@@ -1,0 +1,509 @@
+{
+  "schema": "merlin-combination-search/1",
+  "candidates": [
+    {
+      "combination_id": "ideonomy-binary_mask_components-unexpected_cross_net_bridge",
+      "primitive_ids": [
+        "binary_mask_components",
+        "unexpected_cross_net_bridge"
+      ],
+      "domains": [
+        "falsifier",
+        "representation"
+      ],
+      "problem": "Govern a claimed unchanged registered drawing with independent physical evidence",
+      "trigger": "A mistaken all-pass reviewer can qualify added ink",
+      "estimated_cost": 2.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-reference_ink_residual-binary_mask_components",
+      "primitive_ids": [
+        "reference_ink_residual",
+        "binary_mask_components"
+      ],
+      "domains": [
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Govern a claimed unchanged registered drawing with independent physical evidence",
+      "trigger": "A mistaken all-pass reviewer can qualify added ink",
+      "estimated_cost": 2.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-reference_ink_residual-unexpected_cross_net_bridge",
+      "primitive_ids": [
+        "reference_ink_residual",
+        "unexpected_cross_net_bridge"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism"
+      ],
+      "problem": "Govern a claimed unchanged registered drawing with independent physical evidence",
+      "trigger": "A mistaken all-pass reviewer can qualify added ink",
+      "estimated_cost": 2.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-binary_mask_components-scan_gap_near_crossing",
+      "primitive_ids": [
+        "binary_mask_components",
+        "scan_gap_near_crossing"
+      ],
+      "domains": [
+        "falsifier",
+        "representation"
+      ],
+      "problem": "Govern a claimed unchanged registered drawing with independent physical evidence",
+      "trigger": "A mistaken all-pass reviewer can qualify added ink",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-reference_ink_residual-binary_mask_components-unexpected_cross_net_bridge",
+      "primitive_ids": [
+        "reference_ink_residual",
+        "binary_mask_components",
+        "unexpected_cross_net_bridge"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Govern a claimed unchanged registered drawing with independent physical evidence",
+      "trigger": "A mistaken all-pass reviewer can qualify added ink",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-reference_ink_residual-scan_gap_near_crossing",
+      "primitive_ids": [
+        "reference_ink_residual",
+        "scan_gap_near_crossing"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism"
+      ],
+      "problem": "Govern a claimed unchanged registered drawing with independent physical evidence",
+      "trigger": "A mistaken all-pass reviewer can qualify added ink",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-reference_ink_residual-terminal_partition",
+      "primitive_ids": [
+        "reference_ink_residual",
+        "terminal_partition"
+      ],
+      "domains": [
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Govern a claimed unchanged registered drawing with independent physical evidence",
+      "trigger": "A mistaken all-pass reviewer can qualify added ink",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-terminal_partition-unexpected_cross_net_bridge",
+      "primitive_ids": [
+        "terminal_partition",
+        "unexpected_cross_net_bridge"
+      ],
+      "domains": [
+        "falsifier",
+        "representation"
+      ],
+      "problem": "Govern a claimed unchanged registered drawing with independent physical evidence",
+      "trigger": "A mistaken all-pass reviewer can qualify added ink",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-terminal_seed_connectivity-binary_mask_components",
+      "primitive_ids": [
+        "terminal_seed_connectivity",
+        "binary_mask_components"
+      ],
+      "domains": [
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Govern a claimed unchanged registered drawing with independent physical evidence",
+      "trigger": "A mistaken all-pass reviewer can qualify added ink",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-terminal_seed_connectivity-unexpected_cross_net_bridge",
+      "primitive_ids": [
+        "terminal_seed_connectivity",
+        "unexpected_cross_net_bridge"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism"
+      ],
+      "problem": "Govern a claimed unchanged registered drawing with independent physical evidence",
+      "trigger": "A mistaken all-pass reviewer can qualify added ink",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-reference_ink_residual-binary_mask_components-scan_gap_near_crossing",
+      "primitive_ids": [
+        "reference_ink_residual",
+        "binary_mask_components",
+        "scan_gap_near_crossing"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Govern a claimed unchanged registered drawing with independent physical evidence",
+      "trigger": "A mistaken all-pass reviewer can qualify added ink",
+      "estimated_cost": 4.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-reference_ink_residual-terminal_partition-unexpected_cross_net_bridge",
+      "primitive_ids": [
+        "reference_ink_residual",
+        "terminal_partition",
+        "unexpected_cross_net_bridge"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Govern a claimed unchanged registered drawing with independent physical evidence",
+      "trigger": "A mistaken all-pass reviewer can qualify added ink",
+      "estimated_cost": 4.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-terminal_partition-scan_gap_near_crossing",
+      "primitive_ids": [
+        "terminal_partition",
+        "scan_gap_near_crossing"
+      ],
+      "domains": [
+        "falsifier",
+        "representation"
+      ],
+      "problem": "Govern a claimed unchanged registered drawing with independent physical evidence",
+      "trigger": "A mistaken all-pass reviewer can qualify added ink",
+      "estimated_cost": 4.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-terminal_seed_connectivity-binary_mask_components-unexpected_cross_net_bridge",
+      "primitive_ids": [
+        "terminal_seed_connectivity",
+        "binary_mask_components",
+        "unexpected_cross_net_bridge"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Govern a claimed unchanged registered drawing with independent physical evidence",
+      "trigger": "A mistaken all-pass reviewer can qualify added ink",
+      "estimated_cost": 4.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-terminal_seed_connectivity-scan_gap_near_crossing",
+      "primitive_ids": [
+        "terminal_seed_connectivity",
+        "scan_gap_near_crossing"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism"
+      ],
+      "problem": "Govern a claimed unchanged registered drawing with independent physical evidence",
+      "trigger": "A mistaken all-pass reviewer can qualify added ink",
+      "estimated_cost": 4.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-terminal_seed_connectivity-terminal_partition",
+      "primitive_ids": [
+        "terminal_seed_connectivity",
+        "terminal_partition"
+      ],
+      "domains": [
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Govern a claimed unchanged registered drawing with independent physical evidence",
+      "trigger": "A mistaken all-pass reviewer can qualify added ink",
+      "estimated_cost": 4.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-reference_ink_residual-terminal_partition-scan_gap_near_crossing",
+      "primitive_ids": [
+        "reference_ink_residual",
+        "terminal_partition",
+        "scan_gap_near_crossing"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Govern a claimed unchanged registered drawing with independent physical evidence",
+      "trigger": "A mistaken all-pass reviewer can qualify added ink",
+      "estimated_cost": 5.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-terminal_seed_connectivity-binary_mask_components-scan_gap_near_crossing",
+      "primitive_ids": [
+        "terminal_seed_connectivity",
+        "binary_mask_components",
+        "scan_gap_near_crossing"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Govern a claimed unchanged registered drawing with independent physical evidence",
+      "trigger": "A mistaken all-pass reviewer can qualify added ink",
+      "estimated_cost": 5.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-terminal_seed_connectivity-terminal_partition-unexpected_cross_net_bridge",
+      "primitive_ids": [
+        "terminal_seed_connectivity",
+        "terminal_partition",
+        "unexpected_cross_net_bridge"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Govern a claimed unchanged registered drawing with independent physical evidence",
+      "trigger": "A mistaken all-pass reviewer can qualify added ink",
+      "estimated_cost": 5.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-terminal_seed_connectivity-terminal_partition-scan_gap_near_crossing",
+      "primitive_ids": [
+        "terminal_seed_connectivity",
+        "terminal_partition",
+        "scan_gap_near_crossing"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Govern a claimed unchanged registered drawing with independent physical evidence",
+      "trigger": "A mistaken all-pass reviewer can qualify added ink",
+      "estimated_cost": 6.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    }
+  ],
+  "ledger_ref": null,
+  "coverage": {
+    "total_groups": 35,
+    "work_budget": null,
+    "examined": 35,
+    "unexamined": 0,
+    "eligible": 20,
+    "rejected": 15,
+    "known_groups_filtered": 0,
+    "returned": 20,
+    "eligible_omitted_by_limit": 0,
+    "search_complete": true,
+    "visit_order": "group_size_then_input_order",
+    "ranking_scope": "whole_input_catalogue"
+  },
+  "missing_capability": "Withhold a changed or ambiguous registered schematic with a mistaken all-pass verdict.",
+  "analogy": {
+    "source": "Two dye injections in adjacent sealed microfluidic channels.",
+    "invariant": "The partition of accessible endpoints under a change in visual appearance.",
+    "counterexample": "Dye crossing beneath another channel at a different depth can overlap in a photograph without sharing fluid.",
+    "status": "Analogy and method are conjectures. Drawn candidate fixtures are simulations. Counts and times are measurements. Connected components prove reachability in the given mask only."
+  },
+  "three_factor_cases": [
+    {
+      "combination_id": "ideonomy-reference_ink_residual-binary_mask_components-unexpected_cross_net_bridge",
+      "primitive_ids": [
+        "reference_ink_residual",
+        "binary_mask_components",
+        "unexpected_cross_net_bridge"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Govern a claimed unchanged registered drawing with independent physical evidence",
+      "trigger": "A mistaken all-pass reviewer can qualify added ink",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-reference_ink_residual-binary_mask_components-scan_gap_near_crossing",
+      "primitive_ids": [
+        "reference_ink_residual",
+        "binary_mask_components",
+        "scan_gap_near_crossing"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Govern a claimed unchanged registered drawing with independent physical evidence",
+      "trigger": "A mistaken all-pass reviewer can qualify added ink",
+      "estimated_cost": 4.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-reference_ink_residual-terminal_partition-unexpected_cross_net_bridge",
+      "primitive_ids": [
+        "reference_ink_residual",
+        "terminal_partition",
+        "unexpected_cross_net_bridge"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Govern a claimed unchanged registered drawing with independent physical evidence",
+      "trigger": "A mistaken all-pass reviewer can qualify added ink",
+      "estimated_cost": 4.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-terminal_seed_connectivity-binary_mask_components-unexpected_cross_net_bridge",
+      "primitive_ids": [
+        "terminal_seed_connectivity",
+        "binary_mask_components",
+        "unexpected_cross_net_bridge"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Govern a claimed unchanged registered drawing with independent physical evidence",
+      "trigger": "A mistaken all-pass reviewer can qualify added ink",
+      "estimated_cost": 4.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-reference_ink_residual-terminal_partition-scan_gap_near_crossing",
+      "primitive_ids": [
+        "reference_ink_residual",
+        "terminal_partition",
+        "scan_gap_near_crossing"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Govern a claimed unchanged registered drawing with independent physical evidence",
+      "trigger": "A mistaken all-pass reviewer can qualify added ink",
+      "estimated_cost": 5.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-terminal_seed_connectivity-binary_mask_components-scan_gap_near_crossing",
+      "primitive_ids": [
+        "terminal_seed_connectivity",
+        "binary_mask_components",
+        "scan_gap_near_crossing"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Govern a claimed unchanged registered drawing with independent physical evidence",
+      "trigger": "A mistaken all-pass reviewer can qualify added ink",
+      "estimated_cost": 5.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-terminal_seed_connectivity-terminal_partition-unexpected_cross_net_bridge",
+      "primitive_ids": [
+        "terminal_seed_connectivity",
+        "terminal_partition",
+        "unexpected_cross_net_bridge"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Govern a claimed unchanged registered drawing with independent physical evidence",
+      "trigger": "A mistaken all-pass reviewer can qualify added ink",
+      "estimated_cost": 5.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-terminal_seed_connectivity-terminal_partition-scan_gap_near_crossing",
+      "primitive_ids": [
+        "terminal_seed_connectivity",
+        "terminal_partition",
+        "scan_gap_near_crossing"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Govern a claimed unchanged registered drawing with independent physical evidence",
+      "trigger": "A mistaken all-pass reviewer can qualify added ink",
+      "estimated_cost": 6.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    }
+  ]
+}

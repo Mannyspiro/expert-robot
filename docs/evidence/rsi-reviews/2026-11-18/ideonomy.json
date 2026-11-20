@@ -1,0 +1,399 @@
+{
+  "schema": "merlin-combination-search/1",
+  "candidates": [
+    {
+      "combination_id": "ideonomy-flattened-double-stream-exact-count-and-native-values",
+      "primitive_ids": [
+        "flattened-double-stream",
+        "exact-count-and-native-values"
+      ],
+      "domains": [
+        "falsifier",
+        "representation"
+      ],
+      "problem": "Preserve chronological record identity through nonsparse CDF writes",
+      "trigger": "EPOCH16 training pair doubles the record count",
+      "estimated_cost": 0.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-flattened-double-stream-monotone-labels-only",
+      "primitive_ids": [
+        "flattened-double-stream",
+        "monotone-labels-only"
+      ],
+      "domains": [
+        "falsifier",
+        "representation"
+      ],
+      "problem": "Preserve chronological record identity through nonsparse CDF writes",
+      "trigger": "EPOCH16 training pair doubles the record count",
+      "estimated_cost": 0.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-preserve-components-exact-count-and-native-values",
+      "primitive_ids": [
+        "preserve-components",
+        "exact-count-and-native-values"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism"
+      ],
+      "problem": "Preserve chronological record identity through nonsparse CDF writes",
+      "trigger": "EPOCH16 training pair doubles the record count",
+      "estimated_cost": 0.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-preserve-components-flattened-double-stream",
+      "primitive_ids": [
+        "preserve-components",
+        "flattened-double-stream"
+      ],
+      "domains": [
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Preserve chronological record identity through nonsparse CDF writes",
+      "trigger": "EPOCH16 training pair doubles the record count",
+      "estimated_cost": 0.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-preserve-components-flattened-double-stream-exact-count-and-native-values",
+      "primitive_ids": [
+        "preserve-components",
+        "flattened-double-stream",
+        "exact-count-and-native-values"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Preserve chronological record identity through nonsparse CDF writes",
+      "trigger": "EPOCH16 training pair doubles the record count",
+      "estimated_cost": 0.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-preserve-components-flattened-double-stream-monotone-labels-only",
+      "primitive_ids": [
+        "preserve-components",
+        "flattened-double-stream",
+        "monotone-labels-only"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Preserve chronological record identity through nonsparse CDF writes",
+      "trigger": "EPOCH16 training pair doubles the record count",
+      "estimated_cost": 0.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-preserve-components-monotone-labels-only",
+      "primitive_ids": [
+        "preserve-components",
+        "monotone-labels-only"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism"
+      ],
+      "problem": "Preserve chronological record identity through nonsparse CDF writes",
+      "trigger": "EPOCH16 training pair doubles the record count",
+      "estimated_cost": 0.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-preserve-components-seconds-picoseconds-pair",
+      "primitive_ids": [
+        "preserve-components",
+        "seconds-picoseconds-pair"
+      ],
+      "domains": [
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Preserve chronological record identity through nonsparse CDF writes",
+      "trigger": "EPOCH16 training pair doubles the record count",
+      "estimated_cost": 0.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-preserve-components-seconds-picoseconds-pair-exact-count-and-native-values",
+      "primitive_ids": [
+        "preserve-components",
+        "seconds-picoseconds-pair",
+        "exact-count-and-native-values"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Preserve chronological record identity through nonsparse CDF writes",
+      "trigger": "EPOCH16 training pair doubles the record count",
+      "estimated_cost": 0.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-preserve-components-seconds-picoseconds-pair-monotone-labels-only",
+      "primitive_ids": [
+        "preserve-components",
+        "seconds-picoseconds-pair",
+        "monotone-labels-only"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Preserve chronological record identity through nonsparse CDF writes",
+      "trigger": "EPOCH16 training pair doubles the record count",
+      "estimated_cost": 0.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-seconds-picoseconds-pair-exact-count-and-native-values",
+      "primitive_ids": [
+        "seconds-picoseconds-pair",
+        "exact-count-and-native-values"
+      ],
+      "domains": [
+        "falsifier",
+        "representation"
+      ],
+      "problem": "Preserve chronological record identity through nonsparse CDF writes",
+      "trigger": "EPOCH16 training pair doubles the record count",
+      "estimated_cost": 0.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-seconds-picoseconds-pair-monotone-labels-only",
+      "primitive_ids": [
+        "seconds-picoseconds-pair",
+        "monotone-labels-only"
+      ],
+      "domains": [
+        "falsifier",
+        "representation"
+      ],
+      "problem": "Preserve chronological record identity through nonsparse CDF writes",
+      "trigger": "EPOCH16 training pair doubles the record count",
+      "estimated_cost": 0.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-split-components-exact-count-and-native-values",
+      "primitive_ids": [
+        "split-components",
+        "exact-count-and-native-values"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism"
+      ],
+      "problem": "Preserve chronological record identity through nonsparse CDF writes",
+      "trigger": "EPOCH16 training pair doubles the record count",
+      "estimated_cost": 0.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-split-components-flattened-double-stream",
+      "primitive_ids": [
+        "split-components",
+        "flattened-double-stream"
+      ],
+      "domains": [
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Preserve chronological record identity through nonsparse CDF writes",
+      "trigger": "EPOCH16 training pair doubles the record count",
+      "estimated_cost": 0.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-split-components-flattened-double-stream-exact-count-and-native-values",
+      "primitive_ids": [
+        "split-components",
+        "flattened-double-stream",
+        "exact-count-and-native-values"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Preserve chronological record identity through nonsparse CDF writes",
+      "trigger": "EPOCH16 training pair doubles the record count",
+      "estimated_cost": 0.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-split-components-flattened-double-stream-monotone-labels-only",
+      "primitive_ids": [
+        "split-components",
+        "flattened-double-stream",
+        "monotone-labels-only"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Preserve chronological record identity through nonsparse CDF writes",
+      "trigger": "EPOCH16 training pair doubles the record count",
+      "estimated_cost": 0.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-split-components-monotone-labels-only",
+      "primitive_ids": [
+        "split-components",
+        "monotone-labels-only"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism"
+      ],
+      "problem": "Preserve chronological record identity through nonsparse CDF writes",
+      "trigger": "EPOCH16 training pair doubles the record count",
+      "estimated_cost": 0.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-split-components-seconds-picoseconds-pair",
+      "primitive_ids": [
+        "split-components",
+        "seconds-picoseconds-pair"
+      ],
+      "domains": [
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Preserve chronological record identity through nonsparse CDF writes",
+      "trigger": "EPOCH16 training pair doubles the record count",
+      "estimated_cost": 0.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-split-components-seconds-picoseconds-pair-exact-count-and-native-values",
+      "primitive_ids": [
+        "split-components",
+        "seconds-picoseconds-pair",
+        "exact-count-and-native-values"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Preserve chronological record identity through nonsparse CDF writes",
+      "trigger": "EPOCH16 training pair doubles the record count",
+      "estimated_cost": 0.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-split-components-seconds-picoseconds-pair-monotone-labels-only",
+      "primitive_ids": [
+        "split-components",
+        "seconds-picoseconds-pair",
+        "monotone-labels-only"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Preserve chronological record identity through nonsparse CDF writes",
+      "trigger": "EPOCH16 training pair doubles the record count",
+      "estimated_cost": 0.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    }
+  ],
+  "ledger_ref": null,
+  "coverage": {
+    "total_groups": 35,
+    "work_budget": 35,
+    "examined": 35,
+    "unexamined": 0,
+    "eligible": 20,
+    "rejected": 15,
+    "known_groups_filtered": 0,
+    "returned": 20,
+    "eligible_omitted_by_limit": 0,
+    "search_complete": true,
+    "visit_order": "group_size_then_input_order",
+    "ranking_scope": "whole_input_catalogue"
+  },
+  "four_axis_interpretation": "One fixed missing capability times two mechanisms, two representations and two falsifiers: eight conceptual triples. Enumerated after observation; no claim of exploratory independence. Pairwise compatibility is conceptual, not qualification.",
+  "triple_hypotheses": [
+    [
+      "preserve-components",
+      "flattened-double-stream",
+      "exact-count-and-native-values"
+    ],
+    [
+      "preserve-components",
+      "flattened-double-stream",
+      "monotone-labels-only"
+    ],
+    [
+      "preserve-components",
+      "seconds-picoseconds-pair",
+      "exact-count-and-native-values"
+    ],
+    [
+      "preserve-components",
+      "seconds-picoseconds-pair",
+      "monotone-labels-only"
+    ],
+    [
+      "split-components",
+      "flattened-double-stream",
+      "exact-count-and-native-values"
+    ],
+    [
+      "split-components",
+      "flattened-double-stream",
+      "monotone-labels-only"
+    ],
+    [
+      "split-components",
+      "seconds-picoseconds-pair",
+      "exact-count-and-native-values"
+    ],
+    [
+      "split-components",
+      "seconds-picoseconds-pair",
+      "monotone-labels-only"
+    ]
+  ]
+}

@@ -1,0 +1,166 @@
+{
+  "title": "Synthetic spectroscopy exhibit",
+  "unit": "m",
+  "room": [
+    9,
+    7,
+    5
+  ],
+  "layouts": [
+    {
+      "name": "Face contact",
+      "items": [
+        {
+          "id": "spectrometer",
+          "origin": [
+            1,
+            1,
+            1
+          ],
+          "size": [
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "id": "display",
+          "origin": [
+            3,
+            1,
+            1
+          ],
+          "size": [
+            1,
+            0,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Interior overlap",
+      "items": [
+        {
+          "id": "spectrometer",
+          "origin": [
+            1,
+            1,
+            1
+          ],
+          "size": [
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "id": "display",
+          "origin": [
+            2.75,
+            1.5,
+            1.5
+          ],
+          "size": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Separated vertically",
+      "items": [
+        {
+          "id": "spectrometer",
+          "origin": [
+            1,
+            1,
+            1
+          ],
+          "size": [
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "id": "display",
+          "origin": [
+            1.25,
+            1.25,
+            3.25
+          ],
+          "size": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Overhang",
+      "items": [
+        {
+          "id": "spectrometer",
+          "origin": [
+            1,
+            1,
+            1
+          ],
+          "size": [
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "id": "display",
+          "origin": [
+            8.75,
+            5,
+            4
+          ],
+          "size": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Touch ceiling",
+      "items": [
+        {
+          "id": "spectrometer",
+          "origin": [
+            1,
+            1,
+            1
+          ],
+          "size": [
+            2,
+            2,
+            2
+          ]
+        },
+        {
+          "id": "display",
+          "origin": [
+            6,
+            4,
+            4
+          ],
+          "size": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schema":"merlin-topology-independent-holdout/1",
+  "date":"2026-11-20",
+  "interface":"merlin.drafting_control.review_wiring(source, guide_dir, image, verdict_file, destination). Run each candidate once in a separate process. If a candidate has an opt-in validation mode, use the proposed publicly callable mode and record its exact settings. Preserve the raw decision, including warning/unknown values, and the status of output publication.",
+  "decision_policy":"Positive=accepted only. Withhold=explicit review rejection, clarify/abstain/unknown preventing acceptance, or a specific validation refusal. A generic crash is a test failure. Accepted with an advisory warning counts as accepted.",
+  "promotion_gate":"Keep both heldout positives accepted. Withhold both negative/ambiguous cases. Preserve development pass. Identical source and raster bytes for all arms. Local wall time descriptive.",
+  "development":[{"id":"D0","expected":"accept","fixture":"repository lab sheet, valid source-based render, one offsheet visible pixel changed"}],
+  "heldout":[
+    {"id":"H1","expected":"accept","fixture":"fresh registered branched schematic, one isolated offsheet pixel changed"},
+    {"id":"H2","expected":"withhold","fixture":"Same H1 pixels plus continuous 3-pixel dark gray conductor, perpendicular between interior of the lower horizontal branch and independent bypass net; all reviewer observations pass."},
+    {"id":"H3","expected":"withhold","fixture":"Same H2 shape, with a seven-pixel white gap across the conductor centered three quarters of the way to the bypass. This apparent disconnected crossing may be insultation or a scanning gap; do not qualify connectivity automatically. All reviewer observations pass."},
+    {"id":"H4","expected":"accept","fixture":"Same H1 geometry with global gentle warm-paper tint and softened ink: RGB per channel scaled 0.95 and background offset (6,5,3). No route added or removed. All reviewer observations pass."}
+  ],
+  "sheet":{"title":"Vacuum bench fanout","unit":"mm","components":[{"id":"Probe","origin":[0,21],"size":[14,10],"pins":[{"id":"OUT","offset":[14,5]}]},{"id":"Terminal","origin":[96,38],"size":[16,12],"pins":[{"id":"IN","offset":[0,6]}]},{"id":"Scope","origin":[88,3],"size":[21,10],"pins":[{"id":"IN","offset":[0,5]}]},{"id":"Calibrator","origin":[5,-29],"size":[14,12],"pins":[{"id":"O","offset":[14,6]}]},{"id":"Comparator","origin":[92,-28],"size":[20,10],"pins":[{"id":"I","offset":[0,5]}]}],"nets":[{"id":"FAN","routes":[{"from":"Probe.OUT","to":"Terminal.IN","points":[[14,26],[52,26],[52,44],[96,44]]},{"from":"Probe.OUT","to":"Scope.IN","points":[[14,26],[52,26],[52,8],[88,8]]}]},{"id":"BYPASS","routes":[{"from":"Calibrator.O","to":"Comparator.I","points":[[19,-23],[92,-23]]}]}]}
+}

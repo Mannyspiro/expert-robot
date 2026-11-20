@@ -1,0 +1,82 @@
+{
+  "dimensions": [
+    960,
+    540
+  ],
+  "codec": "h264",
+  "duration": "1.000000",
+  "fps": "4/1",
+  "frames": 4,
+  "unique_frames": 4,
+  "compressed_bytes": 13351,
+  "decoded": true,
+  "browser_blocked": "Chromium process singleton socket unavailable in executor",
+  "controls": [
+    [
+      "video",
+      null,
+      "Synthetic displacement series"
+    ]
+  ],
+  "visible_text": "SYNTHETIC \u00b7 4 samples Synthetic displacement series Public synthetic displacement fixture Each frame reveals one recorded value. Playback advances one sample at a time.\nThe horizontal position shows the original time. Inspect sample values Time (s) Displacement (mm) 0 4 0.5 -2 2 -2 4.5 7 View rendering receipt",
+  "table_rows": [
+    [
+      "Time (s)",
+      "Displacement (mm)"
+    ],
+    [
+      "0",
+      "4"
+    ],
+    [
+      "0.5",
+      "-2"
+    ],
+    [
+      "2",
+      "-2"
+    ],
+    [
+      "4.5",
+      "7"
+    ]
+  ],
+  "external_resources": [],
+  "receipt": {
+    "schema": "merlin-science-movie/1",
+    "input_sha256": "ee737cc5934b0688ee188a049a99a8fec06857140b02a37cff9050d9d0fb4649",
+    "provenance": "synthetic",
+    "source": "Public synthetic displacement fixture",
+    "frames": 4,
+    "fps": 4,
+    "playback": "one frame per sample",
+    "render_sha256": {
+      "animation.mp4": "c7f55bbada645a5b565e3fcee4a2a94eb2f46d4cc2e8025d3775db88ce1a5b55",
+      "index.html": "7115a1d47da2b5089fd0f927ce664245e6bb886f91d173ad255ed09ec3011a8e"
+    }
+  },
+  "decoded_marker_xy": [
+    [
+      170.0,
+      223.0
+    ],
+    [
+      248.0,
+      412.0
+    ],
+    [
+      484.0,
+      412.0
+    ],
+    [
+      877.0,
+      128.0
+    ]
+  ],
+  "signed_value_and_time_geometry": "passed",
+  "invalid_input_exit": 2,
+  "invalid_input_artifacts": 0,
+  "wall_seconds": 0.717,
+  "hash_checks": "matched",
+  "frozen_protocol_sha256": "9284516fbbe598c833f114d8d1f7568d816def9b6fc22e80f2719b7f6299fe31"
+}

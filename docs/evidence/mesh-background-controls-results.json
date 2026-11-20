@@ -1,0 +1,358 @@
+{
+  "protocol_sha256": "cb66294f529e0c08c42b4372bfcb661339149d390fc9d529b182bede51e01bda",
+  "mesh_sha256": "34024df2a46e63dccce694cedcfa8b8a58b53292812536eaabda0ab6ece4e33a",
+  "sample_sha256": "e2c0858148e6e26ba29506a2c65908fe4045167e39b3aa09e833bb4f6412518f",
+  "cases": [
+    {
+      "kind": "flat",
+      "seed": null,
+      "max_row_range": 0.0,
+      "original_fallback": "two positive residuals required",
+      "guarded_fallback": true,
+      "original_rmse": 1.4646764797219469e-18,
+      "guarded_rmse": 1.4646764797219469e-18,
+      "uniform_rmse": [
+        1.4646764797219469e-18,
+        1.4342646596563003e-18
+      ],
+      "passed": true
+    },
+    {
+      "kind": "noise",
+      "seed": 401,
+      "max_row_range": 0.0015328533651162157,
+      "original_fallback": null,
+      "guarded_fallback": true,
+      "original_rmse": 0.0017501225855266294,
+      "guarded_rmse": 0.0008802288322547301,
+      "uniform_rmse": [
+        0.0008802288322547301,
+        0.00088022883225473
+      ],
+      "passed": true
+    },
+    {
+      "kind": "noise",
+      "seed": 402,
+      "max_row_range": 0.0014491820006939105,
+      "original_fallback": null,
+      "guarded_fallback": true,
+      "original_rmse": 0.0017519829130575352,
+      "guarded_rmse": 0.0008802288322547301,
+      "uniform_rmse": [
+        0.0008802288322547301,
+        0.00088022883225473
+      ],
+      "passed": true
+    },
+    {
+      "kind": "noise",
+      "seed": 403,
+      "max_row_range": 0.001069531404030627,
+      "original_fallback": null,
+      "guarded_fallback": true,
+      "original_rmse": 0.0017696406435453145,
+      "guarded_rmse": 0.0008802288322547301,
+      "uniform_rmse": [
+        0.0008802288322547301,
+        0.00088022883225473
+      ],
+      "passed": true
+    },
+    {
+      "kind": "noise",
+      "seed": 404,
+      "max_row_range": 0.0015648187493493004,
+      "original_fallback": null,
+      "guarded_fallback": true,
+      "original_rmse": 0.0017653578705836026,
+      "guarded_rmse": 0.0008802288322547301,
+      "uniform_rmse": [
+        0.0008802288322547301,
+        0.00088022883225473
+      ],
+      "passed": true
+    },
+    {
+      "kind": "noise",
+      "seed": 405,
+      "max_row_range": 0.0018476918120233221,
+      "original_fallback": null,
+      "guarded_fallback": true,
+      "original_rmse": 0.0017582852156665918,
+      "guarded_rmse": 0.0008802288322547301,
+      "uniform_rmse": [
+        0.0008802288322547301,
+        0.00088022883225473
+      ],
+      "passed": true
+    },
+    {
+      "kind": "noise",
+      "seed": 406,
+      "max_row_range": 0.0015068660057389882,
+      "original_fallback": null,
+      "guarded_fallback": true,
+      "original_rmse": 0.0017825485062146803,
+      "guarded_rmse": 0.0008802288322547301,
+      "uniform_rmse": [
+        0.0008802288322547301,
+        0.00088022883225473
+      ],
+      "passed": true
+    },
+    {
+      "kind": "noise",
+      "seed": 407,
+      "max_row_range": 0.0014319015809484414,
+      "original_fallback": null,
+      "guarded_fallback": true,
+      "original_rmse": 0.001761964906606853,
+      "guarded_rmse": 0.0008802288322547301,
+      "uniform_rmse": [
+        0.0008802288322547301,
+        0.00088022883225473
+      ],
+      "passed": true
+    },
+    {
+      "kind": "noise",
+      "seed": 408,
+      "max_row_range": 0.0013736715603450134,
+      "original_fallback": null,
+      "guarded_fallback": true,
+      "original_rmse": 0.00177278883332403,
+      "guarded_rmse": 0.0008802288322547301,
+      "uniform_rmse": [
+        0.0008802288322547301,
+        0.00088022883225473
+      ],
+      "passed": true
+    },
+    {
+      "kind": "broad",
+      "seed": 401,
+      "max_row_range": 0.7844483221234416,
+      "original_fallback": null,
+      "guarded_fallback": false,
+      "original_rmse": 0.004206007438724002,
+      "guarded_rmse": 0.004206007438724002,
+      "uniform_rmse": [
+        0.005282002296395468,
+        0.002762000595439831
+      ],
+      "passed": false
+    },
+    {
+      "kind": "broad",
+      "seed": 402,
+      "max_row_range": 0.7839262768303772,
+      "original_fallback": null,
+      "guarded_fallback": false,
+      "original_rmse": 0.004206135322955984,
+      "guarded_rmse": 0.004206135322955984,
+      "uniform_rmse": [
+        0.005282002296395468,
+        0.002762000595439831
+      ],
+      "passed": false
+    },
+    {
+      "kind": "broad",
+      "seed": 403,
+      "max_row_range": 0.7841895152890169,
+      "original_fallback": null,
+      "guarded_fallback": false,
+      "original_rmse": 0.004205944824941039,
+      "guarded_rmse": 0.004205944824941039,
+      "uniform_rmse": [
+        0.005282002296395468,
+        0.002762000595439831
+      ],
+      "passed": false
+    },
+    {
+      "kind": "broad",
+      "seed": 404,
+      "max_row_range": 0.7841733943805971,
+      "original_fallback": null,
+      "guarded_fallback": false,
+      "original_rmse": 0.004206012747710363,
+      "guarded_rmse": 0.004206012747710363,
+      "uniform_rmse": [
+        0.005282002296395468,
+        0.002762000595439831
+      ],
+      "passed": false
+    },
+    {
+      "kind": "broad",
+      "seed": 405,
+      "max_row_range": 0.7841015745857828,
+      "original_fallback": null,
+      "guarded_fallback": false,
+      "original_rmse": 0.004205750394749927,
+      "guarded_rmse": 0.004205750394749927,
+      "uniform_rmse": [
+        0.005282002296395468,
+        0.002762000595439831
+      ],
+      "passed": false
+    },
+    {
+      "kind": "broad",
+      "seed": 406,
+      "max_row_range": 0.7846747028264854,
+      "original_fallback": null,
+      "guarded_fallback": false,
+      "original_rmse": 0.004205867405593462,
+      "guarded_rmse": 0.004205867405593462,
+      "uniform_rmse": [
+        0.005282002296395468,
+        0.002762000595439831
+      ],
+      "passed": false
+    },
+    {
+      "kind": "broad",
+      "seed": 407,
+      "max_row_range": 0.7828815272615989,
+      "original_fallback": null,
+      "guarded_fallback": false,
+      "original_rmse": 0.004205865954319587,
+      "guarded_rmse": 0.004205865954319587,
+      "uniform_rmse": [
+        0.005282002296395468,
+        0.002762000595439831
+      ],
+      "passed": false
+    },
+    {
+      "kind": "broad",
+      "seed": 408,
+      "max_row_range": 0.783915468745481,
+      "original_fallback": null,
+      "guarded_fallback": false,
+      "original_rmse": 0.004206140494392984,
+      "guarded_rmse": 0.004206140494392984,
+      "uniform_rmse": [
+        0.005282002296395468,
+        0.002762000595439831
+      ],
+      "passed": false
+    },
+    {
+      "kind": "overlap",
+      "seed": 401,
+      "max_row_range": 1.0808908261069472,
+      "original_fallback": null,
+      "guarded_fallback": false,
+      "original_rmse": 0.006866208720470454,
+      "guarded_rmse": 0.006866208720470454,
+      "uniform_rmse": [
+        0.010752510931803473,
+        0.005433578100133462
+      ],
+      "passed": false
+    },
+    {
+      "kind": "overlap",
+      "seed": 402,
+      "max_row_range": 1.0829772246938876,
+      "original_fallback": null,
+      "guarded_fallback": false,
+      "original_rmse": 0.0068664572577284855,
+      "guarded_rmse": 0.0068664572577284855,
+      "uniform_rmse": [
+        0.010752510931803473,
+        0.005433578100133462
+      ],
+      "passed": false
+    },
+    {
+      "kind": "overlap",
+      "seed": 403,
+      "max_row_range": 1.083445357940334,
+      "original_fallback": null,
+      "guarded_fallback": false,
+      "original_rmse": 0.006866244089625174,
+      "guarded_rmse": 0.006866244089625174,
+      "uniform_rmse": [
+        0.010752510931803473,
+        0.005433578100133462
+      ],
+      "passed": false
+    },
+    {
+      "kind": "overlap",
+      "seed": 404,
+      "max_row_range": 1.081831789987193,
+      "original_fallback": null,
+      "guarded_fallback": false,
+      "original_rmse": 0.006866450676272074,
+      "guarded_rmse": 0.006866450676272074,
+      "uniform_rmse": [
+        0.010752510931803473,
+        0.005433578100133462
+      ],
+      "passed": false
+    },
+    {
+      "kind": "overlap",
+      "seed": 405,
+      "max_row_range": 1.081284952911576,
+      "original_fallback": null,
+      "guarded_fallback": false,
+      "original_rmse": 0.0068659610913854975,
+      "guarded_rmse": 0.0068659610913854975,
+      "uniform_rmse": [
+        0.010752510931803473,
+        0.005433578100133462
+      ],
+      "passed": false
+    },
+    {
+      "kind": "overlap",
+      "seed": 406,
+      "max_row_range": 1.0839305454778025,
+      "original_fallback": null,
+      "guarded_fallback": false,
+      "original_rmse": 0.00686604702182158,
+      "guarded_rmse": 0.00686604702182158,
+      "uniform_rmse": [
+        0.010752510931803473,
+        0.005433578100133462
+      ],
+      "passed": false
+    },
+    {
+      "kind": "overlap",
+      "seed": 407,
+      "max_row_range": 1.0820722967672676,
+      "original_fallback": null,
+      "guarded_fallback": false,
+      "original_rmse": 0.0068660050678844035,
+      "guarded_rmse": 0.0068660050678844035,
+      "uniform_rmse": [
+        0.010752510931803473,
+        0.005433578100133462
+      ],
+      "passed": false
+    },
+    {
+      "kind": "overlap",
+      "seed": 408,
+      "max_row_range": 1.0820688914006733,
+      "original_fallback": null,
+      "guarded_fallback": false,
+      "original_rmse": 0.006866566337002824,
+      "guarded_rmse": 0.006866566337002824,
+      "uniform_rmse": [
+        0.010752510931803473,
+        0.005433578100133462
+      ],
+      "passed": false
+    }
+  ],
+  "advance": false
+}

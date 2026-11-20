@@ -1,0 +1,31 @@
+{
+  "checks": {
+    "backend_roundtrip": true,
+    "identical_generic_public_headers": true,
+    "legacy_message_and_full_record_roundtrip": true,
+    "modern_message_and_full_record_roundtrip": true,
+    "repeated_encryption_differs": true,
+    "same_bucket_equal_wire_lengths": true,
+    "three_modern_boards_with_preserved_mirror": true,
+    "wrong_context_rejected": true,
+    "wrong_recipient_rejected": true
+  },
+  "schema": "titan-board-pq-research-measurement/1",
+  "scope": "local_research_measurement",
+  "timing": {
+    "elapsed_ns": 66231911,
+    "started_utc": "2026-11-18T16:11:48+00:00"
+  },
+  "versions": {
+    "cryptography": "50.0.2",
+    "envelope": "titan-pq-envelope/1",
+    "openssl_backend": "OpenSSL 4.0.3 29 Sep 2026",
+    "python": "3.12.14",
+    "suite": "HPKE-ML-KEM-768-HKDF-SHA256-AES-256-GCM"
+  },
+  "wire_lengths_bytes": {
+    "legacy_envelope": 351222,
+    "modern_envelope": 351222,
+    "padding_bucket": 262144
+  }
+}

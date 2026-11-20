@@ -1,0 +1,40 @@
+[
+  {
+    "id": "clean-bend",
+    "exit": 0,
+    "stderr": "",
+    "seconds": 0.5888,
+    "files": [
+      "image-brief.txt",
+      "receipt.json",
+      "wiring.dxf",
+      "wiring.svg"
+    ]
+  },
+  {
+    "id": "cross-net",
+    "exit": 2,
+    "stderr": "different nets touch or cross on the drawing plane",
+    "seconds": 0.0726,
+    "files": []
+  },
+  {
+    "id": "spacing",
+    "exit": 0,
+    "stderr": "",
+    "seconds": 0.5036,
+    "files": [
+      "image-brief.txt",
+      "receipt.json",
+      "wiring.dxf",
+      "wiring.svg"
+    ]
+  },
+  {
+    "id": "invalid-endpoint",
+    "exit": 2,
+    "stderr": "route must connect two distinct known pins",
+    "seconds": 0.0884,
+    "files": []
+  }
+]

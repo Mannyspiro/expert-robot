@@ -1,0 +1,14 @@
+{
+ "domain":"Synthetic lab spectrometer and microscope service volumes",
+ "units":"metres",
+ "room":[10,8,5],
+ "cases":[
+ {"id":"blocked-service","body_a":[[1,1,1],[2,2,1]],"zone_a":[[3,1,1],[2,2,1]],"body_b":[[4,1,1],[1,1,1]],"expected_volume_m3":{"b_in_a_service":1,"a_b_body":0}},
+ {"id":"vertical-separation","body_a":[[1,1,1],[2,2,1]],"zone_a":[[3,1,1],[2,2,1]],"body_b":[[4,1,2.5],[1,1,1]],"expected_volume_m3":{"b_in_a_service":0,"a_b_body":0}},
+ {"id":"shared-service","body_a":[[1,1,1],[2,2,1]],"zone_a":[[3,1,1],[2,2,1]],"body_b":[[6,1,1],[1,1,1]],"zone_b":[[4,1,1],[2,1,1]],"expected_volume_m3":{"b_in_a_service":0,"a_in_b_service":0,"service_intersection":1,"a_b_body":0}},
+ {"id":"legacy","body_a":[[1,1,1],[2,2,1]],"body_b":[[4,1,1],[1,1,1]],"expected_volume_m3":{"a_b_body":0}},
+ {"id":"room-boundary-touch","body_a":[[7,1,1],[2,2,1]],"zone_a":[[9,1,1],[1,2,1]],"body_b":[[1,1,1],[1,1,1]],"expected_volume_m3":{"zone_outside_room":0,"b_in_a_service":0,"a_b_body":0}},
+ {"id":"room-boundary-breach","body_a":[[7,1,1],[2,2,1]],"zone_a":[[9,1,1],[1.5,2,1]],"body_b":[[1,1,1],[1,1,1]],"expected_volume_m3":{"zone_outside_room":1,"b_in_a_service":0,"a_b_body":0}}
+ ],
+ "falsifier":"Any wrong positive-volume label, mismatch with a frozen geometric volume, or regression on zone-free files. Face touching has zero intersection volume. This measures geometric maintenance access only."
+}

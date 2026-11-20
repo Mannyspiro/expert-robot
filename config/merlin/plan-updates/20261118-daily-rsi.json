@@ -1,0 +1,32 @@
+{
+  "schema": "merlin-plan-update/1",
+  "parent_plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+  "parent_plan_version": 7,
+  "reasoning_mode": "inductive_revision",
+  "requires_review": true,
+  "authority_effect": "none",
+  "prior_update": "config/merlin/plan-updates/20261118-receipt-authenticated-scope.json",
+  "prior_update_sha256": "d1c3610d113b7501d9db1e066f764e783a6408b521fcef7acd8b270f6d1163f8",
+  "observation_ids": [
+    "shared-gateway-eight-checks",
+    "cdf-epoch16-native-decoder",
+    "tt2000-display-collision"
+  ],
+  "observed_artifacts": [
+    "c6467466f92cfadf2930d9404e3efee29edfee583b5a8d3404298e45050cd3cd",
+    "853d538ccca1781a82c57004ffb497cb15c2176631165547f27fb018bcafe799",
+    "d5562546641d384fbeb58b61fc1ecb7a17bdb974652232a4f75b3c6d036c8e7a"
+  ],
+  "evidence": [
+    "docs/evidence/rsi-reviews/2026-11-18/README.md"
+  ],
+  "decision": "Keep current receipt retrieval. Qualify the isolated EPOCH16 repair for upstream-release retest, with operator review before changing dependencies. Preserve raw time coordinates for science joins.",
+  "limits": "In-process synthetic introspection and dynamic catalogue callback. EPOCH16 coverage bounded to frozen fixtures and two native records.",
+  "next_actions": [
+    "Verify the learning service with an owner-provisioned institutional pilot, approved data policy and restart exercise.",
+    "Run subject revocation and catalogue refresh through an operator-provisioned pilot issuer and authorized snapshot lifecycle.",
+    "Test the training-parent planner with distinct versioned coder adapters. Record measured calls and cost, and use a fresh holdout to decide whether any proposal improves behavior.",
+    "Retest the next published cdflib artifact against the frozen EPOCH16 and native oracle. Use a public instrument dataset before enabling any new interchange path.",
+    "Evaluate a selector that estimates interpolation error for mesh alternatives, including both uniform orientations. Freeze its proxy and test on new geometries with uncertain amplitude before scoring."
+  ]
+}

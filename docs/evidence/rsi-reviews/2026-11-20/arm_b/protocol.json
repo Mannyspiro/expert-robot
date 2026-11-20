@@ -1,0 +1,28 @@
+{
+  "schema": "registered-terminal-topology-protocol/1",
+  "baseline_commit": "584b948332b76596311d75133c0430d761e2f67a",
+  "entry": "review_wiring(..., topology_check=True)",
+  "method": "bounded teal-stroke8-connected components, registered-pin-hole union, compare terminal connected partitions to canonical source net partitions",
+  "before_evaluation": true,
+  "holdout_read_by_coder_b": false,
+  "fixed_profile": {
+    "canvas": [
+      1536,
+      1024
+    ],
+    "ink": "g-r>=35,b-r>=25,abs(g-b)<=45,min(g,b)>=40",
+    "max_ink_pixels": 200000,
+    "pin_radius_px": "ceil((0.7+0.35/2)*sheet_px_per_mm)+2; scale0.5..30",
+    "unassigned_component_abstain_min_pixels": "max(24,round(scale**2))"
+  },
+  "scope": "reject or abstain only; no OCR, geometry correctness, physical connectivity, independently authenticated review or promotion",
+  "development_amendments": [
+    {
+      "before_independent_evaluation": true,
+      "trigger": "Public D0 guide missing Display.IN at nominal probe radius7; nearest teal pixel7.204px away. Canonical source ring has .7mm radius and .35mm centered width.",
+      "original_radius": "ceil(0.7*scale)+2",
+      "replacement_radius": "ceil((0.7+0.35/2)*scale)+2",
+      "heldout_accessed": false
+    }
+  ]
+}

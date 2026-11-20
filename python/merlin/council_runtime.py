@@ -68,10 +68,12 @@ def _model_call(endpoint: str, model: str, packet: dict[str, Any],
 
 
 def run_local_council(question: str, context: str = "", verbosity: str = "lively",
-                      rounds: int = 1) -> dict[str, Any]:
-    """Run six independent local openings, optionally followed by one debate round."""
+                      rounds: int = 1, *, visual_specialist_only: bool = False) -> dict[str, Any]:
+    """Run the research council or a single visual design consultation."""
     if type(rounds) is not int or rounds not in (1, 2):
         raise ValueError("rounds must be 1 or 2")
+    if visual_specialist_only and rounds != 1:
+        raise ValueError("a single specialist has no second-round debate partner")
     if os.environ.get("MERLIN_MODEL_QUALIFIED") != "1":
         raise RuntimeError("local model is not qualified; council execution is disabled")
     from urllib.parse import urlsplit
@@ -80,7 +82,8 @@ def run_local_council(question: str, context: str = "", verbosity: str = "lively
     if parsed.scheme != "http" or parsed.hostname not in {"127.0.0.1", "localhost", "::1"}:
         raise ValueError("council model endpoint must be loopback-only")
     model = os.environ.get("MERLIN_MODEL_NAME", "local-model").strip() or "local-model"
-    packets = build_deliberation_packets(question, context, verbosity)
+    packets = (build_deliberation_packets(question, context, verbosity, visual_specialist_only=True)
+               if visual_specialist_only else build_deliberation_packets(question, context, verbosity))
     openings = [_model_call(endpoint, model, packet) for packet in packets]
     debates: list[dict[str, Any]] = []
     if rounds == 2:

@@ -117,7 +117,9 @@ class RegistryBranchSession:
             os.close(descriptor)
 
     def _read(self, suffix):
-        path = self.base + suffix
+        return self._read_path(self.base + suffix)
+
+    def _read_path(self, path):
         history = self.registry.artifact_history(self.project_id, path)
         if not history:
             return None
@@ -131,16 +133,19 @@ class RegistryBranchSession:
         return body, ref
 
     def _put(self, suffix, body):
+        return self._put_path(self.base + suffix, body)
+
+    def _put_path(self, path, body):
         raw = canonical(body).encode('utf-8')
         if len(raw) > MAX_RECORD:
             raise ValueError('session record byte ceiling')
-        old = self._read(suffix)
+        old = self._read_path(path)
         if old:
             if canonical(old[0]) != canonical(body):
                 raise BranchSessionConflict('immutable session record differs')
             return old[1]
-        self.registry.put_artifact(self.project_id, self.base + suffix, raw, 'application/json')
-        return self.registry.artifact_ref(self.project_id, self.base + suffix, version=1)
+        self.registry.put_artifact(self.project_id, path, raw, 'application/json')
+        return self.registry.artifact_ref(self.project_id, path, version=1)
 
     def _authorize(self):
         if self.approval(deepcopy(self.spec)) is not True or self.lease(deepcopy(self.spec)) is not True:
@@ -242,71 +247,158 @@ class RegistryBranchSession:
         if type(budget) is not int or not 1 <= budget <= 4 or not callable(evaluate) or not callable(check_cancelled):
             raise ValueError('bounded tick and host cancellation required')
         with self._locked():
-            self._frame()
+            return self._step_locked(evaluate, check_cancelled=check_cancelled, budget=budget)
+
+    def _step_locked(self, evaluate, *, check_cancelled, budget):
+        """Caller must own the cooperative session lock for the entire tick."""
+        self._frame()
+        check_cancelled()
+        self._authorize()
+        plan, done, pending = self._state()
+        if plan is None:
+            plan = self._put('plan.json', self.spec)
+        self._project(done)
+        for _ in range(budget):
+            if pending is not None:
+                break
+            node = choose_branch(self.branches, done)
+            if node is None:
+                break
             check_cancelled()
             self._authorize()
-            plan, done, pending = self._state()
-            if plan is None:
-                plan = self._put('plan.json', self.spec)
-            self._project(done)
-            for _ in range(budget):
-                if pending is not None:
-                    break
-                node = choose_branch(self.branches, done)
-                if node is None:
-                    break
+            intent = self._intent(node, done, plan)
+            intent_ref = self._put('intents/' + node.id + '.json', intent)
+            # Persisted intent is the crash boundary, not permission to auto-retry.
+            try:
                 check_cancelled()
                 self._authorize()
-                intent = self._intent(node, done, plan)
-                intent_ref = self._put('intents/' + node.id + '.json', intent)
-                # Persisted intent is the crash boundary, not permission to auto-retry.
-                try:
-                    check_cancelled()
-                    self._authorize()
-                    evidence = self._evidence(evaluate(node.id, deepcopy(intent)))
-                    check_cancelled()
-                    self._authorize()
-                except Exception as exc:
-                    self._put('failures/' + node.id + '.json',
-                              {'schema': 'merlin-registry-branch-failure/1', 'intent_ref': intent_ref,
-                               'error_class': type(exc).__name__, 'reconciliation_required': True,
-                               'qualification': False, 'promotion_authority': False})
-                    raise
-                outcome = {'schema': 'merlin-registry-branch-outcome/1', 'intent_ref': intent_ref,
-                           'evidence': evidence, 'status': 'passed_local_check' if evidence['passed'] else 'failed_local_check',
-                           'qualification': False, 'promotion_authority': False}
-                ref = self._put('outcomes/' + node.id + '.json', outcome)
-                done[node.id] = {'ref': ref, 'intent_ref': intent_ref, 'body': outcome,
-                                 'status': 'verified' if evidence['passed'] else 'failed'}
-                self._project(done)
-            return self._view(plan, done, pending)
+                evidence = self._evidence(evaluate(node.id, deepcopy(intent)))
+                check_cancelled()
+                self._authorize()
+            except Exception as exc:
+                self._put('failures/' + node.id + '.json',
+                          {'schema': 'merlin-registry-branch-failure/1', 'intent_ref': intent_ref,
+                           'error_class': type(exc).__name__, 'reconciliation_required': True,
+                           'qualification': False, 'promotion_authority': False})
+                raise
+            outcome = {'schema': 'merlin-registry-branch-outcome/1', 'intent_ref': intent_ref,
+                       'evidence': evidence, 'status': 'passed_local_check' if evidence['passed'] else 'failed_local_check',
+                       'qualification': False, 'promotion_authority': False}
+            ref = self._put('outcomes/' + node.id + '.json', outcome)
+            done[node.id] = {'ref': ref, 'intent_ref': intent_ref, 'body': outcome,
+                             'status': 'verified' if evidence['passed'] else 'failed'}
+            self._project(done)
+        return self._view(plan, done, pending)
 
     def snapshot(self, *, expected_state: Mapping[str, Any] | None = None):
         with self._locked():
-            self._authorize()
-            view = self.status()
-            if expected_state is not None and canonical(expected_state) != canonical(view):
-                raise BranchSessionConflict('session advanced before exact snapshot publication')
-            return self._put('snapshots/' + digest(view) + '.json', view)
+            return self._snapshot_locked(expected_state=expected_state)
+
+    def _snapshot_locked(self, *, expected_state=None):
+        """Publish only while the caller owns the session lock."""
+        self._authorize()
+        view = self.status()
+        if expected_state is not None and canonical(expected_state) != canonical(view):
+            raise BranchSessionConflict('session advanced before exact snapshot publication')
+        return self._put('snapshots/' + digest(view) + '.json', view)
 
 
 def build_branch_research_executor(session: RegistryBranchSession, evaluate: Callable, *, budget: int = 1):
-    """Inject into the existing Hermes research stage, without a new remote tool."""
+    """Bind one Hermes task to one immutable tick result in the canonical registry.
+
+    Retries after result publication replay the original snapshot, even after a
+    later task advances the session. An intent without a result fails closed:
+    external reconciliation is required, not another implicit tick. This is
+    cooperative host-owned code, not process isolation or exactly-once IO.
+    """
     if not isinstance(session, RegistryBranchSession) or not callable(evaluate) or type(budget) is not int or not 1 <= budget <= 4:
         raise ValueError('canonical session, executor and bounded tick required')
 
-    def execute(task, context):
-        if (task.get('stage') != 'research' or task.get('task_id') != context.task_id
-                or session.frame_ref not in context.artifact_refs):
-            raise ValueError('Hermes task and exact frame binding required')
-        state = session.step(evaluate, check_cancelled=context.check_cancelled, budget=budget)
-        context.check_cancelled()
-        ref = session.snapshot(expected_state=state)
-        context.check_cancelled()
+    def output(state, ref):
         summary = ('Branch session requires reconciliation' if state['reconciliation_required'] else
                    'Branch session recorded %d local outcomes' % state['completed'])
         return {'existing_artifact_ref': ref, 'summary': summary, 'media_type': 'application/json',
                 'metadata': {'artifact_schema': state['schema'], 'branch_state': state,
                              'tool_identity': session.spec['executor']['id'] + '@sha256:' + session.spec['executor']['sha256'],
                              'qualification': False, 'promotion_authority': False}}
+
+    def replay(record, request_ref):
+        if (not isinstance(record, dict) or set(record) != {'schema', 'request_ref', 'snapshot_ref'}
+                or record['schema'] != 'merlin-branch-task-result/1'
+                or canonical(record['request_ref']) != canonical(request_ref)):
+            raise BranchSessionConflict('task result is not bound to the original request')
+        ref = session._ref(record['snapshot_ref'])
+        raw = session.registry.read_artifact_ref(ref, max_bytes=MAX_RECORD)['content']
+        state = json.loads(raw)
+        if (not isinstance(state, dict) or canonical(state).encode('utf-8') != raw
+                or ref['logical_path'] != session.base + 'snapshots/' + digest(state) + '.json'
+                or ref['version'] != 1):
+            raise BranchSessionConflict('task snapshot identity differs')
+        plan, done, pending = session._state()
+        count = state.get('completed')
+        if type(count) is not int or not 0 <= count <= len(done):
+            raise BranchSessionConflict('task snapshot cursor differs')
+        prefix = dict(list(done.items())[:count])
+        old_pending = state.get('reconciliation_required')
+        if old_pending is not None and old_pending != pending:
+            raise BranchSessionConflict('task snapshot reconciliation state differs')
+        if canonical(state) != canonical(session._view(plan, prefix, old_pending)):
+            raise BranchSessionConflict('task snapshot lineage differs')
+        session._project(prefix)
+        return output(state, ref)
+
+    def execute(task, context):
+        if (not isinstance(task, Mapping) or task.get('stage') != 'research'
+                or not isinstance(task.get('task_id'), str) or not task['task_id'].strip()
+                or len(task['task_id']) > 2000 or task['task_id'] != context.task_id
+                or session.frame_ref not in context.artifact_refs):
+            raise ValueError('Hermes task and exact frame binding required')
+        hypothesis_id = getattr(context, 'hypothesis_id', None)
+        if (not isinstance(hypothesis_id, str) or not hypothesis_id.strip()
+                or len(hypothesis_id) > 2000
+                or ('hypothesis_id' in task and task['hypothesis_id'] != hypothesis_id)):
+            raise ValueError('exact Hermes hypothesis binding required')
+        refs = [session._ref(ref) for ref in context.artifact_refs]
+        if 'artifact_refs' in task and task['artifact_refs'] != refs:
+            raise ValueError('task and context input references differ')
+        execution_key = 'hermes-task-handler:' + task['task_id']
+        if getattr(context, 'idempotency_key', execution_key) != execution_key:
+            raise ValueError('Hermes idempotency identity differs')
+        request = {'schema': 'merlin-branch-task-request/1', 'task': deepcopy(dict(task)),
+                   'hypothesis_id': hypothesis_id, 'artifact_refs': refs,
+                   'session_plan': deepcopy(session.spec), 'branch_budget': budget,
+                   'qualification': False, 'promotion_authority': False}
+        if len(canonical(request).encode('utf-8')) > MAX_RECORD:
+            raise ValueError('bounded task binding required')
+        # Project-global task identity also rejects reuse for a different session.
+        path = 'branch-research-tasks/' + digest(execution_key) + '/'
+        with session._locked():
+            session._frame()
+            context.check_cancelled()
+            session._authorize()
+            prior = session._read_path(path + 'request.json')
+            result = session._read_path(path + 'result.json')
+            if prior is not None:
+                if canonical(prior[0]) != canonical(request):
+                    raise BranchSessionConflict('task identity reused with different inputs')
+                if result is None:
+                    raise BranchSessionConflict('interrupted task requires reconciliation before retry')
+                answer = replay(result[0], prior[1])
+            else:
+                if result is not None:
+                    raise BranchSessionConflict('orphan task result')
+                request_ref = session._put_path(path + 'request.json', request)
+                state = session._step_locked(evaluate, check_cancelled=context.check_cancelled, budget=budget)
+                context.check_cancelled()
+                session._authorize()
+                ref = session._snapshot_locked(expected_state=state)
+                context.check_cancelled()
+                session._authorize()
+                session._put_path(path + 'result.json',
+                                  {'schema': 'merlin-branch-task-result/1', 'request_ref': request_ref,
+                                   'snapshot_ref': ref})
+                answer = output(state, ref)
+            context.check_cancelled()
+            session._authorize()
+            return answer
     return execute

@@ -1,0 +1,179 @@
+{
+  "arm": "arm_b",
+  "source_sha256": "f397970abf63efb323b6bfc1faadf50c111f3ffb42d9003253174ee06e9dc3e5",
+  "protocol_sha256": "bb987660af2d3f28a041eb56c7abb1a9c14003553c4df3aabb5ed30d4f88eb4b",
+  "flags": {
+    "topology_check": true
+  },
+  "wall_seconds": 4.6126,
+  "passed_development": 1,
+  "passed_heldout": 2,
+  "accepted": 5,
+  "results": [
+    {
+      "id": "D0",
+      "partition": "development",
+      "expected_label": "accept",
+      "actual_label": "accept",
+      "passed": true,
+      "decision": "accepted",
+      "diagnostics": {
+        "topology_check": {
+          "schema": "merlin-registered-terminal-topology/1",
+          "status": "consistent_with_expected_connectivity",
+          "reason": "observed_terminal_partitions_match_source_nets",
+          "authority": "registered raster topology screen only",
+          "qualification": false,
+          "promotion_authority": false,
+          "limits": [
+            "Known teal palette and exact canvas; no alignment or OCR.",
+            "Terminal connectivity only; extra same-net branches can be invisible.",
+            "Raster adjacency is not physical wiring qualification."
+          ],
+          "component_count": 2,
+          "terminal_count": 4,
+          "missing_terminal_strokes": [],
+          "split_source_nets": [],
+          "joined_source_nets": []
+        }
+      },
+      "error": null,
+      "review_file_emitted": true,
+      "source_sha256": "7fdb3deb323a68af0ef3c2e2e3cd706f0bbd1e5bb188ff2bcf688279241575db",
+      "image_sha256": "fba18a293f8b108d6cb194f0763605cdb4f614bb10c570dba372b94a1258c344",
+      "review_seconds": 0.757
+    },
+    {
+      "id": "H1",
+      "partition": "heldout",
+      "expected_label": "accept",
+      "actual_label": "accept",
+      "passed": true,
+      "decision": "accepted",
+      "diagnostics": {
+        "topology_check": {
+          "schema": "merlin-registered-terminal-topology/1",
+          "status": "consistent_with_expected_connectivity",
+          "reason": "observed_terminal_partitions_match_source_nets",
+          "authority": "registered raster topology screen only",
+          "qualification": false,
+          "promotion_authority": false,
+          "limits": [
+            "Known teal palette and exact canvas; no alignment or OCR.",
+            "Terminal connectivity only; extra same-net branches can be invisible.",
+            "Raster adjacency is not physical wiring qualification."
+          ],
+          "component_count": 2,
+          "terminal_count": 5,
+          "missing_terminal_strokes": [],
+          "split_source_nets": [],
+          "joined_source_nets": []
+        }
+      },
+      "error": null,
+      "review_file_emitted": true,
+      "source_sha256": "a2d5c96784317f5ddd940d6879c75e5b20a516e21b856ead4dda0b58a2797094",
+      "image_sha256": "ef75012d51fb88ab69d146d9d03ade2bcdf75937383f4ca0c6f89c111f172eeb",
+      "review_seconds": 0.6283
+    },
+    {
+      "id": "H2",
+      "partition": "heldout",
+      "expected_label": "withhold",
+      "actual_label": "accept",
+      "passed": false,
+      "decision": "accepted",
+      "diagnostics": {
+        "topology_check": {
+          "schema": "merlin-registered-terminal-topology/1",
+          "status": "consistent_with_expected_connectivity",
+          "reason": "observed_terminal_partitions_match_source_nets",
+          "authority": "registered raster topology screen only",
+          "qualification": false,
+          "promotion_authority": false,
+          "limits": [
+            "Known teal palette and exact canvas; no alignment or OCR.",
+            "Terminal connectivity only; extra same-net branches can be invisible.",
+            "Raster adjacency is not physical wiring qualification."
+          ],
+          "component_count": 2,
+          "terminal_count": 5,
+          "missing_terminal_strokes": [],
+          "split_source_nets": [],
+          "joined_source_nets": []
+        }
+      },
+      "error": null,
+      "review_file_emitted": true,
+      "source_sha256": "a2d5c96784317f5ddd940d6879c75e5b20a516e21b856ead4dda0b58a2797094",
+      "image_sha256": "15106aaaf4f1df882afa0ce2d2bebfb8c0fbdc072c94a3f1648b27e03892bafa",
+      "review_seconds": 0.6658
+    },
+    {
+      "id": "H3",
+      "partition": "heldout",
+      "expected_label": "withhold",
+      "actual_label": "accept",
+      "passed": false,
+      "decision": "accepted",
+      "diagnostics": {
+        "topology_check": {
+          "schema": "merlin-registered-terminal-topology/1",
+          "status": "consistent_with_expected_connectivity",
+          "reason": "observed_terminal_partitions_match_source_nets",
+          "authority": "registered raster topology screen only",
+          "qualification": false,
+          "promotion_authority": false,
+          "limits": [
+            "Known teal palette and exact canvas; no alignment or OCR.",
+            "Terminal connectivity only; extra same-net branches can be invisible.",
+            "Raster adjacency is not physical wiring qualification."
+          ],
+          "component_count": 2,
+          "terminal_count": 5,
+          "missing_terminal_strokes": [],
+          "split_source_nets": [],
+          "joined_source_nets": []
+        }
+      },
+      "error": null,
+      "review_file_emitted": true,
+      "source_sha256": "a2d5c96784317f5ddd940d6879c75e5b20a516e21b856ead4dda0b58a2797094",
+      "image_sha256": "b4c4b43489bfcb04d83c56d69dab4caab61eb5267c9fbb1d8448b7dd9470ecec",
+      "review_seconds": 0.7124
+    },
+    {
+      "id": "H4",
+      "partition": "heldout",
+      "expected_label": "accept",
+      "actual_label": "accept",
+      "passed": true,
+      "decision": "accepted",
+      "diagnostics": {
+        "topology_check": {
+          "schema": "merlin-registered-terminal-topology/1",
+          "status": "consistent_with_expected_connectivity",
+          "reason": "observed_terminal_partitions_match_source_nets",
+          "authority": "registered raster topology screen only",
+          "qualification": false,
+          "promotion_authority": false,
+          "limits": [
+            "Known teal palette and exact canvas; no alignment or OCR.",
+            "Terminal connectivity only; extra same-net branches can be invisible.",
+            "Raster adjacency is not physical wiring qualification."
+          ],
+          "component_count": 2,
+          "terminal_count": 5,
+          "missing_terminal_strokes": [],
+          "split_source_nets": [],
+          "joined_source_nets": []
+        }
+      },
+      "error": null,
+      "review_file_emitted": true,
+      "source_sha256": "a2d5c96784317f5ddd940d6879c75e5b20a516e21b856ead4dda0b58a2797094",
+      "image_sha256": "fc67b7fe79e870b9c05443a015c18f77c515da4334c032eb59da63d6103274e1",
+      "review_seconds": 0.6754
+    }
+  ]
+}

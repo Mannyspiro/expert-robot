@@ -6,6 +6,7 @@ possible only through explicitly injected, stage-scoped handlers.
 """
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import dataclass
 import threading
 import time
@@ -166,19 +167,19 @@ class HermesWorker:
             heartbeat_thread.start()
 
         try:
-            task = self._validate_payload(payload)
+            task = deepcopy(self._validate_payload(payload))
             stage = task["stage"]
             handler = self.handlers.get(stage)
             if handler is None:
                 raise ValueError("no Hermes handler is registered for stage " + stage)
-            if not self.approval_validator(task["approval_ref"], task):
+            if self.approval_validator(task["approval_ref"], deepcopy(task)) is not True:
                 raise PermissionError("operator approval is not valid at execution time")
-            if not self.lease_validator(task["lease_ref"], task["resource_budget"]):
+            if self.lease_validator(task["lease_ref"], deepcopy(task["resource_budget"])) is not True:
                 raise PermissionError("MCFC lease is not valid at execution time")
             if task["artifact_refs"] and self.artifact_ref_validator is None:
                 raise RuntimeError("task artifact references require a canonical registry validator")
             for artifact_ref in task["artifact_refs"]:
-                if not self.artifact_ref_validator(artifact_ref):
+                if self.artifact_ref_validator(deepcopy(artifact_ref)) is not True:
                     raise ValueError("Hermes task contains an unresolved or unverified artifact reference")
             deadline_epoch = time.time() + task["resource_budget"]["max_wall_seconds"]
 
@@ -223,13 +224,14 @@ class HermesWorker:
                 task_id=task_id, hypothesis_id=task["hypothesis_id"],
                 resource_budget=dict(task["resource_budget"]),
                 approval_ref=task["approval_ref"], lease_ref=task["lease_ref"],
-                artifact_refs=tuple(task["artifact_refs"]),
+                artifact_refs=tuple(deepcopy(task["artifact_refs"])),
                 idempotency_key="hermes-task-handler:" + task["task_id"],
                 deadline_epoch=deadline_epoch,
                 emit_progress=progress, emit_tool_event=tool_event,
                 heartbeat=renew_lease, check_cancelled=check_cancelled,
             )
-            result = handler(task, context)
+            # Callback data is detached; receipts retain admitted task identity.
+            result = handler(deepcopy(task), context)
             check_cancelled()
             if not isinstance(result, Mapping):
                 raise ValueError("Hermes handler must return a result object")
@@ -247,7 +249,7 @@ class HermesWorker:
             if output_artifact_refs and self.artifact_ref_validator is None:
                 raise RuntimeError("output artifact references require a canonical registry validator")
             for artifact_ref in output_artifact_refs:
-                if not self.artifact_ref_validator(artifact_ref):
+                if self.artifact_ref_validator(deepcopy(artifact_ref)) is not True:
                     raise ValueError("handler returned an unresolved or unverified artifact reference")
             receipt = {
                 "schema": "merlin-hermes-task-result/2",

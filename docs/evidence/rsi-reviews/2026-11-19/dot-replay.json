@@ -1,0 +1,51 @@
+{
+  "schema": "merlin-rsi-daily-historical-cross-agent-replay/1",
+  "recorded_commit": "54973bd683021a5566aa197bdc510d4f3bca20a1",
+  "receipt_path": "docs/evidence/dot-cross-agent-retrieval-review.json",
+  "receipt_sha256": "b933c6543a50f623989d6bc8847be57dd06562c157fbf9101a953ad55dbc765f",
+  "sources": {
+    "python/dot_ai_os/bridge.py": "208b7f299f329b91091702d1fbf2caa3cb84a6823ea509fde145214f3fc9679d",
+    "python/dot_ai_os/cross_agent_review.py": "d4eb936d79beb100be5b32e5472bd044753b125a4cb949c873ab944bb80ac700",
+    "python/dot_ai_os/dual_coder.py": "89ee0e2ac00aa7ad19dcb3262727bfb91d15947f62e5f72b98d1e96159a332ff",
+    "scripts/measure_dot_review.py": "f1b51faf21893d393d4d96a609749e6d3a4e314252d8d11d0133f4b4ba65155a"
+  },
+  "observation_ref": {
+    "logical_path": "cross-agent/dot/observations/e99cf7e027a92f4a2058806a7ab32d901d509968ef55b6d995b98dbc39f1ee15.json",
+    "project_id": "dot-retrieval-review-v1",
+    "schema": "merlin-artifact-ref/1",
+    "sha256": "e99cf7e027a92f4a2058806a7ab32d901d509968ef55b6d995b98dbc39f1ee15",
+    "version": 1
+  },
+  "report_ref": {
+    "logical_path": "dual-coder/c1216136a79a7c3bd753ad8d5c3bc7a3011f229cc42276abcd252421080b8cd5/report.json",
+    "project_id": "dot-retrieval-review-v1",
+    "schema": "merlin-artifact-ref/1",
+    "sha256": "1b95cda4b7503186b15e5d318990ac068d444752f3c34aa66cfd8ec14aac3b99",
+    "version": 1
+  },
+  "role_scope": "Two fixed policy adapters and a separate fixed locator evaluator, replayed from the prior study. Same public case IDs and labels.",
+  "prior_reproduced": true,
+  "wall_seconds": 0.26272054300000036,
+  "scores": {
+    "baseline": {
+      "holdout_passed": 2,
+      "regressions": 0,
+      "train_passed": 1
+    },
+    "coder_a": {
+      "holdout_passed": 3,
+      "regressions": 0,
+      "train_passed": 2
+    },
+    "coder_b": {
+      "holdout_passed": 5,
+      "regressions": 0,
+      "train_passed": 2
+    }
+  },
+  "historical_recommendation": "coder_b",
+  "fresh_holdout": false,
+  "executed_model_calls": 0,
+  "external_requests": 0,
+  "daily_adoption_authority": false
+}

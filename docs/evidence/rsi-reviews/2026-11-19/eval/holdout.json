@@ -1,0 +1,17 @@
+{
+ "schema":"merlin-drafting-independent-holdout/1",
+ "date":"2026-11-19",
+ "baseline_commit":"e7be083b754b36e90d9ebffbe9f7ef9069296e06",
+ "interface":"Use read_sheet, wire_svg, guide_files then review_wiring on a branch fixture. Evaluate published decision or ValueError as appropriate. Controls use a truthful local fixture oracle, plus one deliberately mistaken all-pass review to measure automation coverage.",
+ "cases":[
+   ["B0","valid branched RGB PNG, one background-pixel edit; complete passing observation","accept"],
+   ["B1","keep original source+PNG but swap sink pin identifiers between the two branch routes in passing verdict records","reject"],
+   ["B2","add a black conductor from the independent reference net to the signal branch in the PNG; report an observed failed connections/global check","reject"],
+   ["B3","use same extra-conductor PNG with a complete but mistaken all-pass verdict bound to its actual bytes","reject if automatic topology checking is claimed; otherwise measured manual-trust limitation"],
+   ["B4","encode the benign positive pixels as actual BMP with .png filename","reject before general image-plugin dispatch"],
+   ["B5","real PNG at one pixel below the required canvas width, preserve benign pixel data","reject before candidate decoding"]
+ ],
+ "normal_interface":"Each case receives a fresh output directory; rejected verdict decisions may produce an audit record. A returned accepted is the sole passing positive. Record exception class and exact decoder/plugin calls attributable to candidate bytes.",
+ "measurement":"Run identical fixture against the baseline and each isolated candidate, one cold subprocess per version. Local wall time descriptive only; no tuning followed by a claim of blind performance.",
+ "sheet":{"title":"Thermal rig branch and reference","unit":"mm","components":[{"id":"Emitter","origin":[0,24],"size":[16,12],"pins":[{"id":"S","offset":[16,6]}]},{"id":"Monitor","origin":[82,40],"size":[16,12],"pins":[{"id":"I","offset":[0,6]}]},{"id":"Logger","origin":[82,8],"size":[16,12],"pins":[{"id":"I","offset":[0,6]}]},{"id":"Reference","origin":[0,-24],"size":[16,12],"pins":[{"id":"S","offset":[16,6]}]},{"id":"Meter","origin":[82,-24],"size":[16,12],"pins":[{"id":"I","offset":[0,6]}]}],"nets":[{"id":"SIGNAL","routes":[{"from":"Emitter.S","to":"Monitor.I","points":[[16,30],[47,30],[47,46],[82,46]]},{"from":"Emitter.S","to":"Logger.I","points":[[16,30],[47,30],[47,14],[82,14]]}]},{"id":"REF","routes":[{"from":"Reference.S","to":"Meter.I","points":[[16,-18],[82,-18]]}]}]}
+}

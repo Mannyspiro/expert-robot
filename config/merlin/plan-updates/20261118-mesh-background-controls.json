@@ -1,0 +1,27 @@
+{
+  "schema": "merlin-plan-update/1",
+  "parent_plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+  "parent_plan_version": 7,
+  "reasoning_mode": "inductive_revision",
+  "requires_review": true,
+  "authority_effect": "none",
+  "prior_update": "config/merlin/plan-updates/20261118-row-background.json",
+  "prior_update_sha256": "183f27339ef25bf543975e36ae786d8cbd3a1a2cd2c20b70c6659d84d3c8c9ea",
+  "observation_ids": [
+    "broad-overlap-null-controls"
+  ],
+  "observed_artifacts": [
+    "226e0244c8e7559e6c5ab9330de1519f21514d34ac9147da5225676a42d34db3"
+  ],
+  "evidence": "docs/evidence/mesh-background-controls-results.json",
+  "preregistered_commit": "1b0da3e3669ca6eee6d36f5e91d7661ab9f343e1",
+  "decision": "Use bounded-noise abstention in research when a bound is supplied. Decline general CAD promotion. Both feature families failed across all eight draws.",
+  "limits": "One geometry per feature family, same geometry across seeds, bounded pilot noise only, exact field at vertices and evaluation points.",
+  "next_actions": [
+    "Verify the learning service with an owner-provisioned institutional pilot, approved data policy and restart exercise.",
+    "Retest run-bound retrieval on a second independently authored corpus. Score supported answers, appropriate clarification, abstention and citation bytes.",
+    "Test the training-parent planner with distinct versioned coder adapters. Record measured calls and cost, and use a fresh holdout to decide whether any proposal improves behavior.",
+    "Evaluate an additional instrument dataset with documented unit conventions. Recheck missing values and timestamp precision across scientific data interchange.",
+    "Test whether nine probes can distinguish narrow from broad or multiple ridges. Compare against always-uniform and report incorrect adaptations and missed gains on unseen geometries."
+  ]
+}

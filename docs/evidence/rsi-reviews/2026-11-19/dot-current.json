@@ -1,0 +1,59 @@
+{
+  "source_commit": "e7be083b754b36e90d9ebffbe9f7ef9069296e06",
+  "sources": {
+    "baseline": {
+      "sha256": "a2d816d873b60179e6878a65d4416bd416d356ab3b9d76cc8531796b5704702b",
+      "description": "Existing Pillow identification and PNG postcheck"
+    },
+    "coder_a": {
+      "sha256": "7a873c32a7c467b95efac7f09b21520667f4470d8d2e782a866f41eb8e8648d7",
+      "description": "Allowlist PNG at both Image.open calls"
+    },
+    "coder_b": {
+      "sha256": "dafe2525440f1c083fac543b794ad530c8efd48f7c1e3a115cce981c32eab984",
+      "description": "Preflight PNG signature and bound IHDR before Pillow"
+    }
+  },
+  "matrix_sha256": "dfc76fe0839e7cc9647f963e1ce4d3d84498dbfbc19234f72f9862697d1156b7",
+  "protocol_ref": {
+    "schema": "merlin-artifact-ref/1",
+    "project_id": "drafting-png-review",
+    "logical_path": "cross-agent/merlin/protocols/d531d94468191dc4a6720f23ef47ddb3b05c441dd2fb7f21a5066e19d5e01d0d.json",
+    "version": 1,
+    "sha256": "d531d94468191dc4a6720f23ef47ddb3b05c441dd2fb7f21a5066e19d5e01d0d"
+  },
+  "observation_ref": {
+    "schema": "merlin-artifact-ref/1",
+    "project_id": "drafting-png-review",
+    "logical_path": "cross-agent/merlin/observations/ddd9e30f4077e23c3fba57a9deb27d53082402b6c966545efcc164e59fcfe110.json",
+    "version": 1,
+    "sha256": "ddd9e30f4077e23c3fba57a9deb27d53082402b6c966545efcc164e59fcfe110"
+  },
+  "report_ref": {
+    "schema": "merlin-artifact-ref/1",
+    "project_id": "drafting-png-review",
+    "logical_path": "dual-coder/d531d94468191dc4a6720f23ef47ddb3b05c441dd2fb7f21a5066e19d5e01d0d/report.json",
+    "version": 1,
+    "sha256": "1b7e847afd8503ae1618d5fb80050be21296286978da9f38d2ff22e6131e07eb"
+  },
+  "scores": {
+    "baseline": {
+      "holdout_passed": 3,
+      "regressions": 0,
+      "train_passed": 1
+    },
+    "coder_a": {
+      "holdout_passed": 4,
+      "regressions": 0,
+      "train_passed": 1
+    },
+    "coder_b": {
+      "holdout_passed": 4,
+      "regressions": 0,
+      "train_passed": 1
+    }
+  },
+  "recommendation": "coder_a",
+  "model_calls": 0,
+  "scope": "Fixed adapters scoring actual local fixture observations. No promotion authority."
+}

@@ -14,7 +14,13 @@ from pathlib import Path
 import re
 from typing import Any, Mapping
 
-from dot_ai_os.bridge import DotContextBridge, canonical
+if __package__ == "python.merlin":
+    from ..dot_ai_os import bridge as bridge_module
+else:
+    from dot_ai_os import bridge as bridge_module
+
+DotContextBridge = bridge_module.DotContextBridge
+canonical = bridge_module.canonical
 from .artifact_ref import ArtifactRef
 from .learning_platform import Actor, LearningConflictError, LearningPlatform
 from .learning_titan_course import LAB_LESSON_ID, titan_course_manifest
@@ -214,7 +220,6 @@ def evaluate_evidence_reader(service, registry: MerlinRegistry, learner: Actor, 
     project=next(iter(pins.values()))['source_ref']['project_id']
     expected_binding={'tenant_id':learner.tenant_id,'project_id':project,
         'course_id':scope['course_id'],'course_version':scope['course_version'],'manifest_sha256':scope['manifest_sha256']}
-    import dot_ai_os.bridge as bridge_module
     from . import learning_evidence as reader_module
     protocol={'schema':'merlin-learning-evidence-eval-protocol/1','fixture_sha256':FIXTURE_SHA256,
         'source_commit':source_commit,'course':scope,'expected_binding':expected_binding,'pinned_sources':pins,

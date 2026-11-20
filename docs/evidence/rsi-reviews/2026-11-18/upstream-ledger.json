@@ -1,0 +1,141 @@
+{
+  "schema": "merlin-upstream-review/1",
+  "window_utc": [
+    "2026-11-17T00:00:00Z",
+    "2026-11-18T14:59:16Z"
+  ],
+  "window_scope": "Broad collection interval. Use the prior receipt timestamp separately to distinguish new submissions from previously available work.",
+  "method": "GitHub REST repository releases/latest, releases?per_page=25, commits/{tag}, selected license files at tags and commits?since=...&until=...&per_page=10. Default branch commit list returned empty for each repository below. SDK v1.x also returned empty. Release checks concern latest stable versions, not all branches or prerelease events.",
+  "components": [
+    {
+      "repo": "gepa-ai/gepa",
+      "role": "candidate optimizer",
+      "tag": "v0.1.4",
+      "commit": "8b0ce6cd99a234f6b74daf37558a2ac0ce18f975",
+      "released_utc": "2026-07-15T14:50:58Z",
+      "license": "MIT",
+      "change": "Reflection-LM protocol and batch-based parallel proposals. No direct Merlin accuracy or cost benefit measured.",
+      "source": "https://github.com/gepa-ai/gepa/releases/tag/v0.1.4",
+      "license_source": "https://github.com/gepa-ai/gepa/blob/8b0ce6cd99a234f6b74daf37558a2ac0ce18f975/LICENSE"
+    },
+    {
+      "repo": "asg017/sqlite-vec",
+      "role": "optional lightweight retrieval extension",
+      "tag": "v0.1.9",
+      "commit": "e9f598abfa0c06b328d8fe5da9c3760cce74be10",
+      "released_utc": "2026-03-31T08:00:23Z",
+      "license": "MIT OR Apache; maintained package metadata spells MIT OR Apache-2.0",
+      "change": "Corrects DELETE result handling for text metadata longer than 12 characters.",
+      "source": "https://github.com/asg017/sqlite-vec/releases/tag/v0.1.9",
+      "license_source": "https://github.com/asg017/sqlite-vec/blob/e9f598abfa0c06b328d8fe5da9c3760cce74be10/sqlite-dist.toml"
+    },
+    {
+      "repo": "modelcontextprotocol/python-sdk",
+      "role": "Merlin MCP read gateway",
+      "review_runtime": "1.29.0",
+      "tag": "v1.30.0",
+      "commit": "8c2fa6eabacde869d75568e33b9d466b58c2f512",
+      "released_utc": "2026-09-07T14:03:59Z",
+      "license": "MIT",
+      "change": "Same-origin redirect rules, idle stateful session expiry, optional audience validation. Needs gateway regression and compatibility checks before a version change.",
+      "source": "https://github.com/modelcontextprotocol/python-sdk/releases/tag/v1.30.0",
+      "license_source": "https://github.com/modelcontextprotocol/python-sdk/blob/8c2fa6eabacde869d75568e33b9d466b58c2f512/LICENSE",
+      "latest_major": {
+        "tag": "v2.3.0",
+        "commit": "2118f14f8a19bc158d8a1cf90af58d85d187f849",
+        "released_utc": "2026-10-02T22:02:27Z",
+        "change": "Requires httpx2>=2.10.0. Cross-major migration not benchmarked.",
+        "source": "https://github.com/modelcontextprotocol/python-sdk/releases/tag/v2.3.0"
+      }
+    },
+    {
+      "repo": "encode/httpx",
+      "role": "Merlin HTTP client",
+      "review_runtime": "0.28.1",
+      "tag": "0.28.1",
+      "commit": "26d48e0634e6ee9cdc0533996db289ce4b430177",
+      "released_utc": "2024-12-06T15:36:24Z",
+      "license": "BSD-3-Clause",
+      "change": "Client-side certificate behavior with verify=False corrected. No recommendation to disable verification.",
+      "source": "https://github.com/encode/httpx/releases/tag/0.28.1",
+      "license_source": "https://github.com/encode/httpx/blob/26d48e0634e6ee9cdc0533996db289ce4b430177/LICENSE.md"
+    },
+    {
+      "repo": "jpadilla/pyjwt",
+      "role": "Merlin institutional OIDC startup acceptance pins independent official source checkout",
+      "review_runtime": "2.13.0",
+      "tag": "2.15.1",
+      "commit": "7d5ef55e42ce42221f58dc49943e92ccad1fa66a",
+      "released_utc": "2026-09-28T18:39:19Z",
+      "license": "MIT",
+      "change": "Accepts trailing Base64URL padding in JWS while preserving rejection of invalid characters.",
+      "source": "https://github.com/jpadilla/pyjwt/blob/2.15.1/CHANGELOG.rst",
+      "license_source": "https://github.com/jpadilla/pyjwt/blob/7d5ef55e42ce42221f58dc49943e92ccad1fa66a/LICENSE"
+    },
+    {
+      "repo": "Kludex/starlette",
+      "role": "ASGI test client; inventory only",
+      "review_runtime": "1.6.0",
+      "runtime_tag_commit": "4f250d6b814587e20c5365f0a5f0c4d42bcb929f",
+      "latest_stable": "1.10.0",
+      "released_utc": "2026-10-24T15:02:54Z",
+      "source": "https://github.com/Kludex/starlette/releases/tag/1.10.0",
+      "scope": "No source imported; release license and behavior not evaluated for adoption."
+    }
+  ],
+  "defensive_advisories": [
+    {
+      "repo": "modelcontextprotocol/python-sdk",
+      "id": "GHSA-w4fh-qvv9-3v23",
+      "published": "2026-10-05",
+      "upstream_affected": "1.10.0 through 1.29.1; 2.0.0 through 2.1.1, conditional on a missing verifier audience check",
+      "upstream_fixed": "1.30.0 or 2.2.0 with resource validation configured. Verifier-side audience checking also recognized.",
+      "merlin_scope": "Previously reviewed gateway explicitly checks exact resource audience. This is a source-level observation, not deployment certification.",
+      "source": "https://github.com/modelcontextprotocol/python-sdk/security/advisories/GHSA-w4fh-qvv9-3v23"
+    },
+    {
+      "repo": "jpadilla/pyjwt",
+      "scope": "Official advisories index showed September entries including GHSA-42vr-xj54-vc7v (Sept 23); no November publication observed on visible page. No malicious test case executed.",
+      "source": "https://github.com/jpadilla/pyjwt/security/advisories"
+    },
+    {
+      "repo": "encode/httpx",
+      "scope": "Repository advisory page explicitly reported no published advisories. This covers that repository page only.",
+      "source": "https://github.com/encode/httpx/security/advisories"
+    },
+    {
+      "repos": [
+        "gepa-ai/gepa",
+        "asg017/sqlite-vec"
+      ],
+      "scope": "Advisory REST route rejected by connector; repository security pages, filtered GitHub advisory database pages and versioned PyPI JSON unavailable to web retrieval. Their advisory status remains unknown."
+    }
+  ],
+  "papers": [
+    {
+      "version": "arXiv:2611.22179v1",
+      "submitted_utc": "2026-11-17T04:16:34Z",
+      "source": "https://arxiv.org/abs/2611.22179v1",
+      "observed": "Authors compare minimal retrieval and structured memory and report different winners for rule application versus pattern induction. Their reported reader context cost is about 5000-7000 tokens/query.",
+      "candidate": "Score the action chosen from memory and the underlying citation separately."
+    },
+    {
+      "version": "arXiv:2611.22425v1",
+      "submitted_utc": "2026-11-17T09:00:31Z",
+      "source": "https://arxiv.org/abs/2611.22425v1",
+      "observed": "Authors evaluate complementary sentence/paragraph retrieval with a 2B reader and 400-token context, reporting 2.14-4.55 F1 gains over query expansion on three question sets.",
+      "candidate": "Compare marginal evidence coverage at fixed budget against the same immutable source-byte baseline."
+    },
+    {
+      "version": "arXiv:2611.22837v1",
+      "submitted_utc": "2026-11-17T14:19:18Z",
+      "source": "https://arxiv.org/abs/2611.22837v1",
+      "observed": "Authors separate acquisition and use errors in multimodal document reasoning; reported 7B/8B benchmark results are external.",
+      "candidate": "Log exact source coverage and interpretation success independently."
+    }
+  ],
+  "disposition": "Papers screened at abstract level. No upstream code, models, release assets or paper text copied or executed by this reviewer; no general Merlin benefit demonstrated. PyPI versions in the review interpreter are environment observations, not production inventory. NASA provenance handled separately.",
+  "prior_repository_review_commit": "33ec0528bfccdededa767c73cda64d2fcf9d89a3",
+  "prior_repository_review_committed_utc": "2026-11-18T04:51:02Z",
+  "delta_interpretation": "The three Nov 17 papers and Nov 13 cdflib change predate the verified prior dot receipt. They are background evaluated today. No distinct previous scheduled-run cutoff was located. Next review starts at this window end."
+}

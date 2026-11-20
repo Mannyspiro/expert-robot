@@ -1,0 +1,28 @@
+{
+  "schema": "merlin-training-parent-measurement/1",
+  "upstream": "gepa-ai/gepa@8b0ce6cd99a234f6b74daf37558a2ac0ce18f975",
+  "upstream_git_blob": "05567c8b3f69209acebfb1bb460fc4b445006851",
+  "dot_training": {
+    "cases": 2,
+    "aggregate_parents": [
+      "coder_a",
+      "coder_b"
+    ],
+    "aggregate_covered": 2,
+    "selected_parents": [
+      "coder_a"
+    ],
+    "selected_covered": 2
+  },
+  "complementary_control": {
+    "aggregate_covered": 2,
+    "selected_parents": [
+      "baseline",
+      "coder_b"
+    ],
+    "selected_covered": 3
+  },
+  "new_provider_calls": 0,
+  "promotion_authority": false,
+  "scope": "Training coverage and requested parent slots for fixed software adapters."
+}

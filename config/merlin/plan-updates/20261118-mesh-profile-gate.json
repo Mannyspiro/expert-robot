@@ -1,0 +1,27 @@
+{
+  "schema": "merlin-plan-update/1",
+  "parent_plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+  "parent_plan_version": 7,
+  "reasoning_mode": "inductive_revision",
+  "requires_review": true,
+  "authority_effect": "none",
+  "prior_update": "config/merlin/plan-updates/20261118-mesh-background-controls.json",
+  "prior_update_sha256": "fdec57be50b2d57d1a0ba93f09ab89d723e9e2436fccb8ab9862e85175df0678",
+  "observation_ids": [
+    "profile-gate-36-cases"
+  ],
+  "observed_artifacts": [
+    "46745a3679fd8f6c3527b57c7d0860ba5b11aa792e9c410619356f0a322f8b7e"
+  ],
+  "evidence": "docs/evidence/mesh-profile-gate-results.json",
+  "preregistered_commit": "6039154fe3f5e74bd6bd667b583a3bf99aba7093",
+  "decision": "Retain as experimental. Zero harmful moves against the original comparator. Captured 12 of 24 available improvements, below the preregistered 75 percent.",
+  "limits": "18 synthetic geometries, two common noise draws each. Unit-amplitude fixed-width template. Comparator orientation changes which adaptations are desirable.",
+  "next_actions": [
+    "Verify the learning service with an owner-provisioned institutional pilot, approved data policy and restart exercise.",
+    "Retest run-bound retrieval on a second independently authored corpus. Score supported answers, appropriate clarification, abstention and citation bytes.",
+    "Test the training-parent planner with distinct versioned coder adapters. Record measured calls and cost, and use a fresh holdout to decide whether any proposal improves behavior.",
+    "Evaluate an additional instrument dataset with documented unit conventions. Recheck missing values and timestamp precision across scientific data interchange.",
+    "Evaluate a selector that estimates interpolation error for mesh alternatives, including both uniform orientations. Freeze its proxy and test on new geometries with uncertain amplitude before scoring."
+  ]
+}

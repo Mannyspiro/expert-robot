@@ -1,0 +1,221 @@
+{
+  "prior_window_end_utc": "2026-11-18T14:59:16Z",
+  "captured_at_utc": "2026-11-19T15:02:08.278Z",
+  "releases_and_default_branch_commits": [
+    {
+      "r": "modelcontextprotocol/python-sdk",
+      "tag": "v2.3.0",
+      "published": "2026-10-02T22:02:27Z",
+      "url": "https://github.com/modelcontextprotocol/python-sdk/releases/tag/v2.3.0",
+      "commits": [],
+      "errors": [
+        "fulfilled",
+        "fulfilled"
+      ]
+    },
+    {
+      "r": "encode/httpx",
+      "tag": "0.28.1",
+      "published": "2024-12-06T15:36:24Z",
+      "url": "https://github.com/encode/httpx/releases/tag/0.28.1",
+      "commits": [],
+      "errors": [
+        "fulfilled",
+        "fulfilled"
+      ]
+    },
+    {
+      "r": "jpadilla/pyjwt",
+      "tag": "2.15.1",
+      "published": "2026-09-28T18:39:19Z",
+      "url": "https://github.com/jpadilla/pyjwt/releases/tag/2.15.1",
+      "commits": [],
+      "errors": [
+        "fulfilled",
+        "fulfilled"
+      ]
+    },
+    {
+      "r": "Kludex/starlette",
+      "tag": "1.10.0",
+      "published": "2026-10-24T15:02:54Z",
+      "url": "https://github.com/Kludex/starlette/releases/tag/1.10.0",
+      "commits": [],
+      "errors": [
+        "fulfilled",
+        "fulfilled"
+      ]
+    },
+    {
+      "r": "mozman/ezdxf",
+      "commits": [],
+      "errors": [
+        "rejected",
+        "fulfilled"
+      ]
+    },
+    {
+      "r": "python-pillow/Pillow",
+      "tag": "13.0.0",
+      "published": "2026-10-16T22:37:44Z",
+      "url": "https://github.com/python-pillow/Pillow/releases/tag/13.0.0",
+      "commits": [
+        [
+          "f3711dc72dfb673103ab009fb045acbf19f91721",
+          "Set padding bytes in new 2 channel images to zero (#10511)"
+        ],
+        [
+          "ed6758fd1b2357386ff4771c9e4356a1be6850f0",
+          "Adjust C copy and convert functions to remove ImagingNew2Dirty (#10103)"
+        ],
+        [
+          "91e54930358d04ea1c9001f4f5240463c647a252",
+          "Use round and CLIP16 in putdata (#10556)"
+        ],
+        [
+          "54f7e998cfd475198b22b3e5779d58d653a66b12",
+          "Fix Image.point LUT from L to two band images (#10559)"
+        ],
+        [
+          "9823d78957f06fbd6c380dacc3e0083e8444e839",
+          "Improve RankFilter/MinFilter/MaxFilter (performance + I;16 support) (#10558)"
+        ],
+        [
+          "0261e8e3a740b3726726e5ece96fd78c047dd87f",
+          "Fix memory leak when single band merge fails (#10557)"
+        ],
+        [
+          "fda47deee6f6e437490dd9ab64854cf01e95827f",
+          "Do not keep failed size after DecompressionBombError in WMF load (#10555)"
+        ],
+        [
+          "f53584a603a2dec90d22bd34b017088ff776c42b",
+          "Combine load and store"
+        ],
+        [
+          "315249c523b60e45ff21f545256eb233f0260ab2",
+          "Support I;16* modes in RankFilter"
+        ],
+        [
+          "e19def590f0d09c8a128eab7ccaf20bd03ac91f3",
+          "Clean up and speed up RankFilter"
+        ]
+      ],
+      "errors": [
+        "fulfilled",
+        "fulfilled"
+      ]
+    }
+  ],
+  "pinned_upstream_references": [
+    [
+      "python-pillow/Pillow/commits/13.0.0",
+      "293218ad059d994baf1777d882911bed6a49704a",
+      null,
+      null,
+      "https://github.com/python-pillow/Pillow/commit/293218ad059d994baf1777d882911bed6a49704a"
+    ],
+    [
+      "mozman/ezdxf/commits/v1.4.4",
+      "dd7f6cc34983fdbf0b2b910f2497e0720d06dd16",
+      null,
+      null,
+      "https://github.com/mozman/ezdxf/commit/dd7f6cc34983fdbf0b2b910f2497e0720d06dd16"
+    ],
+    [
+      "Kozea/CairoSVG/commits/2.8.2",
+      "9e8c6ede00dd1c4495fca4809b4cabd628a85eb9",
+      null,
+      null,
+      "https://github.com/Kozea/CairoSVG/commit/9e8c6ede00dd1c4495fca4809b4cabd628a85eb9"
+    ],
+    [
+      "lasp/cdflib/releases/latest",
+      null,
+      "1.3.16",
+      "2026-10-21T17:47:30Z",
+      "https://github.com/lasp/cdflib/releases/tag/1.3.16"
+    ],
+    [
+      "lasp/cdflib/commits?since=2026-11-18T14:59:16Z",
+      null,
+      null,
+      null,
+      []
+    ]
+  ],
+  "draft_workflow_summary": [
+    [
+      "Mannyspiro/expert-robot",
+      "e7be083b754b36e90d9ebffbe9f7ef9069296e06",
+      [
+        [
+          44349919282,
+          "Merlin hybrid voice and HUD qualification (Avrea)",
+          "completed",
+          "cancelled"
+        ],
+        [
+          44349918941,
+          "Merlin Representation Spectrum Tests",
+          "completed",
+          "cancelled"
+        ],
+        [
+          44349919499,
+          "Merlin Learning identity evidence",
+          "completed",
+          "success"
+        ],
+        [
+          44349919082,
+          "Merlin unified platform integration evidence",
+          "completed",
+          "success"
+        ],
+        [
+          44349918946,
+          "Merlin Learning platform evidence",
+          "completed",
+          "success"
+        ],
+        [
+          44349919278,
+          "Merlin hybrid voice HUD hosted evidence",
+          "completed",
+          "success"
+        ],
+        [
+          44349919492,
+          "CI",
+          "completed",
+          "success"
+        ]
+      ]
+    ],
+    [
+      "Mannyspiro/expert-robot",
+      "2d6b354fa422df521536fda421d07a0462bd44e8",
+      [
+        [
+          44344461060,
+          "CI",
+          "completed",
+          "success"
+        ]
+      ]
+    ],
+    [
+      "morganaspim/Cace-app",
+      "de6ed246d909bd5752bd1a53bbae75855db0c75d",
+      [
+        [
+          44242305386,
+          "CACE Collaboration Coordination Validation",
+          "completed",
+          "success"
+        ]
+      ]
+    ]
+  ]
+}

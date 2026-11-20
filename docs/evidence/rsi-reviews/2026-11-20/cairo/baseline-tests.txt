@@ -1,0 +1,14 @@
+test_controlled_positive_and_unknown_negative (test_drafting_control.DraftControlTests.test_controlled_positive_and_unknown_negative) ... ok
+test_stale_hashes_permuted_pins_and_missing_observations_fail_closed (test_drafting_control.DraftControlTests.test_stale_hashes_permuted_pins_and_missing_observations_fail_closed) ... ok
+test_tampered_guide_fails_rebuild (test_drafting_control.DraftControlTests.test_tampered_guide_fails_rebuild) ... ok
+test_ordinary_jpeg_is_rejected_before_jpeg_decoder_entry (test_drafting_png_admission.PngAdmissionTests.test_ordinary_jpeg_is_rejected_before_jpeg_decoder_entry) ... ok
+test_valid_png_and_existing_unknown_review_gate_are_preserved (test_drafting_png_admission.PngAdmissionTests.test_valid_png_and_existing_unknown_review_gate_are_preserved) ... ok
+test_disconnected_net_is_rejected (test_wiring_sheet.WiringSheetTests.test_disconnected_net_is_rejected) ... ok
+test_invalid_endpoint_and_diagonal (test_wiring_sheet.WiringSheetTests.test_invalid_endpoint_and_diagonal) ... ok
+test_measured_sheet_and_editable_routes (test_wiring_sheet.WiringSheetTests.test_measured_sheet_and_editable_routes) ... ok
+test_reference_is_only_attribution (test_wiring_sheet.WiringSheetTests.test_reference_is_only_attribution) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 3.687s
+
+OK

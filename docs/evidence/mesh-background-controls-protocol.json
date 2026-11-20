@@ -1,0 +1,7 @@
+{
+  "seeds": [401,402,403,404,405,406,407,408],
+  "noise_bound": 0.001,
+  "design": "Use the previous nine pilot locations, 541 vertices and 4096 scoring points. Common row-major uniform pilot noise across field types for each seed. Baseline background 0.03+0.17*sin(2*pi*y). Single broad Gaussian width 0.22 center 0.47+0.4*(y-0.5). Two overlapping Gaussians of width 0.12 at that center +/-0.09, amplitudes 1 and 0.8. Null cases are constant 0.03 without pilot noise (once), and baseline background with pilot noise (eight seeds). Score exact fields.",
+  "rule": "Compare existing row-minimum selector against a guarded version that chooses uniform when every row range is <=2*known noise bound plus 1e-14. Otherwise use existing selector. This guard follows the maximum possible within-row separation for bounded noise on a row-constant field.",
+  "acceptance": "Guarded selector must fall back on every null and strictly beat both uniform orientations on every feature case. Record all losses and fallback counts. No ratios for nulls. Noise bound is assumed known."
+}

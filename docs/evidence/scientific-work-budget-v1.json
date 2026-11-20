@@ -1,0 +1,98 @@
+{
+  "baseline_commit": "33ec0528bfccdededa767c73cda64d2fcf9d89a3",
+  "baseline_module_git_blob": "5c1315694377fd64e739d7d379193fe793f108b7",
+  "candidate_module_sha256": "d36cb5381931d5433c1e8d1a1d777512f55e0107b2acc766bca53e4f30d47111",
+  "catalogue": {
+    "compatible_pairs": 66,
+    "pair_and_triple_groups": 286,
+    "primitives": 12,
+    "result_limit": 1
+  },
+  "observations": [
+    {
+      "implementation": "baseline",
+      "instrumented_primitive_group_visits": 286,
+      "returned_ids": [
+        [
+          "p10",
+          "p11"
+        ]
+      ],
+      "work_budget": null
+    },
+    {
+      "implementation": "candidate",
+      "instrumented_primitive_group_visits": 0,
+      "ranking_scope": "visited_prefix_only",
+      "returned_ids": [],
+      "work_budget": 0
+    },
+    {
+      "implementation": "candidate",
+      "instrumented_primitive_group_visits": 1,
+      "ranking_scope": "visited_prefix_only",
+      "returned_ids": [
+        [
+          "p00",
+          "p01"
+        ]
+      ],
+      "work_budget": 1
+    },
+    {
+      "implementation": "candidate",
+      "instrumented_primitive_group_visits": 7,
+      "ranking_scope": "visited_prefix_only",
+      "returned_ids": [
+        [
+          "p00",
+          "p07"
+        ]
+      ],
+      "work_budget": 7
+    },
+    {
+      "implementation": "candidate",
+      "instrumented_primitive_group_visits": 67,
+      "ranking_scope": "visited_prefix_only",
+      "returned_ids": [
+        [
+          "p10",
+          "p11"
+        ]
+      ],
+      "work_budget": 67
+    },
+    {
+      "implementation": "candidate",
+      "instrumented_primitive_group_visits": 286,
+      "ranking_scope": "whole_input_catalogue",
+      "returned_ids": [
+        [
+          "p10",
+          "p11"
+        ]
+      ],
+      "work_budget": 286
+    },
+    {
+      "implementation": "candidate",
+      "instrumented_primitive_group_visits": 286,
+      "ranking_scope": "whole_input_catalogue",
+      "returned_ids": [
+        [
+          "p10",
+          "p11"
+        ]
+      ],
+      "work_budget": null
+    }
+  ],
+  "schema": "merlin-scientific-work-budget-measurement/1",
+  "scope": "local software fixture, measuring candidate groups visited and backward-compatible results",
+  "seeded_exhaustive_comparisons": {
+    "identical_lists": 60,
+    "seed": 1207,
+    "trials": 60
+  }
+}

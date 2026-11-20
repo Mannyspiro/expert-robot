@@ -1,0 +1,159 @@
+{
+  "arm": "candidate",
+  "source_sha256": "7a873c32a7c467b95efac7f09b21520667f4470d8d2e782a866f41eb8e8648d7",
+  "protocol_sha256": "fa4f65757e4be864b067d9aa68fdbb48e965314c5ec8fffec011021607dcdb91",
+  "elapsed_seconds": 7.544,
+  "results": [
+    {
+      "id": "D0",
+      "partition": "development",
+      "expected_label": "accepted",
+      "actual_label": "accepted",
+      "decision": "accepted",
+      "passed": true,
+      "source_sha256": "7fdb3deb323a68af0ef3c2e2e3cd706f0bbd1e5bb188ff2bcf688279241575db",
+      "candidate_sha256": "aeb4f286555cd2b81ac89cec7145e7363a6aea8133512a3449de3db7a0a764f5",
+      "candidate_only_open_calls": 2,
+      "candidate_only_load_calls": 1,
+      "allowed_formats_at_open": [
+        [
+          "PNG"
+        ],
+        [
+          "PNG"
+        ]
+      ],
+      "error": null,
+      "seconds": 0.5852
+    },
+    {
+      "id": "B0",
+      "partition": "heldout",
+      "expected_label": "accepted",
+      "actual_label": "accepted",
+      "decision": "accepted",
+      "passed": true,
+      "source_sha256": "a85e639346ceb4f162d02fd750c0bea5a55291d28d9c32a1eced8d852e08fbf1",
+      "candidate_sha256": "f7b40a4ccf1aefd28474feb7705e846246eba4d06dc28f50e8ffccc0afb28575",
+      "candidate_only_open_calls": 2,
+      "candidate_only_load_calls": 1,
+      "allowed_formats_at_open": [
+        [
+          "PNG"
+        ],
+        [
+          "PNG"
+        ]
+      ],
+      "error": null,
+      "seconds": 0.6648
+    },
+    {
+      "id": "B1",
+      "partition": "heldout",
+      "expected_label": "rejected",
+      "actual_label": "rejected",
+      "decision": "rejected",
+      "passed": true,
+      "source_sha256": "a85e639346ceb4f162d02fd750c0bea5a55291d28d9c32a1eced8d852e08fbf1",
+      "candidate_sha256": "f7b40a4ccf1aefd28474feb7705e846246eba4d06dc28f50e8ffccc0afb28575",
+      "candidate_only_open_calls": 2,
+      "candidate_only_load_calls": 1,
+      "allowed_formats_at_open": [
+        [
+          "PNG"
+        ],
+        [
+          "PNG"
+        ]
+      ],
+      "error": "ValueError: unknown, reversed or repeated reviewed connection",
+      "seconds": 0.9497
+    },
+    {
+      "id": "B2",
+      "partition": "heldout",
+      "expected_label": "rejected",
+      "actual_label": "rejected",
+      "decision": "rejected",
+      "passed": true,
+      "source_sha256": "a85e639346ceb4f162d02fd750c0bea5a55291d28d9c32a1eced8d852e08fbf1",
+      "candidate_sha256": "8273c0e379d461a752dc7e555951b70b0bf594a6cc55e1a516c915fc5a3bdcfc",
+      "candidate_only_open_calls": 2,
+      "candidate_only_load_calls": 1,
+      "allowed_formats_at_open": [
+        [
+          "PNG"
+        ],
+        [
+          "PNG"
+        ]
+      ],
+      "error": null,
+      "seconds": 0.8447
+    },
+    {
+      "id": "B3",
+      "partition": "heldout",
+      "expected_label": "rejected",
+      "actual_label": "accepted",
+      "decision": "accepted",
+      "passed": false,
+      "source_sha256": "a85e639346ceb4f162d02fd750c0bea5a55291d28d9c32a1eced8d852e08fbf1",
+      "candidate_sha256": "8273c0e379d461a752dc7e555951b70b0bf594a6cc55e1a516c915fc5a3bdcfc",
+      "candidate_only_open_calls": 2,
+      "candidate_only_load_calls": 1,
+      "allowed_formats_at_open": [
+        [
+          "PNG"
+        ],
+        [
+          "PNG"
+        ]
+      ],
+      "error": null,
+      "seconds": 0.6478
+    },
+    {
+      "id": "B4",
+      "partition": "heldout",
+      "expected_label": "rejected_without_general_dispatch",
+      "actual_label": "rejected_without_general_dispatch",
+      "decision": "rejected",
+      "passed": true,
+      "source_sha256": "a85e639346ceb4f162d02fd750c0bea5a55291d28d9c32a1eced8d852e08fbf1",
+      "candidate_sha256": "7e07ec2d91094cebb879a7337c30809ccb87850319c28368e0f778869e7c44f3",
+      "candidate_only_open_calls": 1,
+      "candidate_only_load_calls": 0,
+      "allowed_formats_at_open": [
+        [
+          "PNG"
+        ]
+      ],
+      "error": "ValueError: candidate PNG could not be verified",
+      "seconds": 0.7067
+    },
+    {
+      "id": "B5",
+      "partition": "heldout",
+      "expected_label": "rejected_before_load",
+      "actual_label": "rejected",
+      "decision": "rejected",
+      "passed": false,
+      "source_sha256": "a85e639346ceb4f162d02fd750c0bea5a55291d28d9c32a1eced8d852e08fbf1",
+      "candidate_sha256": "9ba521807af998b4a751aa0cab973db1435fb1e11f072c4cc25cc1945941c520",
+      "candidate_only_open_calls": 2,
+      "candidate_only_load_calls": 1,
+      "allowed_formats_at_open": [
+        [
+          "PNG"
+        ],
+        [
+          "PNG"
+        ]
+      ],
+      "error": null,
+      "seconds": 1.3175
+    }
+  ]
+}

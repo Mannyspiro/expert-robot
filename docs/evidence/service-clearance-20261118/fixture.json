@@ -1,0 +1,287 @@
+{
+  "title": "Synthetic spectroscopy maintenance",
+  "unit": "m",
+  "room": [
+    10,
+    8,
+    5
+  ],
+  "layouts": [
+    {
+      "name": "blocked-service",
+      "items": [
+        {
+          "id": "spectrometer",
+          "origin": [
+            1,
+            1,
+            1
+          ],
+          "size": [
+            2,
+            2,
+            1
+          ],
+          "service_zones": [
+            {
+              "id": "calibration",
+              "origin": [
+                2,
+                0,
+                0
+              ],
+              "size": [
+                2,
+                2,
+                1
+              ]
+            }
+          ]
+        },
+        {
+          "id": "microscope",
+          "origin": [
+            4,
+            1,
+            1
+          ],
+          "size": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "name": "vertical-separation",
+      "items": [
+        {
+          "id": "spectrometer",
+          "origin": [
+            1,
+            1,
+            1
+          ],
+          "size": [
+            2,
+            2,
+            1
+          ],
+          "service_zones": [
+            {
+              "id": "calibration",
+              "origin": [
+                2,
+                0,
+                0
+              ],
+              "size": [
+                2,
+                2,
+                1
+              ]
+            }
+          ]
+        },
+        {
+          "id": "microscope",
+          "origin": [
+            4,
+            1,
+            2.5
+          ],
+          "size": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "name": "shared-service",
+      "items": [
+        {
+          "id": "spectrometer",
+          "origin": [
+            1,
+            1,
+            1
+          ],
+          "size": [
+            2,
+            2,
+            1
+          ],
+          "service_zones": [
+            {
+              "id": "calibration",
+              "origin": [
+                2,
+                0,
+                0
+              ],
+              "size": [
+                2,
+                2,
+                1
+              ]
+            }
+          ]
+        },
+        {
+          "id": "microscope",
+          "origin": [
+            6,
+            1,
+            1
+          ],
+          "size": [
+            1,
+            1,
+            1
+          ],
+          "service_zones": [
+            {
+              "id": "calibration",
+              "origin": [
+                -2,
+                0,
+                0
+              ],
+              "size": [
+                2,
+                1,
+                1
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "legacy",
+      "items": [
+        {
+          "id": "spectrometer",
+          "origin": [
+            1,
+            1,
+            1
+          ],
+          "size": [
+            2,
+            2,
+            1
+          ]
+        },
+        {
+          "id": "microscope",
+          "origin": [
+            4,
+            1,
+            1
+          ],
+          "size": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "name": "room-boundary-touch",
+      "items": [
+        {
+          "id": "spectrometer",
+          "origin": [
+            7,
+            1,
+            1
+          ],
+          "size": [
+            2,
+            2,
+            1
+          ],
+          "service_zones": [
+            {
+              "id": "calibration",
+              "origin": [
+                2,
+                0,
+                0
+              ],
+              "size": [
+                1,
+                2,
+                1
+              ]
+            }
+          ]
+        },
+        {
+          "id": "microscope",
+          "origin": [
+            1,
+            1,
+            1
+          ],
+          "size": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "name": "room-boundary-breach",
+      "items": [
+        {
+          "id": "spectrometer",
+          "origin": [
+            7,
+            1,
+            1
+          ],
+          "size": [
+            2,
+            2,
+            1
+          ],
+          "service_zones": [
+            {
+              "id": "calibration",
+              "origin": [
+                2,
+                0,
+                0
+              ],
+              "size": [
+                1.5,
+                2,
+                1
+              ]
+            }
+          ]
+        },
+        {
+          "id": "microscope",
+          "origin": [
+            1,
+            1,
+            1
+          ],
+          "size": [
+            1,
+            1,
+            1
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "schema": "merlin-plan-update/1",
+  "parent_plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+  "parent_plan_version": 6,
+  "reasoning_mode": "inductive_revision",
+  "observation_ids": [
+    "native-mesh-equal-vertices"
+  ],
+  "observed_artifacts": [
+    "edc051793fea6e3ca9a1186b814073a09a9cfac5110c0d4d2fb61c27fa5f20c0"
+  ],
+  "changes": [
+    {
+      "type": "evidence_informed_revision",
+      "rationale": "Plan update is linked to explicit observations; conclusions remain provisional."
+    }
+  ],
+  "next_actions": [
+    "Verify the learning service with an owner-provisioned institutional pilot, approved data policy and restart exercise.",
+    "Retest run-bound retrieval on a second independently authored corpus. Score supported answers, appropriate clarification, abstention and citation bytes.",
+    "Test the training-parent planner with distinct versioned coder adapters. Record measured calls and cost, and use a fresh holdout to decide whether any proposal improves behavior.",
+    "Evaluate an additional instrument dataset with documented unit conventions. Recheck missing values and timestamp precision across scientific data interchange.",
+    "Freeze a second field with its feature displaced from the refinement metric. Compare equal vertex budgets on that field and record regressions before any CAD integration."
+  ],
+  "requires_review": true,
+  "authority_effect": "none",
+  "prior_update": "config/merlin/plan-updates/20261118-scientific-research.json",
+  "prior_update_sha256": "503dd23f6f8d21cad30eb212e2183fcc5cc04ba6d672b95033ab780d7b27307d",
+  "evidence": "docs/evidence/mesh-interpolation-20261118.json",
+  "observed_rmse_ratio": 0.12312118759498555,
+  "ranked_next_actions": [
+    {
+      "task": "P07-2",
+      "action": "Verify the learning service with an owner-provisioned institutional pilot, approved data policy and restart exercise."
+    },
+    {
+      "task": "P01-2",
+      "action": "Retest run-bound retrieval on a second independently authored corpus. Score supported answers, appropriate clarification, abstention and citation bytes."
+    },
+    {
+      "task": "P03-2",
+      "action": "Test the training-parent planner with distinct versioned coder adapters. Record measured calls and cost, and use a fresh holdout to decide whether any proposal improves behavior."
+    },
+    {
+      "task": "P04-1",
+      "action": "Evaluate an additional instrument dataset with documented unit conventions. Recheck missing values and timestamp precision across scientific data interchange."
+    },
+    {
+      "task": "P06-2",
+      "action": "Freeze a second field with its feature displaced from the refinement metric. Compare equal vertex budgets on that field and record regressions before any CAD integration."
+    }
+  ],
+  "scope": "One synthetic known field. Institutional pilot remains pending."
+}

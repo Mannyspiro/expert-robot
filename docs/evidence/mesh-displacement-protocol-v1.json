@@ -1,0 +1,11 @@
+{
+  "schema": "merlin-mesh-displacement-protocol/1",
+  "parent_commit": "6f673409d7f52a1051157a3a4f808a3106d6830e",
+  "parent_receipt_sha256": "edc051793fea6e3ca9a1186b814073a09a9cfac5110c0d4d2fb61c27fa5f20c0",
+  "baseline_center_m": 0.5,
+  "primary_center_m": 0.75,
+  "mirror_center_m": 0.25,
+  "hypothesis": "A quarter-domain displacement will erase the original RMSE advantage.",
+  "comparison": "Translate only the Gaussian in the original field. Keep the transverse sinusoid, metric, both triangulations, vertex budgets and 4096 evaluation locations fixed. Replay original RMSE and mesh identities before evaluating the new cases.",
+  "decision": "For each displaced case report adapted RMSE divided by near-uniform RMSE. A ratio above one indicates regression. A tie or improvement remains reportable. The mirror checks direction dependence. Keep geometry selection experimental regardless of outcome."
+}

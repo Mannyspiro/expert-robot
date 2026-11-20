@@ -1,0 +1,41 @@
+{
+  "freecad": [
+    "1",
+    "0",
+    "0"
+  ],
+  "opencascade": "7.8.1",
+  "scope": "Synthetic rotated boxes. CAD experiment only.",
+  "cases": [
+    {
+      "offset": [
+        0,
+        2,
+        0
+      ],
+      "enclosing_box_overlap": true,
+      "solid_overlap": false,
+      "intersection_m3": 0.0
+    },
+    {
+      "offset": [
+        0,
+        1,
+        0
+      ],
+      "enclosing_box_overlap": true,
+      "solid_overlap": true,
+      "intersection_m3": 0.9644660940672616
+    },
+    {
+      "offset": [
+        0,
+        0,
+        2
+      ],
+      "enclosing_box_overlap": false,
+      "solid_overlap": false,
+      "intersection_m3": 0.0
+    }
+  ]
+}

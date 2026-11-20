@@ -1,0 +1,303 @@
+{
+  "schema": "merlin-plan-update/1",
+  "parent_plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+  "parent_plan_version": 7,
+  "reasoning_mode": "inductive_revision",
+  "observation_ids": [
+    "mesh-robustness-baseline",
+    "mesh-robustness-narrow",
+    "mesh-robustness-broad",
+    "mesh-robustness-background",
+    "mesh-robustness-noise"
+  ],
+  "observed_artifacts": [
+    "f2696525fc333069c6ccb6a75febb5cc3da3be5882658ba18b717e2265e84b63",
+    "f2696525fc333069c6ccb6a75febb5cc3da3be5882658ba18b717e2265e84b63",
+    "f2696525fc333069c6ccb6a75febb5cc3da3be5882658ba18b717e2265e84b63",
+    "f2696525fc333069c6ccb6a75febb5cc3da3be5882658ba18b717e2265e84b63",
+    "f2696525fc333069c6ccb6a75febb5cc3da3be5882658ba18b717e2265e84b63"
+  ],
+  "changes": [
+    {
+      "type": "evidence_informed_revision",
+      "rationale": "Plan update is linked to explicit observations; conclusions remain provisional."
+    }
+  ],
+  "next_actions": [
+    "Verify the learning service with an owner-provisioned institutional pilot, approved data policy and restart exercise.",
+    "Retest run-bound retrieval on a second independently authored corpus. Score supported answers, appropriate clarification, abstention and citation bytes.",
+    "Test the training-parent planner with distinct versioned coder adapters. Record measured calls and cost, and use a fresh holdout to decide whether any proposal improves behavior.",
+    "Evaluate an additional instrument dataset with documented unit conventions. Recheck missing values and timestamp precision across scientific data interchange.",
+    "Estimate or bound background with the same nine probes before inversion; freeze fallback criteria and independent perturbations."
+  ],
+  "requires_review": true,
+  "authority_effect": "none",
+  "prior_update": "config/merlin/plan-updates/20261118-mesh-three-row.json",
+  "prior_update_sha256": "565fdf50b5a7c5ed680e908b1c301fa2db1418924eba2808c1fda3df47964dd1",
+  "inquiry": {
+    "schema": "merlin-clue-inquiry/1",
+    "reasoning_mode": "inductive_comparison_with_conditional_specialist_facts",
+    "scope": "20 noiseless-scoring synthetic cases, with one seeded pilot-noise pattern",
+    "observation_ids": [
+      "mesh-robustness-baseline",
+      "mesh-robustness-narrow",
+      "mesh-robustness-broad",
+      "mesh-robustness-background",
+      "mesh-robustness-noise"
+    ],
+    "specialist_facts": [
+      {
+        "fact_id": "gaussian-log-ratio",
+        "statement": "Two positive Gaussian samples determine center with known width and background.",
+        "source_refs": [
+          "scripts/merlin/measure_mesh_three_rows.py",
+          "docs/evidence/mesh-three-row-protocol.txt"
+        ],
+        "assumptions": [
+          "Known Gaussian width",
+          "Accurately subtracted background",
+          "Positive residuals"
+        ],
+        "status": "conditional_fact_requires_applicability_check"
+      }
+    ],
+    "hypotheses": {
+      "all_perturbations_transfer": [
+        {
+          "schema": "merlin-observation-assessment/1",
+          "observation_id": "mesh-robustness-baseline",
+          "reasoning_mode": "deductive_prediction_check",
+          "overall": "consistent_with_prediction",
+          "comparisons": [
+            {
+              "metric": "pass_count",
+              "result": "supports",
+              "measured_interval": [
+                4.0,
+                4.0
+              ],
+              "predicted_interval": [
+                4,
+                4
+              ],
+              "unit": "cases"
+            }
+          ],
+          "claim_boundary": "Consistency with predictions is not proof of a general claim."
+        },
+        {
+          "schema": "merlin-observation-assessment/1",
+          "observation_id": "mesh-robustness-narrow",
+          "reasoning_mode": "deductive_prediction_check",
+          "overall": "consistent_with_prediction",
+          "comparisons": [
+            {
+              "metric": "pass_count",
+              "result": "supports",
+              "measured_interval": [
+                4.0,
+                4.0
+              ],
+              "predicted_interval": [
+                4,
+                4
+              ],
+              "unit": "cases"
+            }
+          ],
+          "claim_boundary": "Consistency with predictions is not proof of a general claim."
+        },
+        {
+          "schema": "merlin-observation-assessment/1",
+          "observation_id": "mesh-robustness-broad",
+          "reasoning_mode": "deductive_prediction_check",
+          "overall": "consistent_with_prediction",
+          "comparisons": [
+            {
+              "metric": "pass_count",
+              "result": "supports",
+              "measured_interval": [
+                4.0,
+                4.0
+              ],
+              "predicted_interval": [
+                4,
+                4
+              ],
+              "unit": "cases"
+            }
+          ],
+          "claim_boundary": "Consistency with predictions is not proof of a general claim."
+        },
+        {
+          "schema": "merlin-observation-assessment/1",
+          "observation_id": "mesh-robustness-background",
+          "reasoning_mode": "deductive_prediction_check",
+          "overall": "contradicted",
+          "comparisons": [
+            {
+              "metric": "pass_count",
+              "result": "contradicts",
+              "measured_interval": [
+                0.0,
+                0.0
+              ],
+              "predicted_interval": [
+                4,
+                4
+              ],
+              "unit": "cases"
+            }
+          ],
+          "claim_boundary": "Consistency with predictions is not proof of a general claim."
+        },
+        {
+          "schema": "merlin-observation-assessment/1",
+          "observation_id": "mesh-robustness-noise",
+          "reasoning_mode": "deductive_prediction_check",
+          "overall": "consistent_with_prediction",
+          "comparisons": [
+            {
+              "metric": "pass_count",
+              "result": "supports",
+              "measured_interval": [
+                4.0,
+                4.0
+              ],
+              "predicted_interval": [
+                4,
+                4
+              ],
+              "unit": "cases"
+            }
+          ],
+          "claim_boundary": "Consistency with predictions is not proof of a general claim."
+        }
+      ],
+      "universal_failure": [
+        {
+          "schema": "merlin-observation-assessment/1",
+          "observation_id": "mesh-robustness-baseline",
+          "reasoning_mode": "deductive_prediction_check",
+          "overall": "contradicted",
+          "comparisons": [
+            {
+              "metric": "pass_count",
+              "result": "contradicts",
+              "measured_interval": [
+                4.0,
+                4.0
+              ],
+              "predicted_interval": [
+                0,
+                0
+              ],
+              "unit": "cases"
+            }
+          ],
+          "claim_boundary": "Consistency with predictions is not proof of a general claim."
+        },
+        {
+          "schema": "merlin-observation-assessment/1",
+          "observation_id": "mesh-robustness-narrow",
+          "reasoning_mode": "deductive_prediction_check",
+          "overall": "contradicted",
+          "comparisons": [
+            {
+              "metric": "pass_count",
+              "result": "contradicts",
+              "measured_interval": [
+                4.0,
+                4.0
+              ],
+              "predicted_interval": [
+                0,
+                0
+              ],
+              "unit": "cases"
+            }
+          ],
+          "claim_boundary": "Consistency with predictions is not proof of a general claim."
+        },
+        {
+          "schema": "merlin-observation-assessment/1",
+          "observation_id": "mesh-robustness-broad",
+          "reasoning_mode": "deductive_prediction_check",
+          "overall": "contradicted",
+          "comparisons": [
+            {
+              "metric": "pass_count",
+              "result": "contradicts",
+              "measured_interval": [
+                4.0,
+                4.0
+              ],
+              "predicted_interval": [
+                0,
+                0
+              ],
+              "unit": "cases"
+            }
+          ],
+          "claim_boundary": "Consistency with predictions is not proof of a general claim."
+        },
+        {
+          "schema": "merlin-observation-assessment/1",
+          "observation_id": "mesh-robustness-background",
+          "reasoning_mode": "deductive_prediction_check",
+          "overall": "consistent_with_prediction",
+          "comparisons": [
+            {
+              "metric": "pass_count",
+              "result": "supports",
+              "measured_interval": [
+                0.0,
+                0.0
+              ],
+              "predicted_interval": [
+                0,
+                0
+              ],
+              "unit": "cases"
+            }
+          ],
+          "claim_boundary": "Consistency with predictions is not proof of a general claim."
+        },
+        {
+          "schema": "merlin-observation-assessment/1",
+          "observation_id": "mesh-robustness-noise",
+          "reasoning_mode": "deductive_prediction_check",
+          "overall": "contradicted",
+          "comparisons": [
+            {
+              "metric": "pass_count",
+              "result": "contradicts",
+              "measured_interval": [
+                4.0,
+                4.0
+              ],
+              "predicted_interval": [
+                0,
+                0
+              ],
+              "unit": "cases"
+            }
+          ],
+          "claim_boundary": "Consistency with predictions is not proof of a general claim."
+        }
+      ]
+    },
+    "next_discriminating_test": "Estimate or bound background with the same nine probes before inversion; freeze fallback criteria and independent perturbations.",
+    "unresolved": "Source reliability, applicability and generalization require separate review.",
+    "promotion_authority": false
+  },
+  "evidence": "docs/evidence/mesh-robustness-results.json",
+  "preregistered_commit": "c4aba183298ed28c869b93b5c81d348bf592b6ad",
+  "decision": "Background mismatch failed all four cases and selected uniform. Retain this inverse model as experimental.",
+  "repair": "Added explicit fallback for invalid inversion or out-of-domain warp; geometry errors retain failure status.",
+  "limits": [
+    "Pilot noise only; scoring and mesh-vertex data are exact.",
+    "One deterministic noise pattern; field family and width prior are known.",
+    "Both universal explanations were contradicted. Applicability depends on perturbation type."
+  ]
+}

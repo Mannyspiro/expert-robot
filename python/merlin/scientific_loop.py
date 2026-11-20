@@ -7,7 +7,8 @@ Model-generated ideas remain hypotheses until their evidence is independently ch
 from __future__ import annotations
 
 from dataclasses import dataclass
-from itertools import combinations
+from heapq import nsmallest
+from itertools import chain, combinations
 import math
 from typing import Any, Mapping, Sequence
 from datetime import datetime
@@ -100,6 +101,8 @@ def compare_observation(observation: Observation, predictions: Sequence[Predicti
         lo, hi = measured - sigma, measured + sigma
         expected_lo = prediction.expected - prediction.tolerance
         expected_hi = prediction.expected + prediction.tolerance
+        if not all(math.isfinite(endpoint) for endpoint in (lo, hi, expected_lo, expected_hi)):
+            raise ValueError("measured and predicted interval endpoints must be finite")
         if hi < expected_lo or lo > expected_hi:
             result = "contradicts"
         elif lo >= expected_lo and hi <= expected_hi:
@@ -125,6 +128,71 @@ def compare_observation(observation: Observation, predictions: Sequence[Predicti
         "overall": overall,
         "comparisons": comparisons,
         "claim_boundary": "Consistency with predictions is not proof of a general claim.",
+    }
+
+
+
+@dataclass(frozen=True)
+class ConditionalFact:
+    """A sourced specialist clue whose applicability must be tested separately."""
+    fact_id: str
+    statement: str
+    source_refs: tuple[str, ...]
+    assumptions: tuple[str, ...]
+
+    def validate(self) -> None:
+        if not self.fact_id.strip() or not self.statement.strip():
+            raise ValueError("fact identity and statement required")
+        if not self.source_refs or any(not ref.strip() for ref in self.source_refs):
+            raise ValueError("specialist facts require source references")
+        if not self.assumptions or any(not assumption.strip() for assumption in self.assumptions):
+            raise ValueError("specialist facts require explicit applicability assumptions")
+
+
+def assess_clue_hypotheses(
+    observations: Sequence[Observation],
+    hypotheses: Mapping[str, Sequence[Prediction]],
+    *,
+    specialist_facts: Sequence[ConditionalFact],
+    scope: str,
+    next_test: str,
+) -> dict[str, Any]:
+    """Check competing explanations using the existing interval evaluator.
+
+    Facts help frame hypotheses. Only supplied observations score predictions.
+    This is an inductive research record, with no repair or promotion authority.
+    """
+    if not scope.strip() or not next_test.strip() or not observations:
+        raise ValueError("observations, sample scope and next discriminating test required")
+    if len(hypotheses) < 2:
+        raise ValueError("at least two competing explanations required")
+    ids = [item.observation_id for item in observations]
+    if len(ids) != len(set(ids)):
+        raise ValueError("duplicate observation IDs would double count evidence")
+    for item in observations:
+        item.validate()
+    for fact in specialist_facts:
+        fact.validate()
+    assessments = {}
+    for name, predictions in hypotheses.items():
+        if not name.strip() or not predictions:
+            raise ValueError("named hypotheses require measurable predictions")
+        assessments[name] = [compare_observation(item, predictions) for item in observations]
+    return {
+        "schema": "merlin-clue-inquiry/1",
+        "reasoning_mode": "inductive_comparison_with_conditional_specialist_facts",
+        "scope": scope,
+        "observation_ids": ids,
+        "specialist_facts": [
+            {"fact_id": fact.fact_id, "statement": fact.statement,
+             "source_refs": list(fact.source_refs), "assumptions": list(fact.assumptions),
+             "status": "conditional_fact_requires_applicability_check"}
+            for fact in specialist_facts
+        ],
+        "hypotheses": assessments,
+        "next_discriminating_test": next_test,
+        "unresolved": "Source reliability, applicability and generalization require separate review.",
+        "promotion_authority": False,
     }
 
 
@@ -170,19 +238,64 @@ def enumerate_useful_combinations(
     max_cost: float = float("inf"),
     limit: int = 64,
 ) -> list[dict[str, Any]]:
-    """Bounded Ideonomy enumeration; refuses unguided Cartesian-product ideation."""
+    """Return the globally ranked results, retaining the original exhaustive API."""
+    return enumerate_combination_report(primitives, compatible_pairs, trigger=trigger,
+        problem=problem, max_size=max_size, max_cost=max_cost, limit=limit)["candidates"]
+
+
+def enumerate_combination_report(
+    primitives: Sequence[Mapping[str, Any]],
+    compatible_pairs: set[frozenset[str]],
+    *,
+    trigger: str,
+    problem: str,
+    max_size: int = 3,
+    max_cost: float = float("inf"),
+    limit: int = 64,
+    work_budget: int | None = None,
+    observed_groups: set[frozenset[str]] | None = None,
+    ledger_ref: str | None = None,
+    gaps_only: bool = False,
+) -> dict[str, Any]:
+    """Rank a deterministic prefix, optionally searching gaps in a named ledger.
+
+    One work unit is a visited primitive pair or triple, including those that
+    fail a filter. Input validation and the at-most-three pair checks per group
+    are separate. Groups follow input order within each size, pairs first.
+    With a partial prefix, cheaper eligible groups may remain outside the visit
+    budget. The catalogue and compatibility evidence are supplied by the caller.
+    """
     if not trigger.strip() or not problem.strip():
         raise ValueError("enumeration requires an explicit trigger and problem")
     if not 2 <= max_size <= 3 or not 1 <= limit <= 512:
         raise ValueError("max_size must be 2–3 and limit must be 1–512")
     if isinstance(max_cost, bool) or not isinstance(max_cost, (int, float)) or max_cost < 0 or math.isnan(max_cost):
         raise ValueError("max_cost must be a nonnegative number")
+    if work_budget is not None and (type(work_budget) is not int or work_budget < 0):
+        raise ValueError("work_budget must be a nonnegative integer or None")
+    if type(gaps_only) is not bool:
+        raise ValueError("gaps_only must be Boolean")
+    if observed_groups is None:
+        if ledger_ref is not None or gaps_only:
+            raise ValueError("gap search requires an explicit observed group ledger")
+    elif (not isinstance(ledger_ref, str) or not ledger_ref.strip()
+            or not isinstance(observed_groups, (set, frozenset))
+            or any(not isinstance(g, frozenset) or not 2 <= len(g) <= 3
+                   or any(not isinstance(name, str) or not name.strip() for name in g) for g in observed_groups)):
+        raise ValueError("gap search requires named source and two- or three-ID ledger entries")
     ids = [str(p.get("id", "")) for p in primitives]
     if any(not x for x in ids) or len(ids) != len(set(ids)):
         raise ValueError("primitive IDs must be present and unique")
-    output = []
-    for size in range(2, max_size + 1):
-        for group in combinations(primitives, size):
+    sizes = range(2, max_size + 1)
+    total = sum(math.comb(len(ids), size) for size in sizes)
+    examined = total if work_budget is None else min(total, work_budget)
+    counts = {"eligible": 0, "known_filtered": 0}
+
+    def eligible_rows():
+        groups = chain.from_iterable(combinations(primitives, size) for size in sizes)
+        # Fetch exactly one group per budget unit. No lookahead consumes the next group.
+        for _ in range(examined):
+            group = next(groups)
             names = [str(p["id"]) for p in group]
             domains = {str(p.get("domain", "")) for p in group}
             if "" in domains or len(domains) < 2:
@@ -194,7 +307,11 @@ def enumerate_useful_combinations(
             cost = sum(float(p.get("estimated_cost", 0.0)) for p in group)
             if not math.isfinite(cost) or cost > max_cost:
                 continue
-            output.append({
+            in_ledger = observed_groups is not None and frozenset(names) in observed_groups
+            if gaps_only and in_ledger:
+                counts["known_filtered"] += 1
+                continue
+            row = {
                 "combination_id": "ideonomy-" + "-".join(names),
                 "primitive_ids": names,
                 "domains": sorted(domains),
@@ -203,9 +320,23 @@ def enumerate_useful_combinations(
                 "estimated_cost": cost,
                 "epistemic_status": "hypothesis_combination",
                 "required_next_step": "state a falsifiable mechanism and measurable test",
-            })
-    output.sort(key=lambda item: (item["estimated_cost"], item["combination_id"]))
-    return output[:limit]
+            }
+            if observed_groups is not None:
+                row["ledger_status"] = "recorded" if in_ledger else "absent_from_supplied_ledger"
+            counts["eligible"] += 1
+            yield row
+
+    # nsmallest preserves the old stable sorted order and retains only the requested top k.
+    rows = nsmallest(limit, eligible_rows(), key=lambda item: (item["estimated_cost"], item["combination_id"]))
+    return {
+        "schema": "merlin-combination-search/1", "candidates": rows, "ledger_ref": ledger_ref,
+        "coverage": {"total_groups": total, "work_budget": work_budget, "examined": examined,
+                     "unexamined": total - examined, "eligible": counts["eligible"],
+                     "rejected": examined - counts["eligible"], "known_groups_filtered": counts["known_filtered"],
+                     "returned": len(rows), "eligible_omitted_by_limit": counts["eligible"] - len(rows),
+                     "search_complete": examined == total, "visit_order": "group_size_then_input_order",
+                     "ranking_scope": "whole_input_catalogue" if examined == total else "visited_prefix_only"},
+    }
 
 
 def decompose_by_analogy(
@@ -239,6 +370,7 @@ def scientific_loop_contract() -> dict[str, Any]:
         "mandatory_stages": [
             "capture_observation_with_provenance_and_uncertainty",
             "separate_observation_interpretation_and_hypothesis",
+            "check_specialist_fact_sources_and_applicability_before_clue_inference",
             "enumerate_competing_explanations_when_ambiguity_is_material",
             "preregister_predictions_and_falsifiers",
             "choose_lowest_cost_discriminating_experiment",
@@ -251,12 +383,13 @@ def scientific_loop_contract() -> dict[str, Any]:
         "ideonomy_policy": "enumerate only when a concrete problem/trigger exists; filter by compatibility, constraints, testability and cost",
         "analogy_policy": "map invariants explicitly, decompose, solve, translate back and rerun original tests",
         "promotion_policy": "evidence and human/policy gates required; capability grows, authority never expands",
-        "failure_policy": "classify root cause, add regression test and detection rule, verify prevention",
+        "failure_policy": "proactively isolate and repair authorized reversible defects, classify root cause, add regression test and detection rule, verify prevention and retain rollback",
     }
 
 
 __all__ = [
     "Observation", "Prediction", "compare_observation",
+    "ConditionalFact", "assess_clue_hypotheses",
     "update_plan_from_observations", "enumerate_useful_combinations",
-    "decompose_by_analogy", "scientific_loop_contract",
+    "enumerate_combination_report", "decompose_by_analogy", "scientific_loop_contract",
 ]

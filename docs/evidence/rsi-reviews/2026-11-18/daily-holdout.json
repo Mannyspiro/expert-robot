@@ -1,0 +1,19 @@
+{
+  "schema": "merlin-rsi-holdout/1",
+  "date": "2026-11-18",
+  "role": "independent evaluation design without candidate source access",
+  "interface": "One in-process ASGI HTTP client, same authenticated MCP tools/call endpoint. Verified caller identity is supplied by the host introspector. Use synthetic references and no network.",
+  "development_partition": "Separate fixture: one caller, one static catalogue and a successful request.",
+  "heldout_partition": "Two subjects (violet and amber), same synthetic run 8091, distinct counts 43 and 68. Refresh violet to count 52; keep the original immutable pin for audit. Distinct subject tokens are opaque in-memory fixtures.",
+  "sequence": [
+    {"id":"H1","act":"read violet","expected":"supported, value 43, original violet pin"},
+    {"id":"H2","act":"read amber on same client","expected":"supported, value 68, original amber pin"},
+    {"id":"H3","act":"mark violet token inactive, then read violet on same client","expected":"HTTP 401, no tool result or citation"},
+    {"id":"H4","act":"read amber while violet revoked","expected":"supported, value 68, original amber pin"},
+    {"id":"H5","act":"refresh violet to successor pin and reauthorize violet, then read","expected":"supported, value 52, successor violet pin"},
+    {"id":"H6","act":"read amber after violet refresh","expected":"supported, value 68, unchanged amber pin"},
+    {"id":"H7","act":"remove run 8091 from violet current catalogue and query it","expected":"abstain, no value or citation"},
+    {"id":"H8","act":"read amber again","expected":"supported, value 68, unchanged amber pin"}
+  ],
+  "acceptance": "All eight checks pass through the same HTTP client. Bind every supported answer to its expected immutable reference and JSON pointer /tests/tests. Retain each null or failure. Distinguish an authentication denial from an epistemic abstention. No performance or production readiness claim from this fixture."
+}

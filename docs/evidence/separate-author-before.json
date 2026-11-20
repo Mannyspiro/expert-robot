@@ -1,0 +1,130 @@
+{
+  "protocol_sha256": "10e8b60358518d9d9122badf858544c0bdf49df1db37916cfba39688a93c85ba",
+  "candidate_commit": "09da78d367fa50fdcca7fa0a0e0b18bf61b1487f",
+  "results": [
+    {
+      "question": "How many tests did the main shard log in run 44232716977?",
+      "first_hit": {
+        "action": "clarify_field",
+        "value": null,
+        "citation": null,
+        "passed": false
+      },
+      "bound": {
+        "action": "clarify_field",
+        "value": null,
+        "citation": null,
+        "passed": false
+      }
+    },
+    {
+      "question": "What was the main shard\u2019s test tally for 44223138785?",
+      "first_hit": {
+        "action": "clarify_field",
+        "value": null,
+        "citation": null,
+        "passed": false
+      },
+      "bound": {
+        "action": "clarify_field",
+        "value": null,
+        "citation": null,
+        "passed": false
+      }
+    },
+    {
+      "question": "Where did the submission for run 44223138785 stand when the receipt was recorded?",
+      "first_hit": {
+        "action": "clarify_field",
+        "value": null,
+        "citation": null,
+        "passed": false
+      },
+      "bound": {
+        "action": "clarify_field",
+        "value": null,
+        "citation": null,
+        "passed": false
+      }
+    },
+    {
+      "question": "I have 130 main-shard tests written down for run 44232716977. Is that right?",
+      "first_hit": {
+        "action": "clarify_field",
+        "value": null,
+        "citation": null,
+        "passed": false
+      },
+      "bound": {
+        "action": "clarify_field",
+        "value": null,
+        "citation": null,
+        "passed": false
+      }
+    },
+    {
+      "question": "What numeric grade did run 44232716977 receive?",
+      "first_hit": {
+        "action": "clarify_field",
+        "value": null,
+        "citation": null,
+        "passed": false
+      },
+      "bound": {
+        "action": "clarify_field",
+        "value": null,
+        "citation": null,
+        "passed": false
+      }
+    },
+    {
+      "question": "How many tests did the main shard log for that run?",
+      "first_hit": {
+        "action": "clarify_field",
+        "value": null,
+        "citation": null,
+        "passed": false
+      },
+      "bound": {
+        "action": "clarify_field",
+        "value": null,
+        "citation": null,
+        "passed": false
+      }
+    },
+    {
+      "question": "What result is listed for run 44223138785?",
+      "first_hit": {
+        "action": "clarify_field",
+        "value": null,
+        "citation": null,
+        "passed": true
+      },
+      "bound": {
+        "action": "clarify_field",
+        "value": null,
+        "citation": null,
+        "passed": true
+      }
+    },
+    {
+      "question": "How many main-shard tests does the receipt show for run 44232716978?",
+      "first_hit": {
+        "action": "clarify_field",
+        "value": null,
+        "citation": null,
+        "passed": false
+      },
+      "bound": {
+        "action": "clarify_field",
+        "value": null,
+        "citation": null,
+        "passed": false
+      }
+    }
+  ],
+  "passed": {
+    "first_hit": 1,
+    "bound": 1
+  }
+}

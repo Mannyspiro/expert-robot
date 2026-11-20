@@ -13,8 +13,12 @@ import re
 from typing import Any
 from urllib.parse import urlsplit
 
-from merlin.artifact_ref import ArtifactRef
-from merlin.project_registry import MerlinRegistry
+if __package__ == "python.dot_ai_os":
+    from ..merlin.artifact_ref import ArtifactRef
+    from ..merlin.project_registry import MerlinRegistry
+else:
+    from merlin.artifact_ref import ArtifactRef
+    from merlin.project_registry import MerlinRegistry
 
 NAMESPACES = frozenset({"rsi", "merlin", "xenomaths", "morgana-cace", "expert-robot"})
 EPISTEMIC = frozenset({"historical_report", "source_snapshot", "research_proposal", "local_observation"})

@@ -1,0 +1,102 @@
+{
+  "canvas_px": [
+    1536,
+    1024
+  ],
+  "coordinate_system": "top-left origin, positive Y down",
+  "fiducials_px": {
+    "A": [
+      64,
+      64
+    ],
+    "B": [
+      1472,
+      64
+    ],
+    "C": [
+      1472,
+      960
+    ],
+    "D": [
+      64,
+      960
+    ]
+  },
+  "sheet_px_per_mm": 7.073684210526316,
+  "pins_px": {
+    "Sensor.OUT": [
+      364.8,
+      458.9474
+    ],
+    "Recorder.IN": [
+      633.6,
+      557.9789
+    ],
+    "Recorder.OUT": [
+      859.9579,
+      614.5684
+    ],
+    "Display.IN": [
+      1171.2,
+      487.2421
+    ]
+  },
+  "nets": {
+    "SAMPLE": [
+      {
+        "from": "Sensor.OUT",
+        "to": "Recorder.IN",
+        "vertices_px": [
+          [
+            364.8,
+            458.9474
+          ],
+          [
+            492.1263,
+            458.9474
+          ],
+          [
+            492.1263,
+            557.9789
+          ],
+          [
+            633.6,
+            557.9789
+          ]
+        ]
+      }
+    ],
+    "TRACE": [
+      {
+        "from": "Recorder.OUT",
+        "to": "Display.IN",
+        "vertices_px": [
+          [
+            859.9579,
+            614.5684
+          ],
+          [
+            1022.6526,
+            614.5684
+          ],
+          [
+            1022.6526,
+            487.2421
+          ],
+          [
+            1171.2,
+            487.2421
+          ]
+        ]
+      }
+    ]
+  },
+  "schema": "merlin-draft-control/1",
+  "source_sha256": "fc9247553726fc98f85a3b4dc11d00aab923f49a5aadfca04eedf27c4b0d96a0",
+  "svg_sha256": "de2412601ac1bbcf2613eccfc663da308ec0b1063d2466cbd6a68c987466e9f9",
+  "guide_sha256": "194deefb4182f6e21ec57b8861c2bb2c5cadfc48b4c122457c6ee91d87b649af",
+  "renderer": {
+    "name": "inkscape",
+    "version": "Inkscape 1.4 (e7c3feb100, 2024-10-09)"
+  }
+}

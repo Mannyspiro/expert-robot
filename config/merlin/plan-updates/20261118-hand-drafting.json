@@ -1,0 +1,14 @@
+{
+  "schema": "merlin-plan-update/1",
+  "parent_plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+  "parent_source_commit": "366bc3b383410c86a5792beb601f44a6b7ee4c30",
+  "prior_update": "config/merlin/plan-updates/20261118-service-clearance.json",
+  "scope": "Optical bench concept illustration, planar CAD signal routing and rotated instrument experiment",
+  "decision": "Keep named logical connections and exact coordinates in the source drawing. Generate the SVG, DXF and illustrative image brief from that model. Keep the optional raster reference attributed separately.",
+  "evidence": ["docs/evidence/hand-drafting-20261118/result.json","docs/evidence/hand-drafting-20261118/rotation/result.json"],
+  "rotation_observation": "Two 45-degree synthetic benches have intersecting enclosing boxes and zero solid volume in common. A positive-overlap control and a vertically separated control also matched their preregistered outcomes.",
+  "limits": "Image concept illustrated via external generation in this review. No runtime image-provider endpoint qualifier. A reference image does not establish topology. Geometric routing models single-plane signals only. Rotated solids are an experiment; the production spatial critic remains axis-aligned.",
+  "next_actions": ["Implement yaw-aware collision checks and transformed service envelopes against the frozen CAD oracle before enabling rotated layouts.", "Exercise the versioned image brief through a qualified image-provider adapter and record the model, source digest and generated asset digest on the same run."],
+  "requires_review": true,
+  "authority_effect": "none"
+}

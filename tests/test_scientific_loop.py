@@ -8,6 +8,14 @@ from merlin.scientific_loop import (
 
 
 class ScientificLoopTests(unittest.TestCase):
+    def test_finite_inputs_cannot_publish_overflowed_intervals(self):
+        for measured, expected in ((1e308, 0.0), (0.0, -1e308)):
+            with self.subTest(measured=measured, expected=expected):
+                observation = self.observation(measurements={"latency_ms": measured},
+                                               uncertainty={"latency_ms": abs(measured)})
+                with self.assertRaisesRegex(ValueError, "interval endpoints"):
+                    compare_observation(observation, [Prediction("latency_ms", expected, abs(expected), "ms")])
+
     def observation(self, **changes):
         values = {
             "observation_id": "obs-001",

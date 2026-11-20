@@ -1,0 +1,9 @@
+{
+  "schema": "merlin-mesh-tilt-protocol/1",
+  "parent_protocol_sha256": "ba626d3bc035ae819635ec6bdf2cf8ac4e764a64d26c8b0933f6c490d6026d21",
+  "center_at_midline_m": 0.39,
+  "slopes_dx_dy": [0, -0.7, 0.7],
+  "field": "Original ridge field evaluated with center c(y)=0.39+s*(y-0.5). All centers stay within the square. Evaluate the exact same nine probes, selection rule, two competing meshes and scoring points as the localization study.",
+  "prediction": "All three cases have exactly equal pilot values and the same selected mesh. This follows because the slope term vanishes on the pilot line. Record each adapted/uniform RMSE ratio. Assess transfer only if both tilted ratios are strictly below one.",
+  "decision": "If either tilted case fails, prioritize sensing orientation from multiple y levels with the same total probe count before considering a production use."
+}
