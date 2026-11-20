@@ -1,0 +1,26 @@
+{
+  "schema": "merlin-plan-update/1",
+  "parent_plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+  "parent_plan_version": 7,
+  "reasoning_mode": "inductive_revision",
+  "requires_review": true,
+  "authority_effect": "none",
+  "prior_update": "config/merlin/plan-updates/20261118-receipt-host-isolation.json",
+  "prior_update_sha256": "c7b8745e7abe87404b8f636a377aaf69340b1d69b1b705bd5e15701b7542675d",
+  "observation_ids": [
+    "authenticated-local-shared-asgi-scope"
+  ],
+  "observed_artifacts": [],
+  "evidence": [
+    "https://github.com/Mannyspiro/expert-robot/blob/00d69600e284eccc120019b2298b89472014cfe3/tests/test_receipt_http_scope.py"
+  ],
+  "decision": "Opt-in host-provisioned per-subject scopes passed shared ASGI tests. Two subjects sharing run ID 101 received their respective counts and references. Context search and handoff matched their scope. Cross-snapshot fetch and unknown subject were rejected. All 17 locally selected receipt and gateway tests passed.",
+  "limits": "Synthetic introspection and local in-process HTTP transport. Two separate read-only snapshots. This covers the programmatic host builder; real issuer, tenant policy, external transport and live deployment remain outstanding.",
+  "next_actions": [
+    "Verify the learning service with an owner-provisioned institutional pilot, approved data policy and restart exercise.",
+    "Exercise the opt-in subject mapping with operator-provisioned pilot snapshots and issuer. Verify identity revocation and refreshed catalogue behavior across requests.",
+    "Test the training-parent planner with distinct versioned coder adapters. Record measured calls and cost, and use a fresh holdout to decide whether any proposal improves behavior.",
+    "Evaluate an additional instrument dataset with documented unit conventions. Recheck missing values and timestamp precision across scientific data interchange.",
+    "Evaluate a selector that estimates interpolation error for mesh alternatives, including both uniform orientations. Freeze its proxy and test on new geometries with uncertain amplitude before scoring."
+  ]
+}

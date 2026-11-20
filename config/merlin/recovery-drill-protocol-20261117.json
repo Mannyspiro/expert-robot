@@ -1,0 +1,134 @@
+{
+  "schema": "merlin-operational-experiment-protocol/1",
+  "protocol_id": "MERLIN-ISOLATED-REGISTRY-RESTORE-20261117",
+  "created_at_utc": "2026-11-17T18:39:10.520946+00:00",
+  "parent_plan": {
+    "id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "version": 2
+  },
+  "source_commit": "0f4823ca35f08cc7038a6923e042e359d5d5e941",
+  "question": "Can the published private demo registry be snapshotted and restored to a fresh isolated root with all canonical rows, history/provenance and exact artifact bytes intact, without changing the production service or source state?",
+  "evidence_class": "operational_software_experiment",
+  "initial_observations": [
+    {
+      "run_id": 44148199995,
+      "observation": "v2 upgrade and116runtime tests passed"
+    },
+    {
+      "run_id": 44148526104,
+      "observation": "later read-only job found same PID and accepted tools; write denied"
+    }
+  ],
+  "premises": [
+    {
+      "statement": "The fixed private registry is published non-WAL and has only the two reviewed synthetic records",
+      "status": "reported_until_live_preflight"
+    },
+    {
+      "statement": "The private CLI runtime has no writer tools and source state is readonly to that service",
+      "status": "source_reviewed;live_profile_rechecked_in_drill"
+    },
+    {
+      "statement": "A content digest is integrity evidence, not scientific truth or independent qualification",
+      "status": "contract"
+    }
+  ],
+  "unknowns": [
+    "Current live state pending fresh baseline",
+    "Unobserved external writers would invalidate the quiescent-source premise",
+    "Original upgrade failure cause remains unestablished"
+  ],
+  "hypotheses": [
+    {
+      "id": "H1",
+      "prediction": "Verified snapshot restores every indexed/historical canonical artifact and byte; UID982 can use the isolated private runtime.",
+      "falsifier": "Any metadata/history/provenance/blob mismatch, tool failure or production state mutation."
+    },
+    {
+      "id": "H2",
+      "prediction": "A separately copied snapshot with a changed or missing blob is rejected before any restore target is published.",
+      "falsifier": "Corrupt or incomplete snapshot produces a successful published restore."
+    }
+  ],
+  "measurements": [
+    {
+      "name": "registry_integrity_and_fk_checks",
+      "unit": "Boolean pass/fail",
+      "acceptance": "pass"
+    },
+    {
+      "name": "canonical_row_and_blob_identity",
+      "unit": "exact digests and row identity",
+      "acceptance": "equal"
+    },
+    {
+      "name": "source_state_before_after",
+      "unit": "SHA256 manifest identity",
+      "acceptance": "equal"
+    },
+    {
+      "name": "production_pid_link_config_unit",
+      "unit": "exact identity",
+      "acceptance": "unchanged"
+    },
+    {
+      "name": "isolated_runtime_tools",
+      "unit": "Boolean checks",
+      "acceptance": "health/context/math/research succeeds and job_submit is tool_not_allowed"
+    },
+    {
+      "name": "corruption_negatives",
+      "unit": "Boolean rejected before publish",
+      "acceptance": "changed and missing blob both rejected"
+    }
+  ],
+  "representation_checks": {
+    "simplex": {
+      "decision": "not_applicable",
+      "reason": "Restore acceptance is exact equality and integrity, not a weighted mixture.",
+      "invariant_or_test": "All required identities must match; no weighted partial pass."
+    },
+    "n_ality": {
+      "decision": "applied",
+      "reason": "Track independent DB metadata/history, blob content, filesystem publication and service-lifecycle axes.",
+      "invariant_or_test": "No one axis substitutes for another; every required axis must pass."
+    },
+    "continuum": {
+      "decision": "not_applicable",
+      "reason": "Immutable discrete state recovery has no interpolation requirement.",
+      "invariant_or_test": "No approximate or interpolated artifact bytes are accepted."
+    },
+    "fuzzy_logic": {
+      "decision": "not_applicable",
+      "reason": "Integrity and permission decisions remain Boolean.",
+      "invariant_or_test": "No membership score can turn a mismatch into a pass."
+    }
+  },
+  "bias_checks": [
+    {
+      "trigger": "Prior green runtime tests may encourage assuming recovery works",
+      "countermeasure": "Require a new restore experiment and corrupted-snapshot negative controls"
+    },
+    {
+      "trigger": "Snapshot producer and verifier may share a bug",
+      "countermeasure": "Compare exact source/restore canonical rows and bytes through existing reader and actual Unix runtime; retain same-host/non-independent limit"
+    }
+  ],
+  "bounds": {
+    "workflow_seconds": 600,
+    "root_helper_seconds": 180,
+    "child_seconds": 45,
+    "registry_scope": "two synthetic engineering context records only; cap counts/bytes before copying"
+  },
+  "authority": {
+    "user_authorization": "continue production and prior explicit deploy instruction; isolated own-service recovery work",
+    "production_stop_or_switch": false,
+    "production_state_write": false,
+    "shared_runner_reboot": false,
+    "paid_compute": false,
+    "qualification": false,
+    "promotion_authority": false
+  },
+  "recovery": "Never point production to the drill. Terminate only the owned isolated child; preserve failed receipt/workspace. If source/PID/link/config changes, report failure and reconcile rather than repairing production blindly.",
+  "stopping_rule": "One source-validated bounded live attempt after local negative tests. Preserve failures; diagnose concrete cause before any revised attempt."
+}

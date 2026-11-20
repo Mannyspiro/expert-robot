@@ -1,0 +1,38 @@
+[Unit]
+Description=Merlin dot private context reader
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=merlin-dot-reader
+Group=merlin-dot-reader
+WorkingDirectory=/opt/merlin-dot/source
+Environment=PYTHONPATH=/opt/merlin-dot/source/python
+EnvironmentFile=/etc/merlin-dot/reader.env
+ExecStart=/opt/merlin-dot/venv/bin/python -m dot_ai_os.http_gateway --root /var/lib/merlin-dot/state --namespaces rsi merlin xenomaths morgana-cace expert-robot --config /etc/merlin-dot/reader.json
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=15
+KillMode=control-group
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+LockPersonality=true
+CapabilityBoundingSet=
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+ReadOnlyPaths=/var/lib/merlin-dot/state
+MemoryMax=512M
+TasksMax=64
+CPUQuota=50%
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

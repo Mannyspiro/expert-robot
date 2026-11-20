@@ -1,0 +1,67 @@
+{
+  "schema": "merlin-software-integration-protocol/1",
+  "protocol_id": "LEARNING-AUTHENTICATED-HOST-V1",
+  "created_at_utc": "2026-11-18T03:36:26.995778+00:00",
+  "source_anchor": "9b5de0832b683a828cf0f8e126adbcadf4454327",
+  "parent_plan_version": 5,
+  "question": "Can the actual host POST route delegate to canonical evidence/lab services using only the existing host-verified Actor and explicitly injected provisioning?",
+  "premises": [
+    "Existing identity resolver is host-owned; synthetic verifier fixtures do not establish actual institutional authentication.",
+    "Existing platform/evidence service own authorization, enrollment, exact-version and canonical storage rules.",
+    "No available pilot tenant/issuer configuration is inferred from account names or chats."
+  ],
+  "predictions": [
+    {
+      "id": "H1",
+      "acceptance": "Exact host route yields original-byte citations with canonical scope and uses no body identity."
+    },
+    {
+      "id": "H2",
+      "acceptance": "Missing resolver/config fails closed; rejected credentials and resolver exceptions yield no identity or private error text."
+    },
+    {
+      "id": "H3",
+      "acceptance": "Role, tenant, enrollment and exact course version/digest violations are rejected before evidence is returned."
+    },
+    {
+      "id": "H4",
+      "acceptance": "Unknown fields/routes and oversized requests cannot dispatch a different operation."
+    },
+    {
+      "id": "H5",
+      "acceptance": "Real host method dispatch and focused canonical library regression suites pass; unexecuted full application startup remains explicitly outside evidence."
+    }
+  ],
+  "representation_checks": {
+    "simplex": {
+      "decision": "not_applicable",
+      "reason": "Permission and evidence identity cannot be weighted."
+    },
+    "n_ality": {
+      "decision": "applied",
+      "reason": "Preserve independent actor, tenant, course/version, operation and artifact axes."
+    },
+    "continuum": {
+      "decision": "not_applicable",
+      "reason": "Discrete request/identity checks have no numerical approximation."
+    },
+    "fuzzy_logic": {
+      "decision": "not_applicable",
+      "reason": "Authorization, integrity and schema checks remain Boolean."
+    }
+  },
+  "alternatives": [
+    "Direct public deployment is deferred until actual issuer, tenant/provisioning and pilot policy are present.",
+    "Explicit injected adapter reuses host authentication instead of adding a second token parser."
+  ],
+  "bias_checks": [
+    {
+      "trigger": "Same team creates adapter and tests",
+      "countermeasure": "Separate coder review, forged-boundary negatives, test actual host method dispatch; do not claim independent provider verification."
+    }
+  ],
+  "stopping_rule": "Focused route integration, required negatives and prior selected regression suite; preserve failures, then exact source commit and parent-linked plan revision.",
+  "scope": "Code and synthetic local/OCI fixtures only; no real student/private corpus transfer, new paid provider or production mutation.",
+  "qualification": false,
+  "promotion_authority": false
+}

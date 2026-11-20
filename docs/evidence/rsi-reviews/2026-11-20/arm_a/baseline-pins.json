@@ -1,0 +1,44 @@
+[
+  {
+    "path": "python/merlin/drafting_control.py",
+    "git_blob_sha": "0fc229b3669f1fb5303d7ecae44774c00af72c0e",
+    "sha256": "7a873c32a7c467b95efac7f09b21520667f4470d8d2e782a866f41eb8e8648d7",
+    "bytes": 11687
+  },
+  {
+    "path": "python/merlin/wiring_sheet.py",
+    "git_blob_sha": "609b487e332d97d49ce2eba19aaf0729a4526822",
+    "sha256": "f0ed2974b4ca25efd200a992f81628d7b8914d173e0419b9340bf24026aac203",
+    "bytes": 14000
+  },
+  {
+    "path": "AGENTS.md",
+    "git_blob_sha": "f274824e3a6eae9eec7eb5b883eeb2e736518e56",
+    "sha256": "6fd6de36b30f5693aebff2cf326ebfc302d47ee24055aaab7abce8c000aff6d2",
+    "bytes": 4581
+  },
+  {
+    "path": "docs/AI_RUNNER_AND_BRIDGE_OPERATIONS.md",
+    "git_blob_sha": "e412ec13e1e94691f61fa70243bdab235b1d7538",
+    "sha256": "c9d318eaf3cde770a75407a398be1180058d6199e54bfd9abeb37889c91f0ac7",
+    "bytes": 28587
+  },
+  {
+    "path": "docs/MERLIN_AVREA_HERMES_ROUTING.md",
+    "git_blob_sha": "9ff7c26704c34378e67c06288603c9985b7276c2",
+    "sha256": "f1dcf2f6af9dae77c9233fea0ceb7c81e07e513a2dffd0ea68627f170b166308",
+    "bytes": 5941
+  },
+  {
+    "path": "docs/cace-bidirectional-bridge.md",
+    "git_blob_sha": "8ab6be27cc0adc6d6a929da9ee91fcf4ff03b37a",
+    "sha256": "a28f011ad3e92ca7e764056119113ecddc8cde26a28daad5918756f72d7eb73e",
+    "bytes": 2851
+  },
+  {
+    "path": "docs/MERLIN_SCIENTIFIC_OPERATING_LOOP_V1.md",
+    "git_blob_sha": "983e86d40839f113f9e86ed46abf1da67aa29689",
+    "sha256": "dc9a92b2f2ebcc703713bbb1f1966f1b0d64b07ea8679647f1c05ddb2b510919",
+    "bytes": 13399
+  }
+]

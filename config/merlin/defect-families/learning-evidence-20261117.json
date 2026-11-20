@@ -1,0 +1,53 @@
+{
+  "schema": "merlin-defect-families/1",
+  "scope": "New course evidence reader and public synthetic evaluator; development observations, not a production incident report",
+  "source_commit": "47260febc9726ec6d02c798b0fd99780b19dba29",
+  "qualification": false,
+  "promotion_authority": false,
+  "families": [
+    {
+      "id": "CURATION-FREEZE-RACE",
+      "observation_class": "measured_pre_fix_development_reproducer",
+      "observation": "old_curation_race ['LearningConflictError', 'success'] published_versions 2",
+      "pre_fix_source_pin": null,
+      "pin_limit": "Intermediate pre-lock development source was not separately committed; exact final regression/source are pinned.",
+      "root_cause": "Separate history check and append allowed two cooperating curators to publish different versions.",
+      "regression": "test_learning_evidence.LearningEvidenceTests.test_concurrent_different_curations_cannot_poison_the_frozen_index",
+      "detection_rule": "Course source manifest history must contain exactly one version and exact replay must return it.",
+      "preventive_control": "Bounded nonblocking flock on existing canonical registry DB descriptor across freeze/check/append/readback; no extra store or lockfile.",
+      "limits": "Cooperative service callers only; direct canonical writers bypassing the protocol remain outside this guarantee.",
+      "rollback": "Revert source feature; preserve canonical evidence and existing LMS schema."
+    },
+    {
+      "id": "CONFLICT-BUDGET-OMISSION",
+      "observation_class": "source_review_design_finding",
+      "root_cause": "Excerpt truncation could hide another curator-declared conflict member.",
+      "regressions": [
+        "test_curator_conflict_is_explicit_and_includes_all_member_references",
+        "test_conflict_survives_tight_budget_and_missing_excerpt_members",
+        "test_lesson_scope_filters_before_ranking_and_exposes_omitted_conflict_member"
+      ],
+      "detection_rule": "A matched declared group must retain in-scope member references independent of excerpt selection; lesson omissions are visible.",
+      "preventive_control": "Pre-budget matched record IDs, required metadata floor, explicit omission counts/reasons.",
+      "limits": "Only explicitly annotated conflicts; no automatic semantic discovery."
+    },
+    {
+      "id": "EVALUATOR-SCOPE-OMISSION",
+      "observation_class": "separate_coder_source_review_and_regression",
+      "root_cause": "Checking citation bytes alone omitted host-owned expected course binding and source manifest.",
+      "regression": "test_learning_evidence_evaluation.py expected-binding/ref negatives",
+      "detection_rule": "Copied valid citations in wrong/missing scope receive no credit.",
+      "preventive_control": "Required expected binding and manifest ref derived before reader execution from host-owned inputs; recorded in protocol."
+    },
+    {
+      "id": "JSON-TYPE-ALIAS",
+      "observation_class": "measured_development_forgery_and_sibling_review",
+      "observation": "Before repair, grader accepted course_version=True and source_ref.version=True as integer1 through Python dictionary equality.",
+      "root_cause": "Python equality aliases Boolean/integer and some floating-point values; raw nested metadata was not parsed.",
+      "regression": "Boolean and floating-point version alias regressions in reader/evaluator tests",
+      "detection_rule": "JSON identities must preserve value types and ArtifactRefs require strict positive integers.",
+      "preventive_control": "Typed nested ArtifactRef parsing plus canonical JSON identity comparison; fixed source fixture unchanged.",
+      "sibling_sweep": "Reviewed optional pinned-record metadata and source manifest binding; default context tests also pass."
+    }
+  ]
+}

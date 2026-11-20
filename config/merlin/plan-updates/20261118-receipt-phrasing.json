@@ -1,0 +1,31 @@
+{
+  "schema": "merlin-plan-update/1",
+  "parent_plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+  "parent_plan_version": 7,
+  "reasoning_mode": "inductive_revision",
+  "requires_review": true,
+  "authority_effect": "none",
+  "prior_update": "config/merlin/plan-updates/20261118-second-run-receipts.json",
+  "prior_update_sha256": "f9c367575446e97e151f540558411b3bf41a1bdc91680df1e8b19d6ed76fc925",
+  "observation_ids": [
+    "separate-author-paraphrase-repair"
+  ],
+  "observed_artifacts": [
+    "a5d0ea3b291a640e44ea1e876e2c71d066ed3608251282ce01eddbece41e94d3",
+    "4e982448e51d46e0f05e54184a6a2e03c0d88e207cae324eb5cd154885d58d9b"
+  ],
+  "evidence": [
+    "docs/evidence/separate-author-before.json",
+    "docs/evidence/separate-author-after.json"
+  ],
+  "preregistered_commit": "50eedf70b47dece6dc197b0caebec2026481d2c8",
+  "decision": "Original parser requested field clarification for every question, passing one. Updated parser passed eight after targeted repair. Previous second-corpus suite passed eleven. Three modified or comparative queries correctly requested clarification.",
+  "limits": "Separate AI question author given the source facts and case categories. Targeted repairs consume this holdout. Institutional pilot and deployment remain outstanding.",
+  "next_actions": [
+    "Verify the learning service with an owner-provisioned institutional pilot, approved data policy and restart exercise.",
+    "Evaluate a newly blinded question set and test historical reference resolution after receipt replacement before production rollout.",
+    "Test the training-parent planner with distinct versioned coder adapters. Record measured calls and cost, and use a fresh holdout to decide whether any proposal improves behavior.",
+    "Evaluate an additional instrument dataset with documented unit conventions. Recheck missing values and timestamp precision across scientific data interchange.",
+    "Evaluate a selector that estimates interpolation error for mesh alternatives, including both uniform orientations. Freeze its proxy and test on new geometries with uncertain amplitude before scoring."
+  ]
+}

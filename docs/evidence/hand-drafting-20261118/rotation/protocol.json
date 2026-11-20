@@ -1,0 +1,1 @@
+{"units":"m","solid_size":[4,1,1],"yaw_degrees":45,"pivot":"each box origin, positive Z","fixed_origin":[0,0,0],"cases":[{"offset":[0,2,0],"aabb_overlap":true,"solid_overlap":false},{"offset":[0,1,0],"aabb_overlap":true,"solid_overlap":true},{"offset":[0,0,2],"aabb_overlap":false,"solid_overlap":false}],"volume_threshold_m3":0.000000001}

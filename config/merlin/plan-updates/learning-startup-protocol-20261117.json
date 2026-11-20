@@ -1,0 +1,29 @@
+{
+  "schema": "merlin-startup-protocol/1",
+  "parent_commit": "7ced1120604ab3f6ab8037a4b8f73bb024564f49",
+  "created_utc": "2026-11-18T04:21:36.405294+00:00",
+  "baseline": "143 selected OCI checks included extracted handler methods. The initial sparse local tree could not import merlin.council. Restoring modules with Git blob checks made the app importable.",
+  "question": "Can an explicitly configured host serve pinned course evidence from its existing project, stop cleanly, then serve the same evidence after restart?",
+  "expected": [
+    "Start full serve in a fresh process using disposable state",
+    "Query through loopback HTTP and verify evidence with Merlin canonical fixture oracle",
+    "SIGTERM then relaunch against the same state; compare exact citation references",
+    "Absent provisioning keeps the research service unavailable; malformed provisioning fails before bind"
+  ],
+  "falsifiers": [
+    "Successful response for the wrong subject or missing provisioning",
+    "Changed historical references after restart",
+    "Startup timeout, nonzero graceful shutdown, or missing required source file"
+  ],
+  "lenses": {
+    "n_ality": "Keep tenant, learner, course, project and source identities distinct",
+    "simplex": "No weighting applies to identities",
+    "continuum": "Discrete process states and byte equality suffice",
+    "fuzzy_logic": "Permission and replay comparisons are Boolean"
+  },
+  "limits": [
+    "Synthetic identity and published fixtures",
+    "Separate institutional issuer and pilot decisions",
+    "Local and OCI measurements reported separately"
+  ]
+}

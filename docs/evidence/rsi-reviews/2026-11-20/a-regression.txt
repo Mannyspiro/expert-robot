@@ -1,0 +1,25 @@
+test_controlled_positive_and_unknown_negative (test_drafting_control.DraftControlTests.test_controlled_positive_and_unknown_negative) ... ok
+test_stale_hashes_permuted_pins_and_missing_observations_fail_closed (test_drafting_control.DraftControlTests.test_stale_hashes_permuted_pins_and_missing_observations_fail_closed) ... ok
+test_tampered_guide_fails_rebuild (test_drafting_control.DraftControlTests.test_tampered_guide_fails_rebuild) ... ok
+test_ordinary_jpeg_is_rejected_before_jpeg_decoder_entry (test_drafting_png_admission.PngAdmissionTests.test_ordinary_jpeg_is_rejected_before_jpeg_decoder_entry) ... ok
+test_valid_png_and_existing_unknown_review_gate_are_preserved (test_drafting_png_admission.PngAdmissionTests.test_valid_png_and_existing_unknown_review_gate_are_preserved) ... ok
+test_exact_guide_is_clear_and_bound_to_all_bytes (test_drafting_raster.RegisteredRasterTests.test_exact_guide_is_clear_and_bound_to_all_bytes) ... ok
+test_guide_tamper_and_scope_mismatch_abstain (test_drafting_raster.RegisteredRasterTests.test_guide_tamper_and_scope_mismatch_abstain) ... ok
+test_integration_is_opt_in_and_cannot_override_uncertain_human_verdict (test_drafting_raster.RegisteredRasterTests.test_integration_is_opt_in_and_cannot_override_uncertain_human_verdict) ... ok
+test_light_global_paper_tone_keeps_declared_ink_scope (test_drafting_raster.RegisteredRasterTests.test_light_global_paper_tone_keeps_declared_ink_scope) ... ok
+test_long_extra_stroke_is_measured_without_net_identity (test_drafting_raster.RegisteredRasterTests.test_long_extra_stroke_is_measured_without_net_identity) ... ok
+test_missing_sheet_content_abstains (test_drafting_raster.RegisteredRasterTests.test_missing_sheet_content_abstains) ... ok
+test_residual_pixel_and_component_budgets_abstain (test_drafting_raster.RegisteredRasterTests.test_residual_pixel_and_component_budgets_abstain) ... ok
+test_route_attached_added_branch_requires_review (test_drafting_raster.RegisteredRasterTests.test_route_attached_added_branch_requires_review) ... ok
+test_shifted_registration_abstains (test_drafting_raster.RegisteredRasterTests.test_shifted_registration_abstains) ... ok
+test_short_added_dot_abstains_instead_of_certifying (test_drafting_raster.RegisteredRasterTests.test_short_added_dot_abstains_instead_of_certifying) ... ok
+test_transparent_or_rescaled_candidates_abstain (test_drafting_raster.RegisteredRasterTests.test_transparent_or_rescaled_candidates_abstain) ... ok
+test_disconnected_net_is_rejected (test_wiring_sheet.WiringSheetTests.test_disconnected_net_is_rejected) ... ok
+test_invalid_endpoint_and_diagonal (test_wiring_sheet.WiringSheetTests.test_invalid_endpoint_and_diagonal) ... ok
+test_measured_sheet_and_editable_routes (test_wiring_sheet.WiringSheetTests.test_measured_sheet_and_editable_routes) ... ok
+test_reference_is_only_attribution (test_wiring_sheet.WiringSheetTests.test_reference_is_only_attribution) ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 10.503s
+
+OK

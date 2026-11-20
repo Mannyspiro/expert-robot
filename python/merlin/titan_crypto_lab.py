@@ -92,7 +92,7 @@ def register_titan_research(registry, graph, project_id: str,
     """Persist deterministic research output and provenance graph as unreviewed artifacts."""
     import hashlib
     import json
-    from merlin.knowledge_graph import GraphEdge, GraphNode
+    from .knowledge_graph import GraphEdge, GraphNode
 
     report = build_research_matrix()
     encoded = json.dumps(report, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
@@ -124,7 +124,7 @@ __all__.append("register_titan_research")
 def hermes_titan_research_executor(task, context):
     """Emit exact deterministic Titan model/vector bytes for Hermes evidence handling."""
     import json
-    from merlin.titan_protocol_model import build_titan_protocol_bundle, verify_bundle
+    from .titan_protocol_model import build_titan_protocol_bundle, verify_bundle
 
     if task.get("stage") != "research":
         raise ValueError("Titan executor only accepts the research stage")
@@ -155,6 +155,7 @@ def hermes_titan_research_executor(task, context):
         "media_type": "application/vnd.merlin.titan-protocol-bundle+json",
         "summary": "Generated deterministic Titan protocol model and structural vectors; no cryptographic operations performed.",
         "metadata": {
+            "tool_identity": "merlin.titan_protocol_model:structural-v1",
             "artifact_schema": report["schema"],
             "bundle_schema": bundle["schema"],
             "model_sha256": bundle["model_sha256"],

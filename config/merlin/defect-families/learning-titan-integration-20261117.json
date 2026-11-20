@@ -1,0 +1,39 @@
+{
+  "schema": "merlin-defect-family-ledger/1",
+  "source_anchor": "af3d6efa6b53113129e90c1d19f230f7f1f19340",
+  "source_fix_commit": "a5fe1065eb9d3a07448da9edcf29712fdf89bacd",
+  "evidence_run_id": 44174486449,
+  "families": [
+    {
+      "id": "DF-LMS-COURSE-VERSION-BINDING",
+      "observation": "Lab precheck could precede a course revision while submit_assessment selected current_version without expected version/hash.",
+      "root_cause": "Precondition and insertion were not inside one transaction.",
+      "control": "Version/hash pair checked in BEGIN IMMEDIATE for new submissions and original replays.",
+      "regression": "test_learning_submission_binding.py; stale integration case",
+      "scope": "Deterministic revision-between-calls fixture; no actual student misbinding observed."
+    },
+    {
+      "id": "DF-REGISTRY-SHARED-STAGING",
+      "observation": "Concurrent identical producers shared digest.tmp; one replace removed the other writer staging file.",
+      "control": "Unique per-writer staging, fsync, atomic publication and owned-temp cleanup.",
+      "regression": "test_registry_concurrent_publication.py two-thread replace barrier",
+      "scope": "Canonical store; identical outputs retain one artifact version."
+    },
+    {
+      "id": "DF-GRAPH-IDENTITY-INSERT-RACE",
+      "observation": "Identical producers both observed missing node and one INSERT failed UNIQUE; edge path shared the mechanism.",
+      "control": "BEGIN IMMEDIATE before immutable identity read/insert; different content remains rejected.",
+      "regression": "test_knowledge_graph_concurrency.py identical/conflicting nodes and edges",
+      "scope": "Canonical graph; no bridge-only lock or alternate store."
+    },
+    {
+      "id": "DF-TITAN-EXECUTOR-PROVENANCE",
+      "observation": "Baseline Titan-Hermes flow lacked tool_identity; old positive fixture omitted current signed receipt/trust contract.",
+      "control": "Explicit tool identity; existing signed-test helper binds exact bytes/source/tool using test-only trust. Real verifier remains absent.",
+      "regression": "test_titan_hermes_evidence_flow.py plus existing CACE negatives",
+      "scope": "No production credential or independent receipt invented."
+    }
+  ],
+  "qualification": false,
+  "promotion_authority": false
+}

@@ -1,0 +1,477 @@
+{
+  "arm": "candidate",
+  "source_sha256": "e7be4515cb18baec51fcb4effebda0ce3641c6eec2e57e759c9127d48d247d24",
+  "protocol_sha256": "bb987660af2d3f28a041eb56c7abb1a9c14003553c4df3aabb5ed30d4f88eb4b",
+  "flags": {
+    "independent_raster": true
+  },
+  "wall_seconds": 5.2191,
+  "passed_development": 1,
+  "passed_heldout": 4,
+  "accepted": 3,
+  "results": [
+    {
+      "id": "D0",
+      "partition": "development",
+      "expected_label": "accept",
+      "actual_label": "accept",
+      "passed": true,
+      "decision": "accepted",
+      "diagnostics": {
+        "raster_check": {
+          "schema": "merlin-registered-raster-check/1",
+          "method": "registered-dark-ink-residual-v1",
+          "status": "clear_within_scope",
+          "reason": "no_unexpected_stroke_detected_within_limits",
+          "guide_sha256": "194deefb4182f6e21ec57b8861c2bb2c5cadfc48b4c122457c6ee91d87b649af",
+          "image_sha256": "fba18a293f8b108d6cb194f0763605cdb4f614bb10c570dba372b94a1258c344",
+          "parameters": {
+            "ink_luminance_at_most": 160,
+            "guide_tolerance_radius_px": 3,
+            "registration_tolerance_radius_px": 2,
+            "max_missing_fiducial_fraction": 0.05,
+            "max_missing_guide_fraction": 0.01,
+            "max_residual_pixels": 25000,
+            "max_components": 4096,
+            "max_reported_components": 32,
+            "minimum_stroke_axis_run_px": 32,
+            "minimum_stroke_pixels": 48,
+            "maximum_ignored_isolated_noise_pixels": 8
+          },
+          "limits": "Registered opaque 1536x1024 PNGs only; no alignment fitting. No OCR, terminal graph or electrical connection identity. Ink within the 3px guide corridor, faint/short additions and overlapping strokes may be missed. Added annotation can resemble a conductor. No qualification, absence proof or calibrated probability; human review remains mandatory.",
+          "qualification": false,
+          "promotion_authority": false,
+          "authority": "illustration mismatch measurement only",
+          "source_sha256": "7fdb3deb323a68af0ef3c2e2e3cd706f0bbd1e5bb188ff2bcf688279241575db",
+          "registration": {
+            "A": {
+              "expected_pixels": 256,
+              "missing_pixels": 0,
+              "missing_fraction": 0.0
+            },
+            "B": {
+              "expected_pixels": 256,
+              "missing_pixels": 0,
+              "missing_fraction": 0.0
+            },
+            "C": {
+              "expected_pixels": 256,
+              "missing_pixels": 0,
+              "missing_fraction": 0.0
+            },
+            "D": {
+              "expected_pixels": 256,
+              "missing_pixels": 0,
+              "missing_fraction": 0.0
+            }
+          },
+          "measurement": {
+            "expected_ink_pixels": 15262,
+            "missing_ink_pixels": 0,
+            "missing_ink_fraction": 0.0,
+            "unexplained_ink_pixels": 1
+          },
+          "component_count": 1,
+          "component_scan_complete": true,
+          "components": [
+            {
+              "bbox_px_half_open": [
+                1,
+                1,
+                2,
+                2
+              ],
+              "pixels": 1,
+              "longest_axis_run_px": 1,
+              "stroke_like": false
+            }
+          ],
+          "components_omitted": 0,
+          "stroke_like_component_count": 0
+        }
+      },
+      "error": null,
+      "review_file_emitted": true,
+      "source_sha256": "7fdb3deb323a68af0ef3c2e2e3cd706f0bbd1e5bb188ff2bcf688279241575db",
+      "image_sha256": "fba18a293f8b108d6cb194f0763605cdb4f614bb10c570dba372b94a1258c344",
+      "review_seconds": 0.8199
+    },
+    {
+      "id": "H1",
+      "partition": "heldout",
+      "expected_label": "accept",
+      "actual_label": "accept",
+      "passed": true,
+      "decision": "accepted",
+      "diagnostics": {
+        "raster_check": {
+          "schema": "merlin-registered-raster-check/1",
+          "method": "registered-dark-ink-residual-v1",
+          "status": "clear_within_scope",
+          "reason": "no_unexpected_stroke_detected_within_limits",
+          "guide_sha256": "b06e8740160e708f954c995ad5043e1813c8e4827a931e2fcb411f3d22107d6d",
+          "image_sha256": "ef75012d51fb88ab69d146d9d03ade2bcdf75937383f4ca0c6f89c111f172eeb",
+          "parameters": {
+            "ink_luminance_at_most": 160,
+            "guide_tolerance_radius_px": 3,
+            "registration_tolerance_radius_px": 2,
+            "max_missing_fiducial_fraction": 0.05,
+            "max_missing_guide_fraction": 0.01,
+            "max_residual_pixels": 25000,
+            "max_components": 4096,
+            "max_reported_components": 32,
+            "minimum_stroke_axis_run_px": 32,
+            "minimum_stroke_pixels": 48,
+            "maximum_ignored_isolated_noise_pixels": 8
+          },
+          "limits": "Registered opaque 1536x1024 PNGs only; no alignment fitting. No OCR, terminal graph or electrical connection identity. Ink within the 3px guide corridor, faint/short additions and overlapping strokes may be missed. Added annotation can resemble a conductor. No qualification, absence proof or calibrated probability; human review remains mandatory.",
+          "qualification": false,
+          "promotion_authority": false,
+          "authority": "illustration mismatch measurement only",
+          "source_sha256": "a2d5c96784317f5ddd940d6879c75e5b20a516e21b856ead4dda0b58a2797094",
+          "registration": {
+            "A": {
+              "expected_pixels": 256,
+              "missing_pixels": 0,
+              "missing_fraction": 0.0
+            },
+            "B": {
+              "expected_pixels": 256,
+              "missing_pixels": 0,
+              "missing_fraction": 0.0
+            },
+            "C": {
+              "expected_pixels": 256,
+              "missing_pixels": 0,
+              "missing_fraction": 0.0
+            },
+            "D": {
+              "expected_pixels": 256,
+              "missing_pixels": 0,
+              "missing_fraction": 0.0
+            }
+          },
+          "measurement": {
+            "expected_ink_pixels": 20838,
+            "missing_ink_pixels": 0,
+            "missing_ink_fraction": 0.0,
+            "unexplained_ink_pixels": 1
+          },
+          "component_count": 1,
+          "component_scan_complete": true,
+          "components": [
+            {
+              "bbox_px_half_open": [
+                1,
+                1,
+                2,
+                2
+              ],
+              "pixels": 1,
+              "longest_axis_run_px": 1,
+              "stroke_like": false
+            }
+          ],
+          "components_omitted": 0,
+          "stroke_like_component_count": 0
+        }
+      },
+      "error": null,
+      "review_file_emitted": true,
+      "source_sha256": "a2d5c96784317f5ddd940d6879c75e5b20a516e21b856ead4dda0b58a2797094",
+      "image_sha256": "ef75012d51fb88ab69d146d9d03ade2bcdf75937383f4ca0c6f89c111f172eeb",
+      "review_seconds": 0.808
+    },
+    {
+      "id": "H2",
+      "partition": "heldout",
+      "expected_label": "withhold",
+      "actual_label": "withhold",
+      "passed": true,
+      "decision": "rejected",
+      "diagnostics": {
+        "raster_check": {
+          "schema": "merlin-registered-raster-check/1",
+          "method": "registered-dark-ink-residual-v1",
+          "status": "unexpected_stroke",
+          "reason": "long_unmodeled_dark_ink_requires_review",
+          "guide_sha256": "b06e8740160e708f954c995ad5043e1813c8e4827a931e2fcb411f3d22107d6d",
+          "image_sha256": "15106aaaf4f1df882afa0ce2d2bebfb8c0fbdc072c94a3f1648b27e03892bafa",
+          "parameters": {
+            "ink_luminance_at_most": 160,
+            "guide_tolerance_radius_px": 3,
+            "registration_tolerance_radius_px": 2,
+            "max_missing_fiducial_fraction": 0.05,
+            "max_missing_guide_fraction": 0.01,
+            "max_residual_pixels": 25000,
+            "max_components": 4096,
+            "max_reported_components": 32,
+            "minimum_stroke_axis_run_px": 32,
+            "minimum_stroke_pixels": 48,
+            "maximum_ignored_isolated_noise_pixels": 8
+          },
+          "limits": "Registered opaque 1536x1024 PNGs only; no alignment fitting. No OCR, terminal graph or electrical connection identity. Ink within the 3px guide corridor, faint/short additions and overlapping strokes may be missed. Added annotation can resemble a conductor. No qualification, absence proof or calibrated probability; human review remains mandatory.",
+          "qualification": false,
+          "promotion_authority": false,
+          "authority": "illustration mismatch measurement only",
+          "source_sha256": "a2d5c96784317f5ddd940d6879c75e5b20a516e21b856ead4dda0b58a2797094",
+          "registration": {
+            "A": {
+              "expected_pixels": 256,
+              "missing_pixels": 0,
+              "missing_fraction": 0.0
+            },
+            "B": {
+              "expected_pixels": 256,
+              "missing_pixels": 0,
+              "missing_fraction": 0.0
+            },
+            "C": {
+              "expected_pixels": 256,
+              "missing_pixels": 0,
+              "missing_fraction": 0.0
+            },
+            "D": {
+              "expected_pixels": 256,
+              "missing_pixels": 0,
+              "missing_fraction": 0.0
+            }
+          },
+          "measurement": {
+            "expected_ink_pixels": 20838,
+            "missing_ink_pixels": 0,
+            "missing_ink_fraction": 0.0,
+            "unexplained_ink_pixels": 661
+          },
+          "component_count": 2,
+          "component_scan_complete": true,
+          "components": [
+            {
+              "bbox_px_half_open": [
+                900,
+                554,
+                903,
+                774
+              ],
+              "pixels": 660,
+              "longest_axis_run_px": 220,
+              "stroke_like": true
+            },
+            {
+              "bbox_px_half_open": [
+                1,
+                1,
+                2,
+                2
+              ],
+              "pixels": 1,
+              "longest_axis_run_px": 1,
+              "stroke_like": false
+            }
+          ],
+          "components_omitted": 0,
+          "stroke_like_component_count": 1
+        }
+      },
+      "error": null,
+      "review_file_emitted": true,
+      "source_sha256": "a2d5c96784317f5ddd940d6879c75e5b20a516e21b856ead4dda0b58a2797094",
+      "image_sha256": "15106aaaf4f1df882afa0ce2d2bebfb8c0fbdc072c94a3f1648b27e03892bafa",
+      "review_seconds": 0.7273
+    },
+    {
+      "id": "H3",
+      "partition": "heldout",
+      "expected_label": "withhold",
+      "actual_label": "withhold",
+      "passed": true,
+      "decision": "rejected",
+      "diagnostics": {
+        "raster_check": {
+          "schema": "merlin-registered-raster-check/1",
+          "method": "registered-dark-ink-residual-v1",
+          "status": "unexpected_stroke",
+          "reason": "long_unmodeled_dark_ink_requires_review",
+          "guide_sha256": "b06e8740160e708f954c995ad5043e1813c8e4827a931e2fcb411f3d22107d6d",
+          "image_sha256": "b4c4b43489bfcb04d83c56d69dab4caab61eb5267c9fbb1d8448b7dd9470ecec",
+          "parameters": {
+            "ink_luminance_at_most": 160,
+            "guide_tolerance_radius_px": 3,
+            "registration_tolerance_radius_px": 2,
+            "max_missing_fiducial_fraction": 0.05,
+            "max_missing_guide_fraction": 0.01,
+            "max_residual_pixels": 25000,
+            "max_components": 4096,
+            "max_reported_components": 32,
+            "minimum_stroke_axis_run_px": 32,
+            "minimum_stroke_pixels": 48,
+            "maximum_ignored_isolated_noise_pixels": 8
+          },
+          "limits": "Registered opaque 1536x1024 PNGs only; no alignment fitting. No OCR, terminal graph or electrical connection identity. Ink within the 3px guide corridor, faint/short additions and overlapping strokes may be missed. Added annotation can resemble a conductor. No qualification, absence proof or calibrated probability; human review remains mandatory.",
+          "qualification": false,
+          "promotion_authority": false,
+          "authority": "illustration mismatch measurement only",
+          "source_sha256": "a2d5c96784317f5ddd940d6879c75e5b20a516e21b856ead4dda0b58a2797094",
+          "registration": {
+            "A": {
+              "expected_pixels": 256,
+              "missing_pixels": 0,
+              "missing_fraction": 0.0
+            },
+            "B": {
+              "expected_pixels": 256,
+              "missing_pixels": 0,
+              "missing_fraction": 0.0
+            },
+            "C": {
+              "expected_pixels": 256,
+              "missing_pixels": 0,
+              "missing_fraction": 0.0
+            },
+            "D": {
+              "expected_pixels": 256,
+              "missing_pixels": 0,
+              "missing_fraction": 0.0
+            }
+          },
+          "measurement": {
+            "expected_ink_pixels": 20838,
+            "missing_ink_pixels": 0,
+            "missing_ink_fraction": 0.0,
+            "unexplained_ink_pixels": 640
+          },
+          "component_count": 3,
+          "component_scan_complete": true,
+          "components": [
+            {
+              "bbox_px_half_open": [
+                900,
+                554,
+                903,
+                719
+              ],
+              "pixels": 495,
+              "longest_axis_run_px": 165,
+              "stroke_like": true
+            },
+            {
+              "bbox_px_half_open": [
+                900,
+                726,
+                903,
+                774
+              ],
+              "pixels": 144,
+              "longest_axis_run_px": 48,
+              "stroke_like": true
+            },
+            {
+              "bbox_px_half_open": [
+                1,
+                1,
+                2,
+                2
+              ],
+              "pixels": 1,
+              "longest_axis_run_px": 1,
+              "stroke_like": false
+            }
+          ],
+          "components_omitted": 0,
+          "stroke_like_component_count": 2
+        }
+      },
+      "error": null,
+      "review_file_emitted": true,
+      "source_sha256": "a2d5c96784317f5ddd940d6879c75e5b20a516e21b856ead4dda0b58a2797094",
+      "image_sha256": "b4c4b43489bfcb04d83c56d69dab4caab61eb5267c9fbb1d8448b7dd9470ecec",
+      "review_seconds": 0.7461
+    },
+    {
+      "id": "H4",
+      "partition": "heldout",
+      "expected_label": "accept",
+      "actual_label": "accept",
+      "passed": true,
+      "decision": "accepted",
+      "diagnostics": {
+        "raster_check": {
+          "schema": "merlin-registered-raster-check/1",
+          "method": "registered-dark-ink-residual-v1",
+          "status": "clear_within_scope",
+          "reason": "no_unexpected_stroke_detected_within_limits",
+          "guide_sha256": "b06e8740160e708f954c995ad5043e1813c8e4827a931e2fcb411f3d22107d6d",
+          "image_sha256": "fc67b7fe79e870b9c05443a015c18f77c515da4334c032eb59da63d6103274e1",
+          "parameters": {
+            "ink_luminance_at_most": 160,
+            "guide_tolerance_radius_px": 3,
+            "registration_tolerance_radius_px": 2,
+            "max_missing_fiducial_fraction": 0.05,
+            "max_missing_guide_fraction": 0.01,
+            "max_residual_pixels": 25000,
+            "max_components": 4096,
+            "max_reported_components": 32,
+            "minimum_stroke_axis_run_px": 32,
+            "minimum_stroke_pixels": 48,
+            "maximum_ignored_isolated_noise_pixels": 8
+          },
+          "limits": "Registered opaque 1536x1024 PNGs only; no alignment fitting. No OCR, terminal graph or electrical connection identity. Ink within the 3px guide corridor, faint/short additions and overlapping strokes may be missed. Added annotation can resemble a conductor. No qualification, absence proof or calibrated probability; human review remains mandatory.",
+          "qualification": false,
+          "promotion_authority": false,
+          "authority": "illustration mismatch measurement only",
+          "source_sha256": "a2d5c96784317f5ddd940d6879c75e5b20a516e21b856ead4dda0b58a2797094",
+          "registration": {
+            "A": {
+              "expected_pixels": 256,
+              "missing_pixels": 0,
+              "missing_fraction": 0.0
+            },
+            "B": {
+              "expected_pixels": 256,
+              "missing_pixels": 0,
+              "missing_fraction": 0.0
+            },
+            "C": {
+              "expected_pixels": 256,
+              "missing_pixels": 0,
+              "missing_fraction": 0.0
+            },
+            "D": {
+              "expected_pixels": 256,
+              "missing_pixels": 0,
+              "missing_fraction": 0.0
+            }
+          },
+          "measurement": {
+            "expected_ink_pixels": 20838,
+            "missing_ink_pixels": 0,
+            "missing_ink_fraction": 0.0,
+            "unexplained_ink_pixels": 1
+          },
+          "component_count": 1,
+          "component_scan_complete": true,
+          "components": [
+            {
+              "bbox_px_half_open": [
+                1,
+                1,
+                2,
+                2
+              ],
+              "pixels": 1,
+              "longest_axis_run_px": 1,
+              "stroke_like": false
+            }
+          ],
+          "components_omitted": 0,
+          "stroke_like_component_count": 0
+        }
+      },
+      "error": null,
+      "review_file_emitted": true,
+      "source_sha256": "a2d5c96784317f5ddd940d6879c75e5b20a516e21b856ead4dda0b58a2797094",
+      "image_sha256": "fc67b7fe79e870b9c05443a015c18f77c515da4334c032eb59da63d6103274e1",
+      "review_seconds": 0.8439
+    }
+  ]
+}

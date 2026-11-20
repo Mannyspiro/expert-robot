@@ -1,0 +1,103 @@
+{
+  "cdflib": "1.3.16",
+  "writer_sha256": "ad6cdd5de658ba7b26b7e29dd9789152d1eaad345a748a242d870745c62c8068",
+  "fixture_sha256": "84107dc64145ec38449201761a96e687f3b7cf1be2ed9ebdc08071dd8441bfe6",
+  "numpy": "2.3.5",
+  "python": "3.12.14",
+  "wall_seconds": 0.00707,
+  "results": [
+    {
+      "case": "training",
+      "compression": 0,
+      "shape": [
+        2
+      ],
+      "lastrec": 1,
+      "passed": true
+    },
+    {
+      "case": "training",
+      "compression": 6,
+      "shape": [
+        2
+      ],
+      "lastrec": 1,
+      "passed": true
+    },
+    {
+      "case": "heldout_scalar",
+      "compression": 0,
+      "shape": [
+        1
+      ],
+      "lastrec": 0,
+      "passed": true
+    },
+    {
+      "case": "heldout_scalar",
+      "compression": 6,
+      "shape": [
+        1
+      ],
+      "lastrec": 0,
+      "passed": true
+    },
+    {
+      "case": "heldout_list",
+      "compression": 0,
+      "shape": [
+        3
+      ],
+      "lastrec": 2,
+      "passed": true
+    },
+    {
+      "case": "heldout_list",
+      "compression": 6,
+      "shape": [
+        3
+      ],
+      "lastrec": 2,
+      "passed": true
+    },
+    {
+      "case": "heldout_2d",
+      "compression": 0,
+      "shape": [
+        2,
+        2
+      ],
+      "lastrec": 1,
+      "passed": true
+    },
+    {
+      "case": "heldout_2d",
+      "compression": 6,
+      "shape": [
+        2,
+        2
+      ],
+      "lastrec": 1,
+      "passed": true
+    },
+    {
+      "case": "unchanged_integer",
+      "compression": 0,
+      "shape": [
+        4
+      ],
+      "lastrec": 3,
+      "passed": true
+    },
+    {
+      "case": "unchanged_integer",
+      "compression": 6,
+      "shape": [
+        4
+      ],
+      "lastrec": 3,
+      "passed": true
+    }
+  ],
+  "pass_count": 10
+}

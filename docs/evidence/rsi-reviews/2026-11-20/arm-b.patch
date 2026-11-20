@@ -1,0 +1,333 @@
+--- a/python/merlin/drafting_control.py
++++ b/python/merlin/drafting_control.py
+@@ -187,7 +187,7 @@
+     return "accepted" if all(s=="pass" for s in states) else "rejected"
+ 
+ 
+-def review_wiring(source, guide_dir, image, verdict_file, destination):
++def review_wiring(source, guide_dir, image, verdict_file, destination, *, topology_check=False):
+     raw = limited(source,131072)
+     title,_,parts,pins,nets = read_sheet(raw)
+     svg = wire_svg(title,parts,pins,nets)
+@@ -209,6 +209,10 @@
+             asset.verify()
+         with Image.open(io.BytesIO(candidate), formats=["PNG"]) as asset:
+             asset.load()
++            topology = None
++            if topology_check:
++                from .drafting_topology import terminal_topology
++                topology = terminal_topology(asset, controls)
+     except (Image.DecompressionBombError, SyntaxError, UnidentifiedImageError) as error:
+         raise ValueError("candidate PNG could not be verified") from error
+     image_sha = digest(candidate)
+@@ -217,11 +221,15 @@
+     decision = verdict_status(verdict,controls,image_sha)
+     if size[0]*CANVAS[1]!=size[1]*CANVAS[0]:
+         decision = "rejected"
++    if topology is not None and topology["status"] != "consistent_with_expected_connectivity":
++        decision = "rejected"
+     result = {"schema":"merlin-drafting-review/1","decision":decision,"reviewer":verdict["reviewer"],
+               "source_sha256":digest(raw),"guide_sha256":controls["guide_sha256"],"image_sha256":image_sha,
+               "verdict_sha256":digest(verdict_raw),"size_px":list(size),
+               "aspect_ratio_matches":size[0]*CANVAS[1]==size[1]*CANVAS[0],"checks":verdict["checks"],
+               "nets":verdict["nets"],"notes":verdict["notes"],"authority":"illustration review only"}
++    if topology is not None:
++        result["topology_check"] = topology
+     destination.mkdir()
+     try:
+         (destination/"review.json").write_text(json.dumps(result,indent=2)+"\n",encoding="utf-8")
+--- /dev/null
++++ b/python/merlin/drafting_topology.py
+@@ -0,0 +1,161 @@
++"""Conservative topology screen for the fixed registered wiring-sheet palette.
++
++This checks only terminal connected partitions in a decoded raster. It is not a
++visual semantic reviewer, OCR system, or physical connectivity qualification.
++Unsupported registration/palette and substantial unassigned strokes abstain.
++"""
++
++from array import array
++from collections import defaultdict, deque
++import math
++
++
++CANVAS = (1536, 1024)
++MAX_INK_PIXELS = 200_000
++
++
++def terminal_topology(image, controls):
++    """Return a bounded diagnostic, never an approval or promotion decision."""
++    result = {
++        "schema": "merlin-registered-terminal-topology/1",
++        "status": "abstain",
++        "reason": "unsupported_registration",
++        "authority": "registered raster topology screen only",
++        "qualification": False,
++        "promotion_authority": False,
++        "limits": [
++            "Known teal palette and exact canvas; no alignment or OCR.",
++            "Terminal connectivity only; extra same-net branches can be invisible.",
++            "Raster adjacency is not physical wiring qualification.",
++        ],
++    }
++    if image.size != CANVAS or controls.get("canvas_px") != list(CANVAS):
++        return result
++    scale = controls.get("sheet_px_per_mm")
++    if isinstance(scale, bool) or not isinstance(scale, (int, float)):
++        return result
++    if not math.isfinite(scale) or not 0.5 <= scale <= 30:
++        return result
++    nets = controls.get("nets")
++    pins = controls.get("pins_px")
++    if not isinstance(nets, dict) or not 1 <= len(nets) <= 64 or not isinstance(pins, dict):
++        return result
++    expected = {}
++    for net, routes in nets.items():
++        if not isinstance(net, str) or not isinstance(routes, list) or not 1 <= len(routes) <= 64:
++            return result
++        for route in routes:
++            if not isinstance(route, dict):
++                return result
++            for field in ("from", "to"):
++                pin = route.get(field)
++                if not isinstance(pin, str) or pin not in pins:
++                    return result
++                if pin in expected and expected[pin] != net:
++                    return result
++                expected[pin] = net
++    if not 2 <= len(expected) <= 1152:
++        return result
++    for pin in expected:
++        point = pins[pin]
++        if not isinstance(point, list) or len(point) != 2:
++            return result
++        for coordinate, ceiling in zip(point, CANVAS):
++            if isinstance(coordinate, bool) or not isinstance(coordinate, (int, float)):
++                return result
++            if not math.isfinite(coordinate) or not 0 <= coordinate < ceiling:
++                return result
++
++    width, height = CANVAS
++    pixels = image.convert("RGB").tobytes()
++    mask = bytearray(width * height)
++    count = 0
++    for index in range(width * height):
++        red, green, blue = pixels[index * 3:index * 3 + 3]
++        if green - red >= 35 and blue - red >= 25 and abs(green - blue) <= 45 and min(green, blue) >= 40:
++            count += 1
++            if count > MAX_INK_PIXELS:
++                result["reason"] = "ink_budget_or_palette_outside_profile"
++                return result
++            mask[index] = 1
++    if count == 0:
++        result["reason"] = "known_stroke_palette_not_observed"
++        return result
++
++    labels = array("I", [0]) * (width * height)
++    sizes = [0]
++    for start in range(width * height):
++        if not mask[start] or labels[start]:
++            continue
++        label = len(sizes)
++        labels[start] = label
++        queue = deque([start])
++        size = 0
++        while queue:
++            current = queue.popleft()
++            size += 1
++            x, y = current % width, current // width
++            for row in range(max(0, y - 1), min(height, y + 2)):
++                for column in range(max(0, x - 1), min(width, x + 2)):
++                    adjacent = row * width + column
++                    if mask[adjacent] and not labels[adjacent]:
++                        labels[adjacent] = label
++                        queue.append(adjacent)
++        sizes.append(size)
++
++    parent = list(range(len(sizes) + len(expected)))
++
++    def find(node):
++        while parent[node] != node:
++            parent[node] = parent[parent[node]]
++            node = parent[node]
++        return node
++
++    def union(left, right):
++        parent[find(left)] = find(right)
++
++    # Source pin circles have radius .7mm and a .35mm centered gray ring.
++    # Probe beyond that opaque boundary plus two pixels for raster rounding.
++    radius = math.ceil((0.7 + 0.35 / 2) * scale) + 2
++    terminal_nodes = {}
++    assigned = set()
++    missing = []
++    for offset, pin in enumerate(sorted(expected)):
++        node = len(sizes) + offset
++        terminal_nodes[pin] = node
++        x, y = pins[pin]
++        nearby = set()
++        for row in range(max(0, math.floor(y - radius)), min(height, math.ceil(y + radius) + 1)):
++            for column in range(max(0, math.floor(x - radius)), min(width, math.ceil(x + radius) + 1)):
++                if (column - x) ** 2 + (row - y) ** 2 <= radius ** 2:
++                    label = labels[row * width + column]
++                    if label:
++                        nearby.add(label)
++        if not nearby:
++            missing.append(pin)
++        for label in nearby:
++            assigned.add(label)
++            union(node, label)
++
++    result.update(component_count=len(sizes) - 1, terminal_count=len(expected))
++    if len(missing) == len(expected):
++        result["reason"] = "no_strokes_near_registered_terminals"
++        return result
++    source_roots = defaultdict(set)
++    observed_nets = defaultdict(set)
++    for pin, net in expected.items():
++        root = find(terminal_nodes[pin])
++        source_roots[net].add(root)
++        observed_nets[root].add(net)
++    split = sorted(net for net, roots in source_roots.items() if len(roots) > 1)
++    joined = sorted(sorted(names) for names in observed_nets.values() if len(names) > 1)
++    result.update(missing_terminal_strokes=missing, split_source_nets=split, joined_source_nets=joined)
++    if missing or split or joined:
++        result.update(status="contradicted", reason="registered_terminal_partitions_differ")
++        return result
++    stray = [size for label, size in enumerate(sizes) if label and label not in assigned and size >= max(24, round(scale ** 2))]
++    if stray:
++        result.update(reason="unassigned_strokes_require_review", unassigned_component_sizes=stray)
++        return result
++    result.update(status="consistent_with_expected_connectivity", reason="observed_terminal_partitions_match_source_nets")
++    return result
+--- /dev/null
++++ b/tests/test_drafting_topology.py
+@@ -0,0 +1,128 @@
++"""Public synthetic development checks, separate from independent evaluation."""
++
++import copy
++import hashlib
++import json
++from pathlib import Path
++import tempfile
++import unittest
++
++from PIL import Image, ImageDraw
++
++from merlin.drafting_control import CHECKS, guide_files, review_wiring
++from merlin.drafting_topology import terminal_topology
++from merlin.wiring_sheet import read_sheet, wire_svg
++
++
++FIXTURE = Path(__file__).resolve().parents[1] / "examples/merlin/lab-signal-sheet.json"
++
++
++class TerminalTopologyTests(unittest.TestCase):
++    def setUp(self):
++        self.controls = {
++            "canvas_px": [1536, 1024],
++            "sheet_px_per_mm": 4,
++            "pins_px": {"A": [200, 300], "B": [700, 300], "C": [1000, 300],
++                        "D": [200, 700], "E": [1000, 700]},
++            "nets": {"top": [{"from": "A", "to": "B"}, {"from": "B", "to": "C"}],
++                     "bottom": [{"from": "D", "to": "E"}]},
++        }
++        self.image = Image.new("RGB", (1536, 1024), "white")
++        draw = ImageDraw.Draw(self.image)
++        draw.line([(200, 300), (1000, 300)], fill="#146564", width=4)
++        draw.line([(200, 700), (1000, 700)], fill="#146564", width=4)
++        for x, y in self.controls["pins_px"].values():
++            draw.ellipse((x - 3, y - 3, x + 3, y + 3), fill="white", outline="#263e48")
++
++    def test_branch_and_pin_holes_match_terminal_partition(self):
++        result = terminal_topology(self.image, self.controls)
++        self.assertEqual(result["status"], "consistent_with_expected_connectivity")
++        self.assertFalse(result["qualification"])
++        self.assertFalse(result["promotion_authority"])
++
++    def test_broken_conductor_contradicts(self):
++        ImageDraw.Draw(self.image).rectangle((400, 290, 430, 310), fill="white")
++        result = terminal_topology(self.image, self.controls)
++        self.assertEqual(result["status"], "contradicted")
++        self.assertIn("top", result["split_source_nets"])
++
++    def test_joined_separate_nets_contradict(self):
++        ImageDraw.Draw(self.image).line([(500, 300), (500, 700)], fill="#146564", width=4)
++        result = terminal_topology(self.image, self.controls)
++        self.assertEqual(result["status"], "contradicted")
++        self.assertIn(["bottom", "top"], result["joined_source_nets"])
++
++    def test_missing_terminal_stroke_contradicts(self):
++        ImageDraw.Draw(self.image).rectangle((180, 680, 240, 720), fill="white")
++        result = terminal_topology(self.image, self.controls)
++        self.assertEqual(result["status"], "contradicted")
++        self.assertIn("D", result["missing_terminal_strokes"])
++
++    def test_unknown_palette_abstains(self):
++        self.assertEqual(terminal_topology(Image.new("RGB", (1536, 1024), "white"), self.controls)["status"], "abstain")
++
++    def test_wrong_registration_and_nonfinite_scale_abstain(self):
++        self.assertEqual(terminal_topology(self.image.resize((768, 512)), self.controls)["status"], "abstain")
++        controls = copy.deepcopy(self.controls)
++        controls["sheet_px_per_mm"] = float("nan")
++        self.assertEqual(terminal_topology(self.image, controls)["status"], "abstain")
++
++    def test_unassigned_stroke_abstains(self):
++        ImageDraw.Draw(self.image).line([(1100, 850), (1200, 850)], fill="#146564", width=4)
++        result = terminal_topology(self.image, self.controls)
++        self.assertEqual(result["status"], "abstain")
++        self.assertEqual(result["reason"], "unassigned_strokes_require_review")
++
++    def test_gray_component_and_label_strokes_do_not_join_nets(self):
++        ImageDraw.Draw(self.image).line([(500, 300), (500, 700)], fill="#263e48", width=1)
++        self.assertEqual(terminal_topology(self.image, self.controls)["status"], "consistent_with_expected_connectivity")
++
++    def test_same_net_dangling_branch_is_explicit_limit(self):
++        ImageDraw.Draw(self.image).line([(500, 300), (500, 450)], fill="#146564", width=4)
++        result = terminal_topology(self.image, self.controls)
++        self.assertEqual(result["status"], "consistent_with_expected_connectivity")
++        self.assertIn("extra same-net branches can be invisible", " ".join(result["limits"]))
++
++
++class RegisteredPublicControlTests(unittest.TestCase):
++    def test_opt_in_preserves_default_and_gates_unknown_palette(self):
++        with tempfile.TemporaryDirectory() as temporary:
++            root = Path(temporary)
++            raw = FIXTURE.read_bytes()
++            title, _, parts, pins, nets = read_sheet(raw)
++            svg = wire_svg(title, parts, pins, nets)
++            (root / "wiring.svg").write_bytes(svg)
++            for name, content in guide_files(raw, svg, nets).items():
++                (root / name).write_bytes(content)
++            controls = json.loads((root / "draft-controls.json").read_bytes())
++            verdict = {
++                "schema": "merlin-drafting-verdict/1", "reviewer": "synthetic development fixture",
++                "notes": "Public control only; not an independent review or physical wiring claim.",
++                "source_sha256": controls["source_sha256"], "guide_sha256": controls["guide_sha256"],
++                "checks": dict.fromkeys(CHECKS, "pass"),
++                "nets": [{"id": name, "status": "pass", "connections": [
++                    {"from": row["from"], "to": row["to"], "status": "pass"} for row in rows]}
++                    for name, rows in controls["nets"].items()],
++            }
++            positive = root / "conditioning-guide.png"
++            verdict["image_sha256"] = hashlib.sha256(positive.read_bytes()).hexdigest()
++            path = root / "verdict.json"
++            path.write_text(json.dumps(verdict))
++            result = review_wiring(FIXTURE, root, positive, path, root / "positive", topology_check=True)
++            self.assertEqual(result["decision"], "accepted")
++            self.assertEqual(result["topology_check"]["status"], "consistent_with_expected_connectivity")
++
++            blank = root / "blank.png"
++            Image.new("RGB", (1536, 1024), "white").save(blank)
++            verdict["image_sha256"] = hashlib.sha256(blank.read_bytes()).hexdigest()
++            path.write_text(json.dumps(verdict))
++            default = review_wiring(FIXTURE, root, blank, path, root / "default")
++            gated = review_wiring(FIXTURE, root, blank, path, root / "gated", topology_check=True)
++            self.assertEqual(default["decision"], "accepted")
++            self.assertNotIn("topology_check", default)
++            self.assertEqual(gated["decision"], "rejected")
++            self.assertEqual(gated["topology_check"]["status"], "abstain")
++
++
++if __name__ == "__main__":
++    unittest.main()

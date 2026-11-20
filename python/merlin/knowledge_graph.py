@@ -81,6 +81,8 @@ class MerlinKnowledgeGraph:
             raise ValueError("label and evidence class are required")
         payload = json.dumps(node.payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
         with closing(self._connect()) as db, db:
+            # Serialize the immutable identity check and append across writers.
+            db.execute("BEGIN IMMEDIATE")
             existing = db.execute(
                 "SELECT node_type,label,payload_json,evidence_class,source_uri "
                 "FROM graph_nodes WHERE node_id=?", (node.node_id,)
@@ -101,6 +103,7 @@ class MerlinKnowledgeGraph:
             raise ValueError(f"unsupported relation: {edge.relation}")
         payload = json.dumps(edge.payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
         with closing(self._connect()) as db, db:
+            db.execute("BEGIN IMMEDIATE")
             existing = db.execute(
                 "SELECT payload_json FROM graph_edges WHERE source_id=? AND relation=? AND target_id=?",
                 (edge.source_id, edge.relation, edge.target_id),

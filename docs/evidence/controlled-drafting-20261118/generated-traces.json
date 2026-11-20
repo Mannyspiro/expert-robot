@@ -1,0 +1,12 @@
+{
+  "SAMPLE": {
+    "sampled": 12,
+    "found": 12,
+    "max_normal_offset_px": 0.626
+  },
+  "TRACE": {
+    "sampled": 12,
+    "found": 12,
+    "max_normal_offset_px": 1.068
+  }
+}

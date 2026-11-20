@@ -1,0 +1,73 @@
+{
+  "schema": "merlin-software-integration-protocol/1",
+  "protocol_id": "LEARNING-EVIDENCE-RETRIEVAL-V1",
+  "created_at_utc": "2026-11-18T02:12:39.284737+00:00",
+  "source_anchor": "4811c448216e0582336ffc8c2c1468a5260a4b18",
+  "parent_plan_version": 4,
+  "question": "Can LMS learners retrieve only course/version-approved evidence with independently verifiable UTF8 citations, missing-evidence abstention and visible curator-declared conflicts, reusing the canonical context bridge?",
+  "premises": [
+    "Authenticated Actor and tenant/project provisioning are host-supplied.",
+    "Source snapshots are operator-provided and course-reviewed; URLs/hashes alone do not authenticate origin.",
+    "Lexical retrieval supplies evidence packets, not generated answers or general semantic entailment.",
+    "Conflict groups are explicit reviewed metadata, not automated contradiction discovery."
+  ],
+  "predictions": [
+    {
+      "id": "R1",
+      "acceptance": "Every returned quote resolves to exact pinned ArtifactRef/version and byte offsets/hash, even after latest source pointers change."
+    },
+    {
+      "id": "R2",
+      "acceptance": "Other-course/tenant/unapproved sources are excluded before ranking or response-budget selection."
+    },
+    {
+      "id": "R3",
+      "acceptance": "No relevant indexed evidence returns abstention; a hit in a declared conflict group exposes every required conflict reference or fails the budget explicitly."
+    },
+    {
+      "id": "R4",
+      "acceptance": "Missing/tampered sources and forged citation bounds/text/digest fail rather than receiving evaluator credit."
+    },
+    {
+      "id": "R5",
+      "acceptance": "Frozen synthetic dev/evaluation case IDs are disjoint, exact case/source hashes and failures are preserved, and results never change mastery/verification authority."
+    }
+  ],
+  "representation_checks": {
+    "simplex": {
+      "decision": "not_applicable",
+      "reason": "Evidence identity is exact, not a weighted approval mixture.",
+      "invariant_or_test": "No partial weight permits an unauthorized or altered citation."
+    },
+    "n_ality": {
+      "decision": "applied",
+      "reason": "Tenant, course/version, source/version, excerpt and declared conflict axes remain independently checked.",
+      "invariant_or_test": "A matching text snippet cannot substitute for source/version or course membership."
+    },
+    "continuum": {
+      "decision": "not_applicable",
+      "reason": "No quantitative field approximation is needed in this discrete citation slice.",
+      "invariant_or_test": "Offsets preserve original UTF8 bytes, with no interpolation."
+    },
+    "fuzzy_logic": {
+      "decision": "deferred",
+      "reason": "Lexical ranks are heuristic orderings; future similarity/membership needs separate evaluation.",
+      "invariant_or_test": "Ranks/memberships cannot override permission, integrity, abstention or review gates."
+    }
+  },
+  "bias_checks": [
+    {
+      "trigger": "Same team writes reader and synthetic cases",
+      "countermeasure": "Freeze case/source gold before observing reader outcomes; independent citation verification and source review; disclose public/non-blind fixture limits."
+    },
+    {
+      "trigger": "Scores may hide missing cases or omitted conflicting sources",
+      "countermeasure": "Record expected totals, exact failed-case outcomes, source identities, exclusions and response budgets."
+    }
+  ],
+  "scope": "Code plus original synthetic fixture sources only; no private corpus/student records or external fetch/execution.",
+  "stopping_rule": "Local negatives and independent review, then pinned unprivileged OCI run. Preserve failures; revise code/fixture versions explicitly rather than hiding unsuccessful cases.",
+  "qualification": false,
+  "promotion_authority": false,
+  "educational_efficacy_established": false
+}

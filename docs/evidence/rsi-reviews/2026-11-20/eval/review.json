@@ -1,0 +1,471 @@
+{
+  "protocol_sha256": "bb987660af2d3f28a041eb56c7abb1a9c14003553c4df3aabb5ed30d4f88eb4b",
+  "same_input_bytes": true,
+  "arms": {
+    "baseline": {
+      "source_sha256": "7a873c32a7c467b95efac7f09b21520667f4470d8d2e782a866f41eb8e8648d7",
+      "report_sha256": "0190241327f89f9db59fe9e94c4c78c06d2feb868b5d2560ecd42ffbf96e9883",
+      "flags": {},
+      "development_passed": 1,
+      "heldout_passed": 2,
+      "accepted_positives": 2,
+      "correctly_withheld": 0,
+      "false_acceptances": 2,
+      "positive_regressions": [],
+      "repaired_baseline_errors": [],
+      "ready_for_further_trials": false,
+      "diagnostics": {
+        "H1": {},
+        "H2": {},
+        "H3": {},
+        "H4": {}
+      },
+      "wall_seconds": 4.1903
+    },
+    "arm_a": {
+      "source_sha256": "e7be4515cb18baec51fcb4effebda0ce3641c6eec2e57e759c9127d48d247d24",
+      "report_sha256": "06e65cfdd3d62da2e8047db0a837bd25fd22b84ea95d75647827d4f489e5d0ba",
+      "flags": {
+        "independent_raster": true
+      },
+      "development_passed": 1,
+      "heldout_passed": 4,
+      "accepted_positives": 2,
+      "correctly_withheld": 2,
+      "false_acceptances": 0,
+      "positive_regressions": [],
+      "repaired_baseline_errors": [
+        "H2",
+        "H3"
+      ],
+      "ready_for_further_trials": true,
+      "diagnostics": {
+        "H1": {
+          "raster_check": {
+            "schema": "merlin-registered-raster-check/1",
+            "method": "registered-dark-ink-residual-v1",
+            "status": "clear_within_scope",
+            "reason": "no_unexpected_stroke_detected_within_limits",
+            "guide_sha256": "b06e8740160e708f954c995ad5043e1813c8e4827a931e2fcb411f3d22107d6d",
+            "image_sha256": "ef75012d51fb88ab69d146d9d03ade2bcdf75937383f4ca0c6f89c111f172eeb",
+            "parameters": {
+              "ink_luminance_at_most": 160,
+              "guide_tolerance_radius_px": 3,
+              "registration_tolerance_radius_px": 2,
+              "max_missing_fiducial_fraction": 0.05,
+              "max_missing_guide_fraction": 0.01,
+              "max_residual_pixels": 25000,
+              "max_components": 4096,
+              "max_reported_components": 32,
+              "minimum_stroke_axis_run_px": 32,
+              "minimum_stroke_pixels": 48,
+              "maximum_ignored_isolated_noise_pixels": 8
+            },
+            "limits": "Registered opaque 1536x1024 PNGs only; no alignment fitting. No OCR, terminal graph or electrical connection identity. Ink within the 3px guide corridor, faint/short additions and overlapping strokes may be missed. Added annotation can resemble a conductor. No qualification, absence proof or calibrated probability; human review remains mandatory.",
+            "qualification": false,
+            "promotion_authority": false,
+            "authority": "illustration mismatch measurement only",
+            "source_sha256": "a2d5c96784317f5ddd940d6879c75e5b20a516e21b856ead4dda0b58a2797094",
+            "registration": {
+              "A": {
+                "expected_pixels": 256,
+                "missing_pixels": 0,
+                "missing_fraction": 0.0
+              },
+              "B": {
+                "expected_pixels": 256,
+                "missing_pixels": 0,
+                "missing_fraction": 0.0
+              },
+              "C": {
+                "expected_pixels": 256,
+                "missing_pixels": 0,
+                "missing_fraction": 0.0
+              },
+              "D": {
+                "expected_pixels": 256,
+                "missing_pixels": 0,
+                "missing_fraction": 0.0
+              }
+            },
+            "measurement": {
+              "expected_ink_pixels": 20838,
+              "missing_ink_pixels": 0,
+              "missing_ink_fraction": 0.0,
+              "unexplained_ink_pixels": 1
+            },
+            "component_count": 1,
+            "component_scan_complete": true,
+            "components": [
+              {
+                "bbox_px_half_open": [
+                  1,
+                  1,
+                  2,
+                  2
+                ],
+                "pixels": 1,
+                "longest_axis_run_px": 1,
+                "stroke_like": false
+              }
+            ],
+            "components_omitted": 0,
+            "stroke_like_component_count": 0
+          }
+        },
+        "H2": {
+          "raster_check": {
+            "schema": "merlin-registered-raster-check/1",
+            "method": "registered-dark-ink-residual-v1",
+            "status": "unexpected_stroke",
+            "reason": "long_unmodeled_dark_ink_requires_review",
+            "guide_sha256": "b06e8740160e708f954c995ad5043e1813c8e4827a931e2fcb411f3d22107d6d",
+            "image_sha256": "15106aaaf4f1df882afa0ce2d2bebfb8c0fbdc072c94a3f1648b27e03892bafa",
+            "parameters": {
+              "ink_luminance_at_most": 160,
+              "guide_tolerance_radius_px": 3,
+              "registration_tolerance_radius_px": 2,
+              "max_missing_fiducial_fraction": 0.05,
+              "max_missing_guide_fraction": 0.01,
+              "max_residual_pixels": 25000,
+              "max_components": 4096,
+              "max_reported_components": 32,
+              "minimum_stroke_axis_run_px": 32,
+              "minimum_stroke_pixels": 48,
+              "maximum_ignored_isolated_noise_pixels": 8
+            },
+            "limits": "Registered opaque 1536x1024 PNGs only; no alignment fitting. No OCR, terminal graph or electrical connection identity. Ink within the 3px guide corridor, faint/short additions and overlapping strokes may be missed. Added annotation can resemble a conductor. No qualification, absence proof or calibrated probability; human review remains mandatory.",
+            "qualification": false,
+            "promotion_authority": false,
+            "authority": "illustration mismatch measurement only",
+            "source_sha256": "a2d5c96784317f5ddd940d6879c75e5b20a516e21b856ead4dda0b58a2797094",
+            "registration": {
+              "A": {
+                "expected_pixels": 256,
+                "missing_pixels": 0,
+                "missing_fraction": 0.0
+              },
+              "B": {
+                "expected_pixels": 256,
+                "missing_pixels": 0,
+                "missing_fraction": 0.0
+              },
+              "C": {
+                "expected_pixels": 256,
+                "missing_pixels": 0,
+                "missing_fraction": 0.0
+              },
+              "D": {
+                "expected_pixels": 256,
+                "missing_pixels": 0,
+                "missing_fraction": 0.0
+              }
+            },
+            "measurement": {
+              "expected_ink_pixels": 20838,
+              "missing_ink_pixels": 0,
+              "missing_ink_fraction": 0.0,
+              "unexplained_ink_pixels": 661
+            },
+            "component_count": 2,
+            "component_scan_complete": true,
+            "components": [
+              {
+                "bbox_px_half_open": [
+                  900,
+                  554,
+                  903,
+                  774
+                ],
+                "pixels": 660,
+                "longest_axis_run_px": 220,
+                "stroke_like": true
+              },
+              {
+                "bbox_px_half_open": [
+                  1,
+                  1,
+                  2,
+                  2
+                ],
+                "pixels": 1,
+                "longest_axis_run_px": 1,
+                "stroke_like": false
+              }
+            ],
+            "components_omitted": 0,
+            "stroke_like_component_count": 1
+          }
+        },
+        "H3": {
+          "raster_check": {
+            "schema": "merlin-registered-raster-check/1",
+            "method": "registered-dark-ink-residual-v1",
+            "status": "unexpected_stroke",
+            "reason": "long_unmodeled_dark_ink_requires_review",
+            "guide_sha256": "b06e8740160e708f954c995ad5043e1813c8e4827a931e2fcb411f3d22107d6d",
+            "image_sha256": "b4c4b43489bfcb04d83c56d69dab4caab61eb5267c9fbb1d8448b7dd9470ecec",
+            "parameters": {
+              "ink_luminance_at_most": 160,
+              "guide_tolerance_radius_px": 3,
+              "registration_tolerance_radius_px": 2,
+              "max_missing_fiducial_fraction": 0.05,
+              "max_missing_guide_fraction": 0.01,
+              "max_residual_pixels": 25000,
+              "max_components": 4096,
+              "max_reported_components": 32,
+              "minimum_stroke_axis_run_px": 32,
+              "minimum_stroke_pixels": 48,
+              "maximum_ignored_isolated_noise_pixels": 8
+            },
+            "limits": "Registered opaque 1536x1024 PNGs only; no alignment fitting. No OCR, terminal graph or electrical connection identity. Ink within the 3px guide corridor, faint/short additions and overlapping strokes may be missed. Added annotation can resemble a conductor. No qualification, absence proof or calibrated probability; human review remains mandatory.",
+            "qualification": false,
+            "promotion_authority": false,
+            "authority": "illustration mismatch measurement only",
+            "source_sha256": "a2d5c96784317f5ddd940d6879c75e5b20a516e21b856ead4dda0b58a2797094",
+            "registration": {
+              "A": {
+                "expected_pixels": 256,
+                "missing_pixels": 0,
+                "missing_fraction": 0.0
+              },
+              "B": {
+                "expected_pixels": 256,
+                "missing_pixels": 0,
+                "missing_fraction": 0.0
+              },
+              "C": {
+                "expected_pixels": 256,
+                "missing_pixels": 0,
+                "missing_fraction": 0.0
+              },
+              "D": {
+                "expected_pixels": 256,
+                "missing_pixels": 0,
+                "missing_fraction": 0.0
+              }
+            },
+            "measurement": {
+              "expected_ink_pixels": 20838,
+              "missing_ink_pixels": 0,
+              "missing_ink_fraction": 0.0,
+              "unexplained_ink_pixels": 640
+            },
+            "component_count": 3,
+            "component_scan_complete": true,
+            "components": [
+              {
+                "bbox_px_half_open": [
+                  900,
+                  554,
+                  903,
+                  719
+                ],
+                "pixels": 495,
+                "longest_axis_run_px": 165,
+                "stroke_like": true
+              },
+              {
+                "bbox_px_half_open": [
+                  900,
+                  726,
+                  903,
+                  774
+                ],
+                "pixels": 144,
+                "longest_axis_run_px": 48,
+                "stroke_like": true
+              },
+              {
+                "bbox_px_half_open": [
+                  1,
+                  1,
+                  2,
+                  2
+                ],
+                "pixels": 1,
+                "longest_axis_run_px": 1,
+                "stroke_like": false
+              }
+            ],
+            "components_omitted": 0,
+            "stroke_like_component_count": 2
+          }
+        },
+        "H4": {
+          "raster_check": {
+            "schema": "merlin-registered-raster-check/1",
+            "method": "registered-dark-ink-residual-v1",
+            "status": "clear_within_scope",
+            "reason": "no_unexpected_stroke_detected_within_limits",
+            "guide_sha256": "b06e8740160e708f954c995ad5043e1813c8e4827a931e2fcb411f3d22107d6d",
+            "image_sha256": "fc67b7fe79e870b9c05443a015c18f77c515da4334c032eb59da63d6103274e1",
+            "parameters": {
+              "ink_luminance_at_most": 160,
+              "guide_tolerance_radius_px": 3,
+              "registration_tolerance_radius_px": 2,
+              "max_missing_fiducial_fraction": 0.05,
+              "max_missing_guide_fraction": 0.01,
+              "max_residual_pixels": 25000,
+              "max_components": 4096,
+              "max_reported_components": 32,
+              "minimum_stroke_axis_run_px": 32,
+              "minimum_stroke_pixels": 48,
+              "maximum_ignored_isolated_noise_pixels": 8
+            },
+            "limits": "Registered opaque 1536x1024 PNGs only; no alignment fitting. No OCR, terminal graph or electrical connection identity. Ink within the 3px guide corridor, faint/short additions and overlapping strokes may be missed. Added annotation can resemble a conductor. No qualification, absence proof or calibrated probability; human review remains mandatory.",
+            "qualification": false,
+            "promotion_authority": false,
+            "authority": "illustration mismatch measurement only",
+            "source_sha256": "a2d5c96784317f5ddd940d6879c75e5b20a516e21b856ead4dda0b58a2797094",
+            "registration": {
+              "A": {
+                "expected_pixels": 256,
+                "missing_pixels": 0,
+                "missing_fraction": 0.0
+              },
+              "B": {
+                "expected_pixels": 256,
+                "missing_pixels": 0,
+                "missing_fraction": 0.0
+              },
+              "C": {
+                "expected_pixels": 256,
+                "missing_pixels": 0,
+                "missing_fraction": 0.0
+              },
+              "D": {
+                "expected_pixels": 256,
+                "missing_pixels": 0,
+                "missing_fraction": 0.0
+              }
+            },
+            "measurement": {
+              "expected_ink_pixels": 20838,
+              "missing_ink_pixels": 0,
+              "missing_ink_fraction": 0.0,
+              "unexplained_ink_pixels": 1
+            },
+            "component_count": 1,
+            "component_scan_complete": true,
+            "components": [
+              {
+                "bbox_px_half_open": [
+                  1,
+                  1,
+                  2,
+                  2
+                ],
+                "pixels": 1,
+                "longest_axis_run_px": 1,
+                "stroke_like": false
+              }
+            ],
+            "components_omitted": 0,
+            "stroke_like_component_count": 0
+          }
+        }
+      },
+      "wall_seconds": 5.2191
+    },
+    "arm_b": {
+      "source_sha256": "f397970abf63efb323b6bfc1faadf50c111f3ffb42d9003253174ee06e9dc3e5",
+      "report_sha256": "e60ea1fc6b1ba8a4e12bb6a1df6b558ad06d13a30489b93f1c67d9afd84f069b",
+      "flags": {
+        "topology_check": true
+      },
+      "development_passed": 1,
+      "heldout_passed": 2,
+      "accepted_positives": 2,
+      "correctly_withheld": 0,
+      "false_acceptances": 2,
+      "positive_regressions": [],
+      "repaired_baseline_errors": [],
+      "ready_for_further_trials": false,
+      "diagnostics": {
+        "H1": {
+          "topology_check": {
+            "schema": "merlin-registered-terminal-topology/1",
+            "status": "consistent_with_expected_connectivity",
+            "reason": "observed_terminal_partitions_match_source_nets",
+            "authority": "registered raster topology screen only",
+            "qualification": false,
+            "promotion_authority": false,
+            "limits": [
+              "Known teal palette and exact canvas; no alignment or OCR.",
+              "Terminal connectivity only; extra same-net branches can be invisible.",
+              "Raster adjacency is not physical wiring qualification."
+            ],
+            "component_count": 2,
+            "terminal_count": 5,
+            "missing_terminal_strokes": [],
+            "split_source_nets": [],
+            "joined_source_nets": []
+          }
+        },
+        "H2": {
+          "topology_check": {
+            "schema": "merlin-registered-terminal-topology/1",
+            "status": "consistent_with_expected_connectivity",
+            "reason": "observed_terminal_partitions_match_source_nets",
+            "authority": "registered raster topology screen only",
+            "qualification": false,
+            "promotion_authority": false,
+            "limits": [
+              "Known teal palette and exact canvas; no alignment or OCR.",
+              "Terminal connectivity only; extra same-net branches can be invisible.",
+              "Raster adjacency is not physical wiring qualification."
+            ],
+            "component_count": 2,
+            "terminal_count": 5,
+            "missing_terminal_strokes": [],
+            "split_source_nets": [],
+            "joined_source_nets": []
+          }
+        },
+        "H3": {
+          "topology_check": {
+            "schema": "merlin-registered-terminal-topology/1",
+            "status": "consistent_with_expected_connectivity",
+            "reason": "observed_terminal_partitions_match_source_nets",
+            "authority": "registered raster topology screen only",
+            "qualification": false,
+            "promotion_authority": false,
+            "limits": [
+              "Known teal palette and exact canvas; no alignment or OCR.",
+              "Terminal connectivity only; extra same-net branches can be invisible.",
+              "Raster adjacency is not physical wiring qualification."
+            ],
+            "component_count": 2,
+            "terminal_count": 5,
+            "missing_terminal_strokes": [],
+            "split_source_nets": [],
+            "joined_source_nets": []
+          }
+        },
+        "H4": {
+          "topology_check": {
+            "schema": "merlin-registered-terminal-topology/1",
+            "status": "consistent_with_expected_connectivity",
+            "reason": "observed_terminal_partitions_match_source_nets",
+            "authority": "registered raster topology screen only",
+            "qualification": false,
+            "promotion_authority": false,
+            "limits": [
+              "Known teal palette and exact canvas; no alignment or OCR.",
+              "Terminal connectivity only; extra same-net branches can be invisible.",
+              "Raster adjacency is not physical wiring qualification."
+            ],
+            "component_count": 2,
+            "terminal_count": 5,
+            "missing_terminal_strokes": [],
+            "split_source_nets": [],
+            "joined_source_nets": []
+          }
+        }
+      },
+      "wall_seconds": 4.6126
+    }
+  },
+  "scope": "Single novel geometry and predeclared mutations. Synthetic raster fixed at one renderer and resolution. All-pass human reports intentionally wrong for H2 and H3. End-to-end wall times descriptive. Withholding indicates a mismatch or uncertainty; it does not prove electrical topology."
+}

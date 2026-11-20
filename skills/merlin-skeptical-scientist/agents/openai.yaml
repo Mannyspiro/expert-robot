@@ -1,0 +1,14 @@
+interface:
+  display_name: Merlin Skeptical Scientist
+  short_description: Evidence-first research and measured improvement
+  default_prompt: Use $merlin-skeptical-scientist to investigate this problem, test
+    competing explanations, and update the production plan.
+  icon_small: assets/icon.svg
+  icon_large: assets/icon.svg
+policy:
+  allow_implicit_invocation: true
+  products:
+  - chatgpt
+  - codex
+  - api
+  - atlas

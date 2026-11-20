@@ -1,0 +1,298 @@
+{
+  "check_counts_per_file": {
+    "plain": 40,
+    "variable_gzip6": 40
+  },
+  "checksum_negative_control": {
+    "error_type": "OSError",
+    "meaning": "Local stored MD5 integrity check only, not scientific truth or signer authentication",
+    "rejected": true
+  },
+  "dependency_acquisition": {
+    "license_sha256": "b1c860b1be70dda5792978fddc9b0ea05ac1b0057601f5f1c6a56cce2d8d912e",
+    "method": "One pip wheel download, no dependencies; extracted to private experiment assets, no installation",
+    "publish_attestation": "PyPI page read; external publish attestation not independently verified locally",
+    "pypi_url": "https://pypi.org/project/cdflib/1.3.16/",
+    "source_license_url": "https://github.com/lasp/cdflib/blob/cf7553fe93c0684ae461fffb1df0a0b9daa23219/LICENSE",
+    "wheel_filename": "cdflib-1.3.16-py3-none-any.whl",
+    "wheel_sha256_actual": "54d3f525651e9293b65a71b29b6b0b737cfe8e8f2a9191dcb686d261b77fc4f1",
+    "wheel_sha256_matches_primary_PyPI_page": true
+  },
+  "environment": {
+    "machine": "x86_64",
+    "numpy": "2.3.5",
+    "python": "3.12.14",
+    "system": "Linux"
+  },
+  "execution_scope": "Local optional offline fixture measurement; dependency wheel acquisition preceded experiment; no production dependency installation or data upload.",
+  "experiment": "fixed_synthetic_scalar_vector_roundtrip",
+  "files": [
+    {
+      "blank_observations": {
+        "all_notes_exact": true,
+        "empty_comment_exact": true,
+        "input_empty_comment": "",
+        "input_note_prefix": [
+          "ok",
+          "",
+          "  "
+        ],
+        "recovered_empty_comment": [
+          ""
+        ],
+        "recovered_note_prefix": [
+          "ok",
+          "",
+          "  "
+        ]
+      },
+      "checks": {
+        "Epoch_canonical_bytes": true,
+        "Epoch_numeric_type": true,
+        "Epoch_shape": true,
+        "Epoch_units": true,
+        "Epoch_values": true,
+        "cdf_checksum_validation": true,
+        "cdf_time_type": true,
+        "global_METHOD": true,
+        "global_SOURCE_SHA256": true,
+        "global_TIME_COORDINATE": true,
+        "global_TITLE": true,
+        "missing_scalar_matches_mask": true,
+        "missing_vector_matches_mask": true,
+        "requested_compression": true,
+        "sample_count": true,
+        "scalar_canonical_bytes": true,
+        "scalar_fill_metadata": true,
+        "scalar_numeric_type": true,
+        "scalar_shape": true,
+        "scalar_uncertainty_canonical_bytes": true,
+        "scalar_uncertainty_fill_metadata": true,
+        "scalar_uncertainty_numeric_type": true,
+        "scalar_uncertainty_shape": true,
+        "scalar_uncertainty_units": true,
+        "scalar_uncertainty_values": true,
+        "scalar_units": true,
+        "scalar_values": true,
+        "subset_values": true,
+        "valid_canonical_bytes": true,
+        "valid_numeric_type": true,
+        "valid_shape": true,
+        "valid_units": true,
+        "valid_values": true,
+        "validity_mask": true,
+        "vector_canonical_bytes": true,
+        "vector_fill_metadata": true,
+        "vector_numeric_type": true,
+        "vector_shape": true,
+        "vector_units": true,
+        "vector_values": true
+      },
+      "file": "plain.cdf",
+      "mode": "plain",
+      "read_and_check_seconds": 0.005801144999168173,
+      "recovered_array_hashes": {
+        "Epoch": "1b0f277ffd9df7ef6d5989755c606cae9be29ad075706224e8d77f8c9a0da4ba",
+        "scalar": "1b541b9d6b90a42b301e2c24179753f2e7f0d43cb8ee42afdc5f66ed37a289ae",
+        "scalar_uncertainty": "bc75f8c17d98b45e9c3c31c554135c14258b4800873487b5dd5e13b204a414db",
+        "valid": "efbda590c8b7b23c25a5d5470d3eac9df8a648013d92ae64746c28b13433e4d0",
+        "vector": "c557b0377462cc2a2badb975c49759e54537c3cb6fdfb6b4e530df35daf961bb"
+      },
+      "required_checks_passed": true,
+      "sha256": "05f047eef322e2a95137368567a4075a96fd85a2ad6e3a570994b4f83e90f82a",
+      "size_bytes": 241453,
+      "subset_read_seconds": 0.00013596400003734743,
+      "variable_compression_levels": {
+        "Epoch": 0,
+        "scalar": 0,
+        "scalar_uncertainty": 0,
+        "valid": 0,
+        "vector": 0
+      },
+      "write_seconds": 0.006463497999902756
+    },
+    {
+      "blank_observations": {
+        "all_notes_exact": true,
+        "empty_comment_exact": true,
+        "input_empty_comment": "",
+        "input_note_prefix": [
+          "ok",
+          "",
+          "  "
+        ],
+        "recovered_empty_comment": [
+          ""
+        ],
+        "recovered_note_prefix": [
+          "ok",
+          "",
+          "  "
+        ]
+      },
+      "checks": {
+        "Epoch_canonical_bytes": true,
+        "Epoch_numeric_type": true,
+        "Epoch_shape": true,
+        "Epoch_units": true,
+        "Epoch_values": true,
+        "cdf_checksum_validation": true,
+        "cdf_time_type": true,
+        "global_METHOD": true,
+        "global_SOURCE_SHA256": true,
+        "global_TIME_COORDINATE": true,
+        "global_TITLE": true,
+        "missing_scalar_matches_mask": true,
+        "missing_vector_matches_mask": true,
+        "requested_compression": true,
+        "sample_count": true,
+        "scalar_canonical_bytes": true,
+        "scalar_fill_metadata": true,
+        "scalar_numeric_type": true,
+        "scalar_shape": true,
+        "scalar_uncertainty_canonical_bytes": true,
+        "scalar_uncertainty_fill_metadata": true,
+        "scalar_uncertainty_numeric_type": true,
+        "scalar_uncertainty_shape": true,
+        "scalar_uncertainty_units": true,
+        "scalar_uncertainty_values": true,
+        "scalar_units": true,
+        "scalar_values": true,
+        "subset_values": true,
+        "valid_canonical_bytes": true,
+        "valid_numeric_type": true,
+        "valid_shape": true,
+        "valid_units": true,
+        "valid_values": true,
+        "validity_mask": true,
+        "vector_canonical_bytes": true,
+        "vector_fill_metadata": true,
+        "vector_numeric_type": true,
+        "vector_shape": true,
+        "vector_units": true,
+        "vector_values": true
+      },
+      "file": "variable_gzip6.cdf",
+      "mode": "variable_gzip6",
+      "read_and_check_seconds": 0.005384674999731942,
+      "recovered_array_hashes": {
+        "Epoch": "1b0f277ffd9df7ef6d5989755c606cae9be29ad075706224e8d77f8c9a0da4ba",
+        "scalar": "1b541b9d6b90a42b301e2c24179753f2e7f0d43cb8ee42afdc5f66ed37a289ae",
+        "scalar_uncertainty": "bc75f8c17d98b45e9c3c31c554135c14258b4800873487b5dd5e13b204a414db",
+        "valid": "efbda590c8b7b23c25a5d5470d3eac9df8a648013d92ae64746c28b13433e4d0",
+        "vector": "c557b0377462cc2a2badb975c49759e54537c3cb6fdfb6b4e530df35daf961bb"
+      },
+      "required_checks_passed": true,
+      "sha256": "ef4936fe27b34a9b658a8eafef9850e390656d7bab9beebc06766b275577a9ea",
+      "size_bytes": 35430,
+      "subset_read_seconds": 0.00023989999954210361,
+      "variable_compression_levels": {
+        "Epoch": 6,
+        "scalar": 6,
+        "scalar_uncertainty": 6,
+        "valid": 6,
+        "vector": 6
+      },
+      "write_seconds": 0.007587093999973149
+    }
+  ],
+  "fixture": {
+    "arrays": {
+      "Epoch": {
+        "dtype": "<i8",
+        "sha256": "1b0f277ffd9df7ef6d5989755c606cae9be29ad075706224e8d77f8c9a0da4ba",
+        "shape": [
+          4096
+        ],
+        "unit": "ns"
+      },
+      "scalar": {
+        "dtype": "<f8",
+        "sha256": "1b541b9d6b90a42b301e2c24179753f2e7f0d43cb8ee42afdc5f66ed37a289ae",
+        "shape": [
+          4096
+        ],
+        "unit": "V"
+      },
+      "scalar_uncertainty": {
+        "dtype": "<f8",
+        "sha256": "bc75f8c17d98b45e9c3c31c554135c14258b4800873487b5dd5e13b204a414db",
+        "shape": [
+          4096
+        ],
+        "unit": "V"
+      },
+      "valid": {
+        "dtype": "|u1",
+        "sha256": "efbda590c8b7b23c25a5d5470d3eac9df8a648013d92ae64746c28b13433e4d0",
+        "shape": [
+          4096
+        ],
+        "unit": "1"
+      },
+      "vector": {
+        "dtype": "<f8",
+        "sha256": "c557b0377462cc2a2badb975c49759e54537c3cb6fdfb6b4e530df35daf961bb",
+        "shape": [
+          4096,
+          3
+        ],
+        "unit": "m"
+      }
+    },
+    "method": "synthetic_not_measured",
+    "missing_sample_indices": [
+      17,
+      1000,
+      3001
+    ],
+    "notes_sha256": "ed5a652d23effb2151c36a7bc4bae09b7ef6cf5560db61174d7cefc0b4d9aa6d",
+    "sample_interval_ns": 7812500,
+    "samples": 4096,
+    "schema": "merlin-synthetic-cdf-fixture/1"
+  },
+  "fixture_manifest_sha256": "35b35baee8fa362e628542bd5ea10b8c107075ce6157ab3f3eaf502fadab361d",
+  "implementation": {
+    "copyright": "2025 Regents of the University of Colorado",
+    "license": "MIT",
+    "license_scope": "Separate pure-Python implementation; NASA native CDF library was not installed or executed",
+    "module_sha256": {
+      "cdfread.py": "46c7dcae8626fde13039f439ee442c45e91ef55ae45a7347ff3139541d96f45e",
+      "cdfwrite.py": "c62baa34f071f32de6d69dec28fef6c96fca0847f98f341296930a8d0fe99175"
+    },
+    "name": "lasp/cdflib",
+    "source_commit_from_PyPI_publish_record": "cf7553fe93c0684ae461fffb1df0a0b9daa23219",
+    "version": "1.3.16",
+    "wheel_sha256_from_PyPI": "54d3f525651e9293b65a71b29b6b0b737cfe8e8f2a9191dcb686d261b77fc4f1"
+  },
+  "limits": [
+    "Same library writes and reads: no independent NASA native-library interoperability check",
+    "One compressible synthetic fixture; no general storage or speed claim",
+    "Single timing samples include warm-cache and validation effects; not a performance benchmark",
+    "Blank and whitespace text behavior is measured separately; no exact private-chat preservation claim",
+    "No hostile-input parser fuzzing, production dependency change, upload or application integration"
+  ],
+  "outcome": "exact_fixture_roundtrip",
+  "plain_to_compressed_file_ratio": 6.814930849562518,
+  "promotion_authority": false,
+  "qualification": false,
+  "recorded_at_utc": "2026-11-18T05:32:54.827052+00:00",
+  "sample_labels": "ASCII only; finite numeric FILLVAL plus explicit validity mask, no NaN/Unicode interoperability claim",
+  "schema": "merlin-cdf-experiment/1",
+  "script_sha256": "cd1d7c46518390ac5c000455761def0543b43b484580ca134baa0ea869048178",
+  "source_references": [
+    {
+      "purpose": "NASA recommends CDFlib as a separate pure-Python CDF implementation",
+      "url": "https://cdf.gsfc.nasa.gov/quickstartguides/Python.html"
+    },
+    {
+      "purpose": "Exact wheel digest, release and publisher identity",
+      "url": "https://pypi.org/project/cdflib/1.3.16/"
+    },
+    {
+      "purpose": "MIT terms of this implementation, distinct from NASA native library",
+      "url": "https://github.com/lasp/cdflib/blob/cf7553fe93c0684ae461fffb1df0a0b9daa23219/LICENSE"
+    }
+  ],
+  "status": "completed"
+}

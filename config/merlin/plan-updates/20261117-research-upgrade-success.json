@@ -1,0 +1,33 @@
+{
+  "schema": "merlin-plan-observation/1",
+  "parent_plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+  "parent_plan_version": 1,
+  "observations": [
+    {
+      "kind": "reconciled_upgrade",
+      "run_id": 44148199995,
+      "status": "succeeded",
+      "installation": "upgraded",
+      "tests": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests": 116
+      },
+      "live_tools": [
+        "context_search",
+        "context_status",
+        "health",
+        "mathematical_lenses_demo",
+        "research_contract",
+        "research_episode_demo",
+        "virtual_circuit_demo"
+      ],
+      "both_releases_preserved": true
+    }
+  ],
+  "decision": "Accept bounded v2 source/config activation; preserve original failed attempt and unknown cause. Keep independent episode, isolated state restore, reboot and native CAD gates open.",
+  "qualification": false,
+  "promotion_authority": false
+}

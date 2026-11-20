@@ -1,5 +1,12 @@
 # Merlin × Titan: Ideonomy future-technology research v1
 
+**Authoritative naming correction:** Titan is Merlin's security/encryption research
+system. Sections 1–10 preserve an earlier compute-fabric concept that incorrectly
+used the Titan name; that concept is a separate Merlin research candidate. Use
+section 11 and `TITAN_PROTOCOL_MODEL_AND_VECTORS_V1.md` for Titan's current scope.
+Neither the historical concept nor the protocol model establishes cryptographic
+security or production qualification.
+
 **Status:** research hypotheses and engineering concept package; not validated products.
 **Scope:** publicly documented science and engineering, original functional abstractions of science-fiction motifs, bounded low-voltage prototypes.
 **Governance:** Capability grows, authority never expands.

@@ -1,0 +1,12 @@
+{
+  "schema": "merlin-local-validation/1",
+  "command": "python weave-ops/selected-research-tests.py test_learning_import_modes.py test_scientific_loop.py test_scientific_work_budget.py test_mesh_interpolation_measurement.py test_mesh_localization.py test_clue_inquiry.py test_mesh_robustness.py",
+  "tests": 240,
+  "errors": 0,
+  "failures": 0,
+  "skipped": 0,
+  "replay": "measure_mesh_robustness.py output compared byte-for-byte equal to mesh-robustness-results.json",
+  "scope": "Local selected regression suite and deterministic synthetic experiment, with exact floating-point scoring.",
+  "deployment_status": "research_branch_only",
+  "independent_verification": false
+}

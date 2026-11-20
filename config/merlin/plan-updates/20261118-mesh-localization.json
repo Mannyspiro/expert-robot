@@ -1,0 +1,124 @@
+{
+  "schema": "merlin-plan-update/1",
+  "parent_plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+  "parent_plan_version": 6,
+  "reasoning_mode": "inductive_revision",
+  "observation_ids": [
+    "mesh-nine-probe-localization",
+    "mesh-tilt-nonidentifiability"
+  ],
+  "observed_artifacts": [
+    "ead4cea8824ed75676ae989b1b35be668eb3321c98a01fee282e0a3f4e1c73ca",
+    "e46fc1320447acf50fd3bc4c2222f5372bd32f21154e57c4d5252f0c08499d88"
+  ],
+  "changes": [
+    {
+      "type": "evidence_informed_revision",
+      "rationale": "Plan update is linked to explicit observations; conclusions remain provisional."
+    }
+  ],
+  "next_actions": [
+    "Verify the learning service with an owner-provisioned institutional pilot, approved data policy and restart exercise.",
+    "Retest run-bound retrieval on a second independently authored corpus. Score supported answers, appropriate clarification, abstention and citation bytes.",
+    "Test the training-parent planner with distinct versioned coder adapters. Record measured calls and cost, and use a fresh holdout to decide whether any proposal improves behavior.",
+    "Evaluate an additional instrument dataset with documented unit conventions. Recheck missing values and timestamp precision across scientific data interchange.",
+    "Compare multiple probe rows against the single-row rule with nine total measurements. Freeze the estimator, mirrored comparator triangulations, and unseen slopes and locations before scoring. Require gains in both tilt directions before CAD pilot consideration."
+  ],
+  "requires_review": true,
+  "authority_effect": "none",
+  "prior_update": "config/merlin/plan-updates/20261118-mesh-displacement.json",
+  "prior_update_sha256": "ec9f1b8df3490a86fc546db58c1eacbb635b88be1bdcf07b62c7939788f58061",
+  "ranked_next_actions": [
+    {
+      "task": "P07-2",
+      "action": "Verify the learning service with an owner-provisioned institutional pilot, approved data policy and restart exercise."
+    },
+    {
+      "task": "P01-2",
+      "action": "Retest run-bound retrieval on a second independently authored corpus. Score supported answers, appropriate clarification, abstention and citation bytes."
+    },
+    {
+      "task": "P03-2",
+      "action": "Test the training-parent planner with distinct versioned coder adapters. Record measured calls and cost, and use a fresh holdout to decide whether any proposal improves behavior."
+    },
+    {
+      "task": "P04-1",
+      "action": "Evaluate an additional instrument dataset with documented unit conventions. Recheck missing values and timestamp precision across scientific data interchange."
+    },
+    {
+      "task": "P06-2",
+      "action": "Compare multiple probe rows against the single-row rule with nine total measurements. Freeze the estimator, mirrored comparator triangulations, and unseen slopes and locations before scoring. Require gains in both tilt directions before CAD pilot consideration."
+    }
+  ],
+  "observations": [
+    {
+      "observation_id": "mesh-nine-probe-localization",
+      "question": "Can a pilot line locate a displaced upright ridge?",
+      "method": "Preregistered synthetic P1 interpolation replay with two equal-vertex meshes",
+      "measurements": {
+        "0.18": 0.2164309767704629,
+        "0.39": 0.14025994589084306,
+        "0.67": 0.24190741710258581,
+        "0.84": 0.19822874322885528,
+        "y_only": 1.0
+      },
+      "units": {
+        "0.18": "dimensionless RMSE ratio",
+        "0.39": "dimensionless RMSE ratio",
+        "0.67": "dimensionless RMSE ratio",
+        "0.84": "dimensionless RMSE ratio",
+        "y_only": "dimensionless RMSE ratio"
+      },
+      "uncertainty": {
+        "0.18": 0,
+        "0.39": 0,
+        "0.67": 0,
+        "0.84": 0,
+        "y_only": 0
+      },
+      "conditions": {
+        "budget": "Nine shared probes and 541 vertex queries per arm. 4096 fixed scoring points.",
+        "uncertainty": "Zero denotes deterministic repeatability of this run. Between-field and physical uncertainty unmeasured."
+      },
+      "source_refs": [
+        "docs/evidence/mesh-localization-20261118.json"
+      ],
+      "observed_at": "2026-11-18T06:08:20.175098+00:00",
+      "artifact_sha256": "ead4cea8824ed75676ae989b1b35be668eb3321c98a01fee282e0a3f4e1c73ca"
+    },
+    {
+      "observation_id": "mesh-tilt-nonidentifiability",
+      "question": "Does that selection transfer to ridges with equal midline observations and opposite slopes?",
+      "method": "Preregistered synthetic P1 interpolation replay with two equal-vertex meshes",
+      "measurements": {
+        "0": 0.14025994589084306,
+        "-0.7": 2.495735129239773,
+        "0.7": 0.9831715217747755
+      },
+      "units": {
+        "0": "dimensionless RMSE ratio",
+        "-0.7": "dimensionless RMSE ratio",
+        "0.7": "dimensionless RMSE ratio"
+      },
+      "uncertainty": {
+        "0": 0,
+        "-0.7": 0,
+        "0.7": 0
+      },
+      "conditions": {
+        "budget": "Nine shared probes and 541 vertex queries per arm. 4096 fixed scoring points.",
+        "uncertainty": "Zero denotes deterministic repeatability of this run. Between-field and physical uncertainty unmeasured."
+      },
+      "source_refs": [
+        "docs/evidence/mesh-tilt-20261118.json"
+      ],
+      "observed_at": "2026-11-18T06:08:20.175239+00:00",
+      "artifact_sha256": "e46fc1320447acf50fd3bc4c2222f5372bd32f21154e57c4d5252f0c08499d88"
+    }
+  ],
+  "preregistered_commits": [
+    "41a14da9ca329a892893b8021361cf68a22e1a4d",
+    "23d2761774d3931a1a56d375058c3b8dac852e4d"
+  ],
+  "decision": "Retain the localization rule for experimental upright synthetic fields only. The orientation transfer criterion failed."
+}

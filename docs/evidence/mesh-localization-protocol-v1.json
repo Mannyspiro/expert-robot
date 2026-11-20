@@ -1,0 +1,12 @@
+{
+  "schema": "merlin-mesh-localization-protocol/1",
+  "parent_receipt_sha256": "4c9a080f1fccde5eff89558bae0afb34746831aaa64bb4e3ca73b54412447aa8",
+  "ridge_centers_m": [0.18, 0.39, 0.67, 0.84],
+  "pilot_x_m": [0, 0.125, 0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1],
+  "pilot_y_m": 0.5,
+  "contrast_threshold": 0.1,
+  "rule": "At each case use only pilot observations. For contrast below threshold or a nonunique or endpoint maximum, use the near-uniform mesh. Otherwise move the x=0.5 template line to the coordinate of the maximum by continuous piecewise linear rescaling fixing x=0 and x=1. Keep y and triangle connectivity.",
+  "controls": "Also evaluate the centered native template and near-uniform mesh unchanged. The negative control is the y-only field 0.1*sin(2*pi*y).",
+  "budget": "All arms receive the same nine pilot observations, one measurement per mesh vertex and the original 4096 scoring coordinates. Scoring data are unavailable during mesh selection.",
+  "criterion": "To advance, adapted RMSE must be strictly below uniform in all four displaced cases, the negative control must select uniform and have identical RMSE, and all original geometry, coverage and affine reproduction checks must pass. Report every case and both comparators. Passing warrants a broader synthetic experiment only."
+}

@@ -1,0 +1,193 @@
+{
+  "date": "2026-11-18",
+  "merlin_source": "Mannyspiro/expert-robot@00d69600e284eccc120019b2298b89472014cfe3",
+  "upstream": "modelcontextprotocol/python-sdk@8c2fa6eabacde869d75568e33b9d466b58c2f512",
+  "license": "MIT",
+  "candidate": "mcp==1.30.0",
+  "wheel_sha256": "666edb5009503e1047c9d60346a756f94b261f05cc2625f23d41c728ffc484d0",
+  "source_tree_verification": {
+    "matches": 111,
+    "changed": [],
+    "wheel_only": [],
+    "upstream_only": [],
+    "truncated": false
+  },
+  "environment": "Python 3.12, baseline environment reused, candidate installed with --no-deps --target and prefixed to PYTHONPATH. All active direct distribution version constraints satisfied.",
+  "arms": {
+    "baseline": {
+      "sdk": "1.29.0",
+      "suite_passed": 17,
+      "suite_seconds": 0.428,
+      "fixture": {
+        "protocol_sha256": "5493eaaeef5e9f861c68bcdb7fe4a37c42e667f31a1ecc7e41ebe5b160a7d68d",
+        "summary": {
+          "checks": 8,
+          "passed": 8,
+          "supported": 6,
+          "abstained": 1,
+          "denied": 1,
+          "introspections": 8
+        },
+        "cases": [
+          {
+            "id": "H1",
+            "http_status": 200,
+            "disposition": "supported",
+            "value": 43,
+            "citation_check": true,
+            "passed": true
+          },
+          {
+            "id": "H2",
+            "http_status": 200,
+            "disposition": "supported",
+            "value": 68,
+            "citation_check": true,
+            "passed": true
+          },
+          {
+            "id": "H3",
+            "http_status": 401,
+            "disposition": null,
+            "value": null,
+            "citation_check": true,
+            "passed": true
+          },
+          {
+            "id": "H4",
+            "http_status": 200,
+            "disposition": "supported",
+            "value": 68,
+            "citation_check": true,
+            "passed": true
+          },
+          {
+            "id": "H5",
+            "http_status": 200,
+            "disposition": "supported",
+            "value": 52,
+            "citation_check": true,
+            "passed": true
+          },
+          {
+            "id": "H6",
+            "http_status": 200,
+            "disposition": "supported",
+            "value": 68,
+            "citation_check": true,
+            "passed": true
+          },
+          {
+            "id": "H7",
+            "http_status": 200,
+            "disposition": "abstain",
+            "value": null,
+            "citation_check": true,
+            "passed": true
+          },
+          {
+            "id": "H8",
+            "http_status": 200,
+            "disposition": "supported",
+            "value": 68,
+            "citation_check": true,
+            "passed": true
+          }
+        ],
+        "wall_seconds": 0.0713,
+        "limits": "Trusted host callback swaps immutable pins, simulated introspection, same in-process ASGI client, no live issuer/catalogue reload daemon."
+      }
+    },
+    "candidate": {
+      "sdk": "1.30.0",
+      "suite_passed": 17,
+      "suite_seconds": 0.411,
+      "fixture": {
+        "protocol_sha256": "5493eaaeef5e9f861c68bcdb7fe4a37c42e667f31a1ecc7e41ebe5b160a7d68d",
+        "summary": {
+          "checks": 8,
+          "passed": 8,
+          "supported": 6,
+          "abstained": 1,
+          "denied": 1,
+          "introspections": 8
+        },
+        "cases": [
+          {
+            "id": "H1",
+            "http_status": 200,
+            "disposition": "supported",
+            "value": 43,
+            "citation_check": true,
+            "passed": true
+          },
+          {
+            "id": "H2",
+            "http_status": 200,
+            "disposition": "supported",
+            "value": 68,
+            "citation_check": true,
+            "passed": true
+          },
+          {
+            "id": "H3",
+            "http_status": 401,
+            "disposition": null,
+            "value": null,
+            "citation_check": true,
+            "passed": true
+          },
+          {
+            "id": "H4",
+            "http_status": 200,
+            "disposition": "supported",
+            "value": 68,
+            "citation_check": true,
+            "passed": true
+          },
+          {
+            "id": "H5",
+            "http_status": 200,
+            "disposition": "supported",
+            "value": 52,
+            "citation_check": true,
+            "passed": true
+          },
+          {
+            "id": "H6",
+            "http_status": 200,
+            "disposition": "supported",
+            "value": 68,
+            "citation_check": true,
+            "passed": true
+          },
+          {
+            "id": "H7",
+            "http_status": 200,
+            "disposition": "abstain",
+            "value": null,
+            "citation_check": true,
+            "passed": true
+          },
+          {
+            "id": "H8",
+            "http_status": 200,
+            "disposition": "supported",
+            "value": 68,
+            "citation_check": true,
+            "passed": true
+          }
+        ],
+        "wall_seconds": 0.0625,
+        "limits": "Trusted host callback swaps immutable pins, simulated introspection, same in-process ASGI client, no live issuer/catalogue reload daemon."
+      }
+    }
+  },
+  "decision": "Compatible on measured routes. Advance to a draft dependency-pin change and clean-install CI review. Keep production pin pending operator review.",
+  "limits": "Repeated frozen fixtures with simulated issuer and in-process ASGI. No deployment, live issuer, full repository CI, stateful session expiry or redirect coverage. One concurrent run per arm; timings cannot establish a speedup.",
+  "reproduce": [
+    "Set PYTHONPATH to <checkout>/python:<checkout>/scripts/merlin; prefix <candidate-target>: for the candidate arm.",
+    "python -m unittest discover -s <checkout>/tests (gateway snapshot's five test modules)",
+    "python daily-holdout-eval.py --checkout <checkout>"
+  ]
+}

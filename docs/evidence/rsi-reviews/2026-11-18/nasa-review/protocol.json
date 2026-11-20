@@ -1,0 +1,8 @@
+{
+  "date":"2026-11-18",
+  "scope":"Synthetic time-coordinate science fixture; no production observations",
+  "development":"2016-12-30 12:00:00.000000000 and +1 ns",
+  "held_out":"2016-12-31 23:59:59.999999999, 23:59:60.000000000, 23:59:60.999999999, 2017-01-01 00:00:00.000000000 and +1 ns",
+  "gate":"TT2000 differences must be [1] and [1,999999999,1,1] ns. Raw int64 bytes must round-trip through a real CDF file. Separately measure whether datetime64 gives unique timestamps for leap-second start and following midnight. Do not silently export a non-injective representation.",
+  "prediction":"Integer TT2000 retains all samples; the datetime64 projection may collapse leap-second samples."
+}

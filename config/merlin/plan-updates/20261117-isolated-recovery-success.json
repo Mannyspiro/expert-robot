@@ -1,0 +1,22 @@
+{
+  "schema": "merlin-plan-observation/1",
+  "parent_plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+  "parent_plan_version": 2,
+  "protocol_ref": "config/merlin/recovery-drill-protocol-20261117.json",
+  "source_commit": "2e07231d4480ee567ce5583022a8987669936196",
+  "observations": [
+    {
+      "run_id": 44151750942,
+      "tests": 145,
+      "skipped": 0,
+      "isolated_restore": "passed",
+      "changed_and_missing_blob_controls": "rejected",
+      "production_pid": 1987572,
+      "production_unchanged": true,
+      "snapshot_manifest_sha256": "6b199b0a1d5a9d5ac66ba54c6530af6d6b4136996571e3f11977161093cfc98c"
+    }
+  ],
+  "decision": "Accept isolated private demo-registry recovery within its measured scope; advance ranked work to source-cited retrieval and a discriminating research episode. Keep off-host/full-store/reboot/independent qualification gates open.",
+  "qualification": false,
+  "promotion_authority": false
+}

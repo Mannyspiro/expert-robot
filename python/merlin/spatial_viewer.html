@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exhibit layout study</title>
+<style>
+*{box-sizing:border-box}
+body{max-width:70rem;margin:auto;padding:clamp(1rem,4vw,3rem);color:#142f36;background:#f6f5ef;font:1rem/1.5 system-ui,sans-serif}
+h1{font:clamp(2rem,6vw,3.8rem)/1.05 Georgia,serif;margin:.3em 0}
+h2{margin:0;font-size:1.25rem}
+header{border-bottom:1px solid #abbcb9;margin-bottom:1rem}
+.controls{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;margin:.8rem 0}
+select,input{font:inherit;vertical-align:middle}select{padding:.35rem;background:white}
+canvas{display:block;width:100%;height:auto;border:1px solid #bfccca;background:#eef1eb}
+main{display:grid;grid-template-columns:minmax(0,2fr) minmax(13rem,1fr);gap:1.4rem}
+aside{padding:1rem;border-top:3px solid #3c706f;background:white}
+p{margin:.65rem 0}ul{padding-left:1.4rem}a{color:#125a62}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums}
+th,td{padding:.5rem;text-align:left;border-bottom:1px solid #bbc9c6}
+summary{cursor:pointer}details{margin:1rem 0}
+@media(max-width:720px){main{grid-template-columns:1fr}}
+</style>
+<header><h1 id="heading"></h1><p id="bounds"></p></header>
+<div class="controls"><label>Alternative <select id="choice"></select></label>
+<label>View angle <input type="range" min="-180" max="180" value="-38" step="1" id="angle"> <output id="degrees"></output></label>
+<label id="zone-control"><input type="checkbox" id="zones" checked> Show service zones</label></div>
+<main><canvas id="model" width="900" height="560" aria-label="Rotatable spatial concept. Dimensions and intersections are available below."></canvas>
+<aside><h2>Geometry review</h2><div id="findings" aria-live="polite"></div><p><a id="mesh">Download this 3D model</a></p></aside></main>
+<details><summary>Equipment dimensions and positions</summary><table><thead>
+<tr><th>Equipment</th><th>Origin (x, y, z) · m</th><th>Size (x, y, z) · m</th></tr></thead><tbody id="rows"></tbody></table></details>
+<details id="zone-details"><summary>Service zones in room coordinates</summary><table><thead>
+<tr><th>Equipment / zone</th><th>Origin (x, y, z) · m</th><th>Size (x, y, z) · m</th></tr></thead><tbody id="zone-rows"></tbody></table></details>
+<p id="scope"></p><a href="critique.json">Download review data</a>
+<script type="application/json" id="report">{{REPORT}}</script>
+<script>
+const data=JSON.parse(document.getElementById('report').textContent);
+const el=id=>document.getElementById(id);
+el('heading').textContent=document.title=data.title;
+el('bounds').textContent='Room dimensions · '+data.room.join(' × ')+' m';
+el('scope').textContent=data.scope;
+for(const [index,layout] of data.layouts.entries()) el('choice').add(new Option(layout.name,index));
+const faces=[[0,3,2,1],[4,5,6,7],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7]];
+const corners=[[0,0,0],[1,0,0],[1,1,0],[0,1,0],[0,0,1],[1,0,1],[1,1,1],[0,1,1]];
+function vertices(origin,size){return corners.map(c=>c.map((n,i)=>origin[i]+n*size[i]));}
+function draw(){
+  const layout=data.layouts[el('choice').selectedIndex];
+  const canvas=el('model'),ctx=canvas.getContext('2d');
+  const yaw=Number(el('angle').value)*Math.PI/180;
+  el('degrees').textContent=el('angle').value+'°';
+  const cp=Math.cos(yaw),sp=Math.sin(yaw),tilt=.48;
+  function project([x,y,z]){
+    const along=x*sp+y*cp;
+    return [x*cp-y*sp,-along*Math.sin(tilt)-z*Math.cos(tilt),-along*Math.cos(tilt)+z*Math.sin(tilt)];
+  }
+  const room=vertices([0,0,0],data.room).map(project);
+  const objects=layout.items.map(item=>vertices(item.origin,item.size).map(project));
+  const zones=el('zones').checked?layout.service_zones.map(zone=>vertices(zone.origin,zone.size).map(project)):[];
+  const all=room.concat(...objects,...zones);
+  const xs=all.map(p=>p[0]),ys=all.map(p=>p[1]);
+  const left=Math.min(...xs),top=Math.min(...ys);
+  const w=Math.max(...xs)-left,h=Math.max(...ys)-top;
+  const scale=Math.min((canvas.width-86)/w,(canvas.height-70)/h);
+  const point=p=>[(canvas.width-w*scale)/2+(p[0]-left)*scale,(canvas.height-h*scale)/2+(p[1]-top)*scale];
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  function polygon(vertices,fill,stroke){
+    ctx.beginPath();
+    vertices.forEach((p,i)=>{const [x,y]=point(p);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);});
+    ctx.closePath();
+    if(fill){ctx.fillStyle=fill;ctx.fill();}
+    ctx.strokeStyle=stroke;ctx.lineWidth=1.3;ctx.stroke();
+  }
+  polygon(room.slice(0,4),'#d8e2d8','#657e7b');
+  ctx.setLineDash([5,5]);
+  for(const side of faces.slice(1)) polygon(side.map(i=>room[i]),null,'#859a96');
+  ctx.setLineDash([]);
+  const flagged=new Set(layout.out_of_bounds.concat(layout.collisions.flat()));
+  const polygons=[];
+  for(const [index,vs] of objects.entries()){
+    const problem=flagged.has(layout.items[index].id);
+    for(const [k,side] of faces.entries()){
+      const pts=side.map(i=>vs[i]);
+      const shade=(problem?[39,58,42,36,47,52]:[33,64,47,40,52,57])[k];
+      polygons.push({pts,depth:pts.reduce((n,p)=>n+p[2],0)/4,
+                     fill:problem?'hsl(18 53% '+shade+'%)':'hsl(175 34% '+shade+'%)'});
+    }
+  }
+  polygons.sort((a,b)=>a.depth-b.depth);
+  for(const face of polygons)polygon(face.pts,face.fill,'#354d50');
+  ctx.setLineDash([7,4]);
+  for(const vs of zones)for(const face of faces)polygon(face.map(i=>vs[i]),null,'#603598');
+  ctx.setLineDash([]);
+}
+function update(){
+  const layout=data.layouts[el('choice').selectedIndex];
+  const findings=el('findings');findings.replaceChildren();
+  const add=text=>{const p=document.createElement('p');p.textContent=text;findings.append(p);};
+  add('Intersecting pairs · '+layout.collisions.length);
+  for(const [a,b] of layout.collisions)add(a+' overlaps '+b);
+  add('Outside the room · '+layout.out_of_bounds.length);
+  for(const id of layout.out_of_bounds)add(id+' crosses the enclosure');
+  const hasZones=layout.service_zones.length>0;
+  el('zone-control').hidden=el('zone-details').hidden=!hasZones;
+  el('zone-rows').replaceChildren();
+  if(hasZones){
+    add('Equipment intrusions · '+layout.service_intrusions.length);
+    for(const hit of layout.service_intrusions)add(hit.equipment+' occupies '+hit.owner+' / '+hit.zone);
+    add('Service zones outside room · '+layout.service_out_of_bounds.length);
+    for(const z of layout.service_out_of_bounds)add(z.owner+' / '+z.zone+' crosses the enclosure');
+    add('Conflicts during simultaneous service · '+layout.simultaneous_service_conflicts.length);
+    for(const c of layout.simultaneous_service_conflicts)add(c.owner_a+' / '+c.zone_a+' shares space with '+c.owner_b+' / '+c.zone_b);
+    for(const z of layout.service_zones){
+      const row=el('zone-rows').insertRow();
+      for(const value of [z.owner+' / '+z.id,z.origin.join(', '),z.size.join(', ')])row.insertCell().textContent=value;
+    }
+  }else{add('No service zones supplied. Maintenance clearance is unassessed.');}
+  el('mesh').href=layout.obj;
+  el('rows').replaceChildren();
+  for(const item of layout.items){
+    const row=el('rows').insertRow();
+    for(const cell of [item.id,item.origin.join(', '),item.size.join(', ')])row.insertCell().textContent=cell;
+  }
+  draw();
+}
+el('choice').addEventListener('change',update);
+el('angle').addEventListener('input',draw);
+el('zones').addEventListener('change',draw);
+update();
+</script>
+</html>

@@ -1,0 +1,171 @@
+{
+  "architecture": "x86_64",
+  "backend": {
+    "license": "Apache-2.0",
+    "package": "openmdao",
+    "source_sha256": {
+      "unit_library.ini": "8094fb7d3e8cb65a56311c2ea5ccfbc9c29cb8b4160f1486c39c19dd779a43d3",
+      "units.py": "9a812f46a371f9d10b5b17e9a21e5024b1c753ebfcee42d0e628eca4dcf3ba92"
+    },
+    "source_url": "https://github.com/OpenMDAO/OpenMDAO/blob/64175aa55fb541355b2fb279a6bcfde01e17a878/openmdao/utils/units.py",
+    "upstream_commit": "64175aa55fb541355b2fb279a6bcfde01e17a878",
+    "version": "3.45.2"
+  },
+  "demo": {
+    "baseline": {
+      "claim_boundary": "Consistency with predictions is not proof of a general claim.",
+      "comparisons": [
+        {
+          "metric": "temperature",
+          "result": "incomparable_unit"
+        }
+      ],
+      "observation_id": "synthetic-openmdao-room-temperature",
+      "overall": "inconclusive",
+      "reasoning_mode": "deductive_prediction_check",
+      "schema": "merlin-observation-assessment/1"
+    },
+    "fixture_class": "synthetic_public_known_fixture",
+    "limits": "Fixed scalar-unit contract; no empirical calibration, optimizer, model efficacy or NASA approval.",
+    "normalized": {
+      "claim_boundary": "Consistency with predictions is not proof of a general claim.",
+      "comparisons": [
+        {
+          "measured_interval": [
+            292.15000000000003,
+            294.15000000000003
+          ],
+          "metric": "temperature",
+          "predicted_interval": [
+            292.04999999999995,
+            294.25
+          ],
+          "result": "supports",
+          "unit": "K"
+        }
+      ],
+      "observation_id": "synthetic-openmdao-room-temperature",
+      "overall": "consistent_with_prediction",
+      "reasoning_mode": "deductive_prediction_check",
+      "schema": "merlin-observation-assessment/1",
+      "unit_normalization": {
+        "backend": {
+          "license": "Apache-2.0",
+          "package": "openmdao",
+          "source_sha256": {
+            "unit_library.ini": "8094fb7d3e8cb65a56311c2ea5ccfbc9c29cb8b4160f1486c39c19dd779a43d3",
+            "units.py": "9a812f46a371f9d10b5b17e9a21e5024b1c753ebfcee42d0e628eca4dcf3ba92"
+          },
+          "source_url": "https://github.com/OpenMDAO/OpenMDAO/blob/64175aa55fb541355b2fb279a6bcfde01e17a878/openmdao/utils/units.py",
+          "upstream_commit": "64175aa55fb541355b2fb279a6bcfde01e17a878",
+          "version": "3.45.2"
+        },
+        "comparison_engine": "merlin.scientific_loop.compare_observation",
+        "original_artifact_sha256": "",
+        "original_observation_units": {
+          "temperature": "degF"
+        },
+        "original_prediction_units": [
+          "degC"
+        ],
+        "promotion_authority": false,
+        "qualification": false,
+        "schema": "merlin-openmdao-scalar-normalization/1",
+        "source_refs": [
+          "synthetic:openmdao-temperature-v1"
+        ],
+        "temperature_scope": "absolute readings with nonnegative Kelvin intervals; no delta quantities",
+        "uncertainty_rule": "interval half-width scales by absolute factor; never add affine offset"
+      }
+    },
+    "promotion_authority": false,
+    "qualification": false,
+    "schema": "merlin-openmdao-demo/1"
+  },
+  "dependency_versions": {
+    "certifi": {
+      "requires_python": ">=3.7",
+      "version": "2026.10.19"
+    },
+    "charset-normalizer": {
+      "requires_python": ">=3.7",
+      "version": "3.5.2"
+    },
+    "idna": {
+      "requires_python": ">=3.9",
+      "version": "3.18"
+    },
+    "networkx": {
+      "requires_python": "!=3.14.1,>=3.12",
+      "version": "3.7"
+    },
+    "numpy": {
+      "requires_python": ">=3.11",
+      "version": "2.3.5"
+    },
+    "openmdao": {
+      "requires_python": ">=3.10",
+      "version": "3.45.2"
+    },
+    "packaging": {
+      "requires_python": ">=3.9",
+      "version": "26.3"
+    },
+    "requests": {
+      "requires_python": ">=3.10",
+      "version": "2.34.2"
+    },
+    "scipy": {
+      "requires_python": ">=3.11",
+      "version": "1.17.0"
+    },
+    "urllib3": {
+      "requires_python": ">=3.10",
+      "version": "2.8.0"
+    }
+  },
+  "deployment_performed": false,
+  "fixture_class": "synthetic_public_known_fixture_nonblind",
+  "license": "Apache-2.0",
+  "license_url": "https://github.com/OpenMDAO/OpenMDAO/blob/64175aa55fb541355b2fb279a6bcfde01e17a878/LICENSE.txt",
+  "limits": [
+    "Fixed known physical conversion cases are software-contract tests, not blind/general accuracy.",
+    "Uncertainty means interval half-width; no calibration or probability claim.",
+    "Current OCI Python3.9 remains incompatible and unchanged.",
+    "Source pin and tests do not establish NASA approval or independent CACE qualification."
+  ],
+  "nasa_catalog_url": "https://software.nasa.gov/software/LEW-19994-1",
+  "original_api_modified": false,
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "private_or_operational_data_used": false,
+  "promotion_authority": false,
+  "python": "3.12.14",
+  "qualification": false,
+  "runtime_network_calls": false,
+  "schema": "merlin-openmdao-measurement-evidence/1",
+  "scope": "optional scalar unit conversion then existing interval comparison; no optimizer or remote engine",
+  "source_revision_claim": "local modified files bound by hashes; no published revision inferred",
+  "source_sha256": {
+    "python/merlin/openmdao_measurement.py": "6cd012adf831aebadfb51f8edb1d166febcaf01ffcff680a4dc2cfb5392e8f2f",
+    "python/merlin/scientific_loop.py": "d36cb5381931d5433c1e8d1a1d777512f55e0107b2acc766bca53e4f30d47111",
+    "requirements-merlin-openmdao.txt": "ba0089e1dfe610b849ccdd7c1b9aeb0267094698ed30c1be7361ee0fba4219dd",
+    "tests/test_openmdao_measurement.py": "092f1a621869e5292922be0739a2b2dd5ab57b7ffebace2aeb1a0b9775327bf3"
+  },
+  "status": "passed_local",
+  "tests": {
+    "errors": 0,
+    "failures": 0,
+    "skipped": 0,
+    "tests": 19
+  },
+  "upstream_source_blobs": {
+    "unit_library.ini": {
+      "git_blob": "d274f16ddb66932e7fb650090954c7eb45459f20",
+      "sha256": "8094fb7d3e8cb65a56311c2ea5ccfbc9c29cb8b4160f1486c39c19dd779a43d3"
+    },
+    "units.py": {
+      "git_blob": "bfe2f757a7ebc701d01e8d493a58e7bc633c998a",
+      "sha256": "9a812f46a371f9d10b5b17e9a21e5024b1c753ebfcee42d0e628eca4dcf3ba92"
+    }
+  }
+}

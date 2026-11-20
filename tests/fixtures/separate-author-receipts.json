@@ -1,0 +1,77 @@
+{
+  "sources": {
+    "44232716977": {
+      "path": "docs/evidence/merlin-learning-host-20261117.json",
+      "sha256": "f3a2e4cf3182f60dfb51f48c8359e6bd4ddb193dc4d296e069119563de95d55f"
+    },
+    "44223138785": {
+      "path": "docs/evidence/merlin-learning-evidence-20261117.json",
+      "sha256": "3a3a9c2c1cc17d184070dcf1a304ebcab0b15fe62fc3d37fef3684407b63dfcc"
+    }
+  },
+  "cases": [
+    {
+      "question": "How many tests did the main shard log in run 44232716977?",
+      "expected": {
+        "disposition": "supported",
+        "run": "44232716977",
+        "pointer": "/tests/tests",
+        "value": 143
+      }
+    },
+    {
+      "question": "What was the main shard’s test tally for 44223138785?",
+      "expected": {
+        "disposition": "supported",
+        "run": "44223138785",
+        "pointer": "/tests/tests",
+        "value": 130
+      }
+    },
+    {
+      "question": "Where did the submission for run 44223138785 stand when the receipt was recorded?",
+      "expected": {
+        "disposition": "supported",
+        "run": "44223138785",
+        "pointer": "/demo/submission_status",
+        "value": "pending_review"
+      }
+    },
+    {
+      "question": "I have 130 main-shard tests written down for run 44232716977. Is that right?",
+      "expected": {
+        "disposition": "contradicted",
+        "run": "44232716977",
+        "pointer": "/tests/tests",
+        "value": 143
+      }
+    },
+    {
+      "question": "What numeric grade did run 44232716977 receive?",
+      "expected": {
+        "disposition": "abstain"
+      }
+    },
+    {
+      "question": "How many tests did the main shard log for that run?",
+      "expected": {
+        "disposition": "clarify_run"
+      }
+    },
+    {
+      "question": "What result is listed for run 44223138785?",
+      "expected": {
+        "disposition": "clarify_field"
+      }
+    },
+    {
+      "question": "How many main-shard tests does the receipt show for run 44232716978?",
+      "expected": {
+        "disposition": "abstain"
+      }
+    }
+  ],
+  "source_revision": "5218b4d61dcadde9d52a6dc0120a262cb8c2f3ec",
+  "criterion": "Score exact primary disposition and original-byte citation. Clarification is the selected valid response to underspecification. Score only the correction to the named run for the count assertion.",
+  "authorship": "Separate AI author given source facts and case categories with no parser, grader or previous questions. Same source reports. No human traffic."
+}

@@ -1,0 +1,91 @@
+{
+  "schema": "merlin-source-review-shard/1",
+  "id": "RECOVERY-OPS-20261117",
+  "selection_basis": "Required governing files for private runtime recovery only",
+  "file_count": 5,
+  "records": [
+    {
+      "document_id": "DOC-a54ff182c7e8acf5",
+      "path": "AGENTS.md",
+      "source_commit": "0f4823ca35f08cc7038a6923e042e359d5d5e941",
+      "git_blob_sha1": "f274824e3a6eae9eec7eb5b883eeb2e736518e56",
+      "content_sha256": "6fd6de36b30f5693aebff2cf326ebfc302d47ee24055aaab7abce8c000aff6d2",
+      "matches_original_capture": false,
+      "complete_current_text_read": true,
+      "review_scope": "private own-service recovery, canonical registry and permission/evidence boundaries only",
+      "implementation_findings": [
+        "New private demo route is observed separately from historical Avrea/CACE qualification bridge.",
+        "Legacy run/disk/qualification snapshots are navigation, not inherited current proof or live provider state.",
+        "No direct ChatGPT MCP/provider-wide integration or independent CACE verification inferred."
+      ],
+      "remaining": "Whole-document claims-to-code/receipt semantic reconciliation remains queued outside this bounded operational shard."
+    },
+    {
+      "document_id": "DOC-f58d6c6622f70197",
+      "path": "docs/AI_RUNNER_AND_BRIDGE_OPERATIONS.md",
+      "source_commit": "0f4823ca35f08cc7038a6923e042e359d5d5e941",
+      "git_blob_sha1": "e412ec13e1e94691f61fa70243bdab235b1d7538",
+      "content_sha256": "c9d318eaf3cde770a75407a398be1180058d6199e54bfd9abeb37889c91f0ac7",
+      "matches_original_capture": true,
+      "complete_current_text_read": true,
+      "review_scope": "private own-service recovery, canonical registry and permission/evidence boundaries only",
+      "implementation_findings": [
+        "New private demo route is observed separately from historical Avrea/CACE qualification bridge.",
+        "Legacy run/disk/qualification snapshots are navigation, not inherited current proof or live provider state.",
+        "No direct ChatGPT MCP/provider-wide integration or independent CACE verification inferred."
+      ],
+      "remaining": "Whole-document claims-to-code/receipt semantic reconciliation remains queued outside this bounded operational shard."
+    },
+    {
+      "document_id": "DOC-d9e0a43180109c45",
+      "path": "docs/MERLIN_AVREA_HERMES_ROUTING.md",
+      "source_commit": "0f4823ca35f08cc7038a6923e042e359d5d5e941",
+      "git_blob_sha1": "9ff7c26704c34378e67c06288603c9985b7276c2",
+      "content_sha256": "f1dcf2f6af9dae77c9233fea0ceb7c81e07e513a2dffd0ea68627f170b166308",
+      "matches_original_capture": true,
+      "complete_current_text_read": true,
+      "review_scope": "private own-service recovery, canonical registry and permission/evidence boundaries only",
+      "implementation_findings": [
+        "New private demo route is observed separately from historical Avrea/CACE qualification bridge.",
+        "Legacy run/disk/qualification snapshots are navigation, not inherited current proof or live provider state.",
+        "No direct ChatGPT MCP/provider-wide integration or independent CACE verification inferred."
+      ],
+      "remaining": "Whole-document claims-to-code/receipt semantic reconciliation remains queued outside this bounded operational shard."
+    },
+    {
+      "document_id": "DOC-d99505ca6cfd925b",
+      "path": "docs/MERLIN_SCIENTIFIC_OPERATING_LOOP_V1.md",
+      "source_commit": "0f4823ca35f08cc7038a6923e042e359d5d5e941",
+      "git_blob_sha1": "b97dbfeceac863927fb7da3a63b68e2b6fcf83e9",
+      "content_sha256": "a9ead9579ab6b5d33099cea00a5472c71228fde1d152d5664b44772841bdc852",
+      "matches_original_capture": true,
+      "complete_current_text_read": true,
+      "review_scope": "private own-service recovery, canonical registry and permission/evidence boundaries only",
+      "implementation_findings": [
+        "New private demo route is observed separately from historical Avrea/CACE qualification bridge.",
+        "Legacy run/disk/qualification snapshots are navigation, not inherited current proof or live provider state.",
+        "No direct ChatGPT MCP/provider-wide integration or independent CACE verification inferred."
+      ],
+      "remaining": "Whole-document claims-to-code/receipt semantic reconciliation remains queued outside this bounded operational shard."
+    },
+    {
+      "document_id": "DOC-48460c655b05f204",
+      "path": "docs/cace-bidirectional-bridge.md",
+      "source_commit": "0f4823ca35f08cc7038a6923e042e359d5d5e941",
+      "git_blob_sha1": "8ab6be27cc0adc6d6a929da9ee91fcf4ff03b37a",
+      "content_sha256": "a28f011ad3e92ca7e764056119113ecddc8cde26a28daad5918756f72d7eb73e",
+      "matches_original_capture": true,
+      "complete_current_text_read": true,
+      "review_scope": "private own-service recovery, canonical registry and permission/evidence boundaries only",
+      "implementation_findings": [
+        "New private demo route is observed separately from historical Avrea/CACE qualification bridge.",
+        "Legacy run/disk/qualification snapshots are navigation, not inherited current proof or live provider state.",
+        "No direct ChatGPT MCP/provider-wide integration or independent CACE verification inferred."
+      ],
+      "remaining": "Whole-document claims-to-code/receipt semantic reconciliation remains queued outside this bounded operational shard."
+    }
+  ],
+  "coverage_limit": "This operational shard does not close the original187queued whole-document semantic reviews.",
+  "qualification": false,
+  "promotion_authority": false
+}

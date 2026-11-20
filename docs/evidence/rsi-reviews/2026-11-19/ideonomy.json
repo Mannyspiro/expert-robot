@@ -1,0 +1,508 @@
+{
+  "schema": "merlin-combination-search/1",
+  "candidates": [
+    {
+      "combination_id": "ideonomy-independent_review-endpoint_swap",
+      "primitive_ids": [
+        "independent_review",
+        "endpoint_swap"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism"
+      ],
+      "problem": "Detect a semantic wiring discrepancy after raster rendering",
+      "trigger": "A plausible illustration can depict a different circuit",
+      "estimated_cost": 2.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-independent_review-named_terminal_graph",
+      "primitive_ids": [
+        "independent_review",
+        "named_terminal_graph"
+      ],
+      "domains": [
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Detect a semantic wiring discrepancy after raster rendering",
+      "trigger": "A plausible illustration can depict a different circuit",
+      "estimated_cost": 2.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-named_terminal_graph-endpoint_swap",
+      "primitive_ids": [
+        "named_terminal_graph",
+        "endpoint_swap"
+      ],
+      "domains": [
+        "falsifier",
+        "representation"
+      ],
+      "problem": "Detect a semantic wiring discrepancy after raster rendering",
+      "trigger": "A plausible illustration can depict a different circuit",
+      "estimated_cost": 2.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-independent_review-extra_junction",
+      "primitive_ids": [
+        "independent_review",
+        "extra_junction"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism"
+      ],
+      "problem": "Detect a semantic wiring discrepancy after raster rendering",
+      "trigger": "A plausible illustration can depict a different circuit",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-independent_review-named_terminal_graph-endpoint_swap",
+      "primitive_ids": [
+        "independent_review",
+        "named_terminal_graph",
+        "endpoint_swap"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Detect a semantic wiring discrepancy after raster rendering",
+      "trigger": "A plausible illustration can depict a different circuit",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-independent_review-pixel_centreline",
+      "primitive_ids": [
+        "independent_review",
+        "pixel_centreline"
+      ],
+      "domains": [
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Detect a semantic wiring discrepancy after raster rendering",
+      "trigger": "A plausible illustration can depict a different circuit",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-named_terminal_graph-extra_junction",
+      "primitive_ids": [
+        "named_terminal_graph",
+        "extra_junction"
+      ],
+      "domains": [
+        "falsifier",
+        "representation"
+      ],
+      "problem": "Detect a semantic wiring discrepancy after raster rendering",
+      "trigger": "A plausible illustration can depict a different circuit",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-pixel_centreline-endpoint_swap",
+      "primitive_ids": [
+        "pixel_centreline",
+        "endpoint_swap"
+      ],
+      "domains": [
+        "falsifier",
+        "representation"
+      ],
+      "problem": "Detect a semantic wiring discrepancy after raster rendering",
+      "trigger": "A plausible illustration can depict a different circuit",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-registered_graph_extraction-endpoint_swap",
+      "primitive_ids": [
+        "registered_graph_extraction",
+        "endpoint_swap"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism"
+      ],
+      "problem": "Detect a semantic wiring discrepancy after raster rendering",
+      "trigger": "A plausible illustration can depict a different circuit",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-registered_graph_extraction-named_terminal_graph",
+      "primitive_ids": [
+        "registered_graph_extraction",
+        "named_terminal_graph"
+      ],
+      "domains": [
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Detect a semantic wiring discrepancy after raster rendering",
+      "trigger": "A plausible illustration can depict a different circuit",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-independent_review-named_terminal_graph-extra_junction",
+      "primitive_ids": [
+        "independent_review",
+        "named_terminal_graph",
+        "extra_junction"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Detect a semantic wiring discrepancy after raster rendering",
+      "trigger": "A plausible illustration can depict a different circuit",
+      "estimated_cost": 4.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-independent_review-pixel_centreline-endpoint_swap",
+      "primitive_ids": [
+        "independent_review",
+        "pixel_centreline",
+        "endpoint_swap"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Detect a semantic wiring discrepancy after raster rendering",
+      "trigger": "A plausible illustration can depict a different circuit",
+      "estimated_cost": 4.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-pixel_centreline-extra_junction",
+      "primitive_ids": [
+        "pixel_centreline",
+        "extra_junction"
+      ],
+      "domains": [
+        "falsifier",
+        "representation"
+      ],
+      "problem": "Detect a semantic wiring discrepancy after raster rendering",
+      "trigger": "A plausible illustration can depict a different circuit",
+      "estimated_cost": 4.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-registered_graph_extraction-extra_junction",
+      "primitive_ids": [
+        "registered_graph_extraction",
+        "extra_junction"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism"
+      ],
+      "problem": "Detect a semantic wiring discrepancy after raster rendering",
+      "trigger": "A plausible illustration can depict a different circuit",
+      "estimated_cost": 4.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-registered_graph_extraction-named_terminal_graph-endpoint_swap",
+      "primitive_ids": [
+        "registered_graph_extraction",
+        "named_terminal_graph",
+        "endpoint_swap"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Detect a semantic wiring discrepancy after raster rendering",
+      "trigger": "A plausible illustration can depict a different circuit",
+      "estimated_cost": 4.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-registered_graph_extraction-pixel_centreline",
+      "primitive_ids": [
+        "registered_graph_extraction",
+        "pixel_centreline"
+      ],
+      "domains": [
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Detect a semantic wiring discrepancy after raster rendering",
+      "trigger": "A plausible illustration can depict a different circuit",
+      "estimated_cost": 4.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-independent_review-pixel_centreline-extra_junction",
+      "primitive_ids": [
+        "independent_review",
+        "pixel_centreline",
+        "extra_junction"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Detect a semantic wiring discrepancy after raster rendering",
+      "trigger": "A plausible illustration can depict a different circuit",
+      "estimated_cost": 5.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-registered_graph_extraction-named_terminal_graph-extra_junction",
+      "primitive_ids": [
+        "registered_graph_extraction",
+        "named_terminal_graph",
+        "extra_junction"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Detect a semantic wiring discrepancy after raster rendering",
+      "trigger": "A plausible illustration can depict a different circuit",
+      "estimated_cost": 5.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-registered_graph_extraction-pixel_centreline-endpoint_swap",
+      "primitive_ids": [
+        "registered_graph_extraction",
+        "pixel_centreline",
+        "endpoint_swap"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Detect a semantic wiring discrepancy after raster rendering",
+      "trigger": "A plausible illustration can depict a different circuit",
+      "estimated_cost": 5.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-registered_graph_extraction-pixel_centreline-extra_junction",
+      "primitive_ids": [
+        "registered_graph_extraction",
+        "pixel_centreline",
+        "extra_junction"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Detect a semantic wiring discrepancy after raster rendering",
+      "trigger": "A plausible illustration can depict a different circuit",
+      "estimated_cost": 6.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    }
+  ],
+  "ledger_ref": null,
+  "coverage": {
+    "total_groups": 35,
+    "work_budget": null,
+    "examined": 35,
+    "unexamined": 0,
+    "eligible": 20,
+    "rejected": 15,
+    "known_groups_filtered": 0,
+    "returned": 20,
+    "eligible_omitted_by_limit": 0,
+    "search_complete": true,
+    "visit_order": "group_size_then_input_order",
+    "ranking_scope": "whole_input_catalogue"
+  },
+  "factor_triples": [
+    {
+      "combination_id": "ideonomy-independent_review-named_terminal_graph-endpoint_swap",
+      "primitive_ids": [
+        "independent_review",
+        "named_terminal_graph",
+        "endpoint_swap"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Detect a semantic wiring discrepancy after raster rendering",
+      "trigger": "A plausible illustration can depict a different circuit",
+      "estimated_cost": 3.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-independent_review-named_terminal_graph-extra_junction",
+      "primitive_ids": [
+        "independent_review",
+        "named_terminal_graph",
+        "extra_junction"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Detect a semantic wiring discrepancy after raster rendering",
+      "trigger": "A plausible illustration can depict a different circuit",
+      "estimated_cost": 4.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-independent_review-pixel_centreline-endpoint_swap",
+      "primitive_ids": [
+        "independent_review",
+        "pixel_centreline",
+        "endpoint_swap"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Detect a semantic wiring discrepancy after raster rendering",
+      "trigger": "A plausible illustration can depict a different circuit",
+      "estimated_cost": 4.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-registered_graph_extraction-named_terminal_graph-endpoint_swap",
+      "primitive_ids": [
+        "registered_graph_extraction",
+        "named_terminal_graph",
+        "endpoint_swap"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Detect a semantic wiring discrepancy after raster rendering",
+      "trigger": "A plausible illustration can depict a different circuit",
+      "estimated_cost": 4.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-independent_review-pixel_centreline-extra_junction",
+      "primitive_ids": [
+        "independent_review",
+        "pixel_centreline",
+        "extra_junction"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Detect a semantic wiring discrepancy after raster rendering",
+      "trigger": "A plausible illustration can depict a different circuit",
+      "estimated_cost": 5.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-registered_graph_extraction-named_terminal_graph-extra_junction",
+      "primitive_ids": [
+        "registered_graph_extraction",
+        "named_terminal_graph",
+        "extra_junction"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Detect a semantic wiring discrepancy after raster rendering",
+      "trigger": "A plausible illustration can depict a different circuit",
+      "estimated_cost": 5.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-registered_graph_extraction-pixel_centreline-endpoint_swap",
+      "primitive_ids": [
+        "registered_graph_extraction",
+        "pixel_centreline",
+        "endpoint_swap"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Detect a semantic wiring discrepancy after raster rendering",
+      "trigger": "A plausible illustration can depict a different circuit",
+      "estimated_cost": 5.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    },
+    {
+      "combination_id": "ideonomy-registered_graph_extraction-pixel_centreline-extra_junction",
+      "primitive_ids": [
+        "registered_graph_extraction",
+        "pixel_centreline",
+        "extra_junction"
+      ],
+      "domains": [
+        "falsifier",
+        "mechanism",
+        "representation"
+      ],
+      "problem": "Detect a semantic wiring discrepancy after raster rendering",
+      "trigger": "A plausible illustration can depict a different circuit",
+      "estimated_cost": 6.0,
+      "epistemic_status": "hypothesis_combination",
+      "required_next_step": "state a falsifiable mechanism and measurable test"
+    }
+  ],
+  "analogy": {
+    "source": "A transit map can bend every line if stops and transfer stations stay connected.",
+    "invariant": "Preserve named terminal adjacency and junction incidence under a change in drawing style.",
+    "counterexample": "An overpass and an interchange can paint the same intersecting centreline pixels. The junction mark or an independent terminal graph must disambiguate them.",
+    "claim": "A conjecture for judging drawings. Synthetic fixtures are simulations. Program outputs are measurements under the specified fixtures. A graph equality check proves equality only of its two given graphs."
+  }
+}

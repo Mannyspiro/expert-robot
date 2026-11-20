@@ -1,0 +1,66 @@
+{
+  "freecad": [
+    "1",
+    "0",
+    "0"
+  ],
+  "opencascade": "7.8.1",
+  "units": "m3 (coordinates expressed in metres)",
+  "cases": [
+    {
+      "id": "blocked-service",
+      "measured": {
+        "a_b_body": 0.0,
+        "b_in_a_service": 0.9999999999999998,
+        "zone_outside_room": 0.0
+      },
+      "frozen_exact": true
+    },
+    {
+      "id": "vertical-separation",
+      "measured": {
+        "a_b_body": 0.0,
+        "b_in_a_service": 0.0,
+        "zone_outside_room": 0.0
+      },
+      "frozen_exact": true
+    },
+    {
+      "id": "shared-service",
+      "measured": {
+        "a_b_body": 0.0,
+        "b_in_a_service": 0.0,
+        "zone_outside_room": 0.0,
+        "a_in_b_service": 0.0,
+        "service_intersection": 0.9999999999999998,
+        "zone_b_outside_room": 0.0
+      },
+      "frozen_exact": true
+    },
+    {
+      "id": "legacy",
+      "measured": {
+        "a_b_body": 0.0
+      },
+      "frozen_exact": true
+    },
+    {
+      "id": "room-boundary-touch",
+      "measured": {
+        "a_b_body": 0.0,
+        "b_in_a_service": 0.0,
+        "zone_outside_room": 0.0
+      },
+      "frozen_exact": true
+    },
+    {
+      "id": "room-boundary-breach",
+      "measured": {
+        "a_b_body": 0.0,
+        "b_in_a_service": 0.0,
+        "zone_outside_room": 0.9999999999999998
+      },
+      "frozen_exact": true
+    }
+  ]
+}

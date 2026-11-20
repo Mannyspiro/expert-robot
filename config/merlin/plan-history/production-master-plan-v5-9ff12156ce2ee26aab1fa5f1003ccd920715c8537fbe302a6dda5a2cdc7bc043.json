@@ -1,0 +1,3617 @@
+{
+  "schema": "merlin-production-master-plan/1",
+  "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+  "version": 5,
+  "created_at_utc": "2026-11-17T17:51:10.393995+00:00",
+  "date_phoenix": "2026-11-17",
+  "source_repository": "Mannyspiro/expert-robot",
+  "source_anchor_commit": "47260febc9726ec6d02c798b0fd99780b19dba29",
+  "source_anchor_scope": "Code implementation and isolated OCI test/evaluation evidence; no institutional rollout claim.",
+  "authority": "planning_and_traceability_only",
+  "qualification": false,
+  "promotion_authority": false,
+  "parent_plan": {
+    "id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "version": 4,
+    "path": "config/merlin/plan-history/production-master-plan-v4-8a04c1f6aa671544b6fd455b2d5f2f5b1dedb41a9e36bd608de8a7521a72130b.json",
+    "sha256": "8a04c1f6aa671544b6fd455b2d5f2f5b1dedb41a9e36bd608de8a7521a72130b",
+    "mutation": "Append-only course evidence retrieval/evaluation revision; v4 preserved byte-for-byte."
+  },
+  "references": {
+    "coverage": {
+      "label": "Canonical coverage, source IDs and original task acceptance work",
+      "path": "config/merlin/dot-production-coverage-20261117.json",
+      "sha256": "0f4a6ef83978bb5111b941103c7ce9a60027a9f7ecc1d02be3fb170472f44c99",
+      "size_bytes": 498406,
+      "path_kind": "repository_relative",
+      "custody": "Preserve beside this plan in authorized private project custody; do not copy the full corpus into shared-runner retrieval."
+    },
+    "corpus": {
+      "label": "Private captured document/config/PR/Drive inventory",
+      "sha256": "a0ce94b2439ec6ae866a2246ad6133a6b1dd75c68d69ec4005cfbc22d6bb1be5",
+      "size_bytes": 2565364,
+      "path_kind": "capture_receipt_only",
+      "custody": "Preserve beside this plan in authorized private project custody; do not copy the full corpus into shared-runner retrieval.",
+      "retrieval": "Resolve originals through the191 pinned document_bindings and canonical coverage source references; use the filtered Drive asset IDs there. Unfiltered personal Drive inventory is not needed to reconstruct Merlin."
+    },
+    "deployment": {
+      "label": "Exact private-runtime deployment receipt",
+      "path": "docs/evidence/merlin-dot-v1-deployment-receipt.json",
+      "sha256": "5096d564c5b931960a16a433b2d91e30d5b1c345fceecac61b78107b6dda78a5",
+      "size_bytes": 20147,
+      "path_kind": "repository_relative",
+      "custody": "Preserve beside this plan in authorized private project custody; do not copy the full corpus into shared-runner retrieval."
+    },
+    "persistence": {
+      "label": "Later independent-job service inspection receipt",
+      "path": "docs/evidence/merlin-dot-v1-persistence-receipt.json",
+      "sha256": "94f1136d8f92eb6e52482019f804e382a31aef5fb75b8e8e714c29b1d3de3ca9",
+      "size_bytes": 17947,
+      "path_kind": "repository_relative",
+      "custody": "Preserve beside this plan in authorized private project custody; do not copy the full corpus into shared-runner retrieval."
+    },
+    "historical_checkpoint": {
+      "label": "Earlier source-authored checkpoint, superseded for host deployment status",
+      "sha256": "81afb7e0f8b1260f86da9c0d147a0f4675e82348b70362e509d87e74d7614990",
+      "size_bytes": 5276,
+      "path_kind": "library_file_id",
+      "custody": "Preserve beside this plan in authorized private project custody; do not copy the full corpus into shared-runner retrieval.",
+      "library_file_id": "libfile_1539d4624f24819195043919fd36dfae"
+    },
+    "skill": {
+      "path": "skills/merlin-skeptical-scientist/SKILL.md",
+      "path_kind": "repository_relative",
+      "installed_detail_url": "https://chatgpt.com/skills?skill_id=6afc94cfcb1c819194ace6ac0698389f",
+      "status": "installed_and_reconciled",
+      "forward_checks": "two fresh task examples; no live mutations"
+    },
+    "research_integration": {
+      "path": "docs/evidence/merlin-research-integration-20261117.json",
+      "path_kind": "repository_relative",
+      "scope": "Exact runtime tests, original failed attempt, later fixed diagnosis and peer probe; no broader qualification.",
+      "archive_path": "docs/evidence/merlin-research-upgrade-20261117.zip",
+      "archive_sha256": "120b0a4c914880538626c86fd18f71d5294867f67f99d10389ee32cbace0aa1c",
+      "sha256": "115d47d1bdb023bc79be4f4043dee3303d446a01b33075e643f5c75278ba51b0"
+    },
+    "recovery_protocol": {
+      "path": "config/merlin/recovery-drill-protocol-20261117.json",
+      "path_kind": "repository_relative",
+      "sha256": "e33dbf72ce68f16e04fe9fb8b408c8b4269a236dcd1027eb80f8f17589a97a6a",
+      "scope": "Pre-result operational predictions, invariants, controls and four representation applicability decisions"
+    },
+    "defect_families": {
+      "path": "config/merlin/defect-families/private-runtime-deployment-20261117.json",
+      "path_kind": "repository_relative",
+      "scope": "Bounded deployment family observations, preventive controls, regressions and unknowns",
+      "sha256": "7535a2e8c888ffa1e14fe984c4ea1523371f2a95cbe673cf99a6ec12196f7246"
+    },
+    "recovery_evidence": {
+      "path": "docs/evidence/merlin-registry-recovery-20261117.json",
+      "path_kind": "repository_relative",
+      "sha256": "478febf4a2210f5b916d5cf4d268dc5dc7196c2602448713f23148d894b022a5",
+      "run_id": 44151750942,
+      "workflow_commit": "176d7fb683f7829efcdf0c2043a75d287cb38cb0",
+      "artifact_id": 14359511488,
+      "artifact_sha256": "2158f078958ac9ea129c861414521d3ca26abe786494e901ec67256d167966d3",
+      "archive_path": "docs/evidence/merlin-registry-recovery-20261117.zip",
+      "scope": "published two-record synthetic private registry; no full-Merlin or off-host disaster recovery claim"
+    },
+    "recovery_api": {
+      "path": "docs/PRIVATE_REGISTRY_RECOVERY.md",
+      "path_kind": "repository_relative"
+    },
+    "recovery_source_review": {
+      "path": "config/merlin/source-reviews/recovery-scope-20261117.json",
+      "path_kind": "repository_relative",
+      "scope": "five complete current governing documents reviewed for operational recovery; broader semantic review queue remains open"
+    },
+    "learning_titan_protocol": {
+      "path": "config/merlin/learning-titan-integration-protocol-20261117.json",
+      "path_kind": "repository_relative",
+      "scope": "Software integration predictions and declared negative/replay gates; known fixtures, no educational or crypto efficacy claim",
+      "sha256": "c49f1ce10867218528962c1b0ced1ba95b6303c9f579ca2ce7621f91b2fac3d3"
+    },
+    "learning_titan_integration": {
+      "path": "docs/merlin/MERLIN_LMS_TITAN_INTEGRATION_V1.md",
+      "path_kind": "repository_relative",
+      "source_commit": "a5fe1065eb9d3a07448da9edcf29712fdf89bacd",
+      "sha256": "a960c8e264dc03c4746f1363ed20ce0babba208242a1d09fb067c66d656bc05f"
+    },
+    "learning_titan_evidence": {
+      "path": "docs/evidence/merlin-learning-titan-integration-20261117.json",
+      "path_kind": "repository_relative",
+      "sha256": "1ab2ec0fec7199d3178dd908dc01282200f92662a52498680e3c6b5a2b668fcb",
+      "run_id": 44174486449,
+      "workflow_commit": "8e60a698373049c7e69dd1a4e2bbd4f2b7548591",
+      "artifact_id": 14370155589,
+      "archive_path": "docs/evidence/merlin-learning-titan-integration-20261117.zip",
+      "artifact_sha256": "77d105e32b07482d6ea26ce66d9428cec848c0c355fac4abc0a447d6d9bfd67c",
+      "scope": "Isolated synthetic integration,85focused tests; not institutional rollout or crypto qualification"
+    },
+    "learning_titan_defects": {
+      "path": "config/merlin/defect-families/learning-titan-integration-20261117.json",
+      "path_kind": "repository_relative",
+      "sha256": "57a809391a4d9a01ebf3f7e2024313c74e6c093d6d236e864a96a344b68bfaf7",
+      "scope": "Observed integration failure families and targeted canonical prevention"
+    },
+    "learning_evidence_protocol": {
+      "path": "config/merlin/learning-evidence-protocol-20261117.json",
+      "path_kind": "repository_relative",
+      "sha256": "3d80ee6acf4e49f108af477d62b9a36570d1c8287208e6a119dee0395811b67b",
+      "scope": "Pre-result operational predictions and four-lens applicability decisions"
+    },
+    "learning_evidence_contract": {
+      "path": "docs/merlin/MERLIN_LEARNING_EVIDENCE_V1.md",
+      "path_kind": "repository_relative",
+      "sha256": "cbc10bf0299ec06dc03b2a8c4bfbd92a89073f857ae3729c79915eeb14e0afad",
+      "scope": "Course-scoped reader/API and exact evidence limits"
+    },
+    "learning_evidence_defects": {
+      "path": "config/merlin/defect-families/learning-evidence-20261117.json",
+      "path_kind": "repository_relative",
+      "sha256": "f9111483f52fe1bcab67a8be4699fbd964d5be456f9eb1af524265eec3ca7282",
+      "scope": "Measured development race, scoped design findings and strict identity prevention"
+    },
+    "learning_evidence_checkpoint": {
+      "path": "docs/evidence/merlin-learning-evidence-20261117.json",
+      "path_kind": "repository_relative",
+      "sha256": "3a3a9c2c1cc17d184070dcf1a304ebcab0b15fe62fc3d37fef3684407b63dfcc",
+      "scope": "Isolated130-test synthetic OCI validation; four public known evaluation cases, not general accuracy",
+      "run_id": 44223138785,
+      "workflow_commit": "141b29fbb645f7e2cddc4857d1cdd8b925f8b78c",
+      "artifact_id": 14392210368,
+      "archive_path": "docs/evidence/merlin-learning-evidence-20261117.zip",
+      "artifact_sha256": "43bc89b0c6b188d42901a113d7f43babad4e4df2c023877b23c525916c14c786"
+    }
+  },
+  "source_of_truth_order": [
+    "current_exact_source_for_implementation",
+    "canonical_claims_and_independent_receipts_for_verification",
+    "exact_run_deployment_and_runtime_receipts_for_operational_observations",
+    "coverage_index_for_preserved_intent_and_review_queue",
+    "this_plan_for_dependency_order_and_acceptance_gates",
+    "historical_handoffs_for_navigation_only"
+  ],
+  "coverage": {
+    "captured_document_config_records": 191,
+    "byte_and_git_blob_identity_checked": 191,
+    "planning_content_reviewed": 4,
+    "original_tracks": 10,
+    "original_tasks": 37,
+    "original_tasks_referenced": 37,
+    "extension_tasks": 8,
+    "master_task_total": 45,
+    "accessible_project_context_records": 41,
+    "all_raw_chats_available": false,
+    "all_drive_files_read": false,
+    "server_context_records": 2,
+    "server_context_kind": "synthetic_engineering_only",
+    "document_binding_rule": "Each ID resolves through references.coverage/document_review_queue[coverage_index] and references.corpus/docs[capture_index]; pinned file digests prevent silent source substitution.",
+    "path_tags_are_semantic_review": false,
+    "semantic_review_queued": 187,
+    "current_code_receipt_reconciliation": "Required for every source-derived capability claim; the4 completed reviews were planning-content reviews only."
+  },
+  "document_bindings": {
+    "DOC-a54ff182c7e8acf5": {
+      "coverage_index": 0,
+      "capture_index": 0,
+      "tracks": [
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1",
+      "current_operational_review": {
+        "document_id": "DOC-a54ff182c7e8acf5",
+        "path": "AGENTS.md",
+        "source_commit": "0f4823ca35f08cc7038a6923e042e359d5d5e941",
+        "git_blob_sha1": "f274824e3a6eae9eec7eb5b883eeb2e736518e56",
+        "content_sha256": "6fd6de36b30f5693aebff2cf326ebfc302d47ee24055aaab7abce8c000aff6d2",
+        "matches_original_capture": false,
+        "complete_current_text_read": true,
+        "review_scope": "private own-service recovery, canonical registry and permission/evidence boundaries only",
+        "implementation_findings": [
+          "New private demo route is observed separately from historical Avrea/CACE qualification bridge.",
+          "Legacy run/disk/qualification snapshots are navigation, not inherited current proof or live provider state.",
+          "No direct ChatGPT MCP/provider-wide integration or independent CACE verification inferred."
+        ],
+        "remaining": "Whole-document claims-to-code/receipt semantic reconciliation remains queued outside this bounded operational shard."
+      }
+    },
+    "DOC-b335630551682c19": {
+      "coverage_index": 1,
+      "capture_index": 1,
+      "tracks": [
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-d58bba21d5b91332": {
+      "coverage_index": 2,
+      "capture_index": 2,
+      "tracks": [
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-8f97b9f90d015ca5": {
+      "coverage_index": 3,
+      "capture_index": 3,
+      "tracks": [
+        "P03",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-5d28de47be14abed": {
+      "coverage_index": 4,
+      "capture_index": 4,
+      "tracks": [
+        "P03"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-81dc37bd6098a579": {
+      "coverage_index": 5,
+      "capture_index": 5,
+      "tracks": [
+        "P03"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-7401c7f12c9768f3": {
+      "coverage_index": 6,
+      "capture_index": 6,
+      "tracks": [
+        "P03",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-7abdb6e7ebaccb06": {
+      "coverage_index": 7,
+      "capture_index": 7,
+      "tracks": [
+        "P02",
+        "P03"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-95233525e8bc6708": {
+      "coverage_index": 8,
+      "capture_index": 8,
+      "tracks": [
+        "P02"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-d7fb33bd1370a4f9": {
+      "coverage_index": 9,
+      "capture_index": 9,
+      "tracks": [
+        "P02",
+        "P04"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-8aaecbdac6e2b518": {
+      "coverage_index": 10,
+      "capture_index": 10,
+      "tracks": [
+        "P02"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-b7607c7449da39da": {
+      "coverage_index": 11,
+      "capture_index": 11,
+      "tracks": [
+        "P05"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-70681b546f3eaef8": {
+      "coverage_index": 12,
+      "capture_index": 12,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-0bad4f7bceab8e53": {
+      "coverage_index": 13,
+      "capture_index": 13,
+      "tracks": [
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-f3acee6ab2f749e5": {
+      "coverage_index": 14,
+      "capture_index": 14,
+      "tracks": [
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-1b3df60e05a152ed": {
+      "coverage_index": 15,
+      "capture_index": 15,
+      "tracks": [
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-b5f7639775896fa0": {
+      "coverage_index": 16,
+      "capture_index": 16,
+      "tracks": [
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-23ce7fce48dc1715": {
+      "coverage_index": 17,
+      "capture_index": 17,
+      "tracks": [
+        "P01"
+      ],
+      "review": "planning_reviewed",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-dd1e478ece194cd9": {
+      "coverage_index": 18,
+      "capture_index": 18,
+      "tracks": [
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-d2df76c78eff5b37": {
+      "coverage_index": 19,
+      "capture_index": 19,
+      "tracks": [
+        "P08"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-4944cd3bf37d6b0c": {
+      "coverage_index": 20,
+      "capture_index": 20,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-eff51791d0648a94": {
+      "coverage_index": 21,
+      "capture_index": 21,
+      "tracks": [
+        "P05"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-d4c20d9aa7b5fbd4": {
+      "coverage_index": 22,
+      "capture_index": 22,
+      "tracks": [
+        "P05"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-9661dd328128e4e1": {
+      "coverage_index": 23,
+      "capture_index": 23,
+      "tracks": [
+        "P05"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-2e2b09e6809545e4": {
+      "coverage_index": 24,
+      "capture_index": 24,
+      "tracks": [
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-f1ca1dd692f3a416": {
+      "coverage_index": 25,
+      "capture_index": 25,
+      "tracks": [
+        "P02"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-d61c44d8eb373aec": {
+      "coverage_index": 26,
+      "capture_index": 26,
+      "tracks": [
+        "P05"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-d543722176f1e98f": {
+      "coverage_index": 27,
+      "capture_index": 27,
+      "tracks": [
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-ef4a2da198314eb8": {
+      "coverage_index": 28,
+      "capture_index": 28,
+      "tracks": [
+        "P04"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-22e5c8fee92e0890": {
+      "coverage_index": 29,
+      "capture_index": 29,
+      "tracks": [
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-f58d6c6622f70197": {
+      "coverage_index": 30,
+      "capture_index": 30,
+      "tracks": [
+        "P04"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1",
+      "current_operational_review": {
+        "document_id": "DOC-f58d6c6622f70197",
+        "path": "docs/AI_RUNNER_AND_BRIDGE_OPERATIONS.md",
+        "source_commit": "0f4823ca35f08cc7038a6923e042e359d5d5e941",
+        "git_blob_sha1": "e412ec13e1e94691f61fa70243bdab235b1d7538",
+        "content_sha256": "c9d318eaf3cde770a75407a398be1180058d6199e54bfd9abeb37889c91f0ac7",
+        "matches_original_capture": true,
+        "complete_current_text_read": true,
+        "review_scope": "private own-service recovery, canonical registry and permission/evidence boundaries only",
+        "implementation_findings": [
+          "New private demo route is observed separately from historical Avrea/CACE qualification bridge.",
+          "Legacy run/disk/qualification snapshots are navigation, not inherited current proof or live provider state.",
+          "No direct ChatGPT MCP/provider-wide integration or independent CACE verification inferred."
+        ],
+        "remaining": "Whole-document claims-to-code/receipt semantic reconciliation remains queued outside this bounded operational shard."
+      }
+    },
+    "DOC-76158a34fb32f71e": {
+      "coverage_index": 31,
+      "capture_index": 31,
+      "tracks": [
+        "P06"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-4644247538adbd63": {
+      "coverage_index": 32,
+      "capture_index": 32,
+      "tracks": [
+        "P08"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-0c9efff39eb64f2c": {
+      "coverage_index": 33,
+      "capture_index": 33,
+      "tracks": [
+        "P06",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-40cf05af56cfd7f1": {
+      "coverage_index": 34,
+      "capture_index": 34,
+      "tracks": [
+        "P06",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-dd04fed7e8319d2f": {
+      "coverage_index": 35,
+      "capture_index": 35,
+      "tracks": [
+        "P06",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-24fe0a3d991cb813": {
+      "coverage_index": 36,
+      "capture_index": 36,
+      "tracks": [
+        "P06",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-d9e0a43180109c45": {
+      "coverage_index": 37,
+      "capture_index": 37,
+      "tracks": [
+        "P04"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1",
+      "current_operational_review": {
+        "document_id": "DOC-d9e0a43180109c45",
+        "path": "docs/MERLIN_AVREA_HERMES_ROUTING.md",
+        "source_commit": "0f4823ca35f08cc7038a6923e042e359d5d5e941",
+        "git_blob_sha1": "9ff7c26704c34378e67c06288603c9985b7276c2",
+        "content_sha256": "f1dcf2f6af9dae77c9233fea0ceb7c81e07e513a2dffd0ea68627f170b166308",
+        "matches_original_capture": true,
+        "complete_current_text_read": true,
+        "review_scope": "private own-service recovery, canonical registry and permission/evidence boundaries only",
+        "implementation_findings": [
+          "New private demo route is observed separately from historical Avrea/CACE qualification bridge.",
+          "Legacy run/disk/qualification snapshots are navigation, not inherited current proof or live provider state.",
+          "No direct ChatGPT MCP/provider-wide integration or independent CACE verification inferred."
+        ],
+        "remaining": "Whole-document claims-to-code/receipt semantic reconciliation remains queued outside this bounded operational shard."
+      }
+    },
+    "DOC-265ba8535bf52f1d": {
+      "coverage_index": 38,
+      "capture_index": 38,
+      "tracks": [
+        "P03"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-f548f0dbd8475da4": {
+      "coverage_index": 39,
+      "capture_index": 39,
+      "tracks": [
+        "P03"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-bed01c9ffb52673e": {
+      "coverage_index": 40,
+      "capture_index": 40,
+      "tracks": [
+        "P04"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-8dec4d1800e08130": {
+      "coverage_index": 41,
+      "capture_index": 41,
+      "tracks": [
+        "P07"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-c7d7a1cbc014ade3": {
+      "coverage_index": 42,
+      "capture_index": 42,
+      "tracks": [
+        "P00",
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-c64c6244a9b174b1": {
+      "coverage_index": 43,
+      "capture_index": 43,
+      "tracks": [
+        "P00",
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-3a69704a884e1ab3": {
+      "coverage_index": 44,
+      "capture_index": 44,
+      "tracks": [
+        "P08",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-527c1173022a7f33": {
+      "coverage_index": 45,
+      "capture_index": 45,
+      "tracks": [
+        "P04",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-5fd3776e6f3b24db": {
+      "coverage_index": 46,
+      "capture_index": 46,
+      "tracks": [
+        "P06",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-7de3f2d811b6f85b": {
+      "coverage_index": 47,
+      "capture_index": 47,
+      "tracks": [
+        "P03"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-03490fcb0927f934": {
+      "coverage_index": 48,
+      "capture_index": 48,
+      "tracks": [
+        "P05",
+        "P08"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-cb046bd0b1e3ea9e": {
+      "coverage_index": 49,
+      "capture_index": 49,
+      "tracks": [
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-c7f2509408c53295": {
+      "coverage_index": 50,
+      "capture_index": 50,
+      "tracks": [
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-cdd08c8f1f02aeb9": {
+      "coverage_index": 51,
+      "capture_index": 51,
+      "tracks": [
+        "P04"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-6b720473420c072f": {
+      "coverage_index": 52,
+      "capture_index": 52,
+      "tracks": [
+        "P03",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-7088b429689b7a1a": {
+      "coverage_index": 53,
+      "capture_index": 53,
+      "tracks": [
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-8b093c16d296a250": {
+      "coverage_index": 54,
+      "capture_index": 54,
+      "tracks": [
+        "P04",
+        "P06"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-fa86d001776c6ba0": {
+      "coverage_index": 55,
+      "capture_index": 55,
+      "tracks": [
+        "P04",
+        "P08"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-d99505ca6cfd925b": {
+      "coverage_index": 56,
+      "capture_index": 56,
+      "tracks": [
+        "P03"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1",
+      "current_operational_review": {
+        "document_id": "DOC-d99505ca6cfd925b",
+        "path": "docs/MERLIN_SCIENTIFIC_OPERATING_LOOP_V1.md",
+        "source_commit": "0f4823ca35f08cc7038a6923e042e359d5d5e941",
+        "git_blob_sha1": "b97dbfeceac863927fb7da3a63b68e2b6fcf83e9",
+        "content_sha256": "a9ead9579ab6b5d33099cea00a5472c71228fde1d152d5664b44772841bdc852",
+        "matches_original_capture": true,
+        "complete_current_text_read": true,
+        "review_scope": "private own-service recovery, canonical registry and permission/evidence boundaries only",
+        "implementation_findings": [
+          "New private demo route is observed separately from historical Avrea/CACE qualification bridge.",
+          "Legacy run/disk/qualification snapshots are navigation, not inherited current proof or live provider state.",
+          "No direct ChatGPT MCP/provider-wide integration or independent CACE verification inferred."
+        ],
+        "remaining": "Whole-document claims-to-code/receipt semantic reconciliation remains queued outside this bounded operational shard."
+      }
+    },
+    "DOC-329ab9226f8c094a": {
+      "coverage_index": 57,
+      "capture_index": 57,
+      "tracks": [
+        "P06"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-c337328ed721071e": {
+      "coverage_index": 58,
+      "capture_index": 58,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-968744c79af32576": {
+      "coverage_index": 59,
+      "capture_index": 59,
+      "tracks": [
+        "P08"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-ed4192a37c5bdc09": {
+      "coverage_index": 60,
+      "capture_index": 60,
+      "tracks": [
+        "P03",
+        "P05",
+        "P08"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-5793f249f1ec3415": {
+      "coverage_index": 61,
+      "capture_index": 61,
+      "tracks": [
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-48460c655b05f204": {
+      "coverage_index": 62,
+      "capture_index": 62,
+      "tracks": [
+        "P05"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1",
+      "current_operational_review": {
+        "document_id": "DOC-48460c655b05f204",
+        "path": "docs/cace-bidirectional-bridge.md",
+        "source_commit": "0f4823ca35f08cc7038a6923e042e359d5d5e941",
+        "git_blob_sha1": "8ab6be27cc0adc6d6a929da9ee91fcf4ff03b37a",
+        "content_sha256": "a28f011ad3e92ca7e764056119113ecddc8cde26a28daad5918756f72d7eb73e",
+        "matches_original_capture": true,
+        "complete_current_text_read": true,
+        "review_scope": "private own-service recovery, canonical registry and permission/evidence boundaries only",
+        "implementation_findings": [
+          "New private demo route is observed separately from historical Avrea/CACE qualification bridge.",
+          "Legacy run/disk/qualification snapshots are navigation, not inherited current proof or live provider state.",
+          "No direct ChatGPT MCP/provider-wide integration or independent CACE verification inferred."
+        ],
+        "remaining": "Whole-document claims-to-code/receipt semantic reconciliation remains queued outside this bounded operational shard."
+      }
+    },
+    "DOC-8a82c0bc9e8ae59f": {
+      "coverage_index": 63,
+      "capture_index": 63,
+      "tracks": [
+        "P05"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-3fb54fc6f86c8ea4": {
+      "coverage_index": 64,
+      "capture_index": 64,
+      "tracks": [
+        "P05"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-9efc224ea482e7fa": {
+      "coverage_index": 65,
+      "capture_index": 65,
+      "tracks": [
+        "P05"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-78df0397e9b2cc74": {
+      "coverage_index": 66,
+      "capture_index": 66,
+      "tracks": [
+        "P05"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-b55695d530b97f5d": {
+      "coverage_index": 67,
+      "capture_index": 67,
+      "tracks": [
+        "P05"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-ac8d7cd8c0e0d1ef": {
+      "coverage_index": 68,
+      "capture_index": 68,
+      "tracks": [
+        "P05"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-f1d539fd46e243ed": {
+      "coverage_index": 69,
+      "capture_index": 69,
+      "tracks": [
+        "P05"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-3dbbb8be16b0d3ca": {
+      "coverage_index": 70,
+      "capture_index": 70,
+      "tracks": [
+        "P05"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-c6481fb3d4cb0cfc": {
+      "coverage_index": 71,
+      "capture_index": 71,
+      "tracks": [
+        "P05"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-fb80ac3493e92e32": {
+      "coverage_index": 72,
+      "capture_index": 72,
+      "tracks": [
+        "P05"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-7b4214813bf8e949": {
+      "coverage_index": 73,
+      "capture_index": 73,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-0b084b7bb5f60a15": {
+      "coverage_index": 74,
+      "capture_index": 74,
+      "tracks": [
+        "P06"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-d09bd55f20a2b11d": {
+      "coverage_index": 75,
+      "capture_index": 75,
+      "tracks": [
+        "P04",
+        "P07"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-a5f5583a522b8e97": {
+      "coverage_index": 76,
+      "capture_index": 76,
+      "tracks": [
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-75830b598e99abe1": {
+      "coverage_index": 77,
+      "capture_index": 77,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-214bd0967618c428": {
+      "coverage_index": 78,
+      "capture_index": 78,
+      "tracks": [
+        "P05"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-cff6a9aa5984c229": {
+      "coverage_index": 79,
+      "capture_index": 79,
+      "tracks": [
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-3b0acd1a325a8264": {
+      "coverage_index": 80,
+      "capture_index": 80,
+      "tracks": [
+        "P08"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-4da193de56571c0c": {
+      "coverage_index": 81,
+      "capture_index": 81,
+      "tracks": [
+        "P00",
+        "P01",
+        "P03"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-023c1ae4ab2ef226": {
+      "coverage_index": 82,
+      "capture_index": 82,
+      "tracks": [
+        "P07",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-1ac842c345243a18": {
+      "coverage_index": 83,
+      "capture_index": 83,
+      "tracks": [
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-a8b474e6c07d3566": {
+      "coverage_index": 84,
+      "capture_index": 84,
+      "tracks": [
+        "P07"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-e19c19542d119ffe": {
+      "coverage_index": 85,
+      "capture_index": 85,
+      "tracks": [
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-38924b54cca2fbca": {
+      "coverage_index": 86,
+      "capture_index": 86,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-f1cdba00dc2250ab": {
+      "coverage_index": 87,
+      "capture_index": 87,
+      "tracks": [
+        "P04"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-30165e8c3c952b1f": {
+      "coverage_index": 88,
+      "capture_index": 88,
+      "tracks": [
+        "P00",
+        "P01",
+        "P05"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-97b5db96d19c629f": {
+      "coverage_index": 89,
+      "capture_index": 89,
+      "tracks": [
+        "P05"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-17e8ad37278d14a2": {
+      "coverage_index": 90,
+      "capture_index": 90,
+      "tracks": [
+        "P04",
+        "P06"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-e4ee41b399a28011": {
+      "coverage_index": 91,
+      "capture_index": 91,
+      "tracks": [
+        "P07"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-15c7a831426c4de4": {
+      "coverage_index": 92,
+      "capture_index": 92,
+      "tracks": [
+        "P07"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-2110846aa357a242": {
+      "coverage_index": 93,
+      "capture_index": 93,
+      "tracks": [
+        "P07"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-6b3fdeca4d9673d4": {
+      "coverage_index": 94,
+      "capture_index": 94,
+      "tracks": [
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-50edea60a3749829": {
+      "coverage_index": 95,
+      "capture_index": 95,
+      "tracks": [
+        "P07"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-2e30311c8f2e036f": {
+      "coverage_index": 96,
+      "capture_index": 96,
+      "tracks": [
+        "P04",
+        "P07"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-f1091e0799455df0": {
+      "coverage_index": 97,
+      "capture_index": 97,
+      "tracks": [
+        "P07"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-d362a50cd126e937": {
+      "coverage_index": 98,
+      "capture_index": 98,
+      "tracks": [
+        "P03",
+        "P07"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-1fadff277a04b80a": {
+      "coverage_index": 99,
+      "capture_index": 99,
+      "tracks": [
+        "P00",
+        "P01"
+      ],
+      "review": "planning_reviewed",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-a3808604fe68ab3f": {
+      "coverage_index": 100,
+      "capture_index": 100,
+      "tracks": [
+        "P07",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-31aa24312348d41b": {
+      "coverage_index": 101,
+      "capture_index": 101,
+      "tracks": [
+        "P07",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-7c4fd98343b4f23f": {
+      "coverage_index": 102,
+      "capture_index": 102,
+      "tracks": [
+        "P07",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-0bb4bbd8e56049f7": {
+      "coverage_index": 103,
+      "capture_index": 103,
+      "tracks": [
+        "P07",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-f6e40927c9c6f800": {
+      "coverage_index": 104,
+      "capture_index": 104,
+      "tracks": [
+        "P07",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-3f5892736c204854": {
+      "coverage_index": 105,
+      "capture_index": 105,
+      "tracks": [
+        "P07",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-09c1749f239f5ebc": {
+      "coverage_index": 106,
+      "capture_index": 106,
+      "tracks": [
+        "P07",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-e24c7d2d59edb72e": {
+      "coverage_index": 107,
+      "capture_index": 107,
+      "tracks": [
+        "P07",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-dd02e8461a617604": {
+      "coverage_index": 108,
+      "capture_index": 108,
+      "tracks": [
+        "P03",
+        "P07",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-1db62a3b87d08516": {
+      "coverage_index": 109,
+      "capture_index": 109,
+      "tracks": [
+        "P07"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-df917c2f38f69c44": {
+      "coverage_index": 110,
+      "capture_index": 110,
+      "tracks": [
+        "P02"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-ec0ca5fd9cfb8453": {
+      "coverage_index": 111,
+      "capture_index": 111,
+      "tracks": [
+        "P04"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-108a23fecbb2103f": {
+      "coverage_index": 112,
+      "capture_index": 112,
+      "tracks": [
+        "P06"
+      ],
+      "review": "planning_reviewed",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-7808dc8381307bd3": {
+      "coverage_index": 113,
+      "capture_index": 113,
+      "tracks": [
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-d32c3542d0e3a3d2": {
+      "coverage_index": 114,
+      "capture_index": 114,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-ab8bbfb74e02d00a": {
+      "coverage_index": 115,
+      "capture_index": 115,
+      "tracks": [
+        "P06",
+        "P07",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-4a8024b647403e70": {
+      "coverage_index": 116,
+      "capture_index": 116,
+      "tracks": [
+        "P00",
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-0ec906f7291deee9": {
+      "coverage_index": 117,
+      "capture_index": 117,
+      "tracks": [
+        "P06"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-f4d0a38f922c697e": {
+      "coverage_index": 118,
+      "capture_index": 118,
+      "tracks": [
+        "P05"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-3b2b871dd912a943": {
+      "coverage_index": 119,
+      "capture_index": 119,
+      "tracks": [
+        "P08"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-9e2f56f6501d07d0": {
+      "coverage_index": 120,
+      "capture_index": 120,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-09a448845fa7f83b": {
+      "coverage_index": 121,
+      "capture_index": 121,
+      "tracks": [
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-b70e8359dceb7a66": {
+      "coverage_index": 122,
+      "capture_index": 122,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-efa567cdcd857e6f": {
+      "coverage_index": 123,
+      "capture_index": 123,
+      "tracks": [
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-ef95a602d1495d7d": {
+      "coverage_index": 124,
+      "capture_index": 124,
+      "tracks": [
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-78a43fbb4545e652": {
+      "coverage_index": 125,
+      "capture_index": 125,
+      "tracks": [
+        "P04"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-c3a12a1969b72cea": {
+      "coverage_index": 126,
+      "capture_index": 126,
+      "tracks": [
+        "P03"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-e24dbbfc31fe47a6": {
+      "coverage_index": 127,
+      "capture_index": 127,
+      "tracks": [
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-b26c3e0418cdba45": {
+      "coverage_index": 128,
+      "capture_index": 128,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-a70f657565cd54aa": {
+      "coverage_index": 129,
+      "capture_index": 129,
+      "tracks": [
+        "P04",
+        "P06",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-c6ec15b2fab74ea4": {
+      "coverage_index": 130,
+      "capture_index": 130,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-e3d87ba2dfce3631": {
+      "coverage_index": 131,
+      "capture_index": 131,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-72d04aa877b98688": {
+      "coverage_index": 132,
+      "capture_index": 132,
+      "tracks": [
+        "P04",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-df505a641fc5b8cd": {
+      "coverage_index": 133,
+      "capture_index": 133,
+      "tracks": [
+        "P05",
+        "P06",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-43a93deafc594296": {
+      "coverage_index": 134,
+      "capture_index": 134,
+      "tracks": [
+        "P06",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-d3dcff9d23674635": {
+      "coverage_index": 135,
+      "capture_index": 135,
+      "tracks": [
+        "P06",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-d3c12556b6a698b4": {
+      "coverage_index": 136,
+      "capture_index": 136,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-47e5f82945465cfc": {
+      "coverage_index": 137,
+      "capture_index": 137,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-635a3f76442f1bdd": {
+      "coverage_index": 138,
+      "capture_index": 138,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-80f28990fe92c8f5": {
+      "coverage_index": 139,
+      "capture_index": 139,
+      "tracks": [
+        "P05",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-a31de25319f57e7e": {
+      "coverage_index": 140,
+      "capture_index": 140,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-92126811aaf35265": {
+      "coverage_index": 141,
+      "capture_index": 141,
+      "tracks": [
+        "P09"
+      ],
+      "review": "planning_reviewed",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-b4b800efcfe3d138": {
+      "coverage_index": 142,
+      "capture_index": 142,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-3fda5ca15c6c191d": {
+      "coverage_index": 143,
+      "capture_index": 143,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-6d103f4e0302d474": {
+      "coverage_index": 144,
+      "capture_index": 144,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-9d91311740868577": {
+      "coverage_index": 145,
+      "capture_index": 145,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-2d8db1ca569761b8": {
+      "coverage_index": 146,
+      "capture_index": 146,
+      "tracks": [
+        "P06",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-c9c46f0ca8fd6f06": {
+      "coverage_index": 147,
+      "capture_index": 147,
+      "tracks": [
+        "P05",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-bf7455534cc8d8c3": {
+      "coverage_index": 148,
+      "capture_index": 148,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-0c787006e014682b": {
+      "coverage_index": 149,
+      "capture_index": 149,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-df0820c2e81abf18": {
+      "coverage_index": 150,
+      "capture_index": 150,
+      "tracks": [
+        "P05",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-eb0b65028ef7b513": {
+      "coverage_index": 151,
+      "capture_index": 151,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-c17f2a022d6223e3": {
+      "coverage_index": 152,
+      "capture_index": 152,
+      "tracks": [
+        "P00",
+        "P01",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-ea9c6b57627e5e5c": {
+      "coverage_index": 153,
+      "capture_index": 153,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-297a0c2c2a98977b": {
+      "coverage_index": 154,
+      "capture_index": 154,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-20f67fcd8940af13": {
+      "coverage_index": 155,
+      "capture_index": 155,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-df7d5f30d6f66d24": {
+      "coverage_index": 156,
+      "capture_index": 156,
+      "tracks": [
+        "P00",
+        "P01",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-c01bdfe580933489": {
+      "coverage_index": 157,
+      "capture_index": 157,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-3f5e040ff89baba9": {
+      "coverage_index": 158,
+      "capture_index": 158,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-e3fca8877889e780": {
+      "coverage_index": 159,
+      "capture_index": 159,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-bb3d777bef493aac": {
+      "coverage_index": 160,
+      "capture_index": 160,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-e2bcf02c2e195e50": {
+      "coverage_index": 161,
+      "capture_index": 161,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-91c8ade359413d55": {
+      "coverage_index": 162,
+      "capture_index": 162,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-a9bd44655501cdd1": {
+      "coverage_index": 163,
+      "capture_index": 163,
+      "tracks": [
+        "P05",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-46b1788d98e0faa7": {
+      "coverage_index": 164,
+      "capture_index": 164,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-6082e302d9434a2c": {
+      "coverage_index": 165,
+      "capture_index": 165,
+      "tracks": [
+        "P07",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-abd4b083e372e3a6": {
+      "coverage_index": 166,
+      "capture_index": 166,
+      "tracks": [
+        "P07",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-b59d0b8ba4220c31": {
+      "coverage_index": 167,
+      "capture_index": 167,
+      "tracks": [
+        "P07",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-6d155681c898abf8": {
+      "coverage_index": 168,
+      "capture_index": 168,
+      "tracks": [
+        "P00",
+        "P01",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-fe2879e9632c6610": {
+      "coverage_index": 169,
+      "capture_index": 169,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-f7eaf1323a4eb67c": {
+      "coverage_index": 170,
+      "capture_index": 170,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-2e57a4cd52a2951c": {
+      "coverage_index": 171,
+      "capture_index": 171,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-b63c49fe0a2b9a38": {
+      "coverage_index": 172,
+      "capture_index": 172,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-56c638b836bfbba8": {
+      "coverage_index": 173,
+      "capture_index": 173,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-70a9901475064915": {
+      "coverage_index": 174,
+      "capture_index": 174,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-731c55fcb4135d8a": {
+      "coverage_index": 175,
+      "capture_index": 175,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-55efc92b07c3ec4d": {
+      "coverage_index": 176,
+      "capture_index": 176,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-d7591b322a5a7811": {
+      "coverage_index": 177,
+      "capture_index": 177,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-45a9637d0a8b56da": {
+      "coverage_index": 178,
+      "capture_index": 178,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-bf67f907289061a0": {
+      "coverage_index": 179,
+      "capture_index": 179,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-e56843ca9139a025": {
+      "coverage_index": 180,
+      "capture_index": 180,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-d4bd043099571691": {
+      "coverage_index": 181,
+      "capture_index": 181,
+      "tracks": [
+        "P05",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-b74c2785da8c7838": {
+      "coverage_index": 182,
+      "capture_index": 182,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-634d66180de1188c": {
+      "coverage_index": 183,
+      "capture_index": 183,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-233fea23e621f9bb": {
+      "coverage_index": 184,
+      "capture_index": 184,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-744ef450deca5688": {
+      "coverage_index": 185,
+      "capture_index": 185,
+      "tracks": [
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-c84f79a06b434d9a": {
+      "coverage_index": 186,
+      "capture_index": 186,
+      "tracks": [
+        "P05",
+        "P09"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-c4cc5f3e45ee634e": {
+      "coverage_index": 187,
+      "capture_index": 187,
+      "tracks": [
+        "P01"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-59749860ae1db46e": {
+      "coverage_index": 188,
+      "capture_index": 188,
+      "tracks": [
+        "P04"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-08a0c59ef6baf2a3": {
+      "coverage_index": 189,
+      "capture_index": 189,
+      "tracks": [
+        "P02"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    },
+    "DOC-934d0a057f955528": {
+      "coverage_index": 190,
+      "capture_index": 190,
+      "tracks": [
+        "P08"
+      ],
+      "review": "queued",
+      "reconciliation_task": "P01-1"
+    }
+  },
+  "measured_checkpoint": {
+    "deployment_run_id": "44138569395",
+    "deployment_workflow_commit": "65a16e4795bb9acf4003f48cc8989c82ee337d03",
+    "persistence_run_id": "44139195492",
+    "persistence_workflow_commit": "eae8fab1fccc146850e84f2835a53041a620e0e1",
+    "bundle_sha256": "efe57bada5cd86f45118cac0036faf497f9aa60972508e036aed09f7b8cf04db",
+    "host_tests": {
+      "errors": 0,
+      "failures": 0,
+      "passed": true,
+      "skipped": 0,
+      "tests": 116
+    },
+    "service": {
+      "name": "merlin-dot-private.service",
+      "uid": 982,
+      "user": "merlin-dot",
+      "group": "opc",
+      "state": "v2_active_running_enabled_in_later_inspection",
+      "transport": "AF_UNIX",
+      "private_network": true,
+      "no_new_privileges": true
+    },
+    "scope": "Exact code-only private runtime and known fixture only;116tests and live read/demo checks do not establish full-Merlin workers, general mathematical solvers, reboot/isolated-state restore, native CAD or independent verification.",
+    "available": [
+      "GitHub-mediated bounded read-only tools",
+      "two synthetic context records",
+      "exact-rational ideal-DC demo",
+      "shared-runner job_submit denial",
+      "fixed live research_contract",
+      "fixed live research_episode_demo with required four-lens plan",
+      "fixed live mathematical_lenses_demo",
+      "reviewed virtual_circuit_demo requires research protocol"
+    ],
+    "not_established": [
+      "direct ChatGPT dot custom-MCP connection",
+      "live coder/evaluator providers",
+      "general Hermes/MCFC execution",
+      "independent CACE signer/verifier",
+      "reboot_and_off_host_or_full_project_state_restore",
+      "native FreeCAD/ngspice runtime",
+      "full191-document semantic reconciliation"
+    ],
+    "research_update": {
+      "source_commit": "31b3ab41848685c7670abf9e20994cebd9eb699e",
+      "validation_run_id": 44144790708,
+      "tests": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests": 116
+      },
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "upgrade_attempt_run_id": 44145136056,
+      "reported_upgrade_result": "rollback_failed",
+      "diagnostic_run_id": 44145909148,
+      "observed_link_and_config": "exact_v1_restored",
+      "observed_service": "active_running",
+      "peer_probe_run_id": 44146757840,
+      "peer_probe_returncode": 0,
+      "peer_probe_write_denial": "tool_not_allowed",
+      "failure_cause": "unestablished; missing original subprocess stderr; startup readiness is hypothesis only",
+      "live_adoption": "v2_active_and_verified_in_later_job",
+      "successful_upgrade_run_id": 44148199995,
+      "successful_upgrade_commit": "bc4d1de8ea7f370f782b078021833371b6a2e579",
+      "service_properties": "MainPID=1987572\nUser=merlin-dot\nGroup=opc\nPrivateNetwork=yes\nNoNewPrivileges=yes\nRestrictAddressFamilies=AF_UNIX\nActiveState=active\nSubState=running\nUnitFileState=enabled\n",
+      "live_tools": [
+        "context_search",
+        "context_status",
+        "health",
+        "mathematical_lenses_demo",
+        "research_contract",
+        "research_episode_demo",
+        "virtual_circuit_demo"
+      ],
+      "configuration_sha256": "a25921442e2d3e463ccd685de6c67d824140b8c1592ab4fe942fb50c5d3b22e8",
+      "both_releases_preserved": true,
+      "prior_failure_cause": "not_established",
+      "persistence_run_id": 44148526104,
+      "persistence_commit": "1beb2afb492cd245274cda5742dbe87629507fa1",
+      "persistence_same_pid": 1987572,
+      "persistence_tools": [
+        "health",
+        "context_status",
+        "research_contract",
+        "mathematical_lenses_demo",
+        "research_episode_demo",
+        "virtual_circuit_demo"
+      ],
+      "persistence_write_denial": "tool_not_allowed"
+    },
+    "recovery_work": {
+      "baseline_run_id": 44149984275,
+      "baseline_commit": "3a28ea8db1435008b59947be16089e22a9729834",
+      "baseline_artifact_id": 14358267196,
+      "baseline_artifact_sha256": "308006378aa9e57aae7fcfb4214c5bbc1a96d02850dd077ea4948f00f403e346",
+      "baseline_service_pid": 1987572,
+      "baseline_status": "active_and_tools_passed",
+      "isolated_restore": "passed_actual_service_uid_and_private_socket",
+      "scope": "two synthetic engineering records on own private runtime only",
+      "run_id": 44151750942,
+      "workflow_commit": "176d7fb683f7829efcdf0c2043a75d287cb38cb0",
+      "source_commit": "2e07231d4480ee567ce5583022a8987669936196",
+      "runtime_and_recovery_tests": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests": 136
+      },
+      "operation_tests": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests": 9
+      },
+      "total_tests": 145,
+      "skipped": 0,
+      "production_unchanged": true,
+      "production_service_restarted": false,
+      "source_state": {
+        "bytes": 92016,
+        "files": 5,
+        "sha256": "7c28f9ba92155e2ab59167de922d7f2242b4aaabd2b998375ff2dc745cd0d28a"
+      },
+      "production_pid": 1987572,
+      "snapshot_manifest_sha256": "6b199b0a1d5a9d5ac66ba54c6530af6d6b4136996571e3f11977161093cfc98c",
+      "workspace": "/var/lib/merlin-dot-private-recovery-drills/drill-az9_3nug",
+      "canonical_identity": {
+        "history_rows": 4,
+        "history_sha256": "3a8d5090c6a8bd953e4ee779ba4803b3cf80867b704c89a17189e0c9c14e57f9",
+        "inventory_sha256": "c537ce5b169a330c260818bb0c50d31d7f43086587463b8cf6196ca2cd35e591",
+        "provenance_rows": 0,
+        "provenance_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "record_count": 2,
+        "source_refs_sha256": "69e4e5a225116c2791e45289e8671a1025183dde2f309145915ae5b925932d79"
+      },
+      "negative_controls": {
+        "corrupt_blob": {
+          "class": "RecoveryError",
+          "rejected": true
+        },
+        "missing_blob": {
+          "class": "RecoveryError",
+          "rejected": true
+        }
+      },
+      "isolated_server_stopped": true,
+      "limitations": [
+        "Same host and same service identity; no independent backup custody or verifier.",
+        "Production sample has two synthetic records, four version rows and zero provenance rows; nonempty multi-version/provenance/pending-receipt coverage is in focused fixtures.",
+        "No full corpus/other-store restore, production switch/restart or shared-runner reboot.",
+        "Quiescent published non-WAL source is a prerequisite; immutable SQLite mode is not a writer lock."
+      ]
+    },
+    "learning_titan": {
+      "run_id": 44174486449,
+      "tests": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests": 85
+      },
+      "source_commit": "a5fe1065eb9d3a07448da9edcf29712fdf89bacd",
+      "package_sha256": "545ec043f6269fec7bb13e6ff3f9001f42b0f7984ca7f9245019e8cf7359841a",
+      "synthetic_demo": {
+        "canonical_receipt_replay_equal": true,
+        "course_id": "10e12c902eb5cc5d923667b1",
+        "course_manifest_sha256": "10bbbf36860f35fe411e264234766c06b7e42bda0b18e250b56d99616a64e358",
+        "course_version": 1,
+        "cryptographic_security_verified": false,
+        "educational_efficacy_established": false,
+        "fixture_class": "synthetic_known_fixture",
+        "frozen_transcript_ref": {
+          "logical_path": "learning/synthetic-demo/frozen-transcript.json",
+          "project_id": "titan-learning-demo",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "62484630dd9f2d945f0d292e0e590a8c1f251938036413af54b077b368702455",
+          "version": 1
+        },
+        "lab_artifact_ref": {
+          "logical_path": "learning-labs/835aec4632a9ad0e0523ed8ca2f9136e329f2e17c929232127e719593c0a3b58/titan-structural.json",
+          "project_id": "titan-learning-demo",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "dfad28c983ec3533999ed7ff77ab69ca505b141d2470f4cbfe5f42239f925e8e",
+          "version": 1
+        },
+        "mastery_updated": false,
+        "model_sha256": "1a250aa2b19515404efa9017fdd54ec899f3e92487bb110dfd0426f5fb01cfc3",
+        "promotion_authority": false,
+        "qualification": false,
+        "replay_duplicate": true,
+        "schema": "merlin-learning-titan-oci-demo/1",
+        "source_commit": "a5fe1065eb9d3a07448da9edcf29712fdf89bacd",
+        "submission_status": "pending_review",
+        "synthetic_publication_review": true,
+        "vector_count": 5,
+        "vectors_sha256": "8b3cc775f7d2e60077fc1625131070f56eba63542a0392a6819fe871f1cbcdbc",
+        "verification_status": "blocked_missing_credentials"
+      },
+      "host_configuration_changed": false,
+      "production_service_modified": false,
+      "scope": "Course publication/enrollment/lab/evidence/pending-review/recommendation/replay on real local canonical stores; synthetic actors only"
+    },
+    "learning_evidence": {
+      "run_id": 44223138785,
+      "source_commit": "47260febc9726ec6d02c798b0fd99780b19dba29",
+      "tests": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests": 130
+      },
+      "metrics": {
+        "case_count": 4,
+        "development_passed": 1,
+        "evaluation_passed": 3,
+        "failed": 0,
+        "passed": 4
+      },
+      "production_service_modified": false,
+      "scope": "Public known synthetic reader/evaluator and existing LMS/Titan regression suite"
+    }
+  },
+  "reconciliations": [
+    {
+      "id": "REC-001",
+      "older_reference": "historical_checkpoint",
+      "conflict": "Earlier checkpoint says no OCI deployment and74 local tests.",
+      "resolution": "Deployment and persistence receipts now establish the narrow private demo service and83 host tests. Preserve earlier checkpoint as history."
+    },
+    {
+      "id": "REC-002",
+      "older_reference": "coverage",
+      "conflict": "All37tasks were queued before parent-owned deployment evidence was incorporated.",
+      "resolution": "Only task scopes supported by exact receipts receive partial/measured overlays here; the original coverage index remains unchanged."
+    },
+    {
+      "id": "REC-003",
+      "conflict": "Bridge capability metadata says OCI execution not_dispatched while the service is physically hosted on OCI.",
+      "resolution": "The host demonstrably runs the fixed read/demo tools; generic Hermes/MCFC/CACE job execution remains unavailable. Keep those capability scopes distinct."
+    },
+    {
+      "id": "REC-004",
+      "conflict": "Captured/handoff sources describe many prototypes, proofs and research ideas.",
+      "resolution": "Capture/hash/presence is not implementation or independent verification. Keep4 planning reviews/187 queued and map each idea to current code/tests before reuse."
+    },
+    {
+      "id": "REC-005",
+      "conflict": "The user requests complete context, but only accessible exports/metadata are available.",
+      "resolution": "Preserve41 accessible context records and191captured source documents privately; track missing raw chats and standalone source assets without claiming complete account history."
+    }
+  ],
+  "governing_documents": [
+    {
+      "path": "AGENTS.md",
+      "document_id": "DOC-a54ff182c7e8acf5",
+      "current_ref_text_matches_capture": true,
+      "read_ref": "d074cab60ea61411373098cb86562109813b3a3a"
+    },
+    {
+      "path": "docs/AI_RUNNER_AND_BRIDGE_OPERATIONS.md",
+      "document_id": "DOC-f58d6c6622f70197",
+      "current_ref_text_matches_capture": true,
+      "read_ref": "d074cab60ea61411373098cb86562109813b3a3a"
+    },
+    {
+      "path": "docs/MERLIN_AVREA_HERMES_ROUTING.md",
+      "document_id": "DOC-d9e0a43180109c45",
+      "current_ref_text_matches_capture": true,
+      "read_ref": "d074cab60ea61411373098cb86562109813b3a3a"
+    },
+    {
+      "path": "docs/cace-bidirectional-bridge.md",
+      "document_id": "DOC-48460c655b05f204",
+      "current_ref_text_matches_capture": true,
+      "read_ref": "d074cab60ea61411373098cb86562109813b3a3a"
+    },
+    {
+      "path": "docs/MERLIN_SCIENTIFIC_OPERATING_LOOP_V1.md",
+      "document_id": "DOC-d99505ca6cfd925b",
+      "current_ref_text_matches_capture": true,
+      "read_ref": "d074cab60ea61411373098cb86562109813b3a3a"
+    }
+  ],
+  "research_protocol": {
+    "default_behavior_required": true,
+    "authority": "research_method_only",
+    "typed_runtime_contract": {
+      "status": "implemented_and_116_tests_passed_on_oci",
+      "source_commit": "31b3ab41848685c7670abf9e20994cebd9eb699e",
+      "bundle_sha256": "efe57bada5cd86f45118cac0036faf497f9aa60972508e036aed09f7b8cf04db",
+      "validation_run_id": 44144790708,
+      "live_adoption": "v2_active_research_and_mathematics_tools_verified_in_later_job",
+      "authority": "typed_structure_not_scientific_truth",
+      "review": {
+        "reviewer": "second_coder_source_review",
+        "scope": "Malformed/rehashed lens records, missing fields, persisted plan reconstruction, simplex counterexample and fixture claims",
+        "result": "no_material_issue_found",
+        "independent_scientific_validation": false
+      },
+      "upgrade_run_id": 44148199995,
+      "persistence_run_id": 44148526104
+    },
+    "installed_skill": {
+      "status": "installed_and_reconciled",
+      "package": "merlin-skeptical-scientist",
+      "skill_id": "6afc94cfcb1c819194ace6ac0698389f",
+      "creation_commit": "32976b6",
+      "reconciled_commit": "30c23ba",
+      "grants_runtime_authority": false
+    },
+    "ordered_episode": [
+      "frame_question_and_success_metric",
+      "declare_first_principles_assumptions_units_invariants_unknowns",
+      "preregister_competing_hypotheses_predictions_and_falsifiers",
+      "ingest_bounded_sources_with_exact_provenance",
+      "record_observations_and_measurement_uncertainty",
+      "separate_deduction_induction_abduction_and_analogy",
+      "reframe_blocked_operations_and_enumerate_compatible_gap_candidates",
+      "run_smallest_discriminating_bounded_experiment",
+      "independent_skeptical_review_bias_fallacy_and_counterexample_checks",
+      "append_plan_update_and_defect_prevention_record"
+    ],
+    "first_principles_rule": "Before new external ingestion, state the preliminary model, definitions, premises, units, invariants, unknowns and potential falsifiers. Existing observations may seed the frame; revise premises explicitly when evidence contradicts them. First principles are not a license to invent facts or ignore observations.",
+    "deduction": "Expose premises, inference rule and scope; a conclusion inherits its unproved assumptions.",
+    "induction": "Declare sample, selection, uncertainty, confounders, transfer domain and counterexamples; finite measurements do not prove universal claims.",
+    "exact_analogy": "Map source/target objects, relations, operators and invariant-preservation obligations; distinguish tested instances from a general proof.",
+    "approximate_analogy": "Declare approximation metric/bound or unknown error, domain and lost invariants; accept transfer only after original-task checks.",
+    "ideonomy": "Use finite compatibility-filtered combinations of typed primitives only for a named gap/blockage/tradeoff; retain diversity, rejections and a no-useful-candidate outcome.",
+    "lacuna": "Represent a specific missing observation, mechanism, connection or formal obligation; rank by expected information gain and feasible tests, not by novelty language.",
+    "alien_science": "Treat alternative notation, axioms, embodiment and representations as explicitly speculative models with operational semantics and human baselines; do not infer alien origin, physical reality or a solved theorem.",
+    "review_checks": [
+      "confirmation_and_selection_bias",
+      "measurement_and_publication_bias",
+      "confounding_and_base_rates",
+      "anchoring_and_correlated_reviewers",
+      "circular_reasoning_and_authority_or_consensus_fallacies",
+      "category_errors_between_report_simulation_compilation_proof_and_physical_validation",
+      "negative_cases_and_null_results"
+    ],
+    "non_numeric_fields": "Use explicit not_applicable plus rationale where a unit or numeric uncertainty is inapplicable; never fabricate measurements.",
+    "representation_lenses": {
+      "consider_by_default": [
+        "simplex",
+        "n_ality",
+        "continuum",
+        "fuzzy_logic"
+      ],
+      "selection_rule": "Record applied, not_applicable or deferred with reason, invariant/test and limits for each of the four lenses. Do not force an irrelevant representation.",
+      "simplex": "Declare dimensionality, affine/convex assumptions, normalized weights and invariant mappings; normalization is not proof or automatic probabilistic meaning.",
+      "n_ality": "Declare arity, typed interactions, composition rules and dimensional constraints; an n-ary structure does not establish physical synergy.",
+      "continuum": "Declare domain, boundary/initial conditions, operators and approximation scope; numerical continuum claims need discretization-error, convergence and stability checks.",
+      "fuzzy_logic": "Membership degrees are not probabilities. Label semantics, membership functions, aggregation and thresholds; hard authorization and verification gates remain Boolean.",
+      "acceptance": "State source/target transformation, invariants and approximation losses, then rerun original-task acceptance tests. A new representation does not change what counts as evidence.",
+      "typed_helpers_status": "Implemented in math_lenses.py and required by typed plans; exact OCI package passed116tests. Live adoption is separately measured, not inferred from source.",
+      "implementation_scope": {
+        "simplex": "Bounded standard-simplex validation and convex blend; arbitrary vertices do not imply affine independence.",
+        "n_ality": "Independently typed geometric dimension, state dimension, logical channels and temporal parameters. This is a reference signature, not a complete n-ary interaction engine.",
+        "continuum": "Declared bounded piecewise-linear interpolation, no extrapolation. General continuum IR, PDE convergence and native geometry integration remain source-review/integration tasks.",
+        "fuzzy_logic": "Bounded ramp membership and explicit min/max operators; not calibrated probabilities or authorization."
+      }
+    }
+  },
+  "acceptance_gates": [
+    {
+      "id": "G-SOURCE",
+      "rule": "Exact source/artifact/version/digest and dependency closure are pinned before a claim or change."
+    },
+    {
+      "id": "G-SCOPE",
+      "rule": "Identity, allowed tools, bounded resources and existing user authorization remain explicit; routine authorized reversible fixes proceed."
+    },
+    {
+      "id": "G-RESEARCH",
+      "rule": "Typed first-principles frame, source observations, competing hypotheses, falsifiable predictions, reasoning modes and skeptical review are present."
+    },
+    {
+      "id": "G-TRANSFER",
+      "rule": "Exact/approximate analogy mappings preserve declared invariants within scope and pass original acceptance tests."
+    },
+    {
+      "id": "G-EVIDENCE",
+      "rule": "Reported, observed, simulated, local/CI-tested, formally_compiled, independently_verified and physically_validated states cannot substitute for one another."
+    },
+    {
+      "id": "G-DEFECT",
+      "rule": "A demonstrated failure has a minimal reproducer, typed cause, invariant, sibling-pattern check, fault injection, preventive regression and prevention evidence."
+    },
+    {
+      "id": "G-RECOVERY",
+      "rule": "Idempotency/ambiguity behavior and an isolated rollback/restore preserve exact artifacts and prior evidence."
+    },
+    {
+      "id": "G-REPRESENTATION",
+      "rule": "Simplex, n-ality, continuum and fuzzy lenses are considered with applicability reasons; any chosen transform states typed assumptions, invariant/error mappings and passes original acceptance tests. Authorization and verification remain Boolean."
+    },
+    {
+      "id": "G-PROMOTION",
+      "rule": "Existing canonical verifier/qualification/authorization paths decide promotion. A plan, skill, model consensus or passing test never grants authority."
+    }
+  ],
+  "defect_family_examples": [
+    {
+      "id": "DF-IMPORT-SHADOW",
+      "status": "predeployment_source_defect_and_prevention_tested",
+      "observation": "Privileged seed previously used -s with inherited runner cwd; the fix uses -I -B and an explicitly verified source path.",
+      "evidence": "oci-dot-ops/test_install_private.py::test_seed_child_ignores_runner_cwd_and_python_environment",
+      "limits": "No exploitation was observed; the test exercises malicious local cwd/PYTHONPATH/PYTHONHOME fixtures.",
+      "sibling_sweep": [
+        "root bootstrap imports",
+        "postdeploy/read-only client cwd",
+        "service WorkingDirectory and root-owned PYTHONPATH"
+      ]
+    },
+    {
+      "id": "DF-UMASK-PERMISSIONS",
+      "status": "predeployment_source_defect_and_restrictive_umask_regression_tested",
+      "observation": "Implicit directory modes under umask077 could prevent the service UID importing code/reading config; release/config modes are now explicit.",
+      "evidence": "oci-dot-ops/test_install_private.py::test_directory_permissions_are_independent_of_root_umask",
+      "limits": "Do not describe this as an observed live outage.",
+      "sibling_sweep": [
+        "release directories",
+        "config traversal",
+        "state ownership",
+        "runtime socket directory"
+      ]
+    },
+    {
+      "id": "DF-ACTIONS-READ",
+      "status": "parent_reported_failed_attempt_then_successful_deploy",
+      "observation": "A first deploy attempt returned403 before host mutations because Actions metadata read permission was missing; the later exact deploy succeeded.",
+      "evidence_refs": [
+        "deployment"
+      ],
+      "missing_evidence": "The first failure exact-run/log reference must be linked before claiming this family fully closed.",
+      "sibling_sweep": [
+        "operation-specific GitHub permission matrix",
+        "preflight metadata access",
+        "fail-before-mutation negative paths"
+      ]
+    }
+  ],
+  "tracks": [
+    {
+      "id": "P00",
+      "name": "Private OCI service and operational recovery",
+      "depends_on": [],
+      "coverage_pointer": "/ranked_workstreams/0",
+      "reconciliation": "Private service is running within its narrow demo scope; recovery and defect-family closure remain open.",
+      "tasks": [
+        {
+          "id": "P00-1",
+          "title": "Record deployed source and route inventory",
+          "coverage_pointer": "/ranked_workstreams/0/tasks/0",
+          "state": "private_demo_scope_evidenced",
+          "evidence_refs": [
+            "deployment",
+            "persistence"
+          ],
+          "scope_note": "Installed bundle, service UID982, socket/route and83 exact-host tests are recorded; this is not whole-Merlin readiness.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        },
+        {
+          "id": "P00-2",
+          "title": "Exercise real service acceptance",
+          "coverage_pointer": "/ranked_workstreams/0/tasks/1",
+          "state": "partial",
+          "evidence_refs": [
+            "deployment",
+            "persistence",
+            "recovery_evidence"
+          ],
+          "scope_note": "Private runtime acceptance and an isolated restored runtime passed actual socket/UID tests; production stayed active with unchanged PID/source/config. Reboot and broader worker lifecycle acceptance remain open.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        },
+        {
+          "id": "P00-3",
+          "title": "Prove non-destructive recovery",
+          "coverage_pointer": "/ranked_workstreams/0/tasks/2",
+          "state": "private_demo_registry_recovery_evidenced_partial_full_scope",
+          "evidence_refs": [
+            "research_integration",
+            "recovery_evidence"
+          ],
+          "scope_note": "Live isolated backup/restore passed as serviceUID982 for2synthetic records, with exact canonical row/blob checks, negative controls and production unchanged. Full project stores, off-host retention and reboot recovery remain open.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        },
+        {
+          "id": "P00-4",
+          "title": "Keep observability and capacity evidence",
+          "coverage_pointer": "/ranked_workstreams/0/tasks/3",
+          "state": "partial",
+          "evidence_refs": [
+            "deployment"
+          ],
+          "scope_note": "Unit limits and bounded payloads/log artifacts exist; sustained capacity, rotation and fault telemetry remain open.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P01",
+      "name": "Source-complete project context and retrieval",
+      "depends_on": [
+        "P00"
+      ],
+      "coverage_pointer": "/ranked_workstreams/1",
+      "reconciliation": "Canonical source preservation remains; course-scoped historical retrieval and four public known byte-oracle cases pass OCI. Full semantic review and general retrieval quality remain open.",
+      "tasks": [
+        {
+          "id": "P01-1",
+          "title": "Reconcile all 191 document records",
+          "coverage_pointer": "/ranked_workstreams/1/tasks/0",
+          "state": "partial",
+          "evidence_refs": [
+            "coverage",
+            "corpus"
+          ],
+          "scope_note": "All191 records are captured and byte checked;4 reviewed for planning and187 semantic/code/evidence reconciliations remain queued.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        },
+        {
+          "id": "P01-2",
+          "title": "Evaluate retrieval against a fixed reference set",
+          "coverage_pointer": "/ranked_workstreams/1/tasks/1",
+          "state": "public_known_fixture_reader_evaluation_oci_validated_partial_general_quality",
+          "evidence_refs": [
+            "learning_evidence_protocol",
+            "learning_evidence_contract",
+            "learning_evidence_checkpoint"
+          ],
+          "scope_note": "Four frozen nonblind cases (one development, three evaluation IDs), exact original-byte/source/course/ref checks, abstention and explicit declared conflicts. No general accuracy or semantic contradiction claim.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        },
+        {
+          "id": "P01-3",
+          "title": "Preserve full-context boundaries",
+          "coverage_pointer": "/ranked_workstreams/1/tasks/2",
+          "state": "partial",
+          "evidence_refs": [
+            "coverage",
+            "persistence"
+          ],
+          "scope_note": "Accessible project context has41 records, not all raw chats. Server holds2 synthetic records; private corpus stays outside shared-runner retrieval.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        },
+        {
+          "id": "P01-4",
+          "title": "Review useful Drive assets without running intake code",
+          "coverage_pointer": "/ranked_workstreams/1/tasks/3",
+          "state": "partial",
+          "evidence_refs": [
+            "coverage"
+          ],
+          "scope_note": "134 useful Drive assets are indexed; torus mesh intake is recorded. Metadata search and one mesh check do not establish full-content/CAD qualification.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P02",
+      "name": "Identity, scopes and separation of authority",
+      "depends_on": [
+        "P00"
+      ],
+      "coverage_pointer": "/ranked_workstreams/2",
+      "reconciliation": "Kernel UID and private socket grant work for the fixed route; remote dot identity and write/execution separation need separate completion.",
+      "tasks": [
+        {
+          "id": "P02-1",
+          "title": "Audit UID/tool grant matrix",
+          "coverage_pointer": "/ranked_workstreams/2/tasks/0",
+          "state": "partial",
+          "evidence_refs": [
+            "deployment",
+            "persistence"
+          ],
+          "scope_note": "Observed UID/tool grant and job_submit denial support the private demo route; broader identity/security auditing remains open.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        },
+        {
+          "id": "P02-2",
+          "title": "Complete any remote OAuth/OIDC boundary separately",
+          "coverage_pointer": "/ranked_workstreams/2/tasks/1",
+          "state": "blocked_missing_identity_provider",
+          "evidence_refs": [
+            "persistence"
+          ],
+          "scope_note": "A direct ChatGPT/dot OAuth/MCP endpoint is not configured; the working route is GitHub-mediated local Unix-socket access.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        },
+        {
+          "id": "P02-3",
+          "title": "Separate request intake from execution authority",
+          "coverage_pointer": "/ranked_workstreams/2/tasks/2",
+          "state": "source_tested_not_live_enabled",
+          "evidence_refs": [
+            "deployment",
+            "persistence"
+          ],
+          "scope_note": "Inbox code and tests exist; live shared-runner mutation and job execution remain unavailable.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P03",
+      "name": "Real two-coder and independent-evaluator improvement loop",
+      "depends_on": [
+        "P01",
+        "P02"
+      ],
+      "coverage_pointer": "/ranked_workstreams/3",
+      "reconciliation": "Durable two-coder machinery is tested with fixtures; live independent adapters and measured transferable improvements are not established.",
+      "tasks": [
+        {
+          "id": "P03-1",
+          "title": "Bind real provider adapters",
+          "coverage_pointer": "/ranked_workstreams/3/tasks/0",
+          "state": "blocked_missing_live_adapters",
+          "evidence_refs": [
+            "persistence"
+          ],
+          "scope_note": "Two coding agents collaborate in this session, but persistent runtime coder/evaluator adapters are not configured.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        },
+        {
+          "id": "P03-2",
+          "title": "Run one controlled improvement episode",
+          "coverage_pointer": "/ranked_workstreams/3/tasks/1",
+          "state": "queued",
+          "evidence_refs": [],
+          "scope_note": "No current completion evidence was established in this master-plan pass.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        },
+        {
+          "id": "P03-3",
+          "title": "Prove safe resume and rollback",
+          "coverage_pointer": "/ranked_workstreams/3/tasks/2",
+          "state": "partial",
+          "evidence_refs": [
+            "deployment"
+          ],
+          "scope_note": "Fixture workflow resume/ambiguity tests passed in the83-test bundle; real-provider resume/rollback has not run.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P04",
+      "name": "Hermes orchestration and MCFC execution fabric",
+      "depends_on": [
+        "P00",
+        "P02",
+        "P03"
+      ],
+      "coverage_pointer": "/ranked_workstreams/4",
+      "reconciliation": "Existing canonical worker contracts must be composed and externally enforced; the read/demo service is not that fabric.",
+      "tasks": [
+        {
+          "id": "P04-1",
+          "title": "Compose canonical worker runtime",
+          "coverage_pointer": "/ranked_workstreams/4/tasks/0",
+          "state": "queued",
+          "evidence_refs": [],
+          "scope_note": "No current completion evidence was established in this master-plan pass.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        },
+        {
+          "id": "P04-2",
+          "title": "Enforce budgets outside the model",
+          "coverage_pointer": "/ranked_workstreams/4/tasks/1",
+          "state": "queued",
+          "evidence_refs": [],
+          "scope_note": "No current completion evidence was established in this master-plan pass.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        },
+        {
+          "id": "P04-3",
+          "title": "Exercise failure and recovery",
+          "coverage_pointer": "/ranked_workstreams/4/tasks/2",
+          "state": "queued",
+          "evidence_refs": [],
+          "scope_note": "No current completion evidence was established in this master-plan pass.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        },
+        {
+          "id": "P04-4",
+          "title": "Qualify each actual runner route",
+          "coverage_pointer": "/ranked_workstreams/4/tasks/3",
+          "state": "partial",
+          "evidence_refs": [
+            "deployment",
+            "persistence"
+          ],
+          "scope_note": "A narrow private OCI read/demo route ran. This is not a qualified generic MCFC/Hermes or CACE execution route.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P05",
+      "name": "Independent CACE and formal evidence closure",
+      "depends_on": [
+        "P02",
+        "P04"
+      ],
+      "coverage_pointer": "/ranked_workstreams/5",
+      "reconciliation": "Exact independent CACE identity, custody, negative receipts and formal scope remain unresolved.",
+      "tasks": [
+        {
+          "id": "P05-1",
+          "title": "Reconcile producer/verifier contracts",
+          "coverage_pointer": "/ranked_workstreams/5/tasks/0",
+          "state": "queued",
+          "evidence_refs": [],
+          "scope_note": "No current completion evidence was established in this master-plan pass.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        },
+        {
+          "id": "P05-2",
+          "title": "Establish independent trust and custody",
+          "coverage_pointer": "/ranked_workstreams/5/tasks/1",
+          "state": "queued",
+          "evidence_refs": [],
+          "scope_note": "No current completion evidence was established in this master-plan pass.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        },
+        {
+          "id": "P05-3",
+          "title": "Verify exact-head evidence and negative paths",
+          "coverage_pointer": "/ranked_workstreams/5/tasks/2",
+          "state": "queued",
+          "evidence_refs": [],
+          "scope_note": "No current completion evidence was established in this master-plan pass.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P06",
+      "name": "Native CAD, wiring and simulation round trip",
+      "depends_on": [
+        "P01",
+        "P04",
+        "P05"
+      ],
+      "coverage_pointer": "/ranked_workstreams/6",
+      "reconciliation": "Ideal circuit/CAD-text artifacts exist; native CAD/wiring/solver round trip and physical-release gates remain open.",
+      "tasks": [
+        {
+          "id": "P06-1",
+          "title": "Separate reusable ideas from broken assets",
+          "coverage_pointer": "/ranked_workstreams/6/tasks/0",
+          "state": "partial",
+          "evidence_refs": [
+            "coverage"
+          ],
+          "scope_note": "Broken/placeholder modeler intake and mesh semantics are recorded; reuse requires reviewed repairs and explicit units.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        },
+        {
+          "id": "P06-2",
+          "title": "Establish native fixtures",
+          "coverage_pointer": "/ranked_workstreams/6/tasks/1",
+          "state": "queued",
+          "evidence_refs": [],
+          "scope_note": "No current completion evidence was established in this master-plan pass.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        },
+        {
+          "id": "P06-3",
+          "title": "Complete geometry and wiring fidelity",
+          "coverage_pointer": "/ranked_workstreams/6/tasks/2",
+          "state": "queued",
+          "evidence_refs": [],
+          "scope_note": "No current completion evidence was established in this master-plan pass.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        },
+        {
+          "id": "P06-4",
+          "title": "Complete pinned simulation evidence",
+          "coverage_pointer": "/ranked_workstreams/6/tasks/3",
+          "state": "partial_ideal_model_only",
+          "evidence_refs": [
+            "deployment",
+            "persistence"
+          ],
+          "scope_note": "Exact rational DC demo ran; native ngspice/FreeCAD execution is unavailable and load/tolerance/physical validity remain outside that result.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        },
+        {
+          "id": "P06-5",
+          "title": "Retain physical-release boundaries",
+          "coverage_pointer": "/ranked_workstreams/6/tasks/4",
+          "state": "queued",
+          "evidence_refs": [],
+          "scope_note": "No current completion evidence was established in this master-plan pass.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P07",
+      "name": "HUD, Forge, voice and Merlin Learning",
+      "depends_on": [
+        "P01",
+        "P02",
+        "P04"
+      ],
+      "coverage_pointer": "/ranked_workstreams/7",
+      "reconciliation": "A concrete source-pinned Titan structural lab now reuses the canonical research stores in the LMS; institutional rollout and efficacy remain separate.",
+      "tasks": [
+        {
+          "id": "P07-1",
+          "title": "Wire the research HUD to real recorded state",
+          "coverage_pointer": "/ranked_workstreams/7/tasks/0",
+          "state": "queued",
+          "evidence_refs": [],
+          "scope_note": "No current completion evidence was established in this master-plan pass.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        },
+        {
+          "id": "P07-2",
+          "title": "Complete one learning vertical slice",
+          "coverage_pointer": "/ranked_workstreams/7/tasks/1",
+          "state": "synthetic_lab_vertical_slice_oci_validated_partial_institutional_rollout",
+          "evidence_refs": [
+            "learning_titan_protocol",
+            "learning_titan_integration",
+            "learning_titan_evidence",
+            "learning_evidence_contract",
+            "learning_evidence_checkpoint"
+          ],
+          "scope_note": "Draft course, independent publication policy, enrollment, canonical lab evidence, pending review and recommendation are wired in code; actual institutional auth/hosting/efficacy remain open. Course-scoped canonical retrieval/evaluation now passes synthetic OCI checks; host route/onboarding remains open.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        },
+        {
+          "id": "P07-3",
+          "title": "Keep Forge and voice capability-scoped",
+          "coverage_pointer": "/ranked_workstreams/7/tasks/2",
+          "state": "queued",
+          "evidence_refs": [],
+          "scope_note": "No current completion evidence was established in this master-plan pass.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P08",
+      "name": "Model loading, context efficiency and measured optimization",
+      "depends_on": [
+        "P03",
+        "P04"
+      ],
+      "coverage_pointer": "/ranked_workstreams/8",
+      "reconciliation": "Inference/context optimization awaits a measured real workload and provider/hardware baseline.",
+      "tasks": [
+        {
+          "id": "P08-1",
+          "title": "Establish real model/hardware baseline",
+          "coverage_pointer": "/ranked_workstreams/8/tasks/0",
+          "state": "queued",
+          "evidence_refs": [],
+          "scope_note": "No current completion evidence was established in this master-plan pass.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        },
+        {
+          "id": "P08-2",
+          "title": "Compare bounded alternatives",
+          "coverage_pointer": "/ranked_workstreams/8/tasks/1",
+          "state": "queued",
+          "evidence_refs": [],
+          "scope_note": "No current completion evidence was established in this master-plan pass.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        },
+        {
+          "id": "P08-3",
+          "title": "Test strategy switching rather than assume it helps",
+          "coverage_pointer": "/ranked_workstreams/8/tasks/2",
+          "state": "queued",
+          "evidence_refs": [],
+          "scope_note": "No current completion evidence was established in this master-plan pass.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "P09",
+      "name": "Advanced research and source-grounded discovery",
+      "depends_on": [
+        "P01",
+        "P03",
+        "P04",
+        "P05"
+      ],
+      "coverage_pointer": "/ranked_workstreams/9",
+      "reconciliation": "Mathematical, Xenomaths, atlas and alien-science directions remain source-grounded research candidates with explicit testability.",
+      "tasks": [
+        {
+          "id": "P09-1",
+          "title": "Reconcile formal and mathematical objects",
+          "coverage_pointer": "/ranked_workstreams/9/tasks/0",
+          "state": "queued",
+          "evidence_refs": [],
+          "scope_note": "No current completion evidence was established in this master-plan pass.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        },
+        {
+          "id": "P09-2",
+          "title": "Review Xenomaths and representation programs",
+          "coverage_pointer": "/ranked_workstreams/9/tasks/1",
+          "state": "queued",
+          "evidence_refs": [],
+          "scope_note": "No current completion evidence was established in this master-plan pass.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        },
+        {
+          "id": "P09-3",
+          "title": "Expand research sources and atlas with review",
+          "coverage_pointer": "/ranked_workstreams/9/tasks/2",
+          "state": "queued",
+          "evidence_refs": [],
+          "scope_note": "No current completion evidence was established in this master-plan pass.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        },
+        {
+          "id": "P09-4",
+          "title": "Preserve cross-domain hypotheses without claiming discoveries",
+          "coverage_pointer": "/ranked_workstreams/9/tasks/3",
+          "state": "queued",
+          "evidence_refs": [],
+          "scope_note": "No current completion evidence was established in this master-plan pass.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        },
+        {
+          "id": "P09-5",
+          "title": "Preserve humanistic and teaching research",
+          "coverage_pointer": "/ranked_workstreams/9/tasks/4",
+          "state": "queued",
+          "evidence_refs": [],
+          "scope_note": "No current completion evidence was established in this master-plan pass.",
+          "acceptance_gate_ids": [
+            "G-SOURCE",
+            "G-SCOPE",
+            "G-EVIDENCE"
+          ]
+        }
+      ]
+    }
+  ],
+  "extension_tasks": [
+    {
+      "id": "P03-X1",
+      "track": "P03",
+      "title": "Enforce the default typed skeptical-scientist episode contract",
+      "derived_from": [
+        "P03-2",
+        "P04-1"
+      ],
+      "depends_on": [
+        "P02-1"
+      ],
+      "acceptance": [
+        "A versioned first-principles frame exists before new external ingestion; unknown premises are labelled unknown, never fabricated.",
+        "Typed observations, premises, competing hypotheses, deductions, inductive sample/scope, predictions and falsifiers bind exact source artifacts.",
+        "Negative tests block omitted provenance/units-or-explicit-not-applicable/uncertainty, unsupported analogy transfer and self-promoted verification.",
+        "One real bounded episode resumes safely and preserves failed/null results; installed skill text alone does not satisfy runtime enforcement."
+      ],
+      "state": "implemented_typed_contract_and_fixture_tests_partial_integration",
+      "promotion_authority": false,
+      "dependency_condition": "Require the relevant contract and evidence slice; do not wait for unrelated domain completion or infer the full dependency track is done.",
+      "source_review_requirements": [
+        "DOC-a54ff182c7e8acf5",
+        "DOC-d99505ca6cfd925b",
+        "DOC-f3acee6ab2f749e5",
+        "DOC-ef4a2da198314eb8"
+      ],
+      "evidence": [
+        "source:31b3ab41848685c7670abf9e20994cebd9eb699e",
+        "OCI validation run44144790708:116tests",
+        "installed personal method guidance"
+      ],
+      "remaining": "Real independent episode, held-out evaluation, appropriate numerical/empirical obligations and broader-worker integration remain open."
+    },
+    {
+      "id": "P09-X1",
+      "track": "P09",
+      "title": "Bind reframing, bounded Ideonomy, lacuna and alien-science exploration to testable gaps",
+      "derived_from": [
+        "P09-2",
+        "P09-4"
+      ],
+      "depends_on": [
+        "P03-X1"
+      ],
+      "acceptance": [
+        "A concrete blockage/gap and finite host-owned search budget trigger enumeration; compatibility and rejection reasons are explicit.",
+        "Exact analogies state and test preserved relations/invariants; approximate analogies state approximation/error/domain limits.",
+        "Translate successful analogues back and rerun original acceptance tests; reject lost essential invariants.",
+        "Lacuna and alien notation/axiom/representation candidates retain operational definitions, human baselines, competing explanations and falsifiable predictions; no novelty or alien-origin claim follows from a generated glyph."
+      ],
+      "state": "implemented_typed_contract_and_fixture_tests_partial_integration",
+      "promotion_authority": false,
+      "dependency_condition": "Require the relevant contract and evidence slice; do not wait for unrelated domain completion or infer the full dependency track is done.",
+      "evidence": [
+        "source:31b3ab41848685c7670abf9e20994cebd9eb699e",
+        "OCI validation run44144790708:116tests",
+        "installed personal method guidance"
+      ],
+      "remaining": "Real independent episode, held-out evaluation, appropriate numerical/empirical obligations and broader-worker integration remain open."
+    },
+    {
+      "id": "P04-X1",
+      "track": "P04",
+      "title": "Make stage boundaries observable and failures typed",
+      "derived_from": [
+        "P04-1",
+        "P04-2",
+        "P00-4"
+      ],
+      "depends_on": [
+        "P03-X1"
+      ],
+      "acceptance": [
+        "Each boundary validates schemas, identity/version/digest, units, declared approximations, authority and resource invariants before side effects.",
+        "Structured failure taxonomy separates identity/scope, source-integrity, contract, configuration, resource, execution, verification and ambiguity failures.",
+        "Correlated logs link task/stage/source/defect IDs without secrets or raw-private-context leakage; NOT_RUN and skipped gates remain visible."
+      ],
+      "state": "planned_integration_not_qualified",
+      "promotion_authority": false,
+      "dependency_condition": "Require the relevant contract and evidence slice; do not wait for unrelated domain completion or infer the full dependency track is done."
+    },
+    {
+      "id": "P01-X1",
+      "track": "P01",
+      "title": "Derive a dependency-impact index for source review and bug sweeps",
+      "derived_from": [
+        "P01-1",
+        "P04-3"
+      ],
+      "depends_on": [
+        "P01-1"
+      ],
+      "acceptance": [
+        "Derive links from canonical imports/contracts/tests/receipts instead of creating another evidence or truth store.",
+        "Every changed invariant selects a bounded source/test shard plus sibling-pattern checks; unrelated research remains preserved in the191-record index.",
+        "The index explains why each selected test and source is relevant, with deterministic shards and no silent truncation."
+      ],
+      "state": "planned_integration_not_qualified",
+      "promotion_authority": false,
+      "dependency_condition": "Require the relevant contract and evidence slice; do not wait for unrelated domain completion or infer the full dependency track is done."
+    },
+    {
+      "id": "P00-X1",
+      "track": "P00",
+      "title": "Close observed deployment defect families with reproducers and prevention",
+      "derived_from": [
+        "P00-1",
+        "P00-2",
+        "P04-3"
+      ],
+      "depends_on": [
+        "P00-1"
+      ],
+      "acceptance": [
+        "Preserve minimal import-shadowing, restrictive-umask and missing-Actions-read reproducers with their precise observation scope.",
+        "Test fault injection and preventive guards on the original failure and adjacent privileged/client/tool paths.",
+        "Link cause, violated invariant, detection rule, regression, prevention and exact source evidence; a green unrelated suite cannot close a family."
+      ],
+      "state": "partial_controls_and_structured_family_ledger",
+      "promotion_authority": false,
+      "dependency_condition": "Require the relevant contract and evidence slice; do not wait for unrelated domain completion or infer the full dependency track is done.",
+      "evidence": [
+        "defect_families",
+        "research_integration"
+      ],
+      "remaining": "Original Actions403run provenance, independent cause of original upgradefailure and broader sibling integration remain open."
+    },
+    {
+      "id": "P00-X2",
+      "track": "P00",
+      "title": "Apply scoped just-in-time repairs and prove rollback",
+      "derived_from": [
+        "P00-3",
+        "P04-3"
+      ],
+      "depends_on": [
+        "P00-X1"
+      ],
+      "acceptance": [
+        "Routine reversible repairs proceed within existing user authorization, capability scope and budgets, with targeted verification.",
+        "Ambiguous external execution is reconciled by its idempotency key before retry; failed/null outcomes remain intact.",
+        "Changes carry bounded impact, before/after evidence, an isolated rollback/restore target and a check that rollback restores the original invariant.",
+        "Only materially missing authority requires a new decision; this task does not widen service UID grants, signer custody or execution capabilities."
+      ],
+      "state": "bounded_demo_restore_and_preservation_evidenced",
+      "promotion_authority": false,
+      "dependency_condition": "Require the relevant contract and evidence slice; do not wait for unrelated domain completion or infer the full dependency track is done.",
+      "evidence": [
+        "recovery_protocol",
+        "recovery_evidence",
+        "defect_families"
+      ],
+      "remaining": "Full project-store restore/off-host custody/reboot and independent broad-worker recovery remain open. Source/config rollback and isolated clone are distinct measured paths."
+    },
+    {
+      "id": "P09-X2",
+      "track": "P09",
+      "title": "Integrate typed simplex, n-ality, continuum and fuzzy-logic representation tools",
+      "derived_from": [
+        "P09-2",
+        "P06-3",
+        "P03-X1"
+      ],
+      "depends_on": [
+        "P03-X1",
+        "P09-X1"
+      ],
+      "acceptance": [
+        "Each episode records an applicability/reason decision for all four standard lenses, without forcing irrelevant transformations.",
+        "Typed tools validate domains, dimensionality, weight/arity/membership semantics, invariants and approximation limits.",
+        "Continuum approximations retain boundary conditions plus discretization-error, convergence and stability obligations where numerical claims are made.",
+        "Negative tests reject membership-as-probability, normalized-weights-as-proof, n-ary-shape-as-physical-synergy and fuzzy authorization/verification gates.",
+        "The transformed and original problems pass their declared acceptance tests; helper/skill presence alone does not close integration."
+      ],
+      "state": "implemented_typed_contract_and_fixture_tests_partial_integration",
+      "promotion_authority": false,
+      "dependency_condition": "Require the relevant contract and evidence slice; do not wait for unrelated domain completion or infer the full dependency track is done.",
+      "evidence": [
+        "source:31b3ab41848685c7670abf9e20994cebd9eb699e",
+        "OCI validation run44144790708:116tests",
+        "installed personal method guidance"
+      ],
+      "remaining": "Real independent episode, held-out evaluation, appropriate numerical/empirical obligations and broader-worker integration remain open."
+    },
+    {
+      "id": "P07-X1",
+      "track": "P07",
+      "title": "Integrate source-bound research labs into the tenant-scoped learning workflow",
+      "depends_on": [
+        "P07-2",
+        "P02-1",
+        "P03-X1"
+      ],
+      "state": "source_integrated_oci_validated_synthetic_scope",
+      "acceptance": [
+        "Published course version/hash and enrolled learner scope bind each fixed lab.",
+        "Canonical model/vector/source evidence survives replay and crash recovery; altered identity or bytes are rejected.",
+        "Assessment version/hash is checked in the same write transaction and remains pending calibrated review.",
+        "Source citations and transfer/limits exercises remain distinct from fixture success, mastery and crypto qualification.",
+        "Actual authenticated institutional adapter, accessibility/media rights and student-data onboarding are separate gates."
+      ],
+      "promotion_authority": false,
+      "evidence": [
+        "learning_titan_protocol",
+        "learning_titan_integration",
+        "learning_titan_evidence",
+        "learning_evidence_contract",
+        "learning_evidence_checkpoint"
+      ]
+    }
+  ],
+  "ranked_next_actions": [
+    {
+      "rank": 1,
+      "task_ids": [
+        "P07-2",
+        "P07-X1",
+        "P04-1"
+      ],
+      "reason": "Wire the library bridge through the actual host-authenticated LMS/session adapter and tenant/project provisioning, with instructor review, accessibility and retention policies. Keep synthetic demo and actual institutional onboarding distinct.",
+      "acceptance": "Authenticated Actor from hostsession, tenant-scoped routes, version-pinned submissions, role tests and one explicitly provisioned pilot tenant; no model-authored identity or grades."
+    },
+    {
+      "rank": 2,
+      "task_ids": [
+        "P01-2",
+        "P01-X1",
+        "P03-2"
+      ],
+      "reason": "Expand beyond the completed four-case public fixture with independently frozen source/case sets and discriminating missing/conflicting evidence, on an explicitly authorized private host. Do not move private context onto the shared runner.",
+      "acceptance": "Predeclared corpus/scope/rights, original-byte oracles, held-out or new-data leakage controls, measured errors/abstentions and preserved failed candidates; no efficacy inference."
+    },
+    {
+      "rank": 3,
+      "task_ids": [
+        "P03-1",
+        "P03-2",
+        "P03-3",
+        "P03-X1"
+      ],
+      "reason": "Use two authorized coder/evaluator adapters for a genuinely discriminating research episode with held-out predictions and independent review; the fixed Titan vectors remain known fixtures.",
+      "acceptance": "Actual provider/cost identities, new-data or held-out cases, canonical checkpoints and preserved failed/null results."
+    },
+    {
+      "rank": 4,
+      "task_ids": [
+        "P00-3",
+        "P00-X2",
+        "P00-4"
+      ],
+      "reason": "Extend recovery to published LMS/learner/research store sets and off-host custody using implemented approved primitives, retaining trusted pins and restore verification. Titan structural models are not encryption providers.",
+      "acceptance": "Consistent offline publication of WAL-backed stores, explicit payload/retention scope and retrieved restore drill; no shared-runner reboot outside a coordinated window."
+    },
+    {
+      "rank": 5,
+      "task_ids": [
+        "P04-1",
+        "P05-1",
+        "P06-2",
+        "P06-4"
+      ],
+      "reason": "Continue native CAD/wiring/solver and independently verified Titan conformance paths after available adapters and exact source evidence are established.",
+      "acceptance": "Pinned native tools and standards-based implementations, exact vectors/interoperability and independent review where required; no automatic source/model-to-proof promotion."
+    }
+  ],
+  "jit_repair_policy": {
+    "routine_authorized_reversible_fix": "proceed_with_scoped_impact_and_targeted_verification",
+    "unclear_or_missing_authority": "resolve_existing_session_authorization_and_repository_policy_before_requesting_a_new_decision",
+    "no_automatic_authority_expansion": true,
+    "no_hidden_retries_or_failed_result_deletion": true,
+    "no_unrelated_runner_cleanup": true,
+    "shared_runner_live_mutation": "disabled_unless_separately_authorized_and_scoped"
+  },
+  "operational_constraints": [
+    "No external paid compute is inferred. Avrea remains unavailable until 2026-12-01 per standing project context; revalidate before use.",
+    "No new Cloudflare deployment; no pasted or placeholder secrets.",
+    "Full private corpus remains in Expert Robot/private project custody; the live shared-runner route contains synthetic engineering context only.",
+    "Use canonical registry/graph/outbox/evidence paths; this plan is a traceability/dependency view, not an independent truth store.",
+    "Bound source/test shards, preserve skipped and NOT_RUN states, and keep independent CACE credentials absent rather than inventing them."
+  ],
+  "update_rule": "Append a new plan version linked to this plan and exact observations/receipts. Update source review counts only after actual content/code/evidence reconciliation; never infer completion from indexing or generated text.",
+  "dependency_semantics": "For bounded implementation, a dependency requires its relevant contract/source/evidence slice, not completion of every unrelated task in that track. Full191-document reconciliation remains open; offline typed-contract work may proceed after its governing source shard is read and its negative tests are defined.",
+  "updated_at_utc": "2026-11-18T02:28:17.917991+00:00",
+  "integrations": {
+    "learning_titan": {
+      "status": "source_integrated_and_oci85pass_synthetic_flow",
+      "source_commit": "a5fe1065eb9d3a07448da9edcf29712fdf89bacd",
+      "components": [
+        "LearningPlatform and LearnerStore",
+        "LearningLabBridge and source-pinned Titan course",
+        "Titan structural protocol model/vector fixtures",
+        "MerlinRegistry and immutable ArtifactRef/provenance",
+        "ResearchEvidenceRecorder/HypothesisLedger/KnowledgeGraph",
+        "existing pending assessment and reviewer calibration policy"
+      ],
+      "reuse_boundary": "No duplicate blob/evidence store; LMS owns only run reservation/receipt links in its existing database.",
+      "baseline": {
+        "tests": 28,
+        "passed": 27,
+        "errors": 1,
+        "failure": "missing Titan executor tool_identity; legacy unsigned fixture mismatched current signed adapter contract"
+      },
+      "local_focused_tests": {
+        "tests": 85,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "broader_probe": {
+        "tests": 95,
+        "errors": 2,
+        "cause": "Incomplete source shard lacked unrelated app import; pytest unavailable for an unchanged graph test file. These are NOT_RUN outside selected85-test suite, not evidence of passing full repository tests."
+      },
+      "four_mathematical_lenses": "Every fixed lab report records applied/not_applicable for all four, with invariants and limits.",
+      "limits": [
+        "Synthetic known-fixture software flow; no held-out/new-data learning efficacy.",
+        "Host must inject authenticated Actor and distinct tenant/project provisioning; no institutional SSO/LTI/public deployment in this slice.",
+        "Titan executes no KDF/AEAD/KEM primitives and establishes no cryptographic security.",
+        "Missing independent verifier remains blocked_missing_credentials.",
+        "No automatic grade/mastery, proof qualification or promotion.",
+        "Existing private live host and production state are outside isolated validation."
+      ],
+      "qualification": false,
+      "promotion_authority": false,
+      "oci_run_id": 44174486449,
+      "oci_tests": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests": 85
+      },
+      "oci_architecture": "aarch64",
+      "oci_python": [
+        3,
+        9,
+        25
+      ],
+      "known_fixture_replay": {
+        "canonical_receipt_replay_equal": true,
+        "course_id": "10e12c902eb5cc5d923667b1",
+        "course_manifest_sha256": "10bbbf36860f35fe411e264234766c06b7e42bda0b18e250b56d99616a64e358",
+        "course_version": 1,
+        "cryptographic_security_verified": false,
+        "educational_efficacy_established": false,
+        "fixture_class": "synthetic_known_fixture",
+        "frozen_transcript_ref": {
+          "logical_path": "learning/synthetic-demo/frozen-transcript.json",
+          "project_id": "titan-learning-demo",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "62484630dd9f2d945f0d292e0e590a8c1f251938036413af54b077b368702455",
+          "version": 1
+        },
+        "lab_artifact_ref": {
+          "logical_path": "learning-labs/835aec4632a9ad0e0523ed8ca2f9136e329f2e17c929232127e719593c0a3b58/titan-structural.json",
+          "project_id": "titan-learning-demo",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "dfad28c983ec3533999ed7ff77ab69ca505b141d2470f4cbfe5f42239f925e8e",
+          "version": 1
+        },
+        "mastery_updated": false,
+        "model_sha256": "1a250aa2b19515404efa9017fdd54ec899f3e92487bb110dfd0426f5fb01cfc3",
+        "promotion_authority": false,
+        "qualification": false,
+        "replay_duplicate": true,
+        "schema": "merlin-learning-titan-oci-demo/1",
+        "source_commit": "a5fe1065eb9d3a07448da9edcf29712fdf89bacd",
+        "submission_status": "pending_review",
+        "synthetic_publication_review": true,
+        "vector_count": 5,
+        "vectors_sha256": "8b3cc775f7d2e60077fc1625131070f56eba63542a0392a6819fe871f1cbcdbc",
+        "verification_status": "blocked_missing_credentials"
+      },
+      "production_service_modified": false
+    },
+    "learning_evidence": {
+      "status": "source_integrated_oci130pass_public_known_fixture_scope",
+      "source_commit": "47260febc9726ec6d02c798b0fd99780b19dba29",
+      "components": [
+        "LearningEvidenceService",
+        "existing LearningPlatform/Actor/enrollment",
+        "existing DotContextBridge with optional historical pins",
+        "existing MerlinRegistry/ArtifactRef",
+        "frozen original-byte evaluator and Titan synthetic course"
+      ],
+      "reuse_boundary": "No shadow context/evidence store; source curation, protocol, candidates and reports use canonical registry.",
+      "oci_run_id": 44223138785,
+      "tests": {
+        "errors": 0,
+        "failures": 0,
+        "passed": true,
+        "skipped": 0,
+        "tests": 130
+      },
+      "architecture": "aarch64",
+      "python": [
+        3,
+        9,
+        25
+      ],
+      "evaluation": {
+        "canonical_replay_equal": true,
+        "case_sha256": "09176a392074366c5e8e620c68fb3525321c8e33228951b341b876485bd98b7b",
+        "fixture_class": "public_known_fixture",
+        "fixture_sha256": "b6b6b28f3aaea631c78fc7e06a23ca0d5d4342cfc065a3887f451f18a942b018",
+        "limits": [
+          "Public known fixtures; non-blind evaluation with no general retrieval-accuracy estimate.",
+          "The case-ID split prevents overlap, not evaluator leakage or curriculum efficacy claims.",
+          "Text is synthetic, not historical evidence, student data, actual ciphertext or credentials.",
+          "Exact source bytes establish citation integrity only; no crypto security, grade, mastery or qualification."
+        ],
+        "mastery_updated": false,
+        "metrics": {
+          "case_count": 4,
+          "development_passed": 1,
+          "evaluation_passed": 3,
+          "failed": 0,
+          "passed": 4
+        },
+        "promotion_authority": false,
+        "protocol_ref": {
+          "logical_path": "learning-evidence-eval/b1c243abd932a8d18501bb56e87df1fc1b77b86d674fcef84d061daba3aa116b/protocol.json",
+          "project_id": "synthetic-learning-evidence",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "b1c243abd932a8d18501bb56e87df1fc1b77b86d674fcef84d061daba3aa116b",
+          "version": 1
+        },
+        "qualification": false,
+        "report_ref": {
+          "logical_path": "learning-evidence-eval/b1c243abd932a8d18501bb56e87df1fc1b77b86d674fcef84d061daba3aa116b/report.json",
+          "project_id": "synthetic-learning-evidence",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "cc0001246d142df8727e286c25c18762a7aeef51894e938bfd5e7dc00df19905",
+          "version": 1
+        },
+        "schema": "synthetic-learning-evidence-demo/1",
+        "source_sha256": {
+          "fixture-current-name": "97a2317e8866d254ff74eed4e2280d8ac49e390bb6d264348f9aa9493117628b",
+          "fixture-historical-name": "60a39ccc073a34a6f73fc56e7f6610d73525554cae11ee8fb40fc5aa1a5196b1",
+          "fixture-review-policy": "e889e83d9fa61f8ec63510cd6907a367edcbe0c9bb65c3e07266e57289fe6df0",
+          "fixture-titan-scope": "60b5b26d1ceab49bc05992b784164b28d2881130c6e7fca208fe5bea3c9f96bb"
+        }
+      },
+      "qualification": false,
+      "promotion_authority": false,
+      "production_service_modified": false,
+      "remaining": [
+        "Actual host-authenticated routes and distinct tenant/project provisioning.",
+        "Origin/rights/accessibility/retention review and explicitly provisioned pilot.",
+        "Larger frozen independent/new-data evaluations before claiming general retrieval quality.",
+        "Automatic semantic contradiction discovery remains absent; only reviewed annotations are implemented."
+      ]
+    }
+  }
+}

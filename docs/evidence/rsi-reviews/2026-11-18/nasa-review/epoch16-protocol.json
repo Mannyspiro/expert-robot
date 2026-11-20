@@ -1,0 +1,10 @@
+{
+  "training": [[63810000000,234567890123],[63810000001,345678901234]],
+  "heldout_scalar": [[63113904000,1]],
+  "heldout_list": [[63113904001,999999999999],[63113904002,0],[63113904003,1]],
+  "heldout_2d": [[[63113904004,831],[63113904004,830]],[[63113904005,0],[63113904005,999999999999]]],
+  "unchanged_integer": [0,1,-7,2147483647],
+  "compression": [0,6],
+  "gate":"For every input and each compression setting, real writer then reader must preserve exact dtype, shape and values. For each nonempty record set, last-record field must be input record count minus one. No tuning on held-out. Byte round-trip assessed before/after, coverage limited to these cases.",
+  "prior_forecast":"The small public upstream change removes premature splitting of complex128 pairs in the nonsparse writer; additional paths in the older release may need changes. Retain failed outcomes."
+}

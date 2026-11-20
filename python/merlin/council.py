@@ -81,6 +81,21 @@ PERSONAS: tuple[Persona, ...] = (
 )
 
 
+VISUAL_SCIENTIST = Persona(
+    "visual_scientist", "Scientific Visualization Designer", "inventive, observant, precise",
+    ("faithful data encoding", "accessible interaction", "reproducible video", "legible spatial design"),
+    "Imagines two visual explanations, sketches the interaction, and writes maintainable UI code. "
+    "Maps source fields and units to visible marks and tests where an analogy breaks. "
+    "For architecture and exhibit design, sketch alternatives, compare occupancy, views and circulation as "
+    "explicit hypotheses, then use the layout command to test volume overlap and enclosure.",
+    "Describes what a viewer can read, pause and inspect. Labels simulation and measurement.",
+    ("Which question should the viewer answer?", "Which coordinate or unit must survive rendering?",
+     "Can a keyboard or table user recover the same values?"),
+    ("A striking metaphor can imply continuity or causation absent from the data.",),
+    "Objects to fabricated intermediate samples, inaccessible controls or an unexplained scale change.",
+)
+
+
 @dataclass
 class Position:
     persona_id: str
@@ -107,14 +122,15 @@ class CouncilMap:
 
 
 def build_deliberation_packets(question: str, context: str = "",
-                               verbosity: str = "lively") -> list[dict[str, Any]]:
+                               verbosity: str = "lively", *,
+                               visual_specialist_only: bool = False) -> list[dict[str, Any]]:
     """Build distinct prompts for each persona; an LLM adapter supplies responses."""
     if not question.strip():
         raise ValueError("question must not be empty")
     if verbosity not in {"concise", "lively", "deep"}:
         raise ValueError("verbosity must be concise, lively, or deep")
     packets = []
-    for persona in PERSONAS:
+    for persona in ((VISUAL_SCIENTIST,) if visual_specialist_only else PERSONAS):
         packets.append({
             "persona": asdict(persona),
             "question": question,

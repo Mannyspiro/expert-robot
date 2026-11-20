@@ -1,0 +1,198 @@
+/workspace/scratch/9e18d065a80b/dot-ai-os/tests/test_http_gateway.py:15: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient
+test_changed_source_keeps_old_version_readable (test_dot_context.ContextTests.test_changed_source_keeps_old_version_readable) ... ok
+test_cross_namespace_metadata_rebinding_rejected (test_dot_context.ContextTests.test_cross_namespace_metadata_rebinding_rejected) ... ok
+test_cross_project_and_non_source_reads_are_rejected (test_dot_context.ContextTests.test_cross_project_and_non_source_reads_are_rejected) ... ok
+test_drafts_preserve_no_execution_and_no_promotion (test_dot_context.ContextTests.test_drafts_preserve_no_execution_and_no_promotion) ... ok
+test_exact_bytes_and_idempotent_ingest (test_dot_context.ContextTests.test_exact_bytes_and_idempotent_ingest) ... ok
+test_handoff_scope_and_tampering_fail_closed (test_dot_context.ContextTests.test_handoff_scope_and_tampering_fail_closed) ... ok
+test_handoffs_append_and_reject_traversal (test_dot_context.ContextTests.test_handoffs_append_and_reject_traversal) ... ok
+test_injection_is_data_and_never_evidence (test_dot_context.ContextTests.test_injection_is_data_and_never_evidence) ... ok
+test_no_silent_record_overflow (test_dot_context.ContextTests.test_no_silent_record_overflow) ... ok
+test_paging_reassembles_multibyte_text (test_dot_context.ContextTests.test_paging_reassembles_multibyte_text) ... ok
+test_persisted_record_schema_and_source_binding_revalidated (test_dot_context.ContextTests.test_persisted_record_schema_and_source_binding_revalidated) ... ok
+test_rsi_training_holdout_overlap_rejected (test_dot_context.ContextTests.test_rsi_training_holdout_overlap_rejected) ... ok
+test_same_text_new_acquisition_has_new_metadata_lineage (test_dot_context.ContextTests.test_same_text_new_acquisition_has_new_metadata_lineage) ... ok
+test_scope_does_not_leak_other_namespace (test_dot_context.ContextTests.test_scope_does_not_leak_other_namespace) ... ok
+test_search_has_exact_utf8_locators_and_full_response_budget (test_dot_context.ContextTests.test_search_has_exact_utf8_locators_and_full_response_budget) ... ok
+test_tampered_blob_is_rejected (test_dot_context.ContextTests.test_tampered_blob_is_rejected) ... ok
+test_unicode_query_cannot_overflow_packet_budget (test_dot_context.ContextTests.test_unicode_query_cannot_overflow_packet_budget) ... ok
+test_both_coders_and_evaluator_run_with_exact_context (test_dual_coder.DualCoderTests.test_both_coders_and_evaluator_run_with_exact_context) ... ok
+test_callback_failure_never_automatically_repeats (test_dual_coder.DualCoderTests.test_callback_failure_never_automatically_repeats) ... ok
+test_candidate_recommendation_never_adds_claim_or_receipt (test_dual_coder.DualCoderTests.test_candidate_recommendation_never_adds_claim_or_receipt) ... ok
+test_changed_checkpoint_version_fails_instead_of_silent_reuse (test_dual_coder.DualCoderTests.test_changed_checkpoint_version_fails_instead_of_silent_reuse) ... ok
+test_changed_specification_and_provider_are_conflicts (test_dual_coder.DualCoderTests.test_changed_specification_and_provider_are_conflicts) ... ok
+test_coder_output_cannot_supply_authority_or_provider_identity (test_dual_coder.DualCoderTests.test_coder_output_cannot_supply_authority_or_provider_identity) ... ok
+test_completed_run_resumes_without_any_adapter_calls (test_dual_coder.DualCoderTests.test_completed_run_resumes_without_any_adapter_calls) ... ok
+test_crash_after_intent_requires_reconciliation (test_dual_coder.DualCoderTests.test_crash_after_intent_requires_reconciliation) ... ok
+test_evaluator_counts_are_bounded_and_not_booleans (test_dual_coder.DualCoderTests.test_evaluator_counts_are_bounded_and_not_booleans) ... ok
+test_missing_first_adapter_records_spec_but_no_intent (test_dual_coder.DualCoderTests.test_missing_first_adapter_records_spec_but_no_intent) ... ok
+test_no_better_candidate_retains_parent (test_dual_coder.DualCoderTests.test_no_better_candidate_retains_parent) ... ok
+test_partial_resume_does_not_repeat_first_coder (test_dual_coder.DualCoderTests.test_partial_resume_does_not_repeat_first_coder) ... ok
+test_recursive_dispatch_is_blocked_by_cooperative_lock (test_dual_coder.DualCoderTests.test_recursive_dispatch_is_blocked_by_cooperative_lock) ... ok
+test_source_versions_are_pinned_even_after_latest_advances (test_dual_coder.DualCoderTests.test_source_versions_are_pinned_even_after_latest_advances) ... ok
+test_status_rejects_result_without_matching_invocation_intent (test_dual_coder.DualCoderTests.test_status_rejects_result_without_matching_invocation_intent) ... ok
+test_train_holdout_overlap_and_paid_budget_rejected_before_callbacks (test_dual_coder.DualCoderTests.test_train_holdout_overlap_and_paid_budget_rejected_before_callbacks) ... ok
+test_training_only_gain_does_not_recommend_successor (test_dual_coder.DualCoderTests.test_training_only_gain_does_not_recommend_successor) ... ok
+test_authentication_and_scope_rejections_do_not_reach_tool (test_http_gateway.GatewayTests.test_authentication_and_scope_rejections_do_not_reach_tool) ... /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/pydantic_settings/sources/utils.py:47: IncompleteFieldDefinitionWarning: Field 'lifespan' has an incomplete definition: its annotation contains an unresolved forward reference, so settings sources may fail to correctly resolve its value. Call `model_rebuild()` on the model where the field is defined, once all the referenced types are defined.
+  warnings.warn(
+StreamableHTTP session manager started
+HTTP Request: POST http://127.0.0.1:8766/mcp "HTTP/1.1 401 Unauthorized"
+HTTP Request: POST http://127.0.0.1:8766/mcp "HTTP/1.1 401 Unauthorized"
+HTTP Request: POST http://127.0.0.1:8766/mcp "HTTP/1.1 403 Forbidden"
+StreamableHTTP session manager shutting down
+ok
+test_fixed_host_and_origin_protection (test_http_gateway.GatewayTests.test_fixed_host_and_origin_protection) ... StreamableHTTP session manager started
+Invalid Host header: attacker.example.test
+Terminating session: None
+HTTP Request: POST http://127.0.0.1:8766/mcp "HTTP/1.1 421 Misdirected Request"
+Invalid Origin header: https://attacker.example.test
+Terminating session: None
+HTTP Request: POST http://127.0.0.1:8766/mcp "HTTP/1.1 403 Forbidden"
+Processing request of type CallToolRequest
+Terminating session: None
+HTTP Request: POST http://127.0.0.1:8766/mcp "HTTP/1.1 200 OK"
+StreamableHTTP session manager shutting down
+ok
+test_invalid_claims_fail_closed_without_registry_or_coder_activity (test_http_gateway.GatewayTests.test_invalid_claims_fail_closed_without_registry_or_coder_activity) ... StreamableHTTP session manager started
+HTTP Request: POST http://127.0.0.1:8766/mcp "HTTP/1.1 401 Unauthorized"
+HTTP Request: POST http://127.0.0.1:8766/mcp "HTTP/1.1 401 Unauthorized"
+HTTP Request: POST http://127.0.0.1:8766/mcp "HTTP/1.1 401 Unauthorized"
+HTTP Request: POST http://127.0.0.1:8766/mcp "HTTP/1.1 401 Unauthorized"
+HTTP Request: POST http://127.0.0.1:8766/mcp "HTTP/1.1 401 Unauthorized"
+HTTP Request: POST http://127.0.0.1:8766/mcp "HTTP/1.1 401 Unauthorized"
+HTTP Request: POST http://127.0.0.1:8766/mcp "HTTP/1.1 401 Unauthorized"
+HTTP Request: POST http://127.0.0.1:8766/mcp "HTTP/1.1 401 Unauthorized"
+HTTP Request: POST http://127.0.0.1:8766/mcp "HTTP/1.1 401 Unauthorized"
+HTTP Request: POST http://127.0.0.1:8766/mcp "HTTP/1.1 401 Unauthorized"
+HTTP Request: POST http://127.0.0.1:8766/mcp "HTTP/1.1 401 Unauthorized"
+HTTP Request: POST http://127.0.0.1:8766/mcp "HTTP/1.1 401 Unauthorized"
+HTTP Request: POST http://127.0.0.1:8766/mcp "HTTP/1.1 401 Unauthorized"
+HTTP Request: POST http://127.0.0.1:8766/mcp "HTTP/1.1 401 Unauthorized"
+StreamableHTTP session manager shutting down
+ok
+test_missing_or_invalid_configuration_refuses_before_registry_creation (test_http_gateway.GatewayTests.test_missing_or_invalid_configuration_refuses_before_registry_creation) ... StreamableHTTP session manager started
+StreamableHTTP session manager shutting down
+ok
+test_read_only_registry_denies_sql_and_blob_mutations_without_migrations (test_http_gateway.GatewayTests.test_read_only_registry_denies_sql_and_blob_mutations_without_migrations) ... StreamableHTTP session manager started
+StreamableHTTP session manager shutting down
+ok
+test_valid_http_mcp_query_fetch_resume_and_tool_annotations (test_http_gateway.GatewayTests.test_valid_http_mcp_query_fetch_resume_and_tool_annotations) ... StreamableHTTP session manager started
+Terminating session: None
+HTTP Request: POST http://127.0.0.1:8766/mcp "HTTP/1.1 200 OK"
+Processing request of type ListToolsRequest
+Terminating session: None
+HTTP Request: POST http://127.0.0.1:8766/mcp "HTTP/1.1 200 OK"
+Processing request of type CallToolRequest
+Terminating session: None
+HTTP Request: POST http://127.0.0.1:8766/mcp "HTTP/1.1 200 OK"
+Processing request of type CallToolRequest
+Terminating session: None
+HTTP Request: POST http://127.0.0.1:8766/mcp "HTTP/1.1 200 OK"
+Processing request of type CallToolRequest
+Terminating session: None
+HTTP Request: POST http://127.0.0.1:8766/mcp "HTTP/1.1 200 OK"
+StreamableHTTP session manager shutting down
+ok
+test_wal_mode_refuses_before_sqlite_can_create_side_files (test_http_gateway.GatewayTests.test_wal_mode_refuses_before_sqlite_can_create_side_files) ... StreamableHTTP session manager started
+StreamableHTTP session manager shutting down
+ok
+test_workflow_status_cannot_cross_namespace_scope (test_http_gateway.GatewayTests.test_workflow_status_cannot_cross_namespace_scope) ... StreamableHTTP session manager started
+Processing request of type CallToolRequest
+Terminating session: None
+HTTP Request: POST http://127.0.0.1:8766/mcp "HTTP/1.1 200 OK"
+StreamableHTTP session manager shutting down
+ok
+test_callback_error_timeout_size_and_token_bounds_fail_closed (test_http_gateway.IntrospectionTests.test_callback_error_timeout_size_and_token_bounds_fail_closed) ... ok
+test_fixed_http_endpoint_body_and_valid_response (test_http_gateway.IntrospectionTests.test_fixed_http_endpoint_body_and_valid_response) ... HTTP Request: POST https://issuer.example.test/introspect "HTTP/1.1 200 OK"
+ok
+test_malformed_oversized_redirect_and_transport_failure_responses (test_http_gateway.IntrospectionTests.test_malformed_oversized_redirect_and_transport_failure_responses) ... HTTP Request: POST https://issuer.example.test/introspect "HTTP/1.1 200 OK"
+HTTP Request: POST https://issuer.example.test/introspect "HTTP/1.1 200 OK"
+HTTP Request: POST https://issuer.example.test/introspect "HTTP/1.1 200 OK"
+HTTP Request: POST https://issuer.example.test/introspect "HTTP/1.1 200 OK"
+HTTP Request: POST https://issuer.example.test/introspect "HTTP/1.1 200 OK"
+HTTP Request: POST https://issuer.example.test/introspect "HTTP/1.1 200 OK"
+HTTP Request: POST https://issuer.example.test/introspect "HTTP/1.1 200 OK"
+HTTP Request: POST https://issuer.example.test/introspect "HTTP/1.1 200 OK"
+HTTP Request: POST https://issuer.example.test/introspect "HTTP/1.1 302 Found"
+HTTP Request: POST https://issuer.example.test/introspect "HTTP/1.1 500 Internal Server Error"
+ok
+test_missing_issuer_allowed_but_declared_issuer_must_match (test_http_gateway.IntrospectionTests.test_missing_issuer_allowed_but_declared_issuer_must_match) ... ok
+test_accepts_and_reads_same_principal_without_source_body (test_job_inbox.JobInboxTests.test_accepts_and_reads_same_principal_without_source_body) ... ok
+test_allowed_cross_namespace_context_can_support_one_request (test_job_inbox.JobInboxTests.test_allowed_cross_namespace_context_can_support_one_request) ... ok
+test_budget_caps_and_boolean_cost_rejected (test_job_inbox.JobInboxTests.test_budget_caps_and_boolean_cost_rejected) ... ok
+test_changed_immutable_version_is_not_silently_reused (test_job_inbox.JobInboxTests.test_changed_immutable_version_is_not_silently_reused) ... ok
+test_concurrent_identical_submissions_serialize_to_one_request (test_job_inbox.JobInboxTests.test_concurrent_identical_submissions_serialize_to_one_request) ... ok
+test_concurrent_principals_cannot_share_one_key (test_job_inbox.JobInboxTests.test_concurrent_principals_cannot_share_one_key) ... ok
+test_identical_replay_is_exact_and_does_not_add_versions (test_job_inbox.JobInboxTests.test_identical_replay_is_exact_and_does_not_add_versions) ... ok
+test_inbox_never_mutates_canonical_claims_or_receipts (test_job_inbox.JobInboxTests.test_inbox_never_mutates_canonical_claims_or_receipts) ... ok
+test_lock_symlink_rejected_and_bounded_busy_wait (test_job_inbox.JobInboxTests.test_lock_symlink_rejected_and_bounded_busy_wait) ... ok
+test_malformed_identity_and_request_id_rejected (test_job_inbox.JobInboxTests.test_malformed_identity_and_request_id_rejected) ... ok
+test_missing_project_fails_without_provisioning (test_job_inbox.JobInboxTests.test_missing_project_fails_without_provisioning) ... ok
+test_namespace_and_cross_project_source_scope_is_enforced (test_job_inbox.JobInboxTests.test_namespace_and_cross_project_source_scope_is_enforced) ... ok
+test_old_exact_source_version_survives_latest_advancement (test_job_inbox.JobInboxTests.test_old_exact_source_version_survives_latest_advancement) ... ok
+test_other_principal_cannot_read_known_request_id (test_job_inbox.JobInboxTests.test_other_principal_cannot_read_known_request_id) ... ok
+test_partial_local_write_reserves_key_and_identical_retry_finishes (test_job_inbox.JobInboxTests.test_partial_local_write_reserves_key_and_identical_retry_finishes) ... ok
+test_payload_and_budget_changes_conflict_under_same_key (test_job_inbox.JobInboxTests.test_payload_and_budget_changes_conflict_under_same_key) ... ok
+test_principal_characters_are_hashed_not_used_as_a_path (test_job_inbox.JobInboxTests.test_principal_characters_are_hashed_not_used_as_a_path) ... ok
+test_same_key_cannot_be_rebound_to_another_principal (test_job_inbox.JobInboxTests.test_same_key_cannot_be_rebound_to_another_principal) ... ok
+test_source_count_duplicates_and_total_context_caps (test_job_inbox.JobInboxTests.test_source_count_duplicates_and_total_context_caps) ... ok
+test_status_rehashes_context_and_rejects_tampered_bytes (test_job_inbox.JobInboxTests.test_status_rehashes_context_and_rejects_tampered_bytes) ... ok
+test_tampered_reference_and_wrong_artifact_kind_rejected (test_job_inbox.JobInboxTests.test_tampered_reference_and_wrong_artifact_kind_rejected) ... ok
+test_unknown_authority_and_execution_fields_rejected (test_job_inbox.JobInboxTests.test_unknown_authority_and_execution_fields_rejected) ... ok
+test_read_only_protocol_search_fetch_and_resume (test_mcp_protocol.MCPTests.test_read_only_protocol_search_fetch_and_resume) ... execute program '/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python': <_UnixSubprocessTransport pid=24 running stdin=<_UnixWritePipeTransport fd=9 idle bufsize=0> stdout=<_UnixReadPipeTransport fd=10 polling>>
+/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/site-packages/pydantic_settings/sources/utils.py:47: IncompleteFieldDefinitionWarning: Field 'lifespan' has an incomplete definition: its annotation contains an unresolved forward reference, so settings sources may fail to correctly resolve its value. Call `model_rebuild()` on the model where the field is defined, once all the referenced types are defined.
+  warnings.warn(
+Processing request of type ListToolsRequest
+Processing request of type CallToolRequest
+Processing request of type CallToolRequest
+Processing request of type CallToolRequest
+Processing request of type CallToolRequest
+Processing request of type CallToolRequest
+<_UnixReadPipeTransport fd=10 polling> was closed by peer
+<_UnixSubprocessTransport pid=24 running stdin=<_UnixWritePipeTransport closed fd=9 closed> stdout=<_UnixReadPipeTransport closed fd=10 closed>> exited with return code 0
+ok
+test_missing_identity_and_read_only_scope_cannot_write (test_request_gateway.RequestGatewayTests.test_missing_identity_and_read_only_scope_cannot_write) ... StreamableHTTP session manager started
+HTTP Request: POST http://127.0.0.1:8767/mcp "HTTP/1.1 401 Unauthorized"
+HTTP Request: POST http://127.0.0.1:8767/mcp "HTTP/1.1 403 Forbidden"
+StreamableHTTP session manager shutting down
+ok
+test_other_resource_and_namespace_do_not_create_requests (test_request_gateway.RequestGatewayTests.test_other_resource_and_namespace_do_not_create_requests) ... StreamableHTTP session manager started
+HTTP Request: POST http://127.0.0.1:8767/mcp "HTTP/1.1 401 Unauthorized"
+Processing request of type CallToolRequest
+Terminating session: None
+HTTP Request: POST http://127.0.0.1:8767/mcp "HTTP/1.1 200 OK"
+StreamableHTTP session manager shutting down
+ok
+test_status_is_bound_to_authenticated_principal (test_request_gateway.RequestGatewayTests.test_status_is_bound_to_authenticated_principal) ... StreamableHTTP session manager started
+Processing request of type CallToolRequest
+Terminating session: None
+HTTP Request: POST http://127.0.0.1:8767/mcp "HTTP/1.1 200 OK"
+Processing request of type CallToolRequest
+Terminating session: None
+HTTP Request: POST http://127.0.0.1:8767/mcp "HTTP/1.1 200 OK"
+StreamableHTTP session manager shutting down
+ok
+test_tool_schemas_never_accept_principal_or_dispatch_authority (test_request_gateway.RequestGatewayTests.test_tool_schemas_never_accept_principal_or_dispatch_authority) ... StreamableHTTP session manager started
+Processing request of type ListToolsRequest
+Terminating session: None
+HTTP Request: POST http://127.0.0.1:8767/mcp "HTTP/1.1 200 OK"
+StreamableHTTP session manager shutting down
+ok
+test_valid_intake_is_pending_and_replay_is_exact (test_request_gateway.RequestGatewayTests.test_valid_intake_is_pending_and_replay_is_exact) ... StreamableHTTP session manager started
+Processing request of type CallToolRequest
+Terminating session: None
+HTTP Request: POST http://127.0.0.1:8767/mcp "HTTP/1.1 200 OK"
+Processing request of type CallToolRequest
+Terminating session: None
+HTTP Request: POST http://127.0.0.1:8767/mcp "HTTP/1.1 200 OK"
+Processing request of type CallToolRequest
+Terminating session: None
+HTTP Request: POST http://127.0.0.1:8767/mcp "HTTP/1.1 200 OK"
+StreamableHTTP session manager shutting down
+ok
+
+----------------------------------------------------------------------
+Ran 74 tests in 1.515s
+
+OK

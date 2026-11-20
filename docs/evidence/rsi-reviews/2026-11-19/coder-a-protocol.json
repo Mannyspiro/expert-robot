@@ -1,0 +1,42 @@
+{
+  "schema": "merlin-rsi-development-protocol/1",
+  "recorded_at_utc": "2026-11-19T15:02:28.269319+00:00",
+  "phase": "after source inspection, before development regression and candidate execution",
+  "source_commit": "e7be083b754b36e90d9ebffbe9f7ef9069296e06",
+  "question": "Does restricting candidate image opens to the promised PNG decoder prevent benign other-format decoder selection without changing valid PNG review behavior?",
+  "observations": [
+    "Two caller-supplied candidate Image.open sites sniff arbitrary registered formats before a PNG-only format check.",
+    "Pillow13.0.0 is installed and matches requirements; supported Inkscape renderer available; CairoSVG unavailable."
+  ],
+  "premise": "A normal JPEG is already intended to be rejected; the desired invariant is rejecting it before selecting its decoder.",
+  "candidate": "formats=[PNG] on the two review opens, with UnidentifiedImageError normalized to existing ValueError malformed-candidate behavior. No visual scoring or permission changes.",
+  "prediction": "An ordinary JPEG decoder-entry spy is entered on baseline but not candidate; valid PNG and existing source/hash/net-review gates remain unchanged.",
+  "falsifier": "Candidate enters JPEG decoder or rejects valid PNG fixture or regresses any existing controlled-drafting gate.",
+  "bounds": "Synthetic PNG/JPEG only, local temporary output, no malformed advisory samples, no network, no image model, no publication.",
+  "independent_controls": "Fresh branched/pin/junction holdout remains unopened until code hash is frozen; evaluation agent owns those cases.",
+  "representation_checks": {
+    "simplex": {
+      "decision": "not_applicable",
+      "reason": "Decoder selection is a discrete format contract, not a simplex calculation.",
+      "invariant": "Only PNG parser admitted for candidate payloads."
+    },
+    "n_ality": {
+      "decision": "applied",
+      "reason": "Keep format admission, source identity and visual scientific correctness as separate axes.",
+      "invariant": "A parser regression pass does not imply correct wiring."
+    },
+    "continuum": {
+      "decision": "deferred",
+      "reason": "No raster registration or geometry tolerance change in this patch.",
+      "invariant": "Existing coordinate/aspect gates unchanged."
+    },
+    "fuzzy_logic": {
+      "decision": "not_applicable",
+      "reason": "Format admission and identity gates are Boolean.",
+      "invariant": "No confidence score can soften rejection."
+    }
+  },
+  "qualification": false,
+  "promotion_authority": false,
+  "authority_effect": "none"
+}

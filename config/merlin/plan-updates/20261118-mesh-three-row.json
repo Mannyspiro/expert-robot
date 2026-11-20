@@ -1,0 +1,56 @@
+{
+  "schema": "merlin-plan-update/1",
+  "parent_plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+  "parent_plan_version": 6,
+  "reasoning_mode": "inductive_revision",
+  "observation_ids": [
+    "three-row-tilt"
+  ],
+  "observed_artifacts": [
+    "9e5c42e60926c78f4649d2a9c45b809e147aa122d436bb6d7d8384984956ad2d"
+  ],
+  "changes": [
+    {
+      "type": "evidence_informed_revision",
+      "rationale": "Plan update is linked to explicit observations; conclusions remain provisional."
+    }
+  ],
+  "next_actions": [
+    "Verify the learning service with an owner-provisioned institutional pilot, approved data policy and restart exercise.",
+    "Retest run-bound retrieval on a second independently authored corpus. Score supported answers, appropriate clarification, abstention and citation bytes.",
+    "Test the training-parent planner with distinct versioned coder adapters. Record measured calls and cost, and use a fresh holdout to decide whether any proposal improves behavior.",
+    "Evaluate an additional instrument dataset with documented unit conventions. Recheck missing values and timestamp precision across scientific data interchange.",
+    "Stress-test nine-probe three-row localization under measurement noise, unknown width and background error. Freeze perturbations, fallback rules and both mirrored comparisons before scoring."
+  ],
+  "requires_review": true,
+  "authority_effect": "none",
+  "prior_update": "config/merlin/plan-updates/20261118-mesh-localization.json",
+  "prior_update_sha256": "99d59c62c3547a311754252761bbc8c4f3f43fee39b2e500347ce4afdb2acfa1",
+  "ranked_next_actions": [
+    {
+      "task": "P07-2",
+      "action": "Verify the learning service with an owner-provisioned institutional pilot, approved data policy and restart exercise."
+    },
+    {
+      "task": "P01-2",
+      "action": "Retest run-bound retrieval on a second independently authored corpus. Score supported answers, appropriate clarification, abstention and citation bytes."
+    },
+    {
+      "task": "P03-2",
+      "action": "Test the training-parent planner with distinct versioned coder adapters. Record measured calls and cost, and use a fresh holdout to decide whether any proposal improves behavior."
+    },
+    {
+      "task": "P04-1",
+      "action": "Evaluate an additional instrument dataset with documented unit conventions. Recheck missing values and timestamp precision across scientific data interchange."
+    },
+    {
+      "task": "P06-2",
+      "action": "Stress-test nine-probe three-row localization under measurement noise, unknown width and background error. Freeze perturbations, fallback rules and both mirrored comparisons before scoring."
+    }
+  ],
+  "preregistered_commits": [
+    "9e5bfd470c98d0ba14f6e9cea97652da359e3760"
+  ],
+  "decision": "All four noiseless known-profile cases passed. Advance to robustness testing.",
+  "evidence": "docs/evidence/mesh-three-row-results.json"
+}

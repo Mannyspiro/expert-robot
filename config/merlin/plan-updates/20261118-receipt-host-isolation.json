@@ -1,0 +1,27 @@
+{
+  "schema": "merlin-plan-update/1",
+  "parent_plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+  "parent_plan_version": 7,
+  "reasoning_mode": "inductive_revision",
+  "requires_review": true,
+  "authority_effect": "none",
+  "prior_update": "config/merlin/plan-updates/20261118-receipt-dialogue.json",
+  "prior_update_sha256": "7d0a28d660e90a8d40600f311a82d14e3288ecee61456084905b16dc041660a0",
+  "observation_ids": [
+    "interleaved-local-cli-and-mcp-dialogues"
+  ],
+  "observed_artifacts": [],
+  "evidence": [
+    "https://github.com/Mannyspiro/expert-robot/blob/7958f09cc28cb70345254f35e71df649e6a30922/tests/test_receipt_stdio.py",
+    "https://github.com/Mannyspiro/expert-robot/blob/7958f09cc28cb70345254f35e71df649e6a30922/tests/test_receipt_mcp.py"
+  ],
+  "decision": "Local process interleaving and opt-in MCP tool dispatch passed. Host-supplied receipt catalogues scoped each dialogue tool. A new question replaced a pending request. Follow-up replay started from fresh state.",
+  "limits": "Two separately configured local MCP hosts with synthetic catalogues, direct tool dispatch, four receipt tests. Shared remote transport, live authentication, broader tool permissions, deployment and institutional pilot remain unverified.",
+  "next_actions": [
+    "Verify the learning service with an owner-provisioned institutional pilot, approved data policy and restart exercise.",
+    "Exercise receipt dialogue through the actual pilot transport with host-resolved caller identity and scoped catalogues; verify isolation alongside other enabled tools.",
+    "Test the training-parent planner with distinct versioned coder adapters. Record measured calls and cost, and use a fresh holdout to decide whether any proposal improves behavior.",
+    "Evaluate an additional instrument dataset with documented unit conventions. Recheck missing values and timestamp precision across scientific data interchange.",
+    "Evaluate a selector that estimates interpolation error for mesh alternatives, including both uniform orientations. Freeze its proxy and test on new geometries with uncertain amplitude before scoring."
+  ]
+}

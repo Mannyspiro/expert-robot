@@ -37,6 +37,9 @@ from .interaction_learning import InteractionLearningStore, analyze_interactions
 from .memory_vault import MerlinMemoryVault
 from .capability_registry import capability_snapshot, validate_graph
 from .learning_platform import Actor as LearningActor, LearningPlatform
+from .learning_research_api import LearningResearchAPI
+from .learning_research_config import (learning_research_projects_from_environment,
+                                      build_learning_research_api, require_existing_learning_database)
 from .math_foundations_course import load_math_foundations_manifest
 from .math_logic_discrete_course import load_math_logic_discrete_manifest
 from .math_calculus_probability_course import load_math_calculus_probability_manifest
@@ -342,7 +345,19 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                  learning_identity_resolver: Any | None = None,
                  canonical_graph: Any | None = None,
                  hermes_worker_service: Any | None = None,
-                 hermes_runtime: Any | None = None):
+                 hermes_runtime: Any | None = None,
+                 learning_research_api: LearningResearchAPI | None = None):
+    if learning_research_api is not None:
+        if not isinstance(learning_research_api, LearningResearchAPI):
+            raise ValueError("canonical learning research adapter required")
+        if learning_platform is not None and learning_platform is not learning_research_api.platform:
+            raise ValueError("learning research adapter platform differs from host")
+        if learning_identity_resolver is not learning_research_api.identity_resolver:
+            raise ValueError("learning research adapter identity resolver differs from host")
+        if canonical_registry is not None and canonical_registry is not learning_research_api.registry:
+            raise ValueError("learning research adapter registry differs from host")
+        learning_platform = learning_research_api.platform
+        canonical_registry = learning_research_api.registry
     simulation = MerlinSimulation()
     literature_search = PublicLiteratureSearch()
     learner_store = learner_store or LearnerStore(store.path)
@@ -1063,14 +1078,40 @@ def make_handler(store: EventStore, hud_runtime: Any | None = None,
                 self._send(403, {"error": "cross_origin_request_blocked"})
                 return
             try:
-                length = int(self.headers.get("Content-Length", "0"))
+                try:
+                    length = int(self.headers.get("Content-Length", "0"))
+                except (TypeError, ValueError):
+                    if LearningResearchAPI.matches_path(path):
+                        self._send(400, {"error": "invalid_research_request"})
+                        return
+                    raise
+                if LearningResearchAPI.matches_path(path) and not 1 <= length <= LearningResearchAPI.MAX_BODY_BYTES:
+                    self._send(400, {"error": "invalid_research_request"})
+                    return
                 if length <= 0 or length > MAX_BODY:
                     self._send(413 if length > MAX_BODY else 400, {"error": "invalid_body_size"})
                     return
                 raw = self.rfile.read(length)
-                data = json.loads(raw.decode("utf-8"))
+                if LearningResearchAPI.matches_path(path):
+                    try:
+                        if len(raw) != length:
+                            raise ValueError("incomplete body")
+                        data = LearningResearchAPI.decode_body(raw)
+                    except Exception:
+                        self._send(400, {"error": "invalid_research_request"})
+                        return
+                else:
+                    data = json.loads(raw.decode("utf-8"))
                 if not isinstance(data, dict):
                     raise ValueError("request body must be a JSON object")
+
+                if LearningResearchAPI.matches_path(path):
+                    if learning_research_api is None:
+                        self._send(503, {"error": "research_service_unavailable"})
+                        return
+                    status, payload = learning_research_api.dispatch(path, self.headers, data)
+                    self._send(status, payload)
+                    return
 
                 if path == "/api/artifacts/resolve":
                     if not artifact_read_token:
@@ -2041,18 +2082,26 @@ def _build_optional_hud_runtime(
 def serve(port: int = 8765, db_path: str | None = None,
           learning_identity_resolver: Any | None = None,
           hermes_worker_service: Any | None = None,
-          hermes_runtime: Any | None = None) -> None:
+          hermes_runtime: Any | None = None,
+          learning_research_api: LearningResearchAPI | None = None) -> None:
+    # Explicit service injection retains precedence. Environment configuration
+    # composes evidence access only; it never creates projects or an identity.
+    research_projects = (learning_research_projects_from_environment()
+                         if learning_research_api is None else None)
     if hermes_runtime is not None and hermes_worker_service is not None:
         raise ValueError("pass hermes_runtime or hermes_worker_service, not both")
     if hermes_runtime is not None:
         hermes_worker_service = hermes_runtime.service
-    if learning_identity_resolver is None:
-        learning_identity_resolver = learning_identity_resolver_from_environment()
     runtime_default_db = (
         str(hermes_runtime.root / "events.sqlite3") if hermes_runtime is not None else
         str(Path.home() / ".local" / "share" / "merlin" / "events.sqlite3")
     )
     target = db_path or os.environ.get("MERLIN_DB_PATH", runtime_default_db)
+    learning_db = Path(os.environ.get('MERLIN_LEARNING_DB_PATH', str(Path(target).with_name('learning.sqlite3'))))
+    if research_projects is not None:
+        require_existing_learning_database(learning_db)
+    if learning_identity_resolver is None and learning_research_api is None:
+        learning_identity_resolver = learning_identity_resolver_from_environment()
     store = EventStore(target)
     learner_db = os.environ.get("MERLIN_LEARNER_DB_PATH", target)
     learner_store = LearnerStore(learner_db)
@@ -2067,6 +2116,12 @@ def serve(port: int = 8765, db_path: str | None = None,
     if hermes_runtime is None and registry_db is not None and registry_db.is_file():
         from .project_registry import MerlinRegistry
         canonical_registry = MerlinRegistry(registry_root)
+    research_platform = None
+    if research_projects is not None:
+        research_platform = LearningPlatform(learning_db)
+        learning_research_api = build_learning_research_api(
+            platform=research_platform, registry=canonical_registry,
+            identity_resolver=learning_identity_resolver, tenant_projects=research_projects)
     canonical_graph = hermes_runtime.graph if hermes_runtime is not None else None
     if canonical_graph is None:
         graph_path = os.environ.get("MERLIN_GRAPH_DB_PATH", "").strip()
@@ -2081,10 +2136,12 @@ def serve(port: int = 8765, db_path: str | None = None,
     )
     server = ThreadingHTTPServer(("127.0.0.1", port),
         make_handler(store, hud_runtime, learner_store, learning_outbox,
-                     canonical_registry, learning_identity_resolver=learning_identity_resolver,
+                     canonical_registry, learning_platform=research_platform,
+                     learning_identity_resolver=learning_identity_resolver,
                      canonical_graph=canonical_graph,
                      hermes_worker_service=hermes_worker_service,
-                     hermes_runtime=hermes_runtime))
+                     hermes_runtime=hermes_runtime,
+                     learning_research_api=learning_research_api))
     hud_runtime_started = False
     hermes_service_started = False
     shutdown_requested = Event()

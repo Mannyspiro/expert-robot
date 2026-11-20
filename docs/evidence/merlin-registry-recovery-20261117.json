@@ -1,0 +1,190 @@
+{
+  "bundle_git_blob": "1d55b9a94ff843d847b0be9322f22257a21a2dbf",
+  "bundle_sha256": "efe57bada5cd86f45118cac0036faf497f9aa60972508e036aed09f7b8cf04db",
+  "host_configuration_changed": false,
+  "isolated_recovery_paths_created": true,
+  "operation": "recovery_drill",
+  "promotion_authority": false,
+  "qualification": false,
+  "recovery_drill": {
+    "after": {
+      "config_sha256": "a25921442e2d3e463ccd685de6c67d824140b8c1592ab4fe942fb50c5d3b22e8",
+      "health": {
+        "record_count": 2,
+        "sha256": "de5fc3d85786b317ca80884ae1fa336bc0b141ceff2c8336dda683d516736097"
+      },
+      "manifest_sha256": "68ef80c37a0368b09b67d01b5bf563ea4ab8bbb014bfd6184a93f3b19e2f01b9",
+      "pid": 1987572,
+      "release_sha256": "efe57bada5cd86f45118cac0036faf497f9aa60972508e036aed09f7b8cf04db",
+      "service_properties": {
+        "ActiveState": "active",
+        "DropInPaths": "",
+        "Group": "opc",
+        "NoNewPrivileges": "yes",
+        "PrivateNetwork": "yes",
+        "RestrictAddressFamilies": "AF_UNIX",
+        "SubState": "running",
+        "UnitFileState": "enabled",
+        "User": "merlin-dot"
+      },
+      "state": {
+        "bytes": 92016,
+        "files": 5,
+        "sha256": "7c28f9ba92155e2ab59167de922d7f2242b4aaabd2b998375ff2dc745cd0d28a"
+      },
+      "unit_sha256": "f22462e9c91eedab99d4bd16d9e3bb14eb52fedbc1e9e3b9110bb3307a11e543"
+    },
+    "before": {
+      "config_sha256": "a25921442e2d3e463ccd685de6c67d824140b8c1592ab4fe942fb50c5d3b22e8",
+      "health": {
+        "record_count": 2,
+        "sha256": "de5fc3d85786b317ca80884ae1fa336bc0b141ceff2c8336dda683d516736097"
+      },
+      "manifest_sha256": "68ef80c37a0368b09b67d01b5bf563ea4ab8bbb014bfd6184a93f3b19e2f01b9",
+      "pid": 1987572,
+      "release_sha256": "efe57bada5cd86f45118cac0036faf497f9aa60972508e036aed09f7b8cf04db",
+      "service_properties": {
+        "ActiveState": "active",
+        "DropInPaths": "",
+        "Group": "opc",
+        "NoNewPrivileges": "yes",
+        "PrivateNetwork": "yes",
+        "RestrictAddressFamilies": "AF_UNIX",
+        "SubState": "running",
+        "UnitFileState": "enabled",
+        "User": "merlin-dot"
+      },
+      "state": {
+        "bytes": 92016,
+        "files": 5,
+        "sha256": "7c28f9ba92155e2ab59167de922d7f2242b4aaabd2b998375ff2dc745cd0d28a"
+      },
+      "unit_sha256": "f22462e9c91eedab99d4bd16d9e3bb14eb52fedbc1e9e3b9110bb3307a11e543"
+    },
+    "error": null,
+    "isolated": {
+      "canonical_identity": {
+        "history_rows": 4,
+        "history_sha256": "3a8d5090c6a8bd953e4ee779ba4803b3cf80867b704c89a17189e0c9c14e57f9",
+        "inventory_sha256": "c537ce5b169a330c260818bb0c50d31d7f43086587463b8cf6196ca2cd35e591",
+        "provenance_rows": 0,
+        "provenance_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "record_count": 2,
+        "source_refs_sha256": "69e4e5a225116c2791e45289e8671a1025183dde2f309145915ae5b925932d79"
+      },
+      "inventory_sha256": "a26d7913249c6783806f41fda5f432a7e569630e73a83b86b5267c02df2eea8b",
+      "isolated_server_stopped": true,
+      "isolated_tools": {
+        "context_fetch": {
+          "checked": true,
+          "reply_sha256": "3b4ec23d4fc39840601c2943cbc7f638e88d5c7e2547b6feab96b18c3c663a63"
+        },
+        "context_search": {
+          "checked": true,
+          "reply_sha256": "05e08fcb3589d3b6c3ca2fdedf9e890af1402df09923d783889aa62fd9b5401d"
+        },
+        "context_status": {
+          "checked": true,
+          "reply_sha256": "e74563488f978181e41f04680b6088e2e3c69695f88d896e5f68f13cfc7f1aeb"
+        },
+        "health": {
+          "checked": true,
+          "reply_sha256": "160a918877dad4917e179da52eed80452ec4a0bc7195567497374ad4611f9ddf"
+        },
+        "job_submit": {
+          "checked": true,
+          "reply_sha256": "acaa8475623fe1b8c10d317a391453614cd22ef6f51b304b9808c26c990a18e0"
+        },
+        "mathematical_lenses_demo": {
+          "checked": true,
+          "reply_sha256": "6931a13ceba11b8557352dcf7b655ff18e7e8e80b1253974525d47e637cbd862"
+        },
+        "research_contract": {
+          "checked": true,
+          "reply_sha256": "b58127f0c2a3bfa4963ada2b85959b64eab625492a866bcad931071aef47395f"
+        },
+        "research_episode_demo": {
+          "checked": true,
+          "reply_sha256": "a7b22c49caac783a7b2887add7debe86b6816aef080145378eb7ed802eedac16"
+        }
+      },
+      "manifest_sha256": "6b199b0a1d5a9d5ac66ba54c6530af6d6b4136996571e3f11977161093cfc98c",
+      "negative_controls": {
+        "corrupt_blob": {
+          "class": "RecoveryError",
+          "rejected": true
+        },
+        "missing_blob": {
+          "class": "RecoveryError",
+          "rejected": true
+        }
+      },
+      "promotion_authority": false,
+      "qualification": false,
+      "restore_receipt_sha256": "def1c636942ba2735be9140ebc3bcf552d6e3e330646fd76f25c98bc832d7e98",
+      "snapshot_receipt_sha256": "4bb5563083a6e75b88574de99a5315938aa2f5d29c97c596c71702cbdee3ee21",
+      "status": "passed"
+    },
+    "production_seed_changed": false,
+    "production_service_restarted": false,
+    "production_unchanged": true,
+    "promotion_authority": false,
+    "qualification": false,
+    "recovery_source_sha256": "9ce92e7c7c7613550835c8e4b61122d7f4ce2c20660578dd11536cf9ebc42f83",
+    "release_sha256": "efe57bada5cd86f45118cac0036faf497f9aa60972508e036aed09f7b8cf04db",
+    "schema": "merlin-private-recovery-drill/1",
+    "service_uid": 982,
+    "status": "passed",
+    "workspace": "/var/lib/merlin-dot-private-recovery-drills/drill-az9_3nug"
+  },
+  "recovery_drill_sha256": "1bd18a35361c28144dcad024352de9e512abae49ebed36df9033669d31915a59",
+  "recovery_operation_tests": {
+    "errors": 0,
+    "failures": 0,
+    "passed": true,
+    "skipped": 0,
+    "tests": 9
+  },
+  "recovery_source_sha256": "9ce92e7c7c7613550835c8e4b61122d7f4ce2c20660578dd11536cf9ebc42f83",
+  "recovery_validation_only": true,
+  "request_id": "b39f07fa-8c89-493d-a0d4-6848cd1352ab",
+  "run_id": "44151750942",
+  "runner": "cace-oci-a1",
+  "schema": "merlin-dot-operation-receipt/1",
+  "source_files": {
+    "ops/merlin-dot-private.service": "f22462e9c91eedab99d4bd16d9e3bb14eb52fedbc1e9e3b9110bb3307a11e543",
+    "python/dot_ai_os/__init__.py": "5a54db6fddc5b1a178c7beaa42089ee95bdea81871560c8c5d1f868a2b16e487",
+    "python/dot_ai_os/bridge.py": "d92e0e65d3fe3ecb580ba964661a321c8ae2d0cf62ba572648b7539017ab8c4a",
+    "python/dot_ai_os/dual_coder.py": "89ee0e2ac00aa7ad19dcb3262727bfb91d15947f62e5f72b98d1e96159a332ff",
+    "python/dot_ai_os/job_inbox.py": "3c4f1fdd6a6d97dc5288f892e9c8a592816449c80a3e7f77afa3105e9bf1bcf8",
+    "python/dot_ai_os/math_lenses.py": "d8a5206a2fa55dbe132c1d6da57cfb958d5899a3d19d8c1c1c03726f98aaee3d",
+    "python/dot_ai_os/private_runtime.py": "a9ad622febec9e67a64b19ef090d0bbbff4e1de0b59c390a6233b1a6899791ba",
+    "python/dot_ai_os/research_protocol.py": "ff976d8c45f4f9683caaeefe46b0eecf40404c2f37d84945460c93a1a255cc98",
+    "python/dot_ai_os/research_tools.py": "9976f94df42d08f2b36f6e820f78c39019a571049e5b99612e73f89b75380fd4",
+    "python/dot_ai_os/simulation_research.py": "76ecb0f3ca0f926e6a2ed2f257a6bc2e06c542ba19da3507ec77f1400a7cd321",
+    "python/merlin/__init__.py": "6313dc01bbf59234a92daa8115a6644044d31ce6645292b58883ba02aa97a87c",
+    "python/merlin/artifact_ref.py": "e5603e43c5099bc7ef0fabeb6843e6a79c904a8d75883ec4ea57cedb27c1d5a4",
+    "python/merlin/engineering_ir.py": "da9878fe708da716e0fcf30f036e99b345eb620dad5f5ddf6eb5467f39d6a6a1",
+    "python/merlin/project_registry.py": "44fa97b6ba18e45ce04c2165aff264717fe93a0de9e95256142c1102b09d5a0f",
+    "python/merlin/scientific_loop.py": "148267409690476b634e1db04e521f4a2e2aeebce04064fea972aab6c0005da4",
+    "research-policy/SKILL.md": "9d79fd41d5d5d55f92c7b0a381ce4ea2b7d66f302d7bbf6a81658d0f40f9af86",
+    "seed-documents.json": "ea0395da9c59b681377711cf410daf05832df66e90fc8f14c48584ab57642653",
+    "tests/test_dot_context.py": "220bf9d83b9b6787139caf55114a3aa1a325d6763c3eaade9d063c79dbcac01c",
+    "tests/test_dual_coder.py": "1904fb9711dd0f2a0ef771cff17fe3aaca2d59a4dd55c81419dcc59a2712768d",
+    "tests/test_job_inbox.py": "f55697b6b642737de63c5ba2261f9e6a4d146a232021e1a4aa93e81b2d527008",
+    "tests/test_math_lenses.py": "736525c99d2862ca46a707655070876a38d6c9b6d6865ba109037ed8d844e22e",
+    "tests/test_private_runtime.py": "ce7ed6338ee6841813117c593b8a0f6718e8d9241854ad2c4d14f30f4a2f1a9a",
+    "tests/test_research_protocol.py": "467af4fdb91338dd2373326aeb8c2e00fbcd5d324c205ac0488290a7d01c09e3",
+    "tests/test_research_tools.py": "12c2ea2f0d984214d8427baea26e190e716fc7296ca817fc99fe80464e57c455",
+    "tests/test_simulation_research.py": "3f4ccf70e30e93b8705b6e487379b68a4ffb89dc5004718563e2719e4e08d12e"
+  },
+  "status": "succeeded",
+  "tests": {
+    "errors": 0,
+    "failures": 0,
+    "passed": true,
+    "skipped": 0,
+    "tests": 136
+  },
+  "workflow_commit": "176d7fb683f7829efcdf0c2043a75d287cb38cb0"
+}

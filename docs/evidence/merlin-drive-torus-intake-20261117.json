@@ -1,0 +1,30 @@
+{
+  "schema": "merlin-drive-mesh-intake/1",
+  "drive_id": "1w5K2IiNfUvBZbd4VEJ7ZMNrjL47DgcZB",
+  "bytes": 257799,
+  "sha256": "233ddd6f8945daed900752b04fd8da263ee7bacda497e43ced6b1f4fe021c8ee",
+  "vertices": 1568,
+  "faces": 3136,
+  "edges": 4704,
+  "euler_characteristic": 0,
+  "non_two_face_edges": 0,
+  "bounds": [
+    [
+      -2.704313,
+      3.040334
+    ],
+    [
+      -2.913511,
+      2.958458
+    ],
+    [
+      -0.904464,
+      0.904464
+    ]
+  ],
+  "units": "not_declared",
+  "freecad_execution": "not_run_unavailable",
+  "engineering_qualification": false,
+  "unknown_record_types": [],
+  "content_executed": false
+}

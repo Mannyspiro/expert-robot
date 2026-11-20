@@ -1,0 +1,25 @@
+{
+  "schema": "merlin-plan-update/1",
+  "parent_plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+  "parent_source_commit": "27472c5cee9eb3ce21e0574f011904710ae50655",
+  "prior_update": "config/merlin/plan-updates/20261118-daily-rsi.json",
+  "prior_update_sha256": "c68fe9448609c2e3b6f84a563eed2f74f621731fedb35b25597f5dd79a8ed41d",
+  "scope": "Scientific visualization council specialist, concept layouts and data exchange",
+  "baseline": "The parent CLI accepts brief, imagine and render. The same layout invocation exited 2 as unsupported. No baseline geometry output exists to score.",
+  "decision": "Retain an opt-in geometry critic for axis-aligned exhibit alternatives. Separate design suggestions from measurable placement findings.",
+  "evidence": [
+    "docs/evidence/spatial-designer-20261118/result.json",
+    "docs/evidence/spatial-designer-20261118/freecad-result.json"
+  ],
+  "limits": [
+    "Caller supplies alternatives. No comparative measurement of live model design quality.",
+    "A touching surface passes this overlap definition. Overall circulation, clearances and structural suitability require other evidence."
+  ],
+  "next_actions": [
+    "Add user-specified service clearance as a separate geometric requirement. Test two nonoverlapping benches whose service envelopes intersect, and a vertically separated pair.",
+    "Evaluate rotated equipment with an independent solid intersection oracle before advertising rotated geometry support.",
+    "Blindly compare two model-proposed alternatives against a held-out human design brief after a qualified local model becomes available."
+  ],
+  "requires_review": true,
+  "authority_effect": "none"
+}

@@ -1,0 +1,7 @@
+{
+  "reference_dark_pixels": 14509,
+  "candidate_dark_pixels": 14787,
+  "reference_within_one_px_of_candidate": 0.9999310772623888,
+  "candidate_within_one_px_of_reference": 0.9999323730303645,
+  "note": "Dark ink uses max(R,G,B)<155. Percentages count discrete mask pixels. Faint page texture and grids are excluded."
+}

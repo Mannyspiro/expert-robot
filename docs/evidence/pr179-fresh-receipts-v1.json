@@ -1,0 +1,402 @@
+{
+  "base_commit": "4811c448216e0582336ffc8c2c1468a5260a4b18",
+  "candidate_commit": "09da78d367fa50fdcca7fa0a0e0b18bf61b1487f",
+  "cases": 16,
+  "corrected_cases": [
+    "L3",
+    "L4",
+    "L12"
+  ],
+  "differential_gate_passed": true,
+  "exact_decisions": {
+    "first_hit": 10,
+    "run_bound": 13
+  },
+  "expected_actions": {
+    "abstain": 6,
+    "clarify_field": 1,
+    "clarify_run": 2,
+    "contradicted": 2,
+    "supported": 5
+  },
+  "newly_failed_cases": [],
+  "passage_oracle_cases": 7,
+  "protocol_sha256": "305931db77d884f57ee4ff453a3096be96c2b5aff02728fe0df7513d731fbe3b",
+  "results": [
+    {
+      "expected": "supported",
+      "first_hit": {
+        "action": "supported",
+        "citation": {
+          "end_byte": 8873,
+          "pointer": "/tests/tests",
+          "run": "44151750942",
+          "sha256": "94191ff530fa0c26a65ed01a50580b353cdf186e6d7234ee6e7e077a090e343c",
+          "start_byte": 8861
+        },
+        "passed": true,
+        "value": 136
+      },
+      "id": "L1",
+      "lexical_top_two_covers_oracle": {
+        "base": false,
+        "candidate": false
+      },
+      "run_bound": {
+        "action": "supported",
+        "citation": {
+          "end_byte": 8873,
+          "pointer": "/tests/tests",
+          "run": "44151750942",
+          "sha256": "94191ff530fa0c26a65ed01a50580b353cdf186e6d7234ee6e7e077a090e343c",
+          "start_byte": 8861
+        },
+        "passed": true,
+        "value": 136
+      }
+    },
+    {
+      "expected": "supported",
+      "first_hit": {
+        "action": "supported",
+        "citation": {
+          "end_byte": 1405,
+          "pointer": "/demo/submission_status",
+          "run": "44174486449",
+          "sha256": "d4dc2398dcc2c9c38be94163d9f4d149b89dca01fca5d8a9cff92c3004f547e1",
+          "start_byte": 1368
+        },
+        "passed": true,
+        "value": "pending_review"
+      },
+      "id": "L2",
+      "lexical_top_two_covers_oracle": {
+        "base": false,
+        "candidate": true
+      },
+      "run_bound": {
+        "action": "supported",
+        "citation": {
+          "end_byte": 1405,
+          "pointer": "/demo/submission_status",
+          "run": "44174486449",
+          "sha256": "d4dc2398dcc2c9c38be94163d9f4d149b89dca01fca5d8a9cff92c3004f547e1",
+          "start_byte": 1368
+        },
+        "passed": true,
+        "value": "pending_review"
+      }
+    },
+    {
+      "expected": "abstain",
+      "first_hit": {
+        "action": "supported",
+        "citation": {
+          "end_byte": 1470,
+          "pointer": "/demo/vector_count",
+          "run": "44174486449",
+          "sha256": "c0ae7f8a43c9345051da4f3c0b3f2dc7da8239a7a59e64abc119090c36df3d85",
+          "start_byte": 1453
+        },
+        "passed": false,
+        "value": 5
+      },
+      "id": "L3",
+      "run_bound": {
+        "action": "abstain",
+        "citation": null,
+        "passed": true,
+        "value": null
+      }
+    },
+    {
+      "expected": "abstain",
+      "first_hit": {
+        "action": "supported",
+        "citation": {
+          "end_byte": 5797,
+          "pointer": "/recovery_operation_tests/tests",
+          "run": "44151750942",
+          "sha256": "342089e039202c7639fd7575270902147a69b1e241fb86575ee9d5f615af7325",
+          "start_byte": 5787
+        },
+        "passed": false,
+        "value": 9
+      },
+      "id": "L4",
+      "run_bound": {
+        "action": "abstain",
+        "citation": null,
+        "passed": true,
+        "value": null
+      }
+    },
+    {
+      "expected": "abstain",
+      "first_hit": {
+        "action": "abstain",
+        "citation": null,
+        "passed": true,
+        "value": null
+      },
+      "id": "L5",
+      "run_bound": {
+        "action": "abstain",
+        "citation": null,
+        "passed": true,
+        "value": null
+      }
+    },
+    {
+      "expected": "clarify_run",
+      "first_hit": {
+        "action": "clarify_run",
+        "citation": null,
+        "passed": true,
+        "value": null
+      },
+      "id": "L6",
+      "run_bound": {
+        "action": "clarify_run",
+        "citation": null,
+        "passed": true,
+        "value": null
+      }
+    },
+    {
+      "expected": "clarify_field",
+      "first_hit": {
+        "action": "clarify_field",
+        "citation": null,
+        "passed": true,
+        "value": null
+      },
+      "id": "L7",
+      "run_bound": {
+        "action": "clarify_field",
+        "citation": null,
+        "passed": true,
+        "value": null
+      }
+    },
+    {
+      "expected": "contradicted",
+      "first_hit": {
+        "action": "contradicted",
+        "citation": {
+          "end_byte": 8873,
+          "pointer": "/tests/tests",
+          "run": "44151750942",
+          "sha256": "94191ff530fa0c26a65ed01a50580b353cdf186e6d7234ee6e7e077a090e343c",
+          "start_byte": 8861
+        },
+        "passed": true,
+        "value": 136
+      },
+      "id": "L8",
+      "lexical_top_two_covers_oracle": {
+        "base": false,
+        "candidate": false
+      },
+      "run_bound": {
+        "action": "contradicted",
+        "citation": {
+          "end_byte": 8873,
+          "pointer": "/tests/tests",
+          "run": "44151750942",
+          "sha256": "94191ff530fa0c26a65ed01a50580b353cdf186e6d7234ee6e7e077a090e343c",
+          "start_byte": 8861
+        },
+        "passed": true,
+        "value": 136
+      }
+    },
+    {
+      "expected": "supported",
+      "first_hit": {
+        "action": "clarify_field",
+        "citation": null,
+        "passed": false,
+        "value": null
+      },
+      "id": "L9",
+      "lexical_top_two_covers_oracle": {
+        "base": false,
+        "candidate": true
+      },
+      "run_bound": {
+        "action": "clarify_field",
+        "citation": null,
+        "passed": false,
+        "value": null
+      }
+    },
+    {
+      "expected": "supported",
+      "first_hit": {
+        "action": "supported",
+        "citation": {
+          "end_byte": 1470,
+          "pointer": "/demo/vector_count",
+          "run": "44174486449",
+          "sha256": "c0ae7f8a43c9345051da4f3c0b3f2dc7da8239a7a59e64abc119090c36df3d85",
+          "start_byte": 1453
+        },
+        "passed": true,
+        "value": 5
+      },
+      "id": "L10",
+      "lexical_top_two_covers_oracle": {
+        "base": true,
+        "candidate": true
+      },
+      "run_bound": {
+        "action": "supported",
+        "citation": {
+          "end_byte": 1470,
+          "pointer": "/demo/vector_count",
+          "run": "44174486449",
+          "sha256": "c0ae7f8a43c9345051da4f3c0b3f2dc7da8239a7a59e64abc119090c36df3d85",
+          "start_byte": 1453
+        },
+        "passed": true,
+        "value": 5
+      }
+    },
+    {
+      "expected": "abstain",
+      "first_hit": {
+        "action": "abstain",
+        "citation": null,
+        "passed": true,
+        "value": null
+      },
+      "id": "L11",
+      "run_bound": {
+        "action": "abstain",
+        "citation": null,
+        "passed": true,
+        "value": null
+      }
+    },
+    {
+      "expected": "contradicted",
+      "first_hit": {
+        "action": "contradicted",
+        "citation": {
+          "end_byte": 8873,
+          "pointer": "/tests/tests",
+          "run": "44151750942",
+          "sha256": "94191ff530fa0c26a65ed01a50580b353cdf186e6d7234ee6e7e077a090e343c",
+          "start_byte": 8861
+        },
+        "passed": false,
+        "value": 136
+      },
+      "id": "L12",
+      "lexical_top_two_covers_oracle": {
+        "base": true,
+        "candidate": false
+      },
+      "run_bound": {
+        "action": "contradicted",
+        "citation": {
+          "end_byte": 7416,
+          "pointer": "/tests/tests",
+          "run": "44174486449",
+          "sha256": "e31bee07c2feb3ebdac96b2fe89e1e8d2abba47a05a091f44316d677378b1844",
+          "start_byte": 7405
+        },
+        "passed": true,
+        "value": 85
+      }
+    },
+    {
+      "expected": "supported",
+      "first_hit": {
+        "action": "supported",
+        "citation": {
+          "end_byte": 267,
+          "pointer": "/operation",
+          "run": "44151750942",
+          "sha256": "097c82f018829a526e9015c7541db37161d25f5ef9cc4a3ecc698317acc913ce",
+          "start_byte": 238
+        },
+        "passed": true,
+        "value": "recovery_drill"
+      },
+      "id": "L13",
+      "lexical_top_two_covers_oracle": {
+        "base": true,
+        "candidate": false
+      },
+      "run_bound": {
+        "action": "supported",
+        "citation": {
+          "end_byte": 267,
+          "pointer": "/operation",
+          "run": "44151750942",
+          "sha256": "097c82f018829a526e9015c7541db37161d25f5ef9cc4a3ecc698317acc913ce",
+          "start_byte": 238
+        },
+        "passed": true,
+        "value": "recovery_drill"
+      }
+    },
+    {
+      "expected": "abstain",
+      "first_hit": {
+        "action": "clarify_field",
+        "citation": null,
+        "passed": false,
+        "value": null
+      },
+      "id": "L14",
+      "run_bound": {
+        "action": "clarify_field",
+        "citation": null,
+        "passed": false,
+        "value": null
+      }
+    },
+    {
+      "expected": "abstain",
+      "first_hit": {
+        "action": "clarify_field",
+        "citation": null,
+        "passed": false,
+        "value": null
+      },
+      "id": "L15",
+      "run_bound": {
+        "action": "clarify_field",
+        "citation": null,
+        "passed": false,
+        "value": null
+      }
+    },
+    {
+      "expected": "clarify_run",
+      "first_hit": {
+        "action": "clarify_run",
+        "citation": null,
+        "passed": true,
+        "value": null
+      },
+      "id": "L16",
+      "run_bound": {
+        "action": "clarify_run",
+        "citation": null,
+        "passed": true,
+        "value": null
+      }
+    }
+  ],
+  "schema": "merlin-pr179-frozen-receipt-result/1",
+  "scope": "two_pinned_receipts_offline_source_aware_controlled_trial",
+  "source_revision": "4811c448216e0582336ffc8c2c1468a5260a4b18",
+  "top_two_exact_passages": {
+    "base": 3,
+    "candidate": 3
+  }
+}

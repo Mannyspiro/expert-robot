@@ -1,0 +1,73 @@
+{
+  "schema": "merlin-software-integration-protocol/1",
+  "created_at_utc": "2026-11-17T20:48:24.000001+00:00",
+  "source_anchor": "af3d6efa6b53113129e90c1d19f230f7f1f19340",
+  "parent_plan_version": 3,
+  "question": "Can a tenant-scoped published LMS course run the fixed Titan structural research lab and attach exact canonical evidence to pending independent review, with replay and course-version identity preserved?",
+  "baseline": {
+    "tests": 28,
+    "passed": 27,
+    "errors": 1,
+    "observation": "Existing Titan-Hermes evidence-flow test failed because executor tool_identity was absent. The legacy fixture also lacked current signed-verifier trust bindings."
+  },
+  "scope": "Merlin Learning university LMS + Titan generic envelope/protocol structural research; code and synthetic fixtures only",
+  "premises": [
+    "Trusted application layer supplies Actor and distinct tenant/project provisioning.",
+    "Published course manifests are immutable; current version can change between calls.",
+    "Titan model/vector fixtures do not implement cryptographic primitives or demonstrate security.",
+    "Registry bytes and graph evidence do not award learner mastery."
+  ],
+  "predictions": [
+    {
+      "id": "P1",
+      "acceptance": "Known fixed lab produces exact model/vector ArtifactRef and source-bound course receipt; repeated identical run remains one version/evidence."
+    },
+    {
+      "id": "P2",
+      "acceptance": "Wrong tenant/learner/role/manifest, changed evidence, conflicting run identity and stale course submissions fail without automatic grading."
+    },
+    {
+      "id": "P3",
+      "acceptance": "Current and replayed assessments check expected version/hash inside their write transaction."
+    },
+    {
+      "id": "P4",
+      "acceptance": "Concurrent identical canonical producers both succeed; metadata conflicts remain rejected."
+    },
+    {
+      "id": "P5",
+      "acceptance": "Synthetic end-to-end course, frozen transcript, lab, review queue and recommendation run and replay on real canonical SQLite/blob/graph stores; no network/keys/plaintext/ciphertext operations or real student data."
+    }
+  ],
+  "representation_checks": {
+    "simplex": {
+      "decision": "not_applicable",
+      "reason": "No convex mixing is needed for exact artifact/course binding.",
+      "test": "Boolean identity checks cannot be traded off by weights."
+    },
+    "n_ality": {
+      "decision": "applied",
+      "reason": "Tenant, learner, course/version, artifact identity and protocol state remain independent axes.",
+      "test": "No one axis substitutes for another."
+    },
+    "continuum": {
+      "decision": "not_applicable",
+      "reason": "This slice uses discrete identities and state transitions.",
+      "test": "No interpolation between acceptance and rejection."
+    },
+    "fuzzy_logic": {
+      "decision": "deferred",
+      "reason": "Future formative category membership needs separately validated semantics; review, permission and integrity stay Boolean.",
+      "test": "No score or membership awards mastery or verification."
+    }
+  },
+  "stopping_and_iteration": "Local focused tests and independent source review first, then one pinned unprivileged OCI integration run. Diagnose observed failures before a changed-source retry. Retain null/failure evidence.",
+  "limits": [
+    "Known software fixture, not new-data research confirmation or educational efficacy.",
+    "Synthetic publication review is not a real faculty approval.",
+    "No direct institutional SSO/LTI production deployment or independent Titan cryptographic qualification.",
+    "No changes to the running private service, production registry or shared-runner grants for this validation."
+  ],
+  "qualification": false,
+  "promotion_authority": false
+}

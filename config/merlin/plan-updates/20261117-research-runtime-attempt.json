@@ -1,0 +1,28 @@
+{
+  "schema": "merlin-plan-observation/1",
+  "parent_plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+  "parent_plan_version": 1,
+  "source_commit": "31b3ab41848685c7670abf9e20994cebd9eb699e",
+  "observations": [
+    {
+      "kind": "runtime_tests",
+      "run_id": 44144790708,
+      "result": "116_passed_zero_skipped"
+    },
+    {
+      "kind": "installed_personal_skill",
+      "name": "merlin-skeptical-scientist",
+      "status": "installed_and_reconciled"
+    },
+    {
+      "kind": "runtime_upgrade",
+      "run_id": 44145136056,
+      "result": "rollback_failed",
+      "diagnosis": "not_established",
+      "live_service_state": "unknown_pending_fixed_diagnostic"
+    }
+  ],
+  "decision": "Diagnose and restore private Merlin service before further feature work",
+  "qualification": false,
+  "promotion_authority": false
+}

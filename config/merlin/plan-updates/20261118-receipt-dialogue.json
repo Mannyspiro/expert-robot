@@ -1,0 +1,26 @@
+{
+  "schema": "merlin-plan-update/1",
+  "parent_plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+  "parent_plan_version": 7,
+  "reasoning_mode": "inductive_revision",
+  "requires_review": true,
+  "authority_effect": "none",
+  "prior_update": "config/merlin/plan-updates/20261118-receipt-version.json",
+  "prior_update_sha256": "d4a321ebb36bfaee456bfb69a4d3d46b800c720992ab02bc700d4ee72b536cb0",
+  "observation_ids": [
+    "receipt-dialogue-run-version-selection"
+  ],
+  "observed_artifacts": [],
+  "evidence": [
+    "https://github.com/Mannyspiro/expert-robot/blob/3995496e7df9d886f6c302f4d197473700019e8b/tests/test_receipt_version_replay.py"
+  ],
+  "decision": "Preserve the pending field or assertion across explicit run/version replies. Three synthetic author-supplied scenarios and one sequential run then version resolution returned the expected primary decisions; known single-turn suites passed 8/8 and 11/11.",
+  "limits": "Dialogue author received case facts and inspected no code. Implementation saw the examples; this is regression coverage rather than a blinded generalization estimate. Only the primary requested value or absence was graded. State is local to one dialogue object. No live deployment.",
+  "next_actions": [
+    "Verify the learning service with an owner-provisioned institutional pilot, approved data policy and restart exercise.",
+    "Check dialogue interruption and session isolation through the intended host entry point before pilot integration; retain the scoped pinned receipt catalogue per session.",
+    "Test the training-parent planner with distinct versioned coder adapters. Record measured calls and cost, and use a fresh holdout to decide whether any proposal improves behavior.",
+    "Evaluate an additional instrument dataset with documented unit conventions. Recheck missing values and timestamp precision across scientific data interchange.",
+    "Evaluate a selector that estimates interpolation error for mesh alternatives, including both uniform orientations. Freeze its proxy and test on new geometries with uncertain amplitude before scoring."
+  ]
+}

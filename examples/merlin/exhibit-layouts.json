@@ -1,0 +1,17 @@
+{
+  "title": "Wave exhibit study",
+  "unit": "m",
+  "room": [8, 6, 3.4],
+  "layouts": [
+    {"name": "Central island", "items": [
+      {"id": "wave-tank", "origin": [2, 2, 0], "size": [2.4, 1.2, 1.1]},
+      {"id": "imaging-bench", "origin": [4.1, 2.4, 0], "size": [1.8, 0.9, 1.4]},
+      {"id": "screen", "origin": [7.4, 5.3, 0], "size": [1.1, 0.4, 2.1]}
+    ]},
+    {"name": "Split gallery", "items": [
+      {"id": "wave-tank", "origin": [1.0, 1.2, 0], "size": [2.4, 1.2, 1.1]},
+      {"id": "imaging-bench", "origin": [4.4, 1.2, 0], "size": [1.8, 0.9, 1.4]},
+      {"id": "screen", "origin": [5.5, 4.8, 0], "size": [1.1, 0.4, 2.1]}
+    ]}
+  ]
+}

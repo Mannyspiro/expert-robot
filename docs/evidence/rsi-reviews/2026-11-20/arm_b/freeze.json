@@ -1,0 +1,30 @@
+{
+  "schema": "merlin-topology-arm-b-freeze/1",
+  "baseline_commit": "584b948332b76596311d75133c0430d761e2f67a",
+  "entry": "merlin.drafting_control.review_wiring(..., topology_check=True)",
+  "source_sha256": {
+    "python/merlin/drafting_control.py": "f397970abf63efb323b6bfc1faadf50c111f3ffb42d9003253174ee06e9dc3e5",
+    "python/merlin/drafting_topology.py": "8d578d1d527626f1e612e69def07ac4ec7f199b2f36126ff35f0bc574ecdf5a4",
+    "python/merlin/wiring_sheet.py": "f0ed2974b4ca25efd200a992f81628d7b8914d173e0419b9340bf24026aac203",
+    "tests/test_drafting_topology.py": "99fc1c73a491cd8c6f78659b6660cb379117bc6aa963f3fe12c3c628b290a6b3",
+    "tests/test_drafting_control.py": "74e819bbd02e2bc6dbdda867114d50382843ad4d8c5ab1f1b1397073ca3856a5",
+    "tests/test_wiring_sheet.py": "65daa81dbc517a1a3a2449b1ed77c33f955a5c3e006bf461a15104a651963327",
+    "examples/merlin/lab-signal-sheet.json": "7fdb3deb323a68af0ef3c2e2e3cd706f0bbd1e5bb188ff2bcf688279241575db",
+    "protocol.json": "9d9c49f0beef301c9c07df0d55eef315cdfa620cdd10a25a0e488ebb3d15c6cc"
+  },
+  "tests": {
+    "command": "PYTHONPATH=daily20/arm_b/python python -m unittest discover -s daily20/arm_b/tests -v",
+    "passed": 17,
+    "failed": 0,
+    "skipped": 0,
+    "duration_seconds": 8.717,
+    "scope": "7 copied baseline tests and 10 public synthetic development tests; independent H evaluation not accessed"
+  },
+  "runtime": {
+    "python": "3.12.14",
+    "pillow": "13.0.0"
+  },
+  "holdout_read_by_coder_b": false,
+  "qualification": false,
+  "promotion_authority": false
+}

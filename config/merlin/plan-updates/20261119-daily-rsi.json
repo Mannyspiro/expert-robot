@@ -1,0 +1,20 @@
+{
+  "schema": "merlin-plan-update/1",
+  "parent_source_commit": "e7be083b754b36e90d9ebffbe9f7ef9069296e06",
+  "prior_update": "config/merlin/plan-updates/20261118-daily-rsi.json",
+  "prior_update_sha256": "c68fe9448609c2e3b6f84a563eed2f74f621731fedb35b25597f5dd79a8ed41d",
+  "related_parent": "config/merlin/plan-updates/20261118-controlled-drafting.json",
+  "decision": "Use PNG-only decoder selection in the draft wiring review. Preserve reviewer-dependent geometry decisions and defer changes to the production baseline.",
+  "evidence": [
+    "docs/evidence/rsi-reviews/2026-11-19/README.md",
+    "docs/evidence/rsi-reviews/2026-11-19/eval/review.json",
+    "docs/evidence/rsi-reviews/2026-11-19/dot-current.json"
+  ],
+  "next_actions": [
+    "Test an independent registered terminal-graph extractor and retain ambiguous junctions as abstentions.",
+    "Evaluate rejecting wrong aspect ratio before pixel load while preserving the published rejected-review receipt.",
+    "Continue source-bound retrieval tests and operator-provisioned learning and gateway pilot verification."
+  ],
+  "requires_review": true,
+  "authority_effect": "none"
+}

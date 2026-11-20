@@ -1,0 +1,40 @@
+{
+  "assessment": {
+    "schema": "merlin-observation-assessment/1",
+    "observation_id": "same-client-revocation-and-catalogue-refresh",
+    "reasoning_mode": "deductive_prediction_check",
+    "overall": "consistent_with_prediction",
+    "comparisons": [
+      {
+        "metric": "exact",
+        "result": "supports",
+        "measured_interval": [
+          8.0,
+          8.0
+        ],
+        "predicted_interval": [
+          8,
+          8
+        ],
+        "unit": "cases"
+      }
+    ],
+    "claim_boundary": "Consistency with predictions is not proof of a general claim."
+  },
+  "protocol_sha256": "5493eaaeef5e9f861c68bcdb7fe4a37c42e667f31a1ecc7e41ebe5b160a7d68d",
+  "results_sha256": "c6467466f92cfadf2930d9404e3efee29edfee583b5a8d3404298e45050cd3cd",
+  "merlin_scientific_loop_sha256": "8271072d8174336fc9bd3e60ede294ce08a0ccbda5d9ff75fa584dc75220e574",
+  "baseline_summary": {
+    "checks": 8,
+    "passed": 8,
+    "supported": 6,
+    "abstained": 1,
+    "denied": 1,
+    "introspections": 8
+  },
+  "available_gain_cases": 0,
+  "decision": "retain_baseline",
+  "candidate_comparison": "No new coder outputs for this held-out task; no comparative fresh trial or measured regression rate.",
+  "qualification": false,
+  "promotion_authority": false
+}

@@ -1,0 +1,7 @@
+{
+ "parent":"fa4f65757e4be864b067d9aa68fdbb48e965314c5ec8fffec011021607dcdb91",
+ "timing":"Before all arm executions and before evaluator opened candidate code.",
+ "B1":"Exchange the Monitor.I and Meter.I destinations across independent nets. Swapping Monitor.I and Logger.I inside the same fanout preserves the edge set and would be an invalid negative.",
+ "B5":"Record sub-canvas-width result as a separate size-policy diagnostic. Report where rejection occurs; a loose pixel ceiling is not an exact-canvas check.",
+ "D0":"One separate development control uses repository's own lab fixture and guide-preserving one-pixel edit with complete passing verdict. Published development labels are kept separate."
+}
