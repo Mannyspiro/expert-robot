@@ -1,0 +1,59 @@
+{
+  "schema": "merlin-retrieval-reference/1",
+  "source": {
+    "path": "docs/evidence/merlin-learning-titan-integration-20261117.json",
+    "commit": "4811c448216e0582336ffc8c2c1468a5260a4b18",
+    "git_blob": "8e5224c8d31759eea9275afd3f21de0c80c28741"
+  },
+  "cases": [
+    {
+      "id": "submission",
+      "question": "What was the recorded state of the synthetic learner's submission?",
+      "disposition": "supported",
+      "value": "pending_review",
+      "pointer": "/demo/submission_status"
+    },
+    {
+      "id": "replay",
+      "question": "Did replay return an equal canonical receipt?",
+      "disposition": "supported",
+      "value": true,
+      "pointer": "/demo/canonical_receipt_replay_equal"
+    },
+    {
+      "id": "vector-count",
+      "question": "How many structural test vectors were recorded?",
+      "disposition": "supported",
+      "value": 5,
+      "pointer": "/demo/vector_count"
+    },
+    {
+      "id": "security",
+      "question": "The demo receipt says cryptographic security was verified. Is this assertion supported or contradicted?",
+      "disposition": "contradicted",
+      "value": false,
+      "pointer": "/demo/cryptographic_security_verified"
+    },
+    {
+      "id": "mastery",
+      "question": "The learner's mastery was updated during this run. Is this assertion supported or contradicted?",
+      "disposition": "contradicted",
+      "value": false,
+      "pointer": "/demo/mastery_updated"
+    },
+    {
+      "id": "grade",
+      "question": "What numeric grade did the reviewer award this learner?",
+      "disposition": "abstain",
+      "value": null,
+      "pointer": null
+    },
+    {
+      "id": "latency",
+      "question": "How many milliseconds did the second lab execution take?",
+      "disposition": "abstain",
+      "value": null,
+      "pointer": null
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "task": "P01-2",
+  "status": "partial",
+  "parent_checkpoint": "config/merlin/plan-updates/20261117-receipt-question-coverage.json",
+  "candidate": "225cca528424ff53db0f871b55442e5d50120238",
+  "evaluation": "4d8aa6f30c6f8b947eb28f0a3cd1675e48309940",
+  "local_results": {
+    "earlier_titan_questions": "0/7 before, 7/7 after; checked disposition, typed value, exact source ref and field pointer",
+    "retained_question_checks": "19/19",
+    "added_polarity_scope_and_ambiguity_controls": "9/9",
+    "structured_multirun": "11/11",
+    "context_suite": "18/18"
+  },
+  "scope": "Offline CLI, two pinned receipts. Seven prior failures informed grammar development. They are regressions, not an independent language sample.",
+  "next_acceptance": "Keep this candidate frozen for independently authored paraphrases. Record coverage, wrong citation, unsupported answer, and appropriate clarification or abstention before tuning."
+}

@@ -1,0 +1,29 @@
+{
+  "parent_plan": "v4",
+  "task": "P01-2",
+  "status": "partial",
+  "fixture_commit": "ecfa2e48e03396d96d3862057770f63ff3c04501",
+  "implementation_commit": "af518bf56e259ae614533e07a6e5b23f360aa4c4",
+  "experiment": "Same local lexical search and typed object-field extractor; vary whether the candidate must bind its fetched source to the requested run.",
+  "command": "PYTHONPATH=python python3 scripts/merlin/evaluate_multirun_receipts.py",
+  "inputs": "Two exact Git blobs containing previous synthetic learning and isolated recovery OCI receipts. Eleven cases frozen before candidate implementation.",
+  "observed": {
+    "first_hit": {
+      "total_pass": 7,
+      "wrong_cases": [
+        4,
+        6,
+        7,
+        11
+      ]
+    },
+    "bound_run": {
+      "supported": "5/5",
+      "contradicted": "2/2",
+      "abstain": "4/4"
+    },
+    "context_regressions": "18/18 local"
+  },
+  "limits": "The caller supplies the run ID and field path. This measures source selection, typed scalar comparison and abstention for two known receipts. It does not measure natural-language field selection, institutional deployment, independent evaluation or student outcomes.",
+  "next": "Evaluate natural-language field selection on independently authored prompts withheld from implementation, including ambiguous run identity, conflicting versions and absent fields. Score citations, wrong-source responses and abstention separately."
+}

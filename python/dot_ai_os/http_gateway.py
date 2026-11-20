@@ -22,6 +22,7 @@ from typing import Any
 from urllib.parse import urlsplit
 
 import httpx
+from mcp.server.auth.middleware.auth_context import get_access_token
 from mcp.server.auth.provider import AccessToken, TokenVerifier
 from mcp.server.auth.settings import AuthSettings
 from mcp.server.fastmcp import FastMCP
@@ -30,7 +31,7 @@ from pydantic import AnyHttpUrl
 
 from merlin.project_registry import MerlinRegistry
 from .bridge import DotContextBridge, canonical
-from .mcp_server import create_server
+from .mcp_server import ReceiptDialogue, create_server
 
 READ_SCOPE = "merlin:context:read"
 Introspection = Callable[[str], Awaitable[Mapping[str, Any]]]
@@ -280,15 +281,45 @@ class IntrospectionTokenVerifier(TokenVerifier):
             return None
 
 
+@dataclass(frozen=True)
+class SubjectReadScope:
+    """Operator-selected read bridge and constructor for its pinned receipt catalogue."""
+    bridge: DotContextBridge
+    dialogue: Callable[[DotContextBridge], ReceiptDialogue]
+
+
 def create_http_server(bridge: DotContextBridge, *, config: GatewayConfig,
-                       token_verifier: IntrospectionTokenVerifier) -> FastMCP:
+                       token_verifier: IntrospectionTokenVerifier,
+                       subject_scopes: Mapping[str, SubjectReadScope] | None = None) -> FastMCP:
     if (not isinstance(config, GatewayConfig) or not isinstance(token_verifier, IntrospectionTokenVerifier)
             or token_verifier.config != config):
         raise GatewayConfigurationError("matching fixed gateway and token verifier configuration required")
     if not isinstance(bridge.registry, ReadOnlyMerlinRegistry):
         raise GatewayConfigurationError("HTTP requires the migration-free read-only registry")
     origin = urlsplit(config.resource_url)
-    return create_server(bridge, server_options={
+    request_bridge = new_dialogue = None
+    if subject_scopes is not None:
+        scopes = dict(subject_scopes)
+        if set(scopes) != set(config.allowed_subjects) or any(
+            not isinstance(scope, SubjectReadScope) or not callable(scope.dialogue)
+            or not isinstance(scope.bridge.registry, ReadOnlyMerlinRegistry) for scope in scopes.values()
+        ):
+            raise GatewayConfigurationError("one complete read-only scope per allowed subject required")
+
+        def current_scope():
+            token = get_access_token()
+            if token is None or token.subject not in scopes:
+                raise PermissionError("authenticated read scope required")
+            return scopes[token.subject]
+
+        def request_bridge():
+            return current_scope().bridge
+
+        def new_dialogue():
+            scope = current_scope()
+            return scope.dialogue(scope.bridge)
+
+    return create_server(bridge, request_bridge=request_bridge, new_receipt_dialogue=new_dialogue, server_options={
         "host": "127.0.0.1", "port": config.port,
         "json_response": True, "stateless_http": True,
         "max_request_body_size": 65536,
@@ -304,6 +335,7 @@ def create_http_server(bridge: DotContextBridge, *, config: GatewayConfig,
 
 def build_http_gateway(*, root: str | Path, namespaces: tuple[str, ...],
                        config: GatewayConfig | None,
+                       subject_scopes: Mapping[str, SubjectReadScope] | None = None,
                        introspect: Introspection | None = None,
                        client_id: str | None = None, client_secret: str | None = None) -> FastMCP:
     """Construct without listening. Config absent refuses before touching registry."""
@@ -314,7 +346,7 @@ def build_http_gateway(*, root: str | Path, namespaces: tuple[str, ...],
     verifier = IntrospectionTokenVerifier(config, callback)
     bridge = DotContextBridge(ReadOnlyMerlinRegistry(root), namespaces=namespaces)
     bridge.status()  # Ensure project/schema/source scope already exists; never initialize it.
-    return create_http_server(bridge, config=config, token_verifier=verifier)
+    return create_http_server(bridge, config=config, token_verifier=verifier, subject_scopes=subject_scopes)
 
 
 def main():
