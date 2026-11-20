@@ -1,0 +1,374 @@
+{
+  "hardware": [
+    {
+      "spreader": "copper",
+      "through_plane_w_m_k": 390,
+      "lanes": 16,
+      "memory_gb_s": 32,
+      "ops_per_byte": 0.5,
+      "power_cap_w": 61.40657802659203,
+      "bound_gop_s": 16,
+      "limiter": "lanes"
+    },
+    {
+      "spreader": "copper",
+      "through_plane_w_m_k": 390,
+      "lanes": 16,
+      "memory_gb_s": 32,
+      "ops_per_byte": 4,
+      "power_cap_w": 61.40657802659203,
+      "bound_gop_s": 16,
+      "limiter": "lanes"
+    },
+    {
+      "spreader": "copper",
+      "through_plane_w_m_k": 390,
+      "lanes": 16,
+      "memory_gb_s": 128,
+      "ops_per_byte": 0.5,
+      "power_cap_w": 61.40657802659203,
+      "bound_gop_s": 16,
+      "limiter": "lanes"
+    },
+    {
+      "spreader": "copper",
+      "through_plane_w_m_k": 390,
+      "lanes": 16,
+      "memory_gb_s": 128,
+      "ops_per_byte": 4,
+      "power_cap_w": 61.40657802659203,
+      "bound_gop_s": 16,
+      "limiter": "lanes"
+    },
+    {
+      "spreader": "copper",
+      "through_plane_w_m_k": 390,
+      "lanes": 64,
+      "memory_gb_s": 32,
+      "ops_per_byte": 0.5,
+      "power_cap_w": 61.40657802659203,
+      "bound_gop_s": 16.0,
+      "limiter": "memory"
+    },
+    {
+      "spreader": "copper",
+      "through_plane_w_m_k": 390,
+      "lanes": 64,
+      "memory_gb_s": 32,
+      "ops_per_byte": 4,
+      "power_cap_w": 61.40657802659203,
+      "bound_gop_s": 61.75822253324004,
+      "limiter": "thermal"
+    },
+    {
+      "spreader": "copper",
+      "through_plane_w_m_k": 390,
+      "lanes": 64,
+      "memory_gb_s": 128,
+      "ops_per_byte": 0.5,
+      "power_cap_w": 61.40657802659203,
+      "bound_gop_s": 61.75822253324004,
+      "limiter": "thermal"
+    },
+    {
+      "spreader": "copper",
+      "through_plane_w_m_k": 390,
+      "lanes": 64,
+      "memory_gb_s": 128,
+      "ops_per_byte": 4,
+      "power_cap_w": 61.40657802659203,
+      "bound_gop_s": 61.75822253324004,
+      "limiter": "thermal"
+    },
+    {
+      "spreader": "diamond",
+      "through_plane_w_m_k": 1400,
+      "lanes": 16,
+      "memory_gb_s": 32,
+      "ops_per_byte": 0.5,
+      "power_cap_w": 62.19151036525173,
+      "bound_gop_s": 16,
+      "limiter": "lanes"
+    },
+    {
+      "spreader": "diamond",
+      "through_plane_w_m_k": 1400,
+      "lanes": 16,
+      "memory_gb_s": 32,
+      "ops_per_byte": 4,
+      "power_cap_w": 62.19151036525173,
+      "bound_gop_s": 16,
+      "limiter": "lanes"
+    },
+    {
+      "spreader": "diamond",
+      "through_plane_w_m_k": 1400,
+      "lanes": 16,
+      "memory_gb_s": 128,
+      "ops_per_byte": 0.5,
+      "power_cap_w": 62.19151036525173,
+      "bound_gop_s": 16,
+      "limiter": "lanes"
+    },
+    {
+      "spreader": "diamond",
+      "through_plane_w_m_k": 1400,
+      "lanes": 16,
+      "memory_gb_s": 128,
+      "ops_per_byte": 4,
+      "power_cap_w": 62.19151036525173,
+      "bound_gop_s": 16,
+      "limiter": "lanes"
+    },
+    {
+      "spreader": "diamond",
+      "through_plane_w_m_k": 1400,
+      "lanes": 64,
+      "memory_gb_s": 32,
+      "ops_per_byte": 0.5,
+      "power_cap_w": 62.19151036525173,
+      "bound_gop_s": 16.0,
+      "limiter": "memory"
+    },
+    {
+      "spreader": "diamond",
+      "through_plane_w_m_k": 1400,
+      "lanes": 64,
+      "memory_gb_s": 32,
+      "ops_per_byte": 4,
+      "power_cap_w": 62.19151036525173,
+      "bound_gop_s": 62.73938795656466,
+      "limiter": "thermal"
+    },
+    {
+      "spreader": "diamond",
+      "through_plane_w_m_k": 1400,
+      "lanes": 64,
+      "memory_gb_s": 128,
+      "ops_per_byte": 0.5,
+      "power_cap_w": 62.19151036525173,
+      "bound_gop_s": 62.73938795656466,
+      "limiter": "thermal"
+    },
+    {
+      "spreader": "diamond",
+      "through_plane_w_m_k": 1400,
+      "lanes": 64,
+      "memory_gb_s": 128,
+      "ops_per_byte": 4,
+      "power_cap_w": 62.19151036525173,
+      "bound_gop_s": 62.73938795656466,
+      "limiter": "thermal"
+    },
+    {
+      "spreader": "hypothetical-normal-transport",
+      "through_plane_w_m_k": 100000,
+      "lanes": 16,
+      "memory_gb_s": 32,
+      "ops_per_byte": 0.5,
+      "power_cap_w": 62.495660023609474,
+      "bound_gop_s": 16,
+      "limiter": "lanes"
+    },
+    {
+      "spreader": "hypothetical-normal-transport",
+      "through_plane_w_m_k": 100000,
+      "lanes": 16,
+      "memory_gb_s": 32,
+      "ops_per_byte": 4,
+      "power_cap_w": 62.495660023609474,
+      "bound_gop_s": 16,
+      "limiter": "lanes"
+    },
+    {
+      "spreader": "hypothetical-normal-transport",
+      "through_plane_w_m_k": 100000,
+      "lanes": 16,
+      "memory_gb_s": 128,
+      "ops_per_byte": 0.5,
+      "power_cap_w": 62.495660023609474,
+      "bound_gop_s": 16,
+      "limiter": "lanes"
+    },
+    {
+      "spreader": "hypothetical-normal-transport",
+      "through_plane_w_m_k": 100000,
+      "lanes": 16,
+      "memory_gb_s": 128,
+      "ops_per_byte": 4,
+      "power_cap_w": 62.495660023609474,
+      "bound_gop_s": 16,
+      "limiter": "lanes"
+    },
+    {
+      "spreader": "hypothetical-normal-transport",
+      "through_plane_w_m_k": 100000,
+      "lanes": 64,
+      "memory_gb_s": 32,
+      "ops_per_byte": 0.5,
+      "power_cap_w": 62.495660023609474,
+      "bound_gop_s": 16.0,
+      "limiter": "memory"
+    },
+    {
+      "spreader": "hypothetical-normal-transport",
+      "through_plane_w_m_k": 100000,
+      "lanes": 64,
+      "memory_gb_s": 32,
+      "ops_per_byte": 4,
+      "power_cap_w": 62.495660023609474,
+      "bound_gop_s": 63.11957502951184,
+      "limiter": "thermal"
+    },
+    {
+      "spreader": "hypothetical-normal-transport",
+      "through_plane_w_m_k": 100000,
+      "lanes": 64,
+      "memory_gb_s": 128,
+      "ops_per_byte": 0.5,
+      "power_cap_w": 62.495660023609474,
+      "bound_gop_s": 63.11957502951184,
+      "limiter": "thermal"
+    },
+    {
+      "spreader": "hypothetical-normal-transport",
+      "through_plane_w_m_k": 100000,
+      "lanes": 64,
+      "memory_gb_s": 128,
+      "ops_per_byte": 4,
+      "power_cap_w": 62.495660023609474,
+      "bound_gop_s": 63.11957502951184,
+      "limiter": "thermal"
+    },
+    {
+      "spreader": "zero-bulk-resistance-limit",
+      "through_plane_w_m_k": null,
+      "lanes": 16,
+      "memory_gb_s": 32,
+      "ops_per_byte": 0.5,
+      "power_cap_w": 62.5,
+      "bound_gop_s": 16,
+      "limiter": "lanes"
+    },
+    {
+      "spreader": "zero-bulk-resistance-limit",
+      "through_plane_w_m_k": null,
+      "lanes": 16,
+      "memory_gb_s": 32,
+      "ops_per_byte": 4,
+      "power_cap_w": 62.5,
+      "bound_gop_s": 16,
+      "limiter": "lanes"
+    },
+    {
+      "spreader": "zero-bulk-resistance-limit",
+      "through_plane_w_m_k": null,
+      "lanes": 16,
+      "memory_gb_s": 128,
+      "ops_per_byte": 0.5,
+      "power_cap_w": 62.5,
+      "bound_gop_s": 16,
+      "limiter": "lanes"
+    },
+    {
+      "spreader": "zero-bulk-resistance-limit",
+      "through_plane_w_m_k": null,
+      "lanes": 16,
+      "memory_gb_s": 128,
+      "ops_per_byte": 4,
+      "power_cap_w": 62.5,
+      "bound_gop_s": 16,
+      "limiter": "lanes"
+    },
+    {
+      "spreader": "zero-bulk-resistance-limit",
+      "through_plane_w_m_k": null,
+      "lanes": 64,
+      "memory_gb_s": 32,
+      "ops_per_byte": 0.5,
+      "power_cap_w": 62.5,
+      "bound_gop_s": 16.0,
+      "limiter": "memory"
+    },
+    {
+      "spreader": "zero-bulk-resistance-limit",
+      "through_plane_w_m_k": null,
+      "lanes": 64,
+      "memory_gb_s": 32,
+      "ops_per_byte": 4,
+      "power_cap_w": 62.5,
+      "bound_gop_s": 63.125,
+      "limiter": "thermal"
+    },
+    {
+      "spreader": "zero-bulk-resistance-limit",
+      "through_plane_w_m_k": null,
+      "lanes": 64,
+      "memory_gb_s": 128,
+      "ops_per_byte": 0.5,
+      "power_cap_w": 62.5,
+      "bound_gop_s": 63.125,
+      "limiter": "thermal"
+    },
+    {
+      "spreader": "zero-bulk-resistance-limit",
+      "through_plane_w_m_k": null,
+      "lanes": 64,
+      "memory_gb_s": 128,
+      "ops_per_byte": 4,
+      "power_cap_w": 62.5,
+      "bound_gop_s": 63.125,
+      "limiter": "thermal"
+    }
+  ],
+  "ms_per_replay_including_preparation": {
+    "development": {
+      "repeated": {
+        "grouped": 2.8127122499999997,
+        "deduplicated": 2.1214315,
+        "padded": 2.2106378749999998
+      },
+      "diverse": {
+        "grouped": 2.9562869999999997,
+        "deduplicated": 3.007181875,
+        "padded": 2.28484575
+      }
+    },
+    "held_out": {
+      "repeated": [
+        {
+          "grouped": 2.878706625,
+          "deduplicated": 2.1756888749999996
+        },
+        {
+          "grouped": 2.660439375,
+          "deduplicated": 1.97590625
+        }
+      ],
+      "diverse": [
+        {
+          "grouped": 2.932499625,
+          "padded": 2.2863191250000003
+        },
+        {
+          "grouped": 2.9567315,
+          "padded": 2.217855875
+        }
+      ]
+    }
+  },
+  "replays": 8,
+  "trials": 9,
+  "held_out_seeds": [
+    17701,
+    17729
+  ],
+  "selected": {
+    "repeated": "deduplicated",
+    "diverse": "padded"
+  },
+  "accepted_local": {
+    "repeated": true,
+    "diverse": true
+  }
+}
