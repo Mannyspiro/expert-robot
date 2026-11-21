@@ -26,7 +26,7 @@ jobs:
         run: |
           set -euo pipefail
           printf '{"gates":{}}\n' > /tmp/merlin-empty-evidence.json
-          if python python/merlin_release_gate.py /tmp/merlin-empty-evidence.json; then
+          if python python/merlin_release_gate.py /tmp/merlin-empty-evidence.json --evidence-root .; then
             echo 'ERROR: empty evidence was admitted'
             exit 1
           fi
