@@ -16,6 +16,28 @@ from .project_registry import MerlinRegistry
 
 
 @dataclass(frozen=True)
+class SelectedSourceRelation:
+    """A selected-file equivalence claim; never a whole-commit or ancestry claim."""
+
+    tested_source_commit: str
+    observed_publication_head: str
+    source_map_sha256: str
+    git_blob_map_sha256: str
+    source_files: int
+
+    def to_dict(self):
+        return {'schema': 'merlin-selected-source-relation/1',
+                'relationship': ('same_commit' if self.tested_source_commit == self.observed_publication_head
+                                 else 'identical_selected_files'),
+                'tested_source_commit': self.tested_source_commit,
+                'observed_publication_head': self.observed_publication_head,
+                'source_map_sha256': self.source_map_sha256,
+                'git_blob_map_sha256': self.git_blob_map_sha256,
+                'source_files': self.source_files,
+                'whole_commit_equivalence': False, 'ancestry_verified': False}
+
+
+@dataclass(frozen=True)
 class BuildGoal:
     source_commit: str
     source_map_sha256: str
@@ -38,6 +60,100 @@ class BuildGoal:
                 or any(not _case_name(name) for name in self.required_kernel_cases)
                 or len(set(self.required_kernel_cases)) != self.kernel_cases):
             raise ValueError('immutable exact required kernel case names are required')
+
+
+@dataclass(frozen=True)
+class BuildGoalV3(BuildGoal):
+    """Explicit v3 selection/context contract; existing v2 callers are unchanged."""
+
+    source_files: int = 0
+    required_context_cases: tuple[str, ...] = ()
+
+    def validate(self):
+        super().validate()
+        if type(self.source_files) is not int or not 1 <= self.source_files <= 200:
+            raise ValueError('bounded selected source file count required')
+        if (not isinstance(self.required_context_cases, tuple)
+                or not 1 <= len(self.required_context_cases) <= 1000
+                or any(not _case_name(name) for name in self.required_context_cases)
+                or len(set(self.required_context_cases)) != len(self.required_context_cases)):
+            raise ValueError('immutable exact context case names required')
+
+
+def checked_publication_relation(goal: BuildGoalV3, publication: Mapping):
+    """Check both complete selected manifests without changing the observed head.
+
+    Manifest provenance is authenticated by the host admission boundary. This
+    pure check establishes membership/hash equality only, never ancestry,
+    equivalence of unselected files, or authenticity from a digest alone.
+    """
+    goal.validate()
+    head = publication.get('branch_head')
+    if not isinstance(head, str) or re.fullmatch('[0-9a-f]{40}', head) is None:
+        raise ValueError('exact observed publication head required')
+    manifests = (publication.get('tested_manifest'), publication.get('published_manifest'))
+    for manifest, commit in zip(manifests, (goal.source_commit, head)):
+        if not isinstance(manifest, dict) or manifest.get('source_commit') != commit:
+            raise ValueError('selected manifest commit differs')
+        files, blobs = manifest.get('files'), manifest.get('git_blobs')
+        if (not isinstance(files, dict) or not isinstance(blobs, dict)
+                or len(files) != goal.source_files or set(files) != set(blobs)):
+            raise ValueError('complete selected manifest membership required')
+        for name, checksum in files.items():
+            if (not isinstance(name, str) or not 0 < len(name) <= 1024
+                    or name.startswith('/') or '\\' in name
+                    or any(part in ('', '.', '..') for part in name.split('/'))
+                    or any(ord(char) < 32 or ord(char) == 127 for char in name)
+                    or not isinstance(checksum, str) or re.fullmatch('[0-9a-f]{64}', checksum) is None
+                    or not isinstance(blobs[name], str) or re.fullmatch('[0-9a-f]{40}', blobs[name]) is None):
+                raise ValueError('normalized path and exact source hashes required')
+        if (digest(files) != goal.source_map_sha256
+                or manifest.get('source_map_sha256') != goal.source_map_sha256):
+            raise ValueError('selected source map differs')
+    if (manifests[0]['files'] != manifests[1]['files']
+            or manifests[0]['git_blobs'] != manifests[1]['git_blobs']):
+        raise ValueError('selected source bytes or Git identities differ')
+    return SelectedSourceRelation(goal.source_commit, head, goal.source_map_sha256,
+                                  digest(manifests[0]['git_blobs']), goal.source_files).to_dict()
+
+
+def _check_context(goal, context, software, reject):
+    if not isinstance(context, Mapping):
+        raise ValueError('typed context evidence mapping required')
+    for key, expected in (('source_commit', goal.source_commit), ('source_map_sha256', goal.source_map_sha256),
+                          ('qualification', False), ('promotion_authority', False)):
+        if (context.get(key) is not expected if type(expected) is bool else context.get(key) != expected):
+            reject('context:' + key + '_mismatch', {key: _scalar(context.get(key))})
+    cases = context.get('cases')
+    bounded = isinstance(cases, list) and len(cases) <= 1000
+    names = [row['name'] for row in cases if isinstance(row, dict) and _case_name(row.get('name'))] if bounded else []
+    if (not bounded or len(names) != len(cases) or len(set(names)) != len(names)
+            or set(names) != set(goal.required_context_cases)):
+        reject('context:case_inventory_mismatch', {'case_names': sorted(names)})
+    if (context.get('status') != 'succeeded' or context.get('service_unchanged') is not True
+            or not bounded or not cases or any(not isinstance(row, dict) or row.get('passed') is not True for row in cases)):
+        reject('context:acceptance_failed', {'status': _scalar(context.get('status')),
+            'service_unchanged': _scalar(context.get('service_unchanged')),
+            'failed_cases': sorted([{'name': row['name'], 'passed': _scalar(row.get('passed'))}
+                for row in cases if isinstance(row, dict) and _case_name(row.get('name'))
+                and row.get('passed') is not True], key=canonical) if bounded else []})
+    if type(context.get('run_id')) is not int or context['run_id'] < 1 or context['run_id'] != software.get('run_id'):
+        reject('context:run_mismatch', {'same_run': False})
+
+
+def decide_build_v3(goal: BuildGoalV3, *, publication: Mapping, software: Mapping,
+                    kernel: Mapping, context: Mapping, attempt: int,
+                    previous_failure_sha256: str | None = None):
+    """Pure v3 policy after host admission, with explicit source relation/context.
+
+    Use build_admission.admit_oci_build for actual run/controller authentication
+    and canonical persistence. Calling this pure function grants no authority.
+    """
+    if not isinstance(goal, BuildGoalV3):
+        raise ValueError('explicit v3 goal required')
+    return _decide_build(goal, publication=publication, software=software, kernel=kernel,
+                         context=context, attempt=attempt, previous_failure_sha256=previous_failure_sha256,
+                         version=3)
 
 
 def _case_name(value):
@@ -108,16 +224,26 @@ def decide_build(goal: BuildGoal, *, publication: Mapping, software: Mapping,
     identical underlying failure is not inferred. The attempt ceiling still
     bounds retries. This is a stopping policy, not a root-cause classifier.
     """
+    return _decide_build(goal, publication=publication, software=software, kernel=kernel,
+                         attempt=attempt, previous_failure_sha256=previous_failure_sha256)
+
+
+def _decide_build(goal, *, publication, software, kernel, attempt,
+                  previous_failure_sha256=None, context=None, version=2):
     goal.validate()
     if type(attempt) is not int or not 1 <= attempt <= goal.max_attempts:
         raise ValueError('attempt must be inside the host-owned budget')
     if previous_failure_sha256 is not None and (not isinstance(previous_failure_sha256, str) or not re.fullmatch('[0-9a-f]{64}', previous_failure_sha256)):
         raise ValueError('previous failure identity required')
-    acceptance = {'schema': 'merlin-build-acceptance/2', 'source_commit': goal.source_commit,
+    acceptance = {'schema': 'merlin-build-acceptance/' + str(version), 'source_commit': goal.source_commit,
                   'source_map_sha256': goal.source_map_sha256, 'software_tests': goal.software_tests,
                   'software_test_inventory_sha256': goal.software_test_inventory_sha256,
                   'required_kernel_cases': sorted(goal.required_kernel_cases),
                   'kernel_cases': goal.kernel_cases}
+    if version == 3:
+        acceptance.update(source_files=goal.source_files,
+                          required_context_cases=sorted(goal.required_context_cases),
+                          context_cases=len(goal.required_context_cases))
     acceptance_sha256 = digest(acceptance)
     reasons, failed_checks = [], []
     def reject(reason, observations):
@@ -132,8 +258,15 @@ def decide_build(goal: BuildGoal, *, publication: Mapping, software: Mapping,
         if report.get('qualification') is not False or report.get('promotion_authority') is not False:
             reject(label + ':authority_mismatch', {key: _scalar(report.get(key))
                 for key in ('qualification', 'promotion_authority')})
+    relation = None
+    if version == 3:
+        try:
+            relation = checked_publication_relation(goal, publication)
+        except ValueError:
+            reject('publication:selected_source_relation_mismatch', {
+                'branch_head': _scalar(publication.get('branch_head'))})
     if (publication.get('status') != 'observed' or publication.get('readback_complete') is not True
-            or publication.get('branch_head') != goal.source_commit):
+            or (publication.get('branch_head') != goal.source_commit if version == 2 else relation is None)):
         reject('publication:unconfirmed', {key: _scalar(publication.get(key))
             for key in ('status', 'readback_complete', 'branch_head')})
     if software.get('test_inventory_sha256') != goal.software_test_inventory_sha256:
@@ -169,17 +302,22 @@ def decide_build(goal: BuildGoal, *, publication: Mapping, software: Mapping,
             'failed_cases': sorted(case_failures, key=canonical)})
     if kernel.get('run_id') != software.get('run_id'):
         reject('kernel:run_mismatch', {'same_run': False})
-    signature = (digest({'schema': 'merlin-build-failure/2', 'acceptance_sha256': acceptance_sha256,
+    if version == 3:
+        _check_context(goal, context, software, reject)
+    signature = (digest({'schema': 'merlin-build-failure/' + str(version), 'acceptance_sha256': acceptance_sha256,
                          'failed_checks': failed_checks}) if reasons and complete_failure_identity else None)
     state = ('ready_for_review' if not reasons else 'stalled' if signature is not None and signature == previous_failure_sha256
              else 'budget_exhausted' if attempt == goal.max_attempts else 'repair_required')
-    return {'schema': 'merlin-build-loop-decision/2', 'state': state, 'source_commit': goal.source_commit,
+    result = {'schema': 'merlin-build-loop-decision/' + str(version), 'state': state, 'source_commit': goal.source_commit,
             'source_map_sha256': goal.source_map_sha256, 'attempt': attempt, 'max_attempts': goal.max_attempts,
             'acceptance': acceptance, 'acceptance_sha256': acceptance_sha256,
             'reasons': reasons, 'failed_checks': failed_checks, 'failure_sha256': signature,
             'failure_identity_complete': complete_failure_identity,
             'automatic_retry': False, 'merge_authorized': False, 'deployment_authorized': False,
             'qualification': False, 'promotion_authority': False}
+    if version == 3:
+        result['publication_relation'] = relation
+    return result
 
 
 def record_build_decision(registry: MerlinRegistry, *, project_id: str, goal: BuildGoal,

@@ -18,6 +18,11 @@ or prove independence. The host must enforce resource/isolation limits; the
 zero-cost declaration is not billing enforcement. Coders receive no held-out
 IDs or evaluator outcomes. Case-ID separation is not semantic dataset secrecy.
 
+An optional host-provisioned coder_a WeightBinding uses explicit v2 records to
+admit exact invocation evidence. It supplies no loader or model endpoint, and
+neither host authentication nor declared case counts assess model quality.
+Historical unbound v1 records retain their existing research-only semantics.
+
 Use one cooperative host per registry. Linux advisory locks serialize this
 workflow, but do not defend against arbitrary code bypassing the lock or a
 compromised registry host. No second journal/database is created.
@@ -34,6 +39,7 @@ from typing import Any, Callable, Mapping
 
 from merlin.artifact_ref import ArtifactRef
 from merlin.project_registry import MerlinRegistry
+from merlin.weight_binding import WeightBinding, provider_identity
 
 from .bridge import canonical, digest, text_value
 
@@ -64,23 +70,18 @@ def _case_ids(values: Any, field: str) -> list[str]:
 
 
 def _provider_identity(value: Any) -> dict[str, str]:
-    fields = {"provider_id", "revision", "prompt_sha256", "config_sha256", "adapter_sha256"}
-    if not isinstance(value, Mapping) or set(value) != fields:
-        raise ValueError("provider identity requires the exact runtime-owned field set")
-    identity = dict(value)
-    text_value(identity["provider_id"], "provider_id", 200)
-    revision = text_value(identity["revision"], "revision", 200)
-    if revision.casefold() in {"latest", "main", "master", "head", "default"}:
-        raise ValueError("an immutable provider revision declaration is required")
-    for field in ("prompt_sha256", "config_sha256", "adapter_sha256"):
-        _sha(identity[field], field)
-    return identity
+    return provider_identity(value)
 
 
 class DualCoderWorkflow:
-    def __init__(self, registry: MerlinRegistry, *, project_id: str = "dot-ai-os"):
+    def __init__(self, registry: MerlinRegistry, *, project_id: str = "dot-ai-os",
+                 coder_a_binding: WeightBinding | None = None):
         self.registry = registry
         self.project_id = text_value(project_id, "project_id", 120)
+        if coder_a_binding is not None and (not isinstance(coder_a_binding, WeightBinding)
+                or coder_a_binding.registry is not registry or coder_a_binding.project_id != self.project_id):
+            raise ValueError("coder_a binding must use this exact canonical registry and project")
+        self.coder_a_binding = coder_a_binding
 
     def _base(self, session_id: str) -> str:
         if not isinstance(session_id, str) or re.fullmatch(r"[A-Za-z0-9_-]{1,100}", session_id) is None:
@@ -128,7 +129,8 @@ class DualCoderWorkflow:
         return self.registry.artifact_ref(self.project_id, path, version=1)
 
     def _spec(self, specification: Mapping[str, Any],
-              providers: Mapping[str, Mapping[str, Any]]) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+              providers: Mapping[str, Mapping[str, Any]], *, bind: bool = True
+              ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
         fields = {"objective", "source_commit", "context_refs", "train_ids", "holdout_ids",
                   "acceptance_criteria", "max_cost_usd"}
         if not isinstance(specification, Mapping) or set(specification) != fields:
@@ -171,8 +173,12 @@ class DualCoderWorkflow:
             if size > MAX_CONTEXT_BYTES:
                 raise ValueError("context exceeds bounded shard; select a smaller pinned packet")
             contexts.append({"artifact_ref": ref.to_dict(), "text": raw.decode("utf-8")})
-        return {"schema": "dot-dual-coder-spec/1", "specification": spec,
-                "providers": identities}, contexts
+        envelope = {"schema": "dot-dual-coder-spec/1", "specification": spec, "providers": identities}
+        if bind and self.coder_a_binding is not None:
+            self.coder_a_binding.validate_for(identities["coder_a"], spec["source_commit"])
+            envelope.update(schema="dot-dual-coder-spec/2",
+                            coder_a_weight_manifest_ref=self.coder_a_binding.manifest_ref)
+        return envelope, contexts
 
     @staticmethod
     def _candidate(value: Any) -> dict[str, str]:
@@ -203,34 +209,90 @@ class DualCoderWorkflow:
         result["notes"] = text_value(value["notes"], "evaluation notes", 8000)
         return result
 
+    @staticmethod
+    def _coder_inputs(spec: dict[str, Any], contexts: list[dict[str, Any]]) -> dict[str, Any]:
+        return {"objective": spec["objective"], "source_commit": spec["source_commit"],
+                "context": contexts, "train_ids": spec["train_ids"],
+                "holdout_manifest_sha256": digest(canonical(spec["holdout_ids"])),
+                "acceptance_criteria": spec["acceptance_criteria"],
+                "max_cost_usd": 0, "qualification": False, "promotion_authority": False}
+
+    def _weight_receipt(self, *, stage_path: str, session_id: str, identity: dict[str, Any],
+                        intent_ref: dict[str, Any], inputs: dict[str, Any],
+                        payload: dict[str, Any] | None = None,
+                        expected_ref: dict[str, Any] | None = None) -> dict[str, Any] | None:
+        if self.coder_a_binding is None:
+            raise PermissionError("weight-bound evidence requires the configured host binding")
+        saved = self._load_once(stage_path + "/weight-receipt.json")
+        if saved is None:
+            if expected_ref is not None:
+                raise WorkflowConflict("weight-bound result has no canonical invocation receipt")
+            return None
+        if expected_ref is not None and saved[1] != expected_ref:
+            raise WorkflowConflict("weight-bound result points to a different invocation receipt")
+        stored_payload = self._candidate(saved[0].get("payload"))
+        if payload is not None and canonical(stored_payload) != canonical(payload):
+            raise WorkflowConflict("weight receipt and stage output differ")
+        request = self.coder_a_binding.invocation_request(session_id=session_id, intent_ref=intent_ref,
+                                                          identity=identity, inputs=inputs)
+        self.coder_a_binding.validate_receipt(saved[0], payload=stored_payload, request=request)
+        return saved[1]
+
     def _stage(self, *, base: str, name: str, request_sha: str,
                provider: dict[str, str], inputs: dict[str, Any], callback: Provider | None,
-               validator: Callable[[Any], dict[str, Any]]) -> dict[str, Any]:
+               validator: Callable[[Any], dict[str, Any]], session_id: str | None = None,
+               before_callback: Callable[[], None] | None = None) -> dict[str, Any]:
         stage_path = f"{base}/stages/{name}"
         input_sha = digest(canonical(inputs))
         identity = {"schema": "dot-dual-coder-intent/1", "stage": name,
                     "request_sha256": request_sha, "input_sha256": input_sha,
                     "provider": provider}
+        binding = self.coder_a_binding if name == "coder_a" else None
+        if binding is not None:
+            identity.update(schema="dot-dual-coder-intent/2", session_id=session_id,
+                            weight_manifest_ref=binding.manifest_ref)
         identity["idempotency_key"] = digest(canonical(identity))
         intent = self._load_once(stage_path + "/intent.json")
         saved = self._load_once(stage_path + "/result.json")
+        if (name == "coder_a" and intent is None
+                and self._load_once(stage_path + "/weight-receipt.json") is not None):
+            raise WorkflowConflict("weight receipt has no durable invocation intent")
         if intent is not None and canonical(intent[0]) != canonical(identity):
             raise WorkflowConflict("stage identity conflicts with pinned input/provider")
         if saved is not None:
             if intent is None:
                 raise WorkflowConflict("stage result has no durable invocation intent")
             result, ref = saved
-            if set(result) != {"schema", "intent_ref", "payload", "qualification", "promotion_authority"}:
+            fields = {"schema", "intent_ref", "payload", "qualification", "promotion_authority"}
+            if binding is not None:
+                fields |= {"weight_receipt_ref", "independent_verification", "model_quality_assessed"}
+            if set(result) != fields:
                 raise WorkflowConflict("invalid persisted stage envelope")
-            if (result["schema"] != "dot-dual-coder-result/1" or result["intent_ref"] != intent[1]
+            schema = "dot-dual-coder-result/2" if binding is not None else "dot-dual-coder-result/1"
+            if (result["schema"] != schema or result["intent_ref"] != intent[1]
                     or result["qualification"] is not False or result["promotion_authority"] is not False):
                 raise WorkflowConflict("persisted stage envelope cannot confer authority")
             payload = validator(result["payload"])
-            return {"status": "completed", "payload": payload, "result_ref": ref}
+            if binding is not None:
+                if result["independent_verification"] is not False or result["model_quality_assessed"] is not False:
+                    raise WorkflowConflict("weight binding cannot establish independent verification or model quality")
+                self._weight_receipt(stage_path=stage_path, session_id=session_id, identity=identity,
+                    intent_ref=intent[1], inputs=inputs, payload=payload,
+                    expected_ref=ArtifactRef.from_mapping(result["weight_receipt_ref"]).to_dict())
+            completed = {"status": "completed", "payload": payload, "result_ref": ref}
+            if binding is not None:
+                completed["weight_receipt_ref"] = result["weight_receipt_ref"]
+            return completed
         if intent is not None:
-            return {"status": "reconciliation_required", "stage": name,
+            pending = {"status": "reconciliation_required", "stage": name,
                     "intent_ref": intent[1], "reason": "intent_without_committed_result",
                     "automatic_retry": False}
+            if binding is not None:
+                receipt_ref = self._weight_receipt(stage_path=stage_path, session_id=session_id, identity=identity,
+                    intent_ref=intent[1], inputs=inputs)
+                if receipt_ref is not None:
+                    pending["weight_receipt_ref"] = receipt_ref
+            return pending
         if callback is None:
             return {"status": "blocked_missing_adapter", "stage": name,
                     "provider_id": provider["provider_id"]}
@@ -238,7 +300,20 @@ class DualCoderWorkflow:
         request = deepcopy({**inputs, "stage": name,
                             "idempotency_key": identity["idempotency_key"]})
         try:
-            payload = validator(callback(request))
+            if binding is not None:
+                request = binding.invocation_request(session_id=session_id, intent_ref=intent_ref,
+                                                     identity=identity, inputs=inputs)
+            if before_callback is not None:
+                before_callback()
+            generated = callback(deepcopy(request))
+            if binding is not None:
+                if not isinstance(generated, Mapping) or set(generated) != {"payload", "observation"}:
+                    raise ValueError("weight-bound coder must return payload and invocation observation")
+                payload = validator(generated["payload"])
+                receipt = binding.admit(payload=payload, observation=generated["observation"], request=request)
+                receipt_ref = self._put_once(stage_path + "/weight-receipt.json", receipt)
+            else:
+                payload = validator(generated)
         except Exception as exc:
             # Never persist messages/tracebacks: providers may include private data.
             self._put_once(stage_path + "/failure.json", {
@@ -249,8 +324,14 @@ class DualCoderWorkflow:
                     "automatic_retry": False}
         result = {"schema": "dot-dual-coder-result/1", "intent_ref": intent_ref,
                   "payload": payload, "qualification": False, "promotion_authority": False}
+        if binding is not None:
+            result.update(schema="dot-dual-coder-result/2", weight_receipt_ref=receipt_ref,
+                          independent_verification=False, model_quality_assessed=False)
         ref = self._put_once(stage_path + "/result.json", result)
-        return {"status": "completed", "payload": payload, "result_ref": ref}
+        completed = {"status": "completed", "payload": payload, "result_ref": ref}
+        if binding is not None:
+            completed["weight_receipt_ref"] = receipt_ref
+        return completed
 
     def run(self, session_id: str, *, specification: Mapping[str, Any],
             providers: Mapping[str, Mapping[str, Any]], coder_a: Provider | None = None,
@@ -262,32 +343,39 @@ class DualCoderWorkflow:
             spec_ref = self._put_once(base + "/spec.json", envelope)
             request_sha = digest(canonical(envelope))
             spec = envelope["specification"]
-            coder_input = {"objective": spec["objective"], "source_commit": spec["source_commit"],
-                           "context": contexts, "train_ids": spec["train_ids"],
-                           "holdout_manifest_sha256": digest(canonical(spec["holdout_ids"])),
-                           "acceptance_criteria": spec["acceptance_criteria"],
-                           "max_cost_usd": 0, "qualification": False,
-                           "promotion_authority": False}
+            coder_input = self._coder_inputs(spec, contexts)
             a = self._stage(base=base, name="coder_a", request_sha=request_sha,
                             provider=envelope["providers"]["coder_a"], inputs=coder_input,
-                            callback=coder_a, validator=self._candidate)
+                            callback=coder_a, validator=self._candidate, session_id=session_id)
             if a["status"] != "completed":
                 return self._blocked(session_id, spec_ref, a)
+            def current_bound_a():
+                # Authenticate the exact committed dependency at each effect
+                # boundary. This only replays A's records; it cannot call A.
+                if envelope["schema"] == "dot-dual-coder-spec/2":
+                    current = self._stage(base=base, name="coder_a", request_sha=request_sha,
+                        provider=envelope["providers"]["coder_a"], inputs=coder_input,
+                        callback=None, validator=self._candidate, session_id=session_id)
+                    if canonical(current) != canonical(a):
+                        raise WorkflowConflict("admitted coder A result changed before a dependent effect")
+            current_bound_a()
             b_input = {**coder_input, "coder_a_result_ref": a["result_ref"],
                        "coder_a_candidate": a["payload"],
                        "assignment": "Independently review coder A and propose an alternative; retain dissent."}
             b = self._stage(base=base, name="coder_b", request_sha=request_sha,
                             provider=envelope["providers"]["coder_b"], inputs=b_input,
-                            callback=coder_b, validator=self._candidate)
+                            callback=coder_b, validator=self._candidate, before_callback=current_bound_a)
             if b["status"] != "completed":
                 return self._blocked(session_id, spec_ref, b)
+            current_bound_a()
             evaluation_input = {"specification": spec, "context": contexts,
                                 "candidates": {"coder_a": a["payload"], "coder_b": b["payload"]},
                                 "candidate_refs": {"coder_a": a["result_ref"], "coder_b": b["result_ref"]},
                                 "qualification": False, "promotion_authority": False}
             evaluation = self._stage(base=base, name="evaluator", request_sha=request_sha,
                                      provider=envelope["providers"]["evaluator"], inputs=evaluation_input,
-                                     callback=evaluator, validator=lambda x: self._evaluation(x, spec))
+                                     callback=evaluator, validator=lambda x: self._evaluation(x, spec),
+                                     before_callback=current_bound_a)
             if evaluation["status"] != "completed":
                 return self._blocked(session_id, spec_ref, evaluation)
             counts = evaluation["payload"]
@@ -309,6 +397,12 @@ class DualCoderWorkflow:
                       "limitations": ["runtime identities are declarations, not authenticated attestations",
                                       "callback reports are not independent CACE receipts",
                                       "no live dot/model/OCI adapter is configured by this module"]}
+            if self.coder_a_binding is not None:
+                report.update(schema="dot-dual-coder-report/2", coder_a_weight_receipt_ref=a["weight_receipt_ref"],
+                              independent_verification=False, model_quality_assessed=False)
+                report["limitations"][0] = ("coder A weight evidence is admitted only by the configured host callback; "
+                                            "other provider identities remain declarations")
+            current_bound_a()
             ref = self._put_once(base + "/report.json", report)
             return {**report, "report_ref": ref}
 
@@ -325,32 +419,69 @@ class DualCoderWorkflow:
         if spec is None:
             return {"session_id": session_id, "status": "not_started", "next_stage": "coder_a"}
         spec_payload = spec[0]
-        if set(spec_payload) != {"schema", "specification", "providers"} or spec_payload["schema"] != "dot-dual-coder-spec/1":
+        bound = spec_payload.get("schema") == "dot-dual-coder-spec/2"
+        fields = {"schema", "specification", "providers"}
+        if bound:
+            fields.add("coder_a_weight_manifest_ref")
+            if self.coder_a_binding is None:
+                raise PermissionError("weight-bound status requires the matching host binding")
+        if set(spec_payload) != fields or spec_payload["schema"] not in {"dot-dual-coder-spec/1", "dot-dual-coder-spec/2"}:
             raise WorkflowConflict("invalid persisted specification envelope")
-        self._spec(spec_payload["specification"], spec_payload["providers"])
+        rebuilt, contexts = self._spec(spec_payload["specification"], spec_payload["providers"], bind=bound)
+        if canonical(rebuilt) != canonical(spec_payload):
+            raise WorkflowConflict("persisted specification differs from the configured weight binding")
+        coder_inputs = self._coder_inputs(spec_payload["specification"], contexts)
         request_sha = digest(canonical(spec_payload))
         stages = {}
         result_refs = {}
+        receipt_refs = {}
         for name in STAGES:
-            result = self._load_once(f"{base}/stages/{name}/result.json")
-            intent = self._load_once(f"{base}/stages/{name}/intent.json")
+            stage_path = f"{base}/stages/{name}"
+            result = self._load_once(stage_path + "/result.json")
+            intent = self._load_once(stage_path + "/intent.json")
+            weight_stage = bound and name == "coder_a"
+            if (name == "coder_a" and intent is None
+                    and self._load_once(stage_path + "/weight-receipt.json") is not None):
+                raise WorkflowConflict("weight receipt has no durable invocation intent")
             if intent is not None:
                 identity = dict(intent[0])
                 key = identity.pop("idempotency_key", None)
-                if (set(identity) != {"schema", "stage", "request_sha256", "input_sha256", "provider"}
-                        or identity["schema"] != "dot-dual-coder-intent/1" or identity["stage"] != name
+                fields = {"schema", "stage", "request_sha256", "input_sha256", "provider"}
+                if weight_stage:
+                    fields |= {"session_id", "weight_manifest_ref"}
+                schema = "dot-dual-coder-intent/2" if weight_stage else "dot-dual-coder-intent/1"
+                if (set(identity) != fields or identity["schema"] != schema or identity["stage"] != name
                         or identity["request_sha256"] != request_sha
                         or identity["provider"] != spec_payload["providers"][name]
                         or key != digest(canonical(identity))):
                     raise WorkflowConflict("persisted invocation identity mismatch")
+                if weight_stage and (identity["session_id"] != session_id
+                        or identity["weight_manifest_ref"] != spec_payload["coder_a_weight_manifest_ref"]
+                        or identity["input_sha256"] != digest(canonical(coder_inputs))):
+                    raise WorkflowConflict("persisted weight intent differs from current session/input binding")
+            if weight_stage:
+                if intent is not None:
+                    ref = self._weight_receipt(stage_path=stage_path, session_id=session_id, identity=intent[0],
+                        intent_ref=intent[1], inputs=coder_inputs,
+                        payload=self._candidate(result[0].get("payload")) if result is not None else None,
+                        expected_ref=ArtifactRef.from_mapping(result[0].get("weight_receipt_ref")).to_dict()
+                            if result is not None else None)
+                    if ref is not None:
+                        receipt_refs[name] = ref
             if result is not None:
                 envelope = result[0]
-                if (intent is None or set(envelope) != {"schema", "intent_ref", "payload", "qualification", "promotion_authority"}
-                        or envelope["schema"] != "dot-dual-coder-result/1"
+                fields = {"schema", "intent_ref", "payload", "qualification", "promotion_authority"}
+                if weight_stage:
+                    fields |= {"weight_receipt_ref", "independent_verification", "model_quality_assessed"}
+                schema = "dot-dual-coder-result/2" if weight_stage else "dot-dual-coder-result/1"
+                if (intent is None or set(envelope) != fields or envelope["schema"] != schema
                         or envelope["intent_ref"] != intent[1]
                         or envelope["qualification"] is not False
                         or envelope["promotion_authority"] is not False):
                     raise WorkflowConflict("invalid persisted stage envelope")
+                if weight_stage and (envelope["independent_verification"] is not False
+                                      or envelope["model_quality_assessed"] is not False):
+                    raise WorkflowConflict("weight binding cannot establish independent verification or model quality")
                 if name == "evaluator":
                     self._evaluation(envelope["payload"], spec_payload["specification"])
                 else:
@@ -360,16 +491,25 @@ class DualCoderWorkflow:
         report = self._load_once(base + "/report.json")
         if report is not None:
             payload = report[0]
-            if (set(result_refs) != set(STAGES) or payload.get("schema") != "dot-dual-coder-report/1"
+            schema = "dot-dual-coder-report/2" if bound else "dot-dual-coder-report/1"
+            if (set(result_refs) != set(STAGES) or payload.get("schema") != schema
                     or payload.get("session_id") != session_id or payload.get("spec_ref") != spec[1]
                     or payload.get("qualification") is not False or payload.get("promotion_authority") is not False
                     or payload.get("coder_a_ref") != result_refs["coder_a"]
                     or payload.get("coder_b_ref") != result_refs["coder_b"]
                     or payload.get("evaluation_ref") != result_refs["evaluator"]):
                 raise WorkflowConflict("invalid persisted report bindings")
-        return {"schema": "dot-dual-coder-status/1", "session_id": session_id,
+            if bound and (payload.get("coder_a_weight_receipt_ref") != receipt_refs.get("coder_a")
+                    or payload.get("independent_verification") is not False
+                    or payload.get("model_quality_assessed") is not False):
+                raise WorkflowConflict("invalid persisted weight report bindings")
+        status = {"schema": "dot-dual-coder-status/1", "session_id": session_id,
                 "spec_ref": spec[1], "stages": stages,
                 "status": "completed_research_only" if report else "incomplete",
                 "next_stage": next((name for name in STAGES if stages[name] != "completed"), None),
                 "report_ref": report[1] if report else None,
                 "qualification": False, "promotion_authority": False}
+        if bound:
+            status.update(schema="dot-dual-coder-status/2", weight_receipt_refs=receipt_refs,
+                          independent_verification=False, model_quality_assessed=False)
+        return status

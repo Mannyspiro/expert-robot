@@ -80,7 +80,7 @@ A host-owned configuration should bind a separate weight-candidate manifest cont
 
 The loader must verify the actual bytes it loads. A manifest hash alone is not a loaded-model receipt. Keep large weight bundles outside bounded review packets; packets carry references and bounded evidence.
 
-The existing adapter_sha256 identifies integration code. It must not be silently repurposed as the weight-delta identity. Any new manifest/loader contract is a future implementation task, not implemented by this document.
+The existing adapter_sha256 identifies integration code. It must not be silently repurposed as the weight-delta identity. The optional WeightBinding contract in python/merlin/weight_binding.py now binds a canonical manifest to an invocation-specific host observation through DualCoderWorkflow v2. See docs/merlin/WEIGHT_BINDING_IMPLEMENTATION.md for its exact scope and verification. This binding does not supply a weight loader, endpoint, or authenticated runtime; the host must still verify the actual loaded bytes.
 
 Current constraints remain explicit: the selected source shard has no verified editable-weight runtime or model-loader integration; the fixed synthetic process runner has not established transformer/GPU inference; DualCoderWorkflow admits only a zero-cost specification and does not enforce external billing. Paid model operations need an explicitly configured budget policy and host enforcement, rather than being labeled zero-cost.
 
@@ -105,7 +105,7 @@ The existing four-lens framework is used as a design aid, not evidence that a mo
 
 ## Next implementation boundary
 
-Provision one permitted target/runtime and measure its baseline. Then implement and test the host-owned candidate loader/manifest binding using the existing registry and callback interfaces. Freeze the comparison before any model editing. If no representative task and oracle are available, a synthetic demonstration can validate plumbing but cannot establish production benefit.
+Provision one permitted target/runtime and measure its baseline. Integrate its actual loader and host-observed invocation evidence with the implemented optional weight binding, using the existing registry and callback interfaces. Freeze the comparison before any model editing. If no representative task and oracle are available, a synthetic demonstration can validate plumbing but cannot establish production benefit.
 
 The process-recovery candidate remains source commit 4847d90dca4266d42651a8b9538c3eeae8a423b1, with a 117-file selected shard. After explicit user authorization for the exact transfer, native OCI run 44899455087 attempt 1 passed all 386 software tests, eight kernel cases and six context cases. The downloaded source, actual execution inventory, loader identities and raw recovery receipts were checked. See config/merlin/plan-updates/20261121-native-acceptance-result.json. This bounded synthetic acceptance establishes no native model review or WSP model-quality gain and does not cover subsequent implementation candidates.
 
