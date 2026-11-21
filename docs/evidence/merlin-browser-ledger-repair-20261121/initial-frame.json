@@ -1,0 +1,77 @@
+{
+  "acceptance": [
+    "All 33 existing tests pass unchanged.",
+    "New deterministic nested fulfill, nested abort, partial fetch, deny and request/evidence-budget cases pass.",
+    "At least the nested fulfill/abort original-defect regressions fail when run against original producer code.",
+    "Real retained arXiv original remains rejected; separately derived metadata passes unchanged importer with original bytes untouched."
+  ],
+  "baseline": {
+    "base_tests_sha256": "7ce6b4fcad09a99bb116ec704a5f00bc00e85660a14d5527a0affe6a89d6dfe2",
+    "original_product_commit": "8e2f1d69371d5b4f7e01e3bbd5aa02a666ddd506",
+    "original_source_sha256": "4aaec5e3a38809d077424fcf8f557e8de92a3a6e22236d223a40262e75cd3a54",
+    "preserved_draft_sha256": "c5459c0149e5d288f412a2f7b63053f1841b85dc7d05eb9dcc4d89f109b6c518"
+  },
+  "bias_controls": [
+    {
+      "countermeasure": "Preserve patch, use independent byte-total/order oracle and prove new tests fail on original.",
+      "trigger": "Inherited unvalidated patch may anchor implementation"
+    },
+    {
+      "countermeasure": "Label fixtures and retained-data computation distinctly; no native claim.",
+      "trigger": "Local fixtures could be mistaken for native acceptance"
+    }
+  ],
+  "constraints": [
+    "Do not edit importer, browser policy, transport, operations code or preserved evidence.",
+    "Do not reduce request or byte totals to make incomplete traces importable.",
+    "Retain original failure and label all reconstructed metadata as derived."
+  ],
+  "created_at": "2026-11-21T21:10:48.325699+00:00",
+  "hypotheses": [
+    {
+      "id": "reentrant-completion",
+      "prediction": "Nested fulfill or abort callbacks cause overlapping or out-of-order intervals in original producer; captured-per-fetch deltas with ordered flush eliminate the defect."
+    },
+    {
+      "id": "bad-broker-accounting",
+      "prediction": "If transport totals are inconsistent before completion, completion-only repair cannot satisfy independent byte sum checks."
+    }
+  ],
+  "lenses": {
+    "continuum": {
+      "decision": "not_applicable",
+      "invariant": "Ordered per-fetch nonnegative byte intervals compose to actual broker total.",
+      "limits": "Synthetic callback scheduling is not native browser acceptance.",
+      "reason": "Finite exact request-order and byte-conservation contract; no approximate representation needed."
+    },
+    "fuzzy": {
+      "decision": "not_applicable",
+      "invariant": "Ordered per-fetch nonnegative byte intervals compose to actual broker total.",
+      "limits": "Synthetic callback scheduling is not native browser acceptance.",
+      "reason": "Finite exact request-order and byte-conservation contract; no approximate representation needed."
+    },
+    "n_ality": {
+      "decision": "not_applicable",
+      "invariant": "Ordered per-fetch nonnegative byte intervals compose to actual broker total.",
+      "limits": "Synthetic callback scheduling is not native browser acceptance.",
+      "reason": "Finite exact request-order and byte-conservation contract; no approximate representation needed."
+    },
+    "simplex": {
+      "decision": "not_applicable",
+      "invariant": "Ordered per-fetch nonnegative byte intervals compose to actual broker total.",
+      "limits": "Synthetic callback scheduling is not native browser acceptance.",
+      "reason": "Finite exact request-order and byte-conservation contract; no approximate representation needed."
+    }
+  },
+  "observations": [
+    {
+      "class": "reported_original_native_and_independent_review",
+      "result": "31 fulfilled resources, 738314 bytes; unchanged importer rejects overlapping resource deltas; file and event hashes remain intact.",
+      "source_run": 44946846703
+    }
+  ],
+  "question": "Does binding each synchronous fetch interval before reentrant Playwright completion restore request-order byte accounting without hiding failed requests or spent budgets?",
+  "schema": "merlin-local-ledger-repair-frame/1",
+  "scope": "Local producer and tests only; no native execution, deployment, network or promotion.",
+  "stopping_rule": "Stop after exact focused controls, original-code differential, direct retained-byte check and sibling sweep; native acceptance remains pending."
+}

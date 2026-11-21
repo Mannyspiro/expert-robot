@@ -201,6 +201,32 @@ class FakePage:
     def screenshot(self,**kwargs): return PNG
 
 
+class ReentrantRoute(FakeRoute):
+    """Synchronous fixture for callbacks delivered inside Playwright completion."""
+    def __init__(self,*args,on_fulfill=None,on_abort=None,**kwargs):
+        super().__init__(*args,**kwargs)
+        self.on_fulfill=on_fulfill;self.on_abort=on_abort
+    def fulfill(self,**kwargs):
+        callback,self.on_fulfill=self.on_fulfill,None
+        if callback: callback()
+        super().fulfill(**kwargs)
+    def abort(self,*args):
+        callback,self.on_abort=self.on_abort,None
+        if callback: callback()
+        super().abort(*args)
+
+
+class ScriptedTransport:
+    """Explicit body sizes and failures; independent expected byte totals."""
+    def __init__(self,steps):
+        self.steps=iter(steps);self.bytes=0;self.requests=0
+    def fetch(self,url,method='GET',headers=None):
+        size,error=next(self.steps);self.bytes+=size;self.requests+=1
+        raw=b'x'*size
+        if error: raise error
+        return FetchResult(url,200,{'content-type':'text/html'},raw,'93.184.216.34',url.startswith('https:'))
+
+
 def fixture(directory,episode='fixture',actions=None,limits=None,configure=None):
     recorder=EpisodeRecorder(directory,episode,limits or BrowserLimits())
     context=FakeContext();page=FakePage(context);controller=BrowserController(page,context,FakeTransport(),recorder)
@@ -212,6 +238,175 @@ def fixture(directory,episode='fixture',actions=None,limits=None,configure=None)
     recorder.finish(status=status,engine=ENGINE,isolation=ISOLATION,observations=controller.observations,
         actions=controller.actions,requests=controller.requests,network_bytes=controller.network_bytes)
     return results,controller
+
+
+class RouteAccountingTests(unittest.TestCase):
+    def build(self,directory,steps,limits=None):
+        recorder=EpisodeRecorder(directory,'reentrant',limits or BrowserLimits())
+        context=FakeContext();page=FakePage(context);transport=ScriptedTransport(steps)
+        controller=BrowserController(page,context,transport,recorder)
+        recorder.event({'kind':'browser_started','engine':ENGINE,'isolation':ISOLATION})
+        return recorder,page,controller
+
+    def finish(self,recorder,controller,status='completed_with_failures'):
+        recorder.finish(status=status,engine=ENGINE,isolation=ISOLATION,observations=controller.observations,
+            actions=controller.actions,requests=controller.requests,network_bytes=controller.network_bytes)
+        return validate_episode(recorder.directory)
+
+    def events(self,recorder):
+        return [unique_json((recorder.directory/ref['path']).read_bytes())['event'] for ref in recorder.events]
+
+    def test_nested_fulfillment_preserves_fetch_intervals_order_and_publication(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);recorder,page,controller=self.build(root/'episode',[(5,None),(7,None),(11,None),(13,None)])
+            completion=[]
+            def leaf(name):
+                controller.route(FakeRoute(page,'https://example.org/'+name,main=False));completion.append(name)
+            def children():
+                controller.route(ReentrantRoute(page,'https://example.org/child',main=False,on_fulfill=lambda:leaf('grandchild')))
+                completion.append('child');leaf('sibling')
+            def goto(url,**kwargs):
+                route=ReentrantRoute(page,url,on_fulfill=children);controller.route(route)
+                completion.append('document');page.url=url
+                return SimpleNamespace(url=url,status=route.status)
+            page.goto=goto
+            self.assertEqual(controller.act({'action':'open','url':'https://example.org/source'})['status'],'succeeded')
+            self.assertEqual(completion,['grandchild','child','sibling','document'])
+            resources=[event for event in self.events(recorder) if event['kind']=='resource']
+            self.assertEqual({item['resource_id']:(item['consumed_body_bytes'],item['episode_response_body_bytes'])
+                for item in resources},{'r0001':(5,5),'r0002':(7,12),'r0003':(11,23),'r0004':(13,36)})
+            self.assertEqual([item['resource_id'] for item in resources],['r0001','r0002','r0003','r0004'])
+            self.assertEqual([item['consumed_body_bytes'] for item in resources],[5,7,11,13])
+            self.assertEqual([item['episode_response_body_bytes'] for item in resources],[5,12,23,36])
+            self.assertEqual((controller.requests,controller.network_bytes),(4,36))
+            checked=self.finish(recorder,controller,'completed')
+            self.assertEqual(checked['observations'][0]['document_resource_id'],'r0001')
+            published=publish_episode(root/'episode',MerlinRegistry(root/'registry'))
+            reopened=MerlinRegistry(root/'registry')
+            self.assertEqual(reopened.read_artifact_ref(published['sources'][0]['source_ref'])['content'],page.text.encode())
+            self.assertEqual(publish_episode(root/'episode',reopened),published)
+
+    def test_reentrant_abort_preserves_partial_failed_fetch_bytes(self):
+        with tempfile.TemporaryDirectory() as temp:
+            recorder,page,controller=self.build(Path(temp)/'episode',[(3,http.client.IncompleteRead(b'xxx',5)),(7,None)])
+            route=ReentrantRoute(page,'https://example.org/partial',main=False,
+                on_abort=lambda:controller.route(FakeRoute(page,'https://example.org/child',main=False)))
+            controller.route(route)
+            checked=self.finish(recorder,controller)
+            resources=[event for event in checked['events'] if event['kind']=='resource']
+            self.assertEqual([item['outcome'] for item in resources],['denied','fulfilled'])
+            self.assertEqual([item['consumed_body_bytes'] for item in resources],[3,7])
+            self.assertEqual([item['episode_response_body_bytes'] for item in resources],[3,10])
+            self.assertEqual(resources[0]['error_type'],'IncompleteRead')
+            self.assertTrue(route.aborted);self.assertEqual(controller.network_bytes,10)
+
+    def test_reentrant_fulfill_failure_keeps_spent_bytes_and_denied_outcome(self):
+        with tempfile.TemporaryDirectory() as temp:
+            recorder,page,controller=self.build(Path(temp)/'episode',[(5,None),(7,None)])
+            route=ReentrantRoute(page,'https://example.org/failing-document',failure=True,
+                on_fulfill=lambda:controller.route(FakeRoute(page,'https://example.org/child',main=False)))
+            controller.route(route)
+            checked=self.finish(recorder,controller)
+            resources=[event for event in checked['events'] if event['kind']=='resource']
+            self.assertEqual([item['outcome'] for item in resources],['denied','fulfilled'])
+            self.assertEqual([item['consumed_body_bytes'] for item in resources],[5,7])
+            self.assertEqual(resources[0]['error_type'],'RuntimeError')
+            self.assertEqual(controller.documents,{})
+            self.assertEqual(controller.network_bytes,12);self.assertTrue(route.aborted)
+
+    def test_policy_denial_has_zero_bytes_before_reentrant_abort_fetch(self):
+        with tempfile.TemporaryDirectory() as temp:
+            recorder,page,controller=self.build(Path(temp)/'episode',[(7,None)])
+            route=ReentrantRoute(page,'http://127.0.0.1/private',main=False,
+                on_abort=lambda:controller.route(FakeRoute(page,'https://example.org/child',main=False)))
+            controller.route(route)
+            checked=self.finish(recorder,controller)
+            resources=[event for event in checked['events'] if event['kind']=='resource']
+            self.assertEqual([item['consumed_body_bytes'] for item in resources],[0,7])
+            self.assertEqual([item['episode_response_body_bytes'] for item in resources],[0,7])
+            self.assertEqual(controller.transport.requests,1)
+
+    def test_request_budget_latches_inside_reentrant_fulfillment(self):
+        with tempfile.TemporaryDirectory() as temp:
+            recorder,page,controller=self.build(Path(temp)/'episode',[(5,None)],replace(BrowserLimits(),max_requests=1))
+            child=FakeRoute(page,'https://example.org/child',main=False)
+            controller.route(ReentrantRoute(page,'https://example.org/source',on_fulfill=lambda:controller.route(child)))
+            ignored=FakeRoute(page,'https://example.org/after-limit',main=False);controller.route(ignored)
+            checked=self.finish(recorder,controller,'failed')
+            resources=[event for event in checked['events'] if event['kind']=='resource']
+            self.assertEqual([item['consumed_body_bytes'] for item in resources],[5,0])
+            self.assertEqual([item['outcome'] for item in resources],['fulfilled','denied'])
+            self.assertEqual((controller.requests,controller.transport.requests,controller.network_bytes),(2,1,5))
+            self.assertEqual(controller.fatal_error,'request_count_exhausted')
+            self.assertTrue(child.aborted and ignored.aborted)
+
+    def test_network_budget_detection_byte_is_not_refunded_during_reentry(self):
+        with tempfile.TemporaryDirectory() as temp:
+            recorder,page,controller=self.build(Path(temp)/'episode',
+                [(2,None),(3,BrowserPolicyError('network byte budget exhausted'))],
+                replace(BrowserLimits(),max_network_bytes=4))
+            controller.route(ReentrantRoute(page,'https://example.org/source',on_fulfill=lambda:
+                controller.route(FakeRoute(page,'https://example.org/partial',main=False))))
+            checked=self.finish(recorder,controller,'failed')
+            resources=[event for event in checked['events'] if event['kind']=='resource']
+            self.assertEqual([item['consumed_body_bytes'] for item in resources],[2,3])
+            self.assertEqual([item['episode_response_body_bytes'] for item in resources],[2,5])
+            self.assertEqual(resources[1]['outcome'],'denied')
+            self.assertEqual(controller.network_bytes,5)  # Includes the broker's one detection byte.
+
+    def test_evidence_budget_gap_retains_actual_multiple_inflight_counts(self):
+        with tempfile.TemporaryDirectory() as temp:
+            recorder,page,controller=self.build(Path(temp)/'episode',[(5,None),(7,None)])
+            recorder_event=recorder.event
+            def exhausted(event,**kwargs):
+                if event['kind']=='resource': raise BrowserPolicyError('synthetic evidence byte budget exhausted')
+                return recorder_event(event,**kwargs)
+            recorder.event=exhausted
+            controller.route(ReentrantRoute(page,'https://example.org/source',on_fulfill=lambda:
+                controller.route(FakeRoute(page,'https://example.org/child',main=False))))
+            ignored=FakeRoute(page,'https://example.org/after-limit',main=False);controller.route(ignored)
+            markers=[event for event in self.events(recorder) if event['kind']=='resource_trace_budget_exhausted']
+            self.assertEqual(len(markers),1)
+            self.assertEqual(markers[0]['resource_id'],'r0001')
+            self.assertEqual(markers[0]['episode_response_body_bytes'],12)
+            self.assertEqual((controller.requests,controller.network_bytes),(2,12))
+            self.assertTrue(ignored.aborted)
+            recorder.finish(status='failed',engine=ENGINE,isolation=ISOLATION,observations=controller.observations,
+                actions=controller.actions,requests=controller.requests,network_bytes=controller.network_bytes)
+            # The old importer represents one missing record only. Keep a raw
+            # failed capture, not fabricated lower counts to satisfy that schema.
+            with self.assertRaisesRegex(BrowserPolicyError,'final resource counts differ'):
+                validate_episode(recorder.directory)
+
+    def test_teardown_cannot_report_completion_with_missing_resource_or_late_fatal(self):
+        for mode in ('missing_completion','late_fatal'):
+            with self.subTest(mode=mode),tempfile.TemporaryDirectory() as temp:
+                root=Path(temp);executable=root/'chromium-fixture';executable.write_bytes(b'fixture');executable.chmod(0o700)
+                context=FakeContext();page=FakePage(context);context.new_page=lambda:page
+                def close():
+                    controller=context.callback.__self__
+                    if mode=='missing_completion': controller.requests+=1
+                    else: controller.fatal_error='synthetic late callback exhaustion'
+                browser=SimpleNamespace(version='synthetic-unit-fixture-not-native-proof',
+                    new_context=lambda **kwargs:context,close=close)
+                class Driver:
+                    def __enter__(self): return SimpleNamespace(chromium=SimpleNamespace(launch=lambda **kwargs:browser))
+                    def __exit__(self,*args): return False
+                module=ModuleType('playwright.sync_api');module.sync_playwright=lambda:Driver()
+                with patch.dict(sys.modules,{'playwright':ModuleType('playwright'),'playwright.sync_api':module}), \
+                     patch('merlin.public_browser.renderer_isolation',return_value=ISOLATION), \
+                     patch('merlin.public_browser.version',return_value='synthetic-unit-fixture'), \
+                     patch('merlin.public_browser.UnixBrokerClient',return_value=FakeTransport()):
+                    result=run_episode(episode_id='teardown-ledger',output=root/'episode',executable=executable,
+                        broker_socket='/not-used',broker_uid=982,limits=BrowserLimits(),
+                        stream=io.StringIO('{"action":"open","url":"https://example.org/"}\n'),emit=lambda value:None)
+                self.assertEqual(result['actions'][0]['status'],'succeeded')
+                self.assertEqual(result['status'],'failed')
+                self.assertEqual(result['error_type'],'BrowserPolicyError')
+                if mode=='missing_completion':
+                    with self.assertRaisesRegex(BrowserPolicyError,'final resource counts differ'):
+                        validate_episode(root/'episode')
+                else: self.assertEqual(validate_episode(root/'episode')['manifest']['status'],'failed')
 
 
 class EpisodeTests(unittest.TestCase):

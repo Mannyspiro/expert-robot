@@ -1,0 +1,85 @@
+{
+  "schema": "merlin-local-review-evidence/1",
+  "files": [
+    {
+      "path": "review-evidence-20261121/before/public_browser.py",
+      "bytes": 28993,
+      "sha256": "c5459c0149e5d288f412a2f7b63053f1841b85dc7d05eb9dcc4d89f109b6c518"
+    },
+    {
+      "path": "review-evidence-20261121/before/test_public_browser.py",
+      "bytes": 33124,
+      "sha256": "7ce6b4fcad09a99bb116ec704a5f00bc00e85660a14d5527a0affe6a89d6dfe2"
+    },
+    {
+      "path": "review-evidence-20261121/differential-validation.json",
+      "bytes": 1247,
+      "sha256": "a02c7dbf5e669a865befd3558344201e7b9c4ab97e53e325176c9adcb2b8e1c4"
+    },
+    {
+      "path": "review-evidence-20261121/final-differential-validation.json",
+      "bytes": 1420,
+      "sha256": "010e50b5da8b586d7ea21d825ba607e1119068713df9cf7852021ea630d6c32f"
+    },
+    {
+      "path": "review-evidence-20261121/first-successor-tests.txt",
+      "bytes": 6608,
+      "sha256": "ab008a3005443964cd02ca7d6748ac18998af56c44ce252663131f8a575c8cbf"
+    },
+    {
+      "path": "review-evidence-20261121/initial-frame.json",
+      "bytes": 4265,
+      "sha256": "2089fecb75c85f061993a2637c0caa38121b4f89e68f83e45f4b916bf49e74d9"
+    },
+    {
+      "path": "review-evidence-20261121/local-repair-review.json",
+      "bytes": 6687,
+      "sha256": "2315217e021ae6050544f02b138eb2e1836cd91caeda9c873299e16d8261534b"
+    },
+    {
+      "path": "review-evidence-20261121/original-base-tests.txt",
+      "bytes": 5542,
+      "sha256": "cd675e4edaa2af130b3f11eaa3d8999ee12e82d0bf889dc0bd3790f0bef74f61"
+    },
+    {
+      "path": "review-evidence-20261121/original-new-regressions.txt",
+      "bytes": 11804,
+      "sha256": "4436ecbf078048e2329fbaab10d865d7590d075ae2259ee1effbefc2418daa0c"
+    },
+    {
+      "path": "review-evidence-20261121/producer-and-regressions.diff",
+      "bytes": 20134,
+      "sha256": "660fd606612bc331a4dfc4eebdb04a57e582f245f98897871e96216b23810e9f"
+    },
+    {
+      "path": "review-evidence-20261121/recover_capture_canonical_candidate.py",
+      "bytes": 12724,
+      "sha256": "b9f2d6bbd4bb879389332f2b4b87fdcd7748c108d07c98d746cad9d7f03f4c93"
+    },
+    {
+      "path": "review-evidence-20261121/recovery-serializer-defect.json",
+      "bytes": 1265,
+      "sha256": "3a9026e8546e733d335a75689f5c65c378a0d4bff347676493726c7aea79ace1"
+    },
+    {
+      "path": "review-evidence-20261121/retained-recovery-review.json",
+      "bytes": 2862,
+      "sha256": "6b6565440c71dec74a8b55c10074253afe26a4432895496d8b366d86770e494f"
+    },
+    {
+      "path": "review-evidence-20261121/sibling-sweep.txt",
+      "bytes": 5403,
+      "sha256": "5f0f61f857fd836b7aa1dd5562b3a45f1a8939e3c56b66a0ec8b36c65b6a581f"
+    },
+    {
+      "path": "review-evidence-20261121/successor-tests.txt",
+      "bytes": 6990,
+      "sha256": "e802bf0c5c123790bde692036eb3c87fae3c2f314b3539c4e295e2634b535d20"
+    },
+    {
+      "path": "review-evidence-20261121/verify_retained_recovery.py",
+      "bytes": 8263,
+      "sha256": "6649525a82b24b2795ca051e5c7832d0f072a43923867ccda2534cbbc9d9996d"
+    }
+  ]
+}

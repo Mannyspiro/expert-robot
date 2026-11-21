@@ -203,6 +203,7 @@ class BrowserController:
         self.actions=[];self.observations=[];self.requests=0;self.network_bytes=0
         self.last=None;self.document=None;self.documents={};self.active_action=None;self.action_deadline=None
         self.fatal_error=None
+        self.pending_resource_records={};self.next_resource_record=1;self.resource_trace_exhausted=False
         context.route('**/*',self.route)
         context.route_web_socket('**/*',lambda route: route.close(code=1008,reason='public research HTTP only'))
         context.on('page',lambda opened: opened.close() if opened != page else None)
@@ -224,12 +225,14 @@ class BrowserController:
             except Exception: pass
             return
         self.requests+=1
+        resource_number=self.requests
         spent_before=getattr(self.transport,'bytes',self.network_bytes)
-        record={'kind':'resource','resource_id':'r%04d'%self.requests,
+        record={'kind':'resource','resource_id':'r%04d'%resource_number,
                 'action_id':self.active_action,'url':raw_url[:8192],
                 'url_sha256':sha256(raw_url.encode()),'url_truncated':len(raw_url)>8192,
                 'method':request.method,'resource_type':request.resource_type,
-                'main_document':False,'outcome':'denied'}
+                'main_document':False,'outcome':'denied',
+                'consumed_body_bytes':0,'episode_response_body_bytes':spent_before}
         try:
             self.remaining_ms()
             if self.requests>self.limits.max_requests:
@@ -238,8 +241,17 @@ class BrowserController:
             url=public_url(raw_url)
             if request.method not in ('GET','HEAD'): raise BrowserPolicyError('mutating request denied')
             headers={k:v for k,v in request.headers.items() if k.lower() in SAFE_HEADERS}
-            result=self.transport.fetch(url,request.method,headers)
-            self.network_bytes=getattr(self.transport,'bytes',self.network_bytes+len(result.body))
+            result=None
+            try:
+                result=self.transport.fetch(url,request.method,headers)
+            finally:
+                # The synchronous broker call does not yield to Playwright.
+                # Fulfill/abort can reenter this handler for other resources,
+                # so bind this fetch's byte interval before either call.
+                spent_after=getattr(self.transport,'bytes',spent_before+(len(result.body) if result is not None else 0))
+                self.network_bytes=max(self.network_bytes,spent_after)
+                record['consumed_body_bytes']=max(0,spent_after-spent_before)
+                record['episode_response_body_bytes']=spent_after
             if self.network_bytes>self.limits.max_network_bytes: raise BrowserPolicyError('network byte budget exhausted')
             self.remaining_ms()
             record.update(outcome='fulfilled',url=url,status=result.status,body_sha256=sha256(result.body),
@@ -256,14 +268,23 @@ class BrowserController:
             if isinstance(error,BrowserPolicyError): record['reason']=str(error)[:200]
             try: route.abort('blockedbyclient')
             except Exception: pass
-        self.network_bytes=getattr(self.transport,'bytes',self.network_bytes)
-        record['consumed_body_bytes']=max(0,self.network_bytes-spent_before)
-        record['episode_response_body_bytes']=self.network_bytes
-        try: self.recorder.event(record)
-        except BrowserPolicyError:
-            self.fatal_error='evidence_budget_exhausted'
-            self.recorder.event({'kind':'resource_trace_budget_exhausted','resource_id':record['resource_id'],
-                                 'episode_response_body_bytes':self.network_bytes},terminal=True)
+        # A later request can finish while an earlier fulfill is suspended.
+        # Preserve reserved request order without borrowing another fetch's
+        # counters or claiming fulfillment before the actual call returns.
+        self.pending_resource_records[resource_number]=record
+        while self.next_resource_record in self.pending_resource_records:
+            completed=self.pending_resource_records.pop(self.next_resource_record)
+            self.next_resource_record+=1
+            if self.resource_trace_exhausted:
+                continue
+            try: self.recorder.event(completed)
+            except BrowserPolicyError:
+                self.fatal_error='evidence_budget_exhausted'
+                self.resource_trace_exhausted=True
+                # One truthful gap marker; actual counters are never reduced
+                # to make incomplete in-flight evidence appear importable.
+                self.recorder.event({'kind':'resource_trace_budget_exhausted','resource_id':completed['resource_id'],
+                                     'episode_response_body_bytes':self.network_bytes},terminal=True)
 
     def capture(self, action_id):
         self.remaining_ms()
@@ -440,6 +461,9 @@ def run_episode(*, episode_id, output, executable, broker_socket, broker_uid, li
                         status=('completed' if controller.actions and all(item['status']=='succeeded' for item in controller.actions)
                                 else 'completed_with_failures')
                     finally: browser.close()
+                    if (controller.fatal_error or controller.pending_resource_records
+                            or controller.next_resource_record != controller.requests+1):
+                        raise BrowserPolicyError(controller.fatal_error or 'resource completion trace incomplete')
             finally:
                 os.environ.clear();os.environ.update(previous)
     except Exception as error:

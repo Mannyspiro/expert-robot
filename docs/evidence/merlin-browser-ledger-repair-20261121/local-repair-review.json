@@ -1,0 +1,140 @@
+{
+  "changed_files": [
+    {
+      "after_sha256": "9bddbc4343b5c6acb88c9d5b12f869290056f1913b93a2203774129d8975e884",
+      "before_sha256": "4aaec5e3a38809d077424fcf8f557e8de92a3a6e22236d223a40262e75cd3a54",
+      "bytes": 29083,
+      "path": "python/merlin/public_browser.py"
+    },
+    {
+      "after_sha256": "4e3c7fb0a708dd838d2305a4e185bd3e3d508f0ee4780e4bf848a5644642d269",
+      "before_sha256": "7ce6b4fcad09a99bb116ec704a5f00bc00e85660a14d5527a0affe6a89d6dfe2",
+      "bytes": 46706,
+      "path": "tests/test_public_browser.py"
+    }
+  ],
+  "completed_at": "2026-11-21T21:12:54.878612+00:00",
+  "defect": {
+    "family": "mutable transport watermark sampled across reentrant completion callbacks",
+    "invariants": [
+      "Each fetch interval is counted once, including bytes spent before failure.",
+      "Resource events follow reserved request identity order.",
+      "Failure/evidence gaps never reduce true request or network totals.",
+      "Teardown cannot report completed with late fatal state or unrecorded requests."
+    ],
+    "regression": "All eight new cases fail against the original producer and pass against the successor.",
+    "repair": "Bind counter interval before yield-capable completion; buffer completed resource records by reserved number; one explicit trace-budget gap; validate completion after close.",
+    "rollback": "Original product code and pre-edit draft are preserved with hashes.",
+    "sibling_sweep": "Transport consumes bytes synchronously and uses monotonic validated broker totals; no sibling async span counter in the bounded browser module search. The strict importer stays unchanged.",
+    "trigger": "Playwright fulfill/abort processes another resource before the earlier callback records its cumulative byte interval."
+  },
+  "limitations": [
+    "Unit callback fixtures are synthetic and do not establish native successor acceptance.",
+    "Original failed arXiv capture remains invalid; corrected accounting is separately labeled derived metadata.",
+    "Multiple missing resource records after evidence exhaustion remain raw failed evidence rejected by the current strict importer; no counts are fabricated to fit its one-gap schema.",
+    "No native browser, host deployment, package install, new browser attempt, model call or GitHub publication occurred."
+  ],
+  "pre_edit_draft": {
+    "path": "review-evidence-20261121/before/public_browser.py",
+    "sha256": "c5459c0149e5d288f412a2f7b63053f1841b85dc7d05eb9dcc4d89f109b6c518"
+  },
+  "ranked_next_actions": [
+    "Independent source review and preserve exact source/evidence in PR193.",
+    "Integrate the separately reviewed canonical-serializer correction into operations before any retained-capture recovery.",
+    "Validate the exact successor natively with the original two remaining NASA/GitHub attempts and correct host pins.",
+    "Run connected handoff/readback acceptance and append canonical plan checkpoint."
+  ],
+  "retained_recovery": {
+    "negative_cases_passed": 8,
+    "ops_helper_modified": false,
+    "raw_original_files_unchanged": 42,
+    "report": "review-evidence-20261121/retained-recovery-review.json",
+    "status": "original helper serializer defect reproduced; corrected candidate copy validated locally"
+  },
+  "schema": "merlin-browser-ledger-local-review/1",
+  "source_base": {
+    "product_commit": "8e2f1d69371d5b4f7e01e3bbd5aa02a666ddd506",
+    "runtime_sha256": "5b967b6364bb8d3213c357e148c43073c309ab45d13338fe577d13565f8d0e9d"
+  },
+  "tests": {
+    "new_source_all_controls": {
+      "failed": 0,
+      "passed": 41,
+      "skipped": 0
+    },
+    "old_source_new_regressions": {
+      "errors": 5,
+      "failures": 4,
+      "note": "Nine failed outcomes because the teardown test has two subcases. Errors are original strict-importer rejections of out-of-order resource records, not test setup errors.",
+      "passing_tests": 0,
+      "tests": 8
+    },
+    "old_source_old_controls": {
+      "failed": 0,
+      "passed": 33
+    }
+  },
+  "unchanged_dependencies": [
+    {
+      "after_sha256": "5a54db6fddc5b1a178c7beaa42089ee95bdea81871560c8c5d1f868a2b16e487",
+      "before_sha256": "5a54db6fddc5b1a178c7beaa42089ee95bdea81871560c8c5d1f868a2b16e487",
+      "bytes": 103,
+      "path": "python/dot_ai_os/__init__.py"
+    },
+    {
+      "after_sha256": "781447bcfb965e11b39d7cedfc1d4f1db3c6c67f502bffc6a07605af7cf085a3",
+      "before_sha256": "781447bcfb965e11b39d7cedfc1d4f1db3c6c67f502bffc6a07605af7cf085a3",
+      "bytes": 23013,
+      "path": "python/dot_ai_os/bridge.py"
+    },
+    {
+      "after_sha256": "49f23ffa9b838de063cd88e4a60704d1989f55ff3aa70fe2ed850b0396fa8f93",
+      "before_sha256": "49f23ffa9b838de063cd88e4a60704d1989f55ff3aa70fe2ed850b0396fa8f93",
+      "bytes": 275,
+      "path": "python/merlin/__init__.py"
+    },
+    {
+      "after_sha256": "187e33ed4ab6e1a79e054ff31c07b383090dae94cb51c5eb9dd01dfb80227584",
+      "before_sha256": "187e33ed4ab6e1a79e054ff31c07b383090dae94cb51c5eb9dd01dfb80227584",
+      "bytes": 2542,
+      "path": "python/merlin/artifact_ref.py"
+    },
+    {
+      "after_sha256": "b674d873e9f2f12b94339c7bc5c1df3d035433307248b595c27319632a87a58b",
+      "before_sha256": "b674d873e9f2f12b94339c7bc5c1df3d035433307248b595c27319632a87a58b",
+      "bytes": 2963,
+      "path": "python/merlin/browser_client.py"
+    },
+    {
+      "after_sha256": "93b018f113e004b4322f4702669015eb64190480145686954d4b46aabf34c4ff",
+      "before_sha256": "93b018f113e004b4322f4702669015eb64190480145686954d4b46aabf34c4ff",
+      "bytes": 16013,
+      "path": "python/merlin/browser_egress.py"
+    },
+    {
+      "after_sha256": "b4305956d5159482eb043e0bfdbca81bfd7cb353e6bc51f21437480f67f08d82",
+      "before_sha256": "b4305956d5159482eb043e0bfdbca81bfd7cb353e6bc51f21437480f67f08d82",
+      "bytes": 20341,
+      "path": "python/merlin/browser_ingest.py"
+    },
+    {
+      "after_sha256": "c0583bfd6309bd67cf33f6c9e92e4a39c7caab5bb2c3fd9a99fda578c53d30c8",
+      "before_sha256": "c0583bfd6309bd67cf33f6c9e92e4a39c7caab5bb2c3fd9a99fda578c53d30c8",
+      "bytes": 6300,
+      "path": "python/merlin/browser_policy.py"
+    },
+    {
+      "after_sha256": "149b8cad37299b4f6b38ec079797242629fb290061e6997b75e73b64d43cf2af",
+      "before_sha256": "149b8cad37299b4f6b38ec079797242629fb290061e6997b75e73b64d43cf2af",
+      "bytes": 17146,
+      "path": "python/merlin/browser_service.py"
+    },
+    {
+      "after_sha256": "c7fbd89ae99705f60a1ecd7f41df244742fe218a335b4a3e6d2fed11c96521c7",
+      "before_sha256": "c7fbd89ae99705f60a1ecd7f41df244742fe218a335b4a3e6d2fed11c96521c7",
+      "bytes": 42079,
+      "path": "python/merlin/project_registry.py"
+    }
+  ],
+  "unchanged_dependency_count": 10
+}

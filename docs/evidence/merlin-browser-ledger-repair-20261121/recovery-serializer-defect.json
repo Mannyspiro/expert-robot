@@ -1,0 +1,17 @@
+{
+  "schema": "merlin-recovery-serializer-defect/1",
+  "original_helper": "/workspace/scratch/abed42219434/browser-operations/ops/merlin_browser/recover_capture.py",
+  "original_helper_sha256": "8e6aa356f45aa26ebf48af4d660f1a60edd563d0d24cfe64629606a320253fe2",
+  "candidate_path": "/workspace/scratch/abed42219434/browser-ledger-successor/review-evidence-20261121/recover_capture_canonical_candidate.py",
+  "candidate_sha256": "b9f2d6bbd4bb879389332f2b4b87fdcd7748c108d07c98d746cad9d7f03f4c93",
+  "first_check": "failed",
+  "observed_error": "RecoveryError: canonical original manifest required",
+  "root_cause": "Recovery helper serializes canonical JSON with appended newline and ensure_ascii=False; frozen browser producer and unchanged importer use no newline and ensure_ascii=True.",
+  "original_manifest_bytes": 13740,
+  "original_manifest_with_helper_serializer_bytes": 13741,
+  "scope": "Candidate copy only; original operations helper untouched.",
+  "changed_definition": {
+    "before": "def canonical(value): return (json.dumps(value,sort_keys=True,separators=(',',':'),ensure_ascii=False,allow_nan=False)+'\\n').encode()",
+    "after": "def canonical(value): return json.dumps(value,sort_keys=True,separators=(',',':'),allow_nan=False).encode()"
+  }
+}

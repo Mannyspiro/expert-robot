@@ -1,0 +1,75 @@
+{
+  "canonical_publication_and_fresh_process_replay": "local_temporary_registry_only",
+  "derivation_provenance_sha256": "83add070bb91fc35f896626d7a3633f04dd3ad9471a0974d7ddc27de158a0add",
+  "derived_episode_id": "recovered-arxiv-18106dfc-0a56-4b68-9d30-5d334d7d6a69",
+  "derived_manifest_sha256": "3cf87ae0920c1b30726cfda2ffad0f1acfbca2be6503b81dfcc2910ba80f0206",
+  "host_mutation": false,
+  "limitations": [
+    "Derived accounting is a separately identified reconstruction, not original renderer evidence.",
+    "This checks one pinned legacy trace and cannot recover arbitrary missing or failed events.",
+    "Host recovery/deployment, native successor acceptance and remote publication remain unexecuted."
+  ],
+  "model_calls": 0,
+  "native_browser_execution": false,
+  "negative_cases": [
+    {
+      "case": "changed_manifest",
+      "error_type": "RecoveryError",
+      "rejected": true
+    },
+    {
+      "case": "changed_body",
+      "error_type": "RecoveryError",
+      "rejected": true
+    },
+    {
+      "case": "unlisted_file",
+      "error_type": "RecoveryError",
+      "rejected": true
+    },
+    {
+      "case": "symlink_body",
+      "error_type": "OSError",
+      "rejected": true
+    },
+    {
+      "case": "wrong_interval_start",
+      "error_type": "RecoveryError",
+      "rejected": true
+    },
+    {
+      "case": "wrong_terminal_total",
+      "error_type": "RecoveryError",
+      "rejected": true
+    },
+    {
+      "case": "failed_resource",
+      "error_type": "RecoveryError",
+      "rejected": true
+    },
+    {
+      "case": "missing_resource",
+      "error_type": "RecoveryError",
+      "rejected": true
+    }
+  ],
+  "network_calls": 0,
+  "original_helper_rejection": "canonical original manifest required",
+  "original_helper_sha256": "8e6aa356f45aa26ebf48af4d660f1a60edd563d0d24cfe64629606a320253fe2",
+  "original_importer_rejection": "resource byte ledger differs",
+  "original_inventory_sha256": "7c3d01e8db50f92a78fa7feccf7303347db5a5893411f7e9a03d9e0fb7a1648b",
+  "promotion_authority": false,
+  "qualification": false,
+  "raw_files_verified_unchanged": 42,
+  "rendered_text_sha256": "44cf16dd8d053ffb21659ed38cd5bfbd97359a58860c70ab70dd7b5461dc114d",
+  "resources": 31,
+  "response_body_bytes": 738314,
+  "reviewed_helper_sha256": "b9f2d6bbd4bb879389332f2b4b87fdcd7748c108d07c98d746cad9d7f03f4c93",
+  "schema": "merlin-local-retained-recovery-review/1",
+  "source_artifact_sha256": "854938680e410a54ce05907cc7f84c2b98a526b25aedfe2a0e0331142994b20a",
+  "source_launch_receipt_sha256": "6a34e725a31daebbbaf6a51e358101cb01d2e075118b501f6f19a3c4887236c0",
+  "source_manifest_sha256": "91d4756d9799cd633e78164cde97ed6be11381550171250d4109f156121f5541",
+  "source_run_id": 44946846703,
+  "strict_importer_accepted_derivative": true,
+  "strict_importer_sha256": "b4305956d5159482eb043e0bfdbca81bfd7cb353e6bc51f21437480f67f08d82"
+}

@@ -1,0 +1,144 @@
+test_evidence_budget_gap_retains_actual_multiple_inflight_counts (test_public_browser.RouteAccountingTests.test_evidence_budget_gap_retains_actual_multiple_inflight_counts) ... FAIL
+test_nested_fulfillment_preserves_fetch_intervals_order_and_publication (test_public_browser.RouteAccountingTests.test_nested_fulfillment_preserves_fetch_intervals_order_and_publication) ... FAIL
+test_network_budget_detection_byte_is_not_refunded_during_reentry (test_public_browser.RouteAccountingTests.test_network_budget_detection_byte_is_not_refunded_during_reentry) ... ERROR
+test_policy_denial_has_zero_bytes_before_reentrant_abort_fetch (test_public_browser.RouteAccountingTests.test_policy_denial_has_zero_bytes_before_reentrant_abort_fetch) ... ERROR
+test_reentrant_abort_preserves_partial_failed_fetch_bytes (test_public_browser.RouteAccountingTests.test_reentrant_abort_preserves_partial_failed_fetch_bytes) ... ERROR
+test_reentrant_fulfill_failure_keeps_spent_bytes_and_denied_outcome (test_public_browser.RouteAccountingTests.test_reentrant_fulfill_failure_keeps_spent_bytes_and_denied_outcome) ... ERROR
+test_request_budget_latches_inside_reentrant_fulfillment (test_public_browser.RouteAccountingTests.test_request_budget_latches_inside_reentrant_fulfillment) ... ERROR
+test_teardown_cannot_report_completion_with_missing_resource_or_late_fatal (test_public_browser.RouteAccountingTests.test_teardown_cannot_report_completion_with_missing_resource_or_late_fatal) ... 
+  test_teardown_cannot_report_completion_with_missing_resource_or_late_fatal (test_public_browser.RouteAccountingTests.test_teardown_cannot_report_completion_with_missing_resource_or_late_fatal) (mode='missing_completion') ... FAIL
+  test_teardown_cannot_report_completion_with_missing_resource_or_late_fatal (test_public_browser.RouteAccountingTests.test_teardown_cannot_report_completion_with_missing_resource_or_late_fatal) (mode='late_fatal') ... FAIL
+
+======================================================================
+ERROR: test_network_budget_detection_byte_is_not_refunded_during_reentry (test_public_browser.RouteAccountingTests.test_network_budget_detection_byte_is_not_refunded_during_reentry)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/abed42219434/browser-ledger-successor/tests/test_public_browser.py", line 350, in test_network_budget_detection_byte_is_not_refunded_during_reentry
+    checked=self.finish(recorder,controller,'failed')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/abed42219434/browser-ledger-successor/tests/test_public_browser.py", line 254, in finish
+    return validate_episode(recorder.directory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/abed42219434/merlin-browser-build/python/merlin/browser_ingest.py", line 115, in validate_episode
+    require(event['resource_id']=='r%04d'%(len(resources)+1),'resource sequence differs')
+  File "/workspace/scratch/abed42219434/merlin-browser-build/python/merlin/browser_ingest.py", line 29, in require
+    if not condition: raise BrowserPolicyError(message)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+merlin.browser_policy.BrowserPolicyError: resource sequence differs
+
+======================================================================
+ERROR: test_policy_denial_has_zero_bytes_before_reentrant_abort_fetch (test_public_browser.RouteAccountingTests.test_policy_denial_has_zero_bytes_before_reentrant_abort_fetch)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/abed42219434/browser-ledger-successor/tests/test_public_browser.py", line 323, in test_policy_denial_has_zero_bytes_before_reentrant_abort_fetch
+    checked=self.finish(recorder,controller)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/abed42219434/browser-ledger-successor/tests/test_public_browser.py", line 254, in finish
+    return validate_episode(recorder.directory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/abed42219434/merlin-browser-build/python/merlin/browser_ingest.py", line 115, in validate_episode
+    require(event['resource_id']=='r%04d'%(len(resources)+1),'resource sequence differs')
+  File "/workspace/scratch/abed42219434/merlin-browser-build/python/merlin/browser_ingest.py", line 29, in require
+    if not condition: raise BrowserPolicyError(message)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+merlin.browser_policy.BrowserPolicyError: resource sequence differs
+
+======================================================================
+ERROR: test_reentrant_abort_preserves_partial_failed_fetch_bytes (test_public_browser.RouteAccountingTests.test_reentrant_abort_preserves_partial_failed_fetch_bytes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/abed42219434/browser-ledger-successor/tests/test_public_browser.py", line 295, in test_reentrant_abort_preserves_partial_failed_fetch_bytes
+    checked=self.finish(recorder,controller)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/abed42219434/browser-ledger-successor/tests/test_public_browser.py", line 254, in finish
+    return validate_episode(recorder.directory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/abed42219434/merlin-browser-build/python/merlin/browser_ingest.py", line 115, in validate_episode
+    require(event['resource_id']=='r%04d'%(len(resources)+1),'resource sequence differs')
+  File "/workspace/scratch/abed42219434/merlin-browser-build/python/merlin/browser_ingest.py", line 29, in require
+    if not condition: raise BrowserPolicyError(message)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+merlin.browser_policy.BrowserPolicyError: resource sequence differs
+
+======================================================================
+ERROR: test_reentrant_fulfill_failure_keeps_spent_bytes_and_denied_outcome (test_public_browser.RouteAccountingTests.test_reentrant_fulfill_failure_keeps_spent_bytes_and_denied_outcome)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/abed42219434/browser-ledger-successor/tests/test_public_browser.py", line 309, in test_reentrant_fulfill_failure_keeps_spent_bytes_and_denied_outcome
+    checked=self.finish(recorder,controller)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/abed42219434/browser-ledger-successor/tests/test_public_browser.py", line 254, in finish
+    return validate_episode(recorder.directory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/abed42219434/merlin-browser-build/python/merlin/browser_ingest.py", line 115, in validate_episode
+    require(event['resource_id']=='r%04d'%(len(resources)+1),'resource sequence differs')
+  File "/workspace/scratch/abed42219434/merlin-browser-build/python/merlin/browser_ingest.py", line 29, in require
+    if not condition: raise BrowserPolicyError(message)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+merlin.browser_policy.BrowserPolicyError: resource sequence differs
+
+======================================================================
+ERROR: test_request_budget_latches_inside_reentrant_fulfillment (test_public_browser.RouteAccountingTests.test_request_budget_latches_inside_reentrant_fulfillment)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/abed42219434/browser-ledger-successor/tests/test_public_browser.py", line 335, in test_request_budget_latches_inside_reentrant_fulfillment
+    checked=self.finish(recorder,controller,'failed')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/abed42219434/browser-ledger-successor/tests/test_public_browser.py", line 254, in finish
+    return validate_episode(recorder.directory)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/abed42219434/merlin-browser-build/python/merlin/browser_ingest.py", line 115, in validate_episode
+    require(event['resource_id']=='r%04d'%(len(resources)+1),'resource sequence differs')
+  File "/workspace/scratch/abed42219434/merlin-browser-build/python/merlin/browser_ingest.py", line 29, in require
+    if not condition: raise BrowserPolicyError(message)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+merlin.browser_policy.BrowserPolicyError: resource sequence differs
+
+======================================================================
+FAIL: test_evidence_budget_gap_retains_actual_multiple_inflight_counts (test_public_browser.RouteAccountingTests.test_evidence_budget_gap_retains_actual_multiple_inflight_counts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/abed42219434/browser-ledger-successor/tests/test_public_browser.py", line 369, in test_evidence_budget_gap_retains_actual_multiple_inflight_counts
+    self.assertEqual(len(markers),1)
+AssertionError: 2 != 1
+
+======================================================================
+FAIL: test_nested_fulfillment_preserves_fetch_intervals_order_and_publication (test_public_browser.RouteAccountingTests.test_nested_fulfillment_preserves_fetch_intervals_order_and_publication)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/abed42219434/browser-ledger-successor/tests/test_public_browser.py", line 276, in test_nested_fulfillment_preserves_fetch_intervals_order_and_publication
+    self.assertEqual({item['resource_id']:(item['consumed_body_bytes'],item['episode_response_body_bytes'])
+AssertionError: {'r0003': (11, 23), 'r0002': (18, 23), 'r0004': (13, 36), 'r0001': (36, 36)} != {'r0001': (5, 5), 'r0002': (7, 12), 'r0003': (11, 23), 'r0004': (13, 36)}
+- {'r0001': (36, 36), 'r0002': (18, 23), 'r0003': (11, 23), 'r0004': (13, 36)}
+?            ^^  ^^              --- -
+
++ {'r0001': (5, 5), 'r0002': (7, 12), 'r0003': (11, 23), 'r0004': (13, 36)}
+?            ^  ^             +++
+
+
+======================================================================
+FAIL: test_teardown_cannot_report_completion_with_missing_resource_or_late_fatal (test_public_browser.RouteAccountingTests.test_teardown_cannot_report_completion_with_missing_resource_or_late_fatal) (mode='missing_completion')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/abed42219434/browser-ledger-successor/tests/test_public_browser.py", line 404, in test_teardown_cannot_report_completion_with_missing_resource_or_late_fatal
+    self.assertEqual(result['status'],'failed')
+AssertionError: 'completed' != 'failed'
+- completed
++ failed
+
+
+======================================================================
+FAIL: test_teardown_cannot_report_completion_with_missing_resource_or_late_fatal (test_public_browser.RouteAccountingTests.test_teardown_cannot_report_completion_with_missing_resource_or_late_fatal) (mode='late_fatal')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/abed42219434/browser-ledger-successor/tests/test_public_browser.py", line 404, in test_teardown_cannot_report_completion_with_missing_resource_or_late_fatal
+    self.assertEqual(result['status'],'failed')
+AssertionError: 'completed' != 'failed'
+- completed
++ failed
+
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.025s
+
+FAILED (failures=4, errors=5)
