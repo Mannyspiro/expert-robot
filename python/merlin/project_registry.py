@@ -21,6 +21,18 @@ from .artifact_ref import ArtifactRef
 MAX_ARTIFACT_READ_BYTES = 25 * 1024 * 1024
 
 
+def _file_sha256(path: Path) -> str:
+    """Hash fresh file bytes with bounded auxiliary memory."""
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        # Size only selects buffer capacity; it never limits verified bytes.
+        buffer = bytearray(min(256 * 1024, max(4096, os.fstat(stream.fileno()).st_size)))
+        view = memoryview(buffer)
+        while count := stream.readinto(buffer):
+            digest.update(view[:count])
+    return digest.hexdigest()
+
+
 class ArtifactSizeLimitError(ValueError):
     """Raised when an exact artifact read exceeds the configured byte ceiling."""
 
@@ -385,7 +397,7 @@ class MerlinRegistry:
         if row is None:
             return False
         path = self.root / row["relative_path"]
-        return path.is_file() and hashlib.sha256(path.read_bytes()).hexdigest() == digest
+        return path.is_file() and _file_sha256(path) == digest
 
     def add_claim(self, claim_id: str, statement: str, evidence_class: str,
                   assumptions: tuple[str, ...] = (), status: str = "unreviewed") -> None:
