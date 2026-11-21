@@ -85,6 +85,22 @@ class SupervisorTests(unittest.TestCase):
         self.assertEqual(len(self.ledger.path.read_text().splitlines()), 40)
         self.assertEqual(len(self.ledger.verify()), 64)
 
+    def test_interrupted_repair_is_not_replayed_automatically(self):
+        self.ledger.append({"subsystem": "browser", "state": "repair_started", "attempt": 1})
+        self.assertEqual(EvidenceLedger(self.ledger.path).pending_recoveries(), {"browser"})
+        calls = []
+        result = self.supervisor.recover(
+            "browser", lambda: False, lambda: calls.append("repair"),
+            lambda: True, lambda: None, sandbox=True,
+        )
+        self.assertEqual(result, "escalate")
+        self.assertEqual(calls, [])
+
+    def test_completed_repair_clears_pending_state(self):
+        self.ledger.append({"subsystem": "math", "state": "repair_started"})
+        self.ledger.append({"subsystem": "math", "state": "verified_recovery"})
+        self.assertEqual(self.ledger.pending_recoveries(), set())
+
     def test_restart_reads_previous_evidence(self):
         first = self.ledger.append({"state": "fault_detected"})
         restarted = EvidenceLedger(self.ledger.path)
