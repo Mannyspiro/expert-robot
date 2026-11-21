@@ -120,6 +120,7 @@ class SupervisorTests(unittest.TestCase):
         )
         self.assertEqual(result, "escalate")
         self.assertIn("probe_error", self.states())
+        self.assertNotIn("verified_recovery", self.states())
 
     def test_same_callable_rejected_as_independent_verifier(self):
         state = {"healthy": False}
