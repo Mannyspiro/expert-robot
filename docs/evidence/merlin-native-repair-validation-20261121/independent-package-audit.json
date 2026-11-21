@@ -1,0 +1,873 @@
+{
+  "schema": "merlin-independent-review-package-audit/1",
+  "recorded_utc": "2026-11-21T23:33:10.095586+00:00",
+  "reviewer": "/root/package_audit",
+  "status": "passed",
+  "archive": {
+    "path": "/workspace/scratch/07cb10f977d8/deliverables/Merlin_Production_Repairs_Review_20261121.zip",
+    "bytes": 912032,
+    "members": 86,
+    "sha256": "08b8d19977a2ac4adaec1031cbbf9c2bd7195b7c94b926e9fc2c14f13000e592"
+  },
+  "publication_plan_path": "/workspace/scratch/07cb10f977d8/review-package/PUBLICATION_PLAN.json",
+  "counts": {
+    "publication_entries": 53,
+    "groups": {
+      "Product_Browser": 20,
+      "Operations_Python": 8,
+      "Native_Validation": 25
+    },
+    "git_modes": {
+      "100644": 53
+    },
+    "review_staging_members_compared": 86,
+    "original_local_file_comparisons": 75
+  },
+  "all_zip_member_crc_valid": true,
+  "mismatches": [],
+  "entries": [
+    {
+      "archive_path": "Product_Browser/python/merlin/browser_service.py",
+      "repository": "Mannyspiro/expert-robot",
+      "repository_path": "python/merlin/browser_service.py",
+      "mode": "100644",
+      "bytes": 20782,
+      "sha256": "33de7ccd0353ff56716daa08aa14b8c0dc41539aff72d7eb087a6eeeecb25135",
+      "git_blob": "3c772a2f130d3daf930a874e80f12c8f15678835",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Product_Browser/tests/test_browser_service_lifecycle.py",
+      "repository": "Mannyspiro/expert-robot",
+      "repository_path": "tests/test_browser_service_lifecycle.py",
+      "mode": "100644",
+      "bytes": 9617,
+      "sha256": "4ed0bad2fee5df8fb4772b2e9858de5859a00f6ef16c4f61f2714f2a7f6b78c6",
+      "git_blob": "80cbb98f2af768726a7ab05c8c69f556e1dbf1dd",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Product_Browser/tests/test_browser_service_lifecycle_controls.py",
+      "repository": "Mannyspiro/expert-robot",
+      "repository_path": "tests/test_browser_service_lifecycle_controls.py",
+      "mode": "100644",
+      "bytes": 10104,
+      "sha256": "88f7f6186783946c027c8afac2decb392338fbe9138f9fc501188bf96c855cb7",
+      "git_blob": "0da1c56b60062b8ec32e99c381b074e21d6cc139",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Product_Browser/docs/evidence/merlin-browser-lifecycle-repair-20261121/baseline-regression.txt",
+      "repository": "Mannyspiro/expert-robot",
+      "repository_path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/baseline-regression.txt",
+      "mode": "100644",
+      "bytes": 5595,
+      "sha256": "fc3c3498310047dc06fc6d991a681f0febf06fbb0787020c7f32fc777795ff7b",
+      "git_blob": "32ca26f08adad116e074a8ac2fe130d430f8fa7a",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Product_Browser/docs/evidence/merlin-browser-lifecycle-repair-20261121/browser-service.before-child-mask-fix.patch",
+      "repository": "Mannyspiro/expert-robot",
+      "repository_path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/browser-service.before-child-mask-fix.patch",
+      "mode": "100644",
+      "bytes": 8959,
+      "sha256": "5ec0a6c62adb86438b22ba8ac116f3b95e95bd274d3167d7a310faa9ce54864b",
+      "git_blob": "e78cd722473669c9cff041af08d893514647e21d",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Product_Browser/docs/evidence/merlin-browser-lifecycle-repair-20261121/browser-service.patch",
+      "repository": "Mannyspiro/expert-robot",
+      "repository_path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/browser-service.patch",
+      "mode": "100644",
+      "bytes": 9768,
+      "sha256": "d8fefba99159bfee6b10ea4f7dc86afd5ef5c310ca4ba8fd6517e6cc57c43e7d",
+      "git_blob": "20a4c64b80721230f4a7488cbd61e84a89d66ec5",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Product_Browser/docs/evidence/merlin-browser-lifecycle-repair-20261121/browser_service.before-child-mask-fix.py",
+      "repository": "Mannyspiro/expert-robot",
+      "repository_path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/browser_service.before-child-mask-fix.py",
+      "mode": "100644",
+      "bytes": 20010,
+      "sha256": "2c6d05aa19a0e2e488a22f2fdd48130104a8579fc4f293dca0125394f22eec5f",
+      "git_blob": "63bc8e4c77428ead56a01d787a704e07944e843d",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Product_Browser/docs/evidence/merlin-browser-lifecycle-repair-20261121/browser_service.original.py",
+      "repository": "Mannyspiro/expert-robot",
+      "repository_path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/browser_service.original.py",
+      "mode": "100644",
+      "bytes": 17146,
+      "sha256": "149b8cad37299b4f6b38ec079797242629fb290061e6997b75e73b64d43cf2af",
+      "git_blob": "c1af5a162f98db1d28f7fbebfef2645ae6c042ce",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Product_Browser/docs/evidence/merlin-browser-lifecycle-repair-20261121/child-mask-regression-before-fix.txt",
+      "repository": "Mannyspiro/expert-robot",
+      "repository_path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/child-mask-regression-before-fix.txt",
+      "mode": "100644",
+      "bytes": 997,
+      "sha256": "3ce0bb664d6313a0e8266a6ca120d863b88ad1ef93a83541e3f04477e3c068de",
+      "git_blob": "bd4a35bfa5f1e62c785d113b8d70b7241754b794",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Product_Browser/docs/evidence/merlin-browser-lifecycle-repair-20261121/direct-regression-observations.before-child-mask-fix.json",
+      "repository": "Mannyspiro/expert-robot",
+      "repository_path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/direct-regression-observations.before-child-mask-fix.json",
+      "mode": "100644",
+      "bytes": 2374,
+      "sha256": "abb919e1462064d8c03628b0c13197527cf05e89822170d253205199a33de982",
+      "git_blob": "69b072bfe241629afd7a0e3bf1383132e640fc84",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Product_Browser/docs/evidence/merlin-browser-lifecycle-repair-20261121/direct-regression-observations.json",
+      "repository": "Mannyspiro/expert-robot",
+      "repository_path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/direct-regression-observations.json",
+      "mode": "100644",
+      "bytes": 2527,
+      "sha256": "788052e0c47ef7d0a1775f93128ac1f99bcdf4b8d7261775e75208744ce0945b",
+      "git_blob": "3ef2cb261f93e627819cb54a0a67aa034e681c09",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Product_Browser/docs/evidence/merlin-browser-lifecycle-repair-20261121/existing-browser-tests-final.txt",
+      "repository": "Mannyspiro/expert-robot",
+      "repository_path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/existing-browser-tests-final.txt",
+      "mode": "100644",
+      "bytes": 6990,
+      "sha256": "d84a7a40c7fba12dbad252fc6e100b6e076a6ab21750f82ddb1dd4ab841fe175",
+      "git_blob": "76cf057c836d2fdc3af9d18de84af1985c88e584",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Product_Browser/docs/evidence/merlin-browser-lifecycle-repair-20261121/existing-browser-tests.txt",
+      "repository": "Mannyspiro/expert-robot",
+      "repository_path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/existing-browser-tests.txt",
+      "mode": "100644",
+      "bytes": 6990,
+      "sha256": "911cd1393a8ae197cc96bd170b0616eb14f3152fbc1ff33a1a067bd63196d2bd",
+      "git_blob": "ab005a91d73aeb504c403ab7deec63c3e873c964",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Product_Browser/docs/evidence/merlin-browser-lifecycle-repair-20261121/initial-frame.json",
+      "repository": "Mannyspiro/expert-robot",
+      "repository_path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/initial-frame.json",
+      "mode": "100644",
+      "bytes": 1625,
+      "sha256": "34dc00f5e7cfb860bde52d1bf115b8af9492ecbc55d17c073ed4e5d22bf38780",
+      "git_blob": "3ed1aa4386d2f577fd457239dbace424823aa2d6",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Product_Browser/docs/evidence/merlin-browser-lifecycle-repair-20261121/lifecycle-controls-final.txt",
+      "repository": "Mannyspiro/expert-robot",
+      "repository_path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/lifecycle-controls-final.txt",
+      "mode": "100644",
+      "bytes": 2171,
+      "sha256": "3649ccc2b7580c829304783a3996d53b5c8b97eb17fb92d04491e53f290767f7",
+      "git_blob": "1147b35da0fdd0372a92d1530cf743e0a390e35b",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Product_Browser/docs/evidence/merlin-browser-lifecycle-repair-20261121/lifecycle-controls.txt",
+      "repository": "Mannyspiro/expert-robot",
+      "repository_path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/lifecycle-controls.txt",
+      "mode": "100644",
+      "bytes": 1797,
+      "sha256": "65be85fbf84ba827bee03dbfbea8b10d5486b606ad2dae599970904e52df81cb",
+      "git_blob": "a06e94a38ba4ea05938fc93d40cdcf61d7f17a0c",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Product_Browser/docs/evidence/merlin-browser-lifecycle-repair-20261121/lifecycle-tests.txt",
+      "repository": "Mannyspiro/expert-robot",
+      "repository_path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/lifecycle-tests.txt",
+      "mode": "100644",
+      "bytes": 14651,
+      "sha256": "ef9bbef30a0631823d1e1c2afd970106eee1e0f29f370e9f955409128bef3f2b",
+      "git_blob": "69584f0a96663d01407f960524988c319e4101dd",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Product_Browser/docs/evidence/merlin-browser-lifecycle-repair-20261121/result.json",
+      "repository": "Mannyspiro/expert-robot",
+      "repository_path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/result.json",
+      "mode": "100644",
+      "bytes": 5128,
+      "sha256": "f7b16a1b5f9569487645268ca12dd90db7253c824c592c4584cbee19d58b3792",
+      "git_blob": "1772c9fbaf1592296194c5b364fd58f2747b5455",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Product_Browser/docs/merlin/BROWSER_LIFECYCLE_REPAIR_20261121.md",
+      "repository": "Mannyspiro/expert-robot",
+      "repository_path": "docs/merlin/BROWSER_LIFECYCLE_REPAIR_20261121.md",
+      "mode": "100644",
+      "bytes": 2999,
+      "sha256": "1fe8d39e5b87f3c4c725f05376030444c6efc786ea343866858b2e0332da8508",
+      "git_blob": "eda74d0f31c9e508ad7bfdd4dd766ab85701afca",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Product_Browser/docs/evidence/merlin-browser-lifecycle-repair-20261121/source-manifest.json",
+      "repository": "Mannyspiro/expert-robot",
+      "repository_path": "docs/evidence/merlin-browser-lifecycle-repair-20261121/source-manifest.json",
+      "mode": "100644",
+      "bytes": 5019,
+      "sha256": "8d088942ec75f2b688258138471cca557da69647456c95566d9e2938bdd61916",
+      "git_blob": "731d8bc915c54b5c39b34881488855b0ed77160b",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Operations_Python/ops/merlin_python_static/acquire_inspect.py",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_python_static/acquire_inspect.py",
+      "mode": "100644",
+      "bytes": 35199,
+      "sha256": "c3a5bd263d22a50a4872648e1a0934782c5f2cbb87d153b91adf84c67ce25ba2",
+      "git_blob": "893c863f6d7dcff42c2ae735f955a8d8a31d0ae7",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Operations_Python/ops/merlin_python_static/evidence/20261121-implicit-directory-repair/README.md",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_python_static/evidence/20261121-implicit-directory-repair/README.md",
+      "mode": "100644",
+      "bytes": 2108,
+      "sha256": "21f9969e546d4e79c42c1354ab79ca496e1db282e86bcb82c65879b8e60441e2",
+      "git_blob": "2b654316f13f5bf1a620cb2ad9bf3369b735ce98",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Operations_Python/ops/merlin_python_static/evidence/20261121-implicit-directory-repair/original-controls.log",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_python_static/evidence/20261121-implicit-directory-repair/original-controls.log",
+      "mode": "100644",
+      "bytes": 4254,
+      "sha256": "ef462073f76239d4243594aa4f467524c568806e733f3a7e94070b4fb184298c",
+      "git_blob": "74466b8666f732402fb7199f67cf22e6c6278d9a",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Operations_Python/ops/merlin_python_static/evidence/20261121-implicit-directory-repair/original-five-regressions.log",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_python_static/evidence/20261121-implicit-directory-repair/original-five-regressions.log",
+      "mode": "100644",
+      "bytes": 7828,
+      "sha256": "c3c7d994a73100cd5004ab0dc35efe3c11c3cc8e7e02c5c24f0b56cd61831b97",
+      "git_blob": "1721c5c0c796fac3b20913c130b270c1ef60885a",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Operations_Python/ops/merlin_python_static/evidence/20261121-implicit-directory-repair/regression-proof.json",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_python_static/evidence/20261121-implicit-directory-repair/regression-proof.json",
+      "mode": "100644",
+      "bytes": 1936,
+      "sha256": "999cff6080251e5b67dea7f2aaf853d13c0849cd63c37db5bcaf34ec7baba1a8",
+      "git_blob": "9b0d7b7bd23dbe1ce180d987b49a0a8c7fb202c1",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Operations_Python/ops/merlin_python_static/evidence/20261121-implicit-directory-repair/repaired-controls.log",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_python_static/evidence/20261121-implicit-directory-repair/repaired-controls.log",
+      "mode": "100644",
+      "bytes": 6266,
+      "sha256": "e18924e9558bf8a29fb42991142c7bf0b32f397b41e66154b9151642328009e9",
+      "git_blob": "008ff28a418a4c5bd02d78f4f2f35c115b179de1",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Operations_Python/ops/merlin_python_static/evidence/20261121-implicit-directory-repair/retained-archive-replay.json",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_python_static/evidence/20261121-implicit-directory-repair/retained-archive-replay.json",
+      "mode": "100644",
+      "bytes": 19497,
+      "sha256": "9a7d2ab933b10a3b0ceb12142a86a203d8b6626ee4453e86cbd62224da8cb0a5",
+      "git_blob": "443e02ad620e96f598459e0bf7d4e53b41eb5ab5",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Operations_Python/ops/merlin_python_static/test_acquire_inspect.py",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_python_static/test_acquire_inspect.py",
+      "mode": "100644",
+      "bytes": 31860,
+      "sha256": "30f1a819dbb526622130b14a5579d203ede018300f8ed7d91c552b8df8d1ef3e",
+      "git_blob": "99f15d858c05a2cc477de89583135ad3b8c8b11c",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Native_Validation/.github/workflows/merlin-repair-validation.yml",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": ".github/workflows/merlin-repair-validation.yml",
+      "mode": "100644",
+      "bytes": 21578,
+      "sha256": "4046b2a04178d254ad1fa7a3b522ce01d0440e91da8e982f16b90c0b6b640cb3",
+      "git_blob": "fd3b6026dc52ae797c9666cc8a183cf4fda276fd",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Native_Validation/ops/merlin_repair_validation/review/README.md",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_repair_validation/review/README.md",
+      "mode": "100644",
+      "bytes": 5029,
+      "sha256": "f6d2a3440c7102aba7def4e17083b5b287c415301b68a0e829ca7a836a99267b",
+      "git_blob": "2a2cbfd3d4cc26c0154c5e45f71c0e479a52c693",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Native_Validation/ops/merlin_repair_validation/review/REQUEST_CONTRACT.json",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_repair_validation/review/REQUEST_CONTRACT.json",
+      "mode": "100644",
+      "bytes": 2231,
+      "sha256": "bbfcd155c44e07fe9689a1a95adce1d7c0707c662b84cdd75bfa6dfcc31ddd22",
+      "git_blob": "f01bfb5cbb12e77996cb406d13349a9f32822299",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Native_Validation/ops/merlin_repair_validation/review/SOURCE_PINS.json",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_repair_validation/review/SOURCE_PINS.json",
+      "mode": "100644",
+      "bytes": 4396,
+      "sha256": "f7fb4fa81e0377d1a958c4ee35dc034a9ee03135d01bb5ee30c0e5a9b58c0d20",
+      "git_blob": "81af9db9381722f4aa0c2675fcdd630ac88242ff",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Native_Validation/ops/merlin_repair_validation/review/build_workflow.py",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_repair_validation/review/build_workflow.py",
+      "mode": "100644",
+      "bytes": 2573,
+      "sha256": "c54df60491d66d35a15dc94e711a7cf2f557a141f7194e9b7ea13f6e4f97a5e2",
+      "git_blob": "6d3aeebb90bebc6757fa98de058ef87efbc8a47d",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Native_Validation/ops/merlin_repair_validation/review/evidence/local-structural-validation.json",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_repair_validation/review/evidence/local-structural-validation.json",
+      "mode": "100644",
+      "bytes": 2389,
+      "sha256": "5f224980d793a00a4b2f885b28aca8ecee8e17b8a81aad2389411bfee18825ef",
+      "git_blob": "044a50adfdbd33031bb36bde556f653981cd3451",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Native_Validation/ops/merlin_repair_validation/controller.py",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_repair_validation/controller.py",
+      "mode": "100644",
+      "bytes": 14170,
+      "sha256": "3f642f723791c78824530f777aeb5f67a0d89d62c1608f3ecf96dbb1a5a5ebf0",
+      "git_blob": "a56f4f028ffb4cba7cb2f28039857c7951e855fe",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Native_Validation/ops/merlin_repair_validation/run_suite.py",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_repair_validation/run_suite.py",
+      "mode": "100644",
+      "bytes": 3237,
+      "sha256": "e6796c597348efc1b1caeafe632eb8d52312d5f24e00cf99b23e86a7fb2bda6a",
+      "git_blob": "1146da2db611ed97cb5c4843a6c5f1074ff2d608",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Native_Validation/ops/merlin_repair_validation/source/python/dot_ai_os/__init__.py",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_repair_validation/source/python/dot_ai_os/__init__.py",
+      "mode": "100644",
+      "bytes": 103,
+      "sha256": "5a54db6fddc5b1a178c7beaa42089ee95bdea81871560c8c5d1f868a2b16e487",
+      "git_blob": "78666698d33f10703883542945526d931ad578c0",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Native_Validation/ops/merlin_repair_validation/source/python/dot_ai_os/bridge.py",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_repair_validation/source/python/dot_ai_os/bridge.py",
+      "mode": "100644",
+      "bytes": 23013,
+      "sha256": "781447bcfb965e11b39d7cedfc1d4f1db3c6c67f502bffc6a07605af7cf085a3",
+      "git_blob": "2f2d13d0368ec0eeca98545a38f74c924f8bd49f",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Native_Validation/ops/merlin_repair_validation/source/python/merlin/__init__.py",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_repair_validation/source/python/merlin/__init__.py",
+      "mode": "100644",
+      "bytes": 275,
+      "sha256": "49f23ffa9b838de063cd88e4a60704d1989f55ff3aa70fe2ed850b0396fa8f93",
+      "git_blob": "0ad35f52071fb1537c1ffcb918a9a7148b411661",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Native_Validation/ops/merlin_repair_validation/source/python/merlin/artifact_ref.py",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_repair_validation/source/python/merlin/artifact_ref.py",
+      "mode": "100644",
+      "bytes": 2542,
+      "sha256": "187e33ed4ab6e1a79e054ff31c07b383090dae94cb51c5eb9dd01dfb80227584",
+      "git_blob": "aa3ce66edc8286668f4a01a0ee5e3f4c61fa0fd3",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Native_Validation/ops/merlin_repair_validation/source/python/merlin/browser_client.py",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_repair_validation/source/python/merlin/browser_client.py",
+      "mode": "100644",
+      "bytes": 2963,
+      "sha256": "b674d873e9f2f12b94339c7bc5c1df3d035433307248b595c27319632a87a58b",
+      "git_blob": "d51ae4e1880e82eff94640a0e2fac0c539e9b73a",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Native_Validation/ops/merlin_repair_validation/source/python/merlin/browser_egress.py",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_repair_validation/source/python/merlin/browser_egress.py",
+      "mode": "100644",
+      "bytes": 16013,
+      "sha256": "93b018f113e004b4322f4702669015eb64190480145686954d4b46aabf34c4ff",
+      "git_blob": "08d9fb0080942a0ee346c80f1c3605029daa794c",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Native_Validation/ops/merlin_repair_validation/source/python/merlin/browser_ingest.py",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_repair_validation/source/python/merlin/browser_ingest.py",
+      "mode": "100644",
+      "bytes": 20341,
+      "sha256": "b4305956d5159482eb043e0bfdbca81bfd7cb353e6bc51f21437480f67f08d82",
+      "git_blob": "688334659bd1b87f9967a62082be419c0aee81f9",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Native_Validation/ops/merlin_repair_validation/source/python/merlin/browser_policy.py",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_repair_validation/source/python/merlin/browser_policy.py",
+      "mode": "100644",
+      "bytes": 6300,
+      "sha256": "c0583bfd6309bd67cf33f6c9e92e4a39c7caab5bb2c3fd9a99fda578c53d30c8",
+      "git_blob": "a346be5c7b6c18721eb1239af1399c2a85678805",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Native_Validation/ops/merlin_repair_validation/source/python/merlin/browser_service.py",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_repair_validation/source/python/merlin/browser_service.py",
+      "mode": "100644",
+      "bytes": 20782,
+      "sha256": "33de7ccd0353ff56716daa08aa14b8c0dc41539aff72d7eb087a6eeeecb25135",
+      "git_blob": "3c772a2f130d3daf930a874e80f12c8f15678835",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Native_Validation/ops/merlin_repair_validation/source/python/merlin/project_registry.py",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_repair_validation/source/python/merlin/project_registry.py",
+      "mode": "100644",
+      "bytes": 42079,
+      "sha256": "c7fbd89ae99705f60a1ecd7f41df244742fe218a335b4a3e6d2fed11c96521c7",
+      "git_blob": "b29687ce499d77e58e42207244dd4ec0dbb8b9d8",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Native_Validation/ops/merlin_repair_validation/source/python/merlin/public_browser.py",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_repair_validation/source/python/merlin/public_browser.py",
+      "mode": "100644",
+      "bytes": 29083,
+      "sha256": "9bddbc4343b5c6acb88c9d5b12f869290056f1913b93a2203774129d8975e884",
+      "git_blob": "c05e2299652698eb6b1003f71b15d8bfb8badd47",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Native_Validation/ops/merlin_repair_validation/source/static/acquire_inspect.py",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_repair_validation/source/static/acquire_inspect.py",
+      "mode": "100644",
+      "bytes": 35199,
+      "sha256": "c3a5bd263d22a50a4872648e1a0934782c5f2cbb87d153b91adf84c67ce25ba2",
+      "git_blob": "893c863f6d7dcff42c2ae735f955a8d8a31d0ae7",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Native_Validation/ops/merlin_repair_validation/source/static/test_acquire_inspect.py",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_repair_validation/source/static/test_acquire_inspect.py",
+      "mode": "100644",
+      "bytes": 31860,
+      "sha256": "30f1a819dbb526622130b14a5579d203ede018300f8ed7d91c552b8df8d1ef3e",
+      "git_blob": "99f15d858c05a2cc477de89583135ad3b8c8b11c",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Native_Validation/ops/merlin_repair_validation/source/tests/test_browser_service_lifecycle.py",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_repair_validation/source/tests/test_browser_service_lifecycle.py",
+      "mode": "100644",
+      "bytes": 9617,
+      "sha256": "4ed0bad2fee5df8fb4772b2e9858de5859a00f6ef16c4f61f2714f2a7f6b78c6",
+      "git_blob": "80cbb98f2af768726a7ab05c8c69f556e1dbf1dd",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Native_Validation/ops/merlin_repair_validation/source/tests/test_browser_service_lifecycle_controls.py",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_repair_validation/source/tests/test_browser_service_lifecycle_controls.py",
+      "mode": "100644",
+      "bytes": 10104,
+      "sha256": "88f7f6186783946c027c8afac2decb392338fbe9138f9fc501188bf96c855cb7",
+      "git_blob": "0da1c56b60062b8ec32e99c381b074e21d6cc139",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Native_Validation/ops/merlin_repair_validation/source/tests/test_public_browser.py",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_repair_validation/source/tests/test_public_browser.py",
+      "mode": "100644",
+      "bytes": 46706,
+      "sha256": "4e3c7fb0a708dd838d2305a4e185bd3e3d508f0ee4780e4bf848a5644642d269",
+      "git_blob": "e6593fb87528b04d1104f2183c29ea6c3d7a4da6",
+      "all_identity_fields_match": true
+    },
+    {
+      "archive_path": "Native_Validation/ops/merlin_repair_validation/review/validate_package.py",
+      "repository": "morganaspim/Cace-app",
+      "repository_path": "ops/merlin_repair_validation/review/validate_package.py",
+      "mode": "100644",
+      "bytes": 7881,
+      "sha256": "b67c5a7892eac1bd0d0c1621dc54b0fbc5c8da8a7dc68c06972fe089c08a2500",
+      "git_blob": "b3a317455180824f76db23b23262a313c6b103b0",
+      "all_identity_fields_match": true
+    }
+  ],
+  "original_local_file_checks": [
+    {
+      "path": "/workspace/scratch/07cb10f977d8/publication/product193/python/merlin/browser_service.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/python/merlin/browser_service.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/publication/product193/tests/test_browser_service_lifecycle.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/tests/test_browser_service_lifecycle.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/publication/product193/tests/test_browser_service_lifecycle_controls.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/tests/test_browser_service_lifecycle_controls.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/publication/product193/docs/evidence/merlin-browser-lifecycle-repair-20261121/baseline-regression.txt",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/evidence/baseline-regression.txt",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/publication/product193/docs/evidence/merlin-browser-lifecycle-repair-20261121/browser-service.before-child-mask-fix.patch",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/evidence/browser-service.before-child-mask-fix.patch",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/publication/product193/docs/evidence/merlin-browser-lifecycle-repair-20261121/browser-service.patch",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/evidence/browser-service.patch",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/publication/product193/docs/evidence/merlin-browser-lifecycle-repair-20261121/browser_service.before-child-mask-fix.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/evidence/browser_service.before-child-mask-fix.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/publication/product193/docs/evidence/merlin-browser-lifecycle-repair-20261121/browser_service.original.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/evidence/browser_service.original.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/publication/product193/docs/evidence/merlin-browser-lifecycle-repair-20261121/child-mask-regression-before-fix.txt",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/evidence/child-mask-regression-before-fix.txt",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/publication/product193/docs/evidence/merlin-browser-lifecycle-repair-20261121/direct-regression-observations.before-child-mask-fix.json",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/evidence/direct-regression-observations.before-child-mask-fix.json",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/publication/product193/docs/evidence/merlin-browser-lifecycle-repair-20261121/direct-regression-observations.json",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/evidence/direct-regression-observations.json",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/publication/product193/docs/evidence/merlin-browser-lifecycle-repair-20261121/existing-browser-tests-final.txt",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/evidence/existing-browser-tests-final.txt",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/publication/product193/docs/evidence/merlin-browser-lifecycle-repair-20261121/existing-browser-tests.txt",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/evidence/existing-browser-tests.txt",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/publication/product193/docs/evidence/merlin-browser-lifecycle-repair-20261121/initial-frame.json",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/evidence/initial-frame.json",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/publication/product193/docs/evidence/merlin-browser-lifecycle-repair-20261121/lifecycle-controls-final.txt",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/evidence/lifecycle-controls-final.txt",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/publication/product193/docs/evidence/merlin-browser-lifecycle-repair-20261121/lifecycle-controls.txt",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/evidence/lifecycle-controls.txt",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/publication/product193/docs/evidence/merlin-browser-lifecycle-repair-20261121/lifecycle-tests.txt",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/evidence/lifecycle-tests.txt",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/publication/product193/docs/evidence/merlin-browser-lifecycle-repair-20261121/result.json",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/evidence/result.json",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/publication/product193/docs/merlin/BROWSER_LIFECYCLE_REPAIR_20261121.md",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/README.md",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/publication/product193/docs/evidence/merlin-browser-lifecycle-repair-20261121/source-manifest.json",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/source-manifest.json",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/publication/operations/ops/merlin_python_static/acquire_inspect.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/python-inspection-repair/repaired/ops/merlin_python_static/acquire_inspect.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/publication/operations/ops/merlin_python_static/evidence/20261121-implicit-directory-repair/README.md",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/publication/operations/ops/merlin_python_static/evidence/20261121-implicit-directory-repair/original-controls.log",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/publication/operations/ops/merlin_python_static/evidence/20261121-implicit-directory-repair/original-five-regressions.log",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/publication/operations/ops/merlin_python_static/evidence/20261121-implicit-directory-repair/regression-proof.json",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/publication/operations/ops/merlin_python_static/evidence/20261121-implicit-directory-repair/repaired-controls.log",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/publication/operations/ops/merlin_python_static/evidence/20261121-implicit-directory-repair/retained-archive-replay.json",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/publication/operations/ops/merlin_python_static/test_acquire_inspect.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/python-inspection-repair/repaired/ops/merlin_python_static/test_acquire_inspect.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/native-repair-validation/.github/workflows/merlin-repair-validation.yml",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/native-repair-validation/README.md",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/native-repair-validation/REQUEST_CONTRACT.json",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/native-repair-validation/SOURCE_PINS.json",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/native-repair-validation/build_workflow.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/native-repair-validation/evidence/local-structural-validation.json",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/native-repair-validation/ops/merlin_repair_validation/controller.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/native-repair-validation/ops/merlin_repair_validation/run_suite.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/native-repair-validation/ops/merlin_repair_validation/source/python/dot_ai_os/__init__.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/native-repair-validation/ops/merlin_repair_validation/source/python/dot_ai_os/bridge.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/native-repair-validation/ops/merlin_repair_validation/source/python/merlin/__init__.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/native-repair-validation/ops/merlin_repair_validation/source/python/merlin/artifact_ref.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/native-repair-validation/ops/merlin_repair_validation/source/python/merlin/browser_client.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/native-repair-validation/ops/merlin_repair_validation/source/python/merlin/browser_egress.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/native-repair-validation/ops/merlin_repair_validation/source/python/merlin/browser_ingest.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/native-repair-validation/ops/merlin_repair_validation/source/python/merlin/browser_policy.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/native-repair-validation/ops/merlin_repair_validation/source/python/merlin/browser_service.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/native-repair-validation/ops/merlin_repair_validation/source/python/merlin/project_registry.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/native-repair-validation/ops/merlin_repair_validation/source/python/merlin/public_browser.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/native-repair-validation/ops/merlin_repair_validation/source/static/acquire_inspect.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/native-repair-validation/ops/merlin_repair_validation/source/static/test_acquire_inspect.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/native-repair-validation/ops/merlin_repair_validation/source/tests/test_browser_service_lifecycle.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/native-repair-validation/ops/merlin_repair_validation/source/tests/test_browser_service_lifecycle_controls.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/native-repair-validation/ops/merlin_repair_validation/source/tests/test_public_browser.py",
+      "matches": true
+    },
+    {
+      "path": "/workspace/scratch/07cb10f977d8/native-repair-validation/validate_package.py",
+      "matches": true
+    }
+  ],
+  "scope": {
+    "destinations_exact": true,
+    "dispatch_request_present": false,
+    "reviewed_deep_behavior": false,
+    "native_run_performed": false,
+    "remote_mutations": false
+  },
+  "limitations": [
+    "This audit verifies identities, destination/mode/path integrity and exact local-source correspondence; it does not independently qualify native behavior.",
+    "The archived status prepared_not_published_or_run is historical frozen package text; coordinator must record subsequent publication/execution separately."
+  ]
+}

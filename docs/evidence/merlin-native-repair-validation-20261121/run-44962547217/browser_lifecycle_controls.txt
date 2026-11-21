@@ -1,0 +1,18 @@
+test_exact_owned_socket_is_removed (test_browser_service_lifecycle_controls.OwnershipControls) ... ok
+test_failed_reap_preserves_stop_control_flow (test_browser_service_lifecycle_controls.OwnershipControls) ... ok
+test_replacement_owner_device_inode_type_are_each_preserved (test_browser_service_lifecycle_controls.OwnershipControls) ... ok
+test_unbound_and_already_removed_paths_are_not_deleted (test_browser_service_lifecycle_controls.OwnershipControls) ... ok
+test_active_launcher_is_killed_and_reaped_after_real_signal (test_browser_service_lifecycle_controls.SignalProcessControls) ... ok
+test_launcher_does_not_inherit_blocked_stop_signals (test_browser_service_lifecycle_controls.SignalProcessControls) ... ok
+test_second_sigterm_during_cleanup_does_not_interrupt (test_browser_service_lifecycle_controls.SignalProcessControls) ... ok
+test_sigint_cleanup_preserves_replaced_inode (test_browser_service_lifecycle_controls.SignalProcessControls) ... ok
+test_sigint_unwinds_and_removes_owned_path (test_browser_service_lifecycle_controls.SignalProcessControls) ... ok
+test_signal_inside_popen_return_window_waits_for_child_identity (test_browser_service_lifecycle_controls.SignalProcessControls) ... ok
+test_sigterm_during_bind_is_deferred_until_identity_recorded (test_browser_service_lifecycle_controls.SignalProcessControls) ... ok
+test_sigterm_unwinds_and_removes_owned_path (test_browser_service_lifecycle_controls.SignalProcessControls) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 1.687s
+
+OK
+{"discovered": 12, "errors": 0, "expected": 12, "expected_failures": 0, "failures": 0, "passed": true, "pattern": "test_browser_service_lifecycle_controls.py", "python": "3.9.25 (main, Jul 15 2026, 00:00:00) \n[GCC 11.5.0 20240719 (Red Hat 11.5.0-14.0.1)]", "schema": "merlin-repair-fixture-suite/1", "scope": "reviewed local fixtures only; no production browser or provider qualification", "skipped": 0, "suite": "browser_lifecycle_controls", "tests": 12, "uid": 1000, "unexpected_successes": 0}

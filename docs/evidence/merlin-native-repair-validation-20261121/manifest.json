@@ -1,0 +1,321 @@
+{
+  "files": [
+    {
+      "bytes": 2951,
+      "git_blob": "f6c012a3f6e4958aff1f895c30d9ae8495eef051",
+      "mode": "100644",
+      "path": "config/merlin/plan-updates/20261121-native-repair-validation.json",
+      "sha256": "2717c78d53b1ee8b89cf6dd60b9117057df8f0fcf99a00ae61c73fdf5e38c7d4"
+    },
+    {
+      "bytes": 5867,
+      "git_blob": "80456c291e5a7371d3ee48057ac01d8b751c1469",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/README.md",
+      "sha256": "fb282acbc13af47057f975fbed92809a007c9c17fbcce5a660cdb8a27de628c3"
+    },
+    {
+      "bytes": 6811,
+      "git_blob": "d052346844d9a57b09648fddd9b015215e450e32",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/artifact-review.json",
+      "sha256": "5e7c0b1dd4685fa60b9962f7beefb1573912ab952c13f1d71d6d014e5f111660"
+    },
+    {
+      "bytes": 2030,
+      "git_blob": "9429e4c506d4ddde5c5815d783e6b059f22efe82",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/authorization.json",
+      "sha256": "259d93a8c7499beed84a322a71d075d4051be963dbe318522d8afd6b981cafcb"
+    },
+    {
+      "bytes": 29210,
+      "git_blob": "9557dd588ff900ae18098bb434ad937efe64395d",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/github-metadata.json",
+      "sha256": "fb6ed93a5e03a5e540462b5c6b865eda8e250ec364f635365168d0da8169632f"
+    },
+    {
+      "bytes": 40481,
+      "git_blob": "ba063eb50f21dda847f2892d7434badc097250ee",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/independent-package-audit.json",
+      "sha256": "ce0257e8b680b7c0ea85f71c7676f49fa2d92d261048c0c024a96b2df7c5bfc8"
+    },
+    {
+      "bytes": 34029,
+      "git_blob": "b59ba22d7d3abd2034949f73abe504a197063d57",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/job-137024308032.log",
+      "sha256": "b79f27c3adbd837b9b8114ce28481af0ad7d30a7f11e7abeabc1a4114035dd76"
+    },
+    {
+      "bytes": 106026,
+      "git_blob": "dd23829375fb36526c9fe40c2ac228d9dd1548f9",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/merlin-repair-validation-44962547217-1.zip",
+      "sha256": "e6895d85732c03658d8cfa020d634e86630bdaf16d04beb47b8e903b6a4618a7"
+    },
+    {
+      "bytes": 3706,
+      "git_blob": "56d74dcfb1ed014f3de09d215623ba7850d0ee1a",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/native-independent-review.json",
+      "sha256": "021f3ee90bdc0e4e632a14d1ad9051219285680f188ac4517850c8f498d1dc08"
+    },
+    {
+      "bytes": 21003,
+      "git_blob": "b3ff8ba3ecd49f6a59ff0db24a23d50e8697d8e3",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/publication-receipt.json",
+      "sha256": "7bd60e3211a3293810dd927abd77698cd684fb32af3485c1608f0aff853c3180"
+    },
+    {
+      "bytes": 511,
+      "git_blob": "408d09417851130eacf9ceb8ad5e5dd4809c3bd0",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/browser_lifecycle-result.json",
+      "sha256": "a857d109cf7d0d361bb8e1f604047345fa48a4bab386a4aa460144aeace9c1fe"
+    },
+    {
+      "bytes": 1974,
+      "git_blob": "50ead75d790ffb7a533aefec2c0c3179878ed853",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/browser_lifecycle.txt",
+      "sha256": "eabd89f7033c418f05ac45914bc9c0384e1602a382a20aedcc3df95df7396fec"
+    },
+    {
+      "bytes": 340,
+      "git_blob": "a7dd000a45f1d294a78fea59bddaca8638918f92",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/browser_lifecycle.txt.json",
+      "sha256": "4a666789c0f4ab7f68a136a1580fece34294f073547fc467d09235a8dd462fe4"
+    },
+    {
+      "bytes": 529,
+      "git_blob": "2d7ad30de0963666c50294848b1fa446867343ec",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/browser_lifecycle_controls-result.json",
+      "sha256": "46afb4e38c870500bb7825ba3402d9cac62eccb8f0040f2e2d0b5115609b6aaf"
+    },
+    {
+      "bytes": 2050,
+      "git_blob": "3c00a78ef08d0cb181d00a1109acd62c856aa9ee",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/browser_lifecycle_controls.txt",
+      "sha256": "4a5657ac82c8be0e2b32d9fc191263b82fe3c985dfc97cdd4396f3bb4a34100c"
+    },
+    {
+      "bytes": 341,
+      "git_blob": "ee393d030cedaa1b37d6d0c75339fe31cd2e1bef",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/browser_lifecycle_controls.txt.json",
+      "sha256": "5484f691081659ca36225da5ce9f0b66e624d8d2e0e443aae645db33323a2625"
+    },
+    {
+      "bytes": 498,
+      "git_blob": "f653e86ba1fbed37edd6e2bd5491aa448ba735c9",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/browser_product-result.json",
+      "sha256": "af17825f47f77255d876bcf592e89a76847f5b8b9eac41f1993977c6fbeb142d"
+    },
+    {
+      "bytes": 4912,
+      "git_blob": "a885a265f034f6a42110aa2a041ac88749c2f0d6",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/browser_product.txt",
+      "sha256": "0f312dd7bea237a002b855a36a027e73ab65a73f12c226dd8365ba391e3e422e"
+    },
+    {
+      "bytes": 341,
+      "git_blob": "87f2a3c7d2cd8158126c0d4c628abf73252a4985",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/browser_product.txt.json",
+      "sha256": "021935ccf9e5107909a02c99ba1d533a0d44a7145ecafad4ce33f364f44ff7ba"
+    },
+    {
+      "bytes": 14170,
+      "git_blob": "a56f4f028ffb4cba7cb2f28039857c7951e855fe",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/controller.py",
+      "sha256": "3f642f723791c78824530f777aeb5f67a0d89d62c1608f3ecf96dbb1a5a5ebf0"
+    },
+    {
+      "bytes": 308,
+      "git_blob": "65258eef40d8c7a8f75af2135cef9bb00dc8a7e6",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/identity.json",
+      "sha256": "20f4b16810f343f5f77de275fadd32ea072e29f25627b6318e9069c0719d5ce0"
+    },
+    {
+      "bytes": 497,
+      "git_blob": "97481307b500a64861c19dea7ff39a0bead4f954",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/python_static-result.json",
+      "sha256": "62d2c8050079d2bc23bd49d0811a6916abd782eae221ef9580825b92c305f15e"
+    },
+    {
+      "bytes": 4524,
+      "git_blob": "fcbaaaee2d3acaf6f5fc8954153b21dd125596d2",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/python_static.txt",
+      "sha256": "adfa11117a492f5b6f324f66aa7b61b6d0a372efcb203134a51b457263bc80ad"
+    },
+    {
+      "bytes": 423,
+      "git_blob": "9a7ffaad4fa226e10816cd146bdd07925315f853",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/python_static.txt.json",
+      "sha256": "85cefa049f855a5eee65ef8575bccb3d0b188b8466882fbfe7ac59b529772c7d"
+    },
+    {
+      "bytes": 208,
+      "git_blob": "b9606fbf76b862c60952f0abacb2694f6d26d735",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/request.json",
+      "sha256": "d66e892b917aa214c2d2f3f80217935528a1b445758899e47e0ca0495e91d4aa"
+    },
+    {
+      "bytes": 3237,
+      "git_blob": "1146da2db611ed97cb5c4843a6c5f1074ff2d608",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/run_suite.py",
+      "sha256": "e6796c597348efc1b1caeafe632eb8d52312d5f24e00cf99b23e86a7fb2bda6a"
+    },
+    {
+      "bytes": 103,
+      "git_blob": "78666698d33f10703883542945526d931ad578c0",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/source/python/dot_ai_os/__init__.py",
+      "sha256": "5a54db6fddc5b1a178c7beaa42089ee95bdea81871560c8c5d1f868a2b16e487"
+    },
+    {
+      "bytes": 23013,
+      "git_blob": "2f2d13d0368ec0eeca98545a38f74c924f8bd49f",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/source/python/dot_ai_os/bridge.py",
+      "sha256": "781447bcfb965e11b39d7cedfc1d4f1db3c6c67f502bffc6a07605af7cf085a3"
+    },
+    {
+      "bytes": 275,
+      "git_blob": "0ad35f52071fb1537c1ffcb918a9a7148b411661",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/source/python/merlin/__init__.py",
+      "sha256": "49f23ffa9b838de063cd88e4a60704d1989f55ff3aa70fe2ed850b0396fa8f93"
+    },
+    {
+      "bytes": 2542,
+      "git_blob": "aa3ce66edc8286668f4a01a0ee5e3f4c61fa0fd3",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/source/python/merlin/artifact_ref.py",
+      "sha256": "187e33ed4ab6e1a79e054ff31c07b383090dae94cb51c5eb9dd01dfb80227584"
+    },
+    {
+      "bytes": 2963,
+      "git_blob": "d51ae4e1880e82eff94640a0e2fac0c539e9b73a",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/source/python/merlin/browser_client.py",
+      "sha256": "b674d873e9f2f12b94339c7bc5c1df3d035433307248b595c27319632a87a58b"
+    },
+    {
+      "bytes": 16013,
+      "git_blob": "08d9fb0080942a0ee346c80f1c3605029daa794c",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/source/python/merlin/browser_egress.py",
+      "sha256": "93b018f113e004b4322f4702669015eb64190480145686954d4b46aabf34c4ff"
+    },
+    {
+      "bytes": 20341,
+      "git_blob": "688334659bd1b87f9967a62082be419c0aee81f9",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/source/python/merlin/browser_ingest.py",
+      "sha256": "b4305956d5159482eb043e0bfdbca81bfd7cb353e6bc51f21437480f67f08d82"
+    },
+    {
+      "bytes": 6300,
+      "git_blob": "a346be5c7b6c18721eb1239af1399c2a85678805",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/source/python/merlin/browser_policy.py",
+      "sha256": "c0583bfd6309bd67cf33f6c9e92e4a39c7caab5bb2c3fd9a99fda578c53d30c8"
+    },
+    {
+      "bytes": 20782,
+      "git_blob": "3c772a2f130d3daf930a874e80f12c8f15678835",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/source/python/merlin/browser_service.py",
+      "sha256": "33de7ccd0353ff56716daa08aa14b8c0dc41539aff72d7eb087a6eeeecb25135"
+    },
+    {
+      "bytes": 42079,
+      "git_blob": "b29687ce499d77e58e42207244dd4ec0dbb8b9d8",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/source/python/merlin/project_registry.py",
+      "sha256": "c7fbd89ae99705f60a1ecd7f41df244742fe218a335b4a3e6d2fed11c96521c7"
+    },
+    {
+      "bytes": 29083,
+      "git_blob": "c05e2299652698eb6b1003f71b15d8bfb8badd47",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/source/python/merlin/public_browser.py",
+      "sha256": "9bddbc4343b5c6acb88c9d5b12f869290056f1913b93a2203774129d8975e884"
+    },
+    {
+      "bytes": 35199,
+      "git_blob": "893c863f6d7dcff42c2ae735f955a8d8a31d0ae7",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/source/static/acquire_inspect.py",
+      "sha256": "c3a5bd263d22a50a4872648e1a0934782c5f2cbb87d153b91adf84c67ce25ba2"
+    },
+    {
+      "bytes": 31860,
+      "git_blob": "99f15d858c05a2cc477de89583135ad3b8c8b11c",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/source/static/test_acquire_inspect.py",
+      "sha256": "30f1a819dbb526622130b14a5579d203ede018300f8ed7d91c552b8df8d1ef3e"
+    },
+    {
+      "bytes": 9617,
+      "git_blob": "80cbb98f2af768726a7ab05c8c69f556e1dbf1dd",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/source/tests/test_browser_service_lifecycle.py",
+      "sha256": "4ed0bad2fee5df8fb4772b2e9858de5859a00f6ef16c4f61f2714f2a7f6b78c6"
+    },
+    {
+      "bytes": 10104,
+      "git_blob": "0da1c56b60062b8ec32e99c381b074e21d6cc139",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/source/tests/test_browser_service_lifecycle_controls.py",
+      "sha256": "88f7f6186783946c027c8afac2decb392338fbe9138f9fc501188bf96c855cb7"
+    },
+    {
+      "bytes": 46706,
+      "git_blob": "e6593fb87528b04d1104f2183c29ea6c3d7a4da6",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/source/tests/test_public_browser.py",
+      "sha256": "4e3c7fb0a708dd838d2305a4e185bd3e3d508f0ee4780e4bf848a5644642d269"
+    },
+    {
+      "bytes": 4116,
+      "git_blob": "f15953426c0b363836f868026296d8c6a729a9c8",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/source-identities.json",
+      "sha256": "f9229517d961fa661e8f665051197bf4ebca525aec35f975fbfd74c5dd7a5b5e"
+    },
+    {
+      "bytes": 2778,
+      "git_blob": "8309bb960d7ad5524ae502656489831ead5b6c88",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/validation-receipt.json",
+      "sha256": "ad4d024ae576d258d0b0bed2e2cedfa7ee3fe737625af61242f95eac5281c654"
+    },
+    {
+      "bytes": 21578,
+      "git_blob": "fd3b6026dc52ae797c9666cc8a183cf4fda276fd",
+      "mode": "100644",
+      "path": "docs/evidence/merlin-native-repair-validation-20261121/run-44962547217/workflow-definition.yml",
+      "sha256": "4046b2a04178d254ad1fa7a3b522ce01d0440e91da8e982f16b90c0b6b640cb3"
+    }
+  ],
+  "manifest_self_excluded": true,
+  "schema": "merlin-native-repair-evidence-manifest/1"
+}

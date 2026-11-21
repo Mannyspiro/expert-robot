@@ -1,0 +1,90 @@
+{
+  "checkpoint_id": "MERLIN-NATIVE-REPAIRS-VERIFIED-20261121",
+  "evidence_root": "docs/evidence/merlin-native-repair-validation-20261121",
+  "extension_tasks_preserved": 8,
+  "installations": 0,
+  "master_task_status_mutations": [],
+  "model_calls": 0,
+  "observations": [
+    {
+      "adopted_descendants_reaped": 1,
+      "all_cleanup_complete": true,
+      "attempt": 1,
+      "errors": 0,
+      "failures": 0,
+      "passed_cases": 101,
+      "required_cases": 101,
+      "run_id": 44962547217,
+      "skips": 0,
+      "source_commit": "cc869730382fdf171865f41f76aa2f9b0cdd21c5",
+      "status": "native_fixture_gate_passed",
+      "suites": {
+        "browser_lifecycle": {
+          "cleanup_complete": true,
+          "elapsed_seconds": 4.206622232683003,
+          "passed": true,
+          "tests": 13
+        },
+        "browser_lifecycle_controls": {
+          "cleanup_complete": true,
+          "elapsed_seconds": 2.0747500471770763,
+          "passed": true,
+          "tests": 12
+        },
+        "browser_product": {
+          "cleanup_complete": true,
+          "elapsed_seconds": 3.5402965089306235,
+          "passed": true,
+          "tests": 41
+        },
+        "python_static": {
+          "cleanup_complete": true,
+          "elapsed_seconds": 0.4917782573029399,
+          "passed": true,
+          "tests": 35
+        }
+      }
+    }
+  ],
+  "operations_definitions_commit": "7586eb7a39e94494cfbb4b29ae05771d479aea1f",
+  "original_artifact": {
+    "bytes": 106026,
+    "members": 35,
+    "name": "merlin-repair-validation-44962547217-1.zip",
+    "sha256": "e6895d85732c03658d8cfa020d634e86630bdaf16d04beb47b8e903b6a4618a7"
+  },
+  "original_tasks_preserved": 37,
+  "parent_plan": {
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c",
+    "version": 6
+  },
+  "previous_update": {
+    "commit": "b9d2c50eb1c0375ed6d46593b5a03571eaac8389",
+    "path": "config/merlin/plan-updates/20261121-original-inspection-evidence.json"
+  },
+  "product_source_commit": "5f279deaea018ad45644837633acd16adc997907",
+  "promotion_authority": false,
+  "qualification": false,
+  "ranked_next_actions": [
+    "Prepare and validate supported-interpreter provisioning from retained exact archive with rollback.",
+    "Prepare fresh-state retained-socket reconciliation and lifecycle-correct deterministic runtime.",
+    "Run supported-runtime Studio111-case/native/package gate, then bounded real-model/live-browser acceptance and release gates."
+  ],
+  "recorded_at_utc": "2026-11-21T23:40:02.834538+00:00",
+  "schema": "merlin-production-plan-update/1",
+  "service_changes": 0,
+  "source_coverage": "Exact task-relevant source and original artifacts; not exhaustive all-chat/all-master-document review.",
+  "tracks_preserved": [
+    "P00",
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09"
+  ]
+}
