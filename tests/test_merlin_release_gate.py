@@ -24,7 +24,14 @@ class ReleaseGateTests(unittest.TestCase):
                 "evidence_locator": "receipt.json", "source_commit": COMMIT}
 
     def manifest(self):
-        return {"gates": {name: self.entry() for name in REQUIRED}}
+        gates = {}
+        for name in REQUIRED:
+            receipt = self.root / (name + ".json")
+            receipt.write_bytes(self.file.read_bytes())
+            item = self.entry()
+            item["evidence_locator"] = receipt.name
+            gates[name] = item
+        return {"gates": gates}
 
     def test_missing_gates_fail_closed(self):
         result = assess({"gates": {}}, self.root)
@@ -45,12 +52,12 @@ class ReleaseGateTests(unittest.TestCase):
 
     def test_tampered_file_rejected(self):
         manifest = self.manifest()
-        self.file.write_bytes(b'{"test":"failed"}')
+        (self.root / (REQUIRED[0] + ".json")).write_bytes(b'{"test":"failed"}')
         self.assertEqual(assess(manifest, self.root)["gate_status"][REQUIRED[0]], "digest_mismatch")
 
     def test_absent_file_rejected(self):
         manifest = self.manifest()
-        self.file.unlink()
+        (self.root / (REQUIRED[0] + ".json")).unlink()
         self.assertEqual(assess(manifest, self.root)["gate_status"][REQUIRED[0]], "evidence_unavailable")
 
     def test_path_traversal_rejected(self):
@@ -73,6 +80,11 @@ class ReleaseGateTests(unittest.TestCase):
     def test_commit_mismatch_rejected(self):
         manifest = self.manifest()
         manifest["gates"][REQUIRED[0]]["source_commit"] = "c" * 64
+        self.assertFalse(assess(manifest, self.root)["ready_for_independent_review"])
+
+    def test_reused_receipt_rejected(self):
+        manifest = self.manifest()
+        manifest["gates"][REQUIRED[1]]["evidence_locator"] = manifest["gates"][REQUIRED[0]]["evidence_locator"]
         self.assertFalse(assess(manifest, self.root)["ready_for_independent_review"])
 
     def test_bad_hash_rejected(self):
