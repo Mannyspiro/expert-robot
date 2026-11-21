@@ -99,7 +99,8 @@ class ExperimentalSupervisor:
                 raise TypeError("probe must return bool")
         except Exception as exc:
             self.ledger.append({"subsystem": subsystem, "state": "probe_error", "error_type": type(exc).__name__})
-            healthy = False
+            self.ledger.append({"subsystem": subsystem, "state": "escalate", "reason": "probe_unavailable"})
+            return "escalate"
         if healthy:
             self.ledger.append({"subsystem": subsystem, "state": "healthy"})
             return "healthy"
