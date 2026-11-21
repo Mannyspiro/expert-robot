@@ -2,7 +2,7 @@
 
 Date: November 21, 2026 (America/Phoenix).
 
-Status: research proposal. No target model has been selected, no weights have been edited, and no model-quality improvement has been measured. This document does not enable execution or change production behavior.
+Status: research proposal with an implemented, locally and natively validated engineering foundation. Source commit 01016e832f763c76744e404041355b33d15fb621 passed 473 software tests, eight kernel cases and six context cases in OCI run 44901033194. No target model has been selected, no weights have been edited, and no model-quality improvement has been measured. Actual host authentication/custody, model-loader integration and experiment provisioning remain open.
 
 ## Decision
 
@@ -88,7 +88,7 @@ Current constraints remain explicit: the selected source shard has no verified e
 
 Operational acceptance concerns exact code, runtime, software inventory, kernel cases, cancellation, recovery and current authority. The existing BuildGoal contract belongs here.
 
-Model efficacy concerns whether this exact weight candidate improves the selected task against the frozen baselines. It needs its own typed evaluation receipt and review decision in the same canonical registry. The 386 local software-test passes are not observations of WSP model quality.
+Model efficacy concerns whether this exact weight candidate improves the selected task against the frozen baselines. It needs its own typed evaluation receipt and review decision in the same canonical registry. The current 473 local and native software-test passes are not observations of WSP model quality.
 
 Approval, leases, replay decisions, artifact integrity, process limits, verification and release authority remain deterministic host mechanisms. A model may propose candidates; its scores cannot grant those rights.
 
@@ -108,6 +108,8 @@ The existing four-lens framework is used as a design aid, not evidence that a mo
 Provision one permitted target/runtime and measure its baseline. Integrate its actual loader and host-observed invocation evidence with the implemented optional weight binding, using the existing registry and callback interfaces. Freeze the comparison before any model editing. If no representative task and oracle are available, a synthetic demonstration can validate plumbing but cannot establish production benefit.
 
 The process-recovery candidate remains source commit 4847d90dca4266d42651a8b9538c3eeae8a423b1, with a 117-file selected shard. After explicit user authorization for the exact transfer, native OCI run 44899455087 attempt 1 passed all 386 software tests, eight kernel cases and six context cases. The downloaded source, actual execution inventory, loader identities and raw recovery receipts were checked. See config/merlin/plan-updates/20261121-native-acceptance-result.json. This bounded synthetic acceptance establishes no native model review or WSP model-quality gain and does not cover subsequent implementation candidates.
+
+Current engineering candidate: optional weight invocation binding and build-evidence admission are implemented in source commit 01016e832f763c76744e404041355b33d15fb621. Native run 44901033194 attempt 1 passed 473 software tests, eight kernel cases and six context cases for its exact 121-file selection. Read-only admission validators also passed against the actual downloaded artifact and observed later publication head, without host authentication or a production admission write. See config/merlin/plan-updates/20261121-weight-binding-admission-native-result.json and draft PR186. This result supersedes the prior native-pending status for this candidate; the earlier process-recovery result remains tied to its own source.
 
 ## Primary sources
 

@@ -138,14 +138,16 @@ software results, incomplete/mismatched event journals, and raw native case/sour
 disagreements with consistently re-pinned archive/provider identities. This
 prevents contradictions from being mistaken for merely stale artifact hashes.
 The unchanged v2 test module remains in the focused
-selection. Real native evidence is inspected for schema design only and is not
-admitted under that synthetic authenticator.
+selection. Real native evidence was used for schema design and later read-only actual-format
+compatibility checks described below. It is not admitted under that synthetic
+authenticator.
 
 The maximum successful result is `ready_for_review`. Native model review,
 independent-verifier qualification, model efficacy, merge, deployment, permission
 changes and automatic retries are never authorized. Live service wiring and the
 host's actual authentication/custody integration remain unprovisioned. The
-existing native run validates its own frozen source, not this later candidate.
+earlier native run validates only its frozen source; the source-specific native
+validation below covers this candidate.
 
 This is an identity/Boolean admission problem. A graph view helps enumerate the
 cross-bound report/manifest relationships; alternate simplex, continuum or fuzzy
@@ -171,9 +173,47 @@ Source-map SHA-256:
 Executed-inventory SHA-256:
 `a70ce5d187c262cddc1a0c31d363d6be54bcb103cb47eae3b7bea87d7207f348`.
 
-The prior 386/8/6 native result belongs to source commit
-`4847d90dca4266d42651a8b9538c3eeae8a423b1`. Native acceptance for this new
-selection is a separate gate. The source-specific result will be recorded in a
-subsequent technical checkpoint. No actual model loading, weight editing or
-model-quality improvement was measured, and production host authentication and
-live service integration remain unprovisioned.
+The prior 386/8/6 native result remains tied to source commit
+`4847d90dca4266d42651a8b9538c3eeae8a423b1`. The current source-specific native
+result is recorded below. No actual model loading, weight editing or model-quality
+improvement was measured, and production host authentication and live service
+integration remain unprovisioned.
+
+## Source-specific native validation
+
+Source commit `01016e832f763c76744e404041355b33d15fb621` passed all **473 software
+tests, eight kernel cases and six context cases** in
+[OCI run 44901033194, attempt 1](https://github.com/morganaspim/Cace-app/actions/runs/44901033194).
+The native runner was `cace-oci-a1`, ARM64/Python 3.9.25. The 121 selected source
+files matched the frozen map above; all 473 distinct test starts had matching
+stops, with no failures, errors, skips, expected failures or unexpected successes.
+Native unittest time was 145.802 seconds. No corrective native rerun was needed.
+
+Artifact `14706041876` is 576,733 bytes with SHA-256
+`ab1eb1b425a64ce2154c9a8e24ea05753084539bf8e79da0ec22c6bd921184fe`.
+Root and a separate same-team reviewer checked the downloaded artifact. The
+second reviewer completed 40 read-only integrity/consistency checks. Process,
+checker-result and recovery bodies were rehashed; other linked canonical bodies
+were not independently re-resolved. Four recorded service properties matched
+before and after; this is not a complete service audit.
+
+Read-only pure validators passed against the actual artifact/provider metadata
+and selected-source relation at the later observed publication head
+`04523cf629edf8c21056576dd227dea9ea0ba189`. The actual tested commit remains
+separate. There is no ancestry or whole-commit equivalence claim, host
+authentication, canonical production admission, fixture-authenticated real
+evidence, or production registry write.
+
+The narrow result checkpoint is
+`config/merlin/plan-updates/20261121-weight-binding-admission-native-result.json`.
+The evidence-only archive retains runtime logs, raw reports, provider metadata,
+source identities, earlier rejected observations and review records; its
+SHA-256 is `6aa02f3437a7cff12f023d8d4a77daf10affebbd9de741ed67c129ebe12dbd74`.
+Four reverse patches under
+`docs/merlin/evidence/20261121/rejected-source-patches/` recover exact earlier
+component bytes matched against recorded hashes. Admission recovery covers the
+two module versions, not complete historical intermediate test snapshots.
+
+This is bounded synthetic engineering acceptance. Real loaded-model identity,
+weight editing, model quality, external-verifier qualification, production
+authentication/custody and live-service release remain separate uncompleted gates.
