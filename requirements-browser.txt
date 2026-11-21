@@ -1,0 +1,4 @@
+# The production bootstrap installs individually SHA256-pinned ARM64 wheels.
+# Playwright >=1.61 requires Python >=3.10; the existing host is Python 3.9.
+# Do not substitute a browser binary without the real sandboxed native fixture.
+playwright==1.60.0

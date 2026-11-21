@@ -1,0 +1,82 @@
+{
+  "baseline_commit": "5771e1d08b09a7d28b7fbca2e4468824a8bac9e0",
+  "existing_source_files_unmodified": true,
+  "files": [
+    {
+      "bytes": 13116,
+      "path": "docs/MERLIN_PUBLIC_BROWSER.md",
+      "sha256": "da86c5880819786166ef51c3d8f74dd57829bafcb7ad93aef4d54b273e823f19"
+    },
+    {
+      "bytes": 103,
+      "path": "python/dot_ai_os/__init__.py",
+      "sha256": "5a54db6fddc5b1a178c7beaa42089ee95bdea81871560c8c5d1f868a2b16e487"
+    },
+    {
+      "bytes": 23013,
+      "path": "python/dot_ai_os/bridge.py",
+      "sha256": "781447bcfb965e11b39d7cedfc1d4f1db3c6c67f502bffc6a07605af7cf085a3"
+    },
+    {
+      "bytes": 275,
+      "path": "python/merlin/__init__.py",
+      "sha256": "49f23ffa9b838de063cd88e4a60704d1989f55ff3aa70fe2ed850b0396fa8f93"
+    },
+    {
+      "bytes": 2542,
+      "path": "python/merlin/artifact_ref.py",
+      "sha256": "187e33ed4ab6e1a79e054ff31c07b383090dae94cb51c5eb9dd01dfb80227584"
+    },
+    {
+      "bytes": 2963,
+      "path": "python/merlin/browser_client.py",
+      "sha256": "b674d873e9f2f12b94339c7bc5c1df3d035433307248b595c27319632a87a58b"
+    },
+    {
+      "bytes": 16013,
+      "path": "python/merlin/browser_egress.py",
+      "sha256": "93b018f113e004b4322f4702669015eb64190480145686954d4b46aabf34c4ff"
+    },
+    {
+      "bytes": 20341,
+      "path": "python/merlin/browser_ingest.py",
+      "sha256": "b4305956d5159482eb043e0bfdbca81bfd7cb353e6bc51f21437480f67f08d82"
+    },
+    {
+      "bytes": 6300,
+      "path": "python/merlin/browser_policy.py",
+      "sha256": "c0583bfd6309bd67cf33f6c9e92e4a39c7caab5bb2c3fd9a99fda578c53d30c8"
+    },
+    {
+      "bytes": 17146,
+      "path": "python/merlin/browser_service.py",
+      "sha256": "149b8cad37299b4f6b38ec079797242629fb290061e6997b75e73b64d43cf2af"
+    },
+    {
+      "bytes": 42079,
+      "path": "python/merlin/project_registry.py",
+      "sha256": "c7fbd89ae99705f60a1ecd7f41df244742fe218a335b4a3e6d2fed11c96521c7"
+    },
+    {
+      "bytes": 27466,
+      "path": "python/merlin/public_browser.py",
+      "sha256": "4aaec5e3a38809d077424fcf8f557e8de92a3a6e22236d223a40262e75cd3a54"
+    },
+    {
+      "bytes": 253,
+      "path": "requirements-browser.txt",
+      "sha256": "ac0312d2bafc22795059dd823bd9fed951c0ba4d042db7cee7c5bd36e4727fa8"
+    },
+    {
+      "bytes": 33124,
+      "path": "tests/test_public_browser.py",
+      "sha256": "7ce6b4fcad09a99bb116ec704a5f00bc00e85660a14d5527a0affe6a89d6dfe2"
+    }
+  ],
+  "local_validation_sha256": "5580fcadb8cfabda08d548be9552f0468577b407ed419b8593bdb6b6b0e9a5ca",
+  "model_calls": 0,
+  "native_gate": "pending actual OCI fixture and service/caller acceptance",
+  "schema": "merlin-browser-product-freeze/1",
+  "test_output_sha256": "c8710d18ec4c5ee1ed1559f38b8bdd52bad4b31ab5a6c6a83e0f59466dcbd866",
+  "tests": 33
+}
