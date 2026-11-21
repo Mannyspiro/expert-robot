@@ -1,0 +1,10 @@
+{
+  "argv_count": 29,
+  "argv_sha256": "d303f357d6181a93bd4bf481825c72374421c53418dbf171d1e9ebcd108f7fe0",
+  "maximum_argument_bytes": 37562,
+  "root_code_bytes": 37562,
+  "root_code_sha256": "ebafa6087584addf52c79da465849eb49225c25c0ea0f7af34ef861e08e2fd46",
+  "stdio_transport": "journal; no caller file descriptors forwarded through the system bus",
+  "total_argument_bytes": 38102,
+  "unit": "merlin-browser-state-inspection-44960251285-1.service"
+}

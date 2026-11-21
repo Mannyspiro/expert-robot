@@ -1,0 +1,60 @@
+{
+  "schema": "merlin-production-plan-update/1",
+  "checkpoint_id": "MERLIN-ORIGINAL-INSPECTIONS-PRESERVED-20261121",
+  "recorded_at_utc": "2026-11-21T23:22:02.837560+00:00",
+  "parent_plan": {
+    "version": 6,
+    "immutable_reference": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "sha256": "7d9e5006a56a916499cb2915fcc38ac604230bf59e8b2314995c6fe884f18f9c"
+  },
+  "previous_update": {
+    "path": "config/merlin/plan-updates/20261121-approved-native-gate-results.json",
+    "commit": "cb09f176f6d3574d444590d693d8681d8f05a56a"
+  },
+  "tracks_preserved": [
+    "P00",
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08",
+    "P09"
+  ],
+  "original_tasks_preserved": 37,
+  "extension_tasks_preserved": 8,
+  "master_task_status_mutations": [],
+  "observations": [
+    {
+      "run_id": 44960251285,
+      "status": "inspection_succeeded",
+      "fixture_cases_passed": 19,
+      "guard_path_identified": "/run/merlin-public-browser/browser.sock",
+      "state_observation_atomic": false
+    },
+    {
+      "run_id": 44960327067,
+      "status": "acquired_verified_archive_static_inspection_failed",
+      "fixture_cases_passed": 23,
+      "archive_bytes": 49469868,
+      "archive_sha256": "623a370be4489d8c35c7a274be02f3007a030618cda29025780beb416c6c8861",
+      "error": "python_root_directory_missing"
+    }
+  ],
+  "evidence_root": "docs/evidence/merlin-native-inspections-20261121",
+  "new_repaired_source_included": false,
+  "new_native_runs": 0,
+  "model_calls": 0,
+  "installations": 0,
+  "service_changes": 0,
+  "qualification": false,
+  "promotion_authority": false,
+  "ranked_next_actions": [
+    "Review and repair the exact archive-layout and browser-shutdown defects against preserved evidence.",
+    "Validate repaired source on the native fixture lane after exact package approval.",
+    "Reconcile retained browser state and provision a supported runtime through separately reviewed concrete transactions.",
+    "Resume source-pinned Studio/model/UI/offline/platform release gates."
+  ]
+}
