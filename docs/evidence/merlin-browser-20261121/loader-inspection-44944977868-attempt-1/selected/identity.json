@@ -1,0 +1,10 @@
+{
+  "controller_sha256": "425a3268b8f03014e432530f44a2e5a5defc99518ee363d42ae1eb163f8feb84",
+  "ref": "refs/heads/merlin/browser-operations-20261121",
+  "repository": "morganaspim/Cace-app",
+  "run_attempt": 1,
+  "run_id": 44944977868,
+  "runner": "cace-oci-a1",
+  "runner_selinux_context": "system_u:system_r:unconfined_service_t:s0\u0000",
+  "workflow_commit": "4c7068c80f75c84b7e556836e6167dc1168f4740"
+}

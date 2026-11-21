@@ -1,0 +1,64 @@
+{
+  "archive_member_count": 12,
+  "check_group_count": 17,
+  "check_groups": [
+    "exact_primary_archive",
+    "every_archive_member_exact",
+    "exact_run_source_and_target",
+    "all_nine_successor_runtime_host_identity_observations_match",
+    "971_package_baseline_exact",
+    "all_15_native_metadata_commands_succeeded_and_hash_bound",
+    "all_seven_binaries_require_same_arm_interpreter",
+    "exact_regular_loader_at_usr_lib",
+    "lib_alias_and_no_lib64_loader",
+    "venv_and_host_python_exact_regular_copies",
+    "headless_binary_unchanged",
+    "all_runtime_source_files_match_frozen_manifest",
+    "private_hashes_unchanged",
+    "both_failed_root_and_fixture_units_stopped",
+    "daemon_still_absent_and_excluded",
+    "inactive_unpublished_browser_state",
+    "no_execution_or_state_mutation_in_probe"
+  ],
+  "confirmed_cause": {
+    "actual_public_loader": "/usr/lib/ld-linux-aarch64.so.1",
+    "affected_native_elf_queries": 7,
+    "bytes": 842664,
+    "frozen_mount_omission": "sandbox creates empty /usr/lib and aliases /lib to it; it binds /usr/lib64 and Python stdlib, but not this loader",
+    "host_alias": "/lib -> usr/lib",
+    "required_interpreter": "/lib/ld-linux-aarch64.so.1",
+    "sha256": "49d528c1bc76e851bdc1db2ffcacd69b7f969c461a23741b9f5b8be4318c3403",
+    "venv_python": "regular copies identical to host Python, not a broken venv symlink"
+  },
+  "continuation_requirements": [
+    "No RPM or wheel reinstall; reconcile current971 package state and existing980 account.",
+    "Preserve both failed operation records and old runtime; use a separate successor identity and immutable new runtime.",
+    "Actual fixture/public-source/native caller acceptance remains pending after the repaired runtime is staged."
+  ],
+  "decision": "loader_mount_omission_confirmed_exact_one_file_repair_supported",
+  "evidence": [
+    {
+      "bytes": 203068,
+      "path": "/workspace/scratch/abed42219434/browser-operations/loader-44944977868/artifact.zip",
+      "sha256": "abc5ee857c894563d56d74189ab31c4f4e28739201d8687bdfe63bcf60e1c4c1"
+    },
+    {
+      "bytes": 678164,
+      "path": "/workspace/scratch/abed42219434/browser-operations/loader-44944977868/artifact/reconciliation.json",
+      "sha256": "138f0edae55bef342d49dfb3d00e7a68d9cbd1ec92e37c7f4a2fe9a6264b8326"
+    }
+  ],
+  "review_side_effects": {
+    "browser_calls": 0,
+    "model_calls": 0,
+    "native_operations": 0,
+    "remote_mutations": 0,
+    "source_edits": 0
+  },
+  "reviewed_at_utc": "2026-11-21T20:13:17.771699+00:00",
+  "reviewer": "/root/source_release_review",
+  "schema": "merlin-browser-loader-native-independent-review/1",
+  "source_run_id": 44944977868,
+  "source_workflow_commit": "4c7068c80f75c84b7e556836e6167dc1168f4740",
+  "supported_repair": "Validate and read-only bind only the exact observed loader file at /usr/lib/ld-linux-aarch64.so.1 in a new versioned runtime; retain existing namespaces, capabilities, source pins and resource limits."
+}

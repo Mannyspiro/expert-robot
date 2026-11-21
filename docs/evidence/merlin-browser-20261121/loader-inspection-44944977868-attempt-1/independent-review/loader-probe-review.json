@@ -1,0 +1,96 @@
+{
+  "check_group_count": 12,
+  "check_groups": [
+    "exact_final_manifest",
+    "exact_diagnose_bootstrap.py",
+    "exact_test_diagnose_bootstrap.py",
+    "exact_workflow",
+    "unchanged_all_workflow_helpers",
+    "readonly_90_5_100_envelope_retained",
+    "all_successor_pins_equal_actual_raw_evidence",
+    "exact_971_package_baseline",
+    "expected_host_pin_derived_from_actual_constructor_inputs",
+    "all_commands_are_fixed_readonly_metadata",
+    "only_11_fixed_public_binary_paths",
+    "existing_read_command_and_validation_helpers_unchanged"
+  ],
+  "decision": "accepted_for_one_fixed_read_only_native_inspection",
+  "independent_tests": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python -B -m unittest discover -s ops/merlin_browser -p test_diagnose_bootstrap.py -v",
+    "elapsed_seconds": 0.001,
+    "errors": 0,
+    "failures": 0,
+    "skips": 0,
+    "tests": 8
+  },
+  "manifest": {
+    "bytes": 1416,
+    "git_blob": "8638702923516a426375fc0aec495f34a261fcbe",
+    "path": "/workspace/scratch/abed42219434/browser-operations/diagnostic-publication-manifest.json",
+    "sha256": "f35e439c9e6f95902eb550de105bafb7b0f0e311f377cb2bfb2c697aa70db37d"
+  },
+  "pending_observations": [
+    "Actual ELF PT_INTERP and dynamic dependency metadata",
+    "Actual public loader/symlink/mount ancestry",
+    "Actual retained host configuration and 971-package state reconciliation"
+  ],
+  "remaining_concrete_source_blockers": [],
+  "review_side_effects": {
+    "browser_calls": 0,
+    "model_calls": 0,
+    "native_operations": 0,
+    "remote_mutations": 0,
+    "source_edits": 0
+  },
+  "reviewed_at_utc": "2026-11-21T20:10:49.642959+00:00",
+  "reviewer": "/root/source_release_review",
+  "schema": "merlin-browser-loader-probe-independent-review/1",
+  "scope": {
+    "binary_contents_exported": false,
+    "binary_payload_execution": false,
+    "browser_or_model_calls": 0,
+    "fixed_binary_paths": [
+      "/usr/bin/python3.9",
+      "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/bin/python",
+      "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/bin/python3",
+      "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/bin/python3.9",
+      "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/lib/python3.9/site-packages/playwright/driver/node",
+      "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/lib64/python3.9/site-packages/playwright/driver/node",
+      "/usr/lib64/chromium-browser/headless_shell",
+      "/lib/ld-linux-aarch64.so.1",
+      "/lib64/ld-linux-aarch64.so.1",
+      "/usr/lib/ld-linux-aarch64.so.1",
+      "/usr/lib64/ld-linux-aarch64.so.1"
+    ],
+    "ldd_used": false,
+    "namespace_changes": false,
+    "outer_wait_seconds": 100,
+    "package_or_service_mutations": false,
+    "read_only_command_count": 15,
+    "root_kill_grace_seconds": 5,
+    "root_timeout_seconds": 90,
+    "streaming_hash_per_file_limit_bytes": 268435456,
+    "target_request_id": "04d38719-4c94-4059-988b-9081375fd209",
+    "target_run_id": 44944424850
+  },
+  "source_files": [
+    {
+      "bytes": 21008,
+      "git_blob": "806f49945798fa874c54cbe876664fb7188b6bd7",
+      "path": "/workspace/scratch/abed42219434/browser-operations/ops/merlin_browser/diagnose_bootstrap.py",
+      "sha256": "425a3268b8f03014e432530f44a2e5a5defc99518ee363d42ae1eb163f8feb84"
+    },
+    {
+      "bytes": 4775,
+      "git_blob": "6a155cfdd91605a8de2961823098e9a804ab3a7e",
+      "path": "/workspace/scratch/abed42219434/browser-operations/ops/merlin_browser/test_diagnose_bootstrap.py",
+      "sha256": "40470897e1e5c22568d1f9755826acd8f591a0162e889652a11c0e6e72a48fb5"
+    },
+    {
+      "bytes": 11579,
+      "git_blob": "e9bd7869ffefa2fda13b829a1e4b37b4fb336e1c",
+      "path": "/workspace/scratch/abed42219434/browser-operations/.github/workflows/merlin-browser-diagnostic.yml",
+      "sha256": "8a6552ab81edcf1497b6cfad20eef5dd3b3670f3a7e263aa0a4f3fe57e2a1b7a"
+    }
+  ]
+}
