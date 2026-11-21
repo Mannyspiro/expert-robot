@@ -92,6 +92,47 @@ int main() {
             &raw) == SQLITE_OK);
 
     char* error = nullptr;
+    const int update_blocked =
+        sqlite3_exec(
+            raw,
+            "UPDATE research_episode_events "
+            "SET payload='tampered payload' "
+            "WHERE episode_id='episode-001' "
+            "AND sequence=1;",
+            nullptr,
+            nullptr,
+            &error);
+    if (error != nullptr) {
+        sqlite3_free(error);
+        error = nullptr;
+    }
+    assert(update_blocked == SQLITE_CONSTRAINT);
+
+    const int delete_blocked =
+        sqlite3_exec(
+            raw,
+            "DELETE FROM research_episode_events "
+            "WHERE episode_id='episode-001' AND sequence=1;",
+            nullptr,
+            nullptr,
+            &error);
+    if (error != nullptr) {
+        sqlite3_free(error);
+        error = nullptr;
+    }
+    assert(delete_blocked == SQLITE_CONSTRAINT);
+
+    // Even if an out-of-band actor removes the guard, the hash chain detects edits.
+    assert(sqlite3_exec(
+        raw,
+        "DROP TRIGGER research_episode_events_no_update;",
+        nullptr,
+        nullptr,
+        &error) == SQLITE_OK);
+    if (error != nullptr) {
+        sqlite3_free(error);
+        error = nullptr;
+    }
     const int rc =
         sqlite3_exec(
             raw,
@@ -102,7 +143,6 @@ int main() {
             nullptr,
             nullptr,
             &error);
-
     if (error != nullptr) {
         sqlite3_free(error);
     }

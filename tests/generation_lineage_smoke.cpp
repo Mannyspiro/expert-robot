@@ -1,6 +1,8 @@
 #include "expert_robot/growth/generation_lineage.hpp"
 #include "expert_robot/sha256.hpp"
 
+#include <sqlite3.h>
+
 #include <cassert>
 #include <filesystem>
 #include <stdexcept>
@@ -209,6 +211,34 @@ int main() {
         !store.readiness(
             "generation-0002").
             promotable());
+
+    // Candidate, evaluation, and promotion history are immutable at the DB boundary.
+    sqlite3* raw = nullptr;
+    assert(sqlite3_open(db.string().c_str(), &raw) == SQLITE_OK);
+    char* error = nullptr;
+    const int generation_update = sqlite3_exec(
+        raw,
+        "UPDATE generations SET rationale='tampered' "
+        "WHERE generation_id='generation-0000';",
+        nullptr, nullptr, &error);
+    if (error != nullptr) { sqlite3_free(error); error = nullptr; }
+    assert(generation_update == SQLITE_CONSTRAINT);
+
+    const int evaluation_delete = sqlite3_exec(
+        raw,
+        "DELETE FROM generation_evaluations WHERE generation_id='generation-0001';",
+        nullptr, nullptr, &error);
+    if (error != nullptr) { sqlite3_free(error); error = nullptr; }
+    assert(evaluation_delete == SQLITE_CONSTRAINT);
+
+    const int promotion_update = sqlite3_exec(
+        raw,
+        "UPDATE promotion_decisions SET approved=0 "
+        "WHERE generation_id='generation-0001';",
+        nullptr, nullptr, &error);
+    if (error != nullptr) { sqlite3_free(error); error = nullptr; }
+    assert(promotion_update == SQLITE_CONSTRAINT);
+    sqlite3_close(raw);
 
     std::filesystem::remove(db);
     return 0;

@@ -54,7 +54,7 @@ Offer side-by-side repeated trials for A-only, B-only, and the equal random mixt
 - average ending balance and uncertainty interval,
 - exact rule set, seed, and number of trials.
 
-Never imply every alternating run wins. Explain sampling variation and distinguish average outcome from an individual trajectory.
+Never imply every mixed-strategy run wins. Explain sampling variation and distinguish average outcome from an individual trajectory.
 
 Default simulation controls: 30 starting tokens, 3,000 turns, 1,000 trials. Let learners reduce the trial count for speed or increase it to see the average stabilize. Clearly label these as teaching defaults, not theorem assumptions.
 
