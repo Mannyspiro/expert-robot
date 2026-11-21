@@ -31,6 +31,8 @@ jobs:
           mkdir -p build
           g++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -I cpp/include cpp/src/runtime.cpp cpp/src/main.cpp -o build/expert_robot_runtime
       - name: Run recovery, research, and protocol tests
+        env:
+          MERLIN_TEST_RUNTIME: ${{ github.workspace }}/build/expert_robot_runtime
         run: |
           python -m unittest discover -s tests -p 'test_experimental_self_healing.py' -v
           python -m unittest discover -s tests -p 'test_merlin_research_browser.py' -v

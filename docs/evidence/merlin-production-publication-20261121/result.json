@@ -1,0 +1,58 @@
+{
+  "schema": "merlin-repository-publication/1",
+  "recorded_utc": "2026-11-21T21:32:38.046292+00:00",
+  "project": "Merlin",
+  "repository": "Mannyspiro/expert-robot",
+  "authorization": {
+    "source": "current user instruction",
+    "text": "Continue with production Merlin and use repositories however you need"
+  },
+  "publication": [
+    {
+      "pr": 193,
+      "branch": "feat/merlin-public-browser-20261121",
+      "parent": "d4903129f2eba847658bfd4d6c0b68424d013723",
+      "commit": "74bd09166f338172f4af3854a124c12b5b07081a",
+      "tree": "62b34f5fe44fd6355a9fb65fca7323d2e36d1a44",
+      "overlay_entries": 20,
+      "verified_git_blob_and_mode_matches": 20,
+      "draft": true
+    },
+    {
+      "pr": 194,
+      "branch": "feat/merlin-experimental-self-healing-20261121",
+      "parent": "5b1624e062a7687fe9f84eb97bfa75a5f621c6a6",
+      "commit": "3022e0fcfff8908718abafbd6684a8ac6d13765e",
+      "tree": "ac548bd758cf8f299312da8dd0581baf97aacea0",
+      "overlay_entries": 58,
+      "verified_git_blob_and_mode_matches": 58,
+      "draft": true
+    }
+  ],
+  "verification": "Both remote recursive trees were complete; every prepared UTF-8 content blob and executable mode matched. Expected-head non-force branch updates succeeded and PR heads were read back.",
+  "ci": {
+    "publication_skip_directive": "[skip ci]",
+    "reason": "Honor standing no-Avrea instruction; broad PR workflow uses Avrea. Local results are not remote CI passes.",
+    "previous_experimental_run": 44948983202,
+    "observed": "Failed before runner allocation; no test steps; logs unavailable.",
+    "followup": "Pass MERLIN_TEST_RUNTIME to compiled-native-test step; no application source change."
+  },
+  "prior_approval_rejections": {
+    "preserved": true,
+    "resolution": "Fresh direct repository authorization received; same prepared scope accepted."
+  },
+  "remaining_gates": [
+    "Current OCI inventory",
+    "Exact-source OCI validation",
+    "Real-model Studio tool loop",
+    "Native browser successor using retained arXiv plus two remaining public attempts",
+    "Rendered UI and desktop acceptance"
+  ],
+  "boundaries": [
+    "No ChatGPT website/account access",
+    "Zero paid model calls",
+    "No Avrea",
+    "No blind replay of predecessor deployment",
+    "No production qualification from fixtures"
+  ]
+}
