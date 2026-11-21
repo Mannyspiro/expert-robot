@@ -1,0 +1,76 @@
+{
+  "added_packages": 49,
+  "added_signing_keys": 1,
+  "all_workers_stopped": true,
+  "archive_member_count": 513,
+  "artifact": {
+    "archive_download_url": "https://api.github.com/repos/morganaspim/Cace-app/actions/artifacts/14722529612/zip",
+    "created_at": "2026-11-21T20:06:40Z",
+    "digest": "sha256:d3a34dd76ffb7f030eda309f77e0fc22ed7511804d93e85f2a93eedd0b997cfb",
+    "expired": false,
+    "expires_at": "2026-12-21T20:06:37Z",
+    "id": 14722529612,
+    "name": "merlin-browser-bootstrap-44944424850-1",
+    "node_id": "MDg6QXJ0aWZhY3QxNDcyMjUyOTYxMg==",
+    "size_in_bytes": 551063,
+    "updated_at": "2026-11-21T20:06:40Z",
+    "url": "https://api.github.com/repos/morganaspim/Cace-app/actions/artifacts/14722529612",
+    "workflow_run": {
+      "head_branch": "merlin/browser-operations-20261121",
+      "head_repository_id": 1369211260,
+      "head_sha": "b11bf02997dc720535b7d729d60e3a7919892a9a",
+      "id": 44944424850,
+      "repository_id": 1369211260
+    }
+  },
+  "automatic_retry": false,
+  "browser_account": {
+    "authorized_client_uid": 982,
+    "browser_gid": 980,
+    "browser_uid": 980,
+    "opc_gid": 1000,
+    "private_client_effective_group_verified": true
+  },
+  "completed_browser_episodes": 0,
+  "external_model_spend_usd": 0,
+  "fixture_failure": "bwrap: execvp /runtime/venv/bin/python: No such file or directory",
+  "fixture_launch_attempts": 1,
+  "fixture_log_sha256": "9680a806131603df09e07d0ac70310b9abb125ba8fd078047dc635fe53132ab0",
+  "launch_failure_cause_beyond_ENOENT": "unproved; fixed interpreter/link/ELF inspection is next",
+  "model_calls": 0,
+  "native_executable": {
+    "bytes": 221959928,
+    "path": "/usr/lib64/chromium-browser/headless_shell",
+    "sha256": "22870374b6f2acfa00ac7c54a09eb30aacb1cdac932aba97e654e3dff458318f"
+  },
+  "next_step": "Inspect exact interpreter symlinks and ELF loader mount closure; use a versioned runtime repair against the already installed package state. Preserve prior intents and the stopped failed fixture. Do not repeat package installation.",
+  "package_stages_completed": [
+    "zvbi-library-only",
+    "remaining-dependencies"
+  ],
+  "prior_921_package_rows_preserved": true,
+  "private_runtime_and_provider_unchanged": true,
+  "promotion_authority": false,
+  "public_source_episodes": 0,
+  "qualification": false,
+  "raw_zip_sha256": "d3a34dd76ffb7f030eda309f77e0fc22ed7511804d93e85f2a93eedd0b997cfb",
+  "receipt_sha256": "0ce1241325e81b33e51d487bfd9e0c0b2b8f5531335fceb945e3155920bb8797",
+  "removed_packages": 0,
+  "rendering_proven": false,
+  "repository": "morganaspim/Cace-app",
+  "run_attempt": 1,
+  "run_id": 44944424850,
+  "run_url": "https://github.com/morganaspim/Cace-app/actions/runs/44944424850",
+  "runtime_pin": {
+    "bytes": 66068,
+    "expert_source_commit": "8e2f1d69371d5b4f7e01e3bbd5aa02a666ddd506",
+    "git_blob": "eef7ecfca629800726beae7eed46f4acd0a49a31",
+    "sha256": "58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90"
+  },
+  "scratch_unmounted": true,
+  "service_activated": false,
+  "source_commit": "82ae354015042e7eba9617917a1a3e03e7be53ed",
+  "status": "packages_installed_isolated_fixture_failed_before_python",
+  "unwanted_daemon_absent": true,
+  "workflow_commit": "b11bf02997dc720535b7d729d60e3a7919892a9a"
+}

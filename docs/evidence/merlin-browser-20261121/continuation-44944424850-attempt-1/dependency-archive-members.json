@@ -1,0 +1,315 @@
+{
+  "archive_bytes": 171605397,
+  "archive_sha256": "79d203870c6c961652518a3f6797ced74bf4635968c8db618370d5effbf5b8c5",
+  "artifact": {
+    "archive_download_url": "https://api.github.com/repos/morganaspim/Cace-app/actions/artifacts/14722912926/zip",
+    "created_at": "2026-11-21T20:07:14Z",
+    "digest": "sha256:79d203870c6c961652518a3f6797ced74bf4635968c8db618370d5effbf5b8c5",
+    "expired": false,
+    "expires_at": "2026-12-21T20:06:41Z",
+    "id": 14722912926,
+    "name": "merlin-browser-dependency-payloads-44944424850-1",
+    "node_id": "MDg6QXJ0aWZhY3QxNDcyMjkxMjkyNg==",
+    "size_in_bytes": 171605397,
+    "updated_at": "2026-11-21T20:07:14Z",
+    "url": "https://api.github.com/repos/morganaspim/Cace-app/actions/artifacts/14722912926",
+    "workflow_run": {
+      "head_branch": "merlin/browser-operations-20261121",
+      "head_repository_id": 1369211260,
+      "head_sha": "b11bf02997dc720535b7d729d60e3a7919892a9a",
+      "id": 44944424850,
+      "repository_id": 1369211260
+    }
+  },
+  "members": [
+    {
+      "bytes": 40987,
+      "path": "root-evidence/acquisition/rpms/aribb24-1.0.3^20160216git5e9be27-1.el9.aarch64.rpm",
+      "sha256": "095d686374bef68af175b1b07db1bb3473d414b5e1262c9c6fa99f82cf34b5d5"
+    },
+    {
+      "bytes": 21045984,
+      "path": "root-evidence/acquisition/rpms/chromium-common-156.0.8078.79-1.0.1.el9.aarch64.rpm",
+      "sha256": "babb65c3ff707d039a95d548158cf0ce00f92cd341a0dbb1ea47e530a0bacde2"
+    },
+    {
+      "bytes": 78266053,
+      "path": "root-evidence/acquisition/rpms/chromium-headless-156.0.8078.79-1.0.1.el9.aarch64.rpm",
+      "sha256": "ff616012b333fdfc933b1075caee9042d04ea5bdc6bd8c26d7bd584047ef962a"
+    },
+    {
+      "bytes": 32041,
+      "path": "root-evidence/acquisition/rpms/cjson-1.7.18-1.el9.aarch64.rpm",
+      "sha256": "e21c16fb4775d836aa1231a81c4104a9822f89cc6f05dcdbfe9bd0ee2adb4cc6"
+    },
+    {
+      "bytes": 649720,
+      "path": "root-evidence/acquisition/rpms/codec2-1.0.3-1.el9.aarch64.rpm",
+      "sha256": "02331de6feb63261e66a0971652278a2996834c75d8b05c8ad7e71cf2b6f2224"
+    },
+    {
+      "bytes": 51903,
+      "path": "root-evidence/acquisition/rpms/double-conversion-3.1.5-6.el9.aarch64.rpm",
+      "sha256": "e06f9b7256b1f781a327cd9ad93313b9c2a167f5aa48bf898764cad66d5ae200"
+    },
+    {
+      "bytes": 158732,
+      "path": "root-evidence/acquisition/rpms/game-music-emu-0.6.3-9.el9.aarch64.rpm",
+      "sha256": "44ccd35a3cbacd1ac1d83b94d1389d9dbba727c7b4178331466b7c4a094abfd1"
+    },
+    {
+      "bytes": 183952,
+      "path": "root-evidence/acquisition/rpms/highway-1.3.0-1.el9.aarch64.rpm",
+      "sha256": "6ae1c75e7139232ab1d8b4db508df43fe54cb17519906507edaa57165f899efa"
+    },
+    {
+      "bytes": 56343,
+      "path": "root-evidence/acquisition/rpms/ilbc-3.0.4-1.el9.aarch64.rpm",
+      "sha256": "d67fc8e838e5b2e3bde96717de24661867e403a5f837cdb7b2b12f398489d6ee"
+    },
+    {
+      "bytes": 23676,
+      "path": "root-evidence/acquisition/rpms/libXNVCtrl-435.17-6.el9.aarch64.rpm",
+      "sha256": "e97da0f98057b58870c757b5618fe8727cde648434bffbc3ba3959bb8bc18fd6"
+    },
+    {
+      "bytes": 1732371,
+      "path": "root-evidence/acquisition/rpms/libaom-3.15.2-1.el9.aarch64.rpm",
+      "sha256": "244ab236805e17c59be5f32bb859f0233afe12f2687e4e874ccf08df4479dd10"
+    },
+    {
+      "bytes": 344744,
+      "path": "root-evidence/acquisition/rpms/lame-libs-3.100-12.el9.aarch64.rpm",
+      "sha256": "1e1952c2e6b9d1e11aca224a6acb24b127ac7b4cd7c2404279547c0aa33ea405"
+    },
+    {
+      "bytes": 103856,
+      "path": "root-evidence/acquisition/rpms/libaribcaption-1.1.1-1.el9.aarch64.rpm",
+      "sha256": "1f8f8fdc4c49dbc5de8ed79ee4c207513b54175dd6d3a85a2372dde1952e4b17"
+    },
+    {
+      "bytes": 4218096,
+      "path": "root-evidence/acquisition/rpms/libavcodec-free-7.1.5-3.el9.aarch64.rpm",
+      "sha256": "f7d2c54c3ef51ad032ef9eaa0d81a8e34e571a8d06e07740bb32cad893bda8ec"
+    },
+    {
+      "bytes": 1211653,
+      "path": "root-evidence/acquisition/rpms/libavformat-free-7.1.5-3.el9.aarch64.rpm",
+      "sha256": "b3b48c39d8ebfeff432edc7b310d9dc1c50043910ee43fc6cb119f812082d963"
+    },
+    {
+      "bytes": 355688,
+      "path": "root-evidence/acquisition/rpms/libavutil-free-7.1.5-3.el9.aarch64.rpm",
+      "sha256": "2ca0fa23c6af45f30bf8bab502db1b46b2b5e2f53a0171c6536d0f5c434d0cda"
+    },
+    {
+      "bytes": 169315,
+      "path": "root-evidence/acquisition/rpms/libbluray-1.3.4-1.el9.aarch64.rpm",
+      "sha256": "6919cd7d28a11651c9a049976af4ddb394091f8ac155de161f8b16113100d022"
+    },
+    {
+      "bytes": 378423,
+      "path": "root-evidence/acquisition/rpms/libdav1d-1.5.4-1.el9.aarch64.rpm",
+      "sha256": "7dffd34379566f90fc739f0c77ca2406a41839004a2d3d516fdd2d493c4e1fad"
+    },
+    {
+      "bytes": 59809,
+      "path": "root-evidence/acquisition/rpms/libdvdnav-6.1.0-4.el9.aarch64.rpm",
+      "sha256": "3370388a124b00347a60343d744fe7059b4381ed6f60f20bd89cf6b40dc80ccd"
+    },
+    {
+      "bytes": 77541,
+      "path": "root-evidence/acquisition/rpms/libdvdread-6.1.1-4.el9.aarch64.rpm",
+      "sha256": "cac52679601ef0d481a7b8939057702a2347f10b4177bdf0d5df3d4fab0ee551"
+    },
+    {
+      "bytes": 745278,
+      "path": "root-evidence/acquisition/rpms/libjxl-0.7.2-2.el9.aarch64.rpm",
+      "sha256": "4acb4bd39aed8ccd113c748a7d25bd5b2604a19440eab8f020a2fbea053e3f77"
+    },
+    {
+      "bytes": 176798,
+      "path": "root-evidence/acquisition/rpms/libmodplug-0.8.9.0-14.el9.aarch64.rpm",
+      "sha256": "3426aac76c784108238f04f38705a5f9a3468e06363432ab453cde2fa34791b1"
+    },
+    {
+      "bytes": 734325,
+      "path": "root-evidence/acquisition/rpms/libopenmpt-0.8.7-1.el9.aarch64.rpm",
+      "sha256": "91702028dea5af113871fc7f22991102e77514134edd8b2471baac350cc67b3e"
+    },
+    {
+      "bytes": 44676,
+      "path": "root-evidence/acquisition/rpms/librabbitmq-0.11.0-7.el9_9.1.aarch64.rpm",
+      "sha256": "fc02eb94a4964a21195db296e3180fe1e79e8e77596a4dda52d0fda71f114b06"
+    },
+    {
+      "bytes": 82970,
+      "path": "root-evidence/acquisition/rpms/librist-0.2.7-1.el9.aarch64.rpm",
+      "sha256": "46b3f00ec2dbae7a493b0c4bbefbc154d8aa61fb772d0291c9aa334b3f7be3c6"
+    },
+    {
+      "bytes": 121645,
+      "path": "root-evidence/acquisition/rpms/libsodium-1.0.18-9.el9.aarch64.rpm",
+      "sha256": "83a02dbe5a1c3f2fdc1d3b96d32708efc72a324cf5b758db55f71c6b20baf3dd"
+    },
+    {
+      "bytes": 59185,
+      "path": "root-evidence/acquisition/rpms/libswresample-free-7.1.5-3.el9.aarch64.rpm",
+      "sha256": "790f8532619de1d7b5042a429ed4b0874a4f9005f06e4e1204792d860b28b07b"
+    },
+    {
+      "bytes": 33528,
+      "path": "root-evidence/acquisition/rpms/libudfread-1.1.2-2.el9.aarch64.rpm",
+      "sha256": "210484bed11068b76c4b125db1cbe33d94b9317ece82a7df1966c7b3aa99ecbb"
+    },
+    {
+      "bytes": 85547,
+      "path": "root-evidence/acquisition/rpms/libunwind-1.8.0-4.el9.aarch64.rpm",
+      "sha256": "603d9e22eaef8a5dd2c3b8683294a757fdd3c4f4470b260927dd1e4478ae5a03"
+    },
+    {
+      "bytes": 20723,
+      "path": "root-evidence/acquisition/rpms/libvdpau-1.5-1.el9.aarch64.rpm",
+      "sha256": "b8cda4df555ee8cfa6b67118db070d264655aaf67ca7a62b91d67715e3578cb5"
+    },
+    {
+      "bytes": 1050154,
+      "path": "root-evidence/acquisition/rpms/libvpx-1.9.0-10.el9_8.aarch64.rpm",
+      "sha256": "8fa89761f58ea47a3e995f050c4179c3307b2388e947dbe9e3bf6a9761efb75d"
+    },
+    {
+      "bytes": 7658362,
+      "path": "root-evidence/acquisition/rpms/lpcnetfreedv-0.2-11.el9.aarch64.rpm",
+      "sha256": "3499ee2ca324a494876be51a94e7c88f410bc99bd71cd046bdafef546c22b397"
+    },
+    {
+      "bytes": 410588,
+      "path": "root-evidence/acquisition/rpms/mbedtls-2.28.8-1.el9.aarch64.rpm",
+      "sha256": "e74364a2df2acabd79fcf6f72639e826175eb14915b2910708e4540e0fee85c0"
+    },
+    {
+      "bytes": 362456,
+      "path": "root-evidence/acquisition/rpms/mpg123-libs-1.32.9-1.el9_5.aarch64.rpm",
+      "sha256": "b193fa29b146b7164b0e2638f257b01c045f1d44fabcbcce51e90f0bdaa03173"
+    },
+    {
+      "bytes": 123020,
+      "path": "root-evidence/acquisition/rpms/libva-2.22.0-1.el9.aarch64.rpm",
+      "sha256": "251bf918ddabecbbea3bac381a0fb3a21574b7a1c444333f67d5ab383295c314"
+    },
+    {
+      "bytes": 26560,
+      "path": "root-evidence/acquisition/rpms/noopenh264-0.1.0~openh264_2.4.1-2.el9.aarch64.rpm",
+      "sha256": "ae0f4f91a2d2b458b6f643f6a032dec7462924349e8bd30c0f325a2037b21b97"
+    },
+    {
+      "bytes": 51862,
+      "path": "root-evidence/acquisition/rpms/ocl-icd-2.2.13-4.el9.aarch64.rpm",
+      "sha256": "b8a12781728df20ac6c81df082907d0f98c1782c1907f0c4906d66ad0c7f62c1"
+    },
+    {
+      "bytes": 181408,
+      "path": "root-evidence/acquisition/rpms/opencore-amr-0.1.6-3.el9.aarch64.rpm",
+      "sha256": "fe61a25e13fdbbcad097a80695b334fd4f116cd10a1ce20b57046a8c8738445d"
+    },
+    {
+      "bytes": 175831,
+      "path": "root-evidence/acquisition/rpms/openpgm-5.2.122-28.el9.aarch64.rpm",
+      "sha256": "7bc3bf29abf518d056fc4fce78292436357c644e8c165129f10afd370a693839"
+    },
+    {
+      "bytes": 857550,
+      "path": "root-evidence/acquisition/rpms/rav1e-libs-0.8.1-2.el9.aarch64.rpm",
+      "sha256": "28724d2ddbddce006fbca3475447f3eeaa68269f56c23801f4ffb7cb535686a7"
+    },
+    {
+      "bytes": 77474,
+      "path": "root-evidence/acquisition/rpms/soxr-0.1.3-11.el9.aarch64.rpm",
+      "sha256": "2c499b87ff52a931ae6fd91fd40f5c43c01a6def39a7a08ec360cb257888fe9a"
+    },
+    {
+      "bytes": 71697,
+      "path": "root-evidence/acquisition/rpms/speex-1.2.0-11.el9.aarch64.rpm",
+      "sha256": "82e4cf55cad7484f0da66e496fc4051d28f9579723a22ebc765a2ce4e7efc57a"
+    },
+    {
+      "bytes": 57587,
+      "path": "root-evidence/acquisition/rpms/twolame-libs-0.3.13-19.el9.aarch64.rpm",
+      "sha256": "6df8929a5d944cb06aae32e35df8832443e3e0ae2989c5647eec0e3afc414c63"
+    },
+    {
+      "bytes": 80659,
+      "path": "root-evidence/acquisition/rpms/vo-amrwbenc-0.1.3-18.el9.aarch64.rpm",
+      "sha256": "70c1b865fb971e651db6d02ca7bc39e43cbacb0757b5575669a3988aab57f822"
+    },
+    {
+      "bytes": 279104,
+      "path": "root-evidence/acquisition/rpms/srt-libs-1.4.4-1.el9.aarch64.rpm",
+      "sha256": "7d8d79735d3ad39ce4e55229b8605dcb9903c8fe4511591b3ebe085035ab66d2"
+    },
+    {
+      "bytes": 1240333,
+      "path": "root-evidence/acquisition/rpms/svt-av1-libs-2.3.0-3.el9.aarch64.rpm",
+      "sha256": "b925f6e39f85aedd2e4c264e00cf06a3195f9a1d98f2c2c621c8ed2aec1f6de4"
+    },
+    {
+      "bytes": 230360,
+      "path": "root-evidence/acquisition/rpms/xvidcore-1.3.7-9.el9.aarch64.rpm",
+      "sha256": "310c9211adca61ed18c82f035479a03f75052ee9fc72b0db2ab6d951c5eb627a"
+    },
+    {
+      "bytes": 510964,
+      "path": "root-evidence/acquisition/rpms/zeromq-4.3.4-2.el9.aarch64.rpm",
+      "sha256": "102cd3838481449362892db7f8f0e56fbeb7e08ed335b68320eb1d5d9368a577"
+    },
+    {
+      "bytes": 446528,
+      "path": "root-evidence/acquisition/rpms/zvbi-0.2.35-15.el9.aarch64.rpm",
+      "sha256": "b2df1becc979d6b5faac7398808e262027aa64011704affa36ba3fac49398a29"
+    },
+    {
+      "bytes": 627610,
+      "path": "root-evidence/acquisition/wheels/greenlet-3.2.4-cp39-cp39-manylinux2014_aarch64.manylinux_2_17_aarch64.whl",
+      "sha256": "27890167f55d2387576d1f41d9487ef171849ea0359ce1510ca6e06c8bece11d"
+    },
+    {
+      "bytes": 47154856,
+      "path": "root-evidence/acquisition/wheels/playwright-1.60.0-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl",
+      "sha256": "43e66564125ee31b07a58cefb21e256d62d67d8d1713e6858df7a3019d8ed353"
+    },
+    {
+      "bytes": 15730,
+      "path": "root-evidence/acquisition/wheels/pyee-13.0.0-py3-none-any.whl",
+      "sha256": "48195a3cddb3b1515ce0695ed76036b5ccc2ef3a9f963ff9f77aec0139845498"
+    },
+    {
+      "bytes": 43906,
+      "path": "root-evidence/acquisition/wheels/typing_extensions-4.14.1-py3-none-any.whl",
+      "sha256": "d1e1e3b58374dc93031d6eda2420a48ea44a36c2b4766a4fdeb3710755731d76"
+    },
+    {
+      "bytes": 3179,
+      "path": "root-evidence/acquisition/keys/oracle-development.asc",
+      "sha256": "c3199c695f3731045aa0451e31df1a39afb686af514483ee11ea607aee64f457"
+    },
+    {
+      "bytes": 6350,
+      "path": "root-evidence/acquisition/keys/oracle-ol9.asc",
+      "sha256": "9badfdf6c90098658e3154fed1b8d4d0eefd19c193982b27c68f6a73a1b21695"
+    },
+    {
+      "bytes": 134484,
+      "path": "root-evidence/acquisition/acquisition.json",
+      "sha256": "a84f362035e170b904407004679b59c2675423fe6a64f8eb4cb92f5f344b9325"
+    },
+    {
+      "bytes": 1244,
+      "path": "source-identities.json",
+      "sha256": "4abcaaee58b87549e4ba54327f459b964573bca8f22459171f82b67da565c026"
+    }
+  ],
+  "repository_evidence_archive_is_complete": true,
+  "retention": "Exact original dependency payload archive remains in Actions until its recorded expiry and in the local verified checkpoint; the root-owned predecessor and successor closures remain retained. This repository index does not embed all vendor binaries.",
+  "retrieved_in_full": true,
+  "schema": "merlin-dependency-retention/1"
+}

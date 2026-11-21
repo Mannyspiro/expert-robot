@@ -1,0 +1,10 @@
+{
+  "argv_count": 29,
+  "argv_sha256": "8233139246a353c5477ef32fc882520bbe76444961dbb5bf0268db5bdcf6b82f",
+  "maximum_argument_bytes": 80976,
+  "root_code_bytes": 80976,
+  "root_code_sha256": "8dc947591be35b12f8de81db2b614bffdc6ec21ed8cecbefef04178dfaa9fe83",
+  "stdio_transport": "journal; no caller file descriptors forwarded through the system bus",
+  "total_argument_bytes": 81509,
+  "unit": "merlin-browser-bootstrap-44944424850-1.service"
+}

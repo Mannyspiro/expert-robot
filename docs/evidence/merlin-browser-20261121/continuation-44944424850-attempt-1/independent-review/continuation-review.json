@@ -1,0 +1,117 @@
+{
+  "check_group_count": 18,
+  "check_groups": [
+    "exact_final_publication_manifest",
+    "exact_bootstrap_browser.py",
+    "exact_launch_episode.py",
+    "exact_smoke_renderer.py",
+    "exact_test_bootstrap_browser.py",
+    "exact_generated_workflow",
+    "unchanged_runtime_zip",
+    "unchanged_wrapper_api",
+    "unchanged_wrapper_fetch",
+    "unchanged_wrapper_check",
+    "unchanged_wrapper_fixed",
+    "workflow_pins_match_manifest",
+    "unchanged_root_launch_cgroup_and_transport",
+    "native_36_and_33_gates_and_no_acquire_call",
+    "actual_prior_receipts_and_complete_baseline_replay",
+    "all_49_actual_payloads_replay_exactly",
+    "one_exact_exception_then_48_ordinary_packages",
+    "original_native_runtime_and_worker_bins_unchanged"
+  ],
+  "decision": "accepted_for_publication_and_one_explicit_native_successor_attempt",
+  "independent_actual_evidence_replay": {
+    "exception_count": 1,
+    "inspection_run_id": 44943332796,
+    "installation_stage_counts": [
+      1,
+      48
+    ],
+    "original_installed_package_count": 921,
+    "original_intent_and_result": "exact pinned bytes accepted",
+    "payload_policies": 49,
+    "prior_run_id": 44942304091
+  },
+  "independent_tests": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python -B -m unittest discover -s ops/merlin_browser -p test_bootstrap_browser.py -v",
+    "elapsed_seconds": 0.022,
+    "errors": 0,
+    "execution": "local Python; native workflow must pass the same 36 host and frozen 33 product controls",
+    "failures": 0,
+    "skips": 0,
+    "tests": 36
+  },
+  "manifest": {
+    "bytes": 2365,
+    "git_blob": "a5e46f33abe968da8c6065c53d0aaaffe39e0776",
+    "path": "/workspace/scratch/abed42219434/browser-operations/bootstrap-publication-manifest.json",
+    "sha256": "5c5c77766f6795cf546f5fbd6c0c9244cb53637658b1b3053460ab44e1fadcbd"
+  },
+  "pending_native_observations": [
+    "Successful dry-run results and exact additive package delta",
+    "Actual package exclusion states and daemon absence",
+    "Native browser fixture and three source episodes",
+    "Active private Unix browser route and same-byte restart readback"
+  ],
+  "protected_boundaries": [
+    "Original failed global intent/result remain immutable; successor gets a new request directory and exclusive predecessor marker.",
+    "Current private/provider snapshot and package baseline must equal the observed failed attempt before installation.",
+    "Complete retained root-owned acquisition, runtime, keys and RPM bytes are recopied and reverified.",
+    "Only exact signed zvbi package gets --nopost and the two exact excluded paths; no global payload guard relaxation.",
+    "Full closure and standalone zvbi dry-runs precede package installation; remaining 48 have a further dry-run and ordinary installation.",
+    "Failure captures actual installed-package delta and completed stages; no automatic resubmission or rollback erasure.",
+    "Daemon absence and RPM NOTINSTALLED file state are required after exceptional and complete installation, and again after acceptance.",
+    "Original 900s alarm, 930s root cgroup, 15s stop grace, 950s outer wait, 2GiB/zero-swap/100%CPU/256-task limits and journal transport are retained."
+  ],
+  "publication_review": {
+    "failure_evidence": "root-retained operation records; runner leaf released only after privileged writes end",
+    "final_delivery_check": "fresh nofollow absolute parent and leaf walk; both device/inode identities match held descriptors",
+    "nested_root_writes": "remain inaccessible to runner until all writes finish",
+    "rejected_replacement_leaf": "never chowned to runner",
+    "root_leaf": "new root-owned mode0700 root-evidence, held by descriptor"
+  },
+  "remaining_concrete_source_blockers": [],
+  "review_side_effects": {
+    "browser_calls": 0,
+    "model_calls": 0,
+    "native_operations": 0,
+    "remote_mutations": 0,
+    "source_edits": 0
+  },
+  "reviewed_at_utc": "2026-11-21T20:04:29.078344+00:00",
+  "reviewer": "/root/source_release_review",
+  "schema": "merlin-browser-continuation-independent-review/1",
+  "sources": [
+    {
+      "bytes": 75316,
+      "git_blob": "cc09a1fa02c653712a184c578aabbd28e10ac20c",
+      "path": "/workspace/scratch/abed42219434/browser-operations/ops/merlin_browser/bootstrap_browser.py",
+      "sha256": "1c5197a76fb66aaac19eb4bad92fce841e1e1aa43fb657d7c8590b0866683474"
+    },
+    {
+      "bytes": 24631,
+      "git_blob": "4f18d4fcfba7e2fcbe6dda98a318a51b250dfe3e",
+      "path": "/workspace/scratch/abed42219434/browser-operations/ops/merlin_browser/launch_episode.py",
+      "sha256": "621e2557785492e7de3c6c5b7161653f2a05fb8080f9711d7b72d11900d57bfe"
+    },
+    {
+      "bytes": 8108,
+      "git_blob": "9bd9849ab14bfbd443eded108f2807c6c857de3b",
+      "path": "/workspace/scratch/abed42219434/browser-operations/ops/merlin_browser/smoke_renderer.py",
+      "sha256": "a9cc3ab7b67ec2511a7ed56b2af4d829a424ad3a00f2632e0e860ceddc59e2f9"
+    },
+    {
+      "bytes": 26674,
+      "git_blob": "72b35695d86d1e9bd3257edc4cc3d2777ca20c82",
+      "path": "/workspace/scratch/abed42219434/browser-operations/ops/merlin_browser/test_bootstrap_browser.py",
+      "sha256": "fb5cde43a84af1c42eb86645ded5c9eb24f524cce51154d90f2e4c8711e06174"
+    },
+    {
+      "bytes": 21183,
+      "git_blob": "da13c4c64ce852c98ae77cdf27d39508476c5a4b",
+      "path": "/workspace/scratch/abed42219434/browser-operations/.github/workflows/merlin-browser-bootstrap.yml",
+      "sha256": "592be4acbb3fac49ad7a390194233a911b06fc1e7644c28eed7595875c030976"
+    }
+  ]
+}
