@@ -1,0 +1,90 @@
+{
+  "schema": "merlin-plan-update/1",
+  "status": "recovery_software_oci_validated_kernel_final_receipt_not_confirmed",
+  "parent_source_commit": "78376003fe7b41d02e3502737b31f94024f465a3",
+  "parent_update": {
+    "commit": "63053f67b19cd0d3bfec4ec1579b130beb3d205e",
+    "path": "config/merlin/plan-updates/20261120-worker-replay-acceptance.json"
+  },
+  "master_plan": {
+    "version": 6,
+    "commit": "5b0053ce04c2a9f9da80d9581efa148784aada8a",
+    "path": "config/merlin/production-master-plan.json",
+    "workstreams": 10,
+    "tasks": 45,
+    "document_bindings": 191,
+    "whole_platform_completion": false
+  },
+  "source": {
+    "repository": "Mannyspiro/expert-robot",
+    "branch": "work/merlin-canonical-branch-context-20261120",
+    "pull_request": 184,
+    "candidate_commit": "78376003fe7b41d02e3502737b31f94024f465a3",
+    "candidate_tree": "34644108379771069b8ea8e2331a71e2bd9e132",
+    "source_files": 109,
+    "source_map_sha256": "2bcc937d57e8bc95da422cf204284d359e1ddfa20f830a5e6021cfba8a8b4779",
+    "scope": "Measured dependency subset, not all repository tests or full-platform acceptance"
+  },
+  "implementation": [
+    "Separate host-authorized exact-state recovery can publish committed outcomes without repeating the evaluator, or close a proven no-execution tick.",
+    "Intent without outcome remains ambiguous and blocked; no provider result or external action is invented or automatically retried.",
+    "Unfinished tasks fence successor, direct and legacy session execution using existing canonical stores and cooperative lock.",
+    "Worker checks actual lease expiration and a monotonic deadline; SQLite ledger connections close deterministically.",
+    "Canonical artifact path results are bounded and truncation explicit; this does not establish a bounded total database scan cost.",
+    "Fixed-code transient systemd process candidate has independent kernel resource controls; actual kernel and integrated-provider acceptance remain separate."
+  ],
+  "measurements": {
+    "local_software_tests": {"tests": 281, "failures": 0, "errors": 0, "skipped": 0},
+    "oci_software_tests": {"tests": 281, "failures": 0, "errors": 0, "skipped": 0},
+    "new_tests": {"recovery": 29, "worker_ledger_query_boundaries": 8, "systemd_admission": 12},
+    "original_code_negative_controls": {"tests": 5, "expected_failures": 5, "errors": 0, "skipped": 0},
+    "evidence_class": "Synthetic task/authority fixtures, actual worker and canonical stores; same-team tests, not independent scientific or institutional verification"
+  },
+  "oci_attempts": [
+    {
+      "run_id": 44850614052,
+      "artifact_id": 14684224172,
+      "archive_sha256": "a18e4dbec0c0b8e743946499782e171006b9472448eb2a41a736cba82a51b680",
+      "outcome": "Controller identity mismatch stopped before testing. Corrected to exact read-back bytes; gate retained."
+    },
+    {
+      "run_id": 44851077445,
+      "artifact_id": 14685058039,
+      "archive_sha256": "fa8fba4d34b1fb62236cb197567ece9fbafa8a06d58201ad68a04d3e0de1e025",
+      "outcome": "281 software checks passed and five original-code failures reproduced. Kernel drill stopped before cases because /usr/bin/systemd version-query path was absent.",
+      "production_metadata_before_after": "active, running, enabled and unchanged PID"
+    },
+    {
+      "run_id": 44852518684,
+      "job_id": 136661199362,
+      "workflow_commit": "a8be26b8c51380d91229772e544f9a2df73a5894",
+      "outcome": "Submitted with exact one-line /usr/bin/systemctl version-query correction. Final receipt not confirmed by this checkpoint; not accepted as passing kernel evidence."
+    }
+  ],
+  "remaining_limits": [
+    "No merged or deployed autonomous worker is established by this update.",
+    "Separate kernel drill and software tests do not establish the complete isolated Hermes/provider workflow.",
+    "No generic hostile-code sandbox, full filesystem confidentiality, billable compute-unit enforcement or exactly-once external-effect guarantee.",
+    "Provider-specific reconciliation and independent identity/verifier provisioning remain open.",
+    "Historical context summaries do not establish all raw account chats or complete 191-document semantic review."
+  ],
+  "lenses": {
+    "simplex": "not_applicable: no weighted mixture changed",
+    "n_ality": "applied: task, session, source, authority and resource identities remain separate",
+    "continuum": "not_applicable: discrete execution and commit boundaries",
+    "fuzzy": "not_applicable: authorization and integrity remain Boolean"
+  },
+  "next_acceptance": [
+    "Retrieve and inspect exact final kernel receipt for run 44852518684, including failures and cleanup, before any kernel acceptance claim.",
+    "Exercise actual isolated process execution through canonical Hermes and approved recovery, including parent death, stale lease, cancellation and replay.",
+    "Complete staged release and rollback acceptance before production activation; preserve the original broader workstreams."
+  ],
+  "production_service_changed": false,
+  "private_state_accessed": false,
+  "grants_changed": false,
+  "new_credentials": false,
+  "avrea_used": false,
+  "avrea_freeze_until": "2026-12-01",
+  "qualification": false,
+  "promotion_authority": false
+}
