@@ -1,0 +1,27 @@
+{
+  "access_control_bypass_authorized": false,
+  "budget_change_authorized_by_this_record": false,
+  "chatgpt_access": "excluded_from_merlin_current_scope",
+  "credential_or_secret_value_publication_authorized": false,
+  "date": "2026-11-21",
+  "enforcement_status": "Declarative operator authorization record; existing account/repository permissions and runtime enforcement remain in effect.",
+  "external_model_budget_usd": 0,
+  "general_browser_research": "requested_for_information_databases_news_GitHub_and_other_relevant_information",
+  "global_application_or_connector_settings_changed": false,
+  "relevant_evidence_publication": {
+    "authorized": true,
+    "destination_scope": "Any connected repository for which the connected account has granted write permission.",
+    "full_raw_release_evidence": true,
+    "repeat_permission_prompt_for_this_scope_required": false,
+    "scope": "Relevant Merlin/project evidence, including raw release archives, assessment records and operational metadata.",
+    "standing_permission": true
+  },
+  "schema": "merlin-operator-authorizations/1",
+  "source": {
+    "checkpoint": "config/merlin/plan-updates/20261121-browser-direction-and-evidence-authorization.json",
+    "type": "explicit_user_instruction",
+    "verbatim": "lets leave chatgpt access out of merlin and lets give merlin an unrestricted browser he can learn to use to access information databases news and github repositories to rsi. Yes add full raw evidence and always be able to do this for any connected repository"
+  },
+  "timezone": "America/Phoenix",
+  "version": 1
+}
