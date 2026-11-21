@@ -30,6 +30,7 @@ import sys
 from typing import Any, Callable, Mapping
 
 from merlin.project_registry import MerlinRegistry
+from merlin.weight_binding import WeightBinding
 from .bridge import DotContextBridge, canonical, digest, text_value
 from .dual_coder import DualCoderWorkflow
 from .job_inbox import InboxBusy, InboxConflict, ProductionJobInbox
@@ -42,6 +43,10 @@ _SESSION = re.compile(r"[A-Za-z0-9_-]{1,100}")
 
 class PrivateHostConfigurationError(ValueError):
     pass
+
+
+class _WeightBindingUnavailable(PermissionError):
+    """An existing bound session has no separately provisioned host binding."""
 
 
 def _unique_object(pairs):
@@ -148,9 +153,15 @@ def _reply(request_id: Any, *, result: Any = None, error: str | None = None) -> 
 class PrivateDispatcher:
     def __init__(self, bridge: DotContextBridge, *, grants: Mapping[int, Mapping[str, Any]],
                  plugin_tools: Mapping[str, RegisteredTool] | None = None,
-                 inbox: ProductionJobInbox | None = None):
+                 inbox: ProductionJobInbox | None = None,
+                 rsi_weight_binding_resolver: Callable[[str], WeightBinding | None] | None = None):
+        # Trusted embedding-host injection only. The CLI and request/configuration
+        # schemas cannot select a manifest, provider, callback or execution path.
+        if rsi_weight_binding_resolver is not None and not callable(rsi_weight_binding_resolver):
+            raise PrivateHostConfigurationError("RSI weight binding resolver must be callable or None")
         self.bridge = bridge
         self.inbox = inbox
+        self.rsi_weight_binding_resolver = rsi_weight_binding_resolver
         self.tools = self._builtins()
         for name, definition in (plugin_tools or {}).items():
             if (not isinstance(name, str) or _NAME.fullmatch(name) is None or name in self.tools
@@ -199,7 +210,25 @@ class PrivateDispatcher:
                 raise ValueError("invalid workflow context")
             for source_ref in refs:
                 self.bridge.fetch(source_ref, length_bytes=4)
-            return workflow.status(session)
+            if value.get("schema") == "dot-dual-coder-spec/2":
+                # Resolve only after the dispatcher has checked the peer/tool
+                # grant and this handler has checked the session/context scope.
+                resolver = self.rsi_weight_binding_resolver
+                binding = None if resolver is None else resolver(session)
+                if binding is None:
+                    raise _WeightBindingUnavailable("weight-bound status has no configured host binding")
+                for source_ref in refs:
+                    self.bridge.fetch(source_ref, length_bytes=4)
+                # The existing workflow checks the exact registry object and
+                # project, then reauthenticates canonical receipts on every read.
+                workflow = DualCoderWorkflow(self.bridge.registry, project_id=self.bridge.project_id,
+                                             coder_a_binding=binding)
+            result = workflow.status(session)
+            # Trusted callbacks may revoke context access while resolving or
+            # authenticating. Check the same pinned inputs again at status egress.
+            for source_ref in refs:
+                self.bridge.fetch(source_ref, length_bytes=4)
+            return result
 
         def search(args, principal):
             budget = args.get("budget_bytes", 14000)
@@ -242,7 +271,15 @@ class PrivateDispatcher:
                     or not set(args) <= definition.required | definition.optional
                     or len(canonical(args)) > definition.max_argument_bytes):
                 raise ValueError("tool argument schema or size rejected")
+            status_grant = None
+            if name == "rsi_status":
+                status_grant = {"principal": self.grants[uid]["principal"],
+                                "tools": tuple(self.grants[uid]["tools"])}
             result = definition.handler(args, self.grants[uid]["principal"])
+            # This new host callback path checks its original grant at egress;
+            # it does not change plugin/intake semantics or claim atomic revocation.
+            if status_grant is not None and self.grants.get(uid) != status_grant:
+                return _reply(request_id, error="operation_not_permitted")
             if not isinstance(result, Mapping) or len(canonical(result)) > definition.max_result_bytes:
                 return _reply(request_id, error="result_exceeds_limit")
             response = _reply(request_id, result=dict(result))
@@ -255,6 +292,8 @@ class PrivateDispatcher:
             return _reply(request_id, error="request_identity_conflict")
         except (ValueError, TypeError, KeyError, UnicodeError):
             return _reply(request_id, error="invalid_or_unavailable_arguments")
+        except _WeightBindingUnavailable:
+            return _reply(request_id, error="weight_binding_not_configured")
         except PermissionError:
             return _reply(request_id, error="operation_not_permitted")
         except Exception:

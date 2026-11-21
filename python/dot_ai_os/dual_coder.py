@@ -128,6 +128,18 @@ class DualCoderWorkflow:
         self.registry.put_artifact(self.project_id, path, canonical(payload), "application/json")
         return self.registry.artifact_ref(self.project_id, path, version=1)
 
+    def _recheck_record(self, path: str, expected_ref: dict[str, Any] | None):
+        """Re-read exact bytes and single-version identity after a host callback."""
+        current = self._load_once(path)
+        if (None if current is None else current[1]) != expected_ref:
+            raise WorkflowConflict("canonical workflow record changed during a host callback")
+        return current
+
+    def _recheck_specification(self, base: str, request_sha: str) -> None:
+        current = self._load_once(base + "/spec.json")
+        if current is None or digest(canonical(current[0])) != request_sha:
+            raise WorkflowConflict("canonical specification changed during a host callback")
+
     def _spec(self, specification: Mapping[str, Any],
               providers: Mapping[str, Mapping[str, Any]], *, bind: bool = True
               ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
@@ -236,6 +248,12 @@ class DualCoderWorkflow:
         request = self.coder_a_binding.invocation_request(session_id=session_id, intent_ref=intent_ref,
                                                           identity=identity, inputs=inputs)
         self.coder_a_binding.validate_receipt(saved[0], payload=stored_payload, request=request)
+        # Authentication receives detached values, but its host can still change
+        # canonical storage. Re-resolve bytes and history without authenticating
+        # recursively or repeating a provider call.
+        self._recheck_record(stage_path + "/weight-receipt.json", saved[1])
+        self._recheck_record(stage_path + "/intent.json", intent_ref)
+        self._recheck_specification(self._base(session_id), identity["request_sha256"])
         return saved[1]
 
     def _stage(self, *, base: str, name: str, request_sha: str,
@@ -279,6 +297,7 @@ class DualCoderWorkflow:
                 self._weight_receipt(stage_path=stage_path, session_id=session_id, identity=identity,
                     intent_ref=intent[1], inputs=inputs, payload=payload,
                     expected_ref=ArtifactRef.from_mapping(result["weight_receipt_ref"]).to_dict())
+                self._recheck_record(stage_path + "/result.json", ref)
             completed = {"status": "completed", "payload": payload, "result_ref": ref}
             if binding is not None:
                 completed["weight_receipt_ref"] = result["weight_receipt_ref"]
@@ -290,6 +309,7 @@ class DualCoderWorkflow:
             if binding is not None:
                 receipt_ref = self._weight_receipt(stage_path=stage_path, session_id=session_id, identity=identity,
                     intent_ref=intent[1], inputs=inputs)
+                self._recheck_record(stage_path + "/result.json", None)
                 if receipt_ref is not None:
                     pending["weight_receipt_ref"] = receipt_ref
             return pending
@@ -305,15 +325,22 @@ class DualCoderWorkflow:
                                                      identity=identity, inputs=inputs)
             if before_callback is not None:
                 before_callback()
+            if self.coder_a_binding is not None:
+                self._recheck_record(stage_path + "/intent.json", intent_ref)
+                self._recheck_specification(base, request_sha)
             generated = callback(deepcopy(request))
             if binding is not None:
                 if not isinstance(generated, Mapping) or set(generated) != {"payload", "observation"}:
                     raise ValueError("weight-bound coder must return payload and invocation observation")
                 payload = validator(generated["payload"])
                 receipt = binding.admit(payload=payload, observation=generated["observation"], request=request)
-                receipt_ref = self._put_once(stage_path + "/weight-receipt.json", receipt)
             else:
                 payload = validator(generated)
+            if self.coder_a_binding is not None:
+                self._recheck_record(stage_path + "/intent.json", intent_ref)
+                self._recheck_specification(base, request_sha)
+            if binding is not None:
+                receipt_ref = self._put_once(stage_path + "/weight-receipt.json", receipt)
         except Exception as exc:
             # Never persist messages/tracebacks: providers may include private data.
             self._put_once(stage_path + "/failure.json", {
@@ -349,6 +376,7 @@ class DualCoderWorkflow:
                             callback=coder_a, validator=self._candidate, session_id=session_id)
             if a["status"] != "completed":
                 return self._blocked(session_id, spec_ref, a)
+            completed_dependencies = []
             def current_bound_a():
                 # Authenticate the exact committed dependency at each effect
                 # boundary. This only replays A's records; it cannot call A.
@@ -358,6 +386,13 @@ class DualCoderWorkflow:
                         callback=None, validator=self._candidate, session_id=session_id)
                     if canonical(current) != canonical(a):
                         raise WorkflowConflict("admitted coder A result changed before a dependent effect")
+                    # Later authentication can also invalidate an already-read
+                    # downstream result or its intent. At most B and evaluator
+                    # are retained here; these are reads, not callback retries.
+                    for ref in completed_dependencies:
+                        saved = self._recheck_record(ref["logical_path"], ref)
+                        intent_ref = saved[0]["intent_ref"]
+                        self._recheck_record(intent_ref["logical_path"], intent_ref)
             current_bound_a()
             b_input = {**coder_input, "coder_a_result_ref": a["result_ref"],
                        "coder_a_candidate": a["payload"],
@@ -367,6 +402,7 @@ class DualCoderWorkflow:
                             callback=coder_b, validator=self._candidate, before_callback=current_bound_a)
             if b["status"] != "completed":
                 return self._blocked(session_id, spec_ref, b)
+            completed_dependencies.append(b["result_ref"])
             current_bound_a()
             evaluation_input = {"specification": spec, "context": contexts,
                                 "candidates": {"coder_a": a["payload"], "coder_b": b["payload"]},
@@ -378,6 +414,7 @@ class DualCoderWorkflow:
                                      before_callback=current_bound_a)
             if evaluation["status"] != "completed":
                 return self._blocked(session_id, spec_ref, evaluation)
+            completed_dependencies.append(evaluation["result_ref"])
             counts = evaluation["payload"]
             baseline = counts["baseline"]
             eligible = [name for name in ("coder_a", "coder_b")
@@ -466,6 +503,7 @@ class DualCoderWorkflow:
                         payload=self._candidate(result[0].get("payload")) if result is not None else None,
                         expected_ref=ArtifactRef.from_mapping(result[0].get("weight_receipt_ref")).to_dict()
                             if result is not None else None)
+                    self._recheck_record(stage_path + "/result.json", None if result is None else result[1])
                     if ref is not None:
                         receipt_refs[name] = ref
             if result is not None:
