@@ -1,0 +1,25 @@
+--- a/python/merlin/build_admission.py
++++ b/python/merlin/build_admission.py
+@@ -277,21 +277,12 @@
+                  and canonical(sorted(failures[kind])) == canonical(software[ids]),
+                  'actual software outcome events contradict report counts/IDs')
+     live = _measurement_object(members, 'live-report.json')
+-    _require(set(live) == {'fixture_frame_source_anchor', 'tested_source_map_sha256', 'kernel', 'context'}
+-             and live.get('fixture_frame_source_anchor') == goal.source_commit
++    _require(live.get('fixture_frame_source_anchor') == goal.source_commit
+              and live.get('tested_source_map_sha256') == goal.source_map_sha256,
+              'raw native source anchor/map differs')
+     for role in ('kernel', 'context'):
+         original, normalized = live.get(role), report[role]
+         _require(isinstance(original, dict), 'complete raw native role required')
+-        mandatory = {'schema', 'status', 'tests', 'passed', 'cases', 'permissions_modified',
+-                     'production_service_modified', 'qualification', 'promotion_authority'}
+-        mandatory.update({'private_state_accessed', 'host_uid', 'systemd_version'} if role == 'kernel' else
+-                         {'private_context_used', 'actual_native_model_review_performed', 'source_commit'})
+-        _require(mandatory.issubset(original), 'mandatory raw native ' + role + ' observations missing')
+-        if role == 'kernel':
+-            _require(type(original['host_uid']) is int and original['host_uid'] == 0
+-                     and _text(original['systemd_version']), 'actual kernel host identity required')
+         _require((original.get('source_commit') == goal.source_commit if role == 'context'
+                   else 'source_commit' not in original or original['source_commit'] == goal.source_commit)
+                  and ('source_map_sha256' not in original or original['source_map_sha256'] == goal.source_map_sha256),
