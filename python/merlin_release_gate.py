@@ -57,6 +57,7 @@ def assess(manifest: object, evidence_root: Path) -> dict:
     gates = manifest["gates"]
     report = {}
     commits = set()
+    used_locators = set()
     for name in REQUIRED:
         entry = gates.get(name)
         if not isinstance(entry, dict):
@@ -79,8 +80,11 @@ def assess(manifest: object, evidence_root: Path) -> dict:
             report[name] = "evidence_unavailable"
         elif actual != digest:
             report[name] = "digest_mismatch"
+        elif locator in used_locators:
+            report[name] = "reused_evidence_locator"
         else:
             report[name] = "digest_verified"
+            used_locators.add(locator)
             commits.add(source)
     if len(commits) > 1:
         for name in REQUIRED:
