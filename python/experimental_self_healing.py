@@ -53,6 +53,26 @@ class EvidenceLedger:
             os.fsync(handle.fileno())
         return payload
 
+    def pending_recoveries(self) -> set[str]:
+        """Detect interrupted repair attempts on restart; never resume automatically."""
+        with _LEDGER_LOCK:
+            self._verify_locked()
+            pending = set()
+            if not self.path.exists():
+                return pending
+            for line in self.path.read_text(encoding="utf-8").splitlines():
+                event = json.loads(line)["event"]
+                subsystem = event.get("subsystem")
+                if not isinstance(subsystem, str):
+                    continue
+                if event.get("state") == "repair_started":
+                    pending.add(subsystem)
+                elif event.get("state") in (
+                    "verified_recovery", "rolled_back", "rollback_failed", "escalate"
+                ):
+                    pending.discard(subsystem)
+            return pending
+
     def verify(self) -> str:
         with _LEDGER_LOCK:
             return self._verify_locked()
@@ -104,9 +124,13 @@ class ExperimentalSupervisor:
         if healthy:
             self.ledger.append({"subsystem": subsystem, "state": "healthy"})
             return "healthy"
+        if subsystem in self.ledger.pending_recoveries():
+            self.ledger.append({"subsystem": subsystem, "state": "escalate", "reason": "interrupted_repair"})
+            return "escalate"
         self.ledger.append({"subsystem": subsystem, "state": "fault_detected"})
         for attempt in range(self.policy.max_repairs):
             try:
+                self.ledger.append({"subsystem": subsystem, "state": "repair_started", "attempt": attempt + 1})
                 repair()
                 if self.policy.require_independent_verification and verify is probe:
                     raise ValueError("independent verifier required")
