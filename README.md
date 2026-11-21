@@ -2,6 +2,10 @@
 
 Expert Robot is a local, modular AI research system designed around a thin Python orchestration layer and a C++ runtime core.
 
+## Current private Merlin release
+
+Merlin's private research runtime is deployed on the Oracle ARM host. The [Merlin release and plan record](docs/merlin/README.md) links the tested source, deployment and inspection runs, research outcome, and remaining production gates.
+
 ## Architecture
 
 - **Python**: orchestration only

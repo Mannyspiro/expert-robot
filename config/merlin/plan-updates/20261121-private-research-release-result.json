@@ -1,0 +1,72 @@
+{
+  "schema": "merlin-private-release-summary-checkpoint/1",
+  "date": "2026-11-21",
+  "timezone": "America/Phoenix",
+  "status": "selected_private_runtime_merged_deployed_and_inspected",
+  "parent": {
+    "repository": "Mannyspiro/expert-robot",
+    "commit": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "path": "config/merlin/plan-updates/20261121-storage-completion-local-result.json"
+  },
+  "canonical_master_plan": {
+    "commit": "6d4b5a4a3a5b81210d192554774316c04d2d88ff",
+    "path": "config/merlin/production-master-plan.json",
+    "tracks": 10,
+    "tasks": 45
+  },
+  "source": {
+    "pull_request": 190,
+    "tested_commit": "761756025fb88f7e722c799ca91964e3ad24c53a",
+    "merge_commit": "2dc6fb85b865efe868c68ca92cfc2400696e871f",
+    "selected_files": 130,
+    "merged_tree_files": 371,
+    "merge_tree_differences": 0,
+    "unselected_main_files_preserved": 241
+  },
+  "existing_runs": {
+    "native_validation": 44919201279,
+    "model_bootstrap": 44914708164,
+    "failed_generation_initial": 44917400072,
+    "failed_generation_successor": 44919773657,
+    "retained_assessment": 44923397429,
+    "release_validation": 44925050753,
+    "deployment": 44925842904,
+    "inspection": 44926064599
+  },
+  "accepted_observations": {
+    "native_software_tests": 599,
+    "kernel_cases": 8,
+    "context_recovery_cases": 6,
+    "runtime_projection_files": 25,
+    "controller_controls_per_operation": 26,
+    "assessment_cases_per_variant": 18,
+    "assessment_native_workers": 4,
+    "historical_records_preserved": 39,
+    "additional_release_model_calls": 0,
+    "external_model_budget_usd": 0,
+    "baseline_retained": true,
+    "candidate_a_equals_baseline": true,
+    "candidate_b_rejected_truncated": true,
+    "both_generation_sessions_remain_incomplete": true,
+    "service_restart_and_fresh_inspection_passed": true
+  },
+  "access": {
+    "demonstrated": "authenticated fixed GitHub operations to existing private Unix service",
+    "remote_http_mcp_chatgpt": "unconfigured"
+  },
+  "raw_evidence_publication": {
+    "status": "awaiting_explicit_approval",
+    "included_in_this_change": false,
+    "scope": "private assessment receipts, original archives and operational metadata"
+  },
+  "ranked_next_acceptance": [
+    {
+      "rank": 1,
+      "target": "Reconcile next canonical master-plan dependency",
+      "gate": "Use actual remote identity/access configuration, coordinated recovery evidence and a separately admitted complete two-coder episode as distinct acceptance gates; preserve original scope and budget."
+    }
+  ],
+  "qualification": false,
+  "promotion_authority": false,
+  "whole_master_plan_complete": false
+}
