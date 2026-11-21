@@ -62,6 +62,16 @@ class SupervisorTests(unittest.TestCase):
         supervisor = ExperimentalSupervisor(self.ledger, RecoveryPolicy(max_repairs=0))
         self.assertEqual(supervisor.recover("cad", lambda: False, lambda: None, lambda: True, lambda: None, sandbox=True), "escalate")
 
+    def test_non_boolean_verifier_cannot_approve_recovery(self):
+        state = {"healthy": False}
+        result = self.supervisor.recover(
+            "browser", lambda: state["healthy"],
+            lambda: state.update(healthy=True), lambda: "healthy",
+            lambda: state.update(healthy=False), sandbox=True,
+        )
+        self.assertEqual(result, "escalate")
+        self.assertFalse(state["healthy"])
+
     def test_fault_advisory_never_authorizes_repair(self):
         events = [{"subsystem": "browser", "state": "probe_error"}] * 3
         alerts = summarize_faults(events)
