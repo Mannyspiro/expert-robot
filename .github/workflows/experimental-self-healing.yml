@@ -6,9 +6,13 @@ on:
       - 'python/experimental_fault_advisory.py'
       - 'python/merlin_research_browser.py'
       - 'python/orchestrator.py'
+      - 'python/runtime_supervisor.py'
       - 'tests/test_merlin_research_browser.py'
       - 'tests/test_orchestrator_protocol.py'
       - 'tests/test_experimental_self_healing.py'
+      - 'tests/test_runtime_supervisor.py'
+      - 'portable/**'
+      - 'scripts/verify_portable.py'
       - '.github/workflows/experimental-self-healing.yml'
   workflow_dispatch:
 jobs:
@@ -22,5 +26,21 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Compile the actual protocol core
+        run: |
+          mkdir -p build
+          g++ -std=c++20 -O2 -Wall -Wextra -Wpedantic -I cpp/include cpp/src/runtime.cpp cpp/src/main.cpp -o build/expert_robot_runtime
       - name: Run recovery, research, and protocol tests
-        run: python -m unittest discover -s tests -p 'test_experimental_self_healing.py' -v && python -m unittest discover -s tests -p 'test_merlin_research_browser.py' -v && python -m unittest discover -s tests -p 'test_orchestrator_protocol.py' -v
+        run: |
+          python -m unittest discover -s tests -p 'test_experimental_self_healing.py' -v
+          python -m unittest discover -s tests -p 'test_merlin_research_browser.py' -v
+          python -m unittest discover -s tests -p 'test_orchestrator_protocol.py' -v
+          python -m unittest discover -s tests -p 'test_runtime_supervisor.py' -v
+      - name: Exercise Studio and local network boundaries
+        run: |
+          python -m unittest discover -s portable/merlin_studio/tests -p 'test_studio.py' -v
+          PYTHONPATH=portable python -m unittest discover -s portable/tests -v
+      - name: Build and verify the portable package
+        run: |
+          python portable/build_portable.py --output build/Merlin_Studio_Portable_Alpha.zip --include-native
+          python scripts/verify_portable.py build/Merlin_Studio_Portable_Alpha.zip

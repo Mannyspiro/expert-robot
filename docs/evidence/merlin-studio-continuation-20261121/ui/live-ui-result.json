@@ -1,0 +1,23 @@
+{
+  "scope": "Actual UI JavaScript via DOM test double against real Studio HTTP server, SQLite/canonical registry, filesystem, Python subprocess and restart; no AI inference claimed",
+  "checks": [
+    "actual HTTP serves current HTML",
+    "live status/token and offline command discovery",
+    "model-free /help through actual UI and backend",
+    "model-free /write and /read persist through canonical backend",
+    "actual workspace editor save",
+    "bound script approval and actual Python 42 result",
+    "cancel waiting approval through actual endpoint",
+    "actual settings accepts UI maximum12",
+    "hard restart restores interrupted run without replay or endless polling",
+    "new chat available after interrupted recovery",
+    "all real mutation requests carry local session token"
+  ],
+  "browser": {
+    "scope": "render unavailable",
+    "passed": false,
+    "error": "Chromium Unix socket() denied before page startup"
+  },
+  "requestCount": 72,
+  "mutationCount": 13
+}

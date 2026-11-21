@@ -7,16 +7,58 @@ from __future__ import annotations
 
 import hashlib
 import contextlib
-import fcntl
+import errno
 import json
 import os
 import threading
+import time
+import uuid
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
 
 _LEDGER_LOCK = threading.RLock()
+_RECOVERY_LOCKS: dict[tuple[str, str], threading.Lock] = {}
+
+
+@contextlib.contextmanager
+def _advisory_lock(path: Path, *, blocking: bool = True):
+    """Cooperating-process lock on POSIX and Windows; never an authority boundary."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a+b") as handle:
+        if os.name == "nt":
+            import msvcrt
+            if not path.stat().st_size:
+                handle.write(b"\0")
+                handle.flush()
+            def lock():
+                handle.seek(0)
+                msvcrt.locking(handle.fileno(), msvcrt.LK_NBLCK, 1)
+            def unlock():
+                handle.seek(0)
+                msvcrt.locking(handle.fileno(), msvcrt.LK_UNLCK, 1)
+        else:
+            import fcntl
+            def lock():
+                fcntl.flock(handle.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            def unlock():
+                fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+        while True:
+            try:
+                lock()
+                break
+            except OSError as exc:
+                if exc.errno not in (errno.EACCES, errno.EAGAIN, errno.EDEADLK):
+                    raise
+                if not blocking:
+                    yield False
+                    return
+                time.sleep(0.01)
+        try:
+            yield True
+        finally:
+            unlock()
 
 
 @dataclass(frozen=True)
@@ -25,8 +67,10 @@ class RecoveryPolicy:
     require_independent_verification: bool = True
 
     def __post_init__(self):
-        if not 0 <= self.max_repairs <= 3:
+        if type(self.max_repairs) is not int or not 0 <= self.max_repairs <= 3:
             raise ValueError("max_repairs must be between 0 and 3")
+        if type(self.require_independent_verification) is not bool:
+            raise ValueError("require_independent_verification must be bool")
 
 
 class EvidenceLedger:
@@ -37,15 +81,26 @@ class EvidenceLedger:
 
     @contextlib.contextmanager
     def _locked(self):
-        """POSIX cross-process advisory lock; all writers must cooperate."""
+        """Cross-process advisory lock; all writers must cooperate."""
         with _LEDGER_LOCK:
-            self.path.parent.mkdir(parents=True, exist_ok=True)
-            with self.path.with_suffix(self.path.suffix + ".lock").open("a+b") as lock_file:
-                fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX)
-                try:
-                    yield
-                finally:
-                    fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+            with _advisory_lock(self.path.with_suffix(self.path.suffix + ".lock")):
+                yield
+
+    @contextlib.contextmanager
+    def recovery_guard(self, subsystem: str):
+        """Own the entire recovery, including callbacks, without waiting for a peer."""
+        key = (str(self.path.resolve()), subsystem)
+        with _LEDGER_LOCK:
+            thread_lock = _RECOVERY_LOCKS.setdefault(key, threading.Lock())
+        if not thread_lock.acquire(blocking=False):
+            yield False
+            return
+        try:
+            lock_path = self.path.with_name(self.path.name + ".recover-" + subsystem + ".lock")
+            with _advisory_lock(lock_path, blocking=False) as acquired:
+                yield acquired
+        finally:
+            thread_lock.release()
 
     def append(self, event: dict) -> dict:
         with self._locked():
@@ -71,21 +126,22 @@ class EvidenceLedger:
         """Detect interrupted repair attempts on restart; never resume automatically."""
         with self._locked():
             self._verify_locked()
-            pending = set()
+            pending: dict[str, set[str]] = {}
             if not self.path.exists():
-                return pending
+                return set()
             for line in self.path.read_text(encoding="utf-8").splitlines():
                 event = json.loads(line)["event"]
                 subsystem = event.get("subsystem")
                 if not isinstance(subsystem, str):
                     continue
+                recovery_id = event.get("recovery_id", "legacy")
+                if not isinstance(recovery_id, str):
+                    raise ValueError("invalid recovery identity")
                 if event.get("state") == "repair_started":
-                    pending.add(subsystem)
-                elif event.get("state") in (
-                    "verified_recovery", "rolled_back", "rollback_failed", "escalate"
-                ):
-                    pending.discard(subsystem)
-            return pending
+                    pending.setdefault(subsystem, set()).add(recovery_id)
+                elif event.get("state") in ("verified_recovery", "rolled_back"):
+                    pending.get(subsystem, set()).discard(recovery_id)
+            return {name for name, attempts in pending.items() if attempts}
 
     def verify(self) -> str:
         with self._locked():
@@ -122,11 +178,23 @@ class ExperimentalSupervisor:
         *,
         sandbox: bool = False,
     ) -> str:
-        if not subsystem or not subsystem.replace("_", "").replace("-", "").isalnum():
+        if not isinstance(subsystem, str) or not subsystem or not subsystem.isascii() or not subsystem.replace("_", "").replace("-", "").isalnum():
             raise ValueError("invalid subsystem identifier")
-        if not sandbox:
+        if sandbox is not True:
             self.ledger.append({"subsystem": subsystem, "state": "blocked_not_sandbox"})
             return "blocked"
+        with self.ledger.recovery_guard(subsystem) as acquired:
+            if not acquired:
+                self.ledger.append({"subsystem": subsystem, "state": "recovery_busy"})
+                return "busy"
+            return self._recover_owned(subsystem, probe, repair, verify, rollback)
+
+    def _recover_owned(self, subsystem, probe, repair, verify, rollback):
+        # An escalation is an observation, not evidence that an interrupted
+        # mutation was verified or undone. Check before even a healthy probe.
+        if subsystem in self.ledger.pending_recoveries():
+            self.ledger.append({"subsystem": subsystem, "state": "escalate", "reason": "interrupted_repair"})
+            return "escalate"
         try:
             healthy = probe()
             if type(healthy) is not bool:
@@ -138,31 +206,36 @@ class ExperimentalSupervisor:
         if healthy:
             self.ledger.append({"subsystem": subsystem, "state": "healthy"})
             return "healthy"
-        if subsystem in self.ledger.pending_recoveries():
-            self.ledger.append({"subsystem": subsystem, "state": "escalate", "reason": "interrupted_repair"})
+        if self.policy.require_independent_verification and verify is probe:
+            self.ledger.append({"subsystem": subsystem, "state": "escalate", "reason": "independent_verifier_required"})
             return "escalate"
         self.ledger.append({"subsystem": subsystem, "state": "fault_detected"})
         for attempt in range(self.policy.max_repairs):
+            identity = {"subsystem": subsystem, "attempt": attempt + 1, "recovery_id": str(uuid.uuid4())}
             try:
-                self.ledger.append({"subsystem": subsystem, "state": "repair_started", "attempt": attempt + 1})
+                self.ledger.append({**identity, "state": "repair_started"})
                 repair()
-                if self.policy.require_independent_verification and verify is probe:
-                    raise ValueError("independent verifier required")
                 probe_result = probe()
                 verify_result = verify()
                 if type(probe_result) is not bool or type(verify_result) is not bool:
                     raise TypeError("probe and verifier must return bool")
                 if not probe_result or not verify_result:
                     raise RuntimeError("post-repair verification failed")
-                self.ledger.append({"subsystem": subsystem, "state": "verified_recovery", "attempt": attempt + 1})
+                self.ledger.append({**identity, "state": "verified_recovery"})
                 return "recovered"
             except Exception as exc:
-                self.ledger.append({"subsystem": subsystem, "state": "repair_failed", "attempt": attempt + 1, "error_type": type(exc).__name__})
+                # Evidence IO may be the failing operation. Undo the mutation
+                # before another write, so a full disk cannot skip rollback.
+                rollback_error = None
                 try:
                     rollback()
-                    self.ledger.append({"subsystem": subsystem, "state": "rolled_back"})
-                except Exception as rollback_error:
-                    self.ledger.append({"subsystem": subsystem, "state": "rollback_failed", "error_type": type(rollback_error).__name__})
+                except Exception as error:
+                    rollback_error = error
+                self.ledger.append({**identity, "state": "repair_failed", "error_type": type(exc).__name__})
+                if rollback_error is not None:
+                    self.ledger.append({**identity, "state": "rollback_failed", "error_type": type(rollback_error).__name__})
                     return "escalate"
+                self.ledger.append({**identity, "state": "rolled_back"})
         self.ledger.append({"subsystem": subsystem, "state": "escalate"})
         return "escalate"
+

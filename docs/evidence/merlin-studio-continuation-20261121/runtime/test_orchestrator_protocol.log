@@ -1,0 +1,14 @@
+test_concurrent_requests_preserve_identity (test_orchestrator_protocol.OrchestratorProtocolTests.test_concurrent_requests_preserve_identity) ... ok
+test_full_input_pipe_is_also_bounded (test_orchestrator_protocol.OrchestratorProtocolTests.test_full_input_pipe_is_also_bounded) ... ok
+test_hung_response_has_deadline_and_stops_process (test_orchestrator_protocol.OrchestratorProtocolTests.test_hung_response_has_deadline_and_stops_process) ... ok
+test_invalid_response_types_fail_closed (test_orchestrator_protocol.OrchestratorProtocolTests.test_invalid_response_types_fail_closed) ... ok
+test_invalid_timeout_rejected_before_spawn (test_orchestrator_protocol.OrchestratorProtocolTests.test_invalid_timeout_rejected_before_spawn) ... ok
+test_mismatched_response_is_rejected (test_orchestrator_protocol.OrchestratorProtocolTests.test_mismatched_response_is_rejected) ... ok
+test_oversized_response_without_newline_is_rejected (test_orchestrator_protocol.OrchestratorProtocolTests.test_oversized_response_without_newline_is_rejected) ... ok
+test_request_limit_does_not_break_healthy_connection (test_orchestrator_protocol.OrchestratorProtocolTests.test_request_limit_does_not_break_healthy_connection) ... ok
+test_request_response_correlation (test_orchestrator_protocol.OrchestratorProtocolTests.test_request_response_correlation) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.325s
+
+OK

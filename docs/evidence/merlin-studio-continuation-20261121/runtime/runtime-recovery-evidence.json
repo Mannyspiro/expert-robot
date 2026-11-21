@@ -1,0 +1,98 @@
+{
+  "schema": "merlin-runtime-recovery-evidence/1",
+  "baseline_commit": "5b1624e062a7687fe9f84eb97bfa75a5f621c6a6",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "native_runtime": {
+    "path": "/workspace/scratch/e6b5ba62b1d9/expert-robot/build/expert_robot_runtime",
+    "sha256": "e8c4630c7462b49af20970c3c7097911af1d2ef914ccba999d866b2772e7ebb9",
+    "scope": "compiled C++ health protocol only; no inference or research engine"
+  },
+  "files": {
+    "python/experimental_self_healing.py": "1e006992c6f9615fde7044a5aa8cdeb942f4a8e16bb895090c432ba308cfaef6",
+    "python/orchestrator.py": "1e76d97df00ccda595723f303e534c55beffca5d0ba350070f0502748c43342a",
+    "python/runtime_supervisor.py": "62701cd120f428146284f816d60a82eb835e43506e1bb1aeb9e8a75626469c2e",
+    "tests/test_experimental_self_healing.py": "ad92568000d8918a590abe9890b592e551e40288ffe6846e3973b38c606df78d",
+    "tests/test_orchestrator_protocol.py": "e152267434a6b416266e7a7f890e498df87ce252f5e767424b2254b4ea69ee67",
+    "tests/test_runtime_supervisor.py": "31f077a6555cebfdc913b931771286fc400d268ddaa6b73d93637ef8dff85e8c"
+  },
+  "runs": [
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_experimental_self_healing.py",
+        "-v"
+      ],
+      "cwd": "/workspace/scratch/e6b5ba62b1d9/expert-robot",
+      "returncode": 0,
+      "log": "/workspace/scratch/e6b5ba62b1d9/runtime-evidence/test_experimental_self_healing.log",
+      "output": "test_completed_repair_clears_pending_state (test_experimental_self_healing.SupervisorTests.test_completed_repair_clears_pending_state) ... ok\ntest_concurrent_recovery_owns_one_transaction (test_experimental_self_healing.SupervisorTests.test_concurrent_recovery_owns_one_transaction) ... ok\ntest_evidence_failure_still_rolls_back_mutation (test_experimental_self_healing.SupervisorTests.test_evidence_failure_still_rolls_back_mutation) ... ok\ntest_failed_rollback_stays_unresolved (test_experimental_self_healing.SupervisorTests.test_failed_rollback_stays_unresolved) ... ok\ntest_failed_verification_rolls_back (test_experimental_self_healing.SupervisorTests.test_failed_verification_rolls_back) ... ok\ntest_fault_advisory_never_authorizes_repair (test_experimental_self_healing.SupervisorTests.test_fault_advisory_never_authorizes_repair) ... ok\ntest_fault_repair_verified_and_persisted (test_experimental_self_healing.SupervisorTests.test_fault_repair_verified_and_persisted) ... ok\ntest_healthy_component_never_repaired (test_experimental_self_healing.SupervisorTests.test_healthy_component_never_repaired) ... ok\ntest_healthy_probe_does_not_clear_interrupted_verification (test_experimental_self_healing.SupervisorTests.test_healthy_probe_does_not_clear_interrupted_verification) ... ok\ntest_independent_verifier_is_checked_before_repair (test_experimental_self_healing.SupervisorTests.test_independent_verifier_is_checked_before_repair) ... ok\ntest_interrupted_recovery_remains_blocked_on_repeated_calls (test_experimental_self_healing.SupervisorTests.test_interrupted_recovery_remains_blocked_on_repeated_calls) ... ok\ntest_interrupted_repair_is_not_replayed_automatically (test_experimental_self_healing.SupervisorTests.test_interrupted_repair_is_not_replayed_automatically) ... ok\ntest_multiprocess_writers_preserve_chain (test_experimental_self_healing.SupervisorTests.test_multiprocess_writers_preserve_chain) ... ok\ntest_no_production_repair (test_experimental_self_healing.SupervisorTests.test_no_production_repair) ... ok\ntest_non_boolean_verifier_cannot_approve_recovery (test_experimental_self_healing.SupervisorTests.test_non_boolean_verifier_cannot_approve_recovery) ... ok\ntest_probe_exception_is_recorded (test_experimental_self_healing.SupervisorTests.test_probe_exception_is_recorded) ... ok\ntest_process_recovery_owns_one_transaction (test_experimental_self_healing.SupervisorTests.test_process_recovery_owns_one_transaction) ... ok\ntest_restart_reads_previous_evidence (test_experimental_self_healing.SupervisorTests.test_restart_reads_previous_evidence) ... ok\ntest_rollback_failure_escalates (test_experimental_self_healing.SupervisorTests.test_rollback_failure_escalates) ... ok\ntest_same_callable_rejected_as_independent_verifier (test_experimental_self_healing.SupervisorTests.test_same_callable_rejected_as_independent_verifier) ... ok\ntest_stale_completion_cannot_clear_another_recovery (test_experimental_self_healing.SupervisorTests.test_stale_completion_cannot_clear_another_recovery) ... ok\ntest_tampered_evidence_detected (test_experimental_self_healing.SupervisorTests.test_tampered_evidence_detected) ... ok\ntest_threaded_evidence_writers_preserve_chain (test_experimental_self_healing.SupervisorTests.test_threaded_evidence_writers_preserve_chain) ... ok\ntest_truthy_string_is_not_isolation_attestation (test_experimental_self_healing.SupervisorTests.test_truthy_string_is_not_isolation_attestation) ... ok\ntest_zero_repair_budget (test_experimental_self_healing.SupervisorTests.test_zero_repair_budget) ... ok\n\n----------------------------------------------------------------------\nRan 25 tests in 0.320s\n\nOK\n"
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_orchestrator_protocol.py",
+        "-v"
+      ],
+      "cwd": "/workspace/scratch/e6b5ba62b1d9/expert-robot",
+      "returncode": 0,
+      "log": "/workspace/scratch/e6b5ba62b1d9/runtime-evidence/test_orchestrator_protocol.log",
+      "output": "test_concurrent_requests_preserve_identity (test_orchestrator_protocol.OrchestratorProtocolTests.test_concurrent_requests_preserve_identity) ... ok\ntest_full_input_pipe_is_also_bounded (test_orchestrator_protocol.OrchestratorProtocolTests.test_full_input_pipe_is_also_bounded) ... ok\ntest_hung_response_has_deadline_and_stops_process (test_orchestrator_protocol.OrchestratorProtocolTests.test_hung_response_has_deadline_and_stops_process) ... ok\ntest_invalid_response_types_fail_closed (test_orchestrator_protocol.OrchestratorProtocolTests.test_invalid_response_types_fail_closed) ... ok\ntest_invalid_timeout_rejected_before_spawn (test_orchestrator_protocol.OrchestratorProtocolTests.test_invalid_timeout_rejected_before_spawn) ... ok\ntest_mismatched_response_is_rejected (test_orchestrator_protocol.OrchestratorProtocolTests.test_mismatched_response_is_rejected) ... ok\ntest_oversized_response_without_newline_is_rejected (test_orchestrator_protocol.OrchestratorProtocolTests.test_oversized_response_without_newline_is_rejected) ... ok\ntest_request_limit_does_not_break_healthy_connection (test_orchestrator_protocol.OrchestratorProtocolTests.test_request_limit_does_not_break_healthy_connection) ... ok\ntest_request_response_correlation (test_orchestrator_protocol.OrchestratorProtocolTests.test_request_response_correlation) ... ok\n\n----------------------------------------------------------------------\nRan 9 tests in 0.325s\n\nOK\n"
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_runtime_supervisor.py",
+        "-v"
+      ],
+      "cwd": "/workspace/scratch/e6b5ba62b1d9/expert-robot",
+      "returncode": 0,
+      "log": "/workspace/scratch/e6b5ba62b1d9/runtime-evidence/test_runtime_supervisor.log",
+      "output": "test_cli_defaults_match_native_health_contract (test_runtime_supervisor.NativeRuntimeSupervisorTests.test_cli_defaults_match_native_health_contract) ... ok\ntest_native_protocol_crash_recovery_and_negative_reference (test_runtime_supervisor.NativeRuntimeSupervisorTests.test_native_protocol_crash_recovery_and_negative_reference) ... ok\ntest_native_rejected_reference_stops_replacement (test_runtime_supervisor.NativeRuntimeSupervisorTests.test_native_rejected_reference_stops_replacement) ... ok\ntest_failed_independent_reference_rolls_back_to_stopped (test_runtime_supervisor.RuntimeSupervisorTests.test_failed_independent_reference_rolls_back_to_stopped) ... ok\ntest_hang_stops_then_next_health_check_restarts (test_runtime_supervisor.RuntimeSupervisorTests.test_hang_stops_then_next_health_check_restarts) ... ok\ntest_interrupted_attempt_blocks_even_new_adapter (test_runtime_supervisor.RuntimeSupervisorTests.test_interrupted_attempt_blocks_even_new_adapter) ... ok\ntest_no_attested_isolation_no_process (test_runtime_supervisor.RuntimeSupervisorTests.test_no_attested_isolation_no_process) ... ok\ntest_restart_reuses_durable_history_without_replaying_tasks (test_runtime_supervisor.RuntimeSupervisorTests.test_restart_reuses_durable_history_without_replaying_tasks) ... ok\ntest_start_reference_check_and_real_process_crash_recovery (test_runtime_supervisor.RuntimeSupervisorTests.test_start_reference_check_and_real_process_crash_recovery) ... ok\n\n----------------------------------------------------------------------\nRan 9 tests in 0.324s\n\nOK\n"
+    }
+  ],
+  "original_regressions_exit": 1,
+  "original_blocking_read_reproduced": true,
+  "failed_attempts": [
+    "Cross-process recovery test initially used a temporary Event object; spawn could not rebuild its released semaphore. Kept both Event objects live; test then passed."
+  ],
+  "limits": [
+    "Windows locking branch implemented but not executed on Windows.",
+    "Caller must provide the OS sandbox; sandbox=True is an explicit attestation.",
+    "Caller-supplied generic recovery callbacks and acceptance checker are not forcibly time limited. RuntimeProcess IO and shutdown are bounded.",
+    "Ledger hash links and advisory locks detect alteration and coordinate cooperating writers; they are not authentication.",
+    "Native verifier checks protocol acceptance and a known rejection; it does not qualify model inference or research capability."
+  ],
+  "native_raw_artifacts": {
+    "native-demonstration/recovery.jsonl": "bc0b7885a03df1aec3f278b079a661444573fc81663ccc2202cf38c7d1a2bc8d",
+    "native-demonstration/rejected-reference.jsonl": "e791bdede1543b076d277f88329a952957cbd0595aa2756fa94c1bd7a2b710bd",
+    "native-demonstration/observations.json": "b9b192ca7d2066693ba7983090f0dd0a1552bc78184fd9aec9e4a46be3a08903"
+  },
+  "original_regression_failures": 9,
+  "test_counts": {
+    "self_healing": 25,
+    "protocol": 9,
+    "runtime_adapter": 9,
+    "native_cpp_tests_in_adapter": 3,
+    "total": 43
+  },
+  "syntax_python_39": "changed runtime modules parsed with Python 3.9 grammar; actual execution used Python 3.12.14"
+}
