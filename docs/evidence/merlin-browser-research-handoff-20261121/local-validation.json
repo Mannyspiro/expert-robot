@@ -1,0 +1,82 @@
+{
+  "browser_calls": 0,
+  "compatibility_command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+    "tests/browser_research_wire_compatibility.py",
+    "--private-source",
+    "/workspace/scratch/5023195e1251/merlin-release-build",
+    "--browser-source",
+    "/workspace/scratch/abed42219434/merlin-browser-build",
+    "--program",
+    "/workspace/scratch/abed42219434/browser-release-evidence/config/merlin/research-program.json",
+    "--output",
+    "/workspace/scratch/abed42219434/browser-research-handoff/docs/evidence/merlin-browser-research-handoff-20261121/wire-compatibility.json"
+  ],
+  "compatibility_exit_code": 0,
+  "compatibility_output_sha256": "76e27d2d077cfd9115dc56418b034fea917373da242147c550955d2fda42431f",
+  "fresh_process_status_readback": true,
+  "model_calls": 0,
+  "native_deployed": false,
+  "prior_review_regression": {
+    "issue": "Python structure equality compared decoded lists against typed-plan tuples",
+    "native_or_remote_retry": false,
+    "observed": "Independent reviewer observed three replay errors in an intermediate 21-test draft",
+    "repair": "Compare canonical bytes while retaining exact fixed-plan binding"
+  },
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "python39_syntax_parse": "passed, not native execution",
+  "review_driven_repairs": [
+    "Report optional bridge intake counts without claiming unperformed bridge-record verification",
+    "Validate uncaptured action identities/statuses",
+    "Rebuild deterministic result metadata on replay",
+    "Bind retained intent UUID to its canonical path",
+    "Use actual separate-process readback for restart evidence"
+  ],
+  "schema": "merlin-browser-research-handoff-local-validation/1",
+  "scope": "synthetic records and actual frozen publisher fake-renderer fixture over unchanged canonical research APIs",
+  "source_files": [
+    {
+      "bytes": 34674,
+      "git_blob": "1b0d4d026f781741d5f46f5d7ceff89df380c9a1",
+      "path": "python/merlin/browser_research_handoff.py",
+      "sha256": "d2bcfd849c40412479861f855378d40acfeb7f627ab3277a468b672c7c94c960"
+    },
+    {
+      "bytes": 19391,
+      "git_blob": "57b653f0248101827f8838e0ed9085182c985e11",
+      "path": "tests/test_browser_research_handoff.py",
+      "sha256": "f49202a7e70a90cddf8bced9118aabc671b89b6c653fb96fe2bccf3ae32981b7"
+    },
+    {
+      "bytes": 7156,
+      "git_blob": "e59bba7d1fce8b3c5468689492b23e88c02005a7",
+      "path": "tests/browser_research_wire_compatibility.py",
+      "sha256": "728d84070c7091d565f37ca55ea49324e4cc5c2889206a58da1f82ce3da6607c"
+    },
+    {
+      "bytes": 9218,
+      "git_blob": "19966358d2dc1058d1a488bac86264ee2531c8f7",
+      "path": "docs/MERLIN_BROWSER_RESEARCH_HANDOFF.md",
+      "sha256": "206fb91d4af1ff13bdfe0835cbd35f42ae34ba8c1bc32a5d225177f573d12db5"
+    }
+  ],
+  "unit_command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "tests",
+    "-p",
+    "test_browser_research_handoff.py",
+    "-v"
+  ],
+  "unit_environment": {
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONPATH": "python"
+  },
+  "unit_exit_code": 0,
+  "unit_output_sha256": "11b4bf33c9298da4fe97c769e3358fbd945f3008ec2a6d69e0497a296c008435",
+  "unit_tests": 23,
+  "wire_report_sha256": "480cd77b66987e1b1a11c11cee7c80354dc9dfe14819ebcef0fb34b18d492c74"
+}

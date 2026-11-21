@@ -1,0 +1,13 @@
+test_caller_cannot_choose_run_path_command_or_replay (test_diagnose_bootstrap.ReconciliationControls) ... ok
+test_commands_are_exact_read_only_queries (test_diagnose_bootstrap.ReconciliationControls) ... ok
+test_exact_request_and_execution_are_accepted (test_diagnose_bootstrap.ReconciliationControls) ... ok
+test_fixed_target_binds_actual_failed_request (test_diagnose_bootstrap.ReconciliationControls) ... ok
+test_reader_refuses_fifo_and_every_symlink_ancestor (test_diagnose_bootstrap.ReconciliationControls) ... ok
+test_security_scope_preserves_exact_matching_records (test_diagnose_bootstrap.ReconciliationControls) ... ok
+test_wrong_native_execution_is_rejected (test_diagnose_bootstrap.ReconciliationControls) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.003s
+
+OK
+{"tests": 7, "errors": 0, "failures": 0, "skipped": 0}

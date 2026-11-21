@@ -1,0 +1,83 @@
+<package type="rpm">
+  <name>389-ds-base</name>
+  <arch>src</arch>
+  <version epoch="0" ver="2.3.6" rel="5.0.1.el9_3"/>
+  <checksum type="sha256" pkgid="YES">600c8bc0ac9c6a8933c223c7a2589ab35cc4bafe7e6fda265f5220a8c3fbd14b</checksum>
+  <summary>389 Directory Server (base)</summary>
+  <description>389 Directory Server is an LDAPv3 compliant server.  The base package includes
+the LDAP server and command line utilities for server administration.</description>
+  <packager></packager>
+  <url>https://www.port389.org</url>
+  <time file="1706610484" build="1706609686"/>
+  <size package="22880457" installed="23167402" archive="23169220"/>
+  <location href="getPackageSource/389-ds-base-2.3.6-5.0.1.el9_3.src.rpm"/>
+  <format>
+    <rpm:license>GPLv3+ and MIT and ASL 2.0</rpm:license>
+    <rpm:vendor>Oracle America</rpm:vendor>
+    <rpm:group>Unspecified</rpm:group>
+    <rpm:buildhost>build-ol9-x86_64.oracle.com</rpm:buildhost>
+    <rpm:sourcerpm></rpm:sourcerpm>
+    <rpm:header-range start="16560" end="24597"/>
+    <rpm:provides>
+      <rpm:entry name="389-ds-base" flags="EQ" epoch="0" ver="2.3.6" rel="5.0.1.el9_3"/>
+      <rpm:entry name="389-ds-base-libs" flags="EQ" epoch="0" ver="2.3.6" rel="5.0.1.el9_3"/>
+      <rpm:entry name="389-ds-base-devel" flags="EQ" epoch="0" ver="2.3.6" rel="5.0.1.el9_3"/>
+      <rpm:entry name="389-ds-base-snmp" flags="EQ" epoch="0" ver="2.3.6" rel="5.0.1.el9_3"/>
+      <rpm:entry name="python3-lib389" flags="EQ" epoch="0" ver="2.3.6" rel="5.0.1.el9_3"/>
+      <rpm:entry name="389-ds-base-debuginfo" flags="EQ" epoch="0" ver="2.3.6" rel="5.0.1.el9_3"/>
+      <rpm:entry name="389-ds-base-debugsource" flags="EQ" epoch="0" ver="2.3.6" rel="5.0.1.el9_3"/>
+    </rpm:provides>
+    <rpm:requires>
+      <rpm:entry name="autoconf"/>
+      <rpm:entry name="automake"/>
+      <rpm:entry name="bzip2-devel"/>
+      <rpm:entry name="cargo"/>
+      <rpm:entry name="cracklib-devel"/>
+      <rpm:entry name="cyrus-sasl-devel"/>
+      <rpm:entry name="doxygen"/>
+      <rpm:entry name="gcc"/>
+      <rpm:entry name="gcc-c++"/>
+      <rpm:entry name="icu"/>
+      <rpm:entry name="json-c-devel"/>
+      <rpm:entry name="libcmocka-devel"/>
+      <rpm:entry name="libdb-devel"/>
+      <rpm:entry name="libevent-devel"/>
+      <rpm:entry name="libicu-devel"/>
+      <rpm:entry name="libtalloc-devel"/>
+      <rpm:entry name="libtevent-devel"/>
+      <rpm:entry name="libtool"/>
+      <rpm:entry name="lm_sensors-devel"/>
+      <rpm:entry name="lmdb-devel"/>
+      <rpm:entry name="make"/>
+      <rpm:entry name="net-snmp-devel"/>
+      <rpm:entry name="nspr" flags="GE" epoch="0" ver="4.32"/>
+      <rpm:entry name="nspr-devel" flags="GE" epoch="0" ver="4.32"/>
+      <rpm:entry name="nss" flags="GE" epoch="0" ver="3.67.0" rel="7"/>
+      <rpm:entry name="nss-devel" flags="GE" epoch="0" ver="3.67.0" rel="7"/>
+      <rpm:entry name="openldap-devel"/>
+      <rpm:entry name="openssl-devel"/>
+      <rpm:entry name="pam-devel"/>
+      <rpm:entry name="pcre-devel"/>
+      <rpm:entry name="pkgconfig"/>
+      <rpm:entry name="pkgconfig(krb5)"/>
+      <rpm:entry name="pkgconfig(systemd)"/>
+      <rpm:entry name="python3-argcomplete"/>
+      <rpm:entry name="python3-argparse-manpage"/>
+      <rpm:entry name="python3-cryptography"/>
+      <rpm:entry name="python3-dateutil"/>
+      <rpm:entry name="python3-devel"/>
+      <rpm:entry name="python3-ldap"/>
+      <rpm:entry name="python3-libselinux"/>
+      <rpm:entry name="python3-policycoreutils"/>
+      <rpm:entry name="python3-pyasn1"/>
+      <rpm:entry name="python3-pyasn1-modules"/>
+      <rpm:entry name="python3-setuptools"/>
+      <rpm:entry name="python3-six"/>
+      <rpm:entry name="rust"/>
+      <rpm:entry name="systemd-devel"/>
+      <rpm:entry name="systemd-rpm-macros"/>
+      <rpm:entry name="systemd-units"/>
+      <rpm:entry name="zlib-devel"/>
+    </rpm:requires>
+  </format>
+</package>

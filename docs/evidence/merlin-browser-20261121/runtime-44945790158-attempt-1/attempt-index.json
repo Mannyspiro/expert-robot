@@ -1,0 +1,97 @@
+{
+  "actions_artifact_expires_at": "2026-12-21T20:21:26Z",
+  "actual_native_test_counts": {
+    "product_controls": 33,
+    "runtime_controls": 14
+  },
+  "all_raw_members_retained_in_original_zip": true,
+  "all_workers_stopped": true,
+  "archive_member_count": 144,
+  "artifact": {
+    "archive_download_url": "https://api.github.com/repos/morganaspim/Cace-app/actions/artifacts/14723112811/zip",
+    "created_at": "2026-11-21T20:21:28Z",
+    "digest": "sha256:8a2f491e43cf9101c9a1ed5b8efcd868e8ac73e763f1327d18d2615d19ccd46d",
+    "expired": false,
+    "expires_at": "2026-12-21T20:21:26Z",
+    "id": 14723112811,
+    "name": "merlin-browser-runtime-44945790158-1",
+    "node_id": "MDg6QXJ0aWZhY3QxNDcyMzExMjgxMQ==",
+    "size_in_bytes": 409823,
+    "updated_at": "2026-11-21T20:21:28Z",
+    "url": "https://api.github.com/repos/morganaspim/Cace-app/actions/artifacts/14723112811",
+    "workflow_run": {
+      "head_branch": "merlin/browser-operations-20261121",
+      "head_repository_id": 1369211260,
+      "head_sha": "230b06056b74a998e47e5d8646aa70ec484d811a",
+      "id": 44945790158,
+      "repository_id": 1369211260
+    }
+  },
+  "budget_after_attempt": {
+    "original_total": 5,
+    "prior_failed_fixture_attempts": 1,
+    "public_attempts_consumed": 0,
+    "remaining_public_attempts": 3,
+    "repeat_fixture": false,
+    "successful_fixture_attempts": 1,
+    "total_fixture_attempts_consumed": 2
+  },
+  "caller_uid982_access_proven": false,
+  "canonical_browser_registry_files": 0,
+  "chromium_sandbox": true,
+  "controller_episode_status": "completed_with_failures",
+  "current_supervisor_unit_socket_state": "requires fixed read-only inspection; rollback stop command returned zero",
+  "expected_action_failures": 3,
+  "expected_action_successes": 5,
+  "external_model_cost_usd": 0,
+  "failure": {
+    "message": "browser supervisor readiness deadline",
+    "type": "BootstrapError"
+  },
+  "fixture_chromium": "156.0.8078.79",
+  "fixture_elapsed_seconds": 5.377,
+  "fixture_output_members_verified": 61,
+  "fixture_playwright": "1.60.0",
+  "fixture_scope": "actual isolated Chromium/controller over injected controlled bytes; zero public-network requests",
+  "fixture_status": "succeeded",
+  "independent_reviews": {
+    "runtime-44945790158.json": {
+      "bytes": 6394,
+      "path": "docs/evidence/merlin-browser-20261121/runtime-44945790158-attempt-1/independent-review/runtime-44945790158.json",
+      "sha256": "f86489f0e6c240dceb6614852ada2b866bb02e41ef43983ba10e6d7b2931c868"
+    },
+    "runtime-successor-review.json": {
+      "bytes": 7622,
+      "path": "docs/evidence/merlin-browser-20261121/runtime-44945790158-attempt-1/independent-review/runtime-successor-review.json",
+      "sha256": "c2f939abd418870694acc9a42fc3f69c4563aa2ea82e4d80415f407fa5d81e06"
+    }
+  },
+  "installed_package_rows": 971,
+  "model_calls": 0,
+  "native_installation_accepted": false,
+  "network_package_acquisition": false,
+  "next_step": "Inspect the exact supervisor unit/config/socket and bounded journal read-only; preserve the passed fixture and all failures, then admit only a separate explicit service correction with the three public attempts still available.",
+  "package_inventory_unchanged": true,
+  "previous_host_configuration_restored": true,
+  "private_provider_snapshot_unchanged": true,
+  "promotion_authority": false,
+  "public_source_acceptance_proven": false,
+  "public_submits": 0,
+  "python_package_installs": 0,
+  "qualification": false,
+  "raw_zip_sha256": "8a2f491e43cf9101c9a1ed5b8efcd868e8ac73e763f1327d18d2615d19ccd46d",
+  "repository": "morganaspim/Cace-app",
+  "request_id": "4e9b1d59-f966-44ed-a2c1-329aa77aa22e",
+  "restart_readback_proven": false,
+  "retention": "Complete original primary ZIP and all member digests are preserved in this repository append; selected originals are additionally expanded. Actions retention is 30 days.",
+  "run_attempt": 1,
+  "run_id": 44945790158,
+  "run_url": "https://github.com/morganaspim/Cace-app/actions/runs/44945790158",
+  "runtime_sha256": "5b967b6364bb8d3213c357e148c43073c309ab45d13338fe577d13565f8d0e9d",
+  "scratch_unmounted": true,
+  "selected_expanded_member_count": 36,
+  "source_commit": "8af438d76dee3b14843de68914d0dfc0328da103",
+  "status": "fixture_passed_supervisor_readiness_failed_before_public_acceptance",
+  "system_package_mutations": 0,
+  "workflow_commit": "230b06056b74a998e47e5d8646aa70ec484d811a"
+}

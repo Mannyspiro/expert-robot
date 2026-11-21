@@ -1,0 +1,57 @@
+{
+  "automation_confirmation": {
+    "automation_id": "Automation_72fb660969848191ba570958d7cae2b2",
+    "cadence": "hourly",
+    "enabled": true,
+    "receipt_sha256": "6f6cffb62da27d7693332a6f8588f6591d93195208afb809909879f3767904a8",
+    "status": "confirmed",
+    "updated_at": "2026-11-21T18:02:20.814496+00:00"
+  },
+  "changes": [
+    "Continue bounded hourly research using the existing confirmed recurring task.",
+    "Make systems/technology, historical chip/P1, Xenomaths, glyph/XMG, representation lenses and Parallax recovery explicit tracks.",
+    "Preserve exact historical versus current-source status and require live capability checks.",
+    "Require all four mathematical lens decisions in every typed research plan.",
+    "Use source capture, drafts, tests and independent review; preserve $0 external model spend and exhausted-run boundaries.",
+    "Record the separate browser registry and unresolved authorized same-project writer/composition."
+  ],
+  "deployed_perpetual_daemon": false,
+  "evidence_refs": [
+    "docs/evidence/merlin-browser-20261121/research/source-bindings.json",
+    "docs/evidence/merlin-browser-20261121/research/historical-source-extracts.json",
+    "docs/evidence/merlin-browser-20261121/research/current-main-tree.json",
+    "docs/evidence/merlin-browser-20261121/research/automation-update.json",
+    "docs/evidence/merlin-browser-20261121/source/published-source-review.json"
+  ],
+  "kind": "append_only_direction_checkpoint_not_runtime_research_plan",
+  "model_calls_for_record_assembly": 0,
+  "next_actions": [
+    "Retain and review actual native browser and request-route evidence before using that route.",
+    "Begin each recurring cycle from exact current source/capability evidence and the last checkpoint.",
+    "Advance one measurable ready research bottleneck and append the result, even when negative or blocked."
+  ],
+  "prior_plan": {
+    "operational_status_superseded_by": "accepted PR190 private-production checkpoint",
+    "plan_id": "MERLIN-PRODUCTION-MASTER-20261117",
+    "sha256": "76a2ddf5a0789f82b5c95ebbe2fce2e9c7999ce75dcdfa1840c1b3cd7700ce2c",
+    "source_id": "historical-master-plan-v6",
+    "version": 6
+  },
+  "program_id": "MERLIN-CONTINUOUS-RESEARCH-20261121",
+  "program_path": "config/merlin/research-program.json",
+  "program_sha256": "f8f312e4ff968028385a636dcc15b1eec93659a4973b0a7c900d36c4cd27c49c",
+  "program_version": 1,
+  "promotion_authority": false,
+  "qualification": false,
+  "recorded_at": "2026-11-21T18:05:19.853732+00:00",
+  "runtime_code_modified": false,
+  "schema": "merlin-research-direction-update/1",
+  "unresolved": [
+    "Parallax architecture/specification not recovered.",
+    "Standalone original Xenomaths/SOM-X specification not recovered; broader Xenomaths/XMG engines remain proposals.",
+    "Historical chip sources are not current-main or production capabilities; actual CACE variable-material integration is unverified.",
+    "Native browser and connected request acceptance are pending at this checkpoint.",
+    "An authorized same-project research writer/runtime composition is not established by the browser API."
+  ],
+  "update_id": "20261121-continuous-research-direction"
+}

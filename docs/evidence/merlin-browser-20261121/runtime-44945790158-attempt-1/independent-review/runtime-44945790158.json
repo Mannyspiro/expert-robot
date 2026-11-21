@@ -1,0 +1,131 @@
+{
+  "acceptance_budget": {
+    "current_successful_fixture_attempts": 1,
+    "prior_failed_fixture_attempts": 1,
+    "public_submits": 0,
+    "remaining_public_attempts": 3,
+    "replay_fixture": false,
+    "total_ceiling": 5
+  },
+  "blocking_fact": {
+    "message": "browser supervisor readiness deadline",
+    "type": "BootstrapError"
+  },
+  "check_groups": [
+    {
+      "detail": "Exact 409823-byte primary archive identity matches relayed GitHub artifact14723112811 metadata; all144 extracted members byte-equal archive members.",
+      "id": "archive_identity",
+      "status": "passed"
+    },
+    {
+      "detail": "All five executed source files, exact new runtime archive and workflow equal the accepted freeze.",
+      "id": "frozen_source_closure",
+      "status": "passed"
+    },
+    {
+      "detail": "Actual request UUID, run, attempt and workflow request commit match dispatched operation.",
+      "id": "native_request_identity",
+      "status": "passed"
+    },
+    {
+      "detail": "Actual host14 and frozen product33 controls passed with no skips/errors/failures before root runtime operation.",
+      "id": "native_prerequisites",
+      "status": "passed"
+    },
+    {
+      "detail": "Retained predecessor intent/result identities match; new result copies are byte-identical and retain separate successor history.",
+      "id": "retained_lineage",
+      "status": "passed"
+    },
+    {
+      "detail": "Real isolated Chromium156 and Playwright1.60 fixture succeeded with JavaScript-rendered renderer-js-42 and Chromium sandbox enabled; injected controlled bytes, not a public-network case.",
+      "id": "actual_renderer_fixture",
+      "status": "passed"
+    },
+    {
+      "detail": "All61 retained fixture result paths match declared lengths and SHA256; separate DOM/text/PNG identities match fixture observation.",
+      "id": "fixture_raw_closure",
+      "status": "passed"
+    },
+    {
+      "detail": "All7 actual live samples show UID/GID980, private network, no-new-privileges, 1GiB/zero-swap/100percentCPU/128tasks and whole-cgroup cleanup; renderer reports only loopback, zero capabilities, no forbidden host paths.",
+      "id": "live_fixture_isolation",
+      "status": "passed"
+    },
+    {
+      "detail": "Native fixture finished in5.377s; final worker PID0/no control group, stopped workers and scratch unmounted.",
+      "id": "fixture_shutdown",
+      "status": "passed"
+    },
+    {
+      "detail": "Five intended successes and three expected policy/response failures retained, including excluded ChatGPT and oversize/truncated controls; eight actions remain one fixture episode.",
+      "id": "typed_controlled_actions",
+      "status": "passed"
+    },
+    {
+      "detail": "Before/failure raw RPM inventory byte-identical; canonical971 tuples reproduce accepted installed digest498f3e\u2026; no reinstall or package mutation.",
+      "id": "packages_unchanged",
+      "status": "passed"
+    },
+    {
+      "detail": "Four private/provider file hashes, private current pointer, both service PIDs/states and resource snapshots match before/failure exactly.",
+      "id": "private_provider_state_unchanged",
+      "status": "passed"
+    },
+    {
+      "detail": "Retained copy ledger binds1420 files/153044541bytes; exact installed wheel versions reused, no pip installation.",
+      "id": "venv_reuse",
+      "status": "passed"
+    },
+    {
+      "detail": "Actual new-host hash was observed and old host restored via verified readback; service enable and rollback disable both returned0. Current service/unit/socket state still requires read-only inspection.",
+      "id": "rollback_observation",
+      "status": "passed"
+    },
+    {
+      "detail": "Failure occurred at supervisor socket readiness before initial caller status/peer test, public submit loop or restart readback. Browser service acceptance is not established.",
+      "id": "failure_boundary",
+      "status": "passed"
+    },
+    {
+      "detail": "No three public episode trees and empty canonical registry, consistent with exact source error boundary: two total fixture attempts consumed across runs, zero public submits, three public attempts remain. Reuse passed fixture.",
+      "id": "attempt_accounting",
+      "status": "passed"
+    },
+    {
+      "detail": "Zero public fixture network requests/model calls/package or wheel installs; fixture establishes renderer behavior only, not general public access or research gains.",
+      "id": "claim_and_mutation_scope",
+      "status": "passed"
+    }
+  ],
+  "date": "2026-11-21",
+  "decision": "accepted_native_fixture_and_failure_evidence; supervisor_activation_blocked",
+  "fixture_elapsed_seconds": 5.377,
+  "fixture_observation_sha256": "bfa954af712061844777bb1859d6925e41cc97fd24911650c2054c757fdc110e",
+  "fixture_receipt_sha256": "3c54b1df854e33ae11573ddd3280a91b908b289d587025cf26536952af8b4b98",
+  "intent_sha256": "3cf066c08574d06f59fa3620413ecb72d58af655776a4f0ae5967cfcc3848e36",
+  "job_id": 136972680107,
+  "lineage_sha256": "5da96d5381d98981450f50e6c9a209d73c357f37d6bf6a0aaf4a2f3f83121d65",
+  "native_run_id": 44945790158,
+  "next_step": "Fixed read-only exact service/unit/config/socket and time-bounded supervisor journal inspection; no restart, browser submit, fixture replay, package/wheel installation or failed-record deletion.",
+  "operation_receipt_sha256": "58bb11466d426164070ec07b476adcf919934491b7d6f5099e8266f845e31a37",
+  "passed_check_groups": 17,
+  "primary_artifact": {
+    "api_metadata_provenance": "Root GitHub metadata relayed by operations owner; reviewer independently verified archive bytes and every extracted member.",
+    "bytes": 409823,
+    "extracted_members_verified": 144,
+    "id": 14723112811,
+    "sha256": "8a2f491e43cf9101c9a1ed5b8efcd868e8ac73e763f1327d18d2615d19ccd46d"
+  },
+  "reviewer": "/root/source_release_review",
+  "schema": "merlin-independent-native-runtime-review/1",
+  "source_freeze_commit": "8af438d76dee3b14843de68914d0dfc0328da103",
+  "unproven": [
+    "Supervisor reaches stable Unix socket readiness.",
+    "Actual UID982/GID1000 status/submit/read and denied UID1000 peer.",
+    "Three real public-source captures and canonical publication.",
+    "Same-byte read after supervisor restart.",
+    "Current service/unit/socket identity and stopped-state inspection after rollback."
+  ],
+  "workflow_request_commit": "230b06056b74a998e47e5d8646aa70ec484d811a"
+}

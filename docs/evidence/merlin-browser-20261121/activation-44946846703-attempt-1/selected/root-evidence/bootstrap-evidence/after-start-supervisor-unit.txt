@@ -1,0 +1,27 @@
+MainPID=2701789
+Result=success
+NRestarts=0
+ExecMainPID=2701789
+ExecMainCode=0
+ExecMainStatus=0
+ExecStartPre={ path=/usr/bin/python3 ; argv[]=/usr/bin/python3 -I -B -c import os,stat;p=os.open('/run',os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW);s=os.fstat(p);assert s.st_uid==0 and not s.st_mode&0o022,'unexpected runtime parent';n='merlin-public-browser';os.access(n,os.F_OK,dir_fd=p,follow_symlinks=False) or os.mkdir(n,0o755,dir_fd=p);d=os.open(n,os.O_RDONLY|os.O_DIRECTORY|os.O_NOFOLLOW,dir_fd=p);s=os.fstat(d);assert s.st_uid==0 and not s.st_mode&0o022,'unexpected browser runtime directory';os.fchown(d,0,1000);os.fchmod(d,0o755);s=os.fstat(d);assert (s.st_uid,s.st_gid,stat.S_IMODE(s.st_mode))==(0,1000,0o755);os.close(d);os.close(p) ; ignore_errors=no ; start_time=[Sat 2026-11-21 20:33:06 GMT] ; stop_time=[Sat 2026-11-21 20:33:06 GMT] ; pid=2701788 ; code=exited ; status=0 }
+ExecStart={ path=/opt/merlin-public-browser/releases/5b967b6364bb8d3213c357e148c43073c309ab45d13338fe577d13565f8d0e9d/venv/bin/python ; argv[]=/opt/merlin-public-browser/releases/5b967b6364bb8d3213c357e148c43073c309ab45d13338fe577d13565f8d0e9d/venv/bin/python -I -B -c import sys;sys.path.insert(0,'/opt/merlin-public-browser/releases/5b967b6364bb8d3213c357e148c43073c309ab45d13338fe577d13565f8d0e9d/python');from merlin.browser_service import main;raise SystemExit(main()) --config /etc/merlin-public-browser/service.json ; ignore_errors=no ; start_time=[Sat 2026-11-21 20:33:06 GMT] ; stop_time=[n/a] ; pid=2701789 ; code=(null) ; status=0/0 }
+ControlGroup=/system.slice/merlin-public-browser.service
+CPUQuotaPerSecUSec=250ms
+MemoryMax=268435456
+MemorySwapMax=0
+TasksMax=32
+UMask=0077
+User=root
+Group=root
+PrivateTmp=no
+ProtectHome=no
+RestrictAddressFamilies=AF_UNIX
+RuntimeDirectory=
+KillMode=control-group
+LoadState=loaded
+ActiveState=active
+SubState=running
+FragmentPath=/etc/systemd/system/merlin-public-browser.service
+UnitFileState=enabled
+InvocationID=e1f8fd615d674113b9afd045dbc618d0

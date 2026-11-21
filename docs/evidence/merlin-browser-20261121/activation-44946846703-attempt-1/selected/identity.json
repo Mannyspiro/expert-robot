@@ -1,0 +1,10 @@
+{
+  "controller_sha256": "3514af927a28c77fe2c219248f15ffd88577561454bd4bbf09d842657cc9f979",
+  "python": "3.9.25 (main, Jul 15 2026, 00:00:00) \n[GCC 11.5.0 20240719 (Red Hat 11.5.0-14.0.1)]",
+  "ref": "refs/heads/merlin/browser-operations-20261121",
+  "repository": "morganaspim/Cace-app",
+  "run_attempt": 1,
+  "run_id": 44946846703,
+  "runner": "cace-oci-a1",
+  "workflow_commit": "c8b61b30dfff6c1e3c7889595276d27adca7b5be"
+}

@@ -1,0 +1,112 @@
+{
+  "check_group_count": 17,
+  "check_groups": [
+    "primary_archive_identity",
+    "all_513_archive_files_exact",
+    "exact_operation_and_source",
+    "receipt_and_result_identical",
+    "original_predecessor_records_preserved",
+    "all_package_stages_completed",
+    "exact_49_packages_and_one_signing_key_added",
+    "all_921_original_package_tuples_retained",
+    "installed_baseline_plus_delta_exact",
+    "before_and_after_failure_private_snapshots_identical",
+    "daemon_after_zvbi_absence_and_excluded_file_state",
+    "daemon_after_packages_absence_and_excluded_file_state",
+    "exact_native_account",
+    "all_native_package_tests_and_venv_wheel_commands_succeeded",
+    "exact_pre_python_exec_failure",
+    "fixture_cgroup_stopped_and_scratch_unmounted",
+    "no_public_source_episodes_or_model_calls"
+  ],
+  "decision": "package_installation_verified_browser_not_activated_read_only_loader_inspection_needed",
+  "evidence": [
+    {
+      "bytes": 551063,
+      "path": "/workspace/scratch/abed42219434/browser-operations/continuation-44944424850/artifact.zip",
+      "sha256": "d3a34dd76ffb7f030eda309f77e0fc22ed7511804d93e85f2a93eedd0b997cfb"
+    },
+    {
+      "bytes": 163017,
+      "path": "/workspace/scratch/abed42219434/browser-operations/continuation-44944424850/artifact/root-evidence/bootstrap-evidence/operation-receipt.json",
+      "sha256": "0ce1241325e81b33e51d487bfd9e0c0b2b8f5531335fceb945e3155920bb8797"
+    },
+    {
+      "bytes": 5566,
+      "path": "/workspace/scratch/abed42219434/browser-operations/continuation-44944424850/artifact/root-evidence/bootstrap-fixture-04d38719-4c94-4059-988b-9081375fd209/launch-receipt.json",
+      "sha256": "96f121315477fcc742cfbd6757b63fefdfec531551aa8ad4cc52fc30d968cfa2"
+    },
+    {
+      "bytes": 66,
+      "path": "/workspace/scratch/abed42219434/browser-operations/continuation-44944424850/artifact/root-evidence/bootstrap-fixture-04d38719-4c94-4059-988b-9081375fd209/fixture.log",
+      "sha256": "9680a806131603df09e07d0ac70310b9abb125ba8fd078047dc635fe53132ab0"
+    },
+    {
+      "bytes": 95,
+      "path": "/workspace/scratch/abed42219434/browser-operations/continuation-44944424850/artifact/root-evidence/bootstrap-evidence/wheel-versions.txt",
+      "sha256": "6cc253233097142ad37314bff032e2517c44803b3720fa7642cdb3d31b879e5b"
+    }
+  ],
+  "hypothesis": {
+    "finding": "The venv Python works on the host; the frozen sandbox maps /lib to an otherwise empty /usr/lib while binding /usr/lib64. A missing ELF interpreter or symlink target in that mount closure can explain ENOENT.",
+    "not_yet_proved": [
+      "Exact native ELF PT_INTERP for venv Python",
+      "Native loader symlink chain and mount visibility"
+    ],
+    "status": "inference_pending_fixed_native_inspection"
+  },
+  "measured_result": {
+    "all_workers_stopped": true,
+    "browser_activation_accepted": false,
+    "browser_gid": 980,
+    "browser_uid": 980,
+    "exact_original_package_tuples_retained": true,
+    "expected_rpm_additions": 49,
+    "fixture_elapsed_seconds": 0.574,
+    "fixture_error": "bwrap: execvp /runtime/venv/bin/python: No such file or directory",
+    "fixture_worker_launch_attempts": 1,
+    "installed_package_count": 971,
+    "model_calls": 0,
+    "original_package_count": 921,
+    "private_before_equals_after_failure": true,
+    "public_source_episodes": 0,
+    "python_result_marker": "absent",
+    "removed_packages": [],
+    "scratch_unmounted": true,
+    "signing_key_additions": [
+      {
+        "arch": "(none)",
+        "epoch": "0",
+        "name": "gpg-pubkey",
+        "release": "629ec9e2",
+        "version": "d3780cda"
+      }
+    ],
+    "stages_completed": [
+      "zvbi-library-only",
+      "remaining-dependencies"
+    ],
+    "venv_wheels": "pinned versions installed and check/version commands succeeded outside sandbox",
+    "zvbi_exclusions": "both exact paths recorded RPMFILE_STATE_NOTINSTALLED=2 and absent; unit not found/inactive"
+  },
+  "next_probe_scope": [
+    "Exact current retained intent/result/runtime/config and package/private-state identity",
+    "Fixed Python/venv link chains and pyvenv.cfg",
+    "Bounded ELF PT_INTERP and NEEDED metadata for Python, Playwright node and native headless_shell",
+    "Exact public loader link chain/bytes and fixed mount ancestry ownership/permissions",
+    "No binary payload execution, fixture retry, model call, installation or namespace broadening"
+  ],
+  "request_id": "04d38719-4c94-4059-988b-9081375fd209",
+  "review_side_effects": {
+    "browser_calls": 0,
+    "model_calls": 0,
+    "native_operations": 0,
+    "remote_mutations": 0,
+    "source_edits": 0
+  },
+  "reviewed_at_utc": "2026-11-21T20:08:49.369573+00:00",
+  "reviewer": "/root/source_release_review",
+  "run_id": 44944424850,
+  "schema": "merlin-browser-native-continuation-independent-review/1",
+  "workflow_commit": "b11bf02997dc720535b7d729d60e3a7919892a9a"
+}

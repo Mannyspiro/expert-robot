@@ -1,0 +1,102 @@
+{
+  "check_groups": [
+    {
+      "detail": "Controller, tests and workflow match exact bytes, SHA256 and Git blob pins; wrapper pins equal manifest; source and wrapper parse as Python 3.9.",
+      "id": "exact_freeze",
+      "status": "passed"
+    },
+    {
+      "detail": "All six checked successor intent/result/lineage/fixture/old-host pins independently match actual retained native artifact; additional global predecessor and immutable runtime checks are required on host.",
+      "id": "actual_lineage",
+      "status": "passed"
+    },
+    {
+      "detail": "Exact inspect-supervisor-44945790158 operation, UUID schema, repository/branch/runner and first-attempt constraints; no caller command/path/run selection.",
+      "id": "fixed_request",
+      "status": "passed"
+    },
+    {
+      "detail": "Ten fixed commands contain only systemctl show, rpm queries and fixed-unit journalctl; no service start/restart/stop, package installation, payload execution or browser call.",
+      "id": "readonly_commands",
+      "status": "passed"
+    },
+    {
+      "detail": "Only exact failed controller and public-browser supervisor journals, fixed 20:20:40\u201320:21:45 UTC window, 512-line limit, timestamp/unit/PID/comm/MESSAGE fields; no environment or command-line dumps.",
+      "id": "journal_scope",
+      "status": "passed"
+    },
+    {
+      "detail": "ExecStart property is requested only for the newly created browser supervisor, never private/model services.",
+      "id": "execstart_scope",
+      "status": "passed"
+    },
+    {
+      "detail": "Fixed browser operation/unit/config bytes and metadata only; four private files are hash-only; no credential or private configuration content export.",
+      "id": "file_scope",
+      "status": "passed"
+    },
+    {
+      "detail": "Every ancestor opened through nofollow descriptors; regular bounded file reads use O_NONBLOCK, type/ownership checks where required and before/after identity checks; FIFO and symlink regressions pass.",
+      "id": "safe_reads",
+      "status": "passed"
+    },
+    {
+      "detail": "Unchanged 90-second root timeout, 5-second kill grace, 100-second outer wait; all probe children remain in timeout process group; 512 MiB address space, 60 CPU seconds and 64 descriptors.",
+      "id": "deadlines_resources",
+      "status": "passed"
+    },
+    {
+      "detail": "Eight required native tests before sudo; source hash rechecked before root compile, sanitized environment, bounded output captured by unprivileged runner; root probe does not write runner-selected files.",
+      "id": "native_gate_and_transport",
+      "status": "passed"
+    },
+    {
+      "detail": "No failed record deletion or accepted fixture replay; exact package/private/runtime identities and remaining public episode paths are observed for the next explicit continuation.",
+      "id": "preservation",
+      "status": "passed"
+    },
+    {
+      "detail": "Observations do not imply successful activation or automatic retry authorization; actual service failure cause and current state remain pending native probe.",
+      "id": "honest_outcome",
+      "status": "passed"
+    }
+  ],
+  "date": "2026-11-21",
+  "decision": "accepted_exact_fixed_read_only_probe",
+  "independent_tests": {
+    "command": "PYTHONDONTWRITEBYTECODE=1 python -B -m unittest discover -s ops/merlin_browser -p test_diagnose_bootstrap.py -v",
+    "count": 8,
+    "elapsed_seconds": 0.001,
+    "errors": 0,
+    "failures": 0,
+    "passed": 8,
+    "skips": 0
+  },
+  "limitation": "Acceptance covers the frozen diagnostic source, not an unobserved native result or successor activation.",
+  "native_actions_by_reviewer": 0,
+  "outstanding_blockers": [],
+  "passed_check_groups": 12,
+  "publication_manifest_sha256": "12ec00cecfb2fa20d4f48a742d105699a99c143e335c2eff3adeab5ff3cc70c8",
+  "reviewer": "/root/source_release_review",
+  "schema": "merlin-independent-supervisor-probe-review/1",
+  "sources": {
+    "diagnose_bootstrap.py": {
+      "bytes": 17693,
+      "git_blob": "f7a16fb9d8770d42ff6187599b2c74d3c6850cf1",
+      "sha256": "dc099a71784ffad9d4a7cd52eb56e6c7af7a9cb878e66a79e33f315866b221cf"
+    },
+    "test_diagnose_bootstrap.py": {
+      "bytes": 4866,
+      "git_blob": "14619018cb9c4a9cc77092fb12d14ae55f89937e",
+      "sha256": "4ad3b264584727bacdbea41b6ca9f48d216eb5aca7fbdfc7ec454f5bd068adfe"
+    }
+  },
+  "target_request_id": "4e9b1d59-f966-44ed-a2c1-329aa77aa22e",
+  "target_run_id": 44945790158,
+  "workflow": {
+    "bytes": 11579,
+    "git_blob": "ddd43c0c22bb940365385a097b4543feb2beb52d",
+    "path": ".github/workflows/merlin-browser-diagnostic.yml",
+    "sha256": "5f78e1979a7f8eacf9ac53898abd0e48b3eb09f12d162ffee8f42f924a23f668"
+  }
+}

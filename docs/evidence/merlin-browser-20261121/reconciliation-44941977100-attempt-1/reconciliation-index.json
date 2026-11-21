@@ -1,0 +1,70 @@
+{
+  "archive_members": 12,
+  "artifact_bytes": 39940,
+  "artifact_id": 14721828119,
+  "artifact_sha256": "2938035f9cc3625a84155d3673c548a5c516cc58a29be7a54b29765cac1bd277",
+  "automatic_retry": false,
+  "browser_acceptance_established": false,
+  "current_state": {
+    "bootstrap_intent_result_target_receipt_and_install_intent_present": false,
+    "browser_current_config_and_service_paths_present": false,
+    "dbus_broker_active_observed": true,
+    "dedicated_browser_account_present": false,
+    "installation_status": "no_current_browser_installation_observed",
+    "manager_state_cause_attributed_to_merlin": false,
+    "manager_state_observed": "degraded",
+    "rpm_comparison_independently_reconstructed": true,
+    "rpm_inventory_count": 921,
+    "rpm_inventory_equals_pre_acquisition": true,
+    "rpm_inventory_sha256": "aa434fae4c1c28b10a94229ff226b9046410a3c0af23482bfead85d00e86294f",
+    "selinux_enforcing_observed": true,
+    "target_transient_unit_active_state": "inactive",
+    "target_transient_unit_invocation_id": "",
+    "target_transient_unit_load_state": "not-found",
+    "target_transient_unit_main_pid": 0
+  },
+  "diagnostic_operation_effects": {
+    "browser_episodes": 0,
+    "model_calls": 0,
+    "policy_changes": false,
+    "service_transitions": false,
+    "software_installation": false
+  },
+  "directory": "reconciliation-44941977100-attempt-1",
+  "historical_limits": {
+    "controller_never_began_proven": false,
+    "empty_audit_records_are_not_audit_proof": true,
+    "journal_requested_line_limit": 512,
+    "journal_scope": "Exact target unit, broker, and matching filtered security records within the bounded window; no unrestricted historical audit.",
+    "journal_window_utc": [
+      "2026-11-21T19:28:00Z",
+      "2026-11-21T19:34:00Z"
+    ],
+    "not_found_unit_default_result_is_not_success_evidence": true,
+    "prior_browser_episodes_executed_proven_zero": false,
+    "probe_limitations_verbatim": [
+      "Read-only point-in-time observations do not authorize an automatic retry.",
+      "A missing receipt does not prove the controller never began.",
+      "Security journals retain only the fixed time window and matching unit/broker/AVC records."
+    ],
+    "selinux_cause_excluded": false,
+    "selinux_cause_proven": false
+  },
+  "observation_receipt_sha256": "26689427ed2f4fb2ab2c1a2ec86c2e69b13c2488585971a6b0911880dd86164f",
+  "promotion_authority": false,
+  "qualification": false,
+  "raw_job_log_bytes": 18159,
+  "raw_job_log_sha256": "42a4444934e0e0edef21197e8a96fdd7bd5c8c6e9c50ff6175c8e718fe10a308",
+  "recorded_at": "2026-11-21T19:40:59.414074+00:00",
+  "request_commit": "d5ae9bdd8d0af06bd6fca87f1476ca681c9c7cd8",
+  "request_id": "a1b8d3fd-de1a-46cd-a471-f14ece698fce",
+  "run_attempt": 1,
+  "run_id": 44941977100,
+  "run_url": "https://github.com/morganaspim/Cace-app/actions/runs/44941977100",
+  "schema": "merlin-browser-read-only-reconciliation-index/1",
+  "source_commit": "2655d2792e57f4e508667951dd5d62bbd82bcca2",
+  "status": "successful_read_only_observation",
+  "target_run_id": 44941093952,
+  "workflow_id": 426242547,
+  "workflow_path": ".github/workflows/merlin-browser-diagnostic.yml"
+}

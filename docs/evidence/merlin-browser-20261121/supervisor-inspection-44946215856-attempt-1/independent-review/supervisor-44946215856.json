@@ -1,0 +1,118 @@
+{
+  "check_groups": [
+    {
+      "detail": "Exact GitHub artifact identity and every extracted member independently verified.",
+      "id": "exact_archive",
+      "status": "passed"
+    },
+    {
+      "detail": "Probe execution and target failed runtime request match dispatched identities.",
+      "id": "exact_native_target",
+      "status": "passed"
+    },
+    {
+      "detail": "Exact accepted diagnostic source/workflow executed; all eight native controls passed.",
+      "id": "source_and_native_controls",
+      "status": "passed"
+    },
+    {
+      "detail": "All ten fixed read-only commands completed successfully within declared bounds.",
+      "id": "complete_readonly_commands",
+      "status": "passed"
+    },
+    {
+      "detail": "All nine successor/fixture/runtime/old-host identities and global failed lineage match exact expected bytes.",
+      "id": "retained_lineage",
+      "status": "passed"
+    },
+    {
+      "detail": "All fourteen deployed replacement runtime payload identities still match accepted manifest.",
+      "id": "immutable_runtime",
+      "status": "passed"
+    },
+    {
+      "detail": "All 971 installed package identities remain exact; no package or wheel reinstall occurred.",
+      "id": "packages_unchanged",
+      "status": "passed"
+    },
+    {
+      "detail": "Private current link, four hashes and both service states/PIDs/resources match the prior runtime failure snapshot; no private contents exported.",
+      "id": "private_provider_unchanged",
+      "status": "passed"
+    },
+    {
+      "detail": "New browser supervisor is currently disabled, inactive, PID0 and has no control group.",
+      "id": "supervisor_current_state",
+      "status": "passed"
+    },
+    {
+      "detail": "Failed runtime controller and successful fixture have no remaining PID/control group.",
+      "id": "old_workers_stopped",
+      "status": "passed"
+    },
+    {
+      "detail": "Current link/socket/database absent and all three public episode paths absent, consistent with pre-Python supervisor failure and zero public submissions.",
+      "id": "no_public_work_started",
+      "status": "passed"
+    },
+    {
+      "detail": "Existing runtime parent is root:opc mode0755; unit requests Group=root and managed RuntimeDirectory, which identifies the specific setup interaction for repair without proving its kernel/MAC cause.",
+      "id": "actual_runtime_parent",
+      "status": "passed"
+    },
+    {
+      "detail": "Actual old host restored; exact failed unit and service configuration retained for successor identity checks.",
+      "id": "unit_config_rollback",
+      "status": "passed"
+    },
+    {
+      "detail": "Four attempted supervisor starts failed at systemd step RUNTIME_DIRECTORY with status233, before Python. No SELinux-specific cause is established by these messages.",
+      "id": "observed_failure",
+      "status": "passed"
+    },
+    {
+      "detail": "All four fixed zvbid paths remain absent.",
+      "id": "excluded_daemon_absent",
+      "status": "passed"
+    },
+    {
+      "detail": "Probe reports zero browser/model calls, installation, service transitions and policy changes; executed source contains read-only operations only.",
+      "id": "probe_nonmutation",
+      "status": "passed"
+    }
+  ],
+  "concrete_reboot_constraint": "Product serve() calls mkdir(mode0755) under UMask0077, yielding0700 on a fresh /run. Removing RuntimeDirectory alone is insufficient; fixed parent creation/chmod must precede service startup.",
+  "date": "2026-11-21",
+  "decision": "accepted_actual_diagnosis_and_preserved_state_for_narrow_unit_successor",
+  "native_supervisor_failure": {
+    "exit_code": 233,
+    "message": "Failed to set up special execution directory in /run: Permission denied",
+    "pre_python_start_failures": 4,
+    "specific_selinux_or_recursive_chown_cause": "not established",
+    "step": "RUNTIME_DIRECTORY"
+  },
+  "passed_check_groups": 16,
+  "primary_artifact": {
+    "bytes": 103331,
+    "extracted_members_verified": 12,
+    "id": 14723462946,
+    "sha256": "7248118a26a83a5b909b91f2f0d976919dfa0efd2b34a3201a6d8845ad75dfd1"
+  },
+  "recommended_unit_only_scope": "Remove redundant RuntimeDirectory management and prepare only the exact runtime parent through a fixed nofollow root-owned descriptor, setting owner0:1000 and mode0755. Preserve UMask0077, immutable runtime/fixture, all worker isolation, and exact prior history. Record scoped supervisor unit/journal automatically on activation success/failure.",
+  "reconciliation_sha256": "0a7a1604e2aa071a3effed4b305b7cf8c23bc0fdf5f2ddc5cdac22e56d046f34",
+  "remaining_acceptance": {
+    "fixture_replay": false,
+    "package_reinstallation": false,
+    "passed_fixture_to_reuse": "bootstrap-fixture-4e9b1d59-f966-44ed-a2c1-329aa77aa22e",
+    "public_episode_attempts": 3
+  },
+  "reviewer": "/root/source_release_review",
+  "run_id": 44946215856,
+  "schema": "merlin-independent-supervisor-native-review/1",
+  "source_commit": "fd3a4a5116a0bec0be6c7eedc34edbd8db9221d0",
+  "unproven": [
+    "Unit repair has not yet run on native host.",
+    "Actual caller authorization, all three public source episodes and restart readback remain pending."
+  ],
+  "workflow_request_commit": "0a39483ca8de7ea66cddd6cab58286553a2cfdb9"
+}

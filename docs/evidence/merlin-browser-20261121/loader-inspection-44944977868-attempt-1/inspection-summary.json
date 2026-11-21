@@ -1,0 +1,1038 @@
+{
+  "automatic_retry": false,
+  "browser_episodes": 0,
+  "browser_state": [
+    {
+      "content_scope": "fixed browser operation only",
+      "exists": false,
+      "path": "/opt/merlin-public-browser/current"
+    },
+    {
+      "bytes": 422,
+      "content": "{\"browser_gid\":980,\"browser_uid\":980,\"executable\":\"/usr/lib64/chromium-browser/headless_shell\",\"executable_sha256\":\"22870374b6f2acfa00ac7c54a09eb30aacb1cdac932aba97e654e3dff458318f\",\"release\":\"/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90\",\"runtime_manifest_sha256\":\"51c68b5f7ceb10debb270ffdde2409648968dddd11e5e93c3f989802ca25b8d8\",\"schema\":\"merlin-browser-host/1\"}\n",
+      "content_scope": "fixed browser operation only",
+      "encoding": "utf-8",
+      "exists": true,
+      "gid": 0,
+      "mode": "0o600",
+      "path": "/etc/merlin-public-browser/host.json",
+      "sha256": "728199723582985bc21357e72059fab26a0220e01a6d109f36288b39ecbd8600",
+      "uid": 0
+    },
+    {
+      "content_scope": "fixed browser operation only",
+      "exists": false,
+      "path": "/etc/merlin-public-browser/service.json"
+    },
+    {
+      "content_scope": "fixed browser operation only",
+      "exists": false,
+      "path": "/etc/systemd/system/merlin-public-browser.service"
+    }
+  ],
+  "command_outputs_location": "artifact.zip:reconciliation.json:commands",
+  "daemon_paths": [
+    {
+      "content_scope": "fixed browser operation only",
+      "exists": false,
+      "path": "/usr/lib/systemd/system/zvbid.service"
+    },
+    {
+      "content_scope": "fixed browser operation only",
+      "exists": false,
+      "path": "/etc/systemd/system/zvbid.service"
+    },
+    {
+      "content_scope": "fixed browser operation only",
+      "exists": false,
+      "path": "/run/systemd/system/zvbid.service"
+    },
+    {
+      "content_scope": "fixed browser operation only",
+      "exists": false,
+      "path": "/usr/sbin/zvbid"
+    }
+  ],
+  "dedicated_browser_account": {
+    "exists": true,
+    "gid": 980,
+    "home": "/var/empty",
+    "shell": "/sbin/nologin",
+    "uid": 980
+  },
+  "derived_summary_not_original_report_bytes": true,
+  "execution": {
+    "controller_sha256": "425a3268b8f03014e432530f44a2e5a5defc99518ee363d42ae1eb163f8feb84",
+    "ref": "refs/heads/merlin/browser-operations-20261121",
+    "repository": "morganaspim/Cace-app",
+    "run_attempt": 1,
+    "run_id": 44944977868,
+    "runner": "cace-oci-a1",
+    "runner_selinux_context": "system_u:system_r:unconfined_service_t:s0\u0000",
+    "workflow_commit": "4c7068c80f75c84b7e556836e6167dc1168f4740"
+  },
+  "existing_private_hashes": [
+    {
+      "bytes": 522,
+      "content_exported": false,
+      "path": "/etc/merlin-dot-private/config.json",
+      "sha256": "a25921442e2d3e463ccd685de6c67d824140b8c1592ab4fe942fb50c5d3b22e8"
+    },
+    {
+      "bytes": 1092,
+      "content_exported": false,
+      "path": "/etc/systemd/system/merlin-dot-private.service",
+      "sha256": "f22462e9c91eedab99d4bd16d9e3bb14eb52fedbc1e9e3b9110bb3307a11e543"
+    },
+    {
+      "bytes": 3192,
+      "content_exported": false,
+      "path": "/etc/merlin-model-provider/manifest.json",
+      "sha256": "35cf7ea56185126587e7dc10bb400ec53df51057407f9920d0ab03aff4299203"
+    },
+    {
+      "bytes": 1153,
+      "content_exported": false,
+      "path": "/etc/systemd/system/merlin-model-provider.service",
+      "sha256": "77629b0ef1afc4bcca4fa11282e6ca0bb7f0164110982fe85ae8ca6c267cad99"
+    }
+  ],
+  "host_expected_pin_origin": "derived from exact prior constructor and receipt; this probe hashes the actual host file",
+  "limitations": [
+    "Read-only point-in-time observations do not authorize an automatic retry.",
+    "A missing receipt does not prove the controller never began.",
+    "Python, the Playwright driver, Chromium, and the dynamic loader are inspected as data, never executed.",
+    "No fixture is retried and no mount or isolation setting is changed."
+  ],
+  "model_calls": 0,
+  "mount_ancestors": [
+    {
+      "bytes": 7,
+      "content_scope": "fixed browser operation only",
+      "exists": true,
+      "gid": 0,
+      "mode": "0o777",
+      "path": "/lib",
+      "symlink_target": "usr/lib",
+      "uid": 0
+    },
+    {
+      "bytes": 9,
+      "content_scope": "fixed browser operation only",
+      "exists": true,
+      "gid": 0,
+      "mode": "0o777",
+      "path": "/lib64",
+      "symlink_target": "usr/lib64",
+      "uid": 0
+    },
+    {
+      "bytes": 4096,
+      "content_scope": "fixed browser operation only",
+      "exists": true,
+      "gid": 0,
+      "mode": "0o555",
+      "path": "/usr/lib",
+      "uid": 0
+    },
+    {
+      "bytes": 53248,
+      "content_scope": "fixed browser operation only",
+      "exists": true,
+      "gid": 0,
+      "mode": "0o555",
+      "path": "/usr/lib64",
+      "uid": 0
+    },
+    {
+      "bytes": 64,
+      "content_scope": "fixed browser operation only",
+      "exists": true,
+      "gid": 0,
+      "mode": "0o755",
+      "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90",
+      "uid": 0
+    },
+    {
+      "bytes": 74,
+      "content_scope": "fixed browser operation only",
+      "exists": true,
+      "gid": 0,
+      "mode": "0o755",
+      "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv",
+      "uid": 0
+    },
+    {
+      "bytes": 184,
+      "content_scope": "fixed browser operation only",
+      "exists": true,
+      "gid": 0,
+      "mode": "0o755",
+      "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/bin",
+      "uid": 0
+    },
+    {
+      "bytes": 50,
+      "content_scope": "fixed browser operation only",
+      "exists": true,
+      "gid": 0,
+      "mode": "0o755",
+      "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/python",
+      "uid": 0
+    },
+    {
+      "bytes": 53,
+      "content_scope": "fixed browser operation only",
+      "exists": true,
+      "gid": 0,
+      "mode": "0o755",
+      "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/bin",
+      "uid": 0
+    }
+  ],
+  "observed_at_unix": 1795291915.6664178,
+  "package_reconciliation": {
+    "count": 971,
+    "equals_retained_after": true,
+    "retained_after_count": 971,
+    "retained_after_sha256": "498f3ea85fe0dfcebbd2871c5029e1f1216ea2a6031f4ef20bd0eefaa69d79fd",
+    "sha256": "498f3ea85fe0dfcebbd2871c5029e1f1216ea2a6031f4ef20bd0eefaa69d79fd"
+  },
+  "policy_changes": false,
+  "prior_lineage": {
+    "actual_files_matched": true,
+    "failed_result_sha256": "8170ddc15aaf4630fc32440eb353da649c1c8bdfcf9a52cda1e8d7f2a0c30557",
+    "intent_sha256": "203c362c00fb7af0b6f02ac7b923d0894b7f09553eb031299822f62e35a1d305"
+  },
+  "public_binaries": [
+    {
+      "bytes": 68496,
+      "content_exported": false,
+      "elf_ident": "7f454c46020101000000000000000000",
+      "elf_magic": "7f454c46",
+      "executed": false,
+      "exists": true,
+      "path": "/usr/bin/python3.9",
+      "path_metadata": [
+        {
+          "bytes": 268,
+          "gid": 0,
+          "mode": "0o555",
+          "path": "/",
+          "uid": 0
+        },
+        {
+          "bytes": 144,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/usr",
+          "uid": 0
+        },
+        {
+          "bytes": 36864,
+          "gid": 0,
+          "mode": "0o555",
+          "path": "/usr/bin",
+          "uid": 0
+        },
+        {
+          "bytes": 68496,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/usr/bin/python3.9",
+          "uid": 0
+        }
+      ],
+      "resolved_path": "/usr/bin/python3.9",
+      "sha256": "59acf176bc9571b65545d2d08f9db5271d14855431f9ccafc1239bc81b5a8e8d"
+    },
+    {
+      "bytes": 68496,
+      "content_exported": false,
+      "elf_ident": "7f454c46020101000000000000000000",
+      "elf_magic": "7f454c46",
+      "executed": false,
+      "exists": true,
+      "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/bin/python",
+      "path_metadata": [
+        {
+          "bytes": 268,
+          "gid": 0,
+          "mode": "0o555",
+          "path": "/",
+          "uid": 0
+        },
+        {
+          "bytes": 4096,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt",
+          "uid": 0
+        },
+        {
+          "bytes": 22,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser",
+          "uid": 0
+        },
+        {
+          "bytes": 78,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases",
+          "uid": 0
+        },
+        {
+          "bytes": 64,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90",
+          "uid": 0
+        },
+        {
+          "bytes": 74,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv",
+          "uid": 0
+        },
+        {
+          "bytes": 184,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/bin",
+          "uid": 0
+        },
+        {
+          "bytes": 68496,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/bin/python",
+          "uid": 0
+        }
+      ],
+      "resolved_path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/bin/python",
+      "sha256": "59acf176bc9571b65545d2d08f9db5271d14855431f9ccafc1239bc81b5a8e8d"
+    },
+    {
+      "bytes": 68496,
+      "content_exported": false,
+      "elf_ident": "7f454c46020101000000000000000000",
+      "elf_magic": "7f454c46",
+      "executed": false,
+      "exists": true,
+      "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/bin/python3",
+      "path_metadata": [
+        {
+          "bytes": 268,
+          "gid": 0,
+          "mode": "0o555",
+          "path": "/",
+          "uid": 0
+        },
+        {
+          "bytes": 4096,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt",
+          "uid": 0
+        },
+        {
+          "bytes": 22,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser",
+          "uid": 0
+        },
+        {
+          "bytes": 78,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases",
+          "uid": 0
+        },
+        {
+          "bytes": 64,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90",
+          "uid": 0
+        },
+        {
+          "bytes": 74,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv",
+          "uid": 0
+        },
+        {
+          "bytes": 184,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/bin",
+          "uid": 0
+        },
+        {
+          "bytes": 68496,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/bin/python3",
+          "uid": 0
+        }
+      ],
+      "resolved_path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/bin/python3",
+      "sha256": "59acf176bc9571b65545d2d08f9db5271d14855431f9ccafc1239bc81b5a8e8d"
+    },
+    {
+      "bytes": 68496,
+      "content_exported": false,
+      "elf_ident": "7f454c46020101000000000000000000",
+      "elf_magic": "7f454c46",
+      "executed": false,
+      "exists": true,
+      "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/bin/python3.9",
+      "path_metadata": [
+        {
+          "bytes": 268,
+          "gid": 0,
+          "mode": "0o555",
+          "path": "/",
+          "uid": 0
+        },
+        {
+          "bytes": 4096,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt",
+          "uid": 0
+        },
+        {
+          "bytes": 22,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser",
+          "uid": 0
+        },
+        {
+          "bytes": 78,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases",
+          "uid": 0
+        },
+        {
+          "bytes": 64,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90",
+          "uid": 0
+        },
+        {
+          "bytes": 74,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv",
+          "uid": 0
+        },
+        {
+          "bytes": 184,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/bin",
+          "uid": 0
+        },
+        {
+          "bytes": 68496,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/bin/python3.9",
+          "uid": 0
+        }
+      ],
+      "resolved_path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/bin/python3.9",
+      "sha256": "59acf176bc9571b65545d2d08f9db5271d14855431f9ccafc1239bc81b5a8e8d"
+    },
+    {
+      "bytes": 120702160,
+      "content_exported": false,
+      "elf_ident": "7f454c46020101030000000000000000",
+      "elf_magic": "7f454c46",
+      "executed": false,
+      "exists": true,
+      "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/lib/python3.9/site-packages/playwright/driver/node",
+      "path_metadata": [
+        {
+          "bytes": 268,
+          "gid": 0,
+          "mode": "0o555",
+          "path": "/",
+          "uid": 0
+        },
+        {
+          "bytes": 4096,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt",
+          "uid": 0
+        },
+        {
+          "bytes": 22,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser",
+          "uid": 0
+        },
+        {
+          "bytes": 78,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases",
+          "uid": 0
+        },
+        {
+          "bytes": 64,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90",
+          "uid": 0
+        },
+        {
+          "bytes": 74,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv",
+          "uid": 0
+        },
+        {
+          "bytes": 23,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/lib",
+          "uid": 0
+        },
+        {
+          "bytes": 27,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/lib/python3.9",
+          "uid": 0
+        },
+        {
+          "bytes": 4096,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/lib/python3.9/site-packages",
+          "uid": 0
+        },
+        {
+          "bytes": 144,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/lib/python3.9/site-packages/playwright",
+          "uid": 0
+        },
+        {
+          "bytes": 65,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/lib/python3.9/site-packages/playwright/driver",
+          "uid": 0
+        },
+        {
+          "bytes": 120702160,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/lib/python3.9/site-packages/playwright/driver/node",
+          "uid": 0
+        }
+      ],
+      "resolved_path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/lib/python3.9/site-packages/playwright/driver/node",
+      "sha256": "d0b9f94a9771bba3c30a54f0aee622fa0bee37be684cc1df6da2d3448606d98d"
+    },
+    {
+      "bytes": 120702160,
+      "content_exported": false,
+      "elf_ident": "7f454c46020101030000000000000000",
+      "elf_magic": "7f454c46",
+      "executed": false,
+      "exists": true,
+      "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/lib64/python3.9/site-packages/playwright/driver/node",
+      "path_metadata": [
+        {
+          "bytes": 268,
+          "gid": 0,
+          "mode": "0o555",
+          "path": "/",
+          "uid": 0
+        },
+        {
+          "bytes": 4096,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt",
+          "uid": 0
+        },
+        {
+          "bytes": 22,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser",
+          "uid": 0
+        },
+        {
+          "bytes": 78,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases",
+          "uid": 0
+        },
+        {
+          "bytes": 64,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90",
+          "uid": 0
+        },
+        {
+          "bytes": 74,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv",
+          "uid": 0
+        },
+        {
+          "bytes": 3,
+          "gid": 0,
+          "mode": "0o777",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/lib64",
+          "symlink_target": "lib",
+          "uid": 0
+        },
+        {
+          "bytes": 27,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/lib64/python3.9",
+          "uid": 0
+        },
+        {
+          "bytes": 4096,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/lib64/python3.9/site-packages",
+          "uid": 0
+        },
+        {
+          "bytes": 144,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/lib64/python3.9/site-packages/playwright",
+          "uid": 0
+        },
+        {
+          "bytes": 65,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/lib64/python3.9/site-packages/playwright/driver",
+          "uid": 0
+        },
+        {
+          "bytes": 120702160,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/lib64/python3.9/site-packages/playwright/driver/node",
+          "uid": 0
+        },
+        {
+          "bytes": 23,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/lib",
+          "uid": 0
+        },
+        {
+          "bytes": 27,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/lib/python3.9",
+          "uid": 0
+        },
+        {
+          "bytes": 4096,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/lib/python3.9/site-packages",
+          "uid": 0
+        },
+        {
+          "bytes": 144,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/lib/python3.9/site-packages/playwright",
+          "uid": 0
+        },
+        {
+          "bytes": 65,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/lib/python3.9/site-packages/playwright/driver",
+          "uid": 0
+        },
+        {
+          "bytes": 120702160,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/lib/python3.9/site-packages/playwright/driver/node",
+          "uid": 0
+        }
+      ],
+      "resolved_path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/lib/python3.9/site-packages/playwright/driver/node",
+      "sha256": "d0b9f94a9771bba3c30a54f0aee622fa0bee37be684cc1df6da2d3448606d98d"
+    },
+    {
+      "bytes": 221959928,
+      "content_exported": false,
+      "elf_ident": "7f454c46020101000000000000000000",
+      "elf_magic": "7f454c46",
+      "executed": false,
+      "exists": true,
+      "path": "/usr/lib64/chromium-browser/headless_shell",
+      "path_metadata": [
+        {
+          "bytes": 268,
+          "gid": 0,
+          "mode": "0o555",
+          "path": "/",
+          "uid": 0
+        },
+        {
+          "bytes": 144,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/usr",
+          "uid": 0
+        },
+        {
+          "bytes": 53248,
+          "gid": 0,
+          "mode": "0o555",
+          "path": "/usr/lib64",
+          "uid": 0
+        },
+        {
+          "bytes": 4096,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/usr/lib64/chromium-browser",
+          "uid": 0
+        },
+        {
+          "bytes": 221959928,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/usr/lib64/chromium-browser/headless_shell",
+          "uid": 0
+        }
+      ],
+      "resolved_path": "/usr/lib64/chromium-browser/headless_shell",
+      "sha256": "22870374b6f2acfa00ac7c54a09eb30aacb1cdac932aba97e654e3dff458318f"
+    },
+    {
+      "bytes": 842664,
+      "content_exported": false,
+      "elf_ident": "7f454c46020101000000000000000000",
+      "elf_magic": "7f454c46",
+      "executed": false,
+      "exists": true,
+      "path": "/lib/ld-linux-aarch64.so.1",
+      "path_metadata": [
+        {
+          "bytes": 268,
+          "gid": 0,
+          "mode": "0o555",
+          "path": "/",
+          "uid": 0
+        },
+        {
+          "bytes": 7,
+          "gid": 0,
+          "mode": "0o777",
+          "path": "/lib",
+          "symlink_target": "usr/lib",
+          "uid": 0
+        },
+        {
+          "bytes": 842664,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/lib/ld-linux-aarch64.so.1",
+          "uid": 0
+        },
+        {
+          "bytes": 144,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/usr",
+          "uid": 0
+        },
+        {
+          "bytes": 4096,
+          "gid": 0,
+          "mode": "0o555",
+          "path": "/usr/lib",
+          "uid": 0
+        },
+        {
+          "bytes": 842664,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/usr/lib/ld-linux-aarch64.so.1",
+          "uid": 0
+        }
+      ],
+      "resolved_path": "/usr/lib/ld-linux-aarch64.so.1",
+      "sha256": "49d528c1bc76e851bdc1db2ffcacd69b7f969c461a23741b9f5b8be4318c3403"
+    },
+    {
+      "executed": false,
+      "exists": false,
+      "path": "/lib64/ld-linux-aarch64.so.1",
+      "path_metadata": []
+    },
+    {
+      "bytes": 842664,
+      "content_exported": false,
+      "elf_ident": "7f454c46020101000000000000000000",
+      "elf_magic": "7f454c46",
+      "executed": false,
+      "exists": true,
+      "path": "/usr/lib/ld-linux-aarch64.so.1",
+      "path_metadata": [
+        {
+          "bytes": 268,
+          "gid": 0,
+          "mode": "0o555",
+          "path": "/",
+          "uid": 0
+        },
+        {
+          "bytes": 144,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/usr",
+          "uid": 0
+        },
+        {
+          "bytes": 4096,
+          "gid": 0,
+          "mode": "0o555",
+          "path": "/usr/lib",
+          "uid": 0
+        },
+        {
+          "bytes": 842664,
+          "gid": 0,
+          "mode": "0o755",
+          "path": "/usr/lib/ld-linux-aarch64.so.1",
+          "uid": 0
+        }
+      ],
+      "resolved_path": "/usr/lib/ld-linux-aarch64.so.1",
+      "sha256": "49d528c1bc76e851bdc1db2ffcacd69b7f969c461a23741b9f5b8be4318c3403"
+    },
+    {
+      "executed": false,
+      "exists": false,
+      "path": "/usr/lib64/ld-linux-aarch64.so.1",
+      "path_metadata": []
+    }
+  ],
+  "raw_report_location": "artifact.zip:reconciliation.json",
+  "request": {
+    "created_at": "2026-11-21T20:11:34Z",
+    "operation": "inspect-loader-44944424850",
+    "request_id": "e4a5fa11-3f08-4766-8015-ed7d111e08d6",
+    "schema": "merlin-browser-diagnostic-request/1"
+  },
+  "retained_operation_artifacts_location": "artifact.zip:reconciliation.json:retained_operation_artifacts",
+  "runner_candidate_artifacts": [
+    {
+      "content_scope": "fixed browser operation only",
+      "exists": false,
+      "path": "/opt/actions-runner/_work/_temp/merlin-browser-bootstrap-44944424850-1/root-evidence/root-candidate-plan.json"
+    },
+    {
+      "content_scope": "fixed browser operation only",
+      "exists": false,
+      "path": "/opt/actions-runner/_work/_temp/merlin-browser-bootstrap-44944424850-1/root-evidence/root-candidate-rejection.json"
+    }
+  ],
+  "runtime_file_identities": [
+    {
+      "bytes": 24631,
+      "matches_manifest": true,
+      "path": "bin/launch-episode",
+      "sha256": "621e2557785492e7de3c6c5b7161653f2a05fb8080f9711d7b72d11900d57bfe"
+    },
+    {
+      "bytes": 8108,
+      "matches_manifest": true,
+      "path": "bin/smoke_renderer.py",
+      "sha256": "a9cc3ab7b67ec2511a7ed56b2af4d829a424ad3a00f2632e0e860ceddc59e2f9"
+    },
+    {
+      "bytes": 103,
+      "matches_manifest": true,
+      "path": "python/dot_ai_os/__init__.py",
+      "sha256": "5a54db6fddc5b1a178c7beaa42089ee95bdea81871560c8c5d1f868a2b16e487"
+    },
+    {
+      "bytes": 23013,
+      "matches_manifest": true,
+      "path": "python/dot_ai_os/bridge.py",
+      "sha256": "781447bcfb965e11b39d7cedfc1d4f1db3c6c67f502bffc6a07605af7cf085a3"
+    },
+    {
+      "bytes": 275,
+      "matches_manifest": true,
+      "path": "python/merlin/__init__.py",
+      "sha256": "49f23ffa9b838de063cd88e4a60704d1989f55ff3aa70fe2ed850b0396fa8f93"
+    },
+    {
+      "bytes": 2542,
+      "matches_manifest": true,
+      "path": "python/merlin/artifact_ref.py",
+      "sha256": "187e33ed4ab6e1a79e054ff31c07b383090dae94cb51c5eb9dd01dfb80227584"
+    },
+    {
+      "bytes": 2963,
+      "matches_manifest": true,
+      "path": "python/merlin/browser_client.py",
+      "sha256": "b674d873e9f2f12b94339c7bc5c1df3d035433307248b595c27319632a87a58b"
+    },
+    {
+      "bytes": 16013,
+      "matches_manifest": true,
+      "path": "python/merlin/browser_egress.py",
+      "sha256": "93b018f113e004b4322f4702669015eb64190480145686954d4b46aabf34c4ff"
+    },
+    {
+      "bytes": 20341,
+      "matches_manifest": true,
+      "path": "python/merlin/browser_ingest.py",
+      "sha256": "b4305956d5159482eb043e0bfdbca81bfd7cb353e6bc51f21437480f67f08d82"
+    },
+    {
+      "bytes": 6300,
+      "matches_manifest": true,
+      "path": "python/merlin/browser_policy.py",
+      "sha256": "c0583bfd6309bd67cf33f6c9e92e4a39c7caab5bb2c3fd9a99fda578c53d30c8"
+    },
+    {
+      "bytes": 17146,
+      "matches_manifest": true,
+      "path": "python/merlin/browser_service.py",
+      "sha256": "149b8cad37299b4f6b38ec079797242629fb290061e6997b75e73b64d43cf2af"
+    },
+    {
+      "bytes": 42079,
+      "matches_manifest": true,
+      "path": "python/merlin/project_registry.py",
+      "sha256": "c7fbd89ae99705f60a1ecd7f41df244742fe218a335b4a3e6d2fed11c96521c7"
+    },
+    {
+      "bytes": 27466,
+      "matches_manifest": true,
+      "path": "python/merlin/public_browser.py",
+      "sha256": "4aaec5e3a38809d077424fcf8f557e8de92a3a6e22236d223a40262e75cd3a54"
+    },
+    {
+      "bytes": 33124,
+      "matches_manifest": true,
+      "path": "python/tests/test_public_browser.py",
+      "sha256": "7ce6b4fcad09a99bb116ec704a5f00bc00e85660a14d5527a0affe6a89d6dfe2"
+    }
+  ],
+  "schema": "merlin-browser-bootstrap-reconciliation/1",
+  "service_transitions": false,
+  "software_installation": false,
+  "status": "observations_collected",
+  "successor_identity_observations": [
+    {
+      "bytes": 2327,
+      "matches_expected": true,
+      "path": "/var/lib/merlin-browser-bootstrap/04d38719-4c94-4059-988b-9081375fd209/bootstrap-intent.json",
+      "sha256": "b641bd1d8f2d5d6f5a7a016e74f8cf942a92c15c2d7db0b1d752d66709d3801f"
+    },
+    {
+      "bytes": 163017,
+      "matches_expected": true,
+      "path": "/var/lib/merlin-browser-bootstrap/04d38719-4c94-4059-988b-9081375fd209/bootstrap-result.json",
+      "sha256": "0ce1241325e81b33e51d487bfd9e0c0b2b8f5531335fceb945e3155920bb8797"
+    },
+    {
+      "bytes": 163017,
+      "matches_expected": true,
+      "path": "/var/lib/merlin-browser-bootstrap/04d38719-4c94-4059-988b-9081375fd209/operation-receipt.json",
+      "sha256": "0ce1241325e81b33e51d487bfd9e0c0b2b8f5531335fceb945e3155920bb8797"
+    },
+    {
+      "bytes": 1672,
+      "matches_expected": true,
+      "path": "/var/lib/merlin-browser-bootstrap/04d38719-4c94-4059-988b-9081375fd209/successor-lineage.json",
+      "sha256": "2cbac1011c002262d8239c7e8b21c3623a6290e3d3b8e38f353c5e887687df09"
+    },
+    {
+      "bytes": 134484,
+      "matches_expected": true,
+      "path": "/var/lib/merlin-browser-bootstrap/04d38719-4c94-4059-988b-9081375fd209/acquisition.json",
+      "sha256": "a84f362035e170b904407004679b59c2675423fe6a64f8eb4cb92f5f344b9325"
+    },
+    {
+      "bytes": 1672,
+      "matches_expected": true,
+      "path": "/var/lib/merlin-browser-bootstrap/successor-from-ef0c417a-4b58-4c5d-b44b-be7a237bedfa.json",
+      "sha256": "2cbac1011c002262d8239c7e8b21c3623a6290e3d3b8e38f353c5e887687df09"
+    },
+    {
+      "bytes": 5566,
+      "matches_expected": true,
+      "path": "/var/lib/merlin-public-browser/episodes/bootstrap-fixture-04d38719-4c94-4059-988b-9081375fd209/launch-receipt.json",
+      "sha256": "96f121315477fcc742cfbd6757b63fefdfec531551aa8ad4cc52fc30d968cfa2"
+    },
+    {
+      "bytes": 4732,
+      "matches_expected": true,
+      "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/manifest.json",
+      "sha256": "51c68b5f7ceb10debb270ffdde2409648968dddd11e5e93c3f989802ca25b8d8"
+    },
+    {
+      "bytes": 422,
+      "matches_expected": true,
+      "path": "/etc/merlin-public-browser/host.json",
+      "sha256": "728199723582985bc21357e72059fab26a0220e01a6d109f36288b39ecbd8600"
+    }
+  ],
+  "target": {
+    "acquisition_sha256": "a84f362035e170b904407004679b59c2675423fe6a64f8eb4cb92f5f344b9325",
+    "request_id": "04d38719-4c94-4059-988b-9081375fd209",
+    "run_attempt": 1,
+    "run_id": 44944424850,
+    "unit": "merlin-browser-bootstrap-44944424850-1.service",
+    "workflow_commit": "b11bf02997dc720535b7d729d60e3a7919892a9a"
+  },
+  "uid": 0,
+  "venv_configuration": {
+    "bytes": 70,
+    "content": "home = /usr/bin\ninclude-system-site-packages = false\nversion = 3.9.25\n",
+    "content_scope": "fixed browser operation only",
+    "encoding": "utf-8",
+    "exists": true,
+    "gid": 0,
+    "mode": "0o644",
+    "path": "/opt/merlin-public-browser/releases/58f9b4fee8b03db777a07e76149ef5fedcc8c1c9b3309c16499b3cadecfbac90/venv/pyvenv.cfg",
+    "sha256": "8bf2d6e08b730f8b92439a7d4bd822ed1f71503a171bf5b12af8f5e3a5ae8d81",
+    "uid": 0
+  }
+}

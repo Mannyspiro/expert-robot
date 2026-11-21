@@ -1,0 +1,187 @@
+[
+  {
+    "path": "acquisition/cache/merlin-ol9-appstream-3d6caf6023b7afb1/repodata/556dd1bad81674b8a7fec9d376c308224c43e3b78f22499533887c8f71c2ae8b-filelists.xml.gz",
+    "bytes": 51731728,
+    "compressed_bytes": 48319749
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-appstream-3d6caf6023b7afb1/repodata/a25959ab1c3de23155600ba03228e3d15fd15a7cca26a3d8b8ad69e199991d46-primary.xml.gz",
+    "bytes": 8034641,
+    "compressed_bytes": 7674608
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-appstream-3d6caf6023b7afb1/repodata/479fe24fd5db8ecee2a040c37c078f32453789cd13ad11fae32f5516d9e06676-modules.yaml.gz",
+    "bytes": 30953,
+    "compressed_bytes": 29486
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-appstream-3d6caf6023b7afb1/repodata/afc8d4c3bb86f1cc95095976d0abe689a9323e027fe0c21d1724952f4477ac13-updateinfo.xml.gz",
+    "bytes": 4996657,
+    "compressed_bytes": 4993638
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-appstream-3d6caf6023b7afb1/repodata/eb7f58a24f311277840799523ea2d44fa3b0646cbcbc6d1bcd09e7c3e6dd38c6-comps.xml.gz",
+    "bytes": 126161,
+    "compressed_bytes": 126201
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-appstream-3d6caf6023b7afb1/repodata/repomd.xml",
+    "bytes": 4623,
+    "compressed_bytes": 1285
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-appstream-filenames.solvx",
+    "bytes": 51146658,
+    "compressed_bytes": 32449561
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-appstream-updateinfo.solvx",
+    "bytes": 9299487,
+    "compressed_bytes": 3449803
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-appstream.solv",
+    "bytes": 11581471,
+    "compressed_bytes": 4454108
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-baseos-d6be442cfbef3367/repodata/a984ac292f81ed4e50aa2ca3fdfe5a5b9a7d294f3cbed899b6a6b4a8bfb39edb-primary.xml.gz",
+    "bytes": 130485747,
+    "compressed_bytes": 130354233
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-baseos-d6be442cfbef3367/repodata/b7c8a92ba1650582588ca683a8aa5ed8bdbd8a6196354b7513454ee75d68ce6d-comps.xml.gz",
+    "bytes": 71114,
+    "compressed_bytes": 71139
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-baseos-d6be442cfbef3367/repodata/c2ed3ceea1b1c04b1dbe75436b64c466f2153d78283d2b21e8dade1b13cf8ff9-updateinfo.xml.gz",
+    "bytes": 4108499,
+    "compressed_bytes": 4105800
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-baseos-d6be442cfbef3367/repodata/fd46fe35e4a99a0e2fb95d62b569a2a0f474a4b0c46aa2eed78e09d017a9300c-filelists.xml.gz",
+    "bytes": 70521037,
+    "compressed_bytes": 69770527
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-baseos-d6be442cfbef3367/repodata/repomd.xml",
+    "bytes": 4363,
+    "compressed_bytes": 1181
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-baseos-filenames.solvx",
+    "bytes": 73205021,
+    "compressed_bytes": 58025780
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-baseos-updateinfo.solvx",
+    "bytes": 6683181,
+    "compressed_bytes": 3692600
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-baseos.solv",
+    "bytes": 19363331,
+    "compressed_bytes": 3169277
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-codeready-4fc62fd9eef10c32/repodata/0bba1d33a162de9073032e96c3856561df20fb0b6f090b0eb2a89c79d5adab29-filelists.xml.gz",
+    "bytes": 15685871,
+    "compressed_bytes": 14751920
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-codeready-4fc62fd9eef10c32/repodata/0bed239e7b5f097ef43c02b7ead02ac29d4498cb65f16c3db025e26a38e33d38-updateinfo.xml.gz",
+    "bytes": 1788246,
+    "compressed_bytes": 1786818
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-codeready-4fc62fd9eef10c32/repodata/2ad2a0e95f23ed5b3536e0cdaea7fc33cbf5f8b53f76529561669c90b2b525fc-modules.yaml.gz",
+    "bytes": 1200,
+    "compressed_bytes": 1205
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-codeready-4fc62fd9eef10c32/repodata/e86567bb4d967829f5d38194dc1090a5e975a59991cc43b6a56971eccbb66aea-primary.xml.gz",
+    "bytes": 1958260,
+    "compressed_bytes": 1901717
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-codeready-4fc62fd9eef10c32/repodata/repomd.xml",
+    "bytes": 3877,
+    "compressed_bytes": 1135
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-codeready-filenames.solvx",
+    "bytes": 15260854,
+    "compressed_bytes": 8891205
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-codeready-updateinfo.solvx",
+    "bytes": 3183914,
+    "compressed_bytes": 1497279
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-codeready.solv",
+    "bytes": 3102143,
+    "compressed_bytes": 1272405
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-epel-ca81d6711e98746d/repodata/16c4c7b5f6a2d6c380d355943b22d53d36dfa0cbe7c533814a8af6fcf07a8686-comps.xml.gz",
+    "bytes": 32353,
+    "compressed_bytes": 32363
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-epel-ca81d6711e98746d/repodata/611be93f36247c8be8346263d83d121bf016e0b852a2b198000ee5a65ade7ba1-filelists.xml.gz",
+    "bytes": 26155910,
+    "compressed_bytes": 25702714
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-epel-ca81d6711e98746d/repodata/a3670e11c25854f51a00ac0181bd57143640964949ca040943ad1d9c1baf33f7-primary.xml.gz",
+    "bytes": 8024416,
+    "compressed_bytes": 8008754
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-epel-ca81d6711e98746d/repodata/ef7479ff3a057dd02dc509bc3d6d084d29ee8d18f1629475a2dc43e5796c71f8-updateinfo.xml.gz",
+    "bytes": 6133648,
+    "compressed_bytes": 6128239
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-epel-ca81d6711e98746d/repodata/repomd.xml",
+    "bytes": 4351,
+    "compressed_bytes": 1174
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-epel-filenames.solvx",
+    "bytes": 26332296,
+    "compressed_bytes": 21487058
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-epel-updateinfo.solvx",
+    "bytes": 13030443,
+    "compressed_bytes": 2991488
+  },
+  {
+    "path": "acquisition/cache/merlin-ol9-epel.solv",
+    "bytes": 12794457,
+    "compressed_bytes": 6041363
+  },
+  {
+    "path": "acquisition/persist/history.sqlite",
+    "bytes": 118784,
+    "compressed_bytes": 2022
+  },
+  {
+    "path": "acquisition/persist/history.sqlite-shm",
+    "bytes": 32768,
+    "compressed_bytes": 382
+  },
+  {
+    "path": "acquisition/persist/history.sqlite-wal",
+    "bytes": 234872,
+    "compressed_bytes": 4543
+  },
+  {
+    "path": "source-identities.json",
+    "bytes": 1243,
+    "compressed_bytes": 607
+  }
+]

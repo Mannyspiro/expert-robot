@@ -1,0 +1,60 @@
+python/merlin/browser_ingest.py-115-            require(event['resource_id']=='r%04d'%(len(resources)+1),'resource sequence differs')
+python/merlin/browser_ingest.py-116-            require(event['outcome'] in ('fulfilled','denied'),'invalid resource outcome')
+python/merlin/browser_ingest.py:117:            require(type(event['consumed_body_bytes']) is int and event['consumed_body_bytes']>=0
+python/merlin/browser_ingest.py:118:                    and event['episode_response_body_bytes']==trace_spent+event['consumed_body_bytes'],
+python/merlin/browser_ingest.py-119-                    'resource byte ledger differs')
+python/merlin/browser_ingest.py:120:            trace_spent=event['episode_response_body_bytes']
+python/merlin/browser_ingest.py-121-            if event['outcome']=='fulfilled':
+python/merlin/browser_ingest.py-122-                require(public_url(event['url'])==event['url'] and event['method'] in ('GET','HEAD')
+--
+python/merlin/browser_ingest.py-134-        elif kind=='resource_trace_budget_exhausted':
+python/merlin/browser_ingest.py-135-            trace_gaps=True
+python/merlin/browser_ingest.py:136:            require(type(event['episode_response_body_bytes']) is int and event['episode_response_body_bytes']>=trace_spent,
+python/merlin/browser_ingest.py-137-                    'failure resource ledger regressed')
+python/merlin/browser_ingest.py:138:            trace_spent=event['episode_response_body_bytes']
+python/merlin/browser_ingest.py-139-        elif kind=='action_started':
+python/merlin/browser_ingest.py-140-            require(event['action_id'] not in started_actions,'duplicate action start')
+--
+python/merlin/public_browser.py-222-        raw_url=request.url
+python/merlin/public_browser.py-223-        if self.fatal_error:
+python/merlin/public_browser.py:224:            try: route.abort('blockedbyclient')
+python/merlin/public_browser.py-225-            except Exception: pass
+python/merlin/public_browser.py-226-            return
+python/merlin/public_browser.py-227-        self.requests+=1
+python/merlin/public_browser.py-228-        resource_number=self.requests
+python/merlin/public_browser.py:229:        spent_before=getattr(self.transport,'bytes',self.network_bytes)
+python/merlin/public_browser.py-230-        record={'kind':'resource','resource_id':'r%04d'%resource_number,
+python/merlin/public_browser.py-231-                'action_id':self.active_action,'url':raw_url[:8192],
+--
+python/merlin/public_browser.py-233-                'method':request.method,'resource_type':request.resource_type,
+python/merlin/public_browser.py-234-                'main_document':False,'outcome':'denied',
+python/merlin/public_browser.py:235:                'consumed_body_bytes':0,'episode_response_body_bytes':spent_before}
+python/merlin/public_browser.py-236-        try:
+python/merlin/public_browser.py-237-            self.remaining_ms()
+--
+python/merlin/public_browser.py-249-                # Fulfill/abort can reenter this handler for other resources,
+python/merlin/public_browser.py-250-                # so bind this fetch's byte interval before either call.
+python/merlin/public_browser.py:251:                spent_after=getattr(self.transport,'bytes',spent_before+(len(result.body) if result is not None else 0))
+python/merlin/public_browser.py-252-                self.network_bytes=max(self.network_bytes,spent_after)
+python/merlin/public_browser.py:253:                record['consumed_body_bytes']=max(0,spent_after-spent_before)
+python/merlin/public_browser.py:254:                record['episode_response_body_bytes']=spent_after
+python/merlin/public_browser.py-255-            if self.network_bytes>self.limits.max_network_bytes: raise BrowserPolicyError('network byte budget exhausted')
+python/merlin/public_browser.py-256-            self.remaining_ms()
+--
+python/merlin/public_browser.py-261-                record['body_ref']=self.recorder.write('network/'+record['resource_id']+'.body',result.body,'application/octet-stream')
+python/merlin/public_browser.py-262-                record['response_headers']=result.headers
+python/merlin/public_browser.py:263:            route.fulfill(status=result.status,headers=result.headers,body=result.body)
+python/merlin/public_browser.py-264-            if record['main_document']:
+python/merlin/public_browser.py-265-                self.documents[url]=record.copy()
+--
+python/merlin/public_browser.py-267-            record['outcome']='denied';record['error_type']=type(error).__name__
+python/merlin/public_browser.py-268-            if isinstance(error,BrowserPolicyError): record['reason']=str(error)[:200]
+python/merlin/public_browser.py:269:            try: route.abort('blockedbyclient')
+python/merlin/public_browser.py-270-            except Exception: pass
+python/merlin/public_browser.py-271-        # A later request can finish while an earlier fulfill is suspended.
+--
+python/merlin/public_browser.py-285-                # to make incomplete in-flight evidence appear importable.
+python/merlin/public_browser.py-286-                self.recorder.event({'kind':'resource_trace_budget_exhausted','resource_id':completed['resource_id'],
+python/merlin/public_browser.py:287:                                     'episode_response_body_bytes':self.network_bytes},terminal=True)
+python/merlin/public_browser.py-288-
+python/merlin/public_browser.py-289-    def capture(self, action_id):

@@ -1,0 +1,67 @@
+{
+  "all_raw_members_retained_in_original_zip": true,
+  "archive_sha256": "abc5ee857c894563d56d74189ab31c4f4e28739201d8687bdfe63bcf60e1c4c1",
+  "members": [
+    {
+      "bytes": 21008,
+      "path": "diagnose_bootstrap.py",
+      "sha256": "425a3268b8f03014e432530f44a2e5a5defc99518ee363d42ae1eb163f8feb84"
+    },
+    {
+      "bytes": 1010,
+      "path": "diagnostic-controls.txt",
+      "sha256": "0cd2e14ec173dfac3404be02b7362f7aab0e3a98c10f96808bef7299424a13ff"
+    },
+    {
+      "bytes": 319,
+      "path": "diagnostic-controls.txt.json",
+      "sha256": "5f1ae4ede68d88a12e19ea97c5a0d2fea82f07374b8107b0696aa0c730bcf316"
+    },
+    {
+      "bytes": 407,
+      "path": "identity.json",
+      "sha256": "4b4aec3846a0fcf81aa65ae637294ac1e2b52de5d98fceb0a5b1c6bf33894673"
+    },
+    {
+      "bytes": 232,
+      "path": "launch-input-identity.json",
+      "sha256": "39973a6cd7ac1cfd3e54d341258da0640c23529d42b3196285c1251113404613"
+    },
+    {
+      "bytes": 678164,
+      "path": "reconciliation.json",
+      "sha256": "138f0edae55bef342d49dfb3d00e7a68d9cbd1ec92e37c7f4a2fe9a6264b8326"
+    },
+    {
+      "bytes": 195,
+      "path": "request.json",
+      "sha256": "32a42c69dedd21bb18503d7448ad8c76ddf76b0f90253fd9adba0eff8595b4e1"
+    },
+    {
+      "bytes": 667515,
+      "path": "root-probe.txt",
+      "sha256": "6b00402a622512d0522e5a5df6b26b6cf1ce9921ee26548b612a56d6e05adc45"
+    },
+    {
+      "bytes": 325,
+      "path": "root-probe.txt.json",
+      "sha256": "4a66752cdabad4cafae47c9c13a026f3525f78db402ca3a617a18e1ee2d795f7"
+    },
+    {
+      "bytes": 591,
+      "path": "source-identities.json",
+      "sha256": "9083fd74c02fe7a63816abd141fd09ff6ae5f0b91fb7b2cb6d312e353df8cfbd"
+    },
+    {
+      "bytes": 4775,
+      "path": "test_diagnose_bootstrap.py",
+      "sha256": "40470897e1e5c22568d1f9755826acd8f591a0162e889652a11c0e6e72a48fb5"
+    },
+    {
+      "bytes": 11579,
+      "path": "workflow-definition.yml",
+      "sha256": "8a6552ab81edcf1497b6cfad20eef5dd3b3670f3a7e263aa0a4f3fe57e2a1b7a"
+    }
+  ],
+  "schema": "merlin-raw-archive-members/1"
+}

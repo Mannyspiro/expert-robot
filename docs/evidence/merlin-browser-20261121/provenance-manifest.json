@@ -1,0 +1,232 @@
+{
+  "evidence_root": "docs/evidence/merlin-browser-20261121",
+  "files": [
+    {
+      "byte_preserved": true,
+      "bytes": 13953,
+      "origin": {
+        "artifact_id": 14717573208,
+        "kind": "downloaded_actions_archive",
+        "original_name": "artifact.zip",
+        "repository": "morganaspim/Cace-app",
+        "run_attempt": 1,
+        "run_id": 44931107501,
+        "workflow_commit": "72efac38891be49eb538fd09dd2319c6d16a7e01"
+      },
+      "path": "docs/evidence/merlin-browser-20261121/inventory-44931107501/artifact.zip",
+      "sha256": "460c4871efaaa324f64be83e3cff04f664720f28e6ba9e2766a7e79429fd2c51"
+    },
+    {
+      "byte_preserved": true,
+      "bytes": 17731,
+      "origin": {
+        "artifact_id": 14717573208,
+        "kind": "retained_api_snapshot",
+        "original_name": "api-evidence.json",
+        "repository": "morganaspim/Cace-app",
+        "run_attempt": 1,
+        "run_id": 44931107501,
+        "workflow_commit": "72efac38891be49eb538fd09dd2319c6d16a7e01"
+      },
+      "path": "docs/evidence/merlin-browser-20261121/inventory-44931107501/api-evidence.json",
+      "sha256": "da2f808bd031036c816a15ea40f76c3aa3fa519b3148f12091dd8a64c5e37109"
+    },
+    {
+      "byte_preserved": true,
+      "bytes": 1179,
+      "origin": {
+        "artifact_id": 14717573208,
+        "kind": "root_acceptance_review",
+        "original_name": "root-review.json",
+        "repository": "morganaspim/Cace-app",
+        "run_attempt": 1,
+        "run_id": 44931107501,
+        "workflow_commit": "72efac38891be49eb538fd09dd2319c6d16a7e01"
+      },
+      "path": "docs/evidence/merlin-browser-20261121/inventory-44931107501/root-review.json",
+      "sha256": "1b9a54966db2f38c56d0d6446af941d4c5fa4cd307c8e50077d25374f1a645e4"
+    },
+    {
+      "byte_preserved": true,
+      "bytes": 1240,
+      "origin": {
+        "artifact_id": 14717573208,
+        "kind": "exact_archive_member",
+        "member": "controller-tests.txt",
+        "repository": "morganaspim/Cace-app",
+        "run_attempt": 1,
+        "run_id": 44931107501,
+        "workflow_commit": "72efac38891be49eb538fd09dd2319c6d16a7e01"
+      },
+      "path": "docs/evidence/merlin-browser-20261121/inventory-44931107501/artifact/controller-tests.txt",
+      "sha256": "556d55c9f27cc4e60dce45e1a580bf8de45baf297a883f641ec49491157abf1c"
+    },
+    {
+      "byte_preserved": true,
+      "bytes": 312,
+      "origin": {
+        "artifact_id": 14717573208,
+        "kind": "exact_archive_member",
+        "member": "identity.json",
+        "repository": "morganaspim/Cace-app",
+        "run_attempt": 1,
+        "run_id": 44931107501,
+        "workflow_commit": "72efac38891be49eb538fd09dd2319c6d16a7e01"
+      },
+      "path": "docs/evidence/merlin-browser-20261121/inventory-44931107501/artifact/identity.json",
+      "sha256": "4fa31ad85291204d24ab6e5fde54b7b2db20b42086a9741cac1d3bde5fca7c4d"
+    },
+    {
+      "byte_preserved": true,
+      "bytes": 154,
+      "origin": {
+        "artifact_id": 14717573208,
+        "kind": "exact_archive_member",
+        "member": "inventory-log.txt",
+        "repository": "morganaspim/Cace-app",
+        "run_attempt": 1,
+        "run_id": 44931107501,
+        "workflow_commit": "72efac38891be49eb538fd09dd2319c6d16a7e01"
+      },
+      "path": "docs/evidence/merlin-browser-20261121/inventory-44931107501/artifact/inventory-log.txt",
+      "sha256": "b8a59aeb71ee6c610b0e576d0b7cccd9daf63818256ee1ab5da085c1b1a29431"
+    },
+    {
+      "byte_preserved": true,
+      "bytes": 7967,
+      "origin": {
+        "artifact_id": 14717573208,
+        "kind": "exact_archive_member",
+        "member": "inventory.json",
+        "repository": "morganaspim/Cace-app",
+        "run_attempt": 1,
+        "run_id": 44931107501,
+        "workflow_commit": "72efac38891be49eb538fd09dd2319c6d16a7e01"
+      },
+      "path": "docs/evidence/merlin-browser-20261121/inventory-44931107501/artifact/inventory.json",
+      "sha256": "e0999185f688002c9fcc66288a3faa658c321c7634a8ee9fe95c18f225c635c7"
+    },
+    {
+      "byte_preserved": true,
+      "bytes": 13398,
+      "origin": {
+        "artifact_id": 14717573208,
+        "kind": "exact_archive_member",
+        "member": "inventory.py",
+        "repository": "morganaspim/Cace-app",
+        "run_attempt": 1,
+        "run_id": 44931107501,
+        "workflow_commit": "72efac38891be49eb538fd09dd2319c6d16a7e01"
+      },
+      "path": "docs/evidence/merlin-browser-20261121/inventory-44931107501/artifact/inventory.py",
+      "sha256": "bd0b44f45f359dd850ff13cfcf0c07bde6dee12c0b5fc3bd0769b9c34cda02c5"
+    },
+    {
+      "byte_preserved": true,
+      "bytes": 189,
+      "origin": {
+        "artifact_id": 14717573208,
+        "kind": "exact_archive_member",
+        "member": "request.json",
+        "repository": "morganaspim/Cace-app",
+        "run_attempt": 1,
+        "run_id": 44931107501,
+        "workflow_commit": "72efac38891be49eb538fd09dd2319c6d16a7e01"
+      },
+      "path": "docs/evidence/merlin-browser-20261121/inventory-44931107501/artifact/request.json",
+      "sha256": "3bce9612fe444b9c28642c890a91d46fa466228fa75d30ddca3e3abe2b41b53b"
+    },
+    {
+      "byte_preserved": true,
+      "bytes": 573,
+      "origin": {
+        "artifact_id": 14717573208,
+        "kind": "exact_archive_member",
+        "member": "source-identities.json",
+        "repository": "morganaspim/Cace-app",
+        "run_attempt": 1,
+        "run_id": 44931107501,
+        "workflow_commit": "72efac38891be49eb538fd09dd2319c6d16a7e01"
+      },
+      "path": "docs/evidence/merlin-browser-20261121/inventory-44931107501/artifact/source-identities.json",
+      "sha256": "c46ec66458dd9dca5e3acef48cad09d4cab48b255fc54b8ea7c7fb51e0a185e8"
+    },
+    {
+      "byte_preserved": true,
+      "bytes": 6429,
+      "origin": {
+        "artifact_id": 14717573208,
+        "kind": "exact_archive_member",
+        "member": "test_inventory.py",
+        "repository": "morganaspim/Cace-app",
+        "run_attempt": 1,
+        "run_id": 44931107501,
+        "workflow_commit": "72efac38891be49eb538fd09dd2319c6d16a7e01"
+      },
+      "path": "docs/evidence/merlin-browser-20261121/inventory-44931107501/artifact/test_inventory.py",
+      "sha256": "d499f3db66c37177f68b0ebde189468e36784743ca3e2e36e962ef27311cb62f"
+    },
+    {
+      "byte_preserved": true,
+      "bytes": 7278,
+      "origin": {
+        "artifact_id": 14717573208,
+        "kind": "exact_archive_member",
+        "member": "workflow-definition.yml",
+        "repository": "morganaspim/Cace-app",
+        "run_attempt": 1,
+        "run_id": 44931107501,
+        "workflow_commit": "72efac38891be49eb538fd09dd2319c6d16a7e01"
+      },
+      "path": "docs/evidence/merlin-browser-20261121/inventory-44931107501/artifact/workflow-definition.yml",
+      "sha256": "437e607b8efd032525fa484edeb0e45509e29b886cf58005100ee71937d74759"
+    },
+    {
+      "byte_preserved": true,
+      "bytes": 3225,
+      "origin": {
+        "kind": "root_published_source_review",
+        "pull_request": 193,
+        "repository": "Mannyspiro/expert-robot",
+        "source_commit": "8e2f1d69371d5b4f7e01e3bbd5aa02a666ddd506",
+        "tree": "20b0fdf671736fc9cb9eb3ae9fd7f0908538bf8e"
+      },
+      "path": "docs/evidence/merlin-browser-20261121/source/published-source-review.json",
+      "sha256": "38827bfe4363b4944243803db3aee52586ae439e258f86ac7aef781ae88c517f"
+    },
+    {
+      "byte_preserved": false,
+      "bytes": 4194,
+      "origin": {
+        "inputs": [
+          "inventory-44931107501/api-evidence.json",
+          "inventory-44931107501/artifact/inventory.json",
+          "inventory-44931107501/root-review.json",
+          "source/published-source-review.json"
+        ],
+        "kind": "derived_evidence_index"
+      },
+      "path": "docs/evidence/merlin-browser-20261121/evidence-index.json",
+      "sha256": "6aef19f889db90718c68a8e51b3fb303188922a6003b384fb9dd424396adad7d"
+    },
+    {
+      "byte_preserved": false,
+      "bytes": 3789,
+      "origin": {
+        "inputs": [
+          "evidence-index.json"
+        ],
+        "kind": "derived_checkpoint"
+      },
+      "path": "docs/evidence/merlin-browser-20261121/README.md",
+      "sha256": "ad9755ab21643c1ef877bb0aedd0cc3e2c7720e78a64dd0e735bb70ad814e117"
+    }
+  ],
+  "manifest_self_digest": "excluded; publication reviewer records this file digest externally",
+  "native_result_invented": false,
+  "original_actions_zip_preserved": true,
+  "product_source_edited": false,
+  "remote_writes_performed": false,
+  "schema": "merlin-browser-evidence-provenance/1",
+  "scope": "Exact retained inventory and published-source review; native result pending"
+}

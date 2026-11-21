@@ -1,0 +1,17 @@
+TimeoutStopUSec=10s
+RuntimeMaxUSec=infinity
+MainPID=2637586
+Result=success
+ExecMainPID=2637586
+ExecMainCode=0
+ExecMainStatus=0
+ControlGroup=/system.slice/merlin-dot-private.service
+CPUQuotaPerSecUSec=1s
+MemoryMax=402653184
+MemorySwapMax=infinity
+TasksMax=32
+KillMode=control-group
+LoadState=loaded
+ActiveState=active
+SubState=running
+InvocationID=462139839fa444758d8ea0de759a2c34

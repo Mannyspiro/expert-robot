@@ -1,0 +1,106 @@
+<package type="rpm">
+  <name>chromium-headless</name>
+  <arch>aarch64</arch>
+  <version epoch="0" ver="148.0.7778.215" rel="1.el9"/>
+  <checksum type="sha256" pkgid="YES">d9e66c1b7e5cb697faf200c43cf07a4a5123b65b853556d4e065cece8f511a87</checksum>
+  <summary>A minimal headless shell built from Chromium</summary>
+  <description>A minimal headless client built from Chromium. headless_shell is built
+without support for alsa, cups, dbus, gconf, gio, kerberos, pulseaudio, or
+udev.</description>
+  <packager></packager>
+  <url>http://www.chromium.org/Home</url>
+  <time file="1781029028" build="1781013966"/>
+  <size package="71022356" installed="209639529" archive="209640760"/>
+  <location href="getPackage/chromium-headless-148.0.7778.215-1.el9.aarch64.rpm"/>
+  <format>
+    <rpm:license>BSD-3-Clause AND LGPL-2.1-or-later AND Apache-2.0 AND IJG AND MIT AND GPL-2.0-or-later AND ISC AND OpenSSL AND (MPL-1.1 OR GPL-2.0-only OR LGPL-2.0-only)</rpm:license>
+    <rpm:vendor>Oracle America</rpm:vendor>
+    <rpm:group>Unspecified</rpm:group>
+    <rpm:buildhost>build-ol9-aarch64.oracle.com</rpm:buildhost>
+    <rpm:sourcerpm>chromium-148.0.7778.215-1.el9.src.rpm</rpm:sourcerpm>
+    <rpm:header-range start="9272" end="78037"/>
+    <rpm:provides>
+      <rpm:entry name="chromium-headless" flags="EQ" epoch="0" ver="148.0.7778.215" rel="1.el9"/>
+      <rpm:entry name="chromium-headless(aarch-64)" flags="EQ" epoch="0" ver="148.0.7778.215" rel="1.el9"/>
+    </rpm:provides>
+    <rpm:requires>
+      <rpm:entry name="chromium-common(aarch-64)" flags="EQ" epoch="0" ver="148.0.7778.215" rel="1.el9"/>
+      <rpm:entry name="ld-linux-aarch64.so.1()(64bit)"/>
+      <rpm:entry name="ld-linux-aarch64.so.1(GLIBC_2.17)(64bit)"/>
+      <rpm:entry name="libFLAC.so.8()(64bit)"/>
+      <rpm:entry name="libX11.so.6()(64bit)"/>
+      <rpm:entry name="libXNVCtrl.so.0()(64bit)"/>
+      <rpm:entry name="libXcomposite.so.1()(64bit)"/>
+      <rpm:entry name="libXdamage.so.1()(64bit)"/>
+      <rpm:entry name="libXext.so.6()(64bit)"/>
+      <rpm:entry name="libXfixes.so.3()(64bit)"/>
+      <rpm:entry name="libXrandr.so.2()(64bit)"/>
+      <rpm:entry name="libasound.so.2()(64bit)"/>
+      <rpm:entry name="libasound.so.2(ALSA_0.9)(64bit)"/>
+      <rpm:entry name="libasound.so.2(ALSA_0.9.0rc4)(64bit)"/>
+      <rpm:entry name="libatk-1.0.so.0()(64bit)"/>
+      <rpm:entry name="libatspi.so.0()(64bit)"/>
+      <rpm:entry name="libavcodec.so.59()(64bit)"/>
+      <rpm:entry name="libavcodec.so.59(LIBAVCODEC_59)(64bit)"/>
+      <rpm:entry name="libavformat.so.59()(64bit)"/>
+      <rpm:entry name="libavformat.so.59(LIBAVFORMAT_59)(64bit)"/>
+      <rpm:entry name="libavutil.so.57()(64bit)"/>
+      <rpm:entry name="libavutil.so.57(LIBAVUTIL_57)(64bit)"/>
+      <rpm:entry name="libdav1d.so.7()(64bit)"/>
+      <rpm:entry name="libdbus-1.so.3()(64bit)"/>
+      <rpm:entry name="libdbus-1.so.3(LIBDBUS_1_3)(64bit)"/>
+      <rpm:entry name="libdouble-conversion.so.3()(64bit)"/>
+      <rpm:entry name="libdrm.so.2()(64bit)"/>
+      <rpm:entry name="libexpat.so.1()(64bit)"/>
+      <rpm:entry name="libffi.so.8()(64bit)"/>
+      <rpm:entry name="libffi.so.8(LIBFFI_BASE_8.0)(64bit)"/>
+      <rpm:entry name="libfontconfig.so.1()(64bit)"/>
+      <rpm:entry name="libfreetype.so.6()(64bit)"/>
+      <rpm:entry name="libgbm.so.1()(64bit)"/>
+      <rpm:entry name="libgcc_s.so.1()(64bit)"/>
+      <rpm:entry name="libgcc_s.so.1(GCC_3.0)(64bit)"/>
+      <rpm:entry name="libgcc_s.so.1(GCC_3.3)(64bit)"/>
+      <rpm:entry name="libgcc_s.so.1(GCC_4.0.0)(64bit)"/>
+      <rpm:entry name="libgcc_s.so.1(GCC_4.2.0)(64bit)"/>
+      <rpm:entry name="libgio-2.0.so.0()(64bit)"/>
+      <rpm:entry name="libglib-2.0.so.0()(64bit)"/>
+      <rpm:entry name="libgobject-2.0.so.0()(64bit)"/>
+      <rpm:entry name="libjpeg.so.62()(64bit)"/>
+      <rpm:entry name="libjpeg.so.62(LIBJPEG_6.2)(64bit)"/>
+      <rpm:entry name="libm.so.6()(64bit)"/>
+      <rpm:entry name="libm.so.6(GLIBC_2.17)(64bit)"/>
+      <rpm:entry name="libm.so.6(GLIBC_2.27)(64bit)"/>
+      <rpm:entry name="libm.so.6(GLIBC_2.29)(64bit)"/>
+      <rpm:entry name="libnspr4.so()(64bit)"/>
+      <rpm:entry name="libnss3.so()(64bit)"/>
+      <rpm:entry name="libnss3.so(NSS_3.2)(64bit)"/>
+      <rpm:entry name="libnss3.so(NSS_3.3)(64bit)"/>
+      <rpm:entry name="libnss3.so(NSS_3.30)(64bit)"/>
+      <rpm:entry name="libnss3.so(NSS_3.4)(64bit)"/>
+      <rpm:entry name="libnss3.so(NSS_3.5)(64bit)"/>
+      <rpm:entry name="libnss3.so(NSS_3.6)(64bit)"/>
+      <rpm:entry name="libnss3.so(NSS_3.9.2)(64bit)"/>
+      <rpm:entry name="libnssutil3.so()(64bit)"/>
+      <rpm:entry name="libnssutil3.so(NSSUTIL_3.12.3)(64bit)"/>
+      <rpm:entry name="libopenh264.so.7()(64bit)"/>
+      <rpm:entry name="libopus.so.0()(64bit)"/>
+      <rpm:entry name="libpipewire-0.3.so.0()(64bit)"/>
+      <rpm:entry name="libudev.so.1()(64bit)"/>
+      <rpm:entry name="libudev.so.1(LIBUDEV_183)(64bit)"/>
+      <rpm:entry name="libxcb.so.1()(64bit)"/>
+      <rpm:entry name="libxkbcommon.so.0()(64bit)"/>
+      <rpm:entry name="libxkbcommon.so.0(V_0.5.0)(64bit)"/>
+      <rpm:entry name="libxslt.so.1()(64bit)"/>
+      <rpm:entry name="libxslt.so.1(LIBXML2_1.0.11)(64bit)"/>
+      <rpm:entry name="libxslt.so.1(LIBXML2_1.0.13)(64bit)"/>
+      <rpm:entry name="libxslt.so.1(LIBXML2_1.0.22)(64bit)"/>
+      <rpm:entry name="libxslt.so.1(LIBXML2_1.0.24)(64bit)"/>
+      <rpm:entry name="libxslt.so.1(LIBXML2_1.0.30)(64bit)"/>
+      <rpm:entry name="libxslt.so.1(LIBXML2_1.1.18)(64bit)"/>
+      <rpm:entry name="libxslt.so.1(LIBXML2_1.1.9)(64bit)"/>
+      <rpm:entry name="libzstd.so.1()(64bit)"/>
+      <rpm:entry name="rtld(GNU_HASH)"/>
+      <rpm:entry name="libc.so.6(GLIBC_2.34)(64bit)"/>
+    </rpm:requires>
+  </format>
+</package>

@@ -1,0 +1,14 @@
+test_launcher_does_not_inherit_blocked_stop_signals (test_browser_service_lifecycle_controls.SignalProcessControls.test_launcher_does_not_inherit_blocked_stop_signals) ... FAIL
+
+======================================================================
+FAIL: test_launcher_does_not_inherit_blocked_stop_signals (test_browser_service_lifecycle_controls.SignalProcessControls.test_launcher_does_not_inherit_blocked_stop_signals)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/tests/test_browser_service_lifecycle_controls.py", line 142, in test_launcher_does_not_inherit_blocked_stop_signals
+    self.assertEqual(signum in child,signum in before,'child inherited a new blocked stop signal')
+AssertionError: True != False : child inherited a new blocked stop signal
+
+----------------------------------------------------------------------
+Ran 1 test in 0.027s
+
+FAILED (failures=1)

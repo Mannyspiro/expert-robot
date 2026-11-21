@@ -1,0 +1,50 @@
+{
+  "attempt": {
+    "browser_episodes": 0,
+    "dependency_archive": {
+      "artifact_id": 14718403256,
+      "bytes": 471203673,
+      "expires_at": "2026-12-21T18:02:28Z",
+      "full_archive_in_git_overlay": false,
+      "reference": "docs/evidence/merlin-browser-20261121/bootstrap-44933072217-attempt-1/dependency-archive-reference.json",
+      "sha256": "b902475a6009effa1ee6842953fe7be28a00e4a2e62eab82d2b06c95cb63b058"
+    },
+    "directory": "bootstrap-44933072217-attempt-1",
+    "failed_stage": "unprivileged_dependency_acquisition_validation",
+    "failure_evidence_preserved": true,
+    "failure_message": "package source/filename differs",
+    "installed_browser_success": false,
+    "model_calls": 0,
+    "native_host_control_tests": 21,
+    "native_product_tests": 33,
+    "package_downloads_reached": false,
+    "primary_archive_members": 35,
+    "primary_artifact_id": 14718054797,
+    "primary_zip_bytes": 183431,
+    "primary_zip_sha256": "3b73916ecf1ef77800f59dd5213063a2e4964eaf043725c56e0e6e27194688a7",
+    "privileged_installation_reached": false,
+    "promotion_authority": false,
+    "qualification": false,
+    "raw_job_log_bytes": 30311,
+    "raw_job_log_sha256": "5cc63d9fa071415be25b364bff4b279fd28a22a3f284d6aeee3eb1a86baf8c3a",
+    "rendering_proven": false,
+    "restart_readback_proven": false,
+    "root_review_checks": 9,
+    "run_attempt": 1,
+    "run_id": 44933072217,
+    "run_url": "https://github.com/morganaspim/Cace-app/actions/runs/44933072217",
+    "status": "failed",
+    "test_scope": "Python host/controller and product fixtures ran on the native host; no actual Chromium episode or installed-service acceptance occurred.",
+    "workflow_commit": "6e6ff03e6f4bde2c72147a15fe37e4574944644d",
+    "workflow_id": 426180849,
+    "workflow_path": ".github/workflows/merlin-browser-bootstrap.yml"
+  },
+  "recorded_at": "2026-11-21T18:09:49.418288+00:00",
+  "repair": {
+    "note": "The original guard combined source-prefix and filename checks and did not retain the rejected transaction. Metadata inspection alone must not be promoted into an exact rejected-package claim.",
+    "precise_rejected_package_proven": false,
+    "scope": "Correct the acquisition mismatch supported by actual retained metadata, preserve the rejected attempt, and require a separate new run and actual native acceptance.",
+    "status": "pending"
+  },
+  "schema": "merlin-browser-native-attempt-index/1"
+}

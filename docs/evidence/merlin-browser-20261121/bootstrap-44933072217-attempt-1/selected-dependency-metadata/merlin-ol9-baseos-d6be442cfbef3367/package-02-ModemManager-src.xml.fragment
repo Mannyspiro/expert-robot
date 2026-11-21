@@ -1,0 +1,51 @@
+<package type="rpm">
+  <name>ModemManager</name>
+  <arch>src</arch>
+  <version epoch="0" ver="1.18.2" rel="3.el9"/>
+  <checksum type="sha256" pkgid="YES">d66c0ad11eaf0f47635fc0cd3e9051c085c72a542a323cb4102e8819bd48aa47</checksum>
+  <summary>Mobile broadband modem management service</summary>
+  <description>The ModemManager service manages WWAN modems and provides a consistent API for
+interacting with these devices to client applications.</description>
+  <packager></packager>
+  <url>http://www.freedesktop.org/wiki/Software/ModemManager/</url>
+  <time file="1651870367" build="1651870116"/>
+  <size package="2515350" installed="2524169" archive="2524564"/>
+  <location href="getPackageSource/ModemManager-1.18.2-3.el9.src.rpm"/>
+  <format>
+    <rpm:license>GPLv2+</rpm:license>
+    <rpm:vendor>Oracle America</rpm:vendor>
+    <rpm:group>Unspecified</rpm:group>
+    <rpm:buildhost>build-ol9-x86_64.oracle.com</rpm:buildhost>
+    <rpm:sourcerpm></rpm:sourcerpm>
+    <rpm:header-range start="4504" end="8825"/>
+    <rpm:provides>
+      <rpm:entry name="ModemManager" flags="EQ" epoch="0" ver="1.18.2" rel="3.el9"/>
+      <rpm:entry name="ModemManager-devel" flags="EQ" epoch="0" ver="1.18.2" rel="3.el9"/>
+      <rpm:entry name="ModemManager-glib" flags="EQ" epoch="0" ver="1.18.2" rel="3.el9"/>
+      <rpm:entry name="ModemManager-glib-devel" flags="EQ" epoch="0" ver="1.18.2" rel="3.el9"/>
+      <rpm:entry name="ModemManager-vala" flags="EQ" epoch="0" ver="1.18.2" rel="3.el9"/>
+      <rpm:entry name="ModemManager-debuginfo" flags="EQ" epoch="0" ver="1.18.2" rel="3.el9"/>
+      <rpm:entry name="ModemManager-debugsource" flags="EQ" epoch="0" ver="1.18.2" rel="3.el9"/>
+    </rpm:provides>
+    <rpm:requires>
+      <rpm:entry name="autoconf"/>
+      <rpm:entry name="autoconf-archive"/>
+      <rpm:entry name="automake"/>
+      <rpm:entry name="dbus"/>
+      <rpm:entry name="dbus-daemon"/>
+      <rpm:entry name="gettext-devel" flags="GE" epoch="0" ver="0.19.8"/>
+      <rpm:entry name="glib2-devel" flags="GE" epoch="0" ver="2.56"/>
+      <rpm:entry name="gobject-introspection-devel" flags="GE" epoch="0" ver="1.38"/>
+      <rpm:entry name="gtk-doc"/>
+      <rpm:entry name="libgudev1-devel" flags="GE" epoch="0" ver="232"/>
+      <rpm:entry name="libmbim-devel" flags="GE" epoch="0" ver="1.26.0"/>
+      <rpm:entry name="libqmi-devel" flags="GE" epoch="0" ver="1.30.2"/>
+      <rpm:entry name="libqrtr-glib-devel" flags="GE" epoch="0" ver="1.0.0"/>
+      <rpm:entry name="libtool"/>
+      <rpm:entry name="make"/>
+      <rpm:entry name="polkit-devel"/>
+      <rpm:entry name="systemd-devel" flags="GE" epoch="0" ver="209"/>
+      <rpm:entry name="vala"/>
+    </rpm:requires>
+  </format>
+</package>

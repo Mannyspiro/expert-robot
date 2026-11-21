@@ -1,0 +1,43 @@
+{
+  "all_current_module_blob_identities_match": true,
+  "automation_receipt_sha256": "6f6cffb62da27d7693332a6f8588f6591d93195208afb809909879f3767904a8",
+  "automation_update_confirmed": true,
+  "coverage_limits": [
+    "Parallax absence result is limited to searched local text/source and the two coordinating-agent Personal Context recoveries.",
+    "Standalone Xenomaths/SOM-X source specification not recovered.",
+    "Historical PR metadata is status at capture, not current GitHub status.",
+    "Current source tree is a retained snapshot; each recurring cycle must refresh live identities.",
+    "No historical chip/CACE execution or native browser acceptance was asserted by this recovery."
+  ],
+  "current_modules_checked": 11,
+  "current_source_snapshot": "5771e1d08b09a7d28b7fbca2e4468824a8bac9e0",
+  "historical_extracts": "docs/evidence/merlin-browser-20261121/research/historical-source-extracts.json",
+  "historical_selected_files": 14,
+  "historical_tests_run_by_assembly": 0,
+  "important_reconciliations": [
+    "Current four-axis n-ality is narrower than broader n-ary/group-theoretic research.",
+    "Historical full-square variable-material chip reference already exists; actual CACE integration remains unverified.",
+    "Current research primitives exist in source, while an authorized runtime writer/coordinator is separate work.",
+    "Private production PR190 supersedes old runtime status in the historical master plan.",
+    "Confirmed recurring scheduling does not prove a future cycle or autonomous capability improvement."
+  ],
+  "model_calls_performed_by_assembly": 0,
+  "promotion_authority": false,
+  "published_browser_source": "8e2f1d69371d5b4f7e01e3bbd5aa02a666ddd506",
+  "qualification": false,
+  "recorded_at": "2026-11-21T18:05:19.853732+00:00",
+  "remote_mutations_performed_by_assembly": false,
+  "runtime_code_modified": false,
+  "schema": "merlin-research-recovery-review/1",
+  "scope": "Local/project source recovery and exact selected evidence; no new scientific experiment or deployment.",
+  "source_bindings": "docs/evidence/merlin-browser-20261121/research/source-bindings.json",
+  "source_status_findings": {
+    "chip-electrothermal-p1": "historical_source_recovered_not_current_main_or_deployed_capability",
+    "glyph-xmg": "historical_specification_recovered_broader_engine_proposed",
+    "mathematical-lenses": "bounded_helpers_implemented_broader_engines_open",
+    "parallax-specification": "specification_not_recovered",
+    "research-runtime-integration": "source_primitives_present_recurring_task_enabled_runtime_composition_open",
+    "systems-technology-design": "ongoing_research_direction_with_existing_typed_research_primitives",
+    "xenomaths-ideonomy": "bounded_enumeration_implemented_broader_registry_engine_proposed"
+  }
+}

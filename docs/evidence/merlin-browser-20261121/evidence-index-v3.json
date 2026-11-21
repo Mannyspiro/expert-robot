@@ -1,0 +1,243 @@
+{
+  "assembled_at": "2026-11-21T19:33:06.475675+00:00",
+  "claim_boundaries": [
+    "The 33 local tests use synthetic browser/launcher fixtures and do not prove native rendering.",
+    "The inventory proves observed host capability only; it launched no browser.",
+    "Published source review identifies code and tests, not deployment.",
+    "No learned policy, autonomous improvement, formal qualification or promotion is established.",
+    "21 host controls and 33 product tests ran on the native host, but the acquisition guard failed before package downloads, sudo installation or any browser episode.",
+    "The full third-party dependency cache remains an expiring Actions artifact and local review copy; only exact selected metadata is added to the Git overlay.",
+    "The exact rejected package was not logged before failure; retained metadata supports repair investigation without identifying an unobserved transaction entry.",
+    "The second run retained the exact caret-containing aribb24 filename and 49-row unvalidated candidate plan. Its separate source-prefix check passed for that row.",
+    "23 native host controls and 33 product fixtures passed; 25 controls belong to the separately reported local repair replay, not this failed native run.",
+    "Corrected run 44941093952 is separate work under operator review. No outcome or installation success is inferred from its existence."
+  ],
+  "dependency_retention_history": [
+    {
+      "actions_retention_days": 30,
+      "complete_471_mb_archive_in_git_overlay": false,
+      "durable_full_cache_archive_claimed": false,
+      "expires_at": "2026-12-21T18:02:28Z",
+      "local_original_retained_for_review": true,
+      "reference": "docs/evidence/merlin-browser-20261121/bootstrap-44933072217-attempt-1/dependency-archive-reference.json"
+    },
+    {
+      "actions_retention_days": 30,
+      "artifact_id": 14718504629,
+      "bytes": 471211941,
+      "durable_full_cache_archive_claimed": false,
+      "expires_at": "2026-12-21T18:12:44Z",
+      "local_copy_downloaded_by_this_assembly": false,
+      "reference": "docs/evidence/merlin-browser-20261121/bootstrap-44934058026-attempt-1/dependency-archive-reference.json",
+      "sha256_from_api": "2ae052f996c1967d3d96b6266e50355a36df63ffa4ab320596e9d5e1fb22d4d6"
+    }
+  ],
+  "evidence_state": "two_native_failures_retained_caret_diagnosed_corrected_native_acceptance_pending",
+  "index_version": 3,
+  "inventory": {
+    "artifact_api_expiry_snapshot": "2026-12-21T17:38:05Z",
+    "artifact_bytes": 13953,
+    "artifact_id": 14717573208,
+    "artifact_sha256": "460c4871efaaa324f64be83e3cff04f664720f28e6ba9e2766a7e79429fd2c51",
+    "controller_tests": 12,
+    "directory": "inventory-44931107501",
+    "observed_at": "2026-11-21T17:38:05.129735+00:00",
+    "observed_host": {
+      "architecture": "aarch64",
+      "bubblewrap": "0.6.3",
+      "chromium_installed_at_inventory": false,
+      "os": "Oracle Linux Server 9.8",
+      "playwright_visible_in_system_python_at_inventory": false,
+      "python": "3.9.25",
+      "systemd": "252",
+      "unprivileged_user_namespace_probe": "passed"
+    },
+    "root_review_checks": 12,
+    "run_attempt": 1,
+    "run_id": 44931107501,
+    "run_url": "https://github.com/morganaspim/Cace-app/actions/runs/44931107501",
+    "runner": "cace-oci-a1",
+    "scope": "Native read-only inventory, not rendering or deployment acceptance",
+    "workflow_commit": "72efac38891be49eb538fd09dd2319c6d16a7e01",
+    "workflow_id": 426166404,
+    "workflow_path": ".github/workflows/merlin-browser-inventory.yml"
+  },
+  "model_calls_from_retained_inventory": 0,
+  "native_acceptance": {
+    "artifact_id": 14719186061,
+    "artifact_sha256": "75dc97abb3c4304e096a2f27c7e717d49a08491ef4c35917dabc68ccf57d8a7b",
+    "installed_service_proven": false,
+    "merlin_uid_982_access_proven": false,
+    "promotion_authority": false,
+    "qualification": false,
+    "rendering_proven": false,
+    "restart_readback_proven": false,
+    "run_attempt": 1,
+    "run_id": 44934058026,
+    "status": "failed_diagnostic_retained_corrected_native_acceptance_pending"
+  },
+  "native_append_policy": {
+    "empty_or_predicted_receipts_allowed": false,
+    "overwrite_prior_attempts": false,
+    "path_template": "bootstrap-RUN_ID-attempt-RUN_ATTEMPT/",
+    "success_requires_actual_artifact_and_reviews": true
+  },
+  "native_attempts": [
+    {
+      "browser_episodes": 0,
+      "dependency_archive": {
+        "artifact_id": 14718403256,
+        "bytes": 471203673,
+        "expires_at": "2026-12-21T18:02:28Z",
+        "full_archive_in_git_overlay": false,
+        "reference": "docs/evidence/merlin-browser-20261121/bootstrap-44933072217-attempt-1/dependency-archive-reference.json",
+        "sha256": "b902475a6009effa1ee6842953fe7be28a00e4a2e62eab82d2b06c95cb63b058"
+      },
+      "directory": "bootstrap-44933072217-attempt-1",
+      "failed_stage": "unprivileged_dependency_acquisition_validation",
+      "failure_evidence_preserved": true,
+      "failure_message": "package source/filename differs",
+      "installed_browser_success": false,
+      "model_calls": 0,
+      "native_host_control_tests": 21,
+      "native_product_tests": 33,
+      "package_downloads_reached": false,
+      "primary_archive_members": 35,
+      "primary_artifact_id": 14718054797,
+      "primary_zip_bytes": 183431,
+      "primary_zip_sha256": "3b73916ecf1ef77800f59dd5213063a2e4964eaf043725c56e0e6e27194688a7",
+      "privileged_installation_reached": false,
+      "promotion_authority": false,
+      "qualification": false,
+      "raw_job_log_bytes": 30311,
+      "raw_job_log_sha256": "5cc63d9fa071415be25b364bff4b279fd28a22a3f284d6aeee3eb1a86baf8c3a",
+      "rendering_proven": false,
+      "restart_readback_proven": false,
+      "root_review_checks": 9,
+      "run_attempt": 1,
+      "run_id": 44933072217,
+      "run_url": "https://github.com/morganaspim/Cace-app/actions/runs/44933072217",
+      "status": "failed",
+      "test_scope": "Python host/controller and product fixtures ran on the native host; no actual Chromium episode or installed-service acceptance occurred.",
+      "workflow_commit": "6e6ff03e6f4bde2c72147a15fe37e4574944644d",
+      "workflow_id": 426180849,
+      "workflow_path": ".github/workflows/merlin-browser-bootstrap.yml"
+    },
+    {
+      "browser_episodes": 0,
+      "candidate_plan_bytes": 57812,
+      "candidate_plan_sha256": "fd0e53c5338959a5143262c9e84e2ea0cc7c869015d583f276be5383ed838732",
+      "candidate_rows": 49,
+      "candidate_validated_by_this_run": false,
+      "dependency_archive": {
+        "artifact_id": 14718504629,
+        "bytes": 471211941,
+        "downloaded_by_this_assembly": false,
+        "expires_at": "2026-12-21T18:12:44Z",
+        "reference": "docs/evidence/merlin-browser-20261121/bootstrap-44934058026-attempt-1/dependency-archive-reference.json",
+        "sha256_from_api": "2ae052f996c1967d3d96b6266e50355a36df63ffa4ab320596e9d5e1fb22d4d6"
+      },
+      "directory": "bootstrap-44934058026-attempt-1",
+      "failed_stage": "unprivileged_dependency_filename_validation",
+      "failure_class": "literal_caret_excluded_by_local_rpm_basename_character_class",
+      "failure_evidence_preserved": true,
+      "failure_message": "package filename differs: {\"filename\": \"aribb24-1.0.3^20160216git5e9be27-1.el9.aarch64.rpm\", \"repository\": \"merlin-ol9-epel\", \"url\": \"https://yum.oracle.com/repo/OracleLinux/OL9/developer/EPEL/aarch64/getPackage/aribb24-1.0.3^20160216git5e9be27-1.el9.aarch64.rpm\"}",
+      "installed_browser_success": false,
+      "local_repair_review": {
+        "native_acceptance_claimed": false,
+        "path": "docs/evidence/merlin-browser-20261121/bootstrap-44934058026-attempt-1/repair-review.json",
+        "replay_reperformed_by_this_assembly": false,
+        "reported_candidate_replay_rows": 49,
+        "reported_local_controls": 25
+      },
+      "model_calls": 0,
+      "native_host_control_tests": 23,
+      "native_product_tests": 33,
+      "observed_rejected_package": {
+        "filename": "aribb24-1.0.3^20160216git5e9be27-1.el9.aarch64.rpm",
+        "name": "aribb24",
+        "source_prefix_mismatch": false,
+        "url": "https://yum.oracle.com/repo/OracleLinux/OL9/developer/EPEL/aarch64/getPackage/aribb24-1.0.3^20160216git5e9be27-1.el9.aarch64.rpm"
+      },
+      "package_downloads_reached": false,
+      "primary_archive_members": 37,
+      "primary_artifact_id": 14719186061,
+      "primary_zip_bytes": 193532,
+      "primary_zip_sha256": "75dc97abb3c4304e096a2f27c7e717d49a08491ef4c35917dabc68ccf57d8a7b",
+      "privileged_installation_reached": false,
+      "promotion_authority": false,
+      "purpose": "diagnose exact rejected dependency candidate without weakening source admission",
+      "qualification": false,
+      "raw_job_log_bytes": 30523,
+      "raw_job_log_sha256": "07a2cd569e66f6d4247c06a347c10da8e02e21c7041cc83879d94c89c933a8a2",
+      "rendering_proven": false,
+      "restart_readback_proven": false,
+      "run_attempt": 1,
+      "run_id": 44934058026,
+      "run_url": "https://github.com/morganaspim/Cace-app/actions/runs/44934058026",
+      "status": "failed",
+      "test_scope": "Native-host Python controls/fixtures, not actual browser rendering or successful installation.",
+      "workflow_commit": "ff0dfe9dcf3341c1b323c83dacdb3ca5b9342996",
+      "workflow_id": 426180849,
+      "workflow_path": ".github/workflows/merlin-browser-bootstrap.yml"
+    }
+  ],
+  "native_repair": {
+    "next_native_run_reported_by_coordinating_agent": 44941093952,
+    "next_run_acceptance": "pending_actual_result_and_review",
+    "note": "Local repair controls do not replace package, signature, installation, sandboxed-rendering and caller-route acceptance.",
+    "repair_review": "docs/evidence/merlin-browser-20261121/bootstrap-44934058026-attempt-1/repair-review.json",
+    "status": "controller_caret_correction_under_separate_native_validation"
+  },
+  "next_evidence_to_append": [
+    "Exact native bootstrap run/job/artifact API records and original ZIP, including all failed attempts.",
+    "All bounded raw bootstrap/installation/fixture/launcher logs, receipts, sources, workflow and identities from the ZIP.",
+    "Exact signed RPM transaction and individually pinned Python-wheel/runtime identities; no inferred installation from logs alone.",
+    "Actual sandboxed JavaScript rendering and viewport PNG with observed isolation and cgroup resource measurements.",
+    "General public-source episodes and their exact URL/status/response/DOM/text/screenshot/action/resource evidence.",
+    "Actual UID 982 typed submit/read route and readback after supervisor restart; retained canonical ArtifactRefs/handoff.",
+    "Before/after existing private runtime, provider, grants and retained history evidence; no additional model calls or budget changes.",
+    "Independent native acceptance review and a checkpoint update stating actual result and remaining blocks."
+  ],
+  "prior_evidence_publication": {
+    "commit": "fb754a75c8abad5609726f9db77e05cda47f85cd",
+    "previous_blobs_preserved": 407,
+    "published_overlay_files": 88,
+    "pull_request": 193,
+    "repository": "Mannyspiro/expert-robot",
+    "tree": "5244c20aa6eaac218561cfefc6df0fd73dabe4d5",
+    "verification_source": "coordinating agent reported byte-exact published-tree review; this assembly independently rechecks retained local provenance"
+  },
+  "prior_index": {
+    "byte_preserved": true,
+    "path": "docs/evidence/merlin-browser-20261121/evidence-index-v2.json",
+    "sha256": "3fb7f7a87977a8cd8a34d1df510c223845c0938044d113efe068109fd1a5ff3c"
+  },
+  "product": {
+    "additions": 12,
+    "base_commit": "4c8491d23410c956779c76c6d733501df66e7f95",
+    "existing_blobs_preserved": 395,
+    "local_evidence_already_in_product_commit": [
+      "local/product-freeze.json",
+      "local/local-validation.json",
+      "local/unit-tests.txt"
+    ],
+    "local_tests": 33,
+    "product_freeze_sha256": "349bb4f0898c3ef7cd326a7aa5f7c52390f42e2da571d9b8f1e4568b12aafacb",
+    "publication_stage_at_assembly": "draft_pull_request",
+    "pull_request": 193,
+    "pull_request_url": "https://github.com/Mannyspiro/expert-robot/pull/193",
+    "repository": "Mannyspiro/expert-robot",
+    "review": "source/published-source-review.json",
+    "source_commit": "8e2f1d69371d5b4f7e01e3bbd5aa02a666ddd506",
+    "tree": "20b0fdf671736fc9cb9eb3ae9fd7f0908538bf8e"
+  },
+  "research_program": {
+    "automation_confirmation": "confirmed_hourly",
+    "automation_receipt": "docs/evidence/merlin-browser-20261121/research/automation-update.json",
+    "deployed_perpetual_daemon": false,
+    "direction_update": "config/merlin/plan-updates/20261121-continuous-research-direction.json",
+    "path": "config/merlin/research-program.json"
+  },
+  "schema": "merlin-browser-release-evidence-index/1"
+}

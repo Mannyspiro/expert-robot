@@ -1,0 +1,101 @@
+{
+  "assembled_at": "2026-11-21T18:05:19.853732+00:00",
+  "files": [
+    {
+      "bytes": 128244,
+      "origin": {
+        "byte_preserved": true,
+        "claim_limit": "Historical snapshot at recovery; future cycles refresh live heads.",
+        "kind": "retained_main_tree_api_snapshot",
+        "reference": "5771e1d08b09a7d28b7fbca2e4468824a8bac9e0",
+        "repository": "Mannyspiro/expert-robot"
+      },
+      "path": "docs/evidence/merlin-browser-20261121/research/current-main-tree.json",
+      "sha256": "a6e615cf7257e694f6ca7fca1542bf88c71d2b93d4d3657f4ddc41fd778200b4"
+    },
+    {
+      "bytes": 6763,
+      "origin": {
+        "automation_id": "Automation_72fb660969848191ba570958d7cae2b2",
+        "byte_preserved": true,
+        "claim_limit": "Confirms scheduling and prompt update, not completion of a future cycle.",
+        "kind": "actual_automation_update_tool_receipt",
+        "updated_at": "2026-11-21T18:02:20.814496+00:00"
+      },
+      "path": "docs/evidence/merlin-browser-20261121/research/automation-update.json",
+      "sha256": "6f6cffb62da27d7693332a6f8588f6591d93195208afb809909879f3767904a8"
+    },
+    {
+      "bytes": 151826,
+      "origin": {
+        "byte_preserved": false,
+        "kind": "derived_selection_with_exact_embedded_patch_text"
+      },
+      "path": "docs/evidence/merlin-browser-20261121/research/historical-source-extracts.json",
+      "sha256": "5fd03b19b37213f3448f7f07b7abb5e749f9418c873f9a3898561432afbb857c"
+    },
+    {
+      "bytes": 29975,
+      "origin": {
+        "byte_preserved": false,
+        "kind": "source_identity_and_scope_index"
+      },
+      "path": "docs/evidence/merlin-browser-20261121/research/source-bindings.json",
+      "sha256": "30992f7c68f166eba16adb0682aa5780eb14c99eb3e72217c2c8b4b62ff0ab5e"
+    },
+    {
+      "bytes": 21307,
+      "origin": {
+        "byte_preserved": false,
+        "inputs": [
+          "docs/evidence/merlin-browser-20261121/research/source-bindings.json",
+          "docs/evidence/merlin-browser-20261121/research/automation-update.json"
+        ],
+        "kind": "new_user_directed_recurring_research_program"
+      },
+      "path": "config/merlin/research-program.json",
+      "sha256": "f8f312e4ff968028385a636dcc15b1eec93659a4973b0a7c900d36c4cd27c49c"
+    },
+    {
+      "bytes": 3199,
+      "origin": {
+        "byte_preserved": false,
+        "inputs": [
+          "config/merlin/research-program.json",
+          "docs/evidence/merlin-browser-20261121/research/source-bindings.json"
+        ],
+        "kind": "append_only_program_direction_update"
+      },
+      "path": "config/merlin/plan-updates/20261121-continuous-research-direction.json",
+      "sha256": "72fd809213b15e44b56ed3bfef124c6e9e0bbbc8c88a52b5b5d1845bd4fa065e"
+    },
+    {
+      "bytes": 11024,
+      "origin": {
+        "byte_preserved": false,
+        "inputs": [
+          "config/merlin/research-program.json",
+          "config/merlin/plan-updates/20261121-continuous-research-direction.json",
+          "docs/evidence/merlin-browser-20261121/research/source-bindings.json"
+        ],
+        "kind": "source_bound_research_program_explanation"
+      },
+      "path": "docs/merlin/CONTINUOUS_RESEARCH_PROGRAM_20261121.md",
+      "sha256": "97abf39441871d9a03f5e113589e9429df8773bb8cdc81061bbdfca885a238f5"
+    },
+    {
+      "bytes": 2793,
+      "origin": {
+        "byte_preserved": false,
+        "kind": "derived_source_recovery_and_scope_review"
+      },
+      "path": "docs/evidence/merlin-browser-20261121/research/recovery-review.json",
+      "sha256": "54eaf11d2f65ce1cabb9556ca18e9a0135c6e39e8b64b58749fc645e6f4c1682"
+    }
+  ],
+  "promotion_authority": false,
+  "qualification": false,
+  "schema": "merlin-research-program-provenance/1",
+  "scope": "New research program records and exact supporting selections; the pre-existing browser inventory/source overlay remains byte-preserved.",
+  "self_digest": "Recorded in the separate local assembly review; omitted here to avoid self-reference."
+}

@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/opt/actions-runner/_work/_temp/merlin-browser-bootstrap-44934058026-1/bootstrap_browser.py", line 414, in acquire
+    bounds=checked_transaction(stage,packages,before,removed,
+  File "/opt/actions-runner/_work/_temp/merlin-browser-bootstrap-44934058026-1/bootstrap_browser.py", line 340, in checked_transaction
+    try: return validate_transaction(packages,before,removed)
+  File "/opt/actions-runner/_work/_temp/merlin-browser-bootstrap-44934058026-1/bootstrap_browser.py", line 307, in validate_transaction
+    raise BootstrapError('package filename differs: '+json.dumps({
+bootstrap_browser.BootstrapError: package filename differs: {"filename": "aribb24-1.0.3^20160216git5e9be27-1.el9.aarch64.rpm", "repository": "merlin-ol9-epel", "url": "https://yum.oracle.com/repo/OracleLinux/OL9/developer/EPEL/aarch64/getPackage/aribb24-1.0.3^20160216git5e9be27-1.el9.aarch64.rpm"}

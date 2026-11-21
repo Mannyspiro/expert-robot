@@ -1,0 +1,16 @@
+{
+  "sources": {
+    "diagnose_bootstrap.py": {
+      "bytes": 15176,
+      "git_blob": "d5cff8a450a46757b5bb59bd99481654ee9d0616",
+      "sha256": "36d192d0e7175499ced8a7c0843b836442f2c1ad71697b3bd201f3c9cbba2a1c"
+    },
+    "test_diagnose_bootstrap.py": {
+      "bytes": 4136,
+      "git_blob": "c4a426c89063d34547ca0942d1089cf28fffb2e4",
+      "sha256": "17be14e943073280b39f03f9fb43071413e16a18152627bb5ac1a3b44c6974d0"
+    }
+  },
+  "workflow_git_blob": "dc2e6aa3eeddb3d87722679f85185fe133f0fdc9",
+  "workflow_sha256": "03f01d7619bd929d8bf8bfe92d06d8a394f8314cbcb56394d98f734f0a4d293c"
+}

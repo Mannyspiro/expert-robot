@@ -1,0 +1,46 @@
+[
+  {
+    "name": "original-base-tests",
+    "command": [
+      "python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "/workspace/scratch/abed42219434/merlin-browser-build/tests",
+      "-p",
+      "test_public_browser.py",
+      "-v"
+    ],
+    "pythonpath": "/workspace/scratch/abed42219434/merlin-browser-build/python",
+    "returncode": 0,
+    "output_sha256": "cd675e4edaa2af130b3f11eaa3d8999ee12e82d0bf889dc0bd3790f0bef74f61",
+    "tail": [
+      "",
+      "----------------------------------------------------------------------",
+      "Ran 33 tests in 0.292s",
+      "",
+      "OK"
+    ]
+  },
+  {
+    "name": "original-new-regressions",
+    "command": [
+      "python",
+      "-m",
+      "unittest",
+      "-v",
+      "test_public_browser.RouteAccountingTests"
+    ],
+    "pythonpath": "/workspace/scratch/abed42219434/merlin-browser-build/python:/workspace/scratch/abed42219434/browser-ledger-successor/tests",
+    "returncode": 1,
+    "output_sha256": "b980dcf5ce287d57234bf1a93627d40310339137ee7b3a77e2c325c30d6fe3e9",
+    "tail": [
+      "",
+      "----------------------------------------------------------------------",
+      "Ran 8 tests in 0.023s",
+      "",
+      "FAILED (failures=4, errors=5)"
+    ]
+  }
+]

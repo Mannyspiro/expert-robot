@@ -1,0 +1,150 @@
+{
+  "schema": "merlin-browser-lifecycle-source-manifest/1",
+  "entries": [
+    {
+      "path": "evidence/baseline-regression.txt",
+      "bytes": 5595,
+      "sha256": "fc3c3498310047dc06fc6d991a681f0febf06fbb0787020c7f32fc777795ff7b"
+    },
+    {
+      "path": "evidence/browser-service.before-child-mask-fix.patch",
+      "bytes": 8959,
+      "sha256": "5ec0a6c62adb86438b22ba8ac116f3b95e95bd274d3167d7a310faa9ce54864b"
+    },
+    {
+      "path": "evidence/browser-service.patch",
+      "bytes": 9768,
+      "sha256": "d8fefba99159bfee6b10ea4f7dc86afd5ef5c310ca4ba8fd6517e6cc57c43e7d"
+    },
+    {
+      "path": "evidence/browser_service.before-child-mask-fix.py",
+      "bytes": 20010,
+      "sha256": "2c6d05aa19a0e2e488a22f2fdd48130104a8579fc4f293dca0125394f22eec5f"
+    },
+    {
+      "path": "evidence/browser_service.original.py",
+      "bytes": 17146,
+      "sha256": "149b8cad37299b4f6b38ec079797242629fb290061e6997b75e73b64d43cf2af"
+    },
+    {
+      "path": "evidence/child-mask-regression-before-fix.txt",
+      "bytes": 997,
+      "sha256": "3ce0bb664d6313a0e8266a6ca120d863b88ad1ef93a83541e3f04477e3c068de"
+    },
+    {
+      "path": "evidence/direct-regression-observations.before-child-mask-fix.json",
+      "bytes": 2374,
+      "sha256": "abb919e1462064d8c03628b0c13197527cf05e89822170d253205199a33de982"
+    },
+    {
+      "path": "evidence/direct-regression-observations.json",
+      "bytes": 2527,
+      "sha256": "788052e0c47ef7d0a1775f93128ac1f99bcdf4b8d7261775e75208744ce0945b"
+    },
+    {
+      "path": "evidence/existing-browser-tests-final.txt",
+      "bytes": 6990,
+      "sha256": "d84a7a40c7fba12dbad252fc6e100b6e076a6ab21750f82ddb1dd4ab841fe175"
+    },
+    {
+      "path": "evidence/existing-browser-tests.txt",
+      "bytes": 6990,
+      "sha256": "911cd1393a8ae197cc96bd170b0616eb14f3152fbc1ff33a1a067bd63196d2bd"
+    },
+    {
+      "path": "evidence/initial-frame.json",
+      "bytes": 1625,
+      "sha256": "34dc00f5e7cfb860bde52d1bf115b8af9492ecbc55d17c073ed4e5d22bf38780"
+    },
+    {
+      "path": "evidence/lifecycle-controls-final.txt",
+      "bytes": 2171,
+      "sha256": "3649ccc2b7580c829304783a3996d53b5c8b97eb17fb92d04491e53f290767f7"
+    },
+    {
+      "path": "evidence/lifecycle-controls.txt",
+      "bytes": 1797,
+      "sha256": "65be85fbf84ba827bee03dbfbea8b10d5486b606ad2dae599970904e52df81cb"
+    },
+    {
+      "path": "evidence/lifecycle-tests.txt",
+      "bytes": 14651,
+      "sha256": "ef9bbef30a0631823d1e1c2afd970106eee1e0f29f370e9f955409128bef3f2b"
+    },
+    {
+      "path": "evidence/result.json",
+      "bytes": 5128,
+      "sha256": "f7b16a1b5f9569487645268ca12dd90db7253c824c592c4584cbee19d58b3792"
+    },
+    {
+      "path": "python/dot_ai_os/__init__.py",
+      "bytes": 103,
+      "sha256": "5a54db6fddc5b1a178c7beaa42089ee95bdea81871560c8c5d1f868a2b16e487"
+    },
+    {
+      "path": "python/dot_ai_os/bridge.py",
+      "bytes": 23013,
+      "sha256": "781447bcfb965e11b39d7cedfc1d4f1db3c6c67f502bffc6a07605af7cf085a3"
+    },
+    {
+      "path": "python/merlin/__init__.py",
+      "bytes": 275,
+      "sha256": "49f23ffa9b838de063cd88e4a60704d1989f55ff3aa70fe2ed850b0396fa8f93"
+    },
+    {
+      "path": "python/merlin/artifact_ref.py",
+      "bytes": 2542,
+      "sha256": "187e33ed4ab6e1a79e054ff31c07b383090dae94cb51c5eb9dd01dfb80227584"
+    },
+    {
+      "path": "python/merlin/browser_client.py",
+      "bytes": 2963,
+      "sha256": "b674d873e9f2f12b94339c7bc5c1df3d035433307248b595c27319632a87a58b"
+    },
+    {
+      "path": "python/merlin/browser_egress.py",
+      "bytes": 16013,
+      "sha256": "93b018f113e004b4322f4702669015eb64190480145686954d4b46aabf34c4ff"
+    },
+    {
+      "path": "python/merlin/browser_ingest.py",
+      "bytes": 20341,
+      "sha256": "b4305956d5159482eb043e0bfdbca81bfd7cb353e6bc51f21437480f67f08d82"
+    },
+    {
+      "path": "python/merlin/browser_policy.py",
+      "bytes": 6300,
+      "sha256": "c0583bfd6309bd67cf33f6c9e92e4a39c7caab5bb2c3fd9a99fda578c53d30c8"
+    },
+    {
+      "path": "python/merlin/browser_service.py",
+      "bytes": 20782,
+      "sha256": "33de7ccd0353ff56716daa08aa14b8c0dc41539aff72d7eb087a6eeeecb25135"
+    },
+    {
+      "path": "python/merlin/project_registry.py",
+      "bytes": 42079,
+      "sha256": "c7fbd89ae99705f60a1ecd7f41df244742fe218a335b4a3e6d2fed11c96521c7"
+    },
+    {
+      "path": "python/merlin/public_browser.py",
+      "bytes": 29083,
+      "sha256": "9bddbc4343b5c6acb88c9d5b12f869290056f1913b93a2203774129d8975e884"
+    },
+    {
+      "path": "tests/test_browser_service_lifecycle.py",
+      "bytes": 9617,
+      "sha256": "4ed0bad2fee5df8fb4772b2e9858de5859a00f6ef16c4f61f2714f2a7f6b78c6"
+    },
+    {
+      "path": "tests/test_browser_service_lifecycle_controls.py",
+      "bytes": 10104,
+      "sha256": "88f7f6186783946c027c8afac2decb392338fbe9138f9fc501188bf96c855cb7"
+    },
+    {
+      "path": "tests/test_public_browser.py",
+      "bytes": 46706,
+      "sha256": "4e3c7fb0a708dd838d2305a4e185bd3e3d508f0ee4780e4bf848a5644642d269"
+    }
+  ]
+}

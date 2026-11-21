@@ -1,0 +1,72 @@
+test_sigterm_unwinds_and_removes_owned_path (test_browser_service_lifecycle_controls.SignalProcessControls.test_sigterm_unwinds_and_removes_owned_path) ... FAIL
+test_sigint_unwinds_and_removes_owned_path (test_browser_service_lifecycle_controls.SignalProcessControls.test_sigint_unwinds_and_removes_owned_path) ... FAIL
+test_sigterm_during_bind_is_deferred_until_identity_recorded (test_browser_service_lifecycle_controls.SignalProcessControls.test_sigterm_during_bind_is_deferred_until_identity_recorded) ... FAIL
+test_sigint_cleanup_preserves_replaced_inode (test_browser_service_lifecycle_controls.SignalProcessControls.test_sigint_cleanup_preserves_replaced_inode) ... FAIL
+test_active_launcher_is_killed_and_reaped_after_real_signal (test_browser_service_lifecycle_controls.SignalProcessControls.test_active_launcher_is_killed_and_reaped_after_real_signal) ... FAIL
+
+======================================================================
+FAIL: test_sigterm_unwinds_and_removes_owned_path (test_browser_service_lifecycle_controls.SignalProcessControls.test_sigterm_unwinds_and_removes_owned_path)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/baseline/tests/test_browser_service_lifecycle_controls.py", line 107, in test_sigterm_unwinds_and_removes_owned_path
+    self.start();self.stop();self.assertFalse(self.path.exists())
+                 ^^^^^^^^^^^
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/baseline/tests/test_browser_service_lifecycle_controls.py", line 104, in stop
+    self.assertEqual(self.process.wait(timeout=3),0,self.process.stderr.read().decode())
+AssertionError: -15 != 0 : 
+
+======================================================================
+FAIL: test_sigint_unwinds_and_removes_owned_path (test_browser_service_lifecycle_controls.SignalProcessControls.test_sigint_unwinds_and_removes_owned_path)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/baseline/tests/test_browser_service_lifecycle_controls.py", line 110, in test_sigint_unwinds_and_removes_owned_path
+    self.start();self.stop(signal.SIGINT);self.assertFalse(self.path.exists())
+                 ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/baseline/tests/test_browser_service_lifecycle_controls.py", line 104, in stop
+    self.assertEqual(self.process.wait(timeout=3),0,self.process.stderr.read().decode())
+AssertionError: -2 != 0 : Traceback (most recent call last):
+  File "<string>", line 33, in <module>
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/baseline/python/merlin/browser_service.py", line 258, in serve
+    channel,_=server.accept()
+              ^^^^^^^^^^^^^^^
+  File "<string>", line 22, in accept
+KeyboardInterrupt
+
+
+======================================================================
+FAIL: test_sigterm_during_bind_is_deferred_until_identity_recorded (test_browser_service_lifecycle_controls.SignalProcessControls.test_sigterm_during_bind_is_deferred_until_identity_recorded)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/baseline/tests/test_browser_service_lifecycle_controls.py", line 114, in test_sigterm_during_bind_is_deferred_until_identity_recorded
+    self.assertEqual(self.process.wait(timeout=3),0,self.process.stderr.read().decode())
+AssertionError: -15 != 0 : 
+
+======================================================================
+FAIL: test_sigint_cleanup_preserves_replaced_inode (test_browser_service_lifecycle_controls.SignalProcessControls.test_sigint_cleanup_preserves_replaced_inode)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/baseline/tests/test_browser_service_lifecycle_controls.py", line 129, in test_sigint_cleanup_preserves_replaced_inode
+    self.stop(signal.SIGINT)
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/baseline/tests/test_browser_service_lifecycle_controls.py", line 104, in stop
+    self.assertEqual(self.process.wait(timeout=3),0,self.process.stderr.read().decode())
+AssertionError: -2 != 0 : Traceback (most recent call last):
+  File "<string>", line 33, in <module>
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/baseline/python/merlin/browser_service.py", line 258, in serve
+    channel,_=server.accept()
+              ^^^^^^^^^^^^^^^
+  File "<string>", line 22, in accept
+KeyboardInterrupt
+
+
+======================================================================
+FAIL: test_active_launcher_is_killed_and_reaped_after_real_signal (test_browser_service_lifecycle_controls.SignalProcessControls.test_active_launcher_is_killed_and_reaped_after_real_signal)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/baseline/tests/test_browser_service_lifecycle_controls.py", line 142, in test_active_launcher_is_killed_and_reaped_after_real_signal
+    self.assertFalse(Path('/proc',str(child)).exists(),'direct child not reaped')
+AssertionError: True is not false : direct child not reaped
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.442s
+
+FAILED (failures=5)

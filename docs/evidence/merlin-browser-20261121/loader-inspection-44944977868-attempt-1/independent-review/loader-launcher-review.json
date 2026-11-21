@@ -1,0 +1,40 @@
+{
+  "actual_loader_inspection_run_id": 44944977868,
+  "check_group_count": 5,
+  "check_groups": [
+    "exact_frozen_launcher_identity",
+    "only_the_three_reviewed_additions",
+    "python_3_9_parse",
+    "one_loader_file_mount_in_both_worker_roles_no_usr_lib_expansion",
+    "loader_pin_matches_actual_native_inspection"
+  ],
+  "decision": "accepted_exact_launcher_delta_for_new_immutable_runtime",
+  "delta": [
+    "Two constants bind the exact observed public ARM loader path and digest.",
+    "load_runtime verifies that root-owned bounded regular loader file through existing file_sha256.",
+    "Sandbox binds only that file read-only at its exact /usr/lib path; existing /lib alias resolves it."
+  ],
+  "launcher": {
+    "bytes": 24942,
+    "git_blob": "451eca582b3f65a1b4c90b7369409363269c2772",
+    "path": "/workspace/scratch/abed42219434/browser-operations/ops/merlin_browser/launch_episode.py",
+    "sha256": "3f51b4506fbc740219daf7b4c52c68e81bea32b7e0a7757888581371d8996f5f"
+  },
+  "native_pending": [
+    "New runtime archive preserves the other13 payload members and records the new launcher identity.",
+    "Runtime-only successor must preserve all failed history and reuse the installed package/venv closure without reinstall.",
+    "Successful fixture and real source/caller acceptance still require actual native execution."
+  ],
+  "remaining_concrete_source_blockers": [],
+  "review_side_effects": {
+    "browser_calls": 0,
+    "model_calls": 0,
+    "native_operations": 0,
+    "remote_mutations": 0,
+    "source_edits": 0
+  },
+  "reviewed_at_utc": "2026-11-21T20:13:40.069438+00:00",
+  "reviewer": "/root/source_release_review",
+  "schema": "merlin-browser-loader-launcher-independent-review/1",
+  "unchanged": "Removing exactly those three additions yields byte-for-byte old frozen launcher, including every namespace, capability, resource, network, lifecycle and export control."
+}

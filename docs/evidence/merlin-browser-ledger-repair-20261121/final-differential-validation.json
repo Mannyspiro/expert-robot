@@ -1,0 +1,50 @@
+{
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "runs": [
+    {
+      "name": "successor-tests",
+      "command": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_public_browser.py",
+        "-v"
+      ],
+      "pythonpath": "/workspace/scratch/abed42219434/browser-ledger-successor/python",
+      "returncode": 0,
+      "output_sha256": "e802bf0c5c123790bde692036eb3c87fae3c2f314b3539c4e295e2634b535d20",
+      "tail": [
+        "",
+        "----------------------------------------------------------------------",
+        "Ran 41 tests in 0.340s",
+        "",
+        "OK"
+      ]
+    },
+    {
+      "name": "original-new-regressions",
+      "command": [
+        "python",
+        "-m",
+        "unittest",
+        "-v",
+        "test_public_browser.RouteAccountingTests"
+      ],
+      "pythonpath": "/workspace/scratch/abed42219434/merlin-browser-build/python:/workspace/scratch/abed42219434/browser-ledger-successor/tests",
+      "returncode": 1,
+      "output_sha256": "4436ecbf078048e2329fbaab10d865d7590d075ae2259ee1effbefc2418daa0c",
+      "tail": [
+        "",
+        "----------------------------------------------------------------------",
+        "Ran 8 tests in 0.025s",
+        "",
+        "FAILED (failures=4, errors=5)"
+      ]
+    }
+  ]
+}

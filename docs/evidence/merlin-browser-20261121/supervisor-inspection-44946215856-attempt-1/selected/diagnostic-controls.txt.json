@@ -1,0 +1,11 @@
+{
+  "argv_sha256": "66f65b69795715b0f7d5d740f7e110aa4fdf1cc680d13ecb05b35a5e5b201e34",
+  "argv_count": 6,
+  "maximum_argument_bytes": 380,
+  "total_argument_bytes": 479,
+  "returncode": 0,
+  "elapsed_seconds": 0.05914263054728508,
+  "output_bytes": 984,
+  "absolute_outer_deadline_seconds": 30,
+  "error_type": null
+}

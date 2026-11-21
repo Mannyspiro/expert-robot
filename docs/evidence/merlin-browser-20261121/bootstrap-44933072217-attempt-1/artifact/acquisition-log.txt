@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/opt/actions-runner/_work/_temp/merlin-browser-bootstrap-44933072217-1/bootstrap_browser.py", line 351, in acquire
+    bounds=validate_transaction(packages,before,removed)
+  File "/opt/actions-runner/_work/_temp/merlin-browser-bootstrap-44933072217-1/bootstrap_browser.py", line 301, in validate_transaction
+    raise BootstrapError('package source/filename differs')
+bootstrap_browser.BootstrapError: package source/filename differs

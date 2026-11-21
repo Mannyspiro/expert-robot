@@ -1,0 +1,1 @@
+{"caller_gid": 1000, "caller_uid": 982, "connection_attempts": 1, "response": {"episode_id": "readiness-18106dfc-0a56-4b68-9d30-5d334d7d6a69", "execution_retried": false, "model_calls": 0, "operation": "status", "request_ref": null, "retained_episode_directory": false, "schema": "merlin-browser-service-result/1", "status": "not_found"}}

@@ -1,0 +1,59 @@
+{
+  "schema": "merlin-browser-lifecycle-regression/1",
+  "baseline_records_preserved_from": "direct-regression-observations.before-child-mask-fix.json",
+  "candidate_reobserved_on_frozen_final_source": true,
+  "observations": [
+    {
+      "implementation": "baseline",
+      "scenario": "sigterm_idle",
+      "source_sha256": "149b8cad37299b4f6b38ec079797242629fb290061e6997b75e73b64d43cf2af",
+      "return_code": -15,
+      "elapsed_seconds": 0.000978,
+      "transport": "explicit file-backed listener fixture; real signals/processes; no native AF_UNIX",
+      "original_inode": 15541,
+      "before_stop_inode": 15541,
+      "path_exists_after": true,
+      "remaining_bytes": "",
+      "stderr": ""
+    },
+    {
+      "implementation": "baseline",
+      "scenario": "sigint_replaced_path",
+      "source_sha256": "149b8cad37299b4f6b38ec079797242629fb290061e6997b75e73b64d43cf2af",
+      "return_code": -2,
+      "elapsed_seconds": 0.013472,
+      "transport": "explicit file-backed listener fixture; real signals/processes; no native AF_UNIX",
+      "original_inode": 15545,
+      "before_stop_inode": 15547,
+      "path_exists_after": false,
+      "remaining_bytes": null,
+      "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 33, in <module>\n  File \"/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/baseline/python/merlin/browser_service.py\", line 258, in serve\n    channel,_=server.accept()\n              ^^^^^^^^^^^^^^^\n  File \"<string>\", line 22, in accept\nKeyboardInterrupt\n"
+    },
+    {
+      "implementation": "candidate",
+      "scenario": "sigterm_idle",
+      "source_sha256": "33de7ccd0353ff56716daa08aa14b8c0dc41539aff72d7eb087a6eeeecb25135",
+      "return_code": 0,
+      "elapsed_seconds": 0.010775,
+      "transport": "explicit file-backed listener fixture; real signals/processes; no native AF_UNIX",
+      "original_inode": 16915,
+      "before_stop_inode": 16915,
+      "path_exists_after": false,
+      "remaining_bytes": null,
+      "stderr": ""
+    },
+    {
+      "implementation": "candidate",
+      "scenario": "sigint_replaced_path",
+      "source_sha256": "33de7ccd0353ff56716daa08aa14b8c0dc41539aff72d7eb087a6eeeecb25135",
+      "return_code": 0,
+      "elapsed_seconds": 0.011663,
+      "transport": "explicit file-backed listener fixture; real signals/processes; no native AF_UNIX",
+      "original_inode": 16919,
+      "before_stop_inode": 16921,
+      "path_exists_after": true,
+      "remaining_bytes": "foreign",
+      "stderr": ""
+    }
+  ]
+}

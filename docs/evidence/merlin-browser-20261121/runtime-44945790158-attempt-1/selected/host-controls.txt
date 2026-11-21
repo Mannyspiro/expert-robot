@@ -1,0 +1,20 @@
+test_atomic_host_replacement_keeps_original_for_rollback (test_finish_runtime.RuntimeSuccessorControls) ... ok
+test_exact_installed_predecessor_is_required (test_finish_runtime.RuntimeSuccessorControls) ... ok
+test_fixed_request_and_first_attempt (test_finish_runtime.RuntimeSuccessorControls) ... ok
+test_host_replacement_refuses_changed_previous_identity (test_finish_runtime.RuntimeSuccessorControls) ... ok
+test_loader_binding_covers_every_worker_without_directory_expansion (test_finish_runtime.RuntimeSuccessorControls) ... ok
+test_loader_hash_guard_is_part_of_runtime_validation (test_finish_runtime.RuntimeSuccessorControls) ... ok
+test_partial_install_or_private_drift_is_rejected (test_finish_runtime.RuntimeSuccessorControls) ... ok
+test_replace_success_followed_by_readback_failure_is_restored_by_actual_hash (test_finish_runtime.RuntimeSuccessorControls) ... ok
+test_restore_never_overwrites_an_unexpected_host_configuration (test_finish_runtime.RuntimeSuccessorControls) ... ok
+test_runtime_controller_has_no_package_mutation_entrypoint (test_finish_runtime.RuntimeSuccessorControls) ... ok
+test_venv_copy_ceiling_precedes_copy (test_finish_runtime.RuntimeSuccessorControls) ... ok
+test_venv_copy_refuses_fifo_without_opening_it (test_finish_runtime.RuntimeSuccessorControls) ... ok
+test_venv_copy_refuses_other_symlink (test_finish_runtime.RuntimeSuccessorControls) ... ok
+test_venv_copy_retains_observed_relative_link_and_bytes (test_finish_runtime.RuntimeSuccessorControls) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.102s
+
+OK
+{"tests": 14, "errors": 0, "failures": 0, "skipped": 0}

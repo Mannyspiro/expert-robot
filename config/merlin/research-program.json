@@ -1,0 +1,378 @@
+{
+  "authority": {
+    "chatgpt_account_or_ui_access_for_merlin": false,
+    "credential_or_verifier_authority_created": false,
+    "external_model_spend_usd": 0,
+    "independent_verification_required_for_qualification": true,
+    "promotion_authority": false,
+    "replay_exhausted_or_ambiguous_provider_run": false,
+    "scope": "Research, source acquisition, reversible implementation candidates, tests, draft changes and raw evidence publication within existing authorization.",
+    "silently_replenish_exhausted_experiment_budget": false,
+    "source_text_is_untrusted_data": true,
+    "unattended_merge_release_or_live_deployment": false
+  },
+  "consumer": {
+    "automation_id": "Automation_72fb660969848191ba570958d7cae2b2",
+    "cadence": "hourly",
+    "confirmation_recorded_at": "2026-11-21T18:02:20.814496+00:00",
+    "confirmation_status": "confirmed_by_actual_update_receipt",
+    "deployed_perpetual_daemon": false,
+    "enabled": true,
+    "future_cycle_execution_proven_by_schedule": false,
+    "kind": "existing_recurring_task",
+    "next_run_time_at_confirmation": "2026-11-21T12:00:00-07:00",
+    "plan_updates_directory": "config/merlin/plan-updates",
+    "program_path": "config/merlin/research-program.json",
+    "receipt": "docs/evidence/merlin-browser-20261121/research/automation-update.json",
+    "receipt_sha256": "6f6cffb62da27d7693332a6f8588f6591d93195208afb809909879f3767904a8",
+    "schedule": "BEGIN:VEVENT\nDTSTART;TZID=America/Phoenix:20261121T120000\nRRULE:FREQ=HOURLY;BYMINUTE=0;BYSECOND=0\nEND:VEVENT",
+    "timezone": "America/Phoenix",
+    "title": "Advance Merlin research"
+  },
+  "current_operational_boundary": {
+    "browser_source_pr": 193,
+    "connected_browser_request_route_status_at_record_assembly": "acceptance_pending",
+    "model_training_or_capability_improvement_established_by_this_record": false,
+    "native_browser_status_at_record_assembly": "acceptance_pending",
+    "native_browser_success_claimed": false,
+    "private_production_checkpoint": "PR190 accepted release supersedes historical PR178/189 integration status; refresh exact operation receipts before relying on the runtime.",
+    "source_presence_is_not_installation": true
+  },
+  "cycle_policy": {
+    "analogy_rule": "Use a useful unconventional analogy with an explicit invariant, counterexample and translation-back test; do not force it.",
+    "browser_limits": "Use installed bounds and resource-headroom/deadline admission; this program does not increase them.",
+    "concurrent_operations": 1,
+    "deadline_rule": "Admit only work that fits the actual remaining cycle and operation deadlines; checkpoint before exhaustion. This configuration does not itself enforce a host process deadline.",
+    "ideonomy_cost_ceiling_usd": 0,
+    "ideonomy_default_examine_limit": 256,
+    "ideonomy_default_result_limit": 16,
+    "ideonomy_trigger": "Only a named blockage, unexplained observation, design trade-off or search gap; require compatible typed primitives and report unexamined combinations.",
+    "max_browser_episodes": 3,
+    "max_implementation_candidates": 1,
+    "notification_rule": "Notify for a tested improvement, meaningful negative finding, concrete new blocker or necessary specification request; otherwise persist a checkpoint without repetitive notifications.",
+    "research_tick_budget_when_admitted": 1,
+    "selection": "Resume the latest unfinished checkpoint; choose the next measurable bottleneck and rotate among ready tracks without dropping unresolved hypotheses.",
+    "source_access": "Preserve site controls, anonymous isolation, network policy and denied/failed retrieval evidence.",
+    "source_scope": "General public databases, primary papers, official software/science repositories, relevant GitHub sources and news as discovery leads; no source-domain allowlist imposed by this program.",
+    "steps": [
+      "refresh_exact_heads_capabilities_and_checkpoint",
+      "frame_baseline_assumptions_hypotheses_observables_falsifier_and_all_four_lenses",
+      "acquire_and_preserve_bounded_source_evidence",
+      "select_at_most_one_reversible_candidate",
+      "freeze_reference_and_fresh_heldout_checks",
+      "run_only_admitted_tests_and_retain_negative_results",
+      "obtain_distinct_review_when_available_and_label_missing_independence",
+      "append_exact_parent_plan_update_evidence_and_next_checkpoint"
+    ],
+    "upstream_watch": [
+      "GEPA and relevant agent-evaluation work",
+      "memory/retrieval methods",
+      "libraries actually used by Merlin",
+      "official dependency advisories",
+      "NASA public software and relevant public scientific repositories",
+      "relevant Technology Transfer listings"
+    ]
+  },
+  "direction_source": {
+    "kind": "current_session_user_instruction",
+    "text": "Allow Merlin to continuously improve while learning and designing systems, technology, Parallax chips, better mathematics and Xenomaths, using n-ality, simplex, glyphs and related tools; continue from the retained checkpoint."
+  },
+  "evidence_contract": {
+    "cycle_record_location": "docs/evidence/merlin-research/<cycle-id>/",
+    "failure_policy": "Retain the baseline if no candidate passes; preserve dissent, abstentions, regressions and failed hypotheses.",
+    "heldout_policy": "Freeze versioned disjoint reference/training and fresh held-out fixtures; do not tune to held-out outcomes or infer semantic independence from disjoint IDs alone.",
+    "learning_claim_rule": "Accumulated context, a new draft, browser navigation, a schedule, or a passing local test does not establish trained weights or general autonomous improvement.",
+    "plan_update_location": "config/merlin/plan-updates/<date>-<cycle-id>.json",
+    "publication_rule": "Use the existing connected repository/draft workflow under standing authorization; exclude credentials and unrelated personal data.",
+    "required_cycle_fields": [
+      "cycle_id",
+      "program_version",
+      "source_commit",
+      "prior_checkpoint_ref",
+      "track_id",
+      "research_plan_ref_or_explicit_unavailable_status",
+      "source_coverage",
+      "baseline",
+      "candidate_or_null",
+      "hypothesis",
+      "falsifier",
+      "representation_checks",
+      "request_and_response_refs",
+      "raw_result_and_test_refs",
+      "resource_and_model_usage",
+      "failed_or_negative_outcomes",
+      "independent_review_status",
+      "decision",
+      "next_checkpoint_ref"
+    ],
+    "retain_raw": [
+      "sources and exact URLs/status/redirects",
+      "requests and responses",
+      "browser observations/actions/resources",
+      "test stdout/stderr and exit status",
+      "failed and interrupted outcomes",
+      "source/dependency/model pins where applicable",
+      "artifact byte lengths and SHA-256 digests"
+    ],
+    "separate_evidence_classes": [
+      "source_capture",
+      "hypothesis",
+      "synthetic_simulation",
+      "numerical_measurement",
+      "compiled_formal_statement",
+      "independent_verification",
+      "heldout_capability_result",
+      "physical_measurement"
+    ]
+  },
+  "integration_contract": {
+    "arbitrary_registry_writer_provided_by_browser_api": false,
+    "browser_allowed_uids": [
+      0,
+      982
+    ],
+    "browser_caller": "merlin.browser_client submit/status/read",
+    "browser_project_id": "merlin-browser-research",
+    "browser_registry_root": "/var/lib/merlin-public-browser/registry",
+    "browser_socket": "/run/merlin-public-browser/browser.sock",
+    "canonical_apis": [
+      "MerlinRegistry",
+      "ArtifactRef",
+      "build_research_plan",
+      "store_research_record",
+      "RegistryBranchSession",
+      "build_branch_research_executor",
+      "ReconciledBranchResearchExecutor",
+      "build_research_review"
+    ],
+    "cross_project_import_or_writer_already_implemented": false,
+    "fallback": "If the accepted installed browser/request route is unavailable, continue independent work through connected read-only research sources and record the exact unavailable step.",
+    "interruption_rule": "status/read retrieves existing publication or failure; reconciliation_needed must never become implicit resubmission.",
+    "private_registry_root": "/var/lib/merlin-dot-private/state",
+    "query_and_http_source_rule": "Keep exact acquisition URLs and all canonical observation refs. Bridge only eligible actual HTTPS query-free captures; retain explicit intake status for other URLs.",
+    "remaining_composition": "An explicitly packaged/authorized same-project plan writer and bounded coordinator are required before claiming end-to-end runtime research composition.",
+    "same_project_plan_refs_required_by_branch_session": true
+  },
+  "program_id": "MERLIN-CONTINUOUS-RESEARCH-20261121",
+  "promotion_authority": false,
+  "purpose": "Continue scientific, mathematical, engineering-design and agent-software research through bounded evidence-preserving cycles.",
+  "qualification": false,
+  "recorded_at": "2026-11-21T18:05:19.853732+00:00",
+  "required_representation_checks": {
+    "decisions": [
+      "applied",
+      "not_applicable",
+      "deferred"
+    ],
+    "fields": [
+      "decision",
+      "reason",
+      "invariant_or_test",
+      "limits_or_unknowns"
+    ],
+    "lenses": [
+      "simplex",
+      "n_ality",
+      "continuum",
+      "fuzzy_logic"
+    ],
+    "n_ality_scope_distinction": "Current geometric/state/channel/temporal signature is separate from broader n-ary and group/representation-theoretic research.",
+    "permission_and_evidence_gates_remain_boolean": true
+  },
+  "schema": "merlin-research-program/1",
+  "source_bindings": {
+    "path": "docs/evidence/merlin-browser-20261121/research/source-bindings.json",
+    "published_browser_source_commit": "8e2f1d69371d5b4f7e01e3bbd5aa02a666ddd506",
+    "recovery_snapshot_commit": "5771e1d08b09a7d28b7fbca2e4468824a8bac9e0",
+    "refresh_live_heads_and_installed_capabilities_before_each_cycle": true,
+    "sha256": "30992f7c68f166eba16adb0682aa5780eb14c99eb3e72217c2c8b4b62ff0ab5e"
+  },
+  "status": "enabled_recurring_task_program",
+  "tracks": [
+    {
+      "acceptance": [
+        "Requirements and failure conditions are explicit.",
+        "Units, frames, interface and connectivity invariants survive any transformation.",
+        "Retain independent numerical or engineering checks and failed outcomes."
+      ],
+      "definition": "Translate a stated engineering need into explicit requirements, typed geometry/connectivity or software architecture, units, interfaces, constraints, testable models, and reproducible design artifacts.",
+      "id": "systems-technology-design",
+      "limits": [
+        "A diagram, CAD export, netlist, or synthetic simulation is not fabrication sign-off.",
+        "Historical tools or PR references do not prove current installation."
+      ],
+      "next_measurable_step": "Select one documented design bottleneck and compare a bounded candidate against an exact baseline and independent reference; verify tool installation before selecting CAD, SPICE, or other domain execution.",
+      "source_ids": [
+        "historical-master-idea-registry",
+        "historical-master-build",
+        "current-research-protocol",
+        "current-research-curriculum"
+      ],
+      "status": "ongoing_research_direction_with_existing_typed_research_primitives",
+      "title": "Systems and technology design"
+    },
+    {
+      "acceptance": [
+        "Exact KCL, electrical-power and thermal-balance invariants for the rational finite-network references.",
+        "Independent assembly and reconstruction of the actual pinned CACE residual and manufactured-solution errors.",
+        "For the historical P1 contract, nodal agreement and both algebraic residual checks are at most 1e-7; preserve the exact geometry and source pin.",
+        "Report continuum discretization error separately from algebraic solver residual; retain mutation controls and mesh coverage."
+      ],
+      "definition": "Recover and assess the existing synthetic exact-network electrothermal, mesh-refinement, P1 manufactured-Poisson, and full-square variable-material references before proposing equivalent experiments.",
+      "id": "chip-electrothermal-p1",
+      "limits": [
+        "Historical chip files are absent from the saved current-main snapshot.",
+        "The full-square reference explicitly reports no actual CACE variable-coefficient execution.",
+        "Synthetic material data, virtual resource budgets, and finite meshes are not calibrated silicon, transistor transport, a foundry PDK, a continuum certificate, or fabrication qualification.",
+        "Do not rerun old workflows or unavailable Avrea work without a fresh authorized resource admission."
+      ],
+      "next_measurable_step": "Reconcile the recovered exact files with current CACE interfaces and a reproducible local fixture; the historical missing integration is actual pinned variable-coefficient/nonconstant-forcing assembly, not another invention of the already recovered square reference.",
+      "recovered_reference": {
+        "full_square_coefficient": "k(x,y)=1+x",
+        "full_square_grids": [
+          5,
+          9,
+          13
+        ],
+        "full_square_manufactured_solution": "u(x,y)=x(1-x)y(1-y)",
+        "historical_cace_pin": "0e7aa229d3bb57174e281b883ee8af5445f15f75",
+        "historical_pr": 63,
+        "source_commit": "799adbcde7b4a97787584fabd689e3bea5424d7d"
+      },
+      "source_ids": [
+        "chip-electrothermal-roadmap",
+        "chip-refinement-contract",
+        "chip-p1-contract",
+        "chip-electrothermal-source",
+        "chip-refinement-source",
+        "chip-p1-source",
+        "chip-square-source",
+        "chip-electrothermal-tests",
+        "chip-refinement-tests",
+        "chip-p1-tests",
+        "chip-square-tests"
+      ],
+      "status": "historical_source_recovered_not_current_main_or_deployed_capability",
+      "title": "Chip electrothermal and manufactured PDE research"
+    },
+    {
+      "acceptance": [
+        "Each candidate states mathematical semantics, assumptions and an observable or falsifier.",
+        "Coordinate or representation changes preserve stated invariants and pass a translation-back test.",
+        "Novelty is assessed against actual searched sources and never inferred solely from an absent ledger entry."
+      ],
+      "definition": "Typed exploration of mathematical objects, operators, relations, invariants, dimensions, bases, coordinate systems and possible compositions.",
+      "id": "xenomaths-ideonomy",
+      "limits": [
+        "The standalone original Xenomaths/SOM-X specification was not recovered.",
+        "The broad typed object/coordinate registry remains a program proposal; bounded enumeration is narrower.",
+        "No numerical experiment or generated conjecture is labeled a universal theorem."
+      ],
+      "next_measurable_step": "Choose one named mathematical gap; declare typed primitives, compatible relations, source-backed assumptions and a falsifying check; run a bounded enumeration and preserve rejected and unexamined scope.",
+      "source_ids": [
+        "historical-master-idea-registry",
+        "historical-math-kung-fu",
+        "current-research-protocol",
+        "current-scientific-loop"
+      ],
+      "status": "bounded_enumeration_implemented_broader_registry_engine_proposed",
+      "title": "Xenomaths and typed mathematical exploration"
+    },
+    {
+      "acceptance": [
+        "Parsing and normalization have explicit inputs, outputs and malformed-input behavior.",
+        "Rewrite steps preserve declared type and semantic invariants.",
+        "Confluence and termination claims match the actual checked scope.",
+        "Rendering and simulation preserve mathematical meaning and offer a symbolic/text representation."
+      ],
+      "definition": "Explicit grammar, parser, normalizer, typed glyph objects and rewrite rules, with confluence/termination obligations and declared multi-frame rendering or simulation semantics.",
+      "id": "glyph-xmg",
+      "limits": [
+        "No named XMG/glyph engine files were found in the saved current-main tree.",
+        "A historical PR72 reference alone does not verify an engine or installation.",
+        "A rendered glyph or diagram is not proof of the represented claim."
+      ],
+      "next_measurable_step": "Recover any exact existing engine before implementation; otherwise prepare one small typed grammar and normalization/rewrite fixture as a reviewable proposal with a termination measure and critical-pair or counterexample checks.",
+      "source_ids": [
+        "historical-master-idea-registry",
+        "historical-math-kung-fu"
+      ],
+      "status": "historical_specification_recovered_broader_engine_proposed",
+      "title": "Glyph Foundry and XMG"
+    },
+    {
+      "acceptance": [
+        "Every typed plan contains simplex, n_ality, continuum and fuzzy_logic decisions.",
+        "Each decision has a reason, invariant/test and limits/unknowns.",
+        "Keep four-axis n-ality distinct from broader group/representation-theoretic questions."
+      ],
+      "definition": "Assess all four representations in every typed plan and apply only those justified by the problem, with explicit invariants, tests and limits.",
+      "id": "mathematical-lenses",
+      "implemented_scope": {
+        "continuum": "Bounded piecewise-linear interpolation with 2-128 samples on [0,1]; not a general PDE solver.",
+        "fuzzy_logic": "Explicit ramp membership and min/max aggregation; membership is not probability or authorization.",
+        "n_ality": "Separate geometric, state, logical-channel and temporal dimensions; not a general n-ary engine.",
+        "simplex": "2-16 unit-interval weights summing to one and bounded convex mixtures; no affine-independence certificate."
+      },
+      "limits": [
+        "The C++ continuum_simplex.hpp path mentioned by a helper was not recovered in current source.",
+        "Fuzzy scores never relax Boolean permissions, evidence requirements or qualification."
+      ],
+      "next_measurable_step": "Use the lens that addresses the selected problem and add the smallest original-task test for the preserved invariant; record not_applicable or deferred when justified.",
+      "source_ids": [
+        "current-math-lenses",
+        "current-research-protocol",
+        "historical-master-idea-registry"
+      ],
+      "status": "bounded_helpers_implemented_broader_engines_open",
+      "title": "Simplex, n-ality, continuum and fuzzy methods"
+    },
+    {
+      "acceptance": [
+        "Bind the exact recovered specification and distinguish its stated claims from measured results before proposing architecture-specific work."
+      ],
+      "coverage": "No Parallax architecture/specification/experiment was found in the searched local text/source or the two focused Personal Context lookups reported by the coordinating agent.",
+      "definition": null,
+      "id": "parallax-specification",
+      "limits": [
+        "Do not invent a Parallax architecture or equate the name with a commercial Propeller processor.",
+        "The absence result covers the searched material, not all possible private or historical sources."
+      ],
+      "next_measurable_step": "Locate the user-provided architecture, source document, repository or experimental record; retain the gap and advance other concrete tracks while it is unavailable.",
+      "source_ids": [],
+      "status": "specification_not_recovered",
+      "title": "Parallax chips: recover the actual specification"
+    },
+    {
+      "acceptance": [
+        "Exact request, source commit, artifact identity, action trace, observations, failure records and plan revision survive restart.",
+        "Existing durable intent yields replay/readback or explicit reconciliation, never an implicit repeated effect.",
+        "No claim of improved capability without an independent baseline comparison and held-out result."
+      ],
+      "definition": "Connect accepted source acquisition to typed plans, canonical branch-session outcomes, independent checks and exact-parent plan revisions through already authorized interfaces.",
+      "id": "research-runtime-integration",
+      "limits": [
+        "The recurring task is not a deployed perpetual daemon.",
+        "Browser submit/status/read does not grant arbitrary registry writes.",
+        "The old private service and the browser research registry remain separate."
+      ],
+      "next_measurable_step": "Verify native browser and connected request acceptance, then complete one bounded source-to-plan/review handoff using an explicitly authorized same-project writer; do not imply the composition is already deployed.",
+      "source_ids": [
+        "current-research-protocol",
+        "current-branch-registry",
+        "current-branch-recovery",
+        "current-hermes-stages",
+        "current-scientific-loop",
+        "current-research-lifecycle",
+        "current-research-gates",
+        "browser-caller",
+        "browser-supervisor",
+        "browser-ingest",
+        "browser-contract"
+      ],
+      "status": "source_primitives_present_recurring_task_enabled_runtime_composition_open",
+      "title": "Evidence-preserving research execution and recovery"
+    }
+  ],
+  "version": 1
+}

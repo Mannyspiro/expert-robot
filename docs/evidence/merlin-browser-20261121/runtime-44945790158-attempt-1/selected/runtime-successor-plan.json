@@ -1,0 +1,12 @@
+{
+  "automatic_retry": false,
+  "network_acquisition": false,
+  "operation": "finish-loader-44944424850",
+  "original_failed_intents_results": "preserved",
+  "predecessor_request_id": "04d38719-4c94-4059-988b-9081375fd209",
+  "predecessor_run_id": 44944424850,
+  "prior_failed_fixture_attempts": 1,
+  "python_package_installs": 0,
+  "remaining_acceptance_attempts": 4,
+  "system_package_installs": 0
+}

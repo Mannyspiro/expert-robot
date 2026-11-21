@@ -1,0 +1,1 @@
+{"argv":["/usr/bin/systemctl","enable","--now","merlin-public-browser.service"],"error":null,"output_bytes":145,"output_sha256":"34a2ab4f939f9319e2d6d35fcba3cf7c739cf7280094f1cd7838ddcdd854d04f","returncode":0}

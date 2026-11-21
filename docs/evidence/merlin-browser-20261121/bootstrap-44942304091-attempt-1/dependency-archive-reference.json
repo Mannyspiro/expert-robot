@@ -1,0 +1,32 @@
+{
+  "artifact": {
+    "archive_download_url": "https://api.github.com/repos/morganaspim/Cace-app/actions/artifacts/14721824377/zip",
+    "created_at": "2026-11-21T19:46:28Z",
+    "digest": "sha256:0d655e1153877176c3109a63710a784f0d7c99ab94ac573424941b21cbeac9e3",
+    "expired": false,
+    "expires_at": "2026-12-21T19:44:37Z",
+    "id": 14721824377,
+    "name": "merlin-browser-dependencies-44942304091-1",
+    "node_id": "MDg6QXJ0aWZhY3QxNDcyMTgyNDM3Nw==",
+    "size_in_bytes": 642813625,
+    "updated_at": "2026-11-21T19:46:28Z",
+    "url": "https://api.github.com/repos/morganaspim/Cace-app/actions/artifacts/14721824377",
+    "workflow_run": {
+      "head_branch": "merlin/browser-operations-20261121",
+      "head_repository_id": 1369211260,
+      "head_sha": "7f12c41b49f4be4ee46077afc03fd2e36a41830f",
+      "id": 44942304091,
+      "repository_id": 1369211260
+    }
+  },
+  "complete_archive_durable_retention_claimed": false,
+  "digest_recomputed_locally": false,
+  "downloaded_by_this_assembly": false,
+  "expires_at_api_snapshot": "2026-12-21T19:44:37Z",
+  "repository": "morganaspim/Cace-app",
+  "run_attempt": 1,
+  "run_id": 44942304091,
+  "schema": "merlin-browser-third-party-cache-reference/1",
+  "scope": "Original workflow dependency archive; exact API identity and expiry, not a duplicate in Git.",
+  "workflow_commit": "7f12c41b49f4be4ee46077afc03fd2e36a41830f"
+}

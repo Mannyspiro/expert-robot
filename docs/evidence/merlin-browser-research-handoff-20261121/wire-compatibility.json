@@ -1,0 +1,1392 @@
+{
+  "actual_browser_executed": false,
+  "expected_exact_urls": [
+    "https://example.org/source",
+    "https://example.org/search?q=rank",
+    "http://example.org/data"
+  ],
+  "fixture_registry_scope": "temporary local synthetic store; references are not production references",
+  "frozen_browser_source_commit": "8e2f1d69371d5b4f7e01e3bbd5aa02a666ddd506",
+  "measurement": {
+    "captures": [
+      {
+        "acquisition_url": "https://example.org/source",
+        "action_id": "a0001",
+        "action_status": "succeeded",
+        "artifacts": {
+          "dom": {
+            "logical_path": "browser/episodes/wire-fixture/observations/o0001/dom.html",
+            "project_id": "merlin-browser-research",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "82f35cce603f9c955fdf9bf33b6873c1e5cd0f7c554e747723715e4441eccdde",
+            "version": 1
+          },
+          "response_body": {
+            "logical_path": "browser/episodes/wire-fixture/network/r0001.body",
+            "project_id": "merlin-browser-research",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "e9a6ed7e208a1bc6d7ad3619b599d5f61e373e4f8473eb1aafd4f66469834314",
+            "version": 1
+          },
+          "screenshot": {
+            "logical_path": "browser/episodes/wire-fixture/observations/o0001/viewport.png",
+            "project_id": "merlin-browser-research",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "d126d616641d42ac8b0a07ec302c9fa1ec049f86200931a0a60c8f3080284b77",
+            "version": 1
+          },
+          "text": {
+            "logical_path": "browser/episodes/wire-fixture/observations/o0001/text.txt",
+            "project_id": "merlin-browser-research",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "3a4b3f4ceaae38fb3c532a78984a25105a6f95df158076abb2b6e55f92ab4c27",
+            "version": 1
+          }
+        },
+        "capture_event_ref": {
+          "logical_path": "browser/episodes/wire-fixture/events/0004.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "431ac4322e55d291e061c1e1e8f9db701572ca4b11d0161d71d0a0c3b9790869",
+          "version": 1
+        },
+        "captured_at": "2026-11-21T19:54:04.725486Z",
+        "context_intake": "source_snapshot",
+        "document_status": 200,
+        "observation_id": "o0001",
+        "semantic_quality": "not_assessed",
+        "text_bytes": 18,
+        "usable_for_source_intake": true
+      },
+      {
+        "acquisition_url": "https://example.org/search?q=rank",
+        "action_id": "a0002",
+        "action_status": "succeeded",
+        "artifacts": {
+          "dom": {
+            "logical_path": "browser/episodes/wire-fixture/observations/o0002/dom.html",
+            "project_id": "merlin-browser-research",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "82f35cce603f9c955fdf9bf33b6873c1e5cd0f7c554e747723715e4441eccdde",
+            "version": 1
+          },
+          "response_body": {
+            "logical_path": "browser/episodes/wire-fixture/network/r0002.body",
+            "project_id": "merlin-browser-research",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "e9a6ed7e208a1bc6d7ad3619b599d5f61e373e4f8473eb1aafd4f66469834314",
+            "version": 1
+          },
+          "screenshot": {
+            "logical_path": "browser/episodes/wire-fixture/observations/o0002/viewport.png",
+            "project_id": "merlin-browser-research",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "d126d616641d42ac8b0a07ec302c9fa1ec049f86200931a0a60c8f3080284b77",
+            "version": 1
+          },
+          "text": {
+            "logical_path": "browser/episodes/wire-fixture/observations/o0002/text.txt",
+            "project_id": "merlin-browser-research",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "3a4b3f4ceaae38fb3c532a78984a25105a6f95df158076abb2b6e55f92ab4c27",
+            "version": 1
+          }
+        },
+        "capture_event_ref": {
+          "logical_path": "browser/episodes/wire-fixture/events/0008.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "695bfeb036351b5dc02558db79815ff97406a0d47c5a121775d8f8d2cd6c56a4",
+          "version": 1
+        },
+        "captured_at": "2026-11-21T19:54:04.726405Z",
+        "context_intake": "ineligible_url_contract",
+        "document_status": 200,
+        "observation_id": "o0002",
+        "semantic_quality": "not_assessed",
+        "text_bytes": 18,
+        "usable_for_source_intake": true
+      },
+      {
+        "acquisition_url": "http://example.org/data",
+        "action_id": "a0003",
+        "action_status": "succeeded",
+        "artifacts": {
+          "dom": {
+            "logical_path": "browser/episodes/wire-fixture/observations/o0003/dom.html",
+            "project_id": "merlin-browser-research",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "82f35cce603f9c955fdf9bf33b6873c1e5cd0f7c554e747723715e4441eccdde",
+            "version": 1
+          },
+          "response_body": {
+            "logical_path": "browser/episodes/wire-fixture/network/r0003.body",
+            "project_id": "merlin-browser-research",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "e9a6ed7e208a1bc6d7ad3619b599d5f61e373e4f8473eb1aafd4f66469834314",
+            "version": 1
+          },
+          "screenshot": {
+            "logical_path": "browser/episodes/wire-fixture/observations/o0003/viewport.png",
+            "project_id": "merlin-browser-research",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "d126d616641d42ac8b0a07ec302c9fa1ec049f86200931a0a60c8f3080284b77",
+            "version": 1
+          },
+          "text": {
+            "logical_path": "browser/episodes/wire-fixture/observations/o0003/text.txt",
+            "project_id": "merlin-browser-research",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "3a4b3f4ceaae38fb3c532a78984a25105a6f95df158076abb2b6e55f92ab4c27",
+            "version": 1
+          }
+        },
+        "capture_event_ref": {
+          "logical_path": "browser/episodes/wire-fixture/events/0012.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "0cd376a2e20f0da3b56073f7060b870a44924a62c846a5e2daf358159ad0120e",
+          "version": 1
+        },
+        "captured_at": "2026-11-21T19:54:04.727145Z",
+        "context_intake": "ineligible_url_contract",
+        "document_status": 200,
+        "observation_id": "o0003",
+        "semantic_quality": "not_assessed",
+        "text_bytes": 18,
+        "usable_for_source_intake": true
+      }
+    ],
+    "counts": {
+      "captures": 3,
+      "failed_actions": 0,
+      "reported_bridge_source_snapshots": 1,
+      "usable_captures": 3,
+      "verified_input_artifacts": 32,
+      "verified_input_bytes": 39595
+    },
+    "domain_execution": "not_run",
+    "episode_id": "wire-fixture",
+    "external_model_cost_usd": 0,
+    "input_artifacts": [
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/publication.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "cb056260cac41a90d83a205ab68cd99e74e6c27faef9a924c6fa60409a1a24f0",
+          "version": 1
+        },
+        "bytes": 13072
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/episode.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "15f776761c0bacc8bad36428b96d576492b26a22e90831d476a00a7f995d59be",
+          "version": 1
+        },
+        "bytes": 9170
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/handoff.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "deb4e73149c506e46862d8bf9a3a0378a41fac6c2dc0efea3003b1872d9419a9",
+          "version": 1
+        },
+        "bytes": 5661
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/events/0001.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "14d4b5dc818004e4e93fc1017e08dadf6029c2708da7535559e9fd50220921ab",
+          "version": 1
+        },
+        "bytes": 512
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/actions/a0001.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "da802b60dd343ac69c7dbe37380c4108f92ab1d5b645454baaaee2eab128fd11",
+          "version": 1
+        },
+        "bytes": 52
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/events/0002.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "906de9298767b48a0ade940f52a163a81f2b9bf5a862a61bede67f469142480e",
+          "version": 1
+        },
+        "bytes": 442
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/network/r0001.body",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "e9a6ed7e208a1bc6d7ad3619b599d5f61e373e4f8473eb1aafd4f66469834314",
+          "version": 1
+        },
+        "bytes": 66
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/events/0003.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "50d2e84b609ae1b420ca96c9f8212a270396485a263280e5f213961625297c09",
+          "version": 1
+        },
+        "bytes": 947
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/observations/o0001/text.txt",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "3a4b3f4ceaae38fb3c532a78984a25105a6f95df158076abb2b6e55f92ab4c27",
+          "version": 1
+        },
+        "bytes": 18
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/observations/o0001/dom.html",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "82f35cce603f9c955fdf9bf33b6873c1e5cd0f7c554e747723715e4441eccdde",
+          "version": 1
+        },
+        "bytes": 37
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/observations/o0001/viewport.png",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "d126d616641d42ac8b0a07ec302c9fa1ec049f86200931a0a60c8f3080284b77",
+          "version": 1
+        },
+        "bytes": 68
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/events/0004.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "431ac4322e55d291e061c1e1e8f9db701572ca4b11d0161d71d0a0c3b9790869",
+          "version": 1
+        },
+        "bytes": 1506
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/events/0005.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "81ec9ba11cb18d9654d64860cb7a01abb616e35924ce1b77411a963eb60acb05",
+          "version": 1
+        },
+        "bytes": 482
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/actions/a0002.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "176f8373533e5d38362776edc9e269a5521f922d87e6eed7d907dc7f7151396a",
+          "version": 1
+        },
+        "bytes": 59
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/events/0006.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "8bea71e45de642ced7469200e7ec5a1e0f47981b889ceb7dd57a29e4310704b8",
+          "version": 1
+        },
+        "bytes": 442
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/network/r0002.body",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "e9a6ed7e208a1bc6d7ad3619b599d5f61e373e4f8473eb1aafd4f66469834314",
+          "version": 1
+        },
+        "bytes": 66
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/events/0007.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "79b3501216ec6ff178439b9351c9fdd86088dd42b77054c5ba36a5a4828d7c6b",
+          "version": 1
+        },
+        "bytes": 955
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/observations/o0002/text.txt",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "3a4b3f4ceaae38fb3c532a78984a25105a6f95df158076abb2b6e55f92ab4c27",
+          "version": 1
+        },
+        "bytes": 18
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/observations/o0002/dom.html",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "82f35cce603f9c955fdf9bf33b6873c1e5cd0f7c554e747723715e4441eccdde",
+          "version": 1
+        },
+        "bytes": 37
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/observations/o0002/viewport.png",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "d126d616641d42ac8b0a07ec302c9fa1ec049f86200931a0a60c8f3080284b77",
+          "version": 1
+        },
+        "bytes": 68
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/events/0008.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "695bfeb036351b5dc02558db79815ff97406a0d47c5a121775d8f8d2cd6c56a4",
+          "version": 1
+        },
+        "bytes": 1520
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/events/0009.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "76c025f970c2f9521a56ba9f9f4c414776e12abf108c4efe3ec3c5141a88300c",
+          "version": 1
+        },
+        "bytes": 482
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/actions/a0003.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "4f2a5be50a4795e8f4d3943372721d4ae69759743f881634b7bbe72b7bb1e6bd",
+          "version": 1
+        },
+        "bytes": 49
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/events/0010.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "8544fb154bc2a6e85736a586b26c780f77bba840e32804ff804c1dde47486b62",
+          "version": 1
+        },
+        "bytes": 443
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/network/r0003.body",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "e9a6ed7e208a1bc6d7ad3619b599d5f61e373e4f8473eb1aafd4f66469834314",
+          "version": 1
+        },
+        "bytes": 66
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/events/0011.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "08c5abf5edb72be19b294680ec39847b84b5ee0d4c6d331c67c0a34c1f72fe61",
+          "version": 1
+        },
+        "bytes": 947
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/observations/o0003/text.txt",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "3a4b3f4ceaae38fb3c532a78984a25105a6f95df158076abb2b6e55f92ab4c27",
+          "version": 1
+        },
+        "bytes": 18
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/observations/o0003/dom.html",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "82f35cce603f9c955fdf9bf33b6873c1e5cd0f7c554e747723715e4441eccdde",
+          "version": 1
+        },
+        "bytes": 37
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/observations/o0003/viewport.png",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "d126d616641d42ac8b0a07ec302c9fa1ec049f86200931a0a60c8f3080284b77",
+          "version": 1
+        },
+        "bytes": 68
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/events/0012.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "0cd376a2e20f0da3b56073f7060b870a44924a62c846a5e2daf358159ad0120e",
+          "version": 1
+        },
+        "bytes": 1503
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/events/0013.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "97e5fc03df4cd591af9c9c31971b6465880a908e347a541fc5de7c860f62b5e2",
+          "version": 1
+        },
+        "bytes": 483
+      },
+      {
+        "artifact_ref": {
+          "logical_path": "browser/episodes/wire-fixture/events/0014.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "a29558eb388071ca6158e1908fd3913c40e7db06f14c3b2a2c5045058405cb36",
+          "version": 1
+        },
+        "bytes": 301
+      }
+    ],
+    "measurements": {
+      "has_usable_capture": 1,
+      "retained_integrity_ratio": 1
+    },
+    "method": "Exact canonical ArtifactRef readback and complete declared-inventory/capture binding checks",
+    "model_calls": 0,
+    "native_execution_attestation": "host_coordinator_responsibility",
+    "new_browser_calls": 0,
+    "observed_at": "2026-11-21T19:54:04.762850+00:00",
+    "optional_bridge_records": "reported_intake_only_not_resolved_by_this_measurement",
+    "original_acquisition_predates_plan": true,
+    "original_browser_status": "completed",
+    "promotion_authority": false,
+    "qualification": false,
+    "schema": "merlin-browser-retained-source-measurement/1",
+    "source_truth": "not_assessed"
+  },
+  "model_calls": 0,
+  "native_execution_accepted": false,
+  "new_browser_calls": 0,
+  "plan": {
+    "alternatives_review": "Missing bytes, failed captures, and semantic error remain distinct alternatives.",
+    "analogy": null,
+    "contextual_checks": [
+      {
+        "assessment": "possible",
+        "concern": "Artifact integrity may be mistaken for source truth.",
+        "context": "Reusing rendered public text",
+        "kind": "source_quality",
+        "mitigation_or_test": "Keep domain execution not_run and require a separately framed experiment.",
+        "rationale": "Hashes attest byte identity only.",
+        "source_ids": [
+          "retained-publication",
+          "research-program"
+        ]
+      }
+    ],
+    "epistemic_status": "hypothesis_plan",
+    "frame": {
+      "assumptions": [
+        "The host independently admits the original browser operation and pins the imported source modules.",
+        "The saved publication predates this new plan; this is retrospective source intake, not preregistered acquisition."
+      ],
+      "baseline": "Existing saved publication without a typed measured intake review.",
+      "constraints": [
+        "No browser, network, provider or model invocation; external-model spend remains zero.",
+        "Retain HTTP/query URLs exactly; never infer truth or authority from a hash."
+      ],
+      "essential_invariants": [
+        "Same-project exact artifact identity",
+        "Append-only request and evidence",
+        "No automatic interrupted retry"
+      ],
+      "falsifier": "A missing or changed byte, contradictory binding, or no usable capture prevents the corresponding source-intake claim.",
+      "first_principles_model": "An exact ArtifactRef resolves one project, logical path, version and SHA-256; complete bindings are necessary for later review.",
+      "intended_outcome": "Record exact retained-byte integrity and capture coverage for subsequent typed research planning.",
+      "question": "Can the declared retained browser evidence support an auditable source-intake checkpoint?",
+      "scope": "One saved browser episode in merlin-browser-research; no website truth, domain experiment or model improvement.",
+      "sources": [
+        {
+          "content_sha256": "cb056260cac41a90d83a205ab68cd99e74e6c27faef9a924c6fa60409a1a24f0",
+          "epistemic_status": "reported",
+          "kind": "local_artifact",
+          "locator": "{\"logical_path\":\"browser/episodes/wire-fixture/publication.json\",\"project_id\":\"merlin-browser-research\",\"schema\":\"merlin-artifact-ref/1\",\"sha256\":\"cb056260cac41a90d83a205ab68cd99e74e6c27faef9a924c6fa60409a1a24f0\",\"version\":1}",
+          "source_id": "retained-publication"
+        },
+        {
+          "content_sha256": "f8f312e4ff968028385a636dcc15b1eec93659a4973b0a7c900d36c4cd27c49c",
+          "epistemic_status": "reported",
+          "kind": "local_artifact",
+          "locator": "{\"logical_path\":\"research-handoffs/1afe2874-4014-43cf-b7dc-a5461dbbf8da/program.json\",\"project_id\":\"merlin-browser-research\",\"schema\":\"merlin-artifact-ref/1\",\"sha256\":\"f8f312e4ff968028385a636dcc15b1eec93659a4973b0a7c900d36c4cd27c49c\",\"version\":1}",
+          "source_id": "research-program"
+        }
+      ],
+      "unknowns": [
+        "Whether all declared bytes remain readable",
+        "Whether any successful nonempty capture is retained",
+        "Scientific content, novelty and external-source correctness remain unassessed"
+      ],
+      "unknowns_resolution_plan": "Resolve declared canonical bytes and count observable coverage; frame a separate domain experiment later."
+    },
+    "hypotheses": [
+      {
+        "assumptions": [
+          "Canonical publication is an input identity, not independent attestation."
+        ],
+        "falsifier": "A missing or changed byte, contradictory binding, or no usable capture prevents the corresponding source-intake claim.",
+        "hypothesis_id": "retained-intake",
+        "measurement_ids": [
+          "integrity",
+          "usable"
+        ],
+        "source_ids": [
+          "retained-publication",
+          "research-program"
+        ],
+        "statement": "The retained episode has complete byte identity and at least one locally usable capture."
+      }
+    ],
+    "literature_status": "not_requested_by_protocol",
+    "measurements": [
+      {
+        "conditions_and_controls": [
+          "Pinned canonical registry APIs",
+          "No external acquisition"
+        ],
+        "expected": 1,
+        "falsifier": "Any unreadable, changed or inconsistent retained input.",
+        "measurement_id": "integrity",
+        "method": "Resolve and re-hash every declared saved file plus publication, manifest and browser handoff.",
+        "metric": "retained_integrity_ratio",
+        "raw_artifact_plan": "Retain measurement.json with every exact ArtifactRef, byte length and coverage count.",
+        "sampling_plan": "Complete one-episode inventory",
+        "tolerance": 0,
+        "uncertainty_plan": "Exact finite byte comparison; zero arithmetic uncertainty, source truth unassessed.",
+        "unit": "fraction"
+      },
+      {
+        "conditions_and_controls": [
+          "HTTP/query sources are not excluded",
+          "Failed captures remain in coverage"
+        ],
+        "expected": 1,
+        "falsifier": "No capture meets the stated local conditions.",
+        "measurement_id": "usable",
+        "method": "Count captures whose own action succeeded, document status is 2xx, and rendered UTF-8 text is nonempty.",
+        "metric": "has_usable_capture",
+        "raw_artifact_plan": "Retain exact URLs, action/status identities and text/DOM/response/screenshot references.",
+        "sampling_plan": "All declared captures",
+        "tolerance": 0,
+        "uncertainty_plan": "Exact local count; usability here makes no semantic truth claim.",
+        "unit": "boolean"
+      }
+    ],
+    "novelty_status": "not_assessed",
+    "parent_plan_ref": null,
+    "plan_id": "browser-intake-1afe2874-4014-43cf-b7dc-a5461dbbf8da",
+    "promotion_authority": false,
+    "qualification": false,
+    "reasoning_steps": [
+      {
+        "competing_hypothesis_ids": [],
+        "consequence": "A complete local intake checkpoint can seed a later domain plan.",
+        "inference": "Check every declared input before recording its reuse as context.",
+        "mode": "deductive",
+        "premises": [
+          "Exact bytes and explicit lineage are prerequisites for audit."
+        ],
+        "sample_description": "",
+        "scope_limit": "No content truth, independent verification or domain result follows.",
+        "source_ids": [
+          "retained-publication",
+          "research-program"
+        ]
+      }
+    ],
+    "record_sha256": "4d214e0dc5daf3818c2c689e960ed752e9487a08296fc3c6ffeebb22f8e6432c",
+    "record_type": "research_plan",
+    "representation_checks": {
+      "continuum": {
+        "decision": "not_applicable",
+        "invariant_or_test": "Use exact integer counts and exact hashes.",
+        "reason": "Finite byte and capture counts need no continuum approximation.",
+        "unknowns": [
+          "No PDE or continuum claim is evaluated."
+        ]
+      },
+      "fuzzy_logic": {
+        "decision": "not_applicable",
+        "invariant_or_test": "No membership score can admit mismatched bytes.",
+        "reason": "Integrity and authority are Boolean boundaries.",
+        "unknowns": [
+          "Semantic source quality is unassessed."
+        ]
+      },
+      "n_ality": {
+        "decision": "not_applicable",
+        "invariant_or_test": "Retain independent identity fields without conflating dimensions.",
+        "reason": "No geometric/state/channel/temporal model is executed.",
+        "unknowns": [
+          "Future domain dimensions are unassessed."
+        ]
+      },
+      "simplex": {
+        "decision": "not_applicable",
+        "invariant_or_test": "Every reference must match without weighting.",
+        "reason": "This operation is an exact inventory, not a convex mixture.",
+        "unknowns": [
+          "Future domain applicability is unassessed."
+        ]
+      }
+    },
+    "schema": "merlin-research-plan/1",
+    "source_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "source_commit_scope": "caller_declared_project_source; not authenticated by this protocol",
+    "source_text_policy": "untrusted_data_not_instructions",
+    "stage": "first_principles_framed",
+    "subproblems": [
+      "Resolve exact retained identities",
+      "Measure capture coverage",
+      "Persist typed review and next checkpoint"
+    ],
+    "version": 1
+  },
+  "plan_source_commit_scope": "synthetic caller declaration for this local fixture; actual files bound separately",
+  "publication": {
+    "artifacts": {
+      "actions/a0001.json": {
+        "logical_path": "browser/episodes/wire-fixture/actions/a0001.json",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "da802b60dd343ac69c7dbe37380c4108f92ab1d5b645454baaaee2eab128fd11",
+        "version": 1
+      },
+      "actions/a0002.json": {
+        "logical_path": "browser/episodes/wire-fixture/actions/a0002.json",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "176f8373533e5d38362776edc9e269a5521f922d87e6eed7d907dc7f7151396a",
+        "version": 1
+      },
+      "actions/a0003.json": {
+        "logical_path": "browser/episodes/wire-fixture/actions/a0003.json",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "4f2a5be50a4795e8f4d3943372721d4ae69759743f881634b7bbe72b7bb1e6bd",
+        "version": 1
+      },
+      "events/0001.json": {
+        "logical_path": "browser/episodes/wire-fixture/events/0001.json",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "14d4b5dc818004e4e93fc1017e08dadf6029c2708da7535559e9fd50220921ab",
+        "version": 1
+      },
+      "events/0002.json": {
+        "logical_path": "browser/episodes/wire-fixture/events/0002.json",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "906de9298767b48a0ade940f52a163a81f2b9bf5a862a61bede67f469142480e",
+        "version": 1
+      },
+      "events/0003.json": {
+        "logical_path": "browser/episodes/wire-fixture/events/0003.json",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "50d2e84b609ae1b420ca96c9f8212a270396485a263280e5f213961625297c09",
+        "version": 1
+      },
+      "events/0004.json": {
+        "logical_path": "browser/episodes/wire-fixture/events/0004.json",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "431ac4322e55d291e061c1e1e8f9db701572ca4b11d0161d71d0a0c3b9790869",
+        "version": 1
+      },
+      "events/0005.json": {
+        "logical_path": "browser/episodes/wire-fixture/events/0005.json",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "81ec9ba11cb18d9654d64860cb7a01abb616e35924ce1b77411a963eb60acb05",
+        "version": 1
+      },
+      "events/0006.json": {
+        "logical_path": "browser/episodes/wire-fixture/events/0006.json",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "8bea71e45de642ced7469200e7ec5a1e0f47981b889ceb7dd57a29e4310704b8",
+        "version": 1
+      },
+      "events/0007.json": {
+        "logical_path": "browser/episodes/wire-fixture/events/0007.json",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "79b3501216ec6ff178439b9351c9fdd86088dd42b77054c5ba36a5a4828d7c6b",
+        "version": 1
+      },
+      "events/0008.json": {
+        "logical_path": "browser/episodes/wire-fixture/events/0008.json",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "695bfeb036351b5dc02558db79815ff97406a0d47c5a121775d8f8d2cd6c56a4",
+        "version": 1
+      },
+      "events/0009.json": {
+        "logical_path": "browser/episodes/wire-fixture/events/0009.json",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "76c025f970c2f9521a56ba9f9f4c414776e12abf108c4efe3ec3c5141a88300c",
+        "version": 1
+      },
+      "events/0010.json": {
+        "logical_path": "browser/episodes/wire-fixture/events/0010.json",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "8544fb154bc2a6e85736a586b26c780f77bba840e32804ff804c1dde47486b62",
+        "version": 1
+      },
+      "events/0011.json": {
+        "logical_path": "browser/episodes/wire-fixture/events/0011.json",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "08c5abf5edb72be19b294680ec39847b84b5ee0d4c6d331c67c0a34c1f72fe61",
+        "version": 1
+      },
+      "events/0012.json": {
+        "logical_path": "browser/episodes/wire-fixture/events/0012.json",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "0cd376a2e20f0da3b56073f7060b870a44924a62c846a5e2daf358159ad0120e",
+        "version": 1
+      },
+      "events/0013.json": {
+        "logical_path": "browser/episodes/wire-fixture/events/0013.json",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "97e5fc03df4cd591af9c9c31971b6465880a908e347a541fc5de7c860f62b5e2",
+        "version": 1
+      },
+      "events/0014.json": {
+        "logical_path": "browser/episodes/wire-fixture/events/0014.json",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "a29558eb388071ca6158e1908fd3913c40e7db06f14c3b2a2c5045058405cb36",
+        "version": 1
+      },
+      "network/r0001.body": {
+        "logical_path": "browser/episodes/wire-fixture/network/r0001.body",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "e9a6ed7e208a1bc6d7ad3619b599d5f61e373e4f8473eb1aafd4f66469834314",
+        "version": 1
+      },
+      "network/r0002.body": {
+        "logical_path": "browser/episodes/wire-fixture/network/r0002.body",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "e9a6ed7e208a1bc6d7ad3619b599d5f61e373e4f8473eb1aafd4f66469834314",
+        "version": 1
+      },
+      "network/r0003.body": {
+        "logical_path": "browser/episodes/wire-fixture/network/r0003.body",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "e9a6ed7e208a1bc6d7ad3619b599d5f61e373e4f8473eb1aafd4f66469834314",
+        "version": 1
+      },
+      "observations/o0001/dom.html": {
+        "logical_path": "browser/episodes/wire-fixture/observations/o0001/dom.html",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "82f35cce603f9c955fdf9bf33b6873c1e5cd0f7c554e747723715e4441eccdde",
+        "version": 1
+      },
+      "observations/o0001/text.txt": {
+        "logical_path": "browser/episodes/wire-fixture/observations/o0001/text.txt",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "3a4b3f4ceaae38fb3c532a78984a25105a6f95df158076abb2b6e55f92ab4c27",
+        "version": 1
+      },
+      "observations/o0001/viewport.png": {
+        "logical_path": "browser/episodes/wire-fixture/observations/o0001/viewport.png",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "d126d616641d42ac8b0a07ec302c9fa1ec049f86200931a0a60c8f3080284b77",
+        "version": 1
+      },
+      "observations/o0002/dom.html": {
+        "logical_path": "browser/episodes/wire-fixture/observations/o0002/dom.html",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "82f35cce603f9c955fdf9bf33b6873c1e5cd0f7c554e747723715e4441eccdde",
+        "version": 1
+      },
+      "observations/o0002/text.txt": {
+        "logical_path": "browser/episodes/wire-fixture/observations/o0002/text.txt",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "3a4b3f4ceaae38fb3c532a78984a25105a6f95df158076abb2b6e55f92ab4c27",
+        "version": 1
+      },
+      "observations/o0002/viewport.png": {
+        "logical_path": "browser/episodes/wire-fixture/observations/o0002/viewport.png",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "d126d616641d42ac8b0a07ec302c9fa1ec049f86200931a0a60c8f3080284b77",
+        "version": 1
+      },
+      "observations/o0003/dom.html": {
+        "logical_path": "browser/episodes/wire-fixture/observations/o0003/dom.html",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "82f35cce603f9c955fdf9bf33b6873c1e5cd0f7c554e747723715e4441eccdde",
+        "version": 1
+      },
+      "observations/o0003/text.txt": {
+        "logical_path": "browser/episodes/wire-fixture/observations/o0003/text.txt",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "3a4b3f4ceaae38fb3c532a78984a25105a6f95df158076abb2b6e55f92ab4c27",
+        "version": 1
+      },
+      "observations/o0003/viewport.png": {
+        "logical_path": "browser/episodes/wire-fixture/observations/o0003/viewport.png",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "d126d616641d42ac8b0a07ec302c9fa1ec049f86200931a0a60c8f3080284b77",
+        "version": 1
+      }
+    },
+    "context_handoff_ref": {
+      "logical_path": "handoffs/browser-wire-fixture.json",
+      "project_id": "merlin-browser-research",
+      "schema": "merlin-artifact-ref/1",
+      "sha256": "b53fb2b9ce77b1b53e93bbbf68e8c3dd9e3bdc1a02b0cbd00dc2ee937e530cd6",
+      "version": 1
+    },
+    "episode_id": "wire-fixture",
+    "handoff_ref": {
+      "logical_path": "browser/episodes/wire-fixture/handoff.json",
+      "project_id": "merlin-browser-research",
+      "schema": "merlin-artifact-ref/1",
+      "sha256": "deb4e73149c506e46862d8bf9a3a0378a41fac6c2dc0efea3003b1872d9419a9",
+      "version": 1
+    },
+    "manifest_ref": {
+      "logical_path": "browser/episodes/wire-fixture/episode.json",
+      "project_id": "merlin-browser-research",
+      "schema": "merlin-artifact-ref/1",
+      "sha256": "15f776761c0bacc8bad36428b96d576492b26a22e90831d476a00a7f995d59be",
+      "version": 1
+    },
+    "manifest_sha256": "15f776761c0bacc8bad36428b96d576492b26a22e90831d476a00a7f995d59be",
+    "model_calls": 0,
+    "promotion_authority": false,
+    "qualification": false,
+    "schema": "merlin-browser-publication/1",
+    "sources": [
+      {
+        "acquisition_url": "https://example.org/source",
+        "artifacts": {
+          "dom": {
+            "logical_path": "browser/episodes/wire-fixture/observations/o0001/dom.html",
+            "project_id": "merlin-browser-research",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "82f35cce603f9c955fdf9bf33b6873c1e5cd0f7c554e747723715e4441eccdde",
+            "version": 1
+          },
+          "response_body": {
+            "logical_path": "browser/episodes/wire-fixture/network/r0001.body",
+            "project_id": "merlin-browser-research",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "e9a6ed7e208a1bc6d7ad3619b599d5f61e373e4f8473eb1aafd4f66469834314",
+            "version": 1
+          },
+          "screenshot": {
+            "logical_path": "browser/episodes/wire-fixture/observations/o0001/viewport.png",
+            "project_id": "merlin-browser-research",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "d126d616641d42ac8b0a07ec302c9fa1ec049f86200931a0a60c8f3080284b77",
+            "version": 1
+          },
+          "text": {
+            "logical_path": "browser/episodes/wire-fixture/observations/o0001/text.txt",
+            "project_id": "merlin-browser-research",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "3a4b3f4ceaae38fb3c532a78984a25105a6f95df158076abb2b6e55f92ab4c27",
+            "version": 1
+          }
+        },
+        "capture_event_ref": {
+          "logical_path": "browser/episodes/wire-fixture/events/0004.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "431ac4322e55d291e061c1e1e8f9db701572ca4b11d0161d71d0a0c3b9790869",
+          "version": 1
+        },
+        "context_intake": "source_snapshot",
+        "observation_id": "o0001",
+        "qualification": false,
+        "record_ref": {
+          "logical_path": "context/rsi/4e31548e82dcdcef6e22da6ef0f24d71b7a91d630ed56234ac5af5c10a13adab/record.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "d5aed6c63b11511f8e19acedc99de57a96f5260607f38fe6f2b4712caa28eef1",
+          "version": 1
+        },
+        "source_ref": {
+          "logical_path": "context/rsi/4e31548e82dcdcef6e22da6ef0f24d71b7a91d630ed56234ac5af5c10a13adab/source.txt",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "3a4b3f4ceaae38fb3c532a78984a25105a6f95df158076abb2b6e55f92ab4c27",
+          "version": 1
+        }
+      },
+      {
+        "acquisition_url": "https://example.org/search?q=rank",
+        "artifacts": {
+          "dom": {
+            "logical_path": "browser/episodes/wire-fixture/observations/o0002/dom.html",
+            "project_id": "merlin-browser-research",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "82f35cce603f9c955fdf9bf33b6873c1e5cd0f7c554e747723715e4441eccdde",
+            "version": 1
+          },
+          "response_body": {
+            "logical_path": "browser/episodes/wire-fixture/network/r0002.body",
+            "project_id": "merlin-browser-research",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "e9a6ed7e208a1bc6d7ad3619b599d5f61e373e4f8473eb1aafd4f66469834314",
+            "version": 1
+          },
+          "screenshot": {
+            "logical_path": "browser/episodes/wire-fixture/observations/o0002/viewport.png",
+            "project_id": "merlin-browser-research",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "d126d616641d42ac8b0a07ec302c9fa1ec049f86200931a0a60c8f3080284b77",
+            "version": 1
+          },
+          "text": {
+            "logical_path": "browser/episodes/wire-fixture/observations/o0002/text.txt",
+            "project_id": "merlin-browser-research",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "3a4b3f4ceaae38fb3c532a78984a25105a6f95df158076abb2b6e55f92ab4c27",
+            "version": 1
+          }
+        },
+        "capture_event_ref": {
+          "logical_path": "browser/episodes/wire-fixture/events/0008.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "695bfeb036351b5dc02558db79815ff97406a0d47c5a121775d8f8d2cd6c56a4",
+          "version": 1
+        },
+        "context_intake": "ineligible_url_contract",
+        "observation_id": "o0002",
+        "qualification": false,
+        "source_ref": null
+      },
+      {
+        "acquisition_url": "http://example.org/data",
+        "artifacts": {
+          "dom": {
+            "logical_path": "browser/episodes/wire-fixture/observations/o0003/dom.html",
+            "project_id": "merlin-browser-research",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "82f35cce603f9c955fdf9bf33b6873c1e5cd0f7c554e747723715e4441eccdde",
+            "version": 1
+          },
+          "response_body": {
+            "logical_path": "browser/episodes/wire-fixture/network/r0003.body",
+            "project_id": "merlin-browser-research",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "e9a6ed7e208a1bc6d7ad3619b599d5f61e373e4f8473eb1aafd4f66469834314",
+            "version": 1
+          },
+          "screenshot": {
+            "logical_path": "browser/episodes/wire-fixture/observations/o0003/viewport.png",
+            "project_id": "merlin-browser-research",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "d126d616641d42ac8b0a07ec302c9fa1ec049f86200931a0a60c8f3080284b77",
+            "version": 1
+          },
+          "text": {
+            "logical_path": "browser/episodes/wire-fixture/observations/o0003/text.txt",
+            "project_id": "merlin-browser-research",
+            "schema": "merlin-artifact-ref/1",
+            "sha256": "3a4b3f4ceaae38fb3c532a78984a25105a6f95df158076abb2b6e55f92ab4c27",
+            "version": 1
+          }
+        },
+        "capture_event_ref": {
+          "logical_path": "browser/episodes/wire-fixture/events/0012.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "0cd376a2e20f0da3b56073f7060b870a44924a62c846a5e2daf358159ad0120e",
+          "version": 1
+        },
+        "context_intake": "ineligible_url_contract",
+        "observation_id": "o0003",
+        "qualification": false,
+        "source_ref": null
+      }
+    ],
+    "status": "completed"
+  },
+  "request": {
+    "episode_id": "wire-fixture",
+    "publication_ref": {
+      "logical_path": "browser/episodes/wire-fixture/publication.json",
+      "project_id": "merlin-browser-research",
+      "schema": "merlin-artifact-ref/1",
+      "sha256": "cb056260cac41a90d83a205ab68cd99e74e6c27faef9a924c6fa60409a1a24f0",
+      "version": 1
+    },
+    "request_id": "1afe2874-4014-43cf-b7dc-a5461dbbf8da",
+    "schema": "merlin-browser-research-handoff-request/1"
+  },
+  "restart_process": {
+    "child_pid": 8,
+    "exit_code": 0,
+    "isolated_python": true,
+    "parent_pid": 7,
+    "read_only_status_operation": true,
+    "response": {
+      "execution_retried": false,
+      "replayed": true,
+      "result": {
+        "binding": {
+          "executor_sha256": "d2bcfd849c40412479861f855378d40acfeb7f627ab3277a468b672c7c94c960",
+          "program_id": "MERLIN-CONTINUOUS-RESEARCH-20261121",
+          "program_sha256": "f8f312e4ff968028385a636dcc15b1eec93659a4973b0a7c900d36c4cd27c49c",
+          "program_version": 1,
+          "source_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "track_id": "research-runtime-integration"
+        },
+        "claim_scope": "retained_source_integrity_and_coverage_only",
+        "decision": "source_intake_available",
+        "domain_execution": "not_run",
+        "external_model_cost_usd": 0,
+        "independent_verification": "not_established",
+        "intent_ref": {
+          "logical_path": "research-handoffs/1afe2874-4014-43cf-b7dc-a5461dbbf8da/intent.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "c6da1a3771c63fba1563c352a1a15884cc531a8658a0f551e62063efa061bfc9",
+          "version": 1
+        },
+        "measurement_ref": {
+          "logical_path": "research-handoffs/1afe2874-4014-43cf-b7dc-a5461dbbf8da/measurement.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "da5053c9ca0083fa8b1d62cff133841746570a5a7e25a1f224ec4b449d9ffe39",
+          "version": 1
+        },
+        "model_calls": 0,
+        "new_browser_calls": 0,
+        "plan_ref": {
+          "logical_path": "research/browser-intake-1afe2874-4014-43cf-b7dc-a5461dbbf8da/plan.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "0873bfea3648b30f9fcf98e756c127eaf91aee49f9f0d0f211b7ed2208138fb1",
+          "version": 1
+        },
+        "program_ref": {
+          "logical_path": "research-handoffs/1afe2874-4014-43cf-b7dc-a5461dbbf8da/program.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "f8f312e4ff968028385a636dcc15b1eec93659a4973b0a7c900d36c4cd27c49c",
+          "version": 1
+        },
+        "promotion_authority": false,
+        "qualification": false,
+        "review_ref": {
+          "logical_path": "research/browser-intake-1afe2874-4014-43cf-b7dc-a5461dbbf8da/reviews/1f6f14d451cad56a92c144759c1f66434326fbe4736a050cf239e7b776613797.json",
+          "project_id": "merlin-browser-research",
+          "schema": "merlin-artifact-ref/1",
+          "sha256": "8edb4d2804a33736f8c94be4673ed26ca340d6ad0039c0c9a3cd03d08bf7c706",
+          "version": 1
+        },
+        "schema": "merlin-browser-research-handoff-result/1"
+      },
+      "result_ref": {
+        "logical_path": "research-handoffs/1afe2874-4014-43cf-b7dc-a5461dbbf8da/result.json",
+        "project_id": "merlin-browser-research",
+        "schema": "merlin-artifact-ref/1",
+        "sha256": "a4a4c015310f2be1a912f2d8f4fd19de1f58245fb3cfcd336fafb192e110adf0",
+        "version": 1
+      },
+      "status": "recorded"
+    },
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_sha256": "51aa72583b4fc2addcee08924771dfb026b131eabd1c92d1008ab8f474a672d1"
+  },
+  "restart_same_result_ref": {
+    "logical_path": "research-handoffs/1afe2874-4014-43cf-b7dc-a5461dbbf8da/result.json",
+    "project_id": "merlin-browser-research",
+    "schema": "merlin-artifact-ref/1",
+    "sha256": "a4a4c015310f2be1a912f2d8f4fd19de1f58245fb3cfcd336fafb192e110adf0",
+    "version": 1
+  },
+  "result": {
+    "binding": {
+      "executor_sha256": "d2bcfd849c40412479861f855378d40acfeb7f627ab3277a468b672c7c94c960",
+      "program_id": "MERLIN-CONTINUOUS-RESEARCH-20261121",
+      "program_sha256": "f8f312e4ff968028385a636dcc15b1eec93659a4973b0a7c900d36c4cd27c49c",
+      "program_version": 1,
+      "source_commit": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "track_id": "research-runtime-integration"
+    },
+    "claim_scope": "retained_source_integrity_and_coverage_only",
+    "decision": "source_intake_available",
+    "domain_execution": "not_run",
+    "external_model_cost_usd": 0,
+    "independent_verification": "not_established",
+    "intent_ref": {
+      "logical_path": "research-handoffs/1afe2874-4014-43cf-b7dc-a5461dbbf8da/intent.json",
+      "project_id": "merlin-browser-research",
+      "schema": "merlin-artifact-ref/1",
+      "sha256": "c6da1a3771c63fba1563c352a1a15884cc531a8658a0f551e62063efa061bfc9",
+      "version": 1
+    },
+    "measurement_ref": {
+      "logical_path": "research-handoffs/1afe2874-4014-43cf-b7dc-a5461dbbf8da/measurement.json",
+      "project_id": "merlin-browser-research",
+      "schema": "merlin-artifact-ref/1",
+      "sha256": "da5053c9ca0083fa8b1d62cff133841746570a5a7e25a1f224ec4b449d9ffe39",
+      "version": 1
+    },
+    "model_calls": 0,
+    "new_browser_calls": 0,
+    "plan_ref": {
+      "logical_path": "research/browser-intake-1afe2874-4014-43cf-b7dc-a5461dbbf8da/plan.json",
+      "project_id": "merlin-browser-research",
+      "schema": "merlin-artifact-ref/1",
+      "sha256": "0873bfea3648b30f9fcf98e756c127eaf91aee49f9f0d0f211b7ed2208138fb1",
+      "version": 1
+    },
+    "program_ref": {
+      "logical_path": "research-handoffs/1afe2874-4014-43cf-b7dc-a5461dbbf8da/program.json",
+      "project_id": "merlin-browser-research",
+      "schema": "merlin-artifact-ref/1",
+      "sha256": "f8f312e4ff968028385a636dcc15b1eec93659a4973b0a7c900d36c4cd27c49c",
+      "version": 1
+    },
+    "promotion_authority": false,
+    "qualification": false,
+    "review_ref": {
+      "logical_path": "research/browser-intake-1afe2874-4014-43cf-b7dc-a5461dbbf8da/reviews/1f6f14d451cad56a92c144759c1f66434326fbe4736a050cf239e7b776613797.json",
+      "project_id": "merlin-browser-research",
+      "schema": "merlin-artifact-ref/1",
+      "sha256": "8edb4d2804a33736f8c94be4673ed26ca340d6ad0039c0c9a3cd03d08bf7c706",
+      "version": 1
+    },
+    "schema": "merlin-browser-research-handoff-result/1"
+  },
+  "review": {
+    "contextual_checks": [
+      {
+        "assessment": "possible",
+        "concern": "Correct byte identity does not validate scientific content.",
+        "context": "Saved public browser capture",
+        "kind": "source_quality",
+        "mitigation_or_test": "Create a separate falsifiable domain plan using these exact source refs.",
+        "rationale": "No scientific experiment or independent content validation ran.",
+        "source_ids": [
+          "retained-source-measurement"
+        ]
+      }
+    ],
+    "deductive_assessments": [
+      {
+        "claim_boundary": "Consistency with predictions is not proof of a general claim.",
+        "comparisons": [
+          {
+            "measured_interval": [
+              1.0,
+              1.0
+            ],
+            "metric": "retained_integrity_ratio",
+            "predicted_interval": [
+              1,
+              1
+            ],
+            "result": "supports",
+            "unit": "fraction"
+          },
+          {
+            "measured_interval": [
+              1.0,
+              1.0
+            ],
+            "metric": "has_usable_capture",
+            "predicted_interval": [
+              1,
+              1
+            ],
+            "result": "supports",
+            "unit": "boolean"
+          }
+        ],
+        "observation_id": "retained-source-integrity",
+        "overall": "consistent_with_prediction",
+        "reasoning_mode": "deductive_prediction_check",
+        "schema": "merlin-observation-assessment/1"
+      }
+    ],
+    "epistemic_status": "review_recorded_not_independent_verification",
+    "independence": "not_established_by_reviewer_name",
+    "inductive_plan_update": {
+      "authority_effect": "none",
+      "changes": [
+        {
+          "rationale": "Plan update is linked to explicit observations; conclusions remain provisional.",
+          "type": "evidence_informed_revision"
+        }
+      ],
+      "next_actions": [
+        "Review the exact retained sources as untrusted context.",
+        "Select a ready research track and persist a separate domain frame before any admitted experiment.",
+        "Preserve the missing Parallax specification and proposed broader Xenomaths/XMG engines as unresolved."
+      ],
+      "observation_ids": [
+        "retained-source-integrity"
+      ],
+      "observed_artifacts": [
+        "da5053c9ca0083fa8b1d62cff133841746570a5a7e25a1f224ec4b449d9ffe39"
+      ],
+      "parent_plan_id": "browser-intake-1afe2874-4014-43cf-b7dc-a5461dbbf8da",
+      "parent_plan_version": 1,
+      "reasoning_mode": "inductive_revision",
+      "requires_review": true,
+      "schema": "merlin-plan-update/1"
+    },
+    "limitations": [
+      "This is deterministic source-integrity/coverage review, not independent scientific verification.",
+      "No model was invoked or trained, no domain experiment ran, and no improved research capability is claimed.",
+      "HTTP/query URLs are preserved; bridge eligibility does not decide source-intake usability.",
+      "Native browser admission and module-source authentication belong to the fixed host coordinator."
+    ],
+    "negative_or_inconclusive_results_retained": true,
+    "observations": [
+      {
+        "artifact_sha256": "da5053c9ca0083fa8b1d62cff133841746570a5a7e25a1f224ec4b449d9ffe39",
+        "conditions": {
+          "acquisition_order": "original capture predates this intake plan",
+          "domain_execution": "not_run",
+          "scope": "retained canonical bytes only",
+          "semantic_quality": "not_assessed"
+        },
+        "measurements": {
+          "has_usable_capture": 1,
+          "retained_integrity_ratio": 1
+        },
+        "method": "Exact canonical ArtifactRef readback and complete declared-inventory/capture binding checks",
+        "observation_id": "retained-source-integrity",
+        "observed_at": "2026-11-21T19:54:04.762850+00:00",
+        "question": "Can the declared retained browser evidence support an auditable source-intake checkpoint?",
+        "source_refs": [
+          "retained-publication",
+          "research-program",
+          "retained-source-measurement"
+        ],
+        "uncertainty": {
+          "has_usable_capture": 0,
+          "retained_integrity_ratio": 0
+        },
+        "units": {
+          "has_usable_capture": "boolean",
+          "retained_integrity_ratio": "fraction"
+        }
+      }
+    ],
+    "plan_id": "browser-intake-1afe2874-4014-43cf-b7dc-a5461dbbf8da",
+    "plan_record_sha256": "4d214e0dc5daf3818c2c689e960ed752e9487a08296fc3c6ffeebb22f8e6432c",
+    "plan_version": 1,
+    "promotion_authority": false,
+    "qualification": false,
+    "record_sha256": "1f6f14d451cad56a92c144759c1f66434326fbe4736a050cf239e7b776613797",
+    "record_type": "research_review",
+    "reviewer_id": "fixed-source-intake-review",
+    "schema": "merlin-research-review/1"
+  },
+  "schema": "merlin-browser-handoff-wire-compatibility/1",
+  "scope": "actual frozen publisher and canonical research APIs with a synthetic fake-renderer fixture",
+  "source_bindings": [
+    {
+      "bytes": 33124,
+      "path": "/workspace/scratch/abed42219434/merlin-browser-build/tests/test_public_browser.py",
+      "sha256": "7ce6b4fcad09a99bb116ec704a5f00bc00e85660a14d5527a0affe6a89d6dfe2"
+    },
+    {
+      "bytes": 20341,
+      "path": "/workspace/scratch/abed42219434/merlin-browser-build/python/merlin/browser_ingest.py",
+      "sha256": "b4305956d5159482eb043e0bfdbca81bfd7cb353e6bc51f21437480f67f08d82"
+    },
+    {
+      "bytes": 49950,
+      "path": "/workspace/scratch/5023195e1251/merlin-release-build/python/dot_ai_os/research_protocol.py",
+      "sha256": "ff976d8c45f4f9683caaeefe46b0eecf40404c2f37d84945460c93a1a255cc98"
+    },
+    {
+      "bytes": 18845,
+      "path": "/workspace/scratch/5023195e1251/merlin-release-build/python/merlin/scientific_loop.py",
+      "sha256": "8271072d8174336fc9bd3e60ede294ce08a0ccbda5d9ff75fa584dc75220e574"
+    },
+    {
+      "bytes": 34674,
+      "path": "/workspace/scratch/abed42219434/browser-research-handoff/python/merlin/browser_research_handoff.py",
+      "sha256": "d2bcfd849c40412479861f855378d40acfeb7f627ab3277a468b672c7c94c960"
+    },
+    {
+      "bytes": 21307,
+      "path": "/workspace/scratch/abed42219434/browser-release-evidence/config/merlin/research-program.json",
+      "sha256": "f8f312e4ff968028385a636dcc15b1eec93659a4973b0a7c900d36c4cd27c49c"
+    }
+  ],
+  "status": "passed"
+}

@@ -1,0 +1,35 @@
+{
+  "actual_api_retrieved_at": "2026-11-21T19:31:46.223Z",
+  "browser_episodes": 0,
+  "candidate_plan_sha256_verified": true,
+  "caret_guard_diagnosis": {
+    "candidate_plan_remains_unvalidated": true,
+    "caret_inclusive_regex_accepts": true,
+    "exact_filename": "aribb24-1.0.3^20160216git5e9be27-1.el9.aarch64.rpm",
+    "old_filename_regex_rejects": true,
+    "source_prefix_matches": true
+  },
+  "future_corrected_run_acceptance": "pending",
+  "model_calls": 0,
+  "native_test_counts": {
+    "host": 23,
+    "product": 33
+  },
+  "primary_archive_sha256_verified": true,
+  "privileged_installation_started": false,
+  "promotion_authority": false,
+  "qualification": false,
+  "recorded_at": "2026-11-21T19:33:06.475675+00:00",
+  "repair_replay_evidence_class": "operations_agent_local_repair_review_not_native_acceptance",
+  "repository": "morganaspim/Cace-app",
+  "run_attempt": 1,
+  "run_id": 44934058026,
+  "schema": "merlin-browser-native-diagnostic-evidence-review/1",
+  "secondary_dependency_archive": {
+    "api_digest_retained": true,
+    "artifact_id": 14718504629,
+    "downloaded_by_this_assembly": false,
+    "local_archive_digest_verification_claimed": false
+  },
+  "workflow_commit": "ff0dfe9dcf3341c1b323c83dacdb3ca5b9342996"
+}
