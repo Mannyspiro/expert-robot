@@ -1,0 +1,194 @@
+test_repeated_sigterm_cannot_interrupt_cleanup (test_browser_service_lifecycle.BrowserLifecycleTests.test_repeated_sigterm_cannot_interrupt_cleanup) ... FAIL
+test_sigint_idle_removes_owned_socket (test_browser_service_lifecycle.BrowserLifecycleTests.test_sigint_idle_removes_owned_socket) ... FAIL
+test_sigterm_active_launcher_kills_and_reaps_child (test_browser_service_lifecycle.BrowserLifecycleTests.test_sigterm_active_launcher_kills_and_reaps_child) ... FAIL
+test_sigterm_during_partial_request_removes_owned_socket (test_browser_service_lifecycle.BrowserLifecycleTests.test_sigterm_during_partial_request_removes_owned_socket) ... FAIL
+test_sigterm_idle_removes_owned_socket (test_browser_service_lifecycle.BrowserLifecycleTests.test_sigterm_idle_removes_owned_socket) ... FAIL
+test_startup_preserves_existing_regular_file (test_browser_service_lifecycle.BrowserLifecycleTests.test_startup_preserves_existing_regular_file) ... ok
+test_startup_preserves_existing_socket (test_browser_service_lifecycle.BrowserLifecycleTests.test_startup_preserves_existing_socket) ... ERROR
+test_startup_rejects_symlink_socket_directory (test_browser_service_lifecycle.BrowserLifecycleTests.test_startup_rejects_symlink_socket_directory) ... ok
+test_stop_between_bind_and_identity_capture_is_deferred (test_browser_service_lifecycle.BrowserLifecycleTests.test_stop_between_bind_and_identity_capture_is_deferred) ... FAIL
+test_stop_preserves_replaced_regular_file (test_browser_service_lifecycle.BrowserLifecycleTests.test_stop_preserves_replaced_regular_file) ... FAIL
+test_stop_preserves_replaced_socket (test_browser_service_lifecycle.BrowserLifecycleTests.test_stop_preserves_replaced_socket) ... FAIL
+test_stop_preserves_replaced_symlink_and_target (test_browser_service_lifecycle.BrowserLifecycleTests.test_stop_preserves_replaced_symlink_and_target) ... FAIL
+test_unprivileged_admission_is_still_rejected (test_browser_service_lifecycle.BrowserLifecycleTests.test_unprivileged_admission_is_still_rejected) ... ok
+
+======================================================================
+ERROR: test_startup_preserves_existing_socket (test_browser_service_lifecycle.BrowserLifecycleTests.test_startup_preserves_existing_socket)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/tests/test_browser_service_lifecycle.py", line 153, in test_startup_preserves_existing_socket
+    with socket.socket(socket.AF_UNIX,socket.SOCK_STREAM) as retained:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+FAIL: test_repeated_sigterm_cannot_interrupt_cleanup (test_browser_service_lifecycle.BrowserLifecycleTests.test_repeated_sigterm_cannot_interrupt_cleanup)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/tests/test_browser_service_lifecycle.py", line 122, in test_repeated_sigterm_cannot_interrupt_cleanup
+    self.start(mode='slow-cleanup')
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/tests/test_browser_service_lifecycle.py", line 84, in start
+    self.fail('supervisor did not start: '+err.decode())
+AssertionError: supervisor did not start: Traceback (most recent call last):
+  File "<string>", line 25, in <module>
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/python/merlin/browser_service.py", line 316, in serve
+    server=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+
+======================================================================
+FAIL: test_sigint_idle_removes_owned_socket (test_browser_service_lifecycle.BrowserLifecycleTests.test_sigint_idle_removes_owned_socket)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/tests/test_browser_service_lifecycle.py", line 106, in test_sigint_idle_removes_owned_socket
+    self.start();self.stop(signal.SIGINT)
+    ^^^^^^^^^^^^
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/tests/test_browser_service_lifecycle.py", line 84, in start
+    self.fail('supervisor did not start: '+err.decode())
+AssertionError: supervisor did not start: Traceback (most recent call last):
+  File "<string>", line 25, in <module>
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/python/merlin/browser_service.py", line 316, in serve
+    server=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+
+======================================================================
+FAIL: test_sigterm_active_launcher_kills_and_reaps_child (test_browser_service_lifecycle.BrowserLifecycleTests.test_sigterm_active_launcher_kills_and_reaps_child)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/tests/test_browser_service_lifecycle.py", line 186, in test_sigterm_active_launcher_kills_and_reaps_child
+    self.start()
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/tests/test_browser_service_lifecycle.py", line 84, in start
+    self.fail('supervisor did not start: '+err.decode())
+AssertionError: supervisor did not start: Traceback (most recent call last):
+  File "<string>", line 25, in <module>
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/python/merlin/browser_service.py", line 316, in serve
+    server=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+
+======================================================================
+FAIL: test_sigterm_during_partial_request_removes_owned_socket (test_browser_service_lifecycle.BrowserLifecycleTests.test_sigterm_during_partial_request_removes_owned_socket)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/tests/test_browser_service_lifecycle.py", line 110, in test_sigterm_during_partial_request_removes_owned_socket
+    self.start()
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/tests/test_browser_service_lifecycle.py", line 84, in start
+    self.fail('supervisor did not start: '+err.decode())
+AssertionError: supervisor did not start: Traceback (most recent call last):
+  File "<string>", line 25, in <module>
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/python/merlin/browser_service.py", line 316, in serve
+    server=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+
+======================================================================
+FAIL: test_sigterm_idle_removes_owned_socket (test_browser_service_lifecycle.BrowserLifecycleTests.test_sigterm_idle_removes_owned_socket)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/tests/test_browser_service_lifecycle.py", line 102, in test_sigterm_idle_removes_owned_socket
+    self.start();self.stop()
+    ^^^^^^^^^^^^
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/tests/test_browser_service_lifecycle.py", line 84, in start
+    self.fail('supervisor did not start: '+err.decode())
+AssertionError: supervisor did not start: Traceback (most recent call last):
+  File "<string>", line 25, in <module>
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/python/merlin/browser_service.py", line 316, in serve
+    server=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+
+======================================================================
+FAIL: test_stop_between_bind_and_identity_capture_is_deferred (test_browser_service_lifecycle.BrowserLifecycleTests.test_stop_between_bind_and_identity_capture_is_deferred)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/tests/test_browser_service_lifecycle.py", line 118, in test_stop_between_bind_and_identity_capture_is_deferred
+    self.assertEqual(self.process.wait(timeout=3),0,self.process.stderr.read().decode())
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "<string>", line 25, in <module>
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/python/merlin/browser_service.py", line 316, in serve
+    server=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+
+======================================================================
+FAIL: test_stop_preserves_replaced_regular_file (test_browser_service_lifecycle.BrowserLifecycleTests.test_stop_preserves_replaced_regular_file)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/tests/test_browser_service_lifecycle.py", line 141, in test_stop_preserves_replaced_regular_file
+    self.start();self.path.unlink();self.path.write_bytes(b'foreign')
+    ^^^^^^^^^^^^
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/tests/test_browser_service_lifecycle.py", line 84, in start
+    self.fail('supervisor did not start: '+err.decode())
+AssertionError: supervisor did not start: Traceback (most recent call last):
+  File "<string>", line 25, in <module>
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/python/merlin/browser_service.py", line 316, in serve
+    server=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+
+======================================================================
+FAIL: test_stop_preserves_replaced_socket (test_browser_service_lifecycle.BrowserLifecycleTests.test_stop_preserves_replaced_socket)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/tests/test_browser_service_lifecycle.py", line 130, in test_stop_preserves_replaced_socket
+    self.start();self.path.unlink()
+    ^^^^^^^^^^^^
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/tests/test_browser_service_lifecycle.py", line 84, in start
+    self.fail('supervisor did not start: '+err.decode())
+AssertionError: supervisor did not start: Traceback (most recent call last):
+  File "<string>", line 25, in <module>
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/python/merlin/browser_service.py", line 316, in serve
+    server=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+
+======================================================================
+FAIL: test_stop_preserves_replaced_symlink_and_target (test_browser_service_lifecycle.BrowserLifecycleTests.test_stop_preserves_replaced_symlink_and_target)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/tests/test_browser_service_lifecycle.py", line 146, in test_stop_preserves_replaced_symlink_and_target
+    self.start();self.path.unlink()
+    ^^^^^^^^^^^^
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/tests/test_browser_service_lifecycle.py", line 84, in start
+    self.fail('supervisor did not start: '+err.decode())
+AssertionError: supervisor did not start: Traceback (most recent call last):
+  File "<string>", line 25, in <module>
+  File "/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/python/merlin/browser_service.py", line 316, in serve
+    server=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/socket.py", line 233, in __init__
+    _socket.socket.__init__(self, family, type, proto, fileno)
+PermissionError: [Errno 1] Operation not permitted
+
+
+----------------------------------------------------------------------
+Ran 13 tests in 1.240s
+
+FAILED (failures=9, errors=1)

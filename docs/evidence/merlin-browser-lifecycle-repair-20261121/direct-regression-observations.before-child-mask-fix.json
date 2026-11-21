@@ -1,0 +1,57 @@
+{
+  "schema": "merlin-browser-lifecycle-regression/1",
+  "observations": [
+    {
+      "implementation": "baseline",
+      "scenario": "sigterm_idle",
+      "source_sha256": "149b8cad37299b4f6b38ec079797242629fb290061e6997b75e73b64d43cf2af",
+      "return_code": -15,
+      "elapsed_seconds": 0.000978,
+      "transport": "explicit file-backed listener fixture; real signals/processes; no native AF_UNIX",
+      "original_inode": 15541,
+      "before_stop_inode": 15541,
+      "path_exists_after": true,
+      "remaining_bytes": "",
+      "stderr": ""
+    },
+    {
+      "implementation": "baseline",
+      "scenario": "sigint_replaced_path",
+      "source_sha256": "149b8cad37299b4f6b38ec079797242629fb290061e6997b75e73b64d43cf2af",
+      "return_code": -2,
+      "elapsed_seconds": 0.013472,
+      "transport": "explicit file-backed listener fixture; real signals/processes; no native AF_UNIX",
+      "original_inode": 15545,
+      "before_stop_inode": 15547,
+      "path_exists_after": false,
+      "remaining_bytes": null,
+      "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 33, in <module>\n  File \"/workspace/scratch/07cb10f977d8/browser-lifecycle-repair/baseline/python/merlin/browser_service.py\", line 258, in serve\n    channel,_=server.accept()\n              ^^^^^^^^^^^^^^^\n  File \"<string>\", line 22, in accept\nKeyboardInterrupt\n"
+    },
+    {
+      "implementation": "candidate",
+      "scenario": "sigterm_idle",
+      "source_sha256": "2c6d05aa19a0e2e488a22f2fdd48130104a8579fc4f293dca0125394f22eec5f",
+      "return_code": 0,
+      "elapsed_seconds": 0.011416,
+      "transport": "explicit file-backed listener fixture; real signals/processes; no native AF_UNIX",
+      "original_inode": 15550,
+      "before_stop_inode": 15550,
+      "path_exists_after": false,
+      "remaining_bytes": null,
+      "stderr": ""
+    },
+    {
+      "implementation": "candidate",
+      "scenario": "sigint_replaced_path",
+      "source_sha256": "2c6d05aa19a0e2e488a22f2fdd48130104a8579fc4f293dca0125394f22eec5f",
+      "return_code": 0,
+      "elapsed_seconds": 0.011765,
+      "transport": "explicit file-backed listener fixture; real signals/processes; no native AF_UNIX",
+      "original_inode": 15554,
+      "before_stop_inode": 15556,
+      "path_exists_after": true,
+      "remaining_bytes": "foreign",
+      "stderr": ""
+    }
+  ]
+}

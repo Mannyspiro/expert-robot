@@ -1,0 +1,24 @@
+{
+  "question": "Can normal SIGTERM stop and ownership-bound socket cleanup prevent retained supervisor sockets without deleting retained or replaced paths?",
+  "source": "/workspace/scratch/abed42219434/browser-ledger-successor/python/merlin/browser_service.py",
+  "source_sha256": "149b8cad37299b4f6b38ec079797242629fb290061e6997b75e73b64d43cf2af",
+  "native_evidence_run": 44960251285,
+  "baseline": "No SIGTERM handler; finally unlinks any socket path and startup auto-unlinks root-owned socket.",
+  "acceptance": [
+    "Original real-subprocess SIGTERM regression leaves socket; corrected subprocess exits and removes only its bound inode.",
+    "Preserve existing startup and replaced sockets, regular files and symlinks.",
+    "Terminate launched process group during unwind and reap the direct child within service stop budget.",
+    "Existing browser tests continue to pass."
+  ],
+  "limits": [
+    "UID1000 local tests double root identity/chown only; no OCI service qualification.",
+    "SIGKILL cannot run Python cleanup; strict reconciliation remains required.",
+    "Path identity check plus unlink is not an atomic conditional-unlink primitive against a privileged concurrent namespace writer."
+  ],
+  "mathematical_lenses": {
+    "simplex": "not_applicable: Boolean identity/termination invariants",
+    "n_ality": "applied: separate signal, pathname/inode, child-process and service state; tests translate each axis back to OS observations",
+    "continuum": "not_applicable: discrete lifecycle; measured deadline seconds instead",
+    "fuzzy": "not_applicable: Boolean ownership and completion gates"
+  }
+}

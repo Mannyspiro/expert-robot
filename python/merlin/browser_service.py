@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+from contextlib import contextmanager
 import os
 from pathlib import Path
 import re
@@ -32,6 +33,74 @@ MAX_RESPONSE=1048576
 EPISODES_ROOT='/var/lib/merlin-public-browser/episodes'
 LAUNCHER='/opt/merlin-public-browser/current/bin/launch-episode'
 SOCKET_PATH='/run/merlin-public-browser/browser.sock'
+
+
+class _SupervisorStop(BaseException):
+    """Control flow for an orderly stop, never a denied browser request."""
+
+
+class _ShutdownHandler:
+    def __init__(self):
+        self.armed=True;self.requested=False;self.deferred=0;self.pending=False
+
+    def __call__(self,signum,frame):
+        # Repeated stop signals cannot interrupt cleanup. A child spawn only
+        # defers delivery in this parent; its exec inherits no blocked mask.
+        if not self.armed or self.requested:
+            return
+        if self.deferred:
+            self.pending=True
+            return
+        self.requested=True
+        raise _SupervisorStop()
+
+
+@contextmanager
+def _defer_stop_delivery():
+    handlers={handler for signum in (signal.SIGTERM,signal.SIGINT)
+              if isinstance((handler:=signal.getsignal(signum)),_ShutdownHandler)}
+    for handler in handlers:
+        handler.deferred+=1
+    try:
+        yield
+    finally:
+        for handler in handlers:
+            handler.deferred-=1
+        for handler in handlers:
+            if not handler.deferred and handler.pending:
+                handler.pending=False
+                handler(None,None)
+
+
+@contextmanager
+def _defer_stop_signals():
+    # A stop must not arrive between creating a resource and recording its
+    # identity. This service is Linux-only (AF_UNIX/SO_PEERCRED).
+    previous=signal.pthread_sigmask(signal.SIG_BLOCK,{signal.SIGTERM,signal.SIGINT})
+    try:
+        yield
+    finally:
+        signal.pthread_sigmask(signal.SIG_SETMASK,previous)
+
+
+def _unlink_owned_socket(path, identity):
+    """Remove only the socket inode bound by this invocation.
+
+    The root-owned non-writable service directory is the namespace trust
+    boundary. lstat plus unlink is not an atomic compare-and-unlink primitive
+    against another privileged writer; no stale path is reclaimed on startup.
+    """
+    if identity is None:
+        return False
+    try:
+        info=path.lstat()
+    except FileNotFoundError:
+        return False
+    if (not stat.S_ISSOCK(info.st_mode)
+            or (info.st_dev,info.st_ino,info.st_uid)!=identity):
+        return False
+    path.unlink()
+    return True
 
 
 def episode_id(value):
@@ -94,10 +163,12 @@ def exclusive_write(path, raw):
 
 def invoke_launcher(path, episode, timeout):
     started=time.monotonic();output=bytearray();failure=None
-    process=subprocess.Popen([path,'--episode',episode],stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,start_new_session=True,
-        env={'PATH':'/usr/sbin:/usr/bin:/sbin:/bin','LANG':'C.UTF-8','LC_ALL':'C.UTF-8'})
+    process=None
     try:
+        with _defer_stop_delivery():
+            process=subprocess.Popen([path,'--episode',episode],stdin=subprocess.DEVNULL,stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,start_new_session=True,
+                env={'PATH':'/usr/sbin:/usr/bin:/sbin:/bin','LANG':'C.UTF-8','LC_ALL':'C.UTF-8'})
         while True:
             remaining=timeout-(time.monotonic()-started)
             if remaining<=0: raise BrowserPolicyError('launcher absolute deadline reached')
@@ -110,13 +181,22 @@ def invoke_launcher(path, episode, timeout):
                 elif process.poll() is not None: break
             elif process.poll() is not None: break
         return_code=process.wait(timeout=max(0.1,timeout-(time.monotonic()-started)))
-    except Exception as error:
+    except BaseException as error:
         failure=type(error).__name__
-        try: os.killpg(process.pid,signal.SIGKILL)
-        except ProcessLookupError: pass
-        process.wait(timeout=5);return_code=process.returncode
+        if process is None:
+            raise
+        try:
+            try: os.killpg(process.pid,signal.SIGKILL)
+            except ProcessLookupError: pass
+            process.wait(timeout=2);return_code=process.returncode
+        finally:
+            # A failed reap must not turn a stop into an ordinary denied
+            # request and resume the accept loop with stopping already set.
+            if not isinstance(error,Exception):
+                raise error
     finally:
-        process.stdout.close()
+        if process is not None:
+            process.stdout.close()
     raw=bytes(output[:262144])
     return {'schema':'merlin-browser-launch-observation/1','episode_id':episode,'return_code':return_code,
             'elapsed_seconds':round(time.monotonic()-started,6),'output_sha256':digest(raw),
@@ -245,34 +325,59 @@ class BrowserService:
 
 def serve(config):
     require(os.geteuid()==0,'fixed supervisor requires root; Chromium remains a separate nonroot worker')
-    service=BrowserService(config);path=Path(config['socket_path'])
-    path.parent.mkdir(mode=0o755,parents=True,exist_ok=True)
-    if path.exists() or path.is_symlink():
-        info=path.lstat();require(stat.S_ISSOCK(info.st_mode) and info.st_uid==0,'unexpected service socket path')
-        # systemd owns single-instance/restart serialization; never follow links.
-        path.unlink()
-    with socket.socket(socket.AF_UNIX,socket.SOCK_STREAM) as server:
-        server.bind(str(path));os.chown(path,0,config['socket_gid']);os.chmod(path,0o660);server.listen(4)
+    path=Path(config['socket_path']);owned=None;server=None
+    stop=_ShutdownHandler()
+    previous={}
+
+    try:
+        for signum in (signal.SIGTERM,signal.SIGINT):
+            previous[signum]=signal.signal(signum,stop)
         try:
-            while True:
-                channel,_=server.accept()
-                with channel:
-                    channel.settimeout(5)
-                    try:
-                        _,uid,_=struct.unpack('3i',channel.getsockopt(socket.SOL_SOCKET,socket.SO_PEERCRED,12))
-                        require(uid in config['allowed_uids'],'peer_not_authorized')
-                        value=unique_json(recv_frame(channel,MAX_REQUEST));result=service.handle(value,uid)
-                    except Exception as error:
-                        result={'schema':'merlin-browser-service-result/1','status':'denied','error_type':type(error).__name__,
-                                'model_calls':0,'qualification':False}
-                        if isinstance(error,BrowserPolicyError): result['reason']=str(error)[:200]
-                    raw=canonical(result)
-                    if len(raw)>MAX_RESPONSE:
-                        raw=canonical({'schema':'merlin-browser-service-result/1','status':'denied','error_type':'ResponseBudgetExceeded','model_calls':0})
-                    try: send_frame(channel,raw)
-                    except OSError: pass
+            try:
+                service=BrowserService(config)
+                path.parent.mkdir(mode=0o755,parents=True,exist_ok=True)
+                parent=path.parent.lstat()
+                require(stat.S_ISDIR(parent.st_mode) and parent.st_uid==os.geteuid()
+                        and not parent.st_mode&0o022,'trusted service socket directory required')
+                # A retained path requires explicit reconciliation; even a
+                # root-owned socket may still belong to a live supervisor.
+                require(not path.exists() and not path.is_symlink(),
+                        'existing service socket path requires explicit reconciliation')
+                server=socket.socket(socket.AF_UNIX,socket.SOCK_STREAM)
+                with _defer_stop_signals():
+                    server.bind(str(path))
+                    info=path.lstat()
+                    owned=(info.st_dev,info.st_ino,info.st_uid)
+                os.chown(path,0,config['socket_gid']);os.chmod(path,0o660)
+                server.listen(4)
+                while True:
+                    channel,_=server.accept()
+                    with channel:
+                        channel.settimeout(5)
+                        try:
+                            _,uid,_=struct.unpack('3i',channel.getsockopt(socket.SOL_SOCKET,socket.SO_PEERCRED,12))
+                            require(uid in config['allowed_uids'],'peer_not_authorized')
+                            value=unique_json(recv_frame(channel,MAX_REQUEST));result=service.handle(value,uid)
+                        except Exception as error:
+                            result={'schema':'merlin-browser-service-result/1','status':'denied','error_type':type(error).__name__,
+                                    'model_calls':0,'qualification':False}
+                            if isinstance(error,BrowserPolicyError): result['reason']=str(error)[:200]
+                        raw=canonical(result)
+                        if len(raw)>MAX_RESPONSE:
+                            raw=canonical({'schema':'merlin-browser-service-result/1','status':'denied','error_type':'ResponseBudgetExceeded','model_calls':0})
+                        try: send_frame(channel,raw)
+                        except OSError: pass
+            finally:
+                stop.armed=False
+        except _SupervisorStop:
+            stop.armed=False
         finally:
-            if path.exists() and stat.S_ISSOCK(path.lstat().st_mode): path.unlink()
+            if server is not None:
+                server.close()
+            _unlink_owned_socket(path,owned)
+    finally:
+        for signum,handler in previous.items():
+            signal.signal(signum,handler)
 
 
 def main():
